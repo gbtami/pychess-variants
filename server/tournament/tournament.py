@@ -717,9 +717,15 @@ class Tournament(ABC):
 
             response = {
                 "type": "new_game",
-                "gameId": game_id,
+                "gameId": game.id,
                 "wplayer": wp.username,
                 "bplayer": bp.username,
+                "variant": game.variant,
+                "fen": game.fen,
+                "rated": game.rated,
+                "base": game.base,
+                "inc": game.inc,
+                "byo": game.byoyomi_period,
             }
 
             ws_ok = False

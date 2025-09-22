@@ -46,6 +46,7 @@ from lang import select_lang
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from tournament.wst import tournament_socket_handler
+from ws_simul import simul_socket_handler
 from tournament.tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
@@ -85,6 +86,7 @@ from views import (
     videos,
     video,
     winners,
+    simul as simul_view,
 )
 
 
@@ -132,6 +134,9 @@ get_routes = (
     (r"/tournament/{tournamentId:\w{8}}", tournament.tournament),
     (r"/tournament/{tournamentId:\w{8}}/pause", tournament.tournament),
     (r"/tournament/{tournamentId:\w{8}}/cancel", tournament.tournament),
+    ("/simuls", simul_view.simuls),
+    ("/simul/new", simul_view.simul_new),
+    (r"/simul/{simulId:\w{8}}", simul_view.simul),
     ("/@/{profileId}", profile.profile),
     ("/@/{profileId}/tv", tv.tv),
     ("/@/{profileId}/challenge", lobby.lobby),
@@ -156,6 +161,7 @@ get_routes = (
     ("/wsl", lobby_socket_handler),
     ("/wsr/{gameId}", round_socket_handler),
     ("/wst", tournament_socket_handler),
+    ("/wss", simul_socket_handler),
     ("/api/account", account),
     ("/api/account/playing", playing),
     ("/api/stream/event", event_stream),
@@ -214,6 +220,8 @@ post_routes = (
     ("/import_bpgn", import_game_bpgn),
     ("/tournaments/arena", tournaments.tournaments),
     (r"/tournament/{tournamentId:\w{8}}/edit", arena_new.arena_new),  # TODO: implement
+    ("/simul/new", simul_view.simul_new),
+    (r"/simul/{simulId:\w{8}}/start", simul_view.start_simul),
     ("/twitch", twitch_request_handler),
     (r"/puzzle/complete/{puzzleId:\w{5}}", puzzle_complete),
     (r"/puzzle/vote/{puzzleId:\w{5}}", puzzle_vote),

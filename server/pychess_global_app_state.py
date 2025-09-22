@@ -59,6 +59,7 @@ from settings import (
     static_url,
 )
 from tournament.tournament import Tournament
+from simul.simul import Simul
 from tournament.tournaments import (
     translated_tournament_name,
     get_scheduled_tournaments,
@@ -101,6 +102,7 @@ class PychessGlobalAppState:
         self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
 
         self.tournaments: dict[str, Tournament] = {}
+        self.simuls: dict[str, Simul] = {}
 
         self.tourney_calendar = None
 

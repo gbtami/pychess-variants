@@ -78,6 +78,7 @@ class User:
         self.ready_for_auto_pairing = False
         self.lobby_sockets: Set[WebSocketResponse] = set()
         self.tournament_sockets: dict[str, WebSocketResponse] = {}  # {tournamentId: set()}
+        self.simul_sockets: dict[str, WebSocketResponse] = {}  # {simulId: set()}
 
         self.notify_channels: Set[Queue] = set()
 
@@ -173,6 +174,7 @@ class User:
             len(self.game_sockets) > 0
             or len(self.lobby_sockets) > 0
             or len(self.tournament_sockets) > 0
+            or len(self.simul_sockets) > 0
         )
 
     def get_rating_value(self, variant: str, chess960: bool) -> int:
