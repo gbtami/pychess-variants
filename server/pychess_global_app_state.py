@@ -16,8 +16,8 @@ import aiohttp_jinja2
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 
-from ai import BOT_task
-from const import (
+from .ai import BOT_task
+from .const import (
     NONE_USER,
     LANGUAGES,
     MAX_CHAT_LINES,
@@ -30,14 +30,14 @@ from const import (
     SCHEDULE_MAX_DAYS,
     ABORTED,
 )
-from broadcast import round_broadcast
-from discord_bot import DiscordBot, FakeDiscordBot
-from game import Game
-from generate_crosstable import generate_crosstable
-from generate_highscore import generate_highscore
-from generate_shield import generate_shield
-from lobby import Lobby
-from tournament.scheduler import (
+from .broadcast import round_broadcast
+from .discord_bot import DiscordBot, FakeDiscordBot
+from .game import Game
+from .generate_crosstable import generate_crosstable
+from .generate_highscore import generate_highscore
+from .generate_shield import generate_shield
+from .lobby import Lobby
+from .tournament.scheduler import (
     MONTHLY_VARIANTS,
     SEATURDAY,
     NEW_MONTHLY_VARIANTS,
@@ -47,8 +47,8 @@ from tournament.scheduler import (
     new_scheduled_tournaments,
     create_scheduled_tournaments,
 )
-from seek import Seek
-from settings import (
+from .seek import Seek
+from .settings import (
     FISHNET_KEYS,
     DISCORD_TOKEN,
     URI,
@@ -58,24 +58,24 @@ from settings import (
     DEV,
     static_url,
 )
-from tournament.tournament import Tournament
-from simul.simul import Simul
-from tournament.tournaments import (
+from .tournament.tournament import Tournament
+from .simul.simul import Simul
+from .tournament.tournaments import (
     translated_tournament_name,
     get_scheduled_tournaments,
     load_tournament,
 )
-from typedefs import anon_as_test_users_key, client_key
-from twitch import Twitch
-from user import User
-from users import Users, NotInDbUsers
-from utils import load_game
-from blogs import BLOGS
-from videos import VIDEOS
-from youtube import Youtube
-from lang import LOCALE
-from logger import log
-from variants import VARIANTS, RATED_VARIANTS
+from .typedefs import anon_as_test_users_key, client_key
+from .twitch import Twitch
+from .user import User
+from .users import Users, NotInDbUsers
+from .utils import load_game
+from .blogs import BLOGS
+from .videos import VIDEOS
+from .youtube import Youtube
+from .lang import LOCALE
+from .logger import log
+from .variants import VARIANTS, RATED_VARIANTS
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 

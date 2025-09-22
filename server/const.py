@@ -86,7 +86,6 @@ class TPairing(IntEnum):
     ARENA = 0
     RR = 1
     SWISS = 2
-    SIMUL = 3
 
 
 # translations
@@ -274,7 +273,6 @@ TRANSLATED_PAIRING_SYSTEM_NAMES = {
     0: _("Arena"),
     1: _("Round-Robin"),
     2: _("Swiss"),
-    3: _("Simul"),
 }
 
 TRANSLATED_FREQUENCY_NAMES = {

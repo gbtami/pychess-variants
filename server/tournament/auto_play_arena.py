@@ -160,5 +160,9 @@ class SwissTestTournament(TestTournament, SwissTournament):
 class SimulTestTournament(TestTournament, Simul):
     system = Simul.system
 
+    def __init__(self, *args, **kwargs):
+        print("SimulTestTournament created")
+        super().__init__(*args, **kwargs)
+
     def create_pairing(self, waiting_players):
         return Simul.create_pairing(self, waiting_players)
