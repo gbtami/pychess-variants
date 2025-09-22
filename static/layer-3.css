@@ -80,13 +80,15 @@ font-size: 1.3rem;
     font-size: 0.9em !important;
     padding-top: 5px; 
     padding-bottom: 5px;
-    background: whitesmoke; border: 1px dashed var(--font-color); 
+    background: var(--bg-color2); 
+    border: 1px dashed var(--font-color); 
     border-radius: 5px;
 }
 
 
 .layer-3-container .l3links-cont .l3links:hover {
     cursor: pointer; 
+    background: var(--bg-color1);
 }
 
 .layer-3-container h5 {
