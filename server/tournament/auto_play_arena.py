@@ -103,6 +103,7 @@ class TestTournament(Tournament):
     # @timeit
     async def play_random(self, game):
         """Play random moves for TEST players"""
+        await asyncio.sleep(0.1)
         if game.status == BYEGAME:  # ByeGame
             return
 
