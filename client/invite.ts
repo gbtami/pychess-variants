@@ -7,7 +7,7 @@ import { gameType } from './result';
 import { copyTextToClipboard } from './clipboard';
 import { timeControlStr } from './view';
 import { PyChessModel } from './types';
-import { sanitizeURL } from './main';
+import { sanitizeURL } from './url';
 
 export function inviteView(model: PyChessModel): VNode[] {
     const gameId = model["gameId"];

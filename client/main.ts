@@ -31,16 +31,6 @@ import { devVariants, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
 import { showUsernameDialog } from './usernameDialog';
 
-// Utility function to validate and sanitize URLs
-export function sanitizeURL(url: string | null): string {
-    try {
-        const parsedURL = new URL(url ?? "", window.location.origin);
-        return parsedURL.href;
-    } catch {
-        console.warn("Invalid URL detected, using default safe value.");
-        return window.location.origin; // Default safe value
-    }
-}
 
 // redirect to correct URL except Heroku preview/dev apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-') && !window.location.href.includes('-dev-')) {
