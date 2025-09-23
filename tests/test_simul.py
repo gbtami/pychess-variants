@@ -24,15 +24,19 @@ class SimulTestCase(AioHTTPTestCase):
         host_username = "TestUser_1"
         sid = id8()
 
-        simul = Simul(app_state, sid, name="Test Simul", created_by=host_username)
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+
+        simul = await Simul.create(app_state, sid, name="Test Simul", created_by=host_username)
         app_state.simuls[sid] = simul
 
-        host = User(app_state, username=host_username)
-        simul.join(host)
+        self.assertEqual(len(simul.players), 1) # Host is automatically a player
 
         for i in range(2, NB_PLAYERS + 1):
             player = User(app_state, username=f"TestUser_{i}")
+            app_state.users[player.username] = player
             simul.join(player)
+            simul.approve(player.username)
 
         self.assertEqual(len(simul.players), NB_PLAYERS)
 

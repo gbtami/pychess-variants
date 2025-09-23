@@ -136,8 +136,6 @@ get_routes = (
     (r"/tournament/{tournamentId:\w{8}}/cancel", tournament.tournament),
     ("/simuls", simul_view.simuls),
     ("/simul/new", simul_view.simul_new),
-    (r"/simul/{simulId:\w{8}}", simul_view.simul),
-    (r"/simul/{simulId:\w{8}}/join", simul_view.join_simul),
     ("/@/{profileId}", profile.profile),
     ("/@/{profileId}/tv", tv.tv),
     ("/@/{profileId}/challenge", lobby.lobby),

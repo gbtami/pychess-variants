@@ -31,6 +31,7 @@ interface MsgSimulUserConnected {
     type: string;
     simulId: string;
     players: SimulPlayer[];
+    pendingPlayers: SimulPlayer[];
     createdBy: string;
     // ... other fields
 }
@@ -39,6 +40,7 @@ export class SimulController implements ChatController {
     sock;
     simulId: string;
     players: SimulPlayer[] = [];
+    pendingPlayers: SimulPlayer[] = [];
     createdBy: string;
     model: PyChessModel;
     games: SimulGame[] = [];
@@ -49,12 +51,15 @@ export class SimulController implements ChatController {
         console.log("SimulController constructor", el, model);
         this.simulId = model["simulId"];
         this.model = model;
+        this.players = model["players"];
+        this.pendingPlayers = model["pendingPlayers"];
+        this.createdBy = model["createdBy"];
 
         const onOpen = () => {
             this.doSend({ type: "simul_user_connected", username: model["username"], simulId: this.simulId });
         }
 
-        this.sock = newWebsocket('wss'); // Use the new websocket endpoint for simuls
+        this.sock = newWebsocket('wss');
         this.sock.onopen = () => onOpen();
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
@@ -76,11 +81,32 @@ export class SimulController implements ChatController {
             case "new_game":
                 this.onMsgNewGame(msg);
                 break;
+            case "player_approved":
+                this.onMsgPlayerApproved(msg);
+                break;
+            case "player_denied":
+                this.onMsgPlayerDenied(msg);
+                break;
         }
+    }
+
+    onMsgPlayerApproved(msg: { username: string }) {
+        const player = this.pendingPlayers.find(p => p.name === msg.username);
+        if (player) {
+            this.pendingPlayers = this.pendingPlayers.filter(p => p.name !== msg.username);
+            this.players.push(player);
+            this.redraw();
+        }
+    }
+
+    onMsgPlayerDenied(msg: { username: string }) {
+        this.pendingPlayers = this.pendingPlayers.filter(p => p.name !== msg.username);
+        this.redraw();
     }
 
     onMsgSimulUserConnected(msg: MsgSimulUserConnected) {
         this.players = msg.players;
+        this.pendingPlayers = msg.pendingPlayers;
         this.createdBy = msg.createdBy;
         this.redraw();
     }
@@ -102,23 +128,50 @@ export class SimulController implements ChatController {
         patch(document.getElementById('simul-view') as HTMLElement, this.render());
     }
 
+    approve(username: string) {
+        this.doSend({ type: "approve_player", simulId: this.simulId, username: username });
+    }
+
+    deny(username: string) {
+        this.doSend({ type: "deny_player", simulId: this.simulId, username: username });
+    }
+
     startSimul() {
         this.doSend({ type: "start_simul", simulId: this.simulId });
     }
 
+    joinSimul() {
+        this.doSend({ type: "join", simulId: this.simulId });
+    }
+
     render() {
-        const startButton = (this.model.username === this.createdBy)
+        const isHost = this.model.username === this.createdBy;
+
+        const startButton = isHost
             ? h('button', { on: { click: () => this.startSimul() } }, 'Start Simul')
             : h('div');
 
-        const activeGame = this.games.find(g => g.gameId === this.activeGameId);
-
         return h('div#simul-view', [
             h('h1', 'Simul Lobby'),
-            h('h2', 'Participants'),
-            h('div.players', this.players.map(p => h('div.player', `${p.title} ${p.name} (${p.rating})`))),
+            h('div.players-grid', [
+                h('div.pending-players', [
+                    h('h2', 'Pending Players'),
+                    h('ul', this.pendingPlayers.map(p => h('li', [
+                        `${p.title} ${p.name} (${p.rating})`,
+                        isHost ? h('button', { on: { click: () => this.approve(p.name) } }, '✓') : null,
+                        isHost ? h('button', { on: { click: () => this.deny(p.name) } }, 'X') : null,
+                    ]))),
+                ]),
+                h('div.approved-players', [
+                    h('h2', 'Approved Players'),
+                    h('ul', this.players.map(p => h('li', [
+                        `${p.title} ${p.name} (${p.rating})`,
+                        isHost ? h('button', { on: { click: () => this.deny(p.name) } }, 'X') : null,
+                    ]))),
+                ]),
+            ]),
             startButton,
-            h('div.active-game', activeGame ? `Active game FEN: ${activeGame.fen}` : 'No active game'),
+            h('button', { on: { click: () => this.joinSimul() } }, 'Join Simul'),
             this.renderMiniBoards(),
             h('div#lobbychat')
         ]);

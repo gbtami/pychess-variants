@@ -38,6 +38,12 @@ async def process_message(app_state: PychessGlobalAppState, user: User, ws, data
         await handle_simul_user_connected(app_state, ws, user, data)
     elif data["type"] == "start_simul":
         await handle_start_simul(app_state, user, data)
+    elif data["type"] == "join":
+        await handle_join(app_state, user, data)
+    elif data["type"] == "approve_player":
+        await handle_approve_player(app_state, user, data)
+    elif data["type"] == "deny_player":
+        await handle_deny_player(app_state, user, data)
 
 async def handle_simul_user_connected(app_state: PychessGlobalAppState, ws, user: User, data):
     simulId = data["simulId"]
@@ -55,6 +61,7 @@ async def handle_simul_user_connected(app_state: PychessGlobalAppState, ws, user
     response = {
         "type": "simul_user_connected",
         "players": [p.as_json(user.username) for p in simul.players.values()],
+        "pendingPlayers": [p.as_json(user.username) for p in simul.pending_players.values()],
         "createdBy": simul.created_by,
     }
     await ws_send_json(ws, response)
@@ -69,3 +76,38 @@ async def handle_start_simul(app_state: PychessGlobalAppState, user: User, data)
         return
 
     await simul.start()
+
+async def handle_join(app_state: PychessGlobalAppState, user: User, data):
+    simulId = data["simulId"]
+    simul = app_state.simuls.get(simulId)
+    if simul is None:
+        return
+
+    simul.join(user)
+    await simul.broadcast({"type": "player_joined", "username": user.username})
+
+async def handle_approve_player(app_state: PychessGlobalAppState, user: User, data):
+    simulId = data["simulId"]
+    simul = app_state.simuls.get(simulId)
+    if simul is None:
+        return
+
+    if user.username != simul.created_by:
+        return
+
+    username = data.get("username")
+    simul.approve(username)
+    await simul.broadcast({"type": "player_approved", "username": username})
+
+async def handle_deny_player(app_state: PychessGlobalAppState, user: User, data):
+    simulId = data["simulId"]
+    simul = app_state.simuls.get(simulId)
+    if simul is None:
+        return
+
+    if user.username != simul.created_by:
+        return
+
+    username = data.get("username")
+    simul.deny(username)
+    await simul.broadcast({"type": "player_denied", "username": username})
