@@ -1,100 +1,134 @@
+from __future__ import annotations
 import random
+import asyncio
 from datetime import datetime, timezone
+from typing import Set, List, Dict, TYPE_CHECKING
 
-from const import T_ABORTED, T_CREATED, T_FINISHED, T_STARTED, T_ARCHIVED, TPairing
-from tournament.tournament import Tournament
+from const import T_CREATED, T_STARTED, T_FINISHED, T_ABORTED
+from game import Game
+from newid import new_id
+from utils import insert_game_to_db
 
+if TYPE_CHECKING:
+    from user import User
 
-class Simul(Tournament):
+class Simul:
     """
-    Simul class
+    Standalone Simul class
     """
 
-    system = TPairing.SIMUL
+    def __init__(
+        self,
+        app_state,
+        simul_id,
+        name,
+        created_by,
+        variant="chess",
+        chess960=False,
+        rated=True,
+        base=1,
+        inc=0,
+        host_color="random",
+    ):
+        self.app_state = app_state
+        self.id = simul_id
+        self.name = name
+        self.created_by = created_by
+        self.variant = variant
+        self.chess960 = chess960
+        self.rated = rated
+        self.base = base
+        self.inc = inc
+        self.host_color = host_color
 
-    def __init__(self, *args, **kwargs):
-        print("Simul created")
-        super().__init__(*args, **kwargs)
-        self.rounds = 1
-        self.host_color = kwargs.get("host_color", "random")
+        self.players: Dict[str, "User"] = {}
+        self.ongoing_games: Set["Game"] = set()
+        self.status = T_CREATED
+        self.created_at = datetime.now(timezone.utc)
+        self.starts_at = None
+        self.ends_at = None
+        self.spectators: Set["User"] = set()
+        self.tourneychat = []
 
-    def create_pairing(self, waiting_players):
-        print(f"Creating pairings for simul {self.id} with {len(waiting_players)} waiting players.")
-        host = None
-        opponents = []
-        for p in waiting_players:
-            if p.username == self.created_by:
-                host = p
-            else:
-                opponents.append(p)
+    def join(self, user: "User"):
+        if user.username not in self.players:
+            self.players[user.username] = user
 
+    def leave(self, user: "User"):
+        if user.username in self.players:
+            del self.players[user.username]
+
+    def add_spectator(self, user: "User"):
+        self.spectators.add(user)
+
+    def remove_spectator(self, user: "User"):
+        self.spectators.discard(user)
+
+    async def create_games(self):
+        host = self.players.get(self.created_by)
         if host is None:
-            print(f"Host {self.created_by} not found in waiting_players for simul {self.id}")
-            return []
+            return
 
-        print(f"Host: {host.username}, Opponents: {[p.username for p in opponents]}")
-
+        opponents = [p for p in self.players.values() if p.username != self.created_by]
         random.shuffle(opponents)
-        pairing = []
 
-        if self.host_color == "white":
-            for opponent in opponents:
-                pairing.append((host, opponent))
-        elif self.host_color == "black":
-            for opponent in opponents:
-                pairing.append((opponent, host))
-        else: # random
-            half = len(opponents) // 2
-            for i, opponent in enumerate(opponents):
-                if i < half:
-                    pairing.append((host, opponent))
+        game_table = self.app_state.db.game if self.app_state.db else None
+
+        for opponent in opponents:
+            game_id = await new_id(game_table)
+
+            if self.host_color == "white":
+                wp, bp = host, opponent
+            elif self.host_color == "black":
+                wp, bp = opponent, host
+            else: # random
+                if random.choice([True, False]):
+                    wp, bp = host, opponent
                 else:
-                    pairing.append((opponent, host))
+                    wp, bp = opponent, host
 
-        print(f"Created {len(pairing)} pairings for simul {self.id}")
-        return pairing
+            game = Game(
+                self.app_state,
+                game_id,
+                self.variant,
+                "", # initial_fen
+                wp,
+                bp,
+                base=self.base,
+                inc=self.inc,
+                rated=self.rated,
+                chess960=self.chess960,
+            )
+            self.ongoing_games.add(game)
+            self.app_state.games[game_id] = game
+            await insert_game_to_db(game, self.app_state)
+
+    async def start(self):
+        if self.status == T_CREATED:
+            self.status = T_STARTED
+            self.starts_at = datetime.now(timezone.utc)
+            await self.create_games()
+            self.clock_task = asyncio.create_task(self.clock(), name=f"simul-clock-{self.id}")
+
+    async def finish(self):
+        if self.status == T_STARTED:
+            self.status = T_FINISHED
+            self.ends_at = datetime.now(timezone.utc)
+            if hasattr(self, "clock_task"):
+                self.clock_task.cancel()
+
+    async def abort(self):
+        if self.status == T_CREATED:
+            self.status = T_ABORTED
+            self.ends_at = datetime.now(timezone.utc)
 
     async def clock(self):
-        print(f"Simul {self.id} clock started")
-        try:
-            while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
-                print(f"Simul {self.id} clock loop, status: {self.status}, current_round: {self.current_round}")
-                now = datetime.now(timezone.utc)
+        while self.status == T_STARTED:
+            if len(self.ongoing_games) == 0:
+                await self.finish()
+                break
 
-                if self.status == T_CREATED:
-                    pass
+            finished_games = {g for g in self.ongoing_games if g.status > 0}
+            self.ongoing_games -= finished_games
 
-                elif self.status == T_STARTED:
-                    if self.current_round == 0:
-                        self.current_round += 1
-                        print(f"Do simul pairing for {self.id}")
-                        waiting_players = self.waiting_players()
-                        await self.create_new_pairings(waiting_players)
-                    elif len(self.ongoing_games) == 0:
-                        await self.finish()
-                        print(f"T_FINISHED: all simul games finished for {self.id}")
-                        break
-                    else:
-                        print(f"Simul {self.id} has {len(self.ongoing_games)} ongoing game(s)...")
-
-                await asyncio.sleep(1)
-        except Exception as exc:
-            print(f"Exception in simul clock for {self.id}: {exc}")
-
-    async def start_simul(self):
-        if self.status == T_CREATED:
-            if len(self.players) < 2:
-                await self.abort()
-                return
-
-            host_present = False
-            for p in self.players:
-                if p.username == self.created_by:
-                    host_present = True
-                    break
-
-            if not host_present:
-                await self.abort()
-                return
-
-            await self.start(datetime.now(timezone.utc))
+            await asyncio.sleep(5)

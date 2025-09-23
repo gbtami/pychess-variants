@@ -20,7 +20,6 @@ from glicko2.glicko2 import DEFAULT_PERF
 from tournament.arena_new import ArenaTournament
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
-from simul.simul import Simul
 from tournament.tournament import Tournament, upsert_tournament_to_db
 from user import User
 from utils import play_move
@@ -103,7 +102,6 @@ class TestTournament(Tournament):
     # @timeit
     async def play_random(self, game):
         """Play random moves for TEST players"""
-        await asyncio.sleep(0.1)
         if game.status == BYEGAME:  # ByeGame
             return
 
@@ -156,14 +154,3 @@ class SwissTestTournament(TestTournament, SwissTournament):
 
     def create_pairing(self, waiting_players):
         return SwissTournament.create_pairing(self, waiting_players)
-
-
-class SimulTestTournament(TestTournament, Simul):
-    system = Simul.system
-
-    def __init__(self, *args, **kwargs):
-        print("SimulTestTournament created")
-        super().__init__(*args, **kwargs)
-
-    def create_pairing(self, waiting_players):
-        return Simul.create_pairing(self, waiting_players)

@@ -663,9 +663,7 @@ class Tournament(ABC):
         self.spectators.discard(spectator)
 
     async def create_new_pairings(self, waiting_players):
-        print(f"Creating new pairings for tournament {self.id}")
         pairing = self.create_pairing(waiting_players)
-        print(f"Pairing: {pairing}")
 
         if self.first_pairing:
             self.first_pairing = False
@@ -684,7 +682,6 @@ class Tournament(ABC):
         return (pairing, games)
 
     async def create_games(self, pairing):
-        print(f"Creating games for tournament {self.id}")
         is_new_top_game = False
 
         games = []
@@ -716,20 +713,13 @@ class Tournament(ABC):
             await insert_game_to_db(game, self.app_state)
 
             self.ongoing_games.add(game)
-            print(f"Added game {game.id} to ongoing_games. Total: {len(self.ongoing_games)}")
             self.update_players(game)
 
             response = {
                 "type": "new_game",
-                "gameId": game.id,
+                "gameId": game_id,
                 "wplayer": wp.username,
                 "bplayer": bp.username,
-                "variant": game.variant,
-                "fen": game.fen,
-                "rated": game.rated,
-                "base": game.base,
-                "inc": game.inc,
-                "byo": game.byoyomi_period,
             }
 
             ws_ok = False

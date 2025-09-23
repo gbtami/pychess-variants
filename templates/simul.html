@@ -1,10 +1,43 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="main-wrap">
-    <h1>Simul</h1>
+<div id="simul-view" class="main-wrap">
+    <aside class="sidebar-first">
+        <h1>{{ simul.name }}</h1>
+        <p>Hosted by: {{ simul.created_by }}</p>
+        <div id="lobbychat"></div>
+    </aside>
     <div class="content-box">
-        <p>Simul page is under construction.</p>
+        <h2>Players</h2>
+        <ul>
+            {% for player in simul.players.values() %}
+            <li>{{ player.username }}</li>
+            {% endfor %}
+        </ul>
+
+        {% if user.username not in simul.players %}
+        <form method="post" action="/simul/{{ simul.id }}/join">
+            <button type="submit">Join</button>
+        </form>
+        {% endif %}
+
+        {% if user.username == simul.created_by and simul.status == 0 %}
+        <form method="post" action="/simul/{{ simul.id }}/start">
+            <button type="submit">Start</button>
+        </form>
+        {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ js }}"></script>
+<script>
+    const model = {
+        simulId: "{{ simul.id }}",
+        username: "{{ user.username }}",
+    };
+    // The client-side logic is in client/simul/simul.ts
+    // It will connect to the websocket and update the view
+</script>
 {% endblock %}

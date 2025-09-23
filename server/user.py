@@ -285,6 +285,7 @@ class User:
             "_id": self.username,
             "title": self.title,
             "online": True if self.username == requester else self.online,
+            "simul": len(self.simul_sockets) > 0,
         }
 
     async def clear_seeks(self):

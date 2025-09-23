@@ -137,6 +137,7 @@ get_routes = (
     ("/simuls", simul_view.simuls),
     ("/simul/new", simul_view.simul_new),
     (r"/simul/{simulId:\w{8}}", simul_view.simul),
+    (r"/simul/{simulId:\w{8}}/join", simul_view.join_simul),
     ("/@/{profileId}", profile.profile),
     ("/@/{profileId}/tv", tv.tv),
     ("/@/{profileId}/challenge", lobby.lobby),
@@ -222,6 +223,7 @@ post_routes = (
     (r"/tournament/{tournamentId:\w{8}}/edit", arena_new.arena_new),  # TODO: implement
     ("/simul/new", simul_view.simul_new),
     (r"/simul/{simulId:\w{8}}/start", simul_view.start_simul),
+    (r"/simul/{simulId:\w{8}}/join", simul_view.join_simul),
     ("/twitch", twitch_request_handler),
     (r"/puzzle/complete/{puzzleId:\w{5}}", puzzle_complete),
     (r"/puzzle/vote/{puzzleId:\w{5}}", puzzle_vote),
