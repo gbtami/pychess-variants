@@ -84,7 +84,7 @@ async def handle_join(app_state: PychessGlobalAppState, user: User, data):
         return
 
     simul.join(user)
-    await simul.broadcast({"type": "player_joined", "username": user.username})
+    await simul.broadcast({"type": "player_joined", "player": user.as_json(user.username)})
 
 async def handle_approve_player(app_state: PychessGlobalAppState, user: User, data):
     simulId = data["simulId"]

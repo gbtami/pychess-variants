@@ -14,8 +14,6 @@ from logger import log
 from user import User
 from variants import ALL_VARIANTS
 
-from . import simul
-
 piece_css_path = Path(Path(__file__).parent.parent.parent, "static/piece-css")
 piece_sets = [x.name for x in piece_css_path.iterdir() if x.is_dir() and x.name != "mono"]
 

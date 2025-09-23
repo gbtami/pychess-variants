@@ -2,7 +2,7 @@ import aiohttp_jinja2
 from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
-from server.views import get_user_context
+from views import get_user_context, icons, time_control_str, variant_display_name
 from variants import VARIANTS
 from simul.simul import Simul
 from newid import id8
@@ -12,6 +12,9 @@ async def simuls(request):
     user, context = await get_user_context(request)
     app_state = get_app_state(request.app)
     context["simuls"] = app_state.simuls.values()
+    context["icons"] = icons
+    context["time_control_str"] = time_control_str
+    context["variant_display_name"] = variant_display_name
     return context
 
 @aiohttp_jinja2.template("simul_new.html")
