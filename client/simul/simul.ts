@@ -50,9 +50,9 @@ export class SimulController implements ChatController {
         console.log("SimulController constructor", el, model);
         this.simulId = model["simulId"];
         this.model = model;
-        this.players = model["players"];
-        this.pendingPlayers = model["pendingPlayers"];
-        this.createdBy = model["createdBy"];
+        this.players = model["players"] || [];
+        this.pendingPlayers = model["pendingPlayers"] || [];
+        this.createdBy = model["createdBy"] || "";
 
         const onOpen = () => {
             this.doSend({ type: "simul_user_connected", username: model["username"], simulId: this.simulId });

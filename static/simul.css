@@ -1,0 +1,145 @@
+/*
+ * CSS for Simultaneous Exhibitions (Simuls)
+ */
+
+.slist {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+.slist th, .slist td {
+    padding: 0.75em;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.slist th {
+    background-color: #f2f2f2;
+}
+
+.slist tr:hover {
+    background-color: #f5f5f5;
+}
+
+.slist .icon {
+    font-size: 1.5em;
+}
+
+.slist .header .name {
+    font-weight: bold;
+}
+
+.slist .header .by {
+    color: #555;
+}
+
+.slist .header .system {
+    display: block;
+    font-size: 0.9em;
+    color: #777;
+}
+
+.slist .infos .starts {
+    font-size: 0.9em;
+    color: #777;
+}
+
+.form3 {
+    margin: 0 auto;
+    max-width: 500px;
+}
+
+.form3 .form-group {
+    margin-bottom: 1em;
+}
+
+.form3 .form-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+
+.form3 .form-control {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form3 .form-split {
+    display: flex;
+    gap: 1em;
+}
+
+.form3 .form-half {
+    flex: 1;
+}
+
+.form3 .form-actions {
+    margin-top: 1.5em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#simul-view {
+    padding: 1em;
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+    margin-bottom: 1em;
+}
+
+.pending-players, .approved-players {
+    border: 1px solid #ccc;
+    padding: 1em;
+    border-radius: 4px;
+}
+
+.pending-players h2, .approved-players h2 {
+    margin-top: 0;
+}
+
+.pending-players ul, .approved-players ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.pending-players li, .approved-players li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5em 0;
+    border-bottom: 1px solid #eee;
+}
+
+.pending-players li:last-child, .approved-players li:last-child {
+    border-bottom: none;
+}
+
+.pending-players button, .approved-players button {
+    margin-left: 0.5em;
+}
+
+.mini-boards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1em;
+    margin-top: 1em;
+}
+
+.mini-board {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.5em;
+    cursor: pointer;
+}
+
+.mini-board.active {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}

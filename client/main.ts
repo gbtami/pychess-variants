@@ -70,6 +70,7 @@ function initModel(el: HTMLElement) {
         gameId : el.getAttribute("data-gameid") ?? "",
         tournamentId : el.getAttribute("data-tournamentid") ?? "",
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
+        simulId : el.getAttribute("data-simulid") ?? "",
         inviter : el.getAttribute("data-inviter") ?? "",
         ply : parseInt(""+el.getAttribute("data-ply")),
         initialFen : el.getAttribute("data-initialfen") ?? "",
