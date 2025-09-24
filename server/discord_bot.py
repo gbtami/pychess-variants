@@ -22,6 +22,7 @@ PYCHESS_LOBBY_CHANNEL_ID = 653203449927827456
 GAME_SEEK_CHANNEL_ID = 823862902648995910
 TOURNAMENT_CHANNEL_ID = 861234739820888074
 ANNOUNCEMENT_CHANNEL_ID = 865964574507008000
+BUGHOUSE_CHANNEL_ID = 1332731143048528065
 
 ROLES = {
     "gladiator": 867894147900637215,
@@ -45,6 +46,7 @@ ROLES = {
     "chess": 658545185571209221,
     "chak": 940232991182041098,
     "chennis": 940233624048009236,
+    "bughouse": 1416061701966790716,
 }
 
 intents = discord.Intents(messages=True, guilds=True, message_content=True)
@@ -65,6 +67,7 @@ class DiscordBot(Bot):
         self.game_seek_channel = None
         self.tournament_channel = None
         self.announcement_channel = None
+        self.bughouse_channel = None
 
     async def on_message(self, msg):
         log.debug("---on_message() %s", msg)
@@ -89,6 +92,9 @@ class DiscordBot(Bot):
         self.announcement_channel = self.get_channel(ANNOUNCEMENT_CHANNEL_ID)
         log.debug("announcement_channel is: %s", self.announcement_channel)
 
+        self.bughouse_channel = self.get_channel(BUGHOUSE_CHANNEL_ID)
+        log.debug("bughouse_channel is: %s", self.bughouse_channel)
+
     async def send_to_discord(self, msg_type, msg, user=None):
         await self.wait_until_ready()
 
@@ -108,13 +114,20 @@ class DiscordBot(Bot):
             log.debug("+++ seek msg: %s", msg)
             await self.game_seek_channel.send("%s" % msg)
 
+            if self.bughouse_channel is not None and msg_type == "create_seek" and "bughouse" in msg:
+                guild = self.get_guild(SERVER_ID)
+                role = guild.get_role(ROLES["bughouse"])
+
+                log.debug("+++ bug seek msg: %s", msg)
+                await self.announcement_channel.send("%s %s" % (role.mention, msg))
+
         elif self.tournament_channel is not None and msg_type == "create_tournament":
             log.debug("+++ create_tournament msg: %s", msg)
             await self.tournament_channel.send("%s" % msg)
 
-        elif self.announcement_channel is not None and msg_type == "notify_tournament":
+        elif self.tournament_channel is not None and msg_type == "notify_tournament":
             log.debug("+++ notify_tournament msg: %s", msg)
-            await self.announcement_channel.send("%s %s" % (self.get_role_mentions(msg), msg))
+            await self.tournament_channel.send("%s %s" % (self.get_role_mentions(msg), msg))
 
     def get_role_mentions(self, message):
         guild = self.get_guild(SERVER_ID)
@@ -181,6 +194,9 @@ class DiscordBot(Bot):
 
         elif variant == "chennis":
             role = guild.get_role(ROLES["chennis"])
+
+        elif variant == "bughouse":
+            role = guild.get_role(ROLES["bughouse"])
 
         else:
             role = guild.get_role(ROLES["chess"])
