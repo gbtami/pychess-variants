@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="30mm"
+   height="30mm"
+   viewBox="0 0 30 30"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath182-4-0-0-0-5-6-6-6-4">
+      <path
+         d="M 0,2834.646 H 2834.646 V 0 H 0 Z"
+         transform="translate(-91.9855,-311.81193)"
+         id="path182-0-3-0-8-1-8-2-4-2" />
+    </clipPath>
+  </defs>
+  <g
+     id="layer1"
+     transform="translate(-80)">
+    <path
+       id="path1144"
+       d="m 0,0 c 0,-19.491 -15.801,-35.292 -35.293,-35.292 -19.491,0 -35.292,15.801 -35.292,35.292 0,19.491 15.801,35.292 35.292,35.292 C -15.801,35.292 0,19.491 0,0"
+       style="font-variation-settings:normal;vector-effect:none;fill:#f9d08f;fill-opacity:1;fill-rule:nonzero;stroke:#4d3608;stroke-width:1.58026;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       transform="matrix(0.37968369,0,0,-0.37968364,108.39999,15)"
+       clip-path="url(#clipPath182-4-0-0-0-5-6-6-6-4)" />
+    <path
+       d="M 94.231432,11.585636 V 8.7193188 h 1.267794 v 2.8663172 h 4.795574 v 1.047308 h -4.795574 v 2.645832 h 4.023869 v 1.102429 h -4.023869 v 3.141925 h 5.512144 v 1.157551 H 88.719284 V 19.52313 h 5.512148 v -3.141925 h -3.527775 v -1.102429 h 3.527775 v -2.645832 h -2.97656 q -0.661458,1.929252 -1.763888,3.527775 -0.330728,-0.275607 -0.606336,-0.551215 -0.38585,-0.220485 -0.496093,-0.220485 0.771701,-1.10243 0.881944,-1.322916 0.606336,-1.10243 0.826822,-1.874131 0.440972,-1.378037 0.771701,-2.9765598 l 1.267794,0.3858504 Q 91.91633,10.813935 91.640722,11.585636 Z"
+       id="text1147"
+       style="font-size:14.1111px;font-family:Osaka;-inkscape-font-specification:'Osaka, Normal';text-align:center;text-anchor:middle;stroke-width:0.352777"
+       aria-label="生" />
+    <path
+       style="baseline-shift:baseline;display:inline;overflow:visible;opacity:1;vector-effect:none;stroke-miterlimit:10;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+       d="m 95,3.5 c -6.33943,0 -11.5,5.1605695 -11.5,11.5 0,6.33943 5.16057,11.5 11.5,11.5 6.33943,0 11.5,-5.16057 11.5,-11.5 C 106.5,8.6605695 101.33943,3.5 95,3.5 Z m 0,2 c 5.25855,0 9.5,4.2414497 9.5,9.5 0,5.25855 -4.24145,9.5 -9.5,9.5 -5.25855,0 -9.5,-4.24145 -9.5,-9.5 0,-5.2585503 4.24145,-9.5 9.5,-9.5 z"
+       id="ellipse1149" />
+  </g>
+</svg>
