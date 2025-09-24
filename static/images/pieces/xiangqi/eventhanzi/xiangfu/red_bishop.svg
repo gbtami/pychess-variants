@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="30mm"
+   height="30mm"
+   viewBox="0 0 30 30"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath182-4-0-4-0-4-2-4-4-5-8">
+      <path
+         d="M 0,2834.646 H 2834.646 V 0 H 0 Z"
+         transform="translate(-91.9855,-311.81193)"
+         id="path182-0-3-8-6-1-1-0-3-1-7" />
+    </clipPath>
+  </defs>
+  <g
+     id="layer1"
+     transform="translate(-280)">
+    <path
+       id="path1152"
+       d="m 0,0 c 0,-19.491 -15.801,-35.292 -35.293,-35.292 -19.491,0 -35.292,15.801 -35.292,35.292 0,19.491 15.801,35.292 35.292,35.292 C -15.801,35.292 0,19.491 0,0"
+       style="font-variation-settings:normal;vector-effect:none;fill:#f9d08f;fill-opacity:1;fill-rule:nonzero;stroke:#4d3608;stroke-width:1.58026;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       transform="matrix(0.37968369,0,0,-0.37968364,308.39999,14.999904)"
+       clip-path="url(#clipPath182-4-0-4-0-4-2-4-4-5-8)" />
+    <path
+       style="baseline-shift:baseline;display:inline;overflow:visible;opacity:1;vector-effect:none;fill:#d20000;stroke-miterlimit:10;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+       d="m 295,3.5 c -6.33943,0 -11.5,5.1605695 -11.5,11.5 0,6.33943 5.16057,11.5 11.5,11.5 6.33943,0 11.5,-5.16057 11.5,-11.5 0,-6.3394305 -5.16057,-11.5 -11.5,-11.5 z m 0,2 c 5.25855,0 9.5,4.2414497 9.5,9.5 0,5.25855 -4.24145,9.5 -9.5,9.5 -5.25855,0 -9.5,-4.24145 -9.5,-9.5 0,-5.2585503 4.24145,-9.5 9.5,-9.5 z"
+       id="ellipse1159" />
+    <path
+       d="m 288.85398,15.110241 v -1.212673 h 2.86632 v 4.850691 q 0.93706,0.661458 1.87413,0.937065 1.32291,0.330729 3.19705,0.330729 h 2.70095 q 1.26779,0 2.03949,-0.05512 -0.33073,0.606336 -0.49609,1.157551 -5.07118,0 -5.62239,-0.05512 -1.21267,-0.05512 -2.37023,-0.38585 -0.88194,-0.275607 -1.65364,-0.937065 -1.15755,0.881943 -2.25998,1.653644 l -0.66146,-1.267794 1.87413,-1.10243 v -3.913625 z m 0.38585,-5.1814196 0.7717,-0.9921868 q 0.71658,0.4960934 2.0395,1.4882804 l -0.7717,1.102429 q -1.15755,-1.047308 -2.0395,-1.5985226 z m 9.81163,7.8823726 v -0.826823 h -4.51997 v 0.826823 z m 0,-1.708766 v -0.992187 h -4.51997 v 0.992187 z m 0,-1.819009 v -0.826823 h -4.51997 v 0.826823 z m -0.22049,-3.803383 h 2.42535 v 1.047308 h -4.02387 l -0.27561,0.937066 h 3.41753 v 6.779942 h -1.32291 V 18.80338 h -4.51997 v 0.440972 h -1.21267 V 12.46441 h 2.42535 l 0.16536,-0.937066 h -3.52777 v -1.047308 h 2.09461 q -0.33073,-0.6063361 -0.88194,-1.2126725 l 1.04731,-0.6614578 q 0.0551,0.055122 1.10243,1.4882803 l -0.66146,0.38585 h 2.37022 q 0.16537,-0.330729 0.38585,-0.7165791 0.22049,-0.3858504 0.60634,-1.1575512 l 1.21267,0.6614578 q -0.0551,0.055122 -0.82682,1.2126725 z"
+       id="text1168"
+       style="font-size:14.1111px;font-family:Osaka;-inkscape-font-specification:'Osaka, Normal';text-align:center;text-anchor:middle;fill:#d20000;stroke-width:0.352777"
+       aria-label="道" />
+  </g>
+</svg>
