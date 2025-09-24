@@ -3,10 +3,11 @@ from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
 from misc import time_control_str
-from views import get_user_context
+from views import get_user_context, variant_display_name
 from variants import VARIANTS, VARIANT_ICONS
 from simul.simul import Simul
 from newid import id8
+from const import T_CREATED, T_STARTED, T_FINISHED
 
 @aiohttp_jinja2.template("simuls.html")
 async def simuls(request):
@@ -20,15 +21,21 @@ async def simuls(request):
             app_state,
             simul_id,
             name=data["name"],
-            variant=int(data["variant"]),
-            time_control=data["time_control"],
+            created_by=user.username,
+            variant=data["variant"],
+            base=int(data["base"]),
+            inc=int(data["inc"]),
             host_color=data.get("host_color", "random"),
         )
         app_state.simuls[simul_id] = simul
 
-    context["simuls"] = app_state.simuls.values()
+    simuls = list(app_state.simuls.values())
+    context["created_simuls"] = [s for s in simuls if s.status == T_CREATED]
+    context["started_simuls"] = [s for s in simuls if s.status == T_STARTED]
+    context["finished_simuls"] = [s for s in simuls if s.status == T_FINISHED]
     context["icons"] = VARIANT_ICONS
     context["time_control_str"] = time_control_str
+    context["variant_display_name"] = variant_display_name
     context["view_css"] = "simul.css"
     return context
 
@@ -54,6 +61,9 @@ async def simul(request):
     context["view"] = "simul"
     context["status"] = simul.status
     context["view_css"] = "simul.css"
+    context["players"] = [p.as_json(user.username) for p in simul.players.values()]
+    context["pendingPlayers"] = [p.as_json(user.username) for p in simul.pending_players.values()]
+    context["createdBy"] = simul.created_by
     return context
 
 async def start_simul(request):

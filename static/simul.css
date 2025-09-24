@@ -5,7 +5,7 @@
 .slist {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 1em;
+    margin-bottom: 2em;
 }
 
 .slist th, .slist td {
@@ -48,6 +48,10 @@
 .form3 {
     margin: 0 auto;
     max-width: 500px;
+    background-color: #f9f9f9;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .form3 .form-group {
@@ -79,19 +83,57 @@
 .form3 .form-actions {
     margin-top: 1.5em;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
 }
 
+.form3 .form-actions a {
+    margin-right: 1em;
+    color: #555;
+    text-decoration: none;
+}
+
+.form3 .form-actions a:hover {
+    text-decoration: underline;
+}
+
+.form3 .form-actions button {
+    padding: 0.8em 1.5em;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.form3 .form-actions button:hover {
+    background-color: #0056b3;
+}
+
 #simul-view {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2em;
     padding: 1em;
+}
+
+.simul-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.simul-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
 }
 
 .players-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1em;
-    margin-bottom: 1em;
 }
 
 .pending-players, .approved-players {

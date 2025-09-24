@@ -165,28 +165,32 @@ export class SimulController implements ChatController {
             : h('div');
 
         return h('div#simul-view', [
-            h('h1', 'Simul Lobby'),
-            h('div.players-grid', [
-                h('div.pending-players', [
-                    h('h2', 'Pending Players'),
-                    h('ul', this.pendingPlayers.map(p => h('li', [
-                        `${p.title} ${p.name} (${p.rating})`,
-                        isHost ? h('button', { on: { click: () => this.approve(p.name) } }, '✓') : null,
-                        isHost ? h('button', { on: { click: () => this.deny(p.name) } }, 'X') : null,
-                    ]))),
-                ]),
-                h('div.approved-players', [
-                    h('h2', 'Approved Players'),
-                    h('ul', this.players.map(p => h('li', [
-                        `${p.title} ${p.name} (${p.rating})`,
-                        (isHost && p.name !== this.createdBy) ? h('button', { on: { click: () => this.deny(p.name) } }, 'X') : null,
-                    ]))),
+            h('div.simul-sidebar', [
+                h('h1', 'Simul Lobby'),
+                startButton,
+                joinButton,
+                h('div.players-grid', [
+                    h('div.pending-players', [
+                        h('h2', 'Pending Players'),
+                        h('ul', this.pendingPlayers.map(p => h('li', [
+                            `${p.title} ${p.name} (${p.rating})`,
+                            isHost ? h('button', { on: { click: () => this.approve(p.name) } }, '✓') : null,
+                            isHost ? h('button', { on: { click: () => this.deny(p.name) } }, 'X') : null,
+                        ]))),
+                    ]),
+                    h('div.approved-players', [
+                        h('h2', 'Approved Players'),
+                        h('ul', this.players.map(p => h('li', [
+                            `${p.title} ${p.name} (${p.rating})`,
+                            (isHost && p.name !== this.createdBy) ? h('button', { on: { click: () => this.deny(p.name) } }, 'X') : null,
+                        ]))),
+                    ]),
                 ]),
             ]),
-            startButton,
-            joinButton,
-            this.renderMiniBoards(),
-            h('div#lobbychat')
+            h('div.simul-main', [
+                this.renderMiniBoards(),
+                h('div#lobbychat')
+            ])
         ]);
     }
 

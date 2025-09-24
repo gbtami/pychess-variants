@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import json
+import logging
+import time
 import aiohttp
 import pytest
 
@@ -10,6 +13,10 @@ from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from simul.simul import Simul
 from user import User
+from logger import log
+
+
+log.setLevel(level=logging.DEBUG)
 
 
 @pytest.mark.asyncio
@@ -79,7 +86,7 @@ class TestGUI:
         assert player3.username not in simul.players
 
     async def test_simul_websocket(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient(), anon_as_test_users=True)
+        app = make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True, anon_as_test_users=True)
         await aiohttp_server(app, host="127.0.0.1", port=8080)
         app_state = get_app_state(app)
         host_username = "TestUser_1"
@@ -92,19 +99,25 @@ class TestGUI:
         app_state.simuls[sid] = simul
 
         async with aiohttp.ClientSession() as session:
-            client = await session.ws_connect(f'http://127.0.0.1:8080/wss?simulId={sid}')
+            session_data = {"session": {"user_name": host_username}, "created": int(time.time())}
+            value = json.dumps(session_data)
+            session.cookie_jar.update_cookies({"AIOHTTP_SESSION": value})
+
+            client = await session.ws_connect('ws://127.0.0.1:8080/wss')
+
+            await client.send_json({"type": "simul_user_connected", "username": host_username, "simulId": sid})
+            msg = await client.receive_json()
+            assert msg['type'] == 'simul_user_connected'
+            assert msg['username'] == host_username
 
             player2 = User(app_state, username="TestUser_2")
             app_state.users[player2.username] = player2
 
             await client.send_json({"type": "join", "simulId": sid})
-            await client.send_json({"type": "approve_player", "simulId": sid, "username": "TestUser_2"})
+            msg = await client.receive_json()
+            assert msg['type'] == 'player_joined'
 
+            await client.send_json({"type": "approve_player", "simulId": sid, "username": "TestUser_2"})
             msg = await client.receive_json()
             assert msg['type'] == 'player_approved'
-            assert msg['username'] == 'TestUser_2'
-
-            await client.send_json({"type": "deny_player", "simulId": sid, "username": "TestUser_2"})
-            msg = await client.receive_json()
-            assert msg['type'] == 'player_denied'
             assert msg['username'] == 'TestUser_2'

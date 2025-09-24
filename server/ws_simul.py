@@ -63,6 +63,7 @@ async def handle_simul_user_connected(app_state: PychessGlobalAppState, ws, user
         "players": [p.as_json(user.username) for p in simul.players.values()],
         "pendingPlayers": [p.as_json(user.username) for p in simul.pending_players.values()],
         "createdBy": simul.created_by,
+        "username": user.username,
     }
     await ws_send_json(ws, response)
 
