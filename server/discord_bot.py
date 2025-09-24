@@ -114,7 +114,11 @@ class DiscordBot(Bot):
             log.debug("+++ seek msg: %s", msg)
             await self.game_seek_channel.send("%s" % msg)
 
-            if self.bughouse_channel is not None and msg_type == "create_seek" and "bughouse" in msg:
+            if (
+                self.bughouse_channel is not None
+                and msg_type == "create_seek"
+                and "bughouse" in msg
+            ):
                 guild = self.get_guild(SERVER_ID)
                 role = guild.get_role(ROLES["bughouse"])
 
