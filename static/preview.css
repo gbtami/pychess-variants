@@ -353,16 +353,19 @@ label.piece.piece13.xiangqi {
     background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
 }
 label.piece.piece14.xiangqi {
-    background-image: url('images/pieces/xiangqi/basic/red_king.svg');
+    background-image: url('images/pieces/xiangqi/eventhanzi/red_king.svg');
 }
 label.piece.piece15.xiangqi {
-    background-image: url('images/pieces/xiangqi/guided/red_king.svg');
+    background-image: url('images/pieces/xiangqi/eventhanziguided/red_king.svg');
 }
 label.piece.piece16.xiangqi {
-    background-image: url('images/pieces/disguised/3d-red.svg');
+    background-image: url('images/pieces/xiangqi/eventintl/red_king.svg');
 }
 label.piece.piece17.xiangqi {
     background-image: url('images/pieces/xiangqi/euro/red_king.svg');
+}
+label.piece.piece18.xiangqi {
+    background-image: url('images/pieces/disguised/3d-red.svg');
 }
 
 label.piece.piece0.janggi {
@@ -597,9 +600,15 @@ label.piece.piece1.borderlands {
 }
 
 label.piece.piece0.xiangfu {
-    background-image: url('images/pieces/xiangfu/0_Catapult.svg');
+    background-image: url('images/pieces/xiangqi/eventintl/xiangfu/red_crossbow.svg');
 }
 label.piece.piece1.xiangfu {
+    background-image: url('images/pieces/xiangqi/eventhanzi/xiangfu/red_crossbow.svg');
+}
+label.piece.piece2.xiangfu {
+    background-image: url('images/pieces/xiangqi/eventhanziguided/xiangfu/red_crossbow.svg');
+}
+label.piece.piece3.xiangfu {
     background-image: url('images/pieces/disguised/b.svg');
 }
 
