@@ -9,6 +9,7 @@ from simul.simul import Simul
 from newid import id8
 from const import T_CREATED, T_STARTED, T_FINISHED
 
+
 @aiohttp_jinja2.template("simuls.html")
 async def simuls(request):
     user, context = await get_user_context(request)
@@ -61,6 +62,7 @@ async def simul(request):
     context["status"] = simul.status
     context["view_css"] = "simul.css"
     return context
+
 
 async def start_simul(request):
     user, context = await get_user_context(request)

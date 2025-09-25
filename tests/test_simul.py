@@ -51,7 +51,7 @@ class TestGUI:
         assert len(simul.ongoing_games) == NB_PLAYERS - 1
 
         for game in simul.ongoing_games:
-            assert (game.wplayer.username == host_username or game.bplayer.username == host_username)
+            assert game.wplayer.username == host_username or game.bplayer.username == host_username
 
     async def test_simul_join_approve_and_deny(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient())
@@ -86,7 +86,9 @@ class TestGUI:
         assert player3.username not in simul.players
 
     async def test_simul_websocket(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True, anon_as_test_users=True)
+        app = make_app(
+            db_client=AsyncMongoMockClient(), simple_cookie_storage=True, anon_as_test_users=True
+        )
         await aiohttp_server(app, host="127.0.0.1", port=8080)
         app_state = get_app_state(app)
         host_username = "TestUser_1"
@@ -103,21 +105,25 @@ class TestGUI:
             value = json.dumps(session_data)
             session.cookie_jar.update_cookies({"AIOHTTP_SESSION": value})
 
-            client = await session.ws_connect('ws://127.0.0.1:8080/wss')
+            client = await session.ws_connect("ws://127.0.0.1:8080/wss")
 
-            await client.send_json({"type": "simul_user_connected", "username": host_username, "simulId": sid})
+            await client.send_json(
+                {"type": "simul_user_connected", "username": host_username, "simulId": sid}
+            )
             msg = await client.receive_json()
-            assert msg['type'] == 'simul_user_connected'
-            assert msg['username'] == host_username
+            assert msg["type"] == "simul_user_connected"
+            assert msg["username"] == host_username
 
             player2 = User(app_state, username="TestUser_2")
             app_state.users[player2.username] = player2
 
             await client.send_json({"type": "join", "simulId": sid})
             msg = await client.receive_json()
-            assert msg['type'] == 'player_joined'
+            assert msg["type"] == "player_joined"
 
-            await client.send_json({"type": "approve_player", "simulId": sid, "username": "TestUser_2"})
+            await client.send_json(
+                {"type": "approve_player", "simulId": sid, "username": "TestUser_2"}
+            )
             msg = await client.receive_json()
-            assert msg['type'] == 'player_approved'
-            assert msg['username'] == 'TestUser_2'
+            assert msg["type"] == "player_approved"
+            assert msg["username"] == "TestUser_2"

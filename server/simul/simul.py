@@ -2,7 +2,7 @@ from __future__ import annotations
 import random
 import asyncio
 from datetime import datetime, timezone
-from typing import Set, List, Dict, TYPE_CHECKING
+from typing import Set, Dict, TYPE_CHECKING
 
 from const import T_CREATED, T_STARTED, T_FINISHED, T_ABORTED, RATED, CASUAL
 from game import Game
@@ -12,6 +12,7 @@ from websocket_utils import ws_send_json
 
 if TYPE_CHECKING:
     from user import User
+
 
 class Simul:
     """
@@ -61,7 +62,11 @@ class Simul:
         return simul
 
     def join(self, user: "User"):
-        if user.username != self.created_by and user.username not in self.players and user.username not in self.pending_players:
+        if (
+            user.username != self.created_by
+            and user.username not in self.players
+            and user.username not in self.pending_players
+        ):
             self.pending_players[user.username] = user
 
     def approve(self, username: str):
@@ -109,7 +114,7 @@ class Simul:
                 wp, bp = host, opponent
             elif self.host_color == "black":
                 wp, bp = opponent, host
-            else: # random
+            else:  # random
                 if random.choice([True, False]):
                     wp, bp = host, opponent
                 else:
@@ -119,7 +124,7 @@ class Simul:
                 self.app_state,
                 game_id,
                 self.variant,
-                "", # initial_fen
+                "",  # initial_fen
                 wp,
                 bp,
                 base=self.base,

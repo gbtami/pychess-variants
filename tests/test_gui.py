@@ -61,7 +61,9 @@ class TestGUI:
 
             await page.locator("#challengeAI").click()
 
-            AI_URL_RE = re.compile(r"http://127\.0\.0\.1:8080/@/Fairy-Stockfish/play/[^/?]+\?fen=.*")
+            AI_URL_RE = re.compile(
+                r"http://127\.0\.0\.1:8080/@/Fairy-Stockfish/play/[^/?]+\?fen=.*"
+            )
             await page.wait_for_url(AI_URL_RE)
 
             dialog = page.locator("dialog.modal")
