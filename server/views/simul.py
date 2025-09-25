@@ -3,7 +3,7 @@ from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
 from misc import time_control_str
-from views import get_user_context, variant_display_name
+from views import get_user_context
 from variants import VARIANTS, VARIANT_ICONS
 from simul.simul import Simul
 from newid import id8
@@ -35,7 +35,6 @@ async def simuls(request):
     context["finished_simuls"] = [s for s in simuls if s.status == T_FINISHED]
     context["icons"] = VARIANT_ICONS
     context["time_control_str"] = time_control_str
-    context["variant_display_name"] = variant_display_name
     context["view_css"] = "simul.css"
     return context
 
@@ -61,9 +60,6 @@ async def simul(request):
     context["view"] = "simul"
     context["status"] = simul.status
     context["view_css"] = "simul.css"
-    context["players"] = [p.as_json(user.username) for p in simul.players.values()]
-    context["pendingPlayers"] = [p.as_json(user.username) for p in simul.pending_players.values()]
-    context["createdBy"] = simul.created_by
     return context
 
 async def start_simul(request):
