@@ -123,7 +123,7 @@ class DiscordBot(Bot):
                 role = guild.get_role(ROLES["bughouse"])
 
                 log.debug("+++ bug seek msg: %s", msg)
-                await self.announcement_channel.send("%s %s" % (role.mention, msg))
+                await self.bughouse_channel.send("%s %s" % (role.mention, msg))
 
         elif self.tournament_channel is not None and msg_type == "create_tournament":
             log.debug("+++ create_tournament msg: %s", msg)
