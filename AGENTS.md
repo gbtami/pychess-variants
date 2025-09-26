@@ -45,7 +45,7 @@ black .
 flake8
 
 # Python unit tests
- PYTHONPATH=server python3 -m unittest discover -s tests
+PYTHONPATH=server python3 -m pytest tests/test_*.py
 ```
 
 ### Docker Development
