@@ -139,9 +139,7 @@ def get_server_variant(uci_variant, chess960):
     return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
 
 
-VARIANT_CONTEST = (
-    ServerVariants.XIANGFU,
-)
+VARIANT_CONTEST = (ServerVariants.XIANGFU,)
 VARIANT_CONTESTANTS = {variant.server_name: variant for variant in VARIANT_CONTEST}
 
 NO_VARIANTS = (
