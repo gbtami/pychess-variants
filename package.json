@@ -34,7 +34,7 @@
     "html-to-image": "^1.11.13",
     "idb-keyval": "^6.2.1",
     "mousetrap": "^1.6.5",
-    "snabbdom": "^3.6.2"
+    "snabbdom": "^3.6.3"
   },
   "devDependencies": {
     "@jest/globals": "^30",
