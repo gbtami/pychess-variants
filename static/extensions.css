@@ -273,45 +273,6 @@
   pointer-events: none;
 }
 
-.shocking .cg-512 cg-board::before {
-  width: 25%;
-  height: 100%;
-  top: 0%;
-  left: 37.5%;
-  background: rgba(230, 230, 230, 0.2);
-  box-shadow: 0 0 10px rgb(0 0 0 / 70%);
-  content: '';
-  z-index: 1;
-  position: absolute;
-  pointer-events: none;
-}
-
-.melonvariant .cg-512 cg-board::before {
-  width: 50%;
-  height: 25%;
-  top: 0%;
-  left: 25%;
-  background: rgba(230, 230, 230, 0.2);
-  box-shadow: 0 0 10px rgb(0 0 0 / 80%);
-  content: '';
-  z-index: 1;
-  position: absolute;
-  pointer-events: none;
-}
-
-.melonvariant .cg-512 cg-board::after {
-  width: 50%;
-  height: 25%;
-  top: 75%;
-  left: 25%;
-  background: rgba(230, 230, 230, 0.2);
-  box-shadow: 0 0 10px rgb(0 0 0 / 80%);
-  content: '';
-  z-index: 1;
-  position: absolute;
-  pointer-events: none;
-}
-
 /* Alice chess pieces on the other board */
 .alice piece.mirror {
   opacity: 0.2;
@@ -325,11 +286,6 @@
 }
 /* Manchu banner */
 .xiangqi piece.m-piece, .manchu piece.m-piece {
-  background-color: gold;
-  border-radius: 50%;
-}
-/* Xiangfu king */
-.xiangfu piece.pg-piece {
   background-color: gold;
   border-radius: 50%;
 }

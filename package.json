@@ -34,7 +34,7 @@
     "html-to-image": "^1.11.13",
     "idb-keyval": "^6.2.1",
     "mousetrap": "^1.6.5",
-    "snabbdom": "^3.6.2"
+    "snabbdom": "^3.6.3"
   },
   "devDependencies": {
     "@jest/globals": "^30",
@@ -46,13 +46,13 @@
     "esm": "^3.2.25",
     "jest": "^30",
     "jest-environment-jsdom": "^30",
-    "jsdom": "^26.1.0",
+    "jsdom": "^27.0.0",
     "jsdom-global": "^3.0.2",
     "postcss": "8.x",
     "showdown": "^2.1.0",
     "ts-jest": "^29",
     "tslib": "^2.8.1",
-    "typescript": "^5.8",
+    "typescript": "^5.9",
     "yarn": "^1.22.22",
     "zlib": "^1.0.5"
   },

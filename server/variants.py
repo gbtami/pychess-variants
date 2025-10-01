@@ -125,14 +125,7 @@ class ServerVariants(Enum):
     SPARTAN = Variant("N", "spartan", _("Spartan"), "⍺")
 
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
-    MELONVARIANT = Variant("!", "melonvariant", _("MelonVariant"), "🍉")
     XIANGFU = Variant('"', "xiangfu", _("Xiangfu"), "👊")
-    SINTING = Variant("#", "sinting", _("Sinting"), "♞")
-    BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), " 🌄", grand=True)
-    BATTLEOFIDEOLOGIES = Variant("%", "battleofideologies", _("Battle of Ideologies"), "⛏️")
-    SHOCKING = Variant("&", "shocking", _("Shocking"), "️🤖")
-    CHESS_XIANGQI = Variant("+", "chess_xiangqi", _("Chess_Xiangqi"), "☯️")
-    VARIANT_000 = Variant("*", "variant_000", _("Variant_000"), "🏰️")
 
     @property
     def server_name(self):
@@ -143,22 +136,10 @@ del _
 
 
 def get_server_variant(uci_variant, chess960):
-    # TODO: remove this after variant contest ends
-    if uci_variant == "martialxiangqi":
-        uci_variant = "xiangfu"
     return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
 
 
-VARIANT_CONTEST = (
-    ServerVariants.MELONVARIANT,
-    ServerVariants.XIANGFU,
-    ServerVariants.SINTING,
-    ServerVariants.BORDERLANDS,
-    ServerVariants.BATTLEOFIDEOLOGIES,
-    ServerVariants.SHOCKING,
-    ServerVariants.CHESS_XIANGQI,
-    ServerVariants.VARIANT_000,
-)
+VARIANT_CONTEST = (ServerVariants.XIANGFU,)
 VARIANT_CONTESTANTS = {variant.server_name: variant for variant in VARIANT_CONTEST}
 
 NO_VARIANTS = (
