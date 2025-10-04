@@ -27,10 +27,10 @@ static/images/pieces/alpha/* | Eric Bentzen | "free for personal non commercial 
 static/images/pieces/ataxx/* | pychess-variants contributors | AGPLv3+ | cat.svg and dog.svg license unknown
 static/images/pieces/atopdown/* | pychess-variants contributors | AGPLv3+ |
 static/images/pieces/chak/* | pychess-variants contributors | AGPLv3+ |
-static/images/pieces/chennis/* | Couch Tomato | Unknown |
+static/images/pieces/chennis/* | Couch Tomato | AGPLv3+ |
 static/images/pieces/disguised/* | danegraphics | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) | From lichess
 static/images/pieces/dubrovny/* | sadsnake1 | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) | From lichess
-static/images/pieces/empire/* | The House of Staunton | Commercial | Appears to be a commercial design. Not licensed for free use.
+static/images/pieces/empire/* | Couch Tomato | AGPLv3+ |
 static/images/pieces/firi/* | [James Faure](https://github.com/jfaure/Firi-pieceset) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 static/images/pieces/green/* | Uray M. János | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en) | From [Green Chess](https://greenchess.net/info.php?item=downloads)
 static/images/pieces/hoppel/* | pychess-variants contributors | AGPLv3+ |
