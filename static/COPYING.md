@@ -43,16 +43,16 @@ static/images/pieces/makruk/* | [Fulmene](https://github.com/Fulmene/makruk-piec
 static/images/pieces/mansindam/* | pychess-variants contributors | AGPLv3+ |
 static/images/pieces/merida/* | Armando Hernandez Marroquin | [GPLv2+](https://www.gnu.org/licenses/gpl-2.0.txt) | From lichess
 static/images/pieces/mono/* | Thibault Duplessis and [Colin M.L. Burnett](https://en.wikipedia.org/wiki/User:Cburnett) | [GPLv2+](https://www.gnu.org/licenses/gpl-2.0.txt) | From lichess
-static/images/pieces/orda/* | Couch Tomato | Unknown |
+static/images/pieces/orda/* | Couch Tomato | AGPLv3+ |
 static/images/pieces/paradigm/* | pychess-variants contributors | AGPLv3+ |
 static/images/pieces/santa/* | pychess-variants contributors | AGPLv3+ |
-static/images/pieces/shinobi/* | Couch Tomato | Unknown |
-static/images/pieces/shogi/* | Various | | See notes
+static/images/pieces/shinobi/* | Couch Tomato | AGPLv3+ |
+static/images/pieces/shogi/* | pychess-variants contributors | AGPLv3+ |
 static/images/pieces/shogun/* | pychess-variants contributors | AGPLv3+ |
 static/images/pieces/sittuyin/* | [Kadagaden](https://github.com/Kadagaden/chess-pieces) | [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) |
 static/images/pieces/spartan/* | pychess-variants contributors | AGPLv3+ |
-static/images/pieces/synochess/* | pychess-variants contributors | AGPLv3+ |
-static/images/pieces/tori/* | pychess-variants contributors | AGPLv3+ |
+static/images/pieces/synochess/* | Couch Tomato | AGPLv3+ |
+static/images/pieces/tori/* | Couch Tomato | AGPLv3+ |
 static/images/pieces/xiangqi/* | pychess-variants contributors | AGPLv3+ |
 static/sound/bugchat/* | [rhasspy/piper](https://github.com/rhasspy/piper) | [MIT](https://github.com/rhasspy/piper/blob/master/LICENSE.md) | Generated with `en_GB-northern_english_male-medium` voice. Voice models are under a different license.
 static/sound/futuristic/* | [Enigmahack](https://github.com/Enigmahack) | AGPLv3+ |
