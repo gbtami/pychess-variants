@@ -22,7 +22,7 @@ See the LICENSE file in the root directory for a copy of the _GNU Affero General
 
 Files | Author(s) | License | Notes
 --- | --- | --- | ---
-static/images/pieces/alfaerie/* | David Howe | Freeware | From [The Chess Variant Pages](https://www.chessvariants.com/graphics.dir/alfaerie/index.html)
+static/images/pieces/alfaerie/* | David Howe, H.G.Muller, Greg Strong | Freeware | From [The Chess Variant Pages](https://www.chessvariants.com/graphics.dir/svg/alfaerie/)
 static/images/pieces/alpha/* | Eric Bentzen | "free for personal non commercial use" | From [enpassant.dk](http://www.enpassant.dk/chess/fonteng.htm)
 static/images/pieces/ataxx/* | pychess-variants contributors | AGPLv3+ | cat.svg and dog.svg license unknown
 static/images/pieces/atopdown/* | pychess-variants contributors | AGPLv3+ |
