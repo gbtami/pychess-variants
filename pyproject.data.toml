@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "pychess-data"
 version = "0.1.0"
 description = "Piece and board images for chess variants"
-requires-python = ">=3.12"
 dependencies = []
 
 [tool.setuptools]
