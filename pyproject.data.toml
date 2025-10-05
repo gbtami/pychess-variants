@@ -14,6 +14,7 @@ packages = ["pychess_data"]
 
 [tool.setuptools.package-data]
 pychess_data = [
+    "static/COPYING.md",
     "static/images/board/**",
     "static/images/pieces/**",
     "static/piece/**"
