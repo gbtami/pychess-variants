@@ -55,6 +55,7 @@ static/images/pieces/sittuyin/* | [Kadagaden](https://github.com/Kadagaden/shogi
 static/images/pieces/spartan/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/pieces/synochess/* | Couch Tomato | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/pieces/tori/* | Couch Tomato | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
+static/images/pieces/xiangqi/euro/* | Jasmin Scharrer and Sebastian Pipping | [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) |
 static/images/pieces/xiangqi/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/sound/bugchat/* | [rhasspy/piper](https://github.com/rhasspy/piper) | [MIT](https://github.com/rhasspy/piper/blob/master/LICENSE.md) | Generated with `en_GB-northern_english_male-medium` voice. Voice models are under a different license.
 static/sound/futuristic/* | [Enigmahack](https://github.com/Enigmahack) | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
