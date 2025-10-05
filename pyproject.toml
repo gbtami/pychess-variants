@@ -45,19 +45,3 @@ line-length = 100
 
 [tool.setuptools]
 packages = []  # Disable package discovery
-
-[build-system]
-requires = ["uv_build>=0.8.22,<0.9.0"]
-build-backend = "uv_build"
-
-[tool.uv.build-backend]
-module-root = ""
-module-name = "pychess_data"  # empty module to let us create a data only package
-source-include = [
-    "static/images/board/**",
-    "static/images/pieces/**",
-    "static/piece/**",
-]
-
-[tool.uv.build-backend.data]
-data = "."
