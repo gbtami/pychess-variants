@@ -47,9 +47,11 @@ static/images/pieces/orda/* | Couch Tomato | [AGPLv3+](https://www.gnu.org/licen
 static/images/pieces/paradigm/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/pieces/santa/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/pieces/shinobi/* | Couch Tomato | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
+static/images/pieces/shogi/2kanji/* | [orangain](https://github.com/orangain/shogi-piece-images) | [CC-BY-SA-3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en) |
+static/images/pieces/shogi/Ka/* | [Kadagaden](https://github.com/orangain/shogi-piece-images) | [CC-BY-SA-3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en) |
 static/images/pieces/shogi/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/pieces/shogun/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
-static/images/pieces/sittuyin/* | [Kadagaden](https://github.com/Kadagaden/chess-pieces) | [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) |
+static/images/pieces/sittuyin/* | [Kadagaden](https://github.com/Kadagaden/shogi-pieces) | [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) |
 static/images/pieces/spartan/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/pieces/synochess/* | Couch Tomato | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/pieces/tori/* | Couch Tomato | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
