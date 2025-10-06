@@ -71,10 +71,6 @@ static/images/board/* | pychess-variants contributors | [AGPLv3+](https://www.gn
 static/images/trophy/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/*Guide/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/bugroundchat/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
-static/images/MidAutumnFestival/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
-static/images/SchessEGT/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
-static/images/SchessEndings*/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
-static/images/SchessRamblings/* | pychess-variants contributors | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt) |
 static/images/Santa_hat.svg | [openclipart](https://openclipart.org/detail/190172/santa-hat) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
 static/images/puzzles.jpg | [puzzles.one](https://puzzles.one/) | | From puzzles.one website
 static/images/one-flew-over-the-cuckoos-nest.jpg | | | Movie poster
