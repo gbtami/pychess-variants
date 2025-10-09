@@ -7,6 +7,7 @@ from functools import cache
 from fairy.ataxx import ATAXX_FENS
 from fairy.caparandom import caparandom_rank8
 from fairy.chess960 import CHESS960_FENS
+from fairy.jieqi import make_initial_mapping
 from const import CATEGORIES
 from fairy.racingkings import RACINGKINGS_FENS
 from logger import log
@@ -37,6 +38,7 @@ CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC
 LOOKING_GLASS_ALICE_FEN = "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
 MANCHU_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1"
 MANCHU_R_FEN = "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
+JIEQI_FEN = "r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1"
 
 
 def file_of(piece: str, rank: str) -> int:
@@ -88,11 +90,19 @@ class FairyBoard:
         )
         self.legal_moves_need_history = variant in ("janggi", "ataxx")
         self.nnue = initial_fen == ""
-        self.initial_fen = (
-            initial_fen
-            if initial_fen
-            else FairyBoard.start_fen(variant, chess960 or variant == "ataxx", disabled_fen)
-        )
+
+        self.jieqi_pieces = None
+        if initial_fen:
+            self.initial_fen = initial_fen
+        else:
+            if self.variant == "jieqi":
+                self.initial_fen = JIEQI_FEN
+                self.make_initial_mapping = jieqi_random_start()
+            else:
+                self.initial_fen = FairyBoard.start_fen(
+                    variant, chess960 or variant == "ataxx", disabled_fen
+                )
+
         self.move_stack: list[str] = []
         self.ply = 0
         self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
@@ -110,6 +120,7 @@ class FairyBoard:
             "supply",
             "manchu",
             "minixiangqi",
+            "jieqi",
         ):
             self.notation = NOTATION_XIANGQI_WXF
         else:
@@ -156,15 +167,18 @@ class FairyBoard:
                 self.move_stack.append(move)
                 self.ply += 1
             self.color = WHITE if self.color == BLACK else BLACK
-            self.fen = self.sf.get_fen(
-                self.variant,
-                self.fen,
-                [move],
-                self.chess960,
-                self.sfen,
-                self.show_promoted,
-                self.count_started,
-            )
+            if self.jieqi_pieces is not None:
+                self.fen = apply_move_and_transform(self.fen, move, self.jieqi_pieces)
+            else:
+                self.fen = self.sf.get_fen(
+                    self.variant,
+                    self.fen,
+                    [move],
+                    self.chess960,
+                    self.sfen,
+                    self.show_promoted,
+                    self.count_started,
+                )
         except Exception:
             self.pop()
             log.error(

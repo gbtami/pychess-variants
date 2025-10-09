@@ -355,4 +355,13 @@ extinctionPseudoRoyal = true
 dupleCheck = true
 promotedPieceType = g:k
 promotionRegionWhite = -
-promotionRegionBlack = -`
+promotionRegionBlack = -
+
+# Jieqi https://www.clubxiangqi.com/uprules.php
+[jieqi:xiangqi]
+startFen = r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1
+mobilityRegionWhiteFers = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10
+mobilityRegionBlackFers = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10
+mobilityRegionWhiteElephant = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10
+mobilityRegionBlackElephant = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10
+promotedPieceType = p:p n:n b:b r:r a:a`

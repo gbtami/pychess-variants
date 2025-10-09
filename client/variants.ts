@@ -771,6 +771,17 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
     }),
 
+    jieqi: variant({
+        name: "jieqi", tooltip: "Players can see the identity of the pieces after theirs first move.",
+        startFen: "r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1",
+        icon: "|",
+        boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
+        colors: { first: "Red", second: "Black" },
+        pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
+        promotion: { type: "regular", roles: [] },
+    }),
+
     xiangqihouse: variant({
         name: "xiangqihouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR[] w - - 0 1",
@@ -1223,7 +1234,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
     sea:      { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
-    xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi" ] },
+    xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
     other:    { variants: [ "ataxx", "xiangfu" ] }
