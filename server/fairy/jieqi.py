@@ -1,6 +1,5 @@
 import random
 import re
-from functools import lru_cache
 
 # --- Constants for standard Xiangqi setup ---
 BLACK_SQUARES = [
@@ -28,9 +27,8 @@ RED_PIECES = [
 
 # --- Utilities ---
 
-@lru_cache(maxsize=None)
 def xiangqi_fen_to_pieces(fen):
-    """Parse Xiangqi FEN (with '~') into a tuple of 90 strings ('r', 'r~', or '.')."""
+    """Parse Xiangqi FEN (with '~') into list of 90 strings ('r', 'r~', or '.')."""
     rows = fen.split()[0].split('/')
     board = []
     for row in rows:
@@ -47,7 +45,8 @@ def xiangqi_fen_to_pieces(fen):
                 else:
                     board.append(ch)
                     i += 1
-    return tuple(board)
+    assert len(board) == 90
+    return board
 
 def pieces_to_fen(board):
     """Convert ['r~', '.', 'n', ...] -> FEN string."""
@@ -69,21 +68,19 @@ def pieces_to_fen(board):
         fen_rows.append(fen_row)
     return '/'.join(fen_rows)
 
-@lru_cache(maxsize=None)
 def square_to_index(square):
     """Convert 'b3' -> flat index 0..89."""
     col = ord(square[0]) - ord('a')
     row = 10 - int(square[1:])
     return row * 9 + col
 
-@lru_cache(maxsize=None)
 def index_to_square(index):
     row, col = divmod(index, 9)
     return f"{chr(ord('a')+col)}{10-row}"
 
 def parse_move(move):
     """Parse move like 'b3b10' into (src, dst). Handles 1- or 2-digit ranks."""
-    match = re.fullmatch(r'([a-i][1-9]|a10|b10|c10|d10|e10|f10|g10|h10|i10)([a-i][1-9]|a10|b10|c10|d10|e10|f10|g10|h10|i10)', move)
+    match = re.fullmatch(r'([a-i][1-9]|[a-i]10)([a-i][1-9]|[a-i]10)', move)
     if not match:
         raise ValueError(f"Invalid move format: {move}")
     return match.group(1), match.group(2)
@@ -121,30 +118,19 @@ def make_initial_mapping():
 
 # --- Core Move Logic ---
 
-def get_uncovered_fen(fen, revealed_squares):
-    """
-    Removes the '~' from pieces on revealed squares.
-    """
-    board = list(xiangqi_fen_to_pieces(fen))
-    for square in revealed_squares:
-        index = square_to_index(square)
-        if "~" in board[index]:
-            board[index] = board[index].replace("~", "")
-    return pieces_to_fen(board)
-
-def apply_move_and_transform(fen, move, mapping, revealed_squares):
+def apply_move_and_transform(fen, move, mapping):
     """
     Apply a move (e.g. 'b3b10') to the FEN:
     - Moves the piece (captures if needed)
     - Replaces moved piece according to mapping[src]
     - Removes '~' if moved piece was uncovered (except kings)
-    Returns the new FEN string and the updated set of revealed squares.
+    Returns the new FEN string.
     """
     parts = fen.split(' ')
     placement = parts[0]
     rest = ' '.join(parts[1:]) if len(parts) > 1 else ''
 
-    board = list(xiangqi_fen_to_pieces(placement))
+    board = xiangqi_fen_to_pieces(placement)
     src, dst = parse_move(move)
     si, di = square_to_index(src), square_to_index(dst)
 
@@ -152,18 +138,15 @@ def apply_move_and_transform(fen, move, mapping, revealed_squares):
     if piece == '.':
         raise ValueError(f"No piece at {src} to move")
 
-    if src not in revealed_squares:
-        revealed_squares.add(src)
-        new_piece = mapping.get(src, piece.replace("~", ""))
+    base_piece = piece.replace('~','')
+    if base_piece.lower() == 'k':
+        # kings always stay covered
+        new_piece = mapping.get(src, base_piece)
     else:
-        new_piece = piece
+        new_piece = mapping.get(src, base_piece)
 
     board[di] = new_piece
     board[si] = '.'
 
-    new_fen_placement = pieces_to_fen(board)
-
-    # After the move, we need to uncover any newly revealed pieces
-    final_fen_placement = get_uncovered_fen(new_fen_placement, revealed_squares)
-
-    return f"{final_fen_placement} {rest}".strip(), revealed_squares
+    new_fen = pieces_to_fen(board)
+    return f"{new_fen} {rest}".strip()

@@ -7,7 +7,7 @@ from functools import cache
 from fairy.ataxx import ATAXX_FENS
 from fairy.caparandom import caparandom_rank8
 from fairy.chess960 import CHESS960_FENS
-from fairy.jieqi import make_initial_mapping, apply_move_and_transform
+from fairy.jieqi import make_initial_mapping
 from const import CATEGORIES
 from fairy.racingkings import RACINGKINGS_FENS
 from logger import log
@@ -91,9 +91,6 @@ class FairyBoard:
         self.legal_moves_need_history = variant in ("janggi", "ataxx")
         self.nnue = initial_fen == ""
         self.jieqi_pieces = None
-        self.revealed_squares = set()
-        self.history = []
-
         if initial_fen:
             self.initial_fen = initial_fen
         else:
@@ -163,11 +160,13 @@ class FairyBoard:
 
     def push(self, move, append=True):
         try:
+            # log.debug("move=%s, fen=%s", move, self.fen
+            if append:
+                self.move_stack.append(move)
+                self.ply += 1
+            self.color = WHITE if self.color == BLACK else BLACK
             if self.jieqi_pieces is not None:
-                self.history.append(self.revealed_squares.copy())
-                self.fen, self.revealed_squares = apply_move_and_transform(
-                    self.fen, move, self.jieqi_pieces, self.revealed_squares
-                )
+                self.fen = apply_move_and_transform(self.fen, move, self.jieqi_pieces)
             else:
                 self.fen = self.sf.get_fen(
                     self.variant,
@@ -178,10 +177,6 @@ class FairyBoard:
                     self.show_promoted,
                     self.count_started,
                 )
-            if append:
-                self.move_stack.append(move)
-                self.ply += 1
-            self.color = WHITE if self.color == BLACK else BLACK
         except Exception:
             self.pop()
             log.error(
@@ -200,8 +195,6 @@ class FairyBoard:
         self.move_stack.pop()
         self.ply -= 1
         self.color = not self.color
-        if self.jieqi_pieces is not None and self.history:
-            self.revealed_squares = self.history.pop()
         self.fen = self.sf.get_fen(
             self.variant,
             self.initial_fen,
