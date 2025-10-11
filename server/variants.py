@@ -93,6 +93,7 @@ class ServerVariants(Enum):
     MANCHU = Variant("M", "manchu", _("Manchu+"), "{", grand=True)
     JANGGI = Variant("j", "janggi", _("Janggi"), "=", grand=True, byo=True)
     MINIXIANGQI = Variant("e", "minixiangqi", _("Minixiangqi"), "7")
+    JIEQI = Variant("V", "jieqi", _("Jieqi"), "|", grand=True)
 
     SHATRANJ = Variant("†", "shatranj", _("Shatranj"), "🐘")
     CAPABLANCA = Variant("c", "capablanca", _("Capablanca"), "P")
@@ -166,6 +167,7 @@ VARIANT_ICONS = {variant.server_name: variant.icon for variant in ServerVariants
 DEV_VARIANTS = (
     ServerVariants.MAKBUG,
     ServerVariants.SUPPLY,
+    ServerVariants.JIEQI,
 ) + VARIANT_CONTEST
 
 # Remove DEV variants on prod site until they stabilize
