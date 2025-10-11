@@ -7,7 +7,7 @@ from functools import cache
 from fairy.ataxx import ATAXX_FENS
 from fairy.caparandom import caparandom_rank8
 from fairy.chess960 import CHESS960_FENS
-from fairy.jieqi import make_initial_mapping
+from fairy.jieqi import make_initial_mapping, apply_move_and_transform
 from const import CATEGORIES
 from fairy.racingkings import RACINGKINGS_FENS
 from logger import log
@@ -25,6 +25,7 @@ except ImportError:
     log.error("No pyffish-alice module installed!")
 
 FEN_OK = sf.FEN_OK
+NOTATION_LAN = sf.NOTATION_LAN
 NOTATION_SAN = sf.NOTATION_SAN
 NOTATION_JANGGI = sf.NOTATION_JANGGI
 NOTATION_XIANGQI_WXF = sf.NOTATION_XIANGQI_WXF
@@ -38,7 +39,7 @@ CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC
 LOOKING_GLASS_ALICE_FEN = "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
 MANCHU_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1"
 MANCHU_R_FEN = "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
-JIEQI_FEN = "r~n~b~a~k~a~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~K~A~B~N~R~ w - - 0 1"
+JIEQI_FEN = "r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1"
 
 
 def file_of(piece: str, rank: str) -> int:
@@ -87,16 +88,19 @@ class FairyBoard:
             "bughouse",
             "supply",
             "makbug",
+            "jieqi",
         )
         self.legal_moves_need_history = variant in ("janggi", "ataxx")
         self.nnue = initial_fen == ""
-        self.jieqi_pieces = None
+        self.jieqi_covered_pieces = None
         if initial_fen:
             self.initial_fen = initial_fen
         else:
             if self.variant == "jieqi":
                 self.initial_fen = JIEQI_FEN
-                self.jieqi_pieces = make_initial_mapping()
+                self.jieqi_covered_pieces = make_initial_mapping()
+                print("---", self.initial_fen)
+                print(self.jieqi_covered_pieces)
             else:
                 self.initial_fen = FairyBoard.start_fen(
                     variant, chess960 or variant == "ataxx", disabled_fen
@@ -118,9 +122,10 @@ class FairyBoard:
             "supply",
             "manchu",
             "minixiangqi",
-            "jieqi",
         ):
             self.notation = NOTATION_XIANGQI_WXF
+        elif self.variant == "jieqi":
+            self.notation = NOTATION_LAN
         else:
             self.notation = NOTATION_SAN
 
@@ -165,8 +170,9 @@ class FairyBoard:
                 self.move_stack.append(move)
                 self.ply += 1
             self.color = WHITE if self.color == BLACK else BLACK
-            if self.jieqi_pieces is not None:
-                self.fen = apply_move_and_transform(self.fen, move, self.jieqi_pieces)
+            if self.jieqi_covered_pieces is not None:
+                self.fen = apply_move_and_transform(self.fen, move, self.jieqi_covered_pieces)
+                print(move, self.fen)
             else:
                 self.fen = self.sf.get_fen(
                     self.variant,
@@ -223,7 +229,12 @@ class FairyBoard:
 
     def legal_moves(self):
         # move legality can depend on history, e.g., passing and bikjang
-        return self.sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        if self.legal_moves_need_history:
+            return self.sf.legal_moves(
+                self.variant, self.initial_fen, self.move_stack, self.chess960
+            )
+        else:
+            return self.sf.legal_moves(self.variant, self.fen, [], self.chess960)
 
     def legal_moves_no_history(self):
         # move legality can depend on history, but for bughouse we can't recreate history so we need this version
@@ -236,26 +247,45 @@ class FairyBoard:
         return self.sf.has_insufficient_material(self.variant, self.fen, [], self.chess960)
 
     def is_immediate_game_end(self):
-        immediate_end, result = self.sf.is_immediate_game_end(
-            self.variant, self.initial_fen, self.move_stack, self.chess960
-        )
+        if self.legal_moves_need_history:
+            immediate_end, result = self.sf.is_immediate_game_end(
+                self.variant, self.initial_fen, self.move_stack, self.chess960
+            )
+        else:
+            immediate_end, result = self.sf.is_immediate_game_end(
+                self.variant, self.fen, [], self.chess960
+            )
         return immediate_end, result
 
     def is_optional_game_end(self):
-        return self.sf.is_optional_game_end(
-            self.variant,
-            self.initial_fen,
-            self.move_stack,
-            self.chess960,
-            self.count_started,
-        )
+        if self.legal_moves_need_history:
+            return self.sf.is_optional_game_end(
+                self.variant,
+                self.initial_fen,
+                self.move_stack,
+                self.chess960,
+                self.count_started,
+            )
+        else:
+            return self.sf.is_optional_game_end(
+                self.variant,
+                self.fen,
+                [],
+                self.chess960,
+                self.count_started,
+            )
 
     def is_claimable_draw(self):
         optional_end, result = self.is_optional_game_end()
         return optional_end and result == 0
 
     def game_result(self):
-        return self.sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        if self.legal_moves_need_history:
+            return self.sf.game_result(
+                self.variant, self.initial_fen, self.move_stack, self.chess960
+            )
+        else:
+            return self.sf.game_result(self.variant, self.fen, [], self.chess960)
 
     def game_result_no_history(self):
         return self.sf.game_result(self.variant, self.fen, [], self.chess960)

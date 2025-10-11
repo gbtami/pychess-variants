@@ -774,14 +774,15 @@ export const VARIANTS: Record<string, Variant> = {
     jieqi: variant({
         name: "jieqi",
         tooltip: "Players can see the identity of the pieces after theirs first move.",
-        startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
+        startFen: "r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1",
         icon: "|",
         boardFamily: "xiangqi9x10",
         pieceFamily: "xiangqi",
-        notation: cg.Notation.XIANGQI_ARBNUM,
+        notation: cg.Notation.ALGEBRAIC,
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
+        ui: { showPromoted: true },
     }),
 
     xiangqihouse: variant({
