@@ -806,13 +806,16 @@ class Game:
     @property
     def pgn(self):
         try:
-            mlist = get_san_moves(
-                self.variant,
-                self.initial_fen if self.initial_fen else self.board.initial_fen,
-                self.board.move_stack,
-                self.chess960,
-                NOTATION_SAN,
-            )
+            if self.variant == "jieqi":
+                mlist = self.board.move_stack
+            else:
+                mlist = get_san_moves(
+                    self.variant,
+                    self.initial_fen if self.initial_fen else self.board.initial_fen,
+                    self.board.move_stack,
+                    self.chess960,
+                    NOTATION_SAN,
+                )
         except Exception:
             log.error("Exception in game %s pgn()", self.id)
             mlist = self.board.move_stack

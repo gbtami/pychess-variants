@@ -88,7 +88,6 @@ class FairyBoard:
             "bughouse",
             "supply",
             "makbug",
-            "jieqi",
         )
         self.legal_moves_need_history = variant in ("janggi", "ataxx")
         self.nnue = initial_fen == ""

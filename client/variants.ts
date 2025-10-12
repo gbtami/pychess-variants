@@ -782,7 +782,6 @@ export const VARIANTS: Record<string, Variant> = {
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
-        ui: { showPromoted: true },
     }),
 
     xiangqihouse: variant({
