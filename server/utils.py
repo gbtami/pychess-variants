@@ -40,6 +40,7 @@ from fairy import (
     get_san_moves,
     validate_fen,
 )
+from fairy.jieqi import make_initial_mapping
 from game import Game
 from newid import new_id
 from user import User
@@ -142,6 +143,9 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
         create=False,
         tournamentId=doc.get("tid"),
     )
+
+    if variant == "jieqi":
+        game.board.jieqi_covered_pieces = make_initial_mapping(doc["bj"], doc["wj"])
 
     game.usi_format = usi_format
 
@@ -516,6 +520,9 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         document["ws"] = game.wsetup
         document["bs"] = game.bsetup
         document["if"] = game.board.initial_fen
+    elif game.variant == "jieqi":
+        document["wj"] = "".join(game.board.red_pieces)
+        document["bj"] = "".join(game.board.black_pieces)
 
     if game.initial_fen or game.chess960:
         document["if"] = game.initial_fen

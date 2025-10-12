@@ -7,7 +7,7 @@ from functools import cache
 from fairy.ataxx import ATAXX_FENS
 from fairy.caparandom import caparandom_rank8
 from fairy.chess960 import CHESS960_FENS
-from fairy.jieqi import make_initial_mapping, apply_move_and_transform
+from fairy.jieqi import make_initial_mapping, apply_move_and_transform, BLACK_PIECES, RED_PIECES
 from const import CATEGORIES
 from fairy.racingkings import RACINGKINGS_FENS
 from logger import log
@@ -97,7 +97,9 @@ class FairyBoard:
         else:
             if self.variant == "jieqi":
                 self.initial_fen = JIEQI_FEN
-                self.jieqi_covered_pieces = make_initial_mapping()
+                self.black_pieces = random.sample(BLACK_PIECES, 15)
+                self.red_pieces = random.sample(RED_PIECES, 15)
+                self.jieqi_covered_pieces = make_initial_mapping(self.black_pieces, self.red_pieces)
                 print("---", self.initial_fen)
                 print(self.jieqi_covered_pieces)
             else:

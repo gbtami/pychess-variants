@@ -1,55 +1,20 @@
 import unittest
+from fairy import JIEQI_FEN
 from fairy.jieqi import (
     apply_move_and_transform,
+    make_initial_mapping,
     xiangqi_fen_to_pieces,
     square_to_index,
+    BLACK_PIECES,
+    RED_PIECES,
 )
 
 
 class TestApplyMoveAndTransform(unittest.TestCase):
     def setUp(self):
-        # Use simplified initial FEN with tilde (Jeiqi starting)
-        self.fen = (
-            "r~n~b~a~ka~b~n~r~/9/1c~5c~1/"
-            "p~1p~1p~1p~1p~/9/9/"
-            "P~1P~1P~1P~1P~/1C~5C~1/"
-            "9/R~N~B~A~KA~B~N~R~ w - - 0 1"
-        )
+        self.fen = JIEQI_FEN
         # Use a fixed mapping for deterministic tests
-        self.mapping = {
-            "a10": "r",
-            "b10": "n",
-            "c10": "b",
-            "d10": "a",
-            "f10": "a",
-            "g10": "b",
-            "h10": "n",
-            "i10": "r",
-            "b8": "c",
-            "h8": "c",
-            "a7": "p",
-            "c7": "p",
-            "e7": "p",
-            "g7": "p",
-            "i7": "p",
-            "e10": "k",
-            "a1": "R",
-            "b1": "N",
-            "c1": "B",
-            "d1": "A",
-            "f1": "A",
-            "g1": "B",
-            "h1": "N",
-            "i1": "R",
-            "b3": "C",
-            "h3": "C",
-            "a4": "P",
-            "c4": "P",
-            "e4": "P",
-            "g4": "P",
-            "i4": "P",
-            "e1": "K",
-        }
+        self.mapping = make_initial_mapping(BLACK_PIECES, RED_PIECES)
 
     def get_piece_at(self, fen, square):
         board = xiangqi_fen_to_pieces(fen.split()[0])

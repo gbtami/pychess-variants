@@ -1,13 +1,13 @@
-import random
 from functools import lru_cache
 
 
-# Covered Jieqi piece squares
+# Covered Jieqi piece squares ordered as they appear in xiangqi starting FEN
+# Ordering is important because it is used to save/restore the randomized covered pieces in mongodb !!!
 BLACK_SQUARES = ["a10", "b10", "c10", "d10", "f10", "g10", "h10", "i10", "b8", "h8", "a7", "c7", "e7", "g7", "i7"]  # fmt: skip
-BLACK_PIECES = ["r", "r", "n", "n", "b", "b", "a", "a", "c", "c", "p", "p", "p", "p", "p"]  # fmt: skip
+RED_SQUARES = ["a4", "c4", "e4", "g4", "i4", "b3", "h3", "a1", "b1", "c1", "d1", "f1", "g1", "h1", "i1"]  # fmt: skip
 
-RED_SQUARES = ["a1", "b1", "c1", "d1", "f1", "g1", "h1", "i1", "b3", "h3", "a4", "c4", "e4", "g4", "i4"]  # fmt: skip
-RED_PIECES = ["R", "R", "N", "N", "B", "B", "A", "A", "C", "C", "P", "P", "P", "P", "P"]  # fmt: skip
+BLACK_PIECES = "rrnnbbaaccppppp"
+RED_PIECES = BLACK_PIECES.upper()
 
 
 def xiangqi_fen_to_pieces(fen):
@@ -67,19 +67,15 @@ def index_to_square(index):
     return f"{chr(ord('a')+col)}{10-row}"
 
 
-def make_initial_mapping():
+def make_initial_mapping(black_pieces, red_pieces):
     """
     Create a Jeiqi-style piece shuffle mapping for the standard Xiangqi start:
     Returns dict: square -> piece letter (no '~')
     """
     mapping = {}
-    random.shuffle(BLACK_PIECES)
-    random.shuffle(RED_PIECES)
-
     for i in range(15):
-        mapping[RED_SQUARES[i]] = RED_PIECES[i]
-        mapping[BLACK_SQUARES[i]] = BLACK_PIECES[i]
-
+        mapping[RED_SQUARES[i]] = red_pieces[i]
+        mapping[BLACK_SQUARES[i]] = black_pieces[i]
     return mapping
 
 
