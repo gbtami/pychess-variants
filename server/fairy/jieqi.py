@@ -97,6 +97,8 @@ def apply_move_and_transform(fen, move, mapping):
     rest = " ".join(parts[1:])
 
     board = xiangqi_fen_to_pieces(placement)
+    if move[-1].isalpha():
+        move = move[:-1]
     if move[2].isdigit():
         src, dst = move[0:3], move[3:].rstrip("+")
     else:

@@ -379,6 +379,13 @@ class Game:
         if self.status <= STARTED:
             try:
                 san = self.board.get_san(move)
+
+                if self.variant == "jieqi":
+                    new_piece = self.board.revealed_piece(move)
+                    if new_piece is not None:
+                        move = move + new_piece.lower()
+                        san = "%s=%s" % (san, new_piece.lower())
+
                 self.lastmove = move
                 if cur_color == WHITE:
                     self.clocks_w.append(clocks[WHITE])

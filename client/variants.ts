@@ -778,7 +778,7 @@ export const VARIANTS: Record<string, Variant> = {
         icon: "|",
         boardFamily: "xiangqi9x10",
         pieceFamily: "xiangqi",
-        notation: cg.Notation.ALGEBRAIC,
+        notation: cg.Notation.XIANGQI_ARBNUM,
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },

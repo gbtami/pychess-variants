@@ -121,10 +121,9 @@ class FairyBoard:
             "supply",
             "manchu",
             "minixiangqi",
+            "jieqi",
         ):
             self.notation = NOTATION_XIANGQI_WXF
-        elif self.variant == "jieqi":
-            self.notation = NOTATION_LAN
         else:
             self.notation = NOTATION_SAN
 
@@ -336,6 +335,10 @@ class FairyBoard:
         print("-------new FEN", fen)
         self.initial_fen = fen
         self.fen = self.initial_fen
+
+    def revealed_piece(self, move):
+        src = move[0:3] if move[2].isdigit() else move[0:2]
+        return self.jieqi_covered_pieces.get(src)
 
     @staticmethod
     def shuffle_start(variant):
