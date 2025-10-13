@@ -123,9 +123,9 @@ class ServerVariants(Enum):
     CHAK = Variant("C", "chak", _("Chak"), "🐬")
     CHENNIS = Variant("H", "chennis", _("Chennis"), "🎾", move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
     SPARTAN = Variant("N", "spartan", _("Spartan"), "⍺")
+    XIANGFU = Variant('"', "xiangfu", _("Xiangfu"), "👊")
 
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
-    XIANGFU = Variant('"', "xiangfu", _("Xiangfu"), "👊")
 
     @property
     def server_name(self):
@@ -138,9 +138,6 @@ del _
 def get_server_variant(uci_variant, chess960):
     return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
 
-
-VARIANT_CONTEST = (ServerVariants.XIANGFU,)
-VARIANT_CONTESTANTS = {variant.server_name: variant for variant in VARIANT_CONTEST}
 
 NO_VARIANTS = (
     ServerVariants.EMBASSY,
@@ -166,7 +163,8 @@ VARIANT_ICONS = {variant.server_name: variant.icon for variant in ServerVariants
 DEV_VARIANTS = (
     ServerVariants.MAKBUG,
     ServerVariants.SUPPLY,
-) + VARIANT_CONTEST
+    ServerVariants.XIANGFU,
+)
 
 # Remove DEV variants on prod site until they stabilize
 if PROD:
