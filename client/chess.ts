@@ -96,7 +96,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     // Allowed characters in placement part
     const placement = parts[0];
     const startPlacement = start[0];
-    let good = startPlacement + 
+    let good = startPlacement +
         ((variantName === "orda") ? "Hq" : "") +
         ((variantName === "dobutsu") ? "Hh" : "") +
         ((variantName === "duck" || variantName === "ataxx") ? "*" : "") +
@@ -181,6 +181,9 @@ export function validFen(variant: Variant, fen: string): boolean {
     switch (variantName) {
         case 'spartan':
             if (bK === 0 || bK > 2 || wK !== 1) return false;
+            break;
+        case 'xiangfu':
+            if (bK === 0 || bK > 2 || wK === 0 || wK > 2 ) return false;
             break;
         case 'horde':
             if (bK !== 1 || wK !== 0) return false;

@@ -853,12 +853,26 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
                 invalid4 = True
 
     # Number of kings
-    bking = "l" if variant == "dobutsu" else "k"
-    wking = "L" if variant == "dobutsu" else "K"
+    if variant == "dobutsu":
+        bking = "l"
+    elif variant == "xiangfu":
+        bking = "g"
+    else:
+        bking = "k"
+
+    if variant == "dobutsu":
+        wking = "L"
+    elif variant == "xiangfu":
+        wking = "G"
+    else:
+        wking = "K"
+
     bK = init[0].count(bking)
     wK = init[0].count(wking)
     if variant == "spartan":
         invalid5 = bK == 0 or bK > 2 or wK != 1
+    elif variant == "xiangfu":
+        invalid5 = bK == 0 or bK > 2 or wK == 0 or wK > 2
     elif variant == "horde":
         invalid5 = bK != 1 or wK != 0
     else:
