@@ -100,8 +100,8 @@ class FairyBoard:
                 self.black_pieces = random.sample(BLACK_PIECES, 15)
                 self.red_pieces = random.sample(RED_PIECES, 15)
                 self.jieqi_covered_pieces = make_initial_mapping(self.black_pieces, self.red_pieces)
-                print("---", self.initial_fen)
-                print(self.jieqi_covered_pieces)
+                # print("---", self.initial_fen)
+                # print(self.jieqi_covered_pieces)
             else:
                 self.initial_fen = FairyBoard.start_fen(
                     variant, chess960 or variant == "ataxx", disabled_fen
@@ -172,7 +172,7 @@ class FairyBoard:
             self.color = WHITE if self.color == BLACK else BLACK
             if self.jieqi_covered_pieces is not None:
                 self.fen = apply_move_and_transform(self.fen, move, self.jieqi_covered_pieces)
-                print(move, self.fen)
+                # print(move, self.fen)
             else:
                 self.fen = self.sf.get_fen(
                     self.variant,

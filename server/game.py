@@ -1054,7 +1054,17 @@ class Game:
                         # print("Count started", count_started)
                         self.board.count_started = ply
 
+                if self.variant == "jieqi" and move[-1].isalpha():
+                    move = move[:-1]
+
                 san = self.board.get_san(move)
+
+                if self.variant == "jieqi":
+                    new_piece = self.board.revealed_piece(move)
+                    if new_piece is not None:
+                        move = move + new_piece.lower()
+                        san = "%s=%s" % (san, new_piece.lower())
+
                 self.board.push(move, append=False)
                 self.check = self.board.is_checked()
                 turnColor = "black" if self.board.color == BLACK else "white"
