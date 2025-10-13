@@ -379,6 +379,13 @@ class Game:
         if self.status <= STARTED:
             try:
                 san = self.board.get_san(move)
+
+                if self.variant == "jieqi":
+                    new_piece = self.board.revealed_piece(move)
+                    if new_piece is not None:
+                        move = move + new_piece.lower()
+                        san = "%s=%s" % (san, new_piece.lower())
+
                 self.lastmove = move
                 if cur_color == WHITE:
                     self.clocks_w.append(clocks[WHITE])
@@ -806,13 +813,16 @@ class Game:
     @property
     def pgn(self):
         try:
-            mlist = get_san_moves(
-                self.variant,
-                self.initial_fen if self.initial_fen else self.board.initial_fen,
-                self.board.move_stack,
-                self.chess960,
-                NOTATION_SAN,
-            )
+            if self.variant == "jieqi":
+                mlist = self.board.move_stack
+            else:
+                mlist = get_san_moves(
+                    self.variant,
+                    self.initial_fen if self.initial_fen else self.board.initial_fen,
+                    self.board.move_stack,
+                    self.chess960,
+                    NOTATION_SAN,
+                )
         except Exception:
             log.error("Exception in game %s pgn()", self.id)
             mlist = self.board.move_stack
@@ -1044,7 +1054,17 @@ class Game:
                         # print("Count started", count_started)
                         self.board.count_started = ply
 
+                if self.variant == "jieqi" and move[-1].isalpha():
+                    move = move[:-1]
+
                 san = self.board.get_san(move)
+
+                if self.variant == "jieqi":
+                    new_piece = self.board.revealed_piece(move)
+                    if new_piece is not None:
+                        move = move + new_piece.lower()
+                        san = "%s=%s" % (san, new_piece.lower())
+
                 self.board.push(move, append=False)
                 self.check = self.board.is_checked()
                 turnColor = "black" if self.board.color == BLACK else "white"
