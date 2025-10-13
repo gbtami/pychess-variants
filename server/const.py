@@ -230,6 +230,7 @@ CATEGORIES = {
         "chennis",
         "shinobiplus",
         "spartan",
+        "xiangfu",
     ),
     "makruk": ("makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": (

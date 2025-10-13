@@ -50,7 +50,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from logger import log
-from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant, VARIANT_CONTESTANTS
+from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
 
 
 async def tv_game(app_state: PychessGlobalAppState):
@@ -744,9 +744,6 @@ def pgn(doc):
 
 
 def sanitize_fen(variant, initial_fen, chess960, base=False):
-    if variant in VARIANT_CONTESTANTS:
-        return True, initial_fen
-
     server_variant = get_server_variant(variant, chess960)
     if server_variant.two_boards and not base:
         fens = initial_fen.split(" | ")
@@ -856,12 +853,26 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
                 invalid4 = True
 
     # Number of kings
-    bking = "l" if variant == "dobutsu" else "k"
-    wking = "L" if variant == "dobutsu" else "K"
+    if variant == "dobutsu":
+        bking = "l"
+    elif variant == "xiangfu":
+        bking = "g"
+    else:
+        bking = "k"
+
+    if variant == "dobutsu":
+        wking = "L"
+    elif variant == "xiangfu":
+        wking = "G"
+    else:
+        wking = "K"
+
     bK = init[0].count(bking)
     wK = init[0].count(wking)
     if variant == "spartan":
         invalid5 = bK == 0 or bK > 2 or wK != 1
+    elif variant == "xiangfu":
+        invalid5 = bK == 0 or bK > 2 or wK == 0 or wK > 2
     elif variant == "horde":
         invalid5 = bK != 1 or wK != 0
     else:

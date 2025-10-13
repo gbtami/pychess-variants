@@ -83,6 +83,13 @@ export function layer2army (lobbyCtrl: LobbyController, containerId: string): vo
                 ]),
                 h('p.variant-extra-info', _('Spartans: Army with two kings')),
             ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'xiangfu') } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['xiangfu'].icon(false) } }),
+                    h('h3', VARIANTS['xiangfu'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Martial arts Xiangqi')),
+            ]),
         ]),
     ]);
 

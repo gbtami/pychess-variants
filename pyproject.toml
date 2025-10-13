@@ -5,20 +5,20 @@ description = "Chess variants server"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "aiohttp==3.12.15",
+    "aiohttp==3.13.0",
     "aiohttp-cors==0.8.1",
     "aiohttp-jinja2==1.6",
     "aiohttp-session==2.12.1",
     "aiohttp-sse==2.2.0",
     "brotli==1.1.0",
     "cryptography==46.0.2",
-    "discord-py==2.6.3",
+    "discord-py==2.6.4",
     "dnspython==2.8.0",
     "jinja2==3.1.6",
     "minify-html==0.16.4",
     "pyffish==0.0.88",
     "pyffish-alice==0.0.2",
-    "pymongo==4.15.2",
+    "pymongo==4.15.3",
     "pyopenssl==25.3.0",
     "python-gettext==5.0",
     "rustworkx==0.17.1",
