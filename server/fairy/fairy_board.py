@@ -237,7 +237,13 @@ class FairyBoard:
                 self.variant, self.initial_fen, self.move_stack, self.chess960
             )
         else:
-            return self.sf.legal_moves(self.variant, self.fen, [], self.chess960)
+            if self.jieqi_covered_pieces:
+                moves = self.sf.legal_moves(self.variant, self.fen, [], self.chess960)
+                for invalid_move in self.invalid_jieqi_advisor_moves():
+                    moves.remove(invalid_move)
+                return moves
+            else:
+                return self.sf.legal_moves(self.variant, self.fen, [], self.chess960)
 
     def legal_moves_no_history(self):
         # move legality can depend on history, but for bughouse we can't recreate history so we need this version
@@ -344,6 +350,18 @@ class FairyBoard:
     def revealed_piece(self, move):
         src = move[0:3] if move[2].isdigit() else move[0:2]
         return self.jieqi_covered_pieces.get(src)
+
+    def invalid_jieqi_advisor_moves(self):
+        if self.color == WHITE:
+            if "d1" in self.jieqi_covered_pieces:
+                yield "d1c2"
+            if "f1" in self.jieqi_covered_pieces:
+                yield "f1g2"
+        else:
+            if "d10" in self.jieqi_covered_pieces:
+                yield "d10c9"
+            if "f10" in self.jieqi_covered_pieces:
+                yield "f10g9"
 
     @staticmethod
     def shuffle_start(variant):
