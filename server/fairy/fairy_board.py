@@ -91,7 +91,10 @@ class FairyBoard:
         )
         self.legal_moves_need_history = variant in ("janggi", "ataxx")
         self.nnue = initial_fen == ""
+
+        self.movelist_supported = self.variant != "jieqi"
         self.jieqi_covered_pieces = None
+
         if initial_fen:
             self.initial_fen = initial_fen
         else:
@@ -247,7 +250,7 @@ class FairyBoard:
         return self.sf.has_insufficient_material(self.variant, self.fen, [], self.chess960)
 
     def is_immediate_game_end(self):
-        if self.legal_moves_need_history:
+        if self.movelist_supported:
             immediate_end, result = self.sf.is_immediate_game_end(
                 self.variant, self.initial_fen, self.move_stack, self.chess960
             )
@@ -258,7 +261,7 @@ class FairyBoard:
         return immediate_end, result
 
     def is_optional_game_end(self):
-        if self.legal_moves_need_history:
+        if self.movelist_supported:
             return self.sf.is_optional_game_end(
                 self.variant,
                 self.initial_fen,
@@ -280,7 +283,7 @@ class FairyBoard:
         return optional_end and result == 0
 
     def game_result(self):
-        if self.legal_moves_need_history:
+        if self.movelist_supported:
             return self.sf.game_result(
                 self.variant, self.initial_fen, self.move_stack, self.chess960
             )
