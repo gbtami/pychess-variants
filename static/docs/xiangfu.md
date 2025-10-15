@@ -1,4 +1,4 @@
-![Xiangfu](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Xiangfu.svg) # Xiangfu
+# ![Xiangfu](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Xiangfu.svg) Xiangfu
 
 Xiangfu is a Xiangqi variant created by Eventlesstew for the Variant Design Contest.
 This essentially aims to be, or was initially going to be, a spiritual successor to Chennis. This variant combines the upfrontness of Marial Arts with the careful aggression of Xiangqi. This is achieved through the Kings always being in the centre and the use of ranging pieces, including the Bishop and the Catapult.
