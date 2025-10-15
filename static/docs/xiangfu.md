@@ -3,7 +3,7 @@
 ![Xiangfu](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Xiangfu.png)
 
 Xiangfu is a Xiangqi variant created by Eventlesstew for the Variant Design Contest.
-This essentially aims to be, or was initially going to be, a spiritual successor to Chennis. This variant combines the upfrontness of Marial Arts with the careful aggression of Xiangqi. This is achieved through the Kings always being in the centre and the use of ranging pieces, including the Bishop and the Catapult.
+This essentially aims to be, or was initially going to be, a spiritual successor to Chennis. This variant combines the upfrontness of Marial Arts with the careful aggression of Xiangqi. This is achieved through the Kings always being in the centre and the use of ranging pieces, including the Bishop and the Crossbow.
 
 The rules to this variant are the same as Xiangqi, with the following differences:
 - Pieces you capture can be dropped within the first two ranks of the board. This is similar to Crazyhouse Xiangqi.
@@ -30,5 +30,5 @@ The Elephant moves two spaces diagonally, but can move freely since there is no 
 BISHOP
 A diagonal variant of the Chariot, the Bishop moves any number of spaces diagonally. This is the same piece as the Bishop from Chess.
 
-CATAPULT
-A diagonal variant of the Cannon, The Catapult moves any number of steps diagonally, but must jump over a piece in order to capture. For those who know, this is essentially the Copper Cannon from Cannon Shogi.
+Crossbow
+A diagonal variant of the Cannon, The Crossbow moves any number of steps diagonally, but must jump over a piece in order to capture. For those who know, this is essentially the Copper Cannon from Cannon Shogi.
