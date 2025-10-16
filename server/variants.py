@@ -93,7 +93,7 @@ class ServerVariants(Enum):
     MANCHU = Variant("M", "manchu", _("Manchu+"), "{", grand=True)
     JANGGI = Variant("j", "janggi", _("Janggi"), "=", grand=True, byo=True)
     MINIXIANGQI = Variant("e", "minixiangqi", _("Minixiangqi"), "7")
-    JIEQI = Variant("V", "jieqi", _("Jieqi"), "|", grand=True)
+    JIEQI = Variant("V", "jieqi", _("Jieqi"), "⬤", grand=True)
 
     SHATRANJ = Variant("†", "shatranj", _("Shatranj"), "🐘")
     CAPABLANCA = Variant("c", "capablanca", _("Capablanca"), "P")

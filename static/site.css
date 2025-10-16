@@ -221,7 +221,9 @@ img {
   max-width: 100%;
   height: auto;
 }
-
+variant-name {
+  vertical-align: middle;
+}
 .hide {
   display: none !important;
 }

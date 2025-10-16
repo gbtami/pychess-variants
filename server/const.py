@@ -242,7 +242,7 @@ CATEGORIES = {
         "torishogi",
         "cannonshogi",
     ),
-    "xiangqi": ("xiangqi", "supply", "manchu", "janggi", "minixiangqi"),
+    "xiangqi": ("xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi"),
     "other": ("ataxx"),
 }
 

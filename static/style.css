@@ -40,7 +40,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 .icon-Xiangfu:before {
-  content: "\1f44a";
+  content: "⬤";
 }
 .icon-Shatranj:before {
   content: "\1f418";
