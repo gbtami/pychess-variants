@@ -22,10 +22,10 @@ The pupil moves 1 space in any direction, like the king in Chess. Pupil is the u
 ### Horse (N)
 The same as the horse in Xiangqi.
 
-### Chariot
+### Chariot (R)
 The same as the chariot in Xiangqi.
 
-### Cannon
+### Cannon (C)
 The same as the cannon in Xiangqi.
 
 ### Mahout/Elephant rider (M)
