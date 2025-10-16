@@ -29,7 +29,7 @@ The same as the chariot in Xiangqi.
 The same as the cannon in Xiangqi.
 
 ### Mahout/Elephant rider (M)
-The Mahout moves one or two spaces diagonally.
+The Mahout moves two spaces in any direction.
 
 ### Bishop (B)
 The same as the bishop in Chess.
