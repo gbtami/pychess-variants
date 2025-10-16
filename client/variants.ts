@@ -318,19 +318,19 @@ interface VariantConfig {
 export const VARIANTS: Record<string, Variant> = {
     xiangfu: variant({
         name: "xiangfu", tooltip: "xiangfu",
-        startFen: "2rbe4/2can4/2+g1+g4/9/9/9/4+G1+G2/4NAC2/4EBR2[] w - 0 1",
+        startFen: "2rbm4/2cwn4/2+g1+g4/9/9/9/4+G1+G2/4NWC2/4MBR2[] w - 0 1",
         icon: "👊",
         boardFamily: "xiangfu9x9", pieceFamily: "xiangfu",
-        pieceRow: ["+g", "g", "r", "b", "e", "c", "a", "n"],
+        pieceRow: ["+g", "g", "r", "b", "m", "c", "w", "n"],
         pocket: {
-            roles: ["g", "r", "b", "e", "c", "a", "n"],
+            roles: ["g", "r", "b", "m", "c", "w", "n"],
             captureToHand: true,
         },
         promotion: { type: "regular", roles: [] },
         kingRoles: ["+g"],
         alternateStart: {
             '': "",
-            'SwitchedRB': "2bre4/2can4/2+g1+g4/9/9/9/4+G1+G2/4NAC2/4ERB2[] w - 0 1",
+            'SwitchedRB': "2brm4/2cwn4/2+g1+g4/9/9/9/4+G1+G2/4NWC2/4MRB2[] w - 0 1",
         },
     }),
 
