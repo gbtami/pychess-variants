@@ -240,7 +240,13 @@ class FairyBoard:
             if self.jieqi_covered_pieces:
                 moves = self.sf.legal_moves(self.variant, self.fen, [], self.chess960)
                 for invalid_move in self.invalid_jieqi_advisor_moves():
-                    moves.remove(invalid_move)
+                    try:
+                        moves.remove(invalid_move)
+                    except ValueError:
+                        # Fake advisor invalid_move (go out from the palace) exists it the
+                        # given position, but it is NOT a valid move by other reason
+                        # f.e. leaves the king in check
+                        pass
                 return moves
             else:
                 return self.sf.legal_moves(self.variant, self.fen, [], self.chess960)

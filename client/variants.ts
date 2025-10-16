@@ -194,7 +194,7 @@ function variant(config: VariantConfig): Variant {
             noDrawOffer: !!config.rules?.noDrawOffer,
         },
         material: {
-            showDiff: !config.pocket?.captureToHand && !['ataxx', 'fogofwar', 'horde'].includes(config.name) && pieceFamiliesWithMaterialDifferenceSupported.includes(config.pieceFamily),
+            showDiff: !config.pocket?.captureToHand && !['ataxx', 'fogofwar', 'horde', 'jieqi'].includes(config.name) && pieceFamiliesWithMaterialDifferenceSupported.includes(config.pieceFamily),
             initialDiff: calculateDiff(config.startFen, BOARD_FAMILIES[config.boardFamily].dimensions, config.material?.equivalences ?? {}, !!config.pocket?.captureToHand),
             equivalences: config.material?.equivalences ?? {},
         },

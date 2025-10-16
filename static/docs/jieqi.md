@@ -16,3 +16,7 @@ Kings are still limited in palaces, Pawns could be revealed anywhere but can go 
 Capture: covered pieces could capture or be captured as usual. However, after being captured, they may still remain in covered status, no one knows which real materials the captured covered pieces are
 
 https://www.chessprogramming.org/Jeiqi [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
+
+## Clarification
+
+Currently, contrary to https://zh.wikipedia.org/wiki/揭棋 neither player can see what piece has been captured. This may change in the future.
