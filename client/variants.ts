@@ -1212,7 +1212,7 @@ const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "go
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
 export const contestVariants = [
-    "xiangfu",
+//    "xiangfu",
 ]
 
 // variants having 0 puzzle so far
