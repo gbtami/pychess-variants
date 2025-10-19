@@ -42,6 +42,7 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
 };
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
+    matatak: { pieceCSS: ["matatak"] },
     ataxx: { pieceCSS: ["disguised", "virus", "zombie", "cat-dog"] },
     standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "atopdown", "luffy", "firi", "sinting", "disguised"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
@@ -321,7 +322,7 @@ export const VARIANTS: Record<string, Variant> = {
         name: "matatak", displayName: "MATATAK", tooltip: "MATATAK!!!",
         startFen: "3qkr2/3bnp2/8/8/8/8/3BNP2/3QKR2 w - - 0 1",
         icon: "🍍",
-        boardFamily: "matatak8x8", pieceFamily: "standard",
+        boardFamily: "matatak8x8", pieceFamily: "matatak",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
     }),
 

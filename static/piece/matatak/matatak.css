@@ -1,0 +1,39 @@
+.matatak piece._-piece {
+    background-image: url('../../images/pieces/merida/Duck.svg');
+}
+.matatak piece.p-piece.white {
+    background-image: url('../../images/pieces/merida/wP.svg');
+}
+.matatak piece.b-piece.white {
+    background-image: url('../../images/pieces/merida/wB.svg');
+}
+.matatak piece.n-piece.white {
+    background-image: url('../../images/pieces/merida/wN.svg');
+}
+.matatak piece.r-piece.white {
+    background-image: url('../../images/pieces/merida/wR.svg');
+}
+.matatak piece.q-piece.white {
+    background-image: url('../../images/pieces/merida/wQ.svg');
+}
+.matatak piece.k-piece.white {
+    background-image: url('../../images/pieces/merida/wK.svg');
+}
+.matatak piece.p-piece.black {
+    background-image: url('../../images/pieces/merida/bP.svg');
+}
+.matatak piece.b-piece.black {
+    background-image: url('../../images/pieces/merida/bB.svg');
+}
+.matatak piece.n-piece.black {
+    background-image: url('../../images/pieces/merida/bN.svg');
+}
+.matatak piece.r-piece.black {
+    background-image: url('../../images/pieces/merida/bR.svg');
+}
+.matatak piece.q-piece.black {
+    background-image: url('../../images/pieces/merida/bQ.svg');
+}
+.matatak piece.k-piece.black {
+    background-image: url('../../images/pieces/merida/bK.svg');
+}
