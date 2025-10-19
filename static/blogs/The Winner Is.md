@@ -51,3 +51,9 @@ I also didn't even mention promotions, and that was something I don't think I or
 
 Also it should be mentioned that Dean did an incredible job with the graphics, which really helped with understanding the game. However, as stated we don't count graphics at all in the contest.
 As for general feedback for other contestants -- it's similar to borderlands but a lot of the piece movements were too chaotic. And on top of that, many variants also featured promotions that were not really uniform, making it even more confusing. Several entries also had a very slow pace by trying to keep pieces weak but having better promotions... kind of like Shogi, but Shogi also has strong pieces to balance that out. In combination with the stifling western chess pawns that Shogi doesn't have, they felt very slow and tended towards more 'closed' positions.
+
+***
+After thorough play testing and piece set design Xiangfu is playable on pychess from now on. Enjoy!
+
+-Couch Tomato
+![Xiangfu](https://github.com/gbtami/pychess-variants/blob/master/static/icons/Xiangfu.svg)
