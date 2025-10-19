@@ -316,6 +316,15 @@ interface VariantConfig {
 }
 
 export const VARIANTS: Record<string, Variant> = {
+    matatak: variant({
+        name: "matatak", displayName: "MATATAK", tooltip: "MATATAK!!!",
+        startFen: "3qkr2/3bnp2/8/8/8/8/3BNP2/3QKR2 w - - 0 1",
+        icon: "🍍",
+        boardFamily: "standard8x8", pieceFamily: "standard",
+        pieceRow: ["k", "q", "r", "b", "n", "p"],
+        ui: { boardMark: 'kingofthehill' },
+    }),
+
     xiangfu: variant({
         name: "xiangfu", tooltip: "xiangfu",
         startFen: "2rbm4/2cwn4/2+g1+g4/9/9/9/4+G1+G2/4NWC2/4MBR2[] w - 0 1",
@@ -1217,6 +1226,7 @@ export const contestVariants = [
 
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
+    "matatak",
     "placement",
     "gorogoroplus",
     "cannonshogi",
@@ -1234,7 +1244,7 @@ export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 export const devVariants = ["makbug", "supply", "jieqi"].concat(contestVariants);
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
+    standard: { variants: [ "matatak", "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
     sea:      { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi" ] },

@@ -180,6 +180,7 @@ VARIANT_960_TO_PGN = {
 
 CATEGORIES = {
     "chess": (
+        "matatak",
         "chess",
         "chess960",
         "bughouse",

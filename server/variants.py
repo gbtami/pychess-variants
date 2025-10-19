@@ -48,6 +48,7 @@ class ServerVariants(Enum):
         self.move_encoding = variant.move_encoding
         self.move_decoding = variant.move_decoding
 
+    MATATAK = Variant("#", "matatak", _("Matatak"), "🍍")
     CHESS = Variant("n", "chess", _("Chess"), "M")
     CHESS960 = Variant("n", "chess", _("Chess960"), "V", chess960=True)
     BUGHOUSE = Variant("F", "bughouse", _("Bughouse"), "¢", two_boards=True, base_variant="crazyhouse")  # fmt: skip

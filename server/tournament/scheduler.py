@@ -38,6 +38,7 @@ SHIELDS = [
 SEATURDAY = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
 
 MONTHLY_VARIANTS = (
+    "matatak",
     "dobutsu",
     "capahouse",
     "chak",

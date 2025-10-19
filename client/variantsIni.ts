@@ -1,4 +1,78 @@
 export const variantsIni = `
+[matatak:chess]
+
+knight = -
+bishop = -
+rook = -
+queen = -
+pawn = -
+
+customPiece1 = a:fmWfcF
+# Meerkat
+customPiece2 = b::fK 
+# Cat
+customPiece3 = c:K2 
+# Leopard
+customPiece4 = d:K0 
+# Tiger
+customPiece5 = e:fW 
+# Tortoise
+customPiece6 = f:fW2 
+# Warthog
+customPiece7 = g:W 
+# Panda
+customPiece8 = h:W2 
+# Bear
+customPiece9 = i:W0 
+# Rhino
+customPiece10 = j:fF 
+# Lemur
+customPiece11 = l:fF2 
+# Gibbon
+customPiece12 = m:F 
+# Chimpanzee
+customPiece13 = n:F2 
+# Oran Outan
+customPiece14 = o:F0 
+# Gorilla
+customPiece15 = p:fD 
+# Rabbit
+customPiece16 = q:fhN 
+# Gazelle 
+customPiece17 = r:C 
+# Giraffe
+customPiece18 = s:N 
+# Horse
+customPiece19 = t:N0 
+# Kangaroo
+customPiece20 = u: 
+# Kakapo TODO move on itself
+customPiece21 = v:fmW2fcF 
+# Pinguin
+customPiece22 = w:NB
+# Elephant (old mW0cF2)
+customPiece23 = x:RK 
+# Crocodile (old mW0cK)
+customPiece24 = y:RN
+# Buffalo 
+customPiece25 = z:WN
+# Zebra
+
+# Promotions
+promotedPieceType = a:d b:d e:d f:d g:d j:d l:d m:d p:d q:d u:d v:d
+
+# King of the Hill (with Hill on a 8x8 board)
+king = k
+# Lion
+flagPiece = k
+whiteFlag = d4 e4 d5 e5
+blackFlag = d4 e4 d5 e5
+
+stalemateValue = win
+
+# startFen = 3ckn2/3pbl2/8/8/8/8/3GFM2/3IKH2 w - - 0 1
+startFen = 3qkr2/3bnp2/8/8/8/8/3BNP2/3QKR2 w - - 0 1
+
 # Hybrid variant of Grand-chess and crazyhouse, using Grand-chess as a template
 [grandhouse:grand]
 startFen = r8r/1nbqkcabn1/pppppppppp/10/10/10/10/PPPPPPPPPP/1NBQKCABN1/R8R[] w - - 0 1
