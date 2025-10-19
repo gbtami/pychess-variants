@@ -18,6 +18,7 @@ export interface PieceFamily {
 }
 
 export const BOARD_FAMILIES: Record<string, BoardFamily> = {
+    matatak8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["matatak8x8.png"] },
     ataxx7x7: { dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["ataxx.svg", "ataxx.png"] },
     standard8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png", "8x8wood2.jpg", "8x8wood4.jpg", "8x8ic.svg", "8x8purple.svg", "8x8dobutsu.svg"] },
     standard9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["9x9mansindam.svg", "9x9brown.svg", "9x9blue.svg", "9x9green.svg", "9x9maple.jpg", "9x9olive.jpg"] },
@@ -320,9 +321,8 @@ export const VARIANTS: Record<string, Variant> = {
         name: "matatak", displayName: "MATATAK", tooltip: "MATATAK!!!",
         startFen: "3qkr2/3bnp2/8/8/8/8/3BNP2/3QKR2 w - - 0 1",
         icon: "🍍",
-        boardFamily: "standard8x8", pieceFamily: "standard",
+        boardFamily: "matatak8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
-        ui: { boardMark: 'kingofthehill' },
     }),
 
     xiangfu: variant({

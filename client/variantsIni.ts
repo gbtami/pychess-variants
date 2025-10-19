@@ -49,7 +49,7 @@ customPiece20 = u:
 # Kakapo TODO move on itself
 customPiece21 = v:fmW2fcF 
 # Pinguin
-customPiece22 = w:NB
+customPiece22 = w:KB
 # Elephant (old mW0cF2)
 customPiece23 = x:RK 
 # Crocodile (old mW0cK)
