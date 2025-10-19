@@ -1211,10 +1211,6 @@ export const variants = Object.keys(VARIANTS);
 const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro", "shinobi", "makrukhouse", "xiangqihouse" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
-export const contestVariants = [
-//    "xiangfu",
-]
-
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
     "placement",
@@ -1231,7 +1227,7 @@ export const noPuzzleVariants = [
 
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 
-export const devVariants = ["makbug", "supply", "jieqi"].concat(contestVariants);
+export const devVariants = ["makbug", "supply", "jieqi"];
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
