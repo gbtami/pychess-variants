@@ -5,10 +5,11 @@ WORKDIR /app
 COPY package.json /app/
 COPY cp2static.sh md2html.sh md2html.js esbuild.mjs tsconfig.json yarn.lock /app/
 
-RUN yarn install --ignore-scripts
+COPY static /app/static/
+
+RUN yarn install
 
 COPY client /app/client/
-COPY static /app/static/
 
 RUN yarn dev
 
@@ -22,7 +23,7 @@ COPY pyproject.toml /app/
 
 WORKDIR /app
 
-RUN pip install .
+RUN pip install --default-timeout=100 .
 
 COPY lang /app/lang/
 COPY server /app/server/
