@@ -3,7 +3,7 @@
 ![Xiangfu](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Xiangfu.png)
 
 Xiangfu is a Xiangqi variant created by Eventlesstew for the Variant Design Contest.
-This essentially aims to be, or was initially going to be, a spiritual successor to Chennis. This variant combines the upfrontness of Marial Arts with the careful aggression of Xiangqi. This is achieved through the Kings always being in the centre and the use of ranging pieces, including the Bishop and the Crossbow.
+This essentially aims to be, or was initially going to be, a spiritual successor to Chennis. This variant combines the upfrontness of Martial Arts with the careful aggression of Xiangqi. This is achieved through the Kings always being in the centre and the use of ranging pieces, including the Bishop and the Crossbow.
 
 ## Rules
 
@@ -23,7 +23,7 @@ The champions move 1 space in any direction, like the king in Chess. They are th
 
 ![Commoner](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/XiangfuCommoner.png)
 
-The pupil moves 1 space in any direction, like the king in Chess. Pupil is the unpromoted, non royal version of the champion. When you take an opponent champion it will go to your hand as pupil.
+The pupil moves 1 space in any direction, like the king in Chess. Pupil is the non royal version of the champion. When you take an opponent champion it will go to your hand as pupil.
 
 ### Horse (N)
 
@@ -47,7 +47,7 @@ The same as the cannon in Xiangqi.
 
 ![Mahout](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/XiangfuMahout.png)
 
-The Mahout moves two spaces in any direction.
+The Mahout moves two spaces in any direction. It can't jump.
 
 ### Bishop (B)
 
