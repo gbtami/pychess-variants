@@ -10,6 +10,7 @@ This essentially aims to be, or was initially going to be, a spiritual successor
 - Pieces you capture can be dropped within the first two ranks of the board.
 - The palaces on the opposing ends of the board are now combined into a single, large ring, where the Kings are confined to.
 - Since each player has two champions, check and checkmate rules now work like in Spartan Chess. This means that if you have two champions, they can be used on the offensive. You must capture one champion in order to checkmate the other champion, unless you can perform a Duple Checkmate!
+- Other Xiangqi rules are not applied here. Stalemate and repetition works as in stadard chess.
 
 ## Pieces
 
