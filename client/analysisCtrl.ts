@@ -235,7 +235,7 @@ export class AnalysisController extends GameController {
 
         analysisSettings.ctrl = this;
 
-        Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.pychess.org/${this.gameId}\n`));
+        Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.matatak.org/${this.gameId}\n`));
 
         const gaugeEl = document.getElementById('gauge') as HTMLElement;
         if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add("flipped");

@@ -733,7 +733,7 @@ def pgn(doc):
 
     return '[Event "{}"]\n[Site "{}"]\n[Date "{}"]\n[Round "-"]\n[White "{}"]\n[Black "{}"]\n[Result "{}"]\n[TimeControl "{}+{}"]\n[WhiteElo "{}"]\n[BlackElo "{}"]\n[Variant "{}"]\n{fen}{setup}\n{} {}\n'.format(
         "PyChess " + ("rated" if "y" in doc and doc["y"] == 1 else "casual") + " game",
-        "https://www.pychess.org/" + doc["_id"],
+        "https://www.matatak.org/" + doc["_id"],
         doc["d"].strftime("%Y.%m.%d"),
         doc["us"][0],
         doc["us"][1],

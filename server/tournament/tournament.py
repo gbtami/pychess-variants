@@ -1234,7 +1234,7 @@ class Tournament(ABC):
     def notify_discord_msg(self, minutes):
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         tail960 = "960" if self.chess960 else ""
-        url = "https://www.pychess.org/tournament/%s" % self.id
+        url = "https://www.matatak.org/tournament/%s" % self.id
         if minutes >= 60:
             time = int(minutes / 60)
             time_text = "hours"

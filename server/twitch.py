@@ -23,7 +23,7 @@ TWITCH_STREAMS_API_URL = "https://api.twitch.tv/helix/streams"
 if DEV:
     CALLBACK_URL = "https://localhost"
 else:
-    CALLBACK_URL = "https://www.pychess.org/twitch"
+    CALLBACK_URL = "https://www.matatak.org/twitch"
 
 ID_CHARS = string.ascii_letters + string.digits
 SECRET = "".join(random.choice(ID_CHARS) for x in range(16))

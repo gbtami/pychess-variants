@@ -35,7 +35,7 @@ import { showUsernameDialog } from './usernameDialog';
 
 // redirect to correct URL except Heroku preview/dev apps
 if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-') && !window.location.href.includes('-dev-')) {
-    window.location.assign('https://www.pychess.org/');
+    window.location.assign('https://www.matatak.org/');
 }
 
 function initModel(el: HTMLElement) {

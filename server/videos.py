@@ -282,7 +282,7 @@ VIDEOS = [
     },
     {
         "_id": "-b91uceklhM",
-        "title": "หมากรุกไทย: เว็บใหม่มาเเรง Pychess.org (มีเอไอให้เล่นฟรี)",
+        "title": "หมากรุกไทย: เว็บใหม่มาเเรง matatak.org (มีเอไอให้เล่นฟรี)",
         "author": "หมากรุกไทย ฆราวาสผู้ใฝ่รู้",
         "tags": ["Introduction"],
         "target": "beginner",

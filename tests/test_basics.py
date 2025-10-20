@@ -223,7 +223,6 @@ class SanitizeFenTestCase(unittest.TestCase):
         valid, sanitized = sanitize_fen("chess", fen, chess960)
         self.assertFalse(valid)
 
-        # https://www.pychess.org/xYbsTWKM
         fen = "rnbqk1nr/1ppp1ppp/1pb1p3/7e/1b2P3/2NP1N2/PPPQBPPP/R2EK2R[HH] w KQAEHkqabcdegh - 4 9"
         valid, sanitized = sanitize_fen("shouse", fen, chess960)
         self.assertTrue(valid)

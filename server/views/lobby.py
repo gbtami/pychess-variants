@@ -60,7 +60,7 @@ async def lobby(request):
         if user.anon and context["profile_title"] != "BOT":
             raise web.HTTPNotFound()
 
-    context["title"] = "PyChess • Free Online Chess Variants"
+    context["title"] = "Matatak"
     context["tournamentdirector"] = user.username in TOURNAMENT_DIRECTORS
 
     puzzle = await get_daily_puzzle(request)
