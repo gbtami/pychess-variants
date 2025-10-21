@@ -195,7 +195,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     return true;
 }
 
-function countOcurrences(str, word): number {
+function countOcurrences(str: string, word: string): number {
     const escapedWord = word.replace(/[+]/g, '\\$&');
     const regex = new RegExp(escapedWord, "g");
     return (str.match(regex) || []).length;
