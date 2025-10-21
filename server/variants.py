@@ -124,7 +124,7 @@ class ServerVariants(Enum):
     CHAK = Variant("C", "chak", _("Chak"), "🐬")
     CHENNIS = Variant("H", "chennis", _("Chennis"), "🎾", move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
     SPARTAN = Variant("N", "spartan", _("Spartan"), "⍺")
-    XIANGFU = Variant('"', "xiangfu", _("Xiangfu"), "👊")
+    XIANGFU = Variant('"', "xiangfu", _("Xiang Fu"), "👊")
 
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
 
