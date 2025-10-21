@@ -678,3 +678,10 @@ if __name__ == "__main__":
         board.print_pos()
         print(board.fen)
         print(board.legal_moves())
+
+    FEN = "6n2/3wc3b/1b4m2/9/4+g4/2r6/4+G+GW2/2N6/3GM1R2[C] w - - 4 14"
+    board = FairyBoard("xiangfu", initial_fen=FEN)
+    print(board.fen)
+    board.print_pos()
+    print(board.is_checked())
+    print(board.legal_moves())

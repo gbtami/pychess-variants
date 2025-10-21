@@ -2,9 +2,6 @@ import { expect, test } from '@jest/globals';
 import { getJanggiPoints, getPockets, isHandicap, validFen, cg2uci, uci2cg, UCIMove } from '../client/chess';
 import { variants, VARIANTS } from '../client/variants';
 
-// TODO: fix this
-let contestVariants = ["xiangfu"];
-
 test('getPockets test', () => {
     const result = getPockets(VARIANTS['chess'].startFen);
     expect(result).toBe("");
@@ -22,10 +19,8 @@ test('isHandicap test', () => {
 
 test('validFen test', () => {
     variants.forEach( (variant) => {
-        if (!contestVariants.includes(variant)) {
-            const result = validFen(VARIANTS[variant], VARIANTS[variant].startFen);
-            expect(result).toBeTruthy();
-        }
+        const result = validFen(VARIANTS[variant], VARIANTS[variant].startFen);
+        expect(result).toBeTruthy();
     });
 });
 

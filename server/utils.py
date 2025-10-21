@@ -870,7 +870,7 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
     if variant == "dobutsu":
         wking = "L"
     elif variant == "xiangfu":
-        wking = "G"
+        wking = "+G"
     else:
         wking = "K"
 

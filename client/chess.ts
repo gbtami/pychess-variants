@@ -176,8 +176,8 @@ export function validFen(variant: Variant, fen: string): boolean {
 
     // Number of kings
     const king = util.letterOf(variant.kingRoles[0]);
-    const bK = lc(placement, king, false);
-    const wK = lc(placement, king, true);
+    const bK = countOcurrences(placement, king);
+    const wK = countOcurrences(placement, king.toUpperCase());
     switch (variantName) {
         case 'spartan':
             if (bK === 0 || bK > 2 || wK !== 1) return false;
@@ -193,6 +193,12 @@ export function validFen(variant: Variant, fen: string): boolean {
     }
 
     return true;
+}
+
+function countOcurrences(str, word): number {
+    const escapedWord = word.replace(/[+]/g, '\\$&');
+    const regex = new RegExp(escapedWord, "g");
+    return (str.match(regex) || []).length;
 }
 
 function diff(a: number, b:number): number {
