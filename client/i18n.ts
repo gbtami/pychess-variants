@@ -103,6 +103,7 @@ export const translatedCustomStartPositions = [
 ];
 
 export const translatedTooltips = [
+    _("Martial arts Xiangqi."),
     _("Infection game."),
     _("Chess, unmodified, as it's played by FIDE standards."),
     _("Take captured pieces and drop them back on to the board as your own."),

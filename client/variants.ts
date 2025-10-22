@@ -317,7 +317,7 @@ interface VariantConfig {
 
 export const VARIANTS: Record<string, Variant> = {
     xiangfu: variant({
-        name: "xiangfu", displayName: "xiang fu", tooltip: "xiangfu",
+        name: "xiangfu", displayName: "xiang fu", tooltip: "Martial arts Xiangqi.",
         startFen: "2rbm4/2cwn4/2+g1+g4/9/9/9/4+G1+G2/4NWC2/4MBR2[] w - 0 1",
         icon: "👊",
         boardFamily: "xiangfu9x9", pieceFamily: "xiangfu",
