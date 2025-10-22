@@ -1,5 +1,6 @@
 .blogs > p {
     margin: .5em 3em .5em 3em;
+    padding: 0;
 }
 .blogs p:has(img) {
   text-align: center;
@@ -54,7 +55,7 @@ a.card:hover {
   background-position: center center;
   background-size: cover;
   width: 100%;
-  padding-bottom: 56.25%; 
+  padding-bottom: 56.25%;
   height: 0;
 }
 span.info {
@@ -96,4 +97,10 @@ span.author {
 }
 .show {
   grid-area: content;
+}
+blockquote {
+  margin: .5em 3em .5em 3em;
+  padding: 0 1em;
+  color: #9198a1;
+  border-left: .25em solid #d1d9e0;
 }

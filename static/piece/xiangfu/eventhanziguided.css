@@ -1,7 +1,7 @@
 .xiangfu piece.b-piece.white {
     background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/red_bishop.svg');
 }
-.xiangfu piece.e-piece.white {
+.xiangfu piece.m-piece.white {
     background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/red_mahout.svg');
 }
 .xiangfu piece.n-piece.white {
@@ -19,14 +19,14 @@
 .xiangfu piece.g-piece.white {
     background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/red_pupil.svg');
 }
-.xiangfu piece.a-piece.white {
+.xiangfu piece.w-piece.white {
     background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/red_crossbow.svg');
 }
 
 .xiangfu piece.b-piece.black {
     background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/black_bishop.svg');
 }
-.xiangfu piece.e-piece.black {
+.xiangfu piece.m-piece.black {
     background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/black_mahout.svg');
 }
 .xiangfu piece.n-piece.black {
@@ -44,6 +44,6 @@
 .xiangfu piece.g-piece.black {
     background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/black_pupil.svg');
 }
-.xiangfu piece.a-piece.black {
+.xiangfu piece.w-piece.black {
     background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/black_crossbow.svg');
 }

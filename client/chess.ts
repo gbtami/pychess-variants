@@ -21,7 +21,7 @@ export type PromotionType = "regular" | "shogi";
 export type TimeControlType = "incremental" | "byoyomi";
 export type CountingType = "makruk" | "asean";
 export type MaterialPointType = "janggi" | "ataxx";
-export type BoardMarkType = "alice" | "campmate" | "racingkings" | "kingofthehill" | "shocking" | "melonvariant";
+export type BoardMarkType = "alice" | "campmate" | "racingkings" | "kingofthehill";
 export type PieceSoundType = "regular" | "atomic" | "shogi";
 
 const handicapKeywords = [ "HC", "Handicap", "Odds" ];
@@ -96,7 +96,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     // Allowed characters in placement part
     const placement = parts[0];
     const startPlacement = start[0];
-    let good = startPlacement + 
+    let good = startPlacement +
         ((variantName === "orda") ? "Hq" : "") +
         ((variantName === "dobutsu") ? "Hh" : "") +
         ((variantName === "duck" || variantName === "ataxx") ? "*" : "") +
@@ -176,11 +176,14 @@ export function validFen(variant: Variant, fen: string): boolean {
 
     // Number of kings
     const king = util.letterOf(variant.kingRoles[0]);
-    const bK = lc(placement, king, false);
-    const wK = lc(placement, king, true);
+    const bK = countOcurrences(placement, king);
+    const wK = countOcurrences(placement, king.toUpperCase());
     switch (variantName) {
         case 'spartan':
             if (bK === 0 || bK > 2 || wK !== 1) return false;
+            break;
+        case 'xiangfu':
+            if (bK === 0 || bK > 2 || wK === 0 || wK > 2 ) return false;
             break;
         case 'horde':
             if (bK !== 1 || wK !== 0) return false;
@@ -190,6 +193,12 @@ export function validFen(variant: Variant, fen: string): boolean {
     }
 
     return true;
+}
+
+function countOcurrences(str: string, word: string): number {
+    const escapedWord = word.replace(/[+]/g, '\\$&');
+    const regex = new RegExp(escapedWord, "g");
+    return (str.match(regex) || []).length;
 }
 
 function diff(a: number, b:number): number {

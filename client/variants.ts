@@ -194,7 +194,7 @@ function variant(config: VariantConfig): Variant {
             noDrawOffer: !!config.rules?.noDrawOffer,
         },
         material: {
-            showDiff: !config.pocket?.captureToHand && !['ataxx', 'fogofwar', 'horde'].includes(config.name) && pieceFamiliesWithMaterialDifferenceSupported.includes(config.pieceFamily),
+            showDiff: !config.pocket?.captureToHand && !['ataxx', 'fogofwar', 'horde', 'jieqi'].includes(config.name) && pieceFamiliesWithMaterialDifferenceSupported.includes(config.pieceFamily),
             initialDiff: calculateDiff(config.startFen, BOARD_FAMILIES[config.boardFamily].dimensions, config.material?.equivalences ?? {}, !!config.pocket?.captureToHand),
             equivalences: config.material?.equivalences ?? {},
         },
@@ -317,20 +317,20 @@ interface VariantConfig {
 
 export const VARIANTS: Record<string, Variant> = {
     xiangfu: variant({
-        name: "xiangfu", tooltip: "xiangfu",
-        startFen: "2rbe4/2can4/2+g1+g4/9/9/9/4+G1+G2/4NAC2/4EBR2[] w - 0 1",
+        name: "xiangfu", displayName: "xiang fu", tooltip: "Martial arts Xiangqi.",
+        startFen: "2rbm4/2cwn4/2+g1+g4/9/9/9/4+G1+G2/4NWC2/4MBR2[] w - 0 1",
         icon: "👊",
         boardFamily: "xiangfu9x9", pieceFamily: "xiangfu",
-        pieceRow: ["+g", "g", "r", "b", "e", "c", "a", "n"],
+        pieceRow: ["+g", "g", "r", "b", "m", "c", "w", "n"],
         pocket: {
-            roles: ["g", "r", "b", "e", "c", "a", "n"],
+            roles: ["g", "r", "b", "m", "c", "w", "n"],
             captureToHand: true,
         },
         promotion: { type: "regular", roles: [] },
         kingRoles: ["+g"],
         alternateStart: {
             '': "",
-            'SwitchedRB': "2bre4/2can4/2+g1+g4/9/9/9/4+G1+G2/4NAC2/4ERB2[] w - 0 1",
+            'SwitchedRB': "2brm4/2cwn4/2+g1+g4/9/9/9/4+G1+G2/4NWC2/4MRB2[] w - 0 1",
         },
     }),
 
@@ -771,6 +771,19 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
     }),
 
+    jieqi: variant({
+        name: "jieqi",
+        tooltip: "Players can see the identity of the pieces after theirs first move.",
+        startFen: "r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1",
+        icon: "⬤",
+        boardFamily: "xiangqi9x10",
+        pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
+        colors: { first: "Red", second: "Black" },
+        pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
+        promotion: { type: "regular", roles: [] },
+    }),
+
     xiangqihouse: variant({
         name: "xiangqihouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR[] w - - 0 1",
@@ -1198,10 +1211,6 @@ export const variants = Object.keys(VARIANTS);
 const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro", "shinobi", "makrukhouse", "xiangqihouse" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
-export const contestVariants = [
-    "xiangfu",
-]
-
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
     "placement",
@@ -1213,20 +1222,21 @@ export const noPuzzleVariants = [
     "horde",
     "supply",
     "makbug",
+    "jieqi",
 ]
 
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 
-export const devVariants = ["makbug", "supply"].concat(contestVariants);
+export const devVariants = ["makbug", "supply", "jieqi"];
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
     sea:      { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
-    xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi" ] },
+    xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
-    army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
-    other:    { variants: [ "ataxx", "xiangfu" ] }
+    army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan", "xiangfu" ] },
+    other:    { variants: [ "ataxx" ] }
 };
 
 function variantGroupLabel(group: string): string {

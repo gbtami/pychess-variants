@@ -7,6 +7,7 @@ from functools import cache
 from fairy.ataxx import ATAXX_FENS
 from fairy.caparandom import caparandom_rank8
 from fairy.chess960 import CHESS960_FENS
+from fairy.jieqi import make_initial_mapping, apply_move_and_transform, BLACK_PIECES, RED_PIECES
 from const import CATEGORIES
 from fairy.racingkings import RACINGKINGS_FENS
 from logger import log
@@ -24,6 +25,7 @@ except ImportError:
     log.error("No pyffish-alice module installed!")
 
 FEN_OK = sf.FEN_OK
+NOTATION_LAN = sf.NOTATION_LAN
 NOTATION_SAN = sf.NOTATION_SAN
 NOTATION_JANGGI = sf.NOTATION_JANGGI
 NOTATION_XIANGQI_WXF = sf.NOTATION_XIANGQI_WXF
@@ -37,6 +39,7 @@ CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC
 LOOKING_GLASS_ALICE_FEN = "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
 MANCHU_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1"
 MANCHU_R_FEN = "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
+JIEQI_FEN = "r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1"
 
 
 def file_of(piece: str, rank: str) -> int:
@@ -88,11 +91,24 @@ class FairyBoard:
         )
         self.legal_moves_need_history = variant in ("janggi", "ataxx")
         self.nnue = initial_fen == ""
-        self.initial_fen = (
-            initial_fen
-            if initial_fen
-            else FairyBoard.start_fen(variant, chess960 or variant == "ataxx", disabled_fen)
-        )
+
+        self.movelist_supported = self.variant != "jieqi"
+        self.jieqi_covered_pieces = None
+
+        if initial_fen:
+            self.initial_fen = initial_fen
+        else:
+            if self.variant == "jieqi":
+                self.initial_fen = JIEQI_FEN
+                self.black_pieces = random.sample(BLACK_PIECES, 15)
+                self.red_pieces = random.sample(RED_PIECES, 15)
+                self.jieqi_covered_pieces = make_initial_mapping(self.black_pieces, self.red_pieces)
+                # print("---", self.initial_fen)
+                # print(self.jieqi_covered_pieces)
+            else:
+                self.initial_fen = FairyBoard.start_fen(
+                    variant, chess960 or variant == "ataxx", disabled_fen
+                )
         self.move_stack: list[str] = []
         self.ply = 0
         self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
@@ -110,6 +126,7 @@ class FairyBoard:
             "supply",
             "manchu",
             "minixiangqi",
+            "jieqi",
         ):
             self.notation = NOTATION_XIANGQI_WXF
         else:
@@ -156,15 +173,19 @@ class FairyBoard:
                 self.move_stack.append(move)
                 self.ply += 1
             self.color = WHITE if self.color == BLACK else BLACK
-            self.fen = self.sf.get_fen(
-                self.variant,
-                self.fen,
-                [move],
-                self.chess960,
-                self.sfen,
-                self.show_promoted,
-                self.count_started,
-            )
+            if self.jieqi_covered_pieces is not None:
+                self.fen = apply_move_and_transform(self.fen, move, self.jieqi_covered_pieces)
+                # print(move, self.fen)
+            else:
+                self.fen = self.sf.get_fen(
+                    self.variant,
+                    self.fen,
+                    [move],
+                    self.chess960,
+                    self.sfen,
+                    self.show_promoted,
+                    self.count_started,
+                )
         except Exception:
             self.pop()
             log.error(
@@ -211,7 +232,24 @@ class FairyBoard:
 
     def legal_moves(self):
         # move legality can depend on history, e.g., passing and bikjang
-        return self.sf.legal_moves(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        if self.legal_moves_need_history:
+            return self.sf.legal_moves(
+                self.variant, self.initial_fen, self.move_stack, self.chess960
+            )
+        else:
+            if self.jieqi_covered_pieces:
+                moves = self.sf.legal_moves(self.variant, self.fen, [], self.chess960)
+                for invalid_move in self.invalid_jieqi_advisor_moves():
+                    try:
+                        moves.remove(invalid_move)
+                    except ValueError:
+                        # Fake advisor invalid_move (go out from the palace) exists it the
+                        # given position, but it is NOT a valid move by other reason
+                        # f.e. leaves the king in check
+                        pass
+                return moves
+            else:
+                return self.sf.legal_moves(self.variant, self.fen, [], self.chess960)
 
     def legal_moves_no_history(self):
         # move legality can depend on history, but for bughouse we can't recreate history so we need this version
@@ -224,26 +262,45 @@ class FairyBoard:
         return self.sf.has_insufficient_material(self.variant, self.fen, [], self.chess960)
 
     def is_immediate_game_end(self):
-        immediate_end, result = self.sf.is_immediate_game_end(
-            self.variant, self.initial_fen, self.move_stack, self.chess960
-        )
+        if self.movelist_supported:
+            immediate_end, result = self.sf.is_immediate_game_end(
+                self.variant, self.initial_fen, self.move_stack, self.chess960
+            )
+        else:
+            immediate_end, result = self.sf.is_immediate_game_end(
+                self.variant, self.fen, [], self.chess960
+            )
         return immediate_end, result
 
     def is_optional_game_end(self):
-        return self.sf.is_optional_game_end(
-            self.variant,
-            self.initial_fen,
-            self.move_stack,
-            self.chess960,
-            self.count_started,
-        )
+        if self.movelist_supported:
+            return self.sf.is_optional_game_end(
+                self.variant,
+                self.initial_fen,
+                self.move_stack,
+                self.chess960,
+                self.count_started,
+            )
+        else:
+            return self.sf.is_optional_game_end(
+                self.variant,
+                self.fen,
+                [],
+                self.chess960,
+                self.count_started,
+            )
 
     def is_claimable_draw(self):
         optional_end, result = self.is_optional_game_end()
         return optional_end and result == 0
 
     def game_result(self):
-        return self.sf.game_result(self.variant, self.initial_fen, self.move_stack, self.chess960)
+        if self.movelist_supported:
+            return self.sf.game_result(
+                self.variant, self.initial_fen, self.move_stack, self.chess960
+            )
+        else:
+            return self.sf.game_result(self.variant, self.fen, [], self.chess960)
 
     def game_result_no_history(self):
         return self.sf.game_result(self.variant, self.fen, [], self.chess960)
@@ -295,6 +352,22 @@ class FairyBoard:
         print("-------new FEN", fen)
         self.initial_fen = fen
         self.fen = self.initial_fen
+
+    def revealed_piece(self, move):
+        src = move[0:3] if move[2].isdigit() else move[0:2]
+        return self.jieqi_covered_pieces.get(src)
+
+    def invalid_jieqi_advisor_moves(self):
+        if self.color == WHITE:
+            if "d1" in self.jieqi_covered_pieces:
+                yield "d1c2"
+            if "f1" in self.jieqi_covered_pieces:
+                yield "f1g2"
+        else:
+            if "d10" in self.jieqi_covered_pieces:
+                yield "d10c9"
+            if "f10" in self.jieqi_covered_pieces:
+                yield "f10g9"
 
     @staticmethod
     def shuffle_start(variant):
@@ -605,3 +678,10 @@ if __name__ == "__main__":
         board.print_pos()
         print(board.fen)
         print(board.legal_moves())
+
+    FEN = "6n2/3wc3b/1b4m2/9/4+g4/2r6/4+G+GW2/2N6/3GM1R2[C] w - - 4 14"
+    board = FairyBoard("xiangfu", initial_fen=FEN)
+    print(board.fen)
+    board.print_pos()
+    print(board.is_checked())
+    print(board.legal_moves())

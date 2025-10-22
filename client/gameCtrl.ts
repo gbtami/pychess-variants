@@ -198,15 +198,21 @@ export abstract class GameController extends ChessgroundController implements Ch
         const fakeDrops = this.variant.name === 'ataxx';
         const pieces = this.chessground.state.boardState.pieces;
         const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);
-        if (this.variant.rules.gate) {
-            // Remove rook takes king from the legal destinations
+        if (this.variant.rules.gate || this.variant.name === 'jieqi') {
             for (const [orig, destArray] of dests) {
                 if (orig && util.isKey(orig)) {
                     const origPiece = pieces.get(orig);
                     if (origPiece?.role === 'r-piece') {
+                        // Remove rook takes king from the legal destinations
                         dests.set(orig, destArray.filter(dest => {
                             const destPiece = pieces.get(dest);
                             return !(destPiece && destPiece.role === 'k-piece' && origPiece.color === destPiece.color);
+                        }));
+                    }
+                    if (origPiece?.role === 'a-piece' && origPiece?.promoted) {
+                        // Fake advisor can’t leave the palace
+                        dests.set(orig, destArray.filter(dest => {
+                            return !['c2', 'g2', 'c9', 'g9'].includes(dest);
                         }));
                     }
                 }

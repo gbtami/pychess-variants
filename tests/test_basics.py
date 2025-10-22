@@ -11,7 +11,7 @@ from sortedcollections import ValueSortedDict
 from mongomock_motor import AsyncMongoMockClient
 
 import game
-from const import CREATED, STALEMATE, MATE, reserved
+from const import CLAIM, CREATED, STALEMATE, MATE, reserved
 from fairy import FairyBoard
 from game import Game
 from bug.game_bug import GameBug
@@ -167,6 +167,27 @@ class GameResultTestCase(AioHTTPTestCase):
         await game.game_ended(self.bplayer, "flag")
 
         self.assertEqual(game.result, "1-0")
+
+    async def test_xiangqi_perpetual_check(self):
+        FEN = "3k5/9/9/9/9/5p3/9/5p3/5K3/5C3 w - - 0 1"
+        game = Game(get_app_state(self.app), "12345678", "xiangqi", FEN, self.wplayer, self.wplayer)
+
+        for move in ('f2e2', 'f3e3', 'e2f2', 'e3f3', 'f2e2', 'f3e3', 'e2f2', 'e3f3'):
+            await game.play_move(move, clocks=CLOCKS)
+
+        self.assertEqual(game.result, "1-0")
+        self.assertEqual(game.status, CLAIM)
+
+    @unittest.skip("TODO: is_optional_game_end() should be fixed for Jieqi")
+    async def test_jieqi_perpetual_check(self):
+        FEN = "3k5/9/9/9/9/5p3/9/5p3/5K3/5C3 w - - 0 1"
+        game = Game(get_app_state(self.app), "12345678", "jieqi", FEN, self.wplayer, self.wplayer)
+
+        for move in ('f2e2', 'f3e3', 'e2f2', 'e3f3', 'f2e2', 'f3e3', 'e2f2', 'e3f3'):
+            await game.play_move(move, clocks=CLOCKS)
+
+        self.assertEqual(game.result, "1-0")
+        self.assertEqual(game.status, CLAIM)
 
 
 class SanitizeFenTestCase(unittest.TestCase):

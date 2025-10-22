@@ -16,6 +16,16 @@ del _
 
 BLOGS = [
     {
+        "_id": "The_Winner_Is",
+        "date": "2025-10-19",
+        "image": "/images/Shi_DeRu_and_Shi_DeYang.jpg",
+        "alt": "",
+        "title": "The Winner Is",
+        "subtitle": "Announcing the results of the variant design contest",
+        "author": "CouchTomato87",
+        "tags": ["Announcement"],
+    },
+    {
         "_id": "Bughouse_Chess",
         "date": "2025-01-25",
         "image": "/images/bughouse.jpg",
