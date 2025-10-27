@@ -816,7 +816,7 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
     invalid3 = len(init) > 1 and init[1] not in "bw"
 
     # ataxx has no kings at all
-    if variant == "ataxx":
+    if variant in ("ataxx", "borderlands"):
         return True, sanitized_fen
 
     # Castling rights (and piece virginity) check
