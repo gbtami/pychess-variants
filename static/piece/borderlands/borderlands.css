@@ -4,7 +4,7 @@
 .borderlands piece.w-piece.white.enemy {
   background-image: url('../../images/pieces/borderlands/wW.e.svg');
 }
-.borderlands piece.wp-piece.white {
+.borderlands piece.pw-piece.white {
   background-image: url('../../images/pieces/borderlands/w+W.svg');
 }
 .borderlands piece.s-piece.white {
