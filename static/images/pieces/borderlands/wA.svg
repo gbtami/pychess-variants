@@ -16,7 +16,7 @@
    viewBox="0 0 50 50"
    version="1.1"
    id="svg4798"
-   sodipodi:docname="wGC.svg"
+   sodipodi:docname="wA.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <metadata
      id="metadata4802">
@@ -39,13 +39,13 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="2560"
-     inkscape:window-height="1377"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
      id="namedview4800"
      showgrid="false"
-     inkscape:zoom="3.1279945"
-     inkscape:cx="-31.558242"
-     inkscape:cy="63.82304"
+     inkscape:zoom="4.6226788"
+     inkscape:cx="88.584999"
+     inkscape:cy="88.584999"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -113,22 +113,6 @@
          cy="-131.52505"
          rx="1.5999576"
          ry="1.5999581" />
-      <path
-         id="path14665-8-9-5-0-8-1-0-17"
-         style="fill:#7f7f7f;fill-opacity:1;stroke:none;stroke-width:0.577143;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 436.40401,-134.19176 h 1.06657 a 1.0666387,1.0666387 0 0 1 1.06658,-1.06658 v -1.06658 a 2.1332774,2.1332774 0 0 0 -2.13315,2.13316 z" />
-      <path
-         id="path14665-9-8-1-7-9-7-1"
-         style="fill:#7f7f7f;fill-opacity:1;stroke:none;stroke-width:0.577143;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 443.87059,-136.32492 v 1.06658 a 1.0666387,1.0666387 0 0 1 1.06658,1.06657 h 1.06657 a 2.1332774,2.1332774 0 0 0 -2.13315,-2.13315 z" />
-      <path
-         id="path14665-2-7-9-1-7-6-4-7"
-         style="fill:#7f7f7f;fill-opacity:1;stroke:none;stroke-width:0.577143;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 438.53716,-126.72517 v -1.06657 a 1.0666387,1.0666387 0 0 1 -1.06658,-1.06658 h -1.06657 a 2.1332774,2.1332774 0 0 0 2.13315,2.13315 z" />
-      <path
-         id="path14665-21-9-2-3-8-3-9-7"
-         style="fill:#7f7f7f;fill-opacity:1;stroke:none;stroke-width:0.577143;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 446.00374,-128.85832 h -1.06657 a 1.0666387,1.0666387 0 0 1 -1.06658,1.06658 v 1.06657 a 2.1332774,2.1332774 0 0 0 2.13315,-2.13315 z" />
     </g>
     <path
        id="ellipse2316-7-7-1-3-5-1-18-5-6-1"
