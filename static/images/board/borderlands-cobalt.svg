@@ -13,7 +13,7 @@
    height="1000"
    viewBox="0 0 900 1000"
    id="svg374"
-   sodipodi:docname="borderlands-cobalt.svg"
+   sodipodi:docname="cobalt_9x10.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
   <metadata
      id="metadata2">
@@ -28,6 +28,8 @@
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
         <dc:title />
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-nc-nd/4.0/" />
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/by-nc-nd/4.0/">
@@ -45,7 +47,519 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs378" />
+     id="defs378">
+    <symbol
+       id="cd_new">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect3" />
+      <rect
+         class="du"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect5" />
+    </symbol>
+    <symbol
+       id="cl_new">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect8" />
+      <rect
+         class="lu"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect10" />
+    </symbol>
+    <symbol
+       id="swd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect13" />
+      <rect
+         class="village_du"
+         width="98"
+         height="98"
+         x="0"
+         y="2"
+         id="rect15" />
+    </symbol>
+    <symbol
+       id="nd">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect18" />
+      <rect
+         class="du"
+         width="96"
+         height="98"
+         x="2"
+         y="0"
+         id="rect20" />
+    </symbol>
+    <symbol
+       id="nl">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect23" />
+      <rect
+         class="lu"
+         width="96"
+         height="98"
+         x="2"
+         y="0"
+         id="rect25" />
+    </symbol>
+    <symbol
+       id="nel">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect28" />
+      <rect
+         class="village_lu"
+         width="98"
+         height="98"
+         x="2"
+         y="0"
+         id="rect30" />
+    </symbol>
+    <symbol
+       id="ed">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect33" />
+      <rect
+         class="du"
+         width="98"
+         height="96"
+         x="2"
+         y="2"
+         id="rect35" />
+    </symbol>
+    <symbol
+       id="el">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect38" />
+      <rect
+         class="lu"
+         width="98"
+         height="96"
+         x="2"
+         y="2"
+         id="rect40" />
+    </symbol>
+    <symbol
+       id="sed">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect43" />
+      <rect
+         class="village_du"
+         width="98"
+         height="98"
+         x="2"
+         y="2"
+         id="rect45" />
+    </symbol>
+    <symbol
+       id="sl">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect48" />
+      <rect
+         class="lu"
+         width="96"
+         height="98"
+         x="2"
+         y="2"
+         id="rect50" />
+    </symbol>
+    <symbol
+       id="sd">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect53" />
+      <rect
+         class="du"
+         width="96"
+         height="98"
+         x="2"
+         y="2"
+         id="rect55" />
+    </symbol>
+    <symbol
+       id="wl">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect58" />
+      <rect
+         class="lu"
+         width="98"
+         height="96"
+         x="0"
+         y="2"
+         id="rect60" />
+    </symbol>
+    <symbol
+       id="wd">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect63" />
+      <rect
+         class="du"
+         width="98"
+         height="96"
+         x="0"
+         y="2"
+         id="rect65" />
+    </symbol>
+    <symbol
+       id="nwl"><rect
+   class="village_ll"
+   width="100"
+   id="rect68" />
+
+
+
+
+eight=&quot;100&quot; x=&quot;0&quot; y=&quot;0&quot; /&gt;
+    <rect
+   class="village_lu"
+   width="98"
+   height="98"
+   x="0"
+   y="0"
+   id="rect70" />
+</symbol>
+    <symbol
+       id="cd">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect73" />
+      <rect
+         class="du"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect75" />
+    </symbol>
+    <symbol
+       id="cl">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect78" />
+      <rect
+         class="lu"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect80" />
+    </symbol>
+    <symbol
+       id="village_swl">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect83" />
+      <rect
+         class="village_lu"
+         width="98"
+         height="98"
+         x="0"
+         y="2"
+         id="rect85" />
+    </symbol>
+    <symbol
+       id="village_nd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect88" />
+      <rect
+         class="village_du"
+         width="96"
+         height="98"
+         x="2"
+         y="0"
+         id="rect90" />
+    </symbol>
+    <symbol
+       id="village_nl">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect93" />
+      <rect
+         class="village_lu"
+         width="96"
+         height="98"
+         x="2"
+         y="0"
+         id="rect95" />
+    </symbol>
+    <symbol
+       id="village_ned">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect98" />
+      <rect
+         class="village_du"
+         width="98"
+         height="98"
+         x="2"
+         y="0"
+         id="rect100" />
+    </symbol>
+    <symbol
+       id="village_ed">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect103" />
+      <rect
+         class="village_du"
+         width="98"
+         height="96"
+         x="2"
+         y="2"
+         id="rect105" />
+    </symbol>
+    <symbol
+       id="village_el">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect108" />
+      <rect
+         class="village_lu"
+         width="98"
+         height="96"
+         x="2"
+         y="2"
+         id="rect110" />
+    </symbol>
+    <symbol
+       id="village_sel">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect113" />
+      <rect
+         class="village_lu"
+         width="98"
+         height="98"
+         x="2"
+         y="2"
+         id="rect115" />
+    </symbol>
+    <symbol
+       id="village_sl">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect118" />
+      <rect
+         class="village_lu"
+         width="96"
+         height="98"
+         x="2"
+         y="2"
+         id="rect120" />
+    </symbol>
+    <symbol
+       id="village_sd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect123" />
+      <rect
+         class="village_du"
+         width="96"
+         height="98"
+         x="2"
+         y="2"
+         id="rect125" />
+    </symbol>
+    <symbol
+       id="village_wl">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect128" />
+      <rect
+         class="village_lu"
+         width="98"
+         height="96"
+         x="0"
+         y="2"
+         id="rect130" />
+    </symbol>
+    <symbol
+       id="village_wd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect133" />
+      <rect
+         class="village_du"
+         width="98"
+         height="96"
+         x="0"
+         y="2"
+         id="rect135" />
+    </symbol>
+    <symbol
+       id="village_nwd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect138" />
+      <rect
+         class="village_du"
+         width="98"
+         height="98"
+         x="0"
+         y="0"
+         id="rect140" />
+    </symbol>
+    <symbol
+       id="village_cd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect143" />
+      <rect
+         class="village_du"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect145" />
+    </symbol>
+    <symbol
+       id="village_cl">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect148" />
+      <rect
+         class="village_lu"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect150" />
+    </symbol>
+  </defs>
   <sodipodi:namedview
      pagecolor="#000000"
      bordercolor="#666666"
@@ -72,641 +586,21 @@
      inkscape:pagecheckerboard="false" />
   <style
      id="style2">
-.dl { fill:#768AA5; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.du { fill:#8092AC; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.lu { fill:#93A3B8; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.ll { fill:#9DABBF; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.dl { fill:#6F8BB1; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.du { fill:#7993B7; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.lu { fill:#8EA3C2; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.ll { fill:#98ACC7; fill-opacity:1; fill-rule:nonzero; stroke:none; }
 .symbol_d { fill:none;stroke:#6c819f;stroke-width:5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1; }
 .symbol_l { fill:none;stroke:#a7b3c5;stroke-width:5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1; }
 .village_dl { fill:#6F8BB1; fill-opacity:1; fill-rule:nonzero; stroke:none; }
 .village_du { fill:#7993B7; fill-opacity:1; fill-rule:nonzero; stroke:none; }
 .village_lu { fill:#8EA3C2; fill-opacity:1; fill-rule:nonzero; stroke:none; }
 .village_ll { fill:#98ACC7; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.den_dl { fill:#B17C7C; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.den_du { fill:#B78686; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.den_lu { fill:#C29898; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.den_ll { fill:#C7A1A1; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.lion_dl { fill:#A57F7F; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.lion_du { fill:#AC8989; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.lion_lu { fill:#B89B9B; fill-opacity:1; fill-rule:nonzero; stroke:none; }
-.lion_ll { fill:#BFA4A4; fill-opacity:1; fill-rule:nonzero; stroke:none; }
 </style>
-  <g
-     id="swd">
-    <rect
-       class="village_dl"
-       width="100"
-       height="100"
-       id="rect4"
-       x="0"
-       y="0" />
-    <rect
-       class="village_du"
-       width="98"
-       height="98"
-       x="0"
-       y="2"
-       id="rect6" />
-  </g>
-  <g
-     id="nd">
-    <rect
-       class="dl"
-       width="100"
-       height="100"
-       id="rect9"
-       x="0"
-       y="0" />
-    <rect
-       class="du"
-       width="96"
-       height="98"
-       x="2"
-       y="0"
-       id="rect11" />
-  </g>
-  <g
-     id="nl">
-    <rect
-       class="ll"
-       width="100"
-       height="100"
-       id="rect14"
-       x="0"
-       y="0" />
-    <rect
-       class="lu"
-       width="96"
-       height="98"
-       x="2"
-       y="0"
-       id="rect16" />
-  </g>
-  <g
-     id="nel">
-    <rect
-       class="village_ll"
-       width="100"
-       height="100"
-       id="rect19"
-       x="0"
-       y="0" />
-    <rect
-       class="village_lu"
-       width="98"
-       height="98"
-       x="2"
-       y="0"
-       id="rect21" />
-  </g>
-  <g
-     id="ed">
-    <rect
-       class="dl"
-       width="100"
-       height="100"
-       id="rect24"
-       x="0"
-       y="0" />
-    <rect
-       class="du"
-       width="98"
-       height="96"
-       x="2"
-       y="2"
-       id="rect26" />
-  </g>
-  <g
-     id="el">
-    <rect
-       class="ll"
-       width="100"
-       height="100"
-       id="rect29"
-       x="0"
-       y="0" />
-    <rect
-       class="lu"
-       width="98"
-       height="96"
-       x="2"
-       y="2"
-       id="rect31" />
-  </g>
-  <g
-     id="sed">
-    <rect
-       class="village_dl"
-       width="100"
-       height="100"
-       id="rect34"
-       x="0"
-       y="0" />
-    <rect
-       class="village_du"
-       width="98"
-       height="98"
-       x="2"
-       y="2"
-       id="rect36" />
-  </g>
-  <g
-     id="sl">
-    <rect
-       class="ll"
-       width="100"
-       height="100"
-       id="rect39"
-       x="0"
-       y="0" />
-    <rect
-       class="lu"
-       width="96"
-       height="98"
-       x="2"
-       y="2"
-       id="rect41" />
-  </g>
-  <g
-     id="sd">
-    <rect
-       class="dl"
-       width="100"
-       height="100"
-       id="rect44"
-       x="0"
-       y="0" />
-    <rect
-       class="du"
-       width="96"
-       height="98"
-       x="2"
-       y="2"
-       id="rect46" />
-  </g>
-  <g
-     id="wl">
-    <rect
-       class="ll"
-       width="100"
-       height="100"
-       id="rect49"
-       x="0"
-       y="0" />
-    <rect
-       class="lu"
-       width="98"
-       height="96"
-       x="0"
-       y="2"
-       id="rect51" />
-  </g>
-  <g
-     id="wd">
-    <rect
-       class="dl"
-       width="100"
-       height="100"
-       id="rect54"
-       x="0"
-       y="0" />
-    <rect
-       class="du"
-       width="98"
-       height="96"
-       x="0"
-       y="2"
-       id="rect56" />
-  </g>
-  <g
-     id="nwl">
-    <rect
-       class="village_ll"
-       width="100"
-       height="100"
-       id="rect59"
-       x="0"
-       y="0" />
-    <rect
-       class="village_lu"
-       width="98"
-       height="98"
-       x="0"
-       y="0"
-       id="rect61" />
-  </g>
-  <g
-     id="cd">
-    <rect
-       class="dl"
-       width="100"
-       height="100"
-       id="rect64"
-       x="0"
-       y="0" />
-    <rect
-       class="du"
-       width="96"
-       height="96"
-       x="2"
-       y="2"
-       id="rect66" />
-  </g>
-  <g
-     id="cl">
-    <rect
-       class="ll"
-       width="100"
-       height="100"
-       id="rect69"
-       x="0"
-       y="0" />
-    <rect
-       class="lu"
-       width="96"
-       height="96"
-       x="2"
-       y="2"
-       id="rect71" />
-  </g>
-  <g
-     id="village_swd">
-    <rect
-       class="village_dl"
-       width="100"
-       height="100"
-       id="rect74"
-       x="0"
-       y="0" />
-    <rect
-       class="village_du"
-       width="98"
-       height="98"
-       x="0"
-       y="2"
-       id="rect76" />
-  </g>
-  <g
-     id="village_nd">
-    <rect
-       class="village_dl"
-       width="100"
-       height="100"
-       id="rect79"
-       x="0"
-       y="0" />
-    <rect
-       class="village_du"
-       width="96"
-       height="98"
-       x="2"
-       y="0"
-       id="rect81" />
-  </g>
-  <g
-     id="village_nl">
-    <rect
-       class="village_ll"
-       width="100"
-       height="100"
-       id="rect84"
-       x="0"
-       y="0" />
-    <rect
-       class="village_lu"
-       width="96"
-       height="98"
-       x="2"
-       y="0"
-       id="rect86" />
-  </g>
-  <g
-     id="village_nel">
-    <rect
-       class="village_ll"
-       width="100"
-       height="100"
-       id="rect89"
-       x="0"
-       y="0" />
-    <rect
-       class="village_lu"
-       width="98"
-       height="98"
-       x="2"
-       y="0"
-       id="rect91" />
-  </g>
-  <g
-     id="village_ed">
-    <rect
-       class="village_dl"
-       width="100"
-       height="100"
-       id="rect94"
-       x="0"
-       y="0" />
-    <rect
-       class="village_du"
-       width="98"
-       height="96"
-       x="2"
-       y="2"
-       id="rect96" />
-  </g>
-  <g
-     id="village_el">
-    <rect
-       class="village_ll"
-       width="100"
-       height="100"
-       id="rect99"
-       x="0"
-       y="0" />
-    <rect
-       class="village_lu"
-       width="98"
-       height="96"
-       x="2"
-       y="2"
-       id="rect101" />
-  </g>
-  <g
-     id="village_sed">
-    <rect
-       class="village_dl"
-       width="100"
-       height="100"
-       id="rect104"
-       x="0"
-       y="0" />
-    <rect
-       class="village_du"
-       width="98"
-       height="98"
-       x="2"
-       y="2"
-       id="rect106" />
-  </g>
-  <g
-     id="village_sl">
-    <rect
-       class="village_ll"
-       width="100"
-       height="100"
-       id="rect109"
-       x="0"
-       y="0" />
-    <rect
-       class="village_lu"
-       width="96"
-       height="98"
-       x="2"
-       y="2"
-       id="rect111" />
-  </g>
-  <g
-     id="village_sd">
-    <rect
-       class="village_dl"
-       width="100"
-       height="100"
-       id="rect114"
-       x="0"
-       y="0" />
-    <rect
-       class="village_du"
-       width="96"
-       height="98"
-       x="2"
-       y="2"
-       id="rect116" />
-  </g>
-  <g
-     id="village_wl">
-    <rect
-       class="village_ll"
-       width="100"
-       height="100"
-       id="rect119"
-       x="0"
-       y="0" />
-    <rect
-       class="village_lu"
-       width="98"
-       height="96"
-       x="0"
-       y="2"
-       id="rect121" />
-  </g>
-  <g
-     id="village_wd">
-    <rect
-       class="village_dl"
-       width="100"
-       height="100"
-       id="rect124"
-       x="0"
-       y="0" />
-    <rect
-       class="village_du"
-       width="98"
-       height="96"
-       x="0"
-       y="2"
-       id="rect126" />
-  </g>
-  <g
-     id="village_nwl">
-    <rect
-       class="village_ll"
-       width="100"
-       height="100"
-       id="rect129"
-       x="0"
-       y="0" />
-    <rect
-       class="village_lu"
-       width="98"
-       height="98"
-       x="0"
-       y="0"
-       id="rect131" />
-  </g>
-  <g
-     id="village_cd">
-    <rect
-       class="village_dl"
-       width="100"
-       height="100"
-       id="rect134"
-       x="0"
-       y="0" />
-    <rect
-       class="village_du"
-       width="96"
-       height="96"
-       x="2"
-       y="2"
-       id="rect136" />
-  </g>
-  <g
-     id="village_cl">
-    <rect
-       class="village_ll"
-       width="100"
-       height="100"
-       id="rect139"
-       x="0"
-       y="0" />
-    <rect
-       class="village_lu"
-       width="96"
-       height="96"
-       x="2"
-       y="2"
-       id="rect141" />
-  </g>
-  <g
-     id="den_cd">
-    <rect
-       class="den_dl"
-       width="100"
-       height="100"
-       id="rect144"
-       x="0"
-       y="0" />
-    <rect
-       class="den_du"
-       width="96"
-       height="96"
-       x="2"
-       y="2"
-       id="rect146" />
-  </g>
-  <g
-     id="den_cl">
-    <rect
-       class="den_ll"
-       width="100"
-       height="100"
-       id="rect149"
-       x="0"
-       y="0" />
-    <rect
-       class="den_lu"
-       width="96"
-       height="96"
-       x="2"
-       y="2"
-       id="rect151" />
-  </g>
-  <g
-     id="lion_nl">
-    <rect
-       class="lion_ll"
-       width="100"
-       height="100"
-       id="rect97"
-       x="0"
-       y="0" />
-    <rect
-       class="lion_lu"
-       width="96"
-       height="98"
-       x="2"
-       y="2"
-       id="rect100" />
-  </g>
-  <g
-     id="lion_nd">
-    <rect
-       class="lion_dl"
-       width="100"
-       height="100"
-       id="rect103"
-       x="0"
-       y="0" />
-    <rect
-       class="lion_du"
-       width="96"
-       height="98"
-       x="2"
-       y="2"
-       id="rect105" />
-  </g>
-  <g
-     id="lion_sl">
-    <rect
-       class="lion_ll"
-       width="100"
-       height="100"
-       id="rect108"
-       x="0"
-       y="0" />
-    <rect
-       class="lion_lu"
-       width="96"
-       height="98"
-       x="2"
-       y="2"
-       id="rect110" />
-  </g>
-  <g
-     id="lion_sd">
-    <rect
-       class="lion_dl"
-       width="100"
-       height="100"
-       id="rect113"
-       x="0"
-       y="0" />
-    <rect
-       class="lion_du"
-       width="96"
-       height="98"
-       x="2"
-       y="2"
-       id="rect115" />
-  </g>
-  <g
-     id="lion_cd">
-    <rect
-       class="lion_dl"
-       width="100"
-       height="100"
-       id="rect118"
-       x="0"
-       y="0" />
-    <rect
-       class="lion_du"
-       width="96"
-       height="96"
-       x="2"
-       y="2"
-       id="rect120" />
-  </g>
-  <g
-     id="lion_cl">
-    <rect
-       class="lion_ll"
-       width="100"
-       height="100"
-       id="rect123"
-       x="0"
-       y="0" />
-    <rect
-       class="lion_lu"
-       width="96"
-       height="96"
-       x="2"
-       y="2"
-       id="rect125" />
-  </g>
   <use
      x="100"
      y="900"
-     xlink:href="#village_sl"
+     xlink:href="#village_swl"
      id="use156"
      width="100%"
      height="100%"
@@ -770,7 +664,7 @@
   <use
      x="900"
      y="900"
-     xlink:href="#village_sl"
+     xlink:href="#village_sel"
      id="use172"
      width="100%"
      height="100%"
@@ -778,7 +672,7 @@
   <use
      x="100"
      y="800"
-     xlink:href="#village_cd"
+     xlink:href="#village_wd"
      id="use178"
      width="100%"
      height="100%"
@@ -802,7 +696,7 @@
   <use
      x="400"
      y="800"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use184"
      width="100%"
      height="100%"
@@ -810,7 +704,7 @@
   <use
      x="500"
      y="800"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use186"
      width="100%"
      height="100%"
@@ -818,7 +712,7 @@
   <use
      x="600"
      y="800"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use188"
      width="100%"
      height="100%"
@@ -842,7 +736,7 @@
   <use
      x="900"
      y="800"
-     xlink:href="#village_cd"
+     xlink:href="#village_ed"
      id="use194"
      width="100%"
      height="100%"
@@ -850,7 +744,7 @@
   <use
      x="100"
      y="700"
-     xlink:href="#village_cl"
+     xlink:href="#village_wl"
      id="use200"
      width="100%"
      height="100%"
@@ -874,7 +768,7 @@
   <use
      x="400"
      y="700"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use206"
      width="100%"
      height="100%"
@@ -882,7 +776,7 @@
   <use
      x="500"
      y="700"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use208"
      width="100%"
      height="100%"
@@ -890,7 +784,7 @@
   <use
      x="600"
      y="700"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use210"
      width="100%"
      height="100%"
@@ -914,7 +808,7 @@
   <use
      x="900"
      y="700"
-     xlink:href="#village_cl"
+     xlink:href="#village_el"
      id="use216"
      width="100%"
      height="100%"
@@ -922,7 +816,7 @@
   <use
      x="100"
      y="600"
-     xlink:href="#cd"
+     xlink:href="#wd"
      id="use222"
      width="100%"
      height="100%"
@@ -930,7 +824,7 @@
   <use
      x="200"
      y="600"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use224"
      width="100%"
      height="100%"
@@ -938,7 +832,7 @@
   <use
      x="300"
      y="600"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use226"
      width="100%"
      height="100%"
@@ -946,7 +840,7 @@
   <use
      x="400"
      y="600"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use228"
      width="100%"
      height="100%"
@@ -954,7 +848,7 @@
   <use
      x="600"
      y="600"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use232"
      width="100%"
      height="100%"
@@ -962,7 +856,7 @@
   <use
      x="700"
      y="600"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use234"
      width="100%"
      height="100%"
@@ -970,7 +864,7 @@
   <use
      x="800"
      y="600"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use236"
      width="100%"
      height="100%"
@@ -978,7 +872,7 @@
   <use
      x="900"
      y="600"
-     xlink:href="#cd"
+     xlink:href="#ed"
      id="use238"
      width="100%"
      height="100%"
@@ -986,7 +880,7 @@
   <use
      x="100"
      y="500"
-     xlink:href="#cl"
+     xlink:href="#wl"
      id="use244"
      width="100%"
      height="100%"
@@ -994,7 +888,7 @@
   <use
      x="200"
      y="500"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use246"
      width="100%"
      height="100%"
@@ -1002,7 +896,7 @@
   <use
      x="300"
      y="500"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use248"
      width="100%"
      height="100%"
@@ -1010,7 +904,7 @@
   <use
      x="400"
      y="500"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use250"
      width="100%"
      height="100%"
@@ -1018,7 +912,7 @@
   <use
      x="600"
      y="500"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use254"
      width="100%"
      height="100%"
@@ -1026,7 +920,7 @@
   <use
      x="700"
      y="500"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use256"
      width="100%"
      height="100%"
@@ -1034,7 +928,7 @@
   <use
      x="800"
      y="500"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use258"
      width="100%"
      height="100%"
@@ -1042,7 +936,7 @@
   <use
      x="900"
      y="500"
-     xlink:href="#cl"
+     xlink:href="#el"
      id="use260"
      width="100%"
      height="100%"
@@ -1050,7 +944,7 @@
   <use
      x="100"
      y="400"
-     xlink:href="#cd"
+     xlink:href="#wd"
      id="use266"
      width="100%"
      height="100%"
@@ -1058,7 +952,7 @@
   <use
      x="200"
      y="400"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use268"
      width="100%"
      height="100%"
@@ -1066,7 +960,7 @@
   <use
      x="300"
      y="400"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use270"
      width="100%"
      height="100%"
@@ -1074,7 +968,7 @@
   <use
      x="400"
      y="400"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use272"
      width="100%"
      height="100%"
@@ -1082,7 +976,7 @@
   <use
      x="600"
      y="400"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use276"
      width="100%"
      height="100%"
@@ -1090,7 +984,7 @@
   <use
      x="700"
      y="400"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use278"
      width="100%"
      height="100%"
@@ -1098,7 +992,7 @@
   <use
      x="800"
      y="400"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use280"
      width="100%"
      height="100%"
@@ -1106,7 +1000,7 @@
   <use
      x="900"
      y="400"
-     xlink:href="#cd"
+     xlink:href="#ed"
      id="use282"
      width="100%"
      height="100%"
@@ -1114,7 +1008,7 @@
   <use
      x="100"
      y="300"
-     xlink:href="#cl"
+     xlink:href="#wl"
      id="use288"
      width="100%"
      height="100%"
@@ -1122,7 +1016,7 @@
   <use
      x="200"
      y="300"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use290"
      width="100%"
      height="100%"
@@ -1130,7 +1024,7 @@
   <use
      x="300"
      y="300"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use292"
      width="100%"
      height="100%"
@@ -1138,7 +1032,7 @@
   <use
      x="400"
      y="300"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use294"
      width="100%"
      height="100%"
@@ -1146,7 +1040,7 @@
   <use
      x="500"
      y="600"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use230"
      width="100%"
      height="100%"
@@ -1154,7 +1048,7 @@
   <use
      x="500"
      y="500"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use252"
      width="100%"
      height="100%"
@@ -1162,7 +1056,7 @@
   <use
      x="500"
      y="400"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use274"
      width="100%"
      height="100%"
@@ -1170,7 +1064,7 @@
   <use
      x="500"
      y="300"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use296"
      width="100%"
      height="100%"
@@ -1178,7 +1072,7 @@
   <use
      x="600"
      y="300"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use298"
      width="100%"
      height="100%"
@@ -1186,7 +1080,7 @@
   <use
      x="700"
      y="300"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use300"
      width="100%"
      height="100%"
@@ -1194,7 +1088,7 @@
   <use
      x="800"
      y="300"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use302"
      width="100%"
      height="100%"
@@ -1202,7 +1096,7 @@
   <use
      x="900"
      y="300"
-     xlink:href="#cl"
+     xlink:href="#el"
      id="use304"
      width="100%"
      height="100%"
@@ -1210,7 +1104,7 @@
   <use
      x="100"
      y="200"
-     xlink:href="#village_cd"
+     xlink:href="#village_wd"
      id="use310"
      width="100%"
      height="100%"
@@ -1234,7 +1128,7 @@
   <use
      x="500"
      y="200"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use318"
      width="100%"
      height="100%"
@@ -1242,7 +1136,7 @@
   <use
      x="600"
      y="200"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use320"
      width="100%"
      height="100%"
@@ -1266,7 +1160,7 @@
   <use
      x="900"
      y="200"
-     xlink:href="#village_cd"
+     xlink:href="#village_ed"
      id="use326"
      width="100%"
      height="100%"
@@ -1274,7 +1168,7 @@
   <use
      x="100"
      y="100"
-     xlink:href="#village_cl"
+     xlink:href="#village_wl"
      id="use332"
      width="100%"
      height="100%"
@@ -1298,15 +1192,16 @@
   <use
      x="500"
      y="100"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use340"
      width="100%"
      height="100%"
-     transform="translate(-100)" />
+     transform="matrix(1.019997,0,0,1.0199975,-111.99854,-3.9995587)"
+     style="stroke-width:3.92161;stroke-miterlimit:4;stroke-dasharray:none" />
   <use
      x="600"
      y="100"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use342"
      width="100%"
      height="100%"
@@ -1330,7 +1225,7 @@
   <use
      x="900"
      y="100"
-     xlink:href="#village_cl"
+     xlink:href="#village_el"
      id="use348"
      width="100%"
      height="100%"
@@ -1338,7 +1233,7 @@
   <use
      x="100"
      y="0"
-     xlink:href="#village_nd"
+     xlink:href="#village_nwd"
      id="use354"
      width="100%"
      height="100%"
@@ -1402,7 +1297,7 @@
   <use
      x="900"
      y="0"
-     xlink:href="#village_nd"
+     xlink:href="#village_ned"
      id="use370"
      width="100%"
      height="100%"
@@ -1410,7 +1305,7 @@
   <use
      x="400"
      y="200"
-     xlink:href="#cl"
+     xlink:href="#cl_new"
      id="use316"
      width="100%"
      height="100%"
@@ -1418,322 +1313,82 @@
   <use
      x="400"
      y="100"
-     xlink:href="#cd"
+     xlink:href="#cd_new"
      id="use338"
      width="100%"
      height="100%"
      transform="translate(-100)" />
   <g
-     id="g1756">
-    <g
-       id="g1387-2-0"
-       transform="translate(0,-725)"
-       style="stroke:#000000;stroke-opacity:0.33">
-      <g
-         id="g1363-4-6"
-         style="stroke:#000000;stroke-opacity:0.33">
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,962.5 v -25"
-           id="path1072-2-9-1-2-7-1" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,912.5 v -25"
-           id="path1072-2-9-1-3-3-9-1" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,862.5 v -25"
-           id="path1072-2-9-1-8-3-3-0" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,812.5 v -25"
-           id="path1072-2-9-1-1-6-0-4" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,762.5 v -25"
-           id="path1072-2-9-1-80-4-5-2" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,1012.5 v -25"
-           id="path1353-1-5" />
-      </g>
-      <g
-         id="g1371-4-3"
-         style="stroke:#000000;stroke-opacity:0.33">
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,962.5 v -25"
-           id="path1226-1-8-2" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,912.5 v -25"
-           id="path1228-0-2-5" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,862.5 v -25"
-           id="path1230-6-3-8" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,812.5 v -25"
-           id="path1232-5-1-6" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,762.5 v -25"
-           id="path1234-6-2-5" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,1012.5 v -25"
-           id="path1355-6-6" />
-      </g>
-    </g>
+     id="g1593"
+     transform="translate(-1148.9621,-100.1221)">
     <path
-       style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.5"
-       d="M 0,700 H 900"
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.33"
+       d="m 1148.9621,800.1221 h 900"
        id="path1072-1" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.5"
-       d="M 0,498 H 900"
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.33"
+       d="m 1148.9621,600.1221 h 900"
        id="path1070-2-1-4" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.0"
-       d="M 0,500 H 900" />
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0"
+       d="m 1148.9621,600.1221 h 900"
+       id="path263" />
     <path
-       style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.5"
-       d="M 0,502 H 900"
-       id="path1072-6-9" />
-    <rect
-       style="fill:none;fill-opacity:0.33;stroke:#ffffff;stroke-width:4.00012;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0.4;stroke-opacity:0.5"
-       id="rect1073-1-3"
-       width="99.999878"
-       height="99.999886"
-       x="100.00006"
-       y="800.00006" />
-    <rect
-       style="fill:none;fill-opacity:0.33;stroke:#ffffff;stroke-width:4.00012;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0.4;stroke-opacity:0.5"
-       id="rect1073-4-9"
-       width="99.999878"
-       height="99.999886"
-       x="700.00006"
-       y="800.00006" />
-    <rect
-       style="fill:none;fill-opacity:0.33;stroke:#000000;stroke-width:4.07864;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0.4;stroke-opacity:0.5"
-       id="rect1073-6-9-0"
-       width="99.921364"
-       height="99.921364"
-       x="700.03931"
-       y="100.03932" />
-    <rect
-       style="fill:none;fill-opacity:0.33;stroke:#000000;stroke-width:4.07864;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0.4;stroke-opacity:0.5"
-       id="rect1073-6-4-1"
-       width="99.921364"
-       height="99.921364"
-       x="100.03932"
-       y="100.03932" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:3.61814;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.5"
-       d="M 0,300 H 900"
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.33"
+       d="m 1148.9621,400.1221 h 900"
        id="path1070-2-6" />
     <g
-       id="g1387-4"
-       transform="translate(0,-25)"
-       style="stroke:#ffffff;stroke-opacity:0.33">
-      <g
-         id="g1363-0"
-         style="stroke:#ffffff;stroke-opacity:0.33">
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,962.5 v -25"
-           id="path1072-2-9-1-2-9" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,912.5 v -25"
-           id="path1072-2-9-1-3-3-5" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,862.5 v -25"
-           id="path1072-2-9-1-8-3-8" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,812.5 v -25"
-           id="path1072-2-9-1-1-6-9" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,762.5 v -25"
-           id="path1072-2-9-1-80-4-6" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 300,1012.5 v -25"
-           id="path1353-0" />
-      </g>
-      <g
-         id="g1371-0"
-         style="stroke:#ffffff;stroke-opacity:0.33">
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,962.5 v -25"
-           id="path1226-1-5" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,912.5 v -25"
-           id="path1228-0-1" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,862.5 v -25"
-           id="path1230-6-2" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,812.5 v -25"
-           id="path1232-5-7" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,762.5 v -25"
-           id="path1234-6-4" />
-        <path
-           style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:8;stroke-opacity:0.33"
-           d="m 600,1012.5 v -25"
-           id="path1355-68" />
-      </g>
-    </g>
-    <g
-       id="g1270">
-      <rect
-         class="symbol_l"
-         id="rect1103-7-0"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="433.333333" />
-      <rect
-         class="symbol_d"
-         id="rect1103-5"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="333.333333" />
-      <rect
-         class="symbol_d"
-         id="rect1103-5-5"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="533.333333" />
-      <rect
-         class="symbol_l"
-         id="rect1103-7-0-4"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="633.333333" />
-    </g>
+       id="g1270"
+       transform="translate(1148.9621,100.1221)" />
     <g
        id="g1270-9"
-       transform="translate(800)">
-      <rect
-         class="symbol_l"
-         id="rect1103-7-0-8"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="433.333333" />
-      <rect
-         class="symbol_d"
-         id="rect1103-5-6"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="333.333333" />
-      <rect
-         class="symbol_d"
-         id="rect1103-5-5-2"
-         width="33.333328"
-         height="33.333333"
-         x="33.333333"
-         y="533.333333" />
-      <rect
-         class="symbol_l"
-         id="rect1103-7-0-4-9"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="633.333333" />
-    </g>
+       transform="translate(1948.9621,100.1221)" />
     <g
        id="g1270-7"
-       transform="translate(400)">
-      <rect
-         class="symbol_l"
-         id="rect1103-7-0-81"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="433.333333" />
-      <rect
-         class="symbol_d"
-         id="rect1103-5-1"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="333.333333" />
-      <rect
-         class="symbol_d"
-         id="rect1103-5-5-8"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="533.333333" />
-      <rect
-         class="symbol_l"
-         id="rect1103-7-0-4-4"
-         width="33.333333"
-         height="33.333333"
-         x="33.333333"
-         y="633.333333" />
-    </g>
-    <ellipse
+       transform="translate(1548.9621,100.1221)" />
+    <circle
        class="symbol_l"
        id="path1323-9"
-       cx="350"
-       cy="350"
-       rx="17.5"
-       ry="17.5" />
-    <ellipse
+       cx="1498.9622"
+       cy="450.1221"
+       r="17.5" />
+    <circle
        class="symbol_l"
        id="path1323-1"
-       cx="550"
-       cy="350"
-       rx="17.5"
-       ry="17.5" />
-    <ellipse
+       cx="1698.9622"
+       cy="450.1221"
+       r="17.5" />
+    <circle
        class="symbol_d"
        id="path1323-3-5"
-       cx="350"
-       cy="650"
-       rx="17.5"
-       ry="17.5" />
-    <ellipse
+       cx="1498.9622"
+       cy="750.12207"
+       r="17.5" />
+    <circle
        class="symbol_d"
        id="path1323-3-6"
-       cx="550"
-       cy="650"
-       rx="17.5"
-       ry="17.5" />
+       cx="1698.9622"
+       cy="750.12207"
+       r="17.5" />
     <g
-       id="g1483">
-      <path
-         id="path1409"
-         class="symbol_d"
-         d="M 450,167.5 V 132.5 M 432.5,150 h 35 m -1.4e-4,0 A 17.5,17.5 0 0 1 450,167.5 17.5,17.5 0 0 1 432.5,150 17.5,17.5 0 0 1 450,132.5 17.5,17.5 0 0 1 467.5,150 Z"
-         inkscape:export-xdpi="48"
-         inkscape:export-ydpi="48" />
-    </g>
+       id="g1483"
+       transform="translate(1148.9621,100.1221)" />
     <g
-       id="g1475">
-      <path
-         id="path1409-4"
-         class="symbol_l"
-         d="M 450,867.5 V 832.5 M 432.5,850 h 35 m -1.4e-4,0 A 17.5,17.5 0 0 1 450,867.5 17.5,17.5 0 0 1 432.5,850 17.5,17.5 0 0 1 450,832.5 17.5,17.5 0 0 1 467.5,850 Z"
-         inkscape:export-xdpi="48"
-         inkscape:export-ydpi="48" />
-    </g>
+       id="g1475"
+       transform="translate(1148.9621,100.1221)" />
   </g>
+  <circle
+     class="symbol_d"
+     id="path1323-3-5-7"
+     cx="450"
+     cy="150"
+     r="17.5"
+     style="fill:none;stroke:#6c819f;stroke-width:5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  <circle
+     class="symbol_l"
+     id="path1323-9-4"
+     cx="450"
+     cy="850"
+     r="17.5"
+     style="fill:none;stroke:#a7b3c5;stroke-width:5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
 </svg>
