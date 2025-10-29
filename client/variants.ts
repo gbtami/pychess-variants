@@ -320,7 +320,7 @@ interface VariantConfig {
 export const VARIANTS: Record<string, Variant> = {
     borderlands: variant({
         name: "borderlands", displayName: "borderlands", tooltip: "borderlands",
-        startFen: "a2s1s2a/1checehc1/fw1wlw1wf/w1w1w1w1w/9/9/W1W1W1W1W/FW1WLW1WF/1CHECEHC1/A2S1S2A[MMmm] w - - 0 1",
+        startFen: "a3s3a/1chesehc1/fw1wlw1wf/w1w1w1w1w/9/9/W1W1W1W1W/FW1WLW1WF/1CHESEHC1/A3S3A[MMmm] w - - 0 1",
         icon: " 🌄",
         boardFamily: "borderlands9x10", pieceFamily: "borderlands",
         pieceRow: ["a", "h", "s", "c", "e", "f", "w", "g", "m"],
