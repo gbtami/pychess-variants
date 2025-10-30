@@ -52,9 +52,6 @@
 .borderlands piece.pl-piece.white {
   background-image: url('../../images/pieces/borderlands/w+L.svg');
 }
-.borderlands piece.g-piece.white {
-  background-image: url('../../images/pieces/borderlands/wG.svg');
-}
 .borderlands piece.w-piece.black.ally {
   background-image: url('../../images/pieces/borderlands/bW.svg');
 }
@@ -108,7 +105,4 @@
 }
 .borderlands piece.pl-piece.black {
   background-image: url('../../images/pieces/borderlands/b+L.svg');
-}
-.borderlands piece.g-piece.black {
-  background-image: url('../../images/pieces/borderlands/bG.svg');
 }
