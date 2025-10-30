@@ -131,7 +131,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     if (parts[1] !== 'b' && parts[1] !== 'w') return false;
 
     // ataxx has no kings at all
-    if (variantName === 'ataxx') return true;
+    if (variantName === 'ataxx' || variantName === 'borderlands') return true;
 
     // Touching kings
     if (variantName !== 'atomic' && touchingKings(boardState.pieces)) return false;
