@@ -139,7 +139,7 @@ async def new_tournament(app_state: PychessGlobalAppState, data):
         starts_at=data.get("startDate"),
         frequency=data.get("frequency", ""),
         name=data["name"],
-        password=data["password"],
+        password=data.get("password", ""),
         description=data.get("description", ""),
         created_at=data.get("createdAt"),
         status=data.get("status"),
