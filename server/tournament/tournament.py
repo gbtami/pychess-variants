@@ -223,6 +223,7 @@ class Tournament(ABC):
         before_start=5,
         minutes=45,
         name="",
+        password="",
         description="",
         fen="",
         base=1,
@@ -239,6 +240,7 @@ class Tournament(ABC):
         self.app_state = app_state
         self.id = tournamentId
         self.name = name
+        self.password = password
         self.description = description
         self.variant = variant
         self.rated = rated
@@ -594,10 +596,13 @@ class Tournament(ABC):
     async def finish(self):
         await self.finalize(T_FINISHED)
 
-    async def join(self, user):
+    async def join(self, user, password=None):
         if user.anon:
             return
         log.debug("JOIN: %s in tournament %s", user.username, self.id)
+
+        if self.password and self.password != password:
+            return "401"
 
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
@@ -1265,6 +1270,7 @@ async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
 
     new_data = {
         "name": tournament.name,
+        "password": tournament.password,
         "d": tournament.description,
         "fr": tournament.frequency,
         "minutes": tournament.minutes,

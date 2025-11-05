@@ -53,6 +53,7 @@ export interface MsgUserConnectedTournament {
     secondsToStart: number;
     secondsToFinish: number;
     chatClosed: boolean;
+    private: boolean;
 }
 
 export interface MsgGetPlayers {
