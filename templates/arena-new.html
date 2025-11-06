@@ -5,14 +5,40 @@
         <div class="tour__form box box-pad">
             <h1>{% if edit %}Edit tournament{% else %}Create a new tournament{% endif %}</h1>
             {% if edit %}
+            {% set t_name = tournament.name %}
+            {% set t_rated = tournament.rated %}
+            {% set t_variant = tournament.variant + ('960' if tournament.chess960 else '') %}
+            {% set t_base = tournament.base %}
+            {% set t_inc = tournament.inc %}
+            {% set t_byo = tournament.byoyomi_period %}
+            {% set t_minutes = tournament.minutes %}
+            {% set t_before_start = tournament.before_start %}
+            {% set t_description = tournament.description %}
+            {% set t_fen = tournament.fen %}
+            {% set t_password = tournament.password %}
+            {% set t_starts_at = tournament.starts_at.isoformat() if tournament.starts_at else '' %}
+            {% set t_shield = tournament.frequency == 's' %}
             <form method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
             {% else %}
+            {% set t_name = '' %}
+            {% set t_rated = rated %}
+            {% set t_variant = variant %}
+            {% set t_base = 2.0 %}
+            {% set t_inc = 0 %}
+            {% set t_byo = 0 %}
+            {% set t_minutes = 45 %}
+            {% set t_before_start = 5 %}
+            {% set t_description = '' %}
+            {% set t_fen = '' %}
+            {% set t_password = '' %}
+            {% set t_starts_at = '' %}
+            {% set t_shield = false %}
             <form method="post" class="form3" action="/tournaments/arena">
             {% endif %}
                 <div class="form-group">
                     <label class="form-label" for="form3-name">Name</label>
                     <div>
-                        <input id="form3-name" name="name" value="{{ tournament.name if edit else '' }}" class="form-control" minlength="2" maxlength="30" />
+                        <input id="form3-name" name="name" value="{{ t_name }}" class="form-control" minlength="2" maxlength="30" />
                         <label class="form-label-tail" for="form3-name">Arena</label>
                         <br />
                         <small class="form-help">Pick a very safe name for the tournament.
@@ -25,7 +51,7 @@
                         <div>
                             <label class="form-label" for="form3-rated">Rated</label>
                             <span class="form-check-input">
-                                <input id="form3-rated" name="rated" value="1" type="checkbox" class="form-control cmn-toggle" {% if tournament.rated if edit else rated %}checked{% endif %}/>
+                                <input id="form3-rated" name="rated" value="1" type="checkbox" class="form-control cmn-toggle" {% if t_rated %}checked{% endif %}/>
                             </span>
                         </div>
                         <small class="form-help">Games are rated
@@ -36,7 +62,7 @@
                         <label class="form-label" for="form3-variant">Variant</label>
                         <select id="form3-variant" name="variant" class="form-control">
                             {% for key in variants %}
-                            <option value="{{ key }}"{% if key == (tournament.variant + ('960' if tournament.chess960 else '')) if edit else variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                            <option value="{{ key }}"{% if key == t_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -45,47 +71,47 @@
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-clockTime">Clock initial time</label>
                         <select id="form3-clockTime" name="clockTime" class="form-control">
-                            <option value="0.0"{% if edit and tournament.base == 0.0 %} selected="selected"{% endif %}>0 minute</option>
-                            <option value="0.25"{% if edit and tournament.base == 0.25 %} selected="selected"{% endif %}>¼ minute</option>
-                            <option value="0.5"{% if edit and tournament.base == 0.5 %} selected="selected"{% endif %}>½ minute</option>
-                            <option value="0.75"{% if edit and tournament.base == 0.75 %} selected="selected"{% endif %}>¾ minute</option>
-                            <option value="1.0"{% if edit and tournament.base == 1.0 %} selected="selected"{% endif %}>1 minute</option>
-                            <option value="1.5"{% if edit and tournament.base == 1.5 %} selected="selected"{% endif %}>1.5 minutes</option>
-                            <option value="2.0"{% if edit and tournament.base == 2.0 %} selected="selected"{% else %} selected="selected"{% endif %}>2 minutes</option>
-                            <option value="3.0"{% if edit and tournament.base == 3.0 %} selected="selected"{% endif %}>3 minutes</option>
-                            <option value="4.0"{% if edit and tournament.base == 4.0 %} selected="selected"{% endif %}>4 minutes</option>
-                            <option value="5.0"{% if edit and tournament.base == 5.0 %} selected="selected"{% endif %}>5 minutes</option>
-                            <option value="6.0"{% if edit and tournament.base == 6.0 %} selected="selected"{% endif %}>6 minutes</option>
-                            <option value="7.0"{% if edit and tournament.base == 7.0 %} selected="selected"{% endif %}>7 minutes</option>
-                            <option value="10.0"{% if edit and tournament.base == 10.0 %} selected="selected"{% endif %}>10 minutes</option>
-                            <option value="15.0"{% if edit and tournament.base == 15.0 %} selected="selected"{% endif %}>15 minutes</option>
-                            <option value="20.0"{% if edit and tournament.base == 20.0 %} selected="selected"{% endif %}>20 minutes</option>
-                            <option value="25.0"{% if edit and tournament.base == 25.0 %} selected="selected"{% endif %}>25 minutes</option>
-                            <option value="30.0"{% if edit and tournament.base == 30.0 %} selected="selected"{% endif %}>30 minutes</option>
-                            <option value="40.0"{% if edit and tournament.base == 40.0 %} selected="selected"{% endif %}>40 minutes</option>
-                            <option value="50.0"{% if edit and tournament.base == 50.0 %} selected="selected"{% endif %}>50 minutes</option>
-                            <option value="60.0"{% if edit and tournament.base == 60.0 %} selected="selected"{% endif %}>60 minutes</option>
+                            <option value="0.0"{% if t_base == 0.0 %} selected="selected"{% endif %}>0 minute</option>
+                            <option value="0.25"{% if t_base == 0.25 %} selected="selected"{% endif %}>¼ minute</option>
+                            <option value="0.5"{% if t_base == 0.5 %} selected="selected"{% endif %}>½ minute</option>
+                            <option value="0.75"{% if t_base == 0.75 %} selected="selected"{% endif %}>¾ minute</option>
+                            <option value="1.0"{% if t_base == 1.0 %} selected="selected"{% endif %}>1 minute</option>
+                            <option value="1.5"{% if t_base == 1.5 %} selected="selected"{% endif %}>1.5 minutes</option>
+                            <option value="2.0"{% if t_base == 2.0 %} selected="selected"{% endif %}>2 minutes</option>
+                            <option value="3.0"{% if t_base == 3.0 %} selected="selected"{% endif %}>3 minutes</option>
+                            <option value="4.0"{% if t_base == 4.0 %} selected="selected"{% endif %}>4 minutes</option>
+                            <option value="5.0"{% if t_base == 5.0 %} selected="selected"{% endif %}>5 minutes</option>
+                            <option value="6.0"{% if t_base == 6.0 %} selected="selected"{% endif %}>6 minutes</option>
+                            <option value="7.0"{% if t_base == 7.0 %} selected="selected"{% endif %}>7 minutes</option>
+                            <option value="10.0"{% if t_base == 10.0 %} selected="selected"{% endif %}>10 minutes</option>
+                            <option value="15.0"{% if t_base == 15.0 %} selected="selected"{% endif %}>15 minutes</option>
+                            <option value="20.0"{% if t_base == 20.0 %} selected="selected"{% endif %}>20 minutes</option>
+                            <option value="25.0"{% if t_base == 25.0 %} selected="selected"{% endif %}>25 minutes</option>
+                            <option value="30.0"{% if t_base == 30.0 %} selected="selected"{% endif %}>30 minutes</option>
+                            <option value="40.0"{% if t_base == 40.0 %} selected="selected"{% endif %}>40 minutes</option>
+                            <option value="50.0"{% if t_base == 50.0 %} selected="selected"{% endif %}>50 minutes</option>
+                            <option value="60.0"{% if t_base == 60.0 %} selected="selected"{% endif %}>60 minutes</option>
                         </select>
                     </div>
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-clockIncrement">Clock increment</label>
                         <select id="form3-clockIncrement" name="clockIncrement" class="form-control">
-                            <option value="0"{% if (edit and tournament.inc == 0) or not edit %} selected="selected"{% endif %}>0 seconds</option>
-                            <option value="1"{% if edit and tournament.inc == 1 %} selected="selected"{% endif %}>1 second</option>
-                            <option value="2"{% if edit and tournament.inc == 2 %} selected="selected"{% endif %}>2 seconds</option>
-                            <option value="3"{% if edit and tournament.inc == 3 %} selected="selected"{% endif %}>3 seconds</option>
-                            <option value="4"{% if edit and tournament.inc == 4 %} selected="selected"{% endif %}>4 seconds</option>
-                            <option value="5"{% if edit and tournament.inc == 5 %} selected="selected"{% endif %}>5 seconds</option>
-                            <option value="6"{% if edit and tournament.inc == 6 %} selected="selected"{% endif %}>6 seconds</option>
-                            <option value="7"{% if edit and tournament.inc == 7 %} selected="selected"{% endif %}>7 seconds</option>
-                            <option value="10"{% if edit and tournament.inc == 10 %} selected="selected"{% endif %}>10 seconds</option>
-                            <option value="15"{% if edit and tournament.inc == 15 %} selected="selected"{% endif %}>15 seconds</option>
-                            <option value="20"{% if edit and tournament.inc == 20 %} selected="selected"{% endif %}>20 seconds</option>
-                            <option value="25"{% if edit and tournament.inc == 25 %} selected="selected"{% endif %}>25 seconds</option>
-                            <option value="30"{% if edit and tournament.inc == 30 %} selected="selected"{% endif %}>30 seconds</option>
-                            <option value="40"{% if edit and tournament.inc == 40 %} selected="selected"{% endif %}>40 seconds</option>
-                            <option value="50"{% if edit and tournament.inc == 50 %} selected="selected"{% endif %}>50 seconds</option>
-                            <option value="60"{% if edit and tournament.inc == 60 %} selected="selected"{% endif %}>60 seconds</option>
+                            <option value="0"{% if t_inc == 0 %} selected="selected"{% endif %}>0 seconds</option>
+                            <option value="1"{% if t_inc == 1 %} selected="selected"{% endif %}>1 second</option>
+                            <option value="2"{% if t_inc == 2 %} selected="selected"{% endif %}>2 seconds</option>
+                            <option value="3"{% if t_inc == 3 %} selected="selected"{% endif %}>3 seconds</option>
+                            <option value="4"{% if t_inc == 4 %} selected="selected"{% endif %}>4 seconds</option>
+                            <option value="5"{% if t_inc == 5 %} selected="selected"{% endif %}>5 seconds</option>
+                            <option value="6"{% if t_inc == 6 %} selected="selected"{% endif %}>6 seconds</option>
+                            <option value="7"{% if t_inc == 7 %} selected="selected"{% endif %}>7 seconds</option>
+                            <option value="10"{% if t_inc == 10 %} selected="selected"{% endif %}>10 seconds</option>
+                            <option value="15"{% if t_inc == 15 %} selected="selected"{% endif %}>15 seconds</option>
+                            <option value="20"{% if t_inc == 20 %} selected="selected"{% endif %}>20 seconds</option>
+                            <option value="25"{% if t_inc == 25 %} selected="selected"{% endif %}>25 seconds</option>
+                            <option value="30"{% if t_inc == 30 %} selected="selected"{% endif %}>30 seconds</option>
+                            <option value="40"{% if t_inc == 40 %} selected="selected"{% endif %}>40 seconds</option>
+                            <option value="50"{% if t_inc == 50 %} selected="selected"{% endif %}>50 seconds</option>
+                            <option value="60"{% if t_inc == 60 %} selected="selected"{% endif %}>60 seconds</option>
                         </select>
                     </div>
                 </div>
@@ -93,10 +119,10 @@
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-byo">Byoyomi periods</label>
                         <select id="form3-byoyomiPeriod" name="byoyomiPeriod" class="form-control">
-                            <option value="0"{% if (edit and tournament.byoyomi_period == 0) or not edit %} selected="selected"{% endif %}>0</option>
-                            <option value="1"{% if edit and tournament.byoyomi_period == 1 %} selected="selected"{% endif %}>1</option>
-                            <option value="2"{% if edit and tournament.byoyomi_period == 2 %} selected="selected"{% endif %}>2</option>
-                            <option value="3"{% if edit and tournament.byoyomi_period == 3 %} selected="selected"{% endif %}>3</option>
+                            <option value="0"{% if t_byo == 0 %} selected="selected"{% endif %}>0</option>
+                            <option value="1"{% if t_byo == 1 %} selected="selected"{% endif %}>1</option>
+                            <option value="2"{% if t_byo == 2 %} selected="selected"{% endif %}>2</option>
+                            <option value="3"{% if t_byo == 3 %} selected="selected"{% endif %}>3</option>
                         </select>
                     </div>
                 </div>
@@ -104,61 +130,61 @@
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-minutes">Duration</label>
                         <select id="form3-minutes" name="minutes" class="form-control">
-                            <option value="20"{% if edit and tournament.minutes == 20 %} selected="selected"{% endif %}>20 minutes</option>
-                            <option value="25"{% if edit and tournament.minutes == 25 %} selected="selected"{% endif %}>25 minutes</option>
-                            <option value="30"{% if edit and tournament.minutes == 30 %} selected="selected"{% endif %}>30 minutes</option>
-                            <option value="35"{% if edit and tournament.minutes == 35 %} selected="selected"{% endif %}>35 minutes</option>
-                            <option value="40"{% if edit and tournament.minutes == 40 %} selected="selected"{% endif %}>40 minutes</option>
-                            <option value="45"{% if (edit and tournament.minutes == 45) or not edit %} selected="selected"{% endif %}>45 minutes</option>
-                            <option value="50"{% if edit and tournament.minutes == 50 %} selected="selected"{% endif %}>50 minutes</option>
-                            <option value="55"{% if edit and tournament.minutes == 55 %} selected="selected"{% endif %}>55 minutes</option>
-                            <option value="60"{% if edit and tournament.minutes == 60 %} selected="selected"{% endif %}>60 minutes</option>
-                            <option value="70"{% if edit and tournament.minutes == 70 %} selected="selected"{% endif %}>70 minutes</option>
-                            <option value="80"{% if edit and tournament.minutes == 80 %} selected="selected"{% endif %}>80 minutes</option>
-                            <option value="90"{% if edit and tournament.minutes == 90 %} selected="selected"{% endif %}>90 minutes</option>
-                            <option value="100"{% if edit and tournament.minutes == 100 %} selected="selected"{% endif %}>100 minutes</option>
-                            <option value="110"{% if edit and tournament.minutes == 110 %} selected="selected"{% endif %}>110 minutes</option>
-                            <option value="120"{% if edit and tournament.minutes == 120 %} selected="selected"{% endif %}>120 minutes</option>
-                            <option value="150"{% if edit and tournament.minutes == 150 %} selected="selected"{% endif %}>150 minutes</option>
-                            <option value="180"{% if edit and tournament.minutes == 180 %} selected="selected"{% endif %}>180 minutes</option>
-                            <option value="210"{% if edit and tournament.minutes == 210 %} selected="selected"{% endif %}>210 minutes</option>
-                            <option value="240"{% if edit and tournament.minutes == 240 %} selected="selected"{% endif %}>240 minutes</option>
-                            <option value="270"{% if edit and tournament.minutes == 270 %} selected="selected"{% endif %}>270 minutes</option>
-                            <option value="300"{% if edit and tournament.minutes == 300 %} selected="selected"{% endif %}>300 minutes</option>
-                            <option value="330"{% if edit and tournament.minutes == 330 %} selected="selected"{% endif %}>330 minutes</option>
-                            <option value="360"{% if edit and tournament.minutes == 360 %} selected="selected"{% endif %}>360 minutes</option>
-                            <option value="420"{% if edit and tournament.minutes == 420 %} selected="selected"{% endif %}>420 minutes</option>
-                            <option value="480"{% if edit and tournament.minutes == 480 %} selected="selected"{% endif %}>480 minutes</option>
-                            <option value="540"{% if edit and tournament.minutes == 540 %} selected="selected"{% endif %}>540 minutes</option>
-                            <option value="600"{% if edit and tournament.minutes == 600 %} selected="selected"{% endif %}>600 minutes</option>
-                            <option value="720"{% if edit and tournament.minutes == 720 %} selected="selected"{% endif %}>720 minutes</option>
+                            <option value="20"{% if t_minutes == 20 %} selected="selected"{% endif %}>20 minutes</option>
+                            <option value="25"{% if t_minutes == 25 %} selected="selected"{% endif %}>25 minutes</option>
+                            <option value="30"{% if t_minutes == 30 %} selected="selected"{% endif %}>30 minutes</option>
+                            <option value="35"{% if t_minutes == 35 %} selected="selected"{% endif %}>35 minutes</option>
+                            <option value="40"{% if t_minutes == 40 %} selected="selected"{% endif %}>40 minutes</option>
+                            <option value="45"{% if t_minutes == 45 %} selected="selected"{% endif %}>45 minutes</option>
+                            <option value="50"{% if t_minutes == 50 %} selected="selected"{% endif %}>50 minutes</option>
+                            <option value="55"{% if t_minutes == 55 %} selected="selected"{% endif %}>55 minutes</option>
+                            <option value="60"{% if t_minutes == 60 %} selected="selected"{% endif %}>60 minutes</option>
+                            <option value="70"{% if t_minutes == 70 %} selected="selected"{% endif %}>70 minutes</option>
+                            <option value="80"{% if t_minutes == 80 %} selected="selected"{% endif %}>80 minutes</option>
+                            <option value="90"{% if t_minutes == 90 %} selected="selected"{% endif %}>90 minutes</option>
+                            <option value="100"{% if t_minutes == 100 %} selected="selected"{% endif %}>100 minutes</option>
+                            <option value="110"{% if t_minutes == 110 %} selected="selected"{% endif %}>110 minutes</option>
+                            <option value="120"{% if t_minutes == 120 %} selected="selected"{% endif %}>120 minutes</option>
+                            <option value="150"{% if t_minutes == 150 %} selected="selected"{% endif %}>150 minutes</option>
+                            <option value="180"{% if t_minutes == 180 %} selected="selected"{% endif %}>180 minutes</option>
+                            <option value="210"{% if t_minutes == 210 %} selected="selected"{% endif %}>210 minutes</option>
+                            <option value="240"{% if t_minutes == 240 %} selected="selected"{% endif %}>240 minutes</option>
+                            <option value="270"{% if t_minutes == 270 %} selected="selected"{% endif %}>270 minutes</option>
+                            <option value="300"{% if t_minutes == 300 %} selected="selected"{% endif %}>300 minutes</option>
+                            <option value="330"{% if t_minutes == 330 %} selected="selected"{% endif %}>330 minutes</option>
+                            <option value="360"{% if t_minutes == 360 %} selected="selected"{% endif %}>360 minutes</option>
+                            <option value="420"{% if t_minutes == 420 %} selected="selected"{% endif %}>420 minutes</option>
+                            <option value="480"{% if t_minutes == 480 %} selected="selected"{% endif %}>480 minutes</option>
+                            <option value="540"{% if t_minutes == 540 %} selected="selected"{% endif %}>540 minutes</option>
+                            <option value="600"{% if t_minutes == 600 %} selected="selected"{% endif %}>600 minutes</option>
+                            <option value="720"{% if t_minutes == 720 %} selected="selected"{% endif %}>720 minutes</option>
                         </select>
                     </div>
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-waitMinutes">Time before tournament starts</label>
                         <select id="form3-waitMinutes" name="waitMinutes" class="form-control">
-                            <option value="1"{% if edit and tournament.before_start == 1 %} selected="selected"{% endif %}>1 minute</option>
-                            <option value="2"{% if edit and tournament.before_start == 2 %} selected="selected"{% endif %}>2 minutes</option>
-                            <option value="3"{% if edit and tournament.before_start == 3 %} selected="selected"{% endif %}>3 minutes</option>
-                            <option value="5"{% if (edit and tournament.before_start == 5) or not edit %} selected="selected"{% endif %}>5 minutes</option>
-                            <option value="10"{% if edit and tournament.before_start == 10 %} selected="selected"{% endif %}>10 minutes</option>
-                            <option value="15"{% if edit and tournament.before_start == 15 %} selected="selected"{% endif %}>15 minutes</option>
-                            <option value="20"{% if edit and tournament.before_start == 20 %} selected="selected"{% endif %}>20 minutes</option>
-                            <option value="30"{% if edit and tournament.before_start == 30 %} selected="selected"{% endif %}>30 minutes</option>
-                            <option value="45"{% if edit and tournament.before_start == 45 %} selected="selected"{% endif %}>45 minutes</option>
-                            <option value="60"{% if edit and tournament.before_start == 60 %} selected="selected"{% endif %}>60 minutes</option>
+                            <option value="1"{% if t_before_start == 1 %} selected="selected"{% endif %}>1 minute</option>
+                            <option value="2"{% if t_before_start == 2 %} selected="selected"{% endif %}>2 minutes</option>
+                            <option value="3"{% if t_before_start == 3 %} selected="selected"{% endif %}>3 minutes</option>
+                            <option value="5"{% if t_before_start == 5 %} selected="selected"{% endif %}>5 minutes</option>
+                            <option value="10"{% if t_before_start == 10 %} selected="selected"{% endif %}>10 minutes</option>
+                            <option value="15"{% if t_before_start == 15 %} selected="selected"{% endif %}>15 minutes</option>
+                            <option value="20"{% if t_before_start == 20 %} selected="selected"{% endif %}>20 minutes</option>
+                            <option value="30"{% if t_before_start == 30 %} selected="selected"{% endif %}>30 minutes</option>
+                            <option value="45"{% if t_before_start == 45 %} selected="selected"{% endif %}>45 minutes</option>
+                            <option value="60"{% if t_before_start == 60 %} selected="selected"{% endif %}>60 minutes</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-split">
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-description">Tournament description</label>
-                        <textarea id="form3-description" name="description" class="form-control" rows="4">{{ tournament.description if edit else '' }}</textarea>
+                        <textarea id="form3-description" name="description" class="form-control" rows="4">{{ t_description }}</textarea>
                         <small class="form-help">Anything special you want to tell the participants? Try to keep it short. Markdown links are available: [name](https://url)</small>
                     </div>
                     <div class="form-group form-half position">
                         <label class="form-label" for="form3-position">Starting position</label>
-                        <input id="form3-position" name="position" value="{{ tournament.fen if edit else '' }}" class="form-control" />
+                        <input id="form3-position" name="position" value="{{ t_fen }}" class="form-control" />
                         <small class="form-help">Paste a valid FEN to start every game from a given position.
                             <br />You can use the 
                             <a href="/editor" rel="noopener" target="_blank">Board editor</a> to generate a FEN position, then paste it here.
@@ -170,7 +196,7 @@
                 <div class="form-group">
                     <label class="form-label" for="form3-password">Password</label>
                     <div>
-                        <input id="form3-password" name="password" value="{{ tournament.password if edit else '' }}" class="form-control" maxlength="30" />
+                        <input id="form3-password" name="password" value="{{ t_password }}" class="form-control" maxlength="30" />
                         <small class="form-help">To make the tournament private, add a password.
                             <br />Players will be prompted to enter it before joining the tournament.
                         </small>
@@ -180,7 +206,7 @@
                 <div class="form-split">
                     <div class="form-group form-half">
                         <label class="form-label" for="startDate">Custom start date</label>
-                        <input id="startDate" name="startDate" value="{{ tournament.starts_at.isoformat() if edit and tournament.starts_at else '' }}" class="form-control flatpickr"/>
+                        <input id="startDate" name="startDate" value="{{ t_starts_at }}" class="form-control flatpickr"/>
                         <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting</small>
                     </div>
 
@@ -189,7 +215,7 @@
                         <div>
                             <label class="form-label" for="form3-shield">Shield</label>
                             <span class="form-check-input">
-                                <input id="form3-shield" name="shield" value="true" type="checkbox" class="form-control cmn-toggle" {% if edit and tournament.frequency == 's' %}checked{% endif %}/>
+                                <input id="form3-shield" name="shield" value="true" type="checkbox" class="form-control cmn-toggle" {% if t_shield %}checked{% endif %}/>
                             </span>
                         </div>
                     </div>
