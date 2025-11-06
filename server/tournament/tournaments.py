@@ -380,7 +380,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         chess960=bool(doc.get("z")),
         fen=doc.get("f"),
         rounds=doc["rounds"],
-        created_by=doc["createdBy"],
+        created_by=doc.get("createdBy", "PyChess"),
         created_at=doc["createdAt"],
         before_start=doc.get("beforeStart", 0),
         minutes=doc["minutes"],

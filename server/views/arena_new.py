@@ -1,6 +1,7 @@
 import aiohttp_jinja2
 from aiohttp import web
 
+from const import T_CREATED
 from pychess_global_app_state import PychessGlobalAppState
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament.tournaments import create_or_update_tournament
@@ -25,6 +26,8 @@ async def arena_new(request):
         if tournament is None and tournamentId is not None:
             raise web.HTTPNotFound()
         if tournament and user.username != tournament.creator:
+            raise web.HTTPForbidden()
+        if tournament and tournament.status != T_CREATED:
             raise web.HTTPForbidden()
         await create_or_update_tournament(app_state, user.username, form, tournament)
         location = f"/tournament/{tournamentId}" if tournamentId else "/tournaments"

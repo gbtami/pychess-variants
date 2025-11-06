@@ -306,6 +306,10 @@ class Tournament(ABC):
             self.name,
         )
 
+    @property
+    def creator(self):
+        return self.created_by
+
     def __repr__(self):
         return " ".join((self.id, self.name, self.created_at.isoformat()))
 
