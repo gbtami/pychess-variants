@@ -24,6 +24,7 @@ export type PyChessModel = {
     gameId: string;
     tournamentId: string;
     tournamentname: string;
+    creator: string;
     inviter: string;
     ply: number;
     ct: CrossTable | string;

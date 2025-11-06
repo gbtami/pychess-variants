@@ -787,6 +787,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
     document.body.setAttribute('style', `--ranks: ${variant.board.dimensions.height}; --files: ${variant.board.dimensions.width};`);
+    const canEdit = model.username === model.creator && model.status === 0;
     return [
         h('aside.sidebar-first', [
             h('div.game-info', [
@@ -804,6 +805,12 @@ export function tournamentView(model: PyChessModel): VNode[] {
                             h('span#tminutes'),
                         ]),
                         h('div#tsystem'),
+                        canEdit ? h('a.icon-cog.edit-tournament', {
+                            attrs: {
+                                href: `/tournaments/${model.tournamentId}/edit`,
+                                title: _('Edit tournament'),
+                            }
+                        }) : null,
                     ]),
                 ]),
                 // TODO: update in onMsgUserConnected()

@@ -38,6 +38,7 @@ async def tournament(request):
     tournament_name = await get_tournament_name(request, tournamentId)
     context["tournamentid"] = tournamentId
     context["tournamentname"] = tournament_name
+    context["creator"] = tournament.creator
     context["description"] = tournament.description
     context["variant"] = tournament.variant
     context["chess960"] = tournament.chess960

@@ -124,7 +124,7 @@ get_routes = (
     (r"/embed/{gameId:\w{8}}", embed.embed),
     ("/tournaments", tournaments.tournaments),
     ("/tournaments/new", arena_new.arena_new),
-    # (r"/tournaments/{tournamentId:\w{8}}/edit", tournament.tournament),  # TODO
+    (r"/tournaments/{tournamentId:\w{8}}/edit", arena_new.arena_new),
     ("/tournaments/shields", shields.shields),
     ("/tournaments/shields/{variant}", shields.shields),
     ("/tournaments/winners", winners.winners),
