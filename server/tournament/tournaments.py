@@ -70,14 +70,15 @@ async def create_or_update_tournament(
     if name == "":
         name = "%s Arena" % server_variant.display_name.title()
 
+    description = form["description"]
     if frequency == SHIELD:
         name = "%s Shield Arena" % server_variant.display_name.title()
     else:
-        description = form["description"]
         name = name if name.lower().endswith("arena") else name + " Arena"
 
     data = {
         "name": name,
+        "password": form["password"],
         "createdBy": username,
         "rated": rated,
         "variant": variant_name,
@@ -138,6 +139,7 @@ async def new_tournament(app_state: PychessGlobalAppState, data):
         starts_at=data.get("startDate"),
         frequency=data.get("frequency", ""),
         name=data["name"],
+        password=data.get("password", ""),
         description=data.get("description", ""),
         created_at=data.get("createdAt"),
         status=data.get("status"),
@@ -384,6 +386,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         minutes=doc["minutes"],
         starts_at=doc.get("startsAt"),
         name=doc["name"],
+        password=doc.get("password", ""),
         description=doc.get("d", ""),
         frequency=doc.get("fr", ""),
         status=doc["status"],

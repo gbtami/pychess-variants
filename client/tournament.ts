@@ -79,6 +79,7 @@ export class TournamentController implements ChatController {
     secondsToFinish: number;
     username: string;
     anon: boolean;
+    private: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log("TournamentController constructor", el, model);
@@ -90,6 +91,7 @@ export class TournamentController implements ChatController {
         this.startDate = model["date"];
         this.secondsToStart = 0;
         this.secondsToFinish = 0;
+        this.private = false;
 
         const onOpen = () => {
             this.doSend({ type: "tournament_user_connected", username: model["username"], tournamentId: model["tournamentId"]});
@@ -155,7 +157,14 @@ export class TournamentController implements ChatController {
     }
 
     join() {
-        this.doSend({ type: "join", "tournamentId": this.tournamentId });
+        if (this.private) {
+            const password = prompt("This tournament is private. Please enter the password:");
+            if (password !== null) {
+                this.doSend({ type: "join", "tournamentId": this.tournamentId, "password": password });
+            }
+        } else {
+            this.doSend({ type: "join", "tournamentId": this.tournamentId });
+        }
     }
 
     pause() {
@@ -600,6 +609,7 @@ export class TournamentController implements ChatController {
         this.userRating = msg.urating;
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
+        this.private = msg.private;
 
         this.updateActionButton()
 

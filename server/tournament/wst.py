@@ -104,7 +104,13 @@ async def handle_get_games(app, ws, data):
 async def handle_join(app, ws, user, data):
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
-        await tournament.join(user)
+        password = data.get("password")
+        result = await tournament.join(user, password)
+        if result == "401":
+            response = {"type": "error", "message": "Incorrect password"}
+            await ws_send_json(ws, response)
+            return
+
         response = {
             "type": "ustatus",
             "username": user.username,
@@ -172,6 +178,7 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
             (tournament.ends_at - now).total_seconds() if tournament.starts_at < now else 0
         ),
         "chatClosed": (now - tournament.ends_at).total_seconds() > 60 * 60,
+        "private": bool(tournament.password),
     }
     if tournament.frequency == SHIELD:
         variant_name = tournament.variant + ("960" if tournament.chess960 else "")
