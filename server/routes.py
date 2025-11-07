@@ -213,7 +213,7 @@ post_routes = (
     ("/import", import_game),
     ("/import_bpgn", import_game_bpgn),
     ("/tournaments/arena", tournaments.tournaments),
-    (r"/tournaments/{tournamentId:\w{8}}/edit", arena_new.arena_new),
+    (r"/tournament/{tournamentId:\w{8}}/edit", arena_new.arena_new),  # TODO: implement
     ("/twitch", twitch_request_handler),
     (r"/puzzle/complete/{puzzleId:\w{5}}", puzzle_complete),
     (r"/puzzle/vote/{puzzleId:\w{5}}", puzzle_vote),
