@@ -66,7 +66,7 @@ One reaction might be to complain that pieces are too weak, like the horse. But 
 
 Here are some examples:
 
-**Discovery Attacks** \- While not new in Xiangqi\, these are far more prevalent\. A common example:
+**Discovery Attacks** \- While not new in Xiangqi, these are far more prevalent\. A common example:
 
 ![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/MidAutumnFestival/Discovery.png)
 
@@ -101,10 +101,10 @@ That was just the iceberg though. There are far more strategies and concepts inv
 
 ### Online game servers (English):
 
-[Pychess](https://www.pychess.org) \- Chess variant website modeled after Lichess\. Active tournaments\, best engine for AI play and analysis\. Small but active player base\. \(*Note, there is an upcoming [Xiangqi tournament](https://www.pychess.org/tournament/yFUs7hAk) this Sunday, 9/19!).* No additional registration required -- Pychess uses Lichess' login for authentication.
+[Pychess](https://www.pychess.org) \- Chess variant website modeled after Lichess\. Active tournaments, best engine for AI play and analysis\. Small but active player base\. \(*Note, there is an upcoming [Xiangqi tournament](https://www.pychess.org/tournament/yFUs7hAk) this Sunday, 9/19!).* No additional registration required -- Pychess uses Lichess' login for authentication.
 [Xichess](https://www.xichess.com) \- Interface styled after Lichess\. Typically requires a challenge to play\.
-[PlayOK](http://www.playok.com) \- Board game website with the largest number of players \(mostly Chinese/Vietnamese\) for an English site\. Also one of the best place to hone skills against hard players\. However\, no AI\, analysis\, or tournaments\.
-[Xiangqi.com](https://www.xiangqi.com/) \- Relatively new website\, whose interface is more styled after Chess\.com\. Best source of resources\.
+[PlayOK](http://www.playok.com) \- Board game website with the largest number of players \(mostly Chinese/Vietnamese\) for an English site\. Also one of the best place to hone skills against hard players\. However, no AI, analysis, or tournaments\.
+[Xiangqi.com](https://www.xiangqi.com/) \- Relatively new website, whose interface is more styled after Chess\.com\. Best source of resources\.
 
 ### Communities (English):
 

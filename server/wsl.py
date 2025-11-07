@@ -1,5 +1,6 @@
 from __future__ import annotations
 import asyncio
+from datetime import datetime, timezone
 
 import aiohttp_session
 from aiohttp import web
@@ -21,7 +22,6 @@ from auto_pair import (
 )
 from chat import chat_response
 from const import ANON_PREFIX, STARTED
-from misc import server_state
 from newid import new_id
 from const import TYPE_CHECKING
 
@@ -30,8 +30,8 @@ if TYPE_CHECKING:
 from pychess_global_app_state_utils import get_app_state
 from seek import challenge, create_seek, get_seeks, Seek
 from settings import ADMINS, TOURNAMENT_DIRECTORS
-from tournament_spotlights import tournament_spotlights
-from bug.utils_bug import handle_accept_seek_bughouse
+from tournament.tournament_spotlights import tournament_spotlights
+from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
 from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws, ws_send_json
 from logger import log
@@ -51,6 +51,7 @@ async def lobby_socket_handler(request):
 
 
 async def init_ws(app_state: PychessGlobalAppState, ws, user):
+    user.last_seen = datetime.now(timezone.utc)
     await send_game_in_progress_if_any(app_state, user, ws)
     await send_lobby_user_connected(app_state, ws, user)
     await send_get_seeks(app_state, ws, user)
@@ -61,6 +62,8 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
         if ws in user.lobby_sockets:
             user.lobby_sockets.remove(ws)
             user.update_online()
+            if len(app_state.lobby.lobbysockets[user.username]) == 0:
+                del app_state.lobby.lobbysockets[user.username]
 
         # not connected to lobby socket and not connected to game socket
         if user.is_user_active_in_game() and len(user.lobby_sockets) == 0:
@@ -69,6 +72,12 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
         if (user.game_in_progress is not None) or len(user.lobby_sockets) == 0:
             user.update_auto_pairing(ready=False)
             await user.update_seeks(pending=True)
+
+            if (not user.anon) and len(user.lobby_sockets) == 0:
+                for seek in list(app_state.seeks.values()):
+                    server_variant = get_server_variant(seek.variant, seek.chess960)
+                    if server_variant.two_boards:
+                        await handle_leave_seek_bughouse(app_state, user, seek)
 
 
 async def process_message(app_state: PychessGlobalAppState, user, ws, data):
@@ -79,14 +88,18 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
         await handle_create_seek(app_state, ws, user, data)
     elif data["type"] == "create_invite":
         await handle_create_invite(app_state, ws, user, data)
+    elif data["type"] == "create_bot_challenge":
+        await handle_create_bot_challenge(app_state, ws, user, data)
     elif data["type"] == "create_host":
         await handle_create_host(app_state, ws, user, data)
     elif data["type"] == "delete_seek":
         await handle_delete_seek(app_state, user, data)
+    elif data["type"] == "leave_seek":
+        await handle_leave_seek(app_state, ws, user, data)
     elif data["type"] == "accept_seek":
         await handle_accept_seek(app_state, ws, user, data)
     elif data["type"] == "lobbychat":
-        await handle_lobbychat(app_state, user, data)
+        await handle_lobbychat(app_state, ws, user, data)
     elif data["type"] == "create_auto_pairing":
         await handle_create_auto_pairing(app_state, ws, user, data)
     elif data["type"] == "cancel_auto_pairing":
@@ -109,7 +122,8 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
         return
 
     variant = data["variant"]
-    engine = app_state.users["Fairy-Stockfish"]
+    profileid = data["profileid"]
+    engine = app_state.users[profileid]
 
     if variant in ("alice", "fogofwar") or data["rm"] or (engine is None) or (not engine.online):
         # TODO: message that engine is offline, but Random-Mover BOT will play instead
@@ -138,7 +152,10 @@ async def handle_create_ai_challenge(app_state: PychessGlobalAppState, ws, user,
     if response["type"] != "error":
         gameId = response["gameId"]
         engine.game_queues[gameId] = asyncio.Queue()
-        await engine.event_queue.put(challenge(seek, response))
+        await engine.event_queue.put(challenge(seek))
+        if engine.username not in ("Random-Mover", "Fairy-Stockfish"):
+            game = app_state.games[gameId]
+            await engine.event_queue.put(game.game_start)
 
 
 async def handle_create_seek(app_state, ws, user, data):
@@ -181,13 +198,43 @@ async def handle_create_invite(app_state: PychessGlobalAppState, ws, user, data)
     await ws_send_json(ws, response)
 
 
+async def handle_create_bot_challenge(app_state: PychessGlobalAppState, ws, user, data):
+    no = await send_game_in_progress_if_any(app_state, user, ws)
+    if no:
+        return
+
+    profileid = data["profileid"]
+    engine = await app_state.users.get(profileid)
+
+    if (engine is None) or (not engine.online):
+        return
+    print("--- wsl.py handle_create_bot_challenge()  ---")
+
+    log.debug("Creating BOT challenge from request: %s", data)
+    seek = await create_seek(
+        app_state.db, app_state.invites, app_state.seeks, user, data, engine=engine
+    )
+    log.debug("Created BOT challenge: %s", seek)
+
+    engine.game_queues[seek.game_id] = asyncio.Queue()
+    bot_challenge = challenge(seek)
+    # lichess-bot uses "standard" as variant name, grrrr
+    if seek.variant == "chess":
+        bot_challenge = bot_challenge.replace("chess", "standard")
+    await engine.event_queue.put(bot_challenge)
+
+    response = {"type": "bot_challenge_created", "gameId": seek.game_id}
+    await ws_send_json(ws, response)
+
+
 async def handle_create_host(app_state: PychessGlobalAppState, ws, user, data):
     no = user.username not in TOURNAMENT_DIRECTORS
     if no:
         return
 
-    print("create_host", data)
-    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, data, True)
+    seek = await create_seek(
+        app_state.db, app_state.invites, app_state.seeks, user, data, empty=True
+    )
 
     response = {"type": "host_created", "gameId": seek.game_id}
     await ws_send_json(ws, response)
@@ -211,6 +258,17 @@ async def handle_delete_seek(app_state: PychessGlobalAppState, user, data):
     await app_state.lobby.lobby_broadcast_seeks()
 
 
+async def handle_leave_seek(app_state: PychessGlobalAppState, ws, user, data):
+    if data["seekID"] not in app_state.seeks:
+        return
+
+    seek = app_state.seeks[data["seekID"]]
+
+    server_variant = get_server_variant(seek.variant, seek.chess960)
+    if server_variant.two_boards:
+        await handle_leave_seek_bughouse(app_state, user, seek)
+
+
 async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
     if data["seekID"] not in app_state.seeks:
         return
@@ -232,7 +290,7 @@ async def handle_accept_seek(app_state: PychessGlobalAppState, ws, user, data):
         if seek.creator.bot:
             gameId = response["gameId"]
             seek.creator.game_queues[gameId] = asyncio.Queue()
-            await seek.creator.event_queue.put(challenge(seek, response))
+            await seek.creator.event_queue.put(challenge(seek))
         else:
             ws_set = list(seek.creator.lobby_sockets)
             if len(ws_set) == 0:
@@ -305,7 +363,7 @@ async def send_lobby_user_connected(app_state, ws, user):
     await ws_send_json(ws, {"type": auto_pairing})
 
 
-async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
+async def handle_lobbychat(app_state: PychessGlobalAppState, ws, user, data):
     if user.username.startswith(ANON_PREFIX):
         return
 
@@ -338,10 +396,9 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
             await crosstable(app_state, message)
 
         elif message.startswith("/fishnet"):
-            await fishnet(app_state, message)
-
-        elif message == "/state":
-            server_state(app_state)
+            # Don't give it to the response variable to prevent broadcasting it
+            answare = await fishnet(app_state, message)
+            await ws_send_json(ws, answare)
 
         else:
             admin_command = False

@@ -35,7 +35,6 @@ async def process_ws(
     app_state = get_app_state(request.app)
 
     if (user is not None) and (not user.enabled):
-        log.error("User %r is None or not enabled", user.username)
         session.invalidate()
         return None
 

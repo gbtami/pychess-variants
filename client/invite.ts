@@ -7,21 +7,22 @@ import { gameType } from './result';
 import { copyTextToClipboard } from './clipboard';
 import { timeControlStr } from './view';
 import { PyChessModel } from './types';
+import { sanitizeURL } from './url';
 
 export function inviteView(model: PyChessModel): VNode[] {
     const gameId = model["gameId"];
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
-    const gameURL = '/' + gameId;
+    const gameURL = '/invite/' + gameId;
     const gameURLPlayer1 = gameURL + '/player1';
     const gameURLPlayer2 = gameURL + '/player2';
     const seekEmpty = model["seekEmpty"];
 
-    const evtSource = new EventSource("/api/invites");
+    const evtSource = new EventSource("/api/invites/" + gameId);
     evtSource.onmessage = function(event) {
         const message = JSON.parse(event.data);
         if (message.gameId === gameId) {
-            window.location.assign(gameURL);
+            window.location.assign(sanitizeURL(gameURL));
         }
     }
 
@@ -30,7 +31,7 @@ export function inviteView(model: PyChessModel): VNode[] {
     if (!player?.match(/player[1-2]/)) player = "";
 
     switch (model["inviter"]) {
-        case "": 
+        case "":
             title = seekEmpty ? _('Host a game for others') : _('Challenge to a game');
             formAction = '/invite/cancel/' + gameId;
             buttonClass = {red: true};

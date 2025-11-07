@@ -38,11 +38,11 @@ cannon = u
 customPiece1 = a:pR
 # Copper Cannon is diagonal Xiangqi cannon
 customPiece2 = c:mBcpB
-# Iron Cannon is diagonal Janggi cannon 
+# Iron Cannon is diagonal Janggi cannon
 customPiece3 = i:pB
-# Flying Silver/Gold Cannon 
+# Flying Silver/Gold Cannon
 customPiece4 = w:mRpRmFpB2
-# Flying Copper/Iron Cannon 
+# Flying Copper/Iron Cannon
 customPiece5 = f:mBpBmWpR2
 promotedPieceType = u:w a:w c:f i:f p:g
 startFen = lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1
@@ -317,4 +317,81 @@ immobilityIllegal = true
 [makbug:makrukhouse]
 startFen = rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR[] w - - 0 1
 capturesToHand = false
-twoBoards = true`
+twoBoards = true
+
+# Martial arts Xiangqi
+[xiangfu]
+maxFile = 9
+maxRank = 9
+startFen = 2rbm4/2cwn4/2+g1+g4/9/9/9/4+G1+G2/4NWC2/4MBR2[] w - 0 1
+commoner = k
+bishop = b
+horse = n
+rook = r
+cannon = c
+customPiece1 = w:mBcpB
+customPiece2 = m:nAnD
+customPiece3 = g:Q1
+mobilityRegionBlackCommoner = c3 c4 c5 c6 c7 d3 d4 d5 d6 d7 e3 e4 e5 e6 e7 f3 f4 f5 f6 f7 g3 g4 g5 g6 g7
+mobilityRegionWhiteCommoner = c3 c4 c5 c6 c7 d3 d4 d5 d6 d7 e3 e4 e5 e6 e7 f3 f4 f5 f6 f7 g3 g4 g5 g6 g7
+pieceDrops = true
+capturesToHand = true
+whiteDropRegion = *1 *2
+blackDropRegion = *8 *9
+extinctionPieceTypes = k
+extinctionPseudoRoyal = true
+dupleCheck = true
+promotedPieceType = g:k
+promotionRegionWhite = -
+promotionRegionBlack = -
+
+[borderlands]
+maxFile = 9
+maxRank = 10
+# Non-promoting pieces.
+customPiece1 = c:K
+customPiece2 = g:K
+# Unpromoted pieces.
+customPiece3 = a:RcpR
+customPiece4 = s:BcpB
+customPiece5 = h:NF
+customPiece6 = e:ADW
+customPiece7 = m:F
+customPiece8 = f:W
+customPiece9 = w:fWfceFifmnD
+customPiece10 = l:KNAD
+# Promoted pieces.
+customPiece11 = b:RFcpR
+customPiece12 = d:BWcpB
+customPiece13 = i:NK
+customPiece14 = j:ADK
+customPiece15 = k:KNAD
+promotedPieceType = a:b s:d h:i e:j m:g f:g w:i l:k
+mandatoryPiecePromotion = true
+startFen = a3s3a/1chesehc1/fw1wlw1wf/w1w1w1w1w/9/9/W1W1W1W1W/FW1WLW1WF/1CHESEHC1/A3S3A[MMmm] w - - 0 1
+mobilityRegionWhiteCustomPiece10 = *1 *2 *3 *4 *5 d7 f7 e9
+mobilityRegionBlackCustomPiece10 = *6 *7 *8 *9 *10 d4 f4 e2
+pieceDrops = true
+capturesToHand = false
+whiteDropRegion = *6 *7
+blackDropRegion = *4 *5
+promotionRegionWhite = *8 *9 *10
+promotionRegionBlack = *1 *2 *3
+doubleStepRegionWhite = *3
+doubleStepRegionBlack = *8
+nMoveRule = 40
+perpetualCheckIllegal = true
+moveRepetitionIllegal = true
+nFoldRule = 4
+extinctionValue = loss
+extinctionPseudoRoyal = false
+extinctionPieceTypes = c
+extinctionPieceCount = 0
+
+# Jieqi https://www.clubxiangqi.com/uprules.php
+[jieqi:xiangqi]
+startFen = r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1
+mobilityRegionWhiteFers = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10
+mobilityRegionBlackFers = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10
+mobilityRegionWhiteElephant = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10
+mobilityRegionBlackElephant = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10`

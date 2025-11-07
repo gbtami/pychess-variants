@@ -3,11 +3,11 @@ import random
 from datetime import timezone
 
 from pychess_global_app_state import PychessGlobalAppState
-from user import User
 from compress import R2C, C2R
 from convert import zero2grand
 from bug.game_bug import GameBug
 from const import (
+    MATE,
     STARTED,
     INVALIDMOVE,
     CASUAL,
@@ -22,39 +22,17 @@ from logger import log
 from variants import C2V, GRANDS
 
 
-def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
-    if wp_a in app_state.users:
-        wplayer_a = app_state.users[wp_a]
-    else:
-        wplayer_a = User(app_state, username=wp_a)
-        app_state.users[wp_a] = wplayer_a
-    if wp_b in app_state.users:
-        wplayer_b = app_state.users[wp_b]
-    else:
-        wplayer_b = User(app_state, username=wp_b)
-        app_state.users[wp_b] = wplayer_b
-
-    if bp_a in app_state.users:
-        bplayer_a = app_state.users[bp_a]
-    else:
-        bplayer_a = User(app_state, username=bp_a)
-        app_state.users[bp_a] = bplayer_a
-    if bp_b in app_state.users:
-        bplayer_b = app_state.users[bp_b]
-    else:
-        bplayer_b = User(app_state, username=bp_b)
-        app_state.users[bp_b] = bplayer_b
+async def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
+    wplayer_a = await app_state.users.get(wp_a)
+    wplayer_b = await app_state.users.get(wp_b)
+    bplayer_a = await app_state.users.get(bp_a)
+    bplayer_b = await app_state.users.get(bp_b)
     return [wplayer_a, bplayer_a, wplayer_b, bplayer_b]
 
 
 async def load_game_bug(app_state: PychessGlobalAppState, game_id):
     """Return Game object from app cache or from database"""
     log.debug("load_game_bug from db ")
-    # games = app[games_key]
-
-    # if game_id in games:
-    #     return games[game_id]
-
     doc = await app_state.db.game.find_one({"_id": game_id})
 
     log.debug("load_game_bug parse START")
@@ -62,7 +40,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
         return None
 
     wp, bp, wp_b, bp_b = doc["us"]
-    wplayer, bplayer, wplayer_b, bplayer_b = init_players(app_state, wp, bp, wp_b, bp_b)
+    wplayer, bplayer, wplayer_b, bplayer_b = await init_players(app_state, wp, bp, wp_b, bp_b)
 
     variant = C2V[doc["v"]]
 
@@ -134,6 +112,10 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                     )
 
             san = game.boards[board_name].get_san(move)
+
+            if doc["s"] != MATE and san.endswith("#"):
+                san = san.replace("#", "+")
+
             game.boards[board_name].push(move)
 
             if board_name == "a":
@@ -304,6 +286,7 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
             rated=(RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL),
             chess960=seek.chess960,
             create=True,
+            new_960_fen_needed_for_rematch=seek.reused_fen,
         )
     except Exception:
         log.exception(
@@ -521,4 +504,14 @@ async def handle_accept_seek_bughouse(app_state: PychessGlobalAppState, user, da
     for u in bug_users:
         for s in u.lobby_sockets:
             await ws_send_json(s, response)
+    await app_state.lobby.lobby_broadcast_seeks()
+
+
+async def handle_leave_seek_bughouse(app_state: PychessGlobalAppState, user, seek):
+    if seek.player2 == user:
+        seek.player2 = None
+    if seek.bugPlayer1 == user:
+        seek.bugPlayer1 = None
+    if seek.bugPlayer2 == user:
+        seek.bugPlayer2 = None
     await app_state.lobby.lobby_broadcast_seeks()

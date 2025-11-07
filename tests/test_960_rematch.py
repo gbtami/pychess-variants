@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import random
 import unittest
 
 from aiohttp.test_utils import AioHTTPTestCase
@@ -9,14 +8,13 @@ from mongomock_motor import AsyncMongoMockClient
 
 import game
 from game import Game
+from wsr import handle_rematch
+from bug.game_bug import GameBug
+from bug.wsr_bug import handle_rematch_bughouse
 from glicko2.glicko2 import DEFAULT_PERF
-from seek import Seek
 from server import make_app
 from user import User
-from utils import join_seek
 from pychess_global_app_state_utils import get_app_state
-from newid import id8
-from logger import handler
 from variants import VARIANTS
 
 game.KEEP_TIME = 0
@@ -24,17 +22,34 @@ game.MAX_PLY = 120
 
 logging.basicConfig()
 logging.getLogger().setLevel(level=logging.ERROR)
-logging.getLogger().removeHandler(handler)
 
 PERFS = {
     "newplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
 }
 
+ONE_TEST_ONLY = False
+
+
+class FakeWs:
+    async def send_json(self, msg):
+        # print("FakeWs.send_json()", msg)
+        pass
+
 
 class RamatchChess960GameTestCase(AioHTTPTestCase):
     async def startup(self, app):
+        app_state = get_app_state(self.app)
+        self.fake_ws = FakeWs()
+
         self.Aplayer = User(get_app_state(self.app), username="Aplayer", perfs=PERFS["newplayer"])
         self.Bplayer = User(get_app_state(self.app), username="Bplayer", perfs=PERFS["newplayer"])
+        self.Cplayer = User(get_app_state(self.app), username="Cplayer", perfs=PERFS["newplayer"])
+        self.Dplayer = User(get_app_state(self.app), username="Dplayer", perfs=PERFS["newplayer"])
+
+        app_state.users["Aplayer"] = self.Aplayer
+        app_state.users["Bplayer"] = self.Bplayer
+        app_state.users["Cplayer"] = self.Cplayer
+        app_state.users["Dplayer"] = self.Dplayer
 
     async def get_application(self):
         app = make_app(db_client=AsyncMongoMockClient())
@@ -44,70 +59,91 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
         await self.client.close()
 
-    async def play_game_and_rematch_game(self, game_odd):
+    async def play_game_and_rematch_game(self, game):
         app_state = get_app_state(self.app)
-        print("%s - %s %s" % (game_odd.wplayer, game_odd.bplayer, game_odd.initial_fen))
-        await game_odd.game_ended(game_odd.wplayer, "flag")
-
-        rematch_offfered_by = random.choice((self.Aplayer, self.Bplayer))
-        print("offerer:", rematch_offfered_by.username)
-        rematch_accepted_by = self.Aplayer if self.Bplayer == rematch_offfered_by else self.Bplayer
-        color = "w" if game_odd.bplayer.username == rematch_offfered_by.username else "b"
-        seek = Seek(
-            id8(),
-            rematch_offfered_by,
-            game_odd.variant,
-            fen=game_odd.initial_fen,
-            color=color,
-            base=game_odd.base,
-            inc=game_odd.inc,
-            byoyomi_period=game_odd.byoyomi_period,
-            level=game_odd.level,
-            rated=game_odd.rated,
-            player1=rematch_offfered_by,
-            chess960=game_odd.chess960,
+        print(
+            "GAME (%s) %s - %s %s"
+            % (game.id, game.wplayer.username, game.bplayer.username, game.initial_fen)
         )
-        app_state.seeks[seek.id] = seek
+        await game.game_ended(game.wplayer, "flag")
 
-        response = await join_seek(get_app_state(self.app), rematch_accepted_by, seek)
-        rematch_id = response["gameId"]
+        data = {"gameId": game.id, "handicap": False}
 
-        game_even = app_state.games[rematch_id]
-        print("%s - %s %s" % (game_even.wplayer, game_even.bplayer, game_even.initial_fen))
-        self.assertEqual(game_odd.initial_fen, game_even.initial_fen)
+        for user in game.all_players:
+            if game.variant == "bughouse":
+                resp = await handle_rematch_bughouse(app_state, game, user)
+            else:
+                resp = await handle_rematch(app_state, self.fake_ws, user, data, game)
 
-        await game_even.game_ended(game_even.wplayer, "flag")
+        return resp
 
-        rematch_offfered_by = random.choice((self.Aplayer, self.Bplayer))
-        print("offerer:", rematch_offfered_by.username)
-        rematch_accepted_by = self.Aplayer if self.Bplayer == rematch_offfered_by else self.Bplayer
-        color = "w" if game_odd.bplayer.username == rematch_offfered_by.username else "b"
-        seek = Seek(
-            id8(),
-            rematch_offfered_by,
-            game_even.variant,
-            fen=game_even.initial_fen,
-            color=color,
-            base=game_even.base,
-            inc=game_even.inc,
-            byoyomi_period=game_even.byoyomi_period,
-            level=game_even.level,
-            rated=game_even.rated,
-            player1=rematch_offfered_by,
-            chess960=game_even.chess960,
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_ramatch_ataxx(self):
+        app_state = get_app_state(self.app)
+        game = Game(
+            app_state,
+            "12345678",
+            "ataxx",
+            "",
+            self.Aplayer,
+            self.Bplayer,
+            chess960=False,
         )
-        app_state.seeks[seek.id] = seek
+        await self.play_the_match(game)
 
-        response = await join_seek(app_state, rematch_accepted_by, seek)
-        rematch_id = response["gameId"]
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_ramatch_bug_2vs2(self):
+        app_state = get_app_state(self.app)
+        game = GameBug(
+            app_state,
+            "12345678",
+            "bughouse",
+            "",
+            self.Aplayer,
+            self.Bplayer,
+            self.Cplayer,
+            self.Dplayer,
+            chess960=True,
+        )
+        await self.play_the_match(game)
 
-        game_odd = app_state.games[rematch_id]
-        self.assertNotEqual(game_even.initial_fen, game_odd.initial_fen)
-        return game_odd
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_ramatch_bug_1vs2(self):
+        app_state = get_app_state(self.app)
+        game = GameBug(
+            app_state,
+            "12345678",
+            "bughouse",
+            "",
+            self.Aplayer,
+            self.Aplayer,
+            self.Cplayer,
+            self.Dplayer,
+            chess960=True,
+        )
+        await self.play_the_match(game)
 
-    async def test_ramatch(self):
-        game_odd = Game(
-            get_app_state(self.app),
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_ramatch_bug_1vs1(self):
+        app_state = get_app_state(self.app)
+        game = GameBug(
+            app_state,
+            "12345678",
+            "bughouse",
+            "",
+            self.Aplayer,
+            self.Aplayer,
+            self.Bplayer,
+            self.Bplayer,
+            chess960=True,
+        )
+        await self.play_the_match(game)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_ramatch_chess(self):
+        app_state = get_app_state(self.app)
+        game = Game(
+            app_state,
             "12345678",
             "chess",
             "",
@@ -115,11 +151,33 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
             self.Bplayer,
             chess960=True,
         )
-        print()
+        await self.play_the_match(game)
 
-        for i in range(100):
+    async def play_the_match(self, game):
+        app_state = get_app_state(self.app)
+        app_state.games[game.id] = game
+        resp = {
+            "gameId": game.id,
+            "wplayer": "Aplayer",
+            "bplayer": "Bplayer",
+        }
+
+        x_game_fen = game.initial_fen
+        y_game_fen = game.initial_fen
+
+        for i in range(30):
             print(i)
-            game_odd = await self.play_game_and_rematch_game(game_odd)
+            game = app_state.games[resp["gameId"]]
+
+            resp = await self.play_game_and_rematch_game(game)
+
+            new_game_fen = app_state.games[resp["gameId"]].initial_fen
+            if i % 2 == 0:
+                x_game_fen = new_game_fen
+                self.assertEqual(x_game_fen, y_game_fen)
+            else:
+                y_game_fen = new_game_fen
+                self.assertNotEqual(x_game_fen, y_game_fen)
 
 
 if __name__ == "__main__":

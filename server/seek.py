@@ -5,6 +5,7 @@ from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
 from newid import new_id
 from logger import log
+from variants import get_server_variant
 
 
 MAX_USER_SEEKS = 10
@@ -34,6 +35,7 @@ class Seek:
         bugPlayer2=None,
         game_id=None,
         expire_at=None,
+        reused_fen=False,
     ):
         self.id = seek_id
         self.creator = creator
@@ -47,10 +49,11 @@ class Seek:
         self.base = base
         self.inc = inc
         self.byoyomi_period = byoyomi_period
-        self.day = day
+        server_variant = get_server_variant(variant, chess960)
+        self.day = 0 if server_variant.two_boards else day
         self.level = 0 if creator.username == "Random-Mover" else level
         self.chess960 = chess960
-        self.target = target
+        self.target = target if target is not None else ""
         self.player1 = player1
         self.player2 = player2
         self.bugPlayer1 = bugPlayer1
@@ -61,6 +64,9 @@ class Seek:
         self.expire_at = (
             datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS if expire_at is None else expire_at
         )
+
+        # True if this is 960 variant 1st, 3rd etc. rematch seek
+        self.reused_fen = reused_fen
 
         # Seek is pending when it is not corr, and user has no live lobby websocket
         self.pending = False
@@ -84,6 +90,7 @@ class Seek:
             + "rrmax='%d', " % self.rrmax
             + game_id
             + "pending='%d', " % self.pending
+            + "target='%s', " % self.target
             + "day='%d'>" % self.day
         )
 
@@ -138,7 +145,7 @@ class Seek:
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
 
-async def create_seek(db, invites, seeks, user, data, empty=False):
+async def create_seek(db, invites, seeks, user, data, empty=False, engine=None):
     """Seek can be
     - invite (has reserved new game id stored in app[invites], and target is 'Invite-friend')
     - challenge (has another username as target)
@@ -156,8 +163,8 @@ async def create_seek(db, invites, seeks, user, data, empty=False):
     ) and not empty:
         return
 
-    target = data.get("target")
-    if target == "Invite-friend":
+    target = data.get("target", "")
+    if target in ("BOT_challenge", "Invite-friend"):
         game_id = await new_id(db.game)
     else:
         game_id = None
@@ -179,7 +186,7 @@ async def create_seek(db, invites, seeks, user, data, empty=False):
         chess960=data.get("chess960"),
         target=target,
         player1=None if empty else user,
-        player2=None,
+        player2=engine if target == "BOT_challenge" else None,
         game_id=game_id,
     )
 
@@ -187,7 +194,7 @@ async def create_seek(db, invites, seeks, user, data, empty=False):
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
 
-    if target == "Invite-friend":
+    if target in ("BOT_challenge", "Invite-friend"):
         invites[game_id] = seek
 
     return seek
@@ -199,11 +206,12 @@ def get_seeks(user, seeks):
     ]
 
 
-def challenge(seek, gameId):
+def challenge(seek):
+    """BOT API stream event response"""
     return (
-        '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n'
+        '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","finalColor":"white","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n'
         % (
-            gameId,
+            seek.game_id,
             seek.creator.username,
             seek.variant,
             seek.level,

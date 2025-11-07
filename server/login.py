@@ -1,4 +1,3 @@
-from __future__ import annotations
 import base64
 import hashlib
 import secrets
@@ -9,34 +8,28 @@ import aiohttp_session
 from aiohttp import web
 
 from broadcast import round_broadcast
-from const import NONE_USER, STARTED
-from settings import (
-    CLIENT_ID,
-    CLIENT_SECRET,
-    REDIRECT_URI,
-    REDIRECT_PATH,
-    LICHESS_OAUTH_AUTHORIZE_URL,
-    LICHESS_OAUTH_TOKEN_URL,
-    LICHESS_ACCOUNT_API_URL,
-    DEV,
-)
+from const import STARTED, reserved
+from oauth_config import oauth_config
+from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
 from websocket_utils import ws_send_json
 from logger import log
 
 
-RESERVED_USERS = (
-    "Random-Mover",
-    "Fairy-Stockfish",
-    "Discord-Relay",
-    "Invite-friend",
-    "PyChess",
-    NONE_USER,
-)
-
-
 async def oauth(request):
-    """Get lichess.org oauth token with PKCE"""
+    """Get oauth token with PKCE"""
+
+    provider = request.match_info.get("provider")
+    redirect_uri = URI + "/oauth/%s" % provider
+
+    config = oauth_config.get(provider, oauth_config["lichess"])
+
+    client_id = config["client_id"]
+    client_secret = config["client_secret"]
+
+    oauth_authorize_url = config["oauth_authorize_url"]
+    oauth_token_url = config["oauth_token_url"]
+    scope = config["scope"]
 
     session = await aiohttp_session.get_session(request)
     code = request.rel_url.query.get("code")
@@ -47,24 +40,25 @@ async def oauth(request):
         code_challenge = get_code_challenge(code_verifier)
 
         authorize_url = (
-            LICHESS_OAUTH_AUTHORIZE_URL
-            + "/?"
+            oauth_authorize_url
+            + "?"
             + urlencode(
                 {
-                    "state": CLIENT_SECRET,
-                    "client_id": CLIENT_ID,
+                    "state": client_secret,
+                    "client_id": client_id,
                     "response_type": "code",
-                    "redirect_uri": REDIRECT_URI,
+                    "redirect_uri": redirect_uri,
                     "code_challenge": code_challenge,
                     "code_challenge_method": "S256",
+                    "scope": scope,
                 }
             )
         )
         return web.HTTPFound(authorize_url)
     else:
         state = request.rel_url.query.get("state")
-        if state != CLIENT_SECRET:
-            log.error("State got back from %s changed", LICHESS_OAUTH_AUTHORIZE_URL)
+        if state != client_secret:
+            log.error("OAuth state value mismatch for provider '%s'", provider)
             return web.HTTPFound("/")
 
         if "oauth_code_verifier" not in session:
@@ -75,59 +69,53 @@ async def oauth(request):
             "grant_type": "authorization_code",
             "code": code,
             "code_verifier": session["oauth_code_verifier"],
-            "client_id": CLIENT_ID,
-            "redirect_uri": REDIRECT_URI,
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "redirect_uri": redirect_uri,
         }
 
+        # print(oauth_token_url)
+        # print(data)
+        # print("----------------")
+
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
         async with aiohttp.ClientSession() as client_session:
-            async with client_session.post(LICHESS_OAUTH_TOKEN_URL, json=data) as resp:
+            async with client_session.post(oauth_token_url, data=data, headers=headers) as resp:
                 data = await resp.json()
+                # print("OAUTH_DATA=", data)
                 token = data.get("access_token")
                 if token is not None:
                     session["token"] = token
-                    # TODO: "expires_in": 5270400
-                    return web.HTTPFound("/login")
+                    return web.HTTPFound("/login/%s" % provider)
                 else:
-                    log.error(
-                        "Failed to get lichess OAuth token from %s",
-                        LICHESS_OAUTH_TOKEN_URL,
-                    )
+                    log.error("Failed to get OAuth token for provider '%s'", provider)
                     return web.HTTPFound("/")
 
 
 async def login(request):
-    """Login with lichess.org oauth."""
-    app_state = get_app_state(request.app)
-    if REDIRECT_PATH is None:
-        log.error("Set REDIRECT_PATH env var if you want lichess OAuth login!")
-        return web.HTTPFound("/")
-
     session = await aiohttp_session.get_session(request)
 
+    provider = request.match_info.get("provider")
+    redirect_path = "/oauth/%s" % provider
+
     if "token" not in session:
-        return web.HTTPFound(REDIRECT_PATH)
+        return web.HTTPFound(redirect_path)
 
-    username = None
-    title = ""
-    closed = ""
-    tosViolation = ""
+    config = oauth_config.get(provider, oauth_config["lichess"])
+    account_api_url = config["account_api_url"]
 
-    async with aiohttp.ClientSession() as client_session:
-        data = {"Authorization": "Bearer %s" % session["token"]}
-        async with client_session.get(LICHESS_ACCOUNT_API_URL, headers=data) as resp:
-            data = await resp.json()
-            username = data.get("username")
-            title = data.get("title", "")
-            closed = data.get("closed", "")
-            tosViolation = data.get("tosViolation", "")
-            if username is None:
-                log.error(
-                    "Failed to get lichess public user account data from %s",
-                    LICHESS_ACCOUNT_API_URL,
-                )
-                return web.HTTPFound("/")
+    user_data = await get_user_data(account_api_url, session["token"])
 
-    if username.upper() in RESERVED_USERS:
+    del session["token"]
+
+    _id = user_data.get("id")
+    username = user_data.get("username", _id)
+    title = user_data.get("title", "")
+    closed = user_data.get("closed", "")
+    tosViolation = user_data.get("tosViolation", "")
+
+    if reserved(username):
         log.error("User %s tried to log in.", username)
         return web.HTTPFound("/")
 
@@ -143,49 +131,61 @@ async def login(request):
         log.error("closed user %s tried to log in.", username)
         return web.HTTPFound("/")
 
-    log.info("+++ Lichess authenticated user: %s", username)
+    log.info("+++ authenticated user: %s", username)
+    app_state = get_app_state(request.app)
     users = app_state.users
 
-    prev_session_user = session.get("user_name")
-    prev_user = await users.get(prev_session_user)
-    if prev_user is not None:
-        # todo: is consistency with app_state.lobby.lobbysockets lost here?
-        #       also don't we want to close all these sockets - lobby, tournament and game?
-        prev_user.lobby_sockets = set()  # make it offline
-        prev_user.game_sockets = {}
-        prev_user.tournament_sockets = {}
-        prev_user.update_online()
-
-    session["user_name"] = username
-    session["title"] = title
-
-    if username:
-        doc = await app_state.db.user.find_one({"_id": username})
-        if doc is None:
-            result = await app_state.db.user.insert_one(
-                {
-                    "_id": username,
-                    "title": session.get("title"),
-                    "perfs": {},
-                    "pperfs": {},
-                }
-            )
-            print("db insert user result %s" % repr(result.inserted_id))
-        elif not doc.get("enabled", True):
+    # For other OAuth providers, check if user needs to choose a username
+    existing_user = await app_state.db.user.find_one({"oauth_id": _id, "oauth_provider": provider})
+    if existing_user:
+        # User exists with this OAuth ID, use their existing username
+        if not existing_user.get("enabled", True):
             log.info("Closed account %s tried to log in.", username)
-            session["user_name"] = prev_session_user
 
-        del session["token"]
+            prev_session_user = session.get("user_name")
+            prev_user = await users.get(prev_session_user)
+            if prev_user is not None:
+                # todo: is consistency with app_state.lobby.lobbysockets lost here?
+                #       also don't we want to close all these sockets - lobby, tournament and game?
+                prev_user.lobby_sockets = set()  # make it offline
+                prev_user.game_sockets = {}
+                prev_user.tournament_sockets = {}
+                prev_user.update_online()
+
+                session["user_name"] = prev_session_user
+        else:
+            session["user_name"] = existing_user["_id"]
+
+    else:
+        # New user from OAuth provider - needs to choose username
+        session["oauth_id"] = _id
+        session["oauth_provider"] = provider
+        session["oauth_username"] = username
+        session["oauth_title"] = title
+        return web.HTTPFound("/select-username")
 
     return web.HTTPFound("/")
 
 
+async def get_user_data(url, token):
+    async with aiohttp.ClientSession() as client_session:
+        data = {"Authorization": "Bearer %s" % token}
+        async with client_session.get(url, headers=data) as resp:
+            data = await resp.json()
+            # print("USER_DATA", data)
+            return data
+
+
 async def logout(request, user=None):
     if request is not None:
+        # user clicked the logout
         app_state = get_app_state(request.app)
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
         user = await app_state.users.get(session_user)
+    else:
+        # admin banned the user
+        app_state = user.app_state
 
     if user is None:
         return web.HTTPFound("/")
@@ -216,6 +216,128 @@ async def logout(request, user=None):
         session.invalidate()
 
     return web.HTTPFound("/")
+
+
+async def select_username(request):
+    """Handle username selection for new OAuth users"""
+    session = await aiohttp_session.get_session(request)
+
+    # Check if user is in the middle of OAuth flow
+    if "oauth_id" not in session:
+        return web.HTTPFound("/")
+
+    # This will be handled by the client-side view
+    return web.HTTPFound("/")
+
+
+async def check_username_availability(request):
+    """API endpoint to check if username is available"""
+    data = await request.json()
+    username = data.get("username", "").strip()
+
+    if not username:
+        return web.json_response({"available": False, "error": "Username cannot be empty"})
+
+    if len(username) < 3:
+        return web.json_response(
+            {"available": False, "error": "Username must be at least 3 characters"}
+        )
+
+    if len(username) > 20:
+        return web.json_response(
+            {"available": False, "error": "Username must be at most 20 characters"}
+        )
+
+    # Check for invalid characters
+    import re
+
+    if not re.match(r"^[a-zA-Z0-9_-]+$", username):
+        return web.json_response(
+            {"available": False, "error": "Username can only contain letters, numbers, _ and -"}
+        )
+
+    if reserved(username):
+        return web.json_response({"available": False, "error": "Username is reserved"})
+
+    app_state = get_app_state(request.app)
+    existing_user = await app_state.db.user.find_one({"_id": username})
+
+    if existing_user:
+        return web.json_response({"available": False, "error": "Username is already taken"})
+
+    return web.json_response({"available": True})
+
+
+async def confirm_username(request):
+    """Confirm username selection and complete OAuth registration"""
+    session = await aiohttp_session.get_session(request)
+
+    # Check if user is in the middle of OAuth flow
+    if "oauth_id" not in session:
+        return web.json_response({"error": "Invalid session"}, status=400)
+
+    data = await request.json()
+    username = data.get("username", "").strip()
+
+    # Validate username again by calling the validation logic directly
+    if not username:
+        return web.json_response({"error": "Username cannot be empty"}, status=400)
+
+    if len(username) < 3:
+        return web.json_response({"error": "Username must be at least 3 characters"}, status=400)
+
+    if len(username) > 20:
+        return web.json_response({"error": "Username must be at most 20 characters"}, status=400)
+
+    # Check for invalid characters
+    import re
+
+    if not re.match(r"^[a-zA-Z0-9_-]+$", username):
+        return web.json_response(
+            {"error": "Username can only contain letters, numbers, _ and -"}, status=400
+        )
+
+    if reserved(username):
+        return web.json_response({"error": "Username is reserved"}, status=400)
+
+    app_state = get_app_state(request.app)
+    existing_user = await app_state.db.user.find_one({"_id": username})
+
+    if existing_user:
+        return web.json_response({"error": "Username is already taken"}, status=400)
+
+    # Create new user with OAuth information
+    oauth_id = session["oauth_id"]
+    oauth_provider = session["oauth_provider"]
+    title = session.get("oauth_title", "")
+
+    try:
+        result = await app_state.db.user.insert_one(
+            {
+                "_id": username,
+                "title": title,
+                "oauth_id": oauth_id,
+                "oauth_provider": oauth_provider,
+                "perfs": {},
+                "pperfs": {},
+                "enabled": True,
+            }
+        )
+        print("db insert user result %s" % repr(result.inserted_id))
+
+        # Set session username and clean up OAuth data
+        session["user_name"] = username
+        session.pop("oauth_id", None)
+        session.pop("oauth_provider", None)
+        session.pop("oauth_username", None)
+        session.pop("oauth_title", None)
+
+        log.info("Created new user %s via OAuth signup", username)
+        return web.json_response({"success": True})
+
+    except Exception as e:
+        log.error("Failed to create user %s: %s", username, e)
+        return web.json_response({"error": "Failed to create user"}, status=500)
 
 
 def get_code_challenge(code_verifier):

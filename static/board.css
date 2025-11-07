@@ -55,3 +55,15 @@
 .standard9x9 cg-board {
     background-image: url('images/board/9x9brown.svg');
 }
+.borderlands9x10 cg-board {
+    background-image: url('images/board/borderlands-cobalt.svg');
+}
+.sinting8x8 cg-board {
+    background-image: url('images/board/sinting.svg');
+}
+.xiangfu9x9 cg-board {
+    background-image: url('images/board/xiangfu.svg');
+}
+.melonvariant8x8 cg-board {
+    background-image: url('images/board/8x8melonvariant1.svg');
+}

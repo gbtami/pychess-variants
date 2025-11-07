@@ -4,92 +4,58 @@ import argparse
 import asyncio
 import logging
 import os
-import sys
-import traceback
 from urllib.parse import urlparse
-
-if sys.platform not in ("win32", "darwin"):
-    import uvloop
-else:
-    print("uvloop not installed")
 
 from aiohttp import web
 from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
-from aiohttp_session import setup
+import aiohttp_cors
+import aiohttp_jinja2
 import aiohttp_session
-import aiomonitor
+import jinja2
 
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 
 from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 
 from typedefs import (
     client_key,
+    anon_as_test_users_key,
     pychess_global_app_state_key,
     db_key,
 )
 from routes import get_routes, post_routes
 from settings import (
-    DEV,
+    ALLOWED_ORIGINS,
     MAX_AGE,
     SECRET_KEY,
     MONGO_HOST,
     MONGO_DB_NAME,
-    LOCALHOST,
     URI,
-    STATIC_ROOT,
-    BR_EXTENSION,
-    SOURCE_VERSION,
 )
 from users import NotInDbUsers
+from views import page404
+from lang import LOCALE
 from logger import log
-
-if sys.platform not in ("win32", "darwin"):
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-
-
-def log_uncaught_exceptions(ex_cls, ex, tb):
-    log.critical("".join(traceback.format_tb(tb)))
-    log.critical("{0}: {1}".format(ex_cls, ex))
-
-
-sys.excepthook = log_uncaught_exceptions
 
 
 @web.middleware
 async def handle_404(request, handler):
-    app_state = get_app_state(request.app)
     try:
         return await handler(request)
     except web.HTTPException as ex:
         if ex.status == 404:
-            theme = "dark"
-            session = await aiohttp_session.get_session(request)
-            session_user = session.get("user_name")
-            if session_user is not None:
-                user = await app_state.users.get(session_user)
-                theme = user.theme
-            template = app_state.jinja["en"].get_template("404.html")
-            text = await template.render_async(
-                {
-                    "title": "404 Page Not Found",
-                    "dev": DEV,
-                    "home": URI,
-                    "theme": theme,
-                    "view_css": "404.css",
-                    "asseturl": STATIC_ROOT,
-                    "js": "/static/pychess-variants.js%s%s" % (BR_EXTENSION, SOURCE_VERSION),
-                }
-            )
-            return web.Response(text=text, content_type="text/html")
-        else:
+            response = await page404.page404(request)
+            return response
             raise
     except NotInDbUsers:
         return web.HTTPFound("/")
+    except asyncio.CancelledError:
+        # Prevent emitting endless tracebacks on server shutdown
+        return web.Response()
 
 
 @web.middleware
@@ -104,19 +70,23 @@ async def redirect_to_https(request, handler):
     return await handler(request)
 
 
-async def on_prepare(request, response):
-    if request.path.endswith(".br"):
-        # brotli compressed js
-        response.headers["Content-Encoding"] = "br"
-        return
-    elif (
+@web.middleware
+async def set_user_locale(request, handler):
+    session = await aiohttp_session.get_session(request)
+    LOCALE.set(session.get("lang", "en"))
+    return await handler(request)
+
+
+@web.middleware
+async def cross_origin_policy_middleware(request, handler):
+    response = await handler(request)
+    if (
         request.path.startswith("/variants")
         or request.path.startswith("/blogs")
         or request.path.startswith("/video")
     ):
         # Learn and News pages may have links to other sites
         response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
-        return
     else:
         # required to get stockfish.wasm in Firefox
         response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
@@ -125,23 +95,37 @@ async def on_prepare(request, response):
         if request.match_info.get("gameId") is not None:
             response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
             response.headers["Expires"] = "0"
+    return response
 
 
 def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=False) -> Application:
     app = web.Application()
     app.middlewares.append(redirect_to_https)
+    app.middlewares.append(cross_origin_policy_middleware)
 
-    app["anon_as_test_users"] = anon_as_test_users
+    app[anon_as_test_users_key] = anon_as_test_users
 
     parts = urlparse(URI)
 
-    setup(
+    aiohttp_session.setup(
         app,
         (
             SimpleCookieStorage()
             if simple_cookie_storage
-            else EncryptedCookieStorage(SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https")
+            else EncryptedCookieStorage(
+                SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https", samesite="Lax"
+            )
         ),
+    )
+
+    app.middlewares.append(set_user_locale)
+
+    aiohttp_jinja2.setup(
+        app,
+        enable_async=True,
+        extensions=["jinja2.ext.i18n"],
+        loader=jinja2.FileSystemLoader("templates"),
+        autoescape=jinja2.select_autoescape(["html"]),
     )
 
     if db_client is not None:
@@ -151,7 +135,6 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
     app.on_startup.append(init_state)
     app.on_shutdown.append(shutdown)
     app.on_cleanup.append(close_mongodb_client)
-    app.on_response_prepare.append(on_prepare)
 
     # Setup routes.
     for route in get_routes:
@@ -160,6 +143,23 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
         app.router.add_post(route[0], route[1])
     app.router.add_static("/static", "static", append_version=True)
     app.middlewares.append(handle_404)
+
+    # Configure default CORS settings.
+    cors = aiohttp_cors.setup(
+        app,
+        defaults={
+            origin: aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+            )
+            for origin in ALLOWED_ORIGINS
+        },
+    )
+
+    # Configure CORS on all routes.
+    for route in list(app.router.routes()):
+        cors.add(route)
 
     return app
 
@@ -174,27 +174,23 @@ async def init_state(app):
     # create test tournament
     if 1:
         pass
-        # from test_tournament import create_arena_test
-        # await create_arena_test(app)
-
-        # from test_tournament import create_dev_arena_tournament
-        # await create_dev_arena_tournament(app)
+        # from tournament.auto_play_arena import create_auto_play_arena
+        # await create_auto_play_arena(app)
 
 
 async def shutdown(app):
     app_state = get_app_state(app)
     await app_state.server_shutdown()
-    for task in asyncio.all_tasks():
-        if task.get_name().startswith("Task-"):
-            print(task)
-        else:
-            print(task.get_name())
 
 
 async def close_mongodb_client(app):
     if client_key in app:
-        app[client_key].close()
-        log.debug("\nMongoClient closed OK.\n")
+        try:
+            await app[client_key].close()
+            log.debug("\nAsyncMongoClient closed OK.\n")
+        except TypeError:
+            app[client_key].close()
+            log.debug("\nAsyncMongoMockClient closed OK.\n")
 
 
 if __name__ == "__main__":
@@ -226,33 +222,21 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    log.setLevel(level=logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO)
+    loglevel = logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
+
+    log.setLevel(level=loglevel)
+    logging.getLogger("asyncio").setLevel(loglevel)
 
     logging.getLogger("pymongo").setLevel(logging.DEBUG if args.m else logging.INFO)
 
     app = make_app(
-        db_client=AsyncIOMotorClient(MONGO_HOST, tz_aware=True),
+        db_client=AsyncMongoClient(MONGO_HOST, tz_aware=True),
         simple_cookie_storage=args.s,
         anon_as_test_users=args.a,
     )
 
-    if URI == LOCALHOST:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        # it is possible to pass a dictionary with local variables
-        # to the python console environment
-        locals_ = {"app": app, "state": pychess_global_app_state_key}
-        # init monitor just before run_app
-        with aiomonitor.start_monitor(loop=loop, locals=locals_):
-            web.run_app(
-                app,
-                loop=loop,
-                access_log=None if args.w else access_logger,
-                port=int(os.environ.get("PORT", 8080)),
-            )
-    else:
-        web.run_app(
-            app,
-            access_log=None if args.w else access_logger,
-            port=int(os.environ.get("PORT", 8080)),
-        )
+    web.run_app(
+        app,
+        access_log=None if args.w else access_logger,
+        port=int(os.environ.get("PORT", 8080)),
+    )

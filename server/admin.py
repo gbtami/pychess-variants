@@ -6,6 +6,7 @@ from const import NONE_USER, TYPE_CHECKING
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from login import logout
+from newid import new_id
 from settings import ADMINS, FISHNET_KEYS
 from variants import VARIANTS
 
@@ -94,19 +95,27 @@ async def highscore(app_state: PychessGlobalAppState, message):
 
 async def fishnet(app_state: PychessGlobalAppState, message):
     parts = message.split()
-    if len(parts) >= 3:
-        key = parts[2]
+    if len(parts) == 3:
+
         if parts[1] == "add":
-            if len(parts) == 4:
-                name = parts[3]
-                await app_state.db.fishnet.find_one_and_update(
-                    {"_id": key},
-                    {"$set": {"name": name}},
-                    upsert=True,
-                )
-                FISHNET_KEYS[key] = name
-                app_state.fishnet_monitor[name] = collections.deque([], 50)
+            key = await new_id(app_state.db.fishnet)
+            name = parts[2]
+            await app_state.db.fishnet.find_one_and_update(
+                {"_id": key},
+                {"$set": {"name": name}},
+                upsert=True,
+            )
+            FISHNET_KEYS[key] = name
+            app_state.fishnet_monitor[name] = collections.deque([], 50)
+            response = {
+                "type": "lobbychat",
+                "user": "server",
+                "message": "name: %s key: %s" % (name, key),
+            }
+            return response
+
         elif parts[1] == "remove":
+            key = parts[2]
             if key in FISHNET_KEYS:
                 name = FISHNET_KEYS[key]
                 await app_state.db.fishnet.delete_one({"_id": key})

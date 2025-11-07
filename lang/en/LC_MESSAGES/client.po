@@ -663,3 +663,39 @@ msgstr "Promote to Queen automatically"
 #: ../client/settings.ts:387
 msgid "Best move arrow"
 msgstr "Best move arrow"
+
+#: ../client/usernameDialog.ts
+msgid "Choose your username"
+msgstr "Choose your username"
+
+#: ../client/usernameDialog.ts
+msgid "Please choose a username for your account."
+msgstr "Please choose a username for your account."
+
+#: ../client/usernameDialog.ts
+msgid "Username"
+msgstr "Username"
+
+#: ../client/usernameDialog.ts
+msgid "3-20 characters"
+msgstr "3-20 characters"
+
+#: ../client/usernameDialog.ts
+msgid "Letters, numbers, underscore and dash only"
+msgstr "Letters, numbers, underscore and dash only"
+
+#: ../client/usernameDialog.ts
+msgid "Must be unique"
+msgstr "Must be unique"
+
+#: ../client/usernameDialog.ts
+msgid "Creating account..."
+msgstr "Creating account..."
+
+#: ../client/usernameDialog.ts
+msgid "Confirm"
+msgstr "Confirm"
+
+#: ../templates/template.html
+msgid "Login"
+msgstr "Login"

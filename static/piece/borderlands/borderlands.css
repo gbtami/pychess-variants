@@ -1,0 +1,108 @@
+.borderlands piece.w-piece.white.ally {
+  background-image: url('../../images/pieces/borderlands/wW.svg');
+}
+.borderlands piece.w-piece.white.enemy {
+  background-image: url('../../images/pieces/borderlands/wW.e.svg');
+}
+.borderlands piece.pw-piece.white {
+  background-image: url('../../images/pieces/borderlands/w+W.svg');
+}
+.borderlands piece.s-piece.white {
+  background-image: url('../../images/pieces/borderlands/wS.svg');
+}
+.borderlands piece.ps-piece.white {
+  background-image: url('../../images/pieces/borderlands/w+S.svg');
+}
+.borderlands piece.h-piece.white {
+  background-image: url('../../images/pieces/borderlands/wH.svg');
+}
+.borderlands piece.ph-piece.white {
+  background-image: url('../../images/pieces/borderlands/w+H.svg');
+}
+.borderlands piece.a-piece.white {
+  background-image: url('../../images/pieces/borderlands/wA.svg');
+}
+.borderlands piece.pa-piece.white {
+  background-image: url('../../images/pieces/borderlands/w+A.svg');
+}
+.borderlands piece.c-piece.white {
+  background-image: url('../../images/pieces/borderlands/wC.svg');
+}
+.borderlands piece.m-piece.white {
+  background-image: url('../../images/pieces/borderlands/wM.svg');
+}
+.borderlands piece.pm-piece.white {
+  background-image: url('../../images/pieces/borderlands/w+M.svg');
+}
+.borderlands piece.f-piece.white {
+  background-image: url('../../images/pieces/borderlands/wF.svg');
+}
+.borderlands piece.pf-piece.white {
+  background-image: url('../../images/pieces/borderlands/w+F.svg');
+}
+.borderlands piece.e-piece.white {
+  background-image: url('../../images/pieces/borderlands/wE.svg');
+}
+.borderlands piece.pe-piece.white {
+  background-image: url('../../images/pieces/borderlands/w+E.svg');
+}
+.borderlands piece.l-piece.white {
+  background-image: url('../../images/pieces/borderlands/wL.svg');
+}
+.borderlands piece.pl-piece.white {
+  background-image: url('../../images/pieces/borderlands/w+L.svg');
+}
+.borderlands piece.w-piece.black.ally {
+  background-image: url('../../images/pieces/borderlands/bW.svg');
+}
+.borderlands piece.w-piece.black.enemy {
+  background-image: url('../../images/pieces/borderlands/bW.e.svg');
+}
+.borderlands piece.pw-piece.black {
+  background-image: url('../../images/pieces/borderlands/b+W.svg');
+}
+.borderlands piece.s-piece.black {
+  background-image: url('../../images/pieces/borderlands/bS.svg');
+}
+.borderlands piece.ps-piece.black {
+  background-image: url('../../images/pieces/borderlands/b+S.svg');
+}
+.borderlands piece.h-piece.black {
+  background-image: url('../../images/pieces/borderlands/bH.svg');
+}
+.borderlands piece.ph-piece.black {
+  background-image: url('../../images/pieces/borderlands/b+H.svg');
+}
+.borderlands piece.a-piece.black {
+  background-image: url('../../images/pieces/borderlands/bA.svg');
+}
+.borderlands piece.pa-piece.black {
+  background-image: url('../../images/pieces/borderlands/b+A.svg');
+}
+.borderlands piece.c-piece.black {
+  background-image: url('../../images/pieces/borderlands/bC.svg');
+}
+.borderlands piece.m-piece.black {
+  background-image: url('../../images/pieces/borderlands/bM.svg');
+}
+.borderlands piece.pm-piece.black {
+  background-image: url('../../images/pieces/borderlands/b+M.svg');
+}
+.borderlands piece.f-piece.black {
+  background-image: url('../../images/pieces/borderlands/bF.svg');
+}
+.borderlands piece.pf-piece.black {
+  background-image: url('../../images/pieces/borderlands/b+F.svg');
+}
+.borderlands piece.e-piece.black {
+  background-image: url('../../images/pieces/borderlands/bE.svg');
+}
+.borderlands piece.pe-piece.black {
+  background-image: url('../../images/pieces/borderlands/b+E.svg');
+}
+.borderlands piece.l-piece.black {
+  background-image: url('../../images/pieces/borderlands/bL.svg');
+}
+.borderlands piece.pl-piece.black {
+  background-image: url('../../images/pieces/borderlands/b+L.svg');
+}

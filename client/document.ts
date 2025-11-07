@@ -1,5 +1,7 @@
 import { VNode, init, classModule, attributesModule, propsModule, eventListenersModule, styleModule } from 'snabbdom';
 
+import { sanitizeURL } from './url';
+
 export const patch = init([classModule, attributesModule, propsModule, eventListenersModule, styleModule]);
 
 export function downloadPgnText(filename: string) {
@@ -51,13 +53,6 @@ export function setCookie(cname: string, cvalue: string, exdays: number) {
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
-function changeCSS(cssLinkIndex: number, cssFile: string) {
-    document.getElementsByTagName("link").item(cssLinkIndex)!.setAttribute("href", cssFile);
-}
-
-// css file index in templates/base.html
-const PIECE_CSS_IDX = 2;
-
 export function changeBoardCSS(assetUrl: string, family: string, cssFile: string) {
     const link = document.querySelector('link[href*=board]') as HTMLLinkElement;
     const sheet = link!.sheet;
@@ -79,44 +74,12 @@ export function changeBoardCSS(assetUrl: string, family: string, cssFile: string
 }
 
 export function changePieceCSS(assetUrl: string, family: string, cssFile: string) {
-    let cssLinkIndex = PIECE_CSS_IDX;
-    switch (family) {
-        case "standard": break;
-        case "seirawan": cssLinkIndex += 1; break;
-        case "makruk": cssLinkIndex += 2; break;
-        case "sittuyin": cssLinkIndex += 3; break;
-        case "asean": cssLinkIndex += 4; break;
-        case "shogi": cssLinkIndex += 5; break;
-        case "kyoto": cssLinkIndex += 6; break;
-        case "tori": cssLinkIndex += 7; break;
-        case "xiangqi": cssLinkIndex += 8; break;
-        case "capa": cssLinkIndex += 9; break;
-        case "shako": cssLinkIndex += 10; break;
-        case "shogun": cssLinkIndex += 11; break;
-        case "janggi": cssLinkIndex += 12; break;
-        case "orda": cssLinkIndex += 13; break;
-        case "synochess": cssLinkIndex += 14; break;
-        case "hoppel": cssLinkIndex += 15; break;
-        case "dobutsu": cssLinkIndex += 16; break;
-        case "shinobi": cssLinkIndex += 17; break;
-        case "empire": cssLinkIndex += 18; break;
-        case "ordamirror": cssLinkIndex += 19; break;
-        case "chak": cssLinkIndex += 20; break;
-        case "chennis": cssLinkIndex += 21; break;
-        case "spartan": cssLinkIndex += 22; break;
-        case "mansindam": cssLinkIndex += 23; break;
-        case "ataxx": cssLinkIndex += 24; break;
-        case "cannonshogi": cssLinkIndex += 25; break;
-        case "khans": cssLinkIndex += 26; break;
-        case "dragon": cssLinkIndex += 27; break;
-        case "shatranj": cssLinkIndex += 28; break;
-        default: throw "Unknown piece family " + family;
-    }
-    let newUrl = `${assetUrl}/piece-css/${family}/${cssFile}.css`;
-    if (cssFile === 'letters') newUrl = `${assetUrl}/piece-css/letters.css`;
-    if (cssFile === 'invisible') newUrl = `${assetUrl}/piece-css/invisible.css`;
+    const cssId = `piece-set-${family}`;
+    let newUrl = sanitizeURL(`${assetUrl}/piece-css/${family}/${cssFile}.css`);
+    if (cssFile === 'letters') newUrl = sanitizeURL(`${assetUrl}/piece-css/letters.css`);
+    if (cssFile === 'invisible') newUrl = sanitizeURL(`${assetUrl}/piece-css/invisible.css`);
     // console.log("changePieceCSS", family, cssFile, newUrl)
-    changeCSS(cssLinkIndex, newUrl);
+    document.getElementById(cssId)!.setAttribute("href", newUrl);
 }
 
 export function bind(eventName: string, f: (e: Event) => void, redraw: null | (() => void)) {

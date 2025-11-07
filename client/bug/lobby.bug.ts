@@ -34,6 +34,10 @@ export function bugJoinSeek(ctrl: LobbyController, e: Event, seek: Seek, joinAs:
 function onClickSeekBughouse(ctrl: LobbyController, seek: Seek) {
     if (seek["user"] === ctrl.username) {
         ctrl.doSend({ type: "delete_seek", seekID: seek["seekID"], player: ctrl.username });
+    } else {
+        if ([seek.player2, seek.bugPlayer1, seek.bugPlayer2].includes(ctrl.username)) {
+            ctrl.doSend({ type: "leave_seek", seekID: seek["seekID"], player: ctrl.username });
+        }
     }
 }
 

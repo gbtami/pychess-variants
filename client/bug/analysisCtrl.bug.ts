@@ -240,6 +240,8 @@ export default class AnalysisControllerBughouse {
         this.onMsgBoard(model["board"] as MsgBoard);
 
         initBoardSettings(this.b1, this.b2, this.variant);
+
+        (document.getElementById('gaugePartner') as HTMLElement).classList.add('flipped');
     }
 
     pvboxIni() {
@@ -577,7 +579,6 @@ export default class AnalysisControllerBughouse {
             const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
             if (blackEl && ceval !== undefined) {
                 const score = ceval['s'];
-                // TODO set gauge colour according to the variant's piece colour
                 const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
                 if (score !== undefined) {
                     const ev = povChances(color, score);
@@ -660,10 +661,10 @@ export default class AnalysisControllerBughouse {
 
         console.log(step);
 
-        const board= step.boardName==='a'? this.b1: this.b2;
+        const board = step.boardName === 'a'? this.b1: this.b2;
 
-        const fen=step.boardName==='a'?step.fen: step.fenB!;
-        const fenPartner=step.boardName==='b'?step.fen: step.fenB!;
+        const fen = step.boardName === 'a'? step.fen: step.fenB!;
+        const fenPartner = step.boardName === 'b'? step.fen: step.fenB!;
 
         const move = step.boardName === 'a' ? uci2LastMove(step.move)! : uci2LastMove(step.moveB)!;
         const movePartner = step.boardName === 'b'? uci2LastMove(step.move)! : uci2LastMove(step.moveB)!;
@@ -675,7 +676,6 @@ export default class AnalysisControllerBughouse {
             // TODO defer this logic to ffish.js
             capture = (board.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
         }
-
 
         if (ply === this.ply + 1) { // no sound if we are scrolling backwards
             sound.moveSound(board.variant, capture);
@@ -711,9 +711,22 @@ export default class AnalysisControllerBughouse {
 
         board.partnerCC.setState(fenPartner, turnColorPartner, movePartner);
         board.partnerCC.renderState();
-        board.chessground.set({movable: { color: turnColorPartner}});
+        board.partnerCC.chessground.set({movable: { color: turnColorPartner}});
+
+        this.disableMovableOnCheckmate(board);
 
         renderClocks(this);
+    }
+
+    private disableMovableOnCheckmate = (board: GameControllerBughouse) => {
+        // when we have a checkmate on one board, make the other non-movable (the one with checkmate has no dest so
+        // not important if movable or not
+        if (board.partnerCC.chessground.state.movable.dests?.size === 0) {
+            board.chessground.set({movable: { color: undefined }});
+        }
+        if (board.chessground.state.movable.dests?.size === 0) {
+            board.partnerCC.chessground.set({movable: { color: undefined }});
+        }
     }
 
     private getPgn = (idxInVari  = 0) => {
@@ -781,7 +794,9 @@ export default class AnalysisControllerBughouse {
         // const moves = b.ffishBoard.moveStack().split(' ');
         this.ply = this.ply + 1;
 
-        //
+        // TODO: check if the move that was made was the same as the next recorded move of the existing game
+        //       if yes, and if we are not in a vari, then call goPly for next ply, otherwise it starts variation
+        //       with exactly same move as the main line, which is nonsense
         if (b.localAnalysis) this.engineStop();
         const san = b.san(move); // doing this before we push the move to the ffboard, after which its invalid
         const sanSAN = b.sanSAN(move);
@@ -854,6 +869,7 @@ export default class AnalysisControllerBughouse {
         const e = document.getElementById('fullfen') as HTMLInputElement;
         e.value = this.b1.fullfen+" "+this.b2.fullfen;
 
+        this.disableMovableOnCheckmate(b);
     }
 
     private buildScoreStr = (color: string, analysis: Ceval) => {

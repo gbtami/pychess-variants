@@ -6,8 +6,6 @@ import aiohttp_session
 from pymongo.errors import DuplicateKeyError
 from aiohttp import web
 
-from mongomock_motor import AsyncMongoMockClient
-
 from fairy import FairyBoard
 from glicko2.glicko2 import MU, gl2, Rating, rating
 from pychess_global_app_state_utils import get_app_state
@@ -17,14 +15,8 @@ from variants import VARIANTS
 NO_PUZZLE_VARIANTS = (
     "antichess",
     "horde",
-    "shatranj",
     "placement",
-    "minishogi",
     "gorogoroplus",
-    "manchu",
-    "grandhouse",
-    "shinobi",
-    "shinobiplus",
     "cannonshogi",
     "bughouse",
     "fogofwar",
@@ -58,7 +50,7 @@ async def get_puzzle(request, puzzleId):
 
 async def get_daily_puzzle(request):
     app_state = get_app_state(request.app)
-    if app_state.db is None or isinstance(app_state.db_client, AsyncMongoMockClient):
+    if app_state.db is None:
         return empty_puzzle("chess")
 
     db_collections = await app_state.db.list_collection_names()
@@ -121,7 +113,7 @@ async def next_puzzle(request, user):
             {"$match": {"$and": filters}},
             {"$sample": {"size": 1}},
         ]
-        cursor = app_state.db.puzzle.aggregate(pipeline)
+        cursor = await app_state.db.puzzle.aggregate(pipeline)
 
         async for doc in cursor:
             puzzle = {

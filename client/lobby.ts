@@ -36,6 +36,7 @@ const autoPairingTCs: [number, number, number][] = [
 export function createModeStr(mode: CreateMode) {
     switch (mode) {
     case 'playAI': return _("Play with AI");
+    case 'playBOT': return _("Play with a BOT");
     case 'playFriend': return _("Play with a friend");
     case 'createHost': return _("Host a game for others");
     case 'createGame': return _("Create a game");
@@ -72,7 +73,7 @@ export class LobbyController implements ChatController {
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
     dialogHeaderEl: VNode | HTMLElement;
-    autoPairingActions: VNode | HTMLElement;
+    autoPairingActions: VNode | HTMLElement | null;
     tvGame: TvGame;
     tvGameId: string;
     tvGameChessground: Api;
@@ -80,7 +81,7 @@ export class LobbyController implements ChatController {
         0, 1 / 4, 1 / 2, 3 / 4, 1, 3 / 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         17, 18, 19, 20, 25, 30, 35, 40, 45, 60, 75, 90
     ];
-    incrementValues = [ 
+    incrementValues = [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
         25, 30, 35, 40, 45, 60, 90
     ];
@@ -110,13 +111,13 @@ export class LobbyController implements ChatController {
         this.sock = createWebsocket('wsl', onOpen, () => {}, () => {},(e: MessageEvent) => this.onMessage(e));
 
         patch(document.querySelector('.seekbuttons') as HTMLElement, h('div.seekbuttons', this.renderSeekButtons()));
+        patch(document.querySelector('.seekdialog') as HTMLElement, this.renderSeekDialog());
 
         const id01modal = document.getElementById('id01') as HTMLElement;
         document.addEventListener("click", (event) => {
-            if ((event.target as HTMLElement) == id01modal) {
-                id01modal.style.display = 'none';
-            }
+            if ((event.target as HTMLElement) == id01modal) this.closeSeekDialog();
         });
+        id01modal.addEventListener("cancel", this.closeSeekDialog);
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
 
@@ -125,24 +126,25 @@ export class LobbyController implements ChatController {
         this.streams = document.getElementById('streams') as HTMLElement;
 
         this.spotlights = document.getElementById('spotlights') as HTMLElement;
-        
+
         this.dialogHeaderEl = document.getElementById('header-block') as HTMLElement;
 
-        // challenge!
+        // challenge (or CREATE GAME from the main menu)
         if (this.profileid !== "") {
-            if (this.profileid === 'Fairy-Stockfish') {
-                this.createMode = 'playAI';
+            if (this.title === 'BOT') {
+                this.createMode = (this.profileid === 'Fairy-Stockfish') ? 'playAI' : 'playBOT';
                 this.preSelectVariant(model.variant);
             }
             else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
-            document.getElementById('game-mode')!.style.display = (this.anon || this.createMode === 'playAI') ? 'none' : 'inline-flex';
+            document.getElementById('game-mode')!.style.display = (this.anon || this.title === 'BOT') ? 'none' : 'inline-flex';
             this.renderDialogHeader(_('Challenge %1 to a game', this.profileid));
             document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
             document.getElementById('rmplay-block')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
-            document.getElementById('id01')!.style.display = 'flex';
+            (document.getElementById('id01') as HTMLDialogElement).showModal();
             document.getElementById('color-button-group')!.style.display = 'block';
             document.getElementById('create-button')!.style.display = 'none';
 
+            // CREATE GAME from the main menu
             if (this.profileid === 'any#') {
                 this.profileid = '';
                 this.createGame();
@@ -150,7 +152,7 @@ export class LobbyController implements ChatController {
         }
 
         // Seek from Editor with custom start position
-        if (this.fen !== "") {
+        if (this.fen !== "" && this.profileid === "") {
             this.createGame(model.variant);
         }
 
@@ -168,7 +170,7 @@ export class LobbyController implements ChatController {
 
         if (!this.anon) {
             this.renderAutoPairingTable();
-            this.autoPairingActions = document.querySelector('div.auto-pairing-actions') as HTMLElement;
+            this.autoPairingActions = document.querySelector('div.auto-pairing-actions') as HTMLElement | null;
         }
 
         boardSettings.assetURL = this.assetURL;
@@ -216,7 +218,24 @@ export class LobbyController implements ChatController {
         });
     }
 
-    createBotChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, rm: boolean, chess960: boolean, rated: boolean) {
+    createBOTChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, chess960: boolean, rated: boolean) {
+        this.doSend({
+            type: "create_bot_challenge",
+            user: this.username,
+            target: 'BOT_challenge',
+            variant: variant,
+            fen: fen,
+            minutes: minutes,
+            increment: increment,
+            byoyomiPeriod: byoyomiPeriod,
+            rated: rated,
+            chess960: chess960,
+            color: color,
+            profileid: this.profileid
+        });
+    }
+
+    createAIChallengeMsg(variant: string, color: string, fen: string, minutes: number, increment: number, byoyomiPeriod: number, level: number, rm: boolean, chess960: boolean, rated: boolean) {
         this.doSend({
             type: "create_ai_challenge",
             rm: rm,
@@ -229,7 +248,8 @@ export class LobbyController implements ChatController {
             rated: rated,
             level: level,
             chess960: chess960,
-            color: color
+            color: color,
+            profileid: (this.profileid === "") ? "Fairy-Stockfish" : this.profileid
         });
     }
 
@@ -253,7 +273,7 @@ export class LobbyController implements ChatController {
         // console.log("isNewSeek()?", variant, color, fen, minutes, increment, byoyomiPeriod, chess960, rated);
         // console.log(this.seeks);
         return !this.seeks.some(seek =>
-            seek.user === this.username && 
+            seek.user === this.username &&
             seek.variant === variant &&
             seek.fen === fen &&
             seek.color === color &&
@@ -266,8 +286,13 @@ export class LobbyController implements ChatController {
         );
     }
 
+    closeSeekDialog() {
+        (document.getElementById('id01') as HTMLDialogElement).close();
+        (document.activeElement as HTMLElement).blur();
+    }
+
     createSeek(color: string) {
-        document.getElementById('id01')!.style.display='none';
+        this.closeSeekDialog();
         if (!this.validGameData) return;
 
         let e;
@@ -348,7 +373,10 @@ export class LobbyController implements ChatController {
                     localStorage.seek_rmplay = e.checked;
                 }
                 const rm = e.checked;
-                this.createBotChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated);
+                this.createAIChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, level, rm, chess960, rated);
+                break;
+            case 'playBOT':
+                this.createBOTChallengeMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, chess960, rated);
                 break;
             case 'playFriend':
                 this.createInviteFriendMsg(variant.name, seekColor, fen, minutes, increment, byoyomiPeriod, day, chess960, rated);
@@ -381,6 +409,15 @@ export class LobbyController implements ChatController {
     }
 
     renderSeekButtons() {
+        return [
+            h('button.lobby-button', { on: { click: () => this.createGame() } }, createModeStr('createGame')),
+            h('button.lobby-button', { on: { click: () => this.playFriend() } }, createModeStr('playFriend')),
+            h('button.lobby-button', { on: { click: () => this.playAI() } }, createModeStr('playAI')),
+            h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.tournamentDirector ? "block" : "none" } }, createModeStr('createHost')),
+        ];
+    }
+
+    renderSeekDialog() {
         const vVariant = localStorage.seek_variant || "chess";
         const twoBoards = VARIANTS[vVariant].twoBoards;
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
@@ -394,16 +431,11 @@ export class LobbyController implements ChatController {
         const vLevel = Number(localStorage.seek_level ?? "1");
         const vChess960 = localStorage.seek_chess960 ?? "false";
         const vRMplay = localStorage.seek_rmplay ?? "false";
-        return [
-            h('div#id01.modal', [
+        return h('dialog#id01.modal', [
                 h('form.modal-content', [
                     h('span#closecontainer', [
                         h('span.close', {
-                            on: {
-                                click: () => {
-                                    document.getElementById('id01')!.style.display = 'none';
-                                }
-                            },
+                            on: { click: this.closeSeekDialog },
                             attrs: { 'data-icon': 'j' }, props: { title: _("Cancel") }
                         }),
                     ]),
@@ -483,7 +515,7 @@ export class LobbyController implements ChatController {
                                 h('div.radio-group', [
                                     h('input#casual', {
                                         props: { type: "radio", name: "mode", value: "0" },
-                                        attrs: { checked: vRated === "0" }, 
+                                        attrs: { checked: vRated === "0" },
                                         on: { input: e => this.setCasual((e.target as HTMLInputElement).value) },
                                         hook: { insert: vnode => this.setCasual((vnode.elm as HTMLInputElement).value) },
                                     }),
@@ -551,12 +583,7 @@ export class LobbyController implements ChatController {
                         ]),
                     ]),
                 ]),
-            ]),
-            h('button.lobby-button', { on: { click: () => this.createGame() } }, createModeStr('createGame')),
-            h('button.lobby-button', { on: { click: () => this.playFriend() } }, createModeStr('playFriend')),
-            h('button.lobby-button', { on: { click: () => this.playAI() } }, createModeStr('playAI')),
-            h('button.lobby-button', { on: { click: () => this.createHost() }, style: { display: this.tournamentDirector ? "block" : "none" } }, createModeStr('createHost')),
-        ];
+            ])
     }
 
     autoPairingSelectAll() {
@@ -624,7 +651,8 @@ export class LobbyController implements ChatController {
 
     renderVariantsDropDown(variantName: string = '', disabled: string[]) {
         // variantName and chess960 are set when this was called from the variant catalog (layer3.ts)
-        const vVariant = variantName || localStorage.seek_variant || "chess";
+        let vVariant = variantName || localStorage.seek_variant || "chess";
+        if (disabled.includes(vVariant)) vVariant = "chess";
         const vChess960 = localStorage.seek_chess960 === 'true' || false;
         const e = document.getElementById('variant');
         e!.replaceChildren();
@@ -641,7 +669,7 @@ export class LobbyController implements ChatController {
         document.getElementById('rating-range-setting')!.style.display = 'block';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
-        document.getElementById('id01')!.style.display = 'flex';
+        (document.getElementById('id01') as HTMLDialogElement).showModal();
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
         disableCorr(this.anon || twoBoards);
@@ -655,7 +683,7 @@ export class LobbyController implements ChatController {
         document.getElementById('rating-range-setting')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
-        document.getElementById('id01')!.style.display = 'flex';
+        (document.getElementById('id01') as HTMLDialogElement).showModal();
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
         disableCorr(false);
@@ -670,7 +698,7 @@ export class LobbyController implements ChatController {
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         document.getElementById('rmplay-block')!.style.display = 'block';
-        document.getElementById('id01')!.style.display = 'flex';
+        (document.getElementById('id01') as HTMLDialogElement).showModal();
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
         disableCorr(true);
@@ -684,7 +712,7 @@ export class LobbyController implements ChatController {
         document.getElementById('rating-range-setting')!.style.display = 'none';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
-        document.getElementById('id01')!.style.display = 'flex';
+        (document.getElementById('id01') as HTMLDialogElement).showModal();
         document.getElementById('color-button-group')!.style.display = 'none';
         document.getElementById('create-button')!.style.display = 'block';
         disableCorr(true);
@@ -695,6 +723,11 @@ export class LobbyController implements ChatController {
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
         const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
+        if (variant.twoBoards) {
+            const select = document.getElementById('tc') as HTMLSelectElement;
+            select.selectedIndex = 0;
+            this.tcMode = 'real';
+        }
         // TODO use toggle class instead of setting style directly
         document.getElementById('chess960-block')!.style.display = variant.chess960 ? 'block' : 'none';
         document.getElementById('byoyomi-period')!.style.display = byoyomi ? 'block' : 'none';
@@ -876,6 +909,7 @@ export class LobbyController implements ChatController {
     }
     private hide(seek: Seek) {
         return ((this.anon || this.title === 'BOT') && seek["rated"]) ||
+            (this.anon && VARIANTS[seek.variant].twoBoards) ||
             (seek['target'] !== '' && this.username !== seek['user'] && this.username !== seek['target']);
     }
     public tooltip(seek: Seek, variant: Variant) {
@@ -983,23 +1017,27 @@ export class LobbyController implements ChatController {
         const eTimeControls = document.querySelector('div.timecontrols') as Element;
         const eVariants = document.querySelector('div.variants') as Element;
         if (autoPairingIsOn) {
-            this.autoPairingActions = patch(this.autoPairingActions,
-                h('div.auto-pairing-actions', [
-                    h('span.standingby', _('Standing by for auto pairing...')),
-                    h('button.cancel', { on: { click: () => this.autoPairingCancel() } }, [h('div.icon.icon-ban', _('CANCEL'))]),
-                ])
-            );
+            if (this.autoPairingActions) {
+                this.autoPairingActions = patch(this.autoPairingActions,
+                    h('div.auto-pairing-actions', [
+                        h('span.standingby', _('Standing by for auto pairing...')),
+                        h('button.cancel', { on: { click: () => this.autoPairingCancel() } }, [h('div.icon.icon-ban', _('CANCEL'))]),
+                    ])
+                );
+            }
             eRange.classList.toggle("disabled", true);
             eTimeControls.classList.toggle("disabled", true);
             eVariants.classList.toggle("disabled", true);
         } else {
-            this.autoPairingActions = patch(this.autoPairingActions,
-                h('div.auto-pairing-actions', [
-                    h('button.selectall', { on: { click: () => this.autoPairingSelectAll() } }, [h('div.icon.icon-check', _('SELECT ALL'))]),
-                    h('button.reset', { on: { click: () => this.autoPairingReset() } }, [h('div.icon.icon-trash-o', _('CLEAR ALL'))]),
-                    h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
-                ])
-            );
+            if (this.autoPairingActions) {
+                this.autoPairingActions = patch(this.autoPairingActions,
+                    h('div.auto-pairing-actions', [
+                        h('button.selectall', { on: { click: () => this.autoPairingSelectAll() } }, [h('div.icon.icon-check', _('SELECT ALL'))]),
+                        h('button.reset', { on: { click: () => this.autoPairingReset() } }, [h('div.icon.icon-trash-o', _('CLEAR ALL'))]),
+                        h('button.submit', { on: { click: () => this.autoPairingSubmit() } }, [h('div.icon.icon-check',  _('SUBMIT'))]),
+                    ])
+                );
+            }
             eRange.classList.toggle("disabled", false);
             eTimeControls.classList.toggle("disabled", false);
             eVariants.classList.toggle("disabled", false);
@@ -1106,6 +1144,9 @@ export class LobbyController implements ChatController {
             case "invite_created":
                 this.onMsgInviteCreated(msg);
                 break;
+            case "bot_challenge_created":
+                this.onMsgBOTChallengeCreated(msg);
+                break;
             case "host_created":
                 this.onMsgHostCreated(msg);
                 break;
@@ -1127,20 +1168,32 @@ export class LobbyController implements ChatController {
         }
     }
 
+    private onMsgBOTChallengeCreated(msg: MsgInviteCreated) {
+        const gameURL = '/' + msg.gameId;
+        const evtSource = new EventSource("/api/invites/" + msg.gameId);
+        evtSource.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            // console.log("event from SSE", msg.gameId, message)
+            if (message.gameId === msg.gameId) {
+                window.location.assign(gameURL);
+            }
+        }
+    }
+
     private onMsgInviteCreated(msg: MsgInviteCreated) {
-        window.location.assign('/' + msg.gameId);
+        window.location.assign('/invite/' + msg.gameId);
     }
 
     private onMsgHostCreated(msg: MsgHostCreated) {
-        window.location.assign('/' + msg.gameId);
+        window.location.assign('/invite/' + msg.gameId);
     }
 
     private onMsgAutoPairingOn() {
-        this.renderAutoPairingActions(true);
+        if (!this.anon) this.renderAutoPairingActions(true);
     }
 
     private onMsgAutoPairingOff() {
-        this.renderAutoPairingActions(false);
+        if (!this.anon) this.renderAutoPairingActions(false);
     }
 
     private onMsgGetSeeks(msg: MsgGetSeeks) {
@@ -1291,7 +1344,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     hook: {
                         insert: vnode => {
                             Chessground(vnode.elm as HTMLElement,  {
-                                orientation: turnColor,
+                                orientation: variant.name === 'racingkings' ? 'white' : turnColor,
                                 fen: puzzle.fen,
                                 dimensions: variant.board.dimensions,
                                 coordinates: false,
@@ -1377,6 +1430,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 h('a', { attrs: { href: '/games' } }, [ h('counter#g_cnt') ]),
                 h('counter#ap_cnt'),
             ]),
+            h('div.seekdialog'),
         ]),
         h('under-left', [
             h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr', rel: "noopener", target: "_blank" } }, 'Discord'),
@@ -1391,7 +1445,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
         ]),
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
-            h('posts', blogs.map((post: Post) => 
+            h('posts', blogs.map((post: Post) =>
                 h('a.post', { attrs: {href: `/blogs/${post['_id']}`} }, [
                     h('img', { attrs: {src: model.assetURL + `${post['image']}`, alt: `${post['alt']}`} }),
                     h('time', `${post['date']}`),

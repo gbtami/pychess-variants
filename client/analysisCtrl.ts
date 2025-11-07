@@ -32,6 +32,7 @@ import { setAriaTabClick } from './view';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
 import { updatePoint } from './info';
+import { CheckCounterSvg, Counter } from './glyphs';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -71,6 +72,7 @@ export class AnalysisController extends GameController {
     hash: number;
     nnue: boolean;
     evalFile: string;
+    uciOk: boolean;
     nnueOk: boolean;
     importedBy: string;
     embed: boolean;
@@ -80,6 +82,7 @@ export class AnalysisController extends GameController {
     fsfError: string[];
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
     variantSupportedByFSF: boolean;
+    autoShapes: DrawShape[][];
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -131,8 +134,8 @@ export class AnalysisController extends GameController {
         this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
         this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === "true";
         this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === "true";
-        this.variantSupportedByFSF = true;
-
+        this.variantSupportedByFSF = false;
+        this.uciOk = false;
         this.nnueOk = false;
         this.importedBy = '';
 
@@ -154,9 +157,6 @@ export class AnalysisController extends GameController {
             },
         });
 
-        if (this.variant.ui.showCheckCounters) {
-            this.updateCheckCounters(this.fullfen);
-        }
 
         if (this.hasPockets) {
             setPocketRowCssVars(this);
@@ -236,6 +236,11 @@ export class AnalysisController extends GameController {
         analysisSettings.ctrl = this;
 
         Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site https://www.pychess.org/${this.gameId}\n`));
+
+        const gaugeEl = document.getElementById('gauge') as HTMLElement;
+        if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add("flipped");
+
+        this.autoShapes = [];
     }
 
     toggleSettings() {
@@ -286,6 +291,7 @@ export class AnalysisController extends GameController {
     toggleOrientation() {
         super.toggleOrientation()
         boardSettings.updateDropSuggestion();
+        (document.getElementById('gauge') as HTMLElement).classList.toggle("flipped");
         const clocktimes = this.steps[1]?.clocks;
         if (clocktimes !== undefined) {
             renderClocks(this);
@@ -304,7 +310,13 @@ export class AnalysisController extends GameController {
                 alert(_('You need an account to do that.'));
                 return;
             }
-
+//            if (!this.variantSupportedByFSF) {
+// We can't use FSF WASM detection here because users may use unsupported hardware
+// but server side analysis will work for them at the same time!
+            if (this.variant.name === 'alice') {
+                alert(_('This variant is not supported by Fairy-Stockfish.'));
+                return;
+            }
             this.doSend({ type: "analysis", username: this.username, gameId: this.gameId });
             const loaderEl = document.getElementById('loader') as HTMLElement;
             loaderEl.style.display = 'block';
@@ -393,7 +405,7 @@ export class AnalysisController extends GameController {
                 });
             updateMovelist(this);
 
-            if (this.steps[0].analysis === undefined && this.variantSupportedByFSF) {
+            if (this.steps[0].analysis === undefined) {
                 if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'flex';
@@ -453,8 +465,6 @@ export class AnalysisController extends GameController {
 
         if (this.ongoing) return;
 
-        if (!this.variantSupportedByFSF) return;
-
         if (line.startsWith('info')) {
             const error = 'info string ERROR: ';
             if (line.startsWith(error)) {
@@ -470,10 +480,16 @@ export class AnalysisController extends GameController {
             }
         }
 
-        if (line.startsWith('option name UCI_Variant') && !line.includes(this.variant.name)) {
-            this.variantSupportedByFSF = false;
-            console.log('This variant is NOT supported by Fairy-Stockfish!');
+        if (line.startsWith('option name UCI_Variant')) {
+            if (!line.includes(this.variant.name)) {
+                console.log('This variant is NOT supported by Fairy-Stockfish!');
+                return;
+            } else {
+                this.variantSupportedByFSF = true;
+            }
         }
+
+        if (line.includes('uciok')) this.uciOk = true;
 
         if (line.includes('readyok')) this.isEngineReady = true;
 
@@ -485,7 +501,7 @@ export class AnalysisController extends GameController {
             this.fsfPostMessage('uci');
         }
 
-        if (!this.localEngine) {
+        if (!this.localEngine && this.uciOk && this.variantSupportedByFSF) {
             this.localEngine = true;
             patch(document.getElementById('engine-enabled') as HTMLElement, h('input#engine-enabled', {attrs: {disabled: false}}));
             this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
@@ -565,15 +581,31 @@ export class AnalysisController extends GameController {
         this.doSendMove(move);
     }
 
-    shapeFromMove (pv_move: string, turnColor: cg.Color): DrawShape[] {
-        let shapes0: DrawShape[] = [];
+    getCheckCounterShapes(fen: string): DrawShape[] {
+        const parts = fen.split(' ');
+        if (parts.length < 5) return [];
+        const counters = parts[4].split('+');
+        const wSvg = CheckCounterSvg(counters[1] as Counter);
+        const bSvg = CheckCounterSvg(counters[0] as Counter);
+        const pieces = this.chessground.state.boardState.pieces;
+        const kings: { [key in cg.Color]?: cg.Key } = {};
+        for (const [k, p] of pieces) {
+            if (p.role === 'k-piece') kings[p.color] = k;
+        }
+        const shapes: DrawShape[] = [];
+        if (kings.white) shapes.push({ orig: kings.white, customSvg: wSvg });
+        if (kings.black) shapes.push({ orig: kings.black, customSvg: bSvg });
+        return shapes;
+    }
+
+    shapeFromMove (pv_idx: number, pv_move: string, turnColor: cg.Color) {
         const atPos = pv_move.indexOf('@');
         // drop
         if (atPos > -1) {
             const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
             const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.Letter);
 
-            shapes0 = [{
+            this.autoShapes[pv_idx] = [{
                 orig: d,
                 brush: 'paleGreen',
                 piece: {
@@ -586,11 +618,11 @@ export class AnalysisController extends GameController {
             // arrow
             const o = pv_move.slice(0, 2) as cg.Key;
             const d = pv_move.slice(2, 4) as cg.Key;
-            shapes0 = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined },];
+            this.autoShapes[pv_idx] = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined, modifiers: { lineWidth: 14 - pv_idx * 2.5 } }];
 
             // duck
-            if (this.variant.rules.duck) {
-                shapes0.push({
+            if (this.variant.rules.duck && pv_move.includes(',')) {
+                this.autoShapes[pv_idx].push({
                     orig: pv_move.slice(-2) as cg.Key,
                     brush: 'paleGreen',
                     piece: {
@@ -602,14 +634,18 @@ export class AnalysisController extends GameController {
 
             // TODO: gating, promotion
         }
-        return shapes0
+        let shapes = this.autoShapes.flat();
+        if (this.variant.ui.showCheckCounters) {
+            shapes = shapes.concat(this.getCheckCounterShapes(this.fullfen));
+        }
+        this.chessground.setAutoShapes(shapes);
     }
 
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
         const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
         // Render PV line
-        if (ceval?.p !== undefined) {
+        if (ceval?.p !== undefined && this.multipv > 0) {
             let pvSan: string | VNode = ceval.p;
             if (this.fsfEngineBoard) {
                 try {
@@ -628,62 +664,54 @@ export class AnalysisController extends GameController {
             this.pvView(pvlineIdx, h('pvline', (this.localAnalysis) ? h('pvline', '-') : ''));
         }
 
-        // Render gauge, arrow and main score value for first PV line only
-        if (pvlineIdx > 0) return;
-
-        let shapes0: DrawShape[] = [];
-        this.chessground.setAutoShapes(shapes0);
-
-        const gaugeEl = document.getElementById('gauge') as HTMLElement;
-        if (gaugeEl && pvlineIdx === 0) {
-            const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
-            if (blackEl && ceval !== undefined) {
-                const score = ceval['s'];
-                // TODO set gauge colour according to the variant's piece colour
-                const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
-                if (score !== undefined) {
-                    const ev = povChances(color, score);
-                    blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
+        // Render gauge and main score value for first PV line only
+        if (pvlineIdx === 0) {
+            const gaugeEl = document.getElementById('gauge') as HTMLElement;
+            if (gaugeEl) {
+                const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
+                if (blackEl && ceval !== undefined) {
+                    const score = ceval['s'];
+                    const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
+                    if (score !== undefined) {
+                        const ev = povChances(color, score);
+                        blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
+                    }
+                    else {
+                        blackEl.style.height = '50%';
+                    }
                 }
-                else {
-                    blackEl.style.height = '50%';
+            }
+
+            if (ceval?.d !== undefined) {
+                this.vscore = patch(this.vscore, h('score#score', scoreStr));
+                const info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth)];
+                if (ceval.k) {
+                    if (ceval.d === this.maxDepth && this.maxDepth !== 99) {
+                        info.push(
+                            h('a.icon.icon-plus-square', {
+                                props: {type: "button", title: _("Go deeper")},
+                                on: { click: () => this.onMoreDepth() }
+                            })
+                        );
+                    } else if (ceval.d !== 99) {
+                        info.push(h('span', ', ' + Math.round(ceval.k) + ' knodes/s'));
+                    }
                 }
+                this.vinfo = patch(this.vinfo, h('info#info', ''));
+                this.vinfo = patch(this.vinfo, h('info#info', info));
+            } else {
+                this.vscore = patch(this.vscore, h('score#score', ''));
+                this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
             }
         }
 
         if (ceval?.p !== undefined) {
             // console.log("ARROW", this.arrow);
-            if (this.arrow && pvlineIdx === 0) {
+            if (this.arrow) {
                 const pv_move = uci2cg(ceval.p.split(" ")[0]);
-                shapes0 = this.shapeFromMove(pv_move, turnColor);
+                this.shapeFromMove(pvlineIdx, pv_move, turnColor);
             }
-
-            this.vscore = patch(this.vscore, h('score#score', scoreStr));
-
-            const info = [h('span', _('Depth') + ' ' + String(ceval.d) + '/' + this.maxDepth)];
-            if (ceval.k) {
-                if (ceval.d === this.maxDepth && this.maxDepth !== 99) {
-                    info.push(
-                        h('a.icon.icon-plus-square', {
-                            props: {type: "button", title: _("Go deeper")},
-                            on: { click: () => this.onMoreDepth() }
-                        })
-                    );
-                } else if (ceval.d !== 99) {
-                    info.push(h('span', ', ' + Math.round(ceval.k) + ' knodes/s'));
-                }
-            }
-            this.vinfo = patch(this.vinfo, h('info#info', ''));
-            this.vinfo = patch(this.vinfo, h('info#info', info));
-        } else {
-            this.vscore = patch(this.vscore, h('score#score', ''));
-            this.vinfo = patch(this.vinfo, h('info#info', _('in local browser')));
         }
-
-        // console.log(shapes0);
-        this.chessground.set({
-            drawable: {autoShapes: shapes0},
-        });
     }
 
     // Updates chart and score in movelist
@@ -710,6 +738,8 @@ export class AnalysisController extends GameController {
     }
 
     engineGo = () => {
+        if (!this.variantSupportedByFSF) return;
+
         if (this.chess960) {
             this.fsfPostMessage('setoption name UCI_Chess960 value true');
         }
@@ -751,7 +781,7 @@ export class AnalysisController extends GameController {
             window.fsf.postMessage(msg);
         }
     }
-    
+
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
     goPly(ply: number, plyVari = 0) {
@@ -799,6 +829,12 @@ export class AnalysisController extends GameController {
         }
 
         if (!this.ongoing) {
+            this.autoShapes = new Array(this.multipv).fill([]);
+            if (this.variant.ui.showCheckCounters) {
+                this.chessground.setAutoShapes(this.getCheckCounterShapes(this.fullfen));
+            } else {
+                this.chessground.setAutoShapes([]);
+            }
             this.drawEval(step.ceval, step.scoreStr, step.turnColor);
             if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
         }
@@ -810,7 +846,7 @@ export class AnalysisController extends GameController {
         if (!this.puzzle && !this.ongoing) {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
-        
+
             if (this.isAnalysisBoard) {
                 this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
             } else {
@@ -819,9 +855,6 @@ export class AnalysisController extends GameController {
             }
         }
 
-        if (this.variant.ui.showCheckCounters) {
-            this.updateCheckCounters(this.fullfen);
-        }
     }
 
     updateUCImoves(idxInVari: number) {
@@ -1038,9 +1071,6 @@ export class AnalysisController extends GameController {
 
         if (msg.check) sound.check();
 
-        if (this.variant.ui.showCheckCounters) {
-            this.updateCheckCounters(this.fullfen);
-        }
     }
 
     private buildScoreStr = (color: string, analysis: Ceval) => {
@@ -1061,7 +1091,6 @@ export class AnalysisController extends GameController {
     }
 
     private onMsgAnalysis = (msg: MsgAnalysis) => {
-        // console.log(msg);
         if (msg['ceval']['s'] === undefined) return;
 
         const scoreStr = this.buildScoreStr(msg.color, msg.ceval);

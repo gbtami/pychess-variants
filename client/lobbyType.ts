@@ -117,6 +117,6 @@ export interface TvGame {
     lastMove: string;
 }
 
-export type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'createHost';
+export type CreateMode = 'createGame' | 'playFriend' | 'playAI' | 'playBOT' | 'createHost';
 
 export type TcMode = 'real' | 'corr';

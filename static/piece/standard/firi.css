@@ -1,0 +1,39 @@
+.standard piece._-piece {
+    background-image: url('../../images/pieces/merida/Duck.svg');
+}
+.standard piece.p-piece.white {
+    background-image: url('../../images/pieces/firi/wp.svg');
+}
+.standard piece.b-piece.white {
+    background-image: url('../../images/pieces/firi/wb.svg');
+}
+.standard piece.n-piece.white {
+    background-image: url('../../images/pieces/firi/wpb.svg');
+}
+.standard piece.r-piece.white {
+    background-image: url('../../images/pieces/firi/wr.svg');
+}
+.standard piece.q-piece.white {
+    background-image: url('../../images/pieces/firi/wq.svg');
+}
+.standard piece.k-piece.white {
+    background-image: url('../../images/pieces/firi/wk.svg');
+}
+.standard piece.p-piece.black {
+    background-image: url('../../images/pieces/firi/bp.svg');
+}
+.standard piece.b-piece.black {
+    background-image: url('../../images/pieces/firi/bb.svg');
+}
+.standard piece.n-piece.black {
+    background-image: url('../../images/pieces/firi/bpb.svg');
+}
+.standard piece.r-piece.black {
+    background-image: url('../../images/pieces/firi/br.svg');
+}
+.standard piece.q-piece.black {
+    background-image: url('../../images/pieces/firi/bq.svg');
+}
+.standard piece.k-piece.black {
+    background-image: url('../../images/pieces/firi/bk.svg');
+}

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pychess-data"
+version = "0.1.0"
+description = "Piece and board images for chess variants"
+dependencies = []
+
+[tool.setuptools]
+packages = ["pychess_data"]
+
+[tool.setuptools.package-data]
+pychess_data = [
+    "static/COPYING.md",
+    "static/images/board/**",
+    "static/images/pieces/**",
+    "static/piece/**"
+]

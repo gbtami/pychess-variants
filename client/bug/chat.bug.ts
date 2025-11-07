@@ -9,19 +9,21 @@ import {StepChat} from "@/messages";
 import { Variant } from "../variants";
 
 export function renderBugChatPresets(variant: Variant, sendMessage: (s:string)=>void): VNode {
-    const roles: (cg.Role | '')[] = [...variant.pocket!.roles.white];
+    const roles: (cg.Role)[] = [...variant.pocket!.roles.white];
     let buttons = [];
 
     const needButtons = roles.map(
         role => {
             const letter = role.charAt(0);
-            return h(`button.bugchat.${letter}`, { on: { click: () => sendMessage(`!bug!${letter}`) }, props: { title: _("Need %1", role)} }, []);
+            const piece = variant.pocket!.pieceNames![role];
+            return h(`button.bugchat.${letter}`, { on: { click: () => sendMessage(`!bug!${letter}`) }, props: { title: _("Need %1", piece)} }, []);
         }
     );
     const dontGiveButtons = roles.map(
         role => {
             const letter = role.charAt(0);
-            return h(`button.bugchat.no${letter}`, { on: { click: () => sendMessage(`!bug!no${letter}`) }, props: { title: _("Don't give %1", role)} }, []);
+            const piece = variant.pocket!.pieceNames![role];
+            return h(`button.bugchat.no${letter}`, { on: { click: () => sendMessage(`!bug!no${letter}`) }, props: { title: _("Don't give %1", piece)} }, []);
         }
     );
 
@@ -44,6 +46,11 @@ export function renderBugChatPresets(variant: Variant, sendMessage: (s:string)=>
     buttons.push(...tells);
 
     return h('div#chatpresets', { style: {'--rolesCount': String(roles.length) } }, buttons);
+}
+
+export function resetChat() {
+    const container = document.getElementById('messages') as HTMLElement;
+    container.innerHTML = '';
 }
 
 export function chatMessageBug (ply: number, ctrl: RoundControllerBughouse, x: StepChat) {

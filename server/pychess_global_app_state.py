@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+from datetime import timedelta, timezone, datetime, date
+from operator import neg
 import asyncio
 import collections
 import gettext
@@ -8,16 +11,10 @@ from typing import List, Set
 
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
+import aiohttp_jinja2
 
-import os
-from datetime import timedelta, timezone, datetime, date
-from operator import neg
-
-import jinja2
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
-
-from mongomock_motor import AsyncMongoMockClient
 
 from ai import BOT_task
 from const import (
@@ -40,7 +37,7 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from lobby import Lobby
-from scheduler import (
+from tournament.scheduler import (
     MONTHLY_VARIANTS,
     SEATURDAY,
     NEW_MONTHLY_VARIANTS,
@@ -51,10 +48,23 @@ from scheduler import (
     create_scheduled_tournaments,
 )
 from seek import Seek
-from settings import DEV, FISHNET_KEYS, static_url, DISCORD_TOKEN
-from tournament import Tournament
-from tournaments import translated_tournament_name, get_scheduled_tournaments, load_tournament
-from typedefs import client_key
+from settings import (
+    FISHNET_KEYS,
+    DISCORD_TOKEN,
+    URI,
+    LOCALHOST,
+    STATIC_ROOT,
+    SOURCE_VERSION,
+    DEV,
+    static_url,
+)
+from tournament.tournament import Tournament
+from tournament.tournaments import (
+    translated_tournament_name,
+    get_scheduled_tournaments,
+    load_tournament,
+)
+from typedefs import anon_as_test_users_key, client_key
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
@@ -62,9 +72,9 @@ from utils import load_game
 from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
+from lang import LOCALE
 from logger import log
 from variants import VARIANTS, RATED_VARIANTS
-
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 
@@ -74,7 +84,7 @@ class PychessGlobalAppState:
         from typedefs import db_key
 
         self.app = app
-        self.anon_as_test_users = app["anon_as_test_users"]
+        self.anon_as_test_users = app[anon_as_test_users_key]
 
         self.shutdown = False
         self.tournaments_loaded = asyncio.Event()
@@ -104,7 +114,7 @@ class PychessGlobalAppState:
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
         self.game_channels: Set[queue] = set()
-        self.invite_channels: Set[queue] = set()
+        self.invite_channels: dict[str, Set[queue]] = {}
         self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
@@ -133,9 +143,8 @@ class PychessGlobalAppState:
         self.fishnet_monitor = self.__init_fishnet_monitor()
         self.fishnet_versions = {}
 
-        # Configure translations and templating.
-        self.gettext = {}
-        self.jinja = {}
+        # Configure translations
+        self.translations = {}
 
         # self.discord:
         self.__init_discord()
@@ -170,17 +179,14 @@ class PychessGlobalAppState:
                 if doc["status"] == T_STARTED or (
                     doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
                 ):
-                    # Prevent unit test slowdown when db_client is AsyncMongoMockClient
-                    if not isinstance(self.db_client, AsyncMongoMockClient):
-                        await load_tournament(self, doc["_id"])
+                    await load_tournament(self, doc["_id"])
             self.tournaments_loaded.set()
 
-            if not isinstance(self.db_client, AsyncMongoMockClient):
-                already_scheduled = await get_scheduled_tournaments(self)
-                new_tournaments_data = new_scheduled_tournaments(already_scheduled)
-                await create_scheduled_tournaments(self, new_tournaments_data)
+            already_scheduled = await get_scheduled_tournaments(self)
+            new_tournaments_data = new_scheduled_tournaments(already_scheduled)
+            await create_scheduled_tournaments(self, new_tournaments_data)
 
-                asyncio.create_task(generate_shield(self), name="generate-shield")
+            asyncio.create_task(generate_shield(self), name="generate-shield")
 
             if "highscore" not in db_collections:
                 await generate_highscore(self)
@@ -266,6 +272,7 @@ class PychessGlobalAppState:
                         rrmin=doc.get("rrmin"),
                         rrmax=doc.get("rrmax"),
                         chess960=doc["chess960"],
+                        target=doc.get("target"),
                         player1=user,
                         expire_at=doc.get("expireAt"),
                     )
@@ -316,7 +323,7 @@ class PychessGlobalAppState:
                         bot_player = game.wplayer if game.wplayer.bot else game.bplayer
                         bot_player.game_queues[game_id] = asyncio.Queue()
                         await bot_player.event_queue.put(game.game_start)
-                        await bot_player.game_queues[game_id].put(game.game_state)
+                        await bot_player.game_queues[game_id].put(game.game_full)
 
                     if game.board.ply > 0:
                         self.g_cnt[0] += 1
@@ -336,6 +343,21 @@ class PychessGlobalAppState:
                 cursor = self.db.fishnet.find()
                 async for doc in cursor:
                     FISHNET_KEYS[doc["_id"]] = doc["name"]
+                    self.fishnet_monitor[doc["name"]] = collections.deque([], 50)
+
+            # TODO: remove this after OAuth2 PR deployed !!!
+            userCollectionHasLichessOauth2Fields = await self.db.user.find_one(
+                {
+                    "_id": "Fairy-Stockfish",
+                    "oauth_id": "fairy-stockfish",
+                    "oauth_provider": "lichess",
+                }
+            )
+            if userCollectionHasLichessOauth2Fields is None:
+                await self.db.user.update_many(
+                    {},  # Empty filter to select all documents
+                    [{"$set": {"oauth_id": {"$toLower": "$_id"}, "oauth_provider": "lichess"}}],
+                )
 
         except Exception:
             log.error("init_from_db() Exception")
@@ -364,17 +386,7 @@ class PychessGlobalAppState:
                 log.warning("Missing translations file for lang %s", lang)
                 translation = gettext.NullTranslations()
 
-            env = jinja2.Environment(
-                enable_async=True,
-                extensions=["jinja2.ext.i18n"],
-                loader=jinja2.FileSystemLoader("templates"),
-                autoescape=jinja2.select_autoescape(["html"]),
-            )
-            env.install_gettext_translations(translation, newstyle=True)
-            env.globals["static"] = static_url
-
-            self.jinja[lang] = env
-            self.gettext[lang] = translation
+            self.translations[lang] = translation
 
             translation.install()
 
@@ -394,6 +406,27 @@ class PychessGlobalAppState:
                     tname = translated_tournament_name(variant, SHIELD, ARENA, translation)
                     self.tourneynames[lang][(variant, SHIELD, ARENA)] = tname
 
+        # https://github.com/aio-libs/aiohttp-jinja2/issues/187#issuecomment-2519831516
+        class _Translations:
+            @staticmethod
+            def gettext(message: str):
+                return self.translations[LOCALE.get()].gettext(message)
+
+            @staticmethod
+            def ngettext(singular: str, plural: str, num: int):
+                return self.translations[LOCALE.get()].ngettext(singular, plural, num)
+
+        env = aiohttp_jinja2.get_env(self.app)
+        env.install_gettext_translations(_Translations, newstyle=True)
+
+        env.globals["static"] = static_url
+        env.globals["js"] = "/static/pychess-variants.js%s" % SOURCE_VERSION
+        env.globals["dev"] = DEV
+        env.globals["app_name"] = "PyChess"
+        env.globals["languages"] = LANGUAGES
+        env.globals["asseturl"] = STATIC_ROOT
+        env.globals["home"] = URI
+
     def __start_bots(self):
         rm = self.users["Random-Mover"]
         ai = self.users["Fairy-Stockfish"]
@@ -402,7 +435,7 @@ class PychessGlobalAppState:
 
     def __init_fishnet_monitor(self) -> dict:
         result = {}
-        print(FISHNET_KEYS)
+        # print(FISHNET_KEYS)
         for key in FISHNET_KEYS:
             result[FISHNET_KEYS[key]] = collections.deque([], 50)
         return result
@@ -442,7 +475,7 @@ class PychessGlobalAppState:
         return result
 
     async def remove_from_cache(self, game):
-        await asyncio.sleep(GAME_KEEP_TIME)
+        await asyncio.sleep(1 if URI == LOCALHOST else GAME_KEEP_TIME)
 
         if game.id == self.tv:
             self.tv = None
@@ -520,6 +553,27 @@ class PychessGlobalAppState:
                     ws_set = ts_dict[tid]
                     for ws in list(ws_set):
                         await ws.close()
+
+        log.debug("--- Cancel running tasks---")
+        for task in asyncio.all_tasks():
+            taskname = task.get_name()
+
+            # Let the server cancel itself at the end of graceful shutdown
+            if taskname.startswith("_run_app"):
+                continue
+
+            # AsyncMongoClient will be closed in server on_cleanup()
+            if taskname.startswith("pymongo"):
+                continue
+
+            if taskname.startswith("Task-"):
+                taskname = taskname + " " + task.get_coro().__name__
+
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                log.debug("%s cancelled" % taskname)
 
     def online_count(self):
         return sum((1 for user in self.users.values() if user.online))

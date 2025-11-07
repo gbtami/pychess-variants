@@ -5,27 +5,14 @@ import os
 import json
 import string
 
-from newid import id8
-
 LOCALHOST = "http://127.0.0.1:8080"
 URI = os.getenv("URI", LOCALHOST)
+
 PROD = os.getenv("PROD") == "true"
-# production deploy (yarn prod) uses brotli compressed pychess-variants.js.br
-BR_EXTENSION = ".br" if PROD else ""
 DEV = not PROD
 
-REDIRECT_PATH = "/oauth"  # path of oauth callback in app
-# lichess.org OAuth Apps Callback URL: https://pychess-variants.herokuapp.com/oauth
-REDIRECT_URI = URI + REDIRECT_PATH
-
-# client app id and secret from lichess.org
-CLIENT_ID = os.getenv("CLIENT_ID", "pychess")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET", id8())[:8]
-
-# lichess.org oauth
-LICHESS_OAUTH_AUTHORIZE_URL = "https://lichess.org/oauth"
-LICHESS_OAUTH_TOKEN_URL = "https://lichess.org/api/token"
-LICHESS_ACCOUNT_API_URL = "https://lichess.org/api/account"
+# lichess.org API token created by the pychess-monitor BOT user
+PYCHESS_MONITOR_TOKEN = os.getenv("PYCHESS_MONITOR_TOKEN")
 
 # lichess.org API token created by a team leader of
 # https://lichess.org/team/pychess-tournaments
@@ -52,6 +39,10 @@ TWITCH_CLIENT_ID = os.getenv("TWITCH_CLIENT_ID", "")
 TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET", "")
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
+
+ALLOWED_ORIGINS = os.getenv(
+    "ALLOWED_ORIGINS", "https://www.pychess.org,https://cdn.jsdelivr.net"
+).split(",")
 
 SOURCE_VERSION = os.getenv("SOURCE_VERSION", "")
 if SOURCE_VERSION != "":

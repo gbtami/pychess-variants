@@ -72,6 +72,7 @@ class Game:
         corr=False,
         create=True,
         tournamentId=None,
+        new_960_fen_needed_for_rematch=False,
     ):
         self.app_state = app_state
 
@@ -96,6 +97,7 @@ class Game:
         self.chess960 = chess960
         self.corr = corr
         self.create = create
+        self.new_960_fen_needed_for_rematch = new_960_fen_needed_for_rematch
         self.imported_by = ""
 
         self.server_variant = get_server_variant(variant, chess960)
@@ -212,15 +214,7 @@ class Game:
                             )
                             self.draw_offers.add(counting_player.username)
 
-        disabled_fen = ""
-        if (self.chess960 or self.random_only) and self.initial_fen and self.create:
-            if self.wplayer.fen960_as_white == self.initial_fen:
-                disabled_fen = self.initial_fen
-                self.initial_fen = ""
-
-        self.board = FairyBoard(
-            self.variant, self.initial_fen, self.chess960, count_started, disabled_fen
-        )
+        self.board = FairyBoard(self.variant, self.initial_fen, self.chess960)
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
@@ -250,7 +244,6 @@ class Game:
 
         if self.chess960 or self.random_only:
             self.initial_fen = self.board.initial_fen
-            self.wplayer.fen960_as_white = self.initial_fen
 
         self.random_mover = (
             "Random-Mover"
@@ -386,6 +379,13 @@ class Game:
         if self.status <= STARTED:
             try:
                 san = self.board.get_san(move)
+
+                if self.variant == "jieqi":
+                    new_piece = self.board.revealed_piece(move)
+                    if new_piece is not None:
+                        move = move + new_piece.lower()
+                        san = "%s=%s" % (san, new_piece.lower())
+
                 self.lastmove = move
                 if cur_color == WHITE:
                     self.clocks_w.append(clocks[WHITE])
@@ -555,7 +555,11 @@ class Game:
                 )
 
     def set_crosstable(self):
-        if (not self.has_crosstable) or self.board.ply < 3 or self.result == "*":
+        if (
+            (not self.has_crosstable)
+            or (self.board.ply < 3 and self.tournamentId is None)
+            or self.result == "*"
+        ):
             return
 
         if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
@@ -809,13 +813,16 @@ class Game:
     @property
     def pgn(self):
         try:
-            mlist = get_san_moves(
-                self.variant,
-                self.initial_fen if self.initial_fen else self.board.initial_fen,
-                self.board.move_stack,
-                self.chess960,
-                NOTATION_SAN,
-            )
+            if self.variant == "jieqi":
+                mlist = self.board.move_stack
+            else:
+                mlist = get_san_moves(
+                    self.variant,
+                    self.initial_fen if self.initial_fen else self.board.initial_fen,
+                    self.board.move_stack,
+                    self.chess960,
+                    NOTATION_SAN,
+                )
         except Exception:
             log.error("Exception in game %s pgn()", self.id)
             mlist = self.board.move_stack
@@ -886,6 +893,7 @@ class Game:
 
     @property
     def game_start(self):
+        """BOT API stream event response"""
         return (
             '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n'
             % (self.id, self.level, self.chess960)
@@ -897,29 +905,37 @@ class Game:
 
     @property
     def game_full(self):
+        """BOT API Stream Bot game data and state"""
         return (
-            '{"type": "gameFull", "id": "%s", "variant": {"name": "%s"}, "white": {"name": "%s"}, "black": {"name": "%s"}, "initialFen": "%s", "state": %s}\n'
+            '{"type": "gameFull", "id": "%s", "variant": {"name": "%s"}, "white": {"name": "%s"}, "black": {"name": "%s"}, "initialFen": "%s", "createdAt": %s, "state": %s}\n'
             % (
                 self.id,
                 self.variant,
                 self.wplayer.username,
                 self.bplayer.username,
                 self.initial_fen,
+                int(self.date.timestamp()),
                 self.game_state[:-1],
             )
         )
 
     @property
     def game_state(self):
+        """BOT API Stream Bot game state"""
         clocks = self.clocks
         return (
-            '{"type": "gameState", "moves": "%s", "wtime": %s, "btime": %s, "winc": %s, "binc": %s}\n'
+            '{"type": "gameState", "moves": "%s", "wtime": %s, "btime": %s, "winc": %s, "binc": %s, "wdraw": %s, "bdraw": %s, "wtakeback": %s, "btakeback": %s, "status": "%s"}\n'
             % (
                 " ".join(self.board.move_stack),
                 clocks[WHITE],
                 clocks[BLACK],
                 self.inc,
                 self.inc,
+                str(False).lower(),
+                str(False).lower(),
+                str(False).lower(),
+                str(False).lower(),
+                "started",
             )
         )
 
@@ -1038,7 +1054,17 @@ class Game:
                         # print("Count started", count_started)
                         self.board.count_started = ply
 
+                if self.variant == "jieqi" and move[-1].isalpha():
+                    move = move[:-1]
+
                 san = self.board.get_san(move)
+
+                if self.variant == "jieqi":
+                    new_piece = self.board.revealed_piece(move)
+                    if new_piece is not None:
+                        move = move + new_piece.lower()
+                        san = "%s=%s" % (san, new_piece.lower())
+
                 self.board.push(move, append=False)
                 self.check = self.board.is_checked()
                 turnColor = "black" if self.board.color == BLACK else "white"

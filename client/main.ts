@@ -1,3 +1,4 @@
+import { sanitizeURL } from './url';
 import { h, VNode } from 'snabbdom';
 
 import ffishModule, { FairyStockfish } from 'ffish-es6';
@@ -21,30 +22,28 @@ import { calendarView } from './calendar';
 import { pasteView } from './paste';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
-import { patch, getCookie } from './document';
+import { patch } from './document';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
 import { roundView as bugRoundView } from "./bug/round.bug";
 import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
-import { twoBoarsVariants, variantGroups, VARIANTS } from './variants';
+import { devVariants, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
+import { showUsernameDialog } from './usernameDialog';
 
-// redirect to correct URL except Heroku preview apps
-if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-')) {
+
+// redirect to correct URL except Heroku preview/dev apps
+if (window.location.href.includes('heroku') && !window.location.href.includes('-pr-') && !window.location.href.includes('-dev-')) {
     window.location.assign('https://www.pychess.org/');
 }
 
 function initModel(el: HTMLElement) {
-    // We have to remove leading and trailing double quotes from anon names
-    // because python http.cookies.SimpleCookie() adds it when name contains dash "–"
-    const user = getCookie("user").replace(/(^"|"$)/g, '');
-
     // Remove twoBoards variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
         Object.keys(variantGroups).forEach(g => {
             const group = variantGroups[g];
-            twoBoarsVariants.forEach((v) => {
+            devVariants.forEach((v) => {
                 const idx = group.variants.indexOf(v);
                 if (idx > -1) group.variants.splice(idx, 1);
             })
@@ -57,7 +56,7 @@ function initModel(el: HTMLElement) {
     if (board) board = JSON.parse(board);
     return {
         ffish : {} as FairyStockfish,
-        home : el.getAttribute("data-home") ?? "",
+        home : sanitizeURL(el.getAttribute("data-home")) ?? "",
         anon : el.getAttribute("data-anon") ?? "",
         profileid : el.getAttribute("data-profile") ?? "",
         title : el.getAttribute("data-title") ?? "",
@@ -66,7 +65,7 @@ function initModel(el: HTMLElement) {
         rated : el.getAttribute("data-rated") ?? "",
         corr: el.getAttribute("data-corr") ?? "",
         level : parseInt(""+el.getAttribute("data-level")),
-        username : user !== "" ? user : el.getAttribute("data-user") ?? "",
+        username : el.getAttribute("data-username") ?? "",
         gameId : el.getAttribute("data-gameid") ?? "",
         tournamentId : el.getAttribute("data-tournamentid") ?? "",
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
@@ -97,6 +96,7 @@ function initModel(el: HTMLElement) {
         bratingB : el.getAttribute("data-brating-b") ?? "",
 
         fen : el.getAttribute("data-fen") ?? "",
+        posnum : parseInt(""+el.getAttribute("data-posnum")),
         base : parseFloat(""+el.getAttribute("data-base")),
         inc : parseInt(""+el.getAttribute("data-inc")),
         byo : parseInt(""+el.getAttribute("data-byo")),
@@ -111,11 +111,17 @@ function initModel(el: HTMLElement) {
         puzzle: el.getAttribute("data-puzzle") ?? "",
         blogs: el.getAttribute("data-blogs") ?? "",
         corrGames: el.getAttribute("data-corrgames") ?? "",
+        oauthUsernameSelection: el.getAttribute("data-oauth-id") ? {
+            oauth_id: el.getAttribute("data-oauth-id")!,
+            oauth_provider: el.getAttribute("data-oauth-provider")!,
+            oauth_username: el.getAttribute("data-oauth-username")!,
+        } : null,
     };
 }
 
 export function view(el: HTMLElement, model: PyChessModel): VNode {
-    const twoBoards = (model.variant) ? VARIANTS[model.variant].twoBoards : false;
+    const variant = (model.variant.endsWith('960') ? model.variant.slice(0, -3) : model.variant);
+    const twoBoards = (variant) ? VARIANTS[variant].twoBoards : false;
     switch (el.getAttribute("data-view")) {
     case 'about':
         return h('div#main-wrap', aboutView(model));
@@ -162,7 +168,18 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
 
 function start() {
     const placeholder = document.getElementById('placeholder');
-    if (placeholder && el)
+    if (placeholder && el) {
+
+        // Check if we need to show username selection dialog
+        if (model.oauthUsernameSelection && model.oauthUsernameSelection.oauth_id) {
+            try {
+                showUsernameDialog(model.oauthUsernameSelection);
+                return; // Don't render the main app until username is selected
+            } catch (error) {
+                console.error('Error showing username dialog:', error);
+                // Continue with normal app rendering if dialog fails
+            }
+        }
 
         if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(el.getAttribute("data-view") ?? "")) {
             console.time('load ffish');
@@ -184,6 +201,7 @@ function start() {
         } else  {
             patch(placeholder, view(el, model));
         }
+    }
 
     if (model["embed"]) return;
 
@@ -193,13 +211,14 @@ function start() {
         }
     );
 
+
     renderTimeago();
 
     // searchbar
     const searchIcon = document.querySelector('.search-icon') as HTMLElement;
     const searchBar = document.querySelector('.search-bar') as HTMLElement;
     const searchInput = document.querySelector('#search-input') as HTMLInputElement;
-    
+
     searchIcon.onclick = function(){
         searchBar.classList.toggle('active');
         if (searchBar.classList.contains('active'))
@@ -233,7 +252,7 @@ function start() {
     searchInput.addEventListener("keyup", function(e) {
         showResults(searchInput.value);
         if (e.keyCode === 13) {
-            window.location.href = `${model["home"]}/@/${searchInput.value}`;
+            window.location.href = `${model["home"]}/@/${encodeURIComponent(searchInput.value)}`;
         }
     });
 
@@ -260,6 +279,56 @@ window.addEventListener('resize', () => document.body.dispatchEvent(new Event('c
 
 zenModeSettings.update();
 
+function initLoginDropdown() {
+    // Use event delegation for better reliability
+    document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+
+        // Handle login button clicks
+        if (target.closest('.login-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const loginDropdown = target.closest('.login-dropdown') as HTMLElement;
+            if (loginDropdown) {
+                const isOpen = loginDropdown.classList.contains('open');
+                loginDropdown.classList.toggle('open');
+
+                const loginBtn = loginDropdown.querySelector('.login-btn') as HTMLButtonElement;
+                if (loginBtn) {
+                    loginBtn.setAttribute('aria-expanded', (!isOpen).toString());
+                }
+            }
+            return;
+        }
+
+        // Close dropdown when clicking outside
+        const loginDropdown = document.querySelector('.login-dropdown.open') as HTMLElement;
+        if (loginDropdown && !loginDropdown.contains(target)) {
+            loginDropdown.classList.remove('open');
+            const loginBtn = loginDropdown.querySelector('.login-btn') as HTMLButtonElement;
+            if (loginBtn) {
+                loginBtn.setAttribute('aria-expanded', 'false');
+            }
+        }
+    });
+
+    // Handle escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const loginDropdown = document.querySelector('.login-dropdown.open') as HTMLElement;
+            if (loginDropdown) {
+                loginDropdown.classList.remove('open');
+                const loginBtn = loginDropdown.querySelector('.login-btn') as HTMLButtonElement;
+                if (loginBtn) {
+                    loginBtn.setAttribute('aria-expanded', 'false');
+                    loginBtn.focus();
+                }
+            }
+        }
+    });
+}
+
 const el = document.getElementById('pychess-variants');
 export const model: PyChessModel = el? initModel(el) : initModel(new HTMLElement());
 
@@ -280,11 +349,13 @@ if (el instanceof Element) {
         i18n.setLocale(lang ?? "en");
         // console.log('Loaded translations for lang', lang);
         start();
+        initLoginDropdown();
       })
       .catch((error) => {
         console.error('Could not load translations for lang', lang);
         console.error(error);
         i18n.setLocale('');
         start();
+        initLoginDropdown();
       });
 }

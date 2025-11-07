@@ -41,6 +41,38 @@ del _
 
 VIDEOS = [
     {
+        "_id": "0Jxu_9eaUz4",
+        "title": "Upside down chess II www.lichess.org",
+        "author": "Anish Giri",
+        "tags": ["Tournament"],
+        "target": "beginner",
+        "duration": "2:11:15",
+    },
+    {
+        "_id": "LSW51A6AxFk",
+        "title": "Interview - Stockfish creator Tord Romstad",
+        "author": "Antichess Lore",
+        "tags": ["Fundamentals"],
+        "target": "beginner",
+        "duration": "15:33",
+    },
+    {
+        "_id": "BUwkHfQr0OQ",
+        "title": "Bughouse Concepts - Atrophied and JannLee",
+        "author": "JannLee Crazyhouse",
+        "tags": ["Fundamentals"],
+        "target": "intermediate",
+        "duration": "1:46:38",
+    },
+    {
+        "_id": "NhyAxgBRn-A",
+        "title": "Bughouse Concepts 2 - Atrophied and JannLee on Chess.com",
+        "author": "JannLee Crazyhouse",
+        "tags": ["Fundamentals"],
+        "target": "intermediate",
+        "duration": "2:29:36",
+    },
+    {
         "_id": "BqvYsPAufB8",
         "title": "DUCK CHESS",
         "author": "Eric Rosen",

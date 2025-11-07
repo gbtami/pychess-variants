@@ -1,5 +1,5 @@
 import * as cg from 'chessgroundx/types';
-import { Chessground } from 'chessgroundx';
+import { Chessground } from 'chessgroundx/chessground';
 import { Api } from 'chessgroundx/api';
 
 import { FairyStockfish, Board, Notation } from 'ffish-es6';
@@ -8,6 +8,8 @@ import { boardSettings, BoardController } from '@/boardSettings';
 import { CGMove, uci2cg } from '@/chess';
 import { BoardName, PyChessModel } from '@/types';
 import { fogFen, Variant, VARIANTS, moddedVariant } from '@/variants';
+
+type MouchEvent = Event & Partial<MouseEvent & TouchEvent>;
 
 export abstract class ChessgroundController implements BoardController {
     boardName: BoardName;
@@ -54,6 +56,7 @@ export abstract class ChessgroundController implements BoardController {
             dimensionsCssVarsSuffix: this.boardName,
             kingRoles: this.variant.kingRoles,
             pocketRoles: this.variant.pocket?.roles,
+            events: { insert: this.onInsert() }
         }, pocket0, pocket1);
 
         if (this.boardName === 'b') {
@@ -74,6 +77,55 @@ export abstract class ChessgroundController implements BoardController {
             this.fullfen,
             this.chess960);
         window.addEventListener('beforeunload', () => this.ffishBoard.delete());
+    }
+
+    onInsert = () => {
+        return (elements: cg.Elements) => {
+            console.log("onInsert()");
+            const el = document.createElement('cg-resize');
+            elements.container.appendChild(el);
+
+            const startResize = (start: MouchEvent) => {
+                start.preventDefault();
+
+                const zoomSettings = boardSettings.getSettings('Zoom', this.variant.boardFamily, this.boardName);
+                const sliderEl = document.getElementById('zoom' + this.boardName) as HTMLInputElement;
+
+                const mousemoveEvent = start.type === 'touchstart' ? 'touchmove' : 'mousemove',
+                    mouseupEvent = start.type === 'touchstart' ? 'touchend' : 'mouseup',
+                    startPos = eventPosition(start)!,
+                    initialZoom = zoomSettings.value as number;
+
+                let zoom = initialZoom;
+
+                const resize = (move: MouchEvent) => {
+                    const pos = eventPosition(move)!,
+                        delta = pos[0] - startPos[0] + pos[1] - startPos[1];
+
+                    zoom = Math.round(Math.min(100, Math.max(0, initialZoom + delta / 10)));
+
+                    zoomSettings.value = zoom;
+                    sliderEl.value = zoom.toString();
+                    zoomSettings.update();
+                };
+
+                document.body.classList.add('resizing');
+
+                document.addEventListener(mousemoveEvent, resize);
+
+                document.addEventListener(
+                    mouseupEvent,
+                    () => {
+                        document.removeEventListener(mousemoveEvent, resize);
+                        document.body.classList.remove('resizing');
+                    },
+                    { once: true },
+                );
+            };
+
+            el.addEventListener('touchstart', startResize, { passive: false });
+            el.addEventListener('mousedown', startResize, { passive: false });
+        }
     }
 
     toggleOrientation(): void {
@@ -97,4 +149,10 @@ export abstract class ChessgroundController implements BoardController {
             default: return this.ffish.Notation.SAN;
         }
     }
+}
+
+function eventPosition(e: MouchEvent): [number, number] | undefined {
+  if (e.clientX || e.clientX === 0) return [e.clientX, e.clientY!];
+  if (e.targetTouches?.[0]) return [e.targetTouches[0].clientX, e.targetTouches[0].clientY];
+  return;
 }

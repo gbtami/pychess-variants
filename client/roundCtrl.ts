@@ -406,7 +406,9 @@ export class RoundController extends GameController {
         if (this.variant.ui.materialPoint)
             [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.fullfen, this.vmiscInfoB, this.vmiscInfoW);
 
-        this.updateMaterial();
+        if (this.variant.material.showDiff) {
+            this.updateMaterial();
+        }
     }
 
     private berserk = (color: cg.Color) => {
@@ -967,7 +969,9 @@ export class RoundController extends GameController {
             this.updateCheckCounters(msg.fen);
         }
 
-        this.updateMaterial();
+        if (this.variant.material.showDiff) {
+            this.updateMaterial();
+        }
     }
 
     goPly(ply: number, plyVari = 0) {
@@ -980,7 +984,9 @@ export class RoundController extends GameController {
             this.chessground.set({ movable: { color: this.mycolor } });
         }
 
-        this.updateMaterial();
+        if (this.variant.material.showDiff) {
+            this.updateMaterial();
+        }
     }
 
     doSendMove(move: string) {
@@ -1067,7 +1073,7 @@ export class RoundController extends GameController {
         if (this.variant.material.showDiff && this.materialDifference)
             [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped(), this.mycolor);
         else
-            [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant);
+            [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant, this.vmaterial0, this.vmaterial1);
     }
 
     private setPremove = (orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {

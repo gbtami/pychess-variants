@@ -37,23 +37,25 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     shogun8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
     chak9x9:{ dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
-};
+    xiangfu9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["xiangfu-chess-board.svg", "xiangfu-chess-allblue.svg", "xiangfu-chess-blue.svg", "xiangfu-chess-island.svg", "xiangfu-blue-nobends.svg", "xiangfu-no-cross.svg", "xiangfu.svg"] },
+    borderlands9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-borderlands", boardCSS: ["borderlands-cobalt.svg"] },
+}
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ataxx: { pieceCSS: ["disguised", "virus", "zombie", "cat-dog"] },
-    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "atopdown", "luffy", "disguised"] },
+    standard: { pieceCSS: ["standard", "green", "alpha", "chess_kaneo", "santa", "maestro", "dubrovny", "atopdown", "luffy", "firi", "sinting", "disguised"] },
     capa: { pieceCSS: ["capa0", "capa1", "capa2", "capa3", "capa4", "capa5", "disguised"] },
     dragon: { pieceCSS: ["dragon1", "dragon0", "dragon2", "disguised"] },
     seirawan: { pieceCSS: ["seir1", "seir0", "seir2", "seir3", "seir4", "seir5", "disguised"] },
     makruk: { pieceCSS: ["makrukwb", "makrukwr", "makruk", "makruks", "makruki", "makrukc", "disguised"] },
     sittuyin: { pieceCSS: ["sittuyins", "sittuyinkagr", "sittuyinkabr", "sittuyinm", "sittuyini", "sittuyincb", "disguised"] },
     asean: { pieceCSS: ["aseani", "aseanm", "aseanc", "aseans", "aseancb", "disguised"] },
-    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim", "shogibw", "shogibnw", "portk", "porti", "cz", "disguised"] },
+    shogi: { pieceCSS: ["shogik", "shogi", "shogiw", "shogip", "shogim", "shogip3d", "shogikw3d", "shogid", "shogiim", "shogibw", "shogibnw", "portk", "porti", "cz", "firi", "disguised"] },
     kyoto: { pieceCSS: ["kyoto", "kyotok", "kyotoks", "kyotoi", "kyotod", "disguised"] },
     dobutsu: { pieceCSS: ["dobutsu", "disguised"] },
     tori: { pieceCSS: ["torii", "torik", "torim", "porti", "cz", "disguised"] },
-    cannonshogi: { pieceCSS: ["ctp3d", "ctim", "bnw", "cz", "czalt", "disguised"] },
-    xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", 'basic', 'guided', "disguised", "euro"] },
+    cannonshogi: { pieceCSS: ["ctp3d", "ctim", "bnw", "cz", "czalt", "firi", "disguised"] },
+    xiangqi: { pieceCSS: ["lishu", "xiangqi2di", "xiangqi", "xiangqict3", "xiangqihnz", "xiangqict2", "lishuw", "xiangqict2w", "xiangqiwikim", "xiangqiKa", "xiangqittxqhnz", "xiangqittxqintl", "xiangqi2d", "xiangqihnzw", 'eventhanzi', 'eventhanziguided', "eventintl", "euro", "disguised"] },
     janggi: { pieceCSS: ["janggihb", "janggihg", "janggiikak", "janggiikaw", "janggikak", "janggikaw", "janggiib", "janggiig", "disguised"] },
     shatranj: { pieceCSS: ["shatranj0", "shatranj1", "disguised"] },
     shako: { pieceCSS: ["shako0", "shako1", "shako2", "disguised"] },
@@ -67,8 +69,10 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ordamirror: { pieceCSS: ["ordamirror0", "ordamirror1", "disguised"] },
     chak: { pieceCSS: ["chak0", "ronin", "chak1", "chak2", "disguised"] },
     chennis: { pieceCSS: ["chennis0", "chennis1", "chennis2", "chennis3", "chennis4", "disguised"] },
-    spartan: { pieceCSS: ["spartan0", "disguised"] },
+    spartan: { pieceCSS: ["spartan0", "spartan1", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
+    xiangfu: { pieceCSS: ["eventintl", "eventhanzi", "eventhanziguided", "disguised"] },
+    borderlands: { pieceCSS: ["borderlands", "disguised"] },
 };
 
 export interface Variant {
@@ -98,6 +102,7 @@ export interface Variant {
     readonly pocket?: {
         readonly roles: Record<cg.Color, cg.Role[]>;
         readonly captureToHand: boolean;
+        readonly pieceNames?: Partial<Record<cg.Role, string>>;
     };
     readonly promotion: {
         readonly type: PromotionType;
@@ -132,6 +137,8 @@ export interface Variant {
     };
     readonly alternateStart?: Record<string, string>;
 }
+
+const pieceFamiliesWithMaterialDifferenceSupported = ["standard", "makruk", "sittuyin", "asean", "xiangqi", "janggi", "shatranj", "capa", "dragon", "seirawan", "shako", "hoppel", "orda", "khans", "synochess", "shinobi", "empire", "ordamirror", "chak", "spartan"];
 
 function variant(config: VariantConfig): Variant {
     return {
@@ -169,6 +176,7 @@ function variant(config: VariantConfig): Variant {
                 white: config.pocket.roles.white.map(util.roleOf),
                 black: config.pocket.roles.black.map(util.roleOf),
             },
+            pieceNames: config.pocket?.pieceNames,
             captureToHand: config.pocket.captureToHand,
         } : undefined,
         promotion: {
@@ -188,7 +196,7 @@ function variant(config: VariantConfig): Variant {
             noDrawOffer: !!config.rules?.noDrawOffer,
         },
         material: {
-            showDiff: !config.pocket?.captureToHand && !['alice', 'fogofwar'].includes(config.name),
+            showDiff: !config.pocket?.captureToHand && !['ataxx', 'fogofwar', 'horde', 'jieqi'].includes(config.name) && pieceFamiliesWithMaterialDifferenceSupported.includes(config.pieceFamily),
             initialDiff: calculateDiff(config.startFen, BOARD_FAMILIES[config.boardFamily].dimensions, config.material?.equivalences ?? {}, !!config.pocket?.captureToHand),
             equivalences: config.material?.equivalences ?? {},
         },
@@ -230,7 +238,7 @@ interface VariantConfig {
     // Piece appearance
     pieceFamily: keyof typeof PIECE_FAMILIES;
     // Color names of each side for accurate color representation
-    colors?: {             
+    colors?: {
         // (default: White)
         first: ColorName;
         // (default: Black)
@@ -245,6 +253,8 @@ interface VariantConfig {
         // Pieces in the pocket
         // Use the record version if the pieces of each side are different
         roles: cg.Letter[] | Record<cg.Color, cg.Letter[]>;
+        // Translatable names of the pieces in the pocket (used for bug chat tooltip)
+        pieceNames?: Partial<Record<cg.Role, string>>;
         // Whether captured pieces go to the pocket (Fairy's terminology)
         captureToHand: boolean;
     };
@@ -308,6 +318,37 @@ interface VariantConfig {
 }
 
 export const VARIANTS: Record<string, Variant> = {
+    borderlands: variant({
+        name: "borderlands", displayName: "borderlands", tooltip: "borderlands",
+        startFen: "a3s3a/1chesehc1/fw1wlw1wf/w1w1w1w1w/9/9/W1W1W1W1W/FW1WLW1WF/1CHESEHC1/A3S3A[MMmm] w - - 0 1",
+        icon: " 🌄",
+        boardFamily: "borderlands9x10", pieceFamily: "borderlands",
+        pieceRow: ["a", "h", "s", "c", "e", "f", "w", "g", "m"],
+        pocket: {
+            roles: ["m"],
+            captureToHand: false,
+        },
+        promotion: { type: "regular", roles: [] },
+    }),
+
+    xiangfu: variant({
+        name: "xiangfu", displayName: "xiang fu", tooltip: "Martial arts Xiangqi.",
+        startFen: "2rbm4/2cwn4/2+g1+g4/9/9/9/4+G1+G2/4NWC2/4MBR2[] w - 0 1",
+        icon: "👊",
+        boardFamily: "xiangfu9x9", pieceFamily: "xiangfu",
+        pieceRow: ["+g", "g", "r", "b", "m", "c", "w", "n"],
+        pocket: {
+            roles: ["g", "r", "b", "m", "c", "w", "n"],
+            captureToHand: true,
+        },
+        promotion: { type: "regular", roles: [] },
+        kingRoles: ["+g"],
+        alternateStart: {
+            '': "",
+            'SwitchedRB': "2brm4/2cwn4/2+g1+g4/9/9/9/4+G1+G2/4NWC2/4MRB2[] w - 0 1",
+        },
+    }),
+
     ataxx: variant({
         name: "ataxx", tooltip: "Infection game.",
         startFen: "P5p/7/7/7/7/7/p5P w 0 1",
@@ -360,25 +401,32 @@ export const VARIANTS: Record<string, Variant> = {
         },
     }),
     bughouse: variant({
-        name: "bughouse", tooltip: "bughousebughousebughousebughouse.", displayName: "bughouse ᴮᴱᵀᴬ",
+        name: "bughouse", tooltip: "bughousebughousebughousebughouse.", displayName: "bughouse",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
         chess960: true, icon: "¢", icon960: "⌀", twoBoards: true,
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
         pocket: {
             roles: ["p", "n", "b", "r", "q"],
+            pieceNames: {
+                'p-piece': _('pawn'),
+                'n-piece': _('knight'),
+                'b-piece': _('bishop'),
+                'r-piece': _('rook'),
+                'q-piece': _('queen'),
+            },
             captureToHand: true,
         },
         rules: { enPassant: true },
-        alternateStart: {
-            '': '',
-            'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
-            'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR w - - 0 1",
-            'UpsideDown': "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w - - 0 1",
-            'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1",
-            'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
-        },
         ui: { showPromoted: true },
+        alternateStart: {
+            '': "",
+            'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR[] w KQkq - 0 1",
+            'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR[] w KQkq - 0 1 | rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR[] w KQkq - 0 1",
+            'UpsideDown': "RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr[] w - - 0 1 | RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr[] w - - 0 1",
+            'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN[] w - - 0 1 | 1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN[] w - - 0 1",
+            'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w - - 0 1 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w - - 0 1'
+        },
     }),
     crazyhouse: variant({
         name: "crazyhouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",
@@ -393,11 +441,11 @@ export const VARIANTS: Record<string, Variant> = {
         rules: { enPassant: true },
         alternateStart: {
             '': "",
-            'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR w - - 0 1",
-            'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR w - - 0 1",
-            'UpsideDown': "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w - - 0 1",
-            'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1",
-            'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
+            'PawnsPushed': "rnbqkbnr/8/8/pppppppp/PPPPPPPP/8/8/RNBQKBNR[] w KQkq - 0 1",
+            'PawnsPassed': "rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR[] w KQkq - 0 1",
+            'UpsideDown': "RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr[] w - - 0 1",
+            'Theban': "1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN[] w - - 0 1",
+            'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w - - 0 1'
         },
     }),
 
@@ -537,6 +585,13 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", order: ["m"] },
         pocket: {
             roles: ["p", "m", "s", "n", "r"],
+            pieceNames: {
+                'p-piece': _('pawn'),
+                'm-piece': _('queen'),
+                's-piece': _('bishop'),
+                'n-piece': _('knight'),
+                'r-piece': _('rook'),
+            },
             captureToHand: true,
         },
         ui: { showPromoted: true },
@@ -731,6 +786,19 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
     }),
 
+    jieqi: variant({
+        name: "jieqi",
+        tooltip: "Players can see the identity of the pieces after theirs first move.",
+        startFen: "r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1",
+        icon: "⬤",
+        boardFamily: "xiangqi9x10",
+        pieceFamily: "xiangqi",
+        notation: cg.Notation.XIANGQI_ARBNUM,
+        colors: { first: "Red", second: "Black" },
+        pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
+        promotion: { type: "regular", roles: [] },
+    }),
+
     xiangqihouse: variant({
         name: "xiangqihouse", tooltip: "Take captured pieces and drop them back on to the board as your own.",
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR[] w - - 0 1",
@@ -757,6 +825,14 @@ export const VARIANTS: Record<string, Variant> = {
         promotion: { type: "regular", roles: [] },
         pocket: {
             roles: ["p", "n", "b", "r", "c", "a"],
+            pieceNames: {
+                'p-piece': _('pawn'),
+                'n-piece': _('horse'),
+                'b-piece': _('elephant'),
+                'r-piece': _('chariot'),
+                'c-piece': _('cannon'),
+                'a-piece': _('advisor'),
+            },
             captureToHand: true,
         },
         ui: { showPromoted: true },
@@ -833,7 +909,6 @@ export const VARIANTS: Record<string, Variant> = {
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
-            'Grotesque': 'rbqnkcnabr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBQNKCNABR w KQkq - 0 1',
             'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR w KQkq - 0 1',
             'Univers': 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR w KQkq - 0 1',
             'Victorian': 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ w KQkq - 0 1',
@@ -855,7 +930,6 @@ export const VARIANTS: Record<string, Variant> = {
             'Conservative': 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC[] w KQkq - 0 1',
             'Embassy': 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1',
             'Gothic': 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1',
-            'Grotesque': 'rbqnkcnabr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBQNKCNABR[] w KQkq - 0 1',
             'Schoolbook': 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR[] w KQkq - 0 1',
             'Univers': 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR[] w KQkq - 0 1',
             'Victorian': 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ[] w KQkq - 0 1',
@@ -1155,32 +1229,31 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
     "placement",
-    "minishogi",
     "gorogoroplus",
-    "manchu",
-    "grandhouse",
-    "shinobi",
-    "shinobiplus",
     "cannonshogi",
     "bughouse",
     "fogofwar",
     "antichess",
     "horde",
-    "shatranj",
     "supply",
     "makbug",
+    "jieqi",
+    "xiangfu",
+    "borderlands",
 ]
 
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
+
+export const devVariants = ["borderlands", "makbug", "supply", "jieqi"];
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
     sea:      { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
-    xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi" ] },
+    xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
-    army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan" ] },
-    other:    { variants: [ "ataxx" ] }
+    army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan", "xiangfu" ] },
+    other:    { variants: [ "borderlands", "ataxx" ] }
 };
 
 function variantGroupLabel(group: string): string {
@@ -1222,8 +1295,8 @@ export function moddedVariant(variantName: string, chess960: boolean, pieces: cg
         const whiteKing = pieces.get('e1');
         const blackKing = pieces.get('e8');
         if (castling !== '-' &&
-            ((!castling.includes('K') && !castling.includes('Q')) || (whiteKing && util.samePiece(whiteKing, { role: 'k-piece', color: 'white' }))) &&
-            ((!castling.includes('k') && !castling.includes('q')) || (blackKing && util.samePiece(blackKing, { role: 'k-piece', color: 'black' }))))
+            ((castling.includes('K') || castling.includes('Q')) && (whiteKing && util.samePiece(whiteKing, { role: 'k-piece', color: 'white' }))) &&
+            ((castling.includes('k') || castling.includes('q')) && (blackKing && util.samePiece(blackKing, { role: 'k-piece', color: 'black' }))))
             return variantName.includes("house") ? "embassyhouse" : "embassy";
     }
     return variantName;
@@ -1236,4 +1309,9 @@ export function getLastMoveFen(variantName: string, lastMove: string, fen: strin
 // Replace all brick ("*") pieces to be promoted ("*~") to let them CSS style as fog instead of duck
 export function fogFen(currentFen: string): string {
     return currentFen.replace(/\*/g, '*~');
+}
+
+
+export function validVariant(variant: string): string {
+    return VARIANTS[variant] ? variant : "chess"; // Default to "chess" if invalid
 }

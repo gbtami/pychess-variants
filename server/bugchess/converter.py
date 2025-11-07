@@ -31,7 +31,7 @@ class StringExporter(BaseVisitor[str]):
         columns: Optional[int] = 80,
         headers: bool = True,
         comments: bool = True,
-        variations: bool = True
+        variations: bool = True,
     ):
         self.columns = columns
         self.headers = headers

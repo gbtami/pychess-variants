@@ -1,4 +1,4 @@
-:root {
+#main-wrap {
     --main-max-width: auto;
 }
 .tour {
@@ -7,13 +7,16 @@
     grid-gap: 2vmin;
 }
 @media (max-width: 799px) and (orientation: portrait) {
+    #main-wrap {
+        --main-max-width: 100%;
+    }
     .tour {
         grid-template-areas: 'main' 'side' 'uchat' 'table';
     }
 }
 @media (min-width: 800px) {
     .tour {
-        grid-template-columns: minmax(230px, 20vw) minmax(500px, calc( 100vh * .9 - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, calc(350px * (var(--files) / var(--ranks))));
+        grid-template-columns: minmax(250px, 350px) minmax(500px, calc(100vh * 0.9 - calc(var(--site-header-height) + var(--site-header-margin)) - 3rem)) minmax(240px, 400px);
         grid-template-rows: calc(100vh - calc(var(--site-header-height) + var(--site-header-margin)) - 2vmin - 3rem) auto;
         grid-template-areas: 'side main table' 'uchat players table';
     }
@@ -226,6 +229,7 @@ table.stats td {
 }
 div#player {
     position: relative;
+    width: 100%;
 }
 div#stats {
     display: flex;
@@ -312,6 +316,7 @@ div.player {
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: bold;
 }
 .podium .second {
     font-size: 1.3em;
@@ -364,6 +369,7 @@ div.player {
 }
 #summary.box  {
     padding: 1.7em 0;
+    width:100%;
 }
 #summary h2 {
     font-size: 1.5em;
@@ -414,8 +420,58 @@ div.with-pockets div.cg-wrap.mini {
 }
 #top-game {
     display: flex;
+    align-self: center;
     flex-flow: column;
+    width: calc(min(100%, 100% * (var(--files) / (var(--ranks) + var(--pocketLength) / var(--files)))));
 }
 #mainboard.with-pockets {
     padding-bottom: calc(var(--cg-height) / var(--ranks) * 2);
+}
+
+.duels {
+    margin: var(--block-gap) 0 0 0;
+}
+.duels a {
+    display: flex;
+    flex-flow: column;
+    color: var(--font-color);
+    padding: .5em .7em;
+    white-space: nowrap;
+    line-height: 1.9em;
+    border-top: 1px solid var(--chat-entry-border-top);
+    transition: all 150ms;
+}
+.duels a:hover {
+    background-color: var(--game-hover);
+}
+line {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+line.a .rank {
+  margin-left: .3em;
+  padding: .1em .5em;
+  background: var(--bg-color2);
+}
+line.b .rank {
+  margin-right: .3em;
+  padding: .1em .5em;
+  background: var(--bg-color2);
+}
+.duels h2 {
+  font-size: 1.5em;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+div.tour-faq {
+  padding: 4em;
+}
+.tour-faq h2 {
+  margin: 1.5em 0 .5em 0;
+  font-size: 30px;
+}
+.tour-faq p {
+  padding: 0;
 }

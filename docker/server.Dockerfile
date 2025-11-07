@@ -1,4 +1,4 @@
-FROM node:20 AS frontend
+FROM node:22 AS frontend
 
 WORKDIR /app
 
@@ -18,11 +18,11 @@ RUN yarn md
 
 FROM python:3.12
 
-COPY requirements.txt /app/
+COPY pyproject.toml /app/
 
 WORKDIR /app
 
-RUN pip install -r requirements.txt
+RUN pip install .
 
 COPY lang /app/lang/
 COPY server /app/server/

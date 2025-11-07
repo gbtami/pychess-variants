@@ -1,0 +1,55 @@
+.xiangqi piece.p-piece.white.ally {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_pawn.svg');
+}
+.xiangqi piece.p-piece.white.enemy {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_pawn_b.svg');
+}
+.xiangqi piece.b-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_elephant.svg');
+}
+.xiangqi piece.n-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_horse.svg');
+}
+.xiangqi piece.r-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_chariot.svg');
+}
+.xiangqi piece.a-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_advisor.svg');
+}
+.xiangqi piece.c-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_cannon.svg');
+}
+.xiangqi piece.k-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_king.svg');
+}
+.xiangqi piece.m-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_banner.svg');
+}
+
+.xiangqi piece.p-piece.black.ally {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_pawn.svg');
+}
+.xiangqi piece.p-piece.black.enemy {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_pawn_b.svg');
+}
+.xiangqi piece.b-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_elephant.svg');
+}
+.xiangqi piece.n-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_horse.svg');
+}
+.xiangqi piece.r-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_chariot.svg');
+}
+.xiangqi piece.a-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_advisor.svg');
+}
+.xiangqi piece.c-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_cannon.svg');
+}
+.xiangqi piece.k-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_king.svg');
+}
+.xiangqi piece.m-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_chariot.svg');
+}

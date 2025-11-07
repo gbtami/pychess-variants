@@ -48,6 +48,18 @@ for piece in PIECES:
     M2C["%s@" % piece] = m2c_len
     m2c_len += 1
 
+# More droppable pieces
+#   The variant that uses these pieces (melonvariant) was added after cannonshogi
+#   so these letters need to be here to be backward compatible
+PIECES = "W"
+m2c_len = len(M2C) + 34
+for piece in PIECES:
+    M2C["%s@" % piece] = m2c_len
+    m2c_len += 1
+
+# for x in M2C:
+#     print(x, M2C[x])
+
 C2M = {v: k for k, v in M2C.items()}
 
 

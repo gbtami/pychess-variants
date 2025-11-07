@@ -66,6 +66,12 @@ label.piece.piece8.standard {
     background-image: url('images/pieces/luffy/wN.svg');
 }
 label.piece.piece9.standard {
+    background-image: url('images/pieces/firi/wpb.svg');
+}
+label.piece.piece10.standard {
+    background-image: url('images/pieces/sinting/wlN.svg');
+}
+label.piece.piece11.standard {
     background-image: url('images/pieces/disguised/w.svg');
 }
 label.piece.piece0.capa {
@@ -231,6 +237,9 @@ label.piece.piece13.shogi {
     background-image: url('images/pieces/shogi/cz/0KA.svg');
 }
 label.piece.piece14.shogi {
+    background-image: url('images/pieces/firi/bb.svg');
+}
+label.piece.piece15.shogi {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
@@ -295,6 +304,9 @@ label.piece.piece4.cannonshogi {
     background-image: url('images/pieces/shogi/cz/alt/0_Gold Cannon.svg');
 }
 label.piece.piece5.cannonshogi {
+    background-image: url('images/pieces/firi/ba.svg');
+}
+label.piece.piece6.cannonshogi {
     background-image: url('images/pieces/disguised/b.svg');
 }
 
@@ -341,16 +353,19 @@ label.piece.piece13.xiangqi {
     background-image: url('images/pieces/xiangqi/hnzw/red_king.svg');
 }
 label.piece.piece14.xiangqi {
-    background-image: url('images/pieces/xiangqi/basic/red_king.svg');
+    background-image: url('images/pieces/xiangqi/eventhanzi/red_king.svg');
 }
 label.piece.piece15.xiangqi {
-    background-image: url('images/pieces/xiangqi/guided/red_king.svg');
+    background-image: url('images/pieces/xiangqi/eventhanziguided/red_king.svg');
 }
 label.piece.piece16.xiangqi {
-    background-image: url('images/pieces/disguised/3d-red.svg');
+    background-image: url('images/pieces/xiangqi/eventintl/red_king.svg');
 }
 label.piece.piece17.xiangqi {
     background-image: url('images/pieces/xiangqi/euro/red_king.svg');
+}
+label.piece.piece18.xiangqi {
+    background-image: url('images/pieces/disguised/3d-red.svg');
 }
 
 label.piece.piece0.janggi {
@@ -564,5 +579,49 @@ label.piece.piece0.spartan {
     background-image: url('images/pieces/spartan/bK.svg');
 }
 label.piece.piece1.spartan {
+    background-image: url('images/pieces/green/spartan/bK.svg');
+}
+label.piece.piece2.spartan {
+    background-image: url('images/pieces/disguised/b.svg');
+}
+
+label.piece.piece0.shocking {
+    background-image: url('images/pieces/shocking/bC.svg');
+}
+label.piece.piece1.shocking {
+    background-image: url('images/pieces/disguised/b.svg');
+}
+
+label.piece.piece0.borderlands {
+    background-image: url('images/pieces/borderlands/bC.svg');
+}
+label.piece.piece1.borderlands {
+    background-image: url('images/pieces/disguised/b.svg');
+}
+
+label.piece.piece0.xiangfu {
+    background-image: url('images/pieces/xiangqi/eventintl/xiangfu/red_crossbow.svg');
+}
+label.piece.piece1.xiangfu {
+    background-image: url('images/pieces/xiangqi/eventhanzi/xiangfu/red_crossbow.svg');
+}
+label.piece.piece2.xiangfu {
+    background-image: url('images/pieces/xiangqi/eventhanziguided/xiangfu/red_crossbow.svg');
+}
+label.piece.piece3.xiangfu {
+    background-image: url('images/pieces/disguised/b.svg');
+}
+
+label.piece.piece0.melonvariant {
+    background-image: url('images/pieces/alfaerie/bcannonpawn.svg');
+}
+label.piece.piece1.melonvariant {
+    background-image: url('images/pieces/disguised/b.svg');
+}
+
+label.piece.piece0.battleofideologies {
+    background-image: url('images/pieces/battleofideologies/bZ.svg');
+}
+label.piece.piece1.battleofideologies {
     background-image: url('images/pieces/disguised/b.svg');
 }

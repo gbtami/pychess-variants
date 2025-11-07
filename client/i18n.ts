@@ -6,7 +6,7 @@ import { StringSettings } from './settings';
 import { radioList } from './view';
 
 export const i18n = gettext();
-export function _(msgid: string, ...vars: any) { return i18n.gettext(msgid, vars); }
+export function _(msgid: string, ...vars: any): string { return i18n.gettext(msgid, vars); }
 export function ngettext(msgid: string, plural: string, n: number) { return i18n.ngettext(msgid, plural, n, n); }
 export function pgettext(msgctxt: string, msgid: string, ...vars: any) { return i18n.pgettext(msgctxt, msgid, vars); }
 
@@ -64,6 +64,12 @@ export const translatedColorNames = [
     _("Green"),
 ];
 
+export const translatedPieceNames = [
+    _("pawn"), _("knight"), _("bishop"),
+    _("rook"), _("queen"), _("king"),
+    _('horse'), _('elephant'), _('chariot'), _('cannon'), _('advisor'),
+];
+
 export const translatedVariantDisplayNames = [
     _("chess"), _("bughouse"), _("crazyhouse"), _("placement"), _("atomic"),
     _("king of the hill"), _("three-check"), _("antichess"), _("racing kings"),
@@ -97,6 +103,7 @@ export const translatedCustomStartPositions = [
 ];
 
 export const translatedTooltips = [
+    _("Martial arts Xiangqi."),
     _("Infection game."),
     _("Chess, unmodified, as it's played by FIDE standards."),
     _("Take captured pieces and drop them back on to the board as your own."),

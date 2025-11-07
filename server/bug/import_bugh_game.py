@@ -91,7 +91,9 @@ async def import_game_bpgn(request):
     bp_a = first_game.headers.get("BlackA")
     wp_b = first_game.headers.get("WhiteB")
     bp_b = first_game.headers.get("BlackB")
-    wplayer_a, bplayer_a, wplayer_b, bplayer_b = init_players(app_state, wp_a, bp_a, wp_b, bp_b)
+    wplayer_a, bplayer_a, wplayer_b, bplayer_b = await init_players(
+        app_state, wp_a, bp_a, wp_b, bp_b
+    )
 
     variant = "bughouse"
     chess960 = variant.endswith("960")

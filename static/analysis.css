@@ -1,5 +1,5 @@
 @import 'switch.css';
-:root {
+#main-wrap {
     --main-max-width: auto;
     --ranks-top: 0px;
     --files-left: 0px;
@@ -14,6 +14,9 @@
     box-shadow: none;
 }
 @media (max-width: 799px) {
+    #main-wrap {
+        --main-max-width: 100%;
+    }
     .analysis-app {
         grid-template-rows: auto;
         grid-template-areas: 'pocket-top' 'board' 'pocket-bot' 'move-controls' 'ceval' 'pv' 'misc-info' 'vari' 'tools' 'uboard' 'side';
@@ -82,6 +85,9 @@ div.ctable-container {
     width: var(--gauge-gap);
     overflow: hidden;
     position: relative;
+}
+.flipped {
+    transform: rotateX(180deg);
 }
 #gauge::after, #gaugePartner::after {
     content: '';
@@ -311,6 +317,11 @@ div.config-toggle {
   display: flex;
   align-items: center;
 }
+.rated-toggle, .auto-next-toggle {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+} 
 .puzzle-user .rating {
   font-size: 3.5em;
 }

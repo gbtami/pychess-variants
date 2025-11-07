@@ -1,0 +1,49 @@
+.xiangfu piece.b-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/red_bishop.svg');
+}
+.xiangfu piece.m-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/red_mahout.svg');
+}
+.xiangfu piece.n-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_horse.svg');
+}
+.xiangfu piece.r-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_chariot.svg');
+}
+.xiangfu piece.c-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/red_cannon.svg');
+}
+.xiangfu piece.pg-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/red_champion.svg');
+}
+.xiangfu piece.g-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/red_pupil.svg');
+}
+.xiangfu piece.w-piece.white {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/red_crossbow.svg');
+}
+
+.xiangfu piece.b-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/black_bishop.svg');
+}
+.xiangfu piece.m-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/black_mahout.svg');
+}
+.xiangfu piece.n-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_horse.svg');
+}
+.xiangfu piece.r-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_chariot.svg');
+}
+.xiangfu piece.c-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/black_cannon.svg');
+}
+.xiangfu piece.pg-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/black_champion.svg');
+}
+.xiangfu piece.g-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/black_pupil.svg');
+}
+.xiangfu piece.w-piece.black {
+    background-image: url('../../images/pieces/xiangqi/eventhanziguided/xiangfu/black_crossbow.svg');
+}

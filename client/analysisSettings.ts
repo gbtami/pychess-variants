@@ -2,7 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
 import { Settings, BooleanSettings, NumberSettings, StringSettings } from './settings';
-import { nnueFile, slider, toggleSwitch } from './view';
+import { nnueFile, slider, sliderFromList, toggleSwitch } from './view';
 import { AnalysisController } from './analysisCtrl';
 import { patch } from './document';
 
@@ -126,13 +126,15 @@ class MultiPVSettings extends NumberSettings {
         if ('multipv' in ctrl) {
             ctrl.multipv = this.value;
             ctrl.pvboxIni();
+            ctrl.autoShapes = new Array(ctrl.multipv).fill([]);
+            ctrl.chessground.setAutoShapes([]);
             const settingsEl = document.querySelector('div.multipv_range_value') as HTMLElement;
             patch(settingsEl, h('div.multipv_range_value', `${this.value} / 5`));
         }
     }
 
     view(): VNode {
-        const els = slider(this, 'multipv', 1, 5, 1, _('Multiple lines')); 
+        const els = slider(this, 'multipv', 0, 5, 1, _('Multiple lines'));
         els.push(h('div.multipv_range_value', `${this.value} / 5`));
         return h('div.labelled', els);
     }
@@ -159,7 +161,7 @@ class ThreadsSettings extends NumberSettings {
     }
 
     view(): VNode {
-        const els = slider(this, 'threads', 1, this.maxThreads, 1, _('CPUs')); 
+        const els = slider(this, 'threads', 1, this.maxThreads, 1, _('CPUs'));
         els.push(h('div.threads_range_value', `${this.value} / ${this.maxThreads}`));
         return h('div.labelled', els);
     }
@@ -177,7 +179,7 @@ const isIPad = (): boolean => navigator?.maxTouchPoints > 2 && /iPad|Macintosh/.
 // scales like native stockfish with increasing hash. prefer smaller, non-crashing values
 // steer the high performance crowd towards external engine as it gets better
 const maxHashMB = (): number => {
-    let maxHash = 256; // this is conservative but safe, mostly desktop firefox / mac safari users here
+    let maxHash = 512; // allocating 1024 often fails and offers little benefit over 512, or 16 for that matter
     if (isAndroid()) maxHash = 64; // budget androids are easy to crash @ 128
     else if (isIPad()) maxHash = 64; // iPadOS safari pretends to be desktop but acts more like iphone
     else if (isIOS()) maxHash = 32;
@@ -205,7 +207,8 @@ class HashSettings extends NumberSettings {
     }
 
     view(): VNode {
-        const els = slider(this, 'hash', 16, this.maxHash, 16, _('Memory')); 
+        const hashList = [...Array(10).keys()].map(i => 2 ** i).filter(n => n >= 16 && n <= this.maxHash);
+        const els = sliderFromList(this, 'hash', _('Memory'), "hashList", hashList);
         els.push(h('div.hash_range_value', `${this.value}MB`));
         return h('div.labelled', els);
     }
@@ -320,7 +323,7 @@ export class EngineSettings extends BooleanSettings {
                 this,
                 'engine-enabled',
                 '',
-                !this.ctrl.localEngine || !this.ctrl.isEngineReady
+                !this.ctrl.localEngine || !this.ctrl.isEngineReady || !this.ctrl.variantSupportedByFSF
             )
         );
     }

@@ -16,6 +16,20 @@ TEST_PREFIX = "Test" + DASH
 
 NONE_USER = "None" + DASH + "User"
 
+RESERVED_USERS = (
+    "Random-Mover",
+    "Fairy-Stockfish",
+    "Discord-Relay",
+    "Invite-friend",
+    "PyChess",
+    NONE_USER,
+)
+
+
+def reserved(username):
+    return username.upper() in map(str.upper, RESERVED_USERS)
+
+
 SCHEDULE_MAX_DAYS = 7
 TOURNAMENT_SPOTLIGHTS_MAX = 3
 
@@ -39,6 +53,9 @@ MAX_HIGHSCORE_ITEM_LIMIT = 50
 
 # Show the number of spectators only after this limit
 MAX_NAMED_SPECTATORS = 20
+
+# Periodically check for sse_request is_connected()
+SSE_GET_TIMEOUT = 10
 
 
 # tournament status
@@ -137,10 +154,6 @@ LOSERS = {
     "flag": GameStatus.FLAG,
 }
 
-CONSERVATIVE_CAPA_FEN = "arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1"
-LOOKING_GLASS_ALICE_FEN = "|r|n|b|q|k|b|n|r/|p|p|p|p|p|p|p|p/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1"
-MANCHU_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/9/9/M1BAKAB2 w - - 0 1"
-MANCHU_R_FEN = "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
 DARK_FEN = "********/********/********/********/********/********/********/******** w - - 0 1"
 
 VARIANT_960_TO_PGN = {
@@ -148,20 +161,21 @@ VARIANT_960_TO_PGN = {
     "chess": "Chess960",
     "capablanca": "Caparandom",
     "capahouse": "Capahouse960",
-    "crazyhouse": "Crazyhouse",  # to let lichess import work
-    "atomic": "Atomic",  # to let lichess import work
-    "kingofthehill": "King of the Hill",  # to let lichess import work
-    "3check": "Three-check",  # to let lichess import work
     "seirawan": "Seirawan960",
+    # to let lichess import work we produce variant names without "960" in PGNs
+    "crazyhouse": "Crazyhouse",
+    "atomic": "Atomic",
+    "kingofthehill": "King of the Hill",
+    "3check": "Three-check",
+    "antichess": "Antichess",
+    "racingkings": "Racingkings",
+    "horde": "Horde",
     # some early game is accidentally saved as 960 in mongodb
     "shogi": "Shogi",
     "sittuyin": "Sittuyin",
     "makruk": "Makruk",
     "placement": "Placement",
     "grand": "Grand",
-    "antichess": "Antichess",  # to let lichess import work
-    "racingkings": "Racingkings",  # to let lichess import work
-    "horde": "Horde",  # to let lichess import work
 }
 
 CATEGORIES = {
@@ -216,6 +230,7 @@ CATEGORIES = {
         "chennis",
         "shinobiplus",
         "spartan",
+        "xiangfu",
     ),
     "makruk": ("makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": (
@@ -227,7 +242,7 @@ CATEGORIES = {
         "torishogi",
         "cannonshogi",
     ),
-    "xiangqi": ("xiangqi", "supply", "manchu", "janggi", "minixiangqi"),
+    "xiangqi": ("xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi"),
     "other": ("ataxx"),
 }
 

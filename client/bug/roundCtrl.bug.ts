@@ -1,4 +1,5 @@
 import { h, VNode } from 'snabbdom';
+import * as Mousetrap  from 'mousetrap';
 import * as cg from 'chessgroundx/types';
 
 import { _ } from '../i18n';
@@ -29,7 +30,7 @@ import {
 import {BoardName, BugBoardName, JSONObject, PyChessModel} from "../types";
 import { GameControllerBughouse } from "./gameCtrl.bug";
 import { BLACK, getTurnColor, uci2LastMove, WHITE } from "../chess";
-import { sound } from "../sound";
+import { sound, soundThemeSettings } from "../sound";
 import { player } from "../player";
 import { WebsocketHeartbeatJs } from '../socket/socket';
 import { notify } from "../notification";
@@ -39,7 +40,7 @@ import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 import { boardSettings } from "@/boardSettings";
 import { ChessgroundController } from "@/cgCtrl";
 import {playerInfoData} from "@/bug/gameInfo.bug";
-import {chatMessageBug} from "@/bug/chat.bug";
+import {chatMessageBug, resetChat} from "@/bug/chat.bug";
 
 export class RoundControllerBughouse implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -391,8 +392,20 @@ export class RoundControllerBughouse implements ChatController {
 
         // last so when it receive initial messages on connect all dom is ready to be updated
         this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, onClose, (e: MessageEvent) => this.onMessage(e));
+
+        Mousetrap.bind('left', () => selectMove(this, this.ply - 1, this.plyVari));
+        Mousetrap.bind('right', () => selectMove(this, this.ply + 1, this.plyVari));
+        Mousetrap.bind('up', () => selectMove(this, 0));
+        Mousetrap.bind('down', () => selectMove(this, this.steps.length - 1));
+        Mousetrap.bind('f', () => this.flipBoards());
+        Mousetrap.bind('?', () => this.helpDialog());
+
+        soundThemeSettings.buildBugChatSounds();
     }
 
+    helpDialog() {
+        console.log('HELP!');
+    }
 
     flipBoards = (): void => {
         let infoWrap0 = document.getElementsByClassName('info-wrap0')[0] as HTMLElement;
@@ -684,6 +697,9 @@ export class RoundControllerBughouse implements ChatController {
     private updateSteps = (full: boolean, steps: Step[], ply: number, latestPly: boolean) => {
         if (full) { // all steps in one message
             this.steps = [];
+            this.plyA = 0;
+            this.plyB = 0;
+            resetChat();
             const container = document.getElementById('movelist') as HTMLElement;
             patch(container, h('div#movelist'));
 
@@ -695,6 +711,8 @@ export class RoundControllerBughouse implements ChatController {
                     } else {
                         this.plyB++;
                     }
+                } else {
+                    chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat", undefined, undefined, this);
                 }
                 step.plyA = this.plyA;
                 step.plyB = this.plyB;
@@ -715,6 +733,9 @@ export class RoundControllerBughouse implements ChatController {
                         }
                     });
                 }
+                if (idx === steps.length - 1 && this.status > 0) {
+                    chatMessage("", "Game over. All messages visible to all.", "bugroundchat", undefined, this.steps.length, this);
+                }
                 });
             updateMovelist(this, true, true, false);
         } else { // single step message
@@ -726,6 +747,8 @@ export class RoundControllerBughouse implements ChatController {
                     } else {
                         this.plyB++;
                     }
+                } else {
+                    chatMessage("", "Messages visible to all 4 players for the first 4 moves", "bugroundchat", undefined, undefined, this);
                 }
                 steps[0].plyA = this.plyA;
                 steps[0].plyB = this.plyB;
@@ -764,15 +787,26 @@ export class RoundControllerBughouse implements ChatController {
         //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
         if (latestPly) {
             const move = step == undefined? undefined: board.boardName == "a"? step.move: step.moveB;
-            board.setState(fen, msgTurnColor, uci2LastMove(move));
+            const lastMove = uci2LastMove(move);
+            let capture = false;
+            if (move) {
+                // const capture = !!lastMove && ((board.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+                capture = board.ffishBoard.isCapture(move);
+            }
+            if (lastMove) {
+                if (!this.finishedGame) sound.moveSound(this.variant, capture);
+            }
+            if (check && !this.finishedGame) {
+                sound.check();
+            }
+
+            board.setState(fen, msgTurnColor, lastMove);
             board.renderState();
 
             // because pocket might have changed. todo: condition it on if(capture) maybe
             const movePartner = stepPartner == undefined? undefined: board.partnerCC.boardName == "a"? stepPartner.move: stepPartner.moveB;
             board.partnerCC.setState(fenPartner, board.partnerCC.turnColor, uci2LastMove(movePartner));
             board.partnerCC.renderState();
-
-            if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
         }
 
     }
@@ -789,14 +823,14 @@ export class RoundControllerBughouse implements ChatController {
             this.updateClocks("a", this.b1.turnColor, clocksA);
             this.updateClocks("b", this.b2.turnColor, clocksB);
         } else {
-            // TODO: this logic differs than single board games and lichess - not sure if to preserve+improve or remove
-            //       for finished games they dont update clocks according to move times of last moves and here i do
-            if (lastStepA) {
-                this.updateClocks("a", this.b1.turnColor, lastStepA.clocks!);
-            }
-            if (lastStepB) {
-                this.updateClocks("b", this.b2.turnColor, lastStepB.clocks!);
-            }
+            // // TODO: this logic differs than single board games and lichess - not sure if to preserve+improve or remove
+            // //       for finished games they dont update clocks according to move times of last moves and here i do
+            // if (lastStepA) {
+            //     this.updateClocks("a", this.b1.turnColor, lastStepA.clocks!);
+            // }
+            // if (lastStepB) {
+            //     this.updateClocks("b", this.b2.turnColor, lastStepB.clocks!);
+            // }
         }
 
         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
@@ -855,14 +889,21 @@ export class RoundControllerBughouse implements ChatController {
         const msgTurnColor = step.turnColor; // whose turn it is after this move
         const msgMoveColor = msgTurnColor === 'white'? 'black': 'white'; // which color made the move
         const myMove = this.myColor.get(board.boardName as BugBoardName) === msgMoveColor; // the received move was made by me
-        const lastMove = uci2LastMove( board.boardName === 'a'? step.move: step.moveB);
+
+        const move = board.boardName === 'a'? step.move: step.moveB;
+        const lastMove = uci2LastMove(move);
         const lastMovePartner = stepPartner? uci2LastMove( board.partnerCC.boardName === 'a'? stepPartner.move: stepPartner.moveB): undefined;
 
-        const capture = !!lastMove && ((board.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
-        if (lastMove && (!myMove || this.spectator)) {
+        let capture = false;
+        if (move) {
+            //const capture = !!lastMove && ((board.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
+            capture = board.ffishBoard.isCapture(move);
+        }
+
+        if (lastMove && !myMove) {
             if (!this.finishedGame) sound.moveSound(this.variant, capture);
         }
-        if (!this.spectator && check && !this.finishedGame) {
+        if (check && !this.finishedGame) {
             sound.check();
         }
 
@@ -967,13 +1008,13 @@ export class RoundControllerBughouse implements ChatController {
         const step = this.steps[ply];
         console.log(step);
 
-        const board=step.boardName==='a'?this.b1:this.b2;
+        const board=step.boardName === 'a'? this.b1: this.b2;
 
         const fen=step.boardName==='a'?step.fen: step.fenB;
-        const fenPartner=step.boardName==='b'?step.fen: step.fenB;
+        const fenPartner=step.boardName === 'b'? step.fen: step.fenB;
 
-        const move = step.boardName==='a'?uci2LastMove(step.move):uci2LastMove(step.moveB);
-        const movePartner = step.boardName==='b'?uci2LastMove(step.move):uci2LastMove(step.moveB);
+        const move = step.boardName === 'a'? uci2LastMove(step.move): uci2LastMove(step.moveB);
+        const movePartner = step.boardName === 'b'? uci2LastMove(step.move): uci2LastMove(step.moveB);
 
         let capture = false;
         if (move) {
@@ -1002,36 +1043,36 @@ export class RoundControllerBughouse implements ChatController {
             }
         }
 
-        if (this.status >= 0 && this.ply !== ply) {
-            //if it is a game that ended, then when scrolling it makes sense to show clocks when the move was made
-            // however if timeout happened and we receive gameEnd message we don't want to update clocks, we want to see
-            // the zeros.
-            // todo:this is a mess. also on lichess and other pychess variants we don't update clocks in round page only in analysis
-            //      if we decide to preserver and improve this behaviour in round page, at least some refactoring to reduce this complexity
-            //      of this if and calling goPly on gameEnd just for the sake of setting movable to none - really no other reason
-            //      to call this on gameEnd.
-            const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
-            const blackAClockAtIdx = 1 - whiteAClockAtIdx;
-            const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
-            const blackBClockAtIdx = 1 - whiteBClockAtIdx;
-
-            const lastStepA = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "a" && i <= ply)];
-            const lastStepB = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "b" && i <= ply)];
-            if (lastStepA) {
-                this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks![WHITE]);
-                this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks![BLACK]);
-            } else {
-                this.clocks[whiteAClockAtIdx].setTime(this.base * 60 * 1000);
-                this.clocks[blackAClockAtIdx].setTime(this.base * 60 * 1000);
-            }
-            if (lastStepB) {
-                this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks![WHITE]);
-                this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks![BLACK]);
-            } else {
-                this.clocksB[whiteBClockAtIdx].setTime(this.base * 60 * 1000);
-                this.clocksB[blackBClockAtIdx].setTime(this.base * 60 * 1000);
-            }
-        }
+        // if (this.status >= 0 && this.ply !== ply) {
+        //     //if it is a game that ended, then when scrolling it makes sense to show clocks when the move was made
+        //     // however if timeout happened and we receive gameEnd message we don't want to update clocks, we want to see
+        //     // the zeros.
+        //     // todo:this is a mess. also on lichess and other pychess variants we don't update clocks in round page only in analysis
+        //     //      if we decide to preserver and improve this behaviour in round page, at least some refactoring to reduce this complexity
+        //     //      of this if and calling goPly on gameEnd just for the sake of setting movable to none - really no other reason
+        //     //      to call this on gameEnd.
+        //     const whiteAClockAtIdx = this.colors[0] === 'white'? 0: 1;
+        //     const blackAClockAtIdx = 1 - whiteAClockAtIdx;
+        //     const whiteBClockAtIdx = this.colorsB[0] === 'white'? 0: 1;
+        //     const blackBClockAtIdx = 1 - whiteBClockAtIdx;
+        //
+        //     const lastStepA = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "a" && i <= ply)];
+        //     const lastStepB = this.steps[this.steps.findLastIndex((s, i) => s.boardName === "b" && i <= ply)];
+        //     if (lastStepA) {
+        //         this.clocks[whiteAClockAtIdx].setTime(lastStepA.clocks![WHITE]);
+        //         this.clocks[blackAClockAtIdx].setTime(lastStepA.clocks![BLACK]);
+        //     } else {
+        //         this.clocks[whiteAClockAtIdx].setTime(this.base * 60 * 1000);
+        //         this.clocks[blackAClockAtIdx].setTime(this.base * 60 * 1000);
+        //     }
+        //     if (lastStepB) {
+        //         this.clocksB[whiteBClockAtIdx].setTime(lastStepB.clocks![WHITE]);
+        //         this.clocksB[blackBClockAtIdx].setTime(lastStepB.clocks![BLACK]);
+        //     } else {
+        //         this.clocksB[whiteBClockAtIdx].setTime(this.base * 60 * 1000);
+        //         this.clocksB[blackBClockAtIdx].setTime(this.base * 60 * 1000);
+        //     }
+        // }
 
         if (ply === this.ply + 1) { // no sound if we are scrolling backwards
             sound.moveSound(board.variant, capture);
@@ -1131,6 +1172,9 @@ export class RoundControllerBughouse implements ChatController {
     private onMsgChat = (msg: StepChat) => {
         if (this.spectator /*spectators always see everything*/ || (!this.spectator && msg.room !== 'spectator') || msg.username.length === 0) {
             chatMessageBug(this.ply, this, msg);
+            if (msg.username !== this.username && msg.message.startsWith("!bug!")) {
+                sound.bugChatSound(msg.message.replace('!bug!',''));
+            }
         }
     }
 
@@ -1165,7 +1209,7 @@ export class RoundControllerBughouse implements ChatController {
                 break;
             case "gameEnd":
                 this.checkStatus(msg);
-                chatMessage("", "Game over. Messages visible to all again.", "bugroundchat", undefined, this.steps.length, this);
+                this.doSend({"type": "board", "gameId": this.gameId});
                 break;
             case "gameStart":
                 this.onMsgGameStart(msg);

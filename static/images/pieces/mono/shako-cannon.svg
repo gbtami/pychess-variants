@@ -1,1 +1,62 @@
-<svg height="45" width="45" xmlns="http://www.w3.org/2000/svg"><g fill="#888" stroke="#888" stroke-width="1.96311" transform="matrix(.76409308 0 0 .76409308 43.37578243878 4.13953980295)"><path d="m-16.535957 25.518202-22.14807-20.3435672-7.839044 7.3744712c1.383182 1.383182 19.441596 22.23155 19.441596 22.23155 9.603942 12.91719 20.7760778.09797 10.545518-9.262454z" stroke-linejoin="round" stroke-width="1.96311"/><circle cx="30.376812" cy="36.579117" r="9.012213" stroke-linecap="square" stroke-width="1.96311" transform="scale(-1 1)"/><circle cx="30.376812" cy="36.579117" r="6.077011" stroke-linecap="square" stroke-width=".916119" transform="scale(-1 1)"/><path d="m-8.1774051 46.208007-6.7028399.000316-7.252468-5.840102c.34763-.942182.941514-3.141284 1.205759-4.118672z" stroke-linejoin="round" stroke-width="1.96311"/></g><path d="m13.582949 9.6428572 14.829271 13.8847318c3.185513 2.982614 3.927269 4.252053 3.90243 6.984493" fill="none" stroke="#ececec" stroke-width="1.5"/></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="45"
+   width="45"
+   version="1.1"
+   id="svg14"
+   sodipodi:docname="shako-cannon.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs18" />
+  <sodipodi:namedview
+     id="namedview16"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="22.822222"
+     inkscape:cx="22.478092"
+     inkscape:cy="22.478092"
+     inkscape:window-width="2494"
+     inkscape:window-height="1371"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg14" />
+  <path
+     id="path2"
+     style="fill:#888888;stroke:#888888;stroke-linecap:round;stroke-width:1.1;stroke-dasharray:none;stroke-linejoin:round"
+     d="M 13.818359 8.09375 L 7.828125 13.728516 C 8.8850037 14.785395 22.683594 30.714844 22.683594 30.714844 C 30.021892 40.58477 38.557327 30.790902 30.740234 23.638672 L 13.818359 8.09375 z M 14.265625 8.9121094 L 29.095703 22.796875 C 30.711858 24.310089 31.766589 25.427191 32.439453 26.623047 C 33.112317 27.818903 33.327713 29.063384 33.314453 30.521484 L 31.314453 30.503906 C 31.326037 29.229574 31.183493 28.471139 30.695312 27.603516 C 30.207133 26.735891 29.297868 25.727207 27.728516 24.257812 L 12.900391 10.373047 L 14.265625 8.9121094 z " />
+  <circle
+     cx="-20.16507"
+     cy="32.08939"
+     r="6.8861694"
+     stroke-linecap="square"
+     stroke-width="1.5"
+     transform="scale(-1,1)"
+     id="circle4"
+     style="fill:#888888;stroke:#888888" />
+  <circle
+     cx="-20.16507"
+     cy="32.08939"
+     r="4.6434021"
+     stroke-linecap="square"
+     stroke-width="0.7"
+     transform="scale(-1,1)"
+     id="circle6"
+     style="fill:#888888;stroke:#888888" />
+  <path
+     d="M 37.127483,39.446758 32.00589,39.447 26.464329,34.984618 c 0.265622,-0.719915 0.719404,-2.400233 0.921312,-3.147049 z"
+     stroke-linejoin="round"
+     stroke-width="1.5"
+     id="path8"
+     style="fill:#888888;stroke:#888888" />
+</svg>

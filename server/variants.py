@@ -93,6 +93,7 @@ class ServerVariants(Enum):
     MANCHU = Variant("M", "manchu", _("Manchu+"), "{", grand=True)
     JANGGI = Variant("j", "janggi", _("Janggi"), "=", grand=True, byo=True)
     MINIXIANGQI = Variant("e", "minixiangqi", _("Minixiangqi"), "7")
+    JIEQI = Variant("V", "jieqi", _("Jieqi"), "⬤", grand=True)
 
     SHATRANJ = Variant("†", "shatranj", _("Shatranj"), "🐘")
     CAPABLANCA = Variant("c", "capablanca", _("Capablanca"), "P")
@@ -123,7 +124,9 @@ class ServerVariants(Enum):
     CHAK = Variant("C", "chak", _("Chak"), "🐬")
     CHENNIS = Variant("H", "chennis", _("Chennis"), "🎾", move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
     SPARTAN = Variant("N", "spartan", _("Spartan"), "⍺")
+    XIANGFU = Variant('"', "xiangfu", _("Xiang Fu"), "👊")
 
+    BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), " 🌄", grand=True)
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
 
     @property
@@ -156,18 +159,32 @@ VARIANTS = {
     variant.server_name: variant for variant in ServerVariants if variant not in NO_VARIANTS
 }
 
+VARIANT_ICONS = {variant.server_name: variant.icon for variant in ServerVariants}
+
+
+DEV_VARIANTS = (
+    ServerVariants.MAKBUG,
+    ServerVariants.SUPPLY,
+    ServerVariants.JIEQI,
+)
+
+# Remove DEV variants on prod site until they stabilize
+if PROD:
+    for variant in DEV_VARIANTS:
+        del VARIANTS[variant.server_name]
+
+# Two board variants has no ratings implemented so far
 RATED_VARIANTS = tuple(
     variant.server_name
     for variant in ServerVariants
-    if (variant not in NO_VARIANTS) and not variant.two_boards
+    if (variant not in NO_VARIANTS) and (variant not in DEV_VARIANTS) and not variant.two_boards
 )
 
-VARIANT_ICONS = {variant.server_name: variant.icon for variant in ServerVariants}
-
-# Remove new variants on prod site until they stabilize
-if PROD:
-    for variant in TWO_BOARD_VARIANTS:
-        del VARIANTS[variant.server_name]
+NOT_RATED_VARIANTS = tuple(
+    variant.server_name
+    for variant in ServerVariants
+    if (variant.server_name not in RATED_VARIANTS) and (variant.server_name in VARIANTS)
+)
 
 C2V = {variant.code: variant.uci_variant for variant in ServerVariants}
 

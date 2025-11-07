@@ -35,7 +35,9 @@ class Users(UserDict):
         if username in self.data:
             return self.data[username]
         else:
-            raise NotInAppUsers("%s is not in Users. Use await users.get() instead.", username)
+            # raise NotInAppUsers("%s is not in Users. Use await users.get() instead.", username)
+            user = self.data[NONE_USER]
+            return user
 
     async def get(self, username):
         if username in self.data:
@@ -69,6 +71,8 @@ class Users(UserDict):
                 enabled=doc.get("enabled", True),
                 lang=doc.get("lang", "en"),
                 theme=doc.get("theme", "dark"),
+                oauth_id=doc.get("oauth_id"),
+                oauth_provider=doc.get("oauth_provider"),
             )
             self.data[username] = user
 

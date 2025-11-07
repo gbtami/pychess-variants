@@ -16,7 +16,8 @@ export function gameInfo(model: PyChessModel): VNode {
     const dataIcon = variant.icon(chess960);
     const tc = timeControlStr(model["base"], model["inc"], model["byo"], model["corr"] === "True" ? model["base"] : 0);
     const altStartName = alternateStartName(variant, model.initialFen);
-    return h('div.game-info', [
+    const startFen = model.initialFen.replace(/\+/g, '.');
+    const sections = [
         h('section', [
         h('div.info0.icon', { attrs: { "data-icon": dataIcon } }, [
             h('div.info2', [
@@ -43,12 +44,32 @@ export function gameInfo(model: PyChessModel): VNode {
             h('player', playerInfo(model, 'b')),
         ]),
         ]),
-        h('section', [
-            h('div.tourney', (model["tournamentId"]) ? [
-                h('a.icon.icon-trophy', { attrs: { href: '/tournament/' + model["tournamentId"] } }, model["tournamentname"]),
-            ] : []),
-        ]),
-    ])
+    ];
+    if (model["posnum"] >= 0) {
+        sections.push(
+            h('section', [
+                h('div.posnum', [
+                    _('Start position: '),
+                    h('a', {
+                        attrs: {
+                            target: '_blank',
+                            href: '/analysis/' + model["variant"] + '?fen=' + startFen
+                        }
+                    }, model["posnum"]),
+                ])
+            ])
+        )
+    }
+    if (model["tournamentId"]) {
+        sections.push(
+            h('section', [
+                h('div.tourney', [
+                    h('a.icon.icon-trophy', { attrs: { href: '/tournament/' + model["tournamentId"] } }, model["tournamentname"])
+                ])
+            ])
+        )
+    }
+    return h('div.game-info', sections);
 }
 
 function playerInfo(model: PyChessModel, color: string) {

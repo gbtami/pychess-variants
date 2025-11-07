@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
 import unittest
 from itertools import product
 
@@ -17,10 +16,8 @@ from auto_pair import (
     find_matching_user,
     find_matching_user_for_seek,
 )
-from logger import handler
 from variants import VARIANTS
 
-logging.getLogger().removeHandler(handler)
 
 ONE_TEST_ONLY = False
 
@@ -44,10 +41,25 @@ DATA = {
     "all": {"variants": ALL_VARIANT, "tcs": ALL_TC, "rrmin": -1000, "rrmax": 1000},
     "chess": {"variants": [("chess", False)], "tcs": ALL_TC, "rrmin": -1000, "rrmax": 1000},
     "chess960": {"variants": [("chess", True)], "tcs": ALL_TC, "rrmin": -1000, "rrmax": 1000},
-    "zh": {"variants": [("crazyhouse", False)], "tcs": ALL_TC, "rrmin": -1000, "rrmax": 1000},
-    "zh960": {"variants": [("crazyhouse", True)], "tcs": ALL_TC, "rrmin": -1000, "rrmax": 1000},
-    "koth": {"variants": [("kingofthehill", False)], "tcs": ALL_TC, "rrmin": -1000, "rrmax": 1000},
-    "koth960": {
+    "crazyhouse": {
+        "variants": [("crazyhouse", False)],
+        "tcs": ALL_TC,
+        "rrmin": -1000,
+        "rrmax": 1000,
+    },
+    "crazyhouse960": {
+        "variants": [("crazyhouse", True)],
+        "tcs": ALL_TC,
+        "rrmin": -1000,
+        "rrmax": 1000,
+    },
+    "kingofthehill": {
+        "variants": [("kingofthehill", False)],
+        "tcs": ALL_TC,
+        "rrmin": -1000,
+        "rrmax": 1000,
+    },
+    "kingofthehill960": {
         "variants": [("kingofthehill", True)],
         "tcs": ALL_TC,
         "rrmin": -1000,
@@ -238,8 +250,8 @@ class AutoPairingTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
 
         seek0 = Seek("id0", self.aplayer, "chess")
-        seek1 = Seek("id1", self.bplayer, "zh")
-        seek2 = Seek("id2", self.cplayer, "koth")
+        seek1 = Seek("id1", self.bplayer, "crazyhouse")
+        seek2 = Seek("id2", self.cplayer, "kingofthehill")
 
         app_state.seeks[seek0.id] = seek0
         app_state.seeks[seek1.id] = seek1
@@ -275,11 +287,11 @@ class AutoPairingTestCase(AioHTTPTestCase):
 
         add_to_auto_pairings(app_state, self.aplayer, DATA["chess"])
         add_to_auto_pairings(app_state, self.bplayer, DATA["chess960"])
-        add_to_auto_pairings(app_state, self.cplayer, DATA["zh"])
-        add_to_auto_pairings(app_state, self.dplayer, DATA["zh960"])
+        add_to_auto_pairings(app_state, self.cplayer, DATA["crazyhouse"])
+        add_to_auto_pairings(app_state, self.dplayer, DATA["crazyhouse960"])
 
         variant_tc = ("kingofthehill", False, 5, 5, 0)  # koth 5+5
-        add_to_auto_pairings(app_state, self.lplayer, DATA["koth"])
+        add_to_auto_pairings(app_state, self.lplayer, DATA["kingofthehill"])
         result = find_matching_user(app_state, self.lplayer, variant_tc)
         self.assertIsNone(result)
 

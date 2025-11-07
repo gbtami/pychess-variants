@@ -39,6 +39,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-Xiangfu:before {
+  content: "⬤";
+}
 .icon-Shatranj:before {
   content: "\1f418";
 }

@@ -145,6 +145,8 @@ function proTip (variant: string, chess960: boolean) {
         return _('Make sure to consider both forms of each piece.');
     case 'spartan':
         return _('Spartan kings can be a powerful addition to an offensive.');
+    case 'xiangfu':
+        return _('Capturing one of your opponent’s champions will give you a pupil.');
 // makruk
     case 'makruk':
         return _('Maximizing khon and met\'s effectiveness is the key.');

@@ -24,7 +24,7 @@ from const import (
     CASUAL,
     RATED,
     IMPORTED,
-    MANCHU_FEN,
+    SSE_GET_TIMEOUT,
     T_STARTED,
 )
 from compress import R2C, C2R
@@ -33,12 +33,14 @@ from fairy import (
     BLACK,
     WHITE,
     STANDARD_FEN,
+    MANCHU_FEN,
     FairyBoard,
     FEN_OK,
     NOTATION_SAN,
     get_san_moves,
     validate_fen,
 )
+from fairy.jieqi import make_initial_mapping
 from game import Game
 from newid import new_id
 from user import User
@@ -141,6 +143,9 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
         create=False,
         tournamentId=doc.get("tid"),
     )
+
+    if variant == "jieqi":
+        game.board.jieqi_covered_pieces = make_initial_mapping(doc["bj"], doc["wj"])
 
     game.usi_format = usi_format
 
@@ -271,16 +276,18 @@ async def import_game(request):
     status = int(data.get("Status", UNKNOWNFINISH))
     result = data.get("Result", "*")
     try:
-        date = data.get("Date", "")[0:10]
+        date_tag = data.get("Date", "")
+        date = date_tag[0:10]
         date = map(int, date.split("." if "." in date else "/"))
         date = datetime(*date, tzinfo=timezone.utc)
     except Exception:
-        log.exception("Date tag parsing failed")
+        log.debug("Date tag parsing failed. %s", date_tag)
         date = datetime.now(timezone.utc)
 
     try:
         minute = False
-        tc = data.get("TimeControl", "").split("+")
+        tc_tag = data.get("TimeControl", "")
+        tc = tc_tag.split("+")
         if tc[0][-1] == "分":
             minute = True
             tc[0] = tc[0][:-1]
@@ -290,7 +297,7 @@ async def import_game(request):
         base = int((tc[0] / 60 if tc[0] > 60 else tc[0]) if not minute else tc[0])
         inc = int(tc[1])
     except Exception:
-        log.exception("TimeControl tag parsing failed")
+        log.debug("TimeControl tag parsing failed. %s", tc_tag)
         base, inc = 0, 0
 
     move_stack = data.get("moves", "").split(" ")
@@ -437,6 +444,7 @@ async def new_game(app_state: PychessGlobalAppState, seek, game_id=None):
             chess960=seek.chess960,
             corr=seek.day > 0,
             create=True,
+            new_960_fen_needed_for_rematch=seek.reused_fen,
         )
     except Exception:
         log.exception(
@@ -512,6 +520,9 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         document["ws"] = game.wsetup
         document["bs"] = game.bsetup
         document["if"] = game.board.initial_fen
+    elif game.variant == "jieqi":
+        document["wj"] = "".join(game.board.red_pieces)
+        document["bj"] = "".join(game.board.black_pieces)
 
     if game.initial_fen or game.chess960:
         document["if"] = game.initial_fen
@@ -805,7 +816,7 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
     invalid3 = len(init) > 1 and init[1] not in "bw"
 
     # ataxx has no kings at all
-    if variant == "ataxx":
+    if variant in ("ataxx", "borderlands"):
         return True, sanitized_fen
 
     # Castling rights (and piece virginity) check
@@ -849,12 +860,26 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
                 invalid4 = True
 
     # Number of kings
-    bking = "l" if variant == "dobutsu" else "k"
-    wking = "L" if variant == "dobutsu" else "K"
+    if variant == "dobutsu":
+        bking = "l"
+    elif variant == "xiangfu":
+        bking = "g"
+    else:
+        bking = "k"
+
+    if variant == "dobutsu":
+        wking = "L"
+    elif variant == "xiangfu":
+        wking = "+G"
+    else:
+        wking = "K"
+
     bK = init[0].count(bking)
     wK = init[0].count(wking)
     if variant == "spartan":
         invalid5 = bK == 0 or bK > 2 or wK != 1
+    elif variant == "xiangfu":
+        invalid5 = bK == 0 or bK > 2 or wK == 0 or wK > 2
     elif variant == "horde":
         invalid5 = bK != 1 or wK != 0
     else:
@@ -967,10 +992,14 @@ async def subscribe_notify(request):
     try:
         async with sse_response(request) as response:
             while response.is_connected():
-                payload = await queue.get()
-                await response.send(payload)
-                queue.task_done()
-    except (ConnectionResetError, asyncio.CancelledError):
+                try:
+                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
+                    await response.send(payload)
+                    queue.task_done()
+                except asyncio.TimeoutError:
+                    if not response.is_connected():
+                        break
+    except Exception:
         pass
     finally:
         user.notify_channels.remove(queue)

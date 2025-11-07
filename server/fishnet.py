@@ -17,7 +17,7 @@ from settings import FISHNET_KEYS
 from utils import load_game, play_move
 from logger import log
 
-REQUIRED_FISHNET_VERSION = "1.16.23"
+REQUIRED_FISHNET_VERSION = "1.16.42"
 MOVE_WORK_TIME_OUT = 5.0
 
 
@@ -224,9 +224,14 @@ async def fishnet_move(request):
 
     user = app_state.users["Fairy-Stockfish"]
     move = data["move"]["bestmove"]
+    fen = data["move"].get("fen")
 
-    async with game.move_lock:
-        await play_move(app_state, user, game, move)
+    # Allow to make fishnet move if no takeback changed the current FEN
+    if fen is None or fen == game.board.fen:
+        async with game.move_lock:
+            await play_move(app_state, user, game, move)
+    else:
+        print("--- DISCARD FISHNET ---", move)
 
     response = await get_work(app_state, data)
     return response
@@ -251,7 +256,7 @@ async def fishnet_abort(request):
     try:
         app_state.workers.remove(data["fishnet"]["apikey"])
     except KeyError:
-        log.debug("Worker %s was already removed", key)
+        log.debug("Worker %s was already removed", worker)
 
     # re-schedule the job
     app_state.fishnet_queue.put_nowait((ANALYSIS, work_id))

@@ -6,11 +6,9 @@ from aiohttp import web
 
 from broadcast import round_broadcast
 from const import STARTED, RESIGN
-from newid import new_id
-from seek import challenge, Seek
 from settings import BOT_TOKENS
 from user import User
-from utils import join_seek, play_move
+from utils import load_game, new_game, play_move
 from pychess_global_app_state_utils import get_app_state
 from logger import log
 
@@ -20,6 +18,7 @@ def authorized(func):
 
     async def inner(request):
         auth = request.headers.get("Authorization")
+
         if auth is None:
             log.error("BOT request without Authorization header!")
             raise web.HTTPForbidden()
@@ -29,21 +28,34 @@ def authorized(func):
             log.error("BOT account token %s is not in BOT_TOKENS!", token)
             raise web.HTTPForbidden()
 
-        await func(request)
+        func.__globals__["username"] = BOT_TOKENS[token]
+        response = await func(request)
+        return response
 
     return inner
 
 
-@authorized
-async def bot_pong(request):
-    return web.json_response({"ok": True})
+async def bot_token_test(request):
+    text = await request.text()
+    tokens = text.split(",")
+
+    response = {}
+    for token in tokens:
+        if token in BOT_TOKENS:
+            response[token] = {
+                "scopes": "bot:play",
+                "userId": BOT_TOKENS[token],
+                "expires": 1358509698620,
+            }
+        else:
+            response[token] = None
+
+    return web.json_response(response)
 
 
 @authorized
 async def account(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
-    return web.json_response({"username": username, "title": "BOT"})
+    return web.json_response({"id": username, "username": username, "title": "BOT"})  # noqa: F821
 
 
 @authorized
@@ -59,90 +71,75 @@ async def challenge_create(request):
 
 @authorized
 async def challenge_accept(request):
+    app_state = get_app_state(request.app)
+
+    gameId = request.match_info.get("gameId")
+    seek = app_state.invites[gameId]
+
+    result = await new_game(app_state, seek, gameId)  # noqa: F821
+
+    if result["type"] == "new_game":
+
+        # TODO: use asyncio.Event()
+        wait_count = 0
+        while gameId not in app_state.invite_channels and wait_count < 10:
+            asyncio.sleep(1)
+            wait_count += 1
+            print("--- BOT_API challenge_accept() WAITING FOR SSE --- %s", wait_count)
+
+        try:
+            # Put response data to sse subscriber queue
+            channels = app_state.invite_channels[gameId]
+            for queue in channels:
+                await queue.put(json.dumps({"gameId": gameId, "accept": True}))
+        except ConnectionResetError:
+            log.error("/api/challenge/{%s}/accept ConnectionResetError", gameId)
+
+        engine = await app_state.users.get(username)  # noqa: F821
+
+        game = await load_game(app_state, gameId)
+        if game is None:
+            raise web.HTTPNotFound()
+
+        await engine.event_queue.put(game.game_start)
+
     return web.json_response({"ok": True})
 
 
 @authorized
 async def challenge_decline(request):
-    return web.json_response({"ok": True})
-
-
-@authorized
-async def create_bot_seek(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
-
-    data = await request.post()
-
     app_state = get_app_state(request.app)
 
-    bot_player = app_state.users[username]
+    gameId = request.match_info.get("gameId")
 
-    log.info("+++ %s created %s seek", bot_player.username, data["variant"])
+    # TODO: use asyncio.Event()
+    wait_count = 0
+    while gameId not in app_state.invite_channels and wait_count < 10:
+        await asyncio.sleep(1)
+        wait_count += 1
+        print("--- BOT_API challenge_decline() WAITING FOR SSE --- %s", wait_count)
 
-    # Try to create BOT vs BOT game to test TV
-    test_TV = True
-    matching_seek = None
-    if test_TV:
-        for seek in app_state.seeks.values():
-            if (
-                seek.variant == data["variant"]
-                and seek.creator.bot
-                and seek.creator.online
-                and seek.creator.username != username
-                and seek.level > 0
-            ):
-                log.debug("MATCHING BOT SEEK %s FOUND!", seek.id)
-                matching_seek = seek
-                break
-
-    if matching_seek is None:
-        seek = None
-        for existing_seek in app_state.seeks.values():
-            if existing_seek.creator == bot_player and existing_seek.variant == data["variant"]:
-                seek = existing_seek
-                break
-        if seek is None:
-            seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
-            seek = Seek(seek_id, bot_player, data["variant"], player1=bot_player)
-            app_state.seeks[seek.id] = seek
-        bot_player.seeks[seek.id] = seek
-
-        # inform others
-        await app_state.lobby.lobby_broadcast_seeks()
-    else:
-        response = await join_seek(app_state, bot_player, matching_seek)
-
-        gameId = response["gameId"]
-        game = app_state.games[gameId]
-
-        chall = challenge(seek, gameId)
-
-        await seek.creator.event_queue.put(chall)
-        seek.creator.game_queues[gameId] = asyncio.Queue()
-
-        await bot_player.event_queue.put(chall)
-        bot_player.game_queues[gameId] = asyncio.Queue()
-
-        await seek.creator.event_queue.put(game.game_start)
-        await bot_player.event_queue.put(game.game_start)
+    try:
+        # Put response data to sse subscriber queue
+        channels = app_state.invite_channels[gameId]
+        for queue in channels:
+            await queue.put(json.dumps({"gameId": gameId, "accept": False}))
+    except ConnectionResetError:
+        log.error("/api/challenge/{%s}/decline ConnectionResetError", gameId)
 
     return web.json_response({"ok": True})
 
 
 @authorized
 async def event_stream(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
-
     app_state = get_app_state(request.app)
 
     resp = web.StreamResponse()
-    resp.content_type = "text/plain"
+    resp.content_type = "application/x-ndjson"
     await resp.prepare(request)
 
-    if username in app_state.users:
-        bot_player = app_state.users[username]
+    if username in app_state.users:  # noqa: F821
+        bot_player = app_state.users[username]  # noqa: F821
         # After BOT lost connection it may have ongoing games
         # We notify BOT and he can ask to create new game_streams
         # to continue those games
@@ -150,14 +147,14 @@ async def event_stream(request):
             if gameId in app_state.games and app_state.games[gameId].status == STARTED:
                 await bot_player.event_queue.put(app_state.games[gameId].game_start)
     else:
-        bot_player = User(app_state, bot=True, username=username)
+        bot_player = User(app_state, bot=True, username=username)  # noqa: F821
         app_state.users[bot_player.username] = bot_player
 
-        doc = await app_state.db.user.find_one({"_id": username})
+        doc = await app_state.db.user.find_one({"_id": username})  # noqa: F821
         if doc is None:
             result = await app_state.db.user.insert_one(
                 {
-                    "_id": username,
+                    "_id": username,  # noqa: F821
                     "title": "BOT",
                 }
             )
@@ -167,48 +164,41 @@ async def event_stream(request):
 
     log.info("+++ BOT %s connected", bot_player.username)
 
-    pinger_task = asyncio.create_task(
-        bot_player.pinger(app_state.sockets, app_state.seeks, app_state.users, app_state.games),
-        name="BOT-event-stream-pinger",
-    )
+    async def pinger():
+        """To prevent lichess-bot.py sleep by heroku because of no activity."""
+        while True:
+            await bot_player.event_queue.put('{"type":"ping"}\n')
+            await asyncio.sleep(6)
 
-    # inform others
-    # TODO: do we need this at all?
-    await app_state.lobby.lobby_broadcast_seeks()
+    pinger_task = asyncio.create_task(pinger(), name="BOT-event-stream-pinger")
 
     # send "challenge" and "gameStart" events from event_queue to the BOT
     while bot_player.online:
         answer = await bot_player.event_queue.get()
-        try:
+        if answer is None:
             bot_player.event_queue.task_done()
-        except ValueError:
-            log.error(
-                "task_done() called more times than there were items placed in the queue in bot_api.py event_stream()"
-            )
         try:
-            if request.protocol.transport.is_closing():
-                log.error(
-                    "BOT %s request.protocol.transport.is_closing() == True ...",
-                    username,
-                )
+            if request.transport is not None and request.transport.is_closing():
                 break
             else:
-                await resp.write(answer.encode("utf-8"))
-                await resp.drain()
+                await resp.write(answer.encode())
+                bot_player.event_queue.task_done()
         except Exception:
-            log.error("BOT %s event_stream is broken...", username)
+            log.error("Writing %s to BOT %s event_stream is broken...", answer, username)  # fmt: skip # noqa: F821
             break
 
+    try:
+        await resp.write_eof()
+    except Exception:
+        log.error("Writing EOF to BOT event_stream failed!")
+
     pinger_task.cancel()
-    await bot_player.clear_seeks(force=True)
+    await bot_player.clear_seeks()
     return resp
 
 
 @authorized
 async def game_stream(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
-
     gameId = request.match_info["gameId"]
 
     app_state = get_app_state(request.app)
@@ -216,10 +206,10 @@ async def game_stream(request):
     game = app_state.games[gameId]
 
     resp = web.StreamResponse()
-    resp.content_type = "application/json"
+    resp.content_type = "application/x-ndjson"
     await resp.prepare(request)
 
-    bot_player = app_state.users[username]
+    bot_player = app_state.users[username]  # noqa: F821
 
     log.info("+++ %s connected to %s game stream", bot_player.username, gameId)
 
@@ -229,8 +219,8 @@ async def game_stream(request):
         """To help lichess-bot.py abort games showing no activity."""
         while True:
             if gameId in bot_player.game_queues:
-                await bot_player.game_queues[gameId].put("\n")
-                await asyncio.sleep(5)
+                await bot_player.game_queues[gameId].put('{"type":"ping"}\n')
+                await asyncio.sleep(6)
             else:
                 break
 
@@ -238,17 +228,16 @@ async def game_stream(request):
 
     while True:
         answer = await bot_player.game_queues[gameId].get()
-        try:
+        if answer is None:
             bot_player.game_queues[gameId].task_done()
-        except ValueError:
-            log.error(
-                "task_done() called more times than there were items placed in the queue in bot_api.py game_stream()"
-            )
         try:
-            await resp.write(answer.encode("utf-8"))
-            await resp.drain()
+            if request.transport is not None and request.transport.is_closing():
+                break
+            else:
+                await resp.write(answer.encode())
+                bot_player.game_queues[gameId].task_done()
         except Exception:
-            log.error("Writing %s to BOT game_stream failed!", answer)
+            log.error("Writing %s to BOT %s game_stream failed!", answer, username)  # noqa: F821
             break
 
     try:
@@ -262,14 +251,12 @@ async def game_stream(request):
 
 @authorized
 async def bot_move(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
     gameId = request.match_info["gameId"]
     move = request.match_info["move"]
 
     app_state = get_app_state(request.app)
 
-    user = app_state.users[username]
+    user = app_state.users[username]  # noqa: F821
     game = app_state.games[gameId]
 
     await play_move(app_state, user, game, move)
@@ -279,17 +266,14 @@ async def bot_move(request):
 
 @authorized
 async def bot_abort(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
-
     app_state = get_app_state(request.app)
 
     gameId = request.match_info["gameId"]
     game = app_state.games[gameId]
 
-    bot_player = app_state.users[username]
+    bot_player = app_state.users[username]  # noqa: F821
 
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
+    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username  # fmt: skip # noqa: F821
     opp_player = app_state.users[opp_name]
 
     response = await game.abort_by_server()
@@ -306,80 +290,34 @@ async def bot_abort(request):
 
 @authorized
 async def bot_resign(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
-
     app_state = get_app_state(request.app)
 
     gameId = request.match_info["gameId"]
     game = app_state.games[gameId]
     game.status = RESIGN
-    game.result = "0-1" if username == game.wplayer.username else "1-0"
-    return web.json_response({"ok": True})
-
-
-@authorized
-async def bot_analysis(request):
-    user_agent = request.headers.get("User-Agent")
-    bot_name = user_agent[user_agent.find("user:") + 5 :]
-
-    app_state = get_app_state(request.app)
-
-    data = await request.post()
-
-    gameId = request.match_info["gameId"]
-
-    username = data["username"]
-
-    if app_state.users[username].is_user_active_in_game(gameId):
-        game = app_state.games[gameId]
-
-        ply = data["ply"]
-        ceval = json.loads(data["ceval"])
-        print(ply, ceval)
-        if "score" in ceval:
-            game.steps[int(ply)]["eval"] = ceval["score"]
-
-        response = {
-            "type": "roundchat",
-            "user": bot_name,
-            "room": "spectator",
-            "message": ply + " " + json.dumps(ceval),
-        }
-        await app_state.users[username].send_game_message(gameId, response)
-
-        response = {
-            "type": "analysis",
-            "ply": ply,
-            "color": data["color"],
-            "ceval": ceval,
-        }
-        await app_state.users[username].send_game_message(gameId, response)
-
+    game.result = "0-1" if username == game.wplayer.username else "1-0"  # noqa: F821
     return web.json_response({"ok": True})
 
 
 @authorized
 async def bot_chat(request):
-    user_agent = request.headers.get("User-Agent")
-    username = user_agent[user_agent.find("user:") + 5 :]
-
     app_state = get_app_state(request.app)
 
     data = await request.post()
+    print("BOT-CHAT", username, data)  # noqa: F821
 
     gameId = request.match_info["gameId"]
 
     game = app_state.games[gameId]
 
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
+    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username  # fmt: skip  # noqa: F821
 
     if not app_state.users[opp_name].bot:
         await app_state.users[opp_name].send_game_message(
             gameId,
             {
                 "type": "roundchat",
-                "user": username,
+                "user": username,  # noqa: F821
                 "room": data["room"],
                 "message": data["text"],
             },

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import asyncio
 from asyncio import Queue
-from datetime import datetime, timezone
+from datetime import MINYEAR, datetime, timezone
 from typing import Set, List
 
 import aiohttp_session
@@ -9,15 +9,18 @@ from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 
 from broadcast import round_broadcast
-from const import ANON_PREFIX, STARTED, TEST_PREFIX
+from const import ANON_PREFIX, STARTED, TEST_PREFIX, reserved
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
-from login import RESERVED_USERS
 from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
 from seek import Seek
 from websocket_utils import ws_send_json
 from variants import RATED_VARIANTS
+from settings import (
+    URI,
+    LOCALHOST,
+)
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -33,6 +36,10 @@ PENDING_SEEK_TIMEOUT = 10
 ABANDON_TIMEOUT = 90
 
 
+class RatingResetError(Exception):
+    """Raised when new User object created with perft=None, but user already exists in leaderboards"""
+
+
 class User:
     def __init__(
         self,
@@ -46,12 +53,16 @@ class User:
         enabled=True,
         lang=None,
         theme="dark",
+        oauth_id="",
+        oauth_provider="",
     ):
         self.app_state = app_state
         self.bot = False if username == "PyChessBot" else bot
         self.anon = anon
         self.lang = lang
         self.theme = theme
+        self.oauth_id = oauth_id
+        self.oauth_provider = oauth_provider
         self.notifications = None
 
         if username is None:
@@ -89,7 +100,18 @@ class User:
         self.online = False
 
         if perfs is None:
-            self.perfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
+            if self.anon or self.bot:
+                self.perfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
+            else:
+                # User() with perfs=None can be dangerous
+                _id = "%s|%s" % (self.username, self.title)
+                hs = app_state.highscore
+                if any((_id in hs[variant] for variant in RATED_VARIANTS)):
+                    raise RatingResetError(
+                        "%s User() called with perfs=None. Use await users.get() instead.", username
+                    )
+                else:
+                    self.perfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
         else:
             self.perfs = {
                 variant: perfs[variant] if variant in perfs else DEFAULT_PERF
@@ -105,7 +127,8 @@ class User:
             }
 
         self.enabled = enabled
-        self.fen960_as_white = None
+
+        self.last_seen = datetime(MINYEAR, 1, 1, tzinfo=timezone.utc)
 
         # last game played
         self.tv = None
@@ -114,14 +137,14 @@ class User:
         self.silence = 0
 
         # purge inactive anon users after ANON_TIMEOUT sec
-        if self.anon and self.username not in RESERVED_USERS:
+        if self.anon and not reserved(self.username):
             self.remove_task = asyncio.create_task(
                 self.remove(), name="user-remove-%s" % self.username
             )
 
     async def remove(self):
         while True:
-            await asyncio.sleep(ANON_TIMEOUT)
+            await asyncio.sleep(1 if URI == LOCALHOST else ANON_TIMEOUT)
             if not self.online:
                 # give them a second chance
                 await asyncio.sleep(3)
@@ -159,22 +182,24 @@ class User:
             return 1500
 
     def get_rating(self, variant: str, chess960: bool) -> Rating:
-        if variant in self.perfs:
+        try:
             gl = self.perfs[variant + ("960" if chess960 else "")]["gl"]
             la = self.perfs[variant + ("960" if chess960 else "")]["la"]
             return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
-        rating = gl2.create_rating()
-        self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
-        return rating
+        except KeyError:
+            rating = gl2.create_rating()
+            self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
+            return rating
 
     def get_puzzle_rating(self, variant: str, chess960: bool) -> Rating:
-        if variant in self.pperfs:
+        try:
             gl = self.pperfs[variant + ("960" if chess960 else "")]["gl"]
             la = self.pperfs[variant + ("960" if chess960 else "")]["la"]
             return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
-        rating = gl2.create_rating()
-        self.pperfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
-        return rating
+        except KeyError:
+            rating = gl2.create_rating()
+            self.pperfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
+            return rating
 
     def set_silence(self):
         self.silence += SILENCE
@@ -245,7 +270,8 @@ class User:
         await notify(self.app_state.db, self, notif_type, content)
 
     async def notified(self):
-        self.notifications = [{**notif, "read": True} for notif in self.notifications]
+        if self.notifications is not None:
+            self.notifications = [{**notif, "read": True} for notif in self.notifications]
 
         if self.app_state.db is not None:
             await self.app_state.db.notify.update_many(
@@ -327,12 +353,14 @@ class User:
         #       sent on reconnect so client doesn't lose state
         ws_set = self.game_sockets.get(game_id)
         if ws_set is None or len(ws_set) == 0:
-            if self.title != "TEST":
-                log.error("No ws for that game. Dropping message %s for %s", message, self.username)
-                log.debug(
-                    "Currently user %s has these game_sockets: %r", self.username, self.game_sockets
-                )
             return
+        # TODO: make this switchable somehow
+        #    if self.title != "TEST":
+        #        log.debug("No ws for that game. Dropping message %s for %s", message, self.username)
+        #        log.debug(
+        #            "Currently user %s has these game_sockets: %r", self.username, self.game_sockets
+        #        )
+        #    return
         for ws in list(ws_set):
             log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
             await ws_send_json(ws, message)
@@ -397,6 +425,9 @@ class User:
         """Seek is auto pairing compatible when the rating ranges are ok
         and the users are not blocked by any direction"""
 
+        if seek.target not in ("", self.username, seek.creator.username):
+            return False
+
         self_rating = self.get_rating_value(seek.variant, seek.chess960)
         seek_user = self.app_state.users[seek.creator.username]
 
@@ -414,6 +445,9 @@ class User:
     def compatible_with_seek(self, seek):
         """Seek is compatible when my rating is inside the seek rating range
         and the users are not blocked by any direction"""
+
+        if seek.target not in ("", self.username, seek.creator.username):
+            return False
 
         self_rating = self.get_rating_value(seek.variant, seek.chess960)
         seek_user = self.app_state.users[seek.creator.username]
@@ -505,3 +539,16 @@ async def get_blocked_users(request):
         return web.json_response({})
 
     return web.json_response({"blocks": list(user.blocked)})
+
+
+async def get_status(request):
+    app_state = get_app_state(request.app)
+
+    ids = request.rel_url.query.get("ids").split(",")
+
+    status_list = []
+    for uid in ids:
+        user = await app_state.users.get(uid)
+        status_list.append({"status": user.online, "id": uid})
+
+    return web.json_response(status_list)
