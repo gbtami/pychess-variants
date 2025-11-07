@@ -262,16 +262,13 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
             tournament.nb_players = doc["nbPlayers"]
 
         if tournament.frequency:
-            try:
-                tournament.translated_name = app_state.tourneynames[lang][
-                    (
-                        tournament.variant + ("960" if tournament.chess960 else ""),
-                        tournament.frequency,
-                        tournament.system,
-                    )
-                ]
-            except KeyError:
-                tournament.translated_name = tournament.name
+            tournament.translated_name = app_state.tourneynames[lang][
+                (
+                    tournament.variant + ("960" if tournament.chess960 else ""),
+                    tournament.frequency,
+                    tournament.system,
+                )
+            ]
         else:
             tournament.translated_name = tournament.name
 
@@ -313,16 +310,13 @@ async def get_tournament_name(request, tournament_id):
     if tournament_id in tournaments:
         tournament = tournaments[tournament_id]
         if tournament.frequency:
-            try:
-                name = app_state.tourneynames[lang][
-                    (
-                        tournament.variant + ("960" if tournament.chess960 else ""),
-                        tournament.frequency,
-                        tournament.system,
-                    )
-                ]
-            except KeyError:
-                name = tournament.name
+            name = app_state.tourneynames[lang][
+                (
+                    tournament.variant + ("960" if tournament.chess960 else ""),
+                    tournament.frequency,
+                    tournament.system,
+                )
+            ]
         else:
             name = tournament.name
     else:
