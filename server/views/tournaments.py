@@ -1,6 +1,7 @@
+from aiohttp import web
 import aiohttp_jinja2
 
-from const import TRANSLATED_PAIRING_SYSTEM_NAMES
+from const import TRANSLATED_PAIRING_SYSTEM_NAMES, T_CREATED
 from misc import time_control_str
 from settings import TOURNAMENT_DIRECTORS
 from views import get_user_context
@@ -22,6 +23,21 @@ async def tournaments(request):
         if request.path.endswith("/arena"):
             data = await request.post()
             await create_or_update_tournament(app_state, user.username, data)
+
+        elif request.path.endswith("/edit"):
+            data = await request.post()
+
+            tournamentId = request.match_info.get("tournamentId")
+            tournament = app_state.tournaments.get(tournamentId) if tournamentId else None
+
+            if tournament is None and tournamentId is not None:
+                raise web.HTTPNotFound()
+            if tournament and user.username != tournament.creator:
+                raise web.HTTPForbidden()
+            if tournament and tournament.status != T_CREATED:
+                raise web.HTTPForbidden()
+            print("EDIT", data)
+            await create_or_update_tournament(app_state, user.username, data, tournament)
 
     lang = context["lang"]
     gettext = app_state.translations[lang].gettext

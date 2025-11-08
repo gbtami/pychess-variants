@@ -99,6 +99,21 @@ async def create_or_update_tournament(
     else:
         # We want to update some data of the tournament created by new_tournament() before.
         # upsert=True will do this update at the end of upsert_tournament_to_db()
+        tournament.name = data["name"]
+        tournament.password = data["password"]
+        tournament.variant = data["variant"]
+        tournament.chess960 = data["chess960"]
+        tournament.rated = data["rated"]
+        tournament.base = data["base"]
+        tournament.inc = data["inc"]
+        tournament.bp = data["bp"]
+        tournament.beforeStart = data["beforeStart"]
+        tournament.starts_at = data["startDate"]
+        tournament.frequency = data["frequency"]
+        tournament.minutes = data["minutes"]
+        tournament.fen = data["fen"]
+        tournament.description = data["description"]
+        # TODO: re-calculate created_at, starts_at, ends_at
         await upsert_tournament_to_db(tournament, app_state)
 
     await broadcast_tournament_creation(app_state, tournament)

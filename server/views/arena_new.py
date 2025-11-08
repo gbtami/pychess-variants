@@ -1,10 +1,8 @@
 import aiohttp_jinja2
 from aiohttp import web
 
-from const import T_CREATED
 from pychess_global_app_state import PychessGlobalAppState
 from settings import ADMINS, TOURNAMENT_DIRECTORS
-from tournament.tournaments import create_or_update_tournament
 from typedefs import pychess_global_app_state_key as app_state_key
 from views import get_user_context
 from variants import VARIANTS
@@ -18,20 +16,7 @@ async def arena_new(request):
     tournamentId = request.match_info.get("tournamentId")
 
     if user.username not in TOURNAMENT_DIRECTORS:
-        raise web.HTTPNotFound()
-
-    if request.method == "POST":
-        form = await request.post()
-        tournament = app_state.tournaments.get(tournamentId) if tournamentId else None
-        if tournament is None and tournamentId is not None:
-            raise web.HTTPNotFound()
-        if tournament and user.username != tournament.creator:
-            raise web.HTTPForbidden()
-        if tournament and tournament.status != T_CREATED:
-            raise web.HTTPForbidden()
-        await create_or_update_tournament(app_state, user.username, form, tournament)
-        location = f"/tournament/{tournamentId}" if tournamentId else "/tournaments"
-        raise web.HTTPFound(location=location)
+        raise web.HTTPForbidden()
 
     context["variants"] = VARIANTS
     context["view_css"] = "arena-new.css"
