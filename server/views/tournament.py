@@ -6,7 +6,6 @@ from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 from tournament.tournaments import (
     load_tournament,
-    create_or_update_tournament,
     get_tournament_name,
 )
 
