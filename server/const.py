@@ -66,6 +66,7 @@ class TStatus(IntEnum):
     T_ABORTED = 2
     T_FINISHED = 3
     T_ARCHIVED = 4
+    T_EDITING = 5
 
 
 # tournament frequency

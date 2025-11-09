@@ -31,6 +31,7 @@ from const import (
     T_ABORTED,
     T_FINISHED,
     T_ARCHIVED,
+    T_EDITING,
     SHIELD,
     MAX_CHAT_LINES,
 )
@@ -253,15 +254,10 @@ class Tournament(ABC):
         self.chess960 = chess960
         self.rounds = rounds
         self.frequency = frequency
-
-        self.server_variant = get_server_variant(variant, chess960)
-
         self.created_by = created_by
+        self.starts_at = starts_at
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
-        if starts_at == "" or starts_at is None:
-            self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
-        else:
-            self.starts_at = starts_at
+        self.with_clock = with_clock
 
         self.tourneychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
 
@@ -293,18 +289,34 @@ class Tournament(ABC):
         self.notify1 = False
         self.notify2 = False
 
-        if minutes is None:
+        self.clock_task = None
+
+        self.initialize()
+
+    def initialize(self):
+        """Set properties which may be updated by the creator before the tournament starts"""
+
+        self.server_variant = get_server_variant(self.variant, self.chess960)
+
+        if self.starts_at == "" or self.starts_at is None:
+            self.starts_at = self.created_at + timedelta(seconds=int(self.before_start * 60))
+
+        if self.minutes is None:
             self.ends_at = self.starts_at + timedelta(days=1)
         else:
-            self.ends_at = self.starts_at + timedelta(minutes=minutes)
-
-        if with_clock:
-            self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
+            self.ends_at = self.starts_at + timedelta(minutes=self.minutes)
 
         self.browser_title = "%s Tournament • %s" % (
             self.server_variant.display_name,
             self.name,
         )
+
+        if self.with_clock:
+            self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
+
+    @property
+    def creator(self):
+        return self.created_by
 
     def __repr__(self):
         return " ".join((self.id, self.name, self.created_at.isoformat()))
@@ -433,7 +445,7 @@ class Tournament(ABC):
 
     async def clock(self):
         try:
-            while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
+            while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED, T_EDITING):
                 now = datetime.now(timezone.utc)
 
                 if self.status == T_CREATED:
