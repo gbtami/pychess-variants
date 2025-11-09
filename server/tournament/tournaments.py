@@ -117,7 +117,6 @@ async def create_or_update_tournament(
         # re-calculate created_at, starts_at, ends_at etc.
         tournament.initialize()
         await upsert_tournament_to_db(tournament, app_state)
-        tournament.status = T_EDITING
 
     await broadcast_tournament_creation(app_state, tournament)
 
