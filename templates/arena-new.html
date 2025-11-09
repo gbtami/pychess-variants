@@ -33,7 +33,7 @@
             {% set t_password = '' %}
             {% set t_starts_at = '' %}
             {% set t_shield = false %}
-            <form method="post" class="form3" action="/tournaments/arena">
+            <form method="post" class="form3" action="/tournaments/new">
             {% endif %}
                 <div class="form-group">
                     <label class="form-label" for="form3-name">Name</label>
@@ -186,7 +186,7 @@
                         <label class="form-label" for="form3-position">Starting position</label>
                         <input id="form3-position" name="position" value="{{ t_fen }}" class="form-control" />
                         <small class="form-help">Paste a valid FEN to start every game from a given position.
-                            <br />You can use the 
+                            <br />You can use the
                             <a href="/editor" rel="noopener" target="_blank">Board editor</a> to generate a FEN position, then paste it here.
                             <br />Leave empty to start games from the normal initial position.
                         </small>

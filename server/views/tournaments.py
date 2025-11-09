@@ -1,7 +1,9 @@
+import asyncio
+
 from aiohttp import web
 import aiohttp_jinja2
 
-from const import TRANSLATED_PAIRING_SYSTEM_NAMES, T_CREATED
+from const import TRANSLATED_PAIRING_SYSTEM_NAMES, T_CREATED, T_EDITING
 from misc import time_control_str
 from settings import TOURNAMENT_DIRECTORS
 from views import get_user_context
@@ -11,6 +13,7 @@ from tournament.tournaments import (
     get_latest_tournaments,
 )
 from variants import VARIANT_ICONS
+from logger import log
 
 
 @aiohttp_jinja2.template("tournaments.html")
@@ -20,7 +23,7 @@ async def tournaments(request):
     app_state = get_app_state(request.app)
 
     if user.username in TOURNAMENT_DIRECTORS:
-        if request.path.endswith("/arena"):
+        if request.path.endswith("/new"):
             data = await request.post()
             await create_or_update_tournament(app_state, user.username, data)
 
@@ -36,8 +39,20 @@ async def tournaments(request):
                 raise web.HTTPForbidden()
             if tournament and tournament.status != T_CREATED:
                 raise web.HTTPForbidden()
-            print("EDIT", data)
+
+            tournament.status = T_EDITING
+            task = tournament.clock_task
+            if task is not None:
+                taskname = task.get_name()
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    log.debug("%s cancelled" % taskname)
+                    tournament.clock_task = None
+
             await create_or_update_tournament(app_state, user.username, data, tournament)
+            tournament.status = T_CREATED
 
     lang = context["lang"]
     gettext = app_state.translations[lang].gettext

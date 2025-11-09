@@ -212,7 +212,7 @@ post_routes = (
     ("/translation/select", select_lang),
     ("/import", import_game),
     ("/import_bpgn", import_game_bpgn),
-    ("/tournaments/arena", tournaments.tournaments),
+    ("/tournaments/new", tournaments.tournaments),
     (r"/tournaments/{tournamentId:\w{8}}/edit", tournaments.tournaments),
     ("/twitch", twitch_request_handler),
     (r"/puzzle/complete/{puzzleId:\w{5}}", puzzle_complete),
