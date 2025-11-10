@@ -10,7 +10,7 @@ dependencies = [
     "aiohttp-jinja2==1.6",
     "aiohttp-session==2.12.1",
     "aiohttp-sse==2.2.0",
-    "brotli==1.1.0",
+    "brotli==1.2.0",
     "cryptography==46.0.3",
     "discord-py==2.6.4",
     "dnspython==2.8.0",
