@@ -5,7 +5,7 @@ from itertools import product
 from mongomock_motor import AsyncMongoMockClient
 from aiohttp.test_utils import AioHTTPTestCase
 
-from server import make_app
+from server.server import make_app
 from seek import Seek
 from user import User
 from pychess_global_app_state_utils import get_app_state

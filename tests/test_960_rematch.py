@@ -12,7 +12,7 @@ from wsr import handle_rematch
 from bug.game_bug import GameBug
 from bug.wsr_bug import handle_rematch_bughouse
 from glicko2.glicko2 import DEFAULT_PERF
-from server import make_app
+from server.server import make_app
 from user import User
 from pychess_global_app_state_utils import get_app_state
 from variants import VARIANTS

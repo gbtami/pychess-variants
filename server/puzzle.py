@@ -34,11 +34,11 @@ DOWN = -1
 def empty_puzzle(variant):
     puzzle = {
         "_id": "0",
-        "variant": variant,
-        "fen": FairyBoard.start_fen(variant),
-        "type": "",
-        "moves": "",
-        "eval": "",
+        "v": variant,
+        "f": FairyBoard.start_fen(variant),
+        "t": "",
+        "m": "",
+        "e": "",
     }
     return puzzle
 
@@ -73,7 +73,7 @@ async def get_daily_puzzle(request):
             # randomize daily puzzle variant
             user.puzzle_variant = random.choice(PUZZLE_VARIANTS)
             puzzle = await next_puzzle(request, user)
-            if puzzle.get("eval") != "#1":
+            if puzzle.get("e") != "#1":
                 puzzleId = puzzle["_id"]
 
         try:
@@ -102,7 +102,7 @@ async def next_puzzle(request, user):
     ]
     if user.puzzle_variant is not None:
         variant = user.puzzle_variant
-        filters.append({"variant": variant})
+        filters.append({"v": variant})
     else:
         variant = "chess"
 
@@ -118,14 +118,14 @@ async def next_puzzle(request, user):
         async for doc in cursor:
             puzzle = {
                 "_id": doc["_id"],
-                "variant": doc["variant"],
-                "fen": doc["fen"],
-                "moves": doc["moves"],
-                "type": doc["type"],
-                "eval": doc["eval"],
-                "site": doc.get("site", ""),
+                "v": doc["v"],
+                "f": doc["f"],
+                "m": doc["m"],
+                "t": doc["t"],
+                "e": doc["e"],
+                "s": doc.get("s", ""),
                 "gameId": doc.get("gameId", ""),
-                "played": doc.get("played", 0),
+                "p": doc.get("p", 0),
                 "lm": doc.get("lm", ""),
             }
             break
@@ -163,7 +163,7 @@ async def puzzle_complete(request):
     if user.anon or (not rated):
         return web.json_response({})
 
-    variant = post_data["variant"]
+    variant = post_data["v"]
     chess960 = False  # TODO: add chess960 to xxx960 variant puzzles
     color = post_data["color"]
     win = post_data["win"] == "true"
@@ -190,7 +190,7 @@ async def puzzle_vote(request):
     puzzleId = request.match_info.get("puzzleId")
     post_data = await request.post()
     good = post_data["vote"] == "true"
-    up_or_down = "up" if good else "down"
+    up_or_down = "u" if good else "d"
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)
@@ -200,10 +200,10 @@ async def puzzle_vote(request):
 
     user = await app_state.users.get(session_user)
 
-    if user.puzzles.get("puzzleId"):
+    if user.puzzles.get(puzzleId):
         return web.json_response({})
     else:
-        user.puzzles["puzzleId"] = UP if good else DOWN
+        user.puzzles[puzzleId] = UP if good else DOWN
 
     db = app_state.db
     if db is not None:
@@ -249,7 +249,7 @@ class Puzzle:
         self.db = db
         self.puzzle_data = puzzle_data
         self.puzzleId = puzzle_data["_id"]
-        self.perf = puzzle_data.get("perf", default_puzzle_perf(puzzle_data["eval"]))
+        self.perf = puzzle_data.get("perf", default_puzzle_perf(puzzle_data["e"]))
 
     def get_rating(self, variant: str, chess960: bool) -> Rating:
         gl = self.perf["gl"]
@@ -274,5 +274,5 @@ class Puzzle:
     async def set_played(self):
         if self.db is not None:
             await self.db.puzzle.find_one_and_update(
-                {"_id": self.puzzleId}, {"$set": {"played": self.puzzle_data.get("played", 0) + 1}}
+                {"_id": self.puzzleId}, {"$set": {"p": self.puzzle_data.get("p", 0) + 1}}
             )
