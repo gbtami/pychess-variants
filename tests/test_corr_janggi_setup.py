@@ -9,7 +9,7 @@ from mongomock_motor import AsyncMongoMockClient
 from const import STARTED
 from glicko2.glicko2 import DEFAULT_PERF
 from seek import Seek
-from server.server import make_app
+from server import make_app
 from user import User
 from users import Users
 from utils import join_seek, load_game

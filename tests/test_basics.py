@@ -17,7 +17,7 @@ from game import Game
 from bug.game_bug import GameBug
 from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
 from newid import id8
-from server.server import make_app
+from server import make_app
 from user import User
 from utils import sanitize_fen
 from pychess_global_app_state_utils import get_app_state
