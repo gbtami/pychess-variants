@@ -5,6 +5,7 @@ from mongomock_motor import AsyncMongoMockClient
 from server import make_app
 
 
+@pytest.mark.asyncio
 async def test_lobby_page(aiohttp_server):
     # Start the server using the fixture
     app = make_app(db_client=AsyncMongoMockClient())
