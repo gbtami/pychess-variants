@@ -38,7 +38,7 @@ export class PuzzleController extends AnalysisController {
         super(el, model);
         const data = JSON.parse(model.puzzle);
         this._id = data._id;
-        this.gameId = data.gameId;
+        this.gameId = data.g;
         this.site = data.s;
         this.played = data.p ?? "0";
         this.puzzleType = data.t;

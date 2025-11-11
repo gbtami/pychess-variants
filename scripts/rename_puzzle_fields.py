@@ -17,6 +17,8 @@ FIELD_MAPPING = {
     "played": "p",
     "up": "u",
     "down": "d",
+    "cooked": "c",
+    "gameId": "g",
 }
 
 

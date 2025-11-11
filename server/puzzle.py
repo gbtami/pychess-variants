@@ -11,6 +11,23 @@ from glicko2.glicko2 import MU, gl2, Rating, rating
 from pychess_global_app_state_utils import get_app_state
 from variants import VARIANTS
 
+# For documentation purpose only here (it was used for renaming)
+FIELD_MAPPING = {
+    "fen": "f",
+    "variant": "v",
+    "moves": "m",
+    "eval": "e",
+    "type": "t",
+    "uploadedBy": "b",
+    "site": "s",
+    "review": "r",
+    "played": "p",
+    "up": "u",
+    "down": "d",
+    "cooked": "c",
+    "gameId": "g",
+}
+
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
     "antichess",
@@ -97,8 +114,8 @@ async def next_puzzle(request, user):
     skipped = list(user.puzzles.keys())
     filters = [
         {"_id": {"$nin": skipped}},
-        {"cooked": {"$ne": True}},
-        {"review": {"$ne": False}},
+        {"c": {"$ne": True}},
+        {"r": {"$ne": False}},
     ]
     if user.puzzle_variant is not None:
         variant = user.puzzle_variant
@@ -124,7 +141,7 @@ async def next_puzzle(request, user):
                 "t": doc["t"],
                 "e": doc["e"],
                 "s": doc.get("s", ""),
-                "gameId": doc.get("gameId", ""),
+                "g": doc.get("g", ""),
                 "p": doc.get("p", 0),
                 "lm": doc.get("lm", ""),
             }
