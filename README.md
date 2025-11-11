@@ -6,7 +6,7 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/gbtami/pychess-variants)
 
 ---
-![pychess-variants.png](https://github.com/gbtami/pychess-variants/blob/79e12cf1c06612876293d3ceacbf3ddf2cd9f864/static/images/pychess-variants.png)
+![pychess-variants.png](https://github.com/gbtami/pychess-variants/blob/c9617275f6f927b5a15d4424c4a847a73489c805/static/images/pychess-variants.png)
 
 Pychess-variants is a free, open-source chess server designed to play chess variants.
 
