@@ -11,7 +11,9 @@ from glicko2.glicko2 import MU, gl2, Rating, rating
 from pychess_global_app_state_utils import get_app_state
 from variants import VARIANTS
 
-# For documentation purpose only here (it was used for renaming)
+
+# This was used only once to rename the document properties
+# but it is useful to let it here for documentation purpose
 FIELD_MAPPING = {
     "fen": "f",
     "variant": "v",
@@ -48,6 +50,18 @@ UP = 1
 DOWN = -1
 
 
+async def rename_puzzle_fields(db):
+    print("Starting puzzle field rename migration...")
+    try:
+        await db.puzzle.update_many(
+            {},
+            {"$rename": FIELD_MAPPING},
+        )
+        print("Migration completed successfully.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
 def empty_puzzle(variant):
     puzzle = {
         "_id": "0",
@@ -76,6 +90,7 @@ async def get_daily_puzzle(request):
 
     today = datetime.now(timezone.utc).date().isoformat()
     daily_puzzle_ids = app_state.daily_puzzle_ids
+
     if today in daily_puzzle_ids:
         puzzle = await get_puzzle(request, daily_puzzle_ids[today])
     else:
