@@ -51,16 +51,19 @@ DOWN = -1
 
 
 async def rename_puzzle_fields(db):
+    print("-----------------------------------------")
     print("Starting puzzle field rename migration...")
-    try:
-        await db.puzzle.update_many(
-            {},
-            {"$rename": FIELD_MAPPING},
-        )
-        print("Migration completed successfully.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
+    for old_name, new_name in FIELD_MAPPING.items():
+        try:
+            result = await db.puzzle.update_many(
+                {old_name: {"$exists": True}},
+                {"$rename": {old_name: new_name}},
+            )
+            print(f"Renamed {old_name} -> {new_name} in {result.modified_count} documents.")
+        except Exception as e:
+            print(f"Failed renaming {old_name} -> {new_name}: {e}")
+    print("Migration completed.")
+    print("--------------------")
 
 def empty_puzzle(variant):
     puzzle = {
