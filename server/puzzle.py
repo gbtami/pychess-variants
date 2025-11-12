@@ -65,6 +65,7 @@ async def rename_puzzle_fields(db):
     print("Migration completed.")
     print("--------------------")
 
+
 def empty_puzzle(variant):
     puzzle = {
         "_id": "0",
