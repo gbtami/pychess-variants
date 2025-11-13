@@ -361,7 +361,9 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
         rematch_id = None
 
         opp_name = (
-            game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+            game.wplayer.username
+            if user.username == game.bplayer.username
+            else game.bplayer.username
         )
         opp_player = app_state.users[opp_name]
         handicap = data["handicap"]
