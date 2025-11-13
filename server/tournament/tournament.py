@@ -31,7 +31,6 @@ from const import (
     T_ABORTED,
     T_FINISHED,
     T_ARCHIVED,
-    T_EDITING,
     SHIELD,
     MAX_CHAT_LINES,
 )
@@ -445,7 +444,7 @@ class Tournament(ABC):
 
     async def clock(self):
         try:
-            while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED, T_EDITING):
+            while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
                 now = datetime.now(timezone.utc)
 
                 if self.status == T_CREATED:

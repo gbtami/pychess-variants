@@ -3,7 +3,7 @@ import asyncio
 from aiohttp import web
 import aiohttp_jinja2
 
-from const import TRANSLATED_PAIRING_SYSTEM_NAMES, T_CREATED, T_EDITING
+from const import TRANSLATED_PAIRING_SYSTEM_NAMES, T_CREATED
 from misc import time_control_str
 from settings import TOURNAMENT_DIRECTORS
 from views import get_user_context
@@ -40,7 +40,6 @@ async def tournaments(request):
             if tournament and tournament.status != T_CREATED:
                 raise web.HTTPForbidden()
 
-            tournament.status = T_EDITING
             task = tournament.clock_task
             if task is not None:
                 taskname = task.get_name()
@@ -52,7 +51,6 @@ async def tournaments(request):
                     tournament.clock_task = None
 
             await create_or_update_tournament(app_state, user.username, data, tournament)
-            tournament.status = T_CREATED
 
     lang = context["lang"]
     gettext = app_state.translations[lang].gettext
