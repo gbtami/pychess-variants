@@ -356,61 +356,32 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
         await handle_rematch_bughouse(app_state, game, user)
         return
 
-    rematch_id = None
+    # Use the game's move_lock to ensure atomic operations for rematch functionality
+    async with game.move_lock:
+        rematch_id = None
 
-    opp_name = (
-        game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
-    )
-    opp_player = app_state.users[opp_name]
-    handicap = data["handicap"]
-    fen = "" if game.variant == "janggi" else game.initial_fen
-
-    reused_fen = True
-    if (game.chess960 or game.random_only) and game.new_960_fen_needed_for_rematch:
-        fen = FairyBoard.start_fen(game.variant, game.chess960, disabled_fen=game.initial_fen)
-        reused_fen = False
-
-    if opp_player.bot:
-        if opp_player.username == "Random-Mover":
-            engine = app_state.users["Random-Mover"]
-        else:
-            engine = app_state.users["Fairy-Stockfish"]
-
-        if engine is None or not engine.online:
-            # TODO: message that engine is offline, but capture BOT will play instead
-            engine = app_state.users["Random-Mover"]
-
-        color = "w" if game.wplayer.username == opp_name else "b"
-        if handicap:
-            color = "w" if color == "b" else "b"
-        seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
-        seek = Seek(
-            seek_id,
-            user,
-            game.variant,
-            fen=fen,
-            color=color,
-            base=game.base,
-            inc=game.inc,
-            byoyomi_period=game.byoyomi_period,
-            day=game.base if game.corr else 0,
-            level=game.level,
-            rated=game.rated,
-            player1=user,
-            chess960=game.chess960,
-            reused_fen=reused_fen,
+        opp_name = (
+            game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
         )
-        app_state.seeks[seek.id] = seek
+        opp_player = app_state.users[opp_name]
+        handicap = data["handicap"]
+        fen = "" if game.variant == "janggi" else game.initial_fen
 
-        response = await join_seek(app_state, engine, seek)
-        await ws_send_json(ws, response)
+        reused_fen = True
+        if (game.chess960 or game.random_only) and game.new_960_fen_needed_for_rematch:
+            fen = FairyBoard.start_fen(game.variant, game.chess960, disabled_fen=game.initial_fen)
+            reused_fen = False
 
-        await engine.event_queue.put(challenge(seek))
-        gameId = response["gameId"]
-        rematch_id = gameId
-        engine.game_queues[gameId] = asyncio.Queue()
-    else:
-        if opp_name in game.rematch_offers:
+        if opp_player.bot:
+            if opp_player.username == "Random-Mover":
+                engine = app_state.users["Random-Mover"]
+            else:
+                engine = app_state.users["Fairy-Stockfish"]
+
+            if engine is None or not engine.online:
+                # TODO: message that engine is offline, but capture BOT will play instead
+                engine = app_state.users["Random-Mover"]
+
             color = "w" if game.wplayer.username == opp_name else "b"
             if handicap:
                 color = "w" if color == "b" else "b"
@@ -433,24 +404,55 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
             )
             app_state.seeks[seek.id] = seek
 
-            response = await join_seek(app_state, opp_player, seek)
-            rematch_id = response["gameId"]
+            response = await join_seek(app_state, engine, seek)
             await ws_send_json(ws, response)
-            await app_state.users[opp_name].send_game_message(data["gameId"], response)
+
+            await engine.event_queue.put(challenge(seek))
+            gameId = response["gameId"]
+            rematch_id = gameId
+            engine.game_queues[gameId] = asyncio.Queue()
         else:
-            game.rematch_offers.add(user.username)
-            response = {
-                "type": "rematch_offer",
-                "username": user.username,
-                "message": "Rematch offer sent",
-                "room": "player",
-                "user": "",
-            }
-            game.messages.append(response)
-            await ws_send_json(ws, response)
-            await app_state.users[opp_name].send_game_message(data["gameId"], response)
-    if rematch_id:
-        await round_broadcast(game, {"type": "view_rematch", "gameId": rematch_id})
+            if opp_name in game.rematch_offers:
+                color = "w" if game.wplayer.username == opp_name else "b"
+                if handicap:
+                    color = "w" if color == "b" else "b"
+                seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
+                seek = Seek(
+                    seek_id,
+                    user,
+                    game.variant,
+                    fen=fen,
+                    color=color,
+                    base=game.base,
+                    inc=game.inc,
+                    byoyomi_period=game.byoyomi_period,
+                    day=game.base if game.corr else 0,
+                    level=game.level,
+                    rated=game.rated,
+                    player1=user,
+                    chess960=game.chess960,
+                    reused_fen=reused_fen,
+                )
+                app_state.seeks[seek.id] = seek
+
+                response = await join_seek(app_state, opp_player, seek)
+                rematch_id = response["gameId"]
+                await ws_send_json(ws, response)
+                await app_state.users[opp_name].send_game_message(data["gameId"], response)
+            else:
+                game.rematch_offers.add(user.username)
+                response = {
+                    "type": "rematch_offer",
+                    "username": user.username,
+                    "message": "Rematch offer sent",
+                    "room": "player",
+                    "user": "",
+                }
+                game.messages.append(response)
+                await ws_send_json(ws, response)
+                await app_state.users[opp_name].send_game_message(data["gameId"], response)
+        if rematch_id:
+            await round_broadcast(game, {"type": "view_rematch", "gameId": rematch_id})
 
     return response
 
