@@ -86,7 +86,9 @@ async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user):
 
             reused_fen = True
             if game.chess960 and game.new_960_fen_needed_for_rematch:
-                fen = FairyBoard.start_fen(game.variant, game.chess960, disabled_fen=game.initial_fen)
+                fen = FairyBoard.start_fen(
+                    game.variant, game.chess960, disabled_fen=game.initial_fen
+                )
                 reused_fen = False
 
             seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
