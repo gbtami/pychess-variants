@@ -124,7 +124,7 @@ get_routes = (
     (r"/embed/{gameId:\w{8}}", embed.embed),
     ("/tournaments", tournaments.tournaments),
     ("/tournaments/new", arena_new.arena_new),
-    # (r"/tournaments/{tournamentId:\w{8}}/edit", tournament.tournament),  # TODO
+    (r"/tournaments/{tournamentId:\w{8}}/edit", arena_new.arena_new),
     ("/tournaments/shields", shields.shields),
     ("/tournaments/shields/{variant}", shields.shields),
     ("/tournaments/winners", winners.winners),
@@ -212,8 +212,8 @@ post_routes = (
     ("/translation/select", select_lang),
     ("/import", import_game),
     ("/import_bpgn", import_game_bpgn),
-    ("/tournaments/arena", tournaments.tournaments),
-    (r"/tournament/{tournamentId:\w{8}}/edit", arena_new.arena_new),  # TODO: implement
+    ("/tournaments/new", tournaments.tournaments),
+    (r"/tournaments/{tournamentId:\w{8}}/edit", tournaments.tournaments),
     ("/twitch", twitch_request_handler),
     (r"/puzzle/complete/{puzzleId:\w{5}}", puzzle_complete),
     (r"/puzzle/vote/{puzzleId:\w{5}}", puzzle_vote),

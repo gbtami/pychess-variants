@@ -10,7 +10,7 @@ dependencies = [
     "aiohttp-jinja2==1.6",
     "aiohttp-session==2.12.1",
     "aiohttp-sse==2.2.0",
-    "brotli==1.1.0",
+    "brotli==1.2.0",
     "cryptography==46.0.3",
     "discord-py==2.6.4",
     "dnspython==2.8.0",
@@ -28,7 +28,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black==25.9.0",
+    "black==25.11.0",
     "flake8==7.3.0",
     "mongomock-motor==0.0.36",
     "motor==3.7.1",
@@ -36,7 +36,7 @@ dev = [
     "objgraph==3.6.2",
     "playwright==1.55.0",
     "pre-commit>=4.3.0",
-    "pytest==8.4.2",
+    "pytest<9.0.0",
     "pytest-aiohttp==1.1.0",
 ]
 

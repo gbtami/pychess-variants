@@ -11,6 +11,25 @@ from glicko2.glicko2 import MU, gl2, Rating, rating
 from pychess_global_app_state_utils import get_app_state
 from variants import VARIANTS
 
+
+# This was used only once to rename the document properties
+# but it is useful to let it here for documentation purpose
+FIELD_MAPPING = {
+    "fen": "f",
+    "variant": "v",
+    "moves": "m",
+    "eval": "e",
+    "type": "t",
+    "uploadedBy": "b",
+    "site": "s",
+    "review": "r",
+    "played": "p",
+    "up": "u",
+    "down": "d",
+    "cooked": "c",
+    "gameId": "g",
+}
+
 # variants having 0 puzzle so far
 NO_PUZZLE_VARIANTS = (
     "antichess",
@@ -31,14 +50,30 @@ UP = 1
 DOWN = -1
 
 
+async def rename_puzzle_fields(db):
+    print("-----------------------------------------")
+    print("Starting puzzle field rename migration...")
+    for old_name, new_name in FIELD_MAPPING.items():
+        try:
+            result = await db.puzzle.update_many(
+                {old_name: {"$exists": True}},
+                {"$rename": {old_name: new_name}},
+            )
+            print(f"Renamed {old_name} -> {new_name} in {result.modified_count} documents.")
+        except Exception as e:
+            print(f"Failed renaming {old_name} -> {new_name}: {e}")
+    print("Migration completed.")
+    print("--------------------")
+
+
 def empty_puzzle(variant):
     puzzle = {
         "_id": "0",
-        "variant": variant,
-        "fen": FairyBoard.start_fen(variant),
-        "type": "",
-        "moves": "",
-        "eval": "",
+        "v": variant,
+        "f": FairyBoard.start_fen(variant),
+        "t": "",
+        "m": "",
+        "e": "",
     }
     return puzzle
 
@@ -59,6 +94,7 @@ async def get_daily_puzzle(request):
 
     today = datetime.now(timezone.utc).date().isoformat()
     daily_puzzle_ids = app_state.daily_puzzle_ids
+
     if today in daily_puzzle_ids:
         puzzle = await get_puzzle(request, daily_puzzle_ids[today])
     else:
@@ -73,7 +109,7 @@ async def get_daily_puzzle(request):
             # randomize daily puzzle variant
             user.puzzle_variant = random.choice(PUZZLE_VARIANTS)
             puzzle = await next_puzzle(request, user)
-            if puzzle.get("eval") != "#1":
+            if puzzle.get("e") != "#1":
                 puzzleId = puzzle["_id"]
 
         try:
@@ -97,12 +133,12 @@ async def next_puzzle(request, user):
     skipped = list(user.puzzles.keys())
     filters = [
         {"_id": {"$nin": skipped}},
-        {"cooked": {"$ne": True}},
-        {"review": {"$ne": False}},
+        {"c": {"$ne": True}},
+        {"r": {"$ne": False}},
     ]
     if user.puzzle_variant is not None:
         variant = user.puzzle_variant
-        filters.append({"variant": variant})
+        filters.append({"v": variant})
     else:
         variant = "chess"
 
@@ -118,14 +154,14 @@ async def next_puzzle(request, user):
         async for doc in cursor:
             puzzle = {
                 "_id": doc["_id"],
-                "variant": doc["variant"],
-                "fen": doc["fen"],
-                "moves": doc["moves"],
-                "type": doc["type"],
-                "eval": doc["eval"],
-                "site": doc.get("site", ""),
-                "gameId": doc.get("gameId", ""),
-                "played": doc.get("played", 0),
+                "v": doc["v"],
+                "f": doc["f"],
+                "m": doc["m"],
+                "t": doc["t"],
+                "e": doc["e"],
+                "s": doc.get("s", ""),
+                "g": doc.get("g", ""),
+                "p": doc.get("p", 0),
                 "lm": doc.get("lm", ""),
             }
             break
@@ -163,7 +199,7 @@ async def puzzle_complete(request):
     if user.anon or (not rated):
         return web.json_response({})
 
-    variant = post_data["variant"]
+    variant = post_data["v"]
     chess960 = False  # TODO: add chess960 to xxx960 variant puzzles
     color = post_data["color"]
     win = post_data["win"] == "true"
@@ -190,7 +226,7 @@ async def puzzle_vote(request):
     puzzleId = request.match_info.get("puzzleId")
     post_data = await request.post()
     good = post_data["vote"] == "true"
-    up_or_down = "up" if good else "down"
+    up_or_down = "u" if good else "d"
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)
@@ -200,10 +236,10 @@ async def puzzle_vote(request):
 
     user = await app_state.users.get(session_user)
 
-    if user.puzzles.get("puzzleId"):
+    if user.puzzles.get(puzzleId):
         return web.json_response({})
     else:
-        user.puzzles["puzzleId"] = UP if good else DOWN
+        user.puzzles[puzzleId] = UP if good else DOWN
 
     db = app_state.db
     if db is not None:
@@ -249,7 +285,7 @@ class Puzzle:
         self.db = db
         self.puzzle_data = puzzle_data
         self.puzzleId = puzzle_data["_id"]
-        self.perf = puzzle_data.get("perf", default_puzzle_perf(puzzle_data["eval"]))
+        self.perf = puzzle_data.get("perf", default_puzzle_perf(puzzle_data["e"]))
 
     def get_rating(self, variant: str, chess960: bool) -> Rating:
         gl = self.perf["gl"]
@@ -274,5 +310,5 @@ class Puzzle:
     async def set_played(self):
         if self.db is not None:
             await self.db.puzzle.find_one_and_update(
-                {"_id": self.puzzleId}, {"$set": {"played": self.puzzle_data.get("played", 0) + 1}}
+                {"_id": self.puzzleId}, {"$set": {"p": self.puzzle_data.get("p", 0) + 1}}
             )
