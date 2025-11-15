@@ -28,7 +28,7 @@ S-Chess，全称为Seirawan Chess，是美国国际象棋特级大师亚瑟·塞
 ## 策略
 
 请保护好王，因为有了大象和鹰后，王变得很容易被长距离棋子将死。
-推荐阅读：[https://www.chess.com/blog/catask/s-chess-ramblings-1](https://www.chess.com/blog/catask/s-chess-ramblings-1)。
+推荐阅读：[https://www.pychess.org/blogs/S-chess_ramblings](https://www.pychess.org/blogs/S-chess_ramblings)。
 您也可以看看亚瑟·塞拉万（本棋作者）玩棋的视频。
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ujWzsxm18aQ" frameborder="0" allowfullscreen></iframe>
