@@ -53,21 +53,26 @@ export class DuckInput extends ExtraInput {
             );
         }
 
+        this.inputState = 'click';
         if (!duckKey) {
-            this.inputState = 'click';
             const message = _('Place the duck on an empty square.');
             chatMessage('', message, "roundchat");
         } else {
             // Change the duck's color so that it became movable by the player
             this.ctrl.chessground.state.boardState.pieces.get(duckKey)!.color = piece.color;
-            this.ctrl.chessground.set({
-                turnColor: piece.color,
-                movable: {
-                    dests: new Map([[duckKey, this.duckDests]]),
-                },
-            });
-            this.inputState = 'move';
         }
+        this.ctrl.chessground.set({
+            turnColor: piece.color,
+            movable: {
+                free: false,
+                color: 'none',
+                dests: new Map(),
+            },
+        });
+        this.ctrl.chessground.setShapes(this.duckDests.map(key => ({
+            orig: key,
+            brush: 'green',
+        })));
     }
 
     finish(key: cg.Key): void {
@@ -76,6 +81,7 @@ export class DuckInput extends ExtraInput {
             this.next(',' + this.data.dest + key);
             this.inputState = undefined;
             this.data = undefined;
+            this.ctrl.chessground.setShapes([]);
         }
     }
 }
