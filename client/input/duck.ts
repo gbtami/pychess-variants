@@ -66,7 +66,6 @@ export class DuckInput extends ExtraInput {
         this.ctrl.chessground.set({
             turnColor: piece.color,
             movable: {
-                color: piece.color,
                 dests: new Map([[duckKey, this.duckDests]]),
             },
         });
@@ -79,8 +78,6 @@ export class DuckInput extends ExtraInput {
             this.next(',' + this.data.dest + key);
             this.inputState = undefined;
             this.data = undefined;
-            this.ctrl.chessground.state.boardState.pieces.delete('a0');
-            this.ctrl.chessground.selectSquare(null, false);
         }
     }
 }
