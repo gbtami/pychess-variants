@@ -105,6 +105,8 @@ export class DuckInput extends ExtraInput {
                 },
             });
             this.ctrl.chessground.selectSquare(null, false);
+            const container = document.getElementById('extension_choice') as HTMLElement;
+            if (container) patch(container, h('extension'));
         }
     }
 }
