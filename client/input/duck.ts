@@ -57,22 +57,35 @@ export class DuckInput extends ExtraInput {
         if (!duckKey) {
             const message = _('Place the duck on an empty square.');
             chatMessage('', message, "roundchat");
+            this.ctrl.chessground.state.boardState.pieces.set('__duck', {role: 'duck', color: 'white'});
+            this.ctrl.chessground.set({
+                turnColor: piece.color,
+                movable: {
+                    free: false,
+                    color: 'white',
+                    dests: new Map([['__duck', this.duckDests]]),
+                },
+                draggable: {
+                    enabled: false,
+                },
+            });
+            this.ctrl.chessground.selectSquare('__duck', false);
         } else {
             // Change the duck's color so that it became movable by the player
             this.ctrl.chessground.state.boardState.pieces.get(duckKey)!.color = piece.color;
+            this.ctrl.chessground.set({
+                turnColor: piece.color,
+                movable: {
+                    free: false,
+                    color: piece.color,
+                    dests: new Map([[duckKey, this.duckDests]]),
+                },
+                draggable: {
+                    enabled: false,
+                },
+            });
+            this.ctrl.chessground.selectSquare(duckKey, false);
         }
-        this.ctrl.chessground.set({
-            turnColor: piece.color,
-            movable: {
-                free: false,
-                color: 'none',
-                dests: new Map(),
-            },
-        });
-        this.ctrl.chessground.setShapes(this.duckDests.map(key => ({
-            orig: key,
-            brush: 'green',
-        })));
     }
 
     finish(key: cg.Key): void {
@@ -81,7 +94,17 @@ export class DuckInput extends ExtraInput {
             this.next(',' + this.data.dest + key);
             this.inputState = undefined;
             this.data = undefined;
+            this.ctrl.chessground.state.boardState.pieces.delete('__duck');
             this.ctrl.chessground.setShapes([]);
+            this.ctrl.chessground.set({
+                movable: {
+                    dests: new Map(),
+                },
+                draggable: {
+                    enabled: true,
+                },
+            });
+            this.ctrl.chessground.selectSquare(null, false);
         }
     }
 }
