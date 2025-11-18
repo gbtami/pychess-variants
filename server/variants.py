@@ -126,6 +126,7 @@ class ServerVariants(Enum):
     SPARTAN = Variant("N", "spartan", _("Spartan"), "⍺")
     XIANGFU = Variant('"', "xiangfu", _("Xiang Fu"), "👊")
 
+    BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), " 🌄", grand=True)
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
 
     @property

@@ -1326,8 +1326,8 @@ export function lobbyView(model: PyChessModel): VNode[] {
     const myTurnGameCounter = (sum: number, game: Game) => sum + ((game.tp === username) ? 1 : 0);
     const count = corrGames.reduce(myTurnGameCounter, 0);
 
-    const variant = VARIANTS[puzzle.variant];
-    const turnColor = puzzle.fen.split(" ")[1] === "w" ? "white" : "black";
+    const variant = VARIANTS[puzzle.v];
+    const turnColor = puzzle.f.split(" ")[1] === "w" ? "white" : "black";
     const first = _(variant.colors.first);
     const second = _(variant.colors.second);
 
@@ -1345,7 +1345,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                         insert: vnode => {
                             Chessground(vnode.elm as HTMLElement,  {
                                 orientation: variant.name === 'racingkings' ? 'white' : turnColor,
-                                fen: puzzle.fen,
+                                fen: puzzle.f,
                                 dimensions: variant.board.dimensions,
                                 coordinates: false,
                                 viewOnly: true,

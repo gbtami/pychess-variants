@@ -1,0 +1,1394 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="900"
+   height="1000"
+   viewBox="0 0 900 1000"
+   id="svg374"
+   sodipodi:docname="cobalt_9x10.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+  <metadata
+     id="metadata2">
+    <rdf:RDF>
+      <cc:Work
+         cc:attributionName="dpldgr"
+         cc:attributionURL="https://github.com/dpldgr/"
+         cc:license="http://creativecommons.org/licenses/by-nc-nd/4.0/"
+         dc:format="image/svg+xml"
+         dc:type="http://purl.org/dc/dcmitype/StillImage">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-nc-nd/4.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-nc-nd/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:prohibits
+           rdf:resource="http://creativecommons.org/ns#CommercialUse" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs378">
+    <symbol
+       id="cd_new">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect3" />
+      <rect
+         class="du"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect5" />
+    </symbol>
+    <symbol
+       id="cl_new">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect8" />
+      <rect
+         class="lu"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect10" />
+    </symbol>
+    <symbol
+       id="swd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect13" />
+      <rect
+         class="village_du"
+         width="98"
+         height="98"
+         x="0"
+         y="2"
+         id="rect15" />
+    </symbol>
+    <symbol
+       id="nd">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect18" />
+      <rect
+         class="du"
+         width="96"
+         height="98"
+         x="2"
+         y="0"
+         id="rect20" />
+    </symbol>
+    <symbol
+       id="nl">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect23" />
+      <rect
+         class="lu"
+         width="96"
+         height="98"
+         x="2"
+         y="0"
+         id="rect25" />
+    </symbol>
+    <symbol
+       id="nel">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect28" />
+      <rect
+         class="village_lu"
+         width="98"
+         height="98"
+         x="2"
+         y="0"
+         id="rect30" />
+    </symbol>
+    <symbol
+       id="ed">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect33" />
+      <rect
+         class="du"
+         width="98"
+         height="96"
+         x="2"
+         y="2"
+         id="rect35" />
+    </symbol>
+    <symbol
+       id="el">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect38" />
+      <rect
+         class="lu"
+         width="98"
+         height="96"
+         x="2"
+         y="2"
+         id="rect40" />
+    </symbol>
+    <symbol
+       id="sed">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect43" />
+      <rect
+         class="village_du"
+         width="98"
+         height="98"
+         x="2"
+         y="2"
+         id="rect45" />
+    </symbol>
+    <symbol
+       id="sl">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect48" />
+      <rect
+         class="lu"
+         width="96"
+         height="98"
+         x="2"
+         y="2"
+         id="rect50" />
+    </symbol>
+    <symbol
+       id="sd">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect53" />
+      <rect
+         class="du"
+         width="96"
+         height="98"
+         x="2"
+         y="2"
+         id="rect55" />
+    </symbol>
+    <symbol
+       id="wl">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect58" />
+      <rect
+         class="lu"
+         width="98"
+         height="96"
+         x="0"
+         y="2"
+         id="rect60" />
+    </symbol>
+    <symbol
+       id="wd">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect63" />
+      <rect
+         class="du"
+         width="98"
+         height="96"
+         x="0"
+         y="2"
+         id="rect65" />
+    </symbol>
+    <symbol
+       id="nwl"><rect
+   class="village_ll"
+   width="100"
+   id="rect68" />
+
+
+
+
+eight=&quot;100&quot; x=&quot;0&quot; y=&quot;0&quot; /&gt;
+    <rect
+   class="village_lu"
+   width="98"
+   height="98"
+   x="0"
+   y="0"
+   id="rect70" />
+</symbol>
+    <symbol
+       id="cd">
+      <rect
+         class="dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect73" />
+      <rect
+         class="du"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect75" />
+    </symbol>
+    <symbol
+       id="cl">
+      <rect
+         class="ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect78" />
+      <rect
+         class="lu"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect80" />
+    </symbol>
+    <symbol
+       id="village_swl">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect83" />
+      <rect
+         class="village_lu"
+         width="98"
+         height="98"
+         x="0"
+         y="2"
+         id="rect85" />
+    </symbol>
+    <symbol
+       id="village_nd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect88" />
+      <rect
+         class="village_du"
+         width="96"
+         height="98"
+         x="2"
+         y="0"
+         id="rect90" />
+    </symbol>
+    <symbol
+       id="village_nl">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect93" />
+      <rect
+         class="village_lu"
+         width="96"
+         height="98"
+         x="2"
+         y="0"
+         id="rect95" />
+    </symbol>
+    <symbol
+       id="village_ned">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect98" />
+      <rect
+         class="village_du"
+         width="98"
+         height="98"
+         x="2"
+         y="0"
+         id="rect100" />
+    </symbol>
+    <symbol
+       id="village_ed">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect103" />
+      <rect
+         class="village_du"
+         width="98"
+         height="96"
+         x="2"
+         y="2"
+         id="rect105" />
+    </symbol>
+    <symbol
+       id="village_el">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect108" />
+      <rect
+         class="village_lu"
+         width="98"
+         height="96"
+         x="2"
+         y="2"
+         id="rect110" />
+    </symbol>
+    <symbol
+       id="village_sel">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect113" />
+      <rect
+         class="village_lu"
+         width="98"
+         height="98"
+         x="2"
+         y="2"
+         id="rect115" />
+    </symbol>
+    <symbol
+       id="village_sl">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect118" />
+      <rect
+         class="village_lu"
+         width="96"
+         height="98"
+         x="2"
+         y="2"
+         id="rect120" />
+    </symbol>
+    <symbol
+       id="village_sd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect123" />
+      <rect
+         class="village_du"
+         width="96"
+         height="98"
+         x="2"
+         y="2"
+         id="rect125" />
+    </symbol>
+    <symbol
+       id="village_wl">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect128" />
+      <rect
+         class="village_lu"
+         width="98"
+         height="96"
+         x="0"
+         y="2"
+         id="rect130" />
+    </symbol>
+    <symbol
+       id="village_wd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect133" />
+      <rect
+         class="village_du"
+         width="98"
+         height="96"
+         x="0"
+         y="2"
+         id="rect135" />
+    </symbol>
+    <symbol
+       id="village_nwd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect138" />
+      <rect
+         class="village_du"
+         width="98"
+         height="98"
+         x="0"
+         y="0"
+         id="rect140" />
+    </symbol>
+    <symbol
+       id="village_cd">
+      <rect
+         class="village_dl"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect143" />
+      <rect
+         class="village_du"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect145" />
+    </symbol>
+    <symbol
+       id="village_cl">
+      <rect
+         class="village_ll"
+         width="100"
+         height="100"
+         x="0"
+         y="0"
+         id="rect148" />
+      <rect
+         class="village_lu"
+         width="96"
+         height="96"
+         x="2"
+         y="2"
+         id="rect150" />
+    </symbol>
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#000000"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     id="namedview376"
+     showgrid="false"
+     inkscape:zoom="0.819"
+     inkscape:cx="450"
+     inkscape:cy="500"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg374"
+     inkscape:document-rotation="0"
+     showguides="true"
+     showborder="false"
+     inkscape:pagecheckerboard="false" />
+  <style
+     id="style2">
+.dl { fill:#6F8BB1; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.du { fill:#7993B7; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.lu { fill:#8EA3C2; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.ll { fill:#98ACC7; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.symbol_d { fill:none;stroke:#6c819f;stroke-width:5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1; }
+.symbol_l { fill:none;stroke:#a7b3c5;stroke-width:5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1; }
+.village_dl { fill:#6F8BB1; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.village_du { fill:#7993B7; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.village_lu { fill:#8EA3C2; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+.village_ll { fill:#98ACC7; fill-opacity:1; fill-rule:nonzero; stroke:none; }
+</style>
+  <use
+     x="100"
+     y="900"
+     xlink:href="#village_swl"
+     id="use156"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="200"
+     y="900"
+     xlink:href="#village_sd"
+     id="use158"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="300"
+     y="900"
+     xlink:href="#village_sl"
+     id="use160"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="400"
+     y="900"
+     xlink:href="#sd"
+     id="use162"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="500"
+     y="900"
+     xlink:href="#sl"
+     id="use164"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="600"
+     y="900"
+     xlink:href="#sd"
+     id="use166"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="700"
+     y="900"
+     xlink:href="#village_sl"
+     id="use168"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="800"
+     y="900"
+     xlink:href="#village_sd"
+     id="use170"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="900"
+     y="900"
+     xlink:href="#village_sel"
+     id="use172"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="100"
+     y="800"
+     xlink:href="#village_wd"
+     id="use178"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="200"
+     y="800"
+     xlink:href="#village_cl"
+     id="use180"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="300"
+     y="800"
+     xlink:href="#village_cd"
+     id="use182"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="400"
+     y="800"
+     xlink:href="#cl_new"
+     id="use184"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="500"
+     y="800"
+     xlink:href="#cd_new"
+     id="use186"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="600"
+     y="800"
+     xlink:href="#cl_new"
+     id="use188"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="700"
+     y="800"
+     xlink:href="#village_cd"
+     id="use190"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="800"
+     y="800"
+     xlink:href="#village_cl"
+     id="use192"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="900"
+     y="800"
+     xlink:href="#village_ed"
+     id="use194"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="100"
+     y="700"
+     xlink:href="#village_wl"
+     id="use200"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="200"
+     y="700"
+     xlink:href="#village_cd"
+     id="use202"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="300"
+     y="700"
+     xlink:href="#village_cl"
+     id="use204"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="400"
+     y="700"
+     xlink:href="#cd_new"
+     id="use206"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="500"
+     y="700"
+     xlink:href="#cl_new"
+     id="use208"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="600"
+     y="700"
+     xlink:href="#cd_new"
+     id="use210"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="700"
+     y="700"
+     xlink:href="#village_cl"
+     id="use212"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="800"
+     y="700"
+     xlink:href="#village_cd"
+     id="use214"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="900"
+     y="700"
+     xlink:href="#village_el"
+     id="use216"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="100"
+     y="600"
+     xlink:href="#wd"
+     id="use222"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="200"
+     y="600"
+     xlink:href="#cl_new"
+     id="use224"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="300"
+     y="600"
+     xlink:href="#cd_new"
+     id="use226"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="400"
+     y="600"
+     xlink:href="#cl_new"
+     id="use228"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="600"
+     y="600"
+     xlink:href="#cl_new"
+     id="use232"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="700"
+     y="600"
+     xlink:href="#cd_new"
+     id="use234"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="800"
+     y="600"
+     xlink:href="#cl_new"
+     id="use236"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="900"
+     y="600"
+     xlink:href="#ed"
+     id="use238"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="100"
+     y="500"
+     xlink:href="#wl"
+     id="use244"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="200"
+     y="500"
+     xlink:href="#cd_new"
+     id="use246"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="300"
+     y="500"
+     xlink:href="#cl_new"
+     id="use248"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="400"
+     y="500"
+     xlink:href="#cd_new"
+     id="use250"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="600"
+     y="500"
+     xlink:href="#cd_new"
+     id="use254"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="700"
+     y="500"
+     xlink:href="#cl_new"
+     id="use256"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="800"
+     y="500"
+     xlink:href="#cd_new"
+     id="use258"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="900"
+     y="500"
+     xlink:href="#el"
+     id="use260"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="100"
+     y="400"
+     xlink:href="#wd"
+     id="use266"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="200"
+     y="400"
+     xlink:href="#cl_new"
+     id="use268"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="300"
+     y="400"
+     xlink:href="#cd_new"
+     id="use270"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="400"
+     y="400"
+     xlink:href="#cl_new"
+     id="use272"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="600"
+     y="400"
+     xlink:href="#cl_new"
+     id="use276"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="700"
+     y="400"
+     xlink:href="#cd_new"
+     id="use278"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="800"
+     y="400"
+     xlink:href="#cl_new"
+     id="use280"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="900"
+     y="400"
+     xlink:href="#ed"
+     id="use282"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="100"
+     y="300"
+     xlink:href="#wl"
+     id="use288"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="200"
+     y="300"
+     xlink:href="#cd_new"
+     id="use290"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="300"
+     y="300"
+     xlink:href="#cl_new"
+     id="use292"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="400"
+     y="300"
+     xlink:href="#cd_new"
+     id="use294"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="500"
+     y="600"
+     xlink:href="#cd_new"
+     id="use230"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="500"
+     y="500"
+     xlink:href="#cl_new"
+     id="use252"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="500"
+     y="400"
+     xlink:href="#cd_new"
+     id="use274"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="500"
+     y="300"
+     xlink:href="#cl_new"
+     id="use296"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="600"
+     y="300"
+     xlink:href="#cd_new"
+     id="use298"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="700"
+     y="300"
+     xlink:href="#cl_new"
+     id="use300"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="800"
+     y="300"
+     xlink:href="#cd_new"
+     id="use302"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="900"
+     y="300"
+     xlink:href="#el"
+     id="use304"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="100"
+     y="200"
+     xlink:href="#village_wd"
+     id="use310"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="200"
+     y="200"
+     xlink:href="#village_cl"
+     id="use312"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="300"
+     y="200"
+     xlink:href="#village_cd"
+     id="use314"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="500"
+     y="200"
+     xlink:href="#cd_new"
+     id="use318"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="600"
+     y="200"
+     xlink:href="#cl_new"
+     id="use320"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="700"
+     y="200"
+     xlink:href="#village_cd"
+     id="use322"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="800"
+     y="200"
+     xlink:href="#village_cl"
+     id="use324"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="900"
+     y="200"
+     xlink:href="#village_ed"
+     id="use326"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="100"
+     y="100"
+     xlink:href="#village_wl"
+     id="use332"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="200"
+     y="100"
+     xlink:href="#village_cd"
+     id="use334"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="300"
+     y="100"
+     xlink:href="#village_cl"
+     id="use336"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="500"
+     y="100"
+     xlink:href="#cl_new"
+     id="use340"
+     width="100%"
+     height="100%"
+     transform="matrix(1.019997,0,0,1.0199975,-111.99854,-3.9995587)"
+     style="stroke-width:3.92161;stroke-miterlimit:4;stroke-dasharray:none" />
+  <use
+     x="600"
+     y="100"
+     xlink:href="#cd_new"
+     id="use342"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="700"
+     y="100"
+     xlink:href="#village_cl"
+     id="use344"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="800"
+     y="100"
+     xlink:href="#village_cd"
+     id="use346"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="900"
+     y="100"
+     xlink:href="#village_el"
+     id="use348"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="100"
+     y="0"
+     xlink:href="#village_nwd"
+     id="use354"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="200"
+     y="0"
+     xlink:href="#village_nl"
+     id="use356"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="300"
+     y="0"
+     xlink:href="#village_nd"
+     id="use358"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="400"
+     y="0"
+     xlink:href="#nl"
+     id="use360"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="500"
+     y="0"
+     xlink:href="#nd"
+     id="use362"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="600"
+     y="0"
+     xlink:href="#nl"
+     id="use364"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="700"
+     y="0"
+     xlink:href="#village_nd"
+     id="use366"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="800"
+     y="0"
+     xlink:href="#village_nl"
+     id="use368"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="900"
+     y="0"
+     xlink:href="#village_ned"
+     id="use370"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="400"
+     y="200"
+     xlink:href="#cl_new"
+     id="use316"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <use
+     x="400"
+     y="100"
+     xlink:href="#cd_new"
+     id="use338"
+     width="100%"
+     height="100%"
+     transform="translate(-100)" />
+  <g
+     id="g1593"
+     transform="translate(-1148.9621,-100.1221)">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.33"
+       d="m 1148.9621,800.1221 h 900"
+       id="path1072-1" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.33"
+       d="m 1148.9621,600.1221 h 900"
+       id="path1070-2-1-4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0"
+       d="m 1148.9621,600.1221 h 900"
+       id="path263" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.33"
+       d="m 1148.9621,400.1221 h 900"
+       id="path1070-2-6" />
+    <g
+       id="g1270"
+       transform="translate(1148.9621,100.1221)" />
+    <g
+       id="g1270-9"
+       transform="translate(1948.9621,100.1221)" />
+    <g
+       id="g1270-7"
+       transform="translate(1548.9621,100.1221)" />
+    <circle
+       class="symbol_l"
+       id="path1323-9"
+       cx="1498.9622"
+       cy="450.1221"
+       r="17.5" />
+    <circle
+       class="symbol_l"
+       id="path1323-1"
+       cx="1698.9622"
+       cy="450.1221"
+       r="17.5" />
+    <circle
+       class="symbol_d"
+       id="path1323-3-5"
+       cx="1498.9622"
+       cy="750.12207"
+       r="17.5" />
+    <circle
+       class="symbol_d"
+       id="path1323-3-6"
+       cx="1698.9622"
+       cy="750.12207"
+       r="17.5" />
+    <g
+       id="g1483"
+       transform="translate(1148.9621,100.1221)" />
+    <g
+       id="g1475"
+       transform="translate(1148.9621,100.1221)" />
+  </g>
+  <circle
+     class="symbol_d"
+     id="path1323-3-5-7"
+     cx="450"
+     cy="150"
+     r="17.5"
+     style="fill:none;stroke:#6c819f;stroke-width:5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  <circle
+     class="symbol_l"
+     id="path1323-9-4"
+     cx="450"
+     cy="850"
+     r="17.5"
+     style="fill:none;stroke:#a7b3c5;stroke-width:5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+</svg>

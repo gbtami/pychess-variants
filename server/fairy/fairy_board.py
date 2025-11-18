@@ -187,7 +187,10 @@ class FairyBoard:
                     self.count_started,
                 )
         except Exception:
-            self.pop()
+            try:
+                self.pop(remove=append)
+            except Exception:
+                pass
             log.error(
                 "sf.get_fen() failed on %s %s %s %s %s %s %s",
                 self.variant,
@@ -200,8 +203,9 @@ class FairyBoard:
             )
             raise
 
-    def pop(self):
-        self.move_stack.pop()
+    def pop(self, remove=True):
+        if remove:
+            self.move_stack.pop()
         self.ply -= 1
         self.color = not self.color
         self.fen = self.sf.get_fen(

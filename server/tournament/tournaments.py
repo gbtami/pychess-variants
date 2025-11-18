@@ -70,14 +70,15 @@ async def create_or_update_tournament(
     if name == "":
         name = "%s Arena" % server_variant.display_name.title()
 
+    description = form["description"]
     if frequency == SHIELD:
         name = "%s Shield Arena" % server_variant.display_name.title()
     else:
-        description = form["description"]
         name = name if name.lower().endswith("arena") else name + " Arena"
 
     data = {
         "name": name,
+        "password": form["password"],
         "createdBy": username,
         "rated": rated,
         "variant": variant_name,
@@ -98,6 +99,23 @@ async def create_or_update_tournament(
     else:
         # We want to update some data of the tournament created by new_tournament() before.
         # upsert=True will do this update at the end of upsert_tournament_to_db()
+        tournament.name = data["name"]
+        tournament.password = data["password"]
+        tournament.variant = data["variant"]
+        tournament.chess960 = data["chess960"]
+        tournament.rated = data["rated"]
+        tournament.base = data["base"]
+        tournament.inc = data["inc"]
+        tournament.bp = data["bp"]
+        tournament.beforeStart = data["beforeStart"]
+        tournament.starts_at = data["startDate"]
+        tournament.frequency = data["frequency"]
+        tournament.minutes = data["minutes"]
+        tournament.fen = data["fen"]
+        tournament.description = data["description"]
+
+        # re-calculate created_at, starts_at, ends_at etc.
+        tournament.initialize()
         await upsert_tournament_to_db(tournament, app_state)
 
     await broadcast_tournament_creation(app_state, tournament)
@@ -138,6 +156,7 @@ async def new_tournament(app_state: PychessGlobalAppState, data):
         starts_at=data.get("startDate"),
         frequency=data.get("frequency", ""),
         name=data["name"],
+        password=data.get("password", ""),
         description=data.get("description", ""),
         created_at=data.get("createdAt"),
         status=data.get("status"),
@@ -260,13 +279,16 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
             tournament.nb_players = doc["nbPlayers"]
 
         if tournament.frequency:
-            tournament.translated_name = app_state.tourneynames[lang][
-                (
-                    tournament.variant + ("960" if tournament.chess960 else ""),
-                    tournament.frequency,
-                    tournament.system,
-                )
-            ]
+            try:
+                tournament.translated_name = app_state.tourneynames[lang][
+                    (
+                        tournament.variant + ("960" if tournament.chess960 else ""),
+                        tournament.frequency,
+                        tournament.system,
+                    )
+                ]
+            except KeyError:
+                tournament.translated_name = tournament.name
         else:
             tournament.translated_name = tournament.name
 
@@ -308,13 +330,16 @@ async def get_tournament_name(request, tournament_id):
     if tournament_id in tournaments:
         tournament = tournaments[tournament_id]
         if tournament.frequency:
-            name = app_state.tourneynames[lang][
-                (
-                    tournament.variant + ("960" if tournament.chess960 else ""),
-                    tournament.frequency,
-                    tournament.system,
-                )
-            ]
+            try:
+                name = app_state.tourneynames[lang][
+                    (
+                        tournament.variant + ("960" if tournament.chess960 else ""),
+                        tournament.frequency,
+                        tournament.system,
+                    )
+                ]
+            except KeyError:
+                name = tournament.name
         else:
             name = tournament.name
     else:
@@ -378,12 +403,13 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         chess960=bool(doc.get("z")),
         fen=doc.get("f"),
         rounds=doc["rounds"],
-        created_by=doc["createdBy"],
+        created_by=doc.get("createdBy", "PyChess"),
         created_at=doc["createdAt"],
         before_start=doc.get("beforeStart", 0),
         minutes=doc["minutes"],
         starts_at=doc.get("startsAt"),
         name=doc["name"],
+        password=doc.get("password", ""),
         description=doc.get("d", ""),
         frequency=doc.get("fr", ""),
         status=doc["status"],

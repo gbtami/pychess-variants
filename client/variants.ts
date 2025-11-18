@@ -37,8 +37,9 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     shogun8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["ShogunPlain.svg", "ShogunMaple.png", "ShogunMaple2.png", "ShogunBlue.svg", "8x8brown.svg", "8x8maple.jpg"] },
     chak9x9:{ dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["StandardChakBoard.svg", "ColoredChakBoard.svg", "ChakArt.jpg"] },
     chennis7x7:{ dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["WimbledonBoard.svg", "FrenchOpenBoard.svg", "USOpenBoard.svg"] },
-    xiangfu9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["xiangfu.svg", "xiangfu-chess-board.svg"] },
-};
+    xiangfu9x9: { dimensions: { width: 9, height: 9 }, cg: "cg-540", boardCSS: ["xiangfu-chess-board.svg", "xiangfu-chess-allblue.svg", "xiangfu-chess-blue.svg", "xiangfu-chess-island.svg", "xiangfu-blue-nobends.svg", "xiangfu-no-cross.svg", "xiangfu.svg", "xiangfu-guidelines.svg"] },
+    borderlands9x10: { dimensions: { width: 9, height: 10 }, cg: "cg-borderlands", boardCSS: ["borderlands-cobalt.svg"] },
+}
 
 export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     ataxx: { pieceCSS: ["disguised", "virus", "zombie", "cat-dog"] },
@@ -71,6 +72,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     spartan: { pieceCSS: ["spartan0", "spartan1", "disguised"] },
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
     xiangfu: { pieceCSS: ["eventintl", "eventhanzi", "eventhanziguided", "disguised"] },
+    borderlands: { pieceCSS: ["borderlands", "disguised"] },
 };
 
 export interface Variant {
@@ -316,6 +318,19 @@ interface VariantConfig {
 }
 
 export const VARIANTS: Record<string, Variant> = {
+    borderlands: variant({
+        name: "borderlands", displayName: "borderlands", tooltip: "borderlands",
+        startFen: "a3s3a/1chesehc1/fw1wlw1wf/w1w1w1w1w/9/9/W1W1W1W1W/FW1WLW1WF/1CHESEHC1/A3S3A[MMmm] w - - 0 1",
+        icon: " 🌄",
+        boardFamily: "borderlands9x10", pieceFamily: "borderlands",
+        pieceRow: ["a", "h", "s", "c", "e", "f", "w", "g", "m"],
+        pocket: {
+            roles: ["m"],
+            captureToHand: false,
+        },
+        promotion: { type: "regular", roles: [] },
+    }),
+
     xiangfu: variant({
         name: "xiangfu", displayName: "xiang fu", tooltip: "Martial arts Xiangqi.",
         startFen: "2rbm4/2cwn4/2+g1+g4/9/9/9/4+G1+G2/4NWC2/4MBR2[] w - 0 1",
@@ -1223,11 +1238,13 @@ export const noPuzzleVariants = [
     "supply",
     "makbug",
     "jieqi",
+    "xiangfu",
+    "borderlands",
 ]
 
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 
-export const devVariants = ["makbug", "supply", "jieqi"];
+export const devVariants = ["borderlands", "makbug", "supply", "jieqi"];
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
@@ -1236,7 +1253,7 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan", "xiangfu" ] },
-    other:    { variants: [ "ataxx" ] }
+    other:    { variants: [ "borderlands", "ataxx" ] }
 };
 
 function variantGroupLabel(group: string): string {

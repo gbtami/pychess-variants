@@ -223,6 +223,7 @@ class Tournament(ABC):
         before_start=5,
         minutes=45,
         name="",
+        password="",
         description="",
         fen="",
         base=1,
@@ -239,6 +240,7 @@ class Tournament(ABC):
         self.app_state = app_state
         self.id = tournamentId
         self.name = name
+        self.password = password
         self.description = description
         self.variant = variant
         self.rated = rated
@@ -251,15 +253,10 @@ class Tournament(ABC):
         self.chess960 = chess960
         self.rounds = rounds
         self.frequency = frequency
-
-        self.server_variant = get_server_variant(variant, chess960)
-
         self.created_by = created_by
+        self.starts_at = starts_at
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
-        if starts_at == "" or starts_at is None:
-            self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
-        else:
-            self.starts_at = starts_at
+        self.with_clock = with_clock
 
         self.tourneychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
 
@@ -291,18 +288,34 @@ class Tournament(ABC):
         self.notify1 = False
         self.notify2 = False
 
-        if minutes is None:
+        self.clock_task = None
+
+        self.initialize()
+
+    def initialize(self):
+        """Set properties which may be updated by the creator before the tournament starts"""
+
+        self.server_variant = get_server_variant(self.variant, self.chess960)
+
+        if self.starts_at == "" or self.starts_at is None:
+            self.starts_at = self.created_at + timedelta(seconds=int(self.before_start * 60))
+
+        if self.minutes is None:
             self.ends_at = self.starts_at + timedelta(days=1)
         else:
-            self.ends_at = self.starts_at + timedelta(minutes=minutes)
-
-        if with_clock:
-            self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
+            self.ends_at = self.starts_at + timedelta(minutes=self.minutes)
 
         self.browser_title = "%s Tournament • %s" % (
             self.server_variant.display_name,
             self.name,
         )
+
+        if self.with_clock:
+            self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
+
+    @property
+    def creator(self):
+        return self.created_by
 
     def __repr__(self):
         return " ".join((self.id, self.name, self.created_at.isoformat()))
@@ -594,10 +607,13 @@ class Tournament(ABC):
     async def finish(self):
         await self.finalize(T_FINISHED)
 
-    async def join(self, user):
+    async def join(self, user, password=None):
         if user.anon:
             return
         log.debug("JOIN: %s in tournament %s", user.username, self.id)
+
+        if self.password and self.password != password:
+            return "401"
 
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
@@ -1265,6 +1281,7 @@ async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
 
     new_data = {
         "name": tournament.name,
+        "password": tournament.password,
         "d": tournament.description,
         "fr": tournament.frequency,
         "minutes": tournament.minutes,

@@ -6,7 +6,6 @@ from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 from tournament.tournaments import (
     load_tournament,
-    create_or_update_tournament,
     get_tournament_name,
 )
 
@@ -24,11 +23,7 @@ async def tournament(request):
         return context  # web.HTTPFound("/")
 
     if user.username in TOURNAMENT_DIRECTORS and tournament.status == T_CREATED:
-        if request.path.endswith("/edit"):
-            data = await request.post()
-            await create_or_update_tournament(app_state, user.username, data, tournament=tournament)
-
-        elif request.path.endswith("/cancel"):
+        if request.path.endswith("/cancel"):
             await tournament.abort()
             return context  # web.HTTPFound("/tournaments")
 
@@ -38,6 +33,7 @@ async def tournament(request):
     tournament_name = await get_tournament_name(request, tournamentId)
     context["tournamentid"] = tournamentId
     context["tournamentname"] = tournament_name
+    context["tournamentcreator"] = tournament.creator
     context["description"] = tournament.description
     context["variant"] = tournament.variant
     context["chess960"] = tournament.chess960
