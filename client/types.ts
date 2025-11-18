@@ -9,6 +9,12 @@ export type JSONArray = JSONValue[];
 export type BugBoardName = 'a' | 'b';
 export type BoardName = '' | BugBoardName;
 
+export interface SimulPlayer {
+    name: string;
+    rating: number;
+    title: string;
+}
+
 export type PyChessModel = {
     ffish: FairyStockfish;
     username: string;
@@ -25,6 +31,10 @@ export type PyChessModel = {
     tournamentId: string;
     tournamentname: string;
     tournamentcreator: string;
+    simulId: string;
+    createdBy: string;
+    players: SimulPlayer[];
+    pendingPlayers: SimulPlayer[];
     inviter: string;
     ply: number;
     ct: CrossTable | string;

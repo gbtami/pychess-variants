@@ -18,6 +18,7 @@ import { analysisView, embedView } from './analysis';
 import { puzzleView } from './puzzle';
 import { profileView } from './profile';
 import { tournamentView } from './tournament';
+import { simulView } from './simul/simul';
 import { calendarView } from './calendar';
 import { pasteView } from './paste';
 import { statsView } from './stats';
@@ -38,7 +39,7 @@ if (window.location.href.includes('heroku') && !window.location.href.includes('-
     window.location.assign('https://www.pychess.org/');
 }
 
-function initModel(el: HTMLElement) {
+function initModel(el: HTMLElement): PyChessModel {
     // Remove twoBoards variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
         Object.keys(variantGroups).forEach(g => {
@@ -64,14 +65,18 @@ function initModel(el: HTMLElement) {
         chess960 : el.getAttribute("data-chess960") ?? "",
         rated : el.getAttribute("data-rated") ?? "",
         corr: el.getAttribute("data-corr") ?? "",
-        level : parseInt(""+el.getAttribute("data-level")),
+        level : parseInt(""+el.getAttribute("data-level")) || 0,
         username : el.getAttribute("data-username") ?? "",
         gameId : el.getAttribute("data-gameid") ?? "",
         tournamentId : el.getAttribute("data-tournamentid") ?? "",
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
         tournamentcreator: el.getAttribute("data-tournamentcreator") ?? "",
+        simulId: el.getAttribute("data-simulid") ?? "",
+        createdBy: el.getAttribute("data-createdby") ?? "",
+        players: JSON.parse(el.getAttribute("data-players") || "[]"),
+        pendingPlayers: JSON.parse(el.getAttribute("data-pendingplayers") || "[]"),
         inviter : el.getAttribute("data-inviter") ?? "",
-        ply : parseInt(""+el.getAttribute("data-ply")),
+        ply : parseInt(""+el.getAttribute("data-ply")) || 0,
         initialFen : el.getAttribute("data-initialfen") ?? "",
         ct: ct,
         board: board,
@@ -79,13 +84,13 @@ function initModel(el: HTMLElement) {
         wplayer : el.getAttribute("data-wplayer") ?? "",
         wtitle : el.getAttribute("data-wtitle") ?? "",
         wrating : el.getAttribute("data-wrating") ?? "",
-        wrdiff : parseInt(""+el.getAttribute("data-wrdiff")),
+        wrdiff : parseInt(""+el.getAttribute("data-wrdiff")) || 0,
         wberserk : el.getAttribute("data-wberserk") ?? "",
 
         bplayer : el.getAttribute("data-bplayer") ?? "",
         btitle : el.getAttribute("data-btitle") ?? "",
         brating : el.getAttribute("data-brating") ?? "",
-        brdiff : parseInt(""+el.getAttribute("data-brdiff")),
+        brdiff : parseInt(""+el.getAttribute("data-brdiff")) || 0,
         bberserk : el.getAttribute("data-bberserk") ?? "",
 
         wplayerB : el.getAttribute("data-wplayer-b") ?? "",
@@ -97,12 +102,12 @@ function initModel(el: HTMLElement) {
         bratingB : el.getAttribute("data-brating-b") ?? "",
 
         fen : el.getAttribute("data-fen") ?? "",
-        posnum : parseInt(""+el.getAttribute("data-posnum")),
-        base : parseFloat(""+el.getAttribute("data-base")),
-        inc : parseInt(""+el.getAttribute("data-inc")),
-        byo : parseInt(""+el.getAttribute("data-byo")),
+        posnum : parseInt(""+el.getAttribute("data-posnum")) || 0,
+        base : parseFloat(""+el.getAttribute("data-base")) || 0,
+        inc : parseInt(""+el.getAttribute("data-inc")) || 0,
+        byo : parseInt(""+el.getAttribute("data-byo")) || 0,
         result : el.getAttribute("data-result") ?? "",
-        status : parseInt(""+el.getAttribute("data-status")),
+        status : parseInt(""+el.getAttribute("data-status")) || 0,
         date : el.getAttribute("data-date") ?? "",
         tv : el.getAttribute("data-view") === 'tv',
         embed : el.getAttribute("data-view") === 'embed',
@@ -152,6 +157,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div#main-wrap', editorView(model));
     case 'tournament':
         return h('div#main-wrap', [h('main.tour', tournamentView(model))]);
+    case 'simul':
+        return h('div#main-wrap', [h('main.simul', simulView(model))]);
     case 'calendar':
         return h('div#calendar', calendarView());
     case 'games':

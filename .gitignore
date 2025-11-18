@@ -26,3 +26,4 @@ tournament*.json
 yarn-error.log
 .idea/
 server.log
+tsconfig.tsbuildinfo
