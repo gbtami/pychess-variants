@@ -1,12 +1,12 @@
 import { h, VNode } from 'snabbdom';
 import { Chessground } from 'chessgroundx';
 import { Api } from "chessgroundx/api";
-import { Variant, VARIANTS } from '../variants';
+import { VARIANTS } from '../variants';
 
 import { PyChessModel } from '../types';
 import { _ } from '../i18n';
 import { patch } from '../document';
-import { chatMessage, chatView, ChatController } from '../chat';
+import { chatView, ChatController } from '../chat';
 import { newWebsocket } from "@/socket/webSocketUtils";
 
 interface SimulPlayer {
@@ -37,6 +37,7 @@ interface MsgSimulUserConnected {
 
 export class SimulController implements ChatController {
     sock;
+    anon: boolean;
     simulId: string;
     players: SimulPlayer[] = [];
     pendingPlayers: SimulPlayer[] = [];
@@ -48,7 +49,8 @@ export class SimulController implements ChatController {
 
     constructor(el: HTMLElement, model: PyChessModel) {
         console.log("SimulController constructor", el, model);
-        this.simulId = model["simulId"];
+        this.anon = model["anon"] !== undefined && model["anon"] !== "";
+        this.simulId = model["simulId"] || "";
         this.model = model;
         this.players = model["players"] || [];
         this.pendingPlayers = model["pendingPlayers"] || [];
