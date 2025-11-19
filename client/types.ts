@@ -93,4 +93,5 @@ export type PyChessModel = {
     players?: SimulPlayer[];
     pendingPlayers?: SimulPlayer[];
     createdBy?: string;
+    name?: string;
 };
