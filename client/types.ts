@@ -9,6 +9,24 @@ export type JSONArray = JSONValue[];
 export type BugBoardName = 'a' | 'b';
 export type BoardName = '' | BugBoardName;
 
+export interface SimulPlayer {
+    name: string;
+    rating: number;
+    title: string;
+}
+
+export interface SimulGame {
+    gameId: string;
+    wplayer: string;
+    bplayer: string;
+    variant: string;
+    fen: string;
+    rated: boolean;
+    base: number;
+    inc: number;
+    byo: number;
+}
+
 export type PyChessModel = {
     ffish: FairyStockfish;
     username: string;
@@ -69,4 +87,11 @@ export type PyChessModel = {
         oauth_provider: string;
         oauth_username: string;
     } | null;
+
+    // Simul-specific properties
+    simulId?: string;
+    players?: SimulPlayer[];
+    pendingPlayers?: SimulPlayer[];
+    createdBy?: string;
+    name?: string;
 };

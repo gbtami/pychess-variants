@@ -13,7 +13,7 @@ from pychess_global_app_state_utils import get_app_state
 from logger import log
 from user import User
 from variants import ALL_VARIANTS
-
+from settings import SIMULING
 
 piece_css_path = Path(Path(__file__).parent.parent.parent, "static/piece-css")
 piece_sets = [x.name for x in piece_css_path.iterdir() if x.is_dir() and x.name != "mono"]
@@ -81,6 +81,7 @@ async def get_user_context(request):
         "anon": user.anon,
         "username": user.username,
         "piece_sets": piece_sets,
+        "simuling": SIMULING,
     }
     return (user, context)
 

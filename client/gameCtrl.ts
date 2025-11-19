@@ -384,11 +384,6 @@ export abstract class GameController extends ChessgroundController implements Ch
         let lastTime = performance.now();
         let lastKey: cg.Key | undefined;
         return (key: cg.Key) => {
-            if (this.duck.inputState === 'click') {
-                this.duck.finish(key);
-                return;
-            }
-
             if (this.chessground.state.movable.dests === undefined) return;
 
             const curTime = performance.now();

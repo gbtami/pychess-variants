@@ -25,3 +25,4 @@ tournament*.json
 .env
 yarn-error.log
 .idea/
+server.log
