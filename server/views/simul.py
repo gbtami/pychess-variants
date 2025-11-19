@@ -8,10 +8,14 @@ from variants import VARIANTS, VARIANT_ICONS
 from simul.simul import Simul
 from newid import id8
 from const import T_CREATED, T_STARTED, T_FINISHED
+from settings import SIMULING
 
 
 @aiohttp_jinja2.template("simuls.html")
 async def simuls(request):
+    if not SIMULING:
+        raise web.HTTPForbidden()
+
     user, context = await get_user_context(request)
     app_state = get_app_state(request.app)
 
@@ -42,7 +46,11 @@ async def simuls(request):
 
 @aiohttp_jinja2.template("simul_new.html")
 async def simul_new(request):
+    if not SIMULING:
+        raise web.HTTPForbidden()
+
     user, context = await get_user_context(request)
+
     context["variants"] = VARIANTS
     context["view_css"] = "simul.css"
     return context
@@ -50,8 +58,12 @@ async def simul_new(request):
 
 @aiohttp_jinja2.template("index.html")
 async def simul(request):
+    if not SIMULING:
+        raise web.HTTPForbidden()
+
     user, context = await get_user_context(request)
     app_state = get_app_state(request.app)
+
     simul_id = request.match_info["simulId"]
     simul = app_state.simuls.get(simul_id)
     if simul is None:
@@ -65,6 +77,9 @@ async def simul(request):
 
 
 async def start_simul(request):
+    if not SIMULING:
+        raise web.HTTPForbidden()
+
     user, context = await get_user_context(request)
     app_state = get_app_state(request.app)
     simulId = request.match_info.get("simulId")

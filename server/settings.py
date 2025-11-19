@@ -8,6 +8,8 @@ import string
 LOCALHOST = "http://127.0.0.1:8080"
 URI = os.getenv("URI", LOCALHOST)
 
+SIMULING = URI == LOCALHOST
+
 PROD = os.getenv("PROD") == "true"
 DEV = not PROD
 

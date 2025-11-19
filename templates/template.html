@@ -15,7 +15,9 @@
                     <div class="drp" >
                         <a class="nav-link" href="/?any">{% trans %}Create a game{% endtrans %}</a>
                         <a class="nav-link" href="/tournaments">{% trans %}Tournaments{% endtrans %}</a>
+                        {% if simuling %}
                         <a class="nav-link" href="/simuls">{% trans %}Simultaneous exhibitions{% endtrans %}</a>
+                        {% endif %}
                     </div>
                 </section>
                 <section>

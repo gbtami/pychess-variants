@@ -46,7 +46,7 @@ from lang import select_lang
 from wsl import lobby_socket_handler
 from wsr import round_socket_handler
 from tournament.wst import tournament_socket_handler
-from ws_simul import simul_socket_handler
+from simul.wss import simul_socket_handler
 from tournament.tournament_calendar import tournament_calendar
 from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
