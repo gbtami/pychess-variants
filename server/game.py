@@ -72,6 +72,7 @@ class Game:
         corr=False,
         create=True,
         tournamentId=None,
+        simulId=None,
         new_960_fen_needed_for_rematch=False,
     ):
         self.app_state = app_state
@@ -94,6 +95,7 @@ class Game:
         self.inc = inc
         self.level = level if level is not None else 0
         self.tournamentId = tournamentId
+        self.simulId = simulId
         self.chess960 = chess960
         self.corr = corr
         self.create = create
@@ -404,6 +406,8 @@ class Game:
                     await self.save_game()
                     if self.corr:
                         await opp_player.notify_game_end(self)
+                    if self.simulId is not None:
+                        await self.app_state.simuls[self.simulId].game_update(self)
                 else:
                     await self.save_move(move)
 

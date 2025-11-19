@@ -18,6 +18,7 @@ import { analysisView, embedView } from './analysis';
 import { puzzleView } from './puzzle';
 import { profileView } from './profile';
 import { tournamentView } from './tournament';
+import { simulView } from './simul/simul';
 import { calendarView } from './calendar';
 import { pasteView } from './paste';
 import { statsView } from './stats';
@@ -69,6 +70,7 @@ function initModel(el: HTMLElement) {
         gameId : el.getAttribute("data-gameid") ?? "",
         tournamentId : el.getAttribute("data-tournamentid") ?? "",
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
+        simulId : el.getAttribute("data-simulid") ?? "",
         tournamentcreator: el.getAttribute("data-tournamentcreator") ?? "",
         inviter : el.getAttribute("data-inviter") ?? "",
         ply : parseInt(""+el.getAttribute("data-ply")),
@@ -152,6 +154,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div#main-wrap', editorView(model));
     case 'tournament':
         return h('div#main-wrap', [h('main.tour', tournamentView(model))]);
+    case 'simul':
+        return h('div#main-wrap', [h('main.simul', simulView(model))]);
     case 'calendar':
         return h('div#calendar', calendarView());
     case 'games':
