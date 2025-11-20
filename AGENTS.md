@@ -45,7 +45,12 @@ black .
 flake8
 
 # Python unit tests
-PYTHONPATH=server python3 -m pytest tests/test_*.py
+PYTHONPATH=server python -m unittest discover -s tests
+
+# Python Playwright tests
+python -m playwright install --with-deps
+PYTHONPATH=server python -m pytest tests/test_e2e.py
+PYTHONPATH=server python -m pytest tests/test_gui.py
 ```
 
 ### Docker Development
