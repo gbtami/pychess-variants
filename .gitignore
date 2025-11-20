@@ -25,4 +25,5 @@ tournament*.json
 .env
 yarn-error.log
 .idea/
+*.egg-info/
 server.log
