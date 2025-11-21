@@ -187,6 +187,55 @@ class TournamentTestCase(AioHTTPTestCase):
             NB_PLAYERS * [NB_ROUNDS],
         )
 
+    async def test_tournament_rating_update_on_rejoin(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess", before_start=1, minutes=1
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(1)
+
+        player = list(self.tournament.players.keys())[0]
+        initial_rating = self.tournament.players[player].rating
+
+        await self.tournament.withdraw(player)
+
+        # Simulate rating change
+        new_rating = initial_rating + 100
+        player.perfs["chess"]["gl"]["r"] = new_rating
+
+        await self.tournament.join(player)
+
+        self.assertEqual(self.tournament.players[player].rating, new_rating)
+
+        await self.tournament.clock_task
+
+
+    async def test_tournament_sorting_before_start(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess", before_start=1, minutes=1
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        await self.tournament.join_players(3)
+
+        players_json = self.tournament.players_json()
+        leaderboard_ratings = [p["rating"] for p in players_json["players"]]
+
+        self.assertEqual(leaderboard_ratings, sorted(leaderboard_ratings, reverse=True))
+
+        # Add a new player with a higher rating
+        await self.tournament.join_players(1, rating=2000)
+
+        players_json = self.tournament.players_json()
+        leaderboard_ratings = [p["rating"] for p in players_json["players"]]
+        self.assertEqual(leaderboard_ratings, sorted(leaderboard_ratings, reverse=True))
+
+        await self.tournament.clock_task
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
