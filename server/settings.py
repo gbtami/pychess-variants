@@ -43,7 +43,8 @@ TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET", "")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
 
 ALLOWED_ORIGINS = os.getenv(
-    "ALLOWED_ORIGINS", "https://www.pychess.org,https://cdn.jsdelivr.net"
+    "ALLOWED_ORIGINS",
+    "https://www.pychess.org,https://cdn.jsdelivr.net,https://variantslove.netlify.app",
 ).split(",")
 
 SOURCE_VERSION = os.getenv("SOURCE_VERSION", "")
