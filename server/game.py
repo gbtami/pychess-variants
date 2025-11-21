@@ -479,7 +479,7 @@ class Game:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        self.stopwatch.stop()
+        self.stopwatch.cleanup()
         self.stopwatch.clock_task.cancel()
         try:
             await self.stopwatch.clock_task
