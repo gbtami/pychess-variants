@@ -28,6 +28,10 @@ class Clock:
         self.running = False
         return self.secs
 
+    def cleanup(self):
+        self.stop()
+        self.game = None
+
     def restart(self, secs=None):
         self.ply = self.game.ply
         self.color = self.board.color
@@ -139,6 +143,10 @@ class CorrClock:
     def stop(self):
         self.running = False
         return self.mins
+
+    def cleanup(self):
+        self.stop()
+        self.game = None
 
     def restart(self, from_db=False):
         self.ply = self.game.ply
