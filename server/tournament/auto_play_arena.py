@@ -73,10 +73,12 @@ class TestTournament(Tournament):
         super().__init__(*args, **kwargs)
         self.game_tasks = set()
 
-    async def join_players(self, nb_players):
+    async def join_players(self, nb_players, rating=None):
         for i in range(1, nb_players + 1):
             name = "%sUser_%s" % (TEST_PREFIX, i)
             player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
+            if rating:
+                player.perfs[self.variant]["gl"]["r"] = rating
             self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = set((None,))
             await self.join(player)

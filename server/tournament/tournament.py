@@ -618,21 +618,24 @@ class Tournament(ABC):
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
 
+        rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
+
         if user not in self.players:
             # new player joined
-            rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
             self.players[user] = PlayerData(user.title, user.username, rating, provisional)
-        elif self.players[user].withdrawn:
-            # withdrawn player joined again
-            rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
+        else:
+            # withdrawn player joined again, or already joined player re-joins
+            self.players[user].rating = rating
+            self.players[user].provisional = provisional
 
         if user not in self.leaderboard:
             # new player joined or withdrawn player joined again
-            if self.status == T_CREATED:
-                self.leaderboard.setdefault(user, rating)
-            else:
-                self.leaderboard.setdefault(user, 0)
             self.nb_players += 1
+
+        if self.status == T_CREATED:
+            self.leaderboard[user] = rating
+        elif user not in self.leaderboard:
+            self.leaderboard.setdefault(user, 0)
 
         player_data = self.players[user]
 
