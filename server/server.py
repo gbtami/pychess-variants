@@ -107,6 +107,7 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
     app[anon_as_test_users_key] = anon_as_test_users
 
     parts = urlparse(URI)
+    is_secure = parts.scheme == "https"
 
     aiohttp_session.setup(
         app,
@@ -114,7 +115,10 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
             SimpleCookieStorage()
             if simple_cookie_storage
             else EncryptedCookieStorage(
-                SECRET_KEY, max_age=MAX_AGE, secure=parts.scheme == "https", samesite="Lax"
+                SECRET_KEY,
+                max_age=MAX_AGE,
+                secure=is_secure,
+                samesite="None" if is_secure else "Lax",
             )
         ),
     )
