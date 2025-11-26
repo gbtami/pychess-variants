@@ -1,16 +1,17 @@
 import unittest
 from unittest.mock import AsyncMock, patch, MagicMock
 from pymongo.errors import (
-    ConnectionFailure, 
-    OperationFailure, 
+    ConnectionFailure,
+    OperationFailure,
     ServerSelectionTimeoutError,
     NotPrimaryError,
-    CursorNotFound
+    CursorNotFound,
 )
 from pymongo.asynchronous.cursor import AsyncCursor
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'server'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "server"))
 from db_wrapper import AsyncDBWrapper, is_retryable_operation_failure
 
 
@@ -19,7 +20,7 @@ class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
         """Test that OperationFailure with retryable codes returns True."""
         # Test various retryable error codes
         retryable_codes = [6, 7, 89, 91, 189, 9001, 10107, 11600, 11602, 13435, 13436]
-        
+
         for code in retryable_codes:
             with self.subTest(code=code):
                 exc = OperationFailure("Test error", code=code)
@@ -29,7 +30,7 @@ class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
         """Test that OperationFailure with non-retryable codes returns False."""
         # Test non-retryable error codes
         non_retryable_codes = [11000, 121, 123]  # Duplicate key, validation error, etc.
-        
+
         for code in non_retryable_codes:
             with self.subTest(code=code):
                 exc = OperationFailure("Test error", code=code)
@@ -37,6 +38,7 @@ class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
 
     async def test_is_retryable_operation_failure_with_labels(self):
         """Test that OperationFailure with retryable labels returns True."""
+
         # Create a mock that behaves like OperationFailure but has details
         class MockOperationFailure:
             def __init__(self, message, code):

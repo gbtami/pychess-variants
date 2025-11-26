@@ -62,24 +62,29 @@ def is_retryable_operation_failure(exception):
         if exception.code in retryable_codes:
             return True
         # Check for retryable error labels if available in the exception
-        if hasattr(exception, 'details') and exception.details:
-            labels = exception.details.get('errorLabels', [])
-            if 'RetryableWriteError' in labels or 'TransientTransactionError' in labels:
+        if hasattr(exception, "details") and exception.details:
+            labels = exception.details.get("errorLabels", [])
+            if "RetryableWriteError" in labels or "TransientTransactionError" in labels:
                 return True
     # For testing purposes, allow any object that looks like OperationFailure
-    elif hasattr(exception, 'code') and hasattr(exception, 'details') and hasattr(exception, 'details'):
+    elif (
+        hasattr(exception, "code")
+        and hasattr(exception, "details")
+        and hasattr(exception, "details")
+    ):
         retryable_codes = {6, 7, 89, 91, 189, 9001, 10107, 11600, 11602, 13435, 13436, 64}
         if exception.code in retryable_codes:
             return True
-        labels = exception.details.get('errorLabels', [])
-        if 'RetryableWriteError' in labels or 'TransientTransactionError' in labels:
+        labels = exception.details.get("errorLabels", [])
+        if "RetryableWriteError" in labels or "TransientTransactionError" in labels:
             return True
     return False
 
 
 def mongo_retry():
     return retry(
-        retry=retry_if_exception_type(RETRYABLE) | retry_if_exception(is_retryable_operation_failure),
+        retry=retry_if_exception_type(RETRYABLE)
+        | retry_if_exception(is_retryable_operation_failure),
         wait=wait_exponential_jitter(initial=0.1, max=10),
         stop=stop_after_delay(120),
         reraise=True,
