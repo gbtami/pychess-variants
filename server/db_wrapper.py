@@ -29,6 +29,23 @@ from pymongo.asynchronous.cursor import AsyncCursor
 
 logger = logging.getLogger("mongo.retry")
 
+# Retryable error codes for OperationFailure
+RETRYABLE_ERROR_CODES = {
+    # 6: HostUnreachable
+    # 7: HostNotFound
+    # 89: NetworkInterfaceExceededTimeLimit
+    # 91: ShutdownInProgress
+    # 189: PrimarySteppedDown
+    # 9001: SocketException
+    # 10107: NotWritablePrimary
+    # 11600: InterruptedAtShutdown
+    # 11602: InterruptedDueToReplStateChange
+    # 13435: NotPrimaryNoSecondaryOk
+    # 13436: NotPrimaryOrSecondary
+    # 64: WriteConcernFailed (certain cases)
+    6, 7, 89, 91, 189, 9001, 10107, 11600, 11602, 13435, 13436, 64
+}
+
 RETRYABLE = (
     ServerSelectionTimeoutError,
     AutoReconnect,
@@ -45,21 +62,7 @@ RETRYABLE = (
 def is_retryable_operation_failure(exception):
     """Check if an OperationFailure is retryable based on error code or label."""
     if isinstance(exception, OperationFailure):
-        # Retryable error codes include:
-        # 6: HostUnreachable
-        # 7: HostNotFound
-        # 89: NetworkInterfaceExceededTimeLimit
-        # 91: ShutdownInProgress
-        # 189: PrimarySteppedDown
-        # 9001: SocketException
-        # 10107: NotWritablePrimary
-        # 11600: InterruptedAtShutdown
-        # 11602: InterruptedDueToReplStateChange
-        # 13435: NotPrimaryNoSecondaryOk
-        # 13436: NotPrimaryOrSecondary
-        # 64: WriteConcernFailed (certain cases)
-        retryable_codes = {6, 7, 89, 91, 189, 9001, 10107, 11600, 11602, 13435, 13436, 64}
-        if exception.code in retryable_codes:
+        if exception.code in RETRYABLE_ERROR_CODES:
             return True
         # Check for retryable error labels if available in the exception
         if hasattr(exception, "details") and exception.details:
@@ -68,8 +71,7 @@ def is_retryable_operation_failure(exception):
                 return True
     # For testing purposes, allow any object that looks like OperationFailure
     elif hasattr(exception, "code") and hasattr(exception, "details"):
-        retryable_codes = {6, 7, 89, 91, 189, 9001, 10107, 11600, 11602, 13435, 13436, 64}
-        if exception.code in retryable_codes:
+        if exception.code in RETRYABLE_ERROR_CODES:
             return True
         labels = exception.details.get("errorLabels", [])
         if "RetryableWriteError" in labels or "TransientTransactionError" in labels:
