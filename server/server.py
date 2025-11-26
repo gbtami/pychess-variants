@@ -18,6 +18,7 @@ import jinja2
 
 from pymongo import AsyncMongoClient
 
+from db_wrapper import AsyncDBWrapper
 from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 
@@ -135,7 +136,9 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
 
     if db_client is not None:
         app[client_key] = db_client
-        app[db_key] = app[client_key][MONGO_DB_NAME]
+        raw_db = app[client_key][MONGO_DB_NAME]
+        # app[db_key] = raw_db
+        app[db_key] = AsyncDBWrapper(raw_db)
 
     app.on_startup.append(init_state)
     app.on_shutdown.append(shutdown)
@@ -234,8 +237,17 @@ if __name__ == "__main__":
 
     logging.getLogger("pymongo").setLevel(logging.DEBUG if args.m else logging.INFO)
 
+    db_client = AsyncMongoClient(
+        MONGO_HOST,
+        tz_aware=True,
+        retryReads=True,
+        retryWrites=True,
+        serverSelectionTimeoutMS=3000,
+        connectTimeoutMS=3000,
+    )
+
     app = make_app(
-        db_client=AsyncMongoClient(MONGO_HOST, tz_aware=True),
+        db_client=db_client,
         simple_cookie_storage=args.s,
         anon_as_test_users=args.a,
     )

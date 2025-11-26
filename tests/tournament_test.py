@@ -211,7 +211,6 @@ class TournamentTestCase(AioHTTPTestCase):
 
         await self.tournament.clock_task
 
-
     async def test_tournament_sorting_before_start(self):
         app_state = get_app_state(self.app)
         tid = id8()
