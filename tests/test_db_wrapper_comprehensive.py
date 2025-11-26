@@ -67,7 +67,9 @@ class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
         wrapped_collection = wrapped_db["test_collection"]
 
         # Simulate an OperationFailure with retryable code on the first call, then succeed
-        retryable_exc = OperationFailure("Network timeout", code=89)  # NetworkInterfaceExceededTimeLimit
+        retryable_exc = OperationFailure(
+            "Network timeout", code=89
+        )  # NetworkInterfaceExceededTimeLimit
         mock_collection.find_one.side_effect = [
             retryable_exc,
             {"_id": "123", "name": "test"},

@@ -32,15 +32,15 @@ logger = logging.getLogger("mongo.retry")
 # Retryable error codes for OperationFailure in single-node setup
 RETRYABLE_ERROR_CODES = {
     # Connection and network related (most relevant for single node)
-    6,    # HostUnreachable
-    7,    # HostNotFound
-    89,   # NetworkInterfaceExceededTimeLimit / NetworkTimeout
-    91,   # ShutdownInProgress
-    9001, # SocketException
+    6,  # HostUnreachable
+    7,  # HostNotFound
+    89,  # NetworkInterfaceExceededTimeLimit / NetworkTimeout
+    91,  # ShutdownInProgress
+    9001,  # SocketException
     # Time limits
     262,  # ExceededTimeLimit
     # Write concern related (certain cases)
-    64,   # WriteConcernFailed (certain cases)
+    64,  # WriteConcernFailed (certain cases)
     # Some replica set codes that might occur (for broader compatibility)
     189,  # PrimarySteppedDown (may occur during failover-like scenarios)
 }
