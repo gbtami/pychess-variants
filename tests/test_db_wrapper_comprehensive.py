@@ -18,8 +18,8 @@ from db_wrapper import AsyncDBWrapper, is_retryable_operation_failure
 class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
     async def test_is_retryable_operation_failure_with_retryable_codes(self):
         """Test that OperationFailure with retryable codes returns True."""
-        # Test various retryable error codes from the updated list
-        retryable_codes = [6, 7, 89, 91, 189, 9001, 10107, 11600, 11602, 13435, 13436, 63, 150, 13388, 262, 234, 64]
+        # Test retryable error codes relevant to single-node setup
+        retryable_codes = [6, 7, 89, 91, 9001, 262, 64, 189]
 
         for code in retryable_codes:
             with self.subTest(code=code):
@@ -67,7 +67,7 @@ class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
         wrapped_collection = wrapped_db["test_collection"]
 
         # Simulate an OperationFailure with retryable code on the first call, then succeed
-        retryable_exc = OperationFailure("Not primary", code=10107)  # NotWritablePrimary
+        retryable_exc = OperationFailure("Network timeout", code=89)  # NetworkInterfaceExceededTimeLimit
         mock_collection.find_one.side_effect = [
             retryable_exc,
             {"_id": "123", "name": "test"},

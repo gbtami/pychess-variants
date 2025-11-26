@@ -29,31 +29,20 @@ from pymongo.asynchronous.cursor import AsyncCursor
 
 logger = logging.getLogger("mongo.retry")
 
-# Retryable error codes for OperationFailure
+# Retryable error codes for OperationFailure in single-node setup
 RETRYABLE_ERROR_CODES = {
-    # Connection and network related
-    6,   # HostUnreachable
-    7,   # HostNotFound
-    89,  # NetworkInterfaceExceededTimeLimit / NetworkTimeout
-    91,  # ShutdownInProgress
-    189, # PrimarySteppedDown
+    # Connection and network related (most relevant for single node)
+    6,    # HostUnreachable
+    7,    # HostNotFound
+    89,   # NetworkInterfaceExceededTimeLimit / NetworkTimeout
+    91,   # ShutdownInProgress
     9001, # SocketException
-    # Primary/secondary related
-    10107, # NotWritablePrimary
-    11600, # InterruptedAtShutdown
-    11602, # InterruptedDueToReplStateChange
-    13435, # NotPrimaryNoSecondaryOk
-    13436, # NotPrimaryOrSecondary
-    # Configuration related
-    63,   # StaleShardVersion
-    150,  # StaleEpoch
-    13388, # StaleConfig
     # Time limits
     262,  # ExceededTimeLimit
-    # Other retryable codes
-    234,  # RetryChangeStream
     # Write concern related (certain cases)
     64,   # WriteConcernFailed (certain cases)
+    # Some replica set codes that might occur (for broader compatibility)
+    189,  # PrimarySteppedDown (may occur during failover-like scenarios)
 }
 
 RETRYABLE = (
