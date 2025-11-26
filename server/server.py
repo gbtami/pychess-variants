@@ -240,9 +240,10 @@ if __name__ == "__main__":
     db_client = AsyncMongoClient(
         MONGO_HOST,
         tz_aware=True,
+        retryReads=True,
         retryWrites=True,
-        serverSelectionTimeoutMS=1500,
-        connectTimeoutMS=1500,
+        serverSelectionTimeoutMS=3000,
+        connectTimeoutMS=3000,
     )
 
     app = make_app(
