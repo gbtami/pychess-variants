@@ -18,8 +18,8 @@ from db_wrapper import AsyncDBWrapper, is_retryable_operation_failure
 class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
     async def test_is_retryable_operation_failure_with_retryable_codes(self):
         """Test that OperationFailure with retryable codes returns True."""
-        # Test various retryable error codes
-        retryable_codes = [6, 7, 89, 91, 189, 9001, 10107, 11600, 11602, 13435, 13436]
+        # Test various retryable error codes from the updated list
+        retryable_codes = [6, 7, 89, 91, 189, 9001, 10107, 11600, 11602, 13435, 13436, 63, 150, 13388, 262, 234, 64]
 
         for code in retryable_codes:
             with self.subTest(code=code):

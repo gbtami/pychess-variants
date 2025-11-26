@@ -31,19 +31,29 @@ logger = logging.getLogger("mongo.retry")
 
 # Retryable error codes for OperationFailure
 RETRYABLE_ERROR_CODES = {
-    # 6: HostUnreachable
-    # 7: HostNotFound
-    # 89: NetworkInterfaceExceededTimeLimit
-    # 91: ShutdownInProgress
-    # 189: PrimarySteppedDown
-    # 9001: SocketException
-    # 10107: NotWritablePrimary
-    # 11600: InterruptedAtShutdown
-    # 11602: InterruptedDueToReplStateChange
-    # 13435: NotPrimaryNoSecondaryOk
-    # 13436: NotPrimaryOrSecondary
-    # 64: WriteConcernFailed (certain cases)
-    6, 7, 89, 91, 189, 9001, 10107, 11600, 11602, 13435, 13436, 64
+    # Connection and network related
+    6,   # HostUnreachable
+    7,   # HostNotFound
+    89,  # NetworkInterfaceExceededTimeLimit / NetworkTimeout
+    91,  # ShutdownInProgress
+    189, # PrimarySteppedDown
+    9001, # SocketException
+    # Primary/secondary related
+    10107, # NotWritablePrimary
+    11600, # InterruptedAtShutdown
+    11602, # InterruptedDueToReplStateChange
+    13435, # NotPrimaryNoSecondaryOk
+    13436, # NotPrimaryOrSecondary
+    # Configuration related
+    63,   # StaleShardVersion
+    150,  # StaleEpoch
+    13388, # StaleConfig
+    # Time limits
+    262,  # ExceededTimeLimit
+    # Other retryable codes
+    234,  # RetryChangeStream
+    # Write concern related (certain cases)
+    64,   # WriteConcernFailed (certain cases)
 }
 
 RETRYABLE = (
