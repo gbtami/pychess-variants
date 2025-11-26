@@ -67,11 +67,7 @@ def is_retryable_operation_failure(exception):
             if "RetryableWriteError" in labels or "TransientTransactionError" in labels:
                 return True
     # For testing purposes, allow any object that looks like OperationFailure
-    elif (
-        hasattr(exception, "code")
-        and hasattr(exception, "details")
-        and hasattr(exception, "details")
-    ):
+    elif hasattr(exception, "code") and hasattr(exception, "details"):
         retryable_codes = {6, 7, 89, 91, 189, 9001, 10107, 11600, 11602, 13435, 13436, 64}
         if exception.code in retryable_codes:
             return True
