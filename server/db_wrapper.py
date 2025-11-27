@@ -146,10 +146,9 @@ class AsyncCollectionWrapper:
         # Cursor-producing methods (find, aggregate) → wrap cursor
         def cursor_wrapper(*args, **kwargs):
             cursor = attr(*args, **kwargs)
-            try:
+            if isinstance(cursor, AsyncCursor):
                 return AsyncCursorWrapper(cursor)
-            except Exception:
-                return cursor
+            return cursor
 
         return cursor_wrapper
 
