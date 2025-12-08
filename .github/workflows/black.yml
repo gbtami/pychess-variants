@@ -14,4 +14,4 @@ jobs:
         with:
           options: "--check --verbose --line-length=100"
           src: "./server"
-          version: "25.11.0"
+          version: "25.12.0"
