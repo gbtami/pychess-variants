@@ -40,11 +40,11 @@ async def puzzle(request):
             if puzzle is None:
                 raise web.HTTPNotFound()
 
-    color = puzzle["fen"].split()[1]
+    color = puzzle["f"].split()[1]
     chess960 = False
-    dafault_perf = default_puzzle_perf(puzzle["eval"])
+    dafault_perf = default_puzzle_perf(puzzle["e"])
     puzzle_rating = int(round(puzzle.get("perf", dafault_perf)["gl"]["r"], 0))
-    variant = puzzle["variant"]
+    variant = puzzle["v"]
     if color == "w":
         wrating = int(round(user.get_puzzle_rating(variant, chess960).mu, 0))
         brating = puzzle_rating
@@ -54,7 +54,7 @@ async def puzzle(request):
 
     context["view_css"] = "analysis.css"
     context["variant"] = variant
-    context["fen"] = puzzle["fen"]
+    context["fen"] = puzzle["f"]
     context["wrating"] = wrating
     context["brating"] = brating
     context["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)

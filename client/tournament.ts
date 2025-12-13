@@ -21,7 +21,7 @@ import { faq } from './tournamentFaq';
 
 interface Duel {
     id: string, // game id
-    wp: string, // white username 
+    wp: string, // white username
     wt: string, // white title
     wr: string, // white reating
     wk: number, // white tournament rank
@@ -263,7 +263,7 @@ export class TournamentController implements ChatController {
         }
         let fullScore = Math.trunc(player.score / SCORE_SHIFT);
         if (this.system > 0 && this.variant.name !== 'janggi') fullScore = fullScore / 2;
-        
+
         return h('tr', { on: { click: () => this.onClickPlayer(player.name) } }, [
             h('td.rank', [(player.paused && !this.completed()) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
@@ -389,7 +389,7 @@ export class TournamentController implements ChatController {
         return [
             h('span.close', {
                 on: { click: () => this.onClickPlayer(this.visitedPlayer) },
-                attrs: { 'data-icon': 'j' } 
+                attrs: { 'data-icon': 'j' }
             }),
             h('h2', [
                 h('rank', msg.rank + '. '),
@@ -570,7 +570,7 @@ export class TournamentController implements ChatController {
 
         const trophy = document.getElementById('trophy') as Element;
         if (trophy && msg.frequency === SHIELD) patch(trophy, h('a', {class: {"shield-trophy": true} }, dataIcon));
-        
+
         this.system = msg.tsystem;
         const tsystem = document.getElementById('tsystem') as Element;
         patch(tsystem, h('div#tsystem', gameType(this.rated) + " • " + this.tSystem(this.system)));
@@ -787,6 +787,7 @@ export function tournamentView(model: PyChessModel): VNode[] {
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
     document.body.setAttribute('style', `--ranks: ${variant.board.dimensions.height}; --files: ${variant.board.dimensions.width};`);
+    const canEdit = model.username === model.tournamentcreator && model.status === 0;
     return [
         h('aside.sidebar-first', [
             h('div.game-info', [
@@ -804,6 +805,12 @@ export function tournamentView(model: PyChessModel): VNode[] {
                             h('span#tminutes'),
                         ]),
                         h('div#tsystem'),
+                        canEdit ? h('a.icon-cog.edit-tournament', {
+                            attrs: {
+                                href: `/tournaments/${model.tournamentId}/edit`,
+                                title: _('Edit tournament'),
+                            }
+                        }) : null,
                     ]),
                 ]),
                 // TODO: update in onMsgUserConnected()

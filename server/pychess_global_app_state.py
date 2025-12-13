@@ -58,6 +58,7 @@ from settings import (
     DEV,
     static_url,
 )
+from simul.simul import Simul
 from tournament.tournament import Tournament
 from tournament.tournaments import (
     translated_tournament_name,
@@ -75,6 +76,7 @@ from youtube import Youtube
 from lang import LOCALE
 from logger import log
 from variants import VARIANTS, RATED_VARIANTS
+from puzzle import rename_puzzle_fields
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 
@@ -101,6 +103,7 @@ class PychessGlobalAppState:
         self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
 
         self.tournaments: dict[str, Tournament] = {}
+        self.simuls: dict[str, Simul] = {}
 
         self.tourney_calendar = None
 
@@ -162,6 +165,11 @@ class PychessGlobalAppState:
         # Read tournaments, users and highscore from db
         try:
             db_collections = await self.db.list_collection_names()
+
+            puzzle = await self.db.puzzle.find_one()
+            puzzle_doc_rename_needed = (puzzle is not None) and ("variant" in puzzle)
+            if puzzle_doc_rename_needed:
+                await rename_puzzle_fields(self.db)
 
             if "tournament_chat" not in db_collections:
                 await self.db.create_collection("tournament_chat")

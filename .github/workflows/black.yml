@@ -9,9 +9,9 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: psf/black@stable
         with:
           options: "--check --verbose --line-length=100"
           src: "./server"
-          version: "25.9.0"
+          version: "25.12.0"

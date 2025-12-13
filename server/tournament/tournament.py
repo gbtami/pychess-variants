@@ -253,15 +253,10 @@ class Tournament(ABC):
         self.chess960 = chess960
         self.rounds = rounds
         self.frequency = frequency
-
-        self.server_variant = get_server_variant(variant, chess960)
-
         self.created_by = created_by
+        self.starts_at = starts_at
         self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
-        if starts_at == "" or starts_at is None:
-            self.starts_at = self.created_at + timedelta(seconds=int(before_start * 60))
-        else:
-            self.starts_at = starts_at
+        self.with_clock = with_clock
 
         self.tourneychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
 
@@ -293,18 +288,34 @@ class Tournament(ABC):
         self.notify1 = False
         self.notify2 = False
 
-        if minutes is None:
+        self.clock_task = None
+
+        self.initialize()
+
+    def initialize(self):
+        """Set properties which may be updated by the creator before the tournament starts"""
+
+        self.server_variant = get_server_variant(self.variant, self.chess960)
+
+        if self.starts_at == "" or self.starts_at is None:
+            self.starts_at = self.created_at + timedelta(seconds=int(self.before_start * 60))
+
+        if self.minutes is None:
             self.ends_at = self.starts_at + timedelta(days=1)
         else:
-            self.ends_at = self.starts_at + timedelta(minutes=minutes)
-
-        if with_clock:
-            self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
+            self.ends_at = self.starts_at + timedelta(minutes=self.minutes)
 
         self.browser_title = "%s Tournament • %s" % (
             self.server_variant.display_name,
             self.name,
         )
+
+        if self.with_clock:
+            self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
+
+    @property
+    def creator(self):
+        return self.created_by
 
     def __repr__(self):
         return " ".join((self.id, self.name, self.created_at.isoformat()))
@@ -607,21 +618,24 @@ class Tournament(ABC):
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
 
+        rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
+
         if user not in self.players:
             # new player joined
-            rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
             self.players[user] = PlayerData(user.title, user.username, rating, provisional)
-        elif self.players[user].withdrawn:
-            # withdrawn player joined again
-            rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
+        else:
+            # withdrawn player joined again, or already joined player re-joins
+            self.players[user].rating = rating
+            self.players[user].provisional = provisional
 
         if user not in self.leaderboard:
             # new player joined or withdrawn player joined again
-            if self.status == T_CREATED:
-                self.leaderboard.setdefault(user, rating)
-            else:
-                self.leaderboard.setdefault(user, 0)
             self.nb_players += 1
+
+        if self.status == T_CREATED:
+            self.leaderboard[user] = rating
+        elif user not in self.leaderboard:
+            self.leaderboard.setdefault(user, 0)
 
         player_data = self.players[user]
 

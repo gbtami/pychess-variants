@@ -38,13 +38,13 @@ export class PuzzleController extends AnalysisController {
         super(el, model);
         const data = JSON.parse(model.puzzle);
         this._id = data._id;
-        this.gameId = data.gameId;
-        this.site = data.site;
-        this.played = data.played ?? "0";
-        this.puzzleType = data.type;
-        this.puzzleEval = data.eval;
+        this.gameId = data.g;
+        this.site = data.s;
+        this.played = data.p ?? "0";
+        this.puzzleType = data.t;
+        this.puzzleEval = data.e;
         // We have to split the duck move list on every second comma!
-        this.solution = (model.variant==='duck') ? data.moves.match(/[^,]+,[^,]+/g) : data.moves.split(',');
+        this.solution = (model.variant==='duck') ? data.m.match(/[^,]+,[^,]+/g) : data.m.split(',');
         this.username = model.username;
         this.moves = [];
         this.steps = [{"fen": this.fullfen, "turnColor": this.turnColor, "check": false, "move": undefined}];
@@ -473,7 +473,7 @@ export class PuzzleController extends AnalysisController {
         const XHR = new XMLHttpRequest();
         const FD  = new FormData();
         FD.append('win', `${success}`);
-        FD.append('variant', this.variant.name);
+        FD.append('v', this.variant.name);
         FD.append('color', this.color);
         FD.append('rated', `${this.isRated}`);
 

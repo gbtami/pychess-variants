@@ -10,7 +10,7 @@ dependencies = [
     "aiohttp-jinja2==1.6",
     "aiohttp-session==2.12.1",
     "aiohttp-sse==2.2.0",
-    "brotli==1.1.0",
+    "brotli==1.2.0",
     "cryptography==46.0.3",
     "discord-py==2.6.4",
     "dnspython==2.8.0",
@@ -18,25 +18,26 @@ dependencies = [
     "minify-html==0.18.1",
     "pyffish==0.0.88",
     "pyffish-alice==0.0.2",
-    "pymongo==4.15.3",
+    "pymongo==4.15.5",
     "pyopenssl==25.3.0",
     "python-gettext==5.0",
     "rustworkx==0.17.1",
     "sortedcollections==2.1.0",
+    "tenacity==9.1.2",
     "tzdata==2025.2",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "black==25.9.0",
+    "black==25.12.0",
     "flake8==7.3.0",
     "mongomock-motor==0.0.36",
     "motor==3.7.1",
-    "mypy==1.18.2",
+    "mypy==1.19.0",
     "objgraph==3.6.2",
-    "playwright==1.55.0",
+    "playwright==1.56.0",
     "pre-commit>=4.3.0",
-    "pytest==8.4.2",
+    "pytest<10.0.0",
     "pytest-aiohttp==1.1.0",
 ]
 

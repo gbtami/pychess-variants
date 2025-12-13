@@ -172,7 +172,7 @@ class GameResultTestCase(AioHTTPTestCase):
         FEN = "3k5/9/9/9/9/5p3/9/5p3/5K3/5C3 w - - 0 1"
         game = Game(get_app_state(self.app), "12345678", "xiangqi", FEN, self.wplayer, self.wplayer)
 
-        for move in ('f2e2', 'f3e3', 'e2f2', 'e3f3', 'f2e2', 'f3e3', 'e2f2', 'e3f3'):
+        for move in ("f2e2", "f3e3", "e2f2", "e3f3", "f2e2", "f3e3", "e2f2", "e3f3"):
             await game.play_move(move, clocks=CLOCKS)
 
         self.assertEqual(game.result, "1-0")
@@ -183,7 +183,7 @@ class GameResultTestCase(AioHTTPTestCase):
         FEN = "3k5/9/9/9/9/5p3/9/5p3/5K3/5C3 w - - 0 1"
         game = Game(get_app_state(self.app), "12345678", "jieqi", FEN, self.wplayer, self.wplayer)
 
-        for move in ('f2e2', 'f3e3', 'e2f2', 'e3f3', 'f2e2', 'f3e3', 'e2f2', 'e3f3'):
+        for move in ("f2e2", "f3e3", "e2f2", "e3f3", "f2e2", "f3e3", "e2f2", "e3f3"):
             await game.play_move(move, clocks=CLOCKS)
 
         self.assertEqual(game.result, "1-0")

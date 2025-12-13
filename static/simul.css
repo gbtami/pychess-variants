@@ -1,0 +1,560 @@
+*, ::before, ::after {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+.simuls {
+    grid-area: main;
+    max-width: 1000px;
+    margin: auto;
+    width: 100%;
+}
+
+/* Override main wrap constraint to allow full width for simul pages */
+.simuls #main-wrap,
+#pychess-variants[data-view="simul"] #main-wrap {
+    grid-template-columns: 0 1fr 1fr 1fr 0;
+    --main-max-width: 100%;
+}
+
+/* For simul pages specifically */
+div#main-wrap[data-view="simul"] {
+    grid-template-columns: 0 1fr 1fr 1fr 0;
+    --main-max-width: 100%;
+}
+
+a {
+    white-space:unset;
+}
+
+.box-pad, .box:not(.box-pad) > h1 {
+    padding: 5vh var(--box-padding);
+}
+
+.box {
+    --box-padding: 15px;
+}
+
+@media (min-width: 320px) {
+    .box {
+        --box-padding: calc( 15px + 45 * ((100vw - 320px) / 880));
+    }
+}
+
+@media (min-width: 1200px) {
+    .box {
+        --box-padding: 60px;
+    }
+}
+
+.box-top {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5vh;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+.actions {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+a.button.icon-plus-square, a.button.calendar {
+    color: #fff;
+    background: var(--green-switch);
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.225);
+    border-radius: 3px;
+    padding: 0.8em 1em;
+    border: none;
+    text-align: center;
+    white-space: nowrap;
+    transition: all 150ms;
+    margin-left: 4px;
+}
+
+.text::before {
+    margin-right: 0.4em;
+}
+
+th {
+    font: inherit;
+    vertical-align: middle;
+    text-align: inherit;
+}
+
+.slist {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 100%;
+    border-bottom: 1px solid #d9d9d9;
+    margin-bottom: 3em;
+    border-collapse: collapse;
+}
+
+.slist thead {
+    background: var(--bg-color2);
+}
+
+.slist th:first-child {
+    padding-left: 1.5rem;
+}
+
+.slist thead th {
+    border-top: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
+    padding: 0.5rem 0.8rem;
+}
+
+.header a .name, .system, .starts {
+    display: block;
+}
+
+.header a .name {
+    font-size: 1.4em;
+}
+
+.by, td .icon {
+    color: var(--gold);
+}
+
+td .icon {
+    text-align: center;
+    font-size: 3.5em;
+}
+
+.slist tbody tr:nth-child(2n) {
+    background-color: var(--bg-color2)
+}
+
+.slist td {
+    padding: 1rem;
+    font: inherit;
+}
+
+.slist td:last-child {
+    text-align: right;
+}
+
+td a {
+    display: block;
+    color: var(--font-color);
+    padding: 1em;
+}
+
+td.header {
+    padding: 0;
+    transition: 150ms all;
+}
+
+td.header:hover {
+    transform: translateX(3px);
+}
+
+.header .name, .header .system {
+    letter-spacing: 2px;
+}
+
+.name {
+    margin-top: 0.5em;
+}
+
+.starts {
+    opacity: 0.9;
+    font-size: 90%;
+}
+
+.system {
+    margin: 0.5em 0;
+}
+
+/* New Simul Form styling */
+.form3 {
+    margin: 0 auto;
+    max-width: 500px;
+    background-color: var(--bg-color);
+    padding: 2em;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form3 .form-group {
+    margin-bottom: 1em;
+}
+
+.form3 .form-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+
+.form3 .form-control {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: var(--bg-color2);
+    color: var(--font-color);
+}
+
+.form3 .form-split {
+    display: flex;
+    gap: 1em;
+}
+
+.form3 .form-half {
+    flex: 1;
+}
+
+.form3 .form-actions {
+    margin-top: 1.5em;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.form3 .form-actions a {
+    margin-right: 1em;
+    color: var(--link-color-blue);
+    text-decoration: none;
+}
+
+.form3 .form-actions a:hover {
+    text-decoration: underline;
+}
+
+.form3 .form-actions button {
+    padding: 0.8em 1.5em;
+    border: none;
+    background-color: var(--green-switch);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.form3 .form-actions button:hover {
+    background-color: var(--green-hover);
+}
+
+/* Simul page styling */
+.simul, .simul-new {
+    grid-area: main;
+}
+#simul-view {
+    padding: 1em;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.simul-header {
+    background: #fff;
+    border-radius: 4px;
+    padding: 1.5em;
+    margin-bottom: 1.5em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #75a1a4;
+}
+
+.simul-header h1.simul-title {
+    font-size: 1.8em;
+    margin: 0 0 0.5em 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.simul-status {
+    font-size: 0.8em;
+    padding: 0.25em 0.75em;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+.status-waiting {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-started {
+    background-color: #e8f5e9;
+    color: #388e3c;
+}
+
+.status-finished {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.simul-info {
+    display: flex;
+    gap: 1.5em;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.simul-content {
+    display: grid;
+    grid-template-columns: minmax(200px, 250px) minmax(60%, 1fr) minmax(200px, 300px);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+        'side main table'
+        'uchat uchat players';
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* The main area doesn't need a style property since it's the default one */
+.simul-main {
+    grid-area: main;
+}
+
+.simul-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.simul-players-section h2 {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5em;
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+    margin-bottom: 1.5em;
+}
+
+.pending-players, .approved-players {
+    background: #f9f9f9;
+    border-radius: 4px;
+    padding: 1em;
+    border: 1px solid #e0e0e0;
+}
+
+.pending-players h3, .approved-players h3 {
+    margin-top: 0;
+    margin-bottom: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #555;
+}
+
+.approved-players h3 {
+    color: #388e3c;
+}
+
+.pending-players ul, .approved-players ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pending-players li, .approved-players li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75em;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+}
+
+.pending-players li:last-child, .approved-players li:last-child {
+    border-bottom: none;
+}
+
+.player-info {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.player-info .title {
+    color: #ff8c00;
+    font-weight: bold;
+}
+
+.player-info .rating {
+    color: #777;
+    font-size: 0.9em;
+}
+
+.player-actions {
+    display: flex;
+    gap: 0.5em;
+}
+
+.button {
+    padding: 0.4em 0.8em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f5f5f5;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.button:hover {
+    background: #e0e0e0;
+}
+
+.button.btn-approve {
+    background: #e8f5e9;
+    border-color: #388e3c;
+    color: #388e3c;
+}
+
+.button.btn-approve:hover {
+    background: #c8e6c9;
+}
+
+.button.btn-deny {
+    background: #ffebee;
+    border-color: #d32f2f;
+    color: #d32f2f;
+}
+
+.button.btn-deny:hover {
+    background: #ffcdd2;
+}
+
+.empty {
+    color: #999;
+    font-style: italic;
+    padding: 1em;
+    text-align: center;
+}
+
+/* Board controls */
+.simul-board-controls {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid #eee;
+}
+
+.simul-board-controls .navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.simul-board-controls .nav-btn {
+    padding: 0.5em;
+    min-width: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.simul-board-controls .auto-skip {
+    margin-left: auto;
+    background: #fff3cd;
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.simul-board-controls .auto-skip:hover {
+    background: #ffeaa7;
+}
+
+.game-info {
+    padding: 0 1em;
+    color: #555;
+    font-size: 0.9em;
+}
+
+/* Mini boards grid */
+.mini-boards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1em;
+    margin: 1em 0;
+}
+
+.mini-board {
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 0.5em;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-board:hover {
+    border-color: #9ca3af;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.mini-board.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.mini-board.finished {
+    opacity: 0.7;
+    border-color: #a0a0a0;
+}
+
+.mini-board .cg-wrap {
+    width: 100%;
+    aspect-ratio: 1/1;
+    margin-bottom: 0.5em;
+}
+
+.mini-board .game-info {
+    font-size: 0.75em;
+}
+
+.mini-board .players {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.25em;
+}
+
+.mini-board .result {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.mini-board .status {
+    color: #555;
+    font-style: italic;
+}
+
+.chat-container {
+    margin-top: 1.5em;
+    border-top: 1px solid #eee;
+    padding-top: 1.5em;
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+    .simul-content {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            'main'
+            'side'
+            'table'
+            'players'
+            'uchat';
+        gap: 10px;
+    }
+
+    .players-grid {
+        grid-template-columns: 1fr;
+    }
+}

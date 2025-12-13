@@ -37,6 +37,6 @@ async def tv(request):
     context["view"] = "tv"
     context["view_css"] = "round.css"
     context["gameId"] = gameId
-    context["profileid"] = profileId
+    context["profile"] = profileId
 
     return context

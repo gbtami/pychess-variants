@@ -1,0 +1,121 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="simuls box box-pad">
+    <div class="box-top">
+        <h1>{% trans %}Simultaneous Exhibitions{% endtrans %}</h1>
+        <div class="actions">
+            <a class="button icon icon-plus-square text" href="{{ home }}/simul/new">{% trans %}HOST A NEW SIMUL{% endtrans %}</a>
+        </div>
+    </div>
+
+    <table class="slist">
+        <thead>
+            <tr>
+                <th colspan="4">{% trans %}Newly created simuls{% endtrans %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for simul in created_simuls %}
+            <tr>
+                <td>
+                    <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                </td>
+                <td class="header">
+                    <a href="/simul/{{ simul.id }}">
+                        <span class="name">{{ simul.name }}</span>by
+                        <span class="by">{{ simul.created_by }}</span>
+                        <span class="system">
+                            {{ time_control_str(simul.base, simul.inc, 0) }} •
+                            {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                        </span>
+                    </a>
+                </td>
+                <td class="infos">
+                    <span class="starts">
+                        <info-date timestamp="{{ simul.starts_at }}"></info-date>
+                    </span>
+                </td>
+                <td>
+                    <span>{% trans count=simul.players|length %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="slist">
+        <thead>
+            <tr>
+                <th colspan="4">{% trans %}Playing now{% endtrans %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for simul in started_simuls %}
+            <tr>
+                <td>
+                    <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                </td>
+                <td class="header">
+                    <a href="/simul/{{ simul.id }}">
+                        <span class="name">{{ simul.name }}</span>by
+                        <span class="by">{{ simul.created_by }}</span>
+                        <span class="system">
+                            {{ time_control_str(simul.base, simul.inc, 0) }} •
+                            {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                        </span>
+                    </a>
+                </td>
+                <td class="infos">
+                    <span class="starts">
+                        <info-date timestamp="{{ simul.starts_at }}"></info-date>
+                    </span>
+                </td>
+                <td>
+                    <span>{% trans count=simul.players|length %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="slist">
+        <thead>
+            <tr>
+                <th colspan="4">{% trans %}Finished{% endtrans %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for simul in finished_simuls %}
+            <tr>
+                <td>
+                    <div class="icon" data-icon="{{ icons[simul.variant + ('960' if simul.chess960 else '')] }}"></div>
+                </td>
+                <td class="header">
+                    <a href="/simul/{{ simul.id }}">
+                        <span class="name">{{ simul.name }}</span>by
+                        <span class="by">{{ simul.created_by }}</span>
+                        <span class="system">
+                            {{ time_control_str(simul.base, simul.inc, 0) }} •
+                            {{ variant_display_name(simul.variant + ('960' if simul.chess960 else '')) }}
+                        </span>
+                    </a>
+                </td>
+                <td class="infos">
+                    <span class="starts">
+                        <info-date timestamp="{{ simul.starts_at }}"></info-date>
+                    </span>
+                </td>
+                <td>
+                    <span>{% trans count=simul.players|length %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}
