@@ -33,7 +33,7 @@ dev = [
     "flake8==7.3.0",
     "mongomock-motor==0.0.36",
     "motor==3.7.1",
-    "mypy==1.19.0",
+    "mypy==1.19.1",
     "objgraph==3.6.2",
     "playwright==1.57.0",
     "pre-commit>=4.3.0",
