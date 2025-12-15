@@ -24,7 +24,7 @@ dependencies = [
     "rustworkx==0.17.1",
     "sortedcollections==2.1.0",
     "tenacity==9.1.2",
-    "tzdata==2025.2",
+    "tzdata==2025.3",
 ]
 
 [project.optional-dependencies]
