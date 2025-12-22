@@ -4,7 +4,6 @@ import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
 import { gameInfo } from './gameInfo';
 import { selectVariant, VARIANTS, validVariant } from './variants';
-import { model } from './main';
 import { renderTimeago } from './datetime';
 import { spinner } from './view';
 import { PyChessModel } from "./types";
