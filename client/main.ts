@@ -68,6 +68,7 @@ function initModel(el: HTMLElement) {
         level : parseInt(""+el.getAttribute("data-level")),
         username : el.getAttribute("data-username") ?? "",
         gameId : el.getAttribute("data-gameid") ?? "",
+        gameCategory : el.getAttribute("data-game-category") ?? "all",
         tournamentId : el.getAttribute("data-tournamentid") ?? "",
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
         simulId : el.getAttribute("data-simulid") ?? "",

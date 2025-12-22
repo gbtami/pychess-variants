@@ -7,6 +7,7 @@ from glicko2.glicko2 import PROVISIONAL_PHI
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 from variants import NOT_RATED_VARIANTS, VARIANTS, VARIANT_ICONS
+from const import CATEGORIES
 
 
 @aiohttp_jinja2.template("profile.html")
@@ -78,6 +79,12 @@ async def profile(request):
     if profileId not in app_state.users or app_state.users[profileId].perfs is None:
         context["ratings"] = {}
     else:
+        perfs = app_state.users[profileId].perfs.items()
+        if user.game_category != "all":
+            perfs = [
+                (k, v) for k, v in perfs if k in CATEGORIES[user.game_category]
+            ]
+
         context["ratings"] = {
             k: (
                 "%s%s"
@@ -88,13 +95,14 @@ async def profile(request):
                 v["nb"],
             )
             for (k, v) in sorted(
-                app_state.users[profileId].perfs.items(),
+                perfs,
                 key=lambda x: x[1]["nb"],
                 reverse=True,
             )
         }
         for v in NOT_RATED_VARIANTS:
-            context["ratings"][v] = ("1500?", 0)
+            if v in context["ratings"]:
+                context["ratings"][v] = ("1500?", 0)
 
     context["profile_title"] = (
         app_state.users[profileId].title if profileId in app_state.users else ""

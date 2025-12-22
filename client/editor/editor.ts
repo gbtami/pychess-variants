@@ -4,6 +4,7 @@ import { _ } from '@/i18n';
 import { PyChessModel } from "@/types";
 import { twoBoarsVariants, selectVariant, VARIANTS, validVariant } from '@/variants';
 import { EditorController } from './editorCtrl';
+import { model } from '@/main';
 
 function runEditor(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -28,7 +29,7 @@ export function editorView(model: PyChessModel): VNode[] {
                 h('div.container', [
                     h('div', [
                         h('label', { attrs: { for: "variant" } }, _("Variant")),
-                        selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false), twoBoarsVariants), /*todo:bughouse editor not implemented*/
+                        selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false), twoBoarsVariants, model.gameCategory), /*todo:bughouse editor not implemented*/
                     ]),
                 ])
             ]),

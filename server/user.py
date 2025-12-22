@@ -53,6 +53,7 @@ class User:
         enabled=True,
         lang=None,
         theme="dark",
+        game_category="all",
         oauth_id="",
         oauth_provider="",
     ):
@@ -61,6 +62,7 @@ class User:
         self.anon = anon
         self.lang = lang
         self.theme = theme
+        self.game_category = game_category
         self.oauth_id = oauth_id
         self.oauth_provider = oauth_provider
         self.notifications = None
@@ -491,6 +493,28 @@ async def set_theme(request):
                     {"_id": user.username}, {"$set": {"theme": theme}}
                 )
         session["theme"] = theme
+        return web.HTTPFound(referer)
+    else:
+        raise web.HTTPNotFound()
+
+
+async def set_game_category(request):
+    app_state = get_app_state(request.app)
+    post_data = await request.post()
+    game_category = post_data.get("game_category")
+
+    if game_category is not None:
+        referer = request.headers.get("REFERER")
+        session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
+        if session_user in app_state.users:
+            user = app_state.users[session_user]
+            user.game_category = game_category
+            if app_state.db is not None:
+                await app_state.db.user.find_one_and_update(
+                    {"_id": user.username}, {"$set": {"gameCategory": game_category}}
+                )
+        session["game_category"] = game_category
         return web.HTTPFound(referer)
     else:
         raise web.HTTPNotFound()

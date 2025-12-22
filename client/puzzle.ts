@@ -4,6 +4,7 @@ import { _ } from './i18n';
 import { PuzzleController } from './puzzleCtrl';
 import { selectVariant, VARIANTS, noPuzzleVariants, validVariant } from './variants';
 import { PyChessModel } from './types';
+import { model } from './main';
 import { analysisTools, gauge } from './analysis'
 import { analysisSettings } from './analysisSettings';
 
@@ -30,7 +31,7 @@ function leftSide(model: PyChessModel) {
         ]),
         h('div.puzzle-info', [
             h('label', { attrs: { for: "variant" } }, _("Variant")),
-            selectVariant("variant", model.variant, () => setVariant(true), () => setVariant(false), noPuzzleVariants),
+            selectVariant("variant", model.variant, () => setVariant(true), () => setVariant(false), noPuzzleVariants, model.gameCategory),
             h('div.auto-next-toggle'),
         ]),
     ]);

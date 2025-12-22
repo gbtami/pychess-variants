@@ -1,6 +1,7 @@
 import { h } from "snabbdom";
 
 import { backgroundSettings } from './background';
+import { gameCategorySettings } from './gameCategory';
 import { boardSettings } from './boardSettings';
 import { selectVariant } from './variants';
 import { patch, getDocumentData } from './document';
@@ -19,6 +20,7 @@ export function settingsView(modelVariant: string) {
                 langSettingsView(),
                 soundSettingsView(),
                 backgroundSettingsView(),
+                gameCategorySettingsView(),
                 boardSettingsView(modelVariant),
                 zenModeSettingsView(),
             ]),
@@ -68,6 +70,7 @@ function settingsMenu() {
         h('button#btn-lang', { on: { click: showSubsettings } }, translatedLanguage),
         h('button#btn-sound', { on: { click: showSubsettings } }, _('Sound')),
         h('button#btn-background', { on: { click: showSubsettings } }, _('Background')),
+        h('button#btn-game-category', { on: { click: showSubsettings } }, _('Game Category')),
         h('button#btn-board', { on: { click: showSubsettings } }, _('Board Settings')),
         h('button#btn-zen', { on: { click: showSubsettings } }, _('Zen Mode')),
     ]);
@@ -117,6 +120,13 @@ function backgroundSettingsView() {
     ]);
 }
 
+function gameCategorySettingsView() {
+    return h('div#settings-game-category', [
+        backButton(_("Game Category")),
+        gameCategorySettings.view(),
+    ]);
+}
+
 function zenModeSettingsView() {
     return h('div#settings-zen', [
         backButton(_("Zen Mode")),
@@ -136,6 +146,8 @@ function boardSettingsView(modelVariant: string) {
                     variant,
                     () => showVariantBoardSettings(modelVariant),
                     () => showVariantBoardSettings(modelVariant),
+                    [],
+                    getDocumentData('game-category') || undefined,
                 ),
             ]),
             h('div#board-settings'),

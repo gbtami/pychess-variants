@@ -75,6 +75,7 @@ async def get_user_context(request):
         "lang": lang,
         "variant_display_name": variant_display_name,
         "theme": user.theme,
+        "game_category": user.game_category,
         "title": "%s • PyChess" % view.capitalize(),
         "view": view,
         "view_css": ("round" if view == "tv" else view) + ".css",

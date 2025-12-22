@@ -1269,13 +1269,13 @@ function variantGroupLabel(group: string): string {
     return groups[group];
 }
 
-export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = []): VNode {
+export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = [], gameCategory: string = "all"): VNode {
     return h('select#' + id, {
         props: { name: id },
         on: { change: onChange },
         hook: { insert: hookInsert },
     },
-        Object.keys(variantGroups).map(g => {
+        Object.keys(variantGroups).filter(g => gameCategory === "all" || g === gameCategory).map(g => {
             const group = variantGroups[g];
             return h('optgroup', { props: { label: variantGroupLabel(g) } }, group.variants.map(v => {
                 const variant = VARIANTS[v];

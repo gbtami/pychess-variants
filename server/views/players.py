@@ -4,6 +4,7 @@ from views import get_user_context
 from settings import ADMINS
 from pychess_global_app_state_utils import get_app_state
 from variants import VARIANTS, VARIANT_ICONS
+from const import CATEGORIES
 
 
 @aiohttp_jinja2.template("players.html")
@@ -27,10 +28,17 @@ async def players(request):
     variant = request.match_info.get("variant")
 
     if variant is None:
-        context["highscore"] = {
-            variant: dict(app_state.highscore[variant].items()[:10])
-            for variant in app_state.highscore
-            if variant in VARIANTS
-        }
+        if user.game_category == "all":
+            context["highscore"] = {
+                variant: dict(app_state.highscore[variant].items()[:10])
+                for variant in app_state.highscore
+                if variant in VARIANTS
+            }
+        else:
+            context["highscore"] = {
+                variant: dict(app_state.highscore[variant].items()[:10])
+                for variant in app_state.highscore
+                if variant in CATEGORIES[user.game_category]
+            }
 
     return context

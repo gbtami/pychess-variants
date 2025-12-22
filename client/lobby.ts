@@ -14,6 +14,7 @@ import { enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant } f
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
+import { model } from './main';
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
 import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
@@ -444,7 +445,7 @@ export class LobbyController implements ChatController {
                             h('div#header-block'),
                             h('div', [
                                 h('label', { attrs: { for: "variant" } }, _("Variant")),
-                                selectVariant("variant", vVariant, () => this.setVariant(), () => this.setVariant()),
+                                selectVariant("variant", vVariant, () => this.setVariant(), () => this.setVariant(), [], model.gameCategory),
                             ]),
                             h('input#fen', {
                                 props: { name: 'fen', placeholder: _('Paste the FEN text here') + (this.anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
@@ -656,7 +657,7 @@ export class LobbyController implements ChatController {
         const vChess960 = localStorage.seek_chess960 === 'true' || false;
         const e = document.getElementById('variant');
         e!.replaceChildren();
-        patch(e!, selectVariant("variant", disabled.includes(vVariant)? null: vVariant, () => this.setVariant(), () => this.setVariant(), disabled));
+        patch(e!, selectVariant("variant", disabled.includes(vVariant)? null: vVariant, () => this.setVariant(), () => this.setVariant(), disabled, model.gameCategory));
         this.preSelectVariant(vVariant, vChess960);
     }
 

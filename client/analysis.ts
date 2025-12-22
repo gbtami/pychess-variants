@@ -4,6 +4,7 @@ import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
 import { gameInfo } from './gameInfo';
 import { selectVariant, VARIANTS, validVariant } from './variants';
+import { model } from './main';
 import { renderTimeago } from './datetime';
 import { spinner } from './view';
 import { PyChessModel } from "./types";
@@ -37,7 +38,7 @@ function leftSide(model: PyChessModel) {
         return h('div.container', [
             h('div', [
                 h('label', { attrs: { for: "variant" } }, _("Variant")),
-                selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false)),
+                selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false), [], model.gameCategory),
             ]),
         ]);
     }

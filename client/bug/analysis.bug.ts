@@ -8,6 +8,7 @@ import { renderTimeago } from '../datetime';
 import { PyChessModel } from "../types";
 import AnalysisControllerBughouse from "./analysisCtrl.bug";
 import { gauge } from "@/analysis";
+import { model } from '../main';
 
 function leftSide(model: PyChessModel) {
 
@@ -33,7 +34,7 @@ function leftSide(model: PyChessModel) {
         return h('div.container', [
             h('div', [
                 h('label', { attrs: { for: "variant" } }, _("Variant")),
-                selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false)),
+                selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false), [], model.gameCategory),
             ]),
         ]);
     }
