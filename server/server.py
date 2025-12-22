@@ -254,6 +254,6 @@ if __name__ == "__main__":
 
     web.run_app(
         app,
-        access_log=None if args.w else access_logger,
+        access_log=None,
         port=int(os.environ.get("PORT", 8080)),
     )
