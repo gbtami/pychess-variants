@@ -7,7 +7,7 @@ import os
 from urllib.parse import urlparse
 
 from aiohttp import web
-from aiohttp.log import access_logger
+# from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
@@ -254,6 +254,6 @@ if __name__ == "__main__":
 
     web.run_app(
         app,
-        access_log=None if args.w else access_logger,
+        access_log=None,
         port=int(os.environ.get("PORT", 8080)),
     )
