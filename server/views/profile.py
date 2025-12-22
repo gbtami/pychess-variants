@@ -81,9 +81,7 @@ async def profile(request):
     else:
         perfs = app_state.users[profileId].perfs.items()
         if user.game_category != "all":
-            perfs = [
-                (k, v) for k, v in perfs if k in CATEGORIES[user.game_category]
-            ]
+            perfs = [(k, v) for k, v in perfs if k in CATEGORIES[user.game_category]]
 
         context["ratings"] = {
             k: (

@@ -1247,8 +1247,8 @@ export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 export const devVariants = ["borderlands", "makbug", "supply", "jieqi"];
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
-    sea:      { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
+    chess:    { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
+    makruk:   { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
@@ -1258,8 +1258,8 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
 
 function variantGroupLabel(group: string): string {
     const groups: {[index: string]: string} = {
-        standard: _("Chess Variants"),
-        sea: _("Makruk Variants"),
+        chess: _("Chess Variants"),
+        makruk: _("Makruk Variants"),
         shogi: _("Shogi Variants"),
         xiangqi: _("Xiangqi Variants"),
         fairy: _("Fairy Piece Variants"),

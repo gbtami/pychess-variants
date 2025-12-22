@@ -4,7 +4,6 @@ import { _ } from './i18n';
 import { StringSettings } from './settings';
 import { radioList } from './view';
 import { variantGroups } from './variants';
-import { getDocumentData } from './document';
 
 function gameCategories() {
     const categories: {[index: string]: string} = {
@@ -19,7 +18,7 @@ function gameCategories() {
 class GameCategorySettings extends StringSettings {
 
     constructor() {
-        super('game_category', getDocumentData('game-category') || 'all');
+        super('game_category', 'all');
     }
 
     update(): void {

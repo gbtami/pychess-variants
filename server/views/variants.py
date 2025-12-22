@@ -23,9 +23,7 @@ async def variants(request):
         context["variants"] = {
             v: VARIANTS[v] for v in CATEGORIES[user.game_category] if v in VARIANTS
         }
-        context["groups"] = {
-            v: g for v, g in VARIANT_GROUPS.items() if g == user.game_category
-        }
+        context["groups"] = {v: g for v, g in VARIANT_GROUPS.items() if g == user.game_category}
 
     context["icons"] = VARIANT_ICONS
     locale = get_locale_ext(context)
