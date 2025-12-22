@@ -8,7 +8,6 @@ import { renderTimeago } from '../datetime';
 import { PyChessModel } from "../types";
 import AnalysisControllerBughouse from "./analysisCtrl.bug";
 import { gauge } from "@/analysis";
-import { model } from '../main';
 
 function leftSide(model: PyChessModel) {
 

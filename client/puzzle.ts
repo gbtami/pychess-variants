@@ -4,7 +4,6 @@ import { _ } from './i18n';
 import { PuzzleController } from './puzzleCtrl';
 import { selectVariant, VARIANTS, noPuzzleVariants, validVariant } from './variants';
 import { PyChessModel } from './types';
-import { model } from './main';
 import { analysisTools, gauge } from './analysis'
 import { analysisSettings } from './analysisSettings';
 

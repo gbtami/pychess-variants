@@ -4,7 +4,6 @@ import { _ } from '@/i18n';
 import { PyChessModel } from "@/types";
 import { twoBoarsVariants, selectVariant, VARIANTS, validVariant } from '@/variants';
 import { EditorController } from './editorCtrl';
-import { model } from '@/main';
 
 function runEditor(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
