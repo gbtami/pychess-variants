@@ -8,16 +8,23 @@ import { goBackToLayer1, variantBoard } from './util';
 import { layer3variant } from './layer3';
 
 
-export function layer2xiangqi (lobbyCtrl: LobbyController, containerId: string): void {
+export function layer2xiangqi(lobbyCtrl: LobbyController, containerId: string, showBack: boolean = true): void {
     const variant = VARIANTS['xiangqi'];
+    const infoItems = [
+        h('h4', _('Xiangqi Variants')),
+        variantBoard(variant, variant.startFen),
+        h('p.variant-category-description.makruk-desc', _('The ancient game of Chinese Chess and its variants.')),
+    ];
+
+    if (showBack) {
+        infoItems.push(
+            h('h5#xiangqil2back', { class: { "icon": true, "icon-reply": true }, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2xiangqicont') } }, _('Go Back')),
+        );
+    }
+
     const layer2cont = h('div#layer2xiangqicont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
-            h('div.layer-two-category-info', [
-                h('h4', _('Xiangqi Variants')),
-                variantBoard(variant, variant.startFen),
-                h('p.variant-category-description.makruk-desc', _('The ancient game of Chinese Chess and its variants.')),
-                h('h5#xiangqil2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2xiangqicont') } }, _('Go Back')),
-            ]),
+            h('div.layer-two-category-info', infoItems),
         ]),
         h('div.button-grid', [
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'xiangqi') } }, [
