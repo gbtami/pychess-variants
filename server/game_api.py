@@ -11,7 +11,16 @@ from aiohttp_sse import sse_response
 import pymongo
 
 from compress import C2R, decode_move_standard
-from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM, SSE_GET_TIMEOUT
+from const import (
+    CATEGORIES,
+    DARK_FEN,
+    STARTED,
+    MATE,
+    INVALIDMOVE,
+    VARIANTEND,
+    CLAIM,
+    SSE_GET_TIMEOUT,
+)
 from convert import zero2grand
 from settings import ADMINS
 from tournament.tournaments import get_tournament_name
@@ -270,6 +279,22 @@ async def get_user_games(request):
             ]
         }
         filter_cond = new_filter_cond
+
+    if user.game_category != "all":
+        allowed_codes = set()
+        for allowed_variant in CATEGORIES[user.game_category]:
+            variant960 = allowed_variant.endswith("960")
+            uci_variant = allowed_variant[:-3] if variant960 else allowed_variant
+            try:
+                server_variant = get_server_variant(uci_variant, variant960)
+            except KeyError:
+                continue
+            allowed_codes.add(server_variant.code)
+
+        if not allowed_codes:
+            return web.json_response([])
+
+        filter_cond = {"$and": [filter_cond, {"v": {"$in": list(allowed_codes)}}]}
 
     page_num = request.rel_url.query.get("p", 0)
 

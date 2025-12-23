@@ -48,9 +48,16 @@ async def profile(request):
     context["can_block"] = profileId not in user.blocked
     context["can_challenge"] = user.username not in profileId_user.blocked
 
+    allowed_variants = None
+    if user.game_category != "all":
+        allowed_variants = set(CATEGORIES[user.game_category])
+
     _id = "%s|%s" % (profileId, profileId_user.title)
     context["trophies"] = [
-        (v, "top10") for v in app_state.highscore if _id in app_state.highscore[v].keys()[:10]
+        (v, "top10")
+        for v in app_state.highscore
+        if _id in app_state.highscore[v].keys()[:10]
+        and (allowed_variants is None or v in allowed_variants)
     ]
     for i, (v, kind) in enumerate(context["trophies"]):
         if app_state.highscore[v].peekitem(0)[0] == _id:
@@ -60,13 +67,15 @@ async def profile(request):
     if not app_state.users[profileId].bot:
         shield_owners = app_state.shield_owners
         context["trophies"] += [
-            (v, "shield") for v in shield_owners if shield_owners[v] == profileId
+            (v, "shield")
+            for v in shield_owners
+            if shield_owners[v] == profileId and (allowed_variants is None or v in allowed_variants)
         ]
 
     if profileId in CUSTOM_TROPHY_OWNERS:
         trophies = CUSTOM_TROPHY_OWNERS[profileId]
         for v, kind in trophies:
-            if v in VARIANTS:
+            if v in VARIANTS and (allowed_variants is None or v in allowed_variants):
                 context["trophies"].append((v, kind))
 
     context["title"] = "Profile • " + profileId

@@ -638,16 +638,26 @@ export class LobbyController implements ChatController {
     }
 
     preSelectVariant(variantName: string, chess960: boolean=false) {
+        const select = document.getElementById("variant") as HTMLSelectElement;
+        if (!select) return;
+        const options = Array.from(select.options).map(o => o.value);
+        if (!options.length) return;
+
         if (variantName !== '') {
-            const select = document.getElementById("variant") as HTMLSelectElement;
-            const options = Array.from(select.options).map(o => o.value);
-            if (select) select.selectedIndex = options.indexOf(variantName);
-
-            this.setVariant();
-
-            const check = document.getElementById("chess960") as HTMLInputElement;
-            if (check) check.checked = chess960;
+            const index = options.indexOf(variantName);
+            if (index < 0) {
+                delete localStorage.seek_variant;
+                delete localStorage.seek_chess960;
+            }
+            select.selectedIndex = index >= 0 ? index : 0;
+        } else if (select.selectedIndex < 0) {
+            select.selectedIndex = 0;
         }
+
+        this.setVariant();
+
+        const check = document.getElementById("chess960") as HTMLInputElement;
+        if (check) check.checked = chess960;
     }
 
     renderVariantsDropDown(variantName: string = '', disabled: string[]) {
@@ -722,7 +732,9 @@ export class LobbyController implements ChatController {
     private setVariant() {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
+        if (!e || e.selectedIndex < 0 || e.options.length === 0) return;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
+        if (!variant) return;
         const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
         if (variant.twoBoards) {
             const select = document.getElementById('tc') as HTMLSelectElement;

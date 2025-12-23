@@ -71,6 +71,7 @@ class Users(UserDict):
                 enabled=doc.get("enabled", True),
                 lang=doc.get("lang", "en"),
                 theme=doc.get("theme", "dark"),
+                game_category=doc.get("gameCategory", "all"),
                 oauth_id=doc.get("oauth_id"),
                 oauth_provider=doc.get("oauth_provider"),
             )

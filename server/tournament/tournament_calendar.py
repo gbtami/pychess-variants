@@ -3,8 +3,10 @@ import json
 import datetime as dt
 from functools import partial
 
+import aiohttp_session
 from aiohttp import web
 
+from const import CATEGORIES
 from pychess_global_app_state_utils import get_app_state
 from tournament.scheduler import new_scheduled_tournaments
 from tournament.tournaments import get_scheduled_tournaments
@@ -44,31 +46,40 @@ def event(data, created_tournaments):
 
 async def tournament_calendar(request):
     app_state = get_app_state(request.app)
+
     if app_state.tourney_calendar is not None:
         events = app_state.tourney_calendar
-        return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))
+    else:
+        scheduled_tournaments = await get_scheduled_tournaments(get_app_state(request.app))
+        created_tournaments = {t[:5]: t[5] for t in scheduled_tournaments}
 
-    scheduled_tournaments = await get_scheduled_tournaments(get_app_state(request.app))
-    created_tournaments = {t[:5]: t[5] for t in scheduled_tournaments}
+        events = []
+        now = dt.datetime.now()
+        y, m, d = now.year, now.month, now.day
+        prev_data = create_scheduled_data(y, m, d)
 
-    events = []
-    now = dt.datetime.now()
-    y, m, d = now.year, now.month, now.day
-    prev_data = create_scheduled_data(y, m, d)
-
-    for data in prev_data:
-        events.append(event(data, created_tournaments))
-
-    already_scheduled = prev_data
-    for i in range(365):
-        y, m, d = go_day(i)
-        next_data = create_scheduled_data(y, m, d, already_scheduled=already_scheduled)
-
-        for data in next_data:
+        for data in prev_data:
             events.append(event(data, created_tournaments))
 
-        already_scheduled += next_data
+        already_scheduled = prev_data
+        for i in range(365):
+            y, m, d = go_day(i)
+            next_data = create_scheduled_data(y, m, d, already_scheduled=already_scheduled)
 
-    app_state.tourney_calendar = events
+            for data in next_data:
+                events.append(event(data, created_tournaments))
+
+            already_scheduled += next_data
+
+        app_state.tourney_calendar = events
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user) if session_user else None
+    game_category = user.game_category if user is not None else session.get("game_category", "all")
+
+    if game_category != "all":
+        allowed_variants = set(CATEGORIES[game_category])
+        events = [event for event in events if event.get("title") in allowed_variants]
 
     return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))
