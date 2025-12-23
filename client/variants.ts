@@ -4,7 +4,7 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType, uci2LastMove } from './chess';
-import { _ } from './i18n';
+import { _, gameCategoryLabel } from './i18n';
 import { calculateDiff, Equivalence, MaterialDiff } from './material';
 
 export interface BoardFamily {
@@ -1256,17 +1256,8 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     other:    { variants: [ "borderlands", "ataxx" ] }
 };
 
-function variantGroupLabel(group: string): string {
-    const groups: {[index: string]: string} = {
-        chess: _("Chess Variants"),
-        makruk: _("Makruk Variants"),
-        shogi: _("Shogi Variants"),
-        xiangqi: _("Xiangqi Variants"),
-        fairy: _("Fairy Piece Variants"),
-        army: _("New Army Variants"),
-        other: _("Other"),
-    }
-    return groups[group];
+export function variantGroupLabel(group: string): string {
+    return gameCategoryLabel(group);
 }
 
 export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = [], gameCategory: string = "all"): VNode {

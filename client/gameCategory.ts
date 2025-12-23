@@ -1,16 +1,16 @@
 import { h, VNode } from 'snabbdom';
 
-import { _ } from './i18n';
+import { gameCategoryLabel } from './i18n';
 import { StringSettings } from './settings';
 import { radioList } from './view';
 import { variantGroups } from './variants';
 
 function gameCategories() {
     const categories: {[index: string]: string} = {
-        all: _("All"),
-    }
+        all: gameCategoryLabel("all"),
+    };
     for (const key in variantGroups) {
-        categories[key] = key;
+        categories[key] = gameCategoryLabel(key);
     }
     return categories;
 }

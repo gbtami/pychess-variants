@@ -54,6 +54,22 @@ const LANGUAGETEXT: {[key:string]: string} = {
 
 const preferredLang = window.navigator.language.slice(0, 2);
 export const translatedLanguage = LANGUAGETEXT[preferredLang] ?? 'Language';
+export const translatedGameCategory = _("Game Category");
+
+export const GAME_CATEGORY_LABELS: {[key: string]: string} = {
+    all: _("All"),
+    chess: _("Chess Variants"),
+    makruk: _("Makruk Variants"),
+    shogi: _("Shogi Variants"),
+    xiangqi: _("Xiangqi Variants"),
+    fairy: _("Fairy Piece Variants"),
+    army: _("New Army Variants"),
+    other: _("Other"),
+};
+
+export function gameCategoryLabel(key: string): string {
+    return GAME_CATEGORY_LABELS[key] ?? key;
+}
 
 // Do not use
 // These lists are only here to mark these texts translatable

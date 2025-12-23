@@ -6,7 +6,7 @@ from pathlib import Path
 import aiohttp_session
 from aiohttp import web
 
-from const import DARK_FEN, STARTED
+from const import DARK_FEN, STARTED, GAME_CATEGORY_ALL
 from fairy import BLACK, WHITE
 from lang import LOCALE
 from pychess_global_app_state_utils import get_app_state
@@ -70,12 +70,18 @@ async def get_user_context(request):
     def variant_display_name(variant):
         return gettext(ALL_VARIANTS[variant].translated_name)
 
+    if user.game_category == GAME_CATEGORY_ALL:
+        menu_variant = "chess"
+    else:
+        menu_variant = user.category_variant_list[0] if user.category_variant_list else "chess"
+
     context = {
         "user": user,
         "lang": lang,
         "variant_display_name": variant_display_name,
         "theme": user.theme,
         "game_category": user.game_category,
+        "menu_variant": menu_variant,
         "title": "%s • PyChess" % view.capitalize(),
         "view": view,
         "view_css": ("round" if view == "tv" else view) + ".css",

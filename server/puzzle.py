@@ -9,6 +9,7 @@ from aiohttp import web
 from fairy import FairyBoard
 from glicko2.glicko2 import MU, gl2, Rating, rating
 from pychess_global_app_state_utils import get_app_state
+from const import GAME_CATEGORY_ALL
 from variants import VARIANTS
 
 
@@ -138,6 +139,9 @@ async def next_puzzle(request, user):
     ]
     if user.puzzle_variant is not None:
         variant = user.puzzle_variant
+        filters.append({"v": variant})
+    elif user.game_category != GAME_CATEGORY_ALL:
+        variant = user.category_variant_list[0] if user.category_variant_list else "chess"
         filters.append({"v": variant})
     else:
         variant = "chess"
