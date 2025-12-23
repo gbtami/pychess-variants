@@ -545,6 +545,7 @@ async def set_game_category(request):
             path_parts = [part for part in parsed.path.split("/") if part]
             if path_parts:
                 section = path_parts[0]
+                variant_segment = path_parts[1] if len(path_parts) > 1 else None
                 current_variant = (
                     path_parts[1] if len(path_parts) > 1 and path_parts[1] in VARIANTS else None
                 )
@@ -560,6 +561,8 @@ async def set_game_category(request):
                         redirect_url = f"/analysis/{default_variant}"
                     elif section == "editor":
                         redirect_url = f"/editor/{default_variant}"
+                    elif section == "variants" and variant_segment in VARIANTS:
+                        redirect_url = f"/variants/{default_variant}"
         return web.HTTPFound(redirect_url)
     else:
         raise web.HTTPNotFound()
