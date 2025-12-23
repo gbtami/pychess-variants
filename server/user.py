@@ -534,7 +534,7 @@ async def set_game_category(request):
             user.update_game_category(normalized)
             if app_state.db is not None:
                 await app_state.db.user.find_one_and_update(
-                    {"_id": user.username}, {"$set": {"gameCategory": normalized}}
+                    {"_id": user.username}, {"$set": {"ct": normalized}}
                 )
         session["game_category"] = normalized
         return web.HTTPFound(referer)
