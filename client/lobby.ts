@@ -10,7 +10,7 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
-import { enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant } from './variants';
+import { enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant, variantGroups } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -33,6 +33,13 @@ const autoPairingTCs: [number, number, number][] = [
     [2, 15, 1],
     [10, 30, 1],
 ];
+
+function allowedVariantsForCategory(gameCategory: string): Set<string> | null {
+    if (gameCategory === "all") return null;
+    const group = variantGroups[gameCategory];
+    if (!group) return null;
+    return new Set(group.variants);
+}
 
 export function createModeStr(mode: CreateMode) {
     switch (mode) {
@@ -65,6 +72,8 @@ export class LobbyController implements ChatController {
     anon: boolean;
     title: string;
     tournamentDirector: boolean;
+    gameCategory: string;
+    allowedVariants: Set<string> | null;
     fen: string;
     createMode: CreateMode;
     tcMode: TcMode;
@@ -98,6 +107,8 @@ export class LobbyController implements ChatController {
         this.anon = model["anon"] === 'True';
         this.title = model["title"];
         this.tournamentDirector = model["tournamentDirector"];
+        this.gameCategory = model["gameCategory"] ?? "all";
+        this.allowedVariants = allowedVariantsForCategory(this.gameCategory);
         this.fen = model["fen"];
         this.profileid = model["profileid"]
         this.createMode = 'createGame';
@@ -1060,6 +1071,7 @@ export class LobbyController implements ChatController {
     renderAutoPairingTable() {
         const variantList: VNode[] = [];
         enabledVariants.forEach(v => {
+            if (!this.isVariantAllowed(v)) return;
             const variant = VARIANTS[v];
             let variantName = variant.name;
             let checked = localStorage[`va_${variantName}`] ?? "false";
@@ -1105,6 +1117,10 @@ export class LobbyController implements ChatController {
         ];
 
         patch(document.querySelector('div.auto-rating-range') as Element, h('div.auto-rating-range', aRatingRange));
+    }
+
+    private isVariantAllowed(variant: string): boolean {
+        return this.allowedVariants ? this.allowedVariants.has(variant) : true;
     }
 
     onMessage(evt: MessageEvent) {
@@ -1212,14 +1228,15 @@ export class LobbyController implements ChatController {
     private onMsgGetSeeks(msg: MsgGetSeeks) {
         this.seeks = msg.seeks;
         // console.log("!!!! got get_seeks msg:", msg);
+        const visibleSeeks = msg.seeks.filter(seek => this.isVariantAllowed(seek.variant));
 
         const oldSeeks = document.querySelector('.seek-container table.seeks') as Element;
         oldSeeks.innerHTML = "";
-        patch(oldSeeks, h('table.seeks', this.renderSeeks(msg.seeks.filter(seek => seek.day === 0))));
+        patch(oldSeeks, h('table.seeks', this.renderSeeks(visibleSeeks.filter(seek => seek.day === 0))));
 
         const oldCorrs = document.querySelector('.corr-container table.seeks') as Element;
         oldCorrs.innerHTML = "";
-        patch(oldCorrs, h('table.seeks', this.renderSeeks(msg.seeks.filter(seek => seek.day !== 0))));
+        patch(oldCorrs, h('table.seeks', this.renderSeeks(visibleSeeks.filter(seek => seek.day !== 0))));
     }
 
     private onMsgNewGame(msg: MsgNewGame) {
@@ -1283,13 +1300,21 @@ export class LobbyController implements ChatController {
     }
 
     private onMsgSpotlights(msg: MsgSpotlights) {
+        const items = this.allowedVariants
+            ? msg.items.filter(spotlight => this.allowedVariants!.has(spotlight.variant))
+            : msg.items;
         this.spotlights = patch(this.spotlights, h('div#spotlights', [
-            h('div', msg.items.map(spotlight => this.spotlightView(spotlight))),
+            h('div', items.map(spotlight => this.spotlightView(spotlight))),
             h('a.cont-link', { attrs: { href: '/calendar' } }, _('Tournament calendar') + ' »'),
         ]));
     }
 
     private onMsgTvGame(msg: TvGame) {
+        if (!this.isVariantAllowed(msg.variant)) {
+            this.tvGameId = "";
+            this.renderEmptyTvGame();
+            return;
+        }
         this.tvGame = msg;
         this.renderEmptyTvGame();
         this.renderTvGame();
@@ -1333,43 +1358,50 @@ export function lobbyView(model: PyChessModel): VNode[] {
     const blogs = JSON.parse(model.blogs);
     const username = model.username;
     const anonUser = model["anon"] === 'True';
-    const corrGames = JSON.parse(model.corrGames).sort(compareGames(username));
+    const allowedVariants = allowedVariantsForCategory(model.gameCategory ?? "all");
+    const allCorrGames = JSON.parse(model.corrGames);
+    const corrGames = (allowedVariants ? allCorrGames.filter((game: Game) => allowedVariants.has(game.variant)) : allCorrGames)
+        .sort(compareGames(username));
     const gpCounter = corrGames.length;
 
     const myTurnGameCounter = (sum: number, game: Game) => sum + ((game.tp === username) ? 1 : 0);
     const count = corrGames.reduce(myTurnGameCounter, 0);
 
-    const variant = VARIANTS[puzzle.v];
-    const turnColor = puzzle.f.split(" ")[1] === "w" ? "white" : "black";
-    const first = _(variant.colors.first);
-    const second = _(variant.colors.second);
+    const showPuzzle = !allowedVariants || allowedVariants.has(puzzle.v);
+    let dailyPuzzle: VNode[] = [];
+    if (showPuzzle) {
+        const variant = VARIANTS[puzzle.v];
+        const turnColor = puzzle.f.split(" ")[1] === "w" ? "white" : "black";
+        const first = _(variant.colors.first);
+        const second = _(variant.colors.second);
 
-    const dailyPuzzle = [
-        h('span.vstext', [
-            h('span.text', _('Puzzle of the day')),
-            h('span.text', _('%1 to play', (turnColor === 'white') ? first : second)),
-        ]),
-        h(`div#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
-            class: { "with-pockets": !!variant.pocket },
-            style: { "--ranks": (variant.pocket) ? String(variant.board.dimensions.height) : "undefined" },
-            }, [
-                h(`div.cg-wrap.${variant.board.cg}.mini`, {
-                    hook: {
-                        insert: vnode => {
-                            Chessground(vnode.elm as HTMLElement,  {
-                                orientation: variant.name === 'racingkings' ? 'white' : turnColor,
-                                fen: puzzle.f,
-                                dimensions: variant.board.dimensions,
-                                coordinates: false,
-                                viewOnly: true,
-                                addDimensionsCssVarsTo: document.body,
-                                pocketRoles: variant.pocket?.roles,
-                            });
+        dailyPuzzle = [
+            h('span.vstext', [
+                h('span.text', _('Puzzle of the day')),
+                h('span.text', _('%1 to play', (turnColor === 'white') ? first : second)),
+            ]),
+            h(`div#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
+                class: { "with-pockets": !!variant.pocket },
+                style: { "--ranks": (variant.pocket) ? String(variant.board.dimensions.height) : "undefined" },
+                }, [
+                    h(`div.cg-wrap.${variant.board.cg}.mini`, {
+                        hook: {
+                            insert: vnode => {
+                                Chessground(vnode.elm as HTMLElement,  {
+                                    orientation: variant.name === 'racingkings' ? 'white' : turnColor,
+                                    fen: puzzle.f,
+                                    dimensions: variant.board.dimensions,
+                                    coordinates: false,
+                                    viewOnly: true,
+                                    addDimensionsCssVarsTo: document.body,
+                                    pocketRoles: variant.pocket?.roles,
+                                });
+                            }
                         }
-                    }
-                }),
-        ]),
-    ];
+                    }),
+            ]),
+        ];
+    }
 
     let tabs = [];
     tabs.push(h('span', {attrs: {role: 'tab', 'aria-selected': false, 'aria-controls': 'panel-1', id: 'tab-1', tabindex: '-1'}}, _('Lobby')));
@@ -1473,6 +1505,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 ])
             )),
         ]),
-        h('div.puzzle', [h('a#daily-puzzle', { attrs: {href: '/puzzle/daily'} }, dailyPuzzle)]),
+        h('div.puzzle', showPuzzle ? [h('a#daily-puzzle', { attrs: {href: '/puzzle/daily'} }, dailyPuzzle)] : []),
     ];
 }
