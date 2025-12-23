@@ -12,6 +12,7 @@ from typing import List, Set
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 import aiohttp_jinja2
+from pymongo import UpdateOne
 
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
@@ -162,6 +163,17 @@ class PychessGlobalAppState:
     async def init_from_db(self):
         if self.db is None:
             return
+
+        async def upsert_static_docs(collection, docs):
+            ops = []
+            for doc in docs:
+                doc_id = doc.get("_id")
+                if doc_id is None:
+                    continue
+                update = {key: value for key, value in doc.items() if key != "_id"}
+                ops.append(UpdateOne({"_id": doc_id}, {"$set": update}, upsert=True))
+            if ops:
+                await collection.bulk_write(ops)
 
         # Read tournaments, users and highscore from db
         try:
@@ -343,16 +355,10 @@ class PychessGlobalAppState:
                     if game.board.ply > 0:
                         self.g_cnt[0] += 1
 
-            if "video" not in db_collections:
-                if DEV:
-                    await self.db.video.drop()
-                await self.db.video.insert_many(VIDEOS)
+            await upsert_static_docs(self.db.video, VIDEOS)
 
-            if "blog" not in db_collections:
-                if DEV:
-                    await self.db.blog.drop()
-                await self.db.blog.insert_many(BLOGS)
-                await self.db.blog.create_index("date")
+            await upsert_static_docs(self.db.blog, BLOGS)
+            await self.db.blog.create_index("date")
 
             if "fishnet" in db_collections:
                 cursor = self.db.fishnet.find()
