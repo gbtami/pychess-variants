@@ -29,6 +29,7 @@ from const import (
     T_STARTED,
     SCHEDULE_MAX_DAYS,
     ABORTED,
+    GAME_CATEGORIES,
 )
 from broadcast import round_broadcast
 from discord_bot import DiscordBot, FakeDiscordBot
@@ -121,7 +122,7 @@ class PychessGlobalAppState:
         self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
-        self.daily_puzzle_ids = {}  # {date: puzzle._id, ...}
+        self.daily_puzzle_ids = {}  # {date or date:category: puzzle._id, ...}
 
         # monthly game stats per variant
         self.stats = {}
@@ -208,12 +209,18 @@ class PychessGlobalAppState:
 
             if "dailypuzzle" not in db_collections:
                 try:
-                    await self.db.create_collection("dailypuzzle", capped=True, size=50000, max=365)
+                    daily_max = 365 * len(GAME_CATEGORIES)
+                    await self.db.create_collection(
+                        "dailypuzzle",
+                        capped=True,
+                        size=50000,
+                        max=daily_max,
+                    )
                 except NotImplementedError:
                     await self.db.create_collection("dailypuzzle")
             else:
                 cursor = self.db.dailypuzzle.find()
-                docs = await cursor.to_list(length=365)
+                docs = await cursor.to_list(length=365 * len(GAME_CATEGORIES))
                 self.daily_puzzle_ids = {doc["_id"]: doc["puzzleId"] for doc in docs}
 
             if "lobbychat" not in db_collections:

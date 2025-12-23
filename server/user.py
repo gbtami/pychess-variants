@@ -2,6 +2,7 @@ from __future__ import annotations
 import asyncio
 from asyncio import Queue
 from datetime import MINYEAR, datetime, timezone
+from urllib.parse import urlparse
 from typing import Set, List
 
 import aiohttp_session
@@ -16,9 +17,10 @@ from const import (
     reserved,
     CATEGORY_VARIANTS,
     CATEGORY_VARIANT_GROUPS,
+    CATEGORY_VARIANT_CODES,
     CATEGORY_VARIANT_LISTS,
     CATEGORY_VARIANT_SETS,
-    CATEGORY_VARIANT_CODES,
+    GAME_CATEGORY_ALL,
     normalize_game_category,
 )
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
@@ -27,7 +29,7 @@ from notify import notify
 from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
 from seek import Seek
 from websocket_utils import ws_send_json
-from variants import RATED_VARIANTS
+from variants import RATED_VARIANTS, VARIANTS
 from settings import (
     URI,
     LOCALHOST,
@@ -537,7 +539,28 @@ async def set_game_category(request):
                     {"_id": user.username}, {"$set": {"ct": normalized}}
                 )
         session["game_category"] = normalized
-        return web.HTTPFound(referer)
+        redirect_url = referer or "/"
+        if referer and normalized != GAME_CATEGORY_ALL:
+            parsed = urlparse(referer)
+            path_parts = [part for part in parsed.path.split("/") if part]
+            if path_parts:
+                section = path_parts[0]
+                current_variant = (
+                    path_parts[1] if len(path_parts) > 1 and path_parts[1] in VARIANTS else None
+                )
+                if current_variant not in CATEGORY_VARIANT_SETS[normalized]:
+                    default_variant = (
+                        CATEGORY_VARIANT_LISTS[normalized][0]
+                        if CATEGORY_VARIANT_LISTS[normalized]
+                        else "chess"
+                    )
+                    if section == "puzzle":
+                        redirect_url = f"/puzzle/{default_variant}"
+                    elif section == "analysis":
+                        redirect_url = f"/analysis/{default_variant}"
+                    elif section == "editor":
+                        redirect_url = f"/editor/{default_variant}"
+        return web.HTTPFound(redirect_url)
     else:
         raise web.HTTPNotFound()
 

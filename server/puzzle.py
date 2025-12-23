@@ -9,7 +9,12 @@ from aiohttp import web
 from fairy import FairyBoard
 from glicko2.glicko2 import MU, gl2, Rating, rating
 from pychess_global_app_state_utils import get_app_state
-from const import GAME_CATEGORY_ALL
+from const import (
+    GAME_CATEGORY_ALL,
+    CATEGORY_VARIANT_SETS,
+    CATEGORY_VARIANT_LISTS,
+    normalize_game_category,
+)
 from variants import VARIANTS
 
 
@@ -49,6 +54,16 @@ PUZZLE_VARIANTS = [v for v in VARIANTS if (not v.endswith("960") and (v not in N
 NOT_VOTED = 0
 UP = 1
 DOWN = -1
+
+
+def daily_puzzle_key(date_str: str, category: str) -> str:
+    return f"{date_str}:{category}"
+
+
+def daily_puzzle_category(key: str) -> str:
+    if ":" in key:
+        return key.split(":", 1)[1]
+    return GAME_CATEGORY_ALL
 
 
 async def rename_puzzle_fields(db):
@@ -95,34 +110,68 @@ async def get_daily_puzzle(request):
 
     today = datetime.now(timezone.utc).date().isoformat()
     daily_puzzle_ids = app_state.daily_puzzle_ids
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    if session_user in app_state.users:
+        current_user = app_state.users[session_user]
+    elif session_user:
+        current_user = await app_state.users.get(session_user)
+    else:
+        current_user = None
+    game_category = (
+        current_user.game_category
+        if current_user is not None
+        else session.get("game_category", GAME_CATEGORY_ALL)
+    )
+    game_category = normalize_game_category(game_category)
+    key = daily_puzzle_key(today, game_category)
 
-    if today in daily_puzzle_ids:
+    if key in daily_puzzle_ids:
+        puzzle = await get_puzzle(request, daily_puzzle_ids[key])
+    elif game_category == GAME_CATEGORY_ALL and today in daily_puzzle_ids:
         puzzle = await get_puzzle(request, daily_puzzle_ids[today])
     else:
         user = app_state.users["PyChess"]
 
         # skip previous daily puzzles
-        user.puzzles = {puzzle_id: NOT_VOTED for puzzle_id in daily_puzzle_ids.values()}
+        category_puzzle_ids = {
+            puzzle_id
+            for puzzle_key, puzzle_id in daily_puzzle_ids.items()
+            if daily_puzzle_category(puzzle_key) == game_category
+        }
+        user.puzzles = {puzzle_id: NOT_VOTED for puzzle_id in category_puzzle_ids}
         # print(user.puzzles)
+
+        if game_category == GAME_CATEGORY_ALL:
+            available_variants = PUZZLE_VARIANTS
+        else:
+            allowed_variants = CATEGORY_VARIANT_SETS[game_category]
+            available_variants = [v for v in PUZZLE_VARIANTS if v in allowed_variants]
+            if not available_variants:
+                fallback_variants = CATEGORY_VARIANT_LISTS[game_category]
+                available_variants = list(fallback_variants) if fallback_variants else ["chess"]
 
         puzzleId = "0"
         while puzzleId == "0":
             # randomize daily puzzle variant
-            user.puzzle_variant = random.choice(PUZZLE_VARIANTS)
+            if available_variants:
+                user.puzzle_variant = random.choice(available_variants)
+            else:
+                user.puzzle_variant = None
             puzzle = await next_puzzle(request, user)
             if puzzle.get("e") != "#1":
                 puzzleId = puzzle["_id"]
 
         try:
-            await app_state.db.dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
-            app_state.daily_puzzle_ids[today] = puzzle["_id"]
+            await app_state.db.dailypuzzle.insert_one({"_id": key, "puzzleId": puzzleId})
+            app_state.daily_puzzle_ids[key] = puzzle["_id"]
         except DuplicateKeyError:
             # I have no idea how this can happen though...
-            daily_puzzle_doc = await app_state.db.dailypuzzle.find_one({"_id": today})
+            daily_puzzle_doc = await app_state.db.dailypuzzle.find_one({"_id": key})
             puzzleId = daily_puzzle_doc["puzzleId"]
             try:
-                await app_state.db.dailypuzzle.insert_one({"_id": today, "puzzleId": puzzleId})
-                app_state.daily_puzzle_ids[today] = puzzleId
+                await app_state.db.dailypuzzle.insert_one({"_id": key, "puzzleId": puzzleId})
+                app_state.daily_puzzle_ids[key] = puzzleId
                 puzzle = await get_puzzle(request, puzzleId)
             except Exception:
                 return empty_puzzle("chess")
