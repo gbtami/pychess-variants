@@ -12,7 +12,6 @@ from typing import List, Set
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 import aiohttp_jinja2
-from pymongo import UpdateOne
 
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
@@ -165,15 +164,12 @@ class PychessGlobalAppState:
             return
 
         async def upsert_static_docs(collection, docs):
-            ops = []
             for doc in docs:
                 doc_id = doc.get("_id")
                 if doc_id is None:
                     continue
                 update = {key: value for key, value in doc.items() if key != "_id"}
-                ops.append(UpdateOne({"_id": doc_id}, {"$set": update}, upsert=True))
-            if ops:
-                await collection.bulk_write(ops)
+                await collection.update_one({"_id": doc_id}, {"$set": update}, upsert=True)
 
         # Read tournaments, users and highscore from db
         try:
