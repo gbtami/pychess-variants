@@ -2,6 +2,7 @@ from __future__ import annotations
 import asyncio
 from asyncio import Queue
 from datetime import MINYEAR, datetime, timezone
+from urllib.parse import urlparse
 from typing import Set, List
 
 import aiohttp_session
@@ -9,14 +10,26 @@ from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 
 from broadcast import round_broadcast
-from const import ANON_PREFIX, STARTED, TEST_PREFIX, reserved
+from const import (
+    ANON_PREFIX,
+    STARTED,
+    TEST_PREFIX,
+    reserved,
+    CATEGORY_VARIANTS,
+    CATEGORY_VARIANT_GROUPS,
+    CATEGORY_VARIANT_CODES,
+    CATEGORY_VARIANT_LISTS,
+    CATEGORY_VARIANT_SETS,
+    GAME_CATEGORY_ALL,
+    normalize_game_category,
+)
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
 from seek import Seek
 from websocket_utils import ws_send_json
-from variants import RATED_VARIANTS
+from variants import RATED_VARIANTS, VARIANTS
 from settings import (
     URI,
     LOCALHOST,
@@ -53,6 +66,7 @@ class User:
         enabled=True,
         lang=None,
         theme="dark",
+        game_category="all",
         oauth_id="",
         oauth_provider="",
     ):
@@ -61,9 +75,11 @@ class User:
         self.anon = anon
         self.lang = lang
         self.theme = theme
+        self.game_category = "all"
         self.oauth_id = oauth_id
         self.oauth_provider = oauth_provider
         self.notifications = None
+        self.update_game_category(game_category)
 
         if username is None:
             self.anon = False if self.app_state.anon_as_test_users else True
@@ -473,6 +489,15 @@ class User:
             self.perfs["chess"]["gl"]["r"],
         )
 
+    def update_game_category(self, game_category):
+        normalized = normalize_game_category(game_category)
+        self.game_category = normalized
+        self.category_variants = CATEGORY_VARIANTS[normalized]
+        self.category_variant_groups = CATEGORY_VARIANT_GROUPS[normalized]
+        self.category_variant_list = CATEGORY_VARIANT_LISTS[normalized]
+        self.category_variant_set = CATEGORY_VARIANT_SETS[normalized]
+        self.category_variant_codes = CATEGORY_VARIANT_CODES[normalized]
+
 
 async def set_theme(request):
     app_state = get_app_state(request.app)
@@ -492,6 +517,50 @@ async def set_theme(request):
                 )
         session["theme"] = theme
         return web.HTTPFound(referer)
+    else:
+        raise web.HTTPNotFound()
+
+
+async def set_game_category(request):
+    app_state = get_app_state(request.app)
+    post_data = await request.post()
+    game_category = post_data.get("game_category")
+
+    if game_category is not None:
+        referer = request.headers.get("REFERER")
+        session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
+        normalized = normalize_game_category(game_category)
+        if session_user in app_state.users:
+            user = app_state.users[session_user]
+            user.update_game_category(normalized)
+            if app_state.db is not None:
+                await app_state.db.user.find_one_and_update(
+                    {"_id": user.username}, {"$set": {"ct": normalized}}
+                )
+        session["game_category"] = normalized
+        redirect_url = referer or "/"
+        if referer and normalized != GAME_CATEGORY_ALL:
+            parsed = urlparse(referer)
+            path_parts = [part for part in parsed.path.split("/") if part]
+            if path_parts:
+                section = path_parts[0]
+                current_variant = (
+                    path_parts[1] if len(path_parts) > 1 and path_parts[1] in VARIANTS else None
+                )
+                if current_variant not in CATEGORY_VARIANT_SETS[normalized]:
+                    default_variant = (
+                        CATEGORY_VARIANT_LISTS[normalized][0]
+                        if CATEGORY_VARIANT_LISTS[normalized]
+                        else "chess"
+                    )
+                    if section == "puzzle":
+                        redirect_url = f"/puzzle/{default_variant}"
+                    elif section == "analysis":
+                        redirect_url = f"/analysis/{default_variant}"
+                    elif section == "editor":
+                        redirect_url = f"/editor/{default_variant}"
+        return web.HTTPFound(redirect_url)
     else:
         raise web.HTTPNotFound()
 

@@ -8,9 +8,31 @@ import { layer2army } from './layer2army';
 import { layer2makruk } from './layer2makruk';
 import { layer2shogi } from './layer2shogi';
 import { layer2xiangqi } from './layer2xiangqi';
+import { layer2other } from './layer2other';
 
+const categoryLayers: Record<
+    string,
+    (lobbyCtrl: LobbyController, containerId: string, showBack?: boolean) => void
+> = {
+    chess: layer2chess,
+    fairy: layer2fairy,
+    army: layer2army,
+    makruk: layer2makruk,
+    shogi: layer2shogi,
+    xiangqi: layer2xiangqi,
+    other: layer2other,
+};
 
-export function variantPanels (lobbyCtrl: LobbyController): VNode {
+export function variantPanels(lobbyCtrl: LobbyController): VNode {
+    if (lobbyCtrl.gameCategory !== "all") {
+        const layer2 = categoryLayers[lobbyCtrl.gameCategory];
+        if (layer2) {
+            return h('div#panel-container.panel-container', {
+                hook: { insert: () => layer2(lobbyCtrl, 'panel-container', false) },
+            });
+        }
+    }
+
     const assetUrl = lobbyCtrl.assetURL;
 
     return h('div#panel-container.panel-container', [

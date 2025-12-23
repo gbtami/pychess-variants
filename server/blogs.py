@@ -24,6 +24,7 @@ BLOGS = [
         "subtitle": "Announcing the results of the variant design contest",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": ["chess", "fairy", "army", "makruk", "shogi", "xiangqi", "other"],
     },
     {
         "_id": "Bughouse_Chess",
@@ -34,6 +35,7 @@ BLOGS = [
         "subtitle": "Bughouse chess has arrived",
         "author": "gbtami",
         "tags": ["Announcement"],
+        "category": "chess",
     },
     {
         "_id": "S-Chess_End-Game_Tables",
@@ -44,6 +46,7 @@ BLOGS = [
         "subtitle": "Elephant vs Rook",
         "author": "HGMuller",
         "tags": ["Blog"],
+        "category": "fairy",
     },
     {
         "_id": "Variant_Design_Contest",
@@ -54,6 +57,7 @@ BLOGS = [
         "subtitle": "Create the best chess variant!",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": ["chess", "fairy", "army", "makruk", "shogi", "xiangqi", "other"],
     },
     {
         "_id": "Halloween_Update",
@@ -64,6 +68,7 @@ BLOGS = [
         "subtitle": "New variants and bug fixes",
         "author": "gbtami",
         "tags": ["Announcement"],
+        "category": "all",
     },
     {
         "_id": "Late_Summer_Update",
@@ -74,6 +79,7 @@ BLOGS = [
         "subtitle": "New variants and bug fixes",
         "author": "gbtami",
         "tags": ["Announcement"],
+        "category": "all",
     },
     {
         "_id": "Alternate_variants",
@@ -84,6 +90,7 @@ BLOGS = [
         "subtitle": "An additional PyChess server for alternate variants",
         "author": "autocorr",
         "tags": ["Announcement"],
+        "category": "all",
     },
     {
         "_id": "Internationalized_Pieces",
@@ -94,6 +101,7 @@ BLOGS = [
         "subtitle": "My thought process on board game visual design",
         "author": "CouchTomato87",
         "tags": ["Blog"],
+        "category": "all",
     },
     {
         "_id": "Spring_Update",
@@ -104,6 +112,7 @@ BLOGS = [
         "subtitle": "Happy Easter!",
         "author": "gbtami",
         "tags": ["Announcement"],
+        "category": "all",
     },
     {
         "_id": "S-chess_endings_4",
@@ -114,6 +123,7 @@ BLOGS = [
         "subtitle": "The Elephant",
         "author": "yasser-seirawan",
         "tags": ["Blog"],
+        "category": "fairy",
     },
     {
         "_id": "Mid_Autumn_Festival",
@@ -124,6 +134,7 @@ BLOGS = [
         "subtitle": "Celebrating the Mid-Autumn Moon Festival with Chess",
         "author": "CouchTomato87",
         "tags": ["Blog"],
+        "category": "xiangqi",
     },
     {
         "_id": "S-chess_endings_3",
@@ -134,6 +145,7 @@ BLOGS = [
         "subtitle": "The Hawk",
         "author": "yasser-seirawan",
         "tags": ["Blog"],
+        "category": "fairy",
     },
     {
         "_id": "hsl",
@@ -144,6 +156,7 @@ BLOGS = [
         "subtitle": "First Xiangqi tournament hosted on Pychess",
         "author": "CouchTomato87",
         "tags": ["Tournament"],
+        "category": "xiangqi",
     },
     {
         "_id": "S-chess_endings_2",
@@ -154,6 +167,7 @@ BLOGS = [
         "subtitle": "The Hawk",
         "author": "yasser-seirawan",
         "tags": ["Blog"],
+        "category": "fairy",
     },
     {
         "_id": "Merry_Christmas",
@@ -164,6 +178,7 @@ BLOGS = [
         "subtitle": "Ataxx",
         "author": "gbtami",
         "tags": ["Announcement"],
+        "category": "other",
     },
     {
         "_id": "S-chess_endings_1",
@@ -174,6 +189,7 @@ BLOGS = [
         "subtitle": "The Elephant",
         "author": "yasser-seirawan",
         "tags": ["Blog"],
+        "category": "fairy",
     },
     {
         "_id": "Correspondence_Chess",
@@ -184,6 +200,7 @@ BLOGS = [
         "subtitle": "You have time now",
         "author": "gbtami",
         "tags": ["Announcement"],
+        "category": "all",
     },
     {
         "_id": "S-chess_ramblings",
@@ -194,6 +211,7 @@ BLOGS = [
         "subtitle": "S-chess ramblings",
         "author": "catask",
         "tags": ["Blog"],
+        "category": "fairy",
     },
     {
         "_id": "More_variants",
@@ -204,6 +222,7 @@ BLOGS = [
         "subtitle": "A slew of new variants!",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": "all",
     },
     {
         "_id": "Summer_Update",
@@ -214,6 +233,7 @@ BLOGS = [
         "subtitle": "New features and bug fixes",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": "all",
     },
     {
         "_id": "Spartan_Chess",
@@ -224,6 +244,7 @@ BLOGS = [
         "subtitle": "Spartan chess has arrived",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": "army",
     },
     {
         "_id": "Duck_Chess",
@@ -234,6 +255,7 @@ BLOGS = [
         "subtitle": "Duck chess has arrived",
         "author": "e-pluszak",
         "tags": ["Announcement"],
+        "category": "chess",
     },
     {
         "_id": "Ouk_Chaktrang_Friendship_Between_Four_Countries_Tournament",
@@ -244,6 +266,7 @@ BLOGS = [
         "subtitle": "Promoting Our Southeast Asian Brethren",
         "author": "furumin999",
         "tags": ["Tournament"],
+        "category": "makruk",
     },
     {
         "_id": "Crazyhouse960_Tournament_Spring_Invitational_2022",
@@ -254,6 +277,7 @@ BLOGS = [
         "subtitle": "Final Standings",
         "author": "visualdennis",
         "tags": ["Tournament"],
+        "category": "chess",
     },
     {
         "_id": "NNUE_Everywhere",
@@ -264,6 +288,7 @@ BLOGS = [
         "subtitle": "NNUE Everywhere",
         "author": "gbtami",
         "tags": ["Announcement"],
+        "category": "all",
     },
     {
         "_id": "Serving_a_New_Variant",
@@ -274,6 +299,7 @@ BLOGS = [
         "subtitle": "Serving a New Variant",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": "army",
     },
     {
         "_id": "Merry_Chakmas",
@@ -284,6 +310,7 @@ BLOGS = [
         "subtitle": "Merry Chak-mas!",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": "army",
     },
     {
         "_id": "Cold_Winter",
@@ -294,6 +321,7 @@ BLOGS = [
         "subtitle": "Cold winter",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": "army",
     },
     {
         "_id": "Hot_Summer",
@@ -304,6 +332,7 @@ BLOGS = [
         "subtitle": "Hot summer",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": "all",
     },
     {
         "_id": "Empire_Chess_and_Orda_Mirror_Have_Arrived",
@@ -314,6 +343,7 @@ BLOGS = [
         "subtitle": "New variants",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": "army",
     },
     {
         "_id": "Shinobi_Arrives_in_Time_For_the_Sakura_Blossoms",
@@ -324,6 +354,7 @@ BLOGS = [
         "subtitle": "Shinobi Chess has arrived!",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
+        "category": "army",
     },
     {
         "_id": "The_Winner_Is_Tasshaq",
@@ -334,6 +365,7 @@ BLOGS = [
         "subtitle": "Subjective report on 1st Dōbutsu Tournament",
         "author": "gbtami",
         "tags": ["Tournament"],
+        "category": "shogi",
     },
     {
         "_id": "New_Weapons_Arrived",
@@ -344,6 +376,7 @@ BLOGS = [
         "subtitle": "New Weapons Arrived",
         "author": "gbtami",
         "tags": ["Announcement"],
+        "category": "chess",
     },
     {
         "_id": "Short_History_Of_Pychess",
@@ -354,6 +387,7 @@ BLOGS = [
         "subtitle": "Short History Of Pychess",
         "author": "gbtami",
         "tags": ["Blog"],
+        "category": "all",
     },
     {
         "_id": "Dobutsu_Tournament",
@@ -364,5 +398,8 @@ BLOGS = [
         "subtitle": "The 1st Dōbutsu Tournament on PyChess",
         "author": "Tasshaq",
         "tags": ["Tournament"],
+        "category": "shogi",
     },
 ]
+
+BLOG_CATEGORIES = {blog["_id"]: blog.get("category", "all") for blog in BLOGS}

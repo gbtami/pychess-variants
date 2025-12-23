@@ -13,10 +13,20 @@ async def shields(request):
     app_state = get_app_state(request.app)
 
     variant = request.match_info.get("variant")
-    if (variant is not None) and (variant not in VARIANTS):
-        variant = "chess"
+    allowed_variants = None
+    if user.game_category != "all":
+        allowed_variants = user.category_variant_list
 
-    wi = await get_winners(app_state, shield=True, variant=variant)
+    if (variant is not None) and (variant not in VARIANTS):
+        variant = None
+
+    if allowed_variants is not None:
+        if variant is None or variant not in allowed_variants:
+            wi = await get_winners(app_state, shield=True, variants=allowed_variants)
+        else:
+            wi = await get_winners(app_state, shield=True, variant=variant)
+    else:
+        wi = await get_winners(app_state, shield=True, variant=variant)
     context["view_css"] = "players.css"
     context["users"] = app_state.users
     context["icons"] = VARIANT_ICONS

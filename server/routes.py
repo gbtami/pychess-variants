@@ -52,7 +52,7 @@ from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
 from robots import robots
 from server_metrics import metrics_handler
-from user import block_user, get_blocked_users, set_theme, get_status
+from user import block_user, get_blocked_users, set_theme, set_game_category, get_status
 from views import (
     about,
     allplayers,
@@ -210,6 +210,7 @@ post_routes = (
     ("/api/check-username", check_username_availability),
     ("/api/confirm-username", confirm_username),
     ("/pref/theme", set_theme),
+    ("/pref/game-category", set_game_category),
     ("/api/{profileId}/block", block_user),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),

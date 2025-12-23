@@ -61,7 +61,14 @@ async def tournaments(request):
     context["icons"] = VARIANT_ICONS
     context["pairing_system_name"] = pairing_system_name
     context["time_control_str"] = time_control_str
-    context["tables"] = await get_latest_tournaments(app_state, lang)
+    tables = await get_latest_tournaments(app_state, lang)
+    if user.game_category != "all":
+        allowed_variants = user.category_variant_set
+        tables = tuple(
+            [t for t in table if (t.variant + ("960" if t.chess960 else "")) in allowed_variants]
+            for table in tables
+        )
+    context["tables"] = tables
     context["td"] = user.username in TOURNAMENT_DIRECTORS
 
     return context

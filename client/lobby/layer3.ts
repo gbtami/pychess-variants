@@ -11,12 +11,13 @@ import { layer2army } from './layer2army';
 import { layer2makruk } from './layer2makruk';
 import { layer2shogi } from './layer2shogi';
 import { layer2xiangqi } from './layer2xiangqi';
+import { layer2other } from './layer2other';
 
 export function layer3variant (container2Id: string, lobbyCtrl: LobbyController, variantName: string): void {
     const variant: Variant = VARIANTS[variantName];
     const chess960 = false;
 
-    let leve2func: (lobbyCtrl: LobbyController, containerId: string) => void, container3Id: string='';
+    let leve2func: (lobbyCtrl: LobbyController, containerId: string, showBack?: boolean) => void, container3Id: string='';
     switch (container2Id) {
     case 'layer2chesscont':
         leve2func = layer2chess; container3Id = 'chessl3cont'; break;
@@ -30,6 +31,8 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
         leve2func = layer2shogi; container3Id = 'shogil3cont';  break;
     case 'layer2xiangqicont':
         leve2func = layer2xiangqi; container3Id = 'xiangqil3cont';  break;
+    case 'layer2othercont':
+        leve2func = layer2other; container3Id = 'otherl3cont';  break;
     }
 
     const layer3cont = h(`div#${container3Id}.layer-3-container.chess-l3` , [
@@ -44,7 +47,7 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
                 h('li.l3links', { class: {"icon": true, "icon-crossedswords": true}, on: { click: () => lobbyCtrl.playFriend(variantName) } }, createModeStr('playFriend')),
                 h('li.l3links', { class: {"icon": true, "icon-bot": true}, on: { click: () => lobbyCtrl.playAI(variantName) } }, createModeStr('playAI')),
             ]),
-            h('h5#chessl3back', { class: {"icon": true, "icon-reply": true}, on: { click: () => leve2func(lobbyCtrl, container3Id) } }, _('Go Back')),
+            h('h5#chessl3back', { class: {"icon": true, "icon-reply": true}, on: { click: () => leve2func(lobbyCtrl, container3Id, lobbyCtrl.gameCategory === "all") } }, _('Go Back')),
         ]),
         h('button.layer-2-category l3img', [
             variantBoard(variant, variant.startFen),

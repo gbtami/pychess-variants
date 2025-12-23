@@ -40,6 +40,7 @@ export type PyChessModel = {
     corr: string;
     level: number;
     gameId: string;
+    gameCategory: string;
     tournamentId: string;
     tournamentname: string;
     tournamentcreator: string;

@@ -4,7 +4,7 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { BoardMarkType, ColorName, CountingType, MaterialPointType, PieceSoundType, PromotionSuffix, PromotionType, TimeControlType, uci2LastMove } from './chess';
-import { _ } from './i18n';
+import { _, gameCategoryLabel } from './i18n';
 import { calculateDiff, Equivalence, MaterialDiff } from './material';
 
 export interface BoardFamily {
@@ -1247,8 +1247,8 @@ export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 export const devVariants = ["borderlands", "makbug", "supply", "jieqi"];
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
-    standard: { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
-    sea:      { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
+    chess:    { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
+    makruk:   { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
     shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
@@ -1256,26 +1256,17 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     other:    { variants: [ "borderlands", "ataxx" ] }
 };
 
-function variantGroupLabel(group: string): string {
-    const groups: {[index: string]: string} = {
-        standard: _("Chess Variants"),
-        sea: _("Makruk Variants"),
-        shogi: _("Shogi Variants"),
-        xiangqi: _("Xiangqi Variants"),
-        fairy: _("Fairy Piece Variants"),
-        army: _("New Army Variants"),
-        other: _("Other"),
-    }
-    return groups[group];
+export function variantGroupLabel(group: string): string {
+    return gameCategoryLabel(group);
 }
 
-export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = []): VNode {
+export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = [], gameCategory: string = "all"): VNode {
     return h('select#' + id, {
         props: { name: id },
         on: { change: onChange },
         hook: { insert: hookInsert },
     },
-        Object.keys(variantGroups).map(g => {
+        Object.keys(variantGroups).filter(g => gameCategory === "all" || g === gameCategory).map(g => {
             const group = variantGroups[g];
             return h('optgroup', { props: { label: variantGroupLabel(g) } }, group.variants.map(v => {
                 const variant = VARIANTS[v];

@@ -171,14 +171,17 @@ async def new_tournament(app_state: PychessGlobalAppState, data):
     return tournament
 
 
-async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = None):
+async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = None, variants=None):
     wi = {}
-    if variant is None:
-        variants = VARIANTS
-        limit = 5
+    if variants is None:
+        if variant is None:
+            variants = VARIANTS
+            limit = 5
+        else:
+            variants = (variant,)
+            limit = 50
     else:
-        variants = (variant,)
-        limit = 50
+        limit = 5
 
     for variant in variants:
         variant960 = variant.endswith("960")

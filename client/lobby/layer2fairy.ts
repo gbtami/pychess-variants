@@ -8,16 +8,23 @@ import { goBackToLayer1 } from './util';
 import { layer3variant } from './layer3';
 
 
-export function layer2fairy (lobbyCtrl: LobbyController, containerId: string): void {
+export function layer2fairy(lobbyCtrl: LobbyController, containerId: string, showBack: boolean = true): void {
     const assetUrl = lobbyCtrl.assetURL;
+    const infoItems = [
+        h('h4', _('Fairy Piece Variants')),
+        h('div.generic-image-container.fourarmykings', [h('img', { attrs: { src: assetUrl + "/images/4FairyPieces.svg" } })]),
+        h('p.variant-category-description', _('These variants have new pieces to try! Many of them have larger boards, and some also have new rules.')),
+    ];
+
+    if (showBack) {
+        infoItems.push(
+            h('h5#fairyl2back', { class: { "icon": true, "icon-reply": true }, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2fairycont') } }, _('Go Back')),
+        );
+    }
+
     const layer2cont = h('div#layer2fairycont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
-            h('div.layer-two-category-info', [
-                h('h4', _('Fairy Piece Variants')),
-                h('div.generic-image-container.fourarmykings', [ h('img', { attrs: { src: assetUrl + "/images/4FairyPieces.svg" } }) ]),
-                h('p.variant-category-description', _('These variants have new pieces to try! Many of them have larger boards, and some also have new rules.')),
-                h('h5#fairyl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2fairycont') } }, _('Go Back')),
-            ]),
+            h('div.layer-two-category-info', infoItems),
         ]),
         h('div.button-grid', [
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2fairycont', lobbyCtrl, 'shatranj') } }, [

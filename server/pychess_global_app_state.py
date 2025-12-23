@@ -29,6 +29,7 @@ from const import (
     T_STARTED,
     SCHEDULE_MAX_DAYS,
     ABORTED,
+    GAME_CATEGORIES,
 )
 from broadcast import round_broadcast
 from discord_bot import DiscordBot, FakeDiscordBot
@@ -121,7 +122,7 @@ class PychessGlobalAppState:
         self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}
-        self.daily_puzzle_ids = {}  # {date: puzzle._id, ...}
+        self.daily_puzzle_ids = {}  # {date or date:category: puzzle._id, ...}
 
         # monthly game stats per variant
         self.stats = {}
@@ -161,6 +162,14 @@ class PychessGlobalAppState:
     async def init_from_db(self):
         if self.db is None:
             return
+
+        async def upsert_static_docs(collection, docs):
+            for doc in docs:
+                doc_id = doc.get("_id")
+                if doc_id is None:
+                    continue
+                update = {key: value for key, value in doc.items() if key != "_id"}
+                await collection.update_one({"_id": doc_id}, {"$set": update}, upsert=True)
 
         # Read tournaments, users and highscore from db
         try:
@@ -208,12 +217,18 @@ class PychessGlobalAppState:
 
             if "dailypuzzle" not in db_collections:
                 try:
-                    await self.db.create_collection("dailypuzzle", capped=True, size=50000, max=365)
+                    daily_max = 365 * len(GAME_CATEGORIES)
+                    await self.db.create_collection(
+                        "dailypuzzle",
+                        capped=True,
+                        size=50000,
+                        max=daily_max,
+                    )
                 except NotImplementedError:
                     await self.db.create_collection("dailypuzzle")
             else:
                 cursor = self.db.dailypuzzle.find()
-                docs = await cursor.to_list(length=365)
+                docs = await cursor.to_list(length=365 * len(GAME_CATEGORIES))
                 self.daily_puzzle_ids = {doc["_id"]: doc["puzzleId"] for doc in docs}
 
             if "lobbychat" not in db_collections:
@@ -336,16 +351,10 @@ class PychessGlobalAppState:
                     if game.board.ply > 0:
                         self.g_cnt[0] += 1
 
-            if "video" not in db_collections:
-                if DEV:
-                    await self.db.video.drop()
-                await self.db.video.insert_many(VIDEOS)
+            await upsert_static_docs(self.db.video, VIDEOS)
 
-            if "blog" not in db_collections:
-                if DEV:
-                    await self.db.blog.drop()
-                await self.db.blog.insert_many(BLOGS)
-                await self.db.blog.create_index("date")
+            await upsert_static_docs(self.db.blog, BLOGS)
+            await self.db.blog.create_index("date")
 
             if "fishnet" in db_collections:
                 cursor = self.db.fishnet.find()
