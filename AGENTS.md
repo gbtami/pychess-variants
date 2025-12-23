@@ -53,6 +53,11 @@ PYTHONPATH=server python -m pytest tests/test_e2e.py
 PYTHONPATH=server python -m pytest tests/test_gui.py
 ```
 
+Playwright setup tips:
+- The install step can take several minutes and may require root privileges to install system deps; rerun if it times out.
+- If you already ran the install once, you can usually skip it on subsequent runs.
+- Tests spin up local servers/browsers, so run them in an environment that allows opening local sockets.
+
 ### Docker Development
 ```bash
 # Run entire stack with docker-compose
