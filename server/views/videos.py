@@ -1,5 +1,6 @@
 import aiohttp_jinja2
 
+from const import category_matches
 from videos import VIDEO_TAGS, VIDEO_TARGETS, VIDEO_CATEGORIES
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
@@ -21,7 +22,7 @@ async def videos(request):
     async for doc in cursor:
         category = doc.get("category", VIDEO_CATEGORIES.get(doc["_id"], "all"))
         doc["category"] = category
-        if user.game_category != "all" and category != user.game_category:
+        if not category_matches(user.game_category, category):
             continue
         videos.append(doc)
 

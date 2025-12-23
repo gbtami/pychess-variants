@@ -294,6 +294,23 @@ def normalize_game_category(game_category: str) -> str:
     return game_category if game_category in CATEGORY_VARIANTS else GAME_CATEGORY_ALL
 
 
+def normalize_item_categories(category):
+    if category is None:
+        return (GAME_CATEGORY_ALL,)
+    if isinstance(category, str):
+        return (category,)
+    if isinstance(category, (list, tuple, set)):
+        return tuple(category)
+    return (category,)
+
+
+def category_matches(user_category: str, item_category) -> bool:
+    if user_category == GAME_CATEGORY_ALL:
+        return True
+    categories = normalize_item_categories(item_category)
+    return GAME_CATEGORY_ALL in categories or user_category in categories
+
+
 TROPHIES = {
     "top1": (static_url("images/trophy/Big-Gold-Cup.png"), "Champion!"),
     "top10": (static_url("images/trophy/Big-Silver-Cup.png"), "Top 10!"),

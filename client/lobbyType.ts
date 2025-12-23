@@ -10,7 +10,7 @@ export interface Post {
     author: string;
     atitle: string;
     tags: string[];
-    category?: string;
+    category?: string | string[];
 }
 
 export interface Stream {

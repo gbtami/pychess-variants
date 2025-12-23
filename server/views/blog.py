@@ -3,6 +3,7 @@ import os
 import aiohttp_jinja2
 from aiohttp import web
 
+from const import category_matches
 from blogs import BLOG_TAGS, BLOG_CATEGORIES, BLOGS
 from lang import get_locale_ext
 from views import get_user_context
@@ -15,7 +16,7 @@ async def blog(request):
     blogId = request.match_info.get("blogId")
     if user.game_category != "all":
         category = BLOG_CATEGORIES.get(blogId, "all")
-        if category != user.game_category:
+        if not category_matches(user.game_category, category):
             raise web.HTTPNotFound()
     blog_item = blogId.replace("_", " ")
 
@@ -32,7 +33,7 @@ async def blog(request):
         available_tags = {
             tag
             for blog in BLOGS
-            if blog.get("category", "all") == user.game_category
+            if category_matches(user.game_category, blog.get("category", "all"))
             for tag in blog.get("tags", [])
         }
         context["tags"] = [tag for tag in BLOG_TAGS if tag in available_tags]

@@ -26,6 +26,7 @@ from const import (
     IMPORTED,
     SSE_GET_TIMEOUT,
     T_STARTED,
+    category_matches,
 )
 from compress import R2C, C2R
 from convert import mirror5, mirror9, grand2zero, zero2grand
@@ -940,7 +941,7 @@ async def get_blogs(request, tag=None, limit=0):
     async for doc in cursor:
         category = doc.get("category", BLOG_CATEGORIES.get(doc["_id"], "all"))
         doc["category"] = category
-        if game_category != "all" and category != game_category:
+        if not category_matches(game_category, category):
             continue
         try:
             user = await app_state.users.get(doc["author"])

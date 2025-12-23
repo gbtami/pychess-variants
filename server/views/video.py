@@ -1,6 +1,7 @@
 import aiohttp_jinja2
 from aiohttp import web
 
+from const import category_matches
 from videos import VIDEO_TAGS, VIDEO_CATEGORIES, VIDEOS
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
@@ -17,7 +18,7 @@ async def video(request):
         doc = await app_state.db.video.find_one({"_id": videoId})
         if doc is not None:
             category = doc.get("category", VIDEO_CATEGORIES.get(videoId, "all"))
-            if category != user.game_category:
+            if not category_matches(user.game_category, category):
                 raise web.HTTPNotFound()
 
     lang = context["lang"]
@@ -30,7 +31,7 @@ async def video(request):
         available_tags = {
             tag
             for video in VIDEOS
-            if video.get("category", "all") == user.game_category
+            if category_matches(user.game_category, video.get("category", "all"))
             for tag in video.get("tags", [])
         }
         context["tags"] = [tag for tag in VIDEO_TAGS if tag in available_tags]

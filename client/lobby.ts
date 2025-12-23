@@ -41,6 +41,13 @@ function allowedVariantsForCategory(gameCategory: string): Set<string> | null {
     return new Set(group.variants);
 }
 
+function matchesGameCategory(category: string | string[] | undefined, gameCategory: string): boolean {
+    if (gameCategory === "all") return true;
+    const normalized = category ?? "all";
+    const categories = Array.isArray(normalized) ? normalized : [normalized];
+    return categories.includes("all") || categories.includes(gameCategory);
+}
+
 export function createModeStr(mode: CreateMode) {
     switch (mode) {
     case 'playAI': return _("Play with AI");
@@ -1358,9 +1365,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
     const gameCategory = model.gameCategory ?? "all";
     const blogsRaw = JSON.parse(model.blogs);
-    const blogs = gameCategory === "all"
-        ? blogsRaw
-        : blogsRaw.filter((post: Post) => (post.category ?? "all") === gameCategory);
+    const blogs = blogsRaw.filter((post: Post) => matchesGameCategory(post.category, gameCategory));
     const username = model.username;
     const anonUser = model["anon"] === 'True';
     const allowedVariants = allowedVariantsForCategory(gameCategory);

@@ -24,7 +24,7 @@ BLOGS = [
         "subtitle": "Announcing the results of the variant design contest",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
-        "category": "all",
+        "category": ["chess", "fairy", "army", "makruk", "shogi", "xiangqi", "other"],
     },
     {
         "_id": "Bughouse_Chess",
@@ -57,7 +57,7 @@ BLOGS = [
         "subtitle": "Create the best chess variant!",
         "author": "CouchTomato87",
         "tags": ["Announcement"],
-        "category": "all",
+        "category": ["chess", "fairy", "army", "makruk", "shogi", "xiangqi", "other"],
     },
     {
         "_id": "Halloween_Update",
