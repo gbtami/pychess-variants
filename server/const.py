@@ -4,6 +4,7 @@ from enum import global_enum, IntEnum, StrEnum
 import re
 
 from settings import static_url
+from variants import VARIANTS, get_server_variant
 
 POCKET_PATTERN = re.compile("\\[(.*)\\]")
 
@@ -251,6 +252,47 @@ VARIANT_GROUPS = {}
 for categ in CATEGORIES:
     for variant in CATEGORIES[categ]:
         VARIANT_GROUPS[variant] = categ
+
+GAME_CATEGORY_ALL = "all"
+GAME_CATEGORIES = (GAME_CATEGORY_ALL, *CATEGORIES.keys())
+
+CATEGORY_VARIANTS = {
+    GAME_CATEGORY_ALL: VARIANTS,
+}
+CATEGORY_VARIANT_GROUPS = {
+    GAME_CATEGORY_ALL: VARIANT_GROUPS,
+}
+CATEGORY_VARIANT_LISTS = {
+    GAME_CATEGORY_ALL: tuple(VARIANTS.keys()),
+}
+CATEGORY_VARIANT_SETS = {
+    GAME_CATEGORY_ALL: frozenset(VARIANTS.keys()),
+}
+CATEGORY_VARIANT_CODES = {
+    GAME_CATEGORY_ALL: frozenset(variant.code for variant in VARIANTS.values()),
+}
+
+for category in CATEGORIES:
+    variants = {v: VARIANTS[v] for v in CATEGORIES[category] if v in VARIANTS}
+    CATEGORY_VARIANTS[category] = variants
+    CATEGORY_VARIANT_GROUPS[category] = {v: category for v in variants}
+    CATEGORY_VARIANT_LISTS[category] = tuple(variants.keys())
+    CATEGORY_VARIANT_SETS[category] = frozenset(variants.keys())
+    codes = set()
+    for variant in variants:
+        variant960 = variant.endswith("960")
+        uci_variant = variant[:-3] if variant960 else variant
+        try:
+            server_variant = get_server_variant(uci_variant, variant960)
+        except KeyError:
+            continue
+        codes.add(server_variant.code)
+    CATEGORY_VARIANT_CODES[category] = frozenset(codes)
+
+
+def normalize_game_category(game_category: str) -> str:
+    return game_category if game_category in CATEGORY_VARIANTS else GAME_CATEGORY_ALL
+
 
 TROPHIES = {
     "top1": (static_url("images/trophy/Big-Gold-Cup.png"), "Champion!"),

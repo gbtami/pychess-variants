@@ -6,7 +6,7 @@ from functools import partial
 import aiohttp_session
 from aiohttp import web
 
-from const import CATEGORIES
+from const import CATEGORY_VARIANT_SETS, normalize_game_category
 from pychess_global_app_state_utils import get_app_state
 from tournament.scheduler import new_scheduled_tournaments
 from tournament.tournaments import get_scheduled_tournaments
@@ -77,9 +77,10 @@ async def tournament_calendar(request):
     session_user = session.get("user_name")
     user = await app_state.users.get(session_user) if session_user else None
     game_category = user.game_category if user is not None else session.get("game_category", "all")
+    game_category = normalize_game_category(game_category)
 
     if game_category != "all":
-        allowed_variants = set(CATEGORIES[game_category])
+        allowed_variants = CATEGORY_VARIANT_SETS[game_category]
         events = [event for event in events if event.get("title") in allowed_variants]
 
     return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))

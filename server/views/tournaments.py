@@ -3,7 +3,7 @@ import asyncio
 from aiohttp import web
 import aiohttp_jinja2
 
-from const import CATEGORIES, TRANSLATED_PAIRING_SYSTEM_NAMES, T_CREATED
+from const import TRANSLATED_PAIRING_SYSTEM_NAMES, T_CREATED
 from misc import time_control_str
 from settings import TOURNAMENT_DIRECTORS
 from views import get_user_context
@@ -63,7 +63,7 @@ async def tournaments(request):
     context["time_control_str"] = time_control_str
     tables = await get_latest_tournaments(app_state, lang)
     if user.game_category != "all":
-        allowed_variants = set(CATEGORIES[user.game_category])
+        allowed_variants = user.category_variant_set
         tables = tuple(
             [t for t in table if (t.variant + ("960" if t.chess960 else "")) in allowed_variants]
             for table in tables

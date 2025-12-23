@@ -9,7 +9,18 @@ from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 
 from broadcast import round_broadcast
-from const import ANON_PREFIX, STARTED, TEST_PREFIX, reserved
+from const import (
+    ANON_PREFIX,
+    STARTED,
+    TEST_PREFIX,
+    reserved,
+    CATEGORY_VARIANTS,
+    CATEGORY_VARIANT_GROUPS,
+    CATEGORY_VARIANT_LISTS,
+    CATEGORY_VARIANT_SETS,
+    CATEGORY_VARIANT_CODES,
+    normalize_game_category,
+)
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from newid import id8
 from notify import notify
@@ -62,10 +73,11 @@ class User:
         self.anon = anon
         self.lang = lang
         self.theme = theme
-        self.game_category = game_category
+        self.game_category = "all"
         self.oauth_id = oauth_id
         self.oauth_provider = oauth_provider
         self.notifications = None
+        self.update_game_category(game_category)
 
         if username is None:
             self.anon = False if self.app_state.anon_as_test_users else True
@@ -475,6 +487,15 @@ class User:
             self.perfs["chess"]["gl"]["r"],
         )
 
+    def update_game_category(self, game_category):
+        normalized = normalize_game_category(game_category)
+        self.game_category = normalized
+        self.category_variants = CATEGORY_VARIANTS[normalized]
+        self.category_variant_groups = CATEGORY_VARIANT_GROUPS[normalized]
+        self.category_variant_list = CATEGORY_VARIANT_LISTS[normalized]
+        self.category_variant_set = CATEGORY_VARIANT_SETS[normalized]
+        self.category_variant_codes = CATEGORY_VARIANT_CODES[normalized]
+
 
 async def set_theme(request):
     app_state = get_app_state(request.app)
@@ -507,14 +528,15 @@ async def set_game_category(request):
         referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
+        normalized = normalize_game_category(game_category)
         if session_user in app_state.users:
             user = app_state.users[session_user]
-            user.game_category = game_category
+            user.update_game_category(normalized)
             if app_state.db is not None:
                 await app_state.db.user.find_one_and_update(
-                    {"_id": user.username}, {"$set": {"gameCategory": game_category}}
+                    {"_id": user.username}, {"$set": {"gameCategory": normalized}}
                 )
-        session["game_category"] = game_category
+        session["game_category"] = normalized
         return web.HTTPFound(referer)
     else:
         raise web.HTTPNotFound()

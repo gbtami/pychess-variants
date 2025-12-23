@@ -7,7 +7,6 @@ from glicko2.glicko2 import PROVISIONAL_PHI
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 from variants import NOT_RATED_VARIANTS, VARIANTS, VARIANT_ICONS
-from const import CATEGORIES
 
 
 @aiohttp_jinja2.template("profile.html")
@@ -48,9 +47,7 @@ async def profile(request):
     context["can_block"] = profileId not in user.blocked
     context["can_challenge"] = user.username not in profileId_user.blocked
 
-    allowed_variants = None
-    if user.game_category != "all":
-        allowed_variants = set(CATEGORIES[user.game_category])
+    allowed_variants = user.category_variant_set
 
     _id = "%s|%s" % (profileId, profileId_user.title)
     context["trophies"] = [
@@ -90,7 +87,7 @@ async def profile(request):
     else:
         perfs = app_state.users[profileId].perfs.items()
         if user.game_category != "all":
-            perfs = [(k, v) for k, v in perfs if k in CATEGORIES[user.game_category]]
+            perfs = [(k, v) for k, v in perfs if k in allowed_variants]
 
         context["ratings"] = {
             k: (

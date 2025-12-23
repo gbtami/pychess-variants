@@ -2,7 +2,6 @@ import os
 
 import aiohttp_jinja2
 
-from const import CATEGORIES, VARIANT_GROUPS
 from lang import get_locale_ext
 from views import get_user_context
 from variants import VARIANTS, VARIANT_ICONS
@@ -16,14 +15,8 @@ async def variants(request):
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
         variant = "chess"
 
-    if user.game_category == "all":
-        context["variants"] = VARIANTS
-        context["groups"] = VARIANT_GROUPS
-    else:
-        context["variants"] = {
-            v: VARIANTS[v] for v in CATEGORIES[user.game_category] if v in VARIANTS
-        }
-        context["groups"] = {v: g for v, g in VARIANT_GROUPS.items() if g == user.game_category}
+    context["variants"] = user.category_variants
+    context["groups"] = user.category_variant_groups
 
     context["icons"] = VARIANT_ICONS
     locale = get_locale_ext(context)
