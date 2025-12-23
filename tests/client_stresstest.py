@@ -9,10 +9,9 @@ import aiohttp
 import pyffish as sf
 
 from websocket_utils import ws_send_json
+from settings import URI
 
 sf.set_option("VariantPath", "variants.ini")
-
-from settings import URI
 
 LOBBY_URL = f"{URI}/wsl"
 ROUND_URL = f"{URI}/wsr/"

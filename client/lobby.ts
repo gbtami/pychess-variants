@@ -1296,7 +1296,8 @@ export class LobbyController implements ChatController {
     }
 
     private onMsgStreams(msg: MsgStreams) {
-        this.streams = patch(this.streams, h('div#streams', msg.items.map(stream => this.streamView(stream))));
+        const items = this.allowedVariants ? [] : msg.items;
+        this.streams = patch(this.streams, h('div#streams', items.map(stream => this.streamView(stream))));
     }
 
     private onMsgSpotlights(msg: MsgSpotlights) {
@@ -1355,10 +1356,14 @@ function runSeeks(vnode: VNode, model: PyChessModel) {
 
 export function lobbyView(model: PyChessModel): VNode[] {
     const puzzle = JSON.parse(model.puzzle);
-    const blogs = JSON.parse(model.blogs);
+    const gameCategory = model.gameCategory ?? "all";
+    const blogsRaw = JSON.parse(model.blogs);
+    const blogs = gameCategory === "all"
+        ? blogsRaw
+        : blogsRaw.filter((post: Post) => (post.category ?? "all") === gameCategory);
     const username = model.username;
     const anonUser = model["anon"] === 'True';
-    const allowedVariants = allowedVariantsForCategory(model.gameCategory ?? "all");
+    const allowedVariants = allowedVariantsForCategory(gameCategory);
     const allCorrGames = JSON.parse(model.corrGames);
     const corrGames = (allowedVariants ? allCorrGames.filter((game: Game) => allowedVariants.has(game.variant)) : allCorrGames)
         .sort(compareGames(username));

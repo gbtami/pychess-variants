@@ -1,8 +1,9 @@
 import os
 
 import aiohttp_jinja2
+from aiohttp import web
 
-from blogs import BLOG_TAGS
+from blogs import BLOG_TAGS, BLOG_CATEGORIES, BLOGS
 from lang import get_locale_ext
 from views import get_user_context
 
@@ -12,6 +13,10 @@ async def blog(request):
     user, context = await get_user_context(request)
 
     blogId = request.match_info.get("blogId")
+    if user.game_category != "all":
+        category = BLOG_CATEGORIES.get(blogId, "all")
+        if category != user.game_category:
+            raise web.HTTPNotFound()
     blog_item = blogId.replace("_", " ")
 
     # try translated blog file first
@@ -23,6 +28,15 @@ async def blog(request):
 
     context["blog_item"] = item
     context["view_css"] = "blogs.css"
-    context["tags"] = BLOG_TAGS
+    if user.game_category != "all":
+        available_tags = {
+            tag
+            for blog in BLOGS
+            if blog.get("category", "all") == user.game_category
+            for tag in blog.get("tags", [])
+        }
+        context["tags"] = [tag for tag in BLOG_TAGS if tag in available_tags]
+    else:
+        context["tags"] = BLOG_TAGS
 
     return context

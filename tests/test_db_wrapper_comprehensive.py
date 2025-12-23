@@ -3,7 +3,6 @@ from unittest.mock import AsyncMock, patch, MagicMock
 from pymongo.errors import (
     ConnectionFailure,
     OperationFailure,
-    ServerSelectionTimeoutError,
     NotPrimaryError,
     CursorNotFound,
 )
@@ -12,7 +11,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "server"))
-from db_wrapper import AsyncDBWrapper, is_retryable_operation_failure
+from db_wrapper import AsyncDBWrapper, is_retryable_operation_failure  # noqa: E402
 
 
 class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):

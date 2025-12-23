@@ -171,9 +171,7 @@ async def new_tournament(app_state: PychessGlobalAppState, data):
     return tournament
 
 
-async def get_winners(
-    app_state: PychessGlobalAppState, shield, variant: str = None, variants=None
-):
+async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = None, variants=None):
     wi = {}
     if variants is None:
         if variant is None:

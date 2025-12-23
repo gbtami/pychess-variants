@@ -45,6 +45,7 @@ from game import Game
 from newid import new_id
 from user import User
 from users import NotInDbUsers
+from blogs import BLOG_CATEGORIES
 from valid_fen import VALID_FEN
 
 if TYPE_CHECKING:
@@ -922,20 +923,33 @@ async def get_blogs(request, tag=None, limit=0):
     if app_state.db is None:
         return []
 
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user) if session_user else None
+    game_category = user.game_category if user is not None else session.get("game_category", "all")
+
     blogs = []
     if tag is None:
         cursor = app_state.db.blog.find()
     else:
         cursor = app_state.db.blog.find({"tags": tag})
 
-    cursor.sort("date", -1).limit(limit)
+    cursor.sort("date", -1)
+    if limit > 0 and game_category == "all":
+        cursor.limit(limit)
     async for doc in cursor:
+        category = doc.get("category", BLOG_CATEGORIES.get(doc["_id"], "all"))
+        doc["category"] = category
+        if game_category != "all" and category != game_category:
+            continue
         try:
             user = await app_state.users.get(doc["author"])
             doc["atitle"] = user.title
         except NotInDbUsers:
             pass
         blogs.append(doc)
+        if limit > 0 and game_category != "all" and len(blogs) >= limit:
+            break
     return blogs
 
 

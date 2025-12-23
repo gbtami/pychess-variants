@@ -65,11 +65,7 @@ async def tournaments(request):
     if user.game_category != "all":
         allowed_variants = set(CATEGORIES[user.game_category])
         tables = tuple(
-            [
-                t
-                for t in table
-                if (t.variant + ("960" if t.chess960 else "")) in allowed_variants
-            ]
+            [t for t in table if (t.variant + ("960" if t.chess960 else "")) in allowed_variants]
             for table in tables
         )
     context["tables"] = tables
