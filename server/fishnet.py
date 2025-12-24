@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 from pychess_global_app_state_utils import get_app_state
 from settings import FISHNET_KEYS
 from utils import load_game, play_move
-from logger import log
+import logging
+
+log = logging.getLogger(__name__)
 
 REQUIRED_FISHNET_VERSION = "1.16.42"
 MOVE_WORK_TIME_OUT = 5.0
@@ -231,7 +233,7 @@ async def fishnet_move(request):
         async with game.move_lock:
             await play_move(app_state, user, game, move)
     else:
-        print("--- DISCARD FISHNET ---", move)
+        log.info("DISCARD FISHNET", move)
 
     response = await get_work(app_state, data)
     return response

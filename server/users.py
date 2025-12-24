@@ -1,15 +1,14 @@
 from __future__ import annotations
 from collections import UserDict
-
 from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK, NONE_USER, TYPE_CHECKING
 from glicko2.glicko2 import DEFAULT_PERF
 from user import User
-from logger import log
+import logging
 from variants import RATED_VARIANTS
-
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
+log = logging.getLogger(__name__)
 
 class NotInAppUsers(Exception):
     """Raised when dict access syntax was used, but username not in Users dict"""
@@ -54,7 +53,7 @@ class Users(UserDict):
 
         doc = await self.app_state.db.user.find_one({"_id": username})
         if doc is None:
-            log.error("--- users.get() %s NOT IN db ---", username)
+            log.warning("users.get() %s NOT IN db", username)
             # raise NotInDbUsers
             return self.data[NONE_USER]
         else:

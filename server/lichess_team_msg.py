@@ -2,6 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 
 import aiohttp
+import logging
 
 from const import T_CREATED
 from misc import time_control_str
@@ -13,7 +14,8 @@ from settings import (
     DEV,
     LICHESS_API_TOKEN,
 )
-from logger import log
+
+log = logging.getLogger(__name__)
 
 # POST
 # Responses:
@@ -27,19 +29,19 @@ async def lichess_team_msg(app_state: PychessGlobalAppState):
 
     to_date = datetime.now().date()
     if to_date in app_state.sent_lichess_team_msg:
-        print("No more lichess team msg for today!")
+        log.info("No more lichess team msg for today!")
         return
 
     team_id = "pychess-tournaments"
     msg = upcoming_tournaments_msgs(app_state.tournaments)
-    print(msg)
+    log.debug("lichess team message: %r", msg)
 
     async with aiohttp.ClientSession() as session:
         headers = {"Authorization": "Bearer %s" % LICHESS_API_TOKEN}
 
         endpoint = f"https://lichess.org/team/{team_id}/pm-all"
         async with session.post(endpoint, headers=headers, data={"message": msg}) as resp:
-            print(resp.status)
+            log.info("response status: %r", resp.status)
             json = await resp.json()
             if json.get("error") is not None:
                 log.error(json)

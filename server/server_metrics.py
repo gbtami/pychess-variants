@@ -14,7 +14,8 @@ from aiohttp.web_ws import WebSocketResponse
 
 from clock import Clock
 from game import Game
-from logger import log
+import logging
+
 from lobby import Lobby
 from seek import Seek
 from user import User
@@ -26,6 +27,7 @@ from tournament.tournament import PlayerData, GameData
 from tournament.arena_new import ArenaTournament
 from pychess_global_app_state_utils import get_app_state
 
+log = logging.getLogger(__name__)
 
 def inspect_referrer(ref):
     if isinstance(ref, dict):

@@ -37,6 +37,7 @@ from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from lobby import Lobby
+from logger import DEFAULT_LOGGING_CONFIG
 from tournament.scheduler import (
     MONTHLY_VARIANTS,
     SEATURDAY,
@@ -74,9 +75,11 @@ from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
 from lang import LOCALE
-from logger import log
+import logging
 from variants import VARIANTS, RATED_VARIANTS
 from puzzle import rename_puzzle_fields
+
+log = logging.getLogger(__name__)
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 
@@ -352,6 +355,12 @@ class PychessGlobalAppState:
                 async for doc in cursor:
                     FISHNET_KEYS[doc["_id"]] = doc["name"]
                     self.fishnet_monitor[doc["name"]] = collections.deque([], 50)
+
+            if "config" not in db_collections:
+                await self.db.config.insert_one({
+                    "name": "logging.config",
+                    "value": DEFAULT_LOGGING_CONFIG})
+                await self.db.config.create_index("name")
 
             # TODO: remove this after OAuth2 PR deployed !!!
             userCollectionHasLichessOauth2Fields = await self.db.user.find_one(

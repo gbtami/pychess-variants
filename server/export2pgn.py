@@ -7,7 +7,9 @@ from motor import motor_asyncio as ma
 from settings import MONGO_HOST, MONGO_DB_NAME
 from utils import pgn
 from compress import C2V
-from logger import log
+import logging
+
+log = logging.getLogger(__name__)
 
 YEARS = (2019, 2020, 2021, 2022, 2023, 2024)
 MONTHS = range(1, 13)

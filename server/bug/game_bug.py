@@ -6,14 +6,15 @@ from time import time_ns
 from bug.game_bug_clocks import GameBugClocks
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
-from logger import log
+import logging
+log = logging.getLogger(__name__)
 
 try:
     import pyffish as sf
 
     sf.set_option("VariantPath", "variants.ini")
 except ImportError:
-    print("No pyffish module installed!")
+    log.error("No pyffish module installed!")
 
 from compress import R2C
 from convert import grand2zero
@@ -465,9 +466,9 @@ class GameBug:
         return False
 
     def print_game(self):
-        print(self.pgn)
-        print(self.boards["a"].print_pos())
-        print(self.boards["b"].print_pos())
+        log.info("pgn: %s", self.pgn)
+        self.boards["a"].print_pos()
+        self.boards["b"].print_pos()
 
     @property
     def board(self):

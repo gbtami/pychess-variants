@@ -10,7 +10,9 @@ from fairy.chess960 import CHESS960_FENS
 from fairy.jieqi import make_initial_mapping, apply_move_and_transform, BLACK_PIECES, RED_PIECES
 from const import CATEGORIES
 from fairy.racingkings import RACINGKINGS_FENS
-from logger import log
+import logging
+
+log = logging.getLogger(__name__)
 
 try:
     import pyffish as sf

@@ -3,6 +3,7 @@ import calendar as cal
 from collections import namedtuple
 import datetime as dt
 import zoneinfo
+import logging
 
 from const import (
     ARENA,
@@ -20,8 +21,9 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 from tournament.tournaments import new_tournament
-from logger import log
 from variants import get_server_variant, GRANDS
+
+log = logging.getLogger(__name__)
 
 Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 

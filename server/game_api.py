@@ -17,8 +17,10 @@ from settings import ADMINS
 from tournament.tournaments import get_tournament_name
 from utils import pgn
 from pychess_global_app_state_utils import get_app_state
-from logger import log
+import logging
 from variants import C2V, GRANDS, get_server_variant, VARIANTS
+
+log = logging.getLogger(__name__)
 
 GAME_PAGE_SIZE = 12
 
@@ -480,7 +482,7 @@ async def export(request):
         cursor = app_state.db.game.find({"tid": tournamentId})
     elif session_user in ADMINS:
         yearmonth = request.match_info.get("yearmonth")
-        print("---", yearmonth[:4], yearmonth[4:])
+        log.debug("yearmonth: %r %r", yearmonth[:4], yearmonth[4:])
         filter_cond = {
             "$and": [
                 {"$expr": {"s": {"$gt": STARTED}}},  # prevent leaking ongoing fogofwar game info
