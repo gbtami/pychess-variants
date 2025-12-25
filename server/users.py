@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
+
 class NotInAppUsers(Exception):
     """Raised when dict access syntax was used, but username not in Users dict"""
 

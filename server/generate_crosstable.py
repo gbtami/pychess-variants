@@ -4,6 +4,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 async def generate_crosstable(app_state, username=None):
     db = app_state.db
     ct = {}

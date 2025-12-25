@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
+
 def silence(app_state: PychessGlobalAppState, message):
     response = None
     spammer = message.split()[-1]

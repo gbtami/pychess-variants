@@ -17,6 +17,7 @@ from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
 
+
 async def get_user(session: aiohttp_session.Session, request: web.Request) -> User:
     session_user = session.get("user_name")
     user = await get_app_state(request.app).users.get(session_user)

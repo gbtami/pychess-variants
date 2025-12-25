@@ -14,6 +14,7 @@ from variants import get_server_variant
 
 log = logging.getLogger(__name__)
 
+
 def get_main_variation(game: Game, base_tc_ms: int) -> [list, list]:
     variations = game.variations
     turns = {0: "w", 1: "w"}
