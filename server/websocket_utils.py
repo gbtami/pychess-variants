@@ -6,8 +6,6 @@ import aiohttp_session
 from aiohttp import WSMessage, web
 from aiohttp.web_ws import WebSocketResponse
 from aiohttp.client_exceptions import ClientConnectionResetError
-
-import logger
 from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -39,7 +37,6 @@ async def process_ws(
     if (user is not None) and (not user.enabled):
         session.invalidate()
         return None
-
 
     ws = WebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
     ws_ready = ws.can_prepare(request)

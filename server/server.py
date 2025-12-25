@@ -173,8 +173,6 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
 
 
 async def init_state(app):
-
-
     if db_key not in app:
         app[db_key] = None
 
