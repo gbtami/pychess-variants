@@ -2,6 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import aiohttp_session
+import logging
 
 from tournament.arena_new import ArenaTournament
 from compress import C2R
@@ -40,6 +41,8 @@ from tournament.auto_play_arena import ArenaTestTournament, AUTO_PLAY_ARENA_NAME
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 from user import User
 from utils import load_game
+
+log = logging.getLogger(__name__)
 
 
 async def create_or_update_tournament(
@@ -431,7 +434,9 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         try:
             cursor.sort("r", -1)
         except AttributeError:
-            print("A unittest MagickMock cursor object")
+            log.exception(
+                "A unittest MagickMock cursor object"
+            )  # todo: logic here shouldnt depend on unit tests
 
     async for doc in cursor:
         uid = doc["uid"]
@@ -470,7 +475,9 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
     try:
         cursor.sort("d", 1)
     except AttributeError:
-        print("A unittest MagickMock cursor object")
+        log.exception(
+            "A unittest MagickMock cursor object"
+        )  # todo: logic here shouldn't depend on unit tests
 
     w_win, b_win, draw, berserk = 0, 0, 0, 0
     async for doc in cursor:

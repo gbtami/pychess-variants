@@ -13,7 +13,7 @@ DEFAULT_LOGGING_CONFIG = {
     "filters": {"addPychessContextFilter": {"()": "logger.AddPychessContextFilter"}},
     "formatters": {
         "standard": {
-            "format": "%(asctime)s.%(msecs)03d [%(levelname)s] %(username)s %(gameId)s %(name)s:%(lineno)d %(message)s"
+            "format": "%(asctime)s.%(msecs)03d %(levelname_brackets)-7s %(gameId)-8s %(username)-12s %(name_lineno)-31s %(message)s"
         },
     },
     "handlers": {
@@ -43,12 +43,14 @@ DEFAULT_LOGGING_CONFIG = {
         "user": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "twitch": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "tournament.tournament": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "tournament.tournaments": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "tournament.scheduler": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "tournament.auto_play_arena": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": False,
         },
+        "tournament.arena": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "tournament.arena_new": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "server": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "seek": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
@@ -74,6 +76,7 @@ DEFAULT_LOGGING_CONFIG = {
         "ai": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "admin": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "export2pgn": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "puzzle": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         # if __name__ == '__main__'
         "__main__": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
     },
@@ -101,7 +104,14 @@ class AddPychessContextFilter(logging.Filter):
 
     def filter(self, record):
         context_dict = log_context_data.get()
-        # for a in self.attributes:
+        # shorten WARNING to WARN:
+        if record.levelname == "WARNING":
+            record.levelname = "WARN"
+        # I want to pad level together with brackets in the log formatter:
+        setattr(record, "levelname_brackets", "[{}]".format(record.levelname))
+        # I want to pad name+lineno together in the log formatter:
+        setattr(record, "name_lineno", record.name + ":" + str(record.lineno))
+        # pychess context specific values:
         setattr(record, "username", context_dict.get("username", "none-user"))
         setattr(record, "gameId", context_dict.get("gameId", "none-game"))
         return True

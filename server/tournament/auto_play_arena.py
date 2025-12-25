@@ -85,14 +85,14 @@ class TestTournament(Tournament):
 
     async def create_new_pairings(self, waiting_players):
         now = datetime.now(timezone.utc).strftime("%H:%M:%S")
-        print("--- create_new_pairings at %s ---" % now)
+        log.info("--- create_new_pairings at %s ---" % now)
         self.print_leaderboard()
         pairing, games = await Tournament.create_new_pairings(self, waiting_players)
 
         # aouto play test games
         # for wp, bp in pairing:
         #     print("%s - %s" % (wp.username, bp.username))
-        print("--- create_new_pairings done ---")
+        log.info("--- create_new_pairings done ---")
 
         for game in games:
             if game.status == BYEGAME:  # ByeGame

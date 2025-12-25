@@ -902,7 +902,16 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
         invalid6 = board.is_checked()
 
     if invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5 or invalid6:
-        print(invalid0, invalid1, invalid2, invalid3, invalid4, invalid5, invalid6)
+        log.debug(
+            "%r %r %r %r %r %r %r",
+            invalid0,
+            invalid1,
+            invalid2,
+            invalid3,
+            invalid4,
+            invalid5,
+            invalid6,
+        )
         return False, ""
     return True, sanitized_fen
 

@@ -458,7 +458,7 @@ class Tournament(ABC):
                         if self.system != ARENA and len(self.players) < 3:
                             # Swiss and RR Tournaments need at least 3 players to start
                             await self.abort()
-                            print("T_ABORTED: less than 3 player joined")
+                            log.info("T_ABORTED: less than 3 player joined")
                             break
 
                         await self.start(now)
@@ -486,7 +486,7 @@ class Tournament(ABC):
 
                 elif (self.minutes is not None) and now >= self.ends_at:
                     await self.finish()
-                    print("T_FINISHED: no more time left")
+                    log.info("T_FINISHED: no more time left")
                     break
 
                 elif self.status == T_STARTED:
@@ -518,7 +518,7 @@ class Tournament(ABC):
                             log.debug("T_FINISHED: no more round left")
                             break
                     else:
-                        print(
+                        log.info(
                             "%s has %s ongoing game(s)..."
                             % (
                                 "RR" if self.system == RR else "Swiss",
@@ -547,13 +547,12 @@ class Tournament(ABC):
             self.prev_pairing = now - self.wave
 
         if self.app_state.db is not None:
-            print(
-                await self.app_state.db.tournament.find_one_and_update(
-                    {"_id": self.id},
-                    {"$set": {"status": self.status}},
-                    return_document=ReturnDocument.AFTER,
-                )
+            u = await self.app_state.db.tournament.find_one_and_update(
+                {"_id": self.id},
+                {"$set": {"status": self.status}},
+                return_document=ReturnDocument.AFTER,
             )
+            log.info("Updated status: %s", u)
 
     @property
     def summary(self):
@@ -578,12 +577,12 @@ class Tournament(ABC):
 
         if len(self.players) > 0:
             self.print_leaderboard()
-            print("--- TOURNAMENT RESULT ---")
+            log.info("--- TOURNAMENT RESULT ---")
             for i in range(min(3, len(self.leaderboard))):
                 player = self.leaderboard.peekitem(i)[0]
-                print("--- #%s ---" % (i + 1), player.username)
-            print("--- CACHE INFO ---")
-            print(player_json.cache_info())
+                log.info("--- #%s ---" % (i + 1), player.username)
+            log.info("--- CACHE INFO ---")
+            log.info("%r", player_json.cache_info())
 
         # remove latest games from players tournament if it was not finished in time
         for player in self.players:
@@ -1098,20 +1097,18 @@ class Tournament(ABC):
                 "bb": game.bberserk,
             }
 
-            print(
-                await pairing_table.find_one_and_update(
-                    {"_id": game.id},
-                    {"$set": new_data},
-                    return_document=ReturnDocument.AFTER,
-                )
+            u = await pairing_table.find_one_and_update(
+                {"_id": game.id},
+                {"$set": new_data},
+                return_document=ReturnDocument.AFTER,
             )
+            log.info("Updated: %r", u)
         except Exception:
-            if self.app_state.db is not None:
-                log.error(
-                    "db find_one_and_update pairing_table %s into %s failed !!!",
-                    game.id,
-                    self.id,
-                )
+            log.exception(
+                "db find_one_and_update pairing_table %s into %s failed !!!",
+                game.id,
+                self.id,
+            )
 
     async def db_update_player(self, user, action):
         if self.app_state.db is None:
@@ -1199,8 +1196,9 @@ class Tournament(ABC):
             return
 
         if self.nb_games_finished == 0:
-            print(await self.app_state.db.tournament.delete_many({"_id": self.id}))
-            print("--- Deleted empty tournament %s" % self.id)
+            d = await self.app_state.db.tournament.delete_many({"_id": self.id})
+            log.info("Deleted %r", d)
+            log.info("Deleted empty tournament %s" % self.id)
             return
 
         winner = self.leaderboard.peekitem(0)[0].username
@@ -1225,9 +1223,9 @@ class Tournament(ABC):
             self.app_state.shield_owners[variant_name] = winner
 
     def print_leaderboard(self):
-        print("--- LEADERBOARD ---", self.id)
+        log.info("--- LEADERBOARD --- %s", self.id)
         for player, full_score in self.leaderboard.items()[:10]:
-            print(
+            log.info(
                 "%15s (%8s) %4s %30s %2s %s"
                 % (
                     player.username,

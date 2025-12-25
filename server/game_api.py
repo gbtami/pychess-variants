@@ -523,14 +523,14 @@ async def export(request):
                     doc["d"].strftime("%Y.%m.%d"),
                 )
                 continue
-        print("failed/all:", failed, game_counter)
+        log.info("failed/all:", failed, game_counter)
     except ConnectionResetError:
-        print("Client disconnected unexpectedly.")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        log.exception("Client disconnected unexpectedly.")
+    except Exception:
+        log.exception("An unexpected error occurred: ")
     finally:
         try:
             await response.write_eof()
         except ConnectionResetError:
-            print("Connection already closed, cannot write EOF.")
+            log.exception("Connection already closed, cannot write EOF.")
     return response
