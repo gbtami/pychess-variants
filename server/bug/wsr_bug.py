@@ -6,8 +6,9 @@ from newid import new_id
 from pychess_global_app_state import PychessGlobalAppState
 from seek import Seek
 from bug.utils_bug import play_move, join_seek_bughouse
-from logger import log
+import logging
 
+log = logging.getLogger(__name__)
 
 async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data, game):
     log.info("Got RECONNECT message %s %r" % (user.username, data))

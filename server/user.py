@@ -40,7 +40,9 @@ if TYPE_CHECKING:
     from game import Game
 
 from pychess_global_app_state_utils import get_app_state
-from logger import log
+import logging
+
+log = logging.getLogger(__name__)
 
 
 SILENCE = 15 * 60

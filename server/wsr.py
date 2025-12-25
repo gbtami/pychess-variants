@@ -30,7 +30,10 @@ from utils import (
 )
 from bug.utils_bug import play_move as play_move_bug
 from websocket_utils import process_ws, get_user, ws_send_json
-from logger import log
+import logging
+import logger
+
+log = logging.getLogger(__name__)
 
 MORE_TIME = 15 * 1000
 
@@ -45,6 +48,9 @@ async def round_socket_handler(request: web.Request):
 
     session = await aiohttp_session.get_session(request)
     user = await get_user(session, request)
+    logger.set_log_context("username", user.username)
+    logger.set_log_context("gameId", game.id)
+
     ws = await process_ws(
         session,
         request,

@@ -13,7 +13,8 @@ from oauth_config import oauth_config
 from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
 from websocket_utils import ws_send_json
-from logger import log
+import logging
+log = logging.getLogger(__name__)
 
 
 async def oauth(request):
@@ -323,7 +324,7 @@ async def confirm_username(request):
                 "enabled": True,
             }
         )
-        print("db insert user result %s" % repr(result.inserted_id))
+        log.info("db insert user result %r", result.inserted_id)
 
         # Set session username and clean up OAuth data
         session["user_name"] = username

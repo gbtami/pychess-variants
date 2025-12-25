@@ -9,9 +9,10 @@ from compress import R2C, encode_move_standard
 from newid import new_id
 from aiohttp import web
 from bugchess.pgn import read_game, Game
-from logger import log
+import logging
 from variants import get_server_variant
 
+log = logging.getLogger(__name__)
 
 def get_main_variation(game: Game, base_tc_ms: int) -> [list, list]:
     variations = game.variations
@@ -144,7 +145,7 @@ async def import_game_bpgn(request):
         return web.json_response({"error": message})
 
     try:
-        print(game_id, variant, initial_fen, wplayer_a, bplayer_a, wplayer_b, bplayer_b)
+        log.info("%s %s %s %s %s %s %s", game_id, variant, initial_fen, wplayer_a, bplayer_a, wplayer_b, bplayer_b)
         # new_game = Game( todo: not sure why needed to create object at all at this point
         #     app,
         #     game_id,
@@ -194,8 +195,8 @@ async def import_game_bpgn(request):
     if brating:
         document["p1"] = {"e": brating}
 
-    print(document)
+    log.debug("inserting to db: %r", document)
     result = await app_state.db.game.insert_one(document)
-    print("db insert IMPORTED game result %s" % repr(result.inserted_id))
+    log.info("db insert IMPORTED game result %r", result.inserted_id)
 
     return web.json_response({"gameId": game_id})

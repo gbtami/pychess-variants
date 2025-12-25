@@ -13,7 +13,9 @@ from tournament.tournaments import (
     get_latest_tournaments,
 )
 from variants import VARIANT_ICONS
-from logger import log
+import logging
+
+log = logging.getLogger(__name__)
 
 
 @aiohttp_jinja2.template("tournaments.html")

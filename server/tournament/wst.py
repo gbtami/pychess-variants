@@ -8,6 +8,7 @@ from admin import silence
 from chat import chat_response
 from const import ANON_PREFIX, SHIELD
 from const import TYPE_CHECKING
+import logger
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -24,6 +25,8 @@ async def tournament_socket_handler(request):
     app_state = get_app_state(request.app)
     session = await aiohttp_session.get_session(request)
     user = await get_user(session, request)
+    logger.set_log_context("username", user.username)
+    logger.set_log_context("gameId", "tournament") # todo: we don't have tournamentId at this point, otherwise could put it here
     ws = await process_ws(session, request, user, None, process_message)
     if ws is None:
         return web.HTTPFound("/")

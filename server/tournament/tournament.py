@@ -1,5 +1,6 @@
 from __future__ import annotations
 import asyncio
+import logging
 import collections
 import random
 import traceback
@@ -47,9 +48,10 @@ from spectators import spectators
 from tournament.tournament_spotlights import tournament_spotlights
 from user import User
 from utils import insert_game_to_db
-from logger import log
+
 from variants import get_server_variant
 
+log = logging.getLogger(__name__)
 
 SCORE, STREAK, DOUBLE = range(1, 4)
 

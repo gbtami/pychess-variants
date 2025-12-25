@@ -52,8 +52,10 @@ from valid_fen import VALID_FEN
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
-from logger import log
+import logging
 from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
+
+log = logging.getLogger(__name__)
 
 
 async def tv_game(app_state: PychessGlobalAppState):

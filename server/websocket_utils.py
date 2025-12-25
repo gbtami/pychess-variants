@@ -1,20 +1,21 @@
 from __future__ import annotations
 import json
-
+import logging
 import aiohttp
 import aiohttp_session
 from aiohttp import WSMessage, web
 from aiohttp.web_ws import WebSocketResponse
 from aiohttp.client_exceptions import ClientConnectionResetError
 
+import logger
 from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from user import User
 
 from pychess_global_app_state_utils import get_app_state
-from logger import log
 
+log = logging.getLogger(__name__)
 
 async def get_user(session: aiohttp_session.Session, request: web.Request) -> User:
     session_user = session.get("user_name")
@@ -38,6 +39,7 @@ async def process_ws(
         session.invalidate()
         return None
 
+
     ws = WebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
@@ -47,7 +49,7 @@ async def process_ws(
     await ws.prepare(request)
 
     log.info(
-        "--- NEW %s WEBSOCKET by %s from %s", request.rel_url.path, user.username, request.remote
+        "NEW %s WEBSOCKET by %s from %s", request.rel_url.path, user.username, request.remote
     )
 
     try:
@@ -77,18 +79,18 @@ async def process_ws(
                         await custom_msg_processor(app_state, user, ws, data)
             elif msg.type == aiohttp.WSMsgType.CLOSED:
                 log.debug(
-                    "--- %s websocket %s msg.type == aiohttp.WSMsgType.CLOSED",
+                    "%s websocket %s msg.type == aiohttp.WSMsgType.CLOSED",
                     request.rel_url.path,
                     id(ws),
                 )
                 break
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 log.error(
-                    "--- %s ws %s msg.type == aiohttp.WSMsgType.ERROR", request.rel_url.path, id(ws)
+                    "%s ws %s msg.type == aiohttp.WSMsgType.ERROR", request.rel_url.path, id(ws)
                 )
                 break
             else:
-                log.debug("--- %s ws other msg.type %s %s", request.rel_url.path, msg.type, msg)
+                log.debug("%s ws other msg.type %s %s", request.rel_url.path, msg.type, msg)
     except OSError:
         # disconnected
         log.error("process_ws() OSError")
@@ -99,7 +101,7 @@ async def process_ws(
             user.username,
         )
     finally:
-        log.debug("--- %s finally: await ws.close() %s", request.rel_url.path, user.username)
+        log.debug("%s finally: await ws.close() %s", request.rel_url.path, user.username)
         await ws.close()
         return ws
 

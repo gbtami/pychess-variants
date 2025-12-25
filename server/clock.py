@@ -7,7 +7,9 @@ from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 from notify import notify
 
-from logger import log
+import logging
+
+log = logging.getLogger(__name__)
 
 ESTIMATE_MOVES = 40
 CORR_TICK = 60

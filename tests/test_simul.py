@@ -13,7 +13,8 @@ from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from simul.simul import Simul
 from user import User
-from logger import log
+
+log = logging.getLogger(__name__)
 
 
 log.setLevel(level=logging.DEBUG)
