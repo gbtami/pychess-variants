@@ -23,6 +23,7 @@ from variants import C2V, GRANDS
 
 log = logging.getLogger(__name__)
 
+
 async def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
     wplayer_a = await app_state.users.get(wp_a)
     wplayer_b = await app_state.users.get(wp_b)

@@ -6,8 +6,6 @@ import aiohttp_session
 from aiohttp import WSMessage, web
 from aiohttp.web_ws import WebSocketResponse
 from aiohttp.client_exceptions import ClientConnectionResetError
-
-import logger
 from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -16,6 +14,7 @@ if TYPE_CHECKING:
 from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
+
 
 async def get_user(session: aiohttp_session.Session, request: web.Request) -> User:
     session_user = session.get("user_name")
@@ -38,7 +37,6 @@ async def process_ws(
     if (user is not None) and (not user.enabled):
         session.invalidate()
         return None
-
 
     ws = WebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
     ws_ready = ws.can_prepare(request)

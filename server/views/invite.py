@@ -11,6 +11,7 @@ from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
 
+
 @aiohttp_jinja2.template("index.html")
 async def invite(request):
     user, context = await get_user_context(request)

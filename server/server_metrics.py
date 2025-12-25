@@ -29,6 +29,7 @@ from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
 
+
 def inspect_referrer(ref):
     if isinstance(ref, dict):
         print("  Dictionary referrer:")

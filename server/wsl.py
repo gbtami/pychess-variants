@@ -41,6 +41,7 @@ from variants import get_server_variant
 
 log = logging.getLogger(__name__)
 
+
 async def lobby_socket_handler(request):
     app_state = get_app_state(request.app)
     session = await aiohttp_session.get_session(request)

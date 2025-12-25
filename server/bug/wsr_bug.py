@@ -10,6 +10,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data, game):
     log.info("Got RECONNECT message %s %r" % (user.username, data))
     moves_queued = data.get("movesQueued")

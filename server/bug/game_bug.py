@@ -7,14 +7,6 @@ from bug.game_bug_clocks import GameBugClocks
 from pychess_global_app_state import PychessGlobalAppState
 from user import User
 import logging
-log = logging.getLogger(__name__)
-
-try:
-    import pyffish as sf
-
-    sf.set_option("VariantPath", "variants.ini")
-except ImportError:
-    log.error("No pyffish module installed!")
 
 from compress import R2C
 from convert import grand2zero
@@ -34,6 +26,14 @@ from const import (
 from fairy import FairyBoard, BLACK, WHITE
 from spectators import spectators
 from variants import get_server_variant, GRANDS
+
+log = logging.getLogger(__name__)
+
+try:
+    import pyffish as sf
+    sf.set_option("VariantPath", "variants.ini")
+except ImportError:
+    log.error("No pyffish module installed!")
 
 MAX_HIGH_SCORE = 10
 MAX_PLY = 2 * 600
