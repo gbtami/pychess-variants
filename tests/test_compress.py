@@ -2,9 +2,12 @@
 
 import string
 import unittest
+import test_logger
 
 from fairy import FairyBoard
 from variants import get_server_variant, VARIANTS
+
+test_logger.init_test_logger()
 
 
 class EncodeDecodeTestCase(unittest.TestCase):

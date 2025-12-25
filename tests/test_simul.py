@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
+import test_logger
 import time
 import aiohttp
 import pytest
@@ -14,10 +15,9 @@ from server import make_app
 from simul.simul import Simul
 from user import User
 
+test_logger.init_test_logger()
+
 log = logging.getLogger(__name__)
-
-
-log.setLevel(level=logging.DEBUG)
 
 
 @pytest.mark.asyncio

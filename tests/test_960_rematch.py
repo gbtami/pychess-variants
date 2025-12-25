@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import logging
 import unittest
+import test_logger
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
@@ -20,8 +20,7 @@ from variants import VARIANTS
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
 
-logging.basicConfig()
-logging.getLogger().setLevel(level=logging.ERROR)
+test_logger.init_test_logger()
 
 PERFS = {
     "newplayer": {variant: DEFAULT_PERF for variant in VARIANTS},

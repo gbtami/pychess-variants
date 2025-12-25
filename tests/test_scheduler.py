@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import test_logger
 import datetime as dt
 
 from const import SCHEDULE_MAX_DAYS
 from tournament.scheduler import new_scheduled_tournaments, MONTHLY_VARIANTS, SHIELDS, Scheduler
 
+test_logger.init_test_logger()
 
 ONE_TEST_ONLY = False
 

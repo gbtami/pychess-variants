@@ -1,8 +1,11 @@
 import pytest
+import test_logger
 from playwright.async_api import async_playwright, expect
 from mongomock_motor import AsyncMongoMockClient
 
 from server import make_app
+
+test_logger.init_test_logger()
 
 
 @pytest.mark.asyncio

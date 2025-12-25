@@ -1,4 +1,5 @@
 import unittest
+import test_logger
 from fairy import JIEQI_FEN
 from fairy.jieqi import (
     apply_move_and_transform,
@@ -8,6 +9,8 @@ from fairy.jieqi import (
     BLACK_PIECES,
     RED_PIECES,
 )
+
+test_logger.init_test_logger()
 
 
 class TestApplyMoveAndTransform(unittest.TestCase):

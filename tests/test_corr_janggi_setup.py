@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import logging
 import unittest
+import test_logger
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
@@ -17,8 +17,7 @@ from pychess_global_app_state_utils import get_app_state
 from newid import id8
 from variants import VARIANTS
 
-logging.basicConfig()
-logging.getLogger().setLevel(level=logging.ERROR)
+test_logger.init_test_logger()
 
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 JANGGI_START_FEN = "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1"
