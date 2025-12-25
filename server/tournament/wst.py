@@ -24,7 +24,9 @@ async def tournament_socket_handler(request):
     session = await aiohttp_session.get_session(request)
     user = await get_user(session, request)
     logger.set_log_context("username", user.username)
-    logger.set_log_context("gameId", "tournament")  # todo: we don't have tournamentId at this point, otherwise could put it here
+    logger.set_log_context(
+        "gameId", "tournament"
+    )  # todo: we don't have tournamentId at this point, otherwise could put it here
     ws = await process_ws(session, request, user, None, process_message)
     if ws is None:
         return web.HTTPFound("/")

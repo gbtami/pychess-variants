@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from utils import play_move
 import logging
+
 log = logging.getLogger(__name__)
 
 

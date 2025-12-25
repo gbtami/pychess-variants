@@ -357,9 +357,9 @@ class PychessGlobalAppState:
                     self.fishnet_monitor[doc["name"]] = collections.deque([], 50)
 
             if "config" not in db_collections:
-                await self.db.config.insert_one({
-                    "name": "logging.config",
-                    "value": DEFAULT_LOGGING_CONFIG})
+                await self.db.config.insert_one(
+                    {"name": "logging.config", "value": DEFAULT_LOGGING_CONFIG}
+                )
                 await self.db.config.create_index("name")
 
             # TODO: remove this after OAuth2 PR deployed !!!

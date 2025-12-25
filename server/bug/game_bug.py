@@ -31,6 +31,7 @@ log = logging.getLogger(__name__)
 
 try:
     import pyffish as sf
+
     sf.set_option("VariantPath", "variants.ini")
 except ImportError:
     log.error("No pyffish module installed!")

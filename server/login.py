@@ -14,6 +14,7 @@ from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
 from websocket_utils import ws_send_json
 import logging
+
 log = logging.getLogger(__name__)
 
 
