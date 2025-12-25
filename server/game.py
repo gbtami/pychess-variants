@@ -404,15 +404,6 @@ class Game:
 
                 self.update_status()
 
-                if self.status > STARTED:
-                    await self.save_game()
-                    if self.corr:
-                        await opp_player.notify_game_end(self)
-                    if self.simulId is not None:
-                        await self.app_state.simuls[self.simulId].game_update(self)
-                else:
-                    await self.save_move(move)
-
                 self.steps.append(
                     {
                         "fen": self.board.fen,
@@ -423,7 +414,16 @@ class Game:
                         "clocks": clocks,
                     }
                 )
-                self.stopwatch.restart()
+
+                if self.status > STARTED:
+                    await self.save_game()
+                    if self.corr:
+                        await opp_player.notify_game_end(self)
+                    if self.simulId is not None:
+                        await self.app_state.simuls[self.simulId].game_update(self)
+                else:
+                    await self.save_move(move)
+                    self.stopwatch.restart()
 
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
