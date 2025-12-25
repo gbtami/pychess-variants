@@ -22,6 +22,10 @@ async def blogs(request):
     context["blog_tag"] = blog_tag
 
     context["blogs"] = blogs
-    context["tags"] = BLOG_TAGS
+    if user.game_category != "all":
+        available_tags = {tag for blog in blogs for tag in blog.get("tags", [])}
+        context["tags"] = [tag for tag in BLOG_TAGS if tag in available_tags]
+    else:
+        context["tags"] = BLOG_TAGS
 
     return context

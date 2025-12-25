@@ -7,7 +7,7 @@ import { VARIANTS } from '../variants';
 import { goBackToLayer1, variantBoard } from './util';
 import { layer3variant } from './layer3';
 
-export function layer2chess (lobbyCtrl: LobbyController, containerId: string): void {
+export function layer2chess(lobbyCtrl: LobbyController, containerId: string, showBack: boolean = true): void {
     const chess = VARIANTS['chess'];
     const placement = VARIANTS['placement'];
     const crazyhouse = VARIANTS['crazyhouse'];
@@ -20,14 +20,21 @@ export function layer2chess (lobbyCtrl: LobbyController, containerId: string): v
     const antichess = VARIANTS['antichess'];
     const racingkings = VARIANTS['racingkings'];
     const horde = VARIANTS['horde'];
+    const infoItems = [
+        h('h4', _('Chess Variants')),
+        variantBoard(chess, chess.startFen),
+        h('p.variant-category-description', _('Variants using a basic chess set but with different rules.')),
+    ];
+
+    if (showBack) {
+        infoItems.push(
+            h('h5#chessl2back', { class: { "icon": true, "icon-reply": true }, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2chesscont') } }, _('Go Back')),
+        );
+    }
+
     const layer2cont = h('div#layer2chesscont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
-            h('div.layer-two-category-info', [
-                h('h4', _('Chess Variants')),
-                variantBoard(chess, chess.startFen),
-                h('p.variant-category-description', _('Variants using a basic chess set but with different rules.')),
-                h('h5#chessl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2chesscont') } }, _('Go Back')),
-            ]),
+            h('div.layer-two-category-info', infoItems),
         ]),
         h('div.button-grid', [
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2chesscont', lobbyCtrl, 'chess') } }, [

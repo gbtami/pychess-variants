@@ -8,16 +8,23 @@ import { goBackToLayer1 } from './util';
 import { layer3variant } from './layer3';
 
 
-export function layer2army (lobbyCtrl: LobbyController, containerId: string): void {
+export function layer2army(lobbyCtrl: LobbyController, containerId: string, showBack: boolean = true): void {
     const assetUrl = lobbyCtrl.assetURL;
+    const infoItems = [
+        h('h4', _('New Army Variants')),
+        h('div.generic-image-container.fourarmykings', [h('img', { attrs: { src: assetUrl + "/images/4ArmyKings.svg" } })]),
+        h('p.variant-category-description', _('These variants have new armies with completely new pieces! Most of these variants pit these armies against the standard Chess army.')),
+    ];
+
+    if (showBack) {
+        infoItems.push(
+            h('h5#armyl2back', { class: { "icon": true, "icon-reply": true }, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2armycont') } }, _('Go Back')),
+        );
+    }
+
     const layer2cont = h('div#layer2armycont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [
-            h('div.layer-two-category-info', [
-                h('h4', _('New Army Variants')),
-                h('div.generic-image-container.fourarmykings', [ h('img', { attrs: { src: assetUrl + "/images/4ArmyKings.svg" } }) ]),
-                h('p.variant-category-description', _('These variants have new armies with completely new pieces! Most of these variants pit these armies against the standard Chess army.')),
-                h('h5#armyl2back', { class: {"icon": true, "icon-reply": true}, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2armycont') } }, _('Go Back')),
-            ]),
+            h('div.layer-two-category-info', infoItems),
         ]),
         h('div.button-grid', [
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'orda') } }, [

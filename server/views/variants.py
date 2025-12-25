@@ -2,7 +2,6 @@ import os
 
 import aiohttp_jinja2
 
-from const import VARIANT_GROUPS
 from lang import get_locale_ext
 from views import get_user_context
 from variants import VARIANTS, VARIANT_ICONS
@@ -16,10 +15,10 @@ async def variants(request):
     if (variant is not None) and ((variant not in VARIANTS) and variant != "terminology"):
         variant = "chess"
 
-    context["variants"] = VARIANTS
-    context["icons"] = VARIANT_ICONS
-    context["groups"] = VARIANT_GROUPS
+    context["variants"] = user.category_variants
+    context["groups"] = user.category_variant_groups
 
+    context["icons"] = VARIANT_ICONS
     locale = get_locale_ext(context)
 
     # try translated docs file first

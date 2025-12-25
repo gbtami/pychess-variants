@@ -191,11 +191,11 @@ class GameBug:
         return chat
 
     async def play_move(
-        self, move, clocks=None, clocks_b=None, board="a"  # , last_move_captured_role=None
-    ):
+        self, move, clocks=None, clocks_b=None, board="a"
+    ):  # , last_move_captured_role=None
         log.debug(
-            "play_move %r %r %r %r", move, clocks, clocks_b, board  # , last_move_captured_role
-        )
+            "play_move %r %r %r %r", move, clocks, clocks_b, board
+        )  # , last_move_captured_role
 
         if self.status > STARTED:
             log.warning("play_move: game %s already ended", self.id)
@@ -520,7 +520,11 @@ class GameBug:
     def game_start(self):
         return (
             '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n'
-            % (self.id, self.level, self.chess960)
+            % (
+                self.id,
+                self.level,
+                self.chess960,
+            )
         )
 
     @property

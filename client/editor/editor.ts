@@ -28,7 +28,7 @@ export function editorView(model: PyChessModel): VNode[] {
                 h('div.container', [
                     h('div', [
                         h('label', { attrs: { for: "variant" } }, _("Variant")),
-                        selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false), twoBoarsVariants), /*todo:bughouse editor not implemented*/
+                        selectVariant("variant", vVariant, () => setVariant(true), () => setVariant(false), twoBoarsVariants, model.gameCategory), /*todo:bughouse editor not implemented*/
                     ]),
                 ])
             ]),

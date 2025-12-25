@@ -273,6 +273,12 @@ async def get_user_games(request):
         }
         filter_cond = new_filter_cond
 
+    if user.game_category != "all":
+        allowed_codes = user.category_variant_codes
+        if not allowed_codes:
+            return web.json_response([])
+        filter_cond = {"$and": [filter_cond, {"v": {"$in": list(allowed_codes)}}]}
+
     page_num = request.rel_url.query.get("p", 0)
 
     game_doc_list = []

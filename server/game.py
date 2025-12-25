@@ -902,7 +902,11 @@ class Game:
         """BOT API stream event response"""
         return (
             '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n'
-            % (self.id, self.level, self.chess960)
+            % (
+                self.id,
+                self.level,
+                self.chess960,
+            )
         )
 
     @property

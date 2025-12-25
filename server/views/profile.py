@@ -47,9 +47,14 @@ async def profile(request):
     context["can_block"] = profileId not in user.blocked
     context["can_challenge"] = user.username not in profileId_user.blocked
 
+    allowed_variants = user.category_variant_set
+
     _id = "%s|%s" % (profileId, profileId_user.title)
     context["trophies"] = [
-        (v, "top10") for v in app_state.highscore if _id in app_state.highscore[v].keys()[:10]
+        (v, "top10")
+        for v in app_state.highscore
+        if _id in app_state.highscore[v].keys()[:10]
+        and (allowed_variants is None or v in allowed_variants)
     ]
     for i, (v, kind) in enumerate(context["trophies"]):
         if app_state.highscore[v].peekitem(0)[0] == _id:
@@ -59,13 +64,15 @@ async def profile(request):
     if not app_state.users[profileId].bot:
         shield_owners = app_state.shield_owners
         context["trophies"] += [
-            (v, "shield") for v in shield_owners if shield_owners[v] == profileId
+            (v, "shield")
+            for v in shield_owners
+            if shield_owners[v] == profileId and (allowed_variants is None or v in allowed_variants)
         ]
 
     if profileId in CUSTOM_TROPHY_OWNERS:
         trophies = CUSTOM_TROPHY_OWNERS[profileId]
         for v, kind in trophies:
-            if v in VARIANTS:
+            if v in VARIANTS and (allowed_variants is None or v in allowed_variants):
                 context["trophies"].append((v, kind))
 
     context["title"] = "Profile • " + profileId
@@ -78,6 +85,10 @@ async def profile(request):
     if profileId not in app_state.users or app_state.users[profileId].perfs is None:
         context["ratings"] = {}
     else:
+        perfs = app_state.users[profileId].perfs.items()
+        if user.game_category != "all":
+            perfs = [(k, v) for k, v in perfs if k in allowed_variants]
+
         context["ratings"] = {
             k: (
                 "%s%s"
@@ -88,13 +99,14 @@ async def profile(request):
                 v["nb"],
             )
             for (k, v) in sorted(
-                app_state.users[profileId].perfs.items(),
+                perfs,
                 key=lambda x: x[1]["nb"],
                 reverse=True,
             )
         }
         for v in NOT_RATED_VARIANTS:
-            context["ratings"][v] = ("1500?", 0)
+            if v in context["ratings"]:
+                context["ratings"][v] = ("1500?", 0)
 
     context["profile_title"] = (
         app_state.users[profileId].title if profileId in app_state.users else ""

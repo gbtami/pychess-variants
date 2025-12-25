@@ -1,6 +1,7 @@
 import aiohttp_jinja2
 
-from videos import VIDEO_TAGS, VIDEO_TARGETS
+from const import category_matches
+from videos import VIDEO_TAGS, VIDEO_TARGETS, VIDEO_CATEGORIES
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 
@@ -19,6 +20,10 @@ async def videos(request):
         cursor = app_state.db.video.find({"tags": tag})
 
     async for doc in cursor:
+        category = doc.get("category", VIDEO_CATEGORIES.get(doc["_id"], "all"))
+        doc["category"] = category
+        if not category_matches(user.game_category, category):
+            continue
         videos.append(doc)
 
     lang = context["lang"]
@@ -30,7 +35,11 @@ async def videos(request):
         return app_state.translations[lang].gettext(VIDEO_TARGETS[target])
 
     context["videos"] = videos
-    context["tags"] = VIDEO_TAGS
+    if user.game_category != "all":
+        available_tags = {tag for video in videos for tag in video.get("tags", [])}
+        context["tags"] = [tag for tag in VIDEO_TAGS if tag in available_tags]
+    else:
+        context["tags"] = VIDEO_TAGS
     context["video_tag"] = video_tag
     context["video_target"] = video_target
 
