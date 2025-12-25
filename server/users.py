@@ -5,6 +5,7 @@ from glicko2.glicko2 import DEFAULT_PERF
 from user import User
 import logging
 from variants import RATED_VARIANTS
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 

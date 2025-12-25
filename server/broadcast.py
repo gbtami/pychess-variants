@@ -6,6 +6,7 @@ from const import TYPE_CHECKING
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 import logging
+
 log = logging.getLogger(__name__)
 
 

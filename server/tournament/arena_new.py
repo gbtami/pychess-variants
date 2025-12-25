@@ -8,6 +8,7 @@ from const import ARENA
 from tournament.tournament import Tournament
 
 import logging
+
 log = logging.getLogger(__name__)
 
 

@@ -11,6 +11,7 @@ from user import User
 from utils import load_game, new_game, play_move
 from pychess_global_app_state_utils import get_app_state
 import logging
+
 log = logging.getLogger(__name__)
 
 

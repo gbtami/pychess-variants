@@ -146,7 +146,16 @@ async def import_game_bpgn(request):
         return web.json_response({"error": message})
 
     try:
-        log.info("%s %s %s %s %s %s %s", game_id, variant, initial_fen, wplayer_a, bplayer_a, wplayer_b, bplayer_b)
+        log.info(
+            "%s %s %s %s %s %s %s",
+            game_id,
+            variant,
+            initial_fen,
+            wplayer_a,
+            bplayer_a,
+            wplayer_b,
+            bplayer_b,
+        )
         # new_game = Game( todo: not sure why needed to create object at all at this point
         #     app,
         #     game_id,

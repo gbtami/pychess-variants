@@ -46,9 +46,7 @@ async def process_ws(
 
     await ws.prepare(request)
 
-    log.info(
-        "NEW %s WEBSOCKET by %s from %s", request.rel_url.path, user.username, request.remote
-    )
+    log.info("NEW %s WEBSOCKET by %s from %s", request.rel_url.path, user.username, request.remote)
 
     try:
         if init_msg is not None:
