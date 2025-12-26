@@ -523,7 +523,7 @@ async def export(request):
                     doc["d"].strftime("%Y.%m.%d"),
                 )
                 continue
-        log.info("failed/all:", failed, game_counter)
+        log.info("failed/all: %s/%s", failed, game_counter)
     except ConnectionResetError:
         log.exception("Client disconnected unexpectedly.")
     except Exception:

@@ -233,7 +233,7 @@ async def fishnet_move(request):
         async with game.move_lock:
             await play_move(app_state, user, game, move)
     else:
-        log.info("DISCARD FISHNET", move)
+        log.info("DISCARD FISHNET move %s", move)
 
     response = await get_work(app_state, data)
     return response

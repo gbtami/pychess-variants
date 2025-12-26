@@ -580,7 +580,7 @@ class Tournament(ABC):
             log.info("--- TOURNAMENT RESULT ---")
             for i in range(min(3, len(self.leaderboard))):
                 player = self.leaderboard.peekitem(i)[0]
-                log.info("--- #%s ---" % (i + 1), player.username)
+                log.info("--- #%s --- %s", (i + 1), player.username)
             log.info("--- CACHE INFO ---")
             log.info("%r", player_json.cache_info())
 
