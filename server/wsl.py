@@ -34,14 +34,20 @@ from tournament.tournament_spotlights import tournament_spotlights
 from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
 from utils import join_seek, load_game, remove_seek
 from websocket_utils import get_user, process_ws, ws_send_json
-from logger import log
+import logging
+import logger
+
 from variants import get_server_variant
+
+log = logging.getLogger(__name__)
 
 
 async def lobby_socket_handler(request):
     app_state = get_app_state(request.app)
     session = await aiohttp_session.get_session(request)
     user = await get_user(session, request)
+    logger.set_log_context("username", user.username)
+    logger.set_log_context("gameId", "lobby")
 
     ws = await process_ws(session, request, user, init_ws, process_message)
     if ws is None:
@@ -81,7 +87,7 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
 
 
 async def process_message(app_state: PychessGlobalAppState, user, ws, data):
-    print(user.username, data)
+    log.debug("message from %s: %r", user.username, data)
     if data["type"] == "create_ai_challenge":
         await handle_create_ai_challenge(app_state, ws, user, data)
     elif data["type"] == "create_seek":
@@ -208,7 +214,6 @@ async def handle_create_bot_challenge(app_state: PychessGlobalAppState, ws, user
 
     if (engine is None) or (not engine.online):
         return
-    print("--- wsl.py handle_create_bot_challenge()  ---")
 
     log.debug("Creating BOT challenge from request: %s", data)
     seek = await create_seek(

@@ -7,6 +7,10 @@ import rustworkx as rx
 from const import ARENA
 from tournament.tournament import Tournament
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 class ArenaTournament(Tournament):
     system = ARENA
@@ -31,10 +35,9 @@ class ArenaTournament(Tournament):
 
         nb_waiting_players = len(waiting_players)
 
-        print("=== WAITING PLAYERS ===", nb_waiting_players)
+        log.info("Waiting players: %s", nb_waiting_players)
         for p in waiting_players:
-            print("%20s %s" % (p.username, self.leaderboard[p]))
-        print("======================")
+            log.debug("%20s %s", p.username, self.leaderboard[p])
 
         def pair_them(x, y):
             if self.players[x].color_balance < self.players[y].color_balance:
@@ -55,10 +58,10 @@ class ArenaTournament(Tournament):
                 (g.wplayer.username if g.bplayer.username == x.username else g.bplayer.username)
                 for g in self.players[x].games
             ):
-                print("   find OK opp (they never played before!)", y.username)
+                log.info("find OK opp (they never played before!): %s", y.username)
                 pair_them(x, y)
             elif len(self.ongoing_games) == 0:
-                print("   find OK opp (duel!)", y.username)
+                log.info("find OK opp (duel!): %s", y.username)
                 pair_them(x, y)
 
             return pairing
@@ -112,17 +115,15 @@ class ArenaTournament(Tournament):
             except ValueError:
                 ind = edges.index((pair[1], pair[0]))
             sum_weight += weights[ind]
-            print(rxg[pair[0]], rxg[pair[1]], weights[ind])
+            log.debug("%r %r %r", rxg[pair[0]], rxg[pair[1]], weights[ind])
 
             pair_them(waiting_players[pair[0]], waiting_players[pair[1]])
 
-        print("len:%s weight_sum:%s" % (len(matching), sum_weight))
+        log.debug("len:%s weight_sum:%s", len(matching), sum_weight)
 
-        print("=== PAIRINGS ===")
         for p in pairing:
-            print(p[0].username, p[1].username)
-        print("======================")
+            log.debug("Pairing: %s %s", p[0].username, p[1].username)
 
         end = time.time()
-        print("PAIRING TIME:", end - start)
+        log.info("Pairing time: %r", end - start)
         return pairing

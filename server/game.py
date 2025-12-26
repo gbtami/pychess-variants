@@ -36,8 +36,10 @@ from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
 from spectators import spectators
-from logger import log
+import logging
 from variants import get_server_variant, GRANDS
+
+log = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -366,7 +368,7 @@ class Game:
                         else:
                             result = "1-0" if cur_color == BLACK else "0-1"
                         self.update_status(FLAG, result)
-                        print(self.result, "flag")
+                        log.info("result: %s %s", self.result, "flag")
                         await self.save_game()
         else:
             if (ply is not None) and ply <= 2 and self.tournamentId is not None:
@@ -402,15 +404,6 @@ class Game:
 
                 self.update_status()
 
-                if self.status > STARTED:
-                    await self.save_game()
-                    if self.corr:
-                        await opp_player.notify_game_end(self)
-                    if self.simulId is not None:
-                        await self.app_state.simuls[self.simulId].game_update(self)
-                else:
-                    await self.save_move(move)
-
                 self.steps.append(
                     {
                         "fen": self.board.fen,
@@ -421,7 +414,16 @@ class Game:
                         "clocks": clocks,
                     }
                 )
-                self.stopwatch.restart()
+
+                if self.status > STARTED:
+                    await self.save_game()
+                    if self.corr:
+                        await opp_player.notify_game_end(self)
+                    if self.simulId is not None:
+                        await self.app_state.simuls[self.simulId].game_update(self)
+                else:
+                    await self.save_move(move)
+                    self.stopwatch.restart()
 
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)

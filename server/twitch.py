@@ -13,7 +13,9 @@ from broadcast import broadcast_streams
 from settings import DEV, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
 from streamers import TWITCH_STREAMERS
 from pychess_global_app_state_utils import get_app_state
-from logger import log
+import logging
+
+log = logging.getLogger(__name__)
 
 TWITCH_OAUTH2_TOKEN_URL = "https://id.twitch.tv/oauth2/token"
 TWITCH_EVENTSUB_API_URL = "https://api.twitch.tv/helix/eventsub/subscriptions"
@@ -73,12 +75,12 @@ class Twitch:
         await self.get_subscriptions()
 
         for subscription_id in self.subscriptions:
-            print("delete subs id", subscription_id)
+            log.debug("delete subs id %s", subscription_id)
             await self.delete_subscription(subscription_id)
 
         uids = await self.get_users_data(TWITCH_STREAMERS.keys())
         for name, uid in uids:
-            print("request subs", name, uid)
+            log.debug("request subs %s %s", name, uid)
             await self.request_subscription(name, uid, "stream.online")
             await self.request_subscription(name, uid, "stream.offline")
             await self.request_subscription(name, uid, "channel.update")
@@ -87,7 +89,7 @@ class Twitch:
             await broadcast_streams(self.app)
 
     async def get_oauth_token(self):
-        log.debug("--- get_oauth_token from twitch ---")
+        log.debug("get_oauth_token from twitch")
         data = {
             "client_id": TWITCH_CLIENT_ID,
             "client_secret": TWITCH_CLIENT_SECRET,
@@ -118,7 +120,7 @@ class Twitch:
                     }
 
     async def delete_subscription(self, subscription_id):
-        log.debug("--- delete_subscription --- %s", subscription_id)
+        log.debug("delete_subscription %s", subscription_id)
         if subscription_id not in self.subscriptions:
             return
 
@@ -131,7 +133,7 @@ class Twitch:
 
     async def request_subscription(self, name, broadcaster_user_id, subscription_type):
         log.debug(
-            "--- request_subscription ---- %s %s %s",
+            "request_subscription: %s %s %s",
             name,
             broadcaster_user_id,
             subscription_type,
@@ -165,22 +167,19 @@ class Twitch:
                         )
 
     async def get_subscriptions(self):
-        log.debug("--- get_subscriptions from twitch ---")
+        log.debug("get_subscriptions from twitch")
         async with aiohttp.ClientSession() as client_session:
             async with client_session.get(TWITCH_EVENTSUB_API_URL, headers=self.headers) as resp:
                 response_data = await resp.json()
-                print("---response---")
                 for subs in response_data["data"]:
-                    print(subs)
-                    print("---")
+                    log.debug("subs: %r", subs)
                     self.subscriptions[subs["id"]] = subs
 
     async def get_users_data(self, usernames):
-        log.debug("--- get_users_data from twitch ---")
+        log.debug("get_users_data from twitch")
         async with aiohttp.ClientSession() as client_session:
             uids = []
             query_params = "&".join(["login=%s" % username for username in usernames])
-            print("---USERS")
             async with client_session.get(
                 "%s?%s" % (TWITCH_USERS_API_URL, query_params), headers=self.headers
             ) as resp:
@@ -190,11 +189,10 @@ class Twitch:
                 else:
                     json = await resp.json()
                     for user in json["data"]:
-                        print(user["login"], user["id"])
+                        log.debug("user: %s %s", user["login"], user["id"])
                         uids.append((user["login"], user["id"]))
 
             query_params = "&".join(["user_login=%s" % username for username in usernames])
-            print("---STREAMS")
             async with client_session.get(
                 "%s?%s" % (TWITCH_STREAMS_API_URL, query_params), headers=self.headers
             ) as resp:
@@ -204,7 +202,7 @@ class Twitch:
                 else:
                     json = await resp.json()
                     for stream in json["data"]:
-                        print(stream)
+                        log.debug("stream: %r", stream)
                         title = stream["title"]
                         streamer = stream["user_login"]
                         live = stream["type"] == "live"

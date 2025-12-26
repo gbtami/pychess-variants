@@ -12,7 +12,9 @@ from fairy import WHITE
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from utils import play_move
-from logger import log
+import logging
+
+log = logging.getLogger(__name__)
 
 
 async def BOT_task(bot, app_state: PychessGlobalAppState):

@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import logger
 import argparse
 import asyncio
 import logging
@@ -7,8 +7,6 @@ import os
 from urllib.parse import urlparse
 
 from aiohttp import web
-
-# from aiohttp.log import access_logger
 from aiohttp.web_app import Application
 from aiohttp_session import SimpleCookieStorage
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
@@ -41,7 +39,8 @@ from settings import (
 from users import NotInDbUsers
 from views import page404
 from lang import LOCALE
-from logger import log
+
+log = logging.getLogger(__name__)
 
 
 @web.middleware
@@ -179,6 +178,7 @@ async def init_state(app):
 
     app[pychess_global_app_state_key] = PychessGlobalAppState(app)
     await app[pychess_global_app_state_key].init_from_db()
+    await logger.start_config_refresh_timer(app[db_key])
 
     # create test tournament
     if 1:
@@ -203,26 +203,12 @@ async def close_mongodb_client(app):
 
 
 if __name__ == "__main__":
+    logger.init_default_logger()
     parser = argparse.ArgumentParser(description="PyChess chess variants server")
-    parser.add_argument(
-        "-v",
-        action="store_true",
-        help="Verbose output. Changes log level from INFO to DEBUG.",
-    )
-    parser.add_argument(
-        "-w",
-        action="store_true",
-        help="Less verbose output. Changes log level from INFO to WARNING.",
-    )
     parser.add_argument(
         "-s",
         action="store_true",
         help="Use SimpleCookieStorage. For testing purpose only!",
-    )
-    parser.add_argument(
-        "-m",
-        action="store_true",
-        help="Verbose mongodb logging. Changes log level from INFO to DEBUG.",
     )
     parser.add_argument(
         "-a",
@@ -230,13 +216,6 @@ if __name__ == "__main__":
         help="Turn anon users to test users that behave like logged in real users.",
     )
     args = parser.parse_args()
-
-    loglevel = logging.DEBUG if args.v else logging.WARNING if args.w else logging.INFO
-
-    log.setLevel(level=loglevel)
-    logging.getLogger("asyncio").setLevel(loglevel)
-
-    logging.getLogger("pymongo").setLevel(logging.DEBUG if args.m else logging.INFO)
 
     db_client = AsyncMongoClient(
         MONGO_HOST,

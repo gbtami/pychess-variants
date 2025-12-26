@@ -1,5 +1,6 @@
 import random
 import unittest
+import test_logger
 
 from aiohttp.test_utils import AioHTTPTestCase
 
@@ -14,6 +15,8 @@ from user import User
 from utils import insert_game_to_db
 from pychess_global_app_state_utils import get_app_state
 from variants import VARIANTS
+
+test_logger.init_test_logger()
 
 DEFAULT_PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 

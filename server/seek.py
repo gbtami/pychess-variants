@@ -4,9 +4,10 @@ from datetime import datetime, timezone
 from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
 from newid import new_id
-from logger import log
+import logging
 from variants import get_server_variant
 
+log = logging.getLogger(__name__)
 
 MAX_USER_SEEKS = 10
 

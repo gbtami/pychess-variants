@@ -10,10 +10,13 @@ from const import DARK_FEN, STARTED, GAME_CATEGORY_ALL
 from fairy import BLACK, WHITE
 from lang import LOCALE
 from pychess_global_app_state_utils import get_app_state
-from logger import log
+import logging
+
 from user import User
 from variants import ALL_VARIANTS
 from settings import SIMULING
+
+log = logging.getLogger(__name__)
 
 piece_css_path = Path(Path(__file__).parent.parent.parent, "static/piece-css")
 piece_sets = [x.name for x in piece_css_path.iterdir() if x.is_dir() and x.name != "mono"]

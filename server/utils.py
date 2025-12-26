@@ -52,8 +52,10 @@ from valid_fen import VALID_FEN
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
-from logger import log
+import logging
 from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
+
+log = logging.getLogger(__name__)
 
 
 async def tv_game(app_state: PychessGlobalAppState):
@@ -900,7 +902,16 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
         invalid6 = board.is_checked()
 
     if invalid0 or invalid1 or invalid2 or invalid3 or invalid4 or invalid5 or invalid6:
-        print(invalid0, invalid1, invalid2, invalid3, invalid4, invalid5, invalid6)
+        log.debug(
+            "%r %r %r %r %r %r %r",
+            invalid0,
+            invalid1,
+            invalid2,
+            invalid3,
+            invalid4,
+            invalid5,
+            invalid6,
+        )
         return False, ""
     return True, sanitized_fen
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import random
+import logging
 from datetime import datetime, timezone
 
 import aiohttp_session
@@ -16,6 +17,8 @@ from const import (
     normalize_game_category,
 )
 from variants import VARIANTS
+
+log = logging.getLogger(__name__)
 
 
 # This was used only once to rename the document properties
@@ -67,19 +70,19 @@ def daily_puzzle_category(key: str) -> str:
 
 
 async def rename_puzzle_fields(db):
-    print("-----------------------------------------")
-    print("Starting puzzle field rename migration...")
+    log.info("-----------------------------------------")
+    log.info("Starting puzzle field rename migration...")
     for old_name, new_name in FIELD_MAPPING.items():
         try:
             result = await db.puzzle.update_many(
                 {old_name: {"$exists": True}},
                 {"$rename": {old_name: new_name}},
             )
-            print(f"Renamed {old_name} -> {new_name} in {result.modified_count} documents.")
+            log.info(f"Renamed {old_name} -> {new_name} in {result.modified_count} documents.")
         except Exception as e:
-            print(f"Failed renaming {old_name} -> {new_name}: {e}")
-    print("Migration completed.")
-    print("--------------------")
+            log.info(f"Failed renaming {old_name} -> {new_name}: {e}")
+    log.info("Migration completed.")
+    log.info("--------------------")
 
 
 def empty_puzzle(variant):

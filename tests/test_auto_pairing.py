@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+import test_logger
 from itertools import product
 
 from mongomock_motor import AsyncMongoMockClient
@@ -18,6 +19,7 @@ from auto_pair import (
 )
 from variants import VARIANTS
 
+test_logger.init_test_logger()
 
 ONE_TEST_ONLY = False
 

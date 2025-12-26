@@ -23,6 +23,9 @@ from tournament.auto_play_arena import (
 )
 
 import logging
+import test_logger
+
+test_logger.init_test_logger()
 
 log = logging.getLogger(__name__)
 

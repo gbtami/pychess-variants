@@ -10,7 +10,9 @@ from settings import BOT_TOKENS
 from user import User
 from utils import load_game, new_game, play_move
 from pychess_global_app_state_utils import get_app_state
-from logger import log
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def authorized(func):
@@ -85,7 +87,7 @@ async def challenge_accept(request):
         while gameId not in app_state.invite_channels and wait_count < 10:
             asyncio.sleep(1)
             wait_count += 1
-            print("--- BOT_API challenge_accept() WAITING FOR SSE --- %s", wait_count)
+            log.debug("BOT_API challenge_accept() WAITING FOR SSE: %s", wait_count)
 
         try:
             # Put response data to sse subscriber queue
@@ -117,7 +119,7 @@ async def challenge_decline(request):
     while gameId not in app_state.invite_channels and wait_count < 10:
         await asyncio.sleep(1)
         wait_count += 1
-        print("--- BOT_API challenge_decline() WAITING FOR SSE --- %s", wait_count)
+        log.debug("BOT_API challenge_decline() WAITING FOR SSE: %s", wait_count)
 
     try:
         # Put response data to sse subscriber queue
@@ -158,7 +160,7 @@ async def event_stream(request):
                     "title": "BOT",
                 }
             )
-            print("db insert user result %s" % repr(result.inserted_id))
+            log.debug("db insert user result %r", result.inserted_id)
 
     bot_player.online = True
 
@@ -304,7 +306,7 @@ async def bot_chat(request):
     app_state = get_app_state(request.app)
 
     data = await request.post()
-    print("BOT-CHAT", username, data)  # noqa: F821
+    log.debug("BOT-CHAT %s %r", username, data)  # noqa: F821
 
     gameId = request.match_info["gameId"]
 

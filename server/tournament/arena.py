@@ -1,8 +1,10 @@
 from __future__ import annotations
 import time
-
+import logging
 from const import ARENA
 from tournament.tournament import Tournament
+
+log = logging.getLogger(__name__)
 
 
 class ArenaTournament(Tournament):
@@ -17,10 +19,9 @@ class ArenaTournament(Tournament):
 
         nb_waiting_players = len(waiting_players)
 
-        print("=== WAITING PLAYERS ===", nb_waiting_players)
+        log.info("WAITING PLAYERS: %s", nb_waiting_players)
         for p in waiting_players:
-            print("%20s %s" % (p.username, self.leaderboard[p]))
-        print("======================")
+            log.debug("%20s %s" % (p.username, self.leaderboard[p]))
 
         failed = 0
         failed_limit = nb_waiting_players
@@ -30,7 +31,7 @@ class ArenaTournament(Tournament):
                     self.players[waiting_players[0]].nb_not_paired += 1
                 break
             elif failed >= failed_limit:
-                print("!!! TOO MUCH fail, STOP PAIRING !!!", failed)
+                log.error("!!! TOO MUCH fail, STOP PAIRING !!! %s", failed)
                 break
 
             def pair_them(x, y):
@@ -60,11 +61,11 @@ class ArenaTournament(Tournament):
                         )
                         for g in self.players[x].games
                     ):
-                        print("   find OK opp (they never played before!)", y.username)
+                        log.info("Find OK opp (they never played before!): %s", y.username)
                         pair_them(x, y)
                         return True
                     elif self.ongoing_games == 0:
-                        print("   find OK opp (duel!)", y.username)
+                        log.info("Find OK opp (duel!): %s", y.username)
                         pair_them(x, y)
                         return True
                     else:
@@ -77,24 +78,24 @@ class ArenaTournament(Tournament):
                     y = a if self.players[a].nb_not_paired > self.players[b].nb_not_paired else b
 
                     if not self.just_played_together(x, y):
-                        print("   find OK opp from other remaining 2", y.username)
+                        log.info("Find OK opp from other remaining 2: %s", y.username)
                         pair_them(x, y)
                         return True
 
                 for y in waiting_players:
-                    print("   try", y.username)
+                    log.info("try %s", y.username)
                     if y.username == x.username:
-                        print("   SKIP the same")
+                        log.info("SKIP the same")
                         continue
                     if self.just_played_together(x, y):
-                        print("   FAIL, same prev_opp")
+                        log.info("FAIL, same prev_opp")
                         continue
 
                     if self.players[x].color_balance < color_balance_limit:
                         # player x played more black games
                         if self.players[x].color_balance >= self.players[y].color_balance:
-                            print(
-                                "   FAILED color_balance x vs y",
+                            log.info(
+                                "FAILED color_balance x vs y %s %s",
                                 self.players[x].color_balance,
                                 self.players[y].color_balance,
                             )
@@ -106,7 +107,7 @@ class ArenaTournament(Tournament):
                         find = True
                         wp, bp = y, x
 
-                    print("   find OK opp!", y.username)
+                    log.info("Find OK opp! %s", y.username)
                     waiting_players.remove(wp)
                     waiting_players.remove(bp)
 
@@ -115,7 +116,7 @@ class ArenaTournament(Tournament):
                 return find
 
             x = waiting_players[0]
-            print("pairing...", x.username)
+            log.info("pairing... %s", x.username)
 
             find = find_opp(0)
 
@@ -124,14 +125,14 @@ class ArenaTournament(Tournament):
                 find = find_opp(-1)
                 if not find:
                     failed += 1
-                    print("   1. OH NO, I can't find an opp for %s :(" % x.username)
+                    log.info("1. OH NO, I can't find an opp for %s :(" % x.username)
 
                     waiting_players.remove(x)
 
                     if len(waiting_players) > 1:
                         # OK try the second player now
                         x = waiting_players[0]
-                        print("pairing...", x.username)
+                        log.info("pairing... %s", x.username)
 
                         find = find_opp(0)
 
@@ -140,13 +141,12 @@ class ArenaTournament(Tournament):
                             find = find_opp(-1)
                             if not find:
                                 failed += 1
-                                print("   2. OH NO, I can't find an opp for %s :(" % x.username)
+                                log.info("2. OH NO, I can't find an opp for %s :(" % x.username)
 
-        print("=== PAIRINGS === failed", failed)
+        log.info("PAIRINGS failed: %s", failed)
         for p in pairing:
-            print(p[0].username, p[1].username)
-        print("======================")
+            log.info("%s %s", p[0].username, p[1].username)
 
         end = time.time()
-        print("PAIRING TIME:", end - start)
+        log.info("PAIRING TIME: %s", end - start)
         return pairing

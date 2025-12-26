@@ -1,5 +1,6 @@
 from __future__ import annotations
 import collections
+import logging
 
 from broadcast import broadcast_streams
 from const import NONE_USER, TYPE_CHECKING
@@ -12,6 +13,8 @@ from variants import VARIANTS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+
+log = logging.getLogger(__name__)
 
 
 def silence(app_state: PychessGlobalAppState, message):
@@ -79,7 +82,7 @@ async def ban(app_state: PychessGlobalAppState, message):
 
 async def crosstable(app_state: PychessGlobalAppState, message):
     parts = message.split()
-    print(parts)
+    log.debug("parts: %r", parts)
     if len(parts) == 2:
         user = await app_state.users.get(parts[1])
         if user.username != NONE_USER:

@@ -6,10 +6,13 @@ import cProfile
 import time
 import aiohttp
 
+import test_logger
 import pyffish as sf
 
 from websocket_utils import ws_send_json
 from settings import URI
+
+test_logger.init_test_logger()
 
 sf.set_option("VariantPath", "variants.ini")
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
-
 from variants import TWO_BOARD_VARIANT_CODES
+import logging
+
+log = logging.getLogger(__name__)
 
 
 async def generate_crosstable(app_state, username=None):
@@ -11,7 +13,7 @@ async def generate_crosstable(app_state, username=None):
         cursor = db.game.find().sort("d")
     else:
         cursor = db.game.find({"us": username}).sort("d")
-        print("START generate_crosstable", username)
+        log.info("START generate_crosstable %s", username)
 
     async for doc in cursor:
         if doc["v"] in TWO_BOARD_VARIANT_CODES:
@@ -79,4 +81,4 @@ async def generate_crosstable(app_state, username=None):
         for key, value in ct.items():
             # print(key, value)
             await db.crosstable.find_one_and_update({"_id": key}, {"$set": value}, upsert=True)
-    print("DONE generate_crosstable", username)
+    log.info("DONE generate_crosstable %s", username)

@@ -3,6 +3,9 @@
 import unittest
 
 from fairy import FairyBoard, STANDARD_FEN
+import test_logger
+
+test_logger.init_test_logger()
 
 # https://en.wikipedia.org/wiki/Alice_chess#Early_mates
 MATE1 = ("e2e4", "d7d5", "f1e2", "d5e4", "e2b5")

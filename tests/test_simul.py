@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
+import test_logger
 import time
 import aiohttp
 import pytest
@@ -13,10 +14,10 @@ from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from simul.simul import Simul
 from user import User
-from logger import log
 
+test_logger.init_test_logger()
 
-log.setLevel(level=logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 @pytest.mark.asyncio

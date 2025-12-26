@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import logging
 import unittest
+import test_logger
 from datetime import datetime, timezone
 from operator import neg
 
@@ -26,8 +26,7 @@ from variants import VARIANTS
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
 
-logging.basicConfig()
-logging.getLogger().setLevel(level=logging.ERROR)
+test_logger.init_test_logger()
 
 ZH960 = {
     "user0|NM": 1868,

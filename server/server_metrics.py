@@ -14,7 +14,8 @@ from aiohttp.web_ws import WebSocketResponse
 
 from clock import Clock
 from game import Game
-from logger import log
+import logging
+
 from lobby import Lobby
 from seek import Seek
 from user import User
@@ -26,29 +27,31 @@ from tournament.tournament import PlayerData, GameData
 from tournament.arena_new import ArenaTournament
 from pychess_global_app_state_utils import get_app_state
 
+log = logging.getLogger(__name__)
+
 
 def inspect_referrer(ref):
     if isinstance(ref, dict):
-        print("  Dictionary referrer:")
-        print("     ", list(ref.keys()))
+        log.info("  Dictionary referrer:")
+        log.info("     %s", list(ref.keys()))
     elif isinstance(ref, Task):
-        print("  TASK REFERRER   ")
-        print("     ", ref.get_name())
+        log.info("  TASK REFERRER   ")
+        log.info("     %s", ref.get_name())
     elif hasattr(ref, "__dict__"):
-        print("  Object referrer:")
-        print("     ", list(ref.__dict__.keys()))
+        log.info("  Object referrer:")
+        log.info("     %s", list(ref.__dict__.keys()))
     elif isinstance(ref, set):
-        print("  Set referrer:")
+        log.info("  Set referrer:")
         li = list(ref)
-        print("     ", li if len(li) == 0 else li[0])
+        log.info("     %s", li if len(li) == 0 else li[0])
     elif isinstance(ref, Iterable):
-        print("  Iterable referrer:")
+        log.info("  Iterable referrer:")
         try:
-            print("     ", ref if len(ref) == 0 else ref[0])
+            log.info("     %s", ref if len(ref) == 0 else ref[0])
         except TypeError:
-            print("     ", id(ref))
+            log.info("     %s", id(ref))
     else:
-        print(f"  Other referrer: {ref}")
+        log.info(f"  Other referrer: {ref}")
 
 
 # Helper function to calculate deep memory size

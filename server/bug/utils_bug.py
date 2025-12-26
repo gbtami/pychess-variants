@@ -18,8 +18,10 @@ from glicko2.glicko2 import gl2
 from newid import new_id
 from utils import remove_seek, round_broadcast, sanitize_fen
 from websocket_utils import ws_send_json
-from logger import log
+import logging
 from variants import C2V, GRANDS
+
+log = logging.getLogger(__name__)
 
 
 async def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b):
@@ -156,7 +158,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                 try:
                     game.steps[-1]["analysis"] = doc["a"][ply + 1]
                 except IndexError:
-                    print("IndexError", ply, move, san)
+                    log.error("IndexError %s %s %s", ply, move, san)
 
         except Exception:
             log.exception(
