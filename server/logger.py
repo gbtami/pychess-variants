@@ -6,7 +6,12 @@ from pymongo.asynchronous.database import AsyncDatabase
 
 log = logging.getLogger(__name__)
 
-
+############################################################################################
+###################################### NOTE!!! #############################################
+## Editing this config will not have effect until the config in mongo is updated          ##
+## This is only used on init, before the config from mongo is fetched                     ##
+## and as template if no config in mongo has been set yet                                 ##
+############################################################################################
 DEFAULT_LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
