@@ -18,7 +18,7 @@ DEFAULT_LOGGING_CONFIG = {
     },
     "handlers": {
         "default": {
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "standard",
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",  # Default is stderr
@@ -30,7 +30,7 @@ DEFAULT_LOGGING_CONFIG = {
         "": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         # frameworks:
         "asyncio": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "pymongo": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "pymongo": {"handlers": ["default"], "level": "INFO", "propagate": False},
         # pychess modules:
         "wsr": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "wsl": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
