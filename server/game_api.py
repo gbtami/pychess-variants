@@ -440,6 +440,16 @@ async def get_games(request):
     chess960 = variant.endswith("960") if variant else False
     if chess960:
         variant = variant[:-3]
+    allowed_variants = None
+    if variant is None:
+        session = await aiohttp_session.get_session(request)
+        session_user = session.get("user_name")
+        if session_user is not None:
+            if session_user in app_state.users:
+                user = app_state.users[session_user]
+            else:
+                user = await app_state.users.get(session_user)
+            allowed_variants = user.category_variant_set
     return web.json_response(
         [
             {
@@ -462,6 +472,11 @@ async def get_games(request):
             for game in games
             if game.status == STARTED
             and ((game.variant == variant and game.chess960 == chess960) if variant else True)
+            and (
+                (f"{game.variant}960" if game.chess960 else game.variant) in allowed_variants
+                if allowed_variants is not None
+                else True
+            )
         ][-20:]
     )
 
