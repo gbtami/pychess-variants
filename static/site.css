@@ -11,6 +11,12 @@
     0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
   --btn-shadow: 2px 1px 2px 0 rgba(0, 0, 0, 0.1);
   --dark-mode: 0;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+    "Noto Sans CJK SC", "Noto Sans CJK JP", "Noto Sans CJK KR", "PingFang SC",
+    "Hiragino Sans", "Hiragino Kaku Gothic Pro", "Microsoft YaHei",
+    "WenQuanYi Micro Hei", "Meiryo", "Malgun Gothic", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   --font-color: #4d4d4d;
   --link-color: #5e5e5e;
   --link-hover: #1b78d0;
@@ -240,7 +246,7 @@ variant-name {
 html {
   font-size: 12px;
   min-height: 100%;
-  font-family: 'Noto Sans', Sans-Serif;
+  font-family: var(--font-sans);
   box-sizing: border-box;
 }
 *,
@@ -285,7 +291,7 @@ h1,
 h2,
 h3 {
   font-weight: normal;
-  font-family: 'Roboto', Sans-Serif;
+  font-family: var(--font-sans);
 }
 h1 {
   padding: 4vh 0vh;
@@ -453,7 +459,7 @@ div.seeks {
   border-radius: 3px;
 }
 span[role=tab], div.seeks-table thead {
-  font-family: "Roboto", sans-serif;
+  font-family: var(--font-sans);
 }
 .seeks [data-icon]:before {
   font-size: 20px;
@@ -1681,7 +1687,7 @@ input {
 
 #misc-infow,
 #misc-infob {
-  font-family: 'Roboto Mono', 'Roboto';
+  font-family: var(--font-mono);
   font-size: 40px;
   font-weight: bold;
   text-align: right;
@@ -1694,7 +1700,7 @@ input {
   }
 }
 #misc-info-center {
-  font-family: 'Roboto Mono', 'Roboto';
+  font-family: var(--font-mono);
   font-size: 40px;
   font-weight: bold;
   text-align: center;
@@ -1931,7 +1937,7 @@ button.icon::-moz-focus-inner {
 .clock {
   display: inline-flex;
   text-align: center;
-  font-family: 'Roboto Mono', 'Roboto';
+  font-family: var(--font-mono);
   font-size: 2.9em;
   font-weight: bold;
   box-shadow: var(--btn-shadow);

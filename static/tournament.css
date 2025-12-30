@@ -257,7 +257,7 @@ div#stats {
 #stats h2 {
     background: linear-gradient(to bottom, var(--bg-meta) 0%, var(--bg-color2) 100%);
     font-size: 1.4em;
-    font-family: 'Roboto', Sans-Serif;
+    font-family: var(--font-sans);
     padding: 0.6rem 1rem;
     margin: 0;
     border-bottom: 1px solid var(--border-color);
@@ -292,7 +292,7 @@ td.result {
     flex-flow: column;
 }
 #clock {
-    font-family: 'Roboto', Sans-Serif;
+    font-family: var(--font-sans);
     color: var(--font-color);
     display: inline-block;
     font-weight: bold;
