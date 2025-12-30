@@ -38,11 +38,11 @@ yarn typecheck
 # Run JavaScript/TypeScript tests
 yarn test
 
-# Python code formatting
-black .
+# Python formatting
+ruff format .
 
 # Python linting
-flake8
+ruff check .
 
 # Python unit tests
 PYTHONPATH=server python -m unittest discover -s tests

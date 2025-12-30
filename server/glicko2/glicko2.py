@@ -9,6 +9,7 @@ The Glicko2 rating system.
 :Modified by Bajusz Tamás
 :license: BSD, see LICENSE for more details.
 """
+
 from typing import Tuple
 import math
 from calendar import timegm

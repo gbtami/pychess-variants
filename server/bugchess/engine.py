@@ -147,7 +147,9 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
         self._thread_local._watcher = watcher
 
     def new_event_loop(self) -> asyncio.AbstractEventLoop:
-        return asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()  # type: ignore
+        return (
+            asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()
+        )  # type: ignore
 
     def set_event_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         super().set_event_loop(loop)

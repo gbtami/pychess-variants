@@ -29,8 +29,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black==25.12.0",
-    "flake8==7.3.0",
     "mongomock-motor==0.0.36",
     "motor==3.7.1",
     "mypy==1.19.1",
@@ -39,10 +37,12 @@ dev = [
     "pre-commit>=4.3.0",
     "pytest<10.0.0",
     "pytest-aiohttp==1.1.0",
+    "ruff==0.14.10",
 ]
 
-[tool.black]
+[tool.ruff]
 line-length = 100
+target-version = "py312"
 
 [tool.setuptools]
 packages = []  # Disable package discovery

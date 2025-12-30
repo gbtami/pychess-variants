@@ -81,7 +81,6 @@ async def challenge_accept(request):
     result = await new_game(app_state, seek, gameId)  # noqa: F821
 
     if result["type"] == "new_game":
-
         # TODO: use asyncio.Event()
         wait_count = 0
         while gameId not in app_state.invite_channels and wait_count < 10:

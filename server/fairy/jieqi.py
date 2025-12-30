@@ -64,7 +64,7 @@ def square_to_index(square):
 @lru_cache(maxsize=None)
 def index_to_square(index):
     row, col = divmod(index, 9)
-    return f"{chr(ord('a')+col)}{10-row}"
+    return f"{chr(ord('a') + col)}{10 - row}"
 
 
 def make_initial_mapping(black_pieces, red_pieces):

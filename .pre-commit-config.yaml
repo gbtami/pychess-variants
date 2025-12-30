@@ -1,10 +1,14 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.10
     hooks:
-      - id: black
+      - id: ruff
         # It is recommended to specify the latest version of Python
         # supported by your project here, or alternatively use
         # pre-commit's default_language_version, see
         # https://pre-commit.com/#top_level-default_language_version
+        files: ^(server|tests)/
+        language_version: python3.12
+      - id: ruff-format
+        files: ^(server|tests)/
         language_version: python3.12

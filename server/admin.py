@@ -99,7 +99,6 @@ async def highscore(app_state: PychessGlobalAppState, message):
 async def fishnet(app_state: PychessGlobalAppState, message):
     parts = message.split()
     if len(parts) == 3:
-
         if parts[1] == "add":
             key = await new_id(app_state.db.fishnet)
             name = parts[2]

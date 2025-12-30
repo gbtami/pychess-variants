@@ -940,7 +940,9 @@ class MemoryMappedReader:
             index = len(self) + index
 
         try:
-            key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, index * ENTRY_STRUCT.size)  # type: ignore
+            key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(
+                self.mmap, index * ENTRY_STRUCT.size
+            )  # type: ignore
         except struct.error:
             raise IndexError()
 

@@ -38,12 +38,8 @@ class GameBugClocks:
             ],
         }
 
-        self.last_server_clock = (
-            monotonic()
-        )  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
-        self.last_server_clockB = (
-            self.last_server_clock
-        )  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
+        self.last_server_clock = monotonic()  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
+        self.last_server_clockB = self.last_server_clock  # the last time a move was made on board A - we reconstruct current time on client refresh/reconnect from this
 
         self.stopwatches = {
             "a": Clock(
