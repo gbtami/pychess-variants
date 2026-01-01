@@ -98,12 +98,14 @@ class GameBugClocks:
             await self.stopwatches["a"].clock_task
         except asyncio.CancelledError:
             pass
+        self.stopwatches["a"].clock_task = None
 
         self.stopwatches["b"].clock_task.cancel()
         try:
             await self.stopwatches["b"].clock_task
         except asyncio.CancelledError:
             pass
+        self.stopwatches["b"].clock_task = None
 
     def get_ply_clocks_for_board_and_color(self, board, color):
         return [p[color] for p in self.ply_clocks[board]]

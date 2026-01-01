@@ -594,6 +594,11 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
 
     if user.abandon_game_task is not None:
         user.abandon_game_task.cancel()
+        try:
+            await user.abandon_game_task
+        except asyncio.CancelledError:
+            pass
+        user.abandon_game_task = None
 
     response = {"type": "fullchat", "lines": list(game.messages)}
     await ws_send_json(ws, response)

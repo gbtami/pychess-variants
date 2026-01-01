@@ -64,7 +64,6 @@ class GameBug:
         self.app_state = app_state
 
         self.saved = False
-        self.remove_task = None
 
         self.variant = variant
         self.initial_fen = initial_fen

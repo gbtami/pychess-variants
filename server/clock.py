@@ -32,7 +32,8 @@ class Clock:
 
     def cleanup(self):
         self.stop()
-        self.game = None
+        self.clock_task = None
+        # self.game = None
 
     def restart(self, secs=None):
         self.ply = self.game.ply
@@ -148,7 +149,8 @@ class CorrClock:
 
     def cleanup(self):
         self.stop()
-        self.game = None
+        self.clock_task = None
+        # self.game = None
 
     def restart(self, from_db=False):
         self.ply = self.game.ply

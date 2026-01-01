@@ -80,7 +80,6 @@ class Game:
         self.app_state = app_state
 
         self.saved = False
-        self.remove_task = None
 
         self.variant = variant
         self.initial_fen = initial_fen
@@ -481,12 +480,12 @@ class Game:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
 
-        self.stopwatch.cleanup()
         self.stopwatch.clock_task.cancel()
         try:
             await self.stopwatch.clock_task
         except asyncio.CancelledError:
             pass
+        self.stopwatch.cleanup()
 
         if self.board.ply > 0:
             self.app_state.g_cnt[0] -= 1
