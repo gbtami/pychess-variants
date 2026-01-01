@@ -1570,10 +1570,10 @@ expect@30.2.0:
     jest-mock "30.2.0"
     jest-util "30.2.0"
 
-fairy-stockfish-nnue.wasm@^1.1.10:
-  version "1.1.10"
-  resolved "https://registry.yarnpkg.com/fairy-stockfish-nnue.wasm/-/fairy-stockfish-nnue.wasm-1.1.10.tgz#8292ef2b3729fa9792fc3e883257781a69fd6e3b"
-  integrity sha512-yxeRxyfYKsDbAEKUbcc0qepH+clk0NaH1tCMcvkkX1iGBvub9UbZIFIVLhh4XysiLBatOJaSTUrzyqVkKOVx6A==
+fairy-stockfish-nnue.wasm@^1.1.11:
+  version "1.1.11"
+  resolved "https://registry.yarnpkg.com/fairy-stockfish-nnue.wasm/-/fairy-stockfish-nnue.wasm-1.1.11.tgz#e47d563956bbc9a47817823a60800d2b9dc95bc1"
+  integrity sha512-D5pocLErreRW+S1EPhprfeKo7iVWzLBIgWp5e8oRySDuNXopill2fRamUBRW4syWLAo4GMRr4noiE5b5F2sRkQ==
 
 fast-json-stable-stringify@2.x, fast-json-stable-stringify@^2.1.0:
   version "2.1.0"
