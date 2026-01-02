@@ -11,7 +11,7 @@ from sortedcollections import ValueSortedDict
 from mongomock_motor import AsyncMongoMockClient
 
 import game
-from const import CLAIM, CREATED, STALEMATE, MATE, reserved
+from const import CLAIM, CREATED, STALEMATE, MATE
 from fairy import FairyBoard
 from game import Game
 from bug.game_bug import GameBug
