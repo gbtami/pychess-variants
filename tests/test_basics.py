@@ -236,11 +236,6 @@ class SanitizeFenTestCase(unittest.TestCase):
 
 class RequestLobbyTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
-        app_state = get_app_state(self.app)
-        for user in app_state.users.values():
-            if user.anon and not reserved(user.username):
-                user.remove_task.cancel()
-
         await self.client.close()
 
     async def get_application(self):

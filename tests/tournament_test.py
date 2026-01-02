@@ -43,13 +43,6 @@ class TournamentTestCase(AioHTTPTestCase):
             if game.status <= STARTED:
                 await game.abort_by_server()
 
-            if game.remove_task is not None:
-                game.remove_task.cancel()
-                try:
-                    await game.remove_task
-                except asyncio.CancelledError:
-                    pass
-
         if has_games:
             for task in self.tournament.game_tasks:
                 task.cancel()
