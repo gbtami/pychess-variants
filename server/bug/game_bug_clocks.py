@@ -1,4 +1,3 @@
-import asyncio
 from time import monotonic
 
 from clock import Clock
