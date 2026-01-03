@@ -132,9 +132,11 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user, game):
             user.update_online()
 
         if user in (game.wplayer, game.bplayer) and (not game.corr):
-            user.abandon_game_task = asyncio.create_task(
+            task = asyncio.create_task(
                 user.abandon_game(game), name="abandone-game-%s-%s" % (user.username, game.id)
             )
+            user.abandon_game_tasks[game.id] = task
+            task.add_done_callback(lambda task: user.abandon_task_done(task, game.id))
         else:
             game.spectators.discard(user)
             await round_broadcast(game, game.spectator_list, full=True)
@@ -592,13 +594,14 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
     }
     await ws_send_json(ws, response)
 
-    if user.abandon_game_task is not None:
-        user.abandon_game_task.cancel()
+    if game.id in user.abandon_game_tasks:
+        task = user.abandon_game_tasks[game.id]
+        task.cancel()
         try:
-            await user.abandon_game_task
+            await task
         except asyncio.CancelledError:
             pass
-        user.abandon_game_task = None
+        user.abandon_task_done(task, game.id)
 
     response = {"type": "fullchat", "lines": list(game.messages)}
     await ws_send_json(ws, response)

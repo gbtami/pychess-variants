@@ -48,7 +48,7 @@ log = logging.getLogger(__name__)
 SILENCE = 15 * 60
 ANON_TIMEOUT = 10 * 60
 PENDING_SEEK_TIMEOUT = 10
-ABANDON_TIMEOUT = 90
+ABANDON_TIMEOUT = 30
 
 
 class RatingResetError(Exception):
@@ -106,7 +106,7 @@ class User:
         self.game_sockets: dict[str, WebSocketResponse] = {}
         self.title = title
         self.game_in_progress = None
-        self.abandon_game_task = None
+        self.abandon_game_tasks = {}
         self.correspondence_games: List[Game] = []
 
         self.blocked = set()
@@ -173,6 +173,12 @@ class User:
                             "User.remove() KeyError. Failed to del %s from users", self.username
                         )
                     break
+
+    def abandon_task_done(self, task, game_id):
+        try:
+            del self.abandon_game_tasks[game_id]
+        except KeyError:
+            pass
 
     async def abandon_game(self, game):
         abandon_timeout = ABANDON_TIMEOUT * (2 if game.base >= 3 else 1)
