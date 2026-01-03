@@ -30,9 +30,17 @@ class Clock:
         self.running = False
         return self.secs
 
-    def cleanup(self):
+    async def cancel(self):
         self.stop()
-        self.clock_task = None
+
+        if self.clock_task and not self.clock_task.done():
+            self.clock_task.cancel()
+            try:
+                await self.clock_task
+            except asyncio.CancelledError:
+                pass
+
+        self.clock_task = None  # Break strong reference
         # self.game = None
 
     def restart(self, secs=None):
@@ -147,9 +155,17 @@ class CorrClock:
         self.running = False
         return self.mins
 
-    def cleanup(self):
+    async def cancel(self):
         self.stop()
-        self.clock_task = None
+
+        if self.clock_task and not self.clock_task.done():
+            self.clock_task.cancel()
+            try:
+                await self.clock_task
+            except asyncio.CancelledError:
+                pass
+
+        self.clock_task = None  # Break strong reference
         # self.game = None
 
     def restart(self, from_db=False):
