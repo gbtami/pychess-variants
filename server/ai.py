@@ -16,6 +16,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
+bot_game_tasks = set()
+
 
 async def BOT_task(bot, app_state: PychessGlobalAppState):
     async def game_task(bot, game, level, random_mover):
@@ -37,11 +39,15 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
             if event["type"] != "gameState":
                 continue
             # print("   +++ game_queues get()", event)
-            if random_mover:
-                async with game.move_lock:
-                    await play_move(app_state, bot, game, random.choice(game.legal_moves))
-            elif len(app_state.workers) > 0:
-                AI_move(game, level)
+            try:
+                if random_mover:
+                    async with game.move_lock:
+                        await play_move(app_state, bot, game, random.choice(game.legal_moves))
+                elif len(app_state.workers) > 0:
+                    AI_move(game, level)
+            except Exception:
+                log.error("Break in BOT_task() game_task(). %s BOT play_move/AI_move failed", game.id)
+                break
 
     def AI_move(game, level):
         work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
@@ -104,4 +110,6 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
             else:
                 AI_move(game, level)
 
-        asyncio.create_task(game_task(bot, game, level, random_mover), name="bot-game-%s" % game.id)
+        task = asyncio.create_task(game_task(bot, game, level, random_mover), name="bot-game-%s" % game.id)
+        bot_game_tasks.add(task)
+        task.add_done_callback(bot_game_tasks.discard)

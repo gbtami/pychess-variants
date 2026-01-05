@@ -157,7 +157,10 @@ class User:
 
         # purge inactive anon users after ANON_TIMEOUT sec
         if self.anon and not reserved(self.username):
-            asyncio.create_task(self.remove(), name="user-remove-%s" % self.username)
+            task = asyncio.create_task(self.remove(), name="user-remove-%s" % self.username)
+            self.remove_anon_task = task
+        else:
+            self.remove_anon_task = None
 
     async def remove(self):
         while True:
@@ -173,6 +176,7 @@ class User:
                             "User.remove() KeyError. Failed to del %s from users", self.username
                         )
                     break
+        self.remove_anon_task = None
 
     def abandon_task_done(self, task, game_id):
         try:
@@ -184,12 +188,20 @@ class User:
         abandon_timeout = ABANDON_TIMEOUT * (2 if game.base >= 3 else 1)
         await asyncio.sleep(abandon_timeout)
         if game.status <= STARTED and not self.is_user_active_in_game(game.id):
-            if game.bot_game or self.anon:
-                response = await game.game_ended(self, "abandon")
-                await round_broadcast(game, response)
-            else:
-                # TODO: message opp to let him claim win
-                pass
+            response = await game.game_ended(self, "abandon")
+            await round_broadcast(game, response)
+
+            opp_name = (
+                game.wplayer.username if self.username == game.bplayer.username else game.bplayer.username
+            )
+            users = self.app_state.users
+            if opp_name in users:
+                opp_player = users[opp_name]
+                if opp_player.bot:
+                    if game.id in opp_player.game_queues:
+                        await opp_player.game_queues[game.id].put(game.game_end)
+                else:
+                    await opp_player.send_game_message(game.id, response)
 
     def update_online(self):
         self.online = (
