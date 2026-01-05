@@ -192,7 +192,9 @@ class User:
             await round_broadcast(game, response)
 
             opp_name = (
-                game.wplayer.username if self.username == game.bplayer.username else game.bplayer.username
+                game.wplayer.username
+                if self.username == game.bplayer.username
+                else game.bplayer.username
             )
             users = self.app_state.users
             if opp_name in users:

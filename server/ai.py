@@ -46,7 +46,9 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
                 elif len(app_state.workers) > 0:
                     AI_move(game, level)
             except Exception:
-                log.error("Break in BOT_task() game_task(). %s BOT play_move/AI_move failed", game.id)
+                log.error(
+                    "Break in BOT_task() game_task(). %s BOT play_move/AI_move failed", game.id
+                )
                 break
 
     def AI_move(game, level):
@@ -110,6 +112,8 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
             else:
                 AI_move(game, level)
 
-        task = asyncio.create_task(game_task(bot, game, level, random_mover), name="bot-game-%s" % game.id)
+        task = asyncio.create_task(
+            game_task(bot, game, level, random_mover), name="bot-game-%s" % game.id
+        )
         bot_game_tasks.add(task)
         task.add_done_callback(bot_game_tasks.discard)
