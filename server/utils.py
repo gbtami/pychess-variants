@@ -189,6 +189,11 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
     game.status = doc["s"]
     game.level = level if level is not None else 0
     game.result = C2R[doc["r"]]
+    if game.status > STARTED:
+        # Finished games loaded from DB should not keep a live clock task.
+        # Cancel immediately so the clock does not pin the game in memory
+        # during the cache retention window.
+        await game.stopwatch.cancel()
 
     try:
         game.wrating = doc["p0"]["e"]

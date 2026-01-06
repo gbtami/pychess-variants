@@ -238,6 +238,10 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
 
     app_state.games[game_id] = game
     if game.status > STARTED:
+        # Finished bughouse games loaded from DB should not keep their clock
+        # tasks running; cancel them immediately to prevent leaks.
+        await game.gameClocks.cancel_stopwatches()
+    if game.status > STARTED:
         asyncio.create_task(app_state.remove_from_cache(game), name="game-remove-%s" % game_id)
     log.debug("load_game_bug parse DONE")
 

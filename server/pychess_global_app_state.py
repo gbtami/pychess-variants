@@ -30,6 +30,7 @@ from const import (
     SCHEDULE_MAX_DAYS,
     ABORTED,
     GAME_CATEGORIES,
+    reserved,
 )
 from broadcast import round_broadcast
 from discord_bot import DiscordBot, FakeDiscordBot
@@ -83,6 +84,9 @@ from puzzle import rename_puzzle_fields
 log = logging.getLogger(__name__)
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
+# Local dev/test cache retention; keep this small so unit tests and local runs
+# can purge quickly without waiting a full GAME_KEEP_TIME.
+LOCALHOST_CACHE_KEEP_TIME = 1
 
 
 class PychessGlobalAppState:
@@ -501,7 +505,14 @@ class PychessGlobalAppState:
         return result
 
     async def remove_from_cache(self, game):
-        await asyncio.sleep(1 if URI == LOCALHOST else GAME_KEEP_TIME)
+        await asyncio.sleep(LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else GAME_KEEP_TIME)
+
+        # Cancel any still-running clocks to break task -> game references
+        # even when a finished game was loaded from DB and never saved in-memory.
+        if hasattr(game, "stopwatch"):
+            await game.stopwatch.cancel()
+        elif hasattr(game, "gameClocks"):
+            await game.gameClocks.cancel_stopwatches()
 
         if game.id == self.tv:
             self.tv = None
@@ -517,7 +528,75 @@ class PychessGlobalAppState:
             except KeyError:
                 log.error("Failed to del %s from game_queues", game.id)
 
+        # Opportunistically remove idle anon users once their last cached game
+        # falls out of memory, to avoid long-lived user-remove tasks and stale
+        # user objects that are no longer reachable from any active socket/game.
+        players = getattr(game, "all_players", None)
+        if players is None and hasattr(game, "wplayerA"):
+            players = [game.wplayerA, game.bplayerA, game.wplayerB, game.bplayerB]
+        if players is not None:
+            for player in players:
+                await self._maybe_remove_idle_anon_user(player)
+
         log.debug("Removed %s OK", game.id)
+
+    async def _maybe_remove_idle_anon_user(self, user: User):
+        # This cleanup is intentionally conservative: only remove anon users that
+        # are offline, have no active games/seeks, and are not reserved system users.
+        if user is None or (not user.anon) or reserved(user.username):
+            return
+
+        # Refresh online status based on socket sets to avoid stale flags.
+        user.update_online()
+        if user.online:
+            return
+
+        if user.game_in_progress is not None:
+            return
+        if user.correspondence_games:
+            return
+        if user.is_user_active_in_game() or user.is_user_active_in_lobby():
+            return
+
+        # Clear any pending abandon timers that would keep the user alive.
+        for task in list(user.abandon_game_tasks.values()):
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+        user.abandon_game_tasks.clear()
+
+        # Remove from auto pairing and any leftover seek references so stale
+        # lobby state does not keep this user alive.
+        user.remove_from_auto_pairings()
+        removed_seek = False
+        for seek_id in list(user.seeks):
+            if seek_id in self.seeks:
+                del self.seeks[seek_id]
+                removed_seek = True
+            del user.seeks[seek_id]
+        if removed_seek:
+            # Inform active lobby clients that these seeks are gone.
+            await self.lobby.lobby_broadcast_seeks()
+
+        # Drop any lobby/tournament socket bookkeeping entries if they linger.
+        self.lobby.lobbysockets.pop(user.username, None)
+        for tid in list(self.tourneysockets):
+            self.tourneysockets[tid].pop(user.username, None)
+
+        # Stop and clear the per-user removal task so it does not linger.
+        if user.remove_anon_task is not None and not user.remove_anon_task.done():
+            user.remove_anon_task.cancel()
+            try:
+                await user.remove_anon_task
+            except asyncio.CancelledError:
+                pass
+        user.remove_anon_task = None
+
+        # Finally remove the user from the global cache.
+        if user.username in self.users:
+            del self.users[user.username]
 
     async def server_shutdown(self):
         self.shutdown = True
