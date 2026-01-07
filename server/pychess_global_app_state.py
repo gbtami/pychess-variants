@@ -531,12 +531,8 @@ class PychessGlobalAppState:
         # Opportunistically remove idle anon users once their last cached game
         # falls out of memory, to avoid long-lived user-remove tasks and stale
         # user objects that are no longer reachable from any active socket/game.
-        players = getattr(game, "all_players", None)
-        if players is None and hasattr(game, "wplayerA"):
-            players = [game.wplayerA, game.bplayerA, game.wplayerB, game.bplayerB]
-        if players is not None:
-            for player in players:
-                await self._maybe_remove_idle_anon_user(player)
+        for player in game.all_players:
+            await self._maybe_remove_idle_anon_user(player)
 
         log.debug("Removed %s OK", game.id)
 

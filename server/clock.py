@@ -154,12 +154,9 @@ class Clock:
     async def _notify_bot_game_end(self):
         # This is intentionally conservative: only wake bot queues when a bot
         # is involved, and only if the queue still exists for this game.
-        if not getattr(self.game, "bot_game", False):
+        if not self.game.bot_game:
             return
-        players = getattr(self.game, "all_players", None)
-        if players is None:
-            return
-        for player in players:
+        for player in self.game.all_players:
             if player.bot and self.game.id in player.game_queues:
                 await player.game_queues[self.game.id].put(self.game.game_end)
 
@@ -261,11 +258,8 @@ class CorrClock:
     async def _notify_bot_game_end(self):
         # Mirror Clock._notify_bot_game_end so bot tasks do not stick around
         # when a correspondence game ends on time.
-        if not getattr(self.game, "bot_game", False):
+        if not self.game.bot_game:
             return
-        players = getattr(self.game, "all_players", None)
-        if players is None:
-            return
-        for player in players:
+        for player in self.game.all_players:
             if player.bot and self.game.id in player.game_queues:
                 await player.game_queues[self.game.id].put(self.game.game_end)
