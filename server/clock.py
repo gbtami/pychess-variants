@@ -13,6 +13,10 @@ log = logging.getLogger(__name__)
 
 ESTIMATE_MOVES = 40
 CORR_TICK = 60
+# Bot games can be created without ever opening a game websocket. For those cases,
+# keep a finite "first move" timeout so the game (and its clock task) does not stay
+# in memory forever if the human never shows up.
+BOT_FIRST_MOVE_TIMEOUT = 5 * 60 * 1000
 
 
 class Clock:
@@ -51,14 +55,19 @@ class Clock:
         else:
             # give some time to make first move
             if self.ply < 2 and not self.game.server_variant.two_boards:
-                if self.game.tournamentId is None:
-                    # Non tournament games are not timed for the first moves of either
-                    # player. We stop the clock to prevent unnecessary clock
-                    # updates and to give players unlimited time.
+                if self.game.tournamentId is None and not self.game.bot_game:
+                    # Non-tournament human games keep unlimited first-move time,
+                    # because these sessions are expected to stay active and we
+                    # do not want to auto-abort legitimate casual play.
                     self.running = False
                     return
-                # Rated games have their first move time set
-                self.secs = self.time_for_first_move
+                if self.game.bot_game and self.game.tournamentId is None:
+                    # For casual bot games we still want a finite timeout so that
+                    # a never-opened game cannot pin memory indefinitely.
+                    self.secs = BOT_FIRST_MOVE_TIMEOUT
+                else:
+                    # Rated games keep their normal first-move timeout.
+                    self.secs = self.time_for_first_move
             else:
                 # now this same clock object starts measuring the time of the other player - set to what it was when he moved last time
                 self.secs = (
@@ -95,6 +104,10 @@ class Clock:
                         async with self.game.move_lock:
                             response = await self.game.game_ended(user, reason)
                             await round_broadcast(self.game, response, full=True)
+                            # If a clock expires, there may be no further gameState
+                            # messages to wake bot queues. Push gameEnd so bot tasks
+                            # can exit and release their references.
+                            await self._notify_bot_game_end()
                         return
 
             # After stop() we are just waiting for next restart
@@ -137,6 +150,15 @@ class Clock:
                 base = 35
 
         return base * 1000
+
+    async def _notify_bot_game_end(self):
+        # This is intentionally conservative: only wake bot queues when a bot
+        # is involved, and only if the queue still exists for this game.
+        if not self.game.bot_game:
+            return
+        for player in self.game.all_players:
+            if player.bot and self.game.id in player.game_queues:
+                await player.game_queues[self.game.id].put(self.game.game_end)
 
 
 class CorrClock:
@@ -208,6 +230,9 @@ class CorrClock:
                 async with self.game.move_lock:
                     response = await self.game.game_ended(user, reason)
                     await round_broadcast(self.game, response, full=True)
+                    # Same rationale as in Clock: ensure bot queues receive a
+                    # terminal event when the correspondence clock ends a game.
+                    await self._notify_bot_game_end()
                 return
 
             # After stop() we are just waiting for next restart
@@ -229,3 +254,12 @@ class CorrClock:
 
         # to prevent creating more than one notification for the same ply
         self.alarms.add(self.game.board.ply)
+
+    async def _notify_bot_game_end(self):
+        # Mirror Clock._notify_bot_game_end so bot tasks do not stick around
+        # when a correspondence game ends on time.
+        if not self.game.bot_game:
+            return
+        for player in self.game.all_players:
+            if player.bot and self.game.id in player.game_queues:
+                await player.game_queues[self.game.id].put(self.game.game_end)

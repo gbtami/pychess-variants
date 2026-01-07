@@ -17,14 +17,28 @@ import logging
 log = logging.getLogger(__name__)
 
 bot_game_tasks = set()
+# Poll interval for bot queues when no messages are arriving; this prevents
+# stuck bot-game tasks from keeping finished games and players alive forever.
+BOT_QUEUE_POLL_SECS = 5
 
 
 async def BOT_task(bot, app_state: PychessGlobalAppState):
     async def game_task(bot, game, level, random_mover):
         while game.status <= STARTED:
             try:
-                line = await bot.game_queues[game.id].get()
-                bot.game_queues[game.id].task_done()
+                queue = bot.game_queues.get(game.id)
+                if queue is None:
+                    # The queue was removed during cleanup; exit so this task
+                    # does not keep the game referenced.
+                    break
+                line = await asyncio.wait_for(queue.get(), timeout=BOT_QUEUE_POLL_SECS)
+                queue.task_done()
+            except asyncio.TimeoutError:
+                # Periodically re-check game status so we can exit even if no
+                # further messages are enqueued (e.g., clock/abort endings).
+                if game.status > STARTED:
+                    break
+                continue
             except ValueError:
                 log.error(
                     "task_done() called more times than there were items placed in the queue in ai.py game_task()"

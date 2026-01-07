@@ -22,7 +22,7 @@ from user import User
 from variants import Variant
 from fairy.fairy_board import FairyBoard
 from glicko2.glicko2 import Rating
-from settings import PYCHESS_MONITOR_TOKEN
+from settings import PYCHESS_MONITOR_TOKEN, URI, LOCALHOST
 from tournament.tournament import PlayerData, GameData
 from tournament.arena_new import ArenaTournament
 from pychess_global_app_state_utils import get_app_state
@@ -193,7 +193,7 @@ async def metrics_handler(request):
         raise web.HTTPNotFound()
 
     token = auth[auth.find("Bearer") + 7 :]
-    if token != PYCHESS_MONITOR_TOKEN:
+    if URI != LOCALHOST and token != PYCHESS_MONITOR_TOKEN:
         log.error("Invalid pychess-metrics token! %s", token)
         raise web.HTTPNotFound()
 
