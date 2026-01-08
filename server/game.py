@@ -161,6 +161,14 @@ class Game:
 
         self.fow = variant == "fogofwar"
 
+        # Jieqi captures must be tracked per side for the capturer only; the opponent
+        # and spectators must never learn the identities of captured covered pieces.
+        self.jieqi_captures = {WHITE: [], BLACK: []} if self.variant == "jieqi" else None
+        # Stack mirrors move history so takebacks can roll capture identities back safely.
+        self.jieqi_capture_stack = [] if self.variant == "jieqi" else None
+        # One-move hint used to send capture identity to the current mover only.
+        self.last_jieqi_capture = None
+
         self.n_fold_is_draw = self.variant in (
             "makruk",
             "makpong",
@@ -381,13 +389,21 @@ class Game:
 
         if self.status <= STARTED:
             try:
+                if self.variant == "jieqi":
+                    # Reset per-move capture hint so stale captures are never reused.
+                    self.last_jieqi_capture = None
                 san = self.board.get_san(move)
 
                 if self.variant == "jieqi":
+                    # Capture identity must be read before the board mutates, because
+                    # the mapping of covered pieces is consumed by the move.
+                    jieqi_capture = self.board.captured_jieqi_piece(move)
                     new_piece = self.board.revealed_piece(move)
                     if new_piece is not None:
                         move = move + new_piece.lower()
                         san = "%s=%s" % (san, new_piece.lower())
+                else:
+                    jieqi_capture = None
 
                 self.lastmove = move
                 if cur_color == WHITE:
@@ -413,6 +429,16 @@ class Game:
                         "clocks": clocks,
                     }
                 )
+                if self.jieqi_capture_stack is not None:
+                    # Keep a parallel capture stack so takebacks can undo captures cleanly.
+                    if jieqi_capture is not None and self.jieqi_captures is not None:
+                        # Track hidden captures for the capturer only; the client will
+                        # render these without leaking them to the opponent.
+                        self.last_jieqi_capture = jieqi_capture.lower()
+                        self.jieqi_captures[cur_color].append(self.last_jieqi_capture)
+                        self.jieqi_capture_stack.append((cur_color, self.last_jieqi_capture))
+                    else:
+                        self.jieqi_capture_stack.append(None)
 
                 if self.status > STARTED:
                     await self.save_game()
@@ -1036,6 +1062,13 @@ class Game:
             count_started = -1
             count_ended = -1
 
+        if self.jieqi_captures is not None:
+            # Rebuild capture lists when recreating steps so reconnects get
+            # consistent Jieqi capture history for the active player.
+            self.jieqi_captures = {WHITE: [], BLACK: []}
+            self.jieqi_capture_stack = []
+            self.last_jieqi_capture = None
+
         if self.analysis is not None:
             self.steps[0]["analysis"] = self.analysis[0]
 
@@ -1065,10 +1098,15 @@ class Game:
                 san = self.board.get_san(move)
 
                 if self.variant == "jieqi":
+                    # Replay uses the current board mapping, so capture identity
+                    # must be determined before pushing the move and mutating it.
+                    jieqi_capture = self.board.captured_jieqi_piece(move)
                     new_piece = self.board.revealed_piece(move)
                     if new_piece is not None:
                         move = move + new_piece.lower()
                         san = "%s=%s" % (san, new_piece.lower())
+                else:
+                    jieqi_capture = None
 
                 self.board.push(move, append=False)
                 self.check = self.board.is_checked()
@@ -1090,6 +1128,15 @@ class Game:
                         self.clocks_w[move_number],
                         self.clocks_b[move_number - 1 if ply % 2 == 0 else move_number],
                     )
+
+                if self.jieqi_capture_stack is not None:
+                    mover_color = WHITE if step["turnColor"] == "black" else BLACK
+                    if jieqi_capture is not None and self.jieqi_captures is not None:
+                        # Rebuild capture history without exposing it in steps or SAN.
+                        self.jieqi_captures[mover_color].append(jieqi_capture.lower())
+                        self.jieqi_capture_stack.append((mover_color, jieqi_capture.lower()))
+                    else:
+                        self.jieqi_capture_stack.append(None)
 
                 self.steps.append(step)
 
@@ -1162,7 +1209,7 @@ class Game:
                 base_mins if self.board.color == WHITE else clock_mins,
             )
 
-        return {
+        response = {
             "type": "board",
             "gameId": self.id,
             "status": self.status,
@@ -1191,6 +1238,18 @@ class Game:
             "berserk": {"w": self.wberserk, "b": self.bberserk},
             "by": self.imported_by,
         }
+        if self.variant == "jieqi" and persp_color is not None and self.jieqi_captures is not None:
+            # Provide only the viewer's capture list so the opponent/spectators
+            # never receive captured fake piece identities.
+            response["jieqiCaptures"] = list(self.jieqi_captures[persp_color])
+            if self.jieqi_capture_stack is not None:
+                # Include a per-move capture stack (only the viewer's captures) so the
+                # client can render captures correctly while navigating the move list.
+                response["jieqiCaptureStack"] = [
+                    capture[1] if capture and capture[0] == persp_color else None
+                    for capture in self.jieqi_capture_stack
+                ]
+        return response
 
     def game_json(self, player):
         color = "w" if self.wplayer == player else "b"
@@ -1234,7 +1293,24 @@ class Game:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
             cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
 
+            def pop_jieqi_capture():
+                # Takebacks must also undo any stored Jieqi capture identities.
+                if self.jieqi_capture_stack is None:
+                    return
+                if not self.jieqi_capture_stack:
+                    return
+                capture = self.jieqi_capture_stack.pop()
+                if capture is None:
+                    return
+                color, piece = capture
+                try:
+                    if self.jieqi_captures[color]:
+                        self.jieqi_captures[color].pop()
+                except Exception:
+                    log.exception("Failed to rollback Jieqi capture for %s", self.id)
+
             self.board.pop()
+            pop_jieqi_capture()
             if len(cur_clock) > 1:
                 cur_clock.pop()
             self.steps.pop()
@@ -1244,6 +1320,7 @@ class Game:
                 cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
 
                 self.board.pop()
+                pop_jieqi_capture()
                 if len(cur_clock) > 1:
                     cur_clock.pop()
                 self.steps.pop()

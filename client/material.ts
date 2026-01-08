@@ -90,8 +90,8 @@ function mergeOrders(order1: cg.Role[], order2: cg.Role[]): cg.Role[] {
     return result;
 }
 
-function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
-    const imbalance = calculateGameDiff(variant, fen);
+function generateContentFromDiff(variant: Variant, imbalance: MaterialDiff): [VNode[], VNode[]] {
+    // Shared renderer for both real material diff and Jieqi fake capture lists.
     const whiteContent: VNode[] = [];
     const blackContent: VNode[] = [];
     const whiteCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['black'], variant.pieceRow['white']);
@@ -122,12 +122,31 @@ function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
     return [whiteContent, blackContent];
 }
 
+function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
+    return generateContentFromDiff(variant, calculateGameDiff(variant, fen));
+}
+
+function jieqiCaptureDiff(captures: cg.Role[], capturerColor: cg.Color): MaterialDiff {
+    // Jieqi hides identities, so we render only the capturer's known list.
+    // We reuse the sign convention of calculateGameDiff: white captures are negative.
+    const diffMap: MaterialDiff = new Map();
+    const sign = capturerColor === 'white' ? -1 : 1;
+    for (const role of captures) {
+        const current = diffMap.get(role) ?? 0;
+        diffMap.set(role, current + sign);
+    }
+    return diffMap;
+}
+
 function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
     return h(`div.material.material-${position}.${variant.pieceFamily}${disabled ? '.disabled' : ''}`, content);
 }
 
-export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean, color: string): [VNode, VNode] {
-    const [whiteContent, blackContent] = generateContent(variant, fen);
+export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean, color: cg.Color, jieqiCaptures: cg.Role[] = []): [VNode, VNode] {
+    const [whiteContent, blackContent] = variant.name === 'jieqi'
+        // Jieqi shows only captured fake identities, not material balance.
+        ? generateContentFromDiff(variant, jieqiCaptureDiff(jieqiCaptures, color))
+        : generateContent(variant, fen);
     const topContent = (color === 'white') ? blackContent : whiteContent;
     const botomContent = (color === 'white') ? whiteContent : blackContent;
     return [

@@ -363,6 +363,32 @@ class FairyBoard:
         src = move[0:3] if move[2].isdigit() else move[0:2]
         return self.jieqi_covered_pieces.get(src)
 
+    def captured_jieqi_piece(self, move):
+        """
+        Return the real piece letter for a covered piece captured by this move.
+
+        Jieqi stores hidden identities in jieqi_covered_pieces. We need to peek at
+        the destination square before the move is applied, because applying the
+        move mutates the mapping and would erase the captured identity.
+        """
+        if not self.jieqi_covered_pieces:
+            return None
+
+        # The move may include a trailing reveal suffix or a check marker, so strip
+        # the suffix first to parse the destination square reliably.
+        move_str = move
+        if len(move_str) < 4:
+            return None
+        if move_str[-1].isalpha():
+            move_str = move_str[:-1]
+
+        if move_str[2].isdigit():
+            dst = move_str[3:].rstrip("+")
+        else:
+            dst = move_str[2:].rstrip("+")
+
+        return self.jieqi_covered_pieces.get(dst)
+
     def invalid_jieqi_advisor_moves(self):
         if self.color == WHITE:
             if "d1" in self.jieqi_covered_pieces:

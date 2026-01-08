@@ -87,6 +87,9 @@ export interface MsgBoard {
     result: string;
     steps: Step[];
     berserk: { w: boolean, b: boolean };
+    jieqiCaptures?: string[];
+    // Per-move captured fake identities for Jieqi; only populated for the viewer.
+    jieqiCaptureStack?: Array<string | null>;
 
     byo?: number[];
     clocks?: Clocks; // different than last stp clock - includes correction for the color whose turn it is with elapsed time on server since last move
@@ -141,6 +144,7 @@ export type MsgMove = { // cannot be interface because cannot be converted to an
     clocksB?: Clocks;
     ply: number;
     board?: BoardName;
+    jieqiCapture?: string;
 }
 
 export type MsgMovesAfterReconnect = {

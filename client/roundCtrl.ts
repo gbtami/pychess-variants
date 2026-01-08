@@ -4,6 +4,7 @@ import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 import { Api } from "chessgroundx/api";
+import * as util from 'chessgroundx/util';
 
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
@@ -47,6 +48,8 @@ export class RoundController extends GameController {
     level: number;
     clockOn: boolean;
     materialDifference: boolean;
+    jieqiCaptureStack: Array<cg.Role | null>;
+    pendingJieqiCapture: cg.Role | null;
     vmaterial0: VNode | HTMLElement;
     vmaterial1: VNode | HTMLElement;
     vpng: VNode;
@@ -114,6 +117,9 @@ export class RoundController extends GameController {
         this.settings = true;
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === "true";
         this.materialDifference = localStorage.materialDifference === undefined ? false : localStorage.materialDifference === "true";
+        // Track per-move Jieqi capture identities so replay can render captures at any ply.
+        this.jieqiCaptureStack = [];
+        this.pendingJieqiCapture = null;
 
         this.handicap = this.variant.alternateStart ? Object.keys(this.variant.alternateStart!).some(alt => isHandicap(alt) && this.variant.alternateStart![alt] === this.fullfen) : false;
 
@@ -855,6 +861,10 @@ export class RoundController extends GameController {
             [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, msg.fen, this.vmiscInfoW, this.vmiscInfoB);
         }
 
+        if (this.variant.name === 'jieqi') {
+            this.syncJieqiCaptureStack(msg);
+        }
+
         const oppclock = !this.flipped() ? 0 : 1;
         const myclock = 1 - oppclock;
 
@@ -1069,11 +1079,62 @@ export class RoundController extends GameController {
         }
     }
 
+    private syncJieqiCaptureStack(msg: MsgBoard): void {
+        if (this.variant.name !== 'jieqi') return;
+
+        if (Array.isArray(msg.jieqiCaptureStack)) {
+            // Full sync uses the server-provided per-move stack so replay can seek
+            // accurately without ever exposing opponent capture identities.
+            this.jieqiCaptureStack = msg.jieqiCaptureStack.map((piece) =>
+                piece ? util.roleOf(piece.toLowerCase() as cg.Letter) : null
+            );
+            this.pendingJieqiCapture = null;
+            return;
+        }
+
+        const missing = msg.ply - this.jieqiCaptureStack.length;
+        if (missing <= 0) return;
+
+        if (missing === 1 && this.pendingJieqiCapture) {
+            // Normal flow: move message arrives first, board message assigns it to this ply.
+            this.jieqiCaptureStack.push(this.pendingJieqiCapture);
+            this.pendingJieqiCapture = null;
+            return;
+        }
+
+        // If multiple plies arrive at once (reconnect), we cannot align a pending capture,
+        // so pad with nulls and wait for a full sync.
+        for (let i = 0; i < missing; i++) {
+            this.jieqiCaptureStack.push(null);
+        }
+        this.pendingJieqiCapture = null;
+    }
+
+    private getJieqiCapturesForPly(ply: number): cg.Role[] {
+        // Only captures up to the viewed ply should be rendered during move replay.
+        const visiblePly = Math.max(ply, 0);
+        return this.jieqiCaptureStack
+            .slice(0, visiblePly)
+            .filter((role): role is cg.Role => role !== null);
+    }
+
     private updateMaterial(): void {
-        if (this.variant.material.showDiff && this.materialDifference)
-            [this.vmaterial0, this.vmaterial1] = updateMaterial(this.variant, this.fullfen, this.vmaterial0, this.vmaterial1, this.flipped(), this.mycolor);
-        else
+        const forceJieqiMaterial = this.variant.name === 'jieqi';
+        if ((this.variant.material.showDiff && this.materialDifference) || forceJieqiMaterial) {
+            // Jieqi ignores the user toggle because captured fake identities must always be visible.
+            const captures = forceJieqiMaterial ? this.getJieqiCapturesForPly(this.ply) : [];
+            [this.vmaterial0, this.vmaterial1] = updateMaterial(
+                this.variant,
+                this.fullfen,
+                this.vmaterial0,
+                this.vmaterial1,
+                this.flipped(),
+                this.mycolor,
+                captures,
+            );
+        } else {
             [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant, this.vmaterial0, this.vmaterial1);
+        }
     }
 
     private setPremove = (orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => {
@@ -1238,6 +1299,9 @@ export class RoundController extends GameController {
             case "board":
                 this.onMsgBoard(msg);
                 break;
+            case "move":
+                this.onMsgMove(msg);
+                break;
             case "gameEnd":
                 this.checkStatus(msg);
                 break;
@@ -1287,5 +1351,11 @@ export class RoundController extends GameController {
                 this.onMsgBerserk(msg);
                 break;
         }
+    }
+
+    private onMsgMove = (msg: MsgMove & { jieqiCapture?: string }) => {
+        if (this.variant.name !== 'jieqi' || !msg.jieqiCapture) return;
+        // Store the capture until the board message advances the ply, so replay stays accurate.
+        this.pendingJieqiCapture = util.roleOf(msg.jieqiCapture.toLowerCase() as cg.Letter);
     }
 }

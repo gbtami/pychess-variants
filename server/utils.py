@@ -627,10 +627,26 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
         return
 
     if not invalid_move:
+        # Default board response is from the mover's perspective.
         board_response = game.get_board(full=game.board.ply == 1, persp_color=play_color)
 
         if not user.bot:
+            if game.variant == "jieqi" and game.last_jieqi_capture:
+                # Send captured fake identity only to the capturer via a move message.
+                # This avoids leaking the info through shared board payloads.
+                await user.send_game_message(
+                    gameId,
+                    {
+                        "type": "move",
+                        "gameId": gameId,
+                        "move": game.lastmove,
+                        "jieqiCapture": game.last_jieqi_capture,
+                    },
+                )
             await user.send_game_message(gameId, board_response)
+        if game.variant == "jieqi":
+            # Clear the one-shot capture hint after each move to avoid reuse.
+            game.last_jieqi_capture = None
 
     if user.bot and game.status > STARTED:
         await user.game_queues[gameId].put(game.game_end)
@@ -639,8 +655,9 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
     )
 
-    # FEN sent to opp player is different in fogofwar games!
-    if game.fow:
+    # Fog-of-war and Jieqi require perspective-specific board payloads.
+    # For all other variants we reuse the mover perspective response.
+    if game.fow or game.variant == "jieqi":
         board_response = game.get_board(full=game.board.ply == 1, persp_color=1 - play_color)
 
     if users[opp_name].bot:
@@ -662,8 +679,8 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
             await users[opp_name].send_game_message(gameId, response)
 
     if not invalid_move:
-        # FEN sent to visitors is different in fogofwar games!
-        if game.fow:
+        # Spectators must not see hidden info in fog-of-war or Jieqi games.
+        if game.fow or game.variant == "jieqi":
             board_response = game.get_board(full=game.board.ply == 1, persp_color=None)
 
         await round_broadcast(game, board_response, channels=app_state.game_channels)
