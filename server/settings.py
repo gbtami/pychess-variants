@@ -52,6 +52,5 @@ if SOURCE_VERSION != "":
     SOURCE_VERSION = "?v=%s" % SOURCE_VERSION
 
 
-
 def static_url(static_file_path):
     return "%s/%s" % (STATIC_ROOT, static_file_path)
