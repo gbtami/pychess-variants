@@ -4,6 +4,7 @@ import os
 from datetime import timedelta, timezone, datetime, date
 from operator import neg
 import asyncio
+import gc
 import collections
 import gettext
 import queue
@@ -60,6 +61,10 @@ from settings import (
     SOURCE_VERSION,
     DEV,
     static_url,
+    GC_STATS_INTERVAL,
+    GC_STATS_FORCE_COLLECT,
+    GC_STATS_WARN_RATIO,
+    GC_STATS_WARN_STREAK,
 )
 from simul.simul import Simul
 from tournament.tournament import Tournament
@@ -163,6 +168,7 @@ class PychessGlobalAppState:
         #####
         self.__start_bots()
         self.__init_translations()
+        self.__start_gc_stats_logger()
 
         self.started_at = datetime.now(timezone.utc)
 
@@ -489,6 +495,77 @@ class PychessGlobalAppState:
             # TODO: make twitch SECRET permanent
             # asyncio.create_task(result.init_subscriptions(), name="Twitch-subscriptions")
         return result
+
+    def __start_gc_stats_logger(self):
+        # Periodic GC telemetry helps decide whether to tune gc thresholds or add
+        # scheduled collections. It is off by default and only runs if an interval
+        # is configured to avoid log noise and extra overhead in production.
+        if GC_STATS_INTERVAL <= 0:
+            return
+
+        async def gc_stats_logger():
+            # Track per-generation collection counts so we can detect "near threshold"
+            # counters that are not triggering collections over multiple intervals.
+            prev_collections = [None, None, None]
+            warn_streaks = [0, 0, 0]
+            while not self.shutdown:
+                await asyncio.sleep(GC_STATS_INTERVAL)
+                counts = gc.get_count()
+                thresholds = gc.get_threshold()
+                stats = gc.get_stats()
+                # Check if any generation stays close to its threshold without
+                # a collection. This is a signal that low churn may prevent GC
+                # from running, leaving cyclic garbage to accumulate.
+                for gen in range(3):
+                    threshold = thresholds[gen]
+                    if threshold <= 0:
+                        warn_streaks[gen] = 0
+                        continue
+                    near_threshold = counts[gen] >= (threshold * GC_STATS_WARN_RATIO)
+                    no_collection = (
+                        prev_collections[gen] is not None
+                        and stats[gen]["collections"] == prev_collections[gen]
+                    )
+                    if near_threshold and no_collection:
+                        warn_streaks[gen] += 1
+                    else:
+                        warn_streaks[gen] = 0
+
+                    if warn_streaks[gen] >= GC_STATS_WARN_STREAK:
+                        # Log once per streak to avoid flooding logs; if the
+                        # condition persists, a new streak will trigger later.
+                        log.warning(
+                            "gc near threshold without collection gen=%s count=%s threshold=%s ratio=%.2f streak=%s",
+                            gen,
+                            counts[gen],
+                            threshold,
+                            GC_STATS_WARN_RATIO,
+                            warn_streaks[gen],
+                        )
+                        warn_streaks[gen] = 0
+
+                collected = None
+                if GC_STATS_FORCE_COLLECT:
+                    # Optional forced collection makes it easy to see whether cycles
+                    # are accumulating; keep this off in production to avoid pauses.
+                    collected = gc.collect()
+                log.info(
+                    "gc stats enabled=%s thresholds=%s counts=%s gen0=%s gen1=%s gen2=%s collected=%s",
+                    gc.isenabled(),
+                    thresholds,
+                    counts,
+                    stats[0],
+                    stats[1],
+                    stats[2],
+                    collected,
+                )
+                prev_collections = [
+                    stats[0]["collections"],
+                    stats[1]["collections"],
+                    stats[2]["collections"],
+                ]
+
+        asyncio.create_task(gc_stats_logger(), name="gc-stats-logger")
 
     def __init_users(self) -> Users:
         result = Users(self)
