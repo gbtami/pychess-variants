@@ -51,18 +51,6 @@ SOURCE_VERSION = os.getenv("SOURCE_VERSION", "")
 if SOURCE_VERSION != "":
     SOURCE_VERSION = "?v=%s" % SOURCE_VERSION
 
-# Optional periodic GC telemetry to help decide whether lowering thresholds or adding
-# manual collections is worthwhile. Default 0 disables logging to avoid noisy output.
-GC_STATS_INTERVAL = int(os.getenv("GC_STATS_INTERVAL", "0"))
-# If enabled, the periodic logger performs a gc.collect() to show reclaimed counts.
-# Keep this off by default to avoid introducing extra GC pauses in production.
-_gc_force_collect = os.getenv("GC_STATS_FORCE_COLLECT", "")
-GC_STATS_FORCE_COLLECT = _gc_force_collect.lower() in ("1", "true", "yes")
-# When GC telemetry is enabled, emit a warning if the allocation counters for a
-# generation stay close to its threshold for several consecutive intervals
-# without a collection. This helps spot "GC never triggers" scenarios on low churn.
-GC_STATS_WARN_RATIO = float(os.getenv("GC_STATS_WARN_RATIO", "0.9"))
-GC_STATS_WARN_STREAK = int(os.getenv("GC_STATS_WARN_STREAK", "3"))
 
 
 def static_url(static_file_path):
