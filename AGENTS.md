@@ -31,6 +31,7 @@ python3 server/server.py
 ```
 
 ### Testing and Quality
+Note: Always run all linting and testing commands for any change.
 ```bash
 # Run TypeScript type checking
 yarn typecheck
@@ -57,6 +58,7 @@ Playwright setup tips:
 - The install step can take several minutes and may require root privileges to install system deps; rerun if it times out.
 - If you already ran the install once, you can usually skip it on subsequent runs.
 - Tests spin up local servers/browsers, so run them in an environment that allows opening local sockets.
+- If `python -m playwright install --with-deps` times out, `python -m playwright install` succeeded here and unblocked the Playwright tests.
 
 ### Docker Development
 ```bash

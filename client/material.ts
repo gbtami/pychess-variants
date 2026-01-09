@@ -8,6 +8,8 @@ import { Variant } from './variants';
 
 export type MaterialDiff = Map<cg.Role, number>;
 export type Equivalence = Partial<Record<cg.Role, cg.Role>>;
+export type JieqiCaptureKind = 'normal' | 'covered';
+export type JieqiCapture = { role: cg.Role; color: cg.Color; kind: JieqiCaptureKind };
 
 export function diff(lhs: MaterialDiff, rhs: MaterialDiff): MaterialDiff {
     const keys = new Set([...lhs.keys(), ...rhs.keys()]);
@@ -91,7 +93,7 @@ function mergeOrders(order1: cg.Role[], order2: cg.Role[]): cg.Role[] {
 }
 
 function generateContentFromDiff(variant: Variant, imbalance: MaterialDiff): [VNode[], VNode[]] {
-    // Shared renderer for both real material diff and Jieqi fake capture lists.
+    // Shared renderer for real material diff.
     const whiteContent: VNode[] = [];
     const blackContent: VNode[] = [];
     const whiteCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['black'], variant.pieceRow['white']);
@@ -126,26 +128,68 @@ function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
     return generateContentFromDiff(variant, calculateGameDiff(variant, fen));
 }
 
-function jieqiCaptureDiff(captures: cg.Role[], capturerColor: cg.Color): MaterialDiff {
-    // Jieqi hides identities, so we render only the capturer's known list.
-    // We reuse the sign convention of calculateGameDiff: white captures are negative.
-    const diffMap: MaterialDiff = new Map();
-    const sign = capturerColor === 'white' ? -1 : 1;
-    for (const role of captures) {
-        const current = diffMap.get(role) ?? 0;
-        diffMap.set(role, current + sign);
+function jieqiCaptureDiffs(captures: JieqiCapture[]): { normal: MaterialDiff; covered: MaterialDiff } {
+    const normal: MaterialDiff = new Map();
+    const covered: MaterialDiff = new Map();
+    for (const capture of captures) {
+        const diffMap = capture.kind === 'covered' ? covered : normal;
+        const sign = capture.color === 'white' ? -1 : 1;
+        const current = diffMap.get(capture.role) ?? 0;
+        diffMap.set(capture.role, current + sign);
     }
-    return diffMap;
+    return { normal, covered };
+}
+
+function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNode[], VNode[]] {
+    const { normal, covered } = jieqiCaptureDiffs(captures);
+    const whiteContent: VNode[] = [];
+    const blackContent: VNode[] = [];
+    const whiteCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['black'], variant.pieceRow['white']);
+    const blackCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['white'], variant.pieceRow['black']);
+
+    for (const role of whiteCapturedOrder) {
+        const normalCount = normal.get(role) ?? 0;
+        const coveredCount = covered.get(role) ?? 0;
+        const normalPieces = normalCount < 0 ? Math.abs(normalCount) : 0;
+        const coveredPieces = coveredCount < 0 ? Math.abs(coveredCount) : 0;
+        if (normalPieces === 0 && coveredPieces === 0) continue;
+        const currentDiv: VNode[] = [];
+        for (let i = 0; i < normalPieces; i++) {
+            currentDiv.push(h('mpiece.' + role + '.jieqi-normal'));
+        }
+        for (let i = 0; i < coveredPieces; i++) {
+            currentDiv.push(h('mpiece.' + role + '.jieqi-covered'));
+        }
+        whiteContent.push(h('div', currentDiv));
+    }
+
+    for (const role of blackCapturedOrder) {
+        const normalCount = normal.get(role) ?? 0;
+        const coveredCount = covered.get(role) ?? 0;
+        const normalPieces = normalCount > 0 ? normalCount : 0;
+        const coveredPieces = coveredCount > 0 ? coveredCount : 0;
+        if (normalPieces === 0 && coveredPieces === 0) continue;
+        const currentDiv: VNode[] = [];
+        for (let i = 0; i < normalPieces; i++) {
+            currentDiv.push(h('mpiece.' + role + '.jieqi-normal'));
+        }
+        for (let i = 0; i < coveredPieces; i++) {
+            currentDiv.push(h('mpiece.' + role + '.jieqi-covered'));
+        }
+        blackContent.push(h('div', currentDiv));
+    }
+
+    return [whiteContent, blackContent];
 }
 
 function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
     return h(`div.material.material-${position}.${variant.pieceFamily}${disabled ? '.disabled' : ''}`, content);
 }
 
-export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean, color: cg.Color, jieqiCaptures: cg.Role[] = []): [VNode, VNode] {
+export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean, color: cg.Color, jieqiCaptures: JieqiCapture[] = []): [VNode, VNode] {
     const [whiteContent, blackContent] = variant.name === 'jieqi'
-        // Jieqi shows only captured fake identities, not material balance.
-        ? generateContentFromDiff(variant, jieqiCaptureDiff(jieqiCaptures, color))
+        // Jieqi shows captured pieces (normal + covered), not material balance.
+        ? generateJieqiContent(variant, jieqiCaptures)
         : generateContent(variant, fen);
     const topContent = (color === 'white') ? blackContent : whiteContent;
     const botomContent = (color === 'white') ? whiteContent : blackContent;

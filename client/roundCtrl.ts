@@ -5,6 +5,7 @@ import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 import { Api } from "chessgroundx/api";
 import * as util from 'chessgroundx/util';
+import { read as fenRead } from 'chessgroundx/fen';
 
 import { JSONObject } from './types';
 import { _, ngettext } from './i18n';
@@ -20,7 +21,7 @@ import { createMovelistButtons, updateMovelist, updateResult, selectMove } from 
 import { renderRdiff } from './result'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
-import { updateMaterial, emptyMaterial } from './material';
+import { updateMaterial, emptyMaterial, JieqiCapture } from './material';
 import { notify } from './notification';
 import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, RDiffs, CrossTable } from "./messages";
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
@@ -49,6 +50,7 @@ export class RoundController extends GameController {
     clockOn: boolean;
     materialDifference: boolean;
     jieqiCaptureStack: Array<cg.Role | null>;
+    jieqiNormalCaptureStack: Array<JieqiCapture | null>;
     pendingJieqiCapture: cg.Role | null;
     vmaterial0: VNode | HTMLElement;
     vmaterial1: VNode | HTMLElement;
@@ -119,6 +121,7 @@ export class RoundController extends GameController {
         this.materialDifference = localStorage.materialDifference === undefined ? false : localStorage.materialDifference === "true";
         // Track per-move Jieqi capture identities so replay can render captures at any ply.
         this.jieqiCaptureStack = [];
+        this.jieqiNormalCaptureStack = [];
         this.pendingJieqiCapture = null;
 
         this.handicap = this.variant.alternateStart ? Object.keys(this.variant.alternateStart!).some(alt => isHandicap(alt) && this.variant.alternateStart![alt] === this.fullfen) : false;
@@ -863,6 +866,7 @@ export class RoundController extends GameController {
 
         if (this.variant.name === 'jieqi') {
             this.syncJieqiCaptureStack(msg);
+            this.rebuildJieqiNormalCaptureStack();
         }
 
         const oppclock = !this.flipped() ? 0 : 1;
@@ -1110,12 +1114,71 @@ export class RoundController extends GameController {
         this.pendingJieqiCapture = null;
     }
 
-    private getJieqiCapturesForPly(ply: number): cg.Role[] {
+    private rebuildJieqiNormalCaptureStack(): void {
+        if (this.variant.name !== 'jieqi') return;
+
+        const captures: Array<JieqiCapture | null> = [];
+        if (this.steps.length < 2) {
+            this.jieqiNormalCaptureStack = captures;
+            return;
+        }
+
+        const dimensions = this.variant.board.dimensions;
+        for (let i = 1; i < this.steps.length; i++) {
+            const step = this.steps[i];
+            const move = step.move;
+            if (!move) {
+                captures.push(null);
+                continue;
+            }
+
+            const lastMove = uci2LastMove(move);
+            if (!lastMove) {
+                captures.push(null);
+                continue;
+            }
+
+            const dest = lastMove[1] as cg.Key;
+            const prevState = fenRead(this.steps[i - 1].fen, dimensions);
+            const captured = prevState.pieces.get(dest);
+            if (!captured || captured.role === '_-piece') {
+                captures.push(null);
+                continue;
+            }
+
+            if (captured.promoted) {
+                // "~" marks covered Jieqi pieces in FEN, so ignore their identities here.
+                captures.push(null);
+                continue;
+            }
+
+            captures.push({
+                role: captured.role,
+                color: util.opposite(step.turnColor),
+                kind: 'normal',
+            });
+        }
+
+        this.jieqiNormalCaptureStack = captures;
+    }
+
+    private getJieqiCapturesForPly(ply: number): JieqiCapture[] {
         // Only captures up to the viewed ply should be rendered during move replay.
         const visiblePly = Math.max(ply, 0);
-        return this.jieqiCaptureStack
+        const showAllNormal = this.spectator;
+        const normalCaptures = this.jieqiNormalCaptureStack
             .slice(0, visiblePly)
-            .filter((role): role is cg.Role => role !== null);
+            .filter((capture): capture is JieqiCapture => capture !== null)
+            .filter((capture) => showAllNormal || capture.color === this.mycolor);
+        const coveredCaptures = this.jieqiCaptureStack
+            .slice(0, visiblePly)
+            .filter((role): role is cg.Role => role !== null)
+            .map((role) => ({
+                role,
+                color: this.mycolor,
+                kind: 'covered' as const,
+            }));
+        return normalCaptures.concat(coveredCaptures);
     }
 
     private updateMaterial(): void {

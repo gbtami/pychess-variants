@@ -2031,6 +2031,13 @@ button.icon::-moz-focus-inner {
 .material.disabled {
   height: 0px;
 }
+.material mpiece.jieqi-covered {
+  opacity: 0.55;
+  filter: grayscale(0.6);
+}
+.material mpiece.jieqi-normal {
+  opacity: 0.95;
+}
 
 /* Playing color */
 button.icon {
