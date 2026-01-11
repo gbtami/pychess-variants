@@ -166,6 +166,7 @@ DEV_VARIANTS = (
     ServerVariants.MAKBUG,
     ServerVariants.SUPPLY,
     ServerVariants.JIEQI,
+    ServerVariants.BORDERLANDS,
 )
 
 # Remove DEV variants on prod site until they stabilize
