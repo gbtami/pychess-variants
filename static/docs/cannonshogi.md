@@ -36,7 +36,7 @@ Copper Cannons promote to Flying Copper Cannons.
 
 ![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/SilverCannon.png)
 
-The **Silver Cannons** can move any number of spaces orthogonally like a Rook, but there must be an intervening piece for them to jump over first. This is the same move as the Cannon in Janggi.
+The **Silver Cannons** can move any number of spaces orthogonally like a Rook, but there must be an intervening piece for them to jump over first. Movement and capturing are the same. This is the same move as the Cannon in Janggi.
 
 NOTE: unlike in Janggi, Silver Cannons can jump over and capture eachother.
 
@@ -44,7 +44,7 @@ Silver Cannons promote to Flying Silver Cannons.
 
 ![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CannonShogiGuide/IronCannon.png)
 
-The **Iron Cannons** can move any number of spaces diagonally like a Bishop, but there must be an intervening piece for them to jump over first. This is the same move as the Cannon in Janggi.
+The **Iron Cannons** can move any number of spaces diagonally like a Bishop, but there must be an intervening piece for them to jump over first. Movement and capturing are the same. This is a diagonal version of the Cannon in Janggi.
 
 Iron Cannons promote to Flying Iron Cannons.
 
