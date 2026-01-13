@@ -1033,8 +1033,8 @@ export class LobbyController implements ChatController {
                 }),
         ]),
         h('span.vstext', [
-            h('div.player', [h('tv-user', [h('player-title', game.bt), ' ' + game.b + ' ', h('rating', game.br)])]),
-            h('div.player', [h('tv-user', [h('player-title', game.wt), ' ' + game.w + ' ', h('rating', game.wr)])]),
+            h('div.player', [h('tv-user', [h('player-title', game.bt), ' ' + displayUsername(game.b) + ' ', h('rating', game.br)])]),
+            h('div.player', [h('tv-user', [h('player-title', game.wt), ' ' + displayUsername(game.w) + ' ', h('rating', game.wr)])]),
         ]),
         ];
 

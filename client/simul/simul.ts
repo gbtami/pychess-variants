@@ -266,7 +266,7 @@ export class SimulController implements ChatController {
                         h('h2', 'Games'),
                         h('div.game-list', [
                             this.games.length > 0 
-                                ? h('ul', this.games.map(game => h('li', `${game.wplayer} vs ${game.bplayer}`)))
+                                ? h('ul', this.games.map(game => h('li', `${displayUsername(game.wplayer)} vs ${displayUsername(game.bplayer)}`)))
                                 : h('p', 'No games yet')
                         ])
                     ])

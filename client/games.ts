@@ -10,6 +10,7 @@ import { timeControlStr } from './view';
 import { PyChessModel } from "./types";
 import { aiLevel } from './result';
 import { getLastMoveFen, VARIANTS } from './variants';
+import { displayUsername } from './user';
 
 export interface Game {
     gameId: string;
@@ -47,10 +48,10 @@ function gameView(games: Games, game: Game) {
                 h('div.icon', { props: { title: variant.displayName(game.chess960) }, attrs: { "data-icon": variant.icon(game.chess960) } }),
                 h('div.tc', timeControlStr(game.base, game.inc, game.byoyomi, game.day)),
             ]),
-            h('div.name', [
-                h('player-title', " " + game.bTitle + " "),
-                game.b + aiLevel(game.bTitle, game.level)
-            ]),
+        h('div.name', [
+            h('player-title', " " + game.bTitle + " "),
+            displayUsername(game.b) + aiLevel(game.bTitle, game.level)
+        ]),
         ]),
         h(`div.cg-wrap.${variant.board.cg}.mini`, {
             hook: {
@@ -69,7 +70,7 @@ function gameView(games: Games, game: Game) {
         }),
         h('div.name', [
             h('player-title', " " + game.wTitle + " "),
-            game.w + aiLevel(game.wTitle, game.level)
+            displayUsername(game.w) + aiLevel(game.wTitle, game.level)
         ]),
     ]));
 }
