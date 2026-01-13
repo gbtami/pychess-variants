@@ -67,7 +67,13 @@
                 </div>
                 <div id="ac-result"></div>
             </form>
-            <div id="username"><a class="user-link" href="/@/{{ username }}">{{ username }}</a></div>
+            <div id="username">
+                {% if anon %}
+                <span class="user-link">{% trans %}Anonymous{% endtrans %}</span>
+                {% else %}
+                <a class="user-link" href="/@/{{ username }}">{{ username }}</a>
+                {% endif %}
+            </div>
             {% if anon %}
             <div class="login-dropdown">
                 <button class="login-btn nav-link" aria-haspopup="true" aria-expanded="false">

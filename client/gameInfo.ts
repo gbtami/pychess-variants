@@ -7,6 +7,7 @@ import { timeago, } from './datetime';
 import { alternateStartName, timeControlStr } from "./view";
 import { PyChessModel } from "./types";
 import { VARIANTS } from "./variants";
+import { displayUsername, userLink } from "./user";
 
 
 export function gameInfo(model: PyChessModel): VNode {
@@ -79,10 +80,11 @@ function playerInfo(model: PyChessModel, color: string) {
     const rating = model[color === "w"? "wrating": "brating"];
     const rdiff = model[color === "w"? "wrdiff": "brdiff"];
     const berserk = model[color === "w"? "wberserk": "bberserk"];
+    const displayName = displayUsername(username);
 
-    return h('a.user-link', { attrs: { href: '/@/' + username } }, [
+    return userLink(username, [
         (title !== '') ? h('player-title', title + ' ') : '',
-        username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
+        displayName + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
         model["status"] < 1 || model["rated"] !== '1' ? h('rdiff#' + color + 'rdiff') : renderRdiff(rdiff),
         (berserk === "True") ? h('icon.icon-berserk') : h('berserk#' + color + 'berserk'),
     ]);

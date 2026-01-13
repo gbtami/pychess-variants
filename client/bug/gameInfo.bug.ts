@@ -7,6 +7,7 @@ import { aiLevel, gameType } from '../result';
 import { timeago, } from '../datetime';
 import { timeControlStr } from "../view";
 import { PyChessModel } from "../types";
+import { displayUsername, userLink } from "../user";
 
 
 export function gameInfoBug(model: PyChessModel): VNode {
@@ -67,10 +68,11 @@ function playerInfo(model: PyChessModel, color: "w" | "b", board: "a" | "b") {
     const [username, title, rating] = playerInfoData(model, color, board);
 
     const level = model.level;
+    const displayName = displayUsername(username);
 
-    return h('a.user-link', { attrs: { href: '/@/' + username } }, [
+    return userLink(username, [
         h('player-title', " " + title + " "),
-        username + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
+        displayName + aiLevel(title, level) + (title !== 'BOT' ? (" (" + rating + ") ") : ''),
         h('rdiff#' + color + 'rdiff'),
         h('berserk#' + color + 'berserk'),
     ]);

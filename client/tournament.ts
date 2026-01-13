@@ -17,6 +17,7 @@ import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame }
 import { MsgUserStatus, MsgGetGames, TournamentGame, MsgTournamentStatus, MsgUserConnectedTournament, MsgGetPlayers, TournamentPlayer, MsgError, MsgPing, TopGame } from './tournamentType';
 import { newWebsocket } from "@/socket/webSocketUtils";
 import { faq } from './tournamentFaq';
+import { displayUsername, userLink } from "./user";
 
 
 interface Duel {
@@ -268,7 +269,7 @@ export class TournamentController implements ChatController {
             h('td.rank', [(player.paused && !this.completed()) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
                 h('span.title', player.title),
-                h('span.name', player.name),
+                h('span.name', displayUsername(player.name)),
                 h('span', player.rating),
             ]),
             h('td.sheet', [h('div', player.points.map( (s: any) => {
@@ -357,7 +358,7 @@ export class TournamentController implements ChatController {
                 h('th', index),
                 h('td.player', [
                     h('span.title', game.title),
-                    h('span.name', game.name),
+                    h('span.name', displayUsername(game.name)),
                 ]),
                 h('td', game.rating),
                 h('td', [
@@ -415,7 +416,7 @@ export class TournamentController implements ChatController {
         const game = this.topGame;
         const variant = VARIANTS[game.variant];
         const elements = [
-        h('div.player', [h('user', [h('rank', '#' + game.br), game.b]), h('div#bresult')]),
+        h('div.player', [h('user', [h('rank', '#' + game.br), displayUsername(game.b)]), h('div#bresult')]),
         h(`div#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
             class: { "with-pockets": !!variant.pocket },
             on: { click: () => window.location.assign('/' + game.gameId) }
@@ -440,7 +441,7 @@ export class TournamentController implements ChatController {
                     }
                 }),
         ]),
-        h('div.player', [h('user', [h('rank', '#' + game.wr), game.w]), h('div#wresult')]),
+        h('div.player', [h('user', [h('rank', '#' + game.wr), displayUsername(game.w)]), h('div#wresult')]),
         ];
 
         patch(document.getElementById('top-game') as HTMLElement, h('div#top-game', elements));
@@ -849,4 +850,5 @@ export function tournamentView(model: PyChessModel): VNode[] {
 }
 
 function playerInfo(name: string, title: string) {
-    return h('a.user-link', { attrs: { href: '/@/' + name } }, [h('player-title', " " + title + " "), name])}
+    return userLink(name, [h('player-title', " " + title + " "), displayUsername(name)]);
+}

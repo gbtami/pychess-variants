@@ -8,6 +8,7 @@ import { patch } from './document';
 // import { uci2LastMove } from './chess';
 import { timeago } from './datetime';
 import { getLastMoveFen, VARIANTS } from './variants';
+import { displayUsername } from './user';
 
 export interface Game {
     gameId: string;
@@ -92,6 +93,7 @@ export function gameViewPlaying(cgMap: {[gameId: string]: [Api, string]}, game: 
     const variant = VARIANTS[game.variant];
     const isMyTurn = game.tp === username;
     const opp = (username === game.w) ? game.b : game.w;
+    const oppDisplay = displayUsername(opp);
     const mycolor = (username === game.w) ? 'white' : 'black';
 
     let lastMove, fen;
@@ -115,7 +117,7 @@ export function gameViewPlaying(cgMap: {[gameId: string]: [Api, string]}, game: 
             }
         }),
         h('span.vstext', [
-            h('span', opp),
+            h('span', oppDisplay),
             corrClockIndicator(isMyTurn, game.date),
         ]),
     ]);

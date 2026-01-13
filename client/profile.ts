@@ -13,6 +13,7 @@ import { PyChessModel } from "./types";
 import { Ceval } from "./messages";
 import { aiLevel, gameType, result, renderRdiff } from './result';
 import { renderBugTeamInfo, renderGameBoardsBug } from "@/bug/profile.bug";
+import { displayUsername, userLink } from "./user";
 
 export interface Game {
     _id: string; // mongodb document id
@@ -79,8 +80,8 @@ function renderGames(model: PyChessModel, games: Game[]) {
         const isBug = variant.twoBoards;
         let teamFirst, teamSecond = '';
         if (isBug) {
-            teamFirst = game["us"][0] + "+" + game["us"][3];
-            teamSecond = game["us"][2] + "+" + game["us"][1];
+            teamFirst = displayUsername(game["us"][0]) + "+" + displayUsername(game["us"][3]);
+            teamSecond = displayUsername(game["us"][2]) + "+" + displayUsername(game["us"][1]);
         }
         let lastMove, fen;
         [lastMove, fen] = getLastMoveFen(variant.name, game.lm, game.f)
@@ -117,9 +118,9 @@ function renderGames(model: PyChessModel, games: Game[]) {
                         [h('player.left',
                             { class: { "bug": isBug } },
                             isBug? renderBugTeamInfo(game, 0): [
-                            h('a.user-link', { attrs: { href: '/@/' + game["us"][0] } }, [
+                            userLink(game["us"][0], [
                                 h('player-title', game["wt"]? " " + game["wt"] + " ": ""),
-                                game["us"][0] + aiLevel(game["wt"], game['x']),
+                                displayUsername(game["us"][0]) + aiLevel(game["wt"], game['x']),
                             ]),
                             h('br'),
                             (game["wb"] === true) ? h('icon.icon-berserk') : '',
@@ -130,9 +131,9 @@ function renderGames(model: PyChessModel, games: Game[]) {
                         h('player.right',
                             { class: { "bug": isBug } },
                             isBug? renderBugTeamInfo(game, 1): [
-                            h('a.user-link', { attrs: { href: '/@/' + game["us"][1] } }, [
+                            userLink(game["us"][1], [
                                 h('player-title', game["bt"]? " " + game["bt"] + " ": ""),
-                                game["us"][1] + aiLevel(game["bt"], game['x']),
+                                displayUsername(game["us"][1]) + aiLevel(game["bt"], game['x']),
                             ]),
                             h('br'),
                             (game["bb"] === true) ? h('icon.icon-berserk') : '',

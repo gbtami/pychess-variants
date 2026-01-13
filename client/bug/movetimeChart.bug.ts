@@ -6,6 +6,7 @@ import { Step } from "../messages";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 import { BLACK, WHITE } from "@/chess";
 import { BugBoardName } from "../types";
+import { displayUsername } from "@/user";
 
 export interface MovePoint {
   y: number;
@@ -162,7 +163,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
             for (const i in step.chat) {
                 const chatTime = step.chat[i].time;
                 const chatTxt = step.chat[i].message;
-                const chatUsr = step.chat[i].username;
+                const chatUsr = displayUsername(step.chat[i].username);
                 'url(\'../../static/images/bugroundchat/noR.svg\')'
                 const yChat = Math.pow(Math.log(0.005 * Math.min(chatTime, 12e4) + 3), 2) - logC;
                 const chatPoint = {

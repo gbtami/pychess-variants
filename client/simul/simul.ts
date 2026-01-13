@@ -8,6 +8,7 @@ import { _ } from '../i18n';
 import { patch } from '../document';
 import { chatView, ChatController } from '../chat';
 import { newWebsocket } from "@/socket/webSocketUtils";
+import { displayUsername } from "../user";
 
 interface SimulPlayer {
     name: string;
@@ -171,7 +172,7 @@ export class SimulController implements ChatController {
             ]),
             h('div.simul-info', [
                 h('div.variant-info', `${this.model["variant"] || 'Standard'} • ${this.formatTimeControl()}`),
-                h('div.created-by', `By ${this.createdBy}`)
+                h('div.created-by', `By ${displayUsername(this.createdBy)}`)
             ])
         ]);
 
@@ -209,7 +210,7 @@ export class SimulController implements ChatController {
                                 ? h('ul', this.pendingPlayers.map(p => h('li', [
                                     h('span.player-info', [
                                         p.title ? h('span.title', p.title) : null,
-                                        h('span.name', p.name),
+                                        h('span.name', displayUsername(p.name)),
                                         h('span.rating', `(${p.rating})`)
                                     ]),
                                     isHost ? h('div.player-actions', [
@@ -225,7 +226,7 @@ export class SimulController implements ChatController {
                                 ? h('ul', this.players.map(p => h('li', [
                                     h('span.player-info', [
                                         p.title ? h('span.title', p.title) : null,
-                                        h('span.name', p.name),
+                                        h('span.name', displayUsername(p.name)),
                                         h('span.rating', `(${p.rating})`)
                                     ]),
                                     (isHost && p.name !== this.model.username) ? h('div.player-actions', [
@@ -246,7 +247,7 @@ export class SimulController implements ChatController {
                     // Would contain simul info, player list, etc.
                     h('div.box.pad', [
                         h('h2', 'About this Simul'),
-                        h('p', `A simul exhibition where ${this.createdBy} plays against multiple opponents simultaneously.`),
+                        h('p', `A simul exhibition where ${displayUsername(this.createdBy)} plays against multiple opponents simultaneously.`),
                         h('p', `Time control: ${this.formatTimeControl()}`),
                         h('p', `Variant: ${this.model["variant"] || 'Standard'}`)
                     ])

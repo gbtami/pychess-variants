@@ -6,6 +6,7 @@ import { result } from '../result'
 import { patch } from '../document';
 import { RoundControllerBughouse } from "./roundCtrl.bug";
 import {Step, StepChat} from "../messages";
+import { displayUsername, isAnonUsername } from "@/user";
 
 export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number, plyVari = 0): void {
     let plyMax = ctrl.steps.length - 1;
@@ -133,8 +134,12 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             for (let x of ctrl.steps[ply].chat!) {
                 const time = formatChatMessageTime(x)
                 const m = x.message.replace('!bug!','');
+                const displayUser = displayUsername(x.username);
+                const userNode = isAnonUsername(x.username)
+                    ? h("span", displayUser)
+                    : h("a", { attrs: {href: "/@/" + x.username} }, displayUser);
                 const v = h("li.message",
-                    [h("div.time", time), h("user", h("a", { attrs: {href: "/@/" + x.username} }, x.username)),
+                    [h("div.time", time), h("user", userNode),
                         /*h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } }))*/
                         x.message.indexOf('!bug')>-1? h('div.bugchat.'+m,[]):h('div',[x.message])
                     ]);
@@ -189,8 +194,8 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
     }
 
     if (ctrl.status >= 0 && needResult) {
-        const teamFirst = ctrl.teamFirst[0][0] + "+" + ctrl.teamFirst[1][0];
-        const teamSecond = ctrl.teamSecond[0][0] + "+" + ctrl.teamSecond[1][0];
+        const teamFirst = displayUsername(ctrl.teamFirst[0][0]) + "+" + displayUsername(ctrl.teamFirst[1][0]);
+        const teamSecond = displayUsername(ctrl.teamSecond[0][0]) + "+" + displayUsername(ctrl.teamSecond[1][0]);
         moves.push(h('div.result', ctrl.result));
         moves.push(h('div.status', result(ctrl.b1.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
     }

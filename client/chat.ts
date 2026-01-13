@@ -4,6 +4,7 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
 import { onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
+import { displayUsername, isAnonUsername } from "./user";
 
 export interface ChatController {
     anon: boolean;
@@ -127,10 +128,12 @@ export function chatMessage (
     const isBottom = chatDiv.scrollHeight - (chatDiv.scrollTop + chatDiv.offsetHeight) < 80;
     const localTime = time ? new Date(time * 1000).toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit", hour12: false }) : "";
     const container = document.getElementById('messages') as HTMLElement;
+    const isAnon = isAnonUsername(user);
+    const displayUser = displayUsername(user);
 
     // Update active usernames set
     if (user.length && user !== '_server' && user !== 'Discord-Relay') {
-        activeUsernames.add(user);
+        activeUsernames.add(displayUser);
     }
     // Special handling for Discord-Relay messages
     let discordUser = "";
@@ -172,14 +175,17 @@ export function chatMessage (
             ]));
         }
     } else {
+        const userNode = isAnon
+            ? h("span", { style: { color: usernameColorMap[displayUser] || "#aaa" } }, displayUser)
+            : h("a", {
+                attrs: { href: "/@/" + user },
+                style: { color: usernameColorMap[displayUser] || "#aaa" }
+            }, displayUser);
         patch(container, h('div#messages', [
             h("li.message", [
                 h("div.time", localTime),
                 h("user", [
-                    h("a", {
-                        attrs: { href: "/@/" + user },
-                        style: { color: usernameColorMap[user] || "#aaa" }
-                    }, user)
+                    userNode
                 ]),
                 h("t", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, message)
             ])

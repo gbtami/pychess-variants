@@ -4,6 +4,7 @@ import { Chessground } from "chessgroundx";
 import { uci2LastMove } from "@/chess";
 import { Game } from "@/profile";
 import * as cg from "chessgroundx/types";
+import { displayUsername, userLink } from "@/user";
 
 export function renderGameBoardsBug(game: Game, username: string): VNode[] {
     const variant = VARIANTS[game.v];
@@ -43,14 +44,14 @@ export function renderGameBoardsBug(game: Game, username: string): VNode[] {
 export function renderBugTeamInfo(game: Game, team: number) {
     const [player1, player2] = team === 0? [game["us"][0],game["us"][3]]: [game["us"][2],game["us"][1]];
     const [title1, title2] = team === 0? [game["wt"], game["btB"]]: [game["wtB"], game["bt"]];
-    return [ h('a.user-link', { attrs: { href: '/@/' + player1 } }, [
+    return [ userLink(player1, [
                 h('player-title', " " + title1 + " "),
-                player1 /*+ aiLevel(game["wt"], game['x'])*/,
+                displayUsername(player1) /*+ aiLevel(game["wt"], game['x'])*/,
             ]),
             h("div", "+"),
-            h('a.user-link', { attrs: { href: '/@/' + player2 } }, [
+            userLink(player2, [
                 h('player-title', " " + title2 + " "),
-                player2 /*+ aiLevel(game["wt"], game['x'])*/,
+                displayUsername(player2) /*+ aiLevel(game["wt"], game['x'])*/,
             ])
             /*h('br'),
             (game["wb"] === true) ? h('icon.icon-berserk') : '',

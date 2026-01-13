@@ -1,6 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import { CrossTable } from "./messages";
+import { displayUsername, userLink } from "./user";
 
 export function crosstableView (ctable: CrossTable, gameId: string) {
     const s1 = ctable.s1, s2 = ctable.s2, games = ctable.r;
@@ -30,8 +31,8 @@ export function crosstableView (ctable: CrossTable, gameId: string) {
     }));
 
     const names = ctable._id.split('/');
-    const p1 = h('a', { attrs: { href: '/@/' + names[0] } }, names[0]);
-    const p2 = h('a', { attrs: { href: '/@/' + names[1] } }, names[1]);
+    const p1 = userLink(names[0], displayUsername(names[0]), { className: "" });
+    const p2 = userLink(names[1], displayUsername(names[1]), { className: "" });
 
     rows.push(h('div.ct-users', [p1, p2]));
 
