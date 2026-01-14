@@ -266,6 +266,7 @@ class Tournament(ABC):
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
         self.prev_pairing = None
+        self.bye_players = []
 
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
         self.spectators: Set[User] = set()
@@ -519,6 +520,7 @@ class Tournament(ABC):
                             log.debug("Do %s. round pairing", self.current_round)
                             waiting_players = self.waiting_players()
                             await self.create_new_pairings(waiting_players)
+                            await self.save_current_round()
                         else:
                             await self.finish()
                             log.debug("T_FINISHED: no more round left")
@@ -664,6 +666,10 @@ class Tournament(ABC):
         await self.db_update_player(user, "JOIN")
 
     async def withdraw(self, user):
+        if self.status != T_CREATED:
+            await self.pause(user)
+            return
+
         log.debug("WITHDRAW: %s in tournament %s", user.username, self.id)
         self.players[user].withdrawn = True
 
@@ -694,6 +700,7 @@ class Tournament(ABC):
         self.spectators.discard(spectator)
 
     async def create_new_pairings(self, waiting_players):
+        self.bye_players = []
         pairing = self.create_pairing(waiting_players)
 
         if self.first_pairing:
@@ -705,12 +712,23 @@ class Tournament(ABC):
             self.leaderboard = ValueSortedDict(neg, new_leaderboard)
             self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
 
+        await self.persist_byes()
+
         games = await self.create_games(pairing)
 
         # save pairings to db
-        asyncio.create_task(self.db_insert_pairing(games), name="t-insert-pairings")
+        await self.db_insert_pairing(games)
 
         return (pairing, games)
+
+    async def persist_byes(self):
+        if not self.bye_players:
+            return
+
+        bye_players = self.bye_players
+        self.bye_players = []
+        for player in bye_players:
+            await self.db_update_player(player, "BYE")
 
     async def create_games(self, pairing):
         is_new_top_game = False
@@ -1103,23 +1121,39 @@ class Tournament(ABC):
 
         try:
             new_data = {
+                "tid": self.id,
+                "u": (game.wplayer.username, game.bplayer.username),
                 "r": R2C[game.result],
+                "d": game.date,
+                "wr": game.wrating,
+                "br": game.brating,
                 "wb": game.wberserk,
                 "bb": game.bberserk,
             }
 
-            u = await pairing_table.find_one_and_update(
+            await pairing_table.update_one(
                 {"_id": game.id},
                 {"$set": new_data},
-                return_document=ReturnDocument.AFTER,
+                upsert=True,
             )
-            log.info("Updated: %r", u)
         except Exception:
             log.exception(
                 "db find_one_and_update pairing_table %s into %s failed !!!",
                 game.id,
                 self.id,
             )
+
+    async def save_current_round(self):
+        if self.app_state.db is None:
+            return
+
+        try:
+            await self.app_state.db.tournament.update_one(
+                {"_id": self.id},
+                {"$set": {"cr": self.current_round}},
+            )
+        except Exception:
+            log.exception("Failed to save current round for %s", self.id)
 
     async def db_update_player(self, user, action):
         if self.app_state.db is None:
@@ -1149,7 +1183,12 @@ class Tournament(ABC):
                     "wd": False,
                 }
             else:
-                new_data = {"a": False, "wd": False}
+                new_data = {
+                    "a": False,
+                    "wd": False,
+                    "r": player_data.rating,
+                    "pr": player_data.provisional,
+                }
 
         elif action == "WITHDRAW":
             new_data = {"wd": True}
@@ -1157,7 +1196,7 @@ class Tournament(ABC):
         elif action == "PAUSE":
             new_data = {"a": True}
 
-        elif action == "GAME_END":
+        elif action in ("GAME_END", "BYE"):
             full_score = self.leaderboard[user]
             new_data = {
                 "_id": player_id,
@@ -1172,7 +1211,7 @@ class Tournament(ABC):
                 "b": player_data.nb_berserk,
                 "e": player_data.performance,
                 "p": player_data.points,
-                "wd": False,
+                "wd": player_data.withdrawn,
             }
 
         try:
@@ -1309,6 +1348,7 @@ async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
         "system": tournament.system,
         "rounds": tournament.rounds,
         "nbPlayers": 0,
+        "cr": tournament.current_round,
         "createdBy": tournament.created_by,
         "createdAt": tournament.created_at,
         "beforeStart": tournament.before_start,

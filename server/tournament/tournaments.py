@@ -1,11 +1,12 @@
 from __future__ import annotations
 from datetime import datetime, timezone
+import asyncio
 
 import aiohttp_session
 import logging
 
 from tournament.arena_new import ArenaTournament
-from compress import C2R
+from compress import C2R, R2C
 from const import (
     ARENA,
     RR,
@@ -17,6 +18,7 @@ from const import (
     T_ARCHIVED,
     SHIELD,
     MAX_CHAT_LINES,
+    STARTED,
     CATEGORIES,
     TRANSLATED_FREQUENCY_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
@@ -31,6 +33,7 @@ from pychess_global_app_state_utils import get_app_state
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
 from tournament.tournament import (
+    ByeGame,
     GameData,
     PlayerData,
     SCORE_SHIFT,
@@ -387,6 +390,8 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
     if doc is None:
         return None
 
+    stored_round = doc.get("cr")
+
     if doc["system"] == ARENA:
         tournament_class = ArenaTournament
     elif doc["system"] == SWISS:
@@ -421,7 +426,10 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         description=doc.get("d", ""),
         frequency=doc.get("fr", ""),
         status=doc["status"],
+        with_clock=False,
     )
+    if stored_round is not None:
+        tournament.current_round = stored_round
 
     app_state.tournaments[tournament_id] = tournament
     app_state.tourneysockets[tournament_id] = {}
@@ -497,11 +505,33 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
         wberserk = doc.get("wb", False)
         bberserk = doc.get("bb", False)
 
+        game = None
         if tournament.status in (T_CREATED, T_STARTED) and result == "*":
             game = await load_game(app_state, _id)
-            tournament.ongoing_games.add(game)
-            tournament.update_game_ranks(game)
-        else:
+            if game is None:
+                continue
+            if game.status > STARTED and game.result != "*":
+                result = game.result
+                res = R2C[result]
+                wberserk = game.wberserk
+                bberserk = game.bberserk
+                game = GameData(
+                    game.id,
+                    game.wplayer,
+                    game.wrating,
+                    game.bplayer,
+                    game.brating,
+                    result,
+                    game.date,
+                    wberserk,
+                    bberserk,
+                )
+                tournament.nb_games_finished += 1
+                await tournament.db_update_pairing(game)
+            else:
+                tournament.ongoing_games.add(game)
+                tournament.update_game_ranks(game)
+        if game is None:
             game = GameData(
                 _id,
                 app_state.users[wp],
@@ -534,6 +564,37 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
     tournament.draw = draw
     tournament.nb_berserk = berserk
 
+    for player_data in tournament.players.values():
+        if "-" not in player_data.points:
+            continue
+        games_iter = iter(player_data.games)
+        next_game = next(games_iter, None)
+        rebuilt = []
+        for point in player_data.points:
+            if point == "-":
+                rebuilt.append(ByeGame())
+                continue
+            if next_game is None:
+                break
+            rebuilt.append(next_game)
+            next_game = next(games_iter, None)
+        while next_game is not None:
+            rebuilt.append(next_game)
+            next_game = next(games_iter, None)
+        player_data.games = rebuilt
+
+    if stored_round is None and tournament.system != ARENA:
+        stored_round = max(
+            (len(player.games) for player in tournament.players.values()),
+            default=0,
+        )
+        if stored_round == 0:
+            stored_round = max(
+                (len(player.points) for player in tournament.players.values()),
+                default=0,
+            )
+        tournament.current_round = stored_round
+
     cursor = app_state.db.tournament_chat.find(
         {"tid": tournament.id},
         projection={
@@ -547,6 +608,18 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
     )
     docs = await cursor.to_list(length=MAX_CHAT_LINES)
     tournament.tourneychat = docs
+
+    if tournament.status == T_STARTED:
+        has_points = any(player.points for player in tournament.players.values())
+        if (
+            tournament.nb_games_finished == 0
+            and len(tournament.ongoing_games) == 0
+            and not has_points
+        ):
+            tournament.first_pairing = True
+
+    if tournament.status in (T_CREATED, T_STARTED):
+        tournament.clock_task = asyncio.create_task(tournament.clock(), name="tournament-clock")
 
     app_state.schedule_tournament_cache_removal(tournament)
     return tournament

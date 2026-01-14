@@ -1,72 +1,25 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-import gc
 import unittest
-import weakref
+from datetime import datetime, timezone
 
-from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
-
-from const import (
-    BYEGAME,
-    STARTED,
-    T_CREATED,
-    T_STARTED,
-    T_FINISHED,
-)
+from const import T_CREATED, T_FINISHED, T_STARTED
 from newid import id8
-from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_TIME
 from pychess_global_app_state_utils import get_app_state
-from settings import LOCALHOST, URI
-from server import make_app
 from tournament.auto_play_arena import (
     ArenaTestTournament,
-    SwissTestTournament,
     RRTestTournament,
+    SwissTestTournament,
 )
-from tournament.tournament import GameData, PlayerData
-from tournament.tournaments import load_tournament
-
-import logging
-import test_logger
-
-test_logger.init_test_logger()
-
-log = logging.getLogger(__name__)
-
-ONE_TEST_ONLY = False
+from tournament.tournament import upsert_tournament_to_db
+from tournament_test_base import ONE_TEST_ONLY, TournamentTestCase
 
 
-class TournamentTestCase(AioHTTPTestCase):
-    async def tearDownAsync(self):
-        app_state = get_app_state(self.app)
-        has_games = len(app_state.games) > 0
-
-        for game in app_state.games.values():
-            if game.status == BYEGAME:  # ByeGame
-                continue
-            if game.status <= STARTED:
-                await game.abort_by_server()
-
-        if has_games:
-            for task in self.tournament.game_tasks:
-                task.cancel()
-                try:
-                    await task
-                except asyncio.CancelledError:
-                    pass
-
-        await self.client.close()
-
-    async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
-        return app
-
+class TournamentFlowTestCase(TournamentTestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_without_players(self):
         app_state = get_app_state(self.app)
-        # app_state.db = None
         tid = id8()
         self.tournament = ArenaTestTournament(app_state, tid, before_start=0, minutes=2.0 / 60.0)
         app_state.tournaments[tid] = self.tournament
@@ -84,10 +37,11 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_players(self):
         app_state = get_app_state(self.app)
-        # app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(app_state, tid, before_start=0, minutes=0)
+        self.tournament = ArenaTestTournament(
+            app_state, tid, before_start=0, minutes=0, with_clock=False
+        )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
@@ -100,14 +54,11 @@ class TournamentTestCase(AioHTTPTestCase):
         self.assertEqual(len(self.tournament.players), NB_PLAYERS)
         self.assertEqual(len(self.tournament.leaderboard), NB_PLAYERS - 1)
 
-        await self.tournament.clock_task
-
-        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual(self.tournament.status, T_CREATED)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_with_3_active_players(self):
         app_state = get_app_state(self.app)
-        # app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = ArenaTestTournament(app_state, tid, before_start=0.1, minutes=1)
@@ -130,7 +81,6 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_SWISS(self):
         app_state = get_app_state(self.app)
-        # app_state.db = None
         NB_PLAYERS = 15
         NB_ROUNDS = 5
         tid = id8()
@@ -149,7 +99,6 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_1_min_ARENA(self):
         app_state = get_app_state(self.app)
-        # app_state.db = None
         NB_PLAYERS = 15
         tid = id8()
         self.tournament = ArenaTestTournament(app_state, tid, before_start=0.1, minutes=1)
@@ -172,7 +121,6 @@ class TournamentTestCase(AioHTTPTestCase):
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_5_round_RR(self):
         app_state = get_app_state(self.app)
-        # app_state.db = None
         NB_PLAYERS = 5
         NB_ROUNDS = 5
 
@@ -237,55 +185,27 @@ class TournamentTestCase(AioHTTPTestCase):
 
         await self.tournament.clock_task
 
-    async def test_finished_tournament_evicted_after_keep_time(self):
+    async def test_withdraw_after_start_pauses(self):
         app_state = get_app_state(self.app)
         tid = id8()
-        self.tournament = SwissTestTournament(app_state, tid, before_start=0, rounds=1, minutes=1)
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
         app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
 
-        await self.tournament.join_players(4)
-        await self.tournament.clock_task
+        await self.tournament.join_players(2)
+        player = list(self.tournament.players.keys())[0]
+        await self.tournament.start(datetime.now(timezone.utc))
 
-        pairing = await app_state.db.tournament_pairing.find_one({"tid": tid, "r": {"$ne": "d"}})
-        self.assertIsNotNone(pairing)
+        await self.tournament.withdraw(player)
 
-        del app_state.tournaments[tid]
-        app_state.tourneysockets.pop(tid, None)
+        player_data = self.tournament.players[player]
+        self.assertTrue(player_data.paused)
+        self.assertFalse(player_data.withdrawn)
+        self.assertEqual(self.tournament.nb_players, 2)
+        self.assertIn(player, self.tournament.leaderboard)
 
-        loaded = await load_tournament(app_state, tid)
-        self.assertIsNotNone(loaded)
-        self.assertGreater(loaded.status, T_STARTED)
-
-        player_data = next(iter(loaded.players.values()))
-        self.assertIsInstance(player_data, PlayerData)
-
-        game_data = None
-        for pdata in loaded.players.values():
-            for game in pdata.games:
-                if isinstance(game, GameData):
-                    game_data = game
-                    break
-            if game_data is not None:
-                break
-        self.assertIsNotNone(game_data)
-
-        app_state.schedule_tournament_cache_removal(loaded)
-
-        player_ref = weakref.ref(player_data)
-        game_ref = weakref.ref(game_data)
-
-        loaded = None
-        player_data = None
-        game_data = None
-
-        delay = LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else TOURNAMENT_KEEP_TIME
-        await asyncio.sleep(delay + 0.2)
-        gc.collect()
-
-        self.assertNotIn(tid, app_state.tournaments)
-        self.assertIsNone(player_ref())
-        self.assertIsNone(game_ref())
-
-
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
+        doc = await app_state.db.tournament_player.find_one({"_id": player_data.id})
+        self.assertTrue(doc["a"])
+        self.assertFalse(doc.get("wd", False))

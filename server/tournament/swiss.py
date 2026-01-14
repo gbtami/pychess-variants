@@ -22,7 +22,9 @@ class SwissTournament(Tournament):
             pairing.append((wp, bp))
 
         if len(waiting_players) == 1:
-            self.players[waiting_players[0]].games.append(ByeGame())
-            self.players[waiting_players[0]].points.append("-")
+            player = waiting_players[0]
+            self.players[player].games.append(ByeGame())
+            self.players[player].points.append("-")
+            self.bye_players.append(player)
 
         return pairing

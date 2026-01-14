@@ -101,8 +101,10 @@ class RRTournament(Tournament):
         for wpn, bpn in berger:
             if odd and n in (wpn, bpn):
                 sit = wpn if bpn == n else bpn
-                self.players[players[sit - 1]].games.append(ByeGame())
-                self.players[players[sit - 1]].points.append("-")
+                player = players[sit - 1]
+                self.players[player].games.append(ByeGame())
+                self.players[player].points.append("-")
+                self.bye_players.append(player)
             else:
                 wp = players[wpn - 1]
                 bp = players[bpn - 1]
