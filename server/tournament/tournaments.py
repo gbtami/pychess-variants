@@ -378,7 +378,9 @@ async def get_tournament_name(request, tournament_id):
 async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tournament_klass=None):
     """Return Tournament object from app cache or from database"""
     if tournament_id in app_state.tournaments:
-        return app_state.tournaments[tournament_id]
+        tournament = app_state.tournaments[tournament_id]
+        app_state.schedule_tournament_cache_removal(tournament)
+        return tournament
 
     doc = await app_state.db.tournament.find_one({"_id": tournament_id})
 
@@ -546,6 +548,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
     docs = await cursor.to_list(length=MAX_CHAT_LINES)
     tournament.tourneychat = docs
 
+    app_state.schedule_tournament_cache_removal(tournament)
     return tournament
 
 

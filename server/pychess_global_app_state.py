@@ -63,7 +63,7 @@ from settings import (
 )
 from gc_telemetry import start_gc_telemetry
 from simul.simul import Simul
-from tournament.tournament import Tournament
+from tournament.tournament import Tournament, player_json
 from tournament.tournaments import (
     translated_tournament_name,
     get_scheduled_tournaments,
@@ -85,6 +85,7 @@ from puzzle import rename_puzzle_fields
 log = logging.getLogger(__name__)
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
+TOURNAMENT_KEEP_TIME = 1800  # keep ended tournaments in cache for TOURNAMENT_KEEP_TIME secs
 # Local dev/test cache retention; keep this small so unit tests and local runs
 # can purge quickly without waiting a full GAME_KEEP_TIME.
 LOCALHOST_CACHE_KEEP_TIME = 1
@@ -107,6 +108,7 @@ class PychessGlobalAppState:
         self.lobby = Lobby(self)
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
         self.tourneysockets: dict[str, WebSocketResponse] = {}
+        self.tournament_remove_tasks: dict[str, asyncio.Task] = {}
 
         # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
         self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
@@ -545,6 +547,55 @@ class PychessGlobalAppState:
             await self._maybe_remove_idle_anon_user(player)
 
         log.debug("Removed %s OK", game.id)
+
+    def schedule_tournament_cache_removal(self, tournament: Tournament):
+        if tournament is None or tournament.status <= T_STARTED:
+            return
+
+        task = self.tournament_remove_tasks.get(tournament.id)
+        if task is not None and not task.done():
+            return
+
+        task = asyncio.create_task(
+            self.remove_tournament_from_cache(tournament.id),
+            name="tournament-remove-%s" % tournament.id,
+        )
+        self.tournament_remove_tasks[tournament.id] = task
+
+        def _cleanup_task(_task, tournament_id=tournament.id):
+            self.tournament_remove_tasks.pop(tournament_id, None)
+
+        task.add_done_callback(_cleanup_task)
+
+    async def remove_tournament_from_cache(self, tournament_id: str):
+        await asyncio.sleep(LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else TOURNAMENT_KEEP_TIME)
+
+        tournament = self.tournaments.get(tournament_id)
+        if tournament is None or tournament.status <= T_STARTED:
+            return
+
+        if tournament.clock_task is not None and not tournament.clock_task.done():
+            tournament.clock_task.cancel()
+            try:
+                await tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+        socket_map = self.tourneysockets.pop(tournament_id, {})
+        for ws_set in socket_map.values():
+            for ws in list(ws_set):
+                if ws is None:
+                    continue
+                try:
+                    await ws.close()
+                except Exception:
+                    log.debug("Failed to close tournament socket for %s", tournament_id)
+
+        if tournament_id in self.tournaments:
+            del self.tournaments[tournament_id]
+
+        player_json.cache_clear()
+        log.debug("Removed tournament %s OK", tournament_id)
 
     async def _maybe_remove_idle_anon_user(self, user: User):
         # This cleanup is intentionally conservative: only remove anon users that

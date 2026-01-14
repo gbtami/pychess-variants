@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import gc
 import unittest
+import weakref
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
@@ -14,13 +16,17 @@ from const import (
     T_FINISHED,
 )
 from newid import id8
+from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_TIME
 from pychess_global_app_state_utils import get_app_state
+from settings import LOCALHOST, URI
 from server import make_app
 from tournament.auto_play_arena import (
     ArenaTestTournament,
     SwissTestTournament,
     RRTestTournament,
 )
+from tournament.tournament import GameData, PlayerData
+from tournament.tournaments import load_tournament
 
 import logging
 import test_logger
@@ -230,6 +236,55 @@ class TournamentTestCase(AioHTTPTestCase):
         self.assertEqual(leaderboard_ratings, sorted(leaderboard_ratings, reverse=True))
 
         await self.tournament.clock_task
+
+    async def test_finished_tournament_evicted_after_keep_time(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(app_state, tid, before_start=0, rounds=1, minutes=1)
+        app_state.tournaments[tid] = self.tournament
+
+        await self.tournament.join_players(4)
+        await self.tournament.clock_task
+
+        pairing = await app_state.db.tournament_pairing.find_one({"tid": tid, "r": {"$ne": "d"}})
+        self.assertIsNotNone(pairing)
+
+        del app_state.tournaments[tid]
+        app_state.tourneysockets.pop(tid, None)
+
+        loaded = await load_tournament(app_state, tid)
+        self.assertIsNotNone(loaded)
+        self.assertGreater(loaded.status, T_STARTED)
+
+        player_data = next(iter(loaded.players.values()))
+        self.assertIsInstance(player_data, PlayerData)
+
+        game_data = None
+        for pdata in loaded.players.values():
+            for game in pdata.games:
+                if isinstance(game, GameData):
+                    game_data = game
+                    break
+            if game_data is not None:
+                break
+        self.assertIsNotNone(game_data)
+
+        app_state.schedule_tournament_cache_removal(loaded)
+
+        player_ref = weakref.ref(player_data)
+        game_ref = weakref.ref(game_data)
+
+        loaded = None
+        player_data = None
+        game_data = None
+
+        delay = LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else TOURNAMENT_KEEP_TIME
+        await asyncio.sleep(delay + 0.2)
+        gc.collect()
+
+        self.assertNotIn(tid, app_state.tournaments)
+        self.assertIsNone(player_ref())
+        self.assertIsNone(game_ref())
 
 
 if __name__ == "__main__":

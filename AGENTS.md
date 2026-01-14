@@ -49,17 +49,17 @@ ruff check .
 PYTHONPATH=server python -m unittest discover -s tests
 
 # Python Playwright tests
-# Note: --with-deps uses apt and needs sudo; only required on fresh Ubuntu installs.
-python -m playwright install --with-deps
+# Run tests directly. If browsers are missing, install them first.
+# Avoid --with-deps unless you are provisioning a fresh host with sudo access.
+python -m playwright install
 PYTHONPATH=server python -m pytest tests/test_e2e.py
 PYTHONPATH=server python -m pytest tests/test_gui.py
 ```
 
 Playwright setup tips:
-- The `--with-deps` install uses apt and needs sudo; it will fail in environments without system package manager access.
-- On fresh Ubuntu, run `python -m playwright install --with-deps` once; otherwise `python -m playwright install` or skip it if browsers are already installed.
+- The `--with-deps` install uses apt and needs sudo; avoid it unless you are provisioning a fresh host.
+- If browsers are already installed, you can skip `python -m playwright install`.
 - Tests spin up local servers/browsers, so run them in an environment that allows opening local sockets.
-- If `python -m playwright install --with-deps` times out, `python -m playwright install` succeeded here and unblocked the Playwright tests.
 
 ### Docker Development
 ```bash

@@ -606,6 +606,7 @@ class Tournament(ABC):
         await self.save()
 
         await self.broadcast_spotlight()
+        self.app_state.schedule_tournament_cache_removal(self)
 
     async def broadcast_spotlight(self):
         spotlights = tournament_spotlights(self.app_state)
