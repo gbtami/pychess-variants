@@ -79,6 +79,7 @@ from videos import VIDEOS
 from youtube import Youtube
 from lang import LOCALE
 import logging
+import sys
 from variants import VARIANTS, RATED_VARIANTS
 from puzzle import rename_puzzle_fields
 
@@ -86,9 +87,13 @@ log = logging.getLogger(__name__)
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 TOURNAMENT_KEEP_TIME = 1800  # keep ended tournaments in cache for TOURNAMENT_KEEP_TIME secs
-# Local dev/test cache retention; keep this small so unit tests and local runs
-# can purge quickly without waiting a full GAME_KEEP_TIME.
-LOCALHOST_CACHE_KEEP_TIME = 1
+
+def _is_test_run() -> bool:
+    return any("pytest" in arg for arg in sys.argv) or any("unittest" in arg for arg in sys.argv)
+
+# Local test cache retention; keep this small for test runs, but use the
+# production-like TTL for interactive localhost usage.
+LOCALHOST_CACHE_KEEP_TIME = 1 if _is_test_run() else TOURNAMENT_KEEP_TIME
 
 
 class PychessGlobalAppState:

@@ -55,6 +55,11 @@ export class WebsocketHeartbeatJs {
             repeatLimit: opts.repeatLimit || null
         };
         this.repeat = 0;
+        this.onclose = () => {};
+        this.onerror = () => {};
+        this.onopen = () => {};
+        this.onmessage = () => {};
+        this.onreconnect = () => {};
 
         this.createWebSocket();
     }
