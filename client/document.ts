@@ -85,7 +85,17 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
         link.id = cssId;
         link.rel = 'stylesheet';
         console.log('add CSS link', cssId, link);
-        document.head.appendChild(link);
+        const anchor = document.querySelector('link[rel="stylesheet"][href*="extensions.css"]');
+        if (anchor && anchor.parentNode) {
+            anchor.parentNode.insertBefore(link, anchor);
+        } else {
+            document.head.appendChild(link);
+        }
+    } else {
+        const anchor = document.querySelector('link[rel="stylesheet"][href*="extensions.css"]');
+        if (anchor && anchor.parentNode) {
+            anchor.parentNode.insertBefore(link, anchor);
+        }
     }
     link.setAttribute("href", newUrl);
 }

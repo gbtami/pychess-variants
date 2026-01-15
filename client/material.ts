@@ -155,10 +155,10 @@ function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNod
         if (normalPieces === 0 && coveredPieces === 0) continue;
         const currentDiv: VNode[] = [];
         for (let i = 0; i < normalPieces; i++) {
-            currentDiv.push(h('mpiece.' + role + '.jieqi-normal'));
+            currentDiv.push(h('piece.' + role + '.jieqi-normal.white'));
         }
         for (let i = 0; i < coveredPieces; i++) {
-            currentDiv.push(h('mpiece.' + role + '.jieqi-covered'));
+            currentDiv.push(h('piece.' + role + '.jieqi-covered.white'));
         }
         whiteContent.push(h('div', currentDiv));
     }
@@ -171,10 +171,10 @@ function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNod
         if (normalPieces === 0 && coveredPieces === 0) continue;
         const currentDiv: VNode[] = [];
         for (let i = 0; i < normalPieces; i++) {
-            currentDiv.push(h('mpiece.' + role + '.jieqi-normal'));
+            currentDiv.push(h('piece.' + role + '.jieqi-normal.black'));
         }
         for (let i = 0; i < coveredPieces; i++) {
-            currentDiv.push(h('mpiece.' + role + '.jieqi-covered'));
+            currentDiv.push(h('piece.' + role + '.jieqi-covered.black'));
         }
         blackContent.push(h('div', currentDiv));
     }
@@ -183,7 +183,8 @@ function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNod
 }
 
 function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
-    return h(`div.material.material-${position}.${variant.pieceFamily}${disabled ? '.disabled' : ''}`, content);
+    const jieqiClass = variant.name === 'jieqi' ? '.jieqi-captures' : '';
+    return h(`div.material.material-${position}.${variant.pieceFamily}${jieqiClass}${disabled ? '.disabled' : ''}`, content);
 }
 
 export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean, color: cg.Color, jieqiCaptures: JieqiCapture[] = []): [VNode, VNode] {
