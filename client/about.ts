@@ -110,6 +110,8 @@ export function aboutView(model: PyChessModel): VNode[] {
                 ", ",
                 h('a', { attrs: { href: '/variants/spartan' } }, 'Spartan chess'),
                 ", ",
+                h('a', { attrs: { href: '/variants/xiangfu' } }, 'Xiang Fu'),
+                ", ",
                 h('a', { attrs: { href: '/variants/shouse' } }, 'S-house (S-chess+Crazyhouse)'),
                 ", ",
                 h('a', { attrs: { href: '/variants/capahouse' } }, 'Capahouse (Capablanca+Crazyhouse)'),
