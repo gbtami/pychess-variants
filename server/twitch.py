@@ -10,7 +10,7 @@ import aiohttp
 from aiohttp import web
 
 from broadcast import broadcast_streams
-from settings import DEV, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
+from settings import DEV, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, URI
 from streamers import TWITCH_STREAMERS
 from pychess_global_app_state_utils import get_app_state
 import logging
@@ -25,7 +25,7 @@ TWITCH_STREAMS_API_URL = "https://api.twitch.tv/helix/streams"
 if DEV:
     CALLBACK_URL = "https://localhost"
 else:
-    CALLBACK_URL = "https://www.pychess.org/twitch"
+    CALLBACK_URL = "%s/twitch" % URI
 
 ID_CHARS = string.ascii_letters + string.digits
 SECRET = "".join(random.choice(ID_CHARS) for x in range(16))

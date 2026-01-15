@@ -51,7 +51,7 @@ log = logging.getLogger(__name__)
 async def create_or_update_tournament(
     app_state: PychessGlobalAppState, username, form, tournament=None
 ):
-    """Manual tournament creation from https://www.pychess.org/tournaments/new form input values"""
+    """Manual tournament creation from /tournaments/new form input values"""
 
     variant = form["variant"]
     variant960 = variant.endswith("960")

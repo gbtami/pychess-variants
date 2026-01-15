@@ -48,7 +48,7 @@ from spectators import spectators
 from tournament.tournament_spotlights import tournament_spotlights
 from user import User
 from utils import insert_game_to_db
-
+from settings import URI
 from variants import get_server_variant
 
 log = logging.getLogger(__name__)
@@ -1303,7 +1303,7 @@ class Tournament(ABC):
     def notify_discord_msg(self, minutes):
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         tail960 = "960" if self.chess960 else ""
-        url = "https://www.pychess.org/tournament/%s" % self.id
+        url = "%s/tournament/%s" % (URI, self.id)
         if minutes >= 60:
             time = int(minutes / 60)
             time_text = "hours"

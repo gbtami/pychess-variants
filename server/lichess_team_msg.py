@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 from settings import (
     DEV,
     LICHESS_API_TOKEN,
+    URI,
 )
 
 log = logging.getLogger(__name__)
@@ -57,7 +58,7 @@ def upcoming_tournaments_msgs(tournaments):
         if tourney.status == T_CREATED and tourney.starts_at.date() <= to_date:
             tc = time_control_str(tourney.base, tourney.inc, tourney.byoyomi_period)
             at = tourney.starts_at.strftime("%H:%M")
-            url = "https://www.pychess.org/tournament/%s" % _id
+            url = "%s/tournament/%s" % (URI, _id)
             tourney_msgs.append("%s %s starts at today UTC %s\n%s" % (tc, tourney.name, at, url))
 
     tourney_msgs.append(
