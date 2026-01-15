@@ -88,8 +88,10 @@ log = logging.getLogger(__name__)
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 TOURNAMENT_KEEP_TIME = 1800  # keep ended tournaments in cache for TOURNAMENT_KEEP_TIME secs
 
+
 def _is_test_run() -> bool:
     return any("pytest" in arg for arg in sys.argv) or any("unittest" in arg for arg in sys.argv)
+
 
 # Local test cache retention; keep this small for test runs, but use the
 # production-like TTL for interactive localhost usage.
