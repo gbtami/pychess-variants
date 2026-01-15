@@ -12,7 +12,7 @@
         <link rel="stylesheet" href={{ static("chessground.css") }}>
         <link rel="stylesheet" href={{ static("board.css") }} crossorigin="anonymous">
         {% for key in piece_sets %}
-        <link id="piece-set-{{ key }}" rel="stylesheet" href={{ static("piece/{{ key }}/empty.css") }}>
+        <link id="piece-set-{{ key }}" rel="stylesheet" href={{ static("piece/" ~ key ~ "/empty.css") }}>
         {% endfor %}
         <link rel="stylesheet" href={{ static("extensions.css") }}>
         <link rel="stylesheet" href={{ static("style.css") }}>
