@@ -125,7 +125,6 @@ export class TournamentController implements ChatController {
         this.anon = model["anon"] === "True";
 
         boardSettings.assetURL = model.assetURL;
-        boardSettings.updateBoardAndPieceStyles();
     }
 
     doSend(message: JSONObject) {
@@ -424,6 +423,8 @@ export class TournamentController implements ChatController {
                 h(`div.cg-wrap.${variant.board.cg}.mini`, {
                     hook: {
                         insert: vnode => {
+                            boardSettings.updateBoardStyle(variant.boardFamily);
+                            boardSettings.updatePieceStyle(variant.pieceFamily);
                             let lastMove, fen;
                             [lastMove, fen] = getLastMoveFen(this.variant.name, game.lastMove, game.fen)
                             const cg = Chessground(vnode.elm as HTMLElement,  {

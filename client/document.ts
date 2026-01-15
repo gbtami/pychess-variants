@@ -79,7 +79,15 @@ export function changePieceCSS(assetUrl: string, family: string, cssFile: string
     if (cssFile === 'letters') newUrl = sanitizeURL(`${assetUrl}/piece-css/letters.css`);
     if (cssFile === 'invisible') newUrl = sanitizeURL(`${assetUrl}/piece-css/invisible.css`);
     // console.log("changePieceCSS", family, cssFile, newUrl)
-    document.getElementById(cssId)!.setAttribute("href", newUrl);
+    let link = document.getElementById(cssId) as HTMLLinkElement | null;
+    if (!link) {
+        link = document.createElement('link');
+        link.id = cssId;
+        link.rel = 'stylesheet';
+        console.log('add CSS link', cssId, link);
+        document.head.appendChild(link);
+    }
+    link.setAttribute("href", newUrl);
 }
 
 export function bind(eventName: string, f: (e: Event) => void, redraw: null | (() => void)) {

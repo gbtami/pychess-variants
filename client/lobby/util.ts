@@ -5,6 +5,7 @@ import { Chessground } from 'chessgroundx';
 
 import { patch } from '../document';
 import { Variant } from '../variants';
+import { boardSettings } from '../boardSettings';
 import { LobbyController } from '../lobby';
 import { variantPanels } from './layer1';
 
@@ -18,6 +19,8 @@ export function variantBoard(variant: Variant, fen: string, check: boolean=false
         h(`div.cg-wrap.${variant.board.cg}`, {
             hook: {
                 insert: (vnode: VNode) => {
+                    boardSettings.updateBoardStyle(variant.boardFamily);
+                    boardSettings.updatePieceStyle(variant.pieceFamily);
                     Chessground(vnode.elm as HTMLElement,  {
                         fen: fen,
                         turnColor: fen.split(" ")[1] === "b" ? "white" : "black",

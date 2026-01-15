@@ -91,14 +91,18 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     h(`selection.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`,[
                         h(`div.cg-wrap.${variant.board.cg}.mini`, {
                         hook: {
-                            insert: vnode => Chessground(vnode.elm as HTMLElement, {
-                                coordinates: false,
-                                viewOnly: true,
-                                fen: fen,
-                                lastMove: lastMove,
-                                dimensions: variant.board.dimensions,
-                                pocketRoles: variant.pocket?.roles,
-                            })
+                            insert: vnode => {
+                                boardSettings.updateBoardStyle(variant.boardFamily);
+                                boardSettings.updatePieceStyle(variant.pieceFamily);
+                                Chessground(vnode.elm as HTMLElement, {
+                                    coordinates: false,
+                                    viewOnly: true,
+                                    fen: fen,
+                                    lastMove: lastMove,
+                                    dimensions: variant.board.dimensions,
+                                    pocketRoles: variant.pocket?.roles,
+                                });
+                            }
                         }
                     })
                 ]),
@@ -226,7 +230,6 @@ function observeSentinel(vnode: VNode, model: PyChessModel) {
 
 export function profileView(model: PyChessModel) {
     boardSettings.assetURL = model.assetURL;
-    boardSettings.updateBoardAndPieceStyles();
 
     const profileId = model["profileid"];
     const rated = model["rated"];

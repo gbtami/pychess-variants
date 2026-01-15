@@ -6,6 +6,7 @@ import { VARIANTS } from '../variants';
 import { PyChessModel } from '../types';
 import { _ } from '../i18n';
 import { patch } from '../document';
+import { boardSettings } from '../boardSettings';
 import { chatView, ChatController } from '../chat';
 import { newWebsocket } from "@/socket/webSocketUtils";
 import { displayUsername } from "../user";
@@ -54,6 +55,7 @@ export class SimulController implements ChatController {
         this.anon = model["anon"] !== undefined && model["anon"] !== "";
         this.simulId = model["simulId"] || "";
         this.model = model;
+        boardSettings.assetURL = model.assetURL;
         this.players = model["players"] || [];
         this.pendingPlayers = model["pendingPlayers"] || [];
         this.createdBy = model["createdBy"] || "";
@@ -366,6 +368,8 @@ export class SimulController implements ChatController {
                 h(`div.cg-wrap.${variant.board.cg}`, {
                     hook: {
                         insert: vnode => {
+                            boardSettings.updateBoardStyle(variant.boardFamily);
+                            boardSettings.updatePieceStyle(variant.pieceFamily);
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: game.fen,
                                 viewOnly: true,

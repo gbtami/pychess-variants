@@ -4,6 +4,7 @@ import { Chessground } from "chessgroundx";
 import { uci2LastMove } from "@/chess";
 import { Game } from "@/profile";
 import * as cg from "chessgroundx/types";
+import { boardSettings } from "@/boardSettings";
 import { displayUsername, userLink } from "@/user";
 
 export function renderGameBoardsBug(game: Game, username: string): VNode[] {
@@ -14,29 +15,37 @@ export function renderGameBoardsBug(game: Game, username: string): VNode[] {
     h(`selection.${variant.boardFamily}.${variant.pieceFamily}`, { style:{"padding-right":"10px"} },
         h(`div.cg-wrap.${variant.board.cg}.mini`, {
         hook: {
-            insert: vnode => Chessground(vnode.elm as HTMLElement, {
-                coordinates: false,
-                viewOnly: true,
-                fen: fenA,
-                lastMove: uci2LastMove(game.lm),
-                dimensions: variant.board.dimensions,
-                pocketRoles: variant.pocket?.roles,
-                orientation: orientation[0],
-            })
+            insert: vnode => {
+                boardSettings.updateBoardStyle(variant.boardFamily);
+                boardSettings.updatePieceStyle(variant.pieceFamily);
+                Chessground(vnode.elm as HTMLElement, {
+                    coordinates: false,
+                    viewOnly: true,
+                    fen: fenA,
+                    lastMove: uci2LastMove(game.lm),
+                    dimensions: variant.board.dimensions,
+                    pocketRoles: variant.pocket?.roles,
+                    orientation: orientation[0],
+                });
+            }
         }
     })),
     h(`selection.${variant.boardFamily}.${variant.pieceFamily}`,
         h(`div.cg-wrap.${variant.board.cg}.mini`, {
         hook: {
-            insert: vnode => Chessground(vnode.elm as HTMLElement, {
-                coordinates: false,
-                viewOnly: true,
-                fen: fenB,
-                lastMove: uci2LastMove(game.lmB),
-                dimensions: variant.board.dimensions,
-                pocketRoles: variant.pocket?.roles,
-                orientation: orientation[1],
-            })
+            insert: vnode => {
+                boardSettings.updateBoardStyle(variant.boardFamily);
+                boardSettings.updatePieceStyle(variant.pieceFamily);
+                Chessground(vnode.elm as HTMLElement, {
+                    coordinates: false,
+                    viewOnly: true,
+                    fen: fenB,
+                    lastMove: uci2LastMove(game.lmB),
+                    dimensions: variant.board.dimensions,
+                    pocketRoles: variant.pocket?.roles,
+                    orientation: orientation[1],
+                });
+            }
         }
     }))];
 }

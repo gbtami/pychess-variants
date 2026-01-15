@@ -194,7 +194,6 @@ export class LobbyController implements ChatController {
         }
 
         boardSettings.assetURL = this.assetURL;
-        boardSettings.updateBoardAndPieceStyles();
     }
 
     doSend(message: JSONObject) {
@@ -949,11 +948,15 @@ export class LobbyController implements ChatController {
         if (seek.fen) {
             tooltipImage = h('minigame.' + variant.boardFamily + '.' + variant.pieceFamily, [
                 h('div.cg-wrap.' + variant.board.cg + '.minitooltip',
-                    { hook: { insert: (vnode) => Chessground(vnode.elm as HTMLElement, {
-                        coordinates: false,
-                        fen: seek.fen,
-                        dimensions: variant.board.dimensions,
-                    })}}
+                    { hook: { insert: (vnode) => {
+                        boardSettings.updateBoardStyle(variant.boardFamily);
+                        boardSettings.updatePieceStyle(variant.pieceFamily);
+                        Chessground(vnode.elm as HTMLElement, {
+                            coordinates: false,
+                            fen: seek.fen,
+                            dimensions: variant.board.dimensions,
+                        });
+                    }}}
                 ),
             ]);
         } else {
@@ -1017,6 +1020,8 @@ export class LobbyController implements ChatController {
                 h(`div.cg-wrap.${variant.board.cg}.mini`, {
                     hook: {
                         insert: vnode => {
+                            boardSettings.updateBoardStyle(variant.boardFamily);
+                            boardSettings.updatePieceStyle(variant.pieceFamily);
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: game.fen,
                                 lastMove: uci2LastMove(game.lastMove),
@@ -1041,7 +1046,6 @@ export class LobbyController implements ChatController {
         patch(document.getElementById('tv-game') as HTMLElement, h('a#tv-game', elements));
 
         boardSettings.assetURL = this.assetURL;
-        boardSettings.updateBoardAndPieceStyles();
     }
 
     renderAutoPairingActions(autoPairingIsOn: boolean) {
@@ -1363,6 +1367,7 @@ function runSeeks(vnode: VNode, model: PyChessModel) {
 }
 
 export function lobbyView(model: PyChessModel): VNode[] {
+    boardSettings.assetURL = model.assetURL;
     const puzzle = JSON.parse(model.puzzle);
     const gameCategory = model.gameCategory ?? "all";
     const blogsRaw = JSON.parse(model.blogs);
@@ -1398,6 +1403,8 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h(`div.cg-wrap.${variant.board.cg}.mini`, {
                         hook: {
                             insert: vnode => {
+                                boardSettings.updateBoardStyle(variant.boardFamily);
+                                boardSettings.updatePieceStyle(variant.pieceFamily);
                                 Chessground(vnode.elm as HTMLElement,  {
                                     orientation: variant.name === 'racingkings' ? 'white' : turnColor,
                                     fen: puzzle.f,

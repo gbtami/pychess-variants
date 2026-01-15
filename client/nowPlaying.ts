@@ -5,6 +5,7 @@ import { Api } from "chessgroundx/api";
 import * as cg from "chessgroundx/types";
 
 import { patch } from './document';
+import { boardSettings } from './boardSettings';
 // import { uci2LastMove } from './chess';
 import { timeago } from './datetime';
 import { getLastMoveFen, VARIANTS } from './variants';
@@ -103,6 +104,8 @@ export function gameViewPlaying(cgMap: {[gameId: string]: [Api, string]}, game: 
         h(`div.cg-wrap.${variant.board.cg}`, {
             hook: {
                 insert: vnode => {
+                    boardSettings.updateBoardStyle(variant.boardFamily);
+                    boardSettings.updatePieceStyle(variant.pieceFamily);
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         orientation: mycolor,
                         fen: fen,

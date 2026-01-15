@@ -11,9 +11,6 @@
         <meta name="theme-color" content="#dbd7d1"><title>{{ title }}</title>
         <link rel="stylesheet" href={{ static("chessground.css") }}>
         <link rel="stylesheet" href={{ static("board.css") }} crossorigin="anonymous">
-        {% for key in piece_sets %}
-        <link id="piece-set-{{ key }}" rel="stylesheet" href={{ static("piece/" ~ key ~ "/empty.css") }}>
-        {% endfor %}
         <link rel="stylesheet" href={{ static("extensions.css") }}>
         <link rel="stylesheet" href={{ static("style.css") }}>
         <link rel="stylesheet" href={{ static("preview.css") }}>

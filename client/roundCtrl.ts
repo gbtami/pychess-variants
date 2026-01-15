@@ -350,7 +350,6 @@ export class RoundController extends GameController {
         patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
 
         boardSettings.assetURL = this.assetURL;
-        boardSettings.updateBoardAndPieceStyles();
 
         if (this.corr && model.corrGames.length > 0) {
             const corrGames = JSON.parse(model.corrGames).sort(compareGames(this.username));

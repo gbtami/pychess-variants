@@ -56,6 +56,8 @@ function gameView(games: Games, game: Game) {
         h(`div.cg-wrap.${variant.board.cg}.mini`, {
             hook: {
                 insert: vnode => {
+                    boardSettings.updateBoardStyle(variant.boardFamily);
+                    boardSettings.updatePieceStyle(variant.pieceFamily);
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
                         lastMove: lastMove,
@@ -77,7 +79,6 @@ function gameView(games: Games, game: Game) {
 
 export function renderGames(model: PyChessModel): VNode[] {
     boardSettings.assetURL = model.assetURL;
-    boardSettings.updateBoardAndPieceStyles();
     const variant = model.variant;
     const xmlhttp = new XMLHttpRequest();
     const url = '/api/games' + ((variant !== '') ? `/${variant}` : '');
