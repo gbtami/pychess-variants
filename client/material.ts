@@ -8,7 +8,7 @@ import { Variant } from './variants';
 
 export type MaterialDiff = Map<cg.Role, number>;
 export type Equivalence = Partial<Record<cg.Role, cg.Role>>;
-export type JieqiCaptureKind = 'normal' | 'covered';
+export type JieqiCaptureKind = 'normal' | 'covered' | 'covered-hidden';
 export type JieqiCapture = { role: cg.Role; color: cg.Color; kind: JieqiCaptureKind };
 
 export function diff(lhs: MaterialDiff, rhs: MaterialDiff): MaterialDiff {
@@ -128,20 +128,23 @@ function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
     return generateContentFromDiff(variant, calculateGameDiff(variant, fen));
 }
 
-function jieqiCaptureDiffs(captures: JieqiCapture[]): { normal: MaterialDiff; covered: MaterialDiff } {
+function jieqiCaptureDiffs(captures: JieqiCapture[]): { normal: MaterialDiff; covered: MaterialDiff; hidden: MaterialDiff } {
     const normal: MaterialDiff = new Map();
     const covered: MaterialDiff = new Map();
+    const hidden: MaterialDiff = new Map();
     for (const capture of captures) {
-        const diffMap = capture.kind === 'covered' ? covered : normal;
+        let diffMap = normal;
+        if (capture.kind === 'covered') diffMap = covered;
+        if (capture.kind === 'covered-hidden') diffMap = hidden;
         const sign = capture.color === 'white' ? -1 : 1;
         const current = diffMap.get(capture.role) ?? 0;
         diffMap.set(capture.role, current + sign);
     }
-    return { normal, covered };
+    return { normal, covered, hidden };
 }
 
 function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNode[], VNode[]] {
-    const { normal, covered } = jieqiCaptureDiffs(captures);
+    const { normal, covered, hidden } = jieqiCaptureDiffs(captures);
     const whiteContent: VNode[] = [];
     const blackContent: VNode[] = [];
     const whiteCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['black'], variant.pieceRow['white']);
@@ -150,9 +153,11 @@ function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNod
     for (const role of whiteCapturedOrder) {
         const normalCount = normal.get(role) ?? 0;
         const coveredCount = covered.get(role) ?? 0;
+        const hiddenCount = hidden.get(role) ?? 0;
         const normalPieces = normalCount < 0 ? Math.abs(normalCount) : 0;
         const coveredPieces = coveredCount < 0 ? Math.abs(coveredCount) : 0;
-        if (normalPieces === 0 && coveredPieces === 0) continue;
+        const hiddenPieces = hiddenCount < 0 ? Math.abs(hiddenCount) : 0;
+        if (normalPieces === 0 && coveredPieces === 0 && hiddenPieces === 0) continue;
         const currentDiv: VNode[] = [];
         for (let i = 0; i < normalPieces; i++) {
             currentDiv.push(h('piece.' + role + '.jieqi-normal.white'));
@@ -160,21 +165,29 @@ function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNod
         for (let i = 0; i < coveredPieces; i++) {
             currentDiv.push(h('piece.' + role + '.jieqi-covered.white'));
         }
+        for (let i = 0; i < hiddenPieces; i++) {
+            currentDiv.push(h('piece.' + role + '.jieqi-covered-hidden.white'));
+        }
         whiteContent.push(h('div', currentDiv));
     }
 
     for (const role of blackCapturedOrder) {
         const normalCount = normal.get(role) ?? 0;
         const coveredCount = covered.get(role) ?? 0;
+        const hiddenCount = hidden.get(role) ?? 0;
         const normalPieces = normalCount > 0 ? normalCount : 0;
         const coveredPieces = coveredCount > 0 ? coveredCount : 0;
-        if (normalPieces === 0 && coveredPieces === 0) continue;
+        const hiddenPieces = hiddenCount > 0 ? hiddenCount : 0;
+        if (normalPieces === 0 && coveredPieces === 0 && hiddenPieces === 0) continue;
         const currentDiv: VNode[] = [];
         for (let i = 0; i < normalPieces; i++) {
             currentDiv.push(h('piece.' + role + '.jieqi-normal.black'));
         }
         for (let i = 0; i < coveredPieces; i++) {
             currentDiv.push(h('piece.' + role + '.jieqi-covered.black'));
+        }
+        for (let i = 0; i < hiddenPieces; i++) {
+            currentDiv.push(h('piece.' + role + '.jieqi-covered-hidden.black'));
         }
         blackContent.push(h('div', currentDiv));
     }

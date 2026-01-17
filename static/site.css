@@ -2031,24 +2031,6 @@ button.icon::-moz-focus-inner {
 .material.disabled {
   height: 0px;
 }
-.material mpiece.jieqi-covered,
-.material.jieqi-captures piece.jieqi-covered {
-  opacity: 0.55;
-  filter: grayscale(0.6);
-}
-.material mpiece.jieqi-normal,
-.material.jieqi-captures piece.jieqi-normal {
-  opacity: 0.95;
-}
-.material.jieqi-captures piece {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  margin-left: -10px;
-  background-size: cover;
-  background-position: center;
-}
-
 /* Playing color */
 button.icon {
   margin: 5px 8px;

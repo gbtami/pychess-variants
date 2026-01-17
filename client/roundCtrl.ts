@@ -51,6 +51,7 @@ export class RoundController extends GameController {
     materialDifference: boolean;
     jieqiCaptureStack: Array<cg.Role | null>;
     jieqiNormalCaptureStack: Array<JieqiCapture | null>;
+    jieqiCoveredCaptureStack: Array<JieqiCapture | null>;
     pendingJieqiCapture: cg.Role | null;
     vmaterial0: VNode | HTMLElement;
     vmaterial1: VNode | HTMLElement;
@@ -122,6 +123,7 @@ export class RoundController extends GameController {
         // Track per-move Jieqi capture identities so replay can render captures at any ply.
         this.jieqiCaptureStack = [];
         this.jieqiNormalCaptureStack = [];
+        this.jieqiCoveredCaptureStack = [];
         this.pendingJieqiCapture = null;
 
         this.handicap = this.variant.alternateStart ? Object.keys(this.variant.alternateStart!).some(alt => isHandicap(alt) && this.variant.alternateStart![alt] === this.fullfen) : false;
@@ -1117,8 +1119,10 @@ export class RoundController extends GameController {
         if (this.variant.name !== 'jieqi') return;
 
         const captures: Array<JieqiCapture | null> = [];
+        const coveredCaptures: Array<JieqiCapture | null> = [];
         if (this.steps.length < 2) {
             this.jieqiNormalCaptureStack = captures;
+            this.jieqiCoveredCaptureStack = coveredCaptures;
             return;
         }
 
@@ -1142,47 +1146,64 @@ export class RoundController extends GameController {
             const captured = prevState.pieces.get(dest);
             if (!captured || captured.role === '_-piece') {
                 captures.push(null);
+                coveredCaptures.push(null);
                 continue;
             }
 
+            const capturer = util.opposite(step.turnColor);
             if (captured.promoted) {
-                // "~" marks covered Jieqi pieces in FEN, so ignore their identities here.
+                coveredCaptures.push({
+                    role: captured.role,
+                    color: capturer,
+                    kind: 'covered-hidden',
+                });
                 captures.push(null);
                 continue;
             }
 
             captures.push({
                 role: captured.role,
-                color: util.opposite(step.turnColor),
+                color: capturer,
                 kind: 'normal',
             });
+            coveredCaptures.push(null);
         }
 
         this.jieqiNormalCaptureStack = captures;
+        this.jieqiCoveredCaptureStack = coveredCaptures;
     }
 
     private getJieqiCapturesForPly(ply: number): JieqiCapture[] {
         // Only captures up to the viewed ply should be rendered during move replay.
         const visiblePly = Math.max(ply, 0);
-        const showAllNormal = this.spectator;
         const normalCaptures = this.jieqiNormalCaptureStack
             .slice(0, visiblePly)
-            .filter((capture): capture is JieqiCapture => capture !== null)
-            .filter((capture) => showAllNormal || capture.color === this.mycolor);
-        const coveredCaptures = this.jieqiCaptureStack
-            .slice(0, visiblePly)
-            .filter((role): role is cg.Role => role !== null)
-            .map((role) => ({
-                role,
-                color: this.mycolor,
-                kind: 'covered' as const,
-            }));
+            .filter((capture): capture is JieqiCapture => capture !== null);
+        const coveredCaptures: JieqiCapture[] = [];
+        const max = Math.min(visiblePly, this.jieqiCoveredCaptureStack.length);
+        for (let i = 0; i < max; i++) {
+            const actualRole = this.spectator ? null : this.jieqiCaptureStack[i];
+            if (actualRole) {
+                coveredCaptures.push({
+                    role: actualRole,
+                    color: this.mycolor,
+                    kind: 'covered' as const,
+                });
+                continue;
+            }
+            const fakeCapture = this.jieqiCoveredCaptureStack[i];
+            if (fakeCapture) coveredCaptures.push(fakeCapture);
+        }
         return normalCaptures.concat(coveredCaptures);
     }
 
     private updateMaterial(): void {
         const forceJieqiMaterial = this.variant.name === 'jieqi';
         if ((this.variant.material.showDiff && this.materialDifference) || forceJieqiMaterial) {
+            if (forceJieqiMaterial && this.spectator) {
+                [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant, this.vmaterial0, this.vmaterial1);
+                return;
+            }
             // Jieqi ignores the user toggle because captured fake identities must always be visible.
             const captures = forceJieqiMaterial ? this.getJieqiCapturesForPly(this.ply) : [];
             [this.vmaterial0, this.vmaterial1] = updateMaterial(
