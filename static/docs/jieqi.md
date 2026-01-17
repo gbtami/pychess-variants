@@ -13,10 +13,6 @@ Revealed Advisors and Elephants can move freely without any limitation by area a
 
 Kings are still limited in palaces, Pawns could be revealed anywhere but can go ahead only when they are still in their homeland and could go sidely after crossing the river
 
-Capture: covered pieces could capture or be captured as usual. However, after being captured, they may still remain in covered status, no one knows which real materials the captured covered pieces are
+Capture: covered pieces could capture or be captured as usual. When a covered piece is captured, its real identity is revealed only to the player who made the capture; the opponent continues to see it as covered during the game. Captured uncovered pieces are visible to both players.
 
 https://www.chessprogramming.org/Jeiqi [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
-
-## Clarification
-
-Currently, contrary to https://zh.wikipedia.org/wiki/揭棋 neither player can see what piece has been captured. This may change in the future.

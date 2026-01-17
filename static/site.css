@@ -2015,7 +2015,7 @@ button.icon::-moz-focus-inner {
   flex-flow: row nowrap;
   align-items: center;
   align-self: center;
-  height: 40px;
+  height: 48px;
   line-height: 0;
   white-space: nowrap;
   box-sizing: inherit;

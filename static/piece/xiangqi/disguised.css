@@ -7,3 +7,17 @@
 .xiangqi piece.white.m-piece, .manchu piece.white.m-piece {
   background-color: unset;
 }
+
+.xiangqi piece.promoted.white {
+    background-image: url('../../images/pieces/disguised/3d-red.svg');
+}
+.xiangqi piece.promoted.black {
+    background-image: url('../../images/pieces/disguised/3d-black.svg');
+}
+
+.material.jieqi-captures.xiangqi piece.jieqi-covered-hidden.white {
+    background-image: url('../../images/pieces/disguised/3d-red.svg');
+}
+.material.jieqi-captures.xiangqi piece.jieqi-covered-hidden.black {
+    background-image: url('../../images/pieces/disguised/3d-black.svg');
+}

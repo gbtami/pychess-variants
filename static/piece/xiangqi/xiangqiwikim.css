@@ -47,3 +47,17 @@
 .xiangqi piece.m-piece.black {
     background-image: url('../../images/pieces/xiangqi/wikim/black_chariot.svg');
 }
+
+.xiangqi piece.promoted.white {
+    background-image: url('../../images/pieces/xiangqi/wikim/red_covered.svg');
+}
+.xiangqi piece.promoted.black {
+    background-image: url('../../images/pieces/xiangqi/wikim/black_covered.svg');
+}
+
+.material.jieqi-captures.xiangqi piece.jieqi-covered-hidden.white {
+    background-image: url('../../images/pieces/xiangqi/wikim/red_covered.svg');
+}
+.material.jieqi-captures.xiangqi piece.jieqi-covered-hidden.black {
+    background-image: url('../../images/pieces/xiangqi/wikim/black_covered.svg');
+}

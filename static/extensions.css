@@ -289,14 +289,6 @@
   background-color: gold;
   border-radius: 50%;
 }
-/* Jieqi coovered pieces */
-.xiangqi piece.promoted.white {
-  background-image: url('images/pieces/disguised/3d-red.svg');
-}
-.xiangqi piece.promoted.black {
-  background-image: url('images/pieces/disguised/3d-black.svg');
-}
-
 /* Jieqi captured pieces */
 .material mpiece.jieqi-covered,
 .material.jieqi-captures piece.jieqi-covered,
@@ -308,17 +300,11 @@
 .material.jieqi-captures piece.jieqi-normal {
   opacity: 0.95;
 }
-.material.jieqi-captures piece.jieqi-covered-hidden.white {
-  background-image: url('images/pieces/disguised/3d-red.svg');
-}
-.material.jieqi-captures piece.jieqi-covered-hidden.black {
-  background-image: url('images/pieces/disguised/3d-black.svg');
-}
 .material.jieqi-captures piece {
   display: inline-block;
-  width: 32px;
-  height: 32px;
-  margin-left: -10px;
+  width: 48px;
+  height: 48px;
+  margin-left: -16px;
   background-size: cover;
   background-position: center;
 }
