@@ -43,12 +43,12 @@ def get_main_variation(game: Game, base_tc_ms: int) -> [list, list]:
         #       them but was simpler to implement initially consider at some point optimizing storage and
         #       just store the times for the current move (as bgpn does as well)
 
+        clock_prev_ply = move_times[board][turn][ply - 1]
         clock_cur_ply = (
             int(variations[0].move.move_time * 1000)
             if variations[0].move.move_time is not None
-            else None
+            else clock_prev_ply
         )
-        clock_prev_ply = move_times[board][turn][ply - 1]
         time_since_prev_ply = clock_prev_ply - clock_cur_ply
 
         # the clocks that are/were ticking when current move was made:
