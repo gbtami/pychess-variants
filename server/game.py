@@ -160,12 +160,15 @@ class Game:
         self.id = gameId
 
         self.fow = variant == "fogofwar"
+        self.jieqi = self.variant == "jieqi"
 
-        # Jieqi captures must be tracked per side for the capturer only; the opponent
+        # Jieqi captures must be tracked per side; the opponent
         # and spectators must never learn the identities of captured covered pieces.
-        self.jieqi_captures = {WHITE: [], BLACK: []} if self.variant == "jieqi" else None
+        self.jieqi_captures = {WHITE: [], BLACK: []} if self.jieqi else None
+
         # Stack mirrors move history so takebacks can roll capture identities back safely.
-        self.jieqi_capture_stack = [] if self.variant == "jieqi" else None
+        self.jieqi_capture_stack = [] if self.jieqi else None
+
         # One-move hint used to send capture identity to the current mover only.
         self.last_jieqi_capture = None
 
@@ -389,12 +392,12 @@ class Game:
 
         if self.status <= STARTED:
             try:
-                if self.variant == "jieqi":
+                if self.jieqi:
                     # Reset per-move capture hint so stale captures are never reused.
                     self.last_jieqi_capture = None
                 san = self.board.get_san(move)
 
-                if self.variant == "jieqi":
+                if self.jieqi:
                     # Capture identity must be read before the board mutates, because
                     # the mapping of covered pieces is consumed by the move.
                     jieqi_capture = self.board.captured_jieqi_piece(move)
@@ -840,7 +843,7 @@ class Game:
     @property
     def pgn(self):
         try:
-            if self.variant == "jieqi":
+            if self.jieqi:
                 mlist = self.board.move_stack
             else:
                 mlist = get_san_moves(
@@ -1024,7 +1027,7 @@ class Game:
                     await cur_player.notify_game_end(self)
                     await opp_player.notify_game_end(self)
 
-        return {
+        response = {
             "type": "gameEnd",
             "status": self.status,
             "result": self.result,
@@ -1037,6 +1040,15 @@ class Game:
                 else ""
             ),
         }
+        if self.jieqi and self.jieqi_captures is not None:
+            response["jieqiCaptures"] = list(self.jieqi_captures[WHITE]) + list(
+                self.jieqi_captures[BLACK]
+            )
+            if self.jieqi_capture_stack is not None:
+                response["jieqiCaptureStack"] = [
+                    capture[1] if capture else None for capture in self.jieqi_capture_stack
+                ]
+        return response
 
     def start_manual_count(self):
         if self.manual_count:
@@ -1092,12 +1104,12 @@ class Game:
                         # print("Count started", count_started)
                         self.board.count_started = ply
 
-                if self.variant == "jieqi" and move[-1].isalpha():
+                if self.jieqi and move[-1].isalpha():
                     move = move[:-1]
 
                 san = self.board.get_san(move)
 
-                if self.variant == "jieqi":
+                if self.jieqi:
                     # Replay uses the current board mapping, so capture identity
                     # must be determined before pushing the move and mutating it.
                     jieqi_capture = self.board.captured_jieqi_piece(move)
@@ -1238,17 +1250,26 @@ class Game:
             "berserk": {"w": self.wberserk, "b": self.bberserk},
             "by": self.imported_by,
         }
-        if self.variant == "jieqi" and persp_color is not None and self.jieqi_captures is not None:
-            # Provide only the viewer's capture list so the opponent/spectators
-            # never receive captured fake piece identities.
-            response["jieqiCaptures"] = list(self.jieqi_captures[persp_color])
-            if self.jieqi_capture_stack is not None:
-                # Include a per-move capture stack (only the viewer's captures) so the
-                # client can render captures correctly while navigating the move list.
-                response["jieqiCaptureStack"] = [
-                    capture[1] if capture and capture[0] == persp_color else None
-                    for capture in self.jieqi_capture_stack
-                ]
+        if self.jieqi and self.jieqi_captures is not None:
+            if self.status > STARTED:
+                # After game end, reveal captured covered identities to everyone.
+                response["jieqiCaptures"] = list(self.jieqi_captures[WHITE]) + list(
+                    self.jieqi_captures[BLACK]
+                )
+                if self.jieqi_capture_stack is not None:
+                    response["jieqiCaptureStack"] = [
+                        capture[1] if capture else None for capture in self.jieqi_capture_stack
+                    ]
+            elif persp_color is not None:
+                # During the game, only the capturer sees covered identities.
+                response["jieqiCaptures"] = list(self.jieqi_captures[persp_color])
+                if self.jieqi_capture_stack is not None:
+                    # Include a per-move capture stack (only the viewer's captures) so the
+                    # client can render captures correctly while navigating the move list.
+                    response["jieqiCaptureStack"] = [
+                        capture[1] if capture and capture[0] == persp_color else None
+                        for capture in self.jieqi_capture_stack
+                    ]
         return response
 
     def game_json(self, player):

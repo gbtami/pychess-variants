@@ -6,6 +6,7 @@ import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
+from const import RESIGN
 from fairy import WHITE, BLACK
 from game import Game
 from glicko2.glicko2 import DEFAULT_PERF
@@ -66,6 +67,38 @@ class JieqiCaptureVisibilityTestCase(AioHTTPTestCase):
         self.assertEqual(capturer_view.get("jieqiCaptureStack"), ["n"])
         self.assertEqual(opponent_view.get("jieqiCaptureStack"), [None])
         self.assertIsNone(spectator_view.get("jieqiCaptureStack"))
+
+    async def test_captured_fake_piece_identity_revealed_after_game_end(self):
+        fen = "4k4/9/9/9/9/9/9/9/p~8/R3K4 w - - 0 1"
+        game = Game(get_app_state(self.app), "12345678", "jieqi", fen, self.wplayer, self.bplayer)
+
+        game.board.jieqi_covered_pieces = {"a2": "n"}
+
+        await game.play_move("a1a2", clocks=CLOCKS)
+        game.update_status(RESIGN, "1-0")
+
+        capturer_view = game.get_board(full=True, persp_color=WHITE)
+        opponent_view = game.get_board(full=True, persp_color=BLACK)
+        spectator_view = game.get_board(full=True, persp_color=None)
+
+        self.assertEqual(capturer_view.get("jieqiCaptures"), ["n"])
+        self.assertEqual(opponent_view.get("jieqiCaptures"), ["n"])
+        self.assertEqual(spectator_view.get("jieqiCaptures"), ["n"])
+
+        self.assertEqual(capturer_view.get("jieqiCaptureStack"), ["n"])
+        self.assertEqual(opponent_view.get("jieqiCaptureStack"), ["n"])
+        self.assertEqual(spectator_view.get("jieqiCaptureStack"), ["n"])
+
+    async def test_game_end_payload_includes_all_captures(self):
+        game = Game(get_app_state(self.app), "12345678", "jieqi", "", self.wplayer, self.bplayer)
+        game.jieqi_captures[WHITE] = ["n"]
+        game.jieqi_captures[BLACK] = ["r"]
+        game.jieqi_capture_stack = [(WHITE, "n"), (BLACK, "r")]
+
+        response = await game.game_ended(self.wplayer, "resign")
+
+        self.assertEqual(response.get("jieqiCaptures"), ["n", "r"])
+        self.assertEqual(response.get("jieqiCaptureStack"), ["n", "r"])
 
 
 if __name__ == "__main__":

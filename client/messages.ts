@@ -88,7 +88,7 @@ export interface MsgBoard {
     steps: Step[];
     berserk: { w: boolean, b: boolean };
     jieqiCaptures?: string[];
-    // Per-move captured fake identities for Jieqi; only populated for the viewer.
+    // Per-move captured fake identities for Jieqi; only populated for the viewer during play.
     jieqiCaptureStack?: Array<string | null>;
 
     byo?: number[];
@@ -125,6 +125,8 @@ export interface MsgGameEnd {
     pgn: string;
     ct: CrossTable;
     rdiffs: RDiffs;
+    jieqiCaptures?: string[];
+    jieqiCaptureStack?: Array<string | null>;
 }
 
 export interface MsgNewGame {

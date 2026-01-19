@@ -720,6 +720,20 @@ export class RoundController extends GameController {
         }
     }
 
+    private onMsgGameEnd = (msg: MsgGameEnd) => {
+        this.checkStatus(msg);
+
+        if (this.variant.name !== 'jieqi') return;
+        if (Array.isArray(msg.jieqiCaptureStack)) {
+            this.jieqiCaptureStack = msg.jieqiCaptureStack.map((piece) =>
+                piece ? util.roleOf(piece.toLowerCase() as cg.Letter) : null
+            );
+            this.pendingJieqiCapture = null;
+            this.rebuildJieqiNormalCaptureStack();
+        }
+        this.updateMaterial();
+    }
+
     private onMsgUpdateTV = (msg: MsgUpdateTV) => {
         if (msg.gameId !== this.gameId) {
             if (this.profileid !== "") {
@@ -1088,8 +1102,8 @@ export class RoundController extends GameController {
         if (this.variant.name !== 'jieqi') return;
 
         if (Array.isArray(msg.jieqiCaptureStack)) {
-            // Full sync uses the server-provided per-move stack so replay can seek
-            // accurately without ever exposing opponent capture identities.
+            // Full sync uses the server-provided per-move stack; after game end it can
+            // include both sides so replay reveals all covered captures.
             this.jieqiCaptureStack = msg.jieqiCaptureStack.map((piece) =>
                 piece ? util.roleOf(piece.toLowerCase() as cg.Letter) : null
             );
@@ -1181,17 +1195,18 @@ export class RoundController extends GameController {
             .filter((capture): capture is JieqiCapture => capture !== null);
         const coveredCaptures: JieqiCapture[] = [];
         const max = Math.min(visiblePly, this.jieqiCoveredCaptureStack.length);
+        const revealHidden = !this.spectator || this.status >= 0;
         for (let i = 0; i < max; i++) {
-            const actualRole = this.spectator ? null : this.jieqiCaptureStack[i];
+            const fakeCapture = this.jieqiCoveredCaptureStack[i];
+            const actualRole = revealHidden ? this.jieqiCaptureStack[i] : null;
             if (actualRole) {
                 coveredCaptures.push({
                     role: actualRole,
-                    color: this.mycolor,
+                    color: fakeCapture ? fakeCapture.color : this.mycolor,
                     kind: 'covered' as const,
                 });
                 continue;
             }
-            const fakeCapture = this.jieqiCoveredCaptureStack[i];
             if (fakeCapture) coveredCaptures.push(fakeCapture);
         }
         return normalCaptures.concat(coveredCaptures);
@@ -1200,7 +1215,7 @@ export class RoundController extends GameController {
     private updateMaterial(): void {
         const forceJieqiMaterial = this.variant.name === 'jieqi';
         if ((this.variant.material.showDiff && this.materialDifference) || forceJieqiMaterial) {
-            if (forceJieqiMaterial && this.spectator) {
+            if (forceJieqiMaterial && this.spectator && this.status < 0) {
                 [this.vmaterial0, this.vmaterial1] = emptyMaterial(this.variant, this.vmaterial0, this.vmaterial1);
                 return;
             }
@@ -1386,7 +1401,7 @@ export class RoundController extends GameController {
                 this.onMsgMove(msg);
                 break;
             case "gameEnd":
-                this.checkStatus(msg);
+                this.onMsgGameEnd(msg);
                 break;
             case "gameStart":
                 this.onMsgGameStart(msg);

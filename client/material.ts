@@ -150,6 +150,8 @@ function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNod
     const whiteCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['black'], variant.pieceRow['white']);
     const blackCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['white'], variant.pieceRow['black']);
 
+    const whiteCaptureColor = 'black';
+    const blackCaptureColor = 'white';
     for (const role of whiteCapturedOrder) {
         const normalCount = normal.get(role) ?? 0;
         const coveredCount = covered.get(role) ?? 0;
@@ -160,13 +162,13 @@ function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNod
         if (normalPieces === 0 && coveredPieces === 0 && hiddenPieces === 0) continue;
         const currentDiv: VNode[] = [];
         for (let i = 0; i < normalPieces; i++) {
-            currentDiv.push(h('piece.' + role + '.jieqi-normal.white'));
+            currentDiv.push(h('piece.' + role + '.jieqi-normal.' + whiteCaptureColor));
         }
         for (let i = 0; i < coveredPieces; i++) {
-            currentDiv.push(h('piece.' + role + '.jieqi-covered.white'));
+            currentDiv.push(h('piece.' + role + '.jieqi-covered.' + whiteCaptureColor));
         }
         for (let i = 0; i < hiddenPieces; i++) {
-            currentDiv.push(h('piece.' + role + '.jieqi-covered-hidden.white'));
+            currentDiv.push(h('piece.' + role + '.jieqi-covered-hidden.' + whiteCaptureColor));
         }
         whiteContent.push(h('div', currentDiv));
     }
@@ -181,13 +183,13 @@ function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNod
         if (normalPieces === 0 && coveredPieces === 0 && hiddenPieces === 0) continue;
         const currentDiv: VNode[] = [];
         for (let i = 0; i < normalPieces; i++) {
-            currentDiv.push(h('piece.' + role + '.jieqi-normal.black'));
+            currentDiv.push(h('piece.' + role + '.jieqi-normal.' + blackCaptureColor));
         }
         for (let i = 0; i < coveredPieces; i++) {
-            currentDiv.push(h('piece.' + role + '.jieqi-covered.black'));
+            currentDiv.push(h('piece.' + role + '.jieqi-covered.' + blackCaptureColor));
         }
         for (let i = 0; i < hiddenPieces; i++) {
-            currentDiv.push(h('piece.' + role + '.jieqi-covered-hidden.black'));
+            currentDiv.push(h('piece.' + role + '.jieqi-covered-hidden.' + blackCaptureColor));
         }
         blackContent.push(h('div', currentDiv));
     }
