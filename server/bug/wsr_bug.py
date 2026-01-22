@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, cast
+
 from broadcast import round_broadcast
 from bug.game_bug import GameBug
 from fairy import FairyBoard
@@ -8,10 +12,18 @@ from seek import Seek
 from bug.utils_bug import play_move, join_seek_bughouse
 import logging
 
+if TYPE_CHECKING:
+    from user import User
+
 log = logging.getLogger(__name__)
 
 
-async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data, game):
+DataDict = dict[str, Any]
+
+
+async def handle_reconnect_bughouse(
+    app_state: PychessGlobalAppState, user: User, data: DataDict, game: GameBug
+) -> None:
     log.info("Got RECONNECT message %s %r" % (user.username, data))
     moves_queued = data.get("movesQueued")
     # on reconnect use server time. Might be good to log the difference here to see how long a player was disconnected
@@ -56,7 +68,7 @@ async def handle_reconnect_bughouse(app_state: PychessGlobalAppState, user, data
                 )
 
 
-async def handle_resign_bughouse(data, game: GameBug, user):
+async def handle_resign_bughouse(data: DataDict, game: GameBug, user: User) -> None:
     if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
         return
 
@@ -71,7 +83,9 @@ async def handle_resign_bughouse(data, game: GameBug, user):
     await round_broadcast(game, response, full=True)
 
 
-async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user):
+async def handle_rematch_bughouse(
+    app_state: PychessGlobalAppState, game: GameBug, user: User
+) -> dict[str, object]:
     # Use the game's move_lock to ensure atomic operations for rematch functionality
     async with game.move_lock:
         log.info("rematch request by %s.", user)
@@ -104,7 +118,7 @@ async def handle_rematch_bughouse(app_state: PychessGlobalAppState, game, user):
                 inc=game.inc,
                 byoyomi_period=game.byoyomi_period,
                 level=game.level,
-                rated=game.rated,
+                rated=cast(bool, game.rated),
                 player1=game.bplayer,
                 player2=game.wplayer,
                 bugPlayer1=game.wplayerB,

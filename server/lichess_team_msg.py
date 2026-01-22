@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 from datetime import datetime
 
 import aiohttp
@@ -6,7 +7,6 @@ import logging
 
 from const import T_CREATED
 from misc import time_control_str
-from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

@@ -1,4 +1,6 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING, Any
+from collections.abc import Awaitable, Callable, Mapping
 import json
 import logging
 import aiohttp
@@ -6,9 +8,9 @@ import aiohttp_session
 from aiohttp import WSMessage, web
 from aiohttp.web_ws import WebSocketResponse
 from aiohttp.client_exceptions import ClientConnectionResetError
-from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
     from user import User
 
 from pychess_global_app_state_utils import get_app_state
@@ -22,13 +24,19 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
     return user
 
 
+InitMessageHandler = Callable[["PychessGlobalAppState", WebSocketResponse, "User"], Awaitable[None]]
+MessageHandler = Callable[
+    ["PychessGlobalAppState", "User", WebSocketResponse, dict[str, Any]], Awaitable[None]
+]
+
+
 async def process_ws(
     session: aiohttp_session.Session,
     request: web.Request,
     user: User,
-    init_msg: callable,
-    custom_msg_processor: callable,
-) -> WebSocketResponse:
+    init_msg: InitMessageHandler | None,
+    custom_msg_processor: MessageHandler,
+) -> WebSocketResponse | None:
     """
     Process websocket messages until socket closed or errored. Returns the closed WebSocketResponse object.
     """
@@ -102,7 +110,7 @@ async def process_ws(
         return ws
 
 
-async def ws_send_str(ws, msg) -> bool:
+async def ws_send_str(ws: WebSocketResponse, msg: str) -> bool:
     try:
         await ws.send_str(msg)
         return True
@@ -111,7 +119,7 @@ async def ws_send_str(ws, msg) -> bool:
         return False
 
 
-async def ws_send_json(ws, msg) -> bool:
+async def ws_send_json(ws: WebSocketResponse | None, msg: Mapping[str, object]) -> bool:
     if ws is None:
         log.error("ws_send_json: ws is None")
         return False

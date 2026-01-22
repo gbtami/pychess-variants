@@ -36,9 +36,9 @@ jobs:
     - name: Format check with ruff
       run: |
         ruff format --check server tests
-#    - name: Typecheck with mypy
-#      run: |
-#        mypy server/
+    - name: Typecheck with mypy
+      run: |
+        mypy
     - name: Run unit tests
       run: |
         PYTHONPATH=server python -m unittest discover -s tests

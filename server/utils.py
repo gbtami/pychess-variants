@@ -1,9 +1,9 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 import asyncio
 import json
 
-from const import TYPE_CHECKING
 
 import random
 from datetime import date, datetime, timezone, timedelta

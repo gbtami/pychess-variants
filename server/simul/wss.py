@@ -1,10 +1,10 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 import aiohttp_session
 from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
 from websocket_utils import process_ws, get_user, ws_send_json
-from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 from datetime import datetime, timezone
 
 import aiohttp_session
@@ -7,7 +8,6 @@ from aiohttp import web
 from admin import silence
 from chat import chat_response
 from const import ANON_PREFIX, SHIELD
-from const import TYPE_CHECKING
 import logger
 
 if TYPE_CHECKING:
@@ -16,6 +16,7 @@ from pychess_global_app_state_utils import get_app_state
 from settings import TOURNAMENT_DIRECTORS
 from tournament.tournament import T_CREATED, T_STARTED
 from tournament.tournaments import load_tournament
+from ws_types import TournamentUserConnectedMessage
 from websocket_utils import process_ws, get_user, ws_send_json
 
 
@@ -162,7 +163,7 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
     app_state.tourneysockets[tournamentId][user.username] = user.tournament_sockets[tournamentId]
 
     now = datetime.now(timezone.utc)
-    response = {
+    response: TournamentUserConnectedMessage = {
         "type": "tournament_user_connected",
         "username": user.username,
         "ustatus": tournament.user_status(user),
@@ -196,8 +197,8 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
     elif tournament.top_game is not None:
         await ws_send_json(ws, tournament.top_game_json)
 
-    response = {"type": "fullchat", "lines": list(tournament.tourneychat)}
-    await ws_send_json(ws, response)
+    fullchat_response = {"type": "fullchat", "lines": list(tournament.tourneychat)}
+    await ws_send_json(ws, fullchat_response)
 
     await ws_send_json(ws, tournament.duels_json)
 

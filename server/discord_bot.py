@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 
 import logging
@@ -7,7 +8,7 @@ from time import time
 import discord
 from discord.ext.commands import Bot
 
-from const import CATEGORIES, TYPE_CHECKING
+from const import CATEGORIES
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

@@ -1,8 +1,8 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from aiohttp import web
 
-from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

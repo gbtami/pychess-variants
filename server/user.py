@@ -1,9 +1,9 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING, Any, List, Mapping, Set
 import asyncio
 from asyncio import Queue
 from datetime import MINYEAR, datetime, timezone
 from urllib.parse import urlparse
-from typing import Set, List
 
 import aiohttp_session
 from aiohttp import web
@@ -26,9 +26,9 @@ from const import (
 from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from newid import id8
 from notify import notify
-from const import BLOCK, MAX_USER_BLOCK, TYPE_CHECKING
-from seek import Seek
+from const import BLOCK, MAX_USER_BLOCK
 from websocket_utils import ws_send_json
+from typing_defs import PerfGl, PerfMap, UserJson
 from variants import RATED_VARIANTS, VARIANTS
 from settings import (
     URI,
@@ -38,6 +38,7 @@ from settings import (
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from game import Game
+    from seek import Seek
 
 from pychess_global_app_state_utils import get_app_state
 import logging
@@ -59,69 +60,71 @@ class User:
     def __init__(
         self,
         app_state: PychessGlobalAppState,
-        bot=False,
-        username=None,
-        anon=False,
-        title="",
-        perfs=None,
-        pperfs=None,
-        enabled=True,
-        lang=None,
-        theme="dark",
-        game_category="all",
-        oauth_id="",
-        oauth_provider="",
-    ):
-        self.app_state = app_state
-        self.bot = False if username == "PyChessBot" else bot
-        self.anon = anon
-        self.lang = lang
-        self.theme = theme
-        self.game_category = "all"
-        self.game_category_set = False
-        self.oauth_id = oauth_id
-        self.oauth_provider = oauth_provider
-        self.notifications = None
+        bot: bool = False,
+        username: str | None = None,
+        anon: bool = False,
+        title: str = "",
+        perfs: PerfMap | None = None,
+        pperfs: PerfMap | None = None,
+        enabled: bool = True,
+        lang: str | None = None,
+        theme: str = "dark",
+        game_category: str = "all",
+        oauth_id: str = "",
+        oauth_provider: str = "",
+    ) -> None:
+        self.app_state: PychessGlobalAppState = app_state
+        self.bot: bool = False if username == "PyChessBot" else bot
+        self.anon: bool = anon
+        self.lang: str | None = lang
+        self.theme: str = theme
+        self.game_category: str = "all"
+        self.game_category_set: bool = False
+        self.oauth_id: str = oauth_id
+        self.oauth_provider: str = oauth_provider
+        self.notifications: list[dict[str, Any]] | None = None
         self.update_game_category(game_category)
 
         if username is None:
             self.anon = False if self.app_state.anon_as_test_users else True
-            self.username = (
+            self.username: str = (
                 TEST_PREFIX if self.app_state.anon_as_test_users else ANON_PREFIX
             ) + id8()
         else:
             self.username = username
 
-        self.seeks: dict[int, Seek] = {}
+        self.seeks: dict[str, Seek] = {}
 
-        self.ready_for_auto_pairing = False
+        self.ready_for_auto_pairing: bool = False
         self.lobby_sockets: Set[WebSocketResponse] = set()
-        self.tournament_sockets: dict[str, WebSocketResponse] = {}  # {tournamentId: set()}
-        self.simul_sockets: dict[str, WebSocketResponse] = {}  # {simulId: set()}
+        self.tournament_sockets: dict[str, set[WebSocketResponse]] = {}  # {tournamentId: set()}
+        self.simul_sockets: dict[str, set[WebSocketResponse]] = {}  # {simulId: set()}
 
-        self.notify_channels: Set[Queue] = set()
+        self.notify_channels: Set[Queue[Any]] = set()
 
-        self.puzzles = {}  # {pizzleId: vote} where vote 0 = not voted, 1 = up, -1 = down
-        self.puzzle_variant = None
+        self.puzzles: dict[
+            str, int
+        ] = {}  # {pizzleId: vote} where vote 0 = not voted, 1 = up, -1 = down
+        self.puzzle_variant: str | None = None
 
-        self.game_sockets: dict[str, WebSocketResponse] = {}
-        self.title = title
-        self.game_in_progress = None
-        self.abandon_game_tasks = {}
+        self.game_sockets: dict[str, set[WebSocketResponse]] = {}
+        self.title: str = title
+        self.game_in_progress: str | None = None
+        self.abandon_game_tasks: dict[str, asyncio.Task[None]] = {}
         self.correspondence_games: List[Game] = []
 
-        self.blocked = set()
+        self.blocked: set[str] = set()
 
         if self.bot:
-            self.event_queue: Queue = asyncio.Queue()
-            self.game_queues: dict[str, Queue] = {}
+            self.event_queue: Queue[Any] = asyncio.Queue()
+            self.game_queues: dict[str, Queue[Any]] = {}
             self.title = "BOT"
 
-        self.online = False
+        self.online: bool = False
 
         if perfs is None:
             if self.anon or self.bot:
-                self.perfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
+                self.perfs: PerfMap = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
             else:
                 # User() with perfs=None can be dangerous
                 _id = "%s|%s" % (self.username, self.title)
@@ -139,31 +142,31 @@ class User:
             }
 
         if pperfs is None:
-            self.pperfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
+            self.pperfs: PerfMap = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
         else:
             self.pperfs = {
                 variant: pperfs[variant] if variant in pperfs else DEFAULT_PERF
                 for variant in RATED_VARIANTS
             }
 
-        self.enabled = enabled
+        self.enabled: bool = enabled
 
-        self.last_seen = datetime(MINYEAR, 1, 1, tzinfo=timezone.utc)
+        self.last_seen: datetime = datetime(MINYEAR, 1, 1, tzinfo=timezone.utc)
 
         # last game played
-        self.tv = None
+        self.tv: str | None = None
 
         # lobby chat spammer time out (10 min)
-        self.silence = 0
+        self.silence: int = 0
 
         # purge inactive anon users after ANON_TIMEOUT sec
         if self.anon and not reserved(self.username):
             task = asyncio.create_task(self.remove(), name="user-remove-%s" % self.username)
-            self.remove_anon_task = task
+            self.remove_anon_task: asyncio.Task[None] | None = task
         else:
             self.remove_anon_task = None
 
-    async def remove(self):
+    async def remove(self) -> None:
         while True:
             await asyncio.sleep(1 if URI == LOCALHOST else ANON_TIMEOUT)
             if not self.online:
@@ -179,13 +182,13 @@ class User:
                     break
         self.remove_anon_task = None
 
-    def abandon_task_done(self, task, game_id):
+    def abandon_task_done(self, task: asyncio.Task[None], game_id: str) -> None:
         try:
             del self.abandon_game_tasks[game_id]
         except KeyError:
             pass
 
-    async def abandon_game(self, game):
+    async def abandon_game(self, game: Game) -> None:
         abandon_timeout = ABANDON_TIMEOUT * (2 if game.base >= 3 else 1)
         await asyncio.sleep(abandon_timeout)
         if game.status <= STARTED and not self.is_user_active_in_game(game.id):
@@ -206,7 +209,7 @@ class User:
                 else:
                     await opp_player.send_game_message(game.id, response)
 
-    def update_online(self):
+    def update_online(self) -> None:
         self.online = (
             len(self.game_sockets) > 0
             or len(self.lobby_sockets) > 0
@@ -240,19 +243,19 @@ class User:
             self.pperfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
             return rating
 
-    def set_silence(self):
+    def set_silence(self) -> None:
         self.silence += SILENCE
 
-        async def silencio():
+        async def silencio() -> None:
             await asyncio.sleep(SILENCE)
             self.silence -= SILENCE
 
         asyncio.create_task(silencio(), name="silence-%s" % self.username)
 
-    async def set_rating(self, variant, chess960, rating):
+    async def set_rating(self, variant: str, chess960: bool, rating: Rating) -> None:
         if self.anon:
             return
-        gl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
+        gl: PerfGl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
         la = datetime.now(timezone.utc)
         nb = self.perfs[variant + ("960" if chess960 else "")].get("nb", 0)
         self.perfs[variant + ("960" if chess960 else "")] = {
@@ -266,10 +269,10 @@ class User:
                 {"_id": self.username}, {"$set": {"perfs": self.perfs}}
             )
 
-    async def set_puzzle_rating(self, variant, chess960, rating):
+    async def set_puzzle_rating(self, variant: str, chess960: bool, rating: Rating) -> None:
         if self.anon:
             return
-        gl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
+        gl: PerfGl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
         la = datetime.now(timezone.utc)
         nb = self.pperfs[variant + ("960" if chess960 else "")].get("nb", 0)
         self.pperfs[variant + ("960" if chess960 else "")] = {
@@ -283,7 +286,7 @@ class User:
                 {"_id": self.username}, {"$set": {"pperfs": self.pperfs}}
             )
 
-    async def notify_game_end(self, game):
+    async def notify_game_end(self, game: Game) -> None:
         opp_name = (
             game.wplayer.username
             if game.bplayer.username == self.username
@@ -308,7 +311,7 @@ class User:
         }
         await notify(self.app_state.db, self, notif_type, content)
 
-    async def notified(self):
+    async def notified(self) -> None:
         if self.notifications is not None:
             self.notifications = [{**notif, "read": True} for notif in self.notifications]
 
@@ -317,7 +320,7 @@ class User:
                 {"notifies": self.username}, {"$set": {"read": True}}
             )
 
-    def as_json(self, requester):
+    def as_json(self, requester: str) -> UserJson:
         return {
             "_id": self.username,
             "title": self.title,
@@ -325,7 +328,7 @@ class User:
             "simul": len(self.simul_sockets) > 0,
         }
 
-    async def clear_seeks(self):
+    async def clear_seeks(self) -> None:
         if len(self.seeks) > 0:
             for seek_id in list(self.seeks):
                 game_id = self.seeks[seek_id].game_id
@@ -336,7 +339,7 @@ class User:
 
             await self.app_state.lobby.lobby_broadcast_seeks()
 
-    def remove_from_auto_pairings(self):
+    def remove_from_auto_pairings(self) -> None:
         try:
             del self.app_state.auto_pairing_users[self]
         except KeyError:
@@ -348,8 +351,8 @@ class User:
         ]
         self.ready_for_auto_pairing = False
 
-    def delete_pending_auto_pairing(self):
-        async def delete_auto_pairing():
+    def delete_pending_auto_pairing(self) -> None:
+        async def delete_auto_pairing() -> None:
             await asyncio.sleep(PENDING_SEEK_TIMEOUT)
 
             if not self.ready_for_auto_pairing:
@@ -357,13 +360,13 @@ class User:
 
         asyncio.create_task(delete_auto_pairing(), name="delete-auto-pending-%s" % self.username)
 
-    def update_auto_pairing(self, ready=True):
+    def update_auto_pairing(self, ready: bool = True) -> None:
         self.ready_for_auto_pairing = ready
         if not ready:
             self.delete_pending_auto_pairing()
 
-    def delete_pending_seek(self, seek):
-        async def delete_seek(seek):
+    def delete_pending_seek(self, seek: Seek) -> None:
+        async def delete_seek(seek: Seek) -> None:
             await asyncio.sleep(PENDING_SEEK_TIMEOUT)
 
             if seek.pending:
@@ -377,7 +380,7 @@ class User:
 
         asyncio.create_task(delete_seek(seek), name="delete-pending-seek-%s" % seek.id)
 
-    async def update_seeks(self, pending=True):
+    async def update_seeks(self, pending: bool = True) -> None:
         if len(self.seeks) > 0:
             for seek in self.seeks.values():
                 # preserve invites (seek with game_id) and corr seeks
@@ -387,7 +390,7 @@ class User:
                         self.delete_pending_seek(seek)
             await self.app_state.lobby.lobby_broadcast_seeks()
 
-    async def send_game_message(self, game_id, message):
+    async def send_game_message(self, game_id: str, message: Mapping[str, object]) -> None:
         # todo: for now just logging dropped messages, but at some point should evaluate whether to queue them when no socket
         #       or include info about the complete round state in some more general message that is always
         #       sent on reconnect so client doesn't lose state
@@ -405,7 +408,7 @@ class User:
             log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
             await ws_send_json(ws, message)
 
-    async def close_all_game_sockets(self):
+    async def close_all_game_sockets(self) -> None:
         for ws_set in list(
             self.game_sockets.values()
         ):  # todo: also clean up this dict after closing?
@@ -415,22 +418,22 @@ class User:
                 except Exception:
                     log.error("close_all_game_sockets() Exception for %s %s", self.username, ws)
 
-    def is_user_active_in_game(self, game_id=None):
+    def is_user_active_in_game(self, game_id: str | None = None) -> bool:
         # todo: maybe also check if ws is still open or that the sets corresponding to (each) game_id are not empty?
         if game_id is None:
             return len(self.game_sockets) > 0
         else:
             return game_id in self.game_sockets
 
-    def is_user_active_in_lobby(self):
+    def is_user_active_in_lobby(self) -> bool:
         return len(self.lobby_sockets) > 0  # todo: check also if open maybe?
 
-    def add_ws_for_game(self, game_id, ws):
+    def add_ws_for_game(self, game_id: str, ws: WebSocketResponse) -> None:
         if game_id not in self.game_sockets:
             self.game_sockets[game_id] = set()
         self.game_sockets[game_id].add(ws)
 
-    def remove_ws_for_game(self, game_id, ws) -> bool:
+    def remove_ws_for_game(self, game_id: str, ws: WebSocketResponse) -> bool:
         if game_id in self.game_sockets:
             try:
                 self.game_sockets[game_id].remove(ws)
@@ -442,7 +445,9 @@ class User:
         else:
             return False
 
-    def auto_compatible_with_other_user(self, other_user, variant, chess960):
+    def auto_compatible_with_other_user(
+        self, other_user: User, variant: str, chess960: bool
+    ) -> bool:
         """Users are compatible when their auto pairing rating ranges are ok
         and the users are not blocked by any direction"""
 
@@ -461,7 +466,7 @@ class User:
             and other_rating <= self_rating + self_rrmax
         )
 
-    def auto_compatible_with_seek(self, seek):
+    def auto_compatible_with_seek(self, seek: Seek) -> bool:
         """Seek is auto pairing compatible when the rating ranges are ok
         and the users are not blocked by any direction"""
 
@@ -482,7 +487,7 @@ class User:
             and seek.rating <= self_rating + auto_rrmax
         )
 
-    def compatible_with_seek(self, seek):
+    def compatible_with_seek(self, seek: Seek) -> bool:
         """Seek is compatible when my rating is inside the seek rating range
         and the users are not blocked by any direction"""
 
@@ -498,10 +503,10 @@ class User:
             and self_rating <= seek.rating + seek.rrmax
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "%s %s bot=%s anon=%s chess=%s" % (
             self.title,
             self.username,
@@ -510,7 +515,7 @@ class User:
             self.perfs["chess"]["gl"]["r"],
         )
 
-    def update_game_category(self, game_category):
+    def update_game_category(self, game_category: str) -> None:
         normalized = normalize_game_category(game_category)
         self.game_category = normalized
         self.category_variants = CATEGORY_VARIANTS[normalized]
@@ -520,7 +525,7 @@ class User:
         self.category_variant_codes = CATEGORY_VARIANT_CODES[normalized]
 
 
-async def set_theme(request):
+async def set_theme(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     post_data = await request.post()
     theme = post_data.get("theme")
@@ -542,7 +547,7 @@ async def set_theme(request):
         raise web.HTTPNotFound()
 
 
-async def set_game_category(request):
+async def set_game_category(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     post_data = await request.post()
     game_category = post_data.get("game_category")
@@ -590,7 +595,7 @@ async def set_game_category(request):
         raise web.HTTPNotFound()
 
 
-async def block_user(request):
+async def block_user(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profileId = request.match_info.get("profileId")
 
@@ -624,7 +629,7 @@ async def block_user(request):
     return web.json_response({})
 
 
-async def get_blocked_users(request):
+async def get_blocked_users(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     # Who made the request?
     session = await aiohttp_session.get_session(request)
@@ -638,7 +643,7 @@ async def get_blocked_users(request):
     return web.json_response({"blocks": list(user.blocked)})
 
 
-async def get_status(request):
+async def get_status(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
     ids = request.rel_url.query.get("ids").split(",")

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING, Iterable, cast
 import calendar as cal
 from collections import namedtuple
 import datetime as dt
@@ -9,7 +10,6 @@ from const import (
     ARENA,
     CATEGORIES,
     SCHEDULE_MAX_DAYS,
-    TYPE_CHECKING,
     DAILY,
     WEEKLY,
     MONTHLY,
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 from tournament.tournaments import new_tournament
+from typing_defs import TournamentCreateData
 from variants import get_server_variant, GRANDS
 
 log = logging.getLogger(__name__)
@@ -232,7 +233,10 @@ class Scheduler:
         return plans
 
 
-def new_scheduled_tournaments(already_scheduled, now=None):
+def new_scheduled_tournaments(
+    already_scheduled: Iterable[tuple[str, str, bool, dt.datetime, int]],
+    now: dt.datetime | None = None,
+) -> list[TournamentCreateData]:
     """Create list for scheduled tournament data for one week from now on compared to what we already have"""
 
     # Cut off the latest element (_id) from all tournament data first
@@ -251,7 +255,7 @@ def new_scheduled_tournaments(already_scheduled, now=None):
     # 2 full month list of scheduled tournaments
     plans = Scheduler(now).schedule_plan() + Scheduler(go_month(now)).schedule_plan()
 
-    new_tournaments_data = []
+    new_tournaments_data: list[TournamentCreateData] = []
 
     budapest = zoneinfo.ZoneInfo("Europe/Budapest")
     from_now = dt.datetime(2024, 10, 28, tzinfo=dt.timezone.utc)
@@ -266,7 +270,8 @@ def new_scheduled_tournaments(already_scheduled, now=None):
         )
 
         # When it starts outside of daylight saving time (DST), shift it one hour later
-        if plan.date >= from_now and budapest.dst(starts_at.astimezone(budapest)).seconds == 0:
+        dst_offset = budapest.dst(starts_at.astimezone(budapest))
+        if plan.date >= from_now and cast(dt.timedelta, dst_offset).seconds == 0:
             starts_at = starts_at + dt.timedelta(hours=1)
 
         if (
@@ -313,6 +318,8 @@ def new_scheduled_tournaments(already_scheduled, now=None):
     return new_tournaments_data
 
 
-async def create_scheduled_tournaments(app_state: PychessGlobalAppState, new_tournaments_data):
+async def create_scheduled_tournaments(
+    app_state: PychessGlobalAppState, new_tournaments_data: Iterable[TournamentCreateData]
+) -> None:
     for data in new_tournaments_data:
         await new_tournament(app_state, data)

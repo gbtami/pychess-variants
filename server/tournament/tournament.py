@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING, ClassVar, Deque, Set, Tuple, cast
 import asyncio
 import logging
 import collections
@@ -8,7 +9,6 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from functools import cache
 from operator import neg
-from typing import ClassVar, Deque, Tuple, Set
 
 from pymongo import ReturnDocument
 from sortedcollections import ValueSortedDict
@@ -39,8 +39,22 @@ from game import Game
 from lichess_team_msg import lichess_team_msg
 from misc import time_control_str
 from newid import new_id
-from const import TYPE_CHECKING
 from websocket_utils import ws_send_json
+from typing_defs import (
+    TournamentDuelItem,
+    TournamentDuelsResponse,
+    TournamentGameJson,
+    TournamentGamesResponse,
+    TournamentPairingUpdate,
+    TournamentPlayerJson,
+    TournamentPlayerUpdate,
+    TournamentPlayersResponse,
+    TournamentPoint,
+    TournamentSpotlightsResponse,
+    TournamentStatusResponse,
+    TournamentTopGameResponse,
+    TournamentUpdateData,
+)
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -60,7 +74,7 @@ SCORE_SHIFT = 100000
 NOTIFY1_MINUTES = 60 * 6
 NOTIFY2_MINUTES = 10
 
-Point = Tuple[int, int]
+Point = TournamentPoint
 
 
 class EnoughPlayer(Exception):
@@ -74,11 +88,11 @@ class ByeGame:
 
     __slots__ = "date", "status"
 
-    def __init__(self):
-        self.date = datetime.now(timezone.utc)
-        self.status = BYEGAME
+    def __init__(self) -> None:
+        self.date: datetime = datetime.now(timezone.utc)
+        self.status: int = BYEGAME
 
-    def game_json(self, player):
+    def game_json(self, player: User) -> TournamentGameJson:
         return {
             "gameId": "",
             "title": "",
@@ -114,33 +128,35 @@ class PlayerData:
         "page",
     )
 
-    def __init__(self, title: str, username: str, rating: int, provisional: str):
-        self.id = None  # db.tournament_player._id will be generated when user firt joins
-        self.title = title
-        self.username = username
-        self.rating = rating
-        self.provisional = provisional
-        self.free = True
-        self.paused = False
-        self.withdrawn = False
-        self.win_streak = 0
-        self.games: list[Game | GameData] = []
+    def __init__(self, title: str, username: str, rating: int, provisional: str) -> None:
+        self.id: str | None = (
+            None  # db.tournament_player._id will be generated when user firt joins
+        )
+        self.title: str = title
+        self.username: str = username
+        self.rating: int = rating
+        self.provisional: str = provisional
+        self.free: bool = True
+        self.paused: bool = False
+        self.withdrawn: bool = False
+        self.win_streak: int = 0
+        self.games: list[Game | GameData | ByeGame] = []
         self.points: list[Point] = []
-        self.nb_win = 0
-        self.nb_berserk = 0
-        self.nb_not_paired = 0
-        self.performance = 0
-        self.prev_opp = ""
-        self.color_balance = 0  # +1 when played as white, -1 when played as black
-        self.page = 0
+        self.nb_win: int = 0
+        self.nb_berserk: int = 0
+        self.nb_not_paired: int = 0
+        self.performance: int = 0
+        self.prev_opp: str = ""
+        self.color_balance: int = 0  # +1 when played as white, -1 when played as black
+        self.page: int = 0
 
-    def __str__(self):
-        return (" ").join(self.points)
+    def __str__(self) -> str:
+        return " ".join(str(point) for point in self.points)
 
 
 @cache
-def player_json(player, full_score, paused):
-    return {
+def player_json(player: PlayerData, full_score: int, paused: bool) -> TournamentPlayerJson:
+    response: TournamentPlayerJson = {
         "paused": paused,
         "title": player.title,
         "name": player.username,
@@ -153,6 +169,7 @@ def player_json(player, full_score, paused):
         "nbWin": player.nb_win,
         "nbBerserk": player.nb_berserk,
     }
+    return response
 
 
 class GameData:
@@ -181,24 +198,24 @@ class GameData:
         date: datetime,
         wberserk: bool,
         bberserk: bool,
-    ):
-        self.id = _id
-        self.wplayer = wplayer
-        self.bplayer = bplayer
-        self.result = result
-        self.date = date
-        self.wrating = wrating
-        self.brating = brating
-        self.wberserk = wberserk
-        self.bberserk = bberserk
+    ) -> None:
+        self.id: str = _id
+        self.wplayer: User = wplayer
+        self.bplayer: User = bplayer
+        self.result: str = result
+        self.date: datetime = date
+        self.wrating: str = wrating
+        self.brating: str = brating
+        self.wberserk: bool = wberserk
+        self.bberserk: bool = bberserk
 
-    def game_json(self, player: User) -> dict:
+    def game_json(self, player: User) -> TournamentGameJson:
         color = "w" if self.wplayer == player else "b"
         opp_player = self.bplayer if color == "w" else self.wplayer
         opp_rating = self.brating if color == "w" else self.wrating
         prov = "?" if opp_rating.endswith("?") else ""
         opp_rating = opp_rating.replace("?", "")
-        return {
+        response: TournamentGameJson = {
             "gameId": self.id,
             "title": opp_player.title,
             "name": opp_player.username,
@@ -207,6 +224,7 @@ class GameData:
             "color": color,
             "result": self.result,
         }
+        return response
 
 
 class Tournament(ABC):
@@ -214,50 +232,52 @@ class Tournament(ABC):
     They have to implement create_pairing() for waiting_players"""
 
     system: ClassVar[int] = ARENA
+    beforeStart: int
+    bp: int
 
     def __init__(
         self,
         app_state: PychessGlobalAppState,
-        tournamentId,
-        variant="chess",
-        chess960=False,
-        rated=True,
-        before_start=5,
-        minutes=45,
-        name="",
-        password="",
-        description="",
-        fen="",
-        base=1,
-        inc=0,
-        byoyomi_period=0,
-        rounds=0,
-        created_by="",
-        created_at=None,
-        starts_at=None,
-        status=None,
-        with_clock=True,
-        frequency="",
-    ):
-        self.app_state = app_state
-        self.id = tournamentId
-        self.name = name
-        self.password = password
-        self.description = description
-        self.variant = variant
-        self.rated = rated
-        self.before_start = before_start  # in minutes
-        self.minutes = minutes  # in minutes
-        self.fen = fen
-        self.base = base
-        self.inc = inc
-        self.byoyomi_period = byoyomi_period
-        self.chess960 = chess960
-        self.rounds = rounds
-        self.frequency = frequency
-        self.created_by = created_by
-        self.starts_at = starts_at
-        self.created_at = datetime.now(timezone.utc) if created_at is None else created_at
+        tournamentId: str,
+        variant: str = "chess",
+        chess960: bool = False,
+        rated: bool = True,
+        before_start: int = 5,
+        minutes: int = 45,
+        name: str = "",
+        password: str = "",
+        description: str = "",
+        fen: str = "",
+        base: float = 1,
+        inc: int = 0,
+        byoyomi_period: int = 0,
+        rounds: int = 0,
+        created_by: str = "",
+        created_at: datetime | None = None,
+        starts_at: datetime | None = None,
+        status: int | None = None,
+        with_clock: bool = True,
+        frequency: str = "",
+    ) -> None:
+        self.app_state: PychessGlobalAppState = app_state
+        self.id: str = tournamentId
+        self.name: str = name
+        self.password: str = password
+        self.description: str = description
+        self.variant: str = variant
+        self.rated: bool = rated
+        self.before_start: int = before_start  # in minutes
+        self.minutes: int = minutes  # in minutes
+        self.fen: str = fen
+        self.base: float = base
+        self.inc: int = inc
+        self.byoyomi_period: int = byoyomi_period
+        self.chess960: bool = chess960
+        self.rounds: int = rounds
+        self.frequency: str = frequency
+        self.created_by: str = created_by
+        self.starts_at: datetime | None = starts_at
+        self.created_at: datetime = datetime.now(timezone.utc) if created_at is None else created_at
         self.with_clock = with_clock
 
         self.tourneychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
@@ -266,7 +286,7 @@ class Tournament(ABC):
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
         self.prev_pairing = None
-        self.bye_players = []
+        self.bye_players: list[User] = []
 
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
         self.spectators: Set[User] = set()
@@ -275,7 +295,7 @@ class Tournament(ABC):
         self.leaderboard = ValueSortedDict(neg)
         self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
         self.status = T_CREATED if status is None else status
-        self.ongoing_games = set()
+        self.ongoing_games: set[Game] = set()
         self.nb_players = 0
 
         self.nb_games_finished = 0
@@ -291,7 +311,8 @@ class Tournament(ABC):
         self.notify1 = False
         self.notify2 = False
 
-        self.clock_task = None
+        self.clock_task: asyncio.Task[None] | None = None
+        self.winner: str = ""
 
         self.initialize()
 
@@ -349,7 +370,9 @@ class Tournament(ABC):
         else:
             return "%s%s" % user.get_rating(self.variant, self.chess960).rating_prov
 
-    def players_json(self, page=None, user=None):
+    def players_json(
+        self, page: int | None = None, user: User | None = None
+    ) -> TournamentPlayersResponse:
         if (page is None) and (user is not None) and (user in self.players):
             if self.players[user].page > 0:
                 page = self.players[user].page
@@ -364,7 +387,7 @@ class Tournament(ABC):
         start = (page - 1) * 10
         end = min(start + 10, self.nb_players)
 
-        page_json = {
+        page_json: TournamentPlayersResponse = {
             "type": "get_players",
             "requestedBy": user.username if user is not None else "",
             "nbPlayers": self.nb_players,
@@ -384,9 +407,9 @@ class Tournament(ABC):
 
         return page_json
 
-    async def games_json(self, player_name):
+    async def games_json(self, player_name: str) -> TournamentGamesResponse:
         player = await self.app_state.users.get(player_name)
-        return {
+        response: TournamentGamesResponse = {
             "type": "get_games",
             "rank": self.leaderboard.index(player) + 1,
             "title": player.title,
@@ -397,48 +420,53 @@ class Tournament(ABC):
             "nbBerserk": self.players[player].nb_berserk,
             "games": [game.game_json(player) for game in self.players[player].games],
         }
+        return response
 
     @property
     def spectator_list(self):
         return spectators(self)
 
     @property
-    def top_game_json(self):
-        return {
+    def top_game_json(self) -> TournamentTopGameResponse:
+        top_game = cast(Game, self.top_game)
+        response: TournamentTopGameResponse = {
             "type": "top_game",
-            "gameId": self.top_game.id,
-            "variant": self.top_game.variant,
-            "fen": DARK_FEN if self.top_game.fow else self.top_game.board.fen,
-            "w": self.top_game.wplayer.username,
-            "b": self.top_game.bplayer.username,
-            "wr": self.leaderboard_keys_view.index(self.top_game.wplayer) + 1,
-            "br": self.leaderboard_keys_view.index(self.top_game.bplayer) + 1,
-            "chess960": self.top_game.chess960,
-            "base": self.top_game.base,
-            "inc": self.top_game.inc,
-            "byoyomi": self.top_game.byoyomi_period,
-            "lastMove": "" if self.top_game.fow else self.top_game.lastmove,
+            "gameId": top_game.id,
+            "variant": top_game.variant,
+            "fen": DARK_FEN if top_game.fow else top_game.board.fen,
+            "w": top_game.wplayer.username,
+            "b": top_game.bplayer.username,
+            "wr": self.leaderboard_keys_view.index(top_game.wplayer) + 1,
+            "br": self.leaderboard_keys_view.index(top_game.bplayer) + 1,
+            "chess960": top_game.chess960,
+            "base": top_game.base,
+            "inc": top_game.inc,
+            "byoyomi": top_game.byoyomi_period,
+            "lastMove": "" if top_game.fow else top_game.lastmove,
         }
+        return response
 
     @property
-    def duels_json(self):
-        return {
+    def duels_json(self) -> TournamentDuelsResponse:
+        duels: list[TournamentDuelItem] = [
+            {
+                "id": game.id,
+                "wp": game.wplayer.username,
+                "wt": game.wplayer.title,
+                "wr": game.wrating,
+                "wk": game.wrank if isinstance(game, Game) else "",
+                "bp": game.bplayer.username,
+                "bt": game.bplayer.title,
+                "br": game.brating,
+                "bk": game.brank if isinstance(game, Game) else "",
+            }
+            for game in self.ongoing_games
+        ]
+        response: TournamentDuelsResponse = {
             "type": "duels",
-            "duels": [
-                {
-                    "id": game.id,
-                    "wp": game.wplayer.username,
-                    "wt": game.wplayer.title,
-                    "wr": game.wrating,
-                    "wk": game.wrank if isinstance(game, Game) else "",
-                    "bp": game.bplayer.username,
-                    "bt": game.bplayer.title,
-                    "br": game.brating,
-                    "bk": game.brank if isinstance(game, Game) else "",
-                }
-                for game in self.ongoing_games
-            ][0:6],
+            "duels": duels[0:6],
         }
+        return response
 
     def waiting_players(self):
         return [
@@ -547,7 +575,7 @@ class Tournament(ABC):
 
         self.first_pairing = True
 
-        response = {
+        response: TournamentStatusResponse = {
             "type": "tstatus",
             "tstatus": self.status,
             "secondsToFinish": (self.ends_at - now).total_seconds(),
@@ -567,8 +595,8 @@ class Tournament(ABC):
             log.info("Updated status: %s", u)
 
     @property
-    def summary(self):
-        return {
+    def summary(self) -> TournamentStatusResponse:
+        response: TournamentStatusResponse = {
             "type": "tstatus",
             "tstatus": self.status,
             "nbPlayers": self.nb_players,
@@ -583,6 +611,7 @@ class Tournament(ABC):
                 if not self.players[player].withdrawn
             ),
         }
+        return response
 
     async def finalize(self, status):
         self.status = status
@@ -612,7 +641,7 @@ class Tournament(ABC):
 
     async def broadcast_spotlight(self):
         spotlights = tournament_spotlights(self.app_state)
-        response = {"type": "spotlights", "items": spotlights}
+        response: TournamentSpotlightsResponse = {"type": "spotlights", "items": spotlights}
         await self.app_state.lobby.lobby_broadcast(response)
 
     async def abort(self):
@@ -1120,7 +1149,7 @@ class Tournament(ABC):
         pairing_table = self.app_state.db.tournament_pairing
 
         try:
-            new_data = {
+            new_data: TournamentPairingUpdate = {
                 "tid": self.id,
                 "u": (game.wplayer.username, game.bplayer.username),
                 "r": R2C[game.result],
@@ -1162,12 +1191,13 @@ class Tournament(ABC):
         player_data = self.players[user]
         player_id = player_data.id
         player_table = self.app_state.db.tournament_player
+        player_update: TournamentPlayerUpdate
 
         if action == "JOIN":
             if player_data.id is None:  # new player JOIN
                 player_id = await new_id(player_table)
                 player_data.id = player_id
-                new_data = {
+                player_update = {
                     "_id": player_id,
                     "tid": self.id,
                     "uid": player_data.username,
@@ -1183,7 +1213,7 @@ class Tournament(ABC):
                     "wd": False,
                 }
             else:
-                new_data = {
+                player_update = {
                     "a": False,
                     "wd": False,
                     "r": player_data.rating,
@@ -1191,14 +1221,14 @@ class Tournament(ABC):
                 }
 
         elif action == "WITHDRAW":
-            new_data = {"wd": True}
+            player_update = {"wd": True}
 
         elif action == "PAUSE":
-            new_data = {"a": True}
+            player_update = {"a": True}
 
         elif action in ("GAME_END", "BYE"):
             full_score = self.leaderboard[user]
-            new_data = {
+            player_update = {
                 "_id": player_id,
                 "tid": self.id,
                 "uid": player_data.username,
@@ -1217,12 +1247,16 @@ class Tournament(ABC):
         try:
             doc_after = await player_table.find_one_and_update(
                 {"_id": player_id},
-                {"$set": new_data},
+                {"$set": player_update},
                 upsert=True,
                 return_document=ReturnDocument.AFTER,
             )
             if doc_after is None:
-                log.error("Failed to save %s player data update %s to mongodb", player_id, new_data)
+                log.error(
+                    "Failed to save %s player data update %s to mongodb",
+                    player_id,
+                    player_update,
+                )
 
         except Exception:
             if self.app_state.db is not None:
@@ -1232,14 +1266,21 @@ class Tournament(ABC):
                     self.id,
                 )
 
-        new_data = {"nbPlayers": self.nb_players, "nbBerserk": self.nb_berserk}
+        tournament_update: TournamentUpdateData = {
+            "nbPlayers": self.nb_players,
+            "nbBerserk": self.nb_berserk,
+        }
         doc_after = await self.app_state.db.tournament.find_one_and_update(
             {"_id": self.id},
-            {"$set": new_data},
+            {"$set": tournament_update},
             return_document=ReturnDocument.AFTER,
         )
         if doc_after is None:
-            log.error("Failed to save %s player data update %s to mongodb", self.id, new_data)
+            log.error(
+                "Failed to save %s player data update %s to mongodb",
+                self.id,
+                tournament_update,
+            )
 
     async def save(self):
         if self.app_state.db is None:
@@ -1252,7 +1293,7 @@ class Tournament(ABC):
             return
 
         winner = self.leaderboard.peekitem(0)[0].username
-        new_data = {
+        new_data: TournamentUpdateData = {
             "status": self.status,
             "nbPlayers": self.nb_players,
             "nbGames": self.nb_games_finished,
@@ -1327,12 +1368,12 @@ class Tournament(ABC):
         del response["_id"]
 
 
-async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState):
+async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState) -> None:
     # unit test app may have no db
     if app_state.db is None:
         return
 
-    new_data = {
+    new_data: TournamentUpdateData = {
         "name": tournament.name,
         "password": tournament.password,
         "d": tournament.description,

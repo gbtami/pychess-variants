@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING, Iterable, Mapping, cast
 from datetime import datetime, timezone
 import asyncio
 
@@ -25,10 +26,10 @@ from const import (
     TEST_PREFIX,
 )
 from newid import new_id
-from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from game import Game
 from pychess_global_app_state_utils import get_app_state
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
@@ -41,6 +42,12 @@ from tournament.tournament import (
     upsert_tournament_to_db,
 )
 from tournament.auto_play_arena import ArenaTestTournament, AUTO_PLAY_ARENA_NAME
+from typing_defs import (
+    TournamentCreateData,
+    TournamentDoc,
+    TournamentPairingDoc,
+    TournamentPlayerDoc,
+)
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 from user import User
 from utils import load_game
@@ -49,8 +56,11 @@ log = logging.getLogger(__name__)
 
 
 async def create_or_update_tournament(
-    app_state: PychessGlobalAppState, username, form, tournament=None
-):
+    app_state: PychessGlobalAppState,
+    username: str,
+    form: Mapping[str, str],
+    tournament: Tournament | None = None,
+) -> None:
     """Manual tournament creation from /tournaments/new form input values"""
 
     variant = form["variant"]
@@ -82,7 +92,7 @@ async def create_or_update_tournament(
     else:
         name = name if name.lower().endswith("arena") else name + " Arena"
 
-    data = {
+    data: TournamentCreateData = {
         "name": name,
         "password": form["password"],
         "createdBy": username,
@@ -127,23 +137,30 @@ async def create_or_update_tournament(
     await broadcast_tournament_creation(app_state, tournament)
 
 
-async def broadcast_tournament_creation(app_state: PychessGlobalAppState, tournament):
+async def broadcast_tournament_creation(
+    app_state: PychessGlobalAppState, tournament: Tournament
+) -> None:
     await tournament.broadcast_spotlight()
     await app_state.discord.send_to_discord("create_tournament", tournament.create_discord_msg)
 
 
-async def new_tournament(app_state: PychessGlobalAppState, data):
+async def new_tournament(
+    app_state: PychessGlobalAppState, data: TournamentCreateData
+) -> Tournament:
     if "tid" not in data:
         tid = await new_id(app_state.db.tournament)
     else:
         tid = data["tid"]
 
+    tournament_class: type[Tournament]
     if data["system"] == ARENA:
-        tournament_class: type[Tournament] = ArenaTournament
+        tournament_class = ArenaTournament
     elif data["system"] == SWISS:
-        tournament_class: type[Tournament] = SwissTournament
+        tournament_class = SwissTournament
     elif data["system"] == RR:
-        tournament_class: type[Tournament] = RRTournament
+        tournament_class = RRTournament
+    else:
+        raise ValueError("Unknown tournament system")
 
     tournament = tournament_class(
         app_state,
@@ -177,7 +194,12 @@ async def new_tournament(app_state: PychessGlobalAppState, data):
     return tournament
 
 
-async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = None, variants=None):
+async def get_winners(
+    app_state: PychessGlobalAppState,
+    shield,
+    variant: str | None = None,
+    variants: Iterable[str] | None = None,
+):
     wi = {}
     if variants is None:
         if variant is None:
@@ -203,9 +225,17 @@ async def get_winners(app_state: PychessGlobalAppState, shield, variant: str = N
         winners = []
         cursor = app_state.db.tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
         async for doc in cursor:
-            if "winner" in doc:
-                winners.append((doc["winner"], doc["startsAt"].strftime("%Y.%m.%d"), doc["_id"]))
-                await app_state.users.get(doc["winner"])
+            tournament_doc = cast(TournamentDoc, doc)
+            if "winner" in tournament_doc:
+                starts_at = cast(datetime, tournament_doc["startsAt"])
+                winners.append(
+                    (
+                        tournament_doc["winner"],
+                        starts_at.strftime("%Y.%m.%d"),
+                        tournament_doc["_id"],
+                    )
+                )
+                await app_state.users.get(tournament_doc["winner"])
 
         wi[variant] = winners
 
@@ -220,10 +250,11 @@ async def get_scheduled_tournaments(app_state: PychessGlobalAppState, nb_max=30)
     tournaments = []
 
     async for doc in cursor:
+        tournament_doc = cast(TournamentDoc, doc)
         if (
-            doc["status"] in (T_CREATED, T_STARTED)
-            and doc["createdBy"] == "PyChess"
-            and doc.get("fr", "") != ""
+            tournament_doc["status"] in (T_CREATED, T_STARTED)
+            and tournament_doc["createdBy"] == "PyChess"
+            and tournament_doc.get("fr", "") != ""
         ):
             nb_tournament += 1
             if nb_tournament > nb_max:
@@ -231,12 +262,12 @@ async def get_scheduled_tournaments(app_state: PychessGlobalAppState, nb_max=30)
             else:
                 tournaments.append(
                     (
-                        doc["fr"],
-                        C2V[doc["v"]],
-                        bool(doc["z"]),
-                        doc["startsAt"],
-                        doc["minutes"],
-                        doc["_id"],
+                        tournament_doc["fr"],
+                        C2V[tournament_doc["v"]],
+                        bool(tournament_doc["z"]),
+                        tournament_doc["startsAt"],
+                        tournament_doc["minutes"],
+                        tournament_doc["_id"],
                     )
                 )
     return tournaments
@@ -249,43 +280,47 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
     cursor.sort("startsAt", -1)
     nb_tournament = 0
     async for doc in cursor:
+        tournament_doc = cast(TournamentDoc, doc)
         nb_tournament += 1
         if nb_tournament > 31:
             break
 
-        tid = doc["_id"]
+        tid = tournament_doc["_id"]
         if tid in app_state.tournaments:
             tournament = app_state.tournaments[tid]
         else:
-            if doc["system"] == ARENA:
-                tournament_class: type[Tournament] = ArenaTournament
-            elif doc["system"] == SWISS:
-                tournament_class: type[Tournament] = SwissTournament
-            elif doc["system"] == RR:
-                tournament_class: type[Tournament] = RRTournament
+            tournament_class: type[Tournament]
+            if tournament_doc["system"] == ARENA:
+                tournament_class = ArenaTournament
+            elif tournament_doc["system"] == SWISS:
+                tournament_class = SwissTournament
+            elif tournament_doc["system"] == RR:
+                tournament_class = RRTournament
+            else:
+                continue
 
             tournament = tournament_class(
                 app_state,
                 tid,
-                C2V[doc["v"]],
-                base=doc["b"],
-                inc=doc["i"],
-                byoyomi_period=int(bool(doc.get("bp"))),
-                rated=doc.get("y"),
-                chess960=bool(doc.get("z")),
-                fen=doc.get("f"),
-                rounds=doc["rounds"],
-                created_by=doc["createdBy"],
-                created_at=doc["createdAt"],
-                minutes=doc["minutes"],
-                starts_at=doc.get("startsAt"),
-                name=doc["name"],
-                description=doc.get("d", ""),
-                frequency=doc.get("fr", ""),
-                status=doc["status"],
+                C2V[tournament_doc["v"]],
+                base=tournament_doc["b"],
+                inc=tournament_doc["i"],
+                byoyomi_period=int(bool(tournament_doc.get("bp"))),
+                rated=cast(bool, tournament_doc.get("y")),
+                chess960=bool(tournament_doc.get("z")),
+                fen=tournament_doc.get("f"),
+                rounds=tournament_doc["rounds"],
+                created_by=tournament_doc["createdBy"],
+                created_at=tournament_doc["createdAt"],
+                minutes=tournament_doc["minutes"],
+                starts_at=tournament_doc.get("startsAt"),
+                name=tournament_doc["name"],
+                description=tournament_doc.get("d", ""),
+                frequency=tournament_doc.get("fr", ""),
+                status=tournament_doc["status"],
                 with_clock=False,
             )
-            tournament.nb_players = doc["nbPlayers"]
+            tournament.nb_players = tournament_doc["nbPlayers"]
 
         if tournament.frequency:
             try:
@@ -301,11 +336,11 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
         else:
             tournament.translated_name = tournament.name
 
-        if doc["status"] == T_STARTED:
+        if tournament_doc["status"] == T_STARTED:
             started.append(tournament)
-        elif doc["status"] < T_STARTED:
+        elif tournament_doc["status"] < T_STARTED:
             scheduled.append(tournament)
-        elif doc["status"] > T_STARTED:
+        elif tournament_doc["status"] > T_STARTED:
             completed.append(tournament)
 
     scheduled = sorted(scheduled, key=lambda tournament: tournament.starts_at)
@@ -354,31 +389,36 @@ async def get_tournament_name(request, tournament_id):
     else:
         doc = await app_state.db.tournament.find_one({"_id": tournament_id})
         if doc is not None:
-            frequency = doc.get("fr", "")
+            tournament_doc = cast(TournamentDoc, doc)
+            frequency = tournament_doc.get("fr", "")
             if frequency:
-                chess960 = bool(doc.get("z"))
+                chess960 = bool(tournament_doc.get("z"))
                 try:
                     name = app_state.tourneynames[lang][
                         (
-                            C2V[doc["v"]] + ("960" if chess960 else ""),
+                            C2V[tournament_doc["v"]] + ("960" if chess960 else ""),
                             frequency,
-                            doc["system"],
+                            tournament_doc["system"],
                         )
                     ]
                 except KeyError:
                     name = "%s %s %s" % (
-                        C2V[doc["v"]] + ("960" if chess960 else ""),
+                        C2V[tournament_doc["v"]] + ("960" if chess960 else ""),
                         frequency,
-                        doc["system"],
+                        tournament_doc["system"],
                     )
             else:
-                name = doc["name"]
+                name = tournament_doc["name"]
         app_state.tourneynames[lang][tournament_id] = name
 
     return name
 
 
-async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tournament_klass=None):
+async def load_tournament(
+    app_state: PychessGlobalAppState,
+    tournament_id,
+    tournament_klass: type[Tournament] | None = None,
+):
     """Return Tournament object from app cache or from database"""
     if tournament_id in app_state.tournaments:
         tournament = app_state.tournaments[tournament_id]
@@ -390,42 +430,46 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
     if doc is None:
         return None
 
-    stored_round = doc.get("cr")
+    tournament_doc = cast(TournamentDoc, doc)
+    stored_round = tournament_doc.get("cr")
 
-    if doc["system"] == ARENA:
+    tournament_class: type[Tournament]
+    if tournament_doc["system"] == ARENA:
         tournament_class = ArenaTournament
-    elif doc["system"] == SWISS:
+    elif tournament_doc["system"] == SWISS:
         tournament_class = SwissTournament
-    elif doc["system"] == RR:
+    elif tournament_doc["system"] == RR:
         tournament_class = RRTournament
     elif tournament_klass is not None:
         tournament_class = tournament_klass
+    else:
+        raise ValueError("Unknown tournament system")
 
-    auto_play = doc["name"] == AUTO_PLAY_ARENA_NAME
+    auto_play = tournament_doc["name"] == AUTO_PLAY_ARENA_NAME
     if auto_play:
         tournament_class = ArenaTestTournament
 
     tournament = tournament_class(
         app_state,
-        doc["_id"],
-        C2V[doc["v"]],
-        base=doc["b"],
-        inc=doc["i"],
-        byoyomi_period=int(bool(doc.get("bp"))),
-        rated=bool(doc.get("y")),
-        chess960=bool(doc.get("z")),
-        fen=doc.get("f"),
-        rounds=doc["rounds"],
-        created_by=doc.get("createdBy", "PyChess"),
-        created_at=doc["createdAt"],
-        before_start=doc.get("beforeStart", 0),
-        minutes=doc["minutes"],
-        starts_at=doc.get("startsAt"),
-        name=doc["name"],
-        password=doc.get("password", ""),
-        description=doc.get("d", ""),
-        frequency=doc.get("fr", ""),
-        status=doc["status"],
+        tournament_doc["_id"],
+        C2V[tournament_doc["v"]],
+        base=tournament_doc["b"],
+        inc=tournament_doc["i"],
+        byoyomi_period=int(bool(tournament_doc.get("bp"))),
+        rated=bool(tournament_doc.get("y")),
+        chess960=bool(tournament_doc.get("z")),
+        fen=tournament_doc.get("f"),
+        rounds=tournament_doc["rounds"],
+        created_by=tournament_doc.get("createdBy", "PyChess"),
+        created_at=tournament_doc["createdAt"],
+        before_start=tournament_doc.get("beforeStart", 0),
+        minutes=tournament_doc["minutes"],
+        starts_at=tournament_doc.get("startsAt"),
+        name=tournament_doc["name"],
+        password=tournament_doc.get("password", ""),
+        description=tournament_doc.get("d", ""),
+        frequency=tournament_doc.get("fr", ""),
+        status=tournament_doc["status"],
         with_clock=False,
     )
     if stored_round is not None:
@@ -434,7 +478,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
     app_state.tournaments[tournament_id] = tournament
     app_state.tourneysockets[tournament_id] = {}
 
-    tournament.winner = doc.get("winner", "")
+    tournament.winner = tournament_doc.get("winner", "")
 
     player_table = app_state.db.tournament_player
     cursor = player_table.find({"tid": tournament_id})
@@ -449,27 +493,30 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
             )  # todo: logic here shouldnt depend on unit tests
 
     async for doc in cursor:
-        uid = doc["uid"]
+        player_doc = cast(TournamentPlayerDoc, doc)
+        uid = player_doc["uid"]
         if uid.startswith(TEST_PREFIX):
             user = User(app_state, username=uid, title="TEST")
             app_state.users[user.username] = user
         else:
             user = await app_state.users.get(uid)
 
-        withdrawn = doc.get("wd", False)
+        withdrawn = player_doc.get("wd", False)
 
-        tournament.players[user] = PlayerData(user.title, user.username, doc["r"], doc["pr"])
-        tournament.players[user].id = doc["_id"]
-        tournament.players[user].paused = doc["a"]
+        tournament.players[user] = PlayerData(
+            user.title, user.username, player_doc["r"], player_doc["pr"]
+        )
+        tournament.players[user].id = player_doc["_id"]
+        tournament.players[user].paused = player_doc["a"]
         tournament.players[user].withdrawn = withdrawn
-        tournament.players[user].points = doc["p"]
-        tournament.players[user].nb_win = doc["w"]
-        tournament.players[user].nb_berserk = doc.get("b", 0)
-        tournament.players[user].performance = doc["e"]
-        tournament.players[user].win_streak = doc["f"]
+        tournament.players[user].points = player_doc["p"]
+        tournament.players[user].nb_win = player_doc["w"]
+        tournament.players[user].nb_berserk = player_doc.get("b", 0)
+        tournament.players[user].performance = player_doc["e"]
+        tournament.players[user].win_streak = player_doc["f"]
 
         if not withdrawn:
-            tournament.leaderboard.update({user: SCORE_SHIFT * (doc["s"]) + doc["e"]})
+            tournament.leaderboard.update({user: SCORE_SHIFT * (player_doc["s"]) + player_doc["e"]})
             nb_players += 1
 
         if auto_play and tournament.status in (T_CREATED, T_STARTED):
@@ -491,19 +538,20 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
 
     w_win, b_win, draw, berserk = 0, 0, 0, 0
     async for doc in cursor:
-        res = doc["r"]
+        pairing_doc = cast(TournamentPairingDoc, doc)
+        res = pairing_doc["r"]
         result = C2R[res]
         # Skip aborted/unfinished games if tournament is over
         if result == "*" and tournament.status in (T_ABORTED, T_FINISHED, T_ARCHIVED):
             continue
 
-        _id = doc["_id"]
-        wp, bp = doc["u"]
-        wrating = doc["wr"]
-        brating = doc["br"]
-        date = doc["d"]
-        wberserk = doc.get("wb", False)
-        bberserk = doc.get("bb", False)
+        _id = pairing_doc["_id"]
+        wp, bp = pairing_doc["u"]
+        wrating = pairing_doc["wr"]
+        brating = pairing_doc["br"]
+        date = pairing_doc["d"]
+        wberserk = pairing_doc.get("wb", False)
+        bberserk = pairing_doc.get("bb", False)
 
         game = None
         if tournament.status in (T_CREATED, T_STARTED) and result == "*":
@@ -569,7 +617,7 @@ async def load_tournament(app_state: PychessGlobalAppState, tournament_id, tourn
             continue
         games_iter = iter(player_data.games)
         next_game = next(games_iter, None)
-        rebuilt = []
+        rebuilt: list[Game | GameData | ByeGame] = []
         for point in player_data.points:
             if point == "-":
                 rebuilt.append(ByeGame())

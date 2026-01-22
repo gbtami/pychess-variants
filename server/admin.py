@@ -1,9 +1,10 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 import collections
 import logging
 
 from broadcast import broadcast_streams
-from const import NONE_USER, TYPE_CHECKING
+from const import NONE_USER
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from login import logout

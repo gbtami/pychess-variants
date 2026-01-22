@@ -1,18 +1,19 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 from const import (
     LANGUAGES,
     T_STARTED,
     T_CREATED,
     TOURNAMENT_SPOTLIGHTS_MAX,
 )
-from const import TYPE_CHECKING
+from typing_defs import TournamentSpotlightItem
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 
-def tournament_spotlights(app_state: PychessGlobalAppState):
-    items = []
+def tournament_spotlights(app_state: PychessGlobalAppState) -> list[TournamentSpotlightItem]:
+    items: list[TournamentSpotlightItem] = []
     for tid, tournament in sorted(
         app_state.tournaments.items(), key=lambda item: item[1].starts_at
     ):

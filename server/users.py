@@ -1,6 +1,7 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 from collections import UserDict
-from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK, NONE_USER, TYPE_CHECKING
+from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK, NONE_USER
 from glicko2.glicko2 import DEFAULT_PERF
 from user import User
 import logging
@@ -20,7 +21,7 @@ class NotInDbUsers(Exception):
     """Raised when await get() syntax was used, but username not in db users"""
 
 
-class Users(UserDict):
+class Users(UserDict[str, User]):
     """
     The Users class: store user objects in memory
 
@@ -28,11 +29,11 @@ class Users(UserDict):
     If not, await get(username) will load user data from mongodb
     """
 
-    def __init__(self, app_state: PychessGlobalAppState):
+    def __init__(self, app_state: PychessGlobalAppState) -> None:
         super().__init__()
-        self.app_state = app_state
+        self.app_state: PychessGlobalAppState = app_state
 
-    def __getitem__(self, username):
+    def __getitem__(self, username: str) -> User:
         if username in self.data:
             return self.data[username]
         else:
@@ -40,7 +41,7 @@ class Users(UserDict):
             user = self.data[NONE_USER]
             return user
 
-    async def get(self, username):
+    async def get(self, username: str | None) -> User:  # type: ignore[override]
         if username in self.data:
             return self.data[username]
 

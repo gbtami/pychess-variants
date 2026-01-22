@@ -2,14 +2,12 @@ from __future__ import annotations
 from datetime import timedelta
 from enum import global_enum, IntEnum, StrEnum
 import re
+from typing import TYPE_CHECKING
 
 from settings import static_url
 from variants import VARIANTS, get_server_variant
 
 POCKET_PATTERN = re.compile("\\[(.*)\\]")
-
-# https://medium.com/quick-code/python-type-hinting-eliminating-importerror-due-to-circular-imports-265dfb0580f8
-TYPE_CHECKING = False
 
 DASH = "–"
 ANON_PREFIX = "Anon" + DASH
@@ -147,6 +145,51 @@ class GameStatus(IntEnum):
     UNKNOWNFINISH = 11
     VARIANTEND = 12
     CLAIM = 13
+
+
+if TYPE_CHECKING:
+    T_CREATED: int
+    T_STARTED: int
+    T_ABORTED: int
+    T_FINISHED: int
+    T_ARCHIVED: int
+
+    HOURLY: str
+    DAILY: str
+    WEEKLY: str
+    MONTHLY: str
+    YEARLY: str
+    MARATHON: str
+    SHIELD: str
+
+    ARENA: int
+    RR: int
+    SWISS: int
+    SIMUL: int
+
+    MOVE: int
+    ANALYSIS: int
+
+    CASUAL: int
+    RATED: int
+    IMPORTED: int
+
+    CREATED: int
+    STARTED: int
+    ABORTED: int
+    MATE: int
+    RESIGN: int
+    STALEMATE: int
+    TIMEOUT: int
+    DRAW: int
+    FLAG: int
+    ABANDON: int
+    CHEAT: int
+    BYEGAME: int
+    INVALIDMOVE: int
+    UNKNOWNFINISH: int
+    VARIANTEND: int
+    CLAIM: int
 
 
 LOSERS = {

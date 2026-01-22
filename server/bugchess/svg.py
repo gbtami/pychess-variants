@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
@@ -27,7 +28,6 @@ import xml.etree.ElementTree as ET
 
 from typing import Iterable, Optional, Tuple, Union, Sequence
 
-from const import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from bugchess import variant

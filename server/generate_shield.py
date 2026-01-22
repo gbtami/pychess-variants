@@ -1,5 +1,6 @@
 from __future__ import annotations
-from const import SHIELD, T_STARTED, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from const import SHIELD, T_STARTED
 from variants import get_server_variant, VARIANTS
 
 if TYPE_CHECKING:

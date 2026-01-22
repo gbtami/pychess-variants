@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 from const import ABORTED
 from fairy import WHITE, BLACK
@@ -10,6 +11,11 @@ from notify import notify
 import logging
 
 log = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from fairy import FairyBoard
+    from game import Game
+    from user import User
 
 ESTIMATE_MOVES = 40
 CORR_TICK = 60
@@ -22,19 +28,23 @@ BOT_FIRST_MOVE_TIMEOUT = 5 * 60 * 1000
 class Clock:
     """Check game start and time out abandoned games"""
 
-    def __init__(self, game, board=None, secs=None):
-        self.game = game
-        self.board = board if board is not None else game.board
-        self.running = False
-        self.secs = -1
+    def __init__(
+        self, game: Game, board: FairyBoard | None = None, secs: int | None = None
+    ) -> None:
+        self.game: Game = game
+        self.board: FairyBoard = board if board is not None else game.board
+        self.running: bool = False
+        self.secs: int = -1
         self.restart(secs)
-        self.clock_task = asyncio.create_task(self.countdown(), name="game-clock-%s" % game.id)
+        self.clock_task: asyncio.Task[None] | None = asyncio.create_task(
+            self.countdown(), name="game-clock-%s" % game.id
+        )
 
-    def stop(self):
+    def stop(self) -> int:
         self.running = False
         return self.secs
 
-    async def cancel(self):
+    async def cancel(self) -> None:
         self.stop()
 
         if self.clock_task and not self.clock_task.done():
@@ -47,9 +57,9 @@ class Clock:
         self.clock_task = None  # Break strong reference
         # self.game = None
 
-    def restart(self, secs=None):
-        self.ply = self.game.ply
-        self.color = self.board.color
+    def restart(self, secs: int | None = None) -> None:
+        self.ply: int = self.game.ply
+        self.color: int = self.board.color
         if secs is not None:
             self.secs = secs
         else:
@@ -75,7 +85,7 @@ class Clock:
                 )
         self.running = True
 
-    async def countdown(self):
+    async def countdown(self) -> None:
         while True:
             while self.running and self.secs > 0:
                 await asyncio.sleep(1)
@@ -114,12 +124,12 @@ class Clock:
             await asyncio.sleep(1)
 
     @property
-    def estimate_game_time(self):
+    def estimate_game_time(self) -> int:
         # TODO: calculate with byoyomi
         return (60 * self.game.base) + (ESTIMATE_MOVES * self.game.inc)
 
     @property
-    def time_for_first_move(self):
+    def time_for_first_move(self) -> int:
         # Fix 45s for janggi because it has setup phase
         if self.game.variant == "janggi" or self.game.chess960:
             return 45 * 1000
@@ -151,7 +161,7 @@ class Clock:
 
         return base * 1000
 
-    async def _notify_bot_game_end(self):
+    async def _notify_bot_game_end(self) -> None:
         # This is intentionally conservative: only wake bot queues when a bot
         # is involved, and only if the queue still exists for this game.
         if not self.game.bot_game:
@@ -164,20 +174,22 @@ class Clock:
 class CorrClock:
     """Correspondence games use 0 + x byoyomi time control, where x is a day"""
 
-    def __init__(self, game):
-        self.game = game
-        self.running = False
+    def __init__(self, game: Game) -> None:
+        self.game: Game = game
+        self.running: bool = False
         self.restart()
-        self.time_for_first_move = self.mins
-        self.clock_task = asyncio.create_task(self.countdown(), name="corr-clock-%s" % game.id)
-        self.alarm_mins = int((self.game.base * 24 * 60) / 5)
-        self.alarms = set()
+        self.time_for_first_move: float = self.mins
+        self.clock_task: asyncio.Task[None] | None = asyncio.create_task(
+            self.countdown(), name="corr-clock-%s" % game.id
+        )
+        self.alarm_mins: int = int((self.game.base * 24 * 60) / 5)
+        self.alarms: set[int] = set()
 
-    def stop(self):
+    def stop(self) -> float:
         self.running = False
         return self.mins
 
-    async def cancel(self):
+    async def cancel(self) -> None:
         self.stop()
 
         if self.clock_task and not self.clock_task.done():
@@ -190,10 +202,10 @@ class CorrClock:
         self.clock_task = None  # Break strong reference
         # self.game = None
 
-    def restart(self, from_db=False):
-        self.ply = self.game.ply
-        self.color = self.game.board.color
-        self.mins = self.game.base * 24 * 60
+    def restart(self, from_db: bool = False) -> None:
+        self.ply: int = self.game.ply
+        self.color: int = self.game.board.color
+        self.mins: float = self.game.base * 24 * 60
         if from_db and self.game.last_move_time is not None:
             delta = datetime.now(timezone.utc) - self.game.last_move_time
             remaining_mins = self.mins - delta.total_seconds() / 60
@@ -206,7 +218,7 @@ class CorrClock:
                 self.mins = remaining_mins
         self.running = True
 
-    async def countdown(self):
+    async def countdown(self) -> None:
         while True:
             while self.running and self.mins > 0:
                 await asyncio.sleep(CORR_TICK)
@@ -238,7 +250,7 @@ class CorrClock:
             # After stop() we are just waiting for next restart
             await asyncio.sleep(CORR_TICK)
 
-    async def notify_hurry(self, user):
+    async def notify_hurry(self, user: User) -> None:
         opp_name = (
             self.game.wplayer.username
             if self.game.bplayer.username == user.username
@@ -255,7 +267,7 @@ class CorrClock:
         # to prevent creating more than one notification for the same ply
         self.alarms.add(self.game.board.ply)
 
-    async def _notify_bot_game_end(self):
+    async def _notify_bot_game_end(self) -> None:
         # Mirror Clock._notify_bot_game_end so bot tasks do not stick around
         # when a correspondence game ends on time.
         if not self.game.bot_game:

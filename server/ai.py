@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 import asyncio
 import json
 import random
@@ -6,7 +7,6 @@ import string
 from time import monotonic
 
 from const import MOVE, STARTED
-from const import TYPE_CHECKING
 from fairy import WHITE
 
 if TYPE_CHECKING:

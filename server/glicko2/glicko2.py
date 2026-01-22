@@ -15,6 +15,8 @@ import math
 from calendar import timegm
 from datetime import datetime, timezone
 
+from typing_defs import PerfEntry
+
 
 #: The actual score for win
 WIN = 1.0
@@ -229,7 +231,7 @@ class Glicko2:
 
 gl2 = Glicko2()
 rating = gl2.create_rating()
-DEFAULT_PERF = {
+DEFAULT_PERF: PerfEntry = {
     "gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma},
     "la": datetime.now(timezone.utc),
     "nb": 0,

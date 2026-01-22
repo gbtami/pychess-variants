@@ -45,6 +45,9 @@ ruff format .
 # Python linting
 ruff check .
 
+# Python type checking
+mypy
+
 # Python unit tests
 PYTHONPATH=server python -m unittest discover -s tests
 

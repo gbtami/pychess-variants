@@ -12,6 +12,8 @@ from compress import (
 )
 from settings import PROD
 
+MoveCodec = Callable[[str], str]
+
 
 @dataclass
 class Variant:
@@ -24,17 +26,17 @@ class Variant:
     byo: bool = False
     two_boards: bool = False
     base_variant: str = ""
-    move_encoding: Callable = encode_move_standard
-    move_decoding: Callable = decode_move_standard
+    move_encoding: MoveCodec = encode_move_standard
+    move_decoding: MoveCodec = decode_move_standard
 
 
 #  Deferred translations!
-def _(message):
+def _(message: str) -> str:
     return message
 
 
 class ServerVariants(Enum):
-    def __init__(self, variant):
+    def __init__(self, variant: Variant) -> None:
         self.code = variant.code
         self.uci_variant = variant.uci_variant
         self.display_name = variant.display_name.upper()
@@ -130,18 +132,18 @@ class ServerVariants(Enum):
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
 
     @property
-    def server_name(self):
+    def server_name(self) -> str:
         return self.uci_variant + ("960" if self.chess960 else "")
 
 
 del _
 
 
-def get_server_variant(uci_variant, chess960):
+def get_server_variant(uci_variant: str, chess960: bool) -> "ServerVariants":
     return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
 
 
-NO_VARIANTS = (
+NO_VARIANTS: tuple[ServerVariants, ...] = (
     ServerVariants.EMBASSY,
     ServerVariants.GOTHIC,
     ServerVariants.GOTHHOUSE,
@@ -150,19 +152,23 @@ NO_VARIANTS = (
     ServerVariants.XIANGQIHOUSE,
 )
 
-TWO_BOARD_VARIANTS = tuple(variant for variant in ServerVariants if variant.two_boards)
-TWO_BOARD_VARIANT_CODES = [variant.code for variant in TWO_BOARD_VARIANTS]
+TWO_BOARD_VARIANTS: tuple[ServerVariants, ...] = tuple(
+    variant for variant in ServerVariants if variant.two_boards
+)
+TWO_BOARD_VARIANT_CODES: list[str] = [variant.code for variant in TWO_BOARD_VARIANTS]
 
-ALL_VARIANTS = {variant.server_name: variant for variant in ServerVariants}
+ALL_VARIANTS: dict[str, ServerVariants] = {
+    variant.server_name: variant for variant in ServerVariants
+}
 
-VARIANTS = {
+VARIANTS: dict[str, ServerVariants] = {
     variant.server_name: variant for variant in ServerVariants if variant not in NO_VARIANTS
 }
 
-VARIANT_ICONS = {variant.server_name: variant.icon for variant in ServerVariants}
+VARIANT_ICONS: dict[str, str] = {variant.server_name: variant.icon for variant in ServerVariants}
 
 
-DEV_VARIANTS = (
+DEV_VARIANTS: tuple[ServerVariants, ...] = (
     ServerVariants.MAKBUG,
     ServerVariants.SUPPLY,
     ServerVariants.JIEQI,
@@ -175,23 +181,23 @@ if PROD:
         del VARIANTS[variant.server_name]
 
 # Two board variants has no ratings implemented so far
-RATED_VARIANTS = tuple(
+RATED_VARIANTS: tuple[str, ...] = tuple(
     variant.server_name
     for variant in ServerVariants
     if (variant not in NO_VARIANTS) and (variant not in DEV_VARIANTS) and not variant.two_boards
 )
 
-NOT_RATED_VARIANTS = tuple(
+NOT_RATED_VARIANTS: tuple[str, ...] = tuple(
     variant.server_name
     for variant in ServerVariants
     if (variant.server_name not in RATED_VARIANTS) and (variant.server_name in VARIANTS)
 )
 
-C2V = {variant.code: variant.uci_variant for variant in ServerVariants}
+C2V: dict[str, str] = {variant.code: variant.uci_variant for variant in ServerVariants}
 
-GRANDS = tuple(variant.server_name for variant in ServerVariants if variant.grand)
+GRANDS: tuple[str, ...] = tuple(variant.server_name for variant in ServerVariants if variant.grand)
 
-BYOS = tuple(variant.server_name for variant in ServerVariants if variant.byo)
+BYOS: tuple[str, ...] = tuple(variant.server_name for variant in ServerVariants if variant.byo)
 
 
 if __name__ == "__main__":

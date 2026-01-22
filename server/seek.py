@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Any, Iterable, NotRequired, TypedDict, cast
 
 from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
@@ -11,68 +12,126 @@ log = logging.getLogger(__name__)
 
 MAX_USER_SEEKS = 10
 
+if TYPE_CHECKING:
+    from user import User
+
+
+class SeekJson(TypedDict):
+    _id: str
+    seekID: str
+    user: str
+    bot: bool
+    title: str
+    variant: str
+    chess960: bool
+    target: str
+    player1: str
+    player2: str
+    bugPlayer1: str
+    bugPlayer2: str
+    fen: str
+    color: str
+    rated: bool
+    rrmin: int
+    rrmax: int
+    rating: int
+    base: int
+    inc: int
+    byoyomi: int
+    day: int
+    gameId: str
+
+
+class CorrSeekJson(TypedDict):
+    _id: str
+    user: str
+    variant: str
+    chess960: bool
+    fen: str
+    color: str
+    rated: bool
+    rrmin: int
+    rrmax: int
+    day: int
+    expireAt: datetime
+
+
+class SeekCreateData(TypedDict):
+    variant: str
+    fen: str
+    color: str
+    minutes: int
+    increment: int
+    byoyomiPeriod: int
+    day: NotRequired[int]
+    rated: NotRequired[bool]
+    rrmin: NotRequired[int | None]
+    rrmax: NotRequired[int | None]
+    chess960: NotRequired[bool]
+    target: NotRequired[str]
+
 
 class Seek:
     def __init__(
         self,
-        seek_id,
-        creator,
-        variant,
-        fen="",
-        color="r",
-        base=5,
-        inc=5,
-        byoyomi_period=0,
-        day=0,
-        level=6,
-        rated=False,
-        rrmin=None,
-        rrmax=None,
-        chess960=False,
-        target="",
-        player1=None,
-        player2=None,
-        bugPlayer1=None,
-        bugPlayer2=None,
-        game_id=None,
-        expire_at=None,
-        reused_fen=False,
-    ):
-        self.id = seek_id
-        self.creator = creator
-        self.variant = variant
-        self.color = color
-        self.fen = "" if fen is None else fen
-        self.rated = rated
-        self.rating = creator.get_rating_value(variant, chess960)
-        self.rrmin = rrmin if (rrmin is not None and rrmin != -1000) else -10000
-        self.rrmax = rrmax if (rrmax is not None and rrmax != 1000) else 10000
-        self.base = base
-        self.inc = inc
-        self.byoyomi_period = byoyomi_period
+        seek_id: str,
+        creator: User,
+        variant: str,
+        fen: str = "",
+        color: str = "r",
+        base: int = 5,
+        inc: int = 5,
+        byoyomi_period: int = 0,
+        day: int = 0,
+        level: int = 6,
+        rated: bool = False,
+        rrmin: int | None = None,
+        rrmax: int | None = None,
+        chess960: bool = False,
+        target: str = "",
+        player1: User | None = None,
+        player2: User | None = None,
+        bugPlayer1: User | None = None,
+        bugPlayer2: User | None = None,
+        game_id: str | None = None,
+        expire_at: datetime | None = None,
+        reused_fen: bool = False,
+    ) -> None:
+        self.id: str = seek_id
+        self.creator: User = creator
+        self.variant: str = variant
+        self.color: str = color
+        self.fen: str = "" if fen is None else fen
+        self.rated: bool = rated
+        self.rating: int = creator.get_rating_value(variant, chess960)
+        self.rrmin: int = rrmin if (rrmin is not None and rrmin != -1000) else -10000
+        self.rrmax: int = rrmax if (rrmax is not None and rrmax != 1000) else 10000
+        self.base: int = base
+        self.inc: int = inc
+        self.byoyomi_period: int = byoyomi_period
         server_variant = get_server_variant(variant, chess960)
-        self.day = 0 if server_variant.two_boards else day
-        self.level = 0 if creator.username == "Random-Mover" else level
-        self.chess960 = chess960
-        self.target = target if target is not None else ""
-        self.player1 = player1
-        self.player2 = player2
-        self.bugPlayer1 = bugPlayer1
-        self.bugPlayer2 = bugPlayer2
+        self.day: int = 0 if server_variant.two_boards else day
+        self.level: int = 0 if creator.username == "Random-Mover" else level
+        self.chess960: bool = chess960
+        self.target: str = target if target is not None else ""
+        self.player1: User | None = player1
+        self.player2: User | None = player2
+        self.bugPlayer1: User | None = bugPlayer1
+        self.bugPlayer2: User | None = bugPlayer2
 
-        self.game_id = game_id
+        self.game_id: str | None = game_id
 
         self.expire_at = (
             datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS if expire_at is None else expire_at
         )
 
         # True if this is 960 variant 1st, 3rd etc. rematch seek
-        self.reused_fen = reused_fen
+        self.reused_fen: bool = reused_fen
 
         # Seek is pending when it is not corr, and user has no live lobby websocket
-        self.pending = False
+        self.pending: bool = False
 
-    def __str__(self):
+    def __str__(self) -> str:
         fen = "fen='%s', " % self.fen if self.fen else ""
         game_id = "game_id='%s', " % self.game_id if self.game_id else ""
         return (
@@ -96,7 +155,7 @@ class Seek:
         )
 
     @property
-    def seek_json(self):
+    def seek_json(self) -> SeekJson:
         return {
             "_id": self.id,
             "seekID": self.id,
@@ -124,7 +183,7 @@ class Seek:
         }
 
     @property
-    def corr_json(self):
+    def corr_json(self) -> CorrSeekJson:
         return {
             "_id": self.id,
             "user": self.creator.username,
@@ -140,13 +199,21 @@ class Seek:
         }
 
     @property
-    def discord_msg(self):
+    def discord_msg(self) -> str:
         tc = time_control_str(self.base, self.inc, self.byoyomi_period, self.day)
         tail960 = "960" if self.chess960 else ""
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
 
-async def create_seek(db, invites, seeks, user, data, empty=False, engine=None):
+async def create_seek(
+    db: Any,
+    invites: dict[str, Seek],
+    seeks: dict[str, Seek],
+    user: User,
+    data: SeekCreateData,
+    empty: bool = False,
+    engine: User | None = None,
+) -> Seek | None:
     """Seek can be
     - invite (has reserved new game id stored in app[invites], and target is 'Invite-friend')
     - challenge (has another username as target)
@@ -162,7 +229,7 @@ async def create_seek(db, invites, seeks, user, data, empty=False, engine=None):
     if (
         (live_seeks >= MAX_USER_SEEKS and day == 0) or (corr_seeks >= MAX_USER_SEEKS and day != 0)
     ) and not empty:
-        return
+        return None
 
     target = data.get("target", "")
     if target in ("BOT_challenge", "Invite-friend"):
@@ -181,10 +248,10 @@ async def create_seek(db, invites, seeks, user, data, empty=False, engine=None):
         inc=data["increment"],
         byoyomi_period=data["byoyomiPeriod"],
         day=day,
-        rated=data.get("rated"),
+        rated=cast(bool, data.get("rated")),
         rrmin=data.get("rrmin"),
         rrmax=data.get("rrmax"),
-        chess960=data.get("chess960"),
+        chess960=cast(bool, data.get("chess960")),
         target=target,
         player1=None if empty else user,
         player2=engine if target == "BOT_challenge" else None,
@@ -201,13 +268,13 @@ async def create_seek(db, invites, seeks, user, data, empty=False, engine=None):
     return seek
 
 
-def get_seeks(user, seeks):
+def get_seeks(user: User, seeks: Iterable[Seek]) -> list[SeekJson]:
     return [
         seek.seek_json for seek in seeks if not seek.pending and user.compatible_with_seek(seek)
     ]
 
 
-def challenge(seek):
+def challenge(seek: Seek) -> str:
     """BOT API stream event response"""
     return (
         '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","finalColor":"white","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n'

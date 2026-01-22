@@ -1,10 +1,12 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING, Any, cast
 import asyncio
 import random
 import string
 
 import aiohttp_session
 from aiohttp import web
+from aiohttp.web_ws import WebSocketResponse
 
 from bug.wsr_bug import handle_resign_bughouse, handle_rematch_bughouse, handle_reconnect_bughouse
 import game
@@ -13,13 +15,23 @@ from chat import chat_response
 from const import ANON_PREFIX, ANALYSIS, STARTED
 from draw import draw, reject_draw
 from fairy import WHITE, BLACK, FairyBoard
-from const import TYPE_CHECKING
 from newid import new_id
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from user import User
+    from users import Users
+    from ws_types import (
+        ChatMessage,
+        FullChatMessage,
+        GameStartMessage,
+        GameUserConnectedMessage,
+        MoreTimeMessage,
+        UserPresenceMessage,
+    )
 from pychess_global_app_state_utils import get_app_state
 from seek import challenge, Seek
+from ws_types import BughouseMoveData, MoveData
 from utils import (
     analysis_move,
     play_move,
@@ -37,8 +49,10 @@ log = logging.getLogger(__name__)
 
 MORE_TIME = 15 * 1000
 
+DataDict = dict[str, Any]
 
-async def round_socket_handler(request: web.Request):
+
+async def round_socket_handler(request: web.Request) -> web.StreamResponse:
     gameId = request.match_info["gameId"]
     app_state = get_app_state(request.app)
     game = await load_game(app_state, gameId)
@@ -64,7 +78,12 @@ async def round_socket_handler(request: web.Request):
     return ws
 
 
-async def init_ws(app_state, ws, user, game: game.Game):
+async def init_ws(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    user: User,
+    game: game.Game,
+) -> None:
     for p in game.non_bot_players:
         if p.username != user.username:
             await handle_is_user_present(ws, app_state.users, p.username, game)
@@ -72,7 +91,13 @@ async def init_ws(app_state, ws, user, game: game.Game):
     await handle_board(ws, user, game)
 
 
-async def process_message(app_state, user, ws, data, game):
+async def process_message(
+    app_state: PychessGlobalAppState,
+    user: User,
+    ws: WebSocketResponse,
+    data: DataDict,
+    game: game.Game,
+) -> None:
     if data["type"] == "move":
         await handle_move(app_state, user, data, game)
     elif data["type"] == "reconnect":
@@ -126,7 +151,12 @@ async def process_message(app_state, user, ws, data, game):
         await handle_delete(app_state.db, ws, data)
 
 
-async def finally_logic(app_state: PychessGlobalAppState, ws, user, game):
+async def finally_logic(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    user: User,
+    game: game.Game,
+) -> None:
     if game is not None and user is not None and not user.bot:
         if user.remove_ws_for_game(game.id, ws):
             user.update_online()
@@ -146,51 +176,65 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user, game):
             await app_state.lobby.lobby_broadcast_u_cnt()
 
     if game is not None and user is not None:
-        response = {"type": "user_disconnected", "username": user.username}
+        response: UserPresenceMessage = {"type": "user_disconnected", "username": user.username}
         await round_broadcast(game, response, full=True)
 
 
-async def handle_move(app_state: PychessGlobalAppState, user, data, game):
-    log.debug("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
+async def handle_move(
+    app_state: PychessGlobalAppState,
+    user: User,
+    data: DataDict,
+    game: game.Game,
+) -> None:
+    move_data = cast(MoveData, data)
+    log.debug("Got USER move %s %s %s" % (user.username, move_data["gameId"], move_data["move"]))
     async with game.move_lock:
         if game.server_variant.two_boards:
             try:
+                bug_data = cast(BughouseMoveData, data)
                 await play_move_bug(
                     app_state,
                     user,
                     game,
-                    data["move"],
-                    data["clocks"],
-                    data["clocksB"],
+                    bug_data["move"],
+                    bug_data["clocks"],
+                    bug_data["clocksB"],
                     # data["ply"],todo:dont even send it maybe
-                    data["board"],
+                    bug_data["board"],
                 )
             except Exception:
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s. data %r ",
-                    data["gameId"],
+                    move_data["gameId"],
                     user.username,
                     data,
                 )
         else:
             try:
-                await play_move(app_state, user, game, data["move"], data["clocks"], data["ply"])
+                await play_move(
+                    app_state,
+                    user,
+                    game,
+                    move_data["move"],
+                    move_data["clocks"],
+                    move_data["ply"],
+                )
             except Exception:
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s ",
-                    data["gameId"],
+                    move_data["gameId"],
                     user.username,
                 )
 
 
-async def handle_berserk(data, game):
+async def handle_berserk(data: DataDict, game: game.Game) -> None:
     game.berserk(data["color"])
     response = {"type": "berserk", "color": data["color"]}
     await round_broadcast(game, response, full=True)
     await game.save_berserk()
 
 
-async def handle_analysis_move(user, data, game):
+async def handle_analysis_move(user: User, data: DataDict, game: game.Game) -> None:
     await analysis_move(
         user,
         game,
@@ -200,26 +244,31 @@ async def handle_analysis_move(user, data, game):
     )
 
 
-async def handle_ready(ws, users, user, data, game):
+async def handle_ready(
+    ws: WebSocketResponse,
+    users: Users,
+    user: User,
+    data: DataDict,
+    game: game.Game,
+) -> None:
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
     )
     opp_player = await users.get(opp_name)
+    response: GameStartMessage = {"type": "gameStart", "gameId": data["gameId"]}
     if opp_player is not None and opp_player.bot:
         # Janggi game start have to wait for human player setup!
         if game.variant != "janggi" or not (game.bsetup or game.wsetup):
             await opp_player.event_queue.put(game.game_start)
 
-        response = {"type": "gameStart", "gameId": data["gameId"]}
         await ws_send_json(ws, response)
     else:
-        response = {"type": "gameStart", "gameId": data["gameId"]}
         await ws_send_json(ws, response)
 
         await round_broadcast(game, game.spectator_list, full=True)
 
 
-async def handle_board(ws, user, game):
+async def handle_board(ws: WebSocketResponse, user: User, game: game.Game) -> None:
     if game.variant == "janggi":
         # print("JANGGI", ws, game.bsetup, game.wsetup, game.status)
         if (game.bsetup or game.wsetup) and game.status <= STARTED:
@@ -255,7 +304,13 @@ async def handle_board(ws, user, game):
         await ws_send_json(ws, response)
 
 
-async def handle_setup(ws, users, user, data, game):
+async def handle_setup(
+    ws: WebSocketResponse,
+    users: Users,
+    user: User,
+    data: DataDict,
+    game: game.Game,
+) -> None:
     # Janggi game starts with a prelude phase to set up horses and elephants
     # First the second player (Red) chooses his setup! Then the first player (Blue)
 
@@ -273,40 +328,46 @@ async def handle_setup(ws, users, user, data, game):
 
     if data["color"] == "black":
         game.bsetup = False
-        response = {
+        setup_response = {
             "type": "setup",
             "color": "white",
             "fen": data["fen"],
         }
-        await ws_send_json(ws, response)
+        await ws_send_json(ws, setup_response)
 
         if opp_player is not None:
             if opp_player.bot:
                 game.board.janggi_setup("w")
                 game.steps[0]["fen"] = game.board.initial_fen
             else:
-                await opp_player.send_game_message(game.id, response)
+                await opp_player.send_game_message(game.id, setup_response)
     else:
         game.wsetup = False
         game.status = STARTED
 
-        response = game.get_board(full=True)
+        board_response = game.get_board(full=True)
         # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
-        await ws_send_json(ws, response)
+        await ws_send_json(ws, board_response)
 
         if (opp_player is not None) and (not opp_player.bot):
-            await opp_player.send_game_message(data["gameId"], response)
+            await opp_player.send_game_message(data["gameId"], board_response)
 
     await game.save_setup()
 
-    if opp_player.bot:
-        await opp_player.event_queue.put(game.game_start)
+    opp_player_cast = cast(User, opp_player)
+    if opp_player_cast.bot:
+        await opp_player_cast.event_queue.put(game.game_start)
 
     # restart expiration time after setup phase
-    game.stopwatch.restart(game.stopwatch.time_for_first_move)
+    cast(Any, game.stopwatch).restart(game.stopwatch.time_for_first_move)
 
 
-async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
+async def handle_analysis(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    data: DataDict,
+    game: game.Game,
+) -> None:
     # fishnet_analysis() wants to inject analysis data into game.steps
     # Analysis can be requested for older games. While get_board() creates steps
     # load_game() does't put the game into the app_state.games, and when
@@ -350,7 +411,7 @@ async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
             engine.game_queues[data["gameId"]] = asyncio.Queue()
             await engine.event_queue.put(game.analysis_start(data["username"]))
 
-    response = chat_response(
+    response: ChatMessage = chat_response(
         "roundchat",
         "",
         "Analysis request sent...",
@@ -359,7 +420,13 @@ async def handle_analysis(app_state: PychessGlobalAppState, ws, data, game):
     await ws_send_json(ws, response)
 
 
-async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game):
+async def handle_rematch(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    user: User,
+    data: DataDict,
+    game: game.Game,
+) -> None:
     if game.server_variant.two_boards:
         await handle_rematch_bughouse(app_state, game, user)
         return
@@ -407,7 +474,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
                 byoyomi_period=game.byoyomi_period,
                 day=game.base if game.corr else 0,
                 level=game.level,
-                rated=game.rated,
+                rated=cast(bool, game.rated),
                 player1=user,
                 chess960=game.chess960,
                 reused_fen=reused_fen,
@@ -438,7 +505,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
                     byoyomi_period=game.byoyomi_period,
                     day=game.base if game.corr else 0,
                     level=game.level,
-                    rated=game.rated,
+                    rated=cast(bool, game.rated),
                     player1=user,
                     chess960=game.chess960,
                     reused_fen=reused_fen,
@@ -467,7 +534,7 @@ async def handle_rematch(app_state: PychessGlobalAppState, ws, user, data, game)
     return response
 
 
-async def handle_reject_rematch(user, game):
+async def handle_reject_rematch(user: User, game: game.Game) -> None:
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
     )
@@ -483,7 +550,13 @@ async def handle_reject_rematch(user, game):
         )
 
 
-async def handle_draw(ws, users, user, data, game):
+async def handle_draw(
+    ws: WebSocketResponse,
+    users: Users,
+    user: User,
+    data: DataDict,
+    game: game.Game,
+) -> None:
     color = WHITE if user.username == game.wplayer.username else BLACK
     opp_name = game.wplayer.username if color == BLACK else game.bplayer.username
 
@@ -507,7 +580,7 @@ async def handle_draw(ws, users, user, data, game):
     await round_broadcast(game, response)
 
 
-async def handle_reject_draw(user, game):
+async def handle_reject_draw(user: User, game: game.Game) -> None:
     color = WHITE if user.username == game.wplayer.username else BLACK
     opp_user = game.wplayer if color == BLACK else game.bplayer
 
@@ -516,21 +589,27 @@ async def handle_reject_draw(user, game):
         await round_broadcast(game, response, full=True)
 
 
-async def handle_byoyomi(data, game):
+async def handle_byoyomi(data: DataDict, game: game.Game) -> None:
     game.byo_correction += game.inc * 1000
     color = WHITE if data["color"] == "white" else BLACK
     game.byoyomi_periods[color] = data["period"]
     # print("BYOYOMI:", data)
 
 
-async def handle_takeback(ws, game):
+async def handle_takeback(ws: WebSocketResponse, game: game.Game) -> None:
     await game.takeback()
     board_response = game.get_board(full=True)
     board_response["takeback"] = True
     await ws_send_json(ws, board_response)
 
 
-async def handle_abort_resign_abandon_flag(ws, users, user, data, game):
+async def handle_abort_resign_abandon_flag(
+    ws: WebSocketResponse,
+    users: Users,
+    user: User,
+    data: DataDict,
+    game: game.Game,
+) -> None:
     if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
         return
 
@@ -558,12 +637,17 @@ async def handle_abort_resign_abandon_flag(ws, users, user, data, game):
     await round_broadcast(game, response)
 
 
-async def handle_embed_user_connected(ws):
+async def handle_embed_user_connected(ws: WebSocketResponse) -> None:
     response = {"type": "embed_user_connected"}
     await ws_send_json(ws, response)
 
 
-async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user, game: game.Game):
+async def handle_game_user_connected(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    user: User,
+    game: game.Game,
+) -> None:
     # update websocket
     log.debug("Addings ws %r to user %r for game%s", id(ws), user, game)
 
@@ -583,9 +667,11 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
         await round_broadcast(game, game.spectator_list, full=True)
 
     stopwatch_secs = (
-        game.stopwatch.secs if (not game.corr and not game.server_variant.two_boards) else 0
+        cast(Any, game.stopwatch).secs
+        if (not game.corr and not game.server_variant.two_boards)
+        else 0
     )
-    response = {
+    response: GameUserConnectedMessage = {
         "type": "game_user_connected",
         "username": user.username,
         "gameId": game.id,
@@ -603,11 +689,14 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
             pass
         user.abandon_task_done(task, game.id)
 
-    response = {"type": "fullchat", "lines": list(game.messages)}
-    await ws_send_json(ws, response)
+    fullchat_response: FullChatMessage = {"type": "fullchat", "lines": list(game.messages)}
+    await ws_send_json(ws, fullchat_response)
 
-    response = {"type": "user_present", "username": user.username}
-    await round_broadcast(game, response, full=True)
+    presence_response: UserPresenceMessage = {
+        "type": "user_present",
+        "username": user.username,
+    }
+    await round_broadcast(game, presence_response, full=True)
 
     # if this is the first game socket for this user, and they not in lobby maybe we have a change in what
     # we considered online user count. todo: also tournament sockets maybe should be checked here
@@ -615,8 +704,14 @@ async def handle_game_user_connected(app_state: PychessGlobalAppState, ws, user,
         await app_state.lobby.lobby_broadcast_u_cnt()
 
 
-async def handle_is_user_present(ws, users, player_name, game):
+async def handle_is_user_present(
+    ws: WebSocketResponse,
+    users: Users,
+    player_name: str,
+    game: game.Game,
+) -> None:
     player = await users.get(player_name)
+    response: UserPresenceMessage
     if (
         player is not None and (game.id in player.game_queues)
         if player.bot
@@ -631,11 +726,11 @@ async def handle_is_user_present(ws, users, player_name, game):
     await ws_send_json(ws, response)
 
 
-async def handle_moretime(users, user, data, game):
+async def handle_moretime(users: Users, user: User, data: DataDict, game: game.Game) -> None:
     opp_color = WHITE if user.username == game.bplayer.username else BLACK
     if (not game.corr) and opp_color == game.stopwatch.color:
         opp_time = game.stopwatch.stop()
-        game.stopwatch.restart(opp_time + MORE_TIME)
+        cast(Any, game.stopwatch).restart(opp_time + MORE_TIME)
 
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
@@ -643,12 +738,12 @@ async def handle_moretime(users, user, data, game):
     if opp_name in users:
         opp_player = users[opp_name]
         if not opp_player.bot:
-            response = {"type": "moretime", "username": opp_name}
+            response: MoreTimeMessage = {"type": "moretime", "username": opp_name}
             await users[opp_name].send_game_message(data["gameId"], response)
             await round_broadcast(game, response)
 
 
-async def handle_bugroundchat(users, user, data, game):
+async def handle_bugroundchat(users: Users, user: User, data: DataDict, game: Any) -> None:
     gameId = data["gameId"]
     message = data["message"]
     room = data["room"]
@@ -688,7 +783,13 @@ async def handle_bugroundchat(users, user, data, game):
     await round_broadcast(game, response)
 
 
-async def handle_roundchat(app_state: PychessGlobalAppState, ws, user, data, game):
+async def handle_roundchat(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    user: User,
+    data: DataDict,
+    game: game.Game,
+) -> None:
     if user.username.startswith(ANON_PREFIX):
         return
 
@@ -704,7 +805,7 @@ async def handle_roundchat(app_state: PychessGlobalAppState, ws, user, data, gam
         await ws_send_json(ws, {"type": "request_analysis"})
         return
 
-    response = chat_response(
+    response: ChatMessage = chat_response(
         "roundchat",
         user.username,
         message,
@@ -727,7 +828,7 @@ async def handle_roundchat(app_state: PychessGlobalAppState, ws, user, data, gam
     await round_broadcast(game, response)
 
 
-async def handle_leave(user, data, game):
+async def handle_leave(user: User, data: DataDict, game: game.Game) -> None:
     gameId = data["gameId"]
 
     response_chat = chat_response(
@@ -750,7 +851,9 @@ async def handle_leave(user, data, game):
     await round_broadcast(game, response)
 
 
-async def handle_updateTV(app_state: PychessGlobalAppState, ws, data):
+async def handle_updateTV(
+    app_state: PychessGlobalAppState, ws: WebSocketResponse, data: DataDict
+) -> None:
     if "profileId" in data and data["profileId"] != "":
         gameId = await tv_game_user(app_state.db, app_state.users, data["profileId"])
     else:
@@ -761,7 +864,7 @@ async def handle_updateTV(app_state: PychessGlobalAppState, ws, data):
         await ws_send_json(ws, response)
 
 
-async def handle_count(ws, user, data, game):
+async def handle_count(ws: WebSocketResponse, user: User, data: DataDict, game: game.Game) -> None:
     cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
 
     if user.username == cur_player.username:
@@ -792,7 +895,7 @@ async def handle_count(ws, user, data, game):
         await ws_send_json(ws, response)
 
 
-async def handle_delete(db, ws, data):
+async def handle_delete(db: Any, ws: WebSocketResponse, data: DataDict) -> None:
     await db.game.delete_one({"_id": data["gameId"]})
     response = {"type": "deleted"}
     await ws_send_json(ws, response)

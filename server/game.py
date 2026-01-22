@@ -1,9 +1,9 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING, Callable, Literal, Mapping, Sequence, Set, cast
 import asyncio
 import collections
 from datetime import datetime, timezone, timedelta
 from time import monotonic
-from typing import Set, List
 
 from broadcast import round_broadcast
 from clock import Clock, CorrClock
@@ -28,7 +28,6 @@ from const import (
     HIGHSCORE_MIN_GAMES,
     MAX_HIGHSCORE_ITEM_LIMIT,
     MAX_CHAT_LINES,
-    TYPE_CHECKING,
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import get_fog_fen, get_san_moves, NOTATION_SAN, FairyBoard, BLACK, WHITE
@@ -37,7 +36,8 @@ from draw import reject_draw
 from settings import URI
 from spectators import spectators
 import logging
-from variants import get_server_variant, GRANDS
+from typing_defs import Crosstable, GameBoardResponse, GameSummaryJson, TvGameJson
+from variants import get_server_variant, GRANDS, ServerVariants
 
 log = logging.getLogger(__name__)
 
@@ -57,58 +57,61 @@ INVALID_PAWN_DROP_MATE = (
 
 
 class Game:
+    wrank: int
+    brank: int
+
     def __init__(
         self,
         app_state: PychessGlobalAppState,
-        gameId,
-        variant,
-        initial_fen,
-        wplayer,
-        bplayer,
-        base=1,
-        inc=0,
-        byoyomi_period=0,
-        level=0,
-        rated=CASUAL,
-        chess960=False,
-        corr=False,
-        create=True,
-        tournamentId=None,
-        simulId=None,
-        new_960_fen_needed_for_rematch=False,
-    ):
-        self.app_state = app_state
+        gameId: str,
+        variant: str,
+        initial_fen: str,
+        wplayer: User,
+        bplayer: User,
+        base: int = 1,
+        inc: int = 0,
+        byoyomi_period: int = 0,
+        level: int = 0,
+        rated: int = CASUAL,
+        chess960: bool = False,
+        corr: bool = False,
+        create: bool = True,
+        tournamentId: str | None = None,
+        simulId: str | None = None,
+        new_960_fen_needed_for_rematch: bool = False,
+    ) -> None:
+        self.app_state: PychessGlobalAppState = app_state
 
-        self.saved = False
+        self.saved: bool = False
 
-        self.variant = variant
-        self.initial_fen = initial_fen
-        self.wplayer = wplayer
-        self.bplayer = bplayer
+        self.variant: str = variant
+        self.initial_fen: str = initial_fen
+        self.wplayer: User = wplayer
+        self.bplayer: User = bplayer
 
-        self.bot_game = self.bplayer.bot or self.wplayer.bot
+        self.bot_game: bool = self.bplayer.bot or self.wplayer.bot
 
-        self.all_players = [self.wplayer, self.bplayer]
-        self.non_bot_players = [player for player in self.all_players if not player.bot]
+        self.all_players: list[User] = [self.wplayer, self.bplayer]
+        self.non_bot_players: list[User] = [player for player in self.all_players if not player.bot]
 
-        self.rated = rated
-        self.base = base
-        self.inc = inc
-        self.level = level if level is not None else 0
-        self.tournamentId = tournamentId
-        self.simulId = simulId
-        self.chess960 = chess960
-        self.corr = corr
-        self.create = create
-        self.new_960_fen_needed_for_rematch = new_960_fen_needed_for_rematch
-        self.imported_by = ""
+        self.rated: int = rated
+        self.base: int = base
+        self.inc: int = inc
+        self.level: int = level if level is not None else 0
+        self.tournamentId: str | None = tournamentId
+        self.simulId: str | None = simulId
+        self.chess960: bool = chess960
+        self.corr: bool = corr
+        self.create: bool = create
+        self.new_960_fen_needed_for_rematch: bool = new_960_fen_needed_for_rematch
+        self.imported_by: str = ""
 
-        self.server_variant = get_server_variant(variant, chess960)
-        self.encode_method = self.server_variant.move_encoding
+        self.server_variant: ServerVariants = get_server_variant(variant, chess960)
+        self.encode_method: Callable[[str], str] = self.server_variant.move_encoding
 
-        self.berserk_time = self.base * 1000 * 30
+        self.berserk_time: int = self.base * 1000 * 30
 
-        self.browser_title = "%s • %s vs %s" % (
+        self.browser_title: str = "%s • %s vs %s" % (
             self.server_variant.display_name.title(),
             self.wplayer.username,
             self.bplayer.username,
@@ -116,24 +119,29 @@ class Game:
 
         # rating info
         white_rating = wplayer.get_rating(variant, chess960)
-        self.wrating: int | str = "%s%s" % white_rating.rating_prov
+        self.wrating: str = "%s%s" % white_rating.rating_prov
         self.wrdiff: int | str = 0
         black_rating = bplayer.get_rating(variant, chess960)
-        self.brating: int | str = "%s%s" % black_rating.rating_prov
+        self.brating: str = "%s%s" % black_rating.rating_prov
         self.brdiff: int | str = 0
 
         # crosstable info (this have to be updated after game creation from db !)
-        self.need_crosstable_save = False
-        self.has_crosstable = not (self.bot_game or self.wplayer.anon or self.bplayer.anon)
+        self.need_crosstable_save: bool = False
+        self.has_crosstable: bool = not (self.bot_game or self.wplayer.anon or self.bplayer.anon)
         if self.has_crosstable:
             if self.wplayer.username < self.bplayer.username:
-                self.s1player = self.wplayer.username
-                self.s2player = self.bplayer.username
+                self.s1player: str = self.wplayer.username
+                self.s2player: str = self.bplayer.username
             else:
                 self.s1player = self.bplayer.username
                 self.s2player = self.wplayer.username
-            self.ct_id = self.s1player + "/" + self.s2player
-            self.crosstable = {"_id": self.ct_id, "s1": 0, "s2": 0, "r": []}
+            self.ct_id: str = self.s1player + "/" + self.s2player
+            self.crosstable: Crosstable | str = {
+                "_id": self.ct_id,
+                "s1": 0,
+                "s2": 0,
+                "r": [],
+            }
         else:
             self.ct_id = ""
             self.crosstable = ""
@@ -143,34 +151,37 @@ class Game:
         self.rematch_offers: Set[str] = set()
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
 
-        self.date = datetime.now(timezone.utc)
-        self.loaded_at = None
-        self.analysis = None
+        self.date: datetime = datetime.now(timezone.utc)
+        self.loaded_at: datetime | None = None
+        self.analysis: list[dict[str, object]] | None = None
 
         clocks_init = (base * 1000 * 60) + 0 if base > 0 else inc * 1000
-        self.clocks_w = [clocks_init]
-        self.clocks_b = [clocks_init]
+        self.clocks_w: list[int] = [clocks_init]
+        self.clocks_b: list[int] = [clocks_init]
 
-        self.lastmove = None
-        self.check = False
-        self.status = CREATED
-        self.result = "*"
-        self.last_server_clock = monotonic()
+        self.lastmove: str | None = None
+        self.check: bool = False
+        self.status: int = CREATED
+        self.result: str = "*"
+        self.last_server_clock: float = monotonic()
+        self.last_move_time: datetime | None = None
 
-        self.id = gameId
+        self.id: str = gameId
 
-        self.fow = variant == "fogofwar"
-        self.jieqi = self.variant == "jieqi"
+        self.fow: bool = variant == "fogofwar"
+        self.jieqi: bool = self.variant == "jieqi"
 
         # Jieqi captures must be tracked per side; the opponent
         # and spectators must never learn the identities of captured covered pieces.
-        self.jieqi_captures = {WHITE: [], BLACK: []} if self.jieqi else None
+        self.jieqi_captures: dict[int, list[str]] | None = (
+            {WHITE: [], BLACK: []} if self.jieqi else None
+        )
 
         # Stack mirrors move history so takebacks can roll capture identities back safely.
-        self.jieqi_capture_stack = [] if self.jieqi else None
+        self.jieqi_capture_stack: list[tuple[int, str] | None] | None = [] if self.jieqi else None
 
         # One-move hint used to send capture identity to the current mover only.
-        self.last_jieqi_capture = None
+        self.last_jieqi_capture: str | None = None
 
         self.n_fold_is_draw = self.variant in (
             "makruk",
@@ -186,8 +197,8 @@ class Game:
         # Makruk manual counting
         use_manual_counting = self.variant in ("makruk", "makpong", "cambodian")
         self.manual_count = use_manual_counting and not self.bot_game
-        self.manual_count_toggled: List = []
-        self.mct = None
+        self.manual_count_toggled: list[tuple[int, int]] = []
+        self.mct: list[tuple[int, int]] | None = None
 
         # Old USI Shogi games saved using usi2uci() need special handling in create_steps()
         self.usi_format = False
@@ -287,10 +298,11 @@ class Game:
         ]
 
         self.last_move_time = None
+        self.stopwatch: Clock | CorrClock
         if self.corr:
-            self.stopwatch: Clock | CorrClock = CorrClock(self)
+            self.stopwatch = CorrClock(self)
         else:
-            self.stopwatch: Clock | CorrClock = Clock(self)
+            self.stopwatch = Clock(self)
 
         if (not self.corr) and (not self.bplayer.bot):
             self.bplayer.game_in_progress = self.id
@@ -302,7 +314,7 @@ class Game:
 
         self.move_lock = asyncio.Lock()
 
-    def berserk(self, color):
+    def berserk(self, color: str) -> None:
         if color == "white" and not self.wberserk:
             self.wberserk = True
             self.clocks_w[0] = self.berserk_time
@@ -310,7 +322,7 @@ class Game:
             self.bberserk = True
             self.clocks_b[0] = self.berserk_time
 
-    async def save_berserk(self):
+    async def save_berserk(self) -> None:
         new_data = {
             "wb": self.wberserk,
             "bb": self.bberserk,
@@ -320,10 +332,14 @@ class Game:
 
         await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
-    async def play_move(self, move, clocks=None, ply=None):
+    async def play_move(
+        self, move: str, clocks: list[int] | None = None, ply: int | None = None
+    ) -> None:
         self.stopwatch.stop()
 
         self.byo_correction = 0
+        if clocks is None:
+            clocks = [self.clocks_w[-1], self.clocks_b[-1]]
 
         if self.status > STARTED:
             return
@@ -352,9 +368,6 @@ class Game:
             movetime = (
                 int(round((cur_time - self.last_server_clock) * 1000)) if self.board.ply >= 2 else 0
             )
-            if clocks is None:
-                clocks = [self.clocks_w[-1], self.clocks_b[-1]]
-
             if cur_player.bot and self.board.ply >= 2:
                 if self.byoyomi:
                     if self.overtime:
@@ -461,7 +474,7 @@ class Game:
                 if self.corr:
                     await opp_player.notify_game_end(self)
 
-    async def save_move(self, move):
+    async def save_move(self, move: str) -> None:
         self.last_move_time = datetime.now(timezone.utc)
         move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
 
@@ -480,14 +493,14 @@ class Game:
                 {"_id": self.id}, {"$set": new_data, "$push": {"m": move_encoded}}
             )
 
-    async def pop_move_from_db(self):
+    async def pop_move_from_db(self) -> None:
         if self.app_state.db is not None:
             new_data = {"f": self.board.fen}
             await self.app_state.db.game.update_one(
                 {"_id": self.id}, {"$set": new_data, "$pop": {"m": 1}}
             )
 
-    async def save_setup(self):
+    async def save_setup(self) -> None:
         """Used by Janggi prelude phase"""
         new_data = {
             "f": self.board.fen,
@@ -500,7 +513,7 @@ class Game:
         if self.app_state.db is not None:
             await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
-    async def save_game(self):
+    async def save_game(self) -> None:
         if self.saved:
             return
         self.saved = True
@@ -584,15 +597,16 @@ class Game:
                     {"_id": self.id}, {"$set": new_data}
                 )
 
-    def set_crosstable(self):
+    def set_crosstable(self) -> None:
         if (
             (not self.has_crosstable)
             or (self.board.ply < 3 and self.tournamentId is None)
             or self.result == "*"
         ):
             return
+        crosstable = cast(Crosstable, self.crosstable)
 
-        if len(self.crosstable["r"]) > 0 and self.crosstable["r"][-1].startswith(self.id):
+        if len(crosstable["r"]) > 0 and crosstable["r"][-1].startswith(self.id):
             log.info("Crosstable was already updated with %s result", self.id)
             return
 
@@ -610,22 +624,23 @@ class Game:
             s2 = 10
             tail = "-"
 
-        self.crosstable["s1"] += s1
-        self.crosstable["s2"] += s2
-        self.crosstable["r"].append("%s%s" % (self.id, tail))
-        self.crosstable["r"] = self.crosstable["r"][-20:]
+        crosstable["s1"] += s1
+        crosstable["s2"] += s2
+        crosstable["r"].append("%s%s" % (self.id, tail))
+        crosstable["r"] = crosstable["r"][-20:]
 
         self.need_crosstable_save = True
 
-    async def save_crosstable(self):
+    async def save_crosstable(self) -> None:
         if not self.need_crosstable_save:
             log.info("Crosstable update for %s was already saved to mongodb", self.id)
             return
+        crosstable = cast(Crosstable, self.crosstable)
 
         new_data = {
-            "s1": self.crosstable["s1"],
-            "s2": self.crosstable["s2"],
-            "r": self.crosstable["r"],
+            "s1": crosstable["s1"],
+            "s2": crosstable["s2"],
+            "r": crosstable["r"],
         }
         try:
             await self.app_state.db.crosstable.find_one_and_update(
@@ -636,7 +651,7 @@ class Game:
 
         self.need_crosstable_save = False
 
-    def get_highscore(self, variant, chess960):
+    def get_highscore(self, variant: str, chess960: bool) -> tuple[int, int]:
         len_hs = len(self.app_state.highscore[variant + ("960" if chess960 else "")])
         if len_hs > 0:
             return (
@@ -645,7 +660,7 @@ class Game:
             )
         return (0, 0)
 
-    async def set_highscore(self, variant, chess960, value):
+    async def set_highscore(self, variant: str, chess960: bool, value: dict[str, int]) -> None:
         self.app_state.highscore[variant + ("960" if chess960 else "")].update(value)
         new_data = {
             "scores": dict(
@@ -663,7 +678,7 @@ class Game:
         except Exception:
             log.error("Failed to save new %s highscore to mongodb!", variant)
 
-    async def update_ratings(self):
+    async def update_ratings(self) -> None:
         if self.result == "1-0":
             (white_score, black_score) = (1.0, 0.0)
         elif self.result == "1/2-1/2":
@@ -717,25 +732,25 @@ class Game:
                 {_id: int(round(bcurr.mu + brdiff, 0))},
             )
 
-    def get_player_at(self, color, board):
+    def get_player_at(self, color: int, board: FairyBoard) -> User:
         return self.bplayer if color == BLACK else self.wplayer
 
     def is_player(self, user: User) -> bool:
         return user.username in (self.wplayer.username, self.bplayer.username)
 
     @property
-    def fen(self):
+    def fen(self) -> str:
         return self.board.fen
 
     @property
-    def ply(self):
+    def ply(self) -> int:
         return self.board.ply
 
-    def update_status(self, status=None, result=None):
+    def update_status(self, status: int | None = None, result: str | None = None) -> None:
         if self.status > STARTED:
             return
 
-        def result_string_from_value(color, game_result_value):
+        def result_string_from_value(color: int, game_result_value: int) -> str:
             if game_result_value < 0:
                 return "1-0" if color == BLACK else "0-1"
             if game_result_value > 0:
@@ -826,7 +841,7 @@ class Game:
             self.set_crosstable()
             self.update_in_plays()
 
-    def update_in_plays(self):
+    def update_in_plays(self) -> None:
         if not self.bplayer.bot:
             self.bplayer.game_in_progress = None
         if not self.wplayer.bot:
@@ -836,12 +851,12 @@ class Game:
             self.wplayer.correspondence_games.remove(self)
             self.bplayer.correspondence_games.remove(self)
 
-    def print_game(self):
+    def print_game(self) -> None:
         print(self.pgn)
         print(self.board.print_pos())
 
     @property
-    def pgn(self):
+    def pgn(self) -> str:
         try:
             if self.jieqi:
                 mlist = self.board.move_stack
@@ -891,7 +906,7 @@ class Game:
         )
 
     @property
-    def uci_usi(self):
+    def uci_usi(self) -> str:
         if self.variant[-5:] == "shogi":
             mirror = mirror9 if self.variant == "shogi" else mirror5
             return "position sfen %s moves %s" % (
@@ -904,25 +919,25 @@ class Game:
         )
 
     @property
-    def clocks(self):
+    def clocks(self) -> tuple[int, int]:
         return (self.clocks_w[-1], self.clocks_b[-1])
 
     @property
-    def is_claimable_draw(self):
+    def is_claimable_draw(self) -> bool:
         return self.board.is_claimable_draw()
 
     @property
-    def spectator_list(self):
+    def spectator_list(self) -> dict[str, str]:
         return spectators(self)
 
-    def analysis_start(self, username):
+    def analysis_start(self, username: str) -> str:
         return (
             '{"type": "analysisStart", "username": "%s", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n'
             % (username, self.id, self.level, self.chess960)
         )
 
     @property
-    def game_start(self):
+    def game_start(self) -> str:
         """BOT API stream event response"""
         return (
             '{"type": "gameStart", "game": {"id": "%s", "skill_level": "%s", "chess960": "%s"}}\n'
@@ -934,11 +949,11 @@ class Game:
         )
 
     @property
-    def game_end(self):
+    def game_end(self) -> str:
         return '{"type": "gameEnd", "game": {"id": "%s"}}\n' % self.id
 
     @property
-    def game_full(self):
+    def game_full(self) -> str:
         """BOT API Stream Bot game data and state"""
         return (
             '{"type": "gameFull", "id": "%s", "variant": {"name": "%s"}, "white": {"name": "%s"}, "black": {"name": "%s"}, "initialFen": "%s", "createdAt": %s, "state": %s}\n'
@@ -954,7 +969,7 @@ class Game:
         )
 
     @property
-    def game_state(self):
+    def game_state(self) -> str:
         """BOT API Stream Bot game state"""
         clocks = self.clocks
         return (
@@ -973,7 +988,7 @@ class Game:
             )
         )
 
-    async def abort_by_server(self):
+    async def abort_by_server(self) -> dict[str, object]:
         self.update_status(ABORTED)
         await self.save_game()
         return {
@@ -984,7 +999,7 @@ class Game:
             "pgn": self.pgn,
         }
 
-    async def game_ended(self, user, reason):
+    async def game_ended(self, user: User, reason: str) -> dict[str, object]:
         """Abort, resign, flag, abandon"""
         if self.result == "*":
             if reason == "abort":
@@ -1050,7 +1065,7 @@ class Game:
                 ]
         return response
 
-    def start_manual_count(self):
+    def start_manual_count(self) -> None:
         if self.manual_count:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
             opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
@@ -1058,7 +1073,7 @@ class Game:
             self.draw_offers.add(cur_player.username)
             self.board.count_started = self.board.ply + 1
 
-    def stop_manual_count(self):
+    def stop_manual_count(self) -> None:
         if self.manual_count:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
             opp_player = self.wplayer if self.board.color == BLACK else self.bplayer
@@ -1067,7 +1082,7 @@ class Game:
             self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
             self.board.count_started = -1
 
-    def create_steps(self):
+    def create_steps(self) -> None:
         # log.debug("create_steps() START")
         if self.mct is not None:
             manual_count_toggled = iter(self.mct)
@@ -1170,7 +1185,7 @@ class Game:
                 break
         # log.debug("create_steps() OK")
 
-    def get_board(self, full=False, persp_color=None):
+    def get_board(self, full: bool = False, persp_color: int | None = None) -> GameBoardResponse:
         if len(self.board.move_stack) > 0 and len(self.steps) == 1:
             self.create_steps()
 
@@ -1191,7 +1206,7 @@ class Game:
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)
 
-                elapsed0 = 0
+                elapsed0 = 0.0
                 # Extra adjustment needed when game resumed after server restart
                 if (self.last_move_time is not None) and (self.loaded_at is not None):
                     elapsed0 = ((self.loaded_at - self.last_move_time).total_seconds()) * 1000
@@ -1203,8 +1218,8 @@ class Game:
                 )
             crosstable = self.crosstable
         else:
-            clocks = self.clocks
-            steps = (self.steps[-1],)
+            clocks = list(self.clocks)
+            steps = [self.steps[-1]]
             crosstable = self.crosstable if self.status > STARTED else ""
 
         if self.fow and self.status <= STARTED:
@@ -1213,13 +1228,16 @@ class Game:
             if (persp_color is None) or (persp_color == self.board.color):
                 lastmove = ""
 
+        date = ""
         if self.corr:
-            clock_mins = self.stopwatch.mins * 60 * 1000
+            assert isinstance(self.stopwatch, CorrClock)
+            clock_mins = int(self.stopwatch.mins * 60 * 1000)
             base_mins = self.base * 24 * 60 * 60 * 1000
-            clocks = (
+            clocks = [
                 base_mins if self.board.color == BLACK else clock_mins,
                 base_mins if self.board.color == WHITE else clock_mins,
-            )
+            ]
+            date = (datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)).isoformat()
 
         response = {
             "type": "board",
@@ -1240,11 +1258,7 @@ class Game:
                 if self.status > STARTED and self.rated == RATED
                 else ""
             ),
-            "date": (
-                (datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)).isoformat()
-                if self.corr
-                else ""
-            ),
+            "date": date,
             "uci_usi": self.uci_usi if self.status > STARTED else "",
             "ct": crosstable,
             "berserk": {"w": self.wberserk, "b": self.bberserk},
@@ -1270,13 +1284,13 @@ class Game:
                         capture[1] if capture and capture[0] == persp_color else None
                         for capture in self.jieqi_capture_stack
                     ]
-        return response
+        return cast(GameBoardResponse, response)
 
-    def game_json(self, player):
-        color = "w" if self.wplayer == player else "b"
+    def game_json(self, player: User) -> GameSummaryJson:
+        color: Literal["w", "b"] = "w" if self.wplayer == player else "b"
         opp_player = self.bplayer if color == "w" else self.wplayer
         opp_rating = self.brating if color == "w" else self.wrating
-        return {
+        response: GameSummaryJson = {
             "gameId": self.id,
             "title": opp_player.title,
             "name": opp_player.username,
@@ -1284,10 +1298,11 @@ class Game:
             "color": color,
             "result": self.result,
         }
+        return response
 
     @property
-    def tv_game_json(self):
-        return {
+    def tv_game_json(self) -> TvGameJson:
+        response: TvGameJson = {
             "type": "tv_game",
             "gameId": self.id,
             "variant": self.variant,
@@ -1304,17 +1319,18 @@ class Game:
             "byoyomi": self.byoyomi_period,
             "lastMove": self.lastmove,
         }
+        return response
 
     @property
-    def turn_player(self):
+    def turn_player(self) -> str:
         return self.wplayer.username if self.board.color == WHITE else self.bplayer.username
 
-    async def takeback(self):
+    async def takeback(self) -> None:
         if self.bot_game and self.board.ply >= 2:
             cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
             cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
 
-            def pop_jieqi_capture():
+            def pop_jieqi_capture() -> None:
                 # Takebacks must also undo any stored Jieqi capture identities.
                 if self.jieqi_capture_stack is None:
                     return
@@ -1323,7 +1339,9 @@ class Game:
                 capture = self.jieqi_capture_stack.pop()
                 if capture is None:
                     return
-                color, piece = capture
+                if self.jieqi_captures is None:
+                    return
+                color, _piece = capture
                 try:
                     if self.jieqi_captures[color]:
                         self.jieqi_captures[color].pop()
@@ -1353,11 +1371,13 @@ class Game:
             self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
             self.check = self.board.is_checked()
 
-    def handle_chat_message(self, chat_message):
+    def handle_chat_message(self, chat_message: Mapping[str, object]) -> None:
         self.messages.append(chat_message)
 
 
-def get_fog_steps(steps, persp_color):
+def get_fog_steps(
+    steps: Sequence[dict[str, object]], persp_color: int | None
+) -> list[dict[str, object]]:
     if persp_color is None:
         return [{"fen": DARK_FEN} for step in steps]
     else:
