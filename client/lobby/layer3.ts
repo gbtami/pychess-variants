@@ -179,6 +179,7 @@ function proTip (variant: string, chess960: boolean) {
     case 'janggi':
     case 'minixiangqi':
     case 'manchu':
+    case 'jieqi':
         return _('Internationalized sets are available by going to settings.');
     default:
         return '';

@@ -55,6 +55,13 @@ export function layer2xiangqi(lobbyCtrl: LobbyController, containerId: string, s
                 ]),
                 h('p.variant-extra-info', _('Asymmetric variant with one side having a super piece')),
             ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'jieqi') } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['jieqi'].icon(false) } }),
+                    h('h3', VARIANTS['jieqi'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Xiangqi with hidden pieces and a random setup')),
+            ]),
         ]),
     ]);
 
