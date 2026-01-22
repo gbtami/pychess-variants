@@ -2,7 +2,6 @@ from __future__ import annotations
 from datetime import timedelta
 from enum import global_enum, IntEnum, StrEnum
 import re
-from typing import TYPE_CHECKING
 
 from settings import static_url
 from variants import VARIANTS, get_server_variant
@@ -67,6 +66,13 @@ class TStatus(IntEnum):
     T_ARCHIVED = 4
 
 
+T_CREATED = TStatus.T_CREATED
+T_STARTED = TStatus.T_STARTED
+T_ABORTED = TStatus.T_ABORTED
+T_FINISHED = TStatus.T_FINISHED
+T_ARCHIVED = TStatus.T_ARCHIVED
+
+
 # tournament frequency
 @global_enum
 class TFreq(StrEnum):
@@ -79,6 +85,15 @@ class TFreq(StrEnum):
     SHIELD = "s"
 
 
+HOURLY = TFreq.HOURLY
+DAILY = TFreq.DAILY
+WEEKLY = TFreq.WEEKLY
+MONTHLY = TFreq.MONTHLY
+YEARLY = TFreq.YEARLY
+MARATHON = TFreq.MARATHON
+SHIELD = TFreq.SHIELD
+
+
 # tournament pairing
 @global_enum
 class TPairing(IntEnum):
@@ -86,6 +101,12 @@ class TPairing(IntEnum):
     RR = 1
     SWISS = 2
     SIMUL = 3
+
+
+ARENA = TPairing.ARENA
+RR = TPairing.RR
+SWISS = TPairing.SWISS
+SIMUL = TPairing.SIMUL
 
 
 # translations
@@ -118,12 +139,21 @@ class WorkType(IntEnum):
     ANALYSIS = 1
 
 
+MOVE = WorkType.MOVE
+ANALYSIS = WorkType.ANALYSIS
+
+
 # game types
 @global_enum
 class GameType(IntEnum):
     CASUAL = 0
     RATED = 1
     IMPORTED = 2
+
+
+CASUAL = GameType.CASUAL
+RATED = GameType.RATED
+IMPORTED = GameType.IMPORTED
 
 
 # game status
@@ -146,50 +176,22 @@ class GameStatus(IntEnum):
     VARIANTEND = 12
     CLAIM = 13
 
-
-if TYPE_CHECKING:
-    T_CREATED: int
-    T_STARTED: int
-    T_ABORTED: int
-    T_FINISHED: int
-    T_ARCHIVED: int
-
-    HOURLY: str
-    DAILY: str
-    WEEKLY: str
-    MONTHLY: str
-    YEARLY: str
-    MARATHON: str
-    SHIELD: str
-
-    ARENA: int
-    RR: int
-    SWISS: int
-    SIMUL: int
-
-    MOVE: int
-    ANALYSIS: int
-
-    CASUAL: int
-    RATED: int
-    IMPORTED: int
-
-    CREATED: int
-    STARTED: int
-    ABORTED: int
-    MATE: int
-    RESIGN: int
-    STALEMATE: int
-    TIMEOUT: int
-    DRAW: int
-    FLAG: int
-    ABANDON: int
-    CHEAT: int
-    BYEGAME: int
-    INVALIDMOVE: int
-    UNKNOWNFINISH: int
-    VARIANTEND: int
-    CLAIM: int
+CREATED = GameStatus.CREATED
+STARTED = GameStatus.STARTED
+ABORTED = GameStatus.ABORTED
+MATE = GameStatus.MATE
+RESIGN = GameStatus.RESIGN
+STALEMATE = GameStatus.STALEMATE
+TIMEOUT = GameStatus.TIMEOUT
+DRAW = GameStatus.DRAW
+FLAG = GameStatus.FLAG
+ABANDON = GameStatus.ABANDON
+CHEAT = GameStatus.CHEAT
+BYEGAME = GameStatus.BYEGAME
+INVALIDMOVE = GameStatus.INVALIDMOVE
+UNKNOWNFINISH = GameStatus.UNKNOWNFINISH
+VARIANTEND = GameStatus.VARIANTEND
+CLAIM = GameStatus.CLAIM
 
 
 LOSERS = {

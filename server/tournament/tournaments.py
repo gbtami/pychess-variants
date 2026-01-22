@@ -296,8 +296,8 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
                 tournament_class = SwissTournament
             elif tournament_doc["system"] == RR:
                 tournament_class = RRTournament
-            else:
-                continue
+            elif TYPE_CHECKING:
+                tournament_class = ArenaTournament
 
             tournament = tournament_class(
                 app_state,
@@ -442,8 +442,8 @@ async def load_tournament(
         tournament_class = RRTournament
     elif tournament_klass is not None:
         tournament_class = tournament_klass
-    else:
-        raise ValueError("Unknown tournament system")
+    elif TYPE_CHECKING:
+        tournament_class = ArenaTournament
 
     auto_play = tournament_doc["name"] == AUTO_PLAY_ARENA_NAME
     if auto_play:
