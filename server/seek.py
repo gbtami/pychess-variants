@@ -31,7 +31,7 @@ class SeekJson(TypedDict):
     bugPlayer2: str
     fen: str
     color: str
-    rated: bool | None
+    rated: bool | int | None
     rrmin: int
     rrmax: int
     rating: int
@@ -49,7 +49,7 @@ class CorrSeekJson(TypedDict):
     chess960: bool | None
     fen: str
     color: str
-    rated: bool | None
+    rated: bool | int | None
     rrmin: int
     rrmax: int
     day: int
@@ -84,7 +84,7 @@ class Seek:
         byoyomi_period: int = 0,
         day: int = 0,
         level: int = 6,
-        rated: bool | None = False,
+        rated: bool | int | None = False,
         rrmin: int | None = None,
         rrmax: int | None = None,
         chess960: bool | None = False,
@@ -102,7 +102,7 @@ class Seek:
         self.variant: str = variant
         self.color: str = color
         self.fen: str = "" if fen is None else fen
-        self.rated: bool | None = rated
+        self.rated: bool | int | None = rated
         self.rating: int = creator.get_rating_value(variant, chess960)
         self.rrmin: int = rrmin if (rrmin is not None and rrmin != -1000) else -10000
         self.rrmax: int = rrmax if (rrmax is not None and rrmax != 1000) else 10000

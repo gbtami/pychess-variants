@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 import asyncio
 import random
 import string
@@ -354,12 +354,12 @@ async def handle_setup(
 
     await game.save_setup()
 
-    opp_player_cast = cast(User, opp_player)
-    if opp_player_cast.bot:
-        await opp_player_cast.event_queue.put(game.game_start)
+    opp_player_value: User = opp_player  # type: ignore[assignment]
+    if opp_player_value.bot:
+        await opp_player_value.event_queue.put(game.game_start)
 
     # restart expiration time after setup phase
-    cast(Any, game.stopwatch).restart(game.stopwatch.time_for_first_move)
+    game.stopwatch.restart(game.stopwatch.time_for_first_move)  # type: ignore[call-arg]
 
 
 async def handle_analysis(
@@ -474,7 +474,7 @@ async def handle_rematch(
                 byoyomi_period=game.byoyomi_period,
                 day=game.base if game.corr else 0,
                 level=game.level,
-                rated=cast(bool, game.rated),
+                rated=game.rated,
                 player1=user,
                 chess960=game.chess960,
                 reused_fen=reused_fen,
@@ -505,7 +505,7 @@ async def handle_rematch(
                     byoyomi_period=game.byoyomi_period,
                     day=game.base if game.corr else 0,
                     level=game.level,
-                    rated=cast(bool, game.rated),
+                    rated=game.rated,
                     player1=user,
                     chess960=game.chess960,
                     reused_fen=reused_fen,
@@ -667,7 +667,7 @@ async def handle_game_user_connected(
         await round_broadcast(game, game.spectator_list, full=True)
 
     stopwatch_secs = (
-        cast(Any, game.stopwatch).secs
+        game.stopwatch.secs  # type: ignore[union-attr]
         if (not game.corr and not game.server_variant.two_boards)
         else 0
     )
@@ -730,7 +730,7 @@ async def handle_moretime(users: Users, user: User, data: DataDict, game: game.G
     opp_color = WHITE if user.username == game.bplayer.username else BLACK
     if (not game.corr) and opp_color == game.stopwatch.color:
         opp_time = game.stopwatch.stop()
-        cast(Any, game.stopwatch).restart(opp_time + MORE_TIME)
+        game.stopwatch.restart(opp_time + MORE_TIME)  # type: ignore[call-arg]
 
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username

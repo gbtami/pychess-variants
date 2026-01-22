@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Callable, Literal, Mapping, Sequence, Set, cast
+from typing import TYPE_CHECKING, Callable, Literal, Mapping, Sequence, Set
 import asyncio
 import collections
 from datetime import datetime, timezone, timedelta
@@ -604,7 +604,7 @@ class Game:
             or self.result == "*"
         ):
             return
-        crosstable = cast(Crosstable, self.crosstable)
+        crosstable: Crosstable = self.crosstable  # type: ignore[assignment]
 
         if len(crosstable["r"]) > 0 and crosstable["r"][-1].startswith(self.id):
             log.info("Crosstable was already updated with %s result", self.id)
@@ -635,7 +635,7 @@ class Game:
         if not self.need_crosstable_save:
             log.info("Crosstable update for %s was already saved to mongodb", self.id)
             return
-        crosstable = cast(Crosstable, self.crosstable)
+        crosstable: Crosstable = self.crosstable  # type: ignore[assignment]
 
         new_data = {
             "s1": crosstable["s1"],
@@ -1239,7 +1239,7 @@ class Game:
             ]
             date = (datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)).isoformat()
 
-        response = {
+        response: GameBoardResponse = {
             "type": "board",
             "gameId": self.id,
             "status": self.status,
@@ -1284,7 +1284,7 @@ class Game:
                         capture[1] if capture and capture[0] == persp_color else None
                         for capture in self.jieqi_capture_stack
                     ]
-        return cast(GameBoardResponse, response)
+        return response
 
     def game_json(self, player: User) -> GameSummaryJson:
         color: Literal["w", "b"] = "w" if self.wplayer == player else "b"

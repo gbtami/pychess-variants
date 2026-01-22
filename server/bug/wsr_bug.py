@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from broadcast import round_broadcast
 from bug.game_bug import GameBug
@@ -118,7 +118,7 @@ async def handle_rematch_bughouse(
                 inc=game.inc,
                 byoyomi_period=game.byoyomi_period,
                 level=game.level,
-                rated=cast(bool, game.rated),
+                rated=game.rated,
                 player1=game.bplayer,
                 player2=game.wplayer,
                 bugPlayer1=game.wplayerB,
