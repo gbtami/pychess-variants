@@ -18,8 +18,8 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def silence(app_state: PychessGlobalAppState, message):
-    response = None
+def silence(app_state: PychessGlobalAppState, message: str) -> dict[str, object] | None:
+    response: dict[str, object] | None = None
     spammer = message.split()[-1]
     if spammer in app_state.users:
         lobbychat = app_state.lobby.lobbychat
@@ -45,13 +45,13 @@ def silence(app_state: PychessGlobalAppState, message):
     return response
 
 
-def disable_new_anons(app_state: PychessGlobalAppState, message):
+def disable_new_anons(app_state: PychessGlobalAppState, message: str) -> None:
     parts = message.split()
     if len(parts) > 1:
         app_state.disable_new_anons = parts[1].lower() in ("1", "true", "yes")
 
 
-async def stream(app_state: PychessGlobalAppState, message):
+async def stream(app_state: PychessGlobalAppState, message: str) -> None:
     parts = message.split()
     if len(parts) >= 3:
         if parts[1] == "add":
@@ -66,13 +66,13 @@ async def stream(app_state: PychessGlobalAppState, message):
         await broadcast_streams(app_state)
 
 
-async def delete_puzzle(app_state: PychessGlobalAppState, message):
+async def delete_puzzle(app_state: PychessGlobalAppState, message: str) -> None:
     parts = message.split()
     if len(parts) == 2 and len(parts[1]) == 5:
         await app_state.db.puzzle.delete_one({"_id": parts[1]})
 
 
-async def ban(app_state: PychessGlobalAppState, message):
+async def ban(app_state: PychessGlobalAppState, message: str) -> None:
     parts = message.split()
     if len(parts) == 2 and parts[1] in app_state.users and parts[1] not in ADMINS:
         banned_user = await app_state.users.get(parts[1])
@@ -81,7 +81,7 @@ async def ban(app_state: PychessGlobalAppState, message):
         await logout(None, banned_user)
 
 
-async def crosstable(app_state: PychessGlobalAppState, message):
+async def crosstable(app_state: PychessGlobalAppState, message: str) -> None:
     parts = message.split()
     log.debug("parts: %r", parts)
     if len(parts) == 2:
@@ -90,14 +90,14 @@ async def crosstable(app_state: PychessGlobalAppState, message):
             await generate_crosstable(app_state, user.username)
 
 
-async def highscore(app_state: PychessGlobalAppState, message):
+async def highscore(app_state: PychessGlobalAppState, message: str) -> None:
     parts = message.split()
     if len(parts) == 2 and parts[1] in VARIANTS:
         variant = parts[1]
         await generate_highscore(app_state, variant)
 
 
-async def fishnet(app_state: PychessGlobalAppState, message):
+async def fishnet(app_state: PychessGlobalAppState, message: str) -> dict[str, object] | None:
     parts = message.split()
     if len(parts) == 3:
         if parts[1] == "add":
@@ -110,7 +110,7 @@ async def fishnet(app_state: PychessGlobalAppState, message):
             )
             FISHNET_KEYS[key] = name
             app_state.fishnet_monitor[name] = collections.deque([], 50)
-            response = {
+            response: dict[str, object] = {
                 "type": "lobbychat",
                 "user": "server",
                 "message": "name: %s key: %s" % (name, key),

@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 
-async def generate_shield(app_state: PychessGlobalAppState):
+async def generate_shield(app_state: PychessGlobalAppState) -> None:
     for variant in VARIANTS:
         variant960 = variant.endswith("960")
         uci_variant = variant[:-3] if variant960 else variant

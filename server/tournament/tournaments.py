@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Iterable, Mapping, cast
+from typing import TYPE_CHECKING, Iterable, Mapping, Protocol
 from datetime import datetime, timezone
 import asyncio
 
 import aiohttp_session
+from aiohttp import web
 import logging
 
 from tournament.arena_new import ArenaTournament
@@ -54,6 +55,14 @@ from utils import load_game
 
 log = logging.getLogger(__name__)
 
+WinnerEntry = tuple[str, str, str]
+ScheduledTournamentEntry = tuple[str, str, bool, datetime, int, str]
+TournamentTables = tuple[list[Tournament], list[Tournament], list[Tournament]]
+
+
+class Translation(Protocol):
+    def gettext(self, message: str) -> str: ...
+
 
 async def create_or_update_tournament(
     app_state: PychessGlobalAppState,
@@ -74,6 +83,7 @@ async def create_or_update_tournament(
     bp = int(form["byoyomiPeriod"])
     frequency = SHIELD if form.get("shield", "") == "true" else ""
 
+    start_date: datetime | None
     if form["startDate"]:
         start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(
             tzinfo=timezone.utc
@@ -124,7 +134,7 @@ async def create_or_update_tournament(
         tournament.inc = data["inc"]
         tournament.bp = data["bp"]
         tournament.beforeStart = data["beforeStart"]
-        tournament.starts_at = data["startDate"]
+        tournament.starts_at = data["startDate"]  # type: ignore[assignment]
         tournament.frequency = data["frequency"]
         tournament.minutes = data["minutes"]
         tournament.fen = data["fen"]
@@ -196,11 +206,11 @@ async def new_tournament(
 
 async def get_winners(
     app_state: PychessGlobalAppState,
-    shield,
+    shield: bool,
     variant: str | None = None,
     variants: Iterable[str] | None = None,
-):
-    wi = {}
+) -> dict[str, list[WinnerEntry]]:
+    wi: dict[str, list[WinnerEntry]] = {}
     if variants is None:
         if variant is None:
             variants = VARIANTS
@@ -222,12 +232,12 @@ async def get_winners(
         if shield:
             filter_cond["fr"] = SHIELD
 
-        winners = []
+        winners: list[WinnerEntry] = []
         cursor = app_state.db.tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
         async for doc in cursor:
-            tournament_doc = cast(TournamentDoc, doc)
+            tournament_doc: TournamentDoc = doc
             if "winner" in tournament_doc:
-                starts_at = cast(datetime, tournament_doc["startsAt"])
+                starts_at = tournament_doc["startsAt"]
                 winners.append(
                     (
                         tournament_doc["winner"],
@@ -242,15 +252,17 @@ async def get_winners(
     return wi
 
 
-async def get_scheduled_tournaments(app_state: PychessGlobalAppState, nb_max=30):
+async def get_scheduled_tournaments(
+    app_state: PychessGlobalAppState, nb_max: int = 30
+) -> list[ScheduledTournamentEntry]:
     """Return max 30 already scheduled tournaments from mongodb"""
     cursor = app_state.db.tournament.find({"$or": [{"status": T_STARTED}, {"status": T_CREATED}]})
     cursor.sort("startsAt", -1)
     nb_tournament = 0
-    tournaments = []
+    tournaments: list[ScheduledTournamentEntry] = []
 
     async for doc in cursor:
-        tournament_doc = cast(TournamentDoc, doc)
+        tournament_doc: TournamentDoc = doc
         if (
             tournament_doc["status"] in (T_CREATED, T_STARTED)
             and tournament_doc["createdBy"] == "PyChess"
@@ -273,14 +285,16 @@ async def get_scheduled_tournaments(app_state: PychessGlobalAppState, nb_max=30)
     return tournaments
 
 
-async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
-    started, scheduled, completed = [], [], []
+async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) -> TournamentTables:
+    started: list[Tournament] = []
+    scheduled: list[Tournament] = []
+    completed: list[Tournament] = []
 
     cursor = app_state.db.tournament.find()
     cursor.sort("startsAt", -1)
     nb_tournament = 0
     async for doc in cursor:
-        tournament_doc = cast(TournamentDoc, doc)
+        tournament_doc: TournamentDoc = doc
         nb_tournament += 1
         if nb_tournament > 31:
             break
@@ -306,7 +320,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
                 base=tournament_doc["b"],
                 inc=tournament_doc["i"],
                 byoyomi_period=int(bool(tournament_doc.get("bp"))),
-                rated=cast(bool, tournament_doc.get("y")),
+                rated=tournament_doc.get("y"),  # type: ignore[arg-type]
                 chess960=bool(tournament_doc.get("z")),
                 fen=tournament_doc.get("f"),
                 rounds=tournament_doc["rounds"],
@@ -348,7 +362,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang):
     return (started, scheduled, completed)
 
 
-async def get_tournament_name(request, tournament_id):
+async def get_tournament_name(request: web.Request, tournament_id: str | None) -> str:
     """Return Tournament name from app cache or from database"""
     app_state = get_app_state(request.app)
     # todo: similar logic for determining lang already exists in index.py, except this "l" param. If it is specific for
@@ -357,7 +371,7 @@ async def get_tournament_name(request, tournament_id):
     lang = request.rel_url.query.get("l")
     if lang is None:
         session = await aiohttp_session.get_session(request)
-        session_user = session.get("user_name")
+        session_user: str | None = session.get("user_name")
         try:
             lang = app_state.users[session_user].lang
         except KeyError:
@@ -389,7 +403,7 @@ async def get_tournament_name(request, tournament_id):
     else:
         doc = await app_state.db.tournament.find_one({"_id": tournament_id})
         if doc is not None:
-            tournament_doc = cast(TournamentDoc, doc)
+            tournament_doc: TournamentDoc = doc
             frequency = tournament_doc.get("fr", "")
             if frequency:
                 chess960 = bool(tournament_doc.get("z"))
@@ -416,9 +430,9 @@ async def get_tournament_name(request, tournament_id):
 
 async def load_tournament(
     app_state: PychessGlobalAppState,
-    tournament_id,
+    tournament_id: str,
     tournament_klass: type[Tournament] | None = None,
-):
+) -> Tournament | None:
     """Return Tournament object from app cache or from database"""
     if tournament_id in app_state.tournaments:
         tournament = app_state.tournaments[tournament_id]
@@ -430,7 +444,7 @@ async def load_tournament(
     if doc is None:
         return None
 
-    tournament_doc = cast(TournamentDoc, doc)
+    tournament_doc: TournamentDoc = doc
     stored_round = tournament_doc.get("cr")
 
     tournament_class: type[Tournament]
@@ -493,7 +507,7 @@ async def load_tournament(
             )  # todo: logic here shouldnt depend on unit tests
 
     async for doc in cursor:
-        player_doc = cast(TournamentPlayerDoc, doc)
+        player_doc: TournamentPlayerDoc = doc
         uid = player_doc["uid"]
         if uid.startswith(TEST_PREFIX):
             user = User(app_state, username=uid, title="TEST")
@@ -538,7 +552,7 @@ async def load_tournament(
 
     w_win, b_win, draw, berserk = 0, 0, 0, 0
     async for doc in cursor:
-        pairing_doc = cast(TournamentPairingDoc, doc)
+        pairing_doc: TournamentPairingDoc = doc
         res = pairing_doc["r"]
         result = C2R[res]
         # Skip aborted/unfinished games if tournament is over
@@ -673,7 +687,12 @@ async def load_tournament(
     return tournament
 
 
-def translated_tournament_name(variant, frequency, system, lang_translation):
+def translated_tournament_name(
+    variant: str,
+    frequency: str,
+    system: int,
+    lang_translation: Translation,
+) -> str:
     # Weekly makruk category == SEAturday
     frequency = "S" if variant in CATEGORIES["makruk"] and frequency == "m" else frequency
     if frequency == "s":

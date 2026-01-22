@@ -1,7 +1,6 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Iterable, cast
+from typing import TYPE_CHECKING, Iterable, NamedTuple, Sequence, TypeVar
 import calendar as cal
-from collections import namedtuple
 import datetime as dt
 import zoneinfo
 import logging
@@ -21,14 +20,28 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 from tournament.tournaments import new_tournament
-from typing_defs import TournamentCreateData
+from typing_defs import ScheduledTournamentCreateData
 from variants import get_server_variant, GRANDS
 
 log = logging.getLogger(__name__)
 
-Plan = namedtuple("Plan", "freq, date, hour, variant, is960, base, inc, byo, duration")
 
-SHIELDS = [
+class Plan(NamedTuple):
+    freq: str
+    date: dt.datetime
+    hour: int
+    variant: str
+    is960: bool
+    base: int
+    inc: int
+    byo: int
+    duration: int
+
+
+ScheduledEntry = tuple[str, str, bool, dt.datetime, int]
+VariantType = TypeVar("VariantType")
+
+SHIELDS: list[str] = [
     "3check960",
     "antichess960",
     "atomic960",
@@ -38,9 +51,9 @@ SHIELDS = [
     "racingkings960",
     "makruk",
 ]
-SEATURDAY = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
+SEATURDAY: list[str] = ["makruk", "makpong", "sittuyin", "cambodian", "asean"]
 
-MONTHLY_VARIANTS = (
+MONTHLY_VARIANTS: tuple[str, ...] = (
     "dobutsu",
     "capahouse",
     "chak",
@@ -73,7 +86,7 @@ MONTHLY_VARIANTS = (
     "manchu",
 )
 
-NEW_MONTHLY_VARIANTS = (
+NEW_MONTHLY_VARIANTS: tuple[str, ...] = (
     "ataxx",
     "cannonshogi",
     "dragon",
@@ -87,10 +100,10 @@ NEW_MONTHLY_VARIANTS = (
 )
 
 # Old MONTHLY tournaments, needed to create translated tourney names
-PAUSED_MONTHLY_VARIANTS = ("shinobi", "duck", "capahouse960", "janggi")
+PAUSED_MONTHLY_VARIANTS: tuple[str, ...] = ("shinobi", "duck", "capahouse960", "janggi")
 
 # Old WEEKLY tournaments, paused atm., but needed to create translated tourney names
-WEEKLY_VARIANTS = (
+WEEKLY_VARIANTS: tuple[str, ...] = (
     "crazyhouse960",
     "atomic960",
     "duck",
@@ -126,7 +139,7 @@ for v in CATEGORIES["shogi"]:
 TC_MONTHLY_VARIANTS["cannonshogi"] = (5, 15, 1)
 
 
-def go_month(orig_date, month=1):
+def go_month(orig_date: dt.datetime, month: int = 1) -> dt.datetime:
     new_year = orig_date.year
     new_month = orig_date.month + month
 
@@ -141,7 +154,7 @@ def go_month(orig_date, month=1):
 
 
 class Scheduler:
-    def __init__(self, now=None):
+    def __init__(self, now: dt.datetime | None = None) -> None:
         if now is None:
             self.now = dt.datetime.now(dt.timezone.utc)
         else:
@@ -149,37 +162,37 @@ class Scheduler:
         # set time info to 0:0:0
         self.now = dt.datetime.combine(self.now, dt.time.min, tzinfo=dt.timezone.utc)
 
-    def next_weekday(self, date, weekday):
+    def next_weekday(self, date: dt.datetime, weekday: int) -> dt.datetime:
         days_ahead = weekday - date.weekday()
         if days_ahead < 0:  # Target day already happened this week
             days_ahead += 7
         return date + dt.timedelta(days=days_ahead)
 
-    def first_monthly(self, weekday):
+    def first_monthly(self, weekday: int) -> dt.datetime:
         return self.next_weekday(
             dt.datetime(self.now.year, self.now.month, 1, tzinfo=dt.timezone.utc),
             weekday,
         )
 
-    def second_monthly(self, weekday):
+    def second_monthly(self, weekday: int) -> dt.datetime:
         return self.first_monthly(weekday) + dt.timedelta(days=7)
 
-    def third_monthly(self, weekday):
+    def third_monthly(self, weekday: int) -> dt.datetime:
         return self.first_monthly(weekday) + dt.timedelta(days=14)
 
-    def fourth_monthly(self, weekday):
+    def fourth_monthly(self, weekday: int) -> dt.datetime:
         return self.first_monthly(weekday) + dt.timedelta(days=21)
 
-    def next_day_of_week(self, weekday):
+    def next_day_of_week(self, weekday: int) -> dt.datetime:
         return self.now + dt.timedelta(days=(weekday + 7 - self.now.weekday()) % 7)
 
-    def get_next_variant(self, period, variants):
+    def get_next_variant(self, period: int, variants: Sequence[VariantType]) -> VariantType:
         return variants[period % len(variants)]
 
-    def schedule_plan(self):
+    def schedule_plan(self) -> list[Plan]:
         """Create planned tournament plan list for one full month"""
         SEA = self.get_next_variant(self.now.month, ("sittuyin", "cambodian"))
-        plans = []
+        plans: list[Plan] = []
         number_of_days = cal.monthrange(self.now.year, self.now.month)[1]
 
         for i, v in enumerate(NEW_MONTHLY_VARIANTS):
@@ -215,7 +228,17 @@ class Scheduler:
             Plan(SHIELD, self.first_monthly(cal.SUNDAY), 12, "kingofthehill", True, 3, 2, 0, 180),
             Plan(SHIELD, self.second_monthly(cal.SUNDAY), 12, "crazyhouse", True, 3, 2, 0, 180),
             Plan(SHIELD, self.fourth_monthly(cal.SUNDAY), 12, "3check", True, 3, 2, 0, 180),
-            Plan(SHIELD, self.fourth_monthly(cal.TUESDAY), 18, "racingkings", True, 3, 2, 0, 180),
+            Plan(
+                SHIELD,
+                self.fourth_monthly(cal.TUESDAY),
+                18,
+                "racingkings",
+                True,
+                3,
+                2,
+                0,
+                180,
+            ),
             Plan(SHIELD, self.second_monthly(cal.SATURDAY), 12, "makruk", False, 5, 3, 0, 180),
             Plan(SHIELD, self.third_monthly(cal.SATURDAY), 18, "antichess", True, 3, 2, 0, 180),
             Plan(SHIELD, self.fourth_monthly(cal.SATURDAY), 18, "horde", True, 3, 2, 0, 180),
@@ -234,9 +257,9 @@ class Scheduler:
 
 
 def new_scheduled_tournaments(
-    already_scheduled: Iterable[tuple[str, str, bool, dt.datetime, int]],
+    already_scheduled: Iterable[ScheduledEntry],
     now: dt.datetime | None = None,
-) -> list[TournamentCreateData]:
+) -> list[ScheduledTournamentCreateData]:
     """Create list for scheduled tournament data for one week from now on compared to what we already have"""
 
     # Cut off the latest element (_id) from all tournament data first
@@ -255,7 +278,7 @@ def new_scheduled_tournaments(
     # 2 full month list of scheduled tournaments
     plans = Scheduler(now).schedule_plan() + Scheduler(go_month(now)).schedule_plan()
 
-    new_tournaments_data: list[TournamentCreateData] = []
+    new_tournaments_data: list[ScheduledTournamentCreateData] = []
 
     budapest = zoneinfo.ZoneInfo("Europe/Budapest")
     from_now = dt.datetime(2024, 10, 28, tzinfo=dt.timezone.utc)
@@ -271,7 +294,7 @@ def new_scheduled_tournaments(
 
         # When it starts outside of daylight saving time (DST), shift it one hour later
         dst_offset = budapest.dst(starts_at.astimezone(budapest))
-        if plan.date >= from_now and cast(dt.timedelta, dst_offset).seconds == 0:
+        if plan.date >= from_now and dst_offset.seconds == 0:  # type: ignore[union-attr]
             starts_at = starts_at + dt.timedelta(hours=1)
 
         if (
@@ -319,7 +342,8 @@ def new_scheduled_tournaments(
 
 
 async def create_scheduled_tournaments(
-    app_state: PychessGlobalAppState, new_tournaments_data: Iterable[TournamentCreateData]
+    app_state: PychessGlobalAppState,
+    new_tournaments_data: Iterable[ScheduledTournamentCreateData],
 ) -> None:
     for data in new_tournaments_data:
         await new_tournament(app_state, data)

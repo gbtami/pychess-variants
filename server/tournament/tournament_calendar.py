@@ -10,25 +10,34 @@ from const import CATEGORY_VARIANT_SETS, normalize_game_category
 from pychess_global_app_state_utils import get_app_state
 from tournament.scheduler import new_scheduled_tournaments
 from tournament.tournaments import get_scheduled_tournaments
+from typing_defs import ScheduledTournamentCreateData
+
+ScheduledEntry = tuple[str, str, bool, dt.datetime, int]
+EventData = dict[str, object]
 
 
-def create_scheduled_data(year, month, day, already_scheduled=None):
+def create_scheduled_data(
+    year: int,
+    month: int,
+    day: int,
+    already_scheduled: list[ScheduledEntry] | None = None,
+) -> list[ScheduledEntry]:
     if already_scheduled is None:
         already_scheduled = []
     start = dt.datetime(year, month, day, tzinfo=dt.timezone.utc)
-    data = new_scheduled_tournaments(already_scheduled, start)
+    data: list[ScheduledTournamentCreateData] = new_scheduled_tournaments(already_scheduled, start)
     return [
         (e["frequency"], e["variant"], e["chess960"], e["startDate"], e["minutes"]) for e in data
     ]
 
 
-def go_day(day):
+def go_day(day: int) -> tuple[int, int, int]:
     d = dt.datetime.now() + dt.timedelta(days=day)
     return (d.year, d.month, d.day)
 
 
-def event(data, created_tournaments):
-    event_data = {
+def event(data: ScheduledEntry, created_tournaments: dict[ScheduledEntry, str]) -> EventData:
+    event_data: EventData = {
         "title": data[1] + ("960" if data[2] else ""),
         "start": data[3],
         "end": (data[3] + dt.timedelta(minutes=data[4])),
@@ -44,9 +53,10 @@ def event(data, created_tournaments):
     return event_data
 
 
-async def tournament_calendar(request):
+async def tournament_calendar(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
 
+    events: list[EventData]
     if app_state.tourney_calendar is not None:
         events = app_state.tourney_calendar
     else:
@@ -74,7 +84,7 @@ async def tournament_calendar(request):
         app_state.tourney_calendar = events
 
     session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
+    session_user: str | None = session.get("user_name")
     user = await app_state.users.get(session_user) if session_user else None
     game_category = user.game_category if user is not None else session.get("game_category", "all")
     game_category = normalize_game_category(game_category)

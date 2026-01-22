@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 
 import logging
@@ -54,23 +54,23 @@ intents = discord.Intents(messages=True, guilds=True, message_content=True)
 
 
 class FakeDiscordBot:
-    async def send_to_discord(self, msg_type, msg, user=None):
+    async def send_to_discord(self, msg_type: str, msg: str, user: str | None = None) -> None:
         print(msg_type, user, msg)
 
 
 class DiscordBot(Bot):
-    def __init__(self, app_state: PychessGlobalAppState):
+    def __init__(self, app_state: PychessGlobalAppState) -> None:
         Bot.__init__(self, command_prefix="!", intents=intents)
 
         self.app_state = app_state
 
-        self.pychess_lobby_channel = None
-        self.game_seek_channel = None
-        self.tournament_channel = None
-        self.announcement_channel = None
-        self.bughouse_channel = None
+        self.pychess_lobby_channel: Any | None = None
+        self.game_seek_channel: Any | None = None
+        self.tournament_channel: Any | None = None
+        self.announcement_channel: Any | None = None
+        self.bughouse_channel: Any | None = None
 
-    async def on_message(self, msg):
+    async def on_message(self, msg: Any) -> None:
         log.debug("---on_message() %s", msg)
         if msg.author.id == self.user.id or msg.channel.id != PYCHESS_LOBBY_CHANNEL_ID:
             log.debug("---self.user msg OR other channel.id -> return")
@@ -79,7 +79,7 @@ class DiscordBot(Bot):
             "Discord-Relay", "%s: %s" % (msg.author.display_name, msg.content), int(time())
         )
 
-    def get_channels(self):
+    def get_channels(self) -> None:
         # Get the pychess-lobby channel
         self.pychess_lobby_channel = self.get_channel(PYCHESS_LOBBY_CHANNEL_ID)
         log.debug("pychess_lobby_channel is: %s", self.pychess_lobby_channel)
@@ -96,7 +96,7 @@ class DiscordBot(Bot):
         self.bughouse_channel = self.get_channel(BUGHOUSE_CHANNEL_ID)
         log.debug("bughouse_channel is: %s", self.bughouse_channel)
 
-    async def send_to_discord(self, msg_type, msg, user=None):
+    async def send_to_discord(self, msg_type: str, msg: str, user: str | None = None) -> None:
         await self.wait_until_ready()
 
         if self.pychess_lobby_channel is None:
@@ -134,7 +134,7 @@ class DiscordBot(Bot):
             log.debug("+++ notify_tournament msg: %s", msg)
             await self.tournament_channel.send("%s %s" % (self.get_role_mentions(msg), msg))
 
-    def get_role_mentions(self, message):
+    def get_role_mentions(self, message: str) -> str:
         guild = self.get_guild(SERVER_ID)
         gladiator_role = guild.get_role(ROLES["gladiator"])
         log.debug("guild, role, mention: %s %s %s", guild, gladiator_role, gladiator_role.mention)

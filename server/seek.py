@@ -263,7 +263,7 @@ async def create_seek(
     user.seeks[seek.id] = seek
 
     if target in ("BOT_challenge", "Invite-friend"):
-        invites[game_id] = seek
+        invites[game_id] = seek  # type: ignore[index]
 
     return seek
 

@@ -2,6 +2,7 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Any, TYPE_CHECKING
 
 import aiohttp_session
 from aiohttp import web
@@ -16,13 +17,18 @@ from user import User
 from variants import ALL_VARIANTS
 from settings import SIMULING
 
+if TYPE_CHECKING:
+    from game import Game
+
 log = logging.getLogger(__name__)
 
-piece_css_path = Path(Path(__file__).parent.parent.parent, "static/piece-css")
-piece_sets = [x.name for x in piece_css_path.iterdir() if x.is_dir() and x.name != "mono"]
+piece_css_path: Path = Path(Path(__file__).parent.parent.parent, "static/piece-css")
+piece_sets: list[str] = [
+    x.name for x in piece_css_path.iterdir() if x.is_dir() and x.name != "mono"
+]
 
 
-async def get_user_context(request):
+async def get_user_context(request: web.Request) -> tuple[User, dict[str, Any]]:
     app_state = get_app_state(request.app)
 
     # Who made the request?
@@ -44,7 +50,7 @@ async def get_user_context(request):
             if not doc.get("enabled", True):
                 log.info("Closed account %s tried to connect.", session_user)
                 session.invalidate()
-                return web.HTTPFound("/")
+                return web.HTTPFound("/")  # type: ignore[return-value]
 
         if session_user in app_state.users:
             user = app_state.users[session_user]
@@ -53,12 +59,12 @@ async def get_user_context(request):
 
             if not user.enabled:
                 session.invalidate()
-                return web.HTTPFound("/")
+                return web.HTTPFound("/")  # type: ignore[return-value]
     else:
         if app_state.disable_new_anons:
             session.invalidate()
             await asyncio.sleep(3)
-            return web.HTTPFound("/login")
+            return web.HTTPFound("/login")  # type: ignore[return-value]
 
         user = User(app_state, anon=not app_state.anon_as_test_users)
         log.info("+++ New guest user %s connected.", user.username)
@@ -70,7 +76,7 @@ async def get_user_context(request):
     lang = LOCALE.get()
     gettext = app_state.translations[lang].gettext
 
-    def variant_display_name(variant):
+    def variant_display_name(variant: str) -> str:
         return gettext(ALL_VARIANTS[variant].translated_name)
 
     if user.game_category == GAME_CATEGORY_ALL:
@@ -97,7 +103,12 @@ async def get_user_context(request):
     return (user, context)
 
 
-def add_game_context(game, ply, user, context):
+def add_game_context(
+    game: "Game",
+    ply: int | None,
+    user: User,
+    context: dict[str, Any],
+) -> None:
     context["gameid"] = game.id
     context["variant"] = game.variant
     context["wplayer"] = game.wplayer.username
@@ -131,11 +142,12 @@ def add_game_context(game, ply, user, context):
     context["board"] = json.dumps(game.get_board(full=True, persp_color=user_color))
 
     if game.server_variant.two_boards:
-        context["wplayerB"] = game.wplayerB.username
-        context["wtitleB"] = game.wplayerB.title
-        context["wratingB"] = game.wrating_b
-        context["bplayerB"] = game.bplayerB.username
-        context["btitleB"] = game.bplayerB.title
-        context["bratingB"] = game.brating_b
+        game_two_boards: Any = game
+        context["wplayerB"] = game_two_boards.wplayerB.username
+        context["wtitleB"] = game_two_boards.wplayerB.title
+        context["wratingB"] = game_two_boards.wrating_b
+        context["bplayerB"] = game_two_boards.bplayerB.username
+        context["btitleB"] = game_two_boards.bplayerB.title
+        context["bratingB"] = game_two_boards.brating_b
 
     return

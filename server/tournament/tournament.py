@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, ClassVar, Deque, Set, Tuple, cast
+from typing import TYPE_CHECKING, ClassVar, Deque, Set, Tuple
 import asyncio
 import logging
 import collections
@@ -234,6 +234,7 @@ class Tournament(ABC):
     system: ClassVar[int] = ARENA
     beforeStart: int
     bp: int
+    translated_name: str
 
     def __init__(
         self,
@@ -241,7 +242,7 @@ class Tournament(ABC):
         tournamentId: str,
         variant: str = "chess",
         chess960: bool = False,
-        rated: bool = True,
+        rated: bool | int = True,
         before_start: int = 5,
         minutes: int = 45,
         name: str = "",
@@ -265,7 +266,7 @@ class Tournament(ABC):
         self.password: str = password
         self.description: str = description
         self.variant: str = variant
-        self.rated: bool = rated
+        self.rated: bool | int = rated
         self.before_start: int = before_start  # in minutes
         self.minutes: int = minutes  # in minutes
         self.fen: str = fen
@@ -276,7 +277,7 @@ class Tournament(ABC):
         self.rounds: int = rounds
         self.frequency: str = frequency
         self.created_by: str = created_by
-        self.starts_at: datetime | None = starts_at
+        self.starts_at: datetime = starts_at  # type: ignore[assignment]
         self.created_at: datetime = datetime.now(timezone.utc) if created_at is None else created_at
         self.with_clock = with_clock
 
@@ -305,7 +306,7 @@ class Tournament(ABC):
         self.nb_berserk = 0
 
         self.first_pairing = False
-        self.top_game = None
+        self.top_game: Game | None = None
         self.top_game_rank = 1
 
         self.notify1 = False
@@ -428,7 +429,9 @@ class Tournament(ABC):
 
     @property
     def top_game_json(self) -> TournamentTopGameResponse:
-        top_game = cast(Game, self.top_game)
+        top_game = self.top_game
+        if TYPE_CHECKING:
+            assert top_game is not None
         response: TournamentTopGameResponse = {
             "type": "top_game",
             "gameId": top_game.id,

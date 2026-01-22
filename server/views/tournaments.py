@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 from aiohttp import web
 import aiohttp_jinja2
@@ -19,7 +20,7 @@ log = logging.getLogger(__name__)
 
 
 @aiohttp_jinja2.template("tournaments.html")
-async def tournaments(request):
+async def tournaments(request: web.Request) -> dict[str, Any]:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)
@@ -42,7 +43,7 @@ async def tournaments(request):
             if tournament and tournament.status != T_CREATED:
                 raise web.HTTPForbidden()
 
-            task = tournament.clock_task
+            task = tournament.clock_task  # type: ignore[union-attr]
             if task is not None:
                 taskname = task.get_name()
                 task.cancel()
@@ -57,7 +58,7 @@ async def tournaments(request):
     lang = context["lang"]
     gettext = app_state.translations[lang].gettext
 
-    def pairing_system_name(system):
+    def pairing_system_name(system: int) -> str:
         return gettext(TRANSLATED_PAIRING_SYSTEM_NAMES[system])
 
     context["icons"] = VARIANT_ICONS
@@ -66,10 +67,17 @@ async def tournaments(request):
     tables = await get_latest_tournaments(app_state, lang)
     if user.game_category != "all":
         allowed_variants = user.category_variant_set
-        tables = tuple(
-            [t for t in table if (t.variant + ("960" if t.chess960 else "")) in allowed_variants]
-            for table in tables
-        )
+        started, scheduled, completed = tables
+        started = [
+            t for t in started if (t.variant + ("960" if t.chess960 else "")) in allowed_variants
+        ]
+        scheduled = [
+            t for t in scheduled if (t.variant + ("960" if t.chess960 else "")) in allowed_variants
+        ]
+        completed = [
+            t for t in completed if (t.variant + ("960" if t.chess960 else "")) in allowed_variants
+        ]
+        tables = (started, scheduled, completed)
     context["tables"] = tables
     context["td"] = user.username in TOURNAMENT_DIRECTORS
 

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping
 from datetime import datetime
 
 import aiohttp
@@ -10,6 +10,7 @@ from misc import time_control_str
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from tournament.tournament import Tournament
 from settings import (
     DEV,
     LICHESS_API_TOKEN,
@@ -24,7 +25,7 @@ log = logging.getLogger(__name__)
 # 400: {"error": "This request is invalid because [...]"}
 
 
-async def lichess_team_msg(app_state: PychessGlobalAppState):
+async def lichess_team_msg(app_state: PychessGlobalAppState) -> None:
     if DEV or LICHESS_API_TOKEN is None:
         return
 
@@ -50,14 +51,15 @@ async def lichess_team_msg(app_state: PychessGlobalAppState):
             app_state.sent_lichess_team_msg.append(to_date)
 
 
-def upcoming_tournaments_msgs(tournaments):
+def upcoming_tournaments_msgs(tournaments: Mapping[str, Tournament]) -> str:
     to_date = datetime.now().date()
     tourney_msgs = []
 
     for _id, tourney in sorted(tournaments.items(), key=lambda item: item[1].starts_at):
-        if tourney.status == T_CREATED and tourney.starts_at.date() <= to_date:
+        starts_at = tourney.starts_at
+        if tourney.status == T_CREATED and starts_at.date() <= to_date:
             tc = time_control_str(tourney.base, tourney.inc, tourney.byoyomi_period)
-            at = tourney.starts_at.strftime("%H:%M")
+            at = starts_at.strftime("%H:%M")
             url = "%s/tournament/%s" % (URI, _id)
             tourney_msgs.append("%s %s starts at today UTC %s\n%s" % (tc, tourney.name, at, url))
 

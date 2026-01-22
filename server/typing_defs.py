@@ -118,6 +118,20 @@ class TournamentCreateData(TypedDict):
     with_clock: NotRequired[bool]
 
 
+class ScheduledTournamentCreateData(TypedDict):
+    name: str
+    createdBy: str
+    frequency: str
+    variant: str
+    chess960: bool
+    base: float
+    inc: int
+    bp: int
+    system: int
+    startDate: datetime
+    minutes: int
+
+
 class TournamentDoc(TypedDict):
     _id: str
     name: str
@@ -139,7 +153,7 @@ class TournamentDoc(TypedDict):
     createdBy: str
     createdAt: datetime
     beforeStart: int
-    startsAt: datetime | None
+    startsAt: datetime
     status: int
     nbGames: NotRequired[int]
     nbBerserk: NotRequired[int]

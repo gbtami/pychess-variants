@@ -119,7 +119,7 @@ async def ws_send_str(ws: WebSocketResponse, msg: str) -> bool:
         return False
 
 
-async def ws_send_json(ws: WebSocketResponse | None, msg: Mapping[str, object]) -> bool:
+async def ws_send_json(ws: WebSocketResponse | None, msg: Mapping[str, object] | None) -> bool:
     if ws is None:
         log.error("ws_send_json: ws is None")
         return False

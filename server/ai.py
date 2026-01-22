@@ -10,20 +10,22 @@ from const import MOVE, STARTED
 from fairy import WHITE
 
 if TYPE_CHECKING:
+    from game import Game
     from pychess_global_app_state import PychessGlobalAppState
+    from user import User
 from utils import play_move
 import logging
 
 log = logging.getLogger(__name__)
 
-bot_game_tasks = set()
+bot_game_tasks: set[asyncio.Task[None]] = set()
 # Poll interval for bot queues when no messages are arriving; this prevents
 # stuck bot-game tasks from keeping finished games and players alive forever.
 BOT_QUEUE_POLL_SECS = 5
 
 
-async def BOT_task(bot, app_state: PychessGlobalAppState):
-    async def game_task(bot, game, level, random_mover):
+async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
+    async def game_task(bot: User, game: Game, level: int, random_mover: bool) -> None:
         while game.status <= STARTED:
             try:
                 queue = bot.game_queues.get(game.id)
@@ -65,7 +67,7 @@ async def BOT_task(bot, app_state: PychessGlobalAppState):
                 )
                 break
 
-    def AI_move(game, level):
+    def AI_move(game: Game, level: int) -> None:
         work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
         work = {
             "work": {

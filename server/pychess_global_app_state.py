@@ -99,6 +99,8 @@ LOCALHOST_CACHE_KEEP_TIME = 1 if _is_test_run() else TOURNAMENT_KEEP_TIME
 
 
 class PychessGlobalAppState:
+    tourneychat: dict[str, collections.deque[dict[str, object]]]
+
     def __init__(self, app: web.Application):
         from typedefs import db_key
 

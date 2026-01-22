@@ -1,3 +1,6 @@
+from typing import Any
+
+from aiohttp import web
 import aiohttp_jinja2
 
 from const import T_CREATED
@@ -11,7 +14,7 @@ from tournament.tournaments import (
 
 
 @aiohttp_jinja2.template("index.html")
-async def tournament(request):
+async def tournament(request: web.Request) -> dict[str, Any]:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)

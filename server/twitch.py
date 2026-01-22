@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any, Iterable
 import asyncio
 import hashlib
 import hmac
@@ -31,9 +32,9 @@ ID_CHARS = string.ascii_letters + string.digits
 SECRET = "".join(random.choice(ID_CHARS) for x in range(16))
 
 
-def validate_twitch_signature(secret, request, data):
-    msg_id = request.headers.get("twitch-eventsub-message-id")
-    timestamp = request.headers.get("twitch-eventsub-message-timestamp")
+def validate_twitch_signature(secret: str, request: web.Request, data: str) -> bool:
+    msg_id: str = request.headers.get("twitch-eventsub-message-id")  # type: ignore[assignment]
+    timestamp: str = request.headers.get("twitch-eventsub-message-timestamp")  # type: ignore[assignment]
     hmac_message = msg_id + timestamp + data
 
     calculated_hash = hmac.new(
@@ -42,27 +43,28 @@ def validate_twitch_signature(secret, request, data):
         digestmod=hashlib.sha256,
     ).hexdigest()
 
-    submitted_hash = request.headers.get("Twitch-Eventsub-Message-Signature")[7:]
+    submitted_hash = request.headers.get("Twitch-Eventsub-Message-Signature")[7:]  # type: ignore[union-attr]
     return calculated_hash == submitted_hash
 
 
 class Twitch:
-    def __init__(self, app):
-        self.app = app
-        self.token = None
-        self.token_valid_until = datetime.now(timezone.utc)
-        self.subscriptions = {}
-        self.streams = {}
+    def __init__(self, app: Any) -> None:
+        self.app: Any = app
+        self.token: str | None = None
+        self.token_valid_until: datetime = datetime.now(timezone.utc)
+        self.subscriptions: dict[str, dict[str, Any]] = {}
+        self.streams: dict[str, dict[str, str]] = {}
+        self.headers: dict[str, str] = {}
 
     @property
-    def live_streams(self):
+    def live_streams(self) -> list[dict[str, str]]:
         return [
             self.streams[streamer]
             for streamer in self.streams
             if "pychess" in self.streams[streamer]["title"].lower()
         ]
 
-    async def init_subscriptions(self):
+    async def init_subscriptions(self) -> None:
         if TWITCH_CLIENT_ID == "":
             return
 
@@ -88,7 +90,7 @@ class Twitch:
         if len(self.streams) > 0:
             await broadcast_streams(self.app)
 
-    async def get_oauth_token(self):
+    async def get_oauth_token(self) -> None:
         log.debug("get_oauth_token from twitch")
         data = {
             "client_id": TWITCH_CLIENT_ID,
@@ -102,7 +104,7 @@ class Twitch:
                     log.exception("OAuth2 failed")
                     return
 
-                response_data = await resp.json()
+                response_data: dict[str, Any] = await resp.json()
                 if "status" in response_data:
                     if response_data["status"] == 400:
                         log.error("Invalid TWITCH_CLIENT_ID")
@@ -119,7 +121,7 @@ class Twitch:
                         "Content-Type": "application/json",
                     }
 
-    async def delete_subscription(self, subscription_id):
+    async def delete_subscription(self, subscription_id: str) -> None:
         log.debug("delete_subscription %s", subscription_id)
         if subscription_id not in self.subscriptions:
             return
@@ -131,7 +133,9 @@ class Twitch:
             ):
                 pass
 
-    async def request_subscription(self, name, broadcaster_user_id, subscription_type):
+    async def request_subscription(
+        self, name: str, broadcaster_user_id: str, subscription_type: str
+    ) -> None:
         log.debug(
             "request_subscription: %s %s %s",
             name,
@@ -153,7 +157,7 @@ class Twitch:
             async with client_session.post(
                 TWITCH_EVENTSUB_API_URL, headers=self.headers, json=data
             ) as resp:
-                response_data = await resp.json()
+                response_data: dict[str, Any] = await resp.json()
                 if "error" in response_data:
                     log.debug("request_subscription response: %s", response_data)
                 else:
@@ -166,19 +170,19 @@ class Twitch:
                             response_data,
                         )
 
-    async def get_subscriptions(self):
+    async def get_subscriptions(self) -> None:
         log.debug("get_subscriptions from twitch")
         async with aiohttp.ClientSession() as client_session:
             async with client_session.get(TWITCH_EVENTSUB_API_URL, headers=self.headers) as resp:
-                response_data = await resp.json()
+                response_data: dict[str, Any] = await resp.json()
                 for subs in response_data["data"]:
                     log.debug("subs: %r", subs)
                     self.subscriptions[subs["id"]] = subs
 
-    async def get_users_data(self, usernames):
+    async def get_users_data(self, usernames: Iterable[str]) -> list[tuple[str, str]]:
         log.debug("get_users_data from twitch")
+        uids: list[tuple[str, str]] = []
         async with aiohttp.ClientSession() as client_session:
-            uids = []
             query_params = "&".join(["login=%s" % username for username in usernames])
             async with client_session.get(
                 "%s?%s" % (TWITCH_USERS_API_URL, query_params), headers=self.headers
@@ -187,7 +191,7 @@ class Twitch:
                     log.exception("Invalid argument")
                     return uids
                 else:
-                    json = await resp.json()
+                    json: dict[str, Any] = await resp.json()
                     for user in json["data"]:
                         log.debug("user: %s %s", user["login"], user["id"])
                         uids.append((user["login"], user["id"]))
@@ -200,7 +204,7 @@ class Twitch:
                     log.exception("Invalid argument")
                     return uids
                 else:
-                    json = await resp.json()
+                    json: dict[str, Any] = await resp.json()
                     for stream in json["data"]:
                         log.debug("stream: %r", stream)
                         title = stream["title"]
@@ -217,10 +221,10 @@ class Twitch:
             return uids
 
 
-async def twitch_request_handler(request):
+async def twitch_request_handler(request: web.Request) -> web.Response:
     """Twitch POST request handler"""
     app_state = get_app_state(request.app)
-    json = await request.json()
+    json: dict[str, Any] = await request.json()
     data = await request.text()
 
     header_msg_type = request.headers.get("Twitch-Eventsub-Message-Type")
@@ -244,12 +248,12 @@ async def twitch_request_handler(request):
         streamer = event["broadcaster_user_login"]
         log.debug("--- twitch notification --- %s %s", streamer, event)
 
-        async def remove(keep_time):
+        async def remove(keep_time: float) -> None:
             await asyncio.sleep(keep_time)
 
             if streamer in twitch.streams:
                 del twitch.streams[streamer]
-                await broadcast_streams(request.app)
+                await broadcast_streams(request.app)  # type: ignore[arg-type]
 
         if header_sub_type == "stream.online":
             if event["type"] == "live":
@@ -260,14 +264,14 @@ async def twitch_request_handler(request):
                         "site": "twitch",
                         "title": "",
                     }
-                    await broadcast_streams(request.app)
+                    await broadcast_streams(request.app)  # type: ignore[arg-type]
 
                     asyncio.create_task(remove(3600), name="twitch-remove-streamer")  # 1 hour
 
         elif header_sub_type == "stream.offline":
             if streamer in twitch.streams:
                 del twitch.streams[streamer]
-                await broadcast_streams(request.app)
+                await broadcast_streams(request.app)  # type: ignore[arg-type]
 
         elif header_sub_type == "channel.update":
             title = event["title"]
@@ -280,6 +284,6 @@ async def twitch_request_handler(request):
                     "site": "twitch",
                     "title": title,
                 }
-            await broadcast_streams(request.app)
+            await broadcast_streams(request.app)  # type: ignore[arg-type]
 
         return web.Response()

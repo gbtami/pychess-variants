@@ -1,16 +1,18 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, Mapping
+import asyncio
 import json
 
 
 if TYPE_CHECKING:
+    from game import Game
     from pychess_global_app_state import PychessGlobalAppState
 import logging
 
 log = logging.getLogger(__name__)
 
 
-async def broadcast_streams(app_state: PychessGlobalAppState):
+async def broadcast_streams(app_state: PychessGlobalAppState) -> None:
     """Send live_streams to lobby"""
     live_streams = app_state.twitch.live_streams + app_state.youtube.live_streams
     response = {"type": "streams", "items": live_streams}
@@ -18,7 +20,12 @@ async def broadcast_streams(app_state: PychessGlobalAppState):
     await app_state.lobby.lobby_broadcast(response)
 
 
-async def round_broadcast(game, response, full=False, channels=None):
+async def round_broadcast(
+    game: Game,
+    response: Mapping[str, object],
+    full: bool = False,
+    channels: Iterable[asyncio.Queue[str]] | None = None,
+) -> None:
     log.debug("round_broadcast %s %s %r", response, full, game.spectators)
     if game.spectators:
         for spectator in game.spectators:

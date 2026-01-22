@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 import asyncio
 import json
 from datetime import datetime, timezone
@@ -23,7 +23,7 @@ REQUIRED_FISHNET_VERSION = "1.16.42"
 MOVE_WORK_TIME_OUT = 5.0
 
 
-async def get_work(app_state: PychessGlobalAppState, data):
+async def get_work(app_state: PychessGlobalAppState, data: dict[str, Any]) -> web.Response:
     fm = app_state.fishnet_monitor
     key = data["fishnet"]["apikey"]
     worker = FISHNET_KEYS[key]
@@ -106,8 +106,8 @@ async def get_work(app_state: PychessGlobalAppState, data):
         return web.Response(status=204)
 
 
-async def fishnet_acquire(request):
-    data = await request.json()
+async def fishnet_acquire(request: web.Request) -> web.Response:
+    data: dict[str, Any] = await request.json()
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
@@ -133,9 +133,9 @@ async def fishnet_acquire(request):
     return response
 
 
-async def fishnet_analysis(request):
-    work_id = request.match_info.get("workId")
-    data = await request.json()
+async def fishnet_analysis(request: web.Request) -> web.Response:
+    work_id: str = request.match_info.get("workId")  # type: ignore[assignment]
+    data: dict[str, Any] = await request.json()
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
@@ -195,9 +195,9 @@ async def fishnet_analysis(request):
     return web.Response(status=204)
 
 
-async def fishnet_move(request):
-    work_id = request.match_info.get("workId")
-    data = await request.json()
+async def fishnet_move(request: web.Request) -> web.Response:
+    work_id: str = request.match_info.get("workId")  # type: ignore[assignment]
+    data: dict[str, Any] = await request.json()
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
@@ -239,9 +239,9 @@ async def fishnet_move(request):
     return response
 
 
-async def fishnet_abort(request):
-    work_id = request.match_info.get("workId")
-    data = await request.json()
+async def fishnet_abort(request: web.Request) -> web.Response:
+    work_id: str = request.match_info.get("workId")  # type: ignore[assignment]
+    data: dict[str, Any] = await request.json()
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
@@ -270,15 +270,15 @@ async def fishnet_abort(request):
     return web.Response(status=204)
 
 
-async def fishnet_validate_key(request):
-    key = request.match_info.get("key")
+async def fishnet_validate_key(request: web.Request) -> web.Response:
+    key: str = request.match_info.get("key")  # type: ignore[assignment]
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
     return web.Response()
 
 
-async def fishnet_monitor(request):
+async def fishnet_monitor(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     workers = {
         worker + " v" + app_state.fishnet_versions[worker]: list(app_state.fishnet_monitor[worker])

@@ -1,5 +1,7 @@
 import os
+from typing import Any
 
+from aiohttp import web
 import aiohttp_jinja2
 
 from lang import get_locale_ext
@@ -8,7 +10,7 @@ from variants import VARIANTS, VARIANT_ICONS
 
 
 @aiohttp_jinja2.template("variants.html")
-async def variants(request):
+async def variants(request: web.Request) -> dict[str, Any]:
     user, context = await get_user_context(request)
 
     variant = request.match_info.get("variant")

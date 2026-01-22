@@ -16,7 +16,7 @@ from pychess_global_app_state_utils import get_app_state
 from settings import TOURNAMENT_DIRECTORS
 from tournament.tournament import T_CREATED, T_STARTED
 from tournament.tournaments import load_tournament
-from ws_types import TournamentUserConnectedMessage
+from ws_types import ChatMessage, TournamentUserConnectedMessage
 from websocket_utils import process_ws, get_user, ws_send_json
 
 
@@ -51,6 +51,8 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
                     ):
                         del app_state.tourneysockets[tournamentId][user.username]
                         tournament = await load_tournament(app_state, tournamentId)
+                        if TYPE_CHECKING:
+                            assert tournament is not None
                         tournament.spactator_leave(user)
                         await tournament.broadcast(tournament.spectator_list)
 
@@ -216,12 +218,14 @@ async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
 
     tournamentId = data["tournamentId"]
     tournament = await load_tournament(app_state, tournamentId)
+    if TYPE_CHECKING:
+        assert tournament is not None
     message = data["message"]
-    response = None
+    response: ChatMessage | dict[str, object] | None = None
 
     if user.username in TOURNAMENT_DIRECTORS:
         if message.startswith("/silence"):
-            response = silence(message, app_state.tourneychat[tournamentId], app_state.users)
+            response = silence(message, app_state.tourneychat[tournamentId], app_state.users)  # type: ignore[call-arg, arg-type]
             # silence message was already added to lobbychat in silence()
 
         elif message.startswith("/abort"):

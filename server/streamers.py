@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 # TODO: store in mongodb
-TWITCH_STREAMERS = {
+TWITCH_STREAMERS: dict[str, str] = {
     "chessbia": "WIM chessbia",
     "chessdori": "WFM DemeterDorina",
     "joannatries": "JoannaTries",
@@ -25,7 +25,7 @@ TWITCH_STREAMERS = {
 }
 
 # TODO
-YOUTUBE_STREAMERS = {
+YOUTUBE_STREAMERS: dict[str, str] = {
     "UCksfz2MkgxAKNJDvzemO3iA": "Janggi-France",
     "UCCeCZHAoTr4TGDt3hr_AQig": "kalavas",
     "UCr6RfQga70yMM9-nuzAYTsA": "lichess",

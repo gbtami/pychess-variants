@@ -24,7 +24,7 @@ RESERVED_USERS = (
 )
 
 
-def reserved(username):
+def reserved(username: str) -> bool:
     return username.upper() in map(str.upper, RESERVED_USERS)
 
 
@@ -175,6 +175,7 @@ class GameStatus(IntEnum):
     UNKNOWNFINISH = 11
     VARIANTEND = 12
     CLAIM = 13
+
 
 CREATED = GameStatus.CREATED
 STARTED = GameStatus.STARTED
@@ -339,7 +340,7 @@ def normalize_game_category(game_category: str) -> str:
     return game_category if game_category in CATEGORY_VARIANTS else GAME_CATEGORY_ALL
 
 
-def normalize_item_categories(category):
+def normalize_item_categories(category: object) -> tuple[object, ...]:
     if category is None:
         return (GAME_CATEGORY_ALL,)
     if isinstance(category, str):
@@ -349,7 +350,7 @@ def normalize_item_categories(category):
     return (category,)
 
 
-def category_matches(user_category: str, item_category) -> bool:
+def category_matches(user_category: str, item_category: object) -> bool:
     if user_category == GAME_CATEGORY_ALL:
         return True
     categories = normalize_item_categories(item_category)
@@ -371,7 +372,7 @@ TROPHIES = {
 #  Deferred translations!
 
 
-def _(message):
+def _(message: str) -> str:
     return message
 
 
