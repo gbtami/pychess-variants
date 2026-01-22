@@ -78,6 +78,7 @@ class User:
         self.lang = lang
         self.theme = theme
         self.game_category = "all"
+        self.game_category_set = False
         self.oauth_id = oauth_id
         self.oauth_provider = oauth_provider
         self.notifications = None
@@ -554,6 +555,7 @@ async def set_game_category(request):
         if session_user in app_state.users:
             user = app_state.users[session_user]
             user.update_game_category(normalized)
+            user.game_category_set = True
             if app_state.db is not None:
                 await app_state.db.user.find_one_and_update(
                     {"_id": user.username}, {"$set": {"ct": normalized}}

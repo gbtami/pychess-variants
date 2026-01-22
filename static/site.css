@@ -2748,6 +2748,22 @@ img.logo {
   align-items: center;
 }
 
+.modal-overlay.modal-overlay-fullscreen {
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  transform: none;
+  margin-top: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  z-index: 1200;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
 .modal-overlay[style*="block"] {
   display: flex;
 }
@@ -2854,13 +2870,60 @@ img.logo {
 }
 
 .confirm-btn:hover:not(:disabled) {
-  background: var(--link-hover-color);
+  background: var(--link-hover);
 }
 
 .confirm-btn:disabled {
   background: #666;
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+/* Game Category Intro Dialog */
+.game-category-dialog-content {
+  background: var(--modal-bg);
+  border: 1px solid var(--bg-color2);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 460px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  color: var(--font-color);
+}
+
+.game-category-dialog-content h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  text-align: center;
+  color: var(--font-color);
+}
+
+.game-category-dialog-content p {
+  margin: 0 0 1rem 0;
+  text-align: center;
+  color: var(--time-text);
+}
+
+.game-category-dialog-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+.game-category-dialog-actions .secondary-btn {
+  background: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.game-category-dialog-actions .secondary-btn:hover {
+  background: var(--bg-color2);
 }
 
 /* Login Dropdown Styles */

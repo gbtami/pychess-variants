@@ -76,6 +76,7 @@ class Users(UserDict):
                 oauth_id=doc.get("oauth_id"),
                 oauth_provider=doc.get("oauth_provider"),
             )
+            user.game_category_set = "ct" in doc
             self.data[username] = user
 
             cursor = self.app_state.db.relation.find({"u1": username, "r": BLOCK})

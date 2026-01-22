@@ -32,6 +32,7 @@ import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
 import { devVariants, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
 import { showUsernameDialog } from './usernameDialog';
+import { maybeShowGameCategoryIntro } from './gameCategoryIntro';
 
 
 // redirect to correct URL except Heroku preview/dev apps
@@ -277,6 +278,8 @@ function start() {
                 hideNotify();
         }
     });
+
+    maybeShowGameCategoryIntro();
 
     patch(document.getElementById('zen-button') as HTMLElement, zenButtonView()).elm as HTMLElement;
 }
