@@ -99,7 +99,8 @@ async def process_message(
     game: game.Game,
 ) -> None:
     if data["type"] == "move":
-        await handle_move(app_state, user, data, game)
+        move_data: MoveData = data  # type: ignore[assignment]
+        await handle_move(app_state, user, move_data, game)
     elif data["type"] == "reconnect":
         await handle_reconnect_bughouse(app_state, user, data, game)
     elif data["type"] == "berserk":
@@ -183,15 +184,14 @@ async def finally_logic(
 async def handle_move(
     app_state: PychessGlobalAppState,
     user: User,
-    data: DataDict,
+    data: MoveData,
     game: game.Game,
 ) -> None:
-    move_data = cast(MoveData, data)
-    log.debug("Got USER move %s %s %s" % (user.username, move_data["gameId"], move_data["move"]))
+    log.debug("Got USER move %s %s %s" % (user.username, data["gameId"], data["move"]))
     async with game.move_lock:
         if game.server_variant.two_boards:
             try:
-                bug_data = cast(BughouseMoveData, data)
+                bug_data: BughouseMoveData = data  # type: ignore[assignment]
                 await play_move_bug(
                     app_state,
                     user,
@@ -205,7 +205,7 @@ async def handle_move(
             except Exception:
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s. data %r ",
-                    move_data["gameId"],
+                    data["gameId"],
                     user.username,
                     data,
                 )
@@ -215,14 +215,14 @@ async def handle_move(
                     app_state,
                     user,
                     game,
-                    move_data["move"],
-                    move_data["clocks"],
-                    move_data["ply"],
+                    data["move"],
+                    data["clocks"],
+                    data["ply"],
                 )
             except Exception:
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s ",
-                    move_data["gameId"],
+                    data["gameId"],
                     user.username,
                 )
 

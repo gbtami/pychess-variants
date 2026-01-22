@@ -20,6 +20,7 @@ class LobbyChatMessage(TypedDict):
     type: Literal["lobbychat"]
     user: str
     message: str
+    room: NotRequired[str]
     time: NotRequired[int]
 
 

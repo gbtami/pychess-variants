@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Mapping, cast
+from typing import TYPE_CHECKING, Any, Mapping
 import asyncio
 from datetime import datetime, timezone
 
@@ -29,7 +29,7 @@ from newid import new_id
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
-    from ws_types import LobbyChatMessage, LobbySeeksMessage
+    from ws_types import LobbySeeksMessage
 from pychess_global_app_state_utils import get_app_state
 from seek import challenge, create_seek, get_seeks, Seek, SeekCreateData
 from settings import ADMINS, TOURNAMENT_DIRECTORS
@@ -189,29 +189,35 @@ async def handle_create_seek(
         return
 
     log.debug("Creating seek from request: %s", data)
-    seek_data = cast(SeekCreateData, data)
-    seek = cast(
-        Seek,
-        await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data),
-    )
-    log.debug("Created seek: %s", seek)
+    seek_data: SeekCreateData = data  # type: ignore[assignment]
+    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data)
+    if TYPE_CHECKING:
+        assert seek is not None
+    seek_value: Seek = seek  # type: ignore[assignment]
+    log.debug("Created seek: %s", seek_value)
 
     matching_user = None
     # auto pairing games are never corr and always rated, so anon seek will never match!
-    if seek.day == 0 and not user.anon:
-        variant_tc = (seek.variant, seek.chess960, seek.base, seek.inc, seek.byoyomi_period)
+    if seek_value.day == 0 and not user.anon:
+        variant_tc = (
+            seek_value.variant,
+            seek_value.chess960,
+            seek_value.base,
+            seek_value.inc,
+            seek_value.byoyomi_period,
+        )
         if variant_tc in app_state.auto_pairings:
-            matching_user = find_matching_user_for_seek(app_state, seek, variant_tc)
+            matching_user = find_matching_user_for_seek(app_state, seek_value, variant_tc)
 
     auto_paired = False
     if matching_user is not None:
         # Try to create a new game
-        auto_paired = await auto_pair(app_state, matching_user, variant_tc, user, seek)
+        auto_paired = await auto_pair(app_state, matching_user, variant_tc, user, seek_value)
 
     if not auto_paired:
         await app_state.lobby.lobby_broadcast_seeks()
-        if (seek is not None) and seek.target == "":
-            await app_state.discord.send_to_discord("create_seek", seek.discord_msg)
+        if (seek is not None) and seek_value.target == "":
+            await app_state.discord.send_to_discord("create_seek", seek_value.discord_msg)
 
 
 async def handle_create_invite(
@@ -222,14 +228,14 @@ async def handle_create_invite(
         return
 
     log.debug("Creating seek invite from request: %s", data)
-    seek_data = cast(SeekCreateData, data)
-    seek = cast(
-        Seek,
-        await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data),
-    )
-    log.debug("Created seek invite: %s", seek)
+    seek_data: SeekCreateData = data  # type: ignore[assignment]
+    seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data)
+    if TYPE_CHECKING:
+        assert seek is not None
+    seek_value: Seek = seek  # type: ignore[assignment]
+    log.debug("Created seek invite: %s", seek_value)
 
-    response = {"type": "invite_created", "gameId": seek.game_id}
+    response = {"type": "invite_created", "gameId": seek_value.game_id}
     await ws_send_json(ws, response)
 
 
@@ -247,21 +253,23 @@ async def handle_create_bot_challenge(
         return
 
     log.debug("Creating BOT challenge from request: %s", data)
-    seek_data = cast(SeekCreateData, data)
+    seek_data: SeekCreateData = data  # type: ignore[assignment]
     seek = await create_seek(
         app_state.db, app_state.invites, app_state.seeks, user, seek_data, engine=engine
     )
-    seek = cast(Seek, seek)
-    log.debug("Created BOT challenge: %s", seek)
+    if TYPE_CHECKING:
+        assert seek is not None
+    seek_value: Seek = seek  # type: ignore[assignment]
+    log.debug("Created BOT challenge: %s", seek_value)
 
-    engine.game_queues[seek.game_id] = asyncio.Queue()
-    bot_challenge = challenge(seek)
+    engine.game_queues[seek_value.game_id] = asyncio.Queue()
+    bot_challenge = challenge(seek_value)
     # lichess-bot uses "standard" as variant name, grrrr
-    if seek.variant == "chess":
+    if seek_value.variant == "chess":
         bot_challenge = bot_challenge.replace("chess", "standard")
     await engine.event_queue.put(bot_challenge)
 
-    response = {"type": "bot_challenge_created", "gameId": seek.game_id}
+    response = {"type": "bot_challenge_created", "gameId": seek_value.game_id}
     await ws_send_json(ws, response)
 
 
@@ -272,17 +280,20 @@ async def handle_create_host(
     if no:
         return
 
+    seek_data: SeekCreateData = data  # type: ignore[assignment]
     seek = await create_seek(
         app_state.db,
         app_state.invites,
         app_state.seeks,
         user,
-        cast(SeekCreateData, data),
+        seek_data,
         empty=True,
     )
-    seek = cast(Seek, seek)
+    if TYPE_CHECKING:
+        assert seek is not None
+    seek_value: Seek = seek  # type: ignore[assignment]
 
-    response = {"type": "host_created", "gameId": seek.game_id}
+    response = {"type": "host_created", "gameId": seek_value.game_id}
     await ws_send_json(ws, response)
 
 
@@ -456,16 +467,18 @@ async def handle_lobbychat(
 
         else:
             admin_command = False
-            response = chat_response("lobbychat", user.username, data["message"])
-            await app_state.lobby.lobby_chat_save(cast(LobbyChatMessage, response))
+            lobby_response = chat_response("lobbychat", user.username, data["message"])
+            response = lobby_response
+            await app_state.lobby.lobby_chat_save(lobby_response)
 
     elif user.anon and user.username != "Discord-Relay":
         pass
 
     else:
         if user.silence == 0:
-            response = chat_response("lobbychat", user.username, data["message"])
-            await app_state.lobby.lobby_chat_save(cast(LobbyChatMessage, response))
+            lobby_response = chat_response("lobbychat", user.username, data["message"])
+            response = lobby_response
+            await app_state.lobby.lobby_chat_save(lobby_response)
 
     if response is not None:
         await app_state.lobby.lobby_broadcast(response)
