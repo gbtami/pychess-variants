@@ -217,13 +217,13 @@ class User:
             or len(self.simul_sockets) > 0
         )
 
-    def get_rating_value(self, variant: str, chess960: bool) -> int:
+    def get_rating_value(self, variant: str, chess960: bool | None) -> int:
         try:
             return int(round(self.perfs[variant + ("960" if chess960 else "")]["gl"]["r"], 0))
         except KeyError:
             return 1500
 
-    def get_rating(self, variant: str, chess960: bool) -> Rating:
+    def get_rating(self, variant: str, chess960: bool | None) -> Rating:
         try:
             gl = self.perfs[variant + ("960" if chess960 else "")]["gl"]
             la = self.perfs[variant + ("960" if chess960 else "")]["la"]
@@ -233,7 +233,7 @@ class User:
             self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
             return rating
 
-    def get_puzzle_rating(self, variant: str, chess960: bool) -> Rating:
+    def get_puzzle_rating(self, variant: str, chess960: bool | None) -> Rating:
         try:
             gl = self.pperfs[variant + ("960" if chess960 else "")]["gl"]
             la = self.pperfs[variant + ("960" if chess960 else "")]["la"]

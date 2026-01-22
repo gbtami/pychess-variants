@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Iterable, NotRequired, TypedDict, cast
+from typing import TYPE_CHECKING, Any, Iterable, NotRequired, TypedDict
 
 from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
@@ -23,7 +23,7 @@ class SeekJson(TypedDict):
     bot: bool
     title: str
     variant: str
-    chess960: bool
+    chess960: bool | None
     target: str
     player1: str
     player2: str
@@ -31,7 +31,7 @@ class SeekJson(TypedDict):
     bugPlayer2: str
     fen: str
     color: str
-    rated: bool
+    rated: bool | None
     rrmin: int
     rrmax: int
     rating: int
@@ -46,10 +46,10 @@ class CorrSeekJson(TypedDict):
     _id: str
     user: str
     variant: str
-    chess960: bool
+    chess960: bool | None
     fen: str
     color: str
-    rated: bool
+    rated: bool | None
     rrmin: int
     rrmax: int
     day: int
@@ -64,10 +64,10 @@ class SeekCreateData(TypedDict):
     increment: int
     byoyomiPeriod: int
     day: NotRequired[int]
-    rated: NotRequired[bool]
+    rated: NotRequired[bool | None]
     rrmin: NotRequired[int | None]
     rrmax: NotRequired[int | None]
-    chess960: NotRequired[bool]
+    chess960: NotRequired[bool | None]
     target: NotRequired[str]
 
 
@@ -84,10 +84,10 @@ class Seek:
         byoyomi_period: int = 0,
         day: int = 0,
         level: int = 6,
-        rated: bool = False,
+        rated: bool | None = False,
         rrmin: int | None = None,
         rrmax: int | None = None,
-        chess960: bool = False,
+        chess960: bool | None = False,
         target: str = "",
         player1: User | None = None,
         player2: User | None = None,
@@ -102,7 +102,7 @@ class Seek:
         self.variant: str = variant
         self.color: str = color
         self.fen: str = "" if fen is None else fen
-        self.rated: bool = rated
+        self.rated: bool | None = rated
         self.rating: int = creator.get_rating_value(variant, chess960)
         self.rrmin: int = rrmin if (rrmin is not None and rrmin != -1000) else -10000
         self.rrmax: int = rrmax if (rrmax is not None and rrmax != 1000) else 10000
@@ -112,7 +112,7 @@ class Seek:
         server_variant = get_server_variant(variant, chess960)
         self.day: int = 0 if server_variant.two_boards else day
         self.level: int = 0 if creator.username == "Random-Mover" else level
-        self.chess960: bool = chess960
+        self.chess960: bool | None = chess960
         self.target: str = target if target is not None else ""
         self.player1: User | None = player1
         self.player2: User | None = player2
@@ -238,6 +238,8 @@ async def create_seek(
         game_id = None
 
     seek_id = await new_id(None if db is None else db.seek)
+    rated: bool | None = data.get("rated")
+    chess960: bool | None = data.get("chess960")
     seek = Seek(
         seek_id,
         user,
@@ -248,10 +250,10 @@ async def create_seek(
         inc=data["increment"],
         byoyomi_period=data["byoyomiPeriod"],
         day=day,
-        rated=cast(bool, data.get("rated")),
+        rated=rated,
         rrmin=data.get("rrmin"),
         rrmax=data.get("rrmax"),
-        chess960=cast(bool, data.get("chess960")),
+        chess960=chess960,
         target=target,
         player1=None if empty else user,
         player2=engine if target == "BOT_challenge" else None,

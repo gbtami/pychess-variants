@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from collections.abc import Mapping
 
 import collections
-from typing import Optional, Deque, cast
+from typing import Optional, Deque
 
 from aiohttp.web_ws import WebSocketResponse
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class Lobby:
-    def __init__(self, app_state: PychessGlobalAppState):
+    def __init__(self, app_state: PychessGlobalAppState) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.lobbysockets: dict[
             str, set[WebSocketResponse]
@@ -68,7 +68,7 @@ class Lobby:
         self.lobbychat.append(response)
         await self.app_state.db.lobbychat.insert_one(response)
         # We have to remove _id added by insert to remain our response JSON serializable
-        response_db = cast(LobbyChatMessageDb, response)
+        response_db: LobbyChatMessageDb = response
         del response_db["_id"]
 
     async def handle_user_closes_lobby(self, user: User) -> None:

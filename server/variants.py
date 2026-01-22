@@ -139,7 +139,7 @@ class ServerVariants(Enum):
 del _
 
 
-def get_server_variant(uci_variant: str, chess960: bool) -> "ServerVariants":
+def get_server_variant(uci_variant: str, chess960: bool | None) -> "ServerVariants":
     return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
 
 
