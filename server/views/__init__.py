@@ -84,8 +84,7 @@ async def get_user_context(request):
         "variant_display_name": variant_display_name,
         "theme": user.theme,
         "game_category": user.game_category,
-        "game_category_intro": (not user.anon)
-        and (not getattr(user, "game_category_set", False)),
+        "game_category_intro": (not user.anon) and (not getattr(user, "game_category_set", False)),
         "menu_variant": menu_variant,
         "title": "%s • PyChess" % view.capitalize(),
         "view": view,
