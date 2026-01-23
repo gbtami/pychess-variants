@@ -79,6 +79,170 @@ class BughouseMoveData(MoveData):
     clocksB: ClockValues
 
 
+class MoveMessage(MoveData):
+    type: Literal["move"]
+
+
+class BughouseMoveMessage(BughouseMoveData):
+    type: Literal["move"]
+
+
+class ReconnectMessage(TypedDict):
+    type: Literal["reconnect"]
+    movesQueued: NotRequired[list[BughouseMoveData | None]]
+
+
+class BerserkMessage(TypedDict):
+    type: Literal["berserk"]
+    color: str
+
+
+class AnalysisMoveMessage(TypedDict):
+    type: Literal["analysis_move"]
+    move: str
+    fen: str
+    ply: int
+
+
+class ReadyMessage(TypedDict):
+    type: Literal["ready"]
+    gameId: str
+
+
+class BoardMessage(TypedDict):
+    type: Literal["board"]
+    gameId: str
+
+
+class SetupMessage(TypedDict):
+    type: Literal["setup"]
+    gameId: str
+    color: str
+    fen: str
+
+
+class AnalysisMessage(TypedDict):
+    type: Literal["analysis"]
+    gameId: str
+    username: str
+
+
+class RematchMessage(TypedDict):
+    type: Literal["rematch"]
+    gameId: str
+    handicap: bool
+
+
+class RejectRematchMessage(TypedDict):
+    type: Literal["reject_rematch"]
+    gameId: NotRequired[str]
+
+
+class DrawMessage(TypedDict):
+    type: Literal["draw"]
+    gameId: str
+
+
+class RejectDrawMessage(TypedDict):
+    type: Literal["reject_draw"]
+    gameId: NotRequired[str]
+
+
+class ByoyomiMessage(TypedDict):
+    type: Literal["byoyomi"]
+    color: str
+    period: int
+
+
+class TakebackMessage(TypedDict):
+    type: Literal["takeback"]
+    gameId: NotRequired[str]
+
+
+class AbortResignMessage(TypedDict):
+    type: Literal["abort", "resign", "abandon", "flag"]
+    gameId: str
+
+
+class EmbedUserConnectedMessage(TypedDict):
+    type: Literal["embed_user_connected"]
+
+
+class IsUserPresentMessage(TypedDict):
+    type: Literal["is_user_present"]
+    username: str
+
+
+class MoreTimeRequest(TypedDict):
+    type: Literal["moretime"]
+    gameId: str
+
+
+class BugRoundChatMessage(TypedDict):
+    type: Literal["bugroundchat"]
+    gameId: str
+    message: str
+    room: str
+
+
+class RoundChatMessage(TypedDict):
+    type: Literal["roundchat"]
+    gameId: str
+    message: str
+    room: str
+
+
+class LeaveMessage(TypedDict):
+    type: Literal["leave"]
+    gameId: str
+
+
+class UpdateTVMessage(TypedDict):
+    type: Literal["updateTV"]
+    gameId: str
+    profileId: NotRequired[str]
+
+
+class CountMessage(TypedDict):
+    type: Literal["count"]
+    gameId: NotRequired[str]
+    mode: Literal["start", "stop"]
+
+
+class DeleteMessage(TypedDict):
+    type: Literal["delete"]
+    gameId: str
+
+
+RoundInboundMessage = (
+    MoveMessage
+    | BughouseMoveMessage
+    | ReconnectMessage
+    | BerserkMessage
+    | AnalysisMoveMessage
+    | ReadyMessage
+    | BoardMessage
+    | SetupMessage
+    | AnalysisMessage
+    | RematchMessage
+    | RejectRematchMessage
+    | DrawMessage
+    | RejectDrawMessage
+    | ByoyomiMessage
+    | TakebackMessage
+    | AbortResignMessage
+    | EmbedUserConnectedMessage
+    | IsUserPresentMessage
+    | MoreTimeRequest
+    | BugRoundChatMessage
+    | RoundChatMessage
+    | LeaveMessage
+    | UpdateTVMessage
+    | CountMessage
+    | DeleteMessage
+)
+
+
 class TournamentUserConnectedMessage(TypedDict):
     type: Literal["tournament_user_connected"]
     username: str

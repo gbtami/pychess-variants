@@ -14,6 +14,7 @@ import logging
 
 if TYPE_CHECKING:
     from user import User
+    from ws_types import AbortResignMessage, ReconnectMessage
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ DataDict = dict[str, Any]
 
 
 async def handle_reconnect_bughouse(
-    app_state: PychessGlobalAppState, user: User, data: DataDict, game: GameBug
+    app_state: PychessGlobalAppState, user: User, data: ReconnectMessage, game: GameBug
 ) -> None:
     log.info("Got RECONNECT message %s %r" % (user.username, data))
     moves_queued = data.get("movesQueued")
@@ -68,7 +69,7 @@ async def handle_reconnect_bughouse(
                 )
 
 
-async def handle_resign_bughouse(data: DataDict, game: GameBug, user: User) -> None:
+async def handle_resign_bughouse(data: AbortResignMessage, game: GameBug, user: User) -> None:
     if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
         return
 
