@@ -484,7 +484,7 @@ class TournamentPlayerDoc(TypedDict):
 
 
 class TournamentPlayerUpdate(TypedDict, total=False):
-    _id: str
+    _id: str | None
     tid: str
     uid: str
     r: int

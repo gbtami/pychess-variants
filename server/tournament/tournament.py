@@ -59,6 +59,7 @@ from typing_defs import (
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from typing import Literal
     from ws_types import TournamentChatMessage
     from ws_types import SpectatorsMessage
 from spectators import spectators
@@ -291,7 +292,7 @@ class Tournament(ABC):
         self.wave = timedelta(seconds=7)
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
-        self.prev_pairing = None
+        self.prev_pairing: datetime | None = None
         self.bye_players: list[User] = []
 
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
@@ -578,7 +579,7 @@ class Tournament(ABC):
             # reachable from the tournament object (reduces monitor noise + allows GC).
             self.clock_task = None
 
-    async def start(self, now):
+    async def start(self, now: datetime) -> None:
         self.status = T_STARTED
 
         self.first_pairing = True
@@ -647,7 +648,7 @@ class Tournament(ABC):
         await self.broadcast_spotlight()
         self.app_state.schedule_tournament_cache_removal(self)
 
-    async def broadcast_spotlight(self):
+    async def broadcast_spotlight(self) -> None:
         spotlights = tournament_spotlights(self.app_state)
         response: TournamentSpotlightsResponse = {"type": "spotlights", "items": spotlights}
         await self.app_state.lobby.lobby_broadcast(response)
@@ -1125,7 +1126,7 @@ class Tournament(ABC):
             except Exception:
                 log.error("Exception in tournament broadcast()")
 
-    async def db_insert_pairing(self, games):
+    async def db_insert_pairing(self, games: list[Game]) -> None:
         if self.app_state.db is None:
             return
         pairing_documents: list[TournamentPairingDoc] = []
@@ -1150,7 +1151,7 @@ class Tournament(ABC):
         if len(pairing_documents) > 0:
             await pairing_table.insert_many(pairing_documents)
 
-    async def db_update_pairing(self, game):
+    async def db_update_pairing(self, game: Game | GameData) -> None:
         if self.app_state.db is None:
             return
         pairing_table = self.app_state.db.tournament_pairing
@@ -1191,7 +1192,9 @@ class Tournament(ABC):
         except Exception:
             log.exception("Failed to save current round for %s", self.id)
 
-    async def db_update_player(self, user, action):
+    async def db_update_player(
+        self, user: User, action: "Literal['JOIN', 'WITHDRAW', 'PAUSE', 'GAME_END', 'BYE']"
+    ) -> None:
         if self.app_state.db is None:
             return
 
@@ -1289,7 +1292,7 @@ class Tournament(ABC):
                 tournament_update,
             )
 
-    async def save(self):
+    async def save(self) -> None:
         if self.app_state.db is None:
             return
 
