@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, NotRequired, TypedDict
 
-from typing_defs import ClockValues
+from typing_defs import ClockValues, StreamInfo, TournamentSpotlightItem
 
 if TYPE_CHECKING:
     from seek import SeekJson
@@ -37,6 +37,45 @@ class LobbyCountMessage(TypedDict):
 class LobbySeeksMessage(TypedDict):
     type: Literal["get_seeks"]
     seeks: list[SeekJson]
+
+
+class LobbyUserConnectedMessage(TypedDict):
+    type: Literal["lobby_user_connected"]
+    username: str
+
+
+class AutoPairingStatusMessage(TypedDict):
+    type: Literal["auto_pairing_on", "auto_pairing_off"]
+
+
+class GameInProgressMessage(TypedDict):
+    type: Literal["game_in_progress"]
+    gameId: str
+
+
+class InviteCreatedMessage(TypedDict):
+    type: Literal["invite_created"]
+    gameId: str
+
+
+class BotChallengeCreatedMessage(TypedDict):
+    type: Literal["bot_challenge_created"]
+    gameId: str
+
+
+class HostCreatedMessage(TypedDict):
+    type: Literal["host_created"]
+    gameId: str
+
+
+class SpotlightsMessage(TypedDict):
+    type: Literal["spotlights"]
+    items: list[TournamentSpotlightItem]
+
+
+class StreamsMessage(TypedDict):
+    type: Literal["streams"]
+    items: list[StreamInfo]
 
 
 class UserPresenceMessage(TypedDict):

@@ -29,8 +29,11 @@ from newid import new_id
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
+    from typing import Literal
     from ws_types import (
         AcceptSeekMessage,
+        AutoPairingStatusMessage,
+        BotChallengeCreatedMessage,
         CancelAutoPairingMessage,
         CreateAiChallengeMessage,
         CreateAutoPairingMessage,
@@ -39,10 +42,18 @@ if TYPE_CHECKING:
         CreateInviteMessage,
         CreateSeekMessage,
         DeleteSeekMessage,
+        FullChatMessage,
+        GameInProgressMessage,
+        HostCreatedMessage,
+        InviteCreatedMessage,
+        LobbyCountMessage,
         LeaveSeekMessage,
         LobbyChatMessage,
         LobbyInboundMessage,
+        LobbyUserConnectedMessage,
         LobbySeeksMessage,
+        SpotlightsMessage,
+        StreamsMessage,
     )
 from pychess_global_app_state_utils import get_app_state
 from seek import challenge, create_seek, get_seeks, Seek, SeekCreateData
@@ -249,7 +260,10 @@ async def handle_create_invite(
     seek_value: Seek = seek
     log.debug("Created seek invite: %s", seek_value)
 
-    response = {"type": "invite_created", "gameId": seek_value.game_id}
+    invite_game_id = seek_value.game_id
+    if TYPE_CHECKING:
+        assert invite_game_id is not None
+    response: InviteCreatedMessage = {"type": "invite_created", "gameId": invite_game_id}
     await ws_send_json(ws, response)
 
 
@@ -286,7 +300,13 @@ async def handle_create_bot_challenge(
         bot_challenge = bot_challenge.replace("chess", "standard")
     await engine.event_queue.put(bot_challenge)
 
-    response = {"type": "bot_challenge_created", "gameId": seek_value.game_id}
+    bot_game_id = seek_value.game_id
+    if TYPE_CHECKING:
+        assert bot_game_id is not None
+    response: BotChallengeCreatedMessage = {
+        "type": "bot_challenge_created",
+        "gameId": bot_game_id,
+    }
     await ws_send_json(ws, response)
 
 
@@ -310,7 +330,10 @@ async def handle_create_host(
         assert seek is not None
     seek_value: Seek = seek
 
-    response = {"type": "host_created", "gameId": seek_value.game_id}
+    host_game_id = seek_value.game_id
+    if TYPE_CHECKING:
+        assert host_game_id is not None
+    response: HostCreatedMessage = {"type": "host_created", "gameId": host_game_id}
     await ws_send_json(ws, response)
 
 
@@ -396,40 +419,48 @@ async def send_lobby_user_connected(
     user.update_online()
     app_state.lobby.lobbysockets[user.username] = user.lobby_sockets
 
-    response: Mapping[str, object] = {
+    lobby_response: LobbyUserConnectedMessage = {
         "type": "lobby_user_connected",
         "username": user.username,
     }
-    await ws_send_json(ws, response)
+    await ws_send_json(ws, lobby_response)
 
-    response = {"type": "fullchat", "lines": list(app_state.lobby.lobbychat)}
-    await ws_send_json(ws, response)
+    fullchat_response: FullChatMessage = {
+        "type": "fullchat",
+        "lines": list(app_state.lobby.lobbychat),
+    }
+    await ws_send_json(ws, fullchat_response)
 
     # send game count
-    response = {"type": "g_cnt", "cnt": app_state.g_cnt[0]}
-    await ws_send_json(ws, response)
+    game_count_response: LobbyCountMessage = {"type": "g_cnt", "cnt": app_state.g_cnt[0]}
+    await ws_send_json(ws, game_count_response)
 
     # send user count
     if user.is_user_active_in_game() == 0:
         await app_state.lobby.lobby_broadcast_u_cnt()
     else:
-        response = {
+        user_count_response: LobbyCountMessage = {
             "type": "u_cnt",
             "cnt": app_state.online_count(),
         }  # todo: duplicated message definition also in lobby_broadcast_u_cnt
-        await ws_send_json(ws, response)
+        await ws_send_json(ws, user_count_response)
 
     # send auto pairing count
-    response = {"type": "ap_cnt", "cnt": app_state.auto_pairing_count()}
-    await ws_send_json(ws, response)
+    auto_pairing_count: LobbyCountMessage = {
+        "type": "ap_cnt",
+        "cnt": app_state.auto_pairing_count(),
+    }
+    await ws_send_json(ws, auto_pairing_count)
 
     spotlights = tournament_spotlights(app_state)
     if len(spotlights) > 0:
-        await ws_send_json(ws, {"type": "spotlights", "items": spotlights})
+        spotlights_response: SpotlightsMessage = {"type": "spotlights", "items": spotlights}
+        await ws_send_json(ws, spotlights_response)
 
     streams = app_state.twitch.live_streams + app_state.youtube.live_streams
     if len(streams) > 0:
-        await ws_send_json(ws, {"type": "streams", "items": streams})
+        streams_response: StreamsMessage = {"type": "streams", "items": streams}
+        await ws_send_json(ws, streams_response)
 
     if (
         app_state.tv is not None
@@ -441,8 +472,11 @@ async def send_lobby_user_connected(
     user.update_auto_pairing(ready=True)
     await user.update_seeks(pending=False)
 
-    auto_pairing = "auto_pairing_on" if user in app_state.auto_pairing_users else "auto_pairing_off"
-    await ws_send_json(ws, {"type": auto_pairing})
+    auto_pairing: Literal["auto_pairing_on", "auto_pairing_off"] = (
+        "auto_pairing_on" if user in app_state.auto_pairing_users else "auto_pairing_off"
+    )
+    auto_pairing_response: AutoPairingStatusMessage = {"type": auto_pairing}
+    await ws_send_json(ws, auto_pairing_response)
 
 
 async def handle_lobbychat(
@@ -513,8 +547,9 @@ async def handle_cancel_auto_pairing(
     data: CancelAutoPairingMessage,
 ) -> None:
     user.remove_from_auto_pairings()
+    response: AutoPairingStatusMessage = {"type": "auto_pairing_off"}
     for user_ws in user.lobby_sockets:
-        await ws_send_json(user_ws, {"type": "auto_pairing_off"})
+        await ws_send_json(user_ws, response)
 
     await app_state.lobby.lobby_broadcast_ap_cnt()
 
@@ -539,8 +574,9 @@ async def handle_create_auto_pairing(
         )
 
     if not auto_paired:
+        response: AutoPairingStatusMessage = {"type": "auto_pairing_on"}
         for user_ws in user.lobby_sockets:
-            await ws_send_json(user_ws, {"type": "auto_pairing_on"})
+            await ws_send_json(user_ws, response)
 
     await app_state.lobby.lobby_broadcast_ap_cnt()
 
@@ -561,7 +597,10 @@ async def send_game_in_progress_if_any(
         if (game is None) or game.status > STARTED:
             user.game_in_progress = None
             return False
-        response = {"type": "game_in_progress", "gameId": user.game_in_progress}
+        response: GameInProgressMessage = {
+            "type": "game_in_progress",
+            "gameId": user.game_in_progress,
+        }
         await ws_send_json(ws, response)
         return True
     else:
