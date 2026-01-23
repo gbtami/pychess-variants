@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 import asyncio
 import random
 import string
@@ -19,7 +19,9 @@ from newid import new_id
 
 if TYPE_CHECKING:
     from clock import Clock
+    from bug.game_bug import GameBug
     from pychess_global_app_state import PychessGlobalAppState
+    from pymongo.asynchronous.database import AsyncDatabase
     from user import User
     from users import Users
     from ws_types import (
@@ -780,7 +782,7 @@ async def handle_moretime(users: Users, user: User, data: MoreTimeRequest, game:
 
 
 async def handle_bugroundchat(
-    users: Users, user: User, data: BugRoundChatMessage, game: Any
+    users: Users, user: User, data: BugRoundChatMessage, game: GameBug
 ) -> None:
     gameId = data["gameId"]
     message = data["message"]
@@ -935,7 +937,7 @@ async def handle_count(
         await ws_send_json(ws, response)
 
 
-async def handle_delete(db: Any, ws: WebSocketResponse, data: DeleteMessage) -> None:
+async def handle_delete(db: AsyncDatabase, ws: WebSocketResponse, data: DeleteMessage) -> None:
     await db.game.delete_one({"_id": data["gameId"]})
     response = {"type": "deleted"}
     await ws_send_json(ws, response)
