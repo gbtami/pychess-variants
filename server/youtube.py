@@ -1,16 +1,20 @@
 from __future__ import annotations
-from typing import Any
+from typing import TYPE_CHECKING
 
 from streamers import YOUTUBE_STREAMERS
 
+if TYPE_CHECKING:
+    from aiohttp import web
+    from typing_defs import StreamInfo
+
 
 class Youtube:
-    def __init__(self, app: Any) -> None:
-        self.app: Any = app
-        self.streams: dict[str, dict[str, str]] = {}
+    def __init__(self, app: web.Application) -> None:
+        self.app: web.Application = app
+        self.streams: dict[str, StreamInfo] = {}
 
     @property
-    def live_streams(self) -> list[dict[str, str]]:
+    def live_streams(self) -> list[StreamInfo]:
         # return [self.streams[streamer] for streamer in self.streams if "pychess" in self.streams[streamer]["title"].lower()]
         return [self.streams[streamer] for streamer in self.streams]
 

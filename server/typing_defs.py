@@ -161,6 +161,64 @@ class FishnetWork(TypedDict):
     skipPositions: NotRequired[list[int]]
 
 
+class StreamInfo(TypedDict):
+    username: str
+    streamer: str
+    site: str
+    title: str
+
+
+class TwitchOAuthTokenResponse(TypedDict, total=False):
+    access_token: str
+    expires_in: int
+    status: int
+    message: str
+
+
+class TwitchSubscriptionData(TypedDict):
+    id: str
+
+
+class TwitchSubscriptionsResponse(TypedDict):
+    data: list[TwitchSubscriptionData]
+
+
+class TwitchSubscriptionRequestResponse(TypedDict, total=False):
+    data: list[TwitchSubscriptionData]
+    error: str
+    message: str
+
+
+class TwitchUserData(TypedDict):
+    login: str
+    id: str
+
+
+class TwitchUsersResponse(TypedDict):
+    data: list[TwitchUserData]
+
+
+class TwitchStreamData(TypedDict):
+    title: str
+    user_login: str
+    type: str
+
+
+class TwitchStreamsResponse(TypedDict):
+    data: list[TwitchStreamData]
+
+
+class TwitchWebhookEvent(TypedDict):
+    broadcaster_user_login: str
+    type: str
+    title: NotRequired[str]
+
+
+class TwitchWebhookPayload(TypedDict):
+    event: TwitchWebhookEvent
+    challenge: NotRequired[str]
+
+
 class TournamentCreateData(TypedDict):
     name: str
     createdBy: str

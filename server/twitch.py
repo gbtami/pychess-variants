@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Iterable
 import asyncio
 import hashlib
 import hmac
@@ -15,6 +15,18 @@ from settings import DEV, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, URI
 from streamers import TWITCH_STREAMERS
 from pychess_global_app_state_utils import get_app_state
 import logging
+
+if TYPE_CHECKING:
+    from typing_defs import (
+        StreamInfo,
+        TwitchOAuthTokenResponse,
+        TwitchSubscriptionData,
+        TwitchSubscriptionRequestResponse,
+        TwitchSubscriptionsResponse,
+        TwitchStreamsResponse,
+        TwitchWebhookPayload,
+        TwitchUsersResponse,
+    )
 
 log = logging.getLogger(__name__)
 
@@ -48,16 +60,16 @@ def validate_twitch_signature(secret: str, request: web.Request, data: str) -> b
 
 
 class Twitch:
-    def __init__(self, app: Any) -> None:
-        self.app: Any = app
+    def __init__(self, app: web.Application) -> None:
+        self.app: web.Application = app
         self.token: str | None = None
         self.token_valid_until: datetime = datetime.now(timezone.utc)
-        self.subscriptions: dict[str, dict[str, Any]] = {}
-        self.streams: dict[str, dict[str, str]] = {}
+        self.subscriptions: dict[str, TwitchSubscriptionData] = {}
+        self.streams: dict[str, StreamInfo] = {}
         self.headers: dict[str, str] = {}
 
     @property
-    def live_streams(self) -> list[dict[str, str]]:
+    def live_streams(self) -> list[StreamInfo]:
         return [
             self.streams[streamer]
             for streamer in self.streams
@@ -104,7 +116,7 @@ class Twitch:
                     log.exception("OAuth2 failed")
                     return
 
-                response_data: dict[str, Any] = await resp.json()
+                response_data: TwitchOAuthTokenResponse = await resp.json()
                 if "status" in response_data:
                     if response_data["status"] == 400:
                         log.error("Invalid TWITCH_CLIENT_ID")
@@ -157,7 +169,7 @@ class Twitch:
             async with client_session.post(
                 TWITCH_EVENTSUB_API_URL, headers=self.headers, json=data
             ) as resp:
-                response_data: dict[str, Any] = await resp.json()
+                response_data: TwitchSubscriptionRequestResponse = await resp.json()
                 if "error" in response_data:
                     log.debug("request_subscription response: %s", response_data)
                 else:
@@ -174,7 +186,7 @@ class Twitch:
         log.debug("get_subscriptions from twitch")
         async with aiohttp.ClientSession() as client_session:
             async with client_session.get(TWITCH_EVENTSUB_API_URL, headers=self.headers) as resp:
-                response_data: dict[str, Any] = await resp.json()
+                response_data: TwitchSubscriptionsResponse = await resp.json()
                 for subs in response_data["data"]:
                     log.debug("subs: %r", subs)
                     self.subscriptions[subs["id"]] = subs
@@ -191,7 +203,7 @@ class Twitch:
                     log.exception("Invalid argument")
                     return uids
                 else:
-                    user_json: dict[str, Any] = await resp.json()
+                    user_json: TwitchUsersResponse = await resp.json()
                     for user in user_json["data"]:
                         log.debug("user: %s %s", user["login"], user["id"])
                         uids.append((user["login"], user["id"]))
@@ -204,7 +216,7 @@ class Twitch:
                     log.exception("Invalid argument")
                     return uids
                 else:
-                    stream_json: dict[str, Any] = await resp.json()
+                    stream_json: TwitchStreamsResponse = await resp.json()
                     for stream in stream_json["data"]:
                         log.debug("stream: %r", stream)
                         title = stream["title"]
@@ -224,7 +236,7 @@ class Twitch:
 async def twitch_request_handler(request: web.Request) -> web.Response:
     """Twitch POST request handler"""
     app_state = get_app_state(request.app)
-    payload: dict[str, Any] = await request.json()
+    payload: TwitchWebhookPayload = await request.json()
     data = await request.text()
 
     header_msg_type = request.headers.get("Twitch-Eventsub-Message-Type")
