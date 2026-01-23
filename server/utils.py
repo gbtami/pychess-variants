@@ -51,6 +51,14 @@ from valid_fen import VALID_FEN
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from typing_defs import GameBoardResponse, GameEndResponse
+    from ws_types import (
+        AnalysisBoardMessage,
+        ErrorMessage,
+        JieqiCaptureMoveMessage,
+        NewGameMessage,
+        SeekStatusMessage,
+    )
 from pychess_global_app_state_utils import get_app_state
 import logging
 from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
@@ -387,30 +395,35 @@ async def join_seek(app_state: PychessGlobalAppState, user, seek, game_id=None, 
     )
 
     if user is seek.player1 or user is seek.player2:
-        return {"type": "seek_yourself", "seekID": seek.id}
+        response: SeekStatusMessage = {"type": "seek_yourself", "seekID": seek.id}
+        return response
 
     if join_as == "player1":
         if seek.player1 is None:
             seek.player1 = user
         else:
-            return {"type": "seek_occupied", "seekID": seek.id}
+            response: SeekStatusMessage = {"type": "seek_occupied", "seekID": seek.id}
+            return response
     elif join_as == "player2":
         if seek.player2 is None:
             seek.player2 = user
         else:
-            return {"type": "seek_occupied", "seekID": seek.id}
+            response: SeekStatusMessage = {"type": "seek_occupied", "seekID": seek.id}
+            return response
     else:
         if seek.player1 is None:
             seek.player1 = user
         elif seek.player2 is None:
             seek.player2 = user
         else:
-            return {"type": "seek_occupied", "seekID": seek.id}
+            response: SeekStatusMessage = {"type": "seek_occupied", "seekID": seek.id}
+            return response
 
     if seek.player1 is not None and seek.player2 is not None:
         return await new_game(app_state, seek, game_id)
     else:
-        return {"type": "seek_joined", "seekID": seek.id}
+        response: SeekStatusMessage = {"type": "seek_joined", "seekID": seek.id}
+        return response
 
 
 async def new_game(app_state: PychessGlobalAppState, seek, game_id=None):
@@ -421,7 +434,8 @@ async def new_game(app_state: PychessGlobalAppState, seek, game_id=None):
             message = "Failed to create game. Invalid FEN %s" % seek.fen
             log.debug(message)
             remove_seek(app_state.seeks, seek)
-            return {"type": "error", "message": message}
+            response: ErrorMessage = {"type": "error", "message": message}
+            return response
     else:
         sanitized_fen = ""
 
@@ -467,7 +481,8 @@ async def new_game(app_state: PychessGlobalAppState, seek, game_id=None):
             bplayer,
         )
         remove_seek(app_state.seeks, seek)
-        return {"type": "error", "message": "Failed to create game"}
+        response: ErrorMessage = {"type": "error", "message": "Failed to create game"}
+        return response
     app_state.games[game_id] = game
 
     remove_seek(app_state.seeks, seek)
@@ -483,12 +498,13 @@ async def new_game(app_state: PychessGlobalAppState, seek, game_id=None):
         if doc is not None:
             game.crosstable = doc
 
-    return {
+    response: NewGameMessage = {
         "type": "new_game",
         "gameId": game_id,
         "wplayer": wplayer.username,
         "bplayer": bplayer.username,
     }
+    return response
 
 
 async def insert_game_to_db(game, app_state: PychessGlobalAppState):
@@ -575,6 +591,7 @@ async def analysis_move(user, game, move, fen, ply):
         invalid_move = True
         log.exception("!!! analysis_move() exception occurred")
 
+    analysis_board_response: GameBoardResponse | AnalysisBoardMessage
     if invalid_move:
         analysis_board_response = game.get_board(full=True)
     else:
@@ -635,15 +652,13 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
             if game.variant == "jieqi" and game.last_jieqi_capture:
                 # Send captured fake identity only to the capturer via a move message.
                 # This avoids leaking the info through shared board payloads.
-                await user.send_game_message(
-                    gameId,
-                    {
-                        "type": "move",
-                        "gameId": gameId,
-                        "move": game.lastmove,
-                        "jieqiCapture": game.last_jieqi_capture,
-                    },
-                )
+                jieqi_capture_response: JieqiCaptureMoveMessage = {
+                    "type": "move",
+                    "gameId": gameId,
+                    "move": game.lastmove,
+                    "jieqiCapture": game.last_jieqi_capture,
+                }
+                await user.send_game_message(gameId, jieqi_capture_response)
             await user.send_game_message(gameId, board_response)
         if game.variant == "jieqi":
             # Clear the one-shot capture hint after each move to avoid reuse.
@@ -670,7 +685,7 @@ async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=N
         if not invalid_move:
             await users[opp_name].send_game_message(gameId, board_response)
         if game.status > STARTED:
-            response = {
+            response: GameEndResponse = {
                 "type": "gameEnd",
                 "status": game.status,
                 "result": game.result,

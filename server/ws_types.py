@@ -39,6 +39,39 @@ class LobbySeeksMessage(TypedDict):
     seeks: list[SeekJson]
 
 
+class SeekStatusMessage(TypedDict):
+    type: Literal["seek_yourself", "seek_occupied", "seek_joined"]
+    seekID: str
+
+
+class ErrorMessage(TypedDict):
+    type: Literal["error"]
+    message: str
+
+
+class NewGameMessage(TypedDict):
+    type: Literal["new_game"]
+    gameId: str
+    wplayer: str
+    bplayer: str
+
+
+class AnalysisBoardMessage(TypedDict):
+    type: Literal["analysis_board"]
+    gameId: str
+    fen: str
+    ply: int
+    lastMove: str
+    check: bool
+
+
+class JieqiCaptureMoveMessage(TypedDict):
+    type: Literal["move"]
+    gameId: str
+    move: str
+    jieqiCapture: str
+
+
 class LobbyUserConnectedMessage(TypedDict):
     type: Literal["lobby_user_connected"]
     username: str

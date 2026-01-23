@@ -14,12 +14,13 @@ from variants import VARIANTS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from ws_types import FullChatMessage, LobbyChatMessage
 
 log = logging.getLogger(__name__)
 
 
-def silence(app_state: PychessGlobalAppState, message: str) -> dict[str, object] | None:
-    response: dict[str, object] | None = None
+def silence(app_state: PychessGlobalAppState, message: str) -> FullChatMessage | None:
+    response: FullChatMessage | None = None
     spammer = message.split()[-1]
     if spammer in app_state.users:
         lobbychat = app_state.lobby.lobbychat
@@ -97,7 +98,7 @@ async def highscore(app_state: PychessGlobalAppState, message: str) -> None:
         await generate_highscore(app_state, variant)
 
 
-async def fishnet(app_state: PychessGlobalAppState, message: str) -> dict[str, object] | None:
+async def fishnet(app_state: PychessGlobalAppState, message: str) -> LobbyChatMessage | None:
     parts = message.split()
     if len(parts) == 3:
         if parts[1] == "add":
@@ -110,7 +111,7 @@ async def fishnet(app_state: PychessGlobalAppState, message: str) -> dict[str, o
             )
             FISHNET_KEYS[key] = name
             app_state.fishnet_monitor[name] = collections.deque([], 50)
-            response: dict[str, object] = {
+            response: LobbyChatMessage = {
                 "type": "lobbychat",
                 "user": "server",
                 "message": "name: %s key: %s" % (name, key),
