@@ -84,6 +84,52 @@ class AnalysisStep(TypedDict, total=False):
     p: str
 
 
+class GameRatingDoc(TypedDict):
+    e: int | str
+    d: NotRequired[int | str]
+
+
+GameDocument = TypedDict(
+    "GameDocument",
+    {
+        "_id": str,
+        "us": list[str],
+        "v": str,
+        "b": int | float,
+        "i": int,
+        "m": list[str],
+        "d": datetime,
+        "f": str,
+        "s": int,
+        "r": str,
+        "bp": NotRequired[int],
+        "if": NotRequired[str],
+        "uci": NotRequired[int],
+        "c": NotRequired[bool],
+        "x": NotRequired[int],
+        "y": NotRequired[int],
+        "z": NotRequired[int],
+        "tid": NotRequired[str],
+        "a": NotRequired[list[AnalysisStep]],
+        "cw": NotRequired[list[int]],
+        "cb": NotRequired[list[int]],
+        "p0": NotRequired[GameRatingDoc],
+        "p1": NotRequired[GameRatingDoc],
+        "by": NotRequired[str],
+        "wd": NotRequired[bool],
+        "bd": NotRequired[bool],
+        "wb": NotRequired[bool],
+        "bb": NotRequired[bool],
+        "bj": NotRequired[list[str]],
+        "wj": NotRequired[list[str]],
+        "l": NotRequired[datetime],
+        "mct": NotRequired[list[tuple[int, int]]],
+        "ws": NotRequired[bool],
+        "bs": NotRequired[bool],
+    },
+)
+
+
 class GameStep(TypedDict, total=False):
     fen: str
     move: str

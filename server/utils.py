@@ -51,7 +51,10 @@ from valid_fen import VALID_FEN
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
-    from typing_defs import GameBoardResponse, GameEndResponse
+    from game import Game
+    from seek import Seek
+    from typing_defs import GameBoardResponse, GameDocument, GameEndResponse
+    from user import User
     from ws_types import (
         AnalysisBoardMessage,
         ErrorMessage,
@@ -92,7 +95,7 @@ async def tv_game_user(db, users, profileId):
     return game_id
 
 
-async def load_game(app_state: PychessGlobalAppState, game_id):
+async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | None:
     """Return Game object from app cache or from database"""
     if game_id in app_state.games:
         return app_state.games[game_id]
@@ -102,6 +105,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id):
 
     if doc is None:
         return None
+    doc: GameDocument = doc
 
     variant = C2V[doc["v"]]
 
@@ -347,7 +351,7 @@ async def import_game(request):
         log.exception(message)
         return web.json_response({"error": message})
 
-    document = {
+    document: GameDocument = {
         "_id": game_id,
         "us": [wplayer.username, bplayer.username],
         "v": new_game.server_variant.code,
@@ -385,7 +389,13 @@ async def import_game(request):
     return web.json_response({"gameId": game_id})
 
 
-async def join_seek(app_state: PychessGlobalAppState, user, seek, game_id=None, join_as="any"):
+async def join_seek(
+    app_state: PychessGlobalAppState,
+    user: User,
+    seek: Seek,
+    game_id: str | None = None,
+    join_as: str = "any",
+) -> SeekStatusMessage | NewGameMessage | ErrorMessage:
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
         seek.id,
@@ -426,7 +436,9 @@ async def join_seek(app_state: PychessGlobalAppState, user, seek, game_id=None, 
         return response
 
 
-async def new_game(app_state: PychessGlobalAppState, seek, game_id=None):
+async def new_game(
+    app_state: PychessGlobalAppState, seek: Seek, game_id: str | None = None
+) -> NewGameMessage | ErrorMessage:
     fen_valid = True
     if seek.fen:
         fen_valid, sanitized_fen = sanitize_fen(seek.variant, seek.fen, seek.chess960)
@@ -565,7 +577,7 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         game.bplayer.tv = game.id
 
 
-def remove_seek(seeks, seek):
+def remove_seek(seeks: dict[str, Seek], seek: Seek) -> None:
     log.debug("Seeks now contains: [%s]" % " ".join(seeks))
     log.debug("Removing seek: %s" % seek)
 
@@ -577,7 +589,7 @@ def remove_seek(seeks, seek):
     log.debug("Removed seek. Seeks now contains: [%s]" % " ".join(seeks))
 
 
-async def analysis_move(user, game, move, fen, ply):
+async def analysis_move(user: User, game: Game, move: str, fen: str, ply: int) -> None:
     invalid_move = False
 
     board = FairyBoard(game.variant, fen, game.chess960)
@@ -606,7 +618,14 @@ async def analysis_move(user, game, move, fen, ply):
     await user.send_game_message(game.id, analysis_board_response)
 
 
-async def play_move(app_state: PychessGlobalAppState, user, game, move, clocks=None, ply=None):
+async def play_move(
+    app_state: PychessGlobalAppState,
+    user: User,
+    game: Game,
+    move: str,
+    clocks: list[int] | None = None,
+    ply: int | None = None,
+) -> None:
     gameId = game.id
     users = app_state.users
     invalid_move = False

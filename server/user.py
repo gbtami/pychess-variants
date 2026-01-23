@@ -28,15 +28,17 @@ from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK
 from websocket_utils import ws_send_json
-from typing_defs import (
-    NotificationContent,
-    NotificationDocument,
-    PerfGl,
-    PerfMap,
-    UserBlocksResponse,
-    UserJson,
-    UserStatusJson,
-)
+
+if TYPE_CHECKING:
+    from typing_defs import (
+        NotificationContent,
+        NotificationDocument,
+        PerfGl,
+        PerfMap,
+        UserBlocksResponse,
+        UserJson,
+        UserStatusJson,
+    )
 from variants import RATED_VARIANTS, VARIANTS
 from settings import (
     URI,
