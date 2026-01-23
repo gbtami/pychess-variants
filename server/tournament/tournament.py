@@ -45,6 +45,7 @@ from typing_defs import (
     TournamentDuelsResponse,
     TournamentGameJson,
     TournamentGamesResponse,
+    TournamentPairingDoc,
     TournamentPairingUpdate,
     TournamentPlayerJson,
     TournamentPlayerUpdate,
@@ -58,6 +59,7 @@ from typing_defs import (
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from ws_types import TournamentChatMessage
 from spectators import spectators
 from tournament.tournament_spotlights import tournament_spotlights
 from user import User
@@ -281,7 +283,9 @@ class Tournament(ABC):
         self.created_at: datetime = datetime.now(timezone.utc) if created_at is None else created_at
         self.with_clock = with_clock
 
-        self.tourneychat: Deque[dict] = collections.deque([], MAX_CHAT_LINES)
+        self.tourneychat: Deque[TournamentChatMessage] | list[TournamentChatMessage] = (
+            collections.deque([], MAX_CHAT_LINES)
+        )
 
         self.wave = timedelta(seconds=7)
         self.wave_delta = timedelta(seconds=1)
@@ -1123,26 +1127,25 @@ class Tournament(ABC):
     async def db_insert_pairing(self, games):
         if self.app_state.db is None:
             return
-        pairing_documents = []
+        pairing_documents: list[TournamentPairingDoc] = []
         pairing_table = self.app_state.db.tournament_pairing
 
         for game in games:
             if game.status == BYEGAME:  # TODO: Save or not save? This is the question.
                 continue
 
-            pairing_documents.append(
-                {
-                    "_id": game.id,
-                    "tid": self.id,
-                    "u": (game.wplayer.username, game.bplayer.username),
-                    "r": R2C[game.result],
-                    "d": game.date,
-                    "wr": game.wrating,
-                    "br": game.brating,
-                    "wb": game.wberserk,
-                    "bb": game.bberserk,
-                }
-            )
+            pairing_doc: TournamentPairingDoc = {
+                "_id": game.id,
+                "tid": self.id,
+                "u": (game.wplayer.username, game.bplayer.username),
+                "r": R2C[game.result],
+                "d": game.date,
+                "wr": game.wrating,
+                "br": game.brating,
+                "wb": game.wberserk,
+                "bb": game.bberserk,
+            }
+            pairing_documents.append(pairing_doc)
         if len(pairing_documents) > 0:
             await pairing_table.insert_many(pairing_documents)
 
@@ -1363,7 +1366,7 @@ class Tournament(ABC):
             url,
         )
 
-    async def tourney_chat_save(self, response):
+    async def tourney_chat_save(self, response: TournamentChatMessage) -> None:
         self.tourneychat.append(response)
         response["tid"] = self.id
         await self.app_state.db.tournament_chat.insert_one(response)

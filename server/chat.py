@@ -3,10 +3,12 @@ from typing import TYPE_CHECKING
 from time import time
 
 if TYPE_CHECKING:
-    from ws_types import ChatMessage
+    from ws_types import TournamentChatMessage
 
 
-def chat_response(msg_type: str, username: str, message: str, room: str = "") -> ChatMessage:
+def chat_response(
+    msg_type: str, username: str, message: str, room: str = ""
+) -> TournamentChatMessage:
     return {
         "type": msg_type,
         "user": username,

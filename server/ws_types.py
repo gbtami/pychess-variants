@@ -16,6 +16,11 @@ class ChatMessage(TypedDict):
     time: int
 
 
+class TournamentChatMessage(ChatMessage, total=False):
+    tid: str
+    _id: object
+
+
 class LobbyChatMessage(TypedDict):
     type: Literal["lobbychat"]
     user: str

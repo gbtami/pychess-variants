@@ -49,6 +49,7 @@ from typing_defs import (
     TournamentPairingDoc,
     TournamentPlayerDoc,
 )
+from ws_types import TournamentChatMessage
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 from user import User
 from utils import load_game
@@ -668,7 +669,7 @@ async def load_tournament(
             "time": 1,
         },
     )
-    docs = await cursor.to_list(length=MAX_CHAT_LINES)
+    docs: list[TournamentChatMessage] = await cursor.to_list(length=MAX_CHAT_LINES)
     tournament.tourneychat = docs
 
     if tournament.status == T_STARTED:

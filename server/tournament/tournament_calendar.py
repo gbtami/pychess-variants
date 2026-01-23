@@ -11,10 +11,10 @@ from const import CATEGORY_VARIANT_SETS, normalize_game_category
 from pychess_global_app_state_utils import get_app_state
 from tournament.scheduler import new_scheduled_tournaments
 from tournament.tournaments import get_scheduled_tournaments
-from typing_defs import ScheduledTournamentCreateData
+from typing_defs import ScheduledTournamentCreateData, TournamentCalendarEvent
 
 ScheduledEntry = tuple[str, str, bool, dt.datetime, int]
-EventData = dict[str, object]
+EventData = TournamentCalendarEvent
 
 
 def create_scheduled_data(

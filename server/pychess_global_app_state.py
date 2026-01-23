@@ -7,7 +7,7 @@ import asyncio
 import collections
 import gettext
 import queue
-from typing import List, Set
+from typing import List, Set, TYPE_CHECKING
 
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
@@ -15,6 +15,9 @@ import aiohttp_jinja2
 
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
+
+if TYPE_CHECKING:
+    from ws_types import TournamentChatMessage
 
 from ai import BOT_task
 from const import (
@@ -99,7 +102,7 @@ LOCALHOST_CACHE_KEEP_TIME = 1 if _is_test_run() else TOURNAMENT_KEEP_TIME
 
 
 class PychessGlobalAppState:
-    tourneychat: dict[str, collections.deque[dict[str, object]]]
+    tourneychat: dict[str, collections.deque["TournamentChatMessage"]]
 
     def __init__(self, app: web.Application):
         from typedefs import db_key

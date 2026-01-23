@@ -225,7 +225,10 @@ async def handle_user_connected(
     elif tournament.top_game is not None:
         await ws_send_json(ws, tournament.top_game_json)
 
-    fullchat_response = {"type": "fullchat", "lines": list(tournament.tourneychat)}
+    fullchat_response: FullChatMessage = {
+        "type": "fullchat",
+        "lines": list(tournament.tourneychat),
+    }
     await ws_send_json(ws, fullchat_response)
 
     await ws_send_json(ws, tournament.duels_json)

@@ -571,3 +571,12 @@ class TournamentSpotlightItem(TypedDict):
 class TournamentSpotlightsResponse(TypedDict):
     type: Literal["spotlights"]
     items: list[TournamentSpotlightItem]
+
+
+class TournamentCalendarEvent(TypedDict):
+    title: str
+    start: datetime
+    end: datetime
+    classNames: str
+    borderColor: NotRequired[str]
+    url: NotRequired[str]
