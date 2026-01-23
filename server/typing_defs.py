@@ -94,6 +94,73 @@ class GameBoardResponse(TypedDict):
 TournamentPoint = tuple[int, int] | Literal["-"]
 
 
+class FishnetKey(TypedDict):
+    apikey: str
+
+
+class FishnetAcquireFishnet(FishnetKey):
+    version: str
+
+
+class FishnetAcquireStockfish(TypedDict):
+    name: str
+    nnue: NotRequired[str]
+
+
+class FishnetAcquirePayload(TypedDict):
+    fishnet: FishnetAcquireFishnet
+    stockfish: FishnetAcquireStockfish
+
+
+class FishnetKeyPayload(TypedDict):
+    fishnet: FishnetKey
+
+
+class FishnetAnalysisItem(TypedDict):
+    score: object
+    depth: NotRequired[int]
+    pv: NotRequired[str]
+
+
+class FishnetAnalysisPayload(TypedDict):
+    fishnet: FishnetKey
+    analysis: list[FishnetAnalysisItem | None]
+
+
+class FishnetMoveInfo(TypedDict):
+    bestmove: str
+    fen: NotRequired[str]
+
+
+class FishnetMovePayload(TypedDict):
+    fishnet: FishnetKey
+    move: FishnetMoveInfo
+
+
+class FishnetAbortPayload(TypedDict):
+    fishnet: FishnetKey
+
+
+class FishnetWorkInfo(TypedDict):
+    type: Literal["analysis", "move"]
+    id: str
+    level: NotRequired[int]
+
+
+class FishnetWork(TypedDict):
+    work: FishnetWorkInfo
+    game_id: str
+    position: str
+    variant: str
+    chess960: bool
+    moves: str
+    nnue: object
+    time: NotRequired[float]
+    username: NotRequired[str]
+    nodes: NotRequired[int]
+    skipPositions: NotRequired[list[int]]
+
+
 class TournamentCreateData(TypedDict):
     name: str
     createdBy: str

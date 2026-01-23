@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 import asyncio
 import json
 from datetime import datetime, timezone
@@ -9,6 +9,14 @@ from time import monotonic
 from aiohttp import web
 
 from const import ANALYSIS
+from typing_defs import (
+    FishnetAbortPayload,
+    FishnetAcquirePayload,
+    FishnetAnalysisPayload,
+    FishnetKeyPayload,
+    FishnetMovePayload,
+    FishnetWork,
+)
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -23,7 +31,10 @@ REQUIRED_FISHNET_VERSION = "1.16.42"
 MOVE_WORK_TIME_OUT = 5.0
 
 
-async def get_work(app_state: PychessGlobalAppState, data: dict[str, Any]) -> web.Response:
+async def get_work(
+    app_state: PychessGlobalAppState,
+    data: FishnetKeyPayload | FishnetAcquirePayload | FishnetAnalysisPayload | FishnetMovePayload,
+) -> web.Response:
     fm = app_state.fishnet_monitor
     key = data["fishnet"]["apikey"]
     worker = FISHNET_KEYS[key]
@@ -40,7 +51,7 @@ async def get_work(app_state: PychessGlobalAppState, data: dict[str, Any]) -> we
                 "task_done() called more times than there were items placed in the queue in fishnet.py get_work()"
             )
 
-        work = app_state.fishnet_works[work_id]
+        work: FishnetWork = app_state.fishnet_works[work_id]
         if priority == ANALYSIS:
             fm[worker].append(
                 "%s %s %s %s of %s moves"
@@ -90,8 +101,10 @@ async def get_work(app_state: PychessGlobalAppState, data: dict[str, Any]) -> we
         # (in case when worker grabbed it from queue but not responded after MOVE_WORK_TIME_OUT secs)
         now = monotonic()
         for work_id in app_state.fishnet_works:
-            work = app_state.fishnet_works[work_id]
-            if work["work"]["type"] == "move" and (now - work["time"] > MOVE_WORK_TIME_OUT):
+            work_item: FishnetWork = app_state.fishnet_works[work_id]
+            if work_item["work"]["type"] == "move" and (
+                now - work_item["time"] > MOVE_WORK_TIME_OUT
+            ):
                 fm[worker].append(
                     "%s %s %s %s for level %s"
                     % (
@@ -99,15 +112,15 @@ async def get_work(app_state: PychessGlobalAppState, data: dict[str, Any]) -> we
                         work_id,
                         "request",
                         "move AGAIN",
-                        work["work"]["level"],
+                        work_item["work"]["level"],
                     )
                 )
-                return web.json_response(work, status=202)
+                return web.json_response(work_item, status=202)
         return web.Response(status=204)
 
 
 async def fishnet_acquire(request: web.Request) -> web.Response:
-    data: dict[str, Any] = await request.json()
+    data: FishnetAcquirePayload = await request.json()
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
@@ -135,7 +148,7 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
 
 async def fishnet_analysis(request: web.Request) -> web.Response:
     work_id: str = request.match_info.get("workId")
-    data: dict[str, Any] = await request.json()
+    data: FishnetAnalysisPayload = await request.json()
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
@@ -144,7 +157,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 
-    work = app_state.fishnet_works[work_id]
+    work: FishnetWork = app_state.fishnet_works[work_id]
     app_state.fishnet_monitor[worker].append(
         "%s %s %s" % (datetime.now(timezone.utc), work_id, "analysis")
     )
@@ -197,7 +210,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
 
 async def fishnet_move(request: web.Request) -> web.Response:
     work_id: str = request.match_info.get("workId")
-    data: dict[str, Any] = await request.json()
+    data: FishnetMovePayload = await request.json()
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
@@ -214,7 +227,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
         response = await get_work(app_state, data)
         return response
 
-    work = app_state.fishnet_works[work_id]
+    work: FishnetWork = app_state.fishnet_works[work_id]
     gameId = work["game_id"]
 
     # remove work from works
@@ -241,7 +254,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
 
 async def fishnet_abort(request: web.Request) -> web.Response:
     work_id: str = request.match_info.get("workId")
-    data: dict[str, Any] = await request.json()
+    data: FishnetAbortPayload = await request.json()
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
