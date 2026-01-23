@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from aiohttp import web
 import aiohttp_jinja2
@@ -7,6 +7,7 @@ import aiohttp_jinja2
 from const import TRANSLATED_PAIRING_SYSTEM_NAMES, T_CREATED
 from misc import time_control_str
 from settings import TOURNAMENT_DIRECTORS
+from typing_defs import ViewContext
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 from tournament.tournaments import (
@@ -20,7 +21,7 @@ log = logging.getLogger(__name__)
 
 
 @aiohttp_jinja2.template("tournaments.html")
-async def tournaments(request: web.Request) -> dict[str, Any]:
+async def tournaments(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)

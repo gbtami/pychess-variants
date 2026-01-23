@@ -1,5 +1,3 @@
-from typing import Any
-
 from aiohttp import web
 import aiohttp_jinja2
 
@@ -7,6 +5,7 @@ from const import T_CREATED
 from settings import TOURNAMENT_DIRECTORS
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
+from typing_defs import ViewContext
 from tournament.tournaments import (
     load_tournament,
     get_tournament_name,
@@ -14,7 +13,7 @@ from tournament.tournaments import (
 
 
 @aiohttp_jinja2.template("index.html")
-async def tournament(request: web.Request) -> dict[str, Any]:
+async def tournament(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)

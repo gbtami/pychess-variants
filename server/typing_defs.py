@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, NotRequired, TypedDict
+from typing import Callable, Literal, Mapping, NotRequired, TYPE_CHECKING, TypedDict
+
+if TYPE_CHECKING:
+    from user import User
 
 
 class PerfGl(TypedDict):
@@ -223,6 +226,69 @@ class NotificationContent(TypedDict, total=False):
     id: str
     opp: str
     win: bool | None
+
+
+class ViewContext(TypedDict, total=False):
+    user: User
+    lang: str
+    variant_display_name: Callable[[str], str]
+    theme: str
+    game_category: str
+    game_category_intro: bool
+    menu_variant: str
+    title: str
+    view: str
+    view_css: str
+    anon: bool
+    username: str
+    piece_sets: list[str]
+    simuling: bool
+    gameid: str
+    variant: str
+    wplayer: str
+    wtitle: str
+    wrating: str
+    wrdiff: int | str
+    chess960: bool
+    rated: bool | int
+    corr: bool
+    level: int
+    bplayer: str
+    btitle: str
+    brating: str
+    brdiff: int | str
+    fen: str
+    posnum: int
+    base: float
+    inc: int
+    byo: int
+    result: str
+    status: int
+    date: str | datetime
+    ply: int | str
+    initialFen: str
+    board: str
+    wplayerB: str
+    wtitleB: str
+    wratingB: str
+    bplayerB: str
+    btitleB: str
+    bratingB: str
+    variants: Mapping[str, object]
+    groups: Mapping[str, str]
+    icons: Mapping[str, str]
+    pairing_system_name: Callable[[int], str]
+    time_control_str: Callable[..., str]
+    tables: object
+    td: bool
+    tournamentid: str
+    tournamentname: str
+    tournamentcreator: str
+    description: str
+    before_start: int
+    minutes: int
+    rounds: int
+    frequency: str
 
 
 class TournamentCreateData(TypedDict):

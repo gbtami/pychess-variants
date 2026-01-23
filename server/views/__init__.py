@@ -14,6 +14,7 @@ from pychess_global_app_state_utils import get_app_state
 import logging
 
 from user import User
+from typing_defs import ViewContext
 from variants import ALL_VARIANTS
 from settings import SIMULING
 
@@ -28,7 +29,7 @@ piece_sets: list[str] = [
 ]
 
 
-async def get_user_context(request: web.Request) -> tuple[User, dict[str, Any]]:
+async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
     app_state = get_app_state(request.app)
 
     # Who made the request?
@@ -84,7 +85,7 @@ async def get_user_context(request: web.Request) -> tuple[User, dict[str, Any]]:
     else:
         menu_variant = user.category_variant_list[0] if user.category_variant_list else "chess"
 
-    context = {
+    context: ViewContext = {
         "user": user,
         "lang": lang,
         "variant_display_name": variant_display_name,
@@ -107,7 +108,7 @@ def add_game_context(
     game: "Game",
     ply: int | None,
     user: User,
-    context: dict[str, Any],
+    context: ViewContext,
 ) -> None:
     context["gameid"] = game.id
     context["variant"] = game.variant
