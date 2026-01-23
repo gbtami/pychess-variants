@@ -121,6 +121,12 @@ class SetupMessage(TypedDict):
     fen: str
 
 
+class SetupResponse(TypedDict):
+    type: Literal["setup"]
+    color: str
+    fen: str
+
+
 class AnalysisMessage(TypedDict):
     type: Literal["analysis"]
     gameId: str
@@ -131,6 +137,24 @@ class RematchMessage(TypedDict):
     type: Literal["rematch"]
     gameId: str
     handicap: bool
+
+
+class RematchOfferMessage(TypedDict):
+    type: Literal["rematch_offer"]
+    username: str
+    message: str
+    room: str
+    user: str
+
+
+class RematchRejectedMessage(TypedDict):
+    type: Literal["rematch_rejected"]
+    message: str
+
+
+class ViewRematchMessage(TypedDict):
+    type: Literal["view_rematch"]
+    gameId: str
 
 
 class RejectRematchMessage(TypedDict):
@@ -209,9 +233,24 @@ class CountMessage(TypedDict):
     mode: Literal["start", "stop"]
 
 
+class CountResponse(TypedDict):
+    type: Literal["count"]
+    message: str
+    room: str
+    user: str
+
+
+class RequestAnalysisMessage(TypedDict):
+    type: Literal["request_analysis"]
+
+
 class DeleteMessage(TypedDict):
     type: Literal["delete"]
     gameId: str
+
+
+class DeletedMessage(TypedDict):
+    type: Literal["deleted"]
 
 
 RoundInboundMessage = (

@@ -32,9 +32,12 @@ if TYPE_CHECKING:
         BerserkMessage,
         BugRoundChatMessage,
         ChatMessage,
+        CountResponse,
         CountMessage,
+        DeletedMessage,
         DeleteMessage,
         DrawMessage,
+        EmbedUserConnectedMessage,
         FullChatMessage,
         GameStartMessage,
         GameUserConnectedMessage,
@@ -42,13 +45,18 @@ if TYPE_CHECKING:
         MoveMessage,
         MoreTimeMessage,
         MoreTimeRequest,
+        RematchOfferMessage,
+        RematchRejectedMessage,
         ReadyMessage,
         RematchMessage,
+        RequestAnalysisMessage,
         RoundChatMessage,
         RoundInboundMessage,
         SetupMessage,
+        SetupResponse,
         UpdateTVMessage,
         UserPresenceMessage,
+        ViewRematchMessage,
     )
 from pychess_global_app_state_utils import get_app_state
 from seek import challenge, Seek
@@ -263,7 +271,7 @@ async def handle_move(
 
 async def handle_berserk(data: BerserkMessage, game: game.Game) -> None:
     game.berserk(data["color"])
-    response = {"type": "berserk", "color": data["color"]}
+    response: BerserkMessage = {"type": "berserk", "color": data["color"]}
     await round_broadcast(game, response, full=True)
     await game.save_berserk()
 
@@ -306,23 +314,26 @@ async def handle_board(ws: WebSocketResponse, user: User, game: game.Game) -> No
     if game.variant == "janggi":
         # print("JANGGI", ws, game.bsetup, game.wsetup, game.status)
         if (game.bsetup or game.wsetup) and game.status <= STARTED:
+            setup_response: SetupResponse
             if game.bsetup:
+                setup_response = {
+                    "type": "setup",
+                    "color": "black",
+                    "fen": game.board.initial_fen,
+                }
                 await ws_send_json(
                     ws,
-                    {
-                        "type": "setup",
-                        "color": "black",
-                        "fen": game.board.initial_fen,
-                    },
+                    setup_response,
                 )
             elif game.wsetup:
+                setup_response = {
+                    "type": "setup",
+                    "color": "white",
+                    "fen": game.board.initial_fen,
+                }
                 await ws_send_json(
                     ws,
-                    {
-                        "type": "setup",
-                        "color": "white",
-                        "fen": game.board.initial_fen,
-                    },
+                    setup_response,
                 )
         else:
             board_response = game.get_board(full=True)
@@ -362,7 +373,7 @@ async def handle_setup(
 
     if data["color"] == "black":
         game.bsetup = False
-        setup_response = {
+        setup_response: SetupResponse = {
             "type": "setup",
             "color": "white",
             "fen": data["fen"],
@@ -554,18 +565,20 @@ async def handle_rematch(
                 await app_state.users[opp_name].send_game_message(data["gameId"], response)
             else:
                 game.rematch_offers.add(user.username)
-                response = {
+                offer_response: RematchOfferMessage = {
                     "type": "rematch_offer",
                     "username": user.username,
                     "message": "Rematch offer sent",
                     "room": "player",
                     "user": "",
                 }
+                response = offer_response
                 game.messages.append(response)
                 await ws_send_json(ws, response)
                 await app_state.users[opp_name].send_game_message(data["gameId"], response)
         if rematch_id:
-            await round_broadcast(game, {"type": "view_rematch", "gameId": rematch_id})
+            view_response: ViewRematchMessage = {"type": "view_rematch", "gameId": rematch_id}
+            await round_broadcast(game, view_response)
 
     return response
 
@@ -576,12 +589,13 @@ async def handle_reject_rematch(user: User, game: game.Game) -> None:
     )
 
     if opp_name in game.rematch_offers:
+        response: RematchRejectedMessage = {
+            "type": "rematch_rejected",
+            "message": "Rematch offer rejected",
+        }
         await round_broadcast(
             game,
-            {
-                "type": "rematch_rejected",
-                "message": "Rematch offer rejected",
-            },
+            response,
             full=True,
         )
 
@@ -674,7 +688,7 @@ async def handle_abort_resign_abandon_flag(
 
 
 async def handle_embed_user_connected(ws: WebSocketResponse) -> None:
-    response = {"type": "embed_user_connected"}
+    response: EmbedUserConnectedMessage = {"type": "embed_user_connected"}
     await ws_send_json(ws, response)
 
 
@@ -842,7 +856,8 @@ async def handle_roundchat(
         for step in game.steps:
             if "analysis" in step:
                 del step["analysis"]
-        await ws_send_json(ws, {"type": "request_analysis"})
+        analysis_response: RequestAnalysisMessage = {"type": "request_analysis"}
+        await ws_send_json(ws, analysis_response)
         return
 
     response: ChatMessage = chat_response(
@@ -878,7 +893,7 @@ async def handle_leave(user: User, data: LeaveMessage, game: game.Game) -> None:
         room="player",
     )
     game.messages.append(response_chat)
-    response = {
+    response: UserPresenceMessage = {
         "type": "user_disconnected",
         "username": user.username,
     }
@@ -900,7 +915,7 @@ async def handle_updateTV(
         gameId = await tv_game(app_state)
 
     if gameId != data["gameId"] and gameId is not None:
-        response = {"type": "updateTV", "gameId": gameId}
+        response: UpdateTVMessage = {"type": "updateTV", "gameId": gameId}
         await ws_send_json(ws, response)
 
 
@@ -909,6 +924,7 @@ async def handle_count(
 ) -> None:
     cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
 
+    response: CountResponse
     if user.username == cur_player.username:
         if data["mode"] == "start":
             game.start_manual_count()
@@ -939,5 +955,5 @@ async def handle_count(
 
 async def handle_delete(db: AsyncDatabase, ws: WebSocketResponse, data: DeleteMessage) -> None:
     await db.game.delete_one({"_id": data["gameId"]})
-    response = {"type": "deleted"}
+    response: DeletedMessage = {"type": "deleted"}
     await ws_send_json(ws, response)
