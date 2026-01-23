@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from aiohttp import web
 import aiohttp_jinja2
@@ -43,7 +43,9 @@ async def tournaments(request: web.Request) -> dict[str, Any]:
             if tournament and tournament.status != T_CREATED:
                 raise web.HTTPForbidden()
 
-            task = tournament.clock_task  # type: ignore[union-attr]
+            if TYPE_CHECKING:
+                assert tournament is not None
+            task = tournament.clock_task
             if task is not None:
                 taskname = task.get_name()
                 task.cancel()

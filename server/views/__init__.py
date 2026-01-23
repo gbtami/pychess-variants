@@ -50,7 +50,7 @@ async def get_user_context(request: web.Request) -> tuple[User, dict[str, Any]]:
             if not doc.get("enabled", True):
                 log.info("Closed account %s tried to connect.", session_user)
                 session.invalidate()
-                return web.HTTPFound("/")  # type: ignore[return-value]
+                return web.HTTPFound("/")
 
         if session_user in app_state.users:
             user = app_state.users[session_user]
@@ -59,12 +59,12 @@ async def get_user_context(request: web.Request) -> tuple[User, dict[str, Any]]:
 
             if not user.enabled:
                 session.invalidate()
-                return web.HTTPFound("/")  # type: ignore[return-value]
+                return web.HTTPFound("/")
     else:
         if app_state.disable_new_anons:
             session.invalidate()
             await asyncio.sleep(3)
-            return web.HTTPFound("/login")  # type: ignore[return-value]
+            return web.HTTPFound("/login")
 
         user = User(app_state, anon=not app_state.anon_as_test_users)
         log.info("+++ New guest user %s connected.", user.username)

@@ -18,6 +18,7 @@ from fairy import WHITE, BLACK, FairyBoard
 from newid import new_id
 
 if TYPE_CHECKING:
+    from clock import Clock
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
     from users import Users
@@ -65,12 +66,20 @@ async def round_socket_handler(request: web.Request) -> web.StreamResponse:
     logger.set_log_context("username", user.username)
     logger.set_log_context("gameId", game.id)
 
+    async def process_message_wrapper(
+        app_state: PychessGlobalAppState,
+        user: User,
+        ws: WebSocketResponse,
+        data: DataDict,
+    ) -> None:
+        await process_message(app_state, user, ws, data, game)
+
     ws = await process_ws(
         session,
         request,
         user,
         lambda app_state, ws, user: init_ws(app_state, ws, user, game),
-        lambda app_state, user, ws, data: process_message(app_state, user, ws, data, game),
+        process_message_wrapper,
     )
     if ws is None:
         return web.HTTPFound("/")
@@ -359,7 +368,9 @@ async def handle_setup(
         await opp_player_value.event_queue.put(game.game_start)
 
     # restart expiration time after setup phase
-    game.stopwatch.restart(game.stopwatch.time_for_first_move)  # type: ignore[call-arg]
+    if TYPE_CHECKING:
+        assert isinstance(game.stopwatch, Clock)
+    game.stopwatch.restart(game.stopwatch.time_for_first_move)
 
 
 async def handle_analysis(
@@ -729,8 +740,10 @@ async def handle_is_user_present(
 async def handle_moretime(users: Users, user: User, data: DataDict, game: game.Game) -> None:
     opp_color = WHITE if user.username == game.bplayer.username else BLACK
     if (not game.corr) and opp_color == game.stopwatch.color:
+        if TYPE_CHECKING:
+            assert isinstance(game.stopwatch, Clock)
         opp_time = game.stopwatch.stop()
-        game.stopwatch.restart(opp_time + MORE_TIME)  # type: ignore[call-arg]
+        game.stopwatch.restart(opp_time + MORE_TIME)
 
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username

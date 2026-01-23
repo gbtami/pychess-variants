@@ -507,7 +507,7 @@ class GameBug:
 
     @property
     def spectator_list(self):
-        return spectators(self)
+        return spectators(self.spectators)
 
     def analysis_start(self, username):
         return (

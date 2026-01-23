@@ -425,7 +425,7 @@ class Tournament(ABC):
 
     @property
     def spectator_list(self):
-        return spectators(self)
+        return spectators(self.spectators)
 
     @property
     def top_game_json(self) -> TournamentTopGameResponse:

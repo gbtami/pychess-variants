@@ -22,10 +22,11 @@ class LobbyChatMessage(TypedDict):
     message: str
     room: NotRequired[str]
     time: NotRequired[int]
+    _id: NotRequired[object]
 
 
-class LobbyChatMessageDb(LobbyChatMessage, total=False):
-    _id: object
+class LobbyChatMessageDb(LobbyChatMessage):
+    pass
 
 
 class LobbyCountMessage(TypedDict):

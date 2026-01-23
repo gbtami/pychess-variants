@@ -253,7 +253,7 @@ async def handle_lobbychat(
 
     if user.username in TOURNAMENT_DIRECTORS:
         if message.startswith("/silence"):
-            response = silence(message, app_state.tourneychat[tournamentId], app_state.users)  # type: ignore[call-arg, arg-type]
+            response = silence(message, app_state.tourneychat[tournamentId], app_state.users)  # type: ignore[call-arg]
             # silence message was already added to lobbychat in silence()
 
         elif message.startswith("/abort"):

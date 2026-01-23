@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 import datetime as dt
 from functools import partial
+from typing import TYPE_CHECKING
 
 import aiohttp_session
 from aiohttp import web
@@ -26,9 +27,15 @@ def create_scheduled_data(
         already_scheduled = []
     start = dt.datetime(year, month, day, tzinfo=dt.timezone.utc)
     data: list[ScheduledTournamentCreateData] = new_scheduled_tournaments(already_scheduled, start)
-    return [
-        (e["frequency"], e["variant"], e["chess960"], e["startDate"], e["minutes"]) for e in data
-    ]
+    entries: list[ScheduledEntry] = []
+    for entry in data:
+        start_date = entry["startDate"]
+        if TYPE_CHECKING:
+            assert start_date is not None
+        entries.append(
+            (entry["frequency"], entry["variant"], entry["chess960"], start_date, entry["minutes"])
+        )
+    return entries
 
 
 def go_day(day: int) -> tuple[int, int, int]:

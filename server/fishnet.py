@@ -134,7 +134,7 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
 
 
 async def fishnet_analysis(request: web.Request) -> web.Response:
-    work_id: str = request.match_info.get("workId")  # type: ignore[assignment]
+    work_id: str = request.match_info.get("workId")
     data: dict[str, Any] = await request.json()
 
     app_state = get_app_state(request.app)
@@ -196,7 +196,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
 
 
 async def fishnet_move(request: web.Request) -> web.Response:
-    work_id: str = request.match_info.get("workId")  # type: ignore[assignment]
+    work_id: str = request.match_info.get("workId")
     data: dict[str, Any] = await request.json()
 
     app_state = get_app_state(request.app)
@@ -240,7 +240,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
 
 
 async def fishnet_abort(request: web.Request) -> web.Response:
-    work_id: str = request.match_info.get("workId")  # type: ignore[assignment]
+    work_id: str = request.match_info.get("workId")
     data: dict[str, Any] = await request.json()
 
     app_state = get_app_state(request.app)
@@ -271,7 +271,7 @@ async def fishnet_abort(request: web.Request) -> web.Response:
 
 
 async def fishnet_validate_key(request: web.Request) -> web.Response:
-    key: str = request.match_info.get("key")  # type: ignore[assignment]
+    key: str = request.match_info.get("key")
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 

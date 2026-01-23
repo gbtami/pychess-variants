@@ -125,3 +125,4 @@ async def fishnet(app_state: PychessGlobalAppState, message: str) -> dict[str, o
                 del FISHNET_KEYS[key]
                 del app_state.fishnet_monitor[name]
                 app_state.workers.remove(key)
+    return None

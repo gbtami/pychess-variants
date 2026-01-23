@@ -320,7 +320,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 base=tournament_doc["b"],
                 inc=tournament_doc["i"],
                 byoyomi_period=int(bool(tournament_doc.get("bp"))),
-                rated=tournament_doc.get("y"),  # type: ignore[arg-type]
+                rated=tournament_doc.get("y"),
                 chess960=bool(tournament_doc.get("z")),
                 fen=tournament_doc.get("f"),
                 rounds=tournament_doc["rounds"],

@@ -207,7 +207,7 @@ async def handle_create_seek(
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data)
     if TYPE_CHECKING:
         assert seek is not None
-    seek_value: Seek = seek  # type: ignore[assignment]
+    seek_value: Seek = seek
     log.debug("Created seek: %s", seek_value)
 
     matching_user = None
@@ -246,7 +246,7 @@ async def handle_create_invite(
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data)
     if TYPE_CHECKING:
         assert seek is not None
-    seek_value: Seek = seek  # type: ignore[assignment]
+    seek_value: Seek = seek
     log.debug("Created seek invite: %s", seek_value)
 
     response = {"type": "invite_created", "gameId": seek_value.game_id}
@@ -276,7 +276,7 @@ async def handle_create_bot_challenge(
     )
     if TYPE_CHECKING:
         assert seek is not None
-    seek_value: Seek = seek  # type: ignore[assignment]
+    seek_value: Seek = seek
     log.debug("Created BOT challenge: %s", seek_value)
 
     engine.game_queues[seek_value.game_id] = asyncio.Queue()
@@ -308,7 +308,7 @@ async def handle_create_host(
     )
     if TYPE_CHECKING:
         assert seek is not None
-    seek_value: Seek = seek  # type: ignore[assignment]
+    seek_value: Seek = seek
 
     response = {"type": "host_created", "gameId": seek_value.game_id}
     await ws_send_json(ws, response)

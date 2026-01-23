@@ -10,18 +10,12 @@ class Spectator(Protocol):
     anon: bool
 
 
-class Spectated(Protocol):
-    spectators: Collection[Spectator]
-
-
-def spectators(spectated: Spectated) -> dict[str, str]:
-    named_spectators = (
-        spectator.username for spectator in spectated.spectators if not spectator.anon
-    )
+def spectators(spectators_list: Collection[Spectator]) -> dict[str, str]:
+    named_spectators = (spectator.username for spectator in spectators_list if not spectator.anon)
     anons: tuple[str, ...] = ()
-    anon = sum(1 for user in spectated.spectators if user.anon)
+    anon = sum(1 for user in spectators_list if user.anon)
 
-    cnt = len(spectated.spectators)
+    cnt = len(spectators_list)
     if cnt > MAX_NAMED_SPECTATORS:
         spectators_value = str(cnt)
     else:

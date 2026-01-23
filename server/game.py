@@ -928,7 +928,7 @@ class Game:
 
     @property
     def spectator_list(self) -> dict[str, str]:
-        return spectators(self)
+        return spectators(self.spectators)
 
     def analysis_start(self, username: str) -> str:
         return (
@@ -1191,6 +1191,7 @@ class Game:
 
         fen, lastmove = self.board.fen, self.lastmove
 
+        clocks: list[int | float]
         if full:
             steps = self.steps
 

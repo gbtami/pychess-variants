@@ -33,8 +33,8 @@ SECRET = "".join(random.choice(ID_CHARS) for x in range(16))
 
 
 def validate_twitch_signature(secret: str, request: web.Request, data: str) -> bool:
-    msg_id: str = request.headers.get("twitch-eventsub-message-id")  # type: ignore[assignment]
-    timestamp: str = request.headers.get("twitch-eventsub-message-timestamp")  # type: ignore[assignment]
+    msg_id: str = request.headers.get("twitch-eventsub-message-id")
+    timestamp: str = request.headers.get("twitch-eventsub-message-timestamp")
     hmac_message = msg_id + timestamp + data
 
     calculated_hash = hmac.new(
@@ -43,7 +43,7 @@ def validate_twitch_signature(secret: str, request: web.Request, data: str) -> b
         digestmod=hashlib.sha256,
     ).hexdigest()
 
-    submitted_hash = request.headers.get("Twitch-Eventsub-Message-Signature")[7:]  # type: ignore[union-attr]
+    submitted_hash = request.headers.get("Twitch-Eventsub-Message-Signature")[7:]
     return calculated_hash == submitted_hash
 
 
@@ -191,8 +191,8 @@ class Twitch:
                     log.exception("Invalid argument")
                     return uids
                 else:
-                    json: dict[str, Any] = await resp.json()
-                    for user in json["data"]:
+                    user_json: dict[str, Any] = await resp.json()
+                    for user in user_json["data"]:
                         log.debug("user: %s %s", user["login"], user["id"])
                         uids.append((user["login"], user["id"]))
 
@@ -204,8 +204,8 @@ class Twitch:
                     log.exception("Invalid argument")
                     return uids
                 else:
-                    json: dict[str, Any] = await resp.json()
-                    for stream in json["data"]:
+                    stream_json: dict[str, Any] = await resp.json()
+                    for stream in stream_json["data"]:
                         log.debug("stream: %r", stream)
                         title = stream["title"]
                         streamer = stream["user_login"]
@@ -224,7 +224,7 @@ class Twitch:
 async def twitch_request_handler(request: web.Request) -> web.Response:
     """Twitch POST request handler"""
     app_state = get_app_state(request.app)
-    json: dict[str, Any] = await request.json()
+    payload: dict[str, Any] = await request.json()
     data = await request.text()
 
     header_msg_type = request.headers.get("Twitch-Eventsub-Message-Type")
@@ -237,14 +237,14 @@ async def twitch_request_handler(request: web.Request) -> web.Response:
         raise web.HTTPForbidden()
 
     log.debug("--- twitch --- %s %s", header_msg_type, header_sub_type)
-    challenge = json.get("challenge")
+    challenge = payload.get("challenge")
     if header_msg_type == "webhook_callback_verification":
         if challenge:
             return web.Response(text=challenge)
 
     elif header_msg_type == "notification":
         twitch = app_state.twitch
-        event = json.get("event")
+        event = payload["event"]
         streamer = event["broadcaster_user_login"]
         log.debug("--- twitch notification --- %s %s", streamer, event)
 
@@ -253,7 +253,7 @@ async def twitch_request_handler(request: web.Request) -> web.Response:
 
             if streamer in twitch.streams:
                 del twitch.streams[streamer]
-                await broadcast_streams(request.app)  # type: ignore[arg-type]
+                await broadcast_streams(request.app)
 
         if header_sub_type == "stream.online":
             if event["type"] == "live":
@@ -264,14 +264,14 @@ async def twitch_request_handler(request: web.Request) -> web.Response:
                         "site": "twitch",
                         "title": "",
                     }
-                    await broadcast_streams(request.app)  # type: ignore[arg-type]
+                    await broadcast_streams(request.app)
 
                     asyncio.create_task(remove(3600), name="twitch-remove-streamer")  # 1 hour
 
         elif header_sub_type == "stream.offline":
             if streamer in twitch.streams:
                 del twitch.streams[streamer]
-                await broadcast_streams(request.app)  # type: ignore[arg-type]
+                await broadcast_streams(request.app)
 
         elif header_sub_type == "channel.update":
             title = event["title"]
@@ -284,6 +284,6 @@ async def twitch_request_handler(request: web.Request) -> web.Response:
                     "site": "twitch",
                     "title": title,
                 }
-            await broadcast_streams(request.app)  # type: ignore[arg-type]
+            await broadcast_streams(request.app)
 
         return web.Response()
