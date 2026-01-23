@@ -42,6 +42,7 @@ from typing_defs import (
     GameBoardResponse,
     GameEndResponse,
     GameSummaryJson,
+    GameStep,
     TvGameJson,
 )
 from variants import get_server_variant, GRANDS, ServerVariants
@@ -294,7 +295,7 @@ class Game:
         if self.board.move_stack:
             self.check = self.board.is_checked()
 
-        self.steps = [
+        self.steps: list[GameStep] = [
             {
                 "fen": self.initial_fen if self.initial_fen else self.board.initial_fen,
                 "san": None,
@@ -1149,7 +1150,7 @@ class Game:
 
                 if self.usi_format:
                     turnColor = "black" if turnColor == "white" else "white"
-                step = {
+                step: GameStep = {
                     "fen": self.board.fen,
                     "move": move,
                     "san": san,
@@ -1384,9 +1385,7 @@ class Game:
         self.messages.append(chat_message)
 
 
-def get_fog_steps(
-    steps: Sequence[dict[str, object]], persp_color: int | None
-) -> list[dict[str, object]]:
+def get_fog_steps(steps: Sequence[GameStep], persp_color: int | None) -> list[GameStep]:
     if persp_color is None:
         return [{"fen": DARK_FEN} for step in steps]
     else:

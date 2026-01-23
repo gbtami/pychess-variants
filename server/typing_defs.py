@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Callable, Literal, Mapping, NotRequired, TYPE_CHECKING, TypedDict
+from typing import Callable, Literal, Mapping, NotRequired, Sequence, TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
     from user import User
@@ -20,7 +20,7 @@ class PerfEntry(TypedDict):
 
 
 PerfMap = dict[str, PerfEntry]
-ClockValues = list[int | float]
+ClockValues = Sequence[int | float]
 
 
 class Crosstable(TypedDict):
@@ -75,6 +75,16 @@ class AnalysisStep(TypedDict, total=False):
     p: str
 
 
+class GameStep(TypedDict, total=False):
+    fen: str
+    move: str
+    san: str | None
+    turnColor: str
+    check: bool
+    clocks: ClockValues
+    analysis: AnalysisStep
+
+
 class GameBoardResponse(TypedDict):
     type: Literal["board"]
     gameId: str
@@ -83,7 +93,7 @@ class GameBoardResponse(TypedDict):
     fen: str
     lastMove: str | None
     tp: str
-    steps: list[dict[str, object]]
+    steps: list[GameStep]
     check: bool
     ply: int
     clocks: ClockValues
