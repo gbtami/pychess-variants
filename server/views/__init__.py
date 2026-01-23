@@ -2,7 +2,7 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import aiohttp_session
 from aiohttp import web
@@ -20,6 +20,7 @@ from settings import SIMULING
 
 if TYPE_CHECKING:
     from game import Game
+    from bug.game_bug import GameBug
 
 log = logging.getLogger(__name__)
 
@@ -105,7 +106,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
 
 
 def add_game_context(
-    game: "Game",
+    game: "Game | GameBug",
     ply: int | None,
     user: User,
     context: ViewContext,
@@ -143,7 +144,9 @@ def add_game_context(
     context["board"] = json.dumps(game.get_board(full=True, persp_color=user_color))
 
     if game.server_variant.two_boards:
-        game_two_boards: Any = game
+        if TYPE_CHECKING:
+            assert isinstance(game, GameBug)
+        game_two_boards = game
         context["wplayerB"] = game_two_boards.wplayerB.username
         context["wtitleB"] = game_two_boards.wplayerB.title
         context["wratingB"] = game_two_boards.wrating_b

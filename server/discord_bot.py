@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 
 import logging
@@ -11,6 +11,7 @@ from discord.ext.commands import Bot
 from const import CATEGORIES
 
 if TYPE_CHECKING:
+    from discord import Guild, Message, Role, TextChannel
     from pychess_global_app_state import PychessGlobalAppState
 
 log = logging.getLogger("discord")
@@ -64,13 +65,13 @@ class DiscordBot(Bot):
 
         self.app_state = app_state
 
-        self.pychess_lobby_channel: Any | None = None
-        self.game_seek_channel: Any | None = None
-        self.tournament_channel: Any | None = None
-        self.announcement_channel: Any | None = None
-        self.bughouse_channel: Any | None = None
+        self.pychess_lobby_channel: TextChannel | None = None
+        self.game_seek_channel: TextChannel | None = None
+        self.tournament_channel: TextChannel | None = None
+        self.announcement_channel: TextChannel | None = None
+        self.bughouse_channel: TextChannel | None = None
 
-    async def on_message(self, msg: Any) -> None:
+    async def on_message(self, msg: Message) -> None:
         log.debug("---on_message() %s", msg)
         if msg.author.id == self.user.id or msg.channel.id != PYCHESS_LOBBY_CHANNEL_ID:
             log.debug("---self.user msg OR other channel.id -> return")
@@ -120,8 +121,8 @@ class DiscordBot(Bot):
                 and msg_type == "create_seek"
                 and "bughouse" in msg
             ):
-                guild = self.get_guild(SERVER_ID)
-                role = guild.get_role(ROLES["bughouse"])
+                guild: Guild = self.get_guild(SERVER_ID)
+                role: Role = guild.get_role(ROLES["bughouse"])
 
                 log.debug("+++ bug seek msg: %s", msg)
                 await self.bughouse_channel.send("%s %s" % (role.mention, msg))
@@ -135,14 +136,14 @@ class DiscordBot(Bot):
             await self.tournament_channel.send("%s %s" % (self.get_role_mentions(msg), msg))
 
     def get_role_mentions(self, message: str) -> str:
-        guild = self.get_guild(SERVER_ID)
-        gladiator_role = guild.get_role(ROLES["gladiator"])
+        guild: Guild = self.get_guild(SERVER_ID)
+        gladiator_role: Role = guild.get_role(ROLES["gladiator"])
         log.debug("guild, role, mention: %s %s %s", guild, gladiator_role, gladiator_role.mention)
 
         variant = message.split()[0].strip("*")
 
         if variant in CATEGORIES["shogi"]:
-            role = guild.get_role(ROLES["shogi"])
+            role: Role = guild.get_role(ROLES["shogi"])
 
         elif variant in CATEGORIES["makruk"]:
             role = guild.get_role(ROLES["makruk"])
