@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Iterable, NotRequired, TypedDict
+from typing import TYPE_CHECKING, Iterable, NotRequired, TypedDict
 
 from const import CORR_SEEK_EXPIRE_WEEKS
 from misc import time_control_str
@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 MAX_USER_SEEKS = 10
 
 if TYPE_CHECKING:
+    from pymongo.asynchronous.database import AsyncDatabase
     from user import User
 
 
@@ -206,7 +207,7 @@ class Seek:
 
 
 async def create_seek(
-    db: Any,
+    db: AsyncDatabase | None,
     invites: dict[str, Seek],
     seeks: dict[str, Seek],
     user: User,
@@ -233,6 +234,8 @@ async def create_seek(
 
     target = data.get("target", "")
     if target in ("BOT_challenge", "Invite-friend"):
+        if TYPE_CHECKING:
+            assert db is not None
         game_id = await new_id(db.game)
     else:
         game_id = None

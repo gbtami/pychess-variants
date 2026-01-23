@@ -7,6 +7,7 @@ from const import ABORTED
 from fairy import WHITE, BLACK
 from broadcast import round_broadcast
 from notify import notify
+from typing_defs import NotificationContent
 
 import logging
 
@@ -258,7 +259,7 @@ class CorrClock:
         )
 
         notif_type = "corrAlarm"
-        content = {
+        content: NotificationContent = {
             "id": self.game.id,
             "opp": opp_name,
         }

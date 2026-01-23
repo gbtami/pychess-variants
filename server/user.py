@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, List, Mapping, Set
+from typing import TYPE_CHECKING, List, Mapping, Set
 import asyncio
 from asyncio import Queue
 from datetime import MINYEAR, datetime, timezone
@@ -28,7 +28,7 @@ from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK
 from websocket_utils import ws_send_json
-from typing_defs import PerfGl, PerfMap, UserJson
+from typing_defs import NotificationContent, PerfGl, PerfMap, UserJson
 from variants import RATED_VARIANTS, VARIANTS
 from settings import (
     URI,
@@ -82,7 +82,7 @@ class User:
         self.game_category_set: bool = False
         self.oauth_id: str = oauth_id
         self.oauth_provider: str = oauth_provider
-        self.notifications: list[dict[str, Any]] | None = None
+        self.notifications: list[dict[str, object]] | None = None
         self.update_game_category(game_category)
 
         if username is None:
@@ -100,7 +100,7 @@ class User:
         self.tournament_sockets: dict[str, set[WebSocketResponse]] = {}  # {tournamentId: set()}
         self.simul_sockets: dict[str, set[WebSocketResponse]] = {}  # {simulId: set()}
 
-        self.notify_channels: Set[Queue[Any]] = set()
+        self.notify_channels: Set[Queue[str]] = set()
 
         self.puzzles: dict[
             str, int
@@ -116,8 +116,8 @@ class User:
         self.blocked: set[str] = set()
 
         if self.bot:
-            self.event_queue: Queue[Any] = asyncio.Queue()
-            self.game_queues: dict[str, Queue[Any]] = {}
+            self.event_queue: Queue[str] = asyncio.Queue()
+            self.game_queues: dict[str, Queue[str]] = {}
             self.title = "BOT"
 
         self.online: bool = False
@@ -304,7 +304,7 @@ class User:
                 win = False
 
         notif_type = "gameAborted" if game.result == "*" else "gameEnd"
-        content = {
+        content: NotificationContent = {
             "id": game.id,
             "opp": opp_name,
             "win": win,

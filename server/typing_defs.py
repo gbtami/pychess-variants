@@ -219,6 +219,12 @@ class TwitchWebhookPayload(TypedDict):
     challenge: NotRequired[str]
 
 
+class NotificationContent(TypedDict, total=False):
+    id: str
+    opp: str
+    win: bool | None
+
+
 class TournamentCreateData(TypedDict):
     name: str
     createdBy: str
