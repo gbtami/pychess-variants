@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from broadcast import round_broadcast
 from bug.game_bug import GameBug
@@ -17,9 +17,6 @@ if TYPE_CHECKING:
     from ws_types import AbortResignMessage, ReconnectMessage
 
 log = logging.getLogger(__name__)
-
-
-DataDict = dict[str, Any]
 
 
 async def handle_reconnect_bughouse(
