@@ -28,7 +28,7 @@ from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK
 from websocket_utils import ws_send_json
-from typing_defs import NotificationContent, PerfGl, PerfMap, UserJson
+from typing_defs import NotificationContent, NotificationDocument, PerfGl, PerfMap, UserJson
 from variants import RATED_VARIANTS, VARIANTS
 from settings import (
     URI,
@@ -82,7 +82,7 @@ class User:
         self.game_category_set: bool = False
         self.oauth_id: str = oauth_id
         self.oauth_provider: str = oauth_provider
-        self.notifications: list[dict[str, object]] | None = None
+        self.notifications: list[NotificationDocument] | None = None
         self.update_game_category(game_category)
 
         if username is None:

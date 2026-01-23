@@ -256,6 +256,16 @@ class NotificationContent(TypedDict, total=False):
     win: bool | None
 
 
+class NotificationDocument(TypedDict):
+    _id: str
+    notifies: str
+    type: str
+    read: bool
+    createdAt: datetime
+    expireAt: str
+    content: NotificationContent
+
+
 class ViewContext(TypedDict, total=False):
     user: User
     lang: str
