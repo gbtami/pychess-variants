@@ -60,6 +60,7 @@ from typing_defs import (
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from ws_types import TournamentChatMessage
+    from ws_types import SpectatorsMessage
 from spectators import spectators
 from tournament.tournament_spotlights import tournament_spotlights
 from user import User
@@ -428,7 +429,7 @@ class Tournament(ABC):
         return response
 
     @property
-    def spectator_list(self):
+    def spectator_list(self) -> SpectatorsMessage:
         return spectators(self.spectators)
 
     @property

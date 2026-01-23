@@ -52,6 +52,7 @@ log = logging.getLogger(__name__)
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
+    from ws_types import SpectatorsMessage
 
 MAX_PLY = 600
 
@@ -935,7 +936,7 @@ class Game:
         return self.board.is_claimable_draw()
 
     @property
-    def spectator_list(self) -> dict[str, str]:
+    def spectator_list(self) -> SpectatorsMessage:
         return spectators(self.spectators)
 
     def analysis_start(self, username: str) -> str:

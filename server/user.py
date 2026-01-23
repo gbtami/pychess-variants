@@ -28,7 +28,15 @@ from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK
 from websocket_utils import ws_send_json
-from typing_defs import NotificationContent, NotificationDocument, PerfGl, PerfMap, UserJson
+from typing_defs import (
+    NotificationContent,
+    NotificationDocument,
+    PerfGl,
+    PerfMap,
+    UserBlocksResponse,
+    UserJson,
+    UserStatusJson,
+)
 from variants import RATED_VARIANTS, VARIANTS
 from settings import (
     URI,
@@ -640,7 +648,8 @@ async def get_blocked_users(request: web.Request) -> web.StreamResponse:
         await asyncio.sleep(3)
         return web.json_response({})
 
-    return web.json_response({"blocks": list(user.blocked)})
+    response: UserBlocksResponse = {"blocks": list(user.blocked)}
+    return web.json_response(response)
 
 
 async def get_status(request: web.Request) -> web.StreamResponse:
@@ -648,9 +657,10 @@ async def get_status(request: web.Request) -> web.StreamResponse:
 
     ids = request.rel_url.query.get("ids").split(",")
 
-    status_list = []
+    status_list: list[UserStatusJson] = []
     for uid in ids:
         user = await app_state.users.get(uid)
-        status_list.append({"status": user.online, "id": uid})
+        status_entry: UserStatusJson = {"status": user.online, "id": uid}
+        status_list.append(status_entry)
 
     return web.json_response(status_list)

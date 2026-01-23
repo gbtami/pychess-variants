@@ -3,6 +3,7 @@ from typing import Collection, Protocol
 from itertools import chain
 
 from const import MAX_NAMED_SPECTATORS
+from ws_types import SpectatorsMessage
 
 
 class Spectator(Protocol):
@@ -10,7 +11,7 @@ class Spectator(Protocol):
     anon: bool
 
 
-def spectators(spectators_list: Collection[Spectator]) -> dict[str, str]:
+def spectators(spectators_list: Collection[Spectator]) -> SpectatorsMessage:
     named_spectators = (spectator.username for spectator in spectators_list if not spectator.anon)
     anons: tuple[str, ...] = ()
     anon = sum(1 for user in spectators_list if user.anon)

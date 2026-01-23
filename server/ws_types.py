@@ -126,6 +126,11 @@ class FullChatMessage(TypedDict):
     lines: list[object]
 
 
+class SpectatorsMessage(TypedDict):
+    type: Literal["spectators"]
+    spectators: str
+
+
 class GameUserConnectedMessage(TypedDict):
     type: Literal["game_user_connected"]
     username: str

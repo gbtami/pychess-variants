@@ -37,6 +37,15 @@ class UserJson(TypedDict):
     simul: bool
 
 
+class UserStatusJson(TypedDict):
+    id: str
+    status: bool
+
+
+class UserBlocksResponse(TypedDict):
+    blocks: list[str]
+
+
 class GameSummaryJson(TypedDict):
     gameId: str
     title: str
