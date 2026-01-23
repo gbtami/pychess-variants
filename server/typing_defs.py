@@ -69,6 +69,12 @@ class RatingDiffs(TypedDict):
     wrdiff: int | str
 
 
+class AnalysisStep(TypedDict, total=False):
+    s: object
+    d: int
+    p: str
+
+
 class GameBoardResponse(TypedDict):
     type: Literal["board"]
     gameId: str
@@ -92,6 +98,18 @@ class GameBoardResponse(TypedDict):
     jieqiCaptures: NotRequired[list[str]]
     jieqiCaptureStack: NotRequired[list[str | None]]
     takeback: NotRequired[bool]
+
+
+class GameEndResponse(TypedDict):
+    type: Literal["gameEnd"]
+    status: int
+    result: str
+    gameId: str
+    pgn: str
+    ct: NotRequired[Crosstable | str]
+    rdiffs: NotRequired[RatingDiffs | str]
+    jieqiCaptures: NotRequired[list[str]]
+    jieqiCaptureStack: NotRequired[list[str | None]]
 
 
 TournamentPoint = tuple[int, int] | Literal["-"]

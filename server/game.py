@@ -36,7 +36,14 @@ from draw import reject_draw
 from settings import URI
 from spectators import spectators
 import logging
-from typing_defs import Crosstable, GameBoardResponse, GameSummaryJson, TvGameJson
+from typing_defs import (
+    AnalysisStep,
+    Crosstable,
+    GameBoardResponse,
+    GameEndResponse,
+    GameSummaryJson,
+    TvGameJson,
+)
 from variants import get_server_variant, GRANDS, ServerVariants
 
 log = logging.getLogger(__name__)
@@ -153,7 +160,7 @@ class Game:
 
         self.date: datetime = datetime.now(timezone.utc)
         self.loaded_at: datetime | None = None
-        self.analysis: list[dict[str, object]] | None = None
+        self.analysis: list[AnalysisStep] | None = None
 
         clocks_init = (base * 1000 * 60) + 0 if base > 0 else inc * 1000
         self.clocks_w: list[int] = [clocks_init]
@@ -988,18 +995,19 @@ class Game:
             )
         )
 
-    async def abort_by_server(self) -> dict[str, object]:
+    async def abort_by_server(self) -> GameEndResponse:
         self.update_status(ABORTED)
         await self.save_game()
-        return {
+        response: GameEndResponse = {
             "type": "gameEnd",
             "status": self.status,
             "result": "Game aborted.",
             "gameId": self.id,
             "pgn": self.pgn,
         }
+        return response
 
-    async def game_ended(self, user: User, reason: str) -> dict[str, object]:
+    async def game_ended(self, user: User, reason: str) -> GameEndResponse:
         """Abort, resign, flag, abandon"""
         if self.result == "*":
             if reason == "abort":
@@ -1042,7 +1050,7 @@ class Game:
                     await cur_player.notify_game_end(self)
                     await opp_player.notify_game_end(self)
 
-        response = {
+        response: GameEndResponse = {
             "type": "gameEnd",
             "status": self.status,
             "result": self.result,
