@@ -1,8 +1,12 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 import time
 import logging
 from const import ARENA
 from tournament.tournament import Tournament
+
+if TYPE_CHECKING:
+    from user import User
 
 log = logging.getLogger(__name__)
 
@@ -10,10 +14,10 @@ log = logging.getLogger(__name__)
 class ArenaTournament(Tournament):
     system = ARENA
 
-    def just_played_together(self, x, y):
+    def just_played_together(self, x: User, y: User) -> bool:
         return y.username == self.players[x].prev_opp or x.username == self.players[y].prev_opp
 
-    def create_pairing(self, waiting_players):
+    def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         start = time.time()
         pairing = []
 

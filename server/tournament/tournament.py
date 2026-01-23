@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, ClassVar, Deque, Set, Tuple
+from typing import TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple
 import asyncio
 import logging
 import collections
@@ -91,6 +91,10 @@ class ByeGame:
     """Used in RR/Swiss tournaments when pairing odd number of players"""
 
     __slots__ = "date", "status"
+
+    if TYPE_CHECKING:
+        wplayer: User
+        bplayer: User
 
     def __init__(self) -> None:
         self.date: datetime = datetime.now(timezone.utc)
@@ -283,6 +287,7 @@ class Tournament(ABC):
         self.created_by: str = created_by
         self.starts_at: datetime = starts_at  # type: ignore[assignment]
         self.created_at: datetime = datetime.now(timezone.utc) if created_at is None else created_at
+        self.ends_at: datetime
         self.with_clock = with_clock
 
         self.tourneychat: Deque[TournamentChatMessage] | list[TournamentChatMessage] = (
@@ -349,17 +354,17 @@ class Tournament(ABC):
                 self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
 
     @property
-    def creator(self):
+    def creator(self) -> str:
         return self.created_by
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return " ".join((self.id, self.name, self.created_at.isoformat()))
 
     @abstractmethod
-    def create_pairing(self, waiting_players):
+    def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         pass
 
-    def user_status(self, user):
+    def user_status(self, user: User) -> str:
         if user in self.players:
             return (
                 "paused"
@@ -371,7 +376,7 @@ class Tournament(ABC):
         else:
             return "spectator"
 
-    def user_rating(self, user):
+    def user_rating(self, user: User) -> int | str:
         if user in self.players:
             return self.players[user].rating
         else:
@@ -477,7 +482,7 @@ class Tournament(ABC):
         }
         return response
 
-    def waiting_players(self):
+    def waiting_players(self) -> list[User]:
         return [
             p
             for p in self.leaderboard
@@ -622,7 +627,7 @@ class Tournament(ABC):
         }
         return response
 
-    async def finalize(self, status):
+    async def finalize(self, status: int) -> None:
         self.status = status
 
         if len(self.players) > 0:
@@ -653,15 +658,15 @@ class Tournament(ABC):
         response: TournamentSpotlightsResponse = {"type": "spotlights", "items": spotlights}
         await self.app_state.lobby.lobby_broadcast(response)
 
-    async def abort(self):
+    async def abort(self) -> None:
         await self.finalize(T_ABORTED)
 
-    async def finish(self):
+    async def finish(self) -> None:
         await self.finalize(T_FINISHED)
 
-    async def join(self, user, password=None):
+    async def join(self, user: User, password: str | None = None) -> str | None:
         if user.anon:
-            return
+            return None
         log.debug("JOIN: %s in tournament %s", user.username, self.id)
 
         if self.password and self.password != password:
@@ -702,8 +707,9 @@ class Tournament(ABC):
             await self.broadcast_spotlight()
 
         await self.db_update_player(user, "JOIN")
+        return None
 
-    async def withdraw(self, user):
+    async def withdraw(self, user: User) -> None:
         if self.status != T_CREATED:
             await self.pause(user)
             return
@@ -721,7 +727,7 @@ class Tournament(ABC):
 
         await self.db_update_player(user, "WITHDRAW")
 
-    async def pause(self, user):
+    async def pause(self, user: User) -> None:
         log.debug("PAUSE: %s in tournament %s", user.username, self.id)
         self.players[user].paused = True
 
@@ -731,13 +737,15 @@ class Tournament(ABC):
 
         await self.db_update_player(user, "PAUSE")
 
-    def spactator_join(self, spectator):
+    def spactator_join(self, spectator: User) -> None:
         self.spectators.add(spectator)
 
-    def spactator_leave(self, spectator):
+    def spactator_leave(self, spectator: User) -> None:
         self.spectators.discard(spectator)
 
-    async def create_new_pairings(self, waiting_players):
+    async def create_new_pairings(
+        self, waiting_players: list[User]
+    ) -> tuple[list[tuple[User, User]], list[Game]]:
         self.bye_players = []
         pairing = self.create_pairing(waiting_players)
 
@@ -759,7 +767,7 @@ class Tournament(ABC):
 
         return (pairing, games)
 
-    async def persist_byes(self):
+    async def persist_byes(self) -> None:
         if not self.bye_players:
             return
 
@@ -768,7 +776,7 @@ class Tournament(ABC):
         for player in bye_players:
             await self.db_update_player(player, "BYE")
 
-    async def create_games(self, pairing):
+    async def create_games(self, pairing: list[tuple[User, User]]) -> list[Game]:
         is_new_top_game = False
 
         games = []
@@ -782,7 +790,7 @@ class Tournament(ABC):
                 self.fen,
                 wp,
                 bp,
-                base=self.base,
+                base=self.base,  # type: ignore[arg-type]
                 inc=self.inc,
                 byoyomi_period=self.byoyomi_period,
                 rated=RATED if self.rated else CASUAL,
@@ -837,7 +845,7 @@ class Tournament(ABC):
 
         return games
 
-    def update_players(self, game):
+    def update_players(self, game: Game | GameData) -> None:
         wp, bp = game.wplayer, game.bplayer
 
         self.players[wp].games.append(game)
@@ -856,7 +864,7 @@ class Tournament(ABC):
         self.players[wp].nb_not_paired = 0
         self.players[bp].nb_not_paired = 0
 
-    def update_game_ranks(self, game):
+    def update_game_ranks(self, game: Game) -> bool:
         if game.status != BYEGAME:
             brank = self.leaderboard.index(game.bplayer) + 1
             wrank = self.leaderboard.index(game.wplayer) + 1
@@ -933,7 +941,7 @@ class Tournament(ABC):
 
         return (wpoint, bpoint, wperf, bperf)
 
-    def points_perfs_janggi(self, game):
+    def points_perfs_janggi(self, game: Game) -> Tuple[Point, Point, int, int]:
         wplayer = self.players[game.wplayer]
         bplayer = self.players[game.bplayer]
 
@@ -1004,7 +1012,7 @@ class Tournament(ABC):
 
         return (wpoint, bpoint, wperf, bperf)
 
-    async def game_update(self, game):
+    async def game_update(self, game: Game) -> None:
         """Called from Game.update_status()"""
         if self.status in (T_FINISHED, T_ABORTED):
             return
@@ -1092,7 +1100,7 @@ class Tournament(ABC):
             }
             await self.broadcast(response)
 
-    async def delayed_free(self, game):
+    async def delayed_free(self, game: Game) -> None:
         if self.system == ARENA:
             await asyncio.sleep(3)
 
@@ -1116,7 +1124,7 @@ class Tournament(ABC):
             wplayer.free = True
             bplayer.free = True
 
-    async def broadcast(self, response):
+    async def broadcast(self, response: Mapping[str, object]) -> None:
         for spectator in self.spectators:
             try:
                 for ws in spectator.tournament_sockets[self.id]:
@@ -1180,7 +1188,7 @@ class Tournament(ABC):
                 self.id,
             )
 
-    async def save_current_round(self):
+    async def save_current_round(self) -> None:
         if self.app_state.db is None:
             return
 
@@ -1323,7 +1331,7 @@ class Tournament(ABC):
             self.app_state.shield[variant_name].append((winner, self.starts_at, self.id))
             self.app_state.shield_owners[variant_name] = winner
 
-    def print_leaderboard(self):
+    def print_leaderboard(self) -> None:
         log.info("--- LEADERBOARD --- %s", self.id)
         for player, full_score in self.leaderboard.items()[:10]:
             log.info(
@@ -1339,7 +1347,7 @@ class Tournament(ABC):
             )
 
     @property
-    def create_discord_msg(self):
+    def create_discord_msg(self) -> str:
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         tail960 = "960" if self.chess960 else ""
         return "%s: **%s%s** %s tournament starts at UTC %s, duration will be **%s** minutes" % (
@@ -1351,7 +1359,7 @@ class Tournament(ABC):
             self.minutes,
         )
 
-    def notify_discord_msg(self, minutes):
+    def notify_discord_msg(self, minutes: int) -> str:
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         tail960 = "960" if self.chess960 else ""
         url = "%s/tournament/%s" % (URI, self.id)
@@ -1378,7 +1386,7 @@ class Tournament(ABC):
         del response["_id"]
 
 
-async def upsert_tournament_to_db(tournament, app_state: PychessGlobalAppState) -> None:
+async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlobalAppState) -> None:
     # unit test app may have no db
     if app_state.db is None:
         return

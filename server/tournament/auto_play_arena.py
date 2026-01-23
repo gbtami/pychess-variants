@@ -140,19 +140,19 @@ class TestTournament(Tournament):
 class ArenaTestTournament(TestTournament, ArenaTournament):
     system = ARENA
 
-    def create_pairing(self, waiting_players):
+    def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         return ArenaTournament.create_pairing(self, waiting_players)
 
 
 class RRTestTournament(TestTournament, RRTournament):
     system = RR
 
-    def create_pairing(self, waiting_players):
+    def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         return RRTournament.create_pairing(self, waiting_players)
 
 
 class SwissTestTournament(TestTournament, SwissTournament):
     system = SWISS
 
-    def create_pairing(self, waiting_players):
+    def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         return SwissTournament.create_pairing(self, waiting_players)

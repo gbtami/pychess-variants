@@ -1,6 +1,10 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 from const import RR
 from tournament.tournament import Tournament, ByeGame
+
+if TYPE_CHECKING:
+    from user import User
 
 
 BERGER_TABLES = (
@@ -87,7 +91,7 @@ BERGER_TABLES = (
 class RRTournament(Tournament):
     system = RR
 
-    def create_pairing(self, waiting_players):
+    def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         pairing = []
         players = list(self.players.keys())
 

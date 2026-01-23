@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 import time
 from itertools import product
 
@@ -9,6 +10,9 @@ from tournament.tournament import Tournament
 
 import logging
 
+if TYPE_CHECKING:
+    from user import User
+
 log = logging.getLogger(__name__)
 
 
@@ -16,7 +20,7 @@ class ArenaTournament(Tournament):
     system = ARENA
     color_balance_limit = 3
 
-    def just_played_together(self, x, y):
+    def just_played_together(self, x: User, y: User) -> bool:
         # Players can play consecutive games with each other
         # only in case when they are the only active players (duel)
         return y.username == self.players[x].prev_opp or x.username == self.players[y].prev_opp
@@ -29,7 +33,7 @@ class ArenaTournament(Tournament):
             color_balance_a == color_balance_b == -self.color_balance_limit
         )
 
-    def create_pairing(self, waiting_players):
+    def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         start = time.time()
         pairing = []
 

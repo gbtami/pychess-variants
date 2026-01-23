@@ -67,7 +67,7 @@ class TvGameJson(TypedDict):
     wr: int | str
     br: int | str
     chess960: bool
-    base: int
+    base: int | float
     inc: int
     byoyomi: int
     lastMove: str | None
@@ -177,7 +177,7 @@ class GameEndResponse(TypedDict):
     jieqiCaptureStack: NotRequired[list[str | None]]
 
 
-TournamentPoint = tuple[int, int] | Literal["-"]
+TournamentPoint = tuple[int | str, int] | Literal["-"]
 
 
 class FishnetKey(TypedDict):
@@ -578,7 +578,7 @@ class TournamentTopGameResponse(TypedDict):
     wr: int
     br: int
     chess960: bool
-    base: int
+    base: int | float
     inc: int
     byoyomi: int
     lastMove: str | None
