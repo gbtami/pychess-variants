@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING, Mapping
 import asyncio
 from datetime import datetime, timezone
 
@@ -29,7 +29,21 @@ from newid import new_id
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
-    from ws_types import LobbySeeksMessage
+    from ws_types import (
+        AcceptSeekMessage,
+        CancelAutoPairingMessage,
+        CreateAiChallengeMessage,
+        CreateAutoPairingMessage,
+        CreateBotChallengeMessage,
+        CreateHostMessage,
+        CreateInviteMessage,
+        CreateSeekMessage,
+        DeleteSeekMessage,
+        LeaveSeekMessage,
+        LobbyChatMessage,
+        LobbyInboundMessage,
+        LobbySeeksMessage,
+    )
 from pychess_global_app_state_utils import get_app_state
 from seek import challenge, create_seek, get_seeks, Seek, SeekCreateData
 from settings import ADMINS, TOURNAMENT_DIRECTORS
@@ -43,9 +57,6 @@ import logger
 from variants import get_server_variant
 
 log = logging.getLogger(__name__)
-
-
-DataDict = dict[str, Any]
 
 
 async def lobby_socket_handler(request: web.Request) -> web.StreamResponse:
@@ -98,7 +109,7 @@ async def process_message(
     app_state: PychessGlobalAppState,
     user: User,
     ws: WebSocketResponse,
-    data: DataDict,
+    data: LobbyInboundMessage,
 ) -> None:
     log.debug("message from %s: %r", user.username, data)
     if data["type"] == "create_ai_challenge":
@@ -138,7 +149,10 @@ async def send_get_seeks(
 
 
 async def handle_create_ai_challenge(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: DataDict
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    user: User,
+    data: CreateAiChallengeMessage,
 ) -> None:
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
@@ -182,14 +196,14 @@ async def handle_create_ai_challenge(
 
 
 async def handle_create_seek(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: DataDict
+    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: CreateSeekMessage
 ) -> None:
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
         return
 
     log.debug("Creating seek from request: %s", data)
-    seek_data: SeekCreateData = data  # type: ignore[assignment]
+    seek_data: SeekCreateData = data
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data)
     if TYPE_CHECKING:
         assert seek is not None
@@ -221,14 +235,14 @@ async def handle_create_seek(
 
 
 async def handle_create_invite(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: DataDict
+    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: CreateInviteMessage
 ) -> None:
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
         return
 
     log.debug("Creating seek invite from request: %s", data)
-    seek_data: SeekCreateData = data  # type: ignore[assignment]
+    seek_data: SeekCreateData = data
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data)
     if TYPE_CHECKING:
         assert seek is not None
@@ -240,7 +254,10 @@ async def handle_create_invite(
 
 
 async def handle_create_bot_challenge(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: DataDict
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    user: User,
+    data: CreateBotChallengeMessage,
 ) -> None:
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
@@ -253,7 +270,7 @@ async def handle_create_bot_challenge(
         return
 
     log.debug("Creating BOT challenge from request: %s", data)
-    seek_data: SeekCreateData = data  # type: ignore[assignment]
+    seek_data: SeekCreateData = data
     seek = await create_seek(
         app_state.db, app_state.invites, app_state.seeks, user, seek_data, engine=engine
     )
@@ -274,13 +291,13 @@ async def handle_create_bot_challenge(
 
 
 async def handle_create_host(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: DataDict
+    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: CreateHostMessage
 ) -> None:
     no = user.username not in TOURNAMENT_DIRECTORS
     if no:
         return
 
-    seek_data: SeekCreateData = data  # type: ignore[assignment]
+    seek_data: SeekCreateData = data
     seek = await create_seek(
         app_state.db,
         app_state.invites,
@@ -297,7 +314,9 @@ async def handle_create_host(
     await ws_send_json(ws, response)
 
 
-async def handle_delete_seek(app_state: PychessGlobalAppState, user: User, data: DataDict) -> None:
+async def handle_delete_seek(
+    app_state: PychessGlobalAppState, user: User, data: DeleteSeekMessage
+) -> None:
     try:
         seek = app_state.seeks[data["seekID"]]
         if seek.game_id is not None:
@@ -316,7 +335,7 @@ async def handle_delete_seek(app_state: PychessGlobalAppState, user: User, data:
 
 
 async def handle_leave_seek(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: DataDict
+    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: LeaveSeekMessage
 ) -> None:
     if data["seekID"] not in app_state.seeks:
         return
@@ -329,7 +348,7 @@ async def handle_leave_seek(
 
 
 async def handle_accept_seek(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: DataDict
+    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: AcceptSeekMessage
 ) -> None:
     if data["seekID"] not in app_state.seeks:
         return
@@ -427,7 +446,7 @@ async def send_lobby_user_connected(
 
 
 async def handle_lobbychat(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: DataDict
+    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: LobbyChatMessage
 ) -> None:
     if user.username.startswith(ANON_PREFIX):
         return
@@ -488,7 +507,10 @@ async def handle_lobbychat(
 
 
 async def handle_cancel_auto_pairing(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: DataDict
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    user: User,
+    data: CancelAutoPairingMessage,
 ) -> None:
     user.remove_from_auto_pairings()
     for user_ws in user.lobby_sockets:
@@ -498,7 +520,10 @@ async def handle_cancel_auto_pairing(
 
 
 async def handle_create_auto_pairing(
-    app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: DataDict
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    user: User,
+    data: CreateAutoPairingMessage,
 ) -> None:
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:

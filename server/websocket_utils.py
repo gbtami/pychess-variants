@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, TypeVar
 from collections.abc import Awaitable, Callable, Mapping
 import json
 import logging
@@ -25,8 +25,9 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
 
 
 InitMessageHandler = Callable[["PychessGlobalAppState", WebSocketResponse, "User"], Awaitable[None]]
+DataT = TypeVar("DataT")
 MessageHandler = Callable[
-    ["PychessGlobalAppState", "User", WebSocketResponse, dict[str, Any]], Awaitable[None]
+    ["PychessGlobalAppState", "User", WebSocketResponse, DataT], Awaitable[None]
 ]
 
 
@@ -35,7 +36,7 @@ async def process_ws(
     request: web.Request,
     user: User,
     init_msg: InitMessageHandler | None,
-    custom_msg_processor: MessageHandler,
+    custom_msg_processor: MessageHandler[DataT],
 ) -> WebSocketResponse | None:
     """
     Process websocket messages until socket closed or errored. Returns the closed WebSocketResponse object.

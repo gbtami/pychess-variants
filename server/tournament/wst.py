@@ -12,6 +12,18 @@ import logger
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
+    from user import User
+    from ws_types import (
+        TournamentGetGamesMessage,
+        TournamentGetPlayersMessage,
+        TournamentInboundMessage,
+        TournamentJoinMessage,
+        TournamentLobbyChatMessage,
+        TournamentMyPageMessage,
+        TournamentPauseMessage,
+        TournamentUserConnectedRequest,
+        TournamentWithdrawMessage,
+    )
 from pychess_global_app_state_utils import get_app_state
 from settings import TOURNAMENT_DIRECTORS
 from tournament.tournament import T_CREATED, T_STARTED
@@ -61,7 +73,9 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user):
                 break
 
 
-async def process_message(app_state: PychessGlobalAppState, user, ws, data):
+async def process_message(
+    app_state: PychessGlobalAppState, user: User, ws, data: TournamentInboundMessage
+) -> None:
     if data["type"] == "get_players":
         await handle_get_players(app_state, ws, user, data)
     elif data["type"] == "my_page":
@@ -80,7 +94,9 @@ async def process_message(app_state: PychessGlobalAppState, user, ws, data):
         await handle_lobbychat(app_state, user, data)
 
 
-async def handle_get_players(app, ws, user, data):
+async def handle_get_players(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentGetPlayersMessage
+) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
         page = data["page"]
@@ -90,7 +106,9 @@ async def handle_get_players(app, ws, user, data):
         await ws_send_json(ws, response)
 
 
-async def handle_my_page(app, ws, user, data):
+async def handle_my_page(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentMyPageMessage
+) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
         if user in tournament.players:
@@ -100,14 +118,16 @@ async def handle_my_page(app, ws, user, data):
         await ws_send_json(ws, response)
 
 
-async def handle_get_games(app, ws, data):
+async def handle_get_games(app: PychessGlobalAppState, ws, data: TournamentGetGamesMessage) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
         response = await tournament.games_json(data["player"])
         await ws_send_json(ws, response)
 
 
-async def handle_join(app, ws, user, data):
+async def handle_join(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentJoinMessage
+) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
         password = data.get("password")
@@ -125,7 +145,9 @@ async def handle_join(app, ws, user, data):
         await ws_send_json(ws, response)
 
 
-async def handle_pause(app, ws, user, data):
+async def handle_pause(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentPauseMessage
+) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
         await tournament.pause(user)
@@ -137,7 +159,9 @@ async def handle_pause(app, ws, user, data):
         await ws_send_json(ws, response)
 
 
-async def handle_withdraw(app, ws, user, data):
+async def handle_withdraw(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentWithdrawMessage
+) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
         await tournament.withdraw(user)
@@ -149,7 +173,9 @@ async def handle_withdraw(app, ws, user, data):
         await ws_send_json(ws, response)
 
 
-async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data):
+async def handle_user_connected(
+    app_state: PychessGlobalAppState, ws, user: User, data: TournamentUserConnectedRequest
+) -> None:
     tournamentId = data["tournamentId"]
     tournament = await load_tournament(app_state, tournamentId)
     if tournament is None:
@@ -212,7 +238,9 @@ async def handle_user_connected(app_state: PychessGlobalAppState, ws, user, data
         await app_state.lobby.lobby_broadcast_u_cnt()
 
 
-async def handle_lobbychat(app_state: PychessGlobalAppState, user, data):
+async def handle_lobbychat(
+    app_state: PychessGlobalAppState, user: User, data: TournamentLobbyChatMessage
+) -> None:
     if user.username.startswith(ANON_PREFIX):
         return
 
