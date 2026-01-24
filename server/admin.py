@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Deque
 import collections
 import logging
 
@@ -14,35 +14,39 @@ from variants import VARIANTS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
-    from ws_types import FullChatMessage, LobbyChatMessage
+    from ws_types import ChatLine, FullChatMessage, LobbyChatMessage
 
 log = logging.getLogger(__name__)
 
 
-def silence(app_state: PychessGlobalAppState, message: str) -> FullChatMessage | None:
+def silence(
+    app_state: PychessGlobalAppState,
+    message: str,
+    chat: Deque["ChatLine"] | list["ChatLine"] | None = None,
+) -> FullChatMessage | None:
     response: FullChatMessage | None = None
     spammer = message.split()[-1]
     if spammer in app_state.users:
-        lobbychat = app_state.lobby.lobbychat
+        chat_lines = app_state.lobby.lobbychat if chat is None else chat
         users = app_state.users
 
         users[spammer].set_silence()
 
-        # delete all the spammer messages in place
-        i = len(lobbychat)
-        while i > 0:
-            if lobbychat[i - 1]["user"] == spammer:
-                del lobbychat[i - 1]
-            i -= 1
+        if isinstance(chat_lines, collections.deque):
+            kept_lines = [line for line in chat_lines if line["user"] != spammer]
+            chat_lines.clear()
+            chat_lines.extend(kept_lines)
+        else:
+            chat_lines[:] = [line for line in chat_lines if line["user"] != spammer]
 
-        lobbychat.append(
+        chat_lines.append(
             {
                 "type": "lobbychat",
                 "user": "",
                 "message": "%s was timed out 10 minutes for spamming the chat." % spammer,
             }
         )
-        response = {"type": "fullchat", "lines": list(lobbychat)}
+        response = {"type": "fullchat", "lines": list(chat_lines)}
     return response
 
 

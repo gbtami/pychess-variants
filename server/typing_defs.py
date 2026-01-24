@@ -361,19 +361,60 @@ class ViewContext(TypedDict, total=False):
     username: str
     piece_sets: list[str]
     simuling: bool
+    admin: bool
+    allusers: Sequence[User]
+    anon_online: int
+    blog_item: str
+    blog_tag: Callable[[str], str]
+    blogs: list[object] | str
+    can_block: bool
+    can_challenge: bool
+    corr_games: str
+    created_simuls: Sequence[object]
+    ct: str
+    cup: Mapping[str, tuple[str, str]]
+    edit: bool
+    faq: str
+    finished_simuls: Sequence[object]
+    gameId: str
+    highscore: object
+    inviter: str
+    lichess_id: str
+    lishogi_id: str
+    oauth_username_selection: Mapping[str, str | None] | None
+    online_users: Sequence[User]
+    profile: str | None
+    profile_title: str
+    puzzle: str
+    ratings: dict[str, tuple[str, int]]
+    seekempty: bool
+    simulid: str
+    started_simuls: Sequence[object]
+    tags: Sequence[str] | Mapping[str, str]
+    tournament: object
+    tournamentdirector: bool
+    trophies: list[tuple[str, str]]
+    users: Mapping[str, User]
+    videoId: str | None
+    videos: list[VideoDoc]
+    video_tag: Callable[[str], str]
+    video_target: Callable[[str], str]
+    wberserk: bool
+    winners: Mapping[str, list[tuple[str, str, str]]]
+    bberserk: bool
     gameid: str
     variant: str
     wplayer: str
     wtitle: str
-    wrating: str
+    wrating: int | str
     wrdiff: int | str
     chess960: bool
-    rated: bool | int
+    rated: bool | int | None
     corr: bool
     level: int
     bplayer: str
     btitle: str
-    brating: str
+    brating: int | str
     brdiff: int | str
     fen: str
     posnum: int

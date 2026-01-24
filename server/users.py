@@ -69,7 +69,7 @@ class Users(UserDict[str, User]):
             user = User(
                 self.app_state,
                 username=username,
-                title=doc.get("title"),
+                title=doc.get("title") or "",
                 bot=doc.get("title") == "BOT",
                 perfs=perfs,
                 pperfs=pperfs,
@@ -77,8 +77,8 @@ class Users(UserDict[str, User]):
                 lang=doc.get("lang", "en"),
                 theme=doc.get("theme", "dark"),
                 game_category=doc.get("ct", "all"),
-                oauth_id=doc.get("oauth_id"),
-                oauth_provider=doc.get("oauth_provider"),
+                oauth_id=doc.get("oauth_id") or "",
+                oauth_provider=doc.get("oauth_provider") or "",
             )
             user.game_category_set = "ct" in doc
             self.data[username] = user

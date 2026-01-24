@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 import asyncio
 import random
 import string
@@ -399,9 +399,8 @@ async def handle_setup(
 
     await game.save_setup()
 
-    opp_player_value: User = opp_player
-    if opp_player_value.bot:
-        await opp_player_value.event_queue.put(game.game_start)
+    if opp_player is not None and opp_player.bot:
+        await opp_player.event_queue.put(game.game_start)
 
     # restart expiration time after setup phase
     if TYPE_CHECKING:
@@ -716,9 +715,9 @@ async def handle_game_user_connected(
         game.spectators.add(user)
         await round_broadcast(game, game.spectator_list, full=True)
 
-    stopwatch_secs = (
-        game.stopwatch.secs if (not game.corr and not game.server_variant.two_boards) else 0
-    )
+    stopwatch_secs = 0
+    if not game.corr and not game.server_variant.two_boards:
+        stopwatch_secs = cast("Clock", game.stopwatch).secs
     response: GameUserConnectedMessage = {
         "type": "game_user_connected",
         "username": user.username,

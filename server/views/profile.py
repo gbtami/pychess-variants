@@ -19,7 +19,7 @@ async def profile(request: web.Request) -> ViewContext:
 
     app_state = get_app_state(request.app)
 
-    rated = None
+    rated: int | None = None
 
     if variant is not None:
         context["variant"] = variant
