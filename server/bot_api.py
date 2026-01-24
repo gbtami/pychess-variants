@@ -11,6 +11,7 @@ from settings import BOT_TOKENS
 from user import User
 from utils import load_game, new_game, play_move
 from pychess_global_app_state_utils import get_app_state
+from typing_defs import UserDocument
 import logging
 
 log = logging.getLogger(__name__)
@@ -158,7 +159,7 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
         bot_player = User(app_state, bot=True, username=username)  # noqa: F821
         app_state.users[bot_player.username] = bot_player
 
-        doc = await app_state.db.user.find_one({"_id": username})  # noqa: F821
+        doc: UserDocument | None = await app_state.db.user.find_one({"_id": username})  # noqa: F821
         if doc is None:
             result = await app_state.db.user.insert_one(
                 {

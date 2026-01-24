@@ -23,6 +23,25 @@ PerfMap = dict[str, PerfEntry]
 ClockValues = Sequence[int | float]
 
 
+class UserDocument(TypedDict, total=False):
+    _id: str
+    title: str
+    enabled: bool
+    perfs: PerfMap
+    pperfs: PerfMap
+    lang: str
+    theme: str
+    ct: str
+    oauth_id: str
+    oauth_provider: str
+
+
+class RelationDocument(TypedDict):
+    u1: str
+    u2: str
+    r: int
+
+
 class Crosstable(TypedDict):
     _id: str
     s1: int

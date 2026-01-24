@@ -14,7 +14,7 @@ from pychess_global_app_state_utils import get_app_state
 import logging
 
 from user import User
-from typing_defs import ViewContext
+from typing_defs import UserDocument, ViewContext
 from variants import ALL_VARIANTS
 from settings import SIMULING
 
@@ -40,7 +40,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
     session["last_visit"] = datetime.now().isoformat()
     if session_user is not None:
         log.info("+++ Existing user %s connected.", session_user)
-        doc = None
+        doc: UserDocument | None = None
         try:
             doc = await app_state.db.user.find_one({"_id": session_user})
         except Exception:

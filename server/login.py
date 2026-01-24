@@ -14,6 +14,7 @@ from oauth_config import oauth_config
 from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
 from websocket_utils import ws_send_json
+from typing_defs import UserDocument
 import logging
 
 log = logging.getLogger(__name__)
@@ -158,7 +159,7 @@ async def login(request: web.Request) -> web.StreamResponse:
     users = app_state.users
 
     # For other OAuth providers, check if user needs to choose a username
-    existing_user = await app_state.db.user.find_one(
+    existing_user: UserDocument | None = await app_state.db.user.find_one(
         {"oauth_id": user_id, "oauth_provider": provider}
     )
     if existing_user:

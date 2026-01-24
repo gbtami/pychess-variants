@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from collections import UserDict
 from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK, NONE_USER
 from glicko2.glicko2 import DEFAULT_PERF
+from typing_defs import PerfMap, RelationDocument, UserDocument
 from user import User
 import logging
 from variants import RATED_VARIANTS
@@ -54,14 +55,16 @@ class Users(UserDict[str, User]):
             self.app_state.users[username] = user
             return user
 
-        doc = await self.app_state.db.user.find_one({"_id": username})
+        doc: UserDocument | None = await self.app_state.db.user.find_one({"_id": username})
         if doc is None:
             log.warning("users.get() %s NOT IN db", username)
             # raise NotInDbUsers
             return self.data[NONE_USER]
         else:
-            perfs = doc.get("perfs", {variant: DEFAULT_PERF for variant in RATED_VARIANTS})
-            pperfs = doc.get("pperfs", {variant: DEFAULT_PERF for variant in RATED_VARIANTS})
+            perfs: PerfMap = doc.get("perfs", {variant: DEFAULT_PERF for variant in RATED_VARIANTS})
+            pperfs: PerfMap = doc.get(
+                "pperfs", {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
+            )
 
             user = User(
                 self.app_state,
@@ -81,7 +84,7 @@ class Users(UserDict[str, User]):
             self.data[username] = user
 
             cursor = self.app_state.db.relation.find({"u1": username, "r": BLOCK})
-            docs = await cursor.to_list(MAX_USER_BLOCK)
+            docs: list[RelationDocument] = await cursor.to_list(MAX_USER_BLOCK)
             user.blocked = {doc["u2"] for doc in docs}
 
             return user
