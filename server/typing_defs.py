@@ -46,6 +46,12 @@ class UserBlocksResponse(TypedDict):
     blocks: list[str]
 
 
+class VideoDoc(TypedDict, total=False):
+    _id: str
+    category: str
+    tags: list[str]
+
+
 class GameSummaryJson(TypedDict):
     gameId: str
     title: str

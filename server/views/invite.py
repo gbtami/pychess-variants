@@ -6,6 +6,7 @@ from aiohttp import web
 import logging
 
 from utils import join_seek, load_game
+from typing_defs import ViewContext
 from views import add_game_context, get_user_context
 from pychess_global_app_state_utils import get_app_state
 
@@ -13,7 +14,7 @@ log = logging.getLogger(__name__)
 
 
 @aiohttp_jinja2.template("index.html")
-async def invite(request):
+async def invite(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)

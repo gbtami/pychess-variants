@@ -3,6 +3,7 @@ from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
 from misc import time_control_str
+from typing_defs import ViewContext
 from views import get_user_context
 from variants import VARIANTS, VARIANT_ICONS
 from simul.simul import Simul
@@ -12,7 +13,7 @@ from settings import SIMULING
 
 
 @aiohttp_jinja2.template("simuls.html")
-async def simuls(request):
+async def simuls(request: web.Request) -> ViewContext:
     if not SIMULING:
         raise web.HTTPForbidden()
 
@@ -45,7 +46,7 @@ async def simuls(request):
 
 
 @aiohttp_jinja2.template("simul_new.html")
-async def simul_new(request):
+async def simul_new(request: web.Request) -> ViewContext:
     if not SIMULING:
         raise web.HTTPForbidden()
 
@@ -57,7 +58,7 @@ async def simul_new(request):
 
 
 @aiohttp_jinja2.template("index.html")
-async def simul(request):
+async def simul(request: web.Request) -> ViewContext:
     if not SIMULING:
         raise web.HTTPForbidden()
 
@@ -76,7 +77,7 @@ async def simul(request):
     return context
 
 
-async def start_simul(request):
+async def start_simul(request: web.Request) -> web.Response:
     if not SIMULING:
         raise web.HTTPForbidden()
 

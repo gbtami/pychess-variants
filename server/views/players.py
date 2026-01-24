@@ -1,5 +1,7 @@
 import aiohttp_jinja2
+from aiohttp import web
 
+from typing_defs import ViewContext
 from views import get_user_context
 from settings import ADMINS
 from pychess_global_app_state_utils import get_app_state
@@ -7,7 +9,7 @@ from variants import VARIANT_ICONS
 
 
 @aiohttp_jinja2.template("players.html")
-async def players(request):
+async def players(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)

@@ -6,12 +6,13 @@ from aiohttp import web
 
 from tournament.tournaments import get_tournament_name
 from utils import corr_games, load_game
+from typing_defs import ViewContext
 from views import add_game_context, get_user_context
 from pychess_global_app_state_utils import get_app_state
 
 
 @aiohttp_jinja2.template("index.html")
-async def round_view(request):
+async def round_view(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)

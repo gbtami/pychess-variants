@@ -3,13 +3,14 @@ import json
 import aiohttp_jinja2
 from aiohttp import web
 
+from typing_defs import ViewContext
 from views import add_game_context, get_user_context
 from utils import tv_game, tv_game_user, load_game
 from pychess_global_app_state_utils import get_app_state
 
 
 @aiohttp_jinja2.template("index.html")
-async def tv(request):
+async def tv(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)

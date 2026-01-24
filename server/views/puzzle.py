@@ -10,12 +10,13 @@ from puzzle import (
     get_daily_puzzle,
     default_puzzle_perf,
 )
+from typing_defs import ViewContext
 from views import get_user_context
 from variants import VARIANTS
 
 
 @aiohttp_jinja2.template("analysis.html")
-async def puzzle(request):
+async def puzzle(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     variant = request.match_info.get("variant")

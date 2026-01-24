@@ -4,13 +4,14 @@ from aiohttp import web
 from const import IMPORTED, RATED, DASH, NONE_USER, TROPHIES
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
+from typing_defs import ViewContext
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 from variants import NOT_RATED_VARIANTS, VARIANTS, VARIANT_ICONS
 
 
 @aiohttp_jinja2.template("profile.html")
-async def profile(request):
+async def profile(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     profileId = request.match_info.get("profileId")

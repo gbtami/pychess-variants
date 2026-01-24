@@ -107,7 +107,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
 
 def add_game_context(
     game: "Game | GameBug",
-    ply: int | None,
+    ply: int | str | None,
     user: User,
     context: ViewContext,
 ) -> None:

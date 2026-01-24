@@ -6,12 +6,13 @@ from aiohttp import web
 from fairy import FairyBoard
 from utils import load_game
 from variants import VARIANTS
+from typing_defs import ViewContext
 from views import add_game_context, get_user_context
 from pychess_global_app_state_utils import get_app_state
 
 
 @aiohttp_jinja2.template("analysis.html")
-async def analysis(request):
+async def analysis(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     gameId = request.match_info.get("gameId")

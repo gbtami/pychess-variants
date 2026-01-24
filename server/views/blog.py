@@ -6,11 +6,12 @@ from aiohttp import web
 from const import category_matches
 from blogs import BLOG_TAGS, BLOG_CATEGORIES, BLOGS
 from lang import get_locale_ext
+from typing_defs import ViewContext
 from views import get_user_context
 
 
 @aiohttp_jinja2.template("blog.html")
-async def blog(request):
+async def blog(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     blogId = request.match_info.get("blogId")

@@ -1,19 +1,21 @@
 import aiohttp_jinja2
+from aiohttp import web
 
 from const import category_matches
 from videos import VIDEO_TAGS, VIDEO_TARGETS, VIDEO_CATEGORIES
+from typing_defs import VideoDoc, ViewContext
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 
 
 @aiohttp_jinja2.template("videos.html")
-async def videos(request):
+async def videos(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)
 
     tag = request.rel_url.query.get("tags")
-    videos = []
+    videos: list[VideoDoc] = []
     if tag is None:
         cursor = app_state.db.video.find()
     else:
@@ -28,10 +30,10 @@ async def videos(request):
 
     lang = context["lang"]
 
-    def video_tag(tag):
+    def video_tag(tag: str) -> str:
         return app_state.translations[lang].gettext(VIDEO_TAGS.get(tag, tag))
 
-    def video_target(target):
+    def video_target(target: str) -> str:
         return app_state.translations[lang].gettext(VIDEO_TARGETS[target])
 
     context["videos"] = videos

@@ -1,12 +1,14 @@
 import aiohttp_jinja2
+from aiohttp import web
 
 from fairy import FairyBoard
 from variants import VARIANTS
+from typing_defs import ViewContext
 from views import get_user_context
 
 
 @aiohttp_jinja2.template("index.html")
-async def editor(request):
+async def editor(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     variant = request.match_info.get("variant")

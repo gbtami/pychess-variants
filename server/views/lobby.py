@@ -9,12 +9,13 @@ from views import get_user_context
 from puzzle import get_daily_puzzle
 from pychess_global_app_state_utils import get_app_state
 from settings import TOURNAMENT_DIRECTORS
+from typing_defs import ViewContext
 from utils import corr_games, get_blogs
 from variants import VARIANTS
 
 
 @aiohttp_jinja2.template("index.html")
-async def lobby(request):
+async def lobby(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)

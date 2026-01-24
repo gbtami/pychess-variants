@@ -1,13 +1,15 @@
 import aiohttp_jinja2
+from aiohttp import web
 
 from blogs import BLOG_TAGS
 from utils import get_blogs
+from typing_defs import ViewContext
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 
 
 @aiohttp_jinja2.template("blogs.html")
-async def blogs(request):
+async def blogs(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)
@@ -16,7 +18,7 @@ async def blogs(request):
 
     lang = context["lang"]
 
-    def blog_tag(tag):
+    def blog_tag(tag: str) -> str:
         return app_state.translations[lang].gettext(BLOG_TAGS.get(tag, tag))
 
     context["blog_tag"] = blog_tag

@@ -2,12 +2,13 @@ import aiohttp_jinja2
 from aiohttp import web
 
 from utils import load_game
+from typing_defs import ViewContext
 from views import add_game_context, get_user_context
 from pychess_global_app_state_utils import get_app_state
 
 
 @aiohttp_jinja2.template("embed.html")
-async def embed(request):
+async def embed(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)
