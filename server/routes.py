@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Awaitable, Callable, TypeAlias
+
 from bot_api import (
     account,
     playing,
@@ -90,7 +92,11 @@ from views import (
 )
 
 
-get_routes = (
+Handler: TypeAlias = Callable[..., Awaitable[object]]
+RouteDef: TypeAlias = tuple[str, Handler]
+
+
+get_routes: tuple[RouteDef, ...] = (
     ("/login/{provider}", login),
     ("/oauth/{provider}", oauth),
     ("/logout", logout),
@@ -195,7 +201,7 @@ get_routes = (
     ("/robots.txt", robots),
 )
 
-post_routes = (
+post_routes: tuple[RouteDef, ...] = (
     ("/api/token/test", bot_token_test),
     ("/api/bot/game/{gameId}/abort", bot_abort),
     ("/api/bot/game/{gameId}/resign", bot_resign),

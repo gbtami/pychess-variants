@@ -1,10 +1,12 @@
 from __future__ import annotations
+
 import logger
 import argparse
 import asyncio
 import logging
 import os
 from urllib.parse import urlparse
+from typing import Awaitable, Callable
 
 from aiohttp import web
 from aiohttp.web_app import Application
@@ -41,10 +43,11 @@ from views import page404
 from lang import LOCALE
 
 log = logging.getLogger(__name__)
+Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
 
 
 @web.middleware
-async def handle_404(request, handler):
+async def handle_404(request: web.Request, handler: Handler) -> web.StreamResponse:
     try:
         return await handler(request)
     except web.HTTPException as ex:
@@ -61,7 +64,7 @@ async def handle_404(request, handler):
 
 
 @web.middleware
-async def redirect_to_https(request, handler):
+async def redirect_to_https(request: web.Request, handler: Handler) -> web.StreamResponse:
     # https://help.heroku.com/J2R1S4T8/can-heroku-force-an-application-to-use-ssl-tls
     # https://docs.aiohttp.org/en/stable/web_advanced.html#aiohttp-web-forwarded-support
     if request.headers.get("X-Forwarded-Proto") == "http":
@@ -73,14 +76,16 @@ async def redirect_to_https(request, handler):
 
 
 @web.middleware
-async def set_user_locale(request, handler):
+async def set_user_locale(request: web.Request, handler: Handler) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     LOCALE.set(session.get("lang", "en"))
     return await handler(request)
 
 
 @web.middleware
-async def cross_origin_policy_middleware(request, handler):
+async def cross_origin_policy_middleware(
+    request: web.Request, handler: Handler
+) -> web.StreamResponse:
     response = await handler(request)
     if (
         request.path.startswith("/variants")
@@ -100,7 +105,11 @@ async def cross_origin_policy_middleware(request, handler):
     return response
 
 
-def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=False) -> Application:
+def make_app(
+    db_client: AsyncMongoClient | None = None,
+    simple_cookie_storage: bool = False,
+    anon_as_test_users: bool = False,
+) -> Application:
     app = web.Application()
     app.middlewares.append(redirect_to_https)
     app.middlewares.append(cross_origin_policy_middleware)
@@ -172,7 +181,7 @@ def make_app(db_client=None, simple_cookie_storage=False, anon_as_test_users=Fal
     return app
 
 
-async def init_state(app):
+async def init_state(app: Application) -> None:
     if db_key not in app:
         app[db_key] = None
 
@@ -187,12 +196,12 @@ async def init_state(app):
         # await create_auto_play_arena(app)
 
 
-async def shutdown(app):
+async def shutdown(app: Application) -> None:
     app_state = get_app_state(app)
     await app_state.server_shutdown()
 
 
-async def close_mongodb_client(app):
+async def close_mongodb_client(app: Application) -> None:
     if client_key in app:
         try:
             await app[client_key].close()

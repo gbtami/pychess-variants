@@ -24,5 +24,5 @@ Crawl-delay: 30
 """
 
 
-async def robots(request):
+async def robots(request: web.Request) -> web.Response:
     return web.Response(text=ROBOTS_TXT, content_type="text/plain")
