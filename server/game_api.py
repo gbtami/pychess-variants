@@ -4,6 +4,7 @@ import asyncio
 import json
 from datetime import date, datetime, timedelta
 from functools import partial
+from typing import TYPE_CHECKING, TypedDict
 
 import aiohttp_session
 from aiohttp import web
@@ -24,9 +25,25 @@ log = logging.getLogger(__name__)
 
 GAME_PAGE_SIZE = 12
 
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
-async def variant_counts_aggregation(app_state, humans, query_period=None):
-    pipeline = [
+
+class VariantCountId(TypedDict):
+    p: str
+    v: str
+    z: int
+
+
+class VariantCountDoc(TypedDict):
+    _id: VariantCountId
+    c: int
+
+
+async def variant_counts_aggregation(
+    app_state: PychessGlobalAppState, humans: bool, query_period: str | None = None
+) -> list[VariantCountDoc]:
+    pipeline: list[dict[str, object]] = [
         {
             "$group": {
                 "_id": {
@@ -40,7 +57,7 @@ async def variant_counts_aggregation(app_state, humans, query_period=None):
         {"$sort": {"_id": 1}},
     ]
 
-    match_cond = {}
+    match_cond: dict[str, object] = {}
 
     if query_period is not None:
         year, month = int(query_period[:4]), int(query_period[4:])
@@ -62,7 +79,7 @@ async def variant_counts_aggregation(app_state, humans, query_period=None):
 
     cursor = await app_state.db.game.aggregate(pipeline)
 
-    docs = []
+    docs: list[VariantCountDoc] = []
 
     cur_period = datetime.now().isoformat()[:7].replace("-", "")
 
@@ -86,7 +103,9 @@ async def variant_counts_aggregation(app_state, humans, query_period=None):
     return docs
 
 
-def variant_counts_from_docs(variant_counts, docs):
+def variant_counts_from_docs(
+    variant_counts: dict[str, list[int]], docs: list[VariantCountDoc]
+) -> None:
     period = ""
     for doc in docs:
         # print(doc)
@@ -102,7 +121,7 @@ def variant_counts_from_docs(variant_counts, docs):
             log.error("Support of variant %s discontinued!", variant)
 
 
-async def get_variant_stats(request):
+async def get_variant_stats(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     humans = "/humans" in request.path
     stats = app_state.stats_humans if humans else app_state.stats
@@ -113,10 +132,11 @@ async def get_variant_stats(request):
     cur_period = last_day_of_previous_month.isoformat()[:7].replace("-", "")
     # print(cur_period)
 
+    series: list[dict[str, object]]
     if cur_period in stats:
         series = stats[cur_period]
     else:
-        variant_counts = {variant: [] for variant in VARIANTS}
+        variant_counts: dict[str, list[int]] = {variant: [] for variant in VARIANTS}
         if humans:
             n = await app_state.db.stats_humans.count_documents({})
         else:
@@ -148,7 +168,7 @@ async def get_variant_stats(request):
     return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
-async def get_tournament_games(request):
+async def get_tournament_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     tournamentId = request.match_info.get("tournamentId")
 
@@ -157,8 +177,10 @@ async def get_tournament_games(request):
         return web.json_response({})
 
     cursor = app_state.db.game.find({"tid": tournamentId})
-    game_doc_list = []
+    game_doc_list: list[dict[str, object]] = []
 
+    if TYPE_CHECKING:
+        assert tournamentId is not None
     tournament = app_state.tournaments[tournamentId]
     variant = tournament.variant
     decode_method = tournament.server_variant.move_decoding
@@ -181,7 +203,7 @@ async def get_tournament_games(request):
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
-async def get_user_games(request):
+async def get_user_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profileId = request.match_info.get("profileId")
 
@@ -197,15 +219,15 @@ async def get_user_games(request):
         await asyncio.sleep(3)
         return web.json_response({})
 
-    filter_cond = {}
+    filter_cond: dict[str, object] = {}
     # print("URL", request.rel_url)
     level = request.rel_url.query.get("x")
     variant = request.path[request.path.rfind("/") + 1 :]
 
-    path_parts = request.path.split("/")
+    path_parts: list[str] = request.path.split("/")
 
     # produce UCI move list for puzzle generator
-    uci_moves = "json" in path_parts
+    uci_moves: bool = "json" in path_parts
 
     if "win" in path_parts:
         filter_cond["$or"] = [
@@ -265,7 +287,7 @@ async def get_user_games(request):
         filter_cond["us"] = profileId
 
     if "import" not in path_parts:
-        new_filter_cond = {
+        new_filter_cond: dict[str, object] = {
             "$and": [
                 filter_cond,
                 {"y": {"$ne": 2}},
@@ -281,7 +303,7 @@ async def get_user_games(request):
 
     page_num = request.rel_url.query.get("p", 0)
 
-    game_doc_list = []
+    game_doc_list: list[dict[str, object]] = []
     if profileId is not None:
         # print("FILTER:", filter_cond)
         cursor = app_state.db.game.find(filter_cond)
@@ -364,9 +386,11 @@ async def get_user_games(request):
     return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
 
 
-async def cancel_invite(request):
+async def cancel_invite(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     gameId = request.match_info.get("gameId")
+    if TYPE_CHECKING:
+        assert gameId is not None
 
     if gameId in app_state.invites:
         seek_id = app_state.invites[gameId].id
@@ -386,11 +410,13 @@ async def cancel_invite(request):
     return web.HTTPFound("/")
 
 
-async def subscribe_invites(request):
+async def subscribe_invites(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     gameId = request.match_info.get("gameId")
+    if TYPE_CHECKING:
+        assert gameId is not None
 
-    queue = asyncio.Queue()
+    queue: asyncio.Queue[str] = asyncio.Queue()
     if gameId not in app_state.invite_channels:
         app_state.invite_channels[gameId] = set()
     app_state.invite_channels[gameId].add(queue)
@@ -412,9 +438,9 @@ async def subscribe_invites(request):
     return response
 
 
-async def subscribe_games(request):
+async def subscribe_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
-    queue = asyncio.Queue()
+    queue: asyncio.Queue[str] = asyncio.Queue()
     app_state.game_channels.add(queue)
     try:
         async with sse_response(request) as response:
@@ -433,7 +459,7 @@ async def subscribe_games(request):
     return response
 
 
-async def get_games(request):
+async def get_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     games = app_state.games.values()
     variant = request.match_info.get("variant")
@@ -481,7 +507,7 @@ async def get_games(request):
     )
 
 
-async def export(request):
+async def export(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profileId = request.match_info.get("profileId")
     if profileId is not None and profileId not in app_state.users:
@@ -503,6 +529,8 @@ async def export(request):
         cursor = app_state.db.game.find({"tid": tournamentId})
     elif session_user in ADMINS:
         yearmonth = request.match_info.get("yearmonth")
+        if TYPE_CHECKING:
+            assert yearmonth is not None
         log.debug("yearmonth: %r %r", yearmonth[:4], yearmonth[4:])
         filter_cond = {
             "$and": [

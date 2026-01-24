@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import json
+from typing import Awaitable, Callable, TYPE_CHECKING, TypeAlias
 
 from aiohttp import web
 
@@ -13,12 +14,14 @@ from pychess_global_app_state_utils import get_app_state
 import logging
 
 log = logging.getLogger(__name__)
+Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
+username: str
 
 
-def authorized(func):
+def authorized(func: Handler) -> Handler:
     """Authorization decorator"""
 
-    async def inner(request):
+    async def inner(request: web.Request) -> web.StreamResponse:
         auth = request.headers.get("Authorization")
 
         if auth is None:
@@ -37,11 +40,11 @@ def authorized(func):
     return inner
 
 
-async def bot_token_test(request):
-    text = await request.text()
+async def bot_token_test(request: web.Request) -> web.StreamResponse:
+    text: str = await request.text()
     tokens = text.split(",")
 
-    response = {}
+    response: dict[str, dict[str, object] | None] = {}
     for token in tokens:
         if token in BOT_TOKENS:
             response[token] = {
@@ -56,35 +59,37 @@ async def bot_token_test(request):
 
 
 @authorized
-async def account(request):
+async def account(request: web.Request) -> web.StreamResponse:
     return web.json_response({"id": username, "username": username, "title": "BOT"})  # noqa: F821
 
 
 @authorized
-async def playing(request):
-    resp = {"nowPlaying": []}
+async def playing(request: web.Request) -> web.StreamResponse:
+    resp: dict[str, list[object]] = {"nowPlaying": []}
     return web.json_response(resp)
 
 
 @authorized
-async def challenge_create(request):
+async def challenge_create(request: web.Request) -> web.StreamResponse:
     return web.json_response({"ok": True})
 
 
 @authorized
-async def challenge_accept(request):
+async def challenge_accept(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
     gameId = request.match_info.get("gameId")
+    if TYPE_CHECKING:
+        assert gameId is not None
     seek = app_state.invites[gameId]
 
-    result = await new_game(app_state, seek, gameId)  # noqa: F821
+    result: dict[str, object] = await new_game(app_state, seek, gameId)  # noqa: F821
 
     if result["type"] == "new_game":
         # TODO: use asyncio.Event()
         wait_count = 0
         while gameId not in app_state.invite_channels and wait_count < 10:
-            asyncio.sleep(1)
+            asyncio.sleep(1)  # type: ignore[unused-coroutine]
             wait_count += 1
             log.debug("BOT_API challenge_accept() WAITING FOR SSE: %s", wait_count)
 
@@ -108,10 +113,12 @@ async def challenge_accept(request):
 
 
 @authorized
-async def challenge_decline(request):
+async def challenge_decline(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
     gameId = request.match_info.get("gameId")
+    if TYPE_CHECKING:
+        assert gameId is not None
 
     # TODO: use asyncio.Event()
     wait_count = 0
@@ -132,7 +139,7 @@ async def challenge_decline(request):
 
 
 @authorized
-async def event_stream(request):
+async def event_stream(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
     resp = web.StreamResponse()
@@ -175,9 +182,11 @@ async def event_stream(request):
 
     # send "challenge" and "gameStart" events from event_queue to the BOT
     while bot_player.online:
-        answer = await bot_player.event_queue.get()
+        answer: str | None = await bot_player.event_queue.get()
         if answer is None:
             bot_player.event_queue.task_done()
+        if TYPE_CHECKING:
+            assert answer is not None
         try:
             if request.transport is not None and request.transport.is_closing():
                 break
@@ -199,7 +208,7 @@ async def event_stream(request):
 
 
 @authorized
-async def game_stream(request):
+async def game_stream(request: web.Request) -> web.StreamResponse:
     gameId = request.match_info["gameId"]
 
     app_state = get_app_state(request.app)
@@ -228,9 +237,11 @@ async def game_stream(request):
     pinger_task = asyncio.create_task(pinger(), name="BOT-game-stream-pinger")
 
     while True:
-        answer = await bot_player.game_queues[gameId].get()
+        answer: str | None = await bot_player.game_queues[gameId].get()
         if answer is None:
             bot_player.game_queues[gameId].task_done()
+        if TYPE_CHECKING:
+            assert answer is not None
         try:
             if request.transport is not None and request.transport.is_closing():
                 break
@@ -251,7 +262,7 @@ async def game_stream(request):
 
 
 @authorized
-async def bot_move(request):
+async def bot_move(request: web.Request) -> web.StreamResponse:
     gameId = request.match_info["gameId"]
     move = request.match_info["move"]
 
@@ -266,7 +277,7 @@ async def bot_move(request):
 
 
 @authorized
-async def bot_abort(request):
+async def bot_abort(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
     gameId = request.match_info["gameId"]
@@ -290,7 +301,7 @@ async def bot_abort(request):
 
 
 @authorized
-async def bot_resign(request):
+async def bot_resign(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
     gameId = request.match_info["gameId"]
@@ -301,10 +312,10 @@ async def bot_resign(request):
 
 
 @authorized
-async def bot_chat(request):
+async def bot_chat(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
-    data = await request.post()
+    data: dict[str, str] = await request.post()
     log.debug("BOT-CHAT %s %r", username, data)  # noqa: F821
 
     gameId = request.match_info["gameId"]
