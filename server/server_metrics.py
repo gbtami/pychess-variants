@@ -8,6 +8,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from datetime import datetime
 from functools import partial
+from typing import TYPE_CHECKING, TypedDict
 
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
@@ -30,7 +31,30 @@ from pychess_global_app_state_utils import get_app_state
 log = logging.getLogger(__name__)
 
 
-def inspect_referrer(ref):
+class AllocationStat(TypedDict):
+    type: str
+    count: int
+    size_bytes: int
+    size_human: str
+
+
+class TaskInfo(TypedDict):
+    id: int
+    name: str
+    state: object
+    file: str
+    source: str
+
+
+class QueueInfo(TypedDict):
+    id: int
+    name: str
+    size: int
+    file: str
+    source: str
+
+
+def inspect_referrer(ref: object) -> None:
     if isinstance(ref, dict):
         log.info("  Dictionary referrer:")
         log.info("     %s", list(ref.keys()))
@@ -47,7 +71,8 @@ def inspect_referrer(ref):
     elif isinstance(ref, Iterable):
         log.info("  Iterable referrer:")
         try:
-            log.info("     %s", ref if len(ref) == 0 else ref[0])
+            ref_len = len(ref)  # type: ignore[arg-type]
+            log.info("     %s", ref if ref_len == 0 else ref[0])  # type: ignore[index]
         except TypeError:
             log.info("     %s", id(ref))
     else:
@@ -55,7 +80,7 @@ def inspect_referrer(ref):
 
 
 # Helper function to calculate deep memory size
-def get_deep_size(obj, seen=None):
+def get_deep_size(obj: object, seen: set[int] | None = None) -> int:
     """Recursively calculate the memory size of an object."""
     if seen is None:
         seen = set()
@@ -74,7 +99,9 @@ def get_deep_size(obj, seen=None):
     return size
 
 
-def memory_stats(top_n=20, need_inspect=False):
+def memory_stats(
+    top_n: int = 20, need_inspect: bool | str | None = False
+) -> tuple[list[AllocationStat], list[TaskInfo], list[QueueInfo]]:
     """
     Collects memory usage statistics for the top N object types in the Python heap.
     - Performs garbage collection to clean up unreferenced objects.
@@ -92,12 +119,12 @@ def memory_stats(top_n=20, need_inspect=False):
     """
     gc.collect()  # Clean up garbage before measuring
 
-    objects = gc.get_objects()
+    objects: list[object] = gc.get_objects()
 
-    type_info = defaultdict(lambda: {"count": 0, "size": 0})
+    type_info: defaultdict[str, dict[str, int]] = defaultdict(lambda: {"count": 0, "size": 0})
 
-    tasks = []
-    queues = []
+    tasks: list[TaskInfo] = []
+    queues: list[QueueInfo] = []
 
     for obj in objects:
         if type(obj) in (
@@ -123,13 +150,15 @@ def memory_stats(top_n=20, need_inspect=False):
                 # TODO: using inspect modul is rather time consuming
                 # Add a new switch to the monitor TUI to enable this
                 stack = obj.get_stack(limit=1) if need_inspect else ""
+                if TYPE_CHECKING:
+                    assert isinstance(stack, list)
                 if len(stack) > 0:
                     stack_file = "/".join(inspect.getfile(stack[0]).split("/")[-2:])
                     # stack_source = inspect.getsource(stack[0])[:25]
                     stack_source = "-"
 
                     if 0:  # "aiohttp" in stack_file:
-                        referrers = gc.get_referrers(obj)
+                        referrers = gc.get_referrers(obj)  # type: ignore[unreachable]
                         print("------", obj.get_name())
                         for ref in referrers:
                             inspect_referrer(ref)
@@ -164,7 +193,7 @@ def memory_stats(top_n=20, need_inspect=False):
     sorted_types = sorted(type_info.items(), key=lambda x: x[1]["size"], reverse=True)[:top_n]
 
     # Convert to list of dicts for easy consumption/printing
-    result = [
+    result: list[AllocationStat] = [
         {
             "type": t,
             "count": info["count"],
@@ -185,7 +214,7 @@ def memory_stats(top_n=20, need_inspect=False):
     return result, tasks, queues
 
 
-async def metrics_handler(request):
+async def metrics_handler(request: web.Request) -> web.StreamResponse:
     """Return server metrics as JSON."""
     auth = request.headers.get("Authorization")
     if auth is None:
@@ -208,7 +237,7 @@ async def metrics_handler(request):
     log.debug("Running memory_stats() time: %s", (time.process_time() - start))
 
     # Prepare object details
-    users = [
+    users: list[dict[str, object]] = [
         {
             "title": user.title,
             "username": user.username,
@@ -220,7 +249,7 @@ async def metrics_handler(request):
             app_state.users.items(), key=lambda x: x[1].last_seen, reverse=True
         )
     ]
-    seeks = [
+    seeks: list[dict[str, object]] = [
         {
             "id": seek_id,
             "creator": seek.creator.username,
@@ -236,7 +265,7 @@ async def metrics_handler(request):
             app_state.seeks.items(), key=lambda x: x[1].expire_at, reverse=True
         )
     ]
-    games = [
+    games: list[dict[str, object]] = [
         {
             "id": game_id,
             "date": game.date,
@@ -245,7 +274,7 @@ async def metrics_handler(request):
         }
         for game_id, game in sorted(app_state.games.items(), key=lambda x: x[1].date, reverse=True)
     ]
-    connections = [
+    connections: list[dict[str, str]] = [
         {"id": username, "timestamp": datetime.now().isoformat()}
         for username in app_state.lobby.lobbysockets
     ]
@@ -257,7 +286,7 @@ async def metrics_handler(request):
     queue_memory_size = sum([sys.getsizeof(obj) for obj in queues]) / 1024  # Convert to KB
     conn_memory_size = get_deep_size(active_connections) / 1024  # Convert to KB
 
-    metrics = {
+    metrics: dict[str, object] = {
         "active_connections": len(active_connections),
         "timestamp": datetime.now().isoformat(),
         "top_allocations": [
