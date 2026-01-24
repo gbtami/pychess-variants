@@ -2,6 +2,7 @@ import base64
 import hashlib
 import secrets
 from urllib.parse import urlencode
+from typing import TYPE_CHECKING, TypedDict
 
 import aiohttp
 import aiohttp_session
@@ -17,11 +18,24 @@ import logging
 
 log = logging.getLogger(__name__)
 
+if TYPE_CHECKING:
+    from user import User
 
-async def oauth(request):
+
+class OAuthUserData(TypedDict, total=False):
+    id: str
+    username: str
+    title: str
+    closed: str
+    tosViolation: str
+
+
+async def oauth(request: web.Request) -> web.StreamResponse:
     """Get oauth token with PKCE"""
 
     provider = request.match_info.get("provider")
+    if TYPE_CHECKING:
+        assert provider is not None
     redirect_uri = URI + "/oauth/%s" % provider
 
     config = oauth_config.get(provider, oauth_config["lichess"])
@@ -67,7 +81,7 @@ async def oauth(request):
             log.error("No oauth_code_verifier in session")
             return web.HTTPFound("/")
 
-        data = {
+        data: dict[str, str] = {
             "grant_type": "authorization_code",
             "code": code,
             "code_verifier": session["oauth_code_verifier"],
@@ -84,9 +98,9 @@ async def oauth(request):
 
         async with aiohttp.ClientSession() as client_session:
             async with client_session.post(oauth_token_url, data=data, headers=headers) as resp:
-                data = await resp.json()
+                token_data: dict[str, str] = await resp.json()
                 # print("OAUTH_DATA=", data)
-                token = data.get("access_token")
+                token = token_data.get("access_token")
                 if token is not None:
                     session["token"] = token
                     return web.HTTPFound("/login/%s" % provider)
@@ -95,10 +109,12 @@ async def oauth(request):
                     return web.HTTPFound("/")
 
 
-async def login(request):
+async def login(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
 
     provider = request.match_info.get("provider")
+    if TYPE_CHECKING:
+        assert provider is not None
     redirect_path = "/oauth/%s" % provider
 
     if "token" not in session:
@@ -107,15 +123,19 @@ async def login(request):
     config = oauth_config.get(provider, oauth_config["lichess"])
     account_api_url = config["account_api_url"]
 
-    user_data = await get_user_data(account_api_url, session["token"])
+    token: str = session["token"]
+    user_data = await get_user_data(account_api_url, token)
 
     del session["token"]
 
-    _id = user_data.get("id")
-    username = user_data.get("username", _id)
+    user_id = user_data.get("id")
+    username = user_data.get("username", user_id)
     title = user_data.get("title", "")
     closed = user_data.get("closed", "")
     tosViolation = user_data.get("tosViolation", "")
+    if TYPE_CHECKING:
+        assert user_id is not None
+        assert username is not None
 
     if reserved(username):
         log.error("User %s tried to log in.", username)
@@ -138,7 +158,9 @@ async def login(request):
     users = app_state.users
 
     # For other OAuth providers, check if user needs to choose a username
-    existing_user = await app_state.db.user.find_one({"oauth_id": _id, "oauth_provider": provider})
+    existing_user = await app_state.db.user.find_one(
+        {"oauth_id": user_id, "oauth_provider": provider}
+    )
     if existing_user:
         # User exists with this OAuth ID, use their existing username
         if not existing_user.get("enabled", True):
@@ -160,7 +182,7 @@ async def login(request):
 
     else:
         # New user from OAuth provider - needs to choose username
-        session["oauth_id"] = _id
+        session["oauth_id"] = user_id
         session["oauth_provider"] = provider
         session["oauth_username"] = username
         session["oauth_title"] = title
@@ -169,16 +191,16 @@ async def login(request):
     return web.HTTPFound("/")
 
 
-async def get_user_data(url, token):
+async def get_user_data(url: str, token: str) -> OAuthUserData:
     async with aiohttp.ClientSession() as client_session:
-        data = {"Authorization": "Bearer %s" % token}
-        async with client_session.get(url, headers=data) as resp:
-            data = await resp.json()
+        headers = {"Authorization": "Bearer %s" % token}
+        async with client_session.get(url, headers=headers) as resp:
+            data: OAuthUserData = await resp.json()
             # print("USER_DATA", data)
             return data
 
 
-async def logout(request, user=None):
+async def logout(request: web.Request | None, user: "User | None" = None) -> web.StreamResponse:
     if request is not None:
         # user clicked the logout
         app_state = get_app_state(request.app)
@@ -187,6 +209,8 @@ async def logout(request, user=None):
         user = await app_state.users.get(session_user)
     else:
         # admin banned the user
+        if TYPE_CHECKING:
+            assert user is not None
         app_state = user.app_state
 
     if user is None:
@@ -220,7 +244,7 @@ async def logout(request, user=None):
     return web.HTTPFound("/")
 
 
-async def select_username(request):
+async def select_username(request: web.Request) -> web.StreamResponse:
     """Handle username selection for new OAuth users"""
     session = await aiohttp_session.get_session(request)
 
@@ -232,9 +256,9 @@ async def select_username(request):
     return web.HTTPFound("/")
 
 
-async def check_username_availability(request):
+async def check_username_availability(request: web.Request) -> web.StreamResponse:
     """API endpoint to check if username is available"""
-    data = await request.json()
+    data: dict[str, str] = await request.json()
     username = data.get("username", "").strip()
 
     if not username:
@@ -270,7 +294,7 @@ async def check_username_availability(request):
     return web.json_response({"available": True})
 
 
-async def confirm_username(request):
+async def confirm_username(request: web.Request) -> web.StreamResponse:
     """Confirm username selection and complete OAuth registration"""
     session = await aiohttp_session.get_session(request)
 
@@ -278,7 +302,7 @@ async def confirm_username(request):
     if "oauth_id" not in session:
         return web.json_response({"error": "Invalid session"}, status=400)
 
-    data = await request.json()
+    data: dict[str, str] = await request.json()
     username = data.get("username", "").strip()
 
     # Validate username again by calling the validation logic directly
@@ -309,9 +333,9 @@ async def confirm_username(request):
         return web.json_response({"error": "Username is already taken"}, status=400)
 
     # Create new user with OAuth information
-    oauth_id = session["oauth_id"]
-    oauth_provider = session["oauth_provider"]
-    title = session.get("oauth_title", "")
+    oauth_id: str = session["oauth_id"]
+    oauth_provider: str = session["oauth_provider"]
+    title: str = session.get("oauth_title", "")
 
     try:
         result = await app_state.db.user.insert_one(
@@ -342,7 +366,7 @@ async def confirm_username(request):
         return web.json_response({"error": "Failed to create user"}, status=500)
 
 
-def get_code_challenge(code_verifier):
+def get_code_challenge(code_verifier: str) -> str:
     hashed = hashlib.sha256(code_verifier.encode("ascii")).digest()
     encoded = base64.urlsafe_b64encode(hashed)
     return encoded.decode("ascii")[:-1]
