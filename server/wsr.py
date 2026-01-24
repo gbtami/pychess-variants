@@ -399,7 +399,7 @@ async def handle_setup(
 
     await game.save_setup()
 
-    opp_player_value: User = opp_player  # type: ignore[assignment]
+    opp_player_value: User = opp_player
     if opp_player_value.bot:
         await opp_player_value.event_queue.put(game.game_start)
 
@@ -717,9 +717,7 @@ async def handle_game_user_connected(
         await round_broadcast(game, game.spectator_list, full=True)
 
     stopwatch_secs = (
-        game.stopwatch.secs  # type: ignore[union-attr]
-        if (not game.corr and not game.server_variant.two_boards)
-        else 0
+        game.stopwatch.secs if (not game.corr and not game.server_variant.two_boards) else 0
     )
     response: GameUserConnectedMessage = {
         "type": "game_user_connected",

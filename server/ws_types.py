@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, NotRequired, TypedDict
+from typing import TYPE_CHECKING, Literal, NotRequired, Sequence, TypedDict
 
 from typing_defs import ClockValues, StreamInfo, TournamentSpotlightItem
 
@@ -32,6 +32,9 @@ class LobbyChatMessage(TypedDict):
 
 class LobbyChatMessageDb(LobbyChatMessage):
     pass
+
+
+ChatLine = ChatMessage | LobbyChatMessage
 
 
 class LobbyCountMessage(TypedDict):
@@ -123,7 +126,7 @@ class UserPresenceMessage(TypedDict):
 
 class FullChatMessage(TypedDict):
     type: Literal["fullchat"]
-    lines: list[object]
+    lines: Sequence[ChatLine]
 
 
 class SpectatorsMessage(TypedDict):
