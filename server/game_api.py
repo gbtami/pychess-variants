@@ -40,6 +40,38 @@ class VariantCountDoc(TypedDict):
     c: int
 
 
+GameDoc = TypedDict(
+    "GameDoc",
+    {
+        "_id": str,
+        "v": str,
+        "r": str,
+        "z": int,
+        "us": list[str],
+        "m": list[str] | str,
+        "o": list[int],
+        "if": str | None,
+        "f": str,
+        "p": int,
+        "s": int,
+        "d": datetime,
+        "tid": str,
+        "y": int,
+        "by": str,
+        "x": int,
+        "wt": str,
+        "bt": str,
+        "wtB": str,
+        "btB": str,
+        "lm": str,
+        "lmB": str,
+        "tn": str,
+        "initialFen": str | None,
+    },
+    total=False,
+)
+
+
 async def variant_counts_aggregation(
     app_state: PychessGlobalAppState, humans: bool, query_period: str | None = None
 ) -> list[VariantCountDoc]:
@@ -149,7 +181,7 @@ async def get_variant_stats(request: web.Request) -> web.StreamResponse:
             else:
                 cursor = app_state.db.stats.find()
             cursor.sort("_id", pymongo.ASCENDING)
-            docs = await cursor.to_list(n)
+            docs: list[VariantCountDoc] = await cursor.to_list(n)
             variant_counts_from_docs(variant_counts, docs)
 
             # If cur_period is missing from the stats we call the aggregation
@@ -177,7 +209,7 @@ async def get_tournament_games(request: web.Request) -> web.StreamResponse:
         return web.json_response({})
 
     cursor = app_state.db.game.find({"tid": tournamentId})
-    game_doc_list: list[dict[str, object]] = []
+    game_doc_list: list[dict[str, object] | GameDoc] = []
 
     if TYPE_CHECKING:
         assert tournamentId is not None
@@ -185,6 +217,7 @@ async def get_tournament_games(request: web.Request) -> web.StreamResponse:
     variant = tournament.variant
     decode_method = tournament.server_variant.move_decoding
 
+    doc: GameDoc
     async for doc in cursor:
         doc["v"] = C2V[doc["v"]]
         doc["r"] = C2R[doc["r"]]
@@ -303,7 +336,7 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
 
     page_num = request.rel_url.query.get("p", 0)
 
-    game_doc_list: list[dict[str, object]] = []
+    game_doc_list: list[dict[str, object] | GameDoc] = []
     if profileId is not None:
         # print("FILTER:", filter_cond)
         cursor = app_state.db.game.find(filter_cond)
@@ -311,6 +344,7 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
             cursor.sort("d", -1)
         else:
             cursor.sort("d", -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
+        doc: GameDoc
         async for doc in cursor:
             # filter out private games
             if (
@@ -548,6 +582,7 @@ async def export(request: web.Request) -> web.StreamResponse:
     response.content_type = "text/pgn"
     await response.prepare(request)
     try:
+        doc: GameDoc
         async for doc in cursor:
             try:
                 # print(game_counter)
