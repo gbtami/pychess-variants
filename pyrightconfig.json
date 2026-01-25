@@ -1,0 +1,18 @@
+{
+  "pythonVersion": "3.13",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "none",
+  "reportMissingTypeStubs": "none",
+  "reportOptionalMemberAccess": "none",
+  "reportTypedDictNotRequiredAccess": "none",
+  "reportGeneralTypeIssues": "none",
+  "extraPaths": [
+    "server"
+  ],
+  "include": [
+    "server"
+  ],
+  "exclude": [
+    "server/bugchess"
+  ]
+}

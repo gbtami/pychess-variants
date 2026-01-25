@@ -36,7 +36,7 @@ dev = [
     "pre-commit>=4.3.0",
     "pytest<10.0.0",
     "pytest-aiohttp==1.1.0",
-    "pyright==1.1.402",
+    "pyright==1.1.408",
     "ruff==0.14.13",
 ]
 
