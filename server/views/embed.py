@@ -13,7 +13,7 @@ async def embed(request: web.Request) -> ViewContext:
 
     app_state = get_app_state(request.app)
 
-    gameId = request.match_info.get("gameId")
+    gameId = request.match_info["gameId"]
     ply = request.rel_url.query.get("ply")
 
     game = await load_game(app_state, gameId)

@@ -2,7 +2,7 @@ import asyncio
 import logging
 import logging.config
 import contextvars
-from pymongo.asynchronous.database import AsyncDatabase
+from typing import Any
 
 log = logging.getLogger(__name__)
 
@@ -133,7 +133,7 @@ def init_default_logger():
 
 
 # periodic refresh of logging config from mongo:
-async def start_config_refresh_timer(db: AsyncDatabase):
+async def start_config_refresh_timer(db: Any) -> None:
     async def periodic_refresh():
         last_logging_config = DEFAULT_LOGGING_CONFIG
         while True:

@@ -55,7 +55,9 @@ async def lobby(request: web.Request) -> ViewContext:
     if "/challenge" in request.path or "/play" in request.path:
         context["profile"] = profileId
         context["profile_title"] = (
-            app_state.users[profileId].title if profileId in app_state.users else ""
+            app_state.users[profileId].title
+            if isinstance(profileId, str) and profileId in app_state.users
+            else ""
         )
         context["view_css"] = "lobby.css"
         if user.anon and context["profile_title"] != "BOT":

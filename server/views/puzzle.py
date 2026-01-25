@@ -38,8 +38,9 @@ async def puzzle(request: web.Request) -> ViewContext:
             puzzle = await next_puzzle(request, user)
         else:
             puzzle = await get_puzzle(request, puzzleId)
-            if puzzle is None:
-                raise web.HTTPNotFound()
+
+    if puzzle is None:
+        raise web.HTTPNotFound()
 
     color = puzzle["f"].split()[1]
     chess960 = False

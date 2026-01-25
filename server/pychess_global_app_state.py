@@ -6,7 +6,7 @@ from operator import neg
 import asyncio
 import collections
 import gettext
-from typing import List, Set, TYPE_CHECKING
+from typing import Any, List, Set, TYPE_CHECKING
 
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
@@ -117,12 +117,12 @@ class PychessGlobalAppState:
         self.tournaments_loaded = asyncio.Event()
 
         self.db_client = app[client_key]
-        self.db = app[db_key]
+        self.db: Any = app[db_key]
         self.users = self.__init_users()
         self.disable_new_anons = False
         self.lobby = Lobby(self)
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
-        self.tourneysockets: dict[str, WebSocketResponse] = {}
+        self.tourneysockets: dict[str, dict[str, set[WebSocketResponse | None]]] = {}
         self.tournament_remove_tasks: dict[str, asyncio.Task] = {}
 
         # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
@@ -279,7 +279,7 @@ class PychessGlobalAppState:
                     }
                 )
                 docs = await cursor.to_list(length=MAX_CHAT_LINES)
-                self.lobby.lobbychat = docs
+                self.lobby.lobbychat = collections.deque(docs, MAX_CHAT_LINES)
 
             await self.db.game.create_index("us")
             await self.db.game.create_index("r")
@@ -478,7 +478,7 @@ class PychessGlobalAppState:
             def ngettext(singular: str, plural: str, num: int):
                 return self.translations[LOCALE.get()].ngettext(singular, plural, num)
 
-        env = aiohttp_jinja2.get_env(self.app)
+        env: Any = aiohttp_jinja2.get_env(self.app)
         env.install_gettext_translations(_Translations, newstyle=True)
 
         env.globals["static"] = static_url

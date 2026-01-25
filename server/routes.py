@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Awaitable, Callable, TypeAlias
 
+from aiohttp import web
+
 from bot_api import (
     account,
     playing,
@@ -92,7 +94,7 @@ from views import (
 )
 
 
-Handler: TypeAlias = Callable[..., Awaitable[object]]
+Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
 RouteDef: TypeAlias = tuple[str, Handler]
 
 

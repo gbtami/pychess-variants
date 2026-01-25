@@ -23,7 +23,7 @@ async def select_lang(request):
         referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        if session_user in app_state.users:
+        if isinstance(session_user, str) and session_user in app_state.users:
             user = app_state.users[session_user]
             user.lang = lang
             if app_state.db is not None:

@@ -108,12 +108,10 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | Ga
         return app_state.games[game_id]
 
     # log.debug("load_game() %s from db ", game_id)
-    doc = await app_state.db.game.find_one({"_id": game_id})
+    doc: GameDocument | None = await app_state.db.game.find_one({"_id": game_id})
 
     if doc is None:
         return None
-    doc: GameDocument = doc
-
     variant = C2V[doc["v"]]
 
     if doc["v"] in TWO_BOARD_VARIANT_CODES:

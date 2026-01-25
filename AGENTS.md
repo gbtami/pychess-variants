@@ -32,6 +32,7 @@ python3 server/server.py
 
 ### Testing and Quality
 Note: Always run all linting and testing commands for any change.
+Note: When running pyright in a sandboxed Codex environment, request escalated permissions so pyright can read the system Python search paths (e.g., `/usr/lib/python3.13`, site-packages) and match CI behavior.
 ```bash
 # Run TypeScript type checking
 yarn typecheck

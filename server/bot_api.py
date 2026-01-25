@@ -326,7 +326,7 @@ async def bot_resign(request: web.Request) -> web.StreamResponse:
 async def bot_chat(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
-    data: dict[str, str] = await request.post()
+    data = await request.post()
     log.debug("BOT-CHAT %s %r", username, data)  # noqa: F821
 
     gameId = request.match_info["gameId"]

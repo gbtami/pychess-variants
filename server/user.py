@@ -107,7 +107,9 @@ class User:
 
         self.ready_for_auto_pairing: bool = False
         self.lobby_sockets: Set[WebSocketResponse] = set()
-        self.tournament_sockets: dict[str, set[WebSocketResponse]] = {}  # {tournamentId: set()}
+        self.tournament_sockets: dict[
+            str, set[WebSocketResponse | None]
+        ] = {}  # {tournamentId: set()}
         self.simul_sockets: dict[str, set[WebSocketResponse]] = {}  # {simulId: set()}
 
         self.notify_channels: Set[Queue[str]] = set()
@@ -540,11 +542,11 @@ async def set_theme(request: web.Request) -> web.StreamResponse:
     post_data = await request.post()
     theme = post_data.get("theme")
 
-    if theme is not None:
+    if isinstance(theme, str):
         referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        if session_user in app_state.users:
+        if isinstance(session_user, str) and session_user in app_state.users:
             user = app_state.users[session_user]
             user.theme = theme
             if app_state.db is not None:
@@ -552,7 +554,8 @@ async def set_theme(request: web.Request) -> web.StreamResponse:
                     {"_id": user.username}, {"$set": {"theme": theme}}
                 )
         session["theme"] = theme
-        return web.HTTPFound(referer)
+        redirect_url = referer or "/"
+        return web.HTTPFound(redirect_url)
     else:
         raise web.HTTPNotFound()
 
@@ -562,12 +565,12 @@ async def set_game_category(request: web.Request) -> web.StreamResponse:
     post_data = await request.post()
     game_category = post_data.get("game_category")
 
-    if game_category is not None:
+    if isinstance(game_category, str):
         referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
         normalized = normalize_game_category(game_category)
-        if session_user in app_state.users:
+        if isinstance(session_user, str) and session_user in app_state.users:
             user = app_state.users[session_user]
             user.update_game_category(normalized)
             user.game_category_set = True
@@ -607,7 +610,7 @@ async def set_game_category(request: web.Request) -> web.StreamResponse:
 
 async def block_user(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
-    profileId = request.match_info.get("profileId")
+    profileId = request.match_info["profileId"]
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)

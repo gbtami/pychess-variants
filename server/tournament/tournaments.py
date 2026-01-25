@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Iterable, Mapping, Protocol
+from typing import Any, TYPE_CHECKING, Iterable, Mapping, Protocol
 from datetime import datetime, timezone
 import asyncio
 
@@ -68,7 +68,7 @@ class Translation(Protocol):
 async def create_or_update_tournament(
     app_state: PychessGlobalAppState,
     username: str,
-    form: Mapping[str, str],
+    form: Mapping[str, Any],
     tournament: Tournament | None = None,
 ) -> None:
     """Manual tournament creation from /tournaments/new form input values"""

@@ -18,7 +18,7 @@ async def tournament(request: web.Request) -> ViewContext:
 
     app_state = get_app_state(request.app)
 
-    tournamentId = request.match_info.get("tournamentId")
+    tournamentId = request.match_info["tournamentId"]
     tournament = await load_tournament(app_state, tournamentId)
 
     if tournament is None:

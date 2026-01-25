@@ -23,14 +23,18 @@ async def simuls(request: web.Request) -> ViewContext:
     if request.path.endswith("/simul"):
         data = await request.post()
         simul_id = id8()
+        base_raw = data["base"]
+        inc_raw = data["inc"]
+        if not isinstance(base_raw, (str, bytes)) or not isinstance(inc_raw, (str, bytes)):
+            raise web.HTTPBadRequest()
         simul = await Simul.create(
             app_state,
             simul_id,
             name=data["name"],
             created_by=user.username,
             variant=data["variant"],
-            base=int(data["base"]),
-            inc=int(data["inc"]),
+            base=int(base_raw),
+            inc=int(inc_raw),
             host_color=data.get("host_color", "random"),
         )
         app_state.simuls[simul_id] = simul
@@ -83,7 +87,7 @@ async def start_simul(request: web.Request) -> web.Response:
 
     user, context = await get_user_context(request)
     app_state = get_app_state(request.app)
-    simulId = request.match_info.get("simulId")
+    simulId = request.match_info["simulId"]
     simul = app_state.simuls.get(simulId)
     if simul is None:
         raise web.HTTPNotFound(text="Simul not found")

@@ -45,8 +45,11 @@ SECRET = "".join(random.choice(ID_CHARS) for x in range(16))
 
 
 def validate_twitch_signature(secret: str, request: web.Request, data: str) -> bool:
-    msg_id: str = request.headers.get("twitch-eventsub-message-id")
-    timestamp: str = request.headers.get("twitch-eventsub-message-timestamp")
+    msg_id = request.headers.get("twitch-eventsub-message-id")
+    timestamp = request.headers.get("twitch-eventsub-message-timestamp")
+    signature = request.headers.get("Twitch-Eventsub-Message-Signature")
+    if msg_id is None or timestamp is None or signature is None:
+        return False
     hmac_message = msg_id + timestamp + data
 
     calculated_hash = hmac.new(
@@ -55,7 +58,7 @@ def validate_twitch_signature(secret: str, request: web.Request, data: str) -> b
         digestmod=hashlib.sha256,
     ).hexdigest()
 
-    submitted_hash = request.headers.get("Twitch-Eventsub-Message-Signature")[7:]
+    submitted_hash = signature[7:]
     return calculated_hash == submitted_hash
 
 
@@ -100,7 +103,7 @@ class Twitch:
             await self.request_subscription(name, uid, "channel.update")
 
         if len(self.streams) > 0:
-            await broadcast_streams(self.app)
+            await broadcast_streams(get_app_state(self.app))
 
     async def get_oauth_token(self) -> None:
         log.debug("get_oauth_token from twitch")
@@ -265,7 +268,7 @@ async def twitch_request_handler(request: web.Request) -> web.Response:
 
             if streamer in twitch.streams:
                 del twitch.streams[streamer]
-                await broadcast_streams(request.app)
+                await broadcast_streams(app_state)
 
         if header_sub_type == "stream.online":
             if event["type"] == "live":
@@ -276,14 +279,14 @@ async def twitch_request_handler(request: web.Request) -> web.Response:
                         "site": "twitch",
                         "title": "",
                     }
-                    await broadcast_streams(request.app)
+                    await broadcast_streams(app_state)
 
                     asyncio.create_task(remove(3600), name="twitch-remove-streamer")  # 1 hour
 
         elif header_sub_type == "stream.offline":
             if streamer in twitch.streams:
                 del twitch.streams[streamer]
-                await broadcast_streams(request.app)
+                await broadcast_streams(app_state)
 
         elif header_sub_type == "channel.update":
             title = event["title"]
@@ -296,6 +299,8 @@ async def twitch_request_handler(request: web.Request) -> web.Response:
                     "site": "twitch",
                     "title": title,
                 }
-            await broadcast_streams(request.app)
+            await broadcast_streams(app_state)
 
         return web.Response()
+
+    return web.Response()

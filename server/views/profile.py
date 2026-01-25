@@ -14,7 +14,7 @@ from variants import NOT_RATED_VARIANTS, VARIANTS, VARIANT_ICONS
 async def profile(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
-    profileId = request.match_info.get("profileId")
+    profileId = request.match_info["profileId"]
     variant = request.match_info.get("variant")
 
     app_state = get_app_state(request.app)
@@ -26,24 +26,23 @@ async def profile(request: web.Request) -> ViewContext:
 
     context["icons"] = VARIANT_ICONS
 
-    if profileId is not None:
-        profileId_user = await app_state.users.get(profileId)
-        if profileId_user.username == NONE_USER:
-            raise web.HTTPNotFound()
-        elif (profileId in app_state.users) and not app_state.users[profileId].enabled:
-            raise web.HTTPNotFound()
+    profileId_user = await app_state.users.get(profileId)
+    if profileId_user.username == NONE_USER:
+        raise web.HTTPNotFound()
+    elif (profileId in app_state.users) and not app_state.users[profileId].enabled:
+        raise web.HTTPNotFound()
 
-        if user.anon and DASH in profileId:
-            return context
+    if user.anon and DASH in profileId:
+        return context
 
-        if request.path[-7:] == "/import":
-            rated = IMPORTED
-        elif request.path[-6:] == "/rated":
-            rated = RATED
-        elif request.path[-8:] == "/playing":
-            rated = -2
-        elif request.path[-3:] == "/me":
-            rated = -1
+    if request.path[-7:] == "/import":
+        rated = IMPORTED
+    elif request.path[-6:] == "/rated":
+        rated = RATED
+    elif request.path[-8:] == "/playing":
+        rated = -2
+    elif request.path[-3:] == "/me":
+        rated = -1
 
     context["can_block"] = profileId not in user.blocked
     context["can_challenge"] = user.username not in profileId_user.blocked

@@ -115,7 +115,7 @@ async def get_daily_puzzle(request):
     daily_puzzle_ids = app_state.daily_puzzle_ids
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    if session_user in app_state.users:
+    if isinstance(session_user, str) and session_user in app_state.users:
         current_user = app_state.users[session_user]
     elif session_user:
         current_user = await app_state.users.get(session_user)
@@ -171,6 +171,8 @@ async def get_daily_puzzle(request):
         except DuplicateKeyError:
             # I have no idea how this can happen though...
             daily_puzzle_doc = await app_state.db.dailypuzzle.find_one({"_id": key})
+            if daily_puzzle_doc is None:
+                return empty_puzzle("chess")
             puzzleId = daily_puzzle_doc["puzzleId"]
             try:
                 await app_state.db.dailypuzzle.insert_one({"_id": key, "puzzleId": puzzleId})

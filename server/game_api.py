@@ -497,9 +497,11 @@ async def get_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     games = app_state.games.values()
     variant = request.match_info.get("variant")
-    chess960 = variant.endswith("960") if variant else False
-    if chess960:
+    if variant and variant.endswith("960"):
+        chess960 = True
         variant = variant[:-3]
+    else:
+        chess960 = False
     allowed_variants = None
     if variant is None:
         session = await aiohttp_session.get_session(request)

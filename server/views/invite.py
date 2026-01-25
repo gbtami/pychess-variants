@@ -19,14 +19,14 @@ async def invite(request: web.Request) -> ViewContext:
 
     app_state = get_app_state(request.app)
 
-    gameId = request.match_info.get("gameId")
+    gameId = request.match_info["gameId"]
     inviter = None
 
     if (gameId not in app_state.games) and (gameId in app_state.invites):
         seek_id = app_state.invites[gameId].id
         seek = app_state.seeks[seek_id]
         if request.path.startswith("/invite/accept/"):
-            player = request.match_info.get("player")
+            player = request.match_info.get("player") or "any"
             seek_status = await join_seek(app_state, user, seek, gameId, join_as=player)
 
             if seek_status["type"] == "seek_joined":

@@ -207,7 +207,9 @@ async def close_mongodb_client(app: Application) -> None:
             await app[client_key].close()
             log.debug("\nAsyncMongoClient closed OK.\n")
         except TypeError:
-            app[client_key].close()
+            close_result = app[client_key].close()
+            if asyncio.iscoroutine(close_result):
+                await close_result
             log.debug("\nAsyncMongoMockClient closed OK.\n")
 
 

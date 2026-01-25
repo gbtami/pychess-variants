@@ -148,7 +148,7 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
 
 
 async def fishnet_analysis(request: web.Request) -> web.Response:
-    work_id: str = request.match_info.get("workId")
+    work_id = request.match_info["workId"]
     data: FishnetAnalysisPayload = await request.json()
 
     app_state = get_app_state(request.app)
@@ -210,7 +210,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
 
 
 async def fishnet_move(request: web.Request) -> web.Response:
-    work_id: str = request.match_info.get("workId")
+    work_id = request.match_info["workId"]
     data: FishnetMovePayload = await request.json()
 
     app_state = get_app_state(request.app)
@@ -256,7 +256,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
 
 
 async def fishnet_abort(request: web.Request) -> web.Response:
-    work_id: str = request.match_info.get("workId")
+    work_id = request.match_info["workId"]
     data: FishnetAbortPayload = await request.json()
 
     app_state = get_app_state(request.app)
@@ -287,7 +287,7 @@ async def fishnet_abort(request: web.Request) -> web.Response:
 
 
 async def fishnet_validate_key(request: web.Request) -> web.Response:
-    key: str = request.match_info.get("key")
+    key = request.match_info["key"]
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
 

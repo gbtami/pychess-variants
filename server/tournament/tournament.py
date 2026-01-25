@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple, TypeAlias
+from typing import Any, TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple, TypeAlias
 import asyncio
 import logging
 import collections
@@ -307,7 +307,7 @@ class Tournament(ABC):
         self.spectators: Set[User] = set()
         self.players: dict[User, PlayerData] = {}
 
-        self.leaderboard = ValueSortedDict(neg)
+        self.leaderboard: Any = ValueSortedDict(neg)
         self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
         self.status = T_CREATED if status is None else status
         self.ongoing_games: set[Game] = set()
@@ -1062,12 +1062,12 @@ class Tournament(ABC):
         nb = len(bplayer.points)
         bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
 
-        wpscore = self.leaderboard.get(game.wplayer) // SCORE_SHIFT
+        wpscore = self.leaderboard.get(game.wplayer, 0) // SCORE_SHIFT
         self.leaderboard.update(
             {game.wplayer: SCORE_SHIFT * (wpscore + wpoint[0]) + wplayer.performance}
         )
 
-        bpscore = self.leaderboard.get(game.bplayer) // SCORE_SHIFT
+        bpscore = self.leaderboard.get(game.bplayer, 0) // SCORE_SHIFT
         self.leaderboard.update(
             {game.bplayer: SCORE_SHIFT * (bpscore + bpoint[0]) + bplayer.performance}
         )
