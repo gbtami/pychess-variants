@@ -19,6 +19,7 @@ Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
 username: str
 
 if TYPE_CHECKING:
+    from game import Game
     from ws_types import ErrorMessage, NewGameMessage
 
 
@@ -218,6 +219,8 @@ async def game_stream(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
     game = app_state.games[gameId]
+    if TYPE_CHECKING:
+        assert isinstance(game, Game)
 
     resp = web.StreamResponse()
     resp.content_type = "application/x-ndjson"
@@ -274,6 +277,8 @@ async def bot_move(request: web.Request) -> web.StreamResponse:
 
     user = app_state.users[username]  # noqa: F821
     game = app_state.games[gameId]
+    if TYPE_CHECKING:
+        assert isinstance(game, Game)
 
     await play_move(app_state, user, game, move)
 
@@ -286,6 +291,8 @@ async def bot_abort(request: web.Request) -> web.StreamResponse:
 
     gameId = request.match_info["gameId"]
     game = app_state.games[gameId]
+    if TYPE_CHECKING:
+        assert isinstance(game, Game)
 
     bot_player = app_state.users[username]  # noqa: F821
 

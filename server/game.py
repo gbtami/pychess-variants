@@ -78,12 +78,12 @@ class Game:
         initial_fen: str,
         wplayer: User,
         bplayer: User,
-        base: int = 1,
+        base: int | float = 1,
         inc: int = 0,
         byoyomi_period: int = 0,
-        level: int = 0,
-        rated: int = CASUAL,
-        chess960: bool = False,
+        level: int | None = 0,
+        rated: int | None = CASUAL,
+        chess960: bool | None = False,
         corr: bool = False,
         create: bool = True,
         tournamentId: str | None = None,
@@ -104,13 +104,13 @@ class Game:
         self.all_players: list[User] = [self.wplayer, self.bplayer]
         self.non_bot_players: list[User] = [player for player in self.all_players if not player.bot]
 
-        self.rated: int = rated
-        self.base: int = base
+        self.rated: int | None = rated
+        self.base: int | float = base
         self.inc: int = inc
         self.level: int = level if level is not None else 0
         self.tournamentId: str | None = tournamentId
         self.simulId: str | None = simulId
-        self.chess960: bool = chess960
+        self.chess960: bool | None = chess960
         self.corr: bool = corr
         self.create: bool = create
         self.new_960_fen_needed_for_rematch: bool = new_960_fen_needed_for_rematch
@@ -119,7 +119,7 @@ class Game:
         self.server_variant: ServerVariants = get_server_variant(variant, chess960)
         self.encode_method: Callable[[str], str] = self.server_variant.move_encoding
 
-        self.berserk_time: int = self.base * 1000 * 30
+        self.berserk_time: int | float = self.base * 1000 * 30
 
         self.browser_title: str = "%s • %s vs %s" % (
             self.server_variant.display_name.title(),
@@ -249,6 +249,8 @@ class Game:
                             )
                             self.draw_offers.add(counting_player.username)
 
+        if TYPE_CHECKING:
+            assert self.chess960 is not None
         self.board = FairyBoard(self.variant, self.initial_fen, self.chess960)
 
         # Janggi setup needed when player is not BOT
@@ -722,24 +724,27 @@ class Game:
         new_white_rating = gl2.create_rating(wcurr.mu + wrdiff, wr.phi, wr.sigma, wr.ltime)
         new_black_rating = gl2.create_rating(bcurr.mu + brdiff, br.phi, br.sigma, br.ltime)
 
-        await self.wplayer.set_rating(self.variant, self.chess960, new_white_rating)
-        await self.bplayer.set_rating(self.variant, self.chess960, new_black_rating)
+        chess960 = self.chess960
+        if TYPE_CHECKING:
+            assert chess960 is not None
+        await self.wplayer.set_rating(self.variant, chess960, new_white_rating)
+        await self.bplayer.set_rating(self.variant, chess960, new_black_rating)
 
-        w_nb = self.wplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
+        w_nb = self.wplayer.perfs[self.variant + ("960" if chess960 else "")]["nb"]
         if w_nb >= HIGHSCORE_MIN_GAMES:
             _id = "%s|%s" % (self.wplayer.username, self.wplayer.title)
             await self.set_highscore(
                 self.variant,
-                self.chess960,
+                chess960,
                 {_id: int(round(wcurr.mu + wrdiff, 0))},
             )
 
-        b_nb = self.bplayer.perfs[self.variant + ("960" if self.chess960 else "")]["nb"]
+        b_nb = self.bplayer.perfs[self.variant + ("960" if chess960 else "")]["nb"]
         if b_nb >= HIGHSCORE_MIN_GAMES:
             _id = "%s|%s" % (self.bplayer.username, self.bplayer.title)
             await self.set_highscore(
                 self.variant,
-                self.chess960,
+                chess960,
                 {_id: int(round(bcurr.mu + brdiff, 0))},
             )
 
@@ -1315,6 +1320,9 @@ class Game:
 
     @property
     def tv_game_json(self) -> TvGameJson:
+        chess960 = self.chess960
+        if TYPE_CHECKING:
+            assert chess960 is not None
         response: TvGameJson = {
             "type": "tv_game",
             "gameId": self.id,
@@ -1326,7 +1334,7 @@ class Game:
             "b": self.bplayer.username,
             "wr": self.wrating,
             "br": self.brating,
-            "chess960": self.chess960,
+            "chess960": chess960,
             "base": self.base,
             "inc": self.inc,
             "byoyomi": self.byoyomi_period,

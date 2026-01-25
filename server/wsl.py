@@ -27,6 +27,7 @@ from const import ANON_PREFIX, STARTED
 from newid import new_id
 
 if TYPE_CHECKING:
+    from game import Game
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
     from typing import Literal
@@ -464,12 +465,12 @@ async def send_lobby_user_connected(
         streams_response: StreamsMessage = {"type": "streams", "items": streams}
         await ws_send_json(ws, streams_response)
 
-    if (
-        app_state.tv is not None
-        and app_state.tv in app_state.games
-        and hasattr(app_state.games[app_state.tv], "tv_game_json")
-    ):
-        await ws_send_json(ws, app_state.games[app_state.tv].tv_game_json)
+    if app_state.tv is not None and app_state.tv in app_state.games:
+        game = app_state.games[app_state.tv]
+        if hasattr(game, "tv_game_json"):
+            if TYPE_CHECKING:
+                assert isinstance(game, Game)
+            await ws_send_json(ws, game.tv_game_json)
 
     user.update_auto_pairing(ready=True)
     await user.update_seeks(pending=False)

@@ -1,4 +1,5 @@
 from bug.utils_bug import init_players
+from typing import TYPE_CHECKING
 from pychess_global_app_state_utils import get_app_state
 from const import (
     UNKNOWNFINISH,
@@ -15,7 +16,9 @@ from variants import get_server_variant
 log = logging.getLogger(__name__)
 
 
-def get_main_variation(game: Game, base_tc_ms: int) -> [list, list]:
+def get_main_variation(
+    game: Game, base_tc_ms: int
+) -> tuple[list[str], dict[int, dict[str, list[int]]], list[int]]:
     variations = game.variations
     turns = {0: "w", 1: "w"}
     moves = []
@@ -68,7 +71,7 @@ def get_main_variation(game: Game, base_tc_ms: int) -> [list, list]:
 
         boards.append(board)
         variations = variations[0].variations
-    return [moves, move_times, boards]
+    return moves, move_times, boards
 
 
 async def import_game_bpgn(request):
@@ -88,6 +91,8 @@ async def import_game_bpgn(request):
     )  # bmacho returns bgpns with 2 header entries on same line sometimes
 
     first_game = read_game(pgn)
+    if TYPE_CHECKING:
+        assert first_game is not None
 
     wp_a = first_game.headers.get("WhiteA")
     bp_a = first_game.headers.get("BlackA")
@@ -116,9 +121,9 @@ async def import_game_bpgn(request):
         log.exception("Date tag parsing failed")
         date = datetime.now(timezone.utc)
 
+    tc = first_game.headers.get("TimeControl", "").split("+")
     try:
         minute = False
-        tc = first_game.headers.get("TimeControl", "").split("+")
         if len(tc) == 1:
             tc.append("0")
         if tc[0][-1] == "分":
@@ -133,8 +138,11 @@ async def import_game_bpgn(request):
         log.exception("TimeControl tag parsing failed")
         base, inc = 0, 0
 
+    tc0 = tc[0]
+    if TYPE_CHECKING:
+        assert isinstance(tc0, int)
     [move_stack, move_times, boards] = get_main_variation(
-        first_game, tc[0] * 1000
+        first_game, tc0 * 1000
     )  # data.get("moves", "").split(" ")
     moves = [*map(encode_move_standard, move_stack)]
 

@@ -125,7 +125,7 @@ class Clock:
             await asyncio.sleep(1)
 
     @property
-    def estimate_game_time(self) -> int:
+    def estimate_game_time(self) -> int | float:
         # TODO: calculate with byoyomi
         return (60 * self.game.base) + (ESTIMATE_MOVES * self.game.inc)
 

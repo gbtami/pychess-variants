@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Mapping, cast
+from typing import TYPE_CHECKING, Mapping
 import asyncio
 import random
 import string
@@ -20,6 +20,7 @@ from newid import new_id
 if TYPE_CHECKING:
     from clock import Clock
     from bug.game_bug import GameBug
+    from game import Game
     from pychess_global_app_state import PychessGlobalAppState
     from pymongo.asynchronous.database import AsyncDatabase
     from user import User
@@ -86,6 +87,8 @@ async def round_socket_handler(request: web.Request) -> web.StreamResponse:
     if game is None:
         log.error("Game is None")
         return web.HTTPFound("/")
+    if TYPE_CHECKING:
+        assert isinstance(game, Game)
 
     session = await aiohttp_session.get_session(request)
     user = await get_user(session, request)
@@ -498,9 +501,12 @@ async def handle_rematch(
         handicap = data["handicap"]
         fen = "" if game.variant == "janggi" else game.initial_fen
 
+        chess960 = game.chess960
+        if TYPE_CHECKING:
+            assert chess960 is not None
         reused_fen = True
-        if (game.chess960 or game.random_only) and game.new_960_fen_needed_for_rematch:
-            fen = FairyBoard.start_fen(game.variant, game.chess960, disabled_fen=game.initial_fen)
+        if (chess960 or game.random_only) and game.new_960_fen_needed_for_rematch:
+            fen = FairyBoard.start_fen(game.variant, chess960, disabled_fen=game.initial_fen)
             reused_fen = False
 
         if opp_player.bot:
@@ -530,7 +536,7 @@ async def handle_rematch(
                 level=game.level,
                 rated=game.rated,
                 player1=user,
-                chess960=game.chess960,
+                chess960=chess960,
                 reused_fen=reused_fen,
             )
             app_state.seeks[seek.id] = seek
@@ -561,7 +567,7 @@ async def handle_rematch(
                     level=game.level,
                     rated=game.rated,
                     player1=user,
-                    chess960=game.chess960,
+                    chess960=chess960,
                     reused_fen=reused_fen,
                 )
                 app_state.seeks[seek.id] = seek
@@ -725,7 +731,9 @@ async def handle_game_user_connected(
 
     stopwatch_secs = 0
     if not game.corr and not game.server_variant.two_boards:
-        stopwatch_secs = cast("Clock", game.stopwatch).secs
+        if TYPE_CHECKING:
+            assert isinstance(game.stopwatch, Clock)
+        stopwatch_secs = game.stopwatch.secs
     response: GameUserConnectedMessage = {
         "type": "game_user_connected",
         "username": user.username,

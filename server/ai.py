@@ -112,6 +112,8 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
         if gameId not in app_state.games:
             continue
         game = app_state.games[gameId]
+        if TYPE_CHECKING:
+            assert isinstance(game, Game)
 
         if len(app_state.workers) == 0 and not random_mover:
             log.error("ERROR: No fairyfisnet worker alive!")

@@ -19,6 +19,7 @@ from typing_defs import (
 )
 
 if TYPE_CHECKING:
+    from game import Game
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from settings import FISHNET_KEYS
@@ -236,6 +237,8 @@ async def fishnet_move(request: web.Request) -> web.Response:
     game = await load_game(app_state, gameId)
     if game is None:
         return web.Response(status=204)
+    if TYPE_CHECKING:
+        assert isinstance(game, Game)
 
     user = app_state.users["Fairy-Stockfish"]
     move = data["move"]["bestmove"]

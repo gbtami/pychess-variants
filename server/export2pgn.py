@@ -6,7 +6,7 @@ from motor import motor_asyncio as ma
 
 from settings import MONGO_HOST, MONGO_DB_NAME
 from utils import pgn
-from compress import C2V
+from variants import C2V
 import logging
 
 log = logging.getLogger(__name__)

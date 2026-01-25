@@ -50,10 +50,17 @@ from blogs import BLOG_CATEGORIES
 from valid_fen import VALID_FEN
 
 if TYPE_CHECKING:
+    from bug.game_bug import GameBug
     from pychess_global_app_state import PychessGlobalAppState
     from game import Game
     from seek import Seek
-    from typing_defs import ClockValues, GameBoardResponse, GameDocument, GameEndResponse
+    from typing_defs import (
+        ClockValues,
+        Crosstable,
+        GameBoardResponse,
+        GameDocument,
+        GameEndResponse,
+    )
     from user import User
     from ws_types import (
         AnalysisBoardMessage,
@@ -95,7 +102,7 @@ async def tv_game_user(db, users, profileId):
     return game_id
 
 
-async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | None:
+async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | GameBug | None:
     """Return Game object from app cache or from database"""
     if game_id in app_state.games:
         return app_state.games[game_id]
@@ -142,6 +149,9 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | No
             # print("   changed to:", initial_fen)
 
     corr = doc.get("c", False)
+
+    if TYPE_CHECKING:
+        assert initial_fen is not None
 
     game = Game(
         app_state,
@@ -191,8 +201,10 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | No
 
     if "cw" in doc:
         base_clock_time = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
-        game.clocks_w = [base_clock_time] + doc["cw"] if len(doc["cw"]) > 0 else [base_clock_time]
-        game.clocks_b = [base_clock_time] + doc["cb"] if len(doc["cb"]) > 0 else [base_clock_time]
+        cw: list[int] = doc["cw"]
+        cb: list[int] = doc["cb"]
+        game.clocks_w = [base_clock_time] + cw if len(cw) > 0 else [base_clock_time]
+        game.clocks_b = [base_clock_time] + cb if len(cb) > 0 else [base_clock_time]
 
     level = doc.get("x")
     game.date = doc["d"]
@@ -209,8 +221,13 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | No
         await game.stopwatch.cancel()
 
     try:
-        game.wrating = doc["p0"]["e"]
-        game.brating = doc["p1"]["e"]
+        wrating = doc["p0"]["e"]
+        brating = doc["p1"]["e"]
+        if TYPE_CHECKING:
+            assert isinstance(wrating, str)
+            assert isinstance(brating, str)
+        game.wrating = wrating
+        game.brating = brating
     except KeyError:
         game.wrating = "1500?"
         game.brating = "1500?"
@@ -228,8 +245,9 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | No
         if doc.get("bb", False):
             game.berserk("black")
 
-    if doc.get("by") is not None:
-        game.imported_by = doc.get("by")
+    imported_by = doc.get("by")
+    if imported_by is not None:
+        game.imported_by = imported_by
 
     if game.corr:
         if doc.get("wd", False):
@@ -246,9 +264,10 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | No
         game.mct = doc.get("mct")
 
     if game.has_crosstable:
-        doc = await app_state.db.crosstable.find_one({"_id": game.ct_id})
-        if doc is not None:
-            game.crosstable = doc
+        crosstable_doc = await app_state.db.crosstable.find_one({"_id": game.ct_id})
+        if crosstable_doc is not None:
+            crosstable: Crosstable = crosstable_doc
+            game.crosstable = crosstable
 
     game.loaded_at = datetime.now(timezone.utc)
 
@@ -351,6 +370,9 @@ async def import_game(request):
         log.exception(message)
         return web.json_response({"error": message})
 
+    chess960 = new_game.chess960
+    if TYPE_CHECKING:
+        assert chess960 is not None
     document: GameDocument = {
         "_id": game_id,
         "us": [wplayer.username, bplayer.username],
@@ -365,11 +387,11 @@ async def import_game(request):
         "r": R2C[result],
         "x": new_game.level,
         "y": IMPORTED,
-        "z": int(new_game.chess960),
+        "z": int(chess960),
         "by": data["username"],
     }
 
-    if initial_fen or new_game.chess960:
+    if initial_fen or chess960:
         document["if"] = new_game.initial_fen
 
     if variant.endswith("shogi") or variant in ("dobutsu", "gorogoro", "gorogoroplus"):
@@ -446,14 +468,17 @@ async def new_game(
             message = "Failed to create game. Invalid FEN %s" % seek.fen
             log.debug(message)
             remove_seek(app_state.seeks, seek)
-            response: ErrorMessage = {"type": "error", "message": message}
-            return response
+            return {"type": "error", "message": message}
     else:
         sanitized_fen = ""
 
     color = random.choice(("w", "b")) if seek.color == "r" else seek.color
     wplayer = seek.player1 if color == "w" else seek.player2
     bplayer = seek.player1 if color == "b" else seek.player2
+    if TYPE_CHECKING:
+        assert wplayer is not None
+        assert bplayer is not None
+        assert seek.chess960 is not None
 
     if game_id is not None:
         # game invitation
@@ -493,8 +518,7 @@ async def new_game(
             bplayer,
         )
         remove_seek(app_state.seeks, seek)
-        response: ErrorMessage = {"type": "error", "message": "Failed to create game"}
-        return response
+        return {"type": "error", "message": "Failed to create game"}
     app_state.games[game_id] = game
 
     remove_seek(app_state.seeks, seek)
@@ -592,7 +616,10 @@ def remove_seek(seeks: dict[str, Seek], seek: Seek) -> None:
 async def analysis_move(user: User, game: Game, move: str, fen: str, ply: int) -> None:
     invalid_move = False
 
-    board = FairyBoard(game.variant, fen, game.chess960)
+    chess960 = game.chess960
+    if TYPE_CHECKING:
+        assert chess960 is not None
+    board = FairyBoard(game.variant, fen, chess960)
 
     try:
         # san = board.get_san(move)
@@ -671,6 +698,8 @@ async def play_move(
             if game.variant == "jieqi" and game.last_jieqi_capture:
                 # Send captured fake identity only to the capturer via a move message.
                 # This avoids leaking the info through shared board payloads.
+                if TYPE_CHECKING:
+                    assert game.lastmove is not None
                 jieqi_capture_response: JieqiCaptureMoveMessage = {
                     "type": "move",
                     "gameId": gameId,
@@ -1037,6 +1066,8 @@ async def get_notifications(request):
     if user.notifications is None:
         cursor = app_state.db.notify.find({"notifies": session_user})
         user.notifications = await cursor.to_list(length=100)
+    if TYPE_CHECKING:
+        assert user.notifications is not None
     if page_num == 0:
         notifications = user.notifications[-NOTIFY_PAGE_SIZE:]
     else:

@@ -1,5 +1,6 @@
 import asyncio
 import collections
+from typing import TYPE_CHECKING
 from datetime import datetime, timezone
 from time import time_ns
 
@@ -42,6 +43,9 @@ KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
 
 
 class GameBug:
+    white_rating: object
+    black_rating: object
+
     def __init__(
         self,
         app_state: PychessGlobalAppState,
@@ -52,7 +56,7 @@ class GameBug:
         bplayerA,
         wplayerB,
         bplayerB,
-        base=1,
+        base: int | float = 1,
         inc=0,
         level=0,
         rated=CASUAL,
@@ -101,12 +105,12 @@ class GameBug:
         self.white_rating_b = wplayerB.get_rating(variant, chess960)
         self.wrating_a = "%s%s" % self.white_rating_a.rating_prov
         self.wrating_b = "%s%s" % self.white_rating_b.rating_prov
-        self.wrdiff = 0
+        self.wrdiff: int | str = 0
         self.black_rating_a = bplayerA.get_rating(variant, chess960)
         self.black_rating_b = bplayerB.get_rating(variant, chess960)
         self.brating_a = "%s%s" % self.black_rating_a.rating_prov
         self.brating_b = "%s%s" % self.black_rating_b.rating_prov
-        self.brdiff = 0
+        self.brdiff: int | str = 0
 
         # crosstable info
         self.need_crosstable_save = False
@@ -121,7 +125,7 @@ class GameBug:
         self.lastmove = None
         self.lastmovePerBoardAndUser = {"a": {}, "b": {}}
         self.status = STARTED  # CREATED
-        self.result = "*"
+        self.result: str = "*"
         self.id = gameId
 
         start_fen = initial_fen if initial_fen else FairyBoard.start_fen(variant, chess960)
@@ -361,11 +365,11 @@ class GameBug:
         return ""
 
     @property
-    def wrating(self):
+    def wrating(self) -> str:
         return self.wrating_a  # temporary for compatibitly everywhere this stuff is accessed now
 
     @property
-    def brating(self):
+    def brating(self) -> str:
         return self.brating_a  # temporary for compatibitly everywhere this stuff is accessed now
 
     @property
@@ -390,7 +394,7 @@ class GameBug:
             self.bplayerB.username,
         )
 
-    def update_status(self, status=None, result=None):
+    def update_status(self, status: int | None = None, result: str | None = None):
         if self.status > STARTED:
             return
 
@@ -460,7 +464,10 @@ class GameBug:
             # game_result_value =  self.boards[board].game_result_no_history()
             # if it is whites turn then black wins => -1, else white wins => +1
             game_result_value = -1 if self.boards[board].color == WHITE else 1
-            self.result = GameBug.result_string_from_value(game_result_value, board)
+            result = GameBug.result_string_from_value(game_result_value, board)
+            if TYPE_CHECKING:
+                assert result is not None
+            self.result = result
             self.status = MATE
             return True
         return False

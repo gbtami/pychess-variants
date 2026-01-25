@@ -39,6 +39,7 @@ class Plan(NamedTuple):
 
 
 ScheduledEntry = tuple[str, str, bool, dt.datetime, int]
+ScheduledEntryWithId = tuple[str, str, bool, dt.datetime, int, str]
 VariantType = TypeVar("VariantType")
 
 SHIELDS: list[str] = [
@@ -257,7 +258,7 @@ class Scheduler:
 
 
 def new_scheduled_tournaments(
-    already_scheduled: Iterable[ScheduledEntry],
+    already_scheduled: Iterable[ScheduledEntry | ScheduledEntryWithId],
     now: dt.datetime | None = None,
 ) -> list[ScheduledTournamentCreateData]:
     """Create list for scheduled tournament data for one week from now on compared to what we already have"""

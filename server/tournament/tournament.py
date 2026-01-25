@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple
+from typing import TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple, TypeAlias
 import asyncio
 import logging
 import collections
@@ -60,6 +60,7 @@ from typing_defs import (
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from typing import Literal
+    from bug.game_bug import GameBug
     from ws_types import ChatLine
     from ws_types import SpectatorsMessage
 from spectators import spectators
@@ -79,6 +80,10 @@ NOTIFY1_MINUTES = 60 * 6
 NOTIFY2_MINUTES = 10
 
 Point = TournamentPoint
+if TYPE_CHECKING:
+    GameType: TypeAlias = Game | GameBug
+else:
+    GameType: TypeAlias = Game
 
 
 class EnoughPlayer(Exception):
@@ -442,6 +447,9 @@ class Tournament(ABC):
         top_game = self.top_game
         if TYPE_CHECKING:
             assert top_game is not None
+        chess960 = top_game.chess960
+        if TYPE_CHECKING:
+            assert chess960 is not None
         response: TournamentTopGameResponse = {
             "type": "top_game",
             "gameId": top_game.id,
@@ -451,7 +459,7 @@ class Tournament(ABC):
             "b": top_game.bplayer.username,
             "wr": self.leaderboard_keys_view.index(top_game.wplayer) + 1,
             "br": self.leaderboard_keys_view.index(top_game.bplayer) + 1,
-            "chess960": top_game.chess960,
+            "chess960": chess960,
             "base": top_game.base,
             "inc": top_game.inc,
             "byoyomi": top_game.byoyomi_period,
@@ -1011,10 +1019,12 @@ class Tournament(ABC):
 
         return (wpoint, bpoint, wperf, bperf)
 
-    async def game_update(self, game: Game) -> None:
+    async def game_update(self, game: GameType) -> None:
         """Called from Game.update_status()"""
         if self.status in (T_FINISHED, T_ABORTED):
             return
+        if TYPE_CHECKING:
+            assert isinstance(game, Game)
 
         wplayer = self.players[game.wplayer]
         bplayer = self.players[game.bplayer]

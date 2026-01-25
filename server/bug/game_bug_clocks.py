@@ -1,4 +1,5 @@
 from time import monotonic
+from typing import TYPE_CHECKING
 
 from clock import Clock
 from const import STARTED
@@ -53,7 +54,12 @@ class GameBugClocks:
             ),
         }
 
-    def update_clocks(self, board, clocks=None, clocks_b=None):
+    def update_clocks(
+        self,
+        board,
+        clocks: list[int | float] | None = None,
+        clocks_b: list[int | float] | None = None,
+    ):
         self.stopwatches[board].stop()
 
         cur_color = self.game.boards[board].color
@@ -65,6 +71,11 @@ class GameBugClocks:
         else:
             self.last_server_clockB = cur_time
             clocks_current = clocks_b
+
+        if TYPE_CHECKING:
+            assert clocks_current is not None
+            assert clocks is not None
+            assert clocks_b is not None
 
         self.last_move_clocks[board][cur_color] = clocks_current[cur_color]
 

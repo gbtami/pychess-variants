@@ -2,6 +2,7 @@ from __future__ import annotations
 import re
 import random
 from functools import cache
+from typing import TYPE_CHECKING
 
 # -*- coding: utf-8 -*-
 from fairy.ataxx import ATAXX_FENS
@@ -390,6 +391,8 @@ class FairyBoard:
         return self.jieqi_covered_pieces.get(dst)
 
     def invalid_jieqi_advisor_moves(self):
+        if TYPE_CHECKING:
+            assert self.jieqi_covered_pieces is not None
         if self.color == WHITE:
             if "d1" in self.jieqi_covered_pieces:
                 yield "d1c2"

@@ -69,13 +69,13 @@ class Simul:
         ):
             self.pending_players[user.username] = user
 
-    def approve(self, username: str):
+    def approve(self, username: str | None):
         if username in self.pending_players:
             user = self.pending_players[username]
             del self.pending_players[username]
             self.players[username] = user
 
-    def deny(self, username: str):
+    def deny(self, username: str | None):
         if username in self.pending_players:
             del self.pending_players[username]
 

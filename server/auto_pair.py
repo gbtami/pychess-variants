@@ -1,4 +1,5 @@
 from itertools import product
+from typing import TYPE_CHECKING
 from random import random
 
 from variants import BYOS
@@ -72,6 +73,8 @@ async def auto_pair(app_state, user, auto_variant_tc, other_user=None, matching_
 
     variant, chess960, base, inc, byoyomi_period = auto_variant_tc
     if matching_seek is None:
+        if TYPE_CHECKING:
+            assert other_user is not None
         seek_id = await new_id(None if app_state.db is None else app_state.db.seek)
         seek = Seek(
             seek_id,

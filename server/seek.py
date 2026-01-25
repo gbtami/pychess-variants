@@ -36,10 +36,10 @@ class SeekJson(TypedDict):
     rrmin: int
     rrmax: int
     rating: int
-    base: int
+    base: int | float
     inc: int
     byoyomi: int
-    day: int
+    day: int | float
     gameId: str
 
 
@@ -53,7 +53,7 @@ class CorrSeekJson(TypedDict):
     rated: bool | int | None
     rrmin: int
     rrmax: int
-    day: int
+    day: int | float
     expireAt: datetime
 
 
@@ -80,10 +80,10 @@ class Seek:
         variant: str,
         fen: str = "",
         color: str = "r",
-        base: int = 5,
+        base: int | float = 5,
         inc: int = 5,
         byoyomi_period: int = 0,
-        day: int = 0,
+        day: int | float = 0,
         level: int = 6,
         rated: bool | int | None = False,
         rrmin: int | None = None,
@@ -107,11 +107,11 @@ class Seek:
         self.rating: int = creator.get_rating_value(variant, chess960)
         self.rrmin: int = rrmin if (rrmin is not None and rrmin != -1000) else -10000
         self.rrmax: int = rrmax if (rrmax is not None and rrmax != 1000) else 10000
-        self.base: int = base
+        self.base: int | float = base
         self.inc: int = inc
         self.byoyomi_period: int = byoyomi_period
         server_variant = get_server_variant(variant, chess960)
-        self.day: int = 0 if server_variant.two_boards else day
+        self.day: int | float = 0 if server_variant.two_boards else day
         self.level: int = 0 if creator.username == "Random-Mover" else level
         self.chess960: bool | None = chess960
         self.target: str = target if target is not None else ""

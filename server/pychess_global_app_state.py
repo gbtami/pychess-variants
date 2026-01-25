@@ -16,6 +16,8 @@ from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 
 if TYPE_CHECKING:
+    from bug.game_bug import GameBug
+    from clock import CorrClock
     from ws_types import ChatLine
     from typing_defs import TournamentCalendarEvent
 
@@ -136,9 +138,9 @@ class PychessGlobalAppState:
         self.sent_lichess_team_msg: List[date] = []
 
         self.seeks: dict[str, Seek] = {}
-        self.auto_pairing_users: dict[User, (int, int)] = {}
-        self.auto_pairings: dict[str, set] = {}
-        self.games: dict[str, Game] = {}
+        self.auto_pairing_users: dict[User, tuple[int, int]] = {}
+        self.auto_pairings: dict[tuple[str, bool, int, int, int], set[User]] = {}
+        self.games: dict[str, Game | GameBug] = {}
         self.invites: dict[str, Seek] = {}
         self.game_channels: Set[asyncio.Queue[str]] = set()
         self.invite_channels: dict[str, Set[asyncio.Queue[str]]] = {}
@@ -155,7 +157,7 @@ class PychessGlobalAppState:
         self.g_cnt = [0]
 
         # last game played
-        self.tv: str = None
+        self.tv: str | None = None
 
         self.twitch = self.__init_twitch()
         self.youtube = Youtube(self.app)
@@ -355,19 +357,29 @@ class PychessGlobalAppState:
                             continue
                         self.games[game_id] = game
                         if corr:
+                            if TYPE_CHECKING:
+                                assert isinstance(game, Game)
                             game.wplayer.correspondence_games.append(game)
                             game.bplayer.correspondence_games.append(game)
+                            if TYPE_CHECKING:
+                                assert isinstance(game.stopwatch, CorrClock)
                             game.stopwatch.restart(from_db=True)
                         else:
                             try:
+                                if TYPE_CHECKING:
+                                    assert isinstance(game, Game)
                                 game.stopwatch.restart()
                             except AttributeError:
+                                if TYPE_CHECKING:
+                                    assert isinstance(game, GameBug)
                                 game.gameClocks.restart("a")
                                 game.gameClocks.restart("b")
                     except NotInDbUsers:
                         log.error("Failed toload game %s", game_id)
 
                     if game.bot_game:
+                        if TYPE_CHECKING:
+                            assert isinstance(game, Game)
                         if len(game.board.move_stack) > 0 and len(game.steps) == 1:
                             game.create_steps()
                         bot_player = game.wplayer if game.wplayer.bot else game.bplayer

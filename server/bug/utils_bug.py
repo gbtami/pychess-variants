@@ -1,6 +1,7 @@
 import asyncio
 import random
 from datetime import timezone
+from typing import TYPE_CHECKING
 
 from pychess_global_app_state import PychessGlobalAppState
 from compress import R2C, C2R
@@ -276,6 +277,8 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
 
     # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
+        if TYPE_CHECKING:
+            assert seek.chess960 is not None
         game = GameBug(
             app_state,
             game_id,

@@ -576,6 +576,8 @@ async def load_tournament(
             game = await load_game(app_state, _id)
             if game is None:
                 continue
+            if TYPE_CHECKING:
+                assert isinstance(game, Game)
             if game.status > STARTED and game.result != "*":
                 result = game.result
                 res = R2C[result]
