@@ -6,6 +6,7 @@ import json
 
 if TYPE_CHECKING:
     from game import Game
+    from bug.game_bug import GameBug
     from pychess_global_app_state import PychessGlobalAppState
 import logging
 
@@ -21,7 +22,7 @@ async def broadcast_streams(app_state: PychessGlobalAppState) -> None:
 
 
 async def round_broadcast(
-    game: Game,
+    game: Game | GameBug,
     response: Mapping[str, object],
     full: bool = False,
     channels: Iterable[asyncio.Queue[str]] | None = None,

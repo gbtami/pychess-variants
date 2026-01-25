@@ -1,14 +1,21 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import Literal, overload
 from time import time
 
-if TYPE_CHECKING:
-    from ws_types import TournamentChatMessage
+from ws_types import ChatLine, ChatMessage, LobbyChatMessage
 
 
+@overload
 def chat_response(
-    msg_type: str, username: str, message: str, room: str = ""
-) -> TournamentChatMessage:
+    msg_type: Literal["lobbychat"], username: str, message: str, room: str = ""
+) -> LobbyChatMessage: ...
+
+
+@overload
+def chat_response(msg_type: str, username: str, message: str, room: str = "") -> ChatMessage: ...
+
+
+def chat_response(msg_type: str, username: str, message: str, room: str = "") -> ChatLine:
     return {
         "type": msg_type,
         "user": username,

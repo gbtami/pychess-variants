@@ -18,6 +18,9 @@ log = logging.getLogger(__name__)
 Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
 username: str
 
+if TYPE_CHECKING:
+    from ws_types import ErrorMessage, NewGameMessage
+
 
 def authorized(func: Handler) -> Handler:
     """Authorization decorator"""
@@ -84,7 +87,7 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
         assert gameId is not None
     seek = app_state.invites[gameId]
 
-    result: dict[str, object] = await new_game(app_state, seek, gameId)  # noqa: F821
+    result: NewGameMessage | ErrorMessage = await new_game(app_state, seek, gameId)  # noqa: F821
 
     if result["type"] == "new_game":
         # TODO: use asyncio.Event()

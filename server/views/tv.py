@@ -24,6 +24,9 @@ async def tv(request: web.Request) -> ViewContext:
 
     ply = request.rel_url.query.get("ply")
 
+    if gameId is None:
+        raise web.HTTPNotFound()
+
     game = await load_game(app_state, gameId)
     if game is None:
         raise web.HTTPNotFound()

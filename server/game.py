@@ -38,6 +38,7 @@ from spectators import spectators
 import logging
 from typing_defs import (
     AnalysisStep,
+    ClockValues,
     Crosstable,
     GameBoardResponse,
     GameEndResponse,
@@ -165,8 +166,8 @@ class Game:
         self.analysis: list[AnalysisStep] | None = None
 
         clocks_init = (base * 1000 * 60) + 0 if base > 0 else inc * 1000
-        self.clocks_w: list[int] = [clocks_init]
-        self.clocks_b: list[int] = [clocks_init]
+        self.clocks_w: list[int | float] = [clocks_init]
+        self.clocks_b: list[int | float] = [clocks_init]
 
         self.lastmove: str | None = None
         self.check: bool = False
@@ -342,7 +343,7 @@ class Game:
         await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
 
     async def play_move(
-        self, move: str, clocks: list[int] | None = None, ply: int | None = None
+        self, move: str, clocks: ClockValues | None = None, ply: int | None = None
     ) -> None:
         self.stopwatch.stop()
 
@@ -380,18 +381,18 @@ class Game:
             if cur_player.bot and self.board.ply >= 2:
                 if self.byoyomi:
                     if self.overtime:
-                        clocks[cur_color] = self.inc * 1000
+                        clocks[cur_color] = self.inc * 1000  # pyright: ignore[reportIndexIssue]
                     else:
-                        clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)
+                        clocks[cur_color] = max(0, self.clocks[cur_color] - movetime)  # pyright: ignore[reportIndexIssue]
                 else:
-                    clocks[cur_color] = max(
+                    clocks[cur_color] = max(  # pyright: ignore[reportIndexIssue]
                         0, self.clocks[cur_color] - movetime + (self.inc * 1000)
                     )
 
                 if clocks[cur_color] == 0:
                     if self.byoyomi and self.byoyomi_periods[cur_color] > 0:
                         self.overtime = True
-                        clocks[cur_color] = self.inc * 1000
+                        clocks[cur_color] = self.inc * 1000  # pyright: ignore[reportIndexIssue]
                         self.byoyomi_periods[cur_color] -= 1
                     else:
                         w, b = self.board.insufficient_material()
@@ -406,9 +407,9 @@ class Game:
             if (ply is not None) and ply <= 2 and self.tournamentId is not None:
                 # Just in case for move and berserk messages race
                 if self.wberserk:
-                    clocks[WHITE] = self.berserk_time
+                    clocks[WHITE] = self.berserk_time  # pyright: ignore[reportIndexIssue]
                 if self.bberserk:
-                    clocks[BLACK] = self.berserk_time
+                    clocks[BLACK] = self.berserk_time  # pyright: ignore[reportIndexIssue]
 
         self.last_server_clock = cur_time
 
@@ -459,9 +460,10 @@ class Game:
                     if jieqi_capture is not None and self.jieqi_captures is not None:
                         # Track hidden captures for the capturer only; the client will
                         # render these without leaking them to the opponent.
-                        self.last_jieqi_capture = jieqi_capture.lower()
-                        self.jieqi_captures[cur_color].append(self.last_jieqi_capture)
-                        self.jieqi_capture_stack.append((cur_color, self.last_jieqi_capture))
+                        capture = jieqi_capture.lower()
+                        self.last_jieqi_capture = capture
+                        self.jieqi_captures[cur_color].append(capture)
+                        self.jieqi_capture_stack.append((cur_color, capture))
                     else:
                         self.jieqi_capture_stack.append(None)
 
@@ -928,7 +930,7 @@ class Game:
         )
 
     @property
-    def clocks(self) -> tuple[int, int]:
+    def clocks(self) -> tuple[int | float, int | float]:
         return (self.clocks_w[-1], self.clocks_b[-1])
 
     @property

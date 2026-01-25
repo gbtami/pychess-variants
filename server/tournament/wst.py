@@ -28,7 +28,7 @@ from pychess_global_app_state_utils import get_app_state
 from settings import TOURNAMENT_DIRECTORS
 from tournament.tournament import T_CREATED, T_STARTED
 from tournament.tournaments import load_tournament
-from ws_types import ChatMessage, FullChatMessage, TournamentUserConnectedMessage
+from ws_types import ChatLine, FullChatMessage, TournamentUserConnectedMessage
 from websocket_utils import process_ws, get_user, ws_send_json
 
 
@@ -252,7 +252,7 @@ async def handle_lobbychat(
     if TYPE_CHECKING:
         assert tournament is not None
     message = data["message"]
-    response: ChatMessage | FullChatMessage | None = None
+    response: ChatLine | FullChatMessage | None = None
 
     if user.username in TOURNAMENT_DIRECTORS:
         if message.startswith("/silence"):

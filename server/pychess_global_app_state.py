@@ -6,7 +6,6 @@ from operator import neg
 import asyncio
 import collections
 import gettext
-import queue
 from typing import List, Set, TYPE_CHECKING
 
 from aiohttp import web
@@ -17,7 +16,8 @@ from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
 
 if TYPE_CHECKING:
-    from ws_types import TournamentChatMessage
+    from ws_types import ChatLine
+    from typing_defs import TournamentCalendarEvent
 
 from ai import BOT_task
 from const import (
@@ -102,7 +102,8 @@ LOCALHOST_CACHE_KEEP_TIME = 1 if _is_test_run() else TOURNAMENT_KEEP_TIME
 
 
 class PychessGlobalAppState:
-    tourneychat: dict[str, collections.deque["TournamentChatMessage"]]
+    tourneychat: dict[str, collections.deque["ChatLine"]]
+    tourney_calendar: list["TournamentCalendarEvent"] | None
 
     def __init__(self, app: web.Application):
         from typedefs import db_key
@@ -139,8 +140,8 @@ class PychessGlobalAppState:
         self.auto_pairings: dict[str, set] = {}
         self.games: dict[str, Game] = {}
         self.invites: dict[str, Seek] = {}
-        self.game_channels: Set[queue] = set()
-        self.invite_channels: dict[str, Set[queue]] = {}
+        self.game_channels: Set[asyncio.Queue[str]] = set()
+        self.invite_channels: dict[str, Set[asyncio.Queue[str]]] = {}
         self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
         self.shield = {}
         self.shield_owners = {}  # {variant: username, ...}

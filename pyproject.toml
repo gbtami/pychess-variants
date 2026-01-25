@@ -3,7 +3,7 @@ name = "pychess-variants"
 version = "0.1.0"
 description = "Chess variants server"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "aiohttp==3.13.3",
     "aiohttp-cors==0.8.1",
@@ -31,12 +31,12 @@ dependencies = [
 dev = [
     "mongomock-motor==0.0.36",
     "motor==3.7.1",
-    "mypy==1.19.1",
     "objgraph==3.6.2",
     "playwright==1.57.0",
     "pre-commit>=4.3.0",
     "pytest<10.0.0",
     "pytest-aiohttp==1.1.0",
+    "pyright==1.1.402",
     "ruff==0.14.13",
 ]
 

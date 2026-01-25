@@ -292,6 +292,8 @@ async def handle_create_bot_challenge(
         assert seek is not None
     seek_value: Seek = seek
     log.debug("Created BOT challenge: %s", seek_value)
+    if TYPE_CHECKING:
+        assert seek_value.game_id is not None
 
     engine.game_queues[seek_value.game_id] = asyncio.Queue()
     bot_challenge = challenge(seek_value)

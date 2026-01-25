@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, NotRequired, Sequence, TypedDict
+from typing import TYPE_CHECKING, Literal, NotRequired, Sequence, TypeAlias, TypedDict
 
 from typing_defs import ClockValues, StreamInfo, TournamentSpotlightItem
 
@@ -12,8 +12,10 @@ class ChatMessage(TypedDict):
     type: str
     user: str
     message: str
-    room: str
-    time: int
+    tid: NotRequired[str]
+    _id: NotRequired[object]
+    room: NotRequired[str]
+    time: NotRequired[int]
 
 
 class TournamentChatMessage(ChatMessage, total=False):
@@ -21,12 +23,8 @@ class TournamentChatMessage(ChatMessage, total=False):
     _id: object
 
 
-class LobbyChatMessage(TypedDict):
+class LobbyChatMessage(ChatMessage):
     type: Literal["lobbychat"]
-    user: str
-    message: str
-    room: NotRequired[str]
-    time: NotRequired[int]
     _id: NotRequired[object]
 
 
@@ -34,7 +32,7 @@ class LobbyChatMessageDb(LobbyChatMessage):
     pass
 
 
-ChatLine = ChatMessage | LobbyChatMessage
+ChatLine: TypeAlias = ChatMessage | LobbyChatMessage | TournamentChatMessage
 
 
 class LobbyCountMessage(TypedDict):
@@ -139,7 +137,7 @@ class GameUserConnectedMessage(TypedDict):
     username: str
     gameId: str
     ply: int
-    firstmovetime: int
+    firstmovetime: int | float
 
 
 class GameStartMessage(TypedDict):
@@ -338,7 +336,7 @@ class DeletedMessage(TypedDict):
     type: Literal["deleted"]
 
 
-RoundInboundMessage = (
+RoundInboundMessage: TypeAlias = (
     MoveMessage
     | BughouseMoveMessage
     | ReconnectMessage

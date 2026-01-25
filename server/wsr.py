@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Mapping, cast
 import asyncio
 import random
 import string
@@ -136,6 +136,8 @@ async def process_message(
     if data["type"] == "move":
         await handle_move(app_state, user, data, game)
     elif data["type"] == "reconnect":
+        if TYPE_CHECKING:
+            assert isinstance(game, GameBug)
         await handle_reconnect_bughouse(app_state, user, data, game)
     elif data["type"] == "berserk":
         await handle_berserk(data, game)
@@ -168,6 +170,8 @@ async def process_message(
         or data["type"] == "flag"
     ):
         if game.server_variant.two_boards:
+            if TYPE_CHECKING:
+                assert isinstance(game, GameBug)
             await handle_resign_bughouse(data, game, user)
         else:
             await handle_abort_resign_abandon_flag(ws, app_state.users, user, data, game)
@@ -178,6 +182,8 @@ async def process_message(
     elif data["type"] == "moretime":
         await handle_moretime(app_state.users, user, data, game)
     elif data["type"] == "bugroundchat":
+        if TYPE_CHECKING:
+            assert isinstance(game, GameBug)
         await handle_bugroundchat(app_state.users, user, data, game)
     elif data["type"] == "roundchat":
         await handle_roundchat(app_state, ws, user, data, game)
@@ -472,10 +478,12 @@ async def handle_rematch(
     user: User,
     data: RematchMessage,
     game: game.Game,
-) -> None:
+) -> Mapping[str, object] | None:
     if game.server_variant.two_boards:
+        if TYPE_CHECKING:
+            assert isinstance(game, GameBug)
         await handle_rematch_bughouse(app_state, game, user)
-        return
+        return None
 
     # Use the game's move_lock to ensure atomic operations for rematch functionality
     async with game.move_lock:

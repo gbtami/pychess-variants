@@ -60,7 +60,7 @@ from typing_defs import (
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from typing import Literal
-    from ws_types import TournamentChatMessage
+    from ws_types import ChatLine
     from ws_types import SpectatorsMessage
 from spectators import spectators
 from tournament.tournament_spotlights import tournament_spotlights
@@ -290,9 +290,7 @@ class Tournament(ABC):
         self.ends_at: datetime
         self.with_clock = with_clock
 
-        self.tourneychat: Deque[TournamentChatMessage] | list[TournamentChatMessage] = (
-            collections.deque([], MAX_CHAT_LINES)
-        )
+        self.tourneychat: Deque[ChatLine] | list[ChatLine] = collections.deque([], MAX_CHAT_LINES)
 
         self.wave = timedelta(seconds=7)
         self.wave_delta = timedelta(seconds=1)
@@ -389,7 +387,8 @@ class Tournament(ABC):
             if self.players[user].page > 0:
                 page = self.players[user].page
             else:
-                div, mod = divmod(self.leaderboard.index(user) + 1, 10)
+                leaderboard_index: int = self.leaderboard.index(user)
+                div, mod = divmod(leaderboard_index + 1, 10)
                 page = div + (1 if mod > 0 else 0)
                 if self.status == T_CREATED:
                     self.players[user].page = page
@@ -544,8 +543,8 @@ class Tournament(ABC):
                         if self.prev_pairing is None:
                             self.prev_pairing = now - self.wave - self.wave_delta
 
-                        if now >= self.prev_pairing + self.wave + random.uniform(
-                            -self.wave_delta, self.wave_delta
+                        if now >= self.prev_pairing + self.wave + (
+                            self.wave_delta * random.uniform(-1, 1)
                         ):
                             waiting_players = self.waiting_players()
                             nb_waiting_players = len(waiting_players)
@@ -1378,7 +1377,7 @@ class Tournament(ABC):
             url,
         )
 
-    async def tourney_chat_save(self, response: TournamentChatMessage) -> None:
+    async def tourney_chat_save(self, response: ChatLine) -> None:
         self.tourneychat.append(response)
         response["tid"] = self.id
         await self.app_state.db.tournament_chat.insert_one(response)

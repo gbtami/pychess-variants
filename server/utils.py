@@ -53,7 +53,7 @@ if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from game import Game
     from seek import Seek
-    from typing_defs import GameBoardResponse, GameDocument, GameEndResponse
+    from typing_defs import ClockValues, GameBoardResponse, GameDocument, GameEndResponse
     from user import User
     from ws_types import (
         AnalysisBoardMessage,
@@ -623,7 +623,7 @@ async def play_move(
     user: User,
     game: Game,
     move: str,
-    clocks: list[int] | None = None,
+    clocks: ClockValues | None = None,
     ply: int | None = None,
 ) -> None:
     gameId = game.id

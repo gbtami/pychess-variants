@@ -46,7 +46,7 @@ ruff format .
 ruff check .
 
 # Python type checking
-mypy
+pyright
 
 # Python unit tests
 PYTHONPATH=server python -m unittest discover -s tests

@@ -30,18 +30,18 @@ class Clock:
     """Check game start and time out abandoned games"""
 
     def __init__(
-        self, game: Game, board: FairyBoard | None = None, secs: int | None = None
+        self, game: Game, board: FairyBoard | None = None, secs: int | float | None = None
     ) -> None:
         self.game: Game = game
         self.board: FairyBoard = board if board is not None else game.board
         self.running: bool = False
-        self.secs: int = -1
+        self.secs: int | float = -1
         self.restart(secs)
         self.clock_task: asyncio.Task[None] | None = asyncio.create_task(
             self.countdown(), name="game-clock-%s" % game.id
         )
 
-    def stop(self) -> int:
+    def stop(self) -> int | float:
         self.running = False
         return self.secs
 
@@ -58,7 +58,7 @@ class Clock:
         self.clock_task = None  # Break strong reference
         # self.game = None
 
-    def restart(self, secs: int | None = None) -> None:
+    def restart(self, secs: int | float | None = None) -> None:
         self.ply: int = self.game.ply
         self.color: int = self.board.color
         if secs is not None:

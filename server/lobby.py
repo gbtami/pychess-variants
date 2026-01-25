@@ -14,7 +14,13 @@ from websocket_utils import ws_send_json
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
-    from ws_types import LobbyChatMessage, LobbyChatMessageDb, LobbyCountMessage, LobbySeeksMessage
+    from ws_types import (
+        ChatLine,
+        LobbyChatMessage,
+        LobbyChatMessageDb,
+        LobbyCountMessage,
+        LobbySeeksMessage,
+    )
 # from logger import log
 
 
@@ -24,7 +30,7 @@ class Lobby:
         self.lobbysockets: dict[
             str, set[WebSocketResponse]
         ] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
-        self.lobbychat: Deque[LobbyChatMessage] = collections.deque([], MAX_CHAT_LINES)
+        self.lobbychat: Deque[ChatLine] = collections.deque([], MAX_CHAT_LINES)
 
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response: Mapping[str, object]) -> None:

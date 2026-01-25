@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping
 
 from broadcast import round_broadcast
 from bug.game_bug import GameBug
@@ -83,7 +83,7 @@ async def handle_resign_bughouse(data: AbortResignMessage, game: GameBug, user: 
 
 async def handle_rematch_bughouse(
     app_state: PychessGlobalAppState, game: GameBug, user: User
-) -> dict[str, object]:
+) -> Mapping[str, object]:
     # Use the game's move_lock to ensure atomic operations for rematch functionality
     async with game.move_lock:
         log.info("rematch request by %s.", user)

@@ -49,7 +49,7 @@ from typing_defs import (
     TournamentPairingDoc,
     TournamentPlayerDoc,
 )
-from ws_types import TournamentChatMessage
+from ws_types import ChatLine
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 from user import User
 from utils import load_game
@@ -373,10 +373,13 @@ async def get_tournament_name(request: web.Request, tournament_id: str | None) -
     if lang is None:
         session = await aiohttp_session.get_session(request)
         session_user: str | None = session.get("user_name")
-        try:
-            lang = app_state.users[session_user].lang
-        except KeyError:
+        if session_user is None:
             lang = "en"
+        else:
+            try:
+                lang = app_state.users[session_user].lang
+            except KeyError:
+                lang = "en"
         if lang is None:
             lang = "en"
 
@@ -669,7 +672,7 @@ async def load_tournament(
             "time": 1,
         },
     )
-    docs: list[TournamentChatMessage] = await cursor.to_list(length=MAX_CHAT_LINES)
+    docs: list[ChatLine] = await cursor.to_list(length=MAX_CHAT_LINES)
     tournament.tourneychat = docs
 
     if tournament.status == T_STARTED:
