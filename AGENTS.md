@@ -89,6 +89,11 @@ docker compose up --build
 - **Board**: Uses chessgroundx for visual chess board representation
 - **Chess engine**: Integrates fairy-stockfish.wasm for client-side analysis
 
+### Chess Standards and Engine Integration
+- **Server-side engine bindings**: The server uses Fairy-Stockfish via `pyffish` Python bindings for valid move generation, validation, FEN position creation, game rule enforcement, and PGN creation.
+- **Client-side engine bindings**: The client uses `ffish-es6.js` JavaScript bindings for similar Fairy-Stockfish functionality.
+- **Standards reference**: UCI, PGN, FEN, and coordinate notation used in the codebase are documented at `https://fairy-stockfish.github.io/chess-variant-standards/`.
+
 ### Key Components
 - **Variants**: Chess variant definitions in `variants.ini` and `server/variants.py`
 - **Internationalization**: `lang/` directory with gettext .po files
