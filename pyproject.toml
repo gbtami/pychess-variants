@@ -32,7 +32,7 @@ dev = [
     "mongomock-motor==0.0.36",
     "motor==3.7.1",
     "objgraph==3.6.2",
-    "playwright==1.57.0",
+    "playwright==1.58.0",
     "pre-commit>=4.3.0",
     "pytest<10.0.0",
     "pytest-aiohttp==1.1.0",
