@@ -11,6 +11,9 @@ from variants import get_server_variant
 log = logging.getLogger(__name__)
 
 MAX_USER_SEEKS = 10
+ANON_RESTRICTED_SEEK_MESSAGE = (
+    "Anonymous users cannot create or join correspondence or bughouse seeks."
+)
 
 if TYPE_CHECKING:
     from pymongo.asynchronous.database import AsyncDatabase
@@ -206,6 +209,13 @@ class Seek:
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
 
 
+def is_anon_restricted_seek(
+    user: User, variant: str, chess960: bool | None, day: int | float = 0
+) -> bool:
+    server_variant = get_server_variant(variant, chess960)
+    return user.anon and (day > 0 or server_variant.two_boards)
+
+
 async def create_seek(
     db: AsyncDatabase | None,
     invites: dict[str, Seek],
@@ -225,6 +235,16 @@ async def create_seek(
     They can only be created by trusted users
     """
     day = data.get("day", 0)
+    chess960: bool | None = data.get("chess960")
+    if is_anon_restricted_seek(user, data["variant"], chess960, day):
+        log.info(
+            "Rejecting restricted seek creation by anon user %s (variant=%s day=%s)",
+            user.username,
+            data["variant"],
+            day,
+        )
+        return None
+
     live_seeks = len([seek for seek in user.seeks.values() if seek.day == 0])
     corr_seeks = len([seek for seek in user.seeks.values() if seek.day != 0])
     if (
@@ -242,7 +262,6 @@ async def create_seek(
 
     seek_id = await new_id(None if db is None else db.seek)
     rated: bool | None = data.get("rated")
-    chess960: bool | None = data.get("chess960")
     seek = Seek(
         seek_id,
         user,

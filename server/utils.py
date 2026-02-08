@@ -44,6 +44,7 @@ from fairy import (
 from fairy.jieqi import make_initial_mapping
 from game import Game
 from newid import new_id
+from seek import ANON_RESTRICTED_SEEK_MESSAGE, is_anon_restricted_seek
 from user import User
 from users import NotInDbUsers
 from blogs import BLOG_CATEGORIES
@@ -423,6 +424,9 @@ async def join_seek(
         seek.fen,
         seek.chess960,
     )
+
+    if is_anon_restricted_seek(user, seek.variant, seek.chess960, seek.day):
+        return {"type": "error", "message": ANON_RESTRICTED_SEEK_MESSAGE}
 
     if user is seek.player1 or user is seek.player2:
         response: SeekStatusMessage = {"type": "seek_yourself", "seekID": seek.id}

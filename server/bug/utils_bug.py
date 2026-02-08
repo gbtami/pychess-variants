@@ -17,6 +17,7 @@ from const import (
 )
 from glicko2.glicko2 import gl2
 from newid import new_id
+from seek import ANON_RESTRICTED_SEEK_MESSAGE, is_anon_restricted_seek
 from utils import remove_seek, round_broadcast, sanitize_fen
 from websocket_utils import ws_send_json
 import logging
@@ -394,6 +395,9 @@ async def join_seek_bughouse(
         seek.fen,
         seek.chess960,
     )
+
+    if user is not None and is_anon_restricted_seek(user, seek.variant, seek.chess960, seek.day):
+        return {"type": "error", "message": ANON_RESTRICTED_SEEK_MESSAGE}
 
     if (
         join_as == "player1"

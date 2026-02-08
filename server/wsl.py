@@ -57,7 +57,15 @@ if TYPE_CHECKING:
         StreamsMessage,
     )
 from pychess_global_app_state_utils import get_app_state
-from seek import challenge, create_seek, get_seeks, Seek, SeekCreateData
+from seek import (
+    ANON_RESTRICTED_SEEK_MESSAGE,
+    challenge,
+    create_seek,
+    get_seeks,
+    is_anon_restricted_seek,
+    Seek,
+    SeekCreateData,
+)
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament.tournament_spotlights import tournament_spotlights
 from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
@@ -69,6 +77,14 @@ import logger
 from variants import get_server_variant
 
 log = logging.getLogger(__name__)
+
+
+def get_create_seek_error_message(user: User, data: SeekCreateData) -> str:
+    day = data.get("day", 0)
+    chess960 = data.get("chess960")
+    if is_anon_restricted_seek(user, data["variant"], chess960, day):
+        return ANON_RESTRICTED_SEEK_MESSAGE
+    return "Failed to create seek"
 
 
 async def lobby_socket_handler(request: web.Request) -> web.StreamResponse:
@@ -217,6 +233,11 @@ async def handle_create_seek(
     log.debug("Creating seek from request: %s", data)
     seek_data: SeekCreateData = data
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data)
+    if seek is None:
+        await ws_send_json(
+            ws, {"type": "error", "message": get_create_seek_error_message(user, seek_data)}
+        )
+        return
     if TYPE_CHECKING:
         assert seek is not None
     seek_value: Seek = seek
@@ -256,6 +277,11 @@ async def handle_create_invite(
     log.debug("Creating seek invite from request: %s", data)
     seek_data: SeekCreateData = data
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data)
+    if seek is None:
+        await ws_send_json(
+            ws, {"type": "error", "message": get_create_seek_error_message(user, seek_data)}
+        )
+        return
     if TYPE_CHECKING:
         assert seek is not None
     seek_value: Seek = seek
@@ -289,6 +315,11 @@ async def handle_create_bot_challenge(
     seek = await create_seek(
         app_state.db, app_state.invites, app_state.seeks, user, seek_data, engine=engine
     )
+    if seek is None:
+        await ws_send_json(
+            ws, {"type": "error", "message": get_create_seek_error_message(user, seek_data)}
+        )
+        return
     if TYPE_CHECKING:
         assert seek is not None
     seek_value: Seek = seek
@@ -329,6 +360,11 @@ async def handle_create_host(
         seek_data,
         empty=True,
     )
+    if seek is None:
+        await ws_send_json(
+            ws, {"type": "error", "message": get_create_seek_error_message(user, seek_data)}
+        )
+        return
     if TYPE_CHECKING:
         assert seek is not None
     seek_value: Seek = seek
