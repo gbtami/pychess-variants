@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import asyncio
 import unittest
 import test_logger
 
@@ -67,11 +68,24 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         await game.game_ended(game.wplayer, "flag")
 
         data = {"gameId": game.id, "handicap": False}
+        resp = None
+        if game.variant == "bughouse":
 
-        for user in game.all_players:
-            if game.variant == "bughouse":
-                resp = await handle_rematch_bughouse(app_state, game, user)
-            else:
+            async def send_rematch(user, delay=0.0):
+                if delay:
+                    await asyncio.sleep(delay)
+                return await handle_rematch_bughouse(app_state, game, user)
+
+            users = list(game.all_players)
+            tasks = [asyncio.create_task(send_rematch(user)) for user in users]
+            responses = await asyncio.gather(*tasks)
+            resp = next(
+                response
+                for response in responses
+                if response is not None and response.get("type") == "new_game"
+            )
+        else:
+            for user in game.all_players:
                 resp = await handle_rematch(app_state, self.fake_ws, user, data, game)
 
         return resp
@@ -151,6 +165,47 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
             chess960=True,
         )
         await self.play_the_match(game)
+
+    async def test_bughouse960_late_rematch_returns_existing_game(self):
+        app_state = get_app_state(self.app)
+        game = GameBug(
+            app_state,
+            "12345678",
+            "bughouse",
+            "",
+            self.Aplayer,
+            self.Bplayer,
+            self.Cplayer,
+            self.Dplayer,
+            chess960=True,
+        )
+        app_state.games[game.id] = game
+        await game.game_ended(game.wplayer, "flag")
+
+        async def send_rematch(user, delay=0.0):
+            await asyncio.sleep(delay)
+            return await handle_rematch_bughouse(app_state, game, user)
+
+        responses = await asyncio.gather(
+            send_rematch(self.Aplayer, delay=0.0),
+            send_rematch(self.Bplayer, delay=0.01),
+            send_rematch(self.Cplayer, delay=0.02),
+            send_rematch(self.Dplayer, delay=0.03),
+        )
+        rematch_resp = next(
+            resp for resp in responses if resp is not None and resp.get("type") == "new_game"
+        )
+        game2 = app_state.games[rematch_resp["gameId"]]
+        self.assertEqual(game2.initial_fen, game.initial_fen)
+
+        await game2.game_ended(game2.wplayer, "flag")
+
+        existing_game_ids = set(app_state.games.keys())
+        late_resp = await send_rematch(self.Dplayer, delay=0.02)
+        self.assertIsNotNone(late_resp)
+        self.assertEqual(late_resp.get("type"), "view_rematch")
+        self.assertEqual(late_resp.get("gameId"), game2.id)
+        self.assertEqual(existing_game_ids, set(app_state.games.keys()))
 
     async def play_the_match(self, game):
         app_state = get_app_state(self.app)

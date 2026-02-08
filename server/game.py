@@ -159,6 +159,7 @@ class Game:
         self.spectators: Set[User] = set()
         self.draw_offers: Set[str] = set()
         self.rematch_offers: Set[str] = set()
+        self.rematch_id: str | None = None
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
 
         self.date: datetime = datetime.now(timezone.utc)

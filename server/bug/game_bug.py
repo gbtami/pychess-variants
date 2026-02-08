@@ -119,6 +119,7 @@ class GameBug:
         self.spectators = set()
         self.draw_offers = set()
         self.rematch_offers = set()
+        self.rematch_id: str | None = None
         self.messages = collections.deque([], MAX_CHAT_LINES)
         self.date = datetime.now(timezone.utc)
 

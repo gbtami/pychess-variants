@@ -490,6 +490,11 @@ async def handle_rematch(
 
     # Use the game's move_lock to ensure atomic operations for rematch functionality
     async with game.move_lock:
+        if game.rematch_id is not None:
+            view_response: ViewRematchMessage = {"type": "view_rematch", "gameId": game.rematch_id}
+            await ws_send_json(ws, view_response)
+            return view_response
+
         rematch_id = None
 
         opp_name = (
@@ -547,6 +552,7 @@ async def handle_rematch(
             await engine.event_queue.put(challenge(seek))
             gameId = response["gameId"]
             rematch_id = gameId
+            game.rematch_id = rematch_id
             engine.game_queues[gameId] = asyncio.Queue()
         else:
             if opp_name in game.rematch_offers:
@@ -574,6 +580,7 @@ async def handle_rematch(
 
                 response = await join_seek(app_state, opp_player, seek)
                 rematch_id = response["gameId"]
+                game.rematch_id = rematch_id
                 await ws_send_json(ws, response)
                 await app_state.users[opp_name].send_game_message(data["gameId"], response)
             else:

@@ -86,6 +86,11 @@ async def handle_rematch_bughouse(
 ) -> Mapping[str, object]:
     # Use the game's move_lock to ensure atomic operations for rematch functionality
     async with game.move_lock:
+        if game.rematch_id is not None:
+            response = {"type": "view_rematch", "gameId": game.rematch_id}
+            await user.send_game_message(game.id, response)
+            return response
+
         log.info("rematch request by %s.", user)
         rematch_id = None
         other_players = filter(lambda p: p.username != user.username, game.non_bot_players)
@@ -101,7 +106,7 @@ async def handle_rematch_bughouse(
             reused_fen = True
             if game.chess960 and game.new_960_fen_needed_for_rematch:
                 fen = FairyBoard.start_fen(
-                    game.variant, game.chess960, disabled_fen=game.initial_fen
+                    game.variant, game.chess960, disabled_fen=game.initial_fen.split(" | ")[0]
                 )
                 reused_fen = False
 
@@ -130,6 +135,7 @@ async def handle_rematch_bughouse(
                 app_state, None, seek.id, None, "all-joined-players-set-generate-response"
             )
             rematch_id = response["gameId"]
+            game.rematch_id = rematch_id
             for u in set(game.non_bot_players):
                 await u.send_game_message(game.id, response)
         else:
