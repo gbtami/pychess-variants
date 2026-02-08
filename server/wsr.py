@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Mapping
 import asyncio
 import random
 import string
+from time import monotonic
 
 import aiohttp_session
 from aiohttp import web
@@ -78,6 +79,53 @@ import logger
 log = logging.getLogger(__name__)
 
 MORE_TIME = 15 * 1000
+# NOTE ABOUT FLAG CLAIM TIMING:
+# - The browser clock is continuous and can hit 0 between server updates.
+# - The server countdown clock is quantized (updated in 1s steps in Clock.countdown()).
+# - Therefore a valid client "flag" claim may arrive while server stopwatch.secs
+#   is still slightly positive (typically < 1 second) until the next server tick.
+# We accept a small tolerance window ONLY to avoid rejecting such legitimate claims.
+# This does not allow arbitrary early flags because _flag_claim_allowed() also
+# enforces that the claimant is the side to move and verifies server-side timing.
+CLIENT_FLAG_TOLERANCE_MS = 1000
+
+
+def _flag_claim_allowed(game: game.Game, user: User) -> bool:
+    # Only players can claim flag, and only for the side to move.
+    if user.username == game.wplayer.username:
+        user_color = WHITE
+    elif user.username == game.bplayer.username:
+        user_color = BLACK
+    else:
+        return False
+
+    if game.board.color != user_color:
+        return False
+
+    # Client "flag" claims are only meaningful for real-time games.
+    if game.corr:
+        return False
+
+    # In first-move timeout and byoyomi, rely on the live stopwatch state.
+    # For these modes we cannot reliably reconstruct elapsed-time from the
+    # saved move clocks alone, so we read stopwatch.secs directly.
+    #
+    # We intentionally allow a small positive remainder (<= tolerance) because
+    # of the 1s server tick granularity explained above. Also require the
+    # stopwatch to be running, so casual first-move games (no running timeout)
+    # cannot be spuriously flagged.
+    if TYPE_CHECKING:
+        assert isinstance(game.stopwatch, Clock)
+    if game.ply < 2 or game.byoyomi:
+        return game.stopwatch.running and game.stopwatch.secs <= CLIENT_FLAG_TOLERANCE_MS
+
+    # In normal increment games we compute authoritative remaining time from:
+    #   remaining = saved_clock_after_last_move - elapsed_since_last_move
+    # where elapsed uses server monotonic time. This avoids trusting client
+    # clock values and avoids tolerance-based false positives in this path.
+    saved = game.clocks_w[-1] if user_color == WHITE else game.clocks_b[-1]
+    elapsed = int(round((monotonic() - game.last_server_clock) * 1000))
+    return (saved - elapsed) <= 0
 
 
 async def round_socket_handler(request: web.Request) -> web.StreamResponse:
@@ -689,6 +737,15 @@ async def handle_abort_resign_abandon_flag(
         return
 
     async with game.move_lock:
+        if data["type"] == "flag" and not _flag_claim_allowed(game, user):
+            log.info(
+                "Ignoring invalid flag claim in %s by %s (turn=%s, ply=%s)",
+                game.id,
+                user.username,
+                game.board.color,
+                game.ply,
+            )
+            return
         response = await game.game_ended(user, data["type"])
 
     await ws_send_json(ws, response)

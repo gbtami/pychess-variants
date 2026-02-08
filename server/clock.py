@@ -113,6 +113,17 @@ class Clock:
                         )
 
                         async with self.game.move_lock:
+                            # Re-validate after acquiring the move lock. A move may
+                            # have been processed while we were waiting, in which case
+                            # this timeout belongs to an outdated turn.
+                            if (
+                                self.game.status >= ABORTED
+                                or not self.running
+                                or self.secs > 0
+                                or self.game.ply != self.ply
+                                or self.board.color != self.color
+                            ):
+                                continue
                             response = await self.game.game_ended(user, reason)
                             await round_broadcast(self.game, response, full=True)
                             # If a clock expires, there may be no further gameState
