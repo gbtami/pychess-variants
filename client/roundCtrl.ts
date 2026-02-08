@@ -30,6 +30,12 @@ import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
+import {
+    parsePendingMove,
+    pendingMoveOnOpenAction,
+    pendingMoveStorageKey,
+    shouldClearPendingMoveByServerPly,
+} from './pendingMove';
 
 let rang = false;
 const CASUAL = '0';
@@ -63,11 +69,21 @@ export class RoundController extends GameController {
     handicap: boolean;
     focus: boolean;
     finishedGame: boolean;
-    lastMaybeSentMsgMove: MsgMove; // Always store the last "move" message that was passed for sending via websocket.
-                          // In case of bad connection, we are never sure if it was sent (thus the name)
-                          // until a "board" message from server is received from server that confirms it.
-                          // So if at any moment connection drops, after reconnect we always resend it.
-                          // If server received and processed it the first time, it will just ignore it
+    // Last move that may have left the client but is not yet confirmed by server board state.
+    //
+    // Why this exists:
+    // - WebSocket send + hard refresh/unload can lose the in-flight move from page memory.
+    // - Without cached resend state, reconnect can leave local player flagged although
+    //   they moved "in time" locally.
+    //
+    // We keep this both in memory and localStorage:
+    // - memory: fast path for normal temporary disconnect/reconnect
+    // - localStorage: survives full page reloads
+    //
+    // Safety:
+    // - resend is gated by strict ply relation checks
+    // - server also validates ply and ignores duplicates/stale moves
+    lastMaybeSentMsgMove: MsgMove | undefined;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -75,16 +91,25 @@ export class RoundController extends GameController {
         document.addEventListener("visibilitychange", () => {this.focus = !document.hidden});
         window.addEventListener('blur', () => {this.focus = false});
         window.addEventListener('focus', () => {this.focus = true});
+        this.lastMaybeSentMsgMove = this.loadPendingMoveFromStorage();
 
         const onOpen = () => {
-            if ( this.lastMaybeSentMsgMove  && this.lastMaybeSentMsgMove.ply === this.ply + 1 ) {
-                // if this.ply === this.lastMaybeSentMsgMove.ply it would mean the move message was received by server and it has replied with "board" message, confirming and updating the state, including this.ply
-                // since they are not equal, but also one ply behind, means we should try to re-send it
-                try {
-                    console.log("resending unsent message ", this.lastMaybeSentMsgMove);
-                    this.doSend(this.lastMaybeSentMsgMove);
-                } catch (e) {
-                    console.log("could not even REsend unsent message ", this.lastMaybeSentMsgMove)
+            const pendingMove = this.lastMaybeSentMsgMove;
+            if (pendingMove) {
+                const action = pendingMoveOnOpenAction(pendingMove, this.ply);
+                if (action === "resend") {
+                    // Local UI is one ply behind pending move: resend it once per reconnect/open.
+                    // If the server already has it, server ply checks will reject as duplicate.
+                    try {
+                        console.log("resending unsent message ", pendingMove);
+                        this.doSend(pendingMove);
+                    } catch (e) {
+                        console.log("could not even REsend unsent message ", pendingMove);
+                    }
+                } else if (action === "clear") {
+                    // Cached move does not match current position context anymore.
+                    // Keeping it would risk an out-of-position resend later.
+                    this.clearPendingMoveCache();
                 }
             }
 
@@ -370,6 +395,52 @@ export class RoundController extends GameController {
         }
 
         this.onMsgBoard(model["board"] as MsgBoard);
+    }
+
+    // Helper wrapper keeps key format centralized and explicit at call sites.
+    private pendingMoveStorageKey(): string {
+        return pendingMoveStorageKey(this.gameId);
+    }
+
+    private loadPendingMoveFromStorage(): MsgMove | undefined {
+        try {
+            const parsed = parsePendingMove(localStorage.getItem(this.pendingMoveStorageKey()), this.gameId);
+            if (!parsed) {
+                localStorage.removeItem(this.pendingMoveStorageKey());
+            }
+            return parsed;
+        } catch (e) {
+            // Keep gameplay robust even if storage is blocked/corrupted.
+            console.warn("Failed to load pending move cache", e);
+            return undefined;
+        }
+    }
+
+    private persistPendingMove(moveMsg: MsgMove): void {
+        this.lastMaybeSentMsgMove = moveMsg;
+        try {
+            localStorage.setItem(this.pendingMoveStorageKey(), JSON.stringify(moveMsg));
+        } catch (e) {
+            // Move still remains in memory for this page lifetime.
+            console.warn("Failed to persist pending move cache", e);
+        }
+    }
+
+    private clearPendingMoveCache(): void {
+        this.lastMaybeSentMsgMove = undefined;
+        try {
+            localStorage.removeItem(this.pendingMoveStorageKey());
+        } catch (e) {
+            console.warn("Failed to clear pending move cache", e);
+        }
+    }
+
+    private clearPendingMoveIfConfirmed(serverPly: number): void {
+        // Server ply at/after pending ply means the move has been accepted or superseded.
+        // In both cases, keeping cached move would only risk stale re-sends on future reloads.
+        if (shouldClearPendingMoveByServerPly(this.lastMaybeSentMsgMove, serverPly)) {
+            this.clearPendingMoveCache();
+        }
     }
 
     toggleSettings() {
@@ -721,6 +792,9 @@ export class RoundController extends GameController {
     }
 
     private onMsgGameEnd = (msg: MsgGameEnd) => {
+        // Terminal state: any resend intent is invalid after game end.
+        // Clear eagerly to avoid carrying stale move cache into post-game reload/reconnect.
+        this.clearPendingMoveCache();
         this.checkStatus(msg);
 
         if (this.variant.name !== 'jieqi') return;
@@ -764,6 +838,9 @@ export class RoundController extends GameController {
         if (msg.takeback) latestPly = true;
 
         if (latestPly) this.ply = msg.ply;
+        // Board sync is the authoritative confirmation point for pending move progress.
+        // We clear cached resend intent once server reaches/passes that pending ply.
+        this.clearPendingMoveIfConfirmed(msg.ply);
 
         if (this.ply === 0) {
             if (this.variant.rules.setup) {
@@ -1052,8 +1129,11 @@ export class RoundController extends GameController {
                 increment = 0;
             }
 
-            this.lastMaybeSentMsgMove = { type: "move", gameId: this.gameId, move: move, clocks: clock_times, ply: this.ply + 1 };
-            this.doSend(this.lastMaybeSentMsgMove as JSONObject);
+            // Persist before socket send so a crash/refresh between "create msg" and "server board ack"
+            // can still recover and resend this exact move on next load.
+            const moveMsg = { type: "move", gameId: this.gameId, move: move, clocks: clock_times, ply: this.ply + 1 } as MsgMove;
+            this.persistPendingMove(moveMsg);
+            this.doSend(moveMsg as JSONObject);
 
             if (this.preaction) {
                 this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK] + increment);
