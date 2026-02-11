@@ -647,10 +647,15 @@ export class AnalysisController extends GameController {
         // Render PV line
         if (ceval?.p !== undefined && this.multipv > 0) {
             let pvSan: string | VNode = ceval.p;
-            if (this.fsfEngineBoard) {
+            const sanBoard = this.fsfEngineBoard ?? this.ffishBoard;
+            if (sanBoard) {
                 try {
-                    this.fsfEngineBoard.setFen(this.fullfen);
-                    pvSan = this.fsfEngineBoard.variationSan(ceval.p, this.notationAsObject);
+                    // `fsfEngineBoard` is initialized asynchronously after local-engine handshake.
+                    // On initial page load, server-side analysis can arrive before that happens.
+                    // Falling back to `ffishBoard` avoids showing raw UCI coordinates until user
+                    // clicks a move and triggers another redraw.
+                    sanBoard.setFen(this.fullfen);
+                    pvSan = sanBoard.variationSan(ceval.p, this.notationAsObject);
                     if (pvSan === '') pvSan = emptySan;
                 } catch (error) {
                     pvSan = emptySan;
