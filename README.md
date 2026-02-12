@@ -72,3 +72,9 @@ This recompiles the frontend and starts the server and DB. Once it is up, you ca
 Pychess-variants should support almost all browsers. Though older browsers (including any version of Internet Explorer) will not work. For your own sake, please upgrade. Security and performance, think about it!
 
 Only [Fairy-Stockfish analysis](https://www.pychess.org/analysis/chess) might not work on all browsers.
+## List of the most active contributors
+<a href="https://github.com/gbtami/pychess-variants/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=gbtami/pychess-variants" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
