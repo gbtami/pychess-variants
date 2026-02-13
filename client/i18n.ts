@@ -93,7 +93,7 @@ export const translatedVariantDisplayNames = [
 
     _("makruk"), _("makbug"), _("makpong"), _("ouk chaktrang"), _("sittuyin"), _("asean"),
 
-    _("shogi"), _("minishogi"), _("kyoto shogi"), _("dobutsu"), _("gorogoro"),
+    _("shogi"), _("sho shogi"), _("minishogi"), _("kyoto shogi"), _("dobutsu"), _("gorogoro"),
     _("gorogoro+"), _("tori shogi", _("cannon shogi")),
 
     _("xiangqi"), _("supply chess"), _("manchu"), _("janggi"), _("minixiangqi"),
@@ -139,6 +139,7 @@ export const translatedTooltips = [
     _("Burmese Chess. Similar to Makruk, but pieces are placed at the start of the match."),
     _("Makruk using the board/pieces from International Chess as well as pawn promotion rules."),
     _("Japanese Chess, the standard 9x9 version played today with drops and promotions."),
+    _("Historical 9x9 Shogi with a drunken elephant piece and no drops."),
     _("Shogi with Chinese and Korean cannons"),
     _("5x5 Shogi for more compact and faster games. There are no knights or lances."),
     _("A wild Shogi variant on a 5x5 board where pieces flip into a different piece after each move."),

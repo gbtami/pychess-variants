@@ -4,6 +4,7 @@ GRANDS = ("xiangqi", "manchu", "grand", "grandhouse", "shako", "janggi")
 
 BYOS = (
     "shogi",
+    "shoshogi",
     "minishogi",
     "kyotoshogi",
     "dobutsu",
@@ -27,6 +28,7 @@ V2C_ORIG = {
     "dragon": "R",
     "seirawan": "s",
     "shogi": "g",
+    "shoshogi": "?",
     "minishogi": "a",
     "shouse": "z",
     "sittuyin": "y",
@@ -102,6 +104,7 @@ VARIANTS_ORIG = (
     "sittuyin",
     "asean",
     "shogi",
+    "shoshogi",
     "minishogi",
     "kyotoshogi",
     "dobutsu",
@@ -154,6 +157,7 @@ VARIANT_ICONS_ORIG = {
     "makpong": "O",
     "sittuyin": ":",
     "shogi": "K",
+    "shoshogi": "☗",
     "janggi": "=",
     "xiangqi": "|",
     "chess": "M",
@@ -236,6 +240,8 @@ def variant_display_name_orig(variant):
         return "GOROGORO+"
     elif variant == "kyotoshogi":
         return "KYOTO SHOGI"
+    elif variant == "shoshogi":
+        return "SHO SHOGI"
     elif variant == "torishogi":
         return "TORI SHOGI"
     elif variant == "cannonshogi":
@@ -278,6 +284,7 @@ TRANSLATED_VARIANT_NAMES_ORIG = {
     "sittuyin": _("Sittuyin"),
     "asean": _("ASEAN"),
     "shogi": _("Shogi"),
+    "shoshogi": _("Sho Shogi"),
     "minishogi": _("Minishogi"),
     "kyotoshogi": _("Kyoto Shogi"),
     "dobutsu": _("Dobutsu"),

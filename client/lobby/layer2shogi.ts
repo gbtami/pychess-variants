@@ -35,6 +35,13 @@ export function layer2shogi(lobbyCtrl: LobbyController, containerId: string, sho
                 ]),
                 h('p.variant-extra-info', _('Original Shogi')),
             ]),
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'shoshogi') } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['shoshogi'].icon(false) } }),
+                    h('h3', VARIANTS['shoshogi'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('9x9 without drops')),
+            ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'minishogi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['minishogi'].icon(false) } }),

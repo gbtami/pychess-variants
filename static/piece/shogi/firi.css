@@ -84,3 +84,16 @@
 .shogi piece.k-piece.white {
     background-image: url('../../images/pieces/firi/bk.svg');
 }
+
+.shogi piece.e-piece.black {
+    background-image: url('../../images/pieces/firi/1_ELEPHANT.svg');
+}
+.shogi piece.pe-piece.black {
+    background-image: url('../../images/pieces/firi/wk.svg');
+}
+.shogi piece.e-piece.white {
+    background-image: url('../../images/pieces/firi/0_ELEPHANT.svg');
+}
+.shogi piece.pe-piece.white {
+    background-image: url('../../images/pieces/firi/bk.svg');
+}

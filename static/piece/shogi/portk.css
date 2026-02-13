@@ -88,3 +88,16 @@
 .shogi piece.k-piece.black.enemy {
     background-image: url('../../images/pieces/shogi/Portella/Kanji/1OU.png');
 }
+
+.shogi piece.e-piece.ally {
+    background-image: url('../../images/pieces/shogi/Portella/Kanji/0_ELEPHANT.svg');
+}
+.shogi piece.pe-piece.ally {
+    background-image: url('../../images/pieces/shogi/Portella/Kanji/0OU.png');
+}
+.shogi piece.e-piece.enemy {
+    background-image: url('../../images/pieces/shogi/Portella/Kanji/1_ELEPHANT.svg');
+}
+.shogi piece.pe-piece.enemy {
+    background-image: url('../../images/pieces/shogi/Portella/Kanji/1OU.png');
+}

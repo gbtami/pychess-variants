@@ -82,6 +82,7 @@ class ServerVariants(Enum):
     ASEAN = Variant("S", "asean", _("ASEAN"), "♻")
 
     SHOGI = Variant("g", "shogi", _("Shogi"), "K", byo=True)
+    SHOSHOGI = Variant("?", "shoshogi", _("Sho Shogi"), "☗", byo=True)
     MINISHOGI = Variant("a", "minishogi", _("Minishogi"), "6")
     KYOTOSHOGI = Variant("k", "kyotoshogi", _("Kyoto Shogi"), ")", byo=True, move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
     DOBUTSU = Variant("D", "dobutsu", _("Dobutsu"), "8", byo=True)
@@ -173,6 +174,7 @@ DEV_VARIANTS: tuple[ServerVariants, ...] = (
     ServerVariants.SUPPLY,
     ServerVariants.JIEQI,
     ServerVariants.BORDERLANDS,
+    ServerVariants.SHOSHOGI,
 )
 
 # Remove DEV variants on prod site until they stabilize

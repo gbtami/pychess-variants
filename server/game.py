@@ -199,6 +199,7 @@ class Game:
             "makpong",
             "cambodian",
             "shogi",
+            "shoshogi",
             "dobutsu",
             "gorogoro",
             "gorogoroplus",
@@ -925,7 +926,7 @@ class Game:
     @property
     def uci_usi(self) -> str:
         if self.variant[-5:] == "shogi":
-            mirror = mirror9 if self.variant == "shogi" else mirror5
+            mirror = mirror9 if self.variant in ("shogi", "shoshogi") else mirror5
             return "position sfen %s moves %s" % (
                 self.board.initial_sfen,
                 " ".join(map(uci2usi, map(mirror, self.board.move_stack))),

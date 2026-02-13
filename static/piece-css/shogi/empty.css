@@ -1,0 +1,13 @@
+
+.shogi piece.e-piece.ally {
+    background-image: none;
+}
+.shogi piece.pe-piece.ally {
+    background-image: none;
+}
+.shogi piece.e-piece.enemy {
+    background-image: none;
+}
+.shogi piece.pe-piece.enemy {
+    background-image: none;
+}

@@ -164,6 +164,7 @@ function proTip (variant: string, chess960: boolean) {
 // shogi
     case 'mansindam':
     case 'shogi':
+    case 'shoshogi':
     case 'minishogi':
     case 'gorogoroplus':
     case 'cannonshogi':

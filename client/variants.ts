@@ -671,6 +671,19 @@ export const VARIANTS: Record<string, Variant> = {
         },
     }),
 
+    shoshogi: variant({
+        name: "shoshogi", displayName: "sho shogi", tooltip: "Historical 9x9 Shogi with a drunken elephant piece and no drops.",
+        startFen: "lnsgkgsnl/1r2e2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2E2R1/LNSGKGSNL w 0 1",
+        icon: "☗",
+        boardFamily: "shogi9x9", pieceFamily: "shogi",
+        notation: cg.Notation.SHOGI_ARBNUM,
+        colors: { first: "Black", second: "White" },
+        pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p", "e"],
+        promotion: { type: "shogi", roles: ["p", "l", "n", "s", "r", "b", "e"] },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
+        ui: { pieceSound: "shogi" },
+    }),
+
     cannonshogi: variant({
         name: "cannonshogi", displayName: "cannon shogi", tooltip: "Shogi with Chinese and Korean cannons",
         startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
@@ -1235,6 +1248,7 @@ export const enabledVariants = variants.filter(v => !disabledVariants.includes(v
 // variants having 0 puzzle so far
 export const noPuzzleVariants = [
     "placement",
+    "shoshogi",
     "gorogoroplus",
     "cannonshogi",
     "bughouse",
@@ -1250,12 +1264,12 @@ export const noPuzzleVariants = [
 
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 
-export const devVariants = ["borderlands", "makbug", "supply", "jieqi"];
+export const devVariants = ["borderlands", "makbug", "supply", "jieqi", "shoshogi"];
 
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     chess:    { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
     makruk:   { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
-    shogi:    { variants: [ "shogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
+    shogi:    { variants: [ "shogi", "shoshogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan", "xiangfu" ] },

@@ -167,3 +167,16 @@
 .shogi piece.k-piece.white.ally {
     background-image: url('../../images/pieces/shogi/bnw/1GY-1.svg');
 }
+
+.shogi piece.e-piece.ally {
+    background-image: url('../../images/pieces/shogi/bnw/1_ELEPHANT.svg');
+}
+.shogi piece.pe-piece.ally {
+    background-image: url('../../images/pieces/shogi/bnw/1GY.svg');
+}
+.shogi piece.e-piece.enemy {
+    background-image: url('../../images/pieces/shogi/bnw/0_ELEPHANT.svg');
+}
+.shogi piece.pe-piece.enemy {
+    background-image: url('../../images/pieces/shogi/bnw/0GY.svg');
+}

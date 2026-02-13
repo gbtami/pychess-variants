@@ -167,3 +167,16 @@
 .shogi piece.k-piece.white.ally {
   background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyNC4wLjIsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgdmlld0JveD0iMCAwIDYwIDYwIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA2MCA2MDsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCgkuc3Qwe2ZpbGw6I0UyRDlCQTtzdHJva2U6IzM5MzgzMDtzdHJva2Utd2lkdGg6MS4wNDg7c3Ryb2tlLW9wYWNpdHk6MC45OTIyO30NCgkuc3Qxe2ZpbGw6IzM4MzcyRjtzdHJva2U6IzM4MzcyRjtzdHJva2Utd2lkdGg6MC40NTMyO3N0cm9rZS1saW5lam9pbjpyb3VuZDt9DQo8L3N0eWxlPg0KPHBhdGggY2xhc3M9InN0MCIgZD0iTTMwLDYuM0wxNS43LDExTDksNTMuN2g0Mkw0NC4zLDExTDMwLDYuM3oiLz4NCjxwYXRoIGNsYXNzPSJzdDEiIGQ9Ik0zMS41LDIxLjh2OC43aDYuM2wxLDIuN2gtNy4zVjQzaDEybDEsMy4xSDE1LjRsMS0zLjFoMTJ2LTkuOGgtNy41bDEtMi43aDYuNXYtOC43aC04LjVsLTEtMy4xaDIyLjJsLTEsMy4xDQoJSDMxLjV6Ii8+DQo8L3N2Zz4NCg==')
 }
+
+.shogi piece.e-piece.ally {
+    background-image: url('../../images/pieces/shogi/bnw/1_ELEPHANT.svg');
+}
+.shogi piece.pe-piece.ally {
+    background-image: url('../../images/pieces/shogi/bnw/1GY.svg');
+}
+.shogi piece.e-piece.enemy {
+    background-image: url('../../images/pieces/shogi/bnw/0_ELEPHANT.svg');
+}
+.shogi piece.pe-piece.enemy {
+    background-image: url('../../images/pieces/shogi/bnw/0GY.svg');
+}

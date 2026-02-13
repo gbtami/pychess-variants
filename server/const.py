@@ -283,6 +283,7 @@ CATEGORIES = {
     "makruk": ("makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": (
         "shogi",
+        "shoshogi",
         "minishogi",
         "kyotoshogi",
         "dobutsu",

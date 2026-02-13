@@ -88,3 +88,16 @@
 .shogi piece.k-piece.black.enemy {
   background-image: url('data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjYwIiB3aWR0aD0iNTIuMTU3IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48ZmlsdGVyIGlkPSJhIj48ZmVHYXVzc2lhbkJsdXIgaW49IlNvdXJjZUFscGhhIiByZXN1bHQ9ImJsdXIiIHN0ZERldmlhdGlvbj0iMiIvPjxmZU9mZnNldCBkeD0iMiIgZHk9IjIiIHJlc3VsdD0ib2Zmc2V0Qmx1ciIvPjxmZUJsZW5kIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9Im9mZnNldEJsdXIiIG1vZGU9Im5vcm1hbCIvPjwvZmlsdGVyPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIC0xIDM0LjQzNDkyNSA5My4yNjcyOTEpIj48ZyBmaWxsPSIjZmVjYjAwIiBmaWx0ZXI9InVybCgjYSkiIHRyYW5zZm9ybT0ibWF0cml4KC45ODE4NTA1NCAwIDAgLS45ODE4NTA1NCAtMTM0LjYyOTYxIDExNi40ODYyNCkiPjxwYXRoIGQ9Im0tMzcuMjk5MzM5LTMxLjAwOTk5OS0xMy40MDg5OTkgNC4yNi02LjgzNyA0NC41NTc4ODUgNDAuMTg5OTk5LjAwMDExNS02LjUzNS00NC44NjItMTMuMTM4LTMuOTM1Yy0uMDktLjAxNy0uMTgtLjAzMi0uMjcxLS4wMjF6IiBmaWxsPSIjZmZmIiB0cmFuc2Zvcm09Im1hdHJpeCgtMSAwIDAgLTEgOTEuMTU2OTk4IDQ3LjYyNSkiLz48L2c+PHBhdGggZD0ibS05Ljg1MDIzNDUgNTMuNzg2Nzl2OC42OTkzMTVoLTYuMjY4Njg5NWwtMS4wMDAyIDIuNjY1OTE4aDcuMjY4ODg5NXY5LjgyMTgwOGgtMTIuMDM2Njg5NWwtMS4wMDAxNyAzLjA4Njg1M2gyOS4wNjEzMzk1bC0xLjAwMDE3LTMuMDg2ODUzaC0xMS45MDA4OXYtOS44MjE4MDhoNy40NTg3MzAwNWwtLjk5OTg0LTIuNjY1OTE4aC02LjQ1ODg5MDA1di04LjY5OTMxNWg4LjUzMzg5bC45OTk1LTMuMDg2ODUzaC0yMi4yMzg0MDk1bC45OTk5MSAzLjA4Njg1M3oiIGZpbGw9IiMxYTFhMWEiIG9wYWNpdHk9Ii45OSIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9Ii41MTQiLz48L2c+PC9zdmc+')
 }
+
+.shogi piece.e-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctp/0_ELEPHANT.svg');
+}
+.shogi piece.pe-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctp/0OU.svg');
+}
+.shogi piece.e-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctp/1_ELEPHANT.svg');
+}
+.shogi piece.pe-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctp/1OU.svg');
+}

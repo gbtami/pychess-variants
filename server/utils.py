@@ -181,7 +181,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | Ga
     if (mlist or game.tournamentId is not None) and doc["s"] > STARTED:
         game.saved = True
 
-    if usi_format and variant == "shogi":
+    if usi_format and variant in ("shogi", "shoshogi"):
         mirror = mirror9
         mlist = [*map(mirror, mlist)]
 
@@ -790,7 +790,7 @@ def pgn(doc):
                 initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
             # print("   changed to:", initial_fen)
 
-    if usi_format and variant == "shogi":
+    if usi_format and variant in ("shogi", "shoshogi"):
         mirror = mirror9
         mlist = list(map(mirror, mlist))
 
