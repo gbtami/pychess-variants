@@ -4,6 +4,7 @@ import unittest
 import test_logger
 from datetime import datetime, timezone
 from operator import neg
+from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from sortedcollections import ValueSortedDict
@@ -19,7 +20,7 @@ from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
 from newid import id8
 from server import make_app
 from user import User
-from utils import sanitize_fen
+from utils import sanitize_fen, play_move
 from pychess_global_app_state_utils import get_app_state
 from variants import VARIANTS
 
@@ -176,6 +177,18 @@ class GameResultTestCase(AioHTTPTestCase):
 
         self.assertEqual(game.result, "1-0")
         self.assertEqual(game.status, CLAIM)
+
+    async def test_late_move_on_finished_game_is_not_error(self):
+        game = Game(get_app_state(self.app), "12345678", "chess", "", self.wplayer, self.bplayer)
+        game.status = MATE
+
+        with patch("utils.log.error") as mock_error:
+            await play_move(
+                get_app_state(self.app), self.wplayer, game, "e2e4", clocks=CLOCKS, ply=1
+            )
+
+        mock_error.assert_not_called()
+        self.assertEqual(game.ply, 0)
 
     @unittest.skip("TODO: is_optional_game_end() should be fixed for Jieqi")
     async def test_jieqi_perpetual_check(self):

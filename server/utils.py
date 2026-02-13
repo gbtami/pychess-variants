@@ -689,7 +689,13 @@ async def play_move(
             game.result = "0-1" if user.username == game.wplayer.username else "1-0"
     else:
         # never play moves in finished games!
-        log.error("Move received for finished game", stack_info=True)
+        log.info(
+            "Ignoring move for finished game %s from %s (status=%s, move=%s)",
+            gameId,
+            user.username,
+            game.status,
+            move,
+        )
         return
 
     if not invalid_move:
