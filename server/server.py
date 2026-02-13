@@ -22,12 +22,14 @@ from pymongo import AsyncMongoClient
 from db_wrapper import AsyncDBWrapper
 from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
+from request_protection import RequestProtectionState, request_protection_middleware
 
 from typedefs import (
     client_key,
     anon_as_test_users_key,
     pychess_global_app_state_key,
     db_key,
+    request_protection_state_key,
 )
 from routes import get_routes, post_routes
 from settings import (
@@ -112,6 +114,12 @@ def make_app(
 ) -> Application:
     app = web.Application()
     app.middlewares.append(redirect_to_https)
+    # Heroku hobby deploys run aiohttp standalone without nginx/caddy in front.
+    # This middleware acts as an in-app "edge-like" fast filter:
+    # - drop obvious scanner paths early
+    # - apply route-group limits before session/db-heavy handlers run
+    app[request_protection_state_key] = RequestProtectionState()
+    app.middlewares.append(request_protection_middleware)
     app.middlewares.append(cross_origin_policy_middleware)
 
     app[anon_as_test_users_key] = anon_as_test_users
