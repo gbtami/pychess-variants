@@ -49,24 +49,20 @@ async def tournament_socket_handler(request):
 
 async def finally_logic(app_state: PychessGlobalAppState, ws, user):
     if user is not None:
-        for tournamentId in user.tournament_sockets:
-            if ws in user.tournament_sockets[tournamentId]:
-                user.tournament_sockets[tournamentId].remove(ws)
+        for tournamentId, ws_set in list(user.tournament_sockets.items()):
+            if ws in ws_set:
+                ws_set.remove(ws)
 
-                if len(user.tournament_sockets[tournamentId]) == 0:
-                    del user.tournament_sockets[tournamentId]
+                if len(ws_set) == 0:
+                    user.tournament_sockets.pop(tournamentId, None)
                     user.update_online()
 
-                    if (
-                        tournamentId in app_state.tourneysockets
-                        and user.username in app_state.tourneysockets[tournamentId]
-                    ):
-                        del app_state.tourneysockets[tournamentId][user.username]
+                    if tournamentId in app_state.tourneysockets:
+                        app_state.tourneysockets[tournamentId].pop(user.username, None)
                         tournament = await load_tournament(app_state, tournamentId)
-                        if TYPE_CHECKING:
-                            assert tournament is not None
-                        tournament.spactator_leave(user)
-                        await tournament.broadcast(tournament.spectator_list)
+                        if tournament is not None:
+                            tournament.spactator_leave(user)
+                            await tournament.broadcast(tournament.spectator_list)
 
                     if not user.online:
                         await app_state.lobby.lobby_broadcast_u_cnt()
