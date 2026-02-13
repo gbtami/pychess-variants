@@ -10,7 +10,7 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
-import { enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant, variantGroups } from './variants';
+import { devVariants, enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant, variantGroups } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -1084,6 +1084,7 @@ export class LobbyController implements ChatController {
         const variantList: VNode[] = [];
         enabledVariants.forEach(v => {
             if (!this.isVariantAllowed(v)) return;
+            if (devVariants.includes(v)) return;
             const variant = VARIANTS[v];
             let variantName = variant.name;
             let checked = localStorage[`va_${variantName}`] ?? "false";
