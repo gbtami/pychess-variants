@@ -679,6 +679,7 @@ export const VARIANTS: Record<string, Variant> = {
         notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p", "e"],
+        kingRoles: ["k", "+e"],
         promotion: { type: "shogi", roles: ["p", "l", "n", "s", "r", "b", "e"] },
         rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },

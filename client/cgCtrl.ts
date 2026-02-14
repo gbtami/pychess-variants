@@ -46,10 +46,12 @@ export abstract class ChessgroundController implements BoardController {
         this.fog = model.variant === 'fogofwar';
 
         const parts = this.fullfen.split(" ");
-        const fen_placement: cg.FEN = (this.fog) ? fogFen(parts[0]) : parts[0];
+        const fen = (this.fog)
+            ? ([fogFen(parts[0]), ...parts.slice(1)].join(' ') as cg.FEN)
+            : (this.fullfen as cg.FEN);
 
         this.chessground = Chessground(el, {
-            fen: fen_placement as cg.FEN,
+            fen,
             dimensions: this.variant.board.dimensions,
             notation: this.notation,
             addDimensionsCssVarsTo: document.body,

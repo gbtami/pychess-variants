@@ -1050,7 +1050,7 @@ export class RoundController extends GameController {
             } else {
                 this.chessground.set({
                     // giving fen here will place castling rooks to their destination in chess960 variants
-                    fen: (this.fog) ? fogFen(this.fullfen) : parts[0],
+                    fen: (this.fog) ? fogFen(this.fullfen) : this.fullfen,
                     turnColor: this.turnColor,
                     check: msg.check,
                     lastMove: lastMove,
@@ -1069,10 +1069,6 @@ export class RoundController extends GameController {
                     // console.log('OPP CLOCK  STARTED');
                 }
             }
-        }
-
-        if (this.variant.ui.showCheckCounters) {
-            this.updateCheckCounters(msg.fen);
         }
 
         if (this.variant.material.showDiff) {

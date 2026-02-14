@@ -32,7 +32,6 @@ import { setAriaTabClick } from './view';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
 import { updatePoint } from './info';
-import { CheckCounterSvg, Counter } from './glyphs';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -581,23 +580,6 @@ export class AnalysisController extends GameController {
         this.doSendMove(move);
     }
 
-    getCheckCounterShapes(fen: string): DrawShape[] {
-        const parts = fen.split(' ');
-        if (parts.length < 5) return [];
-        const counters = parts[4].split('+');
-        const wSvg = CheckCounterSvg(counters[1] as Counter);
-        const bSvg = CheckCounterSvg(counters[0] as Counter);
-        const pieces = this.chessground.state.boardState.pieces;
-        const kings: { [key in cg.Color]?: cg.Key } = {};
-        for (const [k, p] of pieces) {
-            if (p.role === 'k-piece') kings[p.color] = k;
-        }
-        const shapes: DrawShape[] = [];
-        if (kings.white) shapes.push({ orig: kings.white, customSvg: wSvg });
-        if (kings.black) shapes.push({ orig: kings.black, customSvg: bSvg });
-        return shapes;
-    }
-
     shapeFromMove (pv_idx: number, pv_move: string, turnColor: cg.Color) {
         const atPos = pv_move.indexOf('@');
         // drop
@@ -634,10 +616,7 @@ export class AnalysisController extends GameController {
 
             // TODO: gating, promotion
         }
-        let shapes = this.autoShapes.flat();
-        if (this.variant.ui.showCheckCounters) {
-            shapes = shapes.concat(this.getCheckCounterShapes(this.fullfen));
-        }
+        const shapes = this.autoShapes.flat();
         this.chessground.setAutoShapes(shapes);
     }
 
@@ -835,11 +814,7 @@ export class AnalysisController extends GameController {
 
         if (!this.ongoing) {
             this.autoShapes = new Array(this.multipv).fill([]);
-            if (this.variant.ui.showCheckCounters) {
-                this.chessground.setAutoShapes(this.getCheckCounterShapes(this.fullfen));
-            } else {
-                this.chessground.setAutoShapes([]);
-            }
+            this.chessground.setAutoShapes([]);
             this.drawEval(step.ceval, step.scoreStr, step.turnColor);
             if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
         }
