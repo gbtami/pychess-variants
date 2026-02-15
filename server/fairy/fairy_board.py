@@ -45,6 +45,19 @@ MANCHU_R_FEN = "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 
 JIEQI_FEN = "r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1"
 
 
+def _normalize_variant_and_chess960(variant: str | None, chess960: bool) -> tuple[str, bool]:
+    normalized_variant = (variant or "chess").strip()
+    normalized_chess960 = chess960
+
+    if normalized_variant.endswith("960"):
+        normalized_variant = normalized_variant[:-3]
+        normalized_chess960 = True
+
+    if not normalized_variant:
+        return "chess", normalized_chess960
+    return normalized_variant, normalized_chess960
+
+
 def file_of(piece: str, rank: str) -> int:
     """
     Returns the 0-based file of the specified piece in the rank.
@@ -80,9 +93,10 @@ class FairyBoard:
     def __init__(
         self, variant: str, initial_fen="", chess960=False, count_started=0, disabled_fen=""
     ):
-        self.variant = modded_variant(variant, chess960, initial_fen)
-        self.sf = sf_alice if variant == "alice" else sf
-        self.chess960 = chess960
+        normalized_variant, normalized_chess960 = _normalize_variant_and_chess960(variant, chess960)
+        self.variant = modded_variant(normalized_variant, normalized_chess960, initial_fen)
+        self.sf = sf_alice if normalized_variant == "alice" else sf
+        self.chess960 = normalized_chess960
         self.sfen = False
         self.show_promoted = variant in (
             "makruk",
@@ -136,19 +150,21 @@ class FairyBoard:
             self.notation = NOTATION_SAN
 
     @staticmethod
-    def start_fen(variant, chess960=False, disabled_fen=""):
-        if chess960 or variant == "ataxx":
-            new_fen = FairyBoard.shuffle_start(variant)
+    def start_fen(variant: str | None, chess960=False, disabled_fen=""):
+        normalized_variant, normalized_chess960 = _normalize_variant_and_chess960(variant, chess960)
+
+        if normalized_chess960 or normalized_variant == "ataxx":
+            new_fen = FairyBoard.shuffle_start(normalized_variant)
             while new_fen == disabled_fen:
-                new_fen = FairyBoard.shuffle_start(variant)
-        elif variant == "alice":
+                new_fen = FairyBoard.shuffle_start(normalized_variant)
+        elif normalized_variant == "alice":
             new_fen = sf_alice.start_fen("alice")
         else:
-            new_fen = sf.start_fen(variant)
+            new_fen = sf.start_fen(normalized_variant)
 
-        if variant in ("bughouse", "supply", "makbug"):
+        if normalized_variant in ("bughouse", "supply", "makbug"):
             return new_fen + " | " + new_fen
-        elif variant == "manchu":
+        elif normalized_variant == "manchu":
             return MANCHU_R_FEN
         else:
             return new_fen
@@ -507,17 +523,19 @@ def get_fog_fen(fen, persp_color):
 
 
 def get_san_moves(variant, fen, mlist, chess960, notation):
-    if variant == "alice":
-        return sf_alice.get_san_moves(variant, fen, mlist, chess960, notation)
+    normalized_variant, normalized_chess960 = _normalize_variant_and_chess960(variant, chess960)
+    if normalized_variant == "alice":
+        return sf_alice.get_san_moves(normalized_variant, fen, mlist, normalized_chess960, notation)
     else:
-        return sf.get_san_moves(variant, fen, mlist, chess960, notation)
+        return sf.get_san_moves(normalized_variant, fen, mlist, normalized_chess960, notation)
 
 
 def validate_fen(fen, variant, chess960):
-    if variant == "alice":
-        return sf_alice.validate_fen(fen, variant, chess960)
+    normalized_variant, normalized_chess960 = _normalize_variant_and_chess960(variant, chess960)
+    if normalized_variant == "alice":
+        return sf_alice.validate_fen(fen, normalized_variant, normalized_chess960)
     else:
-        return sf.validate_fen(fen, variant, chess960)
+        return sf.validate_fen(fen, normalized_variant, normalized_chess960)
 
 
 if __name__ == "__main__":

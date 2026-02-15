@@ -203,6 +203,12 @@ class GameResultTestCase(AioHTTPTestCase):
 
 
 class SanitizeFenTestCase(unittest.TestCase):
+    def test_start_fen_accepts_960_variant_keys(self):
+        for variant_key in ("chess960", "atomic960", "seirawan960", "capablanca960"):
+            fen = FairyBoard.start_fen(variant_key)
+            self.assertIsInstance(fen, str)
+            self.assertIn(" w ", fen)
+
     def test_fen_default(self):
         for variant in VARIANTS:
             chess960 = variant.endswith("960")
@@ -260,6 +266,20 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         self.assertEqual(resp.status, 200)
         text = await resp.text()
         self.assertIn("<title>PyChess", text)
+
+    async def test_analysis_960_route_normalizes_variant_and_chess960(self):
+        resp = await self.client.request("GET", "/analysis/chess960")
+        self.assertEqual(resp.status, 200)
+        text = await resp.text()
+        self.assertIn('data-variant="chess"', text)
+        self.assertIn('data-chess960="True"', text)
+
+    async def test_editor_960_route_normalizes_variant_and_chess960(self):
+        resp = await self.client.request("GET", "/editor/chess960")
+        self.assertEqual(resp.status, 200)
+        text = await resp.text()
+        self.assertIn('data-variant="chess"', text)
+        self.assertIn('data-chess960="True"', text)
 
 
 class HighscoreTestCase(AioHTTPTestCase):

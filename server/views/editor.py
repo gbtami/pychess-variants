@@ -11,17 +11,20 @@ from views import get_user_context
 async def editor(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
-    variant = request.match_info.get("variant")
-    if (variant is not None) and (variant not in VARIANTS):
-        variant = "chess"
+    variant_key = request.match_info.get("variant") or "chess"
+    if variant_key not in VARIANTS:
+        variant_key = "chess"
+    chess960 = variant_key.endswith("960")
+    variant = variant_key[:-3] if chess960 else variant_key
 
     fen = request.rel_url.query.get("fen")
     if fen is None:
-        fen = FairyBoard.start_fen(variant)
+        fen = FairyBoard.start_fen(variant, chess960)
     else:
         fen = fen.replace(".", "+").replace("_", " ")
 
     context["variant"] = variant
+    context["chess960"] = chess960
     context["fen"] = fen
 
     return context

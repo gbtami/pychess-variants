@@ -16,19 +16,22 @@ async def analysis(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     gameId = request.match_info.get("gameId")
-    variant = request.match_info.get("variant")
+    variant_key = request.match_info.get("variant") or "chess"
+    if variant_key not in VARIANTS:
+        variant_key = "chess"
+    chess960 = variant_key.endswith("960")
+    variant = variant_key[:-3] if chess960 else variant_key
     ply = request.rel_url.query.get("ply")
-    if (variant is not None) and (variant not in VARIANTS):
-        variant = "chess"
 
     if gameId is None:
         fen = request.rel_url.query.get("fen")
         if fen is None:
-            fen = FairyBoard.start_fen(variant)
+            fen = FairyBoard.start_fen(variant, chess960)
         else:
             fen = fen.replace(".", "+").replace("_", " ")
         context["fen"] = fen
-        context["variant"] = variant if variant is not None else ""
+        context["variant"] = variant
+        context["chess960"] = chess960
     else:
         app_state = get_app_state(request.app)
         game = await load_game(app_state, gameId)
