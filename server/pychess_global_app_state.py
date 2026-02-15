@@ -558,12 +558,14 @@ class PychessGlobalAppState:
             del self.games[game.id]
 
         if game.bot_game:
-            try:
-                for player in game.all_players:
-                    if player.bot:
-                        del player.game_queues[game.id]
-            except KeyError:
-                log.error("Failed to del %s from game_queues", game.id)
+            for player in game.all_players:
+                if not player.bot:
+                    continue
+                removed = player.game_queues.pop(game.id, None)
+                if removed is None:
+                    # The queue may already be gone when cleanup runs after
+                    # reconnect/disconnect races or repeated cache removals.
+                    log.debug("%s already missing from %s.game_queues", game.id, player.username)
 
         # Opportunistically remove idle anon users once their last cached game
         # falls out of memory, to avoid long-lived user-remove tasks and stale
