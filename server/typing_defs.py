@@ -34,6 +34,7 @@ class UserDocument(TypedDict, total=False):
     ct: str
     oauth_id: str
     oauth_provider: str
+    security: dict[str, object]
 
 
 class RelationDocument(TypedDict):

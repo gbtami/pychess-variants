@@ -1,5 +1,6 @@
 import { sanitizeURL } from './url';
 import { h, VNode } from 'snabbdom';
+import './securitySignals';
 
 import ffishModule, { FairyStockfish } from 'ffish-es6';
 

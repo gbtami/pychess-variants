@@ -9,6 +9,7 @@ from aiohttp.web_ws import WebSocketResponse
 
 from admin import (
     ban,
+    baninfo,
     crosstable,
     delete_puzzle,
     disable_new_anons,
@@ -16,6 +17,7 @@ from admin import (
     highscore,
     silence,
     stream,
+    unban,
 )
 from auto_pair import (
     auto_pair,
@@ -542,6 +544,13 @@ async def handle_lobbychat(
 
         elif message.startswith("/delete"):
             await delete_puzzle(app_state, message)
+
+        elif message.startswith("/baninfo"):
+            answare = await baninfo(app_state, message)
+            await ws_send_json(ws, answare)
+
+        elif message.startswith("/unban"):
+            await unban(app_state, message)
 
         elif message.startswith("/ban"):
             await ban(app_state, message)

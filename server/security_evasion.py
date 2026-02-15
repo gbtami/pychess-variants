@@ -1,0 +1,215 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
+import hashlib
+import hmac
+from typing import Any, Mapping
+
+from aiohttp import web
+
+from settings import SECRET_KEY
+
+BAN_SIGNAL_COLLECTION = "security_ban_signal"
+BAN_SIGNAL_TTL_DAYS = 180
+
+
+@dataclass(frozen=True)
+class ClientSignals:
+    ip_hash: str | None
+    fp_hash: str | None
+    ipfp_hash: str | None
+
+    def has_any(self) -> bool:
+        return self.ip_hash is not None or self.fp_hash is not None or self.ipfp_hash is not None
+
+
+def _normalize_signal_part(value: str | None, *, lower: bool = True, max_len: int = 256) -> str:
+    if value is None:
+        return ""
+    compact = " ".join(value.strip().split())
+    if lower:
+        compact = compact.lower()
+    return compact[:max_len]
+
+
+def _hmac_hash(label: str, value: str) -> str:
+    payload = f"evasion-v1|{label}|{value}".encode("utf-8", errors="ignore")
+    digest = hmac.new(SECRET_KEY, payload, hashlib.sha256).hexdigest()
+    return digest[:40]
+
+
+def get_client_ip(request: web.Request) -> str | None:
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        ip = forwarded_for.split(",", maxsplit=1)[0].strip()
+        if ip and ip != "unknown":
+            return ip
+    remote = request.remote or ""
+    remote = remote.strip()
+    return remote if remote and remote != "unknown" else None
+
+
+def get_client_fingerprint_source(request: web.Request) -> str | None:
+    headers = request.headers
+    # `pcfp` is an optional client-side hint cookie set from base.html.
+    cookie_fp = _normalize_signal_part(request.cookies.get("pcfp"), lower=False, max_len=512)
+    parts = (
+        ("ua", _normalize_signal_part(headers.get("User-Agent"), lower=False)),
+        ("lang", _normalize_signal_part(headers.get("Accept-Language"))),
+        ("ch", _normalize_signal_part(headers.get("Sec-CH-UA"), lower=False)),
+        ("plat", _normalize_signal_part(headers.get("Sec-CH-UA-Platform"), lower=False)),
+        ("mob", _normalize_signal_part(headers.get("Sec-CH-UA-Mobile"), lower=False)),
+        ("js", cookie_fp),
+    )
+    compact = "|".join(f"{name}={value}" for name, value in parts if value)
+    return compact if compact else None
+
+
+def collect_client_signals(request: web.Request) -> ClientSignals:
+    ip = get_client_ip(request)
+    fp_source = get_client_fingerprint_source(request)
+
+    ip_hash = _hmac_hash("ip", ip) if ip else None
+    fp_hash = _hmac_hash("fp", fp_source) if fp_source else None
+
+    ipfp_hash: str | None = None
+    if ip and fp_source:
+        ipfp_hash = _hmac_hash("ipfp", f"{ip}|{fp_source}")
+
+    return ClientSignals(ip_hash=ip_hash, fp_hash=fp_hash, ipfp_hash=ipfp_hash)
+
+
+def _signal_doc_id(kind: str, value_hash: str) -> str:
+    return f"{kind}:{value_hash}"
+
+
+def signal_ids_from_client_signals(signals: ClientSignals) -> list[str]:
+    ids: list[str] = []
+    if signals.ip_hash:
+        ids.append(_signal_doc_id("ip", signals.ip_hash))
+    if signals.fp_hash:
+        ids.append(_signal_doc_id("fp", signals.fp_hash))
+    if signals.ipfp_hash:
+        ids.append(_signal_doc_id("ipfp", signals.ipfp_hash))
+    return ids
+
+
+def signal_ids_from_user_doc(user_doc: Mapping[str, Any] | dict[str, Any]) -> list[str]:
+    signal_hashes = _extract_user_signal_hashes(user_doc)
+    ids: list[str] = []
+    for kind in ("ip", "fp", "ipfp"):
+        for value_hash in signal_hashes[kind]:
+            ids.append(_signal_doc_id(kind, value_hash))
+    return ids
+
+
+def _extract_user_signal_hashes(
+    user_doc: Mapping[str, Any] | dict[str, Any],
+) -> dict[str, set[str]]:
+    security: dict[str, Any] = user_doc.get("security", {}) if isinstance(user_doc, dict) else {}
+    result: dict[str, set[str]] = {"ip": set(), "fp": set(), "ipfp": set()}
+    for kind, field in (("ip", "ipHashes"), ("fp", "fpHashes"), ("ipfp", "ipfpHashes")):
+        values = security.get(field, [])
+        if isinstance(values, list):
+            for value in values:
+                if isinstance(value, str) and value:
+                    result[kind].add(value)
+    return result
+
+
+async def remember_user_signals(db: Any, username: str, signals: ClientSignals) -> None:
+    if (db is None) or (not signals.has_any()):
+        return
+
+    update_doc: dict[str, Any] = {"$set": {"security.updatedAt": datetime.now(timezone.utc)}}
+    add_to_set: dict[str, str] = {}
+    if signals.ip_hash:
+        add_to_set["security.ipHashes"] = signals.ip_hash
+    if signals.fp_hash:
+        add_to_set["security.fpHashes"] = signals.fp_hash
+    if signals.ipfp_hash:
+        add_to_set["security.ipfpHashes"] = signals.ipfp_hash
+    if add_to_set:
+        update_doc["$addToSet"] = add_to_set
+
+    await db.user.find_one_and_update({"_id": username}, update_doc)
+
+
+async def add_ban_signals_from_user(db: Any, username: str) -> int:
+    if db is None:
+        return 0
+
+    user_doc = await db.user.find_one({"_id": username}, projection={"security": 1})
+    if user_doc is None:
+        return 0
+
+    signal_hashes = _extract_user_signal_hashes(user_doc)
+    if not any(signal_hashes.values()):
+        return 0
+
+    now = datetime.now(timezone.utc)
+    expire_at = now + timedelta(days=BAN_SIGNAL_TTL_DAYS)
+    inserted_or_updated = 0
+    collection = getattr(db, BAN_SIGNAL_COLLECTION)
+
+    for kind, values in signal_hashes.items():
+        for value_hash in values:
+            inserted_or_updated += 1
+            await collection.find_one_and_update(
+                {"_id": _signal_doc_id(kind, value_hash)},
+                {
+                    "$setOnInsert": {"createdAt": now},
+                    "$set": {"kind": kind, "updatedAt": now, "expireAt": expire_at},
+                    "$addToSet": {"sources": username},
+                },
+                upsert=True,
+            )
+
+    return inserted_or_updated
+
+
+async def remove_ban_signals_from_user(db: Any, username: str) -> tuple[int, int]:
+    if db is None:
+        return 0, 0
+
+    collection = getattr(db, BAN_SIGNAL_COLLECTION)
+    cursor = collection.find({"sources": username}, projection={"_id": 1})
+    docs = await cursor.to_list(length=4096)
+    signal_ids = [doc.get("_id") for doc in docs if isinstance(doc, dict) and doc.get("_id")]
+    if not signal_ids:
+        return 0, 0
+
+    now = datetime.now(timezone.utc)
+    await collection.update_many(
+        {"_id": {"$in": signal_ids}}, {"$pull": {"sources": username}, "$set": {"updatedAt": now}}
+    )
+    delete_result = await collection.delete_many(
+        {"_id": {"$in": signal_ids}, "sources": {"$size": 0}}
+    )
+    deleted_count = getattr(delete_result, "deleted_count", 0) or 0
+    return len(signal_ids), int(deleted_count)
+
+
+async def is_signup_blocked_by_signals(db: Any, signals: ClientSignals) -> tuple[bool, str]:
+    if (db is None) or (not signals.has_any()):
+        return False, ""
+
+    ids = signal_ids_from_client_signals(signals)
+    if not ids:
+        return False, ""
+
+    collection = getattr(db, BAN_SIGNAL_COLLECTION)
+    cursor = collection.find({"_id": {"$in": ids}}, projection={"kind": 1})
+    docs = await cursor.to_list(length=8)
+    matched_kinds = {
+        doc.get("kind")
+        for doc in docs
+        if isinstance(doc, dict) and isinstance(doc.get("kind"), str)
+    }
+
+    if "ipfp" in matched_kinds:
+        return True, "ipfp"
+    if "ip" in matched_kinds and "fp" in matched_kinds:
+        return True, "ip+fp"
+    return False, ""

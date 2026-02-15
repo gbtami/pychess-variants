@@ -297,6 +297,10 @@ class PychessGlobalAppState:
                 await self.db.create_collection("seek")
             await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
 
+            if "security_ban_signal" not in db_collections:
+                await self.db.create_collection("security_ban_signal")
+            await self.db.security_ban_signal.create_index("expireAt", expireAfterSeconds=0)
+
             # Load auto pairings from database
             async for doc in self.db.autopairing.find():
                 variant_tc = tuple(doc["variant_tc"])

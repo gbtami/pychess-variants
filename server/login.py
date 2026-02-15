@@ -3,6 +3,7 @@ import hashlib
 import secrets
 from urllib.parse import urlencode
 from typing import TYPE_CHECKING, TypedDict
+from datetime import datetime, timezone
 
 import aiohttp
 import aiohttp_session
@@ -13,6 +14,11 @@ from const import STARTED, reserved
 from oauth_config import oauth_config
 from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
+from security_evasion import (
+    collect_client_signals,
+    is_signup_blocked_by_signals,
+    remember_user_signals,
+)
 from websocket_utils import ws_send_json
 from typing_defs import UserDocument
 import logging
@@ -157,6 +163,7 @@ async def login(request: web.Request) -> web.StreamResponse:
     log.info("+++ authenticated user: %s", username)
     app_state = get_app_state(request.app)
     users = app_state.users
+    signals = collect_client_signals(request)
 
     # For other OAuth providers, check if user needs to choose a username
     existing_user: UserDocument | None = await app_state.db.user.find_one(
@@ -180,8 +187,17 @@ async def login(request: web.Request) -> web.StreamResponse:
                 session["user_name"] = prev_session_user
         else:
             session["user_name"] = existing_user["_id"]
+            await remember_user_signals(app_state.db, existing_user["_id"], signals)
 
     else:
+        blocked, match_reason = await is_signup_blocked_by_signals(app_state.db, signals)
+        if blocked:
+            log.warning(
+                "Potential ban-evasion signup for %s (%s match); account will be auto-closed on confirmation",
+                username,
+                match_reason,
+            )
+
         # New user from OAuth provider - needs to choose username
         session["oauth_id"] = user_id
         session["oauth_provider"] = provider
@@ -337,6 +353,50 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
     oauth_id: str = session["oauth_id"]
     oauth_provider: str = session["oauth_provider"]
     title: str = session.get("oauth_title", "")
+    signals = collect_client_signals(request)
+
+    blocked, match_reason = await is_signup_blocked_by_signals(app_state.db, signals)
+    if blocked:
+        auto_close_at = datetime.now(timezone.utc)
+        log.warning(
+            "Auto-closing new account %s due to ban-evasion signal match (%s)",
+            username,
+            match_reason,
+        )
+        try:
+            await app_state.db.user.insert_one(
+                {
+                    "_id": username,
+                    "title": title,
+                    "oauth_id": oauth_id,
+                    "oauth_provider": oauth_provider,
+                    "perfs": {},
+                    "pperfs": {},
+                    "enabled": False,
+                    "security": {
+                        "lastAutoCloseAt": auto_close_at,
+                        "lastAutoCloseReason": match_reason,
+                        "lastAutoCloseSource": "signup",
+                    },
+                }
+            )
+            await remember_user_signals(app_state.db, username, signals)
+        except Exception as e:
+            log.error("Failed to auto-close user %s: %s", username, e)
+
+        session.pop("oauth_id", None)
+        session.pop("oauth_provider", None)
+        session.pop("oauth_username", None)
+        session.pop("oauth_title", None)
+        return web.json_response(
+            {
+                "error": (
+                    "Account closed for suspected ban evasion. "
+                    "If this is a mistake, contact site admins."
+                )
+            },
+            status=403,
+        )
 
     try:
         result = await app_state.db.user.insert_one(
@@ -358,6 +418,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
         session.pop("oauth_provider", None)
         session.pop("oauth_username", None)
         session.pop("oauth_title", None)
+        await remember_user_signals(app_state.db, username, signals)
 
         log.info("Created new user %s via OAuth signup", username)
         return web.json_response({"success": True})
