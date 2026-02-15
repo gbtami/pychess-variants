@@ -41,6 +41,10 @@ class RequestProtectionTestCase(AioHTTPTestCase):
             resp = await self.client.request("GET", f"/variants/{variant}")
             self.assertNotEqual(resp.status, 500)
 
+    async def test_unknown_round_socket_game_returns_not_found(self):
+        resp = await self.client.request("GET", "/wsr/AAAAAAAA")
+        self.assertEqual(resp.status, 404)
+
 
 if __name__ == "__main__":
     unittest.main()

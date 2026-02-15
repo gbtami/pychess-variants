@@ -133,8 +133,7 @@ async def round_socket_handler(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     game = await load_game(app_state, gameId)
     if game is None:
-        log.error("Game is None")
-        return web.HTTPFound("/")
+        return web.HTTPNotFound()
     if TYPE_CHECKING:
         assert isinstance(game, Game)
 
