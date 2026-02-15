@@ -3,6 +3,7 @@ from __future__ import annotations
 import logger
 import argparse
 import asyncio
+import faulthandler
 import logging
 import os
 from urllib.parse import urlparse
@@ -46,6 +47,8 @@ from lang import LOCALE
 
 log = logging.getLogger(__name__)
 Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
+
+faulthandler.enable()
 
 
 @web.middleware
