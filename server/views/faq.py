@@ -14,10 +14,15 @@ async def faq(request: web.Request) -> ViewContext:
 
     # try translated faq file first
     item = "docs/faq%s.html" % get_locale_ext(context)
+    item_path = os.path.abspath(os.path.join("templates", item))
 
     # if there is no translated use the untranslated one
-    if not os.path.exists(os.path.abspath(os.path.join("templates", item))):
-        item = "docs/%s.html" % item
+    if not os.path.exists(item_path):
+        item = "docs/faq.html"
+        item_path = os.path.abspath(os.path.join("templates", item))
+
+    if not os.path.exists(item_path):
+        raise web.HTTPNotFound()
 
     context["view"] = "faq"
     context["faq"] = item

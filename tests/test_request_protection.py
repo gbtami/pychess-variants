@@ -32,6 +32,15 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         self.assertIn(200, statuses)
         self.assertIn(429, statuses)
 
+    async def test_unknown_blog_id_does_not_return_server_error(self):
+        resp = await self.client.request("GET", "/blogs/null")
+        self.assertNotEqual(resp.status, 500)
+
+    async def test_known_variant_without_doc_does_not_return_server_error(self):
+        for variant in ("makbug", "supply"):
+            resp = await self.client.request("GET", f"/variants/{variant}")
+            self.assertNotEqual(resp.status, 500)
+
 
 if __name__ == "__main__":
     unittest.main()

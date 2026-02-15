@@ -28,13 +28,18 @@ async def variants(request: web.Request) -> ViewContext:
         item = "docs/terminology%s.html" % locale
     else:
         item = "docs/" + ("terminology" if variant is None else variant) + "%s.html" % locale
+    item_path = os.path.abspath(os.path.join("templates", item))
 
     # if there is no translated use the untranslated one
-    if not os.path.exists(os.path.abspath(os.path.join("templates", item))):
+    if not os.path.exists(item_path):
         if variant == "terminology":
             item = "docs/terminology.html"
         else:
             item = "docs/" + ("terminology" if variant is None else variant) + ".html"
+        item_path = os.path.abspath(os.path.join("templates", item))
+
+    if not os.path.exists(item_path):
+        raise web.HTTPNotFound()
     context["variant"] = item
 
     return context

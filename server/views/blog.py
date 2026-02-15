@@ -15,6 +15,9 @@ async def blog(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     blogId = request.match_info.get("blogId")
+    if blogId is None or blogId not in BLOG_CATEGORIES:
+        raise web.HTTPNotFound()
+
     if user.game_category != "all":
         category = BLOG_CATEGORIES.get(blogId, "all")
         if not category_matches(user.game_category, category):
@@ -23,10 +26,15 @@ async def blog(request: web.Request) -> ViewContext:
 
     # try translated blog file first
     item = "blogs/%s%s.html" % (blog_item, get_locale_ext(context))
+    item_path = os.path.abspath(os.path.join("templates", item))
 
     # if there is no translated use the untranslated one
-    if not os.path.exists(os.path.abspath(os.path.join("templates", item))):
+    if not os.path.exists(item_path):
         item = "blogs/%s.html" % blog_item
+        item_path = os.path.abspath(os.path.join("templates", item))
+
+    if not os.path.exists(item_path):
+        raise web.HTTPNotFound()
 
     context["blog_item"] = item
     context["view_css"] = "blogs.css"
