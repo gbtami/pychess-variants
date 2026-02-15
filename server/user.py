@@ -382,12 +382,16 @@ class User:
             await asyncio.sleep(PENDING_SEEK_TIMEOUT)
 
             if seek.pending:
-                try:
-                    del self.seeks[seek.id]
-                    del self.app_state.seeks[seek.id]
-                except KeyError:
-                    log.error(
-                        "delete_pending_seek() KeyError. Failed to del %s from seeks", seek.id
+                removed_user_seek = self.seeks.pop(seek.id, None)
+                removed_global_seek = self.app_state.seeks.pop(seek.id, None)
+                if removed_user_seek is None and removed_global_seek is None:
+                    log.debug("delete_pending_seek() %s already removed", seek.id)
+                elif removed_user_seek is None or removed_global_seek is None:
+                    log.warning(
+                        "delete_pending_seek() partial cleanup for %s user_removed=%s global_removed=%s",
+                        seek.id,
+                        removed_user_seek is not None,
+                        removed_global_seek is not None,
                     )
 
         asyncio.create_task(delete_seek(seek), name="delete-pending-seek-%s" % seek.id)
