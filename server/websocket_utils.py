@@ -90,9 +90,23 @@ async def process_ws(
                 )
                 break
             elif msg.type == aiohttp.WSMsgType.ERROR:
-                log.error(
-                    "%s ws %s msg.type == aiohttp.WSMsgType.ERROR", request.rel_url.path, id(ws)
-                )
+                exc = ws.exception()
+                if exc is None or isinstance(
+                    exc, (ConnectionResetError, ClientConnectionResetError, OSError, TimeoutError)
+                ):
+                    log.debug(
+                        "%s ws %s msg.type == aiohttp.WSMsgType.ERROR: %r",
+                        request.rel_url.path,
+                        id(ws),
+                        exc,
+                    )
+                else:
+                    log.warning(
+                        "%s ws %s msg.type == aiohttp.WSMsgType.ERROR: %r",
+                        request.rel_url.path,
+                        id(ws),
+                        exc,
+                    )
                 break
             else:
                 log.debug("%s ws other msg.type %s %s", request.rel_url.path, msg.type, msg)
