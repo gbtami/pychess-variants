@@ -30,13 +30,6 @@ from variants import get_server_variant, GRANDS
 
 log = logging.getLogger(__name__)
 
-try:
-    import pyffish as sf
-
-    sf.set_option("VariantPath", "variants.ini")
-except ImportError:
-    log.error("No pyffish module installed!")
-
 MAX_HIGH_SCORE = 10
 MAX_PLY = 2 * 600
 KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
