@@ -12,6 +12,32 @@ import { importGameBugH } from "@/bug/paste.bug";
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
 const BUGHOUSE_VARIANT = '[WhiteA';
+const IMPORT_FFISH_ERROR_BUFFER: string[] = [];
+const FEN_VALIDATION_ERRORS: Record<number, string> = {
+    [-14]: 'Invalid counting rule field',
+    [-13]: 'Invalid check count field',
+    [-12]: 'Invalid promoted piece marker',
+    [-11]: 'Invalid number of FEN fields',
+    [-10]: 'Invalid character in board layout',
+    [-9]: 'Touching kings are not allowed',
+    [-8]: 'Invalid board geometry',
+    [-7]: 'Invalid pocket information',
+    [-6]: 'Invalid side to move field',
+    [-5]: 'Invalid castling information',
+    [-4]: 'Invalid en-passant square',
+    [-3]: 'Invalid number of kings',
+    [-2]: 'Invalid half-move counter',
+    [-1]: 'Invalid move counter',
+    [0]: 'Empty FEN',
+};
+
+export function recordImportFfishError(text: string): void {
+    const message = text.trim();
+    if (/^Variant '.*' already exists\.$/.test(message)) return;
+    console.warn(message);
+    IMPORT_FFISH_ERROR_BUFFER.push(message);
+    if (IMPORT_FFISH_ERROR_BUFFER.length > 200) IMPORT_FFISH_ERROR_BUFFER.shift();
+}
 
 
 export function pasteView(model: PyChessModel): VNode[] {
@@ -52,8 +78,11 @@ export function pasteView(model: PyChessModel): VNode[] {
             ffish.loadVariantConfig(variantsIni);
             const XHR = new XMLHttpRequest();
             const FD  = new FormData();
+            const ffishErrorStart = IMPORT_FFISH_ERROR_BUFFER.length;
 
-            let variant, initialFen, board;
+            let variant: string;
+            let initialFen: string;
+            let board;
             let mainlineMoves: string[] = [];
 
             try {
@@ -79,17 +108,15 @@ export function pasteView(model: PyChessModel): VNode[] {
 
                     for (let idx = 0; idx < moves.length; ++idx) {
                         move = moves[idx];
-                        try {
-                            board.push(move);
-                            mainlineMoves.push(move);
-                        }
-                        catch (err) {
+                        const pushed = board.push(move);
+                        if (!pushed) {
                             alert('Illegal move ' + move);
                             status = 10;
                             // LOSS for the moving player
                             result = resultString(false, idx + 1, isHandicap);
                             break;
                         }
+                        mainlineMoves.push(move);
                     }
 
                     FD.append('Variant', 'shogi');
@@ -108,11 +135,13 @@ export function pasteView(model: PyChessModel): VNode[] {
                 } else {
 
                     const game = ffish.readGamePGN(pgn);
+                    const parserError = getLatestFfishError(ffishErrorStart);
+                    if (parserError) {
+                        throw new Error(parserError);
+                    }
 
-                    variant = "chess";
-                    const v = game.headers("Variant");
-                    //console.log("Variant:", v);
-                    if (v) variant = v.toLowerCase();
+                    const variantInfo = parseVariantTag(game.headers("Variant"));
+                    variant = variantInfo.variant;
 
                     if (variant === 'alice') {
                         // TODO
@@ -121,33 +150,42 @@ export function pasteView(model: PyChessModel): VNode[] {
                         alert(error);
                         return;
                     }
+                    if (!(variant in VARIANTS)) {
+                        throw new Error(`Unsupported PGN Variant tag: ${variantInfo.raw}`);
+                    }
 
                     initialFen = VARIANTS[variant].startFen;
                     const f = game.headers("FEN");
-                    if (f) initialFen = f;
+                    if (f) {
+                        const fenValidation = validateFenTag(ffish, f, variantInfo.variant, variantInfo.chess960);
+                        if (fenValidation !== null) {
+                            throw new Error(fenValidation);
+                        }
+                        initialFen = f;
+                    }
 
                     const t = game.headers("Termination");
                     //console.log("Termination:", t);
                     if (t) {
-                        status = getStatus(t.toLowerCase());
+                        const status = getStatus(t.toLowerCase());
                         FD.append('Status', ""+status);
                     }
 
-                    // TODO: crazyhouse960 but without 960? (export to lichess hack)
-                    const is960 = variant.includes("960") || variant.includes('random');
+                    board = new ffish.Board(variant, initialFen, variantInfo.chess960);
 
-                    board = new ffish.Board(variant, initialFen, is960);
-
-                    mainlineMoves = game.mainlineMoves().split(" ");
+                    mainlineMoves = game.mainlineMoves().split(/\s+/).filter((move: string) => move.length > 0);
                     for (let idx = 0; idx < mainlineMoves.length; ++idx) {
-                        board.push(mainlineMoves[idx]);
+                        const pushed = board.push(mainlineMoves[idx]);
+                        if (!pushed) {
+                            throw new Error(`Illegal move at ply ${idx + 1}: ${mainlineMoves[idx]}`);
+                        }
                     }
 
                     const tags = (game.headerKeys() as string).split(' ');
                     tags.forEach((tag) => {
                         FD.append( tag, game.headers(tag) );
                     });
-                    FD.append('moves', game.mainlineMoves());
+                    FD.append('moves', mainlineMoves.join(' '));
                     FD.append('final_fen', board.fen());
                     FD.append('username', model["username"]);
 
@@ -156,22 +194,42 @@ export function pasteView(model: PyChessModel): VNode[] {
                 }
             }
             catch(err) {
-                e.setCustomValidity(err.message ? _('Invalid PGN') : '');
-                alert(err);
+                const message = buildImportErrorMessage(err, pgn, ffish);
+                e.setCustomValidity(message);
+                alert(message);
                 return;
             }
 
             XHR.onreadystatechange = function() {
-                if (this.readyState === 4 && this.status === 200) {
-                    const response = JSON.parse(this.responseText);
-                    if (response['gameId'] !== undefined) {
-                        window.location.assign(model["home"] + '/' + response['gameId']);
-                    } else if (response['error'] !== undefined) {
-                        alert(response['error']);
+                if (this.readyState !== 4) return;
+
+                let response: Record<string, string> = {};
+                if (this.responseText) {
+                    try {
+                        response = JSON.parse(this.responseText);
+                    } catch (_err) {
+                        response = {};
                     }
                 }
+
+                if (this.status === 200) {
+                    if (response['gameId'] !== undefined) {
+                        window.location.assign(model["home"] + '/' + response['gameId']);
+                        return;
+                    }
+                    if (response['error'] !== undefined) {
+                        alert(response['error']);
+                        return;
+                    }
+                    alert(_('Import failed'));
+                    return;
+                }
+
+                alert(response['error'] ?? `${_('Import failed')} (${this.status})`);
             };
-            console.log(FD);
+            XHR.onerror = function() {
+                alert(_('Import failed'));
+            };
             XHR.open("POST", "/import", true);
             XHR.send(FD);
         }
@@ -216,4 +274,69 @@ function getStatus(termination: string) {
     if (termination.includes('time')) return '6';
     if (termination.includes('abandon')) return '7';
     return '11';  // unknown
+}
+
+function parseVariantTag(rawVariant: string): { variant: string; chess960: boolean; raw: string } {
+    const raw = rawVariant || 'chess';
+    let variant = raw.toLowerCase();
+    let chess960 = variant.includes("960") || variant.includes('random');
+
+    variant = variant.endsWith('960') ? variant.slice(0, -3) : variant;
+    if (variant === "caparandom") {
+        variant = "capablanca";
+        chess960 = true;
+    } else if (variant === "fischerandom") {
+        variant = "chess";
+        chess960 = true;
+    }
+    return { variant, chess960, raw };
+}
+
+function validateFenTag(ffish: FairyStockfish, fen: string, variant: string, chess960: boolean): string | null {
+    const validationCode = ffish.validateFen(fen, variant, chess960);
+    if (validationCode === 1) return null;
+
+    const details = FEN_VALIDATION_ERRORS[validationCode] ?? 'Unknown FEN validation error';
+    return `Invalid [FEN] tag (code ${validationCode}): ${details}.`;
+}
+
+function getLatestFfishError(fromIndex: number): string | null {
+    if (IMPORT_FFISH_ERROR_BUFFER.length <= fromIndex) return null;
+    const latest = IMPORT_FFISH_ERROR_BUFFER[IMPORT_FFISH_ERROR_BUFFER.length - 1];
+    return latest && latest.trim() ? latest.trim() : null;
+}
+
+function extractPgnTags(pgn: string): Record<string, string> {
+    const tags: Record<string, string> = {};
+    const regex = /^\s*\[([A-Za-z0-9_]+)\s+"((?:[^"\\]|\\.)*)"\]\s*$/gm;
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(pgn)) !== null) {
+        tags[match[1]] = match[2].replace(/\\"/g, '"');
+    }
+    return tags;
+}
+
+function buildImportErrorMessage(err: unknown, pgn: string, ffish: FairyStockfish): string {
+    const tags = extractPgnTags(pgn);
+    const variantInfo = parseVariantTag(tags["Variant"] ?? "chess");
+
+    if (!(variantInfo.variant in VARIANTS)) {
+        return `Unsupported PGN Variant tag: ${variantInfo.raw}.`;
+    }
+
+    const fen = tags["FEN"];
+    if (fen) {
+        const fenValidation = validateFenTag(ffish, fen, variantInfo.variant, variantInfo.chess960);
+        if (fenValidation !== null) return fenValidation;
+    }
+
+    const errorMessage =
+        err instanceof Error
+            ? err.message
+            : (typeof err === "string" ? err : "");
+    if (!errorMessage) return _('Invalid PGN');
+    if (errorMessage.includes("memory access out of bounds")) {
+        return "Failed to parse PGN. Check [Variant], [FEN], and move text formatting.";
+    }
+    return errorMessage;
 }

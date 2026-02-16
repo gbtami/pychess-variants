@@ -21,7 +21,7 @@ import { profileView } from './profile';
 import { tournamentView } from './tournament';
 import { simulView } from './simul/simul';
 import { calendarView } from './calendar';
-import { pasteView } from './paste';
+import { pasteView, recordImportFfishError } from './paste';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
 import { patch } from './document';
@@ -177,6 +177,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
 function start() {
     const placeholder = document.getElementById('placeholder');
     if (placeholder && el) {
+        const dataView = el.getAttribute("data-view") ?? "";
 
         // Check if we need to show username selection dialog
         if (model.oauthUsernameSelection && model.oauthUsernameSelection.oauth_id) {
@@ -189,17 +190,23 @@ function start() {
             }
         }
 
-        if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(el.getAttribute("data-view") ?? "")) {
+        if (['round', 'analysis', 'puzzle', 'editor', 'tv', 'embed', 'paste'].includes(dataView)) {
             console.time('load ffish');
             if (model["variant"] === "alice") {
-                ffishAliceModule().then((loadedModule: any) => {
+                const loadModule = dataView === 'paste'
+                    ? ffishAliceModule({ printErr: recordImportFfishError })
+                    : ffishAliceModule();
+                loadModule.then((loadedModule: any) => {
                     console.timeEnd('load ffish_alice');
                     loadedModule.loadVariantConfig(variantsIni);
                     model.ffish = loadedModule;
                     patch(placeholder, view(el, model));
                 });
             } else {
-                ffishModule().then((loadedModule: any) => {
+                const loadModule = dataView === 'paste'
+                    ? ffishModule({ printErr: recordImportFfishError })
+                    : ffishModule();
+                loadModule.then((loadedModule: any) => {
                     console.timeEnd('load ffish');
                     loadedModule.loadVariantConfig(variantsIni);
                     model.ffish = loadedModule;

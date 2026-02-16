@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 import asyncio
 import json
@@ -340,9 +340,20 @@ async def import_game(request):
         log.debug("TimeControl tag parsing failed. %s", tc_tag)
         base, inc = 0, 0
 
-    move_stack = data.get("moves", "").split(" ")
-    encode_method = get_server_variant(variant, chess960).move_encoding
-    moves = [*map(encode_method, map(grand2zero, move_stack) if variant in GRANDS else move_stack)]
+    try:
+        server_variant = get_server_variant(variant, chess960)
+    except KeyError:
+        message = "Unsupported variant in imported PGN: %s" % variant
+        log.warning("PGN import rejected: %s", message)
+        return web.json_response({"error": message})
+
+    moves, import_error = _encode_import_moves(
+        data.get("moves", ""),
+        move_encoding=server_variant.move_encoding,
+        grand_variant=server_variant.server_name in GRANDS,
+    )
+    if import_error is not None:
+        return web.json_response({"error": import_error})
 
     game_id = await new_id(None if app_state.db is None else app_state.db.game)
     existing = await app_state.db.game.find_one({"_id": {"$eq": game_id}})
@@ -408,6 +419,22 @@ async def import_game(request):
     # print("db insert IMPORTED game result %s" % repr(result.inserted_id))
 
     return web.json_response({"gameId": game_id})
+
+
+def _encode_import_moves(
+    raw_moves: str, *, move_encoding: Callable[[str], str], grand_variant: bool
+) -> tuple[list[str], str | None]:
+    move_stack = raw_moves.split()
+    moves: list[str] = []
+    for ply, move in enumerate(move_stack, start=1):
+        try:
+            normalized_move = grand2zero(move) if grand_variant else move
+            moves.append(move_encoding(normalized_move))
+        except Exception as exc:
+            message = "Invalid move '%s' at ply %s in imported PGN." % (move, ply)
+            log.warning("PGN import rejected: %s (%s: %s)", message, type(exc).__name__, exc)
+            return [], message
+    return moves, None
 
 
 async def join_seek(
