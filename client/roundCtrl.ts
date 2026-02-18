@@ -443,6 +443,13 @@ export class RoundController extends GameController {
         }
     }
 
+    private clearLocalMoveQueueState(): void {
+        // Any explicit rewind/sync recovery should drop queued client-side move intent.
+        this.chessground.cancelPremove();
+        this.unsetPremove();
+        this.clearPendingMoveCache();
+    }
+
     toggleSettings() {
     }
 
@@ -525,6 +532,8 @@ export class RoundController extends GameController {
     }
 
     private takeback = () => {
+        // User requested rewind: queued premoves/pending resend are no longer reliable.
+        this.clearLocalMoveQueueState();
         this.doSend({ type: "takeback", gameId: this.gameId });
     }
 
@@ -836,6 +845,10 @@ export class RoundController extends GameController {
         }
 
         if (msg.takeback) latestPly = true;
+        if (msg.takeback) {
+            // Server confirmed rewind; invalidate any queued local move intent.
+            this.clearLocalMoveQueueState();
+        }
 
         if (latestPly) this.ply = msg.ply;
         // Board sync is the authoritative confirmation point for pending move progress.
@@ -1123,6 +1136,14 @@ export class RoundController extends GameController {
             } else  {
                 clock_times = [0, 0];
                 increment = 0;
+            }
+
+            const legalMoves = this.ffishBoard.legalMoves().split(" ").filter(Boolean);
+            if (!legalMoves.includes(move)) {
+                // Local UI can be stale after reconnect/takeback races; never send out-of-position moves.
+                this.clearLocalMoveQueueState();
+                this.doSend({ type: "board", gameId: this.gameId });
+                return;
             }
 
             // Persist before socket send so a crash/refresh between "create msg" and "server board ack"
