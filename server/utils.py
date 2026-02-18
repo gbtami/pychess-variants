@@ -39,6 +39,7 @@ from fairy import (
     FEN_OK,
     NOTATION_SAN,
     get_san_moves,
+    modded_variant,
     validate_fen,
 )
 from fairy.jieqi import make_initial_mapping
@@ -836,14 +837,29 @@ def pgn(doc):
 
     fen = initial_fen if initial_fen is not None else FairyBoard.start_fen(variant)
     # print(variant, fen, mlist)
-    try:
-        mlist = get_san_moves(variant, fen, mlist, chess960, NOTATION_SAN)
-    except Exception:
-        log.error("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
+    # Try SAN conversion in stored variant first for backward compatibility.
+    # If that fails, retry with modded castling semantics (capablanca->embassy).
+    san_variants = [variant]
+    variant_fallback = modded_variant(variant, chess960, fen)
+    if variant_fallback != variant:
+        san_variants.append(variant_fallback)
+
+    for san_variant in san_variants:
         try:
-            mlist = get_san_moves(variant, fen, mlist[:-1], chess960, NOTATION_SAN)
+            mlist = get_san_moves(san_variant, fen, mlist, chess960, NOTATION_SAN)
+            break
         except Exception:
-            log.error("%s %s %s movelist contains invalid move", doc["_id"], variant, doc["d"])
+            log.error("%s %s %s movelist contains invalid move", doc["_id"], san_variant, doc["d"])
+    else:
+        for san_variant in san_variants:
+            try:
+                mlist = get_san_moves(san_variant, fen, mlist[:-1], chess960, NOTATION_SAN)
+                break
+            except Exception:
+                log.error(
+                    "%s %s %s movelist contains invalid move", doc["_id"], san_variant, doc["d"]
+                )
+        else:
             mlist = mlist[0]
 
     moves = " ".join(

@@ -30,7 +30,7 @@ from const import (
     MAX_CHAT_LINES,
 )
 from convert import grand2zero, uci2usi, mirror5, mirror9
-from fairy import get_fog_fen, get_san_moves, NOTATION_SAN, FairyBoard, BLACK, WHITE
+from fairy import get_fog_fen, get_san_moves, modded_variant, NOTATION_SAN, FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
 from draw import reject_draw
 from settings import URI
@@ -879,13 +879,30 @@ class Game:
             if self.jieqi:
                 mlist = self.board.move_stack
             else:
-                mlist = get_san_moves(
-                    self.variant,
-                    self.initial_fen if self.initial_fen else self.board.initial_fen,
-                    self.board.move_stack,
-                    self.chess960,
-                    NOTATION_SAN,
-                )
+                initial_fen = self.initial_fen if self.initial_fen else self.board.initial_fen
+                try:
+                    # Keep legacy behavior first: older capablanca games can still
+                    # contain historical castling coordinates (e.g. e8c8).
+                    mlist = get_san_moves(
+                        self.variant,
+                        initial_fen,
+                        self.board.move_stack,
+                        self.chess960,
+                        NOTATION_SAN,
+                    )
+                except Exception:
+                    # Newer capablanca/capahouse positions can be interpreted as
+                    # embassy for castling semantics; retry SAN in that mode.
+                    san_variant = modded_variant(self.variant, bool(self.chess960), initial_fen)
+                    if san_variant == self.variant:
+                        raise
+                    mlist = get_san_moves(
+                        san_variant,
+                        initial_fen,
+                        self.board.move_stack,
+                        self.chess960,
+                        NOTATION_SAN,
+                    )
         except Exception:
             log.error("Exception in game %s pgn()", self.id)
             mlist = self.board.move_stack
