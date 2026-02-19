@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 import test_logger
 
@@ -81,6 +82,39 @@ class EmbassyCastlingPgnTestCase(unittest.TestCase):
         pgn_text = make_game_for_pgn("e8a8").pgn
         self.assertIn("e8a8", pgn_text)
         self.assertNotIn("O-O-O", pgn_text)
+
+    def test_game_pgn_uses_board_initial_fen_when_initial_fen_is_empty(self) -> None:
+        game = make_game_for_pgn("e8b8")
+        game.variant = "janggi"
+        game.initial_fen = ""
+        board_fen = "rnba1anbr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ANBR w - - 0 1"
+        game.board = SimpleNamespace(initial_fen=board_fen, move_stack=["h1f3"])
+        with patch("game.get_san_moves", return_value=["Hf3"]) as mocked_get_san:
+            _ = game.pgn
+
+        call_args = mocked_get_san.call_args.args
+        self.assertEqual(call_args[0], "janggi")
+        self.assertEqual(call_args[1], board_fen)
+        self.assertEqual(call_args[2], ["h1f3"])
+
+    def test_game_pgn_falls_back_to_trimmed_move_list_when_full_list_fails(self) -> None:
+        game = make_game_for_pgn("e8b8")
+        game.variant = "janggi"
+        game.initial_fen = ""
+        board_fen = "rnba1anbr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ANBR w - - 0 1"
+        moves = ["h1f3", "i7i7"]
+        game.board = SimpleNamespace(initial_fen=board_fen, move_stack=moves)
+
+        def fake_get_san_moves(_variant, _fen, mlist, _chess960, _notation):
+            if mlist == moves:
+                raise ValueError("invalid trailing move")
+            return ["Hf3"]
+
+        with patch("game.get_san_moves", side_effect=fake_get_san_moves):
+            pgn_text = game.pgn
+
+        self.assertIn("1. Hf3 *", pgn_text)
+        self.assertNotIn("h1f3", pgn_text)
 
 
 if __name__ == "__main__":

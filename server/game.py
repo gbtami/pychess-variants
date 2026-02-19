@@ -875,37 +875,47 @@ class Game:
 
     @property
     def pgn(self) -> str:
-        try:
-            if self.jieqi:
-                mlist = self.board.move_stack
-            else:
-                initial_fen = self.initial_fen if self.initial_fen else self.board.initial_fen
+        move_stack = list(self.board.move_stack)
+        mlist = move_stack
+        if not self.jieqi:
+            initial_fen = self.initial_fen if self.initial_fen else self.board.initial_fen
+            # Keep legacy behavior first, then retry with modded castling semantics.
+            san_variants = [self.variant]
+            san_variant = modded_variant(self.variant, bool(self.chess960), initial_fen)
+            if san_variant != self.variant:
+                san_variants.append(san_variant)
+
+            san_ok = False
+            for variant_name in san_variants:
                 try:
-                    # Keep legacy behavior first: older capablanca games can still
-                    # contain historical castling coordinates (e.g. e8c8).
                     mlist = get_san_moves(
-                        self.variant,
+                        variant_name,
                         initial_fen,
-                        self.board.move_stack,
+                        move_stack,
                         self.chess960,
                         NOTATION_SAN,
                     )
+                    san_ok = True
+                    break
                 except Exception:
-                    # Newer capablanca/capahouse positions can be interpreted as
-                    # embassy for castling semantics; retry SAN in that mode.
-                    san_variant = modded_variant(self.variant, bool(self.chess960), initial_fen)
-                    if san_variant == self.variant:
-                        raise
-                    mlist = get_san_moves(
-                        san_variant,
-                        initial_fen,
-                        self.board.move_stack,
-                        self.chess960,
-                        NOTATION_SAN,
-                    )
-        except Exception:
-            log.error("Exception in game %s pgn()", self.id)
-            mlist = self.board.move_stack
+                    pass
+
+            # Some historical records can contain a trailing move that no longer
+            # validates with current engine rules. Keep PGN generation resilient.
+            if (not san_ok) and len(move_stack) > 1:
+                for variant_name in san_variants:
+                    try:
+                        mlist = get_san_moves(
+                            variant_name,
+                            initial_fen,
+                            move_stack[:-1],
+                            self.chess960,
+                            NOTATION_SAN,
+                        )
+                        san_ok = True
+                        break
+                    except Exception:
+                        pass
 
         moves = " ".join(
             (
