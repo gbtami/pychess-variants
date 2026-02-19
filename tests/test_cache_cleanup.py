@@ -3,6 +3,7 @@
 import asyncio
 import unittest
 from datetime import datetime, timezone
+from unittest.mock import patch
 
 import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
@@ -21,6 +22,7 @@ from utils import load_game
 from variants import get_server_variant
 import pychess_global_app_state
 import ai
+import user as user_module
 
 test_logger.init_test_logger()
 
@@ -244,6 +246,35 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         # An idle anon user should be removed from the cache and have no running cleanup task.
         self.assertNotIn(anon.username, app_state.users)
         self.assertIsNone(anon.remove_anon_task)
+
+    async def test_user_remove_ignores_missing_cache_entry(self):
+        app_state = get_app_state(self.app)
+        ghost = User(app_state, username="Anon-missing-cleanup")
+        ghost.online = False
+
+        async def no_sleep(_seconds):
+            return None
+
+        with patch.object(user_module.asyncio, "sleep", new=no_sleep):
+            await ghost.remove()
+
+        self.assertNotIn(ghost.username, app_state.users)
+
+    async def test_user_remove_does_not_delete_replaced_instance(self):
+        app_state = get_app_state(self.app)
+        old_user = User(app_state, username="Anon-replaced-cleanup")
+        new_user = User(app_state, username="Anon-replaced-cleanup")
+        app_state.users[old_user.username] = new_user
+        old_user.online = False
+
+        async def no_sleep(_seconds):
+            return None
+
+        with patch.object(user_module.asyncio, "sleep", new=no_sleep):
+            await old_user.remove()
+
+        self.assertIn(old_user.username, app_state.users)
+        self.assertIs(app_state.users[old_user.username], new_user)
 
 
 if __name__ == "__main__":

@@ -185,11 +185,17 @@ class User:
                 # give them a second chance
                 await asyncio.sleep(3)
                 if not self.online:
-                    try:
+                    # This task may race with other anon cleanup paths that already removed
+                    # or replaced the cache entry for this username.
+                    current = self.app_state.users.data.get(self.username)
+                    if current is self:
                         del self.app_state.users[self.username]
-                    except KeyError:
-                        log.error(
-                            "User.remove() KeyError. Failed to del %s from users", self.username
+                    elif current is None:
+                        log.debug("User.remove() skipped, %s is already gone", self.username)
+                    else:
+                        log.debug(
+                            "User.remove() skipped, %s cache points to a different instance",
+                            self.username,
                         )
                     break
         self.remove_anon_task = None
