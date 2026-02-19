@@ -11,6 +11,12 @@ from typing import Any, List, Set, TYPE_CHECKING
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 import aiohttp_jinja2
+from tenacity import (
+    AsyncRetrying,
+    before_sleep_log,
+    retry_if_exception_type,
+    wait_exponential_jitter,
+)
 
 from pythongettext.msgfmt import Msgfmt, PoSyntaxError
 from sortedcollections import ValueSortedDict
@@ -509,14 +515,32 @@ class PychessGlobalAppState:
     def __init_discord(self):
         if self.db is None:
             self.discord = FakeDiscordBot()
+            return
 
         # create Discord bot
         if DEV:
             self.discord = FakeDiscordBot()
         else:
+            if DISCORD_TOKEN == "":
+                log.warning("DISCORD_TOKEN is missing/empty; Discord bot disabled")
+                self.discord = FakeDiscordBot()
+                return
+
             bot = DiscordBot(self)
             self.discord = bot
-            asyncio.create_task(bot.start(DISCORD_TOKEN), name="Discord-BOT")
+            asyncio.create_task(self.__run_discord_bot(bot, DISCORD_TOKEN), name="Discord-BOT")
+
+    async def __run_discord_bot(self, bot: DiscordBot, token: str) -> None:
+        # Keep retrying startup/login on transient failures so relay can recover
+        # automatically after brief network/API hiccups during dyno boot.
+        async for attempt in AsyncRetrying(
+            retry=retry_if_exception_type(Exception),
+            wait=wait_exponential_jitter(initial=1, max=120),
+            reraise=True,
+            before_sleep=before_sleep_log(log, logging.WARNING),
+        ):
+            with attempt:
+                await bot.start(token)
 
     def __init_twitch(self) -> Twitch:
         result = Twitch(self.app)
