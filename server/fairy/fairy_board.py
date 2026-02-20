@@ -172,12 +172,16 @@ class FairyBoard:
     @property
     def posnum(self):
         if self.chess960:
-            if self.variant == "racingkings":
-                return RACINGKINGS_FENS.index(self.initial_fen[12:29])
-            elif self.variant in ("capablanca", "capahouse"):
+            try:
+                if self.variant == "racingkings":
+                    return RACINGKINGS_FENS.index(self.initial_fen[12:29])
+                elif self.variant in ("capablanca", "capahouse"):
+                    return -1
+                else:
+                    return CHESS960_FENS.index(self.initial_fen[:8])
+            except ValueError:
+                # Legacy/corrupted chess960 FEN can be outside known start positions.
                 return -1
-            else:
-                return CHESS960_FENS.index(self.initial_fen[:8])
         else:
             return -1
 
