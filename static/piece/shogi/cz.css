@@ -93,11 +93,11 @@
     background-image: url('../../images/pieces/shogi/cz/0_ELEPHANT.svg');
 }
 .shogi piece.pe-piece.ally {
-    background-image: url('../../images/pieces/shogi/cz/0OU.svg');
+    background-image: url('../../images/pieces/shogi/cz/0_PRINCE.svg');
 }
 .shogi piece.e-piece.enemy {
     background-image: url('../../images/pieces/shogi/cz/1_ELEPHANT.svg');
 }
 .shogi piece.pe-piece.enemy {
-    background-image: url('../../images/pieces/shogi/cz/1OU.svg');
+    background-image: url('../../images/pieces/shogi/cz/1_PRINCE.svg');
 }
