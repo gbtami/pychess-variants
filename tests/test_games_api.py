@@ -2,15 +2,17 @@
 import json
 import time
 import unittest
-from unittest.mock import patch
+from datetime import datetime
+from unittest.mock import AsyncMock, patch
 
 import test_logger
+from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
 from const import STARTED
 from game import Game
-from game_api import _seen_discontinued_variants, variant_counts_from_docs
+from game_api import _seen_discontinued_variants, safe_write_eof, variant_counts_from_docs
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
@@ -84,3 +86,60 @@ class VariantStatsTestCase(unittest.TestCase):
             self.assertEqual(2, info.call_count)
         finally:
             _seen_discontinued_variants.clear()
+
+
+class ExportPGNTestCase(AioHTTPTestCase):
+    async def startup(self, app):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="testuser")
+        app_state.users[user.username] = user
+
+        export_docs = [
+            {"_id": f"g{i}", "us": ["testuser"], "v": "Z", "d": datetime(2025, 12, 1)}
+            for i in range(6)
+        ]
+        await app_state.db.game.insert_many(export_docs)
+
+    async def get_application(self):
+        app = make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
+        app.on_startup.append(self.startup)
+        return app
+
+    async def tearDownAsync(self):
+        await self.client.close()
+
+    async def test_export_aggregates_legacy_failures(self):
+        with (
+            patch("game_api.pgn", side_effect=ValueError("invalid move")) as pgn_mock,
+            patch("game_api.log.error") as error,
+            patch("game_api.log.info") as info,
+        ):
+            response = await self.client.get("/games/export/testuser")
+            self.assertEqual(response.status, 200)
+            await response.text()
+
+        self.assertEqual(6, pgn_mock.call_count)
+        error.assert_not_called()
+
+        summary_calls = [
+            call
+            for call in info.call_args_list
+            if call.args and call.args[0] == "PGN export skipped invalid/legacy games: %s"
+        ]
+        self.assertEqual(1, len(summary_calls))
+        self.assertIn("g0 ataxx 2025.12.01", summary_calls[0].args[1])
+        self.assertNotIn("g5 ataxx 2025.12.01", summary_calls[0].args[1])
+
+
+class ExportWriteEofTestCase(unittest.IsolatedAsyncioTestCase):
+    async def test_safe_write_eof_ignores_client_disconnect(self):
+        response = AsyncMock()
+        response.write_eof.side_effect = ClientConnectionResetError(
+            "Cannot write to closing transport"
+        )
+
+        with patch("game_api.log.exception") as error, patch("game_api.log.debug") as debug:
+            await safe_write_eof(response)
+
+        error.assert_not_called()
+        debug.assert_called_once_with("Connection closed before PGN export EOF write.")

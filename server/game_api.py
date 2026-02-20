@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, TypedDict
 
 import aiohttp_session
 from aiohttp import web
+from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp_sse import sse_response
 import pymongo
 
@@ -25,6 +26,7 @@ log = logging.getLogger(__name__)
 
 GAME_PAGE_SIZE = 12
 _seen_discontinued_variants: set[str] = set()
+EXPORT_FAILED_SAMPLE_LIMIT = 5
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -560,6 +562,7 @@ async def export(request: web.Request) -> web.StreamResponse:
 
     game_counter = 0
     failed = 0
+    failed_games: list[str] = []
     cursor = None
 
     if profileId is not None:
@@ -589,6 +592,7 @@ async def export(request: web.Request) -> web.StreamResponse:
     try:
         doc: GameDoc
         async for doc in cursor:
+            game_counter += 1
             try:
                 # print(game_counter)
                 # log.info("%s %s %s" % (doc["d"].strftime("%Y.%m.%d"), doc["_id"], C2V[doc["v"]]))
@@ -596,24 +600,33 @@ async def export(request: web.Request) -> web.StreamResponse:
                 if pgn_text is not None:
                     await response.write(pgn_text.encode())
                     await asyncio.sleep(0)
-                game_counter += 1
+            except (ConnectionResetError, ClientConnectionResetError):
+                log.debug("Client disconnected during PGN export stream.")
+                break
             except Exception:
                 failed += 1
-                log.error(
-                    "Failed to pgn export game %s %s %s (early games may contain invalid moves)",
-                    doc["_id"],
-                    C2V[doc["v"]],
-                    doc["d"].strftime("%Y.%m.%d"),
-                )
+                if len(failed_games) < EXPORT_FAILED_SAMPLE_LIMIT:
+                    failed_games.append(
+                        "%s %s %s" % (doc["_id"], C2V[doc["v"]], doc["d"].strftime("%Y.%m.%d"))
+                    )
                 continue
         log.info("failed/all: %s/%s", failed, game_counter)
-    except ConnectionResetError:
-        log.exception("Client disconnected unexpectedly.")
+        if failed_games:
+            log.info(
+                "PGN export skipped invalid/legacy games: %s",
+                "; ".join(failed_games),
+            )
+    except (ConnectionResetError, ClientConnectionResetError):
+        log.debug("Client disconnected during PGN export.")
     except Exception:
         log.exception("An unexpected error occurred: ")
     finally:
-        try:
-            await response.write_eof()
-        except ConnectionResetError:
-            log.exception("Connection already closed, cannot write EOF.")
+        await safe_write_eof(response)
     return response
+
+
+async def safe_write_eof(response: web.StreamResponse) -> None:
+    try:
+        await response.write_eof()
+    except (ConnectionResetError, ClientConnectionResetError):
+        log.debug("Connection closed before PGN export EOF write.")
