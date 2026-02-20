@@ -1,8 +1,10 @@
 import unittest
+from types import SimpleNamespace
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
+from pychess_global_app_state_utils import get_app_state
 from server import make_app
 
 
@@ -44,6 +46,14 @@ class RequestProtectionTestCase(AioHTTPTestCase):
     async def test_unknown_round_socket_game_returns_not_found(self):
         resp = await self.client.request("GET", "/wsr/AAAAAAAA")
         self.assertEqual(resp.status, 404)
+
+    async def test_stale_invite_id_does_not_return_server_error(self):
+        game_id = "8FEG1Sxq"
+        app_state = get_app_state(self.app)
+        app_state.invites[game_id] = SimpleNamespace(id="missing_seek")
+
+        resp = await self.client.request("GET", f"/invite/{game_id}")
+        self.assertNotEqual(resp.status, 500)
 
 
 if __name__ == "__main__":

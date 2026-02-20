@@ -21,31 +21,35 @@ async def invite(request: web.Request) -> ViewContext:
 
     gameId = request.match_info["gameId"]
     inviter = None
+    seek = None
 
     if (gameId not in app_state.games) and (gameId in app_state.invites):
         seek_id = app_state.invites[gameId].id
-        seek = app_state.seeks[seek_id]
-        if request.path.startswith("/invite/accept/"):
-            player = request.match_info.get("player") or "any"
-            seek_status = await join_seek(app_state, user, seek, gameId, join_as=player)
-
-            if seek_status["type"] == "seek_joined":
-                inviter = "wait"
-            elif seek_status["type"] == "seek_occupied":
-                inviter = "occupied"
-            elif seek_status["type"] == "seek_yourself":
-                inviter = "yourself"
-            elif seek_status["type"] == "new_game":
-                try:
-                    # Put response data to sse subscriber queue
-                    channels = app_state.invite_channels[gameId]
-                    for queue in channels:
-                        await queue.put(json.dumps({"gameId": gameId, "accept": True}))
-                except ConnectionResetError:
-                    log.error("/invite/accept/ ConnectionResetError for user %s", user.username)
-
+        seek = app_state.seeks.get(seek_id)
+        if seek is None:
+            # Invite exists but corresponding seek has already been deleted.
+            app_state.invites.pop(gameId, None)
         else:
-            inviter = seek.creator.username if user.username != seek.creator.username else ""
+            if request.path.startswith("/invite/accept/"):
+                player = request.match_info.get("player") or "any"
+                seek_status = await join_seek(app_state, user, seek, gameId, join_as=player)
+
+                if seek_status["type"] == "seek_joined":
+                    inviter = "wait"
+                elif seek_status["type"] == "seek_occupied":
+                    inviter = "occupied"
+                elif seek_status["type"] == "seek_yourself":
+                    inviter = "yourself"
+                elif seek_status["type"] == "new_game":
+                    try:
+                        # Put response data to sse subscriber queue
+                        channels = app_state.invite_channels[gameId]
+                        for queue in channels:
+                            await queue.put(json.dumps({"gameId": gameId, "accept": True}))
+                    except ConnectionResetError:
+                        log.error("/invite/accept/ ConnectionResetError for user %s", user.username)
+            else:
+                inviter = seek.creator.username if user.username != seek.creator.username else ""
 
     if inviter is not None:
         context["gameid"] = gameId
