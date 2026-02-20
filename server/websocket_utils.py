@@ -50,7 +50,7 @@ async def process_ws(
     ws = WebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
-        log.error("ws_ready not ok: %r", ws_ready)
+        log.debug("Ignoring non-websocket request on %s: %r", request.rel_url.path, ws_ready)
         return None
 
     await ws.prepare(request)
