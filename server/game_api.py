@@ -24,6 +24,7 @@ from variants import C2V, GRANDS, get_server_variant, VARIANTS
 log = logging.getLogger(__name__)
 
 GAME_PAGE_SIZE = 12
+_seen_discontinued_variants: set[str] = set()
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -150,7 +151,9 @@ def variant_counts_from_docs(
         try:
             variant_counts[variant][-1] = doc["c"]
         except KeyError:
-            log.error("Support of variant %s discontinued!", variant)
+            if variant not in _seen_discontinued_variants:
+                _seen_discontinued_variants.add(variant)
+                log.info("Ignoring discontinued variant %s in historical stats", variant)
 
 
 async def get_variant_stats(request: web.Request) -> web.StreamResponse:

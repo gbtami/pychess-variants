@@ -130,7 +130,7 @@ async def ws_send_str(ws: WebSocketResponse, msg: str) -> bool:
         await ws.send_str(msg)
         return True
     except (ConnectionResetError, ClientConnectionResetError):
-        log.error("ws_send_str() ConnectionResetError")
+        # Peer disconnected between scheduling and actual send.
         return False
 
 
@@ -142,7 +142,7 @@ async def ws_send_json(ws: WebSocketResponse | None, msg: Mapping[str, object] |
         await ws.send_json(msg)
         return True
     except (ConnectionResetError, ClientConnectionResetError):
-        log.error("ws_send_json() ConnectionResetError")
+        # Peer disconnected between scheduling and actual send.
         return False
     except Exception:
         log.exception("Exception in ws_send_json()")

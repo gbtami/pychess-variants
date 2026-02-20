@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
 import time
+import unittest
+from unittest.mock import patch
 
 import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
@@ -8,9 +10,11 @@ from mongomock_motor import AsyncMongoMockClient
 
 from const import STARTED
 from game import Game
+from game_api import _seen_discontinued_variants, variant_counts_from_docs
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
+from variants import VARIANTS
 
 test_logger.init_test_logger()
 
@@ -58,3 +62,25 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         self.assertIn(("chess", False), variants)
         self.assertIn(("chess", True), variants)
         self.assertNotIn(("shogi", False), variants)
+
+
+class VariantStatsTestCase(unittest.TestCase):
+    def test_discontinued_variants_logged_once(self):
+        variant_counts = {variant: [] for variant in VARIANTS}
+        docs = [
+            {"_id": {"p": "202501", "v": "m", "z": 1}, "c": 1},
+            {"_id": {"p": "202501", "v": "m", "z": 1}, "c": 2},
+            {"_id": {"p": "202501", "v": "o", "z": 0}, "c": 3},
+            {"_id": {"p": "202501", "v": "o", "z": 0}, "c": 4},
+        ]
+
+        _seen_discontinued_variants.clear()
+        try:
+            with patch("game_api.log.info") as info:
+                variant_counts_from_docs(variant_counts, docs)
+
+            warned_variants = {call.args[1] for call in info.call_args_list}
+            self.assertEqual({"makruk960", "gothic"}, warned_variants)
+            self.assertEqual(2, info.call_count)
+        finally:
+            _seen_discontinued_variants.clear()
