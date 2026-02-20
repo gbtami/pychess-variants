@@ -70,6 +70,7 @@ class DiscordBot(Bot):
         self.tournament_channel: discord.abc.Messageable | None = None
         self.announcement_channel: discord.abc.Messageable | None = None
         self.bughouse_channel: discord.abc.Messageable | None = None
+        self._inaccessible_channel_ids: set[int] = set()
 
     async def on_message(self, msg: Message) -> None:
         log.debug("---on_message() %s", msg)
@@ -127,11 +128,13 @@ class DiscordBot(Bot):
             and user != "Discord-Relay"
         ):
             log.debug("+++ lobbychat msg: %s %s", user, msg)
-            await self.pychess_lobby_channel.send("**%s**: %s" % (user, msg))
+            await self._safe_send(
+                self.pychess_lobby_channel, "**%s**: %s" % (user, msg), "lobbychat"
+            )
 
         elif self.game_seek_channel is not None and msg_type in ("create_seek", "accept_seek"):
             log.debug("+++ seek msg: %s", msg)
-            await self.game_seek_channel.send("%s" % msg)
+            await self._safe_send(self.game_seek_channel, "%s" % msg, "seek")
 
             if (
                 self.bughouse_channel is not None
@@ -142,15 +145,40 @@ class DiscordBot(Bot):
                 role: Role | None = guild.get_role(ROLES["bughouse"]) if guild else None
 
                 log.debug("+++ bug seek msg: %s", msg)
-                await self.bughouse_channel.send("%s %s" % (role.mention, msg))
+                mention = "%s " % role.mention if role is not None else ""
+                await self._safe_send(
+                    self.bughouse_channel, "%s%s" % (mention, msg), "bughouse seek"
+                )
 
         elif self.tournament_channel is not None and msg_type == "create_tournament":
             log.debug("+++ create_tournament msg: %s", msg)
-            await self.tournament_channel.send("%s" % msg)
+            await self._safe_send(self.tournament_channel, "%s" % msg, "create_tournament")
 
         elif self.tournament_channel is not None and msg_type == "notify_tournament":
             log.debug("+++ notify_tournament msg: %s", msg)
-            await self.tournament_channel.send("%s %s" % (self.get_role_mentions(msg), msg))
+            await self._safe_send(
+                self.tournament_channel,
+                "%s %s" % (self.get_role_mentions(msg), msg),
+                "notify_tournament",
+            )
+
+    async def _safe_send(
+        self, channel: discord.abc.Messageable, message: str, context: str
+    ) -> None:
+        channel_id = getattr(channel, "id", None)
+        if isinstance(channel_id, int) and channel_id in self._inaccessible_channel_ids:
+            return
+
+        try:
+            await channel.send(message)
+        except discord.Forbidden:
+            if isinstance(channel_id, int):
+                self._inaccessible_channel_ids.add(channel_id)
+            log.warning(
+                "Discord missing access for channel %s while sending %s", channel_id, context
+            )
+        except discord.HTTPException as exc:
+            log.warning("Discord send failed for %s: %s", context, exc)
 
     def get_role_mentions(self, message: str) -> str:
         guild: Guild | None = self.get_guild(SERVER_ID)

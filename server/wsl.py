@@ -266,7 +266,10 @@ async def handle_create_seek(
     if not auto_paired:
         await app_state.lobby.lobby_broadcast_seeks()
         if (seek is not None) and seek_value.target == "":
-            await app_state.discord.send_to_discord("create_seek", seek_value.discord_msg)
+            try:
+                await app_state.discord.send_to_discord("create_seek", seek_value.discord_msg)
+            except Exception:
+                log.exception("Failed to send Discord seek notification for %s", seek_value.id)
 
 
 async def handle_create_invite(
