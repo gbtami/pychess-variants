@@ -52,6 +52,9 @@ pyright
 # Python unit tests
 PYTHONPATH=server python -m unittest discover -s tests
 
+# Python unit tests (quiet summary, full output in /tmp/unittest_full.log)
+PYTHONPATH=server python -m unittest discover -s tests > /tmp/unittest_full.log 2>&1; echo EXIT:$?; rg -n "^Ran [0-9]+ tests|^OK$|^FAILED \\(|^ERROR:|^FAIL:" /tmp/unittest_full.log | tail -n 20
+
 # Python Playwright tests
 # Run tests directly. If browsers are missing, install them first.
 # Avoid --with-deps unless you are provisioning a fresh host with sudo access.
@@ -59,6 +62,8 @@ python -m playwright install
 PYTHONPATH=server python -m pytest tests/test_e2e.py
 PYTHONPATH=server python -m pytest tests/test_gui.py
 ```
+
+Note: `unittest -q/-b` still produces noisy output in this repo because tests initialize the application logger. Use the redirected command above for low-noise runs, then open `/tmp/unittest_full.log` when you need full details.
 
 Playwright setup tips:
 - The `--with-deps` install uses apt and needs sudo; avoid it unless you are provisioning a fresh host.
