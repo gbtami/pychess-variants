@@ -604,7 +604,9 @@ class GameBug:
 
     @property
     def turn_player(self):
-        return self.wplayer.username if self.board.color == WHITE else self.bplayer.username
+        # Bughouse has two boards; keep the existing compatibility behavior here
+        # by deriving turn info from board A directly without touching game.board.
+        return self.wplayer.username if self.boards["a"].color == WHITE else self.bplayer.username
 
     def game_json(self, player):
         color = "w" if self.wplayerA == player or self.wplayerB == player else "b"

@@ -67,7 +67,9 @@ async def handle_reconnect_bughouse(
 
 
 async def handle_resign_bughouse(data: AbortResignMessage, game: GameBug, user: User) -> None:
-    if data["type"] == "abort" and (game is not None) and game.board.ply > 2:
+    # Keep prior behavior tied to board A ply, but avoid calling GameBug.board
+    # (a compatibility shim that logs when accidentally used).
+    if data["type"] == "abort" and (game is not None) and game.boards["a"].ply > 2:
         return
 
     if game.status > STARTED:
