@@ -66,6 +66,29 @@ INVALID_PAWN_DROP_MATE = (
 )
 
 
+def is_legacy_capablanca_castling_move(move: str) -> bool:
+    if len(move) < 4:
+        return False
+    from_sq = move[:2]
+    to_sq = move[2:4]
+    return from_sq in ("e1", "e8") and to_sq in ("c1", "i1", "c8", "i8")
+
+
+def should_use_legacy_capablanca_replay(
+    game_variant: str,
+    board_variant: str,
+    chess960: bool,
+    move_stack: Sequence[str],
+) -> bool:
+    if chess960:
+        return False
+    if game_variant not in ("capablanca", "capahouse"):
+        return False
+    if board_variant not in ("embassy", "embassyhouse"):
+        return False
+    return any(is_legacy_capablanca_castling_move(move) for move in move_stack)
+
+
 class Game:
     wrank: int
     brank: int
@@ -1145,50 +1168,70 @@ class Game:
         if self.analysis is not None:
             self.steps[0]["analysis"] = self.analysis[0]
 
-        self.board.fen = self.board.initial_fen
-        self.board.color = WHITE if self.board.fen.split()[1] == "w" else BLACK
-        for ply, move in enumerate(self.board.move_stack):
+        moves_to_replay = list(self.board.move_stack)
+        replay_board = self.board
+
+        if should_use_legacy_capablanca_replay(
+            self.variant,
+            self.board.variant,
+            bool(self.chess960),
+            moves_to_replay,
+        ):
+            # Historical Capablanca games can contain old castling coordinates
+            # (e-file king to c/i-file, e.g. e8i8). Modern board construction
+            # maps this start position to Embassy rules, where these moves are
+            # invalid. Rebuild steps on an unmodded Capablanca board so legacy
+            # archives still replay without corrupting move history.
+            replay_board = FairyBoard(self.variant, self.board.initial_fen, bool(self.chess960))
+            # FairyBoard constructor applies modded_variant() automatically.
+            # Force the original stored variant here to preserve old move coords.
+            replay_board.variant = self.variant
+            replay_board.move_stack = moves_to_replay
+
+        replay_board.fen = replay_board.initial_fen
+        replay_board.color = WHITE if replay_board.fen.split()[1] == "w" else BLACK
+        for ply, move in enumerate(moves_to_replay):
             try:
                 if self.mct is not None:
                     # print("Ply", ply, "Move", move)
                     if ply + 1 >= count_ended:
                         try:
-                            self.board.count_started = -1
+                            replay_board.count_started = -1
                             count_started, count_ended = next(manual_count_toggled)
                             # print("New count interval", (count_started, count_ended))
                         except StopIteration:
                             # print("Piece's honour counting started")
                             count_started = 0
                             count_ended = MAX_PLY + 1
-                            self.board.count_started = 0
+                            replay_board.count_started = 0
                     if ply + 1 == count_started:
                         # print("Count started", count_started)
-                        self.board.count_started = ply
+                        replay_board.count_started = ply
 
                 if self.jieqi and move[-1].isalpha():
                     move = move[:-1]
 
-                san = self.board.get_san(move)
+                san = replay_board.get_san(move)
 
                 if self.jieqi:
                     # Replay uses the current board mapping, so capture identity
                     # must be determined before pushing the move and mutating it.
-                    jieqi_capture = self.board.captured_jieqi_piece(move)
-                    new_piece = self.board.revealed_piece(move)
+                    jieqi_capture = replay_board.captured_jieqi_piece(move)
+                    new_piece = replay_board.revealed_piece(move)
                     if new_piece is not None:
                         move = move + new_piece.lower()
                         san = "%s=%s" % (san, new_piece.lower())
                 else:
                     jieqi_capture = None
 
-                self.board.push(move, append=False)
-                self.check = self.board.is_checked()
-                turnColor = "black" if self.board.color == BLACK else "white"
+                replay_board.push(move, append=False)
+                self.check = replay_board.is_checked()
+                turnColor = "black" if replay_board.color == BLACK else "white"
 
                 if self.usi_format:
                     turnColor = "black" if turnColor == "white" else "white"
                 step: GameStep = {
-                    "fen": self.board.fen,
+                    "fen": replay_board.fen,
                     "move": move,
                     "san": san,
                     "turnColor": turnColor,
@@ -1224,9 +1267,9 @@ class Game:
                     "Exception in create_steps() %s %s %s %s %s",
                     self.id,
                     self.variant,
-                    self.board.initial_fen,
+                    replay_board.initial_fen,
                     move,
-                    self.board.move_stack,
+                    moves_to_replay,
                 )
                 break
         # log.debug("create_steps() OK")

@@ -9,6 +9,7 @@ import test_logger
 
 from compress import R2C
 from game import Game
+from fairy.fairy_board import FairyBoard
 from utils import pgn as export_pgn
 from variants import get_server_variant
 
@@ -56,6 +57,34 @@ def make_game_for_pgn(move: str) -> Game:
 
 
 class EmbassyCastlingPgnTestCase(unittest.TestCase):
+    def test_create_steps_replays_legacy_capablanca_castling_coordinate(self) -> None:
+        game = Game.__new__(Game)
+        game.id = "embassy-replay"
+        game.variant = "capablanca"
+        game.jieqi = False
+        game.chess960 = False
+        game.usi_format = False
+        game.corr = True
+        game.mct = None
+        game.analysis = None
+        game.steps = []
+        game.clocks_w = [0]
+        game.clocks_b = [0]
+        game.jieqi_captures = None
+        game.jieqi_capture_stack = None
+
+        game.board = FairyBoard("capablanca", CAPA_CASTLING_FEN, chess960=False)
+        self.assertEqual("embassy", game.board.variant)
+        game.board.move_stack = ["e8i8", "a1a2", "h8e8"]
+        game.board.fen = CAPA_CASTLING_FEN
+        game.board.color = 1  # black to move
+
+        game.create_steps()
+
+        self.assertEqual(3, len(game.steps))
+        self.assertEqual("e8i8", game.steps[0]["move"])
+        self.assertEqual("h8e8", game.steps[2]["move"])
+
     def test_export_pgn_fallback_accepts_modern_embassy_castling(self) -> None:
         # In current games the move can be embassy-style (e8b8) even if stored variant is capablanca.
         pgn_text = export_pgn(make_export_doc("e8b8"))
