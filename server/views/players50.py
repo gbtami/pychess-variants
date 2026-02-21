@@ -13,11 +13,12 @@ async def players50(request: web.Request) -> ViewContext:
 
     app_state = get_app_state(request.app)
     variant = request.match_info.get("variant")
-    context["variant"] = variant
 
-    if variant in VARIANTS:
-        hs = app_state.highscore[variant]
-        context["highscore"] = hs
-        context["view"] = "players50"
+    if variant not in VARIANTS or variant not in app_state.highscore:
+        raise web.HTTPNotFound()
+
+    context["variant"] = variant
+    context["highscore"] = app_state.highscore[variant]
+    context["view"] = "players50"
 
     return context
