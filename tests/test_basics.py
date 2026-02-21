@@ -281,6 +281,13 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         self.assertIn('data-variant="chess"', text)
         self.assertIn('data-chess960="True"', text)
 
+    async def test_games_unknown_variant_is_normalized(self):
+        resp = await self.client.request("GET", "/games/notavariant")
+        self.assertEqual(resp.status, 200)
+        text = await resp.text()
+        self.assertIn('data-view="games"', text)
+        self.assertIn('data-variant=""', text)
+
 
 class HighscoreTestCase(AioHTTPTestCase):
     async def startup(self, app):

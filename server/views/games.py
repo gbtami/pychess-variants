@@ -3,7 +3,7 @@ from aiohttp import web
 
 from typing_defs import ViewContext
 from views import get_user_context
-from variants import VARIANT_ICONS
+from variants import VARIANTS, VARIANT_ICONS
 
 
 @aiohttp_jinja2.template("games.html")
@@ -11,6 +11,8 @@ async def games(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     variant = request.match_info.get("variant")
+    if (variant is not None) and (variant not in VARIANTS):
+        variant = None
 
     context["variant"] = variant if variant is not None else ""
     context["variants"] = user.category_variants

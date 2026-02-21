@@ -16,6 +16,8 @@ async def profile(request: web.Request) -> ViewContext:
 
     profileId = request.match_info["profileId"]
     variant = request.match_info.get("variant")
+    if (variant is not None) and (variant not in VARIANTS):
+        raise web.HTTPNotFound()
 
     app_state = get_app_state(request.app)
 

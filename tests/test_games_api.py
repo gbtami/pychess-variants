@@ -16,7 +16,7 @@ from game_api import _seen_discontinued_variants, safe_write_eof, variant_counts
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
-from variants import VARIANTS
+from variants import VARIANTS, get_server_variant
 
 test_logger.init_test_logger()
 
@@ -44,6 +44,21 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         chess960_game.status = STARTED
         app_state.games[chess960_game.id] = chess960_game
 
+        chess_code = get_server_variant("chess", False).code
+        await app_state.db.game.insert_one(
+            {
+                "_id": "db1",
+                "us": [self.user.username, wplayer.username],
+                "v": chess_code,
+                "z": 0,
+                "r": "a",
+                "m": [],
+                "s": STARTED,
+                "d": datetime(2025, 1, 1),
+                "y": 1,
+            }
+        )
+
     async def get_application(self):
         app = make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
         app.on_startup.append(self.startup)
@@ -64,6 +79,24 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         self.assertIn(("chess", False), variants)
         self.assertIn(("chess", True), variants)
         self.assertNotIn(("shogi", False), variants)
+
+    async def test_profile_perf_unknown_variant_returns_not_found_page(self):
+        session_data = {"session": {"user_name": self.user.username}, "created": int(time.time())}
+        self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+
+        response = await self.client.get(f"/@/{self.user.username}/perf/notavariant")
+        self.assertEqual(response.status, 200)
+        text = await response.text()
+        self.assertIn("Page not found!", text)
+
+    async def test_api_profile_perf_unknown_variant_returns_empty(self):
+        session_data = {"session": {"user_name": self.user.username}, "created": int(time.time())}
+        self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+
+        response = await self.client.get(f"/api/{self.user.username}/perf/notavariant")
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertEqual(payload, [])
 
 
 class VariantStatsTestCase(unittest.TestCase):

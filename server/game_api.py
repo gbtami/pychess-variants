@@ -264,6 +264,9 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
 
     path_parts: list[str] = request.path.split("/")
 
+    if "perf" in path_parts and variant not in VARIANTS:
+        return web.json_response([])
+
     # produce UCI move list for puzzle generator
     uci_moves: bool = "json" in path_parts
 
