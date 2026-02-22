@@ -354,3 +354,38 @@ class TournamentFlowTestCase(TournamentTestCase):
         page = self.tournament.players_json()
         self.assertEqual(len(page["players"]), 1)
         self.assertEqual(page["players"][0]["name"], player.username)
+
+    async def test_get_player_by_name_recovers_from_players_key_drift(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess960", before_start=0, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+
+        white = list(self.tournament.players.keys())[0]
+        black = list(self.tournament.players.keys())[1]
+        black_data = self.tournament.players.pop(black)
+        self.tournament.players_by_name[black.username] = black_data
+        self.tournament.player_keys_by_name.pop(black.username, None)
+
+        game = GameData(
+            "syntheticRecoveredByName",
+            white.username,
+            str(self.tournament.players[white].rating),
+            black.username,
+            str(black_data.rating),
+            "1-0",
+            datetime.now(timezone.utc),
+            False,
+            False,
+        )
+        self.tournament.update_players(game)
+
+        recovered_black = self.tournament.get_player_by_name(black.username)
+        self.assertIsNotNone(recovered_black)
+        assert recovered_black is not None
+        self.assertIn(recovered_black, self.tournament.players)
+        self.assertEqual(len(self.tournament.players[recovered_black].games), 1)
+        self.assertEqual(game.bplayer.username, black.username)
