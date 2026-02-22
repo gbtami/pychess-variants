@@ -399,6 +399,26 @@ class Tournament(ABC):
 
         return set()
 
+    def resolve_game_players(self, game: Game | GameData) -> tuple[User, User] | None:
+        wp = self.get_player(game.wplayer)
+        bp = self.get_player(game.bplayer)
+        if wp is None or bp is None:
+            log.warning(
+                "Skipping game %s in tournament %s: player not found wp=%s bp=%s",
+                getattr(game, "id", "?"),
+                self.id,
+                game.wplayer.username,
+                game.bplayer.username,
+            )
+            return None
+
+        # Keep game objects aligned with canonical tournament player keys.
+        if game.wplayer is not wp:
+            game.wplayer = wp
+        if game.bplayer is not bp:
+            game.bplayer = bp
+        return (wp, bp)
+
     def user_status(self, user: User) -> str:
         player = self.get_player(user)
         if player is not None:
@@ -922,7 +942,10 @@ class Tournament(ABC):
         return games
 
     def update_players(self, game: Game | GameData) -> None:
-        wp, bp = game.wplayer, game.bplayer
+        resolved_players = self.resolve_game_players(game)
+        if resolved_players is None:
+            return
+        wp, bp = resolved_players
 
         self.players[wp].games.append(game)
         self.players[bp].games.append(game)
@@ -960,8 +983,17 @@ class Tournament(ABC):
         return False
 
     def points_perfs(self, game: Game) -> Tuple[Point, Point, int, int]:
-        wplayer = self.players[game.wplayer]
-        bplayer = self.players[game.bplayer]
+        resolved_players = self.resolve_game_players(game)
+        if resolved_players is None:
+            return (
+                (0, SCORE),
+                (0, SCORE),
+                int(game.brating.rstrip("?")),
+                int(game.wrating.rstrip("?")),
+            )
+        wp, bp = resolved_players
+        wplayer = self.players[wp]
+        bplayer = self.players[bp]
 
         wpoint = (0, SCORE)
         bpoint = (0, SCORE)
@@ -1020,8 +1052,17 @@ class Tournament(ABC):
         return (wpoint, bpoint, wperf, bperf)
 
     def points_perfs_janggi(self, game: Game) -> Tuple[Point, Point, int, int]:
-        wplayer = self.players[game.wplayer]
-        bplayer = self.players[game.bplayer]
+        resolved_players = self.resolve_game_players(game)
+        if resolved_players is None:
+            return (
+                (0, SCORE),
+                (0, SCORE),
+                int(game.brating.rstrip("?")),
+                int(game.wrating.rstrip("?")),
+            )
+        wp, bp = resolved_players
+        wplayer = self.players[wp]
+        bplayer = self.players[bp]
 
         wpoint = (0, SCORE)
         bpoint = (0, SCORE)
@@ -1097,8 +1138,12 @@ class Tournament(ABC):
         if TYPE_CHECKING:
             assert isinstance(game, Game)
 
-        wplayer = self.players[game.wplayer]
-        bplayer = self.players[game.bplayer]
+        resolved_players = self.resolve_game_players(game)
+        if resolved_players is None:
+            return
+        wp, bp = resolved_players
+        wplayer = self.players[wp]
+        bplayer = self.players[bp]
 
         if game.status == ABORTED:
             return
@@ -1133,15 +1178,11 @@ class Tournament(ABC):
         nb = len(bplayer.points)
         bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
 
-        wpscore = self.leaderboard.get(game.wplayer, 0) // SCORE_SHIFT
-        self.leaderboard.update(
-            {game.wplayer: SCORE_SHIFT * (wpscore + wpoint[0]) + wplayer.performance}
-        )
+        wpscore = self.leaderboard.get(wp, 0) // SCORE_SHIFT
+        self.leaderboard.update({wp: SCORE_SHIFT * (wpscore + wpoint[0]) + wplayer.performance})
 
-        bpscore = self.leaderboard.get(game.bplayer, 0) // SCORE_SHIFT
-        self.leaderboard.update(
-            {game.bplayer: SCORE_SHIFT * (bpscore + bpoint[0]) + bplayer.performance}
-        )
+        bpscore = self.leaderboard.get(bp, 0) // SCORE_SHIFT
+        self.leaderboard.update({bp: SCORE_SHIFT * (bpscore + bpoint[0]) + bplayer.performance})
 
         self.nb_games_finished += 1
 
@@ -1155,8 +1196,8 @@ class Tournament(ABC):
         self.ongoing_games.discard(game)
 
         # save player points to db
-        await self.db_update_player(game.wplayer, "GAME_END")
-        await self.db_update_player(game.bplayer, "GAME_END")
+        await self.db_update_player(wp, "GAME_END")
+        await self.db_update_player(bp, "GAME_END")
         await self.db_update_pairing(game)
 
         await self.broadcast(self.duels_json)
@@ -1184,18 +1225,22 @@ class Tournament(ABC):
         if self.system == ARENA:
             await asyncio.sleep(3)
 
-        wplayer = self.players[game.wplayer]
-        bplayer = self.players[game.bplayer]
+        resolved_players = self.resolve_game_players(game)
+        if resolved_players is None:
+            return
+        wp, bp = resolved_players
+        wplayer = self.players[wp]
+        bplayer = self.players[bp]
 
         if game.status == FLAG:
             # pause players when they don't start their game
             if game.board.ply == 0:
                 bplayer.free = True
-                await self.pause(game.wplayer)
+                await self.pause(wp)
                 log.debug("AUTO PAUSE: %s in tournament %s", wplayer.username, self.id)
             elif game.board.ply == 1:
                 wplayer.free = True
-                await self.pause(game.bplayer)
+                await self.pause(bp)
                 log.debug("AUTO PAUSE: %s in tournament %s", bplayer.username, self.id)
             else:
                 wplayer.free = True

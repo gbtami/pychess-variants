@@ -600,11 +600,13 @@ async def load_tournament(
                 tournament.ongoing_games.add(game)
                 tournament.update_game_ranks(game)
         if game is None:
+            wplayer = tournament.get_player_by_name(wp) or await app_state.users.get(wp)
+            bplayer = tournament.get_player_by_name(bp) or await app_state.users.get(bp)
             game = GameData(
                 _id,
-                app_state.users[wp],
+                wplayer,
                 wrating,
-                app_state.users[bp],
+                bplayer,
                 brating,
                 result,
                 date,

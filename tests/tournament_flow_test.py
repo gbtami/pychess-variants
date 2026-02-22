@@ -12,7 +12,7 @@ from tournament.auto_play_arena import (
     RRTestTournament,
     SwissTestTournament,
 )
-from tournament.tournament import upsert_tournament_to_db
+from tournament.tournament import GameData, upsert_tournament_to_db
 from tournament_test_base import ONE_TEST_ONLY, TournamentTestCase
 from user import User
 
@@ -239,3 +239,43 @@ class TournamentFlowTestCase(TournamentTestCase):
         games = await self.tournament.games_json(username)
         self.assertEqual(games["name"], username)
         self.assertEqual(games["rank"], 1)
+
+    async def test_update_players_handles_replaced_user_instance(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess960", before_start=0, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+
+        white = list(self.tournament.players.keys())[0]
+        black = list(self.tournament.players.keys())[1]
+
+        replacement_black = User(
+            app_state,
+            username=black.username,
+            title=black.title,
+            perfs=black.perfs,
+        )
+        app_state.users[black.username] = replacement_black
+
+        game = GameData(
+            "syntheticGame",
+            white,
+            str(self.tournament.players[white].rating),
+            replacement_black,
+            str(self.tournament.players[black].rating),
+            "1-0",
+            datetime.now(timezone.utc),
+            False,
+            False,
+        )
+        self.tournament.update_players(game)
+
+        canonical_black = self.tournament.get_player_by_name(black.username)
+        self.assertIsNotNone(canonical_black)
+        assert canonical_black is not None
+        self.assertEqual(len(self.tournament.players[white].games), 1)
+        self.assertEqual(len(self.tournament.players[canonical_black].games), 1)
+        self.assertIs(game.bplayer, canonical_black)
