@@ -263,14 +263,16 @@ class TournamentFlowTestCase(TournamentTestCase):
 
         game = GameData(
             "syntheticGame",
-            white,
+            white.username,
             str(self.tournament.players[white].rating),
-            replacement_black,
+            replacement_black.username,
             str(self.tournament.players[black].rating),
             "1-0",
             datetime.now(timezone.utc),
             False,
             False,
+            wtitle=white.title,
+            btitle=replacement_black.title,
         )
         self.tournament.update_players(game)
 

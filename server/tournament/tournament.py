@@ -213,9 +213,9 @@ class GameData:
     def __init__(
         self,
         _id: str,
-        wplayer: User | str,
+        wplayer: str,
         wrating: str,
-        bplayer: User | str,
+        bplayer: str,
         brating: str,
         result: str,
         date: datetime,
@@ -225,18 +225,10 @@ class GameData:
         btitle: str = "",
     ) -> None:
         self.id: str = _id
-        if isinstance(wplayer, str):
-            self.wname = wplayer
-            self._wplayer = _GameDataPlayer(wplayer, wtitle)
-        else:
-            self.wname = wplayer.username
-            self._wplayer = wplayer
-        if isinstance(bplayer, str):
-            self.bname = bplayer
-            self._bplayer = _GameDataPlayer(bplayer, btitle)
-        else:
-            self.bname = bplayer.username
-            self._bplayer = bplayer
+        self.wname = wplayer
+        self._wplayer = _GameDataPlayer(wplayer, wtitle)
+        self.bname = bplayer
+        self._bplayer = _GameDataPlayer(bplayer, btitle)
         self.result: str = result
         self.date: datetime = date
         self.wrating: str = wrating
