@@ -221,6 +221,90 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             except asyncio.CancelledError:
                 pass
 
+    async def test_ongoing_arena_lifecycle_persisted_across_restart(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess", before_start=10, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(4)
+        players = list(self.tournament.players.keys())
+        withdrawn_player = players[-1]
+        paused_player = players[-2]
+
+        await self.tournament.withdraw(withdrawn_player)
+        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.pause(paused_player)
+
+        waiting_players = list(self.tournament.waiting_players())
+        self.assertEqual(len(waiting_players), 2)
+
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        self.assertEqual(len(games), 1)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+        await self.tournament.game_update(game)
+
+        winner_username = game.wplayer.username
+        loser_username = game.bplayer.username
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+
+        winner = reloaded_tournament.get_player_by_name(winner_username)
+        loser = reloaded_tournament.get_player_by_name(loser_username)
+        paused = reloaded_tournament.get_player_by_name(paused_player.username)
+        withdrawn = reloaded_tournament.get_player_by_name(withdrawn_player.username)
+        self.assertIsNotNone(winner)
+        self.assertIsNotNone(loser)
+        self.assertIsNotNone(paused)
+        self.assertIsNotNone(withdrawn)
+        assert winner is not None
+        assert loser is not None
+        assert paused is not None
+        assert withdrawn is not None
+
+        self.assertEqual(reloaded_tournament.nb_games_finished, 1)
+        self.assertEqual(reloaded_tournament.players[winner].points[0][0], 2)
+        self.assertEqual(reloaded_tournament.players[loser].points[0][0], 0)
+        self.assertEqual(reloaded_tournament.get_rank_by_username(winner.username), 1)
+
+        self.assertTrue(reloaded_tournament.players[paused].paused)
+        self.assertFalse(reloaded_tournament.players[paused].withdrawn)
+        self.assertIn(paused, reloaded_tournament.leaderboard)
+
+        self.assertTrue(reloaded_tournament.players[withdrawn].withdrawn)
+        self.assertNotIn(withdrawn, reloaded_tournament.leaderboard)
+        self.assertIsNone(reloaded_tournament.get_rank_by_username(withdrawn.username))
+
+        class _DummyWs:
+            async def close(self):
+                return None
+
+        dummy_ws = _DummyWs()
+        for player in reloaded_tournament.players:
+            player.tournament_sockets[tid] = set((dummy_ws,))
+            reloaded_tournament.app_state.tourneysockets[tid][player.username] = (
+                player.tournament_sockets[tid]
+            )
+
+        reloaded_waiting = reloaded_tournament.waiting_players()
+        self.assertIn(winner, reloaded_waiting)
+        self.assertIn(loser, reloaded_waiting)
+        self.assertNotIn(paused, reloaded_waiting)
+        self.assertNotIn(withdrawn, reloaded_waiting)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
     async def test_finished_tournament_evicted_after_keep_time(self):
         app_state = get_app_state(self.app)
         tid = id8()

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import asyncio
 import json
 import time
 from datetime import datetime, timezone
@@ -15,6 +16,8 @@ from pychess_global_app_state_utils import get_app_state
 from security_evasion import collect_client_signals
 from server import make_app
 from tournament.auto_play_arena import ArenaTestTournament
+from tournament.tournament import upsert_tournament_to_db
+from tournament.tournaments import load_tournament
 from user import User
 from wsl import handle_lobbychat
 
@@ -281,3 +284,108 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         self.assertFalse(tournament.players[player].withdrawn)
         self.assertIn(player, tournament.leaderboard)
         self.assertEqual(tournament.user_status(player), "paused")
+
+    async def test_ban_created_tournament_state_persists_after_reload(self):
+        app_state = get_app_state(self.app)
+        username = "cheater_created_reload"
+        user = User(app_state, username=username)
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one({"_id": username, "enabled": True, "security": {}})
+
+        tid = id8()
+        tournament = ArenaTestTournament(
+            app_state, tid, before_start=10, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(tournament, app_state)
+        await tournament.join(user)
+
+        await ban(app_state, f"/ban {username}")
+
+        app_state.tournaments.pop(tid, None)
+        app_state.tourneysockets.pop(tid, None)
+        reloaded = await load_tournament(app_state, tid)
+        self.assertIsNotNone(reloaded)
+        assert reloaded is not None
+
+        player = reloaded.get_player_by_name(username)
+        self.assertIsNotNone(player)
+        assert player is not None
+        self.assertTrue(reloaded.players[player].withdrawn)
+        self.assertFalse(reloaded.players[player].paused)
+        self.assertNotIn(player, reloaded.leaderboard)
+        self.assertEqual(reloaded.user_status(player), "withdrawn")
+
+        if reloaded.clock_task is not None:
+            reloaded.clock_task.cancel()
+            try:
+                await reloaded.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_ban_started_tournament_state_persists_after_reload(self):
+        app_state = get_app_state(self.app)
+        banned_username = "cheater_started_reload"
+        opponent_username = "opponent_started_reload"
+        banned_user = User(app_state, username=banned_username)
+        opponent_user = User(app_state, username=opponent_username)
+        app_state.users[banned_user.username] = banned_user
+        app_state.users[opponent_user.username] = opponent_user
+        await app_state.db.user.insert_many(
+            [
+                {"_id": banned_username, "enabled": True, "security": {}},
+                {"_id": opponent_username, "enabled": True, "security": {}},
+            ]
+        )
+
+        tid = id8()
+        tournament = ArenaTestTournament(
+            app_state, tid, before_start=10, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(tournament, app_state)
+        await tournament.join(banned_user)
+        await tournament.join(opponent_user)
+        await tournament.start(datetime.now(timezone.utc))
+
+        await ban(app_state, f"/ban {banned_username}")
+
+        app_state.tournaments.pop(tid, None)
+        app_state.tourneysockets.pop(tid, None)
+        reloaded = await load_tournament(app_state, tid)
+        self.assertIsNotNone(reloaded)
+        assert reloaded is not None
+
+        banned_player = reloaded.get_player_by_name(banned_username)
+        opponent_player = reloaded.get_player_by_name(opponent_username)
+        self.assertIsNotNone(banned_player)
+        self.assertIsNotNone(opponent_player)
+        assert banned_player is not None
+        assert opponent_player is not None
+
+        self.assertTrue(reloaded.players[banned_player].paused)
+        self.assertFalse(reloaded.players[banned_player].withdrawn)
+        self.assertIn(banned_player, reloaded.leaderboard)
+        self.assertEqual(reloaded.user_status(banned_player), "paused")
+
+        class _DummyWs:
+            async def close(self):
+                return None
+
+        dummy_ws = _DummyWs()
+        for player in reloaded.players:
+            player.tournament_sockets[tid] = set((dummy_ws,))
+            reloaded.app_state.tourneysockets[tid][player.username] = player.tournament_sockets[tid]
+
+        waiting_players = reloaded.waiting_players()
+        self.assertIn(opponent_player, waiting_players)
+        self.assertNotIn(banned_player, waiting_players)
+
+        if reloaded.clock_task is not None:
+            reloaded.clock_task.cancel()
+            try:
+                await reloaded.clock_task
+            except asyncio.CancelledError:
+                pass
