@@ -456,10 +456,13 @@ class Tournament(ABC):
         player_data = self.players_by_name.get(username)
         if player_data is not None:
             recovered_player = self.app_state.users[username]
-            if recovered_player.username == username:
-                self.players[recovered_player] = player_data
-                self.player_keys_by_name[username] = recovered_player
-                return recovered_player
+            if recovered_player.username != username:
+                # Keep tournament internals stable even if the in-memory users cache was evicted.
+                recovered_player = User(self.app_state, username=username, title=player_data.title)
+                self.app_state.users[username] = recovered_player
+            self.players[recovered_player] = player_data
+            self.player_keys_by_name[username] = recovered_player
+            return recovered_player
 
         self.player_keys_by_name.pop(username, None)
         return None

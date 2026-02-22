@@ -425,6 +425,29 @@ class TournamentFlowTestCase(TournamentTestCase):
         assert updated is not None
         self.assertEqual(updated.rating, new_rating)
 
+    async def test_get_player_by_name_recovers_without_user_cache_entry(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess960", before_start=0, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(1)
+
+        player = list(self.tournament.players.keys())[0]
+        username = player.username
+        player_data = self.tournament.players.pop(player)
+        self.tournament.players_by_name[username] = player_data
+        self.tournament.player_keys_by_name.pop(username, None)
+        app_state.users.data.pop(username, None)
+
+        recovered_player = self.tournament.get_player_by_name(username)
+        self.assertIsNotNone(recovered_player)
+        assert recovered_player is not None
+        self.assertEqual(recovered_player.username, username)
+        self.assertIn(recovered_player, self.tournament.players)
+        self.assertIs(self.tournament.players[recovered_player], player_data)
+
     async def test_game_update_handles_stale_user_key_without_user_cache_entry(self):
         app_state = get_app_state(self.app)
         tid = id8()
