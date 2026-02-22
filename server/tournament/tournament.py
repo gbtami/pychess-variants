@@ -409,6 +409,11 @@ class Tournament(ABC):
         pass
 
     def register_player(self, user: User, player_data: PlayerData) -> None:
+        for existing in list(self.players):
+            if existing is user:
+                continue
+            if existing.username == player_data.username:
+                self.players.pop(existing, None)
         self.players[user] = player_data
         self.players_by_name[player_data.username] = player_data
         self.player_keys_by_name[player_data.username] = user
@@ -464,6 +469,36 @@ class Tournament(ABC):
             if player.username == username:
                 return rank
         return None
+
+    def leaderboard_player_by_username(self, username: str) -> User | None:
+        for player in self.leaderboard:
+            if player.username == username:
+                return player
+        return None
+
+    def leaderboard_score_by_username(self, username: str) -> int:
+        leaderboard_player = self.leaderboard_player_by_username(username)
+        if leaderboard_player is None:
+            return 0
+        return self.leaderboard.get(leaderboard_player, 0)
+
+    def set_leaderboard_score_by_username(
+        self, username: str, score: int, player: User | None = None
+    ) -> User | None:
+        leaderboard_player = self.leaderboard_player_by_username(username)
+        if leaderboard_player is None:
+            leaderboard_player = player if player is not None else self.get_player_by_name(username)
+        if leaderboard_player is None:
+            return None
+        self.leaderboard.update({leaderboard_player: score})
+        return leaderboard_player
+
+    def pop_leaderboard_player_by_username(self, username: str) -> User | None:
+        leaderboard_player = self.leaderboard_player_by_username(username)
+        if leaderboard_player is None:
+            return None
+        self.leaderboard.pop(leaderboard_player, None)
+        return leaderboard_player
 
     def tournament_sockets(self, username: str, user: User | None = None) -> set[Any]:
         sockets_by_username = self.app_state.tourneysockets.get(self.id, {})
@@ -899,14 +934,15 @@ class Tournament(ABC):
             player_data.rating = rating
             player_data.provisional = provisional
 
-        if player not in self.leaderboard:
+        in_leaderboard = self.leaderboard_player_by_username(user.username) is not None
+        if not in_leaderboard:
             # new player joined or withdrawn player joined again
             self.nb_players += 1
 
         if self.status == T_CREATED:
-            self.leaderboard[player] = rating
-        elif player not in self.leaderboard:
-            self.leaderboard.setdefault(player, 0)
+            self.set_leaderboard_score_by_username(user.username, rating, player=player)
+        elif not in_leaderboard:
+            self.set_leaderboard_score_by_username(user.username, 0, player=player)
 
         player_data.free = True
         player_data.paused = False
@@ -935,7 +971,7 @@ class Tournament(ABC):
             return
         self.players[player].withdrawn = True
 
-        if self.leaderboard.pop(player, None) is not None:
+        if self.pop_leaderboard_player_by_username(user.username) is not None:
             self.nb_players -= 1
 
         response = self.players_json(user=player)
@@ -1306,11 +1342,22 @@ class Tournament(ABC):
         nb = len(bplayer.points)
         bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
 
-        wpscore = self.leaderboard.get(wp, 0) // SCORE_SHIFT
-        self.leaderboard.update({wp: SCORE_SHIFT * (wpscore + wpoint[0]) + wplayer.performance})
+        wpoint_value = wpoint[0] if isinstance(wpoint[0], int) else 0
+        bpoint_value = bpoint[0] if isinstance(bpoint[0], int) else 0
 
-        bpscore = self.leaderboard.get(bp, 0) // SCORE_SHIFT
-        self.leaderboard.update({bp: SCORE_SHIFT * (bpscore + bpoint[0]) + bplayer.performance})
+        wpscore = self.leaderboard_score_by_username(wp.username) // SCORE_SHIFT
+        self.set_leaderboard_score_by_username(
+            wp.username,
+            SCORE_SHIFT * (wpscore + wpoint_value) + wplayer.performance,
+            player=wp,
+        )
+
+        bpscore = self.leaderboard_score_by_username(bp.username) // SCORE_SHIFT
+        self.set_leaderboard_score_by_username(
+            bp.username,
+            SCORE_SHIFT * (bpscore + bpoint_value) + bplayer.performance,
+            player=bp,
+        )
 
         self.nb_games_finished += 1
 
@@ -1508,7 +1555,7 @@ class Tournament(ABC):
             player_update = {"a": True}
 
         elif action in ("GAME_END", "BYE"):
-            full_score = self.leaderboard.get(player, 0)
+            full_score = self.leaderboard_score_by_username(player_data.username)
             player_update = {
                 "_id": player_id,
                 "tid": self.id,

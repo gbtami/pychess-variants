@@ -389,3 +389,38 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertIn(recovered_black, self.tournament.players)
         self.assertEqual(len(self.tournament.players[recovered_black].games), 1)
         self.assertEqual(game.bplayer.username, black.username)
+
+    async def test_join_with_replaced_user_does_not_duplicate_leaderboard_entry(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess960", before_start=10, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(1)
+
+        original = list(self.tournament.players.keys())[0]
+        username = original.username
+        player_data = self.tournament.players.pop(original)
+        self.tournament.players_by_name[username] = player_data
+        self.tournament.player_keys_by_name.pop(username, None)
+
+        replacement = User(
+            app_state,
+            username=username,
+            title=original.title,
+            perfs=original.perfs,
+        )
+        app_state.users[username] = replacement
+        new_rating = int(player_data.rating) + 25
+        replacement.perfs["chess960"]["gl"]["r"] = new_rating
+
+        await self.tournament.join(replacement)
+
+        leaderboard_entries = [p for p in self.tournament.leaderboard if p.username == username]
+        self.assertEqual(len(leaderboard_entries), 1)
+        self.assertEqual(self.tournament.nb_players, 1)
+        updated = self.tournament.player_data_by_name(username)
+        self.assertIsNotNone(updated)
+        assert updated is not None
+        self.assertEqual(updated.rating, new_rating)
