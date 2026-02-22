@@ -432,7 +432,7 @@ class Tournament(ABC):
             self.players_by_name[username] = player_data
         return player_data
 
-    def get_player_by_name(self, username: str) -> User | None:
+    def mapped_player_by_name(self, username: str) -> User | None:
         mapped_player = self.player_keys_by_name.get(username)
         if mapped_player is not None and mapped_player in self.players:
             self.players_by_name[username] = self.players[mapped_player]
@@ -444,6 +444,14 @@ class Tournament(ABC):
                 self.players_by_name[username] = player_data
                 return player
 
+        self.player_keys_by_name.pop(username, None)
+        return None
+
+    def get_player_by_name(self, username: str) -> User | None:
+        mapped_player = self.mapped_player_by_name(username)
+        if mapped_player is not None:
+            return mapped_player
+
         # Recover from key-map drift where player data exists but User key mapping was dropped.
         player_data = self.players_by_name.get(username)
         if player_data is not None:
@@ -454,7 +462,6 @@ class Tournament(ABC):
                 return recovered_player
 
         self.player_keys_by_name.pop(username, None)
-        self.players_by_name.pop(username, None)
         return None
 
     def get_player(self, user: User) -> User | None:
@@ -515,9 +522,29 @@ class Tournament(ABC):
 
         return set()
 
+    @staticmethod
+    def game_player_usernames(game: Game | GameData) -> tuple[str, str]:
+        if isinstance(game, GameData):
+            return (game.wname, game.bname)
+        return (game.wplayer.username, game.bplayer.username)
+
+    def game_player_data(self, game: Game | GameData) -> tuple[PlayerData, PlayerData] | None:
+        wname, bname = self.game_player_usernames(game)
+        wplayer = self.player_data_by_name(wname)
+        bplayer = self.player_data_by_name(bname)
+        if wplayer is None or bplayer is None:
+            log.warning(
+                "Skipping game %s in tournament %s: player data missing wp=%s bp=%s",
+                getattr(game, "id", "?"),
+                self.id,
+                wname,
+                bname,
+            )
+            return None
+        return (wplayer, bplayer)
+
     def resolve_game_players(self, game: Game | GameData) -> tuple[User, User] | None:
-        wname = game.wname if isinstance(game, GameData) else game.wplayer.username
-        bname = game.bname if isinstance(game, GameData) else game.bplayer.username
+        wname, bname = self.game_player_usernames(game)
         wp = self.get_player_by_name(wname)
         bp = self.get_player_by_name(bname)
         if wp is None or bp is None:
@@ -963,39 +990,41 @@ class Tournament(ABC):
             return
 
         log.debug("WITHDRAW: %s in tournament %s", user.username, self.id)
-        player = self.get_player(user)
-        if player is None:
+        player_data = self.player_data_by_name(user.username)
+        if player_data is None:
             log.warning(
                 "WITHDRAW ignored: %s is missing from tournament %s players", user.username, self.id
             )
             return
-        self.players[player].withdrawn = True
+        player_data.withdrawn = True
 
         if self.pop_leaderboard_player_by_username(user.username) is not None:
             self.nb_players -= 1
 
-        response = self.players_json(user=player)
+        response_player = self.get_player_by_name(user.username) or user
+        response = self.players_json(user=response_player)
         await self.broadcast(response)
 
         await self.broadcast_spotlight()
 
-        await self.db_update_player(player, "WITHDRAW")
+        await self.db_update_player(user, "WITHDRAW")
 
     async def pause(self, user: User) -> None:
         log.debug("PAUSE: %s in tournament %s", user.username, self.id)
-        player = self.get_player(user)
-        if player is None:
+        player_data = self.player_data_by_name(user.username)
+        if player_data is None:
             log.warning(
                 "PAUSE ignored: %s is missing from tournament %s players", user.username, self.id
             )
             return
-        self.players[player].paused = True
+        player_data.paused = True
 
         # pause is different from withdraw and join because pause can be initiated from finished games page as well
-        response = self.players_json(user=player)
+        response_player = self.get_player_by_name(user.username) or user
+        response = self.players_json(user=response_player)
         await self.broadcast(response)
 
-        await self.db_update_player(player, "PAUSE")
+        await self.db_update_player(user, "PAUSE")
 
     def spactator_join(self, spectator: User) -> None:
         self.spectators.add(spectator)
@@ -1106,26 +1135,36 @@ class Tournament(ABC):
         return games
 
     def update_players(self, game: Game | GameData) -> None:
-        resolved_players = self.resolve_game_players(game)
-        if resolved_players is None:
+        player_data = self.game_player_data(game)
+        if player_data is None:
             return
-        wp, bp = resolved_players
+        wplayer, bplayer = player_data
+        wname, bname = self.game_player_usernames(game)
 
-        self.players[wp].games.append(game)
-        self.players[bp].games.append(game)
+        # Keep persisted GameData objects aligned with active User instances when available.
+        if isinstance(game, GameData):
+            mapped_white = self.mapped_player_by_name(wname)
+            if mapped_white is not None and game.wplayer is not mapped_white:
+                game.wplayer = mapped_white
+            mapped_black = self.mapped_player_by_name(bname)
+            if mapped_black is not None and game.bplayer is not mapped_black:
+                game.bplayer = mapped_black
+
+        wplayer.games.append(game)
+        bplayer.games.append(game)
 
         if game.result == "*":
-            self.players[wp].free = False
-            self.players[bp].free = False
+            wplayer.free = False
+            bplayer.free = False
 
-        self.players[wp].prev_opp = game.bplayer.username
-        self.players[bp].prev_opp = game.wplayer.username
+        wplayer.prev_opp = bname
+        bplayer.prev_opp = wname
 
-        self.players[wp].color_balance += 1
-        self.players[bp].color_balance -= 1
+        wplayer.color_balance += 1
+        bplayer.color_balance -= 1
 
-        self.players[wp].nb_not_paired = 0
-        self.players[bp].nb_not_paired = 0
+        wplayer.nb_not_paired = 0
+        bplayer.nb_not_paired = 0
 
     def update_game_ranks(self, game: Game) -> bool:
         if game.status != BYEGAME:
@@ -1147,17 +1186,15 @@ class Tournament(ABC):
         return False
 
     def points_perfs(self, game: Game) -> Tuple[Point, Point, int, int]:
-        resolved_players = self.resolve_game_players(game)
-        if resolved_players is None:
+        player_data = self.game_player_data(game)
+        if player_data is None:
             return (
                 (0, SCORE),
                 (0, SCORE),
                 int(game.brating.rstrip("?")),
                 int(game.wrating.rstrip("?")),
             )
-        wp, bp = resolved_players
-        wplayer = self.players[wp]
-        bplayer = self.players[bp]
+        wplayer, bplayer = player_data
 
         wpoint = (0, SCORE)
         bpoint = (0, SCORE)
@@ -1216,17 +1253,15 @@ class Tournament(ABC):
         return (wpoint, bpoint, wperf, bperf)
 
     def points_perfs_janggi(self, game: Game) -> Tuple[Point, Point, int, int]:
-        resolved_players = self.resolve_game_players(game)
-        if resolved_players is None:
+        player_data = self.game_player_data(game)
+        if player_data is None:
             return (
                 (0, SCORE),
                 (0, SCORE),
                 int(game.brating.rstrip("?")),
                 int(game.wrating.rstrip("?")),
             )
-        wp, bp = resolved_players
-        wplayer = self.players[wp]
-        bplayer = self.players[bp]
+        wplayer, bplayer = player_data
 
         wpoint = (0, SCORE)
         bpoint = (0, SCORE)
@@ -1302,12 +1337,10 @@ class Tournament(ABC):
         if TYPE_CHECKING:
             assert isinstance(game, Game)
 
-        resolved_players = self.resolve_game_players(game)
-        if resolved_players is None:
+        player_data = self.game_player_data(game)
+        if player_data is None:
             return
-        wp, bp = resolved_players
-        wplayer = self.players[wp]
-        bplayer = self.players[bp]
+        wplayer, bplayer = player_data
 
         if game.status == ABORTED:
             return
@@ -1345,18 +1378,18 @@ class Tournament(ABC):
         wpoint_value = wpoint[0] if isinstance(wpoint[0], int) else 0
         bpoint_value = bpoint[0] if isinstance(bpoint[0], int) else 0
 
-        wpscore = self.leaderboard_score_by_username(wp.username) // SCORE_SHIFT
+        wpscore = self.leaderboard_score_by_username(game.wplayer.username) // SCORE_SHIFT
         self.set_leaderboard_score_by_username(
-            wp.username,
+            game.wplayer.username,
             SCORE_SHIFT * (wpscore + wpoint_value) + wplayer.performance,
-            player=wp,
+            player=game.wplayer,
         )
 
-        bpscore = self.leaderboard_score_by_username(bp.username) // SCORE_SHIFT
+        bpscore = self.leaderboard_score_by_username(game.bplayer.username) // SCORE_SHIFT
         self.set_leaderboard_score_by_username(
-            bp.username,
+            game.bplayer.username,
             SCORE_SHIFT * (bpscore + bpoint_value) + bplayer.performance,
-            player=bp,
+            player=game.bplayer,
         )
 
         self.nb_games_finished += 1
@@ -1371,8 +1404,8 @@ class Tournament(ABC):
         self.ongoing_games.discard(game)
 
         # save player points to db
-        await self.db_update_player(wp, "GAME_END")
-        await self.db_update_player(bp, "GAME_END")
+        await self.db_update_player(game.wplayer, "GAME_END")
+        await self.db_update_player(game.bplayer, "GAME_END")
         await self.db_update_pairing(game)
 
         await self.broadcast(self.duels_json)
@@ -1400,22 +1433,20 @@ class Tournament(ABC):
         if self.system == ARENA:
             await asyncio.sleep(3)
 
-        resolved_players = self.resolve_game_players(game)
-        if resolved_players is None:
+        player_data = self.game_player_data(game)
+        if player_data is None:
             return
-        wp, bp = resolved_players
-        wplayer = self.players[wp]
-        bplayer = self.players[bp]
+        wplayer, bplayer = player_data
 
         if game.status == FLAG:
             # pause players when they don't start their game
             if game.board.ply == 0:
                 bplayer.free = True
-                await self.pause(wp)
+                await self.pause(game.wplayer)
                 log.debug("AUTO PAUSE: %s in tournament %s", wplayer.username, self.id)
             elif game.board.ply == 1:
                 wplayer.free = True
-                await self.pause(bp)
+                await self.pause(game.bplayer)
                 log.debug("AUTO PAUSE: %s in tournament %s", bplayer.username, self.id)
             else:
                 wplayer.free = True
@@ -1501,22 +1532,22 @@ class Tournament(ABC):
             log.exception("Failed to save current round for %s", self.id)
 
     async def db_update_player(
-        self, user: User, action: "Literal['JOIN', 'WITHDRAW', 'PAUSE', 'GAME_END', 'BYE']"
+        self, user: User | str, action: "Literal['JOIN', 'WITHDRAW', 'PAUSE', 'GAME_END', 'BYE']"
     ) -> None:
         if self.app_state.db is None:
             return
 
-        player = self.get_player(user)
-        if player is None:
+        username = user if isinstance(user, str) else user.username
+        player_data = self.player_data_by_name(username)
+        if player_data is None:
             log.warning(
                 "db_update_player(%s) skipped for %s in %s: user not found in tournament players",
                 action,
-                user.username,
+                username,
                 self.id,
             )
             return
 
-        player_data = self.players[player]
         player_id = player_data.id
         player_table = self.app_state.db.tournament_player
         player_update: TournamentPlayerUpdate

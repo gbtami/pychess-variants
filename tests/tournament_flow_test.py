@@ -4,7 +4,7 @@ import asyncio
 import unittest
 from datetime import datetime, timezone
 
-from const import T_CREATED, T_FINISHED, T_STARTED
+from const import FLAG, T_CREATED, T_FINISHED, T_STARTED
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament.auto_play_arena import (
@@ -424,3 +424,44 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertIsNotNone(updated)
         assert updated is not None
         self.assertEqual(updated.rating, new_rating)
+
+    async def test_game_update_handles_stale_user_key_without_user_cache_entry(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess960", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+
+        stale_player = game.bplayer
+        stale_data = self.tournament.players.pop(stale_player)
+        self.tournament.players_by_name[stale_player.username] = stale_data
+        self.tournament.player_keys_by_name.pop(stale_player.username, None)
+        app_state.users.data.pop(stale_player.username, None)
+
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+
+        await self.tournament.game_update(game)
+
+        repaired_data = self.tournament.player_data_by_name(stale_player.username)
+        self.assertIsNotNone(repaired_data)
+        assert repaired_data is not None
+        self.assertEqual(len(repaired_data.points), 1)
+        self.assertEqual(self.tournament.nb_games_finished, 1)
+
+        stale_doc = await app_state.db.tournament_player.find_one(
+            {"tid": tid, "uid": stale_player.username}
+        )
+        self.assertIsNotNone(stale_doc)
+        assert stale_doc is not None
+        self.assertEqual(len(stale_doc["p"]), 1)
