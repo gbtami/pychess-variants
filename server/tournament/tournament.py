@@ -426,7 +426,7 @@ class Tournament(ABC):
             self.players_by_name[username] = player_data
         return player_data
 
-    def mapped_player_by_name(self, username: str) -> User | None:
+    def get_player_by_name(self, username: str) -> User | None:
         mapped_player = self.player_keys_by_name.get(username)
         if mapped_player is not None and mapped_player in self.players:
             self.players_by_name[username] = self.players[mapped_player]
@@ -437,14 +437,6 @@ class Tournament(ABC):
                 self.player_keys_by_name[username] = player
                 self.players_by_name[username] = player_data
                 return player
-
-        self.player_keys_by_name.pop(username, None)
-        return None
-
-    def get_player_by_name(self, username: str) -> User | None:
-        mapped_player = self.mapped_player_by_name(username)
-        if mapped_player is not None:
-            return mapped_player
 
         # Recover from key-map drift where player data exists but User key mapping was dropped.
         player_data = self.players_by_name.get(username)
