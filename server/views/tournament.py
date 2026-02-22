@@ -29,7 +29,7 @@ async def tournament(request: web.Request) -> ViewContext:
             await tournament.abort()
             return context  # web.HTTPFound("/tournaments")
 
-    if request.path.endswith("/pause") and user in tournament.players:
+    if request.path.endswith("/pause") and tournament.get_player_by_name(user.username) is not None:
         await tournament.pause(user)
 
     tournament_name = await get_tournament_name(request, tournamentId)
