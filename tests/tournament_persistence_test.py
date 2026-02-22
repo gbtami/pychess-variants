@@ -282,6 +282,12 @@ class TournamentPersistenceTestCase(TournamentTestCase):
 
         self.assertEqual(reloaded_tournament.nb_games_finished, 1)
         self.assertIn(recovered, reloaded_tournament.leaderboard)
+        recovered_entries = [
+            player
+            for player in reloaded_tournament.leaderboard
+            if player.username == missing.username
+        ]
+        self.assertEqual(len(recovered_entries), 1)
         self.assertGreaterEqual(len(reloaded_tournament.players[winner_reloaded].games), 1)
         self.assertGreaterEqual(len(reloaded_tournament.players[recovered].games), 1)
 
@@ -355,6 +361,12 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(recovered.username, deleted.username)
         self.assertEqual(reloaded_tournament.nb_games_finished, 1)
         self.assertIn(recovered, reloaded_tournament.leaderboard)
+        recovered_entries = [
+            player
+            for player in reloaded_tournament.leaderboard
+            if player.username == deleted.username
+        ]
+        self.assertEqual(len(recovered_entries), 1)
         self.assertGreaterEqual(len(reloaded_tournament.players[winner_reloaded].games), 1)
         self.assertGreaterEqual(len(reloaded_tournament.players[recovered].games), 1)
 

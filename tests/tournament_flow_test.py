@@ -323,6 +323,8 @@ class TournamentFlowTestCase(TournamentTestCase):
             datetime.now(timezone.utc),
             False,
             False,
+            wtitle=white.title,
+            btitle=black.title,
         )
         self.tournament.update_players(game)
 
@@ -332,6 +334,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         black_view = game.game_json(black)
         self.assertEqual(black_view["color"], "b")
         self.assertEqual(black_view["name"], white.username)
+        self.assertEqual(black_view["title"], white.title)
 
     async def test_players_json_and_waiting_players_tolerate_stale_player_key(self):
         app_state = get_app_state(self.app)

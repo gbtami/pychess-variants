@@ -221,17 +221,19 @@ class GameData:
         date: datetime,
         wberserk: bool,
         bberserk: bool,
+        wtitle: str = "",
+        btitle: str = "",
     ) -> None:
         self.id: str = _id
         if isinstance(wplayer, str):
             self.wname = wplayer
-            self._wplayer = _GameDataPlayer(wplayer)
+            self._wplayer = _GameDataPlayer(wplayer, wtitle)
         else:
             self.wname = wplayer.username
             self._wplayer = wplayer
         if isinstance(bplayer, str):
             self.bname = bplayer
-            self._bplayer = _GameDataPlayer(bplayer)
+            self._bplayer = _GameDataPlayer(bplayer, btitle)
         else:
             self.bname = bplayer.username
             self._bplayer = bplayer

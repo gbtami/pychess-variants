@@ -534,7 +534,7 @@ async def load_tournament(
             player_data.paused = True
         tournament.register_player(user, player_data)
 
-        if user not in tournament.leaderboard:
+        if tournament.leaderboard_player_by_username(username) is None:
             tournament.leaderboard.setdefault(user, 0)
             tournament.nb_players += 1
 
@@ -629,14 +629,16 @@ async def load_tournament(
                 bplayer = await ensure_pairing_participant(game.bplayer.username, game.brating)
                 game = GameData(
                     game.id,
-                    wplayer,
+                    wplayer.username,
                     game.wrating,
-                    bplayer,
+                    bplayer.username,
                     game.brating,
                     result,
                     game.date,
                     wberserk,
                     bberserk,
+                    wtitle=wplayer.title,
+                    btitle=bplayer.title,
                 )
                 tournament.nb_games_finished += 1
                 await tournament.db_update_pairing(game)
@@ -648,14 +650,16 @@ async def load_tournament(
             bplayer = await ensure_pairing_participant(bp, brating)
             game = GameData(
                 _id,
-                wplayer,
+                wplayer.username,
                 wrating,
-                bplayer,
+                bplayer.username,
                 brating,
                 result,
                 date,
                 wberserk,
                 bberserk,
+                wtitle=wplayer.title,
+                btitle=bplayer.title,
             )
             tournament.nb_games_finished += 1
 
