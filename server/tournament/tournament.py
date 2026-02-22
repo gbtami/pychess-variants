@@ -536,23 +536,52 @@ class Tournament(ABC):
         start = (page - 1) * 10
         end = min(start + 10, self.nb_players)
 
+        players: list[TournamentPlayerJson] = []
+        for player, full_score in self.leaderboard.items()[start:end]:
+            leaderboard_player_data = self.player_data_by_name(player.username)
+            if leaderboard_player_data is None:
+                log.warning(
+                    "Skipping missing leaderboard player %s in %s players_json",
+                    player.username,
+                    self.id,
+                )
+                continue
+            players.append(
+                player_json(
+                    leaderboard_player_data,
+                    full_score,
+                    leaderboard_player_data.paused,
+                )
+            )
+
         page_json: TournamentPlayersResponse = {
             "type": "get_players",
             "requestedBy": user.username if user is not None else "",
             "nbPlayers": self.nb_players,
             "nbGames": self.nb_games_finished,
             "page": page,
-            "players": [
-                player_json(self.players[player], full_score, self.players[player].paused)
-                for player, full_score in self.leaderboard.items()[start:end]
-            ],
+            "players": players,
         }
 
         if self.status > T_STARTED:
-            page_json["podium"] = [
-                player_json(self.players[player], full_score, self.players[player].paused)
-                for player, full_score in self.leaderboard.items()[0:3]
-            ]
+            podium: list[TournamentPlayerJson] = []
+            for player, full_score in self.leaderboard.items()[0:3]:
+                leaderboard_player_data = self.player_data_by_name(player.username)
+                if leaderboard_player_data is None:
+                    log.warning(
+                        "Skipping missing leaderboard player %s in %s podium",
+                        player.username,
+                        self.id,
+                    )
+                    continue
+                podium.append(
+                    player_json(
+                        leaderboard_player_data,
+                        full_score,
+                        leaderboard_player_data.paused,
+                    )
+                )
+            page_json["podium"] = podium
 
         return page_json
 
@@ -641,14 +670,26 @@ class Tournament(ABC):
         return response
 
     def waiting_players(self) -> list[User]:
-        return [
-            p
-            for p in self.leaderboard
-            if self.players[p].free
-            and len(self.tournament_sockets(p.username, p)) > 0
-            and not self.players[p].paused
-            and not self.players[p].withdrawn
-        ]
+        waiting: list[User] = []
+        for player in self.leaderboard:
+            player_data = self.player_data_by_name(player.username)
+            if player_data is None:
+                log.warning(
+                    "Skipping missing leaderboard player %s in %s waiting_players",
+                    player.username,
+                    self.id,
+                )
+                continue
+
+            if (
+                player_data.free
+                and len(self.tournament_sockets(player.username, player)) > 0
+                and not player_data.paused
+                and not player_data.withdrawn
+            ):
+                waiting.append(player)
+
+        return waiting
 
     async def clock(self):
         try:
@@ -777,9 +818,9 @@ class Tournament(ABC):
             "draw": self.draw,
             "berserk": self.nb_berserk,
             "sumRating": sum(
-                self.players[player].rating
-                for player in self.players
-                if not self.players[player].withdrawn
+                player_data.rating
+                for player_data in self.players.values()
+                if not player_data.withdrawn
             ),
         }
         return response
@@ -797,12 +838,12 @@ class Tournament(ABC):
             log.info("%r", player_json.cache_info())
 
         # remove latest games from players tournament if it was not finished in time
-        for player in self.players:
-            if len(self.players[player].games) == 0:
+        for player_data in self.players.values():
+            if len(player_data.games) == 0:
                 continue
-            latest = self.players[player].games[-1]
+            latest = player_data.games[-1]
             if latest and isinstance(latest, Game) and latest.status in (CREATED, STARTED):
-                self.players[player].games.pop()
+                player_data.games.pop()
 
         await self.broadcast(self.summary)
         await self.save()
@@ -1547,15 +1588,23 @@ class Tournament(ABC):
     def print_leaderboard(self) -> None:
         log.info("--- LEADERBOARD --- %s", self.id)
         for player, full_score in self.leaderboard.items()[:10]:
+            player_data = self.player_data_by_name(player.username)
+            if player_data is None:
+                log.warning(
+                    "Skipping missing leaderboard player %s in %s print_leaderboard",
+                    player.username,
+                    self.id,
+                )
+                continue
             log.info(
                 "%15s (%8s) %4s %30s %2s %s"
                 % (
                     player.username,
-                    self.players[player].id,
-                    self.players[player].rating,
-                    self.players[player].points,
+                    player_data.id,
+                    player_data.rating,
+                    player_data.points,
                     full_score,
-                    self.players[player].performance,
+                    player_data.performance,
                 )
             )
 

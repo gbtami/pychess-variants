@@ -332,3 +332,25 @@ class TournamentFlowTestCase(TournamentTestCase):
         black_view = game.game_json(black)
         self.assertEqual(black_view["color"], "b")
         self.assertEqual(black_view["name"], white.username)
+
+    async def test_players_json_and_waiting_players_tolerate_stale_player_key(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess960", before_start=0, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(1)
+
+        player = list(self.tournament.players.keys())[0]
+        player_data = self.tournament.players.pop(player)
+        self.tournament.players_by_name[player.username] = player_data
+        self.tournament.player_keys_by_name.pop(player.username, None)
+
+        waiting = self.tournament.waiting_players()
+        self.assertEqual(len(waiting), 1)
+        self.assertEqual(waiting[0].username, player.username)
+
+        page = self.tournament.players_json()
+        self.assertEqual(len(page["players"]), 1)
+        self.assertEqual(page["players"][0]["name"], player.username)
