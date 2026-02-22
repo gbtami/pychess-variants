@@ -237,20 +237,20 @@ class GameData:
         self.bberserk: bool = bberserk
 
     @property
-    def wplayer(self) -> User | _GameDataPlayer:
+    def wplayer(self) -> _GameDataPlayer:
         return self._wplayer
 
     @wplayer.setter
-    def wplayer(self, player: User | _GameDataPlayer) -> None:
+    def wplayer(self, player: _GameDataPlayer) -> None:
         self._wplayer = player
         self.wname = player.username
 
     @property
-    def bplayer(self) -> User | _GameDataPlayer:
+    def bplayer(self) -> _GameDataPlayer:
         return self._bplayer
 
     @bplayer.setter
-    def bplayer(self, player: User | _GameDataPlayer) -> None:
+    def bplayer(self, player: _GameDataPlayer) -> None:
         self._bplayer = player
         self.bname = player.username
 
@@ -539,28 +539,6 @@ class Tournament(ABC):
             )
             return None
         return (wplayer, bplayer)
-
-    def resolve_game_players(self, game: Game | GameData) -> tuple[User, User] | None:
-        wname, bname = self.game_player_usernames(game)
-        wp = self.get_player_by_name(wname)
-        bp = self.get_player_by_name(bname)
-        if wp is None or bp is None:
-            log.warning(
-                "Skipping game %s in tournament %s: player not found wp=%s bp=%s",
-                getattr(game, "id", "?"),
-                self.id,
-                wname,
-                bname,
-            )
-            return None
-
-        # Keep persisted GameData objects aligned with canonical tournament player keys.
-        if isinstance(game, GameData):
-            if game.wplayer is not wp:
-                game.wplayer = wp
-            if game.bplayer is not bp:
-                game.bplayer = bp
-        return (wp, bp)
 
     def user_status(self, user: User) -> str:
         player_data = self.player_data_by_name(user.username)
