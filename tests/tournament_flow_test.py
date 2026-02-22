@@ -279,3 +279,55 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(len(self.tournament.players[white].games), 1)
         self.assertEqual(len(self.tournament.players[canonical_black].games), 1)
         self.assertIs(game.bplayer, canonical_black)
+
+    async def test_player_name_index_rebuilds_from_user_key_map(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess960", before_start=0, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(1)
+
+        original_player = list(self.tournament.players.keys())[0]
+        original_data = self.tournament.players[original_player]
+        username = original_player.username
+
+        self.tournament.players_by_name.clear()
+        self.tournament.player_keys_by_name.clear()
+
+        rebuilt_player = self.tournament.get_player_by_name(username)
+        self.assertIs(rebuilt_player, original_player)
+        self.assertIs(self.tournament.player_data_by_name(username), original_data)
+
+    async def test_gamedata_with_username_only_values(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess960", before_start=0, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+
+        white = list(self.tournament.players.keys())[0]
+        black = list(self.tournament.players.keys())[1]
+
+        game = GameData(
+            "syntheticGameByName",
+            white.username,
+            str(self.tournament.players[white].rating),
+            black.username,
+            str(self.tournament.players[black].rating),
+            "1-0",
+            datetime.now(timezone.utc),
+            False,
+            False,
+        )
+        self.tournament.update_players(game)
+
+        self.assertEqual(game.wplayer.username, white.username)
+        self.assertEqual(game.bplayer.username, black.username)
+
+        black_view = game.game_json(black)
+        self.assertEqual(black_view["color"], "b")
+        self.assertEqual(black_view["name"], white.username)

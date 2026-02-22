@@ -146,6 +146,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
         )
         app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
         await upsert_tournament_to_db(self.tournament, app_state)
 
         player_a = User(app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=PERFS)
@@ -213,6 +214,150 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 any(isinstance(game, ByeGame) for game in player_data.games),
                 "ByeGame missing after reload",
             )
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_load_tournament_recovers_missing_participant_doc_from_pairings(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        winner = User(app_state, username="recover_missing_doc_a", perfs=PERFS)
+        missing = User(app_state, username="recover_missing_doc_b", perfs=PERFS)
+        app_state.users[winner.username] = winner
+        app_state.users[missing.username] = missing
+        await app_state.db.user.insert_many(
+            [
+                {"_id": winner.username, "enabled": True, "security": {}},
+                {"_id": missing.username, "enabled": True, "security": {}},
+            ]
+        )
+
+        await self.tournament.join(winner)
+        await self.tournament.join(missing)
+
+        class _DummyWs:
+            async def send_json(self, _msg):
+                return None
+
+            async def close(self):
+                return None
+
+        dummy_ws = _DummyWs()
+        winner.tournament_sockets[tid] = set((dummy_ws,))
+        missing.tournament_sockets[tid] = set((dummy_ws,))
+        app_state.tourneysockets[tid][winner.username] = winner.tournament_sockets[tid]
+        app_state.tourneysockets[tid][missing.username] = missing.tournament_sockets[tid]
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+        await self.tournament.game_update(game)
+
+        await app_state.db.tournament_player.delete_one({"tid": tid, "uid": missing.username})
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+
+        recovered = reloaded_tournament.get_player_by_name(missing.username)
+        winner_reloaded = reloaded_tournament.get_player_by_name(winner.username)
+        self.assertIsNotNone(recovered)
+        self.assertIsNotNone(winner_reloaded)
+        assert recovered is not None
+        assert winner_reloaded is not None
+
+        self.assertEqual(reloaded_tournament.nb_games_finished, 1)
+        self.assertIn(recovered, reloaded_tournament.leaderboard)
+        self.assertGreaterEqual(len(reloaded_tournament.players[winner_reloaded].games), 1)
+        self.assertGreaterEqual(len(reloaded_tournament.players[recovered].games), 1)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_load_tournament_recovers_deleted_user_from_pairings(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        winner = User(app_state, username="recover_deleted_user_a", perfs=PERFS)
+        deleted = User(app_state, username="recover_deleted_user_b", perfs=PERFS)
+        app_state.users[winner.username] = winner
+        app_state.users[deleted.username] = deleted
+        await app_state.db.user.insert_many(
+            [
+                {"_id": winner.username, "enabled": True, "security": {}},
+                {"_id": deleted.username, "enabled": True, "security": {}},
+            ]
+        )
+
+        await self.tournament.join(winner)
+        await self.tournament.join(deleted)
+
+        class _DummyWs:
+            async def send_json(self, _msg):
+                return None
+
+            async def close(self):
+                return None
+
+        dummy_ws = _DummyWs()
+        winner.tournament_sockets[tid] = set((dummy_ws,))
+        deleted.tournament_sockets[tid] = set((dummy_ws,))
+        app_state.tourneysockets[tid][winner.username] = winner.tournament_sockets[tid]
+        app_state.tourneysockets[tid][deleted.username] = deleted.tournament_sockets[tid]
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+        await self.tournament.game_update(game)
+
+        await app_state.db.tournament_player.delete_one({"tid": tid, "uid": deleted.username})
+        await app_state.db.user.delete_one({"_id": deleted.username})
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+
+        recovered = reloaded_tournament.get_player_by_name(deleted.username)
+        winner_reloaded = reloaded_tournament.get_player_by_name(winner.username)
+        self.assertIsNotNone(recovered)
+        self.assertIsNotNone(winner_reloaded)
+        assert recovered is not None
+        assert winner_reloaded is not None
+
+        self.assertEqual(recovered.username, deleted.username)
+        self.assertEqual(reloaded_tournament.nb_games_finished, 1)
+        self.assertIn(recovered, reloaded_tournament.leaderboard)
+        self.assertGreaterEqual(len(reloaded_tournament.players[winner_reloaded].games), 1)
+        self.assertGreaterEqual(len(reloaded_tournament.players[recovered].games), 1)
 
         if reloaded_tournament.clock_task is not None:
             reloaded_tournament.clock_task.cancel()

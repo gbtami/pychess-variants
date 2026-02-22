@@ -185,14 +185,24 @@ def player_json(player: PlayerData, full_score: int, paused: bool) -> Tournament
     return response
 
 
+class _GameDataPlayer:
+    __slots__ = ("username", "title")
+
+    def __init__(self, username: str, title: str = "") -> None:
+        self.username = username
+        self.title = title
+
+
 class GameData:
     """Used to save/load tournament games to/from mongodb tournament-pairing documents"""
 
     __slots__ = (
         "id",
-        "wplayer",
+        "wname",
+        "_wplayer",
         "wrating",
-        "bplayer",
+        "bname",
+        "_bplayer",
         "brating",
         "result",
         "date",
@@ -203,9 +213,9 @@ class GameData:
     def __init__(
         self,
         _id: str,
-        wplayer: User,
+        wplayer: User | str,
         wrating: str,
-        bplayer: User,
+        bplayer: User | str,
         brating: str,
         result: str,
         date: datetime,
@@ -213,8 +223,18 @@ class GameData:
         bberserk: bool,
     ) -> None:
         self.id: str = _id
-        self.wplayer: User = wplayer
-        self.bplayer: User = bplayer
+        if isinstance(wplayer, str):
+            self.wname = wplayer
+            self._wplayer = _GameDataPlayer(wplayer)
+        else:
+            self.wname = wplayer.username
+            self._wplayer = wplayer
+        if isinstance(bplayer, str):
+            self.bname = bplayer
+            self._bplayer = _GameDataPlayer(bplayer)
+        else:
+            self.bname = bplayer.username
+            self._bplayer = bplayer
         self.result: str = result
         self.date: datetime = date
         self.wrating: str = wrating
@@ -222,8 +242,26 @@ class GameData:
         self.wberserk: bool = wberserk
         self.bberserk: bool = bberserk
 
+    @property
+    def wplayer(self) -> User | _GameDataPlayer:
+        return self._wplayer
+
+    @wplayer.setter
+    def wplayer(self, player: User | _GameDataPlayer) -> None:
+        self._wplayer = player
+        self.wname = player.username
+
+    @property
+    def bplayer(self) -> User | _GameDataPlayer:
+        return self._bplayer
+
+    @bplayer.setter
+    def bplayer(self, player: User | _GameDataPlayer) -> None:
+        self._bplayer = player
+        self.bname = player.username
+
     def game_json(self, player: User) -> TournamentGameJson:
-        color = "w" if self.wplayer == player else "b"
+        color = "w" if self.wname == player.username else "b"
         opp_player = self.bplayer if color == "w" else self.wplayer
         opp_rating = self.brating if color == "w" else self.wrating
         prov = "?" if opp_rating.endswith("?") else ""
@@ -306,6 +344,9 @@ class Tournament(ABC):
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
         self.spectators: Set[User] = set()
         self.players: dict[User, PlayerData] = {}
+        # Incremental migration support: canonical username index in parallel with User-key maps.
+        self.players_by_name: dict[str, PlayerData] = {}
+        self.player_keys_by_name: dict[str, User] = {}
 
         self.leaderboard: Any = ValueSortedDict(neg)
         self.leaderboard_keys_view = SortedKeysView(self.leaderboard)
@@ -367,14 +408,45 @@ class Tournament(ABC):
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         pass
 
+    def register_player(self, user: User, player_data: PlayerData) -> None:
+        self.players[user] = player_data
+        self.players_by_name[player_data.username] = player_data
+        self.player_keys_by_name[player_data.username] = user
+
+    def player_data_by_name(self, username: str) -> PlayerData | None:
+        player_data = self.players_by_name.get(username)
+        if player_data is not None:
+            return player_data
+
+        player = self.get_player_by_name(username)
+        if player is None:
+            return None
+
+        player_data = self.players.get(player)
+        if player_data is not None:
+            self.players_by_name[username] = player_data
+        return player_data
+
     def get_player_by_name(self, username: str) -> User | None:
-        for player in self.players:
+        mapped_player = self.player_keys_by_name.get(username)
+        if mapped_player is not None and mapped_player in self.players:
+            self.players_by_name[username] = self.players[mapped_player]
+            return mapped_player
+
+        for player, player_data in self.players.items():
             if player.username == username:
+                self.player_keys_by_name[username] = player
+                self.players_by_name[username] = player_data
                 return player
+
+        self.player_keys_by_name.pop(username, None)
+        self.players_by_name.pop(username, None)
         return None
 
     def get_player(self, user: User) -> User | None:
         if user in self.players:
+            self.player_keys_by_name[user.username] = user
+            self.players_by_name[user.username] = self.players[user]
             return user
         return self.get_player_by_name(user.username)
 
@@ -400,61 +472,64 @@ class Tournament(ABC):
         return set()
 
     def resolve_game_players(self, game: Game | GameData) -> tuple[User, User] | None:
-        wp = self.get_player(game.wplayer)
-        bp = self.get_player(game.bplayer)
+        wname = game.wname if isinstance(game, GameData) else game.wplayer.username
+        bname = game.bname if isinstance(game, GameData) else game.bplayer.username
+        wp = self.get_player_by_name(wname)
+        bp = self.get_player_by_name(bname)
         if wp is None or bp is None:
             log.warning(
                 "Skipping game %s in tournament %s: player not found wp=%s bp=%s",
                 getattr(game, "id", "?"),
                 self.id,
-                game.wplayer.username,
-                game.bplayer.username,
+                wname,
+                bname,
             )
             return None
 
-        # Keep game objects aligned with canonical tournament player keys.
-        if game.wplayer is not wp:
-            game.wplayer = wp
-        if game.bplayer is not bp:
-            game.bplayer = bp
+        # Keep persisted GameData objects aligned with canonical tournament player keys.
+        if isinstance(game, GameData):
+            if game.wplayer is not wp:
+                game.wplayer = wp
+            if game.bplayer is not bp:
+                game.bplayer = bp
         return (wp, bp)
 
     def user_status(self, user: User) -> str:
-        player = self.get_player(user)
-        if player is not None:
+        player_data = self.player_data_by_name(user.username)
+        if player_data is not None:
             return (
                 "paused"
-                if self.players[player].paused
+                if player_data.paused
                 else "withdrawn"
-                if self.players[player].withdrawn
+                if player_data.withdrawn
                 else "joined"
             )
         else:
             return "spectator"
 
     def user_rating(self, user: User) -> int | str:
-        player = self.get_player(user)
-        if player is not None:
-            return self.players[player].rating
+        player_data = self.player_data_by_name(user.username)
+        if player_data is not None:
+            return player_data.rating
         else:
             return "%s%s" % user.get_rating(self.variant, self.chess960).rating_prov
 
     def players_json(
         self, page: int | None = None, user: User | None = None
     ) -> TournamentPlayersResponse:
-        player = self.get_player(user) if user is not None else None
-        if (page is None) and (player is not None):
-            if self.players[player].page > 0:
-                page = self.players[player].page
+        player_data = self.player_data_by_name(user.username) if user is not None else None
+        if (page is None) and (user is not None) and (player_data is not None):
+            if player_data.page > 0:
+                page = player_data.page
             else:
-                rank = self.get_rank_by_username(player.username)
+                rank = self.get_rank_by_username(user.username)
                 if rank is None:
                     page = 1
                 else:
                     div, mod = divmod(rank, 10)
                     page = div + (1 if mod > 0 else 0)
                     if self.status == T_CREATED:
-                        self.players[player].page = page
+                        player_data.page = page
         if page is None:
             page = 1
 
@@ -482,13 +557,13 @@ class Tournament(ABC):
         return page_json
 
     async def games_json(self, player_name: str) -> TournamentGamesResponse:
-        player = self.get_player_by_name(player_name)
-        if player is None:
-            user = await self.app_state.users.get(player_name)
+        player_data = self.player_data_by_name(player_name)
+        if player_data is None:
+            spectator = await self.app_state.users.get(player_name)
             return {
                 "type": "get_games",
                 "rank": 0,
-                "title": user.title,
+                "title": spectator.title,
                 "name": player_name,
                 "perf": 0,
                 "nbGames": 0,
@@ -498,7 +573,9 @@ class Tournament(ABC):
             }
 
         rank = self.get_rank_by_username(player_name)
-        player_data = self.players[player]
+        player = self.get_player_by_name(player_name)
+        if player is None:
+            player = await self.app_state.users.get(player_name)
         response: TournamentGamesResponse = {
             "type": "get_games",
             "rank": rank if rank is not None else 0,
@@ -757,17 +834,20 @@ class Tournament(ABC):
 
         rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
 
-        player = self.get_player(user) or user
+        player = self.get_player_by_name(user.username) or user
         if player is not user and self.id in user.tournament_sockets:
             player.tournament_sockets[self.id] = user.tournament_sockets[self.id]
 
-        if player not in self.players:
+        player_data = self.player_data_by_name(user.username)
+        if player_data is None:
             # new player joined
-            self.players[player] = PlayerData(user.title, user.username, rating, provisional)
+            player_data = PlayerData(user.title, user.username, rating, provisional)
+            self.register_player(player, player_data)
         else:
             # withdrawn player joined again, or already joined player re-joins
-            self.players[player].rating = rating
-            self.players[player].provisional = provisional
+            self.register_player(player, player_data)
+            player_data.rating = rating
+            player_data.provisional = provisional
 
         if player not in self.leaderboard:
             # new player joined or withdrawn player joined again
@@ -777,8 +857,6 @@ class Tournament(ABC):
             self.leaderboard[player] = rating
         elif player not in self.leaderboard:
             self.leaderboard.setdefault(player, 0)
-
-        player_data = self.players[player]
 
         player_data.free = True
         player_data.paused = False

@@ -502,6 +502,49 @@ async def load_tournament(
     cursor = player_table.find({"tid": tournament_id})
     nb_players = 0
 
+    def _rating_and_provisional(raw_rating: str | int) -> tuple[int, str]:
+        if isinstance(raw_rating, int):
+            return (raw_rating, "")
+
+        rating_text = str(raw_rating)
+        provisional = "?" if rating_text.endswith("?") else ""
+        if provisional:
+            rating_text = rating_text[:-1]
+
+        try:
+            return (int(rating_text), provisional)
+        except ValueError:
+            return (1500, provisional)
+
+    async def ensure_pairing_participant(username: str, raw_rating: str | int) -> User:
+        player = tournament.get_player_by_name(username)
+        if player is not None:
+            return player
+
+        user = await app_state.users.get(username)
+        if user.username != username:
+            # Missing user doc (for example hard-deleted account): keep pairing replay usable.
+            user = User(app_state, username=username, enabled=False)
+            app_state.users[username] = user
+
+        rating, provisional = _rating_and_provisional(raw_rating)
+        player_data = PlayerData(user.title, user.username, rating, provisional)
+        if tournament.status == T_STARTED:
+            # A recovered participant in an already started tournament must not be auto-paired.
+            player_data.paused = True
+        tournament.register_player(user, player_data)
+
+        if user not in tournament.leaderboard:
+            tournament.leaderboard.setdefault(user, 0)
+            tournament.nb_players += 1
+
+        log.warning(
+            "Recovered missing tournament participant %s in %s from pairing history",
+            username,
+            tournament_id,
+        )
+        return user
+
     if tournament.status == T_CREATED:
         try:
             cursor.sort("r", -1)
@@ -521,17 +564,16 @@ async def load_tournament(
 
         withdrawn = player_doc.get("wd", False)
 
-        tournament.players[user] = PlayerData(
-            user.title, user.username, player_doc["r"], player_doc["pr"]
-        )
-        tournament.players[user].id = player_doc["_id"]
-        tournament.players[user].paused = player_doc["a"]
-        tournament.players[user].withdrawn = withdrawn
-        tournament.players[user].points = player_doc["p"]
-        tournament.players[user].nb_win = player_doc["w"]
-        tournament.players[user].nb_berserk = player_doc.get("b", 0)
-        tournament.players[user].performance = player_doc["e"]
-        tournament.players[user].win_streak = player_doc["f"]
+        player_data = PlayerData(user.title, user.username, player_doc["r"], player_doc["pr"])
+        tournament.register_player(user, player_data)
+        player_data.id = player_doc["_id"]
+        player_data.paused = player_doc["a"]
+        player_data.withdrawn = withdrawn
+        player_data.points = player_doc["p"]
+        player_data.nb_win = player_doc["w"]
+        player_data.nb_berserk = player_doc.get("b", 0)
+        player_data.performance = player_doc["e"]
+        player_data.win_streak = player_doc["f"]
 
         if not withdrawn:
             tournament.leaderboard.update({user: SCORE_SHIFT * (player_doc["s"]) + player_doc["e"]})
@@ -583,11 +625,13 @@ async def load_tournament(
                 res = R2C[result]
                 wberserk = game.wberserk
                 bberserk = game.bberserk
+                wplayer = await ensure_pairing_participant(game.wplayer.username, game.wrating)
+                bplayer = await ensure_pairing_participant(game.bplayer.username, game.brating)
                 game = GameData(
                     game.id,
-                    game.wplayer,
+                    wplayer,
                     game.wrating,
-                    game.bplayer,
+                    bplayer,
                     game.brating,
                     result,
                     game.date,
@@ -600,8 +644,8 @@ async def load_tournament(
                 tournament.ongoing_games.add(game)
                 tournament.update_game_ranks(game)
         if game is None:
-            wplayer = tournament.get_player_by_name(wp) or await app_state.users.get(wp)
-            bplayer = tournament.get_player_by_name(bp) or await app_state.users.get(bp)
+            wplayer = await ensure_pairing_participant(wp, wrating)
+            bplayer = await ensure_pairing_participant(bp, brating)
             game = GameData(
                 _id,
                 wplayer,
