@@ -4,7 +4,7 @@ import collections
 import logging
 
 from broadcast import broadcast_streams
-from const import NONE_USER
+from const import NONE_USER, T_CREATED, T_STARTED
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from login import logout
@@ -97,9 +97,23 @@ async def ban(app_state: PychessGlobalAppState, message: str) -> None:
         return
 
     await app_state.db.user.find_one_and_update({"_id": username}, {"$set": {"enabled": False}})
+    banned_user = None
     if username in app_state.users:
         banned_user = await app_state.users.get(username)
         banned_user.enabled = False
+
+    # Keep started tournament history intact but ensure banned users are not
+    # paired again. For not-yet-started tournaments, remove them from entries.
+    for tournament in list(app_state.tournaments.values()):
+        player = tournament.get_player_by_name(username)
+        if player is None:
+            continue
+        if tournament.status == T_CREATED:
+            await tournament.withdraw(player)
+        elif tournament.status == T_STARTED:
+            await tournament.pause(player)
+
+    if banned_user is not None:
         await logout(None, banned_user)
 
     signal_count = await add_ban_signals_from_user(app_state.db, username)

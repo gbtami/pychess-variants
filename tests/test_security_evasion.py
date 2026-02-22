@@ -10,9 +10,11 @@ from aiohttp.test_utils import AioHTTPTestCase, make_mocked_request
 from mongomock_motor import AsyncMongoMockClient
 
 from admin import ban, baninfo, unban
+from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from security_evasion import collect_client_signals
 from server import make_app
+from tournament.auto_play_arena import ArenaTestTournament
 from user import User
 from wsl import handle_lobbychat
 
@@ -226,3 +228,56 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         shared_after = await app_state.db.security_ban_signal.find_one({"_id": "ip:shared"})
         self.assertIsNotNone(shared_after)
         self.assertEqual(set(shared_after.get("sources", [])), {"cheater_b"})
+
+    async def test_ban_withdraws_user_from_created_tournament(self):
+        app_state = get_app_state(self.app)
+        username = "cheater_created"
+        user = User(app_state, username=username)
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one({"_id": username, "enabled": True, "security": {}})
+
+        tid = id8()
+        tournament = ArenaTestTournament(
+            app_state, tid, before_start=10, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = tournament
+        app_state.tourneysockets[tid] = {}
+        await tournament.join(user)
+
+        self.assertEqual(tournament.user_status(user), "joined")
+        self.assertIn(user, tournament.leaderboard)
+
+        await ban(app_state, f"/ban {username}")
+
+        player = tournament.get_player_by_name(username)
+        self.assertIsNotNone(player)
+        assert player is not None
+        self.assertTrue(tournament.players[player].withdrawn)
+        self.assertNotIn(player, tournament.leaderboard)
+        self.assertEqual(tournament.user_status(player), "withdrawn")
+
+    async def test_ban_pauses_user_in_started_tournament(self):
+        app_state = get_app_state(self.app)
+        username = "cheater_started"
+        user = User(app_state, username=username)
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one({"_id": username, "enabled": True, "security": {}})
+
+        tid = id8()
+        tournament = ArenaTestTournament(
+            app_state, tid, before_start=10, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = tournament
+        app_state.tourneysockets[tid] = {}
+        await tournament.join(user)
+        await tournament.start(datetime.now(timezone.utc))
+
+        await ban(app_state, f"/ban {username}")
+
+        player = tournament.get_player_by_name(username)
+        self.assertIsNotNone(player)
+        assert player is not None
+        self.assertTrue(tournament.players[player].paused)
+        self.assertFalse(tournament.players[player].withdrawn)
+        self.assertIn(player, tournament.leaderboard)
+        self.assertEqual(tournament.user_status(player), "paused")

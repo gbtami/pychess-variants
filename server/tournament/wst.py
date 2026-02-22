@@ -96,8 +96,9 @@ async def handle_get_players(
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
         page = data["page"]
-        if user in tournament.players and tournament.players[user].page != page:
-            tournament.players[user].page = page
+        player = tournament.get_player(user)
+        if player is not None and tournament.players[player].page != page:
+            tournament.players[player].page = page
         response = tournament.players_json(page=page)
         await ws_send_json(ws, response)
 
@@ -107,9 +108,10 @@ async def handle_my_page(
 ) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is not None:
-        if user in tournament.players:
+        player = tournament.get_player(user)
+        if player is not None:
             # force to get users current page by leaderboard status
-            tournament.players[user].page = -1
+            tournament.players[player].page = -1
         response = tournament.players_json(user=user)
         await ws_send_json(ws, response)
 

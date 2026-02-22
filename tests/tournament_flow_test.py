@@ -14,6 +14,7 @@ from tournament.auto_play_arena import (
 )
 from tournament.tournament import upsert_tournament_to_db
 from tournament_test_base import ONE_TEST_ONLY, TournamentTestCase
+from user import User
 
 
 class TournamentFlowTestCase(TournamentTestCase):
@@ -209,3 +210,32 @@ class TournamentFlowTestCase(TournamentTestCase):
         doc = await app_state.db.tournament_player.find_one({"_id": player_data.id})
         self.assertTrue(doc["a"])
         self.assertFalse(doc.get("wd", False))
+
+    async def test_tournament_handles_replaced_user_instance(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess960", before_start=0, minutes=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+        await self.tournament.join_players(1)
+
+        original_player = list(self.tournament.players.keys())[0]
+        username = original_player.username
+
+        replacement = User(
+            app_state,
+            username=username,
+            title=original_player.title,
+            perfs=original_player.perfs,
+        )
+        app_state.users[username] = replacement
+        replacement.tournament_sockets[tid] = set((None,))
+        app_state.tourneysockets[tid][username] = replacement.tournament_sockets[tid]
+
+        self.assertEqual(len(self.tournament.waiting_players()), 1)
+
+        games = await self.tournament.games_json(username)
+        self.assertEqual(games["name"], username)
+        self.assertEqual(games["rank"], 1)

@@ -367,36 +367,74 @@ class Tournament(ABC):
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         pass
 
-    def user_status(self, user: User) -> str:
+    def get_player_by_name(self, username: str) -> User | None:
+        for player in self.players:
+            if player.username == username:
+                return player
+        return None
+
+    def get_player(self, user: User) -> User | None:
         if user in self.players:
+            return user
+        return self.get_player_by_name(user.username)
+
+    def get_rank_by_username(self, username: str) -> int | None:
+        for rank, player in enumerate(self.leaderboard, start=1):
+            if player.username == username:
+                return rank
+        return None
+
+    def tournament_sockets(self, username: str, user: User | None = None) -> set[Any]:
+        sockets_by_username = self.app_state.tourneysockets.get(self.id, {})
+        sockets = sockets_by_username.get(username)
+        if sockets is not None:
+            return sockets
+
+        if user is not None:
+            return user.tournament_sockets.get(self.id, set())
+
+        player = self.get_player_by_name(username)
+        if player is not None:
+            return player.tournament_sockets.get(self.id, set())
+
+        return set()
+
+    def user_status(self, user: User) -> str:
+        player = self.get_player(user)
+        if player is not None:
             return (
                 "paused"
-                if self.players[user].paused
+                if self.players[player].paused
                 else "withdrawn"
-                if self.players[user].withdrawn
+                if self.players[player].withdrawn
                 else "joined"
             )
         else:
             return "spectator"
 
     def user_rating(self, user: User) -> int | str:
-        if user in self.players:
-            return self.players[user].rating
+        player = self.get_player(user)
+        if player is not None:
+            return self.players[player].rating
         else:
             return "%s%s" % user.get_rating(self.variant, self.chess960).rating_prov
 
     def players_json(
         self, page: int | None = None, user: User | None = None
     ) -> TournamentPlayersResponse:
-        if (page is None) and (user is not None) and (user in self.players):
-            if self.players[user].page > 0:
-                page = self.players[user].page
+        player = self.get_player(user) if user is not None else None
+        if (page is None) and (player is not None):
+            if self.players[player].page > 0:
+                page = self.players[player].page
             else:
-                leaderboard_index: int = self.leaderboard.index(user)
-                div, mod = divmod(leaderboard_index + 1, 10)
-                page = div + (1 if mod > 0 else 0)
-                if self.status == T_CREATED:
-                    self.players[user].page = page
+                rank = self.get_rank_by_username(player.username)
+                if rank is None:
+                    page = 1
+                else:
+                    div, mod = divmod(rank, 10)
+                    page = div + (1 if mod > 0 else 0)
+                    if self.status == T_CREATED:
+                        self.players[player].page = page
         if page is None:
             page = 1
 
@@ -424,17 +462,33 @@ class Tournament(ABC):
         return page_json
 
     async def games_json(self, player_name: str) -> TournamentGamesResponse:
-        player = await self.app_state.users.get(player_name)
+        player = self.get_player_by_name(player_name)
+        if player is None:
+            user = await self.app_state.users.get(player_name)
+            return {
+                "type": "get_games",
+                "rank": 0,
+                "title": user.title,
+                "name": player_name,
+                "perf": 0,
+                "nbGames": 0,
+                "nbWin": 0,
+                "nbBerserk": 0,
+                "games": [],
+            }
+
+        rank = self.get_rank_by_username(player_name)
+        player_data = self.players[player]
         response: TournamentGamesResponse = {
             "type": "get_games",
-            "rank": self.leaderboard.index(player) + 1,
+            "rank": rank if rank is not None else 0,
             "title": player.title,
             "name": player_name,
-            "perf": self.players[player].performance,
-            "nbGames": len(self.players[player].points),
-            "nbWin": self.players[player].nb_win,
-            "nbBerserk": self.players[player].nb_berserk,
-            "games": [game.game_json(player) for game in self.players[player].games],
+            "perf": player_data.performance,
+            "nbGames": len(player_data.points),
+            "nbWin": player_data.nb_win,
+            "nbBerserk": player_data.nb_berserk,
+            "games": [game.game_json(player) for game in player_data.games],
         }
         return response
 
@@ -457,8 +511,8 @@ class Tournament(ABC):
             "fen": DARK_FEN if top_game.fow else top_game.board.fen,
             "w": top_game.wplayer.username,
             "b": top_game.bplayer.username,
-            "wr": self.leaderboard_keys_view.index(top_game.wplayer) + 1,
-            "br": self.leaderboard_keys_view.index(top_game.bplayer) + 1,
+            "wr": self.get_rank_by_username(top_game.wplayer.username) or 0,
+            "br": self.get_rank_by_username(top_game.bplayer.username) or 0,
             "chess960": chess960,
             "base": top_game.base,
             "inc": top_game.inc,
@@ -494,8 +548,7 @@ class Tournament(ABC):
             p
             for p in self.leaderboard
             if self.players[p].free
-            and self.id in p.tournament_sockets
-            and len(p.tournament_sockets[self.id]) > 0
+            and len(self.tournament_sockets(p.username, p)) > 0
             and not self.players[p].paused
             and not self.players[p].withdrawn
         ]
@@ -684,36 +737,40 @@ class Tournament(ABC):
 
         rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
 
-        if user not in self.players:
+        player = self.get_player(user) or user
+        if player is not user and self.id in user.tournament_sockets:
+            player.tournament_sockets[self.id] = user.tournament_sockets[self.id]
+
+        if player not in self.players:
             # new player joined
-            self.players[user] = PlayerData(user.title, user.username, rating, provisional)
+            self.players[player] = PlayerData(user.title, user.username, rating, provisional)
         else:
             # withdrawn player joined again, or already joined player re-joins
-            self.players[user].rating = rating
-            self.players[user].provisional = provisional
+            self.players[player].rating = rating
+            self.players[player].provisional = provisional
 
-        if user not in self.leaderboard:
+        if player not in self.leaderboard:
             # new player joined or withdrawn player joined again
             self.nb_players += 1
 
         if self.status == T_CREATED:
-            self.leaderboard[user] = rating
-        elif user not in self.leaderboard:
-            self.leaderboard.setdefault(user, 0)
+            self.leaderboard[player] = rating
+        elif player not in self.leaderboard:
+            self.leaderboard.setdefault(player, 0)
 
-        player_data = self.players[user]
+        player_data = self.players[player]
 
         player_data.free = True
         player_data.paused = False
         player_data.withdrawn = False
 
-        response = self.players_json(user=user)
+        response = self.players_json(user=player)
         await self.broadcast(response)
 
         if self.status == T_CREATED:
             await self.broadcast_spotlight()
 
-        await self.db_update_player(user, "JOIN")
+        await self.db_update_player(player, "JOIN")
         return None
 
     async def withdraw(self, user: User) -> None:
@@ -722,27 +779,39 @@ class Tournament(ABC):
             return
 
         log.debug("WITHDRAW: %s in tournament %s", user.username, self.id)
-        self.players[user].withdrawn = True
+        player = self.get_player(user)
+        if player is None:
+            log.warning(
+                "WITHDRAW ignored: %s is missing from tournament %s players", user.username, self.id
+            )
+            return
+        self.players[player].withdrawn = True
 
-        self.leaderboard.pop(user)
-        self.nb_players -= 1
+        if self.leaderboard.pop(player, None) is not None:
+            self.nb_players -= 1
 
-        response = self.players_json(user=user)
+        response = self.players_json(user=player)
         await self.broadcast(response)
 
         await self.broadcast_spotlight()
 
-        await self.db_update_player(user, "WITHDRAW")
+        await self.db_update_player(player, "WITHDRAW")
 
     async def pause(self, user: User) -> None:
         log.debug("PAUSE: %s in tournament %s", user.username, self.id)
-        self.players[user].paused = True
+        player = self.get_player(user)
+        if player is None:
+            log.warning(
+                "PAUSE ignored: %s is missing from tournament %s players", user.username, self.id
+            )
+            return
+        self.players[player].paused = True
 
         # pause is different from withdraw and join because pause can be initiated from finished games page as well
-        response = self.players_json(user=user)
+        response = self.players_json(user=player)
         await self.broadcast(response)
 
-        await self.db_update_player(user, "PAUSE")
+        await self.db_update_player(player, "PAUSE")
 
     def spactator_join(self, spectator: User) -> None:
         self.spectators.add(spectator)
@@ -826,7 +895,7 @@ class Tournament(ABC):
 
             ws_ok = False
             if wp.title != "TEST":
-                for ws in list(wp.tournament_sockets[self.id]):
+                for ws in list(self.tournament_sockets(wp.username, wp)):
                     ok = await ws_send_json(ws, response)
                     ws_ok = ws_ok or ok
             if (not ws_ok) and wp.title != "TEST":
@@ -835,7 +904,7 @@ class Tournament(ABC):
 
             ws_ok = False
             if bp.title != "TEST":
-                for ws in list(bp.tournament_sockets[self.id]):
+                for ws in list(self.tournament_sockets(bp.username, bp)):
                     ok = await ws_send_json(ws, response)
                     ws_ok = ws_ok or ok
             if (not ws_ok) and bp.title != "TEST":
@@ -873,8 +942,10 @@ class Tournament(ABC):
 
     def update_game_ranks(self, game: Game) -> bool:
         if game.status != BYEGAME:
-            brank = self.leaderboard.index(game.bplayer) + 1
-            wrank = self.leaderboard.index(game.wplayer) + 1
+            brank = self.get_rank_by_username(game.bplayer.username)
+            wrank = self.get_rank_by_username(game.wplayer.username)
+            if brank is None or wrank is None:
+                return False
             game.brank = brank
             game.wrank = wrank
             if (
@@ -1136,7 +1207,7 @@ class Tournament(ABC):
     async def broadcast(self, response: Mapping[str, object]) -> None:
         for spectator in self.spectators:
             try:
-                for ws in spectator.tournament_sockets[self.id]:
+                for ws in self.tournament_sockets(spectator.username, spectator):
                     await ws_send_json(ws, response)
             except KeyError:
                 log.error("tournament broadcast() spectator socket was removed")
@@ -1215,7 +1286,17 @@ class Tournament(ABC):
         if self.app_state.db is None:
             return
 
-        player_data = self.players[user]
+        player = self.get_player(user)
+        if player is None:
+            log.warning(
+                "db_update_player(%s) skipped for %s in %s: user not found in tournament players",
+                action,
+                user.username,
+                self.id,
+            )
+            return
+
+        player_data = self.players[player]
         player_id = player_data.id
         player_table = self.app_state.db.tournament_player
         player_update: TournamentPlayerUpdate
@@ -1254,7 +1335,7 @@ class Tournament(ABC):
             player_update = {"a": True}
 
         elif action in ("GAME_END", "BYE"):
-            full_score = self.leaderboard[user]
+            full_score = self.leaderboard.get(player, 0)
             player_update = {
                 "_id": player_id,
                 "tid": self.id,
