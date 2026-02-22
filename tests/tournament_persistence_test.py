@@ -18,6 +18,8 @@ from user import User
 
 
 class TournamentPersistenceTestCase(TournamentTestCase):
+    SHORT_SWISS_MINUTES = 0.08
+
     async def test_tournament_pairings_persist_before_restart(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -90,7 +92,9 @@ class TournamentPersistenceTestCase(TournamentTestCase):
     async def test_tournament_current_round_persisted(self):
         app_state = get_app_state(self.app)
         tid = id8()
-        self.tournament = SwissTestTournament(app_state, tid, before_start=0, rounds=1, minutes=1)
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=0, rounds=1, minutes=self.SHORT_SWISS_MINUTES
+        )
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
 
@@ -190,7 +194,9 @@ class TournamentPersistenceTestCase(TournamentTestCase):
     async def test_swiss_bye_persisted_across_restart(self):
         app_state = get_app_state(self.app)
         tid = id8()
-        self.tournament = SwissTestTournament(app_state, tid, before_start=0, rounds=1, minutes=1)
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=0, rounds=1, minutes=self.SHORT_SWISS_MINUTES
+        )
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
 
@@ -464,7 +470,9 @@ class TournamentPersistenceTestCase(TournamentTestCase):
     async def test_finished_tournament_evicted_after_keep_time(self):
         app_state = get_app_state(self.app)
         tid = id8()
-        self.tournament = SwissTestTournament(app_state, tid, before_start=0, rounds=1, minutes=1)
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=0, rounds=1, minutes=self.SHORT_SWISS_MINUTES
+        )
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
 

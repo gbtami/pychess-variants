@@ -2,7 +2,7 @@
 
 import asyncio
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from const import FLAG, T_CREATED, T_FINISHED, T_STARTED
 from newid import id8
@@ -18,23 +18,30 @@ from user import User
 
 
 class TournamentFlowTestCase(TournamentTestCase):
+    @staticmethod
+    def _accelerate_arena_clock(tournament):
+        """Shrink arena pairing cadence for faster deterministic tests."""
+        tournament.wave = timedelta(milliseconds=200)
+        tournament.wave_delta = timedelta(milliseconds=25)
+        return tournament
+
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_without_players(self):
         app_state = get_app_state(self.app)
         tid = id8()
-        self.tournament = ArenaTestTournament(app_state, tid, before_start=0, minutes=2.0 / 60.0)
+        self.tournament = self._accelerate_arena_clock(
+            ArenaTestTournament(app_state, tid, before_start=0, minutes=2.0 / 60.0)
+        )
         app_state.tournaments[tid] = self.tournament
 
         self.assertEqual(self.tournament.status, T_CREATED)
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.05)
         self.assertEqual(self.tournament.status, T_STARTED)
 
-        await asyncio.sleep(3)
-        self.assertEqual(self.tournament.status, T_FINISHED)
-
         if self.tournament.clock_task is not None:
-            await self.tournament.clock_task
+            await asyncio.wait_for(self.tournament.clock_task, timeout=5)
+        self.assertEqual(self.tournament.status, T_FINISHED)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_players(self):
@@ -63,13 +70,14 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(app_state, tid, before_start=0.1, minutes=1)
+        self.tournament = self._accelerate_arena_clock(
+            ArenaTestTournament(app_state, tid, before_start=0.01, minutes=0.08)
+        )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
         # 12 player leave the tournament lobby
         for i in range(12):
-            print(i)
             del list(self.tournament.players.keys())[i].tournament_sockets[self.tournament.id]
         self.assertEqual(len(self.tournament.waiting_players()), NB_PLAYERS - 12)
 
@@ -103,7 +111,9 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         NB_PLAYERS = 15
         tid = id8()
-        self.tournament = ArenaTestTournament(app_state, tid, before_start=0.1, minutes=1)
+        self.tournament = self._accelerate_arena_clock(
+            ArenaTestTournament(app_state, tid, before_start=0.01, minutes=0.08)
+        )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
 
@@ -143,7 +153,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = ArenaTestTournament(
-            app_state, tid, variant="chess", before_start=1, minutes=1
+            app_state, tid, variant="chess", before_start=1, minutes=10, with_clock=False
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(1)
@@ -161,13 +171,11 @@ class TournamentFlowTestCase(TournamentTestCase):
 
         self.assertEqual(self.tournament.players[player].rating, new_rating)
 
-        await self.tournament.clock_task
-
     async def test_tournament_sorting_before_start(self):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = ArenaTestTournament(
-            app_state, tid, variant="chess", before_start=1, minutes=1
+            app_state, tid, variant="chess", before_start=1, minutes=10, with_clock=False
         )
         app_state.tournaments[tid] = self.tournament
 
@@ -184,8 +192,6 @@ class TournamentFlowTestCase(TournamentTestCase):
         players_json = self.tournament.players_json()
         leaderboard_ratings = [p["rating"] for p in players_json["players"]]
         self.assertEqual(leaderboard_ratings, sorted(leaderboard_ratings, reverse=True))
-
-        await self.tournament.clock_task
 
     async def test_withdraw_after_start_pauses(self):
         app_state = get_app_state(self.app)
