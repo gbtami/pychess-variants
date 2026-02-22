@@ -1138,15 +1138,6 @@ class Tournament(ABC):
         wplayer, bplayer = player_data
         wname, bname = self.game_player_usernames(game)
 
-        # Keep persisted GameData objects aligned with active User instances when available.
-        if isinstance(game, GameData):
-            mapped_white = self.mapped_player_by_name(wname)
-            if mapped_white is not None and game.wplayer is not mapped_white:
-                game.wplayer = mapped_white
-            mapped_black = self.mapped_player_by_name(bname)
-            if mapped_black is not None and game.bplayer is not mapped_black:
-                game.bplayer = mapped_black
-
         wplayer.games.append(game)
         bplayer.games.append(game)
 

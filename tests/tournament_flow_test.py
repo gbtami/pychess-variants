@@ -276,12 +276,12 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
         self.tournament.update_players(game)
 
-        canonical_black = self.tournament.get_player_by_name(black.username)
-        self.assertIsNotNone(canonical_black)
-        assert canonical_black is not None
+        black_data = self.tournament.player_data_by_name(black.username)
+        self.assertIsNotNone(black_data)
+        assert black_data is not None
         self.assertEqual(len(self.tournament.players[white].games), 1)
-        self.assertEqual(len(self.tournament.players[canonical_black].games), 1)
-        self.assertIs(game.bplayer, canonical_black)
+        self.assertEqual(len(black_data.games), 1)
+        self.assertEqual(game.bplayer.username, black.username)
 
     async def test_player_name_index_rebuilds_from_user_key_map(self):
         app_state = get_app_state(self.app)
