@@ -769,6 +769,8 @@ class PychessGlobalAppState:
                 if tid in ts_dict:
                     ws_set = ts_dict[tid]
                     for ws in list(ws_set):
+                        if ws is None:
+                            continue
                         await ws.close()
 
         log.debug("--- Cancel running tasks---")

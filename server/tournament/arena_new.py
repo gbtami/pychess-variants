@@ -23,12 +23,20 @@ class ArenaTournament(Tournament):
     def just_played_together(self, x: User, y: User) -> bool:
         # Players can play consecutive games with each other
         # only in case when they are the only active players (duel)
-        return y.username == self.players[x].prev_opp or x.username == self.players[y].prev_opp
+        x_data = self.player_data_by_name(x.username)
+        y_data = self.player_data_by_name(y.username)
+        if x_data is None or y_data is None:
+            return False
+        return y.username == x_data.prev_opp or x.username == y_data.prev_opp
 
     def color_balance_problem(self, x, y):
         # Players are not allowed to play more than 3 conseutive games with the same color
-        color_balance_a = self.players[x].color_balance
-        color_balance_b = self.players[y].color_balance
+        x_data = self.player_data_by_name(x.username)
+        y_data = self.player_data_by_name(y.username)
+        if x_data is None or y_data is None:
+            return False
+        color_balance_a = x_data.color_balance
+        color_balance_b = y_data.color_balance
         return (color_balance_a == color_balance_b == self.color_balance_limit) or (
             color_balance_a == color_balance_b == -self.color_balance_limit
         )
@@ -44,7 +52,18 @@ class ArenaTournament(Tournament):
             log.debug("%20s %s", p.username, self.leaderboard[p])
 
         def pair_them(x, y):
-            if self.players[x].color_balance < self.players[y].color_balance:
+            x_data = self.player_data_by_name(x.username)
+            y_data = self.player_data_by_name(y.username)
+            if x_data is None or y_data is None:
+                log.warning(
+                    "Skipping pairing in %s due missing player data: %s vs %s",
+                    self.id,
+                    x.username,
+                    y.username,
+                )
+                return
+
+            if x_data.color_balance < y_data.color_balance:
                 wp, bp = x, y
             else:
                 wp, bp = y, x
@@ -57,10 +76,13 @@ class ArenaTournament(Tournament):
         if nb_waiting_players == 2:
             x = waiting_players[0]
             y = waiting_players[1]
+            x_data = self.player_data_by_name(x.username)
+            if x_data is None:
+                return pairing
 
             if y.username not in (
                 (g.wplayer.username if g.bplayer.username == x.username else g.bplayer.username)
-                for g in self.players[x].games
+                for g in x_data.games
             ):
                 log.info("find OK opp (they never played before!): %s", y.username)
                 pair_them(x, y)
@@ -93,8 +115,12 @@ class ArenaTournament(Tournament):
             ):
                 rank_a = ranks[pair[0]]
                 rank_b = ranks[pair[1]]
-                rating_a = self.players[player_a].rating
-                rating_b = self.players[player_b].rating
+                player_a_data = self.player_data_by_name(player_a.username)
+                player_b_data = self.player_data_by_name(player_b.username)
+                if player_a_data is None or player_b_data is None:
+                    continue
+                rating_a = player_a_data.rating
+                rating_b = player_b_data.rating
 
                 # https://github.com/lichess-org/lila/blob/master/modules/tournament/src/main/arena/AntmaPairing.scala
                 weight = abs(rank_a - rank_b) * rank_factor(rank_a, rank_b) + abs(

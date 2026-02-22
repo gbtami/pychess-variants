@@ -15,7 +15,11 @@ class ArenaTournament(Tournament):
     system = ARENA
 
     def just_played_together(self, x: User, y: User) -> bool:
-        return y.username == self.players[x].prev_opp or x.username == self.players[y].prev_opp
+        x_data = self.player_data_by_name(x.username)
+        y_data = self.player_data_by_name(y.username)
+        if x_data is None or y_data is None:
+            return False
+        return y.username == x_data.prev_opp or x.username == y_data.prev_opp
 
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         start = time.time()
@@ -32,14 +36,27 @@ class ArenaTournament(Tournament):
         while True:
             if len(waiting_players) <= 1:
                 if len(waiting_players) == 1:
-                    self.players[waiting_players[0]].nb_not_paired += 1
+                    player_data = self.player_data_by_name(waiting_players[0].username)
+                    if player_data is not None:
+                        player_data.nb_not_paired += 1
                 break
             elif failed >= failed_limit:
                 log.error("!!! TOO MUCH fail, STOP PAIRING !!! %s", failed)
                 break
 
             def pair_them(x, y):
-                if self.players[x].color_balance < self.players[y].color_balance:
+                x_data = self.player_data_by_name(x.username)
+                y_data = self.player_data_by_name(y.username)
+                if x_data is None or y_data is None:
+                    log.warning(
+                        "Skipping pairing in %s due missing player data: %s vs %s",
+                        self.id,
+                        x.username,
+                        y.username,
+                    )
+                    return False
+
+                if x_data.color_balance < y_data.color_balance:
                     wp, bp = x, y
                 else:
                     wp, bp = y, x
@@ -48,6 +65,7 @@ class ArenaTournament(Tournament):
                 waiting_players.remove(bp)
 
                 pairing.append((wp, bp))
+                return True
 
             def find_opp(color_balance_limit):
                 find = False
@@ -56,6 +74,9 @@ class ArenaTournament(Tournament):
                 # and they never played before, pair them!
                 if nb_waiting_players == 2:
                     y = waiting_players[1]
+                    x_data = self.player_data_by_name(x.username)
+                    if x_data is None:
+                        return False
 
                     if y.username not in (
                         (
@@ -63,15 +84,13 @@ class ArenaTournament(Tournament):
                             if g.bplayer.username == x.username
                             else g.bplayer.username
                         )
-                        for g in self.players[x].games
+                        for g in x_data.games
                     ):
                         log.info("Find OK opp (they never played before!): %s", y.username)
-                        pair_them(x, y)
-                        return True
+                        return pair_them(x, y)
                     elif self.ongoing_games == 0:
                         log.info("Find OK opp (duel!): %s", y.username)
-                        pair_them(x, y)
-                        return True
+                        return pair_them(x, y)
                     else:
                         return False
 
@@ -79,12 +98,15 @@ class ArenaTournament(Tournament):
                     a = waiting_players[-1]
                     b = waiting_players[-2]
 
-                    y = a if self.players[a].nb_not_paired > self.players[b].nb_not_paired else b
+                    a_data = self.player_data_by_name(a.username)
+                    b_data = self.player_data_by_name(b.username)
+                    if a_data is None or b_data is None:
+                        return False
+                    y = a if a_data.nb_not_paired > b_data.nb_not_paired else b
 
                     if not self.just_played_together(x, y):
                         log.info("Find OK opp from other remaining 2: %s", y.username)
-                        pair_them(x, y)
-                        return True
+                        return pair_them(x, y)
 
                 for y in waiting_players:
                     log.info("try %s", y.username)
@@ -95,13 +117,18 @@ class ArenaTournament(Tournament):
                         log.info("FAIL, same prev_opp")
                         continue
 
-                    if self.players[x].color_balance < color_balance_limit:
+                    x_data = self.player_data_by_name(x.username)
+                    y_data = self.player_data_by_name(y.username)
+                    if x_data is None or y_data is None:
+                        continue
+
+                    if x_data.color_balance < color_balance_limit:
                         # player x played more black games
-                        if self.players[x].color_balance >= self.players[y].color_balance:
+                        if x_data.color_balance >= y_data.color_balance:
                             log.info(
                                 "FAILED color_balance x vs y %s %s",
-                                self.players[x].color_balance,
-                                self.players[y].color_balance,
+                                x_data.color_balance,
+                                y_data.color_balance,
                             )
                             continue
                         else:

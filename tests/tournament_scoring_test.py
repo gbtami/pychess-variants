@@ -109,13 +109,14 @@ class TournamentScoringTestCase(TournamentTestCase):
 
         await self.tournament.game_update(game)
 
-        player_data = self.tournament.players[player_a]
+        winner = game.wplayer
+        player_data = self.tournament.players[winner]
         self.assertEqual(player_data.points[0][0], 3)
-        self.assertEqual(self.tournament.leaderboard[player_a] // SCORE_SHIFT, 3)
+        self.assertEqual(self.tournament.leaderboard[winner] // SCORE_SHIFT, 3)
 
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
         reloaded_user = next(
-            user for user in reloaded_tournament.players if user.username == player_a.username
+            user for user in reloaded_tournament.players if user.username == winner.username
         )
         reloaded_player = reloaded_tournament.players[reloaded_user]
         self.assertEqual(reloaded_player.points[0][0], 3)

@@ -101,6 +101,8 @@ class TestTournament(Tournament):
             game.random_mover = True
             self.game_tasks.add(asyncio.create_task(self.play_random(game)))
 
+        return pairing, games
+
     # @timeit
     async def play_random(self, game):
         """Play random moves for TEST players"""

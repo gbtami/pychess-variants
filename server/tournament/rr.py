@@ -106,8 +106,10 @@ class RRTournament(Tournament):
             if odd and n in (wpn, bpn):
                 sit = wpn if bpn == n else bpn
                 player = players[sit - 1]
-                self.players[player].games.append(ByeGame())
-                self.players[player].points.append("-")
+                player_data = self.player_data_by_name(player.username)
+                if player_data is not None:
+                    player_data.games.append(ByeGame())
+                    player_data.points.append("-")
                 self.bye_players.append(player)
             else:
                 wp = players[wpn - 1]

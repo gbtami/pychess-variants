@@ -33,7 +33,8 @@ class TournamentFlowTestCase(TournamentTestCase):
         await asyncio.sleep(3)
         self.assertEqual(self.tournament.status, T_FINISHED)
 
-        await self.tournament.clock_task
+        if self.tournament.clock_task is not None:
+            await self.tournament.clock_task
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_players(self):

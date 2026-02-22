@@ -27,8 +27,10 @@ class SwissTournament(Tournament):
 
         if len(waiting_players) == 1:
             player = waiting_players[0]
-            self.players[player].games.append(ByeGame())
-            self.players[player].points.append("-")
+            player_data = self.player_data_by_name(player.username)
+            if player_data is not None:
+                player_data.games.append(ByeGame())
+                player_data.points.append("-")
             self.bye_players.append(player)
 
         return pairing

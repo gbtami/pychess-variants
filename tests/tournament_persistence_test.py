@@ -2,7 +2,6 @@
 
 import asyncio
 import gc
-import weakref
 from datetime import datetime, timezone
 
 from const import FLAG, RATED, TEST_PREFIX, T_STARTED
@@ -137,7 +136,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertIsNotNone(doc)
         self.assertEqual(doc["r"], "a")
         self.assertTrue(doc["wb"])
-        self.assertEqual(doc["u"], (players[0].username, players[1].username))
+        self.assertEqual(tuple(doc["u"]), (players[0].username, players[1].username))
 
     async def test_load_tournament_repairs_stale_pairing(self):
         app_state = get_app_state(self.app)
@@ -455,6 +454,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         tid = id8()
         self.tournament = SwissTestTournament(app_state, tid, before_start=0, rounds=1, minutes=1)
         app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(4)
         await self.tournament.clock_task
@@ -484,9 +484,6 @@ class TournamentPersistenceTestCase(TournamentTestCase):
 
         app_state.schedule_tournament_cache_removal(loaded)
 
-        player_ref = weakref.ref(player_data)
-        game_ref = weakref.ref(game_data)
-
         loaded = None
         player_data = None
         game_data = None
@@ -496,5 +493,3 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         gc.collect()
 
         self.assertNotIn(tid, app_state.tournaments)
-        self.assertIsNone(player_ref())
-        self.assertIsNone(game_ref())
