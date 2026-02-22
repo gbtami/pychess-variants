@@ -1452,11 +1452,12 @@ class Tournament(ABC):
         if self.app_state.db is None:
             return
         pairing_table = self.app_state.db.tournament_pairing
+        wname, bname = self.game_player_usernames(game)
 
         try:
             new_data: TournamentPairingUpdate = {
                 "tid": self.id,
-                "u": (game.wplayer.username, game.bplayer.username),
+                "u": (wname, bname),
                 "r": R2C[game.result],
                 "d": game.date,
                 "wr": game.wrating,
