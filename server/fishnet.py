@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 import asyncio
 import json
 from datetime import datetime, timezone
@@ -7,6 +7,7 @@ from functools import partial
 from time import monotonic
 
 from aiohttp import web
+from aiohttp.client_exceptions import ClientConnectionResetError
 
 from const import ANALYSIS
 from typing_defs import (
@@ -30,6 +31,25 @@ log = logging.getLogger(__name__)
 
 REQUIRED_FISHNET_VERSION = "1.16.42"
 MOVE_WORK_TIME_OUT = 5.0
+
+
+async def _read_fishnet_json(request: web.Request) -> tuple[object | None, int | None]:
+    try:
+        return await request.json(), None
+    except (ConnectionResetError, ClientConnectionResetError):
+        log.debug(
+            "Fishnet request body read aborted on %s from %s",
+            request.rel_url.path,
+            request.remote,
+        )
+        return None, 204
+    except (json.JSONDecodeError, web.HTTPBadRequest):
+        log.debug(
+            "Invalid fishnet JSON payload on %s from %s",
+            request.rel_url.path,
+            request.remote,
+        )
+        return None, 400
 
 
 async def get_work(
@@ -121,7 +141,10 @@ async def get_work(
 
 
 async def fishnet_acquire(request: web.Request) -> web.Response:
-    data: FishnetAcquirePayload = await request.json()
+    data_obj, error_status = await _read_fishnet_json(request)
+    if data_obj is None:
+        return web.Response(status=error_status or 400)
+    data = cast(FishnetAcquirePayload, data_obj)
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
@@ -149,14 +172,17 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
 
 async def fishnet_analysis(request: web.Request) -> web.Response:
     work_id = request.match_info["workId"]
-    data: FishnetAnalysisPayload = await request.json()
+    data_obj, error_status = await _read_fishnet_json(request)
+    if data_obj is None:
+        return web.Response(status=error_status or 400)
+    data = cast(FishnetAnalysisPayload, data_obj)
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
-    worker = FISHNET_KEYS[key]
 
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
+    worker = FISHNET_KEYS[key]
 
     work: FishnetWork = app_state.fishnet_works[work_id]
     app_state.fishnet_monitor[worker].append(
@@ -211,14 +237,17 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
 
 async def fishnet_move(request: web.Request) -> web.Response:
     work_id = request.match_info["workId"]
-    data: FishnetMovePayload = await request.json()
+    data_obj, error_status = await _read_fishnet_json(request)
+    if data_obj is None:
+        return web.Response(status=error_status or 400)
+    data = cast(FishnetMovePayload, data_obj)
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
-    worker = FISHNET_KEYS[key]
 
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
+    worker = FISHNET_KEYS[key]
 
     app_state.fishnet_monitor[worker].append(
         "%s %s %s" % (datetime.now(timezone.utc), work_id, "move")
@@ -257,14 +286,17 @@ async def fishnet_move(request: web.Request) -> web.Response:
 
 async def fishnet_abort(request: web.Request) -> web.Response:
     work_id = request.match_info["workId"]
-    data: FishnetAbortPayload = await request.json()
+    data_obj, error_status = await _read_fishnet_json(request)
+    if data_obj is None:
+        return web.Response(status=error_status or 400)
+    data = cast(FishnetAbortPayload, data_obj)
 
     app_state = get_app_state(request.app)
     key = data["fishnet"]["apikey"]
-    worker = FISHNET_KEYS[key]
 
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
+    worker = FISHNET_KEYS[key]
 
     app_state.fishnet_monitor[worker].append(
         "%s %s %s" % (datetime.now(timezone.utc), work_id, "abort")
