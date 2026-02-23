@@ -163,7 +163,7 @@ export class Clock {
         if (this.timeout) clearTimeout(this.timeout);
         this.timeout = null;
 
-        this.duration -= Date.now() - this.startTime;
+        this.duration = Math.max(0, this.duration - (Date.now() - this.startTime));
         if (withIncrement && this.increment) {
             if (this.byoyomi) {
                 if (this.overtime) {
@@ -179,7 +179,7 @@ export class Clock {
     }
 
     setTime(millis: number) {
-        this.duration = millis;
+        this.duration = Math.max(0, millis);
         this.renderTime(this.duration);
     }
 
