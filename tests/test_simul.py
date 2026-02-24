@@ -100,6 +100,13 @@ class TestGUI:
         assert len(simul.pending_players) == 0
         assert player3.username not in simul.players
 
+        simul.deny(player2.username)
+        assert player2.username not in simul.players
+        assert len(simul.players) == 1  # Host only
+
+        assert simul.deny(host_username) is False
+        assert host_username in simul.players
+
     async def test_simul_cannot_start_without_opponents(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient())
         await aiohttp_server(app, host="127.0.0.1")
@@ -204,6 +211,71 @@ class TestGUI:
                 assert player2.username not in simul_doc["pendingPlayers"]
         finally:
             await host_ws.close()
+            await host_session.close()
+            await player_session.close()
+
+    async def test_simul_websocket_host_can_remove_approved_player(self, aiohttp_server):
+        app = make_app(
+            db_client=AsyncMongoMockClient(), simple_cookie_storage=True, anon_as_test_users=True
+        )
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        sid = id8()
+
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+
+        simul = await Simul.create(app_state, sid, name="Test Simul", created_by=host_username)
+        app_state.simuls[sid] = simul
+
+        player2 = User(app_state, username="TestUser_2")
+        app_state.users[player2.username] = player2
+
+        host_session, host_ws = await self._connect_ws(host_username, server.port)
+        player_session, player_ws = await self._connect_ws(player2.username, server.port)
+
+        try:
+            await host_ws.send_json(
+                {"type": "simul_user_connected", "username": host_username, "simulId": sid}
+            )
+            msg = await host_ws.receive_json()
+            assert msg["type"] == "simul_user_connected"
+
+            await player_ws.send_json(
+                {"type": "simul_user_connected", "username": player2.username, "simulId": sid}
+            )
+            msg = await player_ws.receive_json()
+            assert msg["type"] == "simul_user_connected"
+
+            await player_ws.send_json({"type": "join", "simulId": sid})
+            msg = await self._receive_until_type(host_ws, "player_joined")
+            assert msg["player"]["name"] == player2.username
+
+            await host_ws.send_json(
+                {"type": "approve_player", "simulId": sid, "username": player2.username}
+            )
+            msg = await self._receive_until_type(host_ws, "player_approved")
+            assert msg["player"]["name"] == player2.username
+            assert player2.username in simul.players
+
+            await host_ws.send_json(
+                {"type": "deny_player", "simulId": sid, "username": player2.username}
+            )
+            msg = await self._receive_until_type(host_ws, "player_denied")
+            assert msg["username"] == player2.username
+            msg = await self._receive_until_type(player_ws, "player_denied")
+            assert msg["username"] == player2.username
+            assert player2.username not in simul.players
+            assert player2.username not in simul.pending_players
+            if app_state.db is not None:
+                simul_doc = await app_state.db.simul.find_one({"_id": sid})
+                assert simul_doc is not None
+                assert player2.username not in simul_doc["players"]
+                assert player2.username not in simul_doc["pendingPlayers"]
+        finally:
+            await host_ws.close()
+            await player_ws.close()
             await host_session.close()
             await player_session.close()
 

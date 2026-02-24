@@ -119,8 +119,13 @@ class Simul:
     def deny(self, username: str | None) -> bool:
         if self.status != T_CREATED:
             return False
+        if username is None or username == self.created_by:
+            return False
         if username in self.pending_players:
             del self.pending_players[username]
+            return True
+        if username in self.players:
+            del self.players[username]
             return True
         return False
 

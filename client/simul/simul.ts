@@ -429,7 +429,16 @@ export class SimulController implements ChatController {
                                 isHost
                                     ? h('div.player-actions', [
                                         h('button.button.btn-approve', { on: { click: () => this.approve(player.name) } }, 'Approve'),
-                                        h('button.button.btn-deny', { on: { click: () => this.deny(player.name) } }, 'Deny'),
+                                        h(
+                                            'button.button.btn-deny',
+                                            {
+                                                attrs: {
+                                                    title: 'Reject this join request',
+                                                },
+                                                on: { click: () => this.deny(player.name) },
+                                            },
+                                            'Reject'
+                                        ),
                                     ])
                                     : null,
                             ])))
@@ -446,7 +455,16 @@ export class SimulController implements ChatController {
                                 ]),
                                 (isHost && player.name !== this.model.username)
                                     ? h('div.player-actions', [
-                                        h('button.button.btn-deny', { on: { click: () => this.deny(player.name) } }, 'Remove'),
+                                        h(
+                                            'button.button.btn-deny',
+                                            {
+                                                attrs: {
+                                                    title: 'Remove this approved player from the simul',
+                                                },
+                                                on: { click: () => this.deny(player.name) },
+                                            },
+                                            'Remove player'
+                                        ),
                                     ])
                                     : null,
                             ])))
