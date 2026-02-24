@@ -102,6 +102,7 @@ type SimulInboundMessage =
 
 export class SimulController implements ChatController {
     sock;
+    vnode: VNode | HTMLElement;
     anon: boolean;
     simulId: string;
     players: SimulPlayer[] = [];
@@ -138,6 +139,7 @@ export class SimulController implements ChatController {
         };
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
+        this.vnode = document.getElementById('simul-view') as HTMLElement;
         this.redraw();
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
     }
@@ -289,7 +291,7 @@ export class SimulController implements ChatController {
     }
 
     redraw() {
-        patch(document.getElementById('simul-view') as HTMLElement, this.render());
+        this.vnode = patch(this.vnode, this.render());
     }
 
     isGameFinished(game: SimulGame): boolean {
@@ -403,6 +405,9 @@ export class SimulController implements ChatController {
             ? h('button.button', { on: { click: () => this.joinSimul() } }, 'Join simul')
             : null;
 
+        const approvedParticipants = this.players.filter(player => player.name !== this.createdBy);
+        const pendingParticipants = this.pendingPlayers.filter(player => player.name !== this.createdBy);
+
         const activeGame = this.games.find(game => game.gameId === this.activeGameId);
         const ongoingView = h('div.simul-ongoing', [
             this.renderMiniBoards(),
@@ -413,9 +418,9 @@ export class SimulController implements ChatController {
                 h('h2', 'Participants'),
                 h('div.players-grid', [
                     h('div.pending-players', [
-                        h('h3', `Pending players (${this.pendingPlayers.length})`),
-                        this.pendingPlayers.length > 0
-                            ? h('ul', this.pendingPlayers.map(player => h('li', [
+                        h('h3', `Pending players (${pendingParticipants.length})`),
+                        pendingParticipants.length > 0
+                            ? h('ul', pendingParticipants.map(player => h('li', [
                                 h('span.player-info', [
                                     player.title ? h('span.title', player.title) : null,
                                     h('span.name', displayUsername(player.name)),
@@ -431,9 +436,9 @@ export class SimulController implements ChatController {
                             : h('p.empty', 'No pending players'),
                     ]),
                     h('div.approved-players', [
-                        h('h3', `Approved players (${this.players.length})`),
-                        this.players.length > 0
-                            ? h('ul', this.players.map(player => h('li', [
+                        h('h3', `Approved players (${approvedParticipants.length})`),
+                        approvedParticipants.length > 0
+                            ? h('ul', approvedParticipants.map(player => h('li', [
                                 h('span.player-info', [
                                     player.title ? h('span.title', player.title) : null,
                                     h('span.name', displayUsername(player.name)),
@@ -450,6 +455,38 @@ export class SimulController implements ChatController {
                 ]),
             ]),
         ]);
+
+        const sideInfo = h('div', { style: { 'grid-area': 'side' } }, [
+            h('div.box.pad', [
+                h('h2', 'About this simul'),
+                h('p', `Host: ${displayUsername(this.createdBy)}`),
+                h('p', `Time control: ${this.formatTimeControl()}`),
+                h('p', `Variant: ${variantName}`),
+                activeGame ? h('p', `Active game: ${displayUsername(activeGame.wplayer)} vs ${displayUsername(activeGame.bplayer)}`) : null,
+            ]),
+        ]);
+
+        const gamesTable = isSimulStarted ? h('div', { style: { 'grid-area': 'table' } }, [
+            h('div.box.pad', [
+                h('h2', 'Games'),
+                h('div.game-list', [
+                    this.games.length > 0
+                        ? h('ul', this.games.map(game => h('li', [
+                            h('a', { attrs: { href: `/${game.gameId}` } }, `${displayUsername(game.wplayer)} vs ${displayUsername(game.bplayer)}`),
+                            this.isGameFinished(game) ? ` (${game.result})` : '',
+                        ])))
+                        : h('p', 'No games yet'),
+                ]),
+            ]),
+        ]) : null;
+
+        const playersSummary = isSimulStarted ? h('div', { style: { 'grid-area': 'players' } }, [
+            h('div.box.pad', [
+                h('h2', 'Players'),
+                h('p', `Approved: ${approvedParticipants.length}`),
+                h('p', `Pending: ${pendingParticipants.length}`),
+            ]),
+        ]) : null;
 
         return h('div#simul-view', [
             h('div.simul-header', [
@@ -473,43 +510,17 @@ export class SimulController implements ChatController {
                 ]),
             ]),
             h('div.simul-content', [
-                h('div', { style: { 'grid-area': 'side' } }, [
-                    h('div.box.pad', [
-                        h('h2', 'About this simul'),
-                        h('p', `Host: ${displayUsername(this.createdBy)}`),
-                        h('p', `Time control: ${this.formatTimeControl()}`),
-                        h('p', `Variant: ${variantName}`),
-                        activeGame ? h('p', `Active game: ${displayUsername(activeGame.wplayer)} vs ${displayUsername(activeGame.bplayer)}`) : null,
-                    ]),
-                ]),
+                sideInfo,
                 h('div.simul-main', [
                     startButton,
                     joinButton,
                     isSimulStarted ? ongoingView : waitingView,
                 ]),
-                h('div', { style: { 'grid-area': 'table' } }, [
-                    h('div.box.pad', [
-                        h('h2', 'Games'),
-                        h('div.game-list', [
-                            this.games.length > 0
-                                ? h('ul', this.games.map(game => h('li', [
-                                    h('a', { attrs: { href: `/${game.gameId}` } }, `${displayUsername(game.wplayer)} vs ${displayUsername(game.bplayer)}`),
-                                    this.isGameFinished(game) ? ` (${game.result})` : '',
-                                ])))
-                                : h('p', 'No games yet'),
-                        ]),
-                    ]),
-                ]),
+                gamesTable,
                 h('div', { style: { 'grid-area': 'uchat' } }, [
                     h('div#lobbychat.chat-container'),
                 ]),
-                h('div', { style: { 'grid-area': 'players' } }, [
-                    h('div.box.pad', [
-                        h('h2', 'Players'),
-                        h('p', `Approved: ${this.players.length}`),
-                        h('p', `Pending: ${this.pendingPlayers.length}`),
-                    ]),
-                ]),
+                playersSummary,
             ]),
         ]);
     }

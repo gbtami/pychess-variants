@@ -43,6 +43,7 @@ const CASUAL = '0';
 
 export class RoundController extends GameController {
     assetURL: string;
+    simulId: string;
     berserked: { wberserk: boolean, bberserk: boolean };
     byoyomi: boolean;
     byoyomiPeriod: number;
@@ -136,6 +137,7 @@ export class RoundController extends GameController {
         this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, () => {}, (e: MessageEvent) => this.onMessage(e));
 
         this.assetURL = model["assetURL"];
+        this.simulId = model["simulId"] || "";
         this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = this.variant.rules.defaultTimeControl === 'byoyomi';
         this.finishedGame = this.status >= 0;
@@ -701,6 +703,7 @@ export class RoundController extends GameController {
     }
 
     private onMsgViewRematch = (msg: MsgViewRematch) => {
+        if (this.simulId !== "") return;
         const btns_after = document.querySelector('.btn-controls.after') as HTMLElement;
         let rematch_button = h('button.newopp', { on: { click: () => window.location.assign(this.home + '/' + msg["gameId"]) } }, _("VIEW REMATCH"));
         let rematch_button_location = btns_after!.insertBefore(document.createElement('div'), btns_after!.firstChild);
@@ -745,6 +748,10 @@ export class RoundController extends GameController {
         window.location.assign(this.home + '/tournament/' + this.tournamentId + '/pause');
     }
 
+    private backToSimul = () => {
+        window.location.assign(this.home + '/simul/' + this.simulId);
+    }
+
     private gameOver = (rdiffs: RDiffs) => {
         let container;
         container = document.getElementById('wrdiff') as HTMLElement;
@@ -757,7 +764,10 @@ export class RoundController extends GameController {
         this.gameControls = patch(this.gameControls, h('div'));
         let buttons: VNode[] = [];
         if (!this.spectator) {
-            if (this.tournamentGame) {
+            if (this.simulId !== "") {
+                buttons.push(h('button.newopp', { on: { click: () => this.backToSimul() } },
+                    [h('div', {class: {"icon": true, 'icon-play3': true} }, _("BACK TO SIMUL"))]));
+            } else if (this.tournamentGame) {
                 // TODO: isOver = ?
                 const isOver = false;
                 if (isOver) {
