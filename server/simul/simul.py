@@ -208,7 +208,11 @@ class Simul:
                 return False
             self.status = T_STARTED
             self.starts_at = datetime.now(timezone.utc)
+            from simul.simuls import upsert_simul_to_db
+
+            await upsert_simul_to_db(self)
             await self.create_games()
+            await upsert_simul_to_db(self)
             await self.broadcast({"type": "simul_started"})
             self.clock_task = asyncio.create_task(self.clock(), name=f"simul-clock-{self.id}")
             return True
@@ -220,12 +224,18 @@ class Simul:
             self.ends_at = datetime.now(timezone.utc)
             if self.clock_task is not None:
                 self.clock_task.cancel()
+            from simul.simuls import upsert_simul_to_db
+
+            await upsert_simul_to_db(self)
             await self.broadcast({"type": "simul_finished"})
 
     async def abort(self):
         if self.status == T_CREATED:
             self.status = T_ABORTED
             self.ends_at = datetime.now(timezone.utc)
+            from simul.simuls import upsert_simul_to_db
+
+            await upsert_simul_to_db(self)
 
     async def game_update(self, game):
         response = {

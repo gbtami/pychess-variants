@@ -7,6 +7,7 @@ from typing_defs import ViewContext
 from views import get_user_context
 from variants import VARIANTS, VARIANT_ICONS
 from simul.simul import Simul
+from simul.simuls import load_simul, upsert_simul_to_db
 from newid import id8
 from const import T_CREATED, T_STARTED, T_FINISHED
 from settings import SIMULING
@@ -75,6 +76,7 @@ async def simuls(request: web.Request) -> ViewContext:
             host_color=host_color,
         )
         app_state.simuls[simul_id] = simul
+        await upsert_simul_to_db(simul, app_state)
         raise web.HTTPFound(f"/simul/{simul_id}")
 
     simuls = list(app_state.simuls.values())
@@ -110,6 +112,8 @@ async def simul(request: web.Request) -> ViewContext:
     simul_id = request.match_info["simulId"]
     simul = app_state.simuls.get(simul_id)
     if simul is None:
+        simul = await load_simul(app_state, simul_id)
+    if simul is None:
         raise web.HTTPNotFound(text="Simul not found")
 
     context["simulid"] = simul.id
@@ -123,6 +127,7 @@ async def simul(request: web.Request) -> ViewContext:
     context["view_css"] = "simul.css"
     return context
 
+
 async def start_simul(request: web.Request) -> web.Response:
     if not SIMULING:
         raise web.HTTPForbidden()
@@ -131,6 +136,8 @@ async def start_simul(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     simulId = request.match_info["simulId"]
     simul = app_state.simuls.get(simulId)
+    if simul is None:
+        simul = await load_simul(app_state, simulId)
     if simul is None:
         raise web.HTTPNotFound(text="Simul not found")
 

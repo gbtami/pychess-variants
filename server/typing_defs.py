@@ -482,6 +482,41 @@ class ScheduledTournamentCreateData(TournamentCreateData):
     pass
 
 
+class SimulDoc(TypedDict):
+    _id: str
+    name: str
+    variant: str
+    chess960: bool
+    rated: bool
+    base: int
+    inc: int
+    hostColor: str
+    createdBy: str
+    createdAt: datetime
+    startsAt: NotRequired[datetime | None]
+    endsAt: NotRequired[datetime | None]
+    status: int
+    players: list[str]
+    pendingPlayers: list[str]
+
+
+class SimulUpdateData(TypedDict, total=False):
+    name: str
+    variant: str
+    chess960: bool
+    rated: bool
+    base: int
+    inc: int
+    hostColor: str
+    createdBy: str
+    createdAt: datetime
+    startsAt: datetime | None
+    endsAt: datetime | None
+    status: int
+    players: list[str]
+    pendingPlayers: list[str]
+
+
 class TournamentDoc(TypedDict):
     _id: str
     name: str
