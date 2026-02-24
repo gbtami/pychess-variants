@@ -8,7 +8,7 @@ import pytest
 
 from mongomock_motor import AsyncMongoMockClient
 
-from const import T_STARTED
+from const import T_CREATED, T_STARTED, CASUAL
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
@@ -53,6 +53,12 @@ class TestGUI:
 
         for game in simul.ongoing_games:
             assert game.wplayer.username == host_username or game.bplayer.username == host_username
+            assert game.simulId == sid
+            assert game.rated == CASUAL
+
+        if app_state.db is not None:
+            game_doc = await app_state.db.game.find_one({"sid": sid})
+            assert game_doc is not None
 
     async def test_simul_join_approve_and_deny(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient())
@@ -86,6 +92,38 @@ class TestGUI:
         assert len(simul.pending_players) == 0
         assert player3.username not in simul.players
 
+    async def test_simul_cannot_start_without_opponents(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient())
+        await aiohttp_server(app, host="127.0.0.1", port=8080)
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        sid = id8()
+
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+
+        simul = await Simul.create(app_state, sid, name="Test Simul", created_by=host_username)
+        app_state.simuls[sid] = simul
+
+        started = await simul.start()
+        assert started is False
+        assert simul.status == T_CREATED
+
+    async def _connect_ws(self, username: str):
+        session = aiohttp.ClientSession()
+        session_data = {"session": {"user_name": username}, "created": int(time.time())}
+        value = json.dumps(session_data)
+        session.cookie_jar.update_cookies({"AIOHTTP_SESSION": value})
+        ws = await session.ws_connect("ws://127.0.0.1:8080/wss")
+        return session, ws
+
+    async def _receive_until_type(self, ws, expected_type: str, max_messages: int = 6):
+        for _ in range(max_messages):
+            msg = await ws.receive_json()
+            if msg.get("type") == expected_type:
+                return msg
+        raise AssertionError(f"Did not receive expected ws message type: {expected_type}")
+
     async def test_simul_websocket(self, aiohttp_server):
         app = make_app(
             db_client=AsyncMongoMockClient(), simple_cookie_storage=True, anon_as_test_users=True
@@ -101,30 +139,47 @@ class TestGUI:
         simul = await Simul.create(app_state, sid, name="Test Simul", created_by=host_username)
         app_state.simuls[sid] = simul
 
-        async with aiohttp.ClientSession() as session:
-            session_data = {"session": {"user_name": host_username}, "created": int(time.time())}
-            value = json.dumps(session_data)
-            session.cookie_jar.update_cookies({"AIOHTTP_SESSION": value})
+        player2 = User(app_state, username="TestUser_2")
+        app_state.users[player2.username] = player2
 
-            client = await session.ws_connect("ws://127.0.0.1:8080/wss")
+        host_session, host_ws = await self._connect_ws(host_username)
+        player_session, player_ws = await self._connect_ws(player2.username)
 
-            await client.send_json(
+        try:
+            await host_ws.send_json(
                 {"type": "simul_user_connected", "username": host_username, "simulId": sid}
             )
-            msg = await client.receive_json()
+            msg = await host_ws.receive_json()
             assert msg["type"] == "simul_user_connected"
             assert msg["username"] == host_username
+            assert msg["players"][0]["name"] == host_username
 
-            player2 = User(app_state, username="TestUser_2")
-            app_state.users[player2.username] = player2
-
-            await client.send_json({"type": "join", "simulId": sid})
-            msg = await client.receive_json()
-            assert msg["type"] == "player_joined"
-
-            await client.send_json(
-                {"type": "approve_player", "simulId": sid, "username": "TestUser_2"}
+            await player_ws.send_json(
+                {"type": "simul_user_connected", "username": player2.username, "simulId": sid}
             )
-            msg = await client.receive_json()
+            msg = await player_ws.receive_json()
+            assert msg["type"] == "simul_user_connected"
+
+            await player_ws.send_json({"type": "join", "simulId": sid})
+            msg = await self._receive_until_type(host_ws, "player_joined")
+            assert msg["type"] == "player_joined"
+            assert msg["player"]["name"] == player2.username
+            assert player2.username in simul.pending_players
+
+            await host_ws.send_json(
+                {"type": "approve_player", "simulId": sid, "username": player2.username}
+            )
+            msg = await self._receive_until_type(host_ws, "player_approved")
             assert msg["type"] == "player_approved"
-            assert msg["username"] == "TestUser_2"
+            assert msg["player"]["name"] == player2.username
+            assert player2.username in simul.players
+            assert player2.username not in simul.pending_players
+
+            await player_ws.close()
+            msg = await self._receive_until_type(host_ws, "player_disconnected")
+            assert msg["username"] == player2.username
+            assert player2.username not in simul.players
+        finally:
+            await host_ws.close()
+            await host_session.close()
+            await player_session.close()

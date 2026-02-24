@@ -117,6 +117,8 @@ function initModel(el: HTMLElement) {
         puzzle: el.getAttribute("data-puzzle") ?? "",
         blogs: el.getAttribute("data-blogs") ?? "",
         corrGames: el.getAttribute("data-corrgames") ?? "",
+        simulGames: el.getAttribute("data-simulgames") ?? "",
+        simulHost: el.getAttribute("data-simulhost") === "True",
         oauthUsernameSelection: el.getAttribute("data-oauth-id") ? {
             oauth_id: el.getAttribute("data-oauth-id")!,
             oauth_provider: el.getAttribute("data-oauth-provider")!,

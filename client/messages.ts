@@ -83,6 +83,7 @@ export interface MsgBoard {
     by: string;
     status: number;
     pgn: string;
+    tp: string;
     uci_usi: string;
     result: string;
     steps: Step[];

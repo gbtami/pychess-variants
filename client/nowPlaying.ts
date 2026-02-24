@@ -11,6 +11,8 @@ import { timeago } from './datetime';
 import { getLastMoveFen, VARIANTS } from './variants';
 import { displayUsername } from './user';
 
+export type OngoingGamesMode = 'corr' | 'simul';
+
 export interface Game {
     gameId: string;
     variant: string;
@@ -26,14 +28,43 @@ export interface Game {
     fen: cg.FEN;
     lastMove: string;
     tp: string;
-    mins: number;
+    mins?: number;
     date: string;
+    status?: number;
+    result?: string;
 }
 
-export function handleOngoingGameEvents(username: string, cgMap: {[gameId: string]: [Api, string]}) {
+export interface OngoingGameUpdate {
+    gameId: string;
+    fen: cg.FEN;
+    lastMove: string;
+    tp: string;
+    date: string;
+    status?: number;
+    result?: string;
+}
+
+type OngoingGameEventOptions = {
+    mode?: OngoingGamesMode;
+    updateUnreadCounter?: boolean;
+    onUpdate?: (message: OngoingGameUpdate) => void;
+};
+
+export function handleOngoingGameEvents(
+    username: string,
+    cgMap: {[gameId: string]: [Api, string]},
+    options: OngoingGameEventOptions = {},
+) {
+    const mode = options.mode ?? 'corr';
+    const updateUnreadCounter = options.updateUnreadCounter ?? (mode === 'corr');
     const evtSource = new EventSource("/api/ongoing");
     evtSource.onmessage = function(event) {
-        const message = JSON.parse(event.data);
+        const message = JSON.parse(event.data) as OngoingGameUpdate;
+
+        if (options.onUpdate) {
+            options.onUpdate(message);
+        }
+
         if (!(message.gameId in cgMap)) return;
 
         let cg, variantName;
@@ -46,14 +77,18 @@ export function handleOngoingGameEvents(username: string, cgMap: {[gameId: strin
             fen: fen,
             lastMove: lastMove,
         });
+
         const isMyTurn = message.tp === username;
-        patch(document.querySelector(`a[href='${message.gameId}'] .indicator`) as HTMLElement,
-            h('span.indicator', ''),
-        );
-        patch(document.querySelector(`a[href='${message.gameId}'] .indicator`) as HTMLElement,
-            corrClockIndicator(isMyTurn, message.date),
-        );
-        const noreadEl = document.querySelector('span.noread') as HTMLElement;
+        const indicatorEl = document.querySelector(`a[href='${message.gameId}'] .indicator`) as HTMLElement | null;
+        if (indicatorEl) {
+            patch(indicatorEl, gameIndicator(isMyTurn, message.date, mode));
+        }
+
+        if (!updateUnreadCounter) return;
+
+        const noreadEl = document.querySelector('span.noread') as HTMLElement | null;
+        if (!noreadEl) return;
+
         const diff = isMyTurn ? 1 : -1;
         const count = parseInt(noreadEl.dataset.count || '0') + diff;
         patch(noreadEl, h('span.noread.data-count', {attrs: { 'data-count': count }}));
@@ -78,19 +113,44 @@ function corrClockIndicator(isMyTurn:boolean, date: string) {
     return h('span.indicator', isMyTurn ? timer(date) : h('span', '\xa0')) // &nbsp;
 }
 
-export function compareGames(username: string) {
+function simulTurnIndicator(isMyTurn: boolean) {
+    return h('span.indicator', isMyTurn ? '●' : h('span', '\xa0'));
+}
+
+function gameIndicator(isMyTurn: boolean, date: string, mode: OngoingGamesMode) {
+    return mode === 'simul' ? simulTurnIndicator(isMyTurn) : corrClockIndicator(isMyTurn, date);
+}
+
+export function compareGames(username: string, mode: OngoingGamesMode = 'corr') {
     return function(a: Game, b: Game) {
-        const aIsUserTurn = (a.tp === username);
-        const bIsUserTurn = (b.tp === username);
+        const aFinished = typeof a.status === 'number' && a.status >= 0;
+        const bFinished = typeof b.status === 'number' && b.status >= 0;
+        if (aFinished && !bFinished) return 1;
+        if (!aFinished && bFinished) return -1;
+
+        const aIsUserTurn = a.tp === username;
+        const bIsUserTurn = b.tp === username;
         if (aIsUserTurn && !bIsUserTurn) return -1;
         if (!aIsUserTurn && bIsUserTurn) return 1;
-        if (a.mins < b.mins) return -1;
-        if (a.mins > b.mins) return 1;
+
+        if (mode === 'simul') {
+            return a.gameId.localeCompare(b.gameId);
+        }
+
+        const aMins = typeof a.mins === 'number' ? a.mins : Number.POSITIVE_INFINITY;
+        const bMins = typeof b.mins === 'number' ? b.mins : Number.POSITIVE_INFINITY;
+        if (aMins < bMins) return -1;
+        if (aMins > bMins) return 1;
         return 0;
     };
 }
 
-export function gameViewPlaying(cgMap: {[gameId: string]: [Api, string]}, game: Game, username: string) {
+export function gameViewPlaying(
+    cgMap: {[gameId: string]: [Api, string]},
+    game: Game,
+    username: string,
+    mode: OngoingGamesMode = 'corr',
+) {
     const variant = VARIANTS[game.variant];
     const isMyTurn = game.tp === username;
     const opp = (username === game.w) ? game.b : game.w;
@@ -121,7 +181,7 @@ export function gameViewPlaying(cgMap: {[gameId: string]: [Api, string]}, game: 
         }),
         h('span.vstext', [
             h('span', oppDisplay),
-            corrClockIndicator(isMyTurn, game.date),
+            gameIndicator(isMyTurn, game.date, mode),
         ]),
     ]);
 }

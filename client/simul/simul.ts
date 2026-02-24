@@ -1,15 +1,18 @@
 import { h, VNode } from 'snabbdom';
 import { Chessground } from 'chessgroundx';
 import { Api } from "chessgroundx/api";
-import { VARIANTS } from '../variants';
 
+import { VARIANTS } from '../variants';
 import { PyChessModel } from '../types';
-import { _ } from '../i18n';
 import { patch } from '../document';
 import { boardSettings } from '../boardSettings';
 import { chatView, ChatController } from '../chat';
 import { newWebsocket } from "@/socket/webSocketUtils";
 import { displayUsername } from "../user";
+
+const T_CREATED = 0;
+const T_STARTED = 1;
+const T_FINISHED = 3;
 
 interface SimulPlayer {
     name: string;
@@ -27,16 +30,75 @@ interface SimulGame {
     base: number;
     inc: number;
     byo: number;
-    result?: string; // Game result when finished (e.g., "1-0", "0-1", "1/2-1/2", or undefined when ongoing)
+    status: number;
+    result: string;
 }
 
 interface MsgSimulUserConnected {
-    type: string;
+    type: "simul_user_connected";
     simulId: string;
     players: SimulPlayer[];
     pendingPlayers: SimulPlayer[];
     createdBy: string;
+    name?: string;
+    variant?: string;
+    chess960?: boolean;
+    base?: number;
+    inc?: number;
+    status?: number;
+    games?: SimulGame[];
 }
+
+interface MsgNewGame extends SimulGame {
+    type: "new_game";
+}
+
+interface MsgGameUpdate {
+    type: "game_update";
+    gameId: string;
+    fen: string;
+    lastMove: string;
+    status: number;
+    result: string;
+}
+
+interface MsgPlayerJoined {
+    type: "player_joined";
+    player: SimulPlayer;
+}
+
+interface MsgPlayerApproved {
+    type: "player_approved";
+    player: SimulPlayer;
+}
+
+interface MsgPlayerDenied {
+    type: "player_denied";
+    username: string;
+}
+
+interface MsgPlayerDisconnected {
+    type: "player_disconnected";
+    username: string;
+    group: "pending" | "approved";
+}
+
+interface MsgError {
+    type: "error";
+    message: string;
+}
+
+type SimulInboundMessage =
+    | MsgSimulUserConnected
+    | MsgNewGame
+    | MsgGameUpdate
+    | MsgPlayerJoined
+    | MsgPlayerApproved
+    | MsgPlayerDenied
+    | MsgPlayerDisconnected
+    | MsgError
+    | { type: "simul_started" }
+    | { type: "simul_finished" };
 
 export class SimulController implements ChatController {
     sock;
@@ -49,23 +111,31 @@ export class SimulController implements ChatController {
     games: SimulGame[] = [];
     activeGameId: string | null = null;
     chessgrounds: { [gameId: string]: Api } = {};
+    hasRedirectedToGame = false;
+    hostRedirectTimeout: number | null = null;
+    hostStartGames: SimulGame[] = [];
+    simulStatus: number;
+    simulName: string;
+    variantKey: string;
+    base: number;
+    inc: number;
 
-    constructor(el: HTMLElement, model: PyChessModel) {
-        console.log("SimulController constructor", el, model);
+    constructor(model: PyChessModel) {
         this.anon = model["anon"] !== undefined && model["anon"] !== "";
         this.simulId = model["simulId"] || "";
         this.model = model;
+        this.createdBy = "";
+        this.simulStatus = Number.isFinite(model.status) ? model.status : T_CREATED;
+        this.simulName = model["name"] || "Simul";
+        this.variantKey = model["variant"] || "chess";
+        this.base = Number.isFinite(model.base) ? model.base : 0;
+        this.inc = Number.isFinite(model.inc) ? model.inc : 0;
         boardSettings.assetURL = model.assetURL;
-        this.players = model["players"] || [];
-        this.pendingPlayers = model["pendingPlayers"] || [];
-        this.createdBy = model["createdBy"] || "";
-
-        const onOpen = () => {
-            this.doSend({ type: "simul_user_connected", username: model["username"], simulId: this.simulId });
-        }
 
         this.sock = newWebsocket('wss');
-        this.sock.onopen = () => onOpen();
+        this.sock.onopen = () => {
+            this.doSend({ type: "simul_user_connected", username: model["username"], simulId: this.simulId });
+        };
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         this.redraw();
@@ -77,15 +147,17 @@ export class SimulController implements ChatController {
     }
 
     onMessage(evt: MessageEvent) {
-        console.log("<+++ simul onMessage():", evt.data);
         if (evt.data === '/n') return;
-        const msg = JSON.parse(evt.data);
+        const msg = JSON.parse(evt.data) as SimulInboundMessage;
         switch (msg.type) {
             case "simul_user_connected":
                 this.onMsgSimulUserConnected(msg);
                 break;
             case "new_game":
                 this.onMsgNewGame(msg);
+                break;
+            case "game_update":
+                this.onMsgGameUpdate(msg);
                 break;
             case "player_joined":
                 this.onMsgPlayerJoined(msg);
@@ -96,51 +168,103 @@ export class SimulController implements ChatController {
             case "player_denied":
                 this.onMsgPlayerDenied(msg);
                 break;
+            case "player_disconnected":
+                this.onMsgPlayerDisconnected(msg);
+                break;
+            case "simul_started":
+                this.simulStatus = T_STARTED;
+                this.redraw();
+                break;
+            case "simul_finished":
+                this.simulStatus = T_FINISHED;
+                this.redraw();
+                break;
+            case "error":
+                console.warn("Simul error:", msg.message);
+                break;
         }
     }
 
     onMsgSimulUserConnected(msg: MsgSimulUserConnected) {
-        this.players = msg.players;
-        this.pendingPlayers = msg.pendingPlayers;
+        this.players = msg.players ?? [];
+        this.pendingPlayers = msg.pendingPlayers ?? [];
         this.createdBy = msg.createdBy;
-        this.redraw();
-    }
-
-    onMsgNewGame(msg: SimulGame) {
-        this.games.push(msg);
-        if (this.activeGameId === null) {
-            this.activeGameId = msg.gameId;
+        if (msg.name) this.simulName = msg.name;
+        if (msg.variant) {
+            this.variantKey = msg.variant + (msg.chess960 ? "960" : "");
+        }
+        if (typeof msg.base === "number") this.base = msg.base;
+        if (typeof msg.inc === "number") this.inc = msg.inc;
+        if (typeof msg.status === "number") this.simulStatus = msg.status;
+        this.games = msg.games ?? [];
+        if (this.activeGameId === null && this.games.length > 0) {
+            this.activeGameId = this.games[0].gameId;
         }
         this.redraw();
     }
 
-    onMsgPlayerJoined(msg: { player: SimulPlayer }) {
-        this.pendingPlayers.push(msg.player);
+    onMsgNewGame(msg: MsgNewGame) {
+        const alreadyExists = this.games.some(game => game.gameId === msg.gameId);
+        if (!alreadyExists) {
+            this.games.push(msg);
+        }
+        this.simulStatus = T_STARTED;
+        if (this.activeGameId === null) {
+            this.activeGameId = msg.gameId;
+        }
+
+        const isHost = this.model.username === this.createdBy;
+        const isMyGame = msg.wplayer === this.model.username || msg.bplayer === this.model.username;
+        if (isMyGame && !isHost) {
+            this.redirectToGame(msg.gameId);
+            return;
+        }
+        if (isMyGame && isHost) {
+            if (!this.hostStartGames.some(game => game.gameId === msg.gameId)) {
+                this.hostStartGames.push(msg);
+            }
+            this.scheduleHostGameRedirect();
+        }
         this.redraw();
     }
 
-    onMsgPlayerApproved(msg: { username: string }) {
-        const player = this.pendingPlayers.find(p => p.name === msg.username);
-        if (player) {
-            this.pendingPlayers = this.pendingPlayers.filter(p => p.name !== msg.username);
-            this.players.push(player);
+    onMsgGameUpdate(msg: MsgGameUpdate) {
+        const game = this.games.find(g => g.gameId === msg.gameId);
+        if (game) {
+            game.fen = msg.fen;
+            game.status = msg.status;
+            game.result = msg.result;
+            const cg = this.chessgrounds[msg.gameId];
+            if (cg) cg.set({ fen: msg.fen });
+        }
+        this.redraw();
+    }
+
+    onMsgPlayerJoined(msg: MsgPlayerJoined) {
+        if (!this.pendingPlayers.some(player => player.name === msg.player.name)) {
+            this.pendingPlayers.push(msg.player);
             this.redraw();
         }
     }
 
-    onMsgPlayerDenied(msg: { username: string }) {
-        this.pendingPlayers = this.pendingPlayers.filter(p => p.name !== msg.username);
-        this.players = this.players.filter(p => p.name !== msg.username);
+    onMsgPlayerApproved(msg: MsgPlayerApproved) {
+        this.pendingPlayers = this.pendingPlayers.filter(player => player.name !== msg.player.name);
+        if (!this.players.some(player => player.name === msg.player.name)) {
+            this.players.push(msg.player);
+        }
         this.redraw();
     }
 
-    setActiveGame(gameId: string) {
-        this.activeGameId = gameId;
+    onMsgPlayerDenied(msg: MsgPlayerDenied) {
+        this.pendingPlayers = this.pendingPlayers.filter(player => player.name !== msg.username);
+        this.players = this.players.filter(player => player.name !== msg.username);
         this.redraw();
     }
 
-    redraw() {
-        patch(document.getElementById('simul-view') as HTMLElement, this.render());
+    onMsgPlayerDisconnected(msg: MsgPlayerDisconnected) {
+        this.pendingPlayers = this.pendingPlayers.filter(player => player.name !== msg.username);
+        this.players = this.players.filter(player => player.name !== msg.username);
+        this.redraw();
     }
 
     approve(username: string) {
@@ -159,255 +283,240 @@ export class SimulController implements ChatController {
         this.doSend({ type: "join", simulId: this.simulId });
     }
 
-    render() {
-        const isHost = this.model.username === this.createdBy;
-        const isSimulStarted = this.games.length > 0;
-        const isSimulFinished = isSimulStarted && this.games.every(game => game.result); // Assuming game has a result field when finished
+    setActiveGame(gameId: string) {
+        this.activeGameId = gameId;
+        this.redraw();
+    }
 
-        const simulStatus = isSimulFinished ? 'Finished' : isSimulStarted ? 'Playing now' : 'Waiting for players';
+    redraw() {
+        patch(document.getElementById('simul-view') as HTMLElement, this.render());
+    }
 
-        // Create header with simul info
-        const simulHeader = h('div.simul-header', [
-            h('h1.simul-title', [
-                h('span', `${this.model["name"] || 'Simul'} `),
-                h('span.simul-status', { class: { 'status-finished': isSimulFinished, 'status-started': isSimulStarted, 'status-waiting': !isSimulStarted } }, `(${simulStatus})`)
-            ]),
-            h('div.simul-info', [
-                h('div.variant-info', `${this.model["variant"] || 'Standard'} • ${this.formatTimeControl()}`),
-                h('div.created-by', `By ${displayUsername(this.createdBy)}`)
-            ])
-        ]);
+    isGameFinished(game: SimulGame): boolean {
+        return game.status > 0;
+    }
 
-        const startButton = isHost && !isSimulStarted
-            ? h('button.button', { on: { click: () => this.startSimul() } }, 'Start Simul')
-            : h('div');
+    redirectToGame(gameId: string) {
+        if (this.hasRedirectedToGame) return;
+        this.hasRedirectedToGame = true;
+        window.location.assign('/' + gameId);
+    }
 
-        const joinButton = (!isHost && !isSimulStarted && !this.players.find(p => p.name === this.model.username) && !this.pendingPlayers.find(p => p.name === this.model.username))
-            ? h('button.button', { on: { click: () => this.joinSimul() } }, 'Join Simul')
-            : h('div');
-
-        // Main content area - different depending on if it's host vs player and if simul is started
-        const mainContent = isSimulStarted 
-            ? h('div.simul-ongoing', [
-                isHost 
-                    ? h('div.simul-host-view', [
-                        h('div.simul-boards-container', [
-                            this.renderMiniBoards(),
-                            this.renderBoardControls()
-                        ])
-                    ])
-                    : h('div.simul-player-view', [
-                        // Player sees their own game board here when simul is ongoing
-                        h('div', 'Your game board would appear here when simul starts')
-                    ])
-            ])
-            : h('div.simul-waiting', [
-                // Waiting for approval / game start view
-                h('div.simul-players-section', [
-                    h('h2', 'Participants'),
-                    h('div.players-grid', [
-                        h('div.pending-players', [
-                            h('h3', `Pending Players (${this.pendingPlayers.length})`),
-                            this.pendingPlayers.length > 0 
-                                ? h('ul', this.pendingPlayers.map(p => h('li', [
-                                    h('span.player-info', [
-                                        p.title ? h('span.title', p.title) : null,
-                                        h('span.name', displayUsername(p.name)),
-                                        h('span.rating', `(${p.rating})`)
-                                    ]),
-                                    isHost ? h('div.player-actions', [
-                                        h('button.button.btn-approve', { on: { click: () => this.approve(p.name) } }, '✓'),
-                                        h('button.button.btn-deny', { on: { click: () => this.deny(p.name) } }, 'X')
-                                    ]) : null
-                                ]))) 
-                                : h('p.empty', 'No pending players')
-                        ]),
-                        h('div.approved-players', [
-                            h('h3', `Approved Players (${this.players.length})`),
-                            this.players.length > 0 
-                                ? h('ul', this.players.map(p => h('li', [
-                                    h('span.player-info', [
-                                        p.title ? h('span.title', p.title) : null,
-                                        h('span.name', displayUsername(p.name)),
-                                        h('span.rating', `(${p.rating})`)
-                                    ]),
-                                    (isHost && p.name !== this.model.username) ? h('div.player-actions', [
-                                        h('button.button.btn-deny', { on: { click: () => this.deny(p.name) } }, 'Remove')
-                                    ]) : null
-                                ]))) 
-                                : h('p.empty', 'No approved players yet')
-                        ])
-                    ])
-                ])
-            ]);
-
-        return h('div#simul-view', [
-            simulHeader,
-            h('div.simul-content', [
-                // Side panel (similar to tournament structure)
-                h('div', { style: { 'grid-area': 'side' } }, [
-                    // Would contain simul info, player list, etc.
-                    h('div.box.pad', [
-                        h('h2', 'About this Simul'),
-                        h('p', `A simul exhibition where ${displayUsername(this.createdBy)} plays against multiple opponents simultaneously.`),
-                        h('p', `Time control: ${this.formatTimeControl()}`),
-                        h('p', `Variant: ${this.model["variant"] || 'Standard'}`)
-                    ])
-                ]),
-                
-                // Main content area
-                h('div.simul-main', [
-                    startButton,
-                    joinButton,
-                    mainContent,
-                ]),
-                
-                // Table panel (for game list/standings)
-                h('div', { style: { 'grid-area': 'table' } }, [
-                    h('div.box.pad', [
-                        h('h2', 'Games'),
-                        h('div.game-list', [
-                            this.games.length > 0 
-                                ? h('ul', this.games.map(game => h('li', `${displayUsername(game.wplayer)} vs ${displayUsername(game.bplayer)}`)))
-                                : h('p', 'No games yet')
-                        ])
-                    ])
-                ]),
-                
-                // Under chat panel
-                h('div', { style: { 'grid-area': 'uchat' } }, [
-                    h('div#lobbychat.chat-container')
-                ]),
-                
-                // Players panel
-                h('div', { style: { 'grid-area': 'players' } }, [
-                    h('div.box.pad', [
-                        h('h2', 'Players'),
-                        h('p', `Total: ${this.players.length + this.pendingPlayers.length}`)
-                    ])
-                ])
-            ])
-        ]);
+    scheduleHostGameRedirect() {
+        if (this.hasRedirectedToGame || this.hostStartGames.length === 0) return;
+        if (this.hostRedirectTimeout !== null) {
+            window.clearTimeout(this.hostRedirectTimeout);
+        }
+        this.hostRedirectTimeout = window.setTimeout(() => {
+            this.hostRedirectTimeout = null;
+            if (this.hasRedirectedToGame || this.hostStartGames.length === 0) return;
+            const preferredAsWhite = this.hostStartGames.filter(
+                game => game.wplayer === this.model.username
+            );
+            const candidates = preferredAsWhite.length > 0 ? preferredAsWhite : this.hostStartGames;
+            const target = candidates[Math.floor(Math.random() * candidates.length)];
+            this.redirectToGame(target.gameId);
+        }, 150);
     }
 
     formatTimeControl(): string {
-        const base = this.model["base"] || 0;
-        const inc = this.model["inc"] || 0;
-        if (base === 0 && inc === 0) return "Untimed";
-        
-        const baseMinutes = base > 0 ? `${base}m` : '';
-        const incSeconds = inc > 0 ? `+${inc}s` : '';
+        if (this.base === 0 && this.inc === 0) return "Untimed";
+        const baseMinutes = this.base > 0 ? `${this.base}m` : '';
+        const incSeconds = this.inc > 0 ? `+${this.inc}s` : '';
         return `${baseMinutes}${incSeconds}`;
-    }
-
-    renderBoardControls() {
-        return h('div.simul-board-controls', [
-            h('div.navigation', [
-                h('button.button.nav-btn', { 
-                    on: { click: () => this.navigateToGame('prev') },
-                    attrs: { title: 'Previous game' }
-                }, '‹'),
-                h('span.game-info', this.getActiveGameInfo()),
-                h('button.button.nav-btn', { 
-                    on: { click: () => this.navigateToGame('next') },
-                    attrs: { title: 'Next game' }
-                }, '›'),
-                h('button.button.nav-btn.auto-skip', { 
-                    on: { click: () => this.toggleAutoSkip() }
-                }, 'Auto-skip')
-            ])
-        ]);
-    }
-
-    getActiveGameInfo(): string {
-        if (!this.activeGameId) return 'No active game';
-        const game = this.games.find(g => g.gameId === this.activeGameId);
-        if (!game) return 'Unknown game';
-        return `${game.wplayer} vs ${game.bplayer}`;
-    }
-
-    navigateToGame(direction: 'next' | 'prev') {
-        if (this.games.length === 0) return;
-        
-        const currentIndex = this.games.findIndex(g => g.gameId === this.activeGameId);
-        let targetIndex: number;
-
-        if (direction === 'next') {
-            targetIndex = (currentIndex + 1) % this.games.length;
-        } else {
-            targetIndex = (currentIndex - 1 + this.games.length) % this.games.length;
-        }
-
-        if (targetIndex >= 0 && targetIndex < this.games.length) {
-            this.setActiveGame(this.games[targetIndex].gameId);
-        }
-    }
-
-    toggleAutoSkip() {
-        // Implement auto-skip functionality
-        console.log("Auto-skip toggled");
     }
 
     renderMiniBoards() {
         if (this.games.length === 0) {
             return h('div.no-games', 'No games created yet');
         }
-        
+
         return h('div.mini-boards', this.games.map(game => {
-            const variant = VARIANTS[game.variant];
+            const variant = VARIANTS[game.variant] || VARIANTS[this.variantKey] || VARIANTS["chess"];
             const isActive = game.gameId === this.activeGameId;
-            const isFinished = !!game.result;
-            
-            return h(`div.mini-board`, {
+            const isFinished = this.isGameFinished(game);
+            return h('div.mini-board', {
+                key: game.gameId,
                 on: { click: () => this.setActiveGame(game.gameId) },
-                class: { 
+                class: {
                     active: isActive,
-                    finished: isFinished
-                }
+                    finished: isFinished,
+                },
             }, [
                 h(`div.cg-wrap.${variant.board.cg}`, {
                     hook: {
                         insert: vnode => {
                             boardSettings.updateBoardStyle(variant.boardFamily);
                             boardSettings.updatePieceStyle(variant.pieceFamily);
-                            const cg = Chessground(vnode.elm as HTMLElement,  {
+                            const cg = Chessground(vnode.elm as HTMLElement, {
                                 fen: game.fen,
                                 viewOnly: true,
                                 coordinates: false,
                             });
                             this.chessgrounds[game.gameId] = cg;
                         },
-                        destroy: vnode => {
-                            // Clean up chessground instance when element is removed
-                            // Find the game associated with this chessground
-                            const cgElement = vnode.elm as HTMLElement;
-                            if (cgElement) {
-                                // Find which game this chessground belongs to by checking the class
-                                const game = this.games.find(g => 
-                                    cgElement.classList.contains(VARIANTS[g.variant].board.cg)
-                                );
-                                if (game && this.chessgrounds[game.gameId]) {
-                                    this.chessgrounds[game.gameId].destroy();
-                                    delete this.chessgrounds[game.gameId];
-                                }
+                        update: () => {
+                            const cg = this.chessgrounds[game.gameId];
+                            if (cg) cg.set({ fen: game.fen });
+                        },
+                        destroy: () => {
+                            const cg = this.chessgrounds[game.gameId];
+                            if (cg) {
+                                cg.destroy();
+                                delete this.chessgrounds[game.gameId];
                             }
-                        }
-                    }
+                        },
+                    },
                 }),
                 h('div.game-info', [
-                    h('div.players', `${game.wplayer} vs ${game.bplayer}`),
-                    isFinished && h('div.result', game.result),
-                    !isFinished && h('div.status', 'Ongoing')
-                ])
+                    h('div.players', `${displayUsername(game.wplayer)} vs ${displayUsername(game.bplayer)}`),
+                    isFinished ? h('div.result', game.result) : h('div.status', 'Ongoing'),
+                ]),
             ]);
         }));
+    }
+
+    render() {
+        const isHost = this.model.username === this.createdBy;
+        const isSimulStarted = this.simulStatus >= T_STARTED;
+        const isSimulFinished = this.simulStatus === T_FINISHED;
+        const simulStatusText = isSimulFinished
+            ? 'Finished'
+            : isSimulStarted
+                ? 'Playing now'
+                : 'Waiting for players';
+
+        const variantInfo = VARIANTS[this.variantKey];
+        const variantName = variantInfo
+            ? variantInfo.displayName(this.variantKey.endsWith("960"))
+            : this.variantKey;
+
+        const alreadyJoined =
+            this.players.some(player => player.name === this.model.username) ||
+            this.pendingPlayers.some(player => player.name === this.model.username);
+
+        const startButton = isHost && !isSimulStarted
+            ? h('button.button', { on: { click: () => this.startSimul() } }, 'Start simul')
+            : null;
+
+        const joinButton = (!isHost && !isSimulStarted && !alreadyJoined)
+            ? h('button.button', { on: { click: () => this.joinSimul() } }, 'Join simul')
+            : null;
+
+        const activeGame = this.games.find(game => game.gameId === this.activeGameId);
+        const ongoingView = h('div.simul-ongoing', [
+            this.renderMiniBoards(),
+        ]);
+
+        const waitingView = h('div.simul-waiting', [
+            h('div.simul-players-section', [
+                h('h2', 'Participants'),
+                h('div.players-grid', [
+                    h('div.pending-players', [
+                        h('h3', `Pending players (${this.pendingPlayers.length})`),
+                        this.pendingPlayers.length > 0
+                            ? h('ul', this.pendingPlayers.map(player => h('li', [
+                                h('span.player-info', [
+                                    player.title ? h('span.title', player.title) : null,
+                                    h('span.name', displayUsername(player.name)),
+                                    h('span.rating', `(${player.rating})`),
+                                ]),
+                                isHost
+                                    ? h('div.player-actions', [
+                                        h('button.button.btn-approve', { on: { click: () => this.approve(player.name) } }, 'Approve'),
+                                        h('button.button.btn-deny', { on: { click: () => this.deny(player.name) } }, 'Deny'),
+                                    ])
+                                    : null,
+                            ])))
+                            : h('p.empty', 'No pending players'),
+                    ]),
+                    h('div.approved-players', [
+                        h('h3', `Approved players (${this.players.length})`),
+                        this.players.length > 0
+                            ? h('ul', this.players.map(player => h('li', [
+                                h('span.player-info', [
+                                    player.title ? h('span.title', player.title) : null,
+                                    h('span.name', displayUsername(player.name)),
+                                    h('span.rating', `(${player.rating})`),
+                                ]),
+                                (isHost && player.name !== this.model.username)
+                                    ? h('div.player-actions', [
+                                        h('button.button.btn-deny', { on: { click: () => this.deny(player.name) } }, 'Remove'),
+                                    ])
+                                    : null,
+                            ])))
+                            : h('p.empty', 'No approved players yet'),
+                    ]),
+                ]),
+            ]),
+        ]);
+
+        return h('div#simul-view', [
+            h('div.simul-header', [
+                h('h1.simul-title', [
+                    h('span', `${this.simulName} `),
+                    h(
+                        'span.simul-status',
+                        {
+                            class: {
+                                'status-finished': isSimulFinished,
+                                'status-started': isSimulStarted,
+                                'status-waiting': !isSimulStarted,
+                            },
+                        },
+                        `(${simulStatusText})`
+                    ),
+                ]),
+                h('div.simul-info', [
+                    h('div.variant-info', `${variantName} • ${this.formatTimeControl()}`),
+                    h('div.created-by', `By ${displayUsername(this.createdBy)}`),
+                ]),
+            ]),
+            h('div.simul-content', [
+                h('div', { style: { 'grid-area': 'side' } }, [
+                    h('div.box.pad', [
+                        h('h2', 'About this simul'),
+                        h('p', `Host: ${displayUsername(this.createdBy)}`),
+                        h('p', `Time control: ${this.formatTimeControl()}`),
+                        h('p', `Variant: ${variantName}`),
+                        activeGame ? h('p', `Active game: ${displayUsername(activeGame.wplayer)} vs ${displayUsername(activeGame.bplayer)}`) : null,
+                    ]),
+                ]),
+                h('div.simul-main', [
+                    startButton,
+                    joinButton,
+                    isSimulStarted ? ongoingView : waitingView,
+                ]),
+                h('div', { style: { 'grid-area': 'table' } }, [
+                    h('div.box.pad', [
+                        h('h2', 'Games'),
+                        h('div.game-list', [
+                            this.games.length > 0
+                                ? h('ul', this.games.map(game => h('li', [
+                                    h('a', { attrs: { href: `/${game.gameId}` } }, `${displayUsername(game.wplayer)} vs ${displayUsername(game.bplayer)}`),
+                                    this.isGameFinished(game) ? ` (${game.result})` : '',
+                                ])))
+                                : h('p', 'No games yet'),
+                        ]),
+                    ]),
+                ]),
+                h('div', { style: { 'grid-area': 'uchat' } }, [
+                    h('div#lobbychat.chat-container'),
+                ]),
+                h('div', { style: { 'grid-area': 'players' } }, [
+                    h('div.box.pad', [
+                        h('h2', 'Players'),
+                        h('p', `Approved: ${this.players.length}`),
+                        h('p', `Pending: ${this.pendingPlayers.length}`),
+                    ]),
+                ]),
+            ]),
+        ]);
     }
 }
 
 export function simulView(model: PyChessModel): VNode[] {
     return [
-        h('div#simul-view', { hook: { insert: vnode => new SimulController(vnode.elm as HTMLElement, model) } }, [
-            // initial content, will be replaced by redraw
-        ])
+        h('div#simul-view', { hook: { insert: () => new SimulController(model) } }),
     ];
 }

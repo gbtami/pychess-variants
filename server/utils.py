@@ -169,6 +169,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | Ga
         corr=corr,
         create=False,
         tournamentId=doc.get("tid"),
+        simulId=doc.get("sid"),
     )
 
     if variant == "jieqi":
@@ -600,6 +601,8 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
 
     if game.tournamentId is not None:
         document["tid"] = game.tournamentId
+    if game.simulId is not None:
+        document["sid"] = game.simulId
 
     if game.variant.endswith("shogi") or game.variant in (
         "dobutsu",
@@ -1190,6 +1193,32 @@ def corr_games(games):
             "byoyomi": game.byoyomi_period,
             "level": game.level,
             "date": (now + timedelta(minutes=game.stopwatch.mins)).isoformat(),
+        }
+        for game in games
+    ]
+
+
+def simul_games(games):
+    return [
+        {
+            "gameId": game.id,
+            "variant": game.variant,
+            "fen": DARK_FEN if game.variant == "fogofwar" else game.board.fen,
+            "lastMove": "" if game.variant == "fogofwar" else game.lastmove,
+            "tp": game.turn_player,
+            "w": game.wplayer.username,
+            "wTitle": game.wplayer.title,
+            "b": game.bplayer.username,
+            "bTitle": game.bplayer.title,
+            "chess960": game.chess960,
+            "base": game.base,
+            "inc": game.inc,
+            "byoyomi": game.byoyomi_period,
+            "level": game.level,
+            "status": game.status,
+            "result": game.result,
+            "date": "",
+            "mins": 0,
         }
         for game in games
     ]

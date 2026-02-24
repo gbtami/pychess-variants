@@ -202,6 +202,9 @@ async def process_message(
     elif data["type"] == "analysis":
         await handle_analysis(app_state, ws, data, game)
     elif data["type"] == "rematch":
+        if game.simulId is not None:
+            await ws_send_json(ws, {"type": "error", "message": "Rematches are disabled in simuls"})
+            return
         await handle_rematch(app_state, ws, user, data, game)
     elif data["type"] == "reject_rematch":
         await handle_reject_rematch(user, game)
@@ -212,6 +215,9 @@ async def process_message(
     elif data["type"] == "byoyomi":
         await handle_byoyomi(data, game)
     elif data["type"] == "takeback":
+        if game.simulId is not None:
+            await ws_send_json(ws, {"type": "error", "message": "Takebacks are disabled in simuls"})
+            return
         await handle_takeback(ws, game)
     elif (
         data["type"] == "abort"
@@ -230,6 +236,11 @@ async def process_message(
     elif data["type"] == "is_user_present":
         await handle_is_user_present(ws, app_state.users, data["username"], game)
     elif data["type"] == "moretime":
+        if game.simulId is not None:
+            await ws_send_json(
+                ws, {"type": "error", "message": "Adding time is disabled in simuls"}
+            )
+            return
         await handle_moretime(app_state.users, user, data, game)
     elif data["type"] == "bugroundchat":
         if TYPE_CHECKING:

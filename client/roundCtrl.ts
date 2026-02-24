@@ -30,6 +30,7 @@ import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
+import { SimulRoundHostController } from './simul/simulRoundHost';
 import {
     parsePendingMove,
     pendingMoveOnOpenAction,
@@ -84,6 +85,7 @@ export class RoundController extends GameController {
     // - resend is gated by strict ply relation checks
     // - server also validates ply and ignores duplicates/stale moves
     lastMaybeSentMsgMove: MsgMove | undefined;
+    simulRoundHost?: SimulRoundHostController;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -378,12 +380,20 @@ export class RoundController extends GameController {
 
         boardSettings.assetURL = this.assetURL;
 
-        if (this.corr && model.corrGames.length > 0) {
+        if (model.simulHost === true && model.simulGames.length > 0) {
+            this.simulRoundHost = new SimulRoundHostController(
+                this.username,
+                this.gameId,
+                this.home,
+                model.simulGames,
+            );
+            this.simulRoundHost.init();
+        } else if (this.corr && model.corrGames.length > 0) {
             const corrGames = JSON.parse(model.corrGames).sort(compareGames(this.username));
             const cgMap: {[gameId: string]: [Api, string]} = {};
             handleOngoingGameEvents(this.username, cgMap);
 
-            patch(document.querySelector('.games-container') as HTMLElement, 
+            patch(document.querySelector('.games-container') as HTMLElement,
                 h('games-grid#games', corrGames.flatMap((game: Game) => {
                     if (game.gameId === this.gameId) {
                         return [];
@@ -391,7 +401,7 @@ export class RoundController extends GameController {
                         return [gameViewPlaying(cgMap, game, this.username)];
                     }
                 }))
-            )
+            );
         }
 
         this.onMsgBoard(model["board"] as MsgBoard);
@@ -804,6 +814,7 @@ export class RoundController extends GameController {
         // Terminal state: any resend intent is invalid after game end.
         // Clear eagerly to avoid carrying stale move cache into post-game reload/reconnect.
         this.clearPendingMoveCache();
+        this.simulRoundHost?.onGameEnd();
         this.checkStatus(msg);
 
         if (this.variant.name !== 'jieqi') return;
@@ -1087,6 +1098,8 @@ export class RoundController extends GameController {
         if (this.variant.material.showDiff) {
             this.updateMaterial();
         }
+
+        this.simulRoundHost?.onBoard(msg);
     }
 
     goPly(ply: number, plyVari = 0) {
@@ -1151,6 +1164,7 @@ export class RoundController extends GameController {
             const moveMsg = { type: "move", gameId: this.gameId, move: move, clocks: clock_times, ply: this.ply + 1 } as MsgMove;
             this.persistPendingMove(moveMsg);
             this.doSend(moveMsg as JSONObject);
+            this.simulRoundHost?.onMoveSubmitted(this.ply + 1);
 
             if (this.preaction) {
                 this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK] + increment);

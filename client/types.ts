@@ -25,6 +25,8 @@ export interface SimulGame {
     base: number;
     inc: number;
     byo: number;
+    status: number;
+    result: string;
 }
 
 export type PyChessModel = {
@@ -83,6 +85,8 @@ export type PyChessModel = {
 
     blogs: string;
     corrGames: string;
+    simulGames: string;
+    simulHost: boolean;
     oauthUsernameSelection: {
         oauth_id: string;
         oauth_provider: string;

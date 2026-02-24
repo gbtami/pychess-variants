@@ -12,6 +12,25 @@ from const import T_CREATED, T_STARTED, T_FINISHED
 from settings import SIMULING
 
 
+def parse_simul_variant(variant_key: str) -> tuple[str, bool]:
+    if variant_key.endswith("960"):
+        return variant_key[:-3], True
+    return variant_key, False
+
+
+def parse_int_post_field(data, field_name: str, min_value: int, max_value: int) -> int:
+    raw_value = data.get(field_name)
+    if not isinstance(raw_value, (str, bytes)):
+        raise web.HTTPBadRequest(text=f"Missing field: {field_name}")
+    try:
+        value = int(raw_value)
+    except ValueError as exc:
+        raise web.HTTPBadRequest(text=f"Invalid integer value: {field_name}") from exc
+    if value < min_value or value > max_value:
+        raise web.HTTPBadRequest(text=f"Field out of range: {field_name}")
+    return value
+
+
 @aiohttp_jinja2.template("simuls.html")
 async def simuls(request: web.Request) -> ViewContext:
     if not SIMULING:
@@ -20,24 +39,43 @@ async def simuls(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
     app_state = get_app_state(request.app)
 
-    if request.path.endswith("/simul"):
+    if request.method == "POST":
         data = await request.post()
         simul_id = id8()
-        base_raw = data["base"]
-        inc_raw = data["inc"]
-        if not isinstance(base_raw, (str, bytes)) or not isinstance(inc_raw, (str, bytes)):
-            raise web.HTTPBadRequest()
+        name_raw = data.get("name", "")
+        variant_key = data.get("variant", "")
+        host_color = data.get("host_color", "random")
+        base = parse_int_post_field(data, "base", min_value=0, max_value=180)
+        inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
+
+        if not isinstance(name_raw, (str, bytes)) or not isinstance(variant_key, (str, bytes)):
+            raise web.HTTPBadRequest(text="Invalid simul form data")
+        if not isinstance(host_color, (str, bytes)):
+            raise web.HTTPBadRequest(text="Invalid host color")
+
+        name = name_raw.strip()
+        if len(name) < 2 or len(name) > 30:
+            raise web.HTTPBadRequest(text="Invalid simul name length")
+        if variant_key not in VARIANTS:
+            raise web.HTTPBadRequest(text="Unknown variant")
+        if host_color not in ("random", "white", "black"):
+            raise web.HTTPBadRequest(text="Invalid host color value")
+
+        variant_name, chess960 = parse_simul_variant(variant_key)
         simul = await Simul.create(
             app_state,
             simul_id,
-            name=data["name"],
+            name=name,
             created_by=user.username,
-            variant=data["variant"],
-            base=int(base_raw),
-            inc=int(inc_raw),
-            host_color=data.get("host_color", "random"),
+            variant=variant_name,
+            chess960=chess960,
+            rated=False,
+            base=base,
+            inc=inc,
+            host_color=host_color,
         )
         app_state.simuls[simul_id] = simul
+        raise web.HTTPFound(f"/simul/{simul_id}")
 
     simuls = list(app_state.simuls.values())
     context["created_simuls"] = [s for s in simuls if s.status == T_CREATED]
@@ -75,11 +113,15 @@ async def simul(request: web.Request) -> ViewContext:
         raise web.HTTPNotFound(text="Simul not found")
 
     context["simulid"] = simul.id
+    context["name"] = simul.name
+    context["variant"] = simul.variant + ("960" if simul.chess960 else "")
+    context["base"] = simul.base
+    context["inc"] = simul.inc
+    context["rated"] = False
     context["view"] = "simul"
     context["status"] = simul.status
     context["view_css"] = "simul.css"
     return context
-
 
 async def start_simul(request: web.Request) -> web.Response:
     if not SIMULING:

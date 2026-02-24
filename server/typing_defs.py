@@ -136,6 +136,7 @@ GameDocument = TypedDict(
         "y": NotRequired[int],
         "z": NotRequired[int],
         "tid": NotRequired[str],
+        "sid": NotRequired[str],
         "a": NotRequired[list[AnalysisStep]],
         "cw": NotRequired[list[int]],
         "cb": NotRequired[list[int]],
@@ -371,6 +372,8 @@ class ViewContext(TypedDict, total=False):
     can_block: bool
     can_challenge: bool
     corr_games: str
+    simul_games: str
+    simulhost: bool
     created_simuls: Sequence[object]
     ct: str
     cup: Mapping[str, tuple[str, str]]

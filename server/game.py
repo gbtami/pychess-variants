@@ -498,11 +498,14 @@ class Game:
                     await self.save_game()
                     if self.corr:
                         await opp_player.notify_game_end(self)
-                    if self.simulId is not None:
-                        await self.app_state.simuls[self.simulId].game_update(self)
                 else:
                     await self.save_move(move)
                     self.stopwatch.restart()
+
+                if self.simulId is not None:
+                    simul = self.app_state.simuls.get(self.simulId)
+                    if simul is not None:
+                        await simul.game_update(self)
 
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
