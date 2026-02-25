@@ -110,7 +110,6 @@ export class SimulController implements ChatController {
     createdBy: string;
     model: PyChessModel;
     games: SimulGame[] = [];
-    activeGameId: string | null = null;
     chessgrounds: { [gameId: string]: Api } = {};
     hasRedirectedToGame = false;
     hostRedirectTimeout: number | null = null;
@@ -199,9 +198,6 @@ export class SimulController implements ChatController {
         if (typeof msg.inc === "number") this.inc = msg.inc;
         if (typeof msg.status === "number") this.simulStatus = msg.status;
         this.games = msg.games ?? [];
-        if (this.activeGameId === null && this.games.length > 0) {
-            this.activeGameId = this.games[0].gameId;
-        }
         this.redraw();
     }
 
@@ -211,9 +207,6 @@ export class SimulController implements ChatController {
             this.games.push(msg);
         }
         this.simulStatus = T_STARTED;
-        if (this.activeGameId === null) {
-            this.activeGameId = msg.gameId;
-        }
 
         const isHost = this.model.username === this.createdBy;
         const isMyGame = msg.wplayer === this.model.username || msg.bplayer === this.model.username;
@@ -285,11 +278,6 @@ export class SimulController implements ChatController {
         this.doSend({ type: "join", simulId: this.simulId });
     }
 
-    setActiveGame(gameId: string) {
-        this.activeGameId = gameId;
-        this.redraw();
-    }
-
     redraw() {
         this.vnode = patch(this.vnode, this.render());
     }
@@ -328,29 +316,36 @@ export class SimulController implements ChatController {
         return `${baseMinutes}${incSeconds}`;
     }
 
+    getHostAndOpponent(game: SimulGame): { host: string; opponent: string } {
+        if (game.wplayer === this.createdBy) {
+            return { host: game.wplayer, opponent: game.bplayer };
+        }
+        if (game.bplayer === this.createdBy) {
+            return { host: game.bplayer, opponent: game.wplayer };
+        }
+        return { host: game.wplayer, opponent: game.bplayer };
+    }
+
     renderMiniBoards() {
         if (this.games.length === 0) {
             return h('div.no-games', 'No games created yet');
         }
 
-        return h('div.mini-boards', this.games.map(game => {
+        return h('div.simul__games', { class: { finished: this.simulStatus === T_FINISHED } }, this.games.map(game => {
             const variant = VARIANTS[game.variant] || VARIANTS[this.variantKey] || VARIANTS["chess"];
-            const isActive = game.gameId === this.activeGameId;
             const isFinished = this.isGameFinished(game);
-            return h(`div.mini-board.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
+            const pairing = this.getHostAndOpponent(game);
+            return h('a', {
                 key: game.gameId,
-                on: { click: () => this.setActiveGame(game.gameId) },
-                class: {
-                    active: isActive,
-                    finished: isFinished,
-                },
+                attrs: { href: `/${game.gameId}` },
             }, [
-                h(`div.cg-wrap.${variant.board.cg}`, {
+                h(`div.mini-game.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
+                    class: { finished: isFinished },
                     hook: {
                         insert: vnode => {
                             boardSettings.updateBoardStyle(variant.boardFamily);
                             boardSettings.updatePieceStyle(variant.pieceFamily);
-                            const cg = Chessground(vnode.elm as HTMLElement, {
+                            const cg = Chessground((vnode.elm as HTMLElement).firstElementChild as HTMLElement, {
                                 fen: game.fen,
                                 viewOnly: true,
                                 coordinates: false,
@@ -369,13 +364,58 @@ export class SimulController implements ChatController {
                             }
                         },
                     },
-                }),
-                h('div.game-info', [
-                    h('div.players', `${displayUsername(game.wplayer)} vs ${displayUsername(game.bplayer)}`),
-                    isFinished ? h('div.result', game.result) : h('div.status', 'Ongoing'),
+                }, [
+                    h(`div.cg-wrap.${variant.board.cg}`),
+                ]),
+                h('div.game-header', [
+                    h('span.host', displayUsername(pairing.host)),
+                    h('span.vstext', 'vs'),
+                    h('span.opp', displayUsername(pairing.opponent)),
+                ]),
+                h('div.result-wrap', [
+                    h('span.result', isFinished ? game.result : ''),
+                    h('span.status', isFinished ? 'Finished' : 'Ongoing'),
                 ]),
             ]);
         }));
+    }
+
+    renderPlayerRow(player: SimulPlayer, canModerate: boolean, isPending: boolean): VNode {
+        return h('div.simul__player', [
+            h('span.simul__player__identity', [
+                player.title ? h('player-title', player.title + ' ') : null,
+                h('a.user-link', { attrs: { href: `/@/${player.name}` } }, displayUsername(player.name)),
+            ]),
+            h('span.simul__player__rating', `(${player.rating})`),
+            canModerate
+                ? h('span.simul__player__actions', isPending
+                    ? [
+                        h(
+                            'button.button.btn-approve',
+                            { on: { click: () => this.approve(player.name) } },
+                            'Approve'
+                        ),
+                        h(
+                            'button.button.btn-deny',
+                            {
+                                attrs: { title: 'Reject this join request' },
+                                on: { click: () => this.deny(player.name) },
+                            },
+                            'Reject'
+                        ),
+                    ]
+                    : [
+                        h(
+                            'button.button.btn-deny',
+                            {
+                                attrs: { title: 'Remove this approved player from the simul' },
+                                on: { click: () => this.deny(player.name) },
+                            },
+                            'Remove'
+                        ),
+                    ])
+                : null,
+        ]);
     }
 
     render() {
@@ -392,124 +432,42 @@ export class SimulController implements ChatController {
         const variantName = variantInfo
             ? variantInfo.displayName(this.variantKey.endsWith("960"))
             : this.variantKey;
+        const hostName = this.createdBy ? displayUsername(this.createdBy) : '-';
 
         const alreadyJoined =
             this.players.some(player => player.name === this.model.username) ||
             this.pendingPlayers.some(player => player.name === this.model.username);
 
         const startButton = isHost && !isSimulStarted
-            ? h('button.button', { on: { click: () => this.startSimul() } }, 'Start simul')
+            ? h('button.button.simul__actions__start', { on: { click: () => this.startSimul() } }, 'Start simul')
             : null;
 
         const joinButton = (!isHost && !isSimulStarted && !alreadyJoined)
-            ? h('button.button', { on: { click: () => this.joinSimul() } }, 'Join simul')
+            ? h('button.button.simul__actions__join', { on: { click: () => this.joinSimul() } }, 'Join simul')
             : null;
 
         const approvedParticipants = this.players.filter(player => player.name !== this.createdBy);
         const pendingParticipants = this.pendingPlayers.filter(player => player.name !== this.createdBy);
+        const canModeratePlayers = isHost && !isSimulStarted;
+        const actionButtons: VNode[] = [];
 
-        const activeGame = this.games.find(game => game.gameId === this.activeGameId);
-        const ongoingView = h('div.simul-ongoing', [
-            this.renderMiniBoards(),
-        ]);
+        if (startButton) actionButtons.push(startButton);
+        if (joinButton) actionButtons.push(joinButton);
+        if (actionButtons.length === 0 && !isHost && !isSimulStarted && alreadyJoined) {
+            actionButtons.push(h('span.simul__actions__note', 'You are on the participants list.'));
+        }
 
-        const waitingView = h('div.simul-waiting', [
-            h('div.simul-players-section', [
-                h('h2', 'Participants'),
-                h('div.players-grid', [
-                    h('div.pending-players', [
-                        h('h3', `Pending players (${pendingParticipants.length})`),
-                        pendingParticipants.length > 0
-                            ? h('ul', pendingParticipants.map(player => h('li', [
-                                h('span.player-info', [
-                                    player.title ? h('span.title', player.title) : null,
-                                    h('span.name', displayUsername(player.name)),
-                                    h('span.rating', `(${player.rating})`),
-                                ]),
-                                isHost
-                                    ? h('div.player-actions', [
-                                        h('button.button.btn-approve', { on: { click: () => this.approve(player.name) } }, 'Approve'),
-                                        h(
-                                            'button.button.btn-deny',
-                                            {
-                                                attrs: {
-                                                    title: 'Reject this join request',
-                                                },
-                                                on: { click: () => this.deny(player.name) },
-                                            },
-                                            'Reject'
-                                        ),
-                                    ])
-                                    : null,
-                            ])))
-                            : h('p.empty', 'No pending players'),
-                    ]),
-                    h('div.approved-players', [
-                        h('h3', `Approved players (${approvedParticipants.length})`),
-                        approvedParticipants.length > 0
-                            ? h('ul', approvedParticipants.map(player => h('li', [
-                                h('span.player-info', [
-                                    player.title ? h('span.title', player.title) : null,
-                                    h('span.name', displayUsername(player.name)),
-                                    h('span.rating', `(${player.rating})`),
-                                ]),
-                                (isHost && player.name !== this.model.username)
-                                    ? h('div.player-actions', [
-                                        h(
-                                            'button.button.btn-deny',
-                                            {
-                                                attrs: {
-                                                    title: 'Remove this approved player from the simul',
-                                                },
-                                                on: { click: () => this.deny(player.name) },
-                                            },
-                                            'Remove player'
-                                        ),
-                                    ])
-                                    : null,
-                            ])))
-                            : h('p.empty', 'No approved players yet'),
-                    ]),
-                ]),
-            ]),
-        ]);
+        const approvedRows = approvedParticipants.length > 0
+            ? approvedParticipants.map(player => this.renderPlayerRow(player, canModeratePlayers, false))
+            : [h('p.simul__empty', 'No approved players yet')];
+        const pendingRows = pendingParticipants.length > 0
+            ? pendingParticipants.map(player => this.renderPlayerRow(player, canModeratePlayers, true))
+            : [h('p.simul__empty', 'No pending players')];
 
-        const sideInfo = h('div', { style: { 'grid-area': 'side' } }, [
-            h('div.box.pad', [
-                h('h2', 'About this simul'),
-                h('p', `Host: ${displayUsername(this.createdBy)}`),
-                h('p', `Time control: ${this.formatTimeControl()}`),
-                h('p', `Variant: ${variantName}`),
-                activeGame ? h('p', `Active game: ${displayUsername(activeGame.wplayer)} vs ${displayUsername(activeGame.bplayer)}`) : null,
-            ]),
-        ]);
-
-        const gamesTable = isSimulStarted ? h('div', { style: { 'grid-area': 'table' } }, [
-            h('div.box.pad', [
-                h('h2', 'Games'),
-                h('div.game-list', [
-                    this.games.length > 0
-                        ? h('ul', this.games.map(game => h('li', [
-                            h('a', { attrs: { href: `/${game.gameId}` } }, `${displayUsername(game.wplayer)} vs ${displayUsername(game.bplayer)}`),
-                            this.isGameFinished(game) ? ` (${game.result})` : '',
-                        ])))
-                        : h('p', 'No games yet'),
-                ]),
-            ]),
-        ]) : null;
-
-        const playersSummary = isSimulStarted ? h('div', { style: { 'grid-area': 'players' } }, [
-            h('div.box.pad', [
-                h('h2', 'Players'),
-                h('p', `Approved: ${approvedParticipants.length}`),
-                h('p', `Pending: ${pendingParticipants.length}`),
-            ]),
-        ]) : null;
-
-        return h('div#simul-view', [
-            h('div.simul-header', [
-                h('h1.simul-title', [
-                    h('span', `${this.simulName} `),
+        return h('div.simul__app', [
+            h('div.simul__app__content', [
+                h('div.box.pad.simul__title', [
+                    h('h1', this.simulName),
                     h(
                         'span.simul-status',
                         {
@@ -519,27 +477,43 @@ export class SimulController implements ChatController {
                                 'status-waiting': !isSimulStarted,
                             },
                         },
-                        `(${simulStatusText})`
+                        simulStatusText
                     ),
                 ]),
-                h('div.simul-info', [
-                    h('div.variant-info', `${variantName} • ${this.formatTimeControl()}`),
-                    h('div.created-by', `By ${displayUsername(this.createdBy)}`),
+                h('div.box.simul__meta', [
+                    h('div.simul__meta__host', `Host: ${hostName}`),
+                    h('div.simul__meta__text', `${variantName} • ${this.formatTimeControl()}`),
+                    h('div.simul__meta__games', `${this.games.length} games`),
+                    h('div.simul__meta__text.simul__meta__status', simulStatusText),
+                ]),
+                h('div.box.pad', [
+                    h(
+                        'h2.simul__section-title',
+                        isSimulStarted ? (isSimulFinished ? 'Finished games' : 'Games in progress') : 'Waiting room'
+                    ),
+                    isSimulStarted
+                        ? this.renderMiniBoards()
+                        : h('p.simul__waiting-note', 'Waiting for the host to start once participants are approved.'),
                 ]),
             ]),
-            h('div.simul-content', [
-                sideInfo,
-                h('div.simul-main', [
-                    startButton,
-                    joinButton,
-                    isSimulStarted ? ongoingView : waitingView,
+            h('aside.simul__side', [
+                h('div.box.simul__side__host', [
+                    h('span.simul__side__host__text', hostName),
                 ]),
-                gamesTable,
-                h('div', { style: { 'grid-area': 'uchat' } }, [
-                    h('div#lobbychat.chat-container'),
+                h('div.box.pad', [
+                    h('h2.simul__section-title', 'Players'),
+                    h('div.simul__actions', actionButtons),
+                    h('div.simul__players-group', [
+                        h('h3', `Approved (${approvedParticipants.length})`),
+                        ...approvedRows,
+                    ]),
+                    h('div.simul__players-group', [
+                        h('h3', `Pending (${pendingParticipants.length})`),
+                        ...pendingRows,
+                    ]),
                 ]),
-                playersSummary,
             ]),
+            h('div#lobbychat.chat'),
         ]);
     }
 }

@@ -242,320 +242,348 @@ td.header:hover {
     background-color: var(--green-hover);
 }
 
-/* Simul page styling */
+/* Simul page styling (Lichess-inspired) */
 .simul, .simul-new {
     grid-area: main;
 }
-#simul-view {
-    padding: 1em;
-    max-width: 1400px;
-    margin: 0 auto;
+
+.simul__app {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 320px);
+    grid-template-areas:
+        'main side'
+        'main chat';
 }
 
-.simul-header {
-    background: #fff;
-    border-radius: 4px;
-    padding: 1.5em;
-    margin-bottom: 1.5em;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-left: 4px solid #75a1a4;
-}
-
-.simul-header h1.simul-title {
-    font-size: 1.8em;
-    margin: 0 0 0.5em 0;
+.simul__app__content {
+    grid-area: main;
     display: flex;
+    flex-flow: column;
+    gap: 1rem;
+}
+
+.simul__app .chat {
+    grid-area: chat;
+    min-height: 18rem;
+}
+
+.simul__side {
+    grid-area: side;
+    display: flex;
+    flex-flow: column;
+    gap: 1rem;
+}
+
+.simul__title {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.5em;
+    gap: 1rem;
+}
+
+.simul__title h1 {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.2;
 }
 
 .simul-status {
-    font-size: 0.8em;
-    padding: 0.25em 0.75em;
-    border-radius: 12px;
-    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
 }
 
 .status-waiting {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background: rgba(54, 146, 231, 0.2);
+    color: var(--link-color-blue);
 }
 
 .status-started {
-    background-color: #e8f5e9;
-    color: #388e3c;
+    background: rgba(98, 153, 36, 0.22);
+    color: var(--green-hover);
 }
 
 .status-finished {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
+    background: rgba(213, 144, 32, 0.22);
+    color: var(--gold);
 }
 
-.simul-info {
+.simul__meta {
     display: flex;
-    gap: 1.5em;
-    color: #666;
-    font-size: 0.9em;
+    flex-flow: row wrap;
 }
 
-.simul-content {
-    display: grid;
-    grid-template-columns: minmax(200px, 250px) minmax(60%, 1fr) minmax(200px, 300px);
-    grid-template-rows: auto auto;
-    grid-template-areas:
-        'side main table'
-        'uchat uchat players';
-    gap: 15px;
-    margin-top: 20px;
-}
-
-/* The main area doesn't need a style property since it's the default one */
-.simul-main {
-    grid-area: main;
-}
-
-.simul-main {
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-}
-
-.simul-players-section h2 {
-    margin-top: 0;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.5em;
-}
-
-.players-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1em;
-    margin-bottom: 1.5em;
-}
-
-.pending-players, .approved-players {
-    background: #f9f9f9;
-    border-radius: 4px;
-    padding: 1em;
-    border: 1px solid #e0e0e0;
-}
-
-.pending-players h3, .approved-players h3 {
-    margin-top: 0;
-    margin-bottom: 1em;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #555;
-}
-
-.approved-players h3 {
-    color: #388e3c;
-}
-
-.pending-players ul, .approved-players ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.pending-players li, .approved-players li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75em;
-    border-bottom: 1px solid #eee;
-    align-items: center;
-}
-
-.pending-players li:last-child, .approved-players li:last-child {
-    border-bottom: none;
-}
-
-.player-info {
-    display: flex;
-    gap: 0.5em;
-    align-items: center;
-}
-
-.player-info .title {
-    color: #ff8c00;
-    font-weight: bold;
-}
-
-.player-info .rating {
-    color: #777;
-    font-size: 0.9em;
-}
-
-.player-actions {
-    display: flex;
-    gap: 0.5em;
-}
-
-.button {
-    padding: 0.4em 0.8em;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background: #f5f5f5;
-    cursor: pointer;
-    font-size: 0.9em;
-    color: #333;
-    transition: all 0.2s;
-}
-
-.button:hover {
-    background: #e0e0e0;
-}
-
-.button.btn-approve {
-    background: #e8f5e9;
-    border-color: #388e3c;
-    color: #388e3c;
-}
-
-.button.btn-approve:hover {
-    background: #c8e6c9;
-}
-
-.button.btn-deny {
-    background: #ffebee;
-    border-color: #d32f2f;
-    color: #d32f2f;
-}
-
-.button.btn-deny:hover {
-    background: #ffcdd2;
-}
-
-.empty {
-    color: #999;
-    font-style: italic;
-    padding: 1em;
-    text-align: center;
-}
-
-/* Board controls */
-.simul-board-controls {
-    margin-top: 1em;
-    padding-top: 1em;
-    border-top: 1px solid #eee;
-}
-
-.simul-board-controls .navigation {
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-}
-
-.simul-board-controls .nav-btn {
-    padding: 0.5em;
-    min-width: 36px;
+.simul__meta > div {
+    flex: 1 1 12rem;
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
+    padding: 0.8rem 0.6rem;
+    border-right: 1px solid var(--bg-color2);
 }
 
-.simul-board-controls .auto-skip {
-    margin-left: auto;
-    background: #fff3cd;
-    border-color: #ffc107;
-    color: #856404;
+.simul__meta > div:last-child {
+    border-right: none;
 }
 
-.simul-board-controls .auto-skip:hover {
-    background: #ffeaa7;
+.simul__meta__host,
+.simul__meta__text {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--link-color);
+    font-size: 0.82rem;
 }
 
-.game-info {
-    padding: 0 1em;
-    color: #555;
-    font-size: 0.9em;
+.simul__meta__status {
+    color: var(--font-color);
+    font-weight: 600;
 }
 
-/* Mini boards grid */
-.mini-boards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 1em;
-    margin: 1em 0;
+.simul__meta__games {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--font-color);
 }
 
-.mini-board {
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    padding: 0.5em;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: #fff;
+.simul__section-title {
+    margin: 0 0 0.85rem;
+    font-size: 1.2rem;
+}
+
+.simul__waiting-note,
+.simul__empty {
+    color: var(--link-color);
+}
+
+.simul__side__host {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.2rem;
 }
 
-.mini-board:hover {
-    border-color: #9ca3af;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.mini-board.active {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-.mini-board.finished {
-    opacity: 0.7;
-    border-color: #a0a0a0;
-}
-
-.mini-board .cg-wrap {
-    width: 100%;
-    aspect-ratio: 1/1;
-    margin-bottom: 0.5em;
-}
-
-.mini-board .game-info {
-    font-size: 0.75em;
-}
-
-.mini-board .players {
-    font-weight: bold;
+.simul__side__host__text {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--green-switch);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-bottom: 0.25em;
 }
 
-.mini-board .result {
-    color: #2e7d32;
-    font-weight: bold;
+.simul__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
 }
 
-.mini-board .status {
-    color: #555;
-    font-style: italic;
+.simul__actions .button {
+    border: 1px solid var(--bg-color2);
+    background: var(--bg-color2);
+    color: var(--font-color);
+    border-radius: 3px;
+    padding: 0.45rem 0.8rem;
+    cursor: pointer;
 }
 
-.chat-container {
-    margin-top: 1.5em;
-    border-top: 1px solid #eee;
-    padding-top: 1.5em;
+.simul__actions .button:hover {
+    filter: brightness(1.08);
 }
 
-/* Responsive design */
-@media (max-width: 900px) {
-    .simul-content {
+.simul__actions__start {
+    background: var(--green-switch) !important;
+    border-color: var(--green-switch) !important;
+    color: #fff !important;
+}
+
+.simul__actions__join {
+    background: var(--link-color-blue) !important;
+    border-color: var(--link-color-blue) !important;
+    color: #fff !important;
+}
+
+.simul__actions__note {
+    color: var(--link-color);
+    font-size: 0.95rem;
+}
+
+.simul__players-group h3 {
+    margin: 0.75rem 0 0.35rem;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    color: var(--link-color);
+}
+
+.simul__player {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--bg-color2);
+}
+
+.simul__player:last-child {
+    border-bottom: none;
+}
+
+.simul__player__identity {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.simul__player__rating {
+    color: var(--link-color);
+    font-size: 0.9rem;
+}
+
+.simul__player__actions {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.simul__player .button {
+    padding: 0.3rem 0.55rem;
+    border-radius: 3px;
+    border: 1px solid var(--bg-color2);
+    background: var(--bg-color2);
+    color: var(--font-color);
+    cursor: pointer;
+}
+
+.simul__player .btn-approve {
+    background: rgba(98, 153, 36, 0.16);
+    border-color: var(--green-switch);
+    color: var(--green-hover);
+}
+
+.simul__player .btn-deny {
+    background: rgba(192, 58, 65, 0.14);
+    border-color: #b94e56;
+    color: #b94e56;
+}
+
+.simul__games {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    gap: 0.95rem;
+}
+
+.simul__games a {
+    display: flex;
+    flex-flow: column;
+    color: var(--font-color);
+    text-decoration: none;
+    gap: 0.3rem;
+}
+
+.simul__games .mini-game {
+    box-shadow: inset 0 0 0 1px var(--bg-color2);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.simul__games a:hover .mini-game {
+    box-shadow: inset 0 0 0 2px var(--link-color-blue);
+}
+
+.simul__games .mini-game.finished {
+    opacity: 0.6;
+}
+
+.simul__games .mini-game .cg-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.simul__games .host,
+.simul__games .opp {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.simul__games .host {
+    color: var(--link-color);
+}
+
+.simul__games .vstext {
+    color: var(--link-color);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+}
+
+.simul__games .result-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.simul__games .result-wrap .result {
+    font-weight: 700;
+}
+
+.simul__games .result-wrap .status {
+    color: var(--link-color);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+}
+
+.simul__games.finished {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+}
+
+.simul__games.finished a {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-color2);
+    border-radius: 3px;
+    padding: 0.6rem 0.75rem;
+}
+
+.simul__games.finished .mini-game {
+    display: none;
+}
+
+.simul__games.finished .game-header {
+    display: flex;
+    flex-flow: column;
+    gap: 0.1rem;
+}
+
+.simul__games.finished .result-wrap {
+    display: block;
+    text-align: right;
+}
+
+@media (max-width: 1260px) {
+    .simul__app {
         grid-template-columns: 1fr;
         grid-template-areas:
             'main'
             'side'
-            'table'
-            'players'
-            'uchat';
-        gap: 10px;
+            'chat';
+    }
+}
+
+@media (max-width: 799px) {
+    .simul__title {
+        align-items: flex-start;
+        flex-flow: column;
     }
 
-    .players-grid {
-        grid-template-columns: 1fr;
+    .simul__title h1 {
+        font-size: 1.6rem;
     }
-
 }
