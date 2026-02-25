@@ -70,6 +70,15 @@ export function gameInfo(model: PyChessModel): VNode {
             ])
         )
     }
+    if (model["simulId"]) {
+        sections.push(
+            h('section', [
+                h('div.tourney', [
+                    h('a.icon.icon-target', { attrs: { href: '/simul/' + model["simulId"] } }, model["name"] || _("Simul"))
+                ])
+            ])
+        )
+    }
     return h('div.game-info', sections);
 }
 
