@@ -9,12 +9,12 @@ import pytest
 
 from mongomock_motor import AsyncMongoMockClient
 
-from const import T_CREATED, T_STARTED, CASUAL
+from const import T_CREATED, T_STARTED, T_FINISHED, CASUAL, MATE
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from simul.simul import Simul
-from simul.simuls import load_active_simuls
+from simul.simuls import load_active_simuls, load_simul
 from pychess_global_app_state import PychessGlobalAppState
 from typedefs import pychess_global_app_state_key
 from user import User
@@ -124,11 +124,15 @@ class TestGUI:
         assert started is False
         assert simul.status == T_CREATED
 
-    async def _connect_ws(self, username: str, port: int):
+    async def _session_for_user(self, username: str):
         session = aiohttp.ClientSession()
         session_data = {"session": {"user_name": username}, "created": int(time.time())}
         value = json.dumps(session_data)
         session.cookie_jar.update_cookies({"AIOHTTP_SESSION": value})
+        return session
+
+    async def _connect_ws(self, username: str, port: int):
+        session = await self._session_for_user(username)
         ws = await session.ws_connect(f"ws://127.0.0.1:{port}/wss")
         return session, ws
 
@@ -213,6 +217,51 @@ class TestGUI:
             await host_ws.close()
             await host_session.close()
             await player_session.close()
+
+    async def test_simul_creation_rejects_two_board_variant(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+        session = await self._session_for_user(host_username)
+
+        try:
+            response = await session.post(
+                f"http://127.0.0.1:{server.port}/simul",
+                data={
+                    "name": "No Two Board Simul",
+                    "variant": "bughouse",
+                    "host_color": "random",
+                    "base": "3",
+                    "inc": "0",
+                },
+            )
+            assert response.status == 400
+            assert "Two-board variants are not allowed in simuls" in await response.text()
+            assert len(app_state.simuls) == 0
+        finally:
+            await session.close()
+
+    async def test_simul_new_excludes_two_board_variants(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+        session = await self._session_for_user(host_username)
+
+        try:
+            response = await session.get(f"http://127.0.0.1:{server.port}/simul/new")
+            assert response.status == 200
+            html = await response.text()
+            assert 'value="chess"' in html
+            assert 'value="bughouse"' not in html
+            assert 'value="bughouse960"' not in html
+        finally:
+            await session.close()
 
     async def test_simul_websocket_host_can_remove_approved_player(self, aiohttp_server):
         app = make_app(
@@ -326,3 +375,46 @@ class TestGUI:
                 await reloaded_simul.clock_task
             except asyncio.CancelledError:
                 pass
+
+    async def test_short_finished_simul_game_persists_and_reloads(self, aiohttp_server):
+        db_client = AsyncMongoMockClient()
+        app = make_app(db_client=db_client)
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        sid = id8()
+
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+
+        simul = await Simul.create(
+            app_state, sid, name="Persistent Short Simul", created_by=host_username
+        )
+        app_state.simuls[sid] = simul
+
+        player2 = User(app_state, username="TestUser_2")
+        app_state.users[player2.username] = player2
+        simul.join(player2)
+        simul.approve(player2.username)
+
+        started = await simul.start()
+        assert started is True
+        assert len(simul.games) == 1
+
+        game = next(iter(simul.games.values()))
+        game.update_status(MATE, "1-0")
+        await game.save_game()
+        await simul.game_update(game)
+
+        if app_state.db is not None:
+            game_doc = await app_state.db.game.find_one({"_id": game.id})
+            assert game_doc is not None
+            assert game_doc["sid"] == sid
+
+        reloaded_app = make_app(db_client=db_client)
+        reloaded_app[pychess_global_app_state_key] = PychessGlobalAppState(reloaded_app)
+        reloaded_state = get_app_state(reloaded_app)
+        reloaded_simul = await load_simul(reloaded_state, sid)
+        assert reloaded_simul is not None
+        assert reloaded_simul.status == T_FINISHED
+        assert game.id in reloaded_simul.games

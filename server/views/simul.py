@@ -13,12 +13,6 @@ from const import T_CREATED, T_STARTED, T_FINISHED
 from settings import SIMULING
 
 
-def parse_simul_variant(variant_key: str) -> tuple[str, bool]:
-    if variant_key.endswith("960"):
-        return variant_key[:-3], True
-    return variant_key, False
-
-
 def parse_int_post_field(data, field_name: str, min_value: int, max_value: int) -> int:
     raw_value = data.get(field_name)
     if not isinstance(raw_value, (str, bytes)):
@@ -54,22 +48,31 @@ async def simuls(request: web.Request) -> ViewContext:
         if not isinstance(host_color, (str, bytes)):
             raise web.HTTPBadRequest(text="Invalid host color")
 
+        if isinstance(name_raw, bytes):
+            name_raw = name_raw.decode("utf-8")
+        if isinstance(variant_key, bytes):
+            variant_key = variant_key.decode("utf-8")
+        if isinstance(host_color, bytes):
+            host_color = host_color.decode("utf-8")
+
         name = name_raw.strip()
         if len(name) < 2 or len(name) > 30:
             raise web.HTTPBadRequest(text="Invalid simul name length")
-        if variant_key not in VARIANTS:
+        variant = VARIANTS.get(variant_key)
+        if variant is None:
             raise web.HTTPBadRequest(text="Unknown variant")
+        if variant.two_boards:
+            raise web.HTTPBadRequest(text="Two-board variants are not allowed in simuls")
         if host_color not in ("random", "white", "black"):
             raise web.HTTPBadRequest(text="Invalid host color value")
 
-        variant_name, chess960 = parse_simul_variant(variant_key)
         simul = await Simul.create(
             app_state,
             simul_id,
             name=name,
             created_by=user.username,
-            variant=variant_name,
-            chess960=chess960,
+            variant=variant.uci_variant,
+            chess960=variant.chess960,
             rated=False,
             base=base,
             inc=inc,
@@ -96,7 +99,9 @@ async def simul_new(request: web.Request) -> ViewContext:
 
     user, context = await get_user_context(request)
 
-    context["variants"] = VARIANTS
+    context["variants"] = {
+        key: variant for key, variant in VARIANTS.items() if not variant.two_boards
+    }
     context["view_css"] = "simul.css"
     return context
 

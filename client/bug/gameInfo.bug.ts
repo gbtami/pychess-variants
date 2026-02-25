@@ -52,9 +52,6 @@ export function gameInfoBug(model: PyChessModel): VNode {
             h('div.tourney', (model["tournamentId"]) ? [
                 h('a.icon.icon-trophy', { attrs: { href: '/tournament/' + model["tournamentId"] } }, model["tournamentname"]),
             ] : []),
-            h('div.tourney', (model["simulId"]) ? [
-                h('a.icon.icon-target', { attrs: { href: '/simul/' + model["simulId"] } }, model["name"] || _("Simul")),
-            ] : []),
         ]),
     ])
 }

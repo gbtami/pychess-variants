@@ -337,7 +337,7 @@ export class SimulController implements ChatController {
             const variant = VARIANTS[game.variant] || VARIANTS[this.variantKey] || VARIANTS["chess"];
             const isActive = game.gameId === this.activeGameId;
             const isFinished = this.isGameFinished(game);
-            return h('div.mini-board', {
+            return h(`div.mini-board.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
                 key: game.gameId,
                 on: { click: () => this.setActiveGame(game.gameId) },
                 class: {
