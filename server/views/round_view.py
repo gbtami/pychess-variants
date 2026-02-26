@@ -53,7 +53,11 @@ async def round_view(request: web.Request) -> ViewContext:
         c_games = corr_games(user.correspondence_games)
         context["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
 
-    simul_id = getattr(game, "simulId", None)
+    simul_id: str | None = None
+    if not game.server_variant.two_boards:
+        if TYPE_CHECKING:
+            assert isinstance(game, Game)
+        simul_id = game.simulId
     if simul_id is not None:
         simul = app_state.simuls.get(simul_id)
         if simul is None:
