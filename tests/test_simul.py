@@ -9,7 +9,7 @@ import pytest
 
 from mongomock_motor import AsyncMongoMockClient
 
-from const import T_CREATED, T_STARTED, T_FINISHED, CASUAL, MATE
+from const import T_CREATED, T_STARTED, T_FINISHED, CASUAL, MATE, ABORTED
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
@@ -418,3 +418,33 @@ class TestGUI:
         assert reloaded_simul is not None
         assert reloaded_simul.status == T_FINISHED
         assert game.id in reloaded_simul.games
+
+    async def test_aborted_simul_game_finishes_simul(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient())
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        sid = id8()
+
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+
+        simul = await Simul.create(app_state, sid, name="Abort Simul", created_by=host_username)
+        app_state.simuls[sid] = simul
+
+        player2 = User(app_state, username="TestUser_2")
+        app_state.users[player2.username] = player2
+        simul.join(player2)
+        simul.approve(player2.username)
+
+        started = await simul.start()
+        assert started is True
+        assert simul.status == T_STARTED
+        assert len(simul.games) == 1
+        assert len(simul.ongoing_games) == 1
+
+        game = next(iter(simul.games.values()))
+        await game.game_ended(host, "abort")
+        assert game.status == ABORTED
+        assert len(simul.ongoing_games) == 0
+        assert simul.status == T_FINISHED

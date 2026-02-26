@@ -283,7 +283,7 @@ export class SimulController implements ChatController {
     }
 
     isGameFinished(game: SimulGame): boolean {
-        return game.status > 0;
+        return game.status >= 0;
     }
 
     redirectToGame(gameId: string) {

@@ -4,7 +4,7 @@ import asyncio
 from datetime import datetime, timezone
 from typing import Set, Dict, TYPE_CHECKING
 
-from const import T_CREATED, T_STARTED, T_FINISHED, T_ABORTED, CASUAL
+from const import T_CREATED, T_STARTED, T_FINISHED, T_ABORTED, CASUAL, STARTED
 from game import Game
 from newid import new_id
 from utils import insert_game_to_db
@@ -251,7 +251,7 @@ class Simul:
             "status": game.status,
             "result": game.result,
         }
-        if game.status > 0:
+        if game.status > STARTED:
             self.ongoing_games.discard(game)
             if len(self.ongoing_games) == 0:
                 await self.finish()
@@ -263,7 +263,7 @@ class Simul:
                 await self.finish()
                 break
 
-            finished_games = {g for g in self.ongoing_games if g.status > 0}
+            finished_games = {g for g in self.ongoing_games if g.status > STARTED}
             self.ongoing_games -= finished_games
 
             await asyncio.sleep(5)

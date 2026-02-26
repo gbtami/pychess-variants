@@ -259,7 +259,7 @@ export class RoundController extends GameController {
             this.clocks[1].onTick(this.clocks[1].renderTime);
 
             const onMoreTime = () => {
-                if (this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
+                if (this.simulId !== "" || this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
                 const clockIdx = (this.flipped()) ? 1 : 0;
                 this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
                 this.doSend({ type: "moretime", gameId: this.gameId });
@@ -267,7 +267,7 @@ export class RoundController extends GameController {
                 chatMessage('', oppName + _(' +15 seconds'), "roundchat");
             }
 
-            if (!this.spectator && this.rated === CASUAL && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
+            if (!this.spectator && this.simulId === "" && this.rated === CASUAL && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
                 const container = document.getElementById('more-time') as HTMLElement;
                 patch(container, h('div#more-time', [
                     h('button.icon.icon-plus-square', {

@@ -1105,6 +1105,10 @@ class Game:
             self.update_status(LOSERS[reason], result)
             log.debug("%s game_ended(%s, %s) %s", self.id, user.username, reason, result)
             await self.save_game()
+            if self.simulId is not None:
+                simul = self.app_state.simuls.get(self.simulId)
+                if simul is not None:
+                    await simul.game_update(self)
 
             if self.corr:
                 cur_player = (
