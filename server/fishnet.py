@@ -184,6 +184,10 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
         return web.Response(status=404)
     worker = FISHNET_KEYS[key]
 
+    if work_id not in app_state.fishnet_works:
+        response = await get_work(app_state, data)
+        return response
+
     work: FishnetWork = app_state.fishnet_works[work_id]
     app_state.fishnet_monitor[worker].append(
         "%s %s %s" % (datetime.now(timezone.utc), work_id, "analysis")
