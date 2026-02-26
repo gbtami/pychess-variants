@@ -72,7 +72,7 @@ from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament.tournament_spotlights import tournament_spotlights
 from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
 from utils import join_seek, load_game, remove_seek
-from websocket_utils import get_user, process_ws, ws_send_json
+from websocket_utils import get_user, process_ws, ws_send_json, ws_send_json_many
 import logging
 import logger
 
@@ -444,8 +444,7 @@ async def handle_accept_seek(
                 remove_seek(app_state.seeks, seek)
                 await app_state.lobby.lobby_broadcast_seeks()
             else:
-                for creator_ws in ws_set:
-                    await ws_send_json(creator_ws, response)
+                await ws_send_json_many(ws_set, response)
 
         # Inform others, new_game() deleted accepted seek already.
         await app_state.lobby.lobby_broadcast_seeks()
@@ -599,8 +598,7 @@ async def handle_cancel_auto_pairing(
 ) -> None:
     user.remove_from_auto_pairings()
     response: AutoPairingStatusMessage = {"type": "auto_pairing_off"}
-    for user_ws in user.lobby_sockets:
-        await ws_send_json(user_ws, response)
+    await ws_send_json_many(user.lobby_sockets, response)
 
     await app_state.lobby.lobby_broadcast_ap_cnt()
 
@@ -626,8 +624,7 @@ async def handle_create_auto_pairing(
 
     if not auto_paired:
         response: AutoPairingStatusMessage = {"type": "auto_pairing_on"}
-        for user_ws in user.lobby_sockets:
-            await ws_send_json(user_ws, response)
+        await ws_send_json_many(user.lobby_sockets, response)
 
     await app_state.lobby.lobby_broadcast_ap_cnt()
 

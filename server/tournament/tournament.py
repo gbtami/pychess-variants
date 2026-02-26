@@ -39,7 +39,7 @@ from game import Game
 from lichess_team_msg import lichess_team_msg
 from misc import time_control_str
 from newid import new_id
-from websocket_utils import ws_send_json
+from websocket_utils import ws_send_json_many
 from typing_defs import (
     TournamentDuelItem,
     TournamentDuelsResponse,
@@ -1075,18 +1075,18 @@ class Tournament(ABC):
 
             ws_ok = False
             if wp.title != "TEST":
-                for ws in list(self.tournament_sockets(wp.username, wp)):
-                    ok = await ws_send_json(ws, response)
-                    ws_ok = ws_ok or ok
+                ws_ok = (
+                    await ws_send_json_many(self.tournament_sockets(wp.username, wp), response) > 0
+                )
             if (not ws_ok) and wp.title != "TEST":
                 await self.pause(wp)
                 log.debug("White player %s left the tournament (ws send failed)", wp.username)
 
             ws_ok = False
             if bp.title != "TEST":
-                for ws in list(self.tournament_sockets(bp.username, bp)):
-                    ok = await ws_send_json(ws, response)
-                    ws_ok = ws_ok or ok
+                ws_ok = (
+                    await ws_send_json_many(self.tournament_sockets(bp.username, bp), response) > 0
+                )
             if (not ws_ok) and bp.title != "TEST":
                 await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
@@ -1414,14 +1414,15 @@ class Tournament(ABC):
             bplayer.free = True
 
     async def broadcast(self, response: Mapping[str, object]) -> None:
+        sockets = []
         for spectator in self.spectators:
             try:
-                for ws in self.tournament_sockets(spectator.username, spectator):
-                    await ws_send_json(ws, response)
+                sockets.extend(list(self.tournament_sockets(spectator.username, spectator)))
             except KeyError:
                 log.error("tournament broadcast() spectator socket was removed")
             except Exception:
                 log.error("Exception in tournament broadcast()")
+        await ws_send_json_many(sockets, response)
 
     async def db_insert_pairing(self, games: list[Game]) -> None:
         if self.app_state.db is None:

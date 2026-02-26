@@ -19,7 +19,7 @@ from glicko2.glicko2 import gl2
 from newid import new_id
 from seek import ANON_RESTRICTED_SEEK_MESSAGE, is_anon_restricted_seek
 from utils import remove_seek, round_broadcast, sanitize_fen
-from websocket_utils import ws_send_json
+from websocket_utils import ws_send_json_many
 import logging
 from variants import C2V, GRANDS
 
@@ -514,8 +514,7 @@ async def handle_accept_seek_bughouse(app_state: PychessGlobalAppState, user, da
         )
     )
     for u in bug_users:
-        for s in u.lobby_sockets:
-            await ws_send_json(s, response)
+        await ws_send_json_many(u.lobby_sockets, response)
     await app_state.lobby.lobby_broadcast_seeks()
 
 

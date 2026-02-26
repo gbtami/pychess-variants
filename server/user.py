@@ -27,7 +27,7 @@ from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
 from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK
-from websocket_utils import ws_send_json
+from websocket_utils import ws_send_json_many
 
 if TYPE_CHECKING:
     from typing_defs import (
@@ -426,9 +426,8 @@ class User:
         #            "Currently user %s has these game_sockets: %r", self.username, self.game_sockets
         #        )
         #    return
-        for ws in list(ws_set):
-            log.debug("Sending message %s to %s. ws = %r", message, self.username, ws)
-            await ws_send_json(ws, message)
+        log.debug("Sending message %s to %s. sockets=%s", message, self.username, len(ws_set))
+        await ws_send_json_many(ws_set, message)
 
     async def close_all_game_sockets(self) -> None:
         for ws_set in list(

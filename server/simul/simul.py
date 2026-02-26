@@ -8,7 +8,7 @@ from const import T_CREATED, T_STARTED, T_FINISHED, T_ABORTED, CASUAL, STARTED
 from game import Game
 from newid import new_id
 from utils import insert_game_to_db
-from websocket_utils import ws_send_json
+from websocket_utils import ws_send_json_many
 
 if TYPE_CHECKING:
     from user import User
@@ -155,10 +155,11 @@ class Simul:
         self.spectators.discard(user)
 
     async def broadcast(self, response):
+        sockets = []
         for spectator in self.spectators:
             if self.id in spectator.simul_sockets:
-                for ws in spectator.simul_sockets[self.id]:
-                    await ws_send_json(ws, response)
+                sockets.extend(list(spectator.simul_sockets[self.id]))
+        await ws_send_json_many(sockets, response)
 
     async def create_games(self) -> list["Game"]:
         created_games: list[Game] = []

@@ -19,7 +19,7 @@ from security_evasion import (
     is_signup_blocked_by_signals,
     remember_user_signals,
 )
-from websocket_utils import ws_send_json
+from websocket_utils import ws_send_json_many
 from typing_defs import UserDocument
 import logging
 
@@ -236,13 +236,13 @@ async def logout(request: web.Request | None, user: "User | None" = None) -> web
 
     # close lobby socket
     ws_set = user.lobby_sockets
-    for ws in list(ws_set):
-        await ws_send_json(ws, response)
+    await ws_send_json_many(ws_set, response)
 
     # close tournament sockets
+    tournament_sockets = []
     for ws_set in user.tournament_sockets.values():
-        for ws in list(ws_set):
-            await ws_send_json(ws, response)
+        tournament_sockets.extend(list(ws_set))
+    await ws_send_json_many(tournament_sockets, response)
 
     # lose and close game sockets when ban() calls this from admin.py
     # TODO: this can't end game if logout came from an ongoing game

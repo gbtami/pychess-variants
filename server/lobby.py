@@ -9,7 +9,7 @@ from aiohttp.web_ws import WebSocketResponse
 
 from const import MAX_CHAT_LINES
 from seek import get_seeks
-from websocket_utils import ws_send_json
+from websocket_utils import ws_send_json_many
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -35,9 +35,10 @@ class Lobby:
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response: Mapping[str, object]) -> None:
         # log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
-        for username, ws_set in list(self.lobbysockets.items()):
-            for ws in list(ws_set):
-                await ws_send_json(ws, response)
+        all_sockets: list[WebSocketResponse] = []
+        for ws_set in list(self.lobbysockets.values()):
+            all_sockets.extend(list(ws_set))
+        await ws_send_json_many(all_sockets, response)
 
     async def lobby_broadcast_u_cnt(self) -> None:
         # todo: probably wont scale great if we broadcast these on every user join/leave.
@@ -56,12 +57,8 @@ class Lobby:
         for username, ws_set in list(self.lobbysockets.items()):
             ws_user = await self.app_state.users.get(username)
             compatible_seeks = get_seeks(ws_user, self.app_state.seeks.values())
-            for ws in list(ws_set):
-                response: LobbySeeksMessage = {"type": "get_seeks", "seeks": compatible_seeks}
-                await ws_send_json(
-                    ws,
-                    response,
-                )
+            response: LobbySeeksMessage = {"type": "get_seeks", "seeks": compatible_seeks}
+            await ws_send_json_many(ws_set, response)
 
     async def lobby_chat(self, username: str, message: str, time: Optional[int] = None) -> None:
         response: LobbyChatMessage = {"type": "lobbychat", "user": username, "message": message}

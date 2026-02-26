@@ -7,7 +7,7 @@ from misc import time_control_str
 from newid import new_id
 from seek import Seek
 from utils import join_seek
-from websocket_utils import ws_send_json
+from websocket_utils import ws_send_json_many
 
 
 def add_to_auto_pairings(app_state, user, data):
@@ -100,11 +100,8 @@ async def auto_pair(app_state, user, auto_variant_tc, other_user=None, matching_
     # create game
     response = await join_seek(app_state, user, seek)
 
-    for user_ws in user.lobby_sockets:
-        await ws_send_json(user_ws, response)
-
-    for other_user_ws in other_user.lobby_sockets:
-        await ws_send_json(other_user_ws, response)
+    await ws_send_json_many(user.lobby_sockets, response)
+    await ws_send_json_many(other_user.lobby_sockets, response)
 
     tc = time_control_str(base, inc, byoyomi_period)
     tail960 = "960" if chess960 else ""
