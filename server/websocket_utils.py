@@ -158,13 +158,7 @@ async def ws_send_str(ws: WebSocketResponse, msg: str) -> bool:
 
 
 async def ws_send_str_many(ws_set: Iterable[WebSocketResponse | None], msg: str) -> int:
-    sockets: list[WebSocketResponse] = []
-    for ws in list(ws_set):
-        if ws is None:
-            log.error("ws_send_str_many: ws is None")
-            continue
-        sockets.append(ws)
-
+    sockets = [ws for ws in ws_set if ws is not None]
     if len(sockets) == 0:
         return 0
 

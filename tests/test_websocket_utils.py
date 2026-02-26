@@ -39,12 +39,9 @@ class WebSocketUtilsTestCase(unittest.IsolatedAsyncioTestCase):
         ws1.send_str.assert_awaited_once_with('{"type": "ping"}')
         ws2.send_str.assert_awaited_once_with('{"type": "ping"}')
 
-    async def test_ws_send_str_many_logs_when_none_socket_present(self):
+    async def test_ws_send_str_many_ignores_none_socket(self):
         ws = cast(WebSocketResponse, AsyncMock())
-
-        with patch("websocket_utils.log.error") as error:
-            sent = await ws_send_str_many([None, ws], "ping")
+        sent = await ws_send_str_many([None, ws], "ping")
 
         self.assertEqual(sent, 1)
         ws.send_str.assert_awaited_once_with("ping")
-        error.assert_called_once_with("ws_send_str_many: ws is None")
