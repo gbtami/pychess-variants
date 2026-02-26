@@ -74,7 +74,7 @@ export function gameInfo(model: PyChessModel): VNode {
         sections.push(
             h('section', [
                 h('div.tourney', [
-                    h('a.icon.icon-target', { attrs: { href: '/simul/' + model["simulId"] } }, model["name"] || _("Simul"))
+                    h('a.icon.icon-target', { attrs: { href: '/simul/' + model["simulId"] } }, model["simulname"] || _("Simul"))
                 ])
             ])
         )

@@ -45,6 +45,7 @@ export type PyChessModel = {
     gameCategory: string;
     tournamentId: string;
     tournamentname: string;
+    simulname: string;
     tournamentcreator: string;
     inviter: string;
     ply: number;

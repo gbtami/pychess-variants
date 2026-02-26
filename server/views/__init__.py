@@ -111,9 +111,7 @@ def add_game_context(
     user: User,
     context: ViewContext,
 ) -> None:
-    simul_id = getattr(game, "simulId", None)
     context["gameid"] = game.id
-    context["simulid"] = simul_id or ""
     context["variant"] = game.variant
     context["wplayer"] = game.wplayer.username
     context["wtitle"] = game.wplayer.title

@@ -393,6 +393,7 @@ class ViewContext(TypedDict, total=False):
     ratings: dict[str, tuple[str, int]]
     seekempty: bool
     simulid: str
+    simulname: str
     started_simuls: Sequence[object]
     tags: Sequence[str] | Mapping[str, str]
     tournament: object
