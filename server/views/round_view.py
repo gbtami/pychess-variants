@@ -5,8 +5,9 @@ from datetime import datetime
 import aiohttp_jinja2
 from aiohttp import web
 
+from simul.simuls import load_simul
 from tournament.tournaments import get_tournament_name
-from utils import corr_games, load_game
+from utils import corr_games, load_game, simul_games
 from typing_defs import ViewContext
 from views import add_game_context, get_user_context
 from pychess_global_app_state_utils import get_app_state
@@ -51,5 +52,26 @@ async def round_view(request: web.Request) -> ViewContext:
     if game.corr and user.username in (game.wplayer.username, game.bplayer.username):
         c_games = corr_games(user.correspondence_games)
         context["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
+
+    simul_id: str | None = None
+    if not game.server_variant.two_boards:
+        if TYPE_CHECKING:
+            assert isinstance(game, Game)
+        simul_id = game.simulId
+    if simul_id is not None:
+        simul = app_state.simuls.get(simul_id)
+        if simul is None:
+            simul = await load_simul(app_state, simul_id)
+
+        context["simulid"] = simul_id
+        context["simulname"] = simul.name if simul is not None else "Simul"
+
+        if (
+            simul is not None
+            and user.username in (game.wplayer.username, game.bplayer.username)
+            and user.username == simul.created_by
+        ):
+            context["simulhost"] = True
+            context["simul_games"] = json.dumps(simul_games(simul.games.values()))
 
     return context

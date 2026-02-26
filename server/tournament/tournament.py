@@ -524,7 +524,7 @@ class Tournament(ABC):
         if wplayer is None or bplayer is None:
             log.warning(
                 "Skipping game %s in tournament %s: player data missing wp=%s bp=%s",
-                getattr(game, "id", "?"),
+                game.id,
                 self.id,
                 wname,
                 bname,

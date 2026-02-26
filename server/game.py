@@ -498,11 +498,14 @@ class Game:
                     await self.save_game()
                     if self.corr:
                         await opp_player.notify_game_end(self)
-                    if self.simulId is not None:
-                        await self.app_state.simuls[self.simulId].game_update(self)
                 else:
                     await self.save_move(move)
                     self.stopwatch.restart()
+
+                if self.simulId is not None:
+                    simul = self.app_state.simuls.get(self.simulId)
+                    if simul is not None:
+                        await simul.game_update(self)
 
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
@@ -570,7 +573,12 @@ class Game:
 
         asyncio.create_task(self.app_state.remove_from_cache(self), name="game-remove-%s" % self.id)
 
-        if self.board.ply < 3 and (self.app_state.db is not None) and (self.tournamentId is None):
+        if (
+            self.board.ply < 3
+            and (self.app_state.db is not None)
+            and (self.tournamentId is None)
+            and (self.simulId is None)
+        ):
             result = await self.app_state.db.game.delete_one({"_id": self.id})
             log.debug(
                 "Removed too short game %s from db. Deleted %s game.",
@@ -1097,6 +1105,10 @@ class Game:
             self.update_status(LOSERS[reason], result)
             log.debug("%s game_ended(%s, %s) %s", self.id, user.username, reason, result)
             await self.save_game()
+            if self.simulId is not None:
+                simul = self.app_state.simuls.get(self.simulId)
+                if simul is not None:
+                    await simul.game_update(self)
 
             if self.corr:
                 cur_player = (

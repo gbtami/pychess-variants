@@ -4,6 +4,7 @@ import aiohttp_session
 from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
+from simul.simuls import load_simul, upsert_simul_to_db
 from websocket_utils import process_ws, get_user, ws_send_json
 
 if TYPE_CHECKING:
@@ -41,6 +42,16 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user: User):
                     simul = app_state.simuls.get(simul_id)
                     if simul:
                         simul.remove_spectator(user)
+                        removed_group = simul.remove_disconnected_player(user)
+                        if removed_group is not None:
+                            await upsert_simul_to_db(simul, app_state)
+                            await simul.broadcast(
+                                {
+                                    "type": "player_disconnected",
+                                    "username": user.username,
+                                    "group": removed_group,
+                                }
+                            )
                 break
 
 
@@ -50,7 +61,7 @@ async def process_message(
     if data["type"] == "simul_user_connected":
         await handle_simul_user_connected(app_state, ws, user, data)
     elif data["type"] == "start_simul":
-        await handle_start_simul(app_state, user, data)
+        await handle_start_simul(app_state, ws, user, data)
     elif data["type"] == "join":
         await handle_join(app_state, user, data)
     elif data["type"] == "approve_player":
@@ -59,11 +70,18 @@ async def process_message(
         await handle_deny_player(app_state, user, data)
 
 
+async def get_simul(app_state: PychessGlobalAppState, simul_id: str):
+    simul = app_state.simuls.get(simul_id)
+    if simul is not None:
+        return simul
+    return await load_simul(app_state, simul_id)
+
+
 async def handle_simul_user_connected(
     app_state: PychessGlobalAppState, ws, user: User, data: SimulUserConnectedRequest
 ) -> None:
     simulId = data["simulId"]
-    simul = app_state.simuls.get(simulId)
+    simul = await get_simul(app_state, simulId)
     if simul is None:
         return
 
@@ -76,43 +94,54 @@ async def handle_simul_user_connected(
 
     response = {
         "type": "simul_user_connected",
-        "players": [p.as_json(user.username) for p in simul.players.values()],
-        "pendingPlayers": [p.as_json(user.username) for p in simul.pending_players.values()],
+        "simulId": simul.id,
+        "players": simul.players_json(),
+        "pendingPlayers": simul.pending_players_json(),
         "createdBy": simul.created_by,
+        "name": simul.name,
+        "variant": simul.variant,
+        "chess960": simul.chess960,
+        "base": simul.base,
+        "inc": simul.inc,
+        "status": simul.status,
+        "games": simul.all_games_json(),
         "username": user.username,
     }
     await ws_send_json(ws, response)
 
 
 async def handle_start_simul(
-    app_state: PychessGlobalAppState, user: User, data: SimulStartRequest
+    app_state: PychessGlobalAppState, ws, user: User, data: SimulStartRequest
 ) -> None:
     simulId = data["simulId"]
-    simul = app_state.simuls.get(simulId)
+    simul = await get_simul(app_state, simulId)
     if simul is None:
         return
 
     if user.username != simul.created_by:
         return
 
-    await simul.start()
+    started = await simul.start()
+    if not started:
+        await ws_send_json(ws, {"type": "error", "message": "Cannot start simul without opponents"})
 
 
 async def handle_join(app_state: PychessGlobalAppState, user: User, data: SimulJoinRequest) -> None:
     simulId = data["simulId"]
-    simul = app_state.simuls.get(simulId)
+    simul = await get_simul(app_state, simulId)
     if simul is None:
         return
 
-    simul.join(user)
-    await simul.broadcast({"type": "player_joined", "player": user.as_json(user.username)})
+    if simul.join(user):
+        await upsert_simul_to_db(simul, app_state)
+        await simul.broadcast({"type": "player_joined", "player": simul.player_json(user)})
 
 
 async def handle_approve_player(
     app_state: PychessGlobalAppState, user: User, data: SimulApprovePlayerRequest
 ) -> None:
     simulId = data["simulId"]
-    simul = app_state.simuls.get(simulId)
+    simul = await get_simul(app_state, simulId)
     if simul is None:
         return
 
@@ -120,15 +149,23 @@ async def handle_approve_player(
         return
 
     username = data.get("username")
-    simul.approve(username)
-    await simul.broadcast({"type": "player_approved", "username": username})
+    if simul.approve(username):
+        await upsert_simul_to_db(simul, app_state)
+        if username is None:
+            return
+        approved_player = simul.players.get(username)
+        if approved_player is None:
+            return
+        await simul.broadcast(
+            {"type": "player_approved", "player": simul.player_json(approved_player)}
+        )
 
 
 async def handle_deny_player(
     app_state: PychessGlobalAppState, user: User, data: SimulDenyPlayerRequest
 ) -> None:
     simulId = data["simulId"]
-    simul = app_state.simuls.get(simulId)
+    simul = await get_simul(app_state, simulId)
     if simul is None:
         return
 
@@ -136,5 +173,6 @@ async def handle_deny_player(
         return
 
     username = data.get("username")
-    simul.deny(username)
-    await simul.broadcast({"type": "player_denied", "username": username})
+    if simul.deny(username):
+        await upsert_simul_to_db(simul, app_state)
+        await simul.broadcast({"type": "player_denied", "username": username})

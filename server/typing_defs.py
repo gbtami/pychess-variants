@@ -136,6 +136,7 @@ GameDocument = TypedDict(
         "y": NotRequired[int],
         "z": NotRequired[int],
         "tid": NotRequired[str],
+        "sid": NotRequired[str],
         "a": NotRequired[list[AnalysisStep]],
         "cw": NotRequired[list[int]],
         "cb": NotRequired[list[int]],
@@ -371,6 +372,8 @@ class ViewContext(TypedDict, total=False):
     can_block: bool
     can_challenge: bool
     corr_games: str
+    simul_games: str
+    simulhost: bool
     created_simuls: Sequence[object]
     ct: str
     cup: Mapping[str, tuple[str, str]]
@@ -390,6 +393,7 @@ class ViewContext(TypedDict, total=False):
     ratings: dict[str, tuple[str, int]]
     seekempty: bool
     simulid: str
+    simulname: str
     started_simuls: Sequence[object]
     tags: Sequence[str] | Mapping[str, str]
     tournament: object
@@ -477,6 +481,41 @@ class TournamentCreateData(TypedDict):
 
 class ScheduledTournamentCreateData(TournamentCreateData):
     pass
+
+
+class SimulDoc(TypedDict):
+    _id: str
+    name: str
+    variant: str
+    chess960: bool
+    rated: bool
+    base: int
+    inc: int
+    hostColor: str
+    createdBy: str
+    createdAt: datetime
+    startsAt: NotRequired[datetime | None]
+    endsAt: NotRequired[datetime | None]
+    status: int
+    players: list[str]
+    pendingPlayers: list[str]
+
+
+class SimulUpdateData(TypedDict, total=False):
+    name: str
+    variant: str
+    chess960: bool
+    rated: bool
+    base: int
+    inc: int
+    hostColor: str
+    createdBy: str
+    createdAt: datetime
+    startsAt: datetime | None
+    endsAt: datetime | None
+    status: int
+    players: list[str]
+    pendingPlayers: list[str]
 
 
 class TournamentDoc(TypedDict):

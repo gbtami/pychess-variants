@@ -74,6 +74,7 @@ function initModel(el: HTMLElement) {
         tournamentId : el.getAttribute("data-tournamentid") ?? "",
         tournamentname : el.getAttribute("data-tournamentname") ?? "",
         simulId : el.getAttribute("data-simulid") ?? "",
+        simulname : el.getAttribute("data-simulname") ?? "",
         tournamentcreator: el.getAttribute("data-tournamentcreator") ?? "",
         inviter : el.getAttribute("data-inviter") ?? "",
         ply : parseInt(""+el.getAttribute("data-ply")),
@@ -117,6 +118,8 @@ function initModel(el: HTMLElement) {
         puzzle: el.getAttribute("data-puzzle") ?? "",
         blogs: el.getAttribute("data-blogs") ?? "",
         corrGames: el.getAttribute("data-corrgames") ?? "",
+        simulGames: el.getAttribute("data-simulgames") ?? "",
+        simulHost: el.getAttribute("data-simulhost") === "True",
         oauthUsernameSelection: el.getAttribute("data-oauth-id") ? {
             oauth_id: el.getAttribute("data-oauth-id")!,
             oauth_provider: el.getAttribute("data-oauth-provider")!,

@@ -235,3 +235,17 @@ button.icon.icon-berserk {
     line-height: 1.5em;
     padding: 0 2vmin;
 }
+
+.simul-games-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+}
+
+.simul-auto-skip {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    color: var(--font-color);
+    font-size: 0.95rem;
+}

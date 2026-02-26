@@ -74,6 +74,7 @@ from settings import (
 )
 from gc_telemetry import start_gc_telemetry
 from simul.simul import Simul
+from simul.simuls import load_active_simuls
 from tournament.tournament import Tournament, player_json
 from tournament.tournaments import (
     translated_tournament_name,
@@ -399,6 +400,8 @@ class PychessGlobalAppState:
 
                     if game.board.ply > 0:
                         self.g_cnt[0] += 1
+
+            await load_active_simuls(self)
 
             await upsert_static_docs(self.db.video, VIDEOS)
 

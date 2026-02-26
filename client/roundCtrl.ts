@@ -30,6 +30,7 @@ import { GameController } from './gameCtrl';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
+import { SimulRoundHostController } from './simul/simulRoundHost';
 import {
     parsePendingMove,
     pendingMoveOnOpenAction,
@@ -42,6 +43,7 @@ const CASUAL = '0';
 
 export class RoundController extends GameController {
     assetURL: string;
+    simulId: string;
     berserked: { wberserk: boolean, bberserk: boolean };
     byoyomi: boolean;
     byoyomiPeriod: number;
@@ -84,6 +86,7 @@ export class RoundController extends GameController {
     // - resend is gated by strict ply relation checks
     // - server also validates ply and ignores duplicates/stale moves
     lastMaybeSentMsgMove: MsgMove | undefined;
+    simulRoundHost?: SimulRoundHostController;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -134,6 +137,7 @@ export class RoundController extends GameController {
         this.sock = createWebsocket('wsr/' + this.gameId, onOpen, onReconnect, () => {}, (e: MessageEvent) => this.onMessage(e));
 
         this.assetURL = model["assetURL"];
+        this.simulId = model["simulId"] || "";
         this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = this.variant.rules.defaultTimeControl === 'byoyomi';
         this.finishedGame = this.status >= 0;
@@ -255,7 +259,7 @@ export class RoundController extends GameController {
             this.clocks[1].onTick(this.clocks[1].renderTime);
 
             const onMoreTime = () => {
-                if (this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
+                if (this.simulId !== "" || this.wtitle === 'BOT' || this.btitle === 'BOT' || this.spectator || this.status >= 0 || this.flipped()) return;
                 const clockIdx = (this.flipped()) ? 1 : 0;
                 this.clocks[clockIdx].setTime(this.clocks[clockIdx].duration + 15 * 1000);
                 this.doSend({ type: "moretime", gameId: this.gameId });
@@ -263,7 +267,7 @@ export class RoundController extends GameController {
                 chatMessage('', oppName + _(' +15 seconds'), "roundchat");
             }
 
-            if (!this.spectator && this.rated === CASUAL && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
+            if (!this.spectator && this.simulId === "" && this.rated === CASUAL && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
                 const container = document.getElementById('more-time') as HTMLElement;
                 patch(container, h('div#more-time', [
                     h('button.icon.icon-plus-square', {
@@ -378,12 +382,20 @@ export class RoundController extends GameController {
 
         boardSettings.assetURL = this.assetURL;
 
-        if (this.corr && model.corrGames.length > 0) {
+        if (model.simulHost === true && model.simulGames.length > 0) {
+            this.simulRoundHost = new SimulRoundHostController(
+                this.username,
+                this.gameId,
+                this.home,
+                model.simulGames,
+            );
+            this.simulRoundHost.init();
+        } else if (this.corr && model.corrGames.length > 0) {
             const corrGames = JSON.parse(model.corrGames).sort(compareGames(this.username));
             const cgMap: {[gameId: string]: [Api, string]} = {};
             handleOngoingGameEvents(this.username, cgMap);
 
-            patch(document.querySelector('.games-container') as HTMLElement, 
+            patch(document.querySelector('.games-container') as HTMLElement,
                 h('games-grid#games', corrGames.flatMap((game: Game) => {
                     if (game.gameId === this.gameId) {
                         return [];
@@ -391,7 +403,7 @@ export class RoundController extends GameController {
                         return [gameViewPlaying(cgMap, game, this.username)];
                     }
                 }))
-            )
+            );
         }
 
         this.onMsgBoard(model["board"] as MsgBoard);
@@ -691,6 +703,7 @@ export class RoundController extends GameController {
     }
 
     private onMsgViewRematch = (msg: MsgViewRematch) => {
+        if (this.simulId !== "") return;
         const btns_after = document.querySelector('.btn-controls.after') as HTMLElement;
         let rematch_button = h('button.newopp', { on: { click: () => window.location.assign(this.home + '/' + msg["gameId"]) } }, _("VIEW REMATCH"));
         let rematch_button_location = btns_after!.insertBefore(document.createElement('div'), btns_after!.firstChild);
@@ -735,6 +748,10 @@ export class RoundController extends GameController {
         window.location.assign(this.home + '/tournament/' + this.tournamentId + '/pause');
     }
 
+    private backToSimul = () => {
+        window.location.assign(this.home + '/simul/' + this.simulId);
+    }
+
     private gameOver = (rdiffs: RDiffs) => {
         let container;
         container = document.getElementById('wrdiff') as HTMLElement;
@@ -747,7 +764,10 @@ export class RoundController extends GameController {
         this.gameControls = patch(this.gameControls, h('div'));
         let buttons: VNode[] = [];
         if (!this.spectator) {
-            if (this.tournamentGame) {
+            if (this.simulId !== "") {
+                buttons.push(h('button.newopp', { on: { click: () => this.backToSimul() } },
+                    [h('div', {class: {"icon": true, 'icon-play3': true} }, _("BACK TO SIMUL"))]));
+            } else if (this.tournamentGame) {
                 // TODO: isOver = ?
                 const isOver = false;
                 if (isOver) {
@@ -804,6 +824,7 @@ export class RoundController extends GameController {
         // Terminal state: any resend intent is invalid after game end.
         // Clear eagerly to avoid carrying stale move cache into post-game reload/reconnect.
         this.clearPendingMoveCache();
+        this.simulRoundHost?.onGameEnd();
         this.checkStatus(msg);
 
         if (this.variant.name !== 'jieqi') return;
@@ -1087,6 +1108,8 @@ export class RoundController extends GameController {
         if (this.variant.material.showDiff) {
             this.updateMaterial();
         }
+
+        this.simulRoundHost?.onBoard(msg);
     }
 
     goPly(ply: number, plyVari = 0) {
@@ -1151,6 +1174,7 @@ export class RoundController extends GameController {
             const moveMsg = { type: "move", gameId: this.gameId, move: move, clocks: clock_times, ply: this.ply + 1 } as MsgMove;
             this.persistPendingMove(moveMsg);
             this.doSend(moveMsg as JSONObject);
+            this.simulRoundHost?.onMoveSubmitted(this.ply + 1);
 
             if (this.preaction) {
                 this.clocks[myclock].setTime(this.clocktimes[(this.mycolor === 'white') ? WHITE : BLACK] + increment);
