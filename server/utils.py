@@ -1157,6 +1157,7 @@ async def subscribe_notify(request):
     user = await app_state.users.get(session_user)
     queue = asyncio.Queue()
     user.notify_channels.add(queue)
+    response: web.StreamResponse = web.Response(status=200)
     try:
         async with sse_response(request) as response:
             while response.is_connected():
@@ -1170,7 +1171,7 @@ async def subscribe_notify(request):
     except Exception:
         pass
     finally:
-        user.notify_channels.remove(queue)
+        user.notify_channels.discard(queue)
     return response
 
 

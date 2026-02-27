@@ -3,6 +3,7 @@ import json
 import time
 import unittest
 from datetime import datetime
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 import test_logger
@@ -10,12 +11,14 @@ from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
+import game_api
 from const import STARTED
 from game import Game
 from game_api import _seen_discontinued_variants, safe_write_eof, variant_counts_from_docs
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
+import utils
 from variants import VARIANTS, get_server_variant
 
 test_logger.init_test_logger()
@@ -176,3 +179,57 @@ class ExportWriteEofTestCase(unittest.IsolatedAsyncioTestCase):
 
         error.assert_not_called()
         debug.assert_called_once_with("Connection closed before PGN export EOF write.")
+
+
+class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
+    class _UsersStub:
+        def __init__(self, user):
+            self.user = user
+
+        async def get(self, _username):
+            return self.user
+
+    async def test_subscribe_notify_handles_sse_setup_error(self):
+        notify_user = SimpleNamespace(notify_channels=set())
+        app_state = SimpleNamespace(users=self._UsersStub(notify_user))
+        request = SimpleNamespace(app=object())
+
+        with (
+            patch("utils.get_app_state", return_value=app_state),
+            patch(
+                "utils.aiohttp_session.get_session",
+                new=AsyncMock(return_value={"user_name": "sse-user"}),
+            ),
+            patch("utils.sse_response", side_effect=RuntimeError("setup failed")),
+        ):
+            response = await utils.subscribe_notify(request)
+
+        self.assertEqual(response.status, 200)
+        self.assertEqual(len(notify_user.notify_channels), 0)
+
+    async def test_subscribe_invites_handles_sse_setup_error(self):
+        game_id = "abcd1234"
+        app_state = SimpleNamespace(invite_channels={game_id: set()})
+        request = SimpleNamespace(app=object(), match_info={"gameId": game_id})
+
+        with (
+            patch("game_api.get_app_state", return_value=app_state),
+            patch("game_api.sse_response", side_effect=RuntimeError("setup failed")),
+        ):
+            response = await game_api.subscribe_invites(request)
+
+        self.assertEqual(response.status, 200)
+        self.assertEqual(len(app_state.invite_channels[game_id]), 0)
+
+    async def test_subscribe_games_handles_sse_setup_error(self):
+        app_state = SimpleNamespace(game_channels=set())
+        request = SimpleNamespace(app=object())
+
+        with (
+            patch("game_api.get_app_state", return_value=app_state),
+            patch("game_api.sse_response", side_effect=RuntimeError("setup failed")),
+        ):
+            response = await game_api.subscribe_games(request)
+
+        self.assertEqual(response.status, 200)
+        self.assertEqual(len(app_state.game_channels), 0)

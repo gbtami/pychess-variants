@@ -463,6 +463,7 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
         app_state.invite_channels[gameId] = set()
     app_state.invite_channels[gameId].add(queue)
 
+    response: web.StreamResponse = web.Response(status=200)
     try:
         async with sse_response(request) as response:
             while response.is_connected():
@@ -484,6 +485,7 @@ async def subscribe_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     queue: asyncio.Queue[str] = asyncio.Queue()
     app_state.game_channels.add(queue)
+    response: web.StreamResponse = web.Response(status=200)
     try:
         async with sse_response(request) as response:
             while response.is_connected():
