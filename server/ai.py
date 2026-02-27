@@ -25,6 +25,31 @@ BOT_QUEUE_POLL_SECS = 5
 
 
 async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
+    def parse_bot_event(line: str, queue_name: str, game_id: str = "-"):
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            log.error(
+                "Invalid JSON in BOT_task() %s queue. bot=%s game=%s line=%r",
+                queue_name,
+                bot.username,
+                game_id,
+                line.rstrip("\n"),
+            )
+            return None
+
+        if not isinstance(event, dict):
+            log.error(
+                "Invalid JSON event type in BOT_task() %s queue. bot=%s game=%s payload_type=%s line=%r",
+                queue_name,
+                bot.username,
+                game_id,
+                type(event).__name__,
+                line.rstrip("\n"),
+            )
+            return None
+        return event
+
     async def game_task(bot: User, game: Game, level: int, random_mover: bool) -> None:
         while game.status <= STARTED:
             try:
@@ -51,8 +76,8 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
                     await game.abort_by_server()
                 break
 
-            event = json.loads(line)
-            if event["type"] != "gameState":
+            event = parse_bot_event(line, "game", game.id)
+            if event is None or event.get("type") != "gameState":
                 continue
             # print("   +++ game_queues get()", event)
             try:
@@ -101,10 +126,12 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
                 "task_done() called more times than there were items placed in the queue in ai.py AI_move()"
             )
 
-        event = json.loads(line)
+        event = parse_bot_event(line, "event")
+        if event is None:
+            continue
         # print("+++ AI event_queue.get()", event)
 
-        if event["type"] != "gameStart":
+        if event.get("type") != "gameStart":
             continue
 
         gameId = event["game"]["id"]

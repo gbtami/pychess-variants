@@ -211,6 +211,89 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         finally:
             ai.BOT_QUEUE_POLL_SECS = original_poll
 
+    async def test_bot_task_ignores_invalid_event_queue_json(self):
+        app_state = get_app_state(self.app)
+
+        human = User(app_state, username="human5")
+        app_state.users[human.username] = human
+
+        bot = app_state.users["Random-Mover"]
+        bot.game_queues.clear()
+
+        game = Game(
+            app_state,
+            "bot-bad-event-json",
+            "chess",
+            "",
+            human,
+            bot,
+            base=1,
+            inc=0,
+            rated=False,
+        )
+        app_state.games[game.id] = game
+        bot.game_queues[game.id] = asyncio.Queue()
+
+        # Make the polling interval tiny so task shutdown checks complete quickly.
+        original_poll = ai.BOT_QUEUE_POLL_SECS
+        ai.BOT_QUEUE_POLL_SECS = 0.01
+        try:
+            # A malformed event must not terminate BOT_task's event loop.
+            await bot.event_queue.put('{"type":"gameStart","game":{"id":"broken","skill_level":}}')
+            await bot.event_queue.put(game.game_start)
+
+            task = await asyncio.wait_for(self._wait_for_bot_task(game.id), timeout=1)
+            self.assertFalse(task.done())
+
+            game.status = ABORTED
+            await asyncio.wait_for(task, timeout=1)
+            self.assertTrue(task.done())
+        finally:
+            ai.BOT_QUEUE_POLL_SECS = original_poll
+
+    async def test_bot_game_task_ignores_invalid_game_queue_json(self):
+        app_state = get_app_state(self.app)
+
+        human = User(app_state, username="human6")
+        app_state.users[human.username] = human
+
+        bot = app_state.users["Random-Mover"]
+        bot.game_queues.clear()
+
+        game = Game(
+            app_state,
+            "bot-bad-game-json",
+            "chess",
+            "",
+            human,
+            bot,
+            base=1,
+            inc=0,
+            rated=False,
+        )
+        app_state.games[game.id] = game
+        bot.game_queues[game.id] = asyncio.Queue()
+
+        # Make the polling interval tiny so the test completes quickly.
+        original_poll = ai.BOT_QUEUE_POLL_SECS
+        ai.BOT_QUEUE_POLL_SECS = 0.01
+        try:
+            await bot.event_queue.put(game.game_start)
+            task = await asyncio.wait_for(self._wait_for_bot_task(game.id), timeout=1)
+
+            # A malformed game event must not terminate the per-game bot task.
+            await bot.game_queues[game.id].put(
+                '{"type":"gameState","moves":"e2e4","wtime":1000,"btime":}'
+            )
+            await asyncio.sleep(0.05)
+            self.assertFalse(task.done())
+
+            game.status = ABORTED
+            await asyncio.wait_for(task, timeout=1)
+            self.assertTrue(task.done())
+        finally:
+            ai.BOT_QUEUE_POLL_SECS = original_poll
+
     async def test_remove_from_cache_prunes_idle_anon(self):
         app_state = get_app_state(self.app)
 
