@@ -15,6 +15,7 @@ from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from simul.simul import Simul
 from simul.simuls import load_active_simuls, load_simul
+from simul import wss as simul_wss
 from pychess_global_app_state import PychessGlobalAppState
 from typedefs import pychess_global_app_state_key
 from user import User
@@ -448,3 +449,50 @@ class TestGUI:
         assert game.status == ABORTED
         assert len(simul.ongoing_games) == 0
         assert simul.status == T_FINISHED
+
+    async def test_simul_disconnect_cleanup_does_not_block_on_broadcast(
+        self, aiohttp_server, monkeypatch
+    ):
+        app = make_app(db_client=AsyncMongoMockClient())
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        sid = id8()
+
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+
+        simul = await Simul.create(app_state, sid, name="Cleanup Simul", created_by=host_username)
+        app_state.simuls[sid] = simul
+
+        player = User(app_state, username="TestUser_2")
+        app_state.users[player.username] = player
+        simul.join(player)
+        simul.approve(player.username)
+        simul.add_spectator(player)
+
+        fake_ws = object()
+        player.simul_sockets[sid] = {fake_ws}
+
+        async def fake_upsert(*_args, **_kwargs):
+            return None
+
+        broadcast_started = asyncio.Event()
+        release_broadcast = asyncio.Event()
+
+        async def blocking_broadcast(_response):
+            broadcast_started.set()
+            await release_broadcast.wait()
+
+        monkeypatch.setattr(simul_wss, "upsert_simul_to_db", fake_upsert)
+        monkeypatch.setattr(simul, "broadcast", blocking_broadcast)
+
+        await asyncio.wait_for(simul_wss.finally_logic(app_state, fake_ws, player), timeout=0.2)
+        await asyncio.sleep(0)
+
+        assert player.username not in simul.players
+        assert sid not in player.simul_sockets
+        assert broadcast_started.is_set()
+
+        release_broadcast.set()
+        await asyncio.sleep(0)
