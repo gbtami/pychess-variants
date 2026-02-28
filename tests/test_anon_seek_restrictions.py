@@ -165,6 +165,38 @@ class AnonSeekRestrictionsTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIsInstance(seek_json["expireAt"], str)
         self.assertEqual(seek_json["expireAt"], seek.expire_at.isoformat())
 
+    async def test_seek_db_json_keeps_datetime_expire_at(self):
+        creator = self.add_user("creator-db-expiry")
+        seek = Seek(
+            "seek-invite-db",
+            creator,
+            "chess",
+            day=0,
+            target="Invite-friend",
+            player1=creator,
+        )
+
+        seek_db_json = seek.seek_db_json
+        self.assertIn("expireAt", seek_db_json)
+        self.assertIsInstance(seek_db_json["expireAt"], datetime)
+        self.assertEqual(seek_db_json["expireAt"], seek.expire_at)
+
+    async def test_seek_accepts_iso_expire_at_string(self):
+        creator = self.add_user("creator-expire-str")
+        seek = Seek(
+            "seek-expire-str",
+            creator,
+            "chess",
+            day=0,
+            target="Invite-friend",
+            player1=creator,
+            expire_at="2099-02-28T22:58:38+00:00",
+        )
+
+        self.assertIsNotNone(seek.expire_at)
+        self.assertIsInstance(seek.expire_at, datetime)
+        self.assertFalse(seek.is_expired())
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

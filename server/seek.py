@@ -47,6 +47,33 @@ class SeekJson(TypedDict):
     expireAt: NotRequired[str]
 
 
+class SeekDbJson(TypedDict):
+    _id: str
+    seekID: str
+    user: str
+    bot: bool
+    title: str
+    variant: str
+    chess960: bool | None
+    target: str
+    player1: str
+    player2: str
+    bugPlayer1: str
+    bugPlayer2: str
+    fen: str
+    color: str
+    rated: bool | int | None
+    rrmin: int
+    rrmax: int
+    rating: int
+    base: int | float
+    inc: int
+    byoyomi: int
+    day: int | float
+    gameId: str
+    expireAt: NotRequired[datetime]
+
+
 class CorrSeekJson(TypedDict):
     _id: str
     user: str
@@ -99,7 +126,7 @@ class Seek:
         bugPlayer1: User | None = None,
         bugPlayer2: User | None = None,
         game_id: str | None = None,
-        expire_at: datetime | None = None,
+        expire_at: datetime | str | None = None,
         reused_fen: bool = False,
     ) -> None:
         self.id: str = seek_id
@@ -127,7 +154,12 @@ class Seek:
         self.game_id: str | None = game_id
 
         if expire_at is not None:
-            self.expire_at = expire_at
+            parsed_expire_at = self._parse_expire_at(expire_at)
+            if parsed_expire_at is None:
+                log.warning("Invalid seek expireAt for %s: %r", seek_id, expire_at)
+                self.expire_at = None
+            else:
+                self.expire_at = parsed_expire_at
         elif self.target == "Invite-friend":
             self.expire_at = datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
         elif self.day > 0:
@@ -196,6 +228,37 @@ class Seek:
         return seek_json
 
     @property
+    def seek_db_json(self) -> SeekDbJson:
+        seek_json: SeekDbJson = {
+            "_id": self.id,
+            "seekID": self.id,
+            "user": self.creator.username,
+            "bot": self.creator.bot,
+            "title": self.creator.title,
+            "variant": self.variant,
+            "chess960": self.chess960,
+            "target": self.target,
+            "player1": self.player1.username if self.player1 is not None else "",
+            "player2": self.player2.username if self.player2 is not None else "",
+            "bugPlayer1": self.bugPlayer1.username if self.bugPlayer1 is not None else "",
+            "bugPlayer2": self.bugPlayer2.username if self.bugPlayer2 is not None else "",
+            "fen": self.fen,
+            "color": self.color,
+            "rated": self.rated,
+            "rrmin": self.rrmin,
+            "rrmax": self.rrmax,
+            "rating": self.rating,
+            "base": self.base,
+            "inc": self.inc,
+            "byoyomi": self.byoyomi_period,
+            "day": self.day,
+            "gameId": self.game_id if self.game_id is not None else "",
+        }
+        if self.expire_at is not None:
+            seek_json["expireAt"] = self.expire_at
+        return seek_json
+
+    @property
     def corr_json(self) -> CorrSeekJson:
         if TYPE_CHECKING:
             assert self.expire_at is not None
@@ -226,6 +289,25 @@ class Seek:
         tc = time_control_str(self.base, self.inc, self.byoyomi_period, self.day)
         tail960 = "960" if self.chess960 else ""
         return "%s: **%s%s** %s" % (self.creator.username, self.variant, tail960, tc)
+
+    @staticmethod
+    def _parse_expire_at(expire_at: datetime | str) -> datetime | None:
+        if isinstance(expire_at, datetime):
+            parsed = expire_at
+        elif isinstance(expire_at, str):
+            candidate = expire_at
+            if candidate.endswith("Z"):
+                candidate = candidate[:-1] + "+00:00"
+            try:
+                parsed = datetime.fromisoformat(candidate)
+            except ValueError:
+                return None
+        else:
+            return None
+
+        if parsed.tzinfo is None:
+            return parsed.replace(tzinfo=timezone.utc)
+        return parsed
 
 
 def is_anon_restricted_seek(
