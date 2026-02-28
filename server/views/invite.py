@@ -13,6 +13,21 @@ from pychess_global_app_state_utils import get_app_state
 log = logging.getLogger(__name__)
 
 
+def set_expired_invite_context(context: ViewContext, game_id: str) -> None:
+    context["gameid"] = game_id
+    context["inviter"] = "expired"
+    # Keep these populated so the generic page model remains valid.
+    context["variant"] = "chess"
+    context["chess960"] = False
+    context["rated"] = False
+    context["corr"] = False
+    context["base"] = 0
+    context["inc"] = 0
+    context["byo"] = 0
+    context["seekempty"] = False
+    context["title"] = "Invitation expired • PyChess"
+
+
 @aiohttp_jinja2.template("index.html")
 async def invite(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
@@ -43,7 +58,7 @@ async def invite(request: web.Request) -> ViewContext:
                 elif seek_status["type"] == "new_game":
                     try:
                         # Put response data to sse subscriber queue
-                        channels = app_state.invite_channels[gameId]
+                        channels = app_state.invite_channels.get(gameId, set())
                         for queue in channels:
                             await queue.put(json.dumps({"gameId": gameId, "accept": True}))
                     except ConnectionResetError:
@@ -66,7 +81,9 @@ async def invite(request: web.Request) -> ViewContext:
         # The new invite game started
         game = await load_game(app_state, gameId)
         if game is None:
-            raise web.HTTPNotFound()
+            # Friendly fallback for stale or missing invite/game ids.
+            set_expired_invite_context(context, gameId)
+            return context
 
         add_game_context(game, None, user, context)
 

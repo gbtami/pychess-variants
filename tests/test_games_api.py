@@ -20,6 +20,7 @@ from server import make_app
 from user import User
 import utils
 from variants import VARIANTS, get_server_variant
+from settings import MONGO_DB_NAME
 
 test_logger.init_test_logger()
 
@@ -233,3 +234,57 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(response.status, 200)
         self.assertEqual(len(app_state.game_channels), 0)
+
+
+class InviteReloadPersistenceTestCase(AioHTTPTestCase):
+    async def get_application(self):
+        db_client = AsyncMongoMockClient()
+        db = db_client[MONGO_DB_NAME]
+        await db.user.insert_many(
+            [
+                {"_id": "InviteCreator", "title": "", "enabled": True},
+                {"_id": "InviteVisitor", "title": "", "enabled": True},
+            ]
+        )
+        await db.seek.insert_one(
+            {
+                "_id": "seekInvite",
+                "user": "InviteCreator",
+                "variant": "chess",
+                "chess960": False,
+                "target": "Invite-friend",
+                "fen": "",
+                "color": "r",
+                "rated": False,
+                "rrmin": -10000,
+                "rrmax": 10000,
+                "base": 5,
+                "inc": 5,
+                "byoyomi": 0,
+                "day": 0,
+                "gameId": "AbCd1234",
+            }
+        )
+        return make_app(db_client=db_client, simple_cookie_storage=True)
+
+    async def tearDownAsync(self):
+        await self.client.close()
+
+    def _set_session_user(self, username: str) -> None:
+        session_data = {"session": {"user_name": username}, "created": int(time.time())}
+        self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+
+    async def test_reloaded_invite_page_is_available_after_restart(self):
+        self._set_session_user("InviteVisitor")
+        response = await self.client.get("/invite/AbCd1234")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn('data-inviter="InviteCreator"', html)
+
+    async def test_reloaded_invite_accept_starts_game_with_same_game_id(self):
+        self._set_session_user("InviteVisitor")
+        response = await self.client.post("/invite/accept/AbCd1234")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn('data-view="round"', html)
+        self.assertIn('data-gameid="AbCd1234"', html)

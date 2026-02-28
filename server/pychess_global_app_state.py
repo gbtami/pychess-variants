@@ -324,24 +324,31 @@ class PychessGlobalAppState:
             async for doc in self.db.seek.find():
                 user = await self.users.get(doc["user"])
                 if user is not None:
+                    game_id = doc.get("gameId") or None
                     seek = Seek(
                         doc["_id"],
                         user,
                         doc["variant"],
                         fen=doc["fen"],
                         color=doc["color"],
+                        base=doc.get("base", 5),
+                        inc=doc.get("inc", 5),
+                        byoyomi_period=doc.get("byoyomi", 0),
                         day=doc["day"],
                         rated=doc["rated"],
                         rrmin=doc.get("rrmin"),
                         rrmax=doc.get("rrmax"),
                         chess960=doc["chess960"],
                         target=doc.get("target"),
+                        game_id=game_id,
                         player1=user,
                         expire_at=doc.get("expireAt"),
                     )
                     log.debug("Loading seek from database: %s" % seek)
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek
+                    if game_id is not None:
+                        self.invites[game_id] = seek
 
             # Read games in play and start their clocks
             cursor = self.db.game.find({"r": "d", "$or": [{"s": -2}, {"s": -1}]})

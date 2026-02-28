@@ -55,6 +55,20 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         resp = await self.client.request("GET", f"/invite/{game_id}")
         self.assertNotEqual(resp.status, 500)
 
+    async def test_missing_invite_id_shows_expired_invite_state(self):
+        game_id = "AbCd1234"
+        resp = await self.client.request("GET", f"/invite/{game_id}")
+        self.assertEqual(resp.status, 200)
+        html = await resp.text()
+        self.assertIn('data-inviter="expired"', html)
+
+    async def test_missing_invite_accept_shows_expired_invite_state(self):
+        game_id = "QwEr5678"
+        resp = await self.client.request("POST", f"/invite/accept/{game_id}")
+        self.assertEqual(resp.status, 200)
+        html = await resp.text()
+        self.assertIn('data-inviter="expired"', html)
+
 
 if __name__ == "__main__":
     unittest.main()

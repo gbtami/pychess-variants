@@ -11,6 +11,20 @@ import { sanitizeURL } from './url';
 
 export function inviteView(model: PyChessModel): VNode[] {
     const gameId = model["gameId"];
+    if (model["inviter"] === "expired") {
+        return [
+            h('div.invite', [
+                h('h1', { attrs: { align: 'center' } }, _('This invitation is no longer available')),
+                h('div.inviteinfo', [
+                    h('div', _('It may have been accepted, canceled, or expired.')),
+                ]),
+                h('form', { props: { method: "get", action: "/" }, class: { invite: true } }, [
+                    h('button.join', _('BACK TO LOBBY')),
+                ]),
+            ]),
+        ];
+    }
+
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const gameURL = '/invite/' + gameId;
