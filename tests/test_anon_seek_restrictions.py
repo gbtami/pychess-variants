@@ -149,6 +149,22 @@ class AnonSeekRestrictionsTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertGreater(corr_seek.expire_at, now + timedelta(days=13))
         self.assertLess(corr_seek.expire_at, now + timedelta(days=15))
 
+    async def test_seek_json_serializes_expire_at(self):
+        creator = self.add_user("creator-json-expiry")
+        seek = Seek(
+            "seek-invite-json",
+            creator,
+            "chess",
+            day=0,
+            target="Invite-friend",
+            player1=creator,
+        )
+
+        seek_json = seek.seek_json
+        self.assertIn("expireAt", seek_json)
+        self.assertIsInstance(seek_json["expireAt"], str)
+        self.assertEqual(seek_json["expireAt"], seek.expire_at.isoformat())
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

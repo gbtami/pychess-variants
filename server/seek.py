@@ -44,7 +44,7 @@ class SeekJson(TypedDict):
     byoyomi: int
     day: int | float
     gameId: str
-    expireAt: NotRequired[datetime]
+    expireAt: NotRequired[str]
 
 
 class CorrSeekJson(TypedDict):
@@ -192,7 +192,7 @@ class Seek:
             "gameId": self.game_id if self.game_id is not None else "",
         }
         if self.expire_at is not None:
-            seek_json["expireAt"] = self.expire_at
+            seek_json["expireAt"] = self.expire_at.isoformat()
         return seek_json
 
     @property
