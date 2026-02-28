@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+import asyncio
 import aiohttp_session
 from aiohttp import web
 
@@ -45,12 +46,17 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user: User):
                         removed_group = simul.remove_disconnected_player(user)
                         if removed_group is not None:
                             await upsert_simul_to_db(simul, app_state)
-                            await simul.broadcast(
-                                {
-                                    "type": "player_disconnected",
-                                    "username": user.username,
-                                    "group": removed_group,
-                                }
+                            # Do not block websocket teardown on fan-out send:
+                            # this path can stall if one spectator socket is slow.
+                            asyncio.create_task(
+                                simul.broadcast(
+                                    {
+                                        "type": "player_disconnected",
+                                        "username": user.username,
+                                        "group": removed_group,
+                                    }
+                                ),
+                                name=f"simul-disconnect-broadcast-{simul_id}-{user.username}",
                             )
                 break
 

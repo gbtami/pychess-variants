@@ -4,7 +4,6 @@ from collections.abc import Awaitable, Callable, Iterable, Mapping
 import asyncio
 import json
 import logging
-import weakref
 import aiohttp
 import aiohttp_session
 from aiohttp import WSMessage, web
@@ -20,25 +19,7 @@ from pychess_global_app_state_utils import get_app_state
 log = logging.getLogger(__name__)
 
 _SEND_CONCURRENCY = 200
-# Keep one shared send semaphore per event loop.
-# A plain module-level asyncio.Semaphore can become bound to the first loop that
-# waits on it and then raise "bound to a different event loop" in later tests
-# (for example IsolatedAsyncioTestCase creates a fresh loop per test).
-# Weak refs let loop entries disappear automatically when loops are closed.
-_send_semaphores: weakref.WeakKeyDictionary[asyncio.AbstractEventLoop, asyncio.Semaphore] = (
-    weakref.WeakKeyDictionary()
-)
-
-
-def _get_send_semaphore() -> asyncio.Semaphore:
-    # Reuse the same semaphore inside a loop to enforce a process-wide send cap
-    # in production (single aiohttp loop) without cross-loop binding errors.
-    loop = asyncio.get_running_loop()
-    sem = _send_semaphores.get(loop)
-    if sem is None:
-        sem = asyncio.Semaphore(_SEND_CONCURRENCY)
-        _send_semaphores[loop] = sem
-    return sem
+_SEND_TIMEOUT_SECS = 2.0
 
 
 async def get_user(session: aiohttp_session.Session, request: web.Request) -> User:
@@ -150,9 +131,9 @@ async def process_ws(
 
 async def ws_send_str(ws: WebSocketResponse, msg: str) -> bool:
     try:
-        await ws.send_str(msg)
+        await asyncio.wait_for(ws.send_str(msg), timeout=_SEND_TIMEOUT_SECS)
         return True
-    except (ConnectionResetError, ClientConnectionResetError):
+    except (ConnectionResetError, ClientConnectionResetError, RuntimeError, asyncio.TimeoutError):
         # Peer disconnected between scheduling and actual send.
         return False
 
@@ -162,14 +143,20 @@ async def ws_send_str_many(ws_set: Iterable[WebSocketResponse | None], msg: str)
     if len(sockets) == 0:
         return 0
 
-    sem = _get_send_semaphore()
+    # Cap fan-out inside one broadcast without coupling unrelated broadcasts.
+    sem = asyncio.Semaphore(min(_SEND_CONCURRENCY, len(sockets)))
 
     async def one(ws: WebSocketResponse) -> bool:
         async with sem:
             try:
-                await ws.send_str(msg)
+                await asyncio.wait_for(ws.send_str(msg), timeout=_SEND_TIMEOUT_SECS)
                 return True
-            except (ConnectionResetError, ClientConnectionResetError):
+            except (
+                ConnectionResetError,
+                ClientConnectionResetError,
+                RuntimeError,
+                asyncio.TimeoutError,
+            ):
                 return False
             except Exception:
                 return False
@@ -183,9 +170,9 @@ async def ws_send_json(ws: WebSocketResponse | None, msg: Mapping[str, object] |
         log.error("ws_send_json: ws is None")
         return False
     try:
-        await ws.send_json(msg)
+        await asyncio.wait_for(ws.send_json(msg), timeout=_SEND_TIMEOUT_SECS)
         return True
-    except (ConnectionResetError, ClientConnectionResetError):
+    except (ConnectionResetError, ClientConnectionResetError, RuntimeError, asyncio.TimeoutError):
         # Peer disconnected between scheduling and actual send.
         return False
     except Exception:
