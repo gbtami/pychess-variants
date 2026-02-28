@@ -1,3 +1,22 @@
+"""
+Local stress-test runner for websocket-heavy pychess load scenarios.
+
+Before high-load runs, raise open-file limits in both terminals:
+1) the server terminal
+2) the stress-client terminal
+
+Example:
+    ulimit -n 10000
+
+Reason: each active socket/connection consumes a file descriptor. With large
+user/spectator counts, default Linux per-process limits (often 1024) are hit
+quickly, causing "OSError: [Errno 24] Too many open files".
+
+Production note: Heroku dynos already use a much higher descriptor limit
+(reported as 10000), so this local setting is used to mirror that environment:
+https://help.heroku.com/WEJQH08E/is-is-possible-to-increase-the-file-descriptor-ulimit-limit
+"""
+
 import argparse
 import asyncio
 import json
