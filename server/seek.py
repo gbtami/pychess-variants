@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Iterable, NotRequired, TypedDict
 
-from const import CORR_SEEK_EXPIRE_WEEKS
+from const import CORR_SEEK_EXPIRE_WEEKS, INVITE_SEEK_EXPIRE
 from misc import time_control_str
 from newid import new_id
 import logging
@@ -44,6 +44,7 @@ class SeekJson(TypedDict):
     byoyomi: int
     day: int | float
     gameId: str
+    expireAt: NotRequired[datetime]
 
 
 class CorrSeekJson(TypedDict):
@@ -125,9 +126,14 @@ class Seek:
 
         self.game_id: str | None = game_id
 
-        self.expire_at = (
-            datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS if expire_at is None else expire_at
-        )
+        if expire_at is not None:
+            self.expire_at = expire_at
+        elif self.target == "Invite-friend":
+            self.expire_at = datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
+        elif self.day > 0:
+            self.expire_at = datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS
+        else:
+            self.expire_at = None
 
         # True if this is 960 variant 1st, 3rd etc. rematch seek
         self.reused_fen: bool = reused_fen
@@ -160,7 +166,7 @@ class Seek:
 
     @property
     def seek_json(self) -> SeekJson:
-        return {
+        seek_json: SeekJson = {
             "_id": self.id,
             "seekID": self.id,
             "user": self.creator.username,
@@ -185,9 +191,14 @@ class Seek:
             "day": self.day,
             "gameId": self.game_id if self.game_id is not None else "",
         }
+        if self.expire_at is not None:
+            seek_json["expireAt"] = self.expire_at
+        return seek_json
 
     @property
     def corr_json(self) -> CorrSeekJson:
+        if TYPE_CHECKING:
+            assert self.expire_at is not None
         return {
             "_id": self.id,
             "user": self.creator.username,
@@ -201,6 +212,14 @@ class Seek:
             "day": self.day,
             "expireAt": self.expire_at,
         }
+
+    def is_expired(self) -> bool:
+        if self.expire_at is None:
+            return False
+        expire_at = self.expire_at
+        if expire_at.tzinfo is None:
+            expire_at = expire_at.replace(tzinfo=timezone.utc)
+        return expire_at <= datetime.now(timezone.utc)
 
     @property
     def discord_msg(self) -> str:

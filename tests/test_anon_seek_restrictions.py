@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime, timedelta, timezone
 from typing import cast
 from mongomock_motor import AsyncMongoMockClient
 from pymongo.asynchronous.mongo_client import AsyncMongoClient
@@ -123,6 +124,30 @@ class AnonSeekRestrictionsTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual("new_game", response["type"])
         game = app_state.games[response["gameId"]]
         self.assertTrue(game.corr)
+
+    async def test_seek_expiry_defaults_by_seek_type(self):
+        creator = self.add_user("creator-expiry")
+        now = datetime.now(timezone.utc)
+
+        regular_seek = Seek("seek-regular", creator, "chess", day=0, player1=creator)
+        self.assertIsNone(regular_seek.expire_at)
+
+        invite_seek = Seek(
+            "seek-invite",
+            creator,
+            "chess",
+            day=0,
+            target="Invite-friend",
+            player1=creator,
+        )
+        self.assertIsNotNone(invite_seek.expire_at)
+        self.assertGreater(invite_seek.expire_at, now + timedelta(hours=23))
+        self.assertLess(invite_seek.expire_at, now + timedelta(hours=25))
+
+        corr_seek = Seek("seek-corr-exp", creator, "chess", day=1, player1=creator)
+        self.assertIsNotNone(corr_seek.expire_at)
+        self.assertGreater(corr_seek.expire_at, now + timedelta(days=13))
+        self.assertLess(corr_seek.expire_at, now + timedelta(days=15))
 
 
 if __name__ == "__main__":

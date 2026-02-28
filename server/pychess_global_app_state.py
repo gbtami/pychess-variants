@@ -344,6 +344,9 @@ class PychessGlobalAppState:
                         player1=user,
                         expire_at=doc.get("expireAt"),
                     )
+                    if seek.target == "Invite-friend" and seek.is_expired():
+                        log.debug("Skipping expired invite seek from database: %s", seek.id)
+                        continue
                     log.debug("Loading seek from database: %s" % seek)
                     self.seeks[seek.id] = seek
                     user.seeks[seek.id] = seek

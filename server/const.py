@@ -38,6 +38,9 @@ NOTIFY_PAGE_SIZE = 7
 # Max corr seek documents TTL (time to live) weeks
 CORR_SEEK_EXPIRE_WEEKS = timedelta(weeks=2)
 
+# Max invite-friend seek lifetime
+INVITE_SEEK_EXPIRE = timedelta(hours=24)
+
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
 

@@ -457,6 +457,14 @@ async def join_seek(
     if is_anon_restricted_seek(user, seek.variant, seek.chess960, seek.day):
         return {"type": "error", "message": ANON_RESTRICTED_SEEK_MESSAGE}
 
+    if seek.target == "Invite-friend" and seek.is_expired():
+        if game_id is None:
+            game_id = seek.game_id
+        if game_id is not None:
+            app_state.invites.pop(game_id, None)
+        remove_seek(app_state.seeks, seek)
+        return {"type": "error", "message": "Invitation expired"}
+
     if user is seek.player1 or user is seek.player2:
         response: SeekStatusMessage = {"type": "seek_yourself", "seekID": seek.id}
         return response

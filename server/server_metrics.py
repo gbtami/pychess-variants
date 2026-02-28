@@ -6,7 +6,7 @@ import time
 from asyncio import Task, Queue
 from collections import defaultdict
 from collections.abc import Iterable
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import partial
 from typing import TYPE_CHECKING, TypedDict
 
@@ -29,6 +29,15 @@ from tournament.arena_new import ArenaTournament
 from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
+
+
+def _seek_expire_sort_key(seek: Seek) -> float:
+    expire_at = seek.expire_at
+    if expire_at is None:
+        return float("-inf")
+    if expire_at.tzinfo is None:
+        expire_at = expire_at.replace(tzinfo=timezone.utc)
+    return expire_at.timestamp()
 
 
 class AllocationStat(TypedDict):
@@ -262,7 +271,7 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
             "rated": seek.rated,
         }
         for seek_id, seek in sorted(
-            app_state.seeks.items(), key=lambda x: x[1].expire_at, reverse=True
+            app_state.seeks.items(), key=lambda x: _seek_expire_sort_key(x[1]), reverse=True
         )
     ]
     games: list[dict[str, object]] = [

@@ -2,7 +2,7 @@
 import json
 import time
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
@@ -265,6 +265,26 @@ class InviteReloadPersistenceTestCase(AioHTTPTestCase):
                 "gameId": "AbCd1234",
             }
         )
+        await db.seek.insert_one(
+            {
+                "_id": "seekInviteExpired",
+                "user": "InviteCreator",
+                "variant": "chess",
+                "chess960": False,
+                "target": "Invite-friend",
+                "fen": "",
+                "color": "r",
+                "rated": False,
+                "rrmin": -10000,
+                "rrmax": 10000,
+                "base": 5,
+                "inc": 5,
+                "byoyomi": 0,
+                "day": 0,
+                "gameId": "Expi1234",
+                "expireAt": datetime.now(timezone.utc) - timedelta(minutes=1),
+            }
+        )
         return make_app(db_client=db_client, simple_cookie_storage=True)
 
     async def tearDownAsync(self):
@@ -288,3 +308,19 @@ class InviteReloadPersistenceTestCase(AioHTTPTestCase):
         html = await response.text()
         self.assertIn('data-view="round"', html)
         self.assertIn('data-gameid="AbCd1234"', html)
+
+    async def test_reloaded_expired_invite_page_shows_expired_state(self):
+        self._set_session_user("InviteVisitor")
+        response = await self.client.get("/invite/Expi1234")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn('data-inviter="expired"', html)
+        app_state = get_app_state(self.app)
+        self.assertNotIn("Expi1234", app_state.invites)
+
+    async def test_reloaded_expired_invite_accept_shows_expired_state(self):
+        self._set_session_user("InviteVisitor")
+        response = await self.client.post("/invite/accept/Expi1234")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn('data-inviter="expired"', html)

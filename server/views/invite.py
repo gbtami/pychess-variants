@@ -5,7 +5,7 @@ from aiohttp import web
 
 import logging
 
-from utils import join_seek, load_game
+from utils import join_seek, load_game, remove_seek
 from typing_defs import ViewContext
 from views import add_game_context, get_user_context
 from pychess_global_app_state_utils import get_app_state
@@ -44,6 +44,11 @@ async def invite(request: web.Request) -> ViewContext:
         if seek is None:
             # Invite exists but corresponding seek has already been deleted.
             app_state.invites.pop(gameId, None)
+        elif seek.target == "Invite-friend" and seek.is_expired():
+            app_state.invites.pop(gameId, None)
+            remove_seek(app_state.seeks, seek)
+            set_expired_invite_context(context, gameId)
+            return context
         else:
             if request.path.startswith("/invite/accept/"):
                 player = request.match_info.get("player") or "any"
