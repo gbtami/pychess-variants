@@ -219,10 +219,8 @@ async def handle_create_ai_challenge(
     if response["type"] != "error":
         gameId = response["gameId"]
         engine.game_queues[gameId] = asyncio.Queue()
-        await engine.event_queue.put(challenge(seek))
-        if engine.username not in ("Random-Mover", "Fairy-Stockfish"):
-            game = app_state.games[gameId]
-            await engine.event_queue.put(game.game_start)
+        game = app_state.games[gameId]
+        await engine.event_queue.put(game.game_start)
 
 
 async def handle_create_seek(
@@ -437,7 +435,8 @@ async def handle_accept_seek(
         if seek.creator.bot:
             gameId = response["gameId"]
             seek.creator.game_queues[gameId] = asyncio.Queue()
-            await seek.creator.event_queue.put(challenge(seek))
+            game = app_state.games[gameId]
+            await seek.creator.event_queue.put(game.game_start)
         else:
             ws_set = list(seek.creator.lobby_sockets)
             if len(ws_set) == 0:

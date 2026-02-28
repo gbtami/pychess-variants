@@ -757,6 +757,19 @@ async def play_move(
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
     )
+    game_end_response: GameEndResponse | None = None
+    if game.status > STARTED:
+        game_end_response = {
+            "type": "gameEnd",
+            "status": game.status,
+            "result": game.result,
+            "gameId": gameId,
+            "pgn": game.pgn,
+        }
+        # Invalid moves skip the normal board push path, so notify the mover
+        # explicitly to avoid round clients waiting forever for terminal state.
+        if invalid_move and not user.bot:
+            await user.send_game_message(gameId, game_end_response)
 
     # Fog-of-war and Jieqi require perspective-specific board payloads.
     # For all other variants we reuse the mover perspective response.
@@ -767,19 +780,25 @@ async def play_move(
         if game.status > STARTED:
             await users[opp_name].game_queues[gameId].put(game.game_end)
         else:
+            # Fallback for built-in bots under heavy load: ensure the bot loop
+            # receives a gameStart trigger even if the ready/gameStart path was delayed.
+            if game.board.ply == 1 and users[opp_name].username in (
+                "Random-Mover",
+                "Fairy-Stockfish",
+            ):
+                await users[opp_name].event_queue.put(game.game_start)
             await users[opp_name].game_queues[gameId].put(game.game_state)
     else:
         if not invalid_move:
             await users[opp_name].send_game_message(gameId, board_response)
-        if game.status > STARTED:
-            response: GameEndResponse = {
-                "type": "gameEnd",
-                "status": game.status,
-                "result": game.result,
-                "gameId": gameId,
-                "pgn": game.pgn,
-            }
-            await users[opp_name].send_game_message(gameId, response)
+        if game_end_response is not None:
+            await users[opp_name].send_game_message(gameId, game_end_response)
+
+    if invalid_move and game_end_response is not None:
+        # Spectators/embedded viewers need an explicit terminal event in the
+        # invalid-move path because we intentionally do not broadcast a board.
+        await round_broadcast(game, game_end_response, channels=app_state.game_channels)
+        return
 
     if not invalid_move:
         # Spectators must not see hidden info in fog-of-war or Jieqi games.

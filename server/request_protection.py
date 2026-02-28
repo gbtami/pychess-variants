@@ -8,6 +8,7 @@ from typing import Awaitable, Callable
 
 from aiohttp import web
 
+from settings import LOCALHOST, URI
 from typedefs import request_protection_state_key
 
 log = logging.getLogger(__name__)
@@ -114,6 +115,10 @@ class RequestProtectionState:
     _PROFILE_API_LIMIT = RouteRateLimit("profile_api", max_requests=30, window_seconds=30.0)
     _EXPORT_LIMIT = RouteRateLimit("export", max_requests=6, window_seconds=60.0)
     _GAME_VIEW_LIMIT = RouteRateLimit("game_view", max_requests=45, window_seconds=30.0)
+    # Local stress/smoke runs can legitimately open many websockets and game views
+    # from a single IP, so apply far higher local budgets there only.
+    _LOCAL_DEV_WS_HANDSHAKE_LIMIT = RouteRateLimit("wsr", max_requests=1000, window_seconds=30.0)
+    _LOCAL_DEV_GAME_VIEW_LIMIT = RouteRateLimit("game_view", max_requests=2000, window_seconds=30.0)
     _PUZZLE_LIMIT = RouteRateLimit("puzzle", max_requests=30, window_seconds=30.0)
     _STATIC_API_SEGMENTS = frozenset(
         {
@@ -138,12 +143,15 @@ class RequestProtectionState:
     def __init__(self) -> None:
         self._limiter = SlidingWindowLimiter()
         self._last_block_log: dict[str, float] = {}
+        self._local_dev_mode = URI == LOCALHOST
 
     def classify(self, path: str) -> RouteRateLimit | None:
         # Keep checks cheap and explicit; this runs on every request.
         if path.startswith("/@/"):
             return self._PROFILE_LIMIT
         if path.startswith("/wsr/"):
+            if self._local_dev_mode:
+                return self._LOCAL_DEV_WS_HANDSHAKE_LIMIT
             return self._WS_HANDSHAKE_LIMIT
         if path == "/api/names":
             return self._NAMES_LIMIT
@@ -166,6 +174,8 @@ class RequestProtectionState:
             or path.startswith("/embed/")
             or path.startswith("/corranalysis/")
         ):
+            if self._local_dev_mode:
+                return self._LOCAL_DEV_GAME_VIEW_LIMIT
             return self._GAME_VIEW_LIMIT
         if path.startswith("/puzzle/"):
             return self._PUZZLE_LIMIT
@@ -178,6 +188,8 @@ class RequestProtectionState:
                 any(ch.isdigit() for ch in game_id_candidate)
                 or any(ch.isupper() for ch in game_id_candidate)
             ):
+                if self._local_dev_mode:
+                    return self._LOCAL_DEV_GAME_VIEW_LIMIT
                 return self._GAME_VIEW_LIMIT
         return None
 

@@ -1344,6 +1344,7 @@ class Game:
         response: GameBoardResponse = {
             "type": "board",
             "gameId": self.id,
+            "variant": self.variant,
             "status": self.status,
             "result": self.result,
             "fen": fen,

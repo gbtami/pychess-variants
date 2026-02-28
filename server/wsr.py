@@ -61,7 +61,7 @@ if TYPE_CHECKING:
         ViewRematchMessage,
     )
 from pychess_global_app_state_utils import get_app_state
-from seek import challenge, Seek
+from seek import Seek
 from ws_types import BughouseMoveMessage, MoveMessage, RoundInboundMessage
 from utils import (
     analysis_move,
@@ -607,11 +607,12 @@ async def handle_rematch(
             response = await join_seek(app_state, engine, seek)
             await ws_send_json(ws, response)
 
-            await engine.event_queue.put(challenge(seek))
             gameId = response["gameId"]
             rematch_id = gameId
             game.rematch_id = rematch_id
             engine.game_queues[gameId] = asyncio.Queue()
+            rematch_game = app_state.games[gameId]
+            await engine.event_queue.put(rematch_game.game_start)
         else:
             if opp_name in game.rematch_offers:
                 color = "w" if game.wplayer.username == opp_name else "b"

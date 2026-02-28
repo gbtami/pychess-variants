@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import aiohttp_session
 from aiohttp import web
 
-from const import DARK_FEN, STARTED, GAME_CATEGORY_ALL
+from const import ANON_PREFIX, DARK_FEN, STARTED, GAME_CATEGORY_ALL
 from fairy import BLACK, WHITE
 from lang import LOCALE
 from pychess_global_app_state_utils import get_app_state
@@ -41,13 +41,17 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
     if session_user is not None:
         log.info("+++ Existing user %s connected.", session_user)
         doc: UserDocument | None = None
-        try:
-            doc = await app_state.db.user.find_one({"_id": session_user})
-        except Exception:
-            log.error(
-                "index() app_state.db.user.find_one Exception. Failed to get user %s from mongodb!",
-                session_user,
-            )
+        # Anonymous users are in-memory only and are not persisted in db.user.
+        # Skip pointless db lookups for Anon-* sessions to reduce Mongo load
+        # under heavy anonymous traffic (e.g. stress runs / large spectator spikes).
+        if not session_user.startswith(ANON_PREFIX):
+            try:
+                doc = await app_state.db.user.find_one({"_id": session_user})
+            except Exception:
+                log.error(
+                    "index() app_state.db.user.find_one Exception. Failed to get user %s from mongodb!",
+                    session_user,
+                )
         if doc is not None:
             if not doc.get("enabled", True):
                 log.info("Closed account %s tried to connect.", session_user)

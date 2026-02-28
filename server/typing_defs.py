@@ -170,6 +170,7 @@ class GameStep(TypedDict, total=False):
 class GameBoardResponse(TypedDict):
     type: Literal["board"]
     gameId: str
+    variant: str
     status: int
     result: str
     fen: str

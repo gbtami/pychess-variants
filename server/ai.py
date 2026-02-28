@@ -82,12 +82,22 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
             # print("   +++ game_queues get()", event)
             try:
                 if random_mover:
+                    legal_moves = game.legal_moves
+                    if len(legal_moves) == 0:
+                        # Keep the task alive: a transient state mismatch should
+                        # not kill the per-game bot worker permanently.
+                        log.warning(
+                            "No legal moves for bot=%s in game=%s game_task()",
+                            bot.username,
+                            game.id,
+                        )
+                        continue
                     async with game.move_lock:
-                        await play_move(app_state, bot, game, random.choice(game.legal_moves))
+                        await play_move(app_state, bot, game, random.choice(legal_moves))
                 elif len(app_state.workers) > 0:
                     AI_move(game, level)
             except Exception:
-                log.error(
+                log.exception(
                     "Break in BOT_task() game_task(). %s BOT play_move/AI_move failed", game.id
                 )
                 break
@@ -111,11 +121,33 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
         app_state.fishnet_works[work_id] = work
         app_state.fishnet_queue.put_nowait((MOVE, work_id))
 
+    def start_game_task(
+        active_game_tasks: dict[str, asyncio.Task[None]],
+        game: Game,
+        level: int,
+        random_mover: bool,
+    ) -> bool:
+        if game.id in active_game_tasks:
+            return False
+        task = asyncio.create_task(
+            game_task(bot, game, level, random_mover), name="bot-game-%s" % game.id
+        )
+        active_game_tasks[game.id] = task
+        bot_game_tasks.add(task)
+
+        def _cleanup(done: asyncio.Task[None], game_id: str = game.id) -> None:
+            bot_game_tasks.discard(done)
+            active_game_tasks.pop(game_id, None)
+
+        task.add_done_callback(_cleanup)
+        return True
+
     # After server restart we may have to wait for fairyfishnet workers to join...
     while not bot.online:
         await asyncio.sleep(3)
 
     random_mover = bot.username == "Random-Mover"
+    active_game_tasks: dict[str, asyncio.Task[None]] = {}
 
     while not app_state.shutdown:
         line = await bot.event_queue.get()
@@ -148,17 +180,20 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
             await game.abort_by_server()
             continue
 
+        started_now = start_game_task(active_game_tasks, game, level, random_mover)
+        if not started_now:
+            continue
+
+        # Do not execute first move inline in the global event loop: that would
+        # serialize startup across many games and increase aborts under stress.
         turn_player = game.wplayer.username if game.board.color == WHITE else game.bplayer.username
-
         if turn_player == bot.username:
-            if random_mover:
-                async with game.move_lock:
-                    await play_move(app_state, bot, game, random.choice(game.legal_moves))
+            queue = bot.game_queues.get(game.id)
+            if queue is not None:
+                queue.put_nowait(game.game_state)
             else:
-                AI_move(game, level)
-
-        task = asyncio.create_task(
-            game_task(bot, game, level, random_mover), name="bot-game-%s" % game.id
-        )
-        bot_game_tasks.add(task)
-        task.add_done_callback(bot_game_tasks.discard)
+                log.warning(
+                    "Missing game queue for bot=%s game=%s first move trigger",
+                    bot.username,
+                    game.id,
+                )
