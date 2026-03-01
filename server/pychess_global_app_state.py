@@ -294,6 +294,16 @@ class PychessGlobalAppState:
             await self.db.game.create_index("y")
             await self.db.game.create_index("by")
             await self.db.game.create_index("c")
+            # Conservative profile-query indexes:
+            # - keep write overhead low for realtime game inserts
+            # - remove in-memory SORT on /api/{profileId}/... and /@/{profileId}/tv paths
+            await self.db.game.create_index([("us", 1), ("d", -1)], name="us_d_desc")
+            await self.db.game.create_index([("us.0", 1), ("d", -1)], name="us0_d_desc")
+            await self.db.game.create_index([("us.1", 1), ("d", -1)], name="us1_d_desc")
+            await self.db.game.create_index(
+                [("us.0", 1), ("us.1", 1), ("d", -1)],
+                name="us0_us1_d_desc",
+            )
 
             if "notify" not in db_collections:
                 await self.db.create_collection("notify")

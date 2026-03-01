@@ -97,7 +97,8 @@ async def tv_game_user(db, users, profileId):
     if users[profileId].tv is not None:
         return users[profileId].tv
     game_id = None
-    doc = await db.game.find_one({"us": profileId}, sort=[("$natural", -1)])
+    # Use date sort so Mongo can use the profile compound index.
+    doc = await db.game.find_one({"us": profileId}, sort=[("d", -1)])
     if doc is not None:
         game_id = doc["_id"]
         users[profileId].tv = game_id
