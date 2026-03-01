@@ -1,25 +1,25 @@
 # Translations template for PROJECT.
-# Copyright (C) 2024 ORGANIZATION
+# Copyright (C) 2025 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
 # 
 # Translators:
 # Ka_HU, 2020
-# gbtami <gbtami@gmail.com>, 2024
+# gbtami <gbtami@gmail.com>, 2025
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-15 13:31+0100\n"
+"POT-Creation-Date: 2025-05-11 15:21+0200\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
-"Last-Translator: gbtami <gbtami@gmail.com>, 2024\n"
+"Last-Translator: gbtami <gbtami@gmail.com>, 2025\n"
 "Language-Team: Hungarian (https://app.transifex.com/gbtami/teams/14790/hu/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.3\n"
+"Generated-By: Babel 2.17.0\n"
 "Language: hu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -99,37 +99,36 @@ msgstr "A pychess egy ingyenes, nyílt forrású sakk variáns szerver."
 msgid "Currently supported games are "
 msgstr "A Jelenleg játszható variánsok "
 
-#: ../client/about.ts:124
+#: ../client/about.ts:126
 msgid ""
-"Additionally, you can check the Chess960 option for Chess, Crazyhouse, "
-"Atomic, Three check, King of the Hill, Racing Kings, Antichess, Horde, "
-"S-chess, Capablanca, and Capahouse to start games from random positions with"
-" "
+"Additionally, you can check the Chess960 option for Chess, Bughouse, "
+"Crazyhouse, Atomic, Three check, King of the Hill, Racing Kings, Antichess, "
+"Horde, S-chess, Capablanca, and Capahouse to start games from random "
+"positions with "
 msgstr ""
-"Additionally, you can check the Chess960 option for Chess, Crazyhouse, "
-"Atomic, Three check, King of the Hill, Racing Kings, Antichess, Horde, "
-"S-chess, Capablanca, and Capahouse to start games from random positions with"
-" "
+"A Standard, Bughouse, Crazyhouse, Atomic, Three check, King of the Hill, "
+"Racing Kings, Antichess, Horde, S-chess, Capablanca és Capahouse "
+"variánsokhoz kiválasztható a Chess960 opció is véletlen alapállással és "
 
-#: ../client/about.ts:125
+#: ../client/about.ts:127
 msgid "Chess960 castling rules."
 msgstr "Fischer random sáncolási szabályokkal."
 
-#: ../client/about.ts:128
+#: ../client/about.ts:130
 msgid "For move generation, validation, analysis, and engine play, we use "
 msgstr ""
 "A szabályos lépések ellenőrzéséhez és a gép elleni játékhoz használt "
 "programok a "
 
-#: ../client/about.ts:138
+#: ../client/about.ts:140
 msgid "On client side, the user interface of the game board is based on "
 msgstr "A kliens oldali program alapja a "
 
-#: ../client/about.ts:142
+#: ../client/about.ts:144
 msgid "The source code of the server is available on "
 msgstr "A szerver forráskódja elérhető itt "
 
-#: ../client/about.ts:147
+#: ../client/about.ts:149
 msgid ""
 "To play on PyChess, you need to have an open and unmarked account on "
 "Lichess. "
@@ -137,7 +136,7 @@ msgstr ""
 "A pychess-en való játékhoz szükséges egy nem lezárt, nem megjelölt lichess "
 "fiók."
 
-#: ../client/about.ts:148
+#: ../client/about.ts:150
 msgid ""
 "Regarding Privacy and Terms of Service, the rules of lichess.org are also "
 "applied here. "
@@ -145,35 +144,35 @@ msgstr ""
 "A személyes adatok védelme és a felhasználási feltételek tekintetében itt is"
 " a lichess.org szabályai érvényesek."
 
-#: ../client/analysis.ts:45 ../client/bug/analysis.bug.ts:35
-#: ../client/editor/editor.ts:30 ../client/lobby.ts:411
-#: ../client/lobby.ts:1095 ../client/puzzle.ts:32 ../client/puzzleCtrl.ts:210
+#: ../client/analysis.ts:39 ../client/bug/analysis.bug.ts:35
+#: ../client/editor/editor.ts:30 ../client/lobby.ts:438
+#: ../client/lobby.ts:1293 ../client/puzzle.ts:32 ../client/puzzleCtrl.ts:211
 #: ../client/settingsView.ts:133
 msgid "Variant"
 msgstr "Variáns"
 
-#: ../client/analysis.ts:117
+#: ../client/analysis.ts:111
 msgid "Computer analysis"
 msgstr "Számítógépes elemzés"
 
-#: ../client/analysis.ts:119 ../client/bug/analysis.bug.ts:168
+#: ../client/analysis.ts:113 ../client/bug/analysis.bug.ts:168
 msgid "Move times"
 msgstr "Lépésidők"
 
-#: ../client/analysis.ts:122
+#: ../client/analysis.ts:116
 msgid "Crosstable"
 msgstr "Eredménytábla"
 
-#: ../client/analysis.ts:126 ../client/bug/analysis.bug.ts:169
+#: ../client/analysis.ts:120 ../client/bug/analysis.bug.ts:169
 msgid "FEN & PGN"
 msgstr "FEN & PGN"
 
-#: ../client/analysis.ts:189
+#: ../client/analysis.ts:183
 msgid "Multi-threaded WebAssembly (classical evaluation)"
 msgstr "Többszálú WebAssembly (hagyományos értékelés)"
 
-#: ../client/analysis.ts:191 ../client/analysisCtrl.ts:695
-#: ../client/bug/analysis.bug.ts:108 ../client/bug/analysisCtrl.bug.ts:671
+#: ../client/analysis.ts:185 ../client/analysisCtrl.ts:723
+#: ../client/bug/analysis.bug.ts:108 ../client/bug/analysisCtrl.bug.ts:690
 msgid "in local browser"
 msgstr "a böngészőben"
 
@@ -185,63 +184,67 @@ msgstr "Kezdőállás"
 msgid "Advantage"
 msgstr "Előny"
 
-#: ../client/analysisCtrl.ts:305 ../client/lobby.ts:793
+#: ../client/analysisCtrl.ts:316 ../client/lobby.ts:878
 msgid "You need an account to do that."
 msgstr "Csak regisztrált felhasználók számára elérhető."
 
-#: ../client/analysisCtrl.ts:342 ../client/bug/analysisCtrl.bug.ts:333
+#: ../client/analysisCtrl.ts:326
+msgid "This variant is not supported by Fairy-Stockfish."
+msgstr "Ezt a variánst nem támogatja a Fairy-Stockfish."
+
+#: ../client/analysisCtrl.ts:362 ../client/bug/analysisCtrl.bug.ts:341
 msgid "Download game to PGN file"
 msgstr "Játszma leöltése PGN fájlba."
 
-#: ../client/analysisCtrl.ts:342 ../client/bug/analysisCtrl.bug.ts:333
+#: ../client/analysisCtrl.ts:362 ../client/bug/analysisCtrl.bug.ts:341
 msgid "Download PGN"
 msgstr "PGN letöltése"
 
-#: ../client/analysisCtrl.ts:344 ../client/bug/analysisCtrl.bug.ts:335
+#: ../client/analysisCtrl.ts:364 ../client/bug/analysisCtrl.bug.ts:343
 msgid "Copy USI/UCI to clipboard"
 msgstr "UCI/USI másolása a vágólapra."
 
-#: ../client/analysisCtrl.ts:344 ../client/bug/analysisCtrl.bug.ts:335
+#: ../client/analysisCtrl.ts:364 ../client/bug/analysisCtrl.bug.ts:343
 msgid "Copy UCI/USI"
 msgstr "UCI/USI másolása"
 
-#: ../client/analysisCtrl.ts:346 ../client/bug/analysisCtrl.bug.ts:337
+#: ../client/analysisCtrl.ts:366 ../client/bug/analysisCtrl.bug.ts:345
 msgid "Download position to PNG image file"
 msgstr "Állás másolása PNG kép fájlba."
 
-#: ../client/analysisCtrl.ts:346 ../client/bug/analysisCtrl.bug.ts:337
+#: ../client/analysisCtrl.ts:366 ../client/bug/analysisCtrl.bug.ts:345
 msgid "PNG image"
 msgstr "PNG kép"
 
-#: ../client/analysisCtrl.ts:360
+#: ../client/analysisCtrl.ts:380
 msgid "Are you sure you want to delete this game?"
 msgstr "Biztosan törölni akarod ezt a játszmát?"
 
-#: ../client/analysisCtrl.ts:375
+#: ../client/analysisCtrl.ts:395
 msgid "Delete game"
 msgstr "Játszma törlése"
 
-#: ../client/analysisCtrl.ts:407
+#: ../client/analysisCtrl.ts:427
 msgid "Request Computer Analysis"
 msgstr "Számítógépes elemzés kérése"
 
-#: ../client/analysisCtrl.ts:407
+#: ../client/analysisCtrl.ts:427
 msgid "Request Analysis"
 msgstr "Elemzés kérése"
 
-#: ../client/analysisCtrl.ts:469 ../client/bug/analysisCtrl.bug.ts:452
+#: ../client/analysisCtrl.ts:487 ../client/bug/analysisCtrl.bug.ts:473
 msgid "Try browser page reload."
 msgstr "Próbáld meg újratölteni az oldalt. "
 
-#: ../client/analysisCtrl.ts:503
+#: ../client/analysisCtrl.ts:533
 msgid "Multi-threaded WebAssembly (with NNUE evaluation)"
 msgstr "Többszálú WebAssembly (NNUE értékelés)"
 
-#: ../client/analysisCtrl.ts:678 ../client/bug/analysisCtrl.bug.ts:651
+#: ../client/analysisCtrl.ts:706 ../client/bug/analysisCtrl.bug.ts:670
 msgid "Depth"
 msgstr "mélység"
 
-#: ../client/analysisCtrl.ts:683 ../client/bug/analysisCtrl.bug.ts:656
+#: ../client/analysisCtrl.ts:711 ../client/bug/analysisCtrl.bug.ts:675
 msgid "Go deeper"
 msgstr "Mélyebben"
 
@@ -309,11 +312,11 @@ msgstr "Automatikus figura átváltoztatás"
 msgid "Show material difference"
 msgstr "Bábuk közötti különbség"
 
-#: ../client/chat.ts:50 ../client/chat.ts:66
+#: ../client/chat.ts:50 ../client/chat.ts:64
 msgid "Sign in to chat"
 msgstr "Jelentkezz be"
 
-#: ../client/chat.ts:50 ../client/chat.ts:66
+#: ../client/chat.ts:50 ../client/chat.ts:64
 msgid "Please be nice in the chat!"
 msgstr "Légy udvarias másokkal!"
 
@@ -321,19 +324,19 @@ msgstr "Légy udvarias másokkal!"
 msgid "Chat is disabled"
 msgstr "Csevegő kikapcsolva"
 
-#: ../client/chat.ts:55
+#: ../client/chat.ts:54
 msgid "Spectator room"
 msgstr "Figyelőszoba"
 
-#: ../client/chat.ts:55
+#: ../client/chat.ts:54
 msgid "Chat room"
 msgstr "Csevegő"
 
-#: ../client/chat.ts:56
+#: ../client/chat.ts:55
 msgid "Toggle the chat"
 msgstr "Csevegő ki-be"
 
-#: ../client/chat.ts:93
+#: ../client/chat.ts:91
 msgid "Server"
 msgstr "Szerver"
 
@@ -433,26 +436,30 @@ msgid_plural "%1 seconds ago"
 msgstr[0] "%1 másodperce"
 msgstr[1] "%1 másodperce"
 
-#: ../client/gameCtrl.ts:498 ../client/tournament.ts:592
+#: ../client/gameCtrl.ts:499 ../client/tournament.ts:628
 msgid "Spectators: "
 msgstr "Nézők: "
 
-#: ../client/gameCtrl.ts:520
+#: ../client/gameCtrl.ts:525
 msgid "Requested game %1 not found!"
 msgstr "A kért %1 játszma nem található!"
 
-#: ../client/bug/gameInfo.bug.ts:32 ../client/gameInfo.ts:34
+#: ../client/bug/gameInfo.bug.ts:32 ../client/gameInfo.ts:35
 #: ../client/result.ts:54
 msgid "Playing right now"
 msgstr "Folyamatban lévő játszma"
 
-#: ../client/editor/editorCtrl.ts:107 ../client/i18n.ts:62
-#: ../client/lobby.ts:546
+#: ../client/gameInfo.ts:52
+msgid "Start position: "
+msgstr "Kezdőállás:"
+
+#: ../client/editor/editorCtrl.ts:109 ../client/i18n.ts:62
+#: ../client/lobby.ts:573
 msgid "White"
 msgstr "Világos"
 
-#: ../client/editor/editorCtrl.ts:122 ../client/i18n.ts:62
-#: ../client/lobby.ts:544
+#: ../client/editor/editorCtrl.ts:124 ../client/i18n.ts:62
+#: ../client/lobby.ts:571
 msgid "Black"
 msgstr "Sötét"
 
@@ -476,364 +483,417 @@ msgstr "Pink"
 msgid "Green"
 msgstr "Zöld"
 
-#: ../client/i18n.ts:68
+#: ../client/i18n.ts:68 ../client/variants.ts:492 ../client/variants.ts:669
+#: ../client/variants.ts:896
+msgid "pawn"
+msgstr "gyalog"
+
+#: ../client/i18n.ts:68 ../client/variants.ts:493 ../client/variants.ts:672
+msgid "knight"
+msgstr "huszár"
+
+#: ../client/i18n.ts:68 ../client/variants.ts:494 ../client/variants.ts:671
+msgid "bishop"
+msgstr "futó"
+
+#: ../client/i18n.ts:69 ../client/variants.ts:495 ../client/variants.ts:673
+msgid "rook"
+msgstr "bástya"
+
+#: ../client/i18n.ts:69 ../client/variants.ts:496 ../client/variants.ts:670
+msgid "queen"
+msgstr "vezér"
+
+#: ../client/i18n.ts:69
+msgid "king"
+msgstr "király"
+
+#: ../client/i18n.ts:70 ../client/variants.ts:897
+msgid "horse"
+msgstr "ló"
+
+#: ../client/i18n.ts:70 ../client/variants.ts:898
+msgid "elephant"
+msgstr "elefánt"
+
+#: ../client/i18n.ts:70 ../client/variants.ts:899
+msgid "chariot"
+msgstr "szekér"
+
+#: ../client/i18n.ts:70 ../client/variants.ts:900
+msgid "cannon"
+msgstr "ágyú"
+
+#: ../client/i18n.ts:70 ../client/variants.ts:901
+msgid "advisor"
+msgstr "testőr"
+
+#: ../client/i18n.ts:74
 msgid "chess"
 msgstr "Sakk"
 
-#: ../client/i18n.ts:68
+#: ../client/i18n.ts:74
 msgid "bughouse"
 msgstr "bughouse"
 
-#: ../client/i18n.ts:68
+#: ../client/i18n.ts:74
 msgid "crazyhouse"
 msgstr "crazyhouse"
 
-#: ../client/i18n.ts:68
+#: ../client/i18n.ts:74
 msgid "placement"
 msgstr "placement"
 
-#: ../client/i18n.ts:68
+#: ../client/i18n.ts:74
 msgid "atomic"
 msgstr "atom"
 
-#: ../client/i18n.ts:69
+#: ../client/i18n.ts:75
 msgid "king of the hill"
 msgstr "king of the hill"
 
-#: ../client/i18n.ts:69
+#: ../client/i18n.ts:75
 msgid "three-check"
 msgstr "three-check"
 
-#: ../client/i18n.ts:69
+#: ../client/i18n.ts:75
 msgid "antichess"
 msgstr "antichess"
 
-#: ../client/i18n.ts:69
+#: ../client/i18n.ts:75
 msgid "racing kings"
 msgstr "racing kings"
 
-#: ../client/i18n.ts:70
+#: ../client/i18n.ts:76
 msgid "horde"
 msgstr "horde"
 
-#: ../client/i18n.ts:70
+#: ../client/i18n.ts:76
 msgid "duck"
 msgstr "duck"
 
-#: ../client/i18n.ts:70
+#: ../client/i18n.ts:76
 msgid "alice"
 msgstr "alice"
 
-#: ../client/i18n.ts:70
+#: ../client/i18n.ts:76
 msgid "fog of war"
 msgstr "fog of war"
 
-#: ../client/i18n.ts:72
+#: ../client/i18n.ts:78
 msgid "makruk"
 msgstr "makruk"
 
-#: ../client/i18n.ts:72
+#: ../client/i18n.ts:78
+msgid "makbug"
+msgstr "makbug"
+
+#: ../client/i18n.ts:78
 msgid "makpong"
 msgstr "makpong"
 
-#: ../client/i18n.ts:72
+#: ../client/i18n.ts:78
 msgid "ouk chaktrang"
 msgstr "ouk chaktrang"
 
-#: ../client/i18n.ts:72
+#: ../client/i18n.ts:78
 msgid "sittuyin"
 msgstr "sittuyin"
 
-#: ../client/i18n.ts:72
+#: ../client/i18n.ts:78
 msgid "asean"
 msgstr "asean"
 
-#: ../client/i18n.ts:74
+#: ../client/i18n.ts:80
 msgid "shogi"
 msgstr "sógi"
 
-#: ../client/i18n.ts:74
+#: ../client/i18n.ts:80
 msgid "minishogi"
 msgstr "mini sógi"
 
-#: ../client/i18n.ts:74
+#: ../client/i18n.ts:80
 msgid "kyoto shogi"
 msgstr "kiotó sógi"
 
-#: ../client/i18n.ts:74
+#: ../client/i18n.ts:80
 msgid "dobutsu"
 msgstr "dobutsu"
 
-#: ../client/i18n.ts:74
+#: ../client/i18n.ts:80
 msgid "gorogoro"
 msgstr "gorogoro"
 
-#: ../client/i18n.ts:75
+#: ../client/i18n.ts:81
 msgid "gorogoro+"
 msgstr "gorogoro+"
 
-#: ../client/i18n.ts:75
+#: ../client/i18n.ts:81
 msgid "tori shogi"
 msgstr "madár sógi"
 
-#: ../client/i18n.ts:77
+#: ../client/i18n.ts:83
 msgid "xiangqi"
 msgstr "xiangqi"
 
-#: ../client/i18n.ts:77
+#: ../client/i18n.ts:83
+msgid "supply chess"
+msgstr "supply chess"
+
+#: ../client/i18n.ts:83
 msgid "manchu"
 msgstr "manchu"
 
-#: ../client/i18n.ts:77
+#: ../client/i18n.ts:83
 msgid "janggi"
 msgstr "janggi"
 
-#: ../client/i18n.ts:77
+#: ../client/i18n.ts:83
 msgid "minixiangqi"
 msgstr "minixiangqi"
 
-#: ../client/i18n.ts:79
+#: ../client/i18n.ts:85
 msgid "shatranj"
 msgstr "shatranj"
 
-#: ../client/i18n.ts:79
+#: ../client/i18n.ts:85
 msgid "capablanca"
 msgstr "capablanca"
 
-#: ../client/i18n.ts:79
+#: ../client/i18n.ts:85
 msgid "capahouse"
 msgstr "capahouse"
 
-#: ../client/i18n.ts:79
+#: ../client/i18n.ts:85
 msgid "dragon chess"
 msgstr "dragon chess"
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:86
 msgid "s-chess"
 msgstr "s-chess"
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:86
 msgid "s-house"
 msgstr "s-house"
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:86
 msgid "grand"
 msgstr "grand"
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:86
 msgid "grandhouse"
 msgstr "grandhouse"
 
-#: ../client/i18n.ts:80
+#: ../client/i18n.ts:86
 msgid "shako"
 msgstr "shako"
 
-#: ../client/i18n.ts:81
+#: ../client/i18n.ts:87
 msgid "shogun"
 msgstr "shogun"
 
-#: ../client/i18n.ts:81
+#: ../client/i18n.ts:87
 msgid "hoppel-poppel"
 msgstr "hoppel-poppel"
 
-#: ../client/i18n.ts:81
+#: ../client/i18n.ts:87
 msgid "mansindam"
 msgstr "mansindam"
 
-#: ../client/i18n.ts:83
+#: ../client/i18n.ts:89
 msgid "orda"
 msgstr "orda"
 
-#: ../client/i18n.ts:83
+#: ../client/i18n.ts:89
 msgid "khans"
 msgstr "khans"
 
-#: ../client/i18n.ts:83
+#: ../client/i18n.ts:89
 msgid "synochess"
 msgstr "synochess"
 
-#: ../client/i18n.ts:83
+#: ../client/i18n.ts:89
 msgid "shinobi"
 msgstr "shinobi"
 
-#: ../client/i18n.ts:83
+#: ../client/i18n.ts:89
 msgid "shinobi+"
 msgstr "shinobi+"
 
-#: ../client/i18n.ts:84
+#: ../client/i18n.ts:90
 msgid "empire"
 msgstr "empire"
 
-#: ../client/i18n.ts:84
+#: ../client/i18n.ts:90
 msgid "orda mirror"
 msgstr "orda mirror"
 
-#: ../client/i18n.ts:84
+#: ../client/i18n.ts:90
 msgid "chak"
 msgstr "chak"
 
-#: ../client/i18n.ts:84
+#: ../client/i18n.ts:90
 msgid "chennis"
 msgstr "chennis"
 
-#: ../client/i18n.ts:88
+#: ../client/i18n.ts:94
 msgid "PawnsPushed"
 msgstr "Összetolt gyalogok"
 
-#: ../client/i18n.ts:88
+#: ../client/i18n.ts:94
 msgid "PawnsPassed"
 msgstr "Gyalogok a félpályán túl"
 
-#: ../client/i18n.ts:88
+#: ../client/i18n.ts:94
 msgid "UpsideDown"
 msgstr "Fejjel lefele"
 
-#: ../client/i18n.ts:88
+#: ../client/i18n.ts:94
 msgid "Theban"
 msgstr "Spárta - Théba"
 
-#: ../client/i18n.ts:88
+#: ../client/i18n.ts:94
 msgid "No castle"
 msgstr "Nincs sáncolás"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:96
 msgid "Lance HC"
 msgstr "Lándzsás hátrány"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:96
 msgid "Bishop HC"
 msgstr "Futó hátrány"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:96
 msgid "Rook HC"
 msgstr "Bástya hátrány"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:96
 msgid "Rook+Lance HC"
 msgstr "Bástya+Lándzsás hátrány"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:96
 msgid "2-Piece HC"
 msgstr "2 figura hátrány"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:96
 msgid "4-Piece HC"
 msgstr "4 figura hátrány"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:96
 msgid "6-Piece HC"
 msgstr "6 figura hátrány"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:96
 msgid "8-Piece HC"
 msgstr "8 figura hátrány"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:96
 msgid "9-Piece HC"
 msgstr "9 figura hátrány"
 
-#: ../client/i18n.ts:90
+#: ../client/i18n.ts:96
 msgid "10-Piece HC"
 msgstr "10 figura hátrány"
 
-#: ../client/i18n.ts:92
+#: ../client/i18n.ts:98
 msgid "Gorogoro Plus N+L"
 msgstr "Gorogoro Plus N+L"
 
-#: ../client/i18n.ts:92
+#: ../client/i18n.ts:98
 msgid "Original (No N+L)"
 msgstr "Original (No N+L)"
 
-#: ../client/i18n.ts:94
+#: ../client/i18n.ts:100
 msgid "Left Quail HC"
 msgstr "Left Quail HC"
 
-#: ../client/i18n.ts:94
+#: ../client/i18n.ts:100
 msgid "Falcon HC"
 msgstr "Falcon HC"
 
-#: ../client/i18n.ts:94
+#: ../client/i18n.ts:100
 msgid "Falcon + Left Quail HC"
 msgstr "Falcon + Left Quail HC"
 
-#: ../client/i18n.ts:94
+#: ../client/i18n.ts:100
 msgid "Falcon + Both Quails HC"
 msgstr "Falcon + Both Quails HC"
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:102
 msgid "Bird"
 msgstr "Bird"
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:102
 msgid "Carrera"
 msgstr "Carrera"
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:102
 msgid "Gothic"
 msgstr "Gothic"
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:102
 msgid "Embassy"
 msgstr "Embassy"
 
-#: ../client/i18n.ts:96
+#: ../client/i18n.ts:102
 msgid "Conservative"
 msgstr "Conservative"
 
-#: ../client/i18n.ts:100
+#: ../client/i18n.ts:106
 msgid "Infection game."
 msgstr "Fertőzés játék."
 
-#: ../client/i18n.ts:101
+#: ../client/i18n.ts:107
 msgid "Chess, unmodified, as it's played by FIDE standards."
 msgstr "Hagyományos sakk a FIDE szabályai szerint."
 
-#: ../client/i18n.ts:102
+#: ../client/i18n.ts:108
 msgid "Take captured pieces and drop them back on to the board as your own."
 msgstr "A leütött figurákat később visszarakhatod a táblára a sajátodként."
 
-#: ../client/i18n.ts:103
+#: ../client/i18n.ts:109
 msgid "Choose where your pieces start."
 msgstr "Helyezd el a tiszteket a kezdés előtt!"
 
-#: ../client/i18n.ts:104
+#: ../client/i18n.ts:110
 msgid "Pieces explode upon capture."
 msgstr "Ütésnél a tisztek felrobbannak."
 
-#: ../client/i18n.ts:105
+#: ../client/i18n.ts:111
 msgid "Bring your King to the center to win the game."
 msgstr "Vidd a királyt a centrumba, és győztél!"
 
-#: ../client/i18n.ts:106
+#: ../client/i18n.ts:112
 msgid "Check your opponent 3 times to win the game."
 msgstr "Adj 3-szor sakkot, és győztél!"
 
-#: ../client/i18n.ts:107
+#: ../client/i18n.ts:113
 msgid "Lose all your pieces to win."
 msgstr "Veszítsd el az összes bábudat, és győztél!"
 
-#: ../client/i18n.ts:108
+#: ../client/i18n.ts:114
 msgid "Race your King to the eighth rank to win."
 msgstr "Vidd a királyodat a 8. sorra, és győztél!"
 
-#: ../client/i18n.ts:109
+#: ../client/i18n.ts:115
 msgid "Destroy the horde to win!"
 msgstr "Semmisítsd meg a hordát, és győztél!"
 
-#: ../client/i18n.ts:110
+#: ../client/i18n.ts:116
 msgid "The duck must be moved to a new square after every turn."
 msgstr "A kacsát minden lépés után kötelező új mezőre vinni."
 
-#: ../client/i18n.ts:111
+#: ../client/i18n.ts:117
 msgid "Through the Looking-Glass"
 msgstr "Tükörországban."
 
-#: ../client/i18n.ts:112
+#: ../client/i18n.ts:118
 msgid ""
 "Players can only see the squares to which their pieces can legally move to."
 msgstr "Csak azok a mezők láthatók amelyekre a figuráid léphetnek."
 
-#: ../client/i18n.ts:113
+#: ../client/i18n.ts:119
 msgid ""
 "Thai Chess. A game closely resembling the original Chaturanga. Similar to "
 "Chess but with a different queen and bishop."
@@ -841,15 +901,15 @@ msgstr ""
 "Thai sakk. Az eredeti Csaturangához közel álló sakk variáns. Hasonló a "
 "sakkhoz, de a vezér és a futó másként lép."
 
-#: ../client/i18n.ts:114
+#: ../client/i18n.ts:120
 msgid "Makruk variant where kings cannot move to escape out of check."
 msgstr "Makruk variáns, ahol a király nem léphet ki a sakkból."
 
-#: ../client/i18n.ts:115
+#: ../client/i18n.ts:121
 msgid "Cambodian Chess. Makruk with a few additional opening abilities."
 msgstr "Kambodzsai sakk. Makruk variáns néhány extra lépéssel a megnyitásban."
 
-#: ../client/i18n.ts:116
+#: ../client/i18n.ts:122
 msgid ""
 "Burmese Chess. Similar to Makruk, but pieces are placed at the start of the "
 "match."
@@ -857,7 +917,7 @@ msgstr ""
 "Burmai sakk. A Makrukhoz hasonló, de a játékosok helyezhetik el a tiszteket "
 "kezdés előtt."
 
-#: ../client/i18n.ts:117
+#: ../client/i18n.ts:123
 msgid ""
 "Makruk using the board/pieces from International Chess as well as pawn "
 "promotion rules."
@@ -865,54 +925,54 @@ msgstr ""
 "Makruk hagyományos sakktáblán és figurákkal, a sakk átváltozási "
 "szabályaival."
 
-#: ../client/i18n.ts:118
+#: ../client/i18n.ts:124
 msgid ""
 "Japanese Chess, the standard 9x9 version played today with drops and "
 "promotions."
 msgstr "Japán sakk, a standard 9x9-es változat."
 
-#: ../client/i18n.ts:119
+#: ../client/i18n.ts:125
 msgid "Shogi with Chinese and Korean cannons"
 msgstr "Sógi kínai és koreai ágyúkkal"
 
-#: ../client/i18n.ts:120
+#: ../client/i18n.ts:126
 msgid ""
 "5x5 Shogi for more compact and faster games. There are no knights or lances."
 msgstr ""
 "5x5-ös Sógi gyorsabb játszmákhoz. Nincsenek benne lovasok és lándzsások."
 
-#: ../client/i18n.ts:121
+#: ../client/i18n.ts:127
 msgid ""
 "A wild Shogi variant on a 5x5 board where pieces flip into a different piece"
 " after each move."
 msgstr ""
 "5x5-ös Sógi variáns, ahol a figurák minden lépésben oda-vissza átváltoznak."
 
-#: ../client/i18n.ts:122
+#: ../client/i18n.ts:128
 msgid ""
 "3x4 game with cute animals, designed to teach children how to play Shogi."
 msgstr ""
 "3x4-es variáns aranyos állatokkal. Gyerekek számára létrehozott játék a Sógi"
 " tanításához."
 
-#: ../client/i18n.ts:123
+#: ../client/i18n.ts:129
 msgid "5x6 Shogi designed to introduce tactics with the generals."
 msgstr ""
 "5x6-os Sógi, a tábornokok megismeréséhez és a Sógi taktika elsajátításához."
 
-#: ../client/i18n.ts:124
+#: ../client/i18n.ts:130
 msgid ""
 "A confrontational 7x7 variant with unique pieces each named after different "
 "birds."
 msgstr "Vad 7x7-es variáns különféle madár figurákkal."
 
-#: ../client/i18n.ts:125
+#: ../client/i18n.ts:131
 msgid ""
 "Chinese Chess, one of the oldest and most played board games in the world."
 msgstr ""
 "Kínai sakk. Az egyik legrégebbi és legtöbbek által játszott játék a földön."
 
-#: ../client/i18n.ts:126
+#: ../client/i18n.ts:132
 msgid ""
 "Xiangqi variant where one side has a chariot that can also move as a cannon "
 "or horse."
@@ -920,7 +980,7 @@ msgstr ""
 "Xiangqi variáns, ahol az egyik oldal szekér figurája ágyúként és lovasként "
 "is léphet."
 
-#: ../client/i18n.ts:127
+#: ../client/i18n.ts:133
 msgid ""
 "Korean Chess, similar to Xiangqi but plays much differently. Tournament "
 "rules are used."
@@ -928,19 +988,19 @@ msgstr ""
 "Koreai sakk. A Xiangqi-hoz hasonló, de sok mindenben el is tér. A "
 "versenyszabályok érvényesek."
 
-#: ../client/i18n.ts:128
+#: ../client/i18n.ts:134
 msgid "Compact version of Xiangqi played on a 7x7 board without a river."
 msgstr "7x7-es Xiangqi, a két tábort elválasztó folyó nélkül."
 
-#: ../client/i18n.ts:129
+#: ../client/i18n.ts:135
 msgid "Ancient Arabian and Persian form of Chess."
 msgstr "A sakk ősi arab és perzsa változata."
 
-#: ../client/i18n.ts:130
+#: ../client/i18n.ts:136
 msgid "The dragon can be dropped to the base rank."
 msgstr "A sárkány berakható az alapsorra."
 
-#: ../client/i18n.ts:131
+#: ../client/i18n.ts:137
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "10x8 board."
@@ -948,11 +1008,11 @@ msgstr ""
 "10x8-as sakk két új figurával. Az archbishop = futó + ló, a chancellor = "
 "bástya + ló."
 
-#: ../client/i18n.ts:132
+#: ../client/i18n.ts:138
 msgid "Capablanca with Crazyhouse drop rules."
 msgstr "Capablanca variáns Crazyhouse szabályokkal."
 
-#: ../client/i18n.ts:133
+#: ../client/i18n.ts:139
 msgid ""
 "Hybrid pieces, the hawk (B+N) and elephant (R+N), can enter the board after "
 "moving a back rank piece."
@@ -960,11 +1020,11 @@ msgstr ""
 "A sólyom = futó + ló és az elefánt = bástya + ló a táblára léphet amikor az "
 "alapsorról először lép el egy figura."
 
-#: ../client/i18n.ts:134
+#: ../client/i18n.ts:140
 msgid "S-Chess with Crazyhouse drop rules."
 msgstr "S-Chess Crazyhouse szabályokkal."
 
-#: ../client/i18n.ts:135
+#: ../client/i18n.ts:141
 msgid ""
 "Play with the hybrid pieces, archbishop (B+N) and chancellor (R+N), on a "
 "grand 10x10 board."
@@ -972,26 +1032,26 @@ msgstr ""
 "10x10-es sakk két új figurával. Az archbishop = futó + ló, a chancellor = "
 "bástya + ló."
 
-#: ../client/i18n.ts:136
+#: ../client/i18n.ts:142
 msgid "Grand Chess with Crazyhouse drop rules."
 msgstr "Grand Chess Crazyhouse szabályokkal."
 
-#: ../client/i18n.ts:137
+#: ../client/i18n.ts:143
 msgid ""
 "Introduces the cannon and elephant from Xiangqi into a 10x10 chess board."
 msgstr "10x10-es variáns Xiangqi ágyúval és elefánttal."
 
-#: ../client/i18n.ts:138
+#: ../client/i18n.ts:144
 msgid "Pieces promote and can be dropped, similar to Shogi."
 msgstr ""
 "A figurák átváltozhatnak és a leütött figurák visszarakhatók a Sógi-hoz "
 "hasonlóan."
 
-#: ../client/i18n.ts:139
+#: ../client/i18n.ts:145
 msgid "Knights capture as bishops; bishops  capture as knights."
 msgstr "A huszárok futóként ütnek, a futók meg huszárként."
 
-#: ../client/i18n.ts:140
+#: ../client/i18n.ts:146
 msgid ""
 "Asymmetric variant where one army has pieces that move like knights but "
 "capture differently."
@@ -999,14 +1059,14 @@ msgstr ""
 "Aszimmetrikus variáns, ahol az arany horda tisztjei lóként lépnek, de "
 "másként ütnek."
 
-#: ../client/i18n.ts:141
+#: ../client/i18n.ts:147
 msgid ""
 "Asymmetric East vs. West variant which pits the western Chess army against a"
 " Xiangqi and Janggi-styled army."
 msgstr ""
 "Aszimmetrikus variáns, kínai és koreai figurákkal a nyugati sakk ellen."
 
-#: ../client/i18n.ts:142
+#: ../client/i18n.ts:148
 msgid ""
 "Asymmetric variant which pits the western Chess army against a drop-based, "
 "Shogi-styled army."
@@ -1014,7 +1074,7 @@ msgstr ""
 "Aszimmetrikus variáns, a nyugati sakk figurák a visszarakható, Sógi-hoz "
 "hasonló figurák ellen."
 
-#: ../client/i18n.ts:143
+#: ../client/i18n.ts:149
 msgid ""
 "Asymmetric variant where one army has pieces that move like queens but "
 "capture as usual."
@@ -1022,49 +1082,49 @@ msgstr ""
 "Aszimmetrikus variáns, ahol a világos tisztek a szokásos módon ütnek, de "
 "vezérként lépnek."
 
-#: ../client/i18n.ts:144
+#: ../client/i18n.ts:150
 msgid "Orda Chess variant. The scout and khatun replaces the pawn and yurt."
 msgstr "Orda sakk változat."
 
-#: ../client/i18n.ts:145
+#: ../client/i18n.ts:151
 msgid ""
 "Orda Chess variant with two Horde armies. The Falcon replaces the Yurt."
 msgstr "Orda sakk variáns két Orda sereggel, a jurta helyett sólyommal."
 
-#: ../client/i18n.ts:146
+#: ../client/i18n.ts:152
 msgid "Mayan chess. Inspired by cultural elements of Mesoamerica."
 msgstr ""
 "Maja sakk. Mezoamerika kulturális elemei által inspirált sakk variáns."
 
-#: ../client/i18n.ts:147
+#: ../client/i18n.ts:153
 msgid "Pieces alternate between two forms with each move."
 msgstr "A figurák minden lépésnél oda vissza átváltoznak."
 
-#: ../client/i18n.ts:148
+#: ../client/i18n.ts:154
 msgid "Asymmetric Spartans vs. Persians variant."
 msgstr "A spártaiak a perzsák ellen."
 
-#: ../client/i18n.ts:149
+#: ../client/i18n.ts:155
 msgid "A variant that combines the Shogi's drop rule with strong pieces."
 msgstr "Erős figurák kombinálva Shógi szabályokkal."
 
-#: ../client/i18n.ts:150
+#: ../client/i18n.ts:156
 msgid "Like Capablanca Chess but with Grand starting setup."
 msgstr "Capablanca sakk Grand sakk kezdőállással."
 
-#: ../client/i18n.ts:151
+#: ../client/i18n.ts:157
 msgid "Embassy with Crazyhouse drop rules."
 msgstr "Embassy Crazyhouse visszarakásokkal."
 
-#: ../client/i18n.ts:152
+#: ../client/i18n.ts:158
 msgid "Like Capablanca Chess but with a different starting setup."
 msgstr "Capablanca sakk más kezdőállással."
 
-#: ../client/i18n.ts:153
+#: ../client/i18n.ts:159
 msgid "Gothic with Crazyhouse drop rules."
 msgstr "Capablanca variáns Crazyhouse szabályokkal."
 
-#: ../client/invite.ts:34 ../client/lobby.ts:29
+#: ../client/invite.ts:34 ../client/lobby.ts:40
 msgid "Host a game for others"
 msgstr "Játszma létrehozása másoknak."
 
@@ -1073,7 +1133,7 @@ msgid "Challenge to a game"
 msgstr "Kihívás"
 
 #: ../client/invite.ts:37 ../client/invite.ts:43 ../client/invite.ts:49
-#: ../client/invite.ts:55
+#: ../client/invite.ts:55 ../client/lobby.ts:1021
 msgid "CANCEL"
 msgstr "MÉGSEM"
 
@@ -1111,114 +1171,130 @@ msgstr ""
 msgid "The first person to come to this URL will play with you."
 msgstr "Az első ember, aki felkeresi ezt a címet, az lesz az ellenfeled."
 
-#: ../client/lobby.ts:27
+#: ../client/lobby.ts:38
 msgid "Play with AI"
 msgstr "Játék a gép ellen"
 
-#: ../client/lobby.ts:28
+#: ../client/lobby.ts:39
 msgid "Play with a friend"
 msgstr "Játék egy ismerőssel"
 
-#: ../client/lobby.ts:30
+#: ../client/lobby.ts:41
 msgid "Create a game"
 msgstr "Játszma létrehozása"
 
-#: ../client/lobby.ts:130
+#: ../client/lobby.ts:142
 msgid "Challenge %1 to a game"
 msgstr "%1 kihívása egy játszmára"
 
-#: ../client/lobby.ts:404
+#: ../client/lobby.ts:431
 msgid "Cancel"
 msgstr "Mégsem"
 
-#: ../client/lobby.ts:415
+#: ../client/lobby.ts:442
 msgid "Paste the FEN text here"
 msgstr "Másold ide a FEN szöveget"
 
-#: ../client/lobby.ts:415
+#: ../client/lobby.ts:442
 msgid " (must be signed in)"
 msgstr " (jelentkezz be ehhez)"
 
-#: ../client/lobby.ts:433
+#: ../client/lobby.ts:460
 msgid "Time control"
 msgstr "Játékidő"
 
-#: ../client/lobby.ts:438
+#: ../client/lobby.ts:465
 msgid "Real time"
 msgstr "Valós idő"
 
-#: ../client/lobby.ts:439 ../client/lobby.ts:1152
+#: ../client/lobby.ts:466 ../client/lobby.ts:1351
 msgid "Correspondence"
 msgstr "Levelezés"
 
-#: ../client/lobby.ts:445
+#: ../client/lobby.ts:472
 msgid "Minutes per side:"
 msgstr "Perc játékosonként"
 
-#: ../client/lobby.ts:460
+#: ../client/lobby.ts:487
 msgid "Periods"
 msgstr "Periódus"
 
-#: ../client/lobby.ts:469
+#: ../client/lobby.ts:496
 msgid "Days per turn:"
 msgstr "Nap lépésenként:"
 
-#: ../client/lobby.ts:487 ../client/lobby.ts:851 ../client/result.ts:16
+#: ../client/lobby.ts:514 ../client/lobby.ts:937 ../client/result.ts:16
 msgid "Casual"
 msgstr "Nem értékelt"
 
-#: ../client/lobby.ts:494 ../client/lobby.ts:849
+#: ../client/lobby.ts:521 ../client/lobby.ts:935
 #: ../client/puzzleSettings.ts:28 ../client/result.ts:11
 msgid "Rated"
 msgstr "Értékelt"
 
-#: ../client/lobby.ts:498
+#: ../client/lobby.ts:525 ../client/lobby.ts:1070
 msgid "Rating range"
 msgstr "Értékszám tartomány"
 
-#: ../client/lobby.ts:523
+#: ../client/lobby.ts:550
 msgid "Practice with Random-Mover"
 msgstr "Gyakorlás a robottal"
 
-#: ../client/lobby.ts:534
+#: ../client/lobby.ts:561
 msgid "A.I. Level"
 msgstr "A.I.szint"
 
-#: ../client/lobby.ts:545
+#: ../client/lobby.ts:572
 msgid "Random"
 msgstr "Véletlen szín"
 
-#: ../client/lobby.ts:549
+#: ../client/lobby.ts:576
 msgid "Create"
 msgstr "Létrehozás"
 
-#: ../client/lobby.ts:656
+#: ../client/lobby.ts:735
 msgid "Byoyomi in seconds:"
 msgstr "Byoyomi másodpercben"
 
-#: ../client/lobby.ts:656
+#: ../client/lobby.ts:735
 msgid "Increment in seconds:"
 msgstr "Plusz idő másodpercben"
 
-#: ../client/lobby.ts:661
+#: ../client/lobby.ts:740
 msgid "Alternate Start"
 msgstr "Kezdőállás"
 
-#: ../client/editor/editorCtrl.ts:243 ../client/lobby.ts:720
+#: ../client/editor/editorCtrl.ts:245 ../client/lobby.ts:805
 msgid "Invalid FEN"
 msgstr "Érvénytelen FEN"
 
-#: ../client/lobby.ts:847
+#: ../client/lobby.ts:933
 msgid "Custom"
 msgstr "Egyéni"
 
-#: ../client/lobby.ts:875 ../client/lobby.ts:1054
+#: ../client/lobby.ts:961 ../client/lobby.ts:1245
 msgid "%1 player"
 msgid_plural "%1 players"
 msgstr[0] "%1 játékos"
 msgstr[1] "%1 játékos"
 
-#: ../client/lobby.ts:1015
+#: ../client/lobby.ts:1020
+msgid "Standing by for auto pairing..."
+msgstr "Várakozás automatikus párosításra..."
+
+#: ../client/lobby.ts:1030
+msgid "SELECT ALL"
+msgstr "ÖSSZES KIVÁLASZTÁSA"
+
+#: ../client/lobby.ts:1031
+msgid "CLEAR ALL"
+msgstr "ÖSSZES TÖRLÉSE"
+
+#: ../client/lobby.ts:1032
+msgid "SUBMIT"
+msgstr "ELKÜLD"
+
+#: ../client/lobby.ts:1198
 msgid ""
 "You have an unfinished game!\n"
 "Press OK to continue."
@@ -1226,82 +1302,108 @@ msgstr ""
 "Van egy befejezetlen játszmád!\n"
 "OK a folytatáshoz"
 
-#: ../client/lobby.ts:1048 ../client/lobby.ts:1155
+#: ../client/lobby.ts:1238 ../client/lobby.ts:1354
 msgid "%1 game in play"
 msgid_plural "%1 games in play"
 msgstr[0] "%1 játszma"
 msgstr[1] "%1 játszma"
 
-#: ../client/lobby.ts:1064
+#: ../client/lobby.ts:1252
+msgid "%1 auto pairing"
+msgid_plural "%1 auto pairings"
+msgstr[0] "%1 automatikus párosítás"
+msgstr[1] "%1 automatikus párosítás"
+
+#: ../client/lobby.ts:1262
 msgid "Tournament calendar"
 msgstr "Versenynaptár"
 
-#: ../client/lobby.ts:1092
+#: ../client/lobby.ts:1290
 msgid "Player"
 msgstr "Játékos"
 
-#: ../client/lobby.ts:1093
+#: ../client/lobby.ts:1291
 msgid "Rating"
 msgstr "Értékszám"
 
-#: ../client/lobby.ts:1094
+#: ../client/lobby.ts:1292
 msgid "Time"
 msgstr "Játékidő"
 
-#: ../client/lobby.ts:1096
+#: ../client/lobby.ts:1294
 msgid "Mode"
 msgstr "Mód"
 
-#: ../client/lobby.ts:1125
+#: ../client/lobby.ts:1324
 msgid "Puzzle of the day"
 msgstr "Napi feladvány"
 
-#: ../client/editor/editorCtrl.ts:100 ../client/editor/editorCtrl.ts:101
-#: ../client/lobby.ts:1126
+#: ../client/editor/editorCtrl.ts:102 ../client/editor/editorCtrl.ts:103
+#: ../client/lobby.ts:1325
 msgid "%1 to play"
 msgstr "%1 lép"
 
-#: ../client/lobby.ts:1151
+#: ../client/lobby.ts:1350
 msgid "Lobby"
 msgstr "Lobbi"
 
-#: ../client/lobby.ts:1211
+#: ../client/lobby.ts:1359
+msgid "Auto pairing"
+msgstr "Automatikus párosítás"
+
+#: ../client/lobby.ts:1428
 msgid "Donate"
 msgstr "Támogatás"
 
-#: ../client/lobby.ts:1212
+#: ../client/lobby.ts:1429
 msgid "FAQ"
 msgstr "GYIK"
 
-#: ../client/lobby.ts:1213
+#: ../client/lobby.ts:1430
 msgid "Stats"
 msgstr "Statisztika"
 
-#: ../client/lobby.ts:1214
+#: ../client/lobby.ts:1431
 msgid "About"
 msgstr "Névjegy"
 
-#: ../client/main.ts:162
+#: ../client/main.ts:157
 msgid "Thank you for your support!"
 msgstr "Köszönet a támogatásért!"
+
+#: ../client/movelist.ts:72
+msgid "Flip board"
+msgstr "Tábla megfordítása"
+
+#: ../client/bug/movelist.bug.ts:75 ../client/movelist.ts:79
+msgid "Switch boards"
+msgstr "Táblák felcserélése"
+
+#: ../client/movelist.ts:83
+msgid "Menu"
+msgstr "Menü"
+
+#: ../client/movelist.ts:87 ../client/tournament.ts:596
+msgid "Analysis board"
+msgstr "Elemzés"
 
 #: ../client/notifyView.ts:83
 msgid "No notifications."
 msgstr "Nincs értesítés."
 
-#: ../client/paste.ts:121
+#: ../client/paste.ts:119
 msgid "Importing Alice PGN is not supported"
 msgstr "Az Alice PGN import nem támogatott."
 
-#: ../client/paste.ts:161
+#: ../client/paste.ts:159
 msgid "Invalid PGN"
 msgstr "Érvénytelen PGN"
 
-#: ../client/paste.ts:184
+#: ../client/paste.ts:182
 msgid "Paste the PGN text here"
 msgstr "Másold a PGN szöveget ide"
 
-#: ../client/paste.ts:188
+#: ../client/paste.ts:186
 msgid "IMPORT GAME"
 msgstr "JÁTSZMA IMPORTÁLÁSA"
 
@@ -1345,19 +1447,19 @@ msgstr "Letiltás"
 msgid "Unblock"
 msgstr "Letiltás feloldása"
 
-#: ../client/puzzleCtrl.ts:88
+#: ../client/puzzleCtrl.ts:89
 msgid "LOGIN"
 msgstr "BEJELENTKEZÉS"
 
-#: ../client/puzzleCtrl.ts:116
+#: ../client/puzzleCtrl.ts:117
 msgid "Hint"
 msgstr "Javaslat"
 
-#: ../client/puzzleCtrl.ts:124
+#: ../client/puzzleCtrl.ts:125
 msgid "View the solution"
 msgstr "Megoldás megtekintése"
 
-#: ../client/puzzleCtrl.ts:165
+#: ../client/puzzleCtrl.ts:166
 msgid ""
 "Your puzzle rating will not change. Note that puzzles are not a competition."
 " Ratings help select the best puzzles for your current skill."
@@ -1366,75 +1468,75 @@ msgstr ""
 "tétje. Az értékelésed csupán segít kiválasztani az aktuális szintednek "
 "legjobban megfelelőket."
 
-#: ../client/puzzleCtrl.ts:201
+#: ../client/puzzleCtrl.ts:202
 msgid "Puzzle"
 msgstr "Feladvány"
 
-#: ../client/puzzleCtrl.ts:202
+#: ../client/puzzleCtrl.ts:203
 msgid "Rating:"
 msgstr "Értékszám:"
 
-#: ../client/puzzleCtrl.ts:202
+#: ../client/puzzleCtrl.ts:203
 msgid "hidden"
 msgstr "rejtett"
 
-#: ../client/puzzleCtrl.ts:203
+#: ../client/puzzleCtrl.ts:204
 msgid "Played:"
 msgstr "Beküldve:"
 
-#: ../client/puzzleCtrl.ts:220
+#: ../client/puzzleCtrl.ts:221
 msgid "Source:"
 msgstr "Forrás:"
 
-#: ../client/puzzleCtrl.ts:224
+#: ../client/puzzleCtrl.ts:225
 msgid "Type:"
 msgstr "Típus:"
 
-#: ../client/puzzleCtrl.ts:329
+#: ../client/puzzleCtrl.ts:334
 msgid "Your turn"
 msgstr "Te következel"
 
-#: ../client/puzzleCtrl.ts:330
+#: ../client/puzzleCtrl.ts:335
 msgid "Find the best move for %1."
 msgstr "Találd meg %1 legjobb lépését."
 
-#: ../client/puzzleCtrl.ts:347
+#: ../client/puzzleCtrl.ts:352
 msgid "That's not the move!"
 msgstr "Nem a legjobb lépés!"
 
-#: ../client/puzzleCtrl.ts:348
+#: ../client/puzzleCtrl.ts:353
 msgid "Try something else."
 msgstr "Próbálkozz mással."
 
-#: ../client/puzzleCtrl.ts:362
+#: ../client/puzzleCtrl.ts:367
 msgid "Best move!"
 msgstr "A legjobb lépés!"
 
-#: ../client/puzzleCtrl.ts:363
+#: ../client/puzzleCtrl.ts:368
 msgid "Keep going..."
 msgstr "Folytasd..."
 
-#: ../client/puzzleCtrl.ts:376
+#: ../client/puzzleCtrl.ts:381
 msgid "Success!"
 msgstr "Siker!"
 
-#: ../client/puzzleCtrl.ts:381
+#: ../client/puzzleCtrl.ts:386
 msgid "Puzzle complete!"
 msgstr "A feladvány befejezve!"
 
-#: ../client/puzzleCtrl.ts:384
+#: ../client/puzzleCtrl.ts:389
 msgid "We have no more puzzles for this variant."
 msgstr "Nincs több feladvány ehhez a variánshoz."
 
-#: ../client/puzzleCtrl.ts:394
+#: ../client/puzzleCtrl.ts:399
 msgid "Did you like this puzzle?"
 msgstr "Tetszett ez a feladvány?"
 
-#: ../client/puzzleCtrl.ts:395
+#: ../client/puzzleCtrl.ts:400
 msgid "Vote to load the next one!"
 msgstr "Szavazz egy újért cserébe!"
 
-#: ../client/puzzleCtrl.ts:409
+#: ../client/puzzleCtrl.ts:414
 msgid "Continue training"
 msgstr "Gyakorlás folytatása"
 
@@ -1470,8 +1572,8 @@ msgstr "Patt"
 msgid "Time out"
 msgstr "Letelt az idő"
 
-#: ../client/bug/roundCtrl.bug.ts:349 ../client/result.ts:72
-#: ../client/result.ts:153 ../client/roundCtrl.ts:335
+#: ../client/bug/roundCtrl.bug.ts:354 ../client/result.ts:72
+#: ../client/result.ts:153 ../client/roundCtrl.ts:336
 msgid "Draw"
 msgstr "Döntetlen"
 
@@ -1539,69 +1641,69 @@ msgstr "Lépésismétlés"
 msgid "%1 won"
 msgstr "%1 győzött"
 
-#: ../client/roundCtrl.ts:241 ../client/roundCtrl.ts:1245
+#: ../client/roundCtrl.ts:242 ../client/roundCtrl.ts:1256
 msgid " +15 seconds"
 msgstr "+15 másodperc"
 
-#: ../client/roundCtrl.ts:248
+#: ../client/roundCtrl.ts:249
 msgid "Give 15 seconds"
 msgstr "+15 másodperc az ellenfélnek"
 
-#: ../client/roundCtrl.ts:266
+#: ../client/roundCtrl.ts:267
 msgid "Berserk"
 msgstr "Berserk"
 
-#: ../client/bug/roundCtrl.bug.ts:348 ../client/roundCtrl.ts:331
-#: ../client/roundCtrl.ts:1109 ../client/roundCtrl.ts:1111
+#: ../client/bug/roundCtrl.bug.ts:353 ../client/roundCtrl.ts:332
+#: ../client/roundCtrl.ts:1124 ../client/roundCtrl.ts:1126
 msgid "Count"
 msgstr "Számolás"
 
-#: ../client/roundCtrl.ts:333
+#: ../client/roundCtrl.ts:334
 msgid "Pass"
 msgstr "Passz"
 
-#: ../client/bug/roundCtrl.bug.ts:350 ../client/roundCtrl.ts:337
+#: ../client/bug/roundCtrl.bug.ts:355 ../client/roundCtrl.ts:338
 msgid "Resign"
 msgstr "Feladás"
 
-#: ../client/roundCtrl.ts:387
+#: ../client/roundCtrl.ts:388
 msgid "Abort"
 msgstr "Játszma elvetése"
 
-#: ../client/bug/roundCtrl.bug.ts:601 ../client/roundCtrl.ts:470
+#: ../client/bug/roundCtrl.bug.ts:618 ../client/roundCtrl.ts:473
 msgid "Are you sure you want to draw?"
 msgstr "Biztosan döntetlent akarsz?"
 
-#: ../client/bug/roundCtrl.bug.ts:603 ../client/roundCtrl.ts:472
+#: ../client/bug/roundCtrl.bug.ts:620 ../client/roundCtrl.ts:475
 msgid "Draw offer sent"
 msgstr "Döntetlen ajánlat elküldve."
 
-#: ../client/bug/roundCtrl.bug.ts:618 ../client/roundCtrl.ts:486
+#: ../client/bug/roundCtrl.bug.ts:635 ../client/roundCtrl.ts:489
 msgid "Your opponent offers a draw"
 msgstr "Az ellenfeled döntetlent ajánlott."
 
-#: ../client/roundCtrl.ts:502
+#: ../client/roundCtrl.ts:505
 msgid "Confirm move"
 msgstr "Lépés jóváhagyása"
 
-#: ../client/bug/roundCtrl.bug.ts:645 ../client/roundCtrl.ts:529
+#: ../client/bug/roundCtrl.bug.ts:662 ../client/roundCtrl.ts:532
 msgid "Are you sure you want to resign?"
 msgstr "Biztosan fel akarod adni?"
 
-#: ../client/roundCtrl.ts:544
+#: ../client/roundCtrl.ts:547
 msgid "Blue (Cho)"
 msgstr "Kék (Cho)"
 
-#: ../client/roundCtrl.ts:544
+#: ../client/roundCtrl.ts:547
 msgid "Red (Han)"
 msgstr "Piros (Han)"
 
-#: ../client/roundCtrl.ts:545
+#: ../client/roundCtrl.ts:548
 msgid ""
 "Waiting for %1 to choose starting positions of the horses and elephants..."
 msgstr " %1 kiválaszthatja a lovak és elefántok kezdő pozícióját..."
 
-#: ../client/roundCtrl.ts:560
+#: ../client/roundCtrl.ts:563
 msgid ""
 "You can use the arrow buttons (below the board -- scroll down to display) to"
 " switch them, then click on the check mark to finalize your decision."
@@ -1609,72 +1711,72 @@ msgstr ""
 "A felcseréléshez használd a nyilakat (a tábla alatt), a döntésed "
 "véglegesítéséhez pedig a pipát."
 
-#: ../client/roundCtrl.ts:563
+#: ../client/roundCtrl.ts:566
 msgid "To start the game you have to click on the check mark!"
 msgstr "A játszmakezdéshez kattints a pipára."
 
-#: ../client/roundCtrl.ts:591 ../client/roundCtrl.ts:593
+#: ../client/roundCtrl.ts:594 ../client/roundCtrl.ts:596
 msgid "Switch pieces"
 msgstr "Figurák cseréje"
 
-#: ../client/roundCtrl.ts:592
+#: ../client/roundCtrl.ts:595
 msgid "Ready"
 msgstr "Kész"
 
-#: ../client/bug/roundCtrl.bug.ts:675 ../client/roundCtrl.ts:626
+#: ../client/bug/roundCtrl.bug.ts:692 ../client/roundCtrl.ts:629
 msgid "VIEW REMATCH"
 msgstr "VISZZAVÁGÓ JÁTSZMA"
 
-#: ../client/bug/roundCtrl.bug.ts:683 ../client/roundCtrl.ts:633
+#: ../client/bug/roundCtrl.bug.ts:700 ../client/roundCtrl.ts:636
 msgid "Rematch offer sent"
 msgstr "Visszavágó ajánlat elküldve."
 
-#: ../client/bug/roundCtrl.bug.ts:697 ../client/roundCtrl.ts:646
+#: ../client/bug/roundCtrl.bug.ts:714 ../client/roundCtrl.ts:649
 msgid "Your opponent offers a rematch"
 msgstr "Az ellenfeled visszavágót ajánlott."
 
-#: ../client/roundCtrl.ts:688
+#: ../client/roundCtrl.ts:691
 msgid "VIEW TOURNAMENT"
 msgstr "VERSENY MEGNÉZÉSE"
 
-#: ../client/roundCtrl.ts:691
+#: ../client/roundCtrl.ts:694
 msgid "BACK TO TOURNAMENT"
 msgstr "VISSZA A VERSENYHEZ"
 
-#: ../client/roundCtrl.ts:693 ../client/tournament.ts:175
+#: ../client/roundCtrl.ts:696 ../client/tournament.ts:208
 msgid "PAUSE"
 msgstr "SZÜNET"
 
-#: ../client/bug/roundCtrl.bug.ts:718 ../client/roundCtrl.ts:696
+#: ../client/bug/roundCtrl.bug.ts:735 ../client/roundCtrl.ts:699
 msgid "REMATCH"
 msgstr "VISSZAVÁGÓ"
 
-#: ../client/bug/roundCtrl.bug.ts:719 ../client/roundCtrl.ts:697
+#: ../client/bug/roundCtrl.bug.ts:736 ../client/roundCtrl.ts:700
 msgid "NEW OPPONENT"
 msgstr "ÚJ JÁTSZMA"
 
-#: ../client/bug/roundCtrl.bug.ts:721 ../client/editor/editorCtrl.ts:150
-#: ../client/roundCtrl.ts:700
+#: ../client/bug/roundCtrl.bug.ts:738 ../client/editor/editorCtrl.ts:152
+#: ../client/roundCtrl.ts:703
 msgid "ANALYSIS BOARD"
 msgstr "ELEMZÉS"
 
-#: ../client/roundCtrl.ts:857
+#: ../client/roundCtrl.ts:860
 msgid "Propose takeback"
 msgstr "Visszalépés kérése"
 
-#: ../client/roundCtrl.ts:1107
+#: ../client/roundCtrl.ts:1122
 msgid "Stop counting"
 msgstr "Számolás leállítása"
 
-#: ../client/roundCtrl.ts:1107
+#: ../client/roundCtrl.ts:1122
 msgid "Stop"
 msgstr "Stop!"
 
-#: ../client/roundCtrl.ts:1109 ../client/roundCtrl.ts:1111
+#: ../client/roundCtrl.ts:1124 ../client/roundCtrl.ts:1126
 msgid "Start counting"
 msgstr "számolás indítása"
 
-#: ../client/roundCtrl.ts:1174
+#: ../client/roundCtrl.ts:1185
 msgid "%1 second to play the first move"
 msgid_plural "%1 seconds to play the first move"
 msgstr[0] "%1 másodperc az első lépésig"
@@ -1704,121 +1806,117 @@ msgstr "Tábla beállítások"
 msgid "Zen Mode"
 msgstr "Zen Mód"
 
-#: ../client/sound.ts:158
+#: ../client/sound.ts:199
 msgid "Volume"
 msgstr "Hangerő"
 
-#: ../client/tournament.ts:148
+#: ../client/tournament.ts:181
 msgid "First"
 msgstr "Első"
 
-#: ../client/tournament.ts:149
+#: ../client/tournament.ts:182
 msgid "Prev"
 msgstr "Előző"
 
-#: ../client/tournament.ts:153
+#: ../client/tournament.ts:186
 msgid "Next"
 msgstr "Következő"
 
-#: ../client/tournament.ts:154
+#: ../client/tournament.ts:187
 msgid "Last"
 msgstr "Utolsó"
 
-#: ../client/tournament.ts:155
+#: ../client/tournament.ts:188
 msgid "Scroll to your player"
 msgstr "Saját magadhoz"
 
-#: ../client/tournament.ts:166
+#: ../client/tournament.ts:199
 msgid "WITHDRAW"
 msgstr "VISSZALÉPÉS"
 
-#: ../client/tournament.ts:168 ../client/tournament.ts:173
+#: ../client/tournament.ts:201 ../client/tournament.ts:206
 msgid "JOIN"
 msgstr "CSATLAKOZÁS"
 
-#: ../client/tournament.ts:180
+#: ../client/tournament.ts:213
 msgid "LOG IN"
 msgstr "BELÉPÉS"
 
-#: ../client/tournament.ts:193
+#: ../client/tournament.ts:226
 msgid "Tournament complete"
 msgstr "A verseny befejeződött"
 
-#: ../client/tournament.ts:195
+#: ../client/tournament.ts:228
 msgid "Players"
 msgstr "Játékosok"
 
-#: ../client/tournament.ts:196
+#: ../client/tournament.ts:229
 msgid "Average rating"
 msgstr "Átlag értékszám"
 
-#: ../client/tournament.ts:197 ../client/tournament.ts:371
-#: ../client/tournament.ts:431 ../client/tournament.ts:441
-#: ../client/tournament.ts:451
+#: ../client/tournament.ts:230 ../client/tournament.ts:404
+#: ../client/tournament.ts:464 ../client/tournament.ts:474
+#: ../client/tournament.ts:484
 msgid "Games played"
 msgstr "Játszmák száma"
 
-#: ../client/tournament.ts:198 ../client/tournament.ts:199
+#: ../client/tournament.ts:231 ../client/tournament.ts:232
 msgid "%1 wins"
 msgstr "%1 győzelem"
 
-#: ../client/tournament.ts:200
+#: ../client/tournament.ts:233
 msgid "Draws"
 msgstr "Döntetlen"
 
-#: ../client/tournament.ts:201 ../client/tournament.ts:374
-#: ../client/tournament.ts:433 ../client/tournament.ts:443
-#: ../client/tournament.ts:453
+#: ../client/tournament.ts:234 ../client/tournament.ts:407
+#: ../client/tournament.ts:466 ../client/tournament.ts:476
+#: ../client/tournament.ts:486
 msgid "Berserk rate"
 msgstr "Berserk arány"
 
-#: ../client/tournament.ts:209
+#: ../client/tournament.ts:242
 msgid "Download all games"
 msgstr "Összes játszma letöltése"
 
-#: ../client/tournament.ts:217
+#: ../client/tournament.ts:250
 msgid "Download all games in JSON"
 msgstr "Összes játszma letöltése JSON-ba"
 
-#: ../client/tournament.ts:345
+#: ../client/tournament.ts:378
 msgid "Arena"
 msgstr "Aréna"
 
-#: ../client/tournament.ts:347
+#: ../client/tournament.ts:380
 msgid "Round-Robin"
 msgstr "Körmérkőzés"
 
-#: ../client/tournament.ts:349
+#: ../client/tournament.ts:382
 msgid "Swiss"
 msgstr "Svájci"
 
-#: ../client/tournament.ts:370 ../client/tournament.ts:430
-#: ../client/tournament.ts:440 ../client/tournament.ts:450
+#: ../client/tournament.ts:403 ../client/tournament.ts:463
+#: ../client/tournament.ts:473 ../client/tournament.ts:483
 msgid "Performance"
 msgstr "Teljesítmény"
 
-#: ../client/tournament.ts:372 ../client/tournament.ts:432
-#: ../client/tournament.ts:442 ../client/tournament.ts:452
+#: ../client/tournament.ts:405 ../client/tournament.ts:465
+#: ../client/tournament.ts:475 ../client/tournament.ts:485
 msgid "Win rate"
 msgstr "Győzelmek aránya"
 
-#: ../client/tournament.ts:373
+#: ../client/tournament.ts:406
 msgid "Average opponent"
 msgstr "Ellenfelek átlaga"
 
-#: ../client/tournament.ts:527
+#: ../client/tournament.ts:563
 msgid "Defender:"
 msgstr "Címvédő:"
 
-#: ../client/tournament.ts:559
+#: ../client/tournament.ts:595
 msgid "Custom position"
 msgstr "Kezdőállás"
 
-#: ../client/tournament.ts:560
-msgid "Analysis board"
-msgstr "Elemzés"
-
-#: ../client/tournament.ts:567
+#: ../client/tournament.ts:603
 msgid ""
 "This Shield trophy is unique. The winner keeps it for one month, then must "
 "defend it during the next %1 Shield tournament!"
@@ -1826,41 +1924,231 @@ msgstr ""
 "Ez a vándorkupa különleges. A győztes egy hónapig őrzi, aztán meg kell védje"
 " a következő %1 vándorkupa versenyen!"
 
+#: ../client/tournament.ts:678
+msgid "Top games"
+msgstr "Legjobb játszmák"
+
 #: ../client/tournamentClock.ts:42
 msgid "STARTING IN"
 msgstr "A KEZDÉSIG VAN MÉG"
 
+#: ../client/tournamentFaq.ts:9
+msgid "This tournament is *not* rated and will *not* affect your rating."
+msgstr ""
+"Ez egy *nem* értékelt verseny, ami *nem* befolyásolja az értékszámodat."
+
+#: ../client/tournamentFaq.ts:11
+msgid "This tournament is rated and will affect your rating."
+msgstr "Ez egy értékelt verseny, ami befolyásolja az értékszámodat."
+
+#: ../client/tournamentFaq.ts:14
+msgid ""
+"You will be notified when the tournament starts, so it is safe to play in "
+"another tab while waiting."
+msgstr ""
+"Értesítünk amikor a verseny elkezdődik, ezért várakozás alatt nyugodtan "
+"játszhatsz másik fülön."
+
+#: ../client/tournamentFaq.ts:15
+msgid "Is it rated?"
+msgstr "Értékelt?"
+
+#: ../client/tournamentFaq.ts:17
+msgid "How are scores calculated?"
+msgstr "Hogyan történik a pontszámok számítása?"
+
+#: ../client/tournamentFaq.ts:19
+msgid ""
+"A win has a base score of 2 points, a draw 1 point, and a loss is worth no "
+"points."
+msgstr ""
+"Egy győzelem alapból 2 pont, egy döntetlen 1 pont, a vereség pedig nem ér "
+"pontot."
+
+#: ../client/tournamentFaq.ts:21
+msgid ""
+"If you win two games consecutively you will start a double point streak, "
+"represented by a flame icon."
+msgstr ""
+"Ha egymás után két játszmát nyersz, beindul a pont duplázási sorozatod, amit"
+" egy láng ikon jelez."
+
+#: ../client/tournamentFaq.ts:23
+msgid ""
+"The following games will continue to be worth double points until you fail "
+"to win a game."
+msgstr ""
+"A következő játszmákért egészen addig dupla pontot kapsz, ameddig nem "
+"veszítesz."
+
+#: ../client/tournamentFaq.ts:25
+msgid ""
+"That is, a win will be worth 4 points, a draw 2 points, and a loss will "
+"still not award any points."
+msgstr ""
+"Vagyis egy győzelem 4 pontot, egy döntetlen 2 pontot, és a vereség továbbra "
+"is nulla pontot ér."
+
+#: ../client/tournamentFaq.ts:27
+msgid ""
+"For example, two wins followed by a draw will be worth 6 points: 2 + 2 + (2 "
+"× 1)"
+msgstr ""
+"Például két győzelem után egy döntetlen, az összesen 6 pont: 2 + 2 + (2 x 1)"
+
+#: ../client/tournamentFaq.ts:30
+msgid ""
+"(Janggi scores are different. A win has a base score of 7 points, and a loss"
+" is worth no points. Point counting win and loss worth 4 and 2 points "
+"respectively.)"
+msgstr ""
+"(A Janggi pontok ettől eltérőek. A győzelem alapvetően 7 pontot ér, míg a "
+"vereség 0-át. A pontszámítással elért győzelem és vereség viszont 4 és 2 "
+"pontot ér.)"
+
+#: ../client/tournamentFaq.ts:32
+msgid "Arena Berserk"
+msgstr "Berserk Aréna"
+
+#: ../client/tournamentFaq.ts:33
+msgid ""
+"When a player clicks the Berserk button at the beginning of the game, they "
+"lose half of their clock time, but the win is worth one extra tournament "
+"point."
+msgstr ""
+"Amikor valaki rákattint a Berserk gombra a játszma kezdetekor, elveszíti a "
+"gondolkodási idejének a felét, de győzelem esetén egy extra pontot kap."
+
+#: ../client/tournamentFaq.ts:35
+msgid ""
+"Going Berserk in time controls with an increment also cancels the increment."
+" (1+2 is an exception, it gives 1+0)"
+msgstr ""
+"Növekményes gondolkodási időknél a növekmény is eltűnik (az 1+2 kivétel, "
+"amiből 1+0 lesz)."
+
+#: ../client/tournamentFaq.ts:37
+msgid "Berserk is not available for games with zero initial time (0+1, 0+2)."
+msgstr "Nem lehet Berserk-elni, amikor nulla a kezdő idő (0+1, 0+2)."
+
+#: ../client/tournamentFaq.ts:39
+msgid ""
+"Berserk only grants an extra point if you play at least 7 moves in the game."
+msgstr "Berserk-nél az extra pont csak legalább 7 lépés megtétele után jár."
+
+#: ../client/tournamentFaq.ts:40
+msgid "How is the winner decided?"
+msgstr "Ki nyeri a versenyt?"
+
+#: ../client/tournamentFaq.ts:41
+msgid ""
+"The player(s) with the most points after the tournament's set time limit "
+"will be announced the winner(s)."
+msgstr ""
+"Az lesz a győztes, akinek a verseny előre meghirdetett lezárásakor a legtöbb"
+" pontja van."
+
+#: ../client/tournamentFaq.ts:43
+msgid ""
+"When two or more players have the same number of points, the tournament "
+"performance is the tie break."
+msgstr ""
+"Ha kettő vagy több játékosnak megegyezik a pontszáma, akkor a verseny "
+"teljesítményük dönti el a holtversenyt."
+
+#: ../client/tournamentFaq.ts:44
+msgid "How does the pairing work?"
+msgstr "Hogyan történik a párosítás?"
+
+#: ../client/tournamentFaq.ts:45
+msgid ""
+"At the beginning of the tournament, players are paired based on their "
+"rating."
+msgstr "A verseny kezdetekor a játékosokat a pontszámuk alapján párosítjuk."
+
+#: ../client/tournamentFaq.ts:47
+msgid ""
+"As soon as you finish a game, return to the tournament lobby: you will then "
+"be paired with a player close to your ranking. This ensures minimum wait "
+"time, however you may not face all other players in the tournament."
+msgstr ""
+"Amint befejeztél egy játszmát menj vissza a verseny oldalára: azt az "
+"ellenfelet kapod majd, aki a legközelebb áll a pontszámodhoz. Így a lehető "
+"legkevesebbet kell várakoznod, de előfordulhat hogy nem fogsz mindenkivel "
+"játszani."
+
+#: ../client/tournamentFaq.ts:49
+msgid ""
+"Play fast and return to the lobby to play more games and win more points."
+msgstr ""
+"Játssz gyorsan, térj vissza a lobbiba további játszmákért, hogy több pontot "
+"nyerhess."
+
+#: ../client/tournamentFaq.ts:50
+msgid "How does it end?"
+msgstr "Hogyan ér véget?"
+
+#: ../client/tournamentFaq.ts:51
+msgid ""
+"The tournament has a countdown clock. When it reaches zero, the tournament "
+"rankings are frozen, and the winner is announced. Games in progress must be "
+"finished, however they don't count for the tournament."
+msgstr ""
+"A versenynek van egy visszaszámláló órája. Amikor eléri a nullát, a "
+"rangsorolás megáll és kihirdetik a győztest. A folyamatban levő játszmákat "
+"be kell fejezni, de azok már nem számítanak bele a versenybe."
+
+#: ../client/tournamentFaq.ts:52
+msgid "Other important rules"
+msgstr "Egyéb fontos szabályok"
+
+#: ../client/tournamentFaq.ts:53
+msgid ""
+"There is a countdown for your first move. Failing to make a move within this"
+" time will forfeit the game to your opponent."
+msgstr ""
+"Az első lépést bizonyos időn belül meg kell tenned. Ha ez idő alatt nem "
+"lépsz a játszmát automatikusan az ellenfeled nyeri."
+
+#: ../client/tournamentFaq.ts:55
+msgid ""
+"Drawing the game before each player has moved 5 times will earn neither "
+"player any points."
+msgstr ""
+"Döntetlen esetén kevesebb mint játékosonkénti 5-5 lépés előtt egyik játékos "
+"sem kap pontot."
+
 #: ../client/lobby/layer1.ts:51 ../client/lobby/layer2chess.ts:26
-#: ../client/variants.ts:1127
+#: ../client/variants.ts:1336
 msgid "Chess Variants"
 msgstr "Sakk variánsok"
 
 #: ../client/lobby/layer1.ts:75 ../client/lobby/layer2makruk.ts:16
-#: ../client/variants.ts:1128
+#: ../client/variants.ts:1337
 msgid "Makruk Variants"
 msgstr "Makruk variánsok"
 
 #: ../client/lobby/layer1.ts:83 ../client/lobby/layer2shogi.ts:17
-#: ../client/variants.ts:1129
+#: ../client/variants.ts:1338
 msgid "Shogi Variants"
 msgstr "Sógi variánsok"
 
 #: ../client/lobby/layer1.ts:91 ../client/lobby/layer2xiangqi.ts:16
-#: ../client/variants.ts:1130
+#: ../client/variants.ts:1339
 msgid "Xiangqi Variants"
 msgstr "Xiangqi variánsok"
 
 #: ../client/lobby/layer1.ts:59 ../client/lobby/layer2fairy.ts:16
-#: ../client/variants.ts:1131
+#: ../client/variants.ts:1340
 msgid "Fairy Piece Variants"
 msgstr "Tündér sakkfigura variánsok"
 
 #: ../client/lobby/layer1.ts:67 ../client/lobby/layer2army.ts:16
-#: ../client/variants.ts:1132
+#: ../client/variants.ts:1341
 msgid "New Army Variants"
 msgstr "Új sereg variánsok"
 
-#: ../client/variants.ts:1133
+#: ../client/variants.ts:1342
 msgid "Other"
 msgstr "Egyéb"
 
@@ -1880,128 +2168,100 @@ msgstr "Be"
 msgid "ZEN MODE"
 msgstr "ZEN MÓD"
 
-#: ../client/bug/chat.bug.ts:10
-msgid "Need pawn"
-msgstr "Gyalog kellene."
-
-#: ../client/bug/chat.bug.ts:11
-msgid "Need knight"
-msgstr "Huszár kellene."
-
-#: ../client/bug/chat.bug.ts:12
-msgid "Need bishop"
-msgstr "Futó kellene."
-
-#: ../client/bug/chat.bug.ts:13
-msgid "Need rook"
-msgstr "Bástya kellene."
-
-#: ../client/bug/chat.bug.ts:14
-msgid "Need queen"
-msgstr "Királynő kellene."
-
-#: ../client/bug/chat.bug.ts:16
-msgid "Don't give pawn"
-msgstr "Ne adj gyalogot!"
-
-#: ../client/bug/chat.bug.ts:17
-msgid "Don't give knight"
-msgstr "Ne adj huszárt!"
-
-#: ../client/bug/chat.bug.ts:18
-msgid "Don't give bishop"
-msgstr "Ne adj futót!"
-
 #: ../client/bug/chat.bug.ts:19
-msgid "Don't give rook"
-msgstr "Ne adj bástyát!"
+msgid "Need %1"
+msgstr "%1 kell"
 
-#: ../client/bug/chat.bug.ts:20
-msgid "Don't give queen"
-msgstr "Ne adj királynőt!"
+#: ../client/bug/chat.bug.ts:26
+msgid "Don't give %1"
+msgstr "Ne adj: %1"
 
-#: ../client/bug/chat.bug.ts:22
+#: ../client/bug/chat.bug.ts:31
 msgid "Sit/stall"
 msgstr "Ülj/várj!"
 
-#: ../client/bug/chat.bug.ts:23
+#: ../client/bug/chat.bug.ts:32
 msgid "Go/hurry"
 msgstr "Gyerünk/siess!"
 
-#: ../client/bug/chat.bug.ts:24
+#: ../client/bug/chat.bug.ts:33
 msgid "Trades are good"
 msgstr "A cserék jók."
 
-#: ../client/bug/chat.bug.ts:25
+#: ../client/bug/chat.bug.ts:34
 msgid "Don't trade"
 msgstr "Ne cserélj!"
 
-#: ../client/bug/chat.bug.ts:26
+#: ../client/bug/chat.bug.ts:35
 msgid "I have checkmate"
 msgstr "Mattot adok."
 
-#: ../client/bug/chat.bug.ts:28
+#: ../client/bug/chat.bug.ts:37
 msgid "OK"
 msgstr "OK"
 
-#: ../client/bug/chat.bug.ts:29
+#: ../client/bug/chat.bug.ts:38
 msgid "No"
 msgstr "Nem"
 
-#: ../client/bug/chat.bug.ts:30
+#: ../client/bug/chat.bug.ts:39
 msgid "My bad"
 msgstr "Az én hibám."
 
-#: ../client/bug/chat.bug.ts:31
+#: ../client/bug/chat.bug.ts:40
 msgid "Nevermind"
 msgstr "Mindegy."
 
-#: ../client/bug/chat.bug.ts:32
+#: ../client/bug/chat.bug.ts:41
 msgid "Nice"
 msgstr "Szép."
 
 #: ../client/bug/lobby.bug.ts:29
-msgid "Anon users cannot join bughouse games"
-msgstr "Anon felhasználók nemm csatlakozhatnak"
+msgid "Anon users cannot join two board games"
+msgstr "Nem regisztrált felhasználók nem játszhatnak 2 táblás variánsokat"
 
-#: ../client/bug/lobby.bug.ts:58 ../client/bug/lobby.bug.ts:62
-#: ../client/bug/lobby.bug.ts:65
+#: ../client/bug/lobby.bug.ts:62 ../client/bug/lobby.bug.ts:66
+#: ../client/bug/lobby.bug.ts:69
 msgid "Join"
 msgstr "Csatlakozás"
 
-#: ../client/editor/editorCtrl.ts:104
+#: ../client/bug/movelist.bug.ts:74
+msgid "Flip boards"
+msgstr "Táblák megfordítása"
+
+#: ../client/editor/editorCtrl.ts:106
 msgid "Castling"
 msgstr "Sáncolás"
 
-#: ../client/editor/editorCtrl.ts:138
+#: ../client/editor/editorCtrl.ts:140
 msgid "FLIP BOARD"
 msgstr "TÁBLA MEGFORDÍTÁSA"
 
-#: ../client/editor/editorCtrl.ts:141
+#: ../client/editor/editorCtrl.ts:143
 msgid "CLEAR BOARD"
 msgstr "ÜRES TÁBLA"
 
-#: ../client/editor/editorCtrl.ts:144
+#: ../client/editor/editorCtrl.ts:146
 msgid "FILL %1'S HAND"
 msgstr "MINDEN %1 FIGURA"
 
-#: ../client/editor/editorCtrl.ts:147
+#: ../client/editor/editorCtrl.ts:149
 msgid "STARTING POSITION"
 msgstr "KEZDŐÁLLÁS"
 
-#: ../client/editor/editorCtrl.ts:153
+#: ../client/editor/editorCtrl.ts:155
 msgid "PLAY WITH MACHINE"
 msgstr "JÁTÉK A GÉP ELLEN"
 
-#: ../client/editor/editorCtrl.ts:156
+#: ../client/editor/editorCtrl.ts:158
 msgid "CONTINUE FROM HERE"
 msgstr "FOLYTATÁS INNEN"
 
-#: ../client/editor/editorCtrl.ts:159
+#: ../client/editor/editorCtrl.ts:161
 msgid "EXPORT TO PNG"
 msgstr "EXPORTÁLÁS PNG KÉPKÉNT"
 
-#: ../client/editor/editorCtrl.ts:162
+#: ../client/editor/editorCtrl.ts:164
 msgid "COPY FEN TO CLIPBOARD"
 msgstr "FEN A VÁGÓLAPRA"
 
