@@ -220,6 +220,10 @@ class RequestProtectionState:
 async def request_protection_middleware(
     request: web.Request, handler: Handler
 ) -> web.StreamResponse:
+    # Heroku hobby deploys run aiohttp standalone without nginx/caddy in front.
+    # This middleware acts as an in-app "edge-like" fast filter:
+    # - drop obvious scanner paths early
+    # - apply route-group limits before session/db-heavy handlers run
     state: RequestProtectionState = request.app[request_protection_state_key]
     path = request.path
     client = state.client_key(request)

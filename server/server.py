@@ -7,7 +7,6 @@ import faulthandler
 import logging
 import os
 from urllib.parse import urlparse
-from typing import Awaitable, Callable
 
 from aiohttp import web
 from aiohttp.web_app import Application
@@ -21,6 +20,13 @@ import jinja2
 from pymongo import AsyncMongoClient
 
 from db_wrapper import AsyncDBWrapper
+from middlewares import (
+    cross_origin_policy_middleware,
+    handle_404,
+    redirect_to_https,
+    request_timing_middleware,
+    set_user_locale,
+)
 from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from request_protection import RequestProtectionState, request_protection_middleware
@@ -41,73 +47,10 @@ from settings import (
     MONGO_DB_NAME,
     URI,
 )
-from users import NotInDbUsers
-from views import page404
-from lang import LOCALE
 
 log = logging.getLogger(__name__)
-Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
 
 faulthandler.enable()
-
-
-@web.middleware
-async def handle_404(request: web.Request, handler: Handler) -> web.StreamResponse:
-    try:
-        return await handler(request)
-    except web.HTTPException as ex:
-        if ex.status == 404:
-            response = await page404.page404(request)
-            return response
-        # IMPORTANT: re-raise all other HTTP errors
-        raise
-    except NotInDbUsers:
-        return web.HTTPFound("/")
-    except asyncio.CancelledError:
-        # Prevent emitting endless tracebacks on server shutdown
-        return web.Response()
-
-
-@web.middleware
-async def redirect_to_https(request: web.Request, handler: Handler) -> web.StreamResponse:
-    # https://help.heroku.com/J2R1S4T8/can-heroku-force-an-application-to-use-ssl-tls
-    # https://docs.aiohttp.org/en/stable/web_advanced.html#aiohttp-web-forwarded-support
-    if request.headers.get("X-Forwarded-Proto") == "http":
-        # request = request.clone(scheme="https")
-        url = request.url.with_scheme("https").with_port(None)
-        raise web.HTTPPermanentRedirect(url)
-
-    return await handler(request)
-
-
-@web.middleware
-async def set_user_locale(request: web.Request, handler: Handler) -> web.StreamResponse:
-    session = await aiohttp_session.get_session(request)
-    LOCALE.set(session.get("lang", "en"))
-    return await handler(request)
-
-
-@web.middleware
-async def cross_origin_policy_middleware(
-    request: web.Request, handler: Handler
-) -> web.StreamResponse:
-    response = await handler(request)
-    if (
-        request.path.startswith("/variants")
-        or request.path.startswith("/blogs")
-        or request.path.startswith("/video")
-    ):
-        # Learn and News pages may have links to other sites
-        response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
-    else:
-        # required to get stockfish.wasm in Firefox
-        response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
-        response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
-
-        if request.match_info.get("gameId") is not None:
-            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-            response.headers["Expires"] = "0"
-    return response
 
 
 def make_app(
@@ -117,12 +60,9 @@ def make_app(
 ) -> Application:
     app = web.Application()
     app.middlewares.append(redirect_to_https)
-    # Heroku hobby deploys run aiohttp standalone without nginx/caddy in front.
-    # This middleware acts as an in-app "edge-like" fast filter:
-    # - drop obvious scanner paths early
-    # - apply route-group limits before session/db-heavy handlers run
     app[request_protection_state_key] = RequestProtectionState()
     app.middlewares.append(request_protection_middleware)
+    app.middlewares.append(request_timing_middleware)
     app.middlewares.append(cross_origin_policy_middleware)
 
     app[anon_as_test_users_key] = anon_as_test_users
