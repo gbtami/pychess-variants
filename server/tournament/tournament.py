@@ -880,7 +880,11 @@ class Tournament(ABC):
                 return_document=ReturnDocument.AFTER,
             )
             if u is None:
-                log.warning("Updated status: tournament %s status set to %s but no document returned", self.id, self.status)
+                log.warning(
+                    "Updated status: tournament %s status set to %s but no document returned",
+                    self.id,
+                    self.status,
+                )
             else:
                 log.info("Updated status: tournament %s status=%s", self.id, u.get("status"))
 

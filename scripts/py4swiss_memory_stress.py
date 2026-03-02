@@ -304,22 +304,15 @@ def main() -> int:
             gc.collect()
 
         measured_index = tournament_index - args.warmup_tournaments + 1
-        should_sample = (
-            tournament_index >= args.warmup_tournaments
-            and (
-                measured_index % args.sample_every == 0
-                or measured_index == args.measure_tournaments
-            )
+        should_sample = tournament_index >= args.warmup_tournaments and (
+            measured_index % args.sample_every == 0 or measured_index == args.measure_tournaments
         )
         if should_sample:
             gc.collect()
             current_rss = rss_bytes()
             samples.append((measured_index, current_rss))
             if args.verbose:
-                print(
-                    f"sample #{measured_index:6d}: "
-                    f"RSS={mib(current_rss):8.2f} MiB"
-                )
+                print(f"sample #{measured_index:6d}: RSS={mib(current_rss):8.2f} MiB")
             if progress is not None:
                 phase = "warmup" if tournament_index < args.warmup_tournaments else "measure"
                 progress.set_postfix_str(
