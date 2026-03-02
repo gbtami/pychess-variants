@@ -37,6 +37,7 @@ from pychess_global_app_state_utils import get_app_state
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
 from tournament.tournament import (
+    AUTO_ROUND_INTERVAL,
     ByeGame,
     GameData,
     PlayerData,
@@ -61,6 +62,28 @@ log = logging.getLogger(__name__)
 WinnerEntry = tuple[str, str, str]
 ScheduledTournamentEntry = tuple[str, str, bool, datetime, int, str]
 TournamentTables = tuple[list[Tournament], list[Tournament], list[Tournament]]
+ROUND_INTERVAL_SECONDS: frozenset[int] = frozenset(
+    (
+        5,
+        10,
+        20,
+        30,
+        45,
+        60,
+        120,
+        180,
+        300,
+        600,
+        900,
+        1200,
+        1800,
+        2700,
+        3600,
+        86400,
+        172800,
+        604800,
+    )
+)
 
 
 class Translation(Protocol):
@@ -110,6 +133,28 @@ def _swiss_entry_point_value(point: object, variant: str) -> int:
     if isinstance(point, tuple) and isinstance(point[0], int):
         return point[0]
     return 0
+
+
+def _parse_round_interval(
+    value: Any,
+    *,
+    system: int,
+    default_value: int,
+) -> int:
+    if system == ARENA:
+        return 0
+
+    if value in (None, "", "auto"):
+        return AUTO_ROUND_INTERVAL
+
+    try:
+        interval = int(value)
+    except (TypeError, ValueError):
+        return default_value
+
+    if interval in ROUND_INTERVAL_SECONDS:
+        return interval
+    return default_value
 
 
 def _infer_swiss_point_from_game(
@@ -244,6 +289,15 @@ async def create_or_update_tournament(
     elif rounds <= 0:
         rounds = 5
 
+    default_round_interval = (
+        AUTO_ROUND_INTERVAL if tournament is None else getattr(tournament, "round_interval", 0)
+    )
+    round_interval = _parse_round_interval(
+        form.get("roundInterval"),
+        system=system,
+        default_value=default_round_interval,
+    )
+
     if system != ARENA:
         frequency = ""
 
@@ -281,6 +335,7 @@ async def create_or_update_tournament(
         "minutes": int(form["minutes"]),
         "fen": form["position"],
         "rounds": rounds,
+        "roundInterval": round_interval,
         "description": description,
     }
     if tournament is None:
@@ -297,6 +352,7 @@ async def create_or_update_tournament(
         tournament.inc = data["inc"]
         tournament.bp = data["bp"]
         tournament.rounds = data["rounds"]
+        tournament.round_interval = data["roundInterval"]
         tournament.beforeStart = data["beforeStart"]
         tournament.starts_at = data["startDate"]  # type: ignore[assignment]
         tournament.frequency = data["frequency"]
@@ -347,6 +403,7 @@ async def new_tournament(
         chess960=data.get("chess960", False),
         fen=data.get("fen", ""),
         rounds=data.get("rounds", 0),
+        round_interval=data.get("roundInterval", 0),
         created_by=data["createdBy"],
         before_start=data.get("beforeStart", 5),
         minutes=data.get("minutes", 45),
@@ -488,6 +545,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 chess960=bool(tournament_doc.get("z")),
                 fen=tournament_doc.get("f"),
                 rounds=tournament_doc["rounds"],
+                round_interval=tournament_doc.get("ri", 0),
                 created_by=tournament_doc["createdBy"],
                 created_at=tournament_doc["createdAt"],
                 minutes=tournament_doc["minutes"],
@@ -641,6 +699,7 @@ async def load_tournament(
         chess960=bool(tournament_doc.get("z")),
         fen=tournament_doc.get("f"),
         rounds=tournament_doc["rounds"],
+        round_interval=tournament_doc.get("ri", 0),
         created_by=tournament_doc.get("createdBy", "PyChess"),
         created_at=tournament_doc["createdAt"],
         before_start=tournament_doc.get("beforeStart", 0),

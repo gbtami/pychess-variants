@@ -453,6 +453,7 @@ class ViewContext(TypedDict, total=False):
     before_start: int
     minutes: int
     rounds: int
+    round_interval: int
     frequency: str
 
 
@@ -471,6 +472,7 @@ class TournamentCreateData(TypedDict):
     bp: NotRequired[int]
     fen: NotRequired[str]
     rounds: NotRequired[int]
+    roundInterval: NotRequired[int]
     startDate: NotRequired[datetime | None]
     frequency: NotRequired[str]
     description: NotRequired[str]
@@ -535,6 +537,7 @@ class TournamentDoc(TypedDict):
     z: int
     system: int
     rounds: int
+    ri: NotRequired[int]
     nbPlayers: int
     cr: NotRequired[int]
     createdBy: str
@@ -562,6 +565,7 @@ class TournamentUpdateData(TypedDict, total=False):
     z: int
     system: int
     rounds: int
+    ri: int
     nbPlayers: int
     cr: int
     createdBy: str

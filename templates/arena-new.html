@@ -20,6 +20,7 @@
             {% set t_shield = tournament.frequency == 's' %}
             {% set t_system = tournament.system %}
             {% set t_rounds = tournament.rounds %}
+            {% set t_round_interval = tournament.round_interval %}
             <form method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
             {% else %}
             {% set t_name = '' %}
@@ -37,6 +38,7 @@
             {% set t_shield = false %}
             {% set t_system = 0 %}
             {% set t_rounds = 5 %}
+            {% set t_round_interval = -1 %}
             <form method="post" class="form3" action="/tournaments/new">
             {% endif %}
                 <div class="form-group">
@@ -142,7 +144,7 @@
                     </div>
                 </div>
                 <div class="form-split">
-                    <div class="form-group form-half">
+                    <div id="form3-rounds-wrap" class="form-group form-half">
                         <label class="form-label" for="form3-rounds">Rounds (Swiss/RR)</label>
                         <select id="form3-rounds" name="rounds" class="form-control">
                             <option value="0"{% if t_rounds == 0 %} selected="selected"{% endif %}>Not used in Arena</option>
@@ -158,6 +160,31 @@
                             <option value="15"{% if t_rounds == 15 %} selected="selected"{% endif %}>15 rounds</option>
                         </select>
                         <small class="form-help">Used by Swiss and Round-Robin tournaments.</small>
+                    </div>
+                    <div id="form3-roundInterval-wrap" class="form-group form-half">
+                        <label class="form-label" for="form3-roundInterval">Interval between rounds</label>
+                        <select id="form3-roundInterval" name="roundInterval" class="form-control">
+                            <option value="auto"{% if t_round_interval == -1 or (t_system != 0 and t_round_interval == 0) %} selected="selected"{% endif %}>automatic</option>
+                            <option value="5"{% if t_round_interval == 5 %} selected="selected"{% endif %}>5s</option>
+                            <option value="10"{% if t_round_interval == 10 %} selected="selected"{% endif %}>10s</option>
+                            <option value="20"{% if t_round_interval == 20 %} selected="selected"{% endif %}>20s</option>
+                            <option value="30"{% if t_round_interval == 30 %} selected="selected"{% endif %}>30s</option>
+                            <option value="45"{% if t_round_interval == 45 %} selected="selected"{% endif %}>45s</option>
+                            <option value="60"{% if t_round_interval == 60 %} selected="selected"{% endif %}>1m</option>
+                            <option value="120"{% if t_round_interval == 120 %} selected="selected"{% endif %}>2m</option>
+                            <option value="180"{% if t_round_interval == 180 %} selected="selected"{% endif %}>3m</option>
+                            <option value="300"{% if t_round_interval == 300 %} selected="selected"{% endif %}>5m</option>
+                            <option value="600"{% if t_round_interval == 600 %} selected="selected"{% endif %}>10m</option>
+                            <option value="900"{% if t_round_interval == 900 %} selected="selected"{% endif %}>15m</option>
+                            <option value="1200"{% if t_round_interval == 1200 %} selected="selected"{% endif %}>20m</option>
+                            <option value="1800"{% if t_round_interval == 1800 %} selected="selected"{% endif %}>30m</option>
+                            <option value="2700"{% if t_round_interval == 2700 %} selected="selected"{% endif %}>45m</option>
+                            <option value="3600"{% if t_round_interval == 3600 %} selected="selected"{% endif %}>1h</option>
+                            <option value="86400"{% if t_round_interval == 86400 %} selected="selected"{% endif %}>1d</option>
+                            <option value="172800"{% if t_round_interval == 172800 %} selected="selected"{% endif %}>2d</option>
+                            <option value="604800"{% if t_round_interval == 604800 %} selected="selected"{% endif %}>7d</option>
+                        </select>
+                        <small class="form-help">Automatic is based on time control and clamped to 10s-1m.</small>
                     </div>
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-minutes">Duration</label>
@@ -321,5 +348,34 @@
         monthSelectorType: 'static',
         disableMobile: true, // https://flatpickr.js.org/mobile-support/ https://github.com/lichess-org/lila/issues/8110
     });</script>
+    <script>
+    (function () {
+        const system = document.getElementById('form3-system');
+        const roundsWrap = document.getElementById('form3-rounds-wrap');
+        const rounds = document.getElementById('form3-rounds');
+        const roundIntervalWrap = document.getElementById('form3-roundInterval-wrap');
+        const roundInterval = document.getElementById('form3-roundInterval');
+        if (!(roundsWrap && rounds && roundIntervalWrap && roundInterval)) return;
+
+        const updateRoundSettingsVisibility = function () {
+            const isArena = (system ? system.value : "{{ t_system }}") === "0";
+            roundsWrap.style.display = isArena ? "none" : "";
+            roundIntervalWrap.style.display = isArena ? "none" : "";
+            rounds.disabled = isArena;
+            roundInterval.disabled = isArena;
+            if (isArena) {
+                rounds.value = "0";
+                roundInterval.value = "auto";
+            } else if (rounds.value === "0") {
+                rounds.value = "5";
+            }
+        };
+
+        if (system) {
+            system.addEventListener("change", updateRoundSettingsVisibility);
+        }
+        updateRoundSettingsVisibility();
+    })();
+    </script>
     <script src="{{ js }}"></script>
 {% endblock %}

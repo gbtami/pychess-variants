@@ -78,6 +78,9 @@ SCORE_SHIFT = 100000
 
 NOTIFY1_MINUTES = 60 * 6
 NOTIFY2_MINUTES = 10
+AUTO_ROUND_INTERVAL = -1
+MIN_AUTO_ROUND_INTERVAL_SECONDS = 10
+MAX_AUTO_ROUND_INTERVAL_SECONDS = 60
 
 Point = TournamentPoint
 if TYPE_CHECKING:
@@ -282,6 +285,7 @@ class Tournament(ABC):
     system: ClassVar[int] = ARENA
     beforeStart: int
     bp: int
+    round_interval: int
     translated_name: str
 
     def __init__(
@@ -301,6 +305,7 @@ class Tournament(ABC):
         inc: int = 0,
         byoyomi_period: int = 0,
         rounds: int = 0,
+        round_interval: int = 0,
         created_by: str = "",
         created_at: datetime | None = None,
         starts_at: datetime | None = None,
@@ -323,6 +328,7 @@ class Tournament(ABC):
         self.byoyomi_period: int = byoyomi_period
         self.chess960: bool = chess960
         self.rounds: int = rounds
+        self.round_interval: int = round_interval
         self.frequency: str = frequency
         self.created_by: str = created_by
         self.starts_at: datetime = starts_at  # type: ignore[assignment]
@@ -335,6 +341,7 @@ class Tournament(ABC):
         self.wave = timedelta(seconds=7)
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
+        self.next_round_starts_at: datetime | None = None
         self.prev_pairing: datetime | None = None
         self.bye_players: list[User] = []
 
@@ -796,17 +803,44 @@ class Tournament(ABC):
                             log.debug("Waiting for new pairing wave...")
 
                     elif len(self.ongoing_games) == 0:
-                        if self.current_round < self.rounds:
+                        if self.current_round == 0:
                             self.current_round += 1
                             log.debug("Do %s. round pairing", self.current_round)
                             waiting_players = self.waiting_players()
                             await self.create_new_pairings(waiting_players)
                             await self.save_current_round()
+                            self.next_round_starts_at = None
+                        elif self.current_round < self.rounds:
+                            interval_seconds = self.effective_round_interval_seconds()
+                            if interval_seconds <= 0:
+                                self.next_round_starts_at = now
+                            elif self.next_round_starts_at is None:
+                                self.next_round_starts_at = now + timedelta(
+                                    seconds=interval_seconds
+                                )
+                                log.debug(
+                                    "%s round %s complete; waiting %ss before next round",
+                                    "RR" if self.system == RR else "Swiss",
+                                    self.current_round,
+                                    interval_seconds,
+                                )
+
+                            if (
+                                self.next_round_starts_at is not None
+                                and now >= self.next_round_starts_at
+                            ):
+                                self.current_round += 1
+                                self.next_round_starts_at = None
+                                log.debug("Do %s. round pairing", self.current_round)
+                                waiting_players = self.waiting_players()
+                                await self.create_new_pairings(waiting_players)
+                                await self.save_current_round()
                         else:
                             await self.finish()
                             log.debug("T_FINISHED: no more round left")
                             break
                     else:
+                        self.next_round_starts_at = None
                         log.info(
                             "%s has %s ongoing game(s)..."
                             % (
@@ -827,6 +861,7 @@ class Tournament(ABC):
         self.status = T_STARTED
 
         self.first_pairing = True
+        self.next_round_starts_at = None
 
         response: TournamentStatusResponse = {
             "type": "tstatus",
@@ -1725,6 +1760,25 @@ class Tournament(ABC):
         # We have to remove _id added by insert to remain our response JSON serializable
         del response["_id"]
 
+    def automatic_round_interval_seconds(self) -> int:
+        # Approximate per-side time budget to derive a short between-round pause.
+        side_budget_seconds = (self.base * 60.0) + (self.inc * 40)
+        if self.byoyomi_period > 0 and self.inc > 0:
+            side_budget_seconds += self.byoyomi_period * self.inc
+
+        automatic = int(side_budget_seconds / 24)
+        return max(
+            MIN_AUTO_ROUND_INTERVAL_SECONDS,
+            min(MAX_AUTO_ROUND_INTERVAL_SECONDS, automatic),
+        )
+
+    def effective_round_interval_seconds(self) -> int:
+        if self.system == ARENA:
+            return 0
+        if self.round_interval == AUTO_ROUND_INTERVAL:
+            return self.automatic_round_interval_seconds()
+        return max(0, self.round_interval)
+
 
 async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlobalAppState) -> None:
     # unit test app may have no db
@@ -1746,6 +1800,7 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "z": int(tournament.chess960),
         "system": tournament.system,
         "rounds": tournament.rounds,
+        "ri": tournament.round_interval,
         "nbPlayers": 0,
         "cr": tournament.current_round,
         "createdBy": tournament.created_by,

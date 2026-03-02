@@ -6,11 +6,47 @@ from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament.auto_play_arena import SwissTestTournament
 from tournament import swiss as swiss_mod
-from tournament.tournament import ByeGame, SCORE_SHIFT
+from tournament.tournament import AUTO_ROUND_INTERVAL, ByeGame, SCORE_SHIFT
 from tournament_test_base import TournamentTestCase
 
 
 class SwissPairingTestCase(TournamentTestCase):
+    async def test_automatic_round_interval_is_clamped(self):
+        app_state = get_app_state(self.app)
+
+        fast = SwissTestTournament(
+            app_state,
+            id8(),
+            base=0.25,
+            inc=0,
+            rounds=3,
+            round_interval=AUTO_ROUND_INTERVAL,
+            with_clock=False,
+        )
+        self.assertEqual(fast.effective_round_interval_seconds(), 10)
+
+        slow = SwissTestTournament(
+            app_state,
+            id8(),
+            base=60,
+            inc=60,
+            rounds=3,
+            round_interval=AUTO_ROUND_INTERVAL,
+            with_clock=False,
+        )
+        self.assertEqual(slow.effective_round_interval_seconds(), 60)
+
+    async def test_manual_round_interval_is_used(self):
+        app_state = get_app_state(self.app)
+        tournament = SwissTestTournament(
+            app_state,
+            id8(),
+            rounds=3,
+            round_interval=300,
+            with_clock=False,
+        )
+        self.assertEqual(tournament.effective_round_interval_seconds(), 300)
+
     async def test_create_pairing_raises_when_py4swiss_is_unavailable(self):
         app_state = get_app_state(self.app)
         tid = id8()
