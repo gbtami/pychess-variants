@@ -112,7 +112,9 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
         if game is None:
             raise web.HTTPNotFound()
 
-        await engine.event_queue.put(game.game_start)
+        # Janggi bots must wait until setup finishes before receiving gameStart.
+        if game.variant != "janggi" or not (game.bsetup or game.wsetup):
+            await engine.event_queue.put(game.game_start)
 
     return web.json_response({"ok": True})
 
