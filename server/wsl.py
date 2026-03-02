@@ -220,7 +220,9 @@ async def handle_create_ai_challenge(
         gameId = response["gameId"]
         engine.game_queues[gameId] = asyncio.Queue()
         game = app_state.games[gameId]
-        await engine.event_queue.put(game.game_start)
+        # Janggi must finish setup before the bot can make the first move.
+        if game.variant != "janggi" or not (game.bsetup or game.wsetup):
+            await engine.event_queue.put(game.game_start)
 
 
 async def handle_create_seek(
