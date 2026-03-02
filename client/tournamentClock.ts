@@ -1,6 +1,6 @@
 import { h } from 'snabbdom';
 
-import { _ } from './i18n';
+import { _, ngettext } from './i18n';
 import { patch } from './document';
 import { TournamentController } from "./tournament";
 
@@ -24,11 +24,59 @@ function getTimeRemaining(endtime: number) {
     return {totalSecs, days, hours, minutes, seconds};
 }
 
+function renderHHMMSS(endtime: number) {
+    const t = getTimeRemaining(endtime);
+    return ('0' + t.hours).slice(-2) + ':' + ('0' + t.minutes).slice(-2) + ':' + ('0' + t.seconds).slice(-2);
+}
+
 export function initializeClock(ctrl: TournamentController) {
     // console.log('initializeClock', ctrl.tournamentStatus, ctrl.secondsToStart, ctrl.secondsToFinish);
+    if (ctrl.clockInterval !== null) {
+        clearInterval(ctrl.clockInterval);
+        ctrl.clockInterval = null;
+    }
+
     if ('finished|archived'.includes(ctrl.tournamentStatus)) return;
 
-    let endtime: number, timeinterval: ReturnType<typeof setInterval>;
+    if (ctrl.system > 0 && ctrl.tournamentStatus === 'started') {
+        if (ctrl.roundOngoingGames > 0) {
+            ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [
+                ngettext('%1 ongoing game', '%1 ongoing games', ctrl.roundOngoingGames),
+            ]));
+            return;
+        }
+
+        if (ctrl.secondsToNextRound > 0) {
+            const endtime = Date.now() + ctrl.secondsToNextRound * 1000;
+            ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [h('span.shy', _('NEXT ROUND IN')), h('span#clock')]));
+            const clock = document.getElementById('clock');
+
+            const updatePauseClock = () => {
+                const t = getTimeRemaining(endtime);
+                if (clock) {
+                    clock.innerHTML = renderHHMMSS(endtime);
+                }
+                if (t.totalSecs <= 1000 && ctrl.clockInterval !== null) {
+                    clearInterval(ctrl.clockInterval);
+                    ctrl.clockInterval = null;
+                    ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [
+                        ngettext('%1 ongoing game', '%1 ongoing games', 0),
+                    ]));
+                }
+            };
+
+            updatePauseClock();
+            ctrl.clockInterval = setInterval(updatePauseClock, 1000);
+            return;
+        }
+
+        ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [
+            ngettext('%1 ongoing game', '%1 ongoing games', 0),
+        ]));
+        return;
+    }
+
+    let endtime: number;
     if (ctrl.secondsToFinish > 0) {
         endtime = Date.now() + ctrl.secondsToFinish * 1000;
         ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [h('span#clock')]));
@@ -48,14 +96,17 @@ export function initializeClock(ctrl: TournamentController) {
     function updateClock() {
         const t = getTimeRemaining(endtime);
 
-        clock!.innerHTML = ('0' + t.hours).slice(-2) + ':' + ('0' + t.minutes).slice(-2) + ':' + ('0' + t.seconds).slice(-2);
+        if (clock) {
+            clock.innerHTML = renderHHMMSS(endtime);
+        }
 
-        if (t.totalSecs <= 1000 && timeinterval !== undefined) {
-            clearInterval(timeinterval);
+        if (t.totalSecs <= 1000 && ctrl.clockInterval !== null) {
+            clearInterval(ctrl.clockInterval);
+            ctrl.clockInterval = null;
             ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv'));
         }
     }
 
     updateClock();
-    timeinterval = setInterval(updateClock, 1000);
+    ctrl.clockInterval = setInterval(updateClock, 1000);
 }

@@ -210,6 +210,9 @@ async def handle_user_connected(
         "chatClosed": (now - tournament.ends_at).total_seconds() > 60 * 60,
         "private": bool(tournament.password),
     }
+    round_ongoing_games, seconds_to_next_round = tournament.round_status(now)
+    response["roundOngoingGames"] = round_ongoing_games
+    response["secondsToNextRound"] = seconds_to_next_round
     if tournament.frequency == SHIELD:
         variant_name = tournament.variant + ("960" if tournament.chess960 else "")
         defender = await app_state.users.get(app_state.shield_owners[variant_name])

@@ -718,6 +718,8 @@ class TournamentStatusResponse(TypedDict):
     type: Literal["tstatus"]
     tstatus: int
     secondsToFinish: NotRequired[float]
+    roundOngoingGames: NotRequired[int]
+    secondsToNextRound: NotRequired[float]
     nbPlayers: NotRequired[int]
     nbGames: NotRequired[int]
     wWin: NotRequired[int]

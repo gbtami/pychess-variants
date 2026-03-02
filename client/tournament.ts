@@ -78,6 +78,9 @@ export class TournamentController implements ChatController {
     visitedPlayer: string;
     secondsToStart: number;
     secondsToFinish: number;
+    roundOngoingGames: number;
+    secondsToNextRound: number;
+    clockInterval: ReturnType<typeof setInterval> | null;
     username: string;
     anon: boolean;
     private: boolean;
@@ -92,6 +95,9 @@ export class TournamentController implements ChatController {
         this.startDate = model["date"];
         this.secondsToStart = 0;
         this.secondsToFinish = 0;
+        this.roundOngoingGames = 0;
+        this.secondsToNextRound = 0;
+        this.clockInterval = null;
         this.private = false;
 
         const onOpen = () => {
@@ -611,6 +617,8 @@ export class TournamentController implements ChatController {
         this.userRating = msg.urating;
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
+        this.roundOngoingGames = msg.roundOngoingGames ?? 0;
+        this.secondsToNextRound = msg.secondsToNextRound ?? 0;
         this.private = msg.private;
 
         this.updateActionButton()
@@ -632,12 +640,23 @@ export class TournamentController implements ChatController {
 
     private onMsgTournamentStatus(msg: MsgTournamentStatus) {
         const oldStatus = this.tournamentStatus;
+        const oldRoundOngoingGames = this.roundOngoingGames;
+        const oldSecondsToNextRound = this.secondsToNextRound;
         this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
-        if (oldStatus !== this.tournamentStatus) {
-            if (msg.secondsToFinish !== undefined) {
-                this.secondsToFinish = msg.secondsToFinish;
-            }
-            // TODO: in Swiss/RR clock is meaningless, we need the number of ongoing games shown and updating
+        if (msg.secondsToFinish !== undefined) {
+            this.secondsToFinish = msg.secondsToFinish;
+        }
+        if (msg.roundOngoingGames !== undefined) {
+            this.roundOngoingGames = msg.roundOngoingGames;
+        }
+        if (msg.secondsToNextRound !== undefined) {
+            this.secondsToNextRound = msg.secondsToNextRound;
+        }
+        if (
+            oldStatus !== this.tournamentStatus ||
+            oldRoundOngoingGames !== this.roundOngoingGames ||
+            oldSecondsToNextRound !== this.secondsToNextRound
+        ) {
             initializeClock(this);
         }
         this.updateActionButton()

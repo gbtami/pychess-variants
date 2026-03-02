@@ -27,6 +27,8 @@ export interface TournamentGame {
 export interface MsgTournamentStatus {
     tstatus: number;
     secondsToFinish: number;
+    roundOngoingGames?: number;
+    secondsToNextRound?: number;
     nbPlayers: number;
     sumRating: number;
     nbGames: number;
@@ -39,6 +41,8 @@ export interface MsgTournamentStatus {
 export interface MsgUserConnectedTournament {
     tsystem: number;
     tminutes: number;
+    roundOngoingGames?: number;
+    secondsToNextRound?: number;
     frequency: string;
     startsAt: string;
     startFen: cg.FEN;

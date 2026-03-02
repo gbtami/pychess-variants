@@ -810,6 +810,7 @@ class Tournament(ABC):
                             await self.create_new_pairings(waiting_players)
                             await self.save_current_round()
                             self.next_round_starts_at = None
+                            await self.broadcast(self.live_status(now))
                         elif self.current_round < self.rounds:
                             interval_seconds = self.effective_round_interval_seconds()
                             if interval_seconds <= 0:
@@ -824,6 +825,7 @@ class Tournament(ABC):
                                     self.current_round,
                                     interval_seconds,
                                 )
+                                await self.broadcast(self.live_status(now))
 
                             if (
                                 self.next_round_starts_at is not None
@@ -835,6 +837,7 @@ class Tournament(ABC):
                                 waiting_players = self.waiting_players()
                                 await self.create_new_pairings(waiting_players)
                                 await self.save_current_round()
+                                await self.broadcast(self.live_status(now))
                         else:
                             await self.finish()
                             log.debug("T_FINISHED: no more round left")
@@ -863,11 +866,7 @@ class Tournament(ABC):
         self.first_pairing = True
         self.next_round_starts_at = None
 
-        response: TournamentStatusResponse = {
-            "type": "tstatus",
-            "tstatus": self.status,
-            "secondsToFinish": (self.ends_at - now).total_seconds(),
-        }
+        response = self.live_status(now)
         await self.broadcast(response)
 
         # force first pairing wave in arena
@@ -899,6 +898,42 @@ class Tournament(ABC):
                 if not player_data.withdrawn
             ),
         }
+        return response
+
+    def round_status(self, now: datetime | None = None) -> tuple[int, float]:
+        if self.system == ARENA or self.status != T_STARTED:
+            return (0, 0.0)
+
+        if now is None:
+            now = datetime.now(timezone.utc)
+
+        round_ongoing_games = len(self.ongoing_games)
+        seconds_to_next_round = 0.0
+        if (
+            round_ongoing_games == 0
+            and 0 < self.current_round < self.rounds
+            and self.next_round_starts_at is not None
+        ):
+            seconds_to_next_round = max(
+                0.0,
+                (self.next_round_starts_at - now).total_seconds(),
+            )
+
+        return (round_ongoing_games, seconds_to_next_round)
+
+    def live_status(self, now: datetime | None = None) -> TournamentStatusResponse:
+        if now is None:
+            now = datetime.now(timezone.utc)
+        response: TournamentStatusResponse = {
+            "type": "tstatus",
+            "tstatus": self.status,
+        }
+        if self.status == T_STARTED:
+            response["secondsToFinish"] = max(0.0, (self.ends_at - now).total_seconds())
+            if self.system != ARENA:
+                round_ongoing_games, seconds_to_next_round = self.round_status(now)
+                response["roundOngoingGames"] = round_ongoing_games
+                response["secondsToNextRound"] = seconds_to_next_round
         return response
 
     async def finalize(self, status: int) -> None:
@@ -1399,6 +1434,17 @@ class Tournament(ABC):
             self.draw += 1
 
         self.ongoing_games.discard(game)
+        now = datetime.now(timezone.utc)
+        if (
+            self.system != ARENA
+            and self.status == T_STARTED
+            and len(self.ongoing_games) == 0
+            and 0 < self.current_round < self.rounds
+            and self.next_round_starts_at is None
+        ):
+            self.next_round_starts_at = now + timedelta(
+                seconds=self.effective_round_interval_seconds()
+            )
 
         # save player points to db
         await self.db_update_player(game.wplayer, "GAME_END")
@@ -1416,6 +1462,7 @@ class Tournament(ABC):
                 "bname": game.bplayer.username,
             }
         )
+        await self.broadcast(self.live_status(now))
 
         if self.top_game is not None and self.top_game.id == game.id:
             response = {

@@ -379,6 +379,8 @@ class TournamentUserConnectedMessage(TypedDict):
     frequency: str
     secondsToStart: float
     secondsToFinish: float
+    roundOngoingGames: NotRequired[int]
+    secondsToNextRound: NotRequired[float]
     chatClosed: bool
     private: bool
     defender_title: NotRequired[str]
