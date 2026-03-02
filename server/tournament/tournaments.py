@@ -11,6 +11,7 @@ from tournament.arena_new import ArenaTournament
 from compress import C2R, R2C
 from const import (
     ARENA,
+    BYEGAME,
     RR,
     SWISS,
     T_STARTED,
@@ -25,6 +26,7 @@ from const import (
     TRANSLATED_FREQUENCY_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
     TEST_PREFIX,
+    VARIANTEND,
 )
 from newid import new_id
 
@@ -63,6 +65,144 @@ TournamentTables = tuple[list[Tournament], list[Tournament], list[Tournament]]
 
 class Translation(Protocol):
     def gettext(self, message: str) -> str: ...
+
+
+def _align_player_games_with_points(player_data: PlayerData) -> None:
+    if not player_data.points:
+        return
+
+    non_bye_games = [game for game in player_data.games if not isinstance(game, ByeGame)]
+    bye_games = [game for game in player_data.games if isinstance(game, ByeGame)]
+
+    rebuilt: list[Game | GameData | ByeGame] = []
+    non_bye_index = 0
+    bye_index = 0
+
+    for point in player_data.points:
+        if point == "-":
+            if bye_index < len(bye_games):
+                rebuilt.append(bye_games[bye_index])
+                bye_index += 1
+            else:
+                rebuilt.append(ByeGame())
+            continue
+
+        if non_bye_index >= len(non_bye_games):
+            break
+
+        rebuilt.append(non_bye_games[non_bye_index])
+        non_bye_index += 1
+
+    while non_bye_index < len(non_bye_games):
+        rebuilt.append(non_bye_games[non_bye_index])
+        non_bye_index += 1
+
+    while bye_index < len(bye_games):
+        rebuilt.append(bye_games[bye_index])
+        bye_index += 1
+
+    player_data.games = rebuilt
+
+
+def _swiss_entry_point_value(point: object, variant: str) -> int:
+    if point == "-":
+        return 7 if variant == "janggi" else 2
+    if isinstance(point, tuple) and isinstance(point[0], int):
+        return point[0]
+    return 0
+
+
+def _infer_swiss_point_from_game(
+    tournament: Tournament,
+    game: Game | GameData | ByeGame,
+    username: str,
+):
+    if isinstance(game, ByeGame):
+        return "-"
+
+    result = game.result
+    if result not in ("1-0", "0-1", "1/2-1/2"):
+        return None
+
+    if result == "1/2-1/2":
+        return (0 if tournament.variant == "janggi" else 1, 1)
+
+    is_white = game.wplayer.username == username
+    won = (result == "1-0" and is_white) or (result == "0-1" and not is_white)
+
+    if tournament.variant == "janggi":
+        if getattr(game, "status", None) == VARIANTEND:
+            return (4 if won else 2, 1)
+        return (7 if won else 0, 1)
+
+    return (2 if won else 0, 1)
+
+
+async def _repair_swiss_state_from_history(tournament: Tournament) -> None:
+    repaired_users: list[str] = []
+
+    for user, player_data in tournament.players.items():
+        repaired = False
+        username = player_data.username
+
+        initial_points = list(player_data.points)
+        initial_games = list(player_data.games)
+
+        _align_player_games_with_points(player_data)
+
+        while len(player_data.points) < len(player_data.games):
+            game = player_data.games[len(player_data.points)]
+            inferred = _infer_swiss_point_from_game(tournament, game, username)
+            if inferred is None:
+                log.warning(
+                    "Swiss load repair could not infer point for %s in %s at round index %s",
+                    username,
+                    tournament.id,
+                    len(player_data.points),
+                )
+                break
+            player_data.points.append(inferred)
+            repaired = True
+
+        while len(player_data.points) > len(player_data.games):
+            next_point = player_data.points[len(player_data.games)]
+            if next_point != "-":
+                log.warning(
+                    "Swiss load repair found extra non-bye point without game for %s in %s",
+                    username,
+                    tournament.id,
+                )
+                break
+            player_data.games.append(ByeGame())
+            repaired = True
+
+        _align_player_games_with_points(player_data)
+
+        if player_data.points != initial_points or player_data.games != initial_games:
+            repaired = True
+
+        if not repaired:
+            continue
+
+        total_points = sum(
+            _swiss_entry_point_value(point, tournament.variant) for point in player_data.points
+        )
+        full_score = SCORE_SHIFT * total_points + player_data.performance
+        if tournament.leaderboard_player_by_username(username) is not None:
+            tournament.set_leaderboard_score_by_username(username, full_score)
+        repaired_users.append(username)
+
+    if not repaired_users:
+        return
+
+    log.warning(
+        "Swiss load repair adjusted player state from pairing history in %s: %s",
+        tournament.id,
+        sorted(repaired_users),
+    )
+
+    for username in repaired_users:
+        await tournament.db_update_player(username, "GAME_END")
 
 
 async def create_or_update_tournament(
@@ -599,17 +739,36 @@ async def load_tournament(
     w_win, b_win, draw, berserk = 0, 0, 0, 0
     async for doc in cursor:
         pairing_doc: TournamentPairingDoc = doc
-        res = pairing_doc["r"]
-        result = C2R[res]
-        # Skip aborted/unfinished games if tournament is over
-        if result == "*" and tournament.status in (T_ABORTED, T_FINISHED, T_ARCHIVED):
-            continue
-
+        pair_status = pairing_doc.get("s")
         _id = pairing_doc["_id"]
         wp, bp = pairing_doc["u"]
         wrating = pairing_doc["wr"]
         brating = pairing_doc["br"]
         date = pairing_doc["d"]
+
+        if pair_status == BYEGAME:
+            bye_player = await ensure_pairing_participant(wp, wrating)
+            bye_player_data = tournament.player_data_by_name(bye_player.username)
+            if bye_player_data is not None:
+                bye_game = ByeGame()
+                bye_game.date = date
+                bye_player_data.games.append(bye_game)
+            continue
+
+        res = pairing_doc["r"]
+        result = C2R.get(res)
+        if result is None:
+            log.warning(
+                "Skipping pairing %s in %s with unknown result code %s",
+                _id,
+                tournament_id,
+                res,
+            )
+            continue
+        # Skip aborted/unfinished games if tournament is over
+        if result == "*" and tournament.status in (T_ABORTED, T_FINISHED, T_ARCHIVED):
+            continue
+
         wberserk = pairing_doc.get("wb", False)
         bberserk = pairing_doc.get("bb", False)
 
@@ -639,6 +798,7 @@ async def load_tournament(
                     bberserk,
                     wtitle=wplayer.title,
                     btitle=bplayer.title,
+                    status=game.status,
                 )
                 tournament.nb_games_finished += 1
                 await tournament.db_update_pairing(game)
@@ -660,6 +820,7 @@ async def load_tournament(
                 bberserk,
                 wtitle=wplayer.title,
                 btitle=bplayer.title,
+                status=pair_status,
             )
             tournament.nb_games_finished += 1
 
@@ -683,23 +844,10 @@ async def load_tournament(
     tournament.nb_berserk = berserk
 
     for player_data in tournament.players.values():
-        if "-" not in player_data.points:
-            continue
-        games_iter = iter(player_data.games)
-        next_game = next(games_iter, None)
-        rebuilt: list[Game | GameData | ByeGame] = []
-        for point in player_data.points:
-            if point == "-":
-                rebuilt.append(ByeGame())
-                continue
-            if next_game is None:
-                break
-            rebuilt.append(next_game)
-            next_game = next(games_iter, None)
-        while next_game is not None:
-            rebuilt.append(next_game)
-            next_game = next(games_iter, None)
-        player_data.games = rebuilt
+        _align_player_games_with_points(player_data)
+
+    if tournament.system == SWISS:
+        await _repair_swiss_state_from_history(tournament)
 
     if stored_round is None and tournament.system != ARENA:
         stored_round = max(

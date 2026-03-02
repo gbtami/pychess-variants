@@ -4,14 +4,14 @@ import asyncio
 import gc
 from datetime import datetime, timezone
 
-from const import FLAG, RATED, TEST_PREFIX, T_STARTED
+from const import BYEGAME, FLAG, RATED, TEST_PREFIX, T_STARTED
 from newid import id8
 from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_TIME
 from pychess_global_app_state_utils import get_app_state
 from settings import LOCALHOST, URI
 from tournament.arena_new import ArenaTournament
 from tournament.auto_play_arena import ArenaTestTournament, PERFS, SwissTestTournament
-from tournament.tournament import ByeGame, GameData, PlayerData, upsert_tournament_to_db
+from tournament.tournament import ByeGame, GameData, PlayerData, Tournament, upsert_tournament_to_db
 from tournament.tournaments import load_tournament
 from tournament_test_base import TournamentTestCase
 from user import User
@@ -226,6 +226,115 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 await reloaded_tournament.clock_task
             except asyncio.CancelledError:
                 pass
+
+    async def test_swiss_bye_pairing_doc_persisted(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=10, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(3)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+        await self.tournament.save_current_round()
+
+        waiting_players = list(self.tournament.waiting_players())
+        await Tournament.create_new_pairings(self.tournament, waiting_players)
+
+        bye_doc = await app_state.db.tournament_pairing.find_one({"tid": tid, "s": BYEGAME})
+        self.assertIsNotNone(bye_doc)
+        assert bye_doc is not None
+        self.assertEqual(bye_doc["r"], "d")
+        self.assertEqual(bye_doc["u"][0], bye_doc["u"][1])
+
+    async def test_load_tournament_repairs_missing_swiss_bye_point_from_pairing_doc(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=10, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(3)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+        await self.tournament.save_current_round()
+
+        waiting_players = list(self.tournament.waiting_players())
+        await Tournament.create_new_pairings(self.tournament, waiting_players)
+
+        bye_user = next(
+            user.username for user, pdata in self.tournament.players.items() if "-" in pdata.points
+        )
+        await app_state.db.tournament_player.update_one(
+            {"tid": tid, "uid": bye_user},
+            {"$set": {"p": [], "s": 0}},
+        )
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        repaired_bye_user = reloaded_tournament.get_player_by_name(bye_user)
+        self.assertIsNotNone(repaired_bye_user)
+        assert repaired_bye_user is not None
+        bye_data = reloaded_tournament.players[repaired_bye_user]
+        self.assertEqual(bye_data.points, ["-"])
+        self.assertEqual(len(bye_data.games), 1)
+        self.assertIsInstance(bye_data.games[0], ByeGame)
+
+        repaired_doc = await reloaded_tournament.app_state.db.tournament_player.find_one(
+            {"tid": tid, "uid": bye_user}
+        )
+        self.assertIsNotNone(repaired_doc)
+        assert repaired_doc is not None
+        self.assertEqual(repaired_doc["p"], ["-"])
+        self.assertEqual(repaired_doc["s"], 2)
+
+    async def test_load_tournament_repairs_swiss_points_from_pairings(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=10, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+        await self.tournament.save_current_round()
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await Tournament.create_new_pairings(self.tournament, waiting_players)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+        await self.tournament.game_update(game)
+
+        winner = game.wplayer.username
+        await app_state.db.tournament_player.update_one(
+            {"tid": tid, "uid": winner},
+            {"$set": {"p": [], "s": 0}},
+        )
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        repaired_winner = reloaded_tournament.get_player_by_name(winner)
+        self.assertIsNotNone(repaired_winner)
+        assert repaired_winner is not None
+        winner_data = reloaded_tournament.players[repaired_winner]
+        self.assertEqual(len(winner_data.games), 1)
+        self.assertEqual(winner_data.points[0][0], 2)
+
+        repaired_doc = await reloaded_tournament.app_state.db.tournament_player.find_one(
+            {"tid": tid, "uid": winner}
+        )
+        self.assertIsNotNone(repaired_doc)
+        assert repaired_doc is not None
+        self.assertEqual(repaired_doc["p"][0][0], 2)
+        self.assertEqual(repaired_doc["s"], 2)
 
     async def test_load_tournament_recovers_missing_participant_doc_from_pairings(self):
         app_state = get_app_state(self.app)

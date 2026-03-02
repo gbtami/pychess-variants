@@ -208,6 +208,7 @@ class GameData:
         "date",
         "wberserk",
         "bberserk",
+        "status",
     )
 
     def __init__(
@@ -223,6 +224,7 @@ class GameData:
         bberserk: bool,
         wtitle: str = "",
         btitle: str = "",
+        status: int | None = None,
     ) -> None:
         self.id: str = _id
         self.wname = wplayer
@@ -235,6 +237,7 @@ class GameData:
         self.brating: str = brating
         self.wberserk: bool = wberserk
         self.bberserk: bool = bberserk
+        self.status: int = FLAG if status is None else status
 
     @property
     def wplayer(self) -> _GameDataPlayer:
@@ -1030,6 +1033,7 @@ class Tournament(ABC):
         bye_players = self.bye_players
         self.bye_players = []
         for player in bye_players:
+            await self.db_insert_bye_pairing(player)
             await self.db_update_player(player, "BYE")
 
     async def create_games(self, pairing: list[tuple[User, User]]) -> list[Game]:
@@ -1431,7 +1435,7 @@ class Tournament(ABC):
         pairing_table = self.app_state.db.tournament_pairing
 
         for game in games:
-            if game.status == BYEGAME:  # TODO: Save or not save? This is the question.
+            if game.status == BYEGAME:
                 continue
 
             pairing_doc: TournamentPairingDoc = {
@@ -1444,10 +1448,36 @@ class Tournament(ABC):
                 "br": game.brating,
                 "wb": game.wberserk,
                 "bb": game.bberserk,
+                "s": game.status,
             }
             pairing_documents.append(pairing_doc)
         if len(pairing_documents) > 0:
             await pairing_table.insert_many(pairing_documents)
+
+    async def db_insert_bye_pairing(self, player: User) -> None:
+        if self.app_state.db is None:
+            return
+        player_data = self.player_data_by_name(player.username)
+        if player_data is None:
+            return
+
+        pairing_table = self.app_state.db.tournament_pairing
+        pairing_id = await new_id(pairing_table)
+        rating = "%s%s" % (player_data.rating, player_data.provisional)
+
+        bye_doc: TournamentPairingDoc = {
+            "_id": pairing_id,
+            "tid": self.id,
+            "u": (player.username, player.username),
+            "r": R2C["*"],
+            "d": datetime.now(timezone.utc),
+            "wr": rating,
+            "br": rating,
+            "wb": False,
+            "bb": False,
+            "s": BYEGAME,
+        }
+        await pairing_table.insert_one(bye_doc)
 
     async def db_update_pairing(self, game: Game | GameData) -> None:
         if self.app_state.db is None:
@@ -1465,6 +1495,7 @@ class Tournament(ABC):
                 "br": game.brating,
                 "wb": game.wberserk,
                 "bb": game.bberserk,
+                "s": game.status,
             }
 
             await pairing_table.update_one(

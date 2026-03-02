@@ -380,6 +380,7 @@ class SwissTournament(Tournament):
         self.bye_players = []
         for player in bye_players:
             self._apply_bye_points(player)
+            await self.db_insert_bye_pairing(player)
             await self.db_update_player(player, "BYE")
 
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
