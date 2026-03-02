@@ -104,7 +104,7 @@ async def ban(app_state: PychessGlobalAppState, message: str) -> None:
 
     # Keep started tournament history intact but ensure banned users are not
     # paired again. For not-yet-started tournaments, remove them from entries.
-    for tournament in list(app_state.tournaments.values()):
+    for tournament in tuple(app_state.tournaments.values()):
         player = tournament.get_player_by_name(username)
         if player is None:
             continue

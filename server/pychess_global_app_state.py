@@ -663,7 +663,7 @@ class PychessGlobalAppState:
 
         socket_map = self.tourneysockets.pop(tournament_id, {})
         for ws_set in socket_map.values():
-            for ws in list(ws_set):
+            for ws in tuple(ws_set):
                 if ws is None:
                     continue
                 try:
@@ -696,7 +696,7 @@ class PychessGlobalAppState:
             return
 
         # Clear any pending abandon timers that would keep the user alive.
-        for task in list(user.abandon_game_tasks.values()):
+        for task in tuple(user.abandon_game_tasks.values()):
             task.cancel()
             try:
                 await task
@@ -708,7 +708,7 @@ class PychessGlobalAppState:
         # lobby state does not keep this user alive.
         user.remove_from_auto_pairings()
         removed_seek = False
-        for seek_id in list(user.seeks):
+        for seek_id in tuple(user.seeks):
             if seek_id in self.seeks:
                 del self.seeks[seek_id]
                 removed_seek = True
@@ -719,7 +719,7 @@ class PychessGlobalAppState:
 
         # Drop any lobby/tournament socket bookkeeping entries if they linger.
         self.lobby.lobbysockets.pop(user.username, None)
-        for tid in list(self.tourneysockets):
+        for tid in tuple(self.tourneysockets):
             self.tourneysockets[tid].pop(user.username, None)
 
         # Stop and clear the per-user removal task so it does not linger.
@@ -791,11 +791,11 @@ class PychessGlobalAppState:
 
         # close tourneysockets
         for tid in self.tourneysockets:
-            for username in list(self.tourneysockets[tid].keys()):
+            for username in tuple(self.tourneysockets[tid].keys()):
                 ts_dict = self.users[username].tournament_sockets
                 if tid in ts_dict:
                     ws_set = ts_dict[tid]
-                    for ws in list(ws_set):
+                    for ws in tuple(ws_set):
                         if ws is None:
                             continue
                         await ws.close()

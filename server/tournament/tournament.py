@@ -403,7 +403,7 @@ class Tournament(ABC):
         pass
 
     def register_player(self, user: User, player_data: PlayerData) -> None:
-        for existing in list(self.players):
+        for existing in tuple(self.players):
             if existing is user:
                 continue
             if existing.username == player_data.username:

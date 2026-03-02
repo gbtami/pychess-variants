@@ -129,7 +129,7 @@ async def finally_logic(
             await user.update_seeks(pending=True)
 
             if (not user.anon) and len(user.lobby_sockets) == 0:
-                for seek in list(app_state.seeks.values()):
+                for seek in tuple(app_state.seeks.values()):
                     server_variant = get_server_variant(seek.variant, seek.chess960)
                     if server_variant.two_boards:
                         await handle_leave_seek_bughouse(app_state, user, seek)
@@ -438,7 +438,7 @@ async def handle_accept_seek(
             game = app_state.games[gameId]
             await seek.creator.event_queue.put(game.game_start)
         else:
-            ws_set = list(seek.creator.lobby_sockets)
+            ws_set = tuple(seek.creator.lobby_sockets)
             if len(ws_set) == 0:
                 remove_seek(app_state.seeks, seek)
                 await app_state.lobby.lobby_broadcast_seeks()

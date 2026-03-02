@@ -49,7 +49,7 @@ async def tournament_socket_handler(request):
 
 async def finally_logic(app_state: PychessGlobalAppState, ws, user):
     if user is not None:
-        for tournamentId, ws_set in list(user.tournament_sockets.items()):
+        for tournamentId, ws_set in tuple(user.tournament_sockets.items()):
             if ws in ws_set:
                 ws_set.remove(ws)
 

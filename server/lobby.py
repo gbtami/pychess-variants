@@ -36,8 +36,8 @@ class Lobby:
     async def lobby_broadcast(self, response: Mapping[str, object]) -> None:
         # log.debug("lobby_broadcast: %r to %r", response, self.lobbysockets)
         all_sockets: list[WebSocketResponse] = []
-        for ws_set in list(self.lobbysockets.values()):
-            all_sockets.extend(list(ws_set))
+        for ws_set in tuple(self.lobbysockets.values()):
+            all_sockets.extend(tuple(ws_set))
         await ws_send_json_many(all_sockets, response)
 
     async def lobby_broadcast_u_cnt(self) -> None:
@@ -54,7 +54,7 @@ class Lobby:
         for seek in self.app_state.seeks.values():
             await self.app_state.users.get(seek.creator.username)
 
-        for username, ws_set in list(self.lobbysockets.items()):
+        for username, ws_set in tuple(self.lobbysockets.items()):
             ws_user = await self.app_state.users.get(username)
             compatible_seeks = get_seeks(ws_user, self.app_state.seeks.values())
             response: LobbySeeksMessage = {"type": "get_seeks", "seeks": compatible_seeks}
@@ -85,6 +85,6 @@ class Lobby:
             # await lobby_broadcast(sockets, response)
 
     async def close_lobby_sockets(self) -> None:
-        for ws_set in list(self.lobbysockets.values()):
-            for ws in list(ws_set):
+        for ws_set in tuple(self.lobbysockets.values()):
+            for ws in tuple(ws_set):
                 await ws.close()

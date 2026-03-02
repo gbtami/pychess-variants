@@ -126,7 +126,7 @@ def make_app(
     )
 
     # Configure CORS on all routes.
-    for route in list(app.router.routes()):
+    for route in tuple(app.router.routes()):
         cors.add(route)
 
     return app

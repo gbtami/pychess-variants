@@ -75,7 +75,7 @@ def inspect_referrer(ref: object) -> None:
         log.info("     %s", list(ref.__dict__.keys()))
     elif isinstance(ref, set):
         log.info("  Set referrer:")
-        li = list(ref)
+        li = tuple(ref)
         log.info("     %s", li if len(li) == 0 else li[0])
     elif isinstance(ref, Iterable):
         log.info("  Iterable referrer:")

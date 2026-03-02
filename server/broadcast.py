@@ -28,13 +28,16 @@ async def round_broadcast(
     channels: Iterable[asyncio.Queue[str]] | None = None,
 ) -> None:
     log.debug("round_broadcast %s %s %r", response, full, game.spectators)
-    if game.spectators:
-        for spectator in game.spectators:
+    # Snapshot live collections because awaits below let other tasks add/remove
+    # spectators/channels while we're broadcasting.
+    spectators = tuple(game.spectators)
+    if spectators:
+        for spectator in spectators:
             await spectator.send_game_message(game.id, response)
     if full:
-        for player in game.non_bot_players:
+        for player in tuple(game.non_bot_players):
             await player.send_game_message(game.id, response)
     # Put response data to sse subscribers queue
     if channels is not None:
-        for queue in channels:
+        for queue in tuple(channels):
             await queue.put(json.dumps(response))

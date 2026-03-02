@@ -348,7 +348,7 @@ class User:
 
     async def clear_seeks(self) -> None:
         if len(self.seeks) > 0:
-            for seek_id in list(self.seeks):
+            for seek_id in tuple(self.seeks):
                 game_id = self.seeks[seek_id].game_id
                 # preserve invites (seek with game_id) and corr seeks!
                 if game_id is None and self.seeks[seek_id].day == 0:
@@ -430,10 +430,10 @@ class User:
         await ws_send_json_many(ws_set, message)
 
     async def close_all_game_sockets(self) -> None:
-        for ws_set in list(
+        for ws_set in tuple(
             self.game_sockets.values()
         ):  # todo: also clean up this dict after closing?
-            for ws in list(ws_set):
+            for ws in tuple(ws_set):
                 try:
                     await ws.close()
                 except Exception:

@@ -34,7 +34,7 @@ async def simul_socket_handler(request):
 
 async def finally_logic(app_state: PychessGlobalAppState, ws, user: User):
     if user is not None:
-        for simul_id in list(user.simul_sockets):
+        for simul_id in tuple(user.simul_sockets):
             if ws in user.simul_sockets[simul_id]:
                 user.simul_sockets[simul_id].remove(ws)
                 if len(user.simul_sockets[simul_id]) == 0:
