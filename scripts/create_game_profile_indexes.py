@@ -141,9 +141,9 @@ async def main() -> None:
                         key=key,
                         action="recreated",
                         details=f"dropped conflicting index and created {created_name}",
-                            duration_ms=(monotonic() - start) * 1000.0,
-                        )
+                        duration_ms=(monotonic() - start) * 1000.0,
                     )
+                )
                 print(f"[{idx_num}/{total}] {name}: recreated as {created_name}", flush=True)
                 # Refresh name->doc/pattern map after mutation.
                 existing = await _load_existing_indexes(collection)
@@ -166,9 +166,9 @@ async def main() -> None:
                             f"matching key pattern already exists as '{existing_pattern_name}', "
                             "left unchanged"
                         ),
-                            duration_ms=(monotonic() - start) * 1000.0,
-                        )
+                        duration_ms=(monotonic() - start) * 1000.0,
                     )
+                )
                 print(
                     f"[{idx_num}/{total}] {name}: key already present as {existing_pattern_name}",
                     flush=True,
