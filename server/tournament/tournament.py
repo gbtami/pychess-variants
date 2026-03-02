@@ -879,7 +879,10 @@ class Tournament(ABC):
                 {"$set": {"status": self.status}},
                 return_document=ReturnDocument.AFTER,
             )
-            log.info("Updated status: %s", u)
+            if u is None:
+                log.warning("Updated status: tournament %s status set to %s but no document returned", self.id, self.status)
+            else:
+                log.info("Updated status: tournament %s status=%s", self.id, u.get("status"))
 
     @property
     def summary(self) -> TournamentStatusResponse:
