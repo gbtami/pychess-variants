@@ -38,6 +38,8 @@ KEEP_TIME = 1800  # keep game in app[games_key] for KEEP_TIME secs
 class GameBug:
     white_rating: object
     black_rating: object
+    bsetup: bool
+    wsetup: bool
 
     def __init__(
         self,
@@ -121,6 +123,9 @@ class GameBug:
         self.status = STARTED  # CREATED
         self.result: str = "*"
         self.id = gameId
+        # Bughouse variants do not have a Janggi-style setup phase.
+        self.bsetup = False
+        self.wsetup = False
 
         start_fen = initial_fen if initial_fen else FairyBoard.start_fen(variant, chess960)
         if chess960:
