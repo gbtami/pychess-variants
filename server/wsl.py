@@ -71,7 +71,7 @@ from seek import (
 from settings import ADMINS, TOURNAMENT_DIRECTORS
 from tournament.tournament_spotlights import tournament_spotlights
 from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
-from utils import join_seek, load_game, remove_seek
+from utils import join_seek, load_game, remove_seek, should_send_game_start_to_bot
 from websocket_utils import get_user, process_ws, ws_send_json, ws_send_json_many
 import logging
 import logger
@@ -220,8 +220,7 @@ async def handle_create_ai_challenge(
         gameId = response["gameId"]
         engine.game_queues[gameId] = asyncio.Queue()
         game = app_state.games[gameId]
-        # Janggi must finish setup before the bot can make the first move.
-        if game.variant != "janggi" or not (game.bsetup or game.wsetup):
+        if should_send_game_start_to_bot(game):
             await engine.event_queue.put(game.game_start)
 
 
@@ -438,7 +437,8 @@ async def handle_accept_seek(
             gameId = response["gameId"]
             seek.creator.game_queues[gameId] = asyncio.Queue()
             game = app_state.games[gameId]
-            await seek.creator.event_queue.put(game.game_start)
+            if should_send_game_start_to_bot(game):
+                await seek.creator.event_queue.put(game.game_start)
         else:
             ws_set = tuple(seek.creator.lobby_sockets)
             if len(ws_set) == 0:

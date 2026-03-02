@@ -9,7 +9,7 @@ from broadcast import round_broadcast
 from const import STARTED, RESIGN
 from settings import BOT_TOKENS
 from user import User
-from utils import load_game, new_game, play_move
+from utils import load_game, new_game, play_move, should_send_game_start_to_bot
 from pychess_global_app_state_utils import get_app_state
 from typing_defs import UserDocument
 import logging
@@ -112,8 +112,7 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
         if game is None:
             raise web.HTTPNotFound()
 
-        # Janggi bots must wait until setup finishes before receiving gameStart.
-        if game.variant != "janggi" or not (game.bsetup or game.wsetup):
+        if should_send_game_start_to_bot(game):
             await engine.event_queue.put(game.game_start)
 
     return web.json_response({"ok": True})
@@ -160,7 +159,8 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
         # to continue those games
         for gameId in bot_player.game_queues:
             if gameId in app_state.games and app_state.games[gameId].status == STARTED:
-                await bot_player.event_queue.put(app_state.games[gameId].game_start)
+                if should_send_game_start_to_bot(app_state.games[gameId]):
+                    await bot_player.event_queue.put(app_state.games[gameId].game_start)
     else:
         bot_player = User(app_state, bot=True, username=username)  # noqa: F821
         app_state.users[bot_player.username] = bot_player

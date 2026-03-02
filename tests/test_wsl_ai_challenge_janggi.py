@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import test_logger
 
-from wsl import handle_create_ai_challenge
+from wsl import handle_accept_seek, handle_create_ai_challenge
 
 
 test_logger.init_test_logger()
@@ -16,6 +16,7 @@ class DummyUser:
         self.anon = False
         self.bot = False
         self.title = ""
+        self.game_in_progress = None
 
     def get_rating_value(self, _variant: str, _chess960: bool | None) -> int:
         return 1500
@@ -99,6 +100,87 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
         ):
             await handle_create_ai_challenge(
                 app_state, object(), DummyUser("tester"), create_ai_payload()
+            )
+
+        bot_put.assert_awaited_once_with(game.game_start)
+
+    async def test_accept_seek_janggi_pending_setup_does_not_start_bot(self):
+        bot_put = AsyncMock()
+        engine = SimpleNamespace(
+            bot=True,
+            online=True,
+            event_queue=SimpleNamespace(put=bot_put),
+            game_queues={},
+        )
+        seek = SimpleNamespace(
+            id="seek1",
+            creator=engine,
+            variant="janggi",
+            chess960=False,
+            target="bot",
+        )
+        game = SimpleNamespace(
+            variant="janggi", bsetup=True, wsetup=False, game_start={"type": "gs"}
+        )
+        app_state = SimpleNamespace(
+            seeks={"seek1": seek},
+            games={"g1": game},
+            lobby=SimpleNamespace(lobby_broadcast_seeks=AsyncMock()),
+        )
+
+        with (
+            patch("wsl.send_game_in_progress_if_any", new=AsyncMock(return_value=False)),
+            patch(
+                "wsl.join_seek", new=AsyncMock(return_value={"type": "new_game", "gameId": "g1"})
+            ),
+            patch("wsl.ws_send_json", new=AsyncMock()),
+        ):
+            await handle_accept_seek(
+                app_state,
+                object(),
+                DummyUser("tester"),
+                {"type": "accept_seek", "seekID": "seek1"},
+            )
+
+        self.assertIn("g1", engine.game_queues)
+        bot_put.assert_not_awaited()
+
+    async def test_accept_seek_janggi_after_setup_starts_bot(self):
+        bot_put = AsyncMock()
+        engine = SimpleNamespace(
+            bot=True,
+            online=True,
+            event_queue=SimpleNamespace(put=bot_put),
+            game_queues={},
+        )
+        seek = SimpleNamespace(
+            id="seek1",
+            creator=engine,
+            variant="janggi",
+            chess960=False,
+            target="bot",
+        )
+        game = SimpleNamespace(
+            variant="janggi", bsetup=False, wsetup=False, game_start={"type": "gs"}
+        )
+        app_state = SimpleNamespace(
+            seeks={"seek1": seek},
+            games={"g1": game},
+            lobby=SimpleNamespace(lobby_broadcast_seeks=AsyncMock()),
+        )
+
+        with (
+            patch("wsl.send_game_in_progress_if_any", new=AsyncMock(return_value=False)),
+            patch(
+                "wsl.join_seek", new=AsyncMock(return_value={"type": "new_game", "gameId": "g1"})
+            ),
+            patch("wsl.ws_send_json", new=AsyncMock()),
+        ):
+            await handle_accept_seek(
+                app_state,
+                object(),
+                DummyUser("tester"),
+                {"type": "accept_seek", "seekID": "seek1"},
             )
 
         bot_put.assert_awaited_once_with(game.game_start)

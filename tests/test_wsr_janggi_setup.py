@@ -1,0 +1,135 @@
+import unittest
+from unittest.mock import AsyncMock, patch
+
+from aiohttp.test_utils import AioHTTPTestCase
+from mongomock_motor import AsyncMongoMockClient
+
+from game import Game
+from glicko2.glicko2 import DEFAULT_PERF
+from newid import id8
+from pychess_global_app_state_utils import get_app_state
+from server import make_app
+from user import User
+from variants import VARIANTS
+from wsr import handle_setup
+
+
+PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
+RED_SETUP_FEN = "rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1"
+BLUE_SETUP_FEN = "rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RBNA1ANBR w - - 0 1"
+
+
+class JanggiSetupValidationTestCase(AioHTTPTestCase):
+    async def startup(self, app):
+        app_state = get_app_state(self.app)
+        self.wplayer = User(app_state, username="wplayer-setup", perfs=PERFS)
+        self.bplayer = User(app_state, username="bplayer-setup", perfs=PERFS)
+
+    async def get_application(self):
+        app = make_app(db_client=AsyncMongoMockClient())
+        app.on_startup.append(self.startup)
+        return app
+
+    async def tearDownAsync(self):
+        await self.client.close()
+
+    def new_game(self) -> Game:
+        return Game(
+            get_app_state(self.app),
+            id8(),
+            "janggi",
+            "",
+            self.wplayer,
+            self.bplayer,
+            rated=False,
+        )
+
+    @property
+    def users(self):
+        return {
+            self.wplayer.username: self.wplayer,
+            self.bplayer.username: self.bplayer,
+        }
+
+    async def test_setup_color_mismatch_is_ignored(self):
+        game = self.new_game()
+        initial_fen = game.board.initial_fen
+
+        with patch("wsr.ws_send_json", new=AsyncMock()):
+            await handle_setup(
+                ws=AsyncMock(),
+                users=self.users,
+                user=self.wplayer,
+                data={
+                    "type": "setup",
+                    "gameId": game.id,
+                    "color": "black",
+                    "fen": RED_SETUP_FEN,
+                },
+                game=game,
+            )
+
+        self.assertTrue(game.bsetup)
+        self.assertTrue(game.wsetup)
+        self.assertEqual(game.board.initial_fen, initial_fen)
+        self.assertEqual(game.steps[0]["fen"], initial_fen)
+
+    async def test_stale_setup_after_first_move_is_ignored(self):
+        game = self.new_game()
+
+        with patch("wsr.ws_send_json", new=AsyncMock()):
+            await handle_setup(
+                ws=AsyncMock(),
+                users=self.users,
+                user=self.bplayer,
+                data={
+                    "type": "setup",
+                    "gameId": game.id,
+                    "color": "black",
+                    "fen": RED_SETUP_FEN,
+                },
+                game=game,
+            )
+            await handle_setup(
+                ws=AsyncMock(),
+                users=self.users,
+                user=self.wplayer,
+                data={
+                    "type": "setup",
+                    "gameId": game.id,
+                    "color": "white",
+                    "fen": BLUE_SETUP_FEN,
+                },
+                game=game,
+            )
+
+            clocks = (game.clocks_w[0], game.clocks_b[0])
+            await game.play_move("c1d3", clocks=clocks, ply=1)
+
+            fen_before = game.board.fen
+            initial_before = game.board.initial_fen
+            step0_before = game.steps[0]["fen"]
+
+            await handle_setup(
+                ws=AsyncMock(),
+                users=self.users,
+                user=self.wplayer,
+                data={
+                    "type": "setup",
+                    "gameId": game.id,
+                    "color": "white",
+                    "fen": RED_SETUP_FEN,
+                },
+                game=game,
+            )
+
+        self.assertEqual(game.ply, 1)
+        self.assertEqual(game.board.fen, fen_before)
+        self.assertEqual(game.board.initial_fen, initial_before)
+        self.assertEqual(game.steps[0]["fen"], step0_before)
+        self.assertFalse(game.bsetup)
+        self.assertFalse(game.wsetup)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

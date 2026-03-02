@@ -68,6 +68,7 @@ from utils import (
     play_move,
     join_seek,
     load_game,
+    should_send_game_start_to_bot,
     tv_game,
     tv_game_user,
 )
@@ -366,8 +367,7 @@ async def handle_ready(
     opp_player = await users.get(opp_name)
     response: GameStartMessage = {"type": "gameStart", "gameId": data["gameId"]}
     if opp_player is not None and opp_player.bot:
-        # Janggi game start have to wait for human player setup!
-        if game.variant != "janggi" or not (game.bsetup or game.wsetup):
+        if should_send_game_start_to_bot(game):
             await opp_player.event_queue.put(game.game_start)
 
         await ws_send_json(ws, response)
@@ -425,54 +425,115 @@ async def handle_setup(
 ) -> None:
     # Janggi game starts with a prelude phase to set up horses and elephants
     # First the second player (Red) chooses his setup! Then the first player (Blue)
+    async with game.move_lock:
+        if not game.is_player(user):
+            log.info("Ignoring setup from non-player %s in %s", user.username, game.id)
+            return
 
-    game.board.initial_fen = data["fen"]
-    game.initial_fen = game.board.initial_fen
-    game.board.fen = game.board.initial_fen
-    # print("--- Got FEN from %s %s" % (data["color"], data["fen"]))
+        if game.variant != "janggi":
+            log.info("Ignoring setup for non-janggi game %s by %s", game.id, user.username)
+            await handle_board(ws, user, game)
+            return
 
-    opp_name = (
-        game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
-    )
-    opp_player = users[opp_name] if opp_name in users else None
+        if user.username == game.wplayer.username:
+            user_color = "white"
+        elif user.username == game.bplayer.username:
+            user_color = "black"
+        else:
+            log.info("Ignoring setup from unknown player %s in %s", user.username, game.id)
+            return
 
-    game.steps[0]["fen"] = data["fen"]
+        if data["color"] != user_color:
+            log.info(
+                "Ignoring setup with mismatched color in %s by %s (payload=%s expected=%s)",
+                game.id,
+                user.username,
+                data["color"],
+                user_color,
+            )
+            await handle_board(ws, user, game)
+            return
 
-    if data["color"] == "black":
-        game.bsetup = False
-        setup_response: SetupResponse = {
-            "type": "setup",
-            "color": "white",
-            "fen": data["fen"],
-        }
-        await ws_send_json(ws, setup_response)
+        if game.status > STARTED or game.ply > 0:
+            log.info(
+                "Ignoring stale setup in %s by %s (status=%s ply=%s)",
+                game.id,
+                user.username,
+                game.status,
+                game.ply,
+            )
+            await handle_board(ws, user, game)
+            return
 
-        if opp_player is not None:
-            if opp_player.bot:
-                game.board.janggi_setup("w")
-                game.steps[0]["fen"] = game.board.initial_fen
-            else:
-                await opp_player.send_game_message(game.id, setup_response)
-    else:
-        game.wsetup = False
-        game.status = STARTED
+        if data["color"] == "black":
+            if not game.bsetup:
+                log.info("Ignoring duplicate black setup in %s by %s", game.id, user.username)
+                await handle_board(ws, user, game)
+                return
+        elif data["color"] == "white":
+            if game.bsetup or not game.wsetup:
+                log.info(
+                    "Ignoring out-of-order/duplicate white setup in %s by %s (bsetup=%s wsetup=%s)",
+                    game.id,
+                    user.username,
+                    game.bsetup,
+                    game.wsetup,
+                )
+                await handle_board(ws, user, game)
+                return
+        else:
+            log.info("Ignoring setup with unknown color %s in %s", data["color"], game.id)
+            await handle_board(ws, user, game)
+            return
 
-        board_response = game.get_board(full=True)
-        # log.info("User %s asked board. Server sent: %s" % (user.username, board_response["fen"]))
-        await ws_send_json(ws, board_response)
+        game.board.initial_fen = data["fen"]
+        game.initial_fen = game.board.initial_fen
+        game.board.fen = game.board.initial_fen
 
-        if (opp_player is not None) and (not opp_player.bot):
-            await opp_player.send_game_message(data["gameId"], board_response)
+        opp_name = (
+            game.wplayer.username
+            if user.username == game.bplayer.username
+            else game.bplayer.username
+        )
+        opp_player = users[opp_name] if opp_name in users else None
 
-    await game.save_setup()
+        game.steps[0]["fen"] = data["fen"]
 
-    if opp_player is not None and opp_player.bot:
-        await opp_player.event_queue.put(game.game_start)
+        if data["color"] == "black":
+            game.bsetup = False
+            setup_response: SetupResponse = {
+                "type": "setup",
+                "color": "white",
+                "fen": data["fen"],
+            }
+            await ws_send_json(ws, setup_response)
 
-    # restart expiration time after setup phase
-    if TYPE_CHECKING:
-        assert isinstance(game.stopwatch, Clock)
-    game.stopwatch.restart(game.stopwatch.time_for_first_move)
+            if opp_player is not None:
+                if opp_player.bot:
+                    game.board.janggi_setup("w")
+                    game.initial_fen = game.board.initial_fen
+                    game.steps[0]["fen"] = game.board.initial_fen
+                else:
+                    await opp_player.send_game_message(game.id, setup_response)
+        else:
+            game.wsetup = False
+            game.status = STARTED
+
+            board_response = game.get_board(full=True)
+            await ws_send_json(ws, board_response)
+
+            if (opp_player is not None) and (not opp_player.bot):
+                await opp_player.send_game_message(data["gameId"], board_response)
+
+        await game.save_setup()
+
+        if opp_player is not None and opp_player.bot and should_send_game_start_to_bot(game):
+            await opp_player.event_queue.put(game.game_start)
+
+        # restart expiration time after setup phase
+        if TYPE_CHECKING:
+            assert isinstance(game.stopwatch, Clock)
+        game.stopwatch.restart(game.stopwatch.time_for_first_move)
 
 
 async def handle_analysis(
@@ -612,7 +673,8 @@ async def handle_rematch(
             game.rematch_id = rematch_id
             engine.game_queues[gameId] = asyncio.Queue()
             rematch_game = app_state.games[gameId]
-            await engine.event_queue.put(rematch_game.game_start)
+            if should_send_game_start_to_bot(rematch_game):
+                await engine.event_queue.put(rematch_game.game_start)
         else:
             if opp_name in game.rematch_offers:
                 color = "w" if game.wplayer.username == opp_name else "b"

@@ -79,6 +79,11 @@ from settings import URI
 log = logging.getLogger(__name__)
 
 
+def should_send_game_start_to_bot(game: Game | GameBug) -> bool:
+    """Janggi bots must wait for setup phase completion before first move."""
+    return game.variant != "janggi" or not (game.bsetup or game.wsetup)
+
+
 async def tv_game(app_state: PychessGlobalAppState):
     """Get latest played game id"""
     if app_state.tv is not None:
@@ -711,6 +716,24 @@ async def play_move(
             return
 
         cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
+        if not game.is_player(user):
+            log.info(
+                "Ignoring move from non-player %s in %s (turn=%s, move=%s)",
+                user.username,
+                gameId,
+                cur_player.username,
+                move,
+            )
+            return
+        if user.username != cur_player.username:
+            log.info(
+                "Ignoring out-of-turn move in %s by %s (turn=%s, move=%s)",
+                gameId,
+                user.username,
+                cur_player.username,
+                move,
+            )
+            return
         if user.bot and not cur_player.bot:
             log.info("BOT move %s arrived probably while human player takeback happened" % move)
             return

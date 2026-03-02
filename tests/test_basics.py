@@ -190,6 +190,15 @@ class GameResultTestCase(AioHTTPTestCase):
         mock_error.assert_not_called()
         self.assertEqual(game.ply, 0)
 
+    async def test_out_of_turn_move_is_ignored(self):
+        game = Game(get_app_state(self.app), "12345678", "chess", "", self.wplayer, self.bplayer)
+
+        await play_move(get_app_state(self.app), self.bplayer, game, "e7e5", clocks=CLOCKS, ply=1)
+
+        self.assertEqual(game.ply, 0)
+        self.assertEqual(game.status, CREATED)
+        self.assertEqual(game.result, "*")
+
     @unittest.skip("TODO: is_optional_game_end() should be fixed for Jieqi")
     async def test_jieqi_perpetual_check(self):
         FEN = "3k5/9/9/9/9/5p3/9/5p3/5K3/5C3 w - - 0 1"
