@@ -177,7 +177,7 @@ class Seek:
         fen = "fen='%s', " % self.fen if self.fen else ""
         game_id = "game_id='%s', " % self.game_id if self.game_id else ""
         return (
-            "\n<Seek: id='%s', " % self.id
+            "<Seek: id='%s', " % self.id
             + "user='%s', " % self.creator.username
             + "variant='%s', " % self.variant
             + "color='%s', " % self.color
