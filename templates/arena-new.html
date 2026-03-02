@@ -18,6 +18,8 @@
             {% set t_password = tournament.password %}
             {% set t_starts_at = tournament.starts_at.isoformat() if tournament.starts_at else '' %}
             {% set t_shield = tournament.frequency == 's' %}
+            {% set t_system = tournament.system %}
+            {% set t_rounds = tournament.rounds %}
             <form method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
             {% else %}
             {% set t_name = '' %}
@@ -33,18 +35,31 @@
             {% set t_password = '' %}
             {% set t_starts_at = '' %}
             {% set t_shield = false %}
+            {% set t_system = 0 %}
+            {% set t_rounds = 5 %}
             <form method="post" class="form3" action="/tournaments/new">
             {% endif %}
                 <div class="form-group">
                     <label class="form-label" for="form3-name">Name</label>
                     <div>
                         <input id="form3-name" name="name" value="{{ t_name }}" class="form-control" minlength="2" maxlength="30" />
-                        <label class="form-label-tail" for="form3-name">Arena</label>
                         <br />
                         <small class="form-help">Pick a very safe name for the tournament.
                             <br />Leave empty to name the tournament after a notable chess player (Not implemented on pychess atm!).
                         </small>
                     </div>
+                </div>
+                <div class="form-group form-half">
+                    <label class="form-label" for="form3-system">Tournament type</label>
+                    <select id="form3-system" name="system" class="form-control"{% if edit %} disabled="disabled"{% endif %}>
+                        <option value="0"{% if t_system == 0 %} selected="selected"{% endif %}>Arena</option>
+                        <option value="1"{% if t_system == 1 %} selected="selected"{% endif %}>Round-Robin</option>
+                        <option value="2"{% if t_system == 2 %} selected="selected"{% endif %}>Swiss</option>
+                    </select>
+                    {% if edit %}
+                    <input type="hidden" name="system" value="{{ t_system }}" />
+                    <small class="form-help">Tournament type cannot be changed after creation.</small>
+                    {% endif %}
                 </div>
                 <div class="form-split">
                     <div class="form-check form-group">
@@ -127,6 +142,23 @@
                     </div>
                 </div>
                 <div class="form-split">
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-rounds">Rounds (Swiss/RR)</label>
+                        <select id="form3-rounds" name="rounds" class="form-control">
+                            <option value="0"{% if t_rounds == 0 %} selected="selected"{% endif %}>Not used in Arena</option>
+                            <option value="3"{% if t_rounds == 3 %} selected="selected"{% endif %}>3 rounds</option>
+                            <option value="4"{% if t_rounds == 4 %} selected="selected"{% endif %}>4 rounds</option>
+                            <option value="5"{% if t_rounds == 5 %} selected="selected"{% endif %}>5 rounds</option>
+                            <option value="6"{% if t_rounds == 6 %} selected="selected"{% endif %}>6 rounds</option>
+                            <option value="7"{% if t_rounds == 7 %} selected="selected"{% endif %}>7 rounds</option>
+                            <option value="8"{% if t_rounds == 8 %} selected="selected"{% endif %}>8 rounds</option>
+                            <option value="9"{% if t_rounds == 9 %} selected="selected"{% endif %}>9 rounds</option>
+                            <option value="10"{% if t_rounds == 10 %} selected="selected"{% endif %}>10 rounds</option>
+                            <option value="12"{% if t_rounds == 12 %} selected="selected"{% endif %}>12 rounds</option>
+                            <option value="15"{% if t_rounds == 15 %} selected="selected"{% endif %}>15 rounds</option>
+                        </select>
+                        <small class="form-help">Used by Swiss and Round-Robin tournaments.</small>
+                    </div>
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-minutes">Duration</label>
                         <select id="form3-minutes" name="minutes" class="form-control">

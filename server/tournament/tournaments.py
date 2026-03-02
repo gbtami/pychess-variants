@@ -224,6 +224,29 @@ async def create_or_update_tournament(
     bp = int(form["byoyomiPeriod"])
     frequency = SHIELD if form.get("shield", "") == "true" else ""
 
+    if tournament is None:
+        try:
+            system = int(form.get("system", ARENA))
+        except (TypeError, ValueError):
+            system = ARENA
+        if system not in (ARENA, RR, SWISS):
+            system = ARENA
+    else:
+        # Editing keeps existing pairing type to avoid mutating tournament class behavior.
+        system = tournament.system
+
+    try:
+        rounds = int(form.get("rounds", 0))
+    except (TypeError, ValueError):
+        rounds = 0
+    if system == ARENA:
+        rounds = 0
+    elif rounds <= 0:
+        rounds = 5
+
+    if system != ARENA:
+        frequency = ""
+
     start_date: datetime | None
     if form["startDate"]:
         start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(
@@ -232,16 +255,14 @@ async def create_or_update_tournament(
     else:
         start_date = None
 
-    name = form["name"]
+    name = form["name"].strip()
     # Create meaningful tournament name in case we forget to change it :)
     if name == "":
-        name = "%s Arena" % server_variant.display_name.title()
+        name = server_variant.display_name.title()
 
     description = form["description"]
     if frequency == SHIELD:
         name = "%s Shield Arena" % server_variant.display_name.title()
-    else:
-        name = name if name.lower().endswith("arena") else name + " Arena"
 
     data: TournamentCreateData = {
         "name": name,
@@ -253,12 +274,13 @@ async def create_or_update_tournament(
         "base": base,
         "inc": inc,
         "bp": bp,
-        "system": ARENA,
+        "system": system,
         "beforeStart": int(form["waitMinutes"]),
         "startDate": start_date,
         "frequency": frequency,
         "minutes": int(form["minutes"]),
         "fen": form["position"],
+        "rounds": rounds,
         "description": description,
     }
     if tournament is None:
@@ -274,6 +296,7 @@ async def create_or_update_tournament(
         tournament.base = data["base"]
         tournament.inc = data["inc"]
         tournament.bp = data["bp"]
+        tournament.rounds = data["rounds"]
         tournament.beforeStart = data["beforeStart"]
         tournament.starts_at = data["startDate"]  # type: ignore[assignment]
         tournament.frequency = data["frequency"]
