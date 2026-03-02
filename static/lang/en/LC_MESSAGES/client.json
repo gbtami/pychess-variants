@@ -143,5 +143,14 @@
     "Show piece destinations": "Show piece destinations",
     "Two click drop moves": "Two click drop moves",
     "Promote to Queen automatically": "Promote to Queen automatically",
-    "Best move arrow": "Best move arrow"
+    "Best move arrow": "Best move arrow",
+    "Choose your username": "Choose your username",
+    "Please choose a username for your account.": "Please choose a username for your account.",
+    "Username": "Username",
+    "3-20 characters": "3-20 characters",
+    "Letters, numbers, underscore and dash only": "Letters, numbers, underscore and dash only",
+    "Must be unique": "Must be unique",
+    "Creating account...": "Creating account...",
+    "Confirm": "Confirm",
+    "Login": "Login"
 }
