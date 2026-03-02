@@ -376,7 +376,7 @@ class FairyBoard:
             parts = self.initial_fen.split("/")
             parts[-1] = "R%sA1A%sR w - - 0 1" % (left, right)
             fen = "/".join(parts)
-        print("-------new FEN", fen)
+        log.debug("Janggi setup (%s) generated initial FEN: %s", color, fen)
         self.initial_fen = fen
         self.fen = self.initial_fen
 
