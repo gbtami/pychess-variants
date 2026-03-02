@@ -47,7 +47,9 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             event_queue=SimpleNamespace(put=bot_put),
             game_queues={},
         )
-        game = SimpleNamespace(variant="janggi", bsetup=True, wsetup=False, game_start={"type": "gs"})
+        game = SimpleNamespace(
+            variant="janggi", bsetup=True, wsetup=False, game_start={"type": "gs"}
+        )
         app_state = SimpleNamespace(
             users={"Fairy-Stockfish": engine, "Random-Mover": engine},
             games={"g1": game},
@@ -58,10 +60,14 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             patch("wsl.send_game_in_progress_if_any", new=AsyncMock(return_value=False)),
             patch("wsl.new_id", new=AsyncMock(return_value="seek1")),
             patch("wsl.ws_send_json", new=AsyncMock()),
-            patch("wsl.join_seek", new=AsyncMock(return_value={"type": "new_game", "gameId": "g1"})),
+            patch(
+                "wsl.join_seek", new=AsyncMock(return_value={"type": "new_game", "gameId": "g1"})
+            ),
             patch("wsl.Seek", return_value=object()),
         ):
-            await handle_create_ai_challenge(app_state, object(), DummyUser("tester"), create_ai_payload())
+            await handle_create_ai_challenge(
+                app_state, object(), DummyUser("tester"), create_ai_payload()
+            )
 
         self.assertIn("g1", engine.game_queues)
         bot_put.assert_not_awaited()
@@ -73,7 +79,9 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             event_queue=SimpleNamespace(put=bot_put),
             game_queues={},
         )
-        game = SimpleNamespace(variant="janggi", bsetup=False, wsetup=False, game_start={"type": "gs"})
+        game = SimpleNamespace(
+            variant="janggi", bsetup=False, wsetup=False, game_start={"type": "gs"}
+        )
         app_state = SimpleNamespace(
             users={"Fairy-Stockfish": engine, "Random-Mover": engine},
             games={"g1": game},
@@ -84,10 +92,14 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             patch("wsl.send_game_in_progress_if_any", new=AsyncMock(return_value=False)),
             patch("wsl.new_id", new=AsyncMock(return_value="seek1")),
             patch("wsl.ws_send_json", new=AsyncMock()),
-            patch("wsl.join_seek", new=AsyncMock(return_value={"type": "new_game", "gameId": "g1"})),
+            patch(
+                "wsl.join_seek", new=AsyncMock(return_value={"type": "new_game", "gameId": "g1"})
+            ),
             patch("wsl.Seek", return_value=object()),
         ):
-            await handle_create_ai_challenge(app_state, object(), DummyUser("tester"), create_ai_payload())
+            await handle_create_ai_challenge(
+                app_state, object(), DummyUser("tester"), create_ai_payload()
+            )
 
         bot_put.assert_awaited_once_with(game.game_start)
 
