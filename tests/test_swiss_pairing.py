@@ -1,0 +1,159 @@
+import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
+
+from newid import id8
+from pychess_global_app_state_utils import get_app_state
+from tournament.auto_play_arena import SwissTestTournament
+from tournament import swiss as swiss_mod
+from tournament.tournament import ByeGame, SCORE_SHIFT
+from tournament_test_base import TournamentTestCase
+
+
+class SwissPairingTestCase(TournamentTestCase):
+    async def test_create_pairing_raises_when_py4swiss_is_unavailable(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+
+        waiting = list(self.tournament.waiting_players())
+        with patch("tournament.swiss.DutchEngine", None):
+            with self.assertRaisesRegex(RuntimeError, "requires py4swiss"):
+                self.tournament.create_pairing(waiting)
+
+    async def test_create_pairing_uses_dutch_engine_output(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+
+        waiting = list(self.tournament.waiting_players())
+        users_by_id = {index: user for index, user in enumerate(waiting, start=1)}
+        fake_state = SimpleNamespace(
+            trf=object(),
+            waiting_ids=set(users_by_id),
+            users_by_id=users_by_id,
+        )
+
+        class _Engine:
+            @staticmethod
+            def generate_pairings(_trf):
+                return [
+                    SimpleNamespace(white=1, black=2),
+                    SimpleNamespace(white=3, black=4),
+                ]
+
+        with (
+            patch("tournament.swiss._build_dutch_pairing_state", return_value=fake_state),
+            patch("tournament.swiss.DutchEngine", _Engine),
+        ):
+            pairing = self.tournament.create_pairing(waiting)
+
+        self.assertEqual(pairing, [(waiting[0], waiting[1]), (waiting[2], waiting[3])])
+        self.assertEqual(self.tournament.bye_players, [])
+
+    async def test_create_pairing_records_engine_allocated_bye(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(3)
+
+        waiting = list(self.tournament.waiting_players())
+        users_by_id = {index: user for index, user in enumerate(waiting, start=1)}
+        fake_state = SimpleNamespace(
+            trf=object(),
+            waiting_ids=set(users_by_id),
+            users_by_id=users_by_id,
+        )
+
+        class _Engine:
+            @staticmethod
+            def generate_pairings(_trf):
+                return [
+                    SimpleNamespace(white=1, black=2),
+                    SimpleNamespace(white=3, black=0),
+                ]
+
+        with (
+            patch("tournament.swiss._build_dutch_pairing_state", return_value=fake_state),
+            patch("tournament.swiss.DutchEngine", _Engine),
+        ):
+            pairing = self.tournament.create_pairing(waiting)
+
+        self.assertEqual(pairing, [(waiting[0], waiting[1])])
+        self.assertEqual(self.tournament.bye_players, [waiting[2]])
+
+        bye_player_data = self.tournament.player_data_by_name(waiting[2].username)
+        self.assertIsNotNone(bye_player_data)
+        assert bye_player_data is not None
+        self.assertEqual(bye_player_data.points[-1], "-")
+        self.assertIsInstance(bye_player_data.games[-1], ByeGame)
+
+    async def test_persist_byes_awards_full_point_in_swiss(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(1)
+
+        waiting = list(self.tournament.waiting_players())
+        pairing = self.tournament.create_pairing(waiting)
+        self.assertEqual(pairing, [])
+        self.assertEqual(len(self.tournament.bye_players), 1)
+
+        await self.tournament.persist_byes()
+
+        player = waiting[0]
+        self.assertEqual(
+            self.tournament.leaderboard_score_by_username(player.username) // SCORE_SHIFT, 2
+        )
+
+
+class SwissScoringRulesTestCase(unittest.TestCase):
+    def test_chess_pairing_allocated_bye_is_full_point(self):
+        scoring = swiss_mod._build_scoring_system("chess")
+        self.assertEqual(
+            scoring.score_dict[
+                (
+                    swiss_mod.ResultToken.PAIRING_ALLOCATED_BYE,
+                    swiss_mod.ColorToken.BYE_OR_NOT_PAIRED,
+                )
+            ],
+            20,
+        )
+
+    def test_janggi_scores_use_base_ratios_and_variant_end_mapping(self):
+        scoring = swiss_mod._build_scoring_system("janggi")
+        self.assertEqual(
+            scoring.score_dict[
+                (
+                    swiss_mod.ResultToken.PAIRING_ALLOCATED_BYE,
+                    swiss_mod.ColorToken.BYE_OR_NOT_PAIRED,
+                )
+            ],
+            70,
+        )
+        self.assertEqual(
+            scoring.score_dict[(swiss_mod.ResultToken.WIN_NOT_RATED, swiss_mod.ColorToken.WHITE)],
+            40,
+        )
+        self.assertEqual(
+            scoring.score_dict[(swiss_mod.ResultToken.LOSS_NOT_RATED, swiss_mod.ColorToken.BLACK)],
+            20,
+        )
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
