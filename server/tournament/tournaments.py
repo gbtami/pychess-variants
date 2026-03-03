@@ -232,7 +232,7 @@ async def _repair_swiss_state_from_history(tournament: Tournament) -> None:
         total_points = sum(
             _swiss_entry_point_value(point, tournament.variant) for point in player_data.points
         )
-        full_score = SCORE_SHIFT * total_points + player_data.performance
+        full_score = tournament.compose_leaderboard_score(total_points, player_data)
         if tournament.leaderboard_player_by_username(username) is not None:
             tournament.set_leaderboard_score_by_username(username, full_score)
         repaired_users.append(username)
@@ -795,10 +795,14 @@ async def load_tournament(
         player_data.nb_win = player_doc["w"]
         player_data.nb_berserk = player_doc.get("b", 0)
         player_data.performance = player_doc["e"]
+        player_data.berger = player_doc.get("g", 0)
         player_data.win_streak = player_doc["f"]
 
         if not withdrawn:
-            tournament.leaderboard.update({user: SCORE_SHIFT * (player_doc["s"]) + player_doc["e"]})
+            tie_break = (
+                player_data.performance if tournament.system == ARENA else player_data.berger
+            )
+            tournament.leaderboard.update({user: SCORE_SHIFT * (player_doc["s"]) + tie_break})
             nb_players += 1
 
         if auto_play and tournament.status in (T_CREATED, T_STARTED):
@@ -930,6 +934,9 @@ async def load_tournament(
 
     if tournament.system == SWISS:
         await _repair_swiss_state_from_history(tournament)
+
+    if tournament.system != ARENA:
+        tournament.recalculate_berger_tiebreak()
 
     if stored_round is None and tournament.system != ARENA:
         stored_round = max(

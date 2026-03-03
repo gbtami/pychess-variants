@@ -590,6 +590,7 @@ class TournamentPlayerDoc(TypedDict):
     w: int
     b: int
     e: int
+    g: NotRequired[int]
     p: list[TournamentPoint]
     wd: bool
 
@@ -606,6 +607,7 @@ class TournamentPlayerUpdate(TypedDict, total=False):
     w: int
     b: int
     e: int
+    g: int
     p: list[TournamentPoint]
     wd: bool
 
@@ -644,6 +646,7 @@ class TournamentPlayerJson(TypedDict):
     fire: int
     score: int
     perf: int
+    berger: float
     nbGames: int
     nbWin: int
     nbBerserk: int
@@ -675,6 +678,7 @@ class TournamentGamesResponse(TypedDict):
     title: str
     name: str
     perf: int
+    berger: float
     nbGames: int
     nbWin: int
     nbBerserk: int

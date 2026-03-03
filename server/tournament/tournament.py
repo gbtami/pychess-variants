@@ -75,6 +75,7 @@ log = logging.getLogger(__name__)
 SCORE, STREAK, DOUBLE = range(1, 4)
 
 SCORE_SHIFT = 100000
+BERGER_NORM = 2
 
 NOTIFY1_MINUTES = 60 * 6
 NOTIFY2_MINUTES = 10
@@ -139,6 +140,7 @@ class PlayerData:
         "nb_berserk",
         "nb_not_paired",
         "performance",
+        "berger",
         "prev_opp",
         "color_balance",
         "page",
@@ -162,12 +164,18 @@ class PlayerData:
         self.nb_berserk: int = 0
         self.nb_not_paired: int = 0
         self.performance: int = 0
+        # Sonneborn-Berger score stored as doubled integer (x2) to keep exact .5 steps.
+        self.berger: int = 0
         self.prev_opp: str = ""
         self.color_balance: int = 0  # +1 when played as white, -1 when played as black
         self.page: int = 0
 
     def __str__(self) -> str:
         return " ".join(str(point) for point in self.points)
+
+
+def berger_to_float(berger: int) -> float:
+    return berger / BERGER_NORM
 
 
 @cache
@@ -181,6 +189,7 @@ def player_json(player: PlayerData, full_score: int, paused: bool) -> Tournament
         "fire": player.win_streak,
         "score": full_score,  # SCORE_SHIFT-ed + performance rating
         "perf": player.performance,
+        "berger": berger_to_float(player.berger),
         "nbGames": len(player.points),
         "nbWin": player.nb_win,
         "nbBerserk": player.nb_berserk,
@@ -506,6 +515,70 @@ class Tournament(ABC):
         self.leaderboard.pop(leaderboard_player, None)
         return leaderboard_player
 
+    def tie_break_value(self, player_data: PlayerData) -> int:
+        if self.system == ARENA:
+            return player_data.performance
+        return player_data.berger
+
+    def compose_leaderboard_score(self, score_points: int, player_data: PlayerData) -> int:
+        return SCORE_SHIFT * score_points + self.tie_break_value(player_data)
+
+    def recalculate_berger_tiebreak(self) -> None:
+        if self.system == ARENA:
+            return
+
+        score_points_by_username = {
+            player.username: full_score // SCORE_SHIFT
+            for player, full_score in self.leaderboard.items()
+        }
+
+        for player_data in self.players.values():
+            berger = 0
+            for game in player_data.games:
+                if isinstance(game, ByeGame):
+                    continue
+
+                wname, bname = self.game_player_usernames(game)
+                if player_data.username == wname:
+                    opponent_username = bname
+                    if game.result == "1-0":
+                        result_numerator = 2
+                    elif game.result == "1/2-1/2":
+                        result_numerator = 1
+                    else:
+                        result_numerator = 0
+                elif player_data.username == bname:
+                    opponent_username = wname
+                    if game.result == "0-1":
+                        result_numerator = 2
+                    elif game.result == "1/2-1/2":
+                        result_numerator = 1
+                    else:
+                        result_numerator = 0
+                else:
+                    continue
+
+                if result_numerator == 0:
+                    continue
+                opponent_score = score_points_by_username.get(opponent_username, 0)
+                berger += result_numerator * opponent_score
+
+            player_data.berger = berger
+
+        for leaderboard_player in list(self.leaderboard.keys()):
+            player_data = self.player_data_by_name(leaderboard_player.username)
+            if player_data is None:
+                continue
+            score_points = score_points_by_username.get(leaderboard_player.username, 0)
+            self.leaderboard.update(
+                {
+                    leaderboard_player: self.compose_leaderboard_score(
+                        score_points,
+                        player_data,
+                    )
+                }
+            )
+
     def tournament_sockets(self, username: str, user: User | None = None) -> set[Any]:
         sockets_by_username = self.app_state.tourneysockets.get(self.id, {})
         sockets = sockets_by_username.get(username)
@@ -643,6 +716,7 @@ class Tournament(ABC):
                 "title": spectator.title,
                 "name": player_name,
                 "perf": 0,
+                "berger": 0,
                 "nbGames": 0,
                 "nbWin": 0,
                 "nbBerserk": 0,
@@ -659,6 +733,7 @@ class Tournament(ABC):
             "title": player.title,
             "name": player_name,
             "perf": player_data.performance,
+            "berger": berger_to_float(player_data.berger),
             "nbGames": len(player_data.points),
             "nbWin": player_data.nb_win,
             "nbBerserk": player_data.nb_berserk,
@@ -1016,7 +1091,9 @@ class Tournament(ABC):
         if self.status == T_CREATED:
             self.set_leaderboard_score_by_username(user.username, rating, player=player)
         elif not in_leaderboard:
-            self.set_leaderboard_score_by_username(user.username, 0, player=player)
+            self.set_leaderboard_score_by_username(
+                user.username, self.compose_leaderboard_score(0, player_data), player=player
+            )
 
         player_data.free = True
         player_data.paused = False
@@ -1088,7 +1165,7 @@ class Tournament(ABC):
         if self.first_pairing:
             self.first_pairing = False
             # Before tournament starts leaderboard is ordered by ratings
-            # After first pairing it will be sorted by score points and performance
+            # After first pairing it will be sorted by score points and tournament tie-break
             # so we have to make a clear (all 0) leaderboard here
             new_leaderboard = [(user, 0) for user in self.leaderboard]
             self.leaderboard = ValueSortedDict(neg, new_leaderboard)
@@ -1407,7 +1484,6 @@ class Tournament(ABC):
         wplayer.rating = int(game.wrating.rstrip("?")) + (int(game.wrdiff) if game.wrdiff else 0)
         bplayer.rating = int(game.brating.rstrip("?")) + (int(game.brdiff) if game.brdiff else 0)
 
-        # TODO: in Swiss we will need Berger instead of performance to calculate tie breaks
         nb = len(wplayer.points)
         wplayer.performance = int(round((wplayer.performance * (nb - 1) + wperf) / nb, 0))
 
@@ -1420,16 +1496,19 @@ class Tournament(ABC):
         wpscore = self.leaderboard_score_by_username(game.wplayer.username) // SCORE_SHIFT
         self.set_leaderboard_score_by_username(
             game.wplayer.username,
-            SCORE_SHIFT * (wpscore + wpoint_value) + wplayer.performance,
+            self.compose_leaderboard_score(wpscore + wpoint_value, wplayer),
             player=game.wplayer,
         )
 
         bpscore = self.leaderboard_score_by_username(game.bplayer.username) // SCORE_SHIFT
         self.set_leaderboard_score_by_username(
             game.bplayer.username,
-            SCORE_SHIFT * (bpscore + bpoint_value) + bplayer.performance,
+            self.compose_leaderboard_score(bpscore + bpoint_value, bplayer),
             player=game.bplayer,
         )
+
+        if self.system != ARENA:
+            self.recalculate_berger_tiebreak()
 
         self.nb_games_finished += 1
 
@@ -1648,6 +1727,7 @@ class Tournament(ABC):
                     "w": 0,
                     "b": 0,
                     "e": 0,
+                    "g": 0,
                     "p": [],
                     "wd": False,
                 }
@@ -1679,6 +1759,7 @@ class Tournament(ABC):
                 "w": player_data.nb_win,
                 "b": player_data.nb_berserk,
                 "e": player_data.performance,
+                "g": player_data.berger,
                 "p": player_data.points,
                 "wd": player_data.withdrawn,
             }
@@ -1764,7 +1845,7 @@ class Tournament(ABC):
                 )
                 continue
             log.info(
-                "%15s (%8s) %4s %30s %2s %s"
+                "%15s (%8s) %4s %30s %2s perf=%s berger=%s"
                 % (
                     player.username,
                     player_data.id,
@@ -1772,6 +1853,7 @@ class Tournament(ABC):
                     player_data.points,
                     full_score,
                     player_data.performance,
+                    berger_to_float(player_data.berger),
                 )
             )
 

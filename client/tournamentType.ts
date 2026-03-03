@@ -9,6 +9,7 @@ export interface MsgGetGames {
     name: string;
     title: string;
     games: TournamentGame[];
+    berger: number;
     perf: number;
     nbWin: number;
     nbGames: number;
@@ -73,6 +74,7 @@ export interface MsgGetPlayers {
 export interface TournamentPlayer {
     name: string;
     score: number;
+    berger: number;
     paused: boolean;
     title: string;
     rating: number;

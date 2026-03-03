@@ -48,6 +48,7 @@ async def tournament(request: web.Request) -> ViewContext:
     context["minutes"] = tournament.minutes
     context["date"] = tournament.starts_at
     context["rounds"] = tournament.rounds
+    context["system"] = tournament.system
     context["frequency"] = tournament.frequency
     context["status"] = tournament.status
     context["title"] = tournament.browser_title

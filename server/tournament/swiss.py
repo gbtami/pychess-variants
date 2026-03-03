@@ -369,7 +369,7 @@ class SwissTournament(Tournament):
         full_score = self.leaderboard_score_by_username(player.username)
         current_points = full_score // SCORE_SHIFT
         bye_points = _bye_point_value(self.variant)
-        new_full_score = SCORE_SHIFT * (current_points + bye_points) + player_data.performance
+        new_full_score = self.compose_leaderboard_score(current_points + bye_points, player_data)
         self.set_leaderboard_score_by_username(player.username, new_full_score, player=player)
 
     async def persist_byes(self) -> None:
@@ -380,6 +380,8 @@ class SwissTournament(Tournament):
         self.bye_players = []
         for player in bye_players:
             self._apply_bye_points(player)
+        self.recalculate_berger_tiebreak()
+        for player in bye_players:
             await self.db_insert_bye_pairing(player)
             await self.db_update_player(player, "BYE")
 
