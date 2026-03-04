@@ -104,6 +104,96 @@ class SignupSecurityEvasionTestCase(AioHTTPTestCase):
         self.assertIsNotNone(created)
         self.assertTrue(created.get("enabled", False))
 
+    async def test_confirm_username_succeeds_on_fp_signal_with_single_source(self):
+        app_state = get_app_state(self.app)
+        headers = {
+            "X-Forwarded-For": "198.51.100.66",
+            "User-Agent": "SecurityTestUA/1.0",
+            "Accept-Language": "en-US,en;q=0.8",
+            "Cookie": "pcfp=fp-single-source",
+        }
+        mock_req = make_mocked_request("POST", "/api/confirm-username", headers=headers)
+        signals = collect_client_signals(mock_req)
+        self.assertIsNotNone(signals.fp_hash)
+        await app_state.db.security_ban_signal.insert_one(
+            {
+                "_id": f"fp:{signals.fp_hash}",
+                "kind": "fp",
+                "sources": ["cheater_a"],
+            }
+        )
+
+        self._set_session(
+            {
+                "oauth_id": "oauth-fp-single",
+                "oauth_provider": "lichess",
+                "oauth_title": "",
+                "oauth_username": "fp-single-origin",
+            }
+        )
+        self.client.session.cookie_jar.update_cookies({"pcfp": "fp-single-source"})
+
+        response = await self.client.post(
+            "/api/confirm-username",
+            json={"username": "fp_single_allowed"},
+            headers={
+                "X-Forwarded-For": "198.51.100.66",
+                "User-Agent": "SecurityTestUA/1.0",
+                "Accept-Language": "en-US,en;q=0.8",
+            },
+        )
+        self.assertEqual(response.status, 200)
+        body = await response.json()
+        self.assertTrue(body.get("success"))
+
+        created = await app_state.db.user.find_one({"_id": "fp_single_allowed"})
+        self.assertIsNotNone(created)
+        self.assertTrue(created.get("enabled", False))
+
+    async def test_confirm_username_auto_closes_on_fp_signal_with_multiple_sources(self):
+        app_state = get_app_state(self.app)
+        headers = {
+            "X-Forwarded-For": "198.51.100.77",
+            "User-Agent": "SecurityTestUA/1.0",
+            "Accept-Language": "en-US,en;q=0.8",
+            "Cookie": "pcfp=fp-multi-source",
+        }
+        mock_req = make_mocked_request("POST", "/api/confirm-username", headers=headers)
+        signals = collect_client_signals(mock_req)
+        self.assertIsNotNone(signals.fp_hash)
+        await app_state.db.security_ban_signal.insert_one(
+            {
+                "_id": f"fp:{signals.fp_hash}",
+                "kind": "fp",
+                "sources": ["cheater_a", "cheater_b"],
+            }
+        )
+
+        self._set_session(
+            {
+                "oauth_id": "oauth-fp-multi",
+                "oauth_provider": "lichess",
+                "oauth_title": "",
+                "oauth_username": "fp-multi-origin",
+            }
+        )
+        self.client.session.cookie_jar.update_cookies({"pcfp": "fp-multi-source"})
+
+        response = await self.client.post(
+            "/api/confirm-username",
+            json={"username": "fp_multi_blocked"},
+            headers={
+                "X-Forwarded-For": "198.51.100.77",
+                "User-Agent": "SecurityTestUA/1.0",
+                "Accept-Language": "en-US,en;q=0.8",
+            },
+        )
+        self.assertEqual(response.status, 403)
+
+        created = await app_state.db.user.find_one({"_id": "fp_multi_blocked"})
+        self.assertIsNotNone(created)
+        self.assertFalse(created.get("enabled", True))
+
 
 class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
     async def get_application(self):

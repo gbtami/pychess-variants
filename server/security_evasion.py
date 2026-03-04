@@ -12,6 +12,9 @@ from settings import SECRET_KEY
 
 BAN_SIGNAL_COLLECTION = "security_ban_signal"
 BAN_SIGNAL_TTL_DAYS = 180
+# Require multiple banned-account sources before fp-only auto-close
+# to reduce false positives from shared/browser-like fingerprints.
+BAN_SIGNAL_FP_ONLY_MIN_SOURCES = 2
 
 
 @dataclass(frozen=True)
@@ -200,16 +203,25 @@ async def is_signup_blocked_by_signals(db: Any, signals: ClientSignals) -> tuple
         return False, ""
 
     collection = getattr(db, BAN_SIGNAL_COLLECTION)
-    cursor = collection.find({"_id": {"$in": ids}}, projection={"kind": 1})
+    cursor = collection.find({"_id": {"$in": ids}}, projection={"kind": 1, "sources": 1})
     docs = await cursor.to_list(length=8)
     matched_kinds = {
         doc.get("kind")
         for doc in docs
         if isinstance(doc, dict) and isinstance(doc.get("kind"), str)
     }
+    fp_source_count = 0
+    for doc in docs:
+        if not isinstance(doc, dict) or doc.get("kind") != "fp":
+            continue
+        sources = doc.get("sources")
+        if isinstance(sources, list):
+            fp_source_count = max(fp_source_count, len(sources))
 
     if "ipfp" in matched_kinds:
         return True, "ipfp"
     if "ip" in matched_kinds and "fp" in matched_kinds:
         return True, "ip+fp"
+    if fp_source_count >= BAN_SIGNAL_FP_ONLY_MIN_SOURCES:
+        return True, f"fp>={BAN_SIGNAL_FP_ONLY_MIN_SOURCES}"
     return False, ""
