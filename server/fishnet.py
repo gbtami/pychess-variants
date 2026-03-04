@@ -9,7 +9,8 @@ from time import monotonic
 from aiohttp import web
 from aiohttp.client_exceptions import ClientConnectionResetError
 
-from const import ANALYSIS
+from broadcast import round_broadcast
+from const import ANALYSIS, MOVE, STARTED
 from typing_defs import (
     FishnetAbortPayload,
     FishnetAcquirePayload,
@@ -31,6 +32,69 @@ log = logging.getLogger(__name__)
 
 REQUIRED_FISHNET_VERSION = "1.16.42"
 MOVE_WORK_TIME_OUT = 5.0
+ENGINE_CRASH_REASON = "engine_crash"
+# Keep generic abort limits conservative so transient worker/network issues do not
+# adjudicate games too aggressively. Explicit engine crashes use a tighter limit.
+MOVE_ABORT_LIMIT = 6
+MOVE_ENGINE_CRASH_LIMIT = 2
+ANALYSIS_ABORT_LIMIT = 4
+ANALYSIS_ENGINE_CRASH_LIMIT = 2
+
+
+def _work_priority(work: FishnetWork) -> int:
+    return ANALYSIS if work["work"]["type"] == "analysis" else MOVE
+
+
+def _abort_reason(data: FishnetAbortPayload) -> str:
+    error = data.get("error")
+    if error is None:
+        return "unknown"
+    reason = error.get("reason")
+    return reason if reason else "unknown"
+
+
+def _is_terminal_abort(work: FishnetWork, abort_reason: str) -> bool:
+    abort_count = work.get("abort_count", 0)
+    engine_crash_count = work.get("engine_crash_count", 0)
+    if work["work"]["type"] == "move":
+        return (abort_count >= MOVE_ABORT_LIMIT) or (
+            abort_reason == ENGINE_CRASH_REASON and engine_crash_count >= MOVE_ENGINE_CRASH_LIMIT
+        )
+    return (abort_count >= ANALYSIS_ABORT_LIMIT) or (
+        abort_reason == ENGINE_CRASH_REASON and engine_crash_count >= ANALYSIS_ENGINE_CRASH_LIMIT
+    )
+
+
+async def _adjudicate_failing_move_work(
+    app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, abort_reason: str
+) -> None:
+    game = await load_game(app_state, work["game_id"])
+    if game is None:
+        return
+    if TYPE_CHECKING:
+        assert isinstance(game, Game)
+
+    if game.status > STARTED:
+        return
+
+    log.warning(
+        "Adjudicating move work %s as engine loss after repeated aborts (reason=%s, aborts=%s, crashes=%s)",
+        work_id,
+        abort_reason,
+        work.get("abort_count", 0),
+        work.get("engine_crash_count", 0),
+    )
+
+    bot_user = app_state.users["Fairy-Stockfish"]
+    async with game.move_lock:
+        response = await game.game_ended(bot_user, "resign")
+
+    # Ensure bot loops also receive terminal state and can clean up game tasks.
+    for player in (game.wplayer, game.bplayer):
+        if player.bot and game.id in player.game_queues:
+            await player.game_queues[game.id].put(game.game_end)
+
+    await round_broadcast(game, response, full=True)
 
 
 async def _read_fishnet_json(request: web.Request) -> tuple[object | None, int | None]:
@@ -63,16 +127,30 @@ async def get_work(
     fishnet_work_queue = app_state.fishnet_queue
 
     # priority can be "move" or "analysis"
-    try:
-        (priority, work_id) = fishnet_work_queue.get_nowait()
+    while True:
         try:
-            fishnet_work_queue.task_done()
-        except ValueError:
-            log.error(
-                "task_done() called more times than there were items placed in the queue in fishnet.py get_work()"
-            )
+            (priority, work_id) = fishnet_work_queue.get_nowait()
+            try:
+                fishnet_work_queue.task_done()
+            except ValueError:
+                log.error(
+                    "task_done() called more times than there were items placed in the queue in fishnet.py get_work()"
+                )
+        except asyncio.QueueEmpty:
+            break
 
-        work: FishnetWork = app_state.fishnet_works[work_id]
+        work = app_state.fishnet_works.get(work_id)
+        if work is None:
+            log.debug("Skipping stale fishnet queue item %s", work_id)
+            continue
+
+        # Track the latest assignment time so timeout-based re-acquire does not
+        # immediately recycle the same work while another worker is processing it.
+        work["time"] = monotonic()
+
+        # Trust the work payload type over queue metadata. This also recovers from
+        # legacy enqueue mistakes where priority did not match work type.
+        priority = _work_priority(work)
         if priority == ANALYSIS:
             fm[worker].append(
                 "%s %s %s %s of %s moves"
@@ -116,28 +194,26 @@ async def get_work(
             )
 
         return web.json_response(work, status=202)
-    except asyncio.QueueEmpty:
-        # There was no new work in the queue. Ok
-        # Now let see are there any long time pending work in app[fishnet_works_key]
-        # (in case when worker grabbed it from queue but not responded after MOVE_WORK_TIME_OUT secs)
-        now = monotonic()
-        for work_id in app_state.fishnet_works:
-            work_item: FishnetWork = app_state.fishnet_works[work_id]
-            if work_item["work"]["type"] == "move" and (
-                now - work_item["time"] > MOVE_WORK_TIME_OUT
-            ):
-                fm[worker].append(
-                    "%s %s %s %s for level %s"
-                    % (
-                        datetime.now(timezone.utc),
-                        work_id,
-                        "request",
-                        "move AGAIN",
-                        work_item["work"]["level"],
-                    )
+
+    # There was no new work in the queue. Ok
+    # Now let see are there any long time pending work in app[fishnet_works_key]
+    # (in case when worker grabbed it from queue but not responded after MOVE_WORK_TIME_OUT secs)
+    now = monotonic()
+    for work_id, work_item in app_state.fishnet_works.items():
+        if work_item["work"]["type"] == "move" and (now - work_item["time"] > MOVE_WORK_TIME_OUT):
+            fm[worker].append(
+                "%s %s %s %s for level %s"
+                % (
+                    datetime.now(timezone.utc),
+                    work_id,
+                    "request",
+                    "move AGAIN",
+                    work_item["work"]["level"],
                 )
-                return web.json_response(work_item, status=202)
-        return web.Response(status=204)
+            )
+            work_item["time"] = now
+            return web.json_response(work_item, status=202)
+    return web.Response(status=204)
 
 
 async def fishnet_acquire(request: web.Request) -> web.Response:
@@ -301,9 +377,10 @@ async def fishnet_abort(request: web.Request) -> web.Response:
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
     worker = FISHNET_KEYS[key]
+    abort_reason = _abort_reason(data)
 
     app_state.fishnet_monitor[worker].append(
-        "%s %s %s" % (datetime.now(timezone.utc), work_id, "abort")
+        "%s %s %s (%s)" % (datetime.now(timezone.utc), work_id, "abort", abort_reason)
     )
 
     # remove fishnet client
@@ -311,11 +388,40 @@ async def fishnet_abort(request: web.Request) -> web.Response:
         app_state.workers.remove(data["fishnet"]["apikey"])
     except KeyError:
         log.debug("Worker %s was already removed", worker)
+    no_workers = len(app_state.workers) == 0
 
-    # re-schedule the job
-    app_state.fishnet_queue.put_nowait((ANALYSIS, work_id))
+    work = app_state.fishnet_works.get(work_id)
+    if work is None:
+        if no_workers:
+            app_state.users["Fairy-Stockfish"].online = False
+        return web.Response(status=204)
 
-    if len(app_state.workers) == 0:
+    work["abort_count"] = work.get("abort_count", 0) + 1
+    work["last_abort_reason"] = abort_reason
+    if abort_reason == ENGINE_CRASH_REASON:
+        work["engine_crash_count"] = work.get("engine_crash_count", 0) + 1
+
+    if _is_terminal_abort(work, abort_reason):
+        del app_state.fishnet_works[work_id]
+        if work["work"]["type"] == "move":
+            await _adjudicate_failing_move_work(app_state, work_id, work, abort_reason)
+        else:
+            log.warning(
+                "Dropping analysis work %s after repeated aborts (reason=%s, aborts=%s, crashes=%s)",
+                work_id,
+                abort_reason,
+                work.get("abort_count", 0),
+                work.get("engine_crash_count", 0),
+            )
+        if no_workers:
+            app_state.users["Fairy-Stockfish"].online = False
+        return web.Response(status=204)
+
+    # Re-schedule the job with correct priority.
+    work["time"] = monotonic()
+    app_state.fishnet_queue.put_nowait((_work_priority(work), work_id))
+
+    if no_workers:
         app_state.users["Fairy-Stockfish"].online = False
         # TODO: msg to work user
 
