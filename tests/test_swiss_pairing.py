@@ -95,6 +95,41 @@ class SwissPairingTestCase(TournamentTestCase):
         self.assertEqual(pairing, [(waiting[0], waiting[1]), (waiting[2], waiting[3])])
         self.assertEqual(self.tournament.bye_players, [])
 
+    async def test_create_pairing_uses_swisspairing_backend_output(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+
+        waiting = list(self.tournament.waiting_players())
+        users_by_id = {index: user for index, user in enumerate(waiting, start=1)}
+        fake_state = SimpleNamespace(
+            trf=object(),
+            waiting_ids=set(users_by_id),
+            users_by_id=users_by_id,
+        )
+        fake_result = SimpleNamespace(
+            pairings=[
+                SimpleNamespace(white_id="1", black_id="2"),
+                SimpleNamespace(white_id="3", black_id="4"),
+            ],
+            unpaired_ids=(),
+        )
+
+        with (
+            patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}),
+            patch("tournament.swiss._build_dutch_pairing_state", return_value=fake_state),
+            patch("tournament.swiss._build_swisspairing_player_states_from_trf", return_value=()),
+            patch("tournament.swiss.swisspairing_pair_round_dutch", return_value=fake_result),
+        ):
+            pairing = self.tournament.create_pairing(waiting)
+
+        self.assertEqual(pairing, [(waiting[0], waiting[1]), (waiting[2], waiting[3])])
+        self.assertEqual(self.tournament.bye_players, [])
+
     async def test_create_pairing_records_engine_allocated_bye(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -134,6 +169,65 @@ class SwissPairingTestCase(TournamentTestCase):
         assert bye_player_data is not None
         self.assertEqual(bye_player_data.points[-1], "-")
         self.assertIsInstance(bye_player_data.games[-1], ByeGame)
+
+    async def test_create_pairing_raises_when_swisspairing_backend_is_unavailable(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+
+        waiting = list(self.tournament.waiting_players())
+        users_by_id = {index: user for index, user in enumerate(waiting, start=1)}
+        fake_state = SimpleNamespace(
+            trf=object(),
+            waiting_ids=set(users_by_id),
+            users_by_id=users_by_id,
+        )
+
+        with (
+            patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}),
+            patch("tournament.swiss._build_dutch_pairing_state", return_value=fake_state),
+            patch("tournament.swiss.swisspairing_pair_round_dutch", None),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "requires swisspairing"):
+                self.tournament.create_pairing(waiting)
+
+    async def test_create_pairing_invalid_backend_env_falls_back_to_py4swiss(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+
+        waiting = list(self.tournament.waiting_players())
+        users_by_id = {index: user for index, user in enumerate(waiting, start=1)}
+        fake_state = SimpleNamespace(
+            trf=object(),
+            waiting_ids=set(users_by_id),
+            users_by_id=users_by_id,
+        )
+
+        class _Engine:
+            @staticmethod
+            def generate_pairings(_trf):
+                return [
+                    SimpleNamespace(white=1, black=2),
+                    SimpleNamespace(white=3, black=4),
+                ]
+
+        with (
+            patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "bogus-backend"}),
+            patch("tournament.swiss._build_dutch_pairing_state", return_value=fake_state),
+            patch("tournament.swiss.DutchEngine", _Engine),
+        ):
+            pairing = self.tournament.create_pairing(waiting)
+
+        self.assertEqual(pairing, [(waiting[0], waiting[1]), (waiting[2], waiting[3])])
 
     async def test_persist_byes_awards_full_point_in_swiss(self):
         app_state = get_app_state(self.app)

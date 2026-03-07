@@ -48,6 +48,7 @@ const T_STATUS = {
 const scoreTagNames = ['score', 'streak', 'double'];
 
 const SCORE_SHIFT = 100000;
+const SWISS_SYSTEM = 2;
 
 const SHIELD = 's';
 
@@ -229,17 +230,7 @@ export class TournamentController implements ChatController {
     }
 
     renderSummary(msg: MsgTournamentStatus) {
-        const summary = h('div#summary', {class: {"box": true}}, [
-            h('h2', _('Tournament complete')),
-            h('table', [
-                h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
-                h('tr', [h('th', _('Average rating')), h('td', Math.round(msg.sumRating / msg.nbPlayers))]),
-                h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
-                h('tr', [h('th', _('%1 wins', _(this.variant.colors.first))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
-                h('tr', [h('th', _('%1 wins', _(this.variant.colors.second))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
-                h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
-                h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
-            ]),
+        const downloadLinks: VNode[] = [
             h('table.tour-stats-links', [
                 h('a.i-dl.icon.icon-download', {
                     attrs: {
@@ -256,6 +247,33 @@ export class TournamentController implements ChatController {
                     },
                 }, _('Download all games in JSON')),
             ]),
+        ];
+
+        if (this.system === SWISS_SYSTEM) {
+            downloadLinks.push(
+                h('table.tour-stats-links', [
+                    h('a.i-dl.icon.icon-download', {
+                        attrs: {
+                            href: '/games/export/tournament/' + this.tournamentId + '/trf',
+                            download: 'pychess_tournament_' + this.tournamentId + '.trf',
+                        },
+                    }, _('Download TRF pairing state')),
+                ])
+            );
+        }
+
+        const summary = h('div#summary', {class: {"box": true}}, [
+            h('h2', _('Tournament complete')),
+            h('table', [
+                h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
+                h('tr', [h('th', _('Average rating')), h('td', Math.round(msg.sumRating / msg.nbPlayers))]),
+                h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
+                h('tr', [h('th', _('%1 wins', _(this.variant.colors.first))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
+                h('tr', [h('th', _('%1 wins', _(this.variant.colors.second))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
+                h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
+                h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
+            ]),
+            ...downloadLinks,
         ]);
         const el = document.getElementById('summarybox') as HTMLElement;
         if (el) patch(el, summary);

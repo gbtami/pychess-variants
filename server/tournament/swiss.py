@@ -1,6 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass
 import logging
+import os
+from pathlib import Path
+import tempfile
 from typing import TYPE_CHECKING, Any
 
 from const import SWISS
@@ -9,6 +12,8 @@ from tournament.tournament import ByeGame, SCORE_SHIFT, Tournament
 try:
     from py4swiss.engines import DutchEngine
     from py4swiss.engines.common import PairingError
+    from py4swiss.engines.common.float import Float as Py4SwissFloat
+    from py4swiss.engines.dutch.player import get_player_infos_from_trf
     from py4swiss.trf import ParsedTrf
     from py4swiss.trf.codes import PlayerCode
     from py4swiss.trf.results import (
@@ -25,6 +30,8 @@ try:
 except Exception as exc:  # pragma: no cover - exercised only when dependency is missing
     DutchEngine = None
     PairingError = RuntimeError
+    Py4SwissFloat = None
+    get_player_infos_from_trf = None
     ParsedTrf = None
     PlayerCode = None
     ColorToken = None
@@ -37,8 +44,24 @@ except Exception as exc:  # pragma: no cover - exercised only when dependency is
     XSectionConfiguration = None
     PY4SWISS_IMPORT_ERROR = exc
 
+try:
+    from swisspairing import pair_round_dutch as swisspairing_pair_round_dutch
+    from swisspairing.exceptions import PairingError as SwissPairingError
+    from swisspairing.model import FloatKind as SwissFloatKind
+    from swisspairing.model import PlayerState as SwissPlayerState
+
+    SWISSPAIRING_IMPORT_ERROR: Exception | None = None
+except Exception as exc:  # pragma: no cover - exercised only when dependency is missing
+    swisspairing_pair_round_dutch = None
+    SwissPairingError = RuntimeError
+    SwissFloatKind = None
+    SwissPlayerState = None
+    SWISSPAIRING_IMPORT_ERROR = exc
+
 DutchEngine: Any
 PairingError: Any
+Py4SwissFloat: Any
+get_player_infos_from_trf: Any
 ParsedTrf: Any
 PlayerCode: Any
 ColorToken: Any
@@ -49,6 +72,10 @@ ScoringPointSystemCode: Any
 PlayerSection: Any
 XSection: Any
 XSectionConfiguration: Any
+swisspairing_pair_round_dutch: Any
+SwissPairingError: Any
+SwissFloatKind: Any
+SwissPlayerState: Any
 
 if TYPE_CHECKING:
     from game import Game
@@ -57,6 +84,20 @@ if TYPE_CHECKING:
 
 
 log = logging.getLogger(__name__)
+
+_SWISS_PAIRING_BACKEND_ENV = "SWISS_PAIRING_BACKEND"
+
+
+def _swiss_pairing_backend() -> str:
+    backend = os.getenv(_SWISS_PAIRING_BACKEND_ENV, "py4swiss").strip().lower()
+    if backend in ("py4swiss", "swisspairing"):
+        return backend
+    log.warning(
+        "Unknown %s=%s, falling back to py4swiss backend",
+        _SWISS_PAIRING_BACKEND_ENV,
+        backend,
+    )
+    return "py4swiss"
 
 
 def _parse_rating(raw: str | int | None, fallback: int) -> int:
@@ -285,6 +326,107 @@ class _DutchPairingState:
     users_by_id: dict[int, User]
 
 
+def _to_swiss_float_kind(float_value: Any):
+    if float_value == Py4SwissFloat.UP:
+        return SwissFloatKind.UP
+    if float_value == Py4SwissFloat.DOWN:
+        return SwissFloatKind.DOWN
+    return SwissFloatKind.NONE
+
+
+def _build_forbidden_map_from_trf(trf: Any) -> dict[int, set[int]]:
+    forbidden_map: dict[int, set[int]] = {}
+    for left_id, right_id in trf.x_section.forbidden_pairs:
+        forbidden_map.setdefault(left_id, set()).add(right_id)
+        forbidden_map.setdefault(right_id, set()).add(left_id)
+    return forbidden_map
+
+
+def _build_swisspairing_player_states_from_trf(trf: Any) -> tuple[Any, ...]:
+    if (
+        SwissPlayerState is None
+        or SwissFloatKind is None
+        or get_player_infos_from_trf is None
+        or Py4SwissFloat is None
+    ):
+        raise RuntimeError(
+            "Swiss pairing backend 'swisspairing' currently requires py4swiss state conversion helpers"
+        ) from PY4SWISS_IMPORT_ERROR
+
+    py4swiss_players = get_player_infos_from_trf(trf)
+    top_ids = {player.id for player in py4swiss_players if player.top_scorer}
+    forbidden_map = _build_forbidden_map_from_trf(trf)
+
+    states: list[Any] = []
+    for player in py4swiss_players:
+        states.append(
+            SwissPlayerState(
+                player_id=str(player.id),
+                pairing_no=player.number,
+                score=player.points_with_acceleration,
+                opponents=frozenset(str(opponent_id) for opponent_id in player.opponents),
+                forbidden_opponents=frozenset(
+                    str(opponent_id) for opponent_id in forbidden_map.get(player.id, set())
+                ),
+                color_history=tuple("white" if is_white else "black" for is_white in player.colors),
+                unplayed_games=0,
+                had_full_point_bye=player.bye_received,
+                is_top_scorer=player.top_scorer,
+                is_topscorer_or_opponent=player.top_scorer or bool(player.opponents & top_ids),
+                float_history=(
+                    _to_swiss_float_kind(player.float_2),
+                    _to_swiss_float_kind(player.float_1),
+                ),
+            )
+        )
+    return tuple(states)
+
+
+def _materialize_pairings(
+    *,
+    tournament: Tournament,
+    state: _DutchPairingState,
+    backend_name: str,
+    pairings_by_id: list[tuple[int, int | None]],
+) -> list[tuple[User, User]]:
+    pairing: list[tuple[User, User]] = []
+    paired_ids: set[int] = set()
+    bye_ids: set[int] = set()
+
+    for white_id, black_id in pairings_by_id:
+        white_player = state.users_by_id.get(white_id)
+        if white_player is None:
+            raise RuntimeError(
+                "%s returned unknown white player id %s in %s"
+                % (backend_name, white_id, tournament.id)
+            )
+
+        if black_id is None:
+            tournament._record_bye(white_player)  # type: ignore[attr-defined]
+            bye_ids.add(white_id)
+            continue
+
+        black_player = state.users_by_id.get(black_id)
+        if black_player is None:
+            raise RuntimeError(
+                "%s returned unknown black player id %s in %s"
+                % (backend_name, black_id, tournament.id)
+            )
+
+        pairing.append((white_player, black_player))
+        paired_ids.add(white_id)
+        paired_ids.add(black_id)
+
+    unresolved = state.waiting_ids.difference(paired_ids).difference(bye_ids)
+    if unresolved:
+        raise RuntimeError(
+            "%s left waiting players unpaired in %s: %s"
+            % (backend_name, tournament.id, sorted(unresolved))
+        )
+
+    return pairing
+
+
 def _build_dutch_pairing_state(
     tournament: Tournament, waiting_players: list[User], completed_rounds: int
 ) -> _DutchPairingState:
@@ -351,6 +493,38 @@ def _build_dutch_pairing_state(
     return _DutchPairingState(trf=trf, waiting_ids=waiting_ids, users_by_id=users_by_id)
 
 
+def build_trf_export_text(tournament: Tournament, waiting_players: list[User] | None = None) -> str:
+    """Export current Swiss tournament pairing state as TRF text.
+
+    The exported state mirrors the same internal mapping used by Swiss pairing.
+    """
+    if ParsedTrf is None:
+        raise RuntimeError(
+            "Swiss TRF export requires py4swiss, but import failed"
+        ) from PY4SWISS_IMPORT_ERROR
+
+    selected_waiting_players = waiting_players
+    if selected_waiting_players is None:
+        selected_waiting_players = tournament.waiting_players()
+
+    completed_rounds = max(0, tournament.current_round - 1)
+    state = _build_dutch_pairing_state(
+        tournament=tournament,
+        waiting_players=selected_waiting_players,
+        completed_rounds=completed_rounds,
+    )
+
+    # py4swiss currently exposes TRF serialization through file output.
+    with tempfile.NamedTemporaryFile(suffix=".trf", delete=False) as temp_file:
+        temp_path = Path(temp_file.name)
+
+    try:
+        state.trf.write_to_file(temp_path)
+        return temp_path.read_text(encoding="utf-8")
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
 class SwissTournament(Tournament):
     system = SWISS
 
@@ -392,53 +566,72 @@ class SwissTournament(Tournament):
             self._record_bye(waiting_players[0])
             return []
 
-        if DutchEngine is None:
+        if ParsedTrf is None:
             raise RuntimeError(
-                "Swiss (Dutch) pairing requires py4swiss, but import failed"
+                "Swiss pairing state mapping requires py4swiss, but import failed"
             ) from PY4SWISS_IMPORT_ERROR
 
+        backend = _swiss_pairing_backend()
         completed_rounds = max(0, self.current_round - 1)
         state = _build_dutch_pairing_state(self, waiting_players, completed_rounds)
 
-        try:
-            dutch_pairings = DutchEngine.generate_pairings(state.trf)
-        except PairingError as exc:
-            raise RuntimeError(f"py4swiss could not find a legal Dutch pairing: {exc}") from exc
-
-        pairing: list[tuple[User, User]] = []
-        paired_ids: set[int] = set()
-        bye_ids: set[int] = set()
-
-        for dutch_pairing in dutch_pairings:
-            white_id = dutch_pairing.white
-            black_id = dutch_pairing.black
-
-            white_player = state.users_by_id.get(white_id)
-            if white_player is None:
+        if backend == "py4swiss":
+            if DutchEngine is None:
                 raise RuntimeError(
-                    "py4swiss returned unknown white player id %s in %s" % (white_id, self.id)
-                )
+                    "Swiss (Dutch) pairing backend 'py4swiss' requires py4swiss, but import failed"
+                ) from PY4SWISS_IMPORT_ERROR
 
-            if black_id == 0:
-                self._record_bye(white_player)
-                bye_ids.add(white_id)
-                continue
+            try:
+                dutch_pairings = DutchEngine.generate_pairings(state.trf)
+            except PairingError as exc:
+                raise RuntimeError(f"py4swiss could not find a legal Dutch pairing: {exc}") from exc
 
-            black_player = state.users_by_id.get(black_id)
-            if black_player is None:
-                raise RuntimeError(
-                    "py4swiss returned unknown black player id %s in %s" % (black_id, self.id)
-                )
-
-            pairing.append((white_player, black_player))
-            paired_ids.add(white_id)
-            paired_ids.add(black_id)
-
-        unresolved = state.waiting_ids.difference(paired_ids).difference(bye_ids)
-        if unresolved:
-            raise RuntimeError(
-                "py4swiss left waiting players unpaired in %s: %s" % (self.id, sorted(unresolved))
+            pairings_by_id = [
+                (dutch_pairing.white, dutch_pairing.black if dutch_pairing.black != 0 else None)
+                for dutch_pairing in dutch_pairings
+            ]
+            pairing = _materialize_pairings(
+                tournament=self,
+                state=state,
+                backend_name="py4swiss",
+                pairings_by_id=pairings_by_id,
             )
+            log.debug(
+                "Swiss Dutch pairing created %s games in %s using backend=%s",
+                len(pairing),
+                self.id,
+                backend,
+            )
+            return pairing
 
-        log.debug("Swiss Dutch pairing created %s games in %s", len(pairing), self.id)
+        if swisspairing_pair_round_dutch is None:
+            raise RuntimeError(
+                "Swiss (Dutch) pairing backend 'swisspairing' requires swisspairing, but import failed"
+            ) from SWISSPAIRING_IMPORT_ERROR
+
+        states = _build_swisspairing_player_states_from_trf(state.trf)
+
+        try:
+            swisspairing_result = swisspairing_pair_round_dutch(states)
+        except SwissPairingError as exc:
+            raise RuntimeError(f"swisspairing could not find a legal Dutch pairing: {exc}") from exc
+
+        pairings_by_id: list[tuple[int, int | None]] = []
+        for pairing_result in swisspairing_result.pairings:
+            white_id = int(pairing_result.white_id)
+            black_id = None if pairing_result.black_id is None else int(pairing_result.black_id)
+            pairings_by_id.append((white_id, black_id))
+
+        pairing = _materialize_pairings(
+            tournament=self,
+            state=state,
+            backend_name="swisspairing",
+            pairings_by_id=pairings_by_id,
+        )
+        log.debug(
+            "Swiss Dutch pairing created %s games in %s using backend=%s",
+            len(pairing),
+            self.id,
+            backend,
+        )
         return pairing

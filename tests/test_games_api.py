@@ -12,7 +12,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
 import game_api
-from const import STARTED
+from const import STARTED, SWISS
 from game import Game
 from game_api import _seen_discontinued_variants, safe_write_eof, variant_counts_from_docs
 from pychess_global_app_state_utils import get_app_state
@@ -166,6 +166,38 @@ class ExportPGNTestCase(AioHTTPTestCase):
         self.assertEqual(1, len(summary_calls))
         self.assertIn("g0 ataxx 2025.12.01", summary_calls[0].args[1])
         self.assertNotIn("g5 ataxx 2025.12.01", summary_calls[0].args[1])
+
+
+class ExportTournamentTrfTestCase(AioHTTPTestCase):
+    async def get_application(self):
+        return make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
+
+    async def tearDownAsync(self):
+        await self.client.close()
+
+    async def test_export_swiss_tournament_trf(self):
+        tournament = SimpleNamespace(system=SWISS)
+        trf_text = "001    1      player\n"
+
+        with (
+            patch("game_api.load_tournament", new=AsyncMock(return_value=tournament)),
+            patch("tournament.swiss.build_trf_export_text", return_value=trf_text) as build_trf,
+        ):
+            response = await self.client.get("/games/export/tournament/abc12345/trf")
+
+        self.assertEqual(response.status, 200)
+        self.assertEqual(response.content_type, "text/plain")
+        self.assertEqual(await response.text(), trf_text)
+        self.assertIn("pychess_tournament_abc12345.trf", response.headers["Content-Disposition"])
+        build_trf.assert_called_once_with(tournament)
+
+    async def test_export_trf_rejects_non_swiss_tournament(self):
+        tournament = SimpleNamespace(system=0)
+
+        with patch("game_api.load_tournament", new=AsyncMock(return_value=tournament)):
+            response = await self.client.get("/games/export/tournament/abc12345/trf")
+
+        self.assertEqual(response.status, 400)
 
 
 class ExportWriteEofTestCase(unittest.IsolatedAsyncioTestCase):

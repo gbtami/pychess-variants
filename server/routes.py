@@ -28,6 +28,7 @@ from fishnet import (
 )
 from game_api import (
     export,
+    export_tournament_trf,
     get_games,
     get_user_games,
     get_tournament_games,
@@ -197,6 +198,7 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/games/export/monthly/{yearmonth:\d{6}}", export),
     ("/games/export/{profileId}", export),
     ("/games/export/tournament/{tournamentId}", export),
+    ("/games/export/tournament/{tournamentId}/trf", export_tournament_trf),
     ("/games/json/{profileId}", get_user_games),
     ("/tournament/json/{tournamentId}", get_tournament_games),
     ("/fishnet/monitor", fishnet_monitor),
