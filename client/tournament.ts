@@ -60,6 +60,7 @@ export class TournamentController implements ChatController {
     buttons: VNode;
     system: number;
     rounds: number;
+    currentRound: number;
     players: TournamentPlayer[]; // seems unused
     nbPlayers: number;
     page: number;
@@ -93,6 +94,7 @@ export class TournamentController implements ChatController {
         this.nbPlayers = 0;
         this.page = 1;
         this.rounds = model["rounds"] || 0;
+        this.currentRound = 0;
         this.system = model["tsystem"] || 0;
         this.tournamentStatus = T_STATUS[model["status"] as keyof typeof T_STATUS];
         this.visitedPlayer = '';
@@ -424,6 +426,19 @@ export class TournamentController implements ChatController {
         }
     }
 
+    private updateTournamentSystemLabel() {
+        const tsystem = document.getElementById('tsystem') as Element | null;
+        if (!tsystem) return;
+
+        const parts = [gameType(this.rated)];
+        if (this.system > 0 && this.rounds > 0 && this.tournamentStatus === 'started') {
+            const round = Math.min(this.rounds, Math.max(1, this.currentRound));
+            parts.push(`${round}/${this.rounds} ${_('rounds')}`);
+        }
+        parts.push(this.tSystem(this.system));
+        patch(tsystem, h('div#tsystem', parts.join(' • ')));
+    }
+
     renderStats(msg: MsgGetGames) {
         const games = msg.games.filter(game => game.result !== '-');
         const gamesLen = games.length;
@@ -630,8 +645,6 @@ export class TournamentController implements ChatController {
         if (trophy && msg.frequency === SHIELD) patch(trophy, h('a', {class: {"shield-trophy": true} }, dataIcon));
 
         this.system = msg.tsystem;
-        const tsystem = document.getElementById('tsystem') as Element;
-        patch(tsystem, h('div#tsystem', gameType(this.rated) + " • " + this.tSystem(this.system)));
 
         const tminutes = document.getElementById('tminutes') as Element;
         patch(tminutes, h('span#tminutes', this.durationString(msg.tminutes)));
@@ -667,9 +680,11 @@ export class TournamentController implements ChatController {
         this.userRating = msg.urating;
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
+        this.currentRound = msg.currentRound ?? 0;
         this.roundOngoingGames = msg.roundOngoingGames ?? 0;
         this.secondsToNextRound = msg.secondsToNextRound ?? 0;
         this.private = msg.private;
+        this.updateTournamentSystemLabel();
 
         this.updateActionButton()
 
@@ -690,11 +705,15 @@ export class TournamentController implements ChatController {
 
     private onMsgTournamentStatus(msg: MsgTournamentStatus) {
         const oldStatus = this.tournamentStatus;
+        const oldCurrentRound = this.currentRound;
         const oldRoundOngoingGames = this.roundOngoingGames;
         const oldSecondsToNextRound = this.secondsToNextRound;
         this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
         if (msg.secondsToFinish !== undefined) {
             this.secondsToFinish = msg.secondsToFinish;
+        }
+        if (msg.currentRound !== undefined) {
+            this.currentRound = msg.currentRound;
         }
         if (msg.roundOngoingGames !== undefined) {
             this.roundOngoingGames = msg.roundOngoingGames;
@@ -704,11 +723,13 @@ export class TournamentController implements ChatController {
         }
         if (
             oldStatus !== this.tournamentStatus ||
+            oldCurrentRound !== this.currentRound ||
             oldRoundOngoingGames !== this.roundOngoingGames ||
             oldSecondsToNextRound !== this.secondsToNextRound
         ) {
             initializeClock(this);
         }
+        this.updateTournamentSystemLabel();
         this.updateActionButton()
         if (this.tournamentStatus !== 'created') {
             const faqEl = document.querySelector('div.tour-faq') as HTMLElement;

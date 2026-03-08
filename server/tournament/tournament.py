@@ -1032,6 +1032,7 @@ class Tournament(ABC):
         if self.status == T_STARTED:
             response["secondsToFinish"] = max(0.0, (self.ends_at - now).total_seconds())
             if self.system != ARENA:
+                response["currentRound"] = self.current_round
                 round_ongoing_games, seconds_to_next_round = self.round_status(now)
                 response["roundOngoingGames"] = round_ongoing_games
                 response["secondsToNextRound"] = seconds_to_next_round

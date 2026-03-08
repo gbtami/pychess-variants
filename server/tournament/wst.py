@@ -218,6 +218,7 @@ async def handle_user_connected(
         "private": bool(tournament.password),
     }
     round_ongoing_games, seconds_to_next_round = tournament.round_status(now)
+    response["currentRound"] = tournament.current_round
     response["roundOngoingGames"] = round_ongoing_games
     response["secondsToNextRound"] = seconds_to_next_round
     if tournament.frequency == SHIELD:
