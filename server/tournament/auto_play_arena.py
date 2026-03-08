@@ -8,6 +8,7 @@ from pychess_global_app_state_utils import get_app_state
 from const import (
     BYEGAME,
     STARTED,
+    VARIANTEND,
     ARENA,
     RR,
     SWISS,
@@ -34,6 +35,34 @@ log = logging.getLogger(__name__)
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 
 AUTO_PLAY_ARENA_NAME = "Auto Play Tournament"
+
+
+def _janggi_point_count_result(fen: str) -> str:
+    board = fen.split(" ", 1)[0]
+    cho_points = 0.0
+    han_points = 1.5
+    for piece in board:
+        if piece == "P":
+            cho_points += 2
+        elif piece in ("A", "B"):
+            cho_points += 3
+        elif piece == "N":
+            cho_points += 5
+        elif piece == "C":
+            cho_points += 7
+        elif piece == "R":
+            cho_points += 13
+        elif piece == "p":
+            han_points += 2
+        elif piece in ("a", "b"):
+            han_points += 3
+        elif piece == "n":
+            han_points += 5
+        elif piece == "c":
+            han_points += 7
+        elif piece == "r":
+            han_points += 13
+    return "1-0" if cho_points > han_points else "0-1"
 
 
 async def create_auto_play_arena(app):
@@ -79,15 +108,29 @@ class TestTournament(Tournament):
     async def join_players(self, nb_players, rating=None):
         for i in range(1, nb_players + 1):
             name = "%sUser_%s" % (TEST_PREFIX, i)
-            # Use bot users so Janggi setup flags follow bot behavior, but keep TEST title
-            # to preserve existing tournament/manual-testing exclusions.
-            player = User(self.app_state, bot=True, username=name, perfs=PERFS)
-            player.title = "TEST"
+            player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
             if rating:
                 player.perfs[self.variant]["gl"]["r"] = rating
             self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = set((None,))
             await self.join(player)
+
+    async def _auto_complete_janggi_setup(self, game) -> None:
+        if game.variant != "janggi":
+            return
+        if not game.bsetup and not game.wsetup:
+            return
+
+        if game.bsetup:
+            game.board.janggi_setup("b")
+            game.bsetup = False
+        if game.wsetup:
+            game.board.janggi_setup("w")
+            game.wsetup = False
+
+        game.initial_fen = game.board.initial_fen
+        game.steps[0]["fen"] = game.board.initial_fen
+        await game.save_setup()
 
     async def create_new_pairings(self, waiting_players):
         now = datetime.now(timezone.utc).strftime("%H:%M:%S")
@@ -104,9 +147,7 @@ class TestTournament(Tournament):
             if game.status == BYEGAME:  # ByeGame
                 continue
             self.app_state.games[game.id] = game
-            for player in (game.wplayer, game.bplayer):
-                if player.bot:
-                    player.game_queues.setdefault(game.id, asyncio.Queue())
+            await self._auto_complete_janggi_setup(game)
             game.random_mover = True
             game.legal_moves = game.board.legal_moves()
             self.game_tasks.add(asyncio.create_task(self.play_random(game)))
@@ -139,15 +180,27 @@ class TestTournament(Tournament):
 
             cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
             opp_player = game.wplayer if game.board.color == BLACK else game.bplayer
-            if cur_player.title == "TEST" or cur_player.bot:
+            if cur_player.title == "TEST":
                 ply = random.randint(20, int(MAX_PLY / 10))
                 if game.board.ply == ply or game.board.ply > 60:
                     player = game.wplayer if ply % 2 == 0 else game.bplayer
-                    if game.board.ply > 60:
+                    if game.variant == "janggi" and game.board.ply > 60:
+                        game.update_status(VARIANTEND, _janggi_point_count_result(game.board.fen))
+                        await game.save_game()
+                        response = {
+                            "type": "gameEnd",
+                            "status": game.status,
+                            "result": game.result,
+                            "gameId": game.id,
+                            "pgn": game.pgn,
+                            "ct": game.crosstable,
+                            "rdiffs": "",
+                        }
+                    elif game.board.ply > 60:
                         response = await draw(game, cur_player.username, agreement=True)
                     else:
                         response = await game.game_ended(player, "resign")
-                    if opp_player.title != "TEST" and not opp_player.bot:
+                    if opp_player.title != "TEST":
                         await opp_player.send_game_message(game.id, response)
                 else:
                     move = random.choice(game.legal_moves)

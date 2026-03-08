@@ -49,6 +49,7 @@ const scoreTagNames = ['score', 'streak', 'double'];
 
 const SCORE_SHIFT = 100000;
 const SWISS_SYSTEM = 2;
+const VARIANTEND_STATUS = 12;
 
 const SHIELD = 's';
 
@@ -372,7 +373,34 @@ export class TournamentController implements ChatController {
         return rows;
     }
 
-    result(result: string, color: string) {
+    result(result: string, color: string, status?: number) {
+        if (this.variant.name === 'janggi') {
+            let value = '*';
+            let klass = '';
+            if (result === '1-0') {
+                const won = color === 'w';
+                if (status === VARIANTEND_STATUS) {
+                    value = won ? '4' : '2';
+                } else {
+                    value = won ? '7' : '0';
+                }
+                klass = won ? '.win' : '.lose';
+            } else if (result === '0-1') {
+                const won = color === 'b';
+                if (status === VARIANTEND_STATUS) {
+                    value = won ? '4' : '2';
+                } else {
+                    value = won ? '7' : '0';
+                }
+                klass = won ? '.win' : '.lose';
+            } else if (result === '1/2-1/2') {
+                value = '0';
+            } else if (result === '-') {
+                value = '-';
+            }
+            return h(`td.result${klass}`, value);
+        }
+
         let value = '*';
         switch (result) {
         case '1-0':
@@ -424,7 +452,7 @@ export class TournamentController implements ChatController {
                 h('td', [
                     h('i-side.icon', {class: {[colorIcon(this.variant.name, color)]: true}}),
                 ]),
-                this.result(game.result, game.color),
+                this.result(game.result, game.color, game.status),
             ]);
         }
     }

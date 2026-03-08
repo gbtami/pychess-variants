@@ -318,6 +318,8 @@ class GameData:
             "prov": prov,
             "color": color,
             "result": self.result,
+            # Needed by clients to distinguish variant-end wins from regular wins when rendering points.
+            "status": int(self.status),
         }
         return response
 

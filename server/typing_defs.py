@@ -79,6 +79,8 @@ class GameSummaryJson(TypedDict):
     rating: int
     color: Literal["w", "b"]
     result: str
+    # Optional game termination status code (used for variant-specific tournament point display).
+    status: NotRequired[int]
 
 
 class TvGameJson(TypedDict):
@@ -676,6 +678,8 @@ class TournamentGameJson(TypedDict):
     prov: NotRequired[str]
     color: str
     result: str
+    # Optional game termination status code (used for variant-specific tournament point display).
+    status: NotRequired[int]
     unplayedType: NotRequired[Literal["bye", "late", "absent"]]
 
 

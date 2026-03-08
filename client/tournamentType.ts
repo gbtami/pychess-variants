@@ -21,6 +21,8 @@ export interface TournamentGame {
     title: string;
     name: string;
     result: string;
+    // Game termination status code from server; used to render variant-specific tournament points.
+    status?: number;
     unplayedType?: 'bye' | 'late' | 'absent';
     color: string;
     rating: number;

@@ -1400,6 +1400,8 @@ class Game:
             "rating": int(opp_rating.rstrip("?")),
             "color": color,
             "result": self.result,
+            # Keep termination status alongside result so tournament views can apply variant-specific points.
+            "status": int(self.status),
         }
         return response
 
