@@ -208,6 +208,30 @@ class TournamentFlowTestCase(TournamentTestCase):
             )
         )
 
+    async def test_fixed_round_standings_render_absent_as_dash(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=0, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        absent = list(self.tournament.players.keys())[0]
+        await self.tournament.pause(absent)
+
+        waiting_players = list(self.tournament.waiting_players())
+        await self.tournament.create_new_pairings(waiting_players)
+
+        players_json = self.tournament.players_json()
+        absent_row = next(row for row in players_json["players"] if row["name"] == absent.username)
+        self.assertEqual(absent_row["points"][-1], "-")
+
+        absent_data = self.tournament.players[absent]
+        self.assertEqual(absent_data.points[-1], (0, 0))
+
     async def test_tournament_rating_update_on_rejoin(self):
         app_state = get_app_state(self.app)
         tid = id8()

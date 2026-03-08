@@ -676,6 +676,7 @@ class TournamentGameJson(TypedDict):
     prov: NotRequired[str]
     color: str
     result: str
+    unplayedType: NotRequired[Literal["bye", "late", "absent"]]
 
 
 class TournamentGamesResponse(TypedDict):

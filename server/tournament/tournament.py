@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple, TypeAlias, cast
+from typing import Any, TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple, TypeAlias, cast, Literal
 import asyncio
 import logging
 import collections
@@ -119,6 +119,13 @@ class ByeGame:
         self.token: str = token
         self.round: int | None = round_no
 
+    def unplayed_type(self) -> Literal["bye", "late", "absent"]:
+        if self.token == "H":
+            return "late"
+        if self.token == "Z":
+            return "absent"
+        return "bye"
+
     def game_json(self, player: User) -> TournamentGameJson:
         return {
             "gameId": "",
@@ -128,6 +135,7 @@ class ByeGame:
             "prov": "",
             "color": "",
             "result": "-",
+            "unplayedType": self.unplayed_type(),
         }
 
 
@@ -741,15 +749,28 @@ class Tournament(ABC):
         return usernames
 
     def standings_points(self, player_data: PlayerData, ongoing_players: set[str]) -> list[Point]:
-        if player_data.username not in ongoing_players:
-            return player_data.points
+        points = player_data.points
+
+        # Show synthetic absent entries as "-" in standings while keeping persisted points numeric.
+        for i, game in enumerate(player_data.games):
+            if i >= len(points):
+                break
+            if isinstance(game, ByeGame) and getattr(game, "token", "U") == "Z" and points[i] != "-":
+                if points is player_data.points:
+                    points = list(player_data.points)
+                points[i] = "-"
 
         # Represent an ongoing fixed-round game in the score sheet like lichess.
         # Keep persisted points untouched; this marker is only for websocket standings payload.
-        if len(player_data.points) != self.current_round - 1:
-            return player_data.points
+        if (
+            player_data.username in ongoing_players
+            and len(points) == self.current_round - 1
+        ):
+            if points is player_data.points:
+                points = list(player_data.points)
+            points.append(("*", SCORE))
 
-        return [*player_data.points, ("*", SCORE)]
+        return points
 
     async def games_json(self, player_name: str) -> TournamentGamesResponse:
         player_data = self.player_data_by_name(player_name)

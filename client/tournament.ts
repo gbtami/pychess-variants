@@ -394,9 +394,15 @@ export class TournamentController implements ChatController {
 
     private gameView(game: TournamentGame, index: number) {
         if (game.result === '-') {
+            const unplayedLabel =
+                game.unplayedType === 'late'
+                    ? _('Late')
+                    : game.unplayedType === 'absent'
+                        ? _('Absent')
+                        : _('Bye');
             return h('tr', [
                 h('th', index),
-                h('td.bye', { attrs: { colspan: '3' } }, 'Bye'),
+                h('td.bye', { attrs: { colspan: '3' } }, unplayedLabel),
                 h('td.result', '-')
             ]);
         } else {

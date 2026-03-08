@@ -21,6 +21,7 @@ export interface TournamentGame {
     title: string;
     name: string;
     result: string;
+    unplayedType?: 'bye' | 'late' | 'absent';
     color: string;
     rating: number;
 }
