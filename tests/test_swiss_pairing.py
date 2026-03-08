@@ -468,6 +468,21 @@ class SwissScoringRulesTestCase(unittest.TestCase):
 
         self.assertEqual([result.result.value for result in results], ["1", "Z", "1"])
 
+    def test_janggi_half_bye_pairing_points_are_not_truncated(self):
+        tournament = SimpleNamespace(
+            variant="janggi",
+            leaderboard_score_by_username=lambda _username: 3 * SCORE_SHIFT,
+        )
+        player_data = SimpleNamespace(
+            points=[(3, 0)],
+            games=[ByeGame(token="H", round_no=1)],
+        )
+
+        self.assertEqual(
+            swiss_mod._score_points_times_ten(tournament, "hero", player_data, completed_rounds=1),
+            35,
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

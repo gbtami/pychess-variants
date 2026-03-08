@@ -121,21 +121,63 @@ def _half_bye_point_value(variant: str) -> int:
     return draw // 10 if draw > 0 else (win // 20)
 
 
+def _unplayed_pairing_points_times_ten(token: str, variant: str) -> int:
+    win, draw, _ = _score_values_for_variant(variant)
+    if token in ("U", "F"):
+        return win
+    if token == "H":
+        return draw if draw > 0 else (win // 2)
+    return 0
+
+
 def _score_points_times_ten(
     tournament: Tournament, username: str, player_data: PlayerData, completed_rounds: int
 ) -> int:
     if completed_rounds <= 0:
         return 0
 
+    games_by_round: dict[int, tuple[Any, Any]] = {}
+    for game_index, game in enumerate(player_data.games):
+        round_no = getattr(game, "round", None)
+        if not isinstance(round_no, int) or round_no <= 0:
+            continue
+        point_entry = player_data.points[game_index] if game_index < len(player_data.points) else None
+        games_by_round[round_no] = (game, point_entry)
+
+    # Pairing points should be computed from per-round outcomes (including U/H/F/Z tokens),
+    # not from leaderboard totals, because awarded tournament points may intentionally differ.
+    total = 0
+    for round_no in range(1, completed_rounds + 1):
+        round_entry = games_by_round.get(round_no)
+        if round_entry is None:
+            total += _unplayed_pairing_points_times_ten("Z", tournament.variant)
+            continue
+
+        game, point_entry = round_entry
+        if isinstance(game, ByeGame):
+            total += _unplayed_pairing_points_times_ten(getattr(game, "token", "U"), tournament.variant)
+            continue
+
+        if point_entry == "-":
+            total += _unplayed_pairing_points_times_ten("U", tournament.variant)
+            continue
+
+        point_value = _point_value(point_entry)
+        if point_value is not None:
+            total += point_value * 10
+            continue
+
+    if total > 0:
+        return total
+
+    # Fallback for repaired/partial states where round history is not fully usable yet.
     leaderboard_points = tournament.leaderboard_score_by_username(username) // SCORE_SHIFT
     if leaderboard_points > 0:
         return leaderboard_points * 10
 
-    # Fallback for repaired/partial states where leaderboard lookup is unavailable.
-    total = 0
     for point in player_data.points:
         if point == "-":
-            total += _bye_point_value(tournament.variant) * 10
+            total += _unplayed_pairing_points_times_ten("U", tournament.variant)
             continue
         if isinstance(point, tuple):
             raw = point[0]

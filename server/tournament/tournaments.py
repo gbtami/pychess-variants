@@ -144,6 +144,7 @@ def _swiss_unplayed_point_from_token(token: str, variant: str):
     if token == "U":
         return "-"
     if token == "H":
+        # Janggi stores integer tournament points; pairing still treats H as 3.5 via TRF scoring.
         if variant == "janggi":
             return (3, 0)
         return (1, 0)
