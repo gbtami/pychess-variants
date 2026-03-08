@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 
 PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 
-AUTO_PLAY_ARENA_NAME = "Auto Play Arena"
+AUTO_PLAY_ARENA_NAME = "Auto Play Tournament"
 
 
 async def create_auto_play_arena(app):
@@ -47,16 +47,19 @@ async def create_auto_play_arena(app):
     await app_state.db.tournament_player.delete_many({"tid": tid})
     await app_state.db.tournament_pairing.delete_many({"tid": tid})
 
-    tournament = ArenaTestTournament(
+#    tournament = ArenaTestTournament(
+    tournament = SwissTestTournament(
         app_state,
         tid,
-        variant="gorogoroplus",
+        variant="janggi",
         name=AUTO_PLAY_ARENA_NAME,
         chess960=False,
         base=1,
         before_start=0.5,
         minutes=10,
         created_by="PyChess",
+        rounds=9,
+        round_interval=10,
     )
 
     app_state.tournaments[tid] = tournament
