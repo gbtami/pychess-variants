@@ -27,6 +27,7 @@ from const import (
     FLAG,
     ARENA,
     RR,
+    SWISS,
     T_CREATED,
     T_STARTED,
     T_ABORTED,
@@ -92,6 +93,12 @@ else:
 
 class EnoughPlayer(Exception):
     """Raised when RR is already full"""
+
+    pass
+
+
+class PairingUnavailable(RuntimeError):
+    """Raised when a fixed-round pairing backend cannot produce legal pairings."""
 
     pass
 
@@ -834,10 +841,18 @@ class Tournament(ABC):
                         ((remaining_time.days * 3600 * 24) + remaining_time.seconds) / 60
                     )
                     if now >= self.starts_at:
-                        if self.system != ARENA and len(self.players) < 3:
-                            # Swiss and RR Tournaments need at least 3 players to start
+                        min_players_to_start = 0
+                        if self.system == RR:
+                            min_players_to_start = 3
+                        elif self.system == SWISS:
+                            min_players_to_start = 2
+                        if min_players_to_start > 0 and len(self.players) < min_players_to_start:
                             await self.abort()
-                            log.info("T_ABORTED: less than 3 player joined")
+                            log.info(
+                                "T_ABORTED: less than %s player(s) joined for %s",
+                                min_players_to_start,
+                                "RR" if self.system == RR else "Swiss",
+                            )
                             break
 
                         await self.start(now)
@@ -890,11 +905,8 @@ class Tournament(ABC):
                         if self.current_round == 0:
                             self.current_round += 1
                             log.debug("Do %s. round pairing", self.current_round)
-                            waiting_players = self.waiting_players()
-                            await self.create_new_pairings(waiting_players)
-                            await self.save_current_round()
-                            self.next_round_starts_at = None
-                            await self.broadcast(self.live_status(now))
+                            if not await self.pair_fixed_round(now):
+                                break
                         elif self.current_round < self.rounds:
                             interval_seconds = self.effective_round_interval_seconds()
                             if interval_seconds <= 0:
@@ -918,10 +930,8 @@ class Tournament(ABC):
                                 self.current_round += 1
                                 self.next_round_starts_at = None
                                 log.debug("Do %s. round pairing", self.current_round)
-                                waiting_players = self.waiting_players()
-                                await self.create_new_pairings(waiting_players)
-                                await self.save_current_round()
-                                await self.broadcast(self.live_status(now))
+                                if not await self.pair_fixed_round(now):
+                                    break
                         else:
                             await self.finish()
                             log.debug("T_FINISHED: no more round left")
@@ -1026,6 +1036,43 @@ class Tournament(ABC):
                 response["roundOngoingGames"] = round_ongoing_games
                 response["secondsToNextRound"] = seconds_to_next_round
         return response
+
+    async def pair_fixed_round(self, now: datetime) -> bool:
+        waiting_players = self.waiting_players()
+        if self.system == SWISS and len(waiting_players) < 2:
+            await self.finish()
+            log.info(
+                "T_FINISHED: Swiss has fewer than 2 active players to pair in round %s",
+                self.current_round,
+            )
+            return False
+
+        try:
+            pairing, _ = await self.create_new_pairings(waiting_players)
+        except PairingUnavailable as exc:
+            if self.system == SWISS:
+                await self.finish()
+                log.info(
+                    "T_FINISHED: Swiss has no legal pairing in round %s (%s)",
+                    self.current_round,
+                    exc,
+                )
+                return False
+            raise
+
+        if self.system == SWISS and len(waiting_players) >= 2 and len(pairing) == 0:
+            await self.finish()
+            log.info(
+                "T_FINISHED: Swiss produced no pairings in round %s with %s active players",
+                self.current_round,
+                len(waiting_players),
+            )
+            return False
+
+        await self.save_current_round()
+        self.next_round_starts_at = None
+        await self.broadcast(self.live_status(now))
+        return True
 
     async def finalize(self, status: int) -> None:
         self.status = status

@@ -7,7 +7,7 @@ import tempfile
 from typing import TYPE_CHECKING, Any
 
 from const import SWISS, T_STARTED
-from tournament.tournament import ByeGame, SCORE_SHIFT, Tournament
+from tournament.tournament import ByeGame, PairingUnavailable, SCORE_SHIFT, Tournament
 
 try:
     from py4swiss.engines import DutchEngine
@@ -688,7 +688,9 @@ class SwissTournament(Tournament):
             try:
                 dutch_pairings = DutchEngine.generate_pairings(state.trf)
             except PairingError as exc:
-                raise RuntimeError(f"py4swiss could not find a legal Dutch pairing: {exc}") from exc
+                raise PairingUnavailable(
+                    f"py4swiss could not find a legal Dutch pairing: {exc}"
+                ) from exc
 
             pairings_by_id = [
                 (dutch_pairing.white, dutch_pairing.black if dutch_pairing.black != 0 else None)
@@ -706,6 +708,8 @@ class SwissTournament(Tournament):
                 self.id,
                 backend,
             )
+            if len(waiting_players) >= 2 and len(pairing) == 0:
+                raise PairingUnavailable("No valid pairing exists")
             return pairing
 
         if swisspairing_pair_round_dutch is None:
@@ -718,7 +722,9 @@ class SwissTournament(Tournament):
         try:
             swisspairing_result = swisspairing_pair_round_dutch(states)
         except SwissPairingError as exc:
-            raise RuntimeError(f"swisspairing could not find a legal Dutch pairing: {exc}") from exc
+            raise PairingUnavailable(
+                f"swisspairing could not find a legal Dutch pairing: {exc}"
+            ) from exc
 
         pairings_by_id: list[tuple[int, int | None]] = []
         for pairing_result in swisspairing_result.pairings:
@@ -738,4 +744,6 @@ class SwissTournament(Tournament):
             self.id,
             backend,
         )
+        if len(waiting_players) >= 2 and len(pairing) == 0:
+            raise PairingUnavailable("No valid pairing exists")
         return pairing

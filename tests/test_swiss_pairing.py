@@ -3,11 +3,18 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from const import T_FINISHED
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament.auto_play_arena import SwissTestTournament
 from tournament import swiss as swiss_mod
-from tournament.tournament import AUTO_ROUND_INTERVAL, ByeGame, GameData, SCORE_SHIFT
+from tournament.tournament import (
+    AUTO_ROUND_INTERVAL,
+    ByeGame,
+    GameData,
+    PairingUnavailable,
+    SCORE_SHIFT,
+)
 from tournament_test_base import TournamentTestCase
 from user import User
 
@@ -230,6 +237,74 @@ class SwissPairingTestCase(TournamentTestCase):
             pairing = self.tournament.create_pairing(waiting)
 
         self.assertEqual(pairing, [(waiting[0], waiting[1]), (waiting[2], waiting[3])])
+
+    async def test_create_pairing_raises_pairing_unavailable_when_engine_cannot_pair(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+
+        waiting = list(self.tournament.waiting_players())
+        users_by_id = {index: user for index, user in enumerate(waiting, start=1)}
+        fake_state = SimpleNamespace(
+            trf=object(),
+            waiting_ids=set(users_by_id),
+            users_by_id=users_by_id,
+        )
+
+        class _Engine:
+            @staticmethod
+            def generate_pairings(_trf):
+                raise swiss_mod.PairingError("No valid pairing exists")
+
+        with (
+            patch("tournament.swiss._build_dutch_pairing_state", return_value=fake_state),
+            patch("tournament.swiss.DutchEngine", _Engine),
+        ):
+            with self.assertRaisesRegex(PairingUnavailable, "No valid pairing exists"):
+                self.tournament.create_pairing(waiting)
+
+    async def test_pair_fixed_round_finishes_swiss_when_not_enough_active_players(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(1)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        should_continue = await self.tournament.pair_fixed_round(datetime.now(timezone.utc))
+        self.assertFalse(should_continue)
+        self.assertEqual(self.tournament.status, T_FINISHED)
+
+    async def test_pair_fixed_round_finishes_swiss_when_pairing_unavailable(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 2
+
+        async def _raise_pairing_unavailable(_waiting_players):
+            raise PairingUnavailable("No valid pairing exists")
+
+        with patch.object(
+            self.tournament,
+            "create_new_pairings",
+            side_effect=_raise_pairing_unavailable,
+        ):
+            should_continue = await self.tournament.pair_fixed_round(datetime.now(timezone.utc))
+
+        self.assertFalse(should_continue)
+        self.assertEqual(self.tournament.status, T_FINISHED)
 
     async def test_persist_byes_awards_full_point_in_swiss(self):
         app_state = get_app_state(self.app)
