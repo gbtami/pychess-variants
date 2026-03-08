@@ -316,7 +316,8 @@ export class TournamentController implements ChatController {
                 let score = Array.isArray(s) ? s[0] : s;
                 if (this.system > 0 && score !== '*' && score !== '-' && this.variant.name !== 'janggi') score = score / 2;
                 const pointKlass = this.system > 0 ? '.point' : '';
-                const resultKlass = ((this.system > 0) ? (score >= 1) ? '.win': (score === 0.5) ? '.draw' : '.lose' : '');
+                const isNumericScore = typeof score === 'number';
+                const resultKlass = ((this.system > 0 && isNumericScore) ? (score >= 1) ? '.win': (score === 0.5) ? '.draw' : '.lose' : '');
                 if (score === 0.5) score = '½';
                 return h(scoreTagNames[(s[1] || 1) - 1] + pointKlass + resultKlass, [score]);
             }))]),

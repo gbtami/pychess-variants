@@ -149,6 +149,65 @@ class TournamentFlowTestCase(TournamentTestCase):
             NB_PLAYERS * [NB_ROUNDS],
         )
 
+    async def test_fixed_round_standings_mark_ongoing_games_with_star(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=0, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(3)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.tournament.current_round = 1
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        self.assertEqual(len(games), 1)
+
+        players_json = self.tournament.players_json()
+        star_marked_rows = [
+            row
+            for row in players_json["players"]
+            if any(
+                isinstance(point, tuple) and len(point) > 0 and point[0] == "*"
+                for point in row["points"]
+            )
+        ]
+        self.assertEqual(len(star_marked_rows), 2)
+
+        for player_data in self.tournament.players.values():
+            self.assertFalse(
+                any(
+                    isinstance(point, tuple) and len(point) > 0 and point[0] == "*"
+                    for point in player_data.points
+                )
+            )
+
+    async def test_arena_standings_do_not_mark_ongoing_games_with_star(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        self.assertEqual(len(games), 1)
+
+        players_json = self.tournament.players_json()
+        self.assertTrue(
+            all(
+                not any(
+                    isinstance(point, tuple) and len(point) > 0 and point[0] == "*"
+                    for point in row["points"]
+                )
+                for row in players_json["players"]
+            )
+        )
+
     async def test_tournament_rating_update_on_rejoin(self):
         app_state = get_app_state(self.app)
         tid = id8()

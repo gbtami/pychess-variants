@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple, TypeAlias
+from typing import Any, TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple, TypeAlias, cast
 import asyncio
 import logging
 import collections
@@ -670,6 +670,8 @@ class Tournament(ABC):
         if page is None:
             page = 1
 
+        ongoing_players = self.ongoing_fixed_round_players()
+
         start = (page - 1) * 10
         end = min(start + 10, self.nb_players)
 
@@ -683,13 +685,15 @@ class Tournament(ABC):
                     self.id,
                 )
                 continue
-            players.append(
-                player_json(
-                    leaderboard_player_data,
-                    full_score,
-                    leaderboard_player_data.paused,
-                )
+            payload = player_json(
+                leaderboard_player_data,
+                full_score,
+                leaderboard_player_data.paused,
             )
+            points = self.standings_points(leaderboard_player_data, ongoing_players)
+            if points is not leaderboard_player_data.points:
+                payload = cast(TournamentPlayerJson, {**payload, "points": points})
+            players.append(payload)
 
         page_json: TournamentPlayersResponse = {
             "type": "get_players",
@@ -721,6 +725,31 @@ class Tournament(ABC):
             page_json["podium"] = podium
 
         return page_json
+
+    def ongoing_fixed_round_players(self) -> set[str]:
+        if self.system == ARENA or self.status != T_STARTED or self.current_round <= 0:
+            return set()
+
+        usernames: set[str] = set()
+        for game in self.ongoing_games:
+            if getattr(game, "round", self.current_round) != self.current_round:
+                continue
+            wname, bname = self.game_player_usernames(game)
+            usernames.add(wname)
+            usernames.add(bname)
+
+        return usernames
+
+    def standings_points(self, player_data: PlayerData, ongoing_players: set[str]) -> list[Point]:
+        if player_data.username not in ongoing_players:
+            return player_data.points
+
+        # Represent an ongoing fixed-round game in the score sheet like lichess.
+        # Keep persisted points untouched; this marker is only for websocket standings payload.
+        if len(player_data.points) != self.current_round - 1:
+            return player_data.points
+
+        return [*player_data.points, ("*", SCORE)]
 
     async def games_json(self, player_name: str) -> TournamentGamesResponse:
         player_data = self.player_data_by_name(player_name)
