@@ -394,6 +394,7 @@ export class TournamentController implements ChatController {
 
     private gameView(game: TournamentGame, index: number) {
         if (game.result === '-') {
+            const variantIsJanggi = this.variant.name === 'janggi';
             const unplayedLabel =
                 game.unplayedType === 'late'
                     ? _('Late')
@@ -402,9 +403,9 @@ export class TournamentController implements ChatController {
                         : _('Bye');
             const unplayedScore =
                 game.unplayedType === 'late'
-                    ? '½'
+                    ? (variantIsJanggi ? '2' : '½')
                     : (this.system === SWISS_SYSTEM && game.unplayedType === 'bye')
-                        ? '1'
+                        ? (variantIsJanggi ? '7' : '1')
                         : '-';
             return h('tr', [
                 h('th', index),

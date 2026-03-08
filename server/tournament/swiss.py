@@ -117,8 +117,19 @@ def _bye_point_value(variant: str) -> int:
 
 
 def _half_bye_point_value(variant: str) -> int:
+    if variant == "janggi":
+        # Janggi Swiss policy: late-join compensation uses 2 tournament points.
+        return 2
     win, draw, _ = _score_values_for_variant(variant)
     return draw // 10 if draw > 0 else (win // 20)
+
+
+def _half_bye_points_times_ten(variant: str) -> int:
+    if variant == "janggi":
+        # Keep Janggi half-bye inside the existing played-game point pool (0/2/4/7).
+        return 20
+    win, draw, _ = _score_values_for_variant(variant)
+    return draw if draw > 0 else (win // 2)
 
 
 def _unplayed_pairing_points_times_ten(token: str, variant: str) -> int:
@@ -126,7 +137,7 @@ def _unplayed_pairing_points_times_ten(token: str, variant: str) -> int:
     if token in ("U", "F"):
         return win
     if token == "H":
-        return draw if draw > 0 else (win // 2)
+        return _half_bye_points_times_ten(variant)
     return 0
 
 
@@ -224,7 +235,7 @@ def _build_scoring_system(variant: str):
     scoring.apply_code(ScoringPointSystemCode.LOSS, loss)
 
     # Swiss bye scoring (not RR): pairing-allocated/full-point bye == full win points.
-    half_bye = draw if draw > 0 else (win // 2)
+    half_bye = _half_bye_points_times_ten(variant)
     scoring.apply_code(ScoringPointSystemCode.ZERO_POINT_BYE, 0)
     scoring.apply_code(ScoringPointSystemCode.HALF_POINT_BYE, half_bye)
     scoring.apply_code(ScoringPointSystemCode.FULL_POINT_BYE, win)

@@ -1,5 +1,16 @@
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple, TypeAlias, cast, Literal
+from typing import (
+    Any,
+    TYPE_CHECKING,
+    ClassVar,
+    Deque,
+    Mapping,
+    Set,
+    Tuple,
+    TypeAlias,
+    cast,
+    Literal,
+)
 import asyncio
 import logging
 import collections
@@ -762,11 +773,17 @@ class Tournament(ABC):
             rendered: Point | None = None
             if token == "Z":
                 rendered = "-"
-            elif self.system == SWISS and self.variant != "janggi":
-                if token in ("U", "F"):
-                    rendered = ("1", SCORE)
-                elif token == "H":
-                    rendered = ("½", SCORE)
+            elif self.system == SWISS:
+                if self.variant == "janggi":
+                    if token in ("U", "F"):
+                        rendered = ("7", SCORE)
+                    elif token == "H":
+                        rendered = ("2", SCORE)
+                else:
+                    if token in ("U", "F"):
+                        rendered = ("1", SCORE)
+                    elif token == "H":
+                        rendered = ("½", SCORE)
             if rendered is not None and points[i] != rendered:
                 if points is player_data.points:
                     points = list(player_data.points)
@@ -774,10 +791,7 @@ class Tournament(ABC):
 
         # Represent an ongoing fixed-round game in the score sheet like lichess.
         # Keep persisted points untouched; this marker is only for websocket standings payload.
-        if (
-            player_data.username in ongoing_players
-            and len(points) == self.current_round - 1
-        ):
+        if player_data.username in ongoing_players and len(points) == self.current_round - 1:
             if points is player_data.points:
                 points = list(player_data.points)
             points.append(("*", SCORE))

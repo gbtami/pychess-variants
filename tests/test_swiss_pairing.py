@@ -8,6 +8,7 @@ from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament.auto_play_arena import SwissTestTournament
 from tournament import swiss as swiss_mod
+from tournament import tournaments as tournaments_mod
 from tournament.tournament import (
     AUTO_ROUND_INTERVAL,
     ByeGame,
@@ -418,6 +419,15 @@ class SwissScoringRulesTestCase(unittest.TestCase):
             70,
         )
         self.assertEqual(
+            scoring.score_dict[
+                (
+                    swiss_mod.ResultToken.HALF_POINT_BYE,
+                    swiss_mod.ColorToken.BYE_OR_NOT_PAIRED,
+                )
+            ],
+            20,
+        )
+        self.assertEqual(
             scoring.score_dict[(swiss_mod.ResultToken.WIN_NOT_RATED, swiss_mod.ColorToken.WHITE)],
             40,
         )
@@ -468,19 +478,24 @@ class SwissScoringRulesTestCase(unittest.TestCase):
 
         self.assertEqual([result.result.value for result in results], ["1", "Z", "1"])
 
-    def test_janggi_half_bye_pairing_points_are_not_truncated(self):
+    def test_janggi_half_bye_uses_two_points(self):
         tournament = SimpleNamespace(
             variant="janggi",
-            leaderboard_score_by_username=lambda _username: 3 * SCORE_SHIFT,
+            leaderboard_score_by_username=lambda _username: 2 * SCORE_SHIFT,
         )
         player_data = SimpleNamespace(
-            points=[(3, 0)],
+            points=[(2, 0)],
             games=[ByeGame(token="H", round_no=1)],
         )
 
+        self.assertEqual(swiss_mod._half_bye_point_value("janggi"), 2)
+        self.assertEqual(
+            tournaments_mod._swiss_unplayed_point_from_token("H", "janggi"),
+            (2, 0),
+        )
         self.assertEqual(
             swiss_mod._score_points_times_ten(tournament, "hero", player_data, completed_rounds=1),
-            35,
+            20,
         )
 
 
