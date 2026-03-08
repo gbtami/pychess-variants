@@ -314,7 +314,7 @@ class Game:
                 self.bplayer.username,
             )
             or self.wplayer.title == "TEST"
-            or self.wplayer.title == "TEST"
+            or self.bplayer.title == "TEST"
         )
 
         self.has_legal_move = self.board.has_legal_move()
