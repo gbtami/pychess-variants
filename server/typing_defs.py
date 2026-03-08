@@ -592,6 +592,7 @@ class TournamentPlayerDoc(TypedDict):
     e: int
     g: NotRequired[int]
     p: list[TournamentPoint]
+    jr: NotRequired[int]
     wd: bool
 
 
@@ -609,6 +610,7 @@ class TournamentPlayerUpdate(TypedDict, total=False):
     e: int
     g: int
     p: list[TournamentPoint]
+    jr: int
     wd: bool
 
 
@@ -623,6 +625,8 @@ class TournamentPairingDoc(TypedDict):
     wb: bool
     bb: bool
     s: NotRequired[int]
+    rn: NotRequired[int]
+    bt: NotRequired[str]
 
 
 class TournamentPairingUpdate(TypedDict, total=False):
@@ -635,6 +639,8 @@ class TournamentPairingUpdate(TypedDict, total=False):
     wb: bool
     bb: bool
     s: int
+    rn: int
+    bt: str
 
 
 class TournamentPlayerJson(TypedDict):

@@ -55,3 +55,35 @@ h('br'),
 h('p', _('Drawing the game before each player has moved 5 times will earn neither player any points.')),
 ]);
 }
+
+export function swissFaq(rated: string) {
+let isRated;
+if (rated === 'False') {
+    isRated = _('This tournament is *not* rated and will *not* affect your rating.');
+} else {
+    isRated = _('This tournament is rated and will affect your rating.');
+}
+
+return h('div.tour-faq', [
+h('h2', _('Swiss Rules')),
+h('p', _('Swiss tournaments are played in fixed rounds. After each round finishes, the next round starts and players are paired with others on similar score.')),
+h('h2', _('Is it rated?')),
+h('p', isRated),
+h('h2', _('How are scores calculated?')),
+h('p', _('A win gives 2 points, a draw gives 1 point, and a loss gives 0 points.')),
+h('h2', _('Late join and absences')),
+h('p', _('You can join a Swiss after it starts, but only until half of the rounds have been played.')),
+h('br'),
+h('p', _('Late joiners get one half-point compensation, and no points for other rounds they missed.')),
+h('br'),
+h('p', _('If you miss a round, you are not paired for that round and score 0 points for it.')),
+h('h2', _('How does pairing work?')),
+h('p', _('Players are paired by Swiss rules with score-group logic and color constraints.')),
+h('br'),
+h('p', _('You cannot play the same opponent twice.')),
+h('h2', _('Tie-break')),
+h('p', _('If players have the same score, tie-break values decide final ranking.')),
+h('h2', _('How does it end?')),
+h('p', _('The tournament ends after all scheduled rounds are completed.')),
+]);
+}

@@ -99,15 +99,18 @@ class EnoughPlayer(Exception):
 class ByeGame:
     """Used in RR/Swiss tournaments when pairing odd number of players"""
 
-    __slots__ = "date", "status"
+    __slots__ = "date", "status", "token", "round"
 
     if TYPE_CHECKING:
         wplayer: User
         bplayer: User
 
-    def __init__(self) -> None:
+    def __init__(self, token: str = "U", round_no: int | None = None) -> None:
         self.date: datetime = datetime.now(timezone.utc)
         self.status: int = BYEGAME
+        # TRF token for unplayed rounds (U/H/F/Z). Default is pairing-allocated bye.
+        self.token: str = token
+        self.round: int | None = round_no
 
     def game_json(self, player: User) -> TournamentGameJson:
         return {
@@ -143,6 +146,7 @@ class PlayerData:
         "berger",
         "prev_opp",
         "color_balance",
+        "joined_round",
         "page",
     )
 
@@ -168,6 +172,8 @@ class PlayerData:
         self.berger: int = 0
         self.prev_opp: str = ""
         self.color_balance: int = 0  # +1 when played as white, -1 when played as black
+        # Swiss-only: first round in which the player can be paired.
+        self.joined_round: int = 1
         self.page: int = 0
 
     def __str__(self) -> str:
@@ -221,6 +227,7 @@ class GameData:
         "wberserk",
         "bberserk",
         "status",
+        "round",
     )
 
     def __init__(
@@ -237,6 +244,7 @@ class GameData:
         wtitle: str = "",
         btitle: str = "",
         status: int | None = None,
+        round_no: int | None = None,
     ) -> None:
         self.id: str = _id
         self.wname = wplayer
@@ -250,6 +258,7 @@ class GameData:
         self.wberserk: bool = wberserk
         self.bberserk: bool = bberserk
         self.status: int = FLAG if status is None else status
+        self.round: int | None = round_no
 
     @property
     def wplayer(self) -> _GameDataPlayer:
@@ -1161,6 +1170,7 @@ class Tournament(ABC):
     ) -> tuple[list[tuple[User, User]], list[Game]]:
         self.bye_players = []
         pairing = self.create_pairing(waiting_players)
+        round_bye_players = list(self.bye_players)
 
         if self.first_pairing:
             self.first_pairing = False
@@ -1177,6 +1187,7 @@ class Tournament(ABC):
 
         # save pairings to db
         await self.db_insert_pairing(games)
+        await self.persist_unpaired_round_entries(self.current_round, pairing, round_bye_players)
 
         return (pairing, games)
 
@@ -1189,6 +1200,15 @@ class Tournament(ABC):
         for player in bye_players:
             await self.db_insert_bye_pairing(player)
             await self.db_update_player(player, "BYE")
+
+    async def persist_unpaired_round_entries(
+        self,
+        round_no: int,
+        pairing: list[tuple[User, User]],
+        bye_players: list[User],
+    ) -> None:
+        # Default (Arena/RR): no synthetic unpaired-round entries.
+        return
 
     async def create_games(self, pairing: list[tuple[User, User]]) -> list[Game]:
         is_new_top_game = False
@@ -1211,6 +1231,8 @@ class Tournament(ABC):
                 tournamentId=self.id,
                 chess960=self.chess960,
             )
+            # Round index is persisted with pairing docs to keep Swiss round history unambiguous.
+            game.round = self.current_round  # type: ignore[attr-defined]
 
             if game.has_crosstable:
                 doc = await self.app_state.db.crosstable.find_one({"_id": game.ct_id})
@@ -1617,12 +1639,19 @@ class Tournament(ABC):
                 "wb": game.wberserk,
                 "bb": game.bberserk,
                 "s": game.status,
+                "rn": getattr(game, "round", self.current_round),
             }
             pairing_documents.append(pairing_doc)
         if len(pairing_documents) > 0:
             await pairing_table.insert_many(pairing_documents)
 
-    async def db_insert_bye_pairing(self, player: User) -> None:
+    async def db_insert_bye_pairing(
+        self,
+        player: User,
+        *,
+        round_no: int | None = None,
+        bye_token: str = "U",
+    ) -> None:
         if self.app_state.db is None:
             return
         player_data = self.player_data_by_name(player.username)
@@ -1644,6 +1673,8 @@ class Tournament(ABC):
             "wb": False,
             "bb": False,
             "s": BYEGAME,
+            "rn": self.current_round if round_no is None else round_no,
+            "bt": bye_token,
         }
         await pairing_table.insert_one(bye_doc)
 
@@ -1664,6 +1695,7 @@ class Tournament(ABC):
                 "wb": game.wberserk,
                 "bb": game.bberserk,
                 "s": game.status,
+                "rn": getattr(game, "round", self.current_round),
             }
 
             await pairing_table.update_one(
@@ -1729,6 +1761,7 @@ class Tournament(ABC):
                     "e": 0,
                     "g": 0,
                     "p": [],
+                    "jr": player_data.joined_round,
                     "wd": False,
                 }
             else:
@@ -1737,6 +1770,7 @@ class Tournament(ABC):
                     "wd": False,
                     "r": player_data.rating,
                     "pr": player_data.provisional,
+                    "jr": player_data.joined_round,
                 }
 
         elif action == "WITHDRAW":
@@ -1761,6 +1795,7 @@ class Tournament(ABC):
                 "e": player_data.performance,
                 "g": player_data.berger,
                 "p": player_data.points,
+                "jr": player_data.joined_round,
                 "wd": player_data.withdrawn,
             }
 

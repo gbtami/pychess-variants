@@ -134,6 +134,13 @@ async def handle_join(
             response = {"type": "error", "message": "Incorrect password"}
             await ws_send_json(ws, response)
             return
+        if result == "LATE_JOIN_CLOSED":
+            response = {
+                "type": "error",
+                "message": "Late join is closed for this Swiss tournament",
+            }
+            await ws_send_json(ws, response)
+            return
 
         response = {
             "type": "ustatus",

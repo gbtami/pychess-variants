@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime, timezone
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -6,8 +7,9 @@ from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament.auto_play_arena import SwissTestTournament
 from tournament import swiss as swiss_mod
-from tournament.tournament import AUTO_ROUND_INTERVAL, ByeGame, SCORE_SHIFT
+from tournament.tournament import AUTO_ROUND_INTERVAL, ByeGame, GameData, SCORE_SHIFT
 from tournament_test_base import TournamentTestCase
+from user import User
 
 
 class SwissPairingTestCase(TournamentTestCase):
@@ -250,6 +252,55 @@ class SwissPairingTestCase(TournamentTestCase):
             self.tournament.leaderboard_score_by_username(player.username) // SCORE_SHIFT, 2
         )
 
+    async def test_late_join_awards_half_point_and_missed_round_entries(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(3)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 2
+
+        late = User(app_state, username="late_join_user")
+        app_state.users[late.username] = late
+        late.tournament_sockets[tid] = set((None,))
+
+        result = await self.tournament.join(late)
+        self.assertIsNone(result)
+
+        pdata = self.tournament.player_data_by_name(late.username)
+        self.assertIsNotNone(pdata)
+        assert pdata is not None
+        self.assertEqual(pdata.joined_round, 3)
+        self.assertEqual(len(pdata.games), 2)
+        self.assertTrue(all(isinstance(game, ByeGame) for game in pdata.games))
+        self.assertEqual([getattr(game, "token", "") for game in pdata.games], ["H", "Z"])
+        self.assertEqual(pdata.points, [(1, 0), (0, 0)])
+        self.assertEqual(
+            self.tournament.leaderboard_score_by_username(late.username) // SCORE_SHIFT,
+            1,
+        )
+
+    async def test_late_join_is_closed_after_half_rounds(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=4, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(3)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 3
+
+        late = User(app_state, username="late_join_closed")
+        app_state.users[late.username] = late
+        late.tournament_sockets[tid] = set((None,))
+
+        result = await self.tournament.join(late)
+        self.assertEqual(result, "LATE_JOIN_CLOSED")
+
 
 class SwissScoringRulesTestCase(unittest.TestCase):
     def test_chess_pairing_allocated_bye_is_full_point(self):
@@ -283,6 +334,48 @@ class SwissScoringRulesTestCase(unittest.TestCase):
             scoring.score_dict[(swiss_mod.ResultToken.LOSS_NOT_RATED, swiss_mod.ColorToken.BLACK)],
             20,
         )
+
+    def test_build_player_results_uses_round_metadata_for_gapped_history(self):
+        tournament = SimpleNamespace(variant="chess", id="t")
+        player_data = SimpleNamespace(points=[], games=[])
+
+        game_r1 = GameData(
+            "g1",
+            "hero",
+            "1500",
+            "opp1",
+            "1500",
+            "1-0",
+            datetime.now(timezone.utc),
+            False,
+            False,
+            round_no=1,
+        )
+        game_r3 = GameData(
+            "g3",
+            "hero",
+            "1500",
+            "opp2",
+            "1500",
+            "1-0",
+            datetime.now(timezone.utc),
+            False,
+            False,
+            round_no=3,
+        )
+        player_data.games = [game_r1, game_r3]
+        player_data.points = [(2, 1), (2, 1)]
+
+        ids_by_name = {"hero": 1, "opp1": 2, "opp2": 3}
+        results = swiss_mod._build_player_results(
+            tournament,
+            "hero",
+            player_data,
+            ids_by_name,
+            completed_rounds=3,
+        )
+
+        self.assertEqual([result.result.value for result in results], ["1", "Z", "1"])
 
 
 if __name__ == "__main__":

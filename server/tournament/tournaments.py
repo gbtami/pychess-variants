@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING, Iterable, Mapping, Protocol
+from typing import Any, TYPE_CHECKING, Iterable, Mapping, Protocol, cast
 from datetime import datetime, timezone
 import asyncio
 
@@ -50,6 +50,7 @@ from typing_defs import (
     TournamentCreateData,
     TournamentDoc,
     TournamentPairingDoc,
+    TournamentPoint,
     TournamentPlayerDoc,
 )
 from ws_types import ChatLine
@@ -94,6 +95,10 @@ def _align_player_games_with_points(player_data: PlayerData) -> None:
     if not player_data.points:
         return
 
+    # Round-aware Swiss states should not be re-ordered by point-shape heuristics.
+    if any(getattr(game, "round", None) is not None for game in player_data.games):
+        return
+
     non_bye_games = [game for game in player_data.games if not isinstance(game, ByeGame)]
     bye_games = [game for game in player_data.games if isinstance(game, ByeGame)]
 
@@ -130,9 +135,21 @@ def _align_player_games_with_points(player_data: PlayerData) -> None:
 def _swiss_entry_point_value(point: object, variant: str) -> int:
     if point == "-":
         return 7 if variant == "janggi" else 2
-    if isinstance(point, tuple) and isinstance(point[0], int):
+    if isinstance(point, (tuple, list)) and len(point) > 0 and isinstance(point[0], int):
         return point[0]
     return 0
+
+
+def _swiss_unplayed_point_from_token(token: str, variant: str):
+    if token == "U":
+        return "-"
+    if token == "H":
+        if variant == "janggi":
+            return (3, 0)
+        return (1, 0)
+    if token == "F":
+        return (7, 0) if variant == "janggi" else (2, 0)
+    return (0, 0)
 
 
 def _parse_round_interval(
@@ -163,7 +180,7 @@ def _infer_swiss_point_from_game(
     username: str,
 ):
     if isinstance(game, ByeGame):
-        return "-"
+        return _swiss_unplayed_point_from_token(getattr(game, "token", "U"), tournament.variant)
 
     result = game.result
     if result not in ("1-0", "0-1", "1/2-1/2"):
@@ -791,7 +808,17 @@ async def load_tournament(
         player_data.id = player_doc["_id"]
         player_data.paused = player_doc["a"]
         player_data.withdrawn = withdrawn
-        player_data.points = player_doc["p"]
+        normalized_points: list[TournamentPoint] = []
+        for point in player_doc["p"]:
+            if isinstance(point, list) and len(point) == 2:
+                normalized_points.append(cast(TournamentPoint, (point[0], point[1])))
+            else:
+                normalized_points.append(cast(TournamentPoint, point))
+        player_data.points = normalized_points
+        if tournament.system == SWISS:
+            player_data.joined_round = player_doc["jr"]
+        else:
+            player_data.joined_round = player_doc.get("jr", 1)
         player_data.nb_win = player_doc["w"]
         player_data.nb_berserk = player_doc.get("b", 0)
         player_data.performance = player_doc["e"]
@@ -826,6 +853,14 @@ async def load_tournament(
     async for doc in cursor:
         pairing_doc: TournamentPairingDoc = doc
         pair_status = pairing_doc.get("s")
+        pair_round = pairing_doc.get("rn")
+        if tournament.system == SWISS and pair_round is None:
+            raise RuntimeError(
+                "Swiss pairing %s in %s is missing required round metadata"
+                % (pairing_doc["_id"], tournament_id)
+            )
+
+        bye_token = pairing_doc.get("bt")
         _id = pairing_doc["_id"]
         wp, bp = pairing_doc["u"]
         wrating = pairing_doc["wr"]
@@ -833,10 +868,19 @@ async def load_tournament(
         date = pairing_doc["d"]
 
         if pair_status == BYEGAME:
+            if tournament.system == SWISS:
+                if bye_token is None:
+                    raise RuntimeError(
+                        "Swiss bye pairing %s in %s is missing required bye token"
+                        % (_id, tournament_id)
+                    )
+            else:
+                bye_token = "U"
+            assert bye_token is not None
             bye_player = await ensure_pairing_participant(wp, wrating)
             bye_player_data = tournament.player_data_by_name(bye_player.username)
             if bye_player_data is not None:
-                bye_game = ByeGame()
+                bye_game = ByeGame(token=bye_token, round_no=pair_round)
                 bye_game.date = date
                 bye_player_data.games.append(bye_game)
             continue
@@ -865,6 +909,7 @@ async def load_tournament(
                 continue
             if TYPE_CHECKING:
                 assert isinstance(game, Game)
+            game.round = pair_round  # type: ignore[attr-defined]
             if game.status > STARTED and game.result != "*":
                 result = game.result
                 res = R2C[result]
@@ -885,6 +930,7 @@ async def load_tournament(
                     wtitle=wplayer.title,
                     btitle=bplayer.title,
                     status=game.status,
+                    round_no=pair_round,
                 )
                 tournament.nb_games_finished += 1
                 await tournament.db_update_pairing(game)
@@ -907,6 +953,7 @@ async def load_tournament(
                 wtitle=wplayer.title,
                 btitle=bplayer.title,
                 status=pair_status,
+                round_no=pair_round,
             )
             tournament.nb_games_finished += 1
 

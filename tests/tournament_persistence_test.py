@@ -336,6 +336,45 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(repaired_doc["p"][0][0], 2)
         self.assertEqual(repaired_doc["s"], 2)
 
+    async def test_swiss_unpaired_round_is_persisted_as_zero_point_entry(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=10, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+        await self.tournament.save_current_round()
+
+        absent = list(self.tournament.players.keys())[0]
+        await self.tournament.pause(absent)
+
+        waiting_players = list(self.tournament.waiting_players())
+        await self.tournament.create_new_pairings(waiting_players)
+
+        absent_data = self.tournament.players[absent]
+        self.assertEqual(absent_data.points[-1], (0, 0))
+        self.assertIsInstance(absent_data.games[-1], ByeGame)
+        self.assertEqual(getattr(absent_data.games[-1], "token", None), "Z")
+        self.assertEqual(getattr(absent_data.games[-1], "round", None), 1)
+
+        zero_doc = await app_state.db.tournament_pairing.find_one(
+            {"tid": tid, "u.0": absent.username, "u.1": absent.username, "bt": "Z", "rn": 1}
+        )
+        self.assertIsNotNone(zero_doc)
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        reloaded_absent = reloaded_tournament.get_player_by_name(absent.username)
+        self.assertIsNotNone(reloaded_absent)
+        assert reloaded_absent is not None
+        reloaded_data = reloaded_tournament.players[reloaded_absent]
+        self.assertTrue(any(isinstance(game, ByeGame) for game in reloaded_data.games))
+        self.assertIn((0, 0), reloaded_data.points)
+
     async def test_load_tournament_recovers_missing_participant_doc_from_pairings(self):
         app_state = get_app_state(self.app)
         tid = id8()

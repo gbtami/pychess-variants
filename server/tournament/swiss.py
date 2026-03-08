@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 from typing import TYPE_CHECKING, Any
 
-from const import SWISS
+from const import SWISS, T_STARTED
 from tournament.tournament import ByeGame, SCORE_SHIFT, Tournament
 
 try:
@@ -116,6 +116,11 @@ def _bye_point_value(variant: str) -> int:
     return win // 10
 
 
+def _half_bye_point_value(variant: str) -> int:
+    win, draw, _ = _score_values_for_variant(variant)
+    return draw // 10 if draw > 0 else (win // 20)
+
+
 def _score_points_times_ten(
     tournament: Tournament, username: str, player_data: PlayerData, completed_rounds: int
 ) -> int:
@@ -220,9 +225,23 @@ def _build_rank_map(tournament: Tournament, all_names: list[str]) -> dict[str, i
 
 
 def _point_value(point: Any) -> int | None:
-    if isinstance(point, tuple) and isinstance(point[0], int):
+    if isinstance(point, (tuple, list)) and len(point) > 0 and isinstance(point[0], int):
         return point[0]
     return None
+
+
+def _round_result_for_unplayed_token(token: str):
+    mapping = {
+        "U": ResultToken.PAIRING_ALLOCATED_BYE,
+        "H": ResultToken.HALF_POINT_BYE,
+        "F": ResultToken.FULL_POINT_BYE,
+        "Z": ResultToken.ZERO_POINT_BYE,
+    }
+    return RoundResult(
+        id=0,
+        color=ColorToken.BYE_OR_NOT_PAIRED,
+        result=mapping.get(token, ResultToken.ZERO_POINT_BYE),
+    )
 
 
 def _round_result_for_game(
@@ -268,50 +287,48 @@ def _build_player_results(
     completed_rounds: int,
 ) -> list[Any]:
     results: list[Any] = []
+    points = player_data.points
+    games = player_data.games
+
+    games_by_round: dict[int, tuple[Any, Any]] = {}
+    for game_index, game in enumerate(games):
+        round_no = getattr(game, "round", None)
+        if not isinstance(round_no, int) or round_no <= 0:
+            raise RuntimeError(
+                "Swiss player history is missing round metadata for %s in tournament %s"
+                % (username, tournament.id)
+            )
+        if round_no in games_by_round:
+            raise RuntimeError(
+                "Swiss player history has duplicate round metadata for %s in tournament %s (round=%s)"
+                % (username, tournament.id, round_no)
+            )
+        point_entry = points[game_index] if game_index < len(points) else None
+        games_by_round[round_no] = (game, point_entry)
 
     for round_index in range(completed_rounds):
-        point_entry = (
-            player_data.points[round_index] if round_index < len(player_data.points) else None
-        )
-        point_value = _point_value(point_entry)
-
-        if round_index >= len(player_data.games):
-            bye_token = (
-                ResultToken.PAIRING_ALLOCATED_BYE
-                if point_entry == "-"
-                else ResultToken.ZERO_POINT_BYE
-            )
-            results.append(
-                RoundResult(
-                    id=0,
-                    color=ColorToken.BYE_OR_NOT_PAIRED,
-                    result=bye_token,
-                )
-            )
+        round_no = round_index + 1
+        by_round_entry = games_by_round.get(round_no)
+        if by_round_entry is None:
+            results.append(_round_result_for_unplayed_token("Z"))
             continue
 
-        game = player_data.games[round_index]
-        if isinstance(game, ByeGame) or point_entry == "-":
-            results.append(
-                RoundResult(
-                    id=0,
-                    color=ColorToken.BYE_OR_NOT_PAIRED,
-                    result=ResultToken.PAIRING_ALLOCATED_BYE,
-                )
-            )
+        game, game_point_entry = by_round_entry
+        game_point_value = _point_value(game_point_entry)
+        if isinstance(game, ByeGame):
+            results.append(_round_result_for_unplayed_token(getattr(game, "token", "U")))
             continue
-
         round_result = _round_result_for_game(
             game,
             username,
             ids_by_name,
             tournament.variant,
-            point_value,
+            game_point_value,
         )
         if round_result is None:
             error_message = (
                 "Unable to map Swiss game history to Dutch TRF for %s in tournament %s (game=%s, round=%s, result=%s)"
-                % (username, tournament.id, game.id, round_index + 1, game.result)
+                % (username, tournament.id, game.id, round_no, game.result)
             )
             raise RuntimeError(error_message)
         results.append(round_result)
@@ -531,9 +548,67 @@ class SwissTournament(Tournament):
     def _record_bye(self, player: User) -> None:
         player_data = self.player_data_by_name(player.username)
         if player_data is not None:
-            player_data.games.append(ByeGame())
+            player_data.games.append(ByeGame(token="U", round_no=self.current_round))
             player_data.points.append("-")
         self.bye_players.append(player)
+
+    def _is_late_join_allowed(self) -> bool:
+        # Lichess-like policy: allow new late entries while no more than half rounds were played.
+        return self.current_round <= (self.rounds // 2)
+
+    def _late_join_half_point(self) -> int:
+        return _half_bye_point_value(self.variant)
+
+    async def _initialize_late_entry_round_history(self, player: User) -> None:
+        player_data = self.player_data_by_name(player.username)
+        if player_data is None:
+            return
+
+        missed_rounds = self.current_round
+        if missed_rounds <= 0:
+            player_data.joined_round = 1
+            return
+
+        player_data.joined_round = missed_rounds + 1
+        half_point = self._late_join_half_point()
+        bonus_awarded = False
+
+        for round_no in range(1, missed_rounds + 1):
+            if not bonus_awarded and half_point > 0:
+                token = "H"
+                point = (half_point, 0)
+                bonus_awarded = True
+            else:
+                token = "Z"
+                point = (0, 0)
+
+            player_data.games.append(ByeGame(token=token, round_no=round_no))
+            player_data.points.append(point)
+            await self.db_insert_bye_pairing(player, round_no=round_no, bye_token=token)
+
+        if bonus_awarded:
+            current_points = self.leaderboard_score_by_username(player.username) // SCORE_SHIFT
+            self.set_leaderboard_score_by_username(
+                player.username,
+                self.compose_leaderboard_score(current_points + half_point, player_data),
+                player=player,
+            )
+
+    async def join(self, user: User, password: str | None = None) -> str | None:
+        is_new_player = self.player_data_by_name(user.username) is None
+        if self.status == T_STARTED and is_new_player and not self._is_late_join_allowed():
+            return "LATE_JOIN_CLOSED"
+
+        result = await super().join(user, password)
+        if result is not None:
+            return result
+
+        if self.status == T_STARTED and is_new_player:
+            player = self.get_player_by_name(user.username) or user
+            await self._initialize_late_entry_round_history(player)
+            await self.db_update_player(player, "GAME_END")
+
+        return None
 
     def _apply_bye_points(self, player: User) -> None:
         player_data = self.player_data_by_name(player.username)
@@ -558,6 +633,35 @@ class SwissTournament(Tournament):
         for player in bye_players:
             await self.db_insert_bye_pairing(player)
             await self.db_update_player(player, "BYE")
+
+    async def persist_unpaired_round_entries(
+        self,
+        round_no: int,
+        pairing: list[tuple[User, User]],
+        bye_players: list[User],
+    ) -> None:
+        paired_names = {player.username for pair in pairing for player in pair}
+        paired_names.update(player.username for player in bye_players)
+
+        for player in list(self.leaderboard):
+            player_data = self.player_data_by_name(player.username)
+            if player_data is None:
+                continue
+            if player_data.withdrawn:
+                continue
+            if player_data.joined_round > round_no:
+                continue
+            if player.username in paired_names:
+                continue
+
+            # Avoid duplicate synthetic entries when recovering/replaying round state.
+            if any(getattr(game, "round", None) == round_no for game in player_data.games):
+                continue
+
+            player_data.games.append(ByeGame(token="Z", round_no=round_no))
+            player_data.points.append((0, 0))
+            await self.db_insert_bye_pairing(player, round_no=round_no, bye_token="Z")
+            await self.db_update_player(player, "GAME_END")
 
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         if len(waiting_players) == 0:

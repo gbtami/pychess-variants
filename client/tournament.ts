@@ -16,7 +16,7 @@ import { boardSettings } from './boardSettings';
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
 import { MsgUserStatus, MsgGetGames, TournamentGame, MsgTournamentStatus, MsgUserConnectedTournament, MsgGetPlayers, TournamentPlayer, MsgError, MsgPing, TopGame } from './tournamentType';
 import { newWebsocket } from "@/socket/webSocketUtils";
-import { faq } from './tournamentFaq';
+import { faq, swissFaq } from './tournamentFaq';
 import { displayUsername, userLink } from "./user";
 
 
@@ -121,7 +121,8 @@ export class TournamentController implements ChatController {
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
 
         if (this.tournamentStatus === 'created') {
-            patch(document.querySelector('div.tour-faq') as HTMLElement, faq(this.rated));
+            const faqView = this.system === SWISS_SYSTEM ? swissFaq(this.rated) : faq(this.rated);
+            patch(document.querySelector('div.tour-faq') as HTMLElement, faqView);
         } else {
             patch(document.querySelector('div.tour-faq') as HTMLElement, h('!'));
         }
