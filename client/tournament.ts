@@ -732,6 +732,14 @@ export class TournamentController implements ChatController {
         }
         this.updateTournamentSystemLabel();
         this.updateActionButton()
+        const fixedRoundRoundStarted =
+            this.system > 0 &&
+            this.tournamentStatus === 'started' &&
+            oldRoundOngoingGames === 0 &&
+            this.roundOngoingGames > 0;
+        if (fixedRoundRoundStarted) {
+            this.doSend({ type: "get_players", tournamentId: this.tournamentId, page: this.page });
+        }
         if (this.tournamentStatus !== 'created') {
             const faqEl = document.querySelector('div.tour-faq') as HTMLElement;
             if (faqEl) patch(faqEl, h('!'));
