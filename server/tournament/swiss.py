@@ -141,7 +141,9 @@ def _score_points_times_ten(
         round_no = getattr(game, "round", None)
         if not isinstance(round_no, int) or round_no <= 0:
             continue
-        point_entry = player_data.points[game_index] if game_index < len(player_data.points) else None
+        point_entry = (
+            player_data.points[game_index] if game_index < len(player_data.points) else None
+        )
         games_by_round[round_no] = (game, point_entry)
 
     # Pairing points should be computed from per-round outcomes (including U/H/F/Z tokens),
@@ -155,7 +157,9 @@ def _score_points_times_ten(
 
         game, point_entry = round_entry
         if isinstance(game, ByeGame):
-            total += _unplayed_pairing_points_times_ten(getattr(game, "token", "U"), tournament.variant)
+            total += _unplayed_pairing_points_times_ten(
+                getattr(game, "token", "U"), tournament.variant
+            )
             continue
 
         if point_entry == "-":
