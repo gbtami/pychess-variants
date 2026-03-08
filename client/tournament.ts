@@ -400,10 +400,16 @@ export class TournamentController implements ChatController {
                     : game.unplayedType === 'absent'
                         ? _('Absent')
                         : _('Bye');
+            const unplayedScore =
+                game.unplayedType === 'late'
+                    ? '½'
+                    : (this.system === SWISS_SYSTEM && game.unplayedType === 'bye')
+                        ? '1'
+                        : '-';
             return h('tr', [
                 h('th', index),
                 h('td.bye', { attrs: { colspan: '3' } }, unplayedLabel),
-                h('td.result', '-')
+                h('td.result', unplayedScore)
             ]);
         } else {
             const color = (game.color === 'w') ? this.variant.colors.first : this.variant.colors.second;

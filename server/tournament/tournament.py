@@ -751,14 +751,26 @@ class Tournament(ABC):
     def standings_points(self, player_data: PlayerData, ongoing_players: set[str]) -> list[Point]:
         points = player_data.points
 
-        # Show synthetic absent entries as "-" in standings while keeping persisted points numeric.
+        # Match lichess Swiss sheet rendering for synthetic non-played entries while
+        # keeping persisted points numeric in player_data.points.
         for i, game in enumerate(player_data.games):
             if i >= len(points):
                 break
-            if isinstance(game, ByeGame) and getattr(game, "token", "U") == "Z" and points[i] != "-":
+            if not isinstance(game, ByeGame):
+                continue
+            token = getattr(game, "token", "U")
+            rendered: Point | None = None
+            if token == "Z":
+                rendered = "-"
+            elif self.system == SWISS and self.variant != "janggi":
+                if token in ("U", "F"):
+                    rendered = ("1", SCORE)
+                elif token == "H":
+                    rendered = ("½", SCORE)
+            if rendered is not None and points[i] != rendered:
                 if points is player_data.points:
                     points = list(player_data.points)
-                points[i] = "-"
+                points[i] = rendered
 
         # Represent an ongoing fixed-round game in the score sheet like lichess.
         # Keep persisted points untouched; this marker is only for websocket standings payload.

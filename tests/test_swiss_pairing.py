@@ -183,6 +183,10 @@ class SwissPairingTestCase(TournamentTestCase):
         self.assertEqual(games["games"][0]["unplayedType"], "bye")
         self.assertEqual(games["games"][0]["result"], "-")
 
+        players_json = self.tournament.players_json()
+        bye_row = next(row for row in players_json["players"] if row["name"] == waiting[2].username)
+        self.assertEqual(bye_row["points"][-1], ("1", 1))
+
     async def test_create_pairing_raises_when_swisspairing_backend_is_unavailable(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -365,6 +369,10 @@ class SwissPairingTestCase(TournamentTestCase):
         games = await self.tournament.games_json(late.username)
         self.assertEqual([game["unplayedType"] for game in games["games"]], ["late", "absent"])
         self.assertEqual([game["result"] for game in games["games"]], ["-", "-"])
+
+        players_json = self.tournament.players_json()
+        late_row = next(row for row in players_json["players"] if row["name"] == late.username)
+        self.assertEqual(late_row["points"][:2], [("½", 1), "-"])
 
     async def test_late_join_is_closed_after_half_rounds(self):
         app_state = get_app_state(self.app)
