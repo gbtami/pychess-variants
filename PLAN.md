@@ -98,8 +98,15 @@ Result at review time:
 
 ### P2: Nice-to-Have Lichess Parity Follow-Ups
 
-- [ ] Entry conditions for Swiss creation.
-  - Lichess supports conditions such as minimum rated games, account age, rating bounds, titled-only, etc.
+- [x] Add the first Swiss entry conditions to creation and join validation.
+  - Completed with Swiss-only support for:
+    - titled-only events
+    - minimum rated games in the selected variant
+    - minimum / maximum rating bounds
+  - Conditions are now persisted in MongoDB and enforced only for new entrants, not for already-registered players rejoining later rounds.
+
+- [ ] Add an account-age Swiss entry condition.
+  - Still missing because the current user model / loaded user document path does not expose a signup timestamp cleanly enough for tournament joins.
 
 - [ ] “Must have played their last Swiss game” anti-no-show rule.
   - Lichess has explicit anti-no-show handling and temporary Swiss bans.
@@ -166,3 +173,4 @@ The merge required manual conflict resolution in:
 - [x] Restore master signup evasion fallback
 - [x] System-aware tournament creation help for Swiss/RR
 - [x] Tournament-page Swiss/RR FAQ aligned with fixed-round behavior
+- [x] Swiss titled-only / min-games / rating-bound entry conditions

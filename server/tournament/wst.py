@@ -141,6 +141,10 @@ async def handle_join(
             }
             await ws_send_json(ws, response)
             return
+        if result is not None:
+            response = {"type": "error", "message": result}
+            await ws_send_json(ws, response)
+            return
 
         response = {
             "type": "ustatus",

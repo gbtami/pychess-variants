@@ -21,6 +21,10 @@
             {% set t_system = tournament.system %}
             {% set t_rounds = tournament.rounds %}
             {% set t_round_interval = tournament.round_interval %}
+            {% set t_entry_min_rating = tournament.entry_min_rating %}
+            {% set t_entry_max_rating = tournament.entry_max_rating %}
+            {% set t_entry_min_rated_games = tournament.entry_min_rated_games %}
+            {% set t_entry_titled_only = tournament.entry_titled_only %}
             <form method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
             {% else %}
             {% set t_name = '' %}
@@ -39,6 +43,10 @@
             {% set t_system = 0 %}
             {% set t_rounds = 5 %}
             {% set t_round_interval = -1 %}
+            {% set t_entry_min_rating = 0 %}
+            {% set t_entry_max_rating = 0 %}
+            {% set t_entry_min_rated_games = 0 %}
+            {% set t_entry_titled_only = false %}
             <form method="post" class="form3" action="/tournaments/new">
             {% endif %}
                 <div class="form-group">
@@ -254,6 +262,35 @@
                     </div>
                 </div>
 
+                <div id="form3-swiss-entry-wrap-a" class="form-split">
+                    <div class="form-check form-group">
+                        <div>
+                            <label class="form-label" for="form3-entryTitledOnly">Swiss titled-only</label>
+                            <span class="form-check-input">
+                                <input id="form3-entryTitledOnly" name="entryTitledOnly" value="1" type="checkbox" class="form-control cmn-toggle" {% if t_entry_titled_only %}checked{% endif %}/>
+                            </span>
+                        </div>
+                        <small class="form-help">Allow only titled users to join this Swiss.</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-entryMinRatedGames">Minimum rated games</label>
+                        <input id="form3-entryMinRatedGames" name="entryMinRatedGames" value="{{ t_entry_min_rated_games }}" type="number" min="0" max="100000" class="form-control" />
+                        <small class="form-help">Required rated games in this variant before a player can join.</small>
+                    </div>
+                </div>
+                <div id="form3-swiss-entry-wrap-b" class="form-split">
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-entryMinRating">Minimum rating</label>
+                        <input id="form3-entryMinRating" name="entryMinRating" value="{{ t_entry_min_rating }}" type="number" min="0" max="4000" class="form-control" />
+                        <small class="form-help">Leave 0 to allow all ratings.</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-entryMaxRating">Maximum rating</label>
+                        <input id="form3-entryMaxRating" name="entryMaxRating" value="{{ t_entry_max_rating }}" type="number" min="0" max="4000" class="form-control" />
+                        <small class="form-help">Leave 0 to allow all ratings.</small>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label" for="form3-password">Password</label>
                     <div>
@@ -406,6 +443,14 @@
         const roundIntervalHelp = document.getElementById('form3-roundInterval-help');
         const minutesLabel = document.getElementById('form3-minutes-label');
         const minutesHelp = document.getElementById('form3-minutes-help');
+        const swissEntryWrapA = document.getElementById('form3-swiss-entry-wrap-a');
+        const swissEntryWrapB = document.getElementById('form3-swiss-entry-wrap-b');
+        const swissEntryInputs = [
+            document.getElementById('form3-entryTitledOnly'),
+            document.getElementById('form3-entryMinRatedGames'),
+            document.getElementById('form3-entryMinRating'),
+            document.getElementById('form3-entryMaxRating'),
+        ];
         const arenaFaq = document.getElementById('tour-faq-arena');
         const rrFaq = document.getElementById('tour-faq-rr');
         const swissFaq = document.getElementById('tour-faq-swiss');
@@ -470,6 +515,14 @@
                     minutesHelp.textContent = "Swiss and Round-Robin only use this as an estimate for scheduling and display. The event still finishes by rounds.";
                 }
             }
+
+            if (swissEntryWrapA) swissEntryWrapA.style.display = isSwiss ? "" : "none";
+            if (swissEntryWrapB) swissEntryWrapB.style.display = isSwiss ? "" : "none";
+            swissEntryInputs.forEach(function (input) {
+                if (input instanceof HTMLInputElement) {
+                    input.disabled = !isSwiss;
+                }
+            });
 
             if (arenaFaq) arenaFaq.style.display = isArena ? "" : "none";
             if (rrFaq) rrFaq.style.display = isRR ? "" : "none";

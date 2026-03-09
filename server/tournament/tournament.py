@@ -333,6 +333,10 @@ class Tournament(ABC):
     bp: int
     round_interval: int
     translated_name: str
+    entry_min_rating: int
+    entry_max_rating: int
+    entry_min_rated_games: int
+    entry_titled_only: bool
 
     def __init__(
         self,
@@ -358,6 +362,10 @@ class Tournament(ABC):
         status: int | None = None,
         with_clock: bool = True,
         frequency: str = "",
+        entry_min_rating: int = 0,
+        entry_max_rating: int = 0,
+        entry_min_rated_games: int = 0,
+        entry_titled_only: bool = False,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.id: str = tournamentId
@@ -376,6 +384,10 @@ class Tournament(ABC):
         self.rounds: int = rounds
         self.round_interval: int = round_interval
         self.frequency: str = frequency
+        self.entry_min_rating: int = entry_min_rating
+        self.entry_max_rating: int = entry_max_rating
+        self.entry_min_rated_games: int = entry_min_rated_games
+        self.entry_titled_only: bool = entry_titled_only
         self.created_by: str = created_by
         self.starts_at: datetime = starts_at  # type: ignore[assignment]
         self.created_at: datetime = datetime.now(timezone.utc) if created_at is None else created_at
@@ -1221,13 +1233,17 @@ class Tournament(ABC):
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
 
+        player_data = self.player_data_by_name(user.username)
+        if player_data is None:
+            join_error = self.entry_condition_error(user)
+            if join_error is not None:
+                return join_error
+
         rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
 
         player = self.get_player_by_name(user.username) or user
         if player is not user and self.id in user.tournament_sockets:
             player.tournament_sockets[self.id] = user.tournament_sockets[self.id]
-
-        player_data = self.player_data_by_name(user.username)
         if player_data is None:
             # new player joined
             player_data = PlayerData(user.title, user.username, rating, provisional)
@@ -1261,6 +1277,31 @@ class Tournament(ABC):
             await self.broadcast_spotlight()
 
         await self.db_update_player(player, "JOIN")
+        return None
+
+    def entry_condition_error(self, user: User) -> str | None:
+        if self.entry_titled_only and user.title == "":
+            return "This tournament is limited to titled players."
+
+        perf_key = self.variant + ("960" if self.chess960 else "")
+        perf = user.perfs.get(perf_key, {})
+        try:
+            rated_games = int(perf.get("nb", 0))
+        except (TypeError, ValueError):
+            rated_games = 0
+
+        if self.entry_min_rated_games > 0 and rated_games < self.entry_min_rated_games:
+            return "This tournament requires at least %s rated %s games." % (
+                self.entry_min_rated_games,
+                self.server_variant.display_name.title(),
+            )
+
+        rating = user.get_rating_value(self.variant, self.chess960)
+        if self.entry_min_rating > 0 and rating < self.entry_min_rating:
+            return "Your rating is below the minimum allowed for this tournament."
+        if self.entry_max_rating > 0 and rating > self.entry_max_rating:
+            return "Your rating is above the maximum allowed for this tournament."
+
         return None
 
     async def withdraw(self, user: User) -> None:
@@ -2122,6 +2163,10 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "system": tournament.system,
         "rounds": tournament.rounds,
         "ri": tournament.round_interval,
+        "entryMinRating": tournament.entry_min_rating,
+        "entryMaxRating": tournament.entry_max_rating,
+        "entryMinRatedGames": tournament.entry_min_rated_games,
+        "entryTitledOnly": tournament.entry_titled_only,
         "nbPlayers": 0,
         "cr": tournament.current_round,
         "createdBy": tournament.created_by,

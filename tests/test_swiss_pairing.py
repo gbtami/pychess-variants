@@ -1,4 +1,5 @@
 import unittest
+from copy import deepcopy
 from datetime import datetime, timezone
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -392,6 +393,105 @@ class SwissPairingTestCase(TournamentTestCase):
 
         result = await self.tournament.join(late)
         self.assertEqual(result, "LATE_JOIN_CLOSED")
+
+    async def test_swiss_join_requires_title_when_configured(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=1,
+            rounds=5,
+            with_clock=False,
+            entry_titled_only=True,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        untitled = User(app_state, username="untitled_swiss_player")
+        untitled.tournament_sockets[tid] = set((None,))
+        app_state.users[untitled.username] = untitled
+
+        result = await self.tournament.join(untitled)
+        self.assertEqual(result, "This tournament is limited to titled players.")
+
+        titled = User(app_state, username="titled_swiss_player", title="IM")
+        titled.tournament_sockets[tid] = set((None,))
+        app_state.users[titled.username] = titled
+
+        result = await self.tournament.join(titled)
+        self.assertIsNone(result)
+
+    async def test_swiss_join_enforces_rating_bounds(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=1,
+            rounds=5,
+            with_clock=False,
+            entry_min_rating=1400,
+            entry_max_rating=1800,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        low = User(app_state, username="low_rated_swiss_player", perfs=deepcopy(PERFS))
+        low.perfs["chess"]["gl"]["r"] = 1300
+        low.tournament_sockets[tid] = set((None,))
+        app_state.users[low.username] = low
+        self.assertEqual(
+            await self.tournament.join(low),
+            "Your rating is below the minimum allowed for this tournament.",
+        )
+
+        high = User(app_state, username="high_rated_swiss_player", perfs=deepcopy(PERFS))
+        high.perfs["chess"]["gl"]["r"] = 1900
+        high.tournament_sockets[tid] = set((None,))
+        app_state.users[high.username] = high
+        self.assertEqual(
+            await self.tournament.join(high),
+            "Your rating is above the maximum allowed for this tournament.",
+        )
+
+        allowed = User(app_state, username="allowed_swiss_player", perfs=deepcopy(PERFS))
+        allowed.perfs["chess"]["gl"]["r"] = 1600
+        allowed.tournament_sockets[tid] = set((None,))
+        app_state.users[allowed.username] = allowed
+        self.assertIsNone(await self.tournament.join(allowed))
+
+    async def test_swiss_join_enforces_minimum_rated_games_for_new_players_only(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=1,
+            rounds=5,
+            with_clock=False,
+            entry_min_rated_games=20,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        newcomer = User(app_state, username="new_swiss_player", perfs=deepcopy(PERFS))
+        newcomer.perfs["chess"]["nb"] = 5
+        newcomer.tournament_sockets[tid] = set((None,))
+        app_state.users[newcomer.username] = newcomer
+        self.assertEqual(
+            await self.tournament.join(newcomer),
+            "This tournament requires at least 20 rated Chess games.",
+        )
+
+        admitted = User(app_state, username="returning_swiss_player", perfs=deepcopy(PERFS))
+        admitted.perfs["chess"]["nb"] = 25
+        admitted.tournament_sockets[tid] = set((None,))
+        app_state.users[admitted.username] = admitted
+        self.assertIsNone(await self.tournament.join(admitted))
+
+        admitted.perfs["chess"]["nb"] = 0
+        await self.tournament.pause(admitted)
+        self.assertIsNone(await self.tournament.join(admitted))
 
     async def test_pairing_bye_counts_in_swiss_leaderboard_tiebreak(self):
         app_state = get_app_state(self.app)

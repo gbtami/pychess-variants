@@ -486,6 +486,10 @@ class TournamentCreateData(TypedDict):
     fen: NotRequired[str]
     rounds: NotRequired[int]
     roundInterval: NotRequired[int]
+    entryMinRating: NotRequired[int]
+    entryMaxRating: NotRequired[int]
+    entryMinRatedGames: NotRequired[int]
+    entryTitledOnly: NotRequired[bool]
     startDate: NotRequired[datetime | None]
     frequency: NotRequired[str]
     description: NotRequired[str]
@@ -551,6 +555,10 @@ class TournamentDoc(TypedDict):
     system: int
     rounds: int
     ri: NotRequired[int]
+    entryMinRating: NotRequired[int]
+    entryMaxRating: NotRequired[int]
+    entryMinRatedGames: NotRequired[int]
+    entryTitledOnly: NotRequired[bool]
     nbPlayers: int
     cr: NotRequired[int]
     createdBy: str
@@ -579,6 +587,10 @@ class TournamentUpdateData(TypedDict, total=False):
     system: int
     rounds: int
     ri: int
+    entryMinRating: int
+    entryMaxRating: int
+    entryMinRatedGames: int
+    entryTitledOnly: bool
     nbPlayers: int
     cr: int
     createdBy: str

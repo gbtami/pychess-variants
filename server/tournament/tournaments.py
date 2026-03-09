@@ -315,6 +315,28 @@ async def create_or_update_tournament(
         default_value=default_round_interval,
     )
 
+    try:
+        entry_min_rating = int(form.get("entryMinRating", 0) or 0)
+    except (TypeError, ValueError):
+        entry_min_rating = 0
+    try:
+        entry_max_rating = int(form.get("entryMaxRating", 0) or 0)
+    except (TypeError, ValueError):
+        entry_max_rating = 0
+    try:
+        entry_min_rated_games = int(form.get("entryMinRatedGames", 0) or 0)
+    except (TypeError, ValueError):
+        entry_min_rated_games = 0
+    entry_titled_only = form.get("entryTitledOnly", "") == "1"
+
+    if system != SWISS:
+        entry_min_rating = 0
+        entry_max_rating = 0
+        entry_min_rated_games = 0
+        entry_titled_only = False
+    elif entry_max_rating > 0 and entry_min_rating > entry_max_rating:
+        entry_min_rating, entry_max_rating = entry_max_rating, entry_min_rating
+
     if system != ARENA:
         frequency = ""
 
@@ -353,6 +375,10 @@ async def create_or_update_tournament(
         "fen": form["position"],
         "rounds": rounds,
         "roundInterval": round_interval,
+        "entryMinRating": entry_min_rating,
+        "entryMaxRating": entry_max_rating,
+        "entryMinRatedGames": entry_min_rated_games,
+        "entryTitledOnly": entry_titled_only,
         "description": description,
     }
     if tournament is None:
@@ -370,6 +396,10 @@ async def create_or_update_tournament(
         tournament.bp = data["bp"]
         tournament.rounds = data["rounds"]
         tournament.round_interval = data["roundInterval"]
+        tournament.entry_min_rating = data["entryMinRating"]
+        tournament.entry_max_rating = data["entryMaxRating"]
+        tournament.entry_min_rated_games = data["entryMinRatedGames"]
+        tournament.entry_titled_only = data["entryTitledOnly"]
         tournament.beforeStart = data["beforeStart"]
         tournament.starts_at = data["startDate"]  # type: ignore[assignment]
         tournament.frequency = data["frequency"]
@@ -421,6 +451,10 @@ async def new_tournament(
         fen=data.get("fen", ""),
         rounds=data.get("rounds", 0),
         round_interval=data.get("roundInterval", 0),
+        entry_min_rating=data.get("entryMinRating", 0),
+        entry_max_rating=data.get("entryMaxRating", 0),
+        entry_min_rated_games=data.get("entryMinRatedGames", 0),
+        entry_titled_only=data.get("entryTitledOnly", False),
         created_by=data["createdBy"],
         before_start=data.get("beforeStart", 5),
         minutes=data.get("minutes", 45),
@@ -563,6 +597,10 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 fen=tournament_doc.get("f"),
                 rounds=tournament_doc["rounds"],
                 round_interval=tournament_doc.get("ri", 0),
+                entry_min_rating=tournament_doc.get("entryMinRating", 0),
+                entry_max_rating=tournament_doc.get("entryMaxRating", 0),
+                entry_min_rated_games=tournament_doc.get("entryMinRatedGames", 0),
+                entry_titled_only=tournament_doc.get("entryTitledOnly", False),
                 created_by=tournament_doc["createdBy"],
                 created_at=tournament_doc["createdAt"],
                 minutes=tournament_doc["minutes"],
@@ -717,6 +755,10 @@ async def load_tournament(
         fen=tournament_doc.get("f"),
         rounds=tournament_doc["rounds"],
         round_interval=tournament_doc.get("ri", 0),
+        entry_min_rating=tournament_doc.get("entryMinRating", 0),
+        entry_max_rating=tournament_doc.get("entryMaxRating", 0),
+        entry_min_rated_games=tournament_doc.get("entryMinRatedGames", 0),
+        entry_titled_only=tournament_doc.get("entryTitledOnly", False),
         created_by=tournament_doc.get("createdBy", "PyChess"),
         created_at=tournament_doc["createdAt"],
         before_start=tournament_doc.get("beforeStart", 0),
