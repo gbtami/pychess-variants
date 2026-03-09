@@ -28,7 +28,7 @@
             {% set t_entry_titled_only = tournament.entry_titled_only %}
             {% set t_forbidden_pairings = tournament.forbidden_pairings %}
             {% set t_manual_pairings = tournament.manual_pairings %}
-            <form method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
+            <form id="tournament-form" method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
             {% else %}
             {% set t_name = '' %}
             {% set t_rated = rated %}
@@ -53,7 +53,7 @@
             {% set t_entry_titled_only = false %}
             {% set t_forbidden_pairings = '' %}
             {% set t_manual_pairings = '' %}
-            <form method="post" class="form3" action="/tournaments/new">
+            <form id="tournament-form" method="post" class="form3" action="/tournaments/new">
             {% endif %}
                 <div class="form-group">
                     <label class="form-label" for="form3-name">Name</label>
@@ -445,135 +445,5 @@
 {% block js %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>document.getElementsByClassName("flatpickr").flatpickr({
-        enableTime: true,
-        time_24hr: true,
-        dateFormat: 'Z',
-        altInput: true,
-        altFormat: 'Y-m-d h:i K',
-        minDate: 'today',
-        maxDate: new Date(Date.now() + 1000 * 3600 * 24 * 31 * 3),
-        monthSelectorType: 'static',
-        disableMobile: true, // https://flatpickr.js.org/mobile-support/ https://github.com/lichess-org/lila/issues/8110
-    });</script>
-    <script>
-    (function () {
-        const system = document.getElementById('form3-system');
-        const systemHelp = document.getElementById('form3-system-help');
-        const roundsWrap = document.getElementById('form3-rounds-wrap');
-        const roundsLabel = document.getElementById('form3-rounds-label');
-        const rounds = document.getElementById('form3-rounds');
-        const roundsHelp = document.getElementById('form3-rounds-help');
-        const roundIntervalWrap = document.getElementById('form3-roundInterval-wrap');
-        const roundInterval = document.getElementById('form3-roundInterval');
-        const roundIntervalHelp = document.getElementById('form3-roundInterval-help');
-        const minutesLabel = document.getElementById('form3-minutes-label');
-        const minutesHelp = document.getElementById('form3-minutes-help');
-        const entryWrapA = document.getElementById('form3-entry-wrap-a');
-        const entryWrapB = document.getElementById('form3-entry-wrap-b');
-        const entryWrapC = document.getElementById('form3-entry-wrap-c');
-        const swissPairingsWrapA = document.getElementById('form3-swiss-pairings-wrap-a');
-        const entryConditionInputs = [
-            document.getElementById('form3-entryTitledOnly'),
-            document.getElementById('form3-entryMinRatedGames'),
-            document.getElementById('form3-entryMinRating'),
-            document.getElementById('form3-entryMaxRating'),
-            document.getElementById('form3-entryMinAccountAgeDays'),
-        ];
-        const swissPairingInputs = [
-            document.getElementById('form3-forbiddenPairings'),
-            document.getElementById('form3-manualPairings'),
-        ];
-        const arenaFaq = document.getElementById('tour-faq-arena');
-        const rrFaq = document.getElementById('tour-faq-rr');
-        const swissFaq = document.getElementById('tour-faq-swiss');
-        if (!(roundsWrap && rounds && roundIntervalWrap && roundInterval)) return;
-
-        const updateFormBySystem = function () {
-            const systemValue = system ? system.value : "{{ t_system }}";
-            const isArena = systemValue === "0";
-            const isRR = systemValue === "1";
-            const isSwiss = systemValue === "2";
-            roundsWrap.style.display = isArena ? "none" : "";
-            roundIntervalWrap.style.display = isArena ? "none" : "";
-            rounds.disabled = isArena;
-            roundInterval.disabled = isArena;
-            if (isArena) {
-                rounds.value = "0";
-                roundInterval.value = "auto";
-            } else if (rounds.value === "0") {
-                rounds.value = "5";
-            }
-
-            if (systemHelp) {
-                if (isArena) {
-                    systemHelp.textContent = "Arena runs continuously until the clock expires. Players rejoin from the lobby after each game.";
-                } else if (isRR) {
-                    systemHelp.textContent = "Round-Robin is a fixed-round event. Players are paired once each when the field size and round count allow it.";
-                } else if (isSwiss) {
-                    systemHelp.textContent = "Swiss is a fixed-round event. Players are paired by score with color balancing and bye handling when needed.";
-                }
-            }
-
-            if (roundsLabel) {
-                roundsLabel.textContent = isRR ? "Rounds (Round-Robin)" : "Rounds (Swiss)";
-            }
-
-            if (roundsHelp) {
-                if (isRR) {
-                    roundsHelp.textContent = "Choose how many rounds to schedule. A full single cycle usually needs one fewer round than the number of players.";
-                } else {
-                    roundsHelp.textContent = "Choose how many rounds the Swiss tournament will play.";
-                }
-            }
-
-            if (roundIntervalHelp) {
-                if (isRR) {
-                    roundIntervalHelp.textContent = "Automatic is based on time control and clamped to 10s-1m. Manual start waits for the organizer to type /startround in tournament chat.";
-                } else if (isSwiss) {
-                    roundIntervalHelp.textContent = "Automatic is based on time control and clamped to 10s-1m. Manual start waits for the organizer to type /startround in tournament chat.";
-                } else {
-                    roundIntervalHelp.textContent = "Automatic is based on time control and clamped to 10s-1m.";
-                }
-            }
-
-            if (minutesLabel) {
-                minutesLabel.textContent = isArena ? "Duration" : "Estimated duration";
-            }
-
-            if (minutesHelp) {
-                if (isArena) {
-                    minutesHelp.textContent = "Arena uses this as a hard limit.";
-                } else {
-                    minutesHelp.textContent = "Swiss and Round-Robin only use this as an estimate for scheduling and display. The event still finishes by rounds.";
-                }
-            }
-
-            if (entryWrapA) entryWrapA.style.display = "";
-            if (entryWrapB) entryWrapB.style.display = "";
-            if (entryWrapC) entryWrapC.style.display = "";
-            if (swissPairingsWrapA) swissPairingsWrapA.style.display = isSwiss ? "" : "none";
-            entryConditionInputs.forEach(function (input) {
-                if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
-                    input.disabled = false;
-                }
-            });
-            swissPairingInputs.forEach(function (input) {
-                if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
-                    input.disabled = !isSwiss;
-                }
-            });
-
-            if (arenaFaq) arenaFaq.style.display = isArena ? "" : "none";
-            if (rrFaq) rrFaq.style.display = isRR ? "" : "none";
-            if (swissFaq) swissFaq.style.display = isSwiss ? "" : "none";
-        };
-
-        if (system) {
-            system.addEventListener("change", updateFormBySystem);
-        }
-        updateFormBySystem();
-    })();
-    </script>
     <script src="{{ js }}"></script>
 {% endblock %}

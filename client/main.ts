@@ -34,6 +34,7 @@ import { devVariants, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
 import { showUsernameDialog } from './usernameDialog';
 import { maybeShowGameCategoryIntro } from './gameCategoryIntro';
+import { initTournamentForm } from './tournamentForm';
 
 
 // redirect to correct URL except Heroku preview/dev apps
@@ -233,6 +234,7 @@ function start() {
 
 
     renderTimeago();
+    initTournamentForm();
 
     // searchbar
     const searchIcon = document.querySelector('.search-icon') as HTMLElement;
