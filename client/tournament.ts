@@ -16,7 +16,7 @@ import { boardSettings } from './boardSettings';
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
 import { MsgUserStatus, MsgGetGames, TournamentGame, MsgTournamentStatus, MsgUserConnectedTournament, MsgGetPlayers, TournamentPlayer, MsgError, MsgPing, TopGame } from './tournamentType';
 import { newWebsocket } from "@/socket/webSocketUtils";
-import { faq, swissFaq } from './tournamentFaq';
+import { faq, roundRobinFaq, swissFaq } from './tournamentFaq';
 import { displayUsername, userLink } from "./user";
 
 
@@ -48,6 +48,7 @@ const T_STATUS = {
 const scoreTagNames = ['score', 'streak', 'double'];
 
 const SCORE_SHIFT = 100000;
+const RR_SYSTEM = 1;
 const SWISS_SYSTEM = 2;
 const VARIANTEND_STATUS = 12;
 
@@ -124,7 +125,11 @@ export class TournamentController implements ChatController {
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
 
         if (this.tournamentStatus === 'created') {
-            const faqView = this.system === SWISS_SYSTEM ? swissFaq(this.rated) : faq(this.rated);
+            const faqView = this.system === SWISS_SYSTEM
+                ? swissFaq(this.rated)
+                : this.system === RR_SYSTEM
+                    ? roundRobinFaq(this.rated)
+                    : faq(this.rated);
             patch(document.querySelector('div.tour-faq') as HTMLElement, faqView);
         } else {
             patch(document.querySelector('div.tour-faq') as HTMLElement, h('!'));

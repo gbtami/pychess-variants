@@ -86,12 +86,15 @@ Result at review time:
     - duration relabeled as an estimate for fixed-round systems
     - static Arena FAQ replaced with system-specific Arena / RR / Swiss guidance
 
-- [ ] Add Swiss tie-break and organizer behavior documentation.
-  - Current `client/tournamentFaq.ts` is a useful start, but not complete enough for a long-term parity target.
-  - Work:
-    - document tie-break details once implemented
-    - document late join / bye / absent behavior precisely
-    - document Janggi-specific exception clearly
+- [x] Add Swiss tie-break and organizer behavior documentation.
+  - Completed on the tournament page FAQ surface.
+  - Swiss FAQ now documents:
+    - Sonneborn-Berger tie-break behavior
+    - virtual-opponent treatment for actual byes
+    - late-join / absent placeholder rounds and their scoring impact
+    - Janggi-specific Swiss scoring exception
+    - early finish when no legal new pairing exists
+  - RR now has its own fixed-round FAQ instead of incorrectly reusing Arena guidance.
 
 ### P2: Nice-to-Have Lichess Parity Follow-Ups
 
@@ -162,3 +165,4 @@ The merge required manual conflict resolution in:
 - [x] Restore master fishnet abort policy
 - [x] Restore master signup evasion fallback
 - [x] System-aware tournament creation help for Swiss/RR
+- [x] Tournament-page Swiss/RR FAQ aligned with fixed-round behavior

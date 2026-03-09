@@ -3,17 +3,18 @@ import { h } from 'snabbdom';
 import { _ } from './i18n';
 
 
-export function faq(rated: string) {
-let isRated;
+function ratedStatus(rated: string) {
 if (rated === 'False') {
-    isRated = _('This tournament is *not* rated and will *not* affect your rating.');
-} else {
-    isRated = _('This tournament is rated and will affect your rating.');
+    return _('This tournament is *not* rated and will *not* affect your rating.');
 }
+return _('This tournament is rated and will affect your rating.');
+}
+
+export function faq(rated: string) {
 return h('div.tour-faq', [
 h('p', _('You will be notified when the tournament starts, so it is safe to play in another tab while waiting.')),
 h('h2', _('Is it rated?')),
-h('p', isRated),
+h('p', ratedStatus(rated)),
 h('h2', _('How are scores calculated?')),
 h('p', [
 _('A win has a base score of 2 points, a draw 1 point, and a loss is worth no points.'),
@@ -56,38 +57,56 @@ h('p', _('Drawing the game before each player has moved 5 times will earn neithe
 ]);
 }
 
-export function swissFaq(rated: string) {
-let isRated;
-if (rated === 'False') {
-    isRated = _('This tournament is *not* rated and will *not* affect your rating.');
-} else {
-    isRated = _('This tournament is rated and will affect your rating.');
+export function roundRobinFaq(rated: string) {
+return h('div.tour-faq', [
+h('h2', _('Round-Robin Rules')),
+h('p', _('Round-Robin tournaments are played in fixed rounds. Players are paired so that everyone meets once when the field size and round count allow it.')),
+h('h2', _('Is it rated?')),
+h('p', ratedStatus(rated)),
+h('h2', _('How are scores calculated?')),
+h('p', _('Each scheduled round counts once. Round-Robin tournaments do not use Arena streaks or Berserk bonuses.')),
+h('h2', _('Tie-break')),
+h('p', _('If players have the same score, Sonneborn-Berger values decide final ranking.')),
+h('h2', _('Absences')),
+h('p', _('If you miss a round, you are treated as absent for that round and are simply not paired in it. You can still return for later rounds.')),
+h('h2', _('How does it end?')),
+h('p', _('The tournament ends after all scheduled rounds are completed. If the player count or attendance makes further pairings impossible, the event can finish early instead of forcing duplicate pairings.')),
+]);
 }
 
+export function swissFaq(rated: string) {
 return h('div.tour-faq', [
 h('h2', _('Swiss Rules')),
 h('p', _('Swiss tournaments are played in fixed rounds. After each round finishes, the next round starts and players are paired with others on similar score.')),
 h('h2', _('Is it rated?')),
-h('p', isRated),
+h('p', ratedStatus(rated)),
+h('h2', _('How does pairing work?')),
+h('p', _('Players are paired by Swiss rules with score-group logic and color constraints.')),
+h('br'),
+h('p', _('You cannot play the same opponent twice, and the system may assign a bye if no legal opponent exists in a round.')),
 h('h2', _('How are scores calculated?')),
 h('p', _('Most variants use 2/1/0 scoring for win/draw/loss.')),
 h('br'),
 h('p', _('Janggi uses 7/0 for full win/loss, and 4/2 for point-counting win/loss.')),
+h('br'),
+h('p', _('A pairing-allocated bye gives full win points. A late join gives a single half-bye compensation even if several rounds were missed.')),
+h('br'),
+h('p', _('Janggi exception: the late-join half-bye is worth 2 points, pairing-allocated byes give 7 points, and absent rounds give 0 points.')),
 h('h2', _('Late join and absences')),
 h('p', _('You can join a Swiss after it starts, but only until half of the rounds have been played.')),
 h('br'),
 h('p', _('Most variants: late joiners get one half-point compensation, and no points for other missed rounds.')),
 h('br'),
-h('p', _('Janggi exception: late join gives 2 points, pairing-allocated bye gives 7 points, and absences give 0 points.')),
-h('br'),
 h('p', _('If you miss a round, you are not paired for that round and score 0 points for it.')),
-h('h2', _('How does pairing work?')),
-h('p', _('Players are paired by Swiss rules with score-group logic and color constraints.')),
 h('br'),
-h('p', _('You cannot play the same opponent twice.')),
+h('p', _('Absent and late-join placeholder rounds are shown in the standings, and you can still return for later rounds.')),
 h('h2', _('Tie-break')),
-h('p', _('If players have the same score, tie-break values decide final ranking.')),
+h('p', _('If players have the same score, Sonneborn-Berger values decide final ranking.')),
+h('br'),
+h('p', _('Wins count the full score of the opponent, draws count half, and pairing-allocated byes use a virtual-opponent style value. Late-join and absent placeholder rounds do not add tie-break credit.')),
+h('h2', _('What if the event has too many rounds?')),
+h('p', _('If no legal new pairing can be produced, the Swiss finishes early and the current standings become final.')),
 h('h2', _('How does it end?')),
-h('p', _('The tournament ends after all scheduled rounds are completed.')),
+h('p', _('The tournament ends after all scheduled rounds are completed, or earlier if no further legal pairings exist.')),
 ]);
 }
