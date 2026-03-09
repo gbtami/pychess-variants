@@ -58,6 +58,7 @@ from ws_types import ChatLine
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 from user import User
 from utils import load_game
+from settings import DEV
 
 log = logging.getLogger(__name__)
 
@@ -287,7 +288,7 @@ async def create_or_update_tournament(
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
     bp = int(form["byoyomiPeriod"])
-    frequency = SHIELD if form.get("shield", "") == "true" else ""
+    frequency = tournament.frequency if tournament is not None else ""
 
     if tournament is None:
         try:
@@ -296,6 +297,10 @@ async def create_or_update_tournament(
             system = ARENA
         if system not in (ARENA, RR, SWISS):
             system = ARENA
+        if (not DEV) and system in (RR, SWISS):
+            raise web.HTTPBadRequest(
+                text="Round-Robin and Swiss tournament creation is disabled in production."
+            )
     else:
         # Editing keeps existing pairing type to avoid mutating tournament class behavior.
         system = tournament.system

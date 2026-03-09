@@ -3,8 +3,10 @@
 import asyncio
 import gc
 from datetime import datetime, timezone
+from unittest.mock import AsyncMock, patch
 
-from const import BYEGAME, FLAG, RATED, TEST_PREFIX, T_STARTED
+from aiohttp import web
+from const import BYEGAME, FLAG, RATED, SHIELD, TEST_PREFIX, T_STARTED
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_TIME
@@ -79,6 +81,83 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(doc.get("entryTitledOnly"), True)
         self.assertEqual(doc.get("forbiddenPairings"), "")
         self.assertEqual(doc.get("manualPairings"), "")
+
+    async def test_production_rejects_fixed_round_creation(self):
+        app_state = get_app_state(self.app)
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": "5",
+            "clockIncrement": "0",
+            "byoyomiPeriod": "0",
+            "rounds": "5",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": "",
+            "name": "Fixed Round Disabled",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+
+        with patch("tournament.tournaments.DEV", False):
+            for system in ("1", "2"):
+                with self.assertRaises(web.HTTPBadRequest):
+                    await create_or_update_tournament(
+                        app_state, "tester", {**form, "system": system}
+                    )
+
+    async def test_edit_preserves_existing_shield_frequency(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess", before_start=10, minutes=45, with_clock=False
+        )
+        self.tournament.frequency = SHIELD
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": "5",
+            "clockIncrement": "0",
+            "byoyomiPeriod": "0",
+            "system": str(ArenaTournament.system),
+            "rounds": "0",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": "",
+            "name": "Shield Edit",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+
+        with patch("tournament.tournaments.broadcast_tournament_creation", new=AsyncMock()):
+            await create_or_update_tournament(app_state, "tester", form, self.tournament)
+
+        self.assertEqual(self.tournament.frequency, SHIELD)
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("fr"), SHIELD)
 
     async def test_tournament_pairings_persist_before_restart(self):
         app_state = get_app_state(self.app)

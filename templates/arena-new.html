@@ -17,7 +17,6 @@
             {% set t_fen = tournament.fen %}
             {% set t_password = tournament.password %}
             {% set t_starts_at = tournament.starts_at.isoformat() if tournament.starts_at else '' %}
-            {% set t_shield = tournament.frequency == 's' %}
             {% set t_system = tournament.system %}
             {% set t_rounds = tournament.rounds %}
             {% set t_round_interval = tournament.round_interval %}
@@ -42,7 +41,6 @@
             {% set t_fen = '' %}
             {% set t_password = '' %}
             {% set t_starts_at = '' %}
-            {% set t_shield = false %}
             {% set t_system = 0 %}
             {% set t_rounds = 5 %}
             {% set t_round_interval = -1 %}
@@ -139,10 +137,13 @@
                     <label class="form-label" for="form3-system">Tournament type</label>
                     <select id="form3-system" name="system" class="form-control"{% if edit %} disabled="disabled"{% endif %}>
                         <option value="0"{% if t_system == 0 %} selected="selected"{% endif %}>Arena</option>
-                        <option value="1"{% if t_system == 1 %} selected="selected"{% endif %}>Round-Robin</option>
-                        <option value="2"{% if t_system == 2 %} selected="selected"{% endif %}>Swiss</option>
+                        <option value="1"{% if t_system == 1 %} selected="selected"{% endif %}{% if not dev and not edit %} disabled="disabled"{% endif %}>Round-Robin{% if not dev and not edit %} (DEV only){% endif %}</option>
+                        <option value="2"{% if t_system == 2 %} selected="selected"{% endif %}{% if not dev and not edit %} disabled="disabled"{% endif %}>Swiss{% if not dev and not edit %} (DEV only){% endif %}</option>
                     </select>
                     <small id="form3-system-help" class="form-help">Arena runs continuously until the clock expires. Swiss and Round-Robin are fixed-round events.</small>
+                    {% if not dev and not edit %}
+                    <small class="form-help">Round-Robin and Swiss creation stay disabled on production until they finish DEV validation.</small>
+                    {% endif %}
                     {% if edit %}
                     <input type="hidden" name="system" value="{{ t_system }}" />
                     <small class="form-help">Tournament type cannot be changed after creation.</small>
@@ -431,18 +432,6 @@
                         <input id="startDate" name="startDate" value="{{ t_starts_at }}" class="form-control flatpickr"/>
                         <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting</small>
                     </div>
-
-                    {% if admin %}
-                    <div class="form-check form-group">
-                        <div>
-                            <label class="form-label" for="form3-shield">Shield</label>
-                            <span class="form-check-input">
-                                <input id="form3-shield" name="shield" value="true" type="checkbox" class="form-control cmn-toggle" {% if t_shield %}checked{% endif %}/>
-                            </span>
-                        </div>
-                    </div>
-                    <input type="hidden" name="shield" value="false" />
-                    {% endif %}
                 </div>
 
                 <div class="form-actions">
