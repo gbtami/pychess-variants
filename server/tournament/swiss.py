@@ -287,6 +287,93 @@ def _point_value(point: Any) -> int | None:
     return None
 
 
+def _swiss_round_point_value(tournament: Tournament, game: Any, point_entry: Any) -> int | None:
+    point_value = _point_value(point_entry)
+    if point_value is not None:
+        return point_value
+
+    if not isinstance(game, ByeGame):
+        return None
+
+    token = getattr(game, "token", "U")
+    if token in ("U", "F"):
+        return _bye_point_value(tournament.variant)
+    if token == "H":
+        return _half_bye_point_value(tournament.variant)
+    return 0
+
+
+def _swiss_berger_tiebreak(
+    tournament: Tournament, player_data: PlayerData, score_points_by_username: dict[str, int]
+) -> int:
+    round_entries: dict[int, tuple[Any, Any]] = {}
+    for game_index, game in enumerate(player_data.games):
+        round_no = getattr(game, "round", None)
+        if not isinstance(round_no, int) or round_no <= 0:
+            continue
+        point_entry = (
+            player_data.points[game_index] if game_index < len(player_data.points) else None
+        )
+        round_entries[round_no] = (game, point_entry)
+
+    completed_rounds = max(
+        getattr(tournament, "current_round", 0),
+        max(round_entries.keys(), default=0),
+    )
+    if completed_rounds <= 0:
+        return 0
+
+    points_before_round: dict[int, int] = {}
+    round_points: dict[int, int] = {}
+    cumulative_points = 0
+    for round_no in range(1, completed_rounds + 1):
+        points_before_round[round_no] = cumulative_points
+        round_entry = round_entries.get(round_no)
+        if round_entry is None:
+            continue
+        round_point = _swiss_round_point_value(tournament, *round_entry)
+        if round_point is None:
+            continue
+        round_points[round_no] = round_point
+        cumulative_points += round_point
+
+    half_point = _half_bye_point_value(tournament.variant)
+    berger = 0
+    for round_no, (game, _point_entry) in round_entries.items():
+        round_point = round_points.get(round_no)
+        if round_point is None or round_point <= 0:
+            continue
+
+        if isinstance(game, ByeGame):
+            token = getattr(game, "token", "U")
+            if token not in ("U", "F"):
+                # Match lichess Swiss: virtual opponents are only used for actual byes,
+                # not for synthetic late/absent entries shown in the score sheet.
+                continue
+
+            virtual_opponent_score = (
+                points_before_round.get(round_no, 0)
+                + round_point
+                + half_point * max(0, completed_rounds - round_no)
+            )
+            berger += round_point * virtual_opponent_score
+            continue
+
+        white_name = game.wplayer.username
+        black_name = game.bplayer.username
+        if player_data.username == white_name:
+            opponent_username = black_name
+        elif player_data.username == black_name:
+            opponent_username = white_name
+        else:
+            continue
+
+        opponent_score = score_points_by_username.get(opponent_username, 0)
+        berger += round_point * opponent_score
+
+    return berger
+
+
 def _round_result_for_unplayed_token(token: str):
     mapping = {
         "U": ResultToken.PAIRING_ALLOCATED_BYE,
@@ -601,6 +688,33 @@ def build_trf_export_text(tournament: Tournament, waiting_players: list[User] | 
 
 class SwissTournament(Tournament):
     system = SWISS
+
+    def recalculate_berger_tiebreak(self) -> None:
+        score_points_by_username = {
+            player.username: full_score // SCORE_SHIFT
+            for player, full_score in self.leaderboard.items()
+        }
+
+        for player_data in self.players.values():
+            player_data.berger = _swiss_berger_tiebreak(
+                self,
+                player_data,
+                score_points_by_username,
+            )
+
+        for leaderboard_player in list(self.leaderboard.keys()):
+            player_data = self.player_data_by_name(leaderboard_player.username)
+            if player_data is None:
+                continue
+            score_points = score_points_by_username.get(leaderboard_player.username, 0)
+            self.leaderboard.update(
+                {
+                    leaderboard_player: self.compose_leaderboard_score(
+                        score_points,
+                        player_data,
+                    )
+                }
+            )
 
     def _record_bye(self, player: User) -> None:
         player_data = self.player_data_by_name(player.username)

@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from const import T_FINISHED
+from const import FLAG, TEST_PREFIX, T_FINISHED
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
-from tournament.auto_play_arena import SwissTestTournament
+from tournament.auto_play_arena import PERFS, SwissTestTournament
 from tournament import swiss as swiss_mod
 from tournament import tournaments as tournaments_mod
 from tournament.tournament import (
@@ -393,8 +393,79 @@ class SwissPairingTestCase(TournamentTestCase):
         result = await self.tournament.join(late)
         self.assertEqual(result, "LATE_JOIN_CLOSED")
 
+    async def test_pairing_bye_counts_in_swiss_leaderboard_tiebreak(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = swiss_mod.SwissTournament(
+            app_state, tid, variant="chess", before_start=0, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        users = []
+        for suffix in ("A", "B", "C"):
+            user = User(app_state, username=f"{TEST_PREFIX}{suffix}", title="TEST", perfs=PERFS)
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+            users.append(user)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+
+        paired_names = {games[0].wplayer.username, games[0].bplayer.username}
+        bye_player = next(
+            player for player in self.tournament.players if player.username not in paired_names
+        )
+        bye_data = self.tournament.player_data_by_name(bye_player.username)
+        self.assertIsNotNone(bye_data)
+        assert bye_data is not None
+        self.assertEqual(bye_data.berger, 4)
+
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+        await self.tournament.game_update(game)
+
+        self.assertEqual(self.tournament.leaderboard.peekitem(0)[0].username, bye_player.username)
+
 
 class SwissScoringRulesTestCase(unittest.TestCase):
+    def test_swiss_berger_virtualizes_pairing_bye(self):
+        tournament = SimpleNamespace(variant="chess", current_round=1)
+        player_data = SimpleNamespace(
+            username="hero",
+            points=["-"],
+            games=[ByeGame(token="U", round_no=1)],
+        )
+
+        self.assertEqual(
+            swiss_mod._swiss_berger_tiebreak(
+                tournament,
+                player_data,
+                {"hero": 2},
+            ),
+            4,
+        )
+
+    def test_swiss_berger_ignores_late_and_absent_entries(self):
+        tournament = SimpleNamespace(variant="chess", current_round=2)
+        player_data = SimpleNamespace(
+            username="hero",
+            points=[(1, 0), (0, 0)],
+            games=[ByeGame(token="H", round_no=1), ByeGame(token="Z", round_no=2)],
+        )
+
+        self.assertEqual(
+            swiss_mod._swiss_berger_tiebreak(
+                tournament,
+                player_data,
+                {"hero": 1},
+            ),
+            0,
+        )
+
     def test_chess_pairing_allocated_bye_is_full_point(self):
         scoring = swiss_mod._build_scoring_system("chess")
         self.assertEqual(
