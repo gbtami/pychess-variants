@@ -82,6 +82,7 @@ class User:
         game_category: str = "all",
         oauth_id: str = "",
         oauth_provider: str = "",
+        created_at: datetime | None = None,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.bot: bool = False if username == "PyChessBot" else bot
@@ -92,6 +93,9 @@ class User:
         self.game_category_set: bool = False
         self.oauth_id: str = oauth_id
         self.oauth_provider: str = oauth_provider
+        self.created_at: datetime = (
+            datetime(MINYEAR, 1, 1, tzinfo=timezone.utc) if created_at is None else created_at
+        )
         self.notifications: list[NotificationDocument] | None = None
         self.update_game_category(game_category)
 

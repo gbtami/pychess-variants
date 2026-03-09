@@ -327,12 +327,17 @@ async def create_or_update_tournament(
         entry_min_rated_games = int(form.get("entryMinRatedGames", 0) or 0)
     except (TypeError, ValueError):
         entry_min_rated_games = 0
+    try:
+        entry_min_account_age_days = int(form.get("entryMinAccountAgeDays", 0) or 0)
+    except (TypeError, ValueError):
+        entry_min_account_age_days = 0
     entry_titled_only = form.get("entryTitledOnly", "") == "1"
 
     if system != SWISS:
         entry_min_rating = 0
         entry_max_rating = 0
         entry_min_rated_games = 0
+        entry_min_account_age_days = 0
         entry_titled_only = False
     elif entry_max_rating > 0 and entry_min_rating > entry_max_rating:
         entry_min_rating, entry_max_rating = entry_max_rating, entry_min_rating
@@ -378,6 +383,7 @@ async def create_or_update_tournament(
         "entryMinRating": entry_min_rating,
         "entryMaxRating": entry_max_rating,
         "entryMinRatedGames": entry_min_rated_games,
+        "entryMinAccountAgeDays": entry_min_account_age_days,
         "entryTitledOnly": entry_titled_only,
         "description": description,
     }
@@ -399,6 +405,7 @@ async def create_or_update_tournament(
         tournament.entry_min_rating = data["entryMinRating"]
         tournament.entry_max_rating = data["entryMaxRating"]
         tournament.entry_min_rated_games = data["entryMinRatedGames"]
+        tournament.entry_min_account_age_days = data["entryMinAccountAgeDays"]
         tournament.entry_titled_only = data["entryTitledOnly"]
         tournament.beforeStart = data["beforeStart"]
         tournament.starts_at = data["startDate"]  # type: ignore[assignment]
@@ -454,6 +461,7 @@ async def new_tournament(
         entry_min_rating=data.get("entryMinRating", 0),
         entry_max_rating=data.get("entryMaxRating", 0),
         entry_min_rated_games=data.get("entryMinRatedGames", 0),
+        entry_min_account_age_days=data.get("entryMinAccountAgeDays", 0),
         entry_titled_only=data.get("entryTitledOnly", False),
         created_by=data["createdBy"],
         before_start=data.get("beforeStart", 5),
@@ -600,6 +608,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 entry_min_rating=tournament_doc.get("entryMinRating", 0),
                 entry_max_rating=tournament_doc.get("entryMaxRating", 0),
                 entry_min_rated_games=tournament_doc.get("entryMinRatedGames", 0),
+                entry_min_account_age_days=tournament_doc.get("entryMinAccountAgeDays", 0),
                 entry_titled_only=tournament_doc.get("entryTitledOnly", False),
                 created_by=tournament_doc["createdBy"],
                 created_at=tournament_doc["createdAt"],
@@ -758,6 +767,7 @@ async def load_tournament(
         entry_min_rating=tournament_doc.get("entryMinRating", 0),
         entry_max_rating=tournament_doc.get("entryMaxRating", 0),
         entry_min_rated_games=tournament_doc.get("entryMinRatedGames", 0),
+        entry_min_account_age_days=tournament_doc.get("entryMinAccountAgeDays", 0),
         entry_titled_only=tournament_doc.get("entryTitledOnly", False),
         created_by=tournament_doc.get("createdBy", "PyChess"),
         created_at=tournament_doc["createdAt"],

@@ -1,6 +1,6 @@
 import unittest
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -492,6 +492,40 @@ class SwissPairingTestCase(TournamentTestCase):
         admitted.perfs["chess"]["nb"] = 0
         await self.tournament.pause(admitted)
         self.assertIsNone(await self.tournament.join(admitted))
+
+    async def test_swiss_join_enforces_minimum_account_age(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=1,
+            rounds=5,
+            with_clock=False,
+            entry_min_account_age_days=30,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        recent = User(
+            app_state,
+            username="recent_swiss_player",
+            created_at=datetime.now(timezone.utc) - timedelta(days=5),
+        )
+        recent.tournament_sockets[tid] = set((None,))
+        app_state.users[recent.username] = recent
+        self.assertEqual(
+            await self.tournament.join(recent),
+            "This tournament requires accounts to be at least 30 days old.",
+        )
+
+        established = User(
+            app_state,
+            username="established_swiss_player",
+            created_at=datetime.now(timezone.utc) - timedelta(days=60),
+        )
+        established.tournament_sockets[tid] = set((None,))
+        app_state.users[established.username] = established
+        self.assertIsNone(await self.tournament.join(established))
 
     async def test_pairing_bye_counts_in_swiss_leaderboard_tiebreak(self):
         app_state = get_app_state(self.app)

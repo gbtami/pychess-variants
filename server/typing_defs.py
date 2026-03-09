@@ -27,6 +27,7 @@ class UserDocument(TypedDict, total=False):
     _id: str
     title: str
     enabled: bool
+    createdAt: datetime
     perfs: PerfMap
     pperfs: PerfMap
     lang: str
@@ -489,6 +490,7 @@ class TournamentCreateData(TypedDict):
     entryMinRating: NotRequired[int]
     entryMaxRating: NotRequired[int]
     entryMinRatedGames: NotRequired[int]
+    entryMinAccountAgeDays: NotRequired[int]
     entryTitledOnly: NotRequired[bool]
     startDate: NotRequired[datetime | None]
     frequency: NotRequired[str]
@@ -558,6 +560,7 @@ class TournamentDoc(TypedDict):
     entryMinRating: NotRequired[int]
     entryMaxRating: NotRequired[int]
     entryMinRatedGames: NotRequired[int]
+    entryMinAccountAgeDays: NotRequired[int]
     entryTitledOnly: NotRequired[bool]
     nbPlayers: int
     cr: NotRequired[int]
@@ -590,6 +593,7 @@ class TournamentUpdateData(TypedDict, total=False):
     entryMinRating: int
     entryMaxRating: int
     entryMinRatedGames: int
+    entryMinAccountAgeDays: int
     entryTitledOnly: bool
     nbPlayers: int
     cr: int

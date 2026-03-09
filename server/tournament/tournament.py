@@ -336,6 +336,7 @@ class Tournament(ABC):
     entry_min_rating: int
     entry_max_rating: int
     entry_min_rated_games: int
+    entry_min_account_age_days: int
     entry_titled_only: bool
 
     def __init__(
@@ -365,6 +366,7 @@ class Tournament(ABC):
         entry_min_rating: int = 0,
         entry_max_rating: int = 0,
         entry_min_rated_games: int = 0,
+        entry_min_account_age_days: int = 0,
         entry_titled_only: bool = False,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
@@ -387,6 +389,7 @@ class Tournament(ABC):
         self.entry_min_rating: int = entry_min_rating
         self.entry_max_rating: int = entry_max_rating
         self.entry_min_rated_games: int = entry_min_rated_games
+        self.entry_min_account_age_days: int = entry_min_account_age_days
         self.entry_titled_only: bool = entry_titled_only
         self.created_by: str = created_by
         self.starts_at: datetime = starts_at  # type: ignore[assignment]
@@ -1296,6 +1299,13 @@ class Tournament(ABC):
                 self.server_variant.display_name.title(),
             )
 
+        if self.entry_min_account_age_days > 0:
+            account_age = datetime.now(timezone.utc) - user.created_at
+            if account_age < timedelta(days=self.entry_min_account_age_days):
+                return "This tournament requires accounts to be at least %s days old." % (
+                    self.entry_min_account_age_days,
+                )
+
         rating = user.get_rating_value(self.variant, self.chess960)
         if self.entry_min_rating > 0 and rating < self.entry_min_rating:
             return "Your rating is below the minimum allowed for this tournament."
@@ -2166,6 +2176,7 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "entryMinRating": tournament.entry_min_rating,
         "entryMaxRating": tournament.entry_max_rating,
         "entryMinRatedGames": tournament.entry_min_rated_games,
+        "entryMinAccountAgeDays": tournament.entry_min_account_age_days,
         "entryTitledOnly": tournament.entry_titled_only,
         "nbPlayers": 0,
         "cr": tournament.current_round,

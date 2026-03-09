@@ -79,6 +79,7 @@ class Users(UserDict[str, User]):
                 game_category=doc.get("ct", "all"),
                 oauth_id=doc.get("oauth_id") or "",
                 oauth_provider=doc.get("oauth_provider") or "",
+                created_at=doc.get("createdAt"),
             )
             user.game_category_set = "ct" in doc
             self.data[username] = user

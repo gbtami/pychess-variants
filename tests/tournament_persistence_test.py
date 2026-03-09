@@ -119,6 +119,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             entry_min_rating=1500,
             entry_max_rating=2100,
             entry_min_rated_games=30,
+            entry_min_account_age_days=14,
             entry_titled_only=True,
         )
         app_state.tournaments[tid] = self.tournament
@@ -128,12 +129,14 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(doc.get("entryMinRating"), 1500)
         self.assertEqual(doc.get("entryMaxRating"), 2100)
         self.assertEqual(doc.get("entryMinRatedGames"), 30)
+        self.assertEqual(doc.get("entryMinAccountAgeDays"), 14)
         self.assertEqual(doc.get("entryTitledOnly"), True)
 
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
         self.assertEqual(reloaded_tournament.entry_min_rating, 1500)
         self.assertEqual(reloaded_tournament.entry_max_rating, 2100)
         self.assertEqual(reloaded_tournament.entry_min_rated_games, 30)
+        self.assertEqual(reloaded_tournament.entry_min_account_age_days, 14)
         self.assertTrue(reloaded_tournament.entry_titled_only)
 
     async def test_db_update_pairing_upserts(self):

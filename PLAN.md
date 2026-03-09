@@ -105,8 +105,10 @@ Result at review time:
     - minimum / maximum rating bounds
   - Conditions are now persisted in MongoDB and enforced only for new entrants, not for already-registered players rejoining later rounds.
 
-- [ ] Add an account-age Swiss entry condition.
-  - Still missing because the current user model / loaded user document path does not expose a signup timestamp cleanly enough for tournament joins.
+- [x] Add an account-age Swiss entry condition.
+  - Completed by recording `createdAt` on new user documents and loading it into the in-memory user model.
+  - Legacy users without a stored signup timestamp are treated as old enough, so existing accounts are not blocked unexpectedly.
+  - Swiss creation now supports a minimum account-age condition in days, persisted in MongoDB and enforced at join time.
 
 - [ ] “Must have played their last Swiss game” anti-no-show rule.
   - Lichess has explicit anti-no-show handling and temporary Swiss bans.
@@ -174,3 +176,4 @@ The merge required manual conflict resolution in:
 - [x] System-aware tournament creation help for Swiss/RR
 - [x] Tournament-page Swiss/RR FAQ aligned with fixed-round behavior
 - [x] Swiss titled-only / min-games / rating-bound entry conditions
+- [x] Swiss minimum account-age entry condition

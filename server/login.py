@@ -364,12 +364,14 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
             match_reason,
         )
         try:
+            now = datetime.now(timezone.utc)
             await app_state.db.user.insert_one(
                 {
                     "_id": username,
                     "title": title,
                     "oauth_id": oauth_id,
                     "oauth_provider": oauth_provider,
+                    "createdAt": now,
                     "perfs": {},
                     "pperfs": {},
                     "enabled": False,
@@ -399,12 +401,14 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
         )
 
     try:
+        now = datetime.now(timezone.utc)
         result = await app_state.db.user.insert_one(
             {
                 "_id": username,
                 "title": title,
                 "oauth_id": oauth_id,
                 "oauth_provider": oauth_provider,
+                "createdAt": now,
                 "perfs": {},
                 "pperfs": {},
                 "enabled": True,
