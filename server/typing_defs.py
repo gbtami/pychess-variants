@@ -494,6 +494,8 @@ class TournamentCreateData(TypedDict):
     entryMinRatedGames: NotRequired[int]
     entryMinAccountAgeDays: NotRequired[int]
     entryTitledOnly: NotRequired[bool]
+    forbiddenPairings: NotRequired[str]
+    manualPairings: NotRequired[str]
     startDate: NotRequired[datetime | None]
     frequency: NotRequired[str]
     description: NotRequired[str]
@@ -564,6 +566,8 @@ class TournamentDoc(TypedDict):
     entryMinRatedGames: NotRequired[int]
     entryMinAccountAgeDays: NotRequired[int]
     entryTitledOnly: NotRequired[bool]
+    forbiddenPairings: NotRequired[str]
+    manualPairings: NotRequired[str]
     nbPlayers: int
     cr: NotRequired[int]
     createdBy: str
@@ -597,6 +601,8 @@ class TournamentUpdateData(TypedDict, total=False):
     entryMinRatedGames: int
     entryMinAccountAgeDays: int
     entryTitledOnly: bool
+    forbiddenPairings: str
+    manualPairings: str
     nbPlayers: int
     cr: int
     createdBy: str

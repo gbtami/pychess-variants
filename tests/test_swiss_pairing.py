@@ -16,6 +16,7 @@ from tournament.tournament import (
     GameData,
     PairingUnavailable,
     SCORE_SHIFT,
+    upsert_tournament_to_db,
 )
 from tournament_test_base import TournamentTestCase
 from user import User
@@ -188,6 +189,72 @@ class SwissPairingTestCase(TournamentTestCase):
         players_json = self.tournament.players_json()
         bye_row = next(row for row in players_json["players"] if row["name"] == waiting[2].username)
         self.assertEqual(bye_row["points"][-1], ("1", 1))
+
+    async def test_create_pairing_respects_forbidden_pairs(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=1,
+            rounds=3,
+            with_clock=False,
+            forbidden_pairings="test_forbidden_a test_forbidden_b",
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        for name in ("test_forbidden_a", "test_forbidden_b"):
+            user = User(app_state, username=name, perfs=deepcopy(PERFS))
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+
+        waiting = list(self.tournament.waiting_players())
+        with self.assertRaises(PairingUnavailable):
+            self.tournament.create_pairing(waiting)
+
+    async def test_manual_pairings_override_next_round_and_then_clear(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=0,
+            rounds=3,
+            with_clock=False,
+            manual_pairings="manual_white manual_black\nmanual_bye 1",
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        for name in ("manual_white", "manual_black", "manual_bye"):
+            user = User(app_state, username=name, perfs=deepcopy(PERFS))
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        self.assertTrue(await self.tournament.pair_fixed_round(datetime.now(timezone.utc)))
+        self.assertEqual(len(self.tournament.ongoing_games), 1)
+
+        game = next(iter(self.tournament.ongoing_games))
+        self.assertEqual(game.wplayer.username, "manual_white")
+        self.assertEqual(game.bplayer.username, "manual_black")
+
+        bye_data = self.tournament.player_data_by_name("manual_bye")
+        self.assertIsNotNone(bye_data)
+        assert bye_data is not None
+        self.assertEqual(bye_data.points[-1], "-")
+        self.assertIsInstance(bye_data.games[-1], ByeGame)
+        self.assertEqual(getattr(bye_data.games[-1], "token", ""), "U")
+
+        self.assertEqual(self.tournament.manual_pairings, "")
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("manualPairings"), "")
 
     async def test_create_pairing_raises_when_swisspairing_backend_is_unavailable(self):
         app_state = get_app_state(self.app)

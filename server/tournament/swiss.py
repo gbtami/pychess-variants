@@ -253,6 +253,29 @@ def _build_scoring_system(variant: str):
     return scoring
 
 
+def _normalized_pairing_lines(raw: str) -> list[tuple[str, str]]:
+    lines: list[tuple[str, str]] = []
+    for raw_line in raw.splitlines():
+        parts = [part.strip().lower() for part in raw_line.strip().split() if part.strip()]
+        if len(parts) == 2:
+            lines.append((parts[0], parts[1]))
+    return lines
+
+
+def _forbidden_pair_ids(raw: str, ids_by_name: dict[str, int]) -> set[tuple[int, int]]:
+    forbidden_pairs: set[tuple[int, int]] = set()
+    lower_ids_by_name = {name.lower(): player_id for name, player_id in ids_by_name.items()}
+    for left_name, right_name in _normalized_pairing_lines(raw):
+        if left_name == right_name or right_name == "1":
+            continue
+        left_id = lower_ids_by_name.get(left_name)
+        right_id = lower_ids_by_name.get(right_name)
+        if left_id is None or right_id is None or left_id == right_id:
+            continue
+        forbidden_pairs.add((min(left_id, right_id), max(left_id, right_id)))
+    return forbidden_pairs
+
+
 def _seed_rating(player_data: PlayerData) -> int:
     seed = player_data.rating
     earliest: tuple[object, int] | None = None
@@ -650,6 +673,7 @@ def _build_dutch_pairing_state(
         zeroed_ids={ids_by_name[name] for name in ids_by_name if name not in waiting_names},
         scoring_point_system=scoring,
         configuration=XSectionConfiguration(first_round_color=True, by_rank=False),
+        forbidden_pairs=_forbidden_pair_ids(tournament.forbidden_pairings, ids_by_name),
     )
     trf = ParsedTrf(player_sections=player_sections, x_section=x_section)
     trf.validate_contents()
@@ -690,6 +714,74 @@ def build_trf_export_text(tournament: Tournament, waiting_players: list[User] | 
 
 class SwissTournament(Tournament):
     system = SWISS
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._manual_pairings_used_for_round = False
+        self._last_manual_bye_count = 0
+
+    async def _clear_consumed_manual_pairings(self) -> None:
+        if not self._manual_pairings_used_for_round:
+            return
+
+        self.manual_pairings = ""
+        if self.app_state.db is not None:
+            await self.app_state.db.tournament.update_one(
+                {"_id": self.id},
+                {"$set": {"manualPairings": ""}},
+            )
+
+    def _manual_pairing_entries(
+        self, waiting_players: list[User]
+    ) -> tuple[list[tuple[User, User]], list[User]]:
+        if self.manual_pairings.strip() == "":
+            return ([], [])
+
+        waiting_by_name = {player.username.lower(): player for player in waiting_players}
+        used_names: set[str] = set()
+        pairing: list[tuple[User, User]] = []
+        byes: list[User] = []
+
+        for left_name, right_name in _normalized_pairing_lines(self.manual_pairings):
+            if right_name == "1":
+                bye_player = waiting_by_name.get(left_name)
+                if bye_player is None or left_name in used_names:
+                    continue
+                byes.append(bye_player)
+                used_names.add(left_name)
+                continue
+
+            if left_name == right_name:
+                continue
+
+            white = waiting_by_name.get(left_name)
+            black = waiting_by_name.get(right_name)
+            if white is None or black is None:
+                continue
+            if left_name in used_names or right_name in used_names:
+                continue
+
+            pairing.append((white, black))
+            used_names.add(left_name)
+            used_names.add(right_name)
+
+        return (pairing, byes)
+
+    def _consume_manual_pairings(
+        self, waiting_players: list[User]
+    ) -> tuple[list[tuple[User, User]], bool]:
+        self._manual_pairings_used_for_round = False
+        self._last_manual_bye_count = 0
+
+        pairing, byes = self._manual_pairing_entries(waiting_players)
+        if not pairing and not byes:
+            return ([], False)
+
+        for bye_player in byes:
+            self._record_bye(bye_player)
+        self._manual_pairings_used_for_round = True
+        self._last_manual_bye_count = len(byes)
+        return (pairing, True)
 
     def _active_swiss_ban_until(self, user: User, now: datetime | None = None) -> datetime | None:
         if now is None:
@@ -891,6 +983,48 @@ class SwissTournament(Tournament):
         await super().game_update(game)
         await self._update_swiss_no_show_bans(game)
 
+    async def pair_fixed_round(self, now: datetime) -> bool:
+        waiting_players = self.waiting_players()
+        manual_pairing, manual_byes = self._manual_pairing_entries(waiting_players)
+        has_manual_pairings = bool(manual_pairing or manual_byes)
+        if len(waiting_players) < 2 and not has_manual_pairings:
+            await self.finish()
+            log.info(
+                "T_FINISHED: Swiss has fewer than 2 active players to pair in round %s",
+                self.current_round,
+            )
+            return False
+
+        try:
+            pairing, _ = await self.create_new_pairings(waiting_players)
+        except PairingUnavailable as exc:
+            await self.finish()
+            log.info(
+                "T_FINISHED: Swiss has no legal pairing in round %s (%s)",
+                self.current_round,
+                exc,
+            )
+            return False
+
+        manual_byes_only_round = (
+            self._manual_pairings_used_for_round and self._last_manual_bye_count > 0
+        )
+        if len(pairing) == 0 and not manual_byes_only_round:
+            await self.finish()
+            log.info(
+                "T_FINISHED: Swiss produced no pairings in round %s with %s active players",
+                self.current_round,
+                len(waiting_players),
+            )
+            return False
+
+        await self.save_current_round()
+        await self._clear_consumed_manual_pairings()
+        self.next_round_starts_at = None
+        self.manual_next_round_pending = False
+        await self.broadcast(self.live_status(now))
+        return True
+
     def _apply_bye_points(self, player: User) -> None:
         player_data = self.player_data_by_name(player.username)
         if player_data is None:
@@ -945,6 +1079,10 @@ class SwissTournament(Tournament):
             await self.db_update_player(player, "GAME_END")
 
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
+        manual_pairing, manual_used = self._consume_manual_pairings(waiting_players)
+        if manual_used:
+            return manual_pairing
+
         if len(waiting_players) == 0:
             return []
         if len(waiting_players) == 1:

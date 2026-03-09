@@ -115,8 +115,10 @@ Result at review time:
   - The ban is persisted per user, blocks entry into new Swiss tournaments, and is cleared again after the player completes a later Swiss game.
   - Ban duration now starts at 24 hours and escalates for repeated no-shows.
 
-- [ ] Forbidden pairings and manual pairings.
-  - Lichess Swiss supports organizer-specified forbidden/manual pairings.
+- [x] Forbidden pairings and manual pairings.
+  - Completed with Swiss-only organizer fields on the shared tournament form.
+  - Forbidden pairings are persisted and fed into the Dutch pairing state, so automatic Swiss pairing avoids those player combinations across the event.
+  - Manual pairings now override the next Swiss round with explicit `white black` lines and optional `username 1` manual byes, then clear automatically after that round starts.
 
 - [x] Manual next-round scheduling option.
   - Completed with a fixed-round `manual start` interval option on the shared tournament form.
@@ -184,3 +186,4 @@ The merge required manual conflict resolution in:
 - [x] Swiss minimum account-age entry condition
 - [x] Manual next-round scheduling option
 - [x] Swiss anti-no-show join ban
+- [x] Swiss forbidden/manual pairings

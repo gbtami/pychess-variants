@@ -339,6 +339,8 @@ class Tournament(ABC):
     entry_min_rated_games: int
     entry_min_account_age_days: int
     entry_titled_only: bool
+    forbidden_pairings: str
+    manual_pairings: str
 
     def __init__(
         self,
@@ -369,6 +371,8 @@ class Tournament(ABC):
         entry_min_rated_games: int = 0,
         entry_min_account_age_days: int = 0,
         entry_titled_only: bool = False,
+        forbidden_pairings: str = "",
+        manual_pairings: str = "",
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.id: str = tournamentId
@@ -392,6 +396,8 @@ class Tournament(ABC):
         self.entry_min_rated_games: int = entry_min_rated_games
         self.entry_min_account_age_days: int = entry_min_account_age_days
         self.entry_titled_only: bool = entry_titled_only
+        self.forbidden_pairings: str = forbidden_pairings
+        self.manual_pairings: str = manual_pairings
         self.created_by: str = created_by
         self.starts_at: datetime = starts_at  # type: ignore[assignment]
         self.created_at: datetime = datetime.now(timezone.utc) if created_at is None else created_at
@@ -2214,6 +2220,8 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "entryMinRatedGames": tournament.entry_min_rated_games,
         "entryMinAccountAgeDays": tournament.entry_min_account_age_days,
         "entryTitledOnly": tournament.entry_titled_only,
+        "forbiddenPairings": tournament.forbidden_pairings,
+        "manualPairings": tournament.manual_pairings,
         "nbPlayers": 0,
         "cr": tournament.current_round,
         "createdBy": tournament.created_by,

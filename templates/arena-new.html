@@ -26,6 +26,8 @@
             {% set t_entry_min_rated_games = tournament.entry_min_rated_games %}
             {% set t_entry_min_account_age_days = tournament.entry_min_account_age_days %}
             {% set t_entry_titled_only = tournament.entry_titled_only %}
+            {% set t_forbidden_pairings = tournament.forbidden_pairings %}
+            {% set t_manual_pairings = tournament.manual_pairings %}
             <form method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
             {% else %}
             {% set t_name = '' %}
@@ -49,6 +51,8 @@
             {% set t_entry_min_rated_games = 0 %}
             {% set t_entry_min_account_age_days = 0 %}
             {% set t_entry_titled_only = false %}
+            {% set t_forbidden_pairings = '' %}
+            {% set t_manual_pairings = '' %}
             <form method="post" class="form3" action="/tournaments/new">
             {% endif %}
                 <div class="form-group">
@@ -300,6 +304,18 @@
                         <small class="form-help">Leave 0 to allow newly created accounts.</small>
                     </div>
                 </div>
+                <div id="form3-swiss-pairings-wrap-a" class="form-split">
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-forbiddenPairings">Forbidden pairings</label>
+                        <textarea id="form3-forbiddenPairings" name="forbiddenPairings" class="form-control" rows="5">{{ t_forbidden_pairings }}</textarea>
+                        <small class="form-help">One username pair per line, for example <code>alice bob</code>. Automatic Swiss pairing will avoid those pairings for the whole event.</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-manualPairings">Manual pairings for next round</label>
+                        <textarea id="form3-manualPairings" name="manualPairings" class="form-control" rows="5">{{ t_manual_pairings }}</textarea>
+                        <small class="form-help">One pairing per line as <code>white black</code>, or <code>username 1</code> for a manual bye. This applies to the next Swiss round only and is cleared after use.</small>
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label class="form-label" for="form3-password">Password</label>
@@ -456,12 +472,15 @@
         const swissEntryWrapA = document.getElementById('form3-swiss-entry-wrap-a');
         const swissEntryWrapB = document.getElementById('form3-swiss-entry-wrap-b');
         const swissEntryWrapC = document.getElementById('form3-swiss-entry-wrap-c');
+        const swissPairingsWrapA = document.getElementById('form3-swiss-pairings-wrap-a');
         const swissEntryInputs = [
             document.getElementById('form3-entryTitledOnly'),
             document.getElementById('form3-entryMinRatedGames'),
             document.getElementById('form3-entryMinRating'),
             document.getElementById('form3-entryMaxRating'),
             document.getElementById('form3-entryMinAccountAgeDays'),
+            document.getElementById('form3-forbiddenPairings'),
+            document.getElementById('form3-manualPairings'),
         ];
         const arenaFaq = document.getElementById('tour-faq-arena');
         const rrFaq = document.getElementById('tour-faq-rr');
@@ -531,8 +550,9 @@
             if (swissEntryWrapA) swissEntryWrapA.style.display = isSwiss ? "" : "none";
             if (swissEntryWrapB) swissEntryWrapB.style.display = isSwiss ? "" : "none";
             if (swissEntryWrapC) swissEntryWrapC.style.display = isSwiss ? "" : "none";
+            if (swissPairingsWrapA) swissPairingsWrapA.style.display = isSwiss ? "" : "none";
             swissEntryInputs.forEach(function (input) {
-                if (input instanceof HTMLInputElement) {
+                if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
                     input.disabled = !isSwiss;
                 }
             });

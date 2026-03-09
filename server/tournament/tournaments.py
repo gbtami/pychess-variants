@@ -335,6 +335,8 @@ async def create_or_update_tournament(
     except (TypeError, ValueError):
         entry_min_account_age_days = 0
     entry_titled_only = form.get("entryTitledOnly", "") == "1"
+    forbidden_pairings = (form.get("forbiddenPairings", "") or "").replace("\r\n", "\n").strip()
+    manual_pairings = (form.get("manualPairings", "") or "").replace("\r\n", "\n").strip()
 
     if system != SWISS:
         entry_min_rating = 0
@@ -342,6 +344,8 @@ async def create_or_update_tournament(
         entry_min_rated_games = 0
         entry_min_account_age_days = 0
         entry_titled_only = False
+        forbidden_pairings = ""
+        manual_pairings = ""
     elif entry_max_rating > 0 and entry_min_rating > entry_max_rating:
         entry_min_rating, entry_max_rating = entry_max_rating, entry_min_rating
 
@@ -388,6 +392,8 @@ async def create_or_update_tournament(
         "entryMinRatedGames": entry_min_rated_games,
         "entryMinAccountAgeDays": entry_min_account_age_days,
         "entryTitledOnly": entry_titled_only,
+        "forbiddenPairings": forbidden_pairings,
+        "manualPairings": manual_pairings,
         "description": description,
     }
     if tournament is None:
@@ -410,6 +416,8 @@ async def create_or_update_tournament(
         tournament.entry_min_rated_games = data["entryMinRatedGames"]
         tournament.entry_min_account_age_days = data["entryMinAccountAgeDays"]
         tournament.entry_titled_only = data["entryTitledOnly"]
+        tournament.forbidden_pairings = data["forbiddenPairings"]
+        tournament.manual_pairings = data["manualPairings"]
         tournament.beforeStart = data["beforeStart"]
         tournament.starts_at = data["startDate"]  # type: ignore[assignment]
         tournament.frequency = data["frequency"]
@@ -466,6 +474,8 @@ async def new_tournament(
         entry_min_rated_games=data.get("entryMinRatedGames", 0),
         entry_min_account_age_days=data.get("entryMinAccountAgeDays", 0),
         entry_titled_only=data.get("entryTitledOnly", False),
+        forbidden_pairings=data.get("forbiddenPairings", ""),
+        manual_pairings=data.get("manualPairings", ""),
         created_by=data["createdBy"],
         before_start=data.get("beforeStart", 5),
         minutes=data.get("minutes", 45),
@@ -613,6 +623,8 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 entry_min_rated_games=tournament_doc.get("entryMinRatedGames", 0),
                 entry_min_account_age_days=tournament_doc.get("entryMinAccountAgeDays", 0),
                 entry_titled_only=tournament_doc.get("entryTitledOnly", False),
+                forbidden_pairings=tournament_doc.get("forbiddenPairings", ""),
+                manual_pairings=tournament_doc.get("manualPairings", ""),
                 created_by=tournament_doc["createdBy"],
                 created_at=tournament_doc["createdAt"],
                 minutes=tournament_doc["minutes"],
@@ -772,6 +784,8 @@ async def load_tournament(
         entry_min_rated_games=tournament_doc.get("entryMinRatedGames", 0),
         entry_min_account_age_days=tournament_doc.get("entryMinAccountAgeDays", 0),
         entry_titled_only=tournament_doc.get("entryTitledOnly", False),
+        forbidden_pairings=tournament_doc.get("forbiddenPairings", ""),
+        manual_pairings=tournament_doc.get("manualPairings", ""),
         created_by=tournament_doc.get("createdBy", "PyChess"),
         created_at=tournament_doc["createdAt"],
         before_start=tournament_doc.get("beforeStart", 0),
