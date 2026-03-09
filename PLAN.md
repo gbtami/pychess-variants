@@ -78,15 +78,13 @@ Result at review time:
   - The internal `paused` / `withdrawn` state model remains in place as an implementation detail.
   - Fixed-round tournament pages and finished game pages now show `ABSENT` where Arena still shows `PAUSE`.
 
-- [ ] Make the tournament creation page more Swiss-specific.
-  - Current form still mixes Arena and Swiss concepts:
-    - common “Duration” field
-    - common Arena FAQ block in the static template
-    - Swiss is one option inside the Arena form template
-  - Work:
-    - hide/rename Arena-specific concepts for Swiss
-    - make Swiss help text match actual branch semantics
-    - consider separate Swiss creation view if shared form becomes too awkward
+- [x] Make the tournament creation page more Swiss-specific.
+  - Completed by keeping the shared tournament form, but making its labels/help/FAQ system-aware.
+  - Arena still shows Arena-only scoring/Berserk guidance.
+  - Swiss and Round-Robin now show fixed-round wording:
+    - rounds and interval help aligned with fixed-round behavior
+    - duration relabeled as an estimate for fixed-round systems
+    - static Arena FAQ replaced with system-specific Arena / RR / Swiss guidance
 
 - [ ] Add Swiss tie-break and organizer behavior documentation.
   - Current `client/tournamentFaq.ts` is a useful start, but not complete enough for a long-term parity target.
@@ -163,3 +161,4 @@ The merge required manual conflict resolution in:
 - [x] Pairing eligibility without tournament page websocket
 - [x] Restore master fishnet abort policy
 - [x] Restore master signup evasion fallback
+- [x] System-aware tournament creation help for Swiss/RR
