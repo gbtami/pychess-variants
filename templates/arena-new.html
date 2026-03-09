@@ -187,7 +187,7 @@
                         <small class="form-help">Automatic is based on time control and clamped to 10s-1m.</small>
                     </div>
                     <div class="form-group form-half">
-                        <label class="form-label" for="form3-minutes">Duration</label>
+                        <label class="form-label" for="form3-minutes">Duration / estimate</label>
                         <select id="form3-minutes" name="minutes" class="form-control">
                             <option value="20"{% if t_minutes == 20 %} selected="selected"{% endif %}>20 minutes</option>
                             <option value="25"{% if t_minutes == 25 %} selected="selected"{% endif %}>25 minutes</option>
@@ -218,6 +218,7 @@
                             <option value="600"{% if t_minutes == 600 %} selected="selected"{% endif %}>600 minutes</option>
                             <option value="720"{% if t_minutes == 720 %} selected="selected"{% endif %}>720 minutes</option>
                         </select>
+                        <small class="form-help">Arena uses this as a hard limit. Swiss and Round-Robin use it as an estimate only.</small>
                     </div>
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-waitMinutes">Time before tournament starts</label>

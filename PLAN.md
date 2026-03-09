@@ -50,14 +50,12 @@ Result at review time:
     - late/absent non-contribution
     - Swiss leaderboard ordering with a bye on tied points
 
-- [ ] Remove Arena-style hard `minutes` timeout from Swiss/RR semantics.
-  - Current fixed-round tournaments still finish on `ends_at`, even if not all rounds are completed.
-  - Lichess Swiss is round-count driven, not duration-driven.
-  - Work:
-    - decide target semantics for Swiss and RR
-    - likely make rounds + interval the actual completion condition
-    - keep displayed duration as estimate only, if desired
-    - update form/help text and tests
+- [x] Remove Arena-style hard `minutes` timeout from Swiss/RR semantics.
+  - Completed by making Arena the only system that finishes on the wall-clock deadline.
+  - Swiss and RR now finish strictly on round completion / pairing exhaustion.
+  - The existing `minutes` field is kept as a displayed estimate for fixed-round events.
+  - Form/help text now reflects the estimate-only meaning for Swiss and RR.
+  - Coverage added for Swiss and RR with `minutes=0`, ensuring they still complete all configured rounds.
 
 - [ ] Decouple Swiss pairing eligibility from open tournament websocket presence.
   - Current `waiting_players()` requires tournament sockets.
@@ -166,7 +164,7 @@ The merge required manual conflict resolution in:
 - [x] Janggi Swiss score rendering and point model added
 - [x] Janggi setup refresh fixed for Random-Mover path
 - [x] Swiss Sonneborn-Berger parity
-- [ ] Fixed-round end condition parity
+- [x] Fixed-round end condition parity
 - [ ] Pairing eligibility without tournament page websocket
 - [x] Restore master fishnet abort policy
 - [x] Restore master signup evasion fallback

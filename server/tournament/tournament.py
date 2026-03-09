@@ -956,7 +956,7 @@ class Tournament(ABC):
                         )
                         continue
 
-                elif (self.minutes is not None) and now >= self.ends_at:
+                elif self.system == ARENA and (self.minutes is not None) and now >= self.ends_at:
                     await self.finish()
                     log.info("T_FINISHED: no more time left")
                     break
@@ -2022,12 +2022,14 @@ class Tournament(ABC):
     def create_discord_msg(self) -> str:
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         tail960 = "960" if self.chess960 else ""
-        return "%s: **%s%s** %s tournament starts at UTC %s, duration will be **%s** minutes" % (
+        duration_text = "duration" if self.system == ARENA else "estimated duration"
+        return "%s: **%s%s** %s tournament starts at UTC %s, %s will be **%s** minutes" % (
             self.created_by,
             self.variant,
             tail960,
             tc,
             self.starts_at.strftime("%Y.%m.%d %H:%M"),
+            duration_text,
             self.minutes,
         )
 

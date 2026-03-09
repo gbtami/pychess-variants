@@ -107,6 +107,31 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_fixed_round_swiss_ignores_minutes_deadline(self):
+        app_state = get_app_state(self.app)
+        NB_PLAYERS = 7
+        NB_ROUNDS = 3
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=0,
+            rounds=NB_ROUNDS,
+            minutes=0,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(NB_PLAYERS)
+
+        if self.tournament.clock_task is not None:
+            await asyncio.wait_for(self.tournament.clock_task, timeout=10)
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual(
+            [len(player.games) for player in self.tournament.players.values()],
+            NB_PLAYERS * [NB_ROUNDS],
+        )
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_1_min_ARENA(self):
         app_state = get_app_state(self.app)
         NB_PLAYERS = 15
@@ -142,6 +167,31 @@ class TournamentFlowTestCase(TournamentTestCase):
         await self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual(
+            [len(player.games) for player in self.tournament.players.values()],
+            NB_PLAYERS * [NB_ROUNDS],
+        )
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_fixed_round_rr_ignores_minutes_deadline(self):
+        app_state = get_app_state(self.app)
+        NB_PLAYERS = 5
+        NB_ROUNDS = 5
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=0,
+            rounds=NB_ROUNDS,
+            minutes=0,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(NB_PLAYERS)
+
+        if self.tournament.clock_task is not None:
+            await asyncio.wait_for(self.tournament.clock_task, timeout=10)
 
         self.assertEqual(self.tournament.status, T_FINISHED)
         self.assertEqual(

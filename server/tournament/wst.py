@@ -212,9 +212,12 @@ async def handle_user_connected(
             (tournament.starts_at - now).total_seconds() if tournament.starts_at > now else 0
         ),
         "secondsToFinish": (
-            (tournament.ends_at - now).total_seconds() if tournament.starts_at < now else 0
+            max(0.0, (tournament.ends_at - now).total_seconds())
+            if tournament.starts_at < now
+            else 0
         ),
-        "chatClosed": (now - tournament.ends_at).total_seconds() > 60 * 60,
+        "chatClosed": tournament.status > T_STARTED
+        and (now - tournament.ends_at).total_seconds() > 60 * 60,
         "private": bool(tournament.password),
     }
     round_ongoing_games, seconds_to_next_round = tournament.round_status(now)
