@@ -225,7 +225,7 @@ export class TournamentController implements ChatController {
             if ('spectator|paused|withdrawn'.includes(this.userStatus)) {
                 button = h('button#action', { on: { click: () => this.join() }, class: {"icon": true, "icon-play": true} }, _('JOIN'));
             } else {
-                const pauseLabel = this.system > 0 ? _('ABSENT') : _('PAUSE');
+                const pauseLabel = this.system > 0 ? _('WITHDRAW') : _('PAUSE');
                 button = h('button#action', { on: { click: () => this.pause() }, class: {"icon": true, "icon-pause": true} }, pauseLabel);
             }
             break;

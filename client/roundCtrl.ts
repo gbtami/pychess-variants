@@ -774,7 +774,7 @@ export class RoundController extends GameController {
                     buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
                         [h('div', {class: {"icon": true, 'icon-play3': true} }, _("VIEW TOURNAMENT"))]));
                 } else {
-                    const pauseLabel = this.tournamentSystem > 0 ? _("ABSENT") : _("PAUSE");
+                    const pauseLabel = this.tournamentSystem > 0 ? _("WITHDRAW") : _("PAUSE");
                     buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
                         [h('div', {class: {"icon": true, 'icon-play3': true} }, _("BACK TO TOURNAMENT"))]));
                     buttons.push(h('button.newopp', { on: { click: () => this.pauseTournament() } },
