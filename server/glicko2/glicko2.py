@@ -231,9 +231,6 @@ class Glicko2:
 
 
 gl2 = Glicko2()
-# Keep the historical module-level rating object for callers that only need
-# the baseline mu/phi/sigma tuple, such as puzzle bootstrap defaults.
-rating = gl2.create_rating()
 
 
 def _perf_timestamp(raw: Any) -> datetime:

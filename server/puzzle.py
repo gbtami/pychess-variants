@@ -8,7 +8,7 @@ from pymongo.errors import DuplicateKeyError
 from aiohttp import web
 
 from fairy import FairyBoard
-from glicko2.glicko2 import MU, gl2, Rating, rating
+from glicko2.glicko2 import MU, PHI, SIGMA, gl2, Rating
 from pychess_global_app_state_utils import get_app_state
 from const import (
     GAME_CATEGORY_ALL,
@@ -329,7 +329,7 @@ async def update_puzzle_ratings(
 
 def default_puzzle_perf(puzzle_eval):
     perf = {
-        "gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma},
+        "gl": {"r": float(MU), "d": float(PHI), "v": float(SIGMA)},
         "la": datetime.now(timezone.utc),
         "nb": 0,
     }
