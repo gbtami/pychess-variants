@@ -4,14 +4,19 @@ import asyncio
 from datetime import datetime, timezone
 
 from const import FLAG, TEST_PREFIX
+from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament.arena_new import ArenaTournament
 from tournament.rr import RRTournament
-from tournament.auto_play_arena import PERFS
 from tournament.tournament import SCORE_SHIFT, upsert_tournament_to_db
 from tournament_test_base import TournamentTestCase
 from user import User
+from variants import VARIANTS
+
+
+def make_test_perfs():
+    return new_default_perf_map(VARIANTS)
 
 
 class TournamentScoringTestCase(TournamentTestCase):
@@ -26,7 +31,12 @@ class TournamentScoringTestCase(TournamentTestCase):
 
         users = []
         for suffix in ("A", "B", "C", "D"):
-            user = User(app_state, username=f"{TEST_PREFIX}{suffix}", title="TEST", perfs=PERFS)
+            user = User(
+                app_state,
+                username=f"{TEST_PREFIX}{suffix}",
+                title="TEST",
+                perfs=make_test_perfs(),
+            )
             app_state.users[user.username] = user
             user.tournament_sockets[tid] = set((None,))
             await self.tournament.join(user)
@@ -117,8 +127,12 @@ class TournamentScoringTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
 
-        player_a = User(app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=PERFS)
-        player_b = User(app_state, username=f"{TEST_PREFIX}B", title="TEST", perfs=PERFS)
+        player_a = User(
+            app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=make_test_perfs()
+        )
+        player_b = User(
+            app_state, username=f"{TEST_PREFIX}B", title="TEST", perfs=make_test_perfs()
+        )
         app_state.users[player_a.username] = player_a
         app_state.users[player_b.username] = player_b
         player_a.tournament_sockets[tid] = set((None,))
@@ -180,8 +194,12 @@ class TournamentScoringTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
 
-        player_a = User(app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=PERFS)
-        player_b = User(app_state, username=f"{TEST_PREFIX}B", title="TEST", perfs=PERFS)
+        player_a = User(
+            app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=make_test_perfs()
+        )
+        player_b = User(
+            app_state, username=f"{TEST_PREFIX}B", title="TEST", perfs=make_test_perfs()
+        )
         app_state.users[player_a.username] = player_a
         app_state.users[player_b.username] = player_b
         player_a.tournament_sockets[tid] = set((None,))

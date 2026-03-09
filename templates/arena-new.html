@@ -269,15 +269,15 @@
                     </div>
                 </div>
 
-                <div id="form3-swiss-entry-wrap-a" class="form-split">
+                <div id="form3-entry-wrap-a" class="form-split">
                     <div class="form-check form-group">
                         <div>
-                            <label class="form-label" for="form3-entryTitledOnly">Swiss titled-only</label>
+                            <label class="form-label" for="form3-entryTitledOnly">Titled-only</label>
                             <span class="form-check-input">
                                 <input id="form3-entryTitledOnly" name="entryTitledOnly" value="1" type="checkbox" class="form-control cmn-toggle" {% if t_entry_titled_only %}checked{% endif %}/>
                             </span>
                         </div>
-                        <small class="form-help">Allow only titled users to join this Swiss.</small>
+                        <small class="form-help">Allow only titled users to join this tournament.</small>
                     </div>
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-entryMinRatedGames">Minimum rated games</label>
@@ -285,7 +285,7 @@
                         <small class="form-help">Required rated games in this variant before a player can join.</small>
                     </div>
                 </div>
-                <div id="form3-swiss-entry-wrap-b" class="form-split">
+                <div id="form3-entry-wrap-b" class="form-split">
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-entryMinRating">Minimum rating</label>
                         <input id="form3-entryMinRating" name="entryMinRating" value="{{ t_entry_min_rating }}" type="number" min="0" max="4000" class="form-control" />
@@ -297,7 +297,7 @@
                         <small class="form-help">Leave 0 to allow all ratings.</small>
                     </div>
                 </div>
-                <div id="form3-swiss-entry-wrap-c" class="form-split">
+                <div id="form3-entry-wrap-c" class="form-split">
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-entryMinAccountAgeDays">Minimum account age (days)</label>
                         <input id="form3-entryMinAccountAgeDays" name="entryMinAccountAgeDays" value="{{ t_entry_min_account_age_days }}" type="number" min="0" max="36500" class="form-control" />
@@ -469,16 +469,18 @@
         const roundIntervalHelp = document.getElementById('form3-roundInterval-help');
         const minutesLabel = document.getElementById('form3-minutes-label');
         const minutesHelp = document.getElementById('form3-minutes-help');
-        const swissEntryWrapA = document.getElementById('form3-swiss-entry-wrap-a');
-        const swissEntryWrapB = document.getElementById('form3-swiss-entry-wrap-b');
-        const swissEntryWrapC = document.getElementById('form3-swiss-entry-wrap-c');
+        const entryWrapA = document.getElementById('form3-entry-wrap-a');
+        const entryWrapB = document.getElementById('form3-entry-wrap-b');
+        const entryWrapC = document.getElementById('form3-entry-wrap-c');
         const swissPairingsWrapA = document.getElementById('form3-swiss-pairings-wrap-a');
-        const swissEntryInputs = [
+        const entryConditionInputs = [
             document.getElementById('form3-entryTitledOnly'),
             document.getElementById('form3-entryMinRatedGames'),
             document.getElementById('form3-entryMinRating'),
             document.getElementById('form3-entryMaxRating'),
             document.getElementById('form3-entryMinAccountAgeDays'),
+        ];
+        const swissPairingInputs = [
             document.getElementById('form3-forbiddenPairings'),
             document.getElementById('form3-manualPairings'),
         ];
@@ -547,11 +549,16 @@
                 }
             }
 
-            if (swissEntryWrapA) swissEntryWrapA.style.display = isSwiss ? "" : "none";
-            if (swissEntryWrapB) swissEntryWrapB.style.display = isSwiss ? "" : "none";
-            if (swissEntryWrapC) swissEntryWrapC.style.display = isSwiss ? "" : "none";
+            if (entryWrapA) entryWrapA.style.display = "";
+            if (entryWrapB) entryWrapB.style.display = "";
+            if (entryWrapC) entryWrapC.style.display = "";
             if (swissPairingsWrapA) swissPairingsWrapA.style.display = isSwiss ? "" : "none";
-            swissEntryInputs.forEach(function (input) {
+            entryConditionInputs.forEach(function (input) {
+                if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
+                    input.disabled = false;
+                }
+            });
+            swissPairingInputs.forEach(function (input) {
                 if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
                     input.disabled = !isSwiss;
                 }

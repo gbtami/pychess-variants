@@ -339,14 +339,10 @@ async def create_or_update_tournament(
     manual_pairings = (form.get("manualPairings", "") or "").replace("\r\n", "\n").strip()
 
     if system != SWISS:
-        entry_min_rating = 0
-        entry_max_rating = 0
-        entry_min_rated_games = 0
-        entry_min_account_age_days = 0
-        entry_titled_only = False
         forbidden_pairings = ""
         manual_pairings = ""
-    elif entry_max_rating > 0 and entry_min_rating > entry_max_rating:
+
+    if entry_max_rating > 0 and entry_min_rating > entry_max_rating:
         entry_min_rating, entry_max_rating = entry_max_rating, entry_min_rating
 
     if system != ARENA:

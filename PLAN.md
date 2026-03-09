@@ -74,9 +74,9 @@ Result at review time:
 ### P1: Important Swiss Parity Gaps
 
 - [x] Replace Arena-oriented Swiss player state/controls with clearer Swiss semantics.
-  - Completed by aligning the user-visible Swiss/RR controls with absence wording instead of Arena `PAUSE` wording.
+  - Completed by aligning the user-visible Swiss/RR controls with fixed-round wording instead of Arena `PAUSE`.
   - The internal `paused` / `withdrawn` state model remains in place as an implementation detail.
-  - Fixed-round tournament pages and finished game pages now show `ABSENT` where Arena still shows `PAUSE`.
+  - Fixed-round tournament pages and finished game pages now show `WITHDRAW` where Arena still shows `PAUSE`.
 
 - [x] Make the tournament creation page more Swiss-specific.
   - Completed by keeping the shared tournament form, but making its labels/help/FAQ system-aware.
@@ -99,11 +99,13 @@ Result at review time:
 ### P2: Nice-to-Have Lichess Parity Follow-Ups
 
 - [x] Add the first Swiss entry conditions to creation and join validation.
-  - Completed with Swiss-only support for:
+  - Completed first for Swiss, then widened to all tournament systems for the generic conditions:
     - titled-only events
     - minimum rated games in the selected variant
     - minimum / maximum rating bounds
-  - Conditions are now persisted in MongoDB and enforced only for new entrants, not for already-registered players rejoining later rounds.
+    - minimum account age
+  - These generic conditions are now persisted in MongoDB and enforced for Arena, RR, and Swiss only on first join, not for already-registered players rejoining later.
+  - Swiss-only organizer controls such as no-show bans and manual/forbidden pairings remain Swiss-specific.
 
 - [x] Add an account-age Swiss entry condition.
   - Completed by recording `createdAt` on new user documents and loading it into the in-memory user model.
@@ -184,6 +186,7 @@ The merge required manual conflict resolution in:
 - [x] Tournament-page Swiss/RR FAQ aligned with fixed-round behavior
 - [x] Swiss titled-only / min-games / rating-bound entry conditions
 - [x] Swiss minimum account-age entry condition
+- [x] Generic tournament entry conditions widened to Arena and RR
 - [x] Manual next-round scheduling option
 - [x] Swiss anti-no-show join ban
 - [x] Swiss forbidden/manual pairings

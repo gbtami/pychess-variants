@@ -5,20 +5,80 @@ import gc
 from datetime import datetime, timezone
 
 from const import BYEGAME, FLAG, RATED, TEST_PREFIX, T_STARTED
+from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_TIME
 from pychess_global_app_state_utils import get_app_state
 from settings import LOCALHOST, URI
 from tournament.arena_new import ArenaTournament
-from tournament.auto_play_arena import ArenaTestTournament, PERFS, SwissTestTournament
+from tournament.auto_play_arena import ArenaTestTournament, SwissTestTournament
 from tournament.tournament import ByeGame, GameData, PlayerData, Tournament, upsert_tournament_to_db
-from tournament.tournaments import load_tournament
+from tournament.tournaments import create_or_update_tournament, load_tournament
 from tournament_test_base import TournamentTestCase
 from user import User
+from variants import VARIANTS
+
+
+def make_test_perfs():
+    return new_default_perf_map(VARIANTS)
 
 
 class TournamentPersistenceTestCase(TournamentTestCase):
     SHORT_SWISS_MINUTES = 0.08
+
+    async def test_arena_entry_conditions_persisted_from_form(self):
+        app_state = get_app_state(self.app)
+        before_ids = set(app_state.tournaments)
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": "5",
+            "clockIncrement": "0",
+            "byoyomiPeriod": "0",
+            "shield": "",
+            "system": str(ArenaTournament.system),
+            "rounds": "0",
+            "roundInterval": "auto",
+            "entryMinRating": "1500",
+            "entryMaxRating": "2100",
+            "entryMinRatedGames": "30",
+            "entryMinAccountAgeDays": "14",
+            "entryTitledOnly": "1",
+            "forbiddenPairings": "alice bob",
+            "manualPairings": "carol dave",
+            "startDate": "",
+            "name": "Arena Conditions",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+
+        await create_or_update_tournament(app_state, "tester", form)
+
+        new_ids = set(app_state.tournaments) - before_ids
+        self.assertEqual(len(new_ids), 1)
+        tournament = app_state.tournaments[new_ids.pop()]
+        self.assertEqual(tournament.system, ArenaTournament.system)
+        self.assertEqual(tournament.entry_min_rating, 1500)
+        self.assertEqual(tournament.entry_max_rating, 2100)
+        self.assertEqual(tournament.entry_min_rated_games, 30)
+        self.assertEqual(tournament.entry_min_account_age_days, 14)
+        self.assertTrue(tournament.entry_titled_only)
+        self.assertEqual(tournament.forbidden_pairings, "")
+        self.assertEqual(tournament.manual_pairings, "")
+
+        doc = await app_state.db.tournament.find_one({"_id": tournament.id})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("entryMinRating"), 1500)
+        self.assertEqual(doc.get("entryMaxRating"), 2100)
+        self.assertEqual(doc.get("entryMinRatedGames"), 30)
+        self.assertEqual(doc.get("entryMinAccountAgeDays"), 14)
+        self.assertEqual(doc.get("entryTitledOnly"), True)
+        self.assertEqual(doc.get("forbiddenPairings"), "")
+        self.assertEqual(doc.get("manualPairings"), "")
 
     async def test_tournament_pairings_persist_before_restart(self):
         app_state = get_app_state(self.app)
@@ -190,8 +250,12 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         app_state.tourneysockets[tid] = {}
         await upsert_tournament_to_db(self.tournament, app_state)
 
-        player_a = User(app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=PERFS)
-        player_b = User(app_state, username=f"{TEST_PREFIX}B", title="TEST", perfs=PERFS)
+        player_a = User(
+            app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=make_test_perfs()
+        )
+        player_b = User(
+            app_state, username=f"{TEST_PREFIX}B", title="TEST", perfs=make_test_perfs()
+        )
         app_state.users[player_a.username] = player_a
         app_state.users[player_b.username] = player_b
         player_a.tournament_sockets[tid] = set((None,))
@@ -423,8 +487,8 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         app_state.tourneysockets[tid] = {}
         await upsert_tournament_to_db(self.tournament, app_state)
 
-        winner = User(app_state, username="recover_missing_doc_a", perfs=PERFS)
-        missing = User(app_state, username="recover_missing_doc_b", perfs=PERFS)
+        winner = User(app_state, username="recover_missing_doc_a", perfs=make_test_perfs())
+        missing = User(app_state, username="recover_missing_doc_b", perfs=make_test_perfs())
         app_state.users[winner.username] = winner
         app_state.users[missing.username] = missing
         await app_state.db.user.insert_many(
@@ -500,8 +564,8 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         app_state.tourneysockets[tid] = {}
         await upsert_tournament_to_db(self.tournament, app_state)
 
-        winner = User(app_state, username="recover_deleted_user_a", perfs=PERFS)
-        deleted = User(app_state, username="recover_deleted_user_b", perfs=PERFS)
+        winner = User(app_state, username="recover_deleted_user_a", perfs=make_test_perfs())
+        deleted = User(app_state, username="recover_deleted_user_b", perfs=make_test_perfs())
         app_state.users[winner.username] = winner
         app_state.users[deleted.username] = deleted
         await app_state.db.user.insert_many(

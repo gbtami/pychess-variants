@@ -6,18 +6,23 @@ import unittest
 from datetime import datetime, timedelta, timezone
 
 from const import FLAG, T_CREATED, T_FINISHED, T_STARTED
+from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament import swiss as swiss_mod
 from tournament.auto_play_arena import (
     ArenaTestTournament,
-    PERFS,
     RRTestTournament,
     SwissTestTournament,
 )
 from tournament.tournament import MANUAL_ROUND_INTERVAL, GameData, upsert_tournament_to_db
 from tournament_test_base import ONE_TEST_ONLY, TournamentTestCase
 from user import User
+from variants import VARIANTS
+
+
+def make_test_perfs():
+    return new_default_perf_map(VARIANTS)
 
 
 class TournamentFlowTestCase(TournamentTestCase):
@@ -27,6 +32,101 @@ class TournamentFlowTestCase(TournamentTestCase):
         tournament.wave = timedelta(milliseconds=200)
         tournament.wave_delta = timedelta(milliseconds=25)
         return tournament
+
+    def _new_condition_user(
+        self,
+        tournament,
+        username: str,
+        *,
+        title: str = "IM",
+        rating: int = 1600,
+        rated_games: int = 25,
+        account_age_days: int = 60,
+    ) -> User:
+        app_state = get_app_state(self.app)
+        user = User(
+            app_state,
+            username=username,
+            title=title,
+            perfs=make_test_perfs(),
+            created_at=datetime.now(timezone.utc) - timedelta(days=account_age_days),
+        )
+        user.perfs["chess"]["gl"]["r"] = rating
+        user.perfs["chess"]["nb"] = rated_games
+        user.tournament_sockets[tournament.id] = set((None,))
+        app_state.users[user.username] = user
+        return user
+
+    async def _assert_non_swiss_entry_conditions(self, tournament) -> None:
+        app_state = get_app_state(self.app)
+        app_state.tournaments[tournament.id] = tournament
+
+        untitled = self._new_condition_user(tournament, f"{tournament.id}_untitled", title="")
+        self.assertEqual(
+            await tournament.join(untitled),
+            "This tournament is limited to titled players.",
+        )
+
+        low_rated = self._new_condition_user(tournament, f"{tournament.id}_low", rating=1300)
+        self.assertEqual(
+            await tournament.join(low_rated),
+            "Your rating is below the minimum allowed for this tournament.",
+        )
+
+        too_new = self._new_condition_user(tournament, f"{tournament.id}_new", account_age_days=5)
+        self.assertEqual(
+            await tournament.join(too_new),
+            "This tournament requires accounts to be at least 30 days old.",
+        )
+
+        too_few_games = self._new_condition_user(
+            tournament, f"{tournament.id}_few_games", rated_games=5
+        )
+        self.assertEqual(
+            await tournament.join(too_few_games),
+            "This tournament requires at least 20 rated Chess games.",
+        )
+
+        allowed = self._new_condition_user(tournament, f"{tournament.id}_allowed")
+        self.assertIsNone(await tournament.join(allowed))
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_arena_join_enforces_generic_entry_conditions(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=1,
+            minutes=10,
+            with_clock=False,
+            entry_min_rating=1400,
+            entry_max_rating=1800,
+            entry_min_rated_games=20,
+            entry_min_account_age_days=30,
+            entry_titled_only=True,
+        )
+        await self._assert_non_swiss_entry_conditions(self.tournament)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_join_enforces_generic_entry_conditions(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=1,
+            rounds=3,
+            with_clock=False,
+            entry_min_rating=1400,
+            entry_max_rating=1800,
+            entry_min_rated_games=20,
+            entry_min_account_age_days=30,
+            entry_titled_only=True,
+        )
+        await self._assert_non_swiss_entry_conditions(self.tournament)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_without_players(self):
@@ -287,7 +387,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         lobby_ws = _DummyWs()
         players = []
         for suffix in ("A", "B", "C", "D"):
-            user = User(app_state, username=f"fixed_round_{suffix}", perfs=PERFS)
+            user = User(app_state, username=f"fixed_round_{suffix}", perfs=make_test_perfs())
             app_state.users[user.username] = user
             user.tournament_sockets[tid] = {lobby_ws}
             app_state.tourneysockets[tid][user.username] = user.tournament_sockets[tid]
