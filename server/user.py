@@ -23,7 +23,7 @@ from const import (
     GAME_CATEGORY_ALL,
     normalize_game_category,
 )
-from glicko2.glicko2 import gl2, DEFAULT_PERF, Rating
+from glicko2.glicko2 import gl2, new_default_perf, perf_map_with_defaults, Rating
 from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK
@@ -158,32 +158,17 @@ class User:
 
         self.online: bool = False
 
-        if perfs is None:
-            if self.anon or self.bot:
-                self.perfs: PerfMap = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
-            else:
-                # User() with perfs=None can be dangerous
-                _id = "%s|%s" % (self.username, self.title)
-                hs = app_state.highscore
-                if any((_id in hs[variant] for variant in RATED_VARIANTS)):
-                    raise RatingResetError(
-                        "%s User() called with perfs=None. Use await users.get() instead.", username
-                    )
-                else:
-                    self.perfs = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
-        else:
-            self.perfs = {
-                variant: perfs[variant] if variant in perfs else DEFAULT_PERF
-                for variant in RATED_VARIANTS
-            }
+        if perfs is None and (not self.anon) and (not self.bot):
+            # User() with perfs=None can be dangerous
+            _id = "%s|%s" % (self.username, self.title)
+            hs = app_state.highscore
+            if any((_id in hs[variant] for variant in RATED_VARIANTS)):
+                raise RatingResetError(
+                    "%s User() called with perfs=None. Use await users.get() instead.", username
+                )
 
-        if pperfs is None:
-            self.pperfs: PerfMap = {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
-        else:
-            self.pperfs = {
-                variant: pperfs[variant] if variant in pperfs else DEFAULT_PERF
-                for variant in RATED_VARIANTS
-            }
+        self.perfs = perf_map_with_defaults(RATED_VARIANTS, perfs)
+        self.pperfs = perf_map_with_defaults(RATED_VARIANTS, pperfs)
 
         self.enabled: bool = enabled
 
@@ -272,7 +257,7 @@ class User:
             return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
         except KeyError:
             rating = gl2.create_rating()
-            self.perfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
+            self.perfs[variant + ("960" if chess960 else "")] = new_default_perf()
             return rating
 
     def get_puzzle_rating(self, variant: str, chess960: bool | None) -> Rating:
@@ -282,7 +267,7 @@ class User:
             return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
         except KeyError:
             rating = gl2.create_rating()
-            self.pperfs[variant + ("960" if chess960 else "")] = DEFAULT_PERF
+            self.pperfs[variant + ("960" if chess960 else "")] = new_default_perf()
             return rating
 
     def set_silence(self) -> None:

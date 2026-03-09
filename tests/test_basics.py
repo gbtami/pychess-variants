@@ -16,7 +16,7 @@ from const import CLAIM, CREATED, STALEMATE, MATE
 from fairy import FairyBoard
 from game import Game
 from bug.game_bug import GameBug
-from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
+from glicko2.glicko2 import Glicko2, WIN, LOSS, new_default_perf_map
 from newid import id8
 from server import make_app
 from user import User
@@ -43,10 +43,10 @@ ZH960 = {
 }
 
 PERFS = {
-    "user7": {variant: DEFAULT_PERF for variant in VARIANTS},
-    "newplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
-    "strongplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
-    "weakplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
+    "user7": new_default_perf_map(VARIANTS),
+    "newplayer": new_default_perf_map(VARIANTS),
+    "strongplayer": new_default_perf_map(VARIANTS),
+    "weakplayer": new_default_perf_map(VARIANTS),
 }
 PERFS["user7"]["crazyhouse960"] = {
     "gl": {"r": 1642, "d": 125, "v": 0.06},
@@ -491,7 +491,7 @@ class RatingTestCase(AioHTTPTestCase):
         user = User(
             get_app_state(self.app),
             username="testuser",
-            perfs={variant: DEFAULT_PERF for variant in VARIANTS},
+            perfs=new_default_perf_map(VARIANTS),
         )
         result = user.get_rating("chess", False)
 

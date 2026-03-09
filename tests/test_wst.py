@@ -5,7 +5,7 @@ import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from tournament.wst import finally_logic
@@ -14,7 +14,7 @@ from variants import VARIANTS
 
 test_logger.init_test_logger()
 
-PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
+PERFS = new_default_perf_map(VARIANTS)
 
 
 class TournamentSocketCleanupTestCase(AioHTTPTestCase):

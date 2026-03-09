@@ -6,7 +6,7 @@ from mongomock_motor import AsyncMongoMockClient
 
 from const import STARTED
 from game import Game
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
@@ -15,7 +15,7 @@ from variants import VARIANTS
 from wsr import handle_setup
 
 
-PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
+PERFS = new_default_perf_map(VARIANTS)
 RED_SETUP_FEN = "rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1"
 BLUE_SETUP_FEN = "rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RBNA1ANBR w - - 0 1"
 

@@ -17,7 +17,7 @@ from const import (
 from draw import draw
 from fairy import BLACK
 from game import MAX_PLY
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from tournament.arena_new import ArenaTournament
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
@@ -31,8 +31,6 @@ import logging
 log = logging.getLogger(__name__)
 
 # from misc import timeit
-
-PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
 
 AUTO_PLAY_ARENA_NAME = "Auto Play Tournament"
 
@@ -108,7 +106,12 @@ class TestTournament(Tournament):
     async def join_players(self, nb_players, rating=None):
         for i in range(1, nb_players + 1):
             name = "%sUser_%s" % (TEST_PREFIX, i)
-            player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
+            player = User(
+                self.app_state,
+                username=name,
+                title="TEST",
+                perfs=new_default_perf_map(VARIANTS),
+            )
             if rating:
                 player.perfs[self.variant]["gl"]["r"] = rating
             self.app_state.users[player.username] = player

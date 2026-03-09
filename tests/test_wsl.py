@@ -6,7 +6,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 from aiohttp.web_ws import WebSocketResponse
 from mongomock_motor import AsyncMongoMockClient
 
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
@@ -15,7 +15,7 @@ from wsl import finally_logic
 
 test_logger.init_test_logger()
 
-PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
+PERFS = new_default_perf_map(VARIANTS)
 
 
 class LobbySocketCleanupTestCase(AioHTTPTestCase):

@@ -1,13 +1,13 @@
 import unittest
-from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from const import FLAG, TEST_PREFIX, T_FINISHED
+from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
-from tournament.auto_play_arena import PERFS, SwissTestTournament
+from tournament.auto_play_arena import SwissTestTournament
 from tournament import swiss as swiss_mod
 from tournament import tournaments as tournaments_mod
 from tournament.tournament import (
@@ -20,6 +20,11 @@ from tournament.tournament import (
 )
 from tournament_test_base import TournamentTestCase
 from user import User
+from variants import VARIANTS
+
+
+def make_test_perfs():
+    return new_default_perf_map(VARIANTS)
 
 
 class SwissPairingTestCase(TournamentTestCase):
@@ -204,7 +209,7 @@ class SwissPairingTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
 
         for name in ("test_forbidden_a", "test_forbidden_b"):
-            user = User(app_state, username=name, perfs=deepcopy(PERFS))
+            user = User(app_state, username=name, perfs=make_test_perfs())
             app_state.users[user.username] = user
             user.tournament_sockets[tid] = set((None,))
             await self.tournament.join(user)
@@ -227,7 +232,7 @@ class SwissPairingTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
 
         for name in ("manual_white", "manual_black", "manual_bye"):
-            user = User(app_state, username=name, perfs=deepcopy(PERFS))
+            user = User(app_state, username=name, perfs=make_test_perfs())
             app_state.users[user.username] = user
             user.tournament_sockets[tid] = set((None,))
             await self.tournament.join(user)
@@ -503,7 +508,7 @@ class SwissPairingTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
 
-        low = User(app_state, username="low_rated_swiss_player", perfs=deepcopy(PERFS))
+        low = User(app_state, username="low_rated_swiss_player", perfs=make_test_perfs())
         low.perfs["chess"]["gl"]["r"] = 1300
         low.tournament_sockets[tid] = set((None,))
         app_state.users[low.username] = low
@@ -512,7 +517,7 @@ class SwissPairingTestCase(TournamentTestCase):
             "Your rating is below the minimum allowed for this tournament.",
         )
 
-        high = User(app_state, username="high_rated_swiss_player", perfs=deepcopy(PERFS))
+        high = User(app_state, username="high_rated_swiss_player", perfs=make_test_perfs())
         high.perfs["chess"]["gl"]["r"] = 1900
         high.tournament_sockets[tid] = set((None,))
         app_state.users[high.username] = high
@@ -521,7 +526,7 @@ class SwissPairingTestCase(TournamentTestCase):
             "Your rating is above the maximum allowed for this tournament.",
         )
 
-        allowed = User(app_state, username="allowed_swiss_player", perfs=deepcopy(PERFS))
+        allowed = User(app_state, username="allowed_swiss_player", perfs=make_test_perfs())
         allowed.perfs["chess"]["gl"]["r"] = 1600
         allowed.tournament_sockets[tid] = set((None,))
         app_state.users[allowed.username] = allowed
@@ -541,7 +546,7 @@ class SwissPairingTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
 
-        newcomer = User(app_state, username="new_swiss_player", perfs=deepcopy(PERFS))
+        newcomer = User(app_state, username="new_swiss_player", perfs=make_test_perfs())
         newcomer.perfs["chess"]["nb"] = 5
         newcomer.tournament_sockets[tid] = set((None,))
         app_state.users[newcomer.username] = newcomer
@@ -550,7 +555,7 @@ class SwissPairingTestCase(TournamentTestCase):
             "This tournament requires at least 20 rated Chess games.",
         )
 
-        admitted = User(app_state, username="returning_swiss_player", perfs=deepcopy(PERFS))
+        admitted = User(app_state, username="returning_swiss_player", perfs=make_test_perfs())
         admitted.perfs["chess"]["nb"] = 25
         admitted.tournament_sockets[tid] = set((None,))
         app_state.users[admitted.username] = admitted
@@ -603,7 +608,7 @@ class SwissPairingTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
 
         for name in ("swiss_present_player", "swiss_absent_player"):
-            user = User(app_state, username=name, perfs=deepcopy(PERFS))
+            user = User(app_state, username=name, perfs=make_test_perfs())
             app_state.users[user.username] = user
             user.tournament_sockets[tid] = set((None,))
             await app_state.db.user.insert_one({"_id": user.username})
@@ -650,7 +655,7 @@ class SwissPairingTestCase(TournamentTestCase):
 
         players: list[User] = []
         for name in ("swiss_returning_player", "swiss_opponent_player"):
-            user = User(app_state, username=name, perfs=deepcopy(PERFS))
+            user = User(app_state, username=name, perfs=make_test_perfs())
             app_state.users[user.username] = user
             user.tournament_sockets[tid] = set((None,))
             await app_state.db.user.insert_one({"_id": user.username})
@@ -699,7 +704,9 @@ class SwissPairingTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
         users = []
         for suffix in ("A", "B", "C"):
-            user = User(app_state, username=f"{TEST_PREFIX}{suffix}", title="TEST", perfs=PERFS)
+            user = User(
+                app_state, username=f"{TEST_PREFIX}{suffix}", title="TEST", perfs=make_test_perfs()
+            )
             app_state.users[user.username] = user
             user.tournament_sockets[tid] = set((None,))
             await self.tournament.join(user)

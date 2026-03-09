@@ -2,11 +2,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from collections import UserDict
 from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK, NONE_USER
-from glicko2.glicko2 import DEFAULT_PERF
-from typing_defs import PerfMap, RelationDocument, UserDocument
+from typing_defs import RelationDocument, UserDocument
 from user import User
 import logging
-from variants import RATED_VARIANTS
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -61,18 +59,13 @@ class Users(UserDict[str, User]):
             # raise NotInDbUsers
             return self.data[NONE_USER]
         else:
-            perfs: PerfMap = doc.get("perfs", {variant: DEFAULT_PERF for variant in RATED_VARIANTS})
-            pperfs: PerfMap = doc.get(
-                "pperfs", {variant: DEFAULT_PERF for variant in RATED_VARIANTS}
-            )
-
             user = User(
                 self.app_state,
                 username=username,
                 title=doc.get("title") or "",
                 bot=doc.get("title") == "BOT",
-                perfs=perfs,
-                pperfs=pperfs,
+                perfs=doc.get("perfs"),
+                pperfs=doc.get("pperfs"),
                 enabled=doc.get("enabled", True),
                 lang=doc.get("lang", "en"),
                 theme=doc.get("theme", "dark"),
