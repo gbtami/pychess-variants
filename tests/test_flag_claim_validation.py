@@ -25,7 +25,7 @@ class FlagClaimValidationTestCase(AioHTTPTestCase):
         self.bplayer = User(app_state, username="bplayer-flag", perfs=PERFS)
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 

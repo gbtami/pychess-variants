@@ -13,7 +13,7 @@ from utils import join_seek
 
 class AnonSeekRestrictionsTestCase(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
-        db_client = cast(AsyncMongoClient, AsyncMongoMockClient())
+        db_client = cast(AsyncMongoClient, AsyncMongoMockClient(tz_aware=True))
         self.app = make_app(db_client=db_client)
         await init_state(self.app)
 

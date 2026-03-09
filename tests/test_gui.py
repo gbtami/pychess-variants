@@ -12,7 +12,7 @@ test_logger.init_test_logger()
 @pytest.mark.asyncio
 class TestGUI:
     async def test_main_page_buttons(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         server = await aiohttp_server(app)
 
         async with async_playwright() as p:
@@ -48,7 +48,7 @@ class TestGUI:
             await browser.close()
 
     async def test_editor_play_with_machine(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         # When tests has redirects port have to be fixed
         # By default aiohttp_server fixture randomize the port
         server = await aiohttp_server(app, host="127.0.0.1", port=8080)
@@ -76,7 +76,7 @@ class TestGUI:
             await browser.close()
 
     async def test_editor_continue_from_here(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         # When tests has redirects port have to be fixed
         # By default aiohttp_server fixture randomize the port
         server = await aiohttp_server(app, host="127.0.0.1", port=8080)

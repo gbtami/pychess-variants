@@ -81,7 +81,7 @@ class GameResultTestCase(AioHTTPTestCase):
         self.wplayer = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 
@@ -267,7 +267,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         return app
 
     async def test_example(self):
@@ -310,7 +310,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.weak_player = User(app_state, username="weakplayer", perfs=PERFS["weakplayer"])
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 
@@ -476,7 +476,7 @@ class RatingTestCase(AioHTTPTestCase):
         self.gl2 = Glicko2(tau=0.5)
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 
@@ -579,7 +579,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         self.wplayer2 = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 

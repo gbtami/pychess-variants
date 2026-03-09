@@ -64,7 +64,7 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         )
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
         app.on_startup.append(self.startup)
         return app
 
@@ -138,7 +138,7 @@ class ExportPGNTestCase(AioHTTPTestCase):
         await app_state.db.game.insert_many(export_docs)
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
         app.on_startup.append(self.startup)
         return app
 
@@ -170,7 +170,7 @@ class ExportPGNTestCase(AioHTTPTestCase):
 
 class ExportTournamentTrfTestCase(AioHTTPTestCase):
     async def get_application(self):
-        return make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
+        return make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
 
     async def tearDownAsync(self):
         await self.client.close()
@@ -270,7 +270,7 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
 
 class InviteReloadPersistenceTestCase(AioHTTPTestCase):
     async def get_application(self):
-        db_client = AsyncMongoMockClient()
+        db_client = AsyncMongoMockClient(tz_aware=True)
         db = db_client[MONGO_DB_NAME]
         await db.user.insert_many(
             [

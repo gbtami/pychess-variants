@@ -26,7 +26,7 @@ test_logger.init_test_logger()
 
 class SignupSecurityEvasionTestCase(AioHTTPTestCase):
     async def get_application(self):
-        return make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
+        return make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
 
     async def tearDownAsync(self):
         await self.client.close()
@@ -197,7 +197,7 @@ class SignupSecurityEvasionTestCase(AioHTTPTestCase):
 
 class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
     async def get_application(self):
-        return make_app(db_client=AsyncMongoMockClient())
+        return make_app(db_client=AsyncMongoMockClient(tz_aware=True))
 
     async def tearDownAsync(self):
         await self.client.close()

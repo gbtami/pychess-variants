@@ -25,7 +25,7 @@ class LobbySocketCleanupTestCase(AioHTTPTestCase):
         app_state.users[self.user.username] = self.user
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 

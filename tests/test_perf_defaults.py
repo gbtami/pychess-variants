@@ -13,7 +13,7 @@ from variants import RATED_VARIANTS
 
 class PerfDefaultsTestCase(AioHTTPTestCase):
     async def get_application(self):
-        return make_app(db_client=AsyncMongoMockClient())
+        return make_app(db_client=AsyncMongoMockClient(tz_aware=True))
 
     async def tearDownAsync(self):
         await self.client.close()

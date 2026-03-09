@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.asyncio
 class TestGUI:
     async def test_simul_creation_and_pairing(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
         NB_PLAYERS = 5
@@ -70,7 +70,7 @@ class TestGUI:
             assert len(simul_doc["players"]) == NB_PLAYERS
 
     async def test_simul_join_approve_and_deny(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
         host_username = "TestUser_1"
@@ -109,7 +109,7 @@ class TestGUI:
         assert host_username in simul.players
 
     async def test_simul_cannot_start_without_opponents(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
         host_username = "TestUser_1"
@@ -146,7 +146,9 @@ class TestGUI:
 
     async def test_simul_websocket(self, aiohttp_server):
         app = make_app(
-            db_client=AsyncMongoMockClient(), simple_cookie_storage=True, anon_as_test_users=True
+            db_client=AsyncMongoMockClient(tz_aware=True),
+            simple_cookie_storage=True,
+            anon_as_test_users=True,
         )
         server = await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
@@ -220,7 +222,7 @@ class TestGUI:
             await player_session.close()
 
     async def test_simul_creation_rejects_two_board_variant(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
         server = await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
         host_username = "TestUser_1"
@@ -246,7 +248,7 @@ class TestGUI:
             await session.close()
 
     async def test_simul_new_excludes_two_board_variants(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient(), simple_cookie_storage=True)
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
         server = await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
         host_username = "TestUser_1"
@@ -266,7 +268,9 @@ class TestGUI:
 
     async def test_simul_websocket_host_can_remove_approved_player(self, aiohttp_server):
         app = make_app(
-            db_client=AsyncMongoMockClient(), simple_cookie_storage=True, anon_as_test_users=True
+            db_client=AsyncMongoMockClient(tz_aware=True),
+            simple_cookie_storage=True,
+            anon_as_test_users=True,
         )
         server = await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
@@ -330,7 +334,7 @@ class TestGUI:
             await player_session.close()
 
     async def test_started_simul_reloads_after_restart(self, aiohttp_server):
-        db_client = AsyncMongoMockClient()
+        db_client = AsyncMongoMockClient(tz_aware=True)
         app = make_app(db_client=db_client)
         await aiohttp_server(app)
         app_state = get_app_state(app)
@@ -378,7 +382,7 @@ class TestGUI:
                 pass
 
     async def test_short_finished_simul_game_persists_and_reloads(self, aiohttp_server):
-        db_client = AsyncMongoMockClient()
+        db_client = AsyncMongoMockClient(tz_aware=True)
         app = make_app(db_client=db_client)
         await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
@@ -421,7 +425,7 @@ class TestGUI:
         assert game.id in reloaded_simul.games
 
     async def test_aborted_simul_game_finishes_simul(self, aiohttp_server):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
         host_username = "TestUser_1"
@@ -453,7 +457,7 @@ class TestGUI:
     async def test_simul_disconnect_cleanup_does_not_block_on_broadcast(
         self, aiohttp_server, monkeypatch
     ):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         await aiohttp_server(app, host="127.0.0.1")
         app_state = get_app_state(app)
         host_username = "TestUser_1"

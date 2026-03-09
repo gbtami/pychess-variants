@@ -46,7 +46,7 @@ async def simulate_setup(game, color, fen):
 
 class CorrJanggiGameTestCase(AioHTTPTestCase):
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         return app
 
     async def tearDownAsync(self):

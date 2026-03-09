@@ -11,7 +11,7 @@ test_logger.init_test_logger()
 @pytest.mark.asyncio
 async def test_lobby_page(aiohttp_server):
     # Start the server using the fixture
-    app = make_app(db_client=AsyncMongoMockClient())
+    app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
     server = await aiohttp_server(app)
 
     # Launch Playwright async
