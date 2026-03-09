@@ -227,7 +227,7 @@ class PychessGlobalAppState:
                 {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
             )
             cursor.sort("startsAt", -1)
-            to_date = (datetime.now() + timedelta(days=SCHEDULE_MAX_DAYS)).date()
+            to_date = (datetime.now(timezone.utc) + timedelta(days=SCHEDULE_MAX_DAYS)).date()
             async for doc in cursor:
                 if doc["status"] == T_STARTED or (
                     doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date

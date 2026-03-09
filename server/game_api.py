@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from functools import partial
 from typing import TYPE_CHECKING, TypedDict
 
@@ -116,7 +116,7 @@ async def variant_counts_aggregation(
 
     docs: list[VariantCountDoc] = []
 
-    cur_period = datetime.now().isoformat()[:7].replace("-", "")
+    cur_period = datetime.now(timezone.utc).isoformat()[:7].replace("-", "")
 
     async for doc in cursor:
         # print(doc)
