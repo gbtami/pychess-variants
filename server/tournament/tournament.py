@@ -941,12 +941,13 @@ class Tournament(ABC):
                 )
                 continue
 
-            if (
-                player_data.free
-                and len(self.player_round_sockets(player, player_data)) > 0
-                and not player_data.paused
-                and not player_data.withdrawn
-            ):
+            if not player_data.free or player_data.paused or player_data.withdrawn:
+                continue
+
+            # Fixed-round events keep pairability in persisted tournament state instead of tying it
+            # to whichever page socket the user currently has open. Arena still pairs only connected
+            # players because its rolling waves depend on live availability.
+            if self.system != ARENA or len(self.player_round_sockets(player, player_data)) > 0:
                 waiting.append(player)
 
         return waiting
@@ -1496,9 +1497,15 @@ class Tournament(ABC):
                 ws_ok = (
                     await ws_send_json_many(self.player_round_sockets(wp, wp_data), response) > 0
                 )
-            if (not ws_ok) and wp.title != "TEST":
+            if self.system == ARENA and (not ws_ok) and wp.title != "TEST":
                 await self.pause(wp)
                 log.debug("White player %s left the tournament (ws send failed)", wp.username)
+            elif (not ws_ok) and wp.title != "TEST":
+                log.debug(
+                    "Fixed-round redirect not delivered for white player %s in tournament %s",
+                    wp.username,
+                    self.id,
+                )
 
             ws_ok = False
             if bp.title != "TEST":
@@ -1506,9 +1513,15 @@ class Tournament(ABC):
                 ws_ok = (
                     await ws_send_json_many(self.player_round_sockets(bp, bp_data), response) > 0
                 )
-            if (not ws_ok) and bp.title != "TEST":
+            if self.system == ARENA and (not ws_ok) and bp.title != "TEST":
                 await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
+            elif (not ws_ok) and bp.title != "TEST":
+                log.debug(
+                    "Fixed-round redirect not delivered for black player %s in tournament %s",
+                    bp.username,
+                    self.id,
+                )
 
             if self.update_game_ranks(game):
                 is_new_top_game = True

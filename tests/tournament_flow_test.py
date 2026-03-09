@@ -440,6 +440,60 @@ class TournamentFlowTestCase(TournamentTestCase):
                 )
             )
 
+    async def test_rr_waiting_players_ignore_socket_presence(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, variant="chess", before_start=0, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        for player in self.tournament.players:
+            player.tournament_sockets[self.tournament.id] = set()
+
+        waiting_players = list(self.tournament.waiting_players())
+        self.assertEqual(
+            {player.username for player in waiting_players},
+            {player.username for player in self.tournament.players},
+        )
+
+    async def test_swiss_ws_redirect_failure_does_not_pause_players(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = swiss_mod.SwissTournament(
+            app_state, tid, variant="chess", before_start=0, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        players = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"fixed_round_wsless_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            await self.tournament.join(user)
+            players.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        waiting_players = list(self.tournament.waiting_players())
+        self.assertEqual(
+            {player.username for player in waiting_players},
+            {player.username for player in players},
+        )
+
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        self.assertEqual(len(games), 1)
+
+        for player in players:
+            player_data = self.tournament.player_data_by_name(player.username)
+            self.assertIsNotNone(player_data)
+            assert player_data is not None
+            self.assertFalse(player_data.paused)
+            self.assertFalse(player_data.withdrawn)
+            self.assertFalse(player_data.free)
+
     async def test_arena_standings_do_not_mark_ongoing_games_with_star(self):
         app_state = get_app_state(self.app)
         tid = id8()
