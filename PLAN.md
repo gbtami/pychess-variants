@@ -57,14 +57,11 @@ Result at review time:
   - Form/help text now reflects the estimate-only meaning for Swiss and RR.
   - Coverage added for Swiss and RR with `minutes=0`, ensuring they still complete all configured rounds.
 
-- [ ] Decouple Swiss pairing eligibility from open tournament websocket presence.
-  - Current `waiting_players()` requires tournament sockets.
-  - Only the tournament page opens the tournament websocket.
-  - A Swiss player who stays on the finished game page can silently become absent for the next round.
-  - Work:
-    - define explicit Swiss participation/absence state
-    - pair eligible joined players even without an open tournament page socket, or make absence explicit and user-visible
-    - add tests for round-to-round flow without reopening the tournament page
+- [x] Decouple Swiss pairing eligibility from open tournament websocket presence.
+  - Completed by treating fixed-round tournament game sockets as a valid presence source in addition to tournament lobby sockets.
+  - Swiss/RR players who remain on their finished game page now stay pairable for the next round and can receive the `new_game` redirect there.
+  - Arena behavior stays unchanged.
+  - Coverage added for round-to-round fixed-round flow without reopening the tournament page.
 
 - [x] Restore `master` fishnet abort policy before merge.
   - Completed by merging `master` in commit `9b947a1d`.
@@ -165,6 +162,6 @@ The merge required manual conflict resolution in:
 - [x] Janggi setup refresh fixed for Random-Mover path
 - [x] Swiss Sonneborn-Berger parity
 - [x] Fixed-round end condition parity
-- [ ] Pairing eligibility without tournament page websocket
+- [x] Pairing eligibility without tournament page websocket
 - [x] Restore master fishnet abort policy
 - [x] Restore master signup evasion fallback

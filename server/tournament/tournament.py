@@ -631,6 +631,26 @@ class Tournament(ABC):
 
         return set()
 
+    def player_round_sockets(self, player: User, player_data: PlayerData | None = None) -> set[Any]:
+        sockets = set(self.tournament_sockets(player.username, player))
+        if self.system == ARENA:
+            return sockets
+
+        if player_data is None:
+            player_data = self.player_data_by_name(player.username)
+        if player_data is None:
+            return sockets
+
+        # Fixed-round players often remain on their finished game page instead of going back to the
+        # tournament lobby immediately. Reuse those game sockets so they stay pairable and can
+        # receive the next-round redirect without opening the tournament page again.
+        for game in reversed(player_data.games):
+            if isinstance(game, ByeGame):
+                continue
+            sockets.update(player.game_sockets.get(game.id, set()))
+
+        return sockets
+
     @staticmethod
     def game_player_usernames(game: Game | GameData) -> tuple[str, str]:
         if isinstance(game, GameData):
@@ -900,7 +920,7 @@ class Tournament(ABC):
 
             if (
                 player_data.free
-                and len(self.tournament_sockets(player.username, player)) > 0
+                and len(self.player_round_sockets(player, player_data)) > 0
                 and not player_data.paused
                 and not player_data.withdrawn
             ):
@@ -1381,8 +1401,9 @@ class Tournament(ABC):
 
             ws_ok = False
             if wp.title != "TEST":
+                wp_data = self.player_data_by_name(wp.username)
                 ws_ok = (
-                    await ws_send_json_many(self.tournament_sockets(wp.username, wp), response) > 0
+                    await ws_send_json_many(self.player_round_sockets(wp, wp_data), response) > 0
                 )
             if (not ws_ok) and wp.title != "TEST":
                 await self.pause(wp)
@@ -1390,8 +1411,9 @@ class Tournament(ABC):
 
             ws_ok = False
             if bp.title != "TEST":
+                bp_data = self.player_data_by_name(bp.username)
                 ws_ok = (
-                    await ws_send_json_many(self.tournament_sockets(bp.username, bp), response) > 0
+                    await ws_send_json_many(self.player_round_sockets(bp, bp_data), response) > 0
                 )
             if (not ws_ok) and bp.title != "TEST":
                 await self.pause(bp)

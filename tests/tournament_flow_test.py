@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import json
 import unittest
 from datetime import datetime, timedelta, timezone
 
 from const import FLAG, T_CREATED, T_FINISHED, T_STARTED
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
+from tournament import swiss as swiss_mod
 from tournament.auto_play_arena import (
     ArenaTestTournament,
+    PERFS,
     RRTestTournament,
     SwissTestTournament,
 )
@@ -230,6 +233,81 @@ class TournamentFlowTestCase(TournamentTestCase):
                 any(
                     isinstance(point, tuple) and len(point) > 0 and point[0] == "*"
                     for point in player_data.points
+                )
+            )
+
+    async def test_fixed_round_players_remain_pairable_from_finished_game_socket(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = swiss_mod.SwissTournament(
+            app_state, tid, variant="chess", before_start=0, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+
+        class _DummyWs:
+            def __init__(self):
+                self.messages: list[dict[str, object]] = []
+
+            async def send_str(self, payload: str) -> None:
+                self.messages.append(json.loads(payload))
+
+            async def close(self) -> None:
+                return None
+
+        lobby_ws = _DummyWs()
+        players = []
+        for suffix in ("A", "B", "C", "D"):
+            user = User(app_state, username=f"fixed_round_{suffix}", perfs=PERFS)
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {lobby_ws}
+            app_state.tourneysockets[tid][user.username] = user.tournament_sockets[tid]
+            await self.tournament.join(user)
+            players.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        waiting_round_1 = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_round_1)
+        self.assertEqual(len(games), 2)
+
+        for game in games:
+            game.result = "1-0"
+            game.status = FLAG
+            game.board.ply = 20
+            await self.tournament.game_update(game)
+
+        await asyncio.sleep(0)
+
+        game_ws_by_user: dict[str, _DummyWs] = {}
+        for game in games:
+            for player in (game.wplayer, game.bplayer):
+                game_ws = _DummyWs()
+                game_ws_by_user[player.username] = game_ws
+                player.tournament_sockets[tid] = set()
+                app_state.tourneysockets[tid][player.username] = player.tournament_sockets[tid]
+                player.game_sockets[game.id] = {game_ws}
+
+        self.tournament.current_round = 2
+        waiting_round_2 = list(self.tournament.waiting_players())
+        self.assertEqual(
+            {player.username for player in waiting_round_2},
+            {player.username for player in players},
+        )
+
+        _, round_2_games = await self.tournament.create_new_pairings(waiting_round_2)
+        self.assertEqual(len(round_2_games), 2)
+
+        for player in players:
+            player_data = self.tournament.player_data_by_name(player.username)
+            self.assertIsNotNone(player_data)
+            assert player_data is not None
+            self.assertFalse(player_data.paused)
+            self.assertTrue(
+                any(
+                    msg.get("type") == "new_game"
+                    for msg in game_ws_by_user[player.username].messages
                 )
             )
 
