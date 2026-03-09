@@ -11,6 +11,11 @@ from pymongo import AsyncMongoClient, UpdateOne
 
 from settings import MONGO_DB_NAME, MONGO_HOST
 
+try:
+    from tqdm import tqdm
+except Exception:  # pragma: no cover - optional dependency
+    tqdm = None
+
 
 USER_CREATED_AT_MISSING = {
     "$or": [
@@ -160,6 +165,11 @@ async def main() -> None:
         default=5000,
         help="Mongo maxTimeMS for each earliest-game lookup.",
     )
+    parser.add_argument(
+        "--no-progress",
+        action="store_true",
+        help="Disable tqdm progress bar even if tqdm is installed.",
+    )
     args = parser.parse_args()
 
     if args.batch_size <= 0:
@@ -183,83 +193,114 @@ async def main() -> None:
     game_collection = db.game
 
     try:
+        user_filter = _build_user_filter(username=args.username, start_after=args.start_after)
         hint = await _resolve_game_date_hint(game_collection)
+        total_users = await user_collection.count_documents(user_filter)
+        if args.limit > 0:
+            total_users = min(total_users, args.limit)
         print(
-            "Using game index hint %r. Mode: %s" % (hint, "apply" if args.apply else "dry-run"),
+            "Using game index hint %r. Mode: %s. Legacy users to scan: %d"
+            % (hint, "apply" if args.apply else "dry-run", total_users),
             flush=True,
         )
 
-        user_filter = _build_user_filter(username=args.username, start_after=args.start_after)
         cursor = user_collection.find(user_filter, projection={"_id": 1}, sort=[("_id", 1)])
         cursor = cursor.batch_size(args.batch_size)
-
-        async for user_doc in cursor:
-            username = user_doc["_id"]
-            stats.scanned_users += 1
-
-            earliest_game = await _find_earliest_game_date(
-                game_collection,
-                username=username,
-                hint=hint,
-                max_time_ms=args.max_time_ms,
-            )
-            if earliest_game is None:
-                stats.no_games += 1
-            else:
-                stats.matched_games += 1
-                pending_updates.append(
-                    UpdateOne(
-                        {
-                            "_id": username,
-                            "$or": [
-                                {"createdAt": {"$exists": False}},
-                                {"createdAt": None},
-                            ],
-                        },
-                        {"$set": {"createdAt": earliest_game}},
-                    )
-                )
-
-            should_flush = len(pending_updates) >= args.batch_size
-            limit_reached = args.limit > 0 and stats.scanned_users >= args.limit
-
-            if should_flush or limit_reached:
-                await _flush_updates(
-                    user_collection,
-                    pending_updates,
-                    stats,
-                    dry_run=not args.apply,
-                )
-
-            if stats.scanned_users % args.progress_every == 0 or limit_reached:
-                elapsed = monotonic() - started
-                print(
-                    (
-                        "scanned=%d matched_games=%d no_games=%d pending=%d "
-                        "update_ops=%d modified=%d elapsed=%.1fs last_user=%s"
-                    )
-                    % (
-                        stats.scanned_users,
-                        stats.matched_games,
-                        stats.no_games,
-                        len(pending_updates),
-                        stats.update_ops,
-                        stats.modified_docs,
-                        elapsed,
-                        username,
-                    ),
-                    flush=True,
-                )
-
-            if limit_reached:
-                break
-
-        await _flush_updates(
-            user_collection,
-            pending_updates,
-            stats,
-            dry_run=not args.apply,
+        show_progress = not args.no_progress
+        if show_progress and tqdm is None:
+            print("tqdm is not installed; running without progress bar.", flush=True)
+            show_progress = False
+        progress = (
+            tqdm(total=total_users, desc="Legacy users", unit="user", dynamic_ncols=True)
+            if show_progress and tqdm is not None
+            else None
         )
+
+        try:
+            async for user_doc in cursor:
+                username = user_doc["_id"]
+                stats.scanned_users += 1
+
+                earliest_game = await _find_earliest_game_date(
+                    game_collection,
+                    username=username,
+                    hint=hint,
+                    max_time_ms=args.max_time_ms,
+                )
+                if earliest_game is None:
+                    stats.no_games += 1
+                else:
+                    stats.matched_games += 1
+                    pending_updates.append(
+                        UpdateOne(
+                            {
+                                "_id": username,
+                                "$or": [
+                                    {"createdAt": {"$exists": False}},
+                                    {"createdAt": None},
+                                ],
+                            },
+                            {"$set": {"createdAt": earliest_game}},
+                        )
+                    )
+
+                should_flush = len(pending_updates) >= args.batch_size
+                limit_reached = args.limit > 0 and stats.scanned_users >= args.limit
+
+                if should_flush or limit_reached:
+                    await _flush_updates(
+                        user_collection,
+                        pending_updates,
+                        stats,
+                        dry_run=not args.apply,
+                    )
+
+                if progress is not None:
+                    progress.update(1)
+                    if stats.scanned_users % args.progress_every == 0 or limit_reached:
+                        progress.set_postfix_str(
+                            ("games=%d no_games=%d queued=%d ops=%d modified=%d last=%s")
+                            % (
+                                stats.matched_games,
+                                stats.no_games,
+                                len(pending_updates),
+                                stats.update_ops,
+                                stats.modified_docs,
+                                username,
+                            )
+                        )
+                elif stats.scanned_users % args.progress_every == 0 or limit_reached:
+                    elapsed = monotonic() - started
+                    print(
+                        (
+                            "scanned=%d matched_games=%d no_games=%d pending=%d "
+                            "update_ops=%d modified=%d elapsed=%.1fs last_user=%s"
+                        )
+                        % (
+                            stats.scanned_users,
+                            stats.matched_games,
+                            stats.no_games,
+                            len(pending_updates),
+                            stats.update_ops,
+                            stats.modified_docs,
+                            elapsed,
+                            username,
+                        ),
+                        flush=True,
+                    )
+
+                if limit_reached:
+                    break
+
+            await _flush_updates(
+                user_collection,
+                pending_updates,
+                stats,
+                dry_run=not args.apply,
+            )
+        finally:
+            if progress is not None:
+                progress.close()
 
         elapsed = monotonic() - started
         print(
