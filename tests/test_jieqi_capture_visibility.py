@@ -9,7 +9,7 @@ from mongomock_motor import AsyncMongoMockClient
 from const import RESIGN
 from fairy import WHITE, BLACK
 from game import Game
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
@@ -17,7 +17,7 @@ from variants import VARIANTS
 
 test_logger.init_test_logger()
 
-PERFS = {"newplayer": {variant: DEFAULT_PERF for variant in VARIANTS}}
+PERFS = {"newplayer": new_default_perf_map(VARIANTS)}
 CLOCKS = [0, 0]
 
 
@@ -28,7 +28,7 @@ class JieqiCaptureVisibilityTestCase(AioHTTPTestCase):
         self.bplayer = User(get_app_state(self.app), username="bplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 

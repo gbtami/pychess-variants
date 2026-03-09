@@ -43,7 +43,7 @@ class TournamentTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         return app
 
     async def reload_tournament(self, db_client, tournament_id):

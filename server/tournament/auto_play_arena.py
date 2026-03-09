@@ -8,6 +8,7 @@ from pychess_global_app_state_utils import get_app_state
 from const import (
     BYEGAME,
     STARTED,
+    VARIANTEND,
     ARENA,
     RR,
     SWISS,
@@ -16,7 +17,7 @@ from const import (
 from draw import draw
 from fairy import BLACK
 from game import MAX_PLY
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from tournament.arena_new import ArenaTournament
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
@@ -31,9 +32,35 @@ log = logging.getLogger(__name__)
 
 # from misc import timeit
 
-PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
-
 AUTO_PLAY_ARENA_NAME = "Auto Play Tournament"
+
+
+def _janggi_point_count_result(fen: str) -> str:
+    board = fen.split(" ", 1)[0]
+    cho_points = 0.0
+    han_points = 1.5
+    for piece in board:
+        if piece == "P":
+            cho_points += 2
+        elif piece in ("A", "B"):
+            cho_points += 3
+        elif piece == "N":
+            cho_points += 5
+        elif piece == "C":
+            cho_points += 7
+        elif piece == "R":
+            cho_points += 13
+        elif piece == "p":
+            han_points += 2
+        elif piece in ("a", "b"):
+            han_points += 3
+        elif piece == "n":
+            han_points += 5
+        elif piece == "c":
+            han_points += 7
+        elif piece == "r":
+            han_points += 13
+    return "1-0" if cho_points > han_points else "0-1"
 
 
 async def create_auto_play_arena(app):
@@ -79,12 +106,34 @@ class TestTournament(Tournament):
     async def join_players(self, nb_players, rating=None):
         for i in range(1, nb_players + 1):
             name = "%sUser_%s" % (TEST_PREFIX, i)
-            player = User(self.app_state, username=name, title="TEST", perfs=PERFS)
+            player = User(
+                self.app_state,
+                username=name,
+                title="TEST",
+                perfs=new_default_perf_map(VARIANTS),
+            )
             if rating:
                 player.perfs[self.variant]["gl"]["r"] = rating
             self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = set((None,))
             await self.join(player)
+
+    async def _auto_complete_janggi_setup(self, game) -> None:
+        if game.variant != "janggi":
+            return
+        if not game.bsetup and not game.wsetup:
+            return
+
+        if game.bsetup:
+            game.board.janggi_setup("b")
+            game.bsetup = False
+        if game.wsetup:
+            game.board.janggi_setup("w")
+            game.wsetup = False
+
+        game.initial_fen = game.board.initial_fen
+        game.steps[0]["fen"] = game.board.initial_fen
+        await game.save_setup()
 
     async def create_new_pairings(self, waiting_players):
         now = datetime.now(timezone.utc).strftime("%H:%M:%S")
@@ -101,7 +150,9 @@ class TestTournament(Tournament):
             if game.status == BYEGAME:  # ByeGame
                 continue
             self.app_state.games[game.id] = game
+            await self._auto_complete_janggi_setup(game)
             game.random_mover = True
+            game.legal_moves = game.board.legal_moves()
             self.game_tasks.add(asyncio.create_task(self.play_random(game)))
 
         return pairing, games
@@ -121,15 +172,34 @@ class TestTournament(Tournament):
 
             await asyncio.sleep(random.choice((0, 0.1, 0.3, 0.5, 0.7)))
 
-        game.status = STARTED
         while game.status <= STARTED:
+            if game.variant == "janggi" and (game.bsetup or game.wsetup):
+                # Respect Janggi setup order; autoplay must wait for setup completion.
+                await asyncio.sleep(0.01)
+                continue
+
+            if game.status < STARTED:
+                game.status = STARTED
+
             cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
             opp_player = game.wplayer if game.board.color == BLACK else game.bplayer
             if cur_player.title == "TEST":
                 ply = random.randint(20, int(MAX_PLY / 10))
                 if game.board.ply == ply or game.board.ply > 60:
                     player = game.wplayer if ply % 2 == 0 else game.bplayer
-                    if game.board.ply > 60:
+                    if game.variant == "janggi" and game.board.ply > 60:
+                        game.update_status(VARIANTEND, _janggi_point_count_result(game.board.fen))
+                        await game.save_game()
+                        response = {
+                            "type": "gameEnd",
+                            "status": game.status,
+                            "result": game.result,
+                            "gameId": game.id,
+                            "pgn": game.pgn,
+                            "ct": game.crosstable,
+                            "rdiffs": "",
+                        }
+                    elif game.board.ply > 60:
                         response = await draw(game, cur_player.username, agreement=True)
                     else:
                         response = await game.game_ended(player, "resign")
@@ -137,7 +207,7 @@ class TestTournament(Tournament):
                         await opp_player.send_game_message(game.id, response)
                 else:
                     move = random.choice(game.legal_moves)
-                    clocks = (game.clocks_w[-1], game.clocks_b[-1])
+                    clocks = [game.clocks_w[-1], game.clocks_b[-1]]
                     try:
                         await play_move(self.app_state, cur_player, game, move, clocks=clocks)
                     except IndexError:

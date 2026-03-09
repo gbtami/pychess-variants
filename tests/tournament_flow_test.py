@@ -1,20 +1,28 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import json
 import unittest
 from datetime import datetime, timedelta, timezone
 
 from const import FLAG, T_CREATED, T_FINISHED, T_STARTED
+from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
+from tournament import swiss as swiss_mod
 from tournament.auto_play_arena import (
     ArenaTestTournament,
     RRTestTournament,
     SwissTestTournament,
 )
-from tournament.tournament import GameData, upsert_tournament_to_db
+from tournament.tournament import MANUAL_ROUND_INTERVAL, GameData, upsert_tournament_to_db
 from tournament_test_base import ONE_TEST_ONLY, TournamentTestCase
 from user import User
+from variants import VARIANTS
+
+
+def make_test_perfs():
+    return new_default_perf_map(VARIANTS)
 
 
 class TournamentFlowTestCase(TournamentTestCase):
@@ -24,6 +32,101 @@ class TournamentFlowTestCase(TournamentTestCase):
         tournament.wave = timedelta(milliseconds=200)
         tournament.wave_delta = timedelta(milliseconds=25)
         return tournament
+
+    def _new_condition_user(
+        self,
+        tournament,
+        username: str,
+        *,
+        title: str = "IM",
+        rating: int = 1600,
+        rated_games: int = 25,
+        account_age_days: int = 60,
+    ) -> User:
+        app_state = get_app_state(self.app)
+        user = User(
+            app_state,
+            username=username,
+            title=title,
+            perfs=make_test_perfs(),
+            created_at=datetime.now(timezone.utc) - timedelta(days=account_age_days),
+        )
+        user.perfs["chess"]["gl"]["r"] = rating
+        user.perfs["chess"]["nb"] = rated_games
+        user.tournament_sockets[tournament.id] = set((None,))
+        app_state.users[user.username] = user
+        return user
+
+    async def _assert_non_swiss_entry_conditions(self, tournament) -> None:
+        app_state = get_app_state(self.app)
+        app_state.tournaments[tournament.id] = tournament
+
+        untitled = self._new_condition_user(tournament, f"{tournament.id}_untitled", title="")
+        self.assertEqual(
+            await tournament.join(untitled),
+            "This tournament is limited to titled players.",
+        )
+
+        low_rated = self._new_condition_user(tournament, f"{tournament.id}_low", rating=1300)
+        self.assertEqual(
+            await tournament.join(low_rated),
+            "Your rating is below the minimum allowed for this tournament.",
+        )
+
+        too_new = self._new_condition_user(tournament, f"{tournament.id}_new", account_age_days=5)
+        self.assertEqual(
+            await tournament.join(too_new),
+            "This tournament requires accounts to be at least 30 days old.",
+        )
+
+        too_few_games = self._new_condition_user(
+            tournament, f"{tournament.id}_few_games", rated_games=5
+        )
+        self.assertEqual(
+            await tournament.join(too_few_games),
+            "This tournament requires at least 20 rated Chess games.",
+        )
+
+        allowed = self._new_condition_user(tournament, f"{tournament.id}_allowed")
+        self.assertIsNone(await tournament.join(allowed))
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_arena_join_enforces_generic_entry_conditions(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=1,
+            minutes=10,
+            with_clock=False,
+            entry_min_rating=1400,
+            entry_max_rating=1800,
+            entry_min_rated_games=20,
+            entry_min_account_age_days=30,
+            entry_titled_only=True,
+        )
+        await self._assert_non_swiss_entry_conditions(self.tournament)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_join_enforces_generic_entry_conditions(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=1,
+            rounds=3,
+            with_clock=False,
+            entry_min_rating=1400,
+            entry_max_rating=1800,
+            entry_min_rated_games=20,
+            entry_min_account_age_days=30,
+            entry_titled_only=True,
+        )
+        await self._assert_non_swiss_entry_conditions(self.tournament)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_without_players(self):
@@ -107,6 +210,31 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_fixed_round_swiss_ignores_minutes_deadline(self):
+        app_state = get_app_state(self.app)
+        NB_PLAYERS = 7
+        NB_ROUNDS = 3
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=0,
+            rounds=NB_ROUNDS,
+            minutes=0,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(NB_PLAYERS)
+
+        if self.tournament.clock_task is not None:
+            await asyncio.wait_for(self.tournament.clock_task, timeout=20)
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual(
+            [len(player.games) for player in self.tournament.players.values()],
+            NB_PLAYERS * [NB_ROUNDS],
+        )
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_tournament_pairing_1_min_ARENA(self):
         app_state = get_app_state(self.app)
         NB_PLAYERS = 15
@@ -148,6 +276,272 @@ class TournamentFlowTestCase(TournamentTestCase):
             [len(player.games) for player in self.tournament.players.values()],
             NB_PLAYERS * [NB_ROUNDS],
         )
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_fixed_round_rr_ignores_minutes_deadline(self):
+        app_state = get_app_state(self.app)
+        NB_PLAYERS = 5
+        NB_ROUNDS = 5
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=0,
+            rounds=NB_ROUNDS,
+            minutes=0,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(NB_PLAYERS)
+
+        if self.tournament.clock_task is not None:
+            await asyncio.wait_for(self.tournament.clock_task, timeout=10)
+
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual(
+            [len(player.games) for player in self.tournament.players.values()],
+            NB_PLAYERS * [NB_ROUNDS],
+        )
+
+    async def test_fixed_round_manual_next_round_waits_for_organizer(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=0,
+            rounds=2,
+            round_interval=MANUAL_ROUND_INTERVAL,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.tournament.current_round = 1
+        self.assertTrue(
+            await self.tournament.maybe_schedule_next_fixed_round(datetime.now(timezone.utc))
+        )
+        self.assertTrue(self.tournament.manual_next_round_pending)
+        self.assertEqual(self.tournament.current_round, 1)
+        self.assertEqual(len(self.tournament.ongoing_games), 0)
+        self.assertTrue(self.tournament.live_status()["manualNextRound"])
+
+        self.assertTrue(await self.tournament.start_next_round_now(datetime.now(timezone.utc)))
+        self.assertFalse(self.tournament.manual_next_round_pending)
+        self.assertEqual(self.tournament.current_round, 2)
+        self.assertGreater(len(self.tournament.ongoing_games), 0)
+
+    async def test_fixed_round_standings_mark_ongoing_games_with_star(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=0, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(3)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.tournament.current_round = 1
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        self.assertEqual(len(games), 1)
+
+        players_json = self.tournament.players_json()
+        star_marked_rows = [
+            row
+            for row in players_json["players"]
+            if any(
+                isinstance(point, tuple) and len(point) > 0 and point[0] == "*"
+                for point in row["points"]
+            )
+        ]
+        self.assertEqual(len(star_marked_rows), 2)
+
+        for player_data in self.tournament.players.values():
+            self.assertFalse(
+                any(
+                    isinstance(point, tuple) and len(point) > 0 and point[0] == "*"
+                    for point in player_data.points
+                )
+            )
+
+    async def test_fixed_round_players_remain_pairable_from_finished_game_socket(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = swiss_mod.SwissTournament(
+            app_state, tid, variant="chess", before_start=0, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+
+        class _DummyWs:
+            def __init__(self):
+                self.messages: list[dict[str, object]] = []
+
+            async def send_str(self, payload: str) -> None:
+                self.messages.append(json.loads(payload))
+
+            async def close(self) -> None:
+                return None
+
+        lobby_ws = _DummyWs()
+        players = []
+        for suffix in ("A", "B", "C", "D"):
+            user = User(app_state, username=f"fixed_round_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = {lobby_ws}
+            app_state.tourneysockets[tid][user.username] = user.tournament_sockets[tid]
+            await self.tournament.join(user)
+            players.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        waiting_round_1 = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_round_1)
+        self.assertEqual(len(games), 2)
+
+        for game in games:
+            game.result = "1-0"
+            game.status = FLAG
+            game.board.ply = 20
+            await self.tournament.game_update(game)
+
+        await asyncio.sleep(0)
+
+        game_ws_by_user: dict[str, _DummyWs] = {}
+        for game in games:
+            for player in (game.wplayer, game.bplayer):
+                game_ws = _DummyWs()
+                game_ws_by_user[player.username] = game_ws
+                player.tournament_sockets[tid] = set()
+                app_state.tourneysockets[tid][player.username] = player.tournament_sockets[tid]
+                player.game_sockets[game.id] = {game_ws}
+
+        self.tournament.current_round = 2
+        waiting_round_2 = list(self.tournament.waiting_players())
+        self.assertEqual(
+            {player.username for player in waiting_round_2},
+            {player.username for player in players},
+        )
+
+        _, round_2_games = await self.tournament.create_new_pairings(waiting_round_2)
+        self.assertEqual(len(round_2_games), 2)
+
+        for player in players:
+            player_data = self.tournament.player_data_by_name(player.username)
+            self.assertIsNotNone(player_data)
+            assert player_data is not None
+            self.assertFalse(player_data.paused)
+            self.assertTrue(
+                any(
+                    msg.get("type") == "new_game"
+                    for msg in game_ws_by_user[player.username].messages
+                )
+            )
+
+    async def test_rr_waiting_players_ignore_socket_presence(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, variant="chess", before_start=0, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        for player in self.tournament.players:
+            player.tournament_sockets[self.tournament.id] = set()
+
+        waiting_players = list(self.tournament.waiting_players())
+        self.assertEqual(
+            {player.username for player in waiting_players},
+            {player.username for player in self.tournament.players},
+        )
+
+    async def test_swiss_ws_redirect_failure_does_not_pause_players(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = swiss_mod.SwissTournament(
+            app_state, tid, variant="chess", before_start=0, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        players = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"fixed_round_wsless_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            await self.tournament.join(user)
+            players.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        waiting_players = list(self.tournament.waiting_players())
+        self.assertEqual(
+            {player.username for player in waiting_players},
+            {player.username for player in players},
+        )
+
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        self.assertEqual(len(games), 1)
+
+        for player in players:
+            player_data = self.tournament.player_data_by_name(player.username)
+            self.assertIsNotNone(player_data)
+            assert player_data is not None
+            self.assertFalse(player_data.paused)
+            self.assertFalse(player_data.withdrawn)
+            self.assertFalse(player_data.free)
+
+    async def test_arena_standings_do_not_mark_ongoing_games_with_star(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        self.assertEqual(len(games), 1)
+
+        players_json = self.tournament.players_json()
+        self.assertTrue(
+            all(
+                not any(
+                    isinstance(point, tuple) and len(point) > 0 and point[0] == "*"
+                    for point in row["points"]
+                )
+                for row in players_json["players"]
+            )
+        )
+
+    async def test_fixed_round_standings_render_absent_as_dash(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=0, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        absent = list(self.tournament.players.keys())[0]
+        await self.tournament.pause(absent)
+
+        waiting_players = list(self.tournament.waiting_players())
+        await self.tournament.create_new_pairings(waiting_players)
+
+        players_json = self.tournament.players_json()
+        absent_row = next(row for row in players_json["players"] if row["name"] == absent.username)
+        self.assertEqual(absent_row["points"][-1], "-")
+
+        absent_data = self.tournament.players[absent]
+        self.assertEqual(absent_data.points[-1], (0, 0))
 
     async def test_tournament_rating_update_on_rejoin(self):
         app_state = get_app_state(self.app)

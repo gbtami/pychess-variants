@@ -134,6 +134,17 @@ async def handle_join(
             response = {"type": "error", "message": "Incorrect password"}
             await ws_send_json(ws, response)
             return
+        if result == "LATE_JOIN_CLOSED":
+            response = {
+                "type": "error",
+                "message": "Late join is closed for this Swiss tournament",
+            }
+            await ws_send_json(ws, response)
+            return
+        if result is not None:
+            response = {"type": "error", "message": result}
+            await ws_send_json(ws, response)
+            return
 
         response = {
             "type": "ustatus",
@@ -205,11 +216,19 @@ async def handle_user_connected(
             (tournament.starts_at - now).total_seconds() if tournament.starts_at > now else 0
         ),
         "secondsToFinish": (
-            (tournament.ends_at - now).total_seconds() if tournament.starts_at < now else 0
+            max(0.0, (tournament.ends_at - now).total_seconds())
+            if tournament.starts_at < now
+            else 0
         ),
-        "chatClosed": (now - tournament.ends_at).total_seconds() > 60 * 60,
+        "chatClosed": tournament.status > T_STARTED
+        and (now - tournament.ends_at).total_seconds() > 60 * 60,
         "private": bool(tournament.password),
     }
+    round_ongoing_games, seconds_to_next_round = tournament.round_status(now)
+    response["currentRound"] = tournament.current_round
+    response["roundOngoingGames"] = round_ongoing_games
+    response["secondsToNextRound"] = seconds_to_next_round
+    response["manualNextRound"] = tournament.manual_next_round_pending
     if tournament.frequency == SHIELD:
         variant_name = tournament.variant + ("960" if tournament.chess960 else "")
         defender = await app_state.users.get(app_state.shield_owners[variant_name])
@@ -251,6 +270,13 @@ async def handle_lobbychat(
         assert tournament is not None
     message = data["message"]
     response: ChatLine | FullChatMessage | None = None
+
+    round_controller = user.username in TOURNAMENT_DIRECTORS or user.username == tournament.creator
+
+    if round_controller and message.startswith("/startround"):
+        if await tournament.start_next_round_now():
+            return
+        return
 
     if user.username in TOURNAMENT_DIRECTORS:
         if message.startswith("/silence"):

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from functools import partial
 from typing import TYPE_CHECKING, TypedDict
 
@@ -13,10 +13,10 @@ from aiohttp_sse import sse_response
 import pymongo
 
 from compress import C2R, decode_move_standard
-from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM, SSE_GET_TIMEOUT
+from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM, SSE_GET_TIMEOUT, SWISS
 from convert import zero2grand
 from settings import ADMINS
-from tournament.tournaments import get_tournament_name
+from tournament.tournaments import get_tournament_name, load_tournament
 from utils import pgn
 from pychess_global_app_state_utils import get_app_state
 import logging
@@ -116,7 +116,7 @@ async def variant_counts_aggregation(
 
     docs: list[VariantCountDoc] = []
 
-    cur_period = datetime.now().isoformat()[:7].replace("-", "")
+    cur_period = datetime.now(timezone.utc).isoformat()[:7].replace("-", "")
 
     async for doc in cursor:
         # print(doc)
@@ -627,6 +627,35 @@ async def export(request: web.Request) -> web.StreamResponse:
         log.exception("An unexpected error occurred: ")
     finally:
         await safe_write_eof(response)
+    return response
+
+
+async def export_tournament_trf(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    tournament_id = request.match_info.get("tournamentId")
+    if tournament_id is None:
+        return web.Response(text="")
+
+    tournament = await load_tournament(app_state, tournament_id)
+    if tournament is None:
+        await asyncio.sleep(3)
+        return web.Response(text="")
+
+    if tournament.system != SWISS:
+        return web.Response(text="", status=400)
+
+    try:
+        from tournament.swiss import build_trf_export_text
+
+        trf_text = build_trf_export_text(tournament)
+    except Exception:
+        log.exception("TRF export failed for tournament %s", tournament_id)
+        return web.Response(text="", status=500)
+
+    response = web.Response(text=trf_text, content_type="text/plain")
+    response.headers["Content-Disposition"] = (
+        f'attachment; filename="pychess_tournament_{tournament_id}.trf"'
+    )
     return response
 
 

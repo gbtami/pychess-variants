@@ -16,7 +16,7 @@ import { boardSettings } from './boardSettings';
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
 import { MsgUserStatus, MsgGetGames, TournamentGame, MsgTournamentStatus, MsgUserConnectedTournament, MsgGetPlayers, TournamentPlayer, MsgError, MsgPing, TopGame } from './tournamentType';
 import { newWebsocket } from "@/socket/webSocketUtils";
-import { faq } from './tournamentFaq';
+import { faq, roundRobinFaq, swissFaq } from './tournamentFaq';
 import { displayUsername, userLink } from "./user";
 
 
@@ -48,6 +48,9 @@ const T_STATUS = {
 const scoreTagNames = ['score', 'streak', 'double'];
 
 const SCORE_SHIFT = 100000;
+const RR_SYSTEM = 1;
+const SWISS_SYSTEM = 2;
+const VARIANTEND_STATUS = 12;
 
 const SHIELD = 's';
 
@@ -58,6 +61,8 @@ export class TournamentController implements ChatController {
     readyState: number; // seems unused
     buttons: VNode;
     system: number;
+    rounds: number;
+    currentRound: number;
     players: TournamentPlayer[]; // seems unused
     nbPlayers: number;
     page: number;
@@ -78,6 +83,10 @@ export class TournamentController implements ChatController {
     visitedPlayer: string;
     secondsToStart: number;
     secondsToFinish: number;
+    roundOngoingGames: number;
+    secondsToNextRound: number;
+    manualNextRoundPending: boolean;
+    clockInterval: ReturnType<typeof setInterval> | null;
     username: string;
     anon: boolean;
     private: boolean;
@@ -87,11 +96,18 @@ export class TournamentController implements ChatController {
         this.tournamentId = model["tournamentId"]
         this.nbPlayers = 0;
         this.page = 1;
+        this.rounds = model["rounds"] || 0;
+        this.currentRound = 0;
+        this.system = model["tsystem"] || 0;
         this.tournamentStatus = T_STATUS[model["status"] as keyof typeof T_STATUS];
         this.visitedPlayer = '';
         this.startDate = model["date"];
         this.secondsToStart = 0;
         this.secondsToFinish = 0;
+        this.roundOngoingGames = 0;
+        this.secondsToNextRound = 0;
+        this.manualNextRoundPending = false;
+        this.clockInterval = null;
         this.private = false;
 
         const onOpen = () => {
@@ -111,7 +127,12 @@ export class TournamentController implements ChatController {
         this.buttons = patch(document.getElementById('page-controls') as HTMLElement, this.renderButtons());
 
         if (this.tournamentStatus === 'created') {
-            patch(document.querySelector('div.tour-faq') as HTMLElement, faq(this.rated));
+            const faqView = this.system === SWISS_SYSTEM
+                ? swissFaq(this.rated)
+                : this.system === RR_SYSTEM
+                    ? roundRobinFaq(this.rated)
+                    : faq(this.rated);
+            patch(document.querySelector('div.tour-faq') as HTMLElement, faqView);
         } else {
             patch(document.querySelector('div.tour-faq') as HTMLElement, h('!'));
         }
@@ -204,7 +225,8 @@ export class TournamentController implements ChatController {
             if ('spectator|paused|withdrawn'.includes(this.userStatus)) {
                 button = h('button#action', { on: { click: () => this.join() }, class: {"icon": true, "icon-play": true} }, _('JOIN'));
             } else {
-                button = h('button#action', { on: { click: () => this.pause() }, class: {"icon": true, "icon-pause": true} }, _('PAUSE'));
+                const pauseLabel = this.system > 0 ? _('WITHDRAW') : _('PAUSE');
+                button = h('button#action', { on: { click: () => this.pause() }, class: {"icon": true, "icon-pause": true} }, pauseLabel);
             }
             break;
         }
@@ -220,17 +242,7 @@ export class TournamentController implements ChatController {
     }
 
     renderSummary(msg: MsgTournamentStatus) {
-        const summary = h('div#summary', {class: {"box": true}}, [
-            h('h2', _('Tournament complete')),
-            h('table', [
-                h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
-                h('tr', [h('th', _('Average rating')), h('td', Math.round(msg.sumRating / msg.nbPlayers))]),
-                h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
-                h('tr', [h('th', _('%1 wins', _(this.variant.colors.first))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
-                h('tr', [h('th', _('%1 wins', _(this.variant.colors.second))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
-                h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
-                h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
-            ]),
+        const downloadLinks: VNode[] = [
             h('table.tour-stats-links', [
                 h('a.i-dl.icon.icon-download', {
                     attrs: {
@@ -247,6 +259,33 @@ export class TournamentController implements ChatController {
                     },
                 }, _('Download all games in JSON')),
             ]),
+        ];
+
+        if (this.system === SWISS_SYSTEM) {
+            downloadLinks.push(
+                h('table.tour-stats-links', [
+                    h('a.i-dl.icon.icon-download', {
+                        attrs: {
+                            href: '/games/export/tournament/' + this.tournamentId + '/trf',
+                            download: 'pychess_tournament_' + this.tournamentId + '.trf',
+                        },
+                    }, _('Download TRF pairing state')),
+                ])
+            );
+        }
+
+        const summary = h('div#summary', {class: {"box": true}}, [
+            h('h2', _('Tournament complete')),
+            h('table', [
+                h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
+                h('tr', [h('th', _('Average rating')), h('td', Math.round(msg.sumRating / msg.nbPlayers))]),
+                h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
+                h('tr', [h('th', _('%1 wins', _(this.variant.colors.first))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
+                h('tr', [h('th', _('%1 wins', _(this.variant.colors.second))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
+                h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
+                h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
+            ]),
+            ...downloadLinks,
         ]);
         const el = document.getElementById('summarybox') as HTMLElement;
         if (el) patch(el, summary);
@@ -257,25 +296,37 @@ export class TournamentController implements ChatController {
         return rows;
     }
 
+    private scoreSheetEntries(points: any[]): Array<any | null> {
+        if (!(this.system > 0 && this.rounds > 0)) return points;
+        const entries = points.slice(0, this.rounds);
+        while (entries.length < this.rounds) entries.push(null);
+        return entries;
+    }
+
     private playerView(player: TournamentPlayer, index: number) {
         if (player.name === this.visitedPlayer) {
             this.doSend({ type: "get_games", tournamentId: this.tournamentId, player: this.visitedPlayer });
         }
         let fullScore = Math.trunc(player.score / SCORE_SHIFT);
         if (this.system > 0 && this.variant.name !== 'janggi') fullScore = fullScore / 2;
-
-        return h('tr', { on: { click: () => this.onClickPlayer(player.name) } }, [
+        const fixedRoundSheet = this.system > 0 && this.rounds > 0;
+        const sheetEntries = this.scoreSheetEntries(player.points);
+        const rowCells: Array<VNode | string | number> = [
             h('td.rank', [(player.paused && !this.completed()) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
                 h('span.title', player.title),
                 h('span.name', displayUsername(player.name)),
                 h('span', player.rating),
             ]),
-            h('td.sheet', [h('div', player.points.map( (s: any) => {
+            h(`td.sheet${fixedRoundSheet ? '.fixed-rounds' : ''}`, [h('div', sheetEntries.map( (s: any | null) => {
+                if (s === null) {
+                    return h('score.point.empty', '\u00a0');
+                }
                 let score = Array.isArray(s) ? s[0] : s;
                 if (this.system > 0 && score !== '*' && score !== '-' && this.variant.name !== 'janggi') score = score / 2;
                 const pointKlass = this.system > 0 ? '.point' : '';
-                const resultKlass = ((this.system > 0) ? (score >= 1) ? '.win': (score === 0.5) ? '.draw' : '.lose' : '');
+                const isNumericScore = typeof score === 'number';
+                const resultKlass = ((this.system > 0 && isNumericScore) ? (score >= 1) ? '.win': (score === 0.5) ? '.draw' : '.lose' : '');
                 if (score === 0.5) score = '½';
                 return h(scoreTagNames[(s[1] || 1) - 1] + pointKlass + resultKlass, [score]);
             }))]),
@@ -284,7 +335,13 @@ export class TournamentController implements ChatController {
                 h('strong.score', fullScore),
                 // h('span.perf', player.perf)
             ]),
-        ]);
+        ];
+
+        if (this.system > 0) {
+            rowCells.push(h('td.berger', this.bergerDisplay(player.berger)));
+        }
+
+        return h('tr', { on: { click: () => this.onClickPlayer(player.name) } }, rowCells);
     }
 
     private onClickPlayer(player: string) {
@@ -324,7 +381,34 @@ export class TournamentController implements ChatController {
         return rows;
     }
 
-    result(result: string, color: string) {
+    result(result: string, color: string, status?: number) {
+        if (this.variant.name === 'janggi') {
+            let value = '*';
+            let klass = '';
+            if (result === '1-0') {
+                const won = color === 'w';
+                if (status === VARIANTEND_STATUS) {
+                    value = won ? '4' : '2';
+                } else {
+                    value = won ? '7' : '0';
+                }
+                klass = won ? '.win' : '.lose';
+            } else if (result === '0-1') {
+                const won = color === 'b';
+                if (status === VARIANTEND_STATUS) {
+                    value = won ? '4' : '2';
+                } else {
+                    value = won ? '7' : '0';
+                }
+                klass = won ? '.win' : '.lose';
+            } else if (result === '1/2-1/2') {
+                value = '0';
+            } else if (result === '-') {
+                value = '-';
+            }
+            return h(`td.result${klass}`, value);
+        }
+
         let value = '*';
         switch (result) {
         case '1-0':
@@ -346,10 +430,23 @@ export class TournamentController implements ChatController {
 
     private gameView(game: TournamentGame, index: number) {
         if (game.result === '-') {
+            const variantIsJanggi = this.variant.name === 'janggi';
+            const unplayedLabel =
+                game.unplayedType === 'late'
+                    ? _('Late')
+                    : game.unplayedType === 'absent'
+                        ? _('Absent')
+                        : _('Bye');
+            const unplayedScore =
+                game.unplayedType === 'late'
+                    ? (variantIsJanggi ? '2' : '½')
+                    : (this.system === SWISS_SYSTEM && game.unplayedType === 'bye')
+                        ? (variantIsJanggi ? '7' : '1')
+                        : '-';
             return h('tr', [
                 h('th', index),
-                h('td.bye', { attrs: { colspan: '3' } }, 'Bye'),
-                h('td.result', '-')
+                h('td.bye', { attrs: { colspan: '3' } }, unplayedLabel),
+                h('td.result', unplayedScore)
             ]);
         } else {
             const color = (game.color === 'w') ? this.variant.colors.first : this.variant.colors.second;
@@ -363,7 +460,7 @@ export class TournamentController implements ChatController {
                 h('td', [
                     h('i-side.icon', {class: {[colorIcon(this.variant.name, color)]: true}}),
                 ]),
-                this.result(game.result, game.color),
+                this.result(game.result, game.color, game.status),
             ]);
         }
     }
@@ -379,12 +476,34 @@ export class TournamentController implements ChatController {
         }
     }
 
+    private updateTournamentSystemLabel() {
+        const tsystem = document.getElementById('tsystem') as Element | null;
+        if (!tsystem) return;
+
+        const parts = [gameType(this.rated)];
+        if (this.system > 0 && this.rounds > 0 && this.tournamentStatus === 'started') {
+            const round = Math.min(this.rounds, Math.max(1, this.currentRound));
+            parts.push(`${round}/${this.rounds} ${_('rounds')}`);
+        }
+        parts.push(this.tSystem(this.system));
+        patch(tsystem, h('div#tsystem', parts.join(' • ')));
+    }
+
     renderStats(msg: MsgGetGames) {
         const games = msg.games.filter(game => game.result !== '-');
         const gamesLen = games.length;
         const avgOp = gamesLen
             ? Math.round(games.reduce((a, b) => a + b.rating, 0) / gamesLen)
             : undefined;
+        const statsRows: VNode[] = [];
+        if (this.system > 0) {
+            statsRows.push(h('tr', [h('th', _('Tie Break')), h('td', this.bergerDisplay(msg.berger))]));
+        }
+        statsRows.push(h('tr', [h('th', _('Performance')), h('td', msg.perf)]));
+        statsRows.push(h('tr', [h('th', _('Games played')), h('td', gamesLen)]));
+        statsRows.push(h('tr', [h('th', _('Win rate')), h('td', this.calcRate(msg.nbGames, msg.nbWin))]));
+        statsRows.push(h('tr', [h('th', _('Average opponent')), h('td', avgOp)]));
+        statsRows.push(h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(msg.nbGames, msg.nbBerserk))]));
 
         return [
             h('span.close', {
@@ -395,13 +514,7 @@ export class TournamentController implements ChatController {
                 h('rank', msg.rank + '. '),
                 playerInfo(msg.name, msg.title),
             ]),
-            h('table.stats', [
-                h('tr', [h('th', _('Performance')), h('td', msg.perf)]),
-                h('tr', [h('th', _('Games played')), h('td', gamesLen)]),
-                h('tr', [h('th', _('Win rate')), h('td', this.calcRate(msg.nbGames, msg.nbWin))]),
-                h('tr', [h('th', _('Average opponent')), h('td', avgOp)]),
-                h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(msg.nbGames, msg.nbBerserk))])
-            ]),
+            h('table.stats', statsRows),
         ];
     }
 
@@ -452,12 +565,18 @@ export class TournamentController implements ChatController {
         return ((nbGames !== 0) ? Math.round(100 * (nbWin / nbGames)) : 0) + '%';
     }
 
+    private bergerDisplay(berger: number) {
+        const rounded = Math.round(berger * 2) / 2;
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+    }
+
     renderPodium(players: TournamentPlayer[]) {
         return h('div.podium', [
             h('div.second', [
                 h('div.trophy'),
                 playerInfo(players[1].name, players[1].title),
                 h('table.stats', [
+                    ...(this.system > 0 ? [h('tr', [h('th', _('Tie Break')), h('td', this.bergerDisplay(players[1].berger))])] : []),
                     h('tr', [h('th', _('Performance')), h('td', players[1].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[1].nbGames)]),
                     h('tr', [h('th', _('Win rate')), h('td', this.calcRate(players[1].nbGames, players[1].nbWin))]),
@@ -468,6 +587,7 @@ export class TournamentController implements ChatController {
                 h('div.trophy'),
                 playerInfo(players[0].name, players[0].title),
                 h('table.stats', [
+                    ...(this.system > 0 ? [h('tr', [h('th', _('Tie Break')), h('td', this.bergerDisplay(players[0].berger))])] : []),
                     h('tr', [h('th', _('Performance')), h('td', players[0].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[0].nbGames)]),
                     h('tr', [h('th', _('Win rate')), h('td', this.calcRate(players[0].nbGames, players[0].nbWin))]),
@@ -478,6 +598,7 @@ export class TournamentController implements ChatController {
                 h('div.trophy'),
                 playerInfo(players[2].name, players[2].title),
                 h('table.stats', [
+                    ...(this.system > 0 ? [h('tr', [h('th', _('Tie Break')), h('td', this.bergerDisplay(players[2].berger))])] : []),
                     h('tr', [h('th', _('Performance')), h('td', players[2].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[2].nbGames)]),
                     h('tr', [h('th', _('Win rate')), h('td', this.calcRate(players[2].nbGames, players[2].nbWin))]),
@@ -574,8 +695,6 @@ export class TournamentController implements ChatController {
         if (trophy && msg.frequency === SHIELD) patch(trophy, h('a', {class: {"shield-trophy": true} }, dataIcon));
 
         this.system = msg.tsystem;
-        const tsystem = document.getElementById('tsystem') as Element;
-        patch(tsystem, h('div#tsystem', gameType(this.rated) + " • " + this.tSystem(this.system)));
 
         const tminutes = document.getElementById('tminutes') as Element;
         patch(tminutes, h('span#tminutes', this.durationString(msg.tminutes)));
@@ -611,7 +730,12 @@ export class TournamentController implements ChatController {
         this.userRating = msg.urating;
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
+        this.currentRound = msg.currentRound ?? 0;
+        this.roundOngoingGames = msg.roundOngoingGames ?? 0;
+        this.secondsToNextRound = msg.secondsToNextRound ?? 0;
+        this.manualNextRoundPending = msg.manualNextRound ?? false;
         this.private = msg.private;
+        this.updateTournamentSystemLabel();
 
         this.updateActionButton()
 
@@ -632,15 +756,45 @@ export class TournamentController implements ChatController {
 
     private onMsgTournamentStatus(msg: MsgTournamentStatus) {
         const oldStatus = this.tournamentStatus;
+        const oldCurrentRound = this.currentRound;
+        const oldRoundOngoingGames = this.roundOngoingGames;
+        const oldSecondsToNextRound = this.secondsToNextRound;
+        const oldManualNextRoundPending = this.manualNextRoundPending;
         this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
-        if (oldStatus !== this.tournamentStatus) {
-            if (msg.secondsToFinish !== undefined) {
-                this.secondsToFinish = msg.secondsToFinish;
-            }
-            // TODO: in Swiss/RR clock is meaningless, we need the number of ongoing games shown and updating
+        if (msg.secondsToFinish !== undefined) {
+            this.secondsToFinish = msg.secondsToFinish;
+        }
+        if (msg.currentRound !== undefined) {
+            this.currentRound = msg.currentRound;
+        }
+        if (msg.roundOngoingGames !== undefined) {
+            this.roundOngoingGames = msg.roundOngoingGames;
+        }
+        if (msg.secondsToNextRound !== undefined) {
+            this.secondsToNextRound = msg.secondsToNextRound;
+        }
+        if (msg.manualNextRound !== undefined) {
+            this.manualNextRoundPending = msg.manualNextRound;
+        }
+        if (
+            oldStatus !== this.tournamentStatus ||
+            oldCurrentRound !== this.currentRound ||
+            oldRoundOngoingGames !== this.roundOngoingGames ||
+            oldSecondsToNextRound !== this.secondsToNextRound ||
+            oldManualNextRoundPending !== this.manualNextRoundPending
+        ) {
             initializeClock(this);
         }
+        this.updateTournamentSystemLabel();
         this.updateActionButton()
+        const fixedRoundRoundStarted =
+            this.system > 0 &&
+            this.tournamentStatus === 'started' &&
+            oldRoundOngoingGames === 0 &&
+            this.roundOngoingGames > 0;
+        if (fixedRoundRoundStarted) {
+            this.doSend({ type: "get_players", tournamentId: this.tournamentId, page: this.page });
+        }
         if (this.tournamentStatus !== 'created') {
             const faqEl = document.querySelector('div.tour-faq') as HTMLElement;
             if (faqEl) patch(faqEl, h('!'));

@@ -10,12 +10,13 @@ The Glicko2 rating system.
 :license: BSD, see LICENSE for more details.
 """
 
-from typing import Tuple
+from collections.abc import Iterable, Mapping
+from typing import Any, Tuple, cast
 import math
 from calendar import timegm
 from datetime import datetime, timezone
 
-from typing_defs import PerfEntry
+from typing_defs import PerfEntry, PerfMap
 
 
 #: The actual score for win
@@ -230,9 +231,60 @@ class Glicko2:
 
 
 gl2 = Glicko2()
-rating = gl2.create_rating()
-DEFAULT_PERF: PerfEntry = {
-    "gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma},
-    "la": datetime.now(timezone.utc),
-    "nb": 0,
-}
+
+
+def _perf_timestamp(raw: Any) -> datetime:
+    if isinstance(raw, datetime):
+        if raw.tzinfo is None:
+            return raw.replace(tzinfo=timezone.utc)
+        return raw.astimezone(timezone.utc)
+    return datetime.now(timezone.utc)
+
+
+def new_default_perf(ltime: datetime | None = None) -> PerfEntry:
+    timestamp = _perf_timestamp(ltime)
+    return {
+        "gl": {"r": float(MU), "d": float(PHI), "v": float(SIGMA)},
+        "la": timestamp,
+        "nb": 0,
+    }
+
+
+def perf_entry_with_defaults(perf: Mapping[str, object] | None) -> PerfEntry:
+    if perf is None:
+        return new_default_perf()
+
+    raw_gl = perf.get("gl")
+    gl = raw_gl if isinstance(raw_gl, Mapping) else {}
+    raw_nb = perf.get("nb", 0)
+    if isinstance(raw_nb, bool):
+        nb = int(raw_nb)
+    elif isinstance(raw_nb, (int, float, str, bytes)):
+        try:
+            nb = int(cast(int | float | str | bytes, raw_nb))
+        except ValueError:
+            nb = 0
+    else:
+        nb = 0
+
+    return {
+        "gl": {
+            "r": float(gl.get("r", MU)),
+            "d": float(gl.get("d", PHI)),
+            "v": float(gl.get("v", SIGMA)),
+        },
+        "la": _perf_timestamp(perf.get("la")),
+        "nb": nb,
+    }
+
+
+def new_default_perf_map(variants: Iterable[str]) -> PerfMap:
+    return {variant: new_default_perf() for variant in variants}
+
+
+def perf_map_with_defaults(
+    variants: Iterable[str], perfs: Mapping[str, Mapping[str, object]] | PerfMap | None = None
+) -> PerfMap:
+    if perfs is None:
+        return new_default_perf_map(variants)
+    return {variant: perf_entry_with_defaults(perfs.get(variant)) for variant in variants}

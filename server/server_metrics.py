@@ -284,7 +284,7 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
         for game_id, game in sorted(app_state.games.items(), key=lambda x: x[1].date, reverse=True)
     ]
     connections: list[dict[str, str]] = [
-        {"id": username, "timestamp": datetime.now().isoformat()}
+        {"id": username, "timestamp": datetime.now(timezone.utc).isoformat()}
         for username in app_state.lobby.lobbysockets
     ]
 
@@ -297,7 +297,7 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
 
     metrics: dict[str, object] = {
         "active_connections": len(active_connections),
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "top_allocations": [
             {
                 "type": stat["type"],

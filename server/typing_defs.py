@@ -27,6 +27,9 @@ class UserDocument(TypedDict, total=False):
     _id: str
     title: str
     enabled: bool
+    createdAt: datetime
+    swissBanUntil: datetime
+    swissBanHours: int
     perfs: PerfMap
     pperfs: PerfMap
     lang: str
@@ -79,6 +82,8 @@ class GameSummaryJson(TypedDict):
     rating: int
     color: Literal["w", "b"]
     result: str
+    # Optional game termination status code (used for variant-specific tournament point display).
+    status: NotRequired[int]
 
 
 class TvGameJson(TypedDict):
@@ -464,6 +469,7 @@ class ViewContext(TypedDict, total=False):
     before_start: int
     minutes: int
     rounds: int
+    round_interval: int
     frequency: str
 
 
@@ -482,6 +488,14 @@ class TournamentCreateData(TypedDict):
     bp: NotRequired[int]
     fen: NotRequired[str]
     rounds: NotRequired[int]
+    roundInterval: NotRequired[int]
+    entryMinRating: NotRequired[int]
+    entryMaxRating: NotRequired[int]
+    entryMinRatedGames: NotRequired[int]
+    entryMinAccountAgeDays: NotRequired[int]
+    entryTitledOnly: NotRequired[bool]
+    forbiddenPairings: NotRequired[str]
+    manualPairings: NotRequired[str]
     startDate: NotRequired[datetime | None]
     frequency: NotRequired[str]
     description: NotRequired[str]
@@ -546,6 +560,14 @@ class TournamentDoc(TypedDict):
     z: int
     system: int
     rounds: int
+    ri: NotRequired[int]
+    entryMinRating: NotRequired[int]
+    entryMaxRating: NotRequired[int]
+    entryMinRatedGames: NotRequired[int]
+    entryMinAccountAgeDays: NotRequired[int]
+    entryTitledOnly: NotRequired[bool]
+    forbiddenPairings: NotRequired[str]
+    manualPairings: NotRequired[str]
     nbPlayers: int
     cr: NotRequired[int]
     createdBy: str
@@ -573,6 +595,14 @@ class TournamentUpdateData(TypedDict, total=False):
     z: int
     system: int
     rounds: int
+    ri: int
+    entryMinRating: int
+    entryMaxRating: int
+    entryMinRatedGames: int
+    entryMinAccountAgeDays: int
+    entryTitledOnly: bool
+    forbiddenPairings: str
+    manualPairings: str
     nbPlayers: int
     cr: int
     createdBy: str
@@ -597,7 +627,9 @@ class TournamentPlayerDoc(TypedDict):
     w: int
     b: int
     e: int
+    g: NotRequired[int]
     p: list[TournamentPoint]
+    jr: NotRequired[int]
     wd: bool
 
 
@@ -613,7 +645,9 @@ class TournamentPlayerUpdate(TypedDict, total=False):
     w: int
     b: int
     e: int
+    g: int
     p: list[TournamentPoint]
+    jr: int
     wd: bool
 
 
@@ -627,6 +661,9 @@ class TournamentPairingDoc(TypedDict):
     br: str
     wb: bool
     bb: bool
+    s: NotRequired[int]
+    rn: NotRequired[int]
+    bt: NotRequired[str]
 
 
 class TournamentPairingUpdate(TypedDict, total=False):
@@ -638,6 +675,9 @@ class TournamentPairingUpdate(TypedDict, total=False):
     br: str
     wb: bool
     bb: bool
+    s: int
+    rn: int
+    bt: str
 
 
 class TournamentPlayerJson(TypedDict):
@@ -649,6 +689,7 @@ class TournamentPlayerJson(TypedDict):
     fire: int
     score: int
     perf: int
+    berger: float
     nbGames: int
     nbWin: int
     nbBerserk: int
@@ -672,6 +713,9 @@ class TournamentGameJson(TypedDict):
     prov: NotRequired[str]
     color: str
     result: str
+    # Optional game termination status code (used for variant-specific tournament point display).
+    status: NotRequired[int]
+    unplayedType: NotRequired[Literal["bye", "late", "absent"]]
 
 
 class TournamentGamesResponse(TypedDict):
@@ -680,6 +724,7 @@ class TournamentGamesResponse(TypedDict):
     title: str
     name: str
     perf: int
+    berger: float
     nbGames: int
     nbWin: int
     nbBerserk: int
@@ -723,6 +768,10 @@ class TournamentStatusResponse(TypedDict):
     type: Literal["tstatus"]
     tstatus: int
     secondsToFinish: NotRequired[float]
+    currentRound: NotRequired[int]
+    roundOngoingGames: NotRequired[int]
+    secondsToNextRound: NotRequired[float]
+    manualNextRound: NotRequired[bool]
     nbPlayers: NotRequired[int]
     nbGames: NotRequired[int]
     wWin: NotRequired[int]

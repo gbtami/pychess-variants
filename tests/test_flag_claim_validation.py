@@ -6,7 +6,7 @@ from mongomock_motor import AsyncMongoMockClient
 
 from const import FLAG, STARTED
 from game import Game
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
@@ -15,7 +15,7 @@ from variants import VARIANTS
 from wsr import handle_abort_resign_abandon_flag
 
 
-PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
+PERFS = new_default_perf_map(VARIANTS)
 
 
 class FlagClaimValidationTestCase(AioHTTPTestCase):
@@ -25,7 +25,7 @@ class FlagClaimValidationTestCase(AioHTTPTestCase):
         self.bplayer = User(app_state, username="bplayer-flag", perfs=PERFS)
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 

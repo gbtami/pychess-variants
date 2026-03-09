@@ -12,7 +12,7 @@ from game import Game
 from wsr import handle_rematch
 from bug.game_bug import GameBug
 from bug.wsr_bug import handle_rematch_bughouse
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from server import make_app
 from user import User
 from pychess_global_app_state_utils import get_app_state
@@ -24,7 +24,7 @@ game.MAX_PLY = 120
 test_logger.init_test_logger()
 
 PERFS = {
-    "newplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
+    "newplayer": new_default_perf_map(VARIANTS),
 }
 
 ONE_TEST_ONLY = False
@@ -52,7 +52,7 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
         app_state.users["Dplayer"] = self.Dplayer
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 

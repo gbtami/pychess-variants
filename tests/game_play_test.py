@@ -8,7 +8,7 @@ from mongomock_motor import AsyncMongoMockClient
 
 from const import STARTED
 from game import Game
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from server import make_app
 from user import User
@@ -18,17 +18,17 @@ from variants import VARIANTS
 
 test_logger.init_test_logger()
 
-DEFAULT_PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
+TEST_PLAYER_PERFS = new_default_perf_map(VARIANTS)
 
 
 class GamePlayTestCase(AioHTTPTestCase):
     async def startup(self, app):
         app_state = get_app_state(self.app)
-        self.test_player = User(app_state, username="test_player", perfs=DEFAULT_PERFS)
+        self.test_player = User(app_state, username="test_player", perfs=TEST_PLAYER_PERFS)
         self.random_mover = app_state.users["Random-Mover"]
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 

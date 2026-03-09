@@ -39,7 +39,7 @@ def create_scheduled_data(
 
 
 def go_day(day: int) -> tuple[int, int, int]:
-    d = dt.datetime.now() + dt.timedelta(days=day)
+    d = dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=day)
     return (d.year, d.month, d.day)
 
 
@@ -71,7 +71,7 @@ async def tournament_calendar(request: web.Request) -> web.Response:
         created_tournaments = {t[:5]: t[5] for t in scheduled_tournaments}
 
         events = []
-        now = dt.datetime.now()
+        now = dt.datetime.now(dt.timezone.utc)
         y, m, d = now.year, now.month, now.day
         prev_data = create_scheduled_data(y, m, d)
 

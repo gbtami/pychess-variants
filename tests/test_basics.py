@@ -16,7 +16,7 @@ from const import CLAIM, CREATED, STALEMATE, MATE
 from fairy import FairyBoard
 from game import Game
 from bug.game_bug import GameBug
-from glicko2.glicko2 import DEFAULT_PERF, Glicko2, WIN, LOSS
+from glicko2.glicko2 import Glicko2, WIN, LOSS, new_default_perf_map
 from newid import id8
 from server import make_app
 from user import User
@@ -43,10 +43,10 @@ ZH960 = {
 }
 
 PERFS = {
-    "user7": {variant: DEFAULT_PERF for variant in VARIANTS},
-    "newplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
-    "strongplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
-    "weakplayer": {variant: DEFAULT_PERF for variant in VARIANTS},
+    "user7": new_default_perf_map(VARIANTS),
+    "newplayer": new_default_perf_map(VARIANTS),
+    "strongplayer": new_default_perf_map(VARIANTS),
+    "weakplayer": new_default_perf_map(VARIANTS),
 }
 PERFS["user7"]["crazyhouse960"] = {
     "gl": {"r": 1642, "d": 125, "v": 0.06},
@@ -81,7 +81,7 @@ class GameResultTestCase(AioHTTPTestCase):
         self.wplayer = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 
@@ -267,7 +267,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         await self.client.close()
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         return app
 
     async def test_example(self):
@@ -310,7 +310,7 @@ class HighscoreTestCase(AioHTTPTestCase):
         self.weak_player = User(app_state, username="weakplayer", perfs=PERFS["weakplayer"])
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 
@@ -476,7 +476,7 @@ class RatingTestCase(AioHTTPTestCase):
         self.gl2 = Glicko2(tau=0.5)
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 
@@ -491,7 +491,7 @@ class RatingTestCase(AioHTTPTestCase):
         user = User(
             get_app_state(self.app),
             username="testuser",
-            perfs={variant: DEFAULT_PERF for variant in VARIANTS},
+            perfs=new_default_perf_map(VARIANTS),
         )
         result = user.get_rating("chess", False)
 
@@ -579,7 +579,7 @@ class FirstRatedGameTestCase(AioHTTPTestCase):
         self.wplayer2 = User(get_app_state(self.app), username="wplayer", perfs=PERFS["newplayer"])
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 

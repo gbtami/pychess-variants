@@ -29,6 +29,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     username: string;
     gameId: string;
     tournamentId: string;
+    tournamentSystem: number;
     handicap: boolean;
     wplayer: string;
     bplayer: string;
@@ -98,6 +99,7 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         this.gameId = model["gameId"] as string;
         this.tournamentId = model["tournamentId"]
+        this.tournamentSystem = Number(model["tsystem"] || 0);
         this.username = model["username"];
         this.wplayer = model["wplayer"];
         this.bplayer = model["bplayer"];

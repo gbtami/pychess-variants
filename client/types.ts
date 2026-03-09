@@ -69,6 +69,8 @@ export type PyChessModel = {
     byo: number;
     result: string;
     status: number;
+    tsystem: number;
+    rounds: number;
     date: string;
     tv: boolean;
     embed: boolean;

@@ -34,6 +34,7 @@ import { devVariants, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
 import { showUsernameDialog } from './usernameDialog';
 import { maybeShowGameCategoryIntro } from './gameCategoryIntro';
+import { initTournamentForm } from './tournamentForm';
 
 
 // redirect to correct URL except Heroku preview/dev apps
@@ -109,6 +110,8 @@ function initModel(el: HTMLElement) {
         byo : parseInt(""+el.getAttribute("data-byo")),
         result : el.getAttribute("data-result") ?? "",
         status : parseInt(""+el.getAttribute("data-status")),
+        tsystem : parseInt(el.getAttribute("data-tsystem") ?? "0") || 0,
+        rounds : parseInt(el.getAttribute("data-rounds") ?? "0") || 0,
         date : el.getAttribute("data-date") ?? "",
         tv : el.getAttribute("data-view") === 'tv',
         embed : el.getAttribute("data-view") === 'embed',
@@ -231,6 +234,7 @@ function start() {
 
 
     renderTimeago();
+    initTournamentForm();
 
     // searchbar
     const searchIcon = document.querySelector('.search-icon') as HTMLElement;

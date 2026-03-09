@@ -774,10 +774,11 @@ export class RoundController extends GameController {
                     buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
                         [h('div', {class: {"icon": true, 'icon-play3': true} }, _("VIEW TOURNAMENT"))]));
                 } else {
+                    const pauseLabel = this.tournamentSystem > 0 ? _("WITHDRAW") : _("PAUSE");
                     buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
                         [h('div', {class: {"icon": true, 'icon-play3': true} }, _("BACK TO TOURNAMENT"))]));
                     buttons.push(h('button.newopp', { on: { click: () => this.pauseTournament() } },
-                        [h('div', {class: {"icon": true, 'icon-pause2': true} }, _("PAUSE"))]));
+                        [h('div', {class: {"icon": true, 'icon-pause2': true} }, pauseLabel)]));
                 }
             } else if (!this.corr) {
                 buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));

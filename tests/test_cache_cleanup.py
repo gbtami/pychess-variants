@@ -30,7 +30,7 @@ test_logger.init_test_logger()
 class CacheCleanupTestCase(AioHTTPTestCase):
     async def get_application(self):
         # Use the in-memory Mongo mock so we can load/save games without touching a real DB.
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         return app
 
     async def tearDownAsync(self):

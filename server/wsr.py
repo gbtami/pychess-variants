@@ -501,19 +501,30 @@ async def handle_setup(
 
         if data["color"] == "black":
             game.bsetup = False
-            setup_response: SetupResponse = {
-                "type": "setup",
-                "color": "white",
-                "fen": data["fen"],
-            }
-            await ws_send_json(ws, setup_response)
+            if opp_player is not None and opp_player.bot:
+                game.board.janggi_setup("w")
+                game.initial_fen = game.board.initial_fen
+                game.steps[0]["fen"] = game.board.initial_fen
 
-            if opp_player is not None:
-                if opp_player.bot:
-                    game.board.janggi_setup("w")
-                    game.initial_fen = game.board.initial_fen
-                    game.steps[0]["fen"] = game.board.initial_fen
+                if game.wsetup:
+                    setup_response: SetupResponse = {
+                        "type": "setup",
+                        "color": "white",
+                        "fen": data["fen"],
+                    }
+                    await ws_send_json(ws, setup_response)
                 else:
+                    game.status = STARTED
+                    board_response = game.get_board(full=True)
+                    await ws_send_json(ws, board_response)
+            else:
+                setup_response = {
+                    "type": "setup",
+                    "color": "white",
+                    "fen": data["fen"],
+                }
+                await ws_send_json(ws, setup_response)
+                if opp_player is not None:
                     await opp_player.send_game_message(game.id, setup_response)
         else:
             game.wsetup = False
@@ -524,6 +535,11 @@ async def handle_setup(
 
             if (opp_player is not None) and (not opp_player.bot):
                 await opp_player.send_game_message(data["gameId"], board_response)
+
+        # Setup can change Janggi's initial position, so refresh cached move state.
+        game.has_legal_move = game.board.has_legal_move()
+        if game.random_mover:
+            game.legal_moves = game.board.legal_moves()
 
         await game.save_setup()
 

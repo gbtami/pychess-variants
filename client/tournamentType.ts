@@ -9,6 +9,7 @@ export interface MsgGetGames {
     name: string;
     title: string;
     games: TournamentGame[];
+    berger: number;
     perf: number;
     nbWin: number;
     nbGames: number;
@@ -20,6 +21,9 @@ export interface TournamentGame {
     title: string;
     name: string;
     result: string;
+    // Game termination status code from server; used to render variant-specific tournament points.
+    status?: number;
+    unplayedType?: 'bye' | 'late' | 'absent';
     color: string;
     rating: number;
 }
@@ -27,6 +31,10 @@ export interface TournamentGame {
 export interface MsgTournamentStatus {
     tstatus: number;
     secondsToFinish: number;
+    currentRound?: number;
+    roundOngoingGames?: number;
+    secondsToNextRound?: number;
+    manualNextRound?: boolean;
     nbPlayers: number;
     sumRating: number;
     nbGames: number;
@@ -39,6 +47,10 @@ export interface MsgTournamentStatus {
 export interface MsgUserConnectedTournament {
     tsystem: number;
     tminutes: number;
+    currentRound?: number;
+    roundOngoingGames?: number;
+    secondsToNextRound?: number;
+    manualNextRound?: boolean;
     frequency: string;
     startsAt: string;
     startFen: cg.FEN;
@@ -69,6 +81,7 @@ export interface MsgGetPlayers {
 export interface TournamentPlayer {
     name: string;
     score: number;
+    berger: number;
     paused: boolean;
     title: string;
     rating: number;

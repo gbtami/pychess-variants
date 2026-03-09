@@ -10,7 +10,7 @@ from server import make_app
 from seek import Seek
 from user import User
 from pychess_global_app_state_utils import get_app_state
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from auto_pair import (
     add_to_auto_pairings,
     find_matching_seek,
@@ -23,7 +23,7 @@ test_logger.init_test_logger()
 
 ONE_TEST_ONLY = False
 
-PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
+PERFS = new_default_perf_map(VARIANTS)
 HIGH_PERFS = {variant: {"gl": {"r": 2300}} for variant in VARIANTS}
 LOW_PERFS = {variant: {"gl": {"r": 700}} for variant in VARIANTS}
 
@@ -97,7 +97,7 @@ class AutoPairingTestCase(AioHTTPTestCase):
         app_state.users["hplayer"] = self.hplayer
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 

@@ -314,7 +314,7 @@ class Game:
                 self.bplayer.username,
             )
             or self.wplayer.title == "TEST"
-            or self.wplayer.title == "TEST"
+            or self.bplayer.title == "TEST"
         )
 
         self.has_legal_move = self.board.has_legal_move()
@@ -1400,6 +1400,8 @@ class Game:
             "rating": int(opp_rating.rstrip("?")),
             "color": color,
             "result": self.result,
+            # Keep termination status alongside result so tournament views can apply variant-specific points.
+            "status": int(self.status),
         }
         return response
 

@@ -184,6 +184,16 @@ div.janggi td.sheet div {
 td.sheet score {
     opacity: 0.7;
 }
+td.sheet.fixed-rounds score,
+td.sheet.fixed-rounds streak,
+td.sheet.fixed-rounds double {
+    display: inline-block;
+    min-width: 1.2em;
+    text-align: center;
+}
+td.sheet.fixed-rounds score.empty {
+    opacity: 0;
+}
 td.sheet streak {
     color: var(--green-hover);
 }
@@ -197,6 +207,11 @@ td.total {
     text-align: right;
     padding-left: 0px;
     padding: 1rem;
+}
+td.berger {
+    text-align: right;
+    padding-left: 0.4rem;
+    white-space: nowrap;
 }
 strong.score {
     padding-right: 8px;

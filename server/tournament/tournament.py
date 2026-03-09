@@ -1,5 +1,16 @@
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING, ClassVar, Deque, Mapping, Set, Tuple, TypeAlias
+from typing import (
+    Any,
+    TYPE_CHECKING,
+    ClassVar,
+    Deque,
+    Mapping,
+    Set,
+    Tuple,
+    TypeAlias,
+    cast,
+    Literal,
+)
 import asyncio
 import logging
 import collections
@@ -27,6 +38,7 @@ from const import (
     FLAG,
     ARENA,
     RR,
+    SWISS,
     T_CREATED,
     T_STARTED,
     T_ABORTED,
@@ -75,9 +87,14 @@ log = logging.getLogger(__name__)
 SCORE, STREAK, DOUBLE = range(1, 4)
 
 SCORE_SHIFT = 100000
+BERGER_NORM = 2
 
 NOTIFY1_MINUTES = 60 * 6
 NOTIFY2_MINUTES = 10
+AUTO_ROUND_INTERVAL = -1
+MANUAL_ROUND_INTERVAL = -2
+MIN_AUTO_ROUND_INTERVAL_SECONDS = 10
+MAX_AUTO_ROUND_INTERVAL_SECONDS = 60
 
 Point = TournamentPoint
 if TYPE_CHECKING:
@@ -92,18 +109,34 @@ class EnoughPlayer(Exception):
     pass
 
 
+class PairingUnavailable(RuntimeError):
+    """Raised when a fixed-round pairing backend cannot produce legal pairings."""
+
+    pass
+
+
 class ByeGame:
     """Used in RR/Swiss tournaments when pairing odd number of players"""
 
-    __slots__ = "date", "status"
+    __slots__ = "date", "status", "token", "round"
 
     if TYPE_CHECKING:
         wplayer: User
         bplayer: User
 
-    def __init__(self) -> None:
+    def __init__(self, token: str = "U", round_no: int | None = None) -> None:
         self.date: datetime = datetime.now(timezone.utc)
         self.status: int = BYEGAME
+        # TRF token for unplayed rounds (U/H/F/Z). Default is pairing-allocated bye.
+        self.token: str = token
+        self.round: int | None = round_no
+
+    def unplayed_type(self) -> Literal["bye", "late", "absent"]:
+        if self.token == "H":
+            return "late"
+        if self.token == "Z":
+            return "absent"
+        return "bye"
 
     def game_json(self, player: User) -> TournamentGameJson:
         return {
@@ -114,6 +147,7 @@ class ByeGame:
             "prov": "",
             "color": "",
             "result": "-",
+            "unplayedType": self.unplayed_type(),
         }
 
 
@@ -136,8 +170,10 @@ class PlayerData:
         "nb_berserk",
         "nb_not_paired",
         "performance",
+        "berger",
         "prev_opp",
         "color_balance",
+        "joined_round",
         "page",
     )
 
@@ -159,12 +195,20 @@ class PlayerData:
         self.nb_berserk: int = 0
         self.nb_not_paired: int = 0
         self.performance: int = 0
+        # Sonneborn-Berger score stored as doubled integer (x2) to keep exact .5 steps.
+        self.berger: int = 0
         self.prev_opp: str = ""
         self.color_balance: int = 0  # +1 when played as white, -1 when played as black
+        # Swiss-only: first round in which the player can be paired.
+        self.joined_round: int = 1
         self.page: int = 0
 
     def __str__(self) -> str:
         return " ".join(str(point) for point in self.points)
+
+
+def berger_to_float(berger: int) -> float:
+    return berger / BERGER_NORM
 
 
 @cache
@@ -178,6 +222,7 @@ def player_json(player: PlayerData, full_score: int, paused: bool) -> Tournament
         "fire": player.win_streak,
         "score": full_score,  # SCORE_SHIFT-ed + performance rating
         "perf": player.performance,
+        "berger": berger_to_float(player.berger),
         "nbGames": len(player.points),
         "nbWin": player.nb_win,
         "nbBerserk": player.nb_berserk,
@@ -208,6 +253,8 @@ class GameData:
         "date",
         "wberserk",
         "bberserk",
+        "status",
+        "round",
     )
 
     def __init__(
@@ -223,6 +270,8 @@ class GameData:
         bberserk: bool,
         wtitle: str = "",
         btitle: str = "",
+        status: int | None = None,
+        round_no: int | None = None,
     ) -> None:
         self.id: str = _id
         self.wname = wplayer
@@ -235,6 +284,8 @@ class GameData:
         self.brating: str = brating
         self.wberserk: bool = wberserk
         self.bberserk: bool = bberserk
+        self.status: int = FLAG if status is None else status
+        self.round: int | None = round_no
 
     @property
     def wplayer(self) -> _GameDataPlayer:
@@ -268,6 +319,8 @@ class GameData:
             "prov": prov,
             "color": color,
             "result": self.result,
+            # Needed by clients to distinguish variant-end wins from regular wins when rendering points.
+            "status": int(self.status),
         }
         return response
 
@@ -279,7 +332,15 @@ class Tournament(ABC):
     system: ClassVar[int] = ARENA
     beforeStart: int
     bp: int
+    round_interval: int
     translated_name: str
+    entry_min_rating: int
+    entry_max_rating: int
+    entry_min_rated_games: int
+    entry_min_account_age_days: int
+    entry_titled_only: bool
+    forbidden_pairings: str
+    manual_pairings: str
 
     def __init__(
         self,
@@ -298,12 +359,20 @@ class Tournament(ABC):
         inc: int = 0,
         byoyomi_period: int = 0,
         rounds: int = 0,
+        round_interval: int = 0,
         created_by: str = "",
         created_at: datetime | None = None,
         starts_at: datetime | None = None,
         status: int | None = None,
         with_clock: bool = True,
         frequency: str = "",
+        entry_min_rating: int = 0,
+        entry_max_rating: int = 0,
+        entry_min_rated_games: int = 0,
+        entry_min_account_age_days: int = 0,
+        entry_titled_only: bool = False,
+        forbidden_pairings: str = "",
+        manual_pairings: str = "",
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.id: str = tournamentId
@@ -320,7 +389,15 @@ class Tournament(ABC):
         self.byoyomi_period: int = byoyomi_period
         self.chess960: bool = chess960
         self.rounds: int = rounds
+        self.round_interval: int = round_interval
         self.frequency: str = frequency
+        self.entry_min_rating: int = entry_min_rating
+        self.entry_max_rating: int = entry_max_rating
+        self.entry_min_rated_games: int = entry_min_rated_games
+        self.entry_min_account_age_days: int = entry_min_account_age_days
+        self.entry_titled_only: bool = entry_titled_only
+        self.forbidden_pairings: str = forbidden_pairings
+        self.manual_pairings: str = manual_pairings
         self.created_by: str = created_by
         self.starts_at: datetime = starts_at  # type: ignore[assignment]
         self.created_at: datetime = datetime.now(timezone.utc) if created_at is None else created_at
@@ -332,6 +409,8 @@ class Tournament(ABC):
         self.wave = timedelta(seconds=7)
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
+        self.next_round_starts_at: datetime | None = None
+        self.manual_next_round_pending = False
         self.prev_pairing: datetime | None = None
         self.bye_players: list[User] = []
 
@@ -496,6 +575,70 @@ class Tournament(ABC):
         self.leaderboard.pop(leaderboard_player, None)
         return leaderboard_player
 
+    def tie_break_value(self, player_data: PlayerData) -> int:
+        if self.system == ARENA:
+            return player_data.performance
+        return player_data.berger
+
+    def compose_leaderboard_score(self, score_points: int, player_data: PlayerData) -> int:
+        return SCORE_SHIFT * score_points + self.tie_break_value(player_data)
+
+    def recalculate_berger_tiebreak(self) -> None:
+        if self.system == ARENA:
+            return
+
+        score_points_by_username = {
+            player.username: full_score // SCORE_SHIFT
+            for player, full_score in self.leaderboard.items()
+        }
+
+        for player_data in self.players.values():
+            berger = 0
+            for game in player_data.games:
+                if isinstance(game, ByeGame):
+                    continue
+
+                wname, bname = self.game_player_usernames(game)
+                if player_data.username == wname:
+                    opponent_username = bname
+                    if game.result == "1-0":
+                        result_numerator = 2
+                    elif game.result == "1/2-1/2":
+                        result_numerator = 1
+                    else:
+                        result_numerator = 0
+                elif player_data.username == bname:
+                    opponent_username = wname
+                    if game.result == "0-1":
+                        result_numerator = 2
+                    elif game.result == "1/2-1/2":
+                        result_numerator = 1
+                    else:
+                        result_numerator = 0
+                else:
+                    continue
+
+                if result_numerator == 0:
+                    continue
+                opponent_score = score_points_by_username.get(opponent_username, 0)
+                berger += result_numerator * opponent_score
+
+            player_data.berger = berger
+
+        for leaderboard_player in list(self.leaderboard.keys()):
+            player_data = self.player_data_by_name(leaderboard_player.username)
+            if player_data is None:
+                continue
+            score_points = score_points_by_username.get(leaderboard_player.username, 0)
+            self.leaderboard.update(
+                {
+                    leaderboard_player: self.compose_leaderboard_score(
+                        score_points,
+                        player_data,
+                    )
+                }
+            )
+
     def tournament_sockets(self, username: str, user: User | None = None) -> set[Any]:
         sockets_by_username = self.app_state.tourneysockets.get(self.id, {})
         sockets = sockets_by_username.get(username)
@@ -510,6 +653,26 @@ class Tournament(ABC):
             return player.tournament_sockets.get(self.id, set())
 
         return set()
+
+    def player_round_sockets(self, player: User, player_data: PlayerData | None = None) -> set[Any]:
+        sockets = set(self.tournament_sockets(player.username, player))
+        if self.system == ARENA:
+            return sockets
+
+        if player_data is None:
+            player_data = self.player_data_by_name(player.username)
+        if player_data is None:
+            return sockets
+
+        # Fixed-round players often remain on their finished game page instead of going back to the
+        # tournament lobby immediately. Reuse those game sockets so they stay pairable and can
+        # receive the next-round redirect without opening the tournament page again.
+        for game in reversed(player_data.games):
+            if isinstance(game, ByeGame):
+                continue
+            sockets.update(player.game_sockets.get(game.id, set()))
+
+        return sockets
 
     @staticmethod
     def game_player_usernames(game: Game | GameData) -> tuple[str, str]:
@@ -571,6 +734,8 @@ class Tournament(ABC):
         if page is None:
             page = 1
 
+        ongoing_players = self.ongoing_fixed_round_players()
+
         start = (page - 1) * 10
         end = min(start + 10, self.nb_players)
 
@@ -584,13 +749,15 @@ class Tournament(ABC):
                     self.id,
                 )
                 continue
-            players.append(
-                player_json(
-                    leaderboard_player_data,
-                    full_score,
-                    leaderboard_player_data.paused,
-                )
+            payload = player_json(
+                leaderboard_player_data,
+                full_score,
+                leaderboard_player_data.paused,
             )
+            points = self.standings_points(leaderboard_player_data, ongoing_players)
+            if points is not leaderboard_player_data.points:
+                payload = cast(TournamentPlayerJson, {**payload, "points": points})
+            players.append(payload)
 
         page_json: TournamentPlayersResponse = {
             "type": "get_players",
@@ -623,6 +790,59 @@ class Tournament(ABC):
 
         return page_json
 
+    def ongoing_fixed_round_players(self) -> set[str]:
+        if self.system == ARENA or self.status != T_STARTED or self.current_round <= 0:
+            return set()
+
+        usernames: set[str] = set()
+        for game in self.ongoing_games:
+            if getattr(game, "round", self.current_round) != self.current_round:
+                continue
+            wname, bname = self.game_player_usernames(game)
+            usernames.add(wname)
+            usernames.add(bname)
+
+        return usernames
+
+    def standings_points(self, player_data: PlayerData, ongoing_players: set[str]) -> list[Point]:
+        points = player_data.points
+
+        # Match lichess Swiss sheet rendering for synthetic non-played entries while
+        # keeping persisted points numeric in player_data.points.
+        for i, game in enumerate(player_data.games):
+            if i >= len(points):
+                break
+            if not isinstance(game, ByeGame):
+                continue
+            token = getattr(game, "token", "U")
+            rendered: Point | None = None
+            if token == "Z":
+                rendered = "-"
+            elif self.system == SWISS:
+                if self.variant == "janggi":
+                    if token in ("U", "F"):
+                        rendered = ("7", SCORE)
+                    elif token == "H":
+                        rendered = ("2", SCORE)
+                else:
+                    if token in ("U", "F"):
+                        rendered = ("1", SCORE)
+                    elif token == "H":
+                        rendered = ("½", SCORE)
+            if rendered is not None and points[i] != rendered:
+                if points is player_data.points:
+                    points = list(player_data.points)
+                points[i] = rendered
+
+        # Represent an ongoing fixed-round game in the score sheet like lichess.
+        # Keep persisted points untouched; this marker is only for websocket standings payload.
+        if player_data.username in ongoing_players and len(points) == self.current_round - 1:
+            if points is player_data.points:
+                points = list(player_data.points)
+            points.append(("*", SCORE))
+
+        return points
+
     async def games_json(self, player_name: str) -> TournamentGamesResponse:
         player_data = self.player_data_by_name(player_name)
         if player_data is None:
@@ -633,6 +853,7 @@ class Tournament(ABC):
                 "title": spectator.title,
                 "name": player_name,
                 "perf": 0,
+                "berger": 0,
                 "nbGames": 0,
                 "nbWin": 0,
                 "nbBerserk": 0,
@@ -649,6 +870,7 @@ class Tournament(ABC):
             "title": player.title,
             "name": player_name,
             "perf": player_data.performance,
+            "berger": berger_to_float(player_data.berger),
             "nbGames": len(player_data.points),
             "nbWin": player_data.nb_win,
             "nbBerserk": player_data.nb_berserk,
@@ -719,12 +941,13 @@ class Tournament(ABC):
                 )
                 continue
 
-            if (
-                player_data.free
-                and len(self.tournament_sockets(player.username, player)) > 0
-                and not player_data.paused
-                and not player_data.withdrawn
-            ):
+            if not player_data.free or player_data.paused or player_data.withdrawn:
+                continue
+
+            # Fixed-round events keep pairability in persisted tournament state instead of tying it
+            # to whichever page socket the user currently has open. Arena still pairs only connected
+            # players because its rolling waves depend on live availability.
+            if self.system != ARENA or len(self.player_round_sockets(player, player_data)) > 0:
                 waiting.append(player)
 
         return waiting
@@ -740,10 +963,18 @@ class Tournament(ABC):
                         ((remaining_time.days * 3600 * 24) + remaining_time.seconds) / 60
                     )
                     if now >= self.starts_at:
-                        if self.system != ARENA and len(self.players) < 3:
-                            # Swiss and RR Tournaments need at least 3 players to start
+                        min_players_to_start = 0
+                        if self.system == RR:
+                            min_players_to_start = 3
+                        elif self.system == SWISS:
+                            min_players_to_start = 2
+                        if min_players_to_start > 0 and len(self.players) < min_players_to_start:
                             await self.abort()
-                            log.info("T_ABORTED: less than 3 player joined")
+                            log.info(
+                                "T_ABORTED: less than %s player(s) joined for %s",
+                                min_players_to_start,
+                                "RR" if self.system == RR else "Swiss",
+                            )
                             break
 
                         await self.start(now)
@@ -769,7 +1000,7 @@ class Tournament(ABC):
                         )
                         continue
 
-                elif (self.minutes is not None) and now >= self.ends_at:
+                elif self.system == ARENA and (self.minutes is not None) and now >= self.ends_at:
                     await self.finish()
                     log.info("T_FINISHED: no more time left")
                     break
@@ -793,17 +1024,11 @@ class Tournament(ABC):
                             log.debug("Waiting for new pairing wave...")
 
                     elif len(self.ongoing_games) == 0:
-                        if self.current_round < self.rounds:
-                            self.current_round += 1
-                            log.debug("Do %s. round pairing", self.current_round)
-                            waiting_players = self.waiting_players()
-                            await self.create_new_pairings(waiting_players)
-                            await self.save_current_round()
-                        else:
-                            await self.finish()
-                            log.debug("T_FINISHED: no more round left")
+                        if not await self.maybe_schedule_next_fixed_round(now):
                             break
                     else:
+                        self.next_round_starts_at = None
+                        self.manual_next_round_pending = False
                         log.info(
                             "%s has %s ongoing game(s)..."
                             % (
@@ -824,12 +1049,10 @@ class Tournament(ABC):
         self.status = T_STARTED
 
         self.first_pairing = True
+        self.next_round_starts_at = None
+        self.manual_next_round_pending = False
 
-        response: TournamentStatusResponse = {
-            "type": "tstatus",
-            "tstatus": self.status,
-            "secondsToFinish": (self.ends_at - now).total_seconds(),
-        }
+        response = self.live_status(now)
         await self.broadcast(response)
 
         # force first pairing wave in arena
@@ -842,7 +1065,14 @@ class Tournament(ABC):
                 {"$set": {"status": self.status}},
                 return_document=ReturnDocument.AFTER,
             )
-            log.info("Updated status: %s", u)
+            if u is None:
+                log.warning(
+                    "Updated status: tournament %s status set to %s but no document returned",
+                    self.id,
+                    self.status,
+                )
+            else:
+                log.info("Updated status: tournament %s status=%s", self.id, u.get("status"))
 
     @property
     def summary(self) -> TournamentStatusResponse:
@@ -862,6 +1092,142 @@ class Tournament(ABC):
             ),
         }
         return response
+
+    def round_status(self, now: datetime | None = None) -> tuple[int, float]:
+        if self.system == ARENA or self.status != T_STARTED:
+            return (0, 0.0)
+
+        if now is None:
+            now = datetime.now(timezone.utc)
+
+        round_ongoing_games = len(self.ongoing_games)
+        seconds_to_next_round = 0.0
+        if (
+            round_ongoing_games == 0
+            and 0 < self.current_round < self.rounds
+            and self.next_round_starts_at is not None
+        ):
+            seconds_to_next_round = max(
+                0.0,
+                (self.next_round_starts_at - now).total_seconds(),
+            )
+
+        return (round_ongoing_games, seconds_to_next_round)
+
+    def live_status(self, now: datetime | None = None) -> TournamentStatusResponse:
+        if now is None:
+            now = datetime.now(timezone.utc)
+        response: TournamentStatusResponse = {
+            "type": "tstatus",
+            "tstatus": self.status,
+        }
+        if self.status == T_STARTED:
+            response["secondsToFinish"] = max(0.0, (self.ends_at - now).total_seconds())
+            if self.system != ARENA:
+                response["currentRound"] = self.current_round
+                round_ongoing_games, seconds_to_next_round = self.round_status(now)
+                response["roundOngoingGames"] = round_ongoing_games
+                response["secondsToNextRound"] = seconds_to_next_round
+                response["manualNextRound"] = self.manual_next_round_pending
+        return response
+
+    async def maybe_schedule_next_fixed_round(self, now: datetime) -> bool:
+        if self.current_round == 0:
+            self.current_round += 1
+            log.debug("Do %s. round pairing", self.current_round)
+            return await self.pair_fixed_round(now)
+
+        if self.current_round < self.rounds:
+            if self.round_interval == MANUAL_ROUND_INTERVAL:
+                if not self.manual_next_round_pending:
+                    self.manual_next_round_pending = True
+                    log.debug(
+                        "%s round %s complete; waiting for manual start of next round",
+                        "RR" if self.system == RR else "Swiss",
+                        self.current_round,
+                    )
+                    await self.broadcast(self.live_status(now))
+                return True
+
+            interval_seconds = self.effective_round_interval_seconds()
+            if interval_seconds <= 0:
+                self.next_round_starts_at = now
+            elif self.next_round_starts_at is None:
+                self.next_round_starts_at = now + timedelta(seconds=interval_seconds)
+                log.debug(
+                    "%s round %s complete; waiting %ss before next round",
+                    "RR" if self.system == RR else "Swiss",
+                    self.current_round,
+                    interval_seconds,
+                )
+                await self.broadcast(self.live_status(now))
+
+            if self.next_round_starts_at is not None and now >= self.next_round_starts_at:
+                self.current_round += 1
+                self.next_round_starts_at = None
+                log.debug("Do %s. round pairing", self.current_round)
+                return await self.pair_fixed_round(now)
+            return True
+
+        await self.finish()
+        log.debug("T_FINISHED: no more round left")
+        return False
+
+    async def pair_fixed_round(self, now: datetime) -> bool:
+        waiting_players = self.waiting_players()
+        if self.system == SWISS and len(waiting_players) < 2:
+            await self.finish()
+            log.info(
+                "T_FINISHED: Swiss has fewer than 2 active players to pair in round %s",
+                self.current_round,
+            )
+            return False
+
+        try:
+            pairing, _ = await self.create_new_pairings(waiting_players)
+        except PairingUnavailable as exc:
+            if self.system == SWISS:
+                await self.finish()
+                log.info(
+                    "T_FINISHED: Swiss has no legal pairing in round %s (%s)",
+                    self.current_round,
+                    exc,
+                )
+                return False
+            raise
+
+        if self.system == SWISS and len(waiting_players) >= 2 and len(pairing) == 0:
+            await self.finish()
+            log.info(
+                "T_FINISHED: Swiss produced no pairings in round %s with %s active players",
+                self.current_round,
+                len(waiting_players),
+            )
+            return False
+
+        await self.save_current_round()
+        self.next_round_starts_at = None
+        self.manual_next_round_pending = False
+        await self.broadcast(self.live_status(now))
+        return True
+
+    async def start_next_round_now(self, now: datetime | None = None) -> bool:
+        if now is None:
+            now = datetime.now(timezone.utc)
+
+        if self.system == ARENA or self.status != T_STARTED:
+            return False
+        if self.round_interval != MANUAL_ROUND_INTERVAL:
+            return False
+        if not self.manual_next_round_pending:
+            return False
+        if len(self.ongoing_games) > 0 or self.current_round >= self.rounds:
+            return False
+
+        self.manual_next_round_pending = False
+        self.current_round += 1
+        log.debug("Do %s. round pairing (manual start)", self.current_round)
+        return await self.pair_fixed_round(now)
 
     async def finalize(self, status: int) -> None:
         self.status = status
@@ -911,13 +1277,17 @@ class Tournament(ABC):
         if self.system == RR and len(self.players) > self.rounds + 1:
             raise EnoughPlayer
 
+        player_data = self.player_data_by_name(user.username)
+        if player_data is None:
+            join_error = self.entry_condition_error(user)
+            if join_error is not None:
+                return join_error
+
         rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
 
         player = self.get_player_by_name(user.username) or user
         if player is not user and self.id in user.tournament_sockets:
             player.tournament_sockets[self.id] = user.tournament_sockets[self.id]
-
-        player_data = self.player_data_by_name(user.username)
         if player_data is None:
             # new player joined
             player_data = PlayerData(user.title, user.username, rating, provisional)
@@ -936,7 +1306,9 @@ class Tournament(ABC):
         if self.status == T_CREATED:
             self.set_leaderboard_score_by_username(user.username, rating, player=player)
         elif not in_leaderboard:
-            self.set_leaderboard_score_by_username(user.username, 0, player=player)
+            self.set_leaderboard_score_by_username(
+                user.username, self.compose_leaderboard_score(0, player_data), player=player
+            )
 
         player_data.free = True
         player_data.paused = False
@@ -949,6 +1321,38 @@ class Tournament(ABC):
             await self.broadcast_spotlight()
 
         await self.db_update_player(player, "JOIN")
+        return None
+
+    def entry_condition_error(self, user: User) -> str | None:
+        if self.entry_titled_only and user.title == "":
+            return "This tournament is limited to titled players."
+
+        perf_key = self.variant + ("960" if self.chess960 else "")
+        perf = user.perfs.get(perf_key, {})
+        try:
+            rated_games = int(perf.get("nb", 0))
+        except (TypeError, ValueError):
+            rated_games = 0
+
+        if self.entry_min_rated_games > 0 and rated_games < self.entry_min_rated_games:
+            return "This tournament requires at least %s rated %s games." % (
+                self.entry_min_rated_games,
+                self.server_variant.display_name.title(),
+            )
+
+        if self.entry_min_account_age_days > 0:
+            account_age = datetime.now(timezone.utc) - user.created_at
+            if account_age < timedelta(days=self.entry_min_account_age_days):
+                return "This tournament requires accounts to be at least %s days old." % (
+                    self.entry_min_account_age_days,
+                )
+
+        rating = user.get_rating_value(self.variant, self.chess960)
+        if self.entry_min_rating > 0 and rating < self.entry_min_rating:
+            return "Your rating is below the minimum allowed for this tournament."
+        if self.entry_max_rating > 0 and rating > self.entry_max_rating:
+            return "Your rating is above the maximum allowed for this tournament."
+
         return None
 
     async def withdraw(self, user: User) -> None:
@@ -1004,11 +1408,12 @@ class Tournament(ABC):
     ) -> tuple[list[tuple[User, User]], list[Game]]:
         self.bye_players = []
         pairing = self.create_pairing(waiting_players)
+        round_bye_players = list(self.bye_players)
 
         if self.first_pairing:
             self.first_pairing = False
             # Before tournament starts leaderboard is ordered by ratings
-            # After first pairing it will be sorted by score points and performance
+            # After first pairing it will be sorted by score points and tournament tie-break
             # so we have to make a clear (all 0) leaderboard here
             new_leaderboard = [(user, 0) for user in self.leaderboard]
             self.leaderboard = ValueSortedDict(neg, new_leaderboard)
@@ -1020,6 +1425,7 @@ class Tournament(ABC):
 
         # save pairings to db
         await self.db_insert_pairing(games)
+        await self.persist_unpaired_round_entries(self.current_round, pairing, round_bye_players)
 
         return (pairing, games)
 
@@ -1030,7 +1436,17 @@ class Tournament(ABC):
         bye_players = self.bye_players
         self.bye_players = []
         for player in bye_players:
+            await self.db_insert_bye_pairing(player)
             await self.db_update_player(player, "BYE")
+
+    async def persist_unpaired_round_entries(
+        self,
+        round_no: int,
+        pairing: list[tuple[User, User]],
+        bye_players: list[User],
+    ) -> None:
+        # Default (Arena/RR): no synthetic unpaired-round entries.
+        return
 
     async def create_games(self, pairing: list[tuple[User, User]]) -> list[Game]:
         is_new_top_game = False
@@ -1053,6 +1469,8 @@ class Tournament(ABC):
                 tournamentId=self.id,
                 chess960=self.chess960,
             )
+            # Round index is persisted with pairing docs to keep Swiss round history unambiguous.
+            game.round = self.current_round  # type: ignore[attr-defined]
 
             if game.has_crosstable:
                 doc = await self.app_state.db.crosstable.find_one({"_id": game.ct_id})
@@ -1075,21 +1493,35 @@ class Tournament(ABC):
 
             ws_ok = False
             if wp.title != "TEST":
+                wp_data = self.player_data_by_name(wp.username)
                 ws_ok = (
-                    await ws_send_json_many(self.tournament_sockets(wp.username, wp), response) > 0
+                    await ws_send_json_many(self.player_round_sockets(wp, wp_data), response) > 0
                 )
-            if (not ws_ok) and wp.title != "TEST":
+            if self.system == ARENA and (not ws_ok) and wp.title != "TEST":
                 await self.pause(wp)
                 log.debug("White player %s left the tournament (ws send failed)", wp.username)
+            elif (not ws_ok) and wp.title != "TEST":
+                log.debug(
+                    "Fixed-round redirect not delivered for white player %s in tournament %s",
+                    wp.username,
+                    self.id,
+                )
 
             ws_ok = False
             if bp.title != "TEST":
+                bp_data = self.player_data_by_name(bp.username)
                 ws_ok = (
-                    await ws_send_json_many(self.tournament_sockets(bp.username, bp), response) > 0
+                    await ws_send_json_many(self.player_round_sockets(bp, bp_data), response) > 0
                 )
-            if (not ws_ok) and bp.title != "TEST":
+            if self.system == ARENA and (not ws_ok) and bp.title != "TEST":
                 await self.pause(bp)
                 log.debug("Black player %s left the tournament (ws send failed)", bp.username)
+            elif (not ws_ok) and bp.title != "TEST":
+                log.debug(
+                    "Fixed-round redirect not delivered for black player %s in tournament %s",
+                    bp.username,
+                    self.id,
+                )
 
             if self.update_game_ranks(game):
                 is_new_top_game = True
@@ -1326,7 +1758,6 @@ class Tournament(ABC):
         wplayer.rating = int(game.wrating.rstrip("?")) + (int(game.wrdiff) if game.wrdiff else 0)
         bplayer.rating = int(game.brating.rstrip("?")) + (int(game.brdiff) if game.brdiff else 0)
 
-        # TODO: in Swiss we will need Berger instead of performance to calculate tie breaks
         nb = len(wplayer.points)
         wplayer.performance = int(round((wplayer.performance * (nb - 1) + wperf) / nb, 0))
 
@@ -1339,16 +1770,19 @@ class Tournament(ABC):
         wpscore = self.leaderboard_score_by_username(game.wplayer.username) // SCORE_SHIFT
         self.set_leaderboard_score_by_username(
             game.wplayer.username,
-            SCORE_SHIFT * (wpscore + wpoint_value) + wplayer.performance,
+            self.compose_leaderboard_score(wpscore + wpoint_value, wplayer),
             player=game.wplayer,
         )
 
         bpscore = self.leaderboard_score_by_username(game.bplayer.username) // SCORE_SHIFT
         self.set_leaderboard_score_by_username(
             game.bplayer.username,
-            SCORE_SHIFT * (bpscore + bpoint_value) + bplayer.performance,
+            self.compose_leaderboard_score(bpscore + bpoint_value, bplayer),
             player=game.bplayer,
         )
+
+        if self.system != ARENA:
+            self.recalculate_berger_tiebreak()
 
         self.nb_games_finished += 1
 
@@ -1360,6 +1794,17 @@ class Tournament(ABC):
             self.draw += 1
 
         self.ongoing_games.discard(game)
+        now = datetime.now(timezone.utc)
+        if (
+            self.system != ARENA
+            and self.status == T_STARTED
+            and len(self.ongoing_games) == 0
+            and 0 < self.current_round < self.rounds
+            and self.next_round_starts_at is None
+        ):
+            self.next_round_starts_at = now + timedelta(
+                seconds=self.effective_round_interval_seconds()
+            )
 
         # save player points to db
         await self.db_update_player(game.wplayer, "GAME_END")
@@ -1377,6 +1822,7 @@ class Tournament(ABC):
                 "bname": game.bplayer.username,
             }
         )
+        await self.broadcast(self.live_status(now))
 
         if self.top_game is not None and self.top_game.id == game.id:
             response = {
@@ -1431,7 +1877,7 @@ class Tournament(ABC):
         pairing_table = self.app_state.db.tournament_pairing
 
         for game in games:
-            if game.status == BYEGAME:  # TODO: Save or not save? This is the question.
+            if game.status == BYEGAME:
                 continue
 
             pairing_doc: TournamentPairingDoc = {
@@ -1444,10 +1890,45 @@ class Tournament(ABC):
                 "br": game.brating,
                 "wb": game.wberserk,
                 "bb": game.bberserk,
+                "s": game.status,
+                "rn": getattr(game, "round", self.current_round),
             }
             pairing_documents.append(pairing_doc)
         if len(pairing_documents) > 0:
             await pairing_table.insert_many(pairing_documents)
+
+    async def db_insert_bye_pairing(
+        self,
+        player: User,
+        *,
+        round_no: int | None = None,
+        bye_token: str = "U",
+    ) -> None:
+        if self.app_state.db is None:
+            return
+        player_data = self.player_data_by_name(player.username)
+        if player_data is None:
+            return
+
+        pairing_table = self.app_state.db.tournament_pairing
+        pairing_id = await new_id(pairing_table)
+        rating = "%s%s" % (player_data.rating, player_data.provisional)
+
+        bye_doc: TournamentPairingDoc = {
+            "_id": pairing_id,
+            "tid": self.id,
+            "u": (player.username, player.username),
+            "r": R2C["*"],
+            "d": datetime.now(timezone.utc),
+            "wr": rating,
+            "br": rating,
+            "wb": False,
+            "bb": False,
+            "s": BYEGAME,
+            "rn": self.current_round if round_no is None else round_no,
+            "bt": bye_token,
+        }
+        await pairing_table.insert_one(bye_doc)
 
     async def db_update_pairing(self, game: Game | GameData) -> None:
         if self.app_state.db is None:
@@ -1465,6 +1946,8 @@ class Tournament(ABC):
                 "br": game.brating,
                 "wb": game.wberserk,
                 "bb": game.bberserk,
+                "s": game.status,
+                "rn": getattr(game, "round", self.current_round),
             }
 
             await pairing_table.update_one(
@@ -1528,7 +2011,9 @@ class Tournament(ABC):
                     "w": 0,
                     "b": 0,
                     "e": 0,
+                    "g": 0,
                     "p": [],
+                    "jr": player_data.joined_round,
                     "wd": False,
                 }
             else:
@@ -1537,6 +2022,7 @@ class Tournament(ABC):
                     "wd": False,
                     "r": player_data.rating,
                     "pr": player_data.provisional,
+                    "jr": player_data.joined_round,
                 }
 
         elif action == "WITHDRAW":
@@ -1559,7 +2045,9 @@ class Tournament(ABC):
                 "w": player_data.nb_win,
                 "b": player_data.nb_berserk,
                 "e": player_data.performance,
+                "g": player_data.berger,
                 "p": player_data.points,
+                "jr": player_data.joined_round,
                 "wd": player_data.withdrawn,
             }
 
@@ -1644,7 +2132,7 @@ class Tournament(ABC):
                 )
                 continue
             log.info(
-                "%15s (%8s) %4s %30s %2s %s"
+                "%15s (%8s) %4s %30s %2s perf=%s berger=%s"
                 % (
                     player.username,
                     player_data.id,
@@ -1652,6 +2140,7 @@ class Tournament(ABC):
                     player_data.points,
                     full_score,
                     player_data.performance,
+                    berger_to_float(player_data.berger),
                 )
             )
 
@@ -1659,12 +2148,14 @@ class Tournament(ABC):
     def create_discord_msg(self) -> str:
         tc = time_control_str(self.base, self.inc, self.byoyomi_period)
         tail960 = "960" if self.chess960 else ""
-        return "%s: **%s%s** %s tournament starts at UTC %s, duration will be **%s** minutes" % (
+        duration_text = "duration" if self.system == ARENA else "estimated duration"
+        return "%s: **%s%s** %s tournament starts at UTC %s, %s will be **%s** minutes" % (
             self.created_by,
             self.variant,
             tail960,
             tc,
             self.starts_at.strftime("%Y.%m.%d %H:%M"),
+            duration_text,
             self.minutes,
         )
 
@@ -1694,6 +2185,27 @@ class Tournament(ABC):
         # We have to remove _id added by insert to remain our response JSON serializable
         del response["_id"]
 
+    def automatic_round_interval_seconds(self) -> int:
+        # Approximate per-side time budget to derive a short between-round pause.
+        side_budget_seconds = (self.base * 60.0) + (self.inc * 40)
+        if self.byoyomi_period > 0 and self.inc > 0:
+            side_budget_seconds += self.byoyomi_period * self.inc
+
+        automatic = int(side_budget_seconds / 24)
+        return max(
+            MIN_AUTO_ROUND_INTERVAL_SECONDS,
+            min(MAX_AUTO_ROUND_INTERVAL_SECONDS, automatic),
+        )
+
+    def effective_round_interval_seconds(self) -> int:
+        if self.system == ARENA:
+            return 0
+        if self.round_interval == MANUAL_ROUND_INTERVAL:
+            return 0
+        if self.round_interval == AUTO_ROUND_INTERVAL:
+            return self.automatic_round_interval_seconds()
+        return max(0, self.round_interval)
+
 
 async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlobalAppState) -> None:
     # unit test app may have no db
@@ -1715,6 +2227,14 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "z": int(tournament.chess960),
         "system": tournament.system,
         "rounds": tournament.rounds,
+        "ri": tournament.round_interval,
+        "entryMinRating": tournament.entry_min_rating,
+        "entryMaxRating": tournament.entry_max_rating,
+        "entryMinRatedGames": tournament.entry_min_rated_games,
+        "entryMinAccountAgeDays": tournament.entry_min_account_age_days,
+        "entryTitledOnly": tournament.entry_titled_only,
+        "forbiddenPairings": tournament.forbidden_pairings,
+        "manualPairings": tournament.manual_pairings,
         "nbPlayers": 0,
         "cr": tournament.current_round,
         "createdBy": tournament.created_by,

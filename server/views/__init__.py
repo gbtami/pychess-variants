@@ -1,6 +1,6 @@
 import asyncio
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -37,7 +37,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
 
-    session["last_visit"] = datetime.now().isoformat()
+    session["last_visit"] = datetime.now(timezone.utc).isoformat()
     if session_user is not None:
         log.info("+++ Existing user %s connected.", session_user)
         doc: UserDocument | None = None

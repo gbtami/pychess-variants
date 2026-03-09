@@ -17,8 +17,17 @@
             {% set t_fen = tournament.fen %}
             {% set t_password = tournament.password %}
             {% set t_starts_at = tournament.starts_at.isoformat() if tournament.starts_at else '' %}
-            {% set t_shield = tournament.frequency == 's' %}
-            <form method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
+            {% set t_system = tournament.system %}
+            {% set t_rounds = tournament.rounds %}
+            {% set t_round_interval = tournament.round_interval %}
+            {% set t_entry_min_rating = tournament.entry_min_rating %}
+            {% set t_entry_max_rating = tournament.entry_max_rating %}
+            {% set t_entry_min_rated_games = tournament.entry_min_rated_games %}
+            {% set t_entry_min_account_age_days = tournament.entry_min_account_age_days %}
+            {% set t_entry_titled_only = tournament.entry_titled_only %}
+            {% set t_forbidden_pairings = tournament.forbidden_pairings %}
+            {% set t_manual_pairings = tournament.manual_pairings %}
+            <form id="tournament-form" method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
             {% else %}
             {% set t_name = '' %}
             {% set t_rated = rated %}
@@ -32,19 +41,113 @@
             {% set t_fen = '' %}
             {% set t_password = '' %}
             {% set t_starts_at = '' %}
-            {% set t_shield = false %}
-            <form method="post" class="form3" action="/tournaments/new">
+            {% set t_system = 0 %}
+            {% set t_rounds = 5 %}
+            {% set t_round_interval = -1 %}
+            {% set t_entry_min_rating = 0 %}
+            {% set t_entry_max_rating = 0 %}
+            {% set t_entry_min_rated_games = 0 %}
+            {% set t_entry_min_account_age_days = 0 %}
+            {% set t_entry_titled_only = false %}
+            {% set t_forbidden_pairings = '' %}
+            {% set t_manual_pairings = '' %}
+            <form id="tournament-form" method="post" class="form3" action="/tournaments/new">
             {% endif %}
+            {% set rated_game_choices = [
+                (0, 'No restriction'),
+                (5, '5 rated games'),
+                (10, '10 rated games'),
+                (15, '15 rated games'),
+                (20, '20 rated games'),
+                (30, '30 rated games'),
+                (40, '40 rated games'),
+                (50, '50 rated games'),
+                (75, '75 rated games'),
+                (100, '100 rated games'),
+                (150, '150 rated games'),
+                (200, '200 rated games')
+            ] %}
+            {% set rated_game_values = [0, 5, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200] %}
+            {% set min_rating_choices = [
+                (0, 'No restriction'),
+                (1000, '1000'),
+                (1100, '1100'),
+                (1200, '1200'),
+                (1300, '1300'),
+                (1400, '1400'),
+                (1500, '1500'),
+                (1600, '1600'),
+                (1700, '1700'),
+                (1800, '1800'),
+                (1900, '1900'),
+                (2000, '2000'),
+                (2100, '2100'),
+                (2200, '2200'),
+                (2300, '2300'),
+                (2400, '2400'),
+                (2500, '2500'),
+                (2600, '2600')
+            ] %}
+            {% set min_rating_values = [0, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600] %}
+            {% set max_rating_choices = [
+                (0, 'No restriction'),
+                (2200, '2200'),
+                (2100, '2100'),
+                (2000, '2000'),
+                (1900, '1900'),
+                (1800, '1800'),
+                (1700, '1700'),
+                (1600, '1600'),
+                (1500, '1500'),
+                (1400, '1400'),
+                (1300, '1300'),
+                (1200, '1200'),
+                (1100, '1100'),
+                (1000, '1000'),
+                (900, '900'),
+                (800, '800')
+            ] %}
+            {% set max_rating_values = [0, 2200, 2100, 2000, 1900, 1800, 1700, 1600, 1500, 1400, 1300, 1200, 1100, 1000, 900, 800] %}
+            {% set account_age_choices = [
+                (0, 'No restriction'),
+                (1, '1 day'),
+                (3, '3 days'),
+                (7, '7 days'),
+                (14, '14 days'),
+                (30, '1 month'),
+                (60, '2 months'),
+                (90, '3 months'),
+                (180, '6 months'),
+                (365, '1 year'),
+                (730, '2 years'),
+                (1095, '3 years')
+            ] %}
+            {% set account_age_values = [0, 1, 3, 7, 14, 30, 60, 90, 180, 365, 730, 1095] %}
                 <div class="form-group">
                     <label class="form-label" for="form3-name">Name</label>
                     <div>
                         <input id="form3-name" name="name" value="{{ t_name }}" class="form-control" minlength="2" maxlength="30" />
-                        <label class="form-label-tail" for="form3-name">Arena</label>
                         <br />
                         <small class="form-help">Pick a very safe name for the tournament.
                             <br />Leave empty to name the tournament after a notable chess player (Not implemented on pychess atm!).
                         </small>
                     </div>
+                </div>
+                <div class="form-group form-half">
+                    <label class="form-label" for="form3-system">Tournament type</label>
+                    <select id="form3-system" name="system" class="form-control"{% if edit %} disabled="disabled"{% endif %}>
+                        <option value="0"{% if t_system == 0 %} selected="selected"{% endif %}>Arena</option>
+                        <option value="1"{% if t_system == 1 %} selected="selected"{% endif %}{% if not dev and not edit %} disabled="disabled"{% endif %}>Round-Robin{% if not dev and not edit %} (DEV only){% endif %}</option>
+                        <option value="2"{% if t_system == 2 %} selected="selected"{% endif %}{% if not dev and not edit %} disabled="disabled"{% endif %}>Swiss{% if not dev and not edit %} (DEV only){% endif %}</option>
+                    </select>
+                    <small id="form3-system-help" class="form-help">Arena runs continuously until the clock expires. Swiss and Round-Robin are fixed-round events.</small>
+                    {% if not dev and not edit %}
+                    <small class="form-help">Round-Robin and Swiss creation stay disabled on production until they finish DEV validation.</small>
+                    {% endif %}
+                    {% if edit %}
+                    <input type="hidden" name="system" value="{{ t_system }}" />
+                    <small class="form-help">Tournament type cannot be changed after creation.</small>
+                    {% endif %}
                 </div>
                 <div class="form-split">
                     <div class="form-check form-group">
@@ -127,8 +230,51 @@
                     </div>
                 </div>
                 <div class="form-split">
+                    <div id="form3-rounds-wrap" class="form-group form-half">
+                        <label id="form3-rounds-label" class="form-label" for="form3-rounds">Rounds</label>
+                        <select id="form3-rounds" name="rounds" class="form-control">
+                            <option value="0"{% if t_rounds == 0 %} selected="selected"{% endif %}>Not used in Arena</option>
+                            <option value="3"{% if t_rounds == 3 %} selected="selected"{% endif %}>3 rounds</option>
+                            <option value="4"{% if t_rounds == 4 %} selected="selected"{% endif %}>4 rounds</option>
+                            <option value="5"{% if t_rounds == 5 %} selected="selected"{% endif %}>5 rounds</option>
+                            <option value="6"{% if t_rounds == 6 %} selected="selected"{% endif %}>6 rounds</option>
+                            <option value="7"{% if t_rounds == 7 %} selected="selected"{% endif %}>7 rounds</option>
+                            <option value="8"{% if t_rounds == 8 %} selected="selected"{% endif %}>8 rounds</option>
+                            <option value="9"{% if t_rounds == 9 %} selected="selected"{% endif %}>9 rounds</option>
+                            <option value="10"{% if t_rounds == 10 %} selected="selected"{% endif %}>10 rounds</option>
+                            <option value="12"{% if t_rounds == 12 %} selected="selected"{% endif %}>12 rounds</option>
+                            <option value="15"{% if t_rounds == 15 %} selected="selected"{% endif %}>15 rounds</option>
+                        </select>
+                        <small id="form3-rounds-help" class="form-help">Choose how many rounds the fixed-round tournament will play.</small>
+                    </div>
+                    <div id="form3-roundInterval-wrap" class="form-group form-half">
+                        <label class="form-label" for="form3-roundInterval">Interval between rounds</label>
+                        <select id="form3-roundInterval" name="roundInterval" class="form-control">
+                            <option value="auto"{% if t_round_interval == -1 or (t_system != 0 and t_round_interval == 0) %} selected="selected"{% endif %}>automatic</option>
+                            <option value="manual"{% if t_round_interval == -2 %} selected="selected"{% endif %}>manual start</option>
+                            <option value="5"{% if t_round_interval == 5 %} selected="selected"{% endif %}>5s</option>
+                            <option value="10"{% if t_round_interval == 10 %} selected="selected"{% endif %}>10s</option>
+                            <option value="20"{% if t_round_interval == 20 %} selected="selected"{% endif %}>20s</option>
+                            <option value="30"{% if t_round_interval == 30 %} selected="selected"{% endif %}>30s</option>
+                            <option value="45"{% if t_round_interval == 45 %} selected="selected"{% endif %}>45s</option>
+                            <option value="60"{% if t_round_interval == 60 %} selected="selected"{% endif %}>1m</option>
+                            <option value="120"{% if t_round_interval == 120 %} selected="selected"{% endif %}>2m</option>
+                            <option value="180"{% if t_round_interval == 180 %} selected="selected"{% endif %}>3m</option>
+                            <option value="300"{% if t_round_interval == 300 %} selected="selected"{% endif %}>5m</option>
+                            <option value="600"{% if t_round_interval == 600 %} selected="selected"{% endif %}>10m</option>
+                            <option value="900"{% if t_round_interval == 900 %} selected="selected"{% endif %}>15m</option>
+                            <option value="1200"{% if t_round_interval == 1200 %} selected="selected"{% endif %}>20m</option>
+                            <option value="1800"{% if t_round_interval == 1800 %} selected="selected"{% endif %}>30m</option>
+                            <option value="2700"{% if t_round_interval == 2700 %} selected="selected"{% endif %}>45m</option>
+                            <option value="3600"{% if t_round_interval == 3600 %} selected="selected"{% endif %}>1h</option>
+                            <option value="86400"{% if t_round_interval == 86400 %} selected="selected"{% endif %}>1d</option>
+                            <option value="172800"{% if t_round_interval == 172800 %} selected="selected"{% endif %}>2d</option>
+                            <option value="604800"{% if t_round_interval == 604800 %} selected="selected"{% endif %}>7d</option>
+                        </select>
+                        <small id="form3-roundInterval-help" class="form-help">Automatic is based on time control and clamped to 10s-1m.</small>
+                    </div>
                     <div class="form-group form-half">
-                        <label class="form-label" for="form3-minutes">Duration</label>
+                        <label id="form3-minutes-label" class="form-label" for="form3-minutes">Duration</label>
                         <select id="form3-minutes" name="minutes" class="form-control">
                             <option value="20"{% if t_minutes == 20 %} selected="selected"{% endif %}>20 minutes</option>
                             <option value="25"{% if t_minutes == 25 %} selected="selected"{% endif %}>25 minutes</option>
@@ -159,6 +305,7 @@
                             <option value="600"{% if t_minutes == 600 %} selected="selected"{% endif %}>600 minutes</option>
                             <option value="720"{% if t_minutes == 720 %} selected="selected"{% endif %}>720 minutes</option>
                         </select>
+                        <small id="form3-minutes-help" class="form-help">Arena uses this as a hard limit. Swiss and Round-Robin use it as an estimate only.</small>
                     </div>
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-waitMinutes">Time before tournament starts</label>
@@ -193,6 +340,82 @@
                     </div>
                 </div>
 
+                <div id="form3-entry-wrap-a" class="form-split">
+                    <div class="form-check form-group">
+                        <div>
+                            <label class="form-label" for="form3-entryTitledOnly">Titled-only</label>
+                            <span class="form-check-input">
+                                <input id="form3-entryTitledOnly" name="entryTitledOnly" value="1" type="checkbox" class="form-control cmn-toggle" {% if t_entry_titled_only %}checked{% endif %}/>
+                            </span>
+                        </div>
+                        <small class="form-help">Allow only titled users to join this tournament.</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-entryMinRatedGames">Minimum rated games</label>
+                        <select id="form3-entryMinRatedGames" name="entryMinRatedGames" class="form-control">
+                            {% if t_entry_min_rated_games not in rated_game_values %}
+                            <option value="{{ t_entry_min_rated_games }}" selected="selected">{{ t_entry_min_rated_games }} rated games (custom)</option>
+                            {% endif %}
+                            {% for value, label in rated_game_choices %}
+                            <option value="{{ value }}"{% if t_entry_min_rated_games == value %} selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-help">Required rated games in this variant before a player can join.</small>
+                    </div>
+                </div>
+                <div id="form3-entry-wrap-b" class="form-split">
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-entryMinRating">Minimum rating</label>
+                        <select id="form3-entryMinRating" name="entryMinRating" class="form-control">
+                            {% if t_entry_min_rating not in min_rating_values %}
+                            <option value="{{ t_entry_min_rating }}" selected="selected">{{ t_entry_min_rating }} (custom)</option>
+                            {% endif %}
+                            {% for value, label in min_rating_choices %}
+                            <option value="{{ value }}"{% if t_entry_min_rating == value %} selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-help">Choose No restriction to allow all ratings.</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-entryMaxRating">Maximum rating</label>
+                        <select id="form3-entryMaxRating" name="entryMaxRating" class="form-control">
+                            {% if t_entry_max_rating not in max_rating_values %}
+                            <option value="{{ t_entry_max_rating }}" selected="selected">{{ t_entry_max_rating }} (custom)</option>
+                            {% endif %}
+                            {% for value, label in max_rating_choices %}
+                            <option value="{{ value }}"{% if t_entry_max_rating == value %} selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-help">Choose No restriction to allow all ratings.</small>
+                    </div>
+                </div>
+                <div id="form3-entry-wrap-c" class="form-split">
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-entryMinAccountAgeDays">Minimum account age</label>
+                        <select id="form3-entryMinAccountAgeDays" name="entryMinAccountAgeDays" class="form-control">
+                            {% if t_entry_min_account_age_days not in account_age_values %}
+                            <option value="{{ t_entry_min_account_age_days }}" selected="selected">{{ t_entry_min_account_age_days }} days (custom)</option>
+                            {% endif %}
+                            {% for value, label in account_age_choices %}
+                            <option value="{{ value }}"{% if t_entry_min_account_age_days == value %} selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-help">Choose No restriction to allow newly created accounts.</small>
+                    </div>
+                </div>
+                <div id="form3-swiss-pairings-wrap-a" class="form-split">
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-forbiddenPairings">Forbidden pairings</label>
+                        <textarea id="form3-forbiddenPairings" name="forbiddenPairings" class="form-control" rows="5">{{ t_forbidden_pairings }}</textarea>
+                        <small class="form-help">One username pair per line, for example <code>alice bob</code>. Automatic Swiss pairing will avoid those pairings for the whole event.</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-manualPairings">Manual pairings for next round</label>
+                        <textarea id="form3-manualPairings" name="manualPairings" class="form-control" rows="5">{{ t_manual_pairings }}</textarea>
+                        <small class="form-help">One pairing per line as <code>white black</code>, or <code>username 1</code> for a manual bye. This applies to the next Swiss round only and is cleared after use.</small>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label" for="form3-password">Password</label>
                     <div>
@@ -209,18 +432,6 @@
                         <input id="startDate" name="startDate" value="{{ t_starts_at }}" class="form-control flatpickr"/>
                         <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting</small>
                     </div>
-
-                    {% if admin %}
-                    <div class="form-check form-group">
-                        <div>
-                            <label class="form-label" for="form3-shield">Shield</label>
-                            <span class="form-check-input">
-                                <input id="form3-shield" name="shield" value="true" type="checkbox" class="form-control cmn-toggle" {% if t_shield %}checked{% endif %}/>
-                            </span>
-                        </div>
-                    </div>
-                    <input type="hidden" name="shield" value="false" />
-                    {% endif %}
                 </div>
 
                 <div class="form-actions">
@@ -235,42 +446,85 @@
             </form>
         </div>
         <div class="box box-pad tour__faq">
-            <p>You will be notified when the tournament starts, so it is safe to play in another tab while waiting.</p>
-            <h2>Is it rated?</h2>
-            <p>Some tournaments are rated and will affect your rating.</p>
-            <h2>How are scores calculated?</h2>
-            <p>A win has a base score of 2 points, a draw 1 point, and a loss is worth no points.
-                <br />If you win two games consecutively you will start a double point streak, represented by a flame icon.
-                <br />The following games will continue to be worth double points until you fail to win a game.
-                <br />That is, a win will be worth 4 points, a draw 2 points, and a loss will still not award any points.
-                <br />
-                <br />For example, two wins followed by a draw will be worth 6 points: 2 + 2 + (2 × 1)
-            </p>
-            <h2>Arena Berserk</h2>
-            <p>When a player clicks the Berserk button at the beginning of the game, they lose half of their clock time, but the win is worth one extra tournament point.
-                <br />
-                <br />Going Berserk in time controls with an increment also cancels the increment. (1+2 is an exception, it gives 1+0)
-                <br />
-                <br />Berserk is not available for games with zero initial time (0+1, 0+2).
-                <br />
-                <br />Berserk only grants an extra point if you play at least 7 moves in the game.
-            </p>
-            <h2>How is the winner decided?</h2>
-            <p>The player(s) with the most points at the conclusion of the tournament&#39;s set time limit will be announced winner(s).
-                <br />
-                <br />When two or more players have the same number of points, the tournament performance is the tie break.
-            </p>
-            <h2>How does the pairing work?</h2>
-            <p>At the beginning of the tournament, players are paired based on their rating.
-                <br />As soon as you finish a game, return to the tournament lobby: you will then be paired with a player close to your ranking. This ensures minimum wait time, however you may not face all other players in the tournament.
-                <br />Play fast and return to the lobby to play more games and win more points.
-            </p>
-            <h2>How does it end?</h2>
-            <p>The tournament has a countdown clock. When it reaches zero, the tournament rankings are frozen, and the winner is announced. Games in progress must be finished, however they don&#39;t count for the tournament.</p>
-            <h2>Other important rules.</h2>
-            <p>There is a countdown for your first move. Failing to make a move within this time will forfeit the game to your opponent.</p>
-            <p>Drawing the game within the first 10 moves will earn neither player any points.</p>
-            <p>Draw streaks: When a player has consecutive draws in an arena, only the first draw will result in a point, or draws lasting more than 30 moves. The draw streak can only be broken by a win, not a loss or a draw (Not implemented on pychess atm!).</p>
+            <div id="tour-faq-arena">
+                <p>You will be notified when the tournament starts, so it is safe to play in another tab while waiting.</p>
+                <h2>Is it rated?</h2>
+                <p>Some tournaments are rated and will affect your rating.</p>
+                <h2>How are scores calculated?</h2>
+                <p>A win has a base score of 2 points, a draw 1 point, and a loss is worth no points.
+                    <br />If you win two games consecutively you will start a double point streak, represented by a flame icon.
+                    <br />The following games will continue to be worth double points until you fail to win a game.
+                    <br />That is, a win will be worth 4 points, a draw 2 points, and a loss will still not award any points.
+                    <br />
+                    <br />For example, two wins followed by a draw will be worth 6 points: 2 + 2 + (2 × 1)
+                </p>
+                <h2>Arena Berserk</h2>
+                <p>When a player clicks the Berserk button at the beginning of the game, they lose half of their clock time, but the win is worth one extra tournament point.
+                    <br />
+                    <br />Going Berserk in time controls with an increment also cancels the increment. (1+2 is an exception, it gives 1+0)
+                    <br />
+                    <br />Berserk is not available for games with zero initial time (0+1, 0+2).
+                    <br />
+                    <br />Berserk only grants an extra point if you play at least 7 moves in the game.
+                </p>
+                <h2>How is the winner decided?</h2>
+                <p>The player(s) with the most points at the conclusion of the tournament&#39;s set time limit will be announced winner(s).
+                    <br />
+                    <br />When two or more players have the same number of points, the tournament performance is the tie break.
+                </p>
+                <h2>How does the pairing work?</h2>
+                <p>At the beginning of the tournament, players are paired based on their rating.
+                    <br />As soon as you finish a game, return to the tournament lobby: you will then be paired with a player close to your ranking. This ensures minimum wait time, however you may not face all other players in the tournament.
+                    <br />Play fast and return to the lobby to play more games and win more points.
+                </p>
+                <h2>How does it end?</h2>
+                <p>The tournament has a countdown clock. When it reaches zero, the tournament rankings are frozen, and the winner is announced. Games in progress must be finished, however they don&#39;t count for the tournament.</p>
+                <h2>Other important rules.</h2>
+                <p>There is a countdown for your first move. Failing to make a move within this time will forfeit the game to your opponent.</p>
+                <p>Drawing the game within the first 10 moves will earn neither player any points.</p>
+                <p>Draw streaks: When a player has consecutive draws in an arena, only the first draw will result in a point, or draws lasting more than 30 moves. The draw streak can only be broken by a win, not a loss or a draw (Not implemented on pychess atm!).</p>
+            </div>
+            <div id="tour-faq-rr">
+                <p>You will be notified when the tournament starts, so it is safe to play in another tab while waiting.</p>
+                <h2>Round-Robin Rules</h2>
+                <p>Round-Robin tournaments are fixed-round events. Players are paired so that everyone meets once when the field size and round count allow it.</p>
+                <h2>Is it rated?</h2>
+                <p>Some tournaments are rated and will affect your rating.</p>
+                <h2>How are scores calculated?</h2>
+                <p>Each scheduled round counts once. Round-Robin tournaments do not use Arena streaks or Berserk bonuses.</p>
+                <h2>How is the winner decided?</h2>
+                <p>The player(s) with the most tournament points after the scheduled rounds are the winner(s).
+                    <br />
+                    <br />When two or more players have the same number of points, Sonneborn-Berger values are used as the tie break.
+                </p>
+                <h2>How does it end?</h2>
+                <p>The tournament ends after the scheduled rounds are completed. The duration field is only an estimate here and does not stop the event early.</p>
+                <h2>Absences</h2>
+                <p>If you miss a round, you are treated as absent for that round instead of continuing with Arena-style continuous pairings.</p>
+            </div>
+            <div id="tour-faq-swiss">
+                <p>You will be notified when the tournament starts, so it is safe to play in another tab while waiting.</p>
+                <h2>Swiss Rules</h2>
+                <p>Swiss tournaments are played in fixed rounds. After each round finishes, the next round starts and players are paired with others on similar score.</p>
+                <h2>Is it rated?</h2>
+                <p>Some tournaments are rated and will affect your rating.</p>
+                <h2>How does pairing work?</h2>
+                <p>Players are paired by Swiss rules with score-group logic and color constraints.
+                    <br />
+                    <br />You cannot play the same opponent twice, and the system can assign byes or mark absences when the field or attendance requires it.
+                </p>
+                <h2>How are scores calculated?</h2>
+                <p>Each scheduled round counts once. Swiss tournaments do not use Arena streaks or Berserk bonuses.</p>
+                <h2>How is the winner decided?</h2>
+                <p>The player(s) with the most tournament points after the scheduled rounds are the winner(s).
+                    <br />
+                    <br />When two or more players have the same number of points, Sonneborn-Berger values are used as the tie break.
+                </p>
+                <h2>How does it end?</h2>
+                <p>The tournament ends after the scheduled rounds are completed. The duration field is only an estimate here and does not stop the event early.</p>
+                <h2>Late join and absences</h2>
+                <p>Players can join late while the event is still in its early rounds. Missed rounds are recorded on the standings, and absent players are simply not paired for that round.</p>
+            </div>
         </div>
     </main>
 </div>
@@ -278,16 +532,5 @@
 {% block js %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>document.getElementsByClassName("flatpickr").flatpickr({
-        enableTime: true,
-        time_24hr: true,
-        dateFormat: 'Z',
-        altInput: true,
-        altFormat: 'Y-m-d h:i K',
-        minDate: 'today',
-        maxDate: new Date(Date.now() + 1000 * 3600 * 24 * 31 * 3),
-        monthSelectorType: 'static',
-        disableMobile: true, // https://flatpickr.js.org/mobile-support/ https://github.com/lichess-org/lila/issues/8110
-    });</script>
     <script src="{{ js }}"></script>
 {% endblock %}

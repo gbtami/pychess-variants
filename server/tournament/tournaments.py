@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING, Iterable, Mapping, Protocol
+from typing import Any, TYPE_CHECKING, Iterable, Mapping, Protocol, cast
 from datetime import datetime, timezone
 import asyncio
 
@@ -11,6 +11,7 @@ from tournament.arena_new import ArenaTournament
 from compress import C2R, R2C
 from const import (
     ARENA,
+    BYEGAME,
     RR,
     SWISS,
     T_STARTED,
@@ -25,6 +26,7 @@ from const import (
     TRANSLATED_FREQUENCY_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
     TEST_PREFIX,
+    VARIANTEND,
 )
 from newid import new_id
 
@@ -35,6 +37,8 @@ from pychess_global_app_state_utils import get_app_state
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
 from tournament.tournament import (
+    AUTO_ROUND_INTERVAL,
+    MANUAL_ROUND_INTERVAL,
     ByeGame,
     GameData,
     PlayerData,
@@ -47,22 +51,224 @@ from typing_defs import (
     TournamentCreateData,
     TournamentDoc,
     TournamentPairingDoc,
+    TournamentPoint,
     TournamentPlayerDoc,
 )
 from ws_types import ChatLine
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
 from user import User
 from utils import load_game
+from settings import DEV
 
 log = logging.getLogger(__name__)
 
 WinnerEntry = tuple[str, str, str]
 ScheduledTournamentEntry = tuple[str, str, bool, datetime, int, str]
 TournamentTables = tuple[list[Tournament], list[Tournament], list[Tournament]]
+ROUND_INTERVAL_SECONDS: frozenset[int] = frozenset(
+    (
+        5,
+        10,
+        20,
+        30,
+        45,
+        60,
+        120,
+        180,
+        300,
+        600,
+        900,
+        1200,
+        1800,
+        2700,
+        3600,
+        86400,
+        172800,
+        604800,
+    )
+)
 
 
 class Translation(Protocol):
     def gettext(self, message: str) -> str: ...
+
+
+def _align_player_games_with_points(player_data: PlayerData) -> None:
+    if not player_data.points:
+        return
+
+    # Round-aware Swiss states should not be re-ordered by point-shape heuristics.
+    if any(getattr(game, "round", None) is not None for game in player_data.games):
+        return
+
+    non_bye_games = [game for game in player_data.games if not isinstance(game, ByeGame)]
+    bye_games = [game for game in player_data.games if isinstance(game, ByeGame)]
+
+    rebuilt: list[Game | GameData | ByeGame] = []
+    non_bye_index = 0
+    bye_index = 0
+
+    for point in player_data.points:
+        if point == "-":
+            if bye_index < len(bye_games):
+                rebuilt.append(bye_games[bye_index])
+                bye_index += 1
+            else:
+                rebuilt.append(ByeGame())
+            continue
+
+        if non_bye_index >= len(non_bye_games):
+            break
+
+        rebuilt.append(non_bye_games[non_bye_index])
+        non_bye_index += 1
+
+    while non_bye_index < len(non_bye_games):
+        rebuilt.append(non_bye_games[non_bye_index])
+        non_bye_index += 1
+
+    while bye_index < len(bye_games):
+        rebuilt.append(bye_games[bye_index])
+        bye_index += 1
+
+    player_data.games = rebuilt
+
+
+def _swiss_entry_point_value(point: object, variant: str) -> int:
+    if point == "-":
+        return 7 if variant == "janggi" else 2
+    if isinstance(point, (tuple, list)) and len(point) > 0 and isinstance(point[0], int):
+        return point[0]
+    return 0
+
+
+def _swiss_unplayed_point_from_token(token: str, variant: str):
+    if token == "U":
+        return "-"
+    if token == "H":
+        if variant == "janggi":
+            return (2, 0)
+        return (1, 0)
+    if token == "F":
+        return (7, 0) if variant == "janggi" else (2, 0)
+    return (0, 0)
+
+
+def _parse_round_interval(
+    value: Any,
+    *,
+    system: int,
+    default_value: int,
+) -> int:
+    if system == ARENA:
+        return 0
+
+    if value in (None, "", "auto"):
+        return AUTO_ROUND_INTERVAL
+    if value == "manual":
+        return MANUAL_ROUND_INTERVAL
+
+    try:
+        interval = int(value)
+    except (TypeError, ValueError):
+        return default_value
+
+    if interval in ROUND_INTERVAL_SECONDS:
+        return interval
+    return default_value
+
+
+def _infer_swiss_point_from_game(
+    tournament: Tournament,
+    game: Game | GameData | ByeGame,
+    username: str,
+):
+    if isinstance(game, ByeGame):
+        return _swiss_unplayed_point_from_token(getattr(game, "token", "U"), tournament.variant)
+
+    result = game.result
+    if result not in ("1-0", "0-1", "1/2-1/2"):
+        return None
+
+    if result == "1/2-1/2":
+        return (0 if tournament.variant == "janggi" else 1, 1)
+
+    is_white = game.wplayer.username == username
+    won = (result == "1-0" and is_white) or (result == "0-1" and not is_white)
+
+    if tournament.variant == "janggi":
+        if getattr(game, "status", None) == VARIANTEND:
+            return (4 if won else 2, 1)
+        return (7 if won else 0, 1)
+
+    return (2 if won else 0, 1)
+
+
+async def _repair_swiss_state_from_history(tournament: Tournament) -> None:
+    repaired_users: list[str] = []
+
+    for user, player_data in tournament.players.items():
+        repaired = False
+        username = player_data.username
+
+        initial_points = list(player_data.points)
+        initial_games = list(player_data.games)
+
+        _align_player_games_with_points(player_data)
+
+        while len(player_data.points) < len(player_data.games):
+            game = player_data.games[len(player_data.points)]
+            inferred = _infer_swiss_point_from_game(tournament, game, username)
+            if inferred is None:
+                log.warning(
+                    "Swiss load repair could not infer point for %s in %s at round index %s",
+                    username,
+                    tournament.id,
+                    len(player_data.points),
+                )
+                break
+            player_data.points.append(inferred)
+            repaired = True
+
+        while len(player_data.points) > len(player_data.games):
+            next_point = player_data.points[len(player_data.games)]
+            if next_point != "-":
+                log.warning(
+                    "Swiss load repair found extra non-bye point without game for %s in %s",
+                    username,
+                    tournament.id,
+                )
+                break
+            player_data.games.append(ByeGame())
+            repaired = True
+
+        _align_player_games_with_points(player_data)
+
+        if player_data.points != initial_points or player_data.games != initial_games:
+            repaired = True
+
+        if not repaired:
+            continue
+
+        total_points = sum(
+            _swiss_entry_point_value(point, tournament.variant) for point in player_data.points
+        )
+        full_score = tournament.compose_leaderboard_score(total_points, player_data)
+        if tournament.leaderboard_player_by_username(username) is not None:
+            tournament.set_leaderboard_score_by_username(username, full_score)
+        repaired_users.append(username)
+
+    if not repaired_users:
+        return
+
+    log.warning(
+        "Swiss load repair adjusted player state from pairing history in %s: %s",
+        tournament.id,
+        sorted(repaired_users),
+    )
+
+    for username in repaired_users:
+        await tournament.db_update_player(username, "GAME_END")
 
 
 async def create_or_update_tournament(
@@ -82,7 +288,70 @@ async def create_or_update_tournament(
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
     bp = int(form["byoyomiPeriod"])
-    frequency = SHIELD if form.get("shield", "") == "true" else ""
+    frequency = tournament.frequency if tournament is not None else ""
+
+    if tournament is None:
+        try:
+            system = int(form.get("system", ARENA))
+        except (TypeError, ValueError):
+            system = ARENA
+        if system not in (ARENA, RR, SWISS):
+            system = ARENA
+        if (not DEV) and system in (RR, SWISS):
+            raise web.HTTPBadRequest(
+                text="Round-Robin and Swiss tournament creation is disabled in production."
+            )
+    else:
+        # Editing keeps existing pairing type to avoid mutating tournament class behavior.
+        system = tournament.system
+
+    try:
+        rounds = int(form.get("rounds", 0))
+    except (TypeError, ValueError):
+        rounds = 0
+    if system == ARENA:
+        rounds = 0
+    elif rounds <= 0:
+        rounds = 5
+
+    default_round_interval = (
+        AUTO_ROUND_INTERVAL if tournament is None else getattr(tournament, "round_interval", 0)
+    )
+    round_interval = _parse_round_interval(
+        form.get("roundInterval"),
+        system=system,
+        default_value=default_round_interval,
+    )
+
+    try:
+        entry_min_rating = int(form.get("entryMinRating", 0) or 0)
+    except (TypeError, ValueError):
+        entry_min_rating = 0
+    try:
+        entry_max_rating = int(form.get("entryMaxRating", 0) or 0)
+    except (TypeError, ValueError):
+        entry_max_rating = 0
+    try:
+        entry_min_rated_games = int(form.get("entryMinRatedGames", 0) or 0)
+    except (TypeError, ValueError):
+        entry_min_rated_games = 0
+    try:
+        entry_min_account_age_days = int(form.get("entryMinAccountAgeDays", 0) or 0)
+    except (TypeError, ValueError):
+        entry_min_account_age_days = 0
+    entry_titled_only = form.get("entryTitledOnly", "") == "1"
+    forbidden_pairings = (form.get("forbiddenPairings", "") or "").replace("\r\n", "\n").strip()
+    manual_pairings = (form.get("manualPairings", "") or "").replace("\r\n", "\n").strip()
+
+    if system != SWISS:
+        forbidden_pairings = ""
+        manual_pairings = ""
+
+    if entry_max_rating > 0 and entry_min_rating > entry_max_rating:
+        entry_min_rating, entry_max_rating = entry_max_rating, entry_min_rating
+
+    if system != ARENA:
+        frequency = ""
 
     start_date: datetime | None
     if form["startDate"]:
@@ -92,16 +361,14 @@ async def create_or_update_tournament(
     else:
         start_date = None
 
-    name = form["name"]
+    name = form["name"].strip()
     # Create meaningful tournament name in case we forget to change it :)
     if name == "":
-        name = "%s Arena" % server_variant.display_name.title()
+        name = server_variant.display_name.title()
 
     description = form["description"]
     if frequency == SHIELD:
         name = "%s Shield Arena" % server_variant.display_name.title()
-    else:
-        name = name if name.lower().endswith("arena") else name + " Arena"
 
     data: TournamentCreateData = {
         "name": name,
@@ -113,12 +380,21 @@ async def create_or_update_tournament(
         "base": base,
         "inc": inc,
         "bp": bp,
-        "system": ARENA,
+        "system": system,
         "beforeStart": int(form["waitMinutes"]),
         "startDate": start_date,
         "frequency": frequency,
         "minutes": int(form["minutes"]),
         "fen": form["position"],
+        "rounds": rounds,
+        "roundInterval": round_interval,
+        "entryMinRating": entry_min_rating,
+        "entryMaxRating": entry_max_rating,
+        "entryMinRatedGames": entry_min_rated_games,
+        "entryMinAccountAgeDays": entry_min_account_age_days,
+        "entryTitledOnly": entry_titled_only,
+        "forbiddenPairings": forbidden_pairings,
+        "manualPairings": manual_pairings,
         "description": description,
     }
     if tournament is None:
@@ -134,6 +410,15 @@ async def create_or_update_tournament(
         tournament.base = data["base"]
         tournament.inc = data["inc"]
         tournament.bp = data["bp"]
+        tournament.rounds = data["rounds"]
+        tournament.round_interval = data["roundInterval"]
+        tournament.entry_min_rating = data["entryMinRating"]
+        tournament.entry_max_rating = data["entryMaxRating"]
+        tournament.entry_min_rated_games = data["entryMinRatedGames"]
+        tournament.entry_min_account_age_days = data["entryMinAccountAgeDays"]
+        tournament.entry_titled_only = data["entryTitledOnly"]
+        tournament.forbidden_pairings = data["forbiddenPairings"]
+        tournament.manual_pairings = data["manualPairings"]
         tournament.beforeStart = data["beforeStart"]
         tournament.starts_at = data["startDate"]  # type: ignore[assignment]
         tournament.frequency = data["frequency"]
@@ -184,6 +469,14 @@ async def new_tournament(
         chess960=data.get("chess960", False),
         fen=data.get("fen", ""),
         rounds=data.get("rounds", 0),
+        round_interval=data.get("roundInterval", 0),
+        entry_min_rating=data.get("entryMinRating", 0),
+        entry_max_rating=data.get("entryMaxRating", 0),
+        entry_min_rated_games=data.get("entryMinRatedGames", 0),
+        entry_min_account_age_days=data.get("entryMinAccountAgeDays", 0),
+        entry_titled_only=data.get("entryTitledOnly", False),
+        forbidden_pairings=data.get("forbiddenPairings", ""),
+        manual_pairings=data.get("manualPairings", ""),
         created_by=data["createdBy"],
         before_start=data.get("beforeStart", 5),
         minutes=data.get("minutes", 45),
@@ -325,6 +618,14 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 chess960=bool(tournament_doc.get("z")),
                 fen=tournament_doc.get("f"),
                 rounds=tournament_doc["rounds"],
+                round_interval=tournament_doc.get("ri", 0),
+                entry_min_rating=tournament_doc.get("entryMinRating", 0),
+                entry_max_rating=tournament_doc.get("entryMaxRating", 0),
+                entry_min_rated_games=tournament_doc.get("entryMinRatedGames", 0),
+                entry_min_account_age_days=tournament_doc.get("entryMinAccountAgeDays", 0),
+                entry_titled_only=tournament_doc.get("entryTitledOnly", False),
+                forbidden_pairings=tournament_doc.get("forbiddenPairings", ""),
+                manual_pairings=tournament_doc.get("manualPairings", ""),
                 created_by=tournament_doc["createdBy"],
                 created_at=tournament_doc["createdAt"],
                 minutes=tournament_doc["minutes"],
@@ -478,6 +779,14 @@ async def load_tournament(
         chess960=bool(tournament_doc.get("z")),
         fen=tournament_doc.get("f"),
         rounds=tournament_doc["rounds"],
+        round_interval=tournament_doc.get("ri", 0),
+        entry_min_rating=tournament_doc.get("entryMinRating", 0),
+        entry_max_rating=tournament_doc.get("entryMaxRating", 0),
+        entry_min_rated_games=tournament_doc.get("entryMinRatedGames", 0),
+        entry_min_account_age_days=tournament_doc.get("entryMinAccountAgeDays", 0),
+        entry_titled_only=tournament_doc.get("entryTitledOnly", False),
+        forbidden_pairings=tournament_doc.get("forbiddenPairings", ""),
+        manual_pairings=tournament_doc.get("manualPairings", ""),
         created_by=tournament_doc.get("createdBy", "PyChess"),
         created_at=tournament_doc["createdAt"],
         before_start=tournament_doc.get("beforeStart", 0),
@@ -569,14 +878,28 @@ async def load_tournament(
         player_data.id = player_doc["_id"]
         player_data.paused = player_doc["a"]
         player_data.withdrawn = withdrawn
-        player_data.points = player_doc["p"]
+        normalized_points: list[TournamentPoint] = []
+        for point in player_doc["p"]:
+            if isinstance(point, list) and len(point) == 2:
+                normalized_points.append(cast(TournamentPoint, (point[0], point[1])))
+            else:
+                normalized_points.append(cast(TournamentPoint, point))
+        player_data.points = normalized_points
+        if tournament.system == SWISS:
+            player_data.joined_round = player_doc["jr"]
+        else:
+            player_data.joined_round = player_doc.get("jr", 1)
         player_data.nb_win = player_doc["w"]
         player_data.nb_berserk = player_doc.get("b", 0)
         player_data.performance = player_doc["e"]
+        player_data.berger = player_doc.get("g", 0)
         player_data.win_streak = player_doc["f"]
 
         if not withdrawn:
-            tournament.leaderboard.update({user: SCORE_SHIFT * (player_doc["s"]) + player_doc["e"]})
+            tie_break = (
+                player_data.performance if tournament.system == ARENA else player_data.berger
+            )
+            tournament.leaderboard.update({user: SCORE_SHIFT * (player_doc["s"]) + tie_break})
             nb_players += 1
 
         if auto_play and tournament.status in (T_CREATED, T_STARTED):
@@ -599,17 +922,53 @@ async def load_tournament(
     w_win, b_win, draw, berserk = 0, 0, 0, 0
     async for doc in cursor:
         pairing_doc: TournamentPairingDoc = doc
-        res = pairing_doc["r"]
-        result = C2R[res]
-        # Skip aborted/unfinished games if tournament is over
-        if result == "*" and tournament.status in (T_ABORTED, T_FINISHED, T_ARCHIVED):
-            continue
+        pair_status = pairing_doc.get("s")
+        pair_round = pairing_doc.get("rn")
+        if tournament.system == SWISS and pair_round is None:
+            raise RuntimeError(
+                "Swiss pairing %s in %s is missing required round metadata"
+                % (pairing_doc["_id"], tournament_id)
+            )
 
+        bye_token = pairing_doc.get("bt")
         _id = pairing_doc["_id"]
         wp, bp = pairing_doc["u"]
         wrating = pairing_doc["wr"]
         brating = pairing_doc["br"]
         date = pairing_doc["d"]
+
+        if pair_status == BYEGAME:
+            if tournament.system == SWISS:
+                if bye_token is None:
+                    raise RuntimeError(
+                        "Swiss bye pairing %s in %s is missing required bye token"
+                        % (_id, tournament_id)
+                    )
+            else:
+                bye_token = "U"
+            assert bye_token is not None
+            bye_player = await ensure_pairing_participant(wp, wrating)
+            bye_player_data = tournament.player_data_by_name(bye_player.username)
+            if bye_player_data is not None:
+                bye_game = ByeGame(token=bye_token, round_no=pair_round)
+                bye_game.date = date
+                bye_player_data.games.append(bye_game)
+            continue
+
+        res = pairing_doc["r"]
+        result = C2R.get(res)
+        if result is None:
+            log.warning(
+                "Skipping pairing %s in %s with unknown result code %s",
+                _id,
+                tournament_id,
+                res,
+            )
+            continue
+        # Skip aborted/unfinished games if tournament is over
+        if result == "*" and tournament.status in (T_ABORTED, T_FINISHED, T_ARCHIVED):
+            continue
+
         wberserk = pairing_doc.get("wb", False)
         bberserk = pairing_doc.get("bb", False)
 
@@ -620,6 +979,7 @@ async def load_tournament(
                 continue
             if TYPE_CHECKING:
                 assert isinstance(game, Game)
+            game.round = pair_round  # type: ignore[attr-defined]
             if game.status > STARTED and game.result != "*":
                 result = game.result
                 res = R2C[result]
@@ -639,6 +999,8 @@ async def load_tournament(
                     bberserk,
                     wtitle=wplayer.title,
                     btitle=bplayer.title,
+                    status=game.status,
+                    round_no=pair_round,
                 )
                 tournament.nb_games_finished += 1
                 await tournament.db_update_pairing(game)
@@ -660,6 +1022,8 @@ async def load_tournament(
                 bberserk,
                 wtitle=wplayer.title,
                 btitle=bplayer.title,
+                status=pair_status,
+                round_no=pair_round,
             )
             tournament.nb_games_finished += 1
 
@@ -683,23 +1047,13 @@ async def load_tournament(
     tournament.nb_berserk = berserk
 
     for player_data in tournament.players.values():
-        if "-" not in player_data.points:
-            continue
-        games_iter = iter(player_data.games)
-        next_game = next(games_iter, None)
-        rebuilt: list[Game | GameData | ByeGame] = []
-        for point in player_data.points:
-            if point == "-":
-                rebuilt.append(ByeGame())
-                continue
-            if next_game is None:
-                break
-            rebuilt.append(next_game)
-            next_game = next(games_iter, None)
-        while next_game is not None:
-            rebuilt.append(next_game)
-            next_game = next(games_iter, None)
-        player_data.games = rebuilt
+        _align_player_games_with_points(player_data)
+
+    if tournament.system == SWISS:
+        await _repair_swiss_state_from_history(tournament)
+
+    if tournament.system != ARENA:
+        tournament.recalculate_berger_tiebreak()
 
     if stored_round is None and tournament.system != ARENA:
         stored_round = max(

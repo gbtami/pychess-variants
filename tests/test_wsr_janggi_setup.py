@@ -4,8 +4,9 @@ from unittest.mock import AsyncMock, patch
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
+from const import STARTED
 from game import Game
-from glicko2.glicko2 import DEFAULT_PERF
+from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
@@ -14,7 +15,7 @@ from variants import VARIANTS
 from wsr import handle_setup
 
 
-PERFS = {variant: DEFAULT_PERF for variant in VARIANTS}
+PERFS = new_default_perf_map(VARIANTS)
 RED_SETUP_FEN = "rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1"
 BLUE_SETUP_FEN = "rbna1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RBNA1ANBR w - - 0 1"
 
@@ -26,7 +27,7 @@ class JanggiSetupValidationTestCase(AioHTTPTestCase):
         self.bplayer = User(app_state, username="bplayer-setup", perfs=PERFS)
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient())
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
         app.on_startup.append(self.startup)
         return app
 
@@ -129,6 +130,46 @@ class JanggiSetupValidationTestCase(AioHTTPTestCase):
         self.assertEqual(game.steps[0]["fen"], step0_before)
         self.assertFalse(game.bsetup)
         self.assertFalse(game.wsetup)
+
+    async def test_black_setup_with_bot_white_sends_board_and_starts_game(self):
+        app_state = get_app_state(self.app)
+        white_bot = User(app_state, bot=True, username="wbot-setup", perfs=PERFS)
+        black_player = User(app_state, username="bplayer-vs-bot", perfs=PERFS)
+        users = {
+            white_bot.username: white_bot,
+            black_player.username: black_player,
+        }
+        game = Game(
+            app_state,
+            id8(),
+            "janggi",
+            "",
+            white_bot,
+            black_player,
+            rated=False,
+        )
+
+        ws_send_json_mock = AsyncMock()
+        with patch("wsr.ws_send_json", new=ws_send_json_mock):
+            await handle_setup(
+                ws=AsyncMock(),
+                users=users,
+                user=black_player,
+                data={
+                    "type": "setup",
+                    "gameId": game.id,
+                    "color": "black",
+                    "fen": RED_SETUP_FEN,
+                },
+                game=game,
+            )
+
+        self.assertFalse(game.bsetup)
+        self.assertFalse(game.wsetup)
+        self.assertEqual(game.status, STARTED)
+        self.assertGreaterEqual(len(ws_send_json_mock.await_args_list), 1)
+        sent_payload = ws_send_json_mock.await_args_list[-1].args[1]
+        self.assertEqual(sent_payload["type"], "board")
 
 
 if __name__ == "__main__":
