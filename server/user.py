@@ -66,6 +66,20 @@ class RatingResetError(Exception):
     """Raised when new User object created with perft=None, but user already exists in leaderboards"""
 
 
+def _as_utc(dt: datetime | None) -> datetime | None:
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def _as_required_utc(dt: datetime) -> datetime:
+    normalized = _as_utc(dt)
+    assert normalized is not None
+    return normalized
+
+
 class User:
     def __init__(
         self,
@@ -83,6 +97,8 @@ class User:
         oauth_id: str = "",
         oauth_provider: str = "",
         created_at: datetime | None = None,
+        swiss_ban_until: datetime | None = None,
+        swiss_ban_hours: int = 0,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.bot: bool = False if username == "PyChessBot" else bot
@@ -94,8 +110,12 @@ class User:
         self.oauth_id: str = oauth_id
         self.oauth_provider: str = oauth_provider
         self.created_at: datetime = (
-            datetime(MINYEAR, 1, 1, tzinfo=timezone.utc) if created_at is None else created_at
+            datetime(MINYEAR, 1, 1, tzinfo=timezone.utc)
+            if created_at is None
+            else _as_required_utc(created_at)
         )
+        self.swiss_ban_until: datetime | None = _as_utc(swiss_ban_until)
+        self.swiss_ban_hours: int = swiss_ban_hours
         self.notifications: list[NotificationDocument] | None = None
         self.update_game_category(game_category)
 

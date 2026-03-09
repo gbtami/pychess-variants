@@ -1,12 +1,14 @@
 from __future__ import annotations
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 import logging
 import os
 from pathlib import Path
 import tempfile
 from typing import TYPE_CHECKING, Any
 
-from const import SWISS, T_STARTED
+from const import ABORTED, SWISS, T_STARTED
+from fairy import BLACK, WHITE
 from tournament.tournament import ByeGame, PairingUnavailable, SCORE_SHIFT, Tournament
 
 try:
@@ -689,6 +691,96 @@ def build_trf_export_text(tournament: Tournament, waiting_players: list[User] | 
 class SwissTournament(Tournament):
     system = SWISS
 
+    def _active_swiss_ban_until(self, user: User, now: datetime | None = None) -> datetime | None:
+        if now is None:
+            now = datetime.now(timezone.utc)
+        banned_until = user.swiss_ban_until
+        if banned_until is None or banned_until <= now:
+            return None
+        return banned_until
+
+    async def _clear_swiss_ban(self, user: User) -> None:
+        if user.anon or user.bot:
+            return
+
+        user.swiss_ban_until = None
+        user.swiss_ban_hours = 0
+        if self.app_state.db is not None:
+            await self.app_state.db.user.update_one(
+                {"_id": user.username},
+                {"$unset": {"swissBanUntil": "", "swissBanHours": ""}},
+            )
+
+    async def _ban_swiss_no_show(self, user: User, now: datetime) -> None:
+        if user.anon or user.bot:
+            return
+
+        previous_until = user.swiss_ban_until
+        previous_hours = user.swiss_ban_hours
+        if previous_until is None or previous_hours <= 0:
+            hours = 24
+        elif previous_until <= now:
+            hours = previous_hours * 2
+        else:
+            hours = int(previous_hours * 1.5)
+
+        hours = min(hours, 30 * 24)
+        banned_until = now + timedelta(hours=hours)
+        user.swiss_ban_until = banned_until
+        user.swiss_ban_hours = hours
+
+        if self.app_state.db is not None:
+            await self.app_state.db.user.update_one(
+                {"_id": user.username},
+                {"$set": {"swissBanUntil": banned_until, "swissBanHours": hours}},
+            )
+
+    def _player_who_did_not_move(self, game: Game) -> User | None:
+        winner: User | None = None
+        if game.result == "1-0":
+            winner = game.wplayer
+        elif game.result == "0-1":
+            winner = game.bplayer
+
+        if game.variant == "janggi":
+            if game.bsetup:
+                culprit = game.bplayer
+            elif game.wsetup:
+                culprit = game.wplayer
+            else:
+                culprit = None
+            if culprit is not None and culprit != winner:
+                return culprit
+
+        try:
+            start_color = WHITE if game.board.initial_fen.split()[1] == "w" else BLACK
+        except IndexError:
+            start_color = WHITE
+
+        culprit: User | None
+        if game.board.ply == 0:
+            culprit = game.wplayer if start_color == WHITE else game.bplayer
+        elif game.board.ply == 1:
+            culprit = game.bplayer if start_color == WHITE else game.wplayer
+        else:
+            culprit = None
+
+        if culprit == winner:
+            return None
+        return culprit
+
+    async def _update_swiss_no_show_bans(self, game: Game) -> None:
+        if game.status == ABORTED:
+            return
+
+        culprit = self._player_who_did_not_move(game)
+        now = datetime.now(timezone.utc)
+        for player in (game.wplayer, game.bplayer):
+            if player == culprit:
+                await self._ban_swiss_no_show(player, now)
+            else:
+                await self._clear_swiss_ban(player)
+
     def recalculate_berger_tiebreak(self) -> None:
         score_points_by_username = {
             player.username: full_score // SCORE_SHIFT
@@ -729,6 +821,20 @@ class SwissTournament(Tournament):
 
     def _late_join_half_point(self) -> int:
         return _half_bye_point_value(self.variant)
+
+    def entry_condition_error(self, user: User) -> str | None:
+        base_error = super().entry_condition_error(user)
+        if base_error is not None:
+            return base_error
+
+        banned_until = self._active_swiss_ban_until(user)
+        if banned_until is None:
+            return None
+
+        return (
+            "Because you missed your last Swiss game, you cannot enter a new Swiss tournament "
+            "until %s."
+        ) % banned_until.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     async def _initialize_late_entry_round_history(self, player: User) -> None:
         player_data = self.player_data_by_name(player.username)
@@ -780,6 +886,10 @@ class SwissTournament(Tournament):
             await self.db_update_player(player, "GAME_END")
 
         return None
+
+    async def game_update(self, game: Game) -> None:
+        await super().game_update(game)
+        await self._update_swiss_no_show_bans(game)
 
     def _apply_bye_points(self, player: User) -> None:
         player_data = self.player_data_by_name(player.username)

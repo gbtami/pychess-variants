@@ -110,8 +110,10 @@ Result at review time:
   - Legacy users without a stored signup timestamp are treated as old enough, so existing accounts are not blocked unexpectedly.
   - Swiss creation now supports a minimum account-age condition in days, persisted in MongoDB and enforced at join time.
 
-- [ ] “Must have played their last Swiss game” anti-no-show rule.
-  - Lichess has explicit anti-no-show handling and temporary Swiss bans.
+- [x] “Must have played their last Swiss game” anti-no-show rule.
+  - Completed with lichess-like Swiss-only no-show bans for players who lose a Swiss game without making a move.
+  - The ban is persisted per user, blocks entry into new Swiss tournaments, and is cleared again after the player completes a later Swiss game.
+  - Ban duration now starts at 24 hours and escalates for repeated no-shows.
 
 - [ ] Forbidden pairings and manual pairings.
   - Lichess Swiss supports organizer-specified forbidden/manual pairings.
@@ -181,3 +183,4 @@ The merge required manual conflict resolution in:
 - [x] Swiss titled-only / min-games / rating-bound entry conditions
 - [x] Swiss minimum account-age entry condition
 - [x] Manual next-round scheduling option
+- [x] Swiss anti-no-show join ban

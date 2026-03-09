@@ -80,6 +80,8 @@ class Users(UserDict[str, User]):
                 oauth_id=doc.get("oauth_id") or "",
                 oauth_provider=doc.get("oauth_provider") or "",
                 created_at=doc.get("createdAt"),
+                swiss_ban_until=doc.get("swissBanUntil"),
+                swiss_ban_hours=doc.get("swissBanHours", 0),
             )
             user.game_category_set = "ct" in doc
             self.data[username] = user

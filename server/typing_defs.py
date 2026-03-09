@@ -28,6 +28,8 @@ class UserDocument(TypedDict, total=False):
     title: str
     enabled: bool
     createdAt: datetime
+    swissBanUntil: datetime
+    swissBanHours: int
     perfs: PerfMap
     pperfs: PerfMap
     lang: str

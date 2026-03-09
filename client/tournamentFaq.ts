@@ -99,6 +99,8 @@ h('p', _('Most variants: late joiners get one half-point compensation, and no po
 h('br'),
 h('p', _('If you miss a round, you are not paired for that round and score 0 points for it.')),
 h('br'),
+h('p', _('If you miss an actual Swiss game without moving, you are temporarily blocked from entering a new Swiss until the no-show timeout expires.')),
+h('br'),
 h('p', _('Absent and late-join placeholder rounds are shown in the standings, and you can still return for later rounds.')),
 h('h2', _('Tie-break')),
 h('p', _('If players have the same score, Sonneborn-Berger values decide final ranking.')),

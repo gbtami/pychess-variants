@@ -527,6 +527,102 @@ class SwissPairingTestCase(TournamentTestCase):
         app_state.users[established.username] = established
         self.assertIsNone(await self.tournament.join(established))
 
+    async def test_missing_swiss_game_blocks_future_swiss_entry(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, variant="chess", before_start=0, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        for name in ("swiss_present_player", "swiss_absent_player"):
+            user = User(app_state, username=name, perfs=deepcopy(PERFS))
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await app_state.db.user.insert_one({"_id": user.username})
+            await self.tournament.join(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+
+        await game.play_move("e2e4")
+        absent = game.bplayer
+        await game.game_ended(absent, "flag")
+
+        self.assertEqual(absent.swiss_ban_hours, 24)
+        self.assertIsNotNone(absent.swiss_ban_until)
+        assert absent.swiss_ban_until is not None
+
+        del app_state.users[absent.username]
+        reloaded_absent = await app_state.users.get(absent.username)
+
+        next_tid = id8()
+        next_tournament = SwissTestTournament(
+            app_state, next_tid, variant="chess", before_start=1, rounds=2, with_clock=False
+        )
+        app_state.tournaments[next_tid] = next_tournament
+        reloaded_absent.tournament_sockets[next_tid] = set((None,))
+
+        join_error = await next_tournament.join(reloaded_absent)
+        self.assertIsNotNone(join_error)
+        assert join_error is not None
+        self.assertIn("Because you missed your last Swiss game", join_error)
+        self.assertIn("UTC", join_error)
+
+    async def test_played_swiss_game_clears_existing_swiss_ban(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, variant="chess", before_start=0, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        players: list[User] = []
+        for name in ("swiss_returning_player", "swiss_opponent_player"):
+            user = User(app_state, username=name, perfs=deepcopy(PERFS))
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await app_state.db.user.insert_one({"_id": user.username})
+            await self.tournament.join(user)
+            players.append(user)
+
+        banned = players[0]
+        banned.swiss_ban_hours = 24
+        banned.swiss_ban_until = datetime.now(timezone.utc) + timedelta(hours=24)
+        await app_state.db.user.update_one(
+            {"_id": banned.username},
+            {
+                "$set": {
+                    "swissBanUntil": banned.swiss_ban_until,
+                    "swissBanHours": banned.swiss_ban_hours,
+                }
+            },
+        )
+
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+
+        await game.play_move("e2e4")
+        await game.play_move("e7e5")
+        await game.game_ended(game.wplayer, "resign")
+
+        self.assertIsNone(banned.swiss_ban_until)
+        self.assertEqual(banned.swiss_ban_hours, 0)
+
+        doc = await app_state.db.user.find_one({"_id": banned.username})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertNotIn("swissBanUntil", doc)
+        self.assertNotIn("swissBanHours", doc)
+
     async def test_pairing_bye_counts_in_swiss_leaderboard_tiebreak(self):
         app_state = get_app_state(self.app)
         tid = id8()
