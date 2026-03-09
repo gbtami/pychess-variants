@@ -6,7 +6,7 @@ import aiohttp_jinja2
 from aiohttp import web
 
 from simul.simuls import load_simul
-from tournament.tournaments import get_tournament_name
+from tournament.tournaments import get_tournament_name, load_tournament
 from utils import corr_games, load_game, simul_games
 from typing_defs import ViewContext
 from views import add_game_context, get_user_context
@@ -43,9 +43,11 @@ async def round_view(request: web.Request) -> ViewContext:
     if game.tournamentId is not None:
         if TYPE_CHECKING:
             assert isinstance(game, Game)
+        tournament = await load_tournament(app_state, game.tournamentId)
         tournament_name = await get_tournament_name(request, game.tournamentId)
         context["tournamentid"] = game.tournamentId
         context["tournamentname"] = tournament_name
+        context["tsystem"] = tournament.system if tournament is not None else 0
         context["wberserk"] = game.wberserk
         context["bberserk"] = game.bberserk
 

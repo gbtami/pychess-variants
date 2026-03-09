@@ -73,12 +73,10 @@ Result at review time:
 
 ### P1: Important Swiss Parity Gaps
 
-- [ ] Replace Arena-oriented Swiss player state/controls with clearer Swiss semantics.
-  - Current UI and server still expose `pause` / `withdraw` mechanics inherited from Arena.
-  - Lichess Swiss primarily models started-event opt-out as absence.
-  - Work:
-    - review whether `paused` / `withdrawn` should remain implementation details only
-    - align user-visible wording and controls with Swiss expectations
+- [x] Replace Arena-oriented Swiss player state/controls with clearer Swiss semantics.
+  - Completed by aligning the user-visible Swiss/RR controls with absence wording instead of Arena `PAUSE` wording.
+  - The internal `paused` / `withdrawn` state model remains in place as an implementation detail.
+  - Fixed-round tournament pages and finished game pages now show `ABSENT` where Arena still shows `PAUSE`.
 
 - [ ] Make the tournament creation page more Swiss-specific.
   - Current form still mixes Arena and Swiss concepts:
