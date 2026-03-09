@@ -55,6 +55,76 @@
             {% set t_manual_pairings = '' %}
             <form id="tournament-form" method="post" class="form3" action="/tournaments/new">
             {% endif %}
+            {% set rated_game_choices = [
+                (0, 'No restriction'),
+                (5, '5 rated games'),
+                (10, '10 rated games'),
+                (15, '15 rated games'),
+                (20, '20 rated games'),
+                (30, '30 rated games'),
+                (40, '40 rated games'),
+                (50, '50 rated games'),
+                (75, '75 rated games'),
+                (100, '100 rated games'),
+                (150, '150 rated games'),
+                (200, '200 rated games')
+            ] %}
+            {% set rated_game_values = [0, 5, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200] %}
+            {% set min_rating_choices = [
+                (0, 'No restriction'),
+                (1000, '1000'),
+                (1100, '1100'),
+                (1200, '1200'),
+                (1300, '1300'),
+                (1400, '1400'),
+                (1500, '1500'),
+                (1600, '1600'),
+                (1700, '1700'),
+                (1800, '1800'),
+                (1900, '1900'),
+                (2000, '2000'),
+                (2100, '2100'),
+                (2200, '2200'),
+                (2300, '2300'),
+                (2400, '2400'),
+                (2500, '2500'),
+                (2600, '2600')
+            ] %}
+            {% set min_rating_values = [0, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600] %}
+            {% set max_rating_choices = [
+                (0, 'No restriction'),
+                (2200, '2200'),
+                (2100, '2100'),
+                (2000, '2000'),
+                (1900, '1900'),
+                (1800, '1800'),
+                (1700, '1700'),
+                (1600, '1600'),
+                (1500, '1500'),
+                (1400, '1400'),
+                (1300, '1300'),
+                (1200, '1200'),
+                (1100, '1100'),
+                (1000, '1000'),
+                (900, '900'),
+                (800, '800')
+            ] %}
+            {% set max_rating_values = [0, 2200, 2100, 2000, 1900, 1800, 1700, 1600, 1500, 1400, 1300, 1200, 1100, 1000, 900, 800] %}
+            {% set account_age_choices = [
+                (0, 'No restriction'),
+                (1, '1 day'),
+                (3, '3 days'),
+                (7, '7 days'),
+                (14, '14 days'),
+                (30, '1 month'),
+                (60, '2 months'),
+                (90, '3 months'),
+                (180, '6 months'),
+                (365, '1 year'),
+                (730, '2 years'),
+                (1095, '3 years')
+            ] %}
+            {% set account_age_values = [0, 1, 3, 7, 14, 30, 60, 90, 180, 365, 730, 1095] %}
                 <div class="form-group">
                     <label class="form-label" for="form3-name">Name</label>
                     <div>
@@ -281,27 +351,55 @@
                     </div>
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-entryMinRatedGames">Minimum rated games</label>
-                        <input id="form3-entryMinRatedGames" name="entryMinRatedGames" value="{{ t_entry_min_rated_games }}" type="number" min="0" max="100000" class="form-control" />
+                        <select id="form3-entryMinRatedGames" name="entryMinRatedGames" class="form-control">
+                            {% if t_entry_min_rated_games not in rated_game_values %}
+                            <option value="{{ t_entry_min_rated_games }}" selected="selected">{{ t_entry_min_rated_games }} rated games (custom)</option>
+                            {% endif %}
+                            {% for value, label in rated_game_choices %}
+                            <option value="{{ value }}"{% if t_entry_min_rated_games == value %} selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
                         <small class="form-help">Required rated games in this variant before a player can join.</small>
                     </div>
                 </div>
                 <div id="form3-entry-wrap-b" class="form-split">
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-entryMinRating">Minimum rating</label>
-                        <input id="form3-entryMinRating" name="entryMinRating" value="{{ t_entry_min_rating }}" type="number" min="0" max="4000" class="form-control" />
-                        <small class="form-help">Leave 0 to allow all ratings.</small>
+                        <select id="form3-entryMinRating" name="entryMinRating" class="form-control">
+                            {% if t_entry_min_rating not in min_rating_values %}
+                            <option value="{{ t_entry_min_rating }}" selected="selected">{{ t_entry_min_rating }} (custom)</option>
+                            {% endif %}
+                            {% for value, label in min_rating_choices %}
+                            <option value="{{ value }}"{% if t_entry_min_rating == value %} selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-help">Choose No restriction to allow all ratings.</small>
                     </div>
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-entryMaxRating">Maximum rating</label>
-                        <input id="form3-entryMaxRating" name="entryMaxRating" value="{{ t_entry_max_rating }}" type="number" min="0" max="4000" class="form-control" />
-                        <small class="form-help">Leave 0 to allow all ratings.</small>
+                        <select id="form3-entryMaxRating" name="entryMaxRating" class="form-control">
+                            {% if t_entry_max_rating not in max_rating_values %}
+                            <option value="{{ t_entry_max_rating }}" selected="selected">{{ t_entry_max_rating }} (custom)</option>
+                            {% endif %}
+                            {% for value, label in max_rating_choices %}
+                            <option value="{{ value }}"{% if t_entry_max_rating == value %} selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-help">Choose No restriction to allow all ratings.</small>
                     </div>
                 </div>
                 <div id="form3-entry-wrap-c" class="form-split">
                     <div class="form-group form-half">
-                        <label class="form-label" for="form3-entryMinAccountAgeDays">Minimum account age (days)</label>
-                        <input id="form3-entryMinAccountAgeDays" name="entryMinAccountAgeDays" value="{{ t_entry_min_account_age_days }}" type="number" min="0" max="36500" class="form-control" />
-                        <small class="form-help">Leave 0 to allow newly created accounts.</small>
+                        <label class="form-label" for="form3-entryMinAccountAgeDays">Minimum account age</label>
+                        <select id="form3-entryMinAccountAgeDays" name="entryMinAccountAgeDays" class="form-control">
+                            {% if t_entry_min_account_age_days not in account_age_values %}
+                            <option value="{{ t_entry_min_account_age_days }}" selected="selected">{{ t_entry_min_account_age_days }} days (custom)</option>
+                            {% endif %}
+                            {% for value, label in account_age_choices %}
+                            <option value="{{ value }}"{% if t_entry_min_account_age_days == value %} selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-help">Choose No restriction to allow newly created accounts.</small>
                     </div>
                 </div>
                 <div id="form3-swiss-pairings-wrap-a" class="form-split">
