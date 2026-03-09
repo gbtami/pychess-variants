@@ -69,19 +69,13 @@ Result at review time:
     - pair eligible joined players even without an open tournament page socket, or make absence explicit and user-visible
     - add tests for round-to-round flow without reopening the tournament page
 
-- [ ] Restore `master` fishnet abort policy before merge.
-  - Branch currently regresses current `master` fishnet handling.
-  - Current branch requeues aborted fishnet work as `ANALYSIS` and dropped terminal abort handling.
-  - Work:
-    - reapply master fishnet abort logic
-    - restore `tests/test_fishnet_abort_policy.py`
-    - ensure move/analysis jobs keep correct queue priority and stale handling
+- [x] Restore `master` fishnet abort policy before merge.
+  - Completed by merging `master` in commit `9b947a1d`.
+  - `server/fishnet.py` and `tests/test_fishnet_abort_policy.py` now include the master-side abort/terminal handling again.
 
-- [ ] Restore `master` signup evasion protection before merge.
-  - Branch currently drops the fp-only multi-source fallback from `master`.
-  - Work:
-    - reapply master `security_evasion.py` logic
-    - restore the related tests in `tests/test_security_evasion.py`
+- [x] Restore `master` signup evasion protection before merge.
+  - Completed by merging `master` in commit `9b947a1d`.
+  - `server/security_evasion.py` and `tests/test_security_evasion.py` now include the fp-only multi-source fallback again.
 
 ### P1: Important Swiss Parity Gaps
 
@@ -125,12 +119,12 @@ Result at review time:
 
 ## Suggested Execution Order
 
-1. Restore the two `master` regressions first.
+1. Restore the two `master` regressions first. Done in `9b947a1d`.
    - fishnet abort policy
    - signup evasion fallback
 
 2. Fix Swiss core correctness.
-   - Swiss tie-break
+   - Swiss Sonneborn-Berger parity
    - remove hard `minutes` stop for fixed-round systems
    - decouple pairing from tournament websocket presence
 
@@ -147,7 +141,7 @@ Result at review time:
 
 ## Master Sync Notes
 
-The two non-Swiss regressions identified in the review are already solved on `master` and should be pulled in rather than re-invented here:
+The two non-Swiss regressions identified in the review were solved on `master` and have now been merged into this branch in `9b947a1d`:
 
 - Fishnet abort policy:
   - `234b670c5` `Handle repeated fishnet engine crashes with terminal policy`
@@ -156,15 +150,7 @@ The two non-Swiss regressions identified in the review are already solved on `ma
 - Signup evasion fallback:
   - `928641536` `Tighten evasion signup blocking with multi-source fp fallback`
 
-Likely safest approach:
-
-- merge or rebase latest `master`
-
-Possible narrower approach:
-
-- selectively cherry-pick the three commits above and resolve conflicts
-
-Because this branch also modified the same files, expect manual conflict resolution in:
+The merge required manual conflict resolution in:
 
 - `server/fishnet.py`
 - `server/security_evasion.py`
@@ -183,5 +169,5 @@ Because this branch also modified the same files, expect manual conflict resolut
 - [ ] Swiss Sonneborn-Berger parity
 - [ ] Fixed-round end condition parity
 - [ ] Pairing eligibility without tournament page websocket
-- [ ] Restore master fishnet abort policy
-- [ ] Restore master signup evasion fallback
+- [x] Restore master fishnet abort policy
+- [x] Restore master signup evasion fallback
