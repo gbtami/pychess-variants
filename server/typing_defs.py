@@ -253,8 +253,16 @@ class FishnetMovePayload(TypedDict):
     move: FishnetMoveInfo
 
 
+class FishnetAbortError(TypedDict):
+    reason: str
+    kind: NotRequired[str]
+    message: NotRequired[str]
+    engine_returncode: NotRequired[int]
+
+
 class FishnetAbortPayload(TypedDict):
     fishnet: FishnetKey
+    error: NotRequired[FishnetAbortError]
 
 
 class FishnetWorkInfo(TypedDict):
@@ -275,6 +283,9 @@ class FishnetWork(TypedDict):
     username: NotRequired[str]
     nodes: NotRequired[int]
     skipPositions: NotRequired[list[int]]
+    abort_count: NotRequired[int]
+    engine_crash_count: NotRequired[int]
+    last_abort_reason: NotRequired[str]
 
 
 class StreamInfo(TypedDict):
