@@ -92,6 +92,7 @@ BERGER_NORM = 2
 NOTIFY1_MINUTES = 60 * 6
 NOTIFY2_MINUTES = 10
 AUTO_ROUND_INTERVAL = -1
+MANUAL_ROUND_INTERVAL = -2
 MIN_AUTO_ROUND_INTERVAL_SECONDS = 10
 MAX_AUTO_ROUND_INTERVAL_SECONDS = 60
 
@@ -403,6 +404,7 @@ class Tournament(ABC):
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
         self.next_round_starts_at: datetime | None = None
+        self.manual_next_round_pending = False
         self.prev_pairing: datetime | None = None
         self.bye_players: list[User] = []
 
@@ -1015,42 +1017,11 @@ class Tournament(ABC):
                             log.debug("Waiting for new pairing wave...")
 
                     elif len(self.ongoing_games) == 0:
-                        if self.current_round == 0:
-                            self.current_round += 1
-                            log.debug("Do %s. round pairing", self.current_round)
-                            if not await self.pair_fixed_round(now):
-                                break
-                        elif self.current_round < self.rounds:
-                            interval_seconds = self.effective_round_interval_seconds()
-                            if interval_seconds <= 0:
-                                self.next_round_starts_at = now
-                            elif self.next_round_starts_at is None:
-                                self.next_round_starts_at = now + timedelta(
-                                    seconds=interval_seconds
-                                )
-                                log.debug(
-                                    "%s round %s complete; waiting %ss before next round",
-                                    "RR" if self.system == RR else "Swiss",
-                                    self.current_round,
-                                    interval_seconds,
-                                )
-                                await self.broadcast(self.live_status(now))
-
-                            if (
-                                self.next_round_starts_at is not None
-                                and now >= self.next_round_starts_at
-                            ):
-                                self.current_round += 1
-                                self.next_round_starts_at = None
-                                log.debug("Do %s. round pairing", self.current_round)
-                                if not await self.pair_fixed_round(now):
-                                    break
-                        else:
-                            await self.finish()
-                            log.debug("T_FINISHED: no more round left")
+                        if not await self.maybe_schedule_next_fixed_round(now):
                             break
                     else:
                         self.next_round_starts_at = None
+                        self.manual_next_round_pending = False
                         log.info(
                             "%s has %s ongoing game(s)..."
                             % (
@@ -1072,6 +1043,7 @@ class Tournament(ABC):
 
         self.first_pairing = True
         self.next_round_starts_at = None
+        self.manual_next_round_pending = False
 
         response = self.live_status(now)
         await self.broadcast(response)
@@ -1149,7 +1121,50 @@ class Tournament(ABC):
                 round_ongoing_games, seconds_to_next_round = self.round_status(now)
                 response["roundOngoingGames"] = round_ongoing_games
                 response["secondsToNextRound"] = seconds_to_next_round
+                response["manualNextRound"] = self.manual_next_round_pending
         return response
+
+    async def maybe_schedule_next_fixed_round(self, now: datetime) -> bool:
+        if self.current_round == 0:
+            self.current_round += 1
+            log.debug("Do %s. round pairing", self.current_round)
+            return await self.pair_fixed_round(now)
+
+        if self.current_round < self.rounds:
+            if self.round_interval == MANUAL_ROUND_INTERVAL:
+                if not self.manual_next_round_pending:
+                    self.manual_next_round_pending = True
+                    log.debug(
+                        "%s round %s complete; waiting for manual start of next round",
+                        "RR" if self.system == RR else "Swiss",
+                        self.current_round,
+                    )
+                    await self.broadcast(self.live_status(now))
+                return True
+
+            interval_seconds = self.effective_round_interval_seconds()
+            if interval_seconds <= 0:
+                self.next_round_starts_at = now
+            elif self.next_round_starts_at is None:
+                self.next_round_starts_at = now + timedelta(seconds=interval_seconds)
+                log.debug(
+                    "%s round %s complete; waiting %ss before next round",
+                    "RR" if self.system == RR else "Swiss",
+                    self.current_round,
+                    interval_seconds,
+                )
+                await self.broadcast(self.live_status(now))
+
+            if self.next_round_starts_at is not None and now >= self.next_round_starts_at:
+                self.current_round += 1
+                self.next_round_starts_at = None
+                log.debug("Do %s. round pairing", self.current_round)
+                return await self.pair_fixed_round(now)
+            return True
+
+        await self.finish()
+        log.debug("T_FINISHED: no more round left")
+        return False
 
     async def pair_fixed_round(self, now: datetime) -> bool:
         waiting_players = self.waiting_players()
@@ -1185,8 +1200,27 @@ class Tournament(ABC):
 
         await self.save_current_round()
         self.next_round_starts_at = None
+        self.manual_next_round_pending = False
         await self.broadcast(self.live_status(now))
         return True
+
+    async def start_next_round_now(self, now: datetime | None = None) -> bool:
+        if now is None:
+            now = datetime.now(timezone.utc)
+
+        if self.system == ARENA or self.status != T_STARTED:
+            return False
+        if self.round_interval != MANUAL_ROUND_INTERVAL:
+            return False
+        if not self.manual_next_round_pending:
+            return False
+        if len(self.ongoing_games) > 0 or self.current_round >= self.rounds:
+            return False
+
+        self.manual_next_round_pending = False
+        self.current_round += 1
+        log.debug("Do %s. round pairing (manual start)", self.current_round)
+        return await self.pair_fixed_round(now)
 
     async def finalize(self, status: int) -> None:
         self.status = status
@@ -2146,6 +2180,8 @@ class Tournament(ABC):
 
     def effective_round_interval_seconds(self) -> int:
         if self.system == ARENA:
+            return 0
+        if self.round_interval == MANUAL_ROUND_INTERVAL:
             return 0
         if self.round_interval == AUTO_ROUND_INTERVAL:
             return self.automatic_round_interval_seconds()

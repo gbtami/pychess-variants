@@ -763,6 +763,7 @@ class TournamentStatusResponse(TypedDict):
     currentRound: NotRequired[int]
     roundOngoingGames: NotRequired[int]
     secondsToNextRound: NotRequired[float]
+    manualNextRound: NotRequired[bool]
     nbPlayers: NotRequired[int]
     nbGames: NotRequired[int]
     wWin: NotRequired[int]

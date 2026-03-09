@@ -85,6 +85,7 @@ export class TournamentController implements ChatController {
     secondsToFinish: number;
     roundOngoingGames: number;
     secondsToNextRound: number;
+    manualNextRoundPending: boolean;
     clockInterval: ReturnType<typeof setInterval> | null;
     username: string;
     anon: boolean;
@@ -105,6 +106,7 @@ export class TournamentController implements ChatController {
         this.secondsToFinish = 0;
         this.roundOngoingGames = 0;
         this.secondsToNextRound = 0;
+        this.manualNextRoundPending = false;
         this.clockInterval = null;
         this.private = false;
 
@@ -731,6 +733,7 @@ export class TournamentController implements ChatController {
         this.currentRound = msg.currentRound ?? 0;
         this.roundOngoingGames = msg.roundOngoingGames ?? 0;
         this.secondsToNextRound = msg.secondsToNextRound ?? 0;
+        this.manualNextRoundPending = msg.manualNextRound ?? false;
         this.private = msg.private;
         this.updateTournamentSystemLabel();
 
@@ -756,6 +759,7 @@ export class TournamentController implements ChatController {
         const oldCurrentRound = this.currentRound;
         const oldRoundOngoingGames = this.roundOngoingGames;
         const oldSecondsToNextRound = this.secondsToNextRound;
+        const oldManualNextRoundPending = this.manualNextRoundPending;
         this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
         if (msg.secondsToFinish !== undefined) {
             this.secondsToFinish = msg.secondsToFinish;
@@ -769,11 +773,15 @@ export class TournamentController implements ChatController {
         if (msg.secondsToNextRound !== undefined) {
             this.secondsToNextRound = msg.secondsToNextRound;
         }
+        if (msg.manualNextRound !== undefined) {
+            this.manualNextRoundPending = msg.manualNextRound;
+        }
         if (
             oldStatus !== this.tournamentStatus ||
             oldCurrentRound !== this.currentRound ||
             oldRoundOngoingGames !== this.roundOngoingGames ||
-            oldSecondsToNextRound !== this.secondsToNextRound
+            oldSecondsToNextRound !== this.secondsToNextRound ||
+            oldManualNextRoundPending !== this.manualNextRoundPending
         ) {
             initializeClock(this);
         }

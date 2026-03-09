@@ -38,6 +38,7 @@ from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
 from tournament.tournament import (
     AUTO_ROUND_INTERVAL,
+    MANUAL_ROUND_INTERVAL,
     ByeGame,
     GameData,
     PlayerData,
@@ -163,6 +164,8 @@ def _parse_round_interval(
 
     if value in (None, "", "auto"):
         return AUTO_ROUND_INTERVAL
+    if value == "manual":
+        return MANUAL_ROUND_INTERVAL
 
     try:
         interval = int(value)

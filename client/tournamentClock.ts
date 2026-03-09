@@ -46,6 +46,14 @@ export function initializeClock(ctrl: TournamentController) {
             return;
         }
 
+        if (ctrl.manualNextRoundPending) {
+            ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [
+                h('span.shy', _('NEXT ROUND READY')),
+                h('span', _('waiting for organizer')),
+            ]));
+            return;
+        }
+
         if (ctrl.secondsToNextRound > 0) {
             const endtime = Date.now() + ctrl.secondsToNextRound * 1000;
             ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [h('span.shy', _('NEXT ROUND IN')), h('span#clock')]));

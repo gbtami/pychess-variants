@@ -382,6 +382,7 @@ class TournamentUserConnectedMessage(TypedDict):
     currentRound: NotRequired[int]
     roundOngoingGames: NotRequired[int]
     secondsToNextRound: NotRequired[float]
+    manualNextRound: NotRequired[bool]
     chatClosed: bool
     private: bool
     defender_title: NotRequired[str]

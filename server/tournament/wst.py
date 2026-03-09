@@ -228,6 +228,7 @@ async def handle_user_connected(
     response["currentRound"] = tournament.current_round
     response["roundOngoingGames"] = round_ongoing_games
     response["secondsToNextRound"] = seconds_to_next_round
+    response["manualNextRound"] = tournament.manual_next_round_pending
     if tournament.frequency == SHIELD:
         variant_name = tournament.variant + ("960" if tournament.chess960 else "")
         defender = await app_state.users.get(app_state.shield_owners[variant_name])
@@ -269,6 +270,13 @@ async def handle_lobbychat(
         assert tournament is not None
     message = data["message"]
     response: ChatLine | FullChatMessage | None = None
+
+    round_controller = user.username in TOURNAMENT_DIRECTORS or user.username == tournament.creator
+
+    if round_controller and message.startswith("/startround"):
+        if await tournament.start_next_round_now():
+            return
+        return
 
     if user.username in TOURNAMENT_DIRECTORS:
         if message.startswith("/silence"):

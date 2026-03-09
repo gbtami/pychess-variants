@@ -34,6 +34,7 @@ export interface MsgTournamentStatus {
     currentRound?: number;
     roundOngoingGames?: number;
     secondsToNextRound?: number;
+    manualNextRound?: boolean;
     nbPlayers: number;
     sumRating: number;
     nbGames: number;
@@ -49,6 +50,7 @@ export interface MsgUserConnectedTournament {
     currentRound?: number;
     roundOngoingGames?: number;
     secondsToNextRound?: number;
+    manualNextRound?: boolean;
     frequency: string;
     startsAt: string;
     startFen: cg.FEN;

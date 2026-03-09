@@ -116,8 +116,11 @@ Result at review time:
 - [ ] Forbidden pairings and manual pairings.
   - Lichess Swiss supports organizer-specified forbidden/manual pairings.
 
-- [ ] Manual next-round scheduling option.
-  - Lichess Swiss supports manually scheduling the next round.
+- [x] Manual next-round scheduling option.
+  - Completed with a fixed-round `manual start` interval option on the shared tournament form.
+  - When a Swiss or RR round ends, the tournament now waits in a ready state instead of auto-pairing the next round.
+  - The organizer can start the next round by typing `/startround` in tournament chat.
+  - The lobby clock/status now exposes this waiting state to players.
 
 ## Suggested Execution Order
 
@@ -177,3 +180,4 @@ The merge required manual conflict resolution in:
 - [x] Tournament-page Swiss/RR FAQ aligned with fixed-round behavior
 - [x] Swiss titled-only / min-games / rating-bound entry conditions
 - [x] Swiss minimum account-age entry condition
+- [x] Manual next-round scheduling option

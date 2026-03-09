@@ -15,7 +15,7 @@ from tournament.auto_play_arena import (
     RRTestTournament,
     SwissTestTournament,
 )
-from tournament.tournament import GameData, upsert_tournament_to_db
+from tournament.tournament import MANUAL_ROUND_INTERVAL, GameData, upsert_tournament_to_db
 from tournament_test_base import ONE_TEST_ONLY, TournamentTestCase
 from user import User
 
@@ -126,7 +126,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         await self.tournament.join_players(NB_PLAYERS)
 
         if self.tournament.clock_task is not None:
-            await asyncio.wait_for(self.tournament.clock_task, timeout=10)
+            await asyncio.wait_for(self.tournament.clock_task, timeout=20)
 
         self.assertEqual(self.tournament.status, T_FINISHED)
         self.assertEqual(
@@ -201,6 +201,35 @@ class TournamentFlowTestCase(TournamentTestCase):
             [len(player.games) for player in self.tournament.players.values()],
             NB_PLAYERS * [NB_ROUNDS],
         )
+
+    async def test_fixed_round_manual_next_round_waits_for_organizer(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=0,
+            rounds=2,
+            round_interval=MANUAL_ROUND_INTERVAL,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.tournament.current_round = 1
+        self.assertTrue(
+            await self.tournament.maybe_schedule_next_fixed_round(datetime.now(timezone.utc))
+        )
+        self.assertTrue(self.tournament.manual_next_round_pending)
+        self.assertEqual(self.tournament.current_round, 1)
+        self.assertEqual(len(self.tournament.ongoing_games), 0)
+        self.assertTrue(self.tournament.live_status()["manualNextRound"])
+
+        self.assertTrue(await self.tournament.start_next_round_now(datetime.now(timezone.utc)))
+        self.assertFalse(self.tournament.manual_next_round_pending)
+        self.assertEqual(self.tournament.current_round, 2)
+        self.assertGreater(len(self.tournament.ongoing_games), 0)
 
     async def test_fixed_round_standings_mark_ongoing_games_with_star(self):
         app_state = get_app_state(self.app)

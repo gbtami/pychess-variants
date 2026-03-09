@@ -176,6 +176,7 @@
                         <label class="form-label" for="form3-roundInterval">Interval between rounds</label>
                         <select id="form3-roundInterval" name="roundInterval" class="form-control">
                             <option value="auto"{% if t_round_interval == -1 or (t_system != 0 and t_round_interval == 0) %} selected="selected"{% endif %}>automatic</option>
+                            <option value="manual"{% if t_round_interval == -2 %} selected="selected"{% endif %}>manual start</option>
                             <option value="5"{% if t_round_interval == 5 %} selected="selected"{% endif %}>5s</option>
                             <option value="10"{% if t_round_interval == 10 %} selected="selected"{% endif %}>10s</option>
                             <option value="20"{% if t_round_interval == 20 %} selected="selected"{% endif %}>20s</option>
@@ -507,9 +508,9 @@
 
             if (roundIntervalHelp) {
                 if (isRR) {
-                    roundIntervalHelp.textContent = "Automatic is based on time control and clamped to 10s-1m. Longer values are useful for slower scheduled rounds.";
+                    roundIntervalHelp.textContent = "Automatic is based on time control and clamped to 10s-1m. Manual start waits for the organizer to type /startround in tournament chat.";
                 } else if (isSwiss) {
-                    roundIntervalHelp.textContent = "Automatic is based on time control and clamped to 10s-1m. Longer values are useful when players need more time to join the next round.";
+                    roundIntervalHelp.textContent = "Automatic is based on time control and clamped to 10s-1m. Manual start waits for the organizer to type /startround in tournament chat.";
                 } else {
                     roundIntervalHelp.textContent = "Automatic is based on time control and clamped to 10s-1m.";
                 }
