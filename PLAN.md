@@ -41,14 +41,15 @@ Result at review time:
 
 ### P0: Must Fix Before Merge
 
-- [ ] Replace Swiss `berger` tie-break with a Swiss-style tie-break.
+- [ ] Audit and fix Swiss Sonneborn-Berger parity with lichess/FIDE.
   - Current code uses `berger` for all non-Arena tournaments in `server/tournament/tournament.py`.
-  - This is correct for RR, but not for Swiss.
-  - Lichess Swiss uses opponent-points tie-break with virtual-opponent handling for byes/forfeits.
+  - That is structurally fine for RR and also aligned with lichess Swiss, which uses Sonneborn-Berger.
+  - The likely gap is Swiss-specific handling of byes, late joins, absences, and other unplayed rounds, where lichess applies virtual-opponent semantics.
   - Work:
-    - implement dedicated Swiss tie-break logic
     - keep RR Berger logic unchanged
-    - add Swiss standings tests with tied scores, byes, and absences
+    - keep Swiss Sonneborn-Berger as the target tie-break
+    - audit unplayed-round handling against lichess/FIDE semantics
+    - add Swiss standings tests with tied scores, byes, late joins, and absences
 
 - [ ] Remove Arena-style hard `minutes` timeout from Swiss/RR semantics.
   - Current fixed-round tournaments still finish on `ends_at`, even if not all rounds are completed.
@@ -179,7 +180,7 @@ Because this branch also modified the same files, expect manual conflict resolut
 - [x] Non-played round labels aligned closer to lichess
 - [x] Janggi Swiss score rendering and point model added
 - [x] Janggi setup refresh fixed for Random-Mover path
-- [ ] Swiss tie-break parity
+- [ ] Swiss Sonneborn-Berger parity
 - [ ] Fixed-round end condition parity
 - [ ] Pairing eligibility without tournament page websocket
 - [ ] Restore master fishnet abort policy
