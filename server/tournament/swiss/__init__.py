@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
+from functools import cache
 import importlib
 import logging
 import os
@@ -72,40 +74,50 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def _load_swisspairing_runtime() -> tuple[Any, Any, Any, Any, Any, Exception | None]:
-    """Load swisspairing entry points from the installed package."""
+@dataclass(frozen=True, slots=True)
+class _SwissPairingRuntime:
+    """Resolved swisspairing imports for the active process."""
+
+    map_plan_to_users: Any | None
+    pair_snapshots_dutch: Any | None
+    pairing_error: Any
+    float_kind: Any | None
+    snapshot_cls: Any | None
+    import_error: Exception | None
+
+
+def _load_swisspairing_runtime() -> _SwissPairingRuntime:
+    """Import swisspairing entry points without mutating module globals."""
 
     try:
         swisspairing_module = importlib.import_module("swisspairing")
         swisspairing_exceptions = importlib.import_module("swisspairing.exceptions")
         swisspairing_model = importlib.import_module("swisspairing.model")
         swisspairing_adapter = importlib.import_module("swisspairing.pychess_adapter")
-        return (
-            swisspairing_module.map_plan_to_users,
-            swisspairing_module.pair_snapshots_dutch,
-            swisspairing_exceptions.PairingError,
-            swisspairing_model.FloatKind,
-            swisspairing_adapter.PychessPlayerSnapshot,
-            None,
+        return _SwissPairingRuntime(
+            map_plan_to_users=swisspairing_module.map_plan_to_users,
+            pair_snapshots_dutch=swisspairing_module.pair_snapshots_dutch,
+            pairing_error=swisspairing_exceptions.PairingError,
+            float_kind=swisspairing_model.FloatKind,
+            snapshot_cls=swisspairing_adapter.PychessPlayerSnapshot,
+            import_error=None,
         )
     except Exception as exc:
-        return (None, None, RuntimeError, None, None, exc)
+        return _SwissPairingRuntime(
+            map_plan_to_users=None,
+            pair_snapshots_dutch=None,
+            pairing_error=RuntimeError,
+            float_kind=None,
+            snapshot_cls=None,
+            import_error=exc,
+        )
 
 
-(
-    map_plan_to_users,
-    pair_snapshots_dutch,
-    SwissPairingError,
-    SwissFloatKind,
-    PychessPlayerSnapshot,
-    SWISSPAIRING_IMPORT_ERROR,
-) = _load_swisspairing_runtime()
+@cache
+def _swisspairing_runtime() -> _SwissPairingRuntime:
+    """Cache swisspairing imports behind a small runtime descriptor."""
 
-map_plan_to_users: Any
-pair_snapshots_dutch: Any
-SwissPairingError: Any
-SwissFloatKind: Any
-PychessPlayerSnapshot: Any
+    return _load_swisspairing_runtime()
 
 
 def _swiss_pairing_backend() -> str:
@@ -120,29 +132,6 @@ def _swiss_pairing_backend() -> str:
         backend,
     )
     return "py4swiss"
-
-
-def _ensure_swisspairing_runtime_loaded() -> None:
-    """Retry the lazy swisspairing import when the facade globals are still empty."""
-
-    global map_plan_to_users
-    global pair_snapshots_dutch
-    global SwissPairingError
-    global SwissFloatKind
-    global PychessPlayerSnapshot
-    global SWISSPAIRING_IMPORT_ERROR
-
-    if map_plan_to_users is not None and pair_snapshots_dutch is not None:
-        return
-
-    (
-        map_plan_to_users,
-        pair_snapshots_dutch,
-        SwissPairingError,
-        SwissFloatKind,
-        PychessPlayerSnapshot,
-        SWISSPAIRING_IMPORT_ERROR,
-    ) = _load_swisspairing_runtime()
 
 
 def build_trf_export_text(tournament: Tournament, waiting_players: list[User] | None = None) -> str:
@@ -337,17 +326,20 @@ class SwissTournament(Tournament):
                 raise PairingUnavailable("No valid pairing exists")
             return pairing
 
-        _ensure_swisspairing_runtime_loaded()
-        if pair_snapshots_dutch is None or map_plan_to_users is None:
+        swiss_runtime = _swisspairing_runtime()
+        if swiss_runtime.pair_snapshots_dutch is None or swiss_runtime.map_plan_to_users is None:
             raise RuntimeError(
                 "Swiss (Dutch) pairing backend 'swisspairing' requires swisspairing, but import failed"
-            ) from SWISSPAIRING_IMPORT_ERROR
+            ) from swiss_runtime.import_error
+
+        pair_snapshots_dutch = swiss_runtime.pair_snapshots_dutch
+        map_plan_to_users = swiss_runtime.map_plan_to_users
 
         snapshots = _build_swisspairing_snapshots(self, waiting_players, completed_rounds)
 
         try:
             swisspairing_plan = pair_snapshots_dutch(snapshots)
-        except SwissPairingError as exc:
+        except swiss_runtime.pairing_error as exc:
             raise PairingUnavailable(
                 f"swisspairing could not find a legal Dutch pairing: {exc}"
             ) from exc
@@ -392,34 +384,29 @@ __all__ = [
     "PairingError",
     "PlayerCode",
     "PlayerSection",
-    "PychessPlayerSnapshot",
     "PY4SWISS_IMPORT_ERROR",
     "ResultToken",
     "RoundResult",
     "ScoringPointSystem",
     "ScoringPointSystemCode",
-    "SWISSPAIRING_IMPORT_ERROR",
-    "SwissFloatKind",
-    "SwissPairingError",
     "SwissTournament",
     "XSection",
     "XSectionConfiguration",
     "_DutchPairingState",
+    "_SwissPairingRuntime",
     "_build_dutch_pairing_state",
     "_build_player_results",
     "_build_scoring_system",
     "_build_swisspairing_float_history",
     "_build_swisspairing_snapshots",
     "_bye_point_value",
-    "_ensure_swisspairing_runtime_loaded",
     "_half_bye_point_value",
     "_load_swisspairing_runtime",
     "_materialize_pairings",
     "_normalized_pairing_lines",
     "_score_points_times_ten",
+    "_swisspairing_runtime",
     "_swiss_berger_tiebreak",
     "_swiss_pairing_backend",
     "build_trf_export_text",
-    "map_plan_to_users",
-    "pair_snapshots_dutch",
 ]

@@ -33,6 +33,19 @@ def _has_swisspairing_runtime() -> bool:
     return find_spec("swisspairing") is not None
 
 
+def _fake_swisspairing_runtime(**overrides):
+    defaults = {
+        "map_plan_to_users": None,
+        "pair_snapshots_dutch": None,
+        "pairing_error": RuntimeError,
+        "float_kind": None,
+        "snapshot_cls": None,
+        "import_error": None,
+    }
+    defaults.update(overrides)
+    return SimpleNamespace(**defaults)
+
+
 class SwissPairingTestCase(TournamentTestCase):
     @staticmethod
     def _normalized_pairing_usernames(
@@ -292,10 +305,12 @@ class SwissPairingTestCase(TournamentTestCase):
         with (
             patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}),
             patch("tournament.swiss._build_swisspairing_snapshots", return_value=()),
-            patch("tournament.swiss.pair_snapshots_dutch", return_value=fake_plan),
             patch(
-                "tournament.swiss.map_plan_to_users",
-                return_value=(fake_user_pairings, ()),
+                "tournament.swiss._swisspairing_runtime",
+                return_value=_fake_swisspairing_runtime(
+                    pair_snapshots_dutch=lambda _snapshots: fake_plan,
+                    map_plan_to_users=lambda _plan, _waiting: (fake_user_pairings, ()),
+                ),
             ),
         ):
             pairing = self.tournament.create_pairing(waiting)
@@ -323,10 +338,15 @@ class SwissPairingTestCase(TournamentTestCase):
             patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}),
             patch("tournament.swiss.ParsedTrf", None),
             patch("tournament.swiss._build_swisspairing_snapshots", return_value=()),
-            patch("tournament.swiss.pair_snapshots_dutch", return_value=fake_plan),
             patch(
-                "tournament.swiss.map_plan_to_users",
-                return_value=(fake_user_pairings, (waiting[2],)),
+                "tournament.swiss._swisspairing_runtime",
+                return_value=_fake_swisspairing_runtime(
+                    pair_snapshots_dutch=lambda _snapshots: fake_plan,
+                    map_plan_to_users=lambda _plan, _waiting: (
+                        fake_user_pairings,
+                        (waiting[2],),
+                    ),
+                ),
             ),
         ):
             pairing = self.tournament.create_pairing(waiting)
@@ -1352,8 +1372,12 @@ class SwissPairingTestCase(TournamentTestCase):
         waiting = list(self.tournament.waiting_players())
         with (
             patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}),
-            patch("tournament.swiss._ensure_swisspairing_runtime_loaded"),
-            patch("tournament.swiss.pair_snapshots_dutch", None),
+            patch(
+                "tournament.swiss._swisspairing_runtime",
+                return_value=_fake_swisspairing_runtime(
+                    import_error=ModuleNotFoundError("swisspairing"),
+                ),
+            ),
         ):
             with self.assertRaisesRegex(RuntimeError, "requires swisspairing"):
                 self.tournament.create_pairing(waiting)
@@ -1964,7 +1988,11 @@ class SwissScoringRulesTestCase(unittest.TestCase):
         )
         float_kind = SimpleNamespace(NONE="none", UP="up", DOWN="down")
 
-        with patch.object(swiss_mod, "SwissFloatKind", float_kind):
+        with patch.object(
+            swiss_mod,
+            "_swisspairing_runtime",
+            return_value=_fake_swisspairing_runtime(float_kind=float_kind),
+        ):
             history = swiss_mod._build_swisspairing_float_history(
                 tournament,
                 seed_entries=[
@@ -1993,7 +2021,11 @@ class SwissScoringRulesTestCase(unittest.TestCase):
         )
         float_kind = SimpleNamespace(NONE="none", UP="up", DOWN="down")
 
-        with patch.object(swiss_mod, "SwissFloatKind", float_kind):
+        with patch.object(
+            swiss_mod,
+            "_swisspairing_runtime",
+            return_value=_fake_swisspairing_runtime(float_kind=float_kind),
+        ):
             history = swiss_mod._build_swisspairing_float_history(
                 tournament,
                 seed_entries=[(2400, "hero", player_data)],

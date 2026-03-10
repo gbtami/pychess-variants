@@ -48,10 +48,13 @@ def _build_swisspairing_float_history(
     """Derive per-player float history from the recorded completed rounds."""
 
     swiss_module = _swiss_module()
-    if swiss_module.SwissFloatKind is None:
+    swiss_runtime = swiss_module._swisspairing_runtime()
+    if swiss_runtime.float_kind is None:
         raise RuntimeError(
             "Swiss pairing backend 'swisspairing' requires swisspairing float types, but import failed"
-        ) from swiss_module.SWISSPAIRING_IMPORT_ERROR
+        ) from swiss_runtime.import_error
+
+    float_kind = swiss_runtime.float_kind
 
     rank_by_name = {username: index for index, (_, username, _) in enumerate(seed_entries, start=1)}
     ids_by_name = {username: rank_by_name[username] for _, username, _ in seed_entries}
@@ -71,9 +74,7 @@ def _build_swisspairing_float_history(
     history_by_name: dict[str, list[Any]] = {username: [] for username in round_results_by_name}
 
     for round_index in range(completed_rounds):
-        round_assignments = {
-            username: swiss_module.SwissFloatKind.NONE for _, username, _ in seed_entries
-        }
+        round_assignments = {username: float_kind.NONE for _, username, _ in seed_entries}
 
         for _, username, _ in seed_entries:
             round_result = round_results_by_name[username][round_index]
@@ -96,8 +97,8 @@ def _build_swisspairing_float_history(
                             <= (-black_score, rank_by_name[opponent_name])
                             else (opponent_name, username)
                         )
-                        round_assignments[higher_name] = swiss_module.SwissFloatKind.DOWN
-                        round_assignments[lower_name] = swiss_module.SwissFloatKind.UP
+                        round_assignments[higher_name] = float_kind.DOWN
+                        round_assignments[lower_name] = float_kind.UP
                 else:
                     for assignee_name, assignee_result in (
                         (username, round_result),
@@ -107,11 +108,11 @@ def _build_swisspairing_float_history(
                             not assignee_result.result.is_played()
                             and scoring_system.get_points_times_ten(assignee_result) > 0
                         ):
-                            round_assignments[assignee_name] = swiss_module.SwissFloatKind.DOWN
+                            round_assignments[assignee_name] = float_kind.DOWN
                 continue
 
             if opponent_id == 0 and scoring_system.get_points_times_ten(round_result) > 0:
-                round_assignments[username] = swiss_module.SwissFloatKind.DOWN
+                round_assignments[username] = float_kind.DOWN
 
         for _, username, _ in seed_entries:
             history_by_name[username].append(round_assignments[username])
@@ -131,10 +132,13 @@ def _build_swisspairing_snapshots(
     """Build swisspairing snapshots for the waiting players in the current round."""
 
     swiss_module = _swiss_module()
-    if swiss_module.PychessPlayerSnapshot is None:
+    swiss_runtime = swiss_module._swisspairing_runtime()
+    if swiss_runtime.snapshot_cls is None:
         raise RuntimeError(
             "Swiss pairing backend 'swisspairing' requires swisspairing snapshot helpers, but import failed"
-        ) from swiss_module.SWISSPAIRING_IMPORT_ERROR
+        ) from swiss_runtime.import_error
+
+    snapshot_cls = swiss_runtime.snapshot_cls
 
     all_names = sorted(
         {player.username for player in tournament.players}.union(tournament.players_by_name)
@@ -210,7 +214,7 @@ def _build_swisspairing_snapshots(
                 color_history.append("black")
 
         snapshots.append(
-            swiss_module.PychessPlayerSnapshot(
+            snapshot_cls(
                 username=username,
                 pairing_no=pairing_no_by_name[username],
                 score=scores_by_name[username],
