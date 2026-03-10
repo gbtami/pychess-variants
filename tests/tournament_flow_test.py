@@ -5,8 +5,6 @@ import json
 import unittest
 from datetime import datetime, timedelta, timezone
 from importlib.util import find_spec
-import os
-from pathlib import Path
 from unittest.mock import patch
 
 from const import FLAG, T_CREATED, T_FINISHED, T_STARTED
@@ -30,10 +28,7 @@ def make_test_perfs():
 
 
 def _has_swisspairing_runtime() -> bool:
-    if find_spec("swisspairing") is not None:
-        return True
-    raw_src = os.getenv("SWISSPAIRING_SRC", "").strip()
-    return raw_src != "" and Path(raw_src).expanduser().exists()
+    return find_spec("swisspairing") is not None
 
 
 class TournamentFlowTestCase(TournamentTestCase):

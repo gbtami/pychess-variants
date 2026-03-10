@@ -2,10 +2,7 @@ import asyncio
 import unittest
 from datetime import datetime, timedelta, timezone
 from importlib.util import find_spec
-import os
-from pathlib import Path
 from types import SimpleNamespace
-from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from const import FLAG, TEST_PREFIX, T_FINISHED
@@ -33,10 +30,7 @@ def make_test_perfs():
 
 
 def _has_swisspairing_runtime() -> bool:
-    if find_spec("swisspairing") is not None:
-        return True
-    raw_src = os.getenv("SWISSPAIRING_SRC", "").strip()
-    return raw_src != "" and Path(raw_src).expanduser().exists()
+    return find_spec("swisspairing") is not None
 
 
 class SwissPairingTestCase(TournamentTestCase):
@@ -191,52 +185,6 @@ class SwissPairingTestCase(TournamentTestCase):
             await tournament.game_update(game)
 
         await asyncio.sleep(0)
-
-    def test_load_swisspairing_runtime_uses_src_env_fallback(self):
-        marker = object()
-        original_sys_path = list(swiss_mod.sys.path)
-
-        with TemporaryDirectory() as temp_dir:
-            fake_modules = {
-                "swisspairing": SimpleNamespace(
-                    map_plan_to_users=marker,
-                    pair_snapshots_dutch=marker,
-                ),
-                "swisspairing.exceptions": SimpleNamespace(PairingError=ValueError),
-                "swisspairing.model": SimpleNamespace(FloatKind=marker),
-                "swisspairing.pychess_adapter": SimpleNamespace(PychessPlayerSnapshot=marker),
-            }
-
-            def fake_import_module(name: str):
-                if name == "swisspairing" and temp_dir not in swiss_mod.sys.path:
-                    raise ModuleNotFoundError("swisspairing")
-                return fake_modules[name]
-
-            try:
-                swiss_mod.sys.path[:] = [entry for entry in swiss_mod.sys.path if entry != temp_dir]
-                with (
-                    patch.dict("os.environ", {"SWISSPAIRING_SRC": temp_dir}),
-                    patch(
-                        "tournament.swiss.importlib.import_module", side_effect=fake_import_module
-                    ),
-                ):
-                    (
-                        map_plan_to_users,
-                        pair_snapshots_dutch,
-                        pairing_error,
-                        float_kind,
-                        snapshot_cls,
-                        import_error,
-                    ) = swiss_mod._load_swisspairing_runtime()
-            finally:
-                swiss_mod.sys.path[:] = original_sys_path
-
-        self.assertIsNone(import_error)
-        self.assertIs(map_plan_to_users, marker)
-        self.assertIs(pair_snapshots_dutch, marker)
-        self.assertIs(pairing_error, ValueError)
-        self.assertIs(float_kind, marker)
-        self.assertIs(snapshot_cls, marker)
 
     async def test_automatic_round_interval_is_clamped(self):
         app_state = get_app_state(self.app)

@@ -5,7 +5,6 @@ import importlib
 import logging
 import os
 from pathlib import Path
-import sys
 import tempfile
 from typing import TYPE_CHECKING, Any
 
@@ -63,7 +62,6 @@ from .tournament_ops import (
     recalculate_berger_tiebreak as recalculate_berger_tiebreak_impl,
 )
 
-_SWISSPAIRING_SRC_ENV = "SWISSPAIRING_SRC"
 _SWISS_PAIRING_BACKEND_ENV = "SWISS_PAIRING_BACKEND"
 
 if TYPE_CHECKING:
@@ -75,9 +73,9 @@ log = logging.getLogger(__name__)
 
 
 def _load_swisspairing_runtime() -> tuple[Any, Any, Any, Any, Any, Exception | None]:
-    """Load swisspairing entry points, optionally from ``SWISSPAIRING_SRC``."""
+    """Load swisspairing entry points from the installed package."""
 
-    def _import_modules() -> tuple[Any, Any, Any, Any, Any, None]:
+    try:
         swisspairing_module = importlib.import_module("swisspairing")
         swisspairing_exceptions = importlib.import_module("swisspairing.exceptions")
         swisspairing_model = importlib.import_module("swisspairing.model")
@@ -90,32 +88,8 @@ def _load_swisspairing_runtime() -> tuple[Any, Any, Any, Any, Any, Exception | N
             swisspairing_adapter.PychessPlayerSnapshot,
             None,
         )
-
-    try:
-        return _import_modules()
-    except Exception as first_exc:
-        raw_src = os.getenv(_SWISSPAIRING_SRC_ENV, "").strip()
-        if raw_src == "":
-            return (None, None, RuntimeError, None, None, first_exc)
-
-        src_path = str(Path(raw_src).expanduser())
-        if not Path(src_path).exists():
-            return (
-                None,
-                None,
-                RuntimeError,
-                None,
-                None,
-                RuntimeError(f"{_SWISSPAIRING_SRC_ENV} path does not exist: {src_path}"),
-            )
-
-        if src_path not in sys.path:
-            sys.path.insert(0, src_path)
-
-        try:
-            return _import_modules()
-        except Exception as second_exc:
-            return (None, None, RuntimeError, None, None, second_exc)
+    except Exception as exc:
+        return (None, None, RuntimeError, None, None, exc)
 
 
 (
