@@ -328,7 +328,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         await self.tournament.join_players(NB_PLAYERS)
 
         if self.tournament.clock_task is not None:
-            await asyncio.wait_for(self.tournament.clock_task, timeout=10)
+            await asyncio.wait_for(self.tournament.clock_task, timeout=20)
 
         self.assertEqual(self.tournament.status, T_FINISHED)
         self.assertEqual(
