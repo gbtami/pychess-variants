@@ -666,6 +666,87 @@ class SwissPairingTestCase(TournamentTestCase):
 
     @unittest.skipUnless(
         _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live Swiss reload flow test",
+    )
+    async def test_pair_fixed_round_with_real_swisspairing_backend_handles_withdraw_pause_after_reload(
+        self,
+    ):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(6)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.tournament.current_round = 1
+        round_1_pairing, round_1_byes = self._assert_backend_outcome_match(
+            self.tournament,
+            round_number=1,
+        )
+        self.assertEqual(round_1_byes, [])
+        self._record_finished_round(
+            self.tournament,
+            round_number=1,
+            pairing=round_1_pairing,
+        )
+
+        withdrawn = self.tournament.get_player_by_name(f"{TEST_PREFIX}User_6")
+        self.assertIsNotNone(withdrawn)
+        assert withdrawn is not None
+        await self.tournament.withdraw(withdrawn)
+
+        self.tournament.current_round = 2
+        await self.tournament.save_current_round()
+
+        _reloaded_app_state, reloaded_tournament = await self.reload_tournament(
+            app_state.db_client,
+            tid,
+        )
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+
+        reloaded_withdrawn = reloaded_tournament.get_player_by_name(withdrawn.username)
+        self.assertIsNotNone(reloaded_withdrawn)
+        assert reloaded_withdrawn is not None
+        reloaded_withdrawn_data = reloaded_tournament.player_data_by_name(withdrawn.username)
+        self.assertIsNotNone(reloaded_withdrawn_data)
+        assert reloaded_withdrawn_data is not None
+        self.assertTrue(reloaded_withdrawn_data.paused)
+        self.assertFalse(reloaded_withdrawn_data.withdrawn)
+
+        waiting_before_round_2 = {
+            player.username for player in reloaded_tournament.waiting_players()
+        }
+        self.assertNotIn(withdrawn.username, waiting_before_round_2)
+
+        with patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}):
+            should_continue = await reloaded_tournament.pair_fixed_round(datetime.now(timezone.utc))
+        self.assertTrue(should_continue)
+
+        round_2_games = list(reloaded_tournament.ongoing_games)
+        self.assertEqual(len(round_2_games), 2)
+        scheduled_usernames = {
+            player.username for game in round_2_games for player in (game.wplayer, game.bplayer)
+        }
+        bye_usernames = {
+            player.username
+            for player in reloaded_tournament.players
+            if any(
+                isinstance(game, ByeGame)
+                and getattr(game, "round", None) == 2
+                and getattr(game, "token", None) == "U"
+                for game in reloaded_tournament.player_data_by_name(player.username).games
+            )
+        }
+        scheduled_usernames.update(bye_usernames)
+        self.assertEqual(len(scheduled_usernames), 5)
+        self.assertNotIn(withdrawn.username, scheduled_usernames)
+
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
         "swisspairing import unavailable for live Swiss round flow test",
     )
     async def test_pair_fixed_round_with_real_swisspairing_backend_handles_late_join_and_rejoin(
