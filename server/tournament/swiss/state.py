@@ -15,7 +15,6 @@ from .history import (
     _round_entries_by_number,
     _score_points_times_ten,
     _seed_rating,
-    _swiss_round_point_value,
 )
 
 if TYPE_CHECKING:
@@ -55,61 +54,71 @@ def _build_swisspairing_float_history(
         ) from swiss_module.SWISSPAIRING_IMPORT_ERROR
 
     rank_by_name = {username: index for index, (_, username, _) in enumerate(seed_entries, start=1)}
-    round_entries_by_name = {
-        username: _round_entries_by_number(tournament, username, player_data)
+    ids_by_name = {username: rank_by_name[username] for _, username, _ in seed_entries}
+    names_by_id = {player_id: username for username, player_id in ids_by_name.items()}
+    scoring_system = _build_scoring_system(tournament.variant)
+    round_results_by_name = {
+        username: _build_player_results(
+            tournament,
+            username,
+            player_data,
+            ids_by_name,
+            completed_rounds,
+        )
         for _, username, player_data in seed_entries
     }
     points_by_name = {username: 0 for _, username, _ in seed_entries}
-    history_by_name: dict[str, list[Any]] = {username: [] for username in round_entries_by_name}
+    history_by_name: dict[str, list[Any]] = {username: [] for username in round_results_by_name}
 
-    for round_no in range(1, completed_rounds + 1):
+    for round_index in range(completed_rounds):
         round_assignments = {
             username: swiss_module.SwissFloatKind.NONE for _, username, _ in seed_entries
         }
-        processed_pairs: set[tuple[str, str]] = set()
 
         for _, username, _ in seed_entries:
-            round_entry = round_entries_by_name[username].get(round_no)
-            if round_entry is None:
+            round_result = round_results_by_name[username][round_index]
+            opponent_id = getattr(round_result, "id", 0)
+            color_value = getattr(getattr(round_result, "color", None), "value", None)
+
+            if color_value == runtime.ColorToken.WHITE.value and opponent_id != 0:
+                opponent_name = names_by_id.get(opponent_id)
+                if opponent_name is None:
+                    continue
+
+                opponent_result = round_results_by_name[opponent_name][round_index]
+                if round_result.result.is_played() and opponent_result.result.is_played():
+                    white_score = points_by_name[username]
+                    black_score = points_by_name[opponent_name]
+                    if white_score != black_score:
+                        higher_name, lower_name = (
+                            (username, opponent_name)
+                            if (-white_score, rank_by_name[username])
+                            <= (-black_score, rank_by_name[opponent_name])
+                            else (opponent_name, username)
+                        )
+                        round_assignments[higher_name] = swiss_module.SwissFloatKind.DOWN
+                        round_assignments[lower_name] = swiss_module.SwissFloatKind.UP
+                else:
+                    for assignee_name, assignee_result in (
+                        (username, round_result),
+                        (opponent_name, opponent_result),
+                    ):
+                        if (
+                            not assignee_result.result.is_played()
+                            and scoring_system.get_points_times_ten(assignee_result) > 0
+                        ):
+                            round_assignments[assignee_name] = swiss_module.SwissFloatKind.DOWN
                 continue
 
-            game, point_entry = round_entry
-            if isinstance(game, ByeGame):
-                round_point = _swiss_round_point_value(tournament, game, point_entry)
-                if round_point is not None and round_point > 0:
-                    round_assignments[username] = swiss_module.SwissFloatKind.DOWN
-                continue
-
-            white_name = game.wplayer.username
-            black_name = game.bplayer.username
-            pair_key = tuple(sorted((white_name, black_name)))
-            if pair_key in processed_pairs:
-                continue
-            processed_pairs.add(pair_key)
-
-            white_score = points_by_name[white_name]
-            black_score = points_by_name[black_name]
-            if white_score == black_score:
-                continue
-
-            higher_name, lower_name = (
-                (white_name, black_name)
-                if (-white_score, rank_by_name[white_name])
-                <= (-black_score, rank_by_name[black_name])
-                else (black_name, white_name)
-            )
-            round_assignments[higher_name] = swiss_module.SwissFloatKind.DOWN
-            round_assignments[lower_name] = swiss_module.SwissFloatKind.UP
+            if opponent_id == 0 and scoring_system.get_points_times_ten(round_result) > 0:
+                round_assignments[username] = swiss_module.SwissFloatKind.DOWN
 
         for _, username, _ in seed_entries:
             history_by_name[username].append(round_assignments[username])
-            round_entry = round_entries_by_name[username].get(round_no)
-            if round_entry is None:
-                continue
-            game, point_entry = round_entry
-            round_point = _swiss_round_point_value(tournament, game, point_entry)
-            if round_point is not None:
-                points_by_name[username] += round_point
+            points_by_name[username] += (
+                scoring_system.get_points_times_ten(round_results_by_name[username][round_index])
+                // 10
+            )
 
     return {username: tuple(history) for username, history in history_by_name.items()}
 

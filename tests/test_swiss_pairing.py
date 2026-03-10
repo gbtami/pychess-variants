@@ -953,6 +953,83 @@ class SwissScoringRulesTestCase(unittest.TestCase):
 
         self.assertEqual([result.result.value for result in results], ["1", "Z", "1"])
 
+    def test_build_swisspairing_float_history_counts_positive_byes_and_cross_score_games(self):
+        tournament = SimpleNamespace(variant="chess", id="t")
+        game_r1 = GameData(
+            "g1",
+            "p1",
+            "1500",
+            "p2",
+            "1500",
+            "1-0",
+            datetime.now(timezone.utc),
+            False,
+            False,
+            round_no=1,
+        )
+        game_r2 = GameData(
+            "g2",
+            "p1",
+            "1500",
+            "p2",
+            "1500",
+            "1-0",
+            datetime.now(timezone.utc),
+            False,
+            False,
+            round_no=2,
+        )
+        player_one = SimpleNamespace(
+            username="p1", points=[(2, 1), (2, 1)], games=[game_r1, game_r2]
+        )
+        player_two = SimpleNamespace(
+            username="p2", points=[(0, 0), (0, 0)], games=[game_r1, game_r2]
+        )
+        player_three = SimpleNamespace(
+            username="p3",
+            points=[(2, 0), (0, 0)],
+            games=[ByeGame(token="F", round_no=1), ByeGame(token="Z", round_no=2)],
+        )
+        float_kind = SimpleNamespace(NONE="none", UP="up", DOWN="down")
+
+        with patch.object(swiss_mod, "SwissFloatKind", float_kind):
+            history = swiss_mod._build_swisspairing_float_history(
+                tournament,
+                seed_entries=[
+                    (2400, "p1", player_one),
+                    (2300, "p2", player_two),
+                    (2200, "p3", player_three),
+                ],
+                completed_rounds=2,
+            )
+
+        self.assertEqual(
+            history,
+            {
+                "p1": ("none", "down"),
+                "p2": ("none", "up"),
+                "p3": ("down", "none"),
+            },
+        )
+
+    def test_build_swisspairing_float_history_counts_half_bye_but_not_zero_point_absence(self):
+        tournament = SimpleNamespace(variant="chess", id="t")
+        player_data = SimpleNamespace(
+            username="hero",
+            points=[(1, 0), (0, 0)],
+            games=[ByeGame(token="H", round_no=1), ByeGame(token="Z", round_no=2)],
+        )
+        float_kind = SimpleNamespace(NONE="none", UP="up", DOWN="down")
+
+        with patch.object(swiss_mod, "SwissFloatKind", float_kind):
+            history = swiss_mod._build_swisspairing_float_history(
+                tournament,
+                seed_entries=[(2400, "hero", player_data)],
+                completed_rounds=2,
+            )
+
+        self.assertEqual(history, {"hero": ("down", "none")})
+
     def test_janggi_half_bye_uses_two_points(self):
         tournament = SimpleNamespace(
             variant="janggi",
