@@ -691,6 +691,98 @@ class SwissPairingTestCase(TournamentTestCase):
         self.assertFalse(rejoining_data.paused)
         self.assertEqual(len(late_data.games), 2)
 
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live Swiss reload flow test",
+    )
+    async def test_pair_fixed_round_with_real_swisspairing_backend_survives_reload_before_round_two(
+        self,
+    ):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(3)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.tournament.current_round = 1
+        with patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}):
+            should_continue = await self.tournament.pair_fixed_round(datetime.now(timezone.utc))
+        self.assertTrue(should_continue)
+        round_1_games = list(self.tournament.ongoing_games)
+        self.assertEqual(len(round_1_games), 1)
+        await self._finish_created_games(self.tournament, round_1_games)
+
+        round_1_players = {round_1_games[0].wplayer.username, round_1_games[0].bplayer.username}
+        rejoining_username = next(iter(round_1_players))
+        rejoining_user = self.tournament.get_player_by_name(rejoining_username)
+        self.assertIsNotNone(rejoining_user)
+        assert rejoining_user is not None
+
+        await self.tournament.pause(rejoining_user)
+        rejoin_error = await self.tournament.join(rejoining_user)
+        self.assertIsNone(rejoin_error)
+
+        late = User(app_state, username="late_join_reload_flow", perfs=make_test_perfs())
+        app_state.users[late.username] = late
+        late.tournament_sockets[tid] = set((None,))
+        late_error = await self.tournament.join(late)
+        self.assertIsNone(late_error)
+
+        self.tournament.current_round = 2
+        await self.tournament.save_current_round()
+
+        _reloaded_app_state, reloaded_tournament = await self.reload_tournament(
+            app_state.db_client,
+            tid,
+        )
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertEqual(reloaded_tournament.current_round, 2)
+
+        reloaded_rejoin = reloaded_tournament.player_data_by_name(rejoining_username)
+        self.assertIsNotNone(reloaded_rejoin)
+        assert reloaded_rejoin is not None
+        self.assertFalse(reloaded_rejoin.paused)
+
+        reloaded_late = reloaded_tournament.player_data_by_name(late.username)
+        self.assertIsNotNone(reloaded_late)
+        assert reloaded_late is not None
+        self.assertEqual(reloaded_late.joined_round, 2)
+        self.assertEqual(len(reloaded_late.games), 1)
+        self.assertIsInstance(reloaded_late.games[0], ByeGame)
+        self.assertEqual(getattr(reloaded_late.games[0], "token", ""), "H")
+
+        waiting_before_round_2 = {
+            player.username for player in reloaded_tournament.waiting_players()
+        }
+        self.assertEqual(
+            waiting_before_round_2,
+            {player.username for player in reloaded_tournament.players},
+        )
+        self.assertIn(rejoining_username, waiting_before_round_2)
+        self.assertIn(late.username, waiting_before_round_2)
+
+        with patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}):
+            should_continue = await reloaded_tournament.pair_fixed_round(datetime.now(timezone.utc))
+        self.assertTrue(should_continue)
+
+        round_2_games = list(reloaded_tournament.ongoing_games)
+        self.assertEqual(len(round_2_games), 2)
+        scheduled_usernames = {
+            player.username for game in round_2_games for player in (game.wplayer, game.bplayer)
+        }
+        self.assertEqual(
+            scheduled_usernames,
+            {player.username for player in reloaded_tournament.players},
+        )
+        self.assertIn(rejoining_username, scheduled_usernames)
+        self.assertIn(late.username, scheduled_usernames)
+        self.assertEqual(len(reloaded_late.games), 2)
+
     async def test_create_pairing_records_engine_allocated_bye(self):
         app_state = get_app_state(self.app)
         tid = id8()

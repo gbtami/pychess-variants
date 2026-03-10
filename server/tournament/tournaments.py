@@ -870,6 +870,9 @@ async def load_tournament(
             app_state.users[user.username] = user
         else:
             user = await app_state.users.get(uid)
+            if user.username != uid:
+                user = User(app_state, username=uid, enabled=False)
+                app_state.users[uid] = user
 
         withdrawn = player_doc.get("wd", False)
 
