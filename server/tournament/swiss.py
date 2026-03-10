@@ -1,9 +1,11 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+import importlib
 import logging
 import os
 from pathlib import Path
+import sys
 import tempfile
 from typing import TYPE_CHECKING, Any
 
@@ -11,11 +13,11 @@ from const import ABORTED, SWISS, T_STARTED
 from fairy import BLACK, WHITE
 from tournament.tournament import ByeGame, PairingUnavailable, SCORE_SHIFT, Tournament
 
+_SWISSPAIRING_SRC_ENV = "SWISSPAIRING_SRC"
+
 try:
     from py4swiss.engines import DutchEngine
     from py4swiss.engines.common import PairingError
-    from py4swiss.engines.common.float import Float as Py4SwissFloat
-    from py4swiss.engines.dutch.player import get_player_infos_from_trf
     from py4swiss.trf import ParsedTrf
     from py4swiss.trf.codes import PlayerCode
     from py4swiss.trf.results import (
@@ -32,8 +34,6 @@ try:
 except Exception as exc:  # pragma: no cover - exercised only when dependency is missing
     DutchEngine = None
     PairingError = RuntimeError
-    Py4SwissFloat = None
-    get_player_infos_from_trf = None
     ParsedTrf = None
     PlayerCode = None
     ColorToken = None
@@ -46,24 +46,60 @@ except Exception as exc:  # pragma: no cover - exercised only when dependency is
     XSectionConfiguration = None
     PY4SWISS_IMPORT_ERROR = exc
 
-try:
-    from swisspairing import pair_round_dutch as swisspairing_pair_round_dutch
-    from swisspairing.exceptions import PairingError as SwissPairingError
-    from swisspairing.model import FloatKind as SwissFloatKind
-    from swisspairing.model import PlayerState as SwissPlayerState
 
-    SWISSPAIRING_IMPORT_ERROR: Exception | None = None
-except Exception as exc:  # pragma: no cover - exercised only when dependency is missing
-    swisspairing_pair_round_dutch = None
-    SwissPairingError = RuntimeError
-    SwissFloatKind = None
-    SwissPlayerState = None
-    SWISSPAIRING_IMPORT_ERROR = exc
+def _load_swisspairing_runtime() -> tuple[Any, Any, Any, Any, Any, Exception | None]:
+    def _import_modules() -> tuple[Any, Any, Any, Any, Any, None]:
+        swisspairing_module = importlib.import_module("swisspairing")
+        swisspairing_exceptions = importlib.import_module("swisspairing.exceptions")
+        swisspairing_model = importlib.import_module("swisspairing.model")
+        swisspairing_adapter = importlib.import_module("swisspairing.pychess_adapter")
+        return (
+            swisspairing_module.map_plan_to_users,
+            swisspairing_module.pair_snapshots_dutch,
+            swisspairing_exceptions.PairingError,
+            swisspairing_model.FloatKind,
+            swisspairing_adapter.PychessPlayerSnapshot,
+            None,
+        )
+
+    try:
+        return _import_modules()
+    except Exception as first_exc:
+        raw_src = os.getenv(_SWISSPAIRING_SRC_ENV, "").strip()
+        if raw_src == "":
+            return (None, None, RuntimeError, None, None, first_exc)
+
+        src_path = str(Path(raw_src).expanduser())
+        if not Path(src_path).exists():
+            return (
+                None,
+                None,
+                RuntimeError,
+                None,
+                None,
+                RuntimeError(f"{_SWISSPAIRING_SRC_ENV} path does not exist: {src_path}"),
+            )
+
+        if src_path not in sys.path:
+            sys.path.insert(0, src_path)
+
+        try:
+            return _import_modules()
+        except Exception as second_exc:
+            return (None, None, RuntimeError, None, None, second_exc)
+
+
+(
+    map_plan_to_users,
+    pair_snapshots_dutch,
+    SwissPairingError,
+    SwissFloatKind,
+    PychessPlayerSnapshot,
+    SWISSPAIRING_IMPORT_ERROR,
+) = _load_swisspairing_runtime()
 
 DutchEngine: Any
 PairingError: Any
-Py4SwissFloat: Any
-get_player_infos_from_trf: Any
 ParsedTrf: Any
 PlayerCode: Any
 ColorToken: Any
@@ -74,10 +110,11 @@ ScoringPointSystemCode: Any
 PlayerSection: Any
 XSection: Any
 XSectionConfiguration: Any
-swisspairing_pair_round_dutch: Any
+map_plan_to_users: Any
+pair_snapshots_dutch: Any
 SwissPairingError: Any
 SwissFloatKind: Any
-SwissPlayerState: Any
+PychessPlayerSnapshot: Any
 
 if TYPE_CHECKING:
     from game import Game
@@ -100,6 +137,27 @@ def _swiss_pairing_backend() -> str:
         backend,
     )
     return "py4swiss"
+
+
+def _ensure_swisspairing_runtime_loaded() -> None:
+    global map_plan_to_users
+    global pair_snapshots_dutch
+    global SwissPairingError
+    global SwissFloatKind
+    global PychessPlayerSnapshot
+    global SWISSPAIRING_IMPORT_ERROR
+
+    if map_plan_to_users is not None and pair_snapshots_dutch is not None:
+        return
+
+    (
+        map_plan_to_users,
+        pair_snapshots_dutch,
+        SwissPairingError,
+        SwissFloatKind,
+        PychessPlayerSnapshot,
+        SWISSPAIRING_IMPORT_ERROR,
+    ) = _load_swisspairing_runtime()
 
 
 def _parse_rating(raw: str | int | None, fallback: int) -> int:
@@ -512,60 +570,220 @@ class _DutchPairingState:
     users_by_id: dict[int, User]
 
 
-def _to_swiss_float_kind(float_value: Any):
-    if float_value == Py4SwissFloat.UP:
-        return SwissFloatKind.UP
-    if float_value == Py4SwissFloat.DOWN:
-        return SwissFloatKind.DOWN
-    return SwissFloatKind.NONE
+def _round_entries_by_number(
+    tournament: Tournament,
+    username: str,
+    player_data: PlayerData,
+) -> dict[int, tuple[Any, Any]]:
+    round_entries: dict[int, tuple[Any, Any]] = {}
+    for game_index, game in enumerate(player_data.games):
+        round_no = getattr(game, "round", None)
+        if not isinstance(round_no, int) or round_no <= 0:
+            raise RuntimeError(
+                "Swiss player history is missing round metadata for %s in tournament %s"
+                % (username, tournament.id)
+            )
+        if round_no in round_entries:
+            raise RuntimeError(
+                "Swiss player history has duplicate round metadata for %s in tournament %s (round=%s)"
+                % (username, tournament.id, round_no)
+            )
+        point_entry = (
+            player_data.points[game_index] if game_index < len(player_data.points) else None
+        )
+        round_entries[round_no] = (game, point_entry)
+    return round_entries
 
 
-def _build_forbidden_map_from_trf(trf: Any) -> dict[int, set[int]]:
-    forbidden_map: dict[int, set[int]] = {}
-    for left_id, right_id in trf.x_section.forbidden_pairs:
-        forbidden_map.setdefault(left_id, set()).add(right_id)
-        forbidden_map.setdefault(right_id, set()).add(left_id)
-    return forbidden_map
+def _build_forbidden_opponents_by_name(
+    raw: str,
+    waiting_names: set[str],
+) -> dict[str, frozenset[str]]:
+    lower_waiting_names = {name.lower(): name for name in waiting_names}
+    forbidden_by_name = {name: set() for name in waiting_names}
+
+    for left_name, right_name in _normalized_pairing_lines(raw):
+        if left_name == right_name or right_name == "1":
+            continue
+        left_username = lower_waiting_names.get(left_name)
+        right_username = lower_waiting_names.get(right_name)
+        if left_username is None or right_username is None or left_username == right_username:
+            continue
+        forbidden_by_name[left_username].add(right_username)
+        forbidden_by_name[right_username].add(left_username)
+
+    return {username: frozenset(opponents) for username, opponents in forbidden_by_name.items()}
 
 
-def _build_swisspairing_player_states_from_trf(trf: Any) -> tuple[Any, ...]:
-    if (
-        SwissPlayerState is None
-        or SwissFloatKind is None
-        or get_player_infos_from_trf is None
-        or Py4SwissFloat is None
-    ):
+def _build_swisspairing_float_history(
+    tournament: Tournament,
+    *,
+    seed_entries: list[tuple[int, str, PlayerData]],
+    completed_rounds: int,
+) -> dict[str, tuple[Any, ...]]:
+    if SwissFloatKind is None:
         raise RuntimeError(
-            "Swiss pairing backend 'swisspairing' currently requires py4swiss state conversion helpers"
-        ) from PY4SWISS_IMPORT_ERROR
+            "Swiss pairing backend 'swisspairing' requires swisspairing float types, but import failed"
+        ) from SWISSPAIRING_IMPORT_ERROR
 
-    py4swiss_players = get_player_infos_from_trf(trf)
-    top_ids = {player.id for player in py4swiss_players if player.top_scorer}
-    forbidden_map = _build_forbidden_map_from_trf(trf)
+    rank_by_name = {username: index for index, (_, username, _) in enumerate(seed_entries, start=1)}
+    round_entries_by_name = {
+        username: _round_entries_by_number(tournament, username, player_data)
+        for _, username, player_data in seed_entries
+    }
+    points_by_name = {username: 0 for _, username, _ in seed_entries}
+    history_by_name: dict[str, list[Any]] = {username: [] for _, username, _ in seed_entries}
 
-    states: list[Any] = []
-    for player in py4swiss_players:
-        states.append(
-            SwissPlayerState(
-                player_id=str(player.id),
-                pairing_no=player.number,
-                score=player.points_with_acceleration,
-                opponents=frozenset(str(opponent_id) for opponent_id in player.opponents),
-                forbidden_opponents=frozenset(
-                    str(opponent_id) for opponent_id in forbidden_map.get(player.id, set())
-                ),
-                color_history=tuple("white" if is_white else "black" for is_white in player.colors),
-                unplayed_games=0,
-                had_full_point_bye=player.bye_received,
-                is_top_scorer=player.top_scorer,
-                is_topscorer_or_opponent=player.top_scorer or bool(player.opponents & top_ids),
-                float_history=(
-                    _to_swiss_float_kind(player.float_2),
-                    _to_swiss_float_kind(player.float_1),
-                ),
+    for round_no in range(1, completed_rounds + 1):
+        round_assignments = {username: SwissFloatKind.NONE for _, username, _ in seed_entries}
+        processed_pairs: set[tuple[str, str]] = set()
+
+        for _, username, player_data in seed_entries:
+            round_entry = round_entries_by_name[username].get(round_no)
+            if round_entry is None:
+                continue
+
+            game, point_entry = round_entry
+            if isinstance(game, ByeGame):
+                round_point = _swiss_round_point_value(tournament, game, point_entry)
+                if round_point is not None and round_point > 0:
+                    round_assignments[username] = SwissFloatKind.DOWN
+                continue
+
+            white_name = game.wplayer.username
+            black_name = game.bplayer.username
+            pair_key = tuple(sorted((white_name, black_name)))
+            if pair_key in processed_pairs:
+                continue
+            processed_pairs.add(pair_key)
+
+            white_score = points_by_name[white_name]
+            black_score = points_by_name[black_name]
+            if white_score == black_score:
+                continue
+
+            higher_name, lower_name = (
+                (white_name, black_name)
+                if (-white_score, rank_by_name[white_name])
+                <= (-black_score, rank_by_name[black_name])
+                else (black_name, white_name)
+            )
+            round_assignments[higher_name] = SwissFloatKind.DOWN
+            round_assignments[lower_name] = SwissFloatKind.UP
+
+        for _, username, _ in seed_entries:
+            history_by_name[username].append(round_assignments[username])
+            round_entry = round_entries_by_name[username].get(round_no)
+            if round_entry is None:
+                continue
+            game, point_entry = round_entry
+            round_point = _swiss_round_point_value(tournament, game, point_entry)
+            if round_point is not None:
+                points_by_name[username] += round_point
+
+    return {username: tuple(history) for username, history in history_by_name.items()}
+
+
+def _build_swisspairing_snapshots(
+    tournament: Tournament,
+    waiting_players: list[User],
+    completed_rounds: int,
+) -> tuple[Any, ...]:
+    if PychessPlayerSnapshot is None:
+        raise RuntimeError(
+            "Swiss pairing backend 'swisspairing' requires swisspairing snapshot helpers, but import failed"
+        ) from SWISSPAIRING_IMPORT_ERROR
+
+    all_names = sorted(
+        {player.username for player in tournament.players}.union(tournament.players_by_name)
+    )
+    waiting_names = {user.username for user in waiting_players}
+
+    seed_entries: list[tuple[int, str, PlayerData]] = []
+    for username in all_names:
+        player_data = tournament.player_data_by_name(username)
+        if player_data is None:
+            continue
+        seed_entries.append((_seed_rating(player_data), username, player_data))
+
+    seed_entries.sort(key=lambda item: (-item[0], item[1]))
+    pairing_no_by_name = {
+        username: index for index, (_, username, _) in enumerate(seed_entries, start=1)
+    }
+    forbidden_by_name = _build_forbidden_opponents_by_name(
+        tournament.forbidden_pairings,
+        waiting_names,
+    )
+    float_history_by_name = _build_swisspairing_float_history(
+        tournament,
+        seed_entries=seed_entries,
+        completed_rounds=completed_rounds,
+    )
+
+    scores_by_name = {
+        username: _score_points_times_ten(tournament, username, player_data, completed_rounds)
+        for _, username, player_data in seed_entries
+        if username in waiting_names
+    }
+    top_score = max(scores_by_name.values(), default=0)
+
+    snapshots: list[Any] = []
+    for _, username, player_data in seed_entries:
+        if username not in waiting_names:
+            continue
+
+        round_entries = _round_entries_by_number(tournament, username, player_data)
+        opponents: list[str] = []
+        color_history: list[str] = []
+        unplayed_games = 0
+        had_full_point_bye = False
+        had_full_point_unplayed_round = False
+
+        for round_no in range(1, completed_rounds + 1):
+            round_entry = round_entries.get(round_no)
+            if round_entry is None:
+                unplayed_games += 1
+                continue
+
+            game, point_entry = round_entry
+            if isinstance(game, ByeGame):
+                unplayed_games += 1
+                token = getattr(game, "token", "U")
+                if token == "U":
+                    had_full_point_bye = True
+                elif token == "F":
+                    had_full_point_unplayed_round = True
+                continue
+
+            if point_entry == "-":
+                unplayed_games += 1
+
+            white_name = game.wplayer.username
+            black_name = game.bplayer.username
+            if username == white_name:
+                opponents.append(black_name)
+                color_history.append("white")
+            elif username == black_name:
+                opponents.append(white_name)
+                color_history.append("black")
+
+        snapshots.append(
+            PychessPlayerSnapshot(
+                username=username,
+                pairing_no=pairing_no_by_name[username],
+                score=scores_by_name[username],
+                opponents=frozenset(opponents),
+                forbidden_opponents=forbidden_by_name.get(username, frozenset()),
+                color_history=tuple(color_history),
+                unplayed_games=unplayed_games,
+                had_full_point_bye=had_full_point_bye,
+                had_full_point_unplayed_round=had_full_point_unplayed_round,
+                is_top_scorer=scores_by_name[username] == top_score,
+                float_history=float_history_by_name[username],
             )
         )
-    return tuple(states)
+
+    return tuple(snapshots)
 
 
 def _materialize_pairings(
@@ -1089,21 +1307,20 @@ class SwissTournament(Tournament):
             self._record_bye(waiting_players[0])
             return []
 
-        if ParsedTrf is None:
-            raise RuntimeError(
-                "Swiss pairing state mapping requires py4swiss, but import failed"
-            ) from PY4SWISS_IMPORT_ERROR
-
         backend = _swiss_pairing_backend()
         completed_rounds = max(0, self.current_round - 1)
-        state = _build_dutch_pairing_state(self, waiting_players, completed_rounds)
 
         if backend == "py4swiss":
+            if ParsedTrf is None:
+                raise RuntimeError(
+                    "Swiss pairing state mapping requires py4swiss, but import failed"
+                ) from PY4SWISS_IMPORT_ERROR
             if DutchEngine is None:
                 raise RuntimeError(
                     "Swiss (Dutch) pairing backend 'py4swiss' requires py4swiss, but import failed"
                 ) from PY4SWISS_IMPORT_ERROR
 
+            state = _build_dutch_pairing_state(self, waiting_players, completed_rounds)
             try:
                 dutch_pairings = DutchEngine.generate_pairings(state.trf)
             except PairingError as exc:
@@ -1131,32 +1348,43 @@ class SwissTournament(Tournament):
                 raise PairingUnavailable("No valid pairing exists")
             return pairing
 
-        if swisspairing_pair_round_dutch is None:
+        _ensure_swisspairing_runtime_loaded()
+        if pair_snapshots_dutch is None or map_plan_to_users is None:
             raise RuntimeError(
                 "Swiss (Dutch) pairing backend 'swisspairing' requires swisspairing, but import failed"
             ) from SWISSPAIRING_IMPORT_ERROR
 
-        states = _build_swisspairing_player_states_from_trf(state.trf)
+        snapshots = _build_swisspairing_snapshots(self, waiting_players, completed_rounds)
 
         try:
-            swisspairing_result = swisspairing_pair_round_dutch(states)
+            swisspairing_plan = pair_snapshots_dutch(snapshots)
         except SwissPairingError as exc:
             raise PairingUnavailable(
                 f"swisspairing could not find a legal Dutch pairing: {exc}"
             ) from exc
 
-        pairings_by_id: list[tuple[int, int | None]] = []
-        for pairing_result in swisspairing_result.pairings:
-            white_id = int(pairing_result.white_id)
-            black_id = None if pairing_result.black_id is None else int(pairing_result.black_id)
-            pairings_by_id.append((white_id, black_id))
+        try:
+            pairings, byes = map_plan_to_users(swisspairing_plan, tuple(waiting_players))
+        except ValueError as exc:
+            raise RuntimeError(
+                "swisspairing returned an invalid username-based pairing plan for %s: %s"
+                % (self.id, exc)
+            ) from exc
 
-        pairing = _materialize_pairings(
-            tournament=self,
-            state=state,
-            backend_name="swisspairing",
-            pairings_by_id=pairings_by_id,
+        for bye_player in byes:
+            self._record_bye(bye_player)
+
+        pairing = list(pairings)
+        accounted_names = {player.username for pair in pairing for player in pair}.union(
+            player.username for player in byes
         )
+        unresolved_names = sorted(
+            player.username for player in waiting_players if player.username not in accounted_names
+        )
+        if unresolved_names:
+            raise RuntimeError(
+                "swisspairing left waiting players unpaired in %s: %s" % (self.id, unresolved_names)
+            )
         log.debug(
             "Swiss Dutch pairing created %s games in %s using backend=%s",
             len(pairing),

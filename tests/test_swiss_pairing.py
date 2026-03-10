@@ -1,6 +1,10 @@
 import unittest
 from datetime import datetime, timedelta, timezone
+from importlib.util import find_spec
+import os
+from pathlib import Path
 from types import SimpleNamespace
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from const import FLAG, TEST_PREFIX, T_FINISHED
@@ -27,7 +31,60 @@ def make_test_perfs():
     return new_default_perf_map(VARIANTS)
 
 
+def _has_swisspairing_runtime() -> bool:
+    if find_spec("swisspairing") is not None:
+        return True
+    raw_src = os.getenv("SWISSPAIRING_SRC", "").strip()
+    return raw_src != "" and Path(raw_src).expanduser().exists()
+
+
 class SwissPairingTestCase(TournamentTestCase):
+    def test_load_swisspairing_runtime_uses_src_env_fallback(self):
+        marker = object()
+        original_sys_path = list(swiss_mod.sys.path)
+
+        with TemporaryDirectory() as temp_dir:
+            fake_modules = {
+                "swisspairing": SimpleNamespace(
+                    map_plan_to_users=marker,
+                    pair_snapshots_dutch=marker,
+                ),
+                "swisspairing.exceptions": SimpleNamespace(PairingError=ValueError),
+                "swisspairing.model": SimpleNamespace(FloatKind=marker),
+                "swisspairing.pychess_adapter": SimpleNamespace(PychessPlayerSnapshot=marker),
+            }
+
+            def fake_import_module(name: str):
+                if name == "swisspairing" and temp_dir not in swiss_mod.sys.path:
+                    raise ModuleNotFoundError("swisspairing")
+                return fake_modules[name]
+
+            try:
+                swiss_mod.sys.path[:] = [entry for entry in swiss_mod.sys.path if entry != temp_dir]
+                with (
+                    patch.dict("os.environ", {"SWISSPAIRING_SRC": temp_dir}),
+                    patch(
+                        "tournament.swiss.importlib.import_module", side_effect=fake_import_module
+                    ),
+                ):
+                    (
+                        map_plan_to_users,
+                        pair_snapshots_dutch,
+                        pairing_error,
+                        float_kind,
+                        snapshot_cls,
+                        import_error,
+                    ) = swiss_mod._load_swisspairing_runtime()
+            finally:
+                swiss_mod.sys.path[:] = original_sys_path
+
+        self.assertIsNone(import_error)
+        self.assertIs(map_plan_to_users, marker)
+        self.assertIs(pair_snapshots_dutch, marker)
+        self.assertIs(pairing_error, ValueError)
+        self.assertIs(float_kind, marker)
+        self.assertIs(snapshot_cls, marker)
+
     async def test_automatic_round_interval_is_clamped(self):
         app_state = get_app_state(self.app)
 
@@ -122,29 +179,80 @@ class SwissPairingTestCase(TournamentTestCase):
         await self.tournament.join_players(4)
 
         waiting = list(self.tournament.waiting_players())
-        users_by_id = {index: user for index, user in enumerate(waiting, start=1)}
-        fake_state = SimpleNamespace(
-            trf=object(),
-            waiting_ids=set(users_by_id),
-            users_by_id=users_by_id,
+        fake_plan = SimpleNamespace(
+            pairings=(
+                (waiting[0].username, waiting[1].username),
+                (waiting[2].username, waiting[3].username),
+            ),
+            bye_usernames=(),
         )
-        fake_result = SimpleNamespace(
-            pairings=[
-                SimpleNamespace(white_id="1", black_id="2"),
-                SimpleNamespace(white_id="3", black_id="4"),
-            ],
-            unpaired_ids=(),
-        )
+        fake_user_pairings = ((waiting[0], waiting[1]), (waiting[2], waiting[3]))
 
         with (
             patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}),
-            patch("tournament.swiss._build_dutch_pairing_state", return_value=fake_state),
-            patch("tournament.swiss._build_swisspairing_player_states_from_trf", return_value=()),
-            patch("tournament.swiss.swisspairing_pair_round_dutch", return_value=fake_result),
+            patch("tournament.swiss._build_swisspairing_snapshots", return_value=()),
+            patch("tournament.swiss.pair_snapshots_dutch", return_value=fake_plan),
+            patch(
+                "tournament.swiss.map_plan_to_users",
+                return_value=(fake_user_pairings, ()),
+            ),
         ):
             pairing = self.tournament.create_pairing(waiting)
 
         self.assertEqual(pairing, [(waiting[0], waiting[1]), (waiting[2], waiting[3])])
+        self.assertEqual(self.tournament.bye_players, [])
+
+    async def test_create_pairing_uses_swisspairing_backend_without_py4swiss(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(3)
+
+        waiting = list(self.tournament.waiting_players())
+        fake_plan = SimpleNamespace(
+            pairings=((waiting[0].username, waiting[1].username),),
+            bye_usernames=(waiting[2].username,),
+        )
+        fake_user_pairings = ((waiting[0], waiting[1]),)
+
+        with (
+            patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}),
+            patch("tournament.swiss.ParsedTrf", None),
+            patch("tournament.swiss._build_swisspairing_snapshots", return_value=()),
+            patch("tournament.swiss.pair_snapshots_dutch", return_value=fake_plan),
+            patch(
+                "tournament.swiss.map_plan_to_users",
+                return_value=(fake_user_pairings, (waiting[2],)),
+            ),
+        ):
+            pairing = self.tournament.create_pairing(waiting)
+
+        self.assertEqual(pairing, [(waiting[0], waiting[1])])
+        self.assertEqual(self.tournament.bye_players, [waiting[2]])
+
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live backend smoke test",
+    )
+    async def test_create_pairing_uses_real_swisspairing_backend_for_initial_round(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+
+        waiting = list(self.tournament.waiting_players())
+        with patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}):
+            pairing = self.tournament.create_pairing(waiting)
+
+        self.assertEqual(len(pairing), 2)
+        seen_names = {player.username for pair in pairing for player in pair}
+        self.assertEqual(seen_names, {player.username for player in waiting})
         self.assertEqual(self.tournament.bye_players, [])
 
     async def test_create_pairing_records_engine_allocated_bye(self):
@@ -271,17 +379,9 @@ class SwissPairingTestCase(TournamentTestCase):
         await self.tournament.join_players(4)
 
         waiting = list(self.tournament.waiting_players())
-        users_by_id = {index: user for index, user in enumerate(waiting, start=1)}
-        fake_state = SimpleNamespace(
-            trf=object(),
-            waiting_ids=set(users_by_id),
-            users_by_id=users_by_id,
-        )
-
         with (
             patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}),
-            patch("tournament.swiss._build_dutch_pairing_state", return_value=fake_state),
-            patch("tournament.swiss.swisspairing_pair_round_dutch", None),
+            patch("tournament.swiss.pair_snapshots_dutch", None),
         ):
             with self.assertRaisesRegex(RuntimeError, "requires swisspairing"):
                 self.tournament.create_pairing(waiting)
