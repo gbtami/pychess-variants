@@ -747,6 +747,94 @@ class SwissPairingTestCase(TournamentTestCase):
 
     @unittest.skipUnless(
         _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live Swiss reload flow test",
+    )
+    async def test_pair_fixed_round_with_real_swisspairing_backend_survives_reload_between_rounds(
+        self,
+    ):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        current_tournament = self.tournament
+        if current_tournament.clock_task is not None:
+            current_tournament.clock_task.cancel()
+            try:
+                await current_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+        for round_number in (1, 2, 3):
+            current_tournament.current_round = round_number
+            with patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}):
+                should_continue = await current_tournament.pair_fixed_round(
+                    datetime.now(timezone.utc)
+                )
+            self.assertTrue(should_continue)
+
+            round_games = list(current_tournament.ongoing_games)
+            self.assertEqual(len(round_games), 2)
+            scheduled_usernames = {
+                player.username for game in round_games for player in (game.wplayer, game.bplayer)
+            }
+            self.assertEqual(
+                scheduled_usernames,
+                {player.username for player in current_tournament.players},
+            )
+
+            await self._finish_created_games(current_tournament, round_games)
+            self.assertEqual(len(current_tournament.ongoing_games), 0)
+
+            if round_number == 3:
+                continue
+
+            current_tournament.current_round = round_number + 1
+            await current_tournament.save_current_round()
+
+            _reloaded_app_state, reloaded_tournament = await self.reload_tournament(
+                app_state.db_client,
+                tid,
+            )
+            self.assertIsNotNone(reloaded_tournament)
+            assert reloaded_tournament is not None
+            self.assertEqual(reloaded_tournament.current_round, round_number + 1)
+            self.assertEqual(
+                [len(player_data.games) for player_data in reloaded_tournament.players.values()],
+                4 * [round_number],
+            )
+
+            waiting_usernames = {
+                player.username for player in reloaded_tournament.waiting_players()
+            }
+            self.assertEqual(
+                waiting_usernames,
+                {player.username for player in reloaded_tournament.players},
+            )
+            if reloaded_tournament.clock_task is not None:
+                reloaded_tournament.clock_task.cancel()
+                try:
+                    await reloaded_tournament.clock_task
+                except asyncio.CancelledError:
+                    pass
+            current_tournament = reloaded_tournament
+
+        self.assertEqual(
+            [len(player_data.games) for player_data in current_tournament.players.values()],
+            4 * [3],
+        )
+        self.assertEqual(
+            [len(player_data.points) for player_data in current_tournament.players.values()],
+            4 * [3],
+        )
+
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
         "swisspairing import unavailable for live Swiss round flow test",
     )
     async def test_pair_fixed_round_with_real_swisspairing_backend_handles_late_join_and_rejoin(
