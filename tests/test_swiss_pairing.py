@@ -81,6 +81,36 @@ class SwissPairingTestCase(TournamentTestCase):
             self._rollback_transient_byes(tournament, bye_players=bye_players)
         return self._normalized_pairing_usernames(pairing), bye_usernames
 
+    def _assert_backend_outcome_match(
+        self,
+        tournament: SwissTestTournament,
+        *,
+        round_number: int,
+        keep_swisspairing_byes: bool = False,
+    ) -> tuple[list[tuple[str, str]], list[str]]:
+        py4swiss_pairing, py4swiss_byes = self._pairing_outcome_for_backend(
+            tournament,
+            backend="py4swiss",
+        )
+        swisspairing_pairing, swisspairing_byes = self._pairing_outcome_for_backend(
+            tournament,
+            backend="swisspairing",
+            keep_byes=keep_swisspairing_byes,
+        )
+
+        self.assertEqual(
+            swisspairing_pairing,
+            py4swiss_pairing,
+            msg=f"backend mismatch in round {round_number}",
+        )
+        self.assertEqual(
+            swisspairing_byes,
+            py4swiss_byes,
+            msg=f"bye mismatch in round {round_number}",
+        )
+
+        return py4swiss_pairing, py4swiss_byes
+
     def _record_finished_round(
         self,
         tournament: SwissTestTournament,
@@ -378,22 +408,11 @@ class SwissPairingTestCase(TournamentTestCase):
         for round_number in range(1, 5):
             self.tournament.current_round = round_number
 
-            py4swiss_pairing, py4swiss_byes = self._pairing_outcome_for_backend(
+            py4swiss_pairing, py4swiss_byes = self._assert_backend_outcome_match(
                 self.tournament,
-                backend="py4swiss",
-            )
-            swisspairing_pairing, swisspairing_byes = self._pairing_outcome_for_backend(
-                self.tournament,
-                backend="swisspairing",
-            )
-
-            self.assertEqual(
-                swisspairing_pairing,
-                py4swiss_pairing,
-                msg=f"backend mismatch in round {round_number}",
+                round_number=round_number,
             )
             self.assertEqual(py4swiss_byes, [])
-            self.assertEqual(swisspairing_byes, [])
 
             self._record_finished_round(
                 self.tournament,
@@ -422,25 +441,10 @@ class SwissPairingTestCase(TournamentTestCase):
         for round_number in range(1, 5):
             self.tournament.current_round = round_number
 
-            py4swiss_pairing, py4swiss_byes = self._pairing_outcome_for_backend(
+            py4swiss_pairing, py4swiss_byes = self._assert_backend_outcome_match(
                 self.tournament,
-                backend="py4swiss",
-            )
-            swisspairing_pairing, swisspairing_byes = self._pairing_outcome_for_backend(
-                self.tournament,
-                backend="swisspairing",
-                keep_byes=True,
-            )
-
-            self.assertEqual(
-                swisspairing_pairing,
-                py4swiss_pairing,
-                msg=f"backend mismatch in round {round_number}",
-            )
-            self.assertEqual(
-                swisspairing_byes,
-                py4swiss_byes,
-                msg=f"bye mismatch in round {round_number}",
+                round_number=round_number,
+                keep_swisspairing_byes=True,
             )
 
             await self.tournament.persist_byes()
@@ -464,6 +468,122 @@ class SwissPairingTestCase(TournamentTestCase):
             for player in self.tournament.players.values()
         )
         self.assertEqual(total_byes, 4)
+
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live backend parity test",
+    )
+    async def test_real_swisspairing_backend_matches_py4swiss_after_late_join(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(5)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.tournament.current_round = 1
+        round_1_pairing, round_1_byes = self._assert_backend_outcome_match(
+            self.tournament,
+            round_number=1,
+            keep_swisspairing_byes=True,
+        )
+        self.assertEqual(len(round_1_byes), 1)
+
+        await self.tournament.persist_byes()
+        self._record_finished_round(
+            self.tournament,
+            round_number=1,
+            pairing=round_1_pairing,
+        )
+
+        late = User(app_state, username="late_join_backend_parity")
+        app_state.users[late.username] = late
+        late.tournament_sockets[tid] = set((None,))
+
+        join_error = await self.tournament.join(late)
+        self.assertIsNone(join_error)
+
+        late_data = self.tournament.player_data_by_name(late.username)
+        self.assertIsNotNone(late_data)
+        assert late_data is not None
+        self.assertEqual(late_data.joined_round, 2)
+        self.assertEqual([getattr(game, "token", "") for game in late_data.games], ["H"])
+
+        self.tournament.current_round = 2
+        round_2_pairing, round_2_byes = self._assert_backend_outcome_match(
+            self.tournament,
+            round_number=2,
+        )
+        self.assertEqual(round_2_byes, [])
+        self.assertIn(
+            late.username,
+            {player_name for pair in round_2_pairing for player_name in pair},
+        )
+
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live backend parity test",
+    )
+    async def test_real_backends_handle_withdraw_pause_after_round_one(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(6)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.tournament.current_round = 1
+        round_1_pairing, round_1_byes = self._assert_backend_outcome_match(
+            self.tournament,
+            round_number=1,
+        )
+        self.assertEqual(round_1_byes, [])
+        self._record_finished_round(
+            self.tournament,
+            round_number=1,
+            pairing=round_1_pairing,
+        )
+
+        withdrawn = self.tournament.get_player_by_name(f"{TEST_PREFIX}User_6")
+        self.assertIsNotNone(withdrawn)
+        assert withdrawn is not None
+
+        await self.tournament.withdraw(withdrawn)
+
+        withdrawn_data = self.tournament.player_data_by_name(withdrawn.username)
+        self.assertIsNotNone(withdrawn_data)
+        assert withdrawn_data is not None
+        self.assertTrue(withdrawn_data.paused)
+        self.assertFalse(withdrawn_data.withdrawn)
+
+        waiting_usernames = {player.username for player in self.tournament.waiting_players()}
+        self.assertNotIn(withdrawn.username, waiting_usernames)
+
+        self.tournament.current_round = 2
+        py4swiss_pairing, py4swiss_byes = self._pairing_outcome_for_backend(
+            self.tournament,
+            backend="py4swiss",
+        )
+        swisspairing_pairing, swisspairing_byes = self._pairing_outcome_for_backend(
+            self.tournament,
+            backend="swisspairing",
+            keep_byes=True,
+        )
+
+        for pairing, byes in (
+            (py4swiss_pairing, py4swiss_byes),
+            (swisspairing_pairing, swisspairing_byes),
+        ):
+            self.assertEqual(len(pairing), 2)
+            self.assertEqual(len(byes), 1)
+            scheduled_usernames = {player_name for pair in pairing for player_name in pair}
+            scheduled_usernames.update(byes)
+            self.assertEqual(len(scheduled_usernames), 5)
+            self.assertNotIn(withdrawn.username, scheduled_usernames)
 
     async def test_create_pairing_records_engine_allocated_bye(self):
         app_state = get_app_state(self.app)
