@@ -542,6 +542,69 @@ class SwissPairingTestCase(TournamentTestCase):
         _has_swisspairing_runtime(),
         "swisspairing import unavailable for live backend parity test",
     )
+    async def test_real_backends_match_after_late_join_reload(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(5)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.tournament.current_round = 1
+        round_1_pairing, round_1_byes = self._assert_backend_outcome_match(
+            self.tournament,
+            round_number=1,
+            keep_swisspairing_byes=True,
+        )
+        self.assertEqual(len(round_1_byes), 1)
+
+        await self.tournament.persist_byes()
+        self._record_finished_round(
+            self.tournament,
+            round_number=1,
+            pairing=round_1_pairing,
+        )
+
+        late = User(app_state, username="late_join_backend_reload", perfs=make_test_perfs())
+        app_state.users[late.username] = late
+        late.tournament_sockets[tid] = set((None,))
+
+        join_error = await self.tournament.join(late)
+        self.assertIsNone(join_error)
+
+        self.tournament.current_round = 2
+        await self.tournament.save_current_round()
+
+        _reloaded_app_state, reloaded_tournament = await self.reload_tournament(
+            app_state.db_client,
+            tid,
+        )
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+
+        reloaded_late = reloaded_tournament.player_data_by_name(late.username)
+        self.assertIsNotNone(reloaded_late)
+        assert reloaded_late is not None
+        self.assertEqual(reloaded_late.joined_round, 2)
+        self.assertEqual([getattr(game, "token", "") for game in reloaded_late.games], ["H"])
+
+        round_2_pairing, round_2_byes = self._assert_backend_outcome_match(
+            reloaded_tournament,
+            round_number=2,
+        )
+        self.assertEqual(round_2_byes, [])
+        self.assertIn(
+            late.username,
+            {player_name for pair in round_2_pairing for player_name in pair},
+        )
+
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live backend parity test",
+    )
     async def test_real_backends_handle_withdraw_pause_after_round_one(self):
         app_state = get_app_state(self.app)
         tid = id8()
