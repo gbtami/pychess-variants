@@ -952,6 +952,152 @@ class SwissPairingTestCase(TournamentTestCase):
 
     @unittest.skipUnless(
         _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live Swiss reload flow test",
+    )
+    async def test_pair_fixed_round_with_real_swisspairing_backend_survives_reload_with_pause_rejoin(
+        self,
+    ):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        current_tournament = self.tournament
+        if current_tournament.clock_task is not None:
+            current_tournament.clock_task.cancel()
+            try:
+                await current_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+        current_tournament.current_round = 1
+        with patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}):
+            should_continue = await current_tournament.pair_fixed_round(datetime.now(timezone.utc))
+        self.assertTrue(should_continue)
+
+        round_1_games = list(current_tournament.ongoing_games)
+        self.assertEqual(len(round_1_games), 2)
+        await self._finish_created_games(current_tournament, round_1_games)
+        self.assertEqual(len(current_tournament.ongoing_games), 0)
+
+        paused_username = round_1_games[0].wplayer.username
+        paused_user = current_tournament.get_player_by_name(paused_username)
+        self.assertIsNotNone(paused_user)
+        assert paused_user is not None
+
+        await current_tournament.pause(paused_user)
+        paused_data = current_tournament.player_data_by_name(paused_username)
+        self.assertIsNotNone(paused_data)
+        assert paused_data is not None
+        self.assertTrue(paused_data.paused)
+
+        current_tournament.current_round = 2
+        await current_tournament.save_current_round()
+
+        _reloaded_app_state, reloaded_tournament = await self.reload_tournament(
+            app_state.db_client,
+            tid,
+        )
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertEqual(reloaded_tournament.current_round, 2)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+        reloaded_paused = reloaded_tournament.get_player_by_name(paused_username)
+        self.assertIsNotNone(reloaded_paused)
+        assert reloaded_paused is not None
+        reloaded_paused_data = reloaded_tournament.player_data_by_name(paused_username)
+        self.assertIsNotNone(reloaded_paused_data)
+        assert reloaded_paused_data is not None
+        self.assertTrue(reloaded_paused_data.paused)
+        waiting_usernames = {player.username for player in reloaded_tournament.waiting_players()}
+        self.assertNotIn(paused_username, waiting_usernames)
+
+        rejoin_error = await reloaded_tournament.join(reloaded_paused)
+        self.assertIsNone(rejoin_error)
+        self.assertFalse(reloaded_paused_data.paused)
+
+        for round_number in (2, 3):
+            if round_number == 3:
+                reloaded_tournament.current_round = round_number
+                await reloaded_tournament.save_current_round()
+
+                _reloaded_app_state, next_tournament = await self.reload_tournament(
+                    app_state.db_client,
+                    tid,
+                )
+                self.assertIsNotNone(next_tournament)
+                assert next_tournament is not None
+                self.assertEqual(next_tournament.current_round, 3)
+
+                if next_tournament.clock_task is not None:
+                    next_tournament.clock_task.cancel()
+                    try:
+                        await next_tournament.clock_task
+                    except asyncio.CancelledError:
+                        pass
+
+                next_paused_data = next_tournament.player_data_by_name(paused_username)
+                self.assertIsNotNone(next_paused_data)
+                assert next_paused_data is not None
+                self.assertFalse(next_paused_data.paused)
+                reloaded_tournament = next_tournament
+
+            waiting_usernames = {
+                player.username for player in reloaded_tournament.waiting_players()
+            }
+            self.assertEqual(
+                waiting_usernames,
+                {player.username for player in reloaded_tournament.players},
+            )
+            self.assertIn(paused_username, waiting_usernames)
+
+            with patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}):
+                should_continue = await reloaded_tournament.pair_fixed_round(
+                    datetime.now(timezone.utc)
+                )
+            self.assertTrue(should_continue)
+
+            round_games = list(reloaded_tournament.ongoing_games)
+            self.assertEqual(len(round_games), 2)
+            scheduled_usernames = {
+                player.username for game in round_games for player in (game.wplayer, game.bplayer)
+            }
+            self.assertEqual(
+                scheduled_usernames,
+                {player.username for player in reloaded_tournament.players},
+            )
+            self.assertIn(paused_username, scheduled_usernames)
+
+            await self._finish_created_games(reloaded_tournament, round_games)
+            self.assertEqual(len(reloaded_tournament.ongoing_games), 0)
+
+        final_paused = reloaded_tournament.player_data_by_name(paused_username)
+        self.assertIsNotNone(final_paused)
+        assert final_paused is not None
+        self.assertFalse(final_paused.paused)
+        self.assertEqual(
+            [len(player_data.games) for player_data in reloaded_tournament.players.values()],
+            4 * [3],
+        )
+        self.assertEqual(
+            [len(player_data.points) for player_data in reloaded_tournament.players.values()],
+            4 * [3],
+        )
+
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
         "swisspairing import unavailable for live Swiss round flow test",
     )
     async def test_pair_fixed_round_with_real_swisspairing_backend_handles_late_join_and_rejoin(
