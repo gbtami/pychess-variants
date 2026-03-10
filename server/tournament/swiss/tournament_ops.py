@@ -24,6 +24,8 @@ log = logging.getLogger(__name__)
 
 
 async def _clear_consumed_manual_pairings(tournament) -> None:
+    """Clear manual pairings after they were consumed for a round."""
+
     if not tournament._manual_pairings_used_for_round:
         return
 
@@ -39,6 +41,8 @@ def _manual_pairing_entries(
     tournament,
     waiting_players: list[User],
 ) -> tuple[list[tuple[User, User]], list[User]]:
+    """Parse manual pairing text into explicit pairings and manual byes."""
+
     if tournament.manual_pairings.strip() == "":
         return ([], [])
 
@@ -77,6 +81,8 @@ def _consume_manual_pairings(
     tournament,
     waiting_players: list[User],
 ) -> tuple[list[tuple[User, User]], bool]:
+    """Apply manual pairings once and mark the round as manually overridden."""
+
     tournament._manual_pairings_used_for_round = False
     tournament._last_manual_bye_count = 0
 
@@ -92,6 +98,8 @@ def _consume_manual_pairings(
 
 
 def _active_swiss_ban_until(tournament, user: User, now: datetime | None = None) -> datetime | None:
+    """Return the player's still-active Swiss ban timestamp, if any."""
+
     if now is None:
         now = datetime.now(timezone.utc)
     banned_until = user.swiss_ban_until
@@ -101,6 +109,8 @@ def _active_swiss_ban_until(tournament, user: User, now: datetime | None = None)
 
 
 async def _clear_swiss_ban(tournament, user: User) -> None:
+    """Remove an existing Swiss no-show ban from a player and the database."""
+
     if user.anon or user.bot:
         return
 
@@ -114,6 +124,8 @@ async def _clear_swiss_ban(tournament, user: User) -> None:
 
 
 async def _ban_swiss_no_show(tournament, user: User, now: datetime) -> None:
+    """Apply the escalating Swiss no-show ban policy to a player."""
+
     if user.anon or user.bot:
         return
 
@@ -139,6 +151,8 @@ async def _ban_swiss_no_show(tournament, user: User, now: datetime) -> None:
 
 
 def _player_who_did_not_move(_tournament, game: Game) -> User | None:
+    """Detect which player lost without making a move in a finished game."""
+
     winner: User | None = None
     if game.result == "1-0":
         winner = game.wplayer
@@ -174,6 +188,8 @@ def _player_who_did_not_move(_tournament, game: Game) -> User | None:
 
 
 async def _update_swiss_no_show_bans(tournament, game: Game) -> None:
+    """Update both players' Swiss ban state after a finished Swiss game."""
+
     if game.status == ABORTED:
         return
 
@@ -187,6 +203,8 @@ async def _update_swiss_no_show_bans(tournament, game: Game) -> None:
 
 
 def recalculate_berger_tiebreak(tournament) -> None:
+    """Recompute Berger values and refresh packed leaderboard scores."""
+
     score_points_by_username = {
         player.username: full_score // SCORE_SHIFT
         for player, full_score in tournament.leaderboard.items()
@@ -215,6 +233,8 @@ def recalculate_berger_tiebreak(tournament) -> None:
 
 
 def _record_bye(tournament, player: User) -> None:
+    """Record an allocated bye in player history and the pending bye queue."""
+
     player_data = tournament.player_data_by_name(player.username)
     if player_data is not None:
         player_data.games.append(ByeGame(token="U", round_no=tournament.current_round))
@@ -232,6 +252,8 @@ def _late_join_half_point(tournament) -> int:
 
 
 async def _initialize_late_entry_round_history(tournament, player: User) -> None:
+    """Give a late joiner the synthetic H/Z round history used by Swiss pairing."""
+
     player_data = tournament.player_data_by_name(player.username)
     if player_data is None:
         return
@@ -268,6 +290,8 @@ async def _initialize_late_entry_round_history(tournament, player: User) -> None
 
 
 async def pair_fixed_round(tournament, now: datetime) -> bool:
+    """Create and persist the next round, or finish if no legal round exists."""
+
     waiting_players = tournament.waiting_players()
     manual_pairing, manual_byes = tournament._manual_pairing_entries(waiting_players)
     has_manual_pairings = bool(manual_pairing or manual_byes)
@@ -311,6 +335,8 @@ async def pair_fixed_round(tournament, now: datetime) -> bool:
 
 
 def _apply_bye_points(tournament, player: User) -> None:
+    """Apply the configured full-point bye score to the player's leaderboard entry."""
+
     player_data = tournament.player_data_by_name(player.username)
     if player_data is None:
         return
@@ -323,6 +349,8 @@ def _apply_bye_points(tournament, player: User) -> None:
 
 
 async def persist_byes(tournament) -> None:
+    """Persist queued byes to the database and recompute scoreboard state."""
+
     if not tournament.bye_players:
         return
 
@@ -342,6 +370,8 @@ async def persist_unpaired_round_entries(
     pairing: list[tuple[User, User]],
     bye_players: list[User],
 ) -> None:
+    """Add synthetic Z entries for active players left out of the round snapshot."""
+
     paired_names = {player.username for pair in pairing for player in pair}
     paired_names.update(player.username for player in bye_players)
 

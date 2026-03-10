@@ -24,6 +24,8 @@ if TYPE_CHECKING:
 
 
 def _swiss_module():
+    """Return the loaded ``tournament.swiss`` facade module."""
+
     from tournament import swiss as swiss_module
 
     return swiss_module
@@ -31,6 +33,8 @@ def _swiss_module():
 
 @dataclass(slots=True)
 class _DutchPairingState:
+    """TRF state plus waiting-player lookup used by the py4swiss backend."""
+
     trf: Any
     waiting_ids: set[int]
     users_by_id: dict[int, User]
@@ -42,6 +46,8 @@ def _build_swisspairing_float_history(
     seed_entries: list[tuple[int, str, PlayerData]],
     completed_rounds: int,
 ) -> dict[str, tuple[Any, ...]]:
+    """Derive per-player float history from the recorded completed rounds."""
+
     swiss_module = _swiss_module()
     if swiss_module.SwissFloatKind is None:
         raise RuntimeError(
@@ -113,6 +119,8 @@ def _build_swisspairing_snapshots(
     waiting_players: list[User],
     completed_rounds: int,
 ) -> tuple[Any, ...]:
+    """Build swisspairing snapshots for the waiting players in the current round."""
+
     swiss_module = _swiss_module()
     if swiss_module.PychessPlayerSnapshot is None:
         raise RuntimeError(
@@ -218,6 +226,8 @@ def _materialize_pairings(
     backend_name: str,
     pairings_by_id: list[tuple[int, int | None]],
 ) -> list[tuple[User, User]]:
+    """Convert backend pairing ids back into concrete waiting-player objects."""
+
     pairing: list[tuple[User, User]] = []
     paired_ids: set[int] = set()
     bye_ids: set[int] = set()
@@ -261,6 +271,8 @@ def _build_dutch_pairing_state(
     waiting_players: list[User],
     completed_rounds: int,
 ) -> _DutchPairingState:
+    """Build the py4swiss TRF state for the next Swiss pairing call."""
+
     all_names = sorted(
         {player.username for player in tournament.players}.union(tournament.players_by_name)
     )

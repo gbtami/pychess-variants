@@ -58,6 +58,8 @@ def _score_points_times_ten(
     player_data: PlayerData,
     completed_rounds: int,
 ) -> int:
+    """Compute pairing points from round history instead of packed leaderboard totals."""
+
     if completed_rounds <= 0:
         return 0
 
@@ -145,6 +147,8 @@ def _as_finished_result_token(
 
 
 def _build_scoring_system(variant: str):
+    """Build the py4swiss scoring configuration for the given Swiss variant."""
+
     win, draw, loss = _score_values_for_variant(variant)
     scoring = runtime.ScoringPointSystem()
     scoring.apply_code(runtime.ScoringPointSystemCode.WIN, win)
@@ -169,6 +173,8 @@ def _build_scoring_system(variant: str):
 
 
 def _normalized_pairing_lines(raw: str) -> list[tuple[str, str]]:
+    """Normalize manual pairing text into lowercase ``(left, right)`` pairs."""
+
     lines: list[tuple[str, str]] = []
     for raw_line in raw.splitlines():
         parts = [part.strip().lower() for part in raw_line.strip().split() if part.strip()]
@@ -178,6 +184,8 @@ def _normalized_pairing_lines(raw: str) -> list[tuple[str, str]]:
 
 
 def _forbidden_pair_ids(raw: str, ids_by_name: dict[str, int]) -> set[tuple[int, int]]:
+    """Translate forbidden manual pairings into TRF starting-number pairs."""
+
     forbidden_pairs: set[tuple[int, int]] = set()
     lower_ids_by_name = {name.lower(): player_id for name, player_id in ids_by_name.items()}
     for left_name, right_name in _normalized_pairing_lines(raw):
@@ -192,6 +200,8 @@ def _forbidden_pair_ids(raw: str, ids_by_name: dict[str, int]) -> set[tuple[int,
 
 
 def _seed_rating(player_data: PlayerData) -> int:
+    """Use the earliest observed opponent-facing rating as the player seed."""
+
     seed = player_data.rating
     earliest: tuple[object, int] | None = None
 
@@ -248,6 +258,8 @@ def _swiss_berger_tiebreak(
     player_data: PlayerData,
     score_points_by_username: dict[str, int],
 ) -> int:
+    """Compute Berger from recorded round history, including real full-point byes."""
+
     round_entries: dict[int, tuple[Any, Any]] = {}
     for game_index, game in enumerate(player_data.games):
         round_no = getattr(game, "round", None)
@@ -317,6 +329,8 @@ def _swiss_berger_tiebreak(
 
 
 def _round_result_for_unplayed_token(token: str):
+    """Map an unplayed-round token to the corresponding py4swiss round result."""
+
     mapping = {
         "U": runtime.ResultToken.PAIRING_ALLOCATED_BYE,
         "H": runtime.ResultToken.HALF_POINT_BYE,
@@ -337,6 +351,8 @@ def _round_result_for_game(
     variant: str,
     round_point: int | None,
 ):
+    """Convert a finished game into the player's TRF round-result entry."""
+
     white_name = game.wplayer.username
     black_name = game.bplayer.username
 
@@ -378,6 +394,8 @@ def _build_player_results(
     ids_by_name: dict[str, int],
     completed_rounds: int,
 ) -> list[Any]:
+    """Build the player's TRF round results, filling missing rounds with Z entries."""
+
     results: list[Any] = []
     points = player_data.points
     games = player_data.games
@@ -433,6 +451,8 @@ def _round_entries_by_number(
     username: str,
     player_data: PlayerData,
 ) -> dict[int, tuple[Any, Any]]:
+    """Index a player's history by round and validate the stored round metadata."""
+
     round_entries: dict[int, tuple[Any, Any]] = {}
     for game_index, game in enumerate(player_data.games):
         round_no = getattr(game, "round", None)
@@ -457,6 +477,8 @@ def _build_forbidden_opponents_by_name(
     raw: str,
     waiting_names: set[str],
 ) -> dict[str, frozenset[str]]:
+    """Restrict forbidden manual pairings to the currently waiting players."""
+
     lower_waiting_names = {name.lower(): name for name in waiting_names}
     forbidden_by_name = {name: set() for name in waiting_names}
 

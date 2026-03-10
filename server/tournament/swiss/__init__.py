@@ -75,6 +75,8 @@ log = logging.getLogger(__name__)
 
 
 def _load_swisspairing_runtime() -> tuple[Any, Any, Any, Any, Any, Exception | None]:
+    """Load swisspairing entry points, optionally from ``SWISSPAIRING_SRC``."""
+
     def _import_modules() -> tuple[Any, Any, Any, Any, Any, None]:
         swisspairing_module = importlib.import_module("swisspairing")
         swisspairing_exceptions = importlib.import_module("swisspairing.exceptions")
@@ -133,6 +135,8 @@ PychessPlayerSnapshot: Any
 
 
 def _swiss_pairing_backend() -> str:
+    """Return the configured backend name, defaulting invalid values to py4swiss."""
+
     backend = os.getenv(_SWISS_PAIRING_BACKEND_ENV, "py4swiss").strip().lower()
     if backend in ("py4swiss", "swisspairing"):
         return backend
@@ -145,6 +149,8 @@ def _swiss_pairing_backend() -> str:
 
 
 def _ensure_swisspairing_runtime_loaded() -> None:
+    """Retry the lazy swisspairing import when the facade globals are still empty."""
+
     global map_plan_to_users
     global pair_snapshots_dutch
     global SwissPairingError
@@ -198,6 +204,8 @@ def build_trf_export_text(tournament: Tournament, waiting_players: list[User] | 
 
 
 class SwissTournament(Tournament):
+    """Swiss tournament implementation with py4swiss and swisspairing backends."""
+
     system = SWISS
 
     def __init__(self, *args, **kwargs) -> None:
@@ -302,6 +310,8 @@ class SwissTournament(Tournament):
         await persist_unpaired_round_entries_impl(self, round_no, pairing, bye_players)
 
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
+        """Create pairings for the current waiting players using the active backend."""
+
         manual_pairing, manual_used = self._consume_manual_pairings(waiting_players)
         if manual_used:
             return manual_pairing
