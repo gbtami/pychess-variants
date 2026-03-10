@@ -39,6 +39,113 @@ def _has_swisspairing_runtime() -> bool:
 
 
 class SwissPairingTestCase(TournamentTestCase):
+    @staticmethod
+    def _normalized_pairing_usernames(
+        pairing: list[tuple[User, User]],
+    ) -> list[tuple[str, str]]:
+        normalized = [(white.username, black.username) for white, black in pairing]
+        normalized.sort(key=lambda pair: (min(pair), max(pair), pair[0], pair[1]))
+        return normalized
+
+    def _rollback_transient_byes(
+        self,
+        tournament: SwissTestTournament,
+        *,
+        bye_players: list[User],
+    ) -> None:
+        for player in bye_players:
+            player_data = tournament.player_data_by_name(player.username)
+            self.assertIsNotNone(player_data)
+            assert player_data is not None
+            self.assertTrue(player_data.games)
+            self.assertTrue(player_data.points)
+            player_data.games.pop()
+            player_data.points.pop()
+
+        tournament.bye_players = []
+
+    def _pairing_outcome_for_backend(
+        self,
+        tournament: SwissTestTournament,
+        *,
+        backend: str,
+        keep_byes: bool = False,
+    ) -> tuple[list[tuple[str, str]], list[str]]:
+        with patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": backend}):
+            tournament.bye_players = []
+            pairing = tournament.create_pairing(list(tournament.waiting_players()))
+
+        bye_players = list(tournament.bye_players)
+        bye_usernames = sorted(player.username for player in bye_players)
+        if bye_players and not keep_byes:
+            self._rollback_transient_byes(tournament, bye_players=bye_players)
+        return self._normalized_pairing_usernames(pairing), bye_usernames
+
+    def _record_finished_round(
+        self,
+        tournament: SwissTestTournament,
+        *,
+        round_number: int,
+        pairing: list[tuple[str, str]],
+    ) -> None:
+        result_cycle = ("1-0", "0-1", "1/2-1/2", "1-0", "0-1")
+        base_time = datetime(2026, 3, 10, 12, 0, tzinfo=timezone.utc)
+
+        for board_index, (white_name, black_name) in enumerate(pairing):
+            white_user = tournament.get_player_by_name(white_name)
+            black_user = tournament.get_player_by_name(black_name)
+            self.assertIsNotNone(white_user)
+            self.assertIsNotNone(black_user)
+            assert white_user is not None
+            assert black_user is not None
+
+            white_data = tournament.player_data_by_name(white_name)
+            black_data = tournament.player_data_by_name(black_name)
+            self.assertIsNotNone(white_data)
+            self.assertIsNotNone(black_data)
+            assert white_data is not None
+            assert black_data is not None
+
+            game = GameData(
+                f"swiss_soak_r{round_number}_b{board_index}",
+                white_name,
+                str(white_data.rating),
+                black_name,
+                str(black_data.rating),
+                result_cycle[(round_number + board_index) % len(result_cycle)],
+                base_time + timedelta(minutes=round_number * 10 + board_index),
+                False,
+                False,
+                round_no=round_number,
+            )
+
+            tournament.update_players(game)
+            wpoint, bpoint, _wperf, _bperf = tournament.points_perfs(game)
+
+            white_data.points.append(wpoint)
+            black_data.points.append(bpoint)
+
+            white_score = tournament.leaderboard_score_by_username(white_name) // SCORE_SHIFT
+            black_score = tournament.leaderboard_score_by_username(black_name) // SCORE_SHIFT
+            tournament.set_leaderboard_score_by_username(
+                white_name,
+                tournament.compose_leaderboard_score(
+                    white_score + int(wpoint[0]),
+                    white_data,
+                ),
+                player=white_user,
+            )
+            tournament.set_leaderboard_score_by_username(
+                black_name,
+                tournament.compose_leaderboard_score(
+                    black_score + int(bpoint[0]),
+                    black_data,
+                ),
+                player=black_user,
+            )
+
+        tournament.recalculate_berger_tiebreak()
+
     def test_load_swisspairing_runtime_uses_src_env_fallback(self):
         marker = object()
         original_sys_path = list(swiss_mod.sys.path)
@@ -255,6 +362,109 @@ class SwissPairingTestCase(TournamentTestCase):
         self.assertEqual(seen_names, {player.username for player in waiting})
         self.assertEqual(self.tournament.bye_players, [])
 
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live backend parity test",
+    )
+    async def test_real_swisspairing_backend_matches_py4swiss_over_four_rounds(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=4, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(10)
+
+        for round_number in range(1, 5):
+            self.tournament.current_round = round_number
+
+            py4swiss_pairing, py4swiss_byes = self._pairing_outcome_for_backend(
+                self.tournament,
+                backend="py4swiss",
+            )
+            swisspairing_pairing, swisspairing_byes = self._pairing_outcome_for_backend(
+                self.tournament,
+                backend="swisspairing",
+            )
+
+            self.assertEqual(
+                swisspairing_pairing,
+                py4swiss_pairing,
+                msg=f"backend mismatch in round {round_number}",
+            )
+            self.assertEqual(py4swiss_byes, [])
+            self.assertEqual(swisspairing_byes, [])
+
+            self._record_finished_round(
+                self.tournament,
+                round_number=round_number,
+                pairing=py4swiss_pairing,
+            )
+
+        self.assertEqual(
+            [len(player.games) for player in self.tournament.players.values()],
+            10 * [4],
+        )
+
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live backend parity test",
+    )
+    async def test_real_swisspairing_backend_matches_py4swiss_over_four_rounds_with_byes(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=4, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(9)
+
+        for round_number in range(1, 5):
+            self.tournament.current_round = round_number
+
+            py4swiss_pairing, py4swiss_byes = self._pairing_outcome_for_backend(
+                self.tournament,
+                backend="py4swiss",
+            )
+            swisspairing_pairing, swisspairing_byes = self._pairing_outcome_for_backend(
+                self.tournament,
+                backend="swisspairing",
+                keep_byes=True,
+            )
+
+            self.assertEqual(
+                swisspairing_pairing,
+                py4swiss_pairing,
+                msg=f"backend mismatch in round {round_number}",
+            )
+            self.assertEqual(
+                swisspairing_byes,
+                py4swiss_byes,
+                msg=f"bye mismatch in round {round_number}",
+            )
+
+            await self.tournament.persist_byes()
+            self._record_finished_round(
+                self.tournament,
+                round_number=round_number,
+                pairing=py4swiss_pairing,
+            )
+
+        round_entries = [
+            len(self.tournament.player_data_by_name(player.username).games)
+            for player in self.tournament.players.values()
+        ]
+        self.assertEqual(round_entries, 9 * [4])
+
+        total_byes = sum(
+            sum(
+                isinstance(game, ByeGame)
+                for game in self.tournament.player_data_by_name(player.username).games
+            )
+            for player in self.tournament.players.values()
+        )
+        self.assertEqual(total_byes, 4)
+
     async def test_create_pairing_records_engine_allocated_bye(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -381,6 +591,7 @@ class SwissPairingTestCase(TournamentTestCase):
         waiting = list(self.tournament.waiting_players())
         with (
             patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}),
+            patch("tournament.swiss._ensure_swisspairing_runtime_loaded"),
             patch("tournament.swiss.pair_snapshots_dutch", None),
         ):
             with self.assertRaisesRegex(RuntimeError, "requires swisspairing"):
