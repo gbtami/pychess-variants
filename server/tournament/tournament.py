@@ -254,6 +254,7 @@ class GameData:
         "wberserk",
         "bberserk",
         "status",
+        "ply",
         "round",
     )
 
@@ -271,6 +272,7 @@ class GameData:
         wtitle: str = "",
         btitle: str = "",
         status: int | None = None,
+        ply: int | None = None,
         round_no: int | None = None,
     ) -> None:
         self.id: str = _id
@@ -285,6 +287,7 @@ class GameData:
         self.wberserk: bool = wberserk
         self.bberserk: bool = bberserk
         self.status: int = FLAG if status is None else status
+        self.ply: int | None = ply
         self.round: int | None = round_no
 
     @property
@@ -480,6 +483,9 @@ class Tournament(ABC):
     @abstractmethod
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         pass
+
+    async def create_pairing_async(self, waiting_players: list[User]) -> list[tuple[User, User]]:
+        return self.create_pairing(waiting_players)
 
     def register_player(self, user: User, player_data: PlayerData) -> None:
         for existing in tuple(self.players):
@@ -1407,7 +1413,7 @@ class Tournament(ABC):
         self, waiting_players: list[User]
     ) -> tuple[list[tuple[User, User]], list[Game]]:
         self.bye_players = []
-        pairing = self.create_pairing(waiting_players)
+        pairing = await self.create_pairing_async(waiting_players)
         round_bye_players = list(self.bye_players)
 
         if self.first_pairing:
@@ -1891,6 +1897,7 @@ class Tournament(ABC):
                 "wb": game.wberserk,
                 "bb": game.bberserk,
                 "s": game.status,
+                "p": game.board.ply,
                 "rn": getattr(game, "round", self.current_round),
             }
             pairing_documents.append(pairing_doc)
@@ -1937,6 +1944,10 @@ class Tournament(ABC):
         wname, bname = self.game_player_usernames(game)
 
         try:
+            ply = getattr(game, "ply", None)
+            if ply is None:
+                board = getattr(game, "board", None)
+                ply = getattr(board, "ply", None)
             new_data: TournamentPairingUpdate = {
                 "tid": self.id,
                 "u": (wname, bname),
@@ -1947,6 +1958,7 @@ class Tournament(ABC):
                 "wb": game.wberserk,
                 "bb": game.bberserk,
                 "s": game.status,
+                "p": ply,
                 "rn": getattr(game, "round", self.current_round),
             }
 

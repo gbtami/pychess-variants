@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from importlib.util import find_spec
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from const import FLAG, TEST_PREFIX, T_FINISHED
 from glicko2.glicko2 import new_default_perf_map
@@ -11,6 +11,7 @@ from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament.auto_play_arena import SwissTestTournament
 from tournament import swiss as swiss_mod
+from tournament.swiss import bbp as swiss_bbp_mod
 from tournament import tournaments as tournaments_mod
 from tournament.tournament import (
     AUTO_ROUND_INTERVAL,
@@ -353,6 +354,51 @@ class SwissPairingTestCase(TournamentTestCase):
 
         self.assertEqual(pairing, [(waiting[0], waiting[1])])
         self.assertEqual(self.tournament.bye_players, [waiting[2]])
+
+    async def test_create_pairing_async_uses_bbp_backend_output(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+
+        waiting = list(self.tournament.waiting_players())
+        fake_pairing = [(waiting[0], waiting[1]), (waiting[2], waiting[3])]
+
+        with (
+            patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "bbp"}),
+            patch("tournament.swiss.bbp_backend_unavailability_reason", return_value=None),
+            patch(
+                "tournament.swiss.create_bbp_pairing",
+                new=AsyncMock(return_value=fake_pairing),
+            ) as create_bbp_pairing,
+        ):
+            pairing = await self.tournament.create_pairing_async(waiting)
+
+        self.assertEqual(pairing, fake_pairing)
+        create_bbp_pairing.assert_awaited_once_with(self.tournament, waiting, 0)
+
+    async def test_build_bbp_trf_export_includes_point_system_and_absent_players(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+
+        waiting = list(self.tournament.waiting_players())
+        trf_text = swiss_bbp_mod.build_bbp_trf_export_text(self.tournament, waiting[:-1])
+
+        self.assertIn("BBW  2.0", trf_text)
+        self.assertIn("BBD  1.0", trf_text)
+        self.assertIn("BBU  2.0", trf_text)
+
+        absent_lines = [line for line in trf_text.splitlines() if line.startswith("240   001")]
+        self.assertEqual(len(absent_lines), 1)
+        self.assertEqual(len(absent_lines[0].split()), 3)
 
     @unittest.skipUnless(
         _has_swisspairing_runtime(),

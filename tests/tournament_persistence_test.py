@@ -310,6 +310,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         )
         game.result = "1-0"
         game.wberserk = True
+        game.board.ply = 20
 
         await self.tournament.db_update_pairing(game)
 
@@ -317,6 +318,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertIsNotNone(doc)
         self.assertEqual(doc["r"], "a")
         self.assertTrue(doc["wb"])
+        self.assertEqual(doc["p"], 20)
         self.assertEqual(tuple(doc["u"]), (players[0].username, players[1].username))
 
     async def test_load_tournament_repairs_stale_pairing(self):

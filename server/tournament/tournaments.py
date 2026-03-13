@@ -974,6 +974,7 @@ async def load_tournament(
 
         wberserk = pairing_doc.get("wb", False)
         bberserk = pairing_doc.get("bb", False)
+        pair_ply = pairing_doc.get("p")
 
         game = None
         if tournament.status in (T_CREATED, T_STARTED) and result == "*":
@@ -1003,6 +1004,7 @@ async def load_tournament(
                     wtitle=wplayer.title,
                     btitle=bplayer.title,
                     status=game.status,
+                    ply=game.board.ply,
                     round_no=pair_round,
                 )
                 tournament.nb_games_finished += 1
@@ -1026,6 +1028,7 @@ async def load_tournament(
                 wtitle=wplayer.title,
                 btitle=bplayer.title,
                 status=pair_status,
+                ply=pair_ply,
                 round_no=pair_round,
             )
             tournament.nb_games_finished += 1

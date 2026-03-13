@@ -662,6 +662,7 @@ class TournamentPairingDoc(TypedDict):
     wb: bool
     bb: bool
     s: NotRequired[int]
+    p: NotRequired[int]
     rn: NotRequired[int]
     bt: NotRequired[str]
 
@@ -676,6 +677,7 @@ class TournamentPairingUpdate(TypedDict, total=False):
     wb: bool
     bb: bool
     s: int
+    p: int | None
     rn: int
     bt: str
 

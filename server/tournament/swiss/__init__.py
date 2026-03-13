@@ -13,6 +13,11 @@ from typing import TYPE_CHECKING, Any
 from const import SWISS, T_STARTED
 from tournament.tournament import PairingUnavailable, Tournament
 
+from .bbp import (
+    bbp_backend_unavailability_reason,
+    build_bbp_trf_export_text,
+    create_bbp_pairing,
+)
 from .history import (
     _build_player_results,
     _build_scoring_system,
@@ -120,18 +125,32 @@ def _swisspairing_runtime() -> _SwissPairingRuntime:
     return _load_swisspairing_runtime()
 
 
-def _swiss_pairing_backend() -> str:
-    """Return the configured backend name, defaulting invalid values to py4swiss."""
+def _swiss_pairing_backend(tournament: Tournament | None = None) -> str:
+    """Return the effective backend, preferring bbpPairings when available."""
 
-    backend = os.getenv(_SWISS_PAIRING_BACKEND_ENV, "py4swiss").strip().lower()
-    if backend in ("py4swiss", "swisspairing"):
-        return backend
-    log.warning(
-        "Unknown %s=%s, falling back to py4swiss backend",
-        _SWISS_PAIRING_BACKEND_ENV,
-        backend,
-    )
-    return "py4swiss"
+    configured_backend = os.getenv(_SWISS_PAIRING_BACKEND_ENV, "").strip().lower()
+    explicit_backend = configured_backend if configured_backend != "" else None
+    if explicit_backend is not None and explicit_backend not in ("py4swiss", "swisspairing", "bbp"):
+        log.warning(
+            "Unknown %s=%s, falling back to default backend selection",
+            _SWISS_PAIRING_BACKEND_ENV,
+            configured_backend,
+        )
+        explicit_backend = None
+
+    backend = explicit_backend or "bbp"
+    if backend == "bbp" and tournament is not None:
+        reason = bbp_backend_unavailability_reason(tournament)
+        if reason is not None:
+            if explicit_backend == "bbp":
+                raise RuntimeError(reason)
+            log.info(
+                "%s; falling back to py4swiss backend for tournament %s",
+                reason,
+                tournament.id,
+            )
+            return "py4swiss"
+    return backend
 
 
 def build_trf_export_text(tournament: Tournament, waiting_players: list[User] | None = None) -> str:
@@ -139,6 +158,9 @@ def build_trf_export_text(tournament: Tournament, waiting_players: list[User] | 
 
     The exported state mirrors the same internal mapping used by Swiss pairing.
     """
+    if _swiss_pairing_backend(tournament) == "bbp":
+        return build_bbp_trf_export_text(tournament, waiting_players)
+
     if ParsedTrf is None:
         raise RuntimeError(
             "Swiss TRF export requires py4swiss, but import failed"
@@ -272,21 +294,32 @@ class SwissTournament(Tournament):
     ) -> None:
         await persist_unpaired_round_entries_impl(self, round_no, pairing, bye_players)
 
-    def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
-        """Create pairings for the current waiting players using the active backend."""
-
+    def _prepare_pairing_request(
+        self,
+        waiting_players: list[User],
+    ) -> tuple[list[tuple[User, User]] | None, str | None, int]:
         manual_pairing, manual_used = self._consume_manual_pairings(waiting_players)
         if manual_used:
-            return manual_pairing
+            return (manual_pairing, None, 0)
 
         if len(waiting_players) == 0:
-            return []
+            return ([], None, 0)
         if len(waiting_players) == 1:
             self._record_bye(waiting_players[0])
-            return []
+            return ([], None, 0)
 
-        backend = _swiss_pairing_backend()
         completed_rounds = max(0, self.current_round - 1)
+        return (None, _swiss_pairing_backend(self), completed_rounds)
+
+    def _create_pairing_with_backend(
+        self,
+        waiting_players: list[User],
+        *,
+        backend: str,
+        completed_rounds: int,
+    ) -> list[tuple[User, User]]:
+        if backend == "bbp":
+            raise RuntimeError("bbpPairings backend requires the async Swiss pairing flow")
 
         if backend == "py4swiss":
             if ParsedTrf is None:
@@ -375,6 +408,55 @@ class SwissTournament(Tournament):
         if len(waiting_players) >= 2 and len(pairing) == 0:
             raise PairingUnavailable("No valid pairing exists")
         return pairing
+
+    async def create_pairing_async(self, waiting_players: list[User]) -> list[tuple[User, User]]:
+        precomputed, backend, completed_rounds = self._prepare_pairing_request(waiting_players)
+        if precomputed is not None:
+            return precomputed
+
+        assert backend is not None
+        if backend == "bbp":
+            pairing = await create_bbp_pairing(self, waiting_players, completed_rounds)
+            log.debug(
+                "Swiss Dutch pairing created %s games in %s using backend=%s",
+                len(pairing),
+                self.id,
+                backend,
+            )
+            if len(waiting_players) >= 2 and len(pairing) == 0:
+                raise PairingUnavailable("No valid pairing exists")
+            return pairing
+
+        return self._create_pairing_with_backend(
+            waiting_players,
+            backend=backend,
+            completed_rounds=completed_rounds,
+        )
+
+    def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
+        """Create pairings for the current waiting players using the active backend."""
+
+        precomputed, backend, completed_rounds = self._prepare_pairing_request(waiting_players)
+        if precomputed is not None:
+            return precomputed
+
+        assert backend is not None
+        if backend == "bbp":
+            configured_backend = os.getenv(_SWISS_PAIRING_BACKEND_ENV, "").strip().lower()
+            if configured_backend == "bbp":
+                raise RuntimeError("bbpPairings backend requires the async Swiss pairing flow")
+            log.info(
+                "Sync Swiss pairing call is falling back to py4swiss for tournament %s "
+                "because bbpPairings requires async subprocess execution",
+                self.id,
+            )
+            backend = "py4swiss"
+
+        return self._create_pairing_with_backend(
+            waiting_players,
+            backend=backend,
+            completed_rounds=completed_rounds,
+        )
 
 
 __all__ = [
