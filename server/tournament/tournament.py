@@ -1190,8 +1190,14 @@ class Tournament(ABC):
             )
             return False
 
+        if self.system == RR:
+            await self.set_pairing_in_progress_round(self.current_round)
+
         try:
-            pairing, _ = await self.create_new_pairings(waiting_players)
+            pairing, games = await self.create_new_pairings(
+                waiting_players,
+                publish_pairings=self.system != RR,
+            )
         except PairingUnavailable as exc:
             if self.system == SWISS:
                 await self.finish()
@@ -1201,6 +1207,8 @@ class Tournament(ABC):
                     exc,
                 )
                 return False
+            if self.system == RR:
+                await self.set_pairing_in_progress_round(None)
             raise
 
         if self.system == SWISS and len(waiting_players) >= 2 and len(pairing) == 0:
@@ -1215,6 +1223,8 @@ class Tournament(ABC):
         await self.save_current_round()
         self.next_round_starts_at = None
         self.manual_next_round_pending = False
+        if self.system == RR:
+            await self.publish_pairings(games)
         await self.broadcast(self.live_status(now))
         return True
 

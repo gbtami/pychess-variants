@@ -134,7 +134,7 @@ def _align_player_games_with_points(player_data: PlayerData) -> None:
     player_data.games = rebuilt
 
 
-def _swiss_entry_point_value(point: object, variant: str) -> int:
+def _fixed_round_entry_point_value(point: object, variant: str) -> int:
     if point == "-":
         return 7 if variant == "janggi" else 2
     if isinstance(point, (tuple, list)) and len(point) > 0 and isinstance(point[0], int):
@@ -251,7 +251,8 @@ async def _repair_swiss_state_from_history(tournament: Tournament) -> None:
             continue
 
         total_points = sum(
-            _swiss_entry_point_value(point, tournament.variant) for point in player_data.points
+            _fixed_round_entry_point_value(point, tournament.variant)
+            for point in player_data.points
         )
         full_score = tournament.compose_leaderboard_score(total_points, player_data)
         if tournament.leaderboard_player_by_username(username) is not None:
@@ -271,7 +272,7 @@ async def _repair_swiss_state_from_history(tournament: Tournament) -> None:
         await tournament.db_update_player(username, "GAME_END")
 
 
-async def _recover_incomplete_swiss_pairing_round(
+async def _recover_incomplete_fixed_round_pairing_round(
     tournament: Tournament,
     stored_round: int | None,
 ) -> int | None:
@@ -283,6 +284,7 @@ async def _recover_incomplete_swiss_pairing_round(
         tournament.pairing_in_progress_round = None
         return stored_round
 
+    system_name = "Swiss" if tournament.system == SWISS else "RR"
     expected_usernames = {
         player_data.username
         for player_data in tournament.players.values()
@@ -299,7 +301,8 @@ async def _recover_incomplete_swiss_pairing_round(
         tournament.current_round = max(tournament.current_round, round_no)
         await tournament.save_current_round()
         log.warning(
-            "Recovered Swiss round %s in %s from persisted pairing state after interrupted commit",
+            "Recovered %s round %s in %s from persisted pairing state after interrupted commit",
+            system_name,
             round_no,
             tournament.id,
         )
@@ -353,7 +356,8 @@ async def _recover_incomplete_swiss_pairing_round(
 
     for player_data in tournament.players.values():
         total_points = sum(
-            _swiss_entry_point_value(point, tournament.variant) for point in player_data.points
+            _fixed_round_entry_point_value(point, tournament.variant)
+            for point in player_data.points
         )
         if tournament.leaderboard_player_by_username(player_data.username) is not None:
             tournament.set_leaderboard_score_by_username(
@@ -375,7 +379,8 @@ async def _recover_incomplete_swiss_pairing_round(
         await tournament.db_update_player(username, "GAME_END")
 
     log.warning(
-        "Rolled back incomplete Swiss round %s in %s after interrupted pairing commit",
+        "Rolled back incomplete %s round %s in %s after interrupted pairing commit",
+        system_name,
         round_no,
         tournament.id,
     )
@@ -1168,8 +1173,9 @@ async def load_tournament(
     for player_data in tournament.players.values():
         _align_player_games_with_points(player_data)
 
+    if tournament.system in (SWISS, RR):
+        stored_round = await _recover_incomplete_fixed_round_pairing_round(tournament, stored_round)
     if tournament.system == SWISS:
-        stored_round = await _recover_incomplete_swiss_pairing_round(tournament, stored_round)
         await _repair_swiss_state_from_history(tournament)
 
     if tournament.system != ARENA:
