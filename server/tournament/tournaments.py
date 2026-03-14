@@ -271,6 +271,117 @@ async def _repair_swiss_state_from_history(tournament: Tournament) -> None:
         await tournament.db_update_player(username, "GAME_END")
 
 
+async def _recover_incomplete_swiss_pairing_round(
+    tournament: Tournament,
+    stored_round: int | None,
+) -> int | None:
+    round_no = tournament.pairing_in_progress_round
+    if round_no is None:
+        return stored_round
+
+    if round_no <= 0:
+        tournament.pairing_in_progress_round = None
+        return stored_round
+
+    expected_usernames = {
+        player_data.username
+        for player_data in tournament.players.values()
+        if not player_data.withdrawn and player_data.joined_round <= round_no
+    }
+    accounted_usernames = {
+        player_data.username
+        for player_data in tournament.players.values()
+        if any(getattr(game, "round", None) == round_no for game in player_data.games)
+    }
+    round_is_complete = expected_usernames.issubset(accounted_usernames)
+
+    if round_is_complete:
+        tournament.current_round = max(tournament.current_round, round_no)
+        await tournament.save_current_round()
+        log.warning(
+            "Recovered Swiss round %s in %s from persisted pairing state after interrupted commit",
+            round_no,
+            tournament.id,
+        )
+        return tournament.current_round
+
+    pairing_table = tournament.app_state.db.tournament_pairing
+    pairing_docs = await pairing_table.find({"tid": tournament.id, "rn": round_no}).to_list(
+        length=None
+    )
+    game_ids = [doc["_id"] for doc in pairing_docs if doc.get("s") != BYEGAME]
+
+    if game_ids:
+        await tournament.app_state.db.game.delete_many({"_id": {"$in": game_ids}})
+    else:
+        await tournament.app_state.db.game.delete_many({"tid": tournament.id, "r": R2C["*"]})
+    if pairing_docs:
+        await pairing_table.delete_many({"tid": tournament.id, "rn": round_no})
+
+    rolled_back_users: list[str] = []
+    rolled_back_game_ids = {
+        game.id for game in tournament.ongoing_games if getattr(game, "round", None) == round_no
+    }
+    for player_data in tournament.players.values():
+        _align_player_games_with_points(player_data)
+
+        rebuilt_games: list[Game | GameData | ByeGame] = []
+        rebuilt_points: list[TournamentPoint] = []
+        changed = False
+
+        for index, game in enumerate(player_data.games):
+            if getattr(game, "round", None) == round_no:
+                changed = True
+                continue
+            rebuilt_games.append(game)
+            if index < len(player_data.points):
+                rebuilt_points.append(player_data.points[index])
+
+        if not changed:
+            continue
+
+        player_data.games = rebuilt_games
+        player_data.points = rebuilt_points
+        player_data.free = True
+        rolled_back_users.append(player_data.username)
+
+    tournament.ongoing_games = {
+        game for game in tournament.ongoing_games if getattr(game, "round", None) != round_no
+    }
+    for game_id in rolled_back_game_ids:
+        tournament.app_state.games.pop(game_id, None)
+
+    for player_data in tournament.players.values():
+        total_points = sum(
+            _swiss_entry_point_value(point, tournament.variant) for point in player_data.points
+        )
+        if tournament.leaderboard_player_by_username(player_data.username) is not None:
+            tournament.set_leaderboard_score_by_username(
+                player_data.username,
+                tournament.compose_leaderboard_score(total_points, player_data),
+            )
+
+    tournament.recalculate_berger_tiebreak()
+    tournament.current_round = max(0, round_no - 1)
+    tournament.pairing_in_progress_round = None
+    await tournament.app_state.db.tournament.update_one(
+        {"_id": tournament.id},
+        {
+            "$set": {"cr": tournament.current_round},
+            "$unset": {"pairingInProgressRound": ""},
+        },
+    )
+    for username in rolled_back_users:
+        await tournament.db_update_player(username, "GAME_END")
+
+    log.warning(
+        "Rolled back incomplete Swiss round %s in %s after interrupted pairing commit",
+        round_no,
+        tournament.id,
+    )
+    return tournament.current_round
+
+
 async def create_or_update_tournament(
     app_state: PychessGlobalAppState,
     username: str,
@@ -751,6 +862,7 @@ async def load_tournament(
 
     tournament_doc: TournamentDoc = doc
     stored_round = tournament_doc.get("cr")
+    pairing_in_progress_round = tournament_doc.get("pairingInProgressRound")
 
     tournament_class: type[Tournament]
     if tournament_doc["system"] == ARENA:
@@ -801,6 +913,7 @@ async def load_tournament(
     )
     if stored_round is not None:
         tournament.current_round = stored_round
+    tournament.pairing_in_progress_round = pairing_in_progress_round
 
     app_state.tournaments[tournament_id] = tournament
     app_state.tourneysockets[tournament_id] = {}
@@ -1056,6 +1169,7 @@ async def load_tournament(
         _align_player_games_with_points(player_data)
 
     if tournament.system == SWISS:
+        stored_round = await _recover_incomplete_swiss_pairing_round(tournament, stored_round)
         await _repair_swiss_state_from_history(tournament)
 
     if tournament.system != ARENA:

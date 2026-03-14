@@ -135,11 +135,15 @@ class TestTournament(Tournament):
         game.steps[0]["fen"] = game.board.initial_fen
         await game.save_setup()
 
-    async def create_new_pairings(self, waiting_players):
+    async def create_new_pairings(self, waiting_players, *, publish_pairings: bool = True):
         now = datetime.now(timezone.utc).strftime("%H:%M:%S")
         log.info("--- create_new_pairings at %s ---" % now)
         self.print_leaderboard()
-        pairing, games = await Tournament.create_new_pairings(self, waiting_players)
+        pairing, games = await Tournament.create_new_pairings(
+            self,
+            waiting_players,
+            publish_pairings=publish_pairings,
+        )
 
         # aouto play test games
         # for wp, bp in pairing:

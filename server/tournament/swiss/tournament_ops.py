@@ -303,9 +303,15 @@ async def pair_fixed_round(tournament, now: datetime) -> bool:
         )
         return False
 
+    await tournament.set_pairing_in_progress_round(tournament.current_round)
+
     try:
-        pairing, _ = await tournament.create_new_pairings(waiting_players)
+        pairing, games = await tournament.create_new_pairings(
+            waiting_players,
+            publish_pairings=False,
+        )
     except PairingUnavailable as exc:
+        await tournament.set_pairing_in_progress_round(None)
         await tournament.finish()
         log.info(
             "T_FINISHED: Swiss has no legal pairing in round %s (%s)",
@@ -318,6 +324,7 @@ async def pair_fixed_round(tournament, now: datetime) -> bool:
         tournament._manual_pairings_used_for_round and tournament._last_manual_bye_count > 0
     )
     if len(pairing) == 0 and not manual_byes_only_round:
+        await tournament.set_pairing_in_progress_round(None)
         await tournament.finish()
         log.info(
             "T_FINISHED: Swiss produced no pairings in round %s with %s active players",
@@ -330,6 +337,7 @@ async def pair_fixed_round(tournament, now: datetime) -> bool:
     await tournament._clear_consumed_manual_pairings()
     tournament.next_round_starts_at = None
     tournament.manual_next_round_pending = False
+    await tournament.publish_pairings(games)
     await tournament.broadcast(tournament.live_status(now))
     return True
 

@@ -246,6 +246,101 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
         self.assertEqual(reloaded_tournament.current_round, 1)
 
+    async def test_load_tournament_recovers_committed_swiss_round_with_stale_round_doc(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=10, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+        await self.tournament.set_pairing_in_progress_round(1)
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await Tournament.create_new_pairings(
+            self.tournament,
+            waiting_players,
+            publish_pairings=False,
+        )
+        self.assertEqual(len(games), 1)
+
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("cr"), 0)
+        self.assertEqual(doc.get("pairingInProgressRound"), 1)
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertEqual(reloaded_tournament.current_round, 1)
+        self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
+
+        reloaded_doc = await reloaded_tournament.app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(reloaded_doc)
+        assert reloaded_doc is not None
+        self.assertEqual(reloaded_doc.get("cr"), 1)
+        self.assertNotIn("pairingInProgressRound", reloaded_doc)
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_load_tournament_rolls_back_incomplete_swiss_round_with_orphan_games(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=10, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+        await self.tournament.set_pairing_in_progress_round(1)
+
+        players = list(self.tournament.players.keys())
+        await self.tournament.create_games([(players[0], players[1])])
+
+        self.assertIsNotNone(await app_state.db.game.find_one({"tid": tid}))
+        self.assertIsNone(await app_state.db.tournament_pairing.find_one({"tid": tid, "rn": 1}))
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertEqual(reloaded_tournament.current_round, 0)
+        self.assertEqual(len(reloaded_tournament.ongoing_games), 0)
+        self.assertTrue(
+            all(len(player_data.games) == 0 for player_data in reloaded_tournament.players.values())
+        )
+        self.assertTrue(
+            all(
+                len(player_data.points) == 0 for player_data in reloaded_tournament.players.values()
+            )
+        )
+
+        reloaded_doc = await reloaded_tournament.app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(reloaded_doc)
+        assert reloaded_doc is not None
+        self.assertEqual(reloaded_doc.get("cr"), 0)
+        self.assertNotIn("pairingInProgressRound", reloaded_doc)
+        self.assertIsNone(await reloaded_tournament.app_state.db.game.find_one({"tid": tid}))
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
     async def test_swiss_entry_conditions_persisted(self):
         app_state = get_app_state(self.app)
         tid = id8()

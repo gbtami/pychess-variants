@@ -1517,7 +1517,7 @@ class SwissPairingTestCase(TournamentTestCase):
         await self.tournament.start(datetime.now(timezone.utc))
         self.tournament.current_round = 2
 
-        async def _raise_pairing_unavailable(_waiting_players):
+        async def _raise_pairing_unavailable(_waiting_players, **_kwargs):
             raise PairingUnavailable("No valid pairing exists")
 
         with patch.object(

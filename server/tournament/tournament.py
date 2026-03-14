@@ -412,6 +412,7 @@ class Tournament(ABC):
         self.wave = timedelta(seconds=7)
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
+        self.pairing_in_progress_round: int | None = None
         self.next_round_starts_at: datetime | None = None
         self.manual_next_round_pending = False
         self.prev_pairing: datetime | None = None
@@ -1410,7 +1411,10 @@ class Tournament(ABC):
         self.spectators.discard(spectator)
 
     async def create_new_pairings(
-        self, waiting_players: list[User]
+        self,
+        waiting_players: list[User],
+        *,
+        publish_pairings: bool = True,
     ) -> tuple[list[tuple[User, User]], list[Game]]:
         self.bye_players = []
         pairing = await self.create_pairing_async(waiting_players)
@@ -1432,6 +1436,8 @@ class Tournament(ABC):
         # save pairings to db
         await self.db_insert_pairing(games)
         await self.persist_unpaired_round_entries(self.current_round, pairing, round_bye_players)
+        if publish_pairings:
+            await self.publish_pairings(games)
 
         return (pairing, games)
 
@@ -1455,8 +1461,6 @@ class Tournament(ABC):
         return
 
     async def create_games(self, pairing: list[tuple[User, User]]) -> list[Game]:
-        is_new_top_game = False
-
         games = []
         game_table = None if self.app_state.db is None else self.app_state.db.game
         for wp, bp in pairing:
@@ -1489,55 +1493,74 @@ class Tournament(ABC):
 
             self.ongoing_games.add(game)
             self.update_players(game)
+            self.update_game_ranks(game)
+
+        return games
+
+    async def publish_pairings(self, games: list[Game]) -> None:
+        is_new_top_game = False
+
+        for game in games:
+            if self.update_game_ranks(game):
+                is_new_top_game = True
 
             response = {
                 "type": "new_game",
-                "gameId": game_id,
-                "wplayer": wp.username,
-                "bplayer": bp.username,
+                "gameId": game.id,
+                "wplayer": game.wplayer.username,
+                "bplayer": game.bplayer.username,
             }
 
             ws_ok = False
-            if wp.title != "TEST":
-                wp_data = self.player_data_by_name(wp.username)
+            if game.wplayer.title != "TEST":
+                wp_data = self.player_data_by_name(game.wplayer.username)
                 ws_ok = (
-                    await ws_send_json_many(self.player_round_sockets(wp, wp_data), response) > 0
+                    await ws_send_json_many(
+                        self.player_round_sockets(game.wplayer, wp_data),
+                        response,
+                    )
+                    > 0
                 )
-            if self.system == ARENA and (not ws_ok) and wp.title != "TEST":
-                await self.pause(wp)
-                log.debug("White player %s left the tournament (ws send failed)", wp.username)
-            elif (not ws_ok) and wp.title != "TEST":
+            if self.system == ARENA and (not ws_ok) and game.wplayer.title != "TEST":
+                await self.pause(game.wplayer)
+                log.debug(
+                    "White player %s left the tournament (ws send failed)",
+                    game.wplayer.username,
+                )
+            elif (not ws_ok) and game.wplayer.title != "TEST":
                 log.debug(
                     "Fixed-round redirect not delivered for white player %s in tournament %s",
-                    wp.username,
+                    game.wplayer.username,
                     self.id,
                 )
 
             ws_ok = False
-            if bp.title != "TEST":
-                bp_data = self.player_data_by_name(bp.username)
+            if game.bplayer.title != "TEST":
+                bp_data = self.player_data_by_name(game.bplayer.username)
                 ws_ok = (
-                    await ws_send_json_many(self.player_round_sockets(bp, bp_data), response) > 0
+                    await ws_send_json_many(
+                        self.player_round_sockets(game.bplayer, bp_data),
+                        response,
+                    )
+                    > 0
                 )
-            if self.system == ARENA and (not ws_ok) and bp.title != "TEST":
-                await self.pause(bp)
-                log.debug("Black player %s left the tournament (ws send failed)", bp.username)
-            elif (not ws_ok) and bp.title != "TEST":
+            if self.system == ARENA and (not ws_ok) and game.bplayer.title != "TEST":
+                await self.pause(game.bplayer)
+                log.debug(
+                    "Black player %s left the tournament (ws send failed)",
+                    game.bplayer.username,
+                )
+            elif (not ws_ok) and game.bplayer.title != "TEST":
                 log.debug(
                     "Fixed-round redirect not delivered for black player %s in tournament %s",
-                    bp.username,
+                    game.bplayer.username,
                     self.id,
                 )
-
-            if self.update_game_ranks(game):
-                is_new_top_game = True
 
         if is_new_top_game:
             await self.broadcast(self.top_game_json)
 
         await self.broadcast(self.duels_json)
-
-        return games
 
     def update_players(self, game: Game | GameData) -> None:
         player_data = self.game_player_data(game)
@@ -1979,12 +2002,41 @@ class Tournament(ABC):
             return
 
         try:
+            update_doc: dict[str, object] = {"$set": {"cr": self.current_round}}
+            if self.pairing_in_progress_round == self.current_round:
+                update_doc["$unset"] = {"pairingInProgressRound": ""}
+
             await self.app_state.db.tournament.update_one(
                 {"_id": self.id},
-                {"$set": {"cr": self.current_round}},
+                update_doc,
             )
+            if self.pairing_in_progress_round == self.current_round:
+                self.pairing_in_progress_round = None
         except Exception:
             log.exception("Failed to save current round for %s", self.id)
+
+    async def set_pairing_in_progress_round(self, round_no: int | None) -> None:
+        self.pairing_in_progress_round = round_no
+        if self.app_state.db is None:
+            return
+
+        try:
+            if round_no is None:
+                await self.app_state.db.tournament.update_one(
+                    {"_id": self.id},
+                    {"$unset": {"pairingInProgressRound": ""}},
+                )
+            else:
+                await self.app_state.db.tournament.update_one(
+                    {"_id": self.id},
+                    {"$set": {"pairingInProgressRound": round_no}},
+                )
+        except Exception:
+            log.exception(
+                "Failed to update pairing in-progress round %s for %s",
+                round_no,
+                self.id,
+            )
 
     async def db_update_player(
         self, user: User | str, action: "Literal['JOIN', 'WITHDRAW', 'PAUSE', 'GAME_END', 'BYE']"
@@ -2255,6 +2307,8 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "startsAt": tournament.starts_at,
         "status": tournament.status,
     }
+    if tournament.pairing_in_progress_round is not None:
+        new_data["pairingInProgressRound"] = tournament.pairing_in_progress_round
 
     try:
         await app_state.db.tournament.find_one_and_update(

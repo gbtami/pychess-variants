@@ -570,6 +570,7 @@ class TournamentDoc(TypedDict):
     manualPairings: NotRequired[str]
     nbPlayers: int
     cr: NotRequired[int]
+    pairingInProgressRound: NotRequired[int]
     createdBy: str
     createdAt: datetime
     beforeStart: int
@@ -605,6 +606,7 @@ class TournamentUpdateData(TypedDict, total=False):
     manualPairings: str
     nbPlayers: int
     cr: int
+    pairingInProgressRound: int | None
     createdBy: str
     createdAt: datetime
     beforeStart: int
