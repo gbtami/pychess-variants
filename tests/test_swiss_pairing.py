@@ -5,7 +5,7 @@ from importlib.util import find_spec
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from const import FLAG, TEST_PREFIX, T_FINISHED
+from const import FLAG, TEST_PREFIX, T_FINISHED, VARIANTEND
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
@@ -128,9 +128,31 @@ class SwissPairingTestCase(TournamentTestCase):
         pairing: list[tuple[str, str]],
     ) -> None:
         result_cycle = ("1-0", "0-1", "1/2-1/2", "1-0", "0-1")
+        result_specs = [
+            (result_cycle[(round_number + board_index) % len(result_cycle)], None)
+            for board_index in range(len(pairing))
+        ]
+        self._record_finished_round_with_specs(
+            tournament,
+            round_number=round_number,
+            pairing=pairing,
+            result_specs=result_specs,
+        )
+
+    def _record_finished_round_with_specs(
+        self,
+        tournament: SwissTestTournament,
+        *,
+        round_number: int,
+        pairing: list[tuple[str, str]],
+        result_specs: list[tuple[str, int | None]],
+    ) -> None:
+        self.assertEqual(len(pairing), len(result_specs))
         base_time = datetime(2026, 3, 10, 12, 0, tzinfo=timezone.utc)
 
-        for board_index, (white_name, black_name) in enumerate(pairing):
+        for board_index, ((white_name, black_name), (result, status)) in enumerate(
+            zip(pairing, result_specs, strict=True)
+        ):
             white_user = tournament.get_player_by_name(white_name)
             black_user = tournament.get_player_by_name(black_name)
             self.assertIsNotNone(white_user)
@@ -151,15 +173,19 @@ class SwissPairingTestCase(TournamentTestCase):
                 str(white_data.rating),
                 black_name,
                 str(black_data.rating),
-                result_cycle[(round_number + board_index) % len(result_cycle)],
+                result,
                 base_time + timedelta(minutes=round_number * 10 + board_index),
                 False,
                 False,
+                status=status,
                 round_no=round_number,
             )
 
             tournament.update_players(game)
-            wpoint, bpoint, _wperf, _bperf = tournament.points_perfs(game)
+            if tournament.variant == "janggi":
+                wpoint, bpoint, _wperf, _bperf = tournament.points_perfs_janggi(game)
+            else:
+                wpoint, bpoint, _wperf, _bperf = tournament.points_perfs(game)
 
             white_data.points.append(wpoint)
             black_data.points.append(bpoint)
@@ -380,6 +406,40 @@ class SwissPairingTestCase(TournamentTestCase):
         self.assertEqual(pairing, fake_pairing)
         create_bbp_pairing.assert_awaited_once_with(self.tournament, waiting, 0)
 
+    async def test_create_pairing_defaults_to_py4swiss_when_backend_env_is_unset(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=3, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(4)
+
+        waiting = list(self.tournament.waiting_players())
+        users_by_id = {index: user for index, user in enumerate(waiting, start=1)}
+        fake_state = SimpleNamespace(
+            trf=object(),
+            waiting_ids=set(users_by_id),
+            users_by_id=users_by_id,
+        )
+
+        class _Engine:
+            @staticmethod
+            def generate_pairings(_trf):
+                return [
+                    SimpleNamespace(white=1, black=2),
+                    SimpleNamespace(white=3, black=4),
+                ]
+
+        with (
+            patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": ""}),
+            patch("tournament.swiss._build_dutch_pairing_state", return_value=fake_state),
+            patch("tournament.swiss.DutchEngine", _Engine),
+        ):
+            pairing = self.tournament.create_pairing(waiting)
+
+        self.assertEqual(pairing, [(waiting[0], waiting[1]), (waiting[2], waiting[3])])
+
     async def test_build_bbp_trf_export_includes_point_system_and_absent_players(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -540,6 +600,73 @@ class SwissPairingTestCase(TournamentTestCase):
         assert late_data is not None
         self.assertEqual(late_data.joined_round, 2)
         self.assertEqual([getattr(game, "token", "") for game in late_data.games], ["H"])
+
+        self.tournament.current_round = 2
+        round_2_pairing, round_2_byes = self._assert_backend_outcome_match(
+            self.tournament,
+            round_number=2,
+        )
+        self.assertEqual(round_2_byes, [])
+        self.assertIn(
+            late.username,
+            {player_name for pair in round_2_pairing for player_name in pair},
+        )
+
+    @unittest.skipUnless(
+        _has_swisspairing_runtime(),
+        "swisspairing import unavailable for live backend parity test",
+    )
+    async def test_real_swisspairing_backend_matches_py4swiss_for_janggi_scores(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state,
+            tid,
+            before_start=1,
+            rounds=4,
+            with_clock=False,
+            variant="janggi",
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(5)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.tournament.current_round = 1
+        round_1_pairing, round_1_byes = self._assert_backend_outcome_match(
+            self.tournament,
+            round_number=1,
+            keep_swisspairing_byes=True,
+        )
+        self.assertEqual(len(round_1_byes), 1)
+
+        await self.tournament.persist_byes()
+        self._record_finished_round_with_specs(
+            self.tournament,
+            round_number=1,
+            pairing=round_1_pairing,
+            result_specs=[
+                ("1-0", VARIANTEND),
+                ("0-1", FLAG),
+            ],
+        )
+
+        late = User(
+            app_state,
+            username="late_join_janggi_backend_parity",
+            perfs=make_test_perfs(),
+        )
+        app_state.users[late.username] = late
+        late.tournament_sockets[tid] = set((None,))
+
+        join_error = await self.tournament.join(late)
+        self.assertIsNone(join_error)
+
+        late_data = self.tournament.player_data_by_name(late.username)
+        self.assertIsNotNone(late_data)
+        assert late_data is not None
+        self.assertEqual(late_data.joined_round, 2)
+        self.assertEqual([getattr(game, "token", "") for game in late_data.games], ["H"])
+        self.assertEqual([point[0] for point in late_data.points], [2])
 
         self.tournament.current_round = 2
         round_2_pairing, round_2_byes = self._assert_backend_outcome_match(
