@@ -19,6 +19,8 @@ from tournament.tournament import (
     GameData,
     PairingUnavailable,
     SCORE_SHIFT,
+    SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
+    SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS,
     upsert_tournament_to_db,
 )
 from tournament_test_base import TournamentTestCase
@@ -1632,6 +1634,14 @@ class SwissPairingTestCase(TournamentTestCase):
         should_continue = await self.tournament.pair_fixed_round(datetime.now(timezone.utc))
         self.assertFalse(should_continue)
         self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual(self.tournament.finish_reason, SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS)
+        self.assertEqual(
+            [(line["user"], line["message"]) for line in list(self.tournament.tourneychat)[-2:]],
+            [
+                ("_server", "Not enough players left."),
+                ("_server", "Tournament completed!"),
+            ],
+        )
 
     async def test_pair_fixed_round_finishes_swiss_when_pairing_unavailable(self):
         app_state = get_app_state(self.app)
@@ -1656,6 +1666,56 @@ class SwissPairingTestCase(TournamentTestCase):
 
         self.assertFalse(should_continue)
         self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual(self.tournament.finish_reason, SWISS_FINISH_REASON_NO_LEGAL_PAIRING)
+        self.assertEqual(
+            [(line["user"], line["message"]) for line in list(self.tournament.tourneychat)[-2:]],
+            [
+                ("_server", "All possible pairings were played."),
+                ("_server", "Tournament completed!"),
+            ],
+        )
+
+    async def test_early_finished_swiss_normalizes_rounds_and_announces_reason_in_chat(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=1, rounds=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        waiting_round_1 = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_round_1)
+        await self._finish_created_games(self.tournament, games)
+
+        self.tournament.current_round = 2
+
+        async def _raise_pairing_unavailable(_waiting_players, **_kwargs):
+            raise PairingUnavailable("No valid pairing exists")
+
+        with patch.object(
+            self.tournament,
+            "create_new_pairings",
+            side_effect=_raise_pairing_unavailable,
+        ):
+            should_continue = await self.tournament.pair_fixed_round(datetime.now(timezone.utc))
+
+        self.assertFalse(should_continue)
+        self.assertEqual(self.tournament.status, T_FINISHED)
+        self.assertEqual(self.tournament.finish_reason, SWISS_FINISH_REASON_NO_LEGAL_PAIRING)
+        self.assertEqual(self.tournament.current_round, 1)
+        self.assertEqual(self.tournament.rounds, 1)
+        self.assertEqual(self.tournament.summary.get("rounds"), 1)
+        self.assertEqual(self.tournament.live_status(datetime.now(timezone.utc)).get("rounds"), 1)
+        self.assertEqual(
+            [(line["user"], line["message"]) for line in list(self.tournament.tourneychat)[-2:]],
+            [
+                ("_server", "All possible pairings were played."),
+                ("_server", "Tournament completed!"),
+            ],
+        )
 
     async def test_persist_byes_awards_full_point_in_swiss(self):
         app_state = get_app_state(self.app)

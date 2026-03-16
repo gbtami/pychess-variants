@@ -31,6 +31,7 @@ export interface TournamentGame {
 export interface MsgTournamentStatus {
     tstatus: number;
     secondsToFinish: number;
+    rounds?: number;
     currentRound?: number;
     roundOngoingGames?: number;
     secondsToNextRound?: number;
@@ -47,6 +48,7 @@ export interface MsgTournamentStatus {
 export interface MsgUserConnectedTournament {
     tsystem: number;
     tminutes: number;
+    rounds?: number;
     currentRound?: number;
     roundOngoingGames?: number;
     secondsToNextRound?: number;

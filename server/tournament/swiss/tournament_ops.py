@@ -6,7 +6,13 @@ from typing import TYPE_CHECKING
 
 from const import ABORTED
 from fairy import BLACK, WHITE
-from tournament.tournament import ByeGame, PairingUnavailable, SCORE_SHIFT
+from tournament.tournament import (
+    ByeGame,
+    PairingUnavailable,
+    SCORE_SHIFT,
+    SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
+    SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS,
+)
 
 from .history import (
     _bye_point_value,
@@ -296,7 +302,7 @@ async def pair_fixed_round(tournament, now: datetime) -> bool:
     manual_pairing, manual_byes = tournament._manual_pairing_entries(waiting_players)
     has_manual_pairings = bool(manual_pairing or manual_byes)
     if len(waiting_players) < 2 and not has_manual_pairings:
-        await tournament.finish()
+        await tournament.finish(SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS)
         log.info(
             "T_FINISHED: Swiss has fewer than 2 active players to pair in round %s",
             tournament.current_round,
@@ -312,7 +318,7 @@ async def pair_fixed_round(tournament, now: datetime) -> bool:
         )
     except PairingUnavailable as exc:
         await tournament.set_pairing_in_progress_round(None)
-        await tournament.finish()
+        await tournament.finish(SWISS_FINISH_REASON_NO_LEGAL_PAIRING)
         log.info(
             "T_FINISHED: Swiss has no legal pairing in round %s (%s)",
             tournament.current_round,
@@ -325,7 +331,7 @@ async def pair_fixed_round(tournament, now: datetime) -> bool:
     )
     if len(pairing) == 0 and not manual_byes_only_round:
         await tournament.set_pairing_in_progress_round(None)
-        await tournament.finish()
+        await tournament.finish(SWISS_FINISH_REASON_NO_LEGAL_PAIRING)
         log.info(
             "T_FINISHED: Swiss produced no pairings in round %s with %s active players",
             tournament.current_round,

@@ -576,6 +576,7 @@ class TournamentDoc(TypedDict):
     beforeStart: int
     startsAt: datetime
     status: int
+    finishReason: NotRequired[str]
     nbGames: NotRequired[int]
     nbBerserk: NotRequired[int]
     winner: NotRequired[str]
@@ -612,6 +613,7 @@ class TournamentUpdateData(TypedDict, total=False):
     beforeStart: int
     startsAt: datetime | None
     status: int
+    finishReason: str
     nbGames: int
     winner: str
     nbBerserk: int
@@ -772,6 +774,7 @@ class TournamentStatusResponse(TypedDict):
     type: Literal["tstatus"]
     tstatus: int
     secondsToFinish: NotRequired[float]
+    rounds: NotRequired[int]
     currentRound: NotRequired[int]
     roundOngoingGames: NotRequired[int]
     secondsToNextRound: NotRequired[float]
