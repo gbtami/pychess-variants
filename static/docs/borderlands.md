@@ -121,7 +121,7 @@ The movement diagrams below follow these conventions:
 <table style="border-collapse: collapse;">
 <tbody>
     <tr><td width="25%"></td><td class="piece_title" width="50%" style="background-color:#d4c7e3;color:#000000">Chief (C)</td><td width="25%"></td></tr>
-    <tr><td width="25%"></td><td><img src="../static/images/BorderlandsGuide/Chief.png" alt="Chief"><br/>Betza: KmNmAmD</td><td width="25%"></td></tr>
+    <tr><td width="25%"></td><td><img src="../static/images/BorderlandsGuide/Chief.png" alt="Chief"><br/>Betza: K</td><td width="25%"></td></tr>
     <tr><td colspan="3">Chiefs are the most valuable pieces on the board. Capture both of the enemy Chiefs and your enemy immediately surrenders.</td><td></td><td></td></tr>
 </tbody>
 </table>
@@ -140,8 +140,8 @@ They can move like a Ferz (F). Upon promotion, Marauders gain the ability to mak
     <tr><td><img src="../static/images/BorderlandsGuide/Elephant.png" alt="Elephant"><br/>Betza: WAD</td><td><img src="../static/images/BorderlandsGuide/ElephantPromoted.png" alt="Elephant Promoted"><br/>Betza: KAD</td></tr>
     <tr><td colspan="2">Elephants are jumping pieces. They can move like a Wazir, Alfil, or Dabbaba (WAD). Upon promotion, Elephants gain the ability to move like a King (K).<p/></td><td></td></tr>
     <tr><td class="piece_title" style="background-color:#e6e6e6;color:#000000"><span class="piece_title_nowrap">Horse (H)</span></td><td class="piece_title" style="background-color:#f7e6ae;color:#000000">Promoted <span class="piece_title_nowrap">Horse (+H)</span></td></tr>
-    <tr><td><img src="../static/images/BorderlandsGuide/Horse.png" alt="Horse"><br/>Betza: NW</td><td><img src="../static/images/BorderlandsGuide/HorsePromoted.png" alt="Horse Promoted"><br/>Betza: NK</td></tr>
-    <tr><td colspan="2">Horses are jumping pieces. They can move like a Knight (N) or Ferz (F). Upon promotion, Horses gain the ability to move like a King (K).<p/></td><td></td></tr>
+    <tr><td><img src="../static/images/BorderlandsGuide/Horse.png" alt="Horse"><br/>Betza: NF</td><td><img src="../static/images/BorderlandsGuide/HorsePromoted.png" alt="Horse Promoted"><br/>Betza: NK</td></tr>
+    <tr><td colspan="2">Horses are jumping pieces. They can move like a Knight or Ferz (NF). Upon promotion, Horses gain the ability to move like a King (K).<p/></td><td></td></tr>
     <tr><td class="piece_title" style="background-color:#e6e6e6;color:#000000"><span class="piece_title_nowrap">Slinger (S)</span></td><td class="piece_title" style="background-color:#f7e6ae;color:#000000">Promoted <span class="piece_title_nowrap">Slinger (+S)</span></td></tr>
     <tr><td><img src="../static/images/BorderlandsGuide/Slinger.png" alt="Slinger"><br/>Betza: BcpB</td><td><img src="../static/images/BorderlandsGuide/SlingerPromoted.png" alt="Slinger Promoted"><br/>Betza: BcpBW</td></tr>
     <tr><td colspan="2">Slingers are long range pieces able to attack from afar along diagonal lines. They can move like a Bishop (B) or capture like a Vao (cpB). Upon promotion, Slingers gain the ability to move like a Wazir (W).<p/></td><td></td></tr>
@@ -161,16 +161,17 @@ They can move like a Ferz (F). Upon promotion, Marauders gain the ability to mak
 <tbody>
     <tr><td class="piece_values"><b>Piece</b></td><td class="piece_values"><b>Notation</b></td><td class="piece_values"><b>Value</b></td><td class="piece_values"><b>Piece</b></td><td class="piece_values"><b>Notation</b></td><td class="piece_values"><b>Value</b></td></tr>
     <tr><td class="piece_values">Promoted Lion</td><td class="piece_values">+L</td><td class="piece_values">7.49</td><td class="piece_values">Chief</td><td class="piece_values">C</td><td class="piece_values">3.40</td></tr>
-    <tr><td class="piece_values">Promoted Archer</td><td class="piece_values">+A</td><td class="piece_values">6.16</td><td class="piece_values">Promoted Falcon</td><td class="piece_values">+F</td><td class="piece_values">4.01</td></tr>
-    <tr><td class="piece_values">Promoted Warrior</td><td class="piece_values">+W</td><td class="piece_values">5.87</td><td class="piece_values">Guard</td><td class="piece_values">G</td><td class="piece_values">-</td></tr>
-    <tr><td class="piece_values">Archer</td><td class="piece_values">A</td><td class="piece_values">4.77</td><td class="piece_values">Horse</td><td class="piece_values">H</td><td class="piece_values">3.48</td></tr>
-    <tr><td class="piece_values">Promoted Slinger</td><td class="piece_values">+S</td><td class="piece_values">4.16</td><td class="piece_values">Elephant</td><td class="piece_values">E</td><td class="piece_values">3.21</td></tr>
-    <tr><td class="piece_values">Lion</td><td class="piece_values">L</td><td class="piece_values">4.14</td><td class="piece_values">Promoted Marauder</td><td class="piece_values">+M</td><td class="piece_values">2.31</td></tr>
-    <tr><td class="piece_values">Promoted Horse</td><td class="piece_values">+H</td><td class="piece_values">5.48</td><td class="piece_values">Warrior</td><td class="piece_values">W</td><td class="piece_values">1.34</td></tr>
-    <tr><td class="piece_values">Slinger</td><td class="piece_values">S</td><td class="piece_values">3.36</td><td class="piece_values">Falcon</td><td class="piece_values">F</td><td class="piece_values">0.79</td></tr>
-    <tr><td class="piece_values">Promoted Elephant</td><td class="piece_values">+E</td><td class="piece_values">4.87</td><td class="piece_values">Marauder</td><td class="piece_values">M</td><td class="piece_values">0.88</td></tr>
+    <tr><td class="piece_values">Promoted Archer</td><td class="piece_values">+A</td><td class="piece_values">6.16</td><td class="piece_values">Slinger</td><td class="piece_values">S</td></tr>
+    <tr><td class="piece_values">Promoted Warrior</td><td class="piece_values">+W</td><td class="piece_values">5.87</td><td class="piece_values">Elephant</td><td class="piece_values">E</td><td class="piece_values">3.21</td></tr>
+    <tr><td class="piece_values">Promoted Horse</td><td class="piece_values">+H</td><td class="piece_values">5.48</td><td class="piece_values">Lion</td><td class="piece_values">L</td><td class="piece_values">3.11</td></tr>
+    <tr><td class="piece_values">Promoted Elephant</td><td class="piece_values">+E</td><td class="piece_values">4.87</td><td class="piece_values">Promoted Marauder</td><td class="piece_values">+M</td><td class="piece_values">2.31</td></tr>
+    <tr><td class="piece_values">Archer</td><td class="piece_values">A</td><td class="piece_values">4.77</td><td class="piece_values">Warrior</td><td class="piece_values">W</td><td class="piece_values">1.34</td></tr>
+    <tr><td class="piece_values">Promoted Slinger</td><td class="piece_values">+S</td><td class="piece_values">4.16</td><td class="piece_values">Marauder</td><td class="piece_values">M</td><td class="piece_values">0.88</td></tr>
+    <tr><td class="piece_values">Promoted Falcon</td><td class="piece_values">+F</td><td class="piece_values">4.01</td><td class="piece_values">3.36</td><td class="piece_values">Falcon</td><td class="piece_values">F</td><td class="piece_values">0.79</td></tr>
+    <tr><td class="piece_values">Horse</td><td class="piece_values">H</td><td class="piece_values">3.48</td><td class="piece_values"></td><td class="piece_values"></td><td class="piece_values"></td></tr>
 </tbody>
 </table>
+
 <img src="../static/images/BorderlandsGuide/PieceValues.png" alt="Piece Values">
 
 ## Strategy
