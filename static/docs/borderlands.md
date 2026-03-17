@@ -75,15 +75,12 @@ There are a number of important regions and squares in Borderlands:
     <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/WhitePromotionZone.png" alt="White Promotion Zone"></td><td class="region_name">White Promotion Zone</td></tr>
     <tr><td>Ranks 8-10</td></tr>
     <tr><td>All promotable White pieces (except the Lion) can promote anywhere within this region.</td></tr>
-    <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/WhiteLionsIncursionSquares.png" alt="White Lion's Incursion Squares"></td><td class="region_name">White Lion's Incursion Squares</td></tr>
-    <tr><td>Squares: d7,f7</td></tr>
-    <tr><td>The White Lion must pass through one of these squares to promote.</td></tr>
-    <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/WhiteLionsPromotionSquare.png" alt="White Lion's Promotion Square"></td><td class="region_name">White Lion's Promotion Square</td></tr>
-    <tr><td>Square: e9</td></tr>
-    <tr><td>The White Lion promotes upon reaching this square, and is then able to freely roam the entire board.</td></tr>
     <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/WhiteLionsMovementZone.png" alt="White Lion's Movement Zone"></td><td class="region_name">White Lion's Movement Zone</td></tr>
     <tr><td>Zones: White Territory, White Lion's Incursion Zones, White Lion's Promotion Square</td></tr>
     <tr><td></td></tr>
+    <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/WhiteLionsPromotionSquare.png" alt="White Lion's Promotion Square"></td><td class="region_name">White Lion's Promotion Square</td></tr>
+    <tr><td>Square: e9</td></tr>
+    <tr><td>The White Lion promotes upon reaching this square, and is then able to freely roam the entire board.</td></tr>
     <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/BlackTerritory.png" alt="Black Territory"></td><td class="region_name">Black Territory</td></tr>
     <tr><td>Ranks 6-10</td></tr>
     <tr><td>All Black pieces start the game within this region.</td></tr>
@@ -93,15 +90,12 @@ There are a number of important regions and squares in Borderlands:
     <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/BlackPromotionZone.png" alt="Black Promotion Zone"></td><td class="region_name">Black Promotion Zone</td></tr>
     <tr><td>Ranks 1-3</td></tr>
     <tr><td>All promotable Black pieces (except the Lion) can promote anywhere within this region.</td></tr>
-    <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/BlackLionsIncursionSquares.png" alt="Black Lion's Incursion Squares"></td><td class="region_name">Black Lion's Incursion Squares</td></tr>
-    <tr"><td>Squares: d4,f4</td></tr>
-    <tr><td>The Black Lion must pass through one of these squares to promote.</td></tr>
-    <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/BlackLionsPromotionSquare.png" alt="Black Lion's Promotion Square"></td><td class="region_name">Black Lion's Promotion Square</td></tr>
-    <tr><td>Square: e2</td></tr>
-    <tr><td>The Black Lion promotes upon reaching this square, and is then able to freely roam the entire board.</td></tr>
     <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/BlackLionsMovementZone.png" alt="Black Lion's Movement Zone"></td><td class="region_name">Black Lion's Movement Zone</td></tr>
     <tr><td>Zones: Black Territory, Black Lion's Incursion Zones, Black Lion's Promotion Square</td></tr>
     <tr><td></td></tr>
+    <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/BlackLionsPromotionSquare.png" alt="Black Lion's Promotion Square"></td><td class="region_name">Black Lion's Promotion Square</td></tr>
+    <tr><td>Square: e2</td></tr>
+    <tr><td>The Black Lion promotes upon reaching this square, and is then able to freely roam the entire board.</td></tr>
 </tbody>
 </table>
 
@@ -113,7 +107,6 @@ The movement diagrams below follow these conventions:
     <tr><td width="15%"><img src="../static/images/BorderlandsGuide/RedCircle.png" alt="Red Circle"></td><td class="piece_movement" style="text-align: left;">Red Circle: can make both capturing and non-capturing moves to this square unimpeded.</td></tr>
     <tr><td width="15%"><img src="../static/images/BorderlandsGuide/GreenCircle.png" alt="Green Circle"></td><td class="piece_movement" style="text-align: left;">Green Circle: can make a non-capturing move to this square unimpeded.</td></tr>
     <tr><td width="15%"><img src="../static/images/BorderlandsGuide/BlueCircle.png" alt="Blue Circle"></td><td class="piece_movement" style="text-align: left;">Blue Circle: can make a capturing move to this square unimpeded.</td></tr>
-    <tr><td width="15%"><img src="../static/images/BorderlandsGuide/GreenLine.png" alt="Green Line"></td><td class="piece_movement" style="text-align: left;">Green Line: can make a non-capturing slide up to three squares.</td></tr>
     <tr><td width="15%"><img src="../static/images/BorderlandsGuide/TealLine.png" alt="Teal Line"></td><td class="piece_movement" style="text-align: left;">Teal Line: can make both a capturing and non-capturing sliding move, or jump a piece and capture in a manner similar to a Cannon.</td></tr>
 </tbody>
 </table>
