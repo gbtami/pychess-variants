@@ -25,6 +25,7 @@ from pymongo import ReturnDocument
 from sortedcollections import ValueSortedDict
 from sortedcontainers import SortedKeysView
 
+from chat import chat_response
 from compress import R2C
 from const import (
     ABORTED,
@@ -95,6 +96,9 @@ AUTO_ROUND_INTERVAL = -1
 MANUAL_ROUND_INTERVAL = -2
 MIN_AUTO_ROUND_INTERVAL_SECONDS = 10
 MAX_AUTO_ROUND_INTERVAL_SECONDS = 60
+
+SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS = "notEnoughPlayers"
+SWISS_FINISH_REASON_NO_LEGAL_PAIRING = "noLegalPairing"
 
 Point = TournamentPoint
 if TYPE_CHECKING:
@@ -344,6 +348,7 @@ class Tournament(ABC):
     entry_titled_only: bool
     forbidden_pairings: str
     manual_pairings: str
+    finish_reason: str | None
 
     def __init__(
         self,
@@ -367,6 +372,7 @@ class Tournament(ABC):
         created_at: datetime | None = None,
         starts_at: datetime | None = None,
         status: int | None = None,
+        finish_reason: str | None = None,
         with_clock: bool = True,
         frequency: str = "",
         entry_min_rating: int = 0,
@@ -406,6 +412,7 @@ class Tournament(ABC):
         self.created_at: datetime = datetime.now(timezone.utc) if created_at is None else created_at
         self.ends_at: datetime
         self.with_clock = with_clock
+        self.finish_reason = finish_reason
 
         self.tourneychat: Deque[ChatLine] | list[ChatLine] = collections.deque([], MAX_CHAT_LINES)
 
@@ -1098,7 +1105,37 @@ class Tournament(ABC):
                 if not player_data.withdrawn
             ),
         }
+        if self.system != ARENA:
+            response["rounds"] = self.rounds
         return response
+
+    def max_recorded_round(self) -> int:
+        max_round = 0
+        usernames = {player.username for player in self.players}.union(self.players_by_name)
+        for username in usernames:
+            player_data = self.player_data_by_name(username)
+            if player_data is None:
+                continue
+            for game in player_data.games:
+                round_no = getattr(game, "round", None)
+                if isinstance(round_no, int) and round_no > max_round:
+                    max_round = round_no
+        return max_round
+
+    def normalize_finished_swiss_round_state(self) -> None:
+        if self.system != SWISS or self.finish_reason is None:
+            return
+
+        played_rounds = self.max_recorded_round()
+        self.current_round = played_rounds
+        self.rounds = played_rounds
+        self.next_round_starts_at = None
+        self.manual_next_round_pending = False
+        if (
+            self.pairing_in_progress_round is not None
+            and self.pairing_in_progress_round > played_rounds
+        ):
+            self.pairing_in_progress_round = None
 
     def round_status(self, now: datetime | None = None) -> tuple[int, float]:
         if self.system == ARENA or self.status != T_STARTED:
@@ -1128,6 +1165,8 @@ class Tournament(ABC):
             "type": "tstatus",
             "tstatus": self.status,
         }
+        if self.system != ARENA:
+            response["rounds"] = self.rounds
         if self.status == T_STARTED:
             response["secondsToFinish"] = max(0.0, (self.ends_at - now).total_seconds())
             if self.system != ARENA:
@@ -1183,7 +1222,7 @@ class Tournament(ABC):
     async def pair_fixed_round(self, now: datetime) -> bool:
         waiting_players = self.waiting_players()
         if self.system == SWISS and len(waiting_players) < 2:
-            await self.finish()
+            await self.finish(SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS)
             log.info(
                 "T_FINISHED: Swiss has fewer than 2 active players to pair in round %s",
                 self.current_round,
@@ -1200,7 +1239,7 @@ class Tournament(ABC):
             )
         except PairingUnavailable as exc:
             if self.system == SWISS:
-                await self.finish()
+                await self.finish(SWISS_FINISH_REASON_NO_LEGAL_PAIRING)
                 log.info(
                     "T_FINISHED: Swiss has no legal pairing in round %s (%s)",
                     self.current_round,
@@ -1212,7 +1251,7 @@ class Tournament(ABC):
             raise
 
         if self.system == SWISS and len(waiting_players) >= 2 and len(pairing) == 0:
-            await self.finish()
+            await self.finish(SWISS_FINISH_REASON_NO_LEGAL_PAIRING)
             log.info(
                 "T_FINISHED: Swiss produced no pairings in round %s with %s active players",
                 self.current_round,
@@ -1248,6 +1287,8 @@ class Tournament(ABC):
 
     async def finalize(self, status: int) -> None:
         self.status = status
+        if status == T_FINISHED:
+            self.normalize_finished_swiss_round_state()
 
         if len(self.players) > 0:
             self.print_leaderboard()
@@ -1278,10 +1319,31 @@ class Tournament(ABC):
         await self.app_state.lobby.lobby_broadcast(response)
 
     async def abort(self) -> None:
+        self.finish_reason = None
         await self.finalize(T_ABORTED)
 
-    async def finish(self) -> None:
+    async def broadcast_system_tourney_chat(self, message: str) -> None:
+        response = chat_response("lobbychat", "_server", message)
+        await self.tourney_chat_save(response)
+        await self.broadcast(response)
+
+    def swiss_finish_chat_message(self, reason: str | None) -> str | None:
+        if reason == SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS:
+            return "Not enough players left."
+        if reason == SWISS_FINISH_REASON_NO_LEGAL_PAIRING:
+            return "All possible pairings were played."
+        return None
+
+    async def finish(self, reason: str | None = None) -> None:
+        if reason is not None:
+            self.finish_reason = reason
+        if self.system == SWISS:
+            reason_message = self.swiss_finish_chat_message(self.finish_reason)
+            if reason_message is not None:
+                await self.broadcast_system_tourney_chat(reason_message)
         await self.finalize(T_FINISHED)
+        if self.system == SWISS:
+            await self.broadcast_system_tourney_chat("Tournament completed!")
 
     async def join(self, user: User, password: str | None = None) -> str | None:
         if user.anon:
@@ -2179,11 +2241,19 @@ class Tournament(ABC):
             "nbPlayers": self.nb_players,
             "nbGames": self.nb_games_finished,
             "winner": winner,
+            "rounds": self.rounds,
+            "cr": self.current_round,
         }
+        if self.finish_reason is not None:
+            new_data["finishReason"] = self.finish_reason
+
+        update_doc: dict[str, object] = {"$set": new_data}
+        if self.finish_reason is None:
+            update_doc["$unset"] = {"finishReason": ""}
 
         doc_after = await self.app_state.db.tournament.find_one_and_update(
             {"_id": self.id},
-            {"$set": new_data},
+            update_doc,
             return_document=ReturnDocument.AFTER,
         )
         if doc_after is None:
@@ -2317,6 +2387,8 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "startsAt": tournament.starts_at,
         "status": tournament.status,
     }
+    if tournament.finish_reason is not None:
+        new_data["finishReason"] = tournament.finish_reason
     if tournament.pairing_in_progress_round is not None:
         new_data["pairingInProgressRound"] = tournament.pairing_in_progress_round
 

@@ -126,7 +126,7 @@ def _swisspairing_runtime() -> _SwissPairingRuntime:
 
 
 def _swiss_pairing_backend(tournament: Tournament | None = None) -> str:
-    """Return the effective backend, preferring bbpPairings when available."""
+    """Return the effective backend, defaulting to py4swiss."""
 
     configured_backend = os.getenv(_SWISS_PAIRING_BACKEND_ENV, "").strip().lower()
     explicit_backend = configured_backend if configured_backend != "" else None
@@ -138,7 +138,7 @@ def _swiss_pairing_backend(tournament: Tournament | None = None) -> str:
         )
         explicit_backend = None
 
-    backend = explicit_backend or "bbp"
+    backend = explicit_backend or "py4swiss"
     if backend == "bbp" and tournament is not None:
         reason = bbp_backend_unavailability_reason(tournament)
         if reason is not None:

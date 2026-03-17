@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from unittest.mock import AsyncMock, patch
 
 from aiohttp import web
-from const import BYEGAME, FLAG, RATED, SHIELD, TEST_PREFIX, T_STARTED
+from const import BYEGAME, FLAG, RATED, SHIELD, TEST_PREFIX, T_FINISHED, T_STARTED
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_TIME
@@ -14,7 +14,15 @@ from pychess_global_app_state_utils import get_app_state
 from settings import LOCALHOST, URI
 from tournament.arena_new import ArenaTournament
 from tournament.auto_play_arena import ArenaTestTournament, RRTestTournament, SwissTestTournament
-from tournament.tournament import ByeGame, GameData, PlayerData, Tournament, upsert_tournament_to_db
+from tournament.tournament import (
+    ByeGame,
+    GameData,
+    PairingUnavailable,
+    PlayerData,
+    SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
+    Tournament,
+    upsert_tournament_to_db,
+)
 from tournament.tournaments import create_or_update_tournament, load_tournament
 from tournament_test_base import TournamentTestCase
 from user import User
@@ -245,6 +253,60 @@ class TournamentPersistenceTestCase(TournamentTestCase):
 
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
         self.assertEqual(reloaded_tournament.current_round, 1)
+
+    async def test_finished_swiss_persists_early_finish_reason_and_normalized_rounds(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=10, rounds=5, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+
+        waiting_round_1 = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_round_1)
+        for game in games:
+            game.result = "1-0"
+            game.status = FLAG
+            game.board.ply = 20
+            await self.tournament.game_update(game)
+        await asyncio.sleep(0)
+
+        self.tournament.current_round = 2
+
+        async def _raise_pairing_unavailable(_waiting_players, **_kwargs):
+            raise PairingUnavailable("No valid pairing exists")
+
+        with patch.object(
+            self.tournament,
+            "create_new_pairings",
+            side_effect=_raise_pairing_unavailable,
+        ):
+            should_continue = await self.tournament.pair_fixed_round(datetime.now(timezone.utc))
+
+        self.assertFalse(should_continue)
+
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("status"), T_FINISHED)
+        self.assertEqual(doc.get("rounds"), 1)
+        self.assertEqual(doc.get("cr"), 1)
+        self.assertEqual(doc.get("finishReason"), SWISS_FINISH_REASON_NO_LEGAL_PAIRING)
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertEqual(reloaded_tournament.rounds, 1)
+        self.assertEqual(reloaded_tournament.current_round, 1)
+        self.assertEqual(
+            reloaded_tournament.finish_reason,
+            SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
+        )
 
     async def test_rr_pair_fixed_round_marks_commit_in_progress_until_round_is_saved(self):
         app_state = get_app_state(self.app)

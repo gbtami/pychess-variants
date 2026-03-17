@@ -14,7 +14,18 @@ import { initializeClock, localeOptions } from './tournamentClock';
 import { gameType } from './result';
 import { boardSettings } from './boardSettings';
 import { MsgBoard, MsgChat, MsgFullChat, MsgSpectators, MsgGameEnd, MsgNewGame } from "./messages";
-import { MsgUserStatus, MsgGetGames, TournamentGame, MsgTournamentStatus, MsgUserConnectedTournament, MsgGetPlayers, TournamentPlayer, MsgError, MsgPing, TopGame } from './tournamentType';
+import {
+    MsgUserStatus,
+    MsgGetGames,
+    TournamentGame,
+    MsgTournamentStatus,
+    MsgUserConnectedTournament,
+    MsgGetPlayers,
+    TournamentPlayer,
+    MsgError,
+    MsgPing,
+    TopGame,
+} from './tournamentType';
 import { newWebsocket } from "@/socket/webSocketUtils";
 import { faq, roundRobinFaq, swissFaq } from './tournamentFaq';
 import { displayUsername, userLink } from "./user";
@@ -242,6 +253,16 @@ export class TournamentController implements ChatController {
     }
 
     renderSummary(msg: MsgTournamentStatus) {
+        const summaryRows: VNode[] = [];
+        summaryRows.push(
+            h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
+            h('tr', [h('th', _('Average rating')), h('td', Math.round(msg.sumRating / msg.nbPlayers))]),
+            h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
+            h('tr', [h('th', _('%1 wins', _(this.variant.colors.first))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
+            h('tr', [h('th', _('%1 wins', _(this.variant.colors.second))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
+            h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
+            h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
+        );
         const downloadLinks: VNode[] = [
             h('table.tour-stats-links', [
                 h('a.i-dl.icon.icon-download', {
@@ -276,15 +297,7 @@ export class TournamentController implements ChatController {
 
         const summary = h('div#summary', {class: {"box": true}}, [
             h('h2', _('Tournament complete')),
-            h('table', [
-                h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
-                h('tr', [h('th', _('Average rating')), h('td', Math.round(msg.sumRating / msg.nbPlayers))]),
-                h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
-                h('tr', [h('th', _('%1 wins', _(this.variant.colors.first))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
-                h('tr', [h('th', _('%1 wins', _(this.variant.colors.second))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
-                h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
-                h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
-            ]),
+            h('table', summaryRows),
             ...downloadLinks,
         ]);
         const el = document.getElementById('summarybox') as HTMLElement;
@@ -481,8 +494,10 @@ export class TournamentController implements ChatController {
         if (!tsystem) return;
 
         const parts = [gameType(this.rated)];
-        if (this.system > 0 && this.rounds > 0 && this.tournamentStatus === 'started') {
-            const round = Math.min(this.rounds, Math.max(1, this.currentRound));
+        if (this.system > 0 && this.rounds > 0 && this.tournamentStatus !== 'created') {
+            const round = this.completed()
+                ? this.rounds
+                : Math.min(this.rounds, Math.max(1, this.currentRound));
             parts.push(`${round}/${this.rounds} ${_('rounds')}`);
         }
         parts.push(this.tSystem(this.system));
@@ -730,6 +745,7 @@ export class TournamentController implements ChatController {
         this.userRating = msg.urating;
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
+        this.rounds = msg.rounds ?? this.rounds;
         this.currentRound = msg.currentRound ?? 0;
         this.roundOngoingGames = msg.roundOngoingGames ?? 0;
         this.secondsToNextRound = msg.secondsToNextRound ?? 0;
@@ -760,9 +776,13 @@ export class TournamentController implements ChatController {
         const oldRoundOngoingGames = this.roundOngoingGames;
         const oldSecondsToNextRound = this.secondsToNextRound;
         const oldManualNextRoundPending = this.manualNextRoundPending;
+        const oldRounds = this.rounds;
         this.tournamentStatus = T_STATUS[msg.tstatus as keyof typeof T_STATUS];
         if (msg.secondsToFinish !== undefined) {
             this.secondsToFinish = msg.secondsToFinish;
+        }
+        if (msg.rounds !== undefined) {
+            this.rounds = msg.rounds;
         }
         if (msg.currentRound !== undefined) {
             this.currentRound = msg.currentRound;
@@ -778,6 +798,7 @@ export class TournamentController implements ChatController {
         }
         if (
             oldStatus !== this.tournamentStatus ||
+            oldRounds !== this.rounds ||
             oldCurrentRound !== this.currentRound ||
             oldRoundOngoingGames !== this.roundOngoingGames ||
             oldSecondsToNextRound !== this.secondsToNextRound ||
