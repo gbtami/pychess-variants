@@ -208,6 +208,7 @@ async def handle_user_connected(
         "tstatus": tournament.status,
         "tsystem": tournament.system,
         "tminutes": tournament.minutes,
+        "rounds": tournament.rounds,
         "startsAt": tournament.starts_at.isoformat(),
         "startFen": tournament.fen,
         "description": tournament.description,

@@ -603,6 +603,7 @@ async def new_tournament(
         description=data.get("description", ""),
         created_at=data.get("createdAt"),
         status=data.get("status"),
+        finish_reason=data.get("finishReason"),
         with_clock=data.get("with_clock", True),
     )
 
@@ -750,6 +751,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 description=tournament_doc.get("d", ""),
                 frequency=tournament_doc.get("fr", ""),
                 status=tournament_doc["status"],
+                finish_reason=tournament_doc.get("finishReason"),
                 with_clock=False,
             )
             tournament.nb_players = tournament_doc["nbPlayers"]
@@ -914,6 +916,7 @@ async def load_tournament(
         description=tournament_doc.get("d", ""),
         frequency=tournament_doc.get("fr", ""),
         status=tournament_doc["status"],
+        finish_reason=tournament_doc.get("finishReason"),
         with_clock=False,
     )
     if stored_round is not None:
