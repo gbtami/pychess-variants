@@ -163,9 +163,9 @@
     "About": "Acerca de",
     "Thank you for your support!": "Grazas polo teu apoio!",
     "Analysis board": "Taboleiro de análise",
-    "Invalid PGN": "PGN inválido",
     "Paste the PGN text here": "Pega o texto PGN aquí",
     "IMPORT GAME": "IMPORTAR PARTIDA",
+    "Invalid PGN": "PGN inválido",
     "%1 move": [
         "%1 movemento",
         "%1 movementos"

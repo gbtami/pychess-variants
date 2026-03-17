@@ -111,9 +111,9 @@
     "About": "Over",
     "Thank you for your support!": "Bedankt voor uw ondersteuning!",
     "Analysis board": "Analyse bord",
-    "Invalid PGN": "Ongeldige PGN",
     "Paste the PGN text here": "Plak de PGN text hier",
     "IMPORT GAME": "IMPORTEER PARTIJ",
+    "Invalid PGN": "Ongeldige PGN",
     "%1 move": [
         "%1 zet",
         "%1 zetten"

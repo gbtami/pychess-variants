@@ -1,7 +1,7 @@
 # Translations template for PROJECT.
-# Copyright (C) 2025 ORGANIZATION
+# Copyright (C) 2026 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 # 
 # Translators:
 # gbtami <gbtami@gmail.com>, 2022
@@ -12,14 +12,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-11 15:21+0200\n"
+"POT-Creation-Date: 2026-03-02 08:49+0100\n"
 "PO-Revision-Date: 2020-05-04 12:19+0000\n"
 "Last-Translator: a b <kezsulap@gmail.com>, 2023\n"
 "Language-Team: Polish (https://app.transifex.com/gbtami/teams/14790/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.17.0\n"
+"Generated-By: Babel 2.18.0\n"
 "Language: pl\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
@@ -31,373 +31,362 @@ msgstr ""
 msgid "Tournament"
 msgstr "Turniej"
 
-#: ../server/blogs.py:12 ../templates/template.html:45
+#: ../server/blogs.py:12 ../templates/template.html:48
 msgid "Blog"
 msgstr "Blog"
 
-#: ../server/const.py:260
+#: ../server/const.py:384
 msgid "Arena"
 msgstr "Arena"
 
-#: ../server/const.py:261
+#: ../server/const.py:385
 msgid "Round-Robin"
 msgstr "Round-Robin"
 
-#: ../server/const.py:262
+#: ../server/const.py:386
 msgid "Swiss"
 msgstr "Swiss"
 
-#: ../server/const.py:266
+#: ../server/const.py:387
+msgid "Simul"
+msgstr ""
+
+#: ../server/const.py:391
 msgid "Hourly"
 msgstr "Cogodzinna"
 
-#: ../server/const.py:267
+#: ../server/const.py:392
 msgid "Daily"
 msgstr "Codzienna"
 
-#: ../server/const.py:268
+#: ../server/const.py:393
 msgid "Weekly"
 msgstr "Cotygodniowa"
 
-#: ../server/const.py:269
+#: ../server/const.py:394
 msgid "Monthly"
 msgstr "Comiesięczna"
 
-#: ../server/const.py:270
+#: ../server/const.py:395
 msgid "Yearly"
 msgstr "Coroczna"
 
-#: ../server/const.py:271
+#: ../server/const.py:396
 msgid "Marathon"
 msgstr "Maraton"
 
-#: ../server/const.py:272
+#: ../server/const.py:397
 msgid "Shield"
 msgstr "Shield"
 
-#: ../server/const.py:273
+#: ../server/const.py:398
 msgid "SEAturday"
 msgstr "SEAobotnia"
 
-#: ../server/deprecated.py:264 ../server/variants.py:127
+#: ../server/deprecated.py:270 ../server/variants.py:133
 msgid "Ataxx"
 msgstr ""
 
-#: ../server/deprecated.py:265 ../server/variants.py:51
+#: ../server/deprecated.py:271 ../server/variants.py:53
 msgid "Chess"
 msgstr "Szachy"
 
-#: ../server/deprecated.py:266 ../server/variants.py:52
+#: ../server/deprecated.py:272 ../server/variants.py:54
 msgid "Chess960"
 msgstr "Szachy960"
 
-#: ../server/deprecated.py:267 ../server/variants.py:55
+#: ../server/deprecated.py:273 ../server/variants.py:57
 msgid "Crazyhouse"
 msgstr "Crazyhouse"
 
-#: ../server/deprecated.py:268 ../server/variants.py:56
+#: ../server/deprecated.py:274 ../server/variants.py:58
 msgid "Crazyhouse960"
 msgstr "Crazyhouse960"
 
-#: ../server/deprecated.py:269 ../server/variants.py:69 ../server/videos.py:26
+#: ../server/deprecated.py:275 ../server/variants.py:71 ../server/videos.py:26
 msgid "Placement"
 msgstr "Placement"
 
-#: ../server/deprecated.py:270 ../server/variants.py:57
+#: ../server/deprecated.py:276 ../server/variants.py:59
 msgid "Atomic"
 msgstr "Atomowa"
 
-#: ../server/deprecated.py:271 ../server/variants.py:58
+#: ../server/deprecated.py:277 ../server/variants.py:60
 msgid "Atomic960"
 msgstr "Atomowe960"
 
-#: ../server/deprecated.py:272 ../server/variants.py:70
+#: ../server/deprecated.py:278 ../server/variants.py:72
 msgid "Duck Chess"
 msgstr "Kaczkoszachy"
 
-#: ../server/deprecated.py:273 ../server/variants.py:71
+#: ../server/deprecated.py:279 ../server/variants.py:73
 msgid "Alice Chess"
 msgstr ""
 
-#: ../server/deprecated.py:274 ../server/variants.py:72
+#: ../server/deprecated.py:280 ../server/variants.py:74
 msgid "Fog of War"
 msgstr ""
 
-#: ../server/deprecated.py:275 ../server/variants.py:74 ../server/videos.py:22
+#: ../server/deprecated.py:281 ../server/variants.py:76 ../server/videos.py:22
 msgid "Makruk"
 msgstr "Makruk"
 
-#: ../server/deprecated.py:276 ../server/variants.py:77
+#: ../server/deprecated.py:282 ../server/variants.py:79
 msgid "Makpong"
 msgstr "Makpong"
 
-#: ../server/deprecated.py:277 ../server/variants.py:78
+#: ../server/deprecated.py:283 ../server/variants.py:80
 msgid "Ouk Chaktrang"
 msgstr "Ouk Chaktrang"
 
-#: ../server/deprecated.py:278 ../server/variants.py:79
+#: ../server/deprecated.py:284 ../server/variants.py:81
 msgid "Sittuyin"
 msgstr "Sittuyin"
 
-#: ../server/deprecated.py:279 ../server/variants.py:80
+#: ../server/deprecated.py:285 ../server/variants.py:82
 msgid "ASEAN"
 msgstr "ASEAN"
 
-#: ../server/deprecated.py:280 ../server/variants.py:82 ../server/videos.py:23
+#: ../server/deprecated.py:286 ../server/variants.py:84 ../server/videos.py:23
 msgid "Shogi"
 msgstr "Szogi"
 
-#: ../server/deprecated.py:281 ../server/variants.py:83
-msgid "Minishogi"
-msgstr "Miniszogi"
-
-#: ../server/deprecated.py:282 ../server/variants.py:84
-msgid "Kyoto Shogi"
-msgstr "Kioto Szogi"
-
-#: ../server/deprecated.py:283 ../server/variants.py:85
-msgid "Dobutsu"
-msgstr "Dobutsu"
-
-#: ../server/deprecated.py:284 ../server/variants.py:53
-msgid "Bughouse"
-msgstr ""
-
-#: ../server/deprecated.py:285 ../server/variants.py:54
-msgid "Bughouse960"
-msgstr ""
-
-#: ../server/deprecated.py:287
-msgid "Gorogoro"
+#: ../server/deprecated.py:287 ../server/variants.py:85
+msgid "Sho Shogi"
 msgstr ""
 
 #: ../server/deprecated.py:288 ../server/variants.py:86
+msgid "Minishogi"
+msgstr "Miniszogi"
+
+#: ../server/deprecated.py:289 ../server/variants.py:87
+msgid "Kyoto Shogi"
+msgstr "Kioto Szogi"
+
+#: ../server/deprecated.py:290 ../server/variants.py:88
+msgid "Dobutsu"
+msgstr "Dobutsu"
+
+#: ../server/deprecated.py:291 ../server/variants.py:55
+msgid "Bughouse"
+msgstr ""
+
+#: ../server/deprecated.py:292 ../server/variants.py:56
+msgid "Bughouse960"
+msgstr ""
+
+#: ../server/deprecated.py:294
+msgid "Gorogoro"
+msgstr ""
+
+#: ../server/deprecated.py:295 ../server/variants.py:89
 msgid "Gorogoro+"
 msgstr "Gorogoro+"
 
-#: ../server/deprecated.py:289 ../server/variants.py:87
+#: ../server/deprecated.py:296 ../server/variants.py:90
 msgid "Tori Shogi"
 msgstr "Tori Szogi"
 
-#: ../server/deprecated.py:290 ../server/variants.py:88
+#: ../server/deprecated.py:297 ../server/variants.py:91
 msgid "Cannon Shogi"
 msgstr ""
 
-#: ../server/deprecated.py:291 ../server/variants.py:90 ../server/videos.py:21
+#: ../server/deprecated.py:298 ../server/variants.py:93 ../server/videos.py:21
 msgid "Xiangqi"
 msgstr "Xiangqi"
 
-#: ../server/deprecated.py:292 ../server/variants.py:93
+#: ../server/deprecated.py:299 ../server/variants.py:96
 msgid "Manchu+"
 msgstr ""
 
-#: ../server/deprecated.py:293 ../server/variants.py:94 ../server/videos.py:20
+#: ../server/deprecated.py:300 ../server/variants.py:97 ../server/videos.py:20
 msgid "Janggi"
 msgstr "Janggi"
 
-#: ../server/deprecated.py:294 ../server/variants.py:95
+#: ../server/deprecated.py:301 ../server/variants.py:98
 msgid "Minixiangqi"
 msgstr "Minixiangqi"
 
-#: ../server/deprecated.py:295 ../server/variants.py:98 ../server/videos.py:25
+#: ../server/deprecated.py:302 ../server/variants.py:102
+#: ../server/videos.py:25
 msgid "Capablanca"
 msgstr "Capablanca"
 
-#: ../server/deprecated.py:296 ../server/variants.py:99
+#: ../server/deprecated.py:303 ../server/variants.py:103
 msgid "Capablanca960"
 msgstr "Capablanca960"
 
-#: ../server/deprecated.py:297 ../server/variants.py:100
+#: ../server/deprecated.py:304 ../server/variants.py:104
 msgid "Capahouse"
 msgstr "Capahouse"
 
-#: ../server/deprecated.py:298 ../server/variants.py:101
+#: ../server/deprecated.py:305 ../server/variants.py:105
 msgid "Capahouse960"
 msgstr "Capahouse960"
 
-#: ../server/deprecated.py:301 ../server/variants.py:102
+#: ../server/deprecated.py:308 ../server/variants.py:106
 msgid "Gothic"
 msgstr ""
 
-#: ../server/deprecated.py:302 ../server/variants.py:103
+#: ../server/deprecated.py:309 ../server/variants.py:107
 msgid "Gothhouse"
 msgstr ""
 
-#: ../server/deprecated.py:303 ../server/variants.py:104
+#: ../server/deprecated.py:310 ../server/variants.py:108
 msgid "Embassy"
 msgstr ""
 
-#: ../server/deprecated.py:304 ../server/variants.py:105
+#: ../server/deprecated.py:311 ../server/variants.py:109
 msgid "Dragon Chess"
 msgstr ""
 
-#: ../server/deprecated.py:305 ../server/variants.py:106
+#: ../server/deprecated.py:312 ../server/variants.py:110
 #: ../server/videos.py:24
 msgid "S-Chess"
 msgstr "S-Szachy"
 
-#: ../server/deprecated.py:306 ../server/variants.py:107
+#: ../server/deprecated.py:313 ../server/variants.py:111
 msgid "S-Chess960"
 msgstr "S-Szachy960"
 
-#: ../server/deprecated.py:307 ../server/variants.py:108
+#: ../server/deprecated.py:314 ../server/variants.py:112
 msgid "S-House"
 msgstr "S-House"
 
-#: ../server/deprecated.py:308 ../server/variants.py:109
+#: ../server/deprecated.py:315 ../server/variants.py:113
 msgid "Grand"
 msgstr "Grand"
 
-#: ../server/deprecated.py:309 ../server/variants.py:110
+#: ../server/deprecated.py:316 ../server/variants.py:114
 msgid "Grandhouse"
 msgstr "Grandhouse"
 
-#: ../server/deprecated.py:310 ../server/variants.py:111
+#: ../server/deprecated.py:317 ../server/variants.py:115
 msgid "Shogun"
 msgstr "Szogun"
 
-#: ../server/deprecated.py:311 ../server/variants.py:112
+#: ../server/deprecated.py:318 ../server/variants.py:116
 msgid "Shako"
 msgstr "Shako"
 
-#: ../server/deprecated.py:312 ../server/variants.py:113
+#: ../server/deprecated.py:319 ../server/variants.py:117
 msgid "Hoppel-Poppel"
 msgstr "Hoppel-Poppel"
 
-#: ../server/deprecated.py:313 ../server/variants.py:116
+#: ../server/deprecated.py:320 ../server/variants.py:120
 msgid "Orda Chess"
 msgstr "Orda"
 
-#: ../server/deprecated.py:314 ../server/variants.py:117
+#: ../server/deprecated.py:321 ../server/variants.py:121
 msgid "Khan's Chess"
 msgstr ""
 
-#: ../server/deprecated.py:315 ../server/variants.py:118
+#: ../server/deprecated.py:322 ../server/variants.py:122
 msgid "Synochess"
 msgstr "Synoszachy"
 
-#: ../server/deprecated.py:316 ../server/variants.py:119
+#: ../server/deprecated.py:323 ../server/variants.py:123
 msgid "Shinobi"
 msgstr "Shinobi"
 
-#: ../server/deprecated.py:317 ../server/variants.py:120
+#: ../server/deprecated.py:324 ../server/variants.py:124
 msgid "Shinobi+"
 msgstr "Shinobi+"
 
-#: ../server/deprecated.py:318 ../server/variants.py:121
+#: ../server/deprecated.py:325 ../server/variants.py:125
 msgid "Empire"
 msgstr "Imperium"
 
-#: ../server/deprecated.py:319 ../server/variants.py:122
+#: ../server/deprecated.py:326 ../server/variants.py:126
 msgid "Orda Mirror"
 msgstr "Symetryczna Orda"
 
-#: ../server/deprecated.py:320 ../server/variants.py:123
+#: ../server/deprecated.py:327 ../server/variants.py:127
 msgid "Chak"
 msgstr "Chak"
 
-#: ../server/deprecated.py:321 ../server/variants.py:124
+#: ../server/deprecated.py:328 ../server/variants.py:128
 msgid "Chennis"
 msgstr "Chennis"
 
-#: ../server/deprecated.py:322 ../server/variants.py:125
+#: ../server/deprecated.py:329 ../server/variants.py:129
 msgid "Spartan"
 msgstr "Spartan"
 
-#: ../server/deprecated.py:323 ../server/variants.py:59
+#: ../server/deprecated.py:330 ../server/variants.py:61
 msgid "King of the Hill"
 msgstr "King of the Hill"
 
-#: ../server/deprecated.py:324 ../server/variants.py:60
+#: ../server/deprecated.py:331 ../server/variants.py:62
 msgid "King of the Hill 960"
 msgstr "King of the Hill 960"
 
-#: ../server/deprecated.py:325 ../server/variants.py:61
+#: ../server/deprecated.py:332 ../server/variants.py:63
 msgid "Three check"
 msgstr "Trzy szachy"
 
-#: ../server/deprecated.py:326 ../server/variants.py:62
+#: ../server/deprecated.py:333 ../server/variants.py:64
 msgid "Three check 960"
 msgstr "Trzy szachy 960"
 
-#: ../server/deprecated.py:327 ../server/variants.py:114
+#: ../server/deprecated.py:334 ../server/variants.py:118
 msgid "Mansindam"
 msgstr "Mansindam"
 
-#: ../server/deprecated.py:328 ../server/variants.py:63
+#: ../server/deprecated.py:335 ../server/variants.py:65
 msgid "Antichess"
 msgstr ""
 
-#: ../server/deprecated.py:329 ../server/variants.py:64
+#: ../server/deprecated.py:336 ../server/variants.py:66
 msgid "Antichess960"
 msgstr ""
 
-#: ../server/deprecated.py:330 ../server/variants.py:65
+#: ../server/deprecated.py:337 ../server/variants.py:67
 msgid "Racing Kings"
 msgstr ""
 
-#: ../server/deprecated.py:331 ../server/variants.py:66
+#: ../server/deprecated.py:338 ../server/variants.py:68
 msgid "Racing Kings 1440"
 msgstr ""
 
-#: ../server/deprecated.py:332 ../server/variants.py:67
+#: ../server/deprecated.py:339 ../server/variants.py:69
 msgid "Horde"
 msgstr ""
 
-#: ../server/deprecated.py:333 ../server/variants.py:68
+#: ../server/deprecated.py:340 ../server/variants.py:70
 msgid "Horde960"
 msgstr ""
 
-#: ../server/deprecated.py:334 ../server/variants.py:97
+#: ../server/deprecated.py:341 ../server/variants.py:101
 msgid "Shatranj"
 msgstr ""
 
-#: ../server/variants.py:75
+#: ../server/variants.py:77
 msgid "Makrukhouse"
 msgstr ""
 
-#: ../server/variants.py:76
+#: ../server/variants.py:78
 msgid "Makbug"
 msgstr ""
 
-#: ../server/variants.py:91
+#: ../server/variants.py:94
 msgid "Xiangqihouse"
 msgstr ""
 
-#: ../server/variants.py:92
+#: ../server/variants.py:95
 msgid "Supply Chess"
 msgstr ""
 
-#: ../server/variants.py:128
-msgid "MelonVariant"
-msgstr ""
-
-#: ../server/variants.py:129
-msgid "Xiangfu"
+#: ../server/variants.py:99
+msgid "Jieqi"
 msgstr ""
 
 #: ../server/variants.py:130
-msgid "Sinting"
-msgstr ""
-
-#: ../server/variants.py:131
-msgid "Borderlands"
+msgid "Xiang Fu"
 msgstr ""
 
 #: ../server/variants.py:132
-msgid "OD_variant"
-msgstr ""
-
-#: ../server/variants.py:133
-msgid "Shocking"
-msgstr ""
-
-#: ../server/variants.py:134
-msgid "Chess_Xiangqi"
-msgstr ""
-
-#: ../server/variants.py:135
-msgid "Variant_000"
+msgid "Borderlands"
 msgstr ""
 
 #: ../server/videos.py:12
@@ -494,7 +483,7 @@ msgstr "Shieldy"
 msgid "Online"
 msgstr "Online"
 
-#: ../templates/players.html:33
+#: ../templates/players.html:33 ../templates/template.html:72
 msgid "Anonymous"
 msgstr "Anonimowi"
 
@@ -515,7 +504,7 @@ msgstr[3] "%(count)spartii"
 msgid "Watch games"
 msgstr "Oglądaj partie"
 
-#: ../templates/profile.html:39 ../templates/template.html:34
+#: ../templates/profile.html:39 ../templates/template.html:37
 msgid "Watch"
 msgstr "Oglądaj"
 
@@ -527,7 +516,7 @@ msgstr "Zaproś do gry"
 msgid "Challenge"
 msgstr ""
 
-#: ../templates/profile.html:54 ../templates/template.html:54
+#: ../templates/profile.html:54 ../templates/template.html:57
 msgid "Import game"
 msgstr "Wgraj partię."
 
@@ -543,13 +532,51 @@ msgstr "Pobierz partie"
 msgid "Export"
 msgstr ""
 
-#: ../templates/profile.html:56
+#: ../templates/profile.html:57
 msgid "Lichess profile"
 msgstr "Profil na Lichessie"
 
-#: ../templates/profile.html:56
+#: ../templates/profile.html:57
 msgid "Lichess"
 msgstr ""
+
+#: ../templates/profile.html:60
+msgid "Lishogi profile"
+msgstr ""
+
+#: ../templates/profile.html:60
+msgid "Lishogi"
+msgstr ""
+
+#: ../templates/simuls.html:6
+msgid "Simultaneous Exhibitions"
+msgstr ""
+
+#: ../templates/simuls.html:8
+msgid "HOST A NEW SIMUL"
+msgstr ""
+
+#: ../templates/simuls.html:15
+msgid "Newly created simuls"
+msgstr ""
+
+#: ../templates/simuls.html:40 ../templates/simuls.html:75
+#: ../templates/simuls.html:110 ../templates/tournaments.html:55
+#, python-format
+msgid "%(count)s player"
+msgid_plural "%(count)s players"
+msgstr[0] "%(count)s gracz"
+msgstr[1] "%(count)s graczy"
+msgstr[2] "%(count)s graczy"
+msgstr[3] "%(count)s graczy"
+
+#: ../templates/simuls.html:50
+msgid "Playing now"
+msgstr ""
+
+#: ../templates/simuls.html:85 ../templates/tournaments.html:23
+msgid "Finished"
+msgstr "Zakończone"
 
 #: ../templates/template.html:14
 msgid "Play"
@@ -563,65 +590,65 @@ msgstr "Nowa partia"
 msgid "Tournaments"
 msgstr "Turnieje"
 
-#: ../templates/template.html:21 ../templates/template.html:23
+#: ../templates/template.html:19
+msgid "Simultaneous exhibitions"
+msgstr ""
+
+#: ../templates/template.html:24 ../templates/template.html:26
 msgid "Puzzles"
 msgstr "Zadania"
 
-#: ../templates/template.html:27
+#: ../templates/template.html:30
 msgid "Learn"
 msgstr "Nauka"
 
-#: ../templates/template.html:29
+#: ../templates/template.html:32
 msgid "Variants"
 msgstr "Odmiany"
 
-#: ../templates/template.html:30
+#: ../templates/template.html:33
 msgid "Memory"
 msgstr "Memo"
 
-#: ../templates/template.html:36
+#: ../templates/template.html:39
 msgid "Tv"
 msgstr "Tv"
 
-#: ../templates/template.html:37
+#: ../templates/template.html:40
 msgid "Current games"
 msgstr "Partie w toku"
 
-#: ../templates/template.html:38
+#: ../templates/template.html:41
 msgid "Video library"
 msgstr "Biblioteka video"
 
-#: ../templates/template.html:42
+#: ../templates/template.html:45
 msgid "Community"
 msgstr "Społeczność"
 
-#: ../templates/template.html:44
+#: ../templates/template.html:47
 msgid "Players"
 msgstr "Gracze"
 
-#: ../templates/template.html:46
+#: ../templates/template.html:49
 msgid "Donate"
 msgstr "Wesprzyj"
 
-#: ../templates/template.html:50
+#: ../templates/template.html:53
 msgid "Tools"
 msgstr "Narzędzia"
 
-#: ../templates/template.html:52
+#: ../templates/template.html:55
 msgid "Editor"
 msgstr "Edytor"
 
-#: ../templates/template.html:53
+#: ../templates/template.html:56
 msgid "Analysis"
 msgstr "Analiza"
 
-#: ../templates/template.html:69
-msgid "Login with Lichess"
-msgstr "Zaloguj się kontem z Lichess"
-
-#: ../templates/template.html:69
-msgid "Log in"
-msgstr "Zaloguj się"
+#: ../templates/template.html:81
+msgid "Login"
+msgstr ""
 
 #: ../templates/tournaments.html:8
 msgid "Tournament calendar"
@@ -639,10 +666,6 @@ msgstr "W trakcie"
 msgid "Starting soon"
 msgstr "Planowane"
 
-#: ../templates/tournaments.html:23
-msgid "Finished"
-msgstr "Zakończone"
-
 #: ../templates/tournaments.html:43
 msgid "Rated"
 msgstr "Rankingowa"
@@ -650,15 +673,6 @@ msgstr "Rankingowa"
 #: ../templates/tournaments.html:43
 msgid "Casual"
 msgstr "Towarzyska"
-
-#: ../templates/tournaments.html:55
-#, python-format
-msgid "%(count)s player"
-msgid_plural "%(count)s players"
-msgstr[0] "%(count)s gracz"
-msgstr[1] "%(count)s graczy"
-msgstr[2] "%(count)s graczy"
-msgstr[3] "%(count)s graczy"
 
 #: ../templates/videos.html:15
 msgid "Chess variant videos"
