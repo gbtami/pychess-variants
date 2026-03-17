@@ -25,7 +25,6 @@ Borderlands is a chess variant created by dpldgr in 2025 for PyChess' Variant De
 
 Borderlands draws inspiration from many classic variants (Chess, Shogi, Xiangqi, and Courier Chess) and fuses them together in a unique and creative way. Pieces are in general more powerful than those found in the classic variants.
 
-- The Chief (the "royal" piece) is very mobile, but has restricted movement which allows it to be cornered and captured.
 - Sliding pieces (Rooks, Bishops) and jump capturing pieces (Pao, Vao) are merged to create more powerful pieces (Archer, Slinger).
 - Most pieces are promotable, giving incentive to keep them on the board as every piece can help win the game by cornering and capturing enemy Chiefs.
 - There is a wide variety of pieces with different strengths and weaknesses.
@@ -37,12 +36,12 @@ Borderlands is not set in a specific place or culture. Rather, it serves as an a
 1.  White has the first move.
 2.  All pieces are capturable and are permanently removed from play upon capture.
 3.  There is no checkmate or stalemate in Borderlands.
-4.  There is no castling in Borderlands. On any move, a Chief can instead make a non-capturing leap two squares in any direction within their movement zone.
+4.  There is no castling in Borderlands.
 5.  Pieces promote immediately upon reaching their Promotion Zone/Square.
 6.  Warriors starting on the 3rd rank may make a double step on their first move, and may be captured en passant on the enemy's next move.
 
 ## Win Conditions
-1.  Win by Surrender: Capture both enemy Chiefs and the enemy immediately surrenders.
+1. Capture both enemy Chiefs and the enemy immediately surrenders.
 
 ## Draw Conditions
 1.  No Progress: 80 moves (40 by each player) without a capture or promotion.
@@ -105,7 +104,6 @@ The movement diagrams below follow these conventions:
 <table style="border-collapse: collapse;">
 <tbody>
     <tr><td width="15%"><img src="../static/images/BorderlandsGuide/RedCircle.png" alt="Red Circle"></td><td class="piece_movement" style="text-align: left;">Red Circle: can make both capturing and non-capturing moves to this square unimpeded.</td></tr>
-    <tr><td width="15%"><img src="../static/images/BorderlandsGuide/GreenCircle.png" alt="Green Circle"></td><td class="piece_movement" style="text-align: left;">Green Circle: can make a non-capturing move to this square unimpeded.</td></tr>
     <tr><td width="15%"><img src="../static/images/BorderlandsGuide/BlueCircle.png" alt="Blue Circle"></td><td class="piece_movement" style="text-align: left;">Blue Circle: can make a capturing move to this square unimpeded.</td></tr>
     <tr><td width="15%"><img src="../static/images/BorderlandsGuide/TealLine.png" alt="Teal Line"></td><td class="piece_movement" style="text-align: left;">Teal Line: can make both a capturing and non-capturing sliding move, or jump a piece and capture in a manner similar to a Cannon.</td></tr>
 </tbody>
