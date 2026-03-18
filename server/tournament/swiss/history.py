@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from py4swiss.trf.results import (
+    ColorToken,
+    ResultToken,
+    RoundResult,
+    ScoringPointSystem,
+    ScoringPointSystemCode,
+)
 from tournament.tournament import ByeGame, SCORE_SHIFT, Tournament
-
-from . import runtime_support as runtime
 
 if TYPE_CHECKING:
     from game import Game
@@ -133,16 +138,16 @@ def _as_finished_result_token(
     # Janggi variant-end scoring is 4/2 (winner/loser) in Swiss, unlike normal 7/0.
     if variant == "janggi" and game_result in ("1-0", "0-1"):
         if round_point == 4:
-            return runtime.ResultToken.WIN_NOT_RATED
+            return ResultToken.WIN_NOT_RATED
         if round_point == 2:
-            return runtime.ResultToken.LOSS_NOT_RATED
+            return ResultToken.LOSS_NOT_RATED
 
     if game_result == "1-0":
-        return runtime.ResultToken.WIN if is_white else runtime.ResultToken.LOSS
+        return ResultToken.WIN if is_white else ResultToken.LOSS
     if game_result == "0-1":
-        return runtime.ResultToken.LOSS if is_white else runtime.ResultToken.WIN
+        return ResultToken.LOSS if is_white else ResultToken.WIN
     if game_result == "1/2-1/2":
-        return runtime.ResultToken.DRAW
+        return ResultToken.DRAW
     return None
 
 
@@ -150,24 +155,24 @@ def _build_scoring_system(variant: str):
     """Build the py4swiss scoring configuration for the given Swiss variant."""
 
     win, draw, loss = _score_values_for_variant(variant)
-    scoring = runtime.ScoringPointSystem()
-    scoring.apply_code(runtime.ScoringPointSystemCode.WIN, win)
-    scoring.apply_code(runtime.ScoringPointSystemCode.DRAW, draw)
-    scoring.apply_code(runtime.ScoringPointSystemCode.LOSS, loss)
+    scoring = ScoringPointSystem()
+    scoring.apply_code(ScoringPointSystemCode.WIN, win)
+    scoring.apply_code(ScoringPointSystemCode.DRAW, draw)
+    scoring.apply_code(ScoringPointSystemCode.LOSS, loss)
 
     # Swiss bye scoring (not RR): pairing-allocated/full-point bye == full win points.
     half_bye = _half_bye_points_times_ten(variant)
-    scoring.apply_code(runtime.ScoringPointSystemCode.ZERO_POINT_BYE, 0)
-    scoring.apply_code(runtime.ScoringPointSystemCode.HALF_POINT_BYE, half_bye)
-    scoring.apply_code(runtime.ScoringPointSystemCode.FULL_POINT_BYE, win)
-    scoring.apply_code(runtime.ScoringPointSystemCode.PAIRING_ALLOCATED_BYE, win)
+    scoring.apply_code(ScoringPointSystemCode.ZERO_POINT_BYE, 0)
+    scoring.apply_code(ScoringPointSystemCode.HALF_POINT_BYE, half_bye)
+    scoring.apply_code(ScoringPointSystemCode.FULL_POINT_BYE, win)
+    scoring.apply_code(ScoringPointSystemCode.PAIRING_ALLOCATED_BYE, win)
 
     if variant == "janggi":
         # Preserve Janggi Swiss base ratios from points_perfs_janggi(): variant-end win/loss = 4/2.
-        scoring.score_dict[(runtime.ResultToken.WIN_NOT_RATED, runtime.ColorToken.WHITE)] = 40
-        scoring.score_dict[(runtime.ResultToken.WIN_NOT_RATED, runtime.ColorToken.BLACK)] = 40
-        scoring.score_dict[(runtime.ResultToken.LOSS_NOT_RATED, runtime.ColorToken.WHITE)] = 20
-        scoring.score_dict[(runtime.ResultToken.LOSS_NOT_RATED, runtime.ColorToken.BLACK)] = 20
+        scoring.score_dict[(ResultToken.WIN_NOT_RATED, ColorToken.WHITE)] = 40
+        scoring.score_dict[(ResultToken.WIN_NOT_RATED, ColorToken.BLACK)] = 40
+        scoring.score_dict[(ResultToken.LOSS_NOT_RATED, ColorToken.WHITE)] = 20
+        scoring.score_dict[(ResultToken.LOSS_NOT_RATED, ColorToken.BLACK)] = 20
 
     return scoring
 
@@ -332,15 +337,15 @@ def _round_result_for_unplayed_token(token: str):
     """Map an unplayed-round token to the corresponding py4swiss round result."""
 
     mapping = {
-        "U": runtime.ResultToken.PAIRING_ALLOCATED_BYE,
-        "H": runtime.ResultToken.HALF_POINT_BYE,
-        "F": runtime.ResultToken.FULL_POINT_BYE,
-        "Z": runtime.ResultToken.ZERO_POINT_BYE,
+        "U": ResultToken.PAIRING_ALLOCATED_BYE,
+        "H": ResultToken.HALF_POINT_BYE,
+        "F": ResultToken.FULL_POINT_BYE,
+        "Z": ResultToken.ZERO_POINT_BYE,
     }
-    return runtime.RoundResult(
+    return RoundResult(
         id=0,
-        color=runtime.ColorToken.BYE_OR_NOT_PAIRED,
-        result=mapping.get(token, runtime.ResultToken.ZERO_POINT_BYE),
+        color=ColorToken.BYE_OR_NOT_PAIRED,
+        result=mapping.get(token, ResultToken.ZERO_POINT_BYE),
     )
 
 
@@ -358,7 +363,7 @@ def _round_result_for_game(
 
     if username == white_name:
         opponent_name = black_name
-        color = runtime.ColorToken.WHITE
+        color = ColorToken.WHITE
         token = _as_finished_result_token(
             game.result,
             is_white=True,
@@ -367,7 +372,7 @@ def _round_result_for_game(
         )
     elif username == black_name:
         opponent_name = white_name
-        color = runtime.ColorToken.BLACK
+        color = ColorToken.BLACK
         token = _as_finished_result_token(
             game.result,
             is_white=False,
@@ -384,7 +389,7 @@ def _round_result_for_game(
     if opponent_id is None:
         return None
 
-    return runtime.RoundResult(id=opponent_id, color=color, result=token)
+    return RoundResult(id=opponent_id, color=color, result=token)
 
 
 def _build_player_results(

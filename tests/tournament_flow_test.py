@@ -4,8 +4,6 @@ import asyncio
 import json
 import unittest
 from datetime import datetime, timedelta, timezone
-from importlib.util import find_spec
-from unittest.mock import patch
 
 from const import FLAG, T_CREATED, T_FINISHED, T_STARTED
 from glicko2.glicko2 import new_default_perf_map
@@ -25,10 +23,6 @@ from variants import VARIANTS
 
 def make_test_perfs():
     return new_default_perf_map(VARIANTS)
-
-
-def _has_swisspairing_runtime() -> bool:
-    return find_spec("swisspairing") is not None
 
 
 class TournamentFlowTestCase(TournamentTestCase):
@@ -208,29 +202,6 @@ class TournamentFlowTestCase(TournamentTestCase):
         await self.tournament.join_players(NB_PLAYERS)
 
         await self.tournament.clock_task
-
-        self.assertEqual(self.tournament.status, T_FINISHED)
-        self.assertEqual(
-            [len(player.games) for player in self.tournament.players.values()],
-            NB_PLAYERS * [NB_ROUNDS],
-        )
-
-    @unittest.skipUnless(
-        _has_swisspairing_runtime(),
-        "swisspairing import unavailable for live Swiss tournament flow test",
-    )
-    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    async def test_tournament_pairing_5_round_SWISS_with_swisspairing_backend(self):
-        app_state = get_app_state(self.app)
-        NB_PLAYERS = 15
-        NB_ROUNDS = 5
-        tid = id8()
-        self.tournament = SwissTestTournament(app_state, tid, before_start=0, rounds=NB_ROUNDS)
-        app_state.tournaments[tid] = self.tournament
-        await self.tournament.join_players(NB_PLAYERS)
-
-        with patch.dict("os.environ", {"SWISS_PAIRING_BACKEND": "swisspairing"}):
-            await self.tournament.clock_task
 
         self.assertEqual(self.tournament.status, T_FINISHED)
         self.assertEqual(

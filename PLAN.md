@@ -13,7 +13,7 @@ Ship Swiss tournaments in `pychess-variants` with lichess-like behavior for crea
 The branch already has substantial Swiss support:
 
 - Swiss and RR tournament creation/editing in the existing tournament form.
-- Dutch Swiss pairing via `py4swiss`, with optional `swisspairing` backend.
+- Dutch Swiss pairing via `py4swiss`.
 - Fixed-round progression with automatic/manual interval values.
 - Late join support with compensation points and persisted missed-round history.
 - Persisted byes and absent/unpaired round entries in MongoDB.
