@@ -56,7 +56,6 @@ DEFAULT_LOGGING_CONFIG = {
             "propagate": False,
         },
         "tournament.arena": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "tournament.arena_new": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "server": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "seek": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "pychess_global_app_state": {"handlers": ["default"], "level": "DEBUG", "propagate": False},

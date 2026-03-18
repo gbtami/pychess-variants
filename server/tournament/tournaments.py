@@ -7,7 +7,7 @@ import aiohttp_session
 from aiohttp import web
 import logging
 
-from tournament.arena_new import ArenaTournament
+from tournament.arena import ArenaTournament
 from compress import C2R, R2C
 from const import (
     ARENA,

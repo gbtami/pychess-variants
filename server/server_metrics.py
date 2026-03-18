@@ -25,7 +25,7 @@ from fairy.fairy_board import FairyBoard
 from glicko2.glicko2 import Rating
 from settings import PYCHESS_MONITOR_TOKEN, URI, LOCALHOST
 from tournament.tournament import PlayerData, GameData
-from tournament.arena_new import ArenaTournament
+from tournament.arena import ArenaTournament
 from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)

@@ -18,7 +18,7 @@ from draw import draw
 from fairy import BLACK
 from game import MAX_PLY
 from glicko2.glicko2 import new_default_perf_map
-from tournament.arena_new import ArenaTournament
+from tournament.arena import ArenaTournament
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
 from tournament.tournament import Tournament, upsert_tournament_to_db
