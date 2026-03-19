@@ -792,6 +792,14 @@ class Game:
         return self.board.fen
 
     @property
+    def preview_fen(self) -> str:
+        return self.board.fen
+
+    @property
+    def posnum(self) -> int:
+        return self.board.posnum
+
+    @property
     def ply(self) -> int:
         return self.board.ply
 

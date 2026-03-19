@@ -376,6 +376,15 @@ class GameBug:
         return self.boards["a"].fen + " | " + self.boards["b"].fen
 
     @property
+    def preview_fen(self):
+        # Generic lobby/game previews only render one board, so keep using board A there.
+        return self.boards["a"].fen
+
+    @property
+    def posnum(self):
+        return -1
+
+    @property
     def ply(self):
         return self.boards["a"].ply + self.boards["b"].ply
 

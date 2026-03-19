@@ -527,7 +527,7 @@ async def get_games(request: web.Request) -> web.StreamResponse:
             {
                 "gameId": game.id,
                 "variant": game.variant,
-                "fen": DARK_FEN if game.variant == "fogofwar" else game.board.fen,
+                "fen": DARK_FEN if game.variant == "fogofwar" else game.preview_fen,
                 "lastMove": "" if game.variant == "fogofwar" else game.lastmove,
                 "tp": game.turn_player,
                 "w": game.wplayer.username,

@@ -424,7 +424,7 @@ class PychessGlobalAppState:
                             await bot_player.event_queue.put(game.game_start)
                         await bot_player.game_queues[game_id].put(game.game_full)
 
-                    if game.board.ply > 0:
+                    if game.ply > 0:
                         self.g_cnt[0] += 1
 
             await load_active_simuls(self)
