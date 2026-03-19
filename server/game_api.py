@@ -571,6 +571,12 @@ async def export(request: web.Request) -> web.StreamResponse:
     cursor = None
 
     if profileId is not None:
+        requester = await app_state.users.get(session_user)
+        if requester.anon:
+            await asyncio.sleep(3)
+            return web.Response(text="")
+        if session_user != profileId and session_user not in ADMINS:
+            raise web.HTTPForbidden(text="Users can only export their own games.")
         cursor = app_state.db.game.find({"us": profileId})
     elif tournamentId is not None:
         cursor = app_state.db.game.find({"tid": tournamentId})

@@ -4,6 +4,7 @@ from aiohttp import web
 from const import IMPORTED, RATED, DASH, NONE_USER, TROPHIES
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
+from settings import ADMINS
 from typing_defs import ViewContext
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
@@ -48,6 +49,11 @@ async def profile(request: web.Request) -> ViewContext:
 
     context["can_block"] = profileId not in user.blocked
     context["can_challenge"] = user.username not in profileId_user.blocked
+    context["can_export_games"] = (
+        (not user.anon)
+        and (not profileId_user.bot)
+        and (profileId == user.username or user.username in ADMINS)
+    )
 
     allowed_variants = user.category_variant_set
 

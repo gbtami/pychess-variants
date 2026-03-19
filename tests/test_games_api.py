@@ -129,7 +129,9 @@ class ExportPGNTestCase(AioHTTPTestCase):
     async def startup(self, app):
         app_state = get_app_state(self.app)
         user = User(app_state, username="testuser")
+        other_user = User(app_state, username="otheruser")
         app_state.users[user.username] = user
+        app_state.users[other_user.username] = other_user
 
         export_docs = [
             {"_id": f"g{i}", "us": ["testuser"], "v": "Z", "d": datetime(2025, 12, 1)}
@@ -145,7 +147,12 @@ class ExportPGNTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
         await self.client.close()
 
+    def set_session_user(self, username: str) -> None:
+        session_data = {"session": {"user_name": username}, "created": int(time.time())}
+        self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+
     async def test_export_aggregates_legacy_failures(self):
+        self.set_session_user("testuser")
         with (
             patch("game_api.pgn", side_effect=ValueError("invalid move")) as pgn_mock,
             patch("game_api.log.error") as error,
@@ -166,6 +173,27 @@ class ExportPGNTestCase(AioHTTPTestCase):
         self.assertEqual(1, len(summary_calls))
         self.assertIn("g0 ataxx 2025.12.01", summary_calls[0].args[1])
         self.assertNotIn("g5 ataxx 2025.12.01", summary_calls[0].args[1])
+
+    async def test_export_returns_empty_for_anonymous_session(self):
+        with (
+            patch("game_api.asyncio.sleep", new=AsyncMock()) as sleep_mock,
+            patch("game_api.pgn") as pgn_mock,
+        ):
+            response = await self.client.get("/games/export/testuser")
+
+        self.assertEqual(response.status, 200)
+        self.assertEqual(await response.text(), "")
+        sleep_mock.assert_awaited_once_with(3)
+        pgn_mock.assert_not_called()
+
+    async def test_export_forbids_other_logged_in_users(self):
+        self.set_session_user("otheruser")
+
+        with patch("game_api.pgn") as pgn_mock:
+            response = await self.client.get("/games/export/testuser")
+
+        self.assertEqual(response.status, 403)
+        pgn_mock.assert_not_called()
 
 
 class ExportTournamentTrfTestCase(AioHTTPTestCase):

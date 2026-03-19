@@ -113,7 +113,9 @@ class RequestProtectionState:
     _NAMES_LIMIT = RouteRateLimit("names", max_requests=20, window_seconds=30.0)
     _STATUS_LIMIT = RouteRateLimit("status", max_requests=20, window_seconds=30.0)
     _PROFILE_API_LIMIT = RouteRateLimit("profile_api", max_requests=30, window_seconds=30.0)
-    _EXPORT_LIMIT = RouteRateLimit("export", max_requests=6, window_seconds=60.0)
+    # PGN export is expensive enough to warrant a much tighter shared budget
+    # than normal page/API traffic on low-memory dynos.
+    _EXPORT_LIMIT = RouteRateLimit("export", max_requests=2, window_seconds=120.0)
     _GAME_VIEW_LIMIT = RouteRateLimit("game_view", max_requests=45, window_seconds=30.0)
     # Local stress/smoke runs can legitimately open many websockets and game views
     # from a single IP, so apply far higher local budgets there only.
