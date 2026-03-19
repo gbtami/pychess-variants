@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Mapping
 import asyncio
+import json
 import random
 import string
 from time import monotonic
@@ -1040,8 +1041,15 @@ async def handle_roundchat(
         if player.bot:
             if gameId in player.game_queues:
                 await player.game_queues[gameId].put(
-                    '{"type": "chatLine", "username": "%s", "room": %s, "text": "%s"}\n'
-                    % (user.username, room, message)
+                    json.dumps(
+                        {
+                            "type": "chatLine",
+                            "username": user.username,
+                            "room": room,
+                            "text": message,
+                        }
+                    )
+                    + "\n"
                 )
         else:
             await player.send_game_message(gameId, response)
