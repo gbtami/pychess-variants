@@ -132,7 +132,7 @@ def init_default_logger():
 
 
 # periodic refresh of logging config from mongo:
-async def start_config_refresh_timer(db: Any) -> None:
+async def start_config_refresh_timer(db: Any) -> asyncio.Task[None] | None:
     async def periodic_refresh():
         last_logging_config = DEFAULT_LOGGING_CONFIG
         while True:
@@ -149,6 +149,7 @@ async def start_config_refresh_timer(db: Any) -> None:
             await asyncio.sleep(60)
 
     if db:
-        asyncio.create_task(periodic_refresh())
+        return asyncio.create_task(periodic_refresh(), name="logging-config-refresh")
     else:
         logging.config.dictConfig(DEFAULT_LOGGING_CONFIG)
+        return None

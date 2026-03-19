@@ -571,7 +571,7 @@ class Game:
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             await self.app_state.lobby.lobby_broadcast(response)
 
-        asyncio.create_task(self.app_state.remove_from_cache(self), name="game-remove-%s" % self.id)
+        self.app_state.schedule_game_cache_removal(self)
 
         if (
             self.board.ply < 3
