@@ -35,8 +35,8 @@ Borderlands is not set in a specific place or culture. Rather, it serves as an a
 ## General Rules
 1.  White has the first move.
 2.  All pieces are capturable and are permanently removed from play upon capture.
-3.  There is no checkmate or stalemate in Borderlands.
-4.  There is no castling in Borderlands.
+3.  There is no checkmate or stalemate.
+4.  There is no castling.
 5.  Pieces promote immediately upon reaching their Promotion Zone/Square.
 6.  Warriors starting on the 3rd rank may make a double step on their first move, and may be captured en passant on the enemy's next move.
 
@@ -75,7 +75,7 @@ There are a number of important regions and squares in Borderlands:
     <tr><td>Ranks 8-10</td></tr>
     <tr><td>All promotable White pieces (except the Lion) can promote anywhere within this region.</td></tr>
     <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/WhiteLionsMovementZone.png" alt="White Lion's Movement Zone"></td><td class="region_name">White Lion's Movement Zone</td></tr>
-    <tr><td>Zones: White Territory, White Lion's Incursion Zones, White Lion's Promotion Square</td></tr>
+    <tr><td>Ranks: 1-5<br/>Squares: d7, f7, e9</td></tr>
     <tr><td></td></tr>
     <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/WhiteLionsPromotionSquare.png" alt="White Lion's Promotion Square"></td><td class="region_name">White Lion's Promotion Square</td></tr>
     <tr><td>Square: e9</td></tr>
@@ -90,7 +90,7 @@ There are a number of important regions and squares in Borderlands:
     <tr><td>Ranks 1-3</td></tr>
     <tr><td>All promotable Black pieces (except the Lion) can promote anywhere within this region.</td></tr>
     <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/BlackLionsMovementZone.png" alt="Black Lion's Movement Zone"></td><td class="region_name">Black Lion's Movement Zone</td></tr>
-    <tr><td>Zones: Black Territory, Black Lion's Incursion Zones, Black Lion's Promotion Square</td></tr>
+    <tr><td>Ranks: 6-10<br/>Squares: d4, f4, e2</td></tr>
     <tr><td></td></tr>
     <tr class="line_t"><td class="zone_highlight" rowspan="3"><img src="../static/images/BorderlandsGuide/BlackLionsPromotionSquare.png" alt="Black Lion's Promotion Square"></td><td class="region_name">Black Lion's Promotion Square</td></tr>
     <tr><td>Square: e2</td></tr>
@@ -171,7 +171,7 @@ TODO.
 How to Play Borderlands video:
 TODO
 
-Gameplay Example 1:
-<iframe width="560" height="315" src="https://www.youtube.com/embed/NsAGUMWxyCo" frameborder="0" allowfullscreen></iframe>
-Gameplay Example 2:
-<iframe width="560" height="315" src="https://www.youtube.com/embed/y88_OAx8bRk" frameborder="0" allowfullscreen></iframe>
+Gameplay Sample 1:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/PdsT9i2PIjA" frameborder="0" allowfullscreen></iframe>
+Gameplay Sample 2:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/IpMFoFIdPUY" frameborder="0" allowfullscreen></iframe>
