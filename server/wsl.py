@@ -383,20 +383,21 @@ async def handle_create_host(
 async def handle_delete_seek(
     app_state: PychessGlobalAppState, user: User, data: DeleteSeekMessage
 ) -> None:
-    try:
-        seek = app_state.seeks[data["seekID"]]
-        if seek.game_id is not None:
-            # delete game invite
-            del app_state.invites[seek.game_id]
+    seek_id = data["seekID"]
+    seek = app_state.seeks.pop(seek_id, None)
+    if seek is None:
+        log.debug("handle_delete_seek() ignored duplicate delete for seek %s", seek_id)
+        await app_state.lobby.lobby_broadcast_seeks()
+        return
 
-        log.debug("Seeks now contains: [%s]" % " ".join(app_state.seeks))
-        log.debug("Deleting seek: %s" % seek)
-        del app_state.seeks[data["seekID"]]
-        del user.seeks[data["seekID"]]
-        log.debug("Deleted seek. Seeks now contains: [%s]" % " ".join(app_state.seeks))
+    if seek.game_id is not None:
+        # Delete the invite if it still exists; duplicate cleanup is expected.
+        app_state.invites.pop(seek.game_id, None)
 
-    except KeyError:
-        log.error("handle_delete_seek() KeyError. Seek %s was already deleted", data["seekID"])
+    seek.creator.seeks.pop(seek_id, None)
+    if user is not seek.creator:
+        user.seeks.pop(seek_id, None)
+    log.debug("handle_delete_seek() deleted seek %s", seek_id)
     await app_state.lobby.lobby_broadcast_seeks()
 
 
