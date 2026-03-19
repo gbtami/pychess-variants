@@ -6,7 +6,7 @@ from operator import neg
 import asyncio
 import collections
 import gettext
-from typing import Any, List, Set, TYPE_CHECKING
+from typing import Any, Coroutine, List, Set, TYPE_CHECKING, TypeVar
 
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
@@ -99,6 +99,7 @@ log = logging.getLogger(__name__)
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 TOURNAMENT_KEEP_TIME = 1800  # keep ended tournaments in cache for TOURNAMENT_KEEP_TIME secs
+T = TypeVar("T")
 
 
 def _is_test_run() -> bool:
@@ -130,7 +131,9 @@ class PychessGlobalAppState:
         self.lobby = Lobby(self)
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
         self.tourneysockets: dict[str, dict[str, set[WebSocketResponse | None]]] = {}
-        self.tournament_remove_tasks: dict[str, asyncio.Task] = {}
+        self.background_tasks: set[asyncio.Task[Any]] = set()
+        self.game_remove_tasks: dict[str, asyncio.Task[None]] = {}
+        self.tournament_remove_tasks: dict[str, asyncio.Task[None]] = {}
 
         # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
         self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
@@ -239,7 +242,7 @@ class PychessGlobalAppState:
             new_tournaments_data = new_scheduled_tournaments(already_scheduled)
             await create_scheduled_tournaments(self, new_tournaments_data)
 
-            asyncio.create_task(generate_shield(self), name="generate-shield")
+            self.create_background_task(generate_shield(self), name="generate-shield")
 
             if "highscore" not in db_collections:
                 await generate_highscore(self)
@@ -528,8 +531,8 @@ class PychessGlobalAppState:
     def __start_bots(self):
         rm = self.users["Random-Mover"]
         ai = self.users["Fairy-Stockfish"]
-        asyncio.create_task(BOT_task(ai, self), name="BOT-RM")
-        asyncio.create_task(BOT_task(rm, self), name="BOT-FSF")
+        self.create_background_task(BOT_task(ai, self), name="BOT-RM")
+        self.create_background_task(BOT_task(rm, self), name="BOT-FSF")
 
     def __init_fishnet_monitor(self) -> dict:
         result = {}
@@ -554,7 +557,10 @@ class PychessGlobalAppState:
 
             bot = DiscordBot(self)
             self.discord = bot
-            asyncio.create_task(self.__run_discord_bot(bot, DISCORD_TOKEN), name="Discord-BOT")
+            self.create_background_task(
+                self.__run_discord_bot(bot, DISCORD_TOKEN),
+                name="Discord-BOT",
+            )
 
     async def __run_discord_bot(self, bot: DiscordBot, token: str) -> None:
         # Keep retrying startup/login on transient failures so relay can recover
@@ -580,6 +586,53 @@ class PychessGlobalAppState:
         # Keep GC telemetry isolated in its own module to reduce changes here.
         # The helper starts a task only when GC_STATS_INTERVAL is configured.
         self.gc_stats_task = start_gc_telemetry(lambda: self.shutdown)
+
+    def _background_task_done(self, task: asyncio.Task[Any]) -> None:
+        self.background_tasks.discard(task)
+        if task.cancelled():
+            return
+        try:
+            exc = task.exception()
+        except Exception:
+            log.exception("Failed to inspect background task %s", task.get_name())
+            return
+        if exc is not None:
+            log.error(
+                "Background task %s failed",
+                task.get_name(),
+                exc_info=(type(exc), exc, exc.__traceback__),
+            )
+
+    def track_background_task(self, task: asyncio.Task[T]) -> asyncio.Task[T]:
+        self.background_tasks.add(task)
+        task.add_done_callback(self._background_task_done)
+        return task
+
+    def create_background_task(
+        self,
+        coro: Coroutine[Any, Any, T],
+        *,
+        name: str,
+    ) -> asyncio.Task[T]:
+        task = asyncio.create_task(coro, name=name)
+        return self.track_background_task(task)
+
+    def schedule_game_cache_removal(self, game: Game | GameBug):
+        task = self.game_remove_tasks.get(game.id)
+        if task is not None and not task.done():
+            return
+
+        task = asyncio.create_task(
+            self.remove_from_cache(game),
+            name="game-remove-%s" % game.id,
+        )
+        self.game_remove_tasks[game.id] = task
+
+        def _cleanup_task(done: asyncio.Task[None], game_id: str = game.id) -> None:
+            self.game_remove_tasks.pop(game_id, None)
+            self._background_task_done(done)
+
+        task.add_done_callback(_cleanup_task)
 
     def __init_users(self) -> Users:
         result = Users(self)
@@ -705,6 +758,15 @@ class PychessGlobalAppState:
                 pass
         user.abandon_game_tasks.clear()
 
+        for task in tuple(user.background_tasks):
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+        user.background_tasks.clear()
+        user.remove_anon_task = None
+
         # Remove from auto pairing and any leftover seek references so stale
         # lobby state does not keep this user alive.
         user.remove_from_auto_pairings()
@@ -722,15 +784,6 @@ class PychessGlobalAppState:
         self.lobby.lobbysockets.pop(user.username, None)
         for tid in tuple(self.tourneysockets):
             self.tourneysockets[tid].pop(user.username, None)
-
-        # Stop and clear the per-user removal task so it does not linger.
-        if user.remove_anon_task is not None and not user.remove_anon_task.done():
-            user.remove_anon_task.cancel()
-            try:
-                await user.remove_anon_task
-            except asyncio.CancelledError:
-                pass
-        user.remove_anon_task = None
 
         # Finally remove the user from the global cache.
         if user.username in self.users:

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List, Mapping, Set
+from typing import TYPE_CHECKING, Any, Coroutine, List, Mapping, Set
 import asyncio
 from asyncio import Queue
 from datetime import MINYEAR, datetime, timezone
@@ -147,6 +147,7 @@ class User:
         self.title: str = title
         self.game_in_progress: str | None = None
         self.abandon_game_tasks: dict[str, asyncio.Task[None]] = {}
+        self.background_tasks: set[asyncio.Task[None]] = set()
         self.correspondence_games: List[Game] = []
 
         self.blocked: set[str] = set()
@@ -182,7 +183,10 @@ class User:
 
         # purge inactive anon users after ANON_TIMEOUT sec
         if self.anon and not reserved(self.username):
-            task = asyncio.create_task(self.remove(), name="user-remove-%s" % self.username)
+            task = self.create_background_task(
+                self.remove(),
+                name="user-remove-%s" % self.username,
+            )
             self.remove_anon_task: asyncio.Task[None] | None = task
         else:
             self.remove_anon_task = None
@@ -208,6 +212,38 @@ class User:
                         )
                     break
         self.remove_anon_task = None
+
+    def _background_task_done(self, task: asyncio.Task[None]) -> None:
+        self.background_tasks.discard(task)
+        if task.cancelled():
+            return
+        try:
+            exc = task.exception()
+        except Exception:
+            log.exception(
+                "Failed to inspect background task %s for %s",
+                task.get_name(),
+                self.username,
+            )
+            return
+        if exc is not None:
+            log.error(
+                "Background task %s failed for %s",
+                task.get_name(),
+                self.username,
+                exc_info=(type(exc), exc, exc.__traceback__),
+            )
+
+    def create_background_task(
+        self,
+        coro: Coroutine[Any, Any, None],
+        *,
+        name: str,
+    ) -> asyncio.Task[None]:
+        task = asyncio.create_task(coro, name=name)
+        self.background_tasks.add(task)
+        task.add_done_callback(self._background_task_done)
+        return task
 
     def abandon_task_done(self, task: asyncio.Task[None], game_id: str) -> None:
         try:
@@ -277,7 +313,7 @@ class User:
             await asyncio.sleep(SILENCE)
             self.silence -= SILENCE
 
-        asyncio.create_task(silencio(), name="silence-%s" % self.username)
+        self.create_background_task(silencio(), name="silence-%s" % self.username)
 
     async def set_rating(self, variant: str, chess960: bool, rating: Rating) -> None:
         if self.anon:
@@ -385,7 +421,10 @@ class User:
             if not self.ready_for_auto_pairing:
                 self.remove_from_auto_pairings()
 
-        asyncio.create_task(delete_auto_pairing(), name="delete-auto-pending-%s" % self.username)
+        self.create_background_task(
+            delete_auto_pairing(),
+            name="delete-auto-pending-%s" % self.username,
+        )
 
     def update_auto_pairing(self, ready: bool = True) -> None:
         self.ready_for_auto_pairing = ready
@@ -409,7 +448,10 @@ class User:
                         removed_global_seek is not None,
                     )
 
-        asyncio.create_task(delete_seek(seek), name="delete-pending-seek-%s" % seek.id)
+        self.create_background_task(
+            delete_seek(seek),
+            name="delete-pending-seek-%s" % seek.id,
+        )
 
     async def update_seeks(self, pending: bool = True) -> None:
         if len(self.seeks) > 0:

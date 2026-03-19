@@ -1009,8 +1009,9 @@ class Tournament(ABC):
                             "notify_tournament",
                             self.notify_discord_msg(remaining_mins_to_start),
                         )
-                        asyncio.create_task(
-                            lichess_team_msg(self.app_state), name="t-lichess-team-msg"
+                        self.app_state.create_background_task(
+                            lichess_team_msg(self.app_state),
+                            name="t-lichess-team-msg",
                         )
                         continue
 
@@ -1914,7 +1915,7 @@ class Tournament(ABC):
 
         await self.broadcast(self.duels_json)
 
-        asyncio.create_task(self.delayed_free(game), name="t-delayed-free")
+        self.app_state.create_background_task(self.delayed_free(game), name="t-delayed-free")
 
         await self.broadcast(
             {

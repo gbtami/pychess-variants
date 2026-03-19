@@ -1,4 +1,3 @@
-import asyncio
 import random
 from datetime import timezone
 from typing import TYPE_CHECKING
@@ -243,7 +242,7 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
         # Finished bughouse games loaded from DB should not keep their clock
         # tasks running; cancel them immediately to prevent leaks.
         await game.gameClocks.cancel_stopwatches()
-        asyncio.create_task(app_state.remove_from_cache(game), name="game-remove-%s" % game_id)
+        app_state.schedule_game_cache_removal(game)
     log.debug("load_game_bug parse DONE")
 
     return game

@@ -1,6 +1,5 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-import asyncio
 import aiohttp_session
 from aiohttp import web
 
@@ -48,7 +47,7 @@ async def finally_logic(app_state: PychessGlobalAppState, ws, user: User):
                             await upsert_simul_to_db(simul, app_state)
                             # Do not block websocket teardown on fan-out send:
                             # this path can stall if one spectator socket is slow.
-                            asyncio.create_task(
+                            app_state.create_background_task(
                                 simul.broadcast(
                                     {
                                         "type": "player_disconnected",

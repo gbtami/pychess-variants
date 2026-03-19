@@ -280,7 +280,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | Ga
 
     app_state.games[game_id] = game
     if game.status > STARTED:
-        asyncio.create_task(app_state.remove_from_cache(game), name="game-remove-%s" % game_id)
+        app_state.schedule_game_cache_removal(game)
 
     # log.debug("load_game() parse DONE")
     return game

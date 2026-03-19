@@ -7,7 +7,7 @@ from const import FLAG, TEST_PREFIX
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
-from tournament.arena_new import ArenaTournament
+from tournament.arena import ArenaTournament
 from tournament.rr import RRTournament
 from tournament.tournament import SCORE_SHIFT, upsert_tournament_to_db
 from tournament_test_base import TournamentTestCase

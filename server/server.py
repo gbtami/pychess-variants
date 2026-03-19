@@ -137,8 +137,11 @@ async def init_state(app: Application) -> None:
         app[db_key] = None
 
     app[pychess_global_app_state_key] = PychessGlobalAppState(app)
-    await app[pychess_global_app_state_key].init_from_db()
-    await logger.start_config_refresh_timer(app[db_key])
+    app_state = app[pychess_global_app_state_key]
+    await app_state.init_from_db()
+    refresh_task = await logger.start_config_refresh_timer(app[db_key])
+    if refresh_task is not None:
+        app_state.track_background_task(refresh_task)
 
     # create test tournament
     if 1:

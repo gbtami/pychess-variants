@@ -281,7 +281,10 @@ async def twitch_request_handler(request: web.Request) -> web.Response:
                     }
                     await broadcast_streams(app_state)
 
-                    asyncio.create_task(remove(3600), name="twitch-remove-streamer")  # 1 hour
+                    app_state.create_background_task(
+                        remove(3600),
+                        name="twitch-remove-streamer",
+                    )  # 1 hour
 
         elif header_sub_type == "stream.offline":
             if streamer in twitch.streams:
