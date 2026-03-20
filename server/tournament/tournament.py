@@ -1354,8 +1354,8 @@ class Tournament(ABC):
         if self.password and self.password != password:
             return "401"
 
-        if self.system == RR and len(self.players) > self.rounds + 1:
-            raise EnoughPlayer
+        if self.system == RR and len(self.players) >= self.rounds + 1:
+            return "This round-robin tournament is full."
 
         player_data = self.player_data_by_name(user.username)
         if player_data is None:

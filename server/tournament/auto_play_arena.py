@@ -116,7 +116,14 @@ class TestTournament(Tournament):
                 player.perfs[self.variant]["gl"]["r"] = rating
             self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = set((None,))
-            await self.join(player)
+            result = await self.join(player)
+            if result is not None:
+                log.debug(
+                    "AUTO JOIN refused: %s in tournament %s (%s)",
+                    player.username,
+                    self.id,
+                    result,
+                )
 
     async def _auto_complete_janggi_setup(self, game) -> None:
         if game.variant != "janggi":

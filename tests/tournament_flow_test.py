@@ -459,6 +459,29 @@ class TournamentFlowTestCase(TournamentTestCase):
             {player.username for player in self.tournament.players},
         )
 
+    async def test_rr_join_refuses_players_beyond_round_capacity(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, variant="chess", before_start=0, rounds=9, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        await self.tournament.join_players(10)
+        self.assertEqual(self.tournament.nb_players, 10)
+        self.assertEqual(len(self.tournament.players), 10)
+
+        overflow = User(app_state, username=f"{tid}_overflow", perfs=make_test_perfs())
+        overflow.tournament_sockets[self.tournament.id] = set((None,))
+        app_state.users[overflow.username] = overflow
+
+        self.assertEqual(
+            await self.tournament.join(overflow),
+            "This round-robin tournament is full.",
+        )
+        self.assertEqual(self.tournament.nb_players, 10)
+        self.assertEqual(len(self.tournament.players), 10)
+
     async def test_swiss_ws_redirect_failure_does_not_pause_players(self):
         app_state = get_app_state(self.app)
         tid = id8()
