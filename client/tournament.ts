@@ -252,6 +252,10 @@ export class TournamentController implements ChatController {
         return 'aborted|finished|archived'.includes(this.tournamentStatus);
     }
 
+    private isArenaSystem() {
+        return this.system === 0;
+    }
+
     renderSummary(msg: MsgTournamentStatus) {
         const summaryRows: VNode[] = [];
         summaryRows.push(
@@ -261,8 +265,12 @@ export class TournamentController implements ChatController {
             h('tr', [h('th', _('%1 wins', _(this.variant.colors.first))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
             h('tr', [h('th', _('%1 wins', _(this.variant.colors.second))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
             h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
-            h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
         );
+        if (this.isArenaSystem()) {
+            summaryRows.push(
+                h('tr', [h('div', _('Berserk rate')), h('td', this.calcRate(msg.nbGames * 2, msg.berserk))]),
+            );
+        }
         const downloadLinks: VNode[] = [
             h('table.tour-stats-links', [
                 h('a.i-dl.icon.icon-download', {
@@ -518,7 +526,9 @@ export class TournamentController implements ChatController {
         statsRows.push(h('tr', [h('th', _('Games played')), h('td', gamesLen)]));
         statsRows.push(h('tr', [h('th', _('Win rate')), h('td', this.calcRate(msg.nbGames, msg.nbWin))]));
         statsRows.push(h('tr', [h('th', _('Average opponent')), h('td', avgOp)]));
-        statsRows.push(h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(msg.nbGames, msg.nbBerserk))]));
+        if (this.isArenaSystem()) {
+            statsRows.push(h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(msg.nbGames, msg.nbBerserk))]));
+        }
 
         return [
             h('span.close', {
@@ -595,7 +605,7 @@ export class TournamentController implements ChatController {
                     h('tr', [h('th', _('Performance')), h('td', players[1].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[1].nbGames)]),
                     h('tr', [h('th', _('Win rate')), h('td', this.calcRate(players[1].nbGames, players[1].nbWin))]),
-                    h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(players[1].nbGames, players[1].nbBerserk))])
+                    ...(this.isArenaSystem() ? [h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(players[1].nbGames, players[1].nbBerserk))])] : [])
                 ])
             ]),
             h('div.first', [
@@ -606,7 +616,7 @@ export class TournamentController implements ChatController {
                     h('tr', [h('th', _('Performance')), h('td', players[0].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[0].nbGames)]),
                     h('tr', [h('th', _('Win rate')), h('td', this.calcRate(players[0].nbGames, players[0].nbWin))]),
-                    h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(players[0].nbGames, players[0].nbBerserk))])
+                    ...(this.isArenaSystem() ? [h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(players[0].nbGames, players[0].nbBerserk))])] : [])
                 ])
             ]),
             h('div.third', [
@@ -617,7 +627,7 @@ export class TournamentController implements ChatController {
                     h('tr', [h('th', _('Performance')), h('td', players[2].perf)]),
                     h('tr', [h('th', _('Games played')), h('td', players[2].nbGames)]),
                     h('tr', [h('th', _('Win rate')), h('td', this.calcRate(players[2].nbGames, players[2].nbWin))]),
-                    h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(players[2].nbGames, players[2].nbBerserk))])
+                    ...(this.isArenaSystem() ? [h('tr', [h('th', _('Berserk rate')), h('td', this.calcRate(players[2].nbGames, players[2].nbBerserk))])] : [])
                 ])
             ])
         ]);
