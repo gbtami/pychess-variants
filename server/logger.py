@@ -50,7 +50,7 @@ DEFAULT_LOGGING_CONFIG = {
         "tournament.tournament": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "tournament.tournaments": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "tournament.scheduler": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "tournament.auto_play_arena": {
+        "tournament.auto_play_tournament": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": False,

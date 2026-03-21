@@ -32,7 +32,8 @@ log = logging.getLogger(__name__)
 
 # from misc import timeit
 
-AUTO_PLAY_ARENA_NAME = "Auto Play Tournament"
+AUTO_PLAY_TOURNAMENT_NAME = "Auto Play Tournament"
+AUTO_PLAY_TOURNAMENT_ID = "12345678"
 
 
 def _janggi_point_count_result(fen: str) -> str:
@@ -63,9 +64,9 @@ def _janggi_point_count_result(fen: str) -> str:
     return "1-0" if cho_points > han_points else "0-1"
 
 
-async def create_auto_play_arena(app):
+async def create_auto_play_tournament(app):
     app_state = get_app_state(app)
-    tid = "12345678"
+    tid = AUTO_PLAY_TOURNAMENT_ID
     if tid in app_state.tournaments:
         tournament = app_state.tournaments[tid]
         return
@@ -74,18 +75,19 @@ async def create_auto_play_arena(app):
     await app_state.db.tournament_player.delete_many({"tid": tid})
     await app_state.db.tournament_pairing.delete_many({"tid": tid})
 
-    #    tournament = ArenaTestTournament(
-    tournament = SwissTestTournament(
+    # tournament = ArenaTestTournament(
+    # tournament = SwissTestTournament(
+    tournament = RRTestTournament(
         app_state,
         tid,
         variant="janggi",
-        name=AUTO_PLAY_ARENA_NAME,
+        name=AUTO_PLAY_TOURNAMENT_NAME,
         chess960=False,
         base=1,
         before_start=0.5,
         minutes=10,
         created_by="PyChess",
-        rounds=9,
+        rounds=5,
         round_interval=10,
     )
 

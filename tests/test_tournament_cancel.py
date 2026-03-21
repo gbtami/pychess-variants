@@ -10,7 +10,7 @@ from const import T_ABORTED
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
-from tournament.auto_play_arena import SwissTestTournament
+from tournament.auto_play_tournament import SwissTestTournament
 from user import User
 
 

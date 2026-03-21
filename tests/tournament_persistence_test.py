@@ -13,7 +13,11 @@ from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_
 from pychess_global_app_state_utils import get_app_state
 from settings import LOCALHOST, URI
 from tournament.arena import ArenaTournament
-from tournament.auto_play_arena import ArenaTestTournament, RRTestTournament, SwissTestTournament
+from tournament.auto_play_tournament import (
+    ArenaTestTournament,
+    RRTestTournament,
+    SwissTestTournament,
+)
 from tournament.tournament import (
     ByeGame,
     GameData,

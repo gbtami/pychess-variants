@@ -46,7 +46,12 @@ from tournament.tournament import (
     Tournament,
     upsert_tournament_to_db,
 )
-from tournament.auto_play_arena import ArenaTestTournament, AUTO_PLAY_ARENA_NAME
+from tournament.auto_play_tournament import (
+    ArenaTestTournament,
+    SwissTestTournament,
+    RRTestTournament,
+    AUTO_PLAY_TOURNAMENT_ID,
+)
 from typing_defs import (
     TournamentCreateData,
     TournamentDoc,
@@ -871,21 +876,19 @@ async def load_tournament(
     stored_round = tournament_doc.get("cr")
     pairing_in_progress_round = tournament_doc.get("pairingInProgressRound")
 
+    auto_play = tournament_id == AUTO_PLAY_TOURNAMENT_ID
     tournament_class: type[Tournament]
+
     if tournament_doc["system"] == ARENA:
-        tournament_class = ArenaTournament
+        tournament_class = ArenaTestTournament if auto_play else ArenaTournament
     elif tournament_doc["system"] == SWISS:
-        tournament_class = SwissTournament
+        tournament_class = SwissTestTournament if auto_play else SwissTournament
     elif tournament_doc["system"] == RR:
-        tournament_class = RRTournament
+        tournament_class = RRTestTournament if auto_play else RRTournament
     elif tournament_klass is not None:
         tournament_class = tournament_klass
     elif TYPE_CHECKING:
         tournament_class = ArenaTournament
-
-    auto_play = tournament_doc["name"] == AUTO_PLAY_ARENA_NAME
-    if auto_play:
-        tournament_class = ArenaTestTournament
 
     tournament = tournament_class(
         app_state,

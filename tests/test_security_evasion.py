@@ -15,7 +15,7 @@ from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from security_evasion import collect_client_signals
 from server import make_app
-from tournament.auto_play_arena import ArenaTestTournament
+from tournament.auto_play_tournament import ArenaTestTournament
 from tournament.tournament import upsert_tournament_to_db
 from tournament.tournaments import load_tournament
 from user import User

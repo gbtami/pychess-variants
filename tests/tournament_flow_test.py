@@ -10,7 +10,7 @@ from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament import swiss as swiss_mod
-from tournament.auto_play_arena import (
+from tournament.auto_play_tournament import (
     ArenaTestTournament,
     RRTestTournament,
     SwissTestTournament,
