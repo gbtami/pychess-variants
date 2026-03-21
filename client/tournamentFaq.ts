@@ -60,7 +60,7 @@ h('p', _('Drawing the game before each player has moved 5 times will earn neithe
 export function roundRobinFaq(rated: string) {
 return h('div.tour-faq', [
 h('h2', _('Round-Robin Rules')),
-h('p', _('Round-Robin tournaments are played in fixed rounds. Players are paired so that everyone meets once when the field size and round count allow it.')),
+h('p', _('Round-Robin tournaments freeze the joined field at start. The server then derives the full single-cycle round count and pairs players so everyone meets once.')),
 h('h2', _('Is it rated?')),
 h('p', ratedStatus(rated)),
 h('h2', _('How are scores calculated?')),
@@ -70,7 +70,7 @@ h('p', _('If players have the same score, Sonneborn-Berger values decide final r
 h('h2', _('Absences')),
 h('p', _('If you miss a round, you are treated as absent for that round and are simply not paired in it. You can still return for later rounds.')),
 h('h2', _('How does it end?')),
-h('p', _('The tournament ends after all scheduled rounds are completed. If the player count or attendance makes further pairings impossible, the event can finish early instead of forcing duplicate pairings.')),
+h('p', _('The tournament ends after all scheduled rounds are completed. The duration field is only an estimate and does not override the round count.')),
 ]);
 }
 

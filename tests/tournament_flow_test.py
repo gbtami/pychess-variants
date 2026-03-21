@@ -463,7 +463,13 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = RRTestTournament(
-            app_state, tid, variant="chess", before_start=0, rounds=9, with_clock=False
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=10,
+            with_clock=False,
         )
         app_state.tournaments[tid] = self.tournament
 
@@ -471,16 +477,68 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(self.tournament.nb_players, 10)
         self.assertEqual(len(self.tournament.players), 10)
 
-        overflow = User(app_state, username=f"{tid}_overflow", perfs=make_test_perfs())
-        overflow.tournament_sockets[self.tournament.id] = set((None,))
-        app_state.users[overflow.username] = overflow
+    async def test_rr_start_derives_rounds_from_joined_players(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=10,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        await self.tournament.join_players(5)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.assertEqual(self.tournament.rounds, 5)
+
+        tid_even = id8()
+        even_tournament = RRTestTournament(
+            app_state,
+            tid_even,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=10,
+            with_clock=False,
+        )
+        app_state.tournaments[tid_even] = even_tournament
+
+        await even_tournament.join_players(4)
+        await even_tournament.start(datetime.now(timezone.utc))
+        self.assertEqual(even_tournament.rounds, 3)
+
+    async def test_rr_late_join_is_closed_after_start(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=10,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        late = User(app_state, username=f"{tid}_late", perfs=make_test_perfs())
+        late.tournament_sockets[self.tournament.id] = set((None,))
+        app_state.users[late.username] = late
 
         self.assertEqual(
-            await self.tournament.join(overflow),
-            "This round-robin tournament is full.",
+            await self.tournament.join(late),
+            "Late join is closed for this round-robin tournament.",
         )
-        self.assertEqual(self.tournament.nb_players, 10)
-        self.assertEqual(len(self.tournament.players), 10)
+
+        self.assertEqual(self.tournament.nb_players, 4)
+        self.assertEqual(len(self.tournament.players), 4)
 
     async def test_swiss_ws_redirect_failure_does_not_pause_players(self):
         app_state = get_app_state(self.app)

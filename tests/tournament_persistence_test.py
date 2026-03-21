@@ -171,6 +171,49 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         assert doc is not None
         self.assertEqual(doc.get("fr"), SHIELD)
 
+    async def test_rr_form_persists_max_players_and_defers_round_count(self):
+        app_state = get_app_state(self.app)
+        before_ids = set(app_state.tournaments)
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": "5",
+            "clockIncrement": "0",
+            "byoyomiPeriod": "0",
+            "system": "1",
+            "rounds": "0",
+            "rrMaxPlayers": "12",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": "",
+            "name": "RR Cap",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+
+        await create_or_update_tournament(app_state, "tester", form)
+
+        new_ids = set(app_state.tournaments) - before_ids
+        self.assertEqual(len(new_ids), 1)
+        tournament = app_state.tournaments[new_ids.pop()]
+        self.assertEqual(tournament.rounds, 0)
+        self.assertEqual(tournament.rr_max_players, 12)
+
+        doc = await app_state.db.tournament.find_one({"_id": tournament.id})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("rounds"), 0)
+        self.assertEqual(doc.get("rrMaxPlayers"), 12)
+
     async def test_tournament_pairings_persist_before_restart(self):
         app_state = get_app_state(self.app)
         tid = id8()

@@ -70,6 +70,9 @@ export function initTournamentForm(): void {
     const roundsLabel = document.getElementById("form3-rounds-label");
     const rounds = document.getElementById("form3-rounds");
     const roundsHelp = document.getElementById("form3-rounds-help");
+    const rrMaxPlayersWrap = document.getElementById("form3-rrMaxPlayers-wrap");
+    const rrMaxPlayers = document.getElementById("form3-rrMaxPlayers");
+    const rrMaxPlayersHelp = document.getElementById("form3-rrMaxPlayers-help");
     const roundIntervalWrap = document.getElementById("form3-roundInterval-wrap");
     const roundInterval = document.getElementById("form3-roundInterval");
     const roundIntervalHelp = document.getElementById("form3-roundInterval-help");
@@ -98,6 +101,8 @@ export function initTournamentForm(): void {
         !(system instanceof HTMLSelectElement) ||
         !(roundsWrap instanceof HTMLElement) ||
         !(rounds instanceof HTMLSelectElement) ||
+        !(rrMaxPlayersWrap instanceof HTMLElement) ||
+        !(rrMaxPlayers instanceof HTMLSelectElement) ||
         !(roundIntervalWrap instanceof HTMLElement) ||
         !(roundInterval instanceof HTMLSelectElement)
     ) {
@@ -110,14 +115,19 @@ export function initTournamentForm(): void {
         const isRR = systemValue === SYSTEM_RR;
         const isSwiss = systemValue === SYSTEM_SWISS;
 
-        setVisible(roundsWrap, !isArena);
+        setVisible(roundsWrap, !isArena && !isRR);
+        setVisible(rrMaxPlayersWrap, isRR);
         setVisible(roundIntervalWrap, !isArena);
-        rounds.disabled = isArena;
+        rounds.disabled = isArena || isRR;
+        rrMaxPlayers.disabled = !isRR;
         roundInterval.disabled = isArena;
 
         if (isArena) {
             rounds.value = "0";
             roundInterval.value = "auto";
+        } else if (isRR) {
+            rounds.value = "0";
+            if (rrMaxPlayers.value === "0") rrMaxPlayers.value = "10";
         } else if (rounds.value === "0") {
             rounds.value = "5";
         }
@@ -128,7 +138,7 @@ export function initTournamentForm(): void {
                     "Arena runs continuously until the clock expires. Players rejoin from the lobby after each game.";
             } else if (isRR) {
                 systemHelp.textContent =
-                    "Round-Robin is a fixed-round event. Players are paired once each when the field size and round count allow it.";
+                    "Round-Robin uses a maximum player cap. The joined field is frozen at start, then the full single-cycle round count is derived automatically.";
             } else {
                 systemHelp.textContent =
                     "Swiss is a fixed-round event. Players are paired by score with color balancing and bye handling when needed.";
@@ -136,13 +146,16 @@ export function initTournamentForm(): void {
         }
 
         if (roundsLabel) {
-            roundsLabel.textContent = isRR ? "Rounds (Round-Robin)" : "Rounds (Swiss)";
+            roundsLabel.textContent = "Rounds (Swiss)";
         }
 
         if (roundsHelp) {
-            roundsHelp.textContent = isRR
-                ? "Choose how many rounds to schedule. A full single cycle usually needs one fewer round than the number of players."
-                : "Choose how many rounds the Swiss tournament will play.";
+            roundsHelp.textContent = "Choose how many rounds the Swiss tournament will play.";
+        }
+
+        if (rrMaxPlayersHelp) {
+            rrMaxPlayersHelp.textContent =
+                "Choose the maximum Round-Robin field size. When the tournament starts, rounds are derived from the players who joined.";
         }
 
         if (roundIntervalHelp) {

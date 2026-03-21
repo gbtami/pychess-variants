@@ -93,9 +93,9 @@ class RRTournament(Tournament):
 
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         pairing = []
-        players = list(self.players.keys())
+        players = self.rr_pairing_players()
 
-        n = len(self.players)
+        n = len(players)
         odd = n % 2 == 1
         if odd:
             n += 1

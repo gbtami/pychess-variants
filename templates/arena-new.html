@@ -19,6 +19,7 @@
             {% set t_starts_at = tournament.starts_at.isoformat() if tournament.starts_at else '' %}
             {% set t_system = tournament.system %}
             {% set t_rounds = tournament.rounds %}
+            {% set t_rr_max_players = tournament.rr_join_limit() if tournament.system == 1 else 10 %}
             {% set t_round_interval = tournament.round_interval %}
             {% set t_entry_min_rating = tournament.entry_min_rating %}
             {% set t_entry_max_rating = tournament.entry_max_rating %}
@@ -43,6 +44,7 @@
             {% set t_starts_at = '' %}
             {% set t_system = 0 %}
             {% set t_rounds = 5 %}
+            {% set t_rr_max_players = 10 %}
             {% set t_round_interval = -1 %}
             {% set t_entry_min_rating = 0 %}
             {% set t_entry_max_rating = 0 %}
@@ -246,6 +248,26 @@
                             <option value="15"{% if t_rounds == 15 %} selected="selected"{% endif %}>15 rounds</option>
                         </select>
                         <small id="form3-rounds-help" class="form-help">Choose how many rounds the fixed-round tournament will play.</small>
+                    </div>
+                    <div id="form3-rrMaxPlayers-wrap" class="form-group form-half">
+                        <label class="form-label" for="form3-rrMaxPlayers">Max players (Round-Robin)</label>
+                        <select id="form3-rrMaxPlayers" name="rrMaxPlayers" class="form-control">
+                            <option value="3"{% if t_rr_max_players == 3 %} selected="selected"{% endif %}>3 players</option>
+                            <option value="4"{% if t_rr_max_players == 4 %} selected="selected"{% endif %}>4 players</option>
+                            <option value="5"{% if t_rr_max_players == 5 %} selected="selected"{% endif %}>5 players</option>
+                            <option value="6"{% if t_rr_max_players == 6 %} selected="selected"{% endif %}>6 players</option>
+                            <option value="7"{% if t_rr_max_players == 7 %} selected="selected"{% endif %}>7 players</option>
+                            <option value="8"{% if t_rr_max_players == 8 %} selected="selected"{% endif %}>8 players</option>
+                            <option value="9"{% if t_rr_max_players == 9 %} selected="selected"{% endif %}>9 players</option>
+                            <option value="10"{% if t_rr_max_players == 10 %} selected="selected"{% endif %}>10 players</option>
+                            <option value="11"{% if t_rr_max_players == 11 %} selected="selected"{% endif %}>11 players</option>
+                            <option value="12"{% if t_rr_max_players == 12 %} selected="selected"{% endif %}>12 players</option>
+                            <option value="13"{% if t_rr_max_players == 13 %} selected="selected"{% endif %}>13 players</option>
+                            <option value="14"{% if t_rr_max_players == 14 %} selected="selected"{% endif %}>14 players</option>
+                            <option value="15"{% if t_rr_max_players == 15 %} selected="selected"{% endif %}>15 players</option>
+                            <option value="16"{% if t_rr_max_players == 16 %} selected="selected"{% endif %}>16 players</option>
+                        </select>
+                        <small id="form3-rrMaxPlayers-help" class="form-help">Choose the maximum field size. The actual round count is determined when the tournament starts.</small>
                     </div>
                     <div id="form3-roundInterval-wrap" class="form-group form-half">
                         <label class="form-label" for="form3-roundInterval">Interval between rounds</label>
@@ -487,7 +509,7 @@
             <div id="tour-faq-rr">
                 <p>You will be notified when the tournament starts, so it is safe to play in another tab while waiting.</p>
                 <h2>Round-Robin Rules</h2>
-                <p>Round-Robin tournaments are fixed-round events. Players are paired so that everyone meets once when the field size and round count allow it.</p>
+                <p>Round-Robin tournaments freeze the joined field at start. The server then derives the full single-cycle round count and pairs players so everyone meets once.</p>
                 <h2>Is it rated?</h2>
                 <p>Some tournaments are rated and will affect your rating.</p>
                 <h2>How are scores calculated?</h2>
@@ -498,7 +520,7 @@
                     <br />When two or more players have the same number of points, Sonneborn-Berger values are used as the tie break.
                 </p>
                 <h2>How does it end?</h2>
-                <p>The tournament ends after the scheduled rounds are completed. The duration field is only an estimate here and does not stop the event early.</p>
+                <p>The tournament ends after the derived rounds are completed. The duration field is only an estimate here and does not stop the event early.</p>
                 <h2>Absences</h2>
                 <p>If you miss a round, you are treated as absent for that round instead of continuing with Arena-style continuous pairings.</p>
             </div>

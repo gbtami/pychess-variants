@@ -42,6 +42,8 @@ from tournament.tournament import (
     ByeGame,
     GameData,
     PlayerData,
+    RR_DEFAULT_MAX_PLAYERS,
+    RR_MAX_SUPPORTED_PLAYERS,
     SCORE_SHIFT,
     Tournament,
     upsert_tournament_to_db,
@@ -181,6 +183,15 @@ def _parse_round_interval(
     if interval in ROUND_INTERVAL_SECONDS:
         return interval
     return default_value
+
+
+def _parse_rr_max_players(value: Any, *, default_value: int) -> int:
+    try:
+        rr_max_players = int(value)
+    except (TypeError, ValueError):
+        rr_max_players = default_value
+
+    return max(3, min(RR_MAX_SUPPORTED_PLAYERS, rr_max_players))
 
 
 def _infer_swiss_point_from_game(
@@ -432,8 +443,23 @@ async def create_or_update_tournament(
         rounds = 0
     if system == ARENA:
         rounds = 0
+    elif system == RR:
+        if tournament is not None and tournament.status != T_CREATED:
+            rounds = tournament.rounds
+        else:
+            rounds = 0
     elif rounds <= 0:
         rounds = 5
+
+    default_rr_max_players = (
+        tournament.rr_join_limit() if tournament is not None else RR_DEFAULT_MAX_PLAYERS
+    )
+    rr_max_players = _parse_rr_max_players(
+        form.get("rrMaxPlayers"),
+        default_value=default_rr_max_players,
+    )
+    if system != RR:
+        rr_max_players = 0
 
     default_round_interval = (
         AUTO_ROUND_INTERVAL if tournament is None else getattr(tournament, "round_interval", 0)
@@ -508,6 +534,7 @@ async def create_or_update_tournament(
         "minutes": int(form["minutes"]),
         "fen": form["position"],
         "rounds": rounds,
+        "rrMaxPlayers": rr_max_players,
         "roundInterval": round_interval,
         "entryMinRating": entry_min_rating,
         "entryMaxRating": entry_max_rating,
@@ -532,6 +559,7 @@ async def create_or_update_tournament(
         tournament.inc = data["inc"]
         tournament.bp = data["bp"]
         tournament.rounds = data["rounds"]
+        tournament.rr_max_players = data["rrMaxPlayers"]
         tournament.round_interval = data["roundInterval"]
         tournament.entry_min_rating = data["entryMinRating"]
         tournament.entry_max_rating = data["entryMaxRating"]
@@ -590,6 +618,7 @@ async def new_tournament(
         chess960=data.get("chess960", False),
         fen=data.get("fen", ""),
         rounds=data.get("rounds", 0),
+        rr_max_players=data.get("rrMaxPlayers", 0),
         round_interval=data.get("roundInterval", 0),
         entry_min_rating=data.get("entryMinRating", 0),
         entry_max_rating=data.get("entryMaxRating", 0),
@@ -740,6 +769,12 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 chess960=bool(tournament_doc.get("z")),
                 fen=tournament_doc.get("f"),
                 rounds=tournament_doc["rounds"],
+                rr_max_players=tournament_doc.get(
+                    "rrMaxPlayers",
+                    min(RR_MAX_SUPPORTED_PLAYERS, max(3, tournament_doc["rounds"] + 1))
+                    if tournament_doc["system"] == RR and tournament_doc["rounds"] > 0
+                    else 0,
+                ),
                 round_interval=tournament_doc.get("ri", 0),
                 entry_min_rating=tournament_doc.get("entryMinRating", 0),
                 entry_max_rating=tournament_doc.get("entryMaxRating", 0),
@@ -901,6 +936,12 @@ async def load_tournament(
         chess960=bool(tournament_doc.get("z")),
         fen=tournament_doc.get("f"),
         rounds=tournament_doc["rounds"],
+        rr_max_players=tournament_doc.get(
+            "rrMaxPlayers",
+            min(RR_MAX_SUPPORTED_PLAYERS, max(3, tournament_doc["rounds"] + 1))
+            if tournament_doc["system"] == RR and tournament_doc["rounds"] > 0
+            else 0,
+        ),
         round_interval=tournament_doc.get("ri", 0),
         entry_min_rating=tournament_doc.get("entryMinRating", 0),
         entry_max_rating=tournament_doc.get("entryMaxRating", 0),

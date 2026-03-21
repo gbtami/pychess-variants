@@ -88,6 +88,7 @@ async def create_auto_play_tournament(app):
         minutes=10,
         created_by="PyChess",
         rounds=5,
+        rr_max_players=15,
         round_interval=10,
     )
 
@@ -97,7 +98,7 @@ async def create_auto_play_tournament(app):
     await upsert_tournament_to_db(tournament, app_state)
 
     if tournament.nb_players == 0:
-        await tournament.join_players(19)
+        await tournament.join_players(15)
 
 
 class TestTournament(Tournament):

@@ -96,6 +96,8 @@ AUTO_ROUND_INTERVAL = -1
 MANUAL_ROUND_INTERVAL = -2
 MIN_AUTO_ROUND_INTERVAL_SECONDS = 10
 MAX_AUTO_ROUND_INTERVAL_SECONDS = 60
+RR_DEFAULT_MAX_PLAYERS = 10
+RR_MAX_SUPPORTED_PLAYERS = 16
 
 SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS = "notEnoughPlayers"
 SWISS_FINISH_REASON_NO_LEGAL_PAIRING = "noLegalPairing"
@@ -349,6 +351,7 @@ class Tournament(ABC):
     forbidden_pairings: str
     manual_pairings: str
     finish_reason: str | None
+    rr_max_players: int
 
     def __init__(
         self,
@@ -367,6 +370,7 @@ class Tournament(ABC):
         inc: int = 0,
         byoyomi_period: int = 0,
         rounds: int = 0,
+        rr_max_players: int = 0,
         round_interval: int = 0,
         created_by: str = "",
         created_at: datetime | None = None,
@@ -398,6 +402,7 @@ class Tournament(ABC):
         self.byoyomi_period: int = byoyomi_period
         self.chess960: bool = chess960
         self.rounds: int = rounds
+        self.rr_max_players: int = rr_max_players
         self.round_interval: int = round_interval
         self.frequency: str = frequency
         self.entry_min_rating: int = entry_min_rating
@@ -1061,6 +1066,8 @@ class Tournament(ABC):
             self.clock_task = None
 
     async def start(self, now: datetime) -> None:
+        if self.system == RR:
+            self.rounds = self.rr_rounds_for_start()
         self.status = T_STARTED
 
         self.first_pairing = True
@@ -1077,7 +1084,7 @@ class Tournament(ABC):
         if self.app_state.db is not None:
             u = await self.app_state.db.tournament.find_one_and_update(
                 {"_id": self.id},
-                {"$set": {"status": self.status}},
+                {"$set": {"status": self.status, "rounds": self.rounds}},
                 return_document=ReturnDocument.AFTER,
             )
             if u is None:
@@ -1354,10 +1361,12 @@ class Tournament(ABC):
         if self.password and self.password != password:
             return "401"
 
-        if self.system == RR and len(self.players) >= self.rounds + 1:
-            return "This round-robin tournament is full."
-
         player_data = self.player_data_by_name(user.username)
+        if self.system == RR:
+            if self.status == T_STARTED and player_data is None:
+                return "Late join is closed for this round-robin tournament."
+            if player_data is None and self.nb_players >= self.rr_join_limit():
+                return "This round-robin tournament is full."
         if player_data is None:
             join_error = self.entry_condition_error(user)
             if join_error is not None:
@@ -2351,6 +2360,33 @@ class Tournament(ABC):
             return self.automatic_round_interval_seconds()
         return max(0, self.round_interval)
 
+    def rr_join_limit(self) -> int:
+        if self.rr_max_players > 0:
+            return self.rr_max_players
+        if self.rounds > 0:
+            return min(RR_MAX_SUPPORTED_PLAYERS, max(3, self.rounds + 1))
+        return RR_DEFAULT_MAX_PLAYERS
+
+    def rr_pairing_players(self) -> list[User]:
+        players: list[User] = []
+        for player in self.players.keys():
+            player_data = self.player_data_by_name(player.username)
+            if player_data is None or player_data.withdrawn:
+                continue
+            players.append(player)
+        return players
+
+    def rr_rounds_for_start(self) -> int:
+        player_count = len(self.rr_pairing_players())
+        if player_count > RR_MAX_SUPPORTED_PLAYERS:
+            raise ValueError(
+                "Round-robin supports at most %s players with the current Berger tables."
+                % RR_MAX_SUPPORTED_PLAYERS
+            )
+        if player_count <= 0:
+            return 0
+        return player_count if player_count % 2 == 1 else player_count - 1
+
 
 async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlobalAppState) -> None:
     # unit test app may have no db
@@ -2372,6 +2408,7 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "z": int(tournament.chess960),
         "system": tournament.system,
         "rounds": tournament.rounds,
+        "rrMaxPlayers": tournament.rr_join_limit() if tournament.system == RR else 0,
         "ri": tournament.round_interval,
         "entryMinRating": tournament.entry_min_rating,
         "entryMaxRating": tournament.entry_max_rating,
