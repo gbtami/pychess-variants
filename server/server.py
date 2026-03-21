@@ -145,10 +145,9 @@ async def init_state(app: Application) -> None:
 
     # create test tournament
     if 1:
+        # from tournament.auto_play_tournament import create_auto_play_tournament
+        # await create_auto_play_tournament(app)
         pass
-        from tournament.auto_play_tournament import create_auto_play_tournament
-
-        await create_auto_play_tournament(app)
 
 
 async def shutdown(app: Application) -> None:
