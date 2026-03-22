@@ -262,14 +262,18 @@ strong.score {
     gap: 0.4rem;
     align-items: center;
 }
+.r-table-wrap-players tr.selectable {
+    cursor: pointer;
+}
 .r-table-wrap-arrs {
     overflow-x: auto;
 }
 .r-table-wrap-arrs table {
     table-layout: fixed;
 }
-.r-table-wrap-scores td {
-    min-width: 3rem;
+.r-table-wrap-scores td,
+.r-table-wrap-scores th {
+    min-width: 3.5rem;
 }
 .r-table-wrap td.me,
 .r-table-wrap th.me {
@@ -280,6 +284,10 @@ strong.score {
 .r-table-wrap td.hovered,
 .r-table-wrap th.hovered {
     background: color-mix(in srgb, var(--link-color) 10%, var(--bg-color1));
+}
+.r-table-wrap tr.selected-player td,
+.r-table-wrap tr.selected-player th {
+    background: color-mix(in srgb, var(--gold) 12%, var(--bg-color1));
 }
 .r-table-wrap tr.withdrawn td,
 .r-table-wrap tr.withdrawn th {
