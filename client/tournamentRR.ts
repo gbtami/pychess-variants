@@ -184,6 +184,20 @@ export class TournamentRRController implements ChatController {
         this.renderCrossTable();
     }
 
+    setHoveredRow(row: string) {
+        if (this.hoveredRow === row && this.hoveredCol === '') return;
+        this.hoveredRow = row;
+        this.hoveredCol = '';
+        this.renderCrossTable();
+    }
+
+    setHoveredCol(col: string) {
+        if (this.hoveredRow === '' && this.hoveredCol === col) return;
+        this.hoveredRow = '';
+        this.hoveredCol = col;
+        this.renderCrossTable();
+    }
+
     clearHovered() {
         if (!this.hoveredRow && !this.hoveredCol) return;
         this.hoveredRow = '';
@@ -434,11 +448,11 @@ export class TournamentRRController implements ChatController {
     renderCrossTable() {
         const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map((player) => player.name);
         const rowHoverHandlers = (rowPlayer: string) => ({
-            mouseenter: () => this.setHovered(rowPlayer, this.hoveredCol || rowPlayer),
+            mouseenter: () => this.setHoveredRow(rowPlayer),
             mouseleave: () => this.clearHovered(),
         });
         const colHoverHandlers = (colPlayer: string) => ({
-            mouseenter: () => this.setHovered(this.hoveredRow || colPlayer, colPlayer),
+            mouseenter: () => this.setHoveredCol(colPlayer),
             mouseleave: () => this.clearHovered(),
         });
         const cellHoverHandlers = (rowPlayer: string, colPlayer: string) => ({
