@@ -30,7 +30,7 @@ if TYPE_CHECKING:
         TournamentWithdrawMessage,
     )
 from pychess_global_app_state_utils import get_app_state
-from settings import TOURNAMENT_DIRECTORS
+from tournament_director import is_tournament_director
 from const import RR
 from tournament.tournament import T_CREATED, T_STARTED
 from tournament.tournaments import load_tournament
@@ -397,14 +397,15 @@ async def handle_lobbychat(
     message = data["message"]
     response: ChatLine | FullChatMessage | None = None
 
-    round_controller = user.username in TOURNAMENT_DIRECTORS or user.username == tournament.creator
+    director = is_tournament_director(user, app_state)
+    round_controller = director or user.username == tournament.creator
 
     if round_controller and message.startswith("/startround"):
         if await tournament.start_next_round_now():
             return
         return
 
-    if user.username in TOURNAMENT_DIRECTORS:
+    if director:
         if message.startswith("/silence"):
             response = silence(app_state, message, app_state.tourneychat[tournamentId])
             # silence message was already added to lobbychat in silence()

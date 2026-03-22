@@ -8,7 +8,7 @@ import aiohttp_session
 from views import get_user_context
 from puzzle import get_daily_puzzle
 from pychess_global_app_state_utils import get_app_state
-from settings import TOURNAMENT_DIRECTORS
+from tournament_director import is_tournament_director
 from typing_defs import ViewContext
 from utils import corr_games, get_blogs
 from variants import VARIANTS
@@ -64,7 +64,7 @@ async def lobby(request: web.Request) -> ViewContext:
             raise web.HTTPNotFound()
 
     context["title"] = "PyChess • Free Online Chess Variants"
-    context["tournamentdirector"] = user.username in TOURNAMENT_DIRECTORS
+    context["tournamentdirector"] = is_tournament_director(user, app_state)
 
     puzzle = await get_daily_puzzle(request)
     context["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
