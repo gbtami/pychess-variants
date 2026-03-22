@@ -301,7 +301,9 @@ class TournamentFlowTestCase(TournamentTestCase):
 
         payload = self.tournament.arrangement_payload()
         self.assertEqual(payload["totalGames"], 3)
-        self.assertEqual(payload["players"], [player.username for player in self.tournament.leaderboard])
+        self.assertEqual(
+            payload["players"], [player.username for player in self.tournament.leaderboard]
+        )
         matrix = payload["matrix"]
         first = next(iter(payload["players"]))
         self.assertTrue(any(cell.get("id") for cell in matrix[first].values()))
@@ -714,7 +716,9 @@ class TournamentFlowTestCase(TournamentTestCase):
             for cell in row.values()
             if cell["id"] and cell["white"] == users[0].username
         )
-        self.assertIsNone(await self.tournament.create_arrangement_challenge(users[0], arrangement_id))
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(users[0], arrangement_id)
+        )
 
         arrangement_before = self.tournament.arrangement_by_id(arrangement_id)
         assert arrangement_before is not None
