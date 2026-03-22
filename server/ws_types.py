@@ -403,6 +403,9 @@ class LobbySeekPayload(TypedDict):
     rrmax: NotRequired[int | None]
     chess960: NotRequired[bool | None]
     target: NotRequired[str]
+    reserveGameId: NotRequired[bool]
+    tournamentId: NotRequired[str]
+    rrArrangementId: NotRequired[str]
     user: NotRequired[str]
 
 
@@ -491,6 +494,15 @@ class TournamentGetGamesMessage(TournamentIdMessage):
     player: str
 
 
+class TournamentRRArrangementsMessage(TournamentIdMessage):
+    type: Literal["get_rr_arrangements"]
+
+
+class TournamentRRChallengeMessage(TournamentIdMessage):
+    type: Literal["rr_challenge", "rr_accept_challenge"]
+    arrangementId: str
+
+
 class TournamentJoinMessage(TournamentIdMessage):
     type: Literal["join"]
     password: NotRequired[str]
@@ -519,6 +531,8 @@ TournamentInboundMessage = (
     TournamentGetPlayersMessage
     | TournamentMyPageMessage
     | TournamentGetGamesMessage
+    | TournamentRRArrangementsMessage
+    | TournamentRRChallengeMessage
     | TournamentJoinMessage
     | TournamentPauseMessage
     | TournamentWithdrawMessage

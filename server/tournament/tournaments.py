@@ -55,6 +55,7 @@ from tournament.auto_play_tournament import (
     AUTO_PLAY_TOURNAMENT_ID,
 )
 from typing_defs import (
+    TournamentArrangementDoc,
     TournamentCreateData,
     TournamentDoc,
     TournamentPairingDoc,
@@ -1220,7 +1221,7 @@ async def load_tournament(
     for player_data in tournament.players.values():
         _align_player_games_with_points(player_data)
 
-    if tournament.system in (SWISS, RR):
+    if tournament.system == SWISS:
         stored_round = await _recover_incomplete_fixed_round_pairing_round(tournament, stored_round)
     if tournament.system == SWISS:
         await _repair_swiss_state_from_history(tournament)
@@ -1228,7 +1229,7 @@ async def load_tournament(
     if tournament.system != ARENA:
         tournament.recalculate_berger_tiebreak()
 
-    if stored_round is None and tournament.system != ARENA:
+    if stored_round is None and tournament.system == SWISS:
         stored_round = max(
             (len(player.games) for player in tournament.players.values()),
             default=0,
@@ -1239,6 +1240,14 @@ async def load_tournament(
                 default=0,
             )
         tournament.current_round = stored_round
+
+    if tournament.system == RR:
+        arrangement_table = app_state.db.tournament_arrangement
+        arrangement_cursor = arrangement_table.find({"tid": tournament_id})
+        arrangement_docs = await arrangement_cursor.to_list(length=None)
+        await tournament.load_arrangements(
+            [cast(TournamentArrangementDoc, arrangement_doc) for arrangement_doc in arrangement_docs]
+        )
 
     cursor = app_state.db.tournament_chat.find(
         {"tid": tournament.id},

@@ -110,6 +110,7 @@ class Game:
         corr: bool = False,
         create: bool = True,
         tournamentId: str | None = None,
+        tournamentArrangementId: str | None = None,
         simulId: str | None = None,
         new_960_fen_needed_for_rematch: bool = False,
     ) -> None:
@@ -132,6 +133,7 @@ class Game:
         self.inc: int = inc
         self.level: int = level if level is not None else 0
         self.tournamentId: str | None = tournamentId
+        self.tournamentArrangementId: str | None = tournamentArrangementId
         self.simulId: str | None = simulId
         self.chess960: bool | None = chess960
         self.corr: bool = corr

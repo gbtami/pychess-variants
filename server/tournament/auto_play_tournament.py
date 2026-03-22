@@ -76,8 +76,7 @@ async def create_auto_play_tournament(app):
     await app_state.db.tournament_pairing.delete_many({"tid": tid})
 
     # tournament = ArenaTestTournament(
-    # tournament = SwissTestTournament(
-    tournament = RRTestTournament(
+    tournament = SwissTestTournament(
         app_state,
         tid,
         variant="janggi",
@@ -88,7 +87,6 @@ async def create_auto_play_tournament(app):
         minutes=10,
         created_by="PyChess",
         rounds=5,
-        rr_max_players=15,
         round_interval=10,
     )
 
@@ -243,6 +241,27 @@ class RRTestTournament(TestTournament, RRTournament):
 
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         return RRTournament.create_pairing(self, waiting_players)
+
+    async def start_arrangement_game(self, arrangement_id: str, *, challenger: str | None = None):
+        arrangement = self.arrangement_by_id(arrangement_id)
+        if arrangement is None:
+            raise AssertionError(f"Unknown arrangement {arrangement_id}")
+
+        challenger_name = arrangement.white if challenger is None else challenger
+        challenger_user = self.app_state.users[challenger_name]
+        challenge_error = await self.create_arrangement_challenge(challenger_user, arrangement_id)
+        if challenge_error is not None:
+            raise AssertionError(challenge_error)
+
+        opponent_name = arrangement.opponent(challenger_name)
+        if opponent_name is None:
+            raise AssertionError(f"Arrangement {arrangement_id} has no opponent for {challenger_name}")
+
+        opponent_user = self.app_state.users[opponent_name]
+        response = await self.accept_arrangement_challenge(opponent_user, arrangement_id)
+        if response["type"] != "new_game":
+            raise AssertionError(f"Unexpected RR challenge response: {response}")
+        return self.app_state.games[response["gameId"]]
 
 
 class SwissTestTournament(TestTournament, SwissTournament):

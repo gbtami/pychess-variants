@@ -24,7 +24,13 @@ class TournamentScoringTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = RRTournament(
-            app_state, tid, variant="chess", before_start=0, rounds=3, with_clock=False
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=8,
+            with_clock=False,
         )
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
@@ -44,30 +50,36 @@ class TournamentScoringTestCase(TournamentTestCase):
 
         await self.tournament.start(datetime.now(timezone.utc))
 
-        winner_sets_by_round = [
-            {users[0].username, users[1].username},  # A beats D, B beats C
-            {users[0].username, users[3].username},  # A beats B, D beats C
-            {users[1].username, users[2].username},  # B beats D, C beats A
-        ]
+        winner_sets_by_round = {
+            1: {users[0].username, users[1].username},  # A beats D, B beats C
+            2: {users[0].username, users[3].username},  # A beats B, D beats C
+            3: {users[1].username, users[2].username},  # B beats D, C beats A
+        }
 
-        for round_no, winners in enumerate(winner_sets_by_round, start=1):
-            self.tournament.current_round = round_no
-            waiting_players = list(self.tournament.waiting_players())
-            _, games = await self.tournament.create_new_pairings(waiting_players)
-            for game in games:
-                if game.wplayer.username in winners:
-                    game.result = "1-0"
-                elif game.bplayer.username in winners:
-                    game.result = "0-1"
-                else:
-                    self.fail(
-                        f"Unexpected pairing {game.wplayer.username} vs {game.bplayer.username}"
-                    )
-                game.status = FLAG
-                game.board.ply = 20
-                await self.tournament.game_update(game)
-                self.tournament.players[game.wplayer].free = True
-                self.tournament.players[game.bplayer].free = True
+        for arrangement in self.tournament.arrangement_list():
+            challenger = next(user for user in users if user.username == arrangement.white)
+            challenge_error = await self.tournament.create_arrangement_challenge(
+                challenger, arrangement.id
+            )
+            self.assertIsNone(challenge_error)
+
+            acceptor = next(user for user in users if user.username == arrangement.black)
+            response = await self.tournament.accept_arrangement_challenge(acceptor, arrangement.id)
+            self.assertEqual(response["type"], "new_game")
+            game = app_state.games[response["gameId"]]
+
+            winners = winner_sets_by_round[arrangement.round_no]
+            if game.wplayer.username in winners:
+                game.result = "1-0"
+            elif game.bplayer.username in winners:
+                game.result = "0-1"
+            else:
+                self.fail(f"Unexpected pairing {game.wplayer.username} vs {game.bplayer.username}")
+            game.status = FLAG
+            game.board.ply = 20
+            await self.tournament.game_update(game)
+            self.tournament.players[game.wplayer].free = True
+            self.tournament.players[game.bplayer].free = True
 
         leaderboard = [player.username for player in self.tournament.leaderboard]
         self.assertEqual(
