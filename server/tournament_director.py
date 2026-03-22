@@ -16,8 +16,4 @@ def is_tournament_director(user: User, app_state: PychessGlobalAppState) -> bool
 
     # Local/dev test users created via `server.py -a` should be able to exercise
     # tournament creation and management flows without environment changes.
-    return (
-        settings.DEV
-        and app_state.anon_as_test_users
-        and user.username.startswith(TEST_PREFIX)
-    )
+    return settings.DEV and app_state.anon_as_test_users and user.username.startswith(TEST_PREFIX)

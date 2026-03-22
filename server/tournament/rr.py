@@ -355,7 +355,9 @@ class RRTournament(Tournament):
         if self.app_state.db is not None:
             arrangement_table = self.app_state.db.tournament_arrangement
             if stale_ids:
-                await arrangement_table.delete_many({"tid": self.id, "_id": {"$in": list(stale_ids)}})
+                await arrangement_table.delete_many(
+                    {"tid": self.id, "_id": {"$in": list(stale_ids)}}
+                )
             if not self.arrangements:
                 await arrangement_table.delete_many({"tid": self.id})
             else:
