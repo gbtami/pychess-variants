@@ -98,6 +98,7 @@ export class TournamentRRController implements ChatController {
     modalNode: VNode;
     crossTableNode: VNode | null = null;
     gamesNode: VNode | null = null;
+    boundHashChange: () => void;
 
     constructor(_el: HTMLElement, model: PyChessModel) {
         this.tournamentId = model.tournamentId;
@@ -110,6 +111,7 @@ export class TournamentRRController implements ChatController {
         this.startDate = model.date;
         this.tournamentStatus = T_STATUS[model.status as keyof typeof T_STATUS];
         this.selectedArrangementId = decodeURIComponent(window.location.hash.replace(/^#/, ''));
+        this.boundHashChange = () => this.syncArrangementFromHash();
 
         this.sock = newWebsocket('wst');
         this.sock.onopen = () => {
@@ -131,6 +133,7 @@ export class TournamentRRController implements ChatController {
         this.bodyNode = patch(document.getElementById('rr-body') as HTMLElement, h('div#rr-body'));
         this.modalNode = patch(document.getElementById('rr-modal') as HTMLElement, h('div#rr-modal'));
         patch(document.querySelector('div.tour-faq') as HTMLElement, roundRobinFaq(this.rated));
+        window.addEventListener('hashchange', this.boundHashChange);
     }
 
     doSend(message: JSONObject) {
@@ -187,10 +190,19 @@ export class TournamentRRController implements ChatController {
         return undefined;
     }
 
+    syncArrangementFromHash() {
+        const arrangementId = decodeURIComponent(window.location.hash.replace(/^#/, ''));
+        if (this.selectedArrangementId === arrangementId) return;
+        this.selectedArrangementId = arrangementId;
+        this.renderModal();
+        this.renderCrossTable();
+    }
+
     selectArrangement(cell: RRArrangementCell) {
         this.selectedArrangementId = cell.id;
         window.history.replaceState(null, '', `#${encodeURIComponent(cell.id)}`);
         this.renderModal();
+        this.renderCrossTable();
     }
 
     closeArrangement() {
@@ -200,6 +212,7 @@ export class TournamentRRController implements ChatController {
         url.hash = '';
         window.history.replaceState(null, '', url.toString());
         this.renderModal();
+        this.renderCrossTable();
     }
 
     updateActionButton() {
