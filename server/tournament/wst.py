@@ -149,7 +149,11 @@ async def handle_get_rr_arrangements(
     app: PychessGlobalAppState, ws, user: User, data: TournamentRRArrangementsMessage
 ) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
-    if tournament is not None and tournament.system == RR and hasattr(tournament, "arrangement_payload"):
+    if (
+        tournament is not None
+        and tournament.system == RR
+        and hasattr(tournament, "arrangement_payload")
+    ):
         await ws_send_json(ws, tournament.arrangement_payload(user=user))
 
 
@@ -335,7 +339,11 @@ async def handle_rr_challenge(
     app: PychessGlobalAppState, ws, user: User, data: TournamentRRChallengeMessage
 ) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
-    if tournament is None or tournament.system != RR or not hasattr(tournament, "create_arrangement_challenge"):
+    if (
+        tournament is None
+        or tournament.system != RR
+        or not hasattr(tournament, "create_arrangement_challenge")
+    ):
         return
     result = await tournament.create_arrangement_challenge(user, data["arrangementId"])
     if result is not None:
@@ -346,7 +354,11 @@ async def handle_rr_accept_challenge(
     app: PychessGlobalAppState, ws, user: User, data: TournamentRRChallengeMessage
 ) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
-    if tournament is None or tournament.system != RR or not hasattr(tournament, "accept_arrangement_challenge"):
+    if (
+        tournament is None
+        or tournament.system != RR
+        or not hasattr(tournament, "accept_arrangement_challenge")
+    ):
         return
     result = await tournament.accept_arrangement_challenge(user, data["arrangementId"])
     await ws_send_json(ws, result)

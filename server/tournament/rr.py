@@ -103,7 +103,17 @@ ARR_STATUS_FINISHED = "finished"
 
 
 class RRArrangement:
-    __slots__ = ("id", "white", "black", "round_no", "status", "game_id", "invite_id", "challenger", "date")
+    __slots__ = (
+        "id",
+        "white",
+        "black",
+        "round_no",
+        "status",
+        "game_id",
+        "invite_id",
+        "challenger",
+        "date",
+    )
 
     def __init__(
         self,
@@ -229,7 +239,9 @@ class RRTournament(Tournament):
 
     def arrangement_payload(self, *, user: User | None = None) -> dict[str, object]:
         username = "" if user is None else user.username
-        matrix: dict[str, dict[str, dict[str, Any]]] = {player.username: {} for player in self.players}
+        matrix: dict[str, dict[str, dict[str, Any]]] = {
+            player.username: {} for player in self.players
+        }
         for arrangement in self.arrangement_list():
             result = ""
             if arrangement.game_id:
@@ -267,7 +279,9 @@ class RRTournament(Tournament):
             "players": [player.username for player in self.leaderboard],
             "matrix": matrix,
             "completedGames": sum(
-                1 for arrangement in self.arrangements.values() if arrangement.status == ARR_STATUS_FINISHED
+                1
+                for arrangement in self.arrangements.values()
+                if arrangement.status == ARR_STATUS_FINISHED
             ),
             "totalGames": len(self.arrangements),
         }
@@ -338,7 +352,10 @@ class RRTournament(Tournament):
             )
             self.arrangements[arrangement.id] = arrangement
 
-        self.rounds = max((arrangement.round_no for arrangement in self.arrangements.values()), default=self.rounds)
+        self.rounds = max(
+            (arrangement.round_no for arrangement in self.arrangements.values()),
+            default=self.rounds,
+        )
 
     async def db_update_arrangement(self, arrangement: RRArrangement) -> None:
         if self.app_state.db is None:
@@ -410,7 +427,10 @@ class RRTournament(Tournament):
             return "This round-robin game is already finished."
         if arrangement.status == ARR_STATUS_STARTED:
             return "This round-robin game is already in progress."
-        if self.player_data_by_name(user.username) is None or self.player_data_by_name(user.username).paused:
+        if (
+            self.player_data_by_name(user.username) is None
+            or self.player_data_by_name(user.username).paused
+        ):
             return "Paused players cannot create round-robin challenges."
 
         if arrangement.invite_id and arrangement.invite_id in self.app_state.invites:

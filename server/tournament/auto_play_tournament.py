@@ -255,7 +255,9 @@ class RRTestTournament(TestTournament, RRTournament):
 
         opponent_name = arrangement.opponent(challenger_name)
         if opponent_name is None:
-            raise AssertionError(f"Arrangement {arrangement_id} has no opponent for {challenger_name}")
+            raise AssertionError(
+                f"Arrangement {arrangement_id} has no opponent for {challenger_name}"
+            )
 
         opponent_user = self.app_state.users[opponent_name]
         response = await self.accept_arrangement_challenge(opponent_user, arrangement_id)

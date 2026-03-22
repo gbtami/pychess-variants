@@ -376,7 +376,9 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         assert doc is not None
         self.assertEqual(doc.get("rounds"), 3)
 
-        arrangement_docs = await app_state.db.tournament_arrangement.find({"tid": tid}).to_list(None)
+        arrangement_docs = await app_state.db.tournament_arrangement.find({"tid": tid}).to_list(
+            None
+        )
         self.assertEqual(len(arrangement_docs), 6)
 
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
