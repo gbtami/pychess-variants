@@ -325,7 +325,15 @@ export class TournamentRRController implements ChatController {
                     ongoing: !!row.gameId && row.status !== 'finished',
                     finished: row.status === 'finished',
                 },
-                on: target ? { click: () => this.selectArrangement(target) } : {},
+                on: {
+                    click: () => {
+                        if (row.gameId) {
+                            window.location.assign('/' + row.gameId);
+                        } else if (target) {
+                            this.selectArrangement(target);
+                        }
+                    },
+                },
             }, [
                 h('td.icon-col', icon),
                 h('td.matchup', [
