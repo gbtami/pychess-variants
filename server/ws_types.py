@@ -388,6 +388,7 @@ class TournamentUserConnectedMessage(TypedDict):
     private: bool
     createdBy: str
     rrRequiresApproval: NotRequired[bool]
+    rrJoiningClosed: NotRequired[bool]
     defender_title: NotRequired[str]
     defender_name: NotRequired[str]
 
@@ -504,6 +505,11 @@ class TournamentRRManagementMessage(TournamentIdMessage):
     type: Literal["get_rr_management"]
 
 
+class TournamentRRSetJoiningMessage(TournamentIdMessage):
+    type: Literal["rr_set_joining_closed"]
+    closed: bool
+
+
 class TournamentRRChallengeMessage(TournamentIdMessage):
     type: Literal["rr_challenge", "rr_accept_challenge"]
     arrangementId: str
@@ -544,6 +550,7 @@ TournamentInboundMessage = (
     | TournamentGetGamesMessage
     | TournamentRRArrangementsMessage
     | TournamentRRManagementMessage
+    | TournamentRRSetJoiningMessage
     | TournamentRRChallengeMessage
     | TournamentRRManagePlayerMessage
     | TournamentJoinMessage

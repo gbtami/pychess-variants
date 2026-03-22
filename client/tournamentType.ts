@@ -70,6 +70,7 @@ export interface MsgUserConnectedTournament {
     private: boolean;
     createdBy: string;
     rrRequiresApproval?: boolean;
+    rrJoiningClosed?: boolean;
 }
 
 export interface MsgGetPlayers {
@@ -138,8 +139,16 @@ export interface MsgRRManagement {
     requestedBy: string;
     createdBy: string;
     approvalRequired: boolean;
+    joiningClosed: boolean;
     pendingPlayers: TournamentManagePlayer[];
     deniedPlayers: TournamentManagePlayer[];
+}
+
+export interface MsgRRSettings {
+    type: string;
+    createdBy: string;
+    approvalRequired: boolean;
+    joiningClosed: boolean;
 }
 
 export interface TopGame {

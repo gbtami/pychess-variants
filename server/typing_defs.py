@@ -491,6 +491,7 @@ class TournamentCreateData(TypedDict):
     rounds: NotRequired[int]
     rrMaxPlayers: NotRequired[int]
     rrRequiresApproval: NotRequired[bool]
+    rrJoiningClosed: NotRequired[bool]
     roundInterval: NotRequired[int]
     entryMinRating: NotRequired[int]
     entryMaxRating: NotRequired[int]
@@ -565,6 +566,7 @@ class TournamentDoc(TypedDict):
     rounds: int
     rrMaxPlayers: NotRequired[int]
     rrRequiresApproval: NotRequired[bool]
+    rrJoiningClosed: NotRequired[bool]
     rrPendingPlayers: NotRequired[list[str]]
     rrDeniedPlayers: NotRequired[list[str]]
     ri: NotRequired[int]
@@ -606,6 +608,7 @@ class TournamentUpdateData(TypedDict, total=False):
     rounds: int
     rrMaxPlayers: int
     rrRequiresApproval: bool
+    rrJoiningClosed: bool
     rrPendingPlayers: list[str]
     rrDeniedPlayers: list[str]
     ri: int
@@ -785,8 +788,16 @@ class TournamentRRManagementResponse(TypedDict):
     requestedBy: str
     createdBy: str
     approvalRequired: bool
+    joiningClosed: bool
     pendingPlayers: list[TournamentManagePlayerJson]
     deniedPlayers: list[TournamentManagePlayerJson]
+
+
+class TournamentRRSettingsResponse(TypedDict):
+    type: Literal["rr_settings"]
+    createdBy: str
+    approvalRequired: bool
+    joiningClosed: bool
 
 
 class TournamentTopGameResponse(TypedDict):

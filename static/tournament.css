@@ -242,6 +242,7 @@ table#rr-crosstable th,
 table#rr-crosstable td {
     padding: 0.45rem 0.55rem;
     text-align: center;
+    transition: background-color 120ms ease, color 120ms ease;
 }
 table#rr-crosstable th:nth-child(2) {
     text-align: left;
@@ -250,14 +251,61 @@ table#rr-crosstable td.rr-cell.actionable {
     cursor: pointer;
     background: var(--bg-color2);
 }
+table#rr-crosstable td.rr-cell.hovered,
+table#rr-crosstable th.hovered,
+table#rr-crosstable tr.hovered td,
+table#rr-crosstable tr.hovered th {
+    background: var(--bg-color2);
+}
+table#rr-crosstable td.rr-cell.selected {
+    outline: 2px solid var(--link-color);
+    outline-offset: -2px;
+}
+table#rr-crosstable td.rr-cell.pending {
+    color: var(--text-color);
+}
+table#rr-crosstable td.rr-cell.incoming {
+    background: color-mix(in srgb, var(--green) 18%, var(--bg-color1));
+}
+table#rr-crosstable td.rr-cell.outgoing {
+    background: color-mix(in srgb, var(--gold) 18%, var(--bg-color1));
+}
+table#rr-crosstable td.rr-cell.started {
+    background: color-mix(in srgb, var(--link-color) 16%, var(--bg-color1));
+}
+table#rr-crosstable td.rr-cell.win {
+    color: var(--green);
+    font-weight: 700;
+}
+table#rr-crosstable td.rr-cell.loss {
+    color: var(--c-error, #9f3a38);
+    font-weight: 700;
+}
+table#rr-crosstable td.rr-cell.draw {
+    color: var(--link-color);
+    font-weight: 700;
+}
 table#rr-crosstable td.rr-self {
     opacity: 0.5;
 }
-#rr-management {
+#rr-nav {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+#rr-nav button.active {
+    background: var(--link-color);
+    color: var(--bg-color0);
+}
+#rr-management,
+#rr-challenges,
+#rr-selection {
     margin-bottom: 1rem;
 }
 #rr-management h2,
-#rr-management h3 {
+#rr-management h3,
+#rr-challenges h2,
+#rr-selection h2 {
     margin: 0 0 0.6rem;
 }
 #rr-management table {
@@ -270,6 +318,123 @@ table#rr-crosstable td.rr-self {
 }
 #rr-management button.reject {
     background: var(--c-error, #9f3a38);
+}
+#rr-management .rr-section-header,
+#rr-management .rr-kick-controls,
+#rr-selection .rr-detail-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+#rr-management .rr-section-header {
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+#rr-management .rr-kick-wrap {
+    margin-bottom: 1rem;
+}
+#rr-management .rr-kick-wrap label {
+    display: block;
+    margin-bottom: 0.4rem;
+}
+#rr-management .rr-kick-controls input {
+    flex: 1;
+}
+#rr-management .rr-kick-controls button.disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+#rr-body .rr-empty {
+    opacity: 0.75;
+}
+#rr-selection .rr-detail-actions {
+    margin-top: 1rem;
+}
+.rr-modal-content {
+    width: min(44rem, 100%);
+    background: var(--bg-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.28);
+    color: var(--text-color);
+}
+.rr-modal-header,
+.rr-modal-players,
+.rr-modal-grid,
+.rr-detail-actions {
+    display: flex;
+}
+.rr-modal-header {
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.rr-modal-header h2 {
+    margin: 0;
+}
+.rr-modal-subtitle {
+    opacity: 0.75;
+    margin-top: 0.25rem;
+}
+.rr-modal-players {
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.rr-modal-player {
+    flex: 1;
+    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    background: var(--bg-color1);
+}
+.rr-color-label {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+    margin-bottom: 0.35rem;
+}
+.rr-modal-vs {
+    font-weight: 700;
+    opacity: 0.7;
+}
+.rr-modal-grid {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.rr-modal-stat {
+    min-width: 10rem;
+    flex: 1 1 10rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 10px;
+    background: var(--bg-color1);
+}
+.rr-modal-stat strong,
+.rr-modal-stat span {
+    display: block;
+}
+.rr-modal-stat strong {
+    font-size: 0.82rem;
+    opacity: 0.7;
+    margin-bottom: 0.25rem;
+}
+.rr-modal-note {
+    margin-bottom: 1rem;
+    padding: 0.85rem 0.95rem;
+    border-radius: 10px;
+    background: var(--bg-color1);
+}
+.rr-detail-actions {
+    gap: 0.75rem;
+}
+#players tr.withdrawn td {
+    opacity: 0.7;
+}
+.rr-player-state {
+    opacity: 0.55;
 }
 #action.pending-note {
     padding: 0.5rem 0;
