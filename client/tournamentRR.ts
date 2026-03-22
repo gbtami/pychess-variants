@@ -157,6 +157,8 @@ export class TournamentRRController implements ChatController {
 
     setViewMode(viewMode: RRViewMode) {
         this.viewMode = viewMode;
+        this.updateActionButton();
+        this.renderManageButton();
         this.renderBody();
     }
 
@@ -200,7 +202,12 @@ export class TournamentRRController implements ChatController {
 
     updateActionButton() {
         let button = h('div#action');
-        if (this.anon && 'created|started'.includes(this.tournamentStatus)) {
+        if (this.viewMode === 'manage') {
+            button = h('button#action', {
+                on: { click: () => this.setViewMode('overview') },
+                class: { icon: true, 'icon-step-backward': true },
+            }, _('Back'));
+        } else if (this.anon && 'created|started'.includes(this.tournamentStatus)) {
             button = h('button#action', { on: { click: () => this.login() }, class: { icon: true, 'icon-play': true } }, _('LOG IN'));
         } else if (this.tournamentStatus === 'created') {
             if (this.userStatus === 'pending') {
@@ -560,44 +567,41 @@ export class TournamentRRController implements ChatController {
         ]));
     }
 
-    renderChallenges() {
+    challengesVNode() {
         const rows = this.challengeRows();
-        this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
-            this.viewNavVNode(),
-            h('div#rr-challenges.box', [
-                h('h2', _('Challenges')),
-                rows.length === 0 ? h('div.rr-empty', _('No current challenges or active pairing actions.')) : h('table.players', [
-                    h('thead', h('tr', [
-                        h('th', _('Opponent')),
-                        h('th', _('Round')),
-                        h('th', _('Color')),
-                        h('th', _('Status')),
-                        h('th', _('Action')),
-                    ])),
-                    h('tbody', rows.map((row) => {
-                        const cell = this.selectedArrangementId === row.id ? this.selectedArrangement() : undefined;
-                        const target = cell || this.findArrangementById(row.id);
-                        return h('tr', {
-                            class: { incoming: row.incoming },
-                            on: target ? { click: () => this.selectArrangement(target) } : {},
-                        }, [
-                            h('td', userLink(row.opponent, [displayUsername(row.opponent)])),
-                            h('td', `${row.round}`),
-                            h('td', row.color.toUpperCase()),
-                            h('td', row.status),
-                            h('td', row.actionable && target ? h('button.button', {
-                                on: {
-                                    click: (evt: Event) => {
-                                        evt.stopPropagation();
-                                        this.arrangementAction(target);
-                                    },
+        return h('div#rr-challenges.box', [
+            h('h2', _('Challenges')),
+            rows.length === 0 ? h('div.rr-empty', _('No current challenges or active pairing actions.')) : h('table.players', [
+                h('thead', h('tr', [
+                    h('th', _('Opponent')),
+                    h('th', _('Round')),
+                    h('th', _('Color')),
+                    h('th', _('Status')),
+                    h('th', _('Action')),
+                ])),
+                h('tbody', rows.map((row) => {
+                    const cell = this.selectedArrangementId === row.id ? this.selectedArrangement() : undefined;
+                    const target = cell || this.findArrangementById(row.id);
+                    return h('tr', {
+                        class: { incoming: row.incoming },
+                        on: target ? { click: () => this.selectArrangement(target) } : {},
+                    }, [
+                        h('td', userLink(row.opponent, [displayUsername(row.opponent)])),
+                        h('td', `${row.round}`),
+                        h('td', row.color.toUpperCase()),
+                        h('td', row.status),
+                        h('td', row.actionable && target ? h('button.button', {
+                            on: {
+                                click: (evt: Event) => {
+                                    evt.stopPropagation();
+                                    this.arrangementAction(target);
                                 },
-                            }, row.label) : row.label),
-                        ]);
-                    })),
-                ]),
+                            },
+                        }, row.label) : row.label),
+                    ]);
+                })),
             ]),
-        ]));
+        ]);
     }
 
     findArrangementById(arrangementId: string): RRArrangementCell | undefined {
@@ -631,7 +635,6 @@ export class TournamentRRController implements ChatController {
             h(`button.button${reject ? '.reject' : ''}`, { on: { click: () => this.doSend(message as any) } }, label);
 
         this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
-            this.viewNavVNode(),
             h('div#rr-management.box', [
                 h('div.rr-section-header', [
                     h('h2', _('Player management')),
@@ -695,18 +698,27 @@ export class TournamentRRController implements ChatController {
         ]));
     }
 
-    renderOverview() {
+    renderMatrixShell(lowerContent: VNode) {
         this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
             h('div#player', [
                 h('div#stats.box', [h('div#rr-crosstable')]),
                 this.viewNavVNode(),
-                h('table#games.box'),
+                lowerContent,
             ]),
         ]));
         this.crossTableNode = patch(document.getElementById('rr-crosstable') as HTMLElement, h('div#rr-crosstable'));
-        this.gamesNode = patch(document.getElementById('games') as HTMLElement, h('table#games.box'));
         this.renderCrossTable();
+    }
+
+    renderOverview() {
+        this.renderMatrixShell(h('table#games.box'));
+        this.gamesNode = patch(document.getElementById('games') as HTMLElement, h('table#games.box'));
         this.renderGames();
+        this.renderModal();
+    }
+
+    renderChallenges() {
+        this.renderMatrixShell(this.challengesVNode());
         this.renderModal();
     }
 
