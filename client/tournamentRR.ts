@@ -377,45 +377,91 @@ export class TournamentRRController implements ChatController {
                     rowPlayerData?.withdrawn ? h('span.rr-player-state', '• ') : '',
                     displayUsername(rowPlayer),
                 ])),
-                ...order.map((colPlayer) => {
-                    const cell = this.matrix[rowPlayer]?.[colPlayer];
-                    if (rowPlayer === colPlayer) return h('td.rr-self', '•');
-                    const isMe = !!cell && [cell.white, cell.black].includes(this.username);
-                    const isSelected = this.selectedArrangementId !== '' && cell?.id === this.selectedArrangementId;
-                    return h('td.rr-cell', {
-                        class: {
-                            actionable: !!cell && isMe,
-                            hovered: this.hoveredRow === rowPlayer || this.hoveredCol === colPlayer,
-                            selected: isSelected,
-                            pending: cell?.status === 'pending',
-                            challenged: cell?.status === 'challenged',
-                            incoming: cell?.status === 'challenged' && cell?.challenger !== this.username,
-                            outgoing: cell?.status === 'challenged' && cell?.challenger === this.username,
-                            started: cell?.status === 'started',
-                            draw: this.cellDisplay(cell as RRArrangementCell) === '½',
-                            win: this.cellDisplay(cell as RRArrangementCell) === '1',
-                            loss: this.cellDisplay(cell as RRArrangementCell) === '0',
-                        },
-                        on: cell ? {
-                            click: () => this.selectArrangement(cell),
-                            mouseenter: () => this.setHovered(rowPlayer, colPlayer),
-                            mouseleave: () => this.clearHovered(),
-                        } : {},
-                    }, cell ? this.cellDisplay(cell) : '');
-                }),
+            ]);
+        });
+
+        const arrangementRows = order.map((rowPlayer) =>
+            h('tr', {
+                class: {
+                    hovered: this.hoveredRow === rowPlayer,
+                    withdrawn: !!this.playerByName(rowPlayer)?.withdrawn,
+                },
+            }, order.map((colPlayer) => {
+                const cell = this.matrix[rowPlayer]?.[colPlayer];
+                if (rowPlayer === colPlayer) return h('td.rr-cell.rr-self');
+                const isMe = !!cell && [cell.white, cell.black].includes(this.username);
+                const display = cell ? this.cellDisplay(cell) : '';
+                const isSelected = this.selectedArrangementId !== '' && cell?.id === this.selectedArrangementId;
+                return h('td.rr-cell', {
+                    attrs: {
+                        title: cell ? `${rowPlayer} vs ${colPlayer}` : '',
+                    },
+                    class: {
+                        actionable: !!cell && isMe,
+                        hovered: this.hoveredRow === rowPlayer || this.hoveredCol === colPlayer,
+                        selected: isSelected,
+                        pending: cell?.status === 'pending',
+                        challenged: cell?.status === 'challenged',
+                        incoming: cell?.status === 'challenged' && cell?.challenger !== this.username,
+                        outgoing: cell?.status === 'challenged' && cell?.challenger === this.username,
+                        started: cell?.status === 'started',
+                        draw: display === '½',
+                        win: display === '1',
+                        loss: display === '0',
+                        empty: !cell,
+                    },
+                    on: cell ? {
+                        click: () => this.selectArrangement(cell),
+                        mouseenter: () => this.setHovered(rowPlayer, colPlayer),
+                        mouseleave: () => this.clearHovered(),
+                    } : {},
+                }, display !== '' ? h('div', display) : '');
+            })),
+        );
+
+        const scoreRows = order.map((playerName) => {
+            const player = this.playerByName(playerName);
+            const maxScore = Math.max(0, ...this.players.map((entry) => entry.score));
+            return h('tr', {
+                class: {
+                    hovered: this.hoveredRow === playerName,
+                    withdrawn: !!player?.withdrawn,
+                },
+            }, [
+                h('td', {
+                    class: {
+                        me: playerName === this.username,
+                        winner: !!player && player.score === maxScore && maxScore > 0,
+                    },
+                }, `${player?.score ?? 0}`),
             ]);
         });
 
         if (this.crossTableNode === null) return;
-        this.crossTableNode = patch(this.crossTableNode, h('table#rr-crosstable.box', [
-            h('thead', h('tr', [
-                h('th', '#'),
-                h('th', _('Player')),
-                ...order.map((playerName, index) => h('th', {
-                    class: { hovered: this.hoveredCol === playerName },
-                }, `${index + 1}`)),
-            ])),
-            h('tbody', rows),
+        this.crossTableNode = patch(this.crossTableNode, h('div#rr-crosstable.box.r-table-wrap', [
+            h('div.r-table-wrap-players', [
+                h('table', [
+                    h('thead', h('tr', [h('th', '#'), h('th', _('Player'))])),
+                    h('tbody', rows),
+                ]),
+            ]),
+            h('div.r-table-wrap-arrs', [
+                h('table', [
+                    h('thead', h('tr', order.map((playerName, index) => h('th', {
+                        class: {
+                            hovered: this.hoveredCol === playerName,
+                            me: playerName === this.username,
+                        },
+                    }, `${index + 1}`)))),
+                    h('tbody', arrangementRows),
+                ]),
+            ]),
+            h('div.r-table-wrap-scores', [
+                h('table', [
+                    h('thead', h('tr', [h('th', 'Σ')])),
+                    h('tbody', scoreRows),
+                ]),
+            ]),
         ]));
     }
 
@@ -703,6 +749,7 @@ export class TournamentRRController implements ChatController {
             this.selectedPlayer = this.players[0].name;
             this.doSend({ type: 'get_games', tournamentId: this.tournamentId, player: this.selectedPlayer });
         }
+        this.doSend({ type: 'get_rr_arrangements', tournamentId: this.tournamentId });
         this.renderStandings();
         this.renderBody();
     }
@@ -859,15 +906,15 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                 ]),
                 h('div#page-controls.btn-controls', [h('div#action')]),
                 h('table#players', { hook: { insert: (vnode) => runTournamentRR(vnode, model) } }),
+                h('div#rr-nav'),
+                h('div#rr-body'),
                 h('div.tour-faq'),
             ]),
         ]),
         h('div.tour-table', [
             h('div#summarybox'),
-            h('div#rr-nav'),
-            h('div#rr-body'),
-            h('div#rr-modal'),
         ]),
+        h('div#rr-modal'),
         h('under-chat#spectators'),
     ];
 }

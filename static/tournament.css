@@ -231,62 +231,127 @@ strong.score {
 }
 #rr-crosstable {
     width: 100%;
-    overflow-x: auto;
 }
-#rr-crosstable table,
-table#rr-crosstable {
-    width: 100%;
+.r-table-wrap {
+    display: flex;
+}
+.r-table-wrap table {
     border-collapse: collapse;
+    width: 100%;
 }
-table#rr-crosstable th,
-table#rr-crosstable td {
-    padding: 0.45rem 0.55rem;
+.r-table-wrap th,
+.r-table-wrap td {
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
     text-align: center;
+    border: 1px solid var(--border-color);
     transition: background-color 120ms ease, color 120ms ease;
 }
-table#rr-crosstable th:nth-child(2) {
+.r-table-wrap th {
+    background: var(--bg-color2);
+}
+.r-table-wrap-players td.player-name,
+.r-table-wrap-players th:nth-child(2) {
+    min-width: 10rem;
+    padding: 0 0.8rem;
     text-align: left;
 }
-table#rr-crosstable td.rr-cell.actionable {
+.r-table-wrap-players td.player-name .user-link {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+.r-table-wrap-arrs {
+    overflow-x: auto;
+}
+.r-table-wrap-arrs table {
+    table-layout: fixed;
+}
+.r-table-wrap-scores td {
+    min-width: 3rem;
+}
+.r-table-wrap td.me,
+.r-table-wrap th.me {
+    background: color-mix(in srgb, var(--link-color) 14%, var(--bg-color1));
+}
+.r-table-wrap tr.hovered td,
+.r-table-wrap tr.hovered th,
+.r-table-wrap td.hovered,
+.r-table-wrap th.hovered {
+    background: color-mix(in srgb, var(--link-color) 10%, var(--bg-color1));
+}
+.r-table-wrap tr.withdrawn td,
+.r-table-wrap tr.withdrawn th {
+    opacity: 0.7;
+}
+.r-table-wrap td.winner {
+    color: var(--gold);
+    font-weight: 700;
+}
+.r-table-wrap td.rr-cell {
+    position: relative;
+}
+.r-table-wrap td.rr-cell > div {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+.r-table-wrap td.rr-cell.actionable {
     cursor: pointer;
     background: var(--bg-color2);
 }
-table#rr-crosstable td.rr-cell.hovered,
-table#rr-crosstable th.hovered,
-table#rr-crosstable tr.hovered td,
-table#rr-crosstable tr.hovered th {
-    background: var(--bg-color2);
-}
-table#rr-crosstable td.rr-cell.selected {
+.r-table-wrap td.rr-cell.selected {
     outline: 2px solid var(--link-color);
     outline-offset: -2px;
 }
-table#rr-crosstable td.rr-cell.pending {
-    color: var(--text-color);
+.r-table-wrap td.rr-cell.pending {
+    color: var(--font-color);
 }
-table#rr-crosstable td.rr-cell.incoming {
+.r-table-wrap td.rr-cell.incoming {
     background: color-mix(in srgb, var(--green) 18%, var(--bg-color1));
 }
-table#rr-crosstable td.rr-cell.outgoing {
+.r-table-wrap td.rr-cell.outgoing {
     background: color-mix(in srgb, var(--gold) 18%, var(--bg-color1));
 }
-table#rr-crosstable td.rr-cell.started {
+.r-table-wrap td.rr-cell.started {
     background: color-mix(in srgb, var(--link-color) 16%, var(--bg-color1));
 }
-table#rr-crosstable td.rr-cell.win {
+.r-table-wrap td.rr-cell.win {
     color: var(--green);
     font-weight: 700;
 }
-table#rr-crosstable td.rr-cell.loss {
+.r-table-wrap td.rr-cell.loss {
     color: var(--c-error, #9f3a38);
     font-weight: 700;
 }
-table#rr-crosstable td.rr-cell.draw {
+.r-table-wrap td.rr-cell.draw {
     color: var(--link-color);
     font-weight: 700;
 }
-table#rr-crosstable td.rr-self {
-    opacity: 0.5;
+.r-table-wrap td.rr-cell.empty {
+    background: var(--bg-color1);
+}
+.r-table-wrap td.rr-self::before,
+.r-table-wrap td.rr-self::after {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    background: var(--font-color);
+    opacity: 0.35;
+    transform-origin: center;
+}
+.r-table-wrap td.rr-self::before {
+    width: 2px;
+    height: 100%;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+.r-table-wrap td.rr-self::after {
+    width: 100%;
+    height: 2px;
+    transform: translate(-50%, -50%) rotate(45deg);
 }
 #rr-nav {
     display: flex;
