@@ -460,7 +460,9 @@ async def create_or_update_tournament(
         default_value=default_rr_max_players,
     )
     rr_requires_approval = form.get("rrRequiresApproval", "") == "1"
-    rr_joining_closed = bool(getattr(tournament, "rr_joining_closed", False)) if tournament else False
+    rr_joining_closed = (
+        bool(getattr(tournament, "rr_joining_closed", False)) if tournament else False
+    )
     if system != RR:
         rr_max_players = 0
         rr_requires_approval = False
@@ -1264,7 +1266,10 @@ async def load_tournament(
         arrangement_cursor = arrangement_table.find({"tid": tournament_id})
         arrangement_docs = await arrangement_cursor.to_list(length=None)
         await tournament.load_arrangements(
-            [cast(TournamentArrangementDoc, arrangement_doc) for arrangement_doc in arrangement_docs]
+            [
+                cast(TournamentArrangementDoc, arrangement_doc)
+                for arrangement_doc in arrangement_docs
+            ]
         )
 
     cursor = app_state.db.tournament_chat.find(

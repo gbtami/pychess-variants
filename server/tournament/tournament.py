@@ -1511,7 +1511,9 @@ class Tournament(ABC):
         if self.system != RR:
             return
         sockets_by_username = self.app_state.tourneysockets.get(self.id, {})
-        sockets = [socket for user_sockets in sockets_by_username.values() for socket in user_sockets]
+        sockets = [
+            socket for user_sockets in sockets_by_username.values() for socket in user_sockets
+        ]
         if len(sockets) == 0:
             return
         await ws_send_json_many(sockets, self.rr_settings_payload())

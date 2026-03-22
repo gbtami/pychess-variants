@@ -653,7 +653,9 @@ class TournamentFlowTestCase(TournamentTestCase):
         opponent_name = arrangement.black
         opponent = app_state.users[opponent_name]
 
-        self.assertIsNone(await self.tournament.create_arrangement_challenge(challenger, arrangement.id))
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(challenger, arrangement.id)
+        )
         self.assertIsNotNone(opponent.notifications)
         assert opponent.notifications is not None
         self.assertEqual(opponent.notifications[-1]["type"], "rrChallenge")
