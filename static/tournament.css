@@ -299,7 +299,7 @@ strong.score {
 .r-table-wrap tr.hovered th,
 .r-table-wrap td.hovered,
 .r-table-wrap th.hovered {
-    background: color-mix(in srgb, var(--link-color) 10%, var(--bg-color1));
+    background: color-mix(in srgb, var(--link-color-blue) 18%, transparent);
 }
 .r-table-wrap tr.selected-player td,
 .r-table-wrap tr.selected-player th {
@@ -357,6 +357,12 @@ strong.score {
 }
 .r-table-wrap td.rr-cell.empty {
     background: var(--bg-color1);
+}
+.r-table-wrap td.rr-cell.hovered,
+.r-table-wrap tr.hovered td.rr-cell,
+.r-table-wrap tr.hovered td.rr-self,
+.r-table-wrap td.rr-self.hovered {
+    background: color-mix(in srgb, var(--link-color-blue) 18%, transparent);
 }
 .r-table-wrap td.rr-self::before,
 .r-table-wrap td.rr-self::after {
@@ -464,11 +470,13 @@ strong.score {
 }
 .rr-modal-content {
     width: min(44rem, 100%);
-    background: var(--bg-color);
+    background: var(--modal-bg);
+    border: 1px solid color-mix(in srgb, var(--link-color) 14%, var(--border-color));
     border-radius: 12px;
     padding: 1.25rem;
     box-shadow: 0 10px 35px rgba(0, 0, 0, 0.28);
-    color: var(--text-color);
+    color: var(--font-color);
+    opacity: 1;
 }
 .rr-modal-header,
 .rr-modal-players,
@@ -541,6 +549,12 @@ strong.score {
 }
 .rr-detail-actions {
     gap: 0.75rem;
+    justify-content: flex-end;
+}
+.rr-detail-actions .button-empty {
+    background: transparent;
+    color: var(--font-color);
+    border: 1px solid var(--border-color);
 }
 #players tr.withdrawn td {
     opacity: 0.7;
