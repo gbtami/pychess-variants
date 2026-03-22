@@ -501,7 +501,9 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(game_doc.get("tid"), tid)
         self.assertEqual(game_doc.get("aid"), arrangement.id)
 
-        arrangement_doc = await app_state.db.tournament_arrangement.find_one({"_id": arrangement.id})
+        arrangement_doc = await app_state.db.tournament_arrangement.find_one(
+            {"_id": arrangement.id}
+        )
         self.assertIsNotNone(arrangement_doc)
         assert arrangement_doc is not None
         self.assertEqual(arrangement_doc.get("gid"), game.id)
