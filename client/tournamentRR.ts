@@ -87,6 +87,17 @@ export class TournamentRRController implements ChatController {
     kickUsername = '';
     clockdiv: VNode;
     action: VNode;
+    descriptionNode: VNode;
+    startsAtNode: VNode;
+    systemNode: VNode;
+    minutesNode: VNode;
+    playersNode: VNode;
+    summaryNode: VNode;
+    navNode: VNode;
+    bodyNode: VNode;
+    modalNode: VNode;
+    crossTableNode: VNode | null = null;
+    gamesNode: VNode | null = null;
 
     constructor(_el: HTMLElement, model: PyChessModel) {
         this.tournamentId = model.tournamentId;
@@ -104,14 +115,21 @@ export class TournamentRRController implements ChatController {
         this.sock.onopen = () => {
             this.doSend({ type: 'tournament_user_connected', tournamentId: this.tournamentId, username: this.username });
             this.doSend({ type: 'get_players', tournamentId: this.tournamentId, page: this.page });
-            this.doSend({ type: 'get_rr_arrangements', tournamentId: this.tournamentId });
-            this.doSend({ type: 'get_rr_management', tournamentId: this.tournamentId });
         };
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, 'lobbychat'));
+        this.descriptionNode = patch(document.getElementById('description') as HTMLElement, h('div#description.description'));
+        this.startsAtNode = patch(document.getElementById('startsAt') as HTMLElement, h('div#startsAt'));
+        this.systemNode = patch(document.getElementById('tsystem') as HTMLElement, h('div#tsystem'));
+        this.minutesNode = patch(document.getElementById('tminutes') as HTMLElement, h('span#tminutes'));
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.action = patch(document.getElementById('action') as HTMLElement, h('div#action'));
+        this.playersNode = patch(document.getElementById('players') as HTMLElement, h('table#players.players'));
+        this.summaryNode = patch(document.getElementById('summarybox') as HTMLElement, h('div#summarybox'));
+        this.navNode = patch(document.getElementById('rr-nav') as HTMLElement, h('div#rr-nav'));
+        this.bodyNode = patch(document.getElementById('rr-body') as HTMLElement, h('div#rr-body'));
+        this.modalNode = patch(document.getElementById('rr-modal') as HTMLElement, h('div#rr-modal'));
         patch(document.querySelector('div.tour-faq') as HTMLElement, roundRobinFaq(this.rated));
     }
 
@@ -205,7 +223,7 @@ export class TournamentRRController implements ChatController {
                 button = h('button#action', { on: { click: () => this.withdraw() }, class: { icon: true, 'icon-flag-o': true } }, _('WITHDRAW'));
             }
         }
-        this.action = patch(document.getElementById('action') as HTMLElement, button);
+        this.action = patch(this.action, button);
     }
 
     renderInfo(msg: MsgUserConnectedTournament) {
@@ -213,13 +231,13 @@ export class TournamentRRController implements ChatController {
         this.createdBy = msg.createdBy;
         this.approvalRequired = !!msg.rrRequiresApproval;
         this.joiningClosed = !!msg.rrJoiningClosed;
-        patch(document.getElementById('description') as HTMLElement, h('div#description.description', msg.description));
-        patch(document.getElementById('startsAt') as HTMLElement, h('div#startsAt', [
+        this.descriptionNode = patch(this.descriptionNode, h('div#description.description', msg.description));
+        this.startsAtNode = patch(this.startsAtNode, h('div#startsAt', [
             h('strong', _('Starts')),
             ` ${msg.startsAt}`,
         ]));
-        patch(document.getElementById('tsystem') as HTMLElement, h('div#tsystem', _('Round-Robin')));
-        patch(document.getElementById('tminutes') as HTMLElement, h('span#tminutes', ` • ${msg.tminutes}m`));
+        this.systemNode = patch(this.systemNode, h('div#tsystem', _('Round-Robin')));
+        this.minutesNode = patch(this.minutesNode, h('span#tminutes', ` • ${msg.tminutes}m`));
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
         initializeClock(this as any);
@@ -245,7 +263,7 @@ export class TournamentRRController implements ChatController {
                 h('td.berger', `${player.berger.toFixed(1)}`),
             ])
         );
-        patch(document.getElementById('players') as HTMLElement, h('table#players.players', [
+        this.playersNode = patch(this.playersNode, h('table#players.players', [
             h('thead', h('tr', [h('th', '#'), h('th', _('Player')), h('th', _('Pts')), h('th', _('SB'))])),
             h('tbody', rows),
         ]));
@@ -265,7 +283,8 @@ export class TournamentRRController implements ChatController {
                 h('td', game.result),
             ])
         );
-        patch(document.getElementById('games') as HTMLElement, h('table#games.box.pairings', [
+        if (this.gamesNode === null) return;
+        this.gamesNode = patch(this.gamesNode, h('table#games.box.pairings', [
             h('thead', h('tr', [h('th', _('Opponent')), h('th', _('Color')), h('th', _('Result'))])),
             h('tbody', rows),
         ]));
@@ -387,7 +406,8 @@ export class TournamentRRController implements ChatController {
             ]);
         });
 
-        patch(document.getElementById('rr-crosstable') as HTMLElement, h('table#rr-crosstable.box', [
+        if (this.crossTableNode === null) return;
+        this.crossTableNode = patch(this.crossTableNode, h('table#rr-crosstable.box', [
             h('thead', h('tr', [
                 h('th', '#'),
                 h('th', _('Player')),
@@ -400,7 +420,7 @@ export class TournamentRRController implements ChatController {
     }
 
     renderProgress() {
-        patch(document.getElementById('summarybox') as HTMLElement, h('div#summarybox.box', [
+        this.summaryNode = patch(this.summaryNode, h('div#summarybox.box', [
             h('h2', _('Round-Robin')),
             h('div', `${this.completedGames} / ${this.totalGames} ${_('games completed')}`),
             h('div', `${this.rounds} ${_('rounds')}`),
@@ -415,7 +435,7 @@ export class TournamentRRController implements ChatController {
             ['challenges', _('Challenges')],
         ] as Array<[RRViewMode, string]>;
         if (this.isHost()) nav.push(['manage', _('Manage players')]);
-        patch(document.getElementById('rr-nav') as HTMLElement, h('div#rr-nav.box', nav.map(([mode, label]) =>
+        this.navNode = patch(this.navNode, h('div#rr-nav.box', nav.map(([mode, label]) =>
             h(`button.button${this.viewMode === mode ? '.active' : ''}`, {
                 on: { click: () => this.setViewMode(mode) },
             }, label),
@@ -434,10 +454,9 @@ export class TournamentRRController implements ChatController {
     }
 
     renderModal() {
-        const mount = document.getElementById('rr-modal') as HTMLElement;
         const cell = this.selectedArrangement();
         if (!cell) {
-            patch(mount, h('div#rr-modal'));
+            this.modalNode = patch(this.modalNode, h('div#rr-modal'));
             return;
         }
         const meIsWhite = cell.white === this.username;
@@ -453,7 +472,7 @@ export class TournamentRRController implements ChatController {
         } else if (canAct && cell.status === 'challenged' && cell.challenger !== this.username) {
             actionButton = h('button.button', { on: { click: () => this.arrangementAction(cell) } }, _('Accept challenge'));
         }
-        patch(mount, h('div#rr-modal.modal-overlay.modal-overlay-fullscreen', {
+        this.modalNode = patch(this.modalNode, h('div#rr-modal.modal-overlay.modal-overlay-fullscreen', {
             style: { display: 'flex' },
             on: {
                 click: (evt: Event) => {
@@ -499,9 +518,8 @@ export class TournamentRRController implements ChatController {
     }
 
     renderChallenges() {
-        const mount = document.getElementById('rr-body') as HTMLElement;
         const rows = this.challengeRows();
-        patch(mount, h('div#rr-body', [
+        this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
             h('div#rr-challenges.box', [
                 h('h2', _('Challenges')),
                 rows.length === 0 ? h('div.rr-empty', _('No current challenges or active pairing actions.')) : h('table.players', [
@@ -548,9 +566,8 @@ export class TournamentRRController implements ChatController {
     }
 
     renderManagement() {
-        const mount = document.getElementById('rr-body') as HTMLElement;
         if (!this.isHost()) {
-            patch(mount, h('div#rr-body', [h('div#rr-management.box.rr-empty', _('Player management is only available to the organizer.'))]));
+            this.bodyNode = patch(this.bodyNode, h('div#rr-body', [h('div#rr-management.box.rr-empty', _('Player management is only available to the organizer.'))]));
             return;
         }
 
@@ -569,7 +586,7 @@ export class TournamentRRController implements ChatController {
         const button = (label: string, message: object, reject = false) =>
             h(`button.button${reject ? '.reject' : ''}`, { on: { click: () => this.doSend(message as any) } }, label);
 
-        patch(mount, h('div#rr-body', [
+        this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
             h('div#rr-management.box', [
                 h('div.rr-section-header', [
                     h('h2', _('Player management')),
@@ -634,13 +651,14 @@ export class TournamentRRController implements ChatController {
     }
 
     renderOverview() {
-        const mount = document.getElementById('rr-body') as HTMLElement;
-        patch(mount, h('div#rr-body', [
+        this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
             h('div#player', [
                 h('div#stats.box', [h('div#rr-crosstable')]),
                 h('table#games.box'),
             ]),
         ]));
+        this.crossTableNode = patch(document.getElementById('rr-crosstable') as HTMLElement, h('div#rr-crosstable'));
+        this.gamesNode = patch(document.getElementById('games') as HTMLElement, h('table#games.box'));
         this.renderCrossTable();
         this.renderGames();
         this.renderModal();
