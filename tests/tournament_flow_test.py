@@ -588,6 +588,40 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertNotIn(applicant.username, self.tournament.rr_pending_players)
         self.assertEqual(self.tournament.nb_players, 1)
 
+    async def test_rr_joining_can_be_closed_and_reopened_by_organizer(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=8,
+            with_clock=False,
+        )
+        self.tournament.created_by = "rr_host"
+        app_state.tournaments[tid] = self.tournament
+
+        organizer = User(app_state, username="rr_host", perfs=make_test_perfs())
+        app_state.users[organizer.username] = organizer
+
+        applicant = User(app_state, username=f"{tid}_closed", perfs=make_test_perfs())
+        app_state.users[applicant.username] = applicant
+
+        self.assertIsNone(await self.tournament.rr_set_joining_closed(True))
+        self.assertTrue(self.tournament.rr_joining_closed)
+        self.assertEqual(
+            await self.tournament.join(applicant),
+            "Joining is currently closed for this round-robin tournament.",
+        )
+        self.assertEqual(self.tournament.nb_players, 0)
+
+        self.assertIsNone(await self.tournament.rr_set_joining_closed(False))
+        self.assertFalse(self.tournament.rr_joining_closed)
+        self.assertIsNone(await self.tournament.join(applicant))
+        self.assertEqual(self.tournament.nb_players, 1)
+
     async def test_swiss_ws_redirect_failure_does_not_pause_players(self):
         app_state = get_app_state(self.app)
         tid = id8()

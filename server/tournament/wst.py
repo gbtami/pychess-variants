@@ -22,6 +22,7 @@ if TYPE_CHECKING:
         TournamentMyPageMessage,
         TournamentRRManagePlayerMessage,
         TournamentRRManagementMessage,
+        TournamentRRSetJoiningMessage,
         TournamentRRArrangementsMessage,
         TournamentRRChallengeMessage,
         TournamentPauseMessage,
@@ -87,6 +88,8 @@ async def process_message(
         await handle_get_rr_arrangements(app_state, ws, user, data)
     elif data["type"] == "get_rr_management":
         await handle_get_rr_management(app_state, ws, user, data)
+    elif data["type"] == "rr_set_joining_closed":
+        await handle_rr_set_joining_closed(app_state, ws, user, data)
     elif data["type"] == "join":
         await handle_join(app_state, ws, user, data)
     elif data["type"] == "pause":
@@ -159,6 +162,19 @@ async def handle_get_rr_management(
     if user.username != tournament.created_by:
         return
     await ws_send_json(ws, tournament.rr_management_payload(requested_by=user.username))
+
+
+async def handle_rr_set_joining_closed(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentRRSetJoiningMessage
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if tournament is None or tournament.system != RR:
+        return
+    if user.username != tournament.created_by:
+        return
+    result = await tournament.rr_set_joining_closed(data["closed"])
+    if result is not None:
+        await ws_send_json(ws, {"type": "error", "message": result})
 
 
 async def handle_join(
@@ -281,6 +297,7 @@ async def handle_user_connected(
     response["manualNextRound"] = tournament.manual_next_round_pending
     if tournament.system == RR:
         response["rrRequiresApproval"] = tournament.rr_requires_approval
+        response["rrJoiningClosed"] = tournament.rr_joining_closed
     if tournament.frequency == SHIELD:
         variant_name = tournament.variant + ("960" if tournament.chess960 else "")
         defender = await app_state.users.get(app_state.shield_owners[variant_name])

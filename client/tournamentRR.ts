@@ -16,6 +16,7 @@ import {
     MsgPing,
     MsgRRArrangements,
     MsgRRManagement,
+    MsgRRSettings,
     MsgTournamentStatus,
     TournamentManagePlayer,
     MsgUserConnectedTournament,
@@ -27,12 +28,25 @@ import {
 import { VARIANTS } from './variants';
 
 const T_STATUS = {
-    0: "created",
-    1: "started",
-    2: "aborted",
-    3: "finished",
-    4: "archived",
-}
+    0: 'created',
+    1: 'started',
+    2: 'aborted',
+    3: 'finished',
+    4: 'archived',
+} as const;
+
+type RRViewMode = 'overview' | 'challenges' | 'manage';
+type RRChallengeRow = {
+    id: string;
+    opponent: string;
+    round: number;
+    color: string;
+    status: string;
+    label: string;
+    actionable: boolean;
+    incoming: boolean;
+    gameId: string;
+};
 
 export class TournamentRRController implements ChatController {
     sock;
@@ -60,11 +74,17 @@ export class TournamentRRController implements ChatController {
     totalGames = 0;
     createdBy = '';
     approvalRequired = false;
+    joiningClosed = false;
     pendingPlayers: TournamentManagePlayer[] = [];
     deniedPlayers: TournamentManagePlayer[] = [];
     page = 1;
     selectedPlayer = '';
     selectedGames: TournamentGame[] = [];
+    viewMode: RRViewMode = 'overview';
+    selectedArrangementId = '';
+    hoveredRow = '';
+    hoveredCol = '';
+    kickUsername = '';
     clockdiv: VNode;
     action: VNode;
 
@@ -98,6 +118,14 @@ export class TournamentRRController implements ChatController {
         this.sock.send(JSON.stringify(message));
     }
 
+    isHost() {
+        return this.username === this.createdBy;
+    }
+
+    playerByName(name: string) {
+        return this.players.find((player) => player.name === name);
+    }
+
     login() {
         window.location.assign('/login');
     }
@@ -108,6 +136,45 @@ export class TournamentRRController implements ChatController {
 
     withdraw() {
         this.doSend({ type: 'pause', tournamentId: this.tournamentId });
+    }
+
+    setViewMode(viewMode: RRViewMode) {
+        this.viewMode = viewMode;
+        this.renderBody();
+    }
+
+    setHovered(row: string, col: string) {
+        if (this.hoveredRow === row && this.hoveredCol === col) return;
+        this.hoveredRow = row;
+        this.hoveredCol = col;
+        this.renderCrossTable();
+    }
+
+    clearHovered() {
+        if (!this.hoveredRow && !this.hoveredCol) return;
+        this.hoveredRow = '';
+        this.hoveredCol = '';
+        this.renderCrossTable();
+    }
+
+    selectedArrangement(): RRArrangementCell | undefined {
+        for (const row of Object.values(this.matrix)) {
+            for (const cell of Object.values(row)) {
+                if (cell.id === this.selectedArrangementId) return cell;
+            }
+        }
+        return undefined;
+    }
+
+    selectArrangement(cell: RRArrangementCell) {
+        this.selectedArrangementId = cell.id;
+        this.renderModal();
+    }
+
+    closeArrangement() {
+        if (this.selectedArrangementId === '') return;
+        this.selectedArrangementId = '';
+        this.renderModal();
     }
 
     updateActionButton() {
@@ -121,11 +188,13 @@ export class TournamentRRController implements ChatController {
                 button = h('div#action.pending-note', _('JOIN REQUEST DENIED'));
             } else if (this.userStatus === 'joined') {
                 button = h('button#action', { on: { click: () => this.withdraw() }, class: { icon: true, 'icon-flag-o': true } }, _('WITHDRAW'));
+            } else if (this.joiningClosed && !this.isHost()) {
+                button = h('div#action.pending-note', _('JOINING CLOSED'));
             } else {
                 button = h('button#action', { on: { click: () => this.join() }, class: { icon: true, 'icon-play': true } }, _('JOIN'));
             }
         } else if (this.tournamentStatus === 'started') {
-            if ('spectator|paused|withdrawn'.includes(this.userStatus)) {
+            if ('spectator|paused|withdrawn|denied|pending'.includes(this.userStatus)) {
                 button = h('button#action', { on: { click: () => this.join() }, class: { icon: true, 'icon-play': true } }, _('JOIN'));
             } else {
                 button = h('button#action', { on: { click: () => this.withdraw() }, class: { icon: true, 'icon-flag-o': true } }, _('WITHDRAW'));
@@ -138,6 +207,7 @@ export class TournamentRRController implements ChatController {
         this.startDate = msg.startsAt;
         this.createdBy = msg.createdBy;
         this.approvalRequired = !!msg.rrRequiresApproval;
+        this.joiningClosed = !!msg.rrJoiningClosed;
         patch(document.getElementById('description') as HTMLElement, h('div#description.description', msg.description));
         patch(document.getElementById('startsAt') as HTMLElement, h('div#startsAt', [
             h('strong', _('Starts')),
@@ -149,12 +219,19 @@ export class TournamentRRController implements ChatController {
         this.secondsToFinish = msg.secondsToFinish;
         initializeClock(this as any);
         this.updateActionButton();
+        this.renderProgress();
+        this.renderViewNav();
+        this.renderBody();
+        this.renderModal();
     }
 
     renderStandings() {
         const rows = this.players.map((player, index) =>
             h('tr', {
-                class: { active: this.selectedPlayer === player.name },
+                class: {
+                    active: this.selectedPlayer === player.name,
+                    withdrawn: !!player.withdrawn,
+                },
                 on: { click: () => this.selectPlayer(player.name) },
             }, [
                 h('td.rank', `${index + 1}`),
@@ -196,7 +273,7 @@ export class TournamentRRController implements ChatController {
     }
 
     cellDisplay(cell: RRArrangementCell): string {
-        const anyCell = cell as any;
+        const anyCell = cell as RRArrangementCell & { result?: string };
         if (anyCell.result) {
             if (anyCell.result === '1/2-1/2') return '½';
             const rowIsWhite = cell.color === 'white';
@@ -208,8 +285,7 @@ export class TournamentRRController implements ChatController {
         return '';
     }
 
-    onCellClick(cell: RRArrangementCell) {
-        if (!cell.id || this.tournamentStatus !== 'started') return;
+    arrangementAction(cell: RRArrangementCell) {
         if (cell.gameId) {
             window.location.assign('/' + cell.gameId);
             return;
@@ -224,30 +300,95 @@ export class TournamentRRController implements ChatController {
         }
     }
 
+    challengeRows(): RRChallengeRow[] {
+        const rows: RRChallengeRow[] = [];
+        const seen = new Set<string>();
+        for (const player of this.rrPlayers) {
+            const row = this.matrix[player] || {};
+            for (const cell of Object.values(row)) {
+                if (!cell.id || seen.has(cell.id)) continue;
+                seen.add(cell.id);
+                if (![cell.white, cell.black].includes(this.username)) continue;
+                if (!['pending', 'challenged', 'started'].includes(cell.status) && !cell.gameId) continue;
+                const opponent = cell.white === this.username ? cell.black : cell.white;
+                const incoming = cell.status === 'challenged' && cell.challenger !== this.username;
+                const color = cell.white === this.username ? 'white' : 'black';
+                let label = _('Waiting');
+                if (cell.gameId) label = _('Open game');
+                else if (cell.status === 'pending') label = _('Create challenge');
+                else if (incoming) label = _('Accept challenge');
+                else if (cell.status === 'challenged') label = _('Awaiting response');
+                else if (cell.status === 'started') label = _('Game in progress');
+                rows.push({
+                    id: cell.id,
+                    opponent,
+                    round: cell.round,
+                    color,
+                    status: cell.status,
+                    label,
+                    actionable: cell.gameId !== '' || cell.status === 'pending' || incoming,
+                    incoming,
+                    gameId: cell.gameId,
+                });
+            }
+        }
+        return rows.sort((left, right) => {
+            if (left.incoming !== right.incoming) return left.incoming ? -1 : 1;
+            return left.round - right.round;
+        });
+    }
+
     renderCrossTable() {
         const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map((player) => player.name);
-        const rows = order.map((rowPlayer, rowIndex) =>
-            h('tr', [
+        const rows = order.map((rowPlayer, rowIndex) => {
+            const rowPlayerData = this.playerByName(rowPlayer);
+            return h('tr', {
+                class: {
+                    hovered: this.hoveredRow === rowPlayer,
+                    withdrawn: !!rowPlayerData?.withdrawn,
+                },
+            }, [
                 h('th', `${rowIndex + 1}`),
-                h('th', userLink(rowPlayer, [displayUsername(rowPlayer)])),
+                h('th', userLink(rowPlayer, [
+                    rowPlayerData?.withdrawn ? h('span.rr-player-state', '• ') : '',
+                    displayUsername(rowPlayer),
+                ])),
                 ...order.map((colPlayer) => {
-                    if (rowPlayer === colPlayer) return h('td.rr-self', '•');
                     const cell = this.matrix[rowPlayer]?.[colPlayer];
+                    if (rowPlayer === colPlayer) return h('td.rr-self', '•');
+                    const isMe = !!cell && [cell.white, cell.black].includes(this.username);
+                    const isSelected = this.selectedArrangementId !== '' && cell?.id === this.selectedArrangementId;
                     return h('td.rr-cell', {
                         class: {
-                            actionable: !!cell && [cell.white, cell.black].includes(this.username) && !cell.gameId,
+                            actionable: !!cell && isMe,
+                            hovered: this.hoveredRow === rowPlayer || this.hoveredCol === colPlayer,
+                            selected: isSelected,
+                            pending: cell?.status === 'pending',
+                            challenged: cell?.status === 'challenged',
+                            incoming: cell?.status === 'challenged' && cell?.challenger !== this.username,
+                            outgoing: cell?.status === 'challenged' && cell?.challenger === this.username,
+                            started: cell?.status === 'started',
+                            draw: this.cellDisplay(cell as RRArrangementCell) === '½',
+                            win: this.cellDisplay(cell as RRArrangementCell) === '1',
+                            loss: this.cellDisplay(cell as RRArrangementCell) === '0',
                         },
-                        on: cell ? { click: () => this.onCellClick(cell) } : {},
+                        on: cell ? {
+                            click: () => this.selectArrangement(cell),
+                            mouseenter: () => this.setHovered(rowPlayer, colPlayer),
+                            mouseleave: () => this.clearHovered(),
+                        } : {},
                     }, cell ? this.cellDisplay(cell) : '');
                 }),
-            ])
-        );
+            ]);
+        });
 
         patch(document.getElementById('rr-crosstable') as HTMLElement, h('table#rr-crosstable.box', [
             h('thead', h('tr', [
                 h('th', '#'),
                 h('th', _('Player')),
-                ...order.map((_, index) => h('th', `${index + 1}`)),
+                ...order.map((playerName, index) => h('th', {
+                    class: { hovered: this.hoveredCol === playerName },
+                }, `${index + 1}`)),
             ])),
             h('tbody', rows),
         ]));
@@ -259,18 +400,162 @@ export class TournamentRRController implements ChatController {
             h('div', `${this.completedGames} / ${this.totalGames} ${_('games completed')}`),
             h('div', `${this.rounds} ${_('rounds')}`),
             this.approvalRequired ? h('div', _('Organizer approval enabled')) : null,
+            this.joiningClosed ? h('div', _('Joining is currently closed')) : null,
         ]));
     }
 
+    renderViewNav() {
+        const nav = [
+            ['overview', _('Overview')],
+            ['challenges', _('Challenges')],
+        ] as Array<[RRViewMode, string]>;
+        if (this.isHost()) nav.push(['manage', _('Manage players')]);
+        patch(document.getElementById('rr-nav') as HTMLElement, h('div#rr-nav.box', nav.map(([mode, label]) =>
+            h(`button.button${this.viewMode === mode ? '.active' : ''}`, {
+                on: { click: () => this.setViewMode(mode) },
+            }, label),
+        )));
+    }
+
+    modalStatusText(cell: RRArrangementCell): string {
+        if (cell.gameId) return _('This pairing already has a tournament game.');
+        if (cell.status === 'started') return _('The game is in progress.');
+        if (cell.status === 'pending') return _('No challenge exists yet for this pairing.');
+        if (cell.status === 'challenged' && cell.challenger === this.username) {
+            return _('Your challenge is waiting for the opponent to accept.');
+        }
+        if (cell.status === 'challenged') return _('Your opponent has challenged you for this pairing.');
+        return _('This pairing is waiting for its next action.');
+    }
+
+    renderModal() {
+        const mount = document.getElementById('rr-modal') as HTMLElement;
+        const cell = this.selectedArrangement();
+        if (!cell) {
+            patch(mount, h('div#rr-modal'));
+            return;
+        }
+        const meIsWhite = cell.white === this.username;
+        const canAct = [cell.white, cell.black].includes(this.username);
+        const opponent = meIsWhite ? cell.black : cell.white;
+        const whitePlayer = this.playerByName(cell.white);
+        const blackPlayer = this.playerByName(cell.black);
+        let actionButton: VNode | null = null;
+        if (cell.gameId) {
+            actionButton = h('button.button', { on: { click: () => this.arrangementAction(cell) } }, _('Open game'));
+        } else if (canAct && cell.status === 'pending') {
+            actionButton = h('button.button', { on: { click: () => this.arrangementAction(cell) } }, _('Create challenge'));
+        } else if (canAct && cell.status === 'challenged' && cell.challenger !== this.username) {
+            actionButton = h('button.button', { on: { click: () => this.arrangementAction(cell) } }, _('Accept challenge'));
+        }
+        patch(mount, h('div#rr-modal.modal-overlay.modal-overlay-fullscreen', {
+            style: { display: 'flex' },
+            on: {
+                click: (evt: Event) => {
+                    if (evt.target === evt.currentTarget) this.closeArrangement();
+                },
+            },
+        }, [
+            h('div.rr-modal-content', [
+                h('div.rr-modal-header', [
+                    h('div', [
+                        h('h2', _('Pairing')),
+                        h('div.rr-modal-subtitle', `${_('Round')} ${cell.round}`),
+                    ]),
+                    h('button.close', { on: { click: () => this.closeArrangement() } }, 'x'),
+                ]),
+                h('div.rr-modal-players', [
+                    h('div.rr-modal-player', [
+                        h('div.rr-color-label', _('White')),
+                        userLink(cell.white, [
+                            h('player-title', whitePlayer ? ` ${whitePlayer.title} ` : ''),
+                            displayUsername(cell.white),
+                        ]),
+                    ]),
+                    h('div.rr-modal-vs', _('vs')),
+                    h('div.rr-modal-player', [
+                        h('div.rr-color-label', _('Black')),
+                        userLink(cell.black, [
+                            h('player-title', blackPlayer ? ` ${blackPlayer.title} ` : ''),
+                            displayUsername(cell.black),
+                        ]),
+                    ]),
+                ]),
+                h('div.rr-modal-grid', [
+                    h('div.rr-modal-stat', [h('strong', _('Status')), h('span', cell.status)]),
+                    canAct ? h('div.rr-modal-stat', [h('strong', _('Your color')), h('span', meIsWhite ? _('White') : _('Black'))]) : '',
+                    canAct ? h('div.rr-modal-stat', [h('strong', _('Opponent')), h('span', opponent)]) : '',
+                    cell.status === 'challenged' ? h('div.rr-modal-stat', [h('strong', _('Challenge by')), h('span', cell.challenger)]) : '',
+                ]),
+                h('div.rr-modal-note', this.modalStatusText(cell)),
+                actionButton ? h('div.rr-detail-actions', [actionButton]) : '',
+            ]),
+        ]));
+    }
+
+    renderChallenges() {
+        const mount = document.getElementById('rr-body') as HTMLElement;
+        const rows = this.challengeRows();
+        patch(mount, h('div#rr-body', [
+            h('div#rr-challenges.box', [
+                h('h2', _('Challenges')),
+                rows.length === 0 ? h('div.rr-empty', _('No current challenges or active pairing actions.')) : h('table.players', [
+                    h('thead', h('tr', [
+                        h('th', _('Opponent')),
+                        h('th', _('Round')),
+                        h('th', _('Color')),
+                        h('th', _('Status')),
+                        h('th', _('Action')),
+                    ])),
+                    h('tbody', rows.map((row) => {
+                        const cell = this.selectedArrangementId === row.id ? this.selectedArrangement() : undefined;
+                        const target = cell || this.findArrangementById(row.id);
+                        return h('tr', {
+                            class: { incoming: row.incoming },
+                            on: target ? { click: () => this.selectArrangement(target) } : {},
+                        }, [
+                            h('td', userLink(row.opponent, [displayUsername(row.opponent)])),
+                            h('td', `${row.round}`),
+                            h('td', row.color.toUpperCase()),
+                            h('td', row.status),
+                            h('td', row.actionable && target ? h('button.button', {
+                                on: {
+                                    click: (evt: Event) => {
+                                        evt.stopPropagation();
+                                        this.arrangementAction(target);
+                                    },
+                                },
+                            }, row.label) : row.label),
+                        ]);
+                    })),
+                ]),
+            ]),
+        ]));
+    }
+
+    findArrangementById(arrangementId: string): RRArrangementCell | undefined {
+        for (const row of Object.values(this.matrix)) {
+            for (const cell of Object.values(row)) {
+                if (cell.id === arrangementId) return cell;
+            }
+        }
+        return undefined;
+    }
+
     renderManagement() {
-        const host = this.username === this.createdBy;
-        const mount = document.getElementById('rr-management') as HTMLElement;
-        if (!host || !this.approvalRequired) {
-            patch(mount, h('div#rr-management'));
+        const mount = document.getElementById('rr-body') as HTMLElement;
+        if (!this.isHost()) {
+            patch(mount, h('div#rr-body', [h('div#rr-management.box.rr-empty', _('Player management is only available to the organizer.'))]));
             return;
         }
 
         const approved = this.players.filter((player) => player.name !== this.createdBy && !player.withdrawn);
+        const kickOptions = Array.from(new Set([
+            ...approved.map((player) => player.name),
+            ...this.pendingPlayers.map((player) => player.name),
+            ...this.deniedPlayers.map((player) => player.name),
+        ])).sort();
+
         const renderRow = (player: TournamentManagePlayer, actions: VNode[]) => h('tr', [
             h('td', userLink(player.name, [h('player-title', ` ${player.title} `), displayUsername(player.name)])),
             h('td', `${player.rating}`),
@@ -279,34 +564,96 @@ export class TournamentRRController implements ChatController {
         const button = (label: string, message: object, reject = false) =>
             h(`button.button${reject ? '.reject' : ''}`, { on: { click: () => this.doSend(message as any) } }, label);
 
-        patch(mount, h('div#rr-management.box', [
-            h('h2', _('Player management')),
-            h('h3', _('Pending requests')),
-            h('table.players', [
-                h('tbody', this.pendingPlayers.length > 0
-                    ? this.pendingPlayers.map((player) => renderRow(player, [
-                        button(_('Accept'), { type: 'rr_approve_player', tournamentId: this.tournamentId, username: player.name }),
-                        button(_('Deny'), { type: 'rr_deny_player', tournamentId: this.tournamentId, username: player.name }, true),
-                    ]))
-                    : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No pending requests'))])]),
-            ]),
-            h('h3', _('Approved players')),
-            h('table.players', [
-                h('tbody', approved.length > 0
-                    ? approved.map((player) => renderRow(player, [
-                        button(_('Kick'), { type: 'rr_kick_player', tournamentId: this.tournamentId, username: player.name }, true),
-                    ]))
-                    : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No approved players'))])]),
-            ]),
-            h('h3', _('Denied players')),
-            h('table.players', [
-                h('tbody', this.deniedPlayers.length > 0
-                    ? this.deniedPlayers.map((player) => renderRow(player, [
-                        button(_('Accept'), { type: 'rr_approve_player', tournamentId: this.tournamentId, username: player.name }),
-                    ]))
-                    : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No denied players'))])]),
+        patch(mount, h('div#rr-body', [
+            h('div#rr-management.box', [
+                h('div.rr-section-header', [
+                    h('h2', _('Player management')),
+                    h(`button.button${this.joiningClosed ? '.button-green' : '.button-red'}`, {
+                        on: { click: () => this.doSend({ type: 'rr_set_joining_closed', tournamentId: this.tournamentId, closed: !this.joiningClosed }) },
+                    }, this.joiningClosed ? _('Open joining') : _('Close joining')),
+                ]),
+                h('div.rr-kick-wrap', [
+                    h('label', { attrs: { for: 'rr-kick-user' } }, _('Kick player')),
+                    h('div.rr-kick-controls', [
+                        h('input#rr-kick-user', {
+                            attrs: { list: 'rr-kick-options', placeholder: _('Enter username') },
+                            props: { value: this.kickUsername },
+                            on: {
+                                input: (evt: Event) => {
+                                    this.kickUsername = (evt.target as HTMLInputElement).value;
+                                },
+                            },
+                        }),
+                        h('datalist#rr-kick-options', kickOptions.map((name) => h('option', { attrs: { value: name } }))),
+                        h('button.button.reject', {
+                            class: { disabled: this.kickUsername.trim() === '' },
+                            on: {
+                                click: () => {
+                                    const username = this.kickUsername.trim();
+                                    if (username === '') return;
+                                    this.doSend({ type: 'rr_kick_player', tournamentId: this.tournamentId, username });
+                                    this.kickUsername = '';
+                                    this.renderBody();
+                                },
+                            },
+                        }, _('Kick')),
+                    ]),
+                ]),
+                this.approvalRequired ? h('h3', _('Pending requests')) : null,
+                this.approvalRequired ? h('table.players', [
+                    h('tbody', this.pendingPlayers.length > 0
+                        ? this.pendingPlayers.map((player) => renderRow(player, [
+                            button(_('Accept'), { type: 'rr_approve_player', tournamentId: this.tournamentId, username: player.name }),
+                            button(_('Deny'), { type: 'rr_deny_player', tournamentId: this.tournamentId, username: player.name }, true),
+                        ]))
+                        : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No pending requests'))])]),
+                ]) : null,
+                h('h3', _('Approved players')),
+                h('table.players', [
+                    h('tbody', approved.length > 0
+                        ? approved.map((player) => renderRow(player, [
+                            button(_('Kick'), { type: 'rr_kick_player', tournamentId: this.tournamentId, username: player.name }, true),
+                        ]))
+                        : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No approved players'))])]),
+                ]),
+                this.approvalRequired ? h('h3', _('Denied players')) : null,
+                this.approvalRequired ? h('table.players', [
+                    h('tbody', this.deniedPlayers.length > 0
+                        ? this.deniedPlayers.map((player) => renderRow(player, [
+                            button(_('Accept'), { type: 'rr_approve_player', tournamentId: this.tournamentId, username: player.name }),
+                        ]))
+                        : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No denied players'))])]),
+                ]) : null,
             ]),
         ]));
+    }
+
+    renderOverview() {
+        const mount = document.getElementById('rr-body') as HTMLElement;
+        patch(mount, h('div#rr-body', [
+            h('div#player', [
+                h('div#stats.box', [h('div#rr-crosstable')]),
+                h('table#games.box'),
+            ]),
+        ]));
+        this.renderCrossTable();
+        this.renderGames();
+        this.renderModal();
+    }
+
+    renderBody() {
+        this.renderViewNav();
+        if (this.viewMode === 'manage') {
+            this.renderManagement();
+            this.renderModal();
+            return;
+        }
+        if (this.viewMode === 'challenges') {
+            this.renderChallenges();
+            this.renderModal();
+            return;
+        }
+        this.renderOverview();
     }
 
     private onMsgUserConnected(msg: MsgUserConnectedTournament) {
@@ -324,6 +671,7 @@ export class TournamentRRController implements ChatController {
         this.roundOngoingGames = msg.roundOngoingGames || 0;
         initializeClock(this as any);
         this.updateActionButton();
+        this.renderProgress();
     }
 
     private onMsgGetPlayers(msg: MsgGetPlayers) {
@@ -333,13 +681,13 @@ export class TournamentRRController implements ChatController {
             this.doSend({ type: 'get_games', tournamentId: this.tournamentId, player: this.selectedPlayer });
         }
         this.renderStandings();
-        this.renderManagement();
+        this.renderBody();
     }
 
     private onMsgGetGames(msg: MsgGetGames) {
         this.selectedPlayer = msg.name;
         this.selectedGames = msg.games;
-        this.renderGames();
+        if (this.viewMode === 'overview') this.renderGames();
     }
 
     private onMsgRRArrangements(msg: MsgRRArrangements) {
@@ -347,17 +695,31 @@ export class TournamentRRController implements ChatController {
         this.matrix = msg.matrix;
         this.completedGames = msg.completedGames;
         this.totalGames = msg.totalGames;
+        if (this.selectedArrangementId !== '' && !this.selectedArrangement()) this.selectedArrangementId = '';
         this.renderProgress();
-        this.renderCrossTable();
+        this.renderBody();
     }
 
     private onMsgRRManagement(msg: MsgRRManagement) {
         this.createdBy = msg.createdBy;
         this.approvalRequired = msg.approvalRequired;
+        this.joiningClosed = msg.joiningClosed;
         this.pendingPlayers = msg.pendingPlayers;
         this.deniedPlayers = msg.deniedPlayers;
         this.renderProgress();
-        this.renderManagement();
+        this.updateActionButton();
+        this.renderBody();
+    }
+
+    private onMsgRRSettings(msg: MsgRRSettings) {
+        this.createdBy = msg.createdBy;
+        this.approvalRequired = msg.approvalRequired;
+        this.joiningClosed = msg.joiningClosed;
+        this.renderProgress();
+        this.updateActionButton();
+        this.renderViewNav();
+        if (this.viewMode === 'manage' && !this.isHost()) this.viewMode = 'overview';
+        this.renderBody();
     }
 
     private onMsgUserStatus(msg: MsgUserStatus) {
@@ -405,6 +767,9 @@ export class TournamentRRController implements ChatController {
             break;
         case 'rr_management':
             this.onMsgRRManagement(msg);
+            break;
+        case 'rr_settings':
+            this.onMsgRRSettings(msg);
             break;
         case 'ustatus':
             this.onMsgUserStatus(msg);
@@ -475,11 +840,9 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
         ]),
         h('div.tour-table', [
             h('div#summarybox'),
-            h('div#rr-management'),
-            h('div#player', [
-                h('div#stats.box', [h('div#rr-crosstable')]),
-                h('table#games.box'),
-            ]),
+            h('div#rr-nav'),
+            h('div#rr-body'),
+            h('div#rr-modal'),
         ]),
         h('under-chat#spectators'),
     ];

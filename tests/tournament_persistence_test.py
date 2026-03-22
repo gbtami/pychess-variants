@@ -209,6 +209,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(tournament.rounds, 0)
         self.assertEqual(tournament.rr_max_players, 12)
         self.assertTrue(tournament.rr_requires_approval)
+        self.assertFalse(tournament.rr_joining_closed)
 
         doc = await app_state.db.tournament.find_one({"_id": tournament.id})
         self.assertIsNotNone(doc)
@@ -216,6 +217,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(doc.get("rounds"), 0)
         self.assertEqual(doc.get("rrMaxPlayers"), 12)
         self.assertEqual(doc.get("rrRequiresApproval"), True)
+        self.assertEqual(doc.get("rrJoiningClosed"), False)
 
     async def test_tournament_pairings_persist_before_restart(self):
         app_state = get_app_state(self.app)

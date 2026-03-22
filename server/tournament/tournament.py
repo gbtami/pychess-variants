@@ -66,6 +66,7 @@ from typing_defs import (
     TournamentPlayersResponse,
     TournamentPoint,
     TournamentRRManagementResponse,
+    TournamentRRSettingsResponse,
     TournamentSpotlightsResponse,
     TournamentStatusResponse,
     TournamentTopGameResponse,
@@ -355,6 +356,7 @@ class Tournament(ABC):
     finish_reason: str | None
     rr_max_players: int
     rr_requires_approval: bool
+    rr_joining_closed: bool
 
     def __init__(
         self,
@@ -375,6 +377,7 @@ class Tournament(ABC):
         rounds: int = 0,
         rr_max_players: int = 0,
         rr_requires_approval: bool = False,
+        rr_joining_closed: bool = False,
         round_interval: int = 0,
         created_by: str = "",
         created_at: datetime | None = None,
@@ -408,6 +411,7 @@ class Tournament(ABC):
         self.rounds: int = rounds
         self.rr_max_players: int = rr_max_players
         self.rr_requires_approval: bool = rr_requires_approval
+        self.rr_joining_closed: bool = rr_joining_closed
         self.round_interval: int = round_interval
         self.frequency: str = frequency
         self.entry_min_rating: int = entry_min_rating
@@ -1394,6 +1398,13 @@ class Tournament(ABC):
                 return "Late join is closed for this round-robin tournament."
             if player_data is None and user.username in self.rr_denied_players:
                 return "Your join request was denied by the organizer."
+            if (
+                player_data is None
+                and self.status == T_CREATED
+                and self.rr_joining_closed
+                and user.username != self.created_by
+            ):
+                return "Joining is currently closed for this round-robin tournament."
             if player_data is None and self.nb_players >= self.rr_join_limit():
                 return "This round-robin tournament is full."
             if (
@@ -1465,6 +1476,14 @@ class Tournament(ABC):
     def rr_management_enabled(self) -> bool:
         return self.system == RR and self.rr_requires_approval
 
+    def rr_settings_payload(self) -> TournamentRRSettingsResponse:
+        return {
+            "type": "rr_settings",
+            "createdBy": self.created_by,
+            "approvalRequired": self.rr_requires_approval,
+            "joiningClosed": self.rr_joining_closed,
+        }
+
     def rr_manage_player_json(self, username: str) -> TournamentManagePlayerJson:
         user = self.app_state.users[username]
         return {
@@ -1479,6 +1498,7 @@ class Tournament(ABC):
             "requestedBy": requested_by,
             "createdBy": self.created_by,
             "approvalRequired": self.rr_requires_approval,
+            "joiningClosed": self.rr_joining_closed,
             "pendingPlayers": [
                 self.rr_manage_player_json(username) for username in sorted(self.rr_pending_players)
             ],
@@ -1486,6 +1506,33 @@ class Tournament(ABC):
                 self.rr_manage_player_json(username) for username in sorted(self.rr_denied_players)
             ],
         }
+
+    async def send_rr_settings_update(self) -> None:
+        if self.system != RR:
+            return
+        sockets_by_username = self.app_state.tourneysockets.get(self.id, {})
+        sockets = [socket for user_sockets in sockets_by_username.values() for socket in user_sockets]
+        if len(sockets) == 0:
+            return
+        await ws_send_json_many(sockets, self.rr_settings_payload())
+
+    async def send_rr_user_status_update(self, username: str) -> None:
+        if self.system != RR:
+            return
+        sockets = list(self.tournament_sockets(username))
+        if len(sockets) == 0:
+            return
+        user = await self.app_state.users.get(username)
+        if user.username != username:
+            return
+        await ws_send_json_many(
+            sockets,
+            {
+                "type": "ustatus",
+                "username": username,
+                "ustatus": self.user_status(user),
+            },
+        )
 
     async def send_rr_management_update(self) -> None:
         if not self.rr_management_enabled():
@@ -1521,6 +1568,7 @@ class Tournament(ABC):
             return "Unknown round-robin player."
         await self._join_approved_user(user, player_data=player_data)
         await self.save()
+        await self.send_rr_user_status_update(username)
         await self.send_rr_management_update()
         return None
 
@@ -1537,6 +1585,7 @@ class Tournament(ABC):
         self.rr_pending_players.discard(username)
         self.rr_denied_players.add(username)
         await self.save()
+        await self.send_rr_user_status_update(username)
         await self.send_rr_management_update()
         return None
 
@@ -1552,6 +1601,7 @@ class Tournament(ABC):
             self.rr_pending_players.discard(username)
             self.rr_denied_players.add(username)
             await self.save()
+            await self.send_rr_user_status_update(username)
             await self.send_rr_management_update()
             return None
 
@@ -1561,6 +1611,20 @@ class Tournament(ABC):
         await self.withdraw(player)
         self.rr_denied_players.add(username)
         await self.save()
+        await self.send_rr_user_status_update(username)
+        await self.send_rr_management_update()
+        return None
+
+    async def rr_set_joining_closed(self, closed: bool) -> str | None:
+        if self.system != RR:
+            return "Only round-robin tournaments support join control here."
+        if self.status != T_CREATED:
+            return "Joining can only be opened or closed before the round-robin starts."
+        if self.rr_joining_closed == closed:
+            return None
+        self.rr_joining_closed = closed
+        await self.save()
+        await self.send_rr_settings_update()
         await self.send_rr_management_update()
         return None
 
@@ -2562,6 +2626,7 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "rounds": tournament.rounds,
         "rrMaxPlayers": tournament.rr_join_limit() if tournament.system == RR else 0,
         "rrRequiresApproval": tournament.rr_requires_approval if tournament.system == RR else False,
+        "rrJoiningClosed": tournament.rr_joining_closed if tournament.system == RR else False,
         "rrPendingPlayers": sorted(tournament.rr_pending_players),
         "rrDeniedPlayers": sorted(tournament.rr_denied_players),
         "ri": tournament.round_interval,
