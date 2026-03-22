@@ -7,7 +7,7 @@ import { JSONObject, PyChessModel } from './types';
 import { newWebsocket } from '@/socket/webSocketUtils';
 import { displayUsername, userLink } from './user';
 import { timeControlStr } from './view';
-import { initializeClock } from './tournamentClock';
+import { initializeClock, localeOptions } from './tournamentClock';
 import { roundRobinFaq } from './tournamentFaq';
 import {
     MsgError,
@@ -90,6 +90,7 @@ export class TournamentRRController implements ChatController {
     descriptionNode: VNode;
     startsAtNode: VNode;
     systemNode: VNode;
+    creatorNode: VNode;
     minutesNode: VNode;
     manageNode: VNode;
     summaryNode: VNode;
@@ -121,6 +122,7 @@ export class TournamentRRController implements ChatController {
         this.descriptionNode = patch(document.getElementById('description') as HTMLElement, h('div#description.description'));
         this.startsAtNode = patch(document.getElementById('startsAt') as HTMLElement, h('div#startsAt'));
         this.systemNode = patch(document.getElementById('tsystem') as HTMLElement, h('div#tsystem'));
+        this.creatorNode = patch(document.getElementById('createdBy') as HTMLElement, h('div#createdBy'));
         this.minutesNode = patch(document.getElementById('tminutes') as HTMLElement, h('span#tminutes'));
         this.manageNode = patch(document.getElementById('rr-manage') as HTMLElement, h('div#rr-manage'));
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
@@ -237,11 +239,11 @@ export class TournamentRRController implements ChatController {
         this.approvalRequired = !!msg.rrRequiresApproval;
         this.joiningClosed = !!msg.rrJoiningClosed;
         this.descriptionNode = patch(this.descriptionNode, h('div#description.description', msg.description));
-        this.startsAtNode = patch(this.startsAtNode, h('div#startsAt', [
-            h('strong', _('Starts')),
-            ` ${msg.startsAt}`,
-        ]));
-        this.systemNode = patch(this.systemNode, h('div#tsystem', _('Round-Robin')));
+        const startsAtDate = new Date(msg.startsAt);
+        const endsAtDate = new Date(startsAtDate.getTime() + msg.tminutes * 60 * 1000);
+        this.startsAtNode = patch(this.startsAtNode, h('div#startsAt', `${startsAtDate.toLocaleString('default', localeOptions)} - ${endsAtDate.toLocaleString('default', localeOptions)}`));
+        this.systemNode = patch(this.systemNode, h('div#tsystem', `${this.rated === 'True' ? _('Rated') : _('Unrated')} - ${_('Round-Robin')}`));
+        this.creatorNode = patch(this.creatorNode, h('div#createdBy', [h('strong', _('By')), ' ', userLink(msg.createdBy, [displayUsername(msg.createdBy)])]));
         this.minutesNode = patch(this.minutesNode, h('span#tminutes', ` • ${msg.tminutes}m`));
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
@@ -895,13 +897,16 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                             variant.displayName(chess960),
                             h('span#tminutes'),
                         ]),
-                        h('div#tsystem'),
-                        canEdit ? h('a.icon-cog.edit-tournament', {
-                            attrs: {
-                                href: `/tournaments/${model.tournamentId}/edit`,
-                                title: _('Edit tournament'),
-                            },
-                        }) : null,
+                        h('div#rr-info-meta', [
+                            h('div#tsystem'),
+                            canEdit ? h('a.icon-cog.edit-tournament', {
+                                attrs: {
+                                    href: `/tournaments/${model.tournamentId}/edit`,
+                                    title: _('Edit tournament'),
+                                },
+                            }) : null,
+                        ]),
+                        h('div#createdBy'),
                     ]),
                 ]),
                 h('div#description'),
