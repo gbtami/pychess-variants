@@ -91,7 +91,6 @@ export class TournamentRRController implements ChatController {
     startsAtNode: VNode;
     systemNode: VNode;
     minutesNode: VNode;
-    playersNode: VNode;
     summaryNode: VNode;
     navNode: VNode;
     bodyNode: VNode;
@@ -125,7 +124,6 @@ export class TournamentRRController implements ChatController {
         this.minutesNode = patch(document.getElementById('tminutes') as HTMLElement, h('span#tminutes'));
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.action = patch(document.getElementById('action') as HTMLElement, h('div#action'));
-        this.playersNode = patch(document.getElementById('players') as HTMLElement, h('table#players.players'));
         this.summaryNode = patch(document.getElementById('summarybox') as HTMLElement, h('div#summarybox'));
         this.navNode = patch(document.getElementById('rr-nav') as HTMLElement, h('div#rr-nav'));
         this.bodyNode = patch(document.getElementById('rr-body') as HTMLElement, h('div#rr-body'));
@@ -248,27 +246,6 @@ export class TournamentRRController implements ChatController {
         this.renderModal();
     }
 
-    renderStandings() {
-        const rows = this.players.map((player, index) =>
-            h('tr', {
-                class: {
-                    active: this.selectedPlayer === player.name,
-                    withdrawn: !!player.withdrawn,
-                },
-                on: { click: () => this.selectPlayer(player.name) },
-            }, [
-                h('td.rank', `${index + 1}`),
-                h('td.player', userLink(player.name, [h('player-title', ` ${player.title} `), displayUsername(player.name)])),
-                h('td.total', `${player.score}`),
-                h('td.berger', `${player.berger.toFixed(1)}`),
-            ])
-        );
-        this.playersNode = patch(this.playersNode, h('table#players.players', [
-            h('thead', h('tr', [h('th', '#'), h('th', _('Player')), h('th', _('Pts')), h('th', _('SB'))])),
-            h('tbody', rows),
-        ]));
-    }
-
     renderGames() {
         const rows = this.selectedGames.map((game) =>
             h('tr', {
@@ -292,7 +269,7 @@ export class TournamentRRController implements ChatController {
 
     selectPlayer(player: string) {
         this.selectedPlayer = player;
-        this.renderStandings();
+        this.renderCrossTable();
         this.doSend({ type: 'get_games', tournamentId: this.tournamentId, player });
     }
 
@@ -369,7 +346,12 @@ export class TournamentRRController implements ChatController {
             return h('tr', {
                 class: {
                     hovered: this.hoveredRow === rowPlayer,
+                    'selected-player': this.selectedPlayer === rowPlayer,
+                    selectable: true,
                     withdrawn: !!rowPlayerData?.withdrawn,
+                },
+                on: {
+                    click: () => this.selectPlayer(rowPlayer),
                 },
             }, [
                 h('th', `${rowIndex + 1}`),
@@ -425,6 +407,7 @@ export class TournamentRRController implements ChatController {
             return h('tr', {
                 class: {
                     hovered: this.hoveredRow === playerName,
+                    'selected-player': this.selectedPlayer === playerName,
                     withdrawn: !!player?.withdrawn,
                 },
             }, [
@@ -434,6 +417,7 @@ export class TournamentRRController implements ChatController {
                         winner: !!player && player.score === maxScore && maxScore > 0,
                     },
                 }, `${player?.score ?? 0}`),
+                h('td', `${player?.berger.toFixed(1) ?? '0.0'}`),
             ]);
         });
 
@@ -458,7 +442,7 @@ export class TournamentRRController implements ChatController {
             ]),
             h('div.r-table-wrap-scores', [
                 h('table', [
-                    h('thead', h('tr', [h('th', 'Σ')])),
+                    h('thead', h('tr', [h('th', 'Σ'), h('th', _('SB'))])),
                     h('tbody', scoreRows),
                 ]),
             ]),
@@ -750,7 +734,6 @@ export class TournamentRRController implements ChatController {
             this.doSend({ type: 'get_games', tournamentId: this.tournamentId, player: this.selectedPlayer });
         }
         this.doSend({ type: 'get_rr_arrangements', tournamentId: this.tournamentId });
-        this.renderStandings();
         this.renderBody();
     }
 
@@ -905,7 +888,7 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                     h('div#clockdiv'),
                 ]),
                 h('div#page-controls.btn-controls', [h('div#action')]),
-                h('table#players', { hook: { insert: (vnode) => runTournamentRR(vnode, model) } }),
+                h('div#rr-shell', { hook: { insert: (vnode) => runTournamentRR(vnode, model) } }),
                 h('div#rr-nav'),
                 h('div#rr-body'),
                 h('div.tour-faq'),
