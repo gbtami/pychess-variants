@@ -17,6 +17,7 @@
             {% set t_fen = tournament.fen %}
             {% set t_password = tournament.password %}
             {% set t_starts_at = tournament.starts_at.isoformat() if tournament.starts_at else '' %}
+            {% set t_ends_at = tournament.ends_at.isoformat() if tournament.ends_at else '' %}
             {% set t_system = tournament.system %}
             {% set t_rounds = tournament.rounds %}
             {% set t_rr_max_players = tournament.rr_join_limit() if tournament.system == 1 else 10 %}
@@ -43,6 +44,7 @@
             {% set t_fen = '' %}
             {% set t_password = '' %}
             {% set t_starts_at = '' %}
+            {% set t_ends_at = '' %}
             {% set t_system = 0 %}
             {% set t_rounds = 5 %}
             {% set t_rr_max_players = 10 %}
@@ -57,6 +59,7 @@
             {% set t_manual_pairings = '' %}
             <form id="tournament-form" method="post" class="form3" action="/tournaments/new">
             {% endif %}
+            {% set minute_values = [20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 100, 110, 120, 150, 180, 210, 240, 270, 300, 330, 360, 420, 480, 540, 600, 720] %}
             {% set rated_game_choices = [
                 (0, 'No restriction'),
                 (5, '5 rated games'),
@@ -309,6 +312,9 @@
                     <div class="form-group form-half">
                         <label id="form3-minutes-label" class="form-label" for="form3-minutes">Duration</label>
                         <select id="form3-minutes" name="minutes" class="form-control">
+                            {% if t_minutes not in minute_values %}
+                            <option value="{{ t_minutes }}" selected="selected">{{ t_minutes }} minutes (custom)</option>
+                            {% endif %}
                             <option value="20"{% if t_minutes == 20 %} selected="selected"{% endif %}>20 minutes</option>
                             <option value="25"{% if t_minutes == 25 %} selected="selected"{% endif %}>25 minutes</option>
                             <option value="30"{% if t_minutes == 30 %} selected="selected"{% endif %}>30 minutes</option>
@@ -464,6 +470,11 @@
                         <label class="form-label" for="startDate">Custom start date</label>
                         <input id="startDate" name="startDate" value="{{ t_starts_at }}" class="form-control flatpickr"/>
                         <small class="form-help">In your own local timezone. This overrides the &quot;Time before tournament starts&quot; setting</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label" for="endDate">Custom end date</label>
+                        <input id="endDate" name="endDate" value="{{ t_ends_at }}" class="form-control flatpickr"/>
+                        <small class="form-help">Set an exact end time. The duration field will track this automatically when possible.</small>
                     </div>
                 </div>
 

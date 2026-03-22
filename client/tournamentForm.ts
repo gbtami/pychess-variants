@@ -12,6 +12,14 @@ type FlatpickrOptions = {
 
 type FlatpickrFunction = (element: HTMLElement, options: FlatpickrOptions) => void;
 
+type FlatpickrInstance = {
+    setDate: (date: Date | string, triggerChange?: boolean) => void;
+};
+
+type FlatpickrElement = HTMLInputElement & {
+    _flatpickr?: FlatpickrInstance;
+};
+
 declare global {
     interface Window {
         flatpickr?: FlatpickrFunction;
@@ -58,6 +66,36 @@ function setDisabled(
     });
 }
 
+function readDateValue(element: HTMLInputElement | null): Date | null {
+    if (!element || element.value.trim() === "") return null;
+    const date = new Date(element.value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function writeDateValue(element: FlatpickrElement | null, date: Date): void {
+    if (!element) return;
+    if (element._flatpickr) {
+        element._flatpickr.setDate(date, false);
+        return;
+    }
+    element.value = date.toISOString();
+}
+
+function setMinutesValue(minutesSelect: HTMLSelectElement, minutes: number): void {
+    const normalized = `${Math.max(1, minutes)}`;
+    const existing = Array.from(minutesSelect.options).find((option) => option.value === normalized);
+    const previousCustom = minutesSelect.querySelector("option[data-custom='true']");
+    if (!existing) {
+        if (previousCustom) previousCustom.remove();
+        const option = document.createElement("option");
+        option.value = normalized;
+        option.textContent = `${normalized} minutes (custom)`;
+        option.dataset.custom = "true";
+        minutesSelect.append(option);
+    }
+    minutesSelect.value = normalized;
+}
+
 export function initTournamentForm(): void {
     const form = document.getElementById("tournament-form");
     if (!(form instanceof HTMLFormElement)) return;
@@ -79,6 +117,10 @@ export function initTournamentForm(): void {
     const roundIntervalHelp = document.getElementById("form3-roundInterval-help");
     const minutesLabel = document.getElementById("form3-minutes-label");
     const minutesHelp = document.getElementById("form3-minutes-help");
+    const minutesSelect = document.getElementById("form3-minutes");
+    const waitMinutesSelect = document.getElementById("form3-waitMinutes");
+    const startDateInput = document.getElementById("startDate");
+    const endDateInput = document.getElementById("endDate");
     const entryWrapA = document.getElementById("form3-entry-wrap-a");
     const entryWrapB = document.getElementById("form3-entry-wrap-b");
     const entryWrapC = document.getElementById("form3-entry-wrap-c");
@@ -105,10 +147,37 @@ export function initTournamentForm(): void {
         !(rrMaxPlayersWrap instanceof HTMLElement) ||
         !(rrMaxPlayers instanceof HTMLSelectElement) ||
         !(roundIntervalWrap instanceof HTMLElement) ||
-        !(roundInterval instanceof HTMLSelectElement)
+        !(roundInterval instanceof HTMLSelectElement) ||
+        !(minutesSelect instanceof HTMLSelectElement) ||
+        !(waitMinutesSelect instanceof HTMLSelectElement)
     ) {
         return;
     }
+
+    const effectiveStartDate = (): Date | null => {
+        const customStart = readDateValue(startDateInput instanceof HTMLInputElement ? startDateInput : null);
+        if (customStart) return customStart;
+        const waitMinutes = parseInt(waitMinutesSelect.value || "0", 10);
+        if (Number.isNaN(waitMinutes)) return null;
+        return new Date(Date.now() + waitMinutes * 60_000);
+    };
+
+    const syncEndDateFromSchedule = (): void => {
+        if (!(endDateInput instanceof HTMLInputElement)) return;
+        const startDate = effectiveStartDate();
+        const minutes = parseInt(minutesSelect.value || "0", 10);
+        if (!startDate || Number.isNaN(minutes) || minutes <= 0) return;
+        writeDateValue(endDateInput as FlatpickrElement, new Date(startDate.getTime() + minutes * 60_000));
+    };
+
+    const syncMinutesFromEndDate = (): void => {
+        if (!(endDateInput instanceof HTMLInputElement)) return;
+        const endDate = readDateValue(endDateInput);
+        const startDate = effectiveStartDate();
+        if (!endDate || !startDate) return;
+        const minutes = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / 60_000));
+        setMinutesValue(minutesSelect, minutes);
+    };
 
     const updateFormBySystem = (): void => {
         const systemValue = system.value;
@@ -207,5 +276,20 @@ export function initTournamentForm(): void {
     };
 
     system.addEventListener("change", updateFormBySystem);
+    minutesSelect.addEventListener("change", syncEndDateFromSchedule);
+    waitMinutesSelect.addEventListener("change", syncEndDateFromSchedule);
+    if (startDateInput instanceof HTMLInputElement) {
+        startDateInput.addEventListener("change", () => {
+            if (readDateValue(endDateInput instanceof HTMLInputElement ? endDateInput : null)) {
+                syncMinutesFromEndDate();
+            } else {
+                syncEndDateFromSchedule();
+            }
+        });
+    }
+    if (endDateInput instanceof HTMLInputElement) {
+        endDateInput.addEventListener("change", syncMinutesFromEndDate);
+    }
     updateFormBySystem();
+    syncEndDateFromSchedule();
 }

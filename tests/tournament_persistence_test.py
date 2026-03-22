@@ -219,6 +219,52 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(doc.get("rrRequiresApproval"), True)
         self.assertEqual(doc.get("rrJoiningClosed"), False)
 
+    async def test_form_end_date_updates_start_and_minutes(self):
+        app_state = get_app_state(self.app)
+        before_ids = set(app_state.tournaments)
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": "5",
+            "clockIncrement": "0",
+            "byoyomiPeriod": "0",
+            "system": "1",
+            "rounds": "0",
+            "rrMaxPlayers": "10",
+            "rrRequiresApproval": "",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": "2026-03-22T10:00:00.000Z",
+            "endDate": "2026-03-22T11:17:00.000Z",
+            "name": "RR End Date",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+
+        await create_or_update_tournament(app_state, "tester", form)
+
+        new_ids = set(app_state.tournaments) - before_ids
+        self.assertEqual(len(new_ids), 1)
+        tournament = app_state.tournaments[new_ids.pop()]
+        self.assertEqual(
+            tournament.starts_at,
+            datetime.fromisoformat("2026-03-22T10:00:00+00:00"),
+        )
+        self.assertEqual(tournament.minutes, 77)
+        self.assertEqual(
+            tournament.ends_at,
+            datetime.fromisoformat("2026-03-22T11:17:00+00:00"),
+        )
+
     async def test_tournament_pairings_persist_before_restart(self):
         app_state = get_app_state(self.app)
         tid = id8()

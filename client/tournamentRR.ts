@@ -753,6 +753,7 @@ export class TournamentRRController implements ChatController {
     }
 
     onMessage(evt: MessageEvent) {
+        if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
         case 'tournament_user_connected':
