@@ -391,6 +391,20 @@ strong.score {
 #rr-manage .button {
     width: 100%;
 }
+#rr-info-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.92em;
+}
+#createdBy {
+    margin-top: 0.35rem;
+    font-size: 0.92em;
+}
+#startsAt {
+    font-size: 0.92em;
+    white-space: nowrap;
+}
 #rr-nav button.active {
     background: var(--link-color);
     color: var(--bg-color0);
