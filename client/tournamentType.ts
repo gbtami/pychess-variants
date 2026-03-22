@@ -122,6 +122,7 @@ export interface RRArrangementCell {
     inviteId: string;
     challenger: string;
     color: string;
+    date: string;
     result?: string;
 }
 
