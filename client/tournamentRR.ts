@@ -529,13 +529,17 @@ export class TournamentRRController implements ChatController {
     }
 
     modalStatusText(cell: RRArrangementCell): string {
+        const canAct = [cell.white, cell.black].includes(this.username);
         if (cell.gameId) return _('This pairing already has a tournament game.');
         if (cell.status === 'started') return _('The game is in progress.');
         if (cell.status === 'pending') return _('No challenge exists yet for this pairing.');
         if (cell.status === 'challenged' && cell.challenger === this.username) {
             return _('Your challenge is waiting for the opponent to accept.');
         }
-        if (cell.status === 'challenged') return _('Your opponent has challenged you for this pairing.');
+        if (cell.status === 'challenged' && canAct) {
+            return _('Your opponent has challenged you for this pairing.');
+        }
+        if (cell.status === 'challenged') return _('A challenge already exists for this pairing.');
         return _('This pairing is waiting for its next action.');
     }
 
