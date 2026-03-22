@@ -3,6 +3,7 @@ import { h, VNode } from 'snabbdom';
 import { _ } from './i18n';
 import { patch } from './document';
 import { chatView, chatMessage, ChatController } from './chat';
+import { timeago } from './datetime';
 import { JSONObject, PyChessModel } from './types';
 import { newWebsocket } from '@/socket/webSocketUtils';
 import { displayUsername, userLink } from './user';
@@ -46,6 +47,15 @@ type RRChallengeRow = {
     actionable: boolean;
     incoming: boolean;
     gameId: string;
+};
+
+type RRGameListRow = {
+    id: string;
+    white: string;
+    black: string;
+    status: string;
+    gameId: string;
+    date: string;
 };
 
 export class TournamentRRController implements ChatController {
@@ -268,25 +278,73 @@ export class TournamentRRController implements ChatController {
         this.renderModal();
     }
 
-    renderGames() {
-        const rows = this.selectedGames.map((game) =>
-            h('tr', {
-                on: {
-                    click: () => {
-                        if (game.gameId) window.location.assign('/' + game.gameId);
-                    },
+    gameListRows(): RRGameListRow[] {
+        const rows: RRGameListRow[] = [];
+        const seen = new Set<string>();
+        const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map((player) => player.name);
+        for (const player of order) {
+            const row = this.matrix[player] || {};
+            for (const cell of Object.values(row)) {
+                if (!cell.id || seen.has(cell.id)) continue;
+                seen.add(cell.id);
+                if (cell.status === 'pending' && !cell.gameId) continue;
+                rows.push({
+                    id: cell.id,
+                    white: cell.white,
+                    black: cell.black,
+                    status: cell.status,
+                    gameId: cell.gameId,
+                    date: cell.date,
+                });
+            }
+        }
+        return rows.sort((left, right) => {
+            const leftTime = Date.parse(left.date);
+            const rightTime = Date.parse(right.date);
+            if (!Number.isNaN(leftTime) && !Number.isNaN(rightTime) && leftTime !== rightTime) {
+                return rightTime - leftTime;
+            }
+            return left.id.localeCompare(right.id);
+        });
+    }
+
+    gameListStatus(row: RRGameListRow): string {
+        if (row.gameId && row.status === 'finished') return _('Finished');
+        if (row.gameId || row.status === 'started') return _('Current game');
+        if (row.status === 'challenged') return _('Challenge');
+        return row.status;
+    }
+
+    gamesVNode() {
+        const rows = this.gameListRows().map((row) => {
+            const target = this.findArrangementById(row.id);
+            const icon = row.gameId && row.status === 'finished' ? '●' : '◌';
+            return h('tr', {
+                class: {
+                    actionable: !!target,
+                    ongoing: !!row.gameId && row.status !== 'finished',
+                    finished: row.status === 'finished',
                 },
+                on: target ? { click: () => this.selectArrangement(target) } : {},
             }, [
-                h('td', userLink(game.name, [displayUsername(game.name)])),
-                h('td', game.color.toUpperCase()),
-                h('td', game.result),
-            ])
-        );
-        if (this.gamesNode === null) return;
-        this.gamesNode = patch(this.gamesNode, h('table#games.box.pairings', [
-            h('thead', h('tr', [h('th', _('Opponent')), h('th', _('Color')), h('th', _('Result'))])),
+                h('td.icon-col', icon),
+                h('td.matchup', [
+                    userLink(row.white, [displayUsername(row.white)]),
+                    ' vs ',
+                    userLink(row.black, [displayUsername(row.black)]),
+                ]),
+                h('td.status-col', this.gameListStatus(row)),
+                h('td.time-col', row.date ? h('info-date', { attrs: { timestamp: row.date } }, timeago(row.date)) : ''),
+            ]);
+        });
+        return h('table#games.box.pairings', [
+            h('thead', h('tr', [h('th'), h('th', _('Games')), h('th', _('Status')), h('th', _('When'))])),
             h('tbody', rows),
-        ]));
+        ]);
+    }
+
+    renderGames() {
+        this.renderBody();
     }
 
     selectPlayer(player: string) {
@@ -326,16 +384,20 @@ export class TournamentRRController implements ChatController {
     challengeRows(): RRChallengeRow[] {
         const rows: RRChallengeRow[] = [];
         const seen = new Set<string>();
-        for (const player of this.rrPlayers) {
+        const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map((player) => player.name);
+        for (const player of order) {
             const row = this.matrix[player] || {};
             for (const cell of Object.values(row)) {
                 if (!cell.id || seen.has(cell.id)) continue;
                 seen.add(cell.id);
-                if (![cell.white, cell.black].includes(this.username)) continue;
-                if (!['pending', 'challenged', 'started'].includes(cell.status) && !cell.gameId) continue;
-                const opponent = cell.white === this.username ? cell.black : cell.white;
-                const incoming = cell.status === 'challenged' && cell.challenger !== this.username;
-                const color = cell.white === this.username ? 'white' : 'black';
+                const canAct = [cell.white, cell.black].includes(this.username);
+                const isVisible = ['challenged', 'started'].includes(cell.status) || cell.gameId !== '';
+                if (!isVisible && !(canAct && cell.status === 'pending')) continue;
+                const opponent = canAct
+                    ? (cell.white === this.username ? cell.black : cell.white)
+                    : `${cell.white} vs ${cell.black}`;
+                const incoming = canAct && cell.status === 'challenged' && cell.challenger !== this.username;
+                const color = canAct ? (cell.white === this.username ? 'white' : 'black') : ' ';
                 let label = _('Waiting');
                 if (cell.gameId) label = _('Open game');
                 else if (cell.status === 'pending') label = _('Create challenge');
@@ -349,7 +411,7 @@ export class TournamentRRController implements ChatController {
                     color,
                     status: cell.status,
                     label,
-                    actionable: cell.gameId !== '' || cell.status === 'pending' || incoming,
+                    actionable: cell.gameId !== '' || (canAct && (cell.status === 'pending' || incoming)),
                     incoming,
                     gameId: cell.gameId,
                 });
@@ -758,9 +820,7 @@ export class TournamentRRController implements ChatController {
     }
 
     renderOverview() {
-        this.renderMatrixShell(h('table#games.box'));
-        this.gamesNode = patch(document.getElementById('games') as HTMLElement, h('table#games.box'));
-        this.renderGames();
+        this.renderMatrixShell(this.gamesVNode());
         this.renderModal();
     }
 

@@ -196,6 +196,7 @@ class RRArrangement:
             "inviteId": self.invite_id or "",
             "challenger": self.challenger or "",
             "color": self.color_of(row_username) or "",
+            "date": self.date.isoformat(),
         }
 
 
