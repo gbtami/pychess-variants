@@ -386,6 +386,8 @@ class TournamentUserConnectedMessage(TypedDict):
     manualNextRound: NotRequired[bool]
     chatClosed: bool
     private: bool
+    createdBy: str
+    rrRequiresApproval: NotRequired[bool]
     defender_title: NotRequired[str]
     defender_name: NotRequired[str]
 
@@ -498,9 +500,18 @@ class TournamentRRArrangementsMessage(TournamentIdMessage):
     type: Literal["get_rr_arrangements"]
 
 
+class TournamentRRManagementMessage(TournamentIdMessage):
+    type: Literal["get_rr_management"]
+
+
 class TournamentRRChallengeMessage(TournamentIdMessage):
     type: Literal["rr_challenge", "rr_accept_challenge"]
     arrangementId: str
+
+
+class TournamentRRManagePlayerMessage(TournamentIdMessage):
+    type: Literal["rr_approve_player", "rr_deny_player", "rr_kick_player"]
+    username: str
 
 
 class TournamentJoinMessage(TournamentIdMessage):
@@ -532,7 +543,9 @@ TournamentInboundMessage = (
     | TournamentMyPageMessage
     | TournamentGetGamesMessage
     | TournamentRRArrangementsMessage
+    | TournamentRRManagementMessage
     | TournamentRRChallengeMessage
+    | TournamentRRManagePlayerMessage
     | TournamentJoinMessage
     | TournamentPauseMessage
     | TournamentWithdrawMessage

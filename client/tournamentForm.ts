@@ -73,6 +73,7 @@ export function initTournamentForm(): void {
     const rrMaxPlayersWrap = document.getElementById("form3-rrMaxPlayers-wrap");
     const rrMaxPlayers = document.getElementById("form3-rrMaxPlayers");
     const rrMaxPlayersHelp = document.getElementById("form3-rrMaxPlayers-help");
+    const rrApprovalWrap = document.getElementById("form3-rrApproval-wrap");
     const roundIntervalWrap = document.getElementById("form3-roundInterval-wrap");
     const roundInterval = document.getElementById("form3-roundInterval");
     const roundIntervalHelp = document.getElementById("form3-roundInterval-help");
@@ -117,6 +118,7 @@ export function initTournamentForm(): void {
 
         setVisible(roundsWrap, !isArena && !isRR);
         setVisible(rrMaxPlayersWrap, isRR);
+        setVisible(rrApprovalWrap, isRR);
         setVisible(roundIntervalWrap, !isArena);
         rounds.disabled = isArena || isRR;
         rrMaxPlayers.disabled = !isRR;

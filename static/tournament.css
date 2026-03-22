@@ -253,6 +253,28 @@ table#rr-crosstable td.rr-cell.actionable {
 table#rr-crosstable td.rr-self {
     opacity: 0.5;
 }
+#rr-management {
+    margin-bottom: 1rem;
+}
+#rr-management h2,
+#rr-management h3 {
+    margin: 0 0 0.6rem;
+}
+#rr-management table {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+#rr-management td.manage-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+#rr-management button.reject {
+    background: var(--c-error, #9f3a38);
+}
+#action.pending-note {
+    padding: 0.5rem 0;
+    font-weight: 600;
+}
 table.pairings tr {
     cursor: pointer;
 }
