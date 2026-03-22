@@ -822,7 +822,7 @@ function runTournamentRR(vnode: VNode, model: PyChessModel) {
 }
 
 export function tournamentRRView(model: PyChessModel): VNode[] {
-    const variant = VARIANTS[model.variant];
+    const variant = VARIANTS[model.variant] ?? VARIANTS['chess'];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
     const canEdit = model.username === model.tournamentcreator && model.status === 0;
@@ -857,7 +857,7 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                     h('h1', model.tournamentname),
                     h('div#clockdiv'),
                 ]),
-                h('div#page-controls', [h('div#action')]),
+                h('div#page-controls.btn-controls', [h('div#action')]),
                 h('table#players', { hook: { insert: (vnode) => runTournamentRR(vnode, model) } }),
                 h('div.tour-faq'),
             ]),
