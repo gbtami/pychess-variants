@@ -239,6 +239,8 @@ class RRTournament(Tournament):
 
     def arrangement_payload(self, *, user: User | None = None) -> dict[str, object]:
         username = "" if user is None else user.username
+        if self.status == T_CREATED:
+            self.sync_projected_arrangements()
         matrix: dict[str, dict[str, dict[str, Any]]] = {
             player.username: {} for player in self.players
         }
@@ -305,7 +307,7 @@ class RRTournament(Tournament):
                 pairings.append((round_no, white_idx, black_idx))
         return pairings
 
-    async def create_arrangements(self) -> None:
+    def sync_projected_arrangements(self) -> set[str]:
         players = self.rr_arrangement_player_names()
         if len(players) > RR_MAX_SUPPORTED_PLAYERS:
             raise ValueError(
@@ -313,27 +315,55 @@ class RRTournament(Tournament):
                 % RR_MAX_SUPPORTED_PLAYERS
             )
 
-        self.arrangements = {}
+        existing = self.arrangements
+        projected: dict[str, RRArrangement] = {}
         if len(players) < 2:
-            return
+            self.arrangements = {}
+            return set(existing)
 
         for round_no, white_idx, black_idx in self._berger_rounds(players):
             white = players[white_idx - 1]
             black = players[black_idx - 1]
             arrangement_id = f"{self.id}:{white}:{black}"
-            self.arrangements[arrangement_id] = RRArrangement(
-                arrangement_id,
-                white,
-                black,
-                round_no,
-            )
+            arrangement = existing.get(arrangement_id)
+            if arrangement is None:
+                arrangement = RRArrangement(
+                    arrangement_id,
+                    white,
+                    black,
+                    round_no,
+                )
+            else:
+                arrangement.white = white
+                arrangement.black = black
+                arrangement.round_no = round_no
+            projected[arrangement_id] = arrangement
+
+        stale_ids = set(existing).difference(projected)
+        for arrangement_id in stale_ids:
+            arrangement = existing[arrangement_id]
+            if arrangement.invite_id is not None:
+                self.app_state.invites.pop(arrangement.invite_id, None)
+
+        self.arrangements = projected
+        return stale_ids
+
+    async def create_arrangements(self) -> None:
+        stale_ids = self.sync_projected_arrangements()
 
         if self.app_state.db is not None:
-            await self.app_state.db.tournament_arrangement.delete_many({"tid": self.id})
-            if self.arrangements:
-                await self.app_state.db.tournament_arrangement.insert_many(
-                    [arrangement.doc(self.id) for arrangement in self.arrangement_list()]
-                )
+            arrangement_table = self.app_state.db.tournament_arrangement
+            if stale_ids:
+                await arrangement_table.delete_many({"tid": self.id, "_id": {"$in": list(stale_ids)}})
+            if not self.arrangements:
+                await arrangement_table.delete_many({"tid": self.id})
+            else:
+                for arrangement in self.arrangement_list():
+                    await arrangement_table.update_one(
+                        {"_id": arrangement.id},
+                        {"$set": arrangement.update_doc(self.id)},
+                        upsert=True,
+                    )
 
     async def load_arrangements(self, docs: list[TournamentArrangementDoc]) -> None:
         self.arrangements = {}
@@ -373,6 +403,8 @@ class RRTournament(Tournament):
             arrangement.challenger = None
 
     def arrangement_by_id(self, arrangement_id: str) -> RRArrangement | None:
+        if self.status == T_CREATED:
+            self.sync_projected_arrangements()
         arrangement = self.arrangements.get(arrangement_id)
         if arrangement is not None:
             self._clear_stale_invite(arrangement)
@@ -415,8 +447,8 @@ class RRTournament(Tournament):
         await super().finish(reason)
 
     async def create_arrangement_challenge(self, user: User, arrangement_id: str) -> str | None:
-        if self.status != T_STARTED:
-            return "Round-robin challenges open after the tournament starts."
+        if self.status not in (T_CREATED, T_STARTED):
+            return "Round-robin challenges are not available for this tournament."
 
         arrangement = self.arrangement_by_id(arrangement_id)
         if arrangement is None:

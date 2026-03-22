@@ -285,6 +285,28 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(payload["completedGames"], 0)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_prestart_payload_exposes_projected_arrangements(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(3)
+
+        payload = self.tournament.arrangement_payload()
+        self.assertEqual(payload["totalGames"], 3)
+        self.assertEqual(payload["players"], [player.username for player in self.tournament.leaderboard])
+        matrix = payload["matrix"]
+        first = next(iter(payload["players"]))
+        self.assertTrue(any(cell.get("id") for cell in matrix[first].values()))
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_rr_finishes_on_minutes_deadline_with_incomplete_arrangements(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -662,6 +684,49 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(opponent.notifications[-1]["content"]["tid"], tid)
         self.assertEqual(opponent.notifications[-1]["content"]["arr"], arrangement.id)
         self.assertEqual(opponent.notifications[-1]["content"]["opp"], challenger.username)
+
+    async def test_rr_prestart_challenge_survives_start(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=10,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B", "C"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+            users.append(user)
+
+        payload = self.tournament.arrangement_payload()
+        arrangement_id = next(
+            cell["id"]
+            for row in payload["matrix"].values()
+            for cell in row.values()
+            if cell["id"] and cell["white"] == users[0].username
+        )
+        self.assertIsNone(await self.tournament.create_arrangement_challenge(users[0], arrangement_id))
+
+        arrangement_before = self.tournament.arrangement_by_id(arrangement_id)
+        assert arrangement_before is not None
+        self.assertEqual(arrangement_before.status, "challenged")
+        self.assertIsNotNone(arrangement_before.invite_id)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        arrangement_after = self.tournament.arrangement_by_id(arrangement_id)
+        assert arrangement_after is not None
+        self.assertEqual(arrangement_after.status, "challenged")
+        self.assertEqual(arrangement_after.invite_id, arrangement_before.invite_id)
 
     async def test_swiss_ws_redirect_failure_does_not_pause_players(self):
         app_state = get_app_state(self.app)
