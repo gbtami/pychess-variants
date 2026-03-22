@@ -91,8 +91,8 @@ export class TournamentRRController implements ChatController {
     startsAtNode: VNode;
     systemNode: VNode;
     minutesNode: VNode;
+    manageNode: VNode;
     summaryNode: VNode;
-    navNode: VNode;
     bodyNode: VNode;
     modalNode: VNode;
     crossTableNode: VNode | null = null;
@@ -122,10 +122,10 @@ export class TournamentRRController implements ChatController {
         this.startsAtNode = patch(document.getElementById('startsAt') as HTMLElement, h('div#startsAt'));
         this.systemNode = patch(document.getElementById('tsystem') as HTMLElement, h('div#tsystem'));
         this.minutesNode = patch(document.getElementById('tminutes') as HTMLElement, h('span#tminutes'));
+        this.manageNode = patch(document.getElementById('rr-manage') as HTMLElement, h('div#rr-manage'));
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.action = patch(document.getElementById('action') as HTMLElement, h('div#action'));
         this.summaryNode = patch(document.getElementById('summarybox') as HTMLElement, h('div#summarybox'));
-        this.navNode = patch(document.getElementById('rr-nav') as HTMLElement, h('div#rr-nav'));
         this.bodyNode = patch(document.getElementById('rr-body') as HTMLElement, h('div#rr-body'));
         this.modalNode = patch(document.getElementById('rr-modal') as HTMLElement, h('div#rr-modal'));
         patch(document.querySelector('div.tour-faq') as HTMLElement, roundRobinFaq(this.rated));
@@ -240,8 +240,8 @@ export class TournamentRRController implements ChatController {
         this.secondsToFinish = msg.secondsToFinish;
         initializeClock(this as any);
         this.updateActionButton();
+        this.renderManageButton();
         this.renderProgress();
-        this.renderViewNav();
         this.renderBody();
         this.renderModal();
     }
@@ -459,17 +459,30 @@ export class TournamentRRController implements ChatController {
         ]));
     }
 
-    renderViewNav() {
+    renderManageButton() {
+        if (!this.isHost()) {
+            this.manageNode = patch(this.manageNode, h('div#rr-manage'));
+            return;
+        }
+        this.manageNode = patch(this.manageNode, h('div#rr-manage', [
+            h(`button.button${this.viewMode === 'manage' ? '.active' : ''}`, {
+                on: {
+                    click: () => this.setViewMode(this.viewMode === 'manage' ? 'overview' : 'manage'),
+                },
+            }, _('Manage players')),
+        ]));
+    }
+
+    viewNavVNode() {
         const nav = [
-            ['overview', _('Overview')],
+            ['overview', _('Games')],
             ['challenges', _('Challenges')],
         ] as Array<[RRViewMode, string]>;
-        if (this.isHost()) nav.push(['manage', _('Manage players')]);
-        this.navNode = patch(this.navNode, h('div#rr-nav.box', nav.map(([mode, label]) =>
+        return h('div#rr-nav.box', nav.map(([mode, label]) =>
             h(`button.button${this.viewMode === mode ? '.active' : ''}`, {
                 on: { click: () => this.setViewMode(mode) },
             }, label),
-        )));
+        ));
     }
 
     modalStatusText(cell: RRArrangementCell): string {
@@ -550,6 +563,7 @@ export class TournamentRRController implements ChatController {
     renderChallenges() {
         const rows = this.challengeRows();
         this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
+            this.viewNavVNode(),
             h('div#rr-challenges.box', [
                 h('h2', _('Challenges')),
                 rows.length === 0 ? h('div.rr-empty', _('No current challenges or active pairing actions.')) : h('table.players', [
@@ -617,6 +631,7 @@ export class TournamentRRController implements ChatController {
             h(`button.button${reject ? '.reject' : ''}`, { on: { click: () => this.doSend(message as any) } }, label);
 
         this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
+            this.viewNavVNode(),
             h('div#rr-management.box', [
                 h('div.rr-section-header', [
                     h('h2', _('Player management')),
@@ -684,6 +699,7 @@ export class TournamentRRController implements ChatController {
         this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
             h('div#player', [
                 h('div#stats.box', [h('div#rr-crosstable')]),
+                this.viewNavVNode(),
                 h('table#games.box'),
             ]),
         ]));
@@ -695,7 +711,6 @@ export class TournamentRRController implements ChatController {
     }
 
     renderBody() {
-        this.renderViewNav();
         if (this.viewMode === 'manage') {
             this.renderManagement();
             this.renderModal();
@@ -759,6 +774,7 @@ export class TournamentRRController implements ChatController {
         this.joiningClosed = msg.joiningClosed;
         this.pendingPlayers = msg.pendingPlayers;
         this.deniedPlayers = msg.deniedPlayers;
+        this.renderManageButton();
         this.renderProgress();
         this.updateActionButton();
         this.renderBody();
@@ -768,9 +784,9 @@ export class TournamentRRController implements ChatController {
         this.createdBy = msg.createdBy;
         this.approvalRequired = msg.approvalRequired;
         this.joiningClosed = msg.joiningClosed;
+        this.renderManageButton();
         this.renderProgress();
         this.updateActionButton();
-        this.renderViewNav();
         if (this.viewMode === 'manage' && !this.isHost()) this.viewMode = 'overview';
         this.renderBody();
     }
@@ -878,6 +894,7 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                 ]),
                 h('div#description'),
                 h('div#startsAt'),
+                h('div#rr-manage'),
             ]),
             h('div#lobbychat'),
         ]),
@@ -889,7 +906,6 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                 ]),
                 h('div#page-controls.btn-controls', [h('div#action')]),
                 h('div#rr-shell', { hook: { insert: (vnode) => runTournamentRR(vnode, model) } }),
-                h('div#rr-nav'),
                 h('div#rr-body'),
                 h('div.tour-faq'),
             ]),
