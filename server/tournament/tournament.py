@@ -1674,6 +1674,7 @@ class Tournament(ABC):
                 "WITHDRAW ignored: %s is missing from tournament %s players", user.username, self.id
             )
             return
+        player_data.paused = False
         player_data.withdrawn = True
 
         if self.pop_leaderboard_player_by_username(user.username) is not None:

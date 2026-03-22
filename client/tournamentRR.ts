@@ -154,7 +154,7 @@ export class TournamentRRController implements ChatController {
     }
 
     withdraw() {
-        this.doSend({ type: 'pause', tournamentId: this.tournamentId });
+        this.doSend({ type: 'withdraw', tournamentId: this.tournamentId });
     }
 
     setViewMode(viewMode: RRViewMode) {
