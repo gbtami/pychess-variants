@@ -548,7 +548,7 @@ export class TournamentRRController implements ChatController {
         });
 
         if (this.crossTableNode === null) return;
-        this.crossTableNode = patch(this.crossTableNode, h('div#rr-crosstable.box.r-table-wrap', [
+        this.crossTableNode = patch(this.crossTableNode, h('div#rr-crosstable.r-table-wrap', [
             h('div.r-table-wrap-players', [
                 h('table', [
                     h('thead', h('tr', [h('th', '#'), h('th', _('Player'))])),
@@ -605,9 +605,38 @@ export class TournamentRRController implements ChatController {
             ['overview', _('Games')],
             ['challenges', _('Challenges')],
         ] as Array<[RRViewMode, string]>;
-        return h('div#rr-nav.box', nav.map(([mode, label]) =>
-            h(`button.button${this.viewMode === mode ? '.active' : ''}`, {
+        return h('div#rr-nav', {
+            attrs: {
+                role: 'tablist',
+                'aria-label': _('Round-robin views'),
+            },
+        }, nav.map(([mode, label], idx) =>
+            h('span', {
+                attrs: {
+                    role: 'tab',
+                    id: `rr-tab-${mode}`,
+                    'aria-selected': this.viewMode === mode ? 'true' : 'false',
+                    'aria-controls': `rr-panel-${mode}`,
+                    tabindex: this.viewMode === mode ? '0' : '-1',
+                },
                 on: { click: () => this.setViewMode(mode) },
+                hook: {
+                    insert: vnode => {
+                        const el = vnode.elm as HTMLElement | undefined;
+                        if (!el) return;
+                        el.onkeydown = (e: KeyboardEvent) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                this.setViewMode(mode);
+                            }
+                            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                                e.preventDefault();
+                                const nextMode = nav[(idx + (e.key === 'ArrowRight' ? 1 : nav.length - 1)) % nav.length][0];
+                                this.setViewMode(nextMode);
+                            }
+                        };
+                    },
+                },
             }, label),
         ));
     }
@@ -701,7 +730,6 @@ export class TournamentRRController implements ChatController {
     challengesVNode() {
         const rows = this.challengeRows();
         return h('div#rr-challenges.box', [
-            h('h2', _('Challenges')),
             rows.length === 0 ? h('div.rr-empty', _('No current challenges or active pairing actions.')) : h('table.players', [
                 h('thead', h('tr', [
                     h('th', _('Opponent')),
@@ -832,9 +860,14 @@ export class TournamentRRController implements ChatController {
     renderMatrixShell(lowerContent: VNode) {
         this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
             h('div#player', [
-                h('div#stats.box', [h('div#rr-crosstable')]),
+                h('div#stats', [h('div#rr-crosstable')]),
                 this.viewNavVNode(),
-                lowerContent,
+                h('div', {
+                    attrs: {
+                        id: `rr-panel-${this.viewMode}`,
+                        'aria-labelledby': `rr-tab-${this.viewMode}`,
+                    },
+                }, [lowerContent]),
             ]),
         ]));
         this.crossTableNode = patch(document.getElementById('rr-crosstable') as HTMLElement, h('div#rr-crosstable'));
