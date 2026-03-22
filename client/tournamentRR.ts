@@ -350,6 +350,18 @@ export class TournamentRRController implements ChatController {
 
     renderCrossTable() {
         const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map((player) => player.name);
+        const rowHoverHandlers = (rowPlayer: string) => ({
+            mouseenter: () => this.setHovered(rowPlayer, this.hoveredCol || rowPlayer),
+            mouseleave: () => this.clearHovered(),
+        });
+        const colHoverHandlers = (colPlayer: string) => ({
+            mouseenter: () => this.setHovered(this.hoveredRow || colPlayer, colPlayer),
+            mouseleave: () => this.clearHovered(),
+        });
+        const cellHoverHandlers = (rowPlayer: string, colPlayer: string) => ({
+            mouseenter: () => this.setHovered(rowPlayer, colPlayer),
+            mouseleave: () => this.clearHovered(),
+        });
         const rows = order.map((rowPlayer, rowIndex) => {
             const rowPlayerData = this.playerByName(rowPlayer);
             return h('tr', {
@@ -361,10 +373,11 @@ export class TournamentRRController implements ChatController {
                 },
                 on: {
                     click: () => this.selectPlayer(rowPlayer),
+                    ...rowHoverHandlers(rowPlayer),
                 },
             }, [
-                h('th', `${rowIndex + 1}`),
-                h('th', userLink(rowPlayer, [
+                h('th', { on: rowHoverHandlers(rowPlayer) }, `${rowIndex + 1}`),
+                h('th', { on: rowHoverHandlers(rowPlayer) }, userLink(rowPlayer, [
                     rowPlayerData?.withdrawn ? h('span.rr-player-state', '• ') : '',
                     displayUsername(rowPlayer),
                 ])),
@@ -377,9 +390,15 @@ export class TournamentRRController implements ChatController {
                     hovered: this.hoveredRow === rowPlayer,
                     withdrawn: !!this.playerByName(rowPlayer)?.withdrawn,
                 },
+                on: rowHoverHandlers(rowPlayer),
             }, order.map((colPlayer) => {
                 const cell = this.matrix[rowPlayer]?.[colPlayer];
-                if (rowPlayer === colPlayer) return h('td.rr-cell.rr-self');
+                if (rowPlayer === colPlayer) return h('td.rr-cell.rr-self', {
+                    class: {
+                        hovered: this.hoveredRow === rowPlayer || this.hoveredCol === colPlayer,
+                    },
+                    on: cellHoverHandlers(rowPlayer, colPlayer),
+                });
                 const isMe = !!cell && [cell.white, cell.black].includes(this.username);
                 const display = cell ? this.cellDisplay(cell) : '';
                 const isSelected = this.selectedArrangementId !== '' && cell?.id === this.selectedArrangementId;
@@ -403,9 +422,8 @@ export class TournamentRRController implements ChatController {
                     },
                     on: cell ? {
                         click: () => this.selectArrangement(cell),
-                        mouseenter: () => this.setHovered(rowPlayer, colPlayer),
-                        mouseleave: () => this.clearHovered(),
-                    } : {},
+                        ...cellHoverHandlers(rowPlayer, colPlayer),
+                    } : cellHoverHandlers(rowPlayer, colPlayer),
                 }, display !== '' ? h('div', display) : '');
             })),
         );
@@ -419,14 +437,16 @@ export class TournamentRRController implements ChatController {
                     'selected-player': this.selectedPlayer === playerName,
                     withdrawn: !!player?.withdrawn,
                 },
+                on: rowHoverHandlers(playerName),
             }, [
                 h('td', {
                     class: {
                         me: playerName === this.username,
                         winner: !!player && player.score === maxScore && maxScore > 0,
                     },
+                    on: rowHoverHandlers(playerName),
                 }, `${player?.score ?? 0}`),
-                h('td', `${player?.berger.toFixed(1) ?? '0.0'}`),
+                h('td', { on: rowHoverHandlers(playerName) }, `${player?.berger.toFixed(1) ?? '0.0'}`),
             ]);
         });
 
@@ -445,6 +465,7 @@ export class TournamentRRController implements ChatController {
                             hovered: this.hoveredCol === playerName,
                             me: playerName === this.username,
                         },
+                        on: colHoverHandlers(playerName),
                     }, `${index + 1}`)))),
                     h('tbody', arrangementRows),
                 ]),
@@ -517,13 +538,20 @@ export class TournamentRRController implements ChatController {
         const whitePlayer = this.playerByName(cell.white);
         const blackPlayer = this.playerByName(cell.black);
         let actionButton: VNode | null = null;
+        let closeButtonLabel = _('Close');
         if (cell.gameId) {
             actionButton = h('button.button', { on: { click: () => this.arrangementAction(cell) } }, _('Open game'));
         } else if (canAct && cell.status === 'pending') {
             actionButton = h('button.button', { on: { click: () => this.arrangementAction(cell) } }, _('Create challenge'));
         } else if (canAct && cell.status === 'challenged' && cell.challenger !== this.username) {
             actionButton = h('button.button', { on: { click: () => this.arrangementAction(cell) } }, _('Accept challenge'));
+        } else if (canAct && cell.status === 'challenged' && cell.challenger === this.username) {
+            closeButtonLabel = _('OK');
         }
+        const detailActions = [
+            actionButton,
+            h('button.button.button-empty', { on: { click: () => this.closeArrangement() } }, closeButtonLabel),
+        ].filter((button): button is VNode => button !== null);
         this.modalNode = patch(this.modalNode, h('div#rr-modal.modal-overlay.modal-overlay-fullscreen', {
             style: { display: 'flex' },
             on: {
@@ -564,7 +592,7 @@ export class TournamentRRController implements ChatController {
                     cell.status === 'challenged' ? h('div.rr-modal-stat', [h('strong', _('Challenge by')), h('span', cell.challenger)]) : '',
                 ]),
                 h('div.rr-modal-note', this.modalStatusText(cell)),
-                actionButton ? h('div.rr-detail-actions', [actionButton]) : '',
+                h('div.rr-detail-actions', detailActions),
             ]),
         ]));
     }

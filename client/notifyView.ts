@@ -110,6 +110,8 @@ export function notifyView() {
     var page: number = 0;
     var unread: number = 0;
     var messages: Message[] = [];
+    let evtSource: EventSource | null = null;
+    let reconnectTimer: number | null = null;
 
     const xmlhttp = new XMLHttpRequest();
     const url = "/notifications?p=";
@@ -118,24 +120,48 @@ export function notifyView() {
     const newNotifyCounter = (sum: number, message: Message) => sum + ((message.read) ? 0 : 1);
 
     function redraw() {
-        (document.querySelector('.data-count') as HTMLElement).setAttribute('data-count', `${unread}`);
+        const counter = document.querySelector('.data-count') as HTMLElement | null;
+        if (counter) counter.setAttribute('data-count', `${unread}`);
+        const button = document.getElementById('btn-notify') as HTMLElement | null;
+        if (button) button.setAttribute('aria-label', `Notifications: ${unread}`);
         notifyAppEl = patch(notifyAppEl, h('div#notify-app', renderMessages(messages)));
+    }
+
+    function applyMessages(nextMessages: Message[]) {
+        messages = nextMessages;
+        unread = messages.reduce(newNotifyCounter, 0);
+        page = 0;
+        redraw();
+    }
+
+    function scheduleReconnect() {
+        if (reconnectTimer !== null) window.clearTimeout(reconnectTimer);
+        reconnectTimer = window.setTimeout(() => {
+            reconnectTimer = null;
+            connectNotifications();
+        }, 1500);
+    }
+
+    function connectNotifications() {
+        if (evtSource !== null) evtSource.close();
+        evtSource = new EventSource("/notify");
+        evtSource.onmessage = function(event) {
+            applyMessages(JSON.parse(event.data));
+        };
+        evtSource.onerror = function() {
+            if (evtSource !== null) {
+                evtSource.close();
+                evtSource = null;
+            }
+            scheduleReconnect();
+        };
     }
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
             notifyAppEl = document.getElementById('notify-app') as HTMLElement;
-            messages = JSON.parse(this.responseText);
-            unread = messages.reduce(newNotifyCounter, 0);
-            redraw();
-
-            const evtSource = new EventSource("/notify");
-            evtSource.onmessage = function(event) {
-                messages = JSON.parse(event.data);
-                unread = messages.reduce(newNotifyCounter, 0);
-                page = 0;
-                redraw();
-            }
+            applyMessages(JSON.parse(this.responseText));
+            connectNotifications();
         }
     };
     xmlhttp.open("GET", `${url}${page}`, true);
