@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Any, TYPE_CHECKING, Iterable, Mapping, Protocol, cast
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import asyncio
 
 import aiohttp_session
@@ -515,6 +515,28 @@ async def create_or_update_tournament(
     else:
         start_date = None
 
+    end_date: datetime | None
+    if form.get("endDate"):
+        end_date = datetime.fromisoformat(form["endDate"].rstrip("Z")).replace(tzinfo=timezone.utc)
+    else:
+        end_date = None
+
+    minutes = int(form["minutes"])
+    if end_date is not None:
+        effective_start_date = start_date
+        if effective_start_date is None:
+            effective_start_date = datetime.now(timezone.utc) + timedelta(
+                minutes=int(form["waitMinutes"])
+            )
+            start_date = effective_start_date
+        delta_minutes = int(max(1, (end_date - effective_start_date).total_seconds() // 60))
+        if (
+            end_date > effective_start_date
+            and (end_date - effective_start_date).total_seconds() % 60
+        ):
+            delta_minutes += 1
+        minutes = max(1, delta_minutes)
+
     name = form["name"].strip()
     # Create meaningful tournament name in case we forget to change it :)
     if name == "":
@@ -538,7 +560,7 @@ async def create_or_update_tournament(
         "beforeStart": int(form["waitMinutes"]),
         "startDate": start_date,
         "frequency": frequency,
-        "minutes": int(form["minutes"]),
+        "minutes": minutes,
         "fen": form["position"],
         "rounds": rounds,
         "rrMaxPlayers": rr_max_players,
