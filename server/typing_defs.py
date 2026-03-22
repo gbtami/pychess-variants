@@ -141,6 +141,7 @@ GameDocument = TypedDict(
         "y": NotRequired[int],
         "z": NotRequired[int],
         "tid": NotRequired[str],
+        "aid": NotRequired[str],
         "sid": NotRequired[str],
         "a": NotRequired[list[AnalysisStep]],
         "cw": NotRequired[list[int]],
@@ -687,6 +688,31 @@ class TournamentPairingUpdate(TypedDict, total=False):
     p: int | None
     rn: int
     bt: str
+
+
+class TournamentArrangementDoc(TypedDict, total=False):
+    _id: str
+    tid: str
+    u: tuple[str, str]
+    c: tuple[str, str]
+    rn: int
+    s: str
+    gid: str
+    iid: str
+    ch: str
+    d: datetime
+
+
+class TournamentArrangementUpdate(TypedDict, total=False):
+    tid: str
+    u: tuple[str, str]
+    c: tuple[str, str]
+    rn: int
+    s: str
+    gid: str | None
+    iid: str | None
+    ch: str | None
+    d: datetime
 
 
 class TournamentPlayerJson(TypedDict):

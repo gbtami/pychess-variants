@@ -175,6 +175,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | Ga
         corr=corr,
         create=False,
         tournamentId=doc.get("tid"),
+        tournamentArrangementId=doc.get("aid"),
         simulId=doc.get("sid"),
     )
 
@@ -550,6 +551,8 @@ async def new_game(
             chess960=seek.chess960,
             corr=seek.day > 0,
             create=True,
+            tournamentId=seek.tournament_id,
+            tournamentArrangementId=seek.rr_arrangement_id,
             new_960_fen_needed_for_rematch=seek.reused_fen,
         )
     except Exception:
@@ -615,6 +618,8 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
 
     if game.tournamentId is not None:
         document["tid"] = game.tournamentId
+    if game.tournamentArrangementId is not None:
+        document["aid"] = game.tournamentArrangementId
     if game.simulId is not None:
         document["sid"] = game.simulId
 

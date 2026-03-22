@@ -229,6 +229,30 @@ strong.score {
     padding: 0.3em;
     font-size: 14px;
 }
+#rr-crosstable {
+    width: 100%;
+    overflow-x: auto;
+}
+#rr-crosstable table,
+table#rr-crosstable {
+    width: 100%;
+    border-collapse: collapse;
+}
+table#rr-crosstable th,
+table#rr-crosstable td {
+    padding: 0.45rem 0.55rem;
+    text-align: center;
+}
+table#rr-crosstable th:nth-child(2) {
+    text-align: left;
+}
+table#rr-crosstable td.rr-cell.actionable {
+    cursor: pointer;
+    background: var(--bg-color2);
+}
+table#rr-crosstable td.rr-self {
+    opacity: 0.5;
+}
 table.pairings tr {
     cursor: pointer;
 }

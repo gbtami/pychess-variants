@@ -102,6 +102,28 @@ export interface MsgPing {
     timestamp: string;
 }
 
+export interface RRArrangementCell {
+    id: string;
+    round: number;
+    white: string;
+    black: string;
+    status: string;
+    gameId: string;
+    inviteId: string;
+    challenger: string;
+    color: string;
+    result?: string;
+}
+
+export interface MsgRRArrangements {
+    type: string;
+    requestedBy: string;
+    players: string[];
+    matrix: Record<string, Record<string, RRArrangementCell>>;
+    completedGames: number;
+    totalGames: number;
+}
+
 export interface TopGame {
     gameId: string;
     variant: string;

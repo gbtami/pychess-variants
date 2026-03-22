@@ -118,7 +118,8 @@ class TournamentFlowTestCase(TournamentTestCase):
             tid,
             variant="chess",
             before_start=1,
-            rounds=3,
+            rounds=0,
+            rr_max_players=6,
             with_clock=False,
             entry_min_rating=1400,
             entry_max_rating=1800,
@@ -259,53 +260,56 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(self.tournament.status, T_FINISHED)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    async def test_tournament_pairing_5_round_RR(self):
+    async def test_rr_start_creates_full_arrangement_matrix(self):
         app_state = get_app_state(self.app)
         NB_PLAYERS = 5
-        NB_ROUNDS = 5
 
-        tid = id8()
-        self.tournament = RRTestTournament(app_state, tid, before_start=0, rounds=NB_ROUNDS)
-        app_state.tournaments[tid] = self.tournament
-        await self.tournament.join_players(NB_PLAYERS)
-
-        await self.tournament.clock_task
-
-        self.assertEqual(self.tournament.status, T_FINISHED)
-        self.assertEqual(
-            [len(player.games) for player in self.tournament.players.values()],
-            NB_PLAYERS * [NB_ROUNDS],
-        )
-
-    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    async def test_fixed_round_rr_ignores_minutes_deadline(self):
-        app_state = get_app_state(self.app)
-        NB_PLAYERS = 5
-        NB_ROUNDS = 5
         tid = id8()
         self.tournament = RRTestTournament(
             app_state,
             tid,
-            before_start=0,
-            rounds=NB_ROUNDS,
-            minutes=0,
+            before_start=10,
+            rounds=0,
+            rr_max_players=NB_PLAYERS,
+            with_clock=False,
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.assertEqual(self.tournament.status, T_STARTED)
+        self.assertEqual(self.tournament.rounds, NB_PLAYERS)
+        self.assertEqual(len(self.tournament.arrangements), 10)
+        payload = self.tournament.arrangement_payload()
+        self.assertEqual(payload["totalGames"], 10)
+        self.assertEqual(payload["completedGames"], 0)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_finishes_on_minutes_deadline_with_incomplete_arrangements(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=0.01,
+            rounds=0,
+            rr_max_players=6,
+            minutes=0.001,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(5)
 
         if self.tournament.clock_task is not None:
             await asyncio.wait_for(self.tournament.clock_task, timeout=20)
 
         self.assertEqual(self.tournament.status, T_FINISHED)
-        self.assertEqual(
-            [len(player.games) for player in self.tournament.players.values()],
-            NB_PLAYERS * [NB_ROUNDS],
-        )
+        self.assertEqual(len(self.tournament.arrangements), 10)
+        self.assertFalse(self.tournament.all_arrangements_finished())
 
     async def test_fixed_round_manual_next_round_waits_for_organizer(self):
         app_state = get_app_state(self.app)
         tid = id8()
-        self.tournament = RRTestTournament(
+        self.tournament = SwissTestTournament(
             app_state,
             tid,
             before_start=0,
@@ -444,7 +448,13 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = RRTestTournament(
-            app_state, tid, variant="chess", before_start=0, rounds=3, with_clock=False
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=6,
+            with_clock=False,
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(4)
@@ -459,7 +469,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             {player.username for player in self.tournament.players},
         )
 
-    async def test_rr_join_refuses_players_beyond_round_capacity(self):
+    async def test_rr_join_refuses_players_beyond_max_players(self):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = RRTestTournament(
@@ -476,6 +486,11 @@ class TournamentFlowTestCase(TournamentTestCase):
         await self.tournament.join_players(10)
         self.assertEqual(self.tournament.nb_players, 10)
         self.assertEqual(len(self.tournament.players), 10)
+
+        extra = User(app_state, username=f"{tid}_extra", perfs=make_test_perfs())
+        extra.tournament_sockets[self.tournament.id] = set((None,))
+        app_state.users[extra.username] = extra
+        self.assertEqual(await self.tournament.join(extra), "This round-robin tournament is full.")
 
     async def test_rr_start_derives_rounds_from_joined_players(self):
         app_state = get_app_state(self.app)

@@ -19,6 +19,7 @@ import { analysisView, embedView } from './analysis';
 import { puzzleView } from './puzzle';
 import { profileView } from './profile';
 import { tournamentView } from './tournament';
+import { tournamentRRView } from './tournamentRR';
 import { simulView } from './simul/simul';
 import { calendarView } from './calendar';
 import { pasteView, recordImportFfishError } from './paste';
@@ -162,7 +163,7 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
     case 'editor':
         return h('div#main-wrap', editorView(model));
     case 'tournament':
-        return h('div#main-wrap', [h('main.tour', tournamentView(model))]);
+        return h('div#main-wrap', [h('main.tour', model.tsystem === 1 ? tournamentRRView(model) : tournamentView(model))]);
     case 'simul':
         return h('div#main-wrap', [h('main.simul', simulView(model))]);
     case 'calendar':

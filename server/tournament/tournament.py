@@ -500,6 +500,20 @@ class Tournament(ABC):
     async def create_pairing_async(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         return self.create_pairing(waiting_players)
 
+    async def load_arrangements(self, docs: list[object]) -> None:
+        return
+
+    def arrangement_payload(self, *, user: User | None = None) -> dict[str, object]:
+        return {"type": "rr_arrangements", "requestedBy": "" if user is None else user.username}
+
+    async def create_arrangement_challenge(self, user: User, arrangement_id: str) -> str | None:
+        return "Round-robin challenges are not available for this tournament."
+
+    async def accept_arrangement_challenge(
+        self, user: User, arrangement_id: str
+    ) -> dict[str, object]:
+        return {"type": "error", "message": "Round-robin challenges are not available."}
+
     def register_player(self, user: User, player_data: PlayerData) -> None:
         for existing in tuple(self.players):
             if existing is user:

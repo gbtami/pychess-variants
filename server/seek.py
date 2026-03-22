@@ -44,6 +44,8 @@ class SeekJson(TypedDict):
     byoyomi: int
     day: int | float
     gameId: str
+    tournamentId: NotRequired[str]
+    rrArrangementId: NotRequired[str]
     expireAt: NotRequired[str]
 
 
@@ -71,6 +73,8 @@ class SeekDbJson(TypedDict):
     byoyomi: int
     day: int | float
     gameId: str
+    tournamentId: NotRequired[str]
+    rrArrangementId: NotRequired[str]
     expireAt: NotRequired[datetime]
 
 
@@ -101,6 +105,9 @@ class SeekCreateData(TypedDict):
     rrmax: NotRequired[int | None]
     chess960: NotRequired[bool | None]
     target: NotRequired[str]
+    reserveGameId: NotRequired[bool]
+    tournamentId: NotRequired[str]
+    rrArrangementId: NotRequired[str]
 
 
 class Seek:
@@ -126,6 +133,8 @@ class Seek:
         bugPlayer1: User | None = None,
         bugPlayer2: User | None = None,
         game_id: str | None = None,
+        tournament_id: str | None = None,
+        rr_arrangement_id: str | None = None,
         expire_at: datetime | str | None = None,
         reused_fen: bool = False,
     ) -> None:
@@ -152,6 +161,8 @@ class Seek:
         self.bugPlayer2: User | None = bugPlayer2
 
         self.game_id: str | None = game_id
+        self.tournament_id: str | None = tournament_id
+        self.rr_arrangement_id: str | None = rr_arrangement_id
 
         if expire_at is not None:
             parsed_expire_at = self._parse_expire_at(expire_at)
@@ -223,6 +234,10 @@ class Seek:
             "day": self.day,
             "gameId": self.game_id if self.game_id is not None else "",
         }
+        if self.tournament_id is not None:
+            seek_json["tournamentId"] = self.tournament_id
+        if self.rr_arrangement_id is not None:
+            seek_json["rrArrangementId"] = self.rr_arrangement_id
         if self.expire_at is not None:
             seek_json["expireAt"] = self.expire_at.isoformat()
         return seek_json
@@ -254,6 +269,10 @@ class Seek:
             "day": self.day,
             "gameId": self.game_id if self.game_id is not None else "",
         }
+        if self.tournament_id is not None:
+            seek_json["tournamentId"] = self.tournament_id
+        if self.rr_arrangement_id is not None:
+            seek_json["rrArrangementId"] = self.rr_arrangement_id
         if self.expire_at is not None:
             seek_json["expireAt"] = self.expire_at
         return seek_json
@@ -354,7 +373,8 @@ async def create_seek(
         return None
 
     target = data.get("target", "")
-    if target in ("BOT_challenge", "Invite-friend"):
+    reserve_game_id = data.get("reserveGameId", False)
+    if target in ("BOT_challenge", "Invite-friend") or reserve_game_id:
         if TYPE_CHECKING:
             assert db is not None
         game_id = await new_id(db.game)
@@ -381,13 +401,15 @@ async def create_seek(
         player1=None if empty else user,
         player2=engine if target == "BOT_challenge" else None,
         game_id=game_id,
+        tournament_id=data.get("tournamentId"),
+        rr_arrangement_id=data.get("rrArrangementId"),
     )
 
     log.debug("adding seek: %s" % seek)
     seeks[seek.id] = seek
     user.seeks[seek.id] = seek
 
-    if target in ("BOT_challenge", "Invite-friend"):
+    if target in ("BOT_challenge", "Invite-friend") or reserve_game_id:
         invites[game_id] = seek  # type: ignore[index]
 
     return seek
