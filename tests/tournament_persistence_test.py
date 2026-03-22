@@ -474,6 +474,39 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             except asyncio.CancelledError:
                 pass
 
+    async def test_rr_short_game_persists_even_if_tournament_id_is_missing(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+        arrangement = self.tournament.arrangement_list()[0]
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+
+        # Reproduce the observed RR challenge bug shape: the game still knows
+        # its arrangement id, but has lost its explicit tournament id.
+        game.tournamentId = None
+        game.board.ply = 2
+        game.update_status(FLAG, "0-1")
+        await game.save_game()
+
+        game_doc = await app_state.db.game.find_one({"_id": game.id})
+        self.assertIsNotNone(game_doc)
+        assert game_doc is not None
+        self.assertEqual(game_doc.get("tid"), tid)
+        self.assertEqual(game_doc.get("aid"), arrangement.id)
+
+        arrangement_doc = await app_state.db.tournament_arrangement.find_one({"_id": arrangement.id})
+        self.assertIsNotNone(arrangement_doc)
+        assert arrangement_doc is not None
+        self.assertEqual(arrangement_doc.get("gid"), game.id)
+        self.assertEqual(arrangement_doc.get("s"), "finished")
+
     async def test_load_tournament_recovers_committed_swiss_round_with_stale_round_doc(self):
         app_state = get_app_state(self.app)
         tid = id8()
