@@ -20,6 +20,7 @@
             {% set t_system = tournament.system %}
             {% set t_rounds = tournament.rounds %}
             {% set t_rr_max_players = tournament.rr_join_limit() if tournament.system == 1 else 10 %}
+            {% set t_rr_requires_approval = tournament.rr_requires_approval %}
             {% set t_round_interval = tournament.round_interval %}
             {% set t_entry_min_rating = tournament.entry_min_rating %}
             {% set t_entry_max_rating = tournament.entry_max_rating %}
@@ -45,6 +46,7 @@
             {% set t_system = 0 %}
             {% set t_rounds = 5 %}
             {% set t_rr_max_players = 10 %}
+            {% set t_rr_requires_approval = false %}
             {% set t_round_interval = -1 %}
             {% set t_entry_min_rating = 0 %}
             {% set t_entry_max_rating = 0 %}
@@ -268,6 +270,15 @@
                             <option value="16"{% if t_rr_max_players == 16 %} selected="selected"{% endif %}>16 players</option>
                         </select>
                         <small id="form3-rrMaxPlayers-help" class="form-help">Choose the maximum field size. The actual round count is determined when the tournament starts.</small>
+                    </div>
+                    <div id="form3-rrApproval-wrap" class="form-check form-group">
+                        <div>
+                            <label class="form-label" for="form3-rrRequiresApproval">Join requests require organizer approval</label>
+                            <span class="form-check-input">
+                                <input id="form3-rrRequiresApproval" name="rrRequiresApproval" value="1" type="checkbox" class="form-control cmn-toggle" {% if t_rr_requires_approval %}checked{% endif %}/>
+                            </span>
+                        </div>
+                        <small class="form-help">The organizer approves or denies RR join requests before the field is frozen at start.</small>
                     </div>
                     <div id="form3-roundInterval-wrap" class="form-group form-half">
                         <label class="form-label" for="form3-roundInterval">Interval between rounds</label>

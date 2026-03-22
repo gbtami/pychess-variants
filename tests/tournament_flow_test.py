@@ -555,6 +555,39 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(self.tournament.nb_players, 4)
         self.assertEqual(len(self.tournament.players), 4)
 
+    async def test_rr_join_request_requires_organizer_approval_when_enabled(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=8,
+            rr_requires_approval=True,
+            with_clock=False,
+        )
+        self.tournament.created_by = "rr_host"
+        app_state.tournaments[tid] = self.tournament
+
+        organizer = User(app_state, username="rr_host", perfs=make_test_perfs())
+        app_state.users[organizer.username] = organizer
+
+        applicant = User(app_state, username=f"{tid}_pending", perfs=make_test_perfs())
+        applicant.tournament_sockets[self.tournament.id] = set((None,))
+        app_state.users[applicant.username] = applicant
+
+        self.assertEqual(await self.tournament.join(applicant), "JOIN_REQUESTED")
+        self.assertEqual(self.tournament.user_status(applicant), "pending")
+        self.assertIn(applicant.username, self.tournament.rr_pending_players)
+        self.assertEqual(self.tournament.nb_players, 0)
+
+        self.assertIsNone(await self.tournament.rr_approve_player(applicant.username))
+        self.assertEqual(self.tournament.user_status(applicant), "joined")
+        self.assertNotIn(applicant.username, self.tournament.rr_pending_players)
+        self.assertEqual(self.tournament.nb_players, 1)
+
     async def test_swiss_ws_redirect_failure_does_not_pause_players(self):
         app_state = get_app_state(self.app)
         tid = id8()

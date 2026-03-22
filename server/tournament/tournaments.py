@@ -459,8 +459,10 @@ async def create_or_update_tournament(
         form.get("rrMaxPlayers"),
         default_value=default_rr_max_players,
     )
+    rr_requires_approval = form.get("rrRequiresApproval", "") == "1"
     if system != RR:
         rr_max_players = 0
+        rr_requires_approval = False
 
     default_round_interval = (
         AUTO_ROUND_INTERVAL if tournament is None else getattr(tournament, "round_interval", 0)
@@ -536,6 +538,7 @@ async def create_or_update_tournament(
         "fen": form["position"],
         "rounds": rounds,
         "rrMaxPlayers": rr_max_players,
+        "rrRequiresApproval": rr_requires_approval,
         "roundInterval": round_interval,
         "entryMinRating": entry_min_rating,
         "entryMaxRating": entry_max_rating,
@@ -561,6 +564,7 @@ async def create_or_update_tournament(
         tournament.bp = data["bp"]
         tournament.rounds = data["rounds"]
         tournament.rr_max_players = data["rrMaxPlayers"]
+        tournament.rr_requires_approval = data["rrRequiresApproval"]
         tournament.round_interval = data["roundInterval"]
         tournament.entry_min_rating = data["entryMinRating"]
         tournament.entry_max_rating = data["entryMaxRating"]
@@ -620,6 +624,7 @@ async def new_tournament(
         fen=data.get("fen", ""),
         rounds=data.get("rounds", 0),
         rr_max_players=data.get("rrMaxPlayers", 0),
+        rr_requires_approval=data.get("rrRequiresApproval", False),
         round_interval=data.get("roundInterval", 0),
         entry_min_rating=data.get("entryMinRating", 0),
         entry_max_rating=data.get("entryMaxRating", 0),
@@ -776,6 +781,7 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                     if tournament_doc["system"] == RR and tournament_doc["rounds"] > 0
                     else 0,
                 ),
+                rr_requires_approval=tournament_doc.get("rrRequiresApproval", False),
                 round_interval=tournament_doc.get("ri", 0),
                 entry_min_rating=tournament_doc.get("entryMinRating", 0),
                 entry_max_rating=tournament_doc.get("entryMaxRating", 0),
@@ -796,6 +802,8 @@ async def get_latest_tournaments(app_state: PychessGlobalAppState, lang: str) ->
                 with_clock=False,
             )
             tournament.nb_players = tournament_doc["nbPlayers"]
+            tournament.rr_pending_players = set(tournament_doc.get("rrPendingPlayers", []))
+            tournament.rr_denied_players = set(tournament_doc.get("rrDeniedPlayers", []))
 
         if tournament.frequency:
             try:
@@ -943,6 +951,7 @@ async def load_tournament(
             if tournament_doc["system"] == RR and tournament_doc["rounds"] > 0
             else 0,
         ),
+        rr_requires_approval=tournament_doc.get("rrRequiresApproval", False),
         round_interval=tournament_doc.get("ri", 0),
         entry_min_rating=tournament_doc.get("entryMinRating", 0),
         entry_max_rating=tournament_doc.get("entryMaxRating", 0),
@@ -964,6 +973,8 @@ async def load_tournament(
         finish_reason=tournament_doc.get("finishReason"),
         with_clock=False,
     )
+    tournament.rr_pending_players = set(tournament_doc.get("rrPendingPlayers", []))
+    tournament.rr_denied_players = set(tournament_doc.get("rrDeniedPlayers", []))
     if stored_round is not None:
         tournament.current_round = stored_round
     tournament.pairing_in_progress_round = pairing_in_progress_round

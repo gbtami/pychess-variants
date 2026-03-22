@@ -15,7 +15,9 @@ import {
     MsgGetPlayers,
     MsgPing,
     MsgRRArrangements,
+    MsgRRManagement,
     MsgTournamentStatus,
+    TournamentManagePlayer,
     MsgUserConnectedTournament,
     MsgUserStatus,
     RRArrangementCell,
@@ -56,6 +58,10 @@ export class TournamentRRController implements ChatController {
     matrix: Record<string, Record<string, RRArrangementCell>> = {};
     completedGames = 0;
     totalGames = 0;
+    createdBy = '';
+    approvalRequired = false;
+    pendingPlayers: TournamentManagePlayer[] = [];
+    deniedPlayers: TournamentManagePlayer[] = [];
     page = 1;
     selectedPlayer = '';
     selectedGames: TournamentGame[] = [];
@@ -78,6 +84,7 @@ export class TournamentRRController implements ChatController {
             this.doSend({ type: 'tournament_user_connected', tournamentId: this.tournamentId, username: this.username });
             this.doSend({ type: 'get_players', tournamentId: this.tournamentId, page: this.page });
             this.doSend({ type: 'get_rr_arrangements', tournamentId: this.tournamentId });
+            this.doSend({ type: 'get_rr_management', tournamentId: this.tournamentId });
         };
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
@@ -108,7 +115,11 @@ export class TournamentRRController implements ChatController {
         if (this.anon && 'created|started'.includes(this.tournamentStatus)) {
             button = h('button#action', { on: { click: () => this.login() }, class: { icon: true, 'icon-play': true } }, _('LOG IN'));
         } else if (this.tournamentStatus === 'created') {
-            if (this.userStatus === 'joined') {
+            if (this.userStatus === 'pending') {
+                button = h('div#action.pending-note', _('JOIN REQUEST PENDING'));
+            } else if (this.userStatus === 'denied') {
+                button = h('div#action.pending-note', _('JOIN REQUEST DENIED'));
+            } else if (this.userStatus === 'joined') {
                 button = h('button#action', { on: { click: () => this.withdraw() }, class: { icon: true, 'icon-flag-o': true } }, _('WITHDRAW'));
             } else {
                 button = h('button#action', { on: { click: () => this.join() }, class: { icon: true, 'icon-play': true } }, _('JOIN'));
@@ -125,6 +136,8 @@ export class TournamentRRController implements ChatController {
 
     renderInfo(msg: MsgUserConnectedTournament) {
         this.startDate = msg.startsAt;
+        this.createdBy = msg.createdBy;
+        this.approvalRequired = !!msg.rrRequiresApproval;
         patch(document.getElementById('description') as HTMLElement, h('div#description.description', msg.description));
         patch(document.getElementById('startsAt') as HTMLElement, h('div#startsAt', [
             h('strong', _('Starts')),
@@ -245,6 +258,54 @@ export class TournamentRRController implements ChatController {
             h('h2', _('Round-Robin')),
             h('div', `${this.completedGames} / ${this.totalGames} ${_('games completed')}`),
             h('div', `${this.rounds} ${_('rounds')}`),
+            this.approvalRequired ? h('div', _('Organizer approval enabled')) : null,
+        ]));
+    }
+
+    renderManagement() {
+        const host = this.username === this.createdBy;
+        const mount = document.getElementById('rr-management') as HTMLElement;
+        if (!host || !this.approvalRequired) {
+            patch(mount, h('div#rr-management'));
+            return;
+        }
+
+        const approved = this.players.filter((player) => player.name !== this.createdBy && !player.withdrawn);
+        const renderRow = (player: TournamentManagePlayer, actions: VNode[]) => h('tr', [
+            h('td', userLink(player.name, [h('player-title', ` ${player.title} `), displayUsername(player.name)])),
+            h('td', `${player.rating}`),
+            h('td.manage-actions', actions),
+        ]);
+        const button = (label: string, message: object, reject = false) =>
+            h(`button.button${reject ? '.reject' : ''}`, { on: { click: () => this.doSend(message as any) } }, label);
+
+        patch(mount, h('div#rr-management.box', [
+            h('h2', _('Player management')),
+            h('h3', _('Pending requests')),
+            h('table.players', [
+                h('tbody', this.pendingPlayers.length > 0
+                    ? this.pendingPlayers.map((player) => renderRow(player, [
+                        button(_('Accept'), { type: 'rr_approve_player', tournamentId: this.tournamentId, username: player.name }),
+                        button(_('Deny'), { type: 'rr_deny_player', tournamentId: this.tournamentId, username: player.name }, true),
+                    ]))
+                    : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No pending requests'))])]),
+            ]),
+            h('h3', _('Approved players')),
+            h('table.players', [
+                h('tbody', approved.length > 0
+                    ? approved.map((player) => renderRow(player, [
+                        button(_('Kick'), { type: 'rr_kick_player', tournamentId: this.tournamentId, username: player.name }, true),
+                    ]))
+                    : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No approved players'))])]),
+            ]),
+            h('h3', _('Denied players')),
+            h('table.players', [
+                h('tbody', this.deniedPlayers.length > 0
+                    ? this.deniedPlayers.map((player) => renderRow(player, [
+                        button(_('Accept'), { type: 'rr_approve_player', tournamentId: this.tournamentId, username: player.name }),
+                    ]))
+                    : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No denied players'))])]),
+            ]),
         ]));
     }
 
@@ -272,6 +333,7 @@ export class TournamentRRController implements ChatController {
             this.doSend({ type: 'get_games', tournamentId: this.tournamentId, player: this.selectedPlayer });
         }
         this.renderStandings();
+        this.renderManagement();
     }
 
     private onMsgGetGames(msg: MsgGetGames) {
@@ -287,6 +349,15 @@ export class TournamentRRController implements ChatController {
         this.totalGames = msg.totalGames;
         this.renderProgress();
         this.renderCrossTable();
+    }
+
+    private onMsgRRManagement(msg: MsgRRManagement) {
+        this.createdBy = msg.createdBy;
+        this.approvalRequired = msg.approvalRequired;
+        this.pendingPlayers = msg.pendingPlayers;
+        this.deniedPlayers = msg.deniedPlayers;
+        this.renderProgress();
+        this.renderManagement();
     }
 
     private onMsgUserStatus(msg: MsgUserStatus) {
@@ -331,6 +402,9 @@ export class TournamentRRController implements ChatController {
             break;
         case 'rr_arrangements':
             this.onMsgRRArrangements(msg);
+            break;
+        case 'rr_management':
+            this.onMsgRRManagement(msg);
             break;
         case 'ustatus':
             this.onMsgUserStatus(msg);
@@ -401,6 +475,7 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
         ]),
         h('div.tour-table', [
             h('div#summarybox'),
+            h('div#rr-management'),
             h('div#player', [
                 h('div#stats.box', [h('div#rr-crosstable')]),
                 h('table#games.box'),

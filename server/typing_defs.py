@@ -490,6 +490,7 @@ class TournamentCreateData(TypedDict):
     fen: NotRequired[str]
     rounds: NotRequired[int]
     rrMaxPlayers: NotRequired[int]
+    rrRequiresApproval: NotRequired[bool]
     roundInterval: NotRequired[int]
     entryMinRating: NotRequired[int]
     entryMaxRating: NotRequired[int]
@@ -563,6 +564,9 @@ class TournamentDoc(TypedDict):
     system: int
     rounds: int
     rrMaxPlayers: NotRequired[int]
+    rrRequiresApproval: NotRequired[bool]
+    rrPendingPlayers: NotRequired[list[str]]
+    rrDeniedPlayers: NotRequired[list[str]]
     ri: NotRequired[int]
     entryMinRating: NotRequired[int]
     entryMaxRating: NotRequired[int]
@@ -601,6 +605,9 @@ class TournamentUpdateData(TypedDict, total=False):
     system: int
     rounds: int
     rrMaxPlayers: int
+    rrRequiresApproval: bool
+    rrPendingPlayers: list[str]
+    rrDeniedPlayers: list[str]
     ri: int
     entryMinRating: int
     entryMaxRating: int
@@ -728,6 +735,13 @@ class TournamentPlayerJson(TypedDict):
     nbGames: int
     nbWin: int
     nbBerserk: int
+    withdrawn: NotRequired[bool]
+
+
+class TournamentManagePlayerJson(TypedDict):
+    title: str
+    name: str
+    rating: int
 
 
 class TournamentPlayersResponse(TypedDict):
@@ -764,6 +778,15 @@ class TournamentGamesResponse(TypedDict):
     nbWin: int
     nbBerserk: int
     games: list[TournamentGameJson | GameSummaryJson]
+
+
+class TournamentRRManagementResponse(TypedDict):
+    type: Literal["rr_management"]
+    requestedBy: str
+    createdBy: str
+    approvalRequired: bool
+    pendingPlayers: list[TournamentManagePlayerJson]
+    deniedPlayers: list[TournamentManagePlayerJson]
 
 
 class TournamentTopGameResponse(TypedDict):
