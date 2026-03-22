@@ -98,6 +98,7 @@ export class TournamentRRController implements ChatController {
         this.rounds = model.rounds || 0;
         this.startDate = model.date;
         this.tournamentStatus = T_STATUS[model.status as keyof typeof T_STATUS];
+        this.selectedArrangementId = decodeURIComponent(window.location.hash.replace(/^#/, ''));
 
         this.sock = newWebsocket('wst');
         this.sock.onopen = () => {
@@ -168,12 +169,16 @@ export class TournamentRRController implements ChatController {
 
     selectArrangement(cell: RRArrangementCell) {
         this.selectedArrangementId = cell.id;
+        window.history.replaceState(null, '', `#${encodeURIComponent(cell.id)}`);
         this.renderModal();
     }
 
     closeArrangement() {
         if (this.selectedArrangementId === '') return;
         this.selectedArrangementId = '';
+        const url = new URL(window.location.href);
+        url.hash = '';
+        window.history.replaceState(null, '', url.toString());
         this.renderModal();
     }
 

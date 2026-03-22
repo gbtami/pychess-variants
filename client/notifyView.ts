@@ -10,8 +10,10 @@ interface Message {
     createdAt: string;
     content: {
         id: string;
+        tid?: string;
+        arr?: string;
         opp: string;
-        win: boolean | null;
+        win?: boolean | null;
     };
 }
 
@@ -49,7 +51,7 @@ function messageView(message: Message) {
                     h('strong', "Game vs " + content.opp),
                     h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
                 ]),
-                h('span', result(content.win)),
+                h('span', result(content.win ?? null)),
             ]),
         ]);
     case 'corrAlarm':
@@ -61,6 +63,21 @@ function messageView(message: Message) {
                     h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
                 ]),
                 h('span', "Game vs " + content.opp),
+            ]),
+        ]);
+    case 'rrChallenge':
+        return h(`a.notification.corr${read}`, {
+            attrs: {
+                href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
+            },
+        }, [
+            h('div.icon.icon-paper-plane'),
+            h('span.content', [
+                h('span', [
+                    h('strong', _('Round-robin challenge')),
+                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
+                ]),
+                h('span', `${content.opp} ${_('challenged you in your tournament pairing.')}`),
             ]),
         ]);
     default:

@@ -352,6 +352,8 @@ class TwitchWebhookPayload(TypedDict):
 
 class NotificationContent(TypedDict, total=False):
     id: str
+    tid: str
+    arr: str
     opp: str
     win: bool | None
 

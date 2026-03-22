@@ -5,9 +5,10 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 from const import RR, T_ABORTED, T_ARCHIVED, T_CREATED, T_FINISHED, T_STARTED
+from notify import notify
 from seek import SeekCreateData, create_seek
 from tournament.tournament import ByeGame, RR_MAX_SUPPORTED_PLAYERS, Tournament
-from typing_defs import TournamentArrangementDoc, TournamentArrangementUpdate
+from typing_defs import NotificationContent, TournamentArrangementDoc, TournamentArrangementUpdate
 from utils import join_seek
 
 if TYPE_CHECKING:
@@ -448,6 +449,14 @@ class RRTournament(Tournament):
         arrangement.challenger = user.username
         arrangement.date = datetime.now(timezone.utc)
         await self.db_update_arrangement(arrangement)
+        opponent_user = await self.app_state.users.get(opponent)
+        if opponent_user.username == opponent:
+            content: NotificationContent = {
+                "tid": self.id,
+                "arr": arrangement.id,
+                "opp": user.username,
+            }
+            await notify(self.app_state.db, opponent_user, "rrChallenge", content)
         await self.broadcast_arrangements()
         return None
 
