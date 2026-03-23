@@ -463,6 +463,7 @@ strong.score {
     margin-top: 1rem;
 }
 .rr-modal-content {
+    position: relative;
     width: min(44rem, 100%);
     background: var(--modal-bg);
     border: 1px solid color-mix(in srgb, var(--link-color) 14%, var(--border-color));
@@ -483,6 +484,10 @@ strong.score {
     align-items: flex-start;
     gap: 1rem;
     margin-bottom: 1rem;
+}
+.rr-modal-header .close {
+    position: static;
+    margin-left: auto;
 }
 .rr-modal-header h2 {
     margin: 0;
