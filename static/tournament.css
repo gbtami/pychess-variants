@@ -388,26 +388,13 @@ strong.score {
 }
 #rr-nav {
     margin: 0.2rem 0 1rem;
-    display: flex;
-    gap: 0.4rem;
-    padding: 0.3rem;
-    width: fit-content;
-    border-radius: 999px;
-    background: var(--bg-color1);
-    border: 1px solid var(--border-color);
+    width: min(20rem, 100%);
 }
 #rr-nav > span {
-    padding: 0.45rem 0.95rem;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: background-color 120ms ease, color 120ms ease;
+    padding: 0.45rem 0.2rem;
 }
 #rr-nav > span[aria-selected='true'] {
-    background: var(--bg-color2);
-    color: var(--gold);
-}
-#rr-nav > span:hover {
-    background: color-mix(in srgb, var(--link-color) 12%, transparent);
+    color: var(--rusty);
 }
 #rr-manage {
     margin-top: 0.9rem;
@@ -510,6 +497,7 @@ strong.score {
     position: absolute;
     top: 0.45rem;
     right: 0.65rem;
+    z-index: 2;
 }
 .rr-arr-users {
     display: flex;
@@ -744,7 +732,7 @@ div#stats {
     display: flex;
     flex-flow: column;
 }
-.close {
+#player .close {
     position: absolute;
     top: 4px;
     right: 5px;
@@ -754,7 +742,8 @@ div#stats {
     background: none;
     border-radius: 0;
 }
-.close:hover, .close:focus {
+#player .close:hover,
+#player .close:focus {
     cursor: pointer;
     opacity: 0.9;
     color: var(--bad);
