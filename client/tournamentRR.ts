@@ -34,6 +34,7 @@ type RRFlatpickrOptions = {
     dateFormat: string;
     altInput: boolean;
     altFormat: string;
+    inline?: boolean;
     minDate: string | Date;
     maxDate: Date;
     monthSelectorType: string;
@@ -136,6 +137,7 @@ export class TournamentRRController implements ChatController {
     flatpickrReady: Promise<void>;
     arrangementPresenceInterval: number | null = null;
     presenceArrangementId = '';
+    openCalendarArrangementId = '';
     clockdiv: VNode;
     action: VNode;
     descriptionNode: VNode;
@@ -144,7 +146,6 @@ export class TournamentRRController implements ChatController {
     creatorNode: VNode;
     minutesNode: VNode;
     manageNode: VNode;
-    summaryNode: VNode;
     bodyNode: VNode;
     modalNode: VNode;
     crossTableNode: VNode | null = null;
@@ -185,7 +186,6 @@ export class TournamentRRController implements ChatController {
         this.manageNode = patch(document.getElementById('rr-manage') as HTMLElement, h('div#rr-manage'));
         this.clockdiv = patch(document.getElementById('clockdiv') as HTMLElement, h('div#clockdiv'));
         this.action = patch(document.getElementById('action') as HTMLElement, h('div#action'));
-        this.summaryNode = patch(document.getElementById('summarybox') as HTMLElement, h('div#summarybox'));
         this.bodyNode = patch(document.getElementById('rr-body') as HTMLElement, h('div#rr-body'));
         this.modalNode = patch(document.getElementById('rr-modal') as HTMLElement, h('div#rr-modal'));
         patch(document.querySelector('div.tour-faq') as HTMLElement, roundRobinFaq(this.rated));
@@ -279,6 +279,7 @@ export class TournamentRRController implements ChatController {
     closeArrangement() {
         if (this.selectedArrangementId === '') return;
         this.selectedArrangementId = '';
+        this.openCalendarArrangementId = '';
         const url = new URL(window.location.href);
         url.hash = '';
         window.history.replaceState(null, '', url.toString());
@@ -295,7 +296,7 @@ export class TournamentRRController implements ChatController {
             const link = document.createElement('link');
             link.id = cssId;
             link.rel = 'stylesheet';
-            link.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css';
+            link.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css';
             document.head.appendChild(link);
         }
 
@@ -464,7 +465,6 @@ export class TournamentRRController implements ChatController {
         initializeClock(this as any);
         this.updateActionButton();
         this.renderManageButton();
-        this.renderProgress();
         this.renderBody();
         this.renderModal();
     }
@@ -762,16 +762,6 @@ export class TournamentRRController implements ChatController {
         ]));
     }
 
-    renderProgress() {
-        this.summaryNode = patch(this.summaryNode, h('div#summarybox.box', [
-            h('h2', _('Round-Robin')),
-            h('div', `${this.completedGames} / ${this.totalGames} ${_('games completed')}`),
-            h('div', `${this.rounds} ${_('rounds')}`),
-            this.approvalRequired ? h('div', _('Organizer approval enabled')) : null,
-            this.joiningClosed ? h('div', _('Joining is currently closed')) : null,
-        ]));
-    }
-
     renderManageButton() {
         if (!this.isHost()) {
             this.manageNode = patch(this.manageNode, h('div#rr-manage'));
@@ -827,83 +817,167 @@ export class TournamentRRController implements ChatController {
         ));
     }
 
-    modalStatusText(cell: RRArrangementCell): string {
-        const canAct = [cell.white, cell.black].includes(this.username);
-        const perspective = this.schedulePerspective(cell);
-        if (cell.gameId) return _('This pairing already has a tournament game.');
-        if (cell.status === 'started') return _('The game is in progress.');
-        if (perspective.agreed) return _('Both players agreed on a proposed game time.');
-        if (perspective.opponent) return _('Your opponent suggested a time for this pairing.');
-        if (cell.status === 'pending') return _('No challenge exists yet for this pairing.');
-        if (cell.status === 'challenged' && cell.challenger === this.username) {
-            return _('Your challenge is waiting for the opponent to accept.');
-        }
-        if (cell.status === 'challenged' && canAct) {
-            return _('Your opponent has challenged you for this pairing.');
-        }
-        if (cell.status === 'challenged') return _('A challenge already exists for this pairing.');
-        return _('This pairing is waiting for its next action.');
+    scheduleCalendarOpen(cell: RRArrangementCell) {
+        return this.openCalendarArrangementId === cell.id;
     }
 
-    scheduleSection(cell: RRArrangementCell): VNode | null {
+    openScheduleCalendar(cell: RRArrangementCell) {
+        if (this.scheduleCalendarOpen(cell)) return;
+        this.openCalendarArrangementId = cell.id;
+        this.renderModal();
+        window.requestAnimationFrame(() => {
+            document.querySelector('.rr-arr-user-bottom')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
+    closeScheduleCalendar(cell: RRArrangementCell) {
+        if (!this.scheduleCalendarOpen(cell)) return;
+        this.openCalendarArrangementId = '';
+        this.renderModal();
+    }
+
+    formatArrangementDate(dateText: string): VNode {
+        if (!dateText) return h('span.date', '-');
+        const date = new Date(dateText);
+        return h('span.date', {
+            attrs: {
+                title: date.toUTCString(),
+            },
+        }, date.toLocaleString());
+    }
+
+    modalPlayerLink(username: string): VNode {
+        const player = this.playerByName(username);
+        return h('div.rr-arr-player-link', [
+            h('i-side.online', {
+                class: {
+                    icon: true,
+                    'icon-online': !!this.playerOnline(username),
+                    'icon-offline': !this.playerOnline(username),
+                },
+            }),
+            userLink(username, [
+                player?.title ? h('player-title', `${player.title} `) : '',
+                displayUsername(username),
+                player?.title !== 'BOT' && player?.rating ? ` (${player.rating})` : '',
+            ], { className: 'user-link' }),
+        ]);
+    }
+
+    modalPlayerColors(cell: RRArrangementCell, username: string): VNode {
+        const color = username === cell.white ? _('White') : _('Black');
+        return h(`div.rr-arr-color-icon.${username === cell.white ? 'white' : 'black'}`, { attrs: { title: color } });
+    }
+
+    modalActionButton(cell: RRArrangementCell): VNode | null {
+        const canAct = [cell.white, cell.black].includes(this.username);
+        if (cell.gameId) {
+            return h('a.button.fbt.go-to-game', { attrs: { href: `/${cell.gameId}` } }, _('Open game'));
+        }
+        if (this.tournamentStatus === 'finished' || !canAct) return null;
+        if (!['pending', 'challenged'].includes(cell.status)) return null;
+        let label = _('Create challenge');
+        let title = this.tournamentStatus !== 'started'
+            ? `${_('Starting')} ${new Date(this.startDate).toLocaleString()}`
+            : _('Create challenge');
+        let ready = false;
+        if (cell.status === 'challenged') {
+            ready = true;
+            if (cell.challenger === this.username) {
+                label = _('View challenge');
+                title = _('View challenge');
+            } else {
+                label = _('Accept challenge');
+                title = _('Accept challenge');
+            }
+        }
+        return h('button.button.fbt', {
+            class: {
+                ready,
+                disabled: this.tournamentStatus !== 'started',
+            },
+            attrs: {
+                title,
+                disabled: this.tournamentStatus !== 'started',
+            },
+            on: {
+                click: () => this.arrangementAction(cell),
+            },
+        }, h('span', label));
+    }
+
+    modalPlayerAction(cell: RRArrangementCell, username: string): VNode | null {
         const canAct = [cell.white, cell.black].includes(this.username);
         if (!canAct || cell.gameId || ['started', 'finished'].includes(cell.status)) return null;
-
         const perspective = this.schedulePerspective(cell);
+        const mine = username === this.username;
+        const suggestedAt = mine ? perspective.mine : perspective.opponent;
         const draft = this.scheduleDraft(cell);
-        const opponentTime = perspective.opponent;
-        const scheduleActions: VNode[] = [];
-
-        if (opponentTime) {
-            scheduleActions.push(h('button.button', {
-                on: {
-                    click: () => {
-                        const acceptedDraft = this.defaultScheduleDraft({
-                            ...cell,
-                            whiteSuggestedAt: cell.white === this.username ? opponentTime : cell.whiteSuggestedAt,
-                            blackSuggestedAt: cell.black === this.username ? opponentTime : cell.blackSuggestedAt,
-                        });
-                        this.setScheduleDraft(cell.id, acceptedDraft);
-                        this.submitSchedule(cell, acceptedDraft);
+        if (!mine) {
+            return h('div.suggested-time-wrap', [
+                h('input.disabled', {
+                    key: suggestedAt || '',
+                    attrs: {
+                        title: _('Suggested time'),
+                        disabled: true,
+                        placeholder: _('Suggested time'),
                     },
-                },
-            }, _('Accept opponent time')));
+                    hook: {
+                        insert: (vnode) => {
+                            const input = vnode.elm as HTMLInputElement;
+                            input.value = suggestedAt ? new Date(suggestedAt).toLocaleString() : '';
+                        },
+                        update: (oldVnode, vnode) => {
+                            if (oldVnode.key === vnode.key) return;
+                            const input = vnode.elm as HTMLInputElement;
+                            input.value = suggestedAt ? new Date(suggestedAt).toLocaleString() : '';
+                        },
+                    },
+                }),
+                h('button.fbt', {
+                    attrs: {
+                        disabled: !suggestedAt,
+                        title: _('Accept suggested time'),
+                    },
+                    on: {
+                        click: () => {
+                            if (!suggestedAt) return;
+                            const acceptedDraft = this.defaultScheduleDraft({
+                                ...cell,
+                                whiteSuggestedAt: cell.white === this.username ? suggestedAt : cell.whiteSuggestedAt,
+                                blackSuggestedAt: cell.black === this.username ? suggestedAt : cell.blackSuggestedAt,
+                            });
+                            this.setScheduleDraft(cell.id, acceptedDraft);
+                            this.submitSchedule(cell, acceptedDraft);
+                        },
+                    },
+                }, _('Accept')),
+            ]);
         }
 
-        scheduleActions.push(h('button.button', {
-            on: {
-                click: () => this.submitSchedule(cell, draft),
+        return h('div.suggested-time-wrap', {
+            class: {
+                'hide-calendar': !this.scheduleCalendarOpen(cell),
             },
-        }, perspective.mine ? _('Update time') : _('Suggest time')));
-
-        scheduleActions.push(h('button.button.button-empty', {
-            on: {
-                click: () => {
-                    this.setScheduleDraft(cell.id, '');
-                    this.submitSchedule(cell, '');
+        }, [
+            h('div.flatpickr-input-wrap', {
+                on: {
+                    click: () => this.openScheduleCalendar(cell),
                 },
-            },
-        }, _('Clear')));
-
-        return h('div.rr-modal-schedule', [
-            h('div.rr-modal-stat', [h('strong', _('Agreed time')), h('span', perspective.agreed ? new Date(perspective.agreed).toLocaleString() : _('Not agreed yet'))]),
-            h('div.rr-modal-stat', [h('strong', _('Your proposal')), h('span', perspective.mine ? new Date(perspective.mine).toLocaleString() : _('No proposed time'))]),
-            h('div.rr-modal-stat', [h('strong', _('Opponent proposal')), h('span', opponentTime ? new Date(opponentTime).toLocaleString() : _('No proposed time'))]),
-            h('div.rr-schedule-input-wrap', [
-                h('label', { attrs: { for: 'rr-schedule-input' } }, _('Propose a date and time')),
-                h('input#rr-schedule-input', {
+            }, [
+                h('input.flatpickr', {
+                    key: perspective.mine || perspective.agreed || '',
                     attrs: {
-                        type: 'text',
-                        placeholder: _('Pick a date and time'),
+                        title: perspective.mine ? _('Suggest different time') : _('Suggested time'),
+                        placeholder: _('Suggest time'),
                     },
                     hook: {
                         insert: (vnode) => {
                             const input = vnode.elm as FlatpickrElement;
-                            input.value = draft;
                             this.flatpickrReady.then(() => {
                                 const flatpickr = this.flatpickrFunction();
                                 if (typeof flatpickr !== 'function') {
-                                    input.value = draft;
+                                    input.value = perspective.mine ? new Date(perspective.mine).toLocaleString() : '';
                                     return;
                                 }
                                 input._flatpickr?.destroy();
@@ -913,6 +987,7 @@ export class TournamentRRController implements ChatController {
                                     dateFormat: 'Z',
                                     altInput: true,
                                     altFormat: 'Y-m-d H:i',
+                                    inline: true,
                                     minDate: 'today',
                                     maxDate: this.scheduleMaxDate(),
                                     monthSelectorType: 'static',
@@ -923,15 +998,17 @@ export class TournamentRRController implements ChatController {
                                         this.setScheduleDraft(cell.id, selected ? this.localDateInputValue(selected) : '');
                                     },
                                 });
+                                if (perspective.mine) {
+                                    const scheduledDate = new Date(perspective.mine);
+                                    input._flatpickr.setDate(scheduledDate, false);
+                                }
                             }).catch(() => undefined);
                         },
                         update: (oldVnode, vnode) => {
                             const input = vnode.elm as FlatpickrElement;
-                            if (input._flatpickr && oldVnode.data?.attrs?.value !== draft && draft) {
-                                input._flatpickr.setDate(new Date(draft), false);
-                            } else if (!input._flatpickr) {
-                                input.value = draft;
-                            }
+                            if (!input._flatpickr) return;
+                            if (oldVnode.key === vnode.key && this.scheduleDraft(cell) === draft) return;
+                            if (draft) input._flatpickr.setDate(new Date(draft), false);
                         },
                         destroy: (vnode) => {
                             const input = vnode.elm as FlatpickrElement;
@@ -941,8 +1018,40 @@ export class TournamentRRController implements ChatController {
                     },
                 }),
             ]),
-            h('div.rr-detail-actions', scheduleActions),
+            h('div.calendar-button-wrap', [
+                h('button.button.button-green.text', {
+                    on: {
+                        click: () => {
+                            this.closeScheduleCalendar(cell);
+                            this.submitSchedule(cell, this.scheduleDraft(cell));
+                        },
+                    },
+                }, _('Confirm')),
+            ]),
         ]);
+    }
+
+    modalPlayerSection(cell: RRArrangementCell, username: string, position: 'top' | 'bottom'): VNode {
+        return h(`div.rr-arr-user.rr-arr-user-${position}`, [
+            h('div.rr-arr-name', [
+                this.modalPlayerLink(username),
+                this.modalPlayerColors(cell, username),
+            ]),
+            this.modalPlayerAction(cell, username),
+        ]);
+    }
+
+    modalValueRows(cell: RRArrangementCell): Array<VNode | null> {
+        return [
+            cell.scheduledAt ? h('div.title-value-wrap', [
+                h('span.title', `${_('Scheduled at')}:`),
+                h('span.value', this.formatArrangementDate(cell.scheduledAt)),
+            ]) : null,
+            cell.gameId ? h('div.title-value-wrap', [
+                h('span.title', `${_('Started at')}:`),
+                h('span.value', this.formatArrangementDate(cell.date)),
+            ]) : null,
+        ];
     }
 
     renderModal() {
@@ -953,32 +1062,9 @@ export class TournamentRRController implements ChatController {
             return;
         }
         this.startArrangementPresencePolling(cell);
-        const meIsWhite = cell.white === this.username;
         const canAct = [cell.white, cell.black].includes(this.username);
-        const opponent = meIsWhite ? cell.black : cell.white;
-        const whitePlayer = this.playerByName(cell.white);
-        const blackPlayer = this.playerByName(cell.black);
-        const scheduleSection = this.scheduleSection(cell);
-        const renderPlayerStatus = (username: string) => {
-            const online = this.playerOnline(username);
-            if (online === undefined) return h('span.rr-player-status.unknown', _('Checking presence'));
-            return h(`span.rr-player-status.${online ? 'online' : 'offline'}`, online ? _('Online') : _('Offline'));
-        };
-        let actionButton: VNode | null = null;
-        let closeButtonLabel = _('Close');
-        if (cell.gameId) {
-            actionButton = h('button.button', { on: { click: () => this.arrangementAction(cell) } }, _('Open game'));
-        } else if (canAct && cell.status === 'pending') {
-            actionButton = h('button.button', { on: { click: () => this.arrangementAction(cell) } }, _('Create challenge'));
-        } else if (canAct && cell.status === 'challenged' && cell.challenger !== this.username) {
-            actionButton = h('button.button', { on: { click: () => this.arrangementAction(cell) } }, _('Accept challenge'));
-        } else if (canAct && cell.status === 'challenged' && cell.challenger === this.username) {
-            closeButtonLabel = _('OK');
-        }
-        const detailActions = [
-            actionButton,
-            h('button.button.button-empty', { on: { click: () => this.closeArrangement() } }, closeButtonLabel),
-        ].filter((button): button is VNode => button !== null);
+        const users = cell.white === this.username ? [cell.black, cell.white] : [cell.white, cell.black];
+        const actionButton = this.modalActionButton(cell);
         this.modalNode = patch(this.modalNode, h('div#rr-modal.modal-overlay.modal-overlay-fullscreen', {
             style: { display: 'flex' },
             on: {
@@ -987,42 +1073,22 @@ export class TournamentRRController implements ChatController {
                 },
             },
         }, [
-            h('div.rr-modal-content', [
-                h('div.rr-modal-header', [
-                    h('div', [
-                        h('h2', _('Pairing')),
-                        h('div.rr-modal-subtitle', `${_('Round')} ${cell.round}`),
-                    ]),
+            h('div.rr-modal-content.rr-arr-modal', [
+                h('div.rr-arr-header', [
+                    h('h3', `${_('Game scheduling')} • ${_('Round')} ${cell.round}`),
                     h('button.close', { on: { click: () => this.closeArrangement() } }, 'x'),
                 ]),
-                h('div.rr-modal-players', [
-                    h('div.rr-modal-player', [
-                        h('div.rr-color-label', _('White')),
-                        userLink(cell.white, [
-                            h('player-title', whitePlayer ? ` ${whitePlayer.title} ` : ''),
-                            displayUsername(cell.white),
-                        ]),
-                        renderPlayerStatus(cell.white),
-                    ]),
-                    h('div.rr-modal-vs', _('vs')),
-                    h('div.rr-modal-player', [
-                        h('div.rr-color-label', _('Black')),
-                        userLink(cell.black, [
-                            h('player-title', blackPlayer ? ` ${blackPlayer.title} ` : ''),
-                            displayUsername(cell.black),
-                        ]),
-                        renderPlayerStatus(cell.black),
-                    ]),
+                h('div.rr-arr-users', [
+                    this.modalPlayerSection(cell, users[0], 'top'),
+                    this.modalPlayerSection(cell, users[1], 'bottom'),
                 ]),
-                h('div.rr-modal-grid', [
-                    h('div.rr-modal-stat', [h('strong', _('Status')), h('span', cell.status)]),
-                    canAct ? h('div.rr-modal-stat', [h('strong', _('Your color')), h('span', meIsWhite ? _('White') : _('Black'))]) : '',
-                    canAct ? h('div.rr-modal-stat', [h('strong', _('Opponent')), h('span', opponent)]) : '',
-                    cell.status === 'challenged' ? h('div.rr-modal-stat', [h('strong', _('Challenge by')), h('span', cell.challenger)]) : '',
+                h('div.rr-total-section', [
+                    h('div.values', this.modalValueRows(cell).filter((row): row is VNode => row !== null)),
+                    cell.gameId ? actionButton : (actionButton && canAct ? h('div.arr-start-wrap', [
+                        actionButton,
+                        h('span.help', _('The game will not start automatically at the scheduled time.')),
+                    ]) : null),
                 ]),
-                h('div.rr-modal-note', this.modalStatusText(cell)),
-                scheduleSection,
-                h('div.rr-detail-actions', detailActions),
             ]),
         ]));
     }
@@ -1215,7 +1281,6 @@ export class TournamentRRController implements ChatController {
         this.roundOngoingGames = msg.roundOngoingGames || 0;
         initializeClock(this as any);
         this.updateActionButton();
-        this.renderProgress();
     }
 
     private onMsgGetPlayers(msg: MsgGetPlayers) {
@@ -1243,7 +1308,6 @@ export class TournamentRRController implements ChatController {
             this.scheduleDrafts[cell.id] = this.defaultScheduleDraft(cell);
         }));
         if (this.selectedArrangementId !== '' && !this.selectedArrangement()) this.selectedArrangementId = '';
-        this.renderProgress();
         this.renderBody();
     }
 
@@ -1254,7 +1318,6 @@ export class TournamentRRController implements ChatController {
         this.pendingPlayers = msg.pendingPlayers;
         this.deniedPlayers = msg.deniedPlayers;
         this.renderManageButton();
-        this.renderProgress();
         this.updateActionButton();
         this.renderBody();
     }
@@ -1264,7 +1327,6 @@ export class TournamentRRController implements ChatController {
         this.approvalRequired = msg.approvalRequired;
         this.joiningClosed = msg.joiningClosed;
         this.renderManageButton();
-        this.renderProgress();
         this.updateActionButton();
         if (this.viewMode === 'manage' && !this.isHost()) this.viewMode = 'overview';
         this.renderBody();
@@ -1391,9 +1453,6 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                 h('div#rr-body'),
                 h('div.tour-faq'),
             ]),
-        ]),
-        h('div.tour-table', [
-            h('div#summarybox'),
         ]),
         h('div#rr-modal'),
         h('under-chat#spectators'),
