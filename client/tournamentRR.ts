@@ -85,6 +85,7 @@ type RRGameListRow = {
     status: string;
     gameId: string;
     date: string;
+    scheduled: boolean;
 };
 
 type RRSchedulePerspective = {
@@ -477,7 +478,7 @@ export class TournamentRRController implements ChatController {
             for (const cell of Object.values(row)) {
                 if (!cell.id || seen.has(cell.id)) continue;
                 seen.add(cell.id);
-                if (cell.status === 'pending' && !cell.gameId) continue;
+                if (cell.status === 'pending' && !cell.gameId && !cell.scheduledAt) continue;
                 rows.push({
                     id: cell.id,
                     white: cell.white,
@@ -485,6 +486,7 @@ export class TournamentRRController implements ChatController {
                     status: cell.status,
                     gameId: cell.gameId,
                     date: cell.scheduledAt || cell.date,
+                    scheduled: !!cell.scheduledAt,
                 });
             }
         }
@@ -501,6 +503,7 @@ export class TournamentRRController implements ChatController {
     gameListStatus(row: RRGameListRow): string {
         if (row.gameId && row.status === 'finished') return _('Finished');
         if (row.gameId || row.status === 'started') return _('Current game');
+        if (row.scheduled) return _('Scheduled');
         if (row.status === 'challenged') return _('Challenge');
         return row.status;
     }
@@ -598,6 +601,7 @@ export class TournamentRRController implements ChatController {
                 const color = canAct ? (cell.white === this.username ? 'white' : 'black') : ' ';
                 let label = _('Waiting');
                 if (cell.gameId) label = _('Open game');
+                else if (cell.scheduledAt && cell.status === 'pending') label = _('Create challenge');
                 else if (cell.status === 'pending') label = _('Create challenge');
                 else if (incoming) label = _('Accept challenge');
                 else if (cell.status === 'challenged') label = _('Awaiting response');
@@ -1045,7 +1049,7 @@ export class TournamentRRController implements ChatController {
                         h('td', userLink(row.opponent, [displayUsername(row.opponent)])),
                         h('td', `${row.round}`),
                         h('td', row.color.toUpperCase()),
-                        h('td', row.status),
+                        h('td', row.status === 'pending' && row.when ? _('Scheduled') : row.status),
                         h('td', row.when ? h('info-date', { attrs: { timestamp: row.when } }, timeago(row.when)) : ''),
                         h('td', row.actionable && target ? h('button.button', {
                             on: {

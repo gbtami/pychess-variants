@@ -388,6 +388,26 @@ strong.score {
 }
 #rr-nav {
     margin: 0.2rem 0 1rem;
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.3rem;
+    width: fit-content;
+    border-radius: 999px;
+    background: var(--bg-color1);
+    border: 1px solid var(--border-color);
+}
+#rr-nav > span {
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+#rr-nav > span[aria-selected='true'] {
+    background: var(--bg-color2);
+    color: var(--gold);
+}
+#rr-nav > span:hover {
+    background: color-mix(in srgb, var(--link-color) 12%, transparent);
 }
 #rr-manage {
     margin-top: 0.9rem;
@@ -458,6 +478,8 @@ strong.score {
 }
 #rr-body .rr-empty {
     opacity: 0.75;
+    padding: 1.25rem;
+    text-align: center;
 }
 #rr-selection .rr-detail-actions {
     margin-top: 1rem;
@@ -472,6 +494,7 @@ strong.score {
     box-shadow: 0 10px 35px rgba(0, 0, 0, 0.28);
     color: var(--font-color);
     opacity: 1;
+    overflow: hidden;
 }
 .rr-modal-header,
 .rr-modal-players,
@@ -484,7 +507,10 @@ strong.score {
     justify-content: space-between;
     align-items: flex-start;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin: -1.25rem -1.25rem 1rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(to bottom, var(--bg-meta) 0%, var(--bg-color2) 100%);
+    border-bottom: 1px solid var(--border-color);
 }
 .rr-modal-header .close {
     position: static;
@@ -511,6 +537,7 @@ strong.score {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
 }
 .rr-color-label {
     font-size: 0.82rem;
@@ -573,7 +600,8 @@ strong.score {
     margin-bottom: 1rem;
     padding: 0.85rem 0.95rem;
     border-radius: 10px;
-    background: var(--bg-color1);
+    background: color-mix(in srgb, var(--link-color) 8%, var(--bg-color1));
+    border: 1px solid color-mix(in srgb, var(--link-color) 15%, transparent);
 }
 .rr-modal-schedule {
     flex-wrap: wrap;
@@ -642,6 +670,30 @@ table.pairings th {
 }
 #games td.matchup {
     font-weight: 600;
+}
+#rr-challenges table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#rr-challenges thead th {
+    padding: 0.75rem 0.85rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-color1);
+}
+#rr-challenges tbody td {
+    padding: 0.85rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+}
+#rr-challenges tbody tr.incoming {
+    background: color-mix(in srgb, var(--green) 8%, transparent);
+}
+#rr-challenges tbody tr:hover {
+    background: var(--game-hover);
+}
+#rr-challenges td:last-child {
+    text-align: right;
 }
 #games td.status-col {
     white-space: nowrap;
