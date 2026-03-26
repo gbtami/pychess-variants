@@ -28,6 +28,34 @@ import {
 } from './tournamentType';
 import { VARIANTS } from './variants';
 
+type RRFlatpickrOptions = {
+    enableTime: boolean;
+    time_24hr: boolean;
+    dateFormat: string;
+    altInput: boolean;
+    altFormat: string;
+    minDate: string | Date;
+    maxDate: Date;
+    monthSelectorType: string;
+    disableMobile: boolean;
+    defaultDate?: string;
+    onChange?: (selectedDates: Date[]) => void;
+};
+
+type FlatpickrInstance = {
+    setDate: (date: Date | string, triggerChange?: boolean) => void;
+    destroy: () => void;
+};
+
+type RRFlatpickrFunction = (
+    element: HTMLElement,
+    options: RRFlatpickrOptions,
+) => FlatpickrInstance;
+
+type FlatpickrElement = HTMLInputElement & {
+    _flatpickr?: FlatpickrInstance;
+};
+
 const T_STATUS = {
     0: 'created',
     1: 'started',
@@ -47,6 +75,7 @@ type RRChallengeRow = {
     actionable: boolean;
     incoming: boolean;
     gameId: string;
+    when: string;
 };
 
 type RRGameListRow = {
@@ -102,6 +131,10 @@ export class TournamentRRController implements ChatController {
     hoveredCol = '';
     kickUsername = '';
     scheduleDrafts: Record<string, string> = {};
+    onlineByUsername: Record<string, boolean | undefined> = {};
+    flatpickrReady: Promise<void>;
+    arrangementPresenceInterval: number | null = null;
+    presenceArrangementId = '';
     clockdiv: VNode;
     action: VNode;
     descriptionNode: VNode;
@@ -116,6 +149,7 @@ export class TournamentRRController implements ChatController {
     crossTableNode: VNode | null = null;
     gamesNode: VNode | null = null;
     boundHashChange: () => void;
+    boundVisibilityChange: () => void;
 
     constructor(_el: HTMLElement, model: PyChessModel) {
         this.tournamentId = model.tournamentId;
@@ -129,6 +163,10 @@ export class TournamentRRController implements ChatController {
         this.tournamentStatus = T_STATUS[model.status as keyof typeof T_STATUS];
         this.selectedArrangementId = decodeURIComponent(window.location.hash.replace(/^#/, ''));
         this.boundHashChange = () => this.syncArrangementFromHash();
+        this.boundVisibilityChange = () => {
+            if (document.visibilityState === 'visible') this.loadArrangementOnlineStatus();
+        };
+        this.flatpickrReady = this.ensureFlatpickrLoaded();
 
         this.sock = newWebsocket('wst');
         this.sock.onopen = () => {
@@ -151,6 +189,7 @@ export class TournamentRRController implements ChatController {
         this.modalNode = patch(document.getElementById('rr-modal') as HTMLElement, h('div#rr-modal'));
         patch(document.querySelector('div.tour-faq') as HTMLElement, roundRobinFaq(this.rated));
         window.addEventListener('hashchange', this.boundHashChange);
+        document.addEventListener('visibilitychange', this.boundVisibilityChange);
     }
 
     doSend(message: JSONObject) {
@@ -242,8 +281,43 @@ export class TournamentRRController implements ChatController {
         const url = new URL(window.location.href);
         url.hash = '';
         window.history.replaceState(null, '', url.toString());
+        this.stopArrangementPresencePolling();
         this.renderModal();
         this.renderCrossTable();
+    }
+
+    async ensureFlatpickrLoaded(): Promise<void> {
+        if (typeof this.flatpickrFunction() === 'function') return;
+
+        const cssId = 'rr-flatpickr-css';
+        if (!document.getElementById(cssId)) {
+            const link = document.createElement('link');
+            link.id = cssId;
+            link.rel = 'stylesheet';
+            link.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css';
+            document.head.appendChild(link);
+        }
+
+        await new Promise<void>((resolve, reject) => {
+            const existing = document.getElementById('rr-flatpickr-script') as HTMLScriptElement | null;
+            if (existing) {
+                existing.addEventListener('load', () => resolve(), { once: true });
+                existing.addEventListener('error', () => reject(new Error('flatpickr load failed')), { once: true });
+                if (typeof this.flatpickrFunction() === 'function') resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.id = 'rr-flatpickr-script';
+            script.src = 'https://cdn.jsdelivr.net/npm/flatpickr';
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('flatpickr load failed'));
+            document.head.appendChild(script);
+        }).catch(() => undefined);
+    }
+
+    flatpickrFunction(): RRFlatpickrFunction | undefined {
+        return (window as Window & { flatpickr?: RRFlatpickrFunction }).flatpickr;
     }
 
     schedulePerspective(cell: RRArrangementCell): RRSchedulePerspective {
@@ -277,6 +351,18 @@ export class TournamentRRController implements ChatController {
         this.scheduleDrafts[arrangementId] = value;
     }
 
+    localDateInputValue(date: Date): string {
+        const normalized = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+        return normalized.toISOString().slice(0, 16);
+    }
+
+    scheduleMaxDate(): Date {
+        if (this.secondsToFinish > 0) return new Date(Date.now() + this.secondsToFinish * 1000);
+        const startsAt = new Date(this.startDate);
+        if (!Number.isNaN(startsAt.getTime())) return new Date(startsAt.getTime() + 90 * 24 * 3600 * 1000);
+        return new Date(Date.now() + 90 * 24 * 3600 * 1000);
+    }
+
     submitSchedule(cell: RRArrangementCell, value: string) {
         if (!value) {
             this.doSend({ type: 'rr_set_time', tournamentId: this.tournamentId, arrangementId: cell.id });
@@ -289,6 +375,44 @@ export class TournamentRRController implements ChatController {
             arrangementId: cell.id,
             date: parsed.toISOString(),
         });
+    }
+
+    playerOnline(username: string): boolean | undefined {
+        return this.onlineByUsername[username];
+    }
+
+    async loadArrangementOnlineStatus() {
+        const cell = this.selectedArrangement();
+        if (!cell) return;
+        try {
+            const response = await fetch(`/api/users/status?ids=${encodeURIComponent(cell.white)},${encodeURIComponent(cell.black)}`);
+            if (!response.ok) return;
+            const payload = await response.json() as Array<{ id: string; status?: boolean }>;
+            payload.forEach((entry) => {
+                this.onlineByUsername[entry.id] = entry.status;
+            });
+            this.renderModal();
+        } catch {
+            return;
+        }
+    }
+
+    startArrangementPresencePolling(cell: RRArrangementCell) {
+        if (this.presenceArrangementId === cell.id && this.arrangementPresenceInterval !== null) return;
+        this.stopArrangementPresencePolling();
+        this.presenceArrangementId = cell.id;
+        void this.loadArrangementOnlineStatus();
+        this.arrangementPresenceInterval = window.setInterval(() => {
+            void this.loadArrangementOnlineStatus();
+        }, 35000);
+    }
+
+    stopArrangementPresencePolling() {
+        this.presenceArrangementId = '';
+        if (this.arrangementPresenceInterval !== null) {
+            window.clearInterval(this.arrangementPresenceInterval);
+            this.arrangementPresenceInterval = null;
+        }
     }
 
     updateActionButton() {
@@ -368,7 +492,7 @@ export class TournamentRRController implements ChatController {
             const leftTime = Date.parse(left.date);
             const rightTime = Date.parse(right.date);
             if (!Number.isNaN(leftTime) && !Number.isNaN(rightTime) && leftTime !== rightTime) {
-                return rightTime - leftTime;
+                return leftTime - rightTime;
             }
             return left.id.localeCompare(right.id);
         });
@@ -488,11 +612,17 @@ export class TournamentRRController implements ChatController {
                     actionable: cell.gameId !== '' || (canAct && (cell.status === 'pending' || incoming)),
                     incoming,
                     gameId: cell.gameId,
+                    when: cell.scheduledAt || cell.date,
                 });
             }
         }
         return rows.sort((left, right) => {
             if (left.incoming !== right.incoming) return left.incoming ? -1 : 1;
+            const leftTime = Date.parse(left.when);
+            const rightTime = Date.parse(right.when);
+            if (!Number.isNaN(leftTime) && !Number.isNaN(rightTime) && leftTime !== rightTime) {
+                return leftTime - rightTime;
+            }
             return left.round - right.round;
         });
     }
@@ -699,6 +829,7 @@ export class TournamentRRController implements ChatController {
         if (cell.gameId) return _('This pairing already has a tournament game.');
         if (cell.status === 'started') return _('The game is in progress.');
         if (perspective.agreed) return _('Both players agreed on a proposed game time.');
+        if (perspective.opponent) return _('Your opponent suggested a time for this pairing.');
         if (cell.status === 'pending') return _('No challenge exists yet for this pairing.');
         if (cell.status === 'challenged' && cell.challenger === this.username) {
             return _('Your challenge is waiting for the opponent to accept.');
@@ -758,11 +889,51 @@ export class TournamentRRController implements ChatController {
                 h('label', { attrs: { for: 'rr-schedule-input' } }, _('Propose a date and time')),
                 h('input#rr-schedule-input', {
                     attrs: {
-                        type: 'datetime-local',
-                        value: draft,
+                        type: 'text',
+                        placeholder: _('Pick a date and time'),
                     },
-                    on: {
-                        input: (evt: Event) => this.setScheduleDraft(cell.id, (evt.target as HTMLInputElement).value),
+                    hook: {
+                        insert: (vnode) => {
+                            const input = vnode.elm as FlatpickrElement;
+                            input.value = draft;
+                            this.flatpickrReady.then(() => {
+                                const flatpickr = this.flatpickrFunction();
+                                if (typeof flatpickr !== 'function') {
+                                    input.value = draft;
+                                    return;
+                                }
+                                input._flatpickr?.destroy();
+                                input._flatpickr = flatpickr(input, {
+                                    enableTime: true,
+                                    time_24hr: true,
+                                    dateFormat: 'Z',
+                                    altInput: true,
+                                    altFormat: 'Y-m-d H:i',
+                                    minDate: 'today',
+                                    maxDate: this.scheduleMaxDate(),
+                                    monthSelectorType: 'static',
+                                    disableMobile: true,
+                                    defaultDate: draft ? new Date(draft).toISOString() : undefined,
+                                    onChange: (selectedDates) => {
+                                        const selected = selectedDates[0];
+                                        this.setScheduleDraft(cell.id, selected ? this.localDateInputValue(selected) : '');
+                                    },
+                                });
+                            }).catch(() => undefined);
+                        },
+                        update: (oldVnode, vnode) => {
+                            const input = vnode.elm as FlatpickrElement;
+                            if (input._flatpickr && oldVnode.data?.attrs?.value !== draft && draft) {
+                                input._flatpickr.setDate(new Date(draft), false);
+                            } else if (!input._flatpickr) {
+                                input.value = draft;
+                            }
+                        },
+                        destroy: (vnode) => {
+                            const input = vnode.elm as FlatpickrElement;
+                            input._flatpickr?.destroy();
+                            delete input._flatpickr;
+                        },
                     },
                 }),
             ]),
@@ -773,15 +944,22 @@ export class TournamentRRController implements ChatController {
     renderModal() {
         const cell = this.selectedArrangement();
         if (!cell) {
+            this.stopArrangementPresencePolling();
             this.modalNode = patch(this.modalNode, h('div#rr-modal'));
             return;
         }
+        this.startArrangementPresencePolling(cell);
         const meIsWhite = cell.white === this.username;
         const canAct = [cell.white, cell.black].includes(this.username);
         const opponent = meIsWhite ? cell.black : cell.white;
         const whitePlayer = this.playerByName(cell.white);
         const blackPlayer = this.playerByName(cell.black);
         const scheduleSection = this.scheduleSection(cell);
+        const renderPlayerStatus = (username: string) => {
+            const online = this.playerOnline(username);
+            if (online === undefined) return h('span.rr-player-status.unknown', _('Checking presence'));
+            return h(`span.rr-player-status.${online ? 'online' : 'offline'}`, online ? _('Online') : _('Offline'));
+        };
         let actionButton: VNode | null = null;
         let closeButtonLabel = _('Close');
         if (cell.gameId) {
@@ -820,6 +998,7 @@ export class TournamentRRController implements ChatController {
                             h('player-title', whitePlayer ? ` ${whitePlayer.title} ` : ''),
                             displayUsername(cell.white),
                         ]),
+                        renderPlayerStatus(cell.white),
                     ]),
                     h('div.rr-modal-vs', _('vs')),
                     h('div.rr-modal-player', [
@@ -828,6 +1007,7 @@ export class TournamentRRController implements ChatController {
                             h('player-title', blackPlayer ? ` ${blackPlayer.title} ` : ''),
                             displayUsername(cell.black),
                         ]),
+                        renderPlayerStatus(cell.black),
                     ]),
                 ]),
                 h('div.rr-modal-grid', [
@@ -852,6 +1032,7 @@ export class TournamentRRController implements ChatController {
                     h('th', _('Round')),
                     h('th', _('Color')),
                     h('th', _('Status')),
+                    h('th', _('When')),
                     h('th', _('Action')),
                 ])),
                 h('tbody', rows.map((row) => {
@@ -865,6 +1046,7 @@ export class TournamentRRController implements ChatController {
                         h('td', `${row.round}`),
                         h('td', row.color.toUpperCase()),
                         h('td', row.status),
+                        h('td', row.when ? h('info-date', { attrs: { timestamp: row.when } }, timeago(row.when)) : ''),
                         h('td', row.actionable && target ? h('button.button', {
                             on: {
                                 click: (evt: Event) => {

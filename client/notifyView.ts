@@ -96,6 +96,21 @@ function messageView(message: Message) {
                 h('span', `${content.opp} ${_('agreed on')} ${content.date ? new Date(content.date).toLocaleString() : _('your proposed game time')}.`),
             ]),
         ]);
+    case 'rrArrangementReminder':
+        return h(`a.notification.corr${read}`, {
+            attrs: {
+                href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
+            },
+        }, [
+            h('div.icon.icon-paper-plane'),
+            h('span.content', [
+                h('span', [
+                    h('strong', _('Round-robin reminder')),
+                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
+                ]),
+                h('span', `${_('Your scheduled pairing with')} ${content.opp} ${_('is coming up at')} ${content.date ? new Date(content.date).toLocaleString() : ''}.`),
+            ]),
+        ]);
     default:
         return '';
     }
