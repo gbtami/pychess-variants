@@ -350,6 +350,8 @@ class RRTournament(Tournament):
 
     def _berger_rounds(self, players: list[str]) -> list[tuple[int, int, int]]:
         size = len(players)
+        if size == 2:
+            return [(1, 1, 2)]
         odd = size % 2 == 1
         effective_size = size + 1 if odd else size
         berger = BERGER_TABLES[int(effective_size / 2) - 2]
