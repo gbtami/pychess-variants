@@ -309,6 +309,29 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertTrue(any(cell.get("id") for cell in matrix[first].values()))
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_prestart_payload_handles_two_joined_players(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+
+        payload = self.tournament.arrangement_payload()
+        self.assertEqual(payload["totalGames"], 1)
+        self.assertEqual(
+            payload["players"], [player.username for player in self.tournament.leaderboard]
+        )
+        first, second = payload["players"]
+        self.assertEqual(payload["matrix"][first][second]["round"], 1)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_rr_finishes_on_minutes_deadline_with_incomplete_arrangements(self):
         app_state = get_app_state(self.app)
         tid = id8()
