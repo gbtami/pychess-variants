@@ -100,7 +100,9 @@ def mask_sensitive_value(value: Any) -> str:
 def sanitize_for_logging(value: Any) -> Any:
     if isinstance(value, Mapping):
         return {
-            key: mask_sensitive_value(item) if key in SENSITIVE_LOG_KEYS else sanitize_for_logging(item)
+            key: mask_sensitive_value(item)
+            if key in SENSITIVE_LOG_KEYS
+            else sanitize_for_logging(item)
             for key, item in value.items()
         }
     if isinstance(value, list):
