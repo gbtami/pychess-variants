@@ -101,6 +101,10 @@ ARR_STATUS_CHALLENGED = "challenged"
 ARR_STATUS_STARTED = "started"
 ARR_STATUS_FINISHED = "finished"
 ARR_SCHEDULE_TOLERANCE = timedelta(seconds=60)
+ARR_REMINDER_WINDOW_START = timedelta(hours=23)
+ARR_REMINDER_WINDOW_END = timedelta(hours=24)
+ARR_REMINDER_REPEAT = timedelta(hours=2)
+ARR_REMINDER_COOLDOWN_AFTER_AGREEMENT = timedelta(hours=3)
 
 
 class RRArrangement:
@@ -117,6 +121,7 @@ class RRArrangement:
         "white_date",
         "black_date",
         "scheduled_at",
+        "last_reminded_at",
     )
 
     def __init__(
@@ -134,6 +139,7 @@ class RRArrangement:
         white_date: datetime | None = None,
         black_date: datetime | None = None,
         scheduled_at: datetime | None = None,
+        last_reminded_at: datetime | None = None,
     ) -> None:
         self.id = arrangement_id
         self.white = white
@@ -147,6 +153,7 @@ class RRArrangement:
         self.white_date = white_date
         self.black_date = black_date
         self.scheduled_at = scheduled_at
+        self.last_reminded_at = last_reminded_at
 
     def players(self) -> tuple[str, str]:
         return (self.white, self.black)
@@ -187,6 +194,8 @@ class RRArrangement:
             doc["d2"] = self.black_date
         if self.scheduled_at is not None:
             doc["sa"] = self.scheduled_at
+        if self.last_reminded_at is not None:
+            doc["ln"] = self.last_reminded_at
         return doc
 
     def update_doc(self, tournament_id: str) -> TournamentArrangementUpdate:
@@ -203,6 +212,7 @@ class RRArrangement:
             "d1": self.white_date,
             "d2": self.black_date,
             "sa": self.scheduled_at,
+            "ln": self.last_reminded_at,
         }
 
     def cell_json(self, row_username: str) -> dict[str, Any]:
@@ -428,6 +438,7 @@ class RRTournament(Tournament):
                 white_date=doc.get("d1"),
                 black_date=doc.get("d2"),
                 scheduled_at=doc.get("sa"),
+                last_reminded_at=doc.get("ln"),
             )
             self.arrangements[arrangement.id] = arrangement
 
@@ -482,6 +493,7 @@ class RRTournament(Tournament):
                         await self.start(now)
                         continue
                 elif self.status == T_STARTED:
+                    await self.send_arrangement_reminders(now)
                     if self.all_arrangements_finished() or now >= self.ends_at:
                         await self.finish()
                         break
@@ -524,6 +536,7 @@ class RRTournament(Tournament):
         if player_data is None or player_data.paused:
             return "Paused players cannot schedule round-robin games."
 
+        previous_scheduled_at = arrangement.scheduled_at
         date = self._normalize_arrangement_date(date)
         arrangement.set_suggested_time(user.username, date)
         arrangement.scheduled_at = None
@@ -537,9 +550,14 @@ class RRTournament(Tournament):
             arrangement.scheduled_at = opponent_date
 
         arrangement.date = datetime.now(timezone.utc)
+        if previous_scheduled_at != arrangement.scheduled_at:
+            arrangement.last_reminded_at = None
         await self.db_update_arrangement(arrangement)
 
-        if arrangement.scheduled_at is not None:
+        if (
+            arrangement.scheduled_at is not None
+            and previous_scheduled_at != arrangement.scheduled_at
+        ):
             opponent = arrangement.opponent(user.username)
             if opponent is not None:
                 opponent_user = await self.app_state.users.get(opponent)
@@ -554,6 +572,45 @@ class RRTournament(Tournament):
 
         await self.broadcast_arrangements()
         return None
+
+    async def send_arrangement_reminders(self, now: datetime) -> None:
+        for arrangement in self.arrangements.values():
+            if arrangement.scheduled_at is None:
+                continue
+            if arrangement.game_id is not None or arrangement.status in (
+                ARR_STATUS_STARTED,
+                ARR_STATUS_FINISHED,
+            ):
+                continue
+
+            time_until_game = arrangement.scheduled_at - now
+            if not (ARR_REMINDER_WINDOW_START <= time_until_game <= ARR_REMINDER_WINDOW_END):
+                continue
+            if arrangement.date >= now - ARR_REMINDER_COOLDOWN_AFTER_AGREEMENT:
+                continue
+            if (
+                arrangement.last_reminded_at is not None
+                and arrangement.last_reminded_at >= now - ARR_REMINDER_REPEAT
+            ):
+                continue
+
+            for username in arrangement.players():
+                opponent = arrangement.opponent(username)
+                if opponent is None:
+                    continue
+                target_user = await self.app_state.users.get(username)
+                if target_user.username != username:
+                    continue
+                content: NotificationContent = {
+                    "tid": self.id,
+                    "arr": arrangement.id,
+                    "opp": opponent,
+                    "date": arrangement.scheduled_at.isoformat(),
+                }
+                await notify(self.app_state.db, target_user, "rrArrangementReminder", content)
+
+            arrangement.last_reminded_at = now
+            await self.db_update_arrangement(arrangement)
 
     async def create_arrangement_challenge(self, user: User, arrangement_id: str) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
@@ -657,6 +714,7 @@ class RRTournament(Tournament):
         arrangement.white_date = None
         arrangement.black_date = None
         arrangement.scheduled_at = None
+        arrangement.last_reminded_at = None
         arrangement.date = datetime.now(timezone.utc)
         self.ongoing_games.add(game)
         self.update_players(game)
@@ -684,6 +742,7 @@ class RRTournament(Tournament):
         arrangement.white_date = None
         arrangement.black_date = None
         arrangement.scheduled_at = None
+        arrangement.last_reminded_at = None
         arrangement.date = datetime.now(timezone.utc)
         await self.db_update_arrangement(arrangement)
         await self.broadcast_arrangements()

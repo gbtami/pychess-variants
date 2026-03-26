@@ -20,10 +20,8 @@ type FlatpickrElement = HTMLInputElement & {
     _flatpickr?: FlatpickrInstance;
 };
 
-declare global {
-    interface Window {
-        flatpickr?: FlatpickrFunction;
-    }
+function flatpickrFunction(): FlatpickrFunction | undefined {
+    return (window as Window & { flatpickr?: FlatpickrFunction }).flatpickr;
 }
 
 const SYSTEM_ARENA = "0";
@@ -31,7 +29,7 @@ const SYSTEM_RR = "1";
 const SYSTEM_SWISS = "2";
 
 function initializeFlatpickr(): void {
-    const flatpickr = window.flatpickr;
+    const flatpickr = flatpickrFunction();
     if (typeof flatpickr !== "function") return;
 
     document.querySelectorAll<HTMLElement>(".flatpickr").forEach((element) => {

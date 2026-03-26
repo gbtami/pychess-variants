@@ -717,6 +717,7 @@ class TournamentArrangementDoc(TypedDict, total=False):
     d1: datetime
     d2: datetime
     sa: datetime
+    ln: datetime
 
 
 class TournamentArrangementUpdate(TypedDict, total=False):
@@ -732,6 +733,7 @@ class TournamentArrangementUpdate(TypedDict, total=False):
     d1: datetime | None
     d2: datetime | None
     sa: datetime | None
+    ln: datetime | None
 
 
 class TournamentPlayerJson(TypedDict):

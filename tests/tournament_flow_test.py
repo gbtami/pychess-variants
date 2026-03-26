@@ -863,6 +863,44 @@ class TournamentFlowTestCase(TournamentTestCase):
         assert arrangement_after is not None
         self.assertEqual(arrangement_after.white_date, proposed)
 
+    async def test_rr_arrangement_reminders_fire_for_agreed_games(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B", "C"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        arrangement = next(
+            arr for arr in self.tournament.arrangement_list() if arr.involves(users[0].username)
+        )
+        arrangement.scheduled_at = datetime.now(timezone.utc) + timedelta(hours=23, minutes=30)
+        arrangement.date = datetime.now(timezone.utc) - timedelta(hours=4)
+
+        await self.tournament.send_arrangement_reminders(datetime.now(timezone.utc))
+
+        for user in (app_state.users[arrangement.white], app_state.users[arrangement.black]):
+            self.assertIsNotNone(user.notifications)
+            assert user.notifications is not None
+            self.assertEqual(user.notifications[-1]["type"], "rrArrangementReminder")
+            self.assertEqual(user.notifications[-1]["content"]["arr"], arrangement.id)
+
     async def test_swiss_ws_redirect_failure_does_not_pause_players(self):
         app_state = get_app_state(self.app)
         tid = id8()

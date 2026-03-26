@@ -508,6 +508,9 @@ strong.score {
     padding: 0.9rem 1rem;
     border-radius: 10px;
     background: var(--bg-color1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 .rr-color-label {
     font-size: 0.82rem;
@@ -519,6 +522,31 @@ strong.score {
 .rr-modal-vs {
     font-weight: 700;
     opacity: 0.7;
+}
+.rr-player-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: fit-content;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    background: var(--bg-color2);
+}
+.rr-player-status::before {
+    content: '';
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: currentColor;
+}
+.rr-player-status.online {
+    color: var(--green);
+}
+.rr-player-status.offline,
+.rr-player-status.unknown {
+    color: var(--font-color);
+    opacity: 0.75;
 }
 .rr-modal-grid {
     flex-wrap: wrap;
@@ -565,6 +593,19 @@ strong.score {
     border-radius: 10px;
     background: var(--bg-color1);
     color: var(--font-color);
+}
+.rr-schedule-input-wrap .flatpickr-input[readonly] {
+    cursor: pointer;
+}
+.rr-schedule-input-wrap .flatpickr-calendar {
+    width: 100%;
+    max-width: 22rem;
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+.rr-schedule-input-wrap .flatpickr-calendar.inline {
+    margin-top: 0.4rem;
 }
 .rr-detail-actions {
     gap: 0.75rem;
