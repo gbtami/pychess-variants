@@ -521,14 +521,18 @@ async def create_or_update_tournament(
     else:
         end_date = None
 
+    now = datetime.now(timezone.utc)
+    if start_date is not None and start_date <= now:
+        raise web.HTTPBadRequest(text="Tournament start date must be in the future.")
+
     minutes = int(form["minutes"])
+    effective_start_date = start_date
     if end_date is not None:
-        effective_start_date = start_date
         if effective_start_date is None:
-            effective_start_date = datetime.now(timezone.utc) + timedelta(
-                minutes=int(form["waitMinutes"])
-            )
+            effective_start_date = now + timedelta(minutes=int(form["waitMinutes"]))
             start_date = effective_start_date
+        if end_date <= effective_start_date:
+            raise web.HTTPBadRequest(text="Tournament end date must be after the start date.")
         delta_minutes = int(max(1, (end_date - effective_start_date).total_seconds() // 60))
         if (
             end_date > effective_start_date
@@ -579,17 +583,46 @@ async def create_or_update_tournament(
     if tournament is None:
         tournament = await new_tournament(app_state, data)
     else:
+        allow_started_position_edit = (
+            tournament.status != T_CREATED
+            and tournament.system in (ARENA, SWISS)
+            and bool(tournament.fen)
+        )
+        if tournament.status != T_CREATED:
+            if data["variant"] != tournament.variant or data["chess960"] != tournament.chess960:
+                raise web.HTTPForbidden(
+                    text="Variant cannot be changed after the tournament has started."
+                )
+            if (
+                data["base"] != tournament.base
+                or data["inc"] != tournament.inc
+                or data["bp"] != tournament.byoyomi_period
+            ):
+                raise web.HTTPForbidden(
+                    text="Time control cannot be changed after the tournament has started."
+                )
+            if data["startDate"] is not None and data["startDate"] != tournament.starts_at:
+                raise web.HTTPForbidden(
+                    text="Start date cannot be changed after the tournament has started."
+                )
+            if data["fen"] != tournament.fen and not allow_started_position_edit:
+                raise web.HTTPForbidden(
+                    text="Starting position cannot be changed after the tournament has started."
+                )
+
         # We want to update some data of the tournament created by new_tournament() before.
         # upsert=True will do this update at the end of upsert_tournament_to_db()
         tournament.name = data["name"]
         tournament.password = data["password"]
-        tournament.variant = data["variant"]
-        tournament.chess960 = data["chess960"]
+        if tournament.status == T_CREATED:
+            tournament.variant = data["variant"]
+            tournament.chess960 = data["chess960"]
+            tournament.base = data["base"]
+            tournament.inc = data["inc"]
+            tournament.bp = data["bp"]
         tournament.rated = data["rated"]
-        tournament.base = data["base"]
-        tournament.inc = data["inc"]
-        tournament.bp = data["bp"]
-        tournament.rounds = data["rounds"]
+        if tournament.status == T_CREATED or tournament.system == SWISS:
+            tournament.rounds = data["rounds"]
         tournament.rr_max_players = data["rrMaxPlayers"]
         tournament.rr_requires_approval = data["rrRequiresApproval"]
         tournament.rr_joining_closed = data["rrJoiningClosed"]
@@ -602,10 +635,12 @@ async def create_or_update_tournament(
         tournament.forbidden_pairings = data["forbiddenPairings"]
         tournament.manual_pairings = data["manualPairings"]
         tournament.beforeStart = data["beforeStart"]
-        tournament.starts_at = data["startDate"]  # type: ignore[assignment]
+        if tournament.status == T_CREATED:
+            tournament.starts_at = data["startDate"]  # type: ignore[assignment]
         tournament.frequency = data["frequency"]
         tournament.minutes = data["minutes"]
-        tournament.fen = data["fen"]
+        if tournament.status == T_CREATED or allow_started_position_edit:
+            tournament.fen = data["fen"]
         tournament.description = data["description"]
 
         # re-calculate created_at, starts_at, ends_at etc.

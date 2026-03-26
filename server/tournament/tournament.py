@@ -2463,7 +2463,7 @@ class Tournament(ABC):
         if self.app_state.db is None:
             return
 
-        if self.nb_games_finished == 0:
+        if self.nb_games_finished == 0 and self.nb_players == 0:
             d = await self.app_state.db.tournament.delete_many({"_id": self.id})
             log.info("Deleted %r", d)
             log.info("Deleted empty tournament %s" % self.id)

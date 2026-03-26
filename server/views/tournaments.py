@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from aiohttp import web
 import aiohttp_jinja2
 
-from const import TRANSLATED_PAIRING_SYSTEM_NAMES, T_CREATED
+from const import TRANSLATED_PAIRING_SYSTEM_NAMES
 from misc import time_control_str
 from typing_defs import ViewContext
 from views import get_user_context
@@ -39,11 +39,11 @@ async def tournaments(request: web.Request) -> ViewContext:
             tournament = app_state.tournaments.get(tournamentId) if tournamentId else None
 
             if tournament is None and tournamentId is not None:
-                raise web.HTTPNotFound()
+                raise web.HTTPNotFound(text="Tournament not found.")
             if tournament and user.username != tournament.creator:
-                raise web.HTTPForbidden()
-            if tournament and tournament.status != T_CREATED:
-                raise web.HTTPForbidden()
+                raise web.HTTPForbidden(
+                    text="Only the tournament creator can edit this tournament."
+                )
 
             if TYPE_CHECKING:
                 assert tournament is not None

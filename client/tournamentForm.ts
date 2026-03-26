@@ -4,7 +4,7 @@ type FlatpickrOptions = {
     dateFormat: string;
     altInput: boolean;
     altFormat: string;
-    minDate: string;
+    minDate: string | Date;
     maxDate: Date;
     monthSelectorType: string;
     disableMobile: boolean;
@@ -28,9 +28,16 @@ const SYSTEM_ARENA = "0";
 const SYSTEM_RR = "1";
 const SYSTEM_SWISS = "2";
 
+function nextAllowedDate(): Date {
+    const date = new Date(Date.now() + 60_000);
+    date.setSeconds(0, 0);
+    return date;
+}
+
 function initializeFlatpickr(): void {
     const flatpickr = flatpickrFunction();
     if (typeof flatpickr !== "function") return;
+    const minDate = nextAllowedDate();
 
     document.querySelectorAll<HTMLElement>(".flatpickr").forEach((element) => {
         flatpickr(element, {
@@ -39,7 +46,7 @@ function initializeFlatpickr(): void {
             dateFormat: "Z",
             altInput: true,
             altFormat: "Y-m-d h:i K",
-            minDate: "today",
+            minDate,
             maxDate: new Date(Date.now() + 1000 * 3600 * 24 * 31 * 3),
             monthSelectorType: "static",
             disableMobile: true,
@@ -288,6 +295,28 @@ export function initTournamentForm(): void {
     if (endDateInput instanceof HTMLInputElement) {
         endDateInput.addEventListener("change", syncMinutesFromEndDate);
     }
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const submitter = form.querySelector("button[type='submit'], .submit") as HTMLButtonElement | null;
+        if (submitter) submitter.disabled = true;
+        try {
+            const response = await fetch(form.action, {
+                method: form.method || "POST",
+                body: new FormData(form),
+                credentials: "same-origin",
+            });
+            if (!response.ok) {
+                const message = (await response.text()).trim() || "Tournament form submission failed.";
+                alert(message);
+                return;
+            }
+            window.location.assign("/tournaments");
+        } catch {
+            alert("Tournament form submission failed.");
+        } finally {
+            if (submitter) submitter.disabled = false;
+        }
+    });
     updateFormBySystem();
     syncEndDateFromSchedule();
 }
