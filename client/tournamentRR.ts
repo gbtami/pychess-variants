@@ -58,6 +58,12 @@ type RRGameListRow = {
     date: string;
 };
 
+type RRSchedulePerspective = {
+    mine: string;
+    opponent: string;
+    agreed: string;
+};
+
 export class TournamentRRController implements ChatController {
     sock;
     tournamentId: string;
@@ -95,6 +101,7 @@ export class TournamentRRController implements ChatController {
     hoveredRow = '';
     hoveredCol = '';
     kickUsername = '';
+    scheduleDrafts: Record<string, string> = {};
     clockdiv: VNode;
     action: VNode;
     descriptionNode: VNode;
@@ -239,6 +246,51 @@ export class TournamentRRController implements ChatController {
         this.renderCrossTable();
     }
 
+    schedulePerspective(cell: RRArrangementCell): RRSchedulePerspective {
+        const isWhite = cell.white === this.username;
+        return {
+            mine: isWhite ? cell.whiteSuggestedAt : cell.blackSuggestedAt,
+            opponent: isWhite ? cell.blackSuggestedAt : cell.whiteSuggestedAt,
+            agreed: cell.scheduledAt,
+        };
+    }
+
+    defaultScheduleDraft(cell: RRArrangementCell): string {
+        const perspective = this.schedulePerspective(cell);
+        const source = perspective.mine || perspective.agreed || perspective.opponent;
+        if (!source) return '';
+        const date = new Date(source);
+        date.setSeconds(0, 0);
+        const adjusted = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+        return adjusted.toISOString().slice(0, 16);
+    }
+
+    scheduleDraft(cell: RRArrangementCell): string {
+        const existing = this.scheduleDrafts[cell.id];
+        if (existing !== undefined) return existing;
+        const draft = this.defaultScheduleDraft(cell);
+        this.scheduleDrafts[cell.id] = draft;
+        return draft;
+    }
+
+    setScheduleDraft(arrangementId: string, value: string) {
+        this.scheduleDrafts[arrangementId] = value;
+    }
+
+    submitSchedule(cell: RRArrangementCell, value: string) {
+        if (!value) {
+            this.doSend({ type: 'rr_set_time', tournamentId: this.tournamentId, arrangementId: cell.id });
+            return;
+        }
+        const parsed = new Date(value);
+        this.doSend({
+            type: 'rr_set_time',
+            tournamentId: this.tournamentId,
+            arrangementId: cell.id,
+            date: parsed.toISOString(),
+        });
+    }
+
     updateActionButton() {
         let button = h('div#action');
         if (this.viewMode === 'manage') {
@@ -308,7 +360,7 @@ export class TournamentRRController implements ChatController {
                     black: cell.black,
                     status: cell.status,
                     gameId: cell.gameId,
-                    date: cell.date,
+                    date: cell.scheduledAt || cell.date,
                 });
             }
         }
@@ -643,8 +695,10 @@ export class TournamentRRController implements ChatController {
 
     modalStatusText(cell: RRArrangementCell): string {
         const canAct = [cell.white, cell.black].includes(this.username);
+        const perspective = this.schedulePerspective(cell);
         if (cell.gameId) return _('This pairing already has a tournament game.');
         if (cell.status === 'started') return _('The game is in progress.');
+        if (perspective.agreed) return _('Both players agreed on a proposed game time.');
         if (cell.status === 'pending') return _('No challenge exists yet for this pairing.');
         if (cell.status === 'challenged' && cell.challenger === this.username) {
             return _('Your challenge is waiting for the opponent to accept.');
@@ -654,6 +708,66 @@ export class TournamentRRController implements ChatController {
         }
         if (cell.status === 'challenged') return _('A challenge already exists for this pairing.');
         return _('This pairing is waiting for its next action.');
+    }
+
+    scheduleSection(cell: RRArrangementCell): VNode | null {
+        const canAct = [cell.white, cell.black].includes(this.username);
+        if (!canAct || cell.gameId || ['started', 'finished'].includes(cell.status)) return null;
+
+        const perspective = this.schedulePerspective(cell);
+        const draft = this.scheduleDraft(cell);
+        const opponentTime = perspective.opponent;
+        const scheduleActions: VNode[] = [];
+
+        if (opponentTime) {
+            scheduleActions.push(h('button.button', {
+                on: {
+                    click: () => {
+                        const acceptedDraft = this.defaultScheduleDraft({
+                            ...cell,
+                            whiteSuggestedAt: cell.white === this.username ? opponentTime : cell.whiteSuggestedAt,
+                            blackSuggestedAt: cell.black === this.username ? opponentTime : cell.blackSuggestedAt,
+                        });
+                        this.setScheduleDraft(cell.id, acceptedDraft);
+                        this.submitSchedule(cell, acceptedDraft);
+                    },
+                },
+            }, _('Accept opponent time')));
+        }
+
+        scheduleActions.push(h('button.button', {
+            on: {
+                click: () => this.submitSchedule(cell, draft),
+            },
+        }, perspective.mine ? _('Update time') : _('Suggest time')));
+
+        scheduleActions.push(h('button.button.button-empty', {
+            on: {
+                click: () => {
+                    this.setScheduleDraft(cell.id, '');
+                    this.submitSchedule(cell, '');
+                },
+            },
+        }, _('Clear')));
+
+        return h('div.rr-modal-schedule', [
+            h('div.rr-modal-stat', [h('strong', _('Agreed time')), h('span', perspective.agreed ? new Date(perspective.agreed).toLocaleString() : _('Not agreed yet'))]),
+            h('div.rr-modal-stat', [h('strong', _('Your proposal')), h('span', perspective.mine ? new Date(perspective.mine).toLocaleString() : _('No proposed time'))]),
+            h('div.rr-modal-stat', [h('strong', _('Opponent proposal')), h('span', opponentTime ? new Date(opponentTime).toLocaleString() : _('No proposed time'))]),
+            h('div.rr-schedule-input-wrap', [
+                h('label', { attrs: { for: 'rr-schedule-input' } }, _('Propose a date and time')),
+                h('input#rr-schedule-input', {
+                    attrs: {
+                        type: 'datetime-local',
+                        value: draft,
+                    },
+                    on: {
+                        input: (evt: Event) => this.setScheduleDraft(cell.id, (evt.target as HTMLInputElement).value),
+                    },
+                }),
+            ]),
+            h('div.rr-detail-actions', scheduleActions),
+        ]);
     }
 
     renderModal() {
@@ -667,6 +781,7 @@ export class TournamentRRController implements ChatController {
         const opponent = meIsWhite ? cell.black : cell.white;
         const whitePlayer = this.playerByName(cell.white);
         const blackPlayer = this.playerByName(cell.black);
+        const scheduleSection = this.scheduleSection(cell);
         let actionButton: VNode | null = null;
         let closeButtonLabel = _('Close');
         if (cell.gameId) {
@@ -722,6 +837,7 @@ export class TournamentRRController implements ChatController {
                     cell.status === 'challenged' ? h('div.rr-modal-stat', [h('strong', _('Challenge by')), h('span', cell.challenger)]) : '',
                 ]),
                 h('div.rr-modal-note', this.modalStatusText(cell)),
+                scheduleSection,
                 h('div.rr-detail-actions', detailActions),
             ]),
         ]));
@@ -937,6 +1053,9 @@ export class TournamentRRController implements ChatController {
         this.matrix = msg.matrix;
         this.completedGames = msg.completedGames;
         this.totalGames = msg.totalGames;
+        Object.values(this.matrix).forEach((row) => Object.values(row).forEach((cell) => {
+            this.scheduleDrafts[cell.id] = this.defaultScheduleDraft(cell);
+        }));
         if (this.selectedArrangementId !== '' && !this.selectedArrangement()) this.selectedArrangementId = '';
         this.renderProgress();
         this.renderBody();

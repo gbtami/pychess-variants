@@ -355,6 +355,7 @@ class NotificationContent(TypedDict, total=False):
     tid: str
     arr: str
     opp: str
+    date: str
     win: bool | None
 
 
@@ -713,6 +714,9 @@ class TournamentArrangementDoc(TypedDict, total=False):
     iid: str
     ch: str
     d: datetime
+    d1: datetime
+    d2: datetime
+    sa: datetime
 
 
 class TournamentArrangementUpdate(TypedDict, total=False):
@@ -725,6 +729,9 @@ class TournamentArrangementUpdate(TypedDict, total=False):
     iid: str | None
     ch: str | None
     d: datetime
+    d1: datetime | None
+    d2: datetime | None
+    sa: datetime | None
 
 
 class TournamentPlayerJson(TypedDict):

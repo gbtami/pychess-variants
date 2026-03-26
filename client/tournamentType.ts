@@ -123,6 +123,9 @@ export interface RRArrangementCell {
     challenger: string;
     color: string;
     date: string;
+    whiteSuggestedAt: string;
+    blackSuggestedAt: string;
+    scheduledAt: string;
     result?: string;
 }
 

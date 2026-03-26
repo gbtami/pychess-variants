@@ -25,6 +25,7 @@ if TYPE_CHECKING:
         TournamentRRSetJoiningMessage,
         TournamentRRArrangementsMessage,
         TournamentRRChallengeMessage,
+        TournamentRRSetTimeMessage,
         TournamentPauseMessage,
         TournamentUserConnectedRequest,
         TournamentWithdrawMessage,
@@ -102,6 +103,8 @@ async def process_message(
         await handle_rr_challenge(app_state, ws, user, data)
     elif data["type"] == "rr_accept_challenge":
         await handle_rr_accept_challenge(app_state, ws, user, data)
+    elif data["type"] == "rr_set_time":
+        await handle_rr_set_time(app_state, ws, user, data)
     elif data["type"] == "rr_approve_player":
         await handle_rr_manage_player(app_state, ws, user, data)
     elif data["type"] == "rr_deny_player":
@@ -362,6 +365,28 @@ async def handle_rr_accept_challenge(
         return
     result = await tournament.accept_arrangement_challenge(user, data["arrangementId"])
     await ws_send_json(ws, result)
+
+
+async def handle_rr_set_time(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentRRSetTimeMessage
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if (
+        tournament is None
+        or tournament.system != RR
+        or not hasattr(tournament, "set_arrangement_time")
+    ):
+        return
+
+    raw_date = data.get("date")
+    parsed_date = (
+        datetime.fromisoformat(raw_date.rstrip("Z")).replace(tzinfo=timezone.utc)
+        if raw_date
+        else None
+    )
+    result = await tournament.set_arrangement_time(user, data["arrangementId"], parsed_date)
+    if result is not None:
+        await ws_send_json(ws, {"type": "error", "message": result})
 
 
 async def handle_rr_manage_player(

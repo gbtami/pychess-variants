@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any
 
 from const import RR, T_ABORTED, T_ARCHIVED, T_CREATED, T_FINISHED, T_STARTED
@@ -100,6 +100,7 @@ ARR_STATUS_PENDING = "pending"
 ARR_STATUS_CHALLENGED = "challenged"
 ARR_STATUS_STARTED = "started"
 ARR_STATUS_FINISHED = "finished"
+ARR_SCHEDULE_TOLERANCE = timedelta(seconds=60)
 
 
 class RRArrangement:
@@ -113,6 +114,9 @@ class RRArrangement:
         "invite_id",
         "challenger",
         "date",
+        "white_date",
+        "black_date",
+        "scheduled_at",
     )
 
     def __init__(
@@ -127,6 +131,9 @@ class RRArrangement:
         invite_id: str | None = None,
         challenger: str | None = None,
         date: datetime | None = None,
+        white_date: datetime | None = None,
+        black_date: datetime | None = None,
+        scheduled_at: datetime | None = None,
     ) -> None:
         self.id = arrangement_id
         self.white = white
@@ -137,6 +144,9 @@ class RRArrangement:
         self.invite_id = invite_id
         self.challenger = challenger
         self.date = datetime.now(timezone.utc) if date is None else date
+        self.white_date = white_date
+        self.black_date = black_date
+        self.scheduled_at = scheduled_at
 
     def players(self) -> tuple[str, str]:
         return (self.white, self.black)
@@ -159,7 +169,7 @@ class RRArrangement:
         return None
 
     def doc(self, tournament_id: str) -> TournamentArrangementDoc:
-        return {
+        doc: TournamentArrangementDoc = {
             "_id": self.id,
             "tid": tournament_id,
             "u": (self.white, self.black),
@@ -171,6 +181,13 @@ class RRArrangement:
             "iid": self.invite_id or "",
             "ch": self.challenger or "",
         }
+        if self.white_date is not None:
+            doc["d1"] = self.white_date
+        if self.black_date is not None:
+            doc["d2"] = self.black_date
+        if self.scheduled_at is not None:
+            doc["sa"] = self.scheduled_at
+        return doc
 
     def update_doc(self, tournament_id: str) -> TournamentArrangementUpdate:
         return {
@@ -183,6 +200,9 @@ class RRArrangement:
             "iid": self.invite_id,
             "ch": self.challenger,
             "d": self.date,
+            "d1": self.white_date,
+            "d2": self.black_date,
+            "sa": self.scheduled_at,
         }
 
     def cell_json(self, row_username: str) -> dict[str, Any]:
@@ -197,7 +217,30 @@ class RRArrangement:
             "challenger": self.challenger or "",
             "color": self.color_of(row_username) or "",
             "date": self.date.isoformat(),
+            "whiteSuggestedAt": self.white_date.isoformat() if self.white_date else "",
+            "blackSuggestedAt": self.black_date.isoformat() if self.black_date else "",
+            "scheduledAt": self.scheduled_at.isoformat() if self.scheduled_at else "",
         }
+
+    def suggested_time(self, username: str) -> datetime | None:
+        if username == self.white:
+            return self.white_date
+        if username == self.black:
+            return self.black_date
+        return None
+
+    def opponent_suggested_time(self, username: str) -> datetime | None:
+        if username == self.white:
+            return self.black_date
+        if username == self.black:
+            return self.white_date
+        return None
+
+    def set_suggested_time(self, username: str, date: datetime | None) -> None:
+        if username == self.white:
+            self.white_date = date
+        elif username == self.black:
+            self.black_date = date
 
 
 class RRTournament(Tournament):
@@ -382,6 +425,9 @@ class RRTournament(Tournament):
                 invite_id=doc.get("iid") or None,
                 challenger=doc.get("ch") or None,
                 date=doc.get("d"),
+                white_date=doc.get("d1"),
+                black_date=doc.get("d2"),
+                scheduled_at=doc.get("sa"),
             )
             self.arrangements[arrangement.id] = arrangement
 
@@ -448,6 +494,66 @@ class RRTournament(Tournament):
             if arrangement.invite_id is not None:
                 self.app_state.invites.pop(arrangement.invite_id, None)
         await super().finish(reason)
+
+    @staticmethod
+    def _normalize_arrangement_date(date: datetime | None) -> datetime | None:
+        return None if date is None else date.astimezone(timezone.utc).replace(microsecond=0)
+
+    @staticmethod
+    def _dates_within_tolerance(left: datetime, right: datetime) -> bool:
+        return abs(left - right) <= ARR_SCHEDULE_TOLERANCE
+
+    async def set_arrangement_time(
+        self, user: User, arrangement_id: str, date: datetime | None
+    ) -> str | None:
+        if self.status not in (T_CREATED, T_STARTED):
+            return "Round-robin scheduling is not available for this tournament."
+
+        arrangement = self.arrangement_by_id(arrangement_id)
+        if arrangement is None:
+            return "Unknown round-robin pairing."
+        if not arrangement.involves(user.username):
+            return "You are not part of this round-robin pairing."
+        if arrangement.game_id is not None or arrangement.status in (
+            ARR_STATUS_STARTED,
+            ARR_STATUS_FINISHED,
+        ):
+            return "This round-robin pairing can no longer be rescheduled."
+
+        player_data = self.player_data_by_name(user.username)
+        if player_data is None or player_data.paused:
+            return "Paused players cannot schedule round-robin games."
+
+        date = self._normalize_arrangement_date(date)
+        arrangement.set_suggested_time(user.username, date)
+        arrangement.scheduled_at = None
+
+        opponent_date = arrangement.opponent_suggested_time(user.username)
+        if (
+            date is not None
+            and opponent_date is not None
+            and self._dates_within_tolerance(date, opponent_date)
+        ):
+            arrangement.scheduled_at = opponent_date
+
+        arrangement.date = datetime.now(timezone.utc)
+        await self.db_update_arrangement(arrangement)
+
+        if arrangement.scheduled_at is not None:
+            opponent = arrangement.opponent(user.username)
+            if opponent is not None:
+                opponent_user = await self.app_state.users.get(opponent)
+                if opponent_user.username == opponent:
+                    content: NotificationContent = {
+                        "tid": self.id,
+                        "arr": arrangement.id,
+                        "opp": user.username,
+                        "date": arrangement.scheduled_at.isoformat(),
+                    }
+                    await notify(self.app_state.db, opponent_user, "rrArrangementTime", content)
+
+        await self.broadcast_arrangements()
+        return None
 
     async def create_arrangement_challenge(self, user: User, arrangement_id: str) -> str | None:
         if self.status not in (T_CREATED, T_STARTED):
@@ -548,6 +654,9 @@ class RRTournament(Tournament):
         arrangement.game_id = game.id
         arrangement.invite_id = None
         arrangement.challenger = None
+        arrangement.white_date = None
+        arrangement.black_date = None
+        arrangement.scheduled_at = None
         arrangement.date = datetime.now(timezone.utc)
         self.ongoing_games.add(game)
         self.update_players(game)
@@ -572,6 +681,9 @@ class RRTournament(Tournament):
         arrangement.game_id = game.id
         arrangement.invite_id = None
         arrangement.challenger = None
+        arrangement.white_date = None
+        arrangement.black_date = None
+        arrangement.scheduled_at = None
         arrangement.date = datetime.now(timezone.utc)
         await self.db_update_arrangement(arrangement)
         await self.broadcast_arrangements()
