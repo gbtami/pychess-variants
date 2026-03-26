@@ -34,7 +34,7 @@ DEFAULT_LOGGING_CONFIG = {
         # root logger
         "": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         # frameworks:
-        "asyncio": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "asyncio": {"handlers": ["default"], "level": "WARNING", "propagate": False},
         "pymongo": {"handlers": ["default"], "level": "INFO", "propagate": False},
         # pychess modules:
         "wsr": {"handlers": ["default"], "level": "DEBUG", "propagate": False},

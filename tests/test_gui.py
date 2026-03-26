@@ -142,13 +142,13 @@ class TestGUI:
                     {
                         "_id": username,
                         "enabled": True,
-                    "createdAt": created_at,
-                    "lang": "en",
-                    "theme": "dark",
-                    "ct": "all",
-                    "perfs": {},
-                    "pperfs": {},
-                }
+                        "createdAt": created_at,
+                        "lang": "en",
+                        "theme": "dark",
+                        "ct": "all",
+                        "perfs": {},
+                        "pperfs": {},
+                    }
                 )
 
             async with async_playwright() as p:
@@ -211,13 +211,18 @@ class TestGUI:
                         opponent_page = pages[arrangement.black]
 
                         await self._suggest_rr_time(
-                            challenger_page, arrangement.white, arrangement.black, scheduled_at_local
+                            challenger_page,
+                            arrangement.white,
+                            arrangement.black,
+                            scheduled_at_local,
                         )
                         await self._eventually(
                             lambda arr=arrangement: arr.white_date is not None,
                             timeout=5.0,
                         )
-                        await self._accept_rr_time(opponent_page, arrangement.white, arrangement.black)
+                        await self._accept_rr_time(
+                            opponent_page, arrangement.white, arrangement.black
+                        )
                         await self._eventually(
                             lambda arr=arrangement: arr.scheduled_at is not None,
                             timeout=5.0,
@@ -281,7 +286,9 @@ class TestGUI:
                         for username in usernames
                     ) == [2, 2, 2]
                     assert (
-                        await host_page.locator("#rr-crosstable .r-table-wrap-scores tbody tr").count()
+                        await host_page.locator(
+                            "#rr-crosstable .r-table-wrap-scores tbody tr"
+                        ).count()
                         == 3
                     )
                     assert await host_page.locator("#rr-crosstable td.rr-cell.draw").count() == 6
