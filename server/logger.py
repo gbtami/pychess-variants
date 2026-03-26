@@ -2,6 +2,7 @@ import asyncio
 import logging
 import logging.config
 import contextvars
+from collections.abc import Mapping
 from typing import Any
 
 log = logging.getLogger(__name__)
@@ -87,6 +88,26 @@ DEFAULT_LOGGING_CONFIG = {
 }
 # additional logger context
 log_context_data = contextvars.ContextVar("log_context_data", default=dict())
+SENSITIVE_LOG_KEYS = frozenset({"password"})
+
+
+def mask_sensitive_value(value: Any) -> str:
+    if value in (None, ""):
+        return ""
+    return "********"
+
+
+def sanitize_for_logging(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {
+            key: mask_sensitive_value(item) if key in SENSITIVE_LOG_KEYS else sanitize_for_logging(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [sanitize_for_logging(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(sanitize_for_logging(item) for item in value)
+    return value
 
 
 def set_log_context(varname, value):
