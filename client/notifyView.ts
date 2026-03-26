@@ -13,6 +13,7 @@ interface Message {
         tid?: string;
         arr?: string;
         opp: string;
+        date?: string;
         win?: boolean | null;
     };
 }
@@ -78,6 +79,21 @@ function messageView(message: Message) {
                     h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
                 ]),
                 h('span', `${content.opp} ${_('challenged you in your tournament pairing.')}`),
+            ]),
+        ]);
+    case 'rrArrangementTime':
+        return h(`a.notification.corr${read}`, {
+            attrs: {
+                href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
+            },
+        }, [
+            h('div.icon.icon-paper-plane'),
+            h('span.content', [
+                h('span', [
+                    h('strong', _('Round-robin scheduling')),
+                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
+                ]),
+                h('span', `${content.opp} ${_('agreed on')} ${content.date ? new Date(content.date).toLocaleString() : _('your proposed game time')}.`),
             ]),
         ]);
     default:

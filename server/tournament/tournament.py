@@ -525,6 +525,11 @@ class Tournament(ABC):
     ) -> dict[str, object]:
         return {"type": "error", "message": "Round-robin challenges are not available."}
 
+    async def set_arrangement_time(
+        self, user: User, arrangement_id: str, date: datetime | None
+    ) -> str | None:
+        return "Round-robin scheduling is not available for this tournament."
+
     def register_player(self, user: User, player_data: PlayerData) -> None:
         for existing in tuple(self.players):
             if existing is user:

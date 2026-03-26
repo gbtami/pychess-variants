@@ -515,6 +515,12 @@ class TournamentRRChallengeMessage(TournamentIdMessage):
     arrangementId: str
 
 
+class TournamentRRSetTimeMessage(TournamentIdMessage):
+    type: Literal["rr_set_time"]
+    arrangementId: str
+    date: NotRequired[str]
+
+
 class TournamentRRManagePlayerMessage(TournamentIdMessage):
     type: Literal["rr_approve_player", "rr_deny_player", "rr_kick_player"]
     username: str
@@ -552,6 +558,7 @@ TournamentInboundMessage = (
     | TournamentRRManagementMessage
     | TournamentRRSetJoiningMessage
     | TournamentRRChallengeMessage
+    | TournamentRRSetTimeMessage
     | TournamentRRManagePlayerMessage
     | TournamentJoinMessage
     | TournamentPauseMessage
