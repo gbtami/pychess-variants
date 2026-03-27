@@ -4,7 +4,7 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any
 
-from const import RR, T_ABORTED, T_ARCHIVED, T_CREATED, T_FINISHED, T_STARTED
+from const import ABORTED, RR, T_ABORTED, T_ARCHIVED, T_CREATED, T_FINISHED, T_STARTED
 from notify import notify
 from seek import SeekCreateData, create_seek
 from tournament.tournament import ByeGame, RR_MAX_SUPPORTED_PLAYERS, Tournament
@@ -737,8 +737,12 @@ class RRTournament(Tournament):
         if arrangement is None:
             return
 
-        arrangement.status = ARR_STATUS_FINISHED
-        arrangement.game_id = game.id
+        if game.status == ABORTED:
+            arrangement.status = ARR_STATUS_PENDING
+            arrangement.game_id = None
+        else:
+            arrangement.status = ARR_STATUS_FINISHED
+            arrangement.game_id = game.id
         arrangement.invite_id = None
         arrangement.challenger = None
         arrangement.white_date = None
