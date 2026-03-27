@@ -876,9 +876,7 @@ export class TournamentRRController implements ChatController {
         if (this.tournamentStatus === 'finished' || !canAct) return null;
         if (!['pending', 'challenged'].includes(cell.status)) return null;
         let label = _('Create challenge');
-        let title = this.tournamentStatus !== 'started'
-            ? `${_('Starting')} ${new Date(this.startDate).toLocaleString()}`
-            : _('Create challenge');
+        let title = _('Create challenge');
         let ready = false;
         if (cell.status === 'challenged') {
             ready = true;
@@ -893,11 +891,9 @@ export class TournamentRRController implements ChatController {
         return h('button.button.fbt', {
             class: {
                 ready,
-                disabled: this.tournamentStatus !== 'started',
             },
             attrs: {
                 title,
-                disabled: this.tournamentStatus !== 'started',
             },
             on: {
                 click: () => this.arrangementAction(cell),
