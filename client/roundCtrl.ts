@@ -267,7 +267,7 @@ export class RoundController extends GameController {
                 chatMessage('', oppName + _(' +15 seconds'), "roundchat");
             }
 
-            if (!this.spectator && this.simulId === "" && this.rated === CASUAL && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
+            if (!this.spectator && !this.tournamentGame && this.simulId === "" && this.rated === CASUAL && this.wtitle !== 'BOT' && this.btitle !== 'BOT') {
                 const container = document.getElementById('more-time') as HTMLElement;
                 patch(container, h('div#more-time', [
                     h('button.icon.icon-plus-square', {
@@ -774,11 +774,13 @@ export class RoundController extends GameController {
                     buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
                         [h('div', {class: {"icon": true, 'icon-play3': true} }, _("VIEW TOURNAMENT"))]));
                 } else {
-                    const pauseLabel = this.tournamentSystem > 0 ? _("WITHDRAW") : _("PAUSE");
                     buttons.push(h('button.newopp', { on: { click: () => this.joinTournament() } },
                         [h('div', {class: {"icon": true, 'icon-play3': true} }, _("BACK TO TOURNAMENT"))]));
-                    buttons.push(h('button.newopp', { on: { click: () => this.pauseTournament() } },
-                        [h('div', {class: {"icon": true, 'icon-pause2': true} }, pauseLabel)]));
+                    if (this.tournamentSystem !== 1) {
+                        const pauseLabel = this.tournamentSystem > 0 ? _("WITHDRAW") : _("PAUSE");
+                        buttons.push(h('button.newopp', { on: { click: () => this.pauseTournament() } },
+                            [h('div', {class: {"icon": true, 'icon-pause2': true} }, pauseLabel)]));
+                    }
                 }
             } else if (!this.corr) {
                 buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _("REMATCH")));
