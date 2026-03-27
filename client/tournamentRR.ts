@@ -89,11 +89,15 @@ type RRGameListRow = {
     scheduled: boolean;
 };
 
+const SCORE_SHIFT = 100000;
+
 type RRSchedulePerspective = {
     mine: string;
     opponent: string;
     agreed: string;
 };
+
+type RRSummaryStats = Pick<MsgTournamentStatus, 'nbPlayers' | 'sumRating' | 'nbGames' | 'wWin' | 'bWin' | 'draw'>;
 
 export class TournamentRRController implements ChatController {
     sock;
@@ -127,6 +131,8 @@ export class TournamentRRController implements ChatController {
     page = 1;
     selectedPlayer = '';
     selectedGames: TournamentGame[] = [];
+    podiumPlayers: TournamentPlayer[] = [];
+    summaryStats: RRSummaryStats = { nbPlayers: 0, sumRating: 0, nbGames: 0, wWin: 0, bWin: 0, draw: 0 };
     viewMode: RRViewMode = 'overview';
     selectedArrangementId = '';
     hoveredRow = '';
@@ -148,6 +154,8 @@ export class TournamentRRController implements ChatController {
     manageNode: VNode;
     bodyNode: VNode;
     modalNode: VNode;
+    podiumNode: VNode;
+    summaryNode: VNode;
     crossTableNode: VNode | null = null;
     gamesNode: VNode | null = null;
     boundHashChange: () => void;
@@ -188,6 +196,8 @@ export class TournamentRRController implements ChatController {
         this.action = patch(document.getElementById('action') as HTMLElement, h('div#action'));
         this.bodyNode = patch(document.getElementById('rr-body') as HTMLElement, h('div#rr-body'));
         this.modalNode = patch(document.getElementById('rr-modal') as HTMLElement, h('div#rr-modal'));
+        this.podiumNode = patch(document.getElementById('podium') as HTMLElement, h('div#podium'));
+        this.summaryNode = patch(document.getElementById('summarybox') as HTMLElement, h('div#summarybox'));
         patch(document.querySelector('div.tour-faq') as HTMLElement, roundRobinFaq(this.rated));
         window.addEventListener('hashchange', this.boundHashChange);
         document.addEventListener('visibilitychange', this.boundVisibilityChange);
@@ -713,7 +723,8 @@ export class TournamentRRController implements ChatController {
 
         const scoreRows = order.map((playerName) => {
             const player = this.playerByName(playerName);
-            const maxScore = Math.max(0, ...this.players.map((entry) => entry.score));
+            const playerScore = player ? Math.trunc(player.score / SCORE_SHIFT) : 0;
+            const maxScore = Math.max(0, ...this.players.map((entry) => Math.trunc(entry.score / SCORE_SHIFT)));
             return h('tr', {
                 class: {
                     hovered: this.hoveredRow === playerName,
@@ -725,10 +736,10 @@ export class TournamentRRController implements ChatController {
                 h('td', {
                     class: {
                         me: playerName === this.username,
-                        winner: !!player && player.score === maxScore && maxScore > 0,
+                        winner: !!player && playerScore === maxScore && maxScore > 0,
                     },
                     on: rowHoverHandlers(playerName),
-                }, `${player?.score ?? 0}`),
+                }, `${playerScore}`),
             ]);
         });
 
@@ -1267,6 +1278,54 @@ export class TournamentRRController implements ChatController {
         this.renderOverview();
     }
 
+    completed() {
+        return ['aborted', 'finished', 'archived'].includes(this.tournamentStatus);
+    }
+
+    calcRate(nbGames: number, wins: number) {
+        return `${nbGames !== 0 ? Math.round(100 * (wins / nbGames)) : 0}%`;
+    }
+
+    renderSummary() {
+        if (!this.completed() || this.summaryStats.nbGames <= 0) {
+            this.summaryNode = patch(this.summaryNode, h('div#summarybox'));
+            return;
+        }
+        const msg = this.summaryStats;
+        this.summaryNode = patch(this.summaryNode, h('div#summarybox', [
+            h('div#summary.box', [
+                h('h2', _('Tournament complete')),
+                h('table', [
+                    h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
+                    h('tr', [h('th', _('Average rating')), h('td', msg.nbPlayers > 0 ? Math.round(msg.sumRating / msg.nbPlayers) : 0)]),
+                    h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
+                    h('tr', [h('th', _('%1 wins', _('White'))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
+                    h('tr', [h('th', _('%1 wins', _('Black'))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
+                    h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
+                ]),
+            ]),
+        ]));
+    }
+
+    renderPodium() {
+        if (!this.completed() || this.podiumPlayers.length === 0 || this.summaryStats.nbGames <= 0) {
+            this.podiumNode = patch(this.podiumNode, h('div#podium'));
+            return;
+        }
+        const classes = ['first', 'second', 'third'];
+        this.podiumNode = patch(this.podiumNode, h('div#podium', [
+            h('div.podium', this.podiumPlayers.slice(0, 3).map((player, index) => h(`div.${classes[index] || 'third'}`, [
+                h('div.trophy'),
+                userLink(player.name, [h('player-title', ` ${player.title} `), displayUsername(player.name)]),
+                h('table.stats', [
+                    h('tr', [h('th', _('Performance')), h('td', player.perf)]),
+                    h('tr', [h('th', _('Games played')), h('td', player.nbGames)]),
+                    h('tr', [h('th', _('Win rate')), h('td', this.calcRate(player.nbGames, player.nbWin))]),
+                ]),
+            ]))),
+        ]));
+    }
+
     private onMsgUserConnected(msg: MsgUserConnectedTournament) {
         this.userStatus = msg.ustatus;
         this.rounds = msg.rounds || this.rounds;
@@ -1280,17 +1339,28 @@ export class TournamentRRController implements ChatController {
         this.rounds = msg.rounds || this.rounds;
         this.secondsToFinish = msg.secondsToFinish;
         this.roundOngoingGames = msg.roundOngoingGames || 0;
+        this.summaryStats = {
+            nbPlayers: msg.nbPlayers,
+            sumRating: msg.sumRating,
+            nbGames: msg.nbGames,
+            wWin: msg.wWin,
+            bWin: msg.bWin,
+            draw: msg.draw,
+        };
         initializeClock(this as any);
         this.updateActionButton();
+        this.renderSummary();
     }
 
     private onMsgGetPlayers(msg: MsgGetPlayers) {
         this.players = msg.players;
+        this.podiumPlayers = msg.podium || [];
         if (!this.selectedPlayer && this.players.length > 0) {
             this.selectedPlayer = this.players[0].name;
             this.doSend({ type: 'get_games', tournamentId: this.tournamentId, player: this.selectedPlayer });
         }
         this.doSend({ type: 'get_rr_arrangements', tournamentId: this.tournamentId });
+        this.renderPodium();
         this.renderBody();
     }
 
@@ -1449,9 +1519,11 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                     h('h1', model.tournamentname),
                     h('div#clockdiv'),
                 ]),
+                h('div#podium'),
                 h('div#page-controls.btn-controls', [h('div#action')]),
                 h('div#rr-shell', { hook: { insert: (vnode) => runTournamentRR(vnode, model) } }),
                 h('div#rr-body'),
+                h('div#summarybox'),
                 h('div.tour-faq'),
             ]),
         ]),
