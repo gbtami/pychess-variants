@@ -729,7 +729,6 @@ export class TournamentRRController implements ChatController {
                     },
                     on: rowHoverHandlers(playerName),
                 }, `${player?.score ?? 0}`),
-                h('td', { on: rowHoverHandlers(playerName) }, `${player?.berger.toFixed(1) ?? '0.0'}`),
             ]);
         });
 
@@ -755,7 +754,7 @@ export class TournamentRRController implements ChatController {
             ]),
             h('div.r-table-wrap-scores', [
                 h('table', [
-                    h('thead', h('tr', [h('th', 'Σ'), h('th', _('SB'))])),
+                    h('thead', h('tr', [h('th', 'Σ')])),
                     h('tbody', scoreRows),
                 ]),
             ]),
