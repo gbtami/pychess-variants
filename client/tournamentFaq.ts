@@ -59,18 +59,18 @@ h('p', _('Drawing the game before each player has moved 5 times will earn neithe
 
 export function roundRobinFaq(rated: string) {
 return h('div.tour-faq', [
-h('h2', _('Round-Robin Rules')),
-h('p', _('Round-Robin tournaments freeze the joined field at start. The server then derives the full single-cycle round count and pairs players so everyone meets once.')),
 h('h2', _('Is it rated?')),
 h('p', ratedStatus(rated)),
-h('h2', _('How are scores calculated?')),
-h('p', _('Each scheduled round counts once. Round-Robin tournaments do not use Arena streaks or Berserk bonuses.')),
-h('h2', _('Tie-break')),
-h('p', _('If players have the same score, Sonneborn-Berger values decide final ranking.')),
-h('h2', _('Absences')),
-h('p', _('If you miss a round, you are treated as absent for that round and are simply not paired in it. You can still return for later rounds.')),
+h('h2', _('How does round-robin work?')),
+h('p', _('In a round-robin tournament, each player can play one game against every other player.')),
+h('h2', _('How do I play a game?')),
+h('p', _('To play, click the cell in the table where you and the opponent you want to play against meet. You can schedule a date and time of the game or start the game right away by sending a challenge to your opponent.')),
+h('h2', _('How are points given?')),
+h('p', _('You get 2 points for a win, 1 for a draw, and 0 for a loss. Every match counts toward your total score.')),
+h('h2', _('How is the winner decided?')),
+h('p', _('The player with the most points at the end wins. If players have the same number of points, the one with the higher tournament performance is ranked higher.')),
 h('h2', _('How does it end?')),
-h('p', _('The tournament ends after all scheduled rounds are completed. The duration field is only an estimate and does not override the round count.')),
+h('p', _('The tournament ends when all scheduled games are completed, or when the configured end time is reached. Aborted games do not count and can be scheduled and played again later.')),
 ]);
 }
 

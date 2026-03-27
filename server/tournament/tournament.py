@@ -222,7 +222,9 @@ def berger_to_float(berger: int) -> float:
 
 
 @cache
-def player_json(player: PlayerData, full_score: int, paused: bool) -> TournamentPlayerJson:
+def player_json(
+    player: PlayerData, full_score: int, paused: bool, berger_value: float = 0
+) -> TournamentPlayerJson:
     response: TournamentPlayerJson = {
         "paused": paused,
         "title": player.title,
@@ -232,7 +234,7 @@ def player_json(player: PlayerData, full_score: int, paused: bool) -> Tournament
         "fire": player.win_streak,
         "score": full_score,  # SCORE_SHIFT-ed + performance rating
         "perf": player.performance,
-        "berger": berger_to_float(player.berger),
+        "berger": berger_value,
         "nbGames": len(player.points),
         "nbWin": player.nb_win,
         "nbBerserk": player.nb_berserk,
@@ -626,15 +628,18 @@ class Tournament(ABC):
         return leaderboard_player
 
     def tie_break_value(self, player_data: PlayerData) -> int:
-        if self.system == ARENA:
+        if self.system in (ARENA, RR):
             return player_data.performance
         return player_data.berger
 
     def compose_leaderboard_score(self, score_points: int, player_data: PlayerData) -> int:
         return SCORE_SHIFT * score_points + self.tie_break_value(player_data)
 
+    def displayed_berger_value(self, player_data: PlayerData) -> float:
+        return berger_to_float(player_data.berger) if self.system == SWISS else 0
+
     def recalculate_berger_tiebreak(self) -> None:
-        if self.system == ARENA:
+        if self.system != SWISS:
             return
 
         score_points_by_username = {
@@ -807,6 +812,7 @@ class Tournament(ABC):
                 leaderboard_player_data,
                 full_score,
                 leaderboard_player_data.paused,
+                self.displayed_berger_value(leaderboard_player_data),
             )
             if leaderboard_player_data.withdrawn:
                 payload = cast(TournamentPlayerJson, {**payload, "withdrawn": True})
@@ -840,6 +846,7 @@ class Tournament(ABC):
                         leaderboard_player_data,
                         full_score,
                         leaderboard_player_data.paused,
+                        self.displayed_berger_value(leaderboard_player_data),
                     )
                 )
             page_json["podium"] = podium
@@ -926,7 +933,7 @@ class Tournament(ABC):
             "title": player.title,
             "name": player_name,
             "perf": player_data.performance,
-            "berger": berger_to_float(player_data.berger),
+            "berger": self.displayed_berger_value(player_data),
             "nbGames": len(player_data.points),
             "nbWin": player_data.nb_win,
             "nbBerserk": player_data.nb_berserk,
@@ -2117,7 +2124,7 @@ class Tournament(ABC):
             player=game.bplayer,
         )
 
-        if self.system != ARENA:
+        if self.system == SWISS:
             self.recalculate_berger_tiebreak()
 
         self.nb_games_finished += 1

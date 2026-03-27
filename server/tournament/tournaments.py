@@ -382,7 +382,8 @@ async def _recover_incomplete_fixed_round_pairing_round(
                 tournament.compose_leaderboard_score(total_points, player_data),
             )
 
-    tournament.recalculate_berger_tiebreak()
+    if tournament.system == SWISS:
+        tournament.recalculate_berger_tiebreak()
     tournament.current_round = max(0, round_no - 1)
     tournament.pairing_in_progress_round = None
     await tournament.app_state.db.tournament.update_one(
@@ -1143,7 +1144,7 @@ async def load_tournament(
 
         if not withdrawn:
             tie_break = (
-                player_data.performance if tournament.system == ARENA else player_data.berger
+                player_data.performance if tournament.system in (ARENA, RR) else player_data.berger
             )
             tournament.leaderboard.update({user: SCORE_SHIFT * (player_doc["s"]) + tie_break})
             nb_players += 1
@@ -1303,7 +1304,7 @@ async def load_tournament(
     if tournament.system == SWISS:
         await _repair_swiss_state_from_history(tournament)
 
-    if tournament.system != ARENA:
+    if tournament.system == SWISS:
         tournament.recalculate_berger_tiebreak()
 
     if stored_round is None and tournament.system == SWISS:
