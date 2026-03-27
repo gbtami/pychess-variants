@@ -35,6 +35,7 @@ Note: Always run all linting and testing commands for any change.
 Note: When running pyright in a sandboxed Codex environment, request escalated permissions so pyright can read the system Python search paths (e.g., `/usr/lib/python3.13`, site-packages) and match CI behavior.
 Note: Codex may run test and typecheck commands with escalated permissions by default in this repo when sandbox limits would otherwise break them (for example local socket bind restrictions in aiohttp/playwright tests). Do not stop to ask in chat first; request escalation directly through the tool.
 Note: When escalation approval is needed, prefer reusable prefix approvals so repeated test runs do not prompt again (`pyright`, `python -m unittest`, `python -m pytest`, `python -m playwright install`).
+Note: For direct unittest module/class/test invocation, use `PYTHONPATH=server:tests` so both server modules and helper modules under `tests/` resolve correctly. The shorter `PYTHONPATH=server` form is only sufficient for `unittest discover -s tests`.
 ```bash
 # Run TypeScript type checking
 yarn typecheck
@@ -56,6 +57,9 @@ PYTHONPATH=server python -m unittest discover -s tests
 
 # Python unit tests (quiet summary, full output in /tmp/unittest_full.log)
 PYTHONPATH=server python -m unittest discover -s tests > /tmp/unittest_full.log 2>&1; echo EXIT:$?; rg -n "^Ran [0-9]+ tests|^OK$|^FAILED \\(|^ERROR:|^FAIL:" /tmp/unittest_full.log | tail -n 20
+
+# Python unit tests (direct module / class / test invocation)
+PYTHONPATH=server:tests python -m unittest tests.some_test_module
 
 # Python Playwright tests
 # Run tests directly. If browsers are missing, install them first.

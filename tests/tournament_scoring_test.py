@@ -20,17 +20,23 @@ def make_test_perfs():
 
 
 class TournamentScoringTestCase(TournamentTestCase):
-    async def test_rr_berger_tiebreak_orders_tied_scores_and_is_persisted(self):
+    async def test_rr_performance_tiebreak_orders_tied_scores_and_is_persisted(self):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = RRTournament(
-            app_state, tid, variant="chess", before_start=0, rounds=3, with_clock=False
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=8,
+            with_clock=False,
         )
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
 
         users = []
-        for suffix in ("A", "B", "C", "D"):
+        for suffix in ("A", "B"):
             user = User(
                 app_state,
                 username=f"{TEST_PREFIX}{suffix}",
@@ -42,74 +48,53 @@ class TournamentScoringTestCase(TournamentTestCase):
             await self.tournament.join(user)
             users.append(user)
 
-        await self.tournament.start(datetime.now(timezone.utc))
-
-        winner_sets_by_round = [
-            {users[0].username, users[1].username},  # A beats D, B beats C
-            {users[0].username, users[3].username},  # A beats B, D beats C
-            {users[1].username, users[2].username},  # B beats D, C beats A
-        ]
-
-        for round_no, winners in enumerate(winner_sets_by_round, start=1):
-            self.tournament.current_round = round_no
-            waiting_players = list(self.tournament.waiting_players())
-            _, games = await self.tournament.create_new_pairings(waiting_players)
-            for game in games:
-                if game.wplayer.username in winners:
-                    game.result = "1-0"
-                elif game.bplayer.username in winners:
-                    game.result = "0-1"
-                else:
-                    self.fail(
-                        f"Unexpected pairing {game.wplayer.username} vs {game.bplayer.username}"
-                    )
-                game.status = FLAG
-                game.board.ply = 20
-                await self.tournament.game_update(game)
-                self.tournament.players[game.wplayer].free = True
-                self.tournament.players[game.bplayer].free = True
-
-        leaderboard = [player.username for player in self.tournament.leaderboard]
-        self.assertEqual(
-            leaderboard,
-            [users[0].username, users[1].username, users[2].username, users[3].username],
-        )
-
         player_a_data = self.tournament.player_data_by_name(users[0].username)
         player_b_data = self.tournament.player_data_by_name(users[1].username)
-        player_c_data = self.tournament.player_data_by_name(users[2].username)
-        player_d_data = self.tournament.player_data_by_name(users[3].username)
         self.assertIsNotNone(player_a_data)
         self.assertIsNotNone(player_b_data)
-        self.assertIsNotNone(player_c_data)
-        self.assertIsNotNone(player_d_data)
         assert player_a_data is not None
         assert player_b_data is not None
-        assert player_c_data is not None
-        assert player_d_data is not None
-        self.assertEqual(player_a_data.berger, 12)
-        self.assertEqual(player_b_data.berger, 8)
-        self.assertEqual(player_c_data.berger, 8)
-        self.assertEqual(player_d_data.berger, 4)
+
+        player_a_data.performance = 1750
+        player_b_data.performance = 1625
+        player_a_data.berger = 1
+        player_b_data.berger = 999
+
+        self.tournament.set_leaderboard_score_by_username(
+            users[0].username,
+            self.tournament.compose_leaderboard_score(4, player_a_data),
+            player=users[0],
+        )
+        self.tournament.set_leaderboard_score_by_username(
+            users[1].username,
+            self.tournament.compose_leaderboard_score(4, player_b_data),
+            player=users[1],
+        )
+
+        leaderboard = [player.username for player in self.tournament.leaderboard]
+        self.assertEqual(leaderboard, [users[0].username, users[1].username])
 
         players_json = self.tournament.players_json()
-        self.assertEqual(players_json["players"][0]["berger"], 6.0)
-        self.assertEqual(players_json["players"][1]["berger"], 4.0)
+        self.assertEqual(players_json["players"][0]["berger"], 0)
 
         games_json = await self.tournament.games_json(users[0].username)
-        self.assertEqual(games_json["berger"], 6.0)
+        self.assertEqual(games_json["berger"], 0)
+
+        await self.tournament.db_update_player(users[0], "GAME_END")
+        await self.tournament.db_update_player(users[1], "GAME_END")
 
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
         reloaded_leaderboard = [player.username for player in reloaded_tournament.leaderboard]
-        self.assertEqual(
-            reloaded_leaderboard,
-            [users[0].username, users[1].username, users[2].username, users[3].username],
-        )
+        self.assertEqual(reloaded_leaderboard, [users[0].username, users[1].username])
 
         reloaded_a = reloaded_tournament.player_data_by_name(users[0].username)
+        reloaded_b = reloaded_tournament.player_data_by_name(users[1].username)
         self.assertIsNotNone(reloaded_a)
+        self.assertIsNotNone(reloaded_b)
         assert reloaded_a is not None
-        self.assertEqual(reloaded_a.berger, 12)
+        assert reloaded_b is not None
+        self.assertEqual(reloaded_a.performance, 1750)
+        self.assertEqual(reloaded_b.performance, 1625)
 
         if reloaded_tournament.clock_task is not None:
             reloaded_tournament.clock_task.cancel()

@@ -47,7 +47,7 @@ async def round_view(request: web.Request) -> ViewContext:
         tournament_name = await get_tournament_name(request, game.tournamentId)
         context["tournamentid"] = game.tournamentId
         context["tournamentname"] = tournament_name
-        context["tsystem"] = tournament.system if tournament is not None else 0
+        context["system"] = tournament.system if tournament is not None else 0
         context["wberserk"] = game.wberserk
         context["bberserk"] = game.bberserk
 

@@ -15,6 +15,7 @@ from tournament.auto_play_tournament import (
     RRTestTournament,
     SwissTestTournament,
 )
+from tournament.rr import ARR_STATUS_FINISHED, ARR_STATUS_PENDING, ARR_STATUS_STARTED
 from tournament.tournament import MANUAL_ROUND_INTERVAL, GameData, upsert_tournament_to_db
 from tournament_test_base import ONE_TEST_ONLY, TournamentTestCase
 from user import User
@@ -118,7 +119,8 @@ class TournamentFlowTestCase(TournamentTestCase):
             tid,
             variant="chess",
             before_start=1,
-            rounds=3,
+            rounds=0,
+            rr_max_players=6,
             with_clock=False,
             entry_min_rating=1400,
             entry_max_rating=1800,
@@ -259,53 +261,153 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(self.tournament.status, T_FINISHED)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    async def test_tournament_pairing_5_round_RR(self):
+    async def test_rr_start_creates_full_arrangement_matrix(self):
         app_state = get_app_state(self.app)
         NB_PLAYERS = 5
-        NB_ROUNDS = 5
 
-        tid = id8()
-        self.tournament = RRTestTournament(app_state, tid, before_start=0, rounds=NB_ROUNDS)
-        app_state.tournaments[tid] = self.tournament
-        await self.tournament.join_players(NB_PLAYERS)
-
-        await self.tournament.clock_task
-
-        self.assertEqual(self.tournament.status, T_FINISHED)
-        self.assertEqual(
-            [len(player.games) for player in self.tournament.players.values()],
-            NB_PLAYERS * [NB_ROUNDS],
-        )
-
-    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
-    async def test_fixed_round_rr_ignores_minutes_deadline(self):
-        app_state = get_app_state(self.app)
-        NB_PLAYERS = 5
-        NB_ROUNDS = 5
         tid = id8()
         self.tournament = RRTestTournament(
             app_state,
             tid,
-            before_start=0,
-            rounds=NB_ROUNDS,
-            minutes=0,
+            before_start=10,
+            rounds=0,
+            rr_max_players=NB_PLAYERS,
+            with_clock=False,
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.assertEqual(self.tournament.status, T_STARTED)
+        self.assertEqual(self.tournament.rounds, NB_PLAYERS)
+        self.assertEqual(len(self.tournament.arrangements), 10)
+        payload = self.tournament.arrangement_payload()
+        self.assertEqual(payload["totalGames"], 10)
+        self.assertEqual(payload["completedGames"], 0)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_prestart_payload_exposes_projected_arrangements(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(3)
+
+        payload = self.tournament.arrangement_payload()
+        self.assertEqual(payload["totalGames"], 3)
+        self.assertEqual(
+            payload["players"], [player.username for player in self.tournament.leaderboard]
+        )
+        matrix = payload["matrix"]
+        first = next(iter(payload["players"]))
+        self.assertTrue(any(cell.get("id") for cell in matrix[first].values()))
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_prestart_payload_handles_two_joined_players(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+
+        payload = self.tournament.arrangement_payload()
+        self.assertEqual(payload["totalGames"], 1)
+        self.assertEqual(
+            payload["players"], [player.username for player in self.tournament.leaderboard]
+        )
+        first, second = payload["players"]
+        self.assertEqual(payload["matrix"][first][second]["round"], 1)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_payload_cells_include_player_points(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+
+        arrangement = self.tournament.arrangement_list()[0]
+        arrangement.status = ARR_STATUS_FINISHED
+        arrangement.game_id = id8()
+
+        game = GameData(
+            arrangement.game_id,
+            arrangement.white,
+            "1500",
+            arrangement.black,
+            "1500",
+            "1-0",
+            datetime.now(timezone.utc),
+            False,
+            False,
+        )
+
+        white_data = self.tournament.player_data_by_name(arrangement.white)
+        black_data = self.tournament.player_data_by_name(arrangement.black)
+        assert white_data is not None
+        assert black_data is not None
+        white_data.games.append(game)
+        black_data.games.append(game)
+        white_data.points.append((2, 1))
+        black_data.points.append((0, 1))
+
+        payload = self.tournament.arrangement_payload()
+        matrix = payload["matrix"]
+        white_cell = matrix[arrangement.white][arrangement.black]
+        black_cell = matrix[arrangement.black][arrangement.white]
+
+        self.assertEqual(white_cell["result"], "1-0")
+        self.assertEqual(black_cell["result"], "1-0")
+        self.assertEqual(white_cell["points"], 2)
+        self.assertEqual(black_cell["points"], 0)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_finishes_on_minutes_deadline_with_incomplete_arrangements(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=0.01,
+            rounds=0,
+            rr_max_players=6,
+            minutes=0.001,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(5)
 
         if self.tournament.clock_task is not None:
             await asyncio.wait_for(self.tournament.clock_task, timeout=20)
 
         self.assertEqual(self.tournament.status, T_FINISHED)
-        self.assertEqual(
-            [len(player.games) for player in self.tournament.players.values()],
-            NB_PLAYERS * [NB_ROUNDS],
-        )
+        self.assertEqual(len(self.tournament.arrangements), 10)
+        self.assertFalse(self.tournament.all_arrangements_finished())
 
     async def test_fixed_round_manual_next_round_waits_for_organizer(self):
         app_state = get_app_state(self.app)
         tid = id8()
-        self.tournament = RRTestTournament(
+        self.tournament = SwissTestTournament(
             app_state,
             tid,
             before_start=0,
@@ -444,7 +546,13 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = RRTestTournament(
-            app_state, tid, variant="chess", before_start=0, rounds=3, with_clock=False
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=6,
+            with_clock=False,
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(4)
@@ -459,7 +567,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             {player.username for player in self.tournament.players},
         )
 
-    async def test_rr_join_refuses_players_beyond_round_capacity(self):
+    async def test_rr_join_refuses_players_beyond_max_players(self):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = RRTestTournament(
@@ -476,6 +584,11 @@ class TournamentFlowTestCase(TournamentTestCase):
         await self.tournament.join_players(10)
         self.assertEqual(self.tournament.nb_players, 10)
         self.assertEqual(len(self.tournament.players), 10)
+
+        extra = User(app_state, username=f"{tid}_extra", perfs=make_test_perfs())
+        extra.tournament_sockets[self.tournament.id] = set((None,))
+        app_state.users[extra.username] = extra
+        self.assertEqual(await self.tournament.join(extra), "This round-robin tournament is full.")
 
     async def test_rr_start_derives_rounds_from_joined_players(self):
         app_state = get_app_state(self.app)
@@ -539,6 +652,328 @@ class TournamentFlowTestCase(TournamentTestCase):
 
         self.assertEqual(self.tournament.nb_players, 4)
         self.assertEqual(len(self.tournament.players), 4)
+
+    async def test_rr_join_request_requires_organizer_approval_when_enabled(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=8,
+            rr_requires_approval=True,
+            with_clock=False,
+        )
+        self.tournament.created_by = "rr_host"
+        app_state.tournaments[tid] = self.tournament
+
+        organizer = User(app_state, username="rr_host", perfs=make_test_perfs())
+        app_state.users[organizer.username] = organizer
+
+        applicant = User(app_state, username=f"{tid}_pending", perfs=make_test_perfs())
+        applicant.tournament_sockets[self.tournament.id] = set((None,))
+        app_state.users[applicant.username] = applicant
+
+        self.assertEqual(await self.tournament.join(applicant), "JOIN_REQUESTED")
+        self.assertEqual(self.tournament.user_status(applicant), "pending")
+        self.assertIn(applicant.username, self.tournament.rr_pending_players)
+        self.assertEqual(self.tournament.nb_players, 0)
+
+        self.assertIsNone(await self.tournament.rr_approve_player(applicant.username))
+        self.assertEqual(self.tournament.user_status(applicant), "joined")
+        self.assertNotIn(applicant.username, self.tournament.rr_pending_players)
+        self.assertEqual(self.tournament.nb_players, 1)
+
+    async def test_rr_joining_can_be_closed_and_reopened_by_organizer(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=8,
+            with_clock=False,
+        )
+        self.tournament.created_by = "rr_host"
+        app_state.tournaments[tid] = self.tournament
+
+        organizer = User(app_state, username="rr_host", perfs=make_test_perfs())
+        app_state.users[organizer.username] = organizer
+
+        applicant = User(app_state, username=f"{tid}_closed", perfs=make_test_perfs())
+        app_state.users[applicant.username] = applicant
+
+        self.assertIsNone(await self.tournament.rr_set_joining_closed(True))
+        self.assertTrue(self.tournament.rr_joining_closed)
+        self.assertEqual(
+            await self.tournament.join(applicant),
+            "Joining is currently closed for this round-robin tournament.",
+        )
+        self.assertEqual(self.tournament.nb_players, 0)
+
+        self.assertIsNone(await self.tournament.rr_set_joining_closed(False))
+        self.assertFalse(self.tournament.rr_joining_closed)
+        self.assertIsNone(await self.tournament.join(applicant))
+        self.assertEqual(self.tournament.nb_players, 1)
+
+    async def test_rr_challenge_creates_notification_for_opponent(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B", "C"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        arrangement = next(
+            arr for arr in self.tournament.arrangement_list() if arr.involves(users[0].username)
+        )
+        challenger = next(user for user in users if user.username == arrangement.white)
+        opponent_name = arrangement.black
+        opponent = app_state.users[opponent_name]
+
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(challenger, arrangement.id)
+        )
+        self.assertIsNotNone(opponent.notifications)
+        assert opponent.notifications is not None
+        self.assertEqual(opponent.notifications[-1]["type"], "rrChallenge")
+        self.assertEqual(opponent.notifications[-1]["content"]["tid"], tid)
+        self.assertEqual(opponent.notifications[-1]["content"]["arr"], arrangement.id)
+        self.assertEqual(opponent.notifications[-1]["content"]["opp"], challenger.username)
+
+    async def test_rr_prestart_challenge_survives_start(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=10,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B", "C"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+            users.append(user)
+
+        payload = self.tournament.arrangement_payload()
+        arrangement_id = next(
+            cell["id"]
+            for row in payload["matrix"].values()
+            for cell in row.values()
+            if cell["id"] and cell["white"] == users[0].username
+        )
+        self.assertIsNone(
+            await self.tournament.create_arrangement_challenge(users[0], arrangement_id)
+        )
+
+        arrangement_before = self.tournament.arrangement_by_id(arrangement_id)
+        assert arrangement_before is not None
+        self.assertEqual(arrangement_before.status, "challenged")
+        self.assertIsNotNone(arrangement_before.invite_id)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        arrangement_after = self.tournament.arrangement_by_id(arrangement_id)
+        assert arrangement_after is not None
+        self.assertEqual(arrangement_after.status, "challenged")
+        self.assertEqual(arrangement_after.invite_id, arrangement_before.invite_id)
+
+    async def test_rr_scheduling_sets_player_proposals_and_agreed_time(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B", "C"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        arrangement = next(
+            arr for arr in self.tournament.arrangement_list() if arr.involves(users[0].username)
+        )
+        white = next(user for user in users if user.username == arrangement.white)
+        black = next(user for user in users if user.username == arrangement.black)
+
+        proposed = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(days=1)
+        self.assertIsNone(
+            await self.tournament.set_arrangement_time(white, arrangement.id, proposed)
+        )
+        self.assertEqual(arrangement.white_date, proposed)
+        self.assertIsNone(arrangement.scheduled_at)
+
+        agreed = proposed + timedelta(seconds=45)
+        self.assertIsNone(await self.tournament.set_arrangement_time(black, arrangement.id, agreed))
+        self.assertEqual(arrangement.black_date, agreed)
+        self.assertEqual(arrangement.scheduled_at, proposed)
+
+    async def test_rr_scheduling_clears_agreement_when_player_changes_time(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B", "C"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        arrangement = next(
+            arr for arr in self.tournament.arrangement_list() if arr.involves(users[0].username)
+        )
+        white = next(user for user in users if user.username == arrangement.white)
+        black = next(user for user in users if user.username == arrangement.black)
+
+        proposed = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(days=2)
+        self.assertIsNone(
+            await self.tournament.set_arrangement_time(white, arrangement.id, proposed)
+        )
+        self.assertIsNone(
+            await self.tournament.set_arrangement_time(
+                black, arrangement.id, proposed + timedelta(seconds=30)
+            )
+        )
+        self.assertEqual(arrangement.scheduled_at, proposed)
+
+        later = proposed + timedelta(hours=2)
+        self.assertIsNone(await self.tournament.set_arrangement_time(white, arrangement.id, later))
+        self.assertEqual(arrangement.white_date, later)
+        self.assertIsNone(arrangement.scheduled_at)
+
+    async def test_rr_prestart_scheduling_survives_start(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=10,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B", "C"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+            users.append(user)
+
+        arrangement_id = next(
+            cell["id"]
+            for row in self.tournament.arrangement_payload()["matrix"].values()
+            for cell in row.values()
+            if cell["id"] and cell["white"] == users[0].username
+        )
+        proposed = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(days=3)
+        self.assertIsNone(
+            await self.tournament.set_arrangement_time(users[0], arrangement_id, proposed)
+        )
+
+        arrangement_before = self.tournament.arrangement_by_id(arrangement_id)
+        assert arrangement_before is not None
+        self.assertEqual(arrangement_before.white_date, proposed)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        arrangement_after = self.tournament.arrangement_by_id(arrangement_id)
+        assert arrangement_after is not None
+        self.assertEqual(arrangement_after.white_date, proposed)
+
+    async def test_rr_arrangement_reminders_fire_for_agreed_games(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+
+        users = []
+        for suffix in ("A", "B", "C"):
+            user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            user.tournament_sockets[tid] = set((None,))
+            await self.tournament.join(user)
+            users.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        arrangement = next(
+            arr for arr in self.tournament.arrangement_list() if arr.involves(users[0].username)
+        )
+        arrangement.scheduled_at = datetime.now(timezone.utc) + timedelta(hours=23, minutes=30)
+        arrangement.date = datetime.now(timezone.utc) - timedelta(hours=4)
+
+        await self.tournament.send_arrangement_reminders(datetime.now(timezone.utc))
+
+        for user in (app_state.users[arrangement.white], app_state.users[arrangement.black]):
+            self.assertIsNotNone(user.notifications)
+            assert user.notifications is not None
+            self.assertEqual(user.notifications[-1]["type"], "rrArrangementReminder")
+            self.assertEqual(user.notifications[-1]["content"]["arr"], arrangement.id)
 
     async def test_swiss_ws_redirect_failure_does_not_pause_players(self):
         app_state = get_app_state(self.app)
@@ -974,3 +1409,41 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertIsNotNone(stale_doc)
         assert stale_doc is not None
         self.assertEqual(len(stale_doc["p"]), 1)
+
+    async def test_rr_aborted_arrangement_game_reopens_pairing(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=0, rounds=1, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        players = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"rr_abort_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            await self.tournament.join(user)
+            players.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+        arrangement = next(iter(self.tournament.arrangements.values()))
+
+        seek_error = await self.tournament.create_arrangement_challenge(players[0], arrangement.id)
+        self.assertIsNone(seek_error)
+        accept_result = await self.tournament.accept_arrangement_challenge(
+            players[1], arrangement.id
+        )
+        self.assertEqual(accept_result["type"], "new_game")
+
+        game = app_state.games[accept_result["gameId"]]
+        self.assertEqual(arrangement.status, ARR_STATUS_STARTED)
+        self.assertEqual(arrangement.game_id, game.id)
+
+        await game.game_ended(game.wplayer, "abort")
+
+        self.assertEqual(arrangement.status, ARR_STATUS_PENDING)
+        self.assertIsNone(arrangement.game_id)
+        self.assertIsNone(arrangement.invite_id)
+        self.assertIsNone(arrangement.challenger)
+        self.assertIsNone(arrangement.scheduled_at)

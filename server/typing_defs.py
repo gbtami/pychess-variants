@@ -141,6 +141,7 @@ GameDocument = TypedDict(
         "y": NotRequired[int],
         "z": NotRequired[int],
         "tid": NotRequired[str],
+        "aid": NotRequired[str],
         "sid": NotRequired[str],
         "a": NotRequired[list[AnalysisStep]],
         "cw": NotRequired[list[int]],
@@ -351,7 +352,10 @@ class TwitchWebhookPayload(TypedDict):
 
 class NotificationContent(TypedDict, total=False):
     id: str
+    tid: str
+    arr: str
     opp: str
+    date: str
     win: bool | None
 
 
@@ -489,6 +493,8 @@ class TournamentCreateData(TypedDict):
     fen: NotRequired[str]
     rounds: NotRequired[int]
     rrMaxPlayers: NotRequired[int]
+    rrRequiresApproval: NotRequired[bool]
+    rrJoiningClosed: NotRequired[bool]
     roundInterval: NotRequired[int]
     entryMinRating: NotRequired[int]
     entryMaxRating: NotRequired[int]
@@ -562,6 +568,10 @@ class TournamentDoc(TypedDict):
     system: int
     rounds: int
     rrMaxPlayers: NotRequired[int]
+    rrRequiresApproval: NotRequired[bool]
+    rrJoiningClosed: NotRequired[bool]
+    rrPendingPlayers: NotRequired[list[str]]
+    rrDeniedPlayers: NotRequired[list[str]]
     ri: NotRequired[int]
     entryMinRating: NotRequired[int]
     entryMaxRating: NotRequired[int]
@@ -600,6 +610,10 @@ class TournamentUpdateData(TypedDict, total=False):
     system: int
     rounds: int
     rrMaxPlayers: int
+    rrRequiresApproval: bool
+    rrJoiningClosed: bool
+    rrPendingPlayers: list[str]
+    rrDeniedPlayers: list[str]
     ri: int
     entryMinRating: int
     entryMaxRating: int
@@ -689,6 +703,39 @@ class TournamentPairingUpdate(TypedDict, total=False):
     bt: str
 
 
+class TournamentArrangementDoc(TypedDict, total=False):
+    _id: str
+    tid: str
+    u: tuple[str, str]
+    c: tuple[str, str]
+    rn: int
+    s: str
+    gid: str
+    iid: str
+    ch: str
+    d: datetime
+    d1: datetime
+    d2: datetime
+    sa: datetime
+    ln: datetime
+
+
+class TournamentArrangementUpdate(TypedDict, total=False):
+    tid: str
+    u: tuple[str, str]
+    c: tuple[str, str]
+    rn: int
+    s: str
+    gid: str | None
+    iid: str | None
+    ch: str | None
+    d: datetime
+    d1: datetime | None
+    d2: datetime | None
+    sa: datetime | None
+    ln: datetime | None
+
+
 class TournamentPlayerJson(TypedDict):
     paused: bool
     title: str
@@ -702,6 +749,13 @@ class TournamentPlayerJson(TypedDict):
     nbGames: int
     nbWin: int
     nbBerserk: int
+    withdrawn: NotRequired[bool]
+
+
+class TournamentManagePlayerJson(TypedDict):
+    title: str
+    name: str
+    rating: int
 
 
 class TournamentPlayersResponse(TypedDict):
@@ -738,6 +792,23 @@ class TournamentGamesResponse(TypedDict):
     nbWin: int
     nbBerserk: int
     games: list[TournamentGameJson | GameSummaryJson]
+
+
+class TournamentRRManagementResponse(TypedDict):
+    type: Literal["rr_management"]
+    requestedBy: str
+    createdBy: str
+    approvalRequired: bool
+    joiningClosed: bool
+    pendingPlayers: list[TournamentManagePlayerJson]
+    deniedPlayers: list[TournamentManagePlayerJson]
+
+
+class TournamentRRSettingsResponse(TypedDict):
+    type: Literal["rr_settings"]
+    createdBy: str
+    approvalRequired: bool
+    joiningClosed: bool
 
 
 class TournamentTopGameResponse(TypedDict):
