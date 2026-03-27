@@ -15,6 +15,7 @@ from tournament.auto_play_tournament import (
     RRTestTournament,
     SwissTestTournament,
 )
+from tournament.rr import ARR_STATUS_PENDING, ARR_STATUS_STARTED
 from tournament.tournament import MANUAL_ROUND_INTERVAL, GameData, upsert_tournament_to_db
 from tournament_test_base import ONE_TEST_ONLY, TournamentTestCase
 from user import User
@@ -1358,3 +1359,41 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertIsNotNone(stale_doc)
         assert stale_doc is not None
         self.assertEqual(len(stale_doc["p"]), 1)
+
+    async def test_rr_aborted_arrangement_game_reopens_pairing(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=0, rounds=1, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        players = []
+        for suffix in ("A", "B"):
+            user = User(app_state, username=f"rr_abort_{suffix}", perfs=make_test_perfs())
+            app_state.users[user.username] = user
+            await self.tournament.join(user)
+            players.append(user)
+
+        await self.tournament.start(datetime.now(timezone.utc))
+        arrangement = next(iter(self.tournament.arrangements.values()))
+
+        seek_error = await self.tournament.create_arrangement_challenge(players[0], arrangement.id)
+        self.assertIsNone(seek_error)
+        accept_result = await self.tournament.accept_arrangement_challenge(
+            players[1], arrangement.id
+        )
+        self.assertEqual(accept_result["type"], "new_game")
+
+        game = app_state.games[accept_result["gameId"]]
+        self.assertEqual(arrangement.status, ARR_STATUS_STARTED)
+        self.assertEqual(arrangement.game_id, game.id)
+
+        await game.game_ended(game.wplayer, "abort")
+
+        self.assertEqual(arrangement.status, ARR_STATUS_PENDING)
+        self.assertIsNone(arrangement.game_id)
+        self.assertIsNone(arrangement.invite_id)
+        self.assertIsNone(arrangement.challenger)
+        self.assertIsNone(arrangement.scheduled_at)
