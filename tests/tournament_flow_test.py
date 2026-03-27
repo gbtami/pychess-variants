@@ -15,7 +15,7 @@ from tournament.auto_play_tournament import (
     RRTestTournament,
     SwissTestTournament,
 )
-from tournament.rr import ARR_STATUS_PENDING, ARR_STATUS_STARTED
+from tournament.rr import ARR_STATUS_FINISHED, ARR_STATUS_PENDING, ARR_STATUS_STARTED
 from tournament.tournament import MANUAL_ROUND_INTERVAL, GameData, upsert_tournament_to_db
 from tournament_test_base import ONE_TEST_ONLY, TournamentTestCase
 from user import User
@@ -331,6 +331,56 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
         first, second = payload["players"]
         self.assertEqual(payload["matrix"][first][second]["round"], 1)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_payload_cells_include_player_points(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=0,
+            rr_max_players=4,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(2)
+
+        arrangement = self.tournament.arrangement_list()[0]
+        arrangement.status = ARR_STATUS_FINISHED
+        arrangement.game_id = id8()
+
+        game = GameData(
+            arrangement.game_id,
+            arrangement.white,
+            "1500",
+            arrangement.black,
+            "1500",
+            "1-0",
+            datetime.now(timezone.utc),
+            False,
+            False,
+        )
+
+        white_data = self.tournament.player_data_by_name(arrangement.white)
+        black_data = self.tournament.player_data_by_name(arrangement.black)
+        assert white_data is not None
+        assert black_data is not None
+        white_data.games.append(game)
+        black_data.games.append(game)
+        white_data.points.append((2, 1))
+        black_data.points.append((0, 1))
+
+        payload = self.tournament.arrangement_payload()
+        matrix = payload["matrix"]
+        white_cell = matrix[arrangement.white][arrangement.black]
+        black_cell = matrix[arrangement.black][arrangement.white]
+
+        self.assertEqual(white_cell["result"], "1-0")
+        self.assertEqual(black_cell["result"], "1-0")
+        self.assertEqual(white_cell["points"], 2)
+        self.assertEqual(black_cell["points"], 0)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_rr_finishes_on_minutes_deadline_with_incomplete_arrangements(self):

@@ -565,6 +565,9 @@ export class TournamentRRController implements ChatController {
     }
 
     cellDisplay(cell: RRArrangementCell): string {
+        if (cell.points !== undefined && cell.points !== null && cell.points !== '') {
+            return `${cell.points}`;
+        }
         const anyCell = cell as RRArrangementCell & { result?: string };
         if (anyCell.result) {
             if (anyCell.result === '1/2-1/2') return '½';
@@ -694,6 +697,10 @@ export class TournamentRRController implements ChatController {
                 });
                 const isMe = !!cell && [cell.white, cell.black].includes(this.username);
                 const display = cell ? this.cellDisplay(cell) : '';
+                const rowIsWhite = cell?.color === 'white';
+                const drawResult = cell?.result === '1/2-1/2';
+                const winResult = !!cell && ((cell.result === '1-0' && rowIsWhite) || (cell.result === '0-1' && !rowIsWhite));
+                const lossResult = !!cell && ((cell.result === '1-0' && !rowIsWhite) || (cell.result === '0-1' && rowIsWhite));
                 const isSelected = this.selectedArrangementId !== '' && cell?.id === this.selectedArrangementId;
                 return h('td.rr-cell', {
                     attrs: {
@@ -708,9 +715,9 @@ export class TournamentRRController implements ChatController {
                         incoming: cell?.status === 'challenged' && cell?.challenger !== this.username,
                         outgoing: cell?.status === 'challenged' && cell?.challenger === this.username,
                         started: cell?.status === 'started',
-                        draw: display === '½',
-                        win: display === '1',
-                        loss: display === '0',
+                        draw: drawResult,
+                        win: winResult,
+                        loss: lossResult,
                         empty: !cell,
                     },
                     on: cell ? {
@@ -846,6 +853,10 @@ export class TournamentRRController implements ChatController {
         this.renderModal();
     }
 
+    formatDateTime(dateLike: string | Date): string {
+        return new Date(dateLike).toLocaleString('default', localeOptions);
+    }
+
     formatArrangementDate(dateText: string): VNode {
         if (!dateText) return h('span.date', '-');
         const date = new Date(dateText);
@@ -853,7 +864,7 @@ export class TournamentRRController implements ChatController {
             attrs: {
                 title: date.toUTCString(),
             },
-        }, date.toLocaleString());
+        }, this.formatDateTime(date));
     }
 
     modalPlayerLink(username: string): VNode {
@@ -931,12 +942,12 @@ export class TournamentRRController implements ChatController {
                     hook: {
                         insert: (vnode) => {
                             const input = vnode.elm as HTMLInputElement;
-                            input.value = suggestedAt ? new Date(suggestedAt).toLocaleString() : '';
+                            input.value = suggestedAt ? this.formatDateTime(suggestedAt) : '';
                         },
                         update: (oldVnode, vnode) => {
                             if (oldVnode.key === vnode.key) return;
                             const input = vnode.elm as HTMLInputElement;
-                            input.value = suggestedAt ? new Date(suggestedAt).toLocaleString() : '';
+                            input.value = suggestedAt ? this.formatDateTime(suggestedAt) : '';
                         },
                     },
                 }),
@@ -983,7 +994,7 @@ export class TournamentRRController implements ChatController {
                             this.flatpickrReady.then(() => {
                                 const flatpickr = this.flatpickrFunction();
                                 if (typeof flatpickr !== 'function') {
-                                    input.value = perspective.mine ? new Date(perspective.mine).toLocaleString() : '';
+                                    input.value = perspective.mine ? this.formatDateTime(perspective.mine) : '';
                                     return;
                                 }
                                 input._flatpickr?.destroy();
