@@ -489,7 +489,7 @@ class RRTournament(Tournament):
                 now = datetime.now(timezone.utc)
                 if self.status == T_CREATED:
                     if now >= self.starts_at:
-                        if len(self.players) < 3:
+                        if len(self.players) < 2:
                             await self.abort()
                             break
                         await self.start(now)
@@ -508,6 +508,17 @@ class RRTournament(Tournament):
             if arrangement.invite_id is not None:
                 self.app_state.invites.pop(arrangement.invite_id, None)
         await super().finish(reason)
+        if self.nb_games_finished == 0:
+            await self.destroy_empty_finished_rr()
+
+    async def destroy_empty_finished_rr(self) -> None:
+        if self.app_state.db is not None:
+            await self.app_state.db.tournament.delete_one({"_id": self.id})
+            await self.app_state.db.tournament_arrangement.delete_many({"tid": self.id})
+            await self.app_state.db.tournament_player.delete_many({"tid": self.id})
+            await self.app_state.db.tournament_chat.delete_many({"tid": self.id})
+        self.app_state.tournaments.pop(self.id, None)
+        self.app_state.tourneysockets.pop(self.id, None)
 
     @staticmethod
     def _normalize_arrangement_date(date: datetime | None) -> datetime | None:
