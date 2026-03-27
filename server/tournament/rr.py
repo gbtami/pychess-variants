@@ -300,6 +300,8 @@ class RRTournament(Tournament):
         }
         for arrangement in self.arrangement_list():
             result = ""
+            white_points: int | str | None = None
+            black_points: int | str | None = None
             if arrangement.game_id:
                 game = self.app_state.games.get(arrangement.game_id)
                 if game is not None:
@@ -320,12 +322,16 @@ class RRTournament(Tournament):
                         if matched_game is not None and not isinstance(matched_game, ByeGame):
                             result = matched_game.result
                             break
+                white_points = self.arrangement_point_value(arrangement.white, arrangement.game_id)
+                black_points = self.arrangement_point_value(arrangement.black, arrangement.game_id)
             matrix.setdefault(arrangement.white, {})
             matrix.setdefault(arrangement.black, {})
             white_cell = arrangement.cell_json(arrangement.white)
             black_cell = arrangement.cell_json(arrangement.black)
             white_cell["result"] = result
             black_cell["result"] = result
+            white_cell["points"] = "" if white_points is None else white_points
+            black_cell["points"] = "" if black_points is None else black_points
             matrix[arrangement.white][arrangement.black] = white_cell
             matrix[arrangement.black][arrangement.white] = black_cell
 
@@ -341,6 +347,25 @@ class RRTournament(Tournament):
             ),
             "totalGames": len(self.arrangements),
         }
+
+    def arrangement_point_value(self, username: str, game_id: str) -> int | str | None:
+        player_data = self.player_data_by_name(username)
+        if player_data is None:
+            return None
+
+        for index, game in enumerate(player_data.games):
+            if getattr(game, "id", None) != game_id:
+                continue
+            if index >= len(player_data.points):
+                return None
+            point = player_data.points[index]
+            if isinstance(point, tuple):
+                return point[0]
+            if point == "-":
+                return point
+            return None
+
+        return None
 
     async def broadcast_arrangements(self) -> None:
         await self.broadcast(self.arrangement_payload())

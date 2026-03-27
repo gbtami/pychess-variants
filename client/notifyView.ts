@@ -72,7 +72,7 @@ function messageView(message: Message) {
                 href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
             },
         }, [
-            h('div.icon.icon-paper-plane'),
+            h('div.icon.icon-crossedswords'),
             h('span.content', [
                 h('span', [
                     h('strong', _('Round-robin challenge')),
@@ -87,7 +87,7 @@ function messageView(message: Message) {
                 href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
             },
         }, [
-            h('div.icon.icon-paper-plane'),
+            h('div.icon.icon-check'),
             h('span.content', [
                 h('span', [
                     h('strong', _('Round-robin scheduling')),
@@ -102,7 +102,7 @@ function messageView(message: Message) {
                 href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
             },
         }, [
-            h('div.icon.icon-paper-plane'),
+            h('div.icon.icon-bullhorn'),
             h('span.content', [
                 h('span', [
                     h('strong', _('Round-robin reminder')),

@@ -127,6 +127,7 @@ export interface RRArrangementCell {
     blackSuggestedAt: string;
     scheduledAt: string;
     result?: string;
+    points?: number | string;
 }
 
 export interface MsgRRArrangements {
