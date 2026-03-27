@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
+from clock import first_move_timeout_reason
 from const import FLAG, STARTED
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
@@ -105,6 +106,37 @@ class FlagClaimValidationTestCase(AioHTTPTestCase):
         self.assertEqual(game.status, FLAG)
         self.assertEqual(game.result, "0-1")
         ws.send_json.assert_awaited()
+
+    async def test_first_move_timeout_aborts_rr_arrangement_games(self):
+        game = Game(
+            get_app_state(self.app),
+            id8(),
+            "chess",
+            "",
+            self.wplayer,
+            self.bplayer,
+            rated=False,
+            tournamentId="tour12345",
+            tournamentArrangementId="tour12345:wplayer-flag:bplayer-flag",
+        )
+
+        self.assertEqual(first_move_timeout_reason(game, ply=0), "abort")
+        self.assertEqual(first_move_timeout_reason(game, ply=1), "abort")
+
+    async def test_first_move_timeout_flags_non_arrangement_tournament_games(self):
+        game = Game(
+            get_app_state(self.app),
+            id8(),
+            "chess",
+            "",
+            self.wplayer,
+            self.bplayer,
+            rated=False,
+            tournamentId="tour12345",
+        )
+
+        self.assertEqual(first_move_timeout_reason(game, ply=0), "flag")
+        self.assertEqual(first_move_timeout_reason(game, ply=1), "flag")
 
 
 if __name__ == "__main__":
