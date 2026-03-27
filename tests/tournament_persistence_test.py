@@ -607,6 +607,51 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             except asyncio.CancelledError:
                 pass
 
+    async def test_rr_two_player_start_persists_single_arrangement(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.assertEqual(self.tournament.rounds, 1)
+        self.assertEqual(len(self.tournament.arrangements), 1)
+
+        arrangement_docs = await app_state.db.tournament_arrangement.find({"tid": tid}).to_list(
+            None
+        )
+        self.assertEqual(len(arrangement_docs), 1)
+
+    async def test_finished_rr_without_games_is_destroyed(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.finish()
+
+        self.assertNotIn(tid, app_state.tournaments)
+        self.assertNotIn(tid, app_state.tourneysockets)
+        self.assertIsNone(await app_state.db.tournament.find_one({"_id": tid}))
+        self.assertEqual(
+            await app_state.db.tournament_arrangement.count_documents({"tid": tid}),
+            0,
+        )
+        self.assertEqual(
+            await app_state.db.tournament_player.count_documents({"tid": tid}),
+            0,
+        )
+
     async def test_rr_reload_restores_started_arrangement_game(self):
         app_state = get_app_state(self.app)
         tid = id8()
