@@ -28,7 +28,6 @@ from .arrangements import (
     ARR_STATUS_FINISHED,
     ARR_STATUS_PENDING,
     ARR_STATUS_STARTED,
-    BERGER_TABLES,
     RRArrangement,
 )
 
@@ -346,28 +345,43 @@ class RRTournament(Tournament):
     def rr_arrangement_player_names(self) -> list[str]:
         return [player.username for player in self.rr_pairing_players()]
 
-    def _berger_rounds(self, players: list[str]) -> list[tuple[int, int, int]]:
+    def _round_robin_rounds(self, players: list[str]) -> list[tuple[int, int, int]]:
         size = len(players)
         if size == 2:
             return [(1, 1, 2)]
+
         odd = size % 2 == 1
         effective_size = size + 1 if odd else size
-        berger = BERGER_TABLES[int(effective_size / 2) - 2]
+        rotation = list(range(1, effective_size + 1))
         pairings: list[tuple[int, int, int]] = []
-        for round_no, round_pairs in enumerate(berger, start=1):
-            for white_idx, black_idx in round_pairs:
-                if odd and effective_size in (white_idx, black_idx):
+
+        for round_no in range(1, effective_size):
+            half = effective_size // 2
+            for pair_index in range(half):
+                left = rotation[pair_index]
+                right = rotation[effective_size - 1 - pair_index]
+                if odd and effective_size in (left, right):
                     continue
+
+                # Keep a deterministic color pattern while avoiding long color streaks
+                # for the fixed seat in the standard circle-method rotation.
+                if pair_index == 0:
+                    white_idx, black_idx = (left, right) if round_no % 2 == 1 else (right, left)
+                elif pair_index % 2 == 1:
+                    white_idx, black_idx = right, left
+                else:
+                    white_idx, black_idx = left, right
+
                 pairings.append((round_no, white_idx, black_idx))
+
+            rotation = [rotation[0], rotation[-1], *rotation[1:-1]]
+
         return pairings
 
     def sync_projected_arrangements(self) -> set[str]:
         players = self.rr_arrangement_player_names()
         if len(players) > RR_MAX_SUPPORTED_PLAYERS:
-            raise ValueError(
-                "Round-robin supports at most %s players with the current Berger tables."
-                % RR_MAX_SUPPORTED_PLAYERS
-            )
+            raise ValueError("Round-robin supports at most %s players." % RR_MAX_SUPPORTED_PLAYERS)
 
         existing = self.arrangements
         projected: dict[str, RRArrangement] = {}
@@ -375,7 +389,7 @@ class RRTournament(Tournament):
             self.arrangements = {}
             return set(existing)
 
-        for round_no, white_idx, black_idx in self._berger_rounds(players):
+        for round_no, white_idx, black_idx in self._round_robin_rounds(players):
             white = players[white_idx - 1]
             black = players[black_idx - 1]
             arrangement_id = f"{self.id}:{white}:{black}"

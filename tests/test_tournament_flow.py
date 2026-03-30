@@ -333,6 +333,36 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(payload["matrix"][first][second]["round"], 1)
 
     @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
+    async def test_rr_projected_arrangements_cover_each_pair_once(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state,
+            tid,
+            before_start=10,
+            rounds=0,
+            rr_max_players=8,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = self.tournament
+        await self.tournament.join_players(5)
+
+        players = [player.username for player in self.tournament.leaderboard]
+        arrangements = self.tournament.arrangement_list()
+        self.assertEqual(len(arrangements), 10)
+        self.assertEqual({arrangement.round_no for arrangement in arrangements}, {1, 2, 3, 4, 5})
+
+        seen_pairs = {
+            tuple(sorted((arrangement.white, arrangement.black))) for arrangement in arrangements
+        }
+        expected_pairs = {
+            tuple(sorted((players[left], players[right])))
+            for left in range(len(players))
+            for right in range(left + 1, len(players))
+        }
+        self.assertEqual(seen_pairs, expected_pairs)
+
+    @unittest.skipIf(ONE_TEST_ONLY, "1 test only")
     async def test_rr_payload_cells_include_player_points(self):
         app_state = get_app_state(self.app)
         tid = id8()

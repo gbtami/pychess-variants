@@ -2432,10 +2432,7 @@ class Tournament(ABC):
     def rr_rounds_for_start(self) -> int:
         player_count = len(self.rr_pairing_players())
         if player_count > RR_MAX_SUPPORTED_PLAYERS:
-            raise ValueError(
-                "Round-robin supports at most %s players with the current Berger tables."
-                % RR_MAX_SUPPORTED_PLAYERS
-            )
+            raise ValueError("Round-robin supports at most %s players." % RR_MAX_SUPPORTED_PLAYERS)
         if player_count <= 0:
             return 0
         return player_count if player_count % 2 == 1 else player_count - 1
