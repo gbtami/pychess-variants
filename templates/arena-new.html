@@ -466,6 +466,18 @@
                 </div>
 
                 <div class="form-split">
+                {% if edit and tournament.status != 0 %}
+                    <div class="form-group form-half">
+                        <label class="form-label">Start date</label>
+                        <input value="{{ t_starts_at }}" class="form-control" disabled="disabled" />
+                        <small class="form-help">The start time cannot be edited after the tournament has started.</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label">End date</label>
+                        <input value="{{ t_ends_at }}" class="form-control" disabled="disabled" />
+                        <small class="form-help">The original schedule is shown for reference only after the tournament starts.</small>
+                    </div>
+                {% else %}
                     <div class="form-group form-half">
                         <label class="form-label" for="startDate">Custom start date</label>
                         <input id="startDate" name="startDate" value="{{ t_starts_at }}" class="form-control flatpickr"/>
@@ -476,6 +488,7 @@
                         <input id="endDate" name="endDate" value="{{ t_ends_at }}" class="form-control flatpickr"/>
                         <small class="form-help">Set an exact end time. The duration field will track this automatically when possible.</small>
                     </div>
+                {% endif %}
                 </div>
 
                 <div class="form-actions">

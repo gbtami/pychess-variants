@@ -264,6 +264,8 @@ class RRTournament(Tournament):
         return []
 
     def arrangement_list(self) -> list[RRArrangement]:
+        if self.status == T_CREATED:
+            self.sync_projected_arrangements()
         return sorted(
             self.arrangements.values(),
             key=lambda arrangement: (arrangement.round_no, arrangement.white, arrangement.black),

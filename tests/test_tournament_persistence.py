@@ -247,8 +247,6 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             "entryTitledOnly": "",
             "forbiddenPairings": "alice bob",
             "manualPairings": "carol dave",
-            "startDate": "",
-            "endDate": "",
             "name": "Updated Swiss",
             "description": "after",
             "password": "secret",
@@ -388,6 +386,8 @@ class TournamentPersistenceTestCase(TournamentTestCase):
     async def test_form_end_date_updates_start_and_minutes(self):
         app_state = get_app_state(self.app)
         before_ids = set(app_state.tournaments)
+        start_at = (datetime.now(timezone.utc) + timedelta(days=1)).replace(second=0, microsecond=0)
+        end_at = start_at + timedelta(minutes=77)
         form = {
             "variant": "chess",
             "rated": "1",
@@ -407,8 +407,8 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             "entryTitledOnly": "",
             "forbiddenPairings": "",
             "manualPairings": "",
-            "startDate": "2026-03-22T10:00:00.000Z",
-            "endDate": "2026-03-22T11:17:00.000Z",
+            "startDate": start_at.isoformat().replace("+00:00", "Z"),
+            "endDate": end_at.isoformat().replace("+00:00", "Z"),
             "name": "RR End Date",
             "description": "",
             "password": "",
@@ -421,15 +421,9 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         new_ids = set(app_state.tournaments) - before_ids
         self.assertEqual(len(new_ids), 1)
         tournament = app_state.tournaments[new_ids.pop()]
-        self.assertEqual(
-            tournament.starts_at,
-            datetime.fromisoformat("2026-03-22T10:00:00+00:00"),
-        )
+        self.assertEqual(tournament.starts_at, start_at)
         self.assertEqual(tournament.minutes, 77)
-        self.assertEqual(
-            tournament.ends_at,
-            datetime.fromisoformat("2026-03-22T11:17:00+00:00"),
-        )
+        self.assertEqual(tournament.ends_at, end_at)
 
     async def test_tournament_pairings_persist_before_restart(self):
         app_state = get_app_state(self.app)

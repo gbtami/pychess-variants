@@ -509,10 +509,9 @@ async def create_or_update_tournament(
         frequency = ""
 
     start_date: datetime | None
-    if form["startDate"]:
-        start_date = datetime.fromisoformat(form["startDate"].rstrip("Z")).replace(
-            tzinfo=timezone.utc
-        )
+    raw_start_date = form.get("startDate", "")
+    if raw_start_date:
+        start_date = datetime.fromisoformat(raw_start_date.rstrip("Z")).replace(tzinfo=timezone.utc)
     else:
         start_date = None
 
