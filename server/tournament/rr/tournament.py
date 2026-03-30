@@ -1,256 +1,40 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 from const import ABORTED, RR, T_ABORTED, T_ARCHIVED, T_CREATED, T_FINISHED, T_STARTED
 from notify import notify
 from seek import SeekCreateData, create_seek
-from tournament.tournament import ByeGame, RR_MAX_SUPPORTED_PLAYERS, Tournament
-from typing_defs import NotificationContent, TournamentArrangementDoc, TournamentArrangementUpdate
+from tournament.tournament import ByeGame, PlayerData, RR_MAX_SUPPORTED_PLAYERS, Tournament
+from typing_defs import (
+    NotificationContent,
+    TournamentArrangementDoc,
+    TournamentManagePlayerJson,
+    TournamentRRManagementResponse,
+    TournamentRRSettingsResponse,
+)
 from utils import join_seek
+from websocket_utils import ws_send_json_many
+
+from .arrangements import (
+    ARR_REMINDER_COOLDOWN_AFTER_AGREEMENT,
+    ARR_REMINDER_REPEAT,
+    ARR_REMINDER_WINDOW_END,
+    ARR_REMINDER_WINDOW_START,
+    ARR_SCHEDULE_TOLERANCE,
+    ARR_STATUS_CHALLENGED,
+    ARR_STATUS_FINISHED,
+    ARR_STATUS_PENDING,
+    ARR_STATUS_STARTED,
+    BERGER_TABLES,
+    RRArrangement,
+)
 
 if TYPE_CHECKING:
     from game import Game
     from user import User
-
-
-BERGER_TABLES = (
-    (
-        ((1, 4), (2, 3)),
-        ((4, 3), (1, 2)),
-        ((2, 4), (3, 1)),
-    ),
-    (
-        ((1, 6), (2, 5), (3, 4)),
-        ((6, 4), (5, 3), (1, 2)),
-        ((2, 6), (3, 1), (4, 5)),
-        ((6, 5), (1, 4), (2, 3)),
-        ((3, 6), (4, 2), (5, 1)),
-    ),
-    (
-        ((1, 8), (2, 7), (3, 6), (4, 5)),
-        ((8, 5), (6, 4), (7, 3), (1, 2)),
-        ((2, 8), (3, 1), (4, 7), (5, 6)),
-        ((8, 6), (7, 5), (1, 4), (2, 3)),
-        ((3, 8), (4, 2), (5, 1), (6, 7)),
-        ((8, 7), (1, 6), (2, 5), (3, 4)),
-        ((4, 8), (5, 3), (6, 2), (7, 1)),
-    ),
-    (
-        ((1, 10), (2, 9), (3, 8), (4, 7), (5, 6)),
-        ((10, 6), (7, 5), (8, 4), (9, 3), (1, 2)),
-        ((2, 10), (3, 1), (4, 9), (5, 8), (6, 7)),
-        ((10, 7), (8, 6), (9, 5), (1, 4), (2, 3)),
-        ((3, 10), (4, 2), (5, 1), (6, 9), (7, 8)),
-        ((10, 8), (9, 7), (1, 6), (2, 5), (3, 4)),
-        ((4, 10), (5, 3), (6, 2), (7, 1), (8, 9)),
-        ((10, 9), (1, 8), (2, 7), (3, 6), (4, 5)),
-        ((5, 10), (6, 4), (7, 3), (8, 2), (9, 1)),
-    ),
-    (
-        ((1, 12), (2, 11), (3, 10), (4, 9), (5, 8), (6, 7)),
-        ((12, 7), (8, 6), (9, 5), (10, 4), (11, 3), (1, 2)),
-        ((2, 12), (3, 1), (4, 11), (5, 10), (6, 9), (7, 8)),
-        ((12, 8), (9, 7), (10, 6), (11, 5), (1, 4), (2, 3)),
-        ((3, 12), (4, 2), (5, 1), (6, 11), (7, 10), (8, 9)),
-        ((12, 9), (10, 8), (11, 7), (1, 6), (2, 5), (3, 4)),
-        ((4, 12), (5, 3), (6, 2), (7, 1), (8, 11), (9, 10)),
-        ((12, 10), (11, 9), (1, 8), (2, 7), (3, 6), (4, 5)),
-        ((5, 12), (6, 4), (7, 3), (8, 2), (9, 1), (10, 11)),
-        ((12, 11), (1, 10), (2, 9), (3, 8), (4, 7), (5, 6)),
-        ((6, 12), (7, 5), (8, 4), (9, 3), (10, 2), (11, 1)),
-    ),
-    (
-        ((1, 14), (2, 13), (3, 12), (4, 11), (5, 10), (6, 9), (7, 8)),
-        ((14, 8), (9, 7), (10, 6), (11, 5), (12, 4), (13, 3), (1, 2)),
-        ((2, 14), (3, 1), (4, 13), (5, 12), (6, 11), (7, 10), (8, 9)),
-        ((14, 9), (10, 8), (11, 7), (12, 6), (13, 5), (1, 4), (2, 3)),
-        ((3, 14), (4, 2), (5, 1), (6, 13), (7, 12), (8, 11), (9, 10)),
-        ((14, 10), (11, 9), (12, 8), (13, 7), (1, 6), (2, 5), (3, 4)),
-        ((4, 14), (5, 3), (6, 2), (7, 1), (8, 13), (9, 12), (10, 11)),
-        ((14, 11), (12, 10), (13, 9), (1, 8), (2, 7), (3, 6), (4, 5)),
-        ((5, 14), (6, 4), (7, 3), (8, 2), (9, 1), (10, 13), (11, 12)),
-        ((14, 12), (13, 11), (1, 10), (2, 9), (3, 8), (4, 7), (5, 6)),
-        ((6, 14), (7, 5), (8, 4), (9, 3), (10, 2), (11, 1), (12, 13)),
-        ((14, 13), (1, 12), (2, 11), (3, 10), (4, 9), (5, 8), (6, 7)),
-        ((7, 14), (8, 6), (9, 5), (10, 4), (11, 3), (12, 2), (13, 1)),
-    ),
-    (
-        ((1, 16), (2, 15), (3, 14), (4, 13), (5, 12), (6, 11), (7, 10), (8, 9)),
-        ((16, 9), (10, 8), (11, 7), (12, 6), (13, 5), (14, 4), (15, 3), (1, 2)),
-        ((2, 16), (3, 1), (4, 15), (5, 14), (6, 13), (7, 12), (8, 11), (9, 10)),
-        ((16, 10), (11, 9), (12, 8), (13, 7), (14, 6), (15, 5), (1, 4), (2, 3)),
-        ((3, 16), (4, 2), (5, 1), (6, 15), (7, 14), (8, 13), (9, 12), (10, 11)),
-        ((16, 11), (12, 10), (13, 9), (14, 8), (15, 7), (1, 6), (2, 5), (3, 4)),
-        ((4, 16), (5, 3), (6, 2), (7, 1), (8, 15), (9, 14), (10, 13), (11, 12)),
-        ((16, 12), (13, 11), (14, 10), (15, 9), (1, 8), (2, 7), (3, 6), (4, 5)),
-        ((5, 16), (6, 4), (7, 3), (8, 2), (9, 1), (10, 15), (11, 14), (12, 13)),
-        ((16, 13), (14, 12), (15, 11), (1, 10), (2, 9), (3, 8), (4, 7), (5, 6)),
-        ((6, 16), (7, 5), (8, 4), (9, 3), (10, 2), (11, 1), (12, 15), (13, 14)),
-        ((16, 14), (15, 13), (1, 12), (2, 11), (3, 10), (4, 9), (5, 8), (6, 7)),
-        ((7, 16), (8, 6), (9, 5), (10, 4), (11, 3), (12, 2), (13, 1), (14, 15)),
-        ((16, 15), (1, 14), (2, 13), (3, 12), (4, 11), (5, 10), (6, 9), (7, 8)),
-        ((8, 16), (9, 7), (10, 6), (11, 5), (12, 4), (13, 3), (14, 2), (15, 1)),
-    ),
-)
-
-ARR_STATUS_PENDING = "pending"
-ARR_STATUS_CHALLENGED = "challenged"
-ARR_STATUS_STARTED = "started"
-ARR_STATUS_FINISHED = "finished"
-ARR_SCHEDULE_TOLERANCE = timedelta(seconds=60)
-ARR_REMINDER_WINDOW_START = timedelta(hours=23)
-ARR_REMINDER_WINDOW_END = timedelta(hours=24)
-ARR_REMINDER_REPEAT = timedelta(hours=2)
-ARR_REMINDER_COOLDOWN_AFTER_AGREEMENT = timedelta(hours=3)
-
-
-class RRArrangement:
-    __slots__ = (
-        "id",
-        "white",
-        "black",
-        "round_no",
-        "status",
-        "game_id",
-        "invite_id",
-        "challenger",
-        "date",
-        "white_date",
-        "black_date",
-        "scheduled_at",
-        "last_reminded_at",
-    )
-
-    def __init__(
-        self,
-        arrangement_id: str,
-        white: str,
-        black: str,
-        round_no: int,
-        *,
-        status: str = ARR_STATUS_PENDING,
-        game_id: str | None = None,
-        invite_id: str | None = None,
-        challenger: str | None = None,
-        date: datetime | None = None,
-        white_date: datetime | None = None,
-        black_date: datetime | None = None,
-        scheduled_at: datetime | None = None,
-        last_reminded_at: datetime | None = None,
-    ) -> None:
-        self.id = arrangement_id
-        self.white = white
-        self.black = black
-        self.round_no = round_no
-        self.status = status
-        self.game_id = game_id
-        self.invite_id = invite_id
-        self.challenger = challenger
-        self.date = datetime.now(timezone.utc) if date is None else date
-        self.white_date = white_date
-        self.black_date = black_date
-        self.scheduled_at = scheduled_at
-        self.last_reminded_at = last_reminded_at
-
-    def players(self) -> tuple[str, str]:
-        return (self.white, self.black)
-
-    def involves(self, username: str) -> bool:
-        return username in (self.white, self.black)
-
-    def opponent(self, username: str) -> str | None:
-        if username == self.white:
-            return self.black
-        if username == self.black:
-            return self.white
-        return None
-
-    def color_of(self, username: str) -> str | None:
-        if username == self.white:
-            return "white"
-        if username == self.black:
-            return "black"
-        return None
-
-    def doc(self, tournament_id: str) -> TournamentArrangementDoc:
-        doc: TournamentArrangementDoc = {
-            "_id": self.id,
-            "tid": tournament_id,
-            "u": (self.white, self.black),
-            "c": (self.white, self.black),
-            "rn": self.round_no,
-            "s": self.status,
-            "d": self.date,
-            "gid": self.game_id or "",
-            "iid": self.invite_id or "",
-            "ch": self.challenger or "",
-        }
-        if self.white_date is not None:
-            doc["d1"] = self.white_date
-        if self.black_date is not None:
-            doc["d2"] = self.black_date
-        if self.scheduled_at is not None:
-            doc["sa"] = self.scheduled_at
-        if self.last_reminded_at is not None:
-            doc["ln"] = self.last_reminded_at
-        return doc
-
-    def update_doc(self, tournament_id: str) -> TournamentArrangementUpdate:
-        return {
-            "tid": tournament_id,
-            "u": (self.white, self.black),
-            "c": (self.white, self.black),
-            "rn": self.round_no,
-            "s": self.status,
-            "gid": self.game_id,
-            "iid": self.invite_id,
-            "ch": self.challenger,
-            "d": self.date,
-            "d1": self.white_date,
-            "d2": self.black_date,
-            "sa": self.scheduled_at,
-            "ln": self.last_reminded_at,
-        }
-
-    def cell_json(self, row_username: str) -> dict[str, Any]:
-        return {
-            "id": self.id,
-            "round": self.round_no,
-            "white": self.white,
-            "black": self.black,
-            "status": self.status,
-            "gameId": self.game_id or "",
-            "inviteId": self.invite_id or "",
-            "challenger": self.challenger or "",
-            "color": self.color_of(row_username) or "",
-            "date": self.date.isoformat(),
-            "whiteSuggestedAt": self.white_date.isoformat() if self.white_date else "",
-            "blackSuggestedAt": self.black_date.isoformat() if self.black_date else "",
-            "scheduledAt": self.scheduled_at.isoformat() if self.scheduled_at else "",
-        }
-
-    def suggested_time(self, username: str) -> datetime | None:
-        if username == self.white:
-            return self.white_date
-        if username == self.black:
-            return self.black_date
-        return None
-
-    def opponent_suggested_time(self, username: str) -> datetime | None:
-        if username == self.white:
-            return self.black_date
-        if username == self.black:
-            return self.white_date
-        return None
-
-    def set_suggested_time(self, username: str, date: datetime | None) -> None:
-        if username == self.white:
-            self.white_date = date
-        elif username == self.black:
-            self.black_date = date
 
 
 class RRTournament(Tournament):
@@ -262,6 +46,193 @@ class RRTournament(Tournament):
 
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
         return []
+
+    def extra_user_status(self, user: User) -> str | None:
+        if user.username in self.rr_pending_players:
+            return "pending"
+        if user.username in self.rr_denied_players:
+            return "denied"
+        return None
+
+    async def join_precheck(self, user: User, player_data: PlayerData | None) -> str | None:
+        if self.status == T_STARTED and player_data is None:
+            return "Late join is closed for this round-robin tournament."
+        if player_data is None and user.username in self.rr_denied_players:
+            return "Your join request was denied by the organizer."
+        if (
+            player_data is None
+            and self.status == T_CREATED
+            and self.rr_joining_closed
+            and user.username != self.created_by
+        ):
+            return "Joining is currently closed for this round-robin tournament."
+        if player_data is None and self.nb_players >= self.rr_join_limit():
+            return "This round-robin tournament is full."
+        if (
+            player_data is None
+            and self.status == T_CREATED
+            and self.rr_requires_approval
+            and user.username != self.created_by
+        ):
+            join_error = self.entry_condition_error(user)
+            if join_error is not None:
+                return join_error
+            if user.username in self.rr_pending_players:
+                return "JOIN_REQUEST_PENDING"
+            self.rr_pending_players.add(user.username)
+            await self.save()
+            await self.send_rr_management_update()
+            return "JOIN_REQUESTED"
+        return None
+
+    def rr_management_enabled(self) -> bool:
+        return self.rr_requires_approval
+
+    def rr_settings_payload(self) -> TournamentRRSettingsResponse:
+        return {
+            "type": "rr_settings",
+            "createdBy": self.created_by,
+            "approvalRequired": self.rr_requires_approval,
+            "joiningClosed": self.rr_joining_closed,
+        }
+
+    def rr_manage_player_json(self, username: str) -> TournamentManagePlayerJson:
+        user = self.app_state.users[username]
+        return {
+            "title": user.title,
+            "name": username,
+            "rating": user.get_rating_value(self.variant, self.chess960),
+        }
+
+    def rr_management_payload(self, *, requested_by: str = "") -> TournamentRRManagementResponse:
+        return {
+            "type": "rr_management",
+            "requestedBy": requested_by,
+            "createdBy": self.created_by,
+            "approvalRequired": self.rr_requires_approval,
+            "joiningClosed": self.rr_joining_closed,
+            "pendingPlayers": [
+                self.rr_manage_player_json(username) for username in sorted(self.rr_pending_players)
+            ],
+            "deniedPlayers": [
+                self.rr_manage_player_json(username) for username in sorted(self.rr_denied_players)
+            ],
+        }
+
+    async def send_rr_settings_update(self) -> None:
+        sockets_by_username = self.app_state.tourneysockets.get(self.id, {})
+        sockets = [
+            socket for user_sockets in sockets_by_username.values() for socket in user_sockets
+        ]
+        if len(sockets) == 0:
+            return
+        await ws_send_json_many(sockets, self.rr_settings_payload())
+
+    async def send_rr_user_status_update(self, username: str) -> None:
+        sockets = list(self.tournament_sockets(username))
+        if len(sockets) == 0:
+            return
+        user = await self.app_state.users.get(username)
+        if user.username != username:
+            return
+        await ws_send_json_many(
+            sockets,
+            {
+                "type": "ustatus",
+                "username": username,
+                "ustatus": self.user_status(user),
+            },
+        )
+
+    async def send_rr_management_update(self) -> None:
+        if not self.rr_management_enabled():
+            return
+        sockets = list(self.tournament_sockets(self.created_by))
+        if len(sockets) == 0:
+            return
+        await ws_send_json_many(
+            sockets,
+            self.rr_management_payload(requested_by=self.created_by),
+        )
+
+    async def rr_approve_player(self, username: str) -> str | None:
+        if not self.rr_management_enabled():
+            return "Round-robin approval is not enabled."
+        if self.status != T_CREATED:
+            return "Player approval closes once the round-robin starts."
+        if username == self.created_by:
+            return "The organizer cannot be moderated here."
+
+        player_data = self.player_data_by_name(username)
+        if (
+            username not in self.rr_pending_players
+            and username not in self.rr_denied_players
+            and player_data is None
+        ):
+            return "Unknown round-robin player."
+
+        self.rr_pending_players.discard(username)
+        self.rr_denied_players.discard(username)
+        user = await self.app_state.users.get(username)
+        if user.username != username:
+            return "Unknown round-robin player."
+        await self._join_approved_user(user, player_data=player_data)
+        await self.save()
+        await self.send_rr_user_status_update(username)
+        await self.send_rr_management_update()
+        return None
+
+    async def rr_deny_player(self, username: str) -> str | None:
+        if not self.rr_management_enabled():
+            return "Round-robin approval is not enabled."
+        if self.status != T_CREATED:
+            return "Player approval closes once the round-robin starts."
+        if username == self.created_by:
+            return "The organizer cannot be moderated here."
+        if username not in self.rr_pending_players:
+            return "This player does not have a pending join request."
+
+        self.rr_pending_players.discard(username)
+        self.rr_denied_players.add(username)
+        await self.save()
+        await self.send_rr_user_status_update(username)
+        await self.send_rr_management_update()
+        return None
+
+    async def rr_kick_player(self, username: str) -> str | None:
+        if self.status != T_CREATED:
+            return "Players can only be kicked before the round-robin starts."
+        if username == self.created_by:
+            return "The organizer cannot be kicked."
+
+        if username in self.rr_pending_players:
+            self.rr_pending_players.discard(username)
+            self.rr_denied_players.add(username)
+            await self.save()
+            await self.send_rr_user_status_update(username)
+            await self.send_rr_management_update()
+            return None
+
+        player = self.get_player_by_name(username)
+        if player is None:
+            return "Unknown round-robin player."
+        await self.withdraw(player)
+        self.rr_denied_players.add(username)
+        await self.save()
+        await self.send_rr_user_status_update(username)
+        await self.send_rr_management_update()
+        return None
+
+    async def rr_set_joining_closed(self, closed: bool) -> str | None:
+        if self.status != T_CREATED:
+            return "Joining can only be opened or closed before the round-robin starts."
+        if self.rr_joining_closed == closed:
+            return None
+        self.rr_joining_closed = closed
+        await self.save()
+        await self.send_rr_settings_update()
+        await self.send_rr_management_update()
+        return None
 
     def arrangement_list(self) -> list[RRArrangement]:
         if self.status == T_CREATED:

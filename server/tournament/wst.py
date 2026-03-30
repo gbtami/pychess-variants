@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from datetime import datetime, timezone
 
 import aiohttp_session
@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 from pychess_global_app_state_utils import get_app_state
 from tournament_director import is_tournament_director
 from const import RR
+from tournament.rr import RRTournament
 from tournament.tournament import T_CREATED, T_STARTED
 from tournament.tournaments import load_tournament
 from ws_types import ChatLine, FullChatMessage, TournamentUserConnectedMessage
@@ -152,12 +153,10 @@ async def handle_get_rr_arrangements(
     app: PychessGlobalAppState, ws, user: User, data: TournamentRRArrangementsMessage
 ) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
-    if (
-        tournament is not None
-        and tournament.system == RR
-        and hasattr(tournament, "arrangement_payload")
-    ):
-        await ws_send_json(ws, tournament.arrangement_payload(user=user))
+    if tournament is None or tournament.system != RR:
+        return
+    rr_tournament = cast(RRTournament, tournament)
+    await ws_send_json(ws, rr_tournament.arrangement_payload(user=user))
 
 
 async def handle_get_rr_management(
@@ -166,9 +165,10 @@ async def handle_get_rr_management(
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is None or tournament.system != RR:
         return
+    rr_tournament = cast(RRTournament, tournament)
     if user.username != tournament.created_by:
         return
-    await ws_send_json(ws, tournament.rr_management_payload(requested_by=user.username))
+    await ws_send_json(ws, rr_tournament.rr_management_payload(requested_by=user.username))
 
 
 async def handle_rr_set_joining_closed(
@@ -177,9 +177,10 @@ async def handle_rr_set_joining_closed(
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is None or tournament.system != RR:
         return
+    rr_tournament = cast(RRTournament, tournament)
     if user.username != tournament.created_by:
         return
-    result = await tournament.rr_set_joining_closed(data["closed"])
+    result = await rr_tournament.rr_set_joining_closed(data["closed"])
     if result is not None:
         await ws_send_json(ws, {"type": "error", "message": result})
 
@@ -325,10 +326,11 @@ async def handle_user_connected(
     await ws_send_json(ws, fullchat_response)
 
     await ws_send_json(ws, tournament.duels_json)
-    if tournament.system == RR and hasattr(tournament, "arrangement_payload"):
-        await ws_send_json(ws, tournament.arrangement_payload(user=user))
+    if tournament.system == RR:
+        rr_tournament = cast(RRTournament, tournament)
+        await ws_send_json(ws, rr_tournament.arrangement_payload(user=user))
         if user.username == tournament.created_by:
-            await ws_send_json(ws, tournament.rr_management_payload(requested_by=user.username))
+            await ws_send_json(ws, rr_tournament.rr_management_payload(requested_by=user.username))
 
     if user.username not in tournament.spectators:
         tournament.spactator_join(user)
@@ -342,13 +344,10 @@ async def handle_rr_challenge(
     app: PychessGlobalAppState, ws, user: User, data: TournamentRRChallengeMessage
 ) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
-    if (
-        tournament is None
-        or tournament.system != RR
-        or not hasattr(tournament, "create_arrangement_challenge")
-    ):
+    if tournament is None or tournament.system != RR:
         return
-    result = await tournament.create_arrangement_challenge(user, data["arrangementId"])
+    rr_tournament = cast(RRTournament, tournament)
+    result = await rr_tournament.create_arrangement_challenge(user, data["arrangementId"])
     if result is not None:
         await ws_send_json(ws, {"type": "error", "message": result})
 
@@ -357,13 +356,10 @@ async def handle_rr_accept_challenge(
     app: PychessGlobalAppState, ws, user: User, data: TournamentRRChallengeMessage
 ) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
-    if (
-        tournament is None
-        or tournament.system != RR
-        or not hasattr(tournament, "accept_arrangement_challenge")
-    ):
+    if tournament is None or tournament.system != RR:
         return
-    result = await tournament.accept_arrangement_challenge(user, data["arrangementId"])
+    rr_tournament = cast(RRTournament, tournament)
+    result = await rr_tournament.accept_arrangement_challenge(user, data["arrangementId"])
     await ws_send_json(ws, result)
 
 
@@ -371,12 +367,9 @@ async def handle_rr_set_time(
     app: PychessGlobalAppState, ws, user: User, data: TournamentRRSetTimeMessage
 ) -> None:
     tournament = await load_tournament(app, data["tournamentId"])
-    if (
-        tournament is None
-        or tournament.system != RR
-        or not hasattr(tournament, "set_arrangement_time")
-    ):
+    if tournament is None or tournament.system != RR:
         return
+    rr_tournament = cast(RRTournament, tournament)
 
     raw_date = data.get("date")
     parsed_date = (
@@ -384,7 +377,7 @@ async def handle_rr_set_time(
         if raw_date
         else None
     )
-    result = await tournament.set_arrangement_time(user, data["arrangementId"], parsed_date)
+    result = await rr_tournament.set_arrangement_time(user, data["arrangementId"], parsed_date)
     if result is not None:
         await ws_send_json(ws, {"type": "error", "message": result})
 
@@ -395,15 +388,16 @@ async def handle_rr_manage_player(
     tournament = await load_tournament(app, data["tournamentId"])
     if tournament is None or tournament.system != RR:
         return
+    rr_tournament = cast(RRTournament, tournament)
     if user.username != tournament.created_by:
         return
 
     if data["type"] == "rr_approve_player":
-        result = await tournament.rr_approve_player(data["username"])
+        result = await rr_tournament.rr_approve_player(data["username"])
     elif data["type"] == "rr_deny_player":
-        result = await tournament.rr_deny_player(data["username"])
+        result = await rr_tournament.rr_deny_player(data["username"])
     else:
-        result = await tournament.rr_kick_player(data["username"])
+        result = await rr_tournament.rr_kick_player(data["username"])
 
     if result is not None:
         await ws_send_json(ws, {"type": "error", "message": result})
