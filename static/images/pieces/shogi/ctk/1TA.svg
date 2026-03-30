@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="52.101"
+   height="60"
+   version="1.1"
+   id="svg5867"
+   sodipodi:docname="1TA.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata
+     id="metadata5873">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs5871" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="3840"
+     inkscape:window-height="2054"
+     id="namedview5869"
+     showgrid="false"
+     inkscape:zoom="5.5625734"
+     inkscape:cx="69.751888"
+     inkscape:cy="8.9886454"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg5867"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <!--
+Created by Hari Seldon and modified by orangain, licensed under Creative Commons Attribution-Share Alike 3.0 Unported.
+See: https://creativecommons.org/licenses/by-sa/3.0/deed.en
+
+Original file is available at: https://commons.wikimedia.org/wiki/File:Shogi_hisha(svg).svg
+-->
+  <filter
+     id="drop-shadow"
+     x="-0.1200879"
+     y="-0.099474059"
+     width="1.2902124"
+     height="1.2403956">
+    <feGaussianBlur
+       in="SourceAlpha"
+       result="blur"
+       stdDeviation="2"
+       id="feGaussianBlur5840" />
+    <feOffset
+       result="offsetBlur"
+       dx="2"
+       dy="2"
+       id="feOffset5842" />
+    <feBlend
+       in="SourceGraphic"
+       in2="offsetBlur"
+       mode="normal"
+       id="feBlend5844" />
+  </filter>
+  <g
+     filter="url(#drop-shadow)"
+     transform="translate(5 5)"
+     id="g5865">
+    <g
+       transform="rotate(180 21.0505 25)"
+       id="g5863">
+      <path
+         d="M18.495 1.628c-3.456 0.929 -6.977 1.698 -10.327 2.948 -0.609 0.259 -0.384 1.123 -0.596 1.636 -2.415 14.123 -4.33 28.348 -6.626 42.488 -0.206 0.557 0.615 0.452 0.937 0.48 8.671 0.116 17.344 0.02 26.016 0.01 4.197 -0.052 8.399 0.036 12.592 -0.132 0.81 0.018 0.103 -1.093 0.187 -1.573 -2.01 -13.24 -3.891 -26.51 -6.066 -39.72 -0.253 -1.05 -0.266 -2.217 -0.749 -3.182 -1.952 -0.847 -4.093 -1.218 -6.133 -1.84 -2.23 -0.596 -4.46 -1.222 -6.702 -1.76l-2.533 0.645z"
+         fill="#FEEC99"
+         id="path5847" />
+    </g>
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-size:29.9141px;line-height:1.25;font-family:Calibri;-inkscape-font-specification:Calibri;fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+     x="-42.106514"
+     y="-14.908317"
+     id="text2"
+     transform="scale(-0.97107695,-1.0297845)"><tspan
+       sodipodi:role="line"
+       id="tspan2"
+       x="-42.106514"
+       y="-14.908317"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.9141px;font-family:KaiTi;-inkscape-font-specification:KaiTi;fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:1;stroke-dasharray:none;stroke-opacity:1">太</tspan></text>
+</svg>

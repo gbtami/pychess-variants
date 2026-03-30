@@ -90,14 +90,14 @@
 }
 
 .shogi piece.e-piece.ally {
-    background-image: url('../../images/pieces/shogi/ctk/0_ELEPHANT.svg');
+    background-image: url('../../images/pieces/shogi/ctk/0SU.svg');
 }
 .shogi piece.pe-piece.ally {
-    background-image: url('../../images/pieces/shogi/ctk/0OU.svg');
+    background-image: url('../../images/pieces/shogi/ctk/0TA.svg');
 }
 .shogi piece.e-piece.enemy {
-    background-image: url('../../images/pieces/shogi/ctk/1_ELEPHANT.svg');
+    background-image: url('../../images/pieces/shogi/ctk/1SU.svg');
 }
 .shogi piece.pe-piece.enemy {
-    background-image: url('../../images/pieces/shogi/ctk/1OU.svg');
+    background-image: url('../../images/pieces/shogi/ctk/1TA.svg');
 }
