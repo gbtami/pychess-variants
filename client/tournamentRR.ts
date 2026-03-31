@@ -785,7 +785,7 @@ export class TournamentRRController implements ChatController {
             return;
         }
         this.manageNode = patch(this.manageNode, h('div#rr-manage', [
-            h(`button.button${this.viewMode === 'manage' ? '.active' : ''}`, {
+            h(`button.button.manage-players.button-primary${this.viewMode === 'manage' ? '.active' : ''}`, {
                 on: {
                     click: () => this.setViewMode(this.viewMode === 'manage' ? 'overview' : 'manage'),
                 },

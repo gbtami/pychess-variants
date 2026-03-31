@@ -1241,7 +1241,7 @@ div.status {
 }
 .lobby-button,
 .donate-button,
-button.request-analysis,
+button.button-primary,
 button#import,
 button.paste-url {
   background-color: var(--bg-color2);
@@ -1264,7 +1264,7 @@ button.paste-url {
     margin: 0.2em 0;
   }
 }
-button.request-analysis,
+button.button-primary,
 button#import,
 button.join,
 button.submit {
