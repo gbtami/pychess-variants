@@ -380,6 +380,7 @@ async def import_game(request):
         log.exception(message)
         return web.json_response({"error": message})
 
+    new_game: Game | None = None
     try:
         # print(game_id, variant, initial_fen, wplayer, bplayer)
         new_game = Game(
@@ -398,45 +399,54 @@ async def import_game(request):
         log.exception(message)
         return web.json_response({"error": message})
 
-    chess960 = new_game.chess960
-    if TYPE_CHECKING:
-        assert chess960 is not None
-    document: GameDocument = {
-        "_id": game_id,
-        "us": [wplayer.username, bplayer.username],
-        "v": new_game.server_variant.code,
-        "b": base,
-        "i": inc,
-        "bp": new_game.byoyomi_period,
-        "m": moves,
-        "d": date,
-        "f": final_fen,
-        "s": status,
-        "r": R2C[result],
-        "x": new_game.level,
-        "y": IMPORTED,
-        "z": int(chess960),
-        "by": data["username"],
-    }
+    try:
+        if TYPE_CHECKING:
+            assert new_game is not None
 
-    if initial_fen or chess960:
-        document["if"] = new_game.initial_fen
+        chess960 = new_game.chess960
+        if TYPE_CHECKING:
+            assert chess960 is not None
+        document: GameDocument = {
+            "_id": game_id,
+            "us": [wplayer.username, bplayer.username],
+            "v": new_game.server_variant.code,
+            "b": base,
+            "i": inc,
+            "bp": new_game.byoyomi_period,
+            "m": moves,
+            "d": date,
+            "f": final_fen,
+            "s": status,
+            "r": R2C[result],
+            "x": new_game.level,
+            "y": IMPORTED,
+            "z": int(chess960),
+            "by": data["username"],
+        }
 
-    if variant.endswith("shogi") or variant in ("dobutsu", "gorogoro", "gorogoroplus"):
-        document["uci"] = 1
+        if initial_fen or chess960:
+            document["if"] = new_game.initial_fen
 
-    wrating = data.get("WhiteElo")
-    brating = data.get("BlackElo")
-    if wrating:
-        document["p0"] = {"e": wrating}
-    if brating:
-        document["p1"] = {"e": brating}
+        if variant.endswith("shogi") or variant in ("dobutsu", "gorogoro", "gorogoroplus"):
+            document["uci"] = 1
 
-    # print(document)
-    result = await app_state.db.game.insert_one(document)
-    # print("db insert IMPORTED game result %s" % repr(result.inserted_id))
+        wrating = data.get("WhiteElo")
+        brating = data.get("BlackElo")
+        if wrating:
+            document["p0"] = {"e": wrating}
+        if brating:
+            document["p1"] = {"e": brating}
 
-    return web.json_response({"gameId": game_id})
+        # print(document)
+        result = await app_state.db.game.insert_one(document)
+        # print("db insert IMPORTED game result %s" % repr(result.inserted_id))
+
+        return web.json_response({"gameId": game_id})
+    finally:
+        # import_game() constructs a temporary Game only to validate/import the PGN.
+        # It is never cached, so its clock task must be cancelled explicitly.
+        if new_game is not None:
+            await new_game.stopwatch.cancel()
 
 
 def _encode_import_moves(
