@@ -8,6 +8,7 @@ from unittest.mock import patch
 import test_logger
 
 from compress import R2C
+from const import MATE
 from game import Game
 from fairy.fairy_board import FairyBoard
 from utils import pgn as export_pgn
@@ -72,6 +73,9 @@ class EmbassyCastlingPgnTestCase(unittest.TestCase):
         game.clocks_b = [0]
         game.jieqi_captures = None
         game.jieqi_capture_stack = None
+        game.date = datetime(2026, 2, 18, tzinfo=timezone.utc)
+        game.loaded_at = None
+        game.status = MATE
 
         game.board = FairyBoard("capablanca", CAPA_CASTLING_FEN, chess960=False)
         self.assertEqual("embassy", game.board.variant)
@@ -84,6 +88,49 @@ class EmbassyCastlingPgnTestCase(unittest.TestCase):
         self.assertEqual(3, len(game.steps))
         self.assertEqual("e8i8", game.steps[0]["move"])
         self.assertEqual("h8e8", game.steps[2]["move"])
+
+    def test_create_steps_downgrades_historical_replay_failures(self) -> None:
+        game = Game.__new__(Game)
+        game.id = "legacy-replay"
+        game.variant = "chess"
+        game.jieqi = False
+        game.chess960 = False
+        game.usi_format = False
+        game.corr = True
+        game.mct = None
+        game.analysis = None
+        game.steps = []
+        game.clocks_w = [0]
+        game.clocks_b = [0]
+        game.jieqi_captures = None
+        game.jieqi_capture_stack = None
+        game.date = datetime(2025, 1, 1, tzinfo=timezone.utc)
+        game.loaded_at = datetime(2026, 4, 1, tzinfo=timezone.utc)
+        game.status = MATE
+
+        game.board = FairyBoard("chess")
+        game.board.move_stack = ["e2e4", "e7e5"]
+
+        real_push = game.board.push
+
+        def fail_on_second_move(move, append=True, *, raise_on_error=True):
+            if move == "e7e5":
+                if raise_on_error:
+                    raise ValueError("historical replay failure")
+                return False
+            return real_push(move, append=append, raise_on_error=raise_on_error)
+
+        with (
+            patch.object(game.board, "push", side_effect=fail_on_second_move),
+            patch("game.log.warning") as mock_warning,
+            patch("game.log.exception") as mock_exception,
+        ):
+            game.create_steps()
+
+        self.assertEqual(1, len(game.steps))
+        self.assertEqual("e2e4", game.steps[0]["move"])
+        mock_warning.assert_called_once()
+        mock_exception.assert_not_called()
 
     def test_export_pgn_fallback_accepts_modern_embassy_castling(self) -> None:
         # In current games the move can be embassy-style (e8b8) even if stored variant is capablanca.

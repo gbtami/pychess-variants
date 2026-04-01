@@ -56,6 +56,7 @@ if TYPE_CHECKING:
     from ws_types import SpectatorsMessage
 
 MAX_PLY = 600
+HISTORICAL_REPLAY_GRACE_PERIOD = timedelta(days=180)
 
 INVALID_PAWN_DROP_MATE = (
     ("P@", "shogi"),
@@ -87,6 +88,24 @@ def should_use_legacy_capablanca_replay(
     if board_variant not in ("embassy", "embassyhouse"):
         return False
     return any(is_legacy_capablanca_castling_move(move) for move in move_stack)
+
+
+def should_tolerate_historical_replay_failure(
+    game_date: datetime,
+    game_status: int,
+    loaded_at: datetime | None = None,
+) -> bool:
+    if game_status <= STARTED:
+        return False
+
+    if game_date.tzinfo is None:
+        game_date = game_date.replace(tzinfo=timezone.utc)
+
+    reference_time = loaded_at if loaded_at is not None else datetime.now(timezone.utc)
+    if reference_time.tzinfo is None:
+        reference_time = reference_time.replace(tzinfo=timezone.utc)
+
+    return (reference_time - game_date) >= HISTORICAL_REPLAY_GRACE_PERIOD
 
 
 class Game:
@@ -1183,6 +1202,11 @@ class Game:
 
     def create_steps(self) -> None:
         # log.debug("create_steps() START")
+        tolerate_historical_replay_failure = should_tolerate_historical_replay_failure(
+            self.date,
+            self.status,
+            self.loaded_at,
+        )
         if self.mct is not None:
             manual_count_toggled = iter(self.mct)
             count_started = -1
@@ -1254,7 +1278,20 @@ class Game:
                 else:
                     jieqi_capture = None
 
-                replay_board.push(move, append=False)
+                pushed = replay_board.push(
+                    move,
+                    append=False,
+                    raise_on_error=not tolerate_historical_replay_failure,
+                )
+                if not pushed:
+                    log.warning(
+                        "Stopped step reconstruction for historical game %s %s %s after invalid replay move %s",
+                        self.id,
+                        self.variant,
+                        self.date.isoformat(),
+                        move,
+                    )
+                    break
                 self.check = replay_board.is_checked()
                 turnColor = "black" if replay_board.color == BLACK else "white"
 
@@ -1293,14 +1330,23 @@ class Game:
                         log.error("IndexError in create_steps() %d %s %s", ply, move, san)
 
             except Exception:
-                log.exception(
-                    "Exception in create_steps() %s %s %s %s %s",
-                    self.id,
-                    self.variant,
-                    replay_board.initial_fen,
-                    move,
-                    moves_to_replay,
-                )
+                if tolerate_historical_replay_failure:
+                    log.warning(
+                        "Stopped step reconstruction for historical game %s %s %s after replay exception on %s",
+                        self.id,
+                        self.variant,
+                        self.date.isoformat(),
+                        move,
+                    )
+                else:
+                    log.exception(
+                        "Exception in create_steps() %s %s %s %s %s",
+                        self.id,
+                        self.variant,
+                        replay_board.initial_fen,
+                        move,
+                        moves_to_replay,
+                    )
                 break
         # log.debug("create_steps() OK")
 

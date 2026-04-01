@@ -189,7 +189,7 @@ class FairyBoard:
     def initial_sfen(self):
         return self.sf.get_fen(self.variant, self.initial_fen, [], False, True)
 
-    def push(self, move, append=True):
+    def push(self, move, append=True, *, raise_on_error=True):
         try:
             # log.debug("move=%s, fen=%s", move, self.fen
             if append:
@@ -214,17 +214,20 @@ class FairyBoard:
                 self.pop(remove=append)
             except Exception:
                 pass
-            log.error(
-                "sf.get_fen() failed on %s %s %s %s %s %s %s",
-                self.variant,
-                self.fen,
-                move,
-                self.chess960,
-                self.sfen,
-                self.show_promoted,
-                self.count_started,
-            )
-            raise
+            if raise_on_error:
+                log.error(
+                    "sf.get_fen() failed on %s %s %s %s %s %s %s",
+                    self.variant,
+                    self.fen,
+                    move,
+                    self.chess960,
+                    self.sfen,
+                    self.show_promoted,
+                    self.count_started,
+                )
+                raise
+            return False
+        return True
 
     def pop(self, remove=True):
         if remove:
