@@ -75,8 +75,8 @@ async def create_auto_play_tournament(app):
     await app_state.db.tournament_player.delete_many({"tid": tid})
     await app_state.db.tournament_pairing.delete_many({"tid": tid})
 
-    # tournament = ArenaTestTournament(
-    tournament = SwissTestTournament(
+    tournament = ArenaTestTournament(
+    #tournament = SwissTestTournament(
         app_state,
         tid,
         variant="janggi",

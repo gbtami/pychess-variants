@@ -324,6 +324,7 @@ async def import_game(request):
     final_fen = data.get("final_fen", "")
     status = int(data.get("Status", UNKNOWNFINISH))
     result = data.get("Result", "*")
+    result = result if result in R2C else "*"
     try:
         date_tag = data.get("Date", "")
         date = date_tag[0:10]
