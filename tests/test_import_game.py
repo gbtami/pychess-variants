@@ -74,7 +74,10 @@ class ImportGameCleanupTestCase(AioHTTPTestCase):
                 self.stopwatch = SimpleNamespace(cancel=AsyncMock())
                 DummyGame.instances.append(self)
 
-        with patch("utils.Game", DummyGame), patch("utils.new_id", AsyncMock(return_value="import123")):
+        with (
+            patch("utils.Game", DummyGame),
+            patch("utils.new_id", AsyncMock(return_value="import123")),
+        ):
             resp = await self.client.post(
                 "/import",
                 data={
