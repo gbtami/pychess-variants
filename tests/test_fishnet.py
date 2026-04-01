@@ -132,7 +132,11 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
         ws = SimpleNamespace()
         ws_send_json = AsyncMock()
 
-        with patch("wsr.ws_send_json", new=ws_send_json), patch("wsr.log"):
+        with (
+            patch("wsr.ws_send_json", new=ws_send_json),
+            patch("wsr.has_recent_fishnet_activity", return_value=False),
+            patch("wsr.log"),
+        ):
             await wsr.handle_analysis(app_state, ws, data, game)
 
         self.assertTrue(engine.online)
