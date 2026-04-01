@@ -4,7 +4,7 @@ import unittest
 import test_logger
 from datetime import datetime, timezone
 from operator import neg
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from sortedcollections import ValueSortedDict
@@ -198,6 +198,21 @@ class GameResultTestCase(AioHTTPTestCase):
         self.assertEqual(game.ply, 0)
         self.assertEqual(game.status, CREATED)
         self.assertEqual(game.result, "*")
+
+    async def test_missing_bot_queue_is_ignored(self):
+        app_state = get_app_state(self.app)
+        bot = app_state.users["Random-Mover"]
+        game = Game(app_state, "bot-race", "chess", "", self.wplayer, bot, rated=False)
+
+        bot.game_queues.pop(game.id, None)
+
+        with patch.object(bot.event_queue, "put", new=AsyncMock()) as mock_event_put:
+            await play_move(app_state, self.wplayer, game, "e2e4", clocks=CLOCKS, ply=1)
+
+        self.assertEqual(game.ply, 1)
+        self.assertEqual(game.lastmove, "e2e4")
+        self.assertTrue(bot.game_queues.get(game.id) is None)
+        mock_event_put.assert_not_called()
 
     @unittest.skip("TODO: is_optional_game_end() should be fixed for Jieqi")
     async def test_jieqi_perpetual_check(self):

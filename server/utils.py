@@ -79,6 +79,14 @@ from settings import URI
 log = logging.getLogger(__name__)
 
 
+async def put_bot_game_queue(player: User, game_id: str, payload: str) -> bool:
+    queue = player.game_queues.get(game_id)
+    if queue is None:
+        return False
+    await queue.put(payload)
+    return True
+
+
 def should_send_game_start_to_bot(game: Game | GameBug) -> bool:
     """Janggi bots must wait for setup phase completion before first move."""
     return game.variant != "janggi" or not (game.bsetup or game.wsetup)
@@ -790,7 +798,7 @@ async def play_move(
             game.last_jieqi_capture = None
 
     if user.bot and game.status > STARTED:
-        await user.game_queues[gameId].put(game.game_end)
+        await put_bot_game_queue(user, gameId, game.game_end)
 
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
@@ -816,16 +824,22 @@ async def play_move(
 
     if users[opp_name].bot:
         if game.status > STARTED:
-            await users[opp_name].game_queues[gameId].put(game.game_end)
+            await put_bot_game_queue(users[opp_name], gameId, game.game_end)
         else:
             # Fallback for built-in bots under heavy load: ensure the bot loop
             # receives a gameStart trigger even if the ready/gameStart path was delayed.
-            if game.board.ply == 1 and users[opp_name].username in (
-                "Random-Mover",
-                "Fairy-Stockfish",
+            queue_ready = gameId in users[opp_name].game_queues
+            if (
+                queue_ready
+                and game.board.ply == 1
+                and users[opp_name].username
+                in (
+                    "Random-Mover",
+                    "Fairy-Stockfish",
+                )
             ):
                 await users[opp_name].event_queue.put(game.game_start)
-            await users[opp_name].game_queues[gameId].put(game.game_state)
+            await put_bot_game_queue(users[opp_name], gameId, game.game_state)
     else:
         if not invalid_move:
             await users[opp_name].send_game_message(gameId, board_response)
