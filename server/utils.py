@@ -118,8 +118,13 @@ async def tv_game_user(db, users, profileId):
     return game_id
 
 
-async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | GameBug | None:
-    """Return Game object from app cache or from database"""
+async def load_game(
+    app_state: PychessGlobalAppState,
+    game_id: str,
+    *,
+    cache_finished: bool = True,
+) -> Game | GameBug | None:
+    """Return Game object from app cache or from database."""
     if game_id in app_state.games:
         return app_state.games[game_id]
 
@@ -133,7 +138,7 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | Ga
     if doc["v"] in TWO_BOARD_VARIANT_CODES:
         from bug.utils_bug import load_game_bug
 
-        return await load_game_bug(app_state, game_id)
+        return await load_game_bug(app_state, game_id, cache_finished=cache_finished)
 
     # log.debug("load_game() parse START")
     wp, bp = doc["us"]
@@ -287,9 +292,10 @@ async def load_game(app_state: PychessGlobalAppState, game_id: str) -> Game | Ga
 
     game.loaded_at = datetime.now(timezone.utc)
 
-    app_state.games[game_id] = game
-    if game.status > STARTED:
-        app_state.schedule_game_cache_removal(game)
+    if game.status <= STARTED or cache_finished:
+        app_state.games[game_id] = game
+        if game.status > STARTED:
+            app_state.schedule_game_cache_removal(game)
 
     # log.debug("load_game() parse DONE")
     return game

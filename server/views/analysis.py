@@ -34,7 +34,7 @@ async def analysis(request: web.Request) -> ViewContext:
         context["chess960"] = chess960
     else:
         app_state = get_app_state(request.app)
-        game = await load_game(app_state, gameId)
+        game = await load_game(app_state, gameId, cache_finished=False)
         if game is None:
             raise web.HTTPNotFound()
 

@@ -86,6 +86,13 @@ def has_recent_fishnet_activity(
     )
 
 
+def has_pending_analysis_work_for_game(app_state: PychessGlobalAppState, game_id: str) -> bool:
+    return any(
+        work["work"]["type"] == "analysis" and work["game_id"] == game_id
+        for work in app_state.fishnet_works.values()
+    )
+
+
 def _is_terminal_abort(work: FishnetWork, abort_reason: str) -> bool:
     abort_count = work.get("abort_count", 0)
     engine_crash_count = work.get("engine_crash_count", 0)

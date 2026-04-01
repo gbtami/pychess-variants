@@ -3,6 +3,7 @@
 import asyncio
 import unittest
 from datetime import datetime, timezone
+from time import monotonic
 from unittest.mock import patch
 
 import test_logger
@@ -21,6 +22,7 @@ from seek import Seek
 from user import User
 from utils import load_game
 from variants import get_server_variant
+from wsr import finally_logic
 import pychess_global_app_state
 import ai
 import user as user_module
@@ -83,6 +85,41 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         # Finished games must not keep a live clock task; cancel() clears the task ref.
         self.assertIsNone(game.stopwatch.clock_task)
 
+    async def test_load_finished_game_without_cache_skips_app_cache(self):
+        app_state = get_app_state(self.app)
+
+        await self._insert_user_doc("white-no-cache")
+        await self._insert_user_doc("black-no-cache")
+
+        variant_code = get_server_variant("chess", False).code
+        doc = {
+            "_id": "finished-no-cache",
+            "us": ["white-no-cache", "black-no-cache"],
+            "p0": {"e": "1500?"},
+            "p1": {"e": "1500?"},
+            "v": variant_code,
+            "b": 1,
+            "i": 0,
+            "bp": 0,
+            "m": [],
+            "d": datetime.now(timezone.utc),
+            "f": FairyBoard.start_fen("chess"),
+            "s": ABORTED,
+            "r": R2C["*"],
+            "x": 0,
+            "y": int(CASUAL),
+            "z": 0,
+            "c": False,
+        }
+        await app_state.db.game.insert_one(doc)
+
+        game = await load_game(app_state, doc["_id"], cache_finished=False)
+
+        self.assertIsNotNone(game)
+        self.assertNotIn(doc["_id"], app_state.games)
+        self.assertNotIn(doc["_id"], app_state.game_remove_tasks)
+        self.assertIsNone(game.stopwatch.clock_task)
+
     async def test_load_finished_bughouse_cancels_clocks(self):
         app_state = get_app_state(self.app)
 
@@ -117,6 +154,94 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         # Bughouse finished games should cancel both board clock tasks.
         self.assertIsNone(game.gameClocks.stopwatches["a"].clock_task)
         self.assertIsNone(game.gameClocks.stopwatches["b"].clock_task)
+
+    async def test_finished_game_is_evicted_when_last_spectator_disconnects(self):
+        app_state = get_app_state(self.app)
+
+        await self._insert_user_doc("white-viewer")
+        await self._insert_user_doc("black-viewer")
+
+        variant_code = get_server_variant("chess", False).code
+        doc = {
+            "_id": "finished-evict",
+            "us": ["white-viewer", "black-viewer"],
+            "p0": {"e": "1500?"},
+            "p1": {"e": "1500?"},
+            "v": variant_code,
+            "b": 1,
+            "i": 0,
+            "bp": 0,
+            "m": [],
+            "d": datetime.now(timezone.utc),
+            "f": FairyBoard.start_fen("chess"),
+            "s": ABORTED,
+            "r": R2C["*"],
+            "x": 0,
+            "y": int(CASUAL),
+            "z": 0,
+            "c": False,
+        }
+        await app_state.db.game.insert_one(doc)
+
+        game = await load_game(app_state, doc["_id"])
+        viewer = User(app_state, username="viewer")
+        app_state.users[viewer.username] = viewer
+        ws = object()
+        viewer.add_ws_for_game(game.id, ws)
+        game.spectators.add(viewer)
+
+        await finally_logic(app_state, ws, viewer, game)
+
+        self.assertNotIn(doc["_id"], app_state.games)
+        self.assertNotIn(doc["_id"], app_state.game_remove_tasks)
+
+    async def test_finished_game_stays_cached_while_analysis_is_pending(self):
+        app_state = get_app_state(self.app)
+
+        await self._insert_user_doc("white-analysis")
+        await self._insert_user_doc("black-analysis")
+
+        variant_code = get_server_variant("chess", False).code
+        doc = {
+            "_id": "finished-analysis",
+            "us": ["white-analysis", "black-analysis"],
+            "p0": {"e": "1500?"},
+            "p1": {"e": "1500?"},
+            "v": variant_code,
+            "b": 1,
+            "i": 0,
+            "bp": 0,
+            "m": [],
+            "d": datetime.now(timezone.utc),
+            "f": FairyBoard.start_fen("chess"),
+            "s": ABORTED,
+            "r": R2C["*"],
+            "x": 0,
+            "y": int(CASUAL),
+            "z": 0,
+            "c": False,
+        }
+        await app_state.db.game.insert_one(doc)
+
+        game = await load_game(app_state, doc["_id"])
+        viewer = User(app_state, username="analysis-viewer")
+        app_state.users[viewer.username] = viewer
+        ws = object()
+        viewer.add_ws_for_game(game.id, ws)
+        game.spectators.add(viewer)
+        app_state.fishnet_works["pending-analysis"] = {
+            "work": {"type": "analysis", "id": "pending-analysis"},
+            "game_id": game.id,
+            "time": monotonic(),
+        }
+
+        await finally_logic(app_state, ws, viewer, game)
+
+        self.assertIn(doc["_id"], app_state.games)
+        self.assertIn(doc["_id"], app_state.game_remove_tasks)
+
+        app_state.fishnet_works.clear()
+        await app_state.remove_game_from_cache_now(game)
 
     async def test_bot_first_move_timeout_enabled(self):
         app_state = get_app_state(self.app)

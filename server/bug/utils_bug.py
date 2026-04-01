@@ -33,8 +33,8 @@ async def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b)
     return [wplayer_a, bplayer_a, wplayer_b, bplayer_b]
 
 
-async def load_game_bug(app_state: PychessGlobalAppState, game_id):
-    """Return Game object from app cache or from database"""
+async def load_game_bug(app_state: PychessGlobalAppState, game_id, *, cache_finished: bool = True):
+    """Return Game object from app cache or from database."""
     log.debug("load_game_bug from db ")
     doc = await app_state.db.game.find_one({"_id": game_id})
 
@@ -237,12 +237,15 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id):
                 )
                 break
 
-    app_state.games[game_id] = game
     if game.status > STARTED:
         # Finished bughouse games loaded from DB should not keep their clock
         # tasks running; cancel them immediately to prevent leaks.
         await game.gameClocks.cancel_stopwatches()
-        app_state.schedule_game_cache_removal(game)
+
+    if game.status <= STARTED or cache_finished:
+        app_state.games[game_id] = game
+        if game.status > STARTED:
+            app_state.schedule_game_cache_removal(game)
     log.debug("load_game_bug parse DONE")
 
     return game

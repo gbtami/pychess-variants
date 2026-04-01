@@ -6,7 +6,7 @@ from operator import neg
 import asyncio
 import collections
 import gettext
-from typing import Any, Coroutine, List, Set, TYPE_CHECKING, TypeVar
+from typing import Any, Coroutine, List, Set, TYPE_CHECKING, TypeVar, cast
 
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
@@ -635,29 +635,13 @@ class PychessGlobalAppState:
 
         task.add_done_callback(_cleanup_task)
 
-    def __init_users(self) -> Users:
-        result = Users(self)
-        result["PyChess"] = User(self, bot=True, username="PyChess")
-        result["Random-Mover"] = User(self, bot=True, username="Random-Mover")
-        result["Fairy-Stockfish"] = User(self, bot=True, username="Fairy-Stockfish")
-        result["Discord-Relay"] = User(self, anon=True, username="Discord-Relay")
-        result["Random-Mover"].online = True
-
-        # To handle old anon user sessions with names prefixed with "Anon-" (hyphen!)
-        # we will use this disabled(!) technical NONE_USER
-        result[NONE_USER] = User(self, anon=True, username=NONE_USER)
-        result[NONE_USER].enabled = False
-        return result
-
-    async def remove_from_cache(self, game):
-        await asyncio.sleep(LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else GAME_KEEP_TIME)
-
+    async def _evict_game_from_cache(self, game: Game | GameBug) -> None:
         # Cancel any still-running clocks to break task -> game references
         # even when a finished game was loaded from DB and never saved in-memory.
         if hasattr(game, "stopwatch"):
-            await game.stopwatch.cancel()
+            await cast(Game, game).stopwatch.cancel()
         elif hasattr(game, "gameClocks"):
-            await game.gameClocks.cancel_stopwatches()
+            await cast(GameBug, game).gameClocks.cancel_stopwatches()
 
         if game.id == self.tv:
             self.tv = None
@@ -682,6 +666,37 @@ class PychessGlobalAppState:
             await self._maybe_remove_idle_anon_user(player)
 
         log.debug("Removed %s OK", game.id)
+
+    async def remove_game_from_cache_now(self, game: Game | GameBug) -> None:
+        task = self.game_remove_tasks.get(game.id)
+        current = asyncio.current_task()
+        if task is not None and task is not current and not task.done():
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+
+        self.game_remove_tasks.pop(game.id, None)
+        await self._evict_game_from_cache(game)
+
+    def __init_users(self) -> Users:
+        result = Users(self)
+        result["PyChess"] = User(self, bot=True, username="PyChess")
+        result["Random-Mover"] = User(self, bot=True, username="Random-Mover")
+        result["Fairy-Stockfish"] = User(self, bot=True, username="Fairy-Stockfish")
+        result["Discord-Relay"] = User(self, anon=True, username="Discord-Relay")
+        result["Random-Mover"].online = True
+
+        # To handle old anon user sessions with names prefixed with "Anon-" (hyphen!)
+        # we will use this disabled(!) technical NONE_USER
+        result[NONE_USER] = User(self, anon=True, username=NONE_USER)
+        result[NONE_USER].enabled = False
+        return result
+
+    async def remove_from_cache(self, game):
+        await asyncio.sleep(LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else GAME_KEEP_TIME)
+        await self._evict_game_from_cache(game)
 
     def schedule_tournament_cache_removal(self, tournament: Tournament):
         if tournament is None or tournament.status <= T_STARTED:

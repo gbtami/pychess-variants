@@ -84,7 +84,7 @@ async def invite(request: web.Request) -> ViewContext:
         context["seekempty"] = seek.player1 is None and seek.player2 is None
     else:
         # The new invite game started
-        game = await load_game(app_state, gameId)
+        game = await load_game(app_state, gameId, cache_finished=False)
         if game is None:
             # Friendly fallback for stale or missing invite/game ids.
             set_expired_invite_context(context, gameId)

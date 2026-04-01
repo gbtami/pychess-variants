@@ -26,7 +26,7 @@ async def round_view(request: web.Request) -> ViewContext:
     gameId = request.match_info["gameId"]
     ply = request.rel_url.query.get("ply")
 
-    game = await load_game(app_state, gameId)
+    game = await load_game(app_state, gameId, cache_finished=False)
     if game is None:
         raise web.HTTPNotFound()
 

@@ -17,7 +17,11 @@ from chat import chat_response
 from const import ANON_PREFIX, ANALYSIS, STARTED
 from draw import draw, reject_draw
 from fairy import WHITE, BLACK, FairyBoard
-from fishnet import drop_stale_analysis_work, has_recent_fishnet_activity
+from fishnet import (
+    drop_stale_analysis_work,
+    has_pending_analysis_work_for_game,
+    has_recent_fishnet_activity,
+)
 from newid import new_id
 
 if TYPE_CHECKING:
@@ -288,6 +292,18 @@ async def finally_logic(
     if game is not None and user is not None:
         response: UserPresenceMessage = {"type": "user_disconnected", "username": user.username}
         await round_broadcast(game, response, full=True)
+
+    if (
+        game is not None
+        and game.status > STARTED
+        and game.id in app_state.games
+        and not has_pending_analysis_work_for_game(app_state, game.id)
+        and not any(player.is_user_active_in_game(game.id) for player in game.non_bot_players)
+        and not any(
+            spectator.is_user_active_in_game(game.id) for spectator in tuple(game.spectators)
+        )
+    ):
+        await app_state.remove_game_from_cache_now(game)
 
 
 async def handle_move(
@@ -560,12 +576,9 @@ async def handle_analysis(
     data: AnalysisMessage,
     game: game.Game,
 ) -> None:
-    # fishnet_analysis() wants to inject analysis data into game.steps
-    # Analysis can be requested for older games. While get_board() creates steps
-    # load_game() does't put the game into the app_state.games, and when
-    # fishnet_analysis() calls load_game(), it will lose game.steps (they are
-    # cteated lousely via get_board() only!)
-    # We have to prevent this.
+    # fishnet_analysis() wants to inject analysis data into game.steps.
+    # Older games can be loaded without caching for plain HTML rendering, so pin
+    # the websocket's reconstructed instance before queueing server-side analysis.
     if game.id not in app_state.games:
         app_state.games[data["gameId"]] = game
         # TODO: maybe we have to schedule game.remove() ?
