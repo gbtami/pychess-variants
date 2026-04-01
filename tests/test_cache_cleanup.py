@@ -17,6 +17,7 @@ from fairy import FairyBoard
 from game import Game
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
+from seek import Seek
 from user import User
 from utils import load_game
 from variants import get_server_variant
@@ -358,6 +359,35 @@ class CacheCleanupTestCase(AioHTTPTestCase):
 
         self.assertIn(old_user.username, app_state.users)
         self.assertIs(app_state.users[old_user.username], new_user)
+
+    async def test_user_remove_cleans_up_invites_for_removed_anon(self):
+        app_state = get_app_state(self.app)
+        anon = User(app_state, username="Anon-invite-cleanup", anon=True)
+        app_state.users[anon.username] = anon
+
+        invite = Seek(
+            "seek-invite-cleanup",
+            anon,
+            "chess",
+            target="Invite-friend",
+            player1=anon,
+            game_id="invitegame",
+        )
+        app_state.seeks[invite.id] = invite
+        app_state.invites[invite.game_id] = invite
+        anon.seeks[invite.id] = invite
+        anon.online = False
+
+        async def no_sleep(_seconds):
+            return None
+
+        with patch.object(user_module.asyncio, "sleep", new=no_sleep):
+            await anon.remove()
+
+        self.assertNotIn(anon.username, app_state.users)
+        self.assertNotIn(invite.id, app_state.seeks)
+        self.assertNotIn(invite.game_id, app_state.invites)
+        self.assertEqual({}, anon.seeks)
 
 
 if __name__ == "__main__":

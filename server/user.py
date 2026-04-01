@@ -198,6 +198,12 @@ class User:
                 # give them a second chance
                 await asyncio.sleep(3)
                 if not self.online:
+                    for seek_id, seek in tuple(self.seeks.items()):
+                        self.app_state.seeks.pop(seek_id, None)
+                        if seek.game_id is not None:
+                            self.app_state.invites.pop(seek.game_id, None)
+                        self.seeks.pop(seek_id, None)
+
                     # This task may race with other anon cleanup paths that already removed
                     # or replaced the cache entry for this username.
                     current = self.app_state.users.data.get(self.username)
