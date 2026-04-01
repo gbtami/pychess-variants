@@ -17,6 +17,7 @@ from chat import chat_response
 from const import ANON_PREFIX, ANALYSIS, STARTED
 from draw import draw, reject_draw
 from fairy import WHITE, BLACK, FairyBoard
+from fishnet import drop_stale_analysis_work, has_recent_fishnet_activity
 from newid import new_id
 
 if TYPE_CHECKING:
@@ -569,8 +570,14 @@ async def handle_analysis(
         app_state.games[data["gameId"]] = game
         # TODO: maybe we have to schedule game.remove() ?
 
-    # If there is any fishnet client, use it.
-    if len(app_state.workers) > 0:
+    analysis_requested = False
+
+    dropped_stale_work = drop_stale_analysis_work(app_state)
+    if dropped_stale_work:
+        log.warning("Dropped %s stale fishnet analysis work items", dropped_stale_work)
+
+    # If there is any active fishnet client, use it.
+    if len(app_state.workers) > 0 and has_recent_fishnet_activity(app_state):
         work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
         work = {
             "work": {
@@ -595,17 +602,24 @@ async def handle_analysis(
         }
         app_state.fishnet_works[work_id] = work
         app_state.fishnet_queue.put_nowait((ANALYSIS, work_id))
+        analysis_requested = True
+    elif len(app_state.workers) > 0:
+        log.warning(
+            "Skipping analysis request for %s because fishnet workers have been idle for too long",
+            game.id,
+        )
     else:
         engine = app_state.users["Fairy-Stockfish"]
 
         if (engine is not None) and engine.online:
             engine.game_queues[data["gameId"]] = asyncio.Queue()
             await engine.event_queue.put(game.analysis_start(data["username"]))
+            analysis_requested = True
 
     response: ChatMessage = chat_response(
         "roundchat",
         "",
-        "Analysis request sent...",
+        "Analysis request sent..." if analysis_requested else "Analysis unavailable right now.",
         room="spectator",
     )
     await ws_send_json(ws, response)

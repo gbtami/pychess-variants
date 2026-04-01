@@ -174,6 +174,7 @@ class PychessGlobalAppState:
 
         # fishnet active workers
         self.workers = set()
+        self.fishnet_worker_last_seen: dict[str, float] = {}
         # fishnet works
         self.fishnet_works = {}
         # fishnet worker tasks

@@ -32,6 +32,8 @@ log = logging.getLogger(__name__)
 
 REQUIRED_FISHNET_VERSION = "1.16.42"
 MOVE_WORK_TIME_OUT = 5.0
+ANALYSIS_WORK_TIME_OUT = 15 * 60.0
+FISHNET_ACTIVITY_TIMEOUT = 10 * 60.0
 ENGINE_CRASH_REASON = "engine_crash"
 # Keep generic abort limits conservative so transient worker/network issues do not
 # adjudicate games too aggressively. Explicit engine crashes use a tighter limit.
@@ -51,6 +53,37 @@ def _abort_reason(data: FishnetAbortPayload) -> str:
         return "unknown"
     reason = error.get("reason")
     return reason if reason else "unknown"
+
+
+def _work_timeout(work: FishnetWork) -> float:
+    return ANALYSIS_WORK_TIME_OUT if work["work"]["type"] == "analysis" else MOVE_WORK_TIME_OUT
+
+
+def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | None = None) -> int:
+    if now is None:
+        now = monotonic()
+
+    stale_ids = [
+        work_id
+        for work_id, work in tuple(app_state.fishnet_works.items())
+        if work["work"]["type"] == "analysis"
+        and now - work.get("time", now) > ANALYSIS_WORK_TIME_OUT
+    ]
+    for work_id in stale_ids:
+        del app_state.fishnet_works[work_id]
+    return len(stale_ids)
+
+
+def has_recent_fishnet_activity(
+    app_state: PychessGlobalAppState, *, now: float | None = None
+) -> bool:
+    if now is None:
+        now = monotonic()
+
+    return any(
+        now - app_state.fishnet_worker_last_seen.get(key, 0.0) <= FISHNET_ACTIVITY_TIMEOUT
+        for key in app_state.workers
+    )
 
 
 def _is_terminal_abort(work: FishnetWork, abort_reason: str) -> bool:
@@ -197,18 +230,17 @@ async def get_work(
 
     # There was no new work in the queue. Ok
     # Now let see are there any long time pending work in app[fishnet_works_key]
-    # (in case when worker grabbed it from queue but not responded after MOVE_WORK_TIME_OUT secs)
+    # (in case when worker grabbed it from queue but not responded after timeout)
     now = monotonic()
     for work_id, work_item in app_state.fishnet_works.items():
-        if work_item["work"]["type"] == "move" and (now - work_item["time"] > MOVE_WORK_TIME_OUT):
+        if now - work_item["time"] > _work_timeout(work_item):
             fm[worker].append(
-                "%s %s %s %s for level %s"
+                "%s %s %s %s"
                 % (
                     datetime.now(timezone.utc),
                     work_id,
                     "request",
-                    "move AGAIN",
-                    work_item["work"]["level"],
+                    "%s AGAIN" % work_item["work"]["type"],
                 )
             )
             work_item["time"] = now
@@ -232,6 +264,7 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
         return web.Response(status=404)
 
     worker = FISHNET_KEYS[key]
+    app_state.fishnet_worker_last_seen[key] = monotonic()
     app_state.fishnet_versions[worker] = "%s %s" % (version, en)
 
     if key not in app_state.workers:
@@ -259,6 +292,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
     worker = FISHNET_KEYS[key]
+    app_state.fishnet_worker_last_seen[key] = monotonic()
 
     if work_id not in app_state.fishnet_works:
         response = await get_work(app_state, data)
@@ -328,6 +362,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
     if key not in FISHNET_KEYS:
         return web.Response(status=404)
     worker = FISHNET_KEYS[key]
+    app_state.fishnet_worker_last_seen[key] = monotonic()
 
     app_state.fishnet_monitor[worker].append(
         "%s %s %s" % (datetime.now(timezone.utc), work_id, "move")
@@ -378,6 +413,7 @@ async def fishnet_abort(request: web.Request) -> web.Response:
         return web.Response(status=404)
     worker = FISHNET_KEYS[key]
     abort_reason = _abort_reason(data)
+    app_state.fishnet_worker_last_seen[key] = monotonic()
 
     app_state.fishnet_monitor[worker].append(
         "%s %s %s (%s)" % (datetime.now(timezone.utc), work_id, "abort", abort_reason)
@@ -388,6 +424,7 @@ async def fishnet_abort(request: web.Request) -> web.Response:
         app_state.workers.remove(data["fishnet"]["apikey"])
     except KeyError:
         log.debug("Worker %s was already removed", worker)
+    app_state.fishnet_worker_last_seen.pop(key, None)
     no_workers = len(app_state.workers) == 0
 
     work = app_state.fishnet_works.get(work_id)
