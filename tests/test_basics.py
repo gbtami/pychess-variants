@@ -12,7 +12,7 @@ from sortedcollections import ValueSortedDict
 from mongomock_motor import AsyncMongoMockClient
 
 import game
-from const import CLAIM, CREATED, STALEMATE, MATE
+from const import CLAIM, CREATED, STALEMATE, MATE, reserved
 from fairy import FairyBoard
 from game import Game
 from bug.game_bug import GameBug
@@ -227,6 +227,9 @@ class GameResultTestCase(AioHTTPTestCase):
 
 
 class SanitizeFenTestCase(unittest.TestCase):
+    def test_reserved_ignores_none(self):
+        self.assertFalse(reserved(None))
+
     def test_start_fen_accepts_960_variant_keys(self):
         for variant_key in ("chess960", "atomic960", "seirawan960", "capablanca960"):
             fen = FairyBoard.start_fen(variant_key)

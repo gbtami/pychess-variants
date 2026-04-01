@@ -24,7 +24,9 @@ RESERVED_USERS = (
 )
 
 
-def reserved(username: str) -> bool:
+def reserved(username: str | None) -> bool:
+    if not username:
+        return False
     return username.upper() in map(str.upper, RESERVED_USERS)
 
 
