@@ -110,6 +110,7 @@ class Game:
         corr: bool = False,
         create: bool = True,
         tournamentId: str | None = None,
+        tournamentArrangementId: str | None = None,
         simulId: str | None = None,
         new_960_fen_needed_for_rematch: bool = False,
     ) -> None:
@@ -132,6 +133,11 @@ class Game:
         self.inc: int = inc
         self.level: int = level if level is not None else 0
         self.tournamentId: str | None = tournamentId
+        self.tournamentArrangementId: str | None = tournamentArrangementId
+        if self.tournamentId is None and self.tournamentArrangementId:
+            # RR arrangement ids are namespaced by tournament id, so recover the
+            # tournament link even if only the arrangement id is provided.
+            self.tournamentId = self.tournamentArrangementId.split(":", 1)[0]
         self.simulId: str | None = simulId
         self.chess960: bool | None = chess960
         self.corr: bool = corr
@@ -559,6 +565,9 @@ class Game:
             return
         self.saved = True
 
+        if self.tournamentId is None and self.tournamentArrangementId:
+            self.tournamentId = self.tournamentArrangementId.split(":", 1)[0]
+
         if self.rated == IMPORTED:
             log.exception("Save IMPORTED game %s ???", self.id)
             return
@@ -577,6 +586,7 @@ class Game:
             self.board.ply < 3
             and (self.app_state.db is not None)
             and (self.tournamentId is None)
+            and (self.tournamentArrangementId is None)
             and (self.simulId is None)
         ):
             result = await self.app_state.db.game.delete_one({"_id": self.id})

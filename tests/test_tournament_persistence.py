@@ -2,7 +2,7 @@
 
 import asyncio
 import gc
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
 
 from aiohttp import web
@@ -127,6 +127,146 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                         app_state, "tester", {**form, "system": system}
                     )
 
+    async def test_rejects_past_custom_start_date(self):
+        app_state = get_app_state(self.app)
+        past_start = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat()
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": "2",
+            "clockIncrement": "0",
+            "byoyomiPeriod": "0",
+            "system": "1",
+            "rounds": "0",
+            "rrMaxPlayers": "6",
+            "rrRequiresApproval": "",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": past_start,
+            "endDate": "",
+            "name": "Past RR",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+
+        with self.assertRaises(web.HTTPBadRequest):
+            await create_or_update_tournament(app_state, "tester", form)
+
+    async def test_rejects_started_tournament_start_date_edit_with_meaningful_message(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=0,
+            rr_max_players=6,
+            with_clock=False,
+        )
+        tournament.status = T_STARTED
+        app_state.tournaments[tid] = tournament
+        await upsert_tournament_to_db(tournament, app_state)
+
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": str(tournament.base),
+            "clockIncrement": str(tournament.inc),
+            "byoyomiPeriod": str(tournament.byoyomi_period),
+            "system": "1",
+            "rounds": "0",
+            "rrMaxPlayers": "6",
+            "rrRequiresApproval": "",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat(),
+            "endDate": "",
+            "name": tournament.name,
+            "description": tournament.description,
+            "password": tournament.password,
+            "waitMinutes": "5",
+            "minutes": str(tournament.minutes),
+        }
+
+        with self.assertRaises(web.HTTPForbidden) as ctx:
+            await create_or_update_tournament(app_state, "tester", form, tournament)
+        self.assertEqual(
+            str(ctx.exception.text),
+            "Start date cannot be changed after the tournament has started.",
+        )
+
+    async def test_started_swiss_allows_safe_edit_fields(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        tournament = SwissTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=0,
+            rounds=5,
+            with_clock=False,
+        )
+        tournament.status = T_STARTED
+        tournament.description = "before"
+        app_state.tournaments[tid] = tournament
+        await upsert_tournament_to_db(tournament, app_state)
+
+        form = {
+            "variant": "chess",
+            "rated": "",
+            "position": "",
+            "clockTime": str(tournament.base),
+            "clockIncrement": str(tournament.inc),
+            "byoyomiPeriod": str(tournament.byoyomi_period),
+            "system": "2",
+            "rounds": "7",
+            "rrMaxPlayers": "0",
+            "rrRequiresApproval": "",
+            "roundInterval": "900",
+            "entryMinRating": "1400",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "10",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "alice bob",
+            "manualPairings": "carol dave",
+            "name": "Updated Swiss",
+            "description": "after",
+            "password": "secret",
+            "waitMinutes": "5",
+            "minutes": str(tournament.minutes),
+        }
+
+        await create_or_update_tournament(app_state, "tester", form, tournament)
+
+        self.assertEqual(tournament.name, "Updated Swiss")
+        self.assertEqual(tournament.description, "after")
+        self.assertEqual(tournament.password, "secret")
+        self.assertEqual(tournament.rounds, 7)
+        self.assertEqual(tournament.round_interval, 900)
+        self.assertEqual(tournament.entry_min_rating, 1400)
+        self.assertEqual(tournament.entry_min_rated_games, 10)
+        self.assertEqual(tournament.forbidden_pairings, "alice bob")
+        self.assertEqual(tournament.manual_pairings, "carol dave")
+        self.assertFalse(tournament.rated)
+
     async def test_edit_preserves_existing_shield_frequency(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -184,6 +324,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             "system": "1",
             "rounds": "0",
             "rrMaxPlayers": "12",
+            "rrRequiresApproval": "1",
             "roundInterval": "auto",
             "entryMinRating": "0",
             "entryMaxRating": "0",
@@ -207,12 +348,82 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         tournament = app_state.tournaments[new_ids.pop()]
         self.assertEqual(tournament.rounds, 0)
         self.assertEqual(tournament.rr_max_players, 12)
+        self.assertTrue(tournament.rr_requires_approval)
+        self.assertFalse(tournament.rr_joining_closed)
 
         doc = await app_state.db.tournament.find_one({"_id": tournament.id})
         self.assertIsNotNone(doc)
         assert doc is not None
         self.assertEqual(doc.get("rounds"), 0)
         self.assertEqual(doc.get("rrMaxPlayers"), 12)
+        self.assertEqual(doc.get("rrRequiresApproval"), True)
+        self.assertEqual(doc.get("rrJoiningClosed"), False)
+
+    async def test_save_keeps_joined_rr_without_finished_games(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        tournament = RRTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=10,
+            rounds=0,
+            rr_max_players=6,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = tournament
+        await upsert_tournament_to_db(tournament, app_state)
+        await tournament.join_players(2)
+
+        await tournament.save()
+
+        doc = await app_state.db.tournament.find_one({"_id": tid})
+        self.assertIsNotNone(doc)
+        assert doc is not None
+        self.assertEqual(doc.get("status"), tournament.status)
+        self.assertEqual(doc.get("nbPlayers"), 2)
+
+    async def test_form_end_date_updates_start_and_minutes(self):
+        app_state = get_app_state(self.app)
+        before_ids = set(app_state.tournaments)
+        start_at = (datetime.now(timezone.utc) + timedelta(days=1)).replace(second=0, microsecond=0)
+        end_at = start_at + timedelta(minutes=77)
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": "5",
+            "clockIncrement": "0",
+            "byoyomiPeriod": "0",
+            "system": "1",
+            "rounds": "0",
+            "rrMaxPlayers": "10",
+            "rrRequiresApproval": "",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": start_at.isoformat().replace("+00:00", "Z"),
+            "endDate": end_at.isoformat().replace("+00:00", "Z"),
+            "name": "RR End Date",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+
+        await create_or_update_tournament(app_state, "tester", form)
+
+        new_ids = set(app_state.tournaments) - before_ids
+        self.assertEqual(len(new_ids), 1)
+        tournament = app_state.tournaments[new_ids.pop()]
+        self.assertEqual(tournament.starts_at, start_at)
+        self.assertEqual(tournament.minutes, 77)
+        self.assertEqual(tournament.ends_at, end_at)
 
     async def test_tournament_pairings_persist_before_restart(self):
         app_state = get_app_state(self.app)
@@ -355,134 +566,153 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
         )
 
-    async def test_rr_pair_fixed_round_marks_commit_in_progress_until_round_is_saved(self):
+    async def test_rr_start_persists_arrangements_and_reload_restores_them(self):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = RRTestTournament(
-            app_state, tid, before_start=10, rounds=3, with_clock=False
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
         )
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(4)
         await self.tournament.start(datetime.now(timezone.utc))
-        self.tournament.current_round = 1
-
-        create_started = asyncio.Event()
-        create_continue = asyncio.Event()
-
-        async def delayed_create(waiting_players, *, publish_pairings=True):
-            doc = await app_state.db.tournament.find_one({"_id": tid})
-            self.assertIsNotNone(doc)
-            assert doc is not None
-            self.assertEqual(doc.get("cr"), 0)
-            self.assertEqual(doc.get("pairingInProgressRound"), 1)
-            create_started.set()
-            await create_continue.wait()
-            return await Tournament.create_new_pairings(
-                self.tournament,
-                waiting_players,
-                publish_pairings=publish_pairings,
-            )
-
-        self.tournament.create_new_pairings = delayed_create
-
-        pairing_task = asyncio.create_task(
-            self.tournament.pair_fixed_round(datetime.now(timezone.utc))
-        )
-        await create_started.wait()
-        self.assertFalse(pairing_task.done())
-
-        create_continue.set()
-        self.assertTrue(await pairing_task)
-
         doc = await app_state.db.tournament.find_one({"_id": tid})
         self.assertIsNotNone(doc)
         assert doc is not None
-        self.assertEqual(doc.get("cr"), 1)
-        self.assertNotIn("pairingInProgressRound", doc)
-        self.assertEqual(len(self.tournament.ongoing_games), 2)
+        self.assertEqual(doc.get("rounds"), 3)
 
-    async def test_load_tournament_recovers_committed_rr_round_with_stale_round_doc(self):
-        app_state = get_app_state(self.app)
-        tid = id8()
-        self.tournament = RRTestTournament(
-            app_state, tid, before_start=10, rounds=3, with_clock=False
+        arrangement_docs = await app_state.db.tournament_arrangement.find({"tid": tid}).to_list(
+            None
         )
-        app_state.tournaments[tid] = self.tournament
-        await upsert_tournament_to_db(self.tournament, app_state)
-
-        await self.tournament.join_players(4)
-        await self.tournament.start(datetime.now(timezone.utc))
-        self.tournament.current_round = 1
-        await self.tournament.set_pairing_in_progress_round(1)
-
-        waiting_players = list(self.tournament.waiting_players())
-        _, games = await Tournament.create_new_pairings(
-            self.tournament,
-            waiting_players,
-            publish_pairings=False,
-        )
-        self.assertEqual(len(games), 2)
-
-        doc = await app_state.db.tournament.find_one({"_id": tid})
-        self.assertIsNotNone(doc)
-        assert doc is not None
-        self.assertEqual(doc.get("cr"), 0)
-        self.assertEqual(doc.get("pairingInProgressRound"), 1)
+        self.assertEqual(len(arrangement_docs), 6)
 
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
         self.assertIsNotNone(reloaded_tournament)
         assert reloaded_tournament is not None
-        self.assertEqual(reloaded_tournament.current_round, 1)
-        self.assertEqual(len(reloaded_tournament.ongoing_games), 2)
+        self.assertEqual(reloaded_tournament.rounds, 3)
+        self.assertEqual(len(reloaded_tournament.arrangements), 6)
+        self.assertEqual(reloaded_tournament.arrangement_payload()["totalGames"], 6)
 
-        reloaded_doc = await reloaded_tournament.app_state.db.tournament.find_one({"_id": tid})
-        self.assertIsNotNone(reloaded_doc)
-        assert reloaded_doc is not None
-        self.assertEqual(reloaded_doc.get("cr"), 1)
-        self.assertNotIn("pairingInProgressRound", reloaded_doc)
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
 
-    async def test_load_tournament_rolls_back_incomplete_rr_round_with_orphan_games(self):
+    async def test_rr_two_player_start_persists_single_arrangement(self):
         app_state = get_app_state(self.app)
         tid = id8()
         self.tournament = RRTestTournament(
-            app_state, tid, before_start=10, rounds=3, with_clock=False
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        self.assertEqual(self.tournament.rounds, 1)
+        self.assertEqual(len(self.tournament.arrangements), 1)
+
+        arrangement_docs = await app_state.db.tournament_arrangement.find({"tid": tid}).to_list(
+            None
+        )
+        self.assertEqual(len(arrangement_docs), 1)
+
+    async def test_finished_rr_without_games_is_destroyed(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.finish()
+
+        self.assertNotIn(tid, app_state.tournaments)
+        self.assertNotIn(tid, app_state.tourneysockets)
+        self.assertIsNone(await app_state.db.tournament.find_one({"_id": tid}))
+        self.assertEqual(
+            await app_state.db.tournament_arrangement.count_documents({"tid": tid}),
+            0,
+        )
+        self.assertEqual(
+            await app_state.db.tournament_player.count_documents({"tid": tid}),
+            0,
+        )
+
+    async def test_rr_reload_restores_started_arrangement_game(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
         )
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(4)
         await self.tournament.start(datetime.now(timezone.utc))
-        self.tournament.current_round = 1
-        await self.tournament.set_pairing_in_progress_round(1)
-
-        players = list(self.tournament.players.keys())
-        await self.tournament.create_games([(players[0], players[1]), (players[2], players[3])])
-
-        self.assertIsNotNone(await app_state.db.game.find_one({"tid": tid}))
-        self.assertIsNone(await app_state.db.tournament_pairing.find_one({"tid": tid, "rn": 1}))
+        arrangement = self.tournament.arrangement_list()[0]
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+        self.assertEqual(game.tournamentArrangementId, arrangement.id)
+        self.assertEqual(len(self.tournament.ongoing_games), 1)
 
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
         self.assertIsNotNone(reloaded_tournament)
         assert reloaded_tournament is not None
-        self.assertEqual(reloaded_tournament.current_round, 0)
-        self.assertEqual(len(reloaded_tournament.ongoing_games), 0)
-        self.assertTrue(
-            all(len(player_data.games) == 0 for player_data in reloaded_tournament.players.values())
-        )
-        self.assertTrue(
-            all(
-                len(player_data.points) == 0 for player_data in reloaded_tournament.players.values()
-            )
-        )
+        reloaded_arrangement = reloaded_tournament.arrangement_by_id(arrangement.id)
+        self.assertIsNotNone(reloaded_arrangement)
+        assert reloaded_arrangement is not None
+        self.assertEqual(reloaded_arrangement.status, "started")
+        self.assertEqual(reloaded_arrangement.game_id, game.id)
+        self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
 
-        reloaded_doc = await reloaded_tournament.app_state.db.tournament.find_one({"_id": tid})
-        self.assertIsNotNone(reloaded_doc)
-        assert reloaded_doc is not None
-        self.assertEqual(reloaded_doc.get("cr"), 0)
-        self.assertNotIn("pairingInProgressRound", reloaded_doc)
-        self.assertIsNone(await reloaded_tournament.app_state.db.game.find_one({"tid": tid}))
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_rr_short_game_persists_even_if_tournament_id_is_missing(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = RRTestTournament(
+            app_state, tid, before_start=10, rounds=0, rr_max_players=8, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(4)
+        await self.tournament.start(datetime.now(timezone.utc))
+        arrangement = self.tournament.arrangement_list()[0]
+        game = await self.tournament.start_arrangement_game(arrangement.id)
+
+        # Reproduce the observed RR challenge bug shape: the game still knows
+        # its arrangement id, but has lost its explicit tournament id.
+        game.tournamentId = None
+        game.board.ply = 2
+        game.update_status(FLAG, "0-1")
+        await game.save_game()
+
+        game_doc = await app_state.db.game.find_one({"_id": game.id})
+        self.assertIsNotNone(game_doc)
+        assert game_doc is not None
+        self.assertEqual(game_doc.get("tid"), tid)
+        self.assertEqual(game_doc.get("aid"), arrangement.id)
+
+        arrangement_doc = await app_state.db.tournament_arrangement.find_one(
+            {"_id": arrangement.id}
+        )
+        self.assertIsNotNone(arrangement_doc)
+        assert arrangement_doc is not None
+        self.assertEqual(arrangement_doc.get("gid"), game.id)
+        self.assertEqual(arrangement_doc.get("s"), "finished")
 
     async def test_load_tournament_recovers_committed_swiss_round_with_stale_round_doc(self):
         app_state = get_app_state(self.app)

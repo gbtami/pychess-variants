@@ -408,7 +408,7 @@ export class AnalysisController extends GameController {
                 if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'flex';
-                    patch(el, h('div#request-analysis', [h('button.request-analysis', { on: { click: () => this.drawAnalysisChart(true) } }, [
+                    patch(el, h('div#request-analysis', [h('button.request-analysis.button-primary', { on: { click: () => this.drawAnalysisChart(true) } }, [
                         h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
                         ])
                     );

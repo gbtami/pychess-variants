@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING
 from aiohttp import web
 import aiohttp_jinja2
 
-from const import TRANSLATED_PAIRING_SYSTEM_NAMES, T_CREATED
+from const import TRANSLATED_PAIRING_SYSTEM_NAMES
 from misc import time_control_str
-from settings import TOURNAMENT_DIRECTORS
 from typing_defs import ViewContext
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
+from tournament_director import is_tournament_director
 from tournament.tournaments import (
     create_or_update_tournament,
     get_latest_tournaments,
@@ -25,8 +25,9 @@ async def tournaments(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)
+    director = is_tournament_director(user, app_state)
 
-    if user.username in TOURNAMENT_DIRECTORS:
+    if director:
         if request.path.endswith("/new"):
             data = await request.post()
             await create_or_update_tournament(app_state, user.username, data)
@@ -38,11 +39,11 @@ async def tournaments(request: web.Request) -> ViewContext:
             tournament = app_state.tournaments.get(tournamentId) if tournamentId else None
 
             if tournament is None and tournamentId is not None:
-                raise web.HTTPNotFound()
+                raise web.HTTPNotFound(text="Tournament not found.")
             if tournament and user.username != tournament.creator:
-                raise web.HTTPForbidden()
-            if tournament and tournament.status != T_CREATED:
-                raise web.HTTPForbidden()
+                raise web.HTTPForbidden(
+                    text="Only the tournament creator can edit this tournament."
+                )
 
             if TYPE_CHECKING:
                 assert tournament is not None
@@ -82,6 +83,6 @@ async def tournaments(request: web.Request) -> ViewContext:
         ]
         tables = (started, scheduled, completed)
     context["tables"] = tables
-    context["td"] = user.username in TOURNAMENT_DIRECTORS
+    context["td"] = director
 
     return context

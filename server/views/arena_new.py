@@ -2,7 +2,8 @@ import aiohttp_jinja2
 from aiohttp import web
 
 from pychess_global_app_state import PychessGlobalAppState
-from settings import ADMINS, TOURNAMENT_DIRECTORS
+from settings import ADMINS
+from tournament_director import is_tournament_director
 from typedefs import pychess_global_app_state_key as app_state_key
 from typing_defs import ViewContext
 from views import get_user_context
@@ -16,7 +17,7 @@ async def arena_new(request: web.Request) -> ViewContext:
 
     tournamentId = request.match_info.get("tournamentId")
 
-    if user.username not in TOURNAMENT_DIRECTORS:
+    if not is_tournament_director(user, app_state):
         raise web.HTTPForbidden()
 
     context["variants"] = VARIANTS

@@ -1,0 +1,179 @@
+body[data-theme='light'] {
+  --flatpickr-bg: #fff;
+  --flatpickr-panel: #f7f6f5;
+  --flatpickr-border: #d9d9d9;
+  --flatpickr-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  --flatpickr-text: #4d4d4d;
+  --flatpickr-text-muted: #6f6f6f;
+  --flatpickr-hover: #ece8e2;
+  --flatpickr-accent: #629924;
+  --flatpickr-accent-hover: #537c23;
+  --flatpickr-accent-text: #fff;
+}
+
+body[data-theme='dark'] {
+  --flatpickr-bg: #3c3934;
+  --flatpickr-panel: #33312e;
+  --flatpickr-border: #404040;
+  --flatpickr-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  --flatpickr-text: #ccc;
+  --flatpickr-text-muted: #999;
+  --flatpickr-hover: #44413b;
+  --flatpickr-accent: #629924;
+  --flatpickr-accent-hover: #537c23;
+  --flatpickr-accent-text: #fff;
+}
+
+body[data-theme] .flatpickr-calendar {
+  background: var(--flatpickr-bg);
+  box-shadow:
+    1px 0 0 var(--flatpickr-border),
+    -1px 0 0 var(--flatpickr-border),
+    0 1px 0 var(--flatpickr-border),
+    0 -1px 0 var(--flatpickr-border),
+    var(--flatpickr-shadow);
+  color: var(--flatpickr-text);
+}
+
+body[data-theme] .flatpickr-months .flatpickr-month,
+body[data-theme] .flatpickr-weekdays,
+body[data-theme] .flatpickr-time {
+  background: var(--flatpickr-bg);
+  color: var(--flatpickr-text);
+}
+
+body[data-theme] .flatpickr-calendar.inline {
+  top: 2px;
+  width: 100%;
+  margin: auto;
+  box-shadow: none;
+}
+
+body[data-theme] .flatpickr-calendar.hasTime .flatpickr-time {
+  border-top: 1px solid var(--flatpickr-border);
+}
+
+body[data-theme] .flatpickr-calendar.arrowTop::before {
+  border-bottom-color: var(--flatpickr-border);
+}
+
+body[data-theme] .flatpickr-calendar.arrowTop::after {
+  border-bottom-color: var(--flatpickr-bg);
+}
+
+body[data-theme] .flatpickr-calendar.arrowBottom::before {
+  border-top-color: var(--flatpickr-border);
+}
+
+body[data-theme] .flatpickr-calendar.arrowBottom::after {
+  border-top-color: var(--flatpickr-bg);
+}
+
+body[data-theme] .flatpickr-months .flatpickr-prev-month,
+body[data-theme] .flatpickr-months .flatpickr-next-month {
+  color: var(--flatpickr-text);
+  fill: var(--flatpickr-text);
+}
+
+body[data-theme] .flatpickr-months .flatpickr-prev-month:hover,
+body[data-theme] .flatpickr-months .flatpickr-next-month:hover {
+  color: var(--flatpickr-text);
+}
+
+body[data-theme] .flatpickr-months .flatpickr-prev-month:hover svg,
+body[data-theme] .flatpickr-months .flatpickr-next-month:hover svg {
+  fill: var(--flatpickr-accent);
+}
+
+body[data-theme] .flatpickr-current-month .flatpickr-monthDropdown-months,
+body[data-theme] .flatpickr-current-month input.cur-year,
+body[data-theme] .flatpickr-time input,
+body[data-theme] .flatpickr-time .flatpickr-am-pm {
+  color: var(--flatpickr-text);
+  background: transparent;
+  fill: var(--flatpickr-text);
+}
+
+body[data-theme] .flatpickr-weekday,
+body[data-theme] .flatpickr-day {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--flatpickr-text);
+}
+
+body[data-theme] .flatpickr-weekday {
+  color: var(--flatpickr-text-muted);
+}
+
+body[data-theme] .flatpickr-day.flatpickr-disabled,
+body[data-theme] .flatpickr-day.flatpickr-disabled:hover,
+body[data-theme] .flatpickr-day.prevMonthDay,
+body[data-theme] .flatpickr-day.nextMonthDay,
+body[data-theme] .flatpickr-day.notAllowed,
+body[data-theme] .flatpickr-day.notAllowed:hover {
+  background: transparent;
+  border-color: transparent;
+  color: color-mix(in srgb, var(--flatpickr-text-muted) 45%, transparent);
+}
+
+body[data-theme] .flatpickr-day.prevMonthDay.inRange,
+body[data-theme] .flatpickr-day.nextMonthDay.inRange,
+body[data-theme] .flatpickr-day.today.inRange,
+body[data-theme] .flatpickr-day.prevMonthDay:focus,
+body[data-theme] .flatpickr-day.nextMonthDay:focus,
+body[data-theme] .flatpickr-day.today:focus,
+body[data-theme] .flatpickr-day.prevMonthDay:hover,
+body[data-theme] .flatpickr-day.nextMonthDay:hover,
+body[data-theme] .flatpickr-day.today:hover {
+  background: var(--flatpickr-hover);
+  border-color: var(--flatpickr-hover);
+  color: var(--flatpickr-text);
+}
+
+body[data-theme] .flatpickr-day:hover,
+body[data-theme] .flatpickr-day:focus {
+  background: var(--flatpickr-hover);
+  border-color: var(--flatpickr-hover);
+  color: var(--flatpickr-text);
+}
+
+body[data-theme] .flatpickr-day.today {
+  border-color: var(--flatpickr-accent);
+}
+
+body[data-theme] .flatpickr-day.today:hover,
+body[data-theme] .flatpickr-day.today:focus {
+  background: var(--flatpickr-accent);
+  border-color: var(--flatpickr-accent);
+  color: var(--flatpickr-accent-text);
+}
+
+body[data-theme] .flatpickr-day.selected,
+body[data-theme] .flatpickr-day.startRange,
+body[data-theme] .flatpickr-day.endRange,
+body[data-theme] .flatpickr-day.inRange,
+body[data-theme] .flatpickr-day.selected:hover,
+body[data-theme] .flatpickr-day.startRange:hover,
+body[data-theme] .flatpickr-day.endRange:hover,
+body[data-theme] .flatpickr-day.inRange:hover {
+  background: var(--flatpickr-accent);
+  border-color: var(--flatpickr-accent);
+  color: var(--flatpickr-accent-text);
+}
+
+body[data-theme] .flatpickr-months .flatpickr-prev-month svg,
+body[data-theme] .flatpickr-months .flatpickr-next-month svg {
+  fill: var(--flatpickr-text);
+}
+
+body[data-theme] .flatpickr-time .flatpickr-time-separator,
+body[data-theme] .flatpickr-time .flatpickr-am-pm {
+  color: var(--flatpickr-text);
+}
+
+body[data-theme] .flatpickr-time input:hover,
+body[data-theme] .flatpickr-time .flatpickr-am-pm:hover,
+body[data-theme] .flatpickr-time input:focus,
+body[data-theme] .flatpickr-time .flatpickr-am-pm:focus {
+  background: var(--flatpickr-hover);
+}

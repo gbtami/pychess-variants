@@ -386,6 +386,9 @@ class TournamentUserConnectedMessage(TypedDict):
     manualNextRound: NotRequired[bool]
     chatClosed: bool
     private: bool
+    createdBy: str
+    rrRequiresApproval: NotRequired[bool]
+    rrJoiningClosed: NotRequired[bool]
     defender_title: NotRequired[str]
     defender_name: NotRequired[str]
 
@@ -403,6 +406,9 @@ class LobbySeekPayload(TypedDict):
     rrmax: NotRequired[int | None]
     chess960: NotRequired[bool | None]
     target: NotRequired[str]
+    reserveGameId: NotRequired[bool]
+    tournamentId: NotRequired[str]
+    rrArrangementId: NotRequired[str]
     user: NotRequired[str]
 
 
@@ -491,6 +497,35 @@ class TournamentGetGamesMessage(TournamentIdMessage):
     player: str
 
 
+class TournamentRRArrangementsMessage(TournamentIdMessage):
+    type: Literal["get_rr_arrangements"]
+
+
+class TournamentRRManagementMessage(TournamentIdMessage):
+    type: Literal["get_rr_management"]
+
+
+class TournamentRRSetJoiningMessage(TournamentIdMessage):
+    type: Literal["rr_set_joining_closed"]
+    closed: bool
+
+
+class TournamentRRChallengeMessage(TournamentIdMessage):
+    type: Literal["rr_challenge", "rr_accept_challenge"]
+    arrangementId: str
+
+
+class TournamentRRSetTimeMessage(TournamentIdMessage):
+    type: Literal["rr_set_time"]
+    arrangementId: str
+    date: NotRequired[str]
+
+
+class TournamentRRManagePlayerMessage(TournamentIdMessage):
+    type: Literal["rr_approve_player", "rr_deny_player", "rr_kick_player"]
+    username: str
+
+
 class TournamentJoinMessage(TournamentIdMessage):
     type: Literal["join"]
     password: NotRequired[str]
@@ -519,6 +554,12 @@ TournamentInboundMessage = (
     TournamentGetPlayersMessage
     | TournamentMyPageMessage
     | TournamentGetGamesMessage
+    | TournamentRRArrangementsMessage
+    | TournamentRRManagementMessage
+    | TournamentRRSetJoiningMessage
+    | TournamentRRChallengeMessage
+    | TournamentRRSetTimeMessage
+    | TournamentRRManagePlayerMessage
     | TournamentJoinMessage
     | TournamentPauseMessage
     | TournamentWithdrawMessage

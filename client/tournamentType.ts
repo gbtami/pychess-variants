@@ -68,6 +68,9 @@ export interface MsgUserConnectedTournament {
     secondsToFinish: number;
     chatClosed: boolean;
     private: boolean;
+    createdBy: string;
+    rrRequiresApproval?: boolean;
+    rrJoiningClosed?: boolean;
 }
 
 export interface MsgGetPlayers {
@@ -93,6 +96,13 @@ export interface TournamentPlayer {
     nbGames: number;
     nbWin: number;
     nbBerserk: number;
+    withdrawn?: boolean;
+}
+
+export interface TournamentManagePlayer {
+    title: string;
+    name: string;
+    rating: number;
 }
 
 export interface MsgError {
@@ -100,6 +110,50 @@ export interface MsgError {
 }
 export interface MsgPing {
     timestamp: string;
+}
+
+export interface RRArrangementCell {
+    id: string;
+    round: number;
+    white: string;
+    black: string;
+    status: string;
+    gameId: string;
+    inviteId: string;
+    challenger: string;
+    color: string;
+    date: string;
+    whiteSuggestedAt: string;
+    blackSuggestedAt: string;
+    scheduledAt: string;
+    result?: string;
+    points?: number | string;
+}
+
+export interface MsgRRArrangements {
+    type: string;
+    requestedBy: string;
+    players: string[];
+    matrix: Record<string, Record<string, RRArrangementCell>>;
+    completedGames: number;
+    totalGames: number;
+}
+
+export interface MsgRRManagement {
+    type: string;
+    requestedBy: string;
+    createdBy: string;
+    approvalRequired: boolean;
+    joiningClosed: boolean;
+    pendingPlayers: TournamentManagePlayer[];
+    deniedPlayers: TournamentManagePlayer[];
+}
+
+export interface MsgRRSettings {
+    type: string;
+    createdBy: string;
+    approvalRequired: boolean;
+    joiningClosed: boolean;
 }
 
 export interface TopGame {

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from datetime import datetime, timezone
 
 import aiohttp_session
@@ -20,12 +20,20 @@ if TYPE_CHECKING:
         TournamentJoinMessage,
         TournamentLobbyChatMessage,
         TournamentMyPageMessage,
+        TournamentRRManagePlayerMessage,
+        TournamentRRManagementMessage,
+        TournamentRRSetJoiningMessage,
+        TournamentRRArrangementsMessage,
+        TournamentRRChallengeMessage,
+        TournamentRRSetTimeMessage,
         TournamentPauseMessage,
         TournamentUserConnectedRequest,
         TournamentWithdrawMessage,
     )
 from pychess_global_app_state_utils import get_app_state
-from settings import TOURNAMENT_DIRECTORS
+from tournament_director import is_tournament_director
+from const import RR
+from tournament.rr import RRTournament
 from tournament.tournament import T_CREATED, T_STARTED
 from tournament.tournaments import load_tournament
 from ws_types import ChatLine, FullChatMessage, TournamentUserConnectedMessage
@@ -78,6 +86,12 @@ async def process_message(
         await handle_my_page(app_state, ws, user, data)
     elif data["type"] == "get_games":
         await handle_get_games(app_state, ws, data)
+    elif data["type"] == "get_rr_arrangements":
+        await handle_get_rr_arrangements(app_state, ws, user, data)
+    elif data["type"] == "get_rr_management":
+        await handle_get_rr_management(app_state, ws, user, data)
+    elif data["type"] == "rr_set_joining_closed":
+        await handle_rr_set_joining_closed(app_state, ws, user, data)
     elif data["type"] == "join":
         await handle_join(app_state, ws, user, data)
     elif data["type"] == "pause":
@@ -86,6 +100,18 @@ async def process_message(
         await handle_withdraw(app_state, ws, user, data)
     elif data["type"] == "tournament_user_connected":
         await handle_user_connected(app_state, ws, user, data)
+    elif data["type"] == "rr_challenge":
+        await handle_rr_challenge(app_state, ws, user, data)
+    elif data["type"] == "rr_accept_challenge":
+        await handle_rr_accept_challenge(app_state, ws, user, data)
+    elif data["type"] == "rr_set_time":
+        await handle_rr_set_time(app_state, ws, user, data)
+    elif data["type"] == "rr_approve_player":
+        await handle_rr_manage_player(app_state, ws, user, data)
+    elif data["type"] == "rr_deny_player":
+        await handle_rr_manage_player(app_state, ws, user, data)
+    elif data["type"] == "rr_kick_player":
+        await handle_rr_manage_player(app_state, ws, user, data)
     elif data["type"] == "lobbychat":
         await handle_lobbychat(app_state, user, data)
 
@@ -123,6 +149,42 @@ async def handle_get_games(app: PychessGlobalAppState, ws, data: TournamentGetGa
         await ws_send_json(ws, response)
 
 
+async def handle_get_rr_arrangements(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentRRArrangementsMessage
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if tournament is None or tournament.system != RR:
+        return
+    rr_tournament = cast(RRTournament, tournament)
+    await ws_send_json(ws, rr_tournament.arrangement_payload(user=user))
+
+
+async def handle_get_rr_management(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentRRManagementMessage
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if tournament is None or tournament.system != RR:
+        return
+    rr_tournament = cast(RRTournament, tournament)
+    if user.username != tournament.created_by:
+        return
+    await ws_send_json(ws, rr_tournament.rr_management_payload(requested_by=user.username))
+
+
+async def handle_rr_set_joining_closed(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentRRSetJoiningMessage
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if tournament is None or tournament.system != RR:
+        return
+    rr_tournament = cast(RRTournament, tournament)
+    if user.username != tournament.created_by:
+        return
+    result = await rr_tournament.rr_set_joining_closed(data["closed"])
+    if result is not None:
+        await ws_send_json(ws, {"type": "error", "message": result})
+
+
 async def handle_join(
     app: PychessGlobalAppState, ws, user: User, data: TournamentJoinMessage
 ) -> None:
@@ -140,6 +202,16 @@ async def handle_join(
                 "message": "Late join is closed for this Swiss tournament",
             }
             await ws_send_json(ws, response)
+            return
+        if result in ("JOIN_REQUESTED", "JOIN_REQUEST_PENDING"):
+            await ws_send_json(
+                ws,
+                {
+                    "type": "ustatus",
+                    "username": user.username,
+                    "ustatus": tournament.user_status(user),
+                },
+            )
             return
         if result is not None:
             response = {"type": "error", "message": result}
@@ -213,6 +285,7 @@ async def handle_user_connected(
         "startFen": tournament.fen,
         "description": tournament.description,
         "frequency": tournament.frequency,
+        "createdBy": tournament.created_by,
         "secondsToStart": (
             (tournament.starts_at - now).total_seconds() if tournament.starts_at > now else 0
         ),
@@ -230,6 +303,9 @@ async def handle_user_connected(
     response["roundOngoingGames"] = round_ongoing_games
     response["secondsToNextRound"] = seconds_to_next_round
     response["manualNextRound"] = tournament.manual_next_round_pending
+    if tournament.system == RR:
+        response["rrRequiresApproval"] = tournament.rr_requires_approval
+        response["rrJoiningClosed"] = tournament.rr_joining_closed
     if tournament.frequency == SHIELD:
         variant_name = tournament.variant + ("960" if tournament.chess960 else "")
         defender = await app_state.users.get(app_state.shield_owners[variant_name])
@@ -250,6 +326,11 @@ async def handle_user_connected(
     await ws_send_json(ws, fullchat_response)
 
     await ws_send_json(ws, tournament.duels_json)
+    if tournament.system == RR:
+        rr_tournament = cast(RRTournament, tournament)
+        await ws_send_json(ws, rr_tournament.arrangement_payload(user=user))
+        if user.username == tournament.created_by:
+            await ws_send_json(ws, rr_tournament.rr_management_payload(requested_by=user.username))
 
     if user.username not in tournament.spectators:
         tournament.spactator_join(user)
@@ -257,6 +338,69 @@ async def handle_user_connected(
 
     if not user.is_user_active_in_game() and len(user.lobby_sockets) == 0:
         await app_state.lobby.lobby_broadcast_u_cnt()
+
+
+async def handle_rr_challenge(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentRRChallengeMessage
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if tournament is None or tournament.system != RR:
+        return
+    rr_tournament = cast(RRTournament, tournament)
+    result = await rr_tournament.create_arrangement_challenge(user, data["arrangementId"])
+    if result is not None:
+        await ws_send_json(ws, {"type": "error", "message": result})
+
+
+async def handle_rr_accept_challenge(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentRRChallengeMessage
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if tournament is None or tournament.system != RR:
+        return
+    rr_tournament = cast(RRTournament, tournament)
+    result = await rr_tournament.accept_arrangement_challenge(user, data["arrangementId"])
+    await ws_send_json(ws, result)
+
+
+async def handle_rr_set_time(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentRRSetTimeMessage
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if tournament is None or tournament.system != RR:
+        return
+    rr_tournament = cast(RRTournament, tournament)
+
+    raw_date = data.get("date")
+    parsed_date = (
+        datetime.fromisoformat(raw_date.rstrip("Z")).replace(tzinfo=timezone.utc)
+        if raw_date
+        else None
+    )
+    result = await rr_tournament.set_arrangement_time(user, data["arrangementId"], parsed_date)
+    if result is not None:
+        await ws_send_json(ws, {"type": "error", "message": result})
+
+
+async def handle_rr_manage_player(
+    app: PychessGlobalAppState, ws, user: User, data: TournamentRRManagePlayerMessage
+) -> None:
+    tournament = await load_tournament(app, data["tournamentId"])
+    if tournament is None or tournament.system != RR:
+        return
+    rr_tournament = cast(RRTournament, tournament)
+    if user.username != tournament.created_by:
+        return
+
+    if data["type"] == "rr_approve_player":
+        result = await rr_tournament.rr_approve_player(data["username"])
+    elif data["type"] == "rr_deny_player":
+        result = await rr_tournament.rr_deny_player(data["username"])
+    else:
+        result = await rr_tournament.rr_kick_player(data["username"])
+
+    if result is not None:
+        await ws_send_json(ws, {"type": "error", "message": result})
 
 
 async def handle_lobbychat(
@@ -272,14 +416,15 @@ async def handle_lobbychat(
     message = data["message"]
     response: ChatLine | FullChatMessage | None = None
 
-    round_controller = user.username in TOURNAMENT_DIRECTORS or user.username == tournament.creator
+    director = is_tournament_director(user, app_state)
+    round_controller = director or user.username == tournament.creator
 
     if round_controller and message.startswith("/startround"):
         if await tournament.start_next_round_now():
             return
         return
 
-    if user.username in TOURNAMENT_DIRECTORS:
+    if director:
         if message.startswith("/silence"):
             response = silence(app_state, message, app_state.tourneychat[tournamentId])
             # silence message was already added to lobbychat in silence()

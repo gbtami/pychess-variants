@@ -970,7 +970,7 @@ function runTournament(vnode: VNode, model: PyChessModel) {
 }
 
 export function tournamentView(model: PyChessModel): VNode[] {
-    const variant = VARIANTS[model.variant];
+    const variant = VARIANTS[model.variant] ?? VARIANTS['chess'];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
     document.body.setAttribute('style', `--ranks: ${variant.board.dimensions.height}; --files: ${variant.board.dimensions.width};`);

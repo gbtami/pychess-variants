@@ -2,10 +2,10 @@ from aiohttp import web
 import aiohttp_jinja2
 
 from const import T_CREATED
-from settings import TOURNAMENT_DIRECTORS
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 from typing_defs import ViewContext
+from tournament_director import is_tournament_director
 from tournament.tournaments import (
     load_tournament,
     get_tournament_name,
@@ -24,7 +24,7 @@ async def tournament(request: web.Request) -> ViewContext:
     if tournament is None:
         return context  # web.HTTPFound("/")
 
-    if user.username in TOURNAMENT_DIRECTORS and tournament.status == T_CREATED:
+    if is_tournament_director(user, app_state) and tournament.status == T_CREATED:
         if request.path.endswith("/cancel"):
             await tournament.abort()
             raise web.HTTPFound("/tournaments")

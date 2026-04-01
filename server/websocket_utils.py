@@ -9,6 +9,7 @@ import aiohttp_session
 from aiohttp import WSMessage, web
 from aiohttp.web_ws import WebSocketResponse
 from aiohttp.client_exceptions import ClientConnectionResetError
+from logger import sanitize_for_logging
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -78,7 +79,11 @@ async def process_ws(
                 else:
                     data = json.loads(msg.data)
                     if not data["type"] == "pong":
-                        log.debug("Websocket (%s) message: %s", id(ws), msg)
+                        log.debug(
+                            "Websocket (%s) message: %s",
+                            id(ws),
+                            sanitize_for_logging(data),
+                        )
                     if data["type"] == "logout":
                         await ws.close()
                     elif data["type"] == "disconnect":

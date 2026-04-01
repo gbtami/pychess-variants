@@ -68,7 +68,8 @@ from seek import (
     Seek,
     SeekCreateData,
 )
-from settings import ADMINS, TOURNAMENT_DIRECTORS
+from settings import ADMINS
+from tournament_director import is_tournament_director
 from tournament.tournament_spotlights import tournament_spotlights
 from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
 from utils import join_seek, load_game, remove_seek, should_send_game_start_to_bot
@@ -351,7 +352,7 @@ async def handle_create_bot_challenge(
 async def handle_create_host(
     app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: CreateHostMessage
 ) -> None:
-    no = user.username not in TOURNAMENT_DIRECTORS
+    no = not is_tournament_director(user, app_state)
     if no:
         return
 

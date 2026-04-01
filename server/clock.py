@@ -26,6 +26,16 @@ CORR_TICK = 60
 BOT_FIRST_MOVE_TIMEOUT = 5 * 60 * 1000
 
 
+def first_move_timeout_reason(game: Game, ply: int) -> str:
+    if ply >= 2:
+        return "flag"
+    if game.tournamentArrangementId is not None:
+        return "abort"
+    if game.tournamentId is None:
+        return "abort"
+    return "flag"
+
+
 class Clock:
     """Check game start and time out abandoned games"""
 
@@ -106,11 +116,7 @@ class Clock:
                         user = self.game.get_player_at(self.color, self.board)
                         log.debug("FLAG from server. Secs: %s User: %s", self.secs, user.username)
 
-                        reason = (
-                            "abort"
-                            if (self.ply < 2) and (self.game.tournamentId is None)
-                            else "flag"
-                        )
+                        reason = first_move_timeout_reason(self.game, self.ply)
 
                         async with self.game.move_lock:
                             # Re-validate after acquiring the move lock. A move may
@@ -249,7 +255,7 @@ class CorrClock:
                 user = self.game.bplayer if self.color == BLACK else self.game.wplayer
                 log.debug("FLAG from server. Mins: %s User: %s", self.mins, user.username)
 
-                reason = "abort" if self.ply < 2 else "flag"
+                reason = first_move_timeout_reason(self.game, self.ply)
 
                 async with self.game.move_lock:
                     response = await self.game.game_ended(user, reason)
