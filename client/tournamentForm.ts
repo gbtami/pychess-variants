@@ -125,6 +125,8 @@ export function initTournamentForm(): void {
     const minutesSelect = document.getElementById("form3-minutes");
     const waitMinutesSelect = document.getElementById("form3-waitMinutes");
     const startDateInput = document.getElementById("startDate");
+    const endDateWrap = document.getElementById("form3-endDate-wrap");
+    const endDateDisplayWrap = document.getElementById("form3-endDate-display-wrap");
     const endDateInput = document.getElementById("endDate");
     const entryWrapA = document.getElementById("form3-entry-wrap-a");
     const entryWrapB = document.getElementById("form3-entry-wrap-b");
@@ -249,6 +251,10 @@ export function initTournamentForm(): void {
                 ? "Arena uses this as a hard limit."
                 : "Swiss and Round-Robin only use this as an estimate for scheduling and display. The event still finishes by rounds.";
         }
+
+        setVisible(endDateWrap, isRR);
+        setVisible(endDateDisplayWrap, isRR);
+        setDisabled([endDateInput instanceof HTMLInputElement ? endDateInput : null], !isRR);
 
         setVisible(entryWrapA, true);
         setVisible(entryWrapB, true);

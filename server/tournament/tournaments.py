@@ -516,7 +516,7 @@ async def create_or_update_tournament(
         start_date = None
 
     end_date: datetime | None
-    if form.get("endDate"):
+    if system == RR and form.get("endDate"):
         end_date = datetime.fromisoformat(form["endDate"].rstrip("Z")).replace(tzinfo=timezone.utc)
     else:
         end_date = None

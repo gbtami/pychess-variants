@@ -425,6 +425,98 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(tournament.minutes, 77)
         self.assertEqual(tournament.ends_at, end_at)
 
+    async def test_swiss_form_ignores_custom_end_date(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        start_at = (datetime.now(timezone.utc) + timedelta(days=1)).replace(second=0, microsecond=0)
+        tournament = SwissTestTournament(
+            app_state,
+            tid,
+            variant="chess",
+            before_start=5,
+            starts_at=start_at,
+            minutes=45,
+            rounds=5,
+            with_clock=False,
+        )
+        app_state.tournaments[tid] = tournament
+        await upsert_tournament_to_db(tournament, app_state)
+
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": str(tournament.base),
+            "clockIncrement": str(tournament.inc),
+            "byoyomiPeriod": str(tournament.byoyomi_period),
+            "system": "2",
+            "rounds": "5",
+            "rrMaxPlayers": "0",
+            "rrRequiresApproval": "",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": start_at.isoformat().replace("+00:00", "Z"),
+            "endDate": (start_at + timedelta(minutes=120)).isoformat().replace("+00:00", "Z"),
+            "name": "Swiss End Date Ignored",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+
+        await create_or_update_tournament(app_state, "tester", form, tournament)
+
+        self.assertEqual(tournament.minutes, 45)
+        self.assertEqual(tournament.starts_at, start_at)
+        self.assertEqual(tournament.ends_at, start_at + timedelta(minutes=45))
+
+    async def test_arena_form_ignores_custom_end_date(self):
+        app_state = get_app_state(self.app)
+        before_ids = set(app_state.tournaments)
+        start_at = (datetime.now(timezone.utc) + timedelta(days=1)).replace(second=0, microsecond=0)
+        form = {
+            "variant": "chess",
+            "rated": "1",
+            "position": "",
+            "clockTime": "5",
+            "clockIncrement": "0",
+            "byoyomiPeriod": "0",
+            "system": "0",
+            "rounds": "0",
+            "rrMaxPlayers": "0",
+            "rrRequiresApproval": "",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "entryTitledOnly": "",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": start_at.isoformat().replace("+00:00", "Z"),
+            "endDate": (start_at + timedelta(minutes=120)).isoformat().replace("+00:00", "Z"),
+            "name": "Arena End Date Ignored",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+
+        await create_or_update_tournament(app_state, "tester", form)
+
+        new_ids = set(app_state.tournaments) - before_ids
+        self.assertEqual(len(new_ids), 1)
+        tournament = app_state.tournaments[new_ids.pop()]
+        self.assertEqual(tournament.starts_at, start_at)
+        self.assertEqual(tournament.minutes, 45)
+        self.assertEqual(tournament.ends_at, start_at + timedelta(minutes=45))
+
     async def test_tournament_pairings_persist_before_restart(self):
         app_state = get_app_state(self.app)
         tid = id8()
