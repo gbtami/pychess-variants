@@ -76,8 +76,8 @@ export function analysisView(model: PyChessModel): VNode[] {
                 h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => bugboardVNode = vnode/*runGround(vnode, model)*/ } }),
                 h('div#anal-clock-bottom-bug'),
             ]),
-            gauge(),
-            gauge("gaugePartner"),
+            gauge(variant.colors),
+            gauge(variant.colors, "gaugePartner"),
             h('div.pocket-top', [
                 h('div.' + variant.pieceFamily + '.twoboards', [
                     h('div.cg-wrap.pocket', [

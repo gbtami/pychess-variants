@@ -652,16 +652,16 @@ export class AnalysisController extends GameController {
         if (pvlineIdx === 0) {
             const gaugeEl = document.getElementById('gauge') as HTMLElement;
             if (gaugeEl) {
-                const blackEl = gaugeEl.querySelector('div.black') as HTMLElement | undefined;
-                if (blackEl && ceval !== undefined) {
+                const fillEl = gaugeEl.querySelector('div.fill') as HTMLElement | undefined;
+                if (fillEl && ceval !== undefined) {
                     const score = ceval['s'];
-                    const color = (this.variant.colors.first === "Black") ? turnColor === 'black' ? 'white' : 'black' : turnColor;
+                    const color = turnColor;
                     if (score !== undefined) {
                         const ev = povChances(color, score);
-                        blackEl.style.height = String(100 - (ev + 1) * 50) + '%';
+                        fillEl.style.height = String(100 - (ev + 1) * 50) + '%';
                     }
                     else {
-                        blackEl.style.height = '50%';
+                        fillEl.style.height = '50%';
                     }
                 }
             }

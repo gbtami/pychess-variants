@@ -81,7 +81,7 @@ div.ctable-container {
 }
 #gauge, #gaugePartner {
     display: block;
-    background-color: #fff;
+    background-color: var(--analysis-gauge-first, #fff);
     width: var(--gauge-gap);
     overflow: hidden;
     position: relative;
@@ -99,8 +99,8 @@ div.ctable-container {
     right: 0;
     box-shadow: 0 0 5px rgba(0,0,0,0.7) inset;
 }
-#gauge .black, #gaugePartner .black{
-    background-color: #888;
+#gauge .fill, #gaugePartner .fill{
+    background-color: var(--analysis-gauge-second, #888);
     transition: height 1s;
 }
 #gauge .tick, #gaugePartner .tick{

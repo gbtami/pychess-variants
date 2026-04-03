@@ -2,12 +2,14 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from './i18n';
 import { AnalysisController } from './analysisCtrl';
+import type { ColorName } from './chess';
 import { gameInfo } from './gameInfo';
 import { selectVariant, VARIANTS, validVariant } from './variants';
 import { renderTimeago } from './datetime';
 import { spinner } from './view';
 import { PyChessModel } from "./types";
 import { analysisSettings } from './analysisSettings';
+import { gaugeSideColors } from './variantColor';
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -128,7 +130,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                 h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => runGround(vnode, model) } }),
                 h('div#anal-clock-bottom'),
             ]),
-            (isOngoingGame) ? '' : gauge(),
+            (isOngoingGame) ? '' : gauge(variant.colors),
             h('div.pocket-top', [
                 h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [
@@ -215,9 +217,14 @@ export function analysisTools (isOngoingGame: boolean = false) {
         ])
 }
 
-export function gauge (id: string = "gauge") {
-    return h('div#'+id, [
-        h('div.black',     { props: { style: "height: 50%;" } }),
+export function gauge (colors: { first: ColorName; second: ColorName }, id: string = "gauge") {
+    const sideColors = gaugeSideColors(colors);
+    return h('div#'+id, {
+        attrs: {
+            style: `--analysis-gauge-first: ${sideColors.first}; --analysis-gauge-second: ${sideColors.second};`,
+        },
+    }, [
+        h('div.fill',      { props: { style: "height: 50%;" } }),
         h('div.tick',      { props: { style: "height: 12.5%;" } }),
         h('div.tick',      { props: { style: "height: 25%;" } }),
         h('div.tick',      { props: { style: "height: 37.5%;" } }),

@@ -44,7 +44,7 @@ export function puzzleView(model: PyChessModel): VNode[] {
             h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
                 h('div.cg-wrap.' + variant.board.cg, { hook: { insert: (vnode) => runPuzzle(vnode, model) } }),
             ]),
-            gauge(),
+            gauge(variant.colors),
             h('div.pocket-top', [
                 h('div.' + variant.pieceFamily + '.' + model["variant"], [
                     h('div.cg-wrap.pocket', [

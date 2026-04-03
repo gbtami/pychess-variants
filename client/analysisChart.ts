@@ -5,13 +5,16 @@ import { selectMove } from './movelist';
 import { povChances } from './winningChances';
 import { AnalysisController } from './analysisCtrl';
 import { Step } from "./messages";
+import { analysisChartZone } from './variantColor';
 
 export function analysisChart(ctrl: AnalysisController) {
+    const firstSide = analysisChartZone(ctrl.variant.colors.first);
+    const secondSide = analysisChartZone(ctrl.variant.colors.second);
     const scores = ctrl.steps.map(
         (step: Step, ply: number) => {
             if (step.ceval !== undefined) {
                 const score = step.ceval.s;
-                const color = (ctrl.variant.colors.first === "Black") ? step.turnColor === 'black' ? 'white' : 'black' : step.turnColor;
+                const color = step.turnColor;
                 if (score !== undefined) {
                     const turn = Math.floor((ply - 1) / 2) + 1;
                     const dots = step.turnColor === 'black' ? '.' : '...';
@@ -45,11 +48,20 @@ export function analysisChart(ctrl: AnalysisController) {
                 animation: false
             },
             area: {
-                fillColor: 'rgba(255,255,255,0.7)',
-                negativeFillColor: 'rgba(0,0,0,0.2)',
                 threshold: 0,
+                zoneAxis: 'y',
+                zones: [
+                    {
+                        value: 0,
+                        color: secondSide.color,
+                        fillColor: secondSide.fillColor,
+                    },
+                    {
+                        color: firstSide.color,
+                        fillColor: firstSide.fillColor,
+                    },
+                ],
                 lineWidth: 1,
-                color: '#d85000',
                 allowPointSelect: true,
                 cursor: 'pointer',
                 states: {
@@ -70,11 +82,9 @@ export function analysisChart(ctrl: AnalysisController) {
                     states: {
                         hover: {
                             radius: 4,
-                            lineColor: '#d85000'
                         },
                         select: {
                             radius: 4,
-                            lineColor: '#d85000'
                         }
                     }
                 }
