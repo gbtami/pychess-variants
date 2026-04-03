@@ -11,6 +11,7 @@ from aiohttp import web
 from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp_sse import sse_response
 import pymongo
+from pymongo.errors import BulkWriteError
 
 from compress import C2R, decode_move_standard
 from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM, SSE_GET_TIMEOUT, SWISS
@@ -75,6 +76,39 @@ GameDoc = TypedDict(
 )
 
 
+def duplicate_key_only_bulk_write_error(error: BulkWriteError) -> bool:
+    details = error.details
+    write_errors = details.get("writeErrors", []) if isinstance(details, dict) else []
+    write_concern_errors = (
+        details.get("writeConcernErrors", []) if isinstance(details, dict) else []
+    )
+    return (
+        bool(write_errors)
+        and not write_concern_errors
+        and all(item.get("code") == 11000 for item in write_errors)
+    )
+
+
+async def persist_variant_count_docs(
+    app_state: PychessGlobalAppState, humans: bool, docs: list[VariantCountDoc]
+) -> None:
+    if not docs:
+        return
+
+    collection = app_state.db.stats_humans if humans else app_state.db.stats
+    try:
+        await collection.insert_many(docs, ordered=False)
+    except BulkWriteError as error:
+        if not duplicate_key_only_bulk_write_error(error):
+            raise
+        periods = sorted({doc["_id"]["p"] for doc in docs})
+        log.info(
+            "Ignoring duplicate monthly variant stats write for humans=%s periods=%s",
+            humans,
+            periods,
+        )
+
+
 async def variant_counts_aggregation(
     app_state: PychessGlobalAppState, humans: bool, query_period: str | None = None
 ) -> list[VariantCountDoc]:
@@ -129,11 +163,7 @@ async def variant_counts_aggregation(
 
         docs.append(doc)
 
-    if docs:
-        if humans:
-            await app_state.db.stats_humans.insert_many(docs)
-        else:
-            await app_state.db.stats.insert_many(docs)
+    await persist_variant_count_docs(app_state, humans, docs)
 
     return docs
 

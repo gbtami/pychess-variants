@@ -10,11 +10,18 @@ import test_logger
 from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
+from pymongo.errors import BulkWriteError
 
 import game_api
 from const import STARTED, SWISS
 from game import Game
-from game_api import _seen_discontinued_variants, safe_write_eof, variant_counts_from_docs
+from game_api import (
+    _seen_discontinued_variants,
+    duplicate_key_only_bulk_write_error,
+    persist_variant_count_docs,
+    safe_write_eof,
+    variant_counts_from_docs,
+)
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
@@ -123,6 +130,112 @@ class VariantStatsTestCase(unittest.TestCase):
             self.assertEqual(2, info.call_count)
         finally:
             _seen_discontinued_variants.clear()
+
+
+class VariantStatsPersistenceTestCase(unittest.IsolatedAsyncioTestCase):
+    async def test_persist_variant_count_docs_ignores_duplicate_key_bulk_write_errors(self):
+        stats_collection = AsyncMock()
+        duplicate_error = BulkWriteError(
+            {
+                "writeErrors": [
+                    {
+                        "index": 0,
+                        "code": 11000,
+                        "errmsg": "duplicate key",
+                    }
+                ],
+                "writeConcernErrors": [],
+            }
+        )
+        stats_collection.insert_many.side_effect = duplicate_error
+        app_state = SimpleNamespace(
+            db=SimpleNamespace(stats=stats_collection, stats_humans=AsyncMock())
+        )
+        docs = [{"_id": {"p": "202603", "v": "n", "z": 0}, "c": 7}]
+
+        with patch("game_api.log.info") as info:
+            await persist_variant_count_docs(app_state, False, docs)
+
+        stats_collection.insert_many.assert_awaited_once_with(docs, ordered=False)
+        info.assert_called_once()
+
+    async def test_persist_variant_count_docs_reraises_non_duplicate_bulk_write_errors(self):
+        stats_collection = AsyncMock()
+        write_error = BulkWriteError(
+            {
+                "writeErrors": [
+                    {
+                        "index": 0,
+                        "code": 121,
+                        "errmsg": "document validation failure",
+                    }
+                ],
+                "writeConcernErrors": [],
+            }
+        )
+        stats_collection.insert_many.side_effect = write_error
+        app_state = SimpleNamespace(
+            db=SimpleNamespace(stats=stats_collection, stats_humans=AsyncMock())
+        )
+        docs = [{"_id": {"p": "202603", "v": "n", "z": 0}, "c": 7}]
+
+        with self.assertRaises(BulkWriteError):
+            await persist_variant_count_docs(app_state, False, docs)
+
+
+class VariantStatsEndpointTestCase(AioHTTPTestCase):
+    async def get_application(self):
+        return make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+
+    async def tearDownAsync(self):
+        await self.client.close()
+
+    async def test_get_variant_stats_ignores_duplicate_key_race(self):
+        docs = [
+            {"_id": {"p": "202603", "v": get_server_variant("chess", False).code, "z": 0}, "c": 1}
+        ]
+        with patch("game_api.variant_counts_aggregation", new=AsyncMock(return_value=docs)) as agg:
+            response = await self.client.get("/api/stats")
+
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        chess_series = next(item for item in payload if item["name"] == "chess")
+        self.assertEqual([1], chess_series["data"])
+        agg.assert_awaited_once()
+
+
+class VariantStatsBulkWriteErrorTestCase(unittest.TestCase):
+    def test_duplicate_key_only_bulk_write_error(self):
+        self.assertTrue(
+            duplicate_key_only_bulk_write_error(
+                BulkWriteError(
+                    {
+                        "writeErrors": [{"index": 0, "code": 11000}],
+                        "writeConcernErrors": [],
+                    }
+                )
+            )
+        )
+        self.assertFalse(
+            duplicate_key_only_bulk_write_error(
+                BulkWriteError(
+                    {
+                        "writeErrors": [{"index": 0, "code": 11000}],
+                        "writeConcernErrors": [{"code": 64}],
+                    }
+                )
+            )
+        )
+        self.assertFalse(
+            duplicate_key_only_bulk_write_error(
+                BulkWriteError(
+                    {
+                        "writeErrors": [{"index": 0, "code": 121}],
+                        "writeConcernErrors": [],
+                    }
+                )
+            )
+        )
 
 
 class ExportPGNTestCase(AioHTTPTestCase):
