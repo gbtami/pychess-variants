@@ -3,6 +3,7 @@ import { h, VNode } from "snabbdom";
 import { _ } from './i18n';
 import { patch } from './document';
 import { timeago } from './datetime';
+import { sound } from './sound';
 
 interface Message {
     type: string;
@@ -143,6 +144,7 @@ export function notifyView() {
     var messages: Message[] = [];
     let evtSource: EventSource | null = null;
     let reconnectTimer: number | null = null;
+    let notifyStreamReady = false;
 
     const xmlhttp = new XMLHttpRequest();
     const url = "/notifications?p=";
@@ -158,9 +160,18 @@ export function notifyView() {
         notifyAppEl = patch(notifyAppEl, h('div#notify-app', renderMessages(messages)));
     }
 
-    function applyMessages(nextMessages: Message[]) {
+    function unreadMessageIds(items: Message[]) {
+        return new Set(items.filter(message => !message.read).map(message => `${message.type}:${message.createdAt}`));
+    }
+
+    function applyMessages(nextMessages: Message[], allowSound = false) {
+        const previousUnread = unreadMessageIds(messages);
         messages = nextMessages;
         unread = messages.reduce(newNotifyCounter, 0);
+        const nextUnread = unreadMessageIds(messages);
+        if (allowSound && [...nextUnread].some(messageId => !previousUnread.has(messageId))) {
+            sound.genericNotify();
+        }
         page = 0;
         redraw();
     }
@@ -177,7 +188,8 @@ export function notifyView() {
         if (evtSource !== null) evtSource.close();
         evtSource = new EventSource("/notify");
         evtSource.onmessage = function(event) {
-            applyMessages(JSON.parse(event.data));
+            applyMessages(JSON.parse(event.data), notifyStreamReady);
+            notifyStreamReady = true;
         };
         evtSource.onerror = function() {
             if (evtSource !== null) {

@@ -13,6 +13,7 @@ class Sounds {
     private static readonly trackNames = {
         GenericNotify: 'GenericNotify',
         SocialNotify: 'SocialNotify',
+        NewChallenge: 'NewChallenge',
         Move: 'Move',
         Capture: 'Capture',
         Check: 'Check',
@@ -111,6 +112,7 @@ class Sounds {
 
     genericNotify() { if (this.audio()) this.tracks.GenericNotify.play(); }
     socialNotify()  { if (this.audio()) this.tracks.SocialNotify.play(); }
+    newChallenge()  { if (this.audio()) this.tracks.NewChallenge.play(); }
     move()          { if (this.audio()) this.tracks.Move.play(); }
     capture()       { if (this.audio()) this.tracks.Capture.play(); }
     check()         { if (this.audio()) this.tracks.Check.play(); }

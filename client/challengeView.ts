@@ -2,6 +2,7 @@ import { h, VNode } from "snabbdom";
 
 import { _ } from "./i18n";
 import { patch } from "./document";
+import { sound } from "./sound";
 import { VARIANTS } from "./variants";
 
 interface Challenge {
@@ -64,6 +65,7 @@ export function challengeView() {
     let appEl: HTMLElement | VNode;
     let evtSource: EventSource | null = null;
     let reconnectTimer: number | null = null;
+    let challengeStreamReady = false;
     const pending = new Set<string>();
 
     const counterEl = () => document.querySelector('#btn-challenge .data-count') as HTMLElement | null;
@@ -85,8 +87,24 @@ export function challengeView() {
         appEl = patch(appEl, h("div#challenge-app", renderChallenges()));
     }
 
-    function applyEnvelope(envelope: ChallengeEnvelope) {
+    function activeIncomingChallengeIds(items: Challenge[]) {
+        return new Set(
+            items
+                .filter(challenge => challenge.incoming && ["created", "offline"].includes(challenge.status))
+                .map(challenge => challenge.id)
+        );
+    }
+
+    function applyEnvelope(envelope: ChallengeEnvelope, allowSound = false) {
+        const previousActiveIncoming = activeIncomingChallengeIds(challenges);
         challenges = envelope.challenges;
+        const nextActiveIncoming = activeIncomingChallengeIds(challenges);
+        if (
+            allowSound &&
+            [...nextActiveIncoming].some(challengeId => !previousActiveIncoming.has(challengeId))
+        ) {
+            sound.newChallenge();
+        }
         redraw();
         if (envelope.gameId) window.location.assign(`/${envelope.gameId}`);
     }
@@ -101,7 +119,10 @@ export function challengeView() {
     function connectChallenges() {
         if (evtSource !== null) evtSource.close();
         evtSource = new EventSource("/challenge/subscribe");
-        evtSource.onmessage = (event) => applyEnvelope(JSON.parse(event.data));
+        evtSource.onmessage = (event) => {
+            applyEnvelope(JSON.parse(event.data), challengeStreamReady);
+            challengeStreamReady = true;
+        };
         evtSource.onerror = function() {
             if (evtSource !== null) {
                 evtSource.close();
