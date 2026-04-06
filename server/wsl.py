@@ -26,6 +26,13 @@ from auto_pair import (
 )
 from chat import chat_response
 from const import ANON_PREFIX, STARTED
+from header_challenges import (
+    broadcast_challenge_state,
+    challenge_participants,
+    reactivate_direct_challenges,
+    schedule_direct_challenge_offline,
+    set_direct_challenge_status,
+)
 from newid import new_id
 
 if TYPE_CHECKING:
@@ -60,9 +67,13 @@ if TYPE_CHECKING:
     )
 from pychess_global_app_state_utils import get_app_state
 from seek import (
+    ACTIVE_DIRECT_CHALLENGE_STATUSES,
     ANON_RESTRICTED_SEEK_MESSAGE,
+    DIRECT_CHALLENGE_CANCELED,
+    DUPLICATE_DIRECT_CHALLENGE_MESSAGE,
     challenge,
     create_seek,
+    find_duplicate_direct_challenge,
     get_seeks,
     is_anon_restricted_seek,
     Seek,
@@ -87,6 +98,8 @@ def get_create_seek_error_message(user: User, data: SeekCreateData) -> str:
     chess960 = data.get("chess960")
     if is_anon_restricted_seek(user, data["variant"], chess960, day):
         return ANON_RESTRICTED_SEEK_MESSAGE
+    if find_duplicate_direct_challenge(user.app_state.seeks, user, data) is not None:
+        return DUPLICATE_DIRECT_CHALLENGE_MESSAGE
     return "Failed to create seek"
 
 
@@ -128,6 +141,8 @@ async def finally_logic(
         if (user.game_in_progress is not None) or len(user.lobby_sockets) == 0:
             user.update_auto_pairing(ready=False)
             await user.update_seeks(pending=True)
+            if not user.online:
+                schedule_direct_challenge_offline(app_state, user.username)
 
             if (not user.anon) and len(user.lobby_sockets) == 0:
                 for seek in tuple(app_state.seeks.values()):
@@ -265,6 +280,8 @@ async def handle_create_seek(
 
     if not auto_paired:
         await app_state.lobby.lobby_broadcast_seeks()
+        if getattr(seek_value, "is_direct_challenge", False):
+            await broadcast_challenge_state(app_state, challenge_participants(seek_value))
         if (seek is not None) and seek_value.target == "":
             try:
                 await app_state.discord.send_to_discord("create_seek", seek_value.discord_msg)
@@ -385,11 +402,30 @@ async def handle_delete_seek(
     app_state: PychessGlobalAppState, user: User, data: DeleteSeekMessage
 ) -> None:
     seek_id = data["seekID"]
-    seek = app_state.seeks.pop(seek_id, None)
+    seek = app_state.seeks.get(seek_id)
     if seek is None:
         log.debug("handle_delete_seek() ignored duplicate delete for seek %s", seek_id)
         await app_state.lobby.lobby_broadcast_seeks()
         return
+
+    if getattr(seek, "is_direct_challenge", False):
+        if getattr(seek, "challenge_status", None) in ACTIVE_DIRECT_CHALLENGE_STATUSES:
+            challenge_users = challenge_participants(seek)
+            set_direct_challenge_status(seek, DIRECT_CHALLENGE_CANCELED)
+            await app_state.lobby.lobby_broadcast_seeks()
+            await broadcast_challenge_state(app_state, challenge_users)
+            return
+        app_state.seeks.pop(seek_id, None)
+    else:
+        seek = app_state.seeks.pop(seek_id, None)
+        if seek is None:
+            log.debug("handle_delete_seek() ignored duplicate delete for seek %s", seek_id)
+            await app_state.lobby.lobby_broadcast_seeks()
+            return
+
+    challenge_users = (
+        challenge_participants(seek) if getattr(seek, "is_direct_challenge", False) else ()
+    )
 
     if seek.game_id is not None:
         # Delete the invite if it still exists; duplicate cleanup is expected.
@@ -400,6 +436,8 @@ async def handle_delete_seek(
         user.seeks.pop(seek_id, None)
     log.debug("handle_delete_seek() deleted seek %s", seek_id)
     await app_state.lobby.lobby_broadcast_seeks()
+    if challenge_users:
+        await broadcast_challenge_state(app_state, challenge_users)
 
 
 async def handle_leave_seek(
@@ -422,6 +460,11 @@ async def handle_accept_seek(
         return
 
     seek = app_state.seeks[data["seekID"]]
+    if (
+        getattr(seek, "is_direct_challenge", False)
+        and getattr(seek, "challenge_status", None) not in ACTIVE_DIRECT_CHALLENGE_STATUSES
+    ):
+        return
 
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
@@ -444,13 +487,21 @@ async def handle_accept_seek(
         else:
             ws_set = tuple(seek.creator.lobby_sockets)
             if len(ws_set) == 0:
-                remove_seek(app_state.seeks, seek)
-                await app_state.lobby.lobby_broadcast_seeks()
+                if not getattr(seek, "is_direct_challenge", False):
+                    remove_seek(app_state.seeks, seek)
+                    await app_state.lobby.lobby_broadcast_seeks()
             else:
                 await ws_send_json_many(ws_set, response)
 
-        # Inform others, new_game() deleted accepted seek already.
+        # Inform others about the accepted challenge / seek removal.
         await app_state.lobby.lobby_broadcast_seeks()
+        if getattr(seek, "is_direct_challenge", False):
+            game_ids = None
+            if response["type"] == "new_game" and len(seek.creator.lobby_sockets) == 0:
+                game_ids = {seek.creator.username: response["gameId"]}
+            await broadcast_challenge_state(
+                app_state, challenge_participants(seek), game_ids=game_ids
+            )
 
     if (seek is not None) and seek.target == "":
         msg = "%s accepted by %s" % (seek.discord_msg, user.username)
@@ -463,6 +514,7 @@ async def send_lobby_user_connected(
     # update websocket
     user.lobby_sockets.add(ws)
     user.update_online()
+    await reactivate_direct_challenges(app_state, user.username)
     app_state.lobby.lobbysockets[user.username] = user.lobby_sockets
 
     lobby_response: LobbyUserConnectedMessage = {

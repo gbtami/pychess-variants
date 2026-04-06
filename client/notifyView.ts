@@ -151,7 +151,7 @@ export function notifyView() {
     const newNotifyCounter = (sum: number, message: Message) => sum + ((message.read) ? 0 : 1);
 
     function redraw() {
-        const counter = document.querySelector('.data-count') as HTMLElement | null;
+        const counter = document.querySelector('#btn-notify .data-count') as HTMLElement | null;
         if (counter) counter.setAttribute('data-count', `${unread}`);
         const button = document.getElementById('btn-notify') as HTMLElement | null;
         if (button) button.setAttribute('aria-label', `Notifications: ${unread}`);
@@ -213,10 +213,10 @@ export function notifyView() {
         if (unread > 0) {
             messages.forEach(msg => msg.read = true);
             unread = 0;
-            (document.querySelector('.data-count') as HTMLElement).setAttribute('data-count', `${unread}`);
+            (document.querySelector('#btn-notify .data-count') as HTMLElement).setAttribute('data-count', `${unread}`);
             sendNotified();
         } else { 
-            document.querySelectorAll('.notification.new').forEach(el => el.classList.remove('new'));
+            document.querySelectorAll('#notify-app .notification.new').forEach(el => el.classList.remove('new'));
         }
         (document.getElementById('btn-notify') as HTMLElement).classList.add('shown');
         (document.getElementById('notify-app') as HTMLElement).style.display = 'flex';

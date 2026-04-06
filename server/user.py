@@ -137,6 +137,8 @@ class User:
         self.simul_sockets: dict[str, set[WebSocketResponse]] = {}  # {simulId: set()}
 
         self.notify_channels: Set[Queue[str]] = set()
+        self.challenge_channels: Set[Queue[str]] = set()
+        self.challenge_offline_task: asyncio.Task[None] | None = None
 
         self.puzzles: dict[
             str, int
@@ -282,6 +284,7 @@ class User:
         self.online = (
             len(self.game_sockets) > 0
             or len(self.lobby_sockets) > 0
+            or len(self.challenge_channels) > 0
             or len(self.tournament_sockets) > 0
             or len(self.simul_sockets) > 0
         )
@@ -401,8 +404,12 @@ class User:
         if len(self.seeks) > 0:
             for seek_id in tuple(self.seeks):
                 game_id = self.seeks[seek_id].game_id
-                # preserve invites (seek with game_id) and corr seeks!
-                if game_id is None and self.seeks[seek_id].day == 0:
+                # preserve invites (seek with game_id), corr seeks, and direct challenges
+                if (
+                    game_id is None
+                    and self.seeks[seek_id].day == 0
+                    and not self.seeks[seek_id].is_direct_challenge
+                ):
                     del self.app_state.seeks[seek_id]
                     del self.seeks[seek_id]
 
@@ -462,8 +469,8 @@ class User:
     async def update_seeks(self, pending: bool = True) -> None:
         if len(self.seeks) > 0:
             for seek in self.seeks.values():
-                # preserve invites (seek with game_id) and corr seeks
-                if seek.game_id is None and seek.day == 0:
+                # preserve invites (seek with game_id), corr seeks, and direct challenges
+                if seek.game_id is None and seek.day == 0 and not seek.is_direct_challenge:
                     seek.pending = pending
                     if pending:
                         self.delete_pending_seek(seek)

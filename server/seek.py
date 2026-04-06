@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Iterable, NotRequired, TypedDict
 
 from const import CORR_SEEK_EXPIRE_WEEKS, INVITE_SEEK_EXPIRE
@@ -14,6 +14,17 @@ MAX_USER_SEEKS = 10
 ANON_RESTRICTED_SEEK_MESSAGE = (
     "Anonymous users cannot create or join correspondence or bughouse seeks."
 )
+DUPLICATE_DIRECT_CHALLENGE_MESSAGE = (
+    "You already have an open challenge with the same settings for this player."
+)
+SPECIAL_SEEK_TARGETS = {"", "BOT_challenge", "Invite-friend"}
+DIRECT_CHALLENGE_CREATED = "created"
+DIRECT_CHALLENGE_OFFLINE = "offline"
+DIRECT_CHALLENGE_CANCELED = "canceled"
+DIRECT_CHALLENGE_DECLINED = "declined"
+DIRECT_CHALLENGE_ACCEPTED = "accepted"
+ACTIVE_DIRECT_CHALLENGE_STATUSES = frozenset({DIRECT_CHALLENGE_CREATED, DIRECT_CHALLENGE_OFFLINE})
+DIRECT_CHALLENGE_SHORT_EXPIRE = timedelta(hours=3)
 
 if TYPE_CHECKING:
     from pymongo.asynchronous.database import AsyncDatabase
@@ -47,6 +58,7 @@ class SeekJson(TypedDict):
     tournamentId: NotRequired[str]
     rrArrangementId: NotRequired[str]
     expireAt: NotRequired[str]
+    challengeStatus: NotRequired[str]
 
 
 class SeekDbJson(TypedDict):
@@ -76,6 +88,7 @@ class SeekDbJson(TypedDict):
     tournamentId: NotRequired[str]
     rrArrangementId: NotRequired[str]
     expireAt: NotRequired[datetime]
+    challengeStatus: NotRequired[str]
 
 
 class CorrSeekJson(TypedDict):
@@ -136,6 +149,7 @@ class Seek:
         tournament_id: str | None = None,
         rr_arrangement_id: str | None = None,
         expire_at: datetime | str | None = None,
+        challenge_status: str | None = None,
         reused_fen: bool = False,
     ) -> None:
         self.id: str = seek_id
@@ -163,6 +177,9 @@ class Seek:
         self.game_id: str | None = game_id
         self.tournament_id: str | None = tournament_id
         self.rr_arrangement_id: str | None = rr_arrangement_id
+        self.challenge_status: str | None = challenge_status if self.is_direct_challenge else None
+        if self.is_direct_challenge and self.challenge_status is None:
+            self.challenge_status = DIRECT_CHALLENGE_CREATED
 
         if expire_at is not None:
             parsed_expire_at = self._parse_expire_at(expire_at)
@@ -171,12 +188,8 @@ class Seek:
                 self.expire_at = None
             else:
                 self.expire_at = parsed_expire_at
-        elif self.target == "Invite-friend":
-            self.expire_at = datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
-        elif self.day > 0:
-            self.expire_at = datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS
         else:
-            self.expire_at = None
+            self.expire_at = self.default_expire_at()
 
         # True if this is 960 variant 1st, 3rd etc. rematch seek
         self.reused_fen: bool = reused_fen
@@ -204,8 +217,26 @@ class Seek:
             + game_id
             + "pending='%d', " % self.pending
             + "target='%s', " % self.target
+            + "challenge_status='%s', " % self.challenge_status
             + "day='%d'>" % self.day
         )
+
+    def default_expire_at(self) -> datetime | None:
+        if self.target == "Invite-friend":
+            return datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
+        if self.day > 0:
+            return datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS
+        if self.is_direct_challenge:
+            if self.challenge_status in ACTIVE_DIRECT_CHALLENGE_STATUSES:
+                return datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
+            return datetime.now(timezone.utc) + DIRECT_CHALLENGE_SHORT_EXPIRE
+        return None
+
+    def set_challenge_status(self, status: str) -> None:
+        if not self.is_direct_challenge:
+            return
+        self.challenge_status = status
+        self.expire_at = self.default_expire_at()
 
     @property
     def seek_json(self) -> SeekJson:
@@ -240,6 +271,8 @@ class Seek:
             seek_json["rrArrangementId"] = self.rr_arrangement_id
         if self.expire_at is not None:
             seek_json["expireAt"] = self.expire_at.isoformat()
+        if self.challenge_status is not None:
+            seek_json["challengeStatus"] = self.challenge_status
         return seek_json
 
     @property
@@ -275,6 +308,8 @@ class Seek:
             seek_json["rrArrangementId"] = self.rr_arrangement_id
         if self.expire_at is not None:
             seek_json["expireAt"] = self.expire_at
+        if self.challenge_status is not None:
+            seek_json["challengeStatus"] = self.challenge_status
         return seek_json
 
     @property
@@ -294,6 +329,16 @@ class Seek:
             "day": self.day,
             "expireAt": self.expire_at,
         }
+
+    @property
+    def is_direct_challenge(self) -> bool:
+        return is_direct_challenge_target(self.target)
+
+    @property
+    def is_active_direct_challenge(self) -> bool:
+        return (
+            self.is_direct_challenge and self.challenge_status in ACTIVE_DIRECT_CHALLENGE_STATUSES
+        )
 
     def is_expired(self) -> bool:
         if self.expire_at is None:
@@ -336,6 +381,41 @@ def is_anon_restricted_seek(
     return user.anon and (day > 0 or server_variant.two_boards)
 
 
+def is_direct_challenge_target(target: str | None) -> bool:
+    return (target or "") not in SPECIAL_SEEK_TARGETS
+
+
+def find_duplicate_direct_challenge(
+    seeks: dict[str, Seek],
+    creator: User,
+    data: SeekCreateData,
+) -> Seek | None:
+    target = data.get("target", "")
+    if not is_direct_challenge_target(target):
+        return None
+
+    for seek in seeks.values():
+        if (
+            seek.is_direct_challenge
+            and seek.is_active_direct_challenge
+            and not seek.is_expired()
+            and seek.creator.username == creator.username
+            and seek.target == target
+            and seek.variant == data["variant"]
+            and seek.chess960 == data.get("chess960")
+            and seek.rated == data.get("rated")
+            and seek.base == data["minutes"]
+            and seek.inc == data["increment"]
+            and seek.byoyomi_period == data["byoyomiPeriod"]
+            and seek.day == data.get("day", 0)
+            and seek.color == data["color"]
+            and seek.fen == data["fen"]
+        ):
+            return seek
+
+    return None
+
+
 async def create_seek(
     db: AsyncDatabase | None,
     invites: dict[str, Seek],
@@ -365,7 +445,21 @@ async def create_seek(
         )
         return None
 
-    live_seeks = len([seek for seek in user.seeks.values() if seek.day == 0])
+    if find_duplicate_direct_challenge(seeks, user, data) is not None:
+        log.info(
+            "Rejecting duplicate direct challenge by %s against %s",
+            user.username,
+            data.get("target", ""),
+        )
+        return None
+
+    live_seeks = len(
+        [
+            seek
+            for seek in user.seeks.values()
+            if seek.day == 0 and (not seek.is_direct_challenge or seek.is_active_direct_challenge)
+        ]
+    )
     corr_seeks = len([seek for seek in user.seeks.values() if seek.day != 0])
     if (
         (live_seeks >= MAX_USER_SEEKS and day == 0) or (corr_seeks >= MAX_USER_SEEKS and day != 0)
@@ -417,7 +511,14 @@ async def create_seek(
 
 def get_seeks(user: User, seeks: Iterable[Seek]) -> list[SeekJson]:
     return [
-        seek.seek_json for seek in seeks if not seek.pending and user.compatible_with_seek(seek)
+        seek.seek_json
+        for seek in seeks
+        if (
+            not seek.pending
+            and not seek.is_expired()
+            and (not seek.is_direct_challenge or seek.is_active_direct_challenge)
+            and user.compatible_with_seek(seek)
+        )
     ]
 
 

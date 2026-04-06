@@ -41,6 +41,7 @@ LONG_LIVED_PREFIXES = (
     "/wst",
     "/wss",
     "/notify",
+    "/challenge/subscribe",
     "/api/ongoing",
     "/api/invites/",
     "/api/stream/",

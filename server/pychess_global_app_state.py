@@ -359,9 +359,10 @@ class PychessGlobalAppState:
                         game_id=game_id,
                         player1=user,
                         expire_at=doc.get("expireAt"),
+                        challenge_status=doc.get("challengeStatus"),
                     )
-                    if seek.target == "Invite-friend" and seek.is_expired():
-                        log.debug("Skipping expired invite seek from database: %s", seek.id)
+                    if seek.is_expired():
+                        log.debug("Skipping expired seek from database: %s", seek.id)
                         continue
                     log.debug("Loading seek from database: %s" % seek)
                     self.seeks[seek.id] = seek
@@ -821,7 +822,7 @@ class PychessGlobalAppState:
         reg_seeks = [
             seek.seek_db_json
             for seek in self.seeks.values()
-            if seek.day == 0 and seek.creator.online
+            if seek.day == 0 and (seek.is_direct_challenge or seek.creator.online)
         ]
         await self.db.seek.delete_many({})
         if len(corr_seeks) > 0:

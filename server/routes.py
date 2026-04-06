@@ -37,6 +37,13 @@ from game_api import (
     get_variant_stats,
     cancel_invite,
 )
+from header_challenges import (
+    challenge_seek_accept,
+    challenge_seek_cancel,
+    challenge_seek_decline,
+    get_header_challenges,
+    subscribe_challenges,
+)
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import (
@@ -127,7 +134,9 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/editor/{variant:[a-z0-9]+}", editor.editor),
     (r"/editor/{variant:[a-z0-9]+}/{fen}", editor.editor),
     ("/notifications", get_notifications),
+    ("/challenges", get_header_challenges),
     ("/notify", subscribe_notify),
+    ("/challenge/subscribe", subscribe_challenges),
     ("/notified", notified),
     (r"/{gameId:\w{8}}", game.game),
     (r"/invite/{gameId:\w{8}}", invite.invite),
@@ -213,6 +222,9 @@ post_routes: tuple[RouteDef, ...] = (
     ("/api/bot/game/{gameId}/chat", bot_chat),
     ("/api/bot/game/{gameId}/move/{move}", bot_move),
     ("/api/challenge/{username}", challenge_create),
+    (r"/api/challenge/seek/{seekId:\w+}/accept", challenge_seek_accept),
+    (r"/api/challenge/seek/{seekId:\w+}/decline", challenge_seek_decline),
+    (r"/api/challenge/seek/{seekId:\w+}/cancel", challenge_seek_cancel),
     (r"/invite/accept/{gameId:\w{8}}", invite.invite),
     (r"/invite/accept/{gameId:\w{8}}/{player:player[1-2]}", invite.invite),
     (r"/invite/cancel/{gameId:\w{8}}", cancel_invite),

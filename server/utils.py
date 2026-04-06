@@ -45,7 +45,11 @@ from fairy import (
 from fairy.jieqi import make_initial_mapping
 from game import Game
 from newid import new_id
-from seek import ANON_RESTRICTED_SEEK_MESSAGE, is_anon_restricted_seek
+from seek import (
+    ANON_RESTRICTED_SEEK_MESSAGE,
+    DIRECT_CHALLENGE_ACCEPTED,
+    is_anon_restricted_seek,
+)
 from user import User
 from users import NotInDbUsers
 from blogs import BLOG_CATEGORIES
@@ -489,13 +493,18 @@ async def join_seek(
     if is_anon_restricted_seek(user, seek.variant, seek.chess960, seek.day):
         return {"type": "error", "message": ANON_RESTRICTED_SEEK_MESSAGE}
 
-    if seek.target == "Invite-friend" and seek.is_expired():
+    if seek.is_expired():
         if game_id is None:
             game_id = seek.game_id
         if game_id is not None:
             app_state.invites.pop(game_id, None)
         remove_seek(app_state.seeks, seek)
-        return {"type": "error", "message": "Invitation expired"}
+        return {
+            "type": "error",
+            "message": "Invitation expired"
+            if seek.target == "Invite-friend"
+            else "Challenge expired",
+        }
 
     if user is seek.player1 or user is seek.player2:
         response: SeekStatusMessage = {"type": "seek_yourself", "seekID": seek.id}
@@ -594,7 +603,10 @@ async def new_game(
         return {"type": "error", "message": "Failed to create game"}
     app_state.games[game_id] = game
 
-    remove_seek(app_state.seeks, seek)
+    if seek.is_direct_challenge:
+        seek.set_challenge_status(DIRECT_CHALLENGE_ACCEPTED)
+    else:
+        remove_seek(app_state.seeks, seek)
 
     await insert_game_to_db(game, app_state)
 

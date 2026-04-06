@@ -9,6 +9,7 @@ import ffishAliceModule from 'ffish-alice-es6';
 import { _, i18n } from './i18n';
 import { aboutView } from './about';
 import { settingsView, hideSettings } from './settingsView';
+import { challengeView, hideChallenge } from './challengeView';
 import { notifyView, hideNotify } from './notifyView';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
@@ -281,8 +282,10 @@ function start() {
 
     // Clicking outside settings panel closes it
     const settingsPanel = patch(document.getElementById('settings-panel') as HTMLElement, settingsView(model["variant"])).elm as HTMLElement;
+    var challengePanel = document.getElementById('challenge-panel') as HTMLElement;
     var notifyPanel = document.getElementById('notify-panel') as HTMLElement;
     if (model["anon"] !== 'True') {
+        challengePanel = patch(challengePanel, challengeView()).elm as HTMLElement;
         notifyPanel = patch(notifyPanel, notifyView()).elm as HTMLElement;
     }
 
@@ -290,6 +293,8 @@ function start() {
         if (!settingsPanel.contains(event.target as Node))
             hideSettings();
         if (model["anon"] !== 'True') {
+            if (!challengePanel.contains(event.target as Node))
+                hideChallenge();
             if (!notifyPanel.contains(event.target as Node))
                 hideNotify();
         }
