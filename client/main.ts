@@ -14,6 +14,7 @@ import { notifyView, hideNotify } from './notifyView';
 import { lobbyView } from './lobby';
 import { roundView } from './round';
 import { inviteView } from './invite';
+import { directChallengeView } from './directChallenge';
 import { renderGames } from './games';
 import { editorView } from '@/editor/editor';
 import { analysisView, embedView } from './analysis';
@@ -80,6 +81,7 @@ function initModel(el: HTMLElement) {
         simulname : el.getAttribute("data-simulname") ?? "",
         tournamentcreator: el.getAttribute("data-tournamentcreator") ?? "",
         inviter : el.getAttribute("data-inviter") ?? "",
+        challengeId : el.getAttribute("data-challengeid") ?? "",
         ply : parseInt(""+el.getAttribute("data-ply")),
         initialFen : el.getAttribute("data-initialfen") ?? "",
         ct: ct,
@@ -161,6 +163,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div#main-wrap', puzzleView(model));
     case 'invite':
         return h('div#main-wrap', inviteView(model));
+    case 'challenge':
+        return h('div#main-wrap', directChallengeView(model));
     case 'editor':
         return h('div#main-wrap', editorView(model));
     case 'tournament':

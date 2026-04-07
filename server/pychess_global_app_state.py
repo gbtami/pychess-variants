@@ -360,6 +360,7 @@ class PychessGlobalAppState:
                         player1=user,
                         expire_at=doc.get("expireAt"),
                         challenge_status=doc.get("challengeStatus"),
+                        challenge_decline_reason=doc.get("challengeDeclineReason"),
                     )
                     if seek.is_expired():
                         log.debug("Skipping expired seek from database: %s", seek.id)

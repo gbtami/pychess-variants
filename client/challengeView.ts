@@ -167,7 +167,7 @@ export function challengeView() {
 
     function postAction(challenge: Challenge, action: "accept" | "decline" | "cancel") {
         pending.add(challenge.id);
-        if (action === "cancel") {
+        if (action === "cancel" || action === "decline") {
             challenges = challenges.filter(item => item.id !== challenge.id);
         }
         redraw();

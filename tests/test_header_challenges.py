@@ -85,8 +85,26 @@ class HeaderChallengeTestCase(unittest.IsolatedAsyncioTestCase):
 
         bob_challenges = get_user_challenges(app_state, bob.username)
 
-        self.assertEqual(1, len(bob_challenges))
-        self.assertEqual(DIRECT_CHALLENGE_DECLINED, bob_challenges[0]["status"])
+        self.assertEqual([], bob_challenges)
+
+    async def test_get_user_challenges_keeps_declined_status_for_challenger(self):
+        app_state = self.make_app_state()
+        alice = User(app_state, username="alice", perfs=PERFS)
+        bob = User(app_state, username="bob", perfs=PERFS)
+        app_state.users.update({alice.username: alice, bob.username: bob})
+
+        seek = Seek("seek1", alice, "chess", target=bob.username)
+        seek.set_challenge_decline_reason("This time control is too fast for me.")
+        set_direct_challenge_status(seek, DIRECT_CHALLENGE_DECLINED)
+        app_state.seeks[seek.id] = seek
+
+        alice_challenges = get_user_challenges(app_state, alice.username)
+
+        self.assertEqual(1, len(alice_challenges))
+        self.assertEqual(DIRECT_CHALLENGE_DECLINED, alice_challenges[0]["status"])
+        self.assertEqual(
+            "This time control is too fast for me.", alice_challenges[0]["declineReason"]
+        )
 
     async def test_get_user_challenges_filters_canceled_direct_challenges(self):
         app_state = self.make_app_state()

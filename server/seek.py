@@ -59,6 +59,7 @@ class SeekJson(TypedDict):
     rrArrangementId: NotRequired[str]
     expireAt: NotRequired[str]
     challengeStatus: NotRequired[str]
+    challengeDeclineReason: NotRequired[str]
 
 
 class SeekDbJson(TypedDict):
@@ -89,6 +90,7 @@ class SeekDbJson(TypedDict):
     rrArrangementId: NotRequired[str]
     expireAt: NotRequired[datetime]
     challengeStatus: NotRequired[str]
+    challengeDeclineReason: NotRequired[str]
 
 
 class CorrSeekJson(TypedDict):
@@ -150,6 +152,7 @@ class Seek:
         rr_arrangement_id: str | None = None,
         expire_at: datetime | str | None = None,
         challenge_status: str | None = None,
+        challenge_decline_reason: str | None = None,
         reused_fen: bool = False,
     ) -> None:
         self.id: str = seek_id
@@ -178,6 +181,9 @@ class Seek:
         self.tournament_id: str | None = tournament_id
         self.rr_arrangement_id: str | None = rr_arrangement_id
         self.challenge_status: str | None = challenge_status if self.is_direct_challenge else None
+        self.challenge_decline_reason: str | None = (
+            challenge_decline_reason if self.is_direct_challenge else None
+        )
         if self.is_direct_challenge and self.challenge_status is None:
             self.challenge_status = DIRECT_CHALLENGE_CREATED
 
@@ -236,7 +242,14 @@ class Seek:
         if not self.is_direct_challenge:
             return
         self.challenge_status = status
+        if status != DIRECT_CHALLENGE_DECLINED:
+            self.challenge_decline_reason = None
         self.expire_at = self.default_expire_at()
+
+    def set_challenge_decline_reason(self, reason: str | None) -> None:
+        if not self.is_direct_challenge:
+            return
+        self.challenge_decline_reason = reason
 
     @property
     def seek_json(self) -> SeekJson:
@@ -273,6 +286,8 @@ class Seek:
             seek_json["expireAt"] = self.expire_at.isoformat()
         if self.challenge_status is not None:
             seek_json["challengeStatus"] = self.challenge_status
+        if self.challenge_decline_reason:
+            seek_json["challengeDeclineReason"] = self.challenge_decline_reason
         return seek_json
 
     @property
@@ -310,6 +325,8 @@ class Seek:
             seek_json["expireAt"] = self.expire_at
         if self.challenge_status is not None:
             seek_json["challengeStatus"] = self.challenge_status
+        if self.challenge_decline_reason:
+            seek_json["challengeDeclineReason"] = self.challenge_decline_reason
         return seek_json
 
     @property

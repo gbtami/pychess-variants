@@ -17,7 +17,7 @@ import { PyChessModel } from "./types";
 import { model } from './main';
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Post, Stream, Spotlight, MsgInviteCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
+import { Post, Stream, Spotlight, MsgInviteCreated, MsgDirectChallengeCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
 import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
@@ -1186,6 +1186,9 @@ export class LobbyController implements ChatController {
             case "invite_created":
                 this.onMsgInviteCreated(msg);
                 break;
+            case "direct_challenge_created":
+                this.onMsgDirectChallengeCreated(msg);
+                break;
             case "bot_challenge_created":
                 this.onMsgBOTChallengeCreated(msg);
                 break;
@@ -1224,6 +1227,10 @@ export class LobbyController implements ChatController {
 
     private onMsgInviteCreated(msg: MsgInviteCreated) {
         window.location.assign('/invite/' + msg.gameId);
+    }
+
+    private onMsgDirectChallengeCreated(msg: MsgDirectChallengeCreated) {
+        window.location.assign('/challenge/' + msg.seekId);
     }
 
     private onMsgHostCreated(msg: MsgHostCreated) {

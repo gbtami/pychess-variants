@@ -19,9 +19,19 @@ div.invitegame div.info2 {
 }
 div.rated {
     margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
     font-size: 28px;
     color: var(--green-switch);
+}
+div.rated .challenge-color-choice {
+    font-size: 16px;
+    line-height: 1.2;
+    color: var(--font-color);
+    margin-bottom: 6px;
+    text-transform: uppercase;
 }
 div.inviteinfo {
     background-color: var(--bg-color2);

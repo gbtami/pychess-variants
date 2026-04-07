@@ -33,6 +33,10 @@ export interface MsgInviteCreated {
     gameId: string;
 }
 
+export interface MsgDirectChallengeCreated {
+    seekId: string;
+}
+
 export interface MsgHostCreated {
     gameId: string;
 }

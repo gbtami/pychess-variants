@@ -39,11 +39,22 @@ class HeaderChallenge(TypedDict):
     tc: str
     expireAt: str
     status: str
+    declineReason: str
 
 
 class HeaderChallengeEnvelope(TypedDict, total=False):
     challenges: list[HeaderChallenge]
     gameId: str
+
+
+DIRECT_CHALLENGE_DECLINE_REASONS: dict[str, str] = {
+    "generic": "I'm not accepting challenges at the moment.",
+    "tooFast": "This time control is too fast for me.",
+    "tooSlow": "This time control is too slow for me.",
+    "rated": "Please send me a rated challenge instead.",
+    "casual": "Please send me a casual challenge instead.",
+    "variant": "I'm not accepting variant challenges right now.",
+}
 
 
 def challenge_participants(seek: Seek) -> tuple[str, ...]:
@@ -71,6 +82,7 @@ def serialize_challenge_for_user(seek: Seek, username: str) -> HeaderChallenge:
         "tc": time_control_str(seek.base, seek.inc, seek.byoyomi_period, seek.day),
         "expireAt": expire_at,
         "status": seek.challenge_status or DIRECT_CHALLENGE_CREATED,
+        "declineReason": seek.challenge_decline_reason or "",
     }
 
 
@@ -90,14 +102,18 @@ def cleanup_expired_direct_challenges(app_state: PychessGlobalAppState) -> set[s
     return affected_users
 
 
-def direct_challenge_is_visible(seek: Seek) -> bool:
-    return (
-        seek.is_direct_challenge
-        and not seek.pending
-        and not seek.is_expired()
-        and seek.challenge_status is not None
-        and seek.challenge_status != DIRECT_CHALLENGE_CANCELED
-    )
+def direct_challenge_is_visible_for_user(seek: Seek, username: str) -> bool:
+    if (
+        not seek.is_direct_challenge
+        or seek.pending
+        or seek.is_expired()
+        or seek.challenge_status is None
+        or seek.challenge_status == DIRECT_CHALLENGE_CANCELED
+    ):
+        return False
+    if seek.challenge_status == DIRECT_CHALLENGE_DECLINED and seek.target == username:
+        return False
+    return True
 
 
 def set_direct_challenge_status(seek: Seek, status: str) -> bool:
@@ -174,7 +190,8 @@ def get_user_challenges(app_state: PychessGlobalAppState, username: str) -> list
     challenges = [
         serialize_challenge_for_user(seek, username)
         for seek in reversed(tuple(app_state.seeks.values()))
-        if direct_challenge_is_visible(seek) and username in challenge_participants(seek)
+        if direct_challenge_is_visible_for_user(seek, username)
+        and username in challenge_participants(seek)
     ]
     challenges.sort(
         key=lambda challenge: (
@@ -323,6 +340,13 @@ async def challenge_seek_decline(request: web.Request) -> web.StreamResponse:
         )
 
     usernames = challenge_participants(seek)
+    reason_data = await request.post()
+    reason_key = reason_data.get("reason")
+    decline_reason = DIRECT_CHALLENGE_DECLINE_REASONS.get(
+        str(reason_key) if reason_key is not None else "generic",
+        DIRECT_CHALLENGE_DECLINE_REASONS["generic"],
+    )
+    seek.set_challenge_decline_reason(decline_reason)
     set_direct_challenge_status(seek, DIRECT_CHALLENGE_DECLINED)
     await broadcast_challenge_state(app_state, usernames)
     await app_state.lobby.lobby_broadcast_seeks()

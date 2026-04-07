@@ -419,6 +419,7 @@ class ViewContext(TypedDict, total=False):
     tags: Sequence[str] | Mapping[str, str]
     tournament: object
     tournamentdirector: bool
+    challengeid: str
     trophies: list[tuple[str, str]]
     users: Mapping[str, User]
     videoId: str | None

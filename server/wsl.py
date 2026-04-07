@@ -56,6 +56,7 @@ if TYPE_CHECKING:
         GameInProgressMessage,
         HostCreatedMessage,
         InviteCreatedMessage,
+        DirectChallengeCreatedMessage,
         LobbyCountMessage,
         LeaveSeekMessage,
         LobbyChatMessage,
@@ -281,6 +282,11 @@ async def handle_create_seek(
     if not auto_paired:
         await app_state.lobby.lobby_broadcast_seeks()
         if getattr(seek_value, "is_direct_challenge", False):
+            response: DirectChallengeCreatedMessage = {
+                "type": "direct_challenge_created",
+                "seekId": seek_value.id,
+            }
+            await ws_send_json(ws, response)
             await broadcast_challenge_state(app_state, challenge_participants(seek_value))
         if (seek is not None) and seek_value.target == "":
             try:

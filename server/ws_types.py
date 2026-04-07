@@ -107,6 +107,11 @@ class HostCreatedMessage(TypedDict):
     gameId: str
 
 
+class DirectChallengeCreatedMessage(TypedDict):
+    type: Literal["direct_challenge_created"]
+    seekId: str
+
+
 class SpotlightsMessage(TypedDict):
     type: Literal["spotlights"]
     items: list[TournamentSpotlightItem]
