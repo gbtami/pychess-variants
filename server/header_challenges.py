@@ -49,11 +49,16 @@ class HeaderChallengeEnvelope(TypedDict, total=False):
 
 DIRECT_CHALLENGE_DECLINE_REASONS: dict[str, str] = {
     "generic": "I'm not accepting challenges at the moment.",
-    "tooFast": "This time control is too fast for me.",
-    "tooSlow": "This time control is too slow for me.",
+    "later": "This is not the right time for me, please ask again later.",
+    "tooFast": "This time control is too fast for me, please challenge again with a slower game.",
+    "tooSlow": "This time control is too slow for me, please challenge again with a faster game.",
+    "timeControl": "I'm not accepting challenges with this time control.",
     "rated": "Please send me a rated challenge instead.",
     "casual": "Please send me a casual challenge instead.",
-    "variant": "I'm not accepting variant challenges right now.",
+    "standard": "I'm not accepting variant challenges right now.",
+    "variant": "I'm not willing to play this variant right now.",
+    "noBot": "I'm not accepting challenges from bots.",
+    "onlyBot": "I'm only accepting challenges from bots.",
 }
 
 

@@ -14,9 +14,7 @@ MAX_USER_SEEKS = 10
 ANON_RESTRICTED_SEEK_MESSAGE = (
     "Anonymous users cannot create or join correspondence or bughouse seeks."
 )
-DUPLICATE_DIRECT_CHALLENGE_MESSAGE = (
-    "You already have an open challenge with the same settings for this player."
-)
+DUPLICATE_DIRECT_CHALLENGE_MESSAGE = "You already have an open challenge for this player."
 SPECIAL_SEEK_TARGETS = {"", "BOT_challenge", "Invite-friend"}
 DIRECT_CHALLENGE_CREATED = "created"
 DIRECT_CHALLENGE_OFFLINE = "offline"
@@ -418,15 +416,6 @@ def find_duplicate_direct_challenge(
             and not seek.is_expired()
             and seek.creator.username == creator.username
             and seek.target == target
-            and seek.variant == data["variant"]
-            and seek.chess960 == data.get("chess960")
-            and seek.rated == data.get("rated")
-            and seek.base == data["minutes"]
-            and seek.inc == data["increment"]
-            and seek.byoyomi_period == data["byoyomiPeriod"]
-            and seek.day == data.get("day", 0)
-            and seek.color == data["color"]
-            and seek.fen == data["fen"]
         ):
             return seek
 
@@ -462,13 +451,14 @@ async def create_seek(
         )
         return None
 
-    if find_duplicate_direct_challenge(seeks, user, data) is not None:
+    duplicate = find_duplicate_direct_challenge(seeks, user, data)
+    if duplicate is not None:
         log.info(
-            "Rejecting duplicate direct challenge by %s against %s",
+            "Replacing direct challenge by %s against %s",
             user.username,
             data.get("target", ""),
         )
-        return None
+        duplicate.set_challenge_status(DIRECT_CHALLENGE_CANCELED)
 
     live_seeks = len(
         [

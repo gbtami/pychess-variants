@@ -26,6 +26,20 @@ interface ChallengeEnvelope {
     gameId?: string;
 }
 
+const DECLINE_REASONS: Array<{ key: string; label: string }> = [
+    { key: "generic", label: "I'm not accepting challenges at the moment." },
+    { key: "later", label: "This is not the right time for me, please ask again later." },
+    { key: "tooFast", label: "This time control is too fast for me, please challenge again with a slower game." },
+    { key: "tooSlow", label: "This time control is too slow for me, please challenge again with a faster game." },
+    { key: "timeControl", label: "I'm not accepting challenges with this time control." },
+    { key: "rated", label: "Please send me a rated challenge instead." },
+    { key: "casual", label: "Please send me a casual challenge instead." },
+    { key: "standard", label: "I'm not accepting variant challenges right now." },
+    { key: "variant", label: "I'm not willing to play this variant right now." },
+    { key: "noBot", label: "I'm not accepting challenges from bots." },
+    { key: "onlyBot", label: "I'm only accepting challenges from bots." },
+];
+
 function challengeLabel(challenge: Challenge) {
     const prefix = challenge.challengerTitle ? `${challenge.challengerTitle} ` : "";
     if (challenge.status === "declined") {
@@ -95,8 +109,12 @@ export function challengeView() {
 
     const counterEl = () => document.querySelector('#btn-challenge .data-count') as HTMLElement | null;
 
+    function visibleChallenges() {
+        return challenges.filter(challenge => challenge.status !== "declined");
+    }
+
     function incomingCount() {
-        return challenges.reduce(
+        return visibleChallenges().reduce(
             (sum, challenge) =>
                 sum + (challenge.incoming && ["created", "offline"].includes(challenge.status) ? 1 : 0),
             0
@@ -165,13 +183,22 @@ export function challengeView() {
         };
     }
 
-    function postAction(challenge: Challenge, action: "accept" | "decline" | "cancel") {
+    function postAction(
+        challenge: Challenge,
+        action: "accept" | "decline" | "cancel",
+        reason = "generic",
+    ) {
         pending.add(challenge.id);
         if (action === "cancel" || action === "decline") {
             challenges = challenges.filter(item => item.id !== challenge.id);
         }
         redraw();
-        fetch(`/api/challenge/seek/${challenge.id}/${action}`, { method: "POST" })
+        const init: RequestInit = { method: "POST" };
+        if (action === "decline") {
+            init.headers = { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" };
+            init.body = new URLSearchParams({ reason }).toString();
+        }
+        fetch(`/api/challenge/seek/${challenge.id}/${action}`, init)
             .then(res => res.json())
             .then((payload) => {
                 if (payload.type === "error") {
@@ -204,6 +231,24 @@ export function challengeView() {
                     attrs: { title: _("Decline"), "aria-label": _("Decline"), "data-icon": "j" },
                     on: { click: () => postAction(challenge, "decline") },
                 }),
+                h("select.challenge-reason", {
+                    props: { disabled, value: "generic" },
+                    attrs: { title: _("Decline with reason"), "aria-label": _("Decline with reason") },
+                    on: {
+                        change: (event: Event) => {
+                            const select = event.target as HTMLSelectElement;
+                            const reason = select.value;
+                            if (!reason || reason === "generic") return;
+                            postAction(challenge, "decline", reason);
+                            select.value = "generic";
+                        },
+                    },
+                }, [
+                    h("option", { attrs: { value: "generic" } }, ""),
+                    ...DECLINE_REASONS
+                        .filter(reason => reason.key !== "generic")
+                        .map(reason => h("option", { attrs: { value: reason.key } }, _(reason.label))),
+                ]),
             ]);
         }
         return h("div.challenge-actions", [
@@ -217,7 +262,8 @@ export function challengeView() {
     }
 
     function renderChallenges() {
-        if (challenges.length === 0) {
+        const items = visibleChallenges();
+        if (items.length === 0) {
             return [
                 h("span.notification.empty", [
                     h("span.text", _("No challenges.")),
@@ -225,7 +271,7 @@ export function challengeView() {
             ];
         }
 
-        return challenges.map(challenge => {
+        return items.map(challenge => {
             const actions = actionButtons(challenge);
             return h(`div.notification.challenge${challenge.incoming && ["created", "offline"].includes(challenge.status) ? ".new" : ""}${challenge.status === "declined" ? ".challenge-inactive" : ""}`, {
                 attrs: { tabindex: 0 },

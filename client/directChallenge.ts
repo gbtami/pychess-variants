@@ -40,11 +40,16 @@ function challengeColorText(challenge: HeaderChallenge) {
 
 const DECLINE_REASONS: Array<{ key: string; label: string }> = [
     { key: "generic", label: "I'm not accepting challenges at the moment." },
-    { key: "tooFast", label: "This time control is too fast for me." },
-    { key: "tooSlow", label: "This time control is too slow for me." },
+    { key: "later", label: "This is not the right time for me, please ask again later." },
+    { key: "tooFast", label: "This time control is too fast for me, please challenge again with a slower game." },
+    { key: "tooSlow", label: "This time control is too slow for me, please challenge again with a faster game." },
+    { key: "timeControl", label: "I'm not accepting challenges with this time control." },
     { key: "rated", label: "Please send me a rated challenge instead." },
     { key: "casual", label: "Please send me a casual challenge instead." },
-    { key: "variant", label: "I'm not accepting variant challenges right now." },
+    { key: "standard", label: "I'm not accepting variant challenges right now." },
+    { key: "variant", label: "I'm not willing to play this variant right now." },
+    { key: "noBot", label: "I'm not accepting challenges from bots." },
+    { key: "onlyBot", label: "I'm only accepting challenges from bots." },
 ];
 
 export function directChallengeView(model: PyChessModel): VNode[] {

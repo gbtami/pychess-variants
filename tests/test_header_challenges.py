@@ -9,16 +9,15 @@ from header_challenges import get_user_challenges, set_direct_challenge_status
 from seek import (
     DIRECT_CHALLENGE_ACCEPTED,
     DIRECT_CHALLENGE_CANCELED,
+    DIRECT_CHALLENGE_CREATED,
     DIRECT_CHALLENGE_DECLINED,
     DIRECT_CHALLENGE_OFFLINE,
-    DUPLICATE_DIRECT_CHALLENGE_MESSAGE,
     Seek,
     create_seek,
     get_seeks,
 )
 from user import User
 from variants import VARIANTS
-from wsl import get_create_seek_error_message
 
 test_logger.init_test_logger()
 
@@ -184,7 +183,7 @@ class HeaderChallengeTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIn(seek.id, app_state.seeks)
         self.assertIn(seek.id, challenger.seeks)
 
-    async def test_create_seek_rejects_duplicate_direct_challenge(self):
+    async def test_create_seek_replaces_existing_direct_challenge_for_same_target(self):
         app_state = self.make_app_state()
         challenger = User(app_state, username="alice", perfs=PERFS)
         target = User(app_state, username="bob", perfs=PERFS)
@@ -203,18 +202,17 @@ class HeaderChallengeTestCase(unittest.IsolatedAsyncioTestCase):
             "target": target.username,
         }
 
-        seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, challenger, data)
-        duplicate = await create_seek(
+        first = await create_seek(app_state.db, app_state.invites, app_state.seeks, challenger, data)
+        replacement = await create_seek(
             app_state.db, app_state.invites, app_state.seeks, challenger, data
         )
 
-        self.assertIsNotNone(seek)
-        self.assertIsNone(duplicate)
-        self.assertEqual(1, len(app_state.seeks))
-        self.assertEqual(
-            DUPLICATE_DIRECT_CHALLENGE_MESSAGE,
-            get_create_seek_error_message(challenger, data),
-        )
+        self.assertIsNotNone(first)
+        self.assertIsNotNone(replacement)
+        self.assertEqual(2, len(app_state.seeks))
+        self.assertEqual(DIRECT_CHALLENGE_CANCELED, first.challenge_status)
+        self.assertEqual(DIRECT_CHALLENGE_CREATED, replacement.challenge_status)
+        self.assertNotEqual(first.id, replacement.id)
 
 
 if __name__ == "__main__":

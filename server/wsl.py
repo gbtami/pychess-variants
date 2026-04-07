@@ -71,10 +71,8 @@ from seek import (
     ACTIVE_DIRECT_CHALLENGE_STATUSES,
     ANON_RESTRICTED_SEEK_MESSAGE,
     DIRECT_CHALLENGE_CANCELED,
-    DUPLICATE_DIRECT_CHALLENGE_MESSAGE,
     challenge,
     create_seek,
-    find_duplicate_direct_challenge,
     get_seeks,
     is_anon_restricted_seek,
     Seek,
@@ -99,8 +97,6 @@ def get_create_seek_error_message(user: User, data: SeekCreateData) -> str:
     chess960 = data.get("chess960")
     if is_anon_restricted_seek(user, data["variant"], chess960, day):
         return ANON_RESTRICTED_SEEK_MESSAGE
-    if find_duplicate_direct_challenge(user.app_state.seeks, user, data) is not None:
-        return DUPLICATE_DIRECT_CHALLENGE_MESSAGE
     return "Failed to create seek"
 
 

@@ -1135,6 +1135,39 @@ ul.guide li {
   min-height: 2.6rem;
   color: var(--link-color);
 }
+.challenge-reason {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+  min-height: 2.6rem;
+  border: 0;
+  border-radius: 0;
+  padding: 0 1.8rem 0 0.5rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: var(--bg-color2);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--link-color) 50%),
+    linear-gradient(135deg, var(--link-color) 50%, transparent 50%);
+  background-position:
+    calc(100% - 13px) 50%,
+    calc(100% - 8px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  color: var(--link-color);
+  font-size: 0.95rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.challenge-reason:focus {
+  outline: 1px solid var(--blue-hover);
+  outline-offset: -1px;
+}
+.challenge-reason:hover {
+  background-color: var(--bg-color1);
+}
 @media (hover: hover) {
   .notification.challenge:hover {
     background: var(--blue-active);
@@ -1154,6 +1187,10 @@ ul.guide li {
   .notification.challenge:hover .challenge-action::before,
   .notification.challenge:focus-within .challenge-action::before {
     color: inherit;
+  }
+  .notification.challenge:hover .challenge-reason,
+  .notification.challenge:focus-within .challenge-reason {
+    color: var(--link-color);
   }
   .notification.challenge .challenge-action-accept:hover,
   .notification.challenge .challenge-action-accept:hover::before {
