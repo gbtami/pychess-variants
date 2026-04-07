@@ -20,7 +20,11 @@ async def direct_challenge(request: web.Request) -> ViewContext:
     context["title"] = "Challenge • PyChess"
 
     seek = app_state.seeks.get(seek_id)
-    if seek is None or (not seek.is_direct_challenge) or user.username not in challenge_participants(seek):
+    if (
+        seek is None
+        or (not seek.is_direct_challenge)
+        or user.username not in challenge_participants(seek)
+    ):
         return context
 
     context["variant"] = seek.variant
