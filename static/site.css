@@ -1083,6 +1083,9 @@ ul.guide li {
   border-top: 1px solid var(--bg-color2);
 }
 .challenge-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   border-radius: 0;
   cursor: pointer;
@@ -1100,19 +1103,19 @@ ul.guide li {
   opacity: 0.6;
   cursor: default;
 }
-.challenge-action i::before {
+.challenge-action::before {
+  display: block;
+  width: 100%;
   line-height: 2.6rem;
+  text-align: center;
   color: inherit;
-}
-.challenge-action i {
-  color: inherit;
+  opacity: 1;
 }
 .challenge-action-accept:hover {
   background: var(--good);
   color: var(--bg-color0);
 }
-.notification.challenge .challenge-action-accept:hover i.icon,
-.notification.challenge .challenge-action-accept:hover i.icon::before {
+.notification.challenge .challenge-action-accept:hover::before {
   color: var(--bg-color0);
 }
 .challenge-action-decline {
@@ -1122,8 +1125,7 @@ ul.guide li {
   background: var(--bad);
   color: var(--bg-color0);
 }
-.notification.challenge .challenge-action-decline:hover i.icon,
-.notification.challenge .challenge-action-decline:hover i.icon::before {
+.notification.challenge .challenge-action-decline:hover::before {
   color: var(--bg-color0);
 }
 .challenge-owner {
@@ -1149,11 +1151,17 @@ ul.guide li {
   .notification.challenge:focus-within .challenge-action-decline {
     color: var(--bad);
   }
-  .notification.challenge:hover .challenge-action i,
-  .notification.challenge:hover .challenge-action i::before,
-  .notification.challenge:focus-within .challenge-action i,
-  .notification.challenge:focus-within .challenge-action i::before {
+  .notification.challenge:hover .challenge-action::before,
+  .notification.challenge:focus-within .challenge-action::before {
     color: inherit;
+  }
+  .notification.challenge .challenge-action-accept:hover,
+  .notification.challenge .challenge-action-accept:hover::before {
+    color: var(--bg-color0);
+  }
+  .notification.challenge .challenge-action-decline:hover,
+  .notification.challenge .challenge-action-decline:hover::before {
+    color: var(--bg-color0);
   }
   .notification.challenge .challenge-actions {
     display: none;

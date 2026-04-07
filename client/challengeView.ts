@@ -196,23 +196,23 @@ export function challengeView() {
             return h("div.challenge-actions", [
                 h("button.challenge-action.challenge-action-accept", {
                     props: { type: "button", disabled },
-                    attrs: { title: _("Accept"), "aria-label": _("Accept") },
+                    attrs: { title: _("Accept"), "aria-label": _("Accept"), "data-icon": "?" },
                     on: { click: () => postAction(challenge, "accept") },
-                }, [h("i.icon.icon-check")]),
+                }),
                 h("button.challenge-action.challenge-action-decline", {
                     props: { type: "button", disabled },
-                    attrs: { title: _("Decline"), "aria-label": _("Decline") },
+                    attrs: { title: _("Decline"), "aria-label": _("Decline"), "data-icon": "j" },
                     on: { click: () => postAction(challenge, "decline") },
-                }, [h("i.icon.icon-abort")]),
+                }),
             ]);
         }
         return h("div.challenge-actions", [
             h("div.challenge-owner", _("Waiting")),
             h("button.challenge-action.challenge-action-decline", {
                 props: { type: "button", disabled },
-                attrs: { title: _("Cancel"), "aria-label": _("Cancel") },
+                attrs: { title: _("Cancel"), "aria-label": _("Cancel"), "data-icon": "j" },
                 on: { click: () => postAction(challenge, "cancel") },
-            }, [h("i.icon.icon-abort")]),
+            }),
         ]);
     }
 
@@ -220,7 +220,6 @@ export function challengeView() {
         if (challenges.length === 0) {
             return [
                 h("span.notification.empty", [
-                    h("div.icon.icon-crossedswords"),
                     h("span.text", _("No challenges.")),
                 ]),
             ];
