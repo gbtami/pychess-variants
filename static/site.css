@@ -1032,35 +1032,136 @@ ul.guide li {
   flex-direction: column;
   gap: 0.35rem;
 }
+.challenge-main {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+.notification.challenge {
+  padding: 0.6rem 0.8rem 0.5rem 1rem;
+}
+.notification.challenge:focus-visible {
+  outline: 1px solid var(--blue);
+  outline-offset: -1px;
+}
 .notification.challenge-inactive {
   opacity: 0.72;
 }
-.notification.challenge-inactive .icon {
-  color: var(--font-color);
-  opacity: 0.35;
-}
 .challenge-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
   opacity: 0.8;
+}
+.challenge-head {
+  display: block;
+  margin-bottom: 0.1rem;
+}
+.challenge-text {
+  min-width: 0;
+}
+.challenge-dot {
+  opacity: 0.6;
+}
+.challenge-color .is::before {
+  vertical-align: text-top;
+}
+.challenge-variant-icon {
+  align-self: flex-start;
+  margin-left: auto;
+  font-size: 2.35rem;
+  line-height: 1;
+  opacity: 0.45;
 }
 .challenge-actions {
   display: flex;
-  gap: 0.5rem;
+  align-items: stretch;
+  gap: 0;
   margin-top: 0.2rem;
+  border-top: 1px solid var(--bg-color2);
 }
 .challenge-action {
   border: 0;
-  border-radius: 4px;
+  border-radius: 0;
   cursor: pointer;
-  padding: 0.45rem 0.75rem;
-  font-size: 0.9rem;
+  padding: 0;
+  width: 100%;
+  min-height: 2.6rem;
+  font-size: 1.45rem;
+  background: transparent;
+  color: var(--good);
 }
-.challenge-secondary {
-  background: var(--bg-color2);
-  color: var(--font-color);
+.challenge-actions > * {
+  flex: 1 1 0;
 }
 .challenge-action:disabled {
   opacity: 0.6;
   cursor: default;
+}
+.challenge-action i::before {
+  line-height: 2.6rem;
+  color: inherit;
+}
+.challenge-action i {
+  color: inherit;
+}
+.challenge-action-accept:hover {
+  background: var(--good);
+  color: var(--bg-color0);
+}
+.notification.challenge .challenge-action-accept:hover i.icon,
+.notification.challenge .challenge-action-accept:hover i.icon::before {
+  color: var(--bg-color0);
+}
+.challenge-action-decline {
+  color: var(--bad);
+}
+.challenge-action-decline:hover {
+  background: var(--bad);
+  color: var(--bg-color0);
+}
+.notification.challenge .challenge-action-decline:hover i.icon,
+.notification.challenge .challenge-action-decline:hover i.icon::before {
+  color: var(--bg-color0);
+}
+.challenge-owner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  color: var(--link-color);
+}
+@media (hover: hover) {
+  .notification.challenge:hover {
+    background: var(--blue-active);
+  }
+  .notification.challenge:hover .challenge-variant-icon {
+    color: var(--blue-hover);
+    opacity: 0.9;
+  }
+  .notification.challenge:hover .challenge-action-accept,
+  .notification.challenge:focus-within .challenge-action-accept {
+    color: var(--good);
+  }
+  .notification.challenge:hover .challenge-action-decline,
+  .notification.challenge:focus-within .challenge-action-decline {
+    color: var(--bad);
+  }
+  .notification.challenge:hover .challenge-action i,
+  .notification.challenge:hover .challenge-action i::before,
+  .notification.challenge:focus-within .challenge-action i,
+  .notification.challenge:focus-within .challenge-action i::before {
+    color: inherit;
+  }
+  .notification.challenge .challenge-actions {
+    display: none;
+  }
+  .notification.challenge:hover .challenge-actions,
+  .notification.challenge:focus-within .challenge-actions {
+    display: flex;
+  }
 }
 span.notification.empty span.text {
   align-self: center;

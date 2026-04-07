@@ -1,5 +1,6 @@
 import { h, VNode } from "snabbdom";
 
+import { colorIcon } from "./chess";
 import { _ } from "./i18n";
 import { patch } from "./document";
 import { sound } from "./sound";
@@ -42,22 +43,46 @@ function challengeLabel(challenge: Challenge) {
             ? `${prefix}${challenge.challenger} ${_("started the game")}`
             : `${_("Challenge accepted by")} ${challenge.opponent}`;
     }
-    return challenge.incoming
-        ? `${prefix}${challenge.challenger} ${_("challenged you")}`
-        : `${_("Challenge sent to")} ${challenge.opponent}`;
+    return challenge.incoming ? `${prefix}${challenge.challenger}` : challenge.opponent;
 }
 
-function challengeMeta(challenge: Challenge) {
+function challengeVariantIcon(challenge: Challenge) {
+    const variant = VARIANTS[challenge.variant];
+    return variant ? variant.icon(Boolean(challenge.chess960)) : "";
+}
+
+function challengeColorIconClass(challenge: Challenge) {
+    const variant = VARIANTS[challenge.variant];
+    if (!variant) return "";
+    if (challenge.color === "w") return colorIcon(challenge.variant, variant.colors.first);
+    if (challenge.color === "b") return colorIcon(challenge.variant, variant.colors.second);
+    return "";
+}
+
+function challengeMetaView(challenge: Challenge) {
+    const colorClass = challengeColorIconClass(challenge);
+    const colorIconVNode = colorClass
+        ? [h("span.challenge-color", [h("span.is", { class: { [colorClass]: true } })]), h("span.challenge-dot", "•")]
+        : [];
     const variant = VARIANTS[challenge.variant];
     const variantName = variant
         ? variant.displayName(Boolean(challenge.chess960))
         : `${challenge.variant}${challenge.chess960 ? "960" : ""}`;
-    let status = "";
-    if (challenge.status === "offline") status = ` • ${_("Offline")}`;
-    else if (challenge.status === "declined") status = ` • ${_("Declined")}`;
-    else if (challenge.status === "canceled") status = ` • ${_("Canceled")}`;
-    else if (challenge.status === "accepted") status = ` • ${_("Accepted")}`;
-    return `${variantName} • ${challenge.tc} • ${challenge.rated ? _("Rated") : _("Casual")}${status}`;
+
+    const parts = [
+        challenge.rated ? _("Rated") : _("Casual"),
+        challenge.tc,
+        variantName,
+    ];
+
+    if (challenge.status === "offline") parts.push(_("Offline"));
+    else if (challenge.status === "declined") parts.push(_("Declined"));
+    else if (challenge.status === "accepted") parts.push(_("Accepted"));
+
+    return h("span.challenge-meta", [
+        ...colorIconVNode,
+        ...parts.flatMap((part, index) => index === 0 ? [part] : [h("span.challenge-dot", "•"), part]),
+    ]);
 }
 
 export function challengeView() {
@@ -83,7 +108,11 @@ export function challengeView() {
         const counter = counterEl();
         if (counter) counter.setAttribute("data-count", `${count}`);
         const button = document.getElementById("btn-challenge") as HTMLElement | null;
-        if (button) button.setAttribute("aria-label", `Challenges: ${count}`);
+        if (button) {
+            const label = `Challenges: ${count}`;
+            button.setAttribute("aria-label", label);
+            button.setAttribute("title", label);
+        }
         appEl = patch(appEl, h("div#challenge-app", renderChallenges()));
     }
 
@@ -165,21 +194,25 @@ export function challengeView() {
         const disabled = pending.has(challenge.id);
         if (challenge.incoming) {
             return h("div.challenge-actions", [
-                h("button.button-primary.challenge-action", {
+                h("button.challenge-action.challenge-action-accept", {
                     props: { type: "button", disabled },
+                    attrs: { title: _("Accept"), "aria-label": _("Accept") },
                     on: { click: () => postAction(challenge, "accept") },
-                }, _("Accept")),
-                h("button.challenge-action.challenge-secondary", {
+                }, [h("i.icon.icon-check")]),
+                h("button.challenge-action.challenge-action-decline", {
                     props: { type: "button", disabled },
+                    attrs: { title: _("Decline"), "aria-label": _("Decline") },
                     on: { click: () => postAction(challenge, "decline") },
-                }, _("Decline")),
+                }, [h("i.icon.icon-abort")]),
             ]);
         }
         return h("div.challenge-actions", [
-            h("button.challenge-action.challenge-secondary", {
+            h("div.challenge-owner", _("Waiting")),
+            h("button.challenge-action.challenge-action-decline", {
                 props: { type: "button", disabled },
+                attrs: { title: _("Cancel"), "aria-label": _("Cancel") },
                 on: { click: () => postAction(challenge, "cancel") },
-            }, _("Cancel")),
+            }, [h("i.icon.icon-abort")]),
         ]);
     }
 
@@ -195,13 +228,19 @@ export function challengeView() {
 
         return challenges.map(challenge => {
             const actions = actionButtons(challenge);
-            return h(`div.notification.challenge${challenge.incoming && ["created", "offline"].includes(challenge.status) ? ".new" : ""}${challenge.status === "declined" ? ".challenge-inactive" : ""}`, [
-                h("div.icon.icon-crossedswords"),
-                h("span.content", [
-                    h("span", [
-                        h("strong", challengeLabel(challenge)),
+            return h(`div.notification.challenge${challenge.incoming && ["created", "offline"].includes(challenge.status) ? ".new" : ""}${challenge.status === "declined" ? ".challenge-inactive" : ""}`, {
+                attrs: { tabindex: 0 },
+            }, [
+                h("div.content", [
+                    h("div.challenge-main", [
+                        h("div.challenge-text", [
+                            h("span.challenge-head", [
+                                h("strong", challengeLabel(challenge)),
+                            ]),
+                            challengeMetaView(challenge),
+                        ]),
+                        h("div.icon.challenge-variant-icon", { attrs: { "data-icon": challengeVariantIcon(challenge) } }),
                     ]),
-                    h("span.challenge-meta", challengeMeta(challenge)),
                     ...(actions ? [actions] : []),
                 ]),
             ]);
@@ -228,7 +267,7 @@ export function challengeView() {
     }, 0);
 
     return h("div#challenge-panel", [
-        h("button#btn-challenge", { on: { click: toggleChallenge }, attrs: { "aria-label": "Challenges: 0" } }, [
+        h("button#btn-challenge", { on: { click: toggleChallenge }, attrs: { "aria-label": "Challenges: 0", "title": "Challenges: 0" } }, [
             h("div.icon.icon-crossedswords.data-count", { attrs: { "data-count": 0 } }),
         ]),
         h("div#challenge-app"),
