@@ -121,7 +121,7 @@ async def process_ws(
                 log.debug("%s ws other msg.type %s %s", request.rel_url.path, msg.type, msg)
     except OSError:
         # disconnected
-        log.error("process_ws() OSError")
+        pass
     except Exception:
         log.exception(
             "Exception in % socket handling owned by %s ",
