@@ -8,7 +8,7 @@ from pychess_global_app_state_utils import get_app_state
 from seek import ANON_RESTRICTED_SEEK_MESSAGE, Seek, create_seek
 from server import init_state, make_app
 from user import User
-from utils import join_seek
+from utils import NO_LEGAL_MOVES_START_FEN_MESSAGE, join_seek
 
 
 class AnonSeekRestrictionsTestCase(unittest.IsolatedAsyncioTestCase):
@@ -124,6 +124,27 @@ class AnonSeekRestrictionsTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual("new_game", response["type"])
         game = app_state.games[response["gameId"]]
         self.assertTrue(game.corr)
+
+    async def test_join_seek_rejects_custom_fen_with_no_legal_moves(self):
+        app_state = get_app_state(self.app)
+        creator = self.add_user("creator-terminal")
+        joiner = self.add_user("joiner-terminal")
+
+        seek = Seek(
+            "seek-terminal",
+            creator,
+            "chess",
+            fen="7k/5Q2/7K/8/8/8/8/8 b - - 0 1",
+            player1=creator,
+        )
+        app_state.seeks[seek.id] = seek
+
+        response = await join_seek(app_state, joiner, seek)
+
+        self.assertEqual("error", response["type"])
+        self.assertEqual(NO_LEGAL_MOVES_START_FEN_MESSAGE, response["message"])
+        self.assertEqual(0, len(app_state.games))
+        self.assertNotIn(seek.id, app_state.seeks)
 
     async def test_seek_expiry_defaults_by_seek_type(self):
         creator = self.add_user("creator-expiry")

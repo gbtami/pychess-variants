@@ -82,6 +82,10 @@ from settings import URI
 
 log = logging.getLogger(__name__)
 
+NO_LEGAL_MOVES_START_FEN_MESSAGE = (
+    "Failed to create game. The starting position leaves the side to move with no legal move."
+)
+
 
 async def put_bot_game_queue(player: User, game_id: str, payload: str) -> bool:
     queue = player.game_queues.get(game_id)
@@ -551,6 +555,14 @@ async def new_game(
             return {"type": "error", "message": message}
     else:
         sanitized_fen = ""
+
+    if seek.fen and not get_server_variant(seek.variant, seek.chess960).two_boards:
+        board = FairyBoard(seek.variant, sanitized_fen, seek.chess960)
+        if not board.has_legal_move():
+            message = NO_LEGAL_MOVES_START_FEN_MESSAGE
+            log.debug(message)
+            remove_seek(app_state.seeks, seek)
+            return {"type": "error", "message": message}
 
     color = random.choice(("w", "b")) if seek.color == "r" else seek.color
     wplayer = seek.player1 if color == "w" else seek.player2
