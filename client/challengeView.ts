@@ -138,6 +138,9 @@ export function challengeView() {
 
     function postAction(challenge: Challenge, action: "accept" | "decline" | "cancel") {
         pending.add(challenge.id);
+        if (action === "cancel") {
+            challenges = challenges.filter(item => item.id !== challenge.id);
+        }
         redraw();
         fetch(`/api/challenge/seek/${challenge.id}/${action}`, { method: "POST" })
             .then(res => res.json())
@@ -192,7 +195,7 @@ export function challengeView() {
 
         return challenges.map(challenge => {
             const actions = actionButtons(challenge);
-            return h(`div.notification.challenge${challenge.incoming && ["created", "offline"].includes(challenge.status) ? ".new" : ""}${["declined", "canceled"].includes(challenge.status) ? ".challenge-inactive" : ""}`, [
+            return h(`div.notification.challenge${challenge.incoming && ["created", "offline"].includes(challenge.status) ? ".new" : ""}${challenge.status === "declined" ? ".challenge-inactive" : ""}`, [
                 h("div.icon.icon-crossedswords"),
                 h("span.content", [
                     h("span", [

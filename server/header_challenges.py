@@ -96,6 +96,7 @@ def direct_challenge_is_visible(seek: Seek) -> bool:
         and not seek.pending
         and not seek.is_expired()
         and seek.challenge_status is not None
+        and seek.challenge_status != DIRECT_CHALLENGE_CANCELED
     )
 
 
