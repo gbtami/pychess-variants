@@ -557,7 +557,7 @@ async def new_game(
         sanitized_fen = ""
 
     if seek.fen and not get_server_variant(seek.variant, seek.chess960).two_boards:
-        board = FairyBoard(seek.variant, sanitized_fen, seek.chess960)
+        board = FairyBoard(seek.variant, sanitized_fen, bool(seek.chess960))
         if not board.has_legal_move():
             message = NO_LEGAL_MOVES_START_FEN_MESSAGE
             log.debug(message)

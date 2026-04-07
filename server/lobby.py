@@ -70,7 +70,13 @@ class Lobby:
     async def lobby_chat_save(self, response: LobbyChatMessage) -> None:
         self.lobbychat.append(response)
         # Insert a copy so MongoDB-added _id does not leak into the live chat payload.
-        response_db: LobbyChatMessageDb = dict(response)
+        response_db: LobbyChatMessageDb = {
+            "type": response["type"],
+            "user": response["user"],
+            "message": response["message"],
+        }
+        if "time" in response:
+            response_db["time"] = response["time"]
         await self.app_state.db.lobbychat.insert_one(response_db)
 
     async def handle_user_closes_lobby(self, user: User) -> None:

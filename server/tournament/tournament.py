@@ -2387,7 +2387,15 @@ class Tournament(ABC):
     async def tourney_chat_save(self, response: ChatLine) -> None:
         self.tourneychat.append(response)
         # Insert a copy so MongoDB-added _id does not leak into the live chat payload.
-        response_db: ChatLine = dict(response)
+        response_db: ChatLine = {
+            "type": response["type"],
+            "user": response["user"],
+            "message": response["message"],
+        }
+        if "room" in response:
+            response_db["room"] = response["room"]
+        if "time" in response:
+            response_db["time"] = response["time"]
         response_db["tid"] = self.id
         await self.app_state.db.tournament_chat.insert_one(response_db)
 
