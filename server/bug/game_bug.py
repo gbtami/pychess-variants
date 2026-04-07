@@ -170,6 +170,9 @@ class GameBug:
 
         self.move_lock = asyncio.Lock()
 
+    async def cancel_clocks_for_eviction(self) -> None:
+        await self.gameClocks.cancel_stopwatches()
+
     def berserk(self, color):
         pass
 

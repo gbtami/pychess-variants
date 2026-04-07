@@ -8,7 +8,6 @@ from typing import (
     Set,
     Tuple,
     TypeAlias,
-    cast,
     Literal,
 )
 import asyncio
@@ -814,10 +813,10 @@ class Tournament(ABC):
                 self.displayed_berger_value(leaderboard_player_data),
             )
             if leaderboard_player_data.withdrawn:
-                payload = cast(TournamentPlayerJson, {**payload, "withdrawn": True})
+                payload["withdrawn"] = True
             points = self.standings_points(leaderboard_player_data, ongoing_players)
             if points is not leaderboard_player_data.points:
-                payload = cast(TournamentPlayerJson, {**payload, "points": points})
+                payload["points"] = points
             players.append(payload)
 
         page_json: TournamentPlayersResponse = {

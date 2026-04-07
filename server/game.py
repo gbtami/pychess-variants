@@ -376,6 +376,9 @@ class Game:
 
         self.move_lock = asyncio.Lock()
 
+    async def cancel_clocks_for_eviction(self) -> None:
+        await self.stopwatch.cancel()
+
     def berserk(self, color: str) -> None:
         if color == "white" and not self.wberserk:
             self.wberserk = True

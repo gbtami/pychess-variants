@@ -6,7 +6,7 @@ from operator import neg
 import asyncio
 import collections
 import gettext
-from typing import Any, Coroutine, List, Set, TYPE_CHECKING, TypeVar, cast
+from typing import Any, Coroutine, List, Set, TYPE_CHECKING, TypeVar
 
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
@@ -639,10 +639,7 @@ class PychessGlobalAppState:
     async def _evict_game_from_cache(self, game: Game | GameBug) -> None:
         # Cancel any still-running clocks to break task -> game references
         # even when a finished game was loaded from DB and never saved in-memory.
-        if hasattr(game, "stopwatch"):
-            await cast(Game, game).stopwatch.cancel()
-        elif hasattr(game, "gameClocks"):
-            await cast(GameBug, game).gameClocks.cancel_stopwatches()
+        await game.cancel_clocks_for_eviction()
 
         if game.id == self.tv:
             self.tv = None

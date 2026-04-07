@@ -1319,15 +1319,13 @@ async def load_tournament(
         tournament.current_round = stored_round
 
     if tournament.system == RR:
+        assert isinstance(tournament, RRTournament)
         arrangement_table = app_state.db.tournament_arrangement
         arrangement_cursor = arrangement_table.find({"tid": tournament_id})
-        arrangement_docs = await arrangement_cursor.to_list(length=None)
-        await tournament.load_arrangements(
-            [
-                cast(TournamentArrangementDoc, arrangement_doc)
-                for arrangement_doc in arrangement_docs
-            ]
+        arrangement_docs: list[TournamentArrangementDoc] = await arrangement_cursor.to_list(
+            length=None
         )
+        await tournament.load_arrangements(arrangement_docs)
 
     cursor = app_state.db.tournament_chat.find(
         {"tid": tournament.id},

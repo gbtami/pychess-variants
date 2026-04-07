@@ -259,6 +259,7 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
     data_obj, error_status = await _read_fishnet_json(request)
     if data_obj is None:
         return web.Response(status=error_status or 400)
+    # Fishnet payloads come from our own worker implementation, so we keep this boundary trusted.
     data = cast(FishnetAcquirePayload, data_obj)
 
     app_state = get_app_state(request.app)
@@ -291,6 +292,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     data_obj, error_status = await _read_fishnet_json(request)
     if data_obj is None:
         return web.Response(status=error_status or 400)
+    # Fishnet payloads come from our own worker implementation, so we keep this boundary trusted.
     data = cast(FishnetAnalysisPayload, data_obj)
 
     app_state = get_app_state(request.app)
@@ -361,6 +363,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
     data_obj, error_status = await _read_fishnet_json(request)
     if data_obj is None:
         return web.Response(status=error_status or 400)
+    # Fishnet payloads come from our own worker implementation, so we keep this boundary trusted.
     data = cast(FishnetMovePayload, data_obj)
 
     app_state = get_app_state(request.app)
@@ -411,6 +414,7 @@ async def fishnet_abort(request: web.Request) -> web.Response:
     data_obj, error_status = await _read_fishnet_json(request)
     if data_obj is None:
         return web.Response(status=error_status or 400)
+    # Fishnet payloads come from our own worker implementation, so we keep this boundary trusted.
     data = cast(FishnetAbortPayload, data_obj)
 
     app_state = get_app_state(request.app)
