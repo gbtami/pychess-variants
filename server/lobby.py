@@ -69,10 +69,8 @@ class Lobby:
 
     async def lobby_chat_save(self, response: LobbyChatMessage) -> None:
         self.lobbychat.append(response)
-        await self.app_state.db.lobbychat.insert_one(response)
-        # We have to remove _id added by insert to remain our response JSON serializable
-        response_db: LobbyChatMessageDb = response
-        del response_db["_id"]
+        response_db: LobbyChatMessageDb = dict(response)
+        await self.app_state.db.lobbychat.insert_one(response_db)
 
     async def handle_user_closes_lobby(self, user: User) -> None:
         # todo: maybe get rid of lobbysockets at some point and use app_state.users.loobby_sockets instead.

@@ -2386,10 +2386,9 @@ class Tournament(ABC):
 
     async def tourney_chat_save(self, response: ChatLine) -> None:
         self.tourneychat.append(response)
-        response["tid"] = self.id
-        await self.app_state.db.tournament_chat.insert_one(response)
-        # We have to remove _id added by insert to remain our response JSON serializable
-        del response["_id"]
+        response_db: ChatLine = dict(response)
+        response_db["tid"] = self.id
+        await self.app_state.db.tournament_chat.insert_one(response_db)
 
     def automatic_round_interval_seconds(self) -> int:
         # Approximate per-side time budget to derive a short between-round pause.
