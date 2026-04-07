@@ -202,7 +202,9 @@ class HeaderChallengeTestCase(unittest.IsolatedAsyncioTestCase):
             "target": target.username,
         }
 
-        first = await create_seek(app_state.db, app_state.invites, app_state.seeks, challenger, data)
+        first = await create_seek(
+            app_state.db, app_state.invites, app_state.seeks, challenger, data
+        )
         replacement = await create_seek(
             app_state.db, app_state.invites, app_state.seeks, challenger, data
         )
