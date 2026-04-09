@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 60 60"
+   version="1.1"
+   id="svg3"
+   sodipodi:docname="0FU.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview3"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="10.759808"
+     inkscape:cx="21.933477"
+     inkscape:cy="-2.4164"
+     inkscape:window-width="3840"
+     inkscape:window-height="2054"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1" />
+  <defs
+     id="defs1">
+    <filter
+       id="0FU_svg__a"
+       x="-0.13676314"
+       y="-0.11119194"
+       width="1.3235293"
+       height="1.2644377">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur1" />
+      <feOffset
+         dx="2"
+         dy="2"
+         result="offsetBlur"
+         id="feOffset1" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         id="feBlend1" />
+    </filter>
+  </defs>
+  <g
+     filter="url(#0FU_svg__a)"
+     transform="translate(39.633 3.208)scale(.88521)"
+     id="g1">
+    <path
+       fill="#cebd6a"
+       d="m -23.798,14.316976 -7.051,44.451 H 9.085 l -6.79,-44.163 c -4.418,-1.298 -8.839,-2.6 -13.255,-3.896 z"
+       id="path1"
+       style="fill:#dfc585;fill-opacity:1;stroke:#333333;stroke-width:1.12968;stroke-dasharray:none"
+       sodipodi:nodetypes="cccccc" />
+  </g>
+  <g
+     stroke="#000000"
+     stroke-linejoin="round"
+     stroke-width="1.313"
+     paint-order="stroke fill markers"
+     id="g3"
+     transform="translate(0,3.9586379)">
+    <path
+       d="m -23.356,37.944 c -2.134,9.081 -4.332,14.438 -13.39,20.588 8.914,3.135 18.701,2.896 26.78,0 -9.058,-6.15 -11.255,-11.507 -13.39,-20.588 z"
+       transform="matrix(0.44607,0,0,0.54295,40.302,-5.138)"
+       id="path2" />
+    <path
+       d="m -26.818,58.55 c -0.101,8.756 -0.37,15.837 -11.545,21.428 -5.232,2.786 -6.963,4.476 -7.615,9.333 6.785,1.493 14.837,2.21 22.883,2.179 8.046,0.031 16.097,-0.686 22.882,-2.18 -0.651,-4.856 -2.382,-6.546 -7.615,-9.332 -11.174,-5.591 -11.443,-12.672 -11.545,-21.428 -1.24,0.02 -2.481,0.02 -3.722,0.02 -1.241,0 -2.482,0 -3.723,-0.02 z"
+       transform="matrix(0.44607,0,0,0.54295,40.302,-5.138)"
+       id="path3" />
+  </g>
+</svg>

@@ -222,24 +222,27 @@ label.piece.piece8.shogi {
     background-image: url('images/pieces/shogi/ctim/0KA.svg');
 }
 label.piece.piece9.shogi {
-    background-image: url('images/pieces/shogi/bw/0KA.svg');
+    background-image: url('images/pieces/shogi/cto/0KA.svg');
 }
 label.piece.piece10.shogi {
-    background-image: url('images/pieces/shogi/bnw/0KA.svg');
+    background-image: url('images/pieces/shogi/bw/0KA.svg');
 }
 label.piece.piece11.shogi {
-    background-image: url('images/pieces/shogi/Portella/Kanji/0KA.png');
+    background-image: url('images/pieces/shogi/bnw/0KA.svg');
 }
 label.piece.piece12.shogi {
-    background-image: url('images/pieces/shogi/Portella/Intl/0KA.png');
+    background-image: url('images/pieces/shogi/Portella/Kanji/0KA.png');
 }
 label.piece.piece13.shogi {
-    background-image: url('images/pieces/shogi/cz/0KA.svg');
+    background-image: url('images/pieces/shogi/Portella/Intl/0KA.png');
 }
 label.piece.piece14.shogi {
-    background-image: url('images/pieces/firi/bb.svg');
+    background-image: url('images/pieces/shogi/cz/0KA.svg');
 }
 label.piece.piece15.shogi {
+    background-image: url('images/pieces/firi/bb.svg');
+}
+label.piece.piece16.shogi {
     background-image: url('images/pieces/disguised/shogi-ally.svg');
 }
 
