@@ -5,30 +5,43 @@ import contextvars
 from collections.abc import Mapping
 from typing import Any
 
+from rich import json
+import traceback
+
 log = logging.getLogger(__name__)
 
 ############################################################################################
 ###################################### NOTE!!! #############################################
 ## Editing this config will not have effect until the config in mongo is updated          ##
 ## This is only used on init, before the config from mongo is fetched                     ##
-## and as template if no config in mongo has been set yet                                 ##
+## and as template if no config in mongo exists - then this will be inserted on startup   ##
 ############################################################################################
 DEFAULT_LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
-    "filters": {"addPychessContextFilter": {"()": "logger.AddPychessContextFilter"}},
+    "filters": {
+        "addPychessContextFilter": {"()": "logger.AddPychessContextFilter"},
+        # "addJsonStructuredLogRecordInContextFilter": { "()": "logger.AddJsonStructuredLogRecordInContextFilter" },
+    },
     "formatters": {
         "standard": {
             "format": "%(asctime)s.%(msecs)03d %(levelname_brackets)-7s %(gameId)-8s %(username)-12s %(name_lineno)-31s %(message)s"
+        },
+        "json": {
+            "format": "%(json)s",
         },
     },
     "handlers": {
         "default": {
             "level": "DEBUG",
             "formatter": "standard",
+            # "formatter": "json",
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",  # Default is stderr
-            "filters": ["addPychessContextFilter"],
+            "filters": [
+                "addPychessContextFilter",
+                # "addJsonStructuredLogRecordInContextFilter",
+            ],
         },
     },
     "loggers": {
@@ -40,41 +53,102 @@ DEFAULT_LOGGING_CONFIG = {
         # pychess modules:
         "wsr": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "wsl": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "websocket_utils": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "views.tournaments": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "websocket_utils": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "views.tournaments": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "views.invite": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "views": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "utils": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "users": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "user": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "twitch": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "tournament.tournament": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "tournament.tournaments": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "tournament.scheduler": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "tournament.tournament": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "tournament.tournaments": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "tournament.scheduler": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "tournament.auto_play_tournament": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": False,
         },
-        "tournament.arena": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "tournament.arena": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "tournament.arena_new": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "server": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "seek": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "pychess_global_app_state": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "pychess_global_app_state": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "login": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "logger": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "lichess_team_msg": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "generate_crosstable": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "lichess_team_msg": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "generate_crosstable": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "game_api": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "game": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "fishnet": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "fairy.fairy_board": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "fairy.fairy_board": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "clock": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "bugchess.pgn": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "bugchess.gaviota": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "bugchess.engine": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "bugchess.gaviota": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "bugchess.engine": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "bug.wsr_bug": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "bug.utils_bug": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
-        "bug.import_bugh_game": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
+        "bug.utils_bug": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "bug.import_bugh_game": {
+            "handlers": ["default"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "bug.game_bug": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "broadcast": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
         "bot_api": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
@@ -86,6 +160,8 @@ DEFAULT_LOGGING_CONFIG = {
         "__main__": {"handlers": ["default"], "level": "DEBUG", "propagate": False},
     },
 }
+
+############################################################################################
 # additional logger context
 log_context_data = contextvars.ContextVar("log_context_data", default=dict())
 SENSITIVE_LOG_KEYS = frozenset({"password"})
@@ -100,9 +176,11 @@ def mask_sensitive_value(value: Any) -> str:
 def sanitize_for_logging(value: Any) -> Any:
     if isinstance(value, Mapping):
         return {
-            key: mask_sensitive_value(item)
-            if key in SENSITIVE_LOG_KEYS
-            else sanitize_for_logging(item)
+            key: (
+                mask_sensitive_value(item)
+                if key in SENSITIVE_LOG_KEYS
+                else sanitize_for_logging(item)
+            )
             for key, item in value.items()
         }
     if isinstance(value, list):
@@ -129,8 +207,9 @@ class AddPychessContextFilter(logging.Filter):
     def __init__(self):
         super().__init__()
 
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord):
         context_dict = log_context_data.get()
+
         # shorten WARNING to WARN:
         if record.levelname == "WARNING":
             record.levelname = "WARN"
@@ -141,10 +220,80 @@ class AddPychessContextFilter(logging.Filter):
         # pychess context specific values:
         setattr(record, "username", context_dict.get("username", "none-user"))
         setattr(record, "gameId", context_dict.get("gameId", "none-game"))
+
         return True
 
 
 # ~additional logger context
+############################################################################################
+
+
+class AddJsonStructuredLogRecordInContextFilter(logging.Filter):
+    """
+    This is a filter which constructs a json from the log record and adds it in the context in case we want structured
+    logging.
+
+    Usage:
+     "filters": {
+        "addPychessContextFilter": {"()": "logger.AddPychessContextFilter"},
+        "addJsonStructuredLogRecordInContextFilter": { "()": "logger.AddJsonStructuredLogRecordInContextFilter" },
+    },
+    "formatters": {
+        ...
+        "json": { "format": "%(json)s" },
+    },
+    "handlers": {
+        "default": {
+            ...
+            "formatter": "json",
+            "filters": [
+                "addPychessContextFilter",
+                "addJsonStructuredLogRecordInContextFilter",
+            ],
+        },
+    },
+
+    Make sure the order of filters is this, so the json filter has the new context values when constructing the json
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def filter(self, record: logging.LogRecord):
+        try:
+            setattr(
+                record,
+                "json",
+                json.dumps(
+                    {
+                        "level": record.levelname,
+                        "message": record.getMessage(),
+                        "name_lineno": record.name_lineno,
+                        "stack_info": record.stack_info,
+                        "gameId": record.gameId,
+                        "username": record.username,
+                        "exc_info": (
+                            "".join(
+                                traceback.format_exception(
+                                    record.exc_info[0],
+                                    record.exc_info[1],
+                                    record.exc_info[2],
+                                )
+                            )
+                            if record.exc_info is not None
+                            else None
+                        ),
+                    }
+                ),
+            )
+        except Exception as e:
+            print(e)
+            setattr(
+                record,
+                "json",
+                "error constructing json structured log record. See stdout for traceback.",
+            )
+        return True
 
 
 # logging before initializing the Web App's event loop will use this,
