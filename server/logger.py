@@ -258,7 +258,7 @@ class AddJsonStructuredLogRecordInContextFilter(logging.Filter):
     def __init__(self):
         super().__init__()
 
-    def filter(self, record: logging.LogRecord):
+    def filter(self, record):
         try:
             setattr(
                 record,
