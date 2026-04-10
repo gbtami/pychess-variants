@@ -4,8 +4,7 @@ import logging.config
 import contextvars
 from collections.abc import Mapping
 from typing import Any
-
-from rich import json
+import json
 import traceback
 
 log = logging.getLogger(__name__)
