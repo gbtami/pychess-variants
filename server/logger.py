@@ -206,7 +206,7 @@ class AddPychessContextFilter(logging.Filter):
     def __init__(self):
         super().__init__()
 
-    def filter(self, record: logging.LogRecord):
+    def filter(self, record):
         context_dict = log_context_data.get()
 
         # shorten WARNING to WARN:
