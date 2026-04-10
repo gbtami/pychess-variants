@@ -206,7 +206,7 @@ class AddPychessContextFilter(logging.Filter):
     def __init__(self):
         super().__init__()
 
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord):
         context_dict = log_context_data.get()
 
         # shorten WARNING to WARN:
@@ -258,7 +258,7 @@ class AddJsonStructuredLogRecordInContextFilter(logging.Filter):
     def __init__(self):
         super().__init__()
 
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord):
         try:
             setattr(
                 record,
@@ -267,10 +267,10 @@ class AddJsonStructuredLogRecordInContextFilter(logging.Filter):
                     {
                         "level": record.levelname,
                         "message": record.getMessage(),
-                        "name_lineno": record.name_lineno,
+                        "name_lineno": getattr(record, "name_lineno"),
                         "stack_info": record.stack_info,
-                        "gameId": record.gameId,
-                        "username": record.username,
+                        "gameId": getattr(record, "gameId"),
+                        "username": getattr(record, "username"),
                         "exc_info": (
                             "".join(
                                 traceback.format_exception(
