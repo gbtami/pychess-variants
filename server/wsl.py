@@ -71,10 +71,12 @@ from seek import (
     ACTIVE_DIRECT_CHALLENGE_STATUSES,
     ANON_RESTRICTED_SEEK_MESSAGE,
     DIRECT_CHALLENGE_CANCELED,
+    TWO_BOARD_TARGETED_SEEK_MESSAGE,
     challenge,
     create_seek,
     get_seeks,
     is_anon_restricted_seek,
+    is_targeted_two_board_seek,
     Seek,
     SeekCreateData,
 )
@@ -97,6 +99,8 @@ def get_create_seek_error_message(user: User, data: SeekCreateData) -> str:
     chess960 = data.get("chess960")
     if is_anon_restricted_seek(user, data["variant"], chess960, day):
         return ANON_RESTRICTED_SEEK_MESSAGE
+    if is_targeted_two_board_seek(data["variant"], chess960, data.get("target", "")):
+        return TWO_BOARD_TARGETED_SEEK_MESSAGE
     return "Failed to create seek"
 
 

@@ -2,7 +2,7 @@ import { expect, jest, test } from '@jest/globals';
 
 import { displayUsername, isAnonUsername, userLink } from '../client/user';
 import { gameInfo } from '../client/gameInfo';
-import { VARIANTS } from '../client/variants';
+import { disabledVariantsForCreateMode, VARIANTS } from '../client/variants';
 import { Seek } from '../client/lobbyType';
 
 jest.unstable_mockModule('@/lobby', () => ({
@@ -117,4 +117,10 @@ test('anon usernames are masked in game info', () => {
     const text = collectText(vnode);
     expect(text).toContain('Anonymous');
     expect(text).not.toContain(anonName);
+});
+
+test('two-board variants are disabled for targeted game creation', async () => {
+    expect(disabledVariantsForCreateMode('createGame', 'Invite-friend', false)).toContain('bughouse');
+    expect(disabledVariantsForCreateMode('createGame', 'berado88', false)).toContain('bughouse');
+    expect(disabledVariantsForCreateMode('createGame', '', false)).not.toContain('bughouse');
 });

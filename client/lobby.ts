@@ -10,7 +10,7 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
-import { devVariants, enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant, variantGroups } from './variants';
+import { devVariants, disabledVariantsForCreateMode, enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant, variantGroups } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -438,6 +438,11 @@ export class LobbyController implements ChatController {
 
     renderSeekDialog() {
         const vVariant = localStorage.seek_variant || "chess";
+        const disabledVariants = disabledVariantsForCreateMode(
+            this.createMode,
+            this.profileid,
+            this.anon,
+        );
         const twoBoards = VARIANTS[vVariant].twoBoards;
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
@@ -463,7 +468,7 @@ export class LobbyController implements ChatController {
                             h('div#header-block'),
                             h('div', [
                                 h('label', { attrs: { for: "variant" } }, _("Variant")),
-                                selectVariant("variant", vVariant, () => this.setVariant(), () => this.setVariant(), [], model.gameCategory),
+                                selectVariant("variant", disabledVariants.includes(vVariant) ? null : vVariant, () => this.setVariant(), () => this.setVariant(), disabledVariants, model.gameCategory),
                             ]),
                             h('input#fen', {
                                 props: { name: 'fen', placeholder: _('Paste the FEN text here') + (this.anon ? _(' (must be signed in)') : ''),  autocomplete: "off" },
@@ -692,7 +697,10 @@ export class LobbyController implements ChatController {
     createGame(variantName: string = '') {
         const twoBoards = (variantName) ? VARIANTS[variantName].twoBoards : false;
         this.createMode = 'createGame';
-        this.renderVariantsDropDown(variantName, this.anon ? twoBoarsVariants: []);
+        this.renderVariantsDropDown(
+            variantName,
+            disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon),
+        );
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'block';

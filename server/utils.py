@@ -47,8 +47,10 @@ from game import Game
 from newid import new_id
 from seek import (
     ANON_RESTRICTED_SEEK_MESSAGE,
+    TWO_BOARD_TARGETED_SEEK_MESSAGE,
     DIRECT_CHALLENGE_ACCEPTED,
     is_anon_restricted_seek,
+    is_targeted_two_board_seek,
 )
 from user import User
 from users import NotInDbUsers
@@ -486,6 +488,9 @@ async def join_seek(
     game_id: str | None = None,
     join_as: str = "any",
 ) -> SeekStatusMessage | NewGameMessage | ErrorMessage:
+    if is_targeted_two_board_seek(seek.variant, seek.chess960, seek.target):
+        return {"type": "error", "message": TWO_BOARD_TARGETED_SEEK_MESSAGE}
+
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
         seek.id,

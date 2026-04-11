@@ -14,6 +14,9 @@ MAX_USER_SEEKS = 10
 ANON_RESTRICTED_SEEK_MESSAGE = (
     "Anonymous users cannot create or join correspondence or bughouse seeks."
 )
+TWO_BOARD_TARGETED_SEEK_MESSAGE = (
+    "Two-board variants are not available for invites or direct challenges."
+)
 DUPLICATE_DIRECT_CHALLENGE_MESSAGE = "You already have an open challenge for this player."
 SPECIAL_SEEK_TARGETS = {"", "BOT_challenge", "Invite-friend"}
 DIRECT_CHALLENGE_CREATED = "created"
@@ -400,6 +403,16 @@ def is_direct_challenge_target(target: str | None) -> bool:
     return (target or "") not in SPECIAL_SEEK_TARGETS
 
 
+def is_targeted_two_board_seek(variant: str, chess960: bool | None, target: str | None) -> bool:
+    # Two-board variants need the dedicated 4-seat bughouse flow.
+    # Generic invites and direct challenges only model one or two seats,
+    # so allowing them here can create malformed games.
+    server_variant = get_server_variant(variant, chess960)
+    return server_variant.two_boards and (
+        (target or "") == "Invite-friend" or is_direct_challenge_target(target)
+    )
+
+
 def find_duplicate_direct_challenge(
     seeks: dict[str, Seek],
     creator: User,
@@ -475,6 +488,15 @@ async def create_seek(
 
     target = data.get("target", "")
     reserve_game_id = data.get("reserveGameId", False)
+    if is_targeted_two_board_seek(data["variant"], chess960, target):
+        log.info(
+            "Rejecting targeted two-board seek by %s (variant=%s target=%s)",
+            user.username,
+            data["variant"],
+            target,
+        )
+        return None
+
     if target in ("BOT_challenge", "Invite-friend") or reserve_game_id:
         if TYPE_CHECKING:
             assert db is not None

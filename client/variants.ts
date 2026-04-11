@@ -1267,6 +1267,18 @@ export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 
 export const devVariants = ["borderlands", "makbug", "supply", "jieqi", "shoshogi"];
 
+export function disabledVariantsForCreateMode(
+    createMode: "createGame" | "playFriend" | "playAI" | "playBOT" | "createHost",
+    profileid: string,
+    anon: boolean,
+): string[] {
+    // Two-board variants are only supported by the dedicated multi-seat lobby flow.
+    // Hide them whenever the dialog is being used for invites, profile challenges,
+    // bot/AI games, or hosting, where the generic single-board flow is used.
+    if (createMode !== "createGame") return twoBoarsVariants;
+    return anon || profileid !== "" ? twoBoarsVariants : [];
+}
+
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     chess:    { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
     makruk:   { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },

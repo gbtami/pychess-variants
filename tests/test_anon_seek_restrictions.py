@@ -5,7 +5,12 @@ from mongomock_motor import AsyncMongoMockClient
 from pymongo.asynchronous.mongo_client import AsyncMongoClient
 
 from pychess_global_app_state_utils import get_app_state
-from seek import ANON_RESTRICTED_SEEK_MESSAGE, Seek, create_seek
+from seek import (
+    ANON_RESTRICTED_SEEK_MESSAGE,
+    TWO_BOARD_TARGETED_SEEK_MESSAGE,
+    Seek,
+    create_seek,
+)
 from server import init_state, make_app
 from user import User
 from utils import NO_LEGAL_MOVES_START_FEN_MESSAGE, join_seek
@@ -81,6 +86,61 @@ class AnonSeekRestrictionsTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(0, len(app_state.seeks))
         self.assertEqual(0, len(app_state.invites))
 
+    async def test_create_seek_rejects_bughouse_direct_challenge(self):
+        app_state = get_app_state(self.app)
+        challenger = self.add_user("challenger")
+        target = self.add_user("target")
+
+        seek = await create_seek(
+            app_state.db,
+            app_state.invites,
+            app_state.seeks,
+            challenger,
+            {
+                "variant": "bughouse",
+                "fen": "",
+                "color": "r",
+                "minutes": 3,
+                "increment": 2,
+                "byoyomiPeriod": 0,
+                "day": 0,
+                "rated": False,
+                "chess960": False,
+                "target": target.username,
+            },
+        )
+
+        self.assertIsNone(seek)
+        self.assertEqual(0, len(app_state.seeks))
+        self.assertEqual(0, len(app_state.invites))
+
+    async def test_create_seek_rejects_bughouse_invite(self):
+        app_state = get_app_state(self.app)
+        creator = self.add_user("creator-invite")
+
+        seek = await create_seek(
+            app_state.db,
+            app_state.invites,
+            app_state.seeks,
+            creator,
+            {
+                "variant": "bughouse",
+                "fen": "",
+                "color": "r",
+                "minutes": 3,
+                "increment": 2,
+                "byoyomiPeriod": 0,
+                "day": 0,
+                "rated": False,
+                "chess960": False,
+                "target": "Invite-friend",
+            },
+        )
+
+        self.assertIsNone(seek)
+        self.assertEqual(0, len(app_state.seeks))
+        self.assertEqual(0, len(app_state.invites))
+
     async def test_join_seek_rejects_anon_corr(self):
         app_state = get_app_state(self.app)
         creator = self.add_user("creator")
@@ -108,6 +168,50 @@ class AnonSeekRestrictionsTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual("error", response["type"])
         self.assertEqual(ANON_RESTRICTED_SEEK_MESSAGE, response["message"])
+        self.assertIsNone(seek.player2)
+        self.assertEqual(0, len(app_state.games))
+
+    async def test_join_seek_rejects_bughouse_direct_challenge(self):
+        app_state = get_app_state(self.app)
+        creator = self.add_user("creator-dc-bug")
+        joiner = self.add_user("joiner-dc-bug")
+
+        seek = Seek(
+            "seek-dc-bug",
+            creator,
+            "bughouse",
+            day=0,
+            player1=creator,
+            target=joiner.username,
+        )
+        app_state.seeks[seek.id] = seek
+
+        response = await join_seek(app_state, joiner, seek)
+
+        self.assertEqual("error", response["type"])
+        self.assertEqual(TWO_BOARD_TARGETED_SEEK_MESSAGE, response["message"])
+        self.assertIsNone(seek.player2)
+        self.assertEqual(0, len(app_state.games))
+
+    async def test_join_seek_rejects_bughouse_invite(self):
+        app_state = get_app_state(self.app)
+        creator = self.add_user("creator-invite-bug")
+        joiner = self.add_user("joiner-invite-bug")
+
+        seek = Seek(
+            "seek-invite-bug",
+            creator,
+            "bughouse",
+            day=0,
+            player1=creator,
+            target="Invite-friend",
+        )
+        app_state.seeks[seek.id] = seek
+
+        response = await join_seek(app_state, joiner, seek)
+
+        self.assertEqual("error", response["type"])
+        self.assertEqual(TWO_BOARD_TARGETED_SEEK_MESSAGE, response["message"])
         self.assertIsNone(seek.player2)
         self.assertEqual(0, len(app_state.games))
 
