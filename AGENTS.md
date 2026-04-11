@@ -32,6 +32,7 @@ python3 server/server.py
 
 ### Testing and Quality
 Note: Always run all linting and testing commands for any change.
+Note: Before committing any Python change, run both `ruff format .` and `ruff check .` even for small edits.
 Note: When running pyright in a sandboxed Codex environment, request escalated permissions so pyright can read the system Python search paths (e.g., `/usr/lib/python3.13`, site-packages) and match CI behavior.
 Note: Codex may run test and typecheck commands with escalated permissions by default in this repo when sandbox limits would otherwise break them (for example local socket bind restrictions in aiohttp/playwright tests). Do not stop to ask in chat first; request escalation directly through the tool.
 Note: When escalation approval is needed, prefer reusable prefix approvals so repeated test runs do not prompt again (`pyright`, `python -m unittest`, `python -m pytest`, `python -m playwright install`).

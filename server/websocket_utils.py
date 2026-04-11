@@ -9,6 +9,7 @@ import aiohttp_session
 from aiohttp import WSMessage, web
 from aiohttp.web_ws import WebSocketResponse
 from aiohttp.client_exceptions import ClientConnectionResetError
+
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
