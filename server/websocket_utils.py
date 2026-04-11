@@ -9,8 +9,6 @@ import aiohttp_session
 from aiohttp import WSMessage, web
 from aiohttp.web_ws import WebSocketResponse
 from aiohttp.client_exceptions import ClientConnectionResetError
-from logger import sanitize_for_logging
-
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
@@ -82,7 +80,7 @@ async def process_ws(
                         log.debug(
                             "Websocket (%s) message: %s",
                             id(ws),
-                            sanitize_for_logging(data),
+                            {**data, "password": "***"} if "password" in data else data,
                         )
                     if data["type"] == "logout":
                         await ws.close()

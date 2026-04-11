@@ -52,7 +52,6 @@ from lichess_team_msg import lichess_team_msg
 from misc import time_control_str
 from newid import new_id
 from websocket_utils import ws_send_json_many
-from logger import sanitize_for_logging
 from typing_defs import (
     TournamentDuelItem,
     TournamentDuelsResponse,
@@ -2318,7 +2317,7 @@ class Tournament(ABC):
             log.error(
                 "Failed to save %s tournament data update %s to mongodb",
                 self.id,
-                sanitize_for_logging(new_data),
+                new_data,
             )
 
         if self.frequency == SHIELD:
