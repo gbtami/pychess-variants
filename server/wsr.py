@@ -832,10 +832,11 @@ async def handle_byoyomi(data: ByoyomiMessage, game: game.Game) -> None:
 
 
 async def handle_takeback(ws: WebSocketResponse, game: game.Game) -> None:
-    await game.takeback()
-    board_response = game.get_board(full=True)
-    board_response["takeback"] = True
-    await ws_send_json(ws, board_response)
+    async with game.move_lock:
+        await game.takeback()
+        board_response = game.get_board(full=True)
+        board_response["takeback"] = True
+    await round_broadcast(game, board_response, full=True)
 
 
 async def handle_abort_resign_abandon_flag(
