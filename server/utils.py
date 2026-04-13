@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Callable
 
 import asyncio
 import json
+import re
 
 
 import random
@@ -83,6 +84,7 @@ from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
 from settings import URI
 
 log = logging.getLogger(__name__)
+USERNAME_PREFIX_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 
 NO_LEGAL_MOVES_START_FEN_MESSAGE = (
     "Failed to create game. The starting position leaves the side to move with no legal move."
@@ -1176,11 +1178,18 @@ async def get_names(request):
     app_state = get_app_state(request.app)
     names = []
     prefix = request.rel_url.query.get("p")
-    if prefix is None or len(prefix) < 3:
+    if prefix is None:
+        return web.json_response(names)
+
+    prefix = prefix.strip()
+    if not USERNAME_PREFIX_RE.fullmatch(prefix):
         return web.json_response(names)
 
     # case insensitive _id prefix search
-    cursor = app_state.db.user.find({"_id": {"$regex": "^%s" % prefix, "$options": "i"}}, limit=12)
+    cursor = app_state.db.user.find(
+        {"_id": {"$regex": "^%s" % re.escape(prefix), "$options": "i"}},
+        limit=12,
+    )
     async for doc in cursor:
         names.append((doc["_id"], doc["title"]))
     return web.json_response(names)

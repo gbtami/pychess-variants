@@ -69,6 +69,27 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         html = await resp.text()
         self.assertIn('data-inviter="expired"', html)
 
+    async def test_names_autocomplete_escapes_regex_metacharacters(self):
+        app_state = get_app_state(self.app)
+        await app_state.db.user.insert_many(
+            [
+                {"_id": "AlphaBeta", "title": "GM"},
+                {"_id": "alpha_one", "title": ""},
+                {"_id": "alpine", "title": "IM"},
+            ]
+        )
+
+        response = await self.client.get("/api/names?p=alph")
+        self.assertEqual(response.status, 200)
+        self.assertEqual(
+            await response.json(),
+            [["AlphaBeta", "GM"], ["alpha_one", ""]],
+        )
+
+        response = await self.client.get("/api/names?p=alph%5C")
+        self.assertEqual(response.status, 200)
+        self.assertEqual(await response.json(), [])
+
 
 if __name__ == "__main__":
     unittest.main()

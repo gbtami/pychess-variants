@@ -260,7 +260,8 @@ function start() {
             acResult.innerHTML = '';
             return;
         }
-        fetch('/api/names?p=' + val)
+        const params = new URLSearchParams({ p: val.toString() });
+        fetch('/api/names?' + params.toString())
             .then(res => res.json())
             .then(data => {
                 // console.log(data);
