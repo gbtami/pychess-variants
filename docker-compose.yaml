@@ -35,3 +35,24 @@ services:
       - MONGO_HOST=mongodb://${MONGO_ADMIN_USER:-admin}:${MONGO_ADMIN_PASS:-pass}@mongodb:27017
     depends_on:
       - "mongodb"
+
+  ci:
+    profiles:
+      - ci
+    build:
+      context: .
+      dockerfile: docker/ci.Dockerfile
+    working_dir: /workspace
+    command: ["sleep", "infinity"]
+    stdin_open: true
+    tty: true
+    environment:
+      - MONGO_HOST=mongodb://${MONGO_ADMIN_USER:-admin}:${MONGO_ADMIN_PASS:-pass}@mongodb:27017
+    depends_on:
+      - "mongodb"
+    volumes:
+      - .:/workspace
+      - ci_node_modules:/workspace/node_modules
+
+volumes:
+  ci_node_modules:
