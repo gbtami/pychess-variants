@@ -65,32 +65,7 @@ If you want to avoid installing dependencies (mongo, node, python) you can inste
 docker compose up --build
 ```
 This recompiles the frontend and starts the server and DB. Once it is up, you can connect to `localhost:8080` in your browser.
-
-For development checks inside Docker there is also an optional `ci` service. It has the Python dev tools and Node dependencies needed for linting, type-checking, and tests, while using your working tree from the host machine.
-
-Run one-off checks with:
-```bash
-docker compose run --rm ci ruff format .
-docker compose run --rm ci ruff check .
-docker compose run --rm ci pyright
-docker compose run --rm ci yarn test
-docker compose run --rm ci env PYTHONPATH=server python -m unittest discover -s tests
-```
-
-If you want an interactive shell in the same environment:
-```bash
-docker compose --profile ci up -d mongodb ci
-docker compose exec ci bash
-```
-
-The `ci` service uses a named Docker volume for `node_modules`, so your host checkout does not need a local Node install. If dependencies change, rebuild the image with:
-```bash
-docker compose build ci
-```
-
-The MongoDB service is only exposed inside the compose network by default. Uncomment the `mongodb` port mapping in `docker-compose.yaml` only if you want host tools such as `mongosh` or MongoDB Compass to connect directly.
-
-More detailed Docker workflows are documented in [docker/README.md](/home/tami/pychess-variants/docker/README.md).
+For more detailed Docker workflows, including contributor checks and the optional `ci` service, see [docker/README.md](docker/README.md).
 
 
 ## Supported browsers
