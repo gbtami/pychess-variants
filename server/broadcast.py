@@ -27,7 +27,6 @@ async def round_broadcast(
     full: bool = False,
     channels: Iterable[asyncio.Queue[str]] | None = None,
 ) -> None:
-    log.debug("round_broadcast %s %s %r", response, full, game.spectators)
     # Snapshot live collections because awaits below let other tasks add/remove
     # spectators/channels while we're broadcasting.
     spectators = tuple(game.spectators)
