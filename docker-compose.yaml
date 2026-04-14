@@ -1,10 +1,13 @@
-version: '3.8'
 services:
   mongodb:
+    # MongoDB 5.0+ requires AVX; keep 4.4.x so contributors on older CPUs can still use compose.
     image: mongo:4.4.29
     restart: always
-    ports:
-      - 27017:27017
+    # Uncomment to connect from the host machine with tools like mongosh or MongoDB Compass.
+    # The pychess server container reaches MongoDB over the internal compose network, so this
+    # host port is not needed for normal pychess development.
+    # ports:
+    #   - 27017:27017
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ADMIN_USER:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ADMIN_PASS:-pass}

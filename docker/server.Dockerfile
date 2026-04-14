@@ -10,14 +10,16 @@ RUN yarn install --ignore-scripts
 COPY client /app/client/
 COPY static /app/static/
 
+RUN ./cp2static.sh
 RUN yarn dev
 
 COPY templates /app/templates/
 RUN yarn md
 
 
-FROM python:3.12
+FROM python:3.13
 
+COPY README.md /app/
 COPY pyproject.toml /app/
 
 WORKDIR /app
