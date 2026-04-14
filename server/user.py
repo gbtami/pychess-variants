@@ -490,7 +490,6 @@ class User:
         #            "Currently user %s has these game_sockets: %r", self.username, self.game_sockets
         #        )
         #    return
-        log.debug("Sending message %s to %s. sockets=%s", message, self.username, len(ws_set))
         await ws_send_json_many(ws_set, message)
 
     async def close_all_game_sockets(self) -> None:
