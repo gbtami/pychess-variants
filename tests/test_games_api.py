@@ -393,7 +393,7 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
             response = await game_api.subscribe_invites(request)
 
         self.assertEqual(response.status, 200)
-        self.assertEqual(len(app_state.invite_channels[game_id]), 0)
+        self.assertFalse(app_state.invite_channels.get(game_id))
 
     async def test_subscribe_games_handles_sse_setup_error(self):
         app_state = SimpleNamespace(game_channels=set())

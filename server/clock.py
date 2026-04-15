@@ -58,14 +58,17 @@ class Clock:
     async def cancel(self) -> None:
         self.stop()
 
-        if self.clock_task and not self.clock_task.done():
-            self.clock_task.cancel()
+        task = self.clock_task
+        self.clock_task = None  # Break strong reference
+        current = asyncio.current_task()
+
+        if task and task is not current and not task.done():
+            task.cancel()
             try:
-                await self.clock_task
+                await task
             except asyncio.CancelledError:
                 pass
 
-        self.clock_task = None  # Break strong reference
         # self.game = None
 
     def restart(self, secs: int | float | None = None) -> None:
@@ -213,14 +216,17 @@ class CorrClock:
     async def cancel(self) -> None:
         self.stop()
 
-        if self.clock_task and not self.clock_task.done():
-            self.clock_task.cancel()
+        task = self.clock_task
+        self.clock_task = None  # Break strong reference
+        current = asyncio.current_task()
+
+        if task and task is not current and not task.done():
+            task.cancel()
             try:
-                await self.clock_task
+                await task
             except asyncio.CancelledError:
                 pass
 
-        self.clock_task = None  # Break strong reference
         # self.game = None
 
     def restart(self, from_db: bool = False) -> None:

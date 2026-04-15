@@ -11,7 +11,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
 from ai import bot_game_tasks
-from clock import BOT_FIRST_MOVE_TIMEOUT
+from clock import BOT_FIRST_MOVE_TIMEOUT, Clock, CorrClock
 from compress import R2C
 from const import ABORTED, CASUAL
 from fairy import FairyBoard
@@ -513,6 +513,28 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         self.assertNotIn(invite.id, app_state.seeks)
         self.assertNotIn(invite.game_id, app_state.invites)
         self.assertEqual({}, anon.seeks)
+
+    async def test_clock_cancel_skips_awaiting_current_task(self):
+        clock = object.__new__(Clock)
+        clock.running = True
+        clock.secs = 1
+        clock.clock_task = asyncio.current_task()
+
+        await Clock.cancel(clock)
+
+        self.assertFalse(clock.running)
+        self.assertIsNone(clock.clock_task)
+
+    async def test_corr_clock_cancel_skips_awaiting_current_task(self):
+        clock = object.__new__(CorrClock)
+        clock.running = True
+        clock.mins = 1
+        clock.clock_task = asyncio.current_task()
+
+        await CorrClock.cancel(clock)
+
+        self.assertFalse(clock.running)
+        self.assertIsNone(clock.clock_task)
 
 
 if __name__ == "__main__":
