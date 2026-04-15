@@ -21,10 +21,10 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="15.216667"
      inkscape:cx="15.870755"
-     inkscape:cy="42.650601"
+     inkscape:cy="42.584884"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
-     inkscape:window-x="-11"
+     inkscape:window-x="3829"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg2" />
@@ -55,12 +55,13 @@
   <g
      fill="#f9f9f9"
      filter="url(#0GY_svg__a)"
-     id="g1">
+     id="g1"
+     style="fill:#e9dbc9;fill-opacity:1">
     <path
        fill="#cdbc68"
        d="m29.918 4.769-13.48 3.788L9.035 55.23h41.93l-7.13-46.371z"
        id="path1"
-       style="stroke:#333333;fill:#fdeb98;fill-opacity:1" />
+       style="stroke:#333333;fill:#e9dbc9;fill-opacity:1" />
   </g>
   <path
      stroke="#000"

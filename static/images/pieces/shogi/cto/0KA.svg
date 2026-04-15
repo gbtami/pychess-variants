@@ -19,13 +19,13 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="5.3799041"
-     inkscape:cx="-12.174938"
-     inkscape:cy="-20.632338"
-     inkscape:window-width="3840"
-     inkscape:window-height="2054"
-     inkscape:window-x="-11"
-     inkscape:window-y="-11"
-     inkscape:window-maximized="1"
+     inkscape:cx="-12.082"
+     inkscape:cy="-20.725276"
+     inkscape:window-width="1875"
+     inkscape:window-height="1725"
+     inkscape:window-x="901"
+     inkscape:window-y="183"
+     inkscape:window-maximized="0"
      inkscape:current-layer="svg9" />
   <defs
      id="defs1">
@@ -55,12 +55,13 @@
      fill="#fdc9dd"
      filter="url(#0KA_svg__a)"
      transform="translate(41.426 -1.78)scale(1.05)"
-     id="g1">
+     id="g1"
+     style="fill:#e9dbc9;fill-opacity:1">
     <path
        fill="#cdbc68"
        d="m-10.96 6.237-12.838 3.608-7.051 44.45H9.085l-6.79-44.163z"
        id="path1"
-       style="stroke:#333333;stroke-width:0.95238095;stroke-dasharray:none;fill:#fdeb98;fill-opacity:1" />
+       style="stroke:#333333;stroke-width:0.95238095;stroke-dasharray:none;fill:#e9dbc9;fill-opacity:1" />
   </g>
   <path
      id="path6789"
