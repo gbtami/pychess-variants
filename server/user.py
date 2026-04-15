@@ -194,12 +194,22 @@ class User:
             self.remove_anon_task = None
 
     async def remove(self) -> None:
+        def can_remove_anon() -> bool:
+            self.update_online()
+            return not (
+                self.online
+                or self.game_in_progress is not None
+                or self.correspondence_games
+                or self.is_user_active_in_game()
+                or self.is_user_active_in_lobby()
+            )
+
         while True:
             await asyncio.sleep(1 if URI == LOCALHOST else ANON_TIMEOUT)
-            if not self.online:
+            if can_remove_anon():
                 # give them a second chance
                 await asyncio.sleep(3)
-                if not self.online:
+                if can_remove_anon():
                     for seek_id, seek in tuple(self.seeks.items()):
                         self.app_state.seeks.pop(seek_id, None)
                         if seek.game_id is not None:
@@ -291,6 +301,8 @@ class User:
                         await opp_player.game_queues[game.id].put(game.game_end)
                 else:
                     await opp_player.send_game_message(game.id, response)
+
+            await self.app_state.maybe_remove_finished_game_from_cache_now(game)
 
     def update_online(self) -> None:
         self.online = (

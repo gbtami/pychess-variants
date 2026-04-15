@@ -136,6 +136,9 @@ class Clock:
                             # messages to wake bot queues. Push gameEnd so bot tasks
                             # can exit and release their references.
                             await self._notify_bot_game_end()
+                            await self.game.app_state.maybe_remove_finished_game_from_cache_now(
+                                self.game
+                            )
                         return
 
             # After stop() we are just waiting for next restart
@@ -263,6 +266,7 @@ class CorrClock:
                     # Same rationale as in Clock: ensure bot queues receive a
                     # terminal event when the correspondence clock ends a game.
                     await self._notify_bot_game_end()
+                    await self.game.app_state.maybe_remove_finished_game_from_cache_now(self.game)
                 return
 
             # After stop() we are just waiting for next restart

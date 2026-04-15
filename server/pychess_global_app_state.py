@@ -39,6 +39,7 @@ from const import (
     T_CREATED,
     T_STARTED,
     SCHEDULE_MAX_DAYS,
+    STARTED,
     ABORTED,
     GAME_CATEGORIES,
     reserved,
@@ -678,6 +679,23 @@ class PychessGlobalAppState:
 
         self.game_remove_tasks.pop(game.id, None)
         await self._evict_game_from_cache(game)
+
+    async def maybe_remove_finished_game_from_cache_now(self, game: Game | GameBug) -> None:
+        if game.status <= STARTED or game.id not in self.games:
+            return
+
+        from fishnet import has_pending_analysis_work_for_game
+
+        if has_pending_analysis_work_for_game(self, game.id):
+            return
+
+        if any(player.is_user_active_in_game(game.id) for player in game.non_bot_players):
+            return
+
+        if any(spectator.is_user_active_in_game(game.id) for spectator in tuple(game.spectators)):
+            return
+
+        await self.remove_game_from_cache_now(game)
 
     def __init_users(self) -> Users:
         result = Users(self)

@@ -19,7 +19,6 @@ from draw import draw, reject_draw
 from fairy import WHITE, BLACK, FairyBoard
 from fishnet import (
     drop_stale_analysis_work,
-    has_pending_analysis_work_for_game,
     has_recent_fishnet_activity,
 )
 from newid import new_id
@@ -293,17 +292,8 @@ async def finally_logic(
         response: UserPresenceMessage = {"type": "user_disconnected", "username": user.username}
         await round_broadcast(game, response, full=True)
 
-    if (
-        game is not None
-        and game.status > STARTED
-        and game.id in app_state.games
-        and not has_pending_analysis_work_for_game(app_state, game.id)
-        and not any(player.is_user_active_in_game(game.id) for player in game.non_bot_players)
-        and not any(
-            spectator.is_user_active_in_game(game.id) for spectator in tuple(game.spectators)
-        )
-    ):
-        await app_state.remove_game_from_cache_now(game)
+    if game is not None:
+        await app_state.maybe_remove_finished_game_from_cache_now(game)
 
 
 async def handle_move(
