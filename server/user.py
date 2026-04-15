@@ -206,6 +206,8 @@ class User:
                             self.app_state.invites.pop(seek.game_id, None)
                         self.seeks.pop(seek_id, None)
 
+                    await self.clear_spectator_references()
+
                     # This task may race with other anon cleanup paths that already removed
                     # or replaced the cache entry for this username.
                     current = self.app_state.users.data.get(self.username)
@@ -220,6 +222,16 @@ class User:
                         )
                     break
         self.remove_anon_task = None
+
+    async def clear_spectator_references(self) -> None:
+        affected_games = []
+        for game in tuple(self.app_state.games.values()):
+            if self in game.spectators:
+                game.spectators.discard(self)
+                affected_games.append(game)
+
+        for game in affected_games:
+            await round_broadcast(game, game.spectator_list, full=True)
 
     def _background_task_done(self, task: asyncio.Task[None]) -> None:
         self.background_tasks.discard(task)

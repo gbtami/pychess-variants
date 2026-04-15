@@ -507,7 +507,11 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
     except Exception:
         pass
     finally:
-        app_state.invite_channels[gameId].discard(queue)
+        channels = app_state.invite_channels.get(gameId)
+        if channels is not None:
+            channels.discard(queue)
+            if len(channels) == 0:
+                app_state.invite_channels.pop(gameId, None)
     return response
 
 

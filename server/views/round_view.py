@@ -33,9 +33,6 @@ async def round_view(request: web.Request) -> ViewContext:
     context["view"] = "round"
     context["view_css"] = "round.css"
 
-    if not game.is_player(user):
-        game.spectators.add(user)
-
     add_game_context(game, ply, user, context)
 
     context["ct"] = json.dumps(game.crosstable)

@@ -795,6 +795,8 @@ class PychessGlobalAppState:
             # Inform active lobby clients that these seeks are gone.
             await self.lobby.lobby_broadcast_seeks()
 
+        await user.clear_spectator_references()
+
         # Drop any lobby/tournament socket bookkeeping entries if they linger.
         self.lobby.lobbysockets.pop(user.username, None)
         for tid in tuple(self.tourneysockets):

@@ -33,9 +33,6 @@ async def tv(request: web.Request) -> ViewContext:
 
     add_game_context(game, ply, user, context)
 
-    if not game.is_player(user):
-        game.spectators.add(user)
-
     context["ct"] = json.dumps(game.crosstable)
 
     context["view"] = "tv"
