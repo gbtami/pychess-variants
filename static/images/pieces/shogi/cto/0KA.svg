@@ -19,7 +19,7 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="5.3799041"
-     inkscape:cx="-12.082"
+     inkscape:cx="-12.174938"
      inkscape:cy="-20.632338"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
@@ -31,10 +31,10 @@
      id="defs1">
     <filter
        id="0KA_svg__a"
-       x="-0.12019833"
-       y="-0.099879312"
-       width="1.2904793"
-       height="1.241375">
+       x="-0.1341634"
+       y="-0.11018899"
+       width="1.3183423"
+       height="1.2615933">
       <feGaussianBlur
          in="SourceAlpha"
          result="blur"
@@ -60,7 +60,7 @@
        fill="#cdbc68"
        d="m-10.96 6.237-12.838 3.608-7.051 44.45H9.085l-6.79-44.163z"
        id="path1"
-       style="stroke:#333333;stroke-width:0.95238095;stroke-dasharray:none;fill:#dfc585;fill-opacity:1" />
+       style="stroke:#333333;stroke-width:0.95238095;stroke-dasharray:none;fill:#fdeb98;fill-opacity:1" />
   </g>
   <path
      id="path6789"

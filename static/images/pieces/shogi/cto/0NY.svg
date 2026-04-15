@@ -5,6 +5,9 @@
    id="svg20"
    sodipodi:docname="0NY.svg"
    inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   inkscape:export-filename="0NY.png"
+   inkscape:export-xdpi="320"
+   inkscape:export-ydpi="320"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +22,7 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="7.6083336"
-     inkscape:cx="39.956187"
+     inkscape:cx="40.153339"
      inkscape:cy="34.961664"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
@@ -59,7 +62,7 @@
        fill="#cdbc68"
        d="m -10.96,8.5924575 -12.838,3.6080005 -7.051,44.45 H 9.085 l -6.79,-44.163 z"
        id="path1"
-       style="fill:#dfc585;fill-opacity:1;stroke:#333333;stroke-width:1.04575;stroke-dasharray:none" />
+       style="fill:#fdeb98;fill-opacity:1;stroke:#333333;stroke-width:1.04575;stroke-dasharray:none" />
   </g>
   <path
      id="path14"

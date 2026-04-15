@@ -19,7 +19,7 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="5.3799042"
-     inkscape:cx="-84.94575"
+     inkscape:cx="-84.852812"
      inkscape:cy="42.008183"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
@@ -103,7 +103,7 @@
        fill="#feec99"
        d="m 141.866,74.375 6.836,-44.558 h -40.527 l 6.872,44.862 13.138,3.935 c 0.094,0.026 0.193,0.015 0.271,0.021 z"
        id="path1"
-       style="stroke:#333333;stroke-width:1.06508;stroke-dasharray:none"
+       style="stroke:#333333;stroke-width:1.06508;stroke-dasharray:none;fill:#dfc585;fill-opacity:1"
        sodipodi:nodetypes="ccccccc" />
   </g>
   <path

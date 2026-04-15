@@ -23,10 +23,11 @@
      inkscape:cy="52.245347"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
-     inkscape:window-x="3829"
+     inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg9" />
+     inkscape:current-layer="svg9"
+     showgrid="false" />
   <defs
      id="defs1">
     <filter
@@ -59,7 +60,7 @@
        fill="#feec99"
        d="m 141.866,74.375 6.836,-44.558 H 108.15 l 6.898,44.862 13.27344,3.9455 c 0.094,0.026 13.54456,-4.2495 13.54456,-4.2495 z"
        id="path1"
-       style="stroke:#333333;stroke-width:1.06508;stroke-dasharray:none"
+       style="stroke:#333333;stroke-width:1.06508;stroke-dasharray:none;fill:#dfc585;fill-opacity:1"
        sodipodi:nodetypes="cccccc" />
   </g>
   <path

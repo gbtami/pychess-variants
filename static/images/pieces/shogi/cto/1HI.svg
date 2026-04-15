@@ -19,8 +19,8 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="10.759808"
-     inkscape:cx="19.981769"
-     inkscape:cy="-10.223231"
+     inkscape:cx="19.9353"
+     inkscape:cy="-10.316169"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
      inkscape:window-x="-11"
@@ -31,10 +31,10 @@
      id="defs1">
     <filter
        id="1HI_svg__a"
-       x="-0.11943269"
-       y="-0.098316817"
-       width="1.288629"
-       height="1.237599">
+       x="-0.13338546"
+       y="-0.10828243"
+       width="1.3166419"
+       height="1.2579951">
       <feGaussianBlur
          in="SourceAlpha"
          result="blur"
@@ -82,7 +82,7 @@
        fill="#fdeb98"
        d="m 141.866,74.375 6.836,-44.558 h -40.19 l 6.535,44.862 13.56087,3.9455 z"
        id="path1"
-       style="stroke:#333333;stroke-width:0.969989;stroke-dasharray:none"
+       style="stroke:#333333;stroke-width:0.969989;stroke-dasharray:none;fill:#dfc585;fill-opacity:1"
        sodipodi:nodetypes="cccccc" />
   </g>
   <path

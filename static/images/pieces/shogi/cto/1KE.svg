@@ -20,7 +20,7 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="7.6083333"
      inkscape:cx="-47.250822"
-     inkscape:cy="102.91347"
+     inkscape:cy="102.78204"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
      inkscape:window-x="-11"
@@ -31,10 +31,10 @@
      id="defs1">
     <filter
        id="1KE_svg__a"
-       x="-0.11836654"
-       y="-0.098324389"
-       width="1.2860525"
-       height="1.2376173">
+       x="-0.13367237"
+       y="-0.10923307"
+       width="1.316659"
+       height="1.2594346">
       <feGaussianBlur
          in="SourceAlpha"
          result="blur"
@@ -82,7 +82,7 @@
        d="m 128.456,78.635 13.41,-4.26 6.836,-44.558 H 108.15 l 6.898,44.862 13.138,3.935 0.271,0.021 z"
        id="path1"
        sodipodi:nodetypes="cccccccc"
-       style="stroke:#333333;stroke-width:1.06508;stroke-dasharray:none" />
+       style="stroke:#333333;stroke-width:1.06508;stroke-dasharray:none;fill:#dfc585;fill-opacity:1" />
   </g>
   <path
      id="path7388-6"
