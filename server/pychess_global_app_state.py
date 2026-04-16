@@ -84,7 +84,7 @@ from tournament.tournaments import (
 )
 from typedefs import anon_as_test_users_key, client_key
 from twitch import Twitch
-from user import User
+from user import ANON_IDLE_GRACE, ANON_TIMEOUT, User
 from users import Users, NotInDbUsers
 from utils import load_game, should_send_game_start_to_bot
 from blogs import BLOGS
@@ -197,6 +197,7 @@ class PychessGlobalAppState:
         self.__start_bots()
         self.__init_translations()
         self.__start_gc_stats_logger()
+        self.__start_anon_cleanup()
 
         self.started_at = datetime.now(timezone.utc)
 
@@ -590,6 +591,25 @@ class PychessGlobalAppState:
         # Keep GC telemetry isolated in its own module to reduce changes here.
         # The helper starts a task only when GC_STATS_INTERVAL is configured.
         self.gc_stats_task = start_gc_telemetry(lambda: self.shutdown)
+
+    def __start_anon_cleanup(self) -> None:
+        self.create_background_task(self._anon_cleanup_loop(), name="anon-cleanup")
+
+    async def _anon_cleanup_loop(self) -> None:
+        cleanup_interval = 1 if URI == LOCALHOST else 5
+        while not self.shutdown:
+            await asyncio.sleep(cleanup_interval)
+            now = datetime.now(timezone.utc)
+            for user in tuple(self.users.values()):
+                if user is None or (not user.anon) or reserved(user.username):
+                    continue
+                idle_since = getattr(user, "anon_idle_since", None)
+                if idle_since is None:
+                    continue
+                idle_for = (now - idle_since).total_seconds()
+                if idle_for < ANON_TIMEOUT + ANON_IDLE_GRACE:
+                    continue
+                await self._maybe_remove_idle_anon_user(user)
 
     def _background_task_done(self, task: asyncio.Task[Any]) -> None:
         self.background_tasks.discard(task)

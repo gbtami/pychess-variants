@@ -456,6 +456,15 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         self.assertNotIn(anon.username, app_state.users)
         self.assertIsNone(anon.remove_anon_task)
 
+    async def test_anon_user_does_not_spawn_dedicated_cleanup_task(self):
+        app_state = get_app_state(self.app)
+
+        anon = User(app_state, username="Anon-no-task", anon=True)
+
+        self.assertIsNone(anon.remove_anon_task)
+        self.assertIsNotNone(anon.anon_idle_since)
+        self.assertEqual(len(anon.background_tasks), 0)
+
     async def test_user_remove_ignores_missing_cache_entry(self):
         app_state = get_app_state(self.app)
         ghost = User(app_state, username="Anon-missing-cleanup")
