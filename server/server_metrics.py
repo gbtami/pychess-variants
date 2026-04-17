@@ -3,12 +3,13 @@ import json
 import sys
 import gc
 import time
+import asyncio
 from asyncio import Task, Queue
 from collections import defaultdict
 from collections.abc import Iterable
 from datetime import datetime, timezone
 from functools import partial
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, TypedDict, cast
 
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
@@ -17,6 +18,7 @@ from clock import Clock
 from game import Game
 import logging
 
+from const import STARTED, reserved
 from lobby import Lobby
 from seek import Seek
 from user import User
@@ -61,6 +63,22 @@ class QueueInfo(TypedDict):
     size: int
     file: str
     source: str
+
+
+def _task_state(task: Task[None] | None) -> str:
+    if task is None:
+        return "none"
+    if task.cancelled():
+        return "cancelled"
+    if not task.done():
+        return "pending"
+    try:
+        exc = task.exception()
+    except asyncio.CancelledError:
+        return "cancelled"
+    except Exception:
+        return "done"
+    return "failed" if exc is not None else "done"
 
 
 def inspect_referrer(ref: object) -> None:
@@ -246,12 +264,35 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
     log.debug("Running memory_stats() time: %s", (time.process_time() - start))
 
     # Prepare object details
+    now = datetime.now(timezone.utc)
+
     users: list[dict[str, object]] = [
         {
             "title": user.title,
             "username": user.username,
+            "anon": user.anon,
+            "reserved": reserved(user.username),
             "online": user.online,
+            "ever_connected": getattr(user, "ever_connected", False),
             "last_seen": user.last_seen,
+            "last_seen_default": user.last_seen.year <= 1,
+            "idle_mins": (
+                ""
+                if user.last_seen.year <= 1
+                else int((now - user.last_seen).total_seconds() // 60)
+            ),
+            "game_in_progress": user.game_in_progress or "",
+            "corr_games": len(user.correspondence_games),
+            "lobby_sockets": len(user.lobby_sockets),
+            "game_socket_games": len(user.game_sockets),
+            "game_socket_total": sum(len(ws_set) for ws_set in user.game_sockets.values()),
+            "challenge_channels": len(user.challenge_channels),
+            "notify_channels": len(user.notify_channels),
+            "tournament_sockets": sum(len(ws_set) for ws_set in user.tournament_sockets.values()),
+            "simul_sockets": sum(len(ws_set) for ws_set in user.simul_sockets.values()),
+            "abandon_tasks": len(user.abandon_game_tasks),
+            "background_tasks": len(user.background_tasks),
+            "remove_anon_task": _task_state(user.remove_anon_task),
             "game_queues": len(user.game_queues) if user.bot else "",
         }
         for username, user in sorted(
@@ -288,12 +329,133 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
         for username in app_state.lobby.lobbysockets
     ]
 
+    anon_users: list[dict[str, object]] = []
+    anon_total = 0
+    anon_online = 0
+    anon_removable_now = 0
+    anon_default_last_seen = 0
+    anon_never_connected = 0
+    anon_with_remove_task = 0
+
+    for user in app_state.users.values():
+        if (not user.anon) or reserved(user.username):
+            continue
+
+        anon_total += 1
+        lobby_sockets = len(user.lobby_sockets)
+        game_socket_games = len(user.game_sockets)
+        game_socket_total = sum(len(ws_set) for ws_set in user.game_sockets.values())
+        challenge_channels = len(user.challenge_channels)
+        tournament_sockets = sum(len(ws_set) for ws_set in user.tournament_sockets.values())
+        simul_sockets = sum(len(ws_set) for ws_set in user.simul_sockets.values())
+        corr_games = len(user.correspondence_games)
+        blockers: list[str] = []
+        if user.game_in_progress is not None:
+            blockers.append("game_in_progress")
+        if corr_games > 0:
+            blockers.append("correspondence_games")
+        if game_socket_games > 0:
+            blockers.append("game_sockets")
+        if lobby_sockets > 0:
+            blockers.append("lobby_sockets")
+        if challenge_channels > 0:
+            blockers.append("challenge_channels")
+        if tournament_sockets > 0:
+            blockers.append("tournament_sockets")
+        if simul_sockets > 0:
+            blockers.append("simul_sockets")
+
+        task_state = _task_state(user.remove_anon_task)
+        if task_state == "pending":
+            anon_with_remove_task += 1
+        if user.online:
+            anon_online += 1
+        if user.last_seen.year <= 1:
+            anon_default_last_seen += 1
+        if not getattr(user, "ever_connected", False):
+            anon_never_connected += 1
+        if len(blockers) == 0:
+            anon_removable_now += 1
+
+        anon_users.append(
+            {
+                "username": user.username,
+                "online": user.online,
+                "ever_connected": getattr(user, "ever_connected", False),
+                "last_seen": user.last_seen,
+                "last_seen_default": user.last_seen.year <= 1,
+                "game_in_progress": user.game_in_progress or "",
+                "corr_games": corr_games,
+                "lobby_sockets": lobby_sockets,
+                "game_socket_games": game_socket_games,
+                "game_socket_total": game_socket_total,
+                "challenge_channels": challenge_channels,
+                "tournament_sockets": tournament_sockets,
+                "simul_sockets": simul_sockets,
+                "abandon_tasks": len(user.abandon_game_tasks),
+                "remove_anon_task": task_state,
+                "blockers": blockers,
+                "removable_now": len(blockers) == 0,
+            }
+        )
+
+    anon_users.sort(key=lambda row: cast(datetime, row["last_seen"]), reverse=True)
+
+    started_games_no_round_sockets: list[dict[str, object]] = []
+    for game_id, game in app_state.games.items():
+        if game.status != STARTED:
+            continue
+
+        non_bot_players = tuple(game.non_bot_players)
+        if len(non_bot_players) == 0:
+            continue
+
+        players_with_round_socket = sum(
+            1 for player in non_bot_players if player.is_user_active_in_game(game_id)
+        )
+        players_with_game_in_progress = sum(
+            1 for player in non_bot_players if player.game_in_progress == game_id
+        )
+        if players_with_round_socket > 0:
+            continue
+        if players_with_game_in_progress == 0:
+            continue
+
+        started_games_no_round_sockets.append(
+            {
+                "id": game_id,
+                "variant": game.variant,
+                "status": game.status,
+                "date": game.date,
+                "players": [player.username for player in non_bot_players],
+                "players_with_game_in_progress": players_with_game_in_progress,
+                "spectators": len(game.spectators),
+            }
+        )
+
+    started_games_no_round_sockets.sort(key=lambda row: cast(datetime, row["date"]), reverse=True)
+
+    anon_summary = [
+        {
+            "anon_total": anon_total,
+            "anon_online_flag": anon_online,
+            "anon_with_default_last_seen": anon_default_last_seen,
+            "anon_never_connected": anon_never_connected,
+            "anon_with_pending_remove_task": anon_with_remove_task,
+            "anon_removable_now": anon_removable_now,
+            "started_games_no_round_sockets": len(started_games_no_round_sockets),
+        }
+    ]
+
     # Calculate memory sizes
     user_memory_size = get_deep_size(app_state.users) / 1024  # Convert to KB
     game_memory_size = get_deep_size(app_state.games) / 1024  # Convert to KB
     task_memory_size = sum([sys.getsizeof(obj) for obj in tasks]) / 1024  # Convert to KB
     queue_memory_size = sum([sys.getsizeof(obj) for obj in queues]) / 1024  # Convert to KB
     conn_memory_size = get_deep_size(active_connections) / 1024  # Convert to KB
+    anon_user_memory_size = get_deep_size(anon_users) / 1024
+    started_game_no_socket_memory_size = get_deep_size(started_games_no_round_sockets) / 1024
+    anon_summary_memory_size = get_deep_size(anon_summary) / 1024
 
     metrics: dict[str, object] = {
         "active_connections": len(active_connections),
@@ -313,6 +475,9 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
             "tasks": len(tasks),
             "queues": len(queues),
             "connections": len(connections),
+            "anon_users": len(anon_users),
+            "started_games_no_round_sockets": len(started_games_no_round_sockets),
+            "anon_summary": len(anon_summary),
         },
         "object_sizes": {
             "users": user_memory_size,
@@ -320,6 +485,9 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
             "tasks": task_memory_size,
             "queues": queue_memory_size,
             "connections": conn_memory_size,
+            "anon_users": anon_user_memory_size,
+            "started_games_no_round_sockets": started_game_no_socket_memory_size,
+            "anon_summary": anon_summary_memory_size,
         },
         "object_details": {
             "users": users,
@@ -328,6 +496,9 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
             "tasks": tasks,
             "queues": queues,
             "connections": connections,
+            "anon_users": anon_users,
+            "started_games_no_round_sockets": started_games_no_round_sockets,
+            "anon_summary": anon_summary,
         },
     }
     log.debug("Collecting all metrics time: %s", (time.process_time() - start))

@@ -118,6 +118,26 @@ class MemoryMonitorApp(App):
         self.max_history = 100
         self.ui_setup_done = False
 
+    @staticmethod
+    def build_column_config(items: list[dict[str, object]]) -> list[tuple[str, str]]:
+        keys = sorted({key for item in items for key in item.keys()})
+        return [(key.replace("_", " ").title(), key) for key in keys]
+
+    def sync_category_columns(self, category: str) -> None:
+        try:
+            table = self.query_one(f"#{category}_table", DataTable)
+        except NoMatches:
+            return
+
+        columns = self.column_configs.get(category, [])
+        table.clear(columns=True)
+        if not columns:
+            table.add_column("No Data", key="no_data")
+            return
+
+        for label, _ in columns:
+            table.add_column(label, key=label)
+
     def compose(self) -> ComposeResult:
         """Compose the TUI layout."""
         yield Header()
@@ -216,12 +236,7 @@ class MemoryMonitorApp(App):
             table = DataTable(id=f"{cat}_table")
             await details_tabs.query_one(f"#{cat}_tab", TabPane).mount(table)
 
-            config = self.column_configs.get(cat, [])
-            if not config:  # Handle empty column_configs (e.g., for 'connections')
-                table.add_column("No Data", key="no_data")
-            else:
-                for label, _ in config:
-                    table.add_column(label, key=label)
+            self.sync_category_columns(cat)
             table.zebra_stripes = True
             table.cursor_type = "row"
             table.show_header = True
@@ -247,16 +262,11 @@ class MemoryMonitorApp(App):
 
                         if not self.categories:
                             self.categories = list(data.get("object_details", {}).keys())
+                            object_details = data.get("object_details", {})
                             self.column_configs = {}
                             for cat in self.categories:
-                                items = data["object_details"].get(cat, [])
-                                if items:
-                                    keys = sorted(items[0].keys())
-                                    self.column_configs[cat] = [
-                                        (k.replace("_", " ").title(), k) for k in keys
-                                    ]
-                                else:
-                                    self.column_configs[cat] = []
+                                items = object_details.get(cat, [])
+                                self.column_configs[cat] = self.build_column_config(items)
                             self.sort_columns = {cat: None for cat in self.categories}
                             self.sort_ascendings = {cat: True for cat in self.categories}
                             self.category_histories = {cat: [] for cat in self.categories}
@@ -272,6 +282,24 @@ class MemoryMonitorApp(App):
                             }
 
                         else:
+                            object_details = data.get("object_details", {})
+                            new_column_configs = dict(self.column_configs)
+                            columns_changed = False
+                            for cat in self.categories:
+                                old_config = new_column_configs.get(cat, [])
+                                if old_config:
+                                    continue
+                                items = object_details.get(cat, [])
+                                new_config = self.build_column_config(items)
+                                if not new_config:
+                                    continue
+                                new_column_configs[cat] = new_config
+                                columns_changed = True
+                                self.sync_category_columns(cat)
+
+                            if columns_changed:
+                                self.column_configs = new_column_configs
+
                             self.category_counts = {
                                 cat: data.get("object_counts", {}).get(cat, 0)
                                 for cat in self.categories
