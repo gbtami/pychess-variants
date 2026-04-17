@@ -2,6 +2,7 @@
 
 import asyncio
 import unittest
+from contextlib import suppress
 from datetime import datetime, timezone
 from time import monotonic
 from unittest.mock import patch
@@ -513,6 +514,65 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         self.assertNotIn(invite.id, app_state.seeks)
         self.assertNotIn(invite.game_id, app_state.invites)
         self.assertEqual({}, anon.seeks)
+
+    async def test_user_remove_uses_fast_timeout_for_never_connected_anon(self):
+        app_state = get_app_state(self.app)
+        anon = User(app_state, username="Anon-fast-cleanup", anon=True)
+        app_state.users[anon.username] = anon
+
+        # Keep this test deterministic: we drive remove() directly.
+        if anon.remove_anon_task is not None:
+            anon.remove_anon_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await anon.remove_anon_task
+            anon.remove_anon_task = None
+
+        sleeps: list[float] = []
+
+        async def fake_sleep(seconds: float) -> None:
+            sleeps.append(seconds)
+
+        with (
+            patch.object(user_module, "URI", "https://prod.test"),
+            patch.object(user_module, "ANON_NEVER_CONNECTED_TIMEOUT", 7),
+            patch.object(user_module.asyncio, "sleep", new=fake_sleep),
+        ):
+            await anon.remove()
+
+        self.assertEqual([7, 3], sleeps[:2])
+        self.assertNotIn(anon.username, app_state.users)
+        self.assertIsNone(anon.remove_anon_task)
+
+    async def test_user_remove_skips_fast_timeout_after_socket_activity(self):
+        app_state = get_app_state(self.app)
+        anon = User(app_state, username="Anon-connected-cleanup", anon=True)
+        app_state.users[anon.username] = anon
+
+        if anon.remove_anon_task is not None:
+            anon.remove_anon_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await anon.remove_anon_task
+            anon.remove_anon_task = None
+
+        # Simulate a user who had any socket activity at least once.
+        anon.ever_connected = True
+        sleeps: list[float] = []
+
+        async def fake_sleep(seconds: float) -> None:
+            sleeps.append(seconds)
+            raise RuntimeError("stop-after-first-sleep")
+
+        with (
+            patch.object(user_module, "URI", "https://prod.test"),
+            patch.object(user_module, "ANON_TIMEOUT", 123),
+            patch.object(user_module, "ANON_NEVER_CONNECTED_TIMEOUT", 7),
+            patch.object(user_module.asyncio, "sleep", new=fake_sleep),
+        ):
+            with self.assertRaises(RuntimeError):
+                await anon.remove()
+
+        self.assertEqual([123], sleeps)
+        self.assertIn(anon.username, app_state.users)
 
     async def test_clock_cancel_skips_awaiting_current_task(self):
         clock = object.__new__(Clock)

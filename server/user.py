@@ -58,6 +58,9 @@ log = logging.getLogger(__name__)
 
 SILENCE = 15 * 60
 ANON_TIMEOUT = 10 * 60
+# Fresh anons that never established any socket connection are likely one-off
+# page hits (often crawlers/no-cookie clients). Keep them much shorter-lived.
+ANON_NEVER_CONNECTED_TIMEOUT = 60
 PENDING_SEEK_TIMEOUT = 10
 ABANDON_TIMEOUT = 30
 
@@ -160,6 +163,7 @@ class User:
             self.title = "BOT"
 
         self.online: bool = False
+        self.ever_connected: bool = False
 
         if perfs is None and (not self.anon) and (not self.bot):
             # User() with perfs=None can be dangerous
@@ -204,32 +208,47 @@ class User:
                 or self.is_user_active_in_lobby()
             )
 
+        async def remove_from_cache() -> None:
+            for seek_id, seek in tuple(self.seeks.items()):
+                self.app_state.seeks.pop(seek_id, None)
+                if seek.game_id is not None:
+                    self.app_state.invites.pop(seek.game_id, None)
+                self.seeks.pop(seek_id, None)
+
+            await self.clear_spectator_references()
+
+            # This task may race with other anon cleanup paths that already removed
+            # or replaced the cache entry for this username.
+            current = self.app_state.users.data.get(self.username)
+            if current is self:
+                del self.app_state.users[self.username]
+            elif current is None:
+                log.debug("User.remove() skipped, %s is already gone", self.username)
+            else:
+                log.debug(
+                    "User.remove() skipped, %s cache points to a different instance",
+                    self.username,
+                )
+
+        # Fast-path: if an anon user never connected any socket, do not keep it
+        # around for the full reconnect timeout window.
+        if URI != LOCALHOST and not self.ever_connected:
+            await asyncio.sleep(ANON_NEVER_CONNECTED_TIMEOUT)
+            if (not self.ever_connected) and can_remove_anon():
+                # Give a second chance to account for races around first socket open.
+                await asyncio.sleep(3)
+                if (not self.ever_connected) and can_remove_anon():
+                    await remove_from_cache()
+                    self.remove_anon_task = None
+                    return
+
         while True:
             await asyncio.sleep(1 if URI == LOCALHOST else ANON_TIMEOUT)
             if can_remove_anon():
                 # give them a second chance
                 await asyncio.sleep(3)
                 if can_remove_anon():
-                    for seek_id, seek in tuple(self.seeks.items()):
-                        self.app_state.seeks.pop(seek_id, None)
-                        if seek.game_id is not None:
-                            self.app_state.invites.pop(seek.game_id, None)
-                        self.seeks.pop(seek_id, None)
-
-                    await self.clear_spectator_references()
-
-                    # This task may race with other anon cleanup paths that already removed
-                    # or replaced the cache entry for this username.
-                    current = self.app_state.users.data.get(self.username)
-                    if current is self:
-                        del self.app_state.users[self.username]
-                    elif current is None:
-                        log.debug("User.remove() skipped, %s is already gone", self.username)
-                    else:
-                        log.debug(
-                            "User.remove() skipped, %s cache points to a different instance",
-                            self.username,
-                        )
+                    await remove_from_cache()
                     break
         self.remove_anon_task = None
 
@@ -312,6 +331,8 @@ class User:
             or len(self.tournament_sockets) > 0
             or len(self.simul_sockets) > 0
         )
+        if self.online:
+            self.ever_connected = True
 
     def get_rating_value(self, variant: str, chess960: bool | None) -> int:
         try:
