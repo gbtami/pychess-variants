@@ -371,17 +371,28 @@ class MemoryMonitorApp(App):
             if data_key:
 
                 def sort_key(item):
-                    value = item.get(data_key, "")
-                    if data_key == "online":
-                        return 1 if value else 0
-                    elif any(sub in data_key for sub in ["date", "time", "seen"]):
-                        try:
-                            return datetime.fromisoformat(value)
-                        except Exception:
-                            return datetime.min
-                    elif isinstance(value, list):
-                        return ", ".join(map(str, value))
-                    return value or ""
+                    value = item.get(data_key)
+                    if isinstance(value, bool):
+                        return (0, 1 if value else 0)
+                    if isinstance(value, (int, float)):
+                        return (1, value)
+                    if isinstance(value, list):
+                        return (2, ", ".join(map(str, value)))
+                    if isinstance(value, str):
+                        if data_key in {
+                            "date",
+                            "timestamp",
+                            "last_seen",
+                            "expire_at",
+                        } or data_key.endswith("_at"):
+                            try:
+                                return (3, datetime.fromisoformat(value))
+                            except Exception:
+                                return (3, datetime.min)
+                        return (4, value.casefold())
+                    if value is None:
+                        return (5, "")
+                    return (6, str(value))
 
                 try:
                     items = sorted(items, key=sort_key, reverse=not sort_ascending)
