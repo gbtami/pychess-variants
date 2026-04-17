@@ -20,9 +20,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="60.866667"
-     inkscape:cx="57.847755"
-     inkscape:cy="52.393209"
+     inkscape:zoom="21.519617"
+     inkscape:cx="36.943038"
+     inkscape:cy="12.63963"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
      inkscape:window-x="-11"
@@ -88,54 +88,7 @@
        gradientUnits="userSpaceOnUse"
        spreadMethod="repeat" />
     <linearGradient
-       id="1RY_svg__b">
-      <stop
-         offset="0"
-         stop-color="#e5c37b"
-         id="stop12" />
-      <stop
-         offset=".042"
-         stop-color="#e4bd76"
-         id="stop13" />
-      <stop
-         offset=".093"
-         stop-color="#e7c781"
-         id="stop14" />
-      <stop
-         offset=".165"
-         stop-color="#e2b86e"
-         id="stop15" />
-      <stop
-         offset=".305"
-         stop-color="#e6c686"
-         id="stop16" />
-      <stop
-         offset=".539"
-         stop-color="#dfb96f"
-         id="stop17" />
-      <stop
-         offset=".586"
-         stop-color="#ddbb73"
-         id="stop18" />
-      <stop
-         offset=".84"
-         stop-color="#e7ce8f"
-         id="stop19" />
-      <stop
-         offset=".924"
-         stop-color="#e1bd73"
-         id="stop20" />
-      <stop
-         offset=".962"
-         stop-color="#e0bf78"
-         id="stop21" />
-      <stop
-         offset="1"
-         stop-color="#e7c685"
-         id="stop22" />
-    </linearGradient>
-    <linearGradient
-       xlink:href="#1RY_svg__b"
+       xlink:href="#1FU_svg__a"
        id="1RY_svg__e"
        x1="148.578"
        x2="130.323"
@@ -146,7 +99,7 @@
     <filter
        id="1RY_svg__d"
        x="-0.11773074"
-       y="-0.096381304"
+       y="-0.096381306"
        width="1.284516"
        height="1.2329215">
       <feGaussianBlur
@@ -210,6 +163,53 @@
          result="composite2"
          id="feComposite25" />
     </filter>
+    <linearGradient
+       id="1FU_svg__a">
+      <stop
+         offset="0"
+         stop-color="#dfb459"
+         id="stop12-6" />
+      <stop
+         offset=".042"
+         stop-color="#dead54"
+         id="stop13-6" />
+      <stop
+         offset=".093"
+         stop-color="#e1b85f"
+         id="stop14-3" />
+      <stop
+         offset=".165"
+         stop-color="#dba84d"
+         id="stop15-6" />
+      <stop
+         offset=".305"
+         stop-color="#dfb765"
+         id="stop16-4" />
+      <stop
+         offset=".539"
+         stop-color="#d8a94e"
+         id="stop17-2" />
+      <stop
+         offset=".586"
+         stop-color="#d5ab53"
+         id="stop18-8" />
+      <stop
+         offset=".84"
+         stop-color="#e0bf6e"
+         id="stop19-5" />
+      <stop
+         offset=".924"
+         stop-color="#daae52"
+         id="stop20-1" />
+      <stop
+         offset=".962"
+         stop-color="#d9af57"
+         id="stop21-7" />
+      <stop
+         offset="1"
+         stop-color="#e1b663"
+         id="stop22-6" />
+    </linearGradient>
   </defs>
   <g
      fill="url(#1RY_svg__c)"
