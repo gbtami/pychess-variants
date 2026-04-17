@@ -285,6 +285,7 @@ class MemoryMonitorApp(App):
                             object_details = data.get("object_details", {})
                             new_column_configs = dict(self.column_configs)
                             columns_changed = False
+                            changed_categories: list[str] = []
                             for cat in self.categories:
                                 old_config = new_column_configs.get(cat, [])
                                 if old_config:
@@ -295,10 +296,12 @@ class MemoryMonitorApp(App):
                                     continue
                                 new_column_configs[cat] = new_config
                                 columns_changed = True
-                                self.sync_category_columns(cat)
+                                changed_categories.append(cat)
 
                             if columns_changed:
                                 self.column_configs = new_column_configs
+                                for cat in changed_categories:
+                                    self.sync_category_columns(cat)
 
                             self.category_counts = {
                                 cat: data.get("object_counts", {}).get(cat, 0)
