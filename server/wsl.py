@@ -128,12 +128,39 @@ async def init_ws(app_state: PychessGlobalAppState, ws: WebSocketResponse, user:
 async def finally_logic(
     app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User
 ) -> None:
+    async def schedule_abandon_if_waiting_for_round_socket() -> None:
+        game_id = user.game_in_progress
+        if game_id is None or len(user.lobby_sockets) > 0:
+            return
+        if user.is_user_active_in_game(game_id):
+            return
+        if game_id in user.abandon_game_tasks:
+            return
+
+        game = await load_game(app_state, game_id)
+        if game is None or game.status > STARTED or getattr(game, "corr", False):
+            return
+        if game.server_variant.two_boards:
+            return
+        if not game.is_player(user):
+            return
+        if TYPE_CHECKING:
+            assert isinstance(game, Game)
+
+        task = asyncio.create_task(
+            user.abandon_game(game), name="abandon-game-%s-%s" % (user.username, game.id)
+        )
+        user.abandon_game_tasks[game.id] = task
+        task.add_done_callback(lambda task: user.abandon_task_done(task, game.id))
+
     if user is not None:
         if ws in user.lobby_sockets:
             user.lobby_sockets.remove(ws)
             user.update_online()
             if len(user.lobby_sockets) == 0:
                 app_state.lobby.lobbysockets.pop(user.username, None)
+
+        await schedule_abandon_if_waiting_for_round_socket()
 
         # not connected to lobby socket and not connected to game socket
         if user.is_user_active_in_game() and len(user.lobby_sockets) == 0:
