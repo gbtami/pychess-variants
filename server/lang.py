@@ -1,4 +1,5 @@
 from contextvars import ContextVar
+from urllib.parse import urlparse
 
 import aiohttp_session
 from aiohttp import web
@@ -21,6 +22,20 @@ async def select_lang(request):
 
     if lang is not None:
         referer = request.headers.get("REFERER")
+        redirect_path = "/"
+        if isinstance(referer, str):
+            parsed_referer = urlparse(referer)
+            if parsed_referer.scheme in ("http", "https") and parsed_referer.netloc == request.host:
+                redirect_path = parsed_referer.path or "/"
+                if parsed_referer.query:
+                    redirect_path = "%s?%s" % (redirect_path, parsed_referer.query)
+            elif (
+                parsed_referer.scheme == ""
+                and parsed_referer.netloc == ""
+                and referer.startswith("/")
+                and not referer.startswith("//")
+            ):
+                redirect_path = referer
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
         if isinstance(session_user, str) and session_user in app_state.users:
@@ -31,7 +46,7 @@ async def select_lang(request):
                     {"_id": user.username}, {"$set": {"lang": lang}}
                 )
         session["lang"] = lang
-        return web.HTTPFound(referer)
+        return web.HTTPFound(redirect_path)
     else:
         raise web.HTTPNotFound()
 
