@@ -58,7 +58,6 @@ log = logging.getLogger(__name__)
 
 SILENCE = 15 * 60
 ANON_TIMEOUT = 10 * 60
-ANON_IDLE_GRACE = 3
 PENDING_SEEK_TIMEOUT = 10
 ABANDON_TIMEOUT = 30
 
@@ -161,9 +160,6 @@ class User:
             self.title = "BOT"
 
         self.online: bool = False
-        self.anon_idle_since: datetime | None = (
-            datetime.now(timezone.utc) if self.anon and not reserved(self.username) else None
-        )
 
         if perfs is None and (not self.anon) and (not self.bot):
             # User() with perfs=None can be dangerous
@@ -187,10 +183,15 @@ class User:
         # lobby chat spammer time out (10 min)
         self.silence: int = 0
 
-        # Anonymous users are reaped by a single app-level cleanup loop.
-        # Keeping one sleeping task per anon user retains both the task and the
-        # user object in memory until the timeout expires.
-        self.remove_anon_task: asyncio.Task[None] | None = None
+        # purge inactive anon users after ANON_TIMEOUT sec
+        if self.anon and not reserved(self.username):
+            task = self.create_background_task(
+                self.remove(),
+                name="user-remove-%s" % self.username,
+            )
+            self.remove_anon_task: asyncio.Task[None] | None = task
+        else:
+            self.remove_anon_task = None
 
     async def remove(self) -> None:
         def can_remove_anon() -> bool:
@@ -207,7 +208,7 @@ class User:
             await asyncio.sleep(1 if URI == LOCALHOST else ANON_TIMEOUT)
             if can_remove_anon():
                 # give them a second chance
-                await asyncio.sleep(ANON_IDLE_GRACE)
+                await asyncio.sleep(3)
                 if can_remove_anon():
                     for seek_id, seek in tuple(self.seeks.items()):
                         self.app_state.seeks.pop(seek_id, None)
@@ -304,7 +305,6 @@ class User:
             await self.app_state.maybe_remove_finished_game_from_cache_now(game)
 
     def update_online(self) -> None:
-        was_online = self.online
         self.online = (
             len(self.game_sockets) > 0
             or len(self.lobby_sockets) > 0
@@ -312,12 +312,6 @@ class User:
             or len(self.tournament_sockets) > 0
             or len(self.simul_sockets) > 0
         )
-        if self.anon and not reserved(self.username):
-            now = datetime.now(timezone.utc)
-            if self.online:
-                self.anon_idle_since = None
-            elif was_online or self.anon_idle_since is None:
-                self.anon_idle_since = now
 
     def get_rating_value(self, variant: str, chess960: bool | None) -> int:
         try:
