@@ -427,7 +427,7 @@ class ViewContext(TypedDict, total=False):
     video_tag: Callable[[str], str]
     video_target: Callable[[str], str]
     wberserk: bool
-    winners: Mapping[str, list[tuple[str, str, str]]]
+    winners: Mapping[str, list[tuple[str, str, str, str]]]
     bberserk: bool
     gameid: str
     variant: str

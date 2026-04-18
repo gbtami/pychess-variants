@@ -275,9 +275,11 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profileId = request.match_info.get("profileId")
 
-    if profileId is not None and profileId not in app_state.users:
-        await asyncio.sleep(3)
-        return web.json_response({})
+    if profileId is not None:
+        public_profile = await app_state.public_users.get_profile(profileId)
+        if public_profile is None:
+            await asyncio.sleep(3)
+            return web.json_response({})
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)
@@ -590,9 +592,11 @@ async def get_games(request: web.Request) -> web.StreamResponse:
 async def export(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profileId = request.match_info.get("profileId")
-    if profileId is not None and profileId not in app_state.users:
-        await asyncio.sleep(3)
-        return web.Response(text="")
+    if profileId is not None:
+        public_profile = await app_state.public_users.get_profile(profileId)
+        if public_profile is None:
+            await asyncio.sleep(3)
+            return web.Response(text="")
 
     tournamentId = request.match_info.get("tournamentId")
     # Who made the request?

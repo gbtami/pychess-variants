@@ -1,7 +1,7 @@
 import aiohttp_jinja2
 from aiohttp import web
 
-from const import IMPORTED, RATED, DASH, NONE_USER, TROPHIES
+from const import IMPORTED, RATED, DASH, TROPHIES
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
 from settings import ADMINS
@@ -29,14 +29,12 @@ async def profile(request: web.Request) -> ViewContext:
 
     context["icons"] = VARIANT_ICONS
 
-    profileId_user = await app_state.users.get(profileId)
-    if profileId_user.username == NONE_USER:
-        raise web.HTTPNotFound()
-    elif (profileId in app_state.users) and not app_state.users[profileId].enabled:
-        raise web.HTTPNotFound()
-
     if user.anon and DASH in profileId:
         return context
+
+    profile_user = await app_state.public_users.get_profile(profileId)
+    if profile_user is None or not profile_user.enabled:
+        raise web.HTTPNotFound()
 
     if request.path[-7:] == "/import":
         rated = IMPORTED
@@ -48,16 +46,16 @@ async def profile(request: web.Request) -> ViewContext:
         rated = -1
 
     context["can_block"] = profileId not in user.blocked
-    context["can_challenge"] = user.username not in profileId_user.blocked
+    context["can_challenge"] = user.username not in profile_user.blocked
     context["can_export_games"] = (
         (not user.anon)
-        and (not profileId_user.bot)
+        and (not profile_user.bot)
         and (profileId == user.username or user.username in ADMINS)
     )
 
     allowed_variants = user.category_variant_set
 
-    _id = "%s|%s" % (profileId, profileId_user.title)
+    _id = "%s|%s" % (profileId, profile_user.title)
     context["trophies"] = [
         (v, "top10")
         for v in app_state.highscore
@@ -69,7 +67,7 @@ async def profile(request: web.Request) -> ViewContext:
             context["trophies"][i] = (v, "top1")
     context["trophies"] = sorted(context["trophies"], key=lambda x: x[1])
 
-    if not app_state.users[profileId].bot:
+    if not profile_user.bot:
         shield_owners = app_state.shield_owners
         context["trophies"] += [
             (v, "shield")
@@ -90,45 +88,40 @@ async def profile(request: web.Request) -> ViewContext:
     if variant is not None:
         context["variant"] = variant
 
-    if profileId not in app_state.users or app_state.users[profileId].perfs is None:
-        context["ratings"] = {}
-    else:
-        perfs = app_state.users[profileId].perfs.items()
-        if user.game_category != "all":
-            perfs = [(k, v) for k, v in perfs if k in allowed_variants]
+    perfs = profile_user.perfs.items()
+    if user.game_category != "all":
+        perfs = [(k, v) for k, v in perfs if k in allowed_variants]
 
-        context["ratings"] = {
-            k: (
-                "%s%s"
-                % (
-                    int(round(v["gl"]["r"], 0)),
-                    "?" if v["gl"]["d"] > PROVISIONAL_PHI else "",
-                ),
-                v["nb"],
-            )
-            for (k, v) in sorted(
-                perfs,
-                key=lambda x: x[1]["nb"],
-                reverse=True,
-            )
-        }
-        for v in NOT_RATED_VARIANTS:
-            if v in context["ratings"]:
-                context["ratings"][v] = ("1500?", 0)
+    context["ratings"] = {
+        k: (
+            "%s%s"
+            % (
+                int(round(v["gl"]["r"], 0)),
+                "?" if v["gl"]["d"] > PROVISIONAL_PHI else "",
+            ),
+            v["nb"],
+        )
+        for (k, v) in sorted(
+            perfs,
+            key=lambda x: x[1]["nb"],
+            reverse=True,
+        )
+    }
+    for v in NOT_RATED_VARIANTS:
+        if v in context["ratings"]:
+            context["ratings"][v] = ("1500?", 0)
 
-    context["profile_title"] = (
-        app_state.users[profileId].title if profileId in app_state.users else ""
-    )
+    context["profile_title"] = profile_user.title
     context["rated"] = rated
 
     context["view"] = "profile"
     context["view_css"] = "profile.css"
     context["profile"] = profileId
     context["lichess_id"] = (
-        profileId_user.oauth_id if profileId_user.oauth_provider == "lichess" else ""
+        profile_user.oauth_id if profile_user.oauth_provider == "lichess" else ""
     )
     context["lishogi_id"] = (
-        profileId_user.oauth_id if profileId_user.oauth_provider == "lishogi" else ""
+        profile_user.oauth_id if profile_user.oauth_provider == "lishogi" else ""
     )
 
     return context

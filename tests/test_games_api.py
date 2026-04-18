@@ -13,7 +13,7 @@ from mongomock_motor import AsyncMongoMockClient
 from pymongo.errors import BulkWriteError
 
 import game_api
-from const import STARTED, SWISS
+from const import SHIELD, STARTED, SWISS, T_FINISHED
 from game import Game
 from game_api import (
     _seen_discontinued_variants,
@@ -36,6 +36,9 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
     async def startup(self, app):
         app_state = get_app_state(self.app)
         self.user = User(app_state, username="testuser", game_category="chess")
+        self.profile_probe = "profileprobe"
+        self.winner_probe = "winnerprobe"
+        self.shield_probe = "shieldprobe"
         app_state.users[self.user.username] = self.user
 
         wplayer = User(app_state, username="white")
@@ -56,6 +59,13 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         app_state.games[chess960_game.id] = chess960_game
 
         chess_code = get_server_variant("chess", False).code
+        await app_state.db.user.insert_many(
+            [
+                {"_id": self.profile_probe, "title": "NM"},
+                {"_id": self.winner_probe, "title": "IM"},
+                {"_id": self.shield_probe, "title": "GM"},
+            ]
+        )
         await app_state.db.game.insert_one(
             {
                 "_id": "db1",
@@ -69,6 +79,40 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
                 "y": 1,
             }
         )
+        await app_state.db.game.insert_one(
+            {
+                "_id": "profiledb1",
+                "us": [self.profile_probe, self.user.username],
+                "v": chess_code,
+                "z": 0,
+                "r": "a",
+                "m": [],
+                "s": STARTED,
+                "d": datetime(2025, 1, 2, tzinfo=timezone.utc),
+                "y": 1,
+            }
+        )
+        await app_state.db.tournament.insert_many(
+            [
+                {
+                    "_id": "Winner01",
+                    "v": chess_code,
+                    "z": 0,
+                    "status": T_FINISHED,
+                    "startsAt": datetime(2025, 1, 3, tzinfo=timezone.utc),
+                    "winner": self.winner_probe,
+                },
+                {
+                    "_id": "Shield01",
+                    "v": chess_code,
+                    "z": 0,
+                    "status": T_FINISHED,
+                    "startsAt": datetime(2025, 1, 4, tzinfo=timezone.utc),
+                    "winner": self.shield_probe,
+                    "fr": SHIELD,
+                },
+            ]
+        )
 
     async def get_application(self):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
@@ -78,9 +122,12 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
         await self.client.close()
 
-    async def test_games_filtered_by_category(self):
-        session_data = {"session": {"user_name": self.user.username}, "created": int(time.time())}
+    def set_session_user(self, username: str) -> None:
+        session_data = {"session": {"user_name": username}, "created": int(time.time())}
         self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+
+    async def test_games_filtered_by_category(self):
+        self.set_session_user(self.user.username)
 
         response = await self.client.get("/api/games")
         self.assertEqual(response.status, 200)
@@ -91,9 +138,43 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         self.assertIn(("chess", True), variants)
         self.assertNotIn(("shogi", False), variants)
 
+    async def test_profile_page_and_games_api_do_not_cache_public_user(self):
+        self.set_session_user(self.user.username)
+        app_state = get_app_state(self.app)
+
+        self.assertNotIn(self.profile_probe, app_state.users)
+
+        response = await self.client.get(f"/@/{self.profile_probe}")
+        self.assertEqual(response.status, 200)
+        self.assertIn(self.profile_probe, await response.text())
+        self.assertNotIn(self.profile_probe, app_state.users)
+
+        response = await self.client.get(f"/api/{self.profile_probe}/all")
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertEqual(["profiledb1"], [item["_id"] for item in payload])
+        self.assertNotIn(self.profile_probe, app_state.users)
+
+    async def test_winners_and_shields_pages_do_not_cache_public_users(self):
+        self.set_session_user(self.user.username)
+        app_state = get_app_state(self.app)
+
+        response = await self.client.get("/tournaments/winners/chess")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn(self.winner_probe, html)
+        self.assertIn("IM", html)
+        self.assertNotIn(self.winner_probe, app_state.users)
+
+        response = await self.client.get("/tournaments/shields/chess")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn(self.shield_probe, html)
+        self.assertIn("GM", html)
+        self.assertNotIn(self.shield_probe, app_state.users)
+
     async def test_profile_perf_unknown_variant_returns_not_found_page(self):
-        session_data = {"session": {"user_name": self.user.username}, "created": int(time.time())}
-        self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+        self.set_session_user(self.user.username)
 
         response = await self.client.get(f"/@/{self.user.username}/perf/notavariant")
         self.assertEqual(response.status, 200)
@@ -101,8 +182,7 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         self.assertIn("Page not found!", text)
 
     async def test_api_profile_perf_unknown_variant_returns_empty(self):
-        session_data = {"session": {"user_name": self.user.username}, "created": int(time.time())}
-        self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+        self.set_session_user(self.user.username)
 
         response = await self.client.get(f"/api/{self.user.username}/perf/notavariant")
         self.assertEqual(response.status, 200)

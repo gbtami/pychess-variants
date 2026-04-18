@@ -74,6 +74,7 @@ from settings import (
     static_url,
 )
 from gc_telemetry import start_gc_telemetry
+from public_users import PublicUsers
 from simul.simul import Simul
 from simul.simuls import load_active_simuls
 from tournament.tournament import Tournament, player_json
@@ -128,6 +129,7 @@ class PychessGlobalAppState:
         self.db_client = app[client_key]
         self.db: Any = app[db_key]
         self.users = self.__init_users()
+        self.public_users = PublicUsers(self)
         self.disable_new_anons = False
         self.lobby = Lobby(self)
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}

@@ -30,7 +30,6 @@ async def shields(request: web.Request) -> ViewContext:
     else:
         wi = await get_winners(app_state, shield=True, variant=variant)
     context["view_css"] = "players.css"
-    context["users"] = app_state.users
     context["icons"] = VARIANT_ICONS
     context["winners"] = wi
 

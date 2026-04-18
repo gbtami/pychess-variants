@@ -70,7 +70,7 @@ from settings import DEV
 
 log = logging.getLogger(__name__)
 
-WinnerEntry = tuple[str, str, str]
+WinnerEntry = tuple[str, str, str, str]
 ScheduledTournamentEntry = tuple[str, str, bool, datetime, int, str]
 TournamentTables = tuple[list[Tournament], list[Tournament], list[Tournament]]
 ROUND_INTERVAL_SECONDS: frozenset[int] = frozenset(
@@ -725,7 +725,7 @@ async def get_winners(
     variant: str | None = None,
     variants: Iterable[str] | None = None,
 ) -> dict[str, list[WinnerEntry]]:
-    wi: dict[str, list[WinnerEntry]] = {}
+    raw_winners: dict[str, list[tuple[str, str, str]]] = {}
     if variants is None:
         if variant is None:
             variants = VARIANTS
@@ -736,6 +736,7 @@ async def get_winners(
     else:
         limit = 5
 
+    winner_usernames: set[str] = set()
     for variant in variants:
         variant960 = variant.endswith("960")
         uci_variant = variant[:-3] if variant960 else variant
@@ -747,24 +748,31 @@ async def get_winners(
         if shield:
             filter_cond["fr"] = SHIELD
 
-        winners: list[WinnerEntry] = []
+        winners: list[tuple[str, str, str]] = []
         cursor = app_state.db.tournament.find(filter_cond, sort=[("startsAt", -1)], limit=limit)
         async for doc in cursor:
             tournament_doc: TournamentDoc = doc
             if "winner" in tournament_doc:
                 starts_at = tournament_doc["startsAt"]
+                winner = tournament_doc["winner"]
                 winners.append(
                     (
-                        tournament_doc["winner"],
+                        winner,
                         starts_at.strftime("%Y.%m.%d"),
                         tournament_doc["_id"],
                     )
                 )
-                await app_state.users.get(tournament_doc["winner"])
+                winner_usernames.add(winner)
 
-        wi[variant] = winners
+        raw_winners[variant] = winners
 
-    return wi
+    titles = await app_state.public_users.get_titles(winner_usernames)
+    return {
+        variant: [
+            (username, titles.get(username, ""), date, tid) for username, date, tid in winners
+        ]
+        for variant, winners in raw_winners.items()
+    }
 
 
 async def get_scheduled_tournaments(

@@ -10,10 +10,10 @@
             <div class="info0 icon" data-icon="{{ icons[key] }}">
                 <a href="{{ home }}/tournaments/winners/{{ key }}"><div class="variant">{{ variant_display_name(key) }}</div></a>
             </div>
-            {% for (user, date, tid) in winners[key] %}
+            {% for (user, title, date, tid) in winners[key] %}
                 <div class="player-data">
                     <player>
-                        <a class="user-link player" href="{{ home }}/@/{{ user }}"><player-title>{{ users[user].title }}</player-title> {{ user }}</a>
+                        <a class="user-link player" href="{{ home }}/@/{{ user }}"><player-title>{{ title }}</player-title> {{ user }}</a>
                         <a class="user-link tourney-date" href="{{ home }}/tournament/{{ tid }}">{{ date }}</a>
                     </player>
                 </div>
@@ -28,4 +28,3 @@
 {% block js %}
     <script src="{{ js }}"></script>
 {% endblock %}
-
