@@ -128,7 +128,7 @@ def get_deep_size(obj: object, seen: set[int] | None = None) -> int:
 
 def memory_stats(
     top_n: int = 20, need_inspect: bool | str | None = False
-) -> tuple[list[AllocationStat], list[TaskInfo], list[QueueInfo]]:
+) -> tuple[list[AllocationStat], list[TaskInfo], list[QueueInfo], dict[str, int]]:
     """
     Collects memory usage statistics for the top N object types in the Python heap.
     - Performs garbage collection to clean up unreferenced objects.
@@ -216,6 +216,8 @@ def memory_stats(
             else:
                 type_info[obj_type]["size"] += get_deep_size(obj)
 
+    type_counts = {obj_type: info["count"] for obj_type, info in type_info.items()}
+
     # Sort by total deep size descending
     sorted_types = sorted(type_info.items(), key=lambda x: x[1]["size"], reverse=True)[:top_n]
 
@@ -238,7 +240,7 @@ def memory_stats(
         for t, info in sorted_types
     ]
 
-    return result, tasks, queues
+    return result, tasks, queues, type_counts
 
 
 async def metrics_handler(request: web.Request) -> web.StreamResponse:
@@ -260,7 +262,9 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
 
     # Take snapshot
     start = time.process_time()
-    top_stats, tasks, queues = memory_stats(15, need_inspect and need_inspect == "True")
+    top_stats, tasks, queues, type_counts = memory_stats(
+        15, need_inspect and need_inspect == "True"
+    )
     log.debug("Running memory_stats() time: %s", (time.process_time() - start))
 
     # Prepare object details
@@ -329,6 +333,9 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
         for username in app_state.lobby.lobbysockets
     ]
 
+    user_objects_total = type_counts.get("User", 0)
+    detached_user_objects = max(0, user_objects_total - len(users))
+
     anon_users: list[dict[str, object]] = []
     anon_total = 0
     anon_online = 0
@@ -336,6 +343,24 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
     anon_default_last_seen = 0
     anon_never_connected = 0
     anon_with_remove_task = 0
+    anon_idle_lt_10m = 0
+    anon_idle_10m_to_60m = 0
+    anon_idle_over_60m = 0
+    anon_pending_remove_idle_default = 0
+    anon_pending_remove_idle_lt_10m = 0
+    anon_pending_remove_idle_10m_to_60m = 0
+    anon_pending_remove_idle_over_60m = 0
+    anon_removable_idle_default = 0
+    anon_removable_idle_lt_10m = 0
+    anon_removable_idle_10m_to_60m = 0
+    anon_removable_idle_over_60m = 0
+    anon_blocker_game_in_progress = 0
+    anon_blocker_correspondence_games = 0
+    anon_blocker_game_sockets = 0
+    anon_blocker_lobby_sockets = 0
+    anon_blocker_challenge_channels = 0
+    anon_blocker_tournament_sockets = 0
+    anon_blocker_simul_sockets = 0
 
     for user in app_state.users.values():
         if (not user.anon) or reserved(user.username):
@@ -349,31 +374,78 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
         tournament_sockets = sum(len(ws_set) for ws_set in user.tournament_sockets.values())
         simul_sockets = sum(len(ws_set) for ws_set in user.simul_sockets.values())
         corr_games = len(user.correspondence_games)
+        last_seen_default = user.last_seen.year <= 1
+        idle_mins: int | None = (
+            None if last_seen_default else int((now - user.last_seen).total_seconds() // 60)
+        )
         blockers: list[str] = []
         if user.game_in_progress is not None:
             blockers.append("game_in_progress")
+            anon_blocker_game_in_progress += 1
         if corr_games > 0:
             blockers.append("correspondence_games")
+            anon_blocker_correspondence_games += 1
         if game_socket_games > 0:
             blockers.append("game_sockets")
+            anon_blocker_game_sockets += 1
         if lobby_sockets > 0:
             blockers.append("lobby_sockets")
+            anon_blocker_lobby_sockets += 1
         if challenge_channels > 0:
             blockers.append("challenge_channels")
+            anon_blocker_challenge_channels += 1
         if tournament_sockets > 0:
             blockers.append("tournament_sockets")
+            anon_blocker_tournament_sockets += 1
         if simul_sockets > 0:
             blockers.append("simul_sockets")
+            anon_blocker_simul_sockets += 1
 
         task_state = _task_state(user.remove_anon_task)
         if task_state == "pending":
             anon_with_remove_task += 1
+            if last_seen_default:
+                anon_pending_remove_idle_default += 1
+            elif TYPE_CHECKING:
+                assert idle_mins is not None
+                if idle_mins < 10:
+                    anon_pending_remove_idle_lt_10m += 1
+                elif idle_mins < 60:
+                    anon_pending_remove_idle_10m_to_60m += 1
+                else:
+                    anon_pending_remove_idle_over_60m += 1
+            else:
+                if idle_mins is not None and idle_mins < 10:
+                    anon_pending_remove_idle_lt_10m += 1
+                elif idle_mins is not None and idle_mins < 60:
+                    anon_pending_remove_idle_10m_to_60m += 1
+                elif idle_mins is not None:
+                    anon_pending_remove_idle_over_60m += 1
         if user.online:
             anon_online += 1
-        if user.last_seen.year <= 1:
+        if last_seen_default:
             anon_default_last_seen += 1
         if not getattr(user, "ever_connected", False):
             anon_never_connected += 1
+
+        if not last_seen_default:
+            if TYPE_CHECKING:
+                assert idle_mins is not None
+            if idle_mins is not None and idle_mins < 10:
+                anon_idle_lt_10m += 1
+                if len(blockers) == 0:
+                    anon_removable_idle_lt_10m += 1
+            elif idle_mins is not None and idle_mins < 60:
+                anon_idle_10m_to_60m += 1
+                if len(blockers) == 0:
+                    anon_removable_idle_10m_to_60m += 1
+            elif idle_mins is not None:
+                anon_idle_over_60m += 1
+                if len(blockers) == 0:
+                    anon_removable_idle_over_60m += 1
+
+        if last_seen_default and len(blockers) == 0:
+            anon_removable_idle_default += 1
         if len(blockers) == 0:
             anon_removable_now += 1
 
@@ -383,7 +455,8 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
                 "online": user.online,
                 "ever_connected": getattr(user, "ever_connected", False),
                 "last_seen": user.last_seen,
-                "last_seen_default": user.last_seen.year <= 1,
+                "last_seen_default": last_seen_default,
+                "idle_mins": "" if last_seen_default else idle_mins,
                 "game_in_progress": user.game_in_progress or "",
                 "corr_games": corr_games,
                 "lobby_sockets": lobby_sockets,
@@ -443,6 +516,27 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
             "anon_never_connected": anon_never_connected,
             "anon_with_pending_remove_task": anon_with_remove_task,
             "anon_removable_now": anon_removable_now,
+            "anon_idle_lt_10m": anon_idle_lt_10m,
+            "anon_idle_10m_to_60m": anon_idle_10m_to_60m,
+            "anon_idle_over_60m": anon_idle_over_60m,
+            "anon_pending_remove_idle_default": anon_pending_remove_idle_default,
+            "anon_pending_remove_idle_lt_10m": anon_pending_remove_idle_lt_10m,
+            "anon_pending_remove_idle_10m_to_60m": anon_pending_remove_idle_10m_to_60m,
+            "anon_pending_remove_idle_over_60m": anon_pending_remove_idle_over_60m,
+            "anon_removable_idle_default": anon_removable_idle_default,
+            "anon_removable_idle_lt_10m": anon_removable_idle_lt_10m,
+            "anon_removable_idle_10m_to_60m": anon_removable_idle_10m_to_60m,
+            "anon_removable_idle_over_60m": anon_removable_idle_over_60m,
+            "anon_blocker_game_in_progress": anon_blocker_game_in_progress,
+            "anon_blocker_correspondence_games": anon_blocker_correspondence_games,
+            "anon_blocker_game_sockets": anon_blocker_game_sockets,
+            "anon_blocker_lobby_sockets": anon_blocker_lobby_sockets,
+            "anon_blocker_challenge_channels": anon_blocker_challenge_channels,
+            "anon_blocker_tournament_sockets": anon_blocker_tournament_sockets,
+            "anon_blocker_simul_sockets": anon_blocker_simul_sockets,
+            "cached_users": len(users),
+            "user_objects_total": user_objects_total,
+            "detached_user_objects": detached_user_objects,
             "started_games_no_round_sockets": len(started_games_no_round_sockets),
         }
     ]
