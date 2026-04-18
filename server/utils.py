@@ -247,6 +247,14 @@ async def load_game(
     game.status = doc["s"]
     game.level = level if level is not None else 0
     game.result = C2R[doc["r"]]
+    if not game.corr:
+        if game.status <= STARTED:
+            for player in game.non_bot_players:
+                player.game_in_progress = game.id
+        else:
+            for player in game.non_bot_players:
+                if player.game_in_progress == game.id:
+                    player.game_in_progress = None
     if game.status > STARTED:
         # Finished games loaded from DB should not keep a live clock task.
         # Cancel immediately so the clock does not pin the game in memory

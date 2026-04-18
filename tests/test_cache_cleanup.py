@@ -85,6 +85,8 @@ class CacheCleanupTestCase(AioHTTPTestCase):
 
         # Finished games must not keep a live clock task; cancel() clears the task ref.
         self.assertIsNone(game.stopwatch.clock_task)
+        self.assertIsNone(game.wplayer.game_in_progress)
+        self.assertIsNone(game.bplayer.game_in_progress)
 
     async def test_load_finished_game_without_cache_skips_app_cache(self):
         app_state = get_app_state(self.app)
@@ -120,6 +122,8 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         self.assertNotIn(doc["_id"], app_state.games)
         self.assertNotIn(doc["_id"], app_state.game_remove_tasks)
         self.assertIsNone(game.stopwatch.clock_task)
+        self.assertIsNone(game.wplayer.game_in_progress)
+        self.assertIsNone(game.bplayer.game_in_progress)
 
     async def test_load_finished_bughouse_cancels_clocks(self):
         app_state = get_app_state(self.app)
@@ -155,6 +159,49 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         # Bughouse finished games should cancel both board clock tasks.
         self.assertIsNone(game.gameClocks.stopwatches["a"].clock_task)
         self.assertIsNone(game.gameClocks.stopwatches["b"].clock_task)
+        self.assertIsNone(game.wplayerA.game_in_progress)
+        self.assertIsNone(game.bplayerA.game_in_progress)
+        self.assertIsNone(game.wplayerB.game_in_progress)
+        self.assertIsNone(game.bplayerB.game_in_progress)
+
+    async def test_load_finished_bughouse_without_cache_skips_app_cache_and_in_progress(self):
+        app_state = get_app_state(self.app)
+
+        for username in ("wa-no-cache", "ba-no-cache", "wb-no-cache", "bb-no-cache"):
+            await self._insert_user_doc(username)
+
+        variant_code = get_server_variant("bughouse", False).code
+        doc = {
+            "_id": "finished-bughouse-no-cache",
+            "us": ["wa-no-cache", "ba-no-cache", "wb-no-cache", "bb-no-cache"],
+            "p0": {"e": "1500?"},
+            "p1": {"e": "1500?"},
+            "p2": {"e": "1500?"},
+            "p3": {"e": "1500?"},
+            "v": variant_code,
+            "b": 1,
+            "i": 0,
+            "m": [],
+            "o": [],
+            "d": datetime.now(timezone.utc),
+            "f": FairyBoard.start_fen("bughouse"),
+            "s": ABORTED,
+            "r": R2C["*"],
+            "x": 0,
+            "y": int(CASUAL),
+            "z": 0,
+        }
+        await app_state.db.game.insert_one(doc)
+
+        game = await load_game(app_state, doc["_id"], cache_finished=False)
+
+        self.assertIsNotNone(game)
+        self.assertNotIn(doc["_id"], app_state.games)
+        self.assertNotIn(doc["_id"], app_state.game_remove_tasks)
+        self.assertIsNone(game.wplayerA.game_in_progress)
+        self.assertIsNone(game.bplayerA.game_in_progress)
+        self.assertIsNone(game.wplayerB.game_in_progress)
+        self.assertIsNone(game.bplayerB.game_in_progress)
 
     async def test_finished_game_is_evicted_when_last_spectator_disconnects(self):
         app_state = get_app_state(self.app)
@@ -456,6 +503,38 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         # An idle anon user should be removed from the cache and have no running cleanup task.
         self.assertNotIn(anon.username, app_state.users)
         self.assertIsNone(anon.remove_anon_task)
+
+    async def test_remove_game_from_cache_now_clears_stale_game_in_progress(self):
+        app_state = get_app_state(self.app)
+
+        white = User(app_state, username="cleanup-white")
+        black = User(app_state, username="cleanup-black")
+        app_state.users[white.username] = white
+        app_state.users[black.username] = black
+
+        game = Game(
+            app_state,
+            "cleanup-stale-gip",
+            "chess",
+            "",
+            white,
+            black,
+            base=1,
+            inc=0,
+            rated=False,
+        )
+        app_state.games[game.id] = game
+
+        # Simulate a stale in-progress reference that can happen when games are
+        # loaded/evicted across reconnects.
+        white.game_in_progress = game.id
+        black.game_in_progress = game.id
+
+        await app_state.remove_game_from_cache_now(game)
+
+        self.assertIsNone(white.game_in_progress)
+        self.assertIsNone(black.game_in_progress)
+        self.assertNotIn(game.id, app_state.games)
 
     async def test_user_remove_ignores_missing_cache_entry(self):
         app_state = get_app_state(self.app)

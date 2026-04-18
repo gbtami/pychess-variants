@@ -366,9 +366,9 @@ class Game:
         else:
             self.stopwatch = Clock(self)
 
-        if (not self.corr) and (not self.bplayer.bot):
+        if self.create and (not self.corr) and (not self.bplayer.bot):
             self.bplayer.game_in_progress = self.id
-        if (not self.corr) and (not self.wplayer.bot):
+        if self.create and (not self.corr) and (not self.wplayer.bot):
             self.wplayer.game_in_progress = self.id
 
         self.wberserk = False

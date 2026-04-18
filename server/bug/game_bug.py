@@ -159,13 +159,13 @@ class GameBug:
             }
         ]
 
-        if not self.bplayerA.bot:
+        if self.create and not self.bplayerA.bot:
             self.bplayerA.game_in_progress = self.id
-        if not self.wplayerA.bot:
+        if self.create and not self.wplayerA.bot:
             self.wplayerA.game_in_progress = self.id
-        if not self.bplayerB.bot:
+        if self.create and not self.bplayerB.bot:
             self.bplayerB.game_in_progress = self.id
-        if not self.wplayerB.bot:
+        if self.create and not self.wplayerB.bot:
             self.wplayerB.game_in_progress = self.id
 
         self.move_lock = asyncio.Lock()

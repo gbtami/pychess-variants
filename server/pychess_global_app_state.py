@@ -659,6 +659,10 @@ class PychessGlobalAppState:
                     # reconnect/disconnect races or repeated cache removals.
                     log.debug("%s already missing from %s.game_queues", game.id, player.username)
 
+        for player in game.all_players:
+            if player.game_in_progress == game.id:
+                player.game_in_progress = None
+
         # Opportunistically remove idle anon users once their last cached game
         # falls out of memory, to avoid long-lived user-remove tasks and stale
         # user objects that are no longer reachable from any active socket/game.

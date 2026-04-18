@@ -187,6 +187,13 @@ async def load_game_bug(app_state: PychessGlobalAppState, game_id, *, cache_fini
     game.status = doc["s"]
     game.level = level if level is not None else 0
     game.result = C2R[doc["r"]]
+    if game.status <= STARTED:
+        for player in game.non_bot_players:
+            player.game_in_progress = game.id
+    else:
+        for player in game.non_bot_players:
+            if player.game_in_progress == game.id:
+                player.game_in_progress = None
 
     try:
         game.wrating_a = doc["p0"]["e"]
