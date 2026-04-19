@@ -773,15 +773,52 @@ async def play_move(
     users = app_state.users
     invalid_move = False
     play_color = game.board.color
+    player_color = (
+        WHITE
+        if user.username == game.wplayer.username
+        else BLACK
+        if user.username == game.bplayer.username
+        else None
+    )
     # log.info("%s move %s %s %s - %s" % (user.username, move, gameId, game.wplayer.username, game.bplayer.username))
 
+    async def send_human_resync(reason: str) -> None:
+        if user.bot or player_color is None:
+            return
+        log.info(
+            "Sending board resync in %s to %s after %s (move=%s ply=%s fen=%s)",
+            gameId,
+            user.username,
+            reason,
+            move,
+            ply,
+            game.board.fen,
+        )
+        board_response = game.get_board(full=True, persp_color=player_color)
+        await user.send_game_message(gameId, board_response)
+
     if game.status <= STARTED:
+        fen_turn = WHITE if game.board.fen.split()[1] == "w" else BLACK
+        if game.board.color != fen_turn:
+            log.error(
+                "Repairing board color mismatch in %s before move %s by %s (board.color=%s fen_turn=%s fen=%s)",
+                gameId,
+                move,
+                user.username,
+                game.board.color,
+                fen_turn,
+                game.board.fen,
+            )
+            game.board.color = fen_turn
+            play_color = game.board.color
+
         if (ply is not None and game.ply + 1 != ply) or (
             game.ply > 0 and move == game.board.move_stack[-1]
         ):
             log.info(
                 "invalid ply received - probably a re-sent move that has already been processed"
             )
+            await send_human_resync("invalid-ply")
             return
 
         cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
@@ -802,10 +839,26 @@ async def play_move(
                 cur_player.username,
                 move,
             )
+            await send_human_resync("out-of-turn")
             return
         if user.bot and not cur_player.bot:
             log.info("BOT move %s arrived probably while human player takeback happened" % move)
             return
+
+        if not user.bot:
+            legal_moves = game.board.legal_moves()
+            if move not in legal_moves:
+                log.warning(
+                    "Rejecting illegal human move in %s by %s (move=%s ply=%s turn=%s fen=%s)",
+                    gameId,
+                    user.username,
+                    move,
+                    ply,
+                    cur_player.username,
+                    game.board.fen,
+                )
+                await send_human_resync("illegal-human-move")
+                return
 
         try:
             await game.play_move(move, clocks, ply)

@@ -69,6 +69,50 @@ describe("round move validation", () => {
         expect(sent).toEqual([{ type: "board", gameId: "game-stale" }]);
     });
 
+    test("rejects exact atomic960 stale king move from post-castle white-to-move position", () => {
+        const sent: SentMessage[] = [];
+        const persistPendingMove = jest.fn();
+
+        const ctrl = {
+            gameId: "izcDGthV",
+            clearDialog: jest.fn(),
+            corr: false,
+            flipped: () => false,
+            base: 5,
+            // Local client is still on Black's decision point before move 20.
+            ply: 19,
+            clocks: [
+                { duration: 181000, pause: jest.fn(), setTime: jest.fn(), start: jest.fn() },
+                { duration: 179000, pause: jest.fn(), setTime: jest.fn(), start: jest.fn() },
+            ],
+            mycolor: "black",
+            berserked: { wberserk: false, bberserk: false },
+            inc: 3,
+            byoyomi: false,
+            preaction: false,
+            clocktimes: [181000, 179000],
+            ffishBoard: {
+                // Authoritative local rules engine is already on the logged post-castle
+                // white-to-move FEN, where c8b7 is no longer legal.
+                legalMoves: jest.fn(
+                    () =>
+                        "a2a3 c2c3 d2d3 f2f3 h2h3 b3b4 a2a4 c2c4 d2d4 f2f4 h2h4 g3f1 g3h1 g3e2 g3e4 g3f5 g3h5 b1a1 b1b2 g1f1 g1h1 e8e2 e8e3 e8e4 e8b5 e8e5 e8h5 e8c6 e8e6 e8g6 e8d7 e8e7 e8f7 e8d8 e8f8 e8g8 e8h8 c1d1 c1b2 c1b1",
+                ),
+            },
+            clearLocalMoveQueueState: jest.fn(),
+            doSend: jest.fn((msg: SentMessage) => sent.push(msg)),
+            persistPendingMove,
+            clockOn: false,
+            oppcolor: "white",
+        } as unknown as Record<string, unknown>;
+
+        callRoundMethod(ctrl, "doSendMove", "c8b7");
+
+        expect(ctrl.clearLocalMoveQueueState).toHaveBeenCalledTimes(1);
+        expect(persistPendingMove).not.toHaveBeenCalled();
+        expect(sent).toEqual([{ type: "board", gameId: "izcDGthV" }]);
+    });
+
     test("takeback-style local queue clear removes stale premove state and blocks stale resend", () => {
         const gameId = "game-antichess";
         const key = pendingMoveStorageKey(gameId);
