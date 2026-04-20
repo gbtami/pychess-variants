@@ -185,6 +185,7 @@ class GameBoardResponse(TypedDict):
     steps: list[GameStep]
     check: bool
     ply: int
+    positionId: NotRequired[str]
     clocks: ClockValues
     byo: list[int] | str
     pgn: str

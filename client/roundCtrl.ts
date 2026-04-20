@@ -71,6 +71,7 @@ export class RoundController extends GameController {
     handicap: boolean;
     focus: boolean;
     finishedGame: boolean;
+    positionId?: string;
     // Last move that may have left the client but is not yet confirmed by server board state.
     //
     // Why this exists:
@@ -99,7 +100,7 @@ export class RoundController extends GameController {
         const onOpen = () => {
             const pendingMove = this.lastMaybeSentMsgMove;
             if (pendingMove) {
-                const action = pendingMoveOnOpenAction(pendingMove, this.ply);
+                const action = pendingMoveOnOpenAction(pendingMove, this.ply, this.positionId);
                 if (action === "resend") {
                     // Local UI is one ply behind pending move: resend it once per reconnect/open.
                     // If the server already has it, server ply checks will reject as duplicate.
@@ -855,6 +856,7 @@ export class RoundController extends GameController {
 
     onMsgBoard(msg: MsgBoard) {
         if (msg.gameId !== this.gameId) return;
+        this.positionId = msg.positionId;
 
         // console.log("got board msg:", msg);
         let latestPly;
@@ -1174,7 +1176,14 @@ export class RoundController extends GameController {
 
             // Persist before socket send so a crash/refresh between "create msg" and "server board ack"
             // can still recover and resend this exact move on next load.
-            const moveMsg = { type: "move", gameId: this.gameId, move: move, clocks: clock_times, ply: this.ply + 1 } as MsgMove;
+            const moveMsg = {
+                type: "move",
+                gameId: this.gameId,
+                move: move,
+                clocks: clock_times,
+                ply: this.ply + 1,
+                ...(this.positionId !== undefined ? { positionId: this.positionId } : {}),
+            } as MsgMove;
             this.persistPendingMove(moveMsg);
             this.doSend(moveMsg as JSONObject);
             this.simulRoundHost?.onMoveSubmitted(this.ply + 1);

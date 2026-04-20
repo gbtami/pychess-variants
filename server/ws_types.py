@@ -160,6 +160,7 @@ class MoveData(TypedDict):
     move: str
     clocks: ClockValues
     ply: int
+    positionId: NotRequired[str]
 
 
 class BughouseMoveData(MoveData):

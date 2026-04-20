@@ -336,6 +336,7 @@ async def handle_move(
                     data["move"],
                     data["clocks"],
                     data["ply"],
+                    data.get("positionId"),
                 )
             except Exception:
                 log.exception(

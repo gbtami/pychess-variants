@@ -13,12 +13,13 @@ beforeEach(() => {
     localStorage.clear();
 });
 
-const makeMove = (ply: number): MsgMove => ({
+const makeMove = (ply: number, positionId = 'pos-24'): MsgMove => ({
     type: 'move',
     gameId,
     move: 'e2e4',
     clocks: [179000, 180000],
     ply,
+    positionId,
 });
 
 describe('pending move parsing', () => {
@@ -37,12 +38,19 @@ describe('pending move parsing', () => {
 });
 
 describe('pending move reconnect policy', () => {
-    test('resends only when pending ply is exactly one ahead of current ply', () => {
+    test('resends only when pending ply is exactly one ahead of current ply and position ids match', () => {
         const pending = makeMove(25);
-        expect(pendingMoveOnOpenAction(pending, 24)).toBe('resend');
-        expect(pendingMoveOnOpenAction(pending, 25)).toBe('clear');
-        expect(pendingMoveOnOpenAction(pending, 23)).toBe('clear');
-        expect(pendingMoveOnOpenAction(undefined, 24)).toBe('noop');
+        expect(pendingMoveOnOpenAction(pending, 24, 'pos-24')).toBe('resend');
+        expect(pendingMoveOnOpenAction(pending, 24, 'other-pos')).toBe('clear');
+        expect(pendingMoveOnOpenAction({ ...pending, positionId: undefined }, 24, 'pos-24')).toBe(
+            'clear',
+        );
+        expect(pendingMoveOnOpenAction({ ...pending, positionId: undefined }, 24, undefined)).toBe(
+            'resend',
+        );
+        expect(pendingMoveOnOpenAction(pending, 25, 'pos-24')).toBe('clear');
+        expect(pendingMoveOnOpenAction(pending, 23, 'pos-24')).toBe('clear');
+        expect(pendingMoveOnOpenAction(undefined, 24, 'pos-24')).toBe('noop');
     });
 
     test('clears when server board confirms or passes pending ply', () => {
@@ -65,7 +73,7 @@ describe('hard refresh recovery sequence', () => {
         expect(restored).toEqual(pending);
 
         // Client at ply 24 should attempt resend on socket open.
-        expect(pendingMoveOnOpenAction(restored, 24)).toBe('resend');
+        expect(pendingMoveOnOpenAction(restored, 24, 'pos-24')).toBe('resend');
 
         // Later board message with ply 25 confirms and cache should be cleared.
         expect(shouldClearPendingMoveByServerPly(restored, 25)).toBe(true);

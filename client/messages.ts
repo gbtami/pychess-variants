@@ -76,6 +76,7 @@ export interface MsgBoard {
     gameId: string;
     fen: string;
     ply: number;
+    positionId?: string;
     lastMove: string;
     bikjang: boolean;
     check: boolean;
@@ -146,6 +147,7 @@ export type MsgMove = { // cannot be interface because cannot be converted to an
     clocks: Clocks;
     clocksB?: Clocks;
     ply: number;
+    positionId?: string;
     board?: BoardName;
     jieqiCapture?: string;
 }

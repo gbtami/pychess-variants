@@ -768,6 +768,7 @@ async def play_move(
     move: str,
     clocks: ClockValues | None = None,
     ply: int | None = None,
+    position_id: str | None = None,
 ) -> None:
     gameId = game.id
     users = app_state.users
@@ -811,6 +812,21 @@ async def play_move(
             )
             game.board.color = fen_turn
             play_color = game.board.color
+
+        current_position_id = game.position_id()
+        if position_id is not None and position_id != current_position_id:
+            log.info(
+                "Rejecting stale position move in %s by %s (move=%s ply=%s position_id=%s current_position_id=%s fen=%s)",
+                gameId,
+                user.username,
+                move,
+                ply,
+                position_id,
+                current_position_id,
+                game.board.fen,
+            )
+            await send_human_resync("stale-position")
+            return
 
         if (ply is not None and game.ply + 1 != ply) or (
             game.ply > 0 and move == game.board.move_stack[-1]
