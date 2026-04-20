@@ -174,4 +174,57 @@ describe("round move validation", () => {
         expect(sent.some((msg) => msg.type === "move")).toBe(false);
         expect(persistPendingMove).not.toHaveBeenCalled();
     });
+
+    test("sends current board positionId with move payload", () => {
+        const sent: SentMessage[] = [];
+        const persistPendingMove = jest.fn();
+
+        const ctrl = {
+            gameId: "game-position",
+            positionId: "pos-19",
+            clearDialog: jest.fn(),
+            corr: false,
+            flipped: () => false,
+            base: 5,
+            ply: 19,
+            clocks: [
+                { duration: 181000, pause: jest.fn(), setTime: jest.fn(), start: jest.fn() },
+                { duration: 179000, pause: jest.fn(), setTime: jest.fn(), start: jest.fn() },
+            ],
+            mycolor: "white",
+            berserked: { wberserk: false, bberserk: false },
+            inc: 3,
+            byoyomi: false,
+            preaction: false,
+            clocktimes: [181000, 179000],
+            ffishBoard: { legalMoves: jest.fn(() => "e2e4") },
+            clearLocalMoveQueueState: jest.fn(),
+            doSend: jest.fn((msg: SentMessage) => sent.push(msg)),
+            persistPendingMove,
+            clockOn: false,
+            oppcolor: "black",
+            simulRoundHost: undefined,
+        } as unknown as Record<string, unknown>;
+
+        callRoundMethod(ctrl, "doSendMove", "e2e4");
+
+        expect(persistPendingMove).toHaveBeenCalledWith({
+            type: "move",
+            gameId: "game-position",
+            move: "e2e4",
+            clocks: [179000, 181000],
+            ply: 20,
+            positionId: "pos-19",
+        });
+        expect(sent).toEqual([
+            {
+                type: "move",
+                gameId: "game-position",
+                move: "e2e4",
+                clocks: [179000, 181000],
+                ply: 20,
+                positionId: "pos-19",
+            },
+        ]);
+    });
 });

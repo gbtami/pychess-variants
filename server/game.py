@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable, Literal, Mapping, Sequence, Set
 import asyncio
 import collections
+import hashlib
 from datetime import datetime, timezone, timedelta
 from time import monotonic
 
@@ -1420,6 +1421,7 @@ class Game:
             "steps": steps,
             "check": self.check,
             "ply": self.board.ply,
+            "positionId": self.position_id(),
             "clocks": clocks,
             "byo": self.byoyomi_periods if self.byoyomi else "",
             "pgn": self.pgn if self.status > STARTED else "",
@@ -1499,6 +1501,11 @@ class Game:
     @property
     def turn_player(self) -> str:
         return self.wplayer.username if self.board.color == WHITE else self.bplayer.username
+
+    def position_id(self) -> str:
+        digest = hashlib.blake2s(digest_size=12)
+        digest.update(self.board.fen.encode("utf-8"))
+        return digest.hexdigest()
 
     async def takeback(self) -> None:
         if self.bot_game and self.board.ply >= 2:

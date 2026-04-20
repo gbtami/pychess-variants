@@ -19,6 +19,7 @@ function isValidPendingMove(value: unknown, gameId: string): value is MsgMove {
     if (!Array.isArray(move.clocks) || move.clocks.length < 2) return false;
     if (typeof move.clocks[0] !== "number" || typeof move.clocks[1] !== "number") return false;
     if (typeof move.ply !== "number") return false;
+    if (move.positionId !== undefined && typeof move.positionId !== "string") return false;
     return true;
 }
 
@@ -47,10 +48,12 @@ export function parsePendingMove(raw: string | null, gameId: string): MsgMove | 
 export function pendingMoveOnOpenAction(
     pendingMove: MsgMove | undefined,
     currentPly: number,
+    currentPositionId?: string,
 ): PendingMoveOnOpenAction {
     if (!pendingMove) return "noop";
-    if (pendingMove.ply === currentPly + 1) return "resend";
-    return "clear";
+    if (pendingMove.ply !== currentPly + 1) return "clear";
+    if (pendingMove.positionId === undefined && currentPositionId === undefined) return "resend";
+    return pendingMove.positionId === currentPositionId ? "resend" : "clear";
 }
 
 // Once server reports ply >= cached pending ply, that move is no longer pending:
