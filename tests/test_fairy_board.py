@@ -1,7 +1,13 @@
+from __future__ import annotations
+
 import unittest
 from unittest.mock import patch
 
-from fairy.fairy_board import FairyBoard
+import test_logger
+
+from fairy.fairy_board import FairyBoard, modded_variant
+
+test_logger.init_test_logger()
 
 
 class FairyBoardPosNumTestCase(unittest.TestCase):
@@ -32,5 +38,20 @@ class FairyBoardPosNumTestCase(unittest.TestCase):
         self.assertEqual(board.initial_fen, board.fen)
 
 
+class FairyBoardEmbassyFenTestCase(unittest.TestCase):
+    def test_modded_variant_uses_embassy_for_one_sided_castling_rights(self) -> None:
+        fen = "rk7r/1pp2P1ppp/p7c1/3NPCP1b1/3P3p2/8P1/PPP4B1P/R3K2R2 w Q - 0 29"
+
+        self.assertEqual(modded_variant("capablanca", False, fen), "embassy")
+
+    def test_one_sided_custom_fen_castling_replays_under_embassy_rules(self) -> None:
+        fen = "rk7r/1pp2P1ppp/p7c1/3NPCP1b1/3P3p2/8P1/PPP4B1P/R3K2R2 w Q - 0 29"
+        board = FairyBoard("capablanca", fen, chess960=False)
+
+        self.assertEqual(board.variant, "embassy")
+        self.assertEqual(board.get_san("e1b1"), "O-O-O")
+        self.assertTrue(board.push("e1b1", append=False))
+
+
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbosity=2)

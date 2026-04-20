@@ -75,16 +75,20 @@ def modded_variant(variant: str, chess960: bool, initial_fen: str) -> str:
     if not chess960 and variant in ("capablanca", "capahouse") and initial_fen:
         """
         E-file king in a Capablanca/Capahouse variant.
-        The game will be treated as an Embassy game for the purpose of castling.
-        The king starts on the e-file if it is on the e-file in the starting rank and can castle.
+        The game will be treated as an Embassy game for the purpose of castling
+        if either side still has embassy-style castling available from the
+        current setup.
         """
         parts = initial_fen.split()
         ranks = parts[0].split("/")
-        if (
-            parts[2] != "-"
-            and (("K" in parts[2] or "Q" in parts[2]) and file_of("K", ranks[7]) == 4)
-            and (("k" in parts[2] or "q" in parts[2]) and file_of("k", ranks[0]) == 4)
-        ):
+        castling = parts[2]
+        white_can_castle = (
+            castling != "-" and ("K" in castling or "Q" in castling) and file_of("K", ranks[7]) == 4
+        )
+        black_can_castle = (
+            castling != "-" and ("k" in castling or "q" in castling) and file_of("k", ranks[0]) == 4
+        )
+        if white_can_castle or black_can_castle:
             return "embassyhouse" if "house" in variant else "embassy"
     return variant
 
