@@ -55,6 +55,16 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         resp = await self.client.request("GET", f"/invite/{game_id}")
         self.assertNotEqual(resp.status, 500)
 
+    async def test_cancel_invite_with_stale_seek_redirects_without_server_error(self):
+        game_id = "BQ4PCvAl"
+        app_state = get_app_state(self.app)
+        app_state.invites[game_id] = SimpleNamespace(id="missing_seek")
+
+        resp = await self.client.request("POST", f"/invite/cancel/{game_id}", allow_redirects=False)
+        self.assertEqual(resp.status, 302)
+        self.assertEqual(resp.headers["Location"], "/")
+        self.assertNotIn(game_id, app_state.invites)
+
     async def test_missing_invite_id_shows_expired_invite_state(self):
         game_id = "AbCd1234"
         resp = await self.client.request("GET", f"/invite/{game_id}")

@@ -466,20 +466,12 @@ async def cancel_invite(request: web.Request) -> web.StreamResponse:
     if TYPE_CHECKING:
         assert gameId is not None
 
-    if gameId in app_state.invites:
-        seek_id = app_state.invites[gameId].id
-        seek = app_state.seeks[seek_id]
-        creator = seek.creator
-        try:
-            del app_state.invites[gameId]
-            del app_state.seeks[seek_id]
-            del creator.seeks[seek_id]
-        except KeyError:
-            log.error(
-                "cancel_invite() KeyError. Invite %s for game %s was already deleted!",
-                seek_id,
-                gameId,
-            )
+    invite = app_state.invites.pop(gameId, None)
+    if invite is not None:
+        seek_id = invite.id
+        seek = app_state.seeks.pop(seek_id, None)
+        if seek is not None:
+            seek.creator.seeks.pop(seek_id, None)
 
     return web.HTTPFound("/")
 
