@@ -1,5 +1,6 @@
 import aiohttp_jinja2
 from aiohttp import web
+from urllib.parse import quote
 
 from const import category_matches
 from videos import VIDEO_TAGS, VIDEO_TARGETS, VIDEO_CATEGORIES
@@ -44,5 +45,6 @@ async def videos(request: web.Request) -> ViewContext:
         context["tags"] = VIDEO_TAGS
     context["video_tag"] = video_tag
     context["video_target"] = video_target
+    context["video_tag_query"] = lambda tag: quote(tag, safe="")
 
     return context

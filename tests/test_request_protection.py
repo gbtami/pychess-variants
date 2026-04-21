@@ -79,6 +79,13 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         html = await resp.text()
         self.assertIn('data-inviter="expired"', html)
 
+    async def test_video_tags_are_url_encoded_in_html(self):
+        resp = await self.client.request("GET", "/video")
+        self.assertEqual(resp.status, 200)
+        html = await resp.text()
+        self.assertIn("/video?tags=Hu%20Ronghua", html)
+        self.assertNotIn('/video?tags=Hu Ronghua"', html)
+
     async def test_names_autocomplete_escapes_regex_metacharacters(self):
         app_state = get_app_state(self.app)
         await app_state.db.user.insert_many(
