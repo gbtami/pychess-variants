@@ -1,40 +1,46 @@
 const CHAT_SPAM_STORAGE_KEY = 'chat-spam';
 
+const spamRegexFragments = ['(^|[^i])chess-bot', 'chess-cheat'];
+
+const spamHostnames = [
+    'xcamweb.com',
+    'coolteenbitch',
+    'letcafa.webcam',
+    'tinyurl.com/',
+    'wooga.info/',
+    'bit.ly/',
+    'wbt.link/',
+    'eb.by/',
+    '001.rs/',
+    'shr.name/',
+    'u.to/',
+    '.3-a.net',
+    '.ssl443.org',
+    '.ns02.us',
+    '.myftp.info',
+    '.flinkup.com',
+    '.serveusers.com',
+    'badoogirls.com',
+    'hide.su',
+    'wyon.de',
+    'sexdatingcz.club',
+    'qps.ru',
+    'tiny.cc/',
+    'trasderk.blogspot.com',
+    't.ly/',
+    'shorturl.at/',
+    'lichess77',
+    '77Casino.cfd',
+    'Betspin.life',
+];
+
+function escapeRegExp(text: string): string {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 const spamRegex = new RegExp(
-    [
-        'xcamweb.com',
-        '(^|[^i])chess-bot',
-        'chess-cheat',
-        'coolteenbitch',
-        'letcafa.webcam',
-        'tinyurl.com/',
-        'wooga.info/',
-        'bit.ly/',
-        'wbt.link/',
-        'eb.by/',
-        '001.rs/',
-        'shr.name/',
-        'u.to/',
-        '.3-a.net',
-        '.ssl443.org',
-        '.ns02.us',
-        '.myftp.info',
-        '.flinkup.com',
-        '.serveusers.com',
-        'badoogirls.com',
-        'hide.su',
-        'wyon.de',
-        'sexdatingcz.club',
-        'qps.ru',
-        'tiny.cc/',
-        'trasderk.blogspot.com',
-        't.ly/',
-        'shorturl.at/',
-        'lichess77',
-        '77Casino.cfd',
-        'Betspin.life',
-    ]
-        .map(url => url.replace(/\./g, '\\.').replace(/\//g, '\\/'))
+    spamRegexFragments
+        .concat(spamHostnames.map(escapeRegExp))
         .join('|'),
     'i',
 );

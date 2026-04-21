@@ -6,6 +6,8 @@ beforeEach(() => {
 
 test('detects suspicious spam links', () => {
     expect(hasSuspiciousLink('watch this bit.ly/free-stuff')).toBe(true);
+    expect(hasSuspiciousLink('check .3-a.net now')).toBe(true);
+    expect(hasSuspiciousLink('check x3-a.net now')).toBe(false);
     expect(hasSuspiciousLink('normal analysis link')).toBe(false);
 });
 
