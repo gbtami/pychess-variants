@@ -97,6 +97,13 @@ def empty_puzzle(variant):
     return puzzle
 
 
+async def _read_puzzle_post(request):
+    try:
+        return await request.post()
+    except ConnectionResetError:
+        return None
+
+
 async def get_puzzle(request, puzzleId):
     puzzle = await get_app_state(request.app).db.puzzle.find_one({"_id": puzzleId})
     return puzzle
@@ -233,7 +240,9 @@ async def next_puzzle(request, user):
 async def puzzle_complete(request):
     app_state = get_app_state(request.app)
     puzzleId = request.match_info.get("puzzleId")
-    post_data = await request.post()
+    post_data = await _read_puzzle_post(request)
+    if post_data is None:
+        return web.json_response({})
     rated = post_data["rated"] == "true"
 
     puzzle_data = await get_puzzle(request, puzzleId)
@@ -282,7 +291,9 @@ async def puzzle_complete(request):
 async def puzzle_vote(request):
     app_state = get_app_state(request.app)
     puzzleId = request.match_info.get("puzzleId")
-    post_data = await request.post()
+    post_data = await _read_puzzle_post(request)
+    if post_data is None:
+        return web.json_response({})
     good = post_data["vote"] == "true"
     up_or_down = "u" if good else "d"
 
