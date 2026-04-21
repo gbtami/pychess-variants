@@ -44,6 +44,7 @@ from settings import (
     URI,
     LOCALHOST,
 )
+from redirects import safe_redirect_path
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -671,7 +672,7 @@ async def set_theme(request: web.Request) -> web.StreamResponse:
                     {"_id": user.username}, {"$set": {"theme": theme}}
                 )
         session["theme"] = theme
-        redirect_url = referer or "/"
+        redirect_url = safe_redirect_path(referer)
         return web.HTTPFound(redirect_url)
     else:
         raise web.HTTPNotFound()
@@ -696,9 +697,9 @@ async def set_game_category(request: web.Request) -> web.StreamResponse:
                     {"_id": user.username}, {"$set": {"ct": normalized}}
                 )
         session["game_category"] = normalized
-        redirect_url = referer or "/"
+        redirect_url = safe_redirect_path(referer)
         if referer and normalized != GAME_CATEGORY_ALL:
-            parsed = urlparse(referer)
+            parsed = urlparse(redirect_url)
             path_parts = [part for part in parsed.path.split("/") if part]
             if path_parts:
                 section = path_parts[0]

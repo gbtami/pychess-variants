@@ -5,6 +5,7 @@ from aiohttp import web
 
 from const import LANGUAGES
 from pychess_global_app_state_utils import get_app_state
+from redirects import safe_redirect_path
 
 LOCALE: ContextVar[str] = ContextVar("LOCALE", default="en")
 
@@ -31,7 +32,7 @@ async def select_lang(request):
                     {"_id": user.username}, {"$set": {"lang": lang}}
                 )
         session["lang"] = lang
-        return web.HTTPFound(referer)
+        return web.HTTPFound(safe_redirect_path(referer))
     else:
         raise web.HTTPNotFound()
 

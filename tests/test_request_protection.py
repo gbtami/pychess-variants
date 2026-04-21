@@ -6,6 +6,7 @@ from mongomock_motor import AsyncMongoMockClient
 
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
+from settings import URI
 
 
 class RequestProtectionTestCase(AioHTTPTestCase):
@@ -85,6 +86,50 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         html = await resp.text()
         self.assertIn("/video?tags=Hu%20Ronghua", html)
         self.assertNotIn('/video?tags=Hu Ronghua"', html)
+
+    async def test_theme_rejects_foreign_referer_redirect(self):
+        resp = await self.client.request(
+            "POST",
+            "/pref/theme",
+            data={"theme": "light"},
+            headers={"REFERER": "https://evil.example/phish"},
+            allow_redirects=False,
+        )
+        self.assertEqual(resp.status, 302)
+        self.assertEqual(resp.headers["Location"], "/")
+
+    async def test_theme_accepts_same_origin_absolute_referer(self):
+        resp = await self.client.request(
+            "POST",
+            "/pref/theme",
+            data={"theme": "light"},
+            headers={"REFERER": f"{URI}/video?tags=Hu%20Ronghua"},
+            allow_redirects=False,
+        )
+        self.assertEqual(resp.status, 302)
+        self.assertEqual(resp.headers["Location"], "/video?tags=Hu%20Ronghua")
+
+    async def test_translation_select_rejects_foreign_referer_redirect(self):
+        resp = await self.client.request(
+            "POST",
+            "/translation/select",
+            data={"lang": "hu"},
+            headers={"REFERER": "https://evil.example/phish"},
+            allow_redirects=False,
+        )
+        self.assertEqual(resp.status, 302)
+        self.assertEqual(resp.headers["Location"], "/")
+
+    async def test_game_category_rejects_protocol_relative_referer_redirect(self):
+        resp = await self.client.request(
+            "POST",
+            "/pref/game-category",
+            data={"game_category": "chess"},
+            headers={"REFERER": "//evil.example/phish"},
+            allow_redirects=False,
+        )
+        self.assertEqual(resp.status, 302)
+        self.assertEqual(resp.headers["Location"], "/")
 
     async def test_names_autocomplete_escapes_regex_metacharacters(self):
         app_state = get_app_state(self.app)
