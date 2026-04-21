@@ -438,14 +438,17 @@ async def handle_lobbychat(
                 await tournament.abort()
 
         else:
-            response = chat_response("lobbychat", user.username, data["message"])
-            await tournament.tourney_chat_save(response)
+            if app_state.chat_flood.allow_message(f"public:{user.username}", message):
+                response = chat_response("lobbychat", user.username, data["message"])
+                await tournament.tourney_chat_save(response)
 
     elif user.anon:
         pass
 
     else:
-        if user.silence == 0:
+        if user.silence == 0 and app_state.chat_flood.allow_message(
+            f"public:{user.username}", message
+        ):
             response = chat_response("lobbychat", user.username, data["message"])
             await tournament.tourney_chat_save(response)
 

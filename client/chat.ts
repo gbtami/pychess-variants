@@ -4,6 +4,7 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
 import { onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
+import { selfReport, shouldSkipMessage } from './chatSpam';
 import { displayUsername, isAnonUsername } from "./user";
 
 export interface ChatController {
@@ -74,6 +75,7 @@ export function chatView(ctrl: ChatController, chatType: string) {
         }
     }
     function sendMessage(message: string) {
+        selfReport(message);
         const m: any = {type: chatType, message: message, room: spectator ? "spectator" : "player"};
         if ("gameId" in ctrl)
             m["gameId"] = ctrl.gameId;
@@ -123,6 +125,7 @@ export function chatMessage (
     ply?: number,
     ctrl?: RoundControllerBughouse
 ) {
+    if (shouldSkipMessage(message)) return;
 
     const chatDiv = document.getElementById(chatType + '-messages') as HTMLElement;
     const isBottom = chatDiv.scrollHeight - (chatDiv.scrollTop + chatDiv.offsetHeight) < 80;

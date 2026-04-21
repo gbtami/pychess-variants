@@ -1046,6 +1046,9 @@ async def handle_roundchat(
         await ws_send_json(ws, analysis_response)
         return
 
+    if not app_state.chat_flood.allow_message(f"game:{gameId}:{room}:{user.username}", message):
+        return
+
     response: ChatMessage = chat_response(
         "roundchat",
         user.username,

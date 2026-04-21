@@ -46,6 +46,7 @@ from const import (
 )
 from broadcast import round_broadcast
 from discord_bot import DiscordBot, FakeDiscordBot
+from chat_flood import ChatFlood
 from game import Game
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
@@ -132,6 +133,7 @@ class PychessGlobalAppState:
         self.public_users = PublicUsers(self)
         self.disable_new_anons = False
         self.lobby = Lobby(self)
+        self.chat_flood = ChatFlood()
         # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
         self.tourneysockets: dict[str, dict[str, set[WebSocketResponse | None]]] = {}
         self.background_tasks: set[asyncio.Task[Any]] = set()

@@ -658,15 +658,18 @@ async def handle_lobbychat(
 
         else:
             admin_command = False
-            lobby_response = chat_response("lobbychat", user.username, data["message"])
-            response = lobby_response
-            await app_state.lobby.lobby_chat_save(lobby_response)
+            if app_state.chat_flood.allow_message(f"public:{user.username}", message):
+                lobby_response = chat_response("lobbychat", user.username, data["message"])
+                response = lobby_response
+                await app_state.lobby.lobby_chat_save(lobby_response)
 
     elif user.anon and user.username != "Discord-Relay":
         pass
 
     else:
-        if user.silence == 0:
+        if user.silence == 0 and app_state.chat_flood.allow_message(
+            f"public:{user.username}", message
+        ):
             lobby_response = chat_response("lobbychat", user.username, data["message"])
             response = lobby_response
             await app_state.lobby.lobby_chat_save(lobby_response)
@@ -674,7 +677,7 @@ async def handle_lobbychat(
     if response is not None:
         await app_state.lobby.lobby_broadcast(response)
 
-    if user.silence == 0 and not admin_command:
+    if response is not None and user.silence == 0 and not admin_command:
         await app_state.discord.send_to_discord("lobbychat", data["message"], user.username)
 
 
