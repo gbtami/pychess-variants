@@ -14,6 +14,12 @@ from bug.wsr_bug import handle_resign_bughouse, handle_rematch_bughouse, handle_
 import game
 from broadcast import round_broadcast
 from chat import chat_response
+from cheat_report import (
+    CEVAL_REPORT_ACTION_AUTO_FORFEIT,
+    CEVAL_REPORT_ACTION_REPORTED_ONLY,
+    append_ceval_cheat_report,
+    ceval_auto_lose_enabled,
+)
 from const import ANON_PREFIX, ANALYSIS, STARTED
 from draw import draw, reject_draw
 from fairy import WHITE, BLACK, FairyBoard
@@ -38,6 +44,7 @@ if TYPE_CHECKING:
         ByoyomiMessage,
         BerserkMessage,
         BugRoundChatMessage,
+        CevalDetectedMessage,
         ChatMessage,
         CountResponse,
         CountMessage,
@@ -94,6 +101,12 @@ MORE_TIME = 15 * 1000
 # This does not allow arbitrary early flags because _flag_claim_allowed() also
 # enforces that the claimant is the side to move and verifies server-side timing.
 CLIENT_FLAG_TOLERANCE_MS = 1000
+MIN_CEVAL_REPORT_PLY = 6
+MIN_CEVAL_REPORT_PLY_CHESS960 = 1
+
+
+def min_ceval_report_ply(game: game.Game) -> int:
+    return MIN_CEVAL_REPORT_PLY_CHESS960 if bool(game.chess960) else MIN_CEVAL_REPORT_PLY
 
 
 def _flag_claim_allowed(game: game.Game, user: User) -> bool:
@@ -258,6 +271,8 @@ async def process_message(
         await handle_leave(user, data, game)
     elif data["type"] == "updateTV":
         await handle_updateTV(app_state, ws, data)
+    elif data["type"] == "ceval_detected":
+        await handle_ceval_detected(ws, app_state.users, user, data, game)
     elif data["type"] == "count":
         await handle_count(ws, user, data, game)
     elif data["type"] == "delete":
@@ -869,6 +884,86 @@ async def handle_abort_resign_abandon_flag(
                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
         else:
             await opp_player.send_game_message(data["gameId"], response)
+
+    await round_broadcast(game, response)
+
+
+async def handle_ceval_detected(
+    ws: WebSocketResponse,
+    users: Users,
+    user: User,
+    data: CevalDetectedMessage,
+    game: game.Game,
+) -> None:
+    if not game.is_player(user):
+        log.info("Ignoring ceval self-report in %s from spectator %s", game.id, user.username)
+        return
+
+    async with game.move_lock:
+        if not game.ceval_detection_allowed():
+            log.info(
+                "Ignoring ceval self-report in %s by %s (ineligible game)",
+                game.id,
+                user.username,
+            )
+            return
+
+        min_report_ply = min_ceval_report_ply(game)
+        if game.board.ply < min_report_ply:
+            log.info(
+                "Ignoring ceval self-report in %s by %s (ply=%s, min=%s)",
+                game.id,
+                user.username,
+                game.board.ply,
+                min_report_ply,
+            )
+            return
+
+        if not game.ceval_detection_matches(
+            variant=data["variant"],
+            chess960=data["chess960"],
+            fen=data["fen"],
+        ):
+            log.info(
+                "Ignoring ceval self-report in %s by %s (position mismatch)",
+                game.id,
+                user.username,
+            )
+            return
+
+        auto_lose = await ceval_auto_lose_enabled(game.app_state.db)
+        action = (
+            CEVAL_REPORT_ACTION_AUTO_FORFEIT if auto_lose else CEVAL_REPORT_ACTION_REPORTED_ONLY
+        )
+        await append_ceval_cheat_report(
+            game.app_state.db,
+            game=game,
+            user=user,
+            reported_fen=data["fen"],
+            reported_variant=data["variant"],
+            reported_chess960=data["chess960"],
+            min_report_ply=min_report_ply,
+            action=action,
+        )
+
+        log.warning(
+            "Ceval self-report matched live game %s for %s action=%s",
+            game.id,
+            user.username,
+            action,
+        )
+        if not auto_lose:
+            return
+
+        response = await game.cheat_by_ceval(user)
+
+    await ws_send_json(ws, response)
+
+    opp_name = (
+        game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+    )
+    if opp_name in users:
+        await users[opp_name].send_game_message(data["gameId"], response)
 
     await round_broadcast(game, response)
 

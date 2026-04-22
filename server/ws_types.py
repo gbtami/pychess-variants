@@ -342,6 +342,14 @@ class DeletedMessage(TypedDict):
     type: Literal["deleted"]
 
 
+class CevalDetectedMessage(TypedDict):
+    type: Literal["ceval_detected"]
+    gameId: str
+    variant: str
+    chess960: bool
+    fen: str
+
+
 RoundInboundMessage: TypeAlias = (
     MoveMessage
     | BughouseMoveMessage
@@ -368,6 +376,7 @@ RoundInboundMessage: TypeAlias = (
     | UpdateTVMessage
     | CountMessage
     | DeleteMessage
+    | CevalDetectedMessage
 )
 
 

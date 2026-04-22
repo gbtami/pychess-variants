@@ -941,9 +941,9 @@ async def play_move(
         if invalid_move and not user.bot:
             await user.send_game_message(gameId, game_end_response)
 
-    # Fog-of-war and Jieqi require perspective-specific board payloads.
+    # Hidden-info variants require perspective-specific board payloads.
     # For all other variants we reuse the mover perspective response.
-    if game.fow or game.variant == "jieqi":
+    if game.server_variant.hidden_info:
         board_response = game.get_board(full=game.board.ply == 1, persp_color=1 - play_color)
 
     if users[opp_name].bot:
@@ -977,8 +977,8 @@ async def play_move(
         return
 
     if not invalid_move:
-        # Spectators must not see hidden info in fog-of-war or Jieqi games.
-        if game.fow or game.variant == "jieqi":
+        # Spectators must not see hidden info in hidden-information variants.
+        if game.server_variant.hidden_info:
             board_response = game.get_board(full=game.board.ply == 1, persp_color=None)
 
         await round_broadcast(game, board_response, channels=app_state.game_channels)
