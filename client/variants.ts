@@ -17,6 +17,8 @@ export interface PieceFamily {
     readonly pieceCSS: string[];
 }
 
+export type HiddenInfoMode = 'none' | 'fog' | 'covered_pieces';
+
 export const BOARD_FAMILIES: Record<string, BoardFamily> = {
     ataxx7x7: { dimensions: { width: 7, height: 7 }, cg: "cg-448", boardCSS: ["ataxx.svg", "ataxx.png"] },
     standard8x8: { dimensions: { width: 8, height: 8 }, cg: "cg-512", boardCSS: ["8x8brown.svg", "8x8blue.svg", "8x8green.svg", "8x8maple.jpg", "8x8olive.jpg", "8x8santa.png", "8x8wood2.jpg", "8x8wood4.jpg", "8x8ic.svg", "8x8purple.svg", "8x8dobutsu.svg"] },
@@ -84,6 +86,8 @@ export interface Variant {
     readonly tooltip: string;
     readonly chess960: boolean;
     readonly twoBoards: boolean;
+    readonly hiddenInfo: boolean;
+    readonly hiddenInfoMode: HiddenInfoMode;
     readonly _icon: string;
     readonly _icon960: string;
     readonly icon: (chess960?: boolean) => string;
@@ -150,6 +154,8 @@ function variant(config: VariantConfig): Variant {
         get tooltip() { return _(this._tooltip) },
         chess960: !!config.chess960,
         twoBoards: !!config.twoBoards,
+        hiddenInfo: !!config.hiddenInfo,
+        hiddenInfoMode: config.hiddenInfoMode ?? 'none',
         _icon: config.icon,
         _icon960: config.icon960 ?? config.icon,
         icon: function (chess960 = false) { return chess960 ? this._icon960 : this._icon; },
@@ -233,6 +239,10 @@ interface VariantConfig {
     chess960?: boolean;
     // Pocket pieces are added from an external source, usually from a second board (e.g., bughouse)
     twoBoards?: boolean;
+    // Whether some information must be hidden from one or more viewers
+    hiddenInfo?: boolean;
+    // Representation family for hidden-information handling
+    hiddenInfoMode?: HiddenInfoMode;
     // Icon letter in the site's font
     icon: string;
     // Icon of the 960 version (default: same as icon)
@@ -553,6 +563,7 @@ export const VARIANTS: Record<string, Variant> = {
     fogofwar: variant({
         name: "fogofwar", displayName: "fog of war", tooltip: "Players can only see the squares to which their pieces can legally move to.",
         startFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        hiddenInfo: true, hiddenInfoMode: 'fog',
         icon: "🌫",
         boardFamily: "standard8x8", pieceFamily: "standard",
         pieceRow: ["k", "q", "r", "b", "n", "p"],
@@ -810,6 +821,7 @@ export const VARIANTS: Record<string, Variant> = {
         name: "jieqi",
         tooltip: "Players can see the identity of the pieces after theirs first move.",
         startFen: "r~n~b~a~ka~b~n~r~/9/1c~5c~1/p~1p~1p~1p~1p~/9/9/P~1P~1P~1P~1P~/1C~5C~1/9/R~N~B~A~KA~B~N~R~ w - - 0 1",
+        hiddenInfo: true, hiddenInfoMode: 'covered_pieces',
         icon: "⬤",
         boardFamily: "xiangqi9x10",
         pieceFamily: "xiangqi",

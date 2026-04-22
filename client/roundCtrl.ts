@@ -1617,8 +1617,7 @@ export class RoundController extends GameController {
             && !this.variant.twoBoards
             && this.wtitle !== 'BOT'
             && this.btitle !== 'BOT'
-            && this.variant.name !== 'fogofwar'
-            && this.variant.name !== 'jieqi'
+            && !this.variant.hiddenInfo
         );
     }
 

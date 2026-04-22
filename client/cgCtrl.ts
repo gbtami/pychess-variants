@@ -43,7 +43,7 @@ export abstract class ChessgroundController implements BoardController {
         this.oppcolor = 'black';
         this.fullfen = fullfen;
         this.notation = this.variant.notation;
-        this.fog = model.variant === 'fogofwar';
+        this.fog = this.variant.hiddenInfoMode === 'fog';
 
         const parts = this.fullfen.split(" ");
         const fen = (this.fog)

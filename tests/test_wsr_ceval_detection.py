@@ -146,17 +146,17 @@ class CevalDetectionTestCase(AioHTTPTestCase):
 
         hidden_game = self.new_game()
         await self.play_plies(hidden_game, ("e2e4", "e7e5", "g1f3", "b8c6", "f1b5", "a7a6"))
-        hidden_game.fow = True
+        hidden_game.server_variant = SimpleNamespace(two_boards=False, hidden_info=True)
         excluded_games.append(hidden_game)
 
         jieqi_game = self.new_game()
         await self.play_plies(jieqi_game, ("e2e4", "e7e5", "g1f3", "b8c6", "f1b5", "a7a6"))
-        jieqi_game.jieqi = True
+        jieqi_game.server_variant = SimpleNamespace(two_boards=False, hidden_info=True)
         excluded_games.append(jieqi_game)
 
         two_board_game = self.new_game()
         await self.play_plies(two_board_game, ("e2e4", "e7e5", "g1f3", "b8c6", "f1b5", "a7a6"))
-        two_board_game.server_variant = SimpleNamespace(two_boards=True)
+        two_board_game.server_variant = SimpleNamespace(two_boards=True, hidden_info=False)
         excluded_games.append(two_board_game)
 
         for excluded_game in excluded_games:

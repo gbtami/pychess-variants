@@ -1124,8 +1124,7 @@ class Game:
             and not self.corr
             and not self.bot_game
             and not self.server_variant.two_boards
-            and not self.fow
-            and not self.jieqi
+            and not self.server_variant.hidden_info
         )
 
     def ceval_detection_matches(self, *, variant: str, chess960: bool, fen: str) -> bool:
