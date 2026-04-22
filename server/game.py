@@ -18,6 +18,7 @@ from const import (
     STALEMATE,
     DRAW,
     FLAG,
+    CHEAT,
     CLAIM,
     INVALIDMOVE,
     VARIANT_960_TO_PGN,
@@ -1115,6 +1116,53 @@ class Game:
             "gameId": self.id,
             "pgn": self.pgn,
         }
+        return response
+
+    def ceval_detection_allowed(self) -> bool:
+        return (
+            self.status <= STARTED
+            and not self.corr
+            and not self.bot_game
+            and not self.server_variant.two_boards
+            and not self.fow
+            and not self.jieqi
+        )
+
+    def ceval_detection_matches(self, *, variant: str, chess960: bool, fen: str) -> bool:
+        return self.variant == variant and bool(self.chess960) == chess960 and self.board.fen == fen
+
+    async def cheat_by_ceval(self, user: User) -> GameEndResponse:
+        if self.result == "*":
+            result = "0-1" if user.username == self.wplayer.username else "1-0"
+            self.update_status(CHEAT, result)
+            log.warning("%s cheat_by_ceval(%s) %s", self.id, user.username, result)
+            await self.save_game()
+            if self.simulId is not None:
+                simul = self.app_state.simuls.get(self.simulId)
+                if simul is not None:
+                    await simul.game_update(self)
+
+        response: GameEndResponse = {
+            "type": "gameEnd",
+            "status": self.status,
+            "result": self.result,
+            "gameId": self.id,
+            "pgn": self.pgn,
+            "ct": self.crosstable,
+            "rdiffs": (
+                {"brdiff": self.brdiff, "wrdiff": self.wrdiff}
+                if self.status > STARTED and self.rated == RATED
+                else ""
+            ),
+        }
+        if self.jieqi and self.jieqi_captures is not None:
+            response["jieqiCaptures"] = list(self.jieqi_captures[WHITE]) + list(
+                self.jieqi_captures[BLACK]
+            )
+            if self.jieqi_capture_stack is not None:
+                response["jieqiCaptureStack"] = [
+                    capture[1] if capture else None for capture in self.jieqi_capture_stack
+                ]
         return response
 
     async def game_ended(self, user: User, reason: str) -> GameEndResponse:

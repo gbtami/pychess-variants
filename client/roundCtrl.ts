@@ -37,6 +37,14 @@ import {
     pendingMoveStorageKey,
     shouldClearPendingMoveByServerPly,
 } from './pendingMove';
+import {
+    CEVAL_POSITION_STORAGE_KEY,
+    MIN_CEVAL_REPORT_PLY,
+    buildCevalPositionPayload,
+    parseCevalPositionPayload,
+    publishCevalDisable,
+    sameCevalPosition,
+} from './antiCheat';
 
 let rang = false;
 const CASUAL = '0';
@@ -72,6 +80,7 @@ export class RoundController extends GameController {
     focus: boolean;
     finishedGame: boolean;
     positionId?: string;
+    cevalReported: boolean;
     // Last move that may have left the client but is not yet confirmed by server board state.
     //
     // Why this exists:
@@ -142,6 +151,7 @@ export class RoundController extends GameController {
         this.byoyomiPeriod = Number(model["byo"]);
         this.byoyomi = this.variant.rules.defaultTimeControl === 'byoyomi';
         this.finishedGame = this.status >= 0;
+        this.cevalReported = false;
         this.tv = model["tv"];
         this.profileid = model["profileid"];
         this.level = model["level"];
@@ -211,6 +221,11 @@ export class RoundController extends GameController {
 
         if (this.hasPockets) {
             setPocketRowCssVars(this);
+        }
+
+        if (this.isCevalDetectionEligible()) {
+            publishCevalDisable();
+            window.addEventListener('storage', this.onAntiCheatStorage);
         }
 
         // initialize users
@@ -829,6 +844,7 @@ export class RoundController extends GameController {
         // Clear eagerly to avoid carrying stale move cache into post-game reload/reconnect.
         this.clearPendingMoveCache();
         this.simulRoundHost?.onGameEnd();
+        this.finishedGame = true;
         this.checkStatus(msg);
 
         if (this.variant.name !== 'jieqi') return;
@@ -857,6 +873,9 @@ export class RoundController extends GameController {
     onMsgBoard(msg: MsgBoard) {
         if (msg.gameId !== this.gameId) return;
         this.positionId = msg.positionId;
+        if (this.isCevalDetectionEligible()) {
+            publishCevalDisable();
+        }
 
         // console.log("got board msg:", msg);
         let latestPly;
@@ -1588,5 +1607,49 @@ export class RoundController extends GameController {
         if (this.variant.name !== 'jieqi' || !msg.jieqiCapture) return;
         // Store the capture until the board message advances the ply, so replay stays accurate.
         this.pendingJieqiCapture = util.roleOf(msg.jieqiCapture.toLowerCase() as cg.Letter);
+    }
+
+    private isCevalDetectionEligible(): boolean {
+        return (
+            !this.spectator
+            && this.status <= -1
+            && !this.corr
+            && !this.variant.twoBoards
+            && this.wtitle !== 'BOT'
+            && this.btitle !== 'BOT'
+            && this.variant.name !== 'fogofwar'
+            && this.variant.name !== 'jieqi'
+        );
+    }
+
+    private currentLiveCevalPosition() {
+        const currentStep = this.steps[this.steps.length - 1];
+        if (currentStep === undefined) return;
+        return buildCevalPositionPayload(this.variant.name, this.chess960, currentStep.fen);
+    }
+
+    private hasEnoughPlayedTurnsForCevalDetection(): boolean {
+        return (this.steps.length - 1) >= MIN_CEVAL_REPORT_PLY;
+    }
+
+    private onAntiCheatStorage = (event: StorageEvent) => {
+        if (event.storageArea !== localStorage) return;
+        if (event.key !== CEVAL_POSITION_STORAGE_KEY) return;
+        if (this.cevalReported || !this.isCevalDetectionEligible()) return;
+        if (!this.hasEnoughPlayedTurnsForCevalDetection()) return;
+
+        const analyzedPosition = parseCevalPositionPayload(event.newValue);
+        const livePosition = this.currentLiveCevalPosition();
+        if (analyzedPosition === undefined || livePosition === undefined) return;
+        if (!sameCevalPosition(analyzedPosition, livePosition)) return;
+
+        this.cevalReported = true;
+        this.doSend({
+            type: "ceval_detected",
+            gameId: this.gameId,
+            variant: analyzedPosition.variant,
+            chess960: analyzedPosition.chess960,
+            fen: analyzedPosition.fen,
+        });
     }
 }

@@ -32,6 +32,11 @@ import { setAriaTabClick } from './view';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
 import { updatePoint } from './info';
+import {
+    CEVAL_DISABLE_STORAGE_KEY,
+    buildCevalPositionPayload,
+    publishCevalPosition,
+} from './antiCheat';
 
 const EVAL_REGEX = new RegExp(''
   + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
@@ -82,6 +87,7 @@ export class AnalysisController extends GameController {
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
     variantSupportedByFSF: boolean;
     autoShapes: DrawShape[][];
+    lastBroadcastLocalAnalysisFen?: string;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -137,6 +143,11 @@ export class AnalysisController extends GameController {
         this.uciOk = false;
         this.nnueOk = false;
         this.importedBy = '';
+        this.lastBroadcastLocalAnalysisFen = undefined;
+
+        if (!this.ongoing) {
+            window.addEventListener('storage', this.onAntiCheatStorage);
+        }
 
         this.chessground.set({
             orientation: this.variant.name === 'racingkings' ? 'white' : this.mycolor,
@@ -565,6 +576,12 @@ export class AnalysisController extends GameController {
             score = {cp: povEv};
         }
         const knps = nodes / elapsedMs;
+        if (this.lastBroadcastLocalAnalysisFen !== this.fullfen) {
+            publishCevalPosition(
+                buildCevalPositionPayload(this.variant.name, this.chess960, this.fullfen)
+            );
+            this.lastBroadcastLocalAnalysisFen = this.fullfen;
+        }
         const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, multipv: multiPv, p: moves, s: score, k: knps}};
         this.onMsgAnalysis(msg);
     };
@@ -723,6 +740,7 @@ export class AnalysisController extends GameController {
 
     engineGo = () => {
         if (!this.variantSupportedByFSF) return;
+        this.lastBroadcastLocalAnalysisFen = undefined;
 
         if (this.chess960) {
             this.fsfPostMessage('setoption name UCI_Chess960 value true');
@@ -764,6 +782,26 @@ export class AnalysisController extends GameController {
             if (this.fsfDebug) console.debug('<---', msg);
             window.fsf.postMessage(msg);
         }
+    }
+
+    private disableLocalAnalysisForAntiCheat() {
+        if (!this.localAnalysis) return;
+
+        localStorage.localAnalysis = "false";
+        this.localAnalysis = false;
+        this.lastBroadcastLocalAnalysisFen = undefined;
+        this.engineStop();
+        this.clearPvlines();
+
+        const engineToggle = document.getElementById('engine-enabled') as HTMLInputElement | null;
+        if (engineToggle !== null) engineToggle.checked = false;
+    }
+
+    private onAntiCheatStorage = (event: StorageEvent) => {
+        if (event.storageArea !== localStorage) return;
+        if (event.key !== CEVAL_DISABLE_STORAGE_KEY) return;
+
+        this.disableLocalAnalysisForAntiCheat();
     }
 
     // When we are moving inside a variation move list

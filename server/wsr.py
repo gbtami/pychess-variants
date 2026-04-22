@@ -38,6 +38,7 @@ if TYPE_CHECKING:
         ByoyomiMessage,
         BerserkMessage,
         BugRoundChatMessage,
+        CevalDetectedMessage,
         ChatMessage,
         CountResponse,
         CountMessage,
@@ -94,6 +95,7 @@ MORE_TIME = 15 * 1000
 # This does not allow arbitrary early flags because _flag_claim_allowed() also
 # enforces that the claimant is the side to move and verifies server-side timing.
 CLIENT_FLAG_TOLERANCE_MS = 1000
+MIN_CEVAL_REPORT_PLY = 6
 
 
 def _flag_claim_allowed(game: game.Game, user: User) -> bool:
@@ -258,6 +260,8 @@ async def process_message(
         await handle_leave(user, data, game)
     elif data["type"] == "updateTV":
         await handle_updateTV(app_state, ws, data)
+    elif data["type"] == "ceval_detected":
+        await handle_ceval_detected(ws, app_state.users, user, data, game)
     elif data["type"] == "count":
         await handle_count(ws, user, data, game)
     elif data["type"] == "delete":
@@ -869,6 +873,61 @@ async def handle_abort_resign_abandon_flag(
                 await opp_player.game_queues[data["gameId"]].put(game.game_end)
         else:
             await opp_player.send_game_message(data["gameId"], response)
+
+    await round_broadcast(game, response)
+
+
+async def handle_ceval_detected(
+    ws: WebSocketResponse,
+    users: Users,
+    user: User,
+    data: CevalDetectedMessage,
+    game: game.Game,
+) -> None:
+    if not game.is_player(user):
+        log.info("Ignoring ceval self-report in %s from spectator %s", game.id, user.username)
+        return
+
+    async with game.move_lock:
+        if not game.ceval_detection_allowed():
+            log.info(
+                "Ignoring ceval self-report in %s by %s (ineligible game)",
+                game.id,
+                user.username,
+            )
+            return
+
+        if game.board.ply < MIN_CEVAL_REPORT_PLY:
+            log.info(
+                "Ignoring ceval self-report in %s by %s (ply=%s)",
+                game.id,
+                user.username,
+                game.board.ply,
+            )
+            return
+
+        if not game.ceval_detection_matches(
+            variant=data["variant"],
+            chess960=data["chess960"],
+            fen=data["fen"],
+        ):
+            log.info(
+                "Ignoring ceval self-report in %s by %s (position mismatch)",
+                game.id,
+                user.username,
+            )
+            return
+
+        log.warning("Ceval self-report matched live game %s for %s", game.id, user.username)
+        response = await game.cheat_by_ceval(user)
+
+    await ws_send_json(ws, response)
+
+    opp_name = (
+        game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
+    )
+    if opp_name in users:
+        await users[opp_name].send_game_message(data["gameId"], response)
 
     await round_broadcast(game, response)
 
