@@ -76,14 +76,7 @@ class ServerVariants(Enum):
     PLACEMENT = Variant("p", "placement", _("Placement"), "S")
     DUCK = Variant("U", "duck", _("Duck Chess"), "🦆", move_encoding=encode_move_duck, move_decoding=decode_move_duck)  # fmt: skip
     ALICE = Variant("Y", "alice", _("Alice Chess"), "👧")
-    FOGOFWAR = Variant(
-        "Q",
-        "fogofwar",
-        _("Fog of War"),
-        "🌫",
-        hidden_info=True,
-        hidden_info_mode="fog",
-    )
+    FOGOFWAR = Variant("Q", "fogofwar", _("Fog of War"), "🌫", hidden_info=True, hidden_info_mode="fog")  # fmt: skip
 
     MAKRUK = Variant("m", "makruk", _("Makruk"), "Q")
     MAKRUKHOUSE = Variant("Ł", "makrukhouse", _("Makrukhouse"), "Q")
@@ -108,15 +101,7 @@ class ServerVariants(Enum):
     MANCHU = Variant("M", "manchu", _("Manchu+"), "{", grand=True)
     JANGGI = Variant("j", "janggi", _("Janggi"), "=", grand=True, byo=True)
     MINIXIANGQI = Variant("e", "minixiangqi", _("Minixiangqi"), "7")
-    JIEQI = Variant(
-        "V",
-        "jieqi",
-        _("Jieqi"),
-        "⬤",
-        grand=True,
-        hidden_info=True,
-        hidden_info_mode="covered_pieces",
-    )
+    JIEQI = Variant("V", "jieqi", _("Jieqi"), "⬤", grand=True, hidden_info=True, hidden_info_mode="covered_pieces")  # fmt: skip
 
     SHATRANJ = Variant("†", "shatranj", _("Shatranj"), "🐘")
     CAPABLANCA = Variant("c", "capablanca", _("Capablanca"), "P")
