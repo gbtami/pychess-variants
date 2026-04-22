@@ -20,15 +20,15 @@ export function buildCevalPositionPayload(
     return { variant, chess960, fen };
 }
 
+function boardOnlyFen(fen: string): string {
+    return fen.split(' ')[0];
+}
+
 export function sameCevalPosition(
     left: CevalPositionPayload,
     right: CevalPositionPayload,
 ): boolean {
-    return (
-        left.variant === right.variant
-        && left.chess960 === right.chess960
-        && left.fen === right.fen
-    );
+    return boardOnlyFen(left.fen) === boardOnlyFen(right.fen);
 }
 
 export function publishCevalDisable(): void {

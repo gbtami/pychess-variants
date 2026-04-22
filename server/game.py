@@ -1128,7 +1128,7 @@ class Game:
         )
 
     def ceval_detection_matches(self, *, variant: str, chess960: bool, fen: str) -> bool:
-        return self.variant == variant and bool(self.chess960) == chess960 and self.board.fen == fen
+        return self.board.fen.split(" ", 1)[0] == fen.split(" ", 1)[0]
 
     async def cheat_by_ceval(self, user: User) -> GameEndResponse:
         if self.result == "*":
