@@ -33,8 +33,10 @@ import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
 import { updatePoint } from './info';
 import {
+    CEVAL_ACTIVE_ROUNDS_STORAGE_KEY,
     CEVAL_DISABLE_STORAGE_KEY,
     buildCevalPositionPayload,
+    hasActiveEligibleLiveGame,
     publishCevalPosition,
 } from './antiCheat';
 
@@ -113,7 +115,11 @@ export class AnalysisController extends GameController {
         this.localEngine = false;
 
         // is local engine analysis enabled? (the switch)
-        this.localAnalysis = localStorage.localAnalysis === undefined || this.ongoing ? false : localStorage.localAnalysis === "true";
+        this.localAnalysis =
+            localStorage.localAnalysis !== undefined
+            && !this.ongoing
+            && !this.isLocalAnalysisBlockedByAntiCheat()
+            && localStorage.localAnalysis === "true";
 
         // UCI isready/readyok
         this.isEngineReady = false;
@@ -147,6 +153,7 @@ export class AnalysisController extends GameController {
 
         if (!this.ongoing) {
             window.addEventListener('storage', this.onAntiCheatStorage);
+            this.refreshLocalAnalysisAvailabilityForAntiCheat();
         }
 
         this.chessground.set({
@@ -265,6 +272,24 @@ export class AnalysisController extends GameController {
             toolsEl.style.display = 'none';
             settingsEl.style.display = 'flex';
             menuEl.classList.toggle('active', true);
+        }
+    }
+
+    isLocalAnalysisBlockedByAntiCheat(): boolean {
+        return !this.ongoing && hasActiveEligibleLiveGame();
+    }
+
+    refreshLocalAnalysisAvailabilityForAntiCheat() {
+        const blocked = this.isLocalAnalysisBlockedByAntiCheat();
+        if (blocked) this.disableLocalAnalysisForAntiCheat();
+
+        const engineToggle = document.getElementById('engine-enabled') as HTMLInputElement | null;
+        if (engineToggle !== null) {
+            engineToggle.disabled =
+                blocked
+                || !this.localEngine
+                || !this.isEngineReady
+                || !this.variantSupportedByFSF;
         }
     }
 
@@ -513,7 +538,7 @@ export class AnalysisController extends GameController {
 
         if (!this.localEngine && this.uciOk && this.variantSupportedByFSF) {
             this.localEngine = true;
-            patch(document.getElementById('engine-enabled') as HTMLElement, h('input#engine-enabled', {attrs: {disabled: false}}));
+            patch(document.getElementById('engine-enabled') as HTMLElement, h('input#engine-enabled'));
             this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
 
             if (this.evalFile) {
@@ -541,6 +566,8 @@ export class AnalysisController extends GameController {
 
             if (this.localAnalysis && !this.puzzle && !this.ongoing) this.pvboxIni();
         }
+
+        this.refreshLocalAnalysisAvailabilityForAntiCheat();
 
         if (!this.localAnalysis || !this.isEngineReady) return;
 
@@ -784,14 +811,15 @@ export class AnalysisController extends GameController {
         }
     }
 
-    private disableLocalAnalysisForAntiCheat() {
-        if (!this.localAnalysis) return;
-
+    disableLocalAnalysisForAntiCheat() {
         localStorage.localAnalysis = "false";
+        const wasEnabled = this.localAnalysis;
         this.localAnalysis = false;
         this.lastBroadcastLocalAnalysisFen = undefined;
-        this.engineStop();
-        this.clearPvlines();
+        if (wasEnabled) {
+            this.engineStop();
+            if (this.vpvlines !== undefined) this.clearPvlines();
+        }
 
         const engineToggle = document.getElementById('engine-enabled') as HTMLInputElement | null;
         if (engineToggle !== null) engineToggle.checked = false;
@@ -799,9 +827,13 @@ export class AnalysisController extends GameController {
 
     private onAntiCheatStorage = (event: StorageEvent) => {
         if (event.storageArea !== localStorage) return;
-        if (event.key !== CEVAL_DISABLE_STORAGE_KEY) return;
+        if (event.key === CEVAL_DISABLE_STORAGE_KEY) {
+            this.disableLocalAnalysisForAntiCheat();
+        } else if (event.key !== CEVAL_ACTIVE_ROUNDS_STORAGE_KEY) {
+            return;
+        }
 
-        this.disableLocalAnalysisForAntiCheat();
+        this.refreshLocalAnalysisAvailabilityForAntiCheat();
     }
 
     // When we are moving inside a variation move list

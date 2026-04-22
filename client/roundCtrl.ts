@@ -38,12 +38,15 @@ import {
     shouldClearPendingMoveByServerPly,
 } from './pendingMove';
 import {
+    CEVAL_ACTIVE_ROUND_HEARTBEAT_MS,
     CEVAL_POSITION_STORAGE_KEY,
-    MIN_CEVAL_REPORT_PLY,
     buildCevalPositionPayload,
+    minCevalReportPly,
     parseCevalPositionPayload,
     publishCevalDisable,
+    removeActiveCevalRound,
     sameCevalPosition,
+    upsertActiveCevalRound,
 } from './antiCheat';
 
 let rang = false;
@@ -81,6 +84,7 @@ export class RoundController extends GameController {
     finishedGame: boolean;
     positionId?: string;
     cevalReported: boolean;
+    cevalActiveRoundHeartbeat?: number;
     // Last move that may have left the client but is not yet confirmed by server board state.
     //
     // Why this exists:
@@ -224,9 +228,10 @@ export class RoundController extends GameController {
         }
 
         if (this.isCevalDetectionEligible()) {
-            publishCevalDisable();
             window.addEventListener('storage', this.onAntiCheatStorage);
         }
+        window.addEventListener('beforeunload', this.stopCevalActiveRoundTracking);
+        this.syncCevalActiveRoundTracking();
 
         // initialize users
         const player0 = document.getElementById('rplayer0') as HTMLElement;
@@ -812,6 +817,7 @@ export class RoundController extends GameController {
         if (msg.status >= 0) {
             this.status = msg.status;
             this.result = msg.result;
+            this.syncCevalActiveRoundTracking();
             this.clocks[0].pause(false);
             this.clocks[1].pause(false);
             if (this.result !== "*" && !this.spectator && !this.finishedGame)
@@ -873,9 +879,6 @@ export class RoundController extends GameController {
     onMsgBoard(msg: MsgBoard) {
         if (msg.gameId !== this.gameId) return;
         this.positionId = msg.positionId;
-        if (this.isCevalDetectionEligible()) {
-            publishCevalDisable();
-        }
 
         // console.log("got board msg:", msg);
         let latestPly;
@@ -942,6 +945,7 @@ export class RoundController extends GameController {
 
         this.result = msg.result;
         this.status = msg.status;
+        this.syncCevalActiveRoundTracking();
 
         if (msg.steps.length > 1) {
             this.steps = [];
@@ -1621,6 +1625,31 @@ export class RoundController extends GameController {
         );
     }
 
+    private stopCevalActiveRoundTracking = () => {
+        if (this.cevalActiveRoundHeartbeat !== undefined) {
+            window.clearInterval(this.cevalActiveRoundHeartbeat);
+            this.cevalActiveRoundHeartbeat = undefined;
+        }
+        removeActiveCevalRound();
+    }
+
+    private syncCevalActiveRoundTracking = () => {
+        if (!this.isCevalDetectionEligible()) {
+            this.stopCevalActiveRoundTracking();
+            return;
+        }
+
+        upsertActiveCevalRound(this.gameId);
+        publishCevalDisable();
+
+        if (this.cevalActiveRoundHeartbeat === undefined) {
+            this.cevalActiveRoundHeartbeat = window.setInterval(
+                this.syncCevalActiveRoundTracking,
+                CEVAL_ACTIVE_ROUND_HEARTBEAT_MS,
+            );
+        }
+    }
+
     private currentLiveCevalPosition() {
         const currentStep = this.steps[this.steps.length - 1];
         if (currentStep === undefined) return;
@@ -1628,7 +1657,7 @@ export class RoundController extends GameController {
     }
 
     private hasEnoughPlayedTurnsForCevalDetection(): boolean {
-        return (this.steps.length - 1) >= MIN_CEVAL_REPORT_PLY;
+        return (this.steps.length - 1) >= minCevalReportPly(this.chess960);
     }
 
     private onAntiCheatStorage = (event: StorageEvent) => {

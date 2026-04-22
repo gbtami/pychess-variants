@@ -6,6 +6,12 @@ from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
 from const import CHEAT, STARTED
+from cheat_report import (
+    CEVAL_AUTO_LOSE_CONFIG_NAME,
+    CHEAT_REPORT_COLLECTION,
+    CEVAL_REPORT_ACTION_AUTO_FORFEIT,
+    CEVAL_REPORT_ACTION_REPORTED_ONLY,
+)
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
@@ -40,6 +46,7 @@ class CevalDetectionTestCase(AioHTTPTestCase):
         *,
         variant: str = "chess",
         initial_fen: str = "",
+        chess960: bool = False,
         corr: bool = False,
         wplayer: User | None = None,
         bplayer: User | None = None,
@@ -51,6 +58,7 @@ class CevalDetectionTestCase(AioHTTPTestCase):
             initial_fen,
             wplayer or self.wplayer,
             bplayer or self.bplayer,
+            chess960=chess960,
             rated=False,
             corr=corr,
         )
@@ -72,9 +80,49 @@ class CevalDetectionTestCase(AioHTTPTestCase):
             "fen": game.board.fen,
         }
 
-    async def test_ceval_detection_forfeits_matching_live_game(self):
+    async def latest_report(self, game: Game):
+        app_state = get_app_state(self.app)
+        return await app_state.db[CHEAT_REPORT_COLLECTION].find_one(
+            {"gameId": game.id},
+            sort=[("createdAt", -1)],
+        )
+
+    async def test_ceval_detection_reports_matching_live_game_without_forfeit_by_default(self):
         game = self.new_game()
         await self.play_plies(game, ("e2e4", "e7e5", "g1f3", "b8c6", "f1b5", "a7a6"))
+
+        ws = AsyncMock()
+        self.bplayer.send_game_message = AsyncMock()
+
+        await handle_ceval_detected(
+            ws,
+            users={self.bplayer.username: self.bplayer},
+            user=self.wplayer,
+            data=self.matching_payload(game),
+            game=game,
+        )
+
+        self.assertEqual(game.status, STARTED)
+        self.assertEqual(game.result, "*")
+        ws.send_json.assert_not_awaited()
+        self.bplayer.send_game_message.assert_not_awaited()
+
+        report = await self.latest_report(game)
+        self.assertIsNotNone(report)
+        self.assertEqual(report["action"], CEVAL_REPORT_ACTION_REPORTED_ONLY)
+        self.assertEqual(report["suspect"], self.wplayer.username)
+        self.assertEqual(report["opponent"], self.bplayer.username)
+
+    async def test_ceval_detection_forfeits_matching_live_game_when_enabled(self):
+        game = self.new_game()
+        await self.play_plies(game, ("e2e4", "e7e5", "g1f3", "b8c6", "f1b5", "a7a6"))
+
+        app_state = get_app_state(self.app)
+        await app_state.db.config.update_one(
+            {"name": CEVAL_AUTO_LOSE_CONFIG_NAME},
+            {"$set": {"value": True}},
+            upsert=True,
+        )
 
         ws = AsyncMock()
         self.bplayer.send_game_message = AsyncMock()
@@ -91,6 +139,10 @@ class CevalDetectionTestCase(AioHTTPTestCase):
         self.assertEqual(game.result, "0-1")
         ws.send_json.assert_awaited()
         self.bplayer.send_game_message.assert_awaited()
+
+        report = await self.latest_report(game)
+        self.assertIsNotNone(report)
+        self.assertEqual(report["action"], CEVAL_REPORT_ACTION_AUTO_FORFEIT)
 
     async def test_ceval_detection_ignores_position_mismatch(self):
         game = self.new_game()
@@ -113,6 +165,7 @@ class CevalDetectionTestCase(AioHTTPTestCase):
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
         ws.send_json.assert_not_awaited()
+        self.assertIsNone(await self.latest_report(game))
 
     async def test_ceval_detection_respects_minimum_played_plies(self):
         start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 12 34"
@@ -132,6 +185,27 @@ class CevalDetectionTestCase(AioHTTPTestCase):
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
         ws.send_json.assert_not_awaited()
+        self.assertIsNone(await self.latest_report(game))
+
+    async def test_ceval_detection_uses_lower_minimum_for_chess960(self):
+        game = self.new_game(variant="capablanca", chess960=True)
+        await self.play_plies(game, ("a2a4",))
+
+        ws = AsyncMock()
+        await handle_ceval_detected(
+            ws,
+            users={},
+            user=self.wplayer,
+            data=self.matching_payload(game),
+            game=game,
+        )
+
+        self.assertEqual(game.status, STARTED)
+        self.assertEqual(game.result, "*")
+        ws.send_json.assert_not_awaited()
+        report = await self.latest_report(game)
+        self.assertIsNotNone(report)
+        self.assertEqual(report["action"], CEVAL_REPORT_ACTION_REPORTED_ONLY)
 
     async def test_ceval_detection_ignores_excluded_game_types(self):
         excluded_games = []
@@ -172,6 +246,7 @@ class CevalDetectionTestCase(AioHTTPTestCase):
                 self.assertEqual(excluded_game.status, STARTED)
                 self.assertEqual(excluded_game.result, "*")
                 ws.send_json.assert_not_awaited()
+                self.assertIsNone(await self.latest_report(excluded_game))
 
 
 if __name__ == "__main__":

@@ -307,6 +307,14 @@ export class EngineSettings extends BooleanSettings {
     }
 
     update(): void {
+        if (this.value && this.ctrl.isLocalAnalysisBlockedByAntiCheat()) {
+            this._value = false;
+            localStorage[this.name] = false;
+            this.ctrl.disableLocalAnalysisForAntiCheat();
+            this.ctrl.refreshLocalAnalysisAvailabilityForAntiCheat();
+            return;
+        }
+
         this.ctrl.localAnalysis = this.value;
         if (this.ctrl.localAnalysis) {
             this.ctrl.vinfo = patch(this.ctrl.vinfo, h('info#info', '-'));
@@ -323,7 +331,10 @@ export class EngineSettings extends BooleanSettings {
                 this,
                 'engine-enabled',
                 '',
-                !this.ctrl.localEngine || !this.ctrl.isEngineReady || !this.ctrl.variantSupportedByFSF
+                this.ctrl.isLocalAnalysisBlockedByAntiCheat()
+                || !this.ctrl.localEngine
+                || !this.ctrl.isEngineReady
+                || !this.ctrl.variantSupportedByFSF
             )
         );
     }

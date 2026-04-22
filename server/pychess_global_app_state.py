@@ -47,6 +47,7 @@ from const import (
 from broadcast import round_broadcast
 from discord_bot import DiscordBot, FakeDiscordBot
 from chat_flood import ChatFlood
+from cheat_report import CHEAT_REPORT_COLLECTION, CEVAL_AUTO_LOSE_CONFIG_NAME
 from game import Game
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
@@ -453,6 +454,17 @@ class PychessGlobalAppState:
                     {"name": "logging.config", "value": DEFAULT_LOGGING_CONFIG}
                 )
                 await self.db.config.create_index("name")
+            await self.db.config.update_one(
+                {"name": CEVAL_AUTO_LOSE_CONFIG_NAME},
+                {"$setOnInsert": {"value": False}},
+                upsert=True,
+            )
+
+            if CHEAT_REPORT_COLLECTION not in db_collections:
+                await self.db.create_collection(CHEAT_REPORT_COLLECTION)
+            await self.db[CHEAT_REPORT_COLLECTION].create_index("createdAt")
+            await self.db[CHEAT_REPORT_COLLECTION].create_index("gameId")
+            await self.db[CHEAT_REPORT_COLLECTION].create_index("suspect")
 
             # TODO: remove this after OAuth2 PR deployed !!!
             userCollectionHasLichessOauth2Fields = await self.db.user.find_one(

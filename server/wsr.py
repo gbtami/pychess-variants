@@ -14,6 +14,12 @@ from bug.wsr_bug import handle_resign_bughouse, handle_rematch_bughouse, handle_
 import game
 from broadcast import round_broadcast
 from chat import chat_response
+from cheat_report import (
+    CEVAL_REPORT_ACTION_AUTO_FORFEIT,
+    CEVAL_REPORT_ACTION_REPORTED_ONLY,
+    append_ceval_cheat_report,
+    ceval_auto_lose_enabled,
+)
 from const import ANON_PREFIX, ANALYSIS, STARTED
 from draw import draw, reject_draw
 from fairy import WHITE, BLACK, FairyBoard
@@ -96,6 +102,11 @@ MORE_TIME = 15 * 1000
 # enforces that the claimant is the side to move and verifies server-side timing.
 CLIENT_FLAG_TOLERANCE_MS = 1000
 MIN_CEVAL_REPORT_PLY = 6
+MIN_CEVAL_REPORT_PLY_CHESS960 = 1
+
+
+def min_ceval_report_ply(game: game.Game) -> int:
+    return MIN_CEVAL_REPORT_PLY_CHESS960 if bool(game.chess960) else MIN_CEVAL_REPORT_PLY
 
 
 def _flag_claim_allowed(game: game.Game, user: User) -> bool:
@@ -897,12 +908,14 @@ async def handle_ceval_detected(
             )
             return
 
-        if game.board.ply < MIN_CEVAL_REPORT_PLY:
+        min_report_ply = min_ceval_report_ply(game)
+        if game.board.ply < min_report_ply:
             log.info(
-                "Ignoring ceval self-report in %s by %s (ply=%s)",
+                "Ignoring ceval self-report in %s by %s (ply=%s, min=%s)",
                 game.id,
                 user.username,
                 game.board.ply,
+                min_report_ply,
             )
             return
 
@@ -918,7 +931,30 @@ async def handle_ceval_detected(
             )
             return
 
-        log.warning("Ceval self-report matched live game %s for %s", game.id, user.username)
+        auto_lose = await ceval_auto_lose_enabled(game.app_state.db)
+        action = (
+            CEVAL_REPORT_ACTION_AUTO_FORFEIT if auto_lose else CEVAL_REPORT_ACTION_REPORTED_ONLY
+        )
+        await append_ceval_cheat_report(
+            game.app_state.db,
+            game=game,
+            user=user,
+            reported_fen=data["fen"],
+            reported_variant=data["variant"],
+            reported_chess960=data["chess960"],
+            min_report_ply=min_report_ply,
+            action=action,
+        )
+
+        log.warning(
+            "Ceval self-report matched live game %s for %s action=%s",
+            game.id,
+            user.username,
+            action,
+        )
+        if not auto_lose:
+            return
+
         response = await game.cheat_by_ceval(user)
 
     await ws_send_json(ws, response)
