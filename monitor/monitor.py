@@ -28,7 +28,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 PYCHESS_MONITOR_TOKEN = os.getenv("PYCHESS_MONITOR_TOKEN", "")
-URL = "http://localhost:8080/metrics"
+# URL = "http://localhost:8080/metrics"
+URL = "https://www.pychess.org/metrics"
 
 
 class MemoryMonitorApp(App):

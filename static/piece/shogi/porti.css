@@ -90,14 +90,14 @@
 }
 
 .shogi piece.e-piece.ally {
-    background-image: url('../../images/pieces/shogi/Portella/Intl/0_ELEPHANT.svg');
+    background-image: url('../../images/pieces/shogi/Portella/Intl/0SU.png');
 }
 .shogi piece.pe-piece.ally {
-    background-image: url('../../images/pieces/shogi/Portella/Intl/0OU.png');
+    background-image: url('../../images/pieces/shogi/Portella/Intl/0TA.png');
 }
 .shogi piece.e-piece.enemy {
-    background-image: url('../../images/pieces/shogi/Portella/Intl/1_ELEPHANT.svg');
+    background-image: url('../../images/pieces/shogi/Portella/Intl/1SU.png');
 }
 .shogi piece.pe-piece.enemy {
-    background-image: url('../../images/pieces/shogi/Portella/Intl/1OU.png');
+    background-image: url('../../images/pieces/shogi/Portella/Intl/1ta.png');
 }
