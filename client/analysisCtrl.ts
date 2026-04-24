@@ -538,8 +538,8 @@ export class AnalysisController extends GameController {
 
         if (!this.localEngine && this.uciOk && this.variantSupportedByFSF) {
             this.localEngine = true;
-            patch(document.getElementById('engine-enabled') as HTMLElement, h('input#engine-enabled'));
             this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
+            this.fsfPostMessage('isready');
 
             if (this.evalFile) {
                 idb.get(`${this.variant.name}--nnue-file`).then((nnuefile) => {
