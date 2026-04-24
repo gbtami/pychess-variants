@@ -54,7 +54,9 @@ async def main() -> None:
         if args.kind:
             query["kind"] = args.kind
 
-        cursor = db[args.cheat_report_collection].find(query).sort("createdAt", -1).limit(args.limit)
+        cursor = (
+            db[args.cheat_report_collection].find(query).sort("createdAt", -1).limit(args.limit)
+        )
         docs = await cursor.to_list(length=args.limit)
 
         if not docs:
