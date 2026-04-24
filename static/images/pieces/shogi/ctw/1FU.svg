@@ -22,10 +22,10 @@
      showgrid="false"
      inkscape:zoom="7.6083333"
      inkscape:cx="-42.782037"
-     inkscape:cy="51.785323"
+     inkscape:cy="51.653889"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
-     inkscape:window-x="3829"
+     inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg27" />
@@ -370,8 +370,7 @@
      stroke-linejoin="round"
      stroke-width="1.313"
      paint-order="stroke fill markers"
-     id="g26"
-     style="filter:url(#filter28)">
+     id="g26">
     <path
        d="M-23.356 37.944c-2.134 9.081-4.332 14.438-13.39 20.588 8.914 3.135 18.701 2.896 26.78 0-9.058-6.15-11.255-11.507-13.39-20.588z"
        transform="matrix(-.42483 0 0 -.5171 19.74 63.465)"

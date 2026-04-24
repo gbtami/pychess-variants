@@ -19,64 +19,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="3.8041667"
-     inkscape:cx="-139.97809"
-     inkscape:cy="49.419496"
+     inkscape:zoom="10.759808"
+     inkscape:cx="-27.138031"
+     inkscape:cy="13.847831"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
-     inkscape:window-x="3829"
+     inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg14" />
   <defs
      id="defs11">
-    <linearGradient
-       id="0GI_svg__a">
-      <stop
-         offset="0"
-         stop-color="#dfb459"
-         id="stop1" />
-      <stop
-         offset=".033"
-         stop-color="#dead54"
-         id="stop2" />
-      <stop
-         offset=".093"
-         stop-color="#e1b85f"
-         id="stop3" />
-      <stop
-         offset=".165"
-         stop-color="#dba84d"
-         id="stop4" />
-      <stop
-         offset=".305"
-         stop-color="#dfb765"
-         id="stop5" />
-      <stop
-         offset=".539"
-         stop-color="#d8a94e"
-         id="stop6" />
-      <stop
-         offset=".586"
-         stop-color="#d5ab53"
-         id="stop7" />
-      <stop
-         offset=".84"
-         stop-color="#e0bf6e"
-         id="stop8" />
-      <stop
-         offset=".924"
-         stop-color="#daae52"
-         id="stop9" />
-      <stop
-         offset=".962"
-         stop-color="#d9af57"
-         id="stop10" />
-      <stop
-         offset="1"
-         stop-color="#e1b663"
-         id="stop11" />
-    </linearGradient>
     <linearGradient
        xlink:href="#1FU_svg__b"
        id="0GI_svg__c"
@@ -107,93 +60,6 @@
          in2="offsetBlur"
          id="feBlend11" />
     </filter>
-    <linearGradient
-       xlink:href="#0FU_svg__a"
-       id="0FU_svg__b"
-       x1="-29.351"
-       x2="-11.018"
-       y1="30.267"
-       y2="30.267"
-       gradientUnits="userSpaceOnUse"
-       spreadMethod="repeat" />
-    <linearGradient
-       id="0FU_svg__a">
-      <stop
-         offset="0"
-         stop-color="#dfb459"
-         id="stop1-1" />
-      <stop
-         offset=".076"
-         stop-color="#dead54"
-         id="stop2-7" />
-      <stop
-         offset=".123"
-         stop-color="#e1b85f"
-         id="stop3-3" />
-      <stop
-         offset=".212"
-         stop-color="#dba84d"
-         id="stop4-7" />
-      <stop
-         offset=".305"
-         stop-color="#dfb765"
-         id="stop5-5" />
-      <stop
-         offset=".539"
-         stop-color="#d8a94e"
-         id="stop6-4" />
-      <stop
-         offset=".586"
-         stop-color="#d5ab53"
-         id="stop7-6" />
-      <stop
-         offset=".84"
-         stop-color="#e0bf6e"
-         id="stop8-2" />
-      <stop
-         offset=".924"
-         stop-color="#daae52"
-         id="stop9-6" />
-      <stop
-         offset=".962"
-         stop-color="#d9af57"
-         id="stop10-8" />
-      <stop
-         offset="1"
-         stop-color="#e1b663"
-         id="stop11-5" />
-    </linearGradient>
-    <filter
-       id="0FU_svg__c"
-       x="-0.11818876"
-       y="-0.097286123"
-       width="1.2856228"
-       height="1.2351081">
-      <feGaussianBlur
-         in="SourceAlpha"
-         result="blur"
-         stdDeviation="2"
-         id="feGaussianBlur11-2" />
-      <feOffset
-         dx="2"
-         dy="2"
-         result="offsetBlur"
-         id="feOffset11-4" />
-      <feBlend
-         in="SourceGraphic"
-         in2="offsetBlur"
-         id="feBlend11-4"
-         mode="normal" />
-    </filter>
-    <linearGradient
-       xlink:href="#1FU_svg__b"
-       id="0FU_svg__d"
-       x1="-29.351"
-       x2="-11.018"
-       y1="30.267"
-       y2="30.267"
-       gradientUnits="userSpaceOnUse"
-       spreadMethod="repeat" />
     <linearGradient
        id="1FU_svg__b">
       <stop
@@ -241,52 +107,27 @@
          stop-color="#e7c685"
          id="stop33" />
     </linearGradient>
-    <filter
-       style="color-interpolation-filters:sRGB;"
-       inkscape:label="Matte Jelly"
-       id="filter15"
-       x="-0.02442282"
-       y="-0.022144051"
-       width="1.0488456"
-       height="1.0442881">
-      <feColorMatrix
-         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.85 0"
-         result="color"
-         in="SourceGraphic"
-         id="feColorMatrix14" />
-      <feGaussianBlur
-         in="SourceAlpha"
-         stdDeviation="0.32"
-         result="blur"
-         id="feGaussianBlur14" />
-      <feSpecularLighting
-         in="blur"
-         specularExponent="25"
-         specularConstant="2.01863"
-         surfaceScale="5"
-         lighting-color="rgb(255,255,255)"
-         result="specular"
-         id="feSpecularLighting14">
-        <feDistantLight
-           elevation="25"
-           azimuth="245"
-           id="feDistantLight14" />
-      </feSpecularLighting>
-      <feComposite
-         in="specular"
-         in2="SourceGraphic"
-         k3="1"
-         k2="1"
-         operator="arithmetic"
-         result="composite1"
-         id="feComposite14" />
-      <feComposite
-         in="composite1"
-         in2="color"
-         operator="atop"
-         result="composite2"
-         id="feComposite15" />
-    </filter>
+    <linearGradient
+       id="linearGradient1"
+       inkscape:collect="always">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop12-2" />
+      <stop
+         style="stop-color:#4a4a4a;stop-opacity:1;"
+         offset="1"
+         id="stop13-5" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1"
+       id="linearGradient3"
+       x1="46.154892"
+       y1="48.993385"
+       x2="18.863785"
+       y2="13.490892"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <g
      fill="#fecb00"
@@ -311,5 +152,5 @@
      enable-background="accumulate"
      overflow="visible"
      id="path14"
-     style="filter:url(#filter15)" />
+     style="stroke-width:0.7;stroke-dasharray:none;stroke:none;stroke-opacity:0.53725493;paint-order:stroke fill markers;stroke-linejoin:round;fill:url(#linearGradient3)" />
 </svg>

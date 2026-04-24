@@ -19,64 +19,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="5.3799042"
-     inkscape:cx="149.90973"
-     inkscape:cy="-24.163999"
+     inkscape:zoom="15.216667"
+     inkscape:cx="12.322015"
+     inkscape:cy="34.04162"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
-     inkscape:window-x="3829"
+     inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg37" />
   <defs
      id="defs11">
-    <linearGradient
-       id="0HI_svg__a">
-      <stop
-         offset="0"
-         stop-color="#dfb459"
-         id="stop1" />
-      <stop
-         offset=".041"
-         stop-color="#dead54"
-         id="stop2" />
-      <stop
-         offset=".082"
-         stop-color="#e1b85f"
-         id="stop3" />
-      <stop
-         offset=".165"
-         stop-color="#dba84d"
-         id="stop4" />
-      <stop
-         offset=".305"
-         stop-color="#dfb765"
-         id="stop5" />
-      <stop
-         offset=".539"
-         stop-color="#d8a94e"
-         id="stop6" />
-      <stop
-         offset=".586"
-         stop-color="#d5ab53"
-         id="stop7" />
-      <stop
-         offset=".84"
-         stop-color="#e0bf6e"
-         id="stop8" />
-      <stop
-         offset=".924"
-         stop-color="#daae52"
-         id="stop9" />
-      <stop
-         offset=".962"
-         stop-color="#d9af57"
-         id="stop10" />
-      <stop
-         offset="1"
-         stop-color="#e1b663"
-         id="stop11" />
-    </linearGradient>
     <linearGradient
        xlink:href="#1FU_svg__b"
        id="0HI_svg__c"
@@ -108,139 +61,6 @@
          in2="offsetBlur"
          id="feBlend11" />
     </filter>
-    <filter
-       style="color-interpolation-filters:sRGB;"
-       inkscape:label="Matte Jelly"
-       id="filter75"
-       x="-0.028494502"
-       y="-0.023781594"
-       width="1.056989"
-       height="1.0475632">
-      <feColorMatrix
-         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.85 0"
-         result="color"
-         in="SourceGraphic"
-         id="feColorMatrix74" />
-      <feGaussianBlur
-         in="SourceAlpha"
-         stdDeviation="0.32"
-         result="blur"
-         id="feGaussianBlur74" />
-      <feSpecularLighting
-         in="blur"
-         specularExponent="25"
-         specularConstant="2.01863"
-         surfaceScale="5"
-         lighting-color="rgb(255,255,255)"
-         result="specular"
-         id="feSpecularLighting74">
-        <feDistantLight
-           elevation="25"
-           azimuth="245"
-           id="feDistantLight74" />
-      </feSpecularLighting>
-      <feComposite
-         in="specular"
-         in2="SourceGraphic"
-         k3="1"
-         k2="1"
-         operator="arithmetic"
-         result="composite1"
-         id="feComposite74" />
-      <feComposite
-         in="composite1"
-         in2="color"
-         operator="atop"
-         result="composite2"
-         id="feComposite75" />
-    </filter>
-    <linearGradient
-       xlink:href="#0FU_svg__a"
-       id="0FU_svg__b"
-       x1="-29.351"
-       x2="-11.018"
-       y1="30.267"
-       y2="30.267"
-       gradientUnits="userSpaceOnUse"
-       spreadMethod="repeat" />
-    <linearGradient
-       id="0FU_svg__a">
-      <stop
-         offset="0"
-         stop-color="#dfb459"
-         id="stop1-9" />
-      <stop
-         offset=".076"
-         stop-color="#dead54"
-         id="stop2-9" />
-      <stop
-         offset=".123"
-         stop-color="#e1b85f"
-         id="stop3-4" />
-      <stop
-         offset=".212"
-         stop-color="#dba84d"
-         id="stop4-5" />
-      <stop
-         offset=".305"
-         stop-color="#dfb765"
-         id="stop5-8" />
-      <stop
-         offset=".539"
-         stop-color="#d8a94e"
-         id="stop6-4" />
-      <stop
-         offset=".586"
-         stop-color="#d5ab53"
-         id="stop7-1" />
-      <stop
-         offset=".84"
-         stop-color="#e0bf6e"
-         id="stop8-3" />
-      <stop
-         offset=".924"
-         stop-color="#daae52"
-         id="stop9-3" />
-      <stop
-         offset=".962"
-         stop-color="#d9af57"
-         id="stop10-8" />
-      <stop
-         offset="1"
-         stop-color="#e1b663"
-         id="stop11-7" />
-    </linearGradient>
-    <filter
-       id="0FU_svg__c"
-       x="-0.11818876"
-       y="-0.097286123"
-       width="1.2856228"
-       height="1.2351081">
-      <feGaussianBlur
-         in="SourceAlpha"
-         result="blur"
-         stdDeviation="2"
-         id="feGaussianBlur11-6" />
-      <feOffset
-         dx="2"
-         dy="2"
-         result="offsetBlur"
-         id="feOffset11-3" />
-      <feBlend
-         in="SourceGraphic"
-         in2="offsetBlur"
-         id="feBlend11-8"
-         mode="normal" />
-    </filter>
-    <linearGradient
-       xlink:href="#1FU_svg__b"
-       id="0FU_svg__d"
-       x1="-29.351"
-       x2="-11.018"
-       y1="30.267"
-       y2="30.267"
-       gradientUnits="userSpaceOnUse"
-       spreadMethod="repeat" />
     <linearGradient
        id="1FU_svg__b">
       <stop
@@ -312,7 +132,7 @@
      sodipodi:nodetypes="ccccc" />
   <path
      id="path6769"
-     style="opacity:0.99;fill:#020101;fill-opacity:1;stroke:none;stroke-width:0.676292px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;filter:url(#filter75)"
+     style="opacity:0.99;fill:#020101;fill-opacity:1;stroke:none;stroke-width:0.7;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:0.53725493;stroke-dasharray:none;paint-order:stroke fill markers"
      d="m 43.427371,18.746375 v 8.55e-4 c -9.096078,0.993932 -17.734622,0.993932 -26.857421,0.01678 -0.06701,-0.0066 -0.04468,0.09042 -0.03355,0.138937 0.502309,2.022063 0.673308,2.272149 2.0755,3.75984 l 22.769053,-0.0066 c 1.45456,-1.426773 1.579603,-1.715334 2.086188,-3.749153 0.01122,-0.05685 0.02233,-0.170999 -0.03345,-0.170999 z m -24.846366,4.953627 v 17.305954 h 1.439598 c 0.523684,-5.035921 4.796522,-8.980654 9.968173,-8.980654 5.17165,0 9.443419,3.944733 9.966035,8.980654 h 1.439598 V 23.700002 Z m 11.407448,9.36647 c -4.96004,-6.41e-4 -8.98172,4.020614 -8.982789,8.980654 -6.41e-4,4.961108 4.02168,8.982791 8.982789,8.982791 4.960039,-2.14e-4 8.981722,-4.021683 8.980653,-8.982791 -2.11e-4,-4.96004 -4.020614,-8.980654 -8.980653,-8.980654 z m -0.83362,3.134626 v 3.832515 l -2.708197,-2.710334 c 0.79087,-0.598497 1.726021,-0.983245 2.708197,-1.122181 z m 1.669377,0 c 0.983245,0.138936 1.91412,0.523684 2.708197,1.122181 l -2.708197,2.710334 z m -5.556398,2.303142 2.709265,2.710334 h -3.831446 c 0.138936,-0.983244 0.523684,-1.915188 1.122181,-2.710334 z m 9.445557,0 c 0.598496,0.790871 0.983244,1.72709 1.122181,2.710334 h -3.832515 z m -16.032971,3.515098 c -0.577121,0.003 -1.139281,0.0082 -1.139281,0.0082 l -0.854995,1.466316 v 1.656553 H 20.5165 c -0.45956,-0.801558 -0.683996,-2.086188 -0.609184,-3.122869 -0.05579,-0.01229 -0.651934,-0.01091 -1.225849,-0.0082 z m 22.616543,0 c -0.577121,-0.0028 -1.168137,-0.0033 -1.225849,0.0082 h -7.46e-4 c 0.06702,1.036681 -0.149624,2.324517 -0.609183,3.122869 h 3.831446 v -1.656553 l -0.854995,-1.466316 c 0,0 -0.566434,-0.0053 -1.139281,-0.0082 z m -17.151633,0.854995 h 3.831446 l -2.708196,2.710334 c -0.598497,-0.79087 -0.983245,-1.727089 -1.12325,-2.710334 z m 7.858473,0 h 3.831446 c -0.138937,0.983245 -0.523685,1.916258 -1.124319,2.710334 z m -2.849271,1.180962 v 3.830378 c -0.983244,-0.138937 -1.913051,-0.523685 -2.706059,-1.122181 z m 1.669377,0 2.708197,2.708197 c -0.79087,0.598496 -1.726021,0.983244 -2.708197,1.122181 z"
      sodipodi:nodetypes="ccscccscccccscccccccccccccccccccccccccscccccssccccccscccccccccccccccc" />
 </svg>
