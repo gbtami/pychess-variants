@@ -7,7 +7,6 @@ from functools import partial
 from time import monotonic
 
 from aiohttp import web
-from aiohttp.client_exceptions import ClientConnectionResetError
 
 from broadcast import round_broadcast
 from const import ANALYSIS, MOVE, STARTED
@@ -24,6 +23,7 @@ if TYPE_CHECKING:
     from game import Game
     from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
+from request_utils import read_json_data
 from settings import FISHNET_KEYS
 from utils import load_game, play_move
 import logging
@@ -139,8 +139,9 @@ async def _adjudicate_failing_move_work(
 
 async def _read_fishnet_json(request: web.Request) -> tuple[object | None, int | None]:
     try:
-        return await request.json(), None
-    except (ConnectionResetError, ClientConnectionResetError):
+        data = await read_json_data(request)
+        if data is not None:
+            return data, None
         log.debug(
             "Fishnet request body read aborted on %s from %s",
             request.rel_url.path,

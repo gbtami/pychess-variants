@@ -2,6 +2,7 @@ import aiohttp_jinja2
 from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
+from request_utils import read_post_data
 from misc import time_control_str
 from typing_defs import ViewContext
 from views import get_user_context
@@ -35,7 +36,9 @@ async def simuls(request: web.Request) -> ViewContext:
     app_state = get_app_state(request.app)
 
     if request.method == "POST":
-        data = await request.post()
+        data = await read_post_data(request)
+        if data is None:
+            raise web.HTTPNoContent()
         simul_id = id8()
         name_raw = data.get("name", "")
         variant_key = data.get("variant", "")

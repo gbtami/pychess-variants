@@ -6,6 +6,7 @@ from aiohttp import web
 from const import LANGUAGES
 from pychess_global_app_state_utils import get_app_state
 from redirects import safe_redirect_path
+from request_utils import read_post_data
 
 LOCALE: ContextVar[str] = ContextVar("LOCALE", default="en")
 
@@ -17,7 +18,9 @@ def get_locale_ext(context):
 
 async def select_lang(request):
     app_state = get_app_state(request.app)
-    data = await request.post()
+    data = await read_post_data(request)
+    if data is None:
+        return web.Response(status=204)
     lang = data.get("lang")
 
     if lang is not None:

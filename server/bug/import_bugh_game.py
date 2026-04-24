@@ -1,6 +1,7 @@
 from bug.utils_bug import init_players
 from typing import TYPE_CHECKING
 from pychess_global_app_state_utils import get_app_state
+from request_utils import read_post_data
 from const import (
     UNKNOWNFINISH,
     IMPORTED,
@@ -75,7 +76,9 @@ def get_main_variation(
 
 
 async def import_game_bpgn(request):
-    data = await request.post()
+    data = await read_post_data(request)
+    if data is None:
+        return web.json_response({})
     app_state = get_app_state(request.app)
 
     # print("---IMPORT GAME---")

@@ -45,6 +45,7 @@ from settings import (
     LOCALHOST,
 )
 from redirects import safe_redirect_path
+from request_utils import read_post_data
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -657,7 +658,9 @@ class User:
 
 async def set_theme(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
-    post_data = await request.post()
+    post_data = await read_post_data(request)
+    if post_data is None:
+        return web.Response(status=204)
     theme = post_data.get("theme")
 
     if isinstance(theme, str):
@@ -680,7 +683,9 @@ async def set_theme(request: web.Request) -> web.StreamResponse:
 
 async def set_game_category(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
-    post_data = await request.post()
+    post_data = await read_post_data(request)
+    if post_data is None:
+        return web.Response(status=204)
     game_category = post_data.get("game_category")
 
     if isinstance(game_category, str):
@@ -739,7 +744,9 @@ async def block_user(request: web.Request) -> web.StreamResponse:
         # TODO: Alert the user about blocked quota reached
         raise web.HTTPFound("/@/%s" % profileId)
 
-    post_data = await request.post()
+    post_data = await read_post_data(request)
+    if post_data is None:
+        return web.json_response({})
     block = post_data["block"] == "true"
     try:
         if block:

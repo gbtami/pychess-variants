@@ -12,6 +12,7 @@ from aiohttp_sse import sse_response
 from const import SSE_GET_TIMEOUT
 from misc import time_control_str
 from pychess_global_app_state_utils import get_app_state
+from request_utils import read_post_data
 from seek import (
     ACTIVE_DIRECT_CHALLENGE_STATUSES,
     DIRECT_CHALLENGE_CANCELED,
@@ -345,7 +346,9 @@ async def challenge_seek_decline(request: web.Request) -> web.StreamResponse:
         )
 
     usernames = challenge_participants(seek)
-    reason_data = await request.post()
+    reason_data = await read_post_data(request)
+    if reason_data is None:
+        return web.json_response({})
     reason_key = reason_data.get("reason")
     decline_reason = DIRECT_CHALLENGE_DECLINE_REASONS.get(
         str(reason_key) if reason_key is not None else "generic",

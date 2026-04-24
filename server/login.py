@@ -14,6 +14,7 @@ from const import STARTED, reserved
 from oauth_config import oauth_config
 from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
+from request_utils import read_json_data
 from security_evasion import (
     collect_client_signals,
     is_signup_blocked_by_signals,
@@ -275,7 +276,9 @@ async def select_username(request: web.Request) -> web.StreamResponse:
 
 async def check_username_availability(request: web.Request) -> web.StreamResponse:
     """API endpoint to check if username is available"""
-    data: dict[str, str] = await request.json()
+    data = await read_json_data(request)
+    if data is None:
+        return web.Response(status=204)
     username = data.get("username", "").strip()
 
     if not username:
@@ -319,7 +322,9 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
     if "oauth_id" not in session:
         return web.json_response({"error": "Invalid session"}, status=400)
 
-    data: dict[str, str] = await request.json()
+    data = await read_json_data(request)
+    if data is None:
+        return web.Response(status=204)
     username = data.get("username", "").strip()
 
     # Validate username again by calling the validation logic directly

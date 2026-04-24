@@ -11,6 +11,7 @@ from settings import BOT_TOKENS
 from user import User
 from utils import load_game, new_game, play_move, should_send_game_start_to_bot
 from pychess_global_app_state_utils import get_app_state
+from request_utils import read_post_data, read_text_data
 from typing_defs import UserDocument
 import logging
 
@@ -46,7 +47,9 @@ def authorized(func: Handler) -> Handler:
 
 
 async def bot_token_test(request: web.Request) -> web.StreamResponse:
-    text: str = await request.text()
+    text = await read_text_data(request)
+    if text is None:
+        return web.json_response({})
     tokens = text.split(",")
 
     response: dict[str, dict[str, object] | None] = {}
@@ -328,7 +331,9 @@ async def bot_resign(request: web.Request) -> web.StreamResponse:
 async def bot_chat(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
-    data = await request.post()
+    data = await read_post_data(request)
+    if data is None:
+        return web.json_response({})
     log.debug("BOT-CHAT %s %r", username, data)  # noqa: F821
 
     gameId = request.match_info["gameId"]

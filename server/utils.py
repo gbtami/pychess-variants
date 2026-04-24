@@ -79,6 +79,7 @@ if TYPE_CHECKING:
         SeekStatusMessage,
     )
 from pychess_global_app_state_utils import get_app_state
+from request_utils import read_post_data
 import logging
 from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
 from settings import URI
@@ -322,7 +323,9 @@ async def load_game(
 
 
 async def import_game(request):
-    data = await request.post()
+    data = await read_post_data(request)
+    if data is None:
+        return web.json_response({})
     app_state = get_app_state(request.app)
 
     # print("---IMPORT GAME---")

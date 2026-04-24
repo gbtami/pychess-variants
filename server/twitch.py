@@ -14,6 +14,7 @@ from broadcast import broadcast_streams
 from settings import DEV, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, URI
 from streamers import TWITCH_STREAMERS
 from pychess_global_app_state_utils import get_app_state
+from request_utils import read_json_data, read_text_data
 import logging
 
 if TYPE_CHECKING:
@@ -239,8 +240,12 @@ class Twitch:
 async def twitch_request_handler(request: web.Request) -> web.Response:
     """Twitch POST request handler"""
     app_state = get_app_state(request.app)
-    payload: TwitchWebhookPayload = await request.json()
-    data = await request.text()
+    payload: TwitchWebhookPayload | None = await read_json_data(request)
+    if payload is None:
+        return web.Response(status=204)
+    data = await read_text_data(request)
+    if data is None:
+        return web.Response(status=204)
 
     header_msg_type = request.headers.get("Twitch-Eventsub-Message-Type")
     header_sub_type = request.headers.get("Twitch-Eventsub-Subscription-Type")

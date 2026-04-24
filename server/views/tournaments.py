@@ -9,6 +9,7 @@ from misc import time_control_str
 from typing_defs import ViewContext
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
+from request_utils import read_post_data
 from tournament_director import is_tournament_director
 from tournament.tournaments import (
     create_or_update_tournament,
@@ -29,11 +30,15 @@ async def tournaments(request: web.Request) -> ViewContext:
 
     if director:
         if request.path.endswith("/new"):
-            data = await request.post()
+            data = await read_post_data(request)
+            if data is None:
+                raise web.HTTPNoContent()
             await create_or_update_tournament(app_state, user.username, data)
 
         elif request.path.endswith("/edit"):
-            data = await request.post()
+            data = await read_post_data(request)
+            if data is None:
+                raise web.HTTPNoContent()
 
             tournamentId = request.match_info.get("tournamentId")
             tournament = app_state.tournaments.get(tournamentId) if tournamentId else None

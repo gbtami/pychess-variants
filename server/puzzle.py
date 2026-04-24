@@ -10,6 +10,7 @@ from aiohttp import web
 from fairy import FairyBoard
 from glicko2.glicko2 import MU, PHI, SIGMA, gl2, Rating
 from pychess_global_app_state_utils import get_app_state
+from request_utils import read_post_data
 from const import (
     GAME_CATEGORY_ALL,
     CATEGORY_VARIANT_SETS,
@@ -98,10 +99,7 @@ def empty_puzzle(variant):
 
 
 async def _read_puzzle_post(request):
-    try:
-        return await request.post()
-    except ConnectionResetError:
-        return None
+    return await read_post_data(request)
 
 
 async def get_puzzle(request, puzzleId):
