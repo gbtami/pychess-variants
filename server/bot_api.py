@@ -173,6 +173,7 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
             result = await app_state.db.user.insert_one(
                 {
                     "_id": username,  # noqa: F821
+                    "username_lower": username.lower(),  # noqa: F821
                     "title": "BOT",
                 }
             )

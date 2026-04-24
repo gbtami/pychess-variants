@@ -104,6 +104,7 @@ log = logging.getLogger(__name__)
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 TOURNAMENT_KEEP_TIME = 1800  # keep ended tournaments in cache for TOURNAMENT_KEEP_TIME secs
 T = TypeVar("T")
+USERNAME_LOWER_FIELD = "username_lower"
 
 
 def _is_test_run() -> bool:
@@ -465,6 +466,16 @@ class PychessGlobalAppState:
             await self.db[CHEAT_REPORT_COLLECTION].create_index("createdAt")
             await self.db[CHEAT_REPORT_COLLECTION].create_index("gameId")
             await self.db[CHEAT_REPORT_COLLECTION].create_index("suspect")
+
+            await self.db.user.update_many(
+                {USERNAME_LOWER_FIELD: {"$exists": False}},
+                [{"$set": {USERNAME_LOWER_FIELD: {"$toLower": "$_id"}}}],
+            )
+            await self.db.user.create_index(
+                USERNAME_LOWER_FIELD,
+                name="username_lower",
+                partialFilterExpression={USERNAME_LOWER_FIELD: {"$type": "string"}},
+            )
 
             # TODO: remove this after OAuth2 PR deployed !!!
             userCollectionHasLichessOauth2Fields = await self.db.user.find_one(

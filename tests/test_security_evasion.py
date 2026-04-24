@@ -35,6 +35,45 @@ class SignupSecurityEvasionTestCase(AioHTTPTestCase):
         session_data = {"session": payload, "created": int(time.time())}
         self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
 
+    async def test_check_username_availability_rejects_case_only_duplicate(self):
+        app_state = get_app_state(self.app)
+        await app_state.db.user.insert_one(
+            {"_id": "ExistingUser", "username_lower": "existinguser"}
+        )
+
+        response = await self.client.post(
+            "/api/check-username",
+            json={"username": "existinguser"},
+        )
+
+        self.assertEqual(response.status, 200)
+        body = await response.json()
+        self.assertFalse(body.get("available"))
+        self.assertEqual(body.get("error"), "Username is already taken")
+
+    async def test_confirm_username_rejects_case_only_duplicate(self):
+        app_state = get_app_state(self.app)
+        await app_state.db.user.insert_one(
+            {"_id": "ExistingUser", "username_lower": "existinguser"}
+        )
+        self._set_session(
+            {
+                "oauth_id": "oauth-case-duplicate",
+                "oauth_provider": "lichess",
+                "oauth_title": "",
+                "oauth_username": "case-duplicate-origin",
+            }
+        )
+
+        response = await self.client.post(
+            "/api/confirm-username",
+            json={"username": "existinguser"},
+        )
+
+        self.assertEqual(response.status, 400)
+        body = await response.json()
+        self.assertEqual(body.get("error"), "Username is already taken")
+
     async def test_confirm_username_auto_closes_on_ipfp_ban_signal(self):
         app_state = get_app_state(self.app)
         headers = {

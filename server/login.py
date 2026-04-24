@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 import aiohttp
 import aiohttp_session
 from aiohttp import web
+from pymongo.errors import DuplicateKeyError
 
 from broadcast import round_broadcast
 from const import STARTED, reserved
@@ -26,6 +27,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
+USERNAME_LOWER_FIELD = "username_lower"
+
 if TYPE_CHECKING:
     from user import User
 
@@ -36,6 +39,19 @@ class OAuthUserData(TypedDict, total=False):
     title: str
     closed: str
     tosViolation: str
+
+
+def normalized_username(username: str) -> str:
+    return username.lower()
+
+
+async def username_exists(app_state, username: str) -> bool:
+    username_lower = normalized_username(username)
+    existing_user = await app_state.db.user.find_one(
+        {"$or": [{"_id": username}, {USERNAME_LOWER_FIELD: username_lower}]},
+        projection={"_id": 1},
+    )
+    return existing_user is not None
 
 
 async def oauth(request: web.Request) -> web.StreamResponse:
@@ -306,9 +322,7 @@ async def check_username_availability(request: web.Request) -> web.StreamRespons
         return web.json_response({"available": False, "error": "Username is reserved"})
 
     app_state = get_app_state(request.app)
-    existing_user = await app_state.db.user.find_one({"_id": username})
-
-    if existing_user:
+    if await username_exists(app_state, username):
         return web.json_response({"available": False, "error": "Username is already taken"})
 
     return web.json_response({"available": True})
@@ -349,9 +363,9 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
         return web.json_response({"error": "Username is reserved"}, status=400)
 
     app_state = get_app_state(request.app)
-    existing_user = await app_state.db.user.find_one({"_id": username})
+    username_lower = normalized_username(username)
 
-    if existing_user:
+    if await username_exists(app_state, username):
         return web.json_response({"error": "Username is already taken"}, status=400)
 
     # Create new user with OAuth information
@@ -373,6 +387,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
             await app_state.db.user.insert_one(
                 {
                     "_id": username,
+                    USERNAME_LOWER_FIELD: username_lower,
                     "title": title,
                     "oauth_id": oauth_id,
                     "oauth_provider": oauth_provider,
@@ -410,6 +425,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
         result = await app_state.db.user.insert_one(
             {
                 "_id": username,
+                USERNAME_LOWER_FIELD: username_lower,
                 "title": title,
                 "oauth_id": oauth_id,
                 "oauth_provider": oauth_provider,
@@ -431,6 +447,10 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
 
         log.info("Created new user %s via OAuth signup", username)
         return web.json_response({"success": True})
+
+    except DuplicateKeyError:
+        log.info("Duplicate username rejected during OAuth signup: %s", username)
+        return web.json_response({"error": "Username is already taken"}, status=400)
 
     except Exception as e:
         log.error("Failed to create user %s: %s", username, e)
