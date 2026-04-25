@@ -11,6 +11,7 @@ import aiohttp_session
 from aiohttp import web
 
 from lang import LOCALE
+from request_utils import safe_log_value
 from users import NotInDbUsers
 from views import page404
 
@@ -155,9 +156,9 @@ async def request_timing_middleware(request: web.Request, handler: Handler) -> w
             log.warning(
                 "request-trace method=%s path=%s status=%s dur_ms=%.1f req_id=%s fwd=%s",
                 request.method,
-                path,
+                safe_log_value(path),
                 status,
                 duration_ms,
-                request_id,
-                client_ip,
+                safe_log_value(request_id),
+                safe_log_value(client_ip),
             )

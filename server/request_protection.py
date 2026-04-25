@@ -8,6 +8,7 @@ from typing import Awaitable, Callable
 
 from aiohttp import web
 
+from request_utils import safe_log_value
 from settings import LOCALHOST, URI
 from typedefs import request_protection_state_key
 
@@ -234,7 +235,11 @@ async def request_protection_middleware(
         scanner_key = f"scanner:{client}"
         if not state._limiter.allow(scanner_key, max_requests=8, window_seconds=60.0):
             if state.should_log_block(scanner_key):
-                log.warning("scanner path flood blocked from %s on %s", client, path)
+                log.warning(
+                    "scanner path flood blocked from %s on %s",
+                    safe_log_value(client),
+                    safe_log_value(path),
+                )
             raise web.HTTPTooManyRequests(headers={"Retry-After": "60"})
         # Return 404 for scanner signatures to avoid signaling valid app routes.
         raise web.HTTPNotFound()
@@ -251,8 +256,8 @@ async def request_protection_middleware(
         log.warning(
             "rate-limited %s from %s at path %s (%s req / %ss)",
             route_limit.name,
-            client,
-            path,
+            safe_log_value(client),
+            safe_log_value(path),
             route_limit.max_requests,
             route_limit.window_seconds,
         )
