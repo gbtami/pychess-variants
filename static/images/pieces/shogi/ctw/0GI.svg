@@ -20,14 +20,15 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="10.759808"
-     inkscape:cx="-27.138031"
+     inkscape:cx="-27.091561"
      inkscape:cy="13.847831"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
      inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg14" />
+     inkscape:current-layer="svg14"
+     showgrid="false" />
   <defs
      id="defs11">
     <linearGradient
@@ -107,27 +108,6 @@
          stop-color="#e7c685"
          id="stop33" />
     </linearGradient>
-    <linearGradient
-       id="linearGradient1"
-       inkscape:collect="always">
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="0"
-         id="stop12-2" />
-      <stop
-         style="stop-color:#4a4a4a;stop-opacity:1;"
-         offset="1"
-         id="stop13-5" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient1"
-       id="linearGradient3"
-       x1="46.154892"
-       y1="48.993385"
-       x2="18.863785"
-       y2="13.490892"
-       gradientUnits="userSpaceOnUse" />
   </defs>
   <g
      fill="#fecb00"
@@ -152,5 +132,5 @@
      enable-background="accumulate"
      overflow="visible"
      id="path14"
-     style="stroke-width:0.7;stroke-dasharray:none;stroke:none;stroke-opacity:0.53725493;paint-order:stroke fill markers;stroke-linejoin:round;fill:url(#linearGradient3)" />
+     style="stroke-width:0.7;stroke-dasharray:none;stroke:none;stroke-opacity:0.53725493;paint-order:stroke fill markers;stroke-linejoin:round;fill:#000000" />
 </svg>
