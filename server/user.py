@@ -785,7 +785,13 @@ async def get_blocked_users(request: web.Request) -> web.StreamResponse:
 async def get_status(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
-    ids = request.rel_url.query.get("ids").split(",")
+    ids_param = request.rel_url.query.get("ids")
+    if ids_param is None:
+        raise web.HTTPBadRequest(text="missing ids")
+
+    ids = [uid for uid in ids_param.split(",") if uid]
+    if not ids:
+        raise web.HTTPBadRequest(text="missing ids")
 
     status_list: list[UserStatusJson] = []
     for uid in ids:

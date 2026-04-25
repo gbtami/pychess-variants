@@ -152,6 +152,11 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(await response.json(), [])
 
+    async def test_user_status_requires_ids(self):
+        response = await self.client.get("/api/users/status")
+
+        self.assertEqual(response.status, 400)
+
 
 if __name__ == "__main__":
     unittest.main()
