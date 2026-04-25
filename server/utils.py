@@ -332,6 +332,10 @@ async def import_game(request):
     # print(data)
     # print("-----------------")
 
+    username = data.get("username")
+    if not isinstance(username, str) or not username:
+        return web.json_response({"error": "Missing username."})
+
     wp = data.get("White", "White")
     bp = data.get("Black", "Black")
 
@@ -450,7 +454,7 @@ async def import_game(request):
             "x": new_game.level,
             "y": IMPORTED,
             "z": int(chess960),
-            "by": data["username"],
+            "by": username,
         }
 
         if initial_fen or chess960:

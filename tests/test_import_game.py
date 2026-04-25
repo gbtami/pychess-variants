@@ -98,6 +98,18 @@ class ImportGameCleanupTestCase(AioHTTPTestCase):
         self.assertEqual(len(DummyGame.instances), 1)
         DummyGame.instances[0].stopwatch.cancel.assert_awaited_once()
 
+    async def test_import_game_rejects_missing_username(self):
+        resp = await self.client.post("/import", data={"moves": "e2e4"})
+
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(await resp.json(), {"error": "Missing username."})
+
+    async def test_import_bpgn_rejects_missing_pgn(self):
+        resp = await self.client.post("/import_bpgn", data={})
+
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(await resp.json(), {"error": "Missing pgn."})
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

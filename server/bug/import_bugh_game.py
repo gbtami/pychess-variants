@@ -1,5 +1,4 @@
 from bug.utils_bug import init_players
-from typing import TYPE_CHECKING
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from const import (
@@ -85,7 +84,9 @@ async def import_game_bpgn(request):
     # print(data)
     # print("-----------------")
 
-    pgn = data["pgn"]
+    pgn = data.get("pgn")
+    if not isinstance(pgn, str) or not pgn:
+        return web.json_response({"error": "Missing pgn."})
 
     # strange bug in chess.com bpgn, whenever there is N@ it is instead $146@
     pgn = pgn.replace("$146@", "N@")
@@ -94,8 +95,8 @@ async def import_game_bpgn(request):
     )  # bmacho returns bgpns with 2 header entries on same line sometimes
 
     first_game = read_game(pgn)
-    if TYPE_CHECKING:
-        assert first_game is not None
+    if first_game is None:
+        return web.json_response({"error": "Invalid BPGN."})
 
     wp_a = first_game.headers.get("WhiteA")
     bp_a = first_game.headers.get("BlackA")
@@ -141,11 +142,8 @@ async def import_game_bpgn(request):
         log.exception("TimeControl tag parsing failed")
         base, inc = 0, 0
 
-    tc0 = tc[0]
-    if TYPE_CHECKING:
-        assert isinstance(tc0, int)
     [move_stack, move_times, boards] = get_main_variation(
-        first_game, tc0 * 1000
+        first_game, base * 1000
     )  # data.get("moves", "").split(" ")
     moves = [*map(encode_move_standard, move_stack)]
 
