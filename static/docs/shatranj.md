@@ -21,4 +21,4 @@ The Ferz moves exactly one square diagonally in any direction. This is much weak
 ### Alfil
 ![Alfil](https://github.com/gbtami/pychess-variants/blob/master/static/images/CVariantsGuide/Alfil.png)
 
-The Alfil (meaning elephant) moves exactly two squares diagonally in any direction. This is much weaker than the Bishop in Western Chess.
+The Alfil (meaning elephant) jumps exactly two squares diagonally in any direction (in other words, a (2,2) leaper). This is much weaker than the Bishop in Western Chess.
