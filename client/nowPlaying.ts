@@ -165,7 +165,7 @@ export function gameViewPlaying(
             hook: {
                 insert: vnode => {
                     boardSettings.updateBoardStyle(variant.boardFamily);
-                    boardSettings.updatePieceStyle(variant.pieceFamily);
+                    boardSettings.updatePieceStyle(variant.pieceFamily, variant);
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         orientation: mycolor,
                         fen: fen,

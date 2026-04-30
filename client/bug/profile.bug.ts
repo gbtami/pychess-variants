@@ -17,7 +17,7 @@ export function renderGameBoardsBug(game: Game, username: string): VNode[] {
         hook: {
             insert: vnode => {
                 boardSettings.updateBoardStyle(variant.boardFamily);
-                boardSettings.updatePieceStyle(variant.pieceFamily);
+                boardSettings.updatePieceStyle(variant.pieceFamily, variant);
                 Chessground(vnode.elm as HTMLElement, {
                     coordinates: false,
                     viewOnly: true,
@@ -35,7 +35,7 @@ export function renderGameBoardsBug(game: Game, username: string): VNode[] {
         hook: {
             insert: vnode => {
                 boardSettings.updateBoardStyle(variant.boardFamily);
-                boardSettings.updatePieceStyle(variant.pieceFamily);
+                boardSettings.updatePieceStyle(variant.pieceFamily, variant);
                 Chessground(vnode.elm as HTMLElement, {
                     coordinates: false,
                     viewOnly: true,

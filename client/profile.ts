@@ -93,7 +93,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                         hook: {
                             insert: vnode => {
                                 boardSettings.updateBoardStyle(variant.boardFamily);
-                                boardSettings.updatePieceStyle(variant.pieceFamily);
+                                boardSettings.updatePieceStyle(variant.pieceFamily, variant);
                                 Chessground(vnode.elm as HTMLElement, {
                                     coordinates: false,
                                     viewOnly: true,

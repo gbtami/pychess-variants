@@ -958,7 +958,7 @@ export class LobbyController implements ChatController {
                 h('div.cg-wrap.' + variant.board.cg + '.minitooltip',
                     { hook: { insert: (vnode) => {
                         boardSettings.updateBoardStyle(variant.boardFamily);
-                        boardSettings.updatePieceStyle(variant.pieceFamily);
+                        boardSettings.updatePieceStyle(variant.pieceFamily, variant);
                         Chessground(vnode.elm as HTMLElement, {
                             coordinates: false,
                             fen: seek.fen,
@@ -1029,7 +1029,7 @@ export class LobbyController implements ChatController {
                     hook: {
                         insert: vnode => {
                             boardSettings.updateBoardStyle(variant.boardFamily);
-                            boardSettings.updatePieceStyle(variant.pieceFamily);
+                            boardSettings.updatePieceStyle(variant.pieceFamily, variant);
                             const cg = Chessground(vnode.elm as HTMLElement,  {
                                 fen: game.fen,
                                 lastMove: uci2LastMove(game.lastMove),
@@ -1420,7 +1420,7 @@ export function lobbyView(model: PyChessModel): VNode[] {
                         hook: {
                             insert: vnode => {
                                 boardSettings.updateBoardStyle(variant.boardFamily);
-                                boardSettings.updatePieceStyle(variant.pieceFamily);
+                                boardSettings.updatePieceStyle(variant.pieceFamily, variant);
                                 Chessground(vnode.elm as HTMLElement,  {
                                     orientation: variant.name === 'racingkings' ? 'white' : turnColor,
                                     fen: puzzle.f,

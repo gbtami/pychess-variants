@@ -67,6 +67,10 @@ function selectedPieceCSS(pieceFamily: keyof typeof PIECE_FAMILIES | string, idx
     }
 }
 
+function pieceStyleSettingsName(pieceFamily: string, variant?: Variant): string {
+    return (variant?.name ?? pieceFamily) + '-piece';
+}
+
 class BoardSettings {
     ctrl: BoardController;
     ctrl2: BoardController;
@@ -83,15 +87,15 @@ class BoardSettings {
         this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
     }
 
-    getSettings(settingsType: string, family: string, boardName: BoardName = '') {
-        const fullName = family + settingsType + boardName;
+    getSettings(settingsType: string, family: string, boardName: BoardName = '', variant?: Variant) {
+        const fullName = settingsType === "PieceStyle" ? pieceStyleSettingsName(family, variant) : family + settingsType + boardName;
         if (!this.settings[fullName]) {
             switch (settingsType) {
                 case "BoardStyle":
                     this.settings[fullName] = new BoardStyleSettings(this, family);
                     break;
                 case "PieceStyle":
-                    this.settings[fullName] = new PieceStyleSettings(this, family);
+                    this.settings[fullName] = new PieceStyleSettings(this, family, variant);
                     break;
                 case "Zoom":
                     this.settings[fullName] = new ZoomSettings(this, family, boardName);
@@ -115,7 +119,7 @@ class BoardSettings {
     }
 
     updatePieceStyle(family: keyof typeof PIECE_FAMILIES, variant?: Variant) {
-        const idx = this.getSettings("PieceStyle", family as string, '').value as number;
+        const idx = this.getSettings("PieceStyle", family as string, '', variant).value as number;
         const css = selectedPieceCSS(family, idx, variant);
         changePieceCSS(this.assetURL, family as string, css);
         this.updateDropSuggestion();
@@ -190,7 +194,7 @@ class BoardSettings {
 
         settingsList.push(h('div#style-settings', [
             this.getSettings("BoardStyle", boardFamily as string, '').view(),
-            (this.getSettings("PieceStyle", pieceFamily as string, '') as PieceStyleSettings).view(variant),
+            (this.getSettings("PieceStyle", pieceFamily as string, '', variant) as PieceStyleSettings).view(),
             ])
         );
         
@@ -289,33 +293,30 @@ class BoardStyleSettings extends NumberSettings {
 class PieceStyleSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
     readonly pieceFamily: string;
+    readonly variant?: Variant;
 
-    constructor(boardSettings: BoardSettings, pieceFamily: string) {
-        super(pieceFamily + '-piece', 0);
+    constructor(boardSettings: BoardSettings, pieceFamily: string, variant?: Variant) {
+        super(pieceStyleSettingsName(pieceFamily, variant), 0);
         this.boardSettings = boardSettings;
         this.pieceFamily = pieceFamily;
+        this.variant = variant;
     }
 
     update(): void {
-        this.boardSettings.updatePieceStyle(this.pieceFamily);
+        this.boardSettings.updatePieceStyle(this.pieceFamily, this.variant);
     }
 
-    view(variant?: Variant): VNode {
+    view(): VNode {
         const vpiece = this.value;
         const pieces : VNode[] = [];
 
-        const pieceCSS = pieceCSSOptions(this.pieceFamily, variant);
+        const pieceCSS = pieceCSSOptions(this.pieceFamily, this.variant);
         const checkedPiece = (vpiece === 98 || vpiece === 99 || pieceCSS.some(({ idx }) => idx === vpiece))
             ? vpiece
             : pieceCSS[0]?.idx;
         for (const { idx } of pieceCSS) {
             pieces.push(h('input#piece' + idx, {
-                on: {
-                    change: e => {
-                        this.value = Number((e.target as HTMLInputElement).value);
-                        this.boardSettings.updatePieceStyle(this.pieceFamily, variant);
-                    }
-                },
+                on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
                 props: { type: "radio", name: "piece", value: idx },
                 attrs: { checked: checkedPiece === idx },
             }));
