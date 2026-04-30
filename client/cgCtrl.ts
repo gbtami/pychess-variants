@@ -70,7 +70,7 @@ export abstract class ChessgroundController implements BoardController {
         const boardFamily = this.variant.boardFamily;
         const pieceFamily = this.variant.pieceFamily;
         boardSettings.updateBoardStyle(boardFamily);
-        boardSettings.updatePieceStyle(pieceFamily);
+        boardSettings.updatePieceStyle(pieceFamily, this.variant);
         boardSettings.updateZoom(boardFamily, '');
 
         this.notationAsObject = this.notation2ffishjs(this.notation);

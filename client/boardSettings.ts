@@ -40,6 +40,33 @@ export interface BoardController {
     flipped(): boolean;
 }
 
+interface PieceCSSOption {
+    css: string;
+    idx: number;
+}
+
+function pieceCSSOptions(pieceFamily: keyof typeof PIECE_FAMILIES | string, variant?: Variant): PieceCSSOption[] {
+    const excluded = new Set(variant?.pieceCSSExclude ?? []);
+    return PIECE_FAMILIES[pieceFamily].pieceCSS
+        .map((css, idx) => ({ css, idx }))
+        .filter(({ css }) => !excluded.has(css));
+}
+
+function selectedPieceCSS(pieceFamily: keyof typeof PIECE_FAMILIES | string, idx: number, variant?: Variant): string {
+    switch (idx) {
+    case 98:
+        return 'invisible';
+    case 99:
+        return 'letters';
+    default: {
+        const css = PIECE_FAMILIES[pieceFamily].pieceCSS[idx];
+        const excluded = variant?.pieceCSSExclude ?? [];
+        if (css && !excluded.includes(css)) return css;
+        return pieceCSSOptions(pieceFamily, variant)[0]?.css ?? PIECE_FAMILIES[pieceFamily].pieceCSS[0];
+    }
+    }
+}
+
 class BoardSettings {
     ctrl: BoardController;
     ctrl2: BoardController;
@@ -87,19 +114,9 @@ class BoardSettings {
         changeBoardCSS(this.assetURL , family as string, board);
     }
 
-    updatePieceStyle(family: keyof typeof PIECE_FAMILIES) {
+    updatePieceStyle(family: keyof typeof PIECE_FAMILIES, variant?: Variant) {
         const idx = this.getSettings("PieceStyle", family as string, '').value as number;
-        let css: string;
-        switch (idx) {
-        case 98:
-            css = 'invisible';
-            break;
-        case 99:
-            css = 'letters';
-            break;
-        default:
-            css = PIECE_FAMILIES[family].pieceCSS[idx];
-        }
+        const css = selectedPieceCSS(family, idx, variant);
         changePieceCSS(this.assetURL, family as string, css);
         this.updateDropSuggestion();
     }
@@ -173,7 +190,7 @@ class BoardSettings {
 
         settingsList.push(h('div#style-settings', [
             this.getSettings("BoardStyle", boardFamily as string, '').view(),
-            this.getSettings("PieceStyle", pieceFamily as string, '').view(),
+            (this.getSettings("PieceStyle", pieceFamily as string, '') as PieceStyleSettings).view(variant),
             ])
         );
         
@@ -283,18 +300,26 @@ class PieceStyleSettings extends NumberSettings {
         this.boardSettings.updatePieceStyle(this.pieceFamily);
     }
 
-    view(): VNode {
+    view(variant?: Variant): VNode {
         const vpiece = this.value;
         const pieces : VNode[] = [];
 
-        const pieceCSS = PIECE_FAMILIES[this.pieceFamily].pieceCSS;
-        for (let i = 0; i < pieceCSS.length; i++) {
-            pieces.push(h('input#piece' + i, {
-                on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
-                props: { type: "radio", name: "piece", value: i },
-                attrs: { checked: vpiece === i },
+        const pieceCSS = pieceCSSOptions(this.pieceFamily, variant);
+        const checkedPiece = (vpiece === 98 || vpiece === 99 || pieceCSS.some(({ idx }) => idx === vpiece))
+            ? vpiece
+            : pieceCSS[0]?.idx;
+        for (const { idx } of pieceCSS) {
+            pieces.push(h('input#piece' + idx, {
+                on: {
+                    change: e => {
+                        this.value = Number((e.target as HTMLInputElement).value);
+                        this.boardSettings.updatePieceStyle(this.pieceFamily, variant);
+                    }
+                },
+                props: { type: "radio", name: "piece", value: idx },
+                attrs: { checked: checkedPiece === idx },
             }));
-            pieces.push(h('label.piece.piece' + i + '.' + this.pieceFamily, { attrs: { for: "piece" + i } }, ""));
+            pieces.push(h('label.piece.piece' + idx + '.' + this.pieceFamily, { attrs: { for: "piece" + idx } }, ""));
         }
 
         // Add invisible piece

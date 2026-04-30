@@ -96,6 +96,7 @@ export interface Variant {
     readonly board: BoardFamily;
     readonly notation: cg.Notation;
     readonly pieceFamily: keyof typeof PIECE_FAMILIES;
+    readonly pieceCSSExclude: string[];
     readonly piece: PieceFamily;
     readonly colors: {
         readonly first: ColorName;
@@ -163,6 +164,7 @@ function variant(config: VariantConfig): Variant {
         boardFamily: config.boardFamily,
         board: BOARD_FAMILIES[config.boardFamily],
         pieceFamily: config.pieceFamily,
+        pieceCSSExclude: config.pieceCSSExclude ?? [],
         notation: config.notation ?? cg.Notation.ALGEBRAIC,
         piece: PIECE_FAMILIES[config.pieceFamily],
         colors: config.colors ?? { first: 'White', second: 'Black' },
@@ -253,6 +255,8 @@ interface VariantConfig {
     notation?: cg.Notation;
     // Piece appearance
     pieceFamily: keyof typeof PIECE_FAMILIES;
+    // Piece CSS files from the family that cannot render this variant
+    pieceCSSExclude?: string[];
     // Color names of each side for accurate color representation
     colors?: {
         // (default: White)
@@ -687,6 +691,7 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "lnsgkgsnl/1r2e2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2E2R1/LNSGKGSNL w 0 1",
         icon: "☗",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
+        pieceCSSExclude: ["shogi", "shogip", "shogim", "shogikw3d", "shogid", "shogiim", "shogibw", "portk"],
         notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p", "e"],
