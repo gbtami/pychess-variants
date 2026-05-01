@@ -73,31 +73,32 @@ export function changeBoardCSS(assetUrl: string, family: string, cssFile: string
     }
 }
 
-export function changePieceCSS(assetUrl: string, family: string, cssFile: string) {
-    const cssId = `piece-set-${family}`;
+export function pieceStyleClass(family: string, cssFile: string) {
+    if (cssFile === 'letters' || cssFile === 'invisible') return `piece-style-${cssFile}`;
+    return `piece-style-${family}-${cssFile}`;
+}
+
+export function ensurePieceCSS(assetUrl: string, family: string, cssFile: string) {
+    const cssId = (cssFile === 'letters' || cssFile === 'invisible') ?
+        `piece-set-${cssFile}` :
+        `piece-set-${family}-${cssFile}`;
     let newUrl = sanitizeURL(`${assetUrl}/piece-css/${family}/${cssFile}.css`);
     if (cssFile === 'letters') newUrl = sanitizeURL(`${assetUrl}/piece-css/letters.css`);
     if (cssFile === 'invisible') newUrl = sanitizeURL(`${assetUrl}/piece-css/invisible.css`);
-    // console.log("changePieceCSS", family, cssFile, newUrl)
-    let link = document.getElementById(cssId) as HTMLLinkElement | null;
-    if (!link) {
-        link = document.createElement('link');
-        link.id = cssId;
-        link.rel = 'stylesheet';
-        console.log('add CSS link', cssId, link);
-        const anchor = document.querySelector('link[rel="stylesheet"][href*="extensions.css"]');
-        if (anchor && anchor.parentNode) {
-            anchor.parentNode.insertBefore(link, anchor);
-        } else {
-            document.head.appendChild(link);
-        }
-    } else {
-        const anchor = document.querySelector('link[rel="stylesheet"][href*="extensions.css"]');
-        if (anchor && anchor.parentNode) {
-            anchor.parentNode.insertBefore(link, anchor);
-        }
-    }
+
+    if (document.getElementById(cssId)) return;
+
+    const link = document.createElement('link');
+    link.id = cssId;
+    link.rel = 'stylesheet';
     link.setAttribute("href", newUrl);
+
+    const anchor = document.querySelector('link[rel="stylesheet"][href*="extensions.css"]');
+    if (anchor && anchor.parentNode) {
+        anchor.parentNode.insertBefore(link, anchor);
+    } else {
+        document.head.appendChild(link);
+    }
 }
 
 export function bind(eventName: string, f: (e: Event) => void, redraw: null | (() => void)) {

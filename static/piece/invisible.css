@@ -1,0 +1,58 @@
+piece._-piece {}
+piece.a-piece {}
+piece.pa-piece {}
+piece.b-piece {}
+piece.pb-piece {}
+piece.c-piece {}
+piece.pc-piece {}
+piece.d-piece {}
+piece.pd-piece {}
+piece.e-piece {}
+piece.pe-piece {}
+piece.f-piece {}
+piece.pf-piece {}
+piece.g-piece {}
+piece.pg-piece {}
+piece.h-piece {}
+piece.ph-piece {}
+piece.i-piece {}
+piece.pi-piece {}
+piece.j-piece {}
+piece.pj-piece {}
+piece.k-piece {}
+piece.pk-piece {}
+piece.l-piece {}
+piece.pl-piece {}
+piece.m-piece {}
+piece.pm-piece {}
+piece.n-piece {}
+piece.pn-piece {}
+piece.o-piece {}
+piece.po-piece {}
+piece.p-piece {}
+piece.pp-piece {}
+piece.q-piece {}
+piece.pq-piece {}
+piece.r-piece {}
+piece.pr-piece {}
+piece.s-piece {}
+piece.ps-piece {}
+piece.t-piece {}
+piece.pt-piece {}
+piece.u-piece {}
+piece.pu-piece {}
+piece.v-piece {}
+piece.pv-piece {}
+piece.w-piece {}
+piece.pw-piece {}
+piece.x-piece {}
+piece.px-piece {}
+piece.y-piece {}
+piece.py-piece {}
+piece.z-piece {}
+piece.pz-piece {}
+
+.xiangqi piece.black.m-piece, .manchu piece.black.m-piece, .xiangqi piece.white.m-piece, .manchu piece.white.m-piece {
+  background-color: unset;
+  border-radius: unset;
+}

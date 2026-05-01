@@ -57,7 +57,7 @@ function gameView(games: Games, game: Game) {
             hook: {
                 insert: vnode => {
                     boardSettings.updateBoardStyle(variant.boardFamily);
-                    boardSettings.updatePieceStyle(variant.pieceFamily, variant);
+                    boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
                         lastMove: lastMove,

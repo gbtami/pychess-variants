@@ -5,7 +5,7 @@ import * as cg from 'chessgroundx/types';
 import { Api } from 'chessgroundx/api';
 
 import { _ } from './i18n';
-import { changeBoardCSS, changePieceCSS } from './document';
+import { changeBoardCSS, ensurePieceCSS, pieceStyleClass } from './document';
 import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { BoardName, PyChessModel } from "./types";
@@ -71,6 +71,13 @@ function pieceStyleSettingsName(pieceFamily: string, variant?: Variant): string 
     return (variant?.name ?? pieceFamily) + '-piece';
 }
 
+function setPieceStyleClass(target: HTMLElement, family: string, css: string): void {
+    for (const className of Array.from(target.classList)) {
+        if (className.startsWith('piece-style-')) target.classList.remove(className);
+    }
+    target.classList.add(pieceStyleClass(family, css));
+}
+
 class BoardSettings {
     ctrl: BoardController;
     ctrl2: BoardController;
@@ -109,7 +116,6 @@ class BoardSettings {
 
     updateBoardAndPieceStyles() {
         Object.keys(BOARD_FAMILIES).forEach(family => this.updateBoardStyle(family));
-        Object.keys(PIECE_FAMILIES).forEach(family => this.updatePieceStyle(family));
     }
 
     updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
@@ -118,11 +124,38 @@ class BoardSettings {
         changeBoardCSS(this.assetURL , family as string, board);
     }
 
-    updatePieceStyle(family: keyof typeof PIECE_FAMILIES, variant?: Variant) {
-        const idx = this.getSettings("PieceStyle", family as string, '', variant).value as number;
-        const css = selectedPieceCSS(family, idx, variant);
-        changePieceCSS(this.assetURL, family as string, css);
+    updateActivePieceStyle(variant: Variant) {
+        if (this.ctrl?.variant.name !== variant.name && this.ctrl2?.variant.name !== variant.name) return;
+
+        const family = variant.pieceFamily;
+        const css = this.pieceCSS(family, variant);
+        ensurePieceCSS(this.assetURL, family as string, css);
+
+        const root = document.getElementById('mainboard')?.closest('.round-app, .analysis-app, .embed-app, .editor-app') ?? document;
+        const targets = new Set<Element>();
+        if (root instanceof HTMLElement && root.classList.contains(family)) targets.add(root);
+        root.querySelectorAll('.' + family).forEach(el => targets.add(el));
+
+        targets.forEach(target => {
+            if (target instanceof HTMLElement) setPieceStyleClass(target, family as string, css);
+        });
         this.updateDropSuggestion();
+    }
+
+    pieceCSS(family: keyof typeof PIECE_FAMILIES, variant?: Variant) {
+        const idx = this.getSettings("PieceStyle", family as string, '', variant).value as number;
+        return selectedPieceCSS(family, idx, variant);
+    }
+
+    updateScopedPieceStyle(variant: Variant, el?: Element) {
+        const family = variant.pieceFamily;
+        const css = this.pieceCSS(family, variant);
+        ensurePieceCSS(this.assetURL, family as string, css);
+
+        if (el instanceof HTMLElement) {
+            const target = (el.closest('.' + family) as HTMLElement | null) ?? el;
+            setPieceStyleClass(target, family as string, css);
+        }
     }
 
     updateDropSuggestion() {
@@ -303,7 +336,7 @@ class PieceStyleSettings extends NumberSettings {
     }
 
     update(): void {
-        this.boardSettings.updatePieceStyle(this.pieceFamily, this.variant);
+        if (this.variant) this.boardSettings.updateActivePieceStyle(this.variant);
     }
 
     view(): VNode {

@@ -1,58 +1,58 @@
-piece._-piece {}
-piece.a-piece {}
-piece.pa-piece {}
-piece.b-piece {}
-piece.pb-piece {}
-piece.c-piece {}
-piece.pc-piece {}
-piece.d-piece {}
-piece.pd-piece {}
-piece.e-piece {}
-piece.pe-piece {}
-piece.f-piece {}
-piece.pf-piece {}
-piece.g-piece {}
-piece.pg-piece {}
-piece.h-piece {}
-piece.ph-piece {}
-piece.i-piece {}
-piece.pi-piece {}
-piece.j-piece {}
-piece.pj-piece {}
-piece.k-piece {}
-piece.pk-piece {}
-piece.l-piece {}
-piece.pl-piece {}
-piece.m-piece {}
-piece.pm-piece {}
-piece.n-piece {}
-piece.pn-piece {}
-piece.o-piece {}
-piece.po-piece {}
-piece.p-piece {}
-piece.pp-piece {}
-piece.q-piece {}
-piece.pq-piece {}
-piece.r-piece {}
-piece.pr-piece {}
-piece.s-piece {}
-piece.ps-piece {}
-piece.t-piece {}
-piece.pt-piece {}
-piece.u-piece {}
-piece.pu-piece {}
-piece.v-piece {}
-piece.pv-piece {}
-piece.w-piece {}
-piece.pw-piece {}
-piece.x-piece {}
-piece.px-piece {}
-piece.y-piece {}
-piece.py-piece {}
-piece.z-piece {}
-piece.pz-piece {}
+.piece-style-invisible.piece-style-invisible piece._-piece {}
+.piece-style-invisible.piece-style-invisible piece.a-piece {}
+.piece-style-invisible.piece-style-invisible piece.pa-piece {}
+.piece-style-invisible.piece-style-invisible piece.b-piece {}
+.piece-style-invisible.piece-style-invisible piece.pb-piece {}
+.piece-style-invisible.piece-style-invisible piece.c-piece {}
+.piece-style-invisible.piece-style-invisible piece.pc-piece {}
+.piece-style-invisible.piece-style-invisible piece.d-piece {}
+.piece-style-invisible.piece-style-invisible piece.pd-piece {}
+.piece-style-invisible.piece-style-invisible piece.e-piece {}
+.piece-style-invisible.piece-style-invisible piece.pe-piece {}
+.piece-style-invisible.piece-style-invisible piece.f-piece {}
+.piece-style-invisible.piece-style-invisible piece.pf-piece {}
+.piece-style-invisible.piece-style-invisible piece.g-piece {}
+.piece-style-invisible.piece-style-invisible piece.pg-piece {}
+.piece-style-invisible.piece-style-invisible piece.h-piece {}
+.piece-style-invisible.piece-style-invisible piece.ph-piece {}
+.piece-style-invisible.piece-style-invisible piece.i-piece {}
+.piece-style-invisible.piece-style-invisible piece.pi-piece {}
+.piece-style-invisible.piece-style-invisible piece.j-piece {}
+.piece-style-invisible.piece-style-invisible piece.pj-piece {}
+.piece-style-invisible.piece-style-invisible piece.k-piece {}
+.piece-style-invisible.piece-style-invisible piece.pk-piece {}
+.piece-style-invisible.piece-style-invisible piece.l-piece {}
+.piece-style-invisible.piece-style-invisible piece.pl-piece {}
+.piece-style-invisible.piece-style-invisible piece.m-piece {}
+.piece-style-invisible.piece-style-invisible piece.pm-piece {}
+.piece-style-invisible.piece-style-invisible piece.n-piece {}
+.piece-style-invisible.piece-style-invisible piece.pn-piece {}
+.piece-style-invisible.piece-style-invisible piece.o-piece {}
+.piece-style-invisible.piece-style-invisible piece.po-piece {}
+.piece-style-invisible.piece-style-invisible piece.p-piece {}
+.piece-style-invisible.piece-style-invisible piece.pp-piece {}
+.piece-style-invisible.piece-style-invisible piece.q-piece {}
+.piece-style-invisible.piece-style-invisible piece.pq-piece {}
+.piece-style-invisible.piece-style-invisible piece.r-piece {}
+.piece-style-invisible.piece-style-invisible piece.pr-piece {}
+.piece-style-invisible.piece-style-invisible piece.s-piece {}
+.piece-style-invisible.piece-style-invisible piece.ps-piece {}
+.piece-style-invisible.piece-style-invisible piece.t-piece {}
+.piece-style-invisible.piece-style-invisible piece.pt-piece {}
+.piece-style-invisible.piece-style-invisible piece.u-piece {}
+.piece-style-invisible.piece-style-invisible piece.pu-piece {}
+.piece-style-invisible.piece-style-invisible piece.v-piece {}
+.piece-style-invisible.piece-style-invisible piece.pv-piece {}
+.piece-style-invisible.piece-style-invisible piece.w-piece {}
+.piece-style-invisible.piece-style-invisible piece.pw-piece {}
+.piece-style-invisible.piece-style-invisible piece.x-piece {}
+.piece-style-invisible.piece-style-invisible piece.px-piece {}
+.piece-style-invisible.piece-style-invisible piece.y-piece {}
+.piece-style-invisible.piece-style-invisible piece.py-piece {}
+.piece-style-invisible.piece-style-invisible piece.z-piece {}
+.piece-style-invisible.piece-style-invisible piece.pz-piece {}
 
-.xiangqi piece.black.m-piece, .manchu piece.black.m-piece, .xiangqi piece.white.m-piece, .manchu piece.white.m-piece {
+.piece-style-invisible.piece-style-invisible.xiangqi piece.black.m-piece, .piece-style-invisible.piece-style-invisible.manchu piece.black.m-piece, .piece-style-invisible.piece-style-invisible.xiangqi piece.white.m-piece, .piece-style-invisible.piece-style-invisible.manchu piece.white.m-piece {
   background-color: unset;
   border-radius: unset;
 }

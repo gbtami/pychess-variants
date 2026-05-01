@@ -20,7 +20,7 @@ export function variantBoard(variant: Variant, fen: string, check: boolean=false
             hook: {
                 insert: (vnode: VNode) => {
                     boardSettings.updateBoardStyle(variant.boardFamily);
-                    boardSettings.updatePieceStyle(variant.pieceFamily, variant);
+                    boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
                     Chessground(vnode.elm as HTMLElement,  {
                         fen: fen,
                         turnColor: fen.split(" ")[1] === "b" ? "white" : "black",

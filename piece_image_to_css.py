@@ -1,32 +1,31 @@
-import os
 import sys
 import base64
+from pathlib import Path
+
+
+STATIC_DIR = Path("static")
+PIECE_DIR = STATIC_DIR / "piece"
+PIECE_CSS_DIR = STATIC_DIR / "piece-css"
 
 
 def main(css_path):
-    if os.path.isdir(css_path):
-        for root, dirs, files in os.walk(css_path):
-            print("===", root, dirs, files)
-            root_css_dir = root.replace("piece", "piece-css")
-            if not os.path.exists(root_css_dir):
-                os.makedirs(root_css_dir)
-
-            for dir_name in dirs:
-                print("---", dir_name)
-                piece_css_dir = os.path.join(root.replace("piece", "piece-css"), dir_name)
-                print(piece_css_dir)
-                if not os.path.exists(piece_css_dir):
-                    os.makedirs(piece_css_dir)
-
-            for name in files:
-                print(os.path.join(root, name))
-                image_to_css(os.path.join(root, name))
+    css_path = Path(css_path)
+    if css_path.is_dir():
+        for path in css_path.rglob("*.css"):
+            print(path)
+            image_to_css(path)
     else:
         image_to_css(css_path)
 
 
 def image_to_css(css_path):
-    piece_css_path = css_path.replace("piece", "piece-css")
+    css_path = Path(css_path)
+    piece_css_path = generated_css_path(css_path, PIECE_CSS_DIR)
+    relative_path = css_path.relative_to(PIECE_DIR)
+    root_scope = len(relative_path.parts) == 1
+    class_name = piece_style_class_name(relative_path)
+
+    piece_css_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(css_path, "r") as f1, open(piece_css_path, "w") as f2:
         line = f1.readline()
@@ -36,18 +35,53 @@ def image_to_css(css_path):
                 end_idx = line.rfind("')")
                 image_path = line[start_idx: end_idx].replace("../..", "static")
                 print(image_path)
-                if not os.path.exists(image_path):
+                if not Path(image_path).exists():
                     print("! Missing file", image_path)
                     image_path = "static/images/pieces/invisible.svg"
 
                 image64 = encode_image(image_path)
                 url64 = css_url(image64, image_path)
-                f2.write("  background-image: %s" % url64)
-                f2.write("\n")
-            else:
-                f2.write(line)
+                line = "  background-image: %s\n" % url64
 
+            f2.write(scoped_css_line(line, class_name, root_scope=root_scope))
             line = f1.readline()
+
+
+def generated_css_path(css_path: Path, output_dir: Path) -> Path:
+    return output_dir / css_path.relative_to(PIECE_DIR)
+
+
+def piece_style_class_name(relative_path: Path) -> str:
+    if len(relative_path.parts) == 1:
+        return "piece-style-%s" % relative_path.stem
+    return "piece-style-%s-%s" % (relative_path.parent.name, relative_path.stem)
+
+
+def scoped_css_line(line: str, class_name: str, root_scope: bool = False) -> str:
+    if "{" not in line:
+        return line
+
+    selector, body = line.split("{", 1)
+    if not selector.strip() or selector.lstrip().startswith("@"):
+        return line
+
+    scope = ".%s" % class_name
+    if root_scope:
+        scope = "%s%s" % (scope, scope)
+
+    selectors = []
+    for item in selector.split(","):
+        stripped = item.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("."):
+            selectors.append("%s%s" % (scope, stripped))
+        else:
+            selectors.append("%s %s" % (scope, stripped))
+    if selectors:
+        return "%s {%s" % (", ".join(selectors), body)
+    else:
+        return line
 
 
 def css_url(base64string, image_path):

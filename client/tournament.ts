@@ -562,7 +562,7 @@ export class TournamentController implements ChatController {
                     hook: {
                         insert: vnode => {
                             boardSettings.updateBoardStyle(variant.boardFamily);
-                            boardSettings.updatePieceStyle(variant.pieceFamily, variant);
+                            boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
                             let lastMove, fen;
                             [lastMove, fen] = getLastMoveFen(this.variant.name, game.lastMove, game.fen)
                             const cg = Chessground(vnode.elm as HTMLElement,  {
