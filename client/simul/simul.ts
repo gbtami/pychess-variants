@@ -343,7 +343,7 @@ export class SimulController implements ChatController {
                     class: { finished: isFinished },
                     hook: {
                         insert: vnode => {
-                            boardSettings.updateBoardStyle(variant.boardFamily);
+                            boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                             boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
                             const cg = Chessground((vnode.elm as HTMLElement).firstElementChild as HTMLElement, {
                                 fen: game.fen,

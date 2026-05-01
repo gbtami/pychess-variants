@@ -19,7 +19,7 @@ export function variantBoard(variant: Variant, fen: string, check: boolean=false
         h(`div.cg-wrap.${variant.board.cg}`, {
             hook: {
                 insert: (vnode: VNode) => {
-                    boardSettings.updateBoardStyle(variant.boardFamily);
+                    boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                     boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
                     Chessground(vnode.elm as HTMLElement,  {
                         fen: fen,

@@ -53,24 +53,13 @@ export function setCookie(cname: string, cvalue: string, exdays: number) {
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
-export function changeBoardCSS(assetUrl: string, family: string, cssFile: string) {
-    const link = document.querySelector('link[href*=board]') as HTMLLinkElement;
-    const sheet = link!.sheet;
-    const cssRules = sheet!.cssRules;
-    for (let i = 0; i < cssRules.length; i++) {
-        const rule = cssRules[i];
-        if (!( rule instanceof CSSStyleRule)) {
-            continue;
-        }
-        if (rule.selectorText === `.${family} cg-board`) {
-            // console.log("changeBoardCSS", family, cssFile, i)
-            sheet!.deleteRule(i)
-            const newRule = `.${family} cg-board {background-image: url(${assetUrl}/images/board/${cssFile})}`;
-            // console.log(newRule);
-            sheet!.insertRule(newRule, i);
-            break;
-        }
-    }
+export function ensureBoardStyleOverride() {
+    if (document.getElementById('board-style-override')) return;
+
+    const style = document.createElement('style');
+    style.id = 'board-style-override';
+    style.textContent = '[data-board-variant] cg-board { background-image: var(--board-image); }';
+    document.head.appendChild(style);
 }
 
 export function pieceStyleClass(family: string, cssFile: string) {

@@ -5,7 +5,7 @@ import * as cg from 'chessgroundx/types';
 import { Api } from 'chessgroundx/api';
 
 import { _ } from './i18n';
-import { changeBoardCSS, ensurePieceCSS, pieceStyleClass } from './document';
+import { ensureBoardStyleOverride, ensurePieceCSS, pieceStyleClass } from './document';
 import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { BoardName, PyChessModel } from "./types";
@@ -71,6 +71,19 @@ function pieceStyleSettingsName(pieceFamily: string, variant?: Variant): string 
     return (variant?.name ?? pieceFamily) + '-piece';
 }
 
+function boardStyleSettingsName(variant: Variant): string {
+    return variant.name + '-board';
+}
+
+function selectedBoardCSS(boardFamily: keyof typeof BOARD_FAMILIES | string, idx: number): string {
+    return BOARD_FAMILIES[boardFamily].boardCSS[idx] ?? BOARD_FAMILIES[boardFamily].boardCSS[0];
+}
+
+function setBoardStyle(target: HTMLElement, assetURL: string, css: string): void {
+    ensureBoardStyleOverride();
+    target.style.setProperty('--board-image', `url(${assetURL}/images/board/${css})`);
+}
+
 function setPieceStyleClass(target: HTMLElement, family: string, css: string): void {
     for (const className of Array.from(target.classList)) {
         if (className.startsWith('piece-style-')) target.classList.remove(className);
@@ -81,6 +94,17 @@ function setPieceStyleClass(target: HTMLElement, family: string, css: string): v
 function pieceStyleTargets(variant: Variant, root: ParentNode = document): Set<HTMLElement> {
     const targets = new Set<HTMLElement>();
     const selector = `[data-piece-variant="${variant.name}"]`;
+
+    if (root instanceof HTMLElement && root.matches(selector)) targets.add(root);
+    root.querySelectorAll(selector).forEach(el => {
+        if (el instanceof HTMLElement) targets.add(el);
+    });
+    return targets;
+}
+
+function boardStyleTargets(variant: Variant, root: ParentNode = document): Set<HTMLElement> {
+    const targets = new Set<HTMLElement>();
+    const selector = `[data-board-variant="${variant.name}"]`;
 
     if (root instanceof HTMLElement && root.matches(selector)) targets.add(root);
     root.querySelectorAll(selector).forEach(el => {
@@ -106,11 +130,16 @@ class BoardSettings {
     }
 
     getSettings(settingsType: string, family: string, boardName: BoardName = '', variant?: Variant) {
-        const fullName = settingsType === "PieceStyle" ? pieceStyleSettingsName(family, variant) : family + settingsType + boardName;
+        const fullName = settingsType === "BoardStyle" && variant
+            ? boardStyleSettingsName(variant)
+            : settingsType === "PieceStyle"
+                ? pieceStyleSettingsName(family, variant)
+                : family + settingsType + boardName;
         if (!this.settings[fullName]) {
             switch (settingsType) {
                 case "BoardStyle":
-                    this.settings[fullName] = new BoardStyleSettings(this, family);
+                    if (!variant) throw "BoardStyle settings require a variant";
+                    this.settings[fullName] = new BoardStyleSettings(this, family, variant);
                     break;
                 case "PieceStyle":
                     this.settings[fullName] = new PieceStyleSettings(this, family, variant);
@@ -126,13 +155,32 @@ class BoardSettings {
     }
 
     updateBoardAndPieceStyles() {
-        Object.keys(BOARD_FAMILIES).forEach(family => this.updateBoardStyle(family));
+        Object.values(VARIANTS).forEach(variant => {
+            this.updateActiveBoardStyle(variant);
+            this.updateActivePieceStyle(variant);
+        });
     }
 
-    updateBoardStyle(family: keyof typeof BOARD_FAMILIES) {
-        const idx = this.getSettings("BoardStyle", family as string, '').value as number;
-        const board = BOARD_FAMILIES[family].boardCSS[idx];
-        changeBoardCSS(this.assetURL , family as string, board);
+    boardCSS(family: keyof typeof BOARD_FAMILIES, variant: Variant) {
+        const idx = this.getSettings("BoardStyle", family as string, '', variant).value as number;
+        return selectedBoardCSS(family, idx);
+    }
+
+    updateActiveBoardStyle(variant: Variant) {
+        const family = variant.boardFamily;
+        const css = this.boardCSS(family, variant);
+        boardStyleTargets(variant).forEach(target => setBoardStyle(target, this.assetURL, css));
+    }
+
+    updateScopedBoardStyle(variant: Variant, el?: Element) {
+        const family = variant.boardFamily;
+        const css = this.boardCSS(family, variant);
+
+        if (el instanceof HTMLElement) {
+            const target = (el.closest('.' + family) as HTMLElement | null) ?? el;
+            target.dataset.boardVariant = variant.name;
+            setBoardStyle(target, this.assetURL, css);
+        }
     }
 
     updateActivePieceStyle(variant: Variant) {
@@ -238,7 +286,7 @@ class BoardSettings {
             }
 
         settingsList.push(h('div#style-settings', [
-            this.getSettings("BoardStyle", boardFamily as string, '').view(),
+            this.getSettings("BoardStyle", boardFamily as string, '', variant).view(),
             (this.getSettings("PieceStyle", pieceFamily as string, '', variant) as PieceStyleSettings).view(),
             ])
         );
@@ -304,15 +352,17 @@ class ConfirmCorrMoveSettings extends BooleanSettings {
 class BoardStyleSettings extends NumberSettings {
     readonly boardSettings: BoardSettings;
     readonly boardFamily: string;
+    readonly variant: Variant;
 
-    constructor(boardSettings: BoardSettings, boardFamily: string) {
-        super(boardFamily + '-board', 0);
+    constructor(boardSettings: BoardSettings, boardFamily: string, variant: Variant) {
+        super(boardStyleSettingsName(variant), Number(localStorage[boardFamily + '-board'] ?? 0));
         this.boardSettings = boardSettings;
         this.boardFamily = boardFamily;
+        this.variant = variant;
     }
 
     update(): void {
-        this.boardSettings.updateBoardStyle(this.boardFamily);
+        this.boardSettings.updateActiveBoardStyle(this.variant);
     }
 
     view(): VNode {

@@ -68,7 +68,7 @@ export abstract class ChessgroundController implements BoardController {
         }
         boardSettings.assetURL = model.assetURL;
         const boardFamily = this.variant.boardFamily;
-        boardSettings.updateBoardStyle(boardFamily);
+        boardSettings.updateScopedBoardStyle(this.variant, el);
         boardSettings.updateActivePieceStyle(this.variant);
         boardSettings.updateZoom(boardFamily, '');
 

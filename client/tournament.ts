@@ -561,7 +561,7 @@ export class TournamentController implements ChatController {
                 h(`div.cg-wrap.${variant.board.cg}.mini`, {
                     hook: {
                         insert: vnode => {
-                            boardSettings.updateBoardStyle(variant.boardFamily);
+                            boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                             boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
                             let lastMove, fen;
                             [lastMove, fen] = getLastMoveFen(this.variant.name, game.lastMove, game.fen)

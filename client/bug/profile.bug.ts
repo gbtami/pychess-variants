@@ -16,7 +16,7 @@ export function renderGameBoardsBug(game: Game, username: string): VNode[] {
         h(`div.cg-wrap.${variant.board.cg}.mini`, {
         hook: {
             insert: vnode => {
-                boardSettings.updateBoardStyle(variant.boardFamily);
+                boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                 boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
                 Chessground(vnode.elm as HTMLElement, {
                     coordinates: false,
@@ -34,7 +34,7 @@ export function renderGameBoardsBug(game: Game, username: string): VNode[] {
         h(`div.cg-wrap.${variant.board.cg}.mini`, {
         hook: {
             insert: vnode => {
-                boardSettings.updateBoardStyle(variant.boardFamily);
+                boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                 boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
                 Chessground(vnode.elm as HTMLElement, {
                     coordinates: false,

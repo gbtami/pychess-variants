@@ -164,7 +164,7 @@ export function gameViewPlaying(
         h(`div.cg-wrap.${variant.board.cg}`, {
             hook: {
                 insert: vnode => {
-                    boardSettings.updateBoardStyle(variant.boardFamily);
+                    boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                     boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
                     const cg = Chessground(vnode.elm as HTMLElement, {
                         orientation: mycolor,
