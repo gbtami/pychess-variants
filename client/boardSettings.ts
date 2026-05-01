@@ -78,6 +78,17 @@ function setPieceStyleClass(target: HTMLElement, family: string, css: string): v
     target.classList.add(pieceStyleClass(family, css));
 }
 
+function pieceStyleTargets(variant: Variant, root: ParentNode = document): Set<HTMLElement> {
+    const targets = new Set<HTMLElement>();
+    const selector = `[data-piece-variant="${variant.name}"]`;
+
+    if (root instanceof HTMLElement && root.matches(selector)) targets.add(root);
+    root.querySelectorAll(selector).forEach(el => {
+        if (el instanceof HTMLElement) targets.add(el);
+    });
+    return targets;
+}
+
 class BoardSettings {
     ctrl: BoardController;
     ctrl2: BoardController;
@@ -125,20 +136,20 @@ class BoardSettings {
     }
 
     updateActivePieceStyle(variant: Variant) {
-        if (this.ctrl?.variant.name !== variant.name && this.ctrl2?.variant.name !== variant.name) return;
-
         const family = variant.pieceFamily;
         const css = this.pieceCSS(family, variant);
         ensurePieceCSS(this.assetURL, family as string, css);
 
-        const root = document.getElementById('mainboard')?.closest('.round-app, .analysis-app, .embed-app, .editor-app') ?? document;
-        const targets = new Set<Element>();
-        if (root instanceof HTMLElement && root.classList.contains(family)) targets.add(root);
-        root.querySelectorAll('.' + family).forEach(el => targets.add(el));
+        const targets = pieceStyleTargets(variant);
+        if (this.ctrl?.variant.name === variant.name || this.ctrl2?.variant.name === variant.name) {
+            const root = document.getElementById('mainboard')?.closest('.round-app, .analysis-app, .embed-app, .editor-app') ?? document;
+            if (root instanceof HTMLElement && root.classList.contains(family)) targets.add(root);
+            root.querySelectorAll('.' + family).forEach(el => {
+                if (el instanceof HTMLElement) targets.add(el);
+            });
+        }
 
-        targets.forEach(target => {
-            if (target instanceof HTMLElement) setPieceStyleClass(target, family as string, css);
-        });
+        targets.forEach(target => setPieceStyleClass(target, family as string, css));
         this.updateDropSuggestion();
     }
 
@@ -154,6 +165,7 @@ class BoardSettings {
 
         if (el instanceof HTMLElement) {
             const target = (el.closest('.' + family) as HTMLElement | null) ?? el;
+            target.dataset.pieceVariant = variant.name;
             setPieceStyleClass(target, family as string, css);
         }
     }
