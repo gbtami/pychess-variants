@@ -24,6 +24,7 @@ def image_to_css(css_path):
     relative_path = css_path.relative_to(PIECE_DIR)
     root_scope = len(relative_path.parts) == 1
     class_name = piece_style_class_name(relative_path)
+    family = None if root_scope else relative_path.parent.name
 
     piece_css_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -33,7 +34,7 @@ def image_to_css(css_path):
             if line.lstrip().startswith("background-image"):
                 start_idx = line.find("url('") + 5
                 end_idx = line.rfind("')")
-                image_path = line[start_idx: end_idx].replace("../..", "static")
+                image_path = line[start_idx:end_idx].replace("../..", "static")
                 print(image_path)
                 if not Path(image_path).exists():
                     print("! Missing file", image_path)
@@ -43,7 +44,7 @@ def image_to_css(css_path):
                 url64 = css_url(image64, image_path)
                 line = "  background-image: %s\n" % url64
 
-            f2.write(scoped_css_line(line, class_name, root_scope=root_scope))
+            f2.write(scoped_css_line(line, class_name, family=family, root_scope=root_scope))
             line = f1.readline()
 
 
@@ -57,7 +58,9 @@ def piece_style_class_name(relative_path: Path) -> str:
     return "piece-style-%s-%s" % (relative_path.parent.name, relative_path.stem)
 
 
-def scoped_css_line(line: str, class_name: str, root_scope: bool = False) -> str:
+def scoped_css_line(
+    line: str, class_name: str, family: str | None = None, root_scope: bool = False
+) -> str:
     if "{" not in line:
         return line
 
@@ -72,6 +75,9 @@ def scoped_css_line(line: str, class_name: str, root_scope: bool = False) -> str
     selectors = []
     for item in selector.split(","):
         stripped = item.strip()
+        family_prefix = ".%s " % family
+        if family is not None and stripped.startswith(family_prefix):
+            stripped = stripped[len(family_prefix) :]
         if not stripped:
             continue
         if stripped.startswith("."):
