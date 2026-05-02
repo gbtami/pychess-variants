@@ -68,12 +68,24 @@ export function activatePlyVari (ply: number) {
 
 export function createMovelistButtons (ctrl: GameController) {
     const container = document.getElementById('move-controls') as HTMLElement;
+
+    const selectVariationBound = (goToStart: boolean) => {
+        const vari = "plyVari" in ctrl ? ctrl.steps[ctrl.plyVari]?.vari : undefined;
+        if (vari && ctrl.plyVari > 0 && vari.length > 0) {
+            const ply = goToStart ? ctrl.plyVari : ctrl.plyVari + vari.length - 1;
+            selectMove(ctrl, ply, ctrl.plyVari);
+            return;
+        }
+
+        selectMove(ctrl, goToStart ? 0 : ctrl.steps.length - 1);
+    };
+
     let buttons = [
         h('button', { on: { click: () => ctrl.toggleOrientation() }, props: { title: _('Flip board')} }, [ h('i.icon.icon-refresh') ]),
-        h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
+        h('button', { on: { click: () => selectVariationBound(true) } }, [ h('i.icon.icon-fast-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-backward') ]),
         h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
-        h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
+        h('button', { on: { click: () => selectVariationBound(false) } }, [ h('i.icon.icon-fast-forward') ]),
     ];
     if (ctrl.variant.name === 'alice') {
         buttons.push(h('button#alice', { on: { click: () => ctrl.switchAliceBoards() }, props: { title: _('Switch boards')} }, [ h('i.icon.icon-exchange') ]));
