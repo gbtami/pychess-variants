@@ -1057,7 +1057,7 @@ export class AnalysisController extends GameController {
                 } else {
                     // variation in the variation: drop old moves
                     if ( vv ) {
-                        this.steps[this.plyVari]['vari'] = vv.slice(0, ffishBoardPly - this.plyVari);
+                        this.steps[this.plyVari]['vari'] = vv.slice(0, this.ply - this.plyVari);
                     }
                 }
             }
