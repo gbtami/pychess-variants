@@ -4,7 +4,7 @@
    width="52.157"
    version="1.1"
    id="svg21"
-   sodipodi:docname="1KY.svg"
+   sodipodi:docname="0TA.svg"
    inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -14,7 +14,7 @@
   <defs
      id="defs21">
     <filter
-       id="c-6"
+       id="c-2"
        color-interpolation-filters="sRGB"
        x="-0.47292764"
        y="-0.50591409"
@@ -23,13 +23,13 @@
       <feGaussianBlur
          result="result8"
          stdDeviation="5"
-         id="feGaussianBlur12-3" />
+         id="feGaussianBlur12-2" />
       <feComposite
          in="SourceGraphic"
          in2="result8"
          operator="in"
          result="result6"
-         id="feComposite12-3" />
+         id="feComposite12-1" />
       <feComposite
          in2="result6"
          operator="in"
@@ -38,23 +38,23 @@
       <feFlood
          flood-color="#fff"
          result="result10"
-         id="feFlood13-6" />
+         id="feFlood13-2" />
       <feBlend
          in="result10"
          in2="result11"
          mode="multiply"
          result="result12"
-         id="feBlend13-9" />
+         id="feBlend13-3" />
       <feComposite
          in="result12"
          in2="SourceGraphic"
          operator="in"
          result="fbSourceGraphic"
-         id="feComposite14-8" />
+         id="feComposite14-6" />
       <feFlood
          flood-color="#4b659a"
          result="result6"
-         id="feFlood14-1" />
+         id="feFlood14-2" />
       <feComposite
          in="fbSourceGraphic"
          in2="result6"
@@ -64,24 +64,24 @@
          k4="0"
          operator="arithmetic"
          result="result2"
-         id="feComposite15-7" />
+         id="feComposite15-9" />
       <feColorMatrix
          in="result2"
          result="fbSourceGraphicAlpha"
          type="matrix"
          values="1 0 0 -1 0 1 0 1 -1 0 1 0 0 -1 0 -0.8 -1 0 3.9 -2.7"
-         id="feColorMatrix15-8" />
+         id="feColorMatrix15-4" />
       <feGaussianBlur
          in="fbSourceGraphicAlpha"
          result="result0"
          stdDeviation=".5"
-         id="feGaussianBlur15-6" />
+         id="feGaussianBlur15-7" />
       <feDiffuseLighting
          diffuseConstant="0.69999999"
          in="result0"
          result="result13"
          surfaceScale="50"
-         id="feDiffuseLighting15-8">
+         id="feDiffuseLighting15-5">
         <feDistantLight
            azimuth="225"
            elevation="20"
@@ -93,18 +93,18 @@
          specularConstant="0.69999999"
          specularExponent="20"
          surfaceScale="10"
-         id="feSpecularLighting16-9">
+         id="feSpecularLighting16-4">
         <feDistantLight
            azimuth="225"
            elevation="45"
-           id="feDistantLight16-2" />
+           id="feDistantLight16-1" />
       </feSpecularLighting>
       <feBlend
          in="result13"
          in2="SourceGraphic"
          mode="screen"
          result="result5"
-         id="feBlend16-2" />
+         id="feBlend16-7" />
       <feComposite
          in="result1"
          in2="result5"
@@ -114,17 +114,17 @@
          k4="0"
          operator="arithmetic"
          result="result9"
-         id="feComposite16-5" />
+         id="feComposite16-8" />
       <feComposite
          in2="SourceGraphic"
          operator="in"
          result="fbSourceGraphic"
-         id="feComposite17-2" />
+         id="feComposite17-4" />
       <feColorMatrix
          in="fbSourceGraphic"
          result="fbSourceGraphicAlpha"
          values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
-         id="feColorMatrix17-4" />
+         id="feColorMatrix17-2" />
       <feComposite
          in="fbSourceGraphic"
          in2="fbSourceGraphic"
@@ -134,43 +134,43 @@
          k4="0"
          operator="arithmetic"
          result="composite1"
-         id="feComposite18-5" />
+         id="feComposite18-9" />
       <feColorMatrix
          in="composite1"
          result="colormatrix1"
          type="saturate"
          values="1"
-         id="feColorMatrix18-9" />
+         id="feColorMatrix18-8" />
       <feFlood
          flood-opacity=".666667"
          result="flood1"
-         id="feFlood18-2" />
+         id="feFlood18-0" />
       <feBlend
          in="flood1"
          in2="colormatrix1"
          mode="multiply"
          result="blend1"
-         id="feBlend18-2" />
+         id="feBlend18-0" />
       <feBlend
          in2="blend1"
          mode="screen"
          result="blend2"
-         id="feBlend19-8" />
+         id="feBlend19-1" />
       <feColorMatrix
          in="blend2"
          result="colormatrix2"
          type="saturate"
          values="1"
-         id="feColorMatrix19-5" />
+         id="feColorMatrix19-3" />
       <feComposite
          in="colormatrix2"
          in2="fbSourceGraphic"
          operator="in"
          result="composite2"
-         id="feComposite19-0" />
+         id="feComposite19-9" />
     </filter>
     <filter
-       id="a-6"
+       id="a-2"
        color-interpolation-filters="sRGB"
        x="-0.039076925"
        y="-0.031849027"
@@ -179,92 +179,92 @@
       <feFlood
          flood-opacity=".498039"
          result="flood"
-         id="feFlood1-5" />
+         id="feFlood1-6" />
       <feComposite
          in="flood"
          in2="SourceGraphic"
          operator="in"
          result="composite1"
-         id="feComposite1-3" />
+         id="feComposite1-7" />
       <feGaussianBlur
          in="composite1"
          result="blur"
          stdDeviation="1"
-         id="feGaussianBlur1-1" />
+         id="feGaussianBlur1-3" />
       <feOffset
          dx="5"
          dy="3"
          result="offset"
-         id="feOffset1-3" />
+         id="feOffset1-8" />
       <feComposite
          in="SourceGraphic"
          in2="offset"
          operator="over"
          result="composite2"
-         id="feComposite2-9" />
+         id="feComposite2-5" />
     </filter>
     <linearGradient
-       id="b-7"
-       gradientTransform="matrix(1.5379714,0,0,1.4500588,382.02756,-2.50967)"
+       id="b-0"
+       gradientTransform="matrix(-1.5074238,0,0,-1.4274842,309.25481,215.22473)"
        gradientUnits="userSpaceOnUse"
        spreadMethod="repeat"
-       x1="-30.848999"
-       x2="-14.721275"
-       y1="30.2665"
-       y2="30.2665">
+       x1="148.36755"
+       x2="129.50363"
+       y1="49.818771"
+       y2="49.818771">
       <stop
          offset="0"
-         stop-color="#dfb459"
-         id="stop2-0" />
+         stop-color="#e5c37b"
+         id="stop2-2" />
       <stop
-         offset=".0762229"
-         stop-color="#dead54"
-         id="stop3-5" />
+         offset=".04234359"
+         stop-color="#e4bd76"
+         id="stop3-6" />
       <stop
-         offset=".12290344"
-         stop-color="#e1b85f"
-         id="stop4-6" />
+         offset=".09289452"
+         stop-color="#e7c781"
+         id="stop4-1" />
       <stop
-         offset=".21163738"
-         stop-color="#dba84d"
+         offset=".16495684"
+         stop-color="#e2b86e"
          id="stop5-0" />
       <stop
          offset=".3052367"
-         stop-color="#dfb765"
-         id="stop6-4" />
+         stop-color="#e6c686"
+         id="stop6-9" />
       <stop
          offset=".53886235"
-         stop-color="#d8a94e"
+         stop-color="#dfb96f"
          id="stop7-8" />
       <stop
          offset=".58579648"
-         stop-color="#d5ab53"
-         id="stop8-3" />
+         stop-color="#ddbb73"
+         id="stop8-4" />
       <stop
          offset=".83974683"
-         stop-color="#e0bf6e"
-         id="stop9-7" />
+         stop-color="#e7ce8f"
+         id="stop9-8" />
       <stop
          offset=".92426348"
-         stop-color="#daae52"
-         id="stop10-8" />
+         stop-color="#e1bd73"
+         id="stop10-0" />
       <stop
          offset=".96230692"
-         stop-color="#d9af57"
+         stop-color="#e0bf78"
          id="stop11-9" />
       <stop
          offset="1"
-         stop-color="#e1b663"
-         id="stop12-0" />
+         stop-color="#e7c685"
+         id="stop12-8" />
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#b-7"
-       id="linearGradient22"
-       x1="498.67087"
-       y1="225.15022"
-       x2="516.23376"
-       y2="225.15022"
+       xlink:href="#b-0"
+       id="linearGradient23"
+       x1="168"
+       y1="134.02394"
+       x2="191.55446"
+       y2="134.02394"
        gradientUnits="userSpaceOnUse"
        spreadMethod="repeat" />
   </defs>
@@ -277,9 +277,9 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="15.066667"
-     inkscape:cx="35.973451"
-     inkscape:cy="35.044248"
+     inkscape:zoom="7.5333332"
+     inkscape:cx="-51.504426"
+     inkscape:cy="41.81416"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
      inkscape:window-x="-11"
@@ -289,10 +289,10 @@
   <filter
      id="a"
      color-interpolation-filters="sRGB"
-     x="-0.044173912"
-     y="-0.034324634"
-     width="1.1803768"
-     height="1.1115551">
+     x="-0.037629622"
+     y="-0.030880767"
+     width="1.1536543"
+     height="1.1003625">
     <feFlood
        flood-opacity=".498039"
        result="flood"
@@ -322,65 +322,65 @@
   </filter>
   <linearGradient
      id="b"
-     gradientTransform="matrix(-1.3397311 0 0 -1.3548716 475.90632 216.20652)"
+     gradientTransform="matrix(1.5971235 0 0 1.4992064 217.26966 88.648074)"
      gradientUnits="userSpaceOnUse"
      spreadMethod="repeat"
-     x1="-57.446018"
-     x2="-39.653343"
-     y1="-2.331021"
-     y2="-2.331021">
+     x1="-30.848997"
+     x2="-15.094454"
+     y1="30.266588"
+     y2="30.266588">
     <stop
        offset="0"
-       stop-color="#e5c37b"
+       stop-color="#dfb459"
        id="stop2" />
     <stop
-       offset=".04234359"
-       stop-color="#e4bd76"
+       offset=".0762229"
+       stop-color="#dead54"
        id="stop3" />
     <stop
-       offset=".09289452"
-       stop-color="#e7c781"
+       offset=".12290344"
+       stop-color="#e1b85f"
        id="stop4" />
     <stop
-       offset=".16495684"
-       stop-color="#e2b86e"
+       offset=".21163738"
+       stop-color="#dba84d"
        id="stop5" />
     <stop
        offset=".3052367"
-       stop-color="#e6c686"
+       stop-color="#dfb765"
        id="stop6" />
     <stop
        offset=".53886235"
-       stop-color="#dfb96f"
+       stop-color="#d8a94e"
        id="stop7" />
     <stop
        offset=".58579648"
-       stop-color="#ddbb73"
+       stop-color="#d5ab53"
        id="stop8" />
     <stop
        offset=".83974683"
-       stop-color="#e7ce8f"
+       stop-color="#e0bf6e"
        id="stop9" />
     <stop
        offset=".92426348"
-       stop-color="#e1bd73"
+       stop-color="#daae52"
        id="stop10" />
     <stop
        offset=".96230692"
-       stop-color="#e0bf78"
+       stop-color="#d9af57"
        id="stop11" />
     <stop
        offset="1"
-       stop-color="#e7c685"
+       stop-color="#e1b663"
        id="stop12" />
   </linearGradient>
   <filter
      id="c"
      color-interpolation-filters="sRGB"
-     x="-0.50222928"
-     y="-0.48175822"
-     width="2.0076823"
-     height="1.9643595">
+     x="-0.52555441"
+     y="-0.46971916"
+     width="2.0511088"
+     height="1.9397358">
     <feGaussianBlur
        result="result8"
        stdDeviation="5"
@@ -503,7 +503,8 @@
        values="1"
        id="feColorMatrix18" />
     <feFlood
-       flood-opacity=".666667"
+       flood-color="#f00"
+       flood-opacity=".627451"
        result="flood1"
        id="feFlood18" />
     <feBlend
@@ -533,31 +534,39 @@
   <g
      filter="url(#a)"
      opacity=".99"
-     transform="matrix(.63 0 0 .63 -305.1987657 -113.035575)"
+     transform="matrix(.63001098 0 0 .629999 -99.85371543805 -56.22019092797)"
      id="g20">
     <path
-       d="m509.00241 258.06632v-3.77952l17.83407 5.93367 17.82592-5.90485v3.77954l-17.82592 5.90484z"
+       d="m168.00001 170.04913v5.66852l63.77953-.00003v-5.66875z"
        fill="#c3983c"
        fill-opacity=".992157"
        opacity="1"
-       transform="translate(-1 -2)"
        id="path19" />
     <path
-       d="m525.83812 258.2211 17.82587-5.90484 9.33759-60.23688-54.33071-.00001 9.33321 60.20807z"
+       d="m199.89152 97.999374-21.08808 6.576886-10.80344 65.47224 63.77953-.00026-10.8036-65.47313z"
        fill="url(#b)"
        opacity="1"
-       stroke-width="1.37274"
+       stroke-width="1.59276"
        id="path20"
-       style="fill:url(#linearGradient22);fill-opacity:1" />
+       style="fill:url(#linearGradient23);fill-opacity:1" />
   </g>
   <g
      filter="url(#c)"
-     opacity=".99"
-     transform="matrix(-.89775 0 0 -.89775 50.1805173 59.05052961)"
+     opacity="0.99"
+     transform="matrix(0.99226729,0,0,0.99224842,-26.076715,0.09611394)"
      id="g21">
     <path
-       d="m33.416421 25.459874q.778646 0 1.523437.440104.778646.40625 1.117188.981771 0 .236979-.473958.40625l-6.33073.236979q-.880208.06771-1.997396.270833 3.48698 2.708334 5.450521 3.588542 1.963542.880209 7.684896 2.606771.203125.101563.304688.203125.101562.101563.135417.101563-.135417.203125-2.065105.57552-1.895833.338542-2.776041.338542-1.151042 0-2.843751-1.21875-1.658854-1.21875-3.791666-3.25-2.098959-2.065104-2.776042-2.606771-.06771.541667-.06771 1.658854 0 1.184896.03385 1.963542 0 2.809896-.643229 2.809896-.473959 0-.710938-.846354l-.236979-.744792q.236979-1.388021.236979-4.367188-4.299479 5.789063-9.546875 7.820313-1.388021.507813-2.132813.507813-.440104 0-.643229-.203125.06771-.03385.744792-.440105.710937-.40625.98177-.541666.270834-.169271 1.015625-.609375.778646-.473959 1.184896-.744792.440105-.304687 1.184896-.8125.744792-.507812 1.21875-.880208.473959-.40625 1.117188-.981771.677083-.575521 1.151042-1.083334.473958-.507812.98177-1.117187.507813-.609375.880209-1.21875-1.861979.169271-3.48698.643229-1.591145.440104-1.929687.440104h-.101563q-1.083333 0-1.794271-.880208 0-.236979.406251-.304688l8.700521-1.21875q0-2.505208-.575521-3.588541-.507813.06771-2.369792.541666l-.8125.169271-1.151042.169271v-.372396q3.013021-1.117188 4.671875-1.963542 1.692709-.846354 2.166667-1.320312.473959-.507813.507813-1.015625l.101562-.135417q.880209 0 2.03125.744792 1.184896.710937 1.184896 1.049479 0 .304687-.440104.40625-.40625.06771-1.726563.372396-1.320312.270833-2.809895.947916 1.049479.541667 1.184895.744792l.203125.40625.03385.236979q-.609375 1.117188-.64323 2.26823 1.997396-.304688 4.401042-.744792l2.065104-.440104h.169271zm-13.135417 10.190104q.236979 0 .710937.236979.507813.23698.643229.372396 4.604167-.507812 7.651042-1.929687 1.963542.575521 2.911459 1.861979-.03385.135417-.372396.710938-.304688.541666-.304688.846354l.304688 5.315104q0 3.690104-1.557292 4.841146l-.473958-.06771-1.895834-2.911459q-3.486979.03385-6.026041.541667-.203125.778646-.677084 1.151042-.473958-.203125-.778646-.880209-.304687-.643229-.304687-1.286458 0-.135417.338541-1.184896.338542-1.083333.338542-2.572917 0-3.182291-.914062-4.773437.101562-.270834.40625-.270834zm9.377604 3.927084q0-1.929688-.101562-2.640625-.06771-.710938-.304688-.880209-.203125-.203125-.8125-.203125-.372396.03385-2.505208.575521-2.132813.507813-3.622396.778646l-.101563.236979v2.809896l3.182292-.914062q.575521-.169271.981771-.169271.947917 0 1.591146.677083 0 .372396-.135417.507813l-5.28125.744791q-.270833 0-.40625.03385 0 2.505209-.03385 3.216146l4.130208-.846354q.744792-.06771.981771-.06771 1.015625 0 1.726563.914062.710937-.06771.710937-4.773437z"
-       stroke="#000"
-       id="path21" />
+       id="path7108-1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:34.6667px;line-height:1.25;font-family:'cwTeX Q Kai';-inkscape-font-specification:'cwTeX Q Kai';letter-spacing:0px;word-spacing:0px;opacity:0.99;fill:#fd0000;fill-opacity:1;stroke:none;stroke-width:1.03332;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 49.692179,15.800536 c -0.09196,0.0088 -0.18073,0.0318 -0.287449,0.0632 -0.538916,0.158574 -1.233202,0.585394 -1.392353,0.85826 -0.131367,0.225132 -0.131603,0.240974 -0.01219,0.585086 0.09042,0.260595 0.239389,0.465232 0.564687,0.780791 0.242748,0.235459 0.483851,0.531272 0.536146,0.656434 0.150628,0.360339 0.204649,2.702992 0.110081,4.798917 -0.09754,2.163143 -0.118181,2.296615 -0.350636,2.328106 -0.09321,0.01265 -1.175594,0.224611 -2.405531,0.470922 -4.454371,0.892047 -4.684471,0.929868 -5.471558,0.874569 l -0.652345,-0.04689 v 0.360835 c 0,0.417953 0.118896,0.701841 0.45868,1.098818 0.290012,0.338821 0.614173,0.567381 1.475938,1.043774 0.355214,0.196363 0.811093,0.449861 1.013179,0.56266 0.471493,0.263198 0.666448,0.240228 1.828608,-0.224248 1.195734,-0.47792 3.398715,-1.069878 3.522672,-0.945922 0.03657,0.03661 -0.266296,1.408164 -0.421986,1.91019 -0.878311,2.832112 -1.583756,4.383028 -2.894786,6.364576 -1.719904,2.599487 -4.285403,5.061491 -7.442873,7.145369 -0.956686,0.63139 -1.117142,0.762069 -1.117142,0.911266 v 0.17532 l 0.636038,-0.01631 c 0.965013,-0.02448 2.930856,-0.542834 4.297334,-1.133472 1.937479,-0.837422 3.491569,-1.918421 5.018985,-3.488082 0.459134,-0.47183 0.888405,-0.93963 0.954061,-1.039697 0.06562,-0.100126 0.143899,-0.181437 0.175325,-0.181437 0.130363,0 0.897145,0.789285 1.217029,1.253752 0.351659,0.510637 0.824381,1.45209 0.980556,1.946884 0.203099,0.643429 0.388157,0.89578 1.033565,1.416842 0.417554,0.337109 0.617935,0.43021 1.137526,0.534119 0.815691,0.163149 1.678087,-0.381716 1.944807,-1.22929 0.127232,-0.404358 0.166727,-1.047591 0.08566,-1.410726 -0.09495,-0.425195 -0.331715,-1.032192 -0.509642,-1.306757 -0.38491,-0.59393 -1.186848,-1.265678 -1.91015,-1.600316 -0.922491,-0.426776 -1.5613,-0.614363 -2.766365,-0.809335 l -0.262969,-0.04078 0.122314,-0.185514 c 1.218623,-1.838609 2.320303,-4.350723 2.776544,-6.327883 0.04587,-0.198798 0.107259,-0.375344 0.136585,-0.393453 0.02925,-0.01808 0.201021,0.315 0.38122,0.740019 0.595274,1.403977 2.684568,5.410117 3.471708,6.656101 0.03585,0.05676 0.17863,0.304435 0.318014,0.550426 1.097248,1.936398 3.073219,4.773296 3.795848,5.449237 0.575754,0.538564 0.710446,0.579418 2.14866,0.670706 0.700122,0.04444 1.350793,0.09242 1.445361,0.106006 0.09466,0.01313 0.684347,0.01228 1.30877,-0.004 2.189059,-0.05746 3.315562,-0.229236 3.406473,-0.515771 0.02335,-0.0736 0.08462,-0.13251 0.136584,-0.13251 0.148105,0 0.183342,-0.116337 0.06934,-0.230365 -0.05714,-0.0571 -0.103974,-0.14745 -0.103974,-0.199786 0,-0.117822 -0.271596,-0.373886 -0.71554,-0.672744 -0.185666,-0.124989 -0.902551,-0.647525 -1.592135,-1.162014 -0.689595,-0.514479 -1.491108,-1.104724 -1.781718,-1.312874 -0.645854,-0.462589 -2.220795,-1.695321 -2.682781,-2.099779 -0.04318,-0.03783 -0.27883,-0.237873 -0.523911,-0.444419 -2.002941,-1.688111 -4.37711,-4.619331 -6.939343,-8.568328 -0.698875,-1.077117 -1.245571,-1.975944 -1.245571,-2.044737 0,-0.07204 0.175229,-0.110154 1.282263,-0.285407 2.852472,-0.451552 4.998227,-0.657097 7.041271,-0.670708 0.992252,-0.0067 1.060409,-0.01503 1.398471,-0.191631 0.985111,-0.514631 0.999473,-1.681765 0.0306,-2.509543 -0.284162,-0.242766 -0.589445,-0.399673 -1.339345,-0.691091 -1.938575,-0.753352 -2.07148,-0.759957 -3.000793,-0.167167 -0.495559,0.316106 -0.861332,0.439573 -1.698143,0.568775 -0.359521,0.05551 -0.915747,0.149407 -1.237418,0.209977 -0.321681,0.06061 -0.756119,0.139666 -0.96425,0.175322 -0.208152,0.03565 -0.485495,0.09626 -0.617697,0.134549 -0.132212,0.0383 -0.305385,0.06932 -0.383245,0.06932 -0.16375,0 -0.160619,-0.03257 0.144735,-2.485082 0.238604,-1.916381 0.331871,-2.358908 0.564687,-2.662439 0.368234,-0.480124 0.436629,-0.808059 0.279285,-1.33326 -0.217802,-0.726949 -1.679222,-1.82454 -3.119037,-2.342375 -0.835104,-0.300381 -1.130603,-0.39133 -1.406613,-0.364913 z"
+       sodipodi:nodetypes="cscssccssccssscccscssccsscsssscscsscccsssscssccsscssssscsscsssssscsssscsccc" />
   </g>
+  <g
+     filter="url(#c)"
+     opacity="0.99"
+     stroke="#000000"
+     stroke-width="0.866667"
+     transform="matrix(0.94498762,0,0,0.94500138,43.161551,16.847782)"
+     id="g21-5"
+     style="filter:url(#c-2)" />
 </svg>
