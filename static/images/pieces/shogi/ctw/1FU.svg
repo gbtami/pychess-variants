@@ -20,9 +20,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="7.6083333"
-     inkscape:cx="-42.782037"
-     inkscape:cy="51.653889"
+     inkscape:zoom="2.689952"
+     inkscape:cx="-327.51513"
+     inkscape:cy="73.235507"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
      inkscape:window-x="-11"
@@ -138,7 +138,7 @@
        xlink:href="#1FU_svg__a"
        id="1FU_svg__f"
        x1="-57.492001"
-       x2="-36.526001"
+       x2="-40.79253"
        y1="15.248"
        y2="15.248"
        gradientUnits="userSpaceOnUse"
@@ -363,7 +363,8 @@
        fill="url(#1FU_svg__f)"
        d="m-50.708-26.75-6.837 44.334h40.19l-6.535-44.638-13.138-3.935z"
        transform="rotate(180 45.578 23.813)"
-       id="path24" />
+       id="path24"
+       style="fill:url(#1FU_svg__f)" />
   </g>
   <g
      stroke="#000"

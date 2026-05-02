@@ -19,9 +19,9 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="10.759808"
-     inkscape:cx="-56.599522"
-     inkscape:cy="74.815459"
+     inkscape:zoom="7.6083332"
+     inkscape:cx="-106.72508"
+     inkscape:cy="50.602411"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
      inkscape:window-x="-11"
@@ -90,7 +90,7 @@
        xlink:href="#1FU_svg__b"
        id="0FU_svg__d"
        x1="-29.351"
-       x2="-11.018"
+       x2="-13.512433"
        y1="30.267"
        y2="30.267"
        gradientUnits="userSpaceOnUse"
@@ -309,7 +309,8 @@
     <path
        fill="url(#0FU_svg__d)"
        d="m-10.96 6.237-12.838 3.608-7.051 44.451H9.085l-6.79-44.163c-4.418-1.298-8.839-2.6-13.255-3.896"
-       id="path12" />
+       id="path12"
+       style="fill:url(#0FU_svg__d)" />
   </g>
   <path
      id="path1"
