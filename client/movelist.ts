@@ -66,18 +66,32 @@ export function activatePlyVari (ply: number) {
     if (elPly) elPly.classList.add('active');
 }
 
+export function getFastMoveSelection(
+    plyVari: number,
+    variLength: number | undefined,
+    mainLineLastPly: number,
+    goToStart: boolean,
+) {
+    if (variLength !== undefined && plyVari > 0 && variLength > 0) {
+        return {
+            ply: goToStart ? plyVari : plyVari + variLength - 1,
+            plyVari,
+        };
+    }
+
+    return {
+        ply: goToStart ? 0 : mainLineLastPly,
+        plyVari: 0,
+    };
+}
+
 export function createMovelistButtons (ctrl: GameController) {
     const container = document.getElementById('move-controls') as HTMLElement;
 
     const selectVariationBound = (goToStart: boolean) => {
         const vari = "plyVari" in ctrl ? ctrl.steps[ctrl.plyVari]?.vari : undefined;
-        if (vari && ctrl.plyVari > 0 && vari.length > 0) {
-            const ply = goToStart ? ctrl.plyVari : ctrl.plyVari + vari.length - 1;
-            selectMove(ctrl, ply, ctrl.plyVari);
-            return;
-        }
-
-        selectMove(ctrl, goToStart ? 0 : ctrl.steps.length - 1);
+        const target = getFastMoveSelection(ctrl.plyVari, vari?.length, ctrl.steps.length - 1, goToStart);
+        selectMove(ctrl, target.ply, target.plyVari);
     };
 
     let buttons = [

@@ -32,6 +32,7 @@ import { setAriaTabClick } from './view';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
 import { updatePoint } from './info';
+import { sliceVariationForBranch } from './analysisVariation';
 import {
     CEVAL_ACTIVE_ROUNDS_STORAGE_KEY,
     CEVAL_DISABLE_STORAGE_KEY,
@@ -1057,7 +1058,7 @@ export class AnalysisController extends GameController {
                 } else {
                     // variation in the variation: drop old moves
                     if ( vv ) {
-                        this.steps[this.plyVari]['vari'] = vv.slice(0, this.ply - this.plyVari);
+                        this.steps[this.plyVari]['vari'] = sliceVariationForBranch(vv, this.ply, this.plyVari);
                     }
                 }
             }
