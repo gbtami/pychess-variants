@@ -68,6 +68,7 @@ export class AnalysisController extends GameController {
     analysisChart: Chart;
     movetimeChart: Chart;
     chartFunctions: any[];
+    recordedMainlinePly?: number;
     localEngine: boolean;
     localAnalysis: boolean;
     maxDepth: number;
@@ -439,6 +440,7 @@ export class AnalysisController extends GameController {
                 }
                 this.steps.push(step);
                 });
+            this.recordedMainlinePly = msg.steps.length - 1;
             updateMovelist(this);
 
             if (this.steps[0].analysis === undefined) {

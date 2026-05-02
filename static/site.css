@@ -2420,6 +2420,9 @@ move {
 move.active {
   font-weight: bold;
 }
+move.theoretical {
+  font-style: italic;
+}
 movetime {
   font-size: 0.6em;
   padding-right: 8px;

@@ -6,11 +6,36 @@ import { result } from './result'
 import { Step } from './messages';
 import { patch } from './document';
 
+function clearActiveMoveHighlight() {
+    document.querySelectorAll('move.active, vari-move.active').forEach(el => el.classList.remove('active'));
+}
+
+export function normalizePlyVariForSelection(
+    plyVari: number,
+    variationLength: number | undefined,
+    ply: number,
+): number {
+    // Keep variation context only when the target ply is inside that variation.
+    // This prevents stale plyVari state from blocking main-line highlight updates.
+    if (
+        plyVari > 0
+        && variationLength !== undefined
+        && variationLength > 0
+        && ply >= plyVari
+        && ply <= plyVari + variationLength - 1
+    ) {
+        return plyVari;
+    }
+    return 0;
+}
+
 export function selectMove (ctrl: GameController, ply: number, plyVari = 0): void {
     //console.log("selectMove()", ply, plyVari);
 
     let plyMax = ctrl.steps.length - 1;
     const vari = "plyVari" in ctrl ? ctrl.steps[ctrl.plyVari]['vari']: undefined;
+    const requestedVariLength = "plyVari" in ctrl ? ctrl.steps[plyVari]?.vari?.length : undefined;
+    plyVari = normalizePlyVariForSelection(plyVari, requestedVariLength, ply);
     if (vari && ctrl.plyVari > 0) plyMax = ctrl.plyVari + vari.length - 1;
 
     if (ply < 0 || ply > plyMax) {
@@ -35,8 +60,7 @@ export function selectMove (ctrl: GameController, ply: number, plyVari = 0): voi
 
 function activatePly (ctrl: GameController) {
     //console.log('activatePly()', ctrl.ply, ctrl.plyVari);
-    const active = document.querySelector('move.active');
-    if (active) active.classList.remove('active');
+    clearActiveMoveHighlight();
 
     const elPly = document.querySelector(`move[ply="${ctrl.ply}"]`);
     if (elPly) elPly.classList.add('active');
@@ -59,11 +83,19 @@ function scrollToPly (ctrl: GameController) {
 
 export function activatePlyVari (ply: number) {
     //console.log('activatePlyVari()', ply);
-    const active = document.querySelector('vari-move.active');
-    if (active) active.classList.remove('active');
+    clearActiveMoveHighlight();
 
     const elPly = document.querySelector(`vari-move[ply="${ply}"]`);
     if (elPly) elPly.classList.add('active');
+}
+
+export function isTheoreticalMove(
+    ply: number,
+    status: number,
+    recordedMainlinePly: number | undefined,
+) {
+    // In finished games, moves beyond the persisted game tail are analysis-only.
+    return status >= 0 && recordedMainlinePly !== undefined && ply > recordedMainlinePly;
 }
 
 export function getFastMoveSelection(
@@ -142,7 +174,10 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
             moves.push(h('move.counter', Math.ceil((ply + 1) / 2)));
 
         const el = h('move', {
-            class: { active: ((ply === plyTo - 1) && activate) },
+            class: {
+                active: ((ply === plyTo - 1) && activate),
+                theoretical: isTheoreticalMove(ply, ctrl.status, (ctrl as GameController & { recordedMainlinePly?: number }).recordedMainlinePly),
+            },
             attrs: { ply: ply },
             on: { click: () => selectMove(ctrl, ply) },
         }, moveEl);

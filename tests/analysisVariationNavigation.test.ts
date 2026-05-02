@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 
 import { sliceVariationForBranch } from '../client/analysisVariation';
-import { getFastMoveSelection } from '../client/movelist';
+import { getFastMoveSelection, isTheoreticalMove, normalizePlyVariForSelection } from '../client/movelist';
 
 describe('analysis variation branch trimming', () => {
     test('preserves existing variation prefix when replacing a tail', () => {
@@ -30,5 +30,23 @@ describe('fast move-list navigation targets', () => {
         expect(getFastMoveSelection(0, undefined, 120, true)).toEqual({ ply: 0, plyVari: 0 });
         expect(getFastMoveSelection(0, undefined, 120, false)).toEqual({ ply: 120, plyVari: 0 });
         expect(getFastMoveSelection(41, 0, 120, false)).toEqual({ ply: 120, plyVari: 0 });
+    });
+});
+
+describe('theoretical move marking', () => {
+    test('marks only post-game continuation plies as theoretical', () => {
+        expect(isTheoreticalMove(41, 1, 40)).toBe(true);
+        expect(isTheoreticalMove(40, 1, 40)).toBe(false);
+        expect(isTheoreticalMove(10, -1, 9)).toBe(false);
+        expect(isTheoreticalMove(10, 1, undefined)).toBe(false);
+    });
+});
+
+describe('selection context normalization', () => {
+    test('falls back to mainline highlighting context when variation state is stale', () => {
+        expect(normalizePlyVariForSelection(41, undefined, 44)).toBe(0);
+        expect(normalizePlyVariForSelection(41, 5, 44)).toBe(41);
+        expect(normalizePlyVariForSelection(41, 5, 50)).toBe(0);
+        expect(normalizePlyVariForSelection(0, undefined, 10)).toBe(0);
     });
 });
