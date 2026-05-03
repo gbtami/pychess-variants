@@ -5,6 +5,7 @@ import { Settings, BooleanSettings, NumberSettings, StringSettings } from './set
 import { nnueFile, slider, sliderFromList, toggleSwitch } from './view';
 import { AnalysisController } from './analysisCtrl';
 import { patch } from './document';
+import { updateMovelist } from './movelist';
 
 
 class AnalysisSettings {
@@ -15,6 +16,7 @@ class AnalysisSettings {
     constructor() {
         this.settings = {};
         this.settings["arrow"] = new ArrowSettings(this);
+        this.settings["inlineNotation"] = new InlineNotationSettings(this);
         this.settings["infiniteAnalysis"] = new InfiniteAnalysisSettings(this);
         this.settings["multipv"] = new MultiPVSettings(this);
         this.settings["threads"] = new ThreadsSettings(this);
@@ -38,6 +40,8 @@ class AnalysisSettings {
 
         settingsList.push(this.settings["arrow"].view());
 
+        settingsList.push(this.settings["inlineNotation"].view());
+
         settingsList.push(this.settings["infiniteAnalysis"].view());
 
         settingsList.push(this.settings["multipv"].view());
@@ -55,6 +59,33 @@ class AnalysisSettings {
         settingsList.push();
 
         return h('div.analysis-settings', settingsList);
+    }
+}
+
+class InlineNotationSettings extends BooleanSettings {
+    readonly analysisSettings: AnalysisSettings;
+
+    constructor(analysisSettings: AnalysisSettings) {
+        super('inlineNotation', false);
+        this.analysisSettings = analysisSettings;
+    }
+
+    update(): void {
+        const ctrl = this.analysisSettings.ctrl;
+        ctrl.inlineNotation = this.value;
+        updateMovelist(ctrl, true, false);
+    }
+
+    view(): VNode {
+        return h(
+            'div.inlineNotation-toggle',
+            toggleSwitch(
+                this,
+                'inlineNotation-enabled',
+                _("Inline notation"),
+                false,
+            )
+        );
     }
 }
 

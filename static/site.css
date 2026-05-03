@@ -2468,6 +2468,165 @@ vari-move {
   padding-left: 4px;
 }
 
+#movelist.tview2.tview2-inline.analysis-tree {
+  display: block;
+  white-space: normal;
+  line-height: 1.8;
+  font-size: 13px;
+  padding: 7px 6px 5px 7px;
+}
+
+#movelist.tview2.tview2-inline.analysis-tree move {
+  display: inline-block;
+  float: none;
+  flex: none;
+  width: auto;
+  margin: 0 2px 2px 0;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#movelist.tview2.tview2-inline.analysis-tree move.mainline {
+  background: color-mix(in srgb, var(--bg-color2) 60%, transparent);
+}
+
+#movelist.tview2.tview2-inline.analysis-tree move.active {
+  color: #fff;
+  background: var(--blue-hover);
+}
+
+#movelist.tview2.tview2-inline.analysis-tree move:hover {
+  background: var(--bg-color2);
+}
+
+#movelist.tview2.tview2-inline.analysis-tree move.active:hover {
+  background: var(--blue-hover);
+}
+
+#movelist.tview2.tview2-inline.analysis-tree move index {
+  color: Gray;
+  padding-right: 0.2em;
+}
+
+#movelist.tview2.tview2-inline.analysis-tree inline {
+  display: inline;
+  font-style: italic;
+  opacity: 0.86;
+}
+
+#movelist.tview2.tview2-inline.analysis-tree inline::before,
+#movelist.tview2.tview2-inline.analysis-tree inline::after {
+  opacity: 0.72;
+}
+
+#movelist.tview2.tview2-inline.analysis-tree inline::before {
+  content: '(';
+  margin: 0 2px 0 1px;
+}
+
+#movelist.tview2.tview2-inline.analysis-tree inline::after {
+  content: ')';
+  margin: 0 3px 0 0;
+}
+
+#movelist.tview2.tview2-grid.analysis-tree {
+  display: block;
+  line-height: 1.55;
+  font-size: 13px;
+  padding: 4px 0 6px;
+}
+
+#movelist.tview2.tview2-grid.analysis-tree .tree-row {
+  display: grid;
+  grid-template-columns: 3.2em minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+#movelist.tview2.tview2-grid.analysis-tree .tree-row-index {
+  color: Gray;
+  background: color-mix(in srgb, var(--bg-color2) 74%, transparent);
+  text-align: center;
+  padding: 4px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
+}
+
+#movelist.tview2.tview2-grid.analysis-tree .tree-row-cell {
+  min-width: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 45%, transparent);
+}
+
+#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move {
+  display: flex;
+  float: none;
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+  padding: 4px 8px 4px 9px;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move.mainline {
+  background: color-mix(in srgb, var(--bg-color2) 32%, transparent);
+}
+
+#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move.active {
+  color: #fff;
+  background: var(--blue-hover);
+}
+
+#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move:hover {
+  background: var(--blue-hover);
+}
+
+#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move.active:hover {
+  background: var(--blue-hover);
+}
+
+#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move san {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#movelist.tview2.tview2-grid.analysis-tree .tree-grid-empty {
+  display: block;
+  min-height: 30px;
+  background: color-mix(in srgb, var(--bg-color0) 86%, transparent);
+}
+
+#movelist.tview2.tview2-grid.analysis-tree .tree-variation-block {
+  margin: 2px 0 4px 1.1em;
+  border-left: 2px solid color-mix(in srgb, var(--blue-hover) 35%, var(--border-color));
+  background: color-mix(in srgb, var(--bg-color2) 38%, transparent);
+}
+
+#movelist.tview2.tview2-grid.analysis-tree .tree-variation-block .tree-row-index {
+  background: transparent;
+}
+
+#movelist.tview2.tview2-grid.analysis-tree .tree-depth-2 {
+  margin-left: 1.8em;
+}
+
+#movelist.tview2.tview2-grid.analysis-tree .tree-depth-3 {
+  margin-left: 2.5em;
+}
+
+#movelist.tview2.tview2-grid.analysis-tree .tree-depth-4,
+#movelist.tview2.tview2-grid.analysis-tree .tree-depth-5,
+#movelist.tview2.tview2-grid.analysis-tree .tree-depth-6,
+#movelist.tview2.tview2-grid.analysis-tree .tree-depth-7,
+#movelist.tview2.tview2-grid.analysis-tree .tree-depth-8 {
+  margin-left: 3em;
+}
+
 /* range input slider */
 .slider {
   -webkit-appearance: none;
