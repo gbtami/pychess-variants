@@ -27,7 +27,7 @@
     "chessgroundx": "^10.7.4",
     "fairy-stockfish-nnue.wasm": "^1.1.11",
     "ffish-alice-es6": "^0.0.1",
-    "ffish-es6": "^0.7.8",
+    "ffish-es6": "^0.7.9",
     "gettext.js": "^2.0.3",
     "highcharts": "^12.5.0",
     "howler": "^2.2.3",

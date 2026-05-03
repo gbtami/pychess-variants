@@ -897,7 +897,7 @@ requires-dist = [
     { name = "playwright", marker = "extra == 'dev'", specifier = "==1.58.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.5.1" },
     { name = "py4swiss", specifier = "==0.3.1" },
-    { name = "pyffish", specifier = "==0.0.88" },
+    { name = "pyffish", specifier = "==0.0.89" },
     { name = "pyffish-alice", specifier = "==0.0.2" },
     { name = "pymongo", specifier = "==4.17.0" },
     { name = "pyopenssl", specifier = "==26.1.0" },
@@ -1006,14 +1006,22 @@ wheels = [
 
 [[package]]
 name = "pyffish"
-version = "0.0.88"
+version = "0.0.89"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c2/65/35e51084e8a2e03e8f0dee710d2ca95be957ed6a959279c6a59f03f4b3bd/pyffish-0.0.88.tar.gz", hash = "sha256:2e9a95b2cbafa21c583032c23cb728570e3c61783a74ecd0fe4cf1653e1e8fbe", size = 321947, upload-time = "2025-05-23T15:40:14.204Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/88/a7/0c4b4b45c562b5970284b073a3ad3a484fa841539983b80c95933348fd9a/pyffish-0.0.89.tar.gz", hash = "sha256:5796b6af7bda5fda0658f5343e6fe2a704357c359c427b4fb76b49d3f0c69c0b", size = 310888, upload-time = "2026-05-03T07:34:14.523Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f9/fe/1552074ac77ae3aeceec522a4467792134e31dbb161fac38a9be5578c6c7/pyffish-0.0.88-cp313-cp313-macosx_10_14_x86_64.whl", hash = "sha256:7d9ff1bc2c8218c612d0f994040db315c516d8228d255a0eae4008420f1eb2e7", size = 545273, upload-time = "2025-05-23T15:39:50.197Z" },
-    { url = "https://files.pythonhosted.org/packages/9e/54/683318966b514738b3e79f7c6e8703b78e8e505642befda37ac7b6480cb8/pyffish-0.0.88-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:5889c15f6146d04b0623727c5cb14744199b85966a7a6c937e391bee3d60768c", size = 530888, upload-time = "2025-05-23T15:39:51.694Z" },
-    { url = "https://files.pythonhosted.org/packages/4b/c9/60654861fa6d519c581d8da865fa5c470bc56d22cab13e009f29d0716afb/pyffish-0.0.88-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7c13ba866d5028ce750847aac97d18c9167f3f93e889741636a01f2871dce7dc", size = 5932809, upload-time = "2025-05-23T15:39:54.263Z" },
-    { url = "https://files.pythonhosted.org/packages/6c/09/25c5a70a646a201c967702b96c9ce301021a6ab455598fc05331400bc286/pyffish-0.0.88-cp313-cp313-win_amd64.whl", hash = "sha256:b3bbbdd60eb978b110f20f35783a2d58abc4869bdeaf1222d401c523d346dc1d", size = 372338, upload-time = "2025-05-23T15:39:56.194Z" },
+    { url = "https://files.pythonhosted.org/packages/53/b1/688da69b6f9389c63788deea9ebd48047912430fd5d776356b748f80735a/pyffish-0.0.89-cp313-cp313-macosx_10_14_x86_64.whl", hash = "sha256:4a4c0439e649a887c947b35dd50f41d1a57d42aa9af8b81a267fe42876807f56", size = 552829, upload-time = "2026-05-03T07:33:38.655Z" },
+    { url = "https://files.pythonhosted.org/packages/1a/0f/7071397fd0b577e1662755ffbacab218651616dda0cb79c149ca256d6e7e/pyffish-0.0.89-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:2ee2e07a40a76efd12c206a9e77ad7dedb6a420bf91161c603f7afb90eee85d7", size = 539426, upload-time = "2026-05-03T07:33:40.369Z" },
+    { url = "https://files.pythonhosted.org/packages/56/c6/6c08d0da7dc65dfddf5203951900899e013380fe3a7bbfd56644e11b674a/pyffish-0.0.89-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:2a69cb345078bd66711e1378161e368e4045f9b4b444ce4714dbbeea44401fad", size = 5558817, upload-time = "2026-05-03T07:33:42.847Z" },
+    { url = "https://files.pythonhosted.org/packages/00/5b/ac2c4c98a5413f20a1a37931bd7190cb0cd6608cdaedeef0f2a1001adcd2/pyffish-0.0.89-cp313-cp313-win_amd64.whl", hash = "sha256:faefd2f4a5065666e91d9fa933ff4e20f584286a5374b4522456b694a70fdb3a", size = 372218, upload-time = "2026-05-03T07:33:44.456Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/90/ce5949a96cdb6c3d374eca84ccc988086f7c19aa426cc36a9f7f05166f38/pyffish-0.0.89-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:27cb863c7b613da286fea6fad582f17d62ac59c40c9edd951f68575ec972e0e3", size = 553113, upload-time = "2026-05-03T07:33:45.795Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/9f/bd8364bd12c9c18129ffa03779bbe456db2f52b5d119d80ef5b16d91d082/pyffish-0.0.89-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:19a200fd463204f463da0305467a3ac9204913141ac8132db009959197475fa2", size = 539477, upload-time = "2026-05-03T07:33:47.02Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/93/3f5a003f8a5eb403c990d7f8c411431fd399cf1a06c996473d6fa7bae47c/pyffish-0.0.89-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1767b8abf2062cd04a0e05993a0fbc8dab51d806813a5bec259592bb22b40e25", size = 5558679, upload-time = "2026-05-03T07:33:49.309Z" },
+    { url = "https://files.pythonhosted.org/packages/29/dd/034d9f14b606ee5fa6808e013f67050b2f06260709eaf9fb2389ae2f01b2/pyffish-0.0.89-cp314-cp314-win_amd64.whl", hash = "sha256:1d139540504b5f954305a32d5ff0f689d102d2273808f608669f44fad5df5f27", size = 381376, upload-time = "2026-05-03T07:33:58.998Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/ee/0dcf995e877a7d9bda97d226fb8f1791976c447574212f901eaf15bb00f7/pyffish-0.0.89-cp314-cp314t-macosx_10_15_x86_64.whl", hash = "sha256:eb15b1b35f72a926c16692af97d632b6770e4911af0cc3230ddd1236f52f52ee", size = 553390, upload-time = "2026-05-03T07:33:51.113Z" },
+    { url = "https://files.pythonhosted.org/packages/70/29/947786b60ea0e861837395b61f69134b46f980a095d7b1ec79e76d93afff/pyffish-0.0.89-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:cbd8bf9ed71fa23c2a884de7841d9ecbc387d29c2924fd863c70720a87198908", size = 539826, upload-time = "2026-05-03T07:33:53.264Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/08/246c44388bfbcb905fe4b019ddb0d5aff26ce197ba33c77e7c318b59d620/pyffish-0.0.89-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:995d44861dfce0b2fc3a5013aaa549cdc784730cff23892d45dfb082993c376b", size = 5558905, upload-time = "2026-05-03T07:33:55.949Z" },
+    { url = "https://files.pythonhosted.org/packages/24/e5/2e9fc67bcaa928eef8168a0e8d2703ebdf6bd2a1825d23b9a284c210c537/pyffish-0.0.89-cp314-cp314t-win_amd64.whl", hash = "sha256:8316ecd51c84d1df1c4cc0c579cbd0aa97aec50a2ea26359f381860ed6e1afa0", size = 381688, upload-time = "2026-05-03T07:33:57.377Z" },
 ]
 
 [[package]]
