@@ -3,7 +3,6 @@ import { h, VNode } from 'snabbdom';
 import { _ } from './i18n';
 import { GameController } from './gameCtrl';
 import { result } from './result'
-import { Step } from './messages';
 import { patch } from './document';
 import { AnalysisTreeNode } from './analysis/analysisTree';
 
@@ -28,27 +27,8 @@ function clearActiveMoveHighlight() {
     document.querySelectorAll('move.active, vari-move.active').forEach((el) => el.classList.remove('active'));
 }
 
-export function normalizePlyVariForSelection(
-    plyVari: number,
-    variationLength: number | undefined,
-    ply: number,
-): number {
-    // Keep variation context only when the target ply is inside that variation.
-    // This prevents stale plyVari state from blocking main-line highlight updates.
-    if (
-        plyVari > 0
-        && variationLength !== undefined
-        && variationLength > 0
-        && ply >= plyVari
-        && ply <= plyVari + variationLength - 1
-    ) {
-        return plyVari;
-    }
-    return 0;
-}
-
-export function selectMove (ctrl: GameController, ply: number, plyVari = 0): void {
-    //console.log("selectMove()", ply, plyVari);
+export function selectMove (ctrl: GameController, ply: number, _plyVari = 0): void {
+    //console.log("selectMove()", ply);
 
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
@@ -59,29 +39,13 @@ export function selectMove (ctrl: GameController, ply: number, plyVari = 0): voi
         return;
     }
 
-    let plyMax = ctrl.steps.length - 1;
-    const vari = "plyVari" in ctrl ? ctrl.steps[ctrl.plyVari]?.vari : undefined;
-    const requestedVariLength = "plyVari" in ctrl ? ctrl.steps[plyVari]?.vari?.length : undefined;
-    plyVari = normalizePlyVariForSelection(plyVari, requestedVariLength, ply);
-    if (vari && ctrl.plyVari > 0) plyMax = ctrl.plyVari + vari.length - 1;
-
-    if (ply < 0 || ply > plyMax) {
+    if (ply < 0 || ply > ctrl.steps.length - 1) {
         return
     }
 
-    if (plyVari > 0 && ply < plyVari) {
-        // back to the main line
-        plyVari = 0;
-    }
-
-    ctrl.goPly(ply, plyVari);
-
-    if (plyVari === 0) {
-        activatePly(ctrl);
-        scrollToPly(ctrl);
-    } else {
-        activatePlyVari(ply);
-    }
+    ctrl.goPly(ply, 0);
+    activatePly(ctrl);
+    scrollToPly(ctrl);
 
 }
 
@@ -106,14 +70,6 @@ function scrollToPly (ctrl: GameController) {
         movelistEl.scrollTop = st;
 }
 
-export function activatePlyVari (ply: number) {
-    //console.log('activatePlyVari()', ply);
-    clearActiveMoveHighlight();
-
-    const elPly = document.querySelector(`vari-move[ply="${ply}"]`);
-    if (elPly) elPly.classList.add('active');
-}
-
 export function isTheoreticalMove(
     ply: number,
     status: number,
@@ -124,18 +80,11 @@ export function isTheoreticalMove(
 }
 
 export function getFastMoveSelection(
-    plyVari: number,
-    variLength: number | undefined,
+    _plyVari: number,
+    _variLength: number | undefined,
     mainLineLastPly: number,
     goToStart: boolean,
 ) {
-    if (variLength !== undefined && plyVari > 0 && variLength > 0) {
-        return {
-            ply: goToStart ? plyVari : plyVari + variLength - 1,
-            plyVari,
-        };
-    }
-
     return {
         ply: goToStart ? 0 : mainLineLastPly,
         plyVari: 0,
@@ -152,8 +101,7 @@ export function createMovelistButtons (ctrl: GameController) {
             if (target !== undefined) treeCtrl.activateTreePath?.(target);
             return;
         }
-        const vari = "plyVari" in ctrl ? ctrl.steps[ctrl.plyVari]?.vari : undefined;
-        const target = getFastMoveSelection(ctrl.plyVari, vari?.length, ctrl.steps.length - 1, goToStart);
+        const target = getFastMoveSelection(0, undefined, ctrl.steps.length - 1, goToStart);
         selectMove(ctrl, target.ply, target.plyVari);
     };
 
@@ -167,9 +115,7 @@ export function createMovelistButtons (ctrl: GameController) {
                     if (treeCtrl) {
                         const target = treeCtrl.getTreeParentPath?.();
                         if (target !== undefined) treeCtrl.activateTreePath?.(target);
-                    } else {
-                        selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari);
-                    }
+                    } else selectMove(ctrl, ctrl.ply - 1, 0);
                 }
             }
         }, [ h('i.icon.icon-step-backward') ]),
@@ -180,9 +126,7 @@ export function createMovelistButtons (ctrl: GameController) {
                     if (treeCtrl) {
                         const target = treeCtrl.getTreeMainChildPath?.();
                         if (target !== undefined) treeCtrl.activateTreePath?.(target);
-                    } else {
-                        selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari);
-                    }
+                    } else selectMove(ctrl, ctrl.ply + 1, 0);
                 }
             }
         }, [ h('i.icon.icon-step-forward') ]),
@@ -544,29 +488,6 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
 
         moves.push(el);
         
-        if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
-            const variMoves = ctrl.steps[ply]['vari'];
-
-            if (whiteMove) moves.push(h('move', '...'));
-
-            moves.push(h('vari#vari' + ctrl.plyVari,
-                variMoves?
-                    variMoves.map((x: Step, idx: number) => {
-                    const currPly = ctrl.plyVari + idx + ((blackStarts) ? 1 : 0);
-                    const moveCounter = (currPly % 2 !== 0) ? (currPly + 1) / 2 + '. ' : (idx === 0) ? Math.floor((currPly + 1) / 2) + '...' : ' ';
-                    return h('vari-move', {
-                        attrs: { ply: ctrl.plyVari + idx },
-                        on: { click: () => selectMove(ctrl, ctrl.plyVari + idx, ctrl.plyVari) },
-                        }, [ h('san', moveCounter + x['san']) ]
-                    );
-                }) : []
-            ));
-
-            if (whiteMove) {
-                moves.push(h('move.counter', Math.ceil((ply + 1) / 2)));
-                moves.push(h('move', '...'));
-            }
-        }
     }
 
     if (ctrl.status >= 0 && needResult) {

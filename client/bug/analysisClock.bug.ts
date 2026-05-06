@@ -9,7 +9,7 @@ import { BLACK, WHITE } from "../chess";
 export function renderClocks(ctrl: AnalysisController) {
     const lastStep = ctrl.hasAnalysisTree?.()
         ? ctrl.getTreeCurrentNode?.()?.step
-        : (ctrl.plyVari ? ctrl.steps[ctrl.plyVari] : ctrl.steps[ctrl.ply]);
+        : ctrl.steps[ctrl.ply];
     if (!lastStep) return;
     if (lastStep.clocks) {
         renderClocksCC([lastStep.clocks[WHITE], lastStep.clocks[BLACK]], ctrl.b1, "");

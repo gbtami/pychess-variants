@@ -76,7 +76,6 @@ export class AnalysisController extends GameController {
     settings: boolean;
     uci_usi: string;
     plyVari: number;
-    plyInsideVari: number;
     UCImovelist: string[];
     analysisChart: Chart;
     movetimeChart: Chart;
@@ -144,9 +143,6 @@ export class AnalysisController extends GameController {
 
         // ply where current interactive analysis variation line starts in the main line
         this.plyVari = 0;
-
-        // current move index inside the variation line
-        this.plyInsideVari = -1
 
         // used for interactive analysis go command
         this.UCImovelist = [];
@@ -980,11 +976,9 @@ export class AnalysisController extends GameController {
         this.refreshLocalAnalysisAvailabilityForAntiCheat();
     }
 
-    // When we are moving inside a variation move list
-    // then plyVari > 0 and ply is the index inside vari movelist
     goPly(ply: number, plyVari = 0) {
         if (this.hasAnalysisTree() && plyVari === 0) {
-            // Tree mode bypasses the legacy single-variation `steps[ply].vari` projection.
+            // Tree mode reads the active node directly instead of projecting a side line into `steps`.
             // We resolve the selected tree node first, then hydrate the existing board,
             // clocks, eval and PGN widgets from that node's step payload.
             const node = this.getTreeNodeForPly(ply);
@@ -1060,7 +1054,7 @@ export class AnalysisController extends GameController {
                 if (node.mainlinePly !== undefined) this.drawServerEval(node.mainlinePly, step.scoreStr);
             }
 
-            this.updateUCImoves(0);
+            this.updateUCImoves();
             if (this.localAnalysis) this.engineGo();
 
             if (!this.puzzle && !this.ongoing) {
@@ -1079,32 +1073,16 @@ export class AnalysisController extends GameController {
             return;
         }
 
-        super.goPly(ply, plyVari);
-
-        if (this.plyVari > 0) {
-            this.plyInsideVari = ply - plyVari;
-        }
+        super.goPly(ply, 0);
 
         if (this.localAnalysis) {
             this.engineStop();
             this.clearPvlines();
-            // Go back to the main line
-            if (plyVari === 0) {
-                const container = document.getElementById('vari') as HTMLElement;
-                patch(container, h('div#vari', ''));
-            }
-        }
-
-        if (this.plyVari > 0 && plyVari === 0) {
-            this.steps[this.plyVari]['vari'] = undefined;
-            this.plyVari = 0;
-            updateMovelist(this);
         }
 
         if (this.embed) return;
 
-        const vv = this.steps[plyVari]?.vari;
-        const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
+        const step = this.steps[ply];
 
         const clocktimes = this.steps[1]?.clocks;
         if (clocktimes !== undefined) {
@@ -1126,11 +1104,10 @@ export class AnalysisController extends GameController {
             this.autoShapes = new Array(this.multipv).fill([]);
             this.chessground.setAutoShapes([]);
             this.drawEval(step.ceval, step.scoreStr, step.turnColor);
-            if (plyVari === 0) this.drawServerEval(ply, step.scoreStr);
+            this.drawServerEval(ply, step.scoreStr);
         }
 
-        const idxInVari = (plyVari > 0) ? ply - plyVari : 0;
-        this.updateUCImoves(idxInVari);
+        this.updateUCImoves();
         if (this.localAnalysis) this.engineGo();
 
         if (!this.puzzle && !this.ongoing) {
@@ -1138,7 +1115,7 @@ export class AnalysisController extends GameController {
             e.value = this.fullfen;
 
             if (this.isAnalysisBoard) {
-                this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn(idxInVari)));
+                this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn()));
             } else {
                 const hist = this.home + '/' + this.gameId + '?ply=' + ply.toString();
                 window.history.replaceState({}, '', hist);
@@ -1147,7 +1124,7 @@ export class AnalysisController extends GameController {
 
     }
 
-    updateUCImoves(idxInVari: number) {
+    updateUCImoves() {
         this.UCImovelist = [];
 
         if (this.hasAnalysisTree()) {
@@ -1162,35 +1139,15 @@ export class AnalysisController extends GameController {
         }
 
         for (let ply = 1; ply <= this.ply; ply++) {
-            // we are in a variation line of the game
-            if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
-                const variMoves = this.steps[ply].vari;
-                if (variMoves) {
-                    for (let idx = 0; idx <= idxInVari; idx++) {
-                        if (variMoves[idx]?.move) this.UCImovelist.push(variMoves[idx].move!);
-                    };
-                    break;
-                }
-            // we are in the main line
-            } else {
-                if (this.steps[ply]?.move) this.UCImovelist.push(this.steps[ply].move!);
-            }
+            if (this.steps[ply]?.move) this.UCImovelist.push(this.steps[ply].move!);
         }
     }
 
-    getPgn(idxInVari = 0) {
+    getPgn() {
         const moves : string[] = [];
         let moveCounter: string = '';
         let whiteMove: boolean = true;
         let blackStarts: boolean = this.steps[0].turnColor === 'black';
-        let nodeList: ReturnType<AnalysisController['getTreeNodeList']> = [];
-
-        if (this.hasAnalysisTree()) {
-            nodeList = this.getTreeNodeList();
-            if (nodeList.length > 1) {
-                blackStarts = nodeList[1].step.turnColor === 'white';
-            }
-        }
 
         // Imported game steps has no 'sanSAN' so we have to compute it
         let sanSANneeded = false;
@@ -1204,24 +1161,6 @@ export class AnalysisController extends GameController {
         if (this.hasAnalysisTree()) {
             this.ensureTreeSanSan();
         } else for (let ply = 1; ply <= this.ply; ply++) {
-            // we are in a variation line of the game
-            if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
-                const variMoves = this.steps[ply].vari;
-                if (variMoves) {
-                    blackStarts = variMoves[0].turnColor === 'white';
-                    for (let idx = 0; idx <= idxInVari; idx++) {
-                        if (blackStarts && ply ===1 && idx === 0) {
-                            moveCounter = '1...';
-                        } else {
-                            whiteMove = variMoves[idx].turnColor === 'black';
-                            moveCounter = (whiteMove) ? Math.ceil((ply + idx + 1) / 2) + '.' : '';
-                        }
-                        moves.push(moveCounter + variMoves[idx].sanSAN);
-                    };
-                    break;
-                }
-            // we are in the main line
-            } else {
                 if (blackStarts && ply === 1) {
                     moveCounter = '1...';
                 } else {
@@ -1233,7 +1172,6 @@ export class AnalysisController extends GameController {
                     this.ffishBoard.push(this.steps[ply].move!);
                 };
                 moves.push(moveCounter + this.steps[ply]['sanSAN']);
-            }
         }
 
         if (this.hasAnalysisTree()) {
@@ -1342,7 +1280,7 @@ export class AnalysisController extends GameController {
             this.checkStatus(msg);
         }
 
-        this.updateUCImoves(0);
+        this.updateUCImoves();
         if (this.localAnalysis) this.engineGo();
 
         if (!this.puzzle && !this.ongoing) {

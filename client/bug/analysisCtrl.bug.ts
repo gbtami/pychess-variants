@@ -8,7 +8,7 @@ import * as Mousetrap from 'mousetrap';
 import { _ } from '../i18n';
 import { uci2LastMove, uci2cg } from '../chess';
 import { Variant, VARIANTS } from "../variants"
-import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist.bug';
+import { createMovelistButtons, updateMovelist, selectMove } from './movelist.bug';
 import { povChances } from '../analysis/winningChances';
 import { patch } from '../document';
 import { Chart } from "highcharts";
@@ -86,7 +86,6 @@ export default class AnalysisControllerBughouse {
     pgn: string;
     ply: number;
     plyVari: number;
-    plyInsideVari: number;
     recordedMainlinePly?: number;
     animation: boolean;
     showDests: boolean;
@@ -170,7 +169,6 @@ export default class AnalysisControllerBughouse {
 
         // current interactive analysis variation ply
         this.plyVari = 0;
-        this.plyInsideVari = -1
         this.analysisPath = '';
 
         this.model = model;
@@ -769,8 +767,6 @@ export default class AnalysisControllerBughouse {
         });
     }
 
-    // When we are moving inside a variation move list
-    // then plyVari > 0 and ply is the index inside vari movelist
     goPly = (ply: number, plyVari = 0) => {
         if (this.hasAnalysisTree() && plyVari === 0) {
             const node = this.getTreeNodeForPly(ply);
@@ -826,11 +822,8 @@ export default class AnalysisControllerBughouse {
             return;
         }
 
-        const vv = this.steps[plyVari]?.vari;
-        const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
+        const step = this.steps[ply];
         if (step === undefined) return;
-
-        console.log(step);
 
         const board = step.boardName === 'a'? this.b1: this.b2;
 
@@ -852,28 +845,13 @@ export default class AnalysisControllerBughouse {
             sound.moveSound(board.variant, capture);
         }
         this.ply = ply;
+        this.plyVari = 0;
 
         ////////////// above is more or less copy/pasted from gameCtrl.ts->goPLy. other places just call super.goPly
-
-        if (this.plyVari > 0) {
-            this.plyInsideVari = ply - plyVari;
-        }
 
         if (this.b1.localAnalysis || this.b2.localAnalysis) {
             this.engineStop();
             this.clearPvlines();
-            // Go back to the main line
-            if (plyVari === 0) {
-                const container = document.getElementById('vari') as HTMLElement;
-                patch(container, h('div#vari', ''));
-            }
-        }
-
-        // Go back to the main line
-        if (this.plyVari > 0 && plyVari === 0) {
-            this.steps[this.plyVari]['vari'] = undefined;
-            this.plyVari = 0;
-            updateMovelist(this);
         }
 
         board.setState(fen, step.turnColor, move!);
@@ -900,7 +878,7 @@ export default class AnalysisControllerBughouse {
         }
     }
 
-    private getPgn = (idxInVari  = 0) => {
+    private getPgn = () => {
         if (this.hasAnalysisTree()) {
             const moveText = renderBughouseTreePgnMoveText(
                 this.analysisTree!,
@@ -925,41 +903,16 @@ export default class AnalysisControllerBughouse {
         }
 
         const moves : string[] = [];
-        let moveCounter: string = '';
-        let whiteMove: boolean = true;
-        let blackStarts: boolean = this.steps[0].turnColor === 'black';
-
         let plyA: number = 0;
         let plyB: number = 0;
 
         for (let ply = 1; ply <= this.ply; ply++) {
-            this.steps[ply].boardName === 'a'? plyA++ : plyB++;
-            // we are in a variation line of the game
-            if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
-                const variMoves = this.steps[ply].vari;
-                if (variMoves) {
-                    blackStarts = variMoves[0].turnColor === 'white';
-                    for (let idx = 0; idx <= idxInVari; idx++) {
-                        if (blackStarts && ply ===1 && idx === 0) {
-                            moveCounter = '1...';
-                        } else {
-                            whiteMove = variMoves[idx].turnColor === 'black';
-                            moveCounter = (whiteMove) ? Math.ceil((ply + idx + 1) / 2) + '.' : '';
-                        }
-                        moves.push(moveCounter + variMoves[idx].sanSAN);
-                    };
-                    break;
-                }
-            // we are in the main line
-            } else {
-                if (blackStarts && ply === 1) {
-                    moveCounter = '1...';
-                } else {
-                    whiteMove = this.steps[ply].turnColor === 'black';
-                    moveCounter = Math.floor(this.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) + this.steps[ply].boardName!.toUpperCase() + ".";
-                }
-                moves.push(moveCounter + this.steps[ply].san);
-            }
+            const step = this.steps[ply];
+            if (step.boardName === 'a') plyA++;
+            else plyB++;
+
+            const moveCounter = Math.floor(step.boardName === 'a' ? (plyA + 1) / 2 : (plyB + 1) / 2) + step.boardName!.toUpperCase() + ".";
+            moves.push(moveCounter + (step.sanSAN ?? step.san ?? ''));
         }
         const moveText = moves.join(' ');
 
@@ -981,64 +934,6 @@ export default class AnalysisControllerBughouse {
     }
 
     sendMove = (b: GameControllerBughouse, move: string) => {
-        if (this.hasAnalysisTree() && this.analysisTree) {
-            if (b.localAnalysis) this.engineStop();
-            const san = b.san(move);
-            const sanSAN = b.sanSAN(move);
-            b.pushMove(move);
-            b.renderState();
-            b.chessground.set({ movable: { color: b.turnColor } });
-
-            if (b.localAnalysis) this.engineGo(b);
-
-            const currentNode = this.getTreeCurrentNode() ?? this.analysisTree.root;
-            const currentStep = currentNode.step;
-            const step: Step = {
-                fen: this.b1.fullfen,
-                fenB: this.b2.fullfen,
-                move: b.boardName === 'a' ? move : currentStep.move,
-                moveB: b.boardName === 'b' ? move : currentStep.moveB,
-                check: b.isCheck,
-                turnColor: b.turnColor,
-                san,
-                sanSAN,
-                boardName: b.boardName,
-                plyA: (currentStep.plyA ?? 0) + (b.boardName === 'a' ? 1 : 0),
-                plyB: (currentStep.plyB ?? 0) + (b.boardName === 'b' ? 1 : 0),
-            };
-
-            const extendsMainlineTail =
-                this.analysisPath === this.getTreeMainlineEndPath()
-                && currentNode.mainlinePly !== undefined
-                && currentNode.mainlinePly === this.steps.length - 1;
-            const childPath = addOrSelectChild(
-                this.analysisTree,
-                this.analysisPath,
-                step,
-                extendsMainlineTail && currentNode.children[0] === undefined,
-                extendsMainlineTail ? this.steps.length : undefined,
-            );
-
-            if (extendsMainlineTail && currentNode.children[0] === undefined) {
-                this.steps.push(step);
-                this.recordedMainlinePly = this.steps.length - 1;
-            }
-
-            this.activateTreePath(childPath);
-            this.disableMovableOnCheckmate(b);
-            return;
-        }
-
-        const vv = this.steps[this.plyVari]['vari'];
-
-        // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more
-        // when new this.ffish.Board() initial FEN moving color was "b"
-        // const moves = b.ffishBoard.moveStack().split(' ');
-        this.ply = this.ply + 1;
-
-        // TODO: check if the move that was made was the same as the next recorded move of the existing game
-        //       if yes, and if we are not in a vari, then call goPly for next ply, otherwise it starts variation
-        //       with exactly same move as the main line, which is nonsense
         if (b.localAnalysis) this.engineStop();
         const san = b.san(move); // doing this before we push the move to the ffboard, after which its invalid
         const sanSAN = b.sanSAN(move);
@@ -1061,56 +956,30 @@ export default class AnalysisControllerBughouse {
             'boardName': b.boardName,
             'plyA': this.b1.ply,
             'plyB': this.b2.ply,
-            };
-        const ffishBoardPly = b.getFFishPly();
-        const partnerBoardHasNoMoves = b.partnerCC.hasNoMoves();
-        const moveIdx = (this.plyVari === 0) ? this.ply : this.plyInsideVari;
+        };
 
-        // New main line move
-        if (moveIdx === this.steps.length && this.plyVari === 0) {
+        const tree = this.analysisTree;
+        if (!tree) return;
+
+        const currentNode = this.getTreeCurrentNode() ?? tree.root;
+        const extendsMainlineTail =
+            this.analysisPath === this.getTreeMainlineEndPath()
+            && currentNode.mainlinePly !== undefined
+            && currentNode.mainlinePly === this.steps.length - 1;
+        const childPath = addOrSelectChild(
+            tree,
+            this.analysisPath,
+            step,
+            extendsMainlineTail && currentNode.children[0] === undefined,
+            extendsMainlineTail ? this.steps.length : undefined,
+        );
+
+        if (extendsMainlineTail && currentNode.children[0] === undefined) {
             this.steps.push(step);
-            this.ply = moveIdx;
-            updateMovelist(this);
-            this.checkStatus();
-        // variation move
-        } else {
-            // possible new variation starts
-            if (ffishBoardPly === 1 && partnerBoardHasNoMoves) {
-                if (this.ply < this.steps.length && move === this.steps[this.ply].move) {
-                    // existing main line played
-                    selectMove(this, this.ply);
-                    return;
-                }
-                // new variation starts
-                if (vv === undefined) {
-                    this.plyVari = this.ply;
-                    this.steps[this.plyVari]['vari'] = [];
-                } else {
-                    // variation in the variation: drop old moves
-                    if ( vv ) {
-                        this.steps[this.plyVari]['vari'] = vv.slice(0, this.ply - this.plyVari);
-                    }
-                }
-            }
-            // continuing the variation
-            if (this.steps[this.plyVari].vari !== undefined) {
-                this.steps[this.plyVari]?.vari?.push(step);
-            };
-
-            const full = true;
-            const activate = false;
-            updateMovelist(this, full, activate);
-            if (vv) {
-                activatePlyVari(this.plyVari + vv.length - 1);
-            } else if (vv === undefined && this.plyVari > 0) {
-                activatePlyVari(this.plyVari);
-            }
-            this.checkStatus();
+            this.recordedMainlinePly = this.steps.length - 1;
         }
 
-        const e = document.getElementById('fullfen') as HTMLInputElement;
-        e.value = this.b1.fullfen+" "+this.b2.fullfen;
-
+        this.activateTreePath(childPath);
         this.disableMovableOnCheckmate(b);
     }
 

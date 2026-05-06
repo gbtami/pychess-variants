@@ -291,10 +291,9 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.chessground.set({ fen: this.getAliceFen(this.fullfen) });
     }
 
-    goPly(ply: number, plyVari = 0) {
+    goPly(ply: number, _plyVari = 0) {
         // console.log("gameCtrl.goPly()");
-        const vv = this.steps[plyVari]?.vari;
-        const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
+        const step = this.steps[ply];
         if (step === undefined) return;
 
         const lastMove = uci2LastMove(step.move);

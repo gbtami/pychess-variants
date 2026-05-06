@@ -26,7 +26,7 @@ function asTreeCtrl(ctrl: AnalysisControllerBughouse | RoundControllerBughouse):
     return treeCtrl.hasAnalysisTree?.() ? treeCtrl : undefined;
 }
 
-export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number, plyVari = 0): void {
+export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number, _plyVari = 0): void {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
         if (ply < 0) return;
@@ -36,27 +36,13 @@ export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBu
         return;
     }
 
-    let plyMax = ctrl.steps.length - 1;
-    const vari = "plyVari" in ctrl ? ctrl.steps[ctrl.plyVari]['vari']: undefined;
-    if (vari && ctrl.plyVari > 0) plyMax = ctrl.plyVari + vari.length - 1;
-
-    if (ply < 0 || ply > plyMax) {
+    if (ply < 0 || ply > ctrl.steps.length - 1) {
         return
     }
 
-    if (plyVari > 0 && ply < plyVari) {
-        // back to the main line
-        plyVari = 0;
-    }
-
-    ctrl.goPly(ply, plyVari);
-    if (plyVari === 0) {
-        activatePly(ctrl);
-        scrollToPly(ctrl);
-    } else {
-        activatePlyVari(ply);
-    }
-
+    ctrl.goPly(ply, 0);
+    activatePly(ctrl);
+    scrollToPly(ctrl);
 }
 
 function activatePly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
@@ -87,15 +73,6 @@ function scrollToPly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse
         movelistEl.scrollTop = st;
 }
 
-export function activatePlyVari (ply: number) {
-    console.log('activatePlyVari()', ply);
-    const active = document.querySelector('vari-move.active');
-    if (active) active.classList.remove('active');
-
-    const elPly = document.querySelector(`vari-move[ply="${ply}"]`);
-    if (elPly) elPly.classList.add('active');
-}
-
 export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
     const container = document.getElementById('move-controls') as HTMLElement;
 
@@ -119,7 +96,7 @@ export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundC
                 const target = treeCtrl.getTreeParentPath?.();
                 if (target !== undefined) treeCtrl.activateTreePath?.(target);
             } else {
-                selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari);
+                selectMove(ctrl, ctrl.ply - 1, 0);
             }
         } } }, [ h('i.icon.icon-step-backward') ]),
         h('button', { on: { click: () => {
@@ -128,7 +105,7 @@ export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundC
                 const target = treeCtrl.getTreeMainChildPath?.();
                 if (target !== undefined) treeCtrl.activateTreePath?.(target);
             } else {
-                selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari);
+                selectMove(ctrl, ctrl.ply + 1, 0);
             }
         } } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectVariationBound(false) } }, [ h('i.icon.icon-fast-forward') ]),
@@ -363,35 +340,6 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
         moves.push(el);
         if (chats) moves.push(chats);
 
-        if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
-            const variMoves = ctrl.steps[ply]['vari'];
-
-            // if (ply % 2 !== 0) moves.push(h('move-bug', '...'));
-
-            let plyAVari = ctrl.steps[ply].plyA!;
-            let plyBVari = ctrl.steps[ply].plyB!;
-
-            moves.push(h('vari#vari' + ctrl.plyVari,
-                variMoves?
-                    variMoves.map((x: Step, idx: number) => {
-                    const currPlyGlobal = ctrl.plyVari + idx;
-                    const currPlyBoard = x.boardName ==='a'? ++plyAVari: ++plyBVari;
-                    const boardName = x.turnColor === 'white'? x.boardName: x.boardName!.toUpperCase();
-                    const moveCounter = Math.floor((currPlyBoard + 1) / 2) + boardName! + '. ';
-                    return h('vari-move', {
-                        attrs: { ply: currPlyGlobal },
-                        on: { click: () => selectMove(ctrl, ctrl.plyVari + idx, ctrl.plyVari) },
-                        }, [ h('san', moveCounter + x['san']) ]
-                    );
-                }) : []
-            ));
-
-            // if (ply % 4 == 1) {
-            //     moves.push(h('move.counter', (ply + 1) / 2));
-            //     moves.push(h('move-bug', '...'));
-            // }
-            didWeRenderVariSectionAfterLastMove = true;
-        }
     }
 
     if (ctrl.status >= 0 && needResult) {
