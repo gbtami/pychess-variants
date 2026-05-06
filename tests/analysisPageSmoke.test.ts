@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { h, type VNode } from 'snabbdom';
 
-import { createAnalysisTree } from '../client/analysisTree';
+import { createAnalysisTree } from '../client/analysis/analysisTree';
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
 import { updateMovelist } from '../client/movelist';
@@ -9,7 +9,7 @@ import { PyChessModel } from '../client/types';
 
 jest.useFakeTimers();
 
-jest.unstable_mockModule('../client/analysisCtrl', () => ({
+jest.unstable_mockModule('../client/analysis/analysisCtrl', () => ({
     AnalysisController: class AnalysisController {},
 }));
 jest.unstable_mockModule('../client/puzzleCtrl', () => ({
@@ -18,7 +18,7 @@ jest.unstable_mockModule('../client/puzzleCtrl', () => ({
 jest.unstable_mockModule('../client/roundCtrl', () => ({
     RoundController: class RoundController {},
 }));
-jest.unstable_mockModule('../client/analysisSettings', () => ({
+jest.unstable_mockModule('../client/analysis/analysisSettings', () => ({
     analysisSettings: {
         view: () => h('div.analysis-settings'),
     },

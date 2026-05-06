@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { sliceVariationForBranch } from '../client/analysisVariation';
+import { sliceVariationForBranch } from '../client/analysis/analysisVariation';
 import { getFastMoveSelection, isTheoreticalMove, normalizePlyVariForSelection } from '../client/movelist';
 
 describe('analysis variation branch trimming', () => {

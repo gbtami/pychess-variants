@@ -10,7 +10,7 @@ import {
     mainlinePathAtPly,
     projectPath,
     renderFullTreePgnMoveText,
-} from '../client/analysisTree';
+} from '../client/analysis/analysisTree';
 import { Step } from '../client/messages';
 
 function makeStep(fen: string, move: string | undefined, turnColor: 'white' | 'black', san?: string): Step {
