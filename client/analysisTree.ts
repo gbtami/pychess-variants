@@ -4,25 +4,35 @@ const ROOT_PATH = '';
 const PATH_SEPARATOR = '.';
 
 export interface AnalysisTreeNode {
+    // Stable per-parent id segment used to build dotted paths like `01.0a.0b`.
     id: string;
+    // Full path from the synthetic root to this node. This is the primary UI navigation key.
     path: string;
+    // Logical ply in the explored tree, not necessarily the persisted game mainline ply.
     ply: number;
     step: Step;
+    // Child[0] is always the preferred continuation for this node. Siblings are alternatives.
     children: AnalysisTreeNode[];
+    // Present only for nodes that still sit on the original persisted game mainline.
     mainlinePly?: number;
 }
 
 export interface AnalysisTree {
     root: AnalysisTreeNode;
+    // Fast random access by dotted path so UI navigation never has to re-walk the tree.
     byPath: Map<string, AnalysisTreeNode>;
     nextId: number;
 }
 
 export interface TreePathProjection {
+    // Paths stay on mainline until the first node with no `mainlinePly`.
     isMainline: boolean;
+    // Mainline node where the current sideline branches off.
     anchorPath: string;
     anchorPly: number;
+    // Ply of the currently selected node inside that projected line.
     targetPly: number;
+    // Steps after the anchor, suitable for PGN/UCI generation of the active variation.
     variationSteps: Step[];
 }
 
@@ -43,6 +53,8 @@ function nextNodeId(tree: AnalysisTree): string {
 }
 
 export function createAnalysisTree(steps: Step[]): AnalysisTree {
+    // The synthetic root owns the initial position and lets us treat root alternatives
+    // exactly the same way as sub-variations deeper in the tree.
     const root: AnalysisTreeNode = {
         id: 'root',
         path: ROOT_PATH,
@@ -83,6 +95,8 @@ function createChild(
         ply: parent.ply + 1,
         step,
         children: [],
+        // Off-mainline nodes intentionally drop `mainlinePly`; that is how projection
+        // later detects where a variation leaves the persisted game record.
         mainlinePly: asMainline ? mainlinePly : undefined,
     };
     tree.byPath.set(path, node);
@@ -94,6 +108,7 @@ export function nodeAtPath(tree: AnalysisTree, path: string): AnalysisTreeNode |
 }
 
 export function getNodeList(tree: AnalysisTree, path: string): AnalysisTreeNode[] {
+    // Returns the active breadcrumb from synthetic root to the requested node.
     const nodes: AnalysisTreeNode[] = [tree.root];
     if (!path) return nodes;
 
@@ -132,6 +147,8 @@ function pathFollowingFirstChildren(node: AnalysisTreeNode): string {
 }
 
 export function currentLineEndPath(tree: AnalysisTree, path: string): string {
+    // Mainline and sideline "end of line" mean different things:
+    // for sidelines we only follow the preferred continuation from the selected node onward.
     const projection = projectPath(tree, path);
     if (projection.isMainline) return mainlineEndPath(tree);
 
@@ -141,6 +158,10 @@ export function currentLineEndPath(tree: AnalysisTree, path: string): string {
 }
 
 export function projectPath(tree: AnalysisTree, path: string): TreePathProjection {
+    // The UI still needs a "current line" view for buttons, PGN and engine position updates.
+    // Projection maps an arbitrary tree path back to:
+    // 1. the mainline anchor where the sideline begins, and
+    // 2. the steps that make up the currently selected sideline.
     const nodeList = getNodeList(tree, path);
     const lastNode = nodeList[nodeList.length - 1] ?? tree.root;
 
@@ -190,12 +211,15 @@ export function addOrSelectChild(
     const parent = nodeAtPath(tree, parentPath);
     if (!parent) return parentPath;
 
+    // Reuse an existing child when the same move already exists from this position.
+    // This keeps repeated clicks or engine lines from duplicating branches.
     const existing = parent.children.find(
         (child) => child.step.move === step.move && child.step.fen === step.fen,
     );
     if (existing) return existing.path;
 
     const child = createChild(tree, parent, step, preferMainline, mainlinePly);
+    // Child[0] is treated everywhere else as the preferred continuation of a node.
     if (preferMainline) parent.children.unshift(child);
     else parent.children.push(child);
 

@@ -256,6 +256,8 @@ function renderTreeBranch(
     rootTurnColor: string,
     isMainline: boolean,
 ): VNode[] {
+    // Inline mode is the simplest renderer: walk the preferred continuation and
+    // emit each sideline as a parenthesized inline fragment at the branch point.
     const out: VNode[] = [];
     let current: AnalysisTreeNode | undefined = node;
     let isFirst = firstInVariation;
@@ -289,8 +291,11 @@ function renderTreeMovelist(ctrl: TreeCtrl): VNode[] {
 interface TreeColumnArgs {
     isMainline: boolean;
     rootTurnColor: string;
+    // When true, a sideline is compact enough to stay inside parentheses.
     parenthetical?: boolean;
     firstInVariation?: boolean;
+    // Once a sideline row has started, deeper sub-variations should keep flowing
+    // inline inside that row so wrapping behaves like wrapped text, not nested grids.
     flowInline?: boolean;
 }
 
@@ -301,6 +306,8 @@ function hasBranching(node: AnalysisTreeNode, depth: number): boolean {
 }
 
 function isParentheticalVariation(node: AnalysisTreeNode): boolean {
+    // Match the Lichess heuristic closely: only keep a variation inline when there
+    // is a single secondary branch and that branch is not itself heavily branching.
     const second = node.children[1];
     const third = node.children[2];
     return third === undefined && second !== undefined && !hasBranching(second, 6);
@@ -353,6 +360,9 @@ function renderTreeLineSequence(
     nodes: AnalysisTreeNode[],
     args: TreeColumnArgs,
 ): VNode[] {
+    // Column mode still reuses inline fragments inside a sideline row. The split between
+    // `renderTreeLineSequence` and `renderTreeVariationLines` is what lets us switch
+    // between "same flowing row" and "start a new branch row" at each branching point.
     const [child, ...siblings] = nodes;
     if (!child) return [];
 
@@ -394,6 +404,9 @@ function renderTreeVariationLines(
     lines: AnalysisTreeNode[],
     args: TreeColumnArgs,
 ): VNode {
+    // Only direct sibling alternatives become separate rows in column mode.
+    // Once inside one of those rows, deeper sub-variations continue inline so the
+    // row wraps naturally at panel boundaries like a long notation string.
     if (!args.isMainline && (args.parenthetical || args.flowInline)) {
         return h('inline', renderTreeLineSequence(ctrl, lines, {
             ...args,
@@ -421,6 +434,8 @@ function renderTreeColumnNodes(
     nodes: AnalysisTreeNode[],
     args: TreeColumnArgs,
 ): VNode[] {
+    // Top-level column mode preserves the traditional "move number / white / black"
+    // rhythm, but hands side branches off to `interrupt -> lines -> line` blocks.
     const [child, ...siblings] = nodes;
     const out: VNode[] = [];
     if (!child) return out;

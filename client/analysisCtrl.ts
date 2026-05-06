@@ -287,6 +287,9 @@ export class AnalysisController extends GameController {
 
         this.autoShapes = [];
 
+        // Tree navigation mirrors the semantics Lichess uses in analysis:
+        // left/right move along the currently selected branch, while up/down jump
+        // to the start/end of that branch rather than the global game mainline.
         Mousetrap.bind('left', () => {
             if (!this.hasAnalysisTree()) return;
             const target = this.getTreeParentPath();
@@ -317,6 +320,9 @@ export class AnalysisController extends GameController {
 
     initAnalysisTreeAtPly(ply: number) {
         if (this.steps.length === 0) return;
+        // We rebuild the in-memory tree from the persisted mainline and then place
+        // the active cursor on the requested ply. All later user-created branches
+        // are attached to this tree only on the client.
         this.analysisTree = createAnalysisTree(this.steps);
         this.analysisPath = mainlinePathAtPly(this.analysisTree, ply);
         this.activateTreePath(this.analysisPath, false);
@@ -333,6 +339,7 @@ export class AnalysisController extends GameController {
 
     getTreeNodeList() {
         if (!this.analysisTree) return [];
+        // This breadcrumb is the canonical source for UCI/PGN generation in tree mode.
         return getNodeList(this.analysisTree, this.analysisPath);
     }
 
@@ -363,6 +370,8 @@ export class AnalysisController extends GameController {
     private getTreeNodeForPly(ply: number) {
         if (!this.analysisTree) return undefined;
 
+        // First prefer the currently selected branch. Falling back to persisted mainline
+        // preserves older callers that still address positions by raw ply only.
         const nodeOnActivePath = this.getTreeNodeList().find((n) => n.ply === ply);
         if (nodeOnActivePath) return nodeOnActivePath;
 
@@ -377,6 +386,8 @@ export class AnalysisController extends GameController {
         const node = nodeAtPath(this.analysisTree, path);
         if (!node) return;
 
+        // `analysisPath` is the single source of truth for tree-mode selection.
+        // `goPly()` then projects that node back into the existing board/eval widgets.
         this.analysisPath = path;
         this.plyVari = 0;
         this.goPly(node.ply, 0);
@@ -972,6 +983,9 @@ export class AnalysisController extends GameController {
     // then plyVari > 0 and ply is the index inside vari movelist
     goPly(ply: number, plyVari = 0) {
         if (this.hasAnalysisTree() && plyVari === 0) {
+            // Tree mode bypasses the legacy single-variation `steps[ply].vari` projection.
+            // We resolve the selected tree node first, then hydrate the existing board,
+            // clocks, eval and PGN widgets from that node's step payload.
             const node = this.getTreeNodeForPly(ply);
             if (!node) return;
 
@@ -1136,6 +1150,9 @@ export class AnalysisController extends GameController {
         this.UCImovelist = [];
 
         if (this.hasAnalysisTree()) {
+            // In tree mode the active UCI sequence is simply the breadcrumb from root
+            // to the selected node. This keeps engine analysis aligned with the branch
+            // the user is currently exploring.
             const nodeList = this.getTreeNodeList();
             nodeList.slice(1).forEach((node) => {
                 if (node.step.move) this.UCImovelist.push(node.step.move);
