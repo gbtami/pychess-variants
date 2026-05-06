@@ -44,6 +44,7 @@ import {
     mainlinePathAtPly,
     nodeAtPath,
     parentPath,
+    renderFullTreePgnMoveText,
 } from './analysisTree';
 import {
     CEVAL_ACTIVE_ROUNDS_STORAGE_KEY,
@@ -1183,7 +1184,6 @@ export class AnalysisController extends GameController {
         let whiteMove: boolean = true;
         let blackStarts: boolean = this.steps[0].turnColor === 'black';
         let nodeList: ReturnType<AnalysisController['getTreeNodeList']> = [];
-        let requiresBoardReset = false;
 
         if (this.hasAnalysisTree()) {
             nodeList = this.getTreeNodeList();
@@ -1202,24 +1202,7 @@ export class AnalysisController extends GameController {
         }
 
         if (this.hasAnalysisTree()) {
-            nodeList.slice(1).forEach((node) => {
-                const ply = node.ply;
-                if (blackStarts && ply === 1) {
-                    moveCounter = '1...';
-                } else {
-                    whiteMove = node.step.turnColor === 'black';
-                    moveCounter = whiteMove ? Math.ceil((ply + 1) / 2) + '.' : '';
-                }
-                if (node.step.sanSAN === undefined && node.step.move !== undefined) {
-                    if (!requiresBoardReset) {
-                        this.ffishBoard.setFen(this.steps[0].fen);
-                        requiresBoardReset = true;
-                    }
-                    node.step.sanSAN = this.ffishBoard.sanMove(node.step.move);
-                    this.ffishBoard.push(node.step.move);
-                }
-                moves.push(moveCounter + (node.step.sanSAN ?? ''));
-            });
+            this.ensureTreeSanSan();
         } else for (let ply = 1; ply <= this.ply; ply++) {
             // we are in a variation line of the game
             if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
@@ -1253,7 +1236,11 @@ export class AnalysisController extends GameController {
             }
         }
 
-        if (sanSANneeded || requiresBoardReset) {
+        if (this.hasAnalysisTree()) {
+            moves.push(renderFullTreePgnMoveText(this.analysisTree!, (node) => node.step.sanSAN ?? ''));
+        }
+
+        if (sanSANneeded || this.hasAnalysisTree()) {
             this.ffishBoard.setFen(this.fullfen);
         }
 
@@ -1272,6 +1259,22 @@ export class AnalysisController extends GameController {
         const setup = '[SetUp "1"]';
 
         return `${event}\n${site}\n${date}\n${white}\n${black}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
+    }
+
+    private ensureTreeSanSan() {
+        if (!this.analysisTree) return;
+
+        const visit = (parentFen: string, nodes: AnalysisTree['root']['children']) => {
+            nodes.forEach((node) => {
+                if (node.step.sanSAN === undefined && node.step.move !== undefined) {
+                    this.ffishBoard.setFen(parentFen);
+                    node.step.sanSAN = this.ffishBoard.sanMove(node.step.move);
+                }
+                visit(node.step.fen, node.children);
+            });
+        };
+
+        visit(this.steps[0].fen, this.analysisTree.root.children);
     }
 
     doSendMove(move: string) {

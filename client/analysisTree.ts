@@ -225,3 +225,55 @@ export function addOrSelectChild(
 
     return child.path;
 }
+
+function movePrefix(node: AnalysisTreeNode, rootTurnColor: string, firstInVariation: boolean): string {
+    const isWhiteMove = node.step.turnColor === 'black';
+    if (rootTurnColor === 'black' && node.ply === 1) return '1...';
+    if (isWhiteMove) return `${Math.ceil((node.ply + 1) / 2)}.`;
+    if (firstInVariation) return `${Math.floor((node.ply + 1) / 2)}...`;
+    return '';
+}
+
+function renderPgnSequence(
+    nodes: AnalysisTreeNode[],
+    rootTurnColor: string,
+    firstInVariation: boolean,
+    getSan: (node: AnalysisTreeNode) => string,
+): string[] {
+    const [child, ...siblings] = nodes;
+    if (!child) return [];
+
+    const tokens: string[] = [];
+    let current: AnalysisTreeNode | undefined = child;
+    let isFirst = firstInVariation;
+    let branchSiblings = siblings;
+
+    while (current) {
+        const prefix = movePrefix(current, rootTurnColor, isFirst);
+        tokens.push(prefix ? `${prefix} ${getSan(current)}` : getSan(current));
+
+        // Siblings represent alternative moves from the same parent position.
+        branchSiblings.forEach((sideline) => {
+            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, getSan).join(' ')})`);
+        });
+        branchSiblings = [];
+
+        current.children.slice(1).forEach((sideline) => {
+            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, getSan).join(' ')})`);
+        });
+
+        current = current.children[0];
+        isFirst = false;
+    }
+
+    return tokens;
+}
+
+export function renderFullTreePgnMoveText(
+    tree: AnalysisTree,
+    getSan: (node: AnalysisTreeNode) => string,
+): string {
+    // PGN movetext is closest to the inline-notation renderer: a single token stream
+    // with recursive parenthesized alternatives attached at each branch point.
+    return renderPgnSequence(tree.root.children, tree.root.step.turnColor, false, getSan).join(' ');
+}
