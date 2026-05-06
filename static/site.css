@@ -2468,163 +2468,200 @@ vari-move {
   padding-left: 4px;
 }
 
+#movelist.tview2.analysis-tree {
+  --tree-border: color-mix(in srgb, var(--font-color) 12%, transparent);
+  white-space: normal;
+}
+
+#movelist.tview2.analysis-tree move {
+  display: inline-block;
+  float: none;
+  flex: none;
+  width: auto;
+  min-width: 0;
+  padding: 2px 3px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--font-color);
+}
+
+#movelist.tview2.analysis-tree move.theoretical {
+  font-style: italic;
+}
+
+#movelist.tview2.analysis-tree move.active {
+  color: #fff;
+  background: var(--blue-active);
+}
+
+#movelist.tview2.analysis-tree move:hover {
+  color: var(--font-color);
+  background: var(--bg-color2);
+}
+
+#movelist.tview2.analysis-tree move.active:hover {
+  background: var(--blue-active);
+}
+
+#movelist.tview2.analysis-tree eval {
+  margin-left: auto;
+  padding-right: 0;
+  color: Gray;
+  font-size: 0.8em;
+}
+
+#movelist.tview2.analysis-tree move index {
+  color: Gray;
+  padding-right: 0.2em;
+  font-weight: normal;
+}
+
+#movelist.tview2.analysis-tree inline {
+  display: inline;
+  font-style: italic;
+  opacity: 0.86;
+}
+
+#movelist.tview2.analysis-tree inline::before,
+#movelist.tview2.analysis-tree inline::after {
+  opacity: 0.72;
+  font-size: 1.05em;
+}
+
+#movelist.tview2.analysis-tree inline::before {
+  content: '(';
+  margin: 0 2px 0 1px;
+}
+
+#movelist.tview2.analysis-tree inline::after {
+  content: ')';
+  margin: 0 3px 0 0;
+}
+
+#movelist.tview2.analysis-tree lines {
+  display: block;
+  margin: 2px 0;
+  padding-left: 2px;
+  overflow-x: clip;
+}
+
+#movelist.tview2.analysis-tree line {
+  display: block;
+  position: relative;
+  padding-left: 7px;
+}
+
+#movelist.tview2.analysis-tree line > branch {
+  position: absolute;
+  left: 0;
+  width: 8px;
+  height: 100%;
+  margin-left: -9px;
+  border-left: 2px solid var(--tree-border);
+}
+
+#movelist.tview2.analysis-tree line > branch::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 2px;
+  margin-top: 0.8em;
+  border-top: 2px solid var(--tree-border);
+}
+
+#movelist.tview2.analysis-tree line:last-child > branch {
+  height: calc(0.8em + 2px);
+}
+
 #movelist.tview2.tview2-inline.analysis-tree {
   display: block;
-  white-space: normal;
   line-height: 1.8;
   font-size: 13px;
   padding: 7px 6px 5px 7px;
 }
 
 #movelist.tview2.tview2-inline.analysis-tree move {
-  display: inline-block;
-  float: none;
-  flex: none;
-  width: auto;
   margin: 0 2px 2px 0;
   padding: 2px 4px;
-  border-radius: 3px;
-  font-weight: bold;
-  cursor: pointer;
 }
 
 #movelist.tview2.tview2-inline.analysis-tree move.mainline {
   background: color-mix(in srgb, var(--bg-color2) 60%, transparent);
 }
 
-#movelist.tview2.tview2-inline.analysis-tree move.active {
-  color: #fff;
-  background: var(--blue-hover);
-}
-
-#movelist.tview2.tview2-inline.analysis-tree move:hover {
-  background: var(--bg-color2);
-}
-
-#movelist.tview2.tview2-inline.analysis-tree move.active:hover {
-  background: var(--blue-hover);
-}
-
-#movelist.tview2.tview2-inline.analysis-tree move index {
-  color: Gray;
-  padding-right: 0.2em;
-}
-
-#movelist.tview2.tview2-inline.analysis-tree inline {
-  display: inline;
-  font-style: italic;
-  opacity: 0.86;
-}
-
-#movelist.tview2.tview2-inline.analysis-tree inline::before,
-#movelist.tview2.tview2-inline.analysis-tree inline::after {
-  opacity: 0.72;
-}
-
-#movelist.tview2.tview2-inline.analysis-tree inline::before {
-  content: '(';
-  margin: 0 2px 0 1px;
-}
-
-#movelist.tview2.tview2-inline.analysis-tree inline::after {
-  content: ')';
-  margin: 0 3px 0 0;
-}
-
-#movelist.tview2.tview2-grid.analysis-tree {
-  display: block;
+#movelist.tview2.tview2-column.analysis-tree {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: stretch;
+  align-content: flex-start;
   line-height: 1.55;
   font-size: 13px;
   padding: 4px 0 6px;
 }
 
-#movelist.tview2.tview2-grid.analysis-tree .tree-row {
-  display: grid;
-  grid-template-columns: 3.2em minmax(0, 1fr) minmax(0, 1fr);
-  align-items: stretch;
-}
-
-#movelist.tview2.tview2-grid.analysis-tree .tree-row-index {
-  color: Gray;
-  background: color-mix(in srgb, var(--bg-color2) 74%, transparent);
-  text-align: center;
-  padding: 4px 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
-}
-
-#movelist.tview2.tview2-grid.analysis-tree .tree-row-cell {
-  min-width: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 45%, transparent);
-}
-
-#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move {
+#movelist.tview2.tview2-column.analysis-tree > move {
   display: flex;
-  float: none;
-  flex: none;
-  width: 100%;
-  min-width: 0;
+  flex: 0 0 43.5%;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5em;
-  padding: 4px 8px 4px 9px;
-  box-sizing: border-box;
-  cursor: pointer;
+  gap: 0.45em;
+  font-size: 1.185em;
+  line-height: 1.75em;
+  padding: 0 0.3em 0 0.5em;
+}
+
+#movelist.tview2.tview2-column.analysis-tree > move.mainline.active {
   font-weight: bold;
 }
 
-#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move.mainline {
-  background: color-mix(in srgb, var(--bg-color2) 32%, transparent);
+#movelist.tview2.tview2-column.analysis-tree > move.mainline:not(.active) {
+  background: color-mix(in srgb, var(--bg-color2) 22%, transparent);
 }
 
-#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move.active {
-  color: #fff;
-  background: var(--blue-hover);
+#movelist.tview2.tview2-column.analysis-tree > move.empty {
+  pointer-events: none;
+  color: Gray;
 }
 
-#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move:hover {
-  background: var(--blue-hover);
-}
-
-#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move.active:hover {
-  background: var(--blue-hover);
-}
-
-#movelist.tview2.tview2-grid.analysis-tree move.tree-grid-move san {
+#movelist.tview2.tview2-column.analysis-tree > move san {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-#movelist.tview2.tview2-grid.analysis-tree .tree-grid-empty {
-  display: block;
-  min-height: 30px;
-  background: color-mix(in srgb, var(--bg-color0) 86%, transparent);
+#movelist.tview2.tview2-column.analysis-tree > index {
+  display: flex;
+  flex: 0 0 13%;
+  align-items: center;
+  justify-content: center;
+  color: Gray;
+  background: var(--bg-color2);
+  line-height: 2.07em;
+  border-right: 1px solid var(--tree-border);
 }
 
-#movelist.tview2.tview2-grid.analysis-tree .tree-variation-block {
-  margin: 2px 0 4px 1.1em;
-  border-left: 2px solid color-mix(in srgb, var(--blue-hover) 35%, var(--border-color));
-  background: color-mix(in srgb, var(--bg-color2) 38%, transparent);
+#movelist.tview2.tview2-column.analysis-tree > index + move {
+  border-right: 1px solid var(--tree-border);
 }
 
-#movelist.tview2.tview2-grid.analysis-tree .tree-variation-block .tree-row-index {
-  background: transparent;
+#movelist.tview2.tview2-column.analysis-tree line move {
+  margin-right: 2px;
+  padding: 2px 4px;
 }
 
-#movelist.tview2.tview2-grid.analysis-tree .tree-depth-2 {
-  margin-left: 1.8em;
+#movelist.tview2.tview2-column.analysis-tree > interrupt {
+  flex: 0 0 100%;
+  max-width: 100%;
+  background: var(--bg-color2);
+  border-top: 1px solid var(--tree-border);
+  border-bottom: 1px solid var(--tree-border);
+  padding: 1px 0;
 }
 
-#movelist.tview2.tview2-grid.analysis-tree .tree-depth-3 {
-  margin-left: 2.5em;
-}
-
-#movelist.tview2.tview2-grid.analysis-tree .tree-depth-4,
-#movelist.tview2.tview2-grid.analysis-tree .tree-depth-5,
-#movelist.tview2.tview2-grid.analysis-tree .tree-depth-6,
-#movelist.tview2.tview2-grid.analysis-tree .tree-depth-7,
-#movelist.tview2.tview2-grid.analysis-tree .tree-depth-8 {
-  margin-left: 3em;
+#movelist.tview2.tview2-column.analysis-tree > interrupt > lines > line > branch {
+  margin-top: -2px;
+  height: calc(100% + 2px);
 }
 
 /* range input slider */

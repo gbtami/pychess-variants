@@ -284,7 +284,37 @@ function renderTreeMovelist(ctrl: TreeCtrl): VNode[] {
     return moves;
 }
 
-function renderTreeGridMove(
+interface TreeColumnArgs {
+    isMainline: boolean;
+    rootTurnColor: string;
+    parenthetical?: boolean;
+    firstInVariation?: boolean;
+    flowInline?: boolean;
+}
+
+function hasBranching(node: AnalysisTreeNode, depth: number): boolean {
+    if (node.children.length > 1) return true;
+    if (depth <= 1) return false;
+    return node.children.some((child) => hasBranching(child, depth - 1));
+}
+
+function isParentheticalVariation(node: AnalysisTreeNode): boolean {
+    const second = node.children[1];
+    const third = node.children[2];
+    return third === undefined && second !== undefined && !hasBranching(second, 6);
+}
+
+function nextTreeColumnArgs(node: AnalysisTreeNode, args: TreeColumnArgs, isMainline = false): TreeColumnArgs {
+    return {
+        isMainline,
+        rootTurnColor: args.rootTurnColor,
+        parenthetical: isParentheticalVariation(node),
+        firstInVariation: false,
+        flowInline: args.flowInline,
+    };
+}
+
+function renderTreeColumnMove(
     ctrl: TreeCtrl,
     path: string,
     node: AnalysisTreeNode,
@@ -304,123 +334,143 @@ function renderTreeGridMove(
     return h('move', {
         class: {
             active: path === ctrl.getTreeActivePath?.(),
-            theoretical,
-            'tree-node': true,
-            mainline: isMainline,
-            'tree-grid-move': true,
-        },
-        attrs: { 'data-path': path },
-        on: { click: () => ctrl.activateTreePath?.(path) },
+        theoretical,
+        'tree-node': true,
+        mainline: isMainline,
+    },
+    attrs: { 'data-path': path },
+    on: { click: () => ctrl.activateTreePath?.(path) },
     }, [
         h('san', `${move ?? ''}`),
         evalNode,
     ]);
 }
 
-function renderTreeGridRow(
+function renderTreeLineSequence(
     ctrl: TreeCtrl,
-    whiteNode: AnalysisTreeNode | undefined,
-    blackNode: AnalysisTreeNode | undefined,
-    depth: number,
-    rootTurnColor: string,
-    isMainline: boolean,
-): VNode {
-    const anchorNode = whiteNode ?? blackNode!;
-    const rowNumber = Math.ceil(anchorNode.ply / 2);
-    const rowLabel =
-        !whiteNode && blackNode && anchorNode.ply === 1 && rootTurnColor === 'black'
-            ? `${rowNumber}...`
-            : `${rowNumber}.`;
-
-    const whiteCell = whiteNode
-        ? renderTreeGridMove(ctrl, whiteNode.path, whiteNode, isMainline)
-        : h('div.tree-grid-empty');
-    const blackCell = blackNode
-        ? renderTreeGridMove(ctrl, blackNode.path, blackNode, isMainline)
-        : h('div.tree-grid-empty');
-
-    return h('div.tree-row', {
-        class: {
-            'tree-row-mainline': isMainline,
-            'tree-row-variation': !isMainline,
-            [`tree-depth-${Math.min(depth, 8)}`]: depth > 0,
-        },
-    }, [
-        h('div.tree-row-index', rowLabel),
-        h('div.tree-row-cell.tree-row-white', [whiteCell]),
-        h('div.tree-row-cell.tree-row-black', [blackCell]),
-    ]);
-}
-
-function renderTreeGridVariationBlocks(
-    ctrl: TreeCtrl,
-    branches: AnalysisTreeNode[],
-    depth: number,
-    rootTurnColor: string,
+    nodes: AnalysisTreeNode[],
+    args: TreeColumnArgs,
 ): VNode[] {
-    return branches.map((branch) =>
-        h('div.tree-variation-block', {
-            class: {
-                [`tree-depth-${Math.min(depth + 1, 8)}`]: true,
-            },
-        }, renderTreeGridBranch(ctrl, branch, depth + 1, rootTurnColor, false))
+    const [child, ...siblings] = nodes;
+    if (!child) return [];
+
+    const childArgs = nextTreeColumnArgs(child, args, false);
+    const moves: VNode[] = [];
+
+    moves.push(
+        renderTreeMove(
+            ctrl,
+            child.path,
+            child,
+            args.rootTurnColor,
+            args.firstInVariation ?? true,
+            false,
+        ),
     );
+
+    if ((args.parenthetical || args.flowInline) && siblings.length > 0) {
+        moves.push(renderTreeVariationLines(ctrl, siblings, args));
+    }
+
+    if (child.children.length > 0) {
+        if (args.flowInline || child.children.length < 2 || childArgs.parenthetical) {
+            moves.push(...renderTreeLineSequence(ctrl, child.children, childArgs));
+        } else {
+            moves.push(renderTreeVariationLines(ctrl, child.children, childArgs));
+        }
+    }
+
+    if (!args.parenthetical && !args.flowInline && siblings.length > 0) {
+        moves.push(renderTreeVariationLines(ctrl, siblings, args));
+    }
+
+    return moves;
 }
 
-function renderTreeGridBranch(
+function renderTreeVariationLines(
     ctrl: TreeCtrl,
-    startNode: AnalysisTreeNode,
-    depth: number,
-    rootTurnColor: string,
-    isMainline: boolean,
-    sidelineSiblings: AnalysisTreeNode[] = [],
+    lines: AnalysisTreeNode[],
+    args: TreeColumnArgs,
+): VNode {
+    if (!args.isMainline && (args.parenthetical || args.flowInline)) {
+        return h('inline', renderTreeLineSequence(ctrl, lines, {
+            ...args,
+            isMainline: false,
+            firstInVariation: true,
+            flowInline: true,
+        }));
+    }
+
+    return h('lines', lines.map((line) =>
+        h('line', [
+            h('branch'),
+            ...renderTreeLineSequence(ctrl, [line], {
+                ...args,
+                isMainline: false,
+                firstInVariation: true,
+                flowInline: true,
+            }),
+        ])
+    ));
+}
+
+function renderTreeColumnNodes(
+    ctrl: TreeCtrl,
+    nodes: AnalysisTreeNode[],
+    args: TreeColumnArgs,
 ): VNode[] {
+    const [child, ...siblings] = nodes;
     const out: VNode[] = [];
-    let current: AnalysisTreeNode | undefined = startNode;
-    let initialSidelines = sidelineSiblings;
+    if (!child) return out;
 
-    while (current) {
-        const whiteNode: AnalysisTreeNode | undefined = current.step.turnColor === 'black' ? current : undefined;
-        const mainBlackNode: AnalysisTreeNode | undefined =
-            whiteNode && current.children[0]?.step.turnColor === 'white'
-                ? current.children[0]
-                : undefined;
-        const blackNode: AnalysisTreeNode | undefined = whiteNode ? mainBlackNode : current;
+    const isWhiteMove = child.step.turnColor === 'black';
 
-        out.push(renderTreeGridRow(ctrl, whiteNode, blackNode, depth, rootTurnColor, isMainline));
+    if (isWhiteMove) {
+        out.push(h('index', `${Math.ceil(child.ply / 2)}`));
+    }
 
-        if (initialSidelines.length > 0) {
-            out.push(...renderTreeGridVariationBlocks(ctrl, initialSidelines, depth, rootTurnColor));
-            initialSidelines = [];
+    out.push(renderTreeColumnMove(ctrl, child.path, child, args.isMainline));
+
+    if (siblings.length > 0) {
+        if (isWhiteMove) out.push(h('move.empty', '...'));
+        out.push(h('interrupt', [renderTreeVariationLines(ctrl, siblings, args)]));
+        if (isWhiteMove && child.children.length > 0) {
+            out.push(h('index', `${Math.ceil(child.ply / 2)}`));
+            out.push(h('move.empty', '...'));
         }
+    }
 
-        const branchSidelines: AnalysisTreeNode[] = [];
-        if (whiteNode) branchSidelines.push(...whiteNode.children.slice(mainBlackNode ? 1 : 0));
-        if (blackNode) branchSidelines.push(...blackNode.children.slice(1));
-        if (branchSidelines.length > 0) {
-            out.push(...renderTreeGridVariationBlocks(ctrl, branchSidelines, depth, rootTurnColor));
-        }
-
-        if (whiteNode && mainBlackNode) current = mainBlackNode.children[0];
-        else if (whiteNode) current = undefined;
-        else current = blackNode?.children[0];
+    if (child.children.length > 0) {
+        out.push(...renderTreeColumnNodes(ctrl, child.children, nextTreeColumnArgs(child, args, true)));
     }
 
     return out;
 }
 
-function renderTreeGridMovelist(ctrl: TreeCtrl): VNode[] {
+function renderTreeColumnMovelist(ctrl: TreeCtrl): VNode[] {
     const root = ctrl.analysisTree!.root;
-    const mainline = root.children[0];
-    if (!mainline) return [];
-    return renderTreeGridBranch(ctrl, mainline, 0, root.step.turnColor, true, root.children.slice(1));
+    const moves: VNode[] = [];
+
+    if (root.step.turnColor === 'black' && root.children[0]) {
+        moves.push(h('index', '1'));
+        moves.push(h('move.empty', '...'));
+    }
+
+    moves.push(...renderTreeColumnNodes(ctrl, root.children, {
+        isMainline: true,
+        rootTurnColor: root.step.turnColor,
+        firstInVariation: false,
+        flowInline: false,
+    }));
+
+    return moves;
 }
 
 export function updateMovelist (ctrl: GameController, full = true, activate = true, needResult = true) {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
         const inlineNotation = treeCtrl.isTreeInlineNotation?.() ?? false;
-        const moves = inlineNotation ? renderTreeMovelist(treeCtrl) : renderTreeGridMovelist(treeCtrl);
+        const moves = inlineNotation ? renderTreeMovelist(treeCtrl) : renderTreeColumnMovelist(treeCtrl);
         if (ctrl.status >= 0 && needResult) {
             moves.push(h('div.result', ctrl.result));
             moves.push(h('div.status', result(ctrl.variant, ctrl.status, ctrl.result)));
@@ -435,7 +485,7 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
             class: {
                 tview2: true,
                 'tview2-inline': inlineNotation,
-                'tview2-grid': !inlineNotation,
+                'tview2-column': !inlineNotation,
                 'analysis-tree': true,
             },
         }, moves));
