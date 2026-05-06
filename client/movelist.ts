@@ -144,9 +144,9 @@ export function getFastMoveSelection(
 
 export function createMovelistButtons (ctrl: GameController) {
     const container = document.getElementById('move-controls') as HTMLElement;
-    const treeCtrl = asTreeCtrl(ctrl);
 
     const selectVariationBound = (goToStart: boolean) => {
+        const treeCtrl = asTreeCtrl(ctrl);
         if (treeCtrl) {
             const target = goToStart ? treeCtrl.getTreeLineStartPath?.() : treeCtrl.getTreeLineEndPath?.();
             if (target !== undefined) treeCtrl.activateTreePath?.(target);
@@ -163,6 +163,7 @@ export function createMovelistButtons (ctrl: GameController) {
         h('button', {
             on: {
                 click: () => {
+                    const treeCtrl = asTreeCtrl(ctrl);
                     if (treeCtrl) {
                         const target = treeCtrl.getTreeParentPath?.();
                         if (target !== undefined) treeCtrl.activateTreePath?.(target);
@@ -175,6 +176,7 @@ export function createMovelistButtons (ctrl: GameController) {
         h('button', {
             on: {
                 click: () => {
+                    const treeCtrl = asTreeCtrl(ctrl);
                     if (treeCtrl) {
                         const target = treeCtrl.getTreeMainChildPath?.();
                         if (target !== undefined) treeCtrl.activateTreePath?.(target);
