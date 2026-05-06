@@ -2468,6 +2468,41 @@ vari-move {
   padding-left: 4px;
 }
 
+#movelist.bug-analysis-tree vari.tree-variation {
+  display: block;
+  flex: 0 0 100%;
+  padding: 3px 6px;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+#movelist.bug-analysis-tree vari.tree-variation vari-move {
+  display: inline-block;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-style: normal;
+}
+
+#movelist.bug-analysis-tree vari.tree-variation inline {
+  display: inline;
+  opacity: 0.9;
+}
+
+#movelist.bug-analysis-tree vari.tree-variation inline::before,
+#movelist.bug-analysis-tree vari.tree-variation inline::after {
+  opacity: 0.72;
+}
+
+#movelist.bug-analysis-tree vari.tree-variation inline::before {
+  content: '(';
+  margin: 0 2px 0 1px;
+}
+
+#movelist.bug-analysis-tree vari.tree-variation inline::after {
+  content: ')';
+  margin: 0 3px 0 0;
+}
+
 #movelist.tview2.analysis-tree {
   --tree-border: color-mix(in srgb, var(--font-color) 12%, transparent);
   white-space: normal;

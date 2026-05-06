@@ -3,6 +3,7 @@ import { h, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
+import * as Mousetrap from 'mousetrap';
 
 import { _ } from '../i18n';
 import { uci2LastMove, uci2cg } from '../chess';
@@ -18,9 +19,22 @@ import { sound } from "../sound";
 import { renderClocks } from "./analysisClock.bug";
 import { variantsIni } from "../variantsIni";
 import { MsgAnalysis } from "../analysis/analysisType";
+import {
+    addOrSelectChild,
+    AnalysisTree,
+    branchStartPath,
+    createAnalysisTree,
+    currentLineEndPath,
+    getNodeList,
+    mainlineEndPath,
+    mainlinePathAtPly,
+    nodeAtPath,
+    parentPath,
+} from "../analysis/analysisTree";
 import ffishModule from "ffish-es6";
 import { titleCase } from "@/analysis/analysisCtrl";
 import { movetimeChart } from "./movetimeChart.bug";
+import { renderBughouseTreePgnMoveText } from "./analysisTreeBug";
 import { initBoardSettings, switchBoards } from "@/bug/roundCtrl.bug";
 import {playerInfoData} from "@/bug/gameInfo.bug";
 
@@ -73,6 +87,7 @@ export default class AnalysisControllerBughouse {
     ply: number;
     plyVari: number;
     plyInsideVari: number;
+    recordedMainlinePly?: number;
     animation: boolean;
     showDests: boolean;
     analysisChart: Chart;
@@ -99,6 +114,8 @@ export default class AnalysisControllerBughouse {
     fsfDebug: boolean;
     fsfError: string[];
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
+    analysisTree?: AnalysisTree;
+    analysisPath: string;
 
     username: string;
     chess960: boolean;
@@ -154,6 +171,7 @@ export default class AnalysisControllerBughouse {
         // current interactive analysis variation ply
         this.plyVari = 0;
         this.plyInsideVari = -1
+        this.analysisPath = '';
 
         this.model = model;
         this.gameId = model["gameId"] as string;
@@ -242,6 +260,98 @@ export default class AnalysisControllerBughouse {
         initBoardSettings(this.b1, this.b2, this.variant);
 
         (document.getElementById('gaugePartner') as HTMLElement).classList.add('flipped');
+
+        Mousetrap.bind('left', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeParentPath();
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('right', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeMainChildPath();
+            if (target) this.activateTreePath(target);
+        });
+        Mousetrap.bind('up', () => {
+            if (!this.hasAnalysisTree()) return;
+            this.activateTreePath(this.getTreeLineStartPath());
+        });
+        Mousetrap.bind('down', () => {
+            if (!this.hasAnalysisTree()) return;
+            this.activateTreePath(this.getTreeLineEndPath());
+        });
+    }
+
+    hasAnalysisTree() {
+        return this.analysisTree !== undefined;
+    }
+
+    initAnalysisTreeAtPly(ply: number) {
+        if (this.steps.length === 0) return;
+        this.analysisTree = createAnalysisTree(this.steps);
+        this.analysisPath = mainlinePathAtPly(this.analysisTree, ply);
+        this.activateTreePath(this.analysisPath, false);
+    }
+
+    getTreeActivePath() {
+        return this.analysisPath;
+    }
+
+    getTreeCurrentNode() {
+        if (!this.analysisTree) return undefined;
+        return nodeAtPath(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeNodeList() {
+        if (!this.analysisTree) return [];
+        return getNodeList(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeLineStartPath() {
+        if (!this.analysisTree) return '';
+        return branchStartPath(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeLineEndPath() {
+        if (!this.analysisTree) return '';
+        return currentLineEndPath(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeMainlineEndPath() {
+        if (!this.analysisTree) return '';
+        return mainlineEndPath(this.analysisTree);
+    }
+
+    getTreeParentPath() {
+        return parentPath(this.analysisPath);
+    }
+
+    getTreeMainChildPath() {
+        const node = this.getTreeCurrentNode();
+        return node?.children[0]?.path;
+    }
+
+    private getTreeNodeForPly(ply: number) {
+        if (!this.analysisTree) return undefined;
+
+        const nodeOnActivePath = this.getTreeNodeList().find((node) => node.ply === ply);
+        if (nodeOnActivePath) return nodeOnActivePath;
+
+        const mainlinePath = mainlinePathAtPly(this.analysisTree, ply);
+        const mainlineNode = nodeAtPath(this.analysisTree, mainlinePath);
+        if (mainlineNode) this.analysisPath = mainlinePath;
+        return mainlineNode;
+    }
+
+    activateTreePath(path: string, redrawMovelist = true) {
+        if (!this.analysisTree) return;
+        const node = nodeAtPath(this.analysisTree, path);
+        if (!node) return;
+
+        this.analysisPath = path;
+        this.plyVari = 0;
+        this.goPly(node.ply, 0);
+
+        if (redrawMovelist) updateMovelist(this, true, false);
     }
 
     pvboxIni() {
@@ -305,14 +415,10 @@ export default class AnalysisControllerBughouse {
     }
 
     private checkStatus = () => {
-        if ((!this.isAnalysisBoard) || this.model["embed"]) return;
+        if (this.model["embed"]) return;
 
-        // but on analysis page we always present pgn move list leading to current shown position!
-        // const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
-        const pgn =/* (this.isAnalysisBoard) ?*/ this.getPgn() /*: this.pgn*/;
-        this.renderFENAndPGN( pgn );
-
-        if (!this.isAnalysisBoard) selectMove(this, this.ply);
+        const pgn = this.getPgn();
+        this.renderFENAndPGN(pgn);
     }
 
     private renderFENAndPGN(pgn: string) {
@@ -357,6 +463,8 @@ export default class AnalysisControllerBughouse {
 
         if (msg.steps.length > 1) {
             this.steps = [];
+            this.plyA = 0;
+            this.plyB = 0;
 
             msg.steps.forEach((step, idx) => {
                 if (step.analysis !== undefined) {
@@ -378,6 +486,9 @@ export default class AnalysisControllerBughouse {
 
                 this.steps.push(step);
                 });
+            this.recordedMainlinePly = this.steps.length - 1;
+            const initialPly = this.model["ply"] > 0 ? this.model["ply"] : this.ply;
+            this.initAnalysisTreeAtPly(initialPly);
             updateMovelist(this);
 
             if (this.steps[0].analysis !== undefined) {
@@ -409,6 +520,12 @@ export default class AnalysisControllerBughouse {
             }*/
         }
 
+        if (!this.hasAnalysisTree() && this.steps.length >= 1) {
+            this.recordedMainlinePly = this.steps.length - 1;
+            this.initAnalysisTreeAtPly(this.ply);
+            updateMovelist(this);
+        }
+
         // const lastMove = uci2LastMove(msg.lastMove);
         // const step = this.steps[this.steps.length - 1];
         // const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
@@ -419,8 +536,9 @@ export default class AnalysisControllerBughouse {
         this.checkStatus();
 
         if (this.model["ply"] > 0) {
-            this.ply = this.model["ply"]
-            selectMove(this, this.ply);
+            this.ply = this.model["ply"];
+            if (this.hasAnalysisTree()) this.activateTreePath(mainlinePathAtPly(this.analysisTree!, this.ply), false);
+            else selectMove(this, this.ply);
         }
     }
 
@@ -654,7 +772,60 @@ export default class AnalysisControllerBughouse {
     // When we are moving inside a variation move list
     // then plyVari > 0 and ply is the index inside vari movelist
     goPly = (ply: number, plyVari = 0) => {
-        console.log(ply, plyVari);
+        if (this.hasAnalysisTree() && plyVari === 0) {
+            const node = this.getTreeNodeForPly(ply);
+            if (!node) return;
+
+            const step = node.step;
+            const activeBoard = step.boardName === 'b' ? this.b2 : this.b1;
+            const fenA = step.fen;
+            const fenB = step.fenB ?? this.steps[0].fenB!;
+            const moveA = uci2LastMove(step.move);
+            const moveB = uci2LastMove(step.moveB);
+            const turnColorA = fenA.split(' ')[1] === 'w' ? 'white' : 'black';
+            const turnColorB = fenB.split(' ')[1] === 'w' ? 'white' : 'black';
+
+            let capture = false;
+            const move = step.boardName === 'b' ? moveB : moveA;
+            if (move) {
+                capture =
+                    (activeBoard.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined
+                        && step.san?.slice(0, 2) !== 'O-')
+                    || (step.san?.slice(1, 2) === 'x');
+            }
+
+            if (ply === this.ply + 1 && step.boardName !== undefined) {
+                sound.moveSound(activeBoard.variant, capture);
+            }
+            this.ply = ply;
+            this.plyVari = 0;
+
+            if (this.b1.localAnalysis || this.b2.localAnalysis) {
+                this.engineStop();
+                this.clearPvlines();
+            }
+
+            this.b1.setState(fenA, turnColorA, moveA);
+            this.b1.renderState();
+            this.b1.chessground.set({ movable: { color: turnColorA } });
+
+            this.b2.setState(fenB, turnColorB, moveB);
+            this.b2.renderState();
+            this.b2.chessground.set({ movable: { color: turnColorB } });
+
+            this.disableMovableOnCheckmate(activeBoard);
+            renderClocks(this);
+            this.checkStatus();
+
+            if (this.b1.localAnalysis) {
+                this.engineGo(this.b1);
+            } else if (this.b2.localAnalysis) {
+                this.engineGo(this.b2);
+            }
+
+            return;
+        }
+
         const vv = this.steps[plyVari]?.vari;
         const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
         if (step === undefined) return;
@@ -730,6 +901,29 @@ export default class AnalysisControllerBughouse {
     }
 
     private getPgn = (idxInVari  = 0) => {
+        if (this.hasAnalysisTree()) {
+            const moveText = renderBughouseTreePgnMoveText(
+                this.analysisTree!,
+                (node) => node.step.sanSAN ?? node.step.san ?? '',
+            );
+
+            const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
+
+            const event = '[Event "?"]';
+            const site = `[Site "${this.b1.home}/analysis/${this.variant.name}"]`;
+            const date = `[Date "${today}"]`;
+            const whiteA = '[WhiteA "' + this.model['wplayer'] + '"]';
+            const blackA = '[BlackA "' + this.model['bplayer'] + '"]';
+            const whiteB = '[WhiteB "' + this.model['wplayerB'] + '"]';
+            const blackB = '[BlackB "' + this.model['bplayerB'] + '"]';
+            const result = '[Result "*"]';
+            const variant = `[Variant "${titleCase(this.variant.name)}"]`;
+            const fen = `[FEN "${this.steps[0].fen}"]`;
+            const setup = '[SetUp "1"]';
+
+            return `${event}\n${site}\n${date}\n${whiteA}\n${blackA}\n${whiteB}\n${blackB}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
+        }
+
         const moves : string[] = [];
         let moveCounter: string = '';
         let whiteMove: boolean = true;
@@ -787,6 +981,54 @@ export default class AnalysisControllerBughouse {
     }
 
     sendMove = (b: GameControllerBughouse, move: string) => {
+        if (this.hasAnalysisTree() && this.analysisTree) {
+            if (b.localAnalysis) this.engineStop();
+            const san = b.san(move);
+            const sanSAN = b.sanSAN(move);
+            b.pushMove(move);
+            b.renderState();
+            b.chessground.set({ movable: { color: b.turnColor } });
+
+            if (b.localAnalysis) this.engineGo(b);
+
+            const currentNode = this.getTreeCurrentNode() ?? this.analysisTree.root;
+            const currentStep = currentNode.step;
+            const step: Step = {
+                fen: this.b1.fullfen,
+                fenB: this.b2.fullfen,
+                move: b.boardName === 'a' ? move : currentStep.move,
+                moveB: b.boardName === 'b' ? move : currentStep.moveB,
+                check: b.isCheck,
+                turnColor: b.turnColor,
+                san,
+                sanSAN,
+                boardName: b.boardName,
+                plyA: (currentStep.plyA ?? 0) + (b.boardName === 'a' ? 1 : 0),
+                plyB: (currentStep.plyB ?? 0) + (b.boardName === 'b' ? 1 : 0),
+            };
+
+            const extendsMainlineTail =
+                this.analysisPath === this.getTreeMainlineEndPath()
+                && currentNode.mainlinePly !== undefined
+                && currentNode.mainlinePly === this.steps.length - 1;
+            const childPath = addOrSelectChild(
+                this.analysisTree,
+                this.analysisPath,
+                step,
+                extendsMainlineTail && currentNode.children[0] === undefined,
+                extendsMainlineTail ? this.steps.length : undefined,
+            );
+
+            if (extendsMainlineTail && currentNode.children[0] === undefined) {
+                this.steps.push(step);
+                this.recordedMainlinePly = this.steps.length - 1;
+            }
+
+            this.activateTreePath(childPath);
+            this.disableMovableOnCheckmate(b);
+            return;
+        }
+
         const vv = this.steps[this.plyVari]['vari'];
 
         // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more

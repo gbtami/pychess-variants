@@ -214,7 +214,11 @@ export function addOrSelectChild(
     // Reuse an existing child when the same move already exists from this position.
     // This keeps repeated clicks or engine lines from duplicating branches.
     const existing = parent.children.find(
-        (child) => child.step.move === step.move && child.step.fen === step.fen,
+        (child) =>
+            child.step.move === step.move
+            && child.step.fen === step.fen
+            && child.step.moveB === step.moveB
+            && child.step.fenB === step.fenB,
     );
     if (existing) return existing.path;
 
