@@ -35,28 +35,34 @@ Your contribution will be greatly appreciated and help me continue to develop th
 
 ### Project setup
 ```bash
-# Install python requirements with pip
-pip install . --user
-# Use pip with [dev] for local development with testing tools
-pip install .[dev] --user
-
-# Alternatively, use uv to install python requirements in a virtual env
-uv sync
-# Use uv with --extra dev for local development with testing tools
+# Sync Python dependencies into the project virtualenv
 uv sync --extra dev
+
+# Optionally activate the virtualenv for interactive work
+source .venv/bin/activate
 
 yarn install                            # Install node requirements
 yarn dev                                # Compile typescript files to javascript
 yarn md                                 # Compile md files to html
 ```
 
+All Python commands below should be run with `uv run ...` unless you have already activated `.venv`.
+
 ### Start server
 ```bash
-python3 server/server.py
-```
-Or if `uv` is used
-```bash
 uv run server/server.py
+```
+
+### Python checks and tests
+```bash
+uv run ruff format .
+uv run ruff check .
+uv run pyright
+env PYTHONPATH=server uv run python -m unittest discover -s tests
+env PYTHONPATH=server:tests uv run python -m unittest tests.some_test_module
+uv run python -m playwright install
+env PYTHONPATH=server uv run python -m pytest tests/test_e2e.py
+env PYTHONPATH=server uv run python -m pytest tests/test_gui.py
 ```
 
 ### Docker setup

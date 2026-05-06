@@ -13,8 +13,10 @@ Pychess-variants is a free, open-source chess server for playing chess variants.
 
 ### Development Setup
 ```bash
-# Install dependencies
-pip3 install .[dev] --user
+# Install Python dependencies into the project virtualenv
+uv sync --extra dev
+
+# Install frontend dependencies
 yarn install
 
 # Development build (with sourcemaps)
@@ -27,15 +29,16 @@ yarn prod
 yarn md
 
 # Start development server
-python3 server/server.py
+uv run server/server.py
 ```
 
 ### Testing and Quality
 Note: Always run all linting and testing commands for any change.
+Note: This repo uses `uv` and the project `.venv` so Python commands should run via `uv run ...` unless you have explicitly activated `.venv`.
 Note: Before committing any Python change, run both `ruff format .` and `ruff check .` even for small edits.
 Note: When running pyright in a sandboxed Codex environment, request escalated permissions so pyright can read the system Python search paths (e.g., `/usr/lib/python3.13`, site-packages) and match CI behavior.
 Note: Codex may run test and typecheck commands with escalated permissions by default in this repo when sandbox limits would otherwise break them (for example local socket bind restrictions in aiohttp/playwright tests). Do not stop to ask in chat first; request escalation directly through the tool.
-Note: When escalation approval is needed, prefer reusable prefix approvals so repeated test runs do not prompt again (`pyright`, `python -m unittest`, `python -m pytest`, `python -m playwright install`).
+Note: When escalation approval is needed, prefer reusable prefix approvals so repeated test runs do not prompt again (`uv run pyright`, `uv run python -m unittest`, `uv run python -m pytest`, `uv run python -m playwright install`).
 Note: For direct unittest module/class/test invocation, use `PYTHONPATH=server:tests` so both server modules and helper modules under `tests/` resolve correctly. The shorter `PYTHONPATH=server` form is only sufficient for `unittest discover -s tests`.
 ```bash
 # Run TypeScript type checking
@@ -45,36 +48,36 @@ yarn typecheck
 yarn test
 
 # Python formatting
-ruff format .
+uv run ruff format .
 
 # Python linting
-ruff check .
+uv run ruff check .
 
 # Python type checking
-pyright
+uv run pyright
 
 # Python unit tests
-PYTHONPATH=server python -m unittest discover -s tests
+env PYTHONPATH=server uv run python -m unittest discover -s tests
 
 # Python unit tests (quiet summary, full output in /tmp/unittest_full.log)
-PYTHONPATH=server python -m unittest discover -s tests > /tmp/unittest_full.log 2>&1; echo EXIT:$?; rg -n "^Ran [0-9]+ tests|^OK$|^FAILED \\(|^ERROR:|^FAIL:" /tmp/unittest_full.log | tail -n 20
+env PYTHONPATH=server uv run python -m unittest discover -s tests > /tmp/unittest_full.log 2>&1; echo EXIT:$?; rg -n "^Ran [0-9]+ tests|^OK$|^FAILED \\(|^ERROR:|^FAIL:" /tmp/unittest_full.log | tail -n 20
 
 # Python unit tests (direct module / class / test invocation)
-PYTHONPATH=server:tests python -m unittest tests.some_test_module
+env PYTHONPATH=server:tests uv run python -m unittest tests.some_test_module
 
 # Python Playwright tests
 # Run tests directly. If browsers are missing, install them first.
 # Avoid --with-deps unless you are provisioning a fresh host with sudo access.
-python -m playwright install
-PYTHONPATH=server python -m pytest tests/test_e2e.py
-PYTHONPATH=server python -m pytest tests/test_gui.py
+uv run python -m playwright install
+env PYTHONPATH=server uv run python -m pytest tests/test_e2e.py
+env PYTHONPATH=server uv run python -m pytest tests/test_gui.py
 ```
 
 Note: `unittest -q/-b` still produces noisy output in this repo because tests initialize the application logger. Use the redirected command above for low-noise runs, then open `/tmp/unittest_full.log` when you need full details.
 
 Playwright setup tips:
 - The `--with-deps` install uses apt and needs sudo; avoid it unless you are provisioning a fresh host.
-- If browsers are already installed, you can skip `python -m playwright install`.
+- If browsers are already installed, you can skip `uv run python -m playwright install`.
 - Tests spin up local servers/browsers, so run them in an environment that allows opening local sockets.
 
 ### Docker Development
