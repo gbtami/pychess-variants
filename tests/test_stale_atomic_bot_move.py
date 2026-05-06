@@ -1,4 +1,5 @@
 import unittest
+from typing import Any, cast
 from unittest.mock import AsyncMock, patch
 
 from aiohttp.test_utils import AioHTTPTestCase
@@ -36,11 +37,9 @@ PRE_CASTLE_MOVES = (
     "b2b3",
     "c6c5",
     "a1e5",
-    "d7d6",
-    "e5e8",
 )
-PRE_CASTLE_FEN = "qrk1Q2n/p6p/3p4/1pp2p2/8/1P4N1/P1PP1PPP/1RK1B1R1 b GBb - 1 10"
-POST_CASTLE_FEN = "q1krQ2n/p6p/3p4/1pp2p2/8/1P4N1/P1PP1PPP/1RK1B1R1 w GB - 2 11"
+PRE_CASTLE_FEN = "qrk4n/p2p3p/8/1pp1Qp2/8/1P4N1/P1PP1PPP/1RK1B1R1 b GBb - 1 9"
+POST_CASTLE_FEN = "q1kr3n/p2p3p/8/1pp1Qp2/8/1P4N1/P1PP1PPP/1RK1B1R1 w GB - 2 10"
 
 
 class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
@@ -55,7 +54,7 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         app_state.users[self.black.username] = self.black
 
     async def get_application(self):
-        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        app = make_app(db_client=cast(Any, AsyncMongoMockClient(tz_aware=True)))
         app.on_startup.append(self.startup)
         return app
 
@@ -73,7 +72,7 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
             rated=False,
             chess960=True,
         )
-        self.bot.game_queues[game.id] = None
+        self.bot.game_queues[game.id] = cast(Any, None)
         return game
 
     def new_human_game(self) -> Game:
@@ -98,27 +97,27 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         await self.play_prefix(game)
 
         self.assertEqual(game.board.fen, PRE_CASTLE_FEN)
-        self.assertEqual(game.ply, 19)
+        self.assertEqual(game.ply, 17)
 
-        await play_move(app_state, self.player, game, "c8b7", clocks=[300000, 300000], ply=20)
-        self.assertEqual(game.ply, 20)
+        await play_move(app_state, self.player, game, "c8b7", clocks=[300000, 300000], ply=18)
+        self.assertEqual(game.ply, 18)
         self.assertEqual(game.status, STARTED)
 
         await game.takeback()
         self.assertEqual(game.board.fen, PRE_CASTLE_FEN)
-        self.assertEqual(game.ply, 19)
+        self.assertEqual(game.ply, 17)
 
-        await play_move(app_state, self.player, game, "c8b8", clocks=[300000, 300000], ply=20)
+        await play_move(app_state, self.player, game, "c8b8", clocks=[300000, 300000], ply=18)
         self.assertEqual(game.board.fen, POST_CASTLE_FEN)
-        self.assertEqual(game.ply, 20)
+        self.assertEqual(game.ply, 18)
         self.assertEqual(game.lastmove, "c8b8")
         self.assertEqual(game.status, STARTED)
 
         # This is the stock-client shape: the stale move still carries its original ply.
-        await play_move(app_state, self.player, game, "c8b7", clocks=[300000, 300000], ply=20)
+        await play_move(app_state, self.player, game, "c8b7", clocks=[300000, 300000], ply=18)
 
         self.assertEqual(game.board.fen, POST_CASTLE_FEN)
-        self.assertEqual(game.ply, 20)
+        self.assertEqual(game.ply, 18)
         self.assertEqual(game.lastmove, "c8b8")
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
@@ -127,14 +126,14 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         game = self.new_game()
         await self.play_prefix(game)
-        await play_move(app_state, self.player, game, "c8b8", clocks=[300000, 300000], ply=20)
+        await play_move(app_state, self.player, game, "c8b8", clocks=[300000, 300000], ply=18)
 
         with patch.object(self.player, "send_game_message", new=AsyncMock()) as mock_send:
-            await play_move(app_state, self.player, game, "c8b7", clocks=[300000, 300000], ply=20)
+            await play_move(app_state, self.player, game, "c8b7", clocks=[300000, 300000], ply=18)
 
         self.assertEqual(game.board.fen, POST_CASTLE_FEN)
         self.assertEqual(game.board.color, 0)
-        self.assertEqual(game.ply, 20)
+        self.assertEqual(game.ply, 18)
         self.assertEqual(game.lastmove, "c8b8")
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
@@ -142,7 +141,7 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         payload = mock_send.await_args.args[1]
         self.assertEqual(payload["type"], "board")
         self.assertEqual(payload["fen"], POST_CASTLE_FEN)
-        self.assertEqual(payload["ply"], 20)
+        self.assertEqual(payload["ply"], 18)
         self.assertEqual(payload["status"], STARTED)
 
     async def test_takeback_then_replacement_move_without_ply_is_still_ignored_as_out_of_turn(self):
@@ -150,16 +149,16 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         game = self.new_game()
         await self.play_prefix(game)
 
-        await play_move(app_state, self.player, game, "c8b7", clocks=[300000, 300000], ply=20)
+        await play_move(app_state, self.player, game, "c8b7", clocks=[300000, 300000], ply=18)
         await game.takeback()
-        await play_move(app_state, self.player, game, "c8b8", clocks=[300000, 300000], ply=20)
+        await play_move(app_state, self.player, game, "c8b8", clocks=[300000, 300000], ply=18)
 
         # Even without ply, the normal human websocket path still rejects this message
         # because after c8b8 it is White's turn.
         await play_move(app_state, self.player, game, "c8b7", clocks=[300000, 300000], ply=None)
 
         self.assertEqual(game.board.fen, POST_CASTLE_FEN)
-        self.assertEqual(game.ply, 20)
+        self.assertEqual(game.ply, 18)
         self.assertEqual(game.lastmove, "c8b8")
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
@@ -168,7 +167,7 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         game = self.new_game()
         await self.play_prefix(game)
-        await play_move(app_state, self.player, game, "c8b8", clocks=[300000, 300000], ply=20)
+        await play_move(app_state, self.player, game, "c8b8", clocks=[300000, 300000], ply=18)
 
         game.board.color = 1
 
@@ -177,7 +176,7 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
 
         self.assertEqual(game.board.fen, POST_CASTLE_FEN)
         self.assertEqual(game.board.color, 0)
-        self.assertEqual(game.ply, 20)
+        self.assertEqual(game.ply, 18)
         self.assertEqual(game.lastmove, "c8b8")
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
@@ -185,7 +184,7 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         payload = mock_send.await_args.args[1]
         self.assertEqual(payload["type"], "board")
         self.assertEqual(payload["fen"], POST_CASTLE_FEN)
-        self.assertEqual(payload["ply"], 20)
+        self.assertEqual(payload["ply"], 18)
         self.assertEqual(payload["status"], STARTED)
 
     async def test_position_id_rejects_stale_human_move_even_when_ply_turn_and_move_are_otherwise_valid(
@@ -231,10 +230,10 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         game = self.new_game()
         await self.play_prefix(game)
         clocks = [game.clocks_w[-1], game.clocks_b[-1]]
-        await game.play_move("c8b8", clocks=clocks, ply=20)
+        await game.play_move("c8b8", clocks=clocks, ply=18)
 
         self.assertEqual(game.board.fen, POST_CASTLE_FEN)
-        self.assertEqual(game.ply, 20)
+        self.assertEqual(game.ply, 18)
         self.assertEqual(game.status, STARTED)
 
         # This reproduces the production symptom at the Game/FairyBoard layer:
@@ -242,7 +241,7 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         await game.play_move("c8b7", clocks=[300000, 300000], ply=None)
 
         self.assertEqual(game.board.fen, POST_CASTLE_FEN)
-        self.assertEqual(game.ply, 20)
+        self.assertEqual(game.ply, 18)
         self.assertEqual(game.lastmove, "c8b7")
         self.assertEqual(game.status, INVALIDMOVE)
         self.assertEqual(game.result, "0-1")
