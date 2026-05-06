@@ -5,7 +5,7 @@ import { GameController } from './gameCtrl';
 import { result } from './result'
 import { Step } from './messages';
 import { patch } from './document';
-import { AnalysisTreeNode } from './analysisTree';
+import { AnalysisTreeNode } from './analysis/analysisTree';
 
 type TreeCtrl = GameController & {
     analysisTree?: { root: AnalysisTreeNode };

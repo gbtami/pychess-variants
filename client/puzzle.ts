@@ -5,7 +5,7 @@ import { PuzzleController } from './puzzleCtrl';
 import { selectVariant, VARIANTS, noPuzzleVariants, validVariant } from './variants';
 import { PyChessModel } from './types';
 import { analysisTools, gauge } from './analysis'
-import { analysisSettings } from './analysisSettings';
+import { analysisSettings } from './analysis/analysisSettings';
 
 function runPuzzle(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;

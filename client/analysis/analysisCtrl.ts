@@ -13,7 +13,7 @@ import { uci2LastMove, uci2cg, getTurnColor } from '../chess';
 import { crosstableView } from '../crosstable';
 import { chatView } from '../chat';
 import { createMovelistButtons, updateMovelist, selectMove } from '../movelist';
-import { povChances } from '../winningChances';
+import { povChances } from './winningChances';
 import { copyTextToClipboard } from '../clipboard';
 import { analysisChart } from './analysisChart';
 import { movetimeChart } from './movetimeChart';

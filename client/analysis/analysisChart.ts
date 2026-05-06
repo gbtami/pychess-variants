@@ -2,7 +2,7 @@ import Highcharts from "highcharts";
 
 import { _ } from '../i18n';
 import { selectMove } from '../movelist';
-import { povChances } from '../winningChances';
+import { povChances } from './winningChances';
 import { AnalysisController } from './analysisCtrl';
 import { Step } from "../messages";
 import { analysisChartZone } from '../variantColor';
