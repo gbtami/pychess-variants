@@ -15,6 +15,7 @@ type TreeCtrl = AnalysisControllerBughouse & {
     hasAnalysisTree?: () => boolean;
     getTreeActivePath?: () => string;
     activateTreePath?: (path: string) => void;
+    activateTreeMainlinePly?: (ply: number) => void;
     getTreeLineStartPath?: () => string;
     getTreeLineEndPath?: () => string;
     getTreeParentPath?: () => string;
@@ -43,6 +44,15 @@ export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBu
     ctrl.goPly(ply, 0);
     activatePly(ctrl);
     scrollToPly(ctrl);
+}
+
+export function selectMainlineMove(ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number): void {
+    const treeCtrl = asTreeCtrl(ctrl);
+    if (treeCtrl?.activateTreeMainlinePly) {
+        treeCtrl.activateTreeMainlinePly(ply);
+        return;
+    }
+    selectMove(ctrl, ply, 0);
 }
 
 function activatePly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
@@ -241,7 +251,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
                     haschat: !!step.chat,
                 },
                 attrs: { ply: ply },
-                on: { click: () => selectMove(ctrl, ply) },
+                on: { click: () => selectMainlineMove(ctrl, ply) },
             }, moveEl));
             if (chats) moves.push(chats);
 

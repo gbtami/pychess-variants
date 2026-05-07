@@ -12,6 +12,7 @@ type TreeCtrl = GameController & {
     isTreeInlineNotation?: () => boolean;
     getTreeActivePath?: () => string;
     activateTreePath?: (path: string) => void;
+    activateTreeMainlinePly?: (ply: number) => void;
     getTreeLineStartPath?: () => string;
     getTreeLineEndPath?: () => string;
     getTreeParentPath?: () => string;
@@ -47,6 +48,15 @@ export function selectMove (ctrl: GameController, ply: number, _plyVari = 0): vo
     activatePly(ctrl);
     scrollToPly(ctrl);
 
+}
+
+export function selectMainlineMove(ctrl: GameController, ply: number): void {
+    const treeCtrl = asTreeCtrl(ctrl);
+    if (treeCtrl?.activateTreeMainlinePly) {
+        treeCtrl.activateTreeMainlinePly(ply);
+        return;
+    }
+    selectMove(ctrl, ply, 0);
 }
 
 function activatePly (ctrl: GameController) {

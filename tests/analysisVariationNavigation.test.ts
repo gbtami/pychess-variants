@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { getFastMoveSelection, isTheoreticalMove } from '../client/movelist';
+import { getFastMoveSelection, isTheoreticalMove, selectMainlineMove } from '../client/movelist';
 
 describe('fast move-list navigation targets', () => {
     test('always jumps to the mainline bounds outside tree mode', () => {
@@ -18,5 +18,27 @@ describe('theoretical move marking', () => {
         expect(isTheoreticalMove(40, 1, 40)).toBe(false);
         expect(isTheoreticalMove(10, -1, 9)).toBe(false);
         expect(isTheoreticalMove(10, 1, undefined)).toBe(false);
+    });
+});
+
+describe('mainline tree selection', () => {
+    test('uses an explicit mainline jump in tree mode', () => {
+        let selectedMainlinePly: number | undefined;
+        let rawGoPlyCalls = 0;
+
+        selectMainlineMove({
+            hasAnalysisTree: () => true,
+            activateTreeMainlinePly: (ply: number) => {
+                selectedMainlinePly = ply;
+            },
+            goPly: () => {
+                rawGoPlyCalls += 1;
+            },
+            steps: [{}, {}, {}],
+            ply: 0,
+        } as any, 2);
+
+        expect(selectedMainlinePly).toBe(2);
+        expect(rawGoPlyCalls).toBe(0);
     });
 });

@@ -364,6 +364,11 @@ export class AnalysisController extends GameController {
         return node?.children[0]?.path;
     }
 
+    activateTreeMainlinePly(ply: number) {
+        if (!this.analysisTree) return;
+        this.activateTreePath(mainlinePathAtPly(this.analysisTree, ply));
+    }
+
     private getTreeNodeForPly(ply: number) {
         if (!this.analysisTree) return undefined;
 
