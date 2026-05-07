@@ -8,8 +8,12 @@ import {
     getNodeList,
     mainlineEndPath,
     mainlinePathAtPly,
+    nextBranchPath,
+    pathIsMainline,
+    previousBranchPath,
     projectPath,
     renderFullTreePgnMoveText,
+    stepLinePath,
 } from '../client/analysis/analysisTree';
 import { Step } from '../client/messages';
 
@@ -104,5 +108,42 @@ describe('analysis tree basics', () => {
         expect(renderFullTreePgnMoveText(tree, (node) => node.step.sanSAN ?? '')).toBe(
             '1. e4 (1. d4 d5) (1... c5 2. Nf3) e5 2. Nf3',
         );
+    });
+
+    test('supports branch-aware keyboard navigation paths', () => {
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+            makeStep('s3 b - - 0 1', 'g1f3', 'black', 'Nf3'),
+            makeStep('s4 w - - 0 1', 'b8c6', 'white', 'Nc6'),
+        ];
+        const tree = createAnalysisTree(steps);
+
+        const c5Path = addOrSelectChild(
+            tree,
+            mainlinePathAtPly(tree, 2),
+            makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5'),
+            false,
+        );
+        const nf3FromC5Path = addOrSelectChild(
+            tree,
+            c5Path,
+            makeStep('v2 b - - 0 1', 'g1f3', 'black', 'Nf3'),
+            false,
+        );
+        const e6Path = addOrSelectChild(
+            tree,
+            mainlinePathAtPly(tree, 2),
+            makeStep('v3 w - - 0 1', 'e7e6', 'white', 'e6'),
+            false,
+        );
+
+        expect(pathIsMainline(tree, mainlinePathAtPly(tree, 3))).toBe(true);
+        expect(pathIsMainline(tree, c5Path)).toBe(false);
+        expect(previousBranchPath(tree, nf3FromC5Path)).toBe(mainlinePathAtPly(tree, 2));
+        expect(nextBranchPath(tree, mainlinePathAtPly(tree, 2), 1)).toBe(mainlineEndPath(tree));
+        expect(stepLinePath(tree, c5Path, 'next')).toBe(e6Path);
+        expect(stepLinePath(tree, e6Path, 'prev')).toBe(c5Path);
     });
 });

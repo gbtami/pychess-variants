@@ -201,6 +201,74 @@ export function branchStartPath(tree: AnalysisTree, path: string): string {
     return projection.isMainline ? ROOT_PATH : projection.anchorPath;
 }
 
+export function pathIsMainline(tree: AnalysisTree, path: string): boolean {
+    return getNodeList(tree, path).every((node, idx) => idx === 0 || node.mainlinePly !== undefined);
+}
+
+export function stepLinePath(
+    tree: AnalysisTree,
+    fromPath: string,
+    which: 'prev' | 'next',
+): string {
+    let path = parentPath(fromPath);
+    let parent = nodeAtPath(tree, path);
+    let siblings = parent?.children ?? [];
+
+    while (path && siblings.length < 2 && !pathIsMainline(tree, path)) {
+        path = parentPath(path);
+        parent = nodeAtPath(tree, path);
+        siblings = parent?.children ?? [];
+    }
+
+    const idx = siblings.findIndex(
+        (child) => fromPath === child.path || fromPath.startsWith(`${child.path}${PATH_SEPARATOR}`),
+    );
+    if (idx < 0) return fromPath;
+
+    const target =
+        which === 'next'
+            ? (siblings[idx + 1] ?? siblings[0])
+            : (siblings[idx - 1] ?? siblings[siblings.length - 1]);
+    return target?.path ?? fromPath;
+}
+
+export function previousBranchPath(tree: AnalysisTree, path: string): string {
+    let currentPath = parentPath(path);
+    let current = nodeAtPath(tree, currentPath);
+
+    while (currentPath && current && current.children.length < 2) {
+        currentPath = parentPath(currentPath);
+        current = nodeAtPath(tree, currentPath);
+    }
+
+    return currentPath;
+}
+
+function exitVariationPath(tree: AnalysisTree, path: string): string {
+    if (pathIsMainline(tree, path)) return path;
+
+    let found = ROOT_PATH;
+    getNodeList(tree, path).slice(1, -1).forEach((node) => {
+        if (node.children[1]) found = node.path;
+    });
+    return found || path;
+}
+
+export function nextBranchPath(tree: AnalysisTree, path: string, childIndex = 0): string {
+    const node = nodeAtPath(tree, path);
+    if (!node) return path;
+
+    let child = node.children[childIndex] ?? node.children[0];
+
+    while (child && child.children.length < 2) {
+        child = child.children[0];
+    }
+
+    if (child) return child.path;
+    if (pathIsMainline(tree, path)) return mainlineEndPath(tree);
+    return exitVariationPath(tree, path);
+}
+
 export function addOrSelectChild(
     tree: AnalysisTree,
     parentPath: string,

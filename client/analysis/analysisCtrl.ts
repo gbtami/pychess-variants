@@ -42,8 +42,11 @@ import {
     getNodeList,
     mainlineEndPath,
     mainlinePathAtPly,
+    nextBranchPath,
     nodeAtPath,
     parentPath,
+    previousBranchPath,
+    stepLinePath,
     renderFullTreePgnMoveText,
 } from './analysisTree';
 import {
@@ -107,6 +110,7 @@ export class AnalysisController extends GameController {
     inlineNotation: boolean;
     analysisTree?: AnalysisTree;
     analysisPath: string;
+    treeForkIndex: number;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -166,6 +170,7 @@ export class AnalysisController extends GameController {
         this.importedBy = '';
         this.lastBroadcastLocalAnalysisFen = undefined;
         this.analysisPath = '';
+        this.treeForkIndex = 0;
 
         if (!this.ongoing) {
             window.addEventListener('storage', this.onAntiCheatStorage);
@@ -284,9 +289,6 @@ export class AnalysisController extends GameController {
 
         this.autoShapes = [];
 
-        // Tree navigation mirrors the semantics Lichess uses in analysis:
-        // left/right move along the currently selected branch, while up/down jump
-        // to the start/end of that branch rather than the global game mainline.
         Mousetrap.bind('left', () => {
             if (!this.hasAnalysisTree()) return;
             const target = this.getTreeParentPath();
@@ -297,13 +299,35 @@ export class AnalysisController extends GameController {
             const target = this.getTreeMainChildPath();
             if (target) this.activateTreePath(target);
         });
-        Mousetrap.bind('up', () => {
+        Mousetrap.bind(['up', '0', 'home'], (event?: KeyboardEvent) => {
             if (!this.hasAnalysisTree()) return;
-            this.activateTreePath(this.getTreeLineStartPath());
+            if (event?.key === 'ArrowUp' && this.selectTreeFork('prev')) return;
+            this.activateTreePath('');
         });
-        Mousetrap.bind('down', () => {
+        Mousetrap.bind(['down', '$', 'end'], (event?: KeyboardEvent) => {
             if (!this.hasAnalysisTree()) return;
-            this.activateTreePath(this.getTreeLineEndPath());
+            if (event?.key === 'ArrowDown' && this.selectTreeFork('next')) return;
+            this.activateTreePath(this.getTreeMainlineEndPath());
+        });
+        Mousetrap.bind('shift+left', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreePreviousBranchPath();
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('shift+right', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeNextBranchPath();
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('shift+up', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeStepLinePath('prev');
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('shift+down', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeStepLinePath('next');
+            if (target !== this.analysisPath) this.activateTreePath(target);
         });
     }
 
@@ -361,7 +385,36 @@ export class AnalysisController extends GameController {
 
     getTreeMainChildPath() {
         const node = this.getTreeCurrentNode();
-        return node?.children[0]?.path;
+        return node?.children[this.treeForkIndex]?.path ?? node?.children[0]?.path;
+    }
+
+    getTreeSelectedChildPath() {
+        return this.getTreeMainChildPath();
+    }
+
+    getTreePreviousBranchPath() {
+        if (!this.analysisTree) return this.analysisPath;
+        return previousBranchPath(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeNextBranchPath() {
+        if (!this.analysisTree) return this.analysisPath;
+        return nextBranchPath(this.analysisTree, this.analysisPath, this.treeForkIndex);
+    }
+
+    getTreeStepLinePath(which: 'prev' | 'next') {
+        if (!this.analysisTree) return this.analysisPath;
+        return stepLinePath(this.analysisTree, this.analysisPath, which);
+    }
+
+    selectTreeFork(which: 'prev' | 'next') {
+        const node = this.getTreeCurrentNode();
+        if (!node || node.children.length < 2) return false;
+
+        const delta = which === 'next' ? 1 : -1;
+        this.treeForkIndex = (node.children.length + this.treeForkIndex + delta) % node.children.length;
+        updateMovelist(this, true, false);
+        return true;
     }
 
     activateTreeMainlinePly(ply: number) {
@@ -390,6 +443,7 @@ export class AnalysisController extends GameController {
 
         // `analysisPath` is the single source of truth for tree-mode selection.
         // `goPly()` then projects that node back into the existing board/eval widgets.
+        this.treeForkIndex = 0;
         this.analysisPath = path;
         this.plyVari = 0;
         this.goPly(node.ply, 0);

@@ -2531,6 +2531,11 @@ vari-move {
   background: var(--blue-active);
 }
 
+#movelist.tview2.analysis-tree move.selected:not(.active) {
+  outline: 1px solid var(--blue-active);
+  outline-offset: -1px;
+}
+
 #movelist.tview2.analysis-tree move:hover {
   color: var(--font-color);
   background: var(--bg-color2);

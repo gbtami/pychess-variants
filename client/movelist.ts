@@ -13,6 +13,7 @@ type TreeCtrl = GameController & {
     getTreeActivePath?: () => string;
     activateTreePath?: (path: string) => void;
     activateTreeMainlinePly?: (ply: number) => void;
+    getTreeSelectedChildPath?: () => string | undefined;
     getTreeLineStartPath?: () => string;
     getTreeLineEndPath?: () => string;
     getTreeParentPath?: () => string;
@@ -190,6 +191,7 @@ function renderTreeMove(
     return h('move', {
         class: {
             active: path === ctrl.getTreeActivePath?.(),
+            selected: path === ctrl.getTreeSelectedChildPath?.(),
             theoretical,
             'tree-node': true,
             mainline: isMainline,
@@ -297,6 +299,7 @@ function renderTreeColumnMove(
     return h('move', {
         class: {
             active: path === ctrl.getTreeActivePath?.(),
+        selected: path === ctrl.getTreeSelectedChildPath?.(),
         theoretical,
         'tree-node': true,
         mainline: isMainline,
