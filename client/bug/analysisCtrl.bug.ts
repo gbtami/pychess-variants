@@ -256,6 +256,7 @@ export default class AnalysisControllerBughouse {
         this.onMsgBoard(model["board"] as MsgBoard);
 
         initBoardSettings(this.b1, this.b2, this.variant);
+        this.syncBoardHitAreas();
 
         (document.getElementById('gaugePartner') as HTMLElement).classList.add('flipped');
 
@@ -281,6 +282,16 @@ export default class AnalysisControllerBughouse {
 
     hasAnalysisTree() {
         return this.analysisTree !== undefined;
+    }
+
+    private syncBoardHitAreas() {
+        // Bughouse analysis changes the surrounding layout after the two chessgrounds
+        // are created. Force a post-layout redraw so pointer bounds stay aligned with
+        // the final rendered board positions on both boards.
+        requestAnimationFrame(() => {
+            this.b1.chessground.redrawAll();
+            this.b2.chessground.redrawAll();
+        });
     }
 
     initAnalysisTreeAtPly(ply: number) {
@@ -503,6 +514,7 @@ export default class AnalysisControllerBughouse {
             const cmt = document.getElementById('chart-movetime') as HTMLElement;
             if (cmt) cmt.style.display = 'block';
             movetimeChart(this);
+            this.syncBoardHitAreas();
 
         } else {/*
             if (msg.ply === this.steps.length) {
@@ -538,6 +550,8 @@ export default class AnalysisControllerBughouse {
             if (this.hasAnalysisTree()) this.activateTreePath(mainlinePathAtPly(this.analysisTree!, this.ply), false);
             else selectMove(this, this.ply);
         }
+
+        this.syncBoardHitAreas();
     }
 
     fsfPostMessage(msg: string) {
