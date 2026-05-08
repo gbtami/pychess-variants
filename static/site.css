@@ -2639,9 +2639,12 @@ vari-move {
 }
 
 #movelist.bug-analysis-tree .tree-context-menu .title {
-  padding: 0.3rem 0.45rem 0.45rem;
+  margin-bottom: 0.2rem;
+  padding: 0.38rem 0.5rem 0.42rem;
+  border-radius: 0.32rem;
+  background: color-mix(in srgb, var(--bg-color2) 82%, var(--bg-color1));
   color: Gray;
-  font-size: 0.78em;
+  font-size: 1.2em;
   font-weight: 600;
 }
 
@@ -2770,9 +2773,12 @@ vari-move {
 }
 
 #movelist.tview2.analysis-tree .tree-context-menu .title {
-  padding: 0.3rem 0.45rem 0.45rem;
+  margin-bottom: 0.2rem;
+  padding: 0.38rem 0.5rem 0.42rem;
+  border-radius: 0.32rem;
+  background: var(--tree-hover);
   color: Gray;
-  font-size: 0.78em;
+  font-size: 1.2em;
   font-weight: 600;
 }
 
