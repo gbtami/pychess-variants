@@ -1,4 +1,4 @@
-import { AnalysisTree, AnalysisTreeNode } from '../analysis/analysisTree';
+import { AnalysisTree, AnalysisTreeNode, getNodeList, projectPath } from '../analysis/analysisTree';
 import { Step } from '../messages';
 
 export function bugMovePrefix(step: Step): string {
@@ -42,4 +42,38 @@ export function renderBughouseTreePgnMoveText(
     getSan: (node: AnalysisTreeNode) => string,
 ): string {
     return renderBugPgnSequence(tree.root.children, getSan).join(' ');
+}
+
+function collectBughouseLineNodes(tree: AnalysisTree, path: string): AnalysisTreeNode[] {
+    const projection = projectPath(tree, path);
+
+    if (projection.isMainline) {
+        const nodes: AnalysisTreeNode[] = [];
+        let current = tree.root.children[0];
+        while (current) {
+            nodes.push(current);
+            current = current.children[0];
+        }
+        return nodes;
+    }
+
+    const pathNodes = getNodeList(tree, path);
+    const firstVariationIdx = pathNodes.findIndex((node) => node.mainlinePly === undefined);
+    const nodes = pathNodes.slice(firstVariationIdx);
+    let current = nodes[nodes.length - 1];
+    while (current?.children[0]) {
+        current = current.children[0];
+        nodes.push(current);
+    }
+    return nodes;
+}
+
+export function renderBughouseLinePgnMoveText(
+    tree: AnalysisTree,
+    path: string,
+    getSan: (node: AnalysisTreeNode) => string,
+): string {
+    return collectBughouseLineNodes(tree, path)
+        .map((node) => `${bugMovePrefix(node.step)} ${getSan(node)}`)
+        .join(' ');
 }

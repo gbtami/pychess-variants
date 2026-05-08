@@ -10,6 +10,7 @@ import { uci2LastMove, uci2cg } from '../chess';
 import { Variant, VARIANTS } from "../variants"
 import { createMovelistButtons, updateMovelist, selectMove } from './movelist.bug';
 import { povChances } from '../analysis/winningChances';
+import { copyTextToClipboard } from '../clipboard';
 import { patch } from '../document';
 import { Chart } from "highcharts";
 import { PyChessModel } from "../types";
@@ -23,8 +24,10 @@ import {
     addOrSelectChild,
     AnalysisTree,
     branchStartPath,
+    canPromoteVariation,
     createAnalysisTree,
     currentLineEndPath,
+    deleteNodePath,
     getNodeList,
     mainlineEndPath,
     mainlinePathAtPly,
@@ -32,13 +35,15 @@ import {
     nodeAtPath,
     parentPath,
     previousBranchPath,
+    promoteNodePath,
     setCollapsedFrom,
+    someCollapsedFrom,
     stepLinePath,
 } from "../analysis/analysisTree";
 import ffishModule from "ffish-es6";
 import { titleCase } from "@/analysis/analysisCtrl";
 import { movetimeChart } from "./movetimeChart.bug";
-import { renderBughouseTreePgnMoveText } from "./analysisTreeBug";
+import { renderBughouseLinePgnMoveText, renderBughouseTreePgnMoveText } from "./analysisTreeBug";
 import { initBoardSettings, switchBoards } from "@/bug/roundCtrl.bug";
 import {playerInfoData} from "@/bug/gameInfo.bug";
 
@@ -121,6 +126,8 @@ export default class AnalysisControllerBughouse {
     analysisTree?: AnalysisTree;
     analysisPath: string;
     treeForkIndex: number;
+    treeContextMenu?: { path: string; x: number; y: number };
+    private readonly onTreeContextMenuDocumentClick: (event: MouseEvent) => void;
 
     username: string;
     chess960: boolean;
@@ -201,6 +208,11 @@ export default class AnalysisControllerBughouse {
         this.importedBy = '';
 
         this.notation = this.b1.variant.notation;
+        this.onTreeContextMenuDocumentClick = (event: MouseEvent) => {
+            const target = event.target as HTMLElement | null;
+            if (target?.closest('.tree-context-menu')) return;
+            this.closeTreeContextMenu();
+        };
 
         const fens = model.fen.split(" | ");
 
@@ -374,6 +386,56 @@ export default class AnalysisControllerBughouse {
         return this.getTreeMainChildPath();
     }
 
+    getTreeNodeAtPath(path: string) {
+        if (!this.analysisTree) return undefined;
+        return nodeAtPath(this.analysisTree, path);
+    }
+
+    pathIsTreeMainline(path: string) {
+        if (!this.analysisTree) return true;
+        return getNodeList(this.analysisTree, path).every((node, idx) => idx === 0 || node.mainlinePly !== undefined);
+    }
+
+    canPromoteTreeVariation(path: string) {
+        if (!this.analysisTree) return false;
+        return canPromoteVariation(this.analysisTree, path);
+    }
+
+    someTreeCollapsed(collapsed: boolean) {
+        if (!this.analysisTree) return false;
+        return someCollapsedFrom(this.analysisTree, collapsed);
+    }
+
+    getTreeContextMenu() {
+        return this.treeContextMenu;
+    }
+
+    openTreeContextMenu(path: string, clientX: number, clientY: number) {
+        const container = document.getElementById('movelist');
+        if (!container) return;
+
+        const rect = container.getBoundingClientRect();
+        const x = clientX - rect.left + container.scrollLeft;
+        const y = clientY - rect.top + container.scrollTop;
+
+        this.treeContextMenu = { path, x, y };
+        document.addEventListener('click', this.onTreeContextMenuDocumentClick, false);
+        updateMovelist(this, true, false);
+    }
+
+    closeTreeContextMenu() {
+        if (!this.treeContextMenu) return;
+        this.treeContextMenu = undefined;
+        document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
+        updateMovelist(this, true, false);
+    }
+
+    copyTreeLinePgn(path: string) {
+        if (!this.analysisTree) return;
+        copyTextToClipboard(renderBughouseLinePgnMoveText(this.analysisTree, path, (node) => node.step.sanSAN ?? node.step.san ?? ''));
+        this.closeTreeContextMenu();
+    }
+
     toggleTreeCollapsed(path: string) {
         if (!this.analysisTree) return;
         const node = nodeAtPath(this.analysisTree, path);
@@ -396,6 +458,7 @@ export default class AnalysisControllerBughouse {
         if (!this.analysisTree) return;
         setCollapsedFrom(this.analysisTree, '', true);
         this.saveTreeCollapsedPaths();
+        this.closeTreeContextMenu();
         updateMovelist(this, true, false);
     }
 
@@ -403,7 +466,28 @@ export default class AnalysisControllerBughouse {
         if (!this.analysisTree) return;
         setCollapsedFrom(this.analysisTree, '', false);
         this.saveTreeCollapsedPaths();
+        this.closeTreeContextMenu();
         updateMovelist(this, true, false);
+    }
+
+    promoteTreeVariation(path: string, toMainline: boolean) {
+        if (!this.analysisTree) return;
+        promoteNodePath(this.analysisTree, path, toMainline);
+        this.closeTreeContextMenu();
+        updateMovelist(this, true, false);
+    }
+
+    deleteTreeNode(path: string) {
+        if (!this.analysisTree || !path) return;
+        const nextPath =
+            this.analysisPath === path || this.analysisPath.startsWith(`${path}.`)
+                ? parentPath(path)
+                : this.analysisPath;
+        deleteNodePath(this.analysisTree, path);
+        this.revealTreePath(nextPath);
+        this.saveTreeCollapsedPaths();
+        this.closeTreeContextMenu();
+        this.activateTreePath(nextPath);
     }
 
     getTreePreviousBranchPath() {
@@ -455,6 +539,8 @@ export default class AnalysisControllerBughouse {
 
         this.revealTreePath(path);
         this.treeForkIndex = 0;
+        this.treeContextMenu = undefined;
+        document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
         this.analysisPath = path;
         this.plyVari = 0;
         this.goPly(node.ply, 0);

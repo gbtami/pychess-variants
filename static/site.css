@@ -2558,6 +2558,56 @@ vari-move {
   margin: 0 3px 0 0;
 }
 
+#movelist.bug-analysis-tree .tree-context-menu {
+  position: absolute;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  min-width: 11rem;
+  padding: 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--font-color) 18%, transparent);
+  border-radius: 0.45rem;
+  background: var(--bg-color1);
+  box-shadow: 0 8px 22px color-mix(in srgb, #000 18%, transparent);
+}
+
+#movelist.bug-analysis-tree .tree-context-menu .title {
+  padding: 0.3rem 0.45rem 0.45rem;
+  color: Gray;
+  font-size: 0.78em;
+  font-weight: 600;
+}
+
+#movelist.bug-analysis-tree .tree-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.45rem 0.55rem;
+  border: none;
+  border-radius: 0.32rem;
+  background: transparent;
+  color: var(--font-color);
+  text-align: left;
+  cursor: pointer;
+}
+
+#movelist.bug-analysis-tree .tree-context-menu button:hover {
+  background: color-mix(in srgb, var(--bg-color2) 78%, var(--bg-color1));
+}
+
+#movelist.bug-analysis-tree .tree-context-menu button i.icon {
+  width: 1rem;
+  margin: 0;
+  color: color-mix(in srgb, var(--font-color) 72%, transparent);
+  text-align: center;
+}
+
+#movelist.bug-analysis-tree .tree-context-menu button span {
+  flex: 1 1 auto;
+}
+
 #movelist.tview2.analysis-tree {
   --tree-border: color-mix(in srgb, var(--font-color) 18%, transparent);
   --tree-hover: color-mix(in srgb, var(--bg-color2) 78%, var(--bg-color1));
