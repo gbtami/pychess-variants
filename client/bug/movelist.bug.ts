@@ -14,6 +14,7 @@ type TreeCtrl = AnalysisControllerBughouse & {
     analysisTree?: { root: AnalysisTreeNode };
     hasAnalysisTree?: () => boolean;
     getTreeActivePath?: () => string;
+    getTreeSelectedChildPath?: () => string | undefined;
     activateTreePath?: (path: string) => void;
     activateTreeMainlinePly?: (ply: number) => void;
     getTreeLineStartPath?: () => string;
@@ -133,7 +134,10 @@ function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number, cls: stri
 
 function renderTreeVariationMove(ctrl: TreeCtrl, node: AnalysisTreeNode): VNode {
     return h('vari-move', {
-        class: { active: node.path === ctrl.getTreeActivePath?.() },
+        class: {
+            active: node.path === ctrl.getTreeActivePath?.(),
+            selected: node.path === ctrl.getTreeSelectedChildPath?.(),
+        },
         attrs: { ply: node.ply, 'data-path': node.path },
         on: { click: () => ctrl.activateTreePath?.(node.path) },
     }, [h('san', `${bugMovePrefix(node.step)} ${node.step.san ?? ''}`)]);

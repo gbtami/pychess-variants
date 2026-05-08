@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import { h } from 'snabbdom';
 
-import { createAnalysisTree } from '../client/analysis/analysisTree';
+import { addOrSelectChild, createAnalysisTree } from '../client/analysis/analysisTree';
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
 import { updateMovelist } from '../client/bug/movelist.bug';
@@ -77,5 +77,48 @@ describe('bughouse analysis mainline navigation', () => {
         mainlineMove!.click();
 
         expect(selectedMainlinePly).toBe(2);
+    });
+
+    test('variation rows expose the selected child path in tree mode', () => {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+        patch(host, h('div#movelist'));
+
+        const steps: Step[] = [
+            makeStep('fa0', 'fb0', undefined, undefined, 'white', '', 'a', 0, 0),
+            makeStep('fa1', 'fb0', 'a1', undefined, 'black', 'A1', 'a', 1, 0),
+            makeStep('fa1', 'fb1', 'a1', 'b1', 'black', 'B1', 'b', 1, 1),
+        ];
+        const tree = createAnalysisTree(steps);
+        const selectedPath = addOrSelectChild(
+            tree,
+            tree.root.children[0].path,
+            makeStep('fa1', 'fb2', 'a1', 'b2', 'white', 'B2', 'b', 1, 1),
+            false,
+        );
+
+        const ctrl = {
+            steps,
+            status: -1,
+            result: '*',
+            ply: 2,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            getTreeActivePath: () => tree.root.children[0].children[0].path,
+            getTreeSelectedChildPath: () => selectedPath,
+            activateTreePath: () => undefined,
+            activateTreeMainlinePly: () => undefined,
+            b1: { variant: { name: 'bughouse' } },
+            teamFirst: [['wA', '', ''], ['bB', '', '']],
+            teamSecond: [['bA', '', ''], ['wB', '', '']],
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+
+        const selectedMove = document.querySelector('vari-move.selected') as HTMLElement | null;
+        expect(selectedMove).not.toBeNull();
+        expect(selectedMove?.textContent).toContain('B2');
     });
 });

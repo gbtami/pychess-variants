@@ -28,8 +28,11 @@ import {
     getNodeList,
     mainlineEndPath,
     mainlinePathAtPly,
+    nextBranchPath,
     nodeAtPath,
     parentPath,
+    previousBranchPath,
+    stepLinePath,
 } from "../analysis/analysisTree";
 import ffishModule from "ffish-es6";
 import { titleCase } from "@/analysis/analysisCtrl";
@@ -115,6 +118,7 @@ export default class AnalysisControllerBughouse {
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
     analysisTree?: AnalysisTree;
     analysisPath: string;
+    treeForkIndex: number;
 
     username: string;
     chess960: boolean;
@@ -170,6 +174,7 @@ export default class AnalysisControllerBughouse {
         // current interactive analysis variation ply
         this.plyVari = 0;
         this.analysisPath = '';
+        this.treeForkIndex = 0;
 
         this.model = model;
         this.gameId = model["gameId"] as string;
@@ -270,13 +275,35 @@ export default class AnalysisControllerBughouse {
             const target = this.getTreeMainChildPath();
             if (target) this.activateTreePath(target);
         });
-        Mousetrap.bind('up', () => {
+        Mousetrap.bind(['up', '0', 'home'], (event?: KeyboardEvent) => {
             if (!this.hasAnalysisTree()) return;
-            this.activateTreePath(this.getTreeLineStartPath());
+            if (event?.key === 'ArrowUp' && this.selectTreeFork('prev')) return;
+            this.activateTreePath('');
         });
-        Mousetrap.bind('down', () => {
+        Mousetrap.bind(['down', '$', 'end'], (event?: KeyboardEvent) => {
             if (!this.hasAnalysisTree()) return;
-            this.activateTreePath(this.getTreeLineEndPath());
+            if (event?.key === 'ArrowDown' && this.selectTreeFork('next')) return;
+            this.activateTreePath(this.getTreeMainlineEndPath());
+        });
+        Mousetrap.bind('shift+left', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreePreviousBranchPath();
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('shift+right', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeNextBranchPath();
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('shift+up', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeStepLinePath('prev');
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('shift+down', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeStepLinePath('next');
+            if (target !== this.analysisPath) this.activateTreePath(target);
         });
     }
 
@@ -336,7 +363,36 @@ export default class AnalysisControllerBughouse {
 
     getTreeMainChildPath() {
         const node = this.getTreeCurrentNode();
-        return node?.children[0]?.path;
+        return node?.children[this.treeForkIndex]?.path ?? node?.children[0]?.path;
+    }
+
+    getTreeSelectedChildPath() {
+        return this.getTreeMainChildPath();
+    }
+
+    getTreePreviousBranchPath() {
+        if (!this.analysisTree) return this.analysisPath;
+        return previousBranchPath(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeNextBranchPath() {
+        if (!this.analysisTree) return this.analysisPath;
+        return nextBranchPath(this.analysisTree, this.analysisPath, this.treeForkIndex);
+    }
+
+    getTreeStepLinePath(which: 'prev' | 'next') {
+        if (!this.analysisTree) return this.analysisPath;
+        return stepLinePath(this.analysisTree, this.analysisPath, which);
+    }
+
+    selectTreeFork(which: 'prev' | 'next') {
+        const node = this.getTreeCurrentNode();
+        if (!node || node.children.length < 2) return false;
+
+        const delta = which === 'next' ? 1 : -1;
+        this.treeForkIndex = (node.children.length + this.treeForkIndex + delta) % node.children.length;
+        updateMovelist(this, true, false);
+        return true;
     }
 
     activateTreeMainlinePly(ply: number) {
@@ -361,6 +417,7 @@ export default class AnalysisControllerBughouse {
         const node = nodeAtPath(this.analysisTree, path);
         if (!node) return;
 
+        this.treeForkIndex = 0;
         this.analysisPath = path;
         this.plyVari = 0;
         this.goPly(node.ply, 0);

@@ -2483,6 +2483,11 @@ vari-move {
   font-style: normal;
 }
 
+#movelist.bug-analysis-tree vari.tree-variation vari-move.selected:not(.active) {
+  outline: 1px solid var(--blue-active);
+  outline-offset: -1px;
+}
+
 #movelist.bug-analysis-tree vari.tree-variation inline {
   display: inline;
   opacity: 0.9;
