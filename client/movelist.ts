@@ -23,10 +23,60 @@ type TreeCtrl = GameController & {
 };
 
 type TreeDiscloseState = undefined | 'expanded' | 'collapsed';
+type MoveGlyphClass = 'good' | 'mistake' | 'brilliant' | 'blunder' | 'interesting' | 'inaccuracy';
+
+interface ParsedTreeMove {
+    san: string;
+    glyph?: {
+        text: string;
+        cls: MoveGlyphClass;
+    };
+}
 
 function treeDiscloseState(ctrl: TreeCtrl, node: AnalysisTreeNode): TreeDiscloseState {
     if (!(ctrl.isTreeDisclosureMode?.() ?? false) || node.children.length < 2) return undefined;
     return node.collapsed ? 'collapsed' : 'expanded';
+}
+
+function treePathContains(outerPath: string, innerPath: string | undefined): boolean {
+    if (innerPath === undefined) return false;
+    return innerPath === outerPath || innerPath.startsWith(`${outerPath}.`);
+}
+
+function parseTreeMove(move: string | undefined): ParsedTreeMove {
+    if (!move || move === '?') return { san: move ?? '' };
+
+    const match = move.match(/^(.*?)(\?\?|\!\!|\!\?|\?\!|\!|\?)$/);
+    if (!match) return { san: move };
+
+    const [, san, glyphText] = match;
+    const glyphClass: Record<string, MoveGlyphClass> = {
+        '!': 'good',
+        '?': 'mistake',
+        '!!': 'brilliant',
+        '??': 'blunder',
+        '!?': 'interesting',
+        '?!': 'inaccuracy',
+    };
+
+    return {
+        san,
+        glyph: {
+            text: glyphText,
+            cls: glyphClass[glyphText],
+        },
+    };
+}
+
+function renderTreeMoveText(move: string | undefined): VNode[] {
+    const parsed = parseTreeMove(move);
+    const nodes: VNode[] = [h('san', parsed.san)];
+
+    if (parsed.glyph) {
+        nodes.push(h(`glyph.${parsed.glyph.cls}`, parsed.glyph.text));
+    }
+
+    return nodes;
 }
 
 function asTreeCtrl(ctrl: GameController): TreeCtrl | undefined {
@@ -179,6 +229,7 @@ function renderTreeMove(
     parentDisclose?: TreeDiscloseState,
 ): VNode {
     const move = (ctrl.fog && ctrl.status < 0 && (node.step.turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : node.step.san;
+    const activePath = ctrl.getTreeActivePath?.();
     const isWhiteMove = node.step.turnColor === 'black';
     let prefix = '';
     if (rootTurnColor === 'black' && node.ply === 1) {
@@ -198,6 +249,8 @@ function renderTreeMove(
     const theoretical =
         node.mainlinePly === undefined
         || (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
+    const currentline = treePathContains(path, activePath);
+    const recorded = node.mainlinePly !== undefined && !theoretical;
     const disclosureButton =
         parentDisclose
             ? h('button.disclosure', {
@@ -214,8 +267,12 @@ function renderTreeMove(
     return h('move', {
         class: {
             active: path === ctrl.getTreeActivePath?.(),
+            currentline,
             selected: path === ctrl.getTreeSelectedChildPath?.(),
+            recorded,
             theoretical,
+            branchpoint: node.children.length > 1,
+            sideline: !isMainline,
             'tree-node': true,
             mainline: isMainline,
         },
@@ -224,7 +281,7 @@ function renderTreeMove(
     }, [
         disclosureButton,
         prefix ? h('index', prefix) : undefined,
-        h('san', `${move ?? ''}`),
+        ...renderTreeMoveText(move),
         evalNode,
     ]);
 }
@@ -345,6 +402,7 @@ function renderTreeColumnMove(
     parentDisclose?: TreeDiscloseState,
 ): VNode {
     const move = (ctrl.fog && ctrl.status < 0 && (node.step.turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : node.step.san;
+    const activePath = ctrl.getTreeActivePath?.();
     const scoreStr = node.step.scoreStr ?? '';
     const evalNode = node.mainlinePly !== undefined
         ? h(`eval#ply${node.mainlinePly}`, scoreStr)
@@ -354,6 +412,8 @@ function renderTreeColumnMove(
     const theoretical =
         node.mainlinePly === undefined
         || (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
+    const currentline = treePathContains(path, activePath);
+    const recorded = node.mainlinePly !== undefined && !theoretical;
     const disclosureButton =
         parentDisclose
             ? h('button.disclosure', {
@@ -370,16 +430,20 @@ function renderTreeColumnMove(
     return h('move', {
         class: {
             active: path === ctrl.getTreeActivePath?.(),
-        selected: path === ctrl.getTreeSelectedChildPath?.(),
-        theoretical,
-        'tree-node': true,
-        mainline: isMainline,
-    },
-    attrs: { 'data-path': path },
-    on: { click: () => ctrl.activateTreePath?.(path) },
+            currentline,
+            selected: path === ctrl.getTreeSelectedChildPath?.(),
+            recorded,
+            theoretical,
+            branchpoint: node.children.length > 1,
+            sideline: !isMainline,
+            'tree-node': true,
+            mainline: isMainline,
+        },
+        attrs: { 'data-path': path },
+        on: { click: () => ctrl.activateTreePath?.(path) },
     }, [
         disclosureButton,
-        h('san', `${move ?? ''}`),
+        ...renderTreeMoveText(move),
         evalNode,
     ]);
 }

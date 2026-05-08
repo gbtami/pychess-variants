@@ -353,4 +353,53 @@ describe('analysis tree movelist gating', () => {
         expect(disclosureMove?.textContent).toContain('a6');
         expect(disclosureMove?.textContent).not.toContain('Ba4');
     });
+
+    test('tree nodes expose selected-line state and split SAN glyph suffixes', () => {
+        document.body.innerHTML = '<div id="movelist"></div>';
+
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4!'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+            makeStep('s3 b - - 0 1', 'g1f3', 'black', 'Nf3'),
+        ];
+        const tree = createAnalysisTree(steps);
+        const e4Path = mainlinePathAtPly(tree, 1);
+        addOrSelectChild(tree, e4Path, makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5?!'), false);
+
+        const ctrl = {
+            steps,
+            status: 1,
+            result: '*',
+            ply: 3,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            variant: { name: 'chess' },
+            fog: false,
+            mycolor: 'white',
+            spectator: true,
+            recordedMainlinePly: 3,
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            isTreeInlineNotation: () => true,
+            isTreeDisclosureMode: () => false,
+            getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
+            getTreeSelectedChildPath: () => tree.root.children[0].children[0].children[0].path,
+            activateTreePath: () => undefined,
+            toggleTreeCollapsed: () => undefined,
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+
+        const firstMove = document.querySelector('#movelist move[data-path="01"]') as HTMLElement | null;
+        expect(firstMove?.classList.contains('recorded')).toBe(true);
+        expect(firstMove?.classList.contains('currentline')).toBe(true);
+        expect(firstMove?.querySelector('san')?.textContent).toBe('e4');
+        expect(firstMove?.querySelector('glyph.good')?.textContent).toBe('!');
+
+        const sidelineMove = document.querySelector('#movelist move[data-path="01.04"]') as HTMLElement | null;
+        expect(sidelineMove?.classList.contains('sideline')).toBe(true);
+        expect(sidelineMove?.querySelector('san')?.textContent).toBe('c5');
+        expect(sidelineMove?.querySelector('glyph.inaccuracy')?.textContent).toBe('?!');
+    });
 });
