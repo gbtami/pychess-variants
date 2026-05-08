@@ -2522,6 +2522,31 @@ vari-move {
   color: var(--font-color);
 }
 
+#movelist.tview2.analysis-tree move button.disclosure {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-right: 0.25rem;
+  padding: 0;
+  border: 1px solid var(--tree-border);
+  border-radius: 999px;
+  background: transparent;
+  color: Gray;
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+#movelist.tview2.analysis-tree move button.disclosure::before {
+  content: '+';
+}
+
+#movelist.tview2.analysis-tree move button.disclosure.expanded::before {
+  content: '-';
+}
+
 #movelist.tview2.analysis-tree move.theoretical {
   font-style: italic;
 }
@@ -2649,6 +2674,10 @@ vari-move {
   font-size: 1.185em;
   line-height: 1.75em;
   padding: 0 0.3em 0 0.5em;
+}
+
+#movelist.tview2.tview2-column.analysis-tree > move button.disclosure {
+  flex: 0 0 auto;
 }
 
 #movelist.tview2.tview2-column.analysis-tree > move.mainline.active {

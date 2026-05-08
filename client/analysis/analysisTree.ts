@@ -13,6 +13,7 @@ export interface AnalysisTreeNode {
     step: Step;
     // Child[0] is always the preferred continuation for this node. Siblings are alternatives.
     children: AnalysisTreeNode[];
+    collapsed?: boolean;
     // Present only for nodes that still sit on the original persisted game mainline.
     mainlinePly?: number;
 }

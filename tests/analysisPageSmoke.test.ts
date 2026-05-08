@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { h, type VNode } from 'snabbdom';
 
-import { createAnalysisTree } from '../client/analysis/analysisTree';
+import { addOrSelectChild, createAnalysisTree, mainlinePathAtPly } from '../client/analysis/analysisTree';
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
 import { updateMovelist } from '../client/movelist';
@@ -259,5 +259,98 @@ describe('analysis tree movelist gating', () => {
         expect(movelist.classList.contains('analysis-tree')).toBe(false);
         expect(movelist.classList.contains('tview2-column')).toBe(false);
         expect(movelist.querySelector('move.counter')).not.toBeNull();
+    });
+
+    test('disclosure mode hides collapsed sidelines but leaves them visible when disabled', () => {
+        document.body.innerHTML = '<div id="movelist"></div>';
+
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+        ];
+        const tree = createAnalysisTree(steps);
+        const ply1Path = mainlinePathAtPly(tree, 1);
+        addOrSelectChild(tree, ply1Path, makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5'), false);
+        const parent = tree.root.children[0];
+        parent.collapsed = true;
+
+        const ctrl = {
+            steps,
+            status: -1,
+            result: '*',
+            ply: 2,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            variant: { name: 'chess' },
+            fog: false,
+            mycolor: 'white',
+            spectator: true,
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            isTreeInlineNotation: () => true,
+            isTreeDisclosureMode: () => true,
+            getTreeActivePath: () => tree.root.children[0].children[0].path,
+            getTreeSelectedChildPath: () => tree.root.children[0].children[0].path,
+            activateTreePath: () => undefined,
+            toggleTreeCollapsed: () => undefined,
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+        expect(document.getElementById('movelist')!.textContent).not.toContain('c5');
+        expect(document.querySelector('#movelist button.disclosure')).not.toBeNull();
+
+        ctrl.isTreeDisclosureMode = () => false;
+        updateMovelist(ctrl, true, false, false);
+        expect(document.getElementById('movelist')!.textContent).toContain('c5');
+    });
+
+    test('column disclosure button is rendered on the branched reply move', () => {
+        document.body.innerHTML = '<div id="movelist"></div>';
+
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+            makeStep('s3 b - - 0 1', 'g1f3', 'black', 'Nf3'),
+            makeStep('s4 w - - 0 1', 'b8c6', 'white', 'Nc6'),
+            makeStep('s5 b - - 0 1', 'f1b5', 'black', 'Bb5'),
+            makeStep('s6 w - - 0 1', 'a7a6', 'white', 'a6'),
+            makeStep('s7 b - - 0 1', 'b5a4', 'black', 'Ba4'),
+        ];
+        const tree = createAnalysisTree(steps);
+        const white4Path = mainlinePathAtPly(tree, 5);
+        addOrSelectChild(tree, white4Path, makeStep('v1 w - - 0 1', 'g8f6', 'white', 'Nf6'), false);
+        addOrSelectChild(tree, white4Path, makeStep('v2 w - - 0 1', 'f8c5', 'white', 'Bc5'), false);
+        addOrSelectChild(tree, white4Path, makeStep('v3 w - - 0 1', 'd7d6', 'white', 'd6'), false);
+
+        const ctrl = {
+            steps,
+            status: -1,
+            result: '*',
+            ply: 7,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            variant: { name: 'chess' },
+            fog: false,
+            mycolor: 'white',
+            spectator: true,
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            isTreeInlineNotation: () => false,
+            isTreeDisclosureMode: () => true,
+            getTreeActivePath: () => tree.root.children[0].children[0].children[0].children[0].children[0].children[0].children[0].path,
+            getTreeSelectedChildPath: () => undefined,
+            activateTreePath: () => undefined,
+            toggleTreeCollapsed: () => undefined,
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+
+        expect(document.querySelectorAll('#movelist button.disclosure')).toHaveLength(1);
+
+        const disclosureMove = document.querySelector('#movelist > move button.disclosure')?.parentElement;
+        expect(disclosureMove?.textContent).toContain('a6');
+        expect(disclosureMove?.textContent).not.toContain('Ba4');
     });
 });

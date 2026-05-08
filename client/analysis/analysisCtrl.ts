@@ -65,6 +65,7 @@ const EVAL_REGEX = new RegExp(''
   + /pv (.+)/.source);
 
 const maxDepth = 18;
+const TREE_COLLAPSED_STORAGE_KEY = 'analysisTreeCollapsedPaths';
 
 const emptySan = '\xa0';
 
@@ -108,6 +109,7 @@ export class AnalysisController extends GameController {
     autoShapes: DrawShape[][];
     lastBroadcastLocalAnalysisFen?: string;
     inlineNotation: boolean;
+    disclosureMode: boolean;
     analysisTree?: AnalysisTree;
     analysisPath: string;
     treeForkIndex: number;
@@ -164,6 +166,7 @@ export class AnalysisController extends GameController {
         this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === "true";
         this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === "true";
         this.inlineNotation = localStorage.inlineNotation === "true";
+        this.disclosureMode = localStorage.disclosureMode === "true";
         this.variantSupportedByFSF = false;
         this.uciOk = false;
         this.nnueOk = false;
@@ -339,13 +342,19 @@ export class AnalysisController extends GameController {
         return this.inlineNotation;
     }
 
+    isTreeDisclosureMode() {
+        return this.disclosureMode;
+    }
+
     initAnalysisTreeAtPly(ply: number) {
         if (this.steps.length === 0) return;
         // We rebuild the in-memory tree from the persisted mainline and then place
         // the active cursor on the requested ply. All later user-created branches
         // are attached to this tree only on the client.
         this.analysisTree = createAnalysisTree(this.steps);
+        this.applyTreeCollapsedPaths();
         this.analysisPath = mainlinePathAtPly(this.analysisTree, ply);
+        this.revealTreePath(this.analysisPath);
         this.activateTreePath(this.analysisPath, false);
     }
 
@@ -417,6 +426,24 @@ export class AnalysisController extends GameController {
         return true;
     }
 
+    toggleTreeCollapsed(path: string) {
+        if (!this.analysisTree) return;
+        const node = nodeAtPath(this.analysisTree, path);
+        if (!node || node.children.length < 2) return;
+
+        node.collapsed = !node.collapsed;
+        if (node.collapsed) {
+            const mainChildPath = node.children[0]?.path;
+            if (this.analysisPath !== path && mainChildPath && !this.analysisPath.startsWith(mainChildPath)) {
+                this.analysisPath = path;
+                this.goPly(node.ply, 0);
+            }
+        }
+        this.revealTreePath(this.analysisPath);
+        this.saveTreeCollapsedPaths();
+        updateMovelist(this, true, false);
+    }
+
     activateTreeMainlinePly(ply: number) {
         if (!this.analysisTree) return;
         this.activateTreePath(mainlinePathAtPly(this.analysisTree, ply));
@@ -445,6 +472,7 @@ export class AnalysisController extends GameController {
         // `goPly()` then projects that node back into the existing board/eval widgets.
         this.treeForkIndex = 0;
         this.analysisPath = path;
+        this.revealTreePath(path);
         this.plyVari = 0;
         this.goPly(node.ply, 0);
 
@@ -1272,6 +1300,42 @@ export class AnalysisController extends GameController {
         };
 
         visit(this.steps[0].fen, this.analysisTree.root.children);
+    }
+
+    private treeCollapsedStorageKey() {
+        return `${TREE_COLLAPSED_STORAGE_KEY}:${this.gameId || `analysis:${this.variant.name}`}`;
+    }
+
+    private applyTreeCollapsedPaths() {
+        if (!this.analysisTree) return;
+        let collapsedPaths: string[] = [];
+        try {
+            collapsedPaths = JSON.parse(localStorage[this.treeCollapsedStorageKey()] ?? '[]');
+        } catch {
+            collapsedPaths = [];
+        }
+        collapsedPaths.forEach((path) => {
+            const node = nodeAtPath(this.analysisTree!, path);
+            if (node) node.collapsed = true;
+        });
+    }
+
+    private saveTreeCollapsedPaths() {
+        if (!this.analysisTree) return;
+        const collapsedPaths: string[] = [];
+        const visit = (node: AnalysisTree['root']) => {
+            if (node.collapsed) collapsedPaths.push(node.path);
+            node.children.forEach(visit);
+        };
+        visit(this.analysisTree.root);
+        localStorage[this.treeCollapsedStorageKey()] = JSON.stringify(collapsedPaths);
+    }
+
+    private revealTreePath(path: string) {
+        if (!this.analysisTree) return;
+        getNodeList(this.analysisTree, path).slice(0, -1).forEach((node) => {
+            node.collapsed = false;
+        });
     }
 
     doSendMove(move: string) {

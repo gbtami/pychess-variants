@@ -17,6 +17,7 @@ class AnalysisSettings {
         this.settings = {};
         this.settings["arrow"] = new ArrowSettings(this);
         this.settings["inlineNotation"] = new InlineNotationSettings(this);
+        this.settings["disclosureMode"] = new DisclosureModeSettings(this);
         this.settings["infiniteAnalysis"] = new InfiniteAnalysisSettings(this);
         this.settings["multipv"] = new MultiPVSettings(this);
         this.settings["threads"] = new ThreadsSettings(this);
@@ -41,6 +42,8 @@ class AnalysisSettings {
         settingsList.push(this.settings["arrow"].view());
 
         settingsList.push(this.settings["inlineNotation"].view());
+
+        settingsList.push(this.settings["disclosureMode"].view());
 
         settingsList.push(this.settings["infiniteAnalysis"].view());
 
@@ -83,6 +86,33 @@ class InlineNotationSettings extends BooleanSettings {
                 this,
                 'inlineNotation-enabled',
                 _("Inline notation"),
+                false,
+            )
+        );
+    }
+}
+
+class DisclosureModeSettings extends BooleanSettings {
+    readonly analysisSettings: AnalysisSettings;
+
+    constructor(analysisSettings: AnalysisSettings) {
+        super('disclosureMode', false);
+        this.analysisSettings = analysisSettings;
+    }
+
+    update(): void {
+        const ctrl = this.analysisSettings.ctrl;
+        ctrl.disclosureMode = this.value;
+        updateMovelist(ctrl, true, false);
+    }
+
+    view(): VNode {
+        return h(
+            'div.disclosureMode-toggle',
+            toggleSwitch(
+                this,
+                'disclosureMode-enabled',
+                _("Disclosure buttons"),
                 false,
             )
         );
