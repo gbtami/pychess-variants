@@ -383,7 +383,7 @@ export default class AnalysisControllerBughouse {
     }
 
     getTreeSelectedChildPath() {
-        return this.getTreeMainChildPath();
+        return this.treeForkIndex > 0 ? this.getTreeMainChildPath() : undefined;
     }
 
     getTreeNodeAtPath(path: string) {

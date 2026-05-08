@@ -436,7 +436,7 @@ export class AnalysisController extends GameController {
     }
 
     getTreeSelectedChildPath() {
-        return this.getTreeMainChildPath();
+        return this.treeForkIndex > 0 ? this.getTreeMainChildPath() : undefined;
     }
 
     getTreeContextMenu() {
