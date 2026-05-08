@@ -299,6 +299,79 @@ export function addOrSelectChild(
     return child.path;
 }
 
+export function canPromoteVariation(tree: AnalysisTree, path: string): boolean {
+    const nodes = getNodeList(tree, path);
+    for (let i = nodes.length - 2; i >= 0; i--) {
+        const node = nodes[i + 1];
+        const parent = nodes[i];
+        if (parent.children[0]?.id !== node.id) return true;
+    }
+    return false;
+}
+
+export function promoteNodePath(tree: AnalysisTree, path: string, toMainline: boolean): void {
+    const nodes = getNodeList(tree, path);
+    for (let i = nodes.length - 2; i >= 0; i--) {
+        const node = nodes[i + 1];
+        const parent = nodes[i];
+        if (parent.children[0]?.id !== node.id) {
+            parent.children = [
+                node,
+                ...parent.children.filter((child) => child.id !== node.id),
+            ];
+            if (!toMainline) break;
+        }
+    }
+}
+
+function deleteBranchFromIndex(tree: AnalysisTree, nodes: AnalysisTreeNode[], idx: number): void {
+    const node = nodes[idx];
+    node.children.forEach((child) => deleteBranchFromIndex(tree, [...nodes, child], nodes.length));
+    tree.byPath.delete(node.path);
+}
+
+export function deleteNodePath(tree: AnalysisTree, path: string): void {
+    if (!path) return;
+    const nodes = getNodeList(tree, path);
+    const node = nodes[nodes.length - 1];
+    const parent = nodes[nodes.length - 2];
+    if (!node || !parent) return;
+
+    deleteBranchFromIndex(tree, nodes, nodes.length - 1);
+    parent.children = parent.children.filter((child) => child.id !== node.id);
+}
+
+export function someCollapsedFrom(tree: AnalysisTree, collapsed: boolean, from = ROOT_PATH): boolean {
+    const start = nodeAtPath(tree, from);
+    if (!start) return false;
+
+    const visit = (node: AnalysisTreeNode): boolean => {
+        if (!!node.collapsed === collapsed && node.children.length > 1) return true;
+        return node.children.some(visit);
+    };
+
+    return visit(start);
+}
+
+export function setCollapsedFrom(
+    tree: AnalysisTree,
+    from: string,
+    collapsed: boolean,
+    thisBranchOnly = false,
+): void {
+    const start = nodeAtPath(tree, from);
+    if (!start) return;
+
+    const visit = (node: AnalysisTreeNode) => {
+        if (node.children.length > 1) node.collapsed = collapsed;
+        node.children.forEach((child, idx) => {
+            if (!thisBranchOnly || idx === 0) visit(child);
+        });
+    };
+
+    visit(start);
+}
+
 function movePrefix(node: AnalysisTreeNode, rootTurnColor: string, firstInVariation: boolean): string {
     const isWhiteMove = node.step.turnColor === 'black';
     if (rootTurnColor === 'black' && node.ply === 1) return '1...';
@@ -349,4 +422,46 @@ export function renderFullTreePgnMoveText(
     // PGN movetext is closest to the inline-notation renderer: a single token stream
     // with recursive parenthesized alternatives attached at each branch point.
     return renderPgnSequence(tree.root.children, tree.root.step.turnColor, false, getSan).join(' ');
+}
+
+function collectLineNodes(tree: AnalysisTree, path: string): {
+    nodes: AnalysisTreeNode[];
+    firstInVariation: boolean;
+} {
+    const projection = projectPath(tree, path);
+
+    if (projection.isMainline) {
+        const nodes: AnalysisTreeNode[] = [];
+        let current = tree.root.children[0];
+        while (current) {
+            nodes.push(current);
+            current = current.children[0];
+        }
+        return { nodes, firstInVariation: false };
+    }
+
+    const pathNodes = getNodeList(tree, path);
+    const firstVariationIdx = pathNodes.findIndex((node) => node.mainlinePly === undefined);
+    const nodes = pathNodes.slice(firstVariationIdx);
+    let current = nodes[nodes.length - 1];
+    while (current?.children[0]) {
+        current = current.children[0];
+        nodes.push(current);
+    }
+
+    return { nodes, firstInVariation: true };
+}
+
+export function renderLinePgnMoveText(
+    tree: AnalysisTree,
+    path: string,
+    getSan: (node: AnalysisTreeNode) => string,
+): string {
+    const { nodes, firstInVariation } = collectLineNodes(tree, path);
+    return nodes
+        .map((node, idx) => {
+            const prefix = movePrefix(node, tree.root.step.turnColor, firstInVariation && idx === 0);
+            return prefix ? `${prefix} ${getSan(node)}` : getSan(node);
+        })
+        .join(' ');
 }

@@ -20,10 +20,29 @@ type TreeCtrl = GameController & {
     getTreeLineEndPath?: () => string;
     getTreeParentPath?: () => string;
     getTreeMainChildPath?: () => string | undefined;
+    getTreeNodeAtPath?: (path: string) => AnalysisTreeNode | undefined;
+    getTreeContextMenu?: () => { path: string; x: number; y: number } | undefined;
+    openTreeContextMenu?: (path: string, clientX: number, clientY: number) => void;
+    closeTreeContextMenu?: () => void;
+    copyTreeLinePgn?: (path: string) => void;
+    pathIsTreeMainline?: (path: string) => boolean;
+    canPromoteTreeVariation?: (path: string) => boolean;
+    promoteTreeVariation?: (path: string, toMainline: boolean) => void;
+    someTreeCollapsed?: (collapsed: boolean) => boolean;
+    collapseAllTree?: () => void;
+    expandAllTree?: () => void;
+    deleteTreeNode?: (path: string) => void;
 };
 
 type TreeDiscloseState = undefined | 'expanded' | 'collapsed';
 type MoveGlyphClass = 'good' | 'mistake' | 'brilliant' | 'blunder' | 'interesting' | 'inaccuracy';
+type TreeMenuIconClass =
+    | 'icon-arrow-up-right'
+    | 'icon-check'
+    | 'icon-download'
+    | 'icon-plus-square'
+    | 'icon-clipboard'
+    | 'icon-trash-o';
 
 interface ParsedTreeMove {
     san: string;
@@ -277,7 +296,14 @@ function renderTreeMove(
             mainline: isMainline,
         },
         attrs: { 'data-path': path },
-        on: { click: () => ctrl.activateTreePath?.(path) },
+        on: {
+            click: () => ctrl.activateTreePath?.(path),
+            contextmenu: (event: MouseEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+                ctrl.openTreeContextMenu?.(path, event.clientX, event.clientY);
+            },
+        },
     }, [
         disclosureButton,
         prefix ? h('index', prefix) : undefined,
@@ -440,7 +466,14 @@ function renderTreeColumnMove(
             mainline: isMainline,
         },
         attrs: { 'data-path': path },
-        on: { click: () => ctrl.activateTreePath?.(path) },
+        on: {
+            click: () => ctrl.activateTreePath?.(path),
+            contextmenu: (event: MouseEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+                ctrl.openTreeContextMenu?.(path, event.clientX, event.clientY);
+            },
+        },
     }, [
         disclosureButton,
         ...renderTreeMoveText(move),
@@ -591,15 +624,87 @@ function renderTreeColumnMovelist(ctrl: TreeCtrl): VNode[] {
     return moves;
 }
 
+function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
+    const menu = ctrl.getTreeContextMenu?.();
+    if (!menu) return undefined;
+
+    const current = ctrl.getTreeNodeAtPath?.(menu.path);
+    if (!current) return undefined;
+
+    const onMainline = ctrl.pathIsTreeMainline?.(menu.path) ?? true;
+    const canPromote = ctrl.canPromoteTreeVariation?.(menu.path) ?? false;
+    const actions: VNode[] = [];
+    const action = (iconClass: TreeMenuIconClass, text: string, onClick: () => void) =>
+        h('button', {
+            on: { click: onClick },
+        }, [
+            h(`i.icon.${iconClass}`),
+            h('span', text),
+        ]);
+    const positionMenu = (el: HTMLElement) => {
+        const container = el.offsetParent as HTMLElement | null;
+        if (!container) return;
+
+        const minLeft = container.scrollLeft + 4;
+        const maxLeft = container.scrollLeft + container.clientWidth - el.offsetWidth - 4;
+        const minTop = container.scrollTop + 4;
+        const maxTop = container.scrollTop + container.clientHeight - el.offsetHeight - 4;
+
+        el.style.left = `${Math.max(minLeft, Math.min(menu.x, maxLeft))}px`;
+        el.style.top = `${Math.max(minTop, Math.min(menu.y, maxTop))}px`;
+    };
+
+    if (canPromote) {
+        actions.push(action('icon-arrow-up-right', _('Promote variation'), () => ctrl.promoteTreeVariation?.(menu.path, false)));
+    }
+
+    if (!onMainline) {
+        actions.push(action('icon-check', _('Make main line'), () => ctrl.promoteTreeVariation?.(menu.path, true)));
+    }
+
+    if (ctrl.someTreeCollapsed?.(false)) {
+        actions.push(action('icon-download', _('Collapse all'), () => ctrl.collapseAllTree?.()));
+    }
+
+    if (ctrl.someTreeCollapsed?.(true)) {
+        actions.push(action('icon-plus-square', _('Expand all'), () => ctrl.expandAllTree?.()));
+    }
+
+    actions.push(action(
+        'icon-clipboard',
+        onMainline ? _('Copy main line PGN') : _('Copy variation PGN'),
+        () => ctrl.copyTreeLinePgn?.(menu.path),
+    ));
+
+    if (menu.path) {
+        actions.push(action('icon-trash-o', _('Delete from here'), () => ctrl.deleteTreeNode?.(menu.path)));
+    }
+
+    return h('div.tree-context-menu', {
+        hook: {
+            insert: (vnode) => positionMenu(vnode.elm as HTMLElement),
+            postpatch: (_oldVnode, vnode) => positionMenu(vnode.elm as HTMLElement),
+        },
+        on: {
+            click: (event: MouseEvent) => event.stopPropagation(),
+        },
+    }, [
+        h('div.title', current.step.san ?? _('Start position')),
+        ...actions,
+    ]);
+}
+
 export function updateMovelist (ctrl: GameController, full = true, activate = true, needResult = true) {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
         const inlineNotation = treeCtrl.isTreeInlineNotation?.() ?? false;
         const moves = inlineNotation ? renderTreeMovelist(treeCtrl) : renderTreeColumnMovelist(treeCtrl);
+        const contextMenu = renderTreeContextMenu(treeCtrl);
         if (ctrl.status >= 0 && needResult) {
             moves.push(h('div.result', ctrl.result));
             moves.push(h('div.status', result(ctrl.variant, ctrl.status, ctrl.result)));
         }
+        if (contextMenu) moves.push(contextMenu);
         const container = document.getElementById('movelist') as HTMLElement;
         if (full) {
             while (container.lastChild) {

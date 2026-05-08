@@ -402,4 +402,120 @@ describe('analysis tree movelist gating', () => {
         expect(sidelineMove?.querySelector('san')?.textContent).toBe('c5');
         expect(sidelineMove?.querySelector('glyph.inaccuracy')?.textContent).toBe('?!');
     });
+
+    test('tree context menu renders lichess-style actions for the selected move', () => {
+        document.body.innerHTML = '<div id="movelist"></div>';
+
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+            makeStep('s3 b - - 0 1', 'g1f3', 'black', 'Nf3'),
+            makeStep('s4 w - - 0 1', 'b8c6', 'white', 'Nc6'),
+            makeStep('s5 b - - 0 1', 'f1b5', 'black', 'Bb5'),
+            makeStep('s6 w - - 0 1', 'a7a6', 'white', 'a6'),
+        ];
+        const tree = createAnalysisTree(steps);
+        const branchPath = mainlinePathAtPly(tree, 5);
+        addOrSelectChild(tree, branchPath, makeStep('v1 w - - 0 1', 'g8f6', 'white', 'Nf6'), false);
+
+        const ctrl = {
+            steps,
+            status: -1,
+            result: '*',
+            ply: 6,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            variant: { name: 'chess' },
+            fog: false,
+            mycolor: 'white',
+            spectator: true,
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            isTreeInlineNotation: () => false,
+            isTreeDisclosureMode: () => true,
+            getTreeActivePath: () => tree.root.children[0].children[0].children[0].children[0].children[0].children[0].path,
+            getTreeSelectedChildPath: () => undefined,
+            getTreeNodeAtPath: (path: string) => path === branchPath ? tree.root.children[0].children[0].children[0].children[0].children[0] : undefined,
+            pathIsTreeMainline: () => false,
+            canPromoteTreeVariation: () => true,
+            someTreeCollapsed: (collapsed: boolean) => !collapsed,
+            getTreeContextMenu: () => ({ path: branchPath, x: 12, y: 18 }),
+            activateTreePath: () => undefined,
+            toggleTreeCollapsed: () => undefined,
+            copyTreeLinePgn: () => undefined,
+            promoteTreeVariation: () => undefined,
+            collapseAllTree: () => undefined,
+            expandAllTree: () => undefined,
+            deleteTreeNode: () => undefined,
+            closeTreeContextMenu: () => undefined,
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+
+        const menu = document.querySelector('#movelist .tree-context-menu') as HTMLElement | null;
+        expect(menu).not.toBeNull();
+        expect(menu?.textContent).toContain('Bb5');
+        expect(menu?.textContent).toContain('Copy variation PGN');
+        expect(menu?.textContent).toContain('Promote variation');
+        expect(menu?.textContent).toContain('Make main line');
+        expect(menu?.textContent).toContain('Collapse all');
+        expect(menu?.textContent).toContain('Delete from here');
+        expect(menu?.querySelectorAll('button i.icon').length).toBeGreaterThanOrEqual(5);
+        expect(menu?.textContent).not.toContain('Copy full tree PGN');
+        expect(menu?.textContent).not.toContain('Jump to branch point');
+    });
+
+    test('tree context menu keeps delete action on mainline nodes', () => {
+        document.body.innerHTML = '<div id="movelist"></div>';
+
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+            makeStep('s3 b - - 0 1', 'g1f3', 'black', 'Nf3'),
+        ];
+        const tree = createAnalysisTree(steps);
+        const mainlinePath = mainlinePathAtPly(tree, 2);
+        const mainlineNode = tree.root.children[0].children[0];
+
+        const ctrl = {
+            steps,
+            status: -1,
+            result: '*',
+            ply: 3,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            variant: { name: 'chess' },
+            fog: false,
+            mycolor: 'white',
+            spectator: true,
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            isTreeInlineNotation: () => false,
+            isTreeDisclosureMode: () => false,
+            getTreeActivePath: () => mainlinePath,
+            getTreeSelectedChildPath: () => undefined,
+            getTreeNodeAtPath: (path: string) => path === mainlinePath ? mainlineNode : undefined,
+            pathIsTreeMainline: () => true,
+            canPromoteTreeVariation: () => false,
+            someTreeCollapsed: () => false,
+            getTreeContextMenu: () => ({ path: mainlinePath, x: 12, y: 18 }),
+            activateTreePath: () => undefined,
+            toggleTreeCollapsed: () => undefined,
+            copyTreeLinePgn: () => undefined,
+            promoteTreeVariation: () => undefined,
+            collapseAllTree: () => undefined,
+            expandAllTree: () => undefined,
+            deleteTreeNode: () => undefined,
+            closeTreeContextMenu: () => undefined,
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+
+        const menu = document.querySelector('#movelist .tree-context-menu') as HTMLElement | null;
+        expect(menu).not.toBeNull();
+        expect(menu?.textContent).toContain('Copy main line PGN');
+        expect(menu?.textContent).toContain('Delete from here');
+    });
 });

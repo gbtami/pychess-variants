@@ -5,14 +5,19 @@ import {
     branchStartPath,
     createAnalysisTree,
     currentLineEndPath,
+    deleteNodePath,
     getNodeList,
     mainlineEndPath,
     mainlinePathAtPly,
     nextBranchPath,
     pathIsMainline,
+    promoteNodePath,
     previousBranchPath,
     projectPath,
     renderFullTreePgnMoveText,
+    renderLinePgnMoveText,
+    someCollapsedFrom,
+    setCollapsedFrom,
     stepLinePath,
 } from '../client/analysis/analysisTree';
 import { Step } from '../client/messages';
@@ -110,6 +115,26 @@ describe('analysis tree basics', () => {
         );
     });
 
+    test('renders line PGN movetext without sibling variations', () => {
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+            makeStep('s3 b - - 0 1', 'g1f3', 'black', 'Nf3'),
+        ];
+        const tree = createAnalysisTree(steps);
+
+        const c5Path = addOrSelectChild(tree, mainlinePathAtPly(tree, 1), makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5'), false);
+        addOrSelectChild(tree, c5Path, makeStep('v2 b - - 0 1', 'g1f3', 'black', 'Nf3'), false);
+
+        expect(renderLinePgnMoveText(tree, mainlinePathAtPly(tree, 3), (node) => node.step.sanSAN ?? '')).toBe(
+            '1. e4 e5 2. Nf3',
+        );
+        expect(renderLinePgnMoveText(tree, c5Path, (node) => node.step.sanSAN ?? '')).toBe(
+            '1... c5 2. Nf3',
+        );
+    });
+
     test('supports branch-aware keyboard navigation paths', () => {
         const steps: Step[] = [
             makeStep('start w - - 0 1', undefined, 'white'),
@@ -145,5 +170,42 @@ describe('analysis tree basics', () => {
         expect(nextBranchPath(tree, mainlinePathAtPly(tree, 2), 1)).toBe(mainlineEndPath(tree));
         expect(stepLinePath(tree, c5Path, 'next')).toBe(e6Path);
         expect(stepLinePath(tree, e6Path, 'prev')).toBe(c5Path);
+    });
+
+    test('promotes and deletes variation branches', () => {
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+        ];
+        const tree = createAnalysisTree(steps);
+
+        const c5Path = addOrSelectChild(tree, mainlinePathAtPly(tree, 1), makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5'), false);
+        const e6Path = addOrSelectChild(tree, mainlinePathAtPly(tree, 1), makeStep('v2 w - - 0 1', 'e7e6', 'white', 'e6'), false);
+
+        promoteNodePath(tree, e6Path, false);
+        expect(tree.root.children[0].children.map((node) => node.step.san)).toEqual(['e6', 'e5', 'c5']);
+
+        promoteNodePath(tree, c5Path, true);
+        expect(tree.root.children[0].children.map((node) => node.step.san)).toEqual(['c5', 'e6', 'e5']);
+
+        deleteNodePath(tree, e6Path);
+        expect(tree.root.children[0].children.map((node) => node.step.san)).toEqual(['c5', 'e5']);
+    });
+
+    test('collapses and expands branches from the tree root', () => {
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+        ];
+        const tree = createAnalysisTree(steps);
+        addOrSelectChild(tree, mainlinePathAtPly(tree, 1), makeStep('v1 w - - 0 1', 'c7c5', 'white', 'c5'), false);
+
+        expect(someCollapsedFrom(tree, false)).toBe(true);
+        setCollapsedFrom(tree, '', true);
+        expect(someCollapsedFrom(tree, true)).toBe(true);
+        setCollapsedFrom(tree, '', false);
+        expect(someCollapsedFrom(tree, true)).toBe(false);
     });
 });
