@@ -28,12 +28,15 @@ import {
     createAnalysisTree,
     currentLineEndPath,
     deleteNodePath,
+    extendPath,
+    forceVariationAt,
     getNodeList,
     mainlineEndPath,
     mainlinePathAtPly,
     nextBranchPath,
     nodeAtPath,
     parentPath,
+    pathIsForcedVariation,
     previousBranchPath,
     promoteNodePath,
     setCollapsedFrom,
@@ -396,6 +399,11 @@ export default class AnalysisControllerBughouse {
         return getNodeList(this.analysisTree, path).every((node, idx) => idx === 0 || node.mainlinePly !== undefined);
     }
 
+    pathIsTreeForcedVariation(path: string) {
+        if (!this.analysisTree) return false;
+        return pathIsForcedVariation(this.analysisTree, path);
+    }
+
     canPromoteTreeVariation(path: string) {
         if (!this.analysisTree) return false;
         return canPromoteVariation(this.analysisTree, path);
@@ -432,7 +440,12 @@ export default class AnalysisControllerBughouse {
 
     copyTreeLinePgn(path: string) {
         if (!this.analysisTree) return;
-        copyTextToClipboard(renderBughouseLinePgnMoveText(this.analysisTree, path, (node) => node.step.sanSAN ?? node.step.san ?? ''));
+        const onMainline = this.pathIsTreeMainline(path) && !this.pathIsTreeForcedVariation(path);
+        copyTextToClipboard(renderBughouseLinePgnMoveText(
+            this.analysisTree,
+            onMainline ? extendPath(this.analysisTree, path, true) : path,
+            (node) => node.step.sanSAN ?? node.step.san ?? '',
+        ));
         this.closeTreeContextMenu();
     }
 
@@ -475,6 +488,12 @@ export default class AnalysisControllerBughouse {
         promoteNodePath(this.analysisTree, path, toMainline);
         this.closeTreeContextMenu();
         updateMovelist(this, true, false);
+    }
+
+    forceTreeVariation(path: string, force: boolean) {
+        if (!this.analysisTree) return;
+        forceVariationAt(this.analysisTree, path, force);
+        this.activateTreePath(path);
     }
 
     deleteTreeNode(path: string) {

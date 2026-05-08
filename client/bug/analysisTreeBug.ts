@@ -10,6 +10,7 @@ export function bugMovePrefix(step: Step): string {
 
 function renderBugPgnSequence(
     nodes: AnalysisTreeNode[],
+    isMainline: boolean,
     getSan: (node: AnalysisTreeNode) => string,
 ): string[] {
     const [child, ...siblings] = nodes;
@@ -20,15 +21,20 @@ function renderBugPgnSequence(
     let branchSiblings = siblings;
 
     while (current) {
+        if (current.forceVariation && isMainline) {
+            tokens.push(`(${renderBugPgnSequence([current, ...branchSiblings], false, getSan).join(' ')})`);
+            break;
+        }
+
         tokens.push(`${bugMovePrefix(current.step)} ${getSan(current)}`);
 
         branchSiblings.forEach((sideline) => {
-            tokens.push(`(${renderBugPgnSequence([sideline], getSan).join(' ')})`);
+            tokens.push(`(${renderBugPgnSequence([sideline], false, getSan).join(' ')})`);
         });
         branchSiblings = [];
 
         current.children.slice(1).forEach((sideline) => {
-            tokens.push(`(${renderBugPgnSequence([sideline], getSan).join(' ')})`);
+            tokens.push(`(${renderBugPgnSequence([sideline], false, getSan).join(' ')})`);
         });
 
         current = current.children[0];
@@ -41,7 +47,7 @@ export function renderBughouseTreePgnMoveText(
     tree: AnalysisTree,
     getSan: (node: AnalysisTreeNode) => string,
 ): string {
-    return renderBugPgnSequence(tree.root.children, getSan).join(' ');
+    return renderBugPgnSequence(tree.root.children, true, getSan).join(' ');
 }
 
 function collectBughouseLineNodes(tree: AnalysisTree, path: string): AnalysisTreeNode[] {
@@ -52,6 +58,7 @@ function collectBughouseLineNodes(tree: AnalysisTree, path: string): AnalysisTre
         let current = tree.root.children[0];
         while (current) {
             nodes.push(current);
+            if (current.children[0]?.forceVariation) break;
             current = current.children[0];
         }
         return nodes;

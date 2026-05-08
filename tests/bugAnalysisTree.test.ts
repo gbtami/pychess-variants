@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { addOrSelectChild, createAnalysisTree } from '../client/analysis/analysisTree';
+import { addOrSelectChild, createAnalysisTree, forceVariationAt, mainlinePathAtPly } from '../client/analysis/analysisTree';
 import { renderBughouseTreePgnMoveText } from '../client/bug/analysisTreeBug';
 import { Step } from '../client/messages';
 
@@ -62,6 +62,22 @@ describe('bughouse analysis tree', () => {
 
         expect(renderBughouseTreePgnMoveText(tree, (node) => node.step.sanSAN ?? '')).toBe(
             '1A. A1 (1b. B2 1A. A2) 1B. B1',
+        );
+    });
+
+    test('renders forced bughouse continuations as variations in full PGN movetext', () => {
+        const steps: Step[] = [
+            makeStep('fa0', 'fb0', undefined, undefined, 'white', undefined),
+            makeStep('fa1', 'fb0', 'a1', undefined, 'black', 'A1', 'a', 1, 0),
+            makeStep('fa1', 'fb1', 'a1', 'b1', 'black', 'B1', 'b', 1, 1),
+            makeStep('fa2', 'fb1', 'a2', 'b1', 'white', 'A2', 'a', 2, 1),
+        ];
+        const tree = createAnalysisTree(steps);
+
+        forceVariationAt(tree, mainlinePathAtPly(tree, 2), true);
+
+        expect(renderBughouseTreePgnMoveText(tree, (node) => node.step.sanSAN ?? '')).toBe(
+            '1A. A1 (1B. B1 1a. A2)',
         );
     });
 });

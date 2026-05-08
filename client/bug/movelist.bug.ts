@@ -7,7 +7,7 @@ import { patch } from '../document';
 import { RoundControllerBughouse } from "./roundCtrl.bug";
 import {Step, StepChat} from "../messages";
 import { displayUsername, isAnonUsername } from "@/user";
-import { AnalysisTreeNode, mainlinePathAtPly, nodeAtPath, parentPath } from "../analysis/analysisTree";
+import { AnalysisTreeNode, nodeAtPath, parentPath } from "../analysis/analysisTree";
 import { bugMovePrefix } from "./analysisTreeBug";
 
 type TreeCtrl = AnalysisControllerBughouse & {
@@ -28,8 +28,10 @@ type TreeCtrl = AnalysisControllerBughouse & {
     closeTreeContextMenu?: () => void;
     copyTreeLinePgn?: (path: string) => void;
     pathIsTreeMainline?: (path: string) => boolean;
+    pathIsTreeForcedVariation?: (path: string) => boolean;
     canPromoteTreeVariation?: (path: string) => boolean;
     promoteTreeVariation?: (path: string, toMainline: boolean) => void;
+    forceTreeVariation?: (path: string, force: boolean) => void;
     someTreeCollapsed?: (collapsed: boolean) => boolean;
     collapseAllTree?: () => void;
     expandAllTree?: () => void;
@@ -39,6 +41,7 @@ type TreeCtrl = AnalysisControllerBughouse & {
 type TreeDiscloseState = undefined | 'expanded' | 'collapsed';
 type TreeMenuIconClass =
     | 'icon-arrow-up-right'
+    | 'icon-arrow-down-right'
     | 'icon-check'
     | 'icon-download'
     | 'icon-plus-square'
@@ -309,6 +312,16 @@ function renderTreeVariationRows(ctrl: TreeCtrl, nodes: AnalysisTreeNode[]): VNo
     );
 }
 
+function getDisplayedMainlineNodes(tree: { root: AnalysisTreeNode }): AnalysisTreeNode[] {
+    const nodes: AnalysisTreeNode[] = [];
+    let current = tree.root.children[0];
+    while (current && !current.forceVariation) {
+        nodes.push(current);
+        current = current.children[0];
+    }
+    return nodes;
+}
+
 function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     const menu = ctrl.getTreeContextMenu?.();
     if (!menu) return undefined;
@@ -316,7 +329,7 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     const current = ctrl.getTreeNodeAtPath?.(menu.path);
     if (!current) return undefined;
 
-    const onMainline = ctrl.pathIsTreeMainline?.(menu.path) ?? true;
+    const onMainline = (ctrl.pathIsTreeMainline?.(menu.path) ?? true) && !(ctrl.pathIsTreeForcedVariation?.(menu.path) ?? false);
     const canPromote = ctrl.canPromoteTreeVariation?.(menu.path) ?? false;
     const actions: VNode[] = [];
     const action = (iconClass: TreeMenuIconClass, text: string, onClick: () => void) =>
@@ -345,6 +358,10 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
 
     if (!onMainline) {
         actions.push(action('icon-check', _('Make main line'), () => ctrl.promoteTreeVariation?.(menu.path, true)));
+    }
+
+    if (menu.path && onMainline) {
+        actions.push(action('icon-arrow-down-right', _('Convert to variation'), () => ctrl.forceTreeVariation?.(menu.path, true)));
     }
 
     if (ctrl.someTreeCollapsed?.(false)) {
@@ -382,30 +399,29 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
 export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, full = true, activate = true, needResult = true) {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
-        const plyFrom = full ? 1 : ctrl.steps.length - 1;
-        if (plyFrom === 0 && ctrl.steps.length <= 1) {
+        if (ctrl.steps.length <= 1) {
             const container = document.getElementById('movelist') as HTMLElement;
             ctrl.vmovelist = patch(container, h('div#movelist', { class: { 'bug-analysis-tree': true } }));
             return;
         }
 
-        const plyTo = ctrl.steps.length;
         const moves: VNode[] = [];
-        const prevPly = ctrl.steps[Math.max(0, plyFrom - 1)];
-        let lastColIdx = plyFrom === 1
-            ? 0
-            : prevPly.boardName === 'a'
-                ? prevPly.turnColor === 'white' ? 2 : 1
-                : prevPly.turnColor === 'white' ? 4 : 3;
+        let lastColIdx = 0;
         let didWeRenderVariSectionAfterLastMove = false;
         let didWeRenderChatSectionAfterLastMove = false;
+        const displayedMainline = treeCtrl.analysisTree ? getDisplayedMainlineNodes(treeCtrl.analysisTree) : [];
+        const rootChildren =
+            treeCtrl.analysisTree?.root.children[0]?.forceVariation
+                ? treeCtrl.analysisTree.root.children
+                : treeCtrl.analysisTree?.root.children.slice(1) ?? [];
 
-        if (full && treeCtrl.analysisTree && !treeCtrl.analysisTree.root.collapsed) {
-            moves.push(...renderTreeVariationRows(treeCtrl, treeCtrl.analysisTree.root.children.slice(1)));
+        if (treeCtrl.analysisTree && !treeCtrl.analysisTree.root.collapsed) {
+            moves.push(...renderTreeVariationRows(treeCtrl, rootChildren));
         }
 
-        for (let ply = plyFrom; ply < plyTo; ply++) {
-            const step = ctrl.steps[ply];
+        for (const mainlineNode of displayedMainline) {
+            const step = mainlineNode.step;
+            const ply = mainlineNode.ply;
             const move = step.san;
             if (move === null) continue;
 
@@ -427,9 +443,6 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             }
             lastColIdx = colIdx;
 
-            const mainlineNode = treeCtrl.analysisTree
-                ? nodeAtPath(treeCtrl.analysisTree, mainlinePathAtPly(treeCtrl.analysisTree, ply))
-                : undefined;
             const currentline = mainlineNode ? treePathContains(mainlineNode.path, treeCtrl.getTreeActivePath?.()) : false;
             const theoretical =
                 mainlineNode?.mainlinePly === undefined
@@ -499,10 +512,15 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             }, disclosureButton ? [disclosureButton, ...moveEl] : moveEl));
             if (chats) moves.push(chats);
 
-            if (mainlineNode && mainlineNode.children.length > 1 && !mainlineNode.collapsed) {
-                moves.push(...renderTreeVariationRows(treeCtrl, mainlineNode.children.slice(1)));
+            const variationChildren = mainlineNode.children[0]?.forceVariation
+                ? mainlineNode.children
+                : mainlineNode.children.slice(1);
+            if (variationChildren.length > 0 && !mainlineNode.collapsed) {
+                moves.push(...renderTreeVariationRows(treeCtrl, variationChildren));
                 didWeRenderVariSectionAfterLastMove = true;
             }
+
+            if (mainlineNode.children[0]?.forceVariation) break;
         }
 
         if (ctrl.status >= 0 && needResult) {
