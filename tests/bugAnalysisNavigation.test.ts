@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import { h } from 'snabbdom';
 
-import { addOrSelectChild, createAnalysisTree } from '../client/analysis/analysisTree';
+import { addOrSelectChild, createAnalysisTree, mainlinePathAtPly, nodeAtPath } from '../client/analysis/analysisTree';
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
 import { updateMovelist } from '../client/bug/movelist.bug';
@@ -120,5 +120,60 @@ describe('bughouse analysis mainline navigation', () => {
         const selectedMove = document.querySelector('vari-move.selected') as HTMLElement | null;
         expect(selectedMove).not.toBeNull();
         expect(selectedMove?.textContent).toContain('B2');
+    });
+
+    test('disclosure button is attached to the branched reply and hides bughouse sidelines', () => {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+        patch(host, h('div#movelist'));
+
+        const steps: Step[] = [
+            makeStep('fa0', 'fb0', undefined, undefined, 'white', '', 'a', 0, 0),
+            makeStep('fa1', 'fb0', 'a1', undefined, 'black', 'A1', 'a', 1, 0),
+            makeStep('fa1', 'fb1', 'a1', 'b1', 'black', 'B1', 'b', 1, 1),
+            makeStep('fa2', 'fb1', 'a2', 'b1', 'white', 'A2', 'a', 2, 1),
+        ];
+        const tree = createAnalysisTree(steps);
+        const a1Path = mainlinePathAtPly(tree, 1);
+        addOrSelectChild(tree, a1Path, makeStep('fa1', 'fb2', 'a1', 'b2', 'black', 'B2', 'b', 1, 1), false);
+        addOrSelectChild(tree, a1Path, makeStep('fa1', 'fb3', 'a1', 'b3', 'black', 'B3', 'b', 1, 1), false);
+
+        const ctrl = {
+            steps,
+            status: -1,
+            result: '*',
+            ply: 3,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
+            getTreeSelectedChildPath: () => undefined,
+            activateTreePath: () => undefined,
+            activateTreeMainlinePly: () => undefined,
+            toggleTreeCollapsed: (path: string) => {
+                const node = nodeAtPath(tree, path);
+                if (!node) return;
+                node.collapsed = !node.collapsed;
+                updateMovelist(ctrl as any, true, false, false);
+            },
+            b1: { variant: { name: 'bughouse' } },
+            teamFirst: [['wA', '', ''], ['bB', '', '']],
+            teamSecond: [['bA', '', ''], ['wB', '', '']],
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+
+        const disclosureMove = document.querySelector('move-bug[ply="2"]') as HTMLElement | null;
+        expect(disclosureMove?.textContent).toContain('B1');
+        expect(disclosureMove?.querySelector('button.disclosure')).not.toBeNull();
+        expect(document.getElementById('movelist')?.textContent).toContain('B2');
+        expect(document.getElementById('movelist')?.textContent).toContain('B3');
+
+        (disclosureMove?.querySelector('button.disclosure') as HTMLButtonElement).click();
+
+        expect(document.getElementById('movelist')?.textContent).toContain('B1');
+        expect(document.getElementById('movelist')?.textContent).not.toContain('B2');
+        expect(document.getElementById('movelist')?.textContent).not.toContain('B3');
     });
 });

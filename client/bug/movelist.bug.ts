@@ -7,7 +7,7 @@ import { patch } from '../document';
 import { RoundControllerBughouse } from "./roundCtrl.bug";
 import {Step, StepChat} from "../messages";
 import { displayUsername, isAnonUsername } from "@/user";
-import { AnalysisTreeNode, mainlinePathAtPly, nodeAtPath } from "../analysis/analysisTree";
+import { AnalysisTreeNode, mainlinePathAtPly, nodeAtPath, parentPath } from "../analysis/analysisTree";
 import { bugMovePrefix } from "./analysisTreeBug";
 
 type TreeCtrl = AnalysisControllerBughouse & {
@@ -17,11 +17,14 @@ type TreeCtrl = AnalysisControllerBughouse & {
     getTreeSelectedChildPath?: () => string | undefined;
     activateTreePath?: (path: string) => void;
     activateTreeMainlinePly?: (ply: number) => void;
+    toggleTreeCollapsed?: (path: string) => void;
     getTreeLineStartPath?: () => string;
     getTreeLineEndPath?: () => string;
     getTreeParentPath?: () => string;
     getTreeMainChildPath?: () => string | undefined;
 };
+
+type TreeDiscloseState = undefined | 'expanded' | 'collapsed';
 
 function asTreeCtrl(ctrl: AnalysisControllerBughouse | RoundControllerBughouse): TreeCtrl | undefined {
     const treeCtrl = ctrl as TreeCtrl;
@@ -132,7 +135,30 @@ function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number, cls: stri
     }
 }
 
-function renderTreeVariationMove(ctrl: TreeCtrl, node: AnalysisTreeNode): VNode {
+function treeDiscloseState(node: AnalysisTreeNode): TreeDiscloseState {
+    if (node.children.length < 2) return undefined;
+    return node.collapsed ? 'collapsed' : 'expanded';
+}
+
+function renderTreeVariationMove(
+    ctrl: TreeCtrl,
+    node: AnalysisTreeNode,
+    disclosureParentPath = '',
+    disclosureState?: TreeDiscloseState,
+): VNode {
+    const disclosureButton =
+        disclosureState
+            ? h('button.disclosure', {
+                class: { expanded: disclosureState === 'expanded' },
+                on: {
+                    click: (event: MouseEvent) => {
+                        event.stopPropagation();
+                        ctrl.toggleTreeCollapsed?.(disclosureParentPath);
+                    },
+                },
+            })
+            : undefined;
+
     return h('vari-move', {
         class: {
             active: node.path === ctrl.getTreeActivePath?.(),
@@ -140,7 +166,10 @@ function renderTreeVariationMove(ctrl: TreeCtrl, node: AnalysisTreeNode): VNode 
         },
         attrs: { ply: node.ply, 'data-path': node.path },
         on: { click: () => ctrl.activateTreePath?.(node.path) },
-    }, [h('san', `${bugMovePrefix(node.step)} ${node.step.san ?? ''}`)]);
+    }, [
+        disclosureButton,
+        h('san', `${bugMovePrefix(node.step)} ${node.step.san ?? ''}`),
+    ]);
 }
 
 function renderTreeVariationSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[]): VNode[] {
@@ -150,16 +179,26 @@ function renderTreeVariationSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[]):
     const moves: VNode[] = [];
     let current: AnalysisTreeNode | undefined = child;
     let branchSiblings = siblings;
+    let currentParentPath = parentPath(child.path);
+    let currentParentDisclose = ctrl.analysisTree
+        ? treeDiscloseState(nodeAtPath(ctrl.analysisTree, currentParentPath) ?? ctrl.analysisTree.root)
+        : undefined;
 
     while (current) {
-        moves.push(renderTreeVariationMove(ctrl, current));
-        branchSiblings.forEach((sideline) => {
-            moves.push(h('inline', renderTreeVariationSequence(ctrl, [sideline])));
-        });
+        moves.push(renderTreeVariationMove(ctrl, current, currentParentPath, currentParentDisclose));
+        if (currentParentDisclose !== 'collapsed') {
+            branchSiblings.forEach((sideline) => {
+                moves.push(h('inline', renderTreeVariationSequence(ctrl, [sideline])));
+            });
+        }
         branchSiblings = [];
-        current.children.slice(1).forEach((sideline) => {
-            moves.push(h('inline', renderTreeVariationSequence(ctrl, [sideline])));
-        });
+        if (!current.collapsed) {
+            current.children.slice(1).forEach((sideline) => {
+                moves.push(h('inline', renderTreeVariationSequence(ctrl, [sideline])));
+            });
+        }
+        currentParentPath = current.path;
+        currentParentDisclose = treeDiscloseState(current);
         current = current.children[0];
     }
 
@@ -195,7 +234,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
         let didWeRenderVariSectionAfterLastMove = false;
         let didWeRenderChatSectionAfterLastMove = false;
 
-        if (full && treeCtrl.analysisTree) {
+        if (full && treeCtrl.analysisTree && !treeCtrl.analysisTree.root.collapsed) {
             moves.push(...renderTreeVariationRows(treeCtrl, treeCtrl.analysisTree.root.children.slice(1)));
         }
 
@@ -248,6 +287,22 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             const mainlineNode = treeCtrl.analysisTree
                 ? nodeAtPath(treeCtrl.analysisTree, mainlinePathAtPly(treeCtrl.analysisTree, ply))
                 : undefined;
+            const branchPoint =
+                treeCtrl.analysisTree && mainlineNode
+                    ? nodeAtPath(treeCtrl.analysisTree, parentPath(mainlineNode.path)) ?? treeCtrl.analysisTree.root
+                    : undefined;
+            const disclosureButton =
+                branchPoint && branchPoint.children.length > 1
+                    ? h('button.disclosure', {
+                        class: { expanded: !branchPoint.collapsed },
+                        on: {
+                            click: (event: MouseEvent) => {
+                                event.stopPropagation();
+                                treeCtrl.toggleTreeCollapsed?.(branchPoint.path);
+                            },
+                        },
+                    })
+                    : undefined;
             moves.push(h('move-bug.counter', getLocalMoveNum(step)));
             moves.push(h('move-bug', {
                 class: {
@@ -256,10 +311,10 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
                 },
                 attrs: { ply: ply },
                 on: { click: () => selectMainlineMove(ctrl, ply) },
-            }, moveEl));
+            }, disclosureButton ? [disclosureButton, ...moveEl] : moveEl));
             if (chats) moves.push(chats);
 
-            if (mainlineNode && mainlineNode.children.length > 1) {
+            if (mainlineNode && mainlineNode.children.length > 1 && !mainlineNode.collapsed) {
                 moves.push(...renderTreeVariationRows(treeCtrl, mainlineNode.children.slice(1)));
                 didWeRenderVariSectionAfterLastMove = true;
             }

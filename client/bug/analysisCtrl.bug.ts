@@ -32,6 +32,7 @@ import {
     nodeAtPath,
     parentPath,
     previousBranchPath,
+    setCollapsedFrom,
     stepLinePath,
 } from "../analysis/analysisTree";
 import ffishModule from "ffish-es6";
@@ -52,6 +53,7 @@ const maxDepth = 18;
 const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
 const emptySan = '\xa0';
+const TREE_COLLAPSED_STORAGE_KEY = 'analysisTreeBugCollapsed';
 
 export default class AnalysisControllerBughouse {
     model;
@@ -324,7 +326,9 @@ export default class AnalysisControllerBughouse {
     initAnalysisTreeAtPly(ply: number) {
         if (this.steps.length === 0) return;
         this.analysisTree = createAnalysisTree(this.steps);
+        this.applyTreeCollapsedPaths();
         this.analysisPath = mainlinePathAtPly(this.analysisTree, ply);
+        this.revealTreePath(this.analysisPath);
         this.activateTreePath(this.analysisPath, false);
     }
 
@@ -368,6 +372,38 @@ export default class AnalysisControllerBughouse {
 
     getTreeSelectedChildPath() {
         return this.getTreeMainChildPath();
+    }
+
+    toggleTreeCollapsed(path: string) {
+        if (!this.analysisTree) return;
+        const node = nodeAtPath(this.analysisTree, path);
+        if (!node || node.children.length < 2) return;
+
+        node.collapsed = !node.collapsed;
+        if (node.collapsed) {
+            const mainChildPath = node.children[0]?.path;
+            if (this.analysisPath !== path && mainChildPath && !this.analysisPath.startsWith(mainChildPath)) {
+                this.analysisPath = path;
+                this.goPly(node.ply, 0);
+            }
+        }
+        this.revealTreePath(this.analysisPath);
+        this.saveTreeCollapsedPaths();
+        updateMovelist(this, true, false);
+    }
+
+    collapseAllTree() {
+        if (!this.analysisTree) return;
+        setCollapsedFrom(this.analysisTree, '', true);
+        this.saveTreeCollapsedPaths();
+        updateMovelist(this, true, false);
+    }
+
+    expandAllTree() {
+        if (!this.analysisTree) return;
+        setCollapsedFrom(this.analysisTree, '', false);
+        this.saveTreeCollapsedPaths();
+        updateMovelist(this, true, false);
     }
 
     getTreePreviousBranchPath() {
@@ -417,6 +453,7 @@ export default class AnalysisControllerBughouse {
         const node = nodeAtPath(this.analysisTree, path);
         if (!node) return;
 
+        this.revealTreePath(path);
         this.treeForkIndex = 0;
         this.analysisPath = path;
         this.plyVari = 0;
@@ -1083,6 +1120,42 @@ export default class AnalysisControllerBughouse {
         const turnColor = msg.color === 'w' ? 'white' : 'black';
         this.drawEval(msg.ceval, scoreStr, turnColor, boardInAnalysis);
 
+    }
+
+    private treeCollapsedStorageKey() {
+        return `${TREE_COLLAPSED_STORAGE_KEY}:${this.gameId || `analysis:${this.variant.name}`}`;
+    }
+
+    private applyTreeCollapsedPaths() {
+        if (!this.analysisTree) return;
+        let collapsedPaths: string[] = [];
+        try {
+            collapsedPaths = JSON.parse(localStorage[this.treeCollapsedStorageKey()] ?? '[]');
+        } catch {
+            collapsedPaths = [];
+        }
+        collapsedPaths.forEach((path) => {
+            const node = nodeAtPath(this.analysisTree!, path);
+            if (node) node.collapsed = true;
+        });
+    }
+
+    private saveTreeCollapsedPaths() {
+        if (!this.analysisTree) return;
+        const collapsedPaths: string[] = [];
+        const visit = (node: AnalysisTree['root']) => {
+            if (node.collapsed) collapsedPaths.push(node.path);
+            node.children.forEach(visit);
+        };
+        visit(this.analysisTree.root);
+        localStorage[this.treeCollapsedStorageKey()] = JSON.stringify(collapsedPaths);
+    }
+
+    private revealTreePath(path: string) {
+        if (!this.analysisTree) return;
+        getNodeList(this.analysisTree, path).slice(0, -1).forEach((node) => {
+            node.collapsed = false;
+        });
     }
 
 }

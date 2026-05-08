@@ -2483,6 +2483,56 @@ vari-move {
   font-style: normal;
 }
 
+#movelist.bug-analysis-tree move-bug button.disclosure,
+#movelist.bug-analysis-tree vari.tree-variation vari-move button.disclosure {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-right: 0.25rem;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--font-color) 18%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: Gray;
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+#movelist.bug-analysis-tree move-bug button.disclosure::before,
+#movelist.bug-analysis-tree vari.tree-variation vari-move button.disclosure::before {
+  content: '+';
+}
+
+#movelist.bug-analysis-tree move-bug button.disclosure.expanded::before,
+#movelist.bug-analysis-tree vari.tree-variation vari-move button.disclosure.expanded::before {
+  content: '-';
+}
+
+@media (hover: hover) {
+  #movelist.bug-analysis-tree move-bug:hover button.disclosure,
+  #movelist.bug-analysis-tree vari.tree-variation vari-move:hover button.disclosure {
+    background: color-mix(in srgb, var(--font-color) 18%, transparent);
+  }
+
+  #movelist.bug-analysis-tree move-bug button.disclosure:hover,
+  #movelist.bug-analysis-tree vari.tree-variation vari-move button.disclosure:hover {
+    background: color-mix(in srgb, var(--font-color) 34%, transparent);
+    border-color: color-mix(in srgb, var(--font-color) 28%, transparent);
+    color: var(--font-color);
+  }
+
+  #movelist.bug-analysis-tree move-bug.active button.disclosure:hover,
+  #movelist.bug-analysis-tree vari.tree-variation vari-move.active button.disclosure:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.55);
+    color: #fff;
+  }
+}
+
 #movelist.bug-analysis-tree vari.tree-variation vari-move.selected:not(.active) {
   outline: 1px solid var(--blue-active);
   outline-offset: -1px;
