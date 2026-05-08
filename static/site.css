@@ -32,7 +32,7 @@
   --game-hover: #d1e6fa;
   --green-hover: #89b25b;
   --green-switch: #629924;
-  --blue-active: #d1e4f6;
+  --blue-active: color-mix(in srgb, var(--blue-hover) 85%, transparent);
   --blue-passive: #c5d8e9;
   --blue-hover: #1b78d0;
   --invite-game: #eff5e9;
@@ -112,7 +112,7 @@
   --bg-input: #24221e;
   --game-hover: #223344;
   --green-hover: #537c23;
-  --blue-active: #293a49;
+  --blue-active: color-mix(in srgb, var(--blue-hover) 85%, transparent);
   --blue-passive: #33312e;
   --blue-hover: #3692e7;
   --invite-game: #2c3021;
@@ -2577,7 +2577,6 @@ vari-move {
 }
 
 #movelist.tview2.analysis-tree move.currentline:not(.active) {
-  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--blue-active) 62%, transparent);
 }
 
 #movelist.tview2.analysis-tree move.branchpoint:not(.active) button.disclosure {
@@ -2641,6 +2640,11 @@ vari-move {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 18%, transparent);
 }
 
+#movelist.tview2.analysis-tree move.active index {
+  color: #fff;
+  background: var(--blue-active);
+}
+
 #movelist.tview2.analysis-tree move.selected:not(.active) {
   outline: 1px solid var(--blue-active);
   outline-offset: -1px;
@@ -2648,11 +2652,11 @@ vari-move {
 
 #movelist.tview2.analysis-tree move:hover {
   color: var(--font-color);
-  background: var(--tree-hover);
+  background: color-mix(in srgb, var(--blue-active) 68%, var(--bg-color2));
 }
 
 #movelist.tview2.analysis-tree move.currentline:hover:not(.active) {
-  background: var(--tree-hover);
+  background: color-mix(in srgb, var(--blue-active) 68%, var(--bg-color2));
 }
 
 #movelist.tview2.analysis-tree move.active:hover {
@@ -2801,7 +2805,6 @@ vari-move {
   font-size: 1.185em;
   line-height: 1.75em;
   padding: 0 0.3em 0 0.5em;
-  border-bottom: 1px solid var(--tree-border);
 }
 
 #movelist.tview2.tview2-column.analysis-tree > move button.disclosure {
@@ -2813,7 +2816,6 @@ vari-move {
 }
 
 #movelist.tview2.tview2-column.analysis-tree > move.mainline:not(.active) {
-  background: color-mix(in srgb, var(--bg-color2) 22%, transparent);
 }
 
 #movelist.tview2.tview2-column.analysis-tree > move.empty {
@@ -2835,12 +2837,15 @@ vari-move {
   color: Gray;
   background: var(--bg-color2);
   line-height: 2.07em;
-  border-right: 1px solid var(--tree-border);
-  border-bottom: 1px solid var(--tree-border);
 }
 
 #movelist.tview2.tview2-column.analysis-tree > index + move {
-  border-right: 1px solid var(--tree-border);
+}
+
+#movelist.tview2.tview2-column.analysis-tree > index:hover,
+#movelist.tview2.tview2-column.analysis-tree > index:has(+ move:hover) {
+  background: var(--tree-hover);
+  color: var(--font-color);
 }
 
 #movelist.tview2.tview2-column.analysis-tree line move {
@@ -2852,8 +2857,6 @@ vari-move {
   flex: 0 0 100%;
   max-width: 100%;
   background: var(--bg-color2);
-  border-top: 1px solid var(--tree-border);
-  border-bottom: 1px solid var(--tree-border);
   padding: 1px 0;
 }
 
