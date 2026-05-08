@@ -44,6 +44,15 @@ type TreeMenuIconClass =
     | 'icon-plus-square'
     | 'icon-clipboard'
     | 'icon-trash-o';
+type MoveGlyphClass = 'good' | 'mistake' | 'brilliant' | 'blunder' | 'interesting' | 'inaccuracy';
+
+interface ParsedTreeMove {
+    san: string;
+    glyph?: {
+        text: string;
+        cls: MoveGlyphClass;
+    };
+}
 
 function asTreeCtrl(ctrl: AnalysisControllerBughouse | RoundControllerBughouse): TreeCtrl | undefined {
     const treeCtrl = ctrl as TreeCtrl;
@@ -154,6 +163,56 @@ function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number, cls: stri
     }
 }
 
+function treePathContains(outerPath: string, innerPath: string | undefined): boolean {
+    if (innerPath === undefined) return false;
+    return innerPath === outerPath || innerPath.startsWith(`${outerPath}.`);
+}
+
+function parseTreeMove(move: string | undefined): ParsedTreeMove {
+    if (!move || move === '?') return { san: move ?? '' };
+
+    const match = move.match(/^(.*?)(\?\?|\!\!|\!\?|\?\!|\!|\?)$/);
+    if (!match) return { san: move };
+
+    const [, san, glyphText] = match;
+    const glyphClass: Record<string, MoveGlyphClass> = {
+        '!': 'good',
+        '?': 'mistake',
+        '!!': 'brilliant',
+        '??': 'blunder',
+        '!?': 'interesting',
+        '?!': 'inaccuracy',
+    };
+
+    return {
+        san,
+        glyph: {
+            text: glyphText,
+            cls: glyphClass[glyphText],
+        },
+    };
+}
+
+function renderTreeMoveText(prefix: string, move: string | undefined): VNode[] {
+    const parsed = parseTreeMove(move);
+    const sanText = prefix ? `${prefix} ${parsed.san}` : parsed.san;
+    const nodes: VNode[] = [h('san', sanText)];
+
+    if (parsed.glyph) {
+        nodes.push(h(`glyph.${parsed.glyph.cls}`, parsed.glyph.text));
+    }
+
+    return nodes;
+}
+
+function isTheoreticalMove(
+    ply: number,
+    status: number,
+    recordedMainlinePly: number | undefined,
+) {
+    return status >= 0 && recordedMainlinePly !== undefined && ply > recordedMainlinePly;
+}
+
 function treeDiscloseState(node: AnalysisTreeNode): TreeDiscloseState {
     if (node.children.length < 2) return undefined;
     return node.collapsed ? 'collapsed' : 'expanded';
@@ -165,6 +224,13 @@ function renderTreeVariationMove(
     disclosureParentPath = '',
     disclosureState?: TreeDiscloseState,
 ): VNode {
+    const activePath = ctrl.getTreeActivePath?.();
+    const currentline = treePathContains(node.path, activePath);
+    const recordedMainlinePly = ctrl.recordedMainlinePly;
+    const theoretical =
+        node.mainlinePly === undefined
+        || (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
+    const recorded = node.mainlinePly !== undefined && !theoretical;
     const disclosureButton =
         disclosureState
             ? h('button.disclosure', {
@@ -182,6 +248,10 @@ function renderTreeVariationMove(
         class: {
             active: node.path === ctrl.getTreeActivePath?.(),
             selected: node.path === ctrl.getTreeSelectedChildPath?.(),
+            currentline,
+            recorded,
+            theoretical,
+            branchpoint: node.children.length > 1,
         },
         attrs: { ply: node.ply, 'data-path': node.path },
         on: {
@@ -194,7 +264,7 @@ function renderTreeVariationMove(
         },
     }, [
         disclosureButton,
-        h('san', `${bugMovePrefix(node.step)} ${node.step.san ?? ''}`),
+        ...renderTreeMoveText(bugMovePrefix(node.step), node.step.san),
     ]);
 }
 
@@ -357,7 +427,17 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             }
             lastColIdx = colIdx;
 
-            const moveEl = [h('san', move)];
+            const mainlineNode = treeCtrl.analysisTree
+                ? nodeAtPath(treeCtrl.analysisTree, mainlinePathAtPly(treeCtrl.analysisTree, ply))
+                : undefined;
+            const currentline = mainlineNode ? treePathContains(mainlineNode.path, treeCtrl.getTreeActivePath?.()) : false;
+            const theoretical =
+                mainlineNode?.mainlinePly === undefined
+                || (mainlineNode?.mainlinePly !== undefined && isTheoreticalMove(mainlineNode.mainlinePly, ctrl.status, treeCtrl.recordedMainlinePly));
+            const recorded = !!mainlineNode && mainlineNode.mainlinePly !== undefined && !theoretical;
+            const moveEl = mainlineNode
+                ? renderTreeMoveText('', move)
+                : [h('san', move)];
             const scoreStr = step['scoreStr'] ?? '';
             moveEl.push(h('eval#ply' + ply, scoreStr));
             let chats: VNode | undefined = undefined;
@@ -380,9 +460,6 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
                 didWeRenderChatSectionAfterLastMove = true;
             }
 
-            const mainlineNode = treeCtrl.analysisTree
-                ? nodeAtPath(treeCtrl.analysisTree, mainlinePathAtPly(treeCtrl.analysisTree, ply))
-                : undefined;
             const branchPoint =
                 treeCtrl.analysisTree && mainlineNode
                     ? nodeAtPath(treeCtrl.analysisTree, parentPath(mainlineNode.path)) ?? treeCtrl.analysisTree.root
@@ -403,6 +480,11 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             moves.push(h('move-bug', {
                 class: {
                     active: mainlineNode?.path === treeCtrl.getTreeActivePath?.(),
+                    currentline,
+                    selected: mainlineNode?.path === treeCtrl.getTreeSelectedChildPath?.(),
+                    recorded,
+                    theoretical,
+                    branchpoint: !!mainlineNode && mainlineNode.children.length > 1,
                     haschat: !!step.chat,
                 },
                 attrs: { ply: ply },

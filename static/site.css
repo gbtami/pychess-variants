@@ -2538,6 +2538,73 @@ vari-move {
   outline-offset: -1px;
 }
 
+#movelist.bug-analysis-tree move-bug.theoretical,
+#movelist.bug-analysis-tree vari.tree-variation vari-move.theoretical {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+#movelist.bug-analysis-tree move-bug.recorded:not(.active),
+#movelist.bug-analysis-tree vari.tree-variation vari-move.recorded:not(.active) {
+  color: color-mix(in srgb, var(--font-color) 94%, var(--blue-active));
+}
+
+#movelist.bug-analysis-tree move-bug.branchpoint:not(.active) button.disclosure,
+#movelist.bug-analysis-tree vari.tree-variation vari-move.branchpoint:not(.active) button.disclosure {
+  border-color: color-mix(in srgb, var(--blue-active) 35%, transparent);
+  color: color-mix(in srgb, var(--font-color) 55%, var(--blue-active));
+}
+
+#movelist.bug-analysis-tree move-bug:hover,
+#movelist.bug-analysis-tree vari.tree-variation vari-move:hover {
+  color: var(--font-color);
+  background: color-mix(in srgb, var(--blue-active) 68%, var(--bg-color2));
+}
+
+#movelist.bug-analysis-tree move-bug.currentline:hover:not(.active),
+#movelist.bug-analysis-tree vari.tree-variation vari-move.currentline:hover:not(.active) {
+  background: color-mix(in srgb, var(--blue-active) 68%, var(--bg-color2));
+}
+
+#movelist.bug-analysis-tree move-bug.active:hover,
+#movelist.bug-analysis-tree vari.tree-variation vari-move.active:hover {
+  background: var(--blue-active);
+}
+
+#movelist.bug-analysis-tree glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  height: 1.1rem;
+  margin-left: 0.28rem;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  font-size: 0.7em;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: color-mix(in srgb, var(--bg-color2) 80%, transparent);
+}
+
+#movelist.bug-analysis-tree glyph.good,
+#movelist.bug-analysis-tree glyph.brilliant {
+  color: var(--good);
+}
+
+#movelist.bug-analysis-tree glyph.interesting {
+  color: #3a8f89;
+}
+
+#movelist.bug-analysis-tree glyph.mistake,
+#movelist.bug-analysis-tree glyph.inaccuracy {
+  color: #c48a1c;
+}
+
+#movelist.bug-analysis-tree glyph.blunder {
+  color: var(--bad);
+}
+
 #movelist.bug-analysis-tree vari.tree-variation inline {
   display: inline;
   opacity: 0.9;

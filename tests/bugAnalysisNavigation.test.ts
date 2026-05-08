@@ -300,4 +300,48 @@ describe('bughouse analysis mainline navigation', () => {
         (document.querySelectorAll('.tree-context-menu button')[2] as HTMLButtonElement).click();
         expect(copiedPath).toBe(b3Path);
     });
+
+    test('bughouse tree nodes expose selected-line state and split SAN glyph suffixes', () => {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+        patch(host, h('div#movelist'));
+
+        const steps: Step[] = [
+            makeStep('fa0', 'fb0', undefined, undefined, 'white', '', 'a', 0, 0),
+            makeStep('fa1', 'fb0', 'a1', undefined, 'black', 'A1!', 'a', 1, 0),
+            makeStep('fa1', 'fb1', 'a1', 'b1', 'black', 'B1', 'b', 1, 1),
+            makeStep('fa2', 'fb1', 'a2', 'b1', 'white', 'A2', 'a', 2, 1),
+        ];
+        const tree = createAnalysisTree(steps);
+        const a1Path = mainlinePathAtPly(tree, 1);
+        const branchPath = addOrSelectChild(tree, a1Path, makeStep('fa1', 'fb2', 'a1', 'b2', 'black', 'B2?!', 'b', 1, 1), false);
+
+        const ctrl = {
+            steps,
+            status: 1,
+            result: '*',
+            ply: 3,
+            plyVari: 0,
+            recordedMainlinePly: 3,
+            vmovelist: document.getElementById('movelist'),
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
+            getTreeSelectedChildPath: () => branchPath,
+            activateTreePath: () => undefined,
+            activateTreeMainlinePly: () => undefined,
+            toggleTreeCollapsed: () => undefined,
+            b1: { variant: { name: 'bughouse' } },
+            teamFirst: [['wA', '', ''], ['bB', '', '']],
+            teamSecond: [['bA', '', ''], ['wB', '', '']],
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+
+        expect(document.querySelector('move-bug.recorded')).not.toBeNull();
+        expect(document.querySelector('vari-move.selected')).not.toBeNull();
+        expect(document.querySelector('glyph.good')?.textContent).toBe('!');
+        expect(document.querySelector('glyph.inaccuracy')?.textContent).toBe('?!');
+        expect(document.querySelector('vari-move.selected san')?.textContent).toContain('B2');
+    });
 });
