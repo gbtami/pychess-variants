@@ -14,6 +14,7 @@ export interface AnalysisTreeNode {
     // Child[0] is always the preferred continuation for this node. Siblings are alternatives.
     children: AnalysisTreeNode[];
     collapsed?: boolean;
+    forceVariation?: boolean;
     // Present only for nodes that still sit on the original persisted game mainline.
     mainlinePly?: number;
 }
@@ -138,7 +139,7 @@ export function mainlinePathAtPly(tree: AnalysisTree, ply: number): string {
 }
 
 export function mainlineEndPath(tree: AnalysisTree): string {
-    return pathFollowingFirstChildren(tree.root);
+    return extendPath(tree, ROOT_PATH, true);
 }
 
 function pathFollowingFirstChildren(node: AnalysisTreeNode): string {
@@ -151,7 +152,7 @@ export function currentLineEndPath(tree: AnalysisTree, path: string): string {
     // Mainline and sideline "end of line" mean different things:
     // for sidelines we only follow the preferred continuation from the selected node onward.
     const projection = projectPath(tree, path);
-    if (projection.isMainline) return mainlineEndPath(tree);
+    if (projection.isMainline) return extendPath(tree, path, true);
 
     const node = nodeAtPath(tree, path);
     if (!node) return path;
@@ -168,7 +169,7 @@ export function projectPath(tree: AnalysisTree, path: string): TreePathProjectio
 
     let firstOffMainlineIdx = -1;
     for (let i = 1; i < nodeList.length; i++) {
-        if (nodeList[i].mainlinePly === undefined) {
+        if (nodeList[i].mainlinePly === undefined || nodeList[i].forceVariation) {
             firstOffMainlineIdx = i;
             break;
         }
@@ -204,6 +205,18 @@ export function branchStartPath(tree: AnalysisTree, path: string): string {
 
 export function pathIsMainline(tree: AnalysisTree, path: string): boolean {
     return getNodeList(tree, path).every((node, idx) => idx === 0 || node.mainlinePly !== undefined);
+}
+
+export function pathIsForcedVariation(tree: AnalysisTree, path: string): boolean {
+    return getNodeList(tree, path).some((node) => !!node.forceVariation);
+}
+
+export function extendPath(tree: AnalysisTree, path: string, isMainline: boolean): string {
+    let current = nodeAtPath(tree, path);
+    while ((current = current?.children[0]) && !(isMainline && current.forceVariation)) {
+        path = current.path;
+    }
+    return path;
 }
 
 export function stepLinePath(
@@ -320,8 +333,19 @@ export function promoteNodePath(tree: AnalysisTree, path: string, toMainline: bo
                 ...parent.children.filter((child) => child.id !== node.id),
             ];
             if (!toMainline) break;
+        } else if (node.forceVariation) {
+            node.forceVariation = false;
+            if (!toMainline) break;
         }
     }
+}
+
+export function forceVariationAt(tree: AnalysisTree, path: string, force: boolean): void {
+    tree.byPath.forEach((node) => {
+        node.forceVariation = false;
+    });
+    const node = nodeAtPath(tree, path);
+    if (node) node.forceVariation = force;
 }
 
 function deleteBranchFromIndex(tree: AnalysisTree, nodes: AnalysisTreeNode[], idx: number): void {
@@ -384,6 +408,7 @@ function renderPgnSequence(
     nodes: AnalysisTreeNode[],
     rootTurnColor: string,
     firstInVariation: boolean,
+    isMainline: boolean,
     getSan: (node: AnalysisTreeNode) => string,
 ): string[] {
     const [child, ...siblings] = nodes;
@@ -395,17 +420,22 @@ function renderPgnSequence(
     let branchSiblings = siblings;
 
     while (current) {
+        if (current.forceVariation && isMainline) {
+            tokens.push(`(${renderPgnSequence([current, ...branchSiblings], rootTurnColor, true, false, getSan).join(' ')})`);
+            break;
+        }
+
         const prefix = movePrefix(current, rootTurnColor, isFirst);
         tokens.push(prefix ? `${prefix} ${getSan(current)}` : getSan(current));
 
         // Siblings represent alternative moves from the same parent position.
         branchSiblings.forEach((sideline) => {
-            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, getSan).join(' ')})`);
+            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, false, getSan).join(' ')})`);
         });
         branchSiblings = [];
 
         current.children.slice(1).forEach((sideline) => {
-            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, getSan).join(' ')})`);
+            tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, false, getSan).join(' ')})`);
         });
 
         current = current.children[0];
@@ -421,7 +451,7 @@ export function renderFullTreePgnMoveText(
 ): string {
     // PGN movetext is closest to the inline-notation renderer: a single token stream
     // with recursive parenthesized alternatives attached at each branch point.
-    return renderPgnSequence(tree.root.children, tree.root.step.turnColor, false, getSan).join(' ');
+    return renderPgnSequence(tree.root.children, tree.root.step.turnColor, false, true, getSan).join(' ');
 }
 
 function collectLineNodes(tree: AnalysisTree, path: string): {
@@ -435,6 +465,7 @@ function collectLineNodes(tree: AnalysisTree, path: string): {
         let current = tree.root.children[0];
         while (current) {
             nodes.push(current);
+            if (current.children[0]?.forceVariation) break;
             current = current.children[0];
         }
         return { nodes, firstInVariation: false };

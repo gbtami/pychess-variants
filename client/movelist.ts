@@ -26,8 +26,10 @@ type TreeCtrl = GameController & {
     closeTreeContextMenu?: () => void;
     copyTreeLinePgn?: (path: string) => void;
     pathIsTreeMainline?: (path: string) => boolean;
+    pathIsTreeForcedVariation?: (path: string) => boolean;
     canPromoteTreeVariation?: (path: string) => boolean;
     promoteTreeVariation?: (path: string, toMainline: boolean) => void;
+    forceTreeVariation?: (path: string, force: boolean) => void;
     someTreeCollapsed?: (collapsed: boolean) => boolean;
     collapseAllTree?: () => void;
     expandAllTree?: () => void;
@@ -38,6 +40,7 @@ type TreeDiscloseState = undefined | 'expanded' | 'collapsed';
 type MoveGlyphClass = 'good' | 'mistake' | 'brilliant' | 'blunder' | 'interesting' | 'inaccuracy';
 type TreeMenuIconClass =
     | 'icon-arrow-up-right'
+    | 'icon-arrow-down-right'
     | 'icon-check'
     | 'icon-download'
     | 'icon-plus-square'
@@ -333,6 +336,23 @@ function renderTreeBranch(
 
     while (current) {
         const currentNode: AnalysisTreeNode = current;
+        if (isMainline && currentNode.forceVariation) {
+            if (currentParentDisclose !== 'collapsed') {
+                [currentNode, ...currentBranchSiblings].forEach((sideline, idx) => {
+                    out.push(h('inline', renderTreeBranch(
+                        ctrl,
+                        sideline,
+                        [currentNode, ...currentBranchSiblings].slice(idx + 1),
+                        true,
+                        rootTurnColor,
+                        false,
+                        currentParentPath,
+                        undefined,
+                    )));
+                });
+            }
+            break;
+        }
         out.push(renderTreeMove(
             ctrl,
             currentNode.path,
@@ -577,6 +597,11 @@ function renderTreeColumnNodes(
     const isWhiteMove = child.step.turnColor === 'black';
     const currentParentDisclose = args.parentDisclose;
 
+    if (args.isMainline && child.forceVariation) {
+        if (currentParentDisclose === 'collapsed') return out;
+        return [h('interrupt', [renderTreeVariationLines(ctrl, [child, ...siblings], args)])];
+    }
+
     if (isWhiteMove) {
         out.push(h('index', `${Math.ceil(child.ply / 2)}`));
     }
@@ -631,7 +656,7 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     const current = ctrl.getTreeNodeAtPath?.(menu.path);
     if (!current) return undefined;
 
-    const onMainline = ctrl.pathIsTreeMainline?.(menu.path) ?? true;
+    const onMainline = (ctrl.pathIsTreeMainline?.(menu.path) ?? true) && !(ctrl.pathIsTreeForcedVariation?.(menu.path) ?? false);
     const canPromote = ctrl.canPromoteTreeVariation?.(menu.path) ?? false;
     const actions: VNode[] = [];
     const action = (iconClass: TreeMenuIconClass, text: string, onClick: () => void) =>
@@ -660,6 +685,10 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
 
     if (!onMainline) {
         actions.push(action('icon-check', _('Make main line'), () => ctrl.promoteTreeVariation?.(menu.path, true)));
+    }
+
+    if (menu.path && onMainline) {
+        actions.push(action('icon-arrow-down-right', _('Convert to variation'), () => ctrl.forceTreeVariation?.(menu.path, true)));
     }
 
     if (ctrl.someTreeCollapsed?.(false)) {

@@ -41,12 +41,15 @@ import {
     createAnalysisTree,
     currentLineEndPath,
     deleteNodePath,
+    extendPath,
+    forceVariationAt,
     getNodeList,
     mainlineEndPath,
     mainlinePathAtPly,
     nextBranchPath,
     nodeAtPath,
     parentPath,
+    pathIsForcedVariation,
     previousBranchPath,
     promoteNodePath,
     renderLinePgnMoveText,
@@ -420,6 +423,11 @@ export class AnalysisController extends GameController {
         return this.getTreeNodeListForPath(path).every((node, idx) => idx === 0 || node.mainlinePly !== undefined);
     }
 
+    pathIsTreeForcedVariation(path: string) {
+        if (!this.analysisTree) return false;
+        return pathIsForcedVariation(this.analysisTree, path);
+    }
+
     getTreeNodeListForPath(path: string) {
         if (!this.analysisTree) return [];
         return getNodeList(this.analysisTree, path);
@@ -466,7 +474,12 @@ export class AnalysisController extends GameController {
     copyTreeLinePgn(path: string) {
         if (!this.analysisTree) return;
         this.ensureTreeSanSan();
-        copyTextToClipboard(renderLinePgnMoveText(this.analysisTree, path, (node) => node.step.sanSAN ?? ''));
+        const onMainline = this.pathIsTreeMainline(path) && !this.pathIsTreeForcedVariation(path);
+        copyTextToClipboard(renderLinePgnMoveText(
+            this.analysisTree,
+            onMainline ? extendPath(this.analysisTree, path, true) : path,
+            (node) => node.step.sanSAN ?? '',
+        ));
         this.closeTreeContextMenu();
     }
 
@@ -489,6 +502,12 @@ export class AnalysisController extends GameController {
         promoteNodePath(this.analysisTree, path, toMainline);
         updateMovelist(this, true, false);
         this.closeTreeContextMenu();
+    }
+
+    forceTreeVariation(path: string, force: boolean) {
+        if (!this.analysisTree) return;
+        forceVariationAt(this.analysisTree, path, force);
+        this.activateTreePath(path);
     }
 
     deleteTreeNode(path: string) {

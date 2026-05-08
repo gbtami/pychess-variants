@@ -6,10 +6,12 @@ import {
     createAnalysisTree,
     currentLineEndPath,
     deleteNodePath,
+    forceVariationAt,
     getNodeList,
     mainlineEndPath,
     mainlinePathAtPly,
     nextBranchPath,
+    pathIsForcedVariation,
     pathIsMainline,
     promoteNodePath,
     previousBranchPath,
@@ -207,5 +209,24 @@ describe('analysis tree basics', () => {
         expect(someCollapsedFrom(tree, true)).toBe(true);
         setCollapsedFrom(tree, '', false);
         expect(someCollapsedFrom(tree, true)).toBe(false);
+    });
+
+    test('force variation truncates displayed mainline and copies as a variation', () => {
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+            makeStep('s3 b - - 0 1', 'g1f3', 'black', 'Nf3'),
+        ];
+        const tree = createAnalysisTree(steps);
+        const forcedPath = mainlinePathAtPly(tree, 2);
+
+        forceVariationAt(tree, forcedPath, true);
+
+        expect(pathIsForcedVariation(tree, forcedPath)).toBe(true);
+        expect(currentLineEndPath(tree, mainlinePathAtPly(tree, 1))).toBe(mainlinePathAtPly(tree, 1));
+        expect(renderLinePgnMoveText(tree, mainlinePathAtPly(tree, 1), (node) => node.step.san ?? '')).toBe('1. e4');
+        expect(renderLinePgnMoveText(tree, forcedPath, (node) => node.step.san ?? '')).toBe('1... e5 2. Nf3');
+        expect(renderFullTreePgnMoveText(tree, (node) => node.step.san ?? '')).toBe('1. e4 (1... e5 2. Nf3)');
     });
 });

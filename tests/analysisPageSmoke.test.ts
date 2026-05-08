@@ -498,6 +498,7 @@ describe('analysis tree movelist gating', () => {
             getTreeSelectedChildPath: () => undefined,
             getTreeNodeAtPath: (path: string) => path === mainlinePath ? mainlineNode : undefined,
             pathIsTreeMainline: () => true,
+            pathIsTreeForcedVariation: () => false,
             canPromoteTreeVariation: () => false,
             someTreeCollapsed: () => false,
             getTreeContextMenu: () => ({ path: mainlinePath, x: 12, y: 18 }),
@@ -505,6 +506,7 @@ describe('analysis tree movelist gating', () => {
             toggleTreeCollapsed: () => undefined,
             copyTreeLinePgn: () => undefined,
             promoteTreeVariation: () => undefined,
+            forceTreeVariation: () => undefined,
             collapseAllTree: () => undefined,
             expandAllTree: () => undefined,
             deleteTreeNode: () => undefined,
@@ -515,6 +517,7 @@ describe('analysis tree movelist gating', () => {
 
         const menu = document.querySelector('#movelist .tree-context-menu') as HTMLElement | null;
         expect(menu).not.toBeNull();
+        expect(menu?.textContent).toContain('Convert to variation');
         expect(menu?.textContent).toContain('Copy main line PGN');
         expect(menu?.textContent).toContain('Delete from here');
     });
