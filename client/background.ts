@@ -18,6 +18,8 @@ class BackgroundSettings extends StringSettings {
     }
 
     update(): void {
+        document.body.dataset.theme = this.value;
+        document.documentElement.style.colorScheme = this.value;
     }
 
     view(): VNode {
@@ -27,14 +29,30 @@ class BackgroundSettings extends StringSettings {
             backgrounds(),
             (evt, key) => {
                 this.value = key;
-                (evt.target as HTMLInputElement).form!.submit();
-            }
-        )
-        return h('div#settings-background', [
-            h('form.radio-list', { props: { method: "post", action: "/pref/theme" } }, themeList),
-        ]);
-    }
 
+                document.body.dataset.theme = key;
+                document.documentElement.style.colorScheme = key;
+
+                fetch('/pref/theme', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ theme: key }),
+                }).catch(err => {
+                    console.error('Failed to save theme preference', err);
+                });
+            }
+        );
+
+        return h('div#settings-background', [
+            h('form.radio-list', {
+                on: {
+                    submit: (evt: Event) => evt.preventDefault(),
+                },
+            }, themeList),
+        ]);
+}
 }
 
 export const backgroundSettings = new BackgroundSettings();
