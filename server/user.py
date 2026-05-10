@@ -675,10 +675,8 @@ async def set_theme(request: web.Request) -> web.StreamResponse:
                     {"_id": user.username}, {"$set": {"theme": theme}}
                 )
         session["theme"] = theme
-        redirect_url = safe_redirect_path(referer)
-        return web.HTTPFound(redirect_url)
-    else:
-        raise web.HTTPNotFound()
+
+    return web.Response(status=204)
 
 
 async def set_game_category(request: web.Request) -> web.StreamResponse:
