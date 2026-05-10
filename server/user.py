@@ -664,7 +664,6 @@ async def set_theme(request: web.Request) -> web.StreamResponse:
     theme = post_data.get("theme")
 
     if isinstance(theme, str):
-        referer = request.headers.get("REFERER")
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
         if isinstance(session_user, str) and session_user in app_state.users:
