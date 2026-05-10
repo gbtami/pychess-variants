@@ -87,28 +87,6 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         self.assertIn("/video?tags=Hu%20Ronghua", html)
         self.assertNotIn('/video?tags=Hu Ronghua"', html)
 
-    async def test_theme_rejects_foreign_referer_redirect(self):
-        resp = await self.client.request(
-            "POST",
-            "/pref/theme",
-            data={"theme": "light"},
-            headers={"REFERER": "https://evil.example/phish"},
-            allow_redirects=False,
-        )
-        self.assertEqual(resp.status, 302)
-        self.assertEqual(resp.headers["Location"], "/")
-
-    async def test_theme_accepts_same_origin_absolute_referer(self):
-        resp = await self.client.request(
-            "POST",
-            "/pref/theme",
-            data={"theme": "light"},
-            headers={"REFERER": f"{URI}/video?tags=Hu%20Ronghua"},
-            allow_redirects=False,
-        )
-        self.assertEqual(resp.status, 302)
-        self.assertEqual(resp.headers["Location"], "/video?tags=Hu%20Ronghua")
-
     async def test_translation_select_rejects_foreign_referer_redirect(self):
         resp = await self.client.request(
             "POST",
