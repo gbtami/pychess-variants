@@ -33,6 +33,7 @@ import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from '../pocketRow';
 import { updateCount, updatePoint } from '../info';
 import { fogFen } from '../variants';
+import { hideKeyboardHelp, isKeyboardHelpShortcut, showKeyboardHelp } from './keyboardHelp';
 import {
     addOrSelectChild,
     AnalysisTree,
@@ -124,6 +125,9 @@ export class AnalysisController extends GameController {
     treeForkIndex: number;
     treeContextMenu?: { path: string; x: number; y: number };
     private readonly onTreeContextMenuDocumentClick: (event: MouseEvent) => void;
+    keyboardHelpOpen: boolean;
+    private readonly onKeyboardHelpShortcutKeyDown: (event: KeyboardEvent) => void;
+    private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -185,16 +189,44 @@ export class AnalysisController extends GameController {
         this.lastBroadcastLocalAnalysisFen = undefined;
         this.analysisPath = '';
         this.treeForkIndex = 0;
+        this.keyboardHelpOpen = false;
         this.onTreeContextMenuDocumentClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
             if (target?.closest('.tree-context-menu')) return;
             this.closeTreeContextMenu();
+        };
+        this.onKeyboardHelpShortcutKeyDown = (event: KeyboardEvent) => {
+            if (this.keyboardHelpOpen || !isKeyboardHelpShortcut(event)) return;
+
+            const target = event.target;
+            if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]')) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            this.openKeyboardHelp();
+        };
+        this.onKeyboardHelpKeyDown = (event: KeyboardEvent) => {
+            if (!this.keyboardHelpOpen) return;
+
+            const isShortcutToggle = isKeyboardHelpShortcut(event);
+            if (event.key === 'Escape' || isShortcutToggle) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.closeKeyboardHelp();
+                return;
+            }
+
+            if (event.key === 'Tab') return;
+
+            event.preventDefault();
+            event.stopPropagation();
         };
 
         if (!this.ongoing) {
             window.addEventListener('storage', this.onAntiCheatStorage);
             this.refreshLocalAnalysisAvailabilityForAntiCheat();
         }
+        document.addEventListener('keydown', this.onKeyboardHelpShortcutKeyDown, true);
 
         this.chessground.set({
             orientation: this.variant.name === 'racingkings' ? 'white' : this.mycolor,
@@ -348,6 +380,27 @@ export class AnalysisController extends GameController {
             const target = this.getTreeStepLinePath('next');
             if (target !== this.analysisPath) this.activateTreePath(target);
         });
+    }
+
+    helpDialog() {
+        if (this.keyboardHelpOpen) {
+            this.closeKeyboardHelp();
+        } else {
+            this.openKeyboardHelp();
+        }
+    }
+
+    openKeyboardHelp() {
+        this.keyboardHelpOpen = true;
+        document.addEventListener('keydown', this.onKeyboardHelpKeyDown, true);
+        showKeyboardHelp(this);
+    }
+
+    closeKeyboardHelp() {
+        if (!this.keyboardHelpOpen) return;
+        this.keyboardHelpOpen = false;
+        document.removeEventListener('keydown', this.onKeyboardHelpKeyDown, true);
+        hideKeyboardHelp();
     }
 
     hasAnalysisTree() {
