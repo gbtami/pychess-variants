@@ -6,7 +6,6 @@ from mongomock_motor import AsyncMongoMockClient
 
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
-from settings import URI
 
 
 class RequestProtectionTestCase(AioHTTPTestCase):
