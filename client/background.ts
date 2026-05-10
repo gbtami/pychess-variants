@@ -27,7 +27,7 @@ class BackgroundSettings extends StringSettings {
             this,
             'theme',
             backgrounds(),
-            (evt, key) => {
+            (_, key) => {
                 this.value = key;
 
                 document.body.dataset.theme = key;
