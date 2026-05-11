@@ -39,6 +39,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-ShoShogi-icomoon-bw-elephant:before {
+  content: "\1f379";
+}
 .icon-Xiangfu:before {
   content: "⬤";
 }
