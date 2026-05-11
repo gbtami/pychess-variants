@@ -939,8 +939,11 @@ class Game:
             self.wplayer.game_in_progress = None
 
         if self.corr:
-            self.wplayer.correspondence_games.remove(self)
-            self.bplayer.correspondence_games.remove(self)
+            try:
+                self.wplayer.correspondence_games.remove(self)
+                self.bplayer.correspondence_games.remove(self)
+            except ValueError:
+                pass
 
     def print_game(self) -> None:
         print(self.pgn)
