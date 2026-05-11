@@ -1,5 +1,7 @@
 # ![ShoShogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/ShoShogi.svg) Sho Shogi
 
+![ShoShogi](https://github.com/gbtami/pychess-variants/blob/master/static/images/ShoShogi.png)
+
 _Sho Shogi_ is a historical 9x9 shogi variant. It is very close to standard shogi, but with one key piece difference and no drops.
 
 ## Rules
