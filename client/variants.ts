@@ -689,7 +689,7 @@ export const VARIANTS: Record<string, Variant> = {
     shoshogi: variant({
         name: "shoshogi", displayName: "sho shogi", tooltip: "Historical 9x9 Shogi with a drunken elephant piece and no drops.",
         startFen: "lnsgkgsnl/1r2e2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2E2R1/LNSGKGSNL w 0 1",
-        icon: "☗",
+        icon: "🍹",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
         pieceCSSExclude: ["shogi", "shogip", "shogim", "shogikw3d", "shogid", "shogiim", "portk"],
         notation: cg.Notation.SHOGI_ARBNUM,
