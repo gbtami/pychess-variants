@@ -1328,10 +1328,10 @@ char-regex@^1.0.2:
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
 
-chessgroundx@^10.7.4:
-  version "10.7.4"
-  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.7.4.tgz#4d8833f8e9865989411ed4fc0f713ea476fc09fc"
-  integrity sha512-M+i/y3BStkZCj0wZzH3TwycDt/YFXr8uGFQqKUkmgoGmiG0xhxpB0Kb5xJHxnzGGKVUOJu7Dftc/zzmdul5fBg==
+chessgroundx@^10.7.5:
+  version "10.7.5"
+  resolved "https://registry.yarnpkg.com/chessgroundx/-/chessgroundx-10.7.5.tgz#7b277293aff16aba4301ed4327a438ccea853f3a"
+  integrity sha512-69a2+npVaIwXQeF9DDNi8l31BMCTcdi5DCG9MmJPu7uD+7kByWnuML9tgTC2SGHPja+EEl1z68zPrrTdpN1n/g==
 
 ci-info@^4.2.0:
   version "4.3.0"
