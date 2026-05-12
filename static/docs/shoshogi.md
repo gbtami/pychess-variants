@@ -8,9 +8,13 @@ Shō Shogi (小将棋 'small chess') is a 16th-century form of Shogi (Japanese c
 
 - No drops and no pockets. Captured pieces are not returned to play.
 - Each side has one extra piece: the **Drunken Elephant**.
-- The drunken elephant promotes to the **prince**, which moves like a king.
+- The drunken elephant promotes to the **Crown Prince**.
 - After promotion, a side can effectively have two king-like royal pieces (king + prince).
 
 ![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/DrunkenElephant.png)
 
 The **Drunken Elephant** can step one square in any direction, orthogonal or diagonal, except directly backward.
+
+![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CrownPrince.png)
+
+The **Crown Prince** can step one square in any direction, orthogonal or diagonal. The Crown Prince effectively doubles as a second king, and must also be captured to win if present.
