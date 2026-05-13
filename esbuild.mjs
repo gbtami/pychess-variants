@@ -1,4 +1,5 @@
 import * as esbuild from 'esbuild';
+import { rmSync } from 'node:fs';
 import { compress } from 'esbuild-plugin-compress';
 
 const args = process.argv;
@@ -17,6 +18,15 @@ const baseOpts = {
 };
 
 if (dev) {
+    for (const staleAsset of [
+        './static/pychess-variants.js.br',
+        './static/pychess-variants.js.gz',
+        './static/pychess-variants.css.br',
+        './static/pychess-variants.css.gz',
+    ]) {
+        rmSync(staleAsset, { force: true });
+    }
+
     await esbuild.build({
         ...baseOpts,
         sourcemap: 'inline',

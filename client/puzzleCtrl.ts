@@ -2,7 +2,7 @@ import { h, VNode } from 'snabbdom'
 import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
-import { AnalysisController } from './analysisCtrl';
+import { AnalysisController } from './analysis/analysisCtrl';
 import { PyChessModel } from "./types";
 import { patch } from './document';
 import { lmBeforeEp, uci2LastMove, UCIMove, uci2cg } from './chess';

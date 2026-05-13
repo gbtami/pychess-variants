@@ -24,7 +24,6 @@ export interface Step {
     ceval?: Ceval;
     scoreStr?: string;
 
-    vari?: Step[];
     sanSAN?: string;
 
     boardName?: BoardName;

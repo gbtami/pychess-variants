@@ -3,12 +3,14 @@ import { h, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
+import * as Mousetrap from 'mousetrap';
 
 import { _ } from '../i18n';
 import { uci2LastMove, uci2cg } from '../chess';
 import { Variant, VARIANTS } from "../variants"
-import { createMovelistButtons, updateMovelist, selectMove, activatePlyVari } from './movelist.bug';
-import { povChances } from '../winningChances';
+import { createMovelistButtons, updateMovelist, selectMove } from './movelist.bug';
+import { povChances } from '../analysis/winningChances';
+import { copyTextToClipboard } from '../clipboard';
 import { patch } from '../document';
 import { Chart } from "highcharts";
 import { PyChessModel } from "../types";
@@ -17,10 +19,34 @@ import { GameControllerBughouse } from "./gameCtrl.bug";
 import { sound } from "../sound";
 import { renderClocks } from "./analysisClock.bug";
 import { variantsIni } from "../variantsIni";
-import { MsgAnalysis } from "../analysisType";
+import { MsgAnalysis } from "../analysis/analysisType";
+import {
+    addOrSelectChild,
+    AnalysisTree,
+    branchStartPath,
+    canPromoteVariation,
+    createAnalysisTree,
+    currentLineEndPath,
+    deleteNodePath,
+    extendPath,
+    forceVariationAt,
+    getNodeList,
+    mainlineEndPath,
+    mainlinePathAtPly,
+    nextBranchPath,
+    nodeAtPath,
+    parentPath,
+    pathIsForcedVariation,
+    previousBranchPath,
+    promoteNodePath,
+    setCollapsedFrom,
+    someCollapsedFrom,
+    stepLinePath,
+} from "../analysis/analysisTree";
 import ffishModule from "ffish-es6";
-import { titleCase } from "@/analysisCtrl";
+import { titleCase } from "@/analysis/analysisCtrl";
 import { movetimeChart } from "./movetimeChart.bug";
+import { renderBughouseLinePgnMoveText, renderBughouseTreePgnMoveText } from "./analysisTreeBug";
 import { initBoardSettings, switchBoards } from "@/bug/roundCtrl.bug";
 import {playerInfoData} from "@/bug/gameInfo.bug";
 
@@ -35,6 +61,7 @@ const maxDepth = 18;
 const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 
 const emptySan = '\xa0';
+const TREE_COLLAPSED_STORAGE_KEY = 'analysisTreeBugCollapsed';
 
 export default class AnalysisControllerBughouse {
     model;
@@ -72,7 +99,7 @@ export default class AnalysisControllerBughouse {
     pgn: string;
     ply: number;
     plyVari: number;
-    plyInsideVari: number;
+    recordedMainlinePly?: number;
     animation: boolean;
     showDests: boolean;
     analysisChart: Chart;
@@ -99,6 +126,11 @@ export default class AnalysisControllerBughouse {
     fsfDebug: boolean;
     fsfError: string[];
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
+    analysisTree?: AnalysisTree;
+    analysisPath: string;
+    treeForkIndex: number;
+    treeContextMenu?: { path: string; x: number; y: number };
+    private readonly onTreeContextMenuDocumentClick: (event: MouseEvent) => void;
 
     username: string;
     chess960: boolean;
@@ -153,7 +185,8 @@ export default class AnalysisControllerBughouse {
 
         // current interactive analysis variation ply
         this.plyVari = 0;
-        this.plyInsideVari = -1
+        this.analysisPath = '';
+        this.treeForkIndex = 0;
 
         this.model = model;
         this.gameId = model["gameId"] as string;
@@ -178,6 +211,11 @@ export default class AnalysisControllerBughouse {
         this.importedBy = '';
 
         this.notation = this.b1.variant.notation;
+        this.onTreeContextMenuDocumentClick = (event: MouseEvent) => {
+            const target = event.target as HTMLElement | null;
+            if (target?.closest('.tree-context-menu')) return;
+            this.closeTreeContextMenu();
+        };
 
         const fens = model.fen.split(" | ");
 
@@ -240,8 +278,293 @@ export default class AnalysisControllerBughouse {
         this.onMsgBoard(model["board"] as MsgBoard);
 
         initBoardSettings(this.b1, this.b2, this.variant);
+        this.syncBoardHitAreas();
 
         (document.getElementById('gaugePartner') as HTMLElement).classList.add('flipped');
+
+        Mousetrap.bind('left', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeParentPath();
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('right', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeMainChildPath();
+            if (target) this.activateTreePath(target);
+        });
+        Mousetrap.bind(['up', '0', 'home'], (event?: KeyboardEvent) => {
+            if (!this.hasAnalysisTree()) return;
+            if (event?.key === 'ArrowUp' && this.selectTreeFork('prev')) return;
+            this.activateTreePath('');
+        });
+        Mousetrap.bind(['down', '$', 'end'], (event?: KeyboardEvent) => {
+            if (!this.hasAnalysisTree()) return;
+            if (event?.key === 'ArrowDown' && this.selectTreeFork('next')) return;
+            this.activateTreePath(this.getTreeMainlineEndPath());
+        });
+        Mousetrap.bind('shift+left', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreePreviousBranchPath();
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('shift+right', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeNextBranchPath();
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('shift+up', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeStepLinePath('prev');
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+        Mousetrap.bind('shift+down', () => {
+            if (!this.hasAnalysisTree()) return;
+            const target = this.getTreeStepLinePath('next');
+            if (target !== this.analysisPath) this.activateTreePath(target);
+        });
+    }
+
+    hasAnalysisTree() {
+        return this.analysisTree !== undefined;
+    }
+
+    private syncBoardHitAreas() {
+        // Bughouse analysis changes the surrounding layout after the two chessgrounds
+        // are created. Force a post-layout redraw so pointer bounds stay aligned with
+        // the final rendered board positions on both boards.
+        requestAnimationFrame(() => {
+            this.b1.chessground.redrawAll();
+            this.b2.chessground.redrawAll();
+        });
+    }
+
+    initAnalysisTreeAtPly(ply: number) {
+        if (this.steps.length === 0) return;
+        this.analysisTree = createAnalysisTree(this.steps);
+        this.applyTreeCollapsedPaths();
+        this.analysisPath = mainlinePathAtPly(this.analysisTree, ply);
+        this.revealTreePath(this.analysisPath);
+        this.activateTreePath(this.analysisPath, false);
+    }
+
+    getTreeActivePath() {
+        return this.analysisPath;
+    }
+
+    getTreeCurrentNode() {
+        if (!this.analysisTree) return undefined;
+        return nodeAtPath(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeNodeList() {
+        if (!this.analysisTree) return [];
+        return getNodeList(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeLineStartPath() {
+        if (!this.analysisTree) return '';
+        return branchStartPath(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeLineEndPath() {
+        if (!this.analysisTree) return '';
+        return currentLineEndPath(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeMainlineEndPath() {
+        if (!this.analysisTree) return '';
+        return mainlineEndPath(this.analysisTree);
+    }
+
+    getTreeParentPath() {
+        return parentPath(this.analysisPath);
+    }
+
+    getTreeMainChildPath() {
+        const node = this.getTreeCurrentNode();
+        return node?.children[this.treeForkIndex]?.path ?? node?.children[0]?.path;
+    }
+
+    getTreeSelectedChildPath() {
+        return this.treeForkIndex > 0 ? this.getTreeMainChildPath() : undefined;
+    }
+
+    getTreeNodeAtPath(path: string) {
+        if (!this.analysisTree) return undefined;
+        return nodeAtPath(this.analysisTree, path);
+    }
+
+    pathIsTreeMainline(path: string) {
+        if (!this.analysisTree) return true;
+        return getNodeList(this.analysisTree, path).every((node, idx) => idx === 0 || node.mainlinePly !== undefined);
+    }
+
+    pathIsTreeForcedVariation(path: string) {
+        if (!this.analysisTree) return false;
+        return pathIsForcedVariation(this.analysisTree, path);
+    }
+
+    canPromoteTreeVariation(path: string) {
+        if (!this.analysisTree) return false;
+        return canPromoteVariation(this.analysisTree, path);
+    }
+
+    someTreeCollapsed(collapsed: boolean) {
+        if (!this.analysisTree) return false;
+        return someCollapsedFrom(this.analysisTree, collapsed);
+    }
+
+    getTreeContextMenu() {
+        return this.treeContextMenu;
+    }
+
+    openTreeContextMenu(path: string, clientX: number, clientY: number) {
+        const container = document.getElementById('movelist');
+        if (!container) return;
+
+        const rect = container.getBoundingClientRect();
+        const x = clientX - rect.left + container.scrollLeft;
+        const y = clientY - rect.top + container.scrollTop;
+
+        this.treeContextMenu = { path, x, y };
+        document.addEventListener('click', this.onTreeContextMenuDocumentClick, false);
+        updateMovelist(this, true, false);
+    }
+
+    closeTreeContextMenu() {
+        if (!this.treeContextMenu) return;
+        this.treeContextMenu = undefined;
+        document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
+        updateMovelist(this, true, false);
+    }
+
+    copyTreeLinePgn(path: string) {
+        if (!this.analysisTree) return;
+        const onMainline = this.pathIsTreeMainline(path) && !this.pathIsTreeForcedVariation(path);
+        copyTextToClipboard(renderBughouseLinePgnMoveText(
+            this.analysisTree,
+            onMainline ? extendPath(this.analysisTree, path, true) : path,
+            (node) => node.step.sanSAN ?? node.step.san ?? '',
+        ));
+        this.closeTreeContextMenu();
+    }
+
+    toggleTreeCollapsed(path: string) {
+        if (!this.analysisTree) return;
+        const node = nodeAtPath(this.analysisTree, path);
+        if (!node || node.children.length < 2) return;
+
+        node.collapsed = !node.collapsed;
+        if (node.collapsed) {
+            const mainChildPath = node.children[0]?.path;
+            if (this.analysisPath !== path && mainChildPath && !this.analysisPath.startsWith(mainChildPath)) {
+                this.analysisPath = path;
+                this.goPly(node.ply, 0);
+            }
+        }
+        this.revealTreePath(this.analysisPath);
+        this.saveTreeCollapsedPaths();
+        updateMovelist(this, true, false);
+    }
+
+    collapseAllTree() {
+        if (!this.analysisTree) return;
+        setCollapsedFrom(this.analysisTree, '', true);
+        this.saveTreeCollapsedPaths();
+        this.closeTreeContextMenu();
+        updateMovelist(this, true, false);
+    }
+
+    expandAllTree() {
+        if (!this.analysisTree) return;
+        setCollapsedFrom(this.analysisTree, '', false);
+        this.saveTreeCollapsedPaths();
+        this.closeTreeContextMenu();
+        updateMovelist(this, true, false);
+    }
+
+    promoteTreeVariation(path: string, toMainline: boolean) {
+        if (!this.analysisTree) return;
+        promoteNodePath(this.analysisTree, path, toMainline);
+        this.closeTreeContextMenu();
+        updateMovelist(this, true, false);
+    }
+
+    forceTreeVariation(path: string, force: boolean) {
+        if (!this.analysisTree) return;
+        forceVariationAt(this.analysisTree, path, force);
+        this.activateTreePath(path);
+    }
+
+    deleteTreeNode(path: string) {
+        if (!this.analysisTree || !path) return;
+        const nextPath =
+            this.analysisPath === path || this.analysisPath.startsWith(`${path}.`)
+                ? parentPath(path)
+                : this.analysisPath;
+        deleteNodePath(this.analysisTree, path);
+        this.revealTreePath(nextPath);
+        this.saveTreeCollapsedPaths();
+        this.closeTreeContextMenu();
+        this.activateTreePath(nextPath);
+    }
+
+    getTreePreviousBranchPath() {
+        if (!this.analysisTree) return this.analysisPath;
+        return previousBranchPath(this.analysisTree, this.analysisPath);
+    }
+
+    getTreeNextBranchPath() {
+        if (!this.analysisTree) return this.analysisPath;
+        return nextBranchPath(this.analysisTree, this.analysisPath, this.treeForkIndex);
+    }
+
+    getTreeStepLinePath(which: 'prev' | 'next') {
+        if (!this.analysisTree) return this.analysisPath;
+        return stepLinePath(this.analysisTree, this.analysisPath, which);
+    }
+
+    selectTreeFork(which: 'prev' | 'next') {
+        const node = this.getTreeCurrentNode();
+        if (!node || node.children.length < 2) return false;
+
+        const delta = which === 'next' ? 1 : -1;
+        this.treeForkIndex = (node.children.length + this.treeForkIndex + delta) % node.children.length;
+        updateMovelist(this, true, false);
+        return true;
+    }
+
+    activateTreeMainlinePly(ply: number) {
+        if (!this.analysisTree) return;
+        this.activateTreePath(mainlinePathAtPly(this.analysisTree, ply));
+    }
+
+    private getTreeNodeForPly(ply: number) {
+        if (!this.analysisTree) return undefined;
+
+        const nodeOnActivePath = this.getTreeNodeList().find((node) => node.ply === ply);
+        if (nodeOnActivePath) return nodeOnActivePath;
+
+        const mainlinePath = mainlinePathAtPly(this.analysisTree, ply);
+        const mainlineNode = nodeAtPath(this.analysisTree, mainlinePath);
+        if (mainlineNode) this.analysisPath = mainlinePath;
+        return mainlineNode;
+    }
+
+    activateTreePath(path: string, redrawMovelist = true) {
+        if (!this.analysisTree) return;
+        const node = nodeAtPath(this.analysisTree, path);
+        if (!node) return;
+
+        this.revealTreePath(path);
+        this.treeForkIndex = 0;
+        this.treeContextMenu = undefined;
+        document.removeEventListener('click', this.onTreeContextMenuDocumentClick, false);
+        this.analysisPath = path;
+        this.plyVari = 0;
+        this.goPly(node.ply, 0);
+
+        if (redrawMovelist) updateMovelist(this, true, false);
     }
 
     pvboxIni() {
@@ -305,14 +628,10 @@ export default class AnalysisControllerBughouse {
     }
 
     private checkStatus = () => {
-        if ((!this.isAnalysisBoard) || this.model["embed"]) return;
+        if (this.model["embed"]) return;
 
-        // but on analysis page we always present pgn move list leading to current shown position!
-        // const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
-        const pgn =/* (this.isAnalysisBoard) ?*/ this.getPgn() /*: this.pgn*/;
-        this.renderFENAndPGN( pgn );
-
-        if (!this.isAnalysisBoard) selectMove(this, this.ply);
+        const pgn = this.getPgn();
+        this.renderFENAndPGN(pgn);
     }
 
     private renderFENAndPGN(pgn: string) {
@@ -357,6 +676,8 @@ export default class AnalysisControllerBughouse {
 
         if (msg.steps.length > 1) {
             this.steps = [];
+            this.plyA = 0;
+            this.plyB = 0;
 
             msg.steps.forEach((step, idx) => {
                 if (step.analysis !== undefined) {
@@ -378,6 +699,9 @@ export default class AnalysisControllerBughouse {
 
                 this.steps.push(step);
                 });
+            this.recordedMainlinePly = this.steps.length - 1;
+            const initialPly = this.model["ply"] > 0 ? this.model["ply"] : this.ply;
+            this.initAnalysisTreeAtPly(initialPly);
             updateMovelist(this);
 
             if (this.steps[0].analysis !== undefined) {
@@ -394,6 +718,7 @@ export default class AnalysisControllerBughouse {
             const cmt = document.getElementById('chart-movetime') as HTMLElement;
             if (cmt) cmt.style.display = 'block';
             movetimeChart(this);
+            this.syncBoardHitAreas();
 
         } else {/*
             if (msg.ply === this.steps.length) {
@@ -409,6 +734,12 @@ export default class AnalysisControllerBughouse {
             }*/
         }
 
+        if (!this.hasAnalysisTree() && this.steps.length >= 1) {
+            this.recordedMainlinePly = this.steps.length - 1;
+            this.initAnalysisTreeAtPly(this.ply);
+            updateMovelist(this);
+        }
+
         // const lastMove = uci2LastMove(msg.lastMove);
         // const step = this.steps[this.steps.length - 1];
         // const capture = (lastMove.length > 0) && ((this.chessground.state.pieces.get(lastMove[1]) && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x'));
@@ -419,9 +750,12 @@ export default class AnalysisControllerBughouse {
         this.checkStatus();
 
         if (this.model["ply"] > 0) {
-            this.ply = this.model["ply"]
-            selectMove(this, this.ply);
+            this.ply = this.model["ply"];
+            if (this.hasAnalysisTree()) this.activateTreePath(mainlinePathAtPly(this.analysisTree!, this.ply), false);
+            else selectMove(this, this.ply);
         }
+
+        this.syncBoardHitAreas();
     }
 
     fsfPostMessage(msg: string) {
@@ -651,15 +985,63 @@ export default class AnalysisControllerBughouse {
         });
     }
 
-    // When we are moving inside a variation move list
-    // then plyVari > 0 and ply is the index inside vari movelist
     goPly = (ply: number, plyVari = 0) => {
-        console.log(ply, plyVari);
-        const vv = this.steps[plyVari]?.vari;
-        const step = (plyVari > 0 && vv) ? vv[ply - plyVari] : this.steps[ply];
-        if (step === undefined) return;
+        if (this.hasAnalysisTree() && plyVari === 0) {
+            const node = this.getTreeNodeForPly(ply);
+            if (!node) return;
 
-        console.log(step);
+            const step = node.step;
+            const activeBoard = step.boardName === 'b' ? this.b2 : this.b1;
+            const fenA = step.fen;
+            const fenB = step.fenB ?? this.steps[0].fenB!;
+            const moveA = uci2LastMove(step.move);
+            const moveB = uci2LastMove(step.moveB);
+            const turnColorA = fenA.split(' ')[1] === 'w' ? 'white' : 'black';
+            const turnColorB = fenB.split(' ')[1] === 'w' ? 'white' : 'black';
+
+            let capture = false;
+            const move = step.boardName === 'b' ? moveB : moveA;
+            if (move) {
+                capture =
+                    (activeBoard.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined
+                        && step.san?.slice(0, 2) !== 'O-')
+                    || (step.san?.slice(1, 2) === 'x');
+            }
+
+            if (ply === this.ply + 1 && step.boardName !== undefined) {
+                sound.moveSound(activeBoard.variant, capture);
+            }
+            this.ply = ply;
+            this.plyVari = 0;
+
+            if (this.b1.localAnalysis || this.b2.localAnalysis) {
+                this.engineStop();
+                this.clearPvlines();
+            }
+
+            this.b1.setState(fenA, turnColorA, moveA);
+            this.b1.renderState();
+            this.b1.chessground.set({ movable: { color: turnColorA } });
+
+            this.b2.setState(fenB, turnColorB, moveB);
+            this.b2.renderState();
+            this.b2.chessground.set({ movable: { color: turnColorB } });
+
+            this.disableMovableOnCheckmate(activeBoard);
+            renderClocks(this);
+            this.checkStatus();
+
+            if (this.b1.localAnalysis) {
+                this.engineGo(this.b1);
+            } else if (this.b2.localAnalysis) {
+                this.engineGo(this.b2);
+            }
+
+            return;
+        }
+
+        const step = this.steps[ply];
+        if (step === undefined) return;
 
         const board = step.boardName === 'a'? this.b1: this.b2;
 
@@ -681,28 +1063,13 @@ export default class AnalysisControllerBughouse {
             sound.moveSound(board.variant, capture);
         }
         this.ply = ply;
+        this.plyVari = 0;
 
         ////////////// above is more or less copy/pasted from gameCtrl.ts->goPLy. other places just call super.goPly
-
-        if (this.plyVari > 0) {
-            this.plyInsideVari = ply - plyVari;
-        }
 
         if (this.b1.localAnalysis || this.b2.localAnalysis) {
             this.engineStop();
             this.clearPvlines();
-            // Go back to the main line
-            if (plyVari === 0) {
-                const container = document.getElementById('vari') as HTMLElement;
-                patch(container, h('div#vari', ''));
-            }
-        }
-
-        // Go back to the main line
-        if (this.plyVari > 0 && plyVari === 0) {
-            this.steps[this.plyVari]['vari'] = undefined;
-            this.plyVari = 0;
-            updateMovelist(this);
         }
 
         board.setState(fen, step.turnColor, move!);
@@ -729,43 +1096,41 @@ export default class AnalysisControllerBughouse {
         }
     }
 
-    private getPgn = (idxInVari  = 0) => {
-        const moves : string[] = [];
-        let moveCounter: string = '';
-        let whiteMove: boolean = true;
-        let blackStarts: boolean = this.steps[0].turnColor === 'black';
+    private getPgn = () => {
+        if (this.hasAnalysisTree()) {
+            const moveText = renderBughouseTreePgnMoveText(
+                this.analysisTree!,
+                (node) => node.step.sanSAN ?? node.step.san ?? '',
+            );
 
+            const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
+
+            const event = '[Event "?"]';
+            const site = `[Site "${this.b1.home}/analysis/${this.variant.name}"]`;
+            const date = `[Date "${today}"]`;
+            const whiteA = '[WhiteA "' + this.model['wplayer'] + '"]';
+            const blackA = '[BlackA "' + this.model['bplayer'] + '"]';
+            const whiteB = '[WhiteB "' + this.model['wplayerB'] + '"]';
+            const blackB = '[BlackB "' + this.model['bplayerB'] + '"]';
+            const result = '[Result "*"]';
+            const variant = `[Variant "${titleCase(this.variant.name)}"]`;
+            const fen = `[FEN "${this.steps[0].fen}"]`;
+            const setup = '[SetUp "1"]';
+
+            return `${event}\n${site}\n${date}\n${whiteA}\n${blackA}\n${whiteB}\n${blackB}\n${result}\n${variant}\n${fen}\n${setup}\n\n${moveText} *\n`;
+        }
+
+        const moves : string[] = [];
         let plyA: number = 0;
         let plyB: number = 0;
 
         for (let ply = 1; ply <= this.ply; ply++) {
-            this.steps[ply].boardName === 'a'? plyA++ : plyB++;
-            // we are in a variation line of the game
-            if (this.steps[ply] && this.steps[ply].vari && this.plyVari > 0) {
-                const variMoves = this.steps[ply].vari;
-                if (variMoves) {
-                    blackStarts = variMoves[0].turnColor === 'white';
-                    for (let idx = 0; idx <= idxInVari; idx++) {
-                        if (blackStarts && ply ===1 && idx === 0) {
-                            moveCounter = '1...';
-                        } else {
-                            whiteMove = variMoves[idx].turnColor === 'black';
-                            moveCounter = (whiteMove) ? Math.ceil((ply + idx + 1) / 2) + '.' : '';
-                        }
-                        moves.push(moveCounter + variMoves[idx].sanSAN);
-                    };
-                    break;
-                }
-            // we are in the main line
-            } else {
-                if (blackStarts && ply === 1) {
-                    moveCounter = '1...';
-                } else {
-                    whiteMove = this.steps[ply].turnColor === 'black';
-                    moveCounter = Math.floor(this.steps[ply].boardName === 'a'? (plyA + 1) / 2 : (plyB + 1) / 2 ) + this.steps[ply].boardName!.toUpperCase() + ".";
-                }
-                moves.push(moveCounter + this.steps[ply].san);
-            }
+            const step = this.steps[ply];
+            if (step.boardName === 'a') plyA++;
+            else plyB++;
+
+            const moveCounter = Math.floor(step.boardName === 'a' ? (plyA + 1) / 2 : (plyB + 1) / 2) + step.boardName!.toUpperCase() + ".";
+            moves.push(moveCounter + (step.sanSAN ?? step.san ?? ''));
         }
         const moveText = moves.join(' ');
 
@@ -787,16 +1152,6 @@ export default class AnalysisControllerBughouse {
     }
 
     sendMove = (b: GameControllerBughouse, move: string) => {
-        const vv = this.steps[this.plyVari]['vari'];
-
-        // We can't use ffishBoard.gamePly() to determine newply because it returns +1 more
-        // when new this.ffish.Board() initial FEN moving color was "b"
-        // const moves = b.ffishBoard.moveStack().split(' ');
-        this.ply = this.ply + 1;
-
-        // TODO: check if the move that was made was the same as the next recorded move of the existing game
-        //       if yes, and if we are not in a vari, then call goPly for next ply, otherwise it starts variation
-        //       with exactly same move as the main line, which is nonsense
         if (b.localAnalysis) this.engineStop();
         const san = b.san(move); // doing this before we push the move to the ffboard, after which its invalid
         const sanSAN = b.sanSAN(move);
@@ -819,56 +1174,30 @@ export default class AnalysisControllerBughouse {
             'boardName': b.boardName,
             'plyA': this.b1.ply,
             'plyB': this.b2.ply,
-            };
-        const ffishBoardPly = b.getFFishPly();
-        const partnerBoardHasNoMoves = b.partnerCC.hasNoMoves();
-        const moveIdx = (this.plyVari === 0) ? this.ply : this.plyInsideVari;
+        };
 
-        // New main line move
-        if (moveIdx === this.steps.length && this.plyVari === 0) {
+        const tree = this.analysisTree;
+        if (!tree) return;
+
+        const currentNode = this.getTreeCurrentNode() ?? tree.root;
+        const extendsMainlineTail =
+            this.analysisPath === this.getTreeMainlineEndPath()
+            && currentNode.mainlinePly !== undefined
+            && currentNode.mainlinePly === this.steps.length - 1;
+        const childPath = addOrSelectChild(
+            tree,
+            this.analysisPath,
+            step,
+            extendsMainlineTail && currentNode.children[0] === undefined,
+            extendsMainlineTail ? this.steps.length : undefined,
+        );
+
+        if (extendsMainlineTail && currentNode.children[0] === undefined) {
             this.steps.push(step);
-            this.ply = moveIdx;
-            updateMovelist(this);
-            this.checkStatus();
-        // variation move
-        } else {
-            // possible new variation starts
-            if (ffishBoardPly === 1 && partnerBoardHasNoMoves) {
-                if (this.ply < this.steps.length && move === this.steps[this.ply].move) {
-                    // existing main line played
-                    selectMove(this, this.ply);
-                    return;
-                }
-                // new variation starts
-                if (vv === undefined) {
-                    this.plyVari = this.ply;
-                    this.steps[this.plyVari]['vari'] = [];
-                } else {
-                    // variation in the variation: drop old moves
-                    if ( vv ) {
-                        this.steps[this.plyVari]['vari'] = vv.slice(0, this.ply - this.plyVari);
-                    }
-                }
-            }
-            // continuing the variation
-            if (this.steps[this.plyVari].vari !== undefined) {
-                this.steps[this.plyVari]?.vari?.push(step);
-            };
-
-            const full = true;
-            const activate = false;
-            updateMovelist(this, full, activate);
-            if (vv) {
-                activatePlyVari(this.plyVari + vv.length - 1);
-            } else if (vv === undefined && this.plyVari > 0) {
-                activatePlyVari(this.plyVari);
-            }
-            this.checkStatus();
+            this.recordedMainlinePly = this.steps.length - 1;
         }
 
-        const e = document.getElementById('fullfen') as HTMLInputElement;
-        e.value = this.b1.fullfen+" "+this.b2.fullfen;
-
+        this.activateTreePath(childPath);
         this.disableMovableOnCheckmate(b);
     }
 
@@ -896,6 +1225,42 @@ export default class AnalysisControllerBughouse {
         const turnColor = msg.color === 'w' ? 'white' : 'black';
         this.drawEval(msg.ceval, scoreStr, turnColor, boardInAnalysis);
 
+    }
+
+    private treeCollapsedStorageKey() {
+        return `${TREE_COLLAPSED_STORAGE_KEY}:${this.gameId || `analysis:${this.variant.name}`}`;
+    }
+
+    private applyTreeCollapsedPaths() {
+        if (!this.analysisTree) return;
+        let collapsedPaths: string[] = [];
+        try {
+            collapsedPaths = JSON.parse(localStorage[this.treeCollapsedStorageKey()] ?? '[]');
+        } catch {
+            collapsedPaths = [];
+        }
+        collapsedPaths.forEach((path) => {
+            const node = nodeAtPath(this.analysisTree!, path);
+            if (node) node.collapsed = true;
+        });
+    }
+
+    private saveTreeCollapsedPaths() {
+        if (!this.analysisTree) return;
+        const collapsedPaths: string[] = [];
+        const visit = (node: AnalysisTree['root']) => {
+            if (node.collapsed) collapsedPaths.push(node.path);
+            node.children.forEach(visit);
+        };
+        visit(this.analysisTree.root);
+        localStorage[this.treeCollapsedStorageKey()] = JSON.stringify(collapsedPaths);
+    }
+
+    private revealTreePath(path: string) {
+        if (!this.analysisTree) return;
+        getNodeList(this.analysisTree, path).slice(0, -1).forEach((node) => {
+            node.collapsed = false;
+        });
     }
 
 }

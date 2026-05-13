@@ -128,7 +128,6 @@ export function analysisView(model: PyChessModel): VNode[] {
                 h('div.movelist-block', [
                     h('div#movelist'),
                 ]),
-                h('div#vari'),
                 h('div#misc-info', [
                     h('div#misc-infow'),
                     h('div#misc-info-center'),

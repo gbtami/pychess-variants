@@ -1,15 +1,15 @@
 import { h, VNode } from "snabbdom";
 
-import { _ } from './i18n';
+import { _ } from '../i18n';
 import { AnalysisController } from './analysisCtrl';
-import type { ColorName } from './chess';
-import { gameInfo } from './gameInfo';
-import { selectVariant, VARIANTS, validVariant } from './variants';
-import { renderTimeago } from './datetime';
-import { spinner } from './view';
-import { PyChessModel } from "./types";
+import type { ColorName } from '../chess';
+import { gameInfo } from '../gameInfo';
+import { selectVariant, VARIANTS, validVariant } from '../variants';
+import { renderTimeago } from '../datetime';
+import { spinner } from '../view';
+import { PyChessModel } from "../types";
 import { analysisSettings } from './analysisSettings';
-import { gaugeSideColors } from './variantColor';
+import { gaugeSideColors } from '../variantColor';
 
 function runGround(vnode: VNode, model: PyChessModel) {
     const el = vnode.elm as HTMLElement;
@@ -199,7 +199,6 @@ export function analysisTools (isOngoingGame: boolean = false) {
             h('div.movelist-block', [
                 h('div#movelist'),
             ]),
-            h('div#vari'),
             h('div#misc-info', [
                 h('div#misc-infow'),
                 h('div#misc-info-center'),

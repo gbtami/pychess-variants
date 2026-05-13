@@ -1,7 +1,7 @@
 import Highcharts from "highcharts";
 import type { Options } from "highcharts";
 
-import { selectMove } from './movelist.bug';
+import { selectMainlineMove } from './movelist.bug';
 import { Step } from "../messages";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 import { BLACK, WHITE } from "@/chess";
@@ -203,7 +203,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
             click: function(event: any) {
                 if (event.point) {
                     event.point.select();
-                    selectMove (ctrl, event.point.x)
+                    selectMainlineMove(ctrl, event.point.x);
                 }
             }
         },
@@ -260,7 +260,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                     click: function(event) {
                         if (event.point) {
                             event.point.select();
-                            selectMove (ctrl, event.point.x)
+                            selectMainlineMove(ctrl, event.point.x);
                         }
                     }
                 },

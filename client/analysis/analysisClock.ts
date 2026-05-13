@@ -1,8 +1,8 @@
 import { h, VNode } from 'snabbdom';
 
-import { WHITE, BLACK } from './chess';
+import { WHITE, BLACK } from '../chess';
 import { AnalysisController } from './analysisCtrl';
-import { patch } from './document';
+import { patch } from '../document';
 
 function getClockSourceStep(ctrl: AnalysisController) {
     // Tail moves added in finished-game analysis do not carry clock snapshots.

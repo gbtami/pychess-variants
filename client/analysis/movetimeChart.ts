@@ -1,10 +1,10 @@
 import Highcharts from "highcharts";
 import type { Options } from "highcharts";
 
-import { selectMove } from './movelist';
+import { selectMainlineMove } from '../movelist';
 import { AnalysisController } from './analysisCtrl';
-import { Step } from "./messages";
-import { WHITE, BLACK } from './chess';
+import { Step } from "../messages";
+import { WHITE, BLACK } from '../chess';
 
 export interface MovePoint {
   y: number;
@@ -87,7 +87,7 @@ export function movetimeChart(ctrl: AnalysisController) {
             click: function(event: any) {
                 if (event.point) {
                     event.point.select();
-                    selectMove (ctrl, event.point.x)
+                    selectMainlineMove(ctrl, event.point.x);
                 }
             }
         },
@@ -144,7 +144,7 @@ export function movetimeChart(ctrl: AnalysisController) {
                     click: function(event) {
                         if (event.point) {
                             event.point.select();
-                            selectMove (ctrl, event.point.x)
+                            selectMainlineMove(ctrl, event.point.x);
                         }
                     }
                 },

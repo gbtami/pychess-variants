@@ -1,11 +1,11 @@
 import Highcharts from "highcharts";
 
-import { _ } from './i18n';
-import { selectMove } from './movelist';
+import { _ } from '../i18n';
+import { selectMainlineMove } from '../movelist';
 import { povChances } from './winningChances';
 import { AnalysisController } from './analysisCtrl';
-import { Step } from "./messages";
-import { analysisChartZone } from './variantColor';
+import { Step } from "../messages";
+import { analysisChartZone } from '../variantColor';
 
 export function analysisChart(ctrl: AnalysisController) {
     const firstSide = analysisChartZone(ctrl.variant.colors.first);
@@ -73,7 +73,7 @@ export function analysisChart(ctrl: AnalysisController) {
                     click: function(event) {
                         if (event.point) {
                             event.point.select();
-                            selectMove (ctrl, event.point.x)
+                            selectMainlineMove(ctrl, event.point.x);
                         }
                     }
                 },

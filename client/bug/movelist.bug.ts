@@ -7,29 +7,87 @@ import { patch } from '../document';
 import { RoundControllerBughouse } from "./roundCtrl.bug";
 import {Step, StepChat} from "../messages";
 import { displayUsername, isAnonUsername } from "@/user";
+import { AnalysisTreeNode, nodeAtPath, parentPath } from "../analysis/analysisTree";
+import { bugMovePrefix } from "./analysisTreeBug";
 
-export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number, plyVari = 0): void {
-    let plyMax = ctrl.steps.length - 1;
-    const vari = "plyVari" in ctrl ? ctrl.steps[ctrl.plyVari]['vari']: undefined;
-    if (vari && ctrl.plyVari > 0) plyMax = ctrl.plyVari + vari.length - 1;
+type TreeCtrl = AnalysisControllerBughouse & {
+    analysisTree?: { root: AnalysisTreeNode };
+    hasAnalysisTree?: () => boolean;
+    getTreeActivePath?: () => string;
+    getTreeSelectedChildPath?: () => string | undefined;
+    activateTreePath?: (path: string) => void;
+    activateTreeMainlinePly?: (ply: number) => void;
+    toggleTreeCollapsed?: (path: string) => void;
+    getTreeLineStartPath?: () => string;
+    getTreeLineEndPath?: () => string;
+    getTreeParentPath?: () => string;
+    getTreeMainChildPath?: () => string | undefined;
+    getTreeNodeAtPath?: (path: string) => AnalysisTreeNode | undefined;
+    getTreeContextMenu?: () => { path: string; x: number; y: number } | undefined;
+    openTreeContextMenu?: (path: string, clientX: number, clientY: number) => void;
+    closeTreeContextMenu?: () => void;
+    copyTreeLinePgn?: (path: string) => void;
+    pathIsTreeMainline?: (path: string) => boolean;
+    pathIsTreeForcedVariation?: (path: string) => boolean;
+    canPromoteTreeVariation?: (path: string) => boolean;
+    promoteTreeVariation?: (path: string, toMainline: boolean) => void;
+    forceTreeVariation?: (path: string, force: boolean) => void;
+    someTreeCollapsed?: (collapsed: boolean) => boolean;
+    collapseAllTree?: () => void;
+    expandAllTree?: () => void;
+    deleteTreeNode?: (path: string) => void;
+};
 
-    if (ply < 0 || ply > plyMax) {
+type TreeDiscloseState = undefined | 'expanded' | 'collapsed';
+type TreeMenuIconClass =
+    | 'icon-arrow-up-right'
+    | 'icon-arrow-down-right'
+    | 'icon-check'
+    | 'icon-download'
+    | 'icon-plus-square'
+    | 'icon-clipboard'
+    | 'icon-trash-o';
+type MoveGlyphClass = 'good' | 'mistake' | 'brilliant' | 'blunder' | 'interesting' | 'inaccuracy';
+
+interface ParsedTreeMove {
+    san: string;
+    glyph?: {
+        text: string;
+        cls: MoveGlyphClass;
+    };
+}
+
+function asTreeCtrl(ctrl: AnalysisControllerBughouse | RoundControllerBughouse): TreeCtrl | undefined {
+    const treeCtrl = ctrl as TreeCtrl;
+    return treeCtrl.hasAnalysisTree?.() ? treeCtrl : undefined;
+}
+
+export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number, _plyVari = 0): void {
+    const treeCtrl = asTreeCtrl(ctrl);
+    if (treeCtrl) {
+        if (ply < 0) return;
+        ctrl.goPly(ply, 0);
+        updateMovelist(ctrl, true, false);
+        scrollToPly(ctrl);
+        return;
+    }
+
+    if (ply < 0 || ply > ctrl.steps.length - 1) {
         return
     }
 
-    if (plyVari > 0 && ply < plyVari) {
-        // back to the main line
-        plyVari = 0;
-    }
+    ctrl.goPly(ply, 0);
+    activatePly(ctrl);
+    scrollToPly(ctrl);
+}
 
-    ctrl.goPly(ply, plyVari);
-    if (plyVari === 0) {
-        activatePly(ctrl);
-        scrollToPly(ctrl);
-    } else {
-        activatePlyVari(ply);
+export function selectMainlineMove(ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number): void {
+    const treeCtrl = asTreeCtrl(ctrl);
+    if (treeCtrl?.activateTreeMainlinePly) {
+        treeCtrl.activateTreeMainlinePly(ply);
+        return;
     }
-
+    selectMove(ctrl, ply, 0);
 }
 
 function activatePly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
@@ -48,7 +106,7 @@ function activatePly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse
 function scrollToPly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
     if (ctrl.steps.length < 9) return;
     const movelistEl = document.getElementById('movelist') as HTMLElement;
-    const plyEl = movelistEl.querySelector('move-bug.active') as HTMLElement | null;
+    const plyEl = movelistEl.querySelector('move-bug.active, vari-move.active') as HTMLElement | null;
 
     let st: number | undefined = undefined;
 
@@ -60,24 +118,42 @@ function scrollToPly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse
         movelistEl.scrollTop = st;
 }
 
-export function activatePlyVari (ply: number) {
-    console.log('activatePlyVari()', ply);
-    const active = document.querySelector('vari-move.active');
-    if (active) active.classList.remove('active');
-
-    const elPly = document.querySelector(`vari-move[ply="${ply}"]`);
-    if (elPly) elPly.classList.add('active');
-}
-
 export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
     const container = document.getElementById('move-controls') as HTMLElement;
+
+    const selectVariationBound = (goToStart: boolean) => {
+        const treeCtrl = asTreeCtrl(ctrl);
+        if (treeCtrl) {
+            const target = goToStart ? treeCtrl.getTreeLineStartPath?.() : treeCtrl.getTreeLineEndPath?.();
+            if (target !== undefined) treeCtrl.activateTreePath?.(target);
+            return;
+        }
+        selectMove(ctrl, goToStart ? 0 : ctrl.steps.length - 1);
+    };
+
     let buttons = [
         h('button', { on: { click: () => ctrl.flipBoards() }, props: { title: _('Flip boards')} }, [ h('i.icon.icon-refresh') ]),
         h('button', { on: { click: () => ctrl.switchBoards() }, props: { title: _('Switch boards')} }, [ h('i.icon.icon-exchange') ]),
-        h('button', { on: { click: () => selectMove(ctrl, 0) } }, [ h('i.icon.icon-fast-backward') ]),
-        h('button', { on: { click: () => selectMove(ctrl, ctrl.ply - 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-backward') ]),
-        h('button', { on: { click: () => selectMove(ctrl, ctrl.ply + 1, ctrl.plyVari) } }, [ h('i.icon.icon-step-forward') ]),
-        h('button', { on: { click: () => selectMove(ctrl, ctrl.steps.length - 1) } }, [ h('i.icon.icon-fast-forward') ]),
+        h('button', { on: { click: () => selectVariationBound(true) } }, [ h('i.icon.icon-fast-backward') ]),
+        h('button', { on: { click: () => {
+            const treeCtrl = asTreeCtrl(ctrl);
+            if (treeCtrl) {
+                const target = treeCtrl.getTreeParentPath?.();
+                if (target !== undefined) treeCtrl.activateTreePath?.(target);
+            } else {
+                selectMove(ctrl, ctrl.ply - 1, 0);
+            }
+        } } }, [ h('i.icon.icon-step-backward') ]),
+        h('button', { on: { click: () => {
+            const treeCtrl = asTreeCtrl(ctrl);
+            if (treeCtrl) {
+                const target = treeCtrl.getTreeMainChildPath?.();
+                if (target !== undefined) treeCtrl.activateTreePath?.(target);
+            } else {
+                selectMove(ctrl, ctrl.ply + 1, 0);
+            }
+        } } }, [ h('i.icon.icon-step-forward') ]),
+        h('button', { on: { click: () => selectVariationBound(false) } }, [ h('i.icon.icon-fast-forward') ]),
     ];
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', buttons));
 }
@@ -90,7 +166,383 @@ function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number, cls: stri
     }
 }
 
+function treePathContains(outerPath: string, innerPath: string | undefined): boolean {
+    if (innerPath === undefined) return false;
+    return innerPath === outerPath || innerPath.startsWith(`${outerPath}.`);
+}
+
+function parseTreeMove(move: string | undefined): ParsedTreeMove {
+    if (!move || move === '?') return { san: move ?? '' };
+
+    const match = move.match(/^(.*?)(\?\?|\!\!|\!\?|\?\!|\!|\?)$/);
+    if (!match) return { san: move };
+
+    const [, san, glyphText] = match;
+    const glyphClass: Record<string, MoveGlyphClass> = {
+        '!': 'good',
+        '?': 'mistake',
+        '!!': 'brilliant',
+        '??': 'blunder',
+        '!?': 'interesting',
+        '?!': 'inaccuracy',
+    };
+
+    return {
+        san,
+        glyph: {
+            text: glyphText,
+            cls: glyphClass[glyphText],
+        },
+    };
+}
+
+function renderTreeMoveText(prefix: string, move: string | undefined): VNode[] {
+    const parsed = parseTreeMove(move);
+    const sanText = prefix ? `${prefix} ${parsed.san}` : parsed.san;
+    const nodes: VNode[] = [h('san', sanText)];
+
+    if (parsed.glyph) {
+        nodes.push(h(`glyph.${parsed.glyph.cls}`, parsed.glyph.text));
+    }
+
+    return nodes;
+}
+
+function isTheoreticalMove(
+    ply: number,
+    status: number,
+    recordedMainlinePly: number | undefined,
+) {
+    return status >= 0 && recordedMainlinePly !== undefined && ply > recordedMainlinePly;
+}
+
+function treeDiscloseState(node: AnalysisTreeNode): TreeDiscloseState {
+    if (node.children.length < 2) return undefined;
+    return node.collapsed ? 'collapsed' : 'expanded';
+}
+
+function renderTreeVariationMove(
+    ctrl: TreeCtrl,
+    node: AnalysisTreeNode,
+    disclosureParentPath = '',
+    disclosureState?: TreeDiscloseState,
+): VNode {
+    const activePath = ctrl.getTreeActivePath?.();
+    const currentline = treePathContains(node.path, activePath);
+    const recordedMainlinePly = ctrl.recordedMainlinePly;
+    const theoretical =
+        node.mainlinePly === undefined
+        || (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
+    const recorded = node.mainlinePly !== undefined && !theoretical;
+    const disclosureButton =
+        disclosureState
+            ? h('button.disclosure', {
+                class: { expanded: disclosureState === 'expanded' },
+                on: {
+                    click: (event: MouseEvent) => {
+                        event.stopPropagation();
+                        ctrl.toggleTreeCollapsed?.(disclosureParentPath);
+                    },
+                },
+            })
+            : undefined;
+
+    return h('vari-move', {
+        class: {
+            active: node.path === ctrl.getTreeActivePath?.(),
+            selected: node.path === ctrl.getTreeSelectedChildPath?.(),
+            currentline,
+            recorded,
+            theoretical,
+            branchpoint: node.children.length > 1,
+        },
+        attrs: { ply: node.ply, 'data-path': node.path },
+        on: {
+            click: () => ctrl.activateTreePath?.(node.path),
+            contextmenu: (event: MouseEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+                ctrl.openTreeContextMenu?.(node.path, event.clientX, event.clientY);
+            },
+        },
+    }, [
+        disclosureButton,
+        ...renderTreeMoveText(bugMovePrefix(node.step), node.step.san),
+    ]);
+}
+
+function renderTreeVariationSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[]): VNode[] {
+    const [child, ...siblings] = nodes;
+    if (!child) return [];
+
+    const moves: VNode[] = [];
+    let current: AnalysisTreeNode | undefined = child;
+    let branchSiblings = siblings;
+    let currentParentPath = parentPath(child.path);
+    let currentParentDisclose = ctrl.analysisTree
+        ? treeDiscloseState(nodeAtPath(ctrl.analysisTree, currentParentPath) ?? ctrl.analysisTree.root)
+        : undefined;
+
+    while (current) {
+        moves.push(renderTreeVariationMove(ctrl, current, currentParentPath, currentParentDisclose));
+        if (currentParentDisclose !== 'collapsed') {
+            branchSiblings.forEach((sideline) => {
+                moves.push(h('inline', renderTreeVariationSequence(ctrl, [sideline])));
+            });
+        }
+        branchSiblings = [];
+        if (!current.collapsed) {
+            current.children.slice(1).forEach((sideline) => {
+                moves.push(h('inline', renderTreeVariationSequence(ctrl, [sideline])));
+            });
+        }
+        currentParentPath = current.path;
+        currentParentDisclose = treeDiscloseState(current);
+        current = current.children[0];
+    }
+
+    return moves;
+}
+
+function renderTreeVariationRows(ctrl: TreeCtrl, nodes: AnalysisTreeNode[]): VNode[] {
+    return nodes.map((node, idx) =>
+        h(`vari#tree-vari-${idx}-${node.path.replace(/\./g, '-')}`, { class: { 'tree-variation': true } }, [
+            ...renderTreeVariationSequence(ctrl, [node]),
+        ])
+    );
+}
+
+function getDisplayedMainlineNodes(tree: { root: AnalysisTreeNode }): AnalysisTreeNode[] {
+    const nodes: AnalysisTreeNode[] = [];
+    let current = tree.root.children[0];
+    while (current && !current.forceVariation) {
+        nodes.push(current);
+        current = current.children[0];
+    }
+    return nodes;
+}
+
+function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
+    const menu = ctrl.getTreeContextMenu?.();
+    if (!menu) return undefined;
+
+    const current = ctrl.getTreeNodeAtPath?.(menu.path);
+    if (!current) return undefined;
+
+    const onMainline = (ctrl.pathIsTreeMainline?.(menu.path) ?? true) && !(ctrl.pathIsTreeForcedVariation?.(menu.path) ?? false);
+    const canPromote = ctrl.canPromoteTreeVariation?.(menu.path) ?? false;
+    const actions: VNode[] = [];
+    const action = (iconClass: TreeMenuIconClass, text: string, onClick: () => void) =>
+        h('button', {
+            on: { click: onClick },
+        }, [
+            h(`i.icon.${iconClass}`),
+            h('span', text),
+        ]);
+    const positionMenu = (el: HTMLElement) => {
+        const container = el.offsetParent as HTMLElement | null;
+        if (!container) return;
+
+        const minLeft = container.scrollLeft + 4;
+        const maxLeft = container.scrollLeft + container.clientWidth - el.offsetWidth - 4;
+        const minTop = container.scrollTop + 4;
+        const maxTop = container.scrollTop + container.clientHeight - el.offsetHeight - 4;
+
+        el.style.left = `${Math.max(minLeft, Math.min(menu.x, maxLeft))}px`;
+        el.style.top = `${Math.max(minTop, Math.min(menu.y, maxTop))}px`;
+    };
+
+    if (canPromote) {
+        actions.push(action('icon-arrow-up-right', _('Promote variation'), () => ctrl.promoteTreeVariation?.(menu.path, false)));
+    }
+
+    if (!onMainline) {
+        actions.push(action('icon-check', _('Make main line'), () => ctrl.promoteTreeVariation?.(menu.path, true)));
+    }
+
+    if (menu.path && onMainline) {
+        actions.push(action('icon-arrow-down-right', _('Convert to variation'), () => ctrl.forceTreeVariation?.(menu.path, true)));
+    }
+
+    if (ctrl.someTreeCollapsed?.(false)) {
+        actions.push(action('icon-download', _('Collapse all'), () => ctrl.collapseAllTree?.()));
+    }
+
+    if (ctrl.someTreeCollapsed?.(true)) {
+        actions.push(action('icon-plus-square', _('Expand all'), () => ctrl.expandAllTree?.()));
+    }
+
+    actions.push(action(
+        'icon-clipboard',
+        onMainline ? _('Copy main line PGN') : _('Copy variation PGN'),
+        () => ctrl.copyTreeLinePgn?.(menu.path),
+    ));
+
+    if (menu.path) {
+        actions.push(action('icon-trash-o', _('Delete from here'), () => ctrl.deleteTreeNode?.(menu.path)));
+    }
+
+    return h('div.tree-context-menu', {
+        hook: {
+            insert: (vnode) => positionMenu(vnode.elm as HTMLElement),
+            postpatch: (_oldVnode, vnode) => positionMenu(vnode.elm as HTMLElement),
+        },
+        on: {
+            click: (event: MouseEvent) => event.stopPropagation(),
+        },
+    }, [
+        h('div.title', `${bugMovePrefix(current.step)} ${current.step.san ?? _('Start position')}`),
+        ...actions,
+    ]);
+}
+
 export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, full = true, activate = true, needResult = true) {
+    const treeCtrl = asTreeCtrl(ctrl);
+    if (treeCtrl) {
+        if (ctrl.steps.length <= 1) {
+            const container = document.getElementById('movelist') as HTMLElement;
+            ctrl.vmovelist = patch(container, h('div#movelist', { class: { 'bug-analysis-tree': true } }));
+            return;
+        }
+
+        const moves: VNode[] = [];
+        let lastColIdx = 0;
+        let didWeRenderVariSectionAfterLastMove = false;
+        let didWeRenderChatSectionAfterLastMove = false;
+        const displayedMainline = treeCtrl.analysisTree ? getDisplayedMainlineNodes(treeCtrl.analysisTree) : [];
+        const rootChildren =
+            treeCtrl.analysisTree?.root.children[0]?.forceVariation
+                ? treeCtrl.analysisTree.root.children
+                : treeCtrl.analysisTree?.root.children.slice(1) ?? [];
+
+        if (treeCtrl.analysisTree && !treeCtrl.analysisTree.root.collapsed) {
+            moves.push(...renderTreeVariationRows(treeCtrl, rootChildren));
+        }
+
+        for (const mainlineNode of displayedMainline) {
+            const step = mainlineNode.step;
+            const ply = mainlineNode.ply;
+            const move = step.san;
+            if (move === null) continue;
+
+            const colIdx = step.boardName === 'a'
+                ? step.turnColor === 'black' ? 1 : 2
+                : step.turnColor === 'black' ? 3 : 4;
+
+            if (didWeRenderVariSectionAfterLastMove) {
+                fillWithEmpty(moves, colIdx - 1);
+                didWeRenderVariSectionAfterLastMove = false;
+            } else {
+                const countOfEmptyCellsToAdd = colIdx > lastColIdx ? colIdx - lastColIdx - 1 : 4 + colIdx - lastColIdx - 1;
+                fillWithEmpty(moves, countOfEmptyCellsToAdd);
+            }
+
+            if (didWeRenderChatSectionAfterLastMove) {
+                fillWithEmpty(moves, lastColIdx, '.ch', '' + (ply - 1), 'display: none');
+                didWeRenderChatSectionAfterLastMove = false;
+            }
+            lastColIdx = colIdx;
+
+            const currentline = mainlineNode ? treePathContains(mainlineNode.path, treeCtrl.getTreeActivePath?.()) : false;
+            const theoretical =
+                mainlineNode?.mainlinePly === undefined
+                || (mainlineNode?.mainlinePly !== undefined && isTheoreticalMove(mainlineNode.mainlinePly, ctrl.status, treeCtrl.recordedMainlinePly));
+            const recorded = !!mainlineNode && mainlineNode.mainlinePly !== undefined && !theoretical;
+            const moveEl = mainlineNode
+                ? renderTreeMoveText('', move)
+                : [h('san', move)];
+            const scoreStr = step['scoreStr'] ?? '';
+            moveEl.push(h('eval#ply' + ply, scoreStr));
+            let chats: VNode | undefined = undefined;
+            if (step.chat) {
+                const chatMessages: VNode[] = [];
+                for (const x of step.chat) {
+                    const time = formatChatMessageTime(x);
+                    const m = x.message.replace('!bug!', '');
+                    const displayUser = displayUsername(x.username);
+                    const userNode = isAnonUsername(x.username)
+                        ? h("span", displayUser)
+                        : h("a", { attrs: { href: "/@/" + x.username } }, displayUser);
+                    chatMessages.push(h("li.message", [
+                        h("div.time", time),
+                        h("user", userNode),
+                        x.message.indexOf('!bug') > -1 ? h('div.bugchat.' + m, []) : h('div', [x.message]),
+                    ]));
+                }
+                chats = h("ol.bugchatpopup.chat", chatMessages);
+                didWeRenderChatSectionAfterLastMove = true;
+            }
+
+            const branchPoint =
+                treeCtrl.analysisTree && mainlineNode
+                    ? nodeAtPath(treeCtrl.analysisTree, parentPath(mainlineNode.path)) ?? treeCtrl.analysisTree.root
+                    : undefined;
+            const disclosureButton =
+                branchPoint && branchPoint.children.length > 1
+                    ? h('button.disclosure', {
+                        class: { expanded: !branchPoint.collapsed },
+                        on: {
+                            click: (event: MouseEvent) => {
+                                event.stopPropagation();
+                                treeCtrl.toggleTreeCollapsed?.(branchPoint.path);
+                            },
+                        },
+                    })
+                    : undefined;
+            moves.push(h('move-bug.counter', getLocalMoveNum(step)));
+            moves.push(h('move-bug', {
+                class: {
+                    active: mainlineNode?.path === treeCtrl.getTreeActivePath?.(),
+                    currentline,
+                    selected: mainlineNode?.path === treeCtrl.getTreeSelectedChildPath?.(),
+                    recorded,
+                    theoretical,
+                    branchpoint: !!mainlineNode && mainlineNode.children.length > 1,
+                    haschat: !!step.chat,
+                },
+                attrs: { ply: ply },
+                on: {
+                    click: () => selectMainlineMove(ctrl, ply),
+                    contextmenu: (event: MouseEvent) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        if (mainlineNode) treeCtrl.openTreeContextMenu?.(mainlineNode.path, event.clientX, event.clientY);
+                    },
+                },
+            }, disclosureButton ? [disclosureButton, ...moveEl] : moveEl));
+            if (chats) moves.push(chats);
+
+            const variationChildren = mainlineNode.children[0]?.forceVariation
+                ? mainlineNode.children
+                : mainlineNode.children.slice(1);
+            if (variationChildren.length > 0 && !mainlineNode.collapsed) {
+                moves.push(...renderTreeVariationRows(treeCtrl, variationChildren));
+                didWeRenderVariSectionAfterLastMove = true;
+            }
+
+            if (mainlineNode.children[0]?.forceVariation) break;
+        }
+
+        if (ctrl.status >= 0 && needResult) {
+            const teamFirst = displayUsername(ctrl.teamFirst[0][0]) + "+" + displayUsername(ctrl.teamFirst[1][0]);
+            const teamSecond = displayUsername(ctrl.teamSecond[0][0]) + "+" + displayUsername(ctrl.teamSecond[1][0]);
+            moves.push(h('div.result', ctrl.result));
+            moves.push(h('div.status', result(ctrl.b1.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
+        }
+        const contextMenu = renderTreeContextMenu(treeCtrl);
+        if (contextMenu) moves.push(contextMenu);
+
+        const container = document.getElementById('movelist') as HTMLElement;
+        if (full) {
+            while (container.lastChild) {
+                container.removeChild(container.lastChild);
+            }
+        }
+        ctrl.vmovelist = patch(container, h('div#movelist', { class: { 'bug-analysis-tree': true } }, moves));
+        if (activate) scrollToPly(ctrl);
+        return;
+    }
+
     const plyFrom = (full) ? 1 : ctrl.steps.length -1;
     if (plyFrom === 0) return; // that is the very initial message with single dummy step. No moves yet
 
@@ -162,35 +614,6 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
         moves.push(el);
         if (chats) moves.push(chats);
 
-        if (ctrl.steps[ply]['vari'] !== undefined && "plyVari" in ctrl) {
-            const variMoves = ctrl.steps[ply]['vari'];
-
-            // if (ply % 2 !== 0) moves.push(h('move-bug', '...'));
-
-            let plyAVari = ctrl.steps[ply].plyA!;
-            let plyBVari = ctrl.steps[ply].plyB!;
-
-            moves.push(h('vari#vari' + ctrl.plyVari,
-                variMoves?
-                    variMoves.map((x: Step, idx: number) => {
-                    const currPlyGlobal = ctrl.plyVari + idx;
-                    const currPlyBoard = x.boardName ==='a'? ++plyAVari: ++plyBVari;
-                    const boardName = x.turnColor === 'white'? x.boardName: x.boardName!.toUpperCase();
-                    const moveCounter = Math.floor((currPlyBoard + 1) / 2) + boardName! + '. ';
-                    return h('vari-move', {
-                        attrs: { ply: currPlyGlobal },
-                        on: { click: () => selectMove(ctrl, ctrl.plyVari + idx, ctrl.plyVari) },
-                        }, [ h('san', moveCounter + x['san']) ]
-                    );
-                }) : []
-            ));
-
-            // if (ply % 4 == 1) {
-            //     moves.push(h('move.counter', (ply + 1) / 2));
-            //     moves.push(h('move-bug', '...'));
-            // }
-            didWeRenderVariSectionAfterLastMove = true;
-        }
     }
 
     if (ctrl.status >= 0 && needResult) {
