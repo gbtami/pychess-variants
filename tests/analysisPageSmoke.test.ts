@@ -261,7 +261,7 @@ describe('analysis tree movelist gating', () => {
         expect(movelist.querySelector('move.counter')).not.toBeNull();
     });
 
-    test('disclosure mode hides collapsed sidelines but leaves them visible when disabled', () => {
+    test('disclosure mode hides buttons but still respects collapsed sidelines when disabled', () => {
         document.body.innerHTML = '<div id="movelist"></div>';
 
         const steps: Step[] = [
@@ -302,7 +302,8 @@ describe('analysis tree movelist gating', () => {
 
         ctrl.isTreeDisclosureMode = () => false;
         updateMovelist(ctrl, true, false, false);
-        expect(document.getElementById('movelist')!.textContent).toContain('c5');
+        expect(document.getElementById('movelist')!.textContent).not.toContain('c5');
+        expect(document.querySelector('#movelist button.disclosure')).toBeNull();
     });
 
     test('inline notation keeps sibling sidelines as siblings, not nested sub-variations', () => {

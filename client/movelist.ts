@@ -55,8 +55,8 @@ interface ParsedTreeMove {
     };
 }
 
-function treeDiscloseState(ctrl: TreeCtrl, node: AnalysisTreeNode): TreeDiscloseState {
-    if (!(ctrl.isTreeDisclosureMode?.() ?? false) || node.children.length < 2) return undefined;
+function treeDiscloseState(node: AnalysisTreeNode): TreeDiscloseState {
+    if (node.children.length < 2) return undefined;
     return node.collapsed ? 'collapsed' : 'expanded';
 }
 
@@ -273,8 +273,9 @@ function renderTreeMove(
         || (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
     const currentline = treePathContains(path, activePath);
     const recorded = node.mainlinePly !== undefined && !theoretical;
+    const showDisclosureButtons = ctrl.isTreeDisclosureMode?.() ?? false;
     const disclosureButton =
-        parentDisclose
+        parentDisclose && showDisclosureButtons
             ? h('button.disclosure', {
                 class: { expanded: parentDisclose === 'expanded' },
                 on: {
@@ -379,7 +380,7 @@ function renderTreeBranch(
         }
 
         currentParentPath = currentNode.path;
-        currentParentDisclose = treeDiscloseState(ctrl, currentNode);
+        currentParentDisclose = treeDiscloseState(currentNode);
         currentBranchSiblings = currentNode.children.slice(1);
         current = currentNode.children[0];
         isFirst = false;
@@ -393,7 +394,7 @@ function renderTreeMovelist(ctrl: TreeCtrl): VNode[] {
     const rootTurnColor = root.step.turnColor;
     const moves: VNode[] = [];
     const mainline = root.children[0];
-    const rootDisclose = treeDiscloseState(ctrl, root);
+    const rootDisclose = treeDiscloseState(root);
     if (mainline) moves.push(...renderTreeBranch(ctrl, mainline, root.children.slice(1), false, rootTurnColor, true, '', rootDisclose));
     return moves;
 }
@@ -460,8 +461,9 @@ function renderTreeColumnMove(
         || (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
     const currentline = treePathContains(path, activePath);
     const recorded = node.mainlinePly !== undefined && !theoretical;
+    const showDisclosureButtons = ctrl.isTreeDisclosureMode?.() ?? false;
     const disclosureButton =
-        parentDisclose
+        parentDisclose && showDisclosureButtons
             ? h('button.disclosure', {
                 class: { expanded: parentDisclose === 'expanded' },
                 on: {
@@ -535,7 +537,7 @@ function renderTreeLineSequence(
     if (child.children.length > 0) {
         const childArgs = {
             ...nextTreeColumnArgs(child, args, false),
-            parentDisclose: treeDiscloseState(ctrl, child),
+            parentDisclose: treeDiscloseState(child),
         };
         if (args.flowInline || child.children.length < 2 || childArgs.parenthetical) {
             moves.push(...renderTreeLineSequence(ctrl, child.children, childArgs));
@@ -620,7 +622,7 @@ function renderTreeColumnNodes(
     if (child.children.length > 0) {
         out.push(...renderTreeColumnNodes(ctrl, child.children, {
             ...nextTreeColumnArgs(child, args, true),
-            parentDisclose: treeDiscloseState(ctrl, child),
+            parentDisclose: treeDiscloseState(child),
         }));
     }
 
@@ -641,7 +643,7 @@ function renderTreeColumnMovelist(ctrl: TreeCtrl): VNode[] {
         rootTurnColor: root.step.turnColor,
         parentNode: root,
         parentPath: '',
-        parentDisclose: treeDiscloseState(ctrl, root),
+        parentDisclose: treeDiscloseState(root),
         firstInVariation: false,
         flowInline: false,
     }));
