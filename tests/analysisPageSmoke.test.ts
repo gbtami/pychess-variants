@@ -305,6 +305,50 @@ describe('analysis tree movelist gating', () => {
         expect(document.getElementById('movelist')!.textContent).toContain('c5');
     });
 
+    test('inline notation keeps sibling sidelines as siblings, not nested sub-variations', () => {
+        document.body.innerHTML = '<div id="movelist"></div>';
+
+        const steps: Step[] = [
+            makeStep('start w - - 0 1', undefined, 'white'),
+            makeStep('s1 b - - 0 1', 'e2e4', 'black', 'e4'),
+            makeStep('s2 w - - 0 1', 'e7e5', 'white', 'e5'),
+            makeStep('s3 b - - 0 1', 'g1f3', 'black', 'Nf3'),
+            makeStep('s4 w - - 0 1', 'g8f6', 'white', 'Nf6'),
+        ];
+        const tree = createAnalysisTree(steps);
+        const blackReplyPath = mainlinePathAtPly(tree, 3);
+        addOrSelectChild(tree, blackReplyPath, makeStep('v1 w - - 0 1', 'h7h6', 'white', 'h6'), false);
+        addOrSelectChild(tree, blackReplyPath, makeStep('v2 w - - 0 1', 'd7d5', 'white', 'd5'), false);
+
+        const ctrl = {
+            steps,
+            status: -1,
+            result: '*',
+            ply: 4,
+            plyVari: 0,
+            vmovelist: document.getElementById('movelist'),
+            variant: { name: 'chess' },
+            fog: false,
+            mycolor: 'white',
+            spectator: true,
+            analysisTree: tree,
+            hasAnalysisTree: () => true,
+            isTreeInlineNotation: () => true,
+            isTreeDisclosureMode: () => false,
+            getTreeActivePath: () => mainlinePathAtPly(tree, 4),
+            getTreeSelectedChildPath: () => undefined,
+            activateTreePath: () => undefined,
+            toggleTreeCollapsed: () => undefined,
+        } as any;
+
+        updateMovelist(ctrl, true, false, false);
+
+        const sans = [...document.querySelectorAll('#movelist san')].map((el) => el.textContent);
+        expect(sans.filter((san) => san === 'h6')).toHaveLength(1);
+        expect(sans.filter((san) => san === 'd5')).toHaveLength(1);
+        expect(document.querySelectorAll('#movelist inline inline')).toHaveLength(0);
+    });
+
     test('column disclosure button is rendered on the branched reply move', () => {
         document.body.innerHTML = '<div id="movelist"></div>';
 

@@ -33,7 +33,9 @@ uv run server/server.py
 ```
 
 ### Testing and Quality
-Note: Always run all linting and testing commands for any change.
+Note: Run linting and tests based on change scope.
+Note: For client-only changes (TypeScript/CSS/static UI only, with no Python/server files touched), run frontend checks (`yarn typecheck`, `yarn test`) and skip server-side Python linting/tests.
+Note: If any Python/server code is changed, run the Python quality/test commands listed below in addition to relevant frontend checks.
 Note: This repo uses `uv` and the project `.venv` so Python commands should run via `uv run ...` unless you have explicitly activated `.venv`.
 Note: Before committing any Python change, run both `ruff format .` and `ruff check .` even for small edits.
 Note: When running pyright in a sandboxed Codex environment, request escalated permissions so pyright can read the system Python search paths (e.g., `/usr/lib/python3.13`, site-packages) and match CI behavior.

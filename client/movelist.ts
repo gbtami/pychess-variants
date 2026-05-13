@@ -338,11 +338,11 @@ function renderTreeBranch(
         const currentNode: AnalysisTreeNode = current;
         if (isMainline && currentNode.forceVariation) {
             if (currentParentDisclose !== 'collapsed') {
-                [currentNode, ...currentBranchSiblings].forEach((sideline, idx) => {
+                [currentNode, ...currentBranchSiblings].forEach((sideline) => {
                     out.push(h('inline', renderTreeBranch(
                         ctrl,
                         sideline,
-                        [currentNode, ...currentBranchSiblings].slice(idx + 1),
+                        [],
                         true,
                         rootTurnColor,
                         false,
@@ -364,11 +364,11 @@ function renderTreeBranch(
             currentParentDisclose,
         ));
         if (currentParentDisclose !== 'collapsed') {
-            currentBranchSiblings.forEach((sideline, idx) => {
+            currentBranchSiblings.forEach((sideline) => {
                 out.push(h('inline', renderTreeBranch(
                     ctrl,
                     sideline,
-                    currentBranchSiblings.slice(idx + 1),
+                    [],
                     true,
                     rootTurnColor,
                     false,
