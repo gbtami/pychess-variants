@@ -2,9 +2,41 @@
     grid-column: 2 / span 2;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(0, 1fr);
     width: 100%;
     height: 100%;
     gap: 10px;
+}
+
+/* Layer 2 button content needs to compress gracefully when rows increase
+   (for categories with many variants). */
+.button-grid .layer-2-category {
+    justify-content: center;
+    align-items: flex-start;
+    padding: 6px 8px;
+    text-transform: none;
+}
+
+.button-grid .variant-title-l2 {
+    width: 100%;
+    margin-bottom: 4px;
+    gap: 4px;
+    font-size: 0.75rem;
+    line-height: 1.1;
+}
+
+.button-grid .variant-title-l2 h3 {
+    margin: 0;
+    font-size: clamp(0.88rem, 1vw, 1.02rem);
+    line-height: 1.1;
+}
+
+.button-grid .variant-extra-info {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: clamp(0.68rem, 0.85vw, 0.84rem);
+    line-height: 1.2;
 }
 
 .layer-2-container {
