@@ -32,9 +32,10 @@
   --game-hover: #d1e6fa;
   --green-hover: #89b25b;
   --green-switch: #629924;
-  --blue-active: color-mix(in srgb, var(--blue-hover) 85%, transparent);
+  --blue-active: #d1e4f6;
   --blue-passive: #c5d8e9;
   --blue-hover: #1b78d0;
+  --move-active: color-mix(in srgb, var(--blue-hover) 85%, transparent);
   --invite-game: #eff5e9;
   --notify-new: #d5e3c4;
   --good: #629924;
@@ -112,9 +113,10 @@
   --bg-input: #24221e;
   --game-hover: #223344;
   --green-hover: #537c23;
-  --blue-active: color-mix(in srgb, var(--blue-hover) 85%, transparent);
+  --blue-active: #293a49;
   --blue-passive: #33312e;
   --blue-hover: #3692e7;
+  --move-active: color-mix(in srgb, var(--blue-hover) 85%, transparent);
   --invite-game: #2c3021;
   --notify-new: #465330;
   --gold: #bf811d;
@@ -2452,7 +2454,7 @@ move-bug:hover {
 vari-move.active,
 move.active,
 move-bug.active {
-  background-color: var(--blue-active);
+  background-color: var(--move-active);
 }
 move.hidden {
   visibility: hidden;
@@ -2534,7 +2536,7 @@ vari-move {
 }
 
 #movelist.bug-analysis-tree vari.tree-variation vari-move.selected:not(.active) {
-  outline: 1px solid var(--blue-active);
+  outline: 1px solid var(--move-active);
   outline-offset: -1px;
 }
 
@@ -2546,29 +2548,29 @@ vari-move {
 
 #movelist.bug-analysis-tree move-bug.recorded:not(.active),
 #movelist.bug-analysis-tree vari.tree-variation vari-move.recorded:not(.active) {
-  color: color-mix(in srgb, var(--font-color) 94%, var(--blue-active));
+  color: color-mix(in srgb, var(--font-color) 94%, var(--move-active));
 }
 
 #movelist.bug-analysis-tree move-bug.branchpoint:not(.active) button.disclosure,
 #movelist.bug-analysis-tree vari.tree-variation vari-move.branchpoint:not(.active) button.disclosure {
-  border-color: color-mix(in srgb, var(--blue-active) 35%, transparent);
-  color: color-mix(in srgb, var(--font-color) 55%, var(--blue-active));
+  border-color: color-mix(in srgb, var(--move-active) 35%, transparent);
+  color: color-mix(in srgb, var(--font-color) 55%, var(--move-active));
 }
 
 #movelist.bug-analysis-tree move-bug:hover,
 #movelist.bug-analysis-tree vari.tree-variation vari-move:hover {
   color: var(--font-color);
-  background: color-mix(in srgb, var(--blue-active) 68%, var(--bg-color2));
+  background: color-mix(in srgb, var(--move-active) 68%, var(--bg-color2));
 }
 
 #movelist.bug-analysis-tree move-bug.currentline:hover:not(.active),
 #movelist.bug-analysis-tree vari.tree-variation vari-move.currentline:hover:not(.active) {
-  background: color-mix(in srgb, var(--blue-active) 68%, var(--bg-color2));
+  background: color-mix(in srgb, var(--move-active) 68%, var(--bg-color2));
 }
 
 #movelist.bug-analysis-tree move-bug.active:hover,
 #movelist.bug-analysis-tree vari.tree-variation vari-move.active:hover {
-  background: var(--blue-active);
+  background: var(--move-active);
 }
 
 #movelist.bug-analysis-tree glyph {
@@ -2694,7 +2696,6 @@ vari-move {
   border-radius: 3px;
   box-sizing: border-box;
   cursor: pointer;
-  font-weight: bold;
   color: var(--font-color);
   transition: background-color 120ms ease, box-shadow 120ms ease, color 120ms ease, opacity 120ms ease;
 }
@@ -2738,7 +2739,7 @@ vari-move {
   #movelist.tview2.analysis-tree move.active button.disclosure:hover {
     background: color-mix(in srgb, #fff 84%, transparent);
     border-color: color-mix(in srgb, #fff 45%, transparent);
-    color: var(--blue-active);
+    color: var(--move-active);
   }
 }
 
@@ -2748,15 +2749,15 @@ vari-move {
 }
 
 #movelist.tview2.analysis-tree move.recorded:not(.active) {
-  color: color-mix(in srgb, var(--font-color) 94%, var(--blue-active));
+  color: color-mix(in srgb, var(--font-color) 94%, var(--move-active));
 }
 
 #movelist.tview2.analysis-tree move.currentline:not(.active) {
 }
 
 #movelist.tview2.analysis-tree move.branchpoint:not(.active) button.disclosure {
-  border-color: color-mix(in srgb, var(--blue-active) 35%, var(--tree-border));
-  color: color-mix(in srgb, var(--font-color) 55%, var(--blue-active));
+  border-color: color-mix(in srgb, var(--move-active) 35%, var(--tree-border));
+  color: color-mix(in srgb, var(--font-color) 55%, var(--move-active));
 }
 
 #movelist.tview2.analysis-tree .tree-context-menu {
@@ -2814,31 +2815,31 @@ vari-move {
 
 #movelist.tview2.analysis-tree move.active {
   color: #fff;
-  background: var(--blue-active);
+  background: var(--move-active);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 18%, transparent);
 }
 
 #movelist.tview2.analysis-tree move.active index {
   color: #fff;
-  background: var(--blue-active);
+  background: var(--move-active);
 }
 
 #movelist.tview2.analysis-tree move.selected:not(.active) {
-  outline: 1px solid var(--blue-active);
+  outline: 1px solid var(--move-active);
   outline-offset: -1px;
 }
 
 #movelist.tview2.analysis-tree move:hover {
   color: var(--font-color);
-  background: color-mix(in srgb, var(--blue-active) 68%, var(--bg-color2));
+  background: color-mix(in srgb, var(--move-active) 68%, var(--bg-color2));
 }
 
 #movelist.tview2.analysis-tree move.currentline:hover:not(.active) {
-  background: color-mix(in srgb, var(--blue-active) 68%, var(--bg-color2));
+  background: color-mix(in srgb, var(--move-active) 68%, var(--bg-color2));
 }
 
 #movelist.tview2.analysis-tree move.active:hover {
-  background: var(--blue-active);
+  background: var(--move-active);
 }
 
 #movelist.tview2.analysis-tree eval {
