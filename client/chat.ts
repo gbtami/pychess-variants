@@ -182,6 +182,7 @@ export function chatMessage (
             ? h("span", { style: { color: usernameColorMap[displayUser] || "#aaa" } }, displayUser)
             : h("a", {
                 attrs: { href: "/@/" + user },
+                class: { "user-link": true },
                 style: { color: usernameColorMap[displayUser] || "#aaa" }
             }, displayUser);
         patch(container, h('div#messages', [

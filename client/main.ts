@@ -38,6 +38,7 @@ import { variantsIni } from './variantsIni';
 import { showUsernameDialog } from './usernameDialog';
 import { maybeShowGameCategoryIntro } from './gameCategoryIntro';
 import { initTournamentForm } from './tournamentForm';
+import { initUserMiniWidget } from './userMiniWidget';
 
 
 // redirect to correct URL except Heroku preview/dev apps
@@ -231,6 +232,8 @@ function start() {
     }
 
     if (model["embed"]) return;
+
+    initUserMiniWidget(model.assetURL, model.username, model.anon);
 
     (document.querySelector('.hamburger') as HTMLElement).addEventListener('click', () => {
         document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show'));

@@ -462,7 +462,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
                     const displayUser = displayUsername(x.username);
                     const userNode = isAnonUsername(x.username)
                         ? h("span", displayUser)
-                        : h("a", { attrs: { href: "/@/" + x.username } }, displayUser);
+                        : h("a", { attrs: { href: "/@/" + x.username }, class: { "user-link": true } }, displayUser);
                     chatMessages.push(h("li.message", [
                         h("div.time", time),
                         h("user", userNode),
@@ -589,7 +589,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
                 const displayUser = displayUsername(x.username);
                 const userNode = isAnonUsername(x.username)
                     ? h("span", displayUser)
-                    : h("a", { attrs: {href: "/@/" + x.username} }, displayUser);
+                    : h("a", { attrs: {href: "/@/" + x.username}, class: { "user-link": true } }, displayUser);
                 const v = h("li.message",
                     [h("div.time", time), h("user", userNode),
                         /*h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } }))*/

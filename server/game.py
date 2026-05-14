@@ -623,6 +623,7 @@ class Game:
             if self.result != "*":
                 if self.rated == RATED:
                     await self.update_ratings()
+                await self.update_players_game_counts()
                 if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
                     await self.save_crosstable()
 
@@ -676,6 +677,26 @@ class Game:
                 await self.app_state.db.game.find_one_and_update(
                     {"_id": self.id}, {"$set": new_data}
                 )
+
+    async def update_players_game_counts(self) -> None:
+        if self.result not in ("1-0", "0-1", "1/2-1/2"):
+            return
+
+        rated = self.rated == RATED
+        if self.result == "1-0":
+            white_result = 1
+            black_result = -1
+        elif self.result == "0-1":
+            white_result = -1
+            black_result = 1
+        else:
+            white_result = 0
+            black_result = 0
+
+        if not self.wplayer.anon:
+            await self.wplayer.increment_game_count(white_result, rated)
+        if not self.bplayer.anon:
+            await self.bplayer.increment_game_count(black_result, rated)
 
     def set_crosstable(self) -> None:
         if (

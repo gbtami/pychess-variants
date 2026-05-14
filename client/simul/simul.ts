@@ -8,7 +8,7 @@ import { patch } from '../document';
 import { boardSettings } from '../boardSettings';
 import { chatView, ChatController } from '../chat';
 import { newWebsocket } from "@/socket/webSocketUtils";
-import { displayUsername } from "../user";
+import { displayUsername, userLink } from "../user";
 
 const T_CREATED = 0;
 const T_STARTED = 1;
@@ -433,6 +433,10 @@ export class SimulController implements ChatController {
             ? variantInfo.displayName(this.variantKey.endsWith("960"))
             : this.variantKey;
         const hostName = this.createdBy ? displayUsername(this.createdBy) : '-';
+        const hostLinkNode = () =>
+            this.createdBy
+                ? userLink(this.createdBy, [hostName], { className: 'user-link' })
+                : h('span', hostName);
 
         const alreadyJoined =
             this.players.some(player => player.name === this.model.username) ||
@@ -481,7 +485,7 @@ export class SimulController implements ChatController {
                     ),
                 ]),
                 h('div.box.simul__meta', [
-                    h('div.simul__meta__host', `Host: ${hostName}`),
+                    h('div.simul__meta__host', ['Host: ', hostLinkNode()]),
                     h('div.simul__meta__text', `${variantName} • ${this.formatTimeControl()}`),
                     h('div.simul__meta__games', `${this.games.length} games`),
                     h('div.simul__meta__text.simul__meta__status', simulStatusText),
@@ -498,7 +502,7 @@ export class SimulController implements ChatController {
             ]),
             h('aside.simul__side', [
                 h('div.box.simul__side__host', [
-                    h('span.simul__side__host__text', hostName),
+                    h('span.simul__side__host__text', [hostLinkNode()]),
                 ]),
                 h('div.box.pad', [
                     h('h2.simul__section-title', 'Players'),

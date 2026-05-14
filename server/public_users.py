@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import MINYEAR, datetime, timezone
 from time import monotonic
 from typing import TYPE_CHECKING, Iterable
 
 from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK
 from glicko2.glicko2 import perf_map_with_defaults
-from typing_defs import PerfMap, RelationDocument, UserDocument
+from typing_defs import PerfMap, RelationDocument, UserCount, UserDocument
+from user_stats import normalize_user_count
 from variants import RATED_VARIANTS
 
 if TYPE_CHECKING:
@@ -25,6 +27,8 @@ class PublicProfile:
     title: str
     bot: bool
     enabled: bool
+    created_at: datetime
+    count: UserCount
     perfs: PerfMap
     blocked: frozenset[str]
     oauth_id: str
@@ -60,6 +64,8 @@ class PublicUsers:
             title=user.title,
             bot=user.bot,
             enabled=user.enabled,
+            created_at=user.created_at,
+            count=normalize_user_count(user.count),
             perfs=user.perfs,
             blocked=frozenset(user.blocked),
             oauth_id=user.oauth_id,
@@ -78,6 +84,8 @@ class PublicUsers:
             title=title,
             bot=title == "BOT",
             enabled=doc.get("enabled", True),
+            created_at=doc.get("createdAt", datetime(MINYEAR, 1, 1, tzinfo=timezone.utc)),
+            count=normalize_user_count(doc.get("count")),
             perfs=perf_map_with_defaults(RATED_VARIANTS, doc.get("perfs")),
             blocked=blocked,
             oauth_id=doc.get("oauth_id") or "",
@@ -91,6 +99,8 @@ class PublicUsers:
             title="",
             bot=False,
             enabled=True,
+            created_at=datetime(MINYEAR, 1, 1, tzinfo=timezone.utc),
+            count=normalize_user_count(None),
             perfs=perf_map_with_defaults(RATED_VARIANTS, None),
             blocked=frozenset(),
             oauth_id="",

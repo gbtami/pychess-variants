@@ -74,7 +74,7 @@ export function chatMessageBug (ply: number, ctrl: RoundControllerBughouse, x: S
     const displayUser = displayUsername(user);
     const userNode = isAnonUsername(user)
         ? h("span", displayUser)
-        : h("a", { attrs: { href: "/@/" + user } }, displayUser);
+        : h("a", { attrs: { href: "/@/" + user }, class: { "user-link": true } }, displayUser);
 
     const time = formatChatMessageTime(x);
 

@@ -21,6 +21,7 @@ from security_evasion import (
     is_signup_blocked_by_signals,
     remember_user_signals,
 )
+from user_stats import DEFAULT_USER_COUNT
 from websocket_utils import ws_send_json_many
 from typing_defs import UserDocument
 import logging
@@ -394,6 +395,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
                     "createdAt": now,
                     "perfs": {},
                     "pperfs": {},
+                    "count": dict(DEFAULT_USER_COUNT),
                     "enabled": False,
                     "security": {
                         "lastAutoCloseAt": auto_close_at,
@@ -432,6 +434,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
                 "createdAt": now,
                 "perfs": {},
                 "pperfs": {},
+                "count": dict(DEFAULT_USER_COUNT),
                 "enabled": True,
             }
         )

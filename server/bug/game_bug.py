@@ -303,6 +303,7 @@ class GameBug:
             if self.result != "*":
                 if self.rated == RATED:
                     await self.update_ratings()
+                await self.update_players_game_counts()
 
             if self.tournamentId is not None:
                 try:
@@ -337,6 +338,40 @@ class GameBug:
 
     async def update_ratings(self):
         pass  # todo no rating in bughouse for now
+
+    async def update_players_game_counts(self) -> None:
+        if self.result not in ("1-0", "0-1", "1/2-1/2"):
+            return
+
+        rated = self.rated == RATED
+        if self.result == "1-0":
+            result_by_username = {
+                self.wplayerA.username: 1,
+                self.bplayerB.username: 1,
+                self.bplayerA.username: -1,
+                self.wplayerB.username: -1,
+            }
+        elif self.result == "0-1":
+            result_by_username = {
+                self.bplayerA.username: 1,
+                self.wplayerB.username: 1,
+                self.wplayerA.username: -1,
+                self.bplayerB.username: -1,
+            }
+        else:
+            result_by_username = {
+                self.wplayerA.username: 0,
+                self.bplayerA.username: 0,
+                self.wplayerB.username: 0,
+                self.bplayerB.username: 0,
+            }
+
+        seen: set[str] = set()
+        for player in self.all_players:
+            if player.anon or player.username in seen:
+                continue
+            seen.add(player.username)
+            await player.increment_game_count(result_by_username.get(player.username, 0), rated)
 
     @property
     def corr(self):

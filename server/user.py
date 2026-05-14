@@ -28,6 +28,7 @@ from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK
 from websocket_utils import ws_send_json_many
+from user_stats import normalize_user_count
 
 if TYPE_CHECKING:
     from typing_defs import (
@@ -35,6 +36,7 @@ if TYPE_CHECKING:
         NotificationDocument,
         PerfGl,
         PerfMap,
+        UserCount,
         UserBlocksResponse,
         UserJson,
         UserStatusJson,
@@ -95,6 +97,7 @@ class User:
         title: str = "",
         perfs: PerfMap | None = None,
         pperfs: PerfMap | None = None,
+        count: UserCount | None = None,
         enabled: bool = True,
         lang: str | None = None,
         theme: str = "dark",
@@ -178,6 +181,7 @@ class User:
 
         self.perfs = perf_map_with_defaults(RATED_VARIANTS, perfs)
         self.pperfs = perf_map_with_defaults(RATED_VARIANTS, pperfs)
+        self.count = normalize_user_count(count)
 
         self.enabled: bool = enabled
 
@@ -404,6 +408,32 @@ class User:
             await self.app_state.db.user.find_one_and_update(
                 {"_id": self.username}, {"$set": {"pperfs": self.pperfs}}
             )
+
+    async def increment_game_count(self, result: int, rated: bool) -> None:
+        if self.anon:
+            return
+
+        self.count["game"] += 1
+        if rated:
+            self.count["rated"] += 1
+        if result > 0:
+            self.count["win"] += 1
+        elif result < 0:
+            self.count["loss"] += 1
+        else:
+            self.count["draw"] += 1
+
+        if self.app_state.db is not None:
+            inc = {"count.game": 1}
+            if rated:
+                inc["count.rated"] = 1
+            if result > 0:
+                inc["count.win"] = 1
+            elif result < 0:
+                inc["count.loss"] = 1
+            else:
+                inc["count.draw"] = 1
+            await self.app_state.db.user.update_one({"_id": self.username}, {"$inc": inc})
 
     async def notify_game_end(self, game: Game) -> None:
         opp_name = (

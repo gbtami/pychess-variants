@@ -66,6 +66,7 @@ class Users(UserDict[str, User]):
                 bot=doc.get("title") == "BOT",
                 perfs=doc.get("perfs"),
                 pperfs=doc.get("pperfs"),
+                count=doc.get("count"),
                 enabled=doc.get("enabled", True),
                 lang=doc.get("lang", "en"),
                 theme=doc.get("theme", "dark"),

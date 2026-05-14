@@ -336,7 +336,7 @@ export class TournamentController implements ChatController {
             h('td.rank', [(player.paused && !this.completed()) ? h('i', {class: {"icon": true, "icon-pause": true} }) : index]),
             h('td.player', [
                 h('span.title', player.title),
-                h('span.name', displayUsername(player.name)),
+                userLink(player.name, [displayUsername(player.name)], { className: 'name user-link' }),
                 h('span', player.rating),
             ]),
             h(`td.sheet${fixedRoundSheet ? '.fixed-rounds' : ''}`, [h('div', sheetEntries.map( (s: any | null) => {
@@ -475,7 +475,7 @@ export class TournamentController implements ChatController {
                 h('th', index),
                 h('td.player', [
                     h('span.title', game.title),
-                    h('span.name', displayUsername(game.name)),
+                    userLink(game.name, [displayUsername(game.name)], { className: 'name user-link' }),
                 ]),
                 h('td', game.rating),
                 h('td', [
@@ -553,7 +553,10 @@ export class TournamentController implements ChatController {
         const game = this.topGame;
         const variant = VARIANTS[game.variant];
         const elements = [
-        h('div.player', [h('user', [h('rank', '#' + game.br), displayUsername(game.b)]), h('div#bresult')]),
+        h('div.player', [
+            h('user', [h('rank', '#' + game.br), userLink(game.b, [displayUsername(game.b)], { className: 'user-link' })]),
+            h('div#bresult')
+        ]),
         h(`div#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
             class: { "with-pockets": !!variant.pocket },
             on: { click: () => window.location.assign('/' + game.gameId) }
@@ -580,7 +583,10 @@ export class TournamentController implements ChatController {
                     }
                 }),
         ]),
-        h('div.player', [h('user', [h('rank', '#' + game.wr), displayUsername(game.w)]), h('div#wresult')]),
+        h('div.player', [
+            h('user', [h('rank', '#' + game.wr), userLink(game.w, [displayUsername(game.w)], { className: 'user-link' })]),
+            h('div#wresult')
+        ]),
         ];
 
         patch(document.getElementById('top-game') as HTMLElement, h('div#top-game', elements));
@@ -772,7 +778,25 @@ export class TournamentController implements ChatController {
 
     private onMsgSpectators = (msg: MsgSpectators) => {
         const container = document.getElementById('spectators') as HTMLElement;
-        patch(container, h('under-chat#spectators', _('Spectators: ') + msg.spectators));
+        patch(container, h('under-chat#spectators', this.renderSpectators(msg.spectators)));
+    }
+
+    private renderSpectators(raw: string): Array<VNode | string> {
+        if (/^\d+$/.test(raw)) {
+            return [_('Spectators: '), raw];
+        }
+
+        const parts = raw.split(',').map((part) => part.trim()).filter(Boolean);
+        const children: Array<VNode | string> = [_('Spectators: ')];
+        parts.forEach((part, idx) => {
+            if (idx > 0) children.push(', ');
+            if (part.startsWith('Anonymous(')) {
+                children.push(part);
+            } else {
+                children.push(userLink(part, [displayUsername(part)]));
+            }
+        });
+        return children;
     }
 
     private onMsgUserStatus(msg: MsgUserStatus) {
@@ -849,8 +873,8 @@ export class TournamentController implements ChatController {
 
     private renderDuels(duels: Duel[]) {
         return duels.map(duel => h('a', { attrs: { href : '/' + duel.id } }, [
-            h('line.a', [h('strong', duel.wp), h('span', [h('em.rating', duel.br), h('em.rank', '#' + duel.bk)])]),
-            h('line.b', [h('span', [h('em.rank', '#' + duel.wk), h('em.rating', duel.wr)]), h('strong', duel.bp)]),
+            h('line.a', [h('strong', [userLink(duel.wp, [displayUsername(duel.wp)], { className: 'user-link' })]), h('span', [h('em.rating', duel.br), h('em.rank', '#' + duel.bk)])]),
+            h('line.b', [h('span', [h('em.rank', '#' + duel.wk), h('em.rating', duel.wr)]), h('strong', [userLink(duel.bp, [displayUsername(duel.bp)], { className: 'user-link' })])]),
         ]));
     }
 

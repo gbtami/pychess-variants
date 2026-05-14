@@ -3181,6 +3181,132 @@ div.ctable-container {
   visibility: visible;
 }
 
+.user-mini-widget {
+  position: fixed;
+  z-index: 140;
+  width: min(21rem, calc(100vw - 1rem));
+  background: var(--bg-color0);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: var(--base-shadow);
+  color: var(--font-color);
+}
+.user-mini-widget.hidden {
+  display: none;
+}
+.user-mini-widget__content {
+  padding: 0.55rem;
+}
+.umw-head {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.45rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.umw-head .user-link {
+  color: var(--font-color);
+}
+.umw-status {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  display: inline-block;
+  flex: 0 0 0.55rem;
+}
+.umw-status.online {
+  background: #629924;
+}
+.umw-status.offline {
+  background: #888;
+}
+.umw-perfs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin-bottom: 0.55rem;
+}
+.umw-perf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.25rem;
+  border-radius: 3px;
+  color: var(--font-color);
+  text-decoration: none;
+}
+.umw-perf:hover {
+  background: var(--bg-color2);
+  color: var(--font-hover);
+}
+.umw-actions {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  margin-bottom: 0.35rem;
+  overflow: hidden;
+  background: var(--bg-color2);
+}
+.umw-action-btn {
+  display: flex;
+  flex: 1 1 auto;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.55rem;
+  min-height: 1.95rem;
+  border-right: 1px solid var(--border-color);
+  color: var(--font-color);
+  text-decoration: none;
+}
+.umw-action-btn:before {
+  margin-right: 0.15rem;
+}
+.umw-action-btn:last-child {
+  border-right: 0;
+}
+.umw-action-btn:hover {
+  background: var(--bg-color2);
+  color: var(--font-hover);
+}
+.umw-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+.umw-joined {
+  text-align: right;
+  color: var(--font-color-gray);
+}
+.umw-score {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.4rem;
+  text-align: center;
+  color: var(--link-color-blue);
+  font-weight: 500;
+}
+.umw-game-link {
+  display: block;
+  color: var(--font-color);
+  text-decoration: none;
+}
+.umw-game-board {
+  display: flex;
+  justify-content: center;
+}
+.umw-game-players {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--font-color-gray);
+}
+
 .pocket-wrapper {
   justify-content: center;
   display: flex;

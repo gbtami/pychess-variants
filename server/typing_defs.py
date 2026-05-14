@@ -23,11 +23,20 @@ PerfMap = dict[str, PerfEntry]
 ClockValues = Sequence[int | float]
 
 
+class UserCount(TypedDict):
+    game: int
+    win: int
+    loss: int
+    draw: int
+    rated: int
+
+
 class UserDocument(TypedDict, total=False):
     _id: str
     title: str
     enabled: bool
     createdAt: datetime
+    count: UserCount
     swissBanUntil: datetime
     swissBanHours: int
     perfs: PerfMap

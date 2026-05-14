@@ -22,7 +22,7 @@ import { validFen, uci2LastMove } from './chess';
 import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { createWebsocket } from "@/socket/webSocketUtils";
-import { displayUsername } from "./user";
+import { displayUsername, isAnonUsername } from "./user";
 
 
 const autoPairingTCs: [number, number, number][] = [
@@ -940,11 +940,22 @@ export class LobbyController implements ChatController {
     public seekTitle(seek: Seek) {
         return (seek['target'] === '') ? h('player-title', " " + seek["title"] + " ") : null;
     }
+    private seekUserLink(username: string): VNode | string {
+        const display = displayUsername(username);
+        if (isAnonUsername(username)) return display;
+        return h(
+            'span.user-link.ulpt',
+            {
+                attrs: { 'data-href': `/@/${encodeURIComponent(username)}` },
+            },
+            display
+        );
+    }
     private user(seek: Seek) {
         if (seek["target"] === '' || seek["target"] === this.username)
-            return displayUsername(seek["user"]);
+            return this.seekUserLink(seek["user"]);
         else
-            return displayUsername(seek["target"]);
+            return this.seekUserLink(seek["target"]);
     }
     private hide(seek: Seek) {
         return ((this.anon || this.title === 'BOT') && seek["rated"]) ||

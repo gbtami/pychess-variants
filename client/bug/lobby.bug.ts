@@ -4,7 +4,7 @@ import { h } from "snabbdom";
 import { _ } from "@/i18n";
 import { timeControlStr } from "@/view";
 import { disableCorr, LobbyController } from "@/lobby";
-import { displayUsername } from "@/user";
+import { displayUsername, isAnonUsername } from "@/user";
 
 export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant, anon: boolean){
         const rated = document.getElementById('rated')! as HTMLInputElement;
@@ -42,6 +42,18 @@ function onClickSeekBughouse(ctrl: LobbyController, seek: Seek) {
     }
 }
 
+function seekUserLink(username: string) {
+    const display = displayUsername(username);
+    if (isAnonUsername(username)) return display;
+    return h(
+        'span.user-link.ulpt',
+        {
+            attrs: { 'data-href': `/@/${encodeURIComponent(username)}` },
+        },
+        display
+    );
+}
+
 export function seekViewBughouse(ctrl: LobbyController, seek:Seek) {
     const variant = VARIANTS[seek.variant];
     const chess960 = seek.chess960;
@@ -57,17 +69,17 @@ export function seekViewBughouse(ctrl: LobbyController, seek:Seek) {
             h('div', "B"), colorIconBug(seek.color, "bugPlayer2"),
         ]),
         h('td', h("div.bugseek", [
-                        h('div', [ ctrl.seekTitle(seek), displayUsername(seek.user) ]),
+                        h('div', [ ctrl.seekTitle(seek), seekUserLink(seek.user) ]),
                         h('div', [ ctrl.challengeIcon(seek), ctrl.seekTitle(seek), seek.bugPlayer1 === ""?
                             [seek.player2, seek.bugPlayer2].includes(ctrl.username)? h("div.bugwaiting", "Waiting..."):
-                            h('button.bug-join-button', { on: { click: (e:Event) => bugJoinSeek(ctrl, e, seek, "bugPlayer1") } }, _("Join")): displayUsername(seek.bugPlayer1) ]),
+                            h('button.bug-join-button', { on: { click: (e:Event) => bugJoinSeek(ctrl, e, seek, "bugPlayer1") } }, _("Join")): seekUserLink(seek.bugPlayer1) ]),
                         h('div.bugseekvs1',""),
                         h('div', [ ctrl.challengeIcon(seek), ctrl.seekTitle(seek), seek.player2 === ""?
                             [seek.user, seek.bugPlayer1].includes(ctrl.username)? h("div.bugwaiting", "Waiting..."):
-                            h('button.bug-join-button', { on: { click: (e:Event) => bugJoinSeek(ctrl, e, seek, "player2") } }, _("Join")): displayUsername(seek.player2) ]),
+                            h('button.bug-join-button', { on: { click: (e:Event) => bugJoinSeek(ctrl, e, seek, "player2") } }, _("Join")): seekUserLink(seek.player2) ]),
                         h('div', [ ctrl.challengeIcon(seek), ctrl.seekTitle(seek), seek.bugPlayer2 === ""?
                             [seek.user, seek.bugPlayer1].includes(ctrl.username)? h("div.bugwaiting", "Waiting..."):
-                            h('button.bug-join-button', { on: { click: (e:Event) => bugJoinSeek(ctrl, e, seek, "bugPlayer2") } }, _("Join")): displayUsername(seek.bugPlayer2) ]) ]
+                            h('button.bug-join-button', { on: { click: (e:Event) => bugJoinSeek(ctrl, e, seek, "bugPlayer2") } }, _("Join")): seekUserLink(seek.bugPlayer2) ]) ]
          ) ),
         h('td', seek.rating),
         h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi)),
