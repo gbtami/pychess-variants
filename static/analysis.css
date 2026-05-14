@@ -197,6 +197,9 @@ div.pv {
     border-bottom: 1px solid var(--border-color);
     background-color: var(--bg-color0);
 }
+div.pvbox {
+    position: relative;
+}
 div.pv:hover {
     background-color: var(--pv-hover);
 }
@@ -301,6 +304,36 @@ pvline {
 }
 pvline strong {
     padding-right: 6px;
+}
+.pv-move-number {
+    color: var(--text-dim-color);
+    margin-inline-end: 0.2em;
+}
+.pv-san-move {
+    display: inline-block;
+    margin-inline-end: 0.4em;
+}
+.pv-hover-board {
+    position: absolute;
+    left: 28px;
+    z-index: 50;
+    pointer-events: none;
+}
+.pv-hover-board .cg-wrap {
+    width: 230px;
+    box-shadow: var(--base-shadow);
+    border: 1px solid var(--border-color);
+}
+@media (max-width: 799px) and (orientation: portrait) {
+    .pv-hover-board {
+        left: 0;
+    }
+    .pv-hover-board .cg-wrap {
+        width: 200px;
+    }
+}
+.pv:hover .pv-san-move:hover {
+    color: var(--link-color-blue);
 }
 @media (max-width: 799px) and (orientation: portrait) {
     pvline {

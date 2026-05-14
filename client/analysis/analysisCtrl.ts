@@ -34,6 +34,7 @@ import { setPocketRowCssVars } from '../pocketRow';
 import { updateCount, updatePoint } from '../info';
 import { fogFen } from '../variants';
 import { hideKeyboardHelp, isKeyboardHelpShortcut, showKeyboardHelp } from './keyboardHelp';
+import { PvHoverPreview } from './pvHoverPreview';
 import {
     addOrSelectChild,
     AnalysisTree,
@@ -128,9 +129,11 @@ export class AnalysisController extends GameController {
     keyboardHelpOpen: boolean;
     private readonly onKeyboardHelpShortcutKeyDown: (event: KeyboardEvent) => void;
     private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
+    private readonly pvHoverPreview: PvHoverPreview;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
+        this.pvHoverPreview = new PvHoverPreview(this.variant);
         this.fsfError = [];
         this.embed = model.embed;
         this.puzzle = model["puzzle"] !== "";
@@ -274,6 +277,11 @@ export class AnalysisController extends GameController {
             this.vscore = document.getElementById('score') as HTMLElement;
             this.vinfo = document.getElementById('info') as HTMLElement;
             this.vpvlines = [...Array(5).fill(null).map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement)];
+            this.pvHoverPreview.init(
+                document.querySelector('div.pvbox') as HTMLElement | null,
+                this.fullfen,
+                this.chessground.state.orientation,
+            );
 
             if (!this.puzzle) {
                 (document.querySelector('div.feedback') as HTMLElement).style.display = 'none';
@@ -698,6 +706,7 @@ export class AnalysisController extends GameController {
 
     pvboxIni() {
         if (this.localAnalysis) this.engineStop();
+        this.pvHoverPreview.hide();
         this.clearPvlines();
         if (this.localAnalysis) this.engineGo();
     }
@@ -705,11 +714,16 @@ export class AnalysisController extends GameController {
     pvView(i: number, pv: VNode | undefined) {
         if (i >= 0) {
             if (this.vpvlines === undefined) this.pvboxIni();
-            this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, pv));
+            this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, {
+                on: {
+                    mouseleave: () => this.pvHoverPreview.scheduleHide(),
+                },
+            }, pv));
         }
     }
 
     clearPvlines() {
+        this.pvHoverPreview.hide();
         for (let i = 4; i >= 0; i--) {
             if (i + 1 <= this.multipv && this.localAnalysis) {
                 this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, [h('pvline', h('pvline', '-'))]));
@@ -721,6 +735,7 @@ export class AnalysisController extends GameController {
 
     toggleOrientation() {
         super.toggleOrientation()
+        this.pvHoverPreview.onOrientationChange();
         boardSettings.updateDropSuggestion();
         (document.getElementById('gauge') as HTMLElement).classList.toggle("flipped");
         const clocktimes = this.steps[1]?.clocks;
@@ -1073,7 +1088,7 @@ export class AnalysisController extends GameController {
         const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
         // Render PV line
         if (ceval?.p !== undefined && this.multipv > 0) {
-            let pvSan: string | VNode = ceval.p;
+            let pvSan: string | VNode | VNode[] = ceval.p;
             const sanBoard = this.fsfEngineBoard ?? this.ffishBoard;
             if (sanBoard) {
                 try {
@@ -1081,9 +1096,25 @@ export class AnalysisController extends GameController {
                     // On initial page load, server-side analysis can arrive before that happens.
                     // Falling back to `ffishBoard` avoids showing raw UCI coordinates until user
                     // clicks a move and triggers another redraw.
-                    sanBoard.setFen(this.fullfen);
-                    pvSan = sanBoard.variationSan(ceval.p, this.notationAsObject);
-                    if (pvSan === '') pvSan = emptySan;
+                    if (this.localAnalysis && !this.variant.twoBoards) {
+                        const rendered = this.pvHoverPreview.renderPvSanLine({
+                            pvLine: ceval.p,
+                            sanBoard,
+                            fullfen: this.fullfen,
+                            notationAsObject: this.notationAsObject,
+                            getOrientation: () => this.chessground.state.orientation,
+                        });
+                        if (rendered.length > 0) {
+                            pvSan = rendered;
+                        } else {
+                            sanBoard.setFen(this.fullfen);
+                            pvSan = sanBoard.variationSan(ceval.p, this.notationAsObject);
+                        }
+                    } else {
+                        sanBoard.setFen(this.fullfen);
+                        pvSan = sanBoard.variationSan(ceval.p, this.notationAsObject);
+                    }
+                    if (typeof pvSan === 'string' && pvSan === '') pvSan = emptySan;
                 } catch (error) {
                     pvSan = emptySan;
                 }
