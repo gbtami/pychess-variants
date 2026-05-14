@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import MINYEAR, datetime
 from functools import partial
 import json
 
@@ -23,6 +23,13 @@ def _sort_perfs_by_activity(item: tuple[str, PerfEntry]) -> tuple[int, float, st
     else:
         last_ts = 0.0
     return (-perf.get("nb", 0), -last_ts, key)
+
+
+def _joined_at_for_payload(created_at: datetime) -> datetime | None:
+    # Year 1 is used internally as a sentinel for "unknown creation time".
+    if created_at.year <= MINYEAR:
+        return None
+    return created_at
 
 
 def _select_best8_perfs_by_activity(profile: PublicProfile) -> list[dict[str, object]]:
@@ -173,7 +180,7 @@ async def user_mini(request: web.Request) -> web.StreamResponse:
         "username": profile.username,
         "title": profile.title,
         "online": online,
-        "joinedAt": profile.created_at,
+        "joinedAt": _joined_at_for_payload(profile.created_at),
         "count": profile.count,
         "vsScore": await _build_vs_score_payload(profile_id, session_user, request),
         "perfs": _select_best8_perfs_by_activity(profile),
