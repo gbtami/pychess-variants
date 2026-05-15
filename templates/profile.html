@@ -49,6 +49,9 @@
             {% if (can_challenge) and (not anon) and (profile != username) %}
             <a class="icon icon-crossedswords" href="/@/{{ profile }}/challenge" title="{% trans %}Challenge to a game{% endtrans %}">{% trans %}Challenge{% endtrans %}</a>
             {% endif %}
+            {% if (not anon) and (profile != username) and (profile_title != "BOT") %}
+            <a class="icon icon-comment-o" href="/inbox/{{ profile }}" title="{% trans %}Send a private message{% endtrans %}">{% trans %}Message{% endtrans %}</a>
+            {% endif %}
 
             {% if (not anon) and (profile_title != "BOT") %}
             <a class="icon icon-cloud-upload" href="/paste" title="{% trans %}Import game{% endtrans %}">{% trans %}Import{% endtrans %}</a>

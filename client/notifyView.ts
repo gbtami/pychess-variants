@@ -112,6 +112,17 @@ function messageView(message: Message) {
                 h('span', `${_('Your scheduled pairing with')} ${content.opp} ${_('is coming up at')} ${content.date ? new Date(content.date).toLocaleString() : ''}.`),
             ]),
         ]);
+    case 'inboxMsg':
+        return h(`a.notification.corr${read}`, { attrs: { href: `/inbox/${encodeURIComponent(content.id)}` } }, [
+            h('div.icon.icon-comment-o'),
+            h('span.content',[
+                h('span', [
+                    h('strong', _('Inbox message')),
+                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
+                ]),
+                h('span', `${_('New message from')} ${content.opp}`),
+            ]),
+        ]);
     default:
         return '';
     }

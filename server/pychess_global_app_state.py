@@ -323,6 +323,15 @@ class PychessGlobalAppState:
             await self.db.notify.create_index("notifies")
             await self.db.notify.create_index("expireAt", expireAfterSeconds=0)
 
+            if "inbox_thread" not in db_collections:
+                await self.db.create_collection("inbox_thread")
+            await self.db.inbox_thread.create_index("users")
+            await self.db.inbox_thread.create_index("updatedAt")
+
+            if "inbox_msg" not in db_collections:
+                await self.db.create_collection("inbox_msg")
+            await self.db.inbox_msg.create_index([("tid", 1), ("createdAt", 1)])
+
             if "seek" not in db_collections:
                 await self.db.create_collection("seek")
             await self.db.seek.create_index("expireAt", expireAfterSeconds=0)

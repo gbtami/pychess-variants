@@ -1326,19 +1326,57 @@ async def get_notifications(request):
 
     user = await app_state.users.get(session_user)
 
+    notifications = await notification_items_for_user(app_state, user, page_num)
+
+    return web.json_response(notifications, dumps=partial(json.dumps, default=datetime.isoformat))
+
+
+async def notification_items_for_user(app_state, user: User, page_num: int = 0):
     if user.notifications is None:
-        cursor = app_state.db.notify.find({"notifies": session_user})
+        cursor = app_state.db.notify.find({"notifies": user.username})
         user.notifications = await cursor.to_list(length=100)
     if TYPE_CHECKING:
         assert user.notifications is not None
-    if page_num == 0:
-        notifications = user.notifications[-NOTIFY_PAGE_SIZE:]
-    else:
-        notifications = user.notifications[
-            -(page_num + 1) * NOTIFY_PAGE_SIZE : -page_num * NOTIFY_PAGE_SIZE
-        ]
 
-    return web.json_response(notifications, dumps=partial(json.dumps, default=datetime.isoformat))
+    if page_num > 0:
+        return user.notifications[-(page_num + 1) * NOTIFY_PAGE_SIZE : -page_num * NOTIFY_PAGE_SIZE]
+
+    notifications = user.notifications[-NOTIFY_PAGE_SIZE:]
+    if app_state.db is None:
+        return notifications
+
+    cursor = app_state.db.inbox_thread.find(
+        {
+            "users": user.username,
+            "deletedBy": {"$ne": user.username},
+            "lastMsg.user": {"$ne": user.username},
+            "readBy": {"$ne": user.username},
+        }
+    )
+    cursor.sort("updatedAt", -1)
+    cursor.limit(NOTIFY_PAGE_SIZE)
+    unread_threads = await cursor.to_list(length=NOTIFY_PAGE_SIZE)
+
+    inbox_notifications = []
+    for doc in unread_threads:
+        users = doc.get("users", [])
+        opp = next((u for u in users if u != user.username), None)
+        if not opp:
+            continue
+        last_msg = doc.get("lastMsg", {}) or {}
+        created_at = last_msg.get("createdAt") or doc.get("updatedAt") or datetime.now(timezone.utc)
+        inbox_notifications.append(
+            {
+                "type": "inboxMsg",
+                "read": False,
+                "createdAt": created_at,
+                "content": {"id": opp, "opp": opp},
+            }
+        )
+
+    combined = notifications + inbox_notifications
+    combined.sort(key=lambda item: item.get("createdAt", ""), reverse=True)
+    return combined[:NOTIFY_PAGE_SIZE]
 
 
 async def notified(request):

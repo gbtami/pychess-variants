@@ -56,8 +56,13 @@ function showMainSettings() {
 
 function userMenu() {
     return h('div#settings-buttons', [
+        h('button#btn-inbox-menu', { on: { click: gotoInbox } }, _("Inbox")),
         h('button#btn-logout', { on: { click: logoutDialog } }, _("Log out")),
     ]);
+}
+
+function gotoInbox() {
+    window.location.href = "/inbox";
 }
 
 function logoutDialog() {

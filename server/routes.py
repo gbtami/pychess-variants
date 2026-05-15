@@ -44,6 +44,15 @@ from header_challenges import (
     get_header_challenges,
     subscribe_challenges,
 )
+from inbox_api import (
+    inbox_unread,
+    inbox_threads,
+    inbox_thread,
+    subscribe_inbox,
+    inbox_post,
+    inbox_read,
+    inbox_delete,
+)
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import (
@@ -90,6 +99,7 @@ from views import (
     players50,
     profile,
     user_mini,
+    inbox,
     puzzle,
     shields,
     stats,
@@ -136,6 +146,9 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/editor/{variant:[a-z0-9]+}", editor.editor),
     (r"/editor/{variant:[a-z0-9]+}/{fen}", editor.editor),
     ("/notifications", get_notifications),
+    ("/inbox", inbox.inbox),
+    ("/inbox/subscribe", subscribe_inbox),
+    ("/inbox/{contact}", inbox.inbox),
     ("/challenges", get_header_challenges),
     ("/notify", subscribe_notify),
     ("/challenge/subscribe", subscribe_challenges),
@@ -206,6 +219,9 @@ get_routes: tuple[RouteDef, ...] = (
     ("/api/users/status", get_status),
     (r"/api/invites/{gameId:\w{8}}", subscribe_invites),
     ("/api/ongoing", subscribe_games),
+    ("/api/inbox/unread", inbox_unread),
+    ("/api/inbox/threads", inbox_threads),
+    ("/api/inbox/thread/{contact}", inbox_thread),
     ("/api/names", get_names),
     ("/paste", paste.paste),
     (r"/games/export/monthly/{yearmonth:\d{6}}", export),
@@ -239,6 +255,9 @@ post_routes: tuple[RouteDef, ...] = (
     ("/pref/theme", set_theme),
     ("/pref/game-category", set_game_category),
     ("/api/{profileId}/block", block_user),
+    ("/api/inbox/thread/{contact}", inbox_post),
+    ("/api/inbox/thread/{contact}/read", inbox_read),
+    ("/api/inbox/thread/{contact}/delete", inbox_delete),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),
     ("/fishnet/move/{workId}", fishnet_move),
