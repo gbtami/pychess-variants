@@ -8,6 +8,7 @@ import {formatChatMessageTime, getLocalMoveNum, selectMove} from "@/bug/movelist
 import {StepChat} from "@/messages";
 import { Variant } from "../variants";
 import { displayUsername, isAnonUsername } from "@/user";
+import { linkifyNodes } from "@/linkify";
 
 export function renderBugChatPresets(variant: Variant, sendMessage: (s:string)=>void): VNode {
     const roles: (cg.Role)[] = [...variant.pocket!.roles.white];
@@ -68,6 +69,7 @@ export function chatMessageBug (ply: number, ctrl: RoundControllerBughouse, x: S
     const lastMoveSan = ply === 0? "": getLocalMoveNum(step) + '' + boardName + "." + step.san!;
 
     const message = x.message
+    const messageNodes = linkifyNodes(message, 'chat-message-link');
     const m = message.replace('!bug!','');
 
     const user = x.username
@@ -96,7 +98,7 @@ export function chatMessageBug (ply: number, ctrl: RoundControllerBughouse, x: S
                 }, [])
             ])]));
     } else {
-        patch(container, h('div#messages', [ h("li.message", [san, h("user", userNode), h("t.bugchatpointer", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, message)]) ]));
+        patch(container, h('div#messages', [ h("li.message", [san, h("user", userNode), h("t.bugchatpointer", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, messageNodes)]) ]));
     }
 
     if (isBottom) setTimeout(() => {chatDiv.scrollTop = chatDiv.scrollHeight;}, 200);

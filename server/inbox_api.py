@@ -13,6 +13,7 @@ from aiohttp_sse import sse_response
 from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
+from link_filter import sanitize_user_message
 from utils import notification_items_for_user
 
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -161,7 +162,9 @@ async def inbox_thread(request: web.Request) -> web.Response:
         try:
             before_dt = datetime.fromtimestamp(int(before) / 1000.0, tz=timezone.utc)
         except ValueError:
-            return web.json_response({"type": "error", "message": "Invalid before value"}, status=400)
+            return web.json_response(
+                {"type": "error", "message": "Invalid before value"}, status=400
+            )
         query["createdAt"] = {"$lt": before_dt}
 
     cursor = app_state.db.inbox_msg.find(query)
@@ -196,7 +199,10 @@ async def inbox_thread(request: web.Request) -> web.Response:
             "contact": {
                 "name": profile.username,
                 "title": profile.title,
-                "online": bool(app_state.users.data.get(profile.username) and app_state.users.data[profile.username].online),
+                "online": bool(
+                    app_state.users.data.get(profile.username)
+                    and app_state.users.data[profile.username].online
+                ),
             },
             "messages": msgs,
             "hasMore": has_more,
@@ -227,6 +233,12 @@ async def inbox_post(request: web.Request) -> web.Response:
         return web.json_response(
             {"type": "error", "message": f"Message too long (max {MAX_MSG_LEN})"},
             status=400,
+        )
+    text = sanitize_user_message(text)
+    if not app_state.chat_flood.allow_message(f"inbox:{username}:{contact}", text):
+        return web.json_response(
+            {"type": "error", "message": "Too many similar messages. Please wait and retry."},
+            status=429,
         )
 
     me = await app_state.users.get(username)

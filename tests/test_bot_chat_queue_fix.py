@@ -99,6 +99,53 @@ class RoundChatBotQueueTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(bot_queue.empty())
         human.send_game_message.assert_not_awaited()
 
+    async def test_roundchat_sanitizes_message_for_humans_and_bots(self) -> None:
+        bot_queue: asyncio.Queue[str] = asyncio.Queue()
+        bot = SimpleNamespace(bot=True, username="Fairy-Stockfish", game_queues={"g1": bot_queue})
+        human = SimpleNamespace(bot=False, username="black", send_game_message=AsyncMock())
+        sender = SimpleNamespace(username="white")
+        chat_flood = SimpleNamespace(allow_message=lambda source, text: True)
+        app_state = SimpleNamespace(
+            users={bot.username: bot, human.username: human},
+            chat_flood=chat_flood,
+        )
+
+        class RecordingGame:
+            id = "g1"
+            wplayer = bot
+            bplayer = human
+
+            def __init__(self) -> None:
+                self.messages: list[dict[str, object]] = []
+
+            def handle_chat_message(self, message: dict[str, object]) -> None:
+                self.messages.append(message)
+
+        game = RecordingGame()
+
+        with patch("wsr.round_broadcast", new=AsyncMock()):
+            await handle_roundchat(
+                app_state,
+                None,
+                sender,
+                {
+                    "type": "roundchat",
+                    "gameId": "g1",
+                    "message": "visit https://tinyurl.com/abc",
+                    "room": "player",
+                },
+                game,
+            )
+
+        self.assertEqual("visit [redacted]", game.messages[0]["message"])
+        human.send_game_message.assert_awaited_once()
+        human_msg = human.send_game_message.await_args.args[1]
+        self.assertEqual("visit [redacted]", human_msg["message"])
+
+        queued = await bot_queue.get()
+        event = json.loads(queued)
+        self.assertEqual("visit [redacted]", event["text"])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

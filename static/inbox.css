@@ -233,6 +233,16 @@
   overflow-wrap: anywhere;
 }
 
+.inbox-msg-text a.inbox-msg-link {
+  color: var(--link-hover);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inbox-msg-text a.inbox-msg-link:hover {
+  color: var(--link-color-blue);
+}
+
 .inbox-convo-post {
   border-top: 1px solid var(--border-color);
   padding: 0.8rem;

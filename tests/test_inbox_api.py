@@ -107,6 +107,7 @@ class InboxApiTestCase(AioHTTPTestCase):
         bob = User(app_state, username="bob")
         app_state.users[alice.username] = alice
         app_state.users[bob.username] = bob
+        app_state.chat_flood.allow_message = lambda source, text: True
 
         self.set_session_user("alice")
         for idx in range(105):
@@ -131,6 +132,41 @@ class InboxApiTestCase(AioHTTPTestCase):
         page2 = await page2_resp.json()
         self.assertEqual(5, len(page2["messages"]))
         self.assertFalse(page2["hasMore"])
+
+    async def test_inbox_post_sanitizes_blacklisted_links(self):
+        app_state = get_app_state(self.app)
+        alice = User(app_state, username="alice")
+        bob = User(app_state, username="bob")
+        app_state.users[alice.username] = alice
+        app_state.users[bob.username] = bob
+
+        self.set_session_user("alice")
+        resp = await self.client.post(
+            "/api/inbox/thread/bob", data={"text": "visit https://tinyurl.com/abc"}
+        )
+        self.assertEqual(resp.status, 200)
+
+        self.set_session_user("bob")
+        thread_resp = await self.client.get("/api/inbox/thread/alice")
+        self.assertEqual(thread_resp.status, 200)
+        thread_payload = await thread_resp.json()
+        self.assertEqual("visit [redacted]", thread_payload["messages"][0]["text"])
+
+    async def test_inbox_post_rejects_repeated_similar_messages(self):
+        app_state = get_app_state(self.app)
+        alice = User(app_state, username="alice")
+        bob = User(app_state, username="bob")
+        app_state.users[alice.username] = alice
+        app_state.users[bob.username] = bob
+
+        self.set_session_user("alice")
+        first = await self.client.post("/api/inbox/thread/bob", data={"text": "hello bob"})
+        self.assertEqual(first.status, 200)
+
+        repeated = await self.client.post("/api/inbox/thread/bob", data={"text": "  Hello   bob  "})
+        self.assertEqual(repeated.status, 429)
+        repeated_payload = await repeated.json()
+        self.assertEqual("error", repeated_payload.get("type"))
 
 
 if __name__ == "__main__":

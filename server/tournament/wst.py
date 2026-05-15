@@ -8,6 +8,7 @@ from aiohttp import web
 from admin import silence
 from chat import chat_response
 from const import ANON_PREFIX, SHIELD
+from link_filter import sanitize_user_message
 import logger
 
 if TYPE_CHECKING:
@@ -417,7 +418,7 @@ async def handle_lobbychat(
     tournament = await load_tournament(app_state, tournamentId)
     if TYPE_CHECKING:
         assert tournament is not None
-    message = data["message"]
+    message = sanitize_user_message(data["message"])
     response: ChatLine | FullChatMessage | None = None
 
     director = is_tournament_director(user, app_state)
@@ -439,7 +440,7 @@ async def handle_lobbychat(
 
         else:
             if app_state.chat_flood.allow_message(f"public:{user.username}", message):
-                response = chat_response("lobbychat", user.username, data["message"])
+                response = chat_response("lobbychat", user.username, message)
                 await tournament.tourney_chat_save(response)
 
     elif user.anon:
@@ -449,7 +450,7 @@ async def handle_lobbychat(
         if user.silence == 0 and app_state.chat_flood.allow_message(
             f"public:{user.username}", message
         ):
-            response = chat_response("lobbychat", user.username, data["message"])
+            response = chat_response("lobbychat", user.username, message)
             await tournament.tourney_chat_save(response)
 
     if response is not None:
