@@ -26,7 +26,8 @@ class TournamentTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         has_games = len(app_state.games) > 0
 
-        for game in app_state.games.values():
+        # Abort can remove games from app_state.games, so iterate over a stable snapshot.
+        for game in list(app_state.games.values()):
             if game.status == BYEGAME:  # ByeGame
                 continue
             if game.status <= STARTED:
