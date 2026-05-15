@@ -75,6 +75,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
     xiangfu: { pieceCSS: ["eventintl", "eventhanzi", "eventhanziguided", "disguised"] },
     borderlands: { pieceCSS: ["borderlands", "disguised"] },
+    yokai: { pieceCSS: ["disguised"] },
 };
 
 export interface Variant {
@@ -701,6 +702,20 @@ export const VARIANTS: Record<string, Variant> = {
         ui: { pieceSound: "shogi" },
     }),
 
+    yokai: variant({
+        name: "yokai", displayName: "yokai shogi", tooltip: "Modern Shogi varaint",
+        startFen: "rygckagyl/1s5t1/ppppppppp/9/9/9/PPPPPPPPP/1S5T1/LYGAKCGYR[Nn] w 0 1",
+        icon: "👹",
+        boardFamily: "shogi9x9", pieceFamily: "yokai",
+        notation: cg.Notation.SHOGI_ARBNUM,
+        colors: { first: "Black", second: "White" },
+        pieceRow: ["k", "r", "y", "g", "c", "a", "g", "y", "l", "s", "t", "p"],
+        pocket: { roles: ["r", "y", "g", "c", "a", "g", "y", "l", "s", "t", "p"], captureToHand: true },
+        promotion: { type: "shogi", roles: ["p", "s", "g", "y", "t"] },
+        rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
+        ui: { pieceSound: "shogi" },
+    }),
+
     cannonshogi: variant({
         name: "cannonshogi", displayName: "cannon shogi", tooltip: "Shogi with Chinese and Korean cannons",
         startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
@@ -1278,6 +1293,7 @@ export const noPuzzleVariants = [
     "jieqi",
     "xiangfu",
     "borderlands",
+    "yokai",
 ]
 
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
@@ -1299,7 +1315,7 @@ export function disabledVariantsForCreateMode(
 export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     chess:    { variants: [ "chess", "bughouse", "crazyhouse", "atomic", "kingofthehill", "3check", "antichess", "racingkings", "horde", "placement", "duck", "alice", "fogofwar" ] },
     makruk:   { variants: [ "makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean" ] },
-    shogi:    { variants: [ "shogi", "shoshogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi" ] },
+    shogi:    { variants: [ "shogi", "shoshogi", "minishogi", "kyotoshogi", "dobutsu", "gorogoroplus", "torishogi", "cannonshogi", "yokai" ] },
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan", "xiangfu" ] },

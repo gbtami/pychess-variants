@@ -135,6 +135,7 @@ class ServerVariants(Enum):
     XIANGFU = Variant('"', "xiangfu", _("Xiang Fu"), "👊")
 
     BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), " 🌄", grand=True)
+    YOKAI = Variant("*", "yokai", _("Yokai Shogi"), "👹", byo=True)
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
 
     @property
@@ -180,6 +181,7 @@ DEV_VARIANTS: tuple[ServerVariants, ...] = (
     ServerVariants.JIEQI,
     ServerVariants.BORDERLANDS,
     ServerVariants.SHOSHOGI,
+    ServerVariants.YOKAI,
 )
 
 # Remove DEV variants on prod site until they stabilize
