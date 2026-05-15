@@ -2138,9 +2138,11 @@ button.icon::-moz-focus-inner {
 .clock {
   display: inline-flex;
   text-align: center;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
   font-size: 2.9em;
-  font-weight: bold;
+  font-weight: normal;
   box-shadow: var(--btn-shadow);
   background-color: var(--bg-color0);
 }
