@@ -6,6 +6,7 @@ import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
 import { onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
 import { selfReport, shouldSkipMessage } from './chatSpam';
 import { displayUsername, isAnonUsername } from "./user";
+import { linkifyNodes } from './linkify';
 
 export interface ChatController {
     anon: boolean;
@@ -133,6 +134,7 @@ export function chatMessage (
     const container = document.getElementById('messages') as HTMLElement;
     const isAnon = isAnonUsername(user);
     const displayUser = displayUsername(user);
+    const messageNodes = linkifyNodes(message, 'chat-message-link');
 
     // Update active usernames set
     if (user.length && user !== '_server' && user !== 'Discord-Relay') {
@@ -151,20 +153,21 @@ export function chatMessage (
     const usernameColorMap = assignUsernameColors(Array.from(activeUsernames));
 
     if (user.length === 0) {
-        patch(container, h('div#messages', [ h("li.message.offer", [h("t", message)]) ]));
+        patch(container, h('div#messages', [ h("li.message.offer", [h("t", messageNodes)]) ]));
     } else if (user === '_server') {
-        patch(container, h('div#messages', [ h("li.message.server", [h("div.time", localTime), h("user", _('Server')), h("t", message)]) ]));
+        patch(container, h('div#messages', [ h("li.message.server", [h("div.time", localTime), h("user", _('Server')), h("t", messageNodes)]) ]));
     } else if (user === 'Discord-Relay') {
         const colonIndex = message.indexOf(':');
         if (colonIndex > 0) {
             discordUser = message.substring(0, colonIndex);
             const discordMessage = message.substring(colonIndex + 2);
+            const discordMessageNodes = linkifyNodes(discordMessage, 'chat-message-link');
             patch(container, h('div#messages', [
                 h("li.message", [
                     h("div.time", localTime),
                     h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })),
                     h("user", { style: { color: usernameColorMap[discordUser] || "#aaa" } }, discordUser),
-                    h("t", discordMessage)
+                    h("t", discordMessageNodes)
                 ])
             ]));
         } else {
@@ -173,7 +176,7 @@ export function chatMessage (
                     h("div.time", localTime),
                     h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })),
                     h("user", { style: { color: "#aaa" } }, user),
-                    h("t", message)
+                    h("t", messageNodes)
                 ])
             ]));
         }
@@ -191,7 +194,7 @@ export function chatMessage (
                 h("user", [
                     userNode
                 ]),
-                h("t", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, message)
+                h("t", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, messageNodes)
             ])
         ]));
     }

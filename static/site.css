@@ -2380,6 +2380,16 @@ li.message.server {
   color: var(--bad);
 }
 
+.chat a.chat-message-link {
+  color: var(--link-hover);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chat a.chat-message-link:hover {
+  color: var(--link-color-blue);
+}
+
 #chat-entry {
   display: flex;
   order: 2;

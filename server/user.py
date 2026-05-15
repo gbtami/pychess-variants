@@ -145,6 +145,7 @@ class User:
         self.simul_sockets: dict[str, set[WebSocketResponse]] = {}  # {simulId: set()}
 
         self.notify_channels: Set[Queue[str]] = set()
+        self.inbox_channels: Set[Queue[str]] = set()
         self.challenge_channels: Set[Queue[str]] = set()
         self.challenge_offline_task: asyncio.Task[None] | None = None
 

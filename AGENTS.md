@@ -30,6 +30,10 @@ yarn md
 
 # Start development server
 uv run server/server.py
+
+# Start development server with anon users behaving as logged-in test users
+# Useful for browser/MCP testing of features that require authenticated UX (e.g. PM/inbox)
+uv run server/server.py -a
 ```
 
 ### Testing and Quality
@@ -81,6 +85,7 @@ Playwright setup tips:
 - The `--with-deps` install uses apt and needs sudo; avoid it unless you are provisioning a fresh host.
 - If browsers are already installed, you can skip `uv run python -m playwright install`.
 - Tests spin up local servers/browsers, so run them in an environment that allows opening local sockets.
+- For authenticated-flow UI testing without a real login setup, run the server with `-a` so anonymous users behave like logged-in test users.
 
 ### Docker Development
 ```bash

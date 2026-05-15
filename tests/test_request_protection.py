@@ -34,6 +34,15 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         self.assertIn(200, statuses)
         self.assertIn(429, statuses)
 
+    async def test_inbox_threads_route_is_not_in_profile_rate_limit_bucket(self):
+        statuses: list[int] = []
+
+        for _ in range(45):
+            resp = await self.client.request("GET", "/api/inbox/threads")
+            statuses.append(resp.status)
+
+        self.assertNotIn(429, statuses)
+
     async def test_unknown_blog_id_does_not_return_server_error(self):
         resp = await self.client.request("GET", "/blogs/null")
         self.assertNotEqual(resp.status, 500)

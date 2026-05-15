@@ -14,6 +14,7 @@ from bug.wsr_bug import handle_resign_bughouse, handle_rematch_bughouse, handle_
 import game
 from broadcast import round_broadcast
 from chat import chat_response
+from link_filter import sanitize_user_message
 from cheat_report import (
     CEVAL_REPORT_ACTION_AUTO_FORFEIT,
     CEVAL_REPORT_ACTION_REPORTED_ONLY,
@@ -1080,7 +1081,7 @@ async def handle_bugroundchat(
     users: Users, user: User, data: BugRoundChatMessage, game: GameBug
 ) -> None:
     gameId = data["gameId"]
-    message = data["message"]
+    message = sanitize_user_message(data["message"])
     room = data["room"]
 
     # response = chat_response(
@@ -1129,7 +1130,7 @@ async def handle_roundchat(
         return
 
     gameId = data["gameId"]
-    message = data["message"]
+    message = sanitize_user_message(data["message"])
     room = data["room"]
 
     # Users running a fishnet worker can ask server side analysis with chat message: !analysis

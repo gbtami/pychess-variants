@@ -135,6 +135,7 @@ class RequestProtectionState:
             "users",
             "invites",
             "ongoing",
+            "inbox",
             "names",
             "challenge",
             "check-username",

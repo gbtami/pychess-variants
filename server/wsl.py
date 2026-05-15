@@ -34,6 +34,7 @@ from header_challenges import (
     set_direct_challenge_status,
 )
 from newid import new_id
+from link_filter import sanitize_user_message
 
 if TYPE_CHECKING:
     from game import Game
@@ -616,7 +617,7 @@ async def handle_lobbychat(
     if user.username.startswith(ANON_PREFIX):
         return
 
-    message = data["message"]
+    message = sanitize_user_message(data["message"])
     response: Mapping[str, object] | None = None
     admin_command = False
 
@@ -659,7 +660,7 @@ async def handle_lobbychat(
         else:
             admin_command = False
             if app_state.chat_flood.allow_message(f"public:{user.username}", message):
-                lobby_response = chat_response("lobbychat", user.username, data["message"])
+                lobby_response = chat_response("lobbychat", user.username, message)
                 response = lobby_response
                 await app_state.lobby.lobby_chat_save(lobby_response)
 
@@ -670,7 +671,7 @@ async def handle_lobbychat(
         if user.silence == 0 and app_state.chat_flood.allow_message(
             f"public:{user.username}", message
         ):
-            lobby_response = chat_response("lobbychat", user.username, data["message"])
+            lobby_response = chat_response("lobbychat", user.username, message)
             response = lobby_response
             await app_state.lobby.lobby_chat_save(lobby_response)
 
@@ -678,7 +679,7 @@ async def handle_lobbychat(
         await app_state.lobby.lobby_broadcast(response)
 
     if response is not None and user.silence == 0 and not admin_command:
-        await app_state.discord.send_to_discord("lobbychat", data["message"], user.username)
+        await app_state.discord.send_to_discord("lobbychat", message, user.username)
 
 
 async def handle_cancel_auto_pairing(
