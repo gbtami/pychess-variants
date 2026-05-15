@@ -86,6 +86,7 @@ export class TournamentController implements ChatController {
     topGameId: string;
     topGameChessground: Api;
     vDuels: VNode | HTMLElement;
+    spectatorsContainer: VNode | HTMLElement;
     playerGamesOn: boolean;
     variant: Variant;
     chess960: boolean;
@@ -778,7 +779,10 @@ export class TournamentController implements ChatController {
 
     private onMsgSpectators = (msg: MsgSpectators) => {
         const container = document.getElementById('spectators') as HTMLElement;
-        patch(container, h('under-chat#spectators', this.renderSpectators(msg.spectators)));
+        this.spectatorsContainer = patch(
+            this.spectatorsContainer ?? container,
+            h('under-chat#spectators', this.renderSpectators(msg.spectators))
+        );
     }
 
     private renderSpectators(raw: string): Array<VNode | string> {

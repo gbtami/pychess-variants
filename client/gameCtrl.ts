@@ -75,6 +75,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     vplayer0: VNode;
     vplayer1: VNode;
     vmovelist: VNode | HTMLElement;
+    spectatorsContainer: VNode | HTMLElement;
     gameControls: VNode;
     moveControls: VNode;
     vmiscInfoW: VNode;
@@ -477,7 +478,10 @@ export abstract class GameController extends ChessgroundController implements Ch
     private onMsgSpectators = (msg: MsgSpectators) => {
         const container = document.getElementById('spectators') as HTMLElement;
         if (container) {
-            patch(container, h('under-left#spectators', this.renderSpectators(msg.spectators)));
+            this.spectatorsContainer = patch(
+                this.spectatorsContainer ?? container,
+                h('under-left#spectators', this.renderSpectators(msg.spectators))
+            );
         }
     }
 
