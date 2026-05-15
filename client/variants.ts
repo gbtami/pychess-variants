@@ -710,7 +710,7 @@ export const VARIANTS: Record<string, Variant> = {
         notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "r", "y", "g", "c", "a", "g", "y", "l", "s", "t", "p"],
-        pocket: { roles: ["r", "y", "g", "c", "a", "g", "y", "l", "s", "t", "p"], captureToHand: true },
+        pocket: { roles: ["r", "y", "g", "c", "a", "g", "y", "l", "s", "t", "p", "n"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "g", "y", "t"] },
         rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
