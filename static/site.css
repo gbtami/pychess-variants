@@ -3312,6 +3312,13 @@ div.ctable-container {
   display: flex;
   justify-content: center;
 }
+.umw-game-board .cg-wrap.mini {
+  max-width: 100%;
+}
+.umw-game-board.with-pockets {
+  padding-top: calc(var(--cg-height) / var(--ranks));
+  padding-bottom: calc(var(--cg-height) / var(--ranks));
+}
 .umw-game-players {
   margin-top: 0.4rem;
   font-size: 0.85rem;
