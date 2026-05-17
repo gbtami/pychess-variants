@@ -94,6 +94,7 @@ class ServerVariants(Enum):
     GOROGOROPLUS = Variant("G", "gorogoroplus", _("Gorogoro+"), "🐱", byo=True)
     TORISHOGI = Variant("T", "torishogi", _("Tori Shogi"), "🐦", byo=True)
     CANNONSHOGI = Variant("W", "cannonshogi", _("Cannon Shogi"), "💣", byo=True)
+    YOKAI = Variant("*", "yokai", _("Yokai Shogi"), "👹", byo=True)
 
     XIANGQI = Variant("x", "xiangqi", _("Xiangqi"), "|", grand=True)
     XIANGQIHOUSE = Variant("[", "xiangqihouse", _("Xiangqihouse"), "|", grand=True)
@@ -135,7 +136,6 @@ class ServerVariants(Enum):
     XIANGFU = Variant('"', "xiangfu", _("Xiang Fu"), "👊")
 
     BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), " 🌄", grand=True)
-    YOKAI = Variant("*", "yokai", _("Yokai Shogi"), "👹", byo=True)
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
 
     @property
