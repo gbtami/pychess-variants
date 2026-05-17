@@ -442,7 +442,6 @@ customPiece13 = b:KmBcR
 
 capturesToHand = true
 pieceDrops = true
-immobilityIllegal = true
 nFoldMove = 4
 dropNoDoubled = p
 promotionRegionWhite = *7 *8 *9
