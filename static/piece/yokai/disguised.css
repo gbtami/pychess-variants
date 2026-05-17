@@ -1,0 +1,6 @@
+.yokai piece.ally {
+    background-image: url('../../images/pieces/disguised/shogi-ally.svg');
+}
+.yokai piece.enemy {
+    background-image: url('../../images/pieces/disguised/shogi-enemy.svg');
+}

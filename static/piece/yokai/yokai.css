@@ -1,0 +1,107 @@
+.yokai piece.k-piece.white.ally {
+    background-image: url('../../images/pieces/yokai/0K-BlackKing.svg');
+}
+.yokai piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/yokai/0K-WhiteKing.svg');
+}
+.yokai piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/yokai/1K-BlackKing.svg');
+}
+.yokai piece.k-piece.black.enemy {
+    background-image: url('../../images/pieces/yokai/1K-WhiteKing.svg');
+}
+
+
+.yokai piece.p-piece.ally {
+    background-image: url('../../images/pieces/yokai/0P-Pawn.svg');
+}
+.yokai piece.p-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1P-Pawn.svg');
+}
+.yokai piece.pp-piece.ally {
+    background-image: url('../../images/pieces/yokai/0P+KasaObake.svg');
+}
+.yokai piece.pp-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1P+KasaObake.svg');
+}
+
+.yokai piece.g-piece.ally {
+    background-image: url('../../images/pieces/yokai/0G-Tengu.svg');
+}
+.yokai piece.g-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1G-Tengu.svg');
+}
+.yokai piece.pg-piece.ally {
+    background-image: url('../../images/pieces/yokai/0G+DaiTengu.svg');
+}
+.yokai piece.pg-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1G+DaiTengu.svg');
+}
+
+.yokai piece.a-piece.ally {
+    background-image: url('../../images/pieces/yokai/0A-AzureOni.svg');
+}
+.yokai piece.a-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1A-AzureOni.svg');
+}
+
+.yokai piece.c-piece.ally {
+    background-image: url('../../images/pieces/yokai/0C-CrimsonOni.svg');
+}
+.yokai piece.c-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1C-CrimsonOni.svg');
+}
+
+.yokai piece.l-piece.ally {
+    background-image: url('../../images/pieces/yokai/0L-LeftKappa.svg');
+}
+.yokai piece.l-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1L-LeftKappa.svg');
+}
+
+.yokai piece.r-piece.ally {
+    background-image: url('../../images/pieces/yokai/0R-RightKappa.svg');
+}
+.yokai piece.r-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1R-RightKappa.svg');
+}
+
+.yokai piece.n-piece.ally {
+    background-image: url('../../images/pieces/yokai/0N-Nurikabe.svg');
+}
+.yokai piece.n-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1N-Nurikabe.svg');
+}
+
+.yokai piece.s-piece.ally {
+    background-image: url('../../images/pieces/yokai/0S-Kitsune.svg');
+}
+.yokai piece.s-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1S-Kitsune.svg');
+}
+.yokai piece.ps-piece.ally {
+    background-image: url('../../images/pieces/yokai/0S+Ninetails.svg');
+}
+.yokai piece.ps-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1S+Ninetails.svg');
+}
+
+.yokai piece.t-piece.ally {
+    background-image: url('../../images/pieces/yokai/0T-Tanuki.svg');
+}
+.yokai piece.t-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1T-Tanuki.svg');
+}
+.yokai piece.pt-piece.ally {
+    background-image: url('../../images/pieces/yokai/0T+BakeDanuki.svg');
+}
+.yokai piece.pt-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1T+BakeDanuki.svg');
+}
+
+.yokai piece.y-piece.ally {
+    background-image: url('../../images/pieces/yokai/0Y-Yurei.svg');
+}
+.yokai piece.y-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1Y-Yurei.svg');
+}

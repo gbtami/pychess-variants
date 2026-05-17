@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 60 60"
+   version="1.1"
+   id="svg3"
+   sodipodi:docname="1P-Pawn.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview3"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="15.216666"
+     inkscape:cx="74.654987"
+     inkscape:cy="49.550933"
+     inkscape:window-width="3840"
+     inkscape:window-height="2054"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3" />
+  <defs
+     id="defs1">
+    <filter
+       id="1FU_svg__a"
+       x="-0.13599486"
+       y="-0.11066395"
+       width="1.3218818"
+       height="1.2630402">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur1" />
+      <feOffset
+         dx="2"
+         dy="2"
+         result="offsetBlur"
+         id="feOffset1" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         id="feBlend1" />
+    </filter>
+    <filter
+       id="1OU_svg__a"
+       x="-0.13338546"
+       y="-0.10825364"
+       width="1.3166422"
+       height="1.2574737">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur1-5" />
+      <feOffset
+         dx="2"
+         dy="2"
+         result="offsetBlur"
+         id="feOffset1-2" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         id="feBlend1-1"
+         mode="normal" />
+    </filter>
+    <filter
+       id="0UM_svg__a-01-9-7"
+       x="-0.13416397"
+       y="-0.10998295"
+       width="1.318338"
+       height="1.2611304">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur1-8-9-9" />
+      <feOffset
+         dx="2"
+         dy="2"
+         result="offsetBlur"
+         id="feOffset1-5-8-7" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         id="feBlend1-6-2-0"
+         mode="normal" />
+    </filter>
+    <filter
+       id="0UM_svg__a-01-9-9"
+       x="-0.13416397"
+       y="-0.10998295"
+       width="1.318338"
+       height="1.2611304">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur1-8-9-1" />
+      <feOffset
+         dx="2"
+         dy="2"
+         result="offsetBlur"
+         id="feOffset1-5-8-73" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         id="feBlend1-6-2-4"
+         mode="normal" />
+    </filter>
+    <filter
+       id="0FU_svg__a"
+       x="-0.13676314"
+       y="-0.11210536"
+       width="1.3235293"
+       height="1.2653512">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur1-0" />
+      <feOffset
+         dx="2"
+         dy="2"
+         result="offsetBlur"
+         id="feOffset1-7" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         id="feBlend1-4"
+         mode="normal" />
+    </filter>
+    <filter
+       id="0FU_svg__a-1"
+       x="-0.13676314"
+       y="-0.11210536"
+       width="1.3235293"
+       height="1.2653512">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur1-3" />
+      <feOffset
+         dx="2"
+         dy="2"
+         result="offsetBlur"
+         id="feOffset1-3" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         id="feBlend1-6"
+         mode="normal" />
+    </filter>
+    <filter
+       id="0FU_svg__a-5"
+       x="-0.13676314"
+       y="-0.11210536"
+       width="1.3235293"
+       height="1.2653512">
+      <feGaussianBlur
+         in="SourceAlpha"
+         result="blur"
+         stdDeviation="2"
+         id="feGaussianBlur1-58" />
+      <feOffset
+         dx="2"
+         dy="2"
+         result="offsetBlur"
+         id="feOffset1-8" />
+      <feBlend
+         in="SourceGraphic"
+         in2="offsetBlur"
+         id="feBlend1-46"
+         mode="normal" />
+    </filter>
+  </defs>
+  <g
+     filter="url(#1FU_svg__a)"
+     transform="matrix(0.86914,0,0,0.86914,-81.778,-21.260823)"
+     id="g1"
+     style="stroke:#333333;stroke-width:1.15056;stroke-dasharray:none">
+    <path
+       fill="#feec99"
+       d="m 141.865,74.375 6.837,-44.334 h -40.19 l 6.535,44.638 13.56059,3.935 z"
+       id="path1"
+       style="stroke:#333333;stroke-width:1.15056;stroke-dasharray:none;fill:#d5beaf;fill-opacity:1"
+       sodipodi:nodetypes="cccccc" />
+  </g>
+  <circle
+     style="fill:#f9f9f9;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;paint-order:stroke fill markers"
+     id="path2"
+     cx="-29.693842"
+     cy="-32.94841"
+     r="6.3662844"
+     transform="scale(-1)" />
+  <circle
+     style="fill:#000000;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;paint-order:stroke fill markers"
+     id="path3-2"
+     cx="-30.047838"
+     cy="-32.94841"
+     r="3.5781307"
+     transform="scale(-1)" />
+  <path
+     style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+     d="M 37.202731,21.842263 C 32.134195,19.010768 27.370756,19.382798 22.797269,21.749323"
+     id="path7"
+     sodipodi:nodetypes="cc" />
+  <path
+     style="fill:#ff80e5;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 34.534861,19.43747 c 0,0 3.362459,-5.583077 1.951708,-7.899769 -2.222165,-3.6491724 -9.717103,-4.0962104 -12.825507,-0.371754 -1.902832,2.279952 2.137584,8.364462 2.137584,8.364462 3.002724,-0.438914 5.97778,-0.753323 8.736215,-0.09294 z"
+     id="path8"
+     sodipodi:nodetypes="cssccc" />
+  <path
+     style="fill:none;stroke:#c5009e;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 30.093905,18.586875 C 30.48821,15.761026 29.896753,11.357959 29.896753,11.357959"
+     id="path9" />
+</svg>

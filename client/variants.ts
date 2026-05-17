@@ -75,7 +75,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     mansindam: { pieceCSS: ["mansindam2", "mansindam1", "mansindam3", "mansindam4", "disguised"] },
     xiangfu: { pieceCSS: ["eventintl", "eventhanzi", "eventhanziguided", "disguised"] },
     borderlands: { pieceCSS: ["borderlands", "disguised"] },
-    yokai: { pieceCSS: ["disguised"] },
+    yokai: { pieceCSS: ["yokai", "disguised"] },
 };
 
 export interface Variant {
@@ -704,13 +704,13 @@ export const VARIANTS: Record<string, Variant> = {
 
     yokai: variant({
         name: "yokai", displayName: "yokai shogi", tooltip: "Modern Shogi varaint",
-        startFen: "rygckagyl/1s5t1/ppppppppp/9/9/9/PPPPPPPPP/1S5T1/LYGAKCGYR[Nn] w 0 1",
+        startFen: "rygckagyl/1s5t1/ppppppppp/9/9/9/PPPPPPPPP/1S5T1/LYGAKCGYR[Nn]",
         icon: "👹",
         boardFamily: "shogi9x9", pieceFamily: "yokai",
         notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
-        pieceRow: ["k", "r", "y", "g", "c", "a", "g", "y", "l", "s", "t", "p"],
-        pocket: { roles: ["r", "y", "g", "c", "a", "g", "y", "l", "s", "t", "p", "n"], captureToHand: true },
+        pieceRow: ["k", "r", "y", "g", "c", "a", "l", "s", "t", "p"],
+        pocket: { roles: ["r", "y", "g", "c", "a", "l", "s", "t", "p", "n"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "g", "y", "t"] },
         rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
