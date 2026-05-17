@@ -182,6 +182,9 @@ function variant(config: VariantConfig): Variant {
                 white: config.pocket.roles.map(util.roleOf),
                 black: config.pocket.roles.map(util.roleOf),
             } : {
+
+
+                
                 white: config.pocket.roles.white.map(util.roleOf),
                 black: config.pocket.roles.black.map(util.roleOf),
             },
@@ -710,7 +713,7 @@ export const VARIANTS: Record<string, Variant> = {
         notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "t", "f", "r", "l", "a", "c", "g", "y", "p", "n"],
-        pocket: { roles: ["k", "t", "f", "r", "l", "a", "c", "g", "y", "p", "n"], captureToHand: true },
+        pocket: { roles: ["n", "t", "f", "r", "l", "a", "c", "g", "y", "p"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "f", "g", "y", "t"] },
         rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
         ui: { pieceSound: "shogi" },
