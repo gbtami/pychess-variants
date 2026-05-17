@@ -1,5 +1,6 @@
 from __future__ import annotations
 from itertools import product
+from string import ascii_uppercase
 
 """
 We use the simplest compression method for moves here: 2 byte square to 1 byte ascii.
@@ -57,8 +58,15 @@ for piece in PIECES:
     M2C["%s@" % piece] = m2c_len
     m2c_len += 1
 
+# The remaining droppable piece letters
+m2c_len = len(M2C) + 34
+for letter in ascii_uppercase:
+    if "%s@" % letter not in M2C:
+        M2C["%s@" % letter] = m2c_len
+        m2c_len += 1
+
 # for x in M2C:
-#     print(x, M2C[x])
+#    print(x, M2C[x])
 
 C2M = {v: k for k, v in M2C.items()}
 
