@@ -709,7 +709,7 @@ export const VARIANTS: Record<string, Variant> = {
         boardFamily: "shogi9x9", pieceFamily: "yokai",
         notation: cg.Notation.SHOGI_ARBNUM,
         colors: { first: "Black", second: "White" },
-        pieceRow: ["k", "r", "y", "g", "c", "a", "l", "s", "t", "p"],
+        pieceRow: ["k", "r", "y", "g", "c", "a", "l", "s", "t", "p", "n"],
         pocket: { roles: ["r", "y", "g", "c", "a", "l", "s", "t", "p", "n"], captureToHand: true },
         promotion: { type: "shogi", roles: ["p", "s", "g", "y", "t"] },
         rules: { defaultTimeControl: "byoyomi", noDrawOffer: true },
