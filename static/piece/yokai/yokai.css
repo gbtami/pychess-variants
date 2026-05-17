@@ -105,3 +105,9 @@
 .yokai piece.y-piece.enemy {
     background-image: url('../../images/pieces/yokai/1Y-Yurei.svg');
 }
+.yokai piece.py-piece.ally {
+    background-image: url('../../images/pieces/yokai/0Y+VengefulSpirit.svg');
+}
+.yokai piece.py-piece.enemy {
+    background-image: url('../../images/pieces/yokai/1Y+VengefulSpirit.svg');
+}

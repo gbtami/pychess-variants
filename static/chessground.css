@@ -217,7 +217,7 @@ cg-board square.current-premove {
   will-change: transform;
   pointer-events: none;
 }
-.shogi .cg-wrap piece, .kyoto .cg-wrap piece, .dobutsu .cg-wrap piece, .tori .cg-wrap piece, .cannonshogi .cg-wrap piece, .janggi .cg-wrap piece {
+.shogi .cg-wrap piece, .kyoto .cg-wrap piece, .dobutsu .cg-wrap piece, .tori .cg-wrap piece, .yokai .cg-wrap piece, .cannonshogi .cg-wrap piece, .janggi .cg-wrap piece {
   background-position: center;
 }
 .cg-wrap.cg-640 piece {
