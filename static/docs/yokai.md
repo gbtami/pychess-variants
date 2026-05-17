@@ -57,11 +57,6 @@ Yurei are ghosts; they can move up to two squares forward or sideways. Upon prom
 
 Tengu are flying goblin-like or crow-like demons. They can jump to three different squares, either a sideways knight-leap forward (1 up and 2 to the side) or jump 2 squares directly ahead. Upon promotion, they become a Dai-tengu that moves exactly like a chess knight (they lose the 2-square forward jump).
 
-### Tengu (G) and Dai-tengu
-
-![Tengu](https://github.com/gbtami/pychess-variants/blob/master/static/images/YokaiShogiGuide/Tengu.png) 
-
-Tengu are flying goblin-like or crow-like demons. They can jump to three different squares, either a sideways knight-leap forward (1 up and 2 to the side) or jump 2 squares directly ahead. Upon promotion, they become a Dai-tengu that moves exactly like a chess knight (they lose the 2-square forward jump).
 
 ### Kitsune (F) and Nine-tailed Fox
 
