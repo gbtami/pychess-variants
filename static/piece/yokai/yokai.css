@@ -74,16 +74,16 @@
 }
 
 .yokai piece.s-piece.ally {
-    background-image: url('../../images/pieces/yokai/0S-Kitsune.svg');
+    background-image: url('../../images/pieces/yokai/0F-Kitsune.svg');
 }
 .yokai piece.s-piece.enemy {
-    background-image: url('../../images/pieces/yokai/1S-Kitsune.svg');
+    background-image: url('../../images/pieces/yokai/1F-Kitsune.svg');
 }
 .yokai piece.ps-piece.ally {
-    background-image: url('../../images/pieces/yokai/0S+Ninetails.svg');
+    background-image: url('../../images/pieces/yokai/0F+Ninetails.svg');
 }
 .yokai piece.ps-piece.enemy {
-    background-image: url('../../images/pieces/yokai/1S+Ninetails.svg');
+    background-image: url('../../images/pieces/yokai/1F+Ninetails.svg');
 }
 
 .yokai piece.t-piece.ally {
