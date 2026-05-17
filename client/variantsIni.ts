@@ -403,7 +403,7 @@ king = k
 shogiPawn = p
 
 # Kitsune (move Rook cap Bishop)
-customPiece1 = s:mRcB
+customPiece1 = f:mRcB
 
 # Tanuki (move Bishop cap Rook)
 customPiece2 = t:mBcR
@@ -443,11 +443,11 @@ customPiece13 = b:KmBcR
 capturesToHand = true
 pieceDrops = true
 immobilityIllegal = true
-perpetualCheckIllegal = true
-shogiPawnDropMateIllegal = true
+nFoldMove = 4
 dropNoDoubled = p
 promotionRegionWhite = *7 *8 *9
 promotionRegionBlack = *1 *2 *3
-promotedPieceType = p:z s:e g:d y:v t:b
+promotedPieceType = p:z f:e g:d y:v t:b 
+nFoldRule = 4
 stalemateValue = loss
-startFen = rygckagyl/1s5t1/ppppppppp/9/9/9/PPPPPPPPP/1S5T1/LYGAKCGYR[Nn] w 0 1`
+startFen = rygckagyl/1t5f1/ppppppppp/9/9/9/PPPPPPPPP/1F5T1/LYGAKCGYR[Nn] w 0 1`
