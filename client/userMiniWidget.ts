@@ -62,7 +62,9 @@ interface CacheEntry {
     payload: MiniPayload;
 }
 
-const HOVER_DELAY_MS = 110;
+const HOVER_DELAY_MS = 150;
+const HOVER_INTENT_POLL_MS = 150;
+const HOVER_INTENT_SENSITIVITY = 7;
 const HIDE_DELAY_MS = 130;
 const CACHE_TTL_MS = 8000;
 
@@ -194,6 +196,7 @@ class UserMiniWidget {
     init() {
         document.body.addEventListener('mouseover', this.onBodyMouseOver);
         document.body.addEventListener('mouseout', this.onBodyMouseOut);
+        document.body.addEventListener('mousemove', this.onBodyMouseMove);
         window.addEventListener('scroll', this.onWindowChange, true);
         window.addEventListener('resize', this.onWindowChange);
         void this.loadBlockedUsers();
@@ -223,6 +226,11 @@ class UserMiniWidget {
         this.scheduleShow(anchor, profileId);
     };
 
+    private onBodyMouseMove = (event: MouseEvent) => {
+        this.lastMouseX = event.clientX;
+        this.lastMouseY = event.clientY;
+    };
+
     private onBodyMouseOut = (event: MouseEvent) => {
         const target = event.target as HTMLElement | null;
         if (!target) return;
@@ -232,6 +240,7 @@ class UserMiniWidget {
         const related = event.relatedTarget as HTMLElement | null;
         if (related && (this.root.contains(related) || fromLink.contains(related))) return;
 
+        this.clearHoverTimer();
         this.scheduleHide();
     };
 
@@ -260,10 +269,27 @@ class UserMiniWidget {
 
     private scheduleShow(anchor: HTMLElement, profileId: string) {
         this.clearHoverTimer();
+        const startX = this.lastMouseX;
+        const startY = this.lastMouseY;
         this.hoverTimer = window.setTimeout(() => {
             this.hoverTimer = undefined;
-            void this.show(anchor, profileId);
+            this.checkHoverIntent(anchor, profileId, startX, startY);
         }, HOVER_DELAY_MS);
+    }
+
+    private checkHoverIntent(anchor: HTMLElement, profileId: string, prevX: number, prevY: number) {
+        if (this.anchor !== anchor || this.anchorUser !== profileId) return;
+
+        const movement = Math.abs(this.lastMouseX - prevX) + Math.abs(this.lastMouseY - prevY);
+        if (movement <= HOVER_INTENT_SENSITIVITY) {
+            void this.show(anchor, profileId);
+            return;
+        }
+
+        this.hoverTimer = window.setTimeout(() => {
+            this.hoverTimer = undefined;
+            this.checkHoverIntent(anchor, profileId, this.lastMouseX, this.lastMouseY);
+        }, HOVER_INTENT_POLL_MS);
     }
 
     private scheduleHide() {
