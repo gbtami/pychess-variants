@@ -16,13 +16,19 @@ import logging
 from user import User
 from typing_defs import UserDocument, ViewContext
 from variants import ALL_VARIANTS
-from settings import SIMULING
+from settings import SIMULING, ADMINS
 
 if TYPE_CHECKING:
     from game import Game
     from bug.game_bug import GameBug
 
 log = logging.getLogger(__name__)
+
+
+def _is_admin_username(username: str) -> bool:
+    lowered = username.casefold()
+    return any(lowered == admin.casefold() for admin in ADMINS)
+
 
 piece_css_path: Path = Path(Path(__file__).parent.parent.parent, "static/piece-css")
 piece_sets: list[str] = [
@@ -105,6 +111,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         "username": user.username,
         "piece_sets": piece_sets,
         "simuling": SIMULING,
+        "admin": _is_admin_username(user.username),
     }
     return (user, context)
 

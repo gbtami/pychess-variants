@@ -1,0 +1,102 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap" class="reports-wrap">
+    <main class="page-small reports-page box box-pad">
+        <h1>Moderation Reports</h1>
+
+        <div class="reports-filters">
+            <a class="button{% if report_status == 'open' %} active{% endif %}" href="/reports?status=open">Open ({{ report_open_count }})</a>
+            <a class="button{% if report_status == 'processed' %} active{% endif %}" href="/reports?status=processed">Processed ({{ report_processed_count }})</a>
+            <a class="button{% if report_status == 'all' %} active{% endif %}" href="/reports?status=all">All</a>
+        </div>
+
+        <div class="reports-list">
+            {% if reports %}
+            <table class="reports-table">
+                <thead>
+                    <tr>
+                        <th>When</th>
+                        <th>Status</th>
+                        <th>Reporter</th>
+                        <th>Suspect</th>
+                        <th>Source</th>
+                        <th>Reason</th>
+                        <th>Details</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td><info-date timestamp="{{ report.createdAt.isoformat() if report.createdAt else '' }}"></info-date></td>
+                        <td>{{ report.status }}</td>
+                        <td><a class="user-link" href="/@/{{ report.reporter }}">{{ report.reporter }}</a></td>
+                        <td>
+                            <a class="user-link" href="/@/{{ report.suspect }}">{{ report.suspect }}</a>
+                            {% if report.gameId %}
+                                <div><a href="/{{ report.gameId }}">game {{ report.gameId }}</a></div>
+                            {% endif %}
+                        </td>
+                        <td>{{ report.source }}</td>
+                        <td>{{ report.reason }}</td>
+                        <td><pre class="report-details">{{ report.details }}</pre></td>
+                        <td class="report-actions">
+                            {% if report.status == 'open' %}
+                            <button class="report-btn" data-action="inquiry" data-id="{{ report._id }}">
+                                {% if report.inquiryBy %}
+                                    Inquiry: {{ report.inquiryBy }}
+                                {% else %}
+                                    Start inquiry
+                                {% endif %}
+                            </button>
+                            <button class="report-btn report-btn-process" data-action="process" data-id="{{ report._id }}">Mark processed</button>
+                            {% else %}
+                            <button class="report-btn" data-action="reopen" data-id="{{ report._id }}">Reopen</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No reports found for this filter.</p>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+    <script>
+    (() => {
+        const actionUrl = (action, id) => `/api/reports/${id}/${action}`;
+        const buttons = document.querySelectorAll('button[data-action][data-id]');
+        for (const button of buttons) {
+            button.addEventListener('click', async () => {
+                const action = button.getAttribute('data-action');
+                const id = button.getAttribute('data-id');
+                if (!action || !id) return;
+
+                button.disabled = true;
+                try {
+                    const res = await fetch(actionUrl(action, id), { method: 'POST' });
+                    if (!res.ok) {
+                        let message = `HTTP ${res.status}`;
+                        try {
+                            const body = await res.json();
+                            if (body && body.message) message = body.message;
+                        } catch (_) {}
+                        alert(`Action failed: ${message}`);
+                        button.disabled = false;
+                        return;
+                    }
+                    window.location.reload();
+                } catch (err) {
+                    alert('Action failed.');
+                    button.disabled = false;
+                }
+            });
+        }
+    })();
+    </script>
+{% endblock %}

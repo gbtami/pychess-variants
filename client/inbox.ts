@@ -5,6 +5,7 @@ import { patch } from './document';
 import { timeago } from './datetime';
 import { PyChessModel } from './types';
 import { expandInboxGameEmbeds, makeExternalLinkPopups, renderRichText } from './richTextEnhance';
+import { openReportDialog } from './report';
 
 interface ThreadSummary {
     user: string;
@@ -317,6 +318,15 @@ export function inboxView(model: PyChessModel) {
             });
     }
 
+    function reportConversation() {
+        if (!contact) return;
+        void openReportDialog(model, {
+            source: 'inbox',
+            suspect: contact,
+            defaultReason: 'harassment',
+        });
+    }
+
     function connectInbox() {
         if (evtSource !== null) evtSource.close();
         evtSource = new EventSource('/inbox/subscribe');
@@ -451,6 +461,11 @@ export function inboxView(model: PyChessModel) {
                             props: { type: 'button' },
                             attrs: { title: _('Delete') },
                             on: { click: deleteConversation },
+                        }),
+                        h('button.inbox-action.icon.icon-flag-o', {
+                            props: { type: 'button' },
+                            attrs: { title: _('Report to moderators') },
+                            on: { click: reportConversation },
                         }),
                     ] : []),
                 ]),

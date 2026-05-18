@@ -32,6 +32,7 @@ export interface SimulGame {
 export type PyChessModel = {
     ffish: FairyStockfish;
     username: string;
+    admin: boolean;
     home: string;
     anon: string;
     profileid: string;

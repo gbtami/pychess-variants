@@ -332,6 +332,13 @@ class PychessGlobalAppState:
                 await self.db.create_collection("inbox_msg")
             await self.db.inbox_msg.create_index([("tid", 1), ("createdAt", 1)])
 
+            if "user_report" not in db_collections:
+                await self.db.create_collection("user_report")
+            await self.db.user_report.create_index("createdAt")
+            await self.db.user_report.create_index("status")
+            await self.db.user_report.create_index("reporter")
+            await self.db.user_report.create_index("suspect")
+
             if "seek" not in db_collections:
                 await self.db.create_collection("seek")
             await self.db.seek.create_index("expireAt", expireAfterSeconds=0)

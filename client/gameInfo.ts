@@ -8,6 +8,7 @@ import { alternateStartName, timeControlStr } from "./view";
 import { PyChessModel } from "./types";
 import { VARIANTS } from "./variants";
 import { displayUsername, userLink } from "./user";
+import { openReportDialog } from './report';
 
 
 export function gameInfo(model: PyChessModel): VNode {
@@ -78,6 +79,34 @@ export function gameInfo(model: PyChessModel): VNode {
                 ])
             ])
         )
+    }
+    if (model.anon !== "True") {
+        const reportTargets = [model["wplayer"], model["bplayer"]]
+            .filter((username, idx, users) => username !== model["username"] && users.indexOf(username) === idx);
+        if (reportTargets.length > 0) {
+            sections.push(
+                h('section.game-report', [
+                    h('div.report-actions', reportTargets.map((target) =>
+                        h('button.icon.icon-flag-o', {
+                            props: {
+                                type: 'button',
+                                title: `${_('Report')} ${displayUsername(target)}`,
+                            },
+                            on: {
+                                click: () => {
+                                    void openReportDialog(model, {
+                                        source: 'game',
+                                        suspect: target,
+                                        gameId: model["gameId"],
+                                        defaultReason: 'cheating',
+                                    });
+                                },
+                            },
+                        }, `${_('Report')} ${displayUsername(target)}`),
+                    )),
+                ]),
+            );
+        }
     }
     return h('div.game-info', sections);
 }

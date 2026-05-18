@@ -53,6 +53,13 @@ from inbox_api import (
     inbox_read,
     inbox_delete,
 )
+from report_api import (
+    report_create,
+    report_queue,
+    report_inquiry,
+    report_process,
+    report_reopen,
+)
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import (
@@ -98,6 +105,7 @@ from views import (
     players,
     players50,
     profile,
+    reports as reports_view,
     user_mini,
     inbox,
     puzzle,
@@ -149,6 +157,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/inbox", inbox.inbox),
     ("/inbox/subscribe", subscribe_inbox),
     ("/inbox/{contact}", inbox.inbox),
+    ("/reports", reports_view.reports),
     ("/challenges", get_header_challenges),
     ("/notify", subscribe_notify),
     ("/challenge/subscribe", subscribe_challenges),
@@ -222,6 +231,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/api/inbox/unread", inbox_unread),
     ("/api/inbox/threads", inbox_threads),
     ("/api/inbox/thread/{contact}", inbox_thread),
+    ("/api/reports/queue", report_queue),
     ("/api/names", get_names),
     ("/paste", paste.paste),
     (r"/games/export/monthly/{yearmonth:\d{6}}", export),
@@ -258,6 +268,10 @@ post_routes: tuple[RouteDef, ...] = (
     ("/api/inbox/thread/{contact}", inbox_post),
     ("/api/inbox/thread/{contact}/read", inbox_read),
     ("/api/inbox/thread/{contact}/delete", inbox_delete),
+    ("/api/report/create", report_create),
+    (r"/api/reports/{reportId:\w{8}}/inquiry", report_inquiry),
+    (r"/api/reports/{reportId:\w{8}}/process", report_process),
+    (r"/api/reports/{reportId:\w{8}}/reopen", report_reopen),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),
     ("/fishnet/move/{workId}", fishnet_move),

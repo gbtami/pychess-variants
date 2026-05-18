@@ -185,6 +185,10 @@
   color: var(--bad);
 }
 
+.inbox-action.icon-flag-o:hover {
+  color: var(--bad);
+}
+
 .inbox-convo-body {
   overflow: auto;
   padding: 1rem;

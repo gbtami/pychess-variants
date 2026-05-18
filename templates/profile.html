@@ -51,6 +51,7 @@
             {% endif %}
             {% if (not anon) and (profile != username) and (profile_title != "BOT") %}
             <a class="icon icon-comment-o" href="/inbox/{{ profile }}" title="{% trans %}Send a private message{% endtrans %}">{% trans %}Message{% endtrans %}</a>
+            <a id="report"></a>
             {% endif %}
 
             {% if (not anon) and (profile_title != "BOT") %}

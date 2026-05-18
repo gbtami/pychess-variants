@@ -400,6 +400,10 @@ class ViewContext(TypedDict, total=False):
     blog_item: str
     blog_tag: Callable[[str], str]
     blogs: list[object] | str
+    reports: list[object]
+    report_status: str
+    report_open_count: int
+    report_processed_count: int
     can_block: bool
     can_challenge: bool
     corr_games: str

@@ -1,0 +1,75 @@
+.reports-wrap {
+  --main-max-width: 1700px;
+}
+
+.reports-page {
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+}
+
+.reports-filters {
+  display: flex;
+  gap: 0.6rem;
+  margin: 0.8rem 0 1rem;
+}
+
+.reports-filters .button.active {
+  background: var(--good);
+  color: #fff;
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reports-table th,
+.reports-table td {
+  border: 1px solid var(--border-color);
+  padding: 0.45rem 0.55rem;
+  vertical-align: top;
+}
+
+.reports-table th {
+  background: var(--bg-color1);
+  text-align: left;
+}
+
+.report-details {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+  max-width: 560px;
+  font-family: inherit;
+}
+
+.report-actions {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 11rem;
+}
+
+.report-btn {
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  background: var(--bg-color1);
+  color: var(--font-color);
+  padding: 0.4rem 0.55rem;
+  text-align: left;
+}
+
+.report-btn:hover {
+  background: var(--bg-color2);
+}
+
+.report-btn-process {
+  color: #fff;
+  background: var(--green-hover);
+  border-color: var(--green-hover);
+}
+
+.report-btn-process:hover {
+  background: var(--green-switch);
+  border-color: var(--green-switch);
+}
