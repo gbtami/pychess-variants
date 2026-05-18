@@ -495,7 +495,7 @@ class UserMiniWidget {
 
             if (payload.canMessage !== false) {
                 const messageLink = this.makeActionLink(
-                    'icon icon-paper-plane',
+                    'icon icon-comment-o',
                     `/inbox/${encodeURIComponent(payload.username)}`,
                     _('Message'),
                 );
