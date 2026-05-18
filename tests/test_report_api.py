@@ -110,7 +110,7 @@ class ReportApiTestCase(AioHTTPTestCase):
         self.assertEqual(resp.status, 200)
         body = await resp.text()
         self.assertIn("Report FAQ", body)
-        self.assertIn("When should I submit a report?", body)
+        self.assertIn("What are reports for?", body)
 
     async def test_admin_can_process_and_reopen_report(self):
         app_state = get_app_state(self.app)

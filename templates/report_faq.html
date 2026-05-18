@@ -6,61 +6,24 @@
 <div class="guide">
   <h1>Report FAQ</h1>
 
-  <details>
-    <summary>When should I submit a report?</summary>
-    <p>Submit a report for cheating, harassment, hate speech, threats, spam, impersonation, or other serious abuse that impacts fair play or community safety.</p>
-  </details>
+  <h2>What are reports for?</h2>
+  <p>Reports help moderators keep fair play and respectful communication standards. If you believe a user has broken the Terms of Service, submit a report so the incident can be reviewed.</p>
 
-  <details>
-    <summary>What should I include to help moderators?</summary>
-    <p>Include concrete evidence: game IDs, message snippets, and clear context. Reports with specific links and facts are reviewed faster and more accurately.</p>
-  </details>
+  <h2>Why does PyChess need user reports?</h2>
+  <p>Community reports are an important signal for moderation. They help staff find incidents faster, especially when context is spread across games, profiles, and private messages.</p>
 
-  <details>
-    <summary>Why do inbox reports have different reason choices?</summary>
-    <p>Inbox reports focus on communication abuse. Profile/game reports allow additional categories such as cheating-related behavior.</p>
-  </details>
+  <h2>What should I include in a report?</h2>
+  <p>Provide concrete context: links to games, tournaments, or profiles, plus a short explanation of what happened. Specific evidence allows moderators to verify the issue quickly.</p>
 
-  <details>
-    <summary>How many messages should I select in an inbox report?</summary>
-    <p>Select only the messages that demonstrate the issue. Avoid selecting unrelated chat, so moderators can review the problem quickly.</p>
-  </details>
+  <h2>What happens after I send a report?</h2>
+  <p>Reports go to the moderation queue. A moderator reviews the details and can issue warnings, communication restrictions, or stronger actions for serious or repeated abuse. Review can take some time depending on queue volume.</p>
 
-  <details>
-    <summary>What happens after I send a report?</summary>
-    <p>Moderators review the report queue and may open an inquiry, apply moderation actions, or close the report if no violation is found.</p>
-  </details>
+  <h2>Will I be informed about the result?</h2>
+  <p>You may receive a notification for some outcomes, but not every action is announced to reporters. No follow-up message does not mean the report was ignored.</p>
 
-  <details>
-    <summary>Can I report the same user multiple times?</summary>
-    <p>Yes, if there are separate incidents. For one incident, prefer one detailed report over many short duplicates.</p>
-  </details>
-
-  <details>
-    <summary>Should I block the user too?</summary>
-    <p>If the issue is direct harassment or spam, blocking can immediately reduce contact while moderation review is pending.</p>
-  </details>
-
-  <details>
-    <summary>Will my report text be visible to other players?</summary>
-    <p>No. Reports are for moderators/admins only and are handled in the moderation queue.</p>
-  </details>
+  <h2>Why can a reported account still be active?</h2>
+  <p>Some actions are limited in scope. For example, communication-related sanctions can restrict chat/community participation without fully blocking game play.</p>
 </div>
 </main>
 </div>
-{% endblock %}
-{% block js %}
-<script src="{{ js }}"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const details = document.querySelectorAll('details');
-  details.forEach((targetDetail) => {
-    targetDetail.addEventListener('click', () => {
-      details.forEach((detail) => {
-        if (detail !== targetDetail) detail.removeAttribute('open');
-      });
-    });
-  });
-});
-</script>
 {% endblock %}
