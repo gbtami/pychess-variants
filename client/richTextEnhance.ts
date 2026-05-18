@@ -11,7 +11,7 @@ const gameIdRegex = /(\s#)([\w]{8})($|[^\w-])/g;
 const imgurRegex = /https?:\/\/(?:i\.)?imgur\.com\/(?!gallery\b)(\w{7})(?:\.jpe?g|\.png|\.gif)?/i;
 const giphyRegex = /https:\/\/(?:media\.giphy\.com\/media\/|giphy\.com\/gifs\/(?:\w+-)*)(\w+)(?:\/giphy\.gif)?/i;
 const imageExtRegex = /\.(jpg|jpeg|png|gif)$/i;
-const gamePathRegex = /^\/(?:embed\/)?(?:game\/)?(\w{8})$/i;
+const gamePathRegex = /^\/(?:embed\/(?:game\/)?)?(?:game\/)?(\w{8})(?:\/(white|black))?$/i;
 const nonGamePaths = new Set([
     "training",
     "analysis",
@@ -161,20 +161,47 @@ export function renderRichText(text: string, options: EnhanceRichTextOptions = {
     return [
         h("span", {
             hook: {
+                create(_emptyVnode, vnode) {
+                    const el = vnode.elm as HTMLElement;
+                    el.innerHTML = enhanceRichText(text, options);
+                    if (!vnode.data) vnode.data = {};
+                    vnode.data.cachedRichText = text;
+                },
                 insert(vnode) {
                     const el = vnode.elm as HTMLElement;
-                    el.innerHTML = enhanceRichText(text, options);
+                    if (!vnode.data) vnode.data = {};
+                    if (vnode.data.cachedRichText !== text) {
+                        el.innerHTML = enhanceRichText(text, options);
+                        vnode.data.cachedRichText = text;
+                    }
                 },
-                postpatch(_oldVnode, vnode) {
+                postpatch(oldVnode, vnode) {
                     const el = vnode.elm as HTMLElement;
-                    el.innerHTML = enhanceRichText(text, options);
+                    const oldText = oldVnode.data?.cachedRichText;
+                    if (!vnode.data) vnode.data = {};
+                    if (oldText !== text) {
+                        el.innerHTML = enhanceRichText(text, options);
+                    }
+                    vnode.data.cachedRichText = text;
                 },
             },
         }),
     ];
 }
 
-function parseGameLink(link: HTMLAnchorElement): { id: string; ply?: string } | null {
+function isLichessHost(host: string): boolean {
+    return host === "lichess.org" || host.endsWith(".lichess.org");
+}
+
+function isLishogiHost(host: string): boolean {
+    return host === "lishogi.org" || host.endsWith(".lishogi.org");
+}
+
+function isPychessHost(host: string): boolean {
+    return host === "pychess.org" || host.endsWith(".pychess.org") || host === "pychess-variants.herokuapp.com";
+}
+
+function parseGameLink(link: HTMLAnchorElement): { embedSrc: string } | null {
     let parsed: URL;
     try {
         parsed = new URL(link.href);
@@ -182,7 +209,12 @@ function parseGameLink(link: HTMLAnchorElement): { id: string; ply?: string } | 
         return null;
     }
 
-    if (parsed.host.toLowerCase() !== window.location.host.toLowerCase()) return null;
+    const host = parsed.host.toLowerCase();
+    const sameHost = host === window.location.host.toLowerCase();
+    const lichessHost = isLichessHost(host);
+    const lishogiHost = isLishogiHost(host);
+    const pychessHost = isPychessHost(host);
+    if (!sameHost && !pychessHost && !lichessHost && !lishogiHost) return null;
 
     const path = parsed.pathname.replace(/\/+$/g, "");
     const match = path.match(gamePathRegex);
@@ -191,24 +223,29 @@ function parseGameLink(link: HTMLAnchorElement): { id: string; ply?: string } | 
     const id = match[1];
     if (!id) return null;
     if (nonGamePaths.has(id.toLowerCase())) return null;
+    const orientation = match[2] || undefined;
 
     const hash = parsed.hash.startsWith("#") ? parsed.hash.slice(1) : "";
-    return {
-        id,
-        ply: /^\d+$/.test(hash) ? hash : undefined,
-    };
+    const ply = /^\d+$/.test(hash) ? hash : undefined;
+    const orientationPath = orientation ? `/${orientation}` : "";
+    const hashPart = ply ? `#${ply}` : "";
+
+    if (sameHost) return { embedSrc: `/embed/${id}${hashPart}` };
+    if (pychessHost) return { embedSrc: `${parsed.origin}/embed/${id}${hashPart}` };
+    if (lichessHost) return { embedSrc: `https://lichess.org/embed/game/${id}${orientationPath}${hashPart}` };
+    if (lishogiHost) return { embedSrc: `https://lishogi.org/embed/game/${id}${orientationPath}${hashPart}` };
+    return null;
 }
 
-function renderGameEmbed(link: HTMLAnchorElement, game: { id: string; ply?: string }, embedContainerClass: string) {
+function renderGameEmbed(link: HTMLAnchorElement, game: { embedSrc: string }, embedContainerClass: string) {
     const container = document.createElement("div");
     container.className = embedContainerClass;
 
     const iframe = document.createElement("iframe");
-    const hash = game.ply ? `#${game.ply}` : "";
-    iframe.src = `/embed/${game.id}${hash}`;
+    iframe.src = game.embedSrc;
     iframe.loading = "lazy";
     iframe.referrerPolicy = "no-referrer";
-    iframe.title = `Game ${game.id}`;
+    iframe.title = "Embedded game";
 
     container.appendChild(iframe);
     link.replaceWith(container);
@@ -221,7 +258,7 @@ export function expandGameEmbeds(root: HTMLElement, options: ExpandGameEmbedsOpt
     const links = Array.from(root.querySelectorAll(linkSelector)) as HTMLAnchorElement[];
     const games = links
         .map((link) => ({ link, parsed: parseGameLink(link) }))
-        .filter((item): item is { link: HTMLAnchorElement; parsed: { id: string; ply?: string } } => item.parsed !== null);
+        .filter((item): item is { link: HTMLAnchorElement; parsed: { embedSrc: string } } => item.parsed !== null);
 
     if (games.length === 0) return;
 
@@ -233,6 +270,8 @@ export function expandGameEmbeds(root: HTMLElement, options: ExpandGameEmbedsOpt
     games.forEach(({ link, parsed }) => {
         link.classList.add(expandLinkClass);
         link.title = "Click to expand";
+        if (link.dataset.embedReady === "1") return;
+        link.dataset.embedReady = "1";
         link.addEventListener("click", (event) => {
             if (event.button !== 0) return;
             event.preventDefault();

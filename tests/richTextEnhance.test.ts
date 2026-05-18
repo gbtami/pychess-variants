@@ -48,3 +48,21 @@ test("game embed expansion transforms real local game links", () => {
     expect(iframe).not.toBeNull();
     expect(iframe?.getAttribute("src")).toBe("/embed/abc123xy");
 });
+
+test("game embed expansion transforms lichess game links", () => {
+    document.body.innerHTML = `<div id="root"><a href="https://lichess.org/XaY4A7dB/black#13">link</a></div>`;
+    const root = document.getElementById("root") as HTMLElement;
+    expandGameEmbeds(root);
+    const iframe = root.querySelector(".inbox-msg-game-embed iframe");
+    expect(iframe).not.toBeNull();
+    expect(iframe?.getAttribute("src")).toBe("https://lichess.org/embed/game/XaY4A7dB/black#13");
+});
+
+test("game embed expansion transforms pychess.org game links", () => {
+    document.body.innerHTML = `<div id="root"><a href="https://www.pychess.org/AbC123xY#21">link</a></div>`;
+    const root = document.getElementById("root") as HTMLElement;
+    expandGameEmbeds(root);
+    const iframe = root.querySelector(".inbox-msg-game-embed iframe");
+    expect(iframe).not.toBeNull();
+    expect(iframe?.getAttribute("src")).toBe("https://www.pychess.org/embed/AbC123xY#21");
+});

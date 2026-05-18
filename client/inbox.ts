@@ -107,6 +107,12 @@ export function inboxView(model: PyChessModel) {
         return document.querySelector('#inbox-app .inbox-convo-body') as HTMLElement | null;
     }
 
+    function enhanceConvoBody(el: HTMLElement) {
+        expandInboxGameEmbeds(el);
+        makeExternalLinkPopups(el, { selector: ".inbox-msg.their a[href^='http']" });
+        window.requestAnimationFrame(() => expandInboxGameEmbeds(el));
+    }
+
     function redraw() {
         appEl = patch(appEl, render());
         const convoBody = convoBodyEl();
@@ -451,14 +457,10 @@ export function inboxView(model: PyChessModel) {
                 h('div.inbox-convo-body', {
                     hook: {
                         insert(vnode) {
-                            const el = vnode.elm as HTMLElement;
-                            expandInboxGameEmbeds(el);
-                            makeExternalLinkPopups(el, { selector: ".inbox-msg.their a[href^='http']" });
+                            enhanceConvoBody(vnode.elm as HTMLElement);
                         },
                         postpatch(_oldVnode, vnode) {
-                            const el = vnode.elm as HTMLElement;
-                            expandInboxGameEmbeds(el);
-                            makeExternalLinkPopups(el, { selector: ".inbox-msg.their a[href^='http']" });
+                            enhanceConvoBody(vnode.elm as HTMLElement);
                         },
                     },
                 }, loading
