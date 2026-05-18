@@ -3,23 +3,78 @@ div.guide {
     flex-flow: column;
     width: 100%;
 }
+
 details > summary {
     list-style: none;
 }
+
 details > summary::-webkit-details-marker {
     display: none;
 }
+
 details[open] {
     padding: 1em;
     background-color: var(--bg-color2);
     border: none;
     box-shadow: var(--base-shadow);
 }
+
 details[open] > summary {
     color: var(--ct-current);
     padding-bottom: 1em;
 }
+
 summary {
     color: var(--link-color-blue);
     cursor: pointer;
+}
+
+/* Report FAQ: Lichess-like static page structure and typography */
+div.guide.report-faq {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 36px;
+    font-size: 1.1em;
+}
+
+div.guide.report-faq h1,
+div.guide.report-faq h2,
+div.guide.report-faq h3 {
+    text-align: left;
+}
+
+div.guide.report-faq h1 {
+    display: block;
+    margin: 0 0 1.2rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+div.guide.report-faq h2 {
+    margin: 1.4rem 0 0.45rem;
+    padding: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+div.guide.report-faq p {
+    margin: 0;
+    padding: 0 0 0.55rem;
+    line-height: 1.65;
+}
+
+@media (max-width: 799px) {
+    div.guide.report-faq {
+        padding: 16px 18px;
+        font-size: 1.02em;
+    }
+
+    div.guide.report-faq h1 {
+        font-size: 1.7rem;
+    }
+
+    div.guide.report-faq h2 {
+        font-size: 1.18rem;
+    }
 }
