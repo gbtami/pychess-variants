@@ -9,6 +9,7 @@ from typing import Any, Mapping
 import aiohttp_session
 from aiohttp import web
 
+from admin import ban, silence
 from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
@@ -59,6 +60,37 @@ REPORT_REASON_LABELS: dict[str, str] = {
 def _is_admin_username(username: str) -> bool:
     lowered = username.casefold()
     return any(lowered == admin.casefold() for admin in ADMINS)
+
+
+async def _mark_report_processed(
+    app_state,
+    report_id: str,
+    username: str,
+    moderation_action: str | None = None,
+) -> int:
+    now = datetime.now(timezone.utc)
+    update_set: dict[str, object] = {
+        "status": "processed",
+        "processedBy": username,
+        "processedAt": now,
+        "updatedAt": now,
+    }
+    if moderation_action is not None:
+        update_set["moderationAction"] = moderation_action
+    result = await app_state.db.user_report.update_one(
+        {"_id": report_id},
+        {"$set": update_set},
+    )
+    return result.matched_count
+
+
+async def _report_suspect(app_state, report_id: str) -> str | None:
+    report = await app_state.db.user_report.find_one({"_id": report_id}, projection={"suspect": 1})
+    if report is None:
+        return None
+
+    suspect = report.get("suspect")
+    return suspect if isinstance(suspect, str) and suspect else None
 
 
 async def _session_username(request: web.Request) -> str | None:
@@ -270,22 +302,64 @@ async def report_process(request: web.Request) -> web.Response:
         return web.json_response({"type": "error", "message": "Admin only"}, status=403)
 
     report_id = request.match_info.get("reportId", "")
-    now = datetime.now(timezone.utc)
-    result = await app_state.db.user_report.update_one(
-        {"_id": report_id},
-        {
-            "$set": {
-                "status": "processed",
-                "processedBy": username,
-                "processedAt": now,
-                "updatedAt": now,
-            }
-        },
-    )
-    if result.matched_count == 0:
+    if await _mark_report_processed(app_state, report_id, username) == 0:
         return web.json_response({"type": "error", "message": "Report not found"}, status=404)
 
     return web.json_response({"ok": True})
+
+
+async def report_silence(request: web.Request) -> web.Response:
+    app_state = get_app_state(request.app)
+    username = await _session_username(request)
+
+    if username is None or app_state.db is None:
+        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+    if not _is_admin_username(username):
+        return web.json_response({"type": "error", "message": "Admin only"}, status=403)
+
+    report_id = request.match_info.get("reportId", "")
+    suspect = await _report_suspect(app_state, report_id)
+    if suspect is None:
+        return web.json_response({"type": "error", "message": "Report not found"}, status=404)
+
+    fullchat = silence(app_state, f"/silence {suspect}")
+    if fullchat is None:
+        return web.json_response(
+            {"type": "error", "message": "User must be online to silence"},
+            status=409,
+        )
+
+    await app_state.lobby.lobby_broadcast(fullchat)
+    await _mark_report_processed(app_state, report_id, username, moderation_action="silence")
+    return web.json_response({"ok": True, "action": "silence"})
+
+
+async def report_close_account(request: web.Request) -> web.Response:
+    app_state = get_app_state(request.app)
+    username = await _session_username(request)
+
+    if username is None or app_state.db is None:
+        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+    if not _is_admin_username(username):
+        return web.json_response({"type": "error", "message": "Admin only"}, status=403)
+
+    report_id = request.match_info.get("reportId", "")
+    suspect = await _report_suspect(app_state, report_id)
+    if suspect is None:
+        return web.json_response({"type": "error", "message": "Report not found"}, status=404)
+
+    await ban(app_state, f"/ban {suspect}")
+    user_doc = await app_state.db.user.find_one({"_id": suspect}, projection={"enabled": 1})
+    if user_doc is None:
+        return web.json_response({"type": "error", "message": "User not found"}, status=404)
+    if user_doc.get("enabled", True):
+        return web.json_response(
+            {"type": "error", "message": "Failed to close account"},
+            status=409,
+        )
+
+    await _mark_report_processed(app_state, report_id, username, moderation_action="close_account")
+    return web.json_response({"ok": True, "action": "close_account"})
 
 
 async def report_reopen(request: web.Request) -> web.Response:
@@ -307,7 +381,7 @@ async def report_reopen(request: web.Request) -> web.Response:
                 "updatedAt": now,
                 "inquiryBy": username,
             },
-            "$unset": {"processedBy": "", "processedAt": ""},
+            "$unset": {"processedBy": "", "processedAt": "", "moderationAction": ""},
         },
     )
     if result.matched_count == 0:

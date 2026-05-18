@@ -50,6 +50,12 @@
                                 Start
                             {% endif %}
                         </button>
+                        <button class="report-btn silence" data-action="silence" data-id="{{ report._id }}" title="Apply 10-minute chat timeout">
+                            Silence (10m)
+                        </button>
+                        <button class="report-btn close-account" data-action="close-account" data-id="{{ report._id }}" data-confirm="Close this account and process the report?" title="Disable this account">
+                            Close account
+                        </button>
                         <button class="report-btn process" data-action="process" data-id="{{ report._id }}">Process</button>
                         {% else %}
                         <button class="report-btn reopen" data-action="reopen" data-id="{{ report._id }}">Reopen</button>
@@ -75,7 +81,9 @@
         button.addEventListener('click', async () => {
           const action = button.getAttribute('data-action');
           const id = button.getAttribute('data-id');
+          const confirmText = button.getAttribute('data-confirm');
           if (!action || !id) return;
+          if (confirmText && !window.confirm(confirmText)) return;
           button.disabled = true;
           try {
             const res = await fetch(actionUrl(action, id), { method: 'POST' });

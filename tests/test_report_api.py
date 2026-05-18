@@ -154,6 +154,69 @@ class ReportApiTestCase(AioHTTPTestCase):
             self.assertEqual("open", reopened["status"])
             self.assertEqual("mod", reopened["inquiryBy"])
 
+    async def test_admin_can_silence_and_close_account_from_report(self):
+        app_state = get_app_state(self.app)
+        moderator = User(app_state, username="mod")
+        bob = User(app_state, username="bob")
+        carol = User(app_state, username="carol")
+        app_state.users[moderator.username] = moderator
+        app_state.users[bob.username] = bob
+        app_state.users[carol.username] = carol
+
+        await app_state.db.user.insert_one({"_id": "bob", "enabled": True, "username_lower": "bob"})
+        await app_state.db.user.insert_one(
+            {"_id": "carol", "enabled": True, "username_lower": "carol"}
+        )
+
+        now = datetime.now(timezone.utc)
+        await app_state.db.user_report.insert_many(
+            [
+                {
+                    "_id": "SiLn1234",
+                    "status": "open",
+                    "source": "profile",
+                    "reason": "harassment",
+                    "details": "harassment details",
+                    "reporter": "alice",
+                    "suspect": "bob",
+                    "createdAt": now,
+                    "updatedAt": now,
+                    "inquiryBy": "",
+                },
+                {
+                    "_id": "ClOs1234",
+                    "status": "open",
+                    "source": "profile",
+                    "reason": "cheating",
+                    "details": "cheat details",
+                    "reporter": "alice",
+                    "suspect": "carol",
+                    "createdAt": now,
+                    "updatedAt": now,
+                    "inquiryBy": "",
+                },
+            ]
+        )
+
+        self.set_session_user("mod")
+        with patch("report_api.ADMINS", ["mod"]), patch("admin.ADMINS", ["mod"]):
+            silence_resp = await self.client.post("/api/reports/SiLn1234/silence")
+            self.assertEqual(silence_resp.status, 200)
+            self.assertGreater(bob.silence, 0)
+            silenced = await app_state.db.user_report.find_one({"_id": "SiLn1234"})
+            self.assertEqual("processed", silenced["status"])
+            self.assertEqual("silence", silenced["moderationAction"])
+            self.assertEqual("mod", silenced["processedBy"])
+
+            close_resp = await self.client.post("/api/reports/ClOs1234/close-account")
+            self.assertEqual(close_resp.status, 200)
+            closed = await app_state.db.user.find_one({"_id": "carol"})
+            self.assertEqual(False, closed["enabled"])
+            closed_report = await app_state.db.user_report.find_one({"_id": "ClOs1234"})
+            self.assertEqual("processed", closed_report["status"])
+            self.assertEqual("close_account", closed_report["moderationAction"])
+            self.assertEqual("mod", closed_report["processedBy"])
+
     async def test_reports_page_rejects_non_admin(self):
         app_state = get_app_state(self.app)
         app_state.users["alice"] = User(app_state, username="alice")

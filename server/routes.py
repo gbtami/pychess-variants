@@ -59,6 +59,8 @@ from report_api import (
     report_inquiry,
     report_process,
     report_reopen,
+    report_silence,
+    report_close_account,
 )
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
@@ -277,6 +279,8 @@ post_routes: tuple[RouteDef, ...] = (
     ("/report", report_view.report_create),
     (r"/api/reports/{reportId:\w{8}}/inquiry", report_inquiry),
     (r"/api/reports/{reportId:\w{8}}/process", report_process),
+    (r"/api/reports/{reportId:\w{8}}/silence", report_silence),
+    (r"/api/reports/{reportId:\w{8}}/close-account", report_close_account),
     (r"/api/reports/{reportId:\w{8}}/reopen", report_reopen),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),

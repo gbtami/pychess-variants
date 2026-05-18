@@ -143,6 +143,28 @@
   border-color: var(--green-switch);
 }
 
+.report-btn.silence {
+  background: color-mix(in srgb, var(--rusty) 85%, white);
+  border-color: color-mix(in srgb, var(--rusty) 85%, white);
+  color: #fff;
+}
+
+.report-btn.silence:hover {
+  background: var(--rusty);
+  border-color: var(--rusty);
+}
+
+.report-btn.close-account {
+  background: #a93a2a;
+  border-color: #a93a2a;
+  color: #fff;
+}
+
+.report-btn.close-account:hover {
+  background: #8f2f22;
+  border-color: #8f2f22;
+}
+
 @media (max-width: 900px) {
   #report_list .tabs a {
     padding: 0.35rem 0.65rem;
