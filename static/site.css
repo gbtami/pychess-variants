@@ -1534,25 +1534,6 @@ button.analysis:hover {
 .tourney a, .posnum a {
   color: var(--link-color-blue);
 }
-.game-report .report-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-.game-report .report-actions button {
-  border: 1px solid var(--border-color);
-  border-radius: 3px;
-  background: var(--bg-color1);
-  color: var(--font-color);
-  text-align: left;
-  line-height: 1.8;
-  padding: 0 0.55rem;
-}
-.game-report .report-actions button:hover {
-  color: #fff;
-  background: var(--bad);
-  border-color: var(--bad);
-}
 div.info1.icon,
 div.info0.icon::before {
   opacity: 0.6;

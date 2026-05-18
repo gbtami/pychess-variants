@@ -1,0 +1,91 @@
+.report-wrap {
+  --main-max-width: 920px;
+}
+
+.report-page {
+  grid-area: main;
+  width: 100%;
+}
+
+.report-about {
+  margin-bottom: 0.9rem;
+  padding: 0;
+}
+
+.report-error {
+  color: var(--bad);
+  padding: 0;
+  margin-bottom: 0.8rem;
+}
+
+.report-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.report-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.report-field label {
+  font-weight: 600;
+}
+
+.report-field input,
+.report-field select,
+.report-field textarea {
+  width: 100%;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background: var(--bg-input);
+  color: var(--font-color);
+  padding: 0.5rem 0.55rem;
+}
+
+.report-msgs {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-color1);
+  max-height: 280px;
+  overflow: auto;
+}
+
+.report-msg-item {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  padding: 0.45rem 0.55rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.report-msg-item:last-child {
+  border-bottom: 0;
+}
+
+.report-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.35rem;
+}
+
+.report-actions a {
+  color: var(--link-color-blue);
+}
+
+.report-actions button {
+  border: 1px solid color-mix(in srgb, var(--good) 75%, #000);
+  border-radius: 4px;
+  color: #fff;
+  background: var(--good);
+  padding: 0.5rem 1rem;
+}
+
+.report-actions button:hover {
+  background: var(--green-switch);
+}
+
+.hidden {
+  display: none;
+}

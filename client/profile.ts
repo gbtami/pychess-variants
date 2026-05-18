@@ -14,7 +14,6 @@ import { Ceval } from "./messages";
 import { aiLevel, gameType, result, renderRdiff } from './result';
 import { renderBugTeamInfo, renderGameBoardsBug } from "@/bug/profile.bug";
 import { displayUsername, userLink } from "./user";
-import { openReportDialog } from './report';
 
 export interface Game {
     _id: string; // mongodb document id
@@ -241,9 +240,6 @@ export function profileView(model: PyChessModel) {
     const unblockEl = document.getElementById('unblock') as HTMLElement;
     if (unblockEl !== null) renderUnblock('unblock', profileId);
 
-    const reportEl = document.getElementById('report') as HTMLElement;
-    if (reportEl !== null) renderReport('report', profileId, model);
-
     let tabs: VNode[] = [];
     tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId }, class: {"active": rated === "None"} }, _('Games'))]));
     if (model["username"] !== profileId) {
@@ -279,25 +275,6 @@ function renderUnblock(id: string, profileId: string) {
             on: { click: (e: Event) => postBlock(e, profileId, false) } },
             _('Unblock')
         ));
-    }
-}
-
-function renderReport(id: string, profileId: string, model: PyChessModel) {
-    const el = document.getElementById(id) as HTMLElement;
-    if (el !== null) {
-        patch(el, h('a#report.icon.icon-flag-o', {
-            attrs: { href: '#', title: _('Report to moderators') },
-            on: {
-                click: (e: Event) => {
-                    e.preventDefault();
-                    void openReportDialog(model, {
-                        source: 'profile',
-                        suspect: profileId,
-                        defaultReason: 'bad_behavior',
-                    });
-                },
-            },
-        }, _('Report')));
     }
 }
 

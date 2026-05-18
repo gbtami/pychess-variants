@@ -75,6 +75,29 @@ class ReportApiTestCase(AioHTTPTestCase):
         resp = await self.client.get("/api/reports/queue")
         self.assertEqual(resp.status, 403)
 
+    async def test_report_form_renders_for_inbox_context(self):
+        app_state = get_app_state(self.app)
+        app_state.users["alice"] = User(app_state, username="alice")
+        app_state.users["bob"] = User(app_state, username="bob")
+
+        await app_state.db.inbox_msg.insert_one(
+            {
+                "_id": "msg1",
+                "tid": "alice:bob",
+                "from": "bob",
+                "to": "alice",
+                "text": "test message",
+                "createdAt": datetime.now(timezone.utc),
+            }
+        )
+
+        self.set_session_user("alice")
+        resp = await self.client.get("/report?source=inbox&username=bob")
+        self.assertEqual(resp.status, 200)
+        body = await resp.text()
+        self.assertIn("Messages to report", body)
+        self.assertIn("test message", body)
+
     async def test_admin_can_process_and_reopen_report(self):
         app_state = get_app_state(self.app)
         moderator = User(app_state, username="mod")

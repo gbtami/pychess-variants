@@ -4,6 +4,7 @@ import json
 import re
 from datetime import datetime, timezone
 from functools import partial
+from typing import Any, Mapping
 
 import aiohttp_session
 from aiohttp import web
@@ -71,6 +72,85 @@ async def _resolve_username(app_state, raw_username: str) -> str | None:
     return username if isinstance(username, str) else None
 
 
+async def create_report_submission(
+    app_state,
+    reporter: str,
+    payload: Mapping[str, Any],
+) -> tuple[int, str, str | None]:
+    source = str(payload.get("source") or "").strip().lower()
+    reason = str(payload.get("reason") or "").strip().lower().replace(" ", "_")
+    details = str(payload.get("details") or "").strip()
+    raw_suspect = str(payload.get("suspect") or payload.get("username") or "").strip()
+    game_id = str(payload.get("gameId") or "").strip()
+    thread = str(payload.get("thread") or "").strip()
+    url = str(payload.get("url") or "").strip()
+
+    if source not in REPORT_SOURCES:
+        return (400, "Invalid report source", None)
+
+    if reason not in REPORT_REASONS:
+        return (400, "Invalid report reason", None)
+
+    if len(details) < 5:
+        return (400, "Report details are too short", None)
+    if len(details) > MAX_DETAILS_LEN:
+        return (400, f"Report details too long (max {MAX_DETAILS_LEN} characters)", None)
+
+    suspect = await _resolve_username(app_state, raw_suspect)
+    if suspect is None:
+        return (404, "User not found", None)
+
+    if suspect.casefold() == reporter.casefold():
+        return (400, "You cannot report yourself", None)
+
+    if source == "game":
+        if not GAME_ID_RE.match(game_id):
+            return (400, "Invalid game ID", None)
+
+        game_doc = await app_state.db.game.find_one({"_id": game_id}, projection={"us": 1})
+        if game_doc is None:
+            return (404, "Game not found", None)
+
+        users = game_doc.get("us", [])
+        if not isinstance(users, list) or suspect not in users:
+            return (400, "Reported user is not a participant in this game", None)
+
+    msgs: list[str] = []
+    getall = getattr(payload, "getall", None)
+    if callable(getall):
+        msgs = [str(msg_id).strip() for msg_id in getall("msgs", []) if str(msg_id).strip()]
+        if len(msgs) > 30:
+            msgs = msgs[:30]
+
+    now = datetime.now(timezone.utc)
+    report_id = await new_id(app_state.db.user_report)
+    report_doc: dict[str, object] = {
+        "_id": report_id,
+        "status": "open",
+        "source": source,
+        "reason": reason,
+        "details": details,
+        "reporter": reporter,
+        "suspect": suspect,
+        "createdAt": now,
+        "updatedAt": now,
+        "inquiryBy": "",
+    }
+
+    if game_id:
+        report_doc["gameId"] = game_id
+    if thread:
+        report_doc["thread"] = thread
+    if msgs:
+        report_doc["msgs"] = msgs
+    if url:
+        report_doc["url"] = url[:500]
+
+    await app_state.db.user_report.insert_one(report_doc)
+
+    return (200, "", report_id)
+
+
 async def report_create(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _session_username(request)
@@ -82,84 +162,9 @@ async def report_create(request: web.Request) -> web.Response:
     if data is None:
         return web.json_response({"type": "error", "message": "Invalid request"}, status=400)
 
-    source = str(data.get("source") or "").strip().lower()
-    reason = str(data.get("reason") or "").strip().lower().replace(" ", "_")
-    details = str(data.get("details") or "").strip()
-    raw_suspect = str(data.get("suspect") or "").strip()
-    game_id = str(data.get("gameId") or "").strip()
-    thread = str(data.get("thread") or "").strip()
-    url = str(data.get("url") or "").strip()
-
-    if source not in REPORT_SOURCES:
-        return web.json_response({"type": "error", "message": "Invalid report source"}, status=400)
-
-    if reason not in REPORT_REASONS:
-        return web.json_response({"type": "error", "message": "Invalid report reason"}, status=400)
-
-    if len(details) < 5:
-        return web.json_response(
-            {"type": "error", "message": "Report details are too short"}, status=400
-        )
-    if len(details) > MAX_DETAILS_LEN:
-        return web.json_response(
-            {
-                "type": "error",
-                "message": f"Report details too long (max {MAX_DETAILS_LEN} characters)",
-            },
-            status=400,
-        )
-
-    suspect = await _resolve_username(app_state, raw_suspect)
-    if suspect is None:
-        return web.json_response({"type": "error", "message": "User not found"}, status=404)
-
-    if suspect.casefold() == username.casefold():
-        return web.json_response(
-            {"type": "error", "message": "You cannot report yourself"}, status=400
-        )
-
-    if source == "game":
-        if not GAME_ID_RE.match(game_id):
-            return web.json_response({"type": "error", "message": "Invalid game ID"}, status=400)
-
-        game_doc = await app_state.db.game.find_one({"_id": game_id}, projection={"us": 1})
-        if game_doc is None:
-            return web.json_response({"type": "error", "message": "Game not found"}, status=404)
-
-        users = game_doc.get("us", [])
-        if not isinstance(users, list) or suspect not in users:
-            return web.json_response(
-                {
-                    "type": "error",
-                    "message": "Reported user is not a participant in this game",
-                },
-                status=400,
-            )
-
-    now = datetime.now(timezone.utc)
-    report_id = await new_id(app_state.db.user_report)
-    report_doc: dict[str, object] = {
-        "_id": report_id,
-        "status": "open",
-        "source": source,
-        "reason": reason,
-        "details": details,
-        "reporter": username,
-        "suspect": suspect,
-        "createdAt": now,
-        "updatedAt": now,
-        "inquiryBy": "",
-    }
-
-    if game_id:
-        report_doc["gameId"] = game_id
-    if thread:
-        report_doc["thread"] = thread
-    if url:
-        report_doc["url"] = url[:500]
-
-    await app_state.db.user_report.insert_one(report_doc)
-
+    status, message, report_id = await create_report_submission(app_state, username, data)
+    if status >= 400:
+        return web.json_response({"type": "error", "message": message}, status=status)
     return web.json_response({"ok": True, "reportId": report_id})
 
 

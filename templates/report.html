@@ -1,0 +1,86 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap" class="report-wrap">
+    <main class="report-page box box-pad">
+        <h1 class="box__top">Report a user</h1>
+
+        <p class="report-about">
+            Include specific details and links so moderators can review quickly.
+        </p>
+
+        {% if report_error %}
+        <p class="report-error">{{ report_error }}</p>
+        {% endif %}
+
+        <form class="report-form" method="post" action="/report">
+            <div class="report-field">
+                <label for="report-source">Source</label>
+                <select id="report-source" name="source">
+                    {% for source in report_sources %}
+                    <option value="{{ source }}"{% if source == report_source %} selected{% endif %}>{{ source }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="report-field">
+                <label for="report-username">User</label>
+                <input id="report-username" name="username" value="{{ report_username }}" minlength="3" maxlength="20" required>
+            </div>
+
+            <div class="report-field">
+                <label for="report-reason">Reason</label>
+                <select id="report-reason" name="reason">
+                    {% for reason in report_reasons %}
+                    <option value="{{ reason }}"{% if reason == report_reason %} selected{% endif %}>{{ reason }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="report-field" id="report-game-field">
+                <label for="report-game-id">Game ID (for game reports)</label>
+                <input id="report-game-id" name="gameId" value="{{ report_game_id }}" maxlength="8" placeholder="AbCd1234">
+            </div>
+
+            {% if report_inbox_msgs %}
+            <div class="report-field" id="report-msgs-field">
+                <label>Messages to report</label>
+                <div class="report-msgs">
+                    {% for msg in report_inbox_msgs %}
+                    <label class="report-msg-item">
+                        <input type="checkbox" name="msgs" value="{{ msg.id }}"{% if msg.id in report_selected_msgs %} checked{% endif %}>
+                        <span><strong>{{ msg.from }}</strong>: {{ msg.text }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="report-field">
+                <label for="report-details">Description</label>
+                <textarea id="report-details" name="details" rows="8" minlength="5" maxlength="3000" required>{{ report_details }}</textarea>
+            </div>
+
+            <div class="report-actions">
+                <a href="/">Cancel</a>
+                <button type="submit">Send</button>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+    <script>
+    (() => {
+      const source = document.getElementById('report-source');
+      const gameField = document.getElementById('report-game-field');
+      if (!source || !gameField) return;
+      const refresh = () => {
+        const showGame = source.value === 'game';
+        gameField.classList.toggle('hidden', !showGame);
+      };
+      source.addEventListener('change', refresh);
+      refresh();
+    })();
+    </script>
+{% endblock %}

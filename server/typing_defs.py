@@ -404,6 +404,16 @@ class ViewContext(TypedDict, total=False):
     report_status: str
     report_open_count: int
     report_processed_count: int
+    report_error: str
+    report_source: str
+    report_username: str
+    report_reason: str
+    report_details: str
+    report_game_id: str
+    report_sources: list[str]
+    report_reasons: list[str]
+    report_inbox_msgs: list[object]
+    report_selected_msgs: list[str]
     can_block: bool
     can_challenge: bool
     corr_games: str
