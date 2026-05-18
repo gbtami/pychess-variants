@@ -51,7 +51,7 @@ div.guide.report-faq h1 {
 }
 
 div.guide.report-faq h2 {
-    margin: 1.4rem 0 0.45rem;
+    margin: 1.8rem 0 0.85rem;
     padding: 0 0 0.28em;
     border-bottom: 1px solid var(--gold);
     font-size: 1.3rem;
@@ -60,8 +60,8 @@ div.guide.report-faq h2 {
 }
 
 div.guide.report-faq p {
-    margin: 0;
-    padding: 0 0 0.55rem;
+    margin: 0 0 1.05rem;
+    padding: 0;
     line-height: 1.65;
 }
 
