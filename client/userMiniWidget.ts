@@ -31,6 +31,7 @@ interface MiniPayload {
     username: string;
     title: string;
     online: boolean;
+    canMessage?: boolean;
     joinedAt: string | null;
     count: {
         game: number;
@@ -51,10 +52,6 @@ interface OngoingMessage {
     gameId: string;
     fen: string;
     lastMove: string;
-}
-
-interface BlocksResponse {
-    blocks?: string[];
 }
 
 interface CacheEntry {
@@ -147,11 +144,6 @@ class UserMiniWidget {
     private liveVariantName?: string;
     private liveOrientation: 'white' | 'black' = 'white';
 
-    private currentPayload?: MiniPayload;
-    private readonly blockedUsers = new Set<string>();
-    private loadedBlocks = false;
-    private loadingBlocks?: Promise<void>;
-
     private readonly cache = new Map<string, CacheEntry>();
     private readonly ongoingSource: EventSource;
 
@@ -199,7 +191,6 @@ class UserMiniWidget {
         document.body.addEventListener('mousemove', this.onBodyMouseMove);
         window.addEventListener('scroll', this.onWindowChange, true);
         window.addEventListener('resize', this.onWindowChange);
-        void this.loadBlockedUsers();
     }
 
     private onWindowChange = () => {
@@ -321,10 +312,9 @@ class UserMiniWidget {
 
         const seq = ++this.requestSeq;
         try {
-            const [payload] = await Promise.all([this.fetchMini(profileId), this.loadBlockedUsers()]);
+            const payload = await this.fetchMini(profileId);
             if (seq !== this.requestSeq) return;
             if (this.anchorUser !== profileId) return;
-            this.currentPayload = payload;
             this.renderPayload(payload);
             this.positionForAnchor(anchor);
         } catch (_err) {
@@ -351,30 +341,6 @@ class UserMiniWidget {
         });
 
         return payload;
-    }
-
-    private async loadBlockedUsers(): Promise<void> {
-        if (this.isAnon || this.loadedBlocks) return;
-        if (this.loadingBlocks) return this.loadingBlocks;
-
-        this.loadingBlocks = (async () => {
-            try {
-                const response = await fetch('/api/blocks');
-                if (!response.ok) return;
-                const payload = (await response.json()) as BlocksResponse;
-                if (!Array.isArray(payload.blocks)) return;
-
-                this.blockedUsers.clear();
-                payload.blocks.forEach((username) => this.blockedUsers.add(username));
-                this.loadedBlocks = true;
-            } catch (_err) {
-                // non-fatal
-            } finally {
-                this.loadingBlocks = undefined;
-            }
-        })();
-
-        return this.loadingBlocks;
     }
 
     private renderLoading(profileId: string) {
@@ -527,17 +493,14 @@ class UserMiniWidget {
             );
             actions.appendChild(challengeLink);
 
-            const blocked = this.blockedUsers.has(payload.username);
-            const blockLink = this.makeActionLink(
-                'icon icon-ban',
-                `/api/${encodeURIComponent(payload.username)}/block`,
-                blocked ? _('Unblock') : _('Block'),
-            );
-            blockLink.addEventListener('click', (event) => {
-                event.preventDefault();
-                void this.toggleBlock(payload.username, !blocked);
-            });
-            actions.appendChild(blockLink);
+            if (payload.canMessage !== false) {
+                const messageLink = this.makeActionLink(
+                    'icon icon-paper-plane',
+                    `/inbox/${encodeURIComponent(payload.username)}`,
+                    _('Message'),
+                );
+                actions.appendChild(messageLink);
+            }
         }
 
         return actions.childElementCount > 0 ? actions : undefined;
@@ -549,34 +512,6 @@ class UserMiniWidget {
         link.href = href;
         link.textContent = text;
         return link;
-    }
-
-    private async toggleBlock(profileId: string, block: boolean) {
-        if (this.isAnon || profileId === this.currentUsername) return;
-
-        const formData = new FormData();
-        formData.append('block', `${block}`);
-
-        try {
-            const response = await fetch(`/api/${encodeURIComponent(profileId)}/block`, {
-                method: 'POST',
-                body: formData,
-            });
-            if (!response.ok) return;
-
-            const payload = await response.json() as { error?: string };
-            if (payload.error !== undefined) return;
-
-            if (block) this.blockedUsers.add(profileId);
-            else this.blockedUsers.delete(profileId);
-
-            if (this.currentPayload && this.currentPayload.username === profileId) {
-                this.renderPayload(this.currentPayload);
-                if (this.anchor) this.positionForAnchor(this.anchor);
-            }
-        } catch (_err) {
-            // non-fatal
-        }
     }
 
     private clearLiveBoard() {

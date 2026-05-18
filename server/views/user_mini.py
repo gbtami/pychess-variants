@@ -160,6 +160,24 @@ async def _build_playing_payload(profile_id: str, request: web.Request) -> dict[
     }
 
 
+async def _can_message_profile(
+    profile: PublicProfile,
+    profile_id: str,
+    session_user: str | None,
+    request: web.Request,
+) -> bool:
+    if session_user is None or session_user == profile_id:
+        return False
+    if session_user.startswith(ANON_PREFIX) or profile.username.startswith(ANON_PREFIX):
+        return False
+    if session_user in profile.blocked:
+        return False
+
+    app_state = get_app_state(request.app)
+    me = await app_state.users.get(session_user)
+    return profile_id not in me.blocked
+
+
 async def user_mini(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profile_id = request.match_info["profileId"]
@@ -180,6 +198,7 @@ async def user_mini(request: web.Request) -> web.StreamResponse:
         "username": profile.username,
         "title": profile.title,
         "online": online,
+        "canMessage": await _can_message_profile(profile, profile_id, session_user, request),
         "joinedAt": _joined_at_for_payload(profile.created_at),
         "count": profile.count,
         "vsScore": await _build_vs_score_payload(profile_id, session_user, request),
