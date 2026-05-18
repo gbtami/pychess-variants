@@ -149,6 +149,10 @@
   margin: 0;
 }
 
+.inbox-convo-head h2 .user-link {
+  font-size: 1em;
+}
+
 .inbox-convo-actions {
   display: inline-flex;
   align-items: center;

@@ -426,7 +426,11 @@ export function inboxView(model: PyChessModel) {
             h('section.inbox-convo', [
                 h('div.inbox-convo-head', [
                     thread
-                        ? h(`h2.inbox-user${contactOnline ? '.online' : ''}`, titleAndName(thread.title || contactTitle, thread.user))
+                        ? h('h2', [
+                            h(`a.user-link.ulpt.inbox-user${contactOnline ? '.online' : ''}`, {
+                                attrs: { href: `/@/${encodeURIComponent(thread.user)}` },
+                            }, titleAndName(thread.title || contactTitle, thread.user)),
+                        ])
                         : h('h2', _('Select a conversation')),
                     h('div.inbox-convo-actions', hasContact ? [
                         h('a.inbox-action.icon.icon-crossedswords', {
