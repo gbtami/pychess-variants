@@ -1,8 +1,17 @@
 import unittest
+from collections import deque
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from wsl import handle_lobbychat
+
+
+class _TargetUser:
+    def __init__(self) -> None:
+        self.silenced = 0
+
+    def set_silence(self) -> None:
+        self.silenced += 1
 
 
 class LobbyChatFloodTestCase(unittest.IsolatedAsyncioTestCase):
@@ -51,6 +60,41 @@ class LobbyChatFloodTestCase(unittest.IsolatedAsyncioTestCase):
         app_state.discord.send_to_discord.assert_awaited_once_with(
             "lobbychat", "visit [redacted]", "tester"
         )
+
+    async def test_admin_silence_matches_mixed_case_username(self) -> None:
+        spammer = _TargetUser()
+        app_state = SimpleNamespace(
+            chat_flood=SimpleNamespace(allow_message=lambda source, text: True),
+            lobby=SimpleNamespace(
+                lobbychat=deque(
+                    [
+                        {"type": "lobbychat", "user": "FrogTheBadass", "message": "spam"},
+                        {"type": "lobbychat", "user": "other", "message": "ok"},
+                    ]
+                ),
+                lobby_chat_save=AsyncMock(),
+                lobby_broadcast=AsyncMock(),
+            ),
+            discord=SimpleNamespace(send_to_discord=AsyncMock()),
+            users={"FrogTheBadass": spammer},
+        )
+        admin_user = SimpleNamespace(username="admin", anon=False, silence=0)
+        ws = object()
+        payload = {"type": "lobbychat", "message": "/silence @frogthebadass"}
+
+        with patch("wsl.ADMINS", ["admin"]):
+            await handle_lobbychat(app_state, ws, admin_user, payload)
+
+        self.assertEqual(1, spammer.silenced)
+        app_state.lobby.lobby_chat_save.assert_not_awaited()
+        app_state.discord.send_to_discord.assert_not_awaited()
+        app_state.lobby.lobby_broadcast.assert_awaited_once()
+
+        sent = app_state.lobby.lobby_broadcast.await_args.args[0]
+        self.assertEqual("fullchat", sent["type"])
+        self.assertEqual("other", sent["lines"][0]["user"])
+        self.assertEqual("", sent["lines"][-1]["user"])
+        self.assertIn("FrogTheBadass was timed out 10 minutes", sent["lines"][-1]["message"])
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Deque
+from typing import TYPE_CHECKING, Deque, Mapping
 import collections
 import logging
+import re
 
 from broadcast import broadcast_streams
 from const import NONE_USER, T_CREATED, T_STARTED
@@ -25,14 +26,62 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
+def _resolve_online_username(users: Mapping[str, object], raw_username: str) -> str | None:
+    candidate = raw_username.lstrip("@")
+    if candidate in users:
+        return candidate
+
+    lowered = candidate.casefold()
+    for username in users:
+        if username.casefold() == lowered:
+            return username
+
+    return None
+
+
+def _normalize_target_username(raw_username: str) -> str:
+    return raw_username.lstrip("@")
+
+
+def _is_admin_username(username: str) -> bool:
+    lowered = username.casefold()
+    return any(lowered == admin.casefold() for admin in ADMINS)
+
+
+async def _resolve_existing_username(
+    app_state: PychessGlobalAppState, raw_username: str
+) -> str | None:
+    candidate = _normalize_target_username(raw_username)
+
+    user_doc = await app_state.db.user.find_one(
+        {
+            "$or": [
+                {"_id": candidate},
+                {"username_lower": candidate.lower()},
+                {"_id": {"$regex": f"^{re.escape(candidate)}$", "$options": "i"}},
+            ]
+        },
+        projection={"_id": 1},
+    )
+    if user_doc is None:
+        return None
+
+    username = user_doc.get("_id")
+    return username if isinstance(username, str) else None
+
+
 def silence(
     app_state: PychessGlobalAppState,
     message: str,
     chat: Deque["ChatLine"] | list["ChatLine"] | None = None,
 ) -> FullChatMessage | None:
     response: FullChatMessage | None = None
-    spammer = message.split()[-1]
-    if spammer in app_state.users:
+    parts = message.split()
+    if len(parts) < 2:
+        return None
+
+    spammer = _resolve_online_username(app_state.users, parts[1])
+    if spammer is not None:
         chat_lines = app_state.lobby.lobbychat if chat is None else chat
         users = app_state.users
 
@@ -88,13 +137,15 @@ async def ban(app_state: PychessGlobalAppState, message: str) -> None:
     if len(parts) != 2:
         return
 
-    username = parts[1]
-    if username in ADMINS:
+    username = _normalize_target_username(parts[1])
+    if _is_admin_username(username):
         return
 
-    user_doc = await app_state.db.user.find_one({"_id": username}, projection={"_id": 1})
-    if user_doc is None:
+    resolved_username = await _resolve_existing_username(app_state, username)
+    if resolved_username is None:
         return
+
+    username = resolved_username
 
     await app_state.db.user.find_one_and_update({"_id": username}, {"$set": {"enabled": False}})
     banned_user = None
@@ -126,13 +177,15 @@ async def unban(app_state: PychessGlobalAppState, message: str) -> None:
     if len(parts) != 2:
         return
 
-    username = parts[1]
-    if username in ADMINS:
+    username = _normalize_target_username(parts[1])
+    if _is_admin_username(username):
         return
 
-    user_doc = await app_state.db.user.find_one({"_id": username}, projection={"_id": 1})
-    if user_doc is None:
+    resolved_username = await _resolve_existing_username(app_state, username)
+    if resolved_username is None:
         return
+
+    username = resolved_username
 
     await app_state.db.user.find_one_and_update({"_id": username}, {"$set": {"enabled": True}})
     if username in app_state.users:
@@ -158,7 +211,16 @@ async def baninfo(app_state: PychessGlobalAppState, message: str) -> LobbyChatMe
             "message": "Usage: /baninfo <username>",
         }
 
-    username = parts[1]
+    username = _normalize_target_username(parts[1])
+    resolved_username = await _resolve_existing_username(app_state, username)
+    if resolved_username is None:
+        return {
+            "type": "lobbychat",
+            "user": "server",
+            "message": "baninfo: user not found",
+        }
+
+    username = resolved_username
     user_doc = await app_state.db.user.find_one(
         {"_id": username}, projection={"enabled": 1, "security": 1}
     )

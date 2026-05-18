@@ -324,6 +324,30 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         self.assertTrue(target_doc.get("enabled", False))
         send.assert_awaited_once()
 
+    async def test_admin_commands_resolve_username_case_insensitively(self):
+        app_state = get_app_state(self.app)
+        username = "FrogTheBadass"
+        user = User(app_state, username=username)
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one(
+            {"_id": username, "username_lower": username.lower(), "enabled": True, "security": {}}
+        )
+
+        await ban(app_state, "/ban @frogthebadass")
+        banned_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertIsNotNone(banned_doc)
+        self.assertFalse(banned_doc.get("enabled", True))
+
+        response = await baninfo(app_state, "/baninfo FROGTHEBADASS")
+        self.assertEqual(response["type"], "lobbychat")
+        self.assertIn(f"baninfo {username}:", response["message"])
+        self.assertIn("enabled=False", response["message"])
+
+        await unban(app_state, "/unban fROgTheBadass")
+        unbanned_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertIsNotNone(unbanned_doc)
+        self.assertTrue(unbanned_doc.get("enabled", False))
+
     async def test_unban_removes_only_unbanned_user_signal_sources(self):
         app_state = get_app_state(self.app)
         await app_state.db.user.insert_many(
