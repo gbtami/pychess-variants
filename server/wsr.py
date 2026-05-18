@@ -1083,6 +1083,21 @@ async def handle_bugroundchat(
     gameId = data["gameId"]
     message = sanitize_user_message(data["message"])
     room = data["room"]
+    if bool(getattr(user, "shadowban", False)):
+        elapsed = 0
+        if hasattr(game, "gameClocks") and hasattr(game.gameClocks, "elapsed_since_last_move"):
+            elapsed = game.gameClocks.elapsed_since_last_move()
+        await user.send_game_message(
+            gameId,
+            {
+                "type": "bugroundchat",
+                "username": user.username,
+                "message": message,
+                "room": room,
+                "time": elapsed,
+            },
+        )
+        return
 
     # response = chat_response(
     #     "bugroundchat",
@@ -1151,6 +1166,9 @@ async def handle_roundchat(
         message,
         room=room,
     )
+    if bool(getattr(user, "shadowban", False)):
+        await user.send_game_message(gameId, response)
+        return
 
     game.handle_chat_message(response)
 

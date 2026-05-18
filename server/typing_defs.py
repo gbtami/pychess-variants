@@ -35,6 +35,7 @@ class UserDocument(TypedDict, total=False):
     _id: str
     title: str
     enabled: bool
+    shadowban: bool
     createdAt: datetime
     count: UserCount
     swissBanUntil: datetime

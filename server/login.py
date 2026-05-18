@@ -397,6 +397,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
                     "pperfs": {},
                     "count": dict(DEFAULT_USER_COUNT),
                     "enabled": False,
+                    "shadowban": False,
                     "security": {
                         "lastAutoCloseAt": auto_close_at,
                         "lastAutoCloseReason": match_reason,
@@ -436,6 +437,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
                 "pperfs": {},
                 "count": dict(DEFAULT_USER_COUNT),
                 "enabled": True,
+                "shadowban": False,
             }
         )
         log.info("db insert user result %r", result.inserted_id)

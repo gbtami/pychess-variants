@@ -70,6 +70,31 @@ async def _resolve_existing_username(
     return username if isinstance(username, str) else None
 
 
+async def set_shadowban(
+    app_state: PychessGlobalAppState,
+    raw_username: str,
+    enabled: bool,
+) -> bool:
+    username = _normalize_target_username(raw_username)
+    if _is_admin_username(username):
+        return False
+
+    resolved_username = await _resolve_existing_username(app_state, username)
+    if resolved_username is None:
+        return False
+    username = resolved_username
+
+    await app_state.db.user.find_one_and_update(
+        {"_id": username},
+        {"$set": {"shadowban": enabled}},
+    )
+    if username in app_state.users:
+        user = await app_state.users.get(username)
+        user.shadowban = enabled
+
+    return True
+
+
 def silence(
     app_state: PychessGlobalAppState,
     message: str,
@@ -202,6 +227,20 @@ async def unban(app_state: PychessGlobalAppState, message: str) -> None:
         )
 
 
+async def shadowban(app_state: PychessGlobalAppState, message: str) -> None:
+    parts = message.split()
+    if len(parts) != 2:
+        return
+    await set_shadowban(app_state, parts[1], True)
+
+
+async def unshadowban(app_state: PychessGlobalAppState, message: str) -> None:
+    parts = message.split()
+    if len(parts) != 2:
+        return
+    await set_shadowban(app_state, parts[1], False)
+
+
 async def baninfo(app_state: PychessGlobalAppState, message: str) -> LobbyChatMessage:
     parts = message.split()
     if len(parts) != 2:
@@ -222,7 +261,7 @@ async def baninfo(app_state: PychessGlobalAppState, message: str) -> LobbyChatMe
 
     username = resolved_username
     user_doc = await app_state.db.user.find_one(
-        {"_id": username}, projection={"enabled": 1, "security": 1}
+        {"_id": username}, projection={"enabled": 1, "shadowban": 1, "security": 1}
     )
     if user_doc is None:
         return {
@@ -256,12 +295,13 @@ async def baninfo(app_state: PychessGlobalAppState, message: str) -> LobbyChatMe
                 active_counts[kind] += 1
 
     enabled = user_doc.get("enabled", True)
+    shadowbanned = user_doc.get("shadowban", False)
     last_reason = security.get("lastAutoCloseReason", "-")
     last_at = security.get("lastAutoCloseAt")
     last_at_str = last_at.isoformat() if hasattr(last_at, "isoformat") else "-"
 
     info = (
-        f"baninfo {username}: enabled={enabled} "
+        f"baninfo {username}: enabled={enabled} shadowban={shadowbanned} "
         f"autoClose={last_reason} at={last_at_str} "
         f"stored(ip={stored_counts['ip']},fp={stored_counts['fp']},ipfp={stored_counts['ipfp']}) "
         f"active(ip={active_counts['ip']},fp={active_counts['fp']},ipfp={active_counts['ipfp']})"

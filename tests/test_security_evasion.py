@@ -10,7 +10,7 @@ import test_logger
 from aiohttp.test_utils import AioHTTPTestCase, make_mocked_request
 from mongomock_motor import AsyncMongoMockClient
 
-from admin import ban, baninfo, unban
+from admin import ban, baninfo, shadowban, unban, unshadowban
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from security_evasion import collect_client_signals
@@ -347,6 +347,18 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         unbanned_doc = await app_state.db.user.find_one({"_id": username})
         self.assertIsNotNone(unbanned_doc)
         self.assertTrue(unbanned_doc.get("enabled", False))
+
+        await shadowban(app_state, "/shadowban @froGThebadass")
+        shadow_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertIsNotNone(shadow_doc)
+        self.assertTrue(shadow_doc.get("shadowban", False))
+        self.assertTrue(user.shadowban)
+
+        await unshadowban(app_state, "/unshadowban FROGTHEBADASS")
+        unshadow_doc = await app_state.db.user.find_one({"_id": username})
+        self.assertIsNotNone(unshadow_doc)
+        self.assertFalse(unshadow_doc.get("shadowban", True))
+        self.assertFalse(user.shadowban)
 
     async def test_unban_removes_only_unbanned_user_signal_sources(self):
         app_state = get_app_state(self.app)

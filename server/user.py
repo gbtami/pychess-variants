@@ -99,6 +99,7 @@ class User:
         pperfs: PerfMap | None = None,
         count: UserCount | None = None,
         enabled: bool = True,
+        shadowban: bool = False,
         lang: str | None = None,
         theme: str = "dark",
         game_category: str = "all",
@@ -185,6 +186,7 @@ class User:
         self.count = normalize_user_count(count)
 
         self.enabled: bool = enabled
+        self.shadowban: bool = shadowban
 
         self.last_seen: datetime = datetime(MINYEAR, 1, 1, tzinfo=timezone.utc)
 

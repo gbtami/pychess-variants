@@ -15,9 +15,11 @@ from admin import (
     disable_new_anons,
     fishnet,
     highscore,
+    shadowban,
     silence,
     stream,
     unban,
+    unshadowban,
 )
 from auto_pair import (
     auto_pair,
@@ -621,11 +623,19 @@ async def handle_lobbychat(
     response: Mapping[str, object] | None = None
     admin_command = False
 
+    is_shadowbanned = bool(getattr(user, "shadowban", False))
+
     if user.username in ADMINS:
         admin_command = True
         if message.startswith("/silence"):
             response = silence(app_state, message)
             # silence message was already added to lobbychat in silence()
+
+        elif message.startswith("/shadowban"):
+            await shadowban(app_state, message)
+
+        elif message.startswith("/unshadowban"):
+            await unshadowban(app_state, message)
 
         elif message.startswith("/disable_new_anons"):
             disable_new_anons(app_state, message)
@@ -661,8 +671,11 @@ async def handle_lobbychat(
             admin_command = False
             if app_state.chat_flood.allow_message(f"public:{user.username}", message):
                 lobby_response = chat_response("lobbychat", user.username, message)
-                response = lobby_response
-                await app_state.lobby.lobby_chat_save(lobby_response)
+                if is_shadowbanned:
+                    await ws_send_json_many(user.lobby_sockets, lobby_response)
+                else:
+                    response = lobby_response
+                    await app_state.lobby.lobby_chat_save(lobby_response)
 
     elif user.anon and user.username != "Discord-Relay":
         pass
@@ -672,8 +685,11 @@ async def handle_lobbychat(
             f"public:{user.username}", message
         ):
             lobby_response = chat_response("lobbychat", user.username, message)
-            response = lobby_response
-            await app_state.lobby.lobby_chat_save(lobby_response)
+            if is_shadowbanned:
+                await ws_send_json_many(user.lobby_sockets, lobby_response)
+            else:
+                response = lobby_response
+                await app_state.lobby.lobby_chat_save(lobby_response)
 
     if response is not None:
         await app_state.lobby.lobby_broadcast(response)

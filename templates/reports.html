@@ -53,6 +53,9 @@
                         <button class="report-btn silence" data-action="silence" data-id="{{ report._id }}" title="Apply 10-minute chat timeout">
                             Silence (10m)
                         </button>
+                        <button class="report-btn shadowban" data-action="shadowban" data-id="{{ report._id }}" data-confirm="Shadowban this account and process the report?" title="Hide this user's chat and private messages from others">
+                            Shadowban
+                        </button>
                         <button class="report-btn close-account" data-action="close-account" data-id="{{ report._id }}" data-confirm="Close this account and process the report?" title="Disable this account">
                             Close account
                         </button>

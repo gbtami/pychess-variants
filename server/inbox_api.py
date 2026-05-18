@@ -242,6 +242,11 @@ async def inbox_post(request: web.Request) -> web.Response:
         )
 
     me = await app_state.users.get(username)
+    if bool(getattr(me, "shadowban", False)):
+        return web.json_response(
+            {"type": "error", "message": "Cannot send messages from this account"},
+            status=403,
+        )
     if contact in me.blocked:
         return web.json_response({"type": "error", "message": "User is blocked"}, status=403)
 

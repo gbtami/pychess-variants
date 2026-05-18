@@ -165,6 +165,17 @@
   border-color: #8f2f22;
 }
 
+.report-btn.shadowban {
+  background: #565f75;
+  border-color: #565f75;
+  color: #fff;
+}
+
+.report-btn.shadowban:hover {
+  background: #495168;
+  border-color: #495168;
+}
+
 @media (max-width: 900px) {
   #report_list .tabs a {
     padding: 0.35rem 0.65rem;

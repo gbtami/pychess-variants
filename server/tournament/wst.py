@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import aiohttp_session
 from aiohttp import web
 
-from admin import silence
+from admin import shadowban, silence, unshadowban
 from chat import chat_response
 from const import ANON_PREFIX, SHIELD
 from link_filter import sanitize_user_message
@@ -420,6 +420,7 @@ async def handle_lobbychat(
         assert tournament is not None
     message = sanitize_user_message(data["message"])
     response: ChatLine | FullChatMessage | None = None
+    is_shadowbanned = bool(getattr(user, "shadowban", False))
 
     director = is_tournament_director(user, app_state)
     round_controller = director or user.username == tournament.creator
@@ -434,14 +435,25 @@ async def handle_lobbychat(
             response = silence(app_state, message, app_state.tourneychat[tournamentId])
             # silence message was already added to lobbychat in silence()
 
+        elif message.startswith("/shadowban"):
+            await shadowban(app_state, message)
+
+        elif message.startswith("/unshadowban"):
+            await unshadowban(app_state, message)
+
         elif message.startswith("/abort"):
             if tournament.status in (T_CREATED, T_STARTED):
                 await tournament.abort()
 
         else:
             if app_state.chat_flood.allow_message(f"public:{user.username}", message):
-                response = chat_response("lobbychat", user.username, message)
-                await tournament.tourney_chat_save(response)
+                lobby_response = chat_response("lobbychat", user.username, message)
+                if is_shadowbanned:
+                    for ws in tuple(user.tournament_sockets.get(tournamentId, ())):
+                        await ws_send_json(ws, lobby_response)
+                else:
+                    response = lobby_response
+                    await tournament.tourney_chat_save(response)
 
     elif user.anon:
         pass
@@ -450,8 +462,13 @@ async def handle_lobbychat(
         if user.silence == 0 and app_state.chat_flood.allow_message(
             f"public:{user.username}", message
         ):
-            response = chat_response("lobbychat", user.username, message)
-            await tournament.tourney_chat_save(response)
+            lobby_response = chat_response("lobbychat", user.username, message)
+            if is_shadowbanned:
+                for ws in tuple(user.tournament_sockets.get(tournamentId, ())):
+                    await ws_send_json(ws, lobby_response)
+            else:
+                response = lobby_response
+                await tournament.tourney_chat_save(response)
 
     if response is not None:
         await tournament.broadcast(response)

@@ -168,6 +168,19 @@ class InboxApiTestCase(AioHTTPTestCase):
         repeated_payload = await repeated.json()
         self.assertEqual("error", repeated_payload.get("type"))
 
+    async def test_shadowbanned_user_cannot_send_inbox_message(self):
+        app_state = get_app_state(self.app)
+        alice = User(app_state, username="alice", shadowban=True)
+        bob = User(app_state, username="bob")
+        app_state.users[alice.username] = alice
+        app_state.users[bob.username] = bob
+
+        self.set_session_user("alice")
+        resp = await self.client.post("/api/inbox/thread/bob", data={"text": "hello bob"})
+        self.assertEqual(resp.status, 403)
+        payload = await resp.json()
+        self.assertEqual("error", payload.get("type"))
+
 
 if __name__ == "__main__":
     import unittest

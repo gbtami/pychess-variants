@@ -159,13 +159,18 @@ class ReportApiTestCase(AioHTTPTestCase):
         moderator = User(app_state, username="mod")
         bob = User(app_state, username="bob")
         carol = User(app_state, username="carol")
+        dave = User(app_state, username="dave")
         app_state.users[moderator.username] = moderator
         app_state.users[bob.username] = bob
         app_state.users[carol.username] = carol
+        app_state.users[dave.username] = dave
 
         await app_state.db.user.insert_one({"_id": "bob", "enabled": True, "username_lower": "bob"})
         await app_state.db.user.insert_one(
             {"_id": "carol", "enabled": True, "username_lower": "carol"}
+        )
+        await app_state.db.user.insert_one(
+            {"_id": "dave", "enabled": True, "shadowban": False, "username_lower": "dave"}
         )
 
         now = datetime.now(timezone.utc)
@@ -195,6 +200,18 @@ class ReportApiTestCase(AioHTTPTestCase):
                     "updatedAt": now,
                     "inquiryBy": "",
                 },
+                {
+                    "_id": "ShDo1234",
+                    "status": "open",
+                    "source": "profile",
+                    "reason": "spam",
+                    "details": "persistent spam",
+                    "reporter": "alice",
+                    "suspect": "dave",
+                    "createdAt": now,
+                    "updatedAt": now,
+                    "inquiryBy": "",
+                },
             ]
         )
 
@@ -216,6 +233,16 @@ class ReportApiTestCase(AioHTTPTestCase):
             self.assertEqual("processed", closed_report["status"])
             self.assertEqual("close_account", closed_report["moderationAction"])
             self.assertEqual("mod", closed_report["processedBy"])
+
+            shadow_resp = await self.client.post("/api/reports/ShDo1234/shadowban")
+            self.assertEqual(shadow_resp.status, 200)
+            shadowed = await app_state.db.user.find_one({"_id": "dave"})
+            self.assertEqual(True, shadowed["shadowban"])
+            self.assertTrue(dave.shadowban)
+            shadow_report = await app_state.db.user_report.find_one({"_id": "ShDo1234"})
+            self.assertEqual("processed", shadow_report["status"])
+            self.assertEqual("shadowban", shadow_report["moderationAction"])
+            self.assertEqual("mod", shadow_report["processedBy"])
 
     async def test_reports_page_rejects_non_admin(self):
         app_state = get_app_state(self.app)

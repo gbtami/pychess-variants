@@ -96,6 +96,36 @@ class LobbyChatFloodTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual("", sent["lines"][-1]["user"])
         self.assertIn("FrogTheBadass was timed out 10 minutes", sent["lines"][-1]["message"])
 
+    async def test_shadowbanned_user_sees_only_their_own_lobby_message(self) -> None:
+        app_state = SimpleNamespace(
+            chat_flood=SimpleNamespace(allow_message=lambda source, text: True),
+            lobby=SimpleNamespace(
+                lobby_chat_save=AsyncMock(),
+                lobby_broadcast=AsyncMock(),
+            ),
+            discord=SimpleNamespace(send_to_discord=AsyncMock()),
+        )
+        ws = object()
+        user = SimpleNamespace(
+            username="shadowed",
+            anon=False,
+            silence=0,
+            shadowban=True,
+            lobby_sockets={ws},
+        )
+        payload = {"type": "lobbychat", "message": "visible only to me"}
+
+        with patch("wsl.ADMINS", []), patch("wsl.ws_send_json_many", new=AsyncMock()) as send_many:
+            await handle_lobbychat(app_state, ws, user, payload)
+
+        send_many.assert_awaited_once()
+        sent_sockets, sent_payload = send_many.await_args.args
+        self.assertEqual({ws}, sent_sockets)
+        self.assertEqual("visible only to me", sent_payload["message"])
+        app_state.lobby.lobby_chat_save.assert_not_awaited()
+        app_state.lobby.lobby_broadcast.assert_not_awaited()
+        app_state.discord.send_to_discord.assert_not_awaited()
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

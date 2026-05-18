@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, patch
 
 import test_logger
 
-from wsr import handle_roundchat
+from wsr import handle_bugroundchat, handle_roundchat
 
 test_logger.init_test_logger()
 
@@ -145,6 +145,98 @@ class RoundChatBotQueueTestCase(unittest.IsolatedAsyncioTestCase):
         queued = await bot_queue.get()
         event = json.loads(queued)
         self.assertEqual("visit [redacted]", event["text"])
+
+    async def test_shadowbanned_roundchat_is_only_echoed_to_sender(self) -> None:
+        bot_queue: asyncio.Queue[str] = asyncio.Queue()
+        bot = SimpleNamespace(bot=True, username="Fairy-Stockfish", game_queues={"g1": bot_queue})
+        human = SimpleNamespace(bot=False, username="black", send_game_message=AsyncMock())
+        sender = SimpleNamespace(username="white", shadowban=True, send_game_message=AsyncMock())
+        chat_flood = SimpleNamespace(allow_message=lambda source, text: True)
+        app_state = SimpleNamespace(
+            users={bot.username: bot, human.username: human},
+            chat_flood=chat_flood,
+        )
+
+        class RecordingGame:
+            id = "g1"
+            wplayer = bot
+            bplayer = human
+
+            def __init__(self) -> None:
+                self.messages: list[dict[str, object]] = []
+
+            def handle_chat_message(self, message: dict[str, object]) -> None:
+                self.messages.append(message)
+
+        game = RecordingGame()
+
+        with patch("wsr.round_broadcast", new=AsyncMock()) as rb:
+            await handle_roundchat(
+                app_state,
+                None,
+                sender,
+                {
+                    "type": "roundchat",
+                    "gameId": "g1",
+                    "message": "this stays hidden",
+                    "room": "player",
+                },
+                game,
+            )
+
+        sender.send_game_message.assert_awaited_once()
+        human.send_game_message.assert_not_awaited()
+        self.assertTrue(bot_queue.empty())
+        self.assertEqual([], game.messages)
+        rb.assert_not_awaited()
+
+    async def test_shadowbanned_bugroundchat_is_only_echoed_to_sender(self) -> None:
+        sender = SimpleNamespace(
+            username="whiteA",
+            shadowban=True,
+            send_game_message=AsyncMock(),
+        )
+        users = {"whiteA": sender}
+
+        class RecordingGame:
+            id = "g1"
+            ply = 2
+            status = 1
+            wplayerA = SimpleNamespace(username="whiteA")
+            bplayerA = SimpleNamespace(username="blackA")
+            wplayerB = SimpleNamespace(username="whiteB")
+            bplayerB = SimpleNamespace(username="blackB")
+            gameClocks = SimpleNamespace(elapsed_since_last_move=lambda: 17)
+
+            def __init__(self) -> None:
+                self.chat_calls: list[tuple[str, str]] = []
+
+            def handle_chat_message(self, user, message, room):
+                self.chat_calls.append((message, room))
+                return {"username": user.username, "message": message, "room": room, "time": 17}
+
+        game = RecordingGame()
+
+        with patch("wsr.round_broadcast", new=AsyncMock()) as rb:
+            await handle_bugroundchat(
+                users,
+                sender,
+                {
+                    "type": "bugroundchat",
+                    "gameId": "g1",
+                    "message": "hidden message",
+                    "room": "player",
+                },
+                game,
+            )
+
+        sender.send_game_message.assert_awaited_once()
+        sent_game_id, sent_payload = sender.send_game_message.await_args.args
+        self.assertEqual("g1", sent_game_id)
+        self.assertEqual("bugroundchat", sent_payload["type"])
+        self.assertEqual("hidden message", sent_payload["message"])
+        self.assertEqual([], game.chat_calls)
+        rb.assert_not_awaited()
 
 
 if __name__ == "__main__":

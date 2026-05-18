@@ -9,7 +9,7 @@ from typing import Any, Mapping
 import aiohttp_session
 from aiohttp import web
 
-from admin import ban, silence
+from admin import ban, set_shadowban, silence
 from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
@@ -360,6 +360,27 @@ async def report_close_account(request: web.Request) -> web.Response:
 
     await _mark_report_processed(app_state, report_id, username, moderation_action="close_account")
     return web.json_response({"ok": True, "action": "close_account"})
+
+
+async def report_shadowban(request: web.Request) -> web.Response:
+    app_state = get_app_state(request.app)
+    username = await _session_username(request)
+
+    if username is None or app_state.db is None:
+        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+    if not _is_admin_username(username):
+        return web.json_response({"type": "error", "message": "Admin only"}, status=403)
+
+    report_id = request.match_info.get("reportId", "")
+    suspect = await _report_suspect(app_state, report_id)
+    if suspect is None:
+        return web.json_response({"type": "error", "message": "Report not found"}, status=404)
+
+    if not await set_shadowban(app_state, suspect, True):
+        return web.json_response({"type": "error", "message": "User not found"}, status=404)
+
+    await _mark_report_processed(app_state, report_id, username, moderation_action="shadowban")
+    return web.json_response({"ok": True, "action": "shadowban"})
 
 
 async def report_reopen(request: web.Request) -> web.Response:
