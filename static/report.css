@@ -56,17 +56,6 @@ main.report .box__top {
   padding: 0;
 }
 
-.report-source-readonly {
-  display: inline-flex;
-  align-items: center;
-  min-height: calc(2.7em + 2px);
-  width: auto;
-  min-width: 11rem;
-  background: var(--bg-color2);
-  border: 1px solid var(--border-color);
-  text-transform: uppercase;
-}
-
 .report-user-readonly {
   min-height: calc(2.7em + 2px);
   display: inline-flex;

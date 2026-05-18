@@ -11,12 +11,6 @@ from request_utils import read_post_data
 from typing_defs import ViewContext
 from views import get_user_context
 
-REPORT_SOURCE_LABELS = {
-    "profile": "Profile",
-    "inbox": "Inbox",
-    "game": "Game",
-}
-
 REPORT_REASON_OPTIONS: list[dict[str, str]] = [
     {
         "key": "cheat",
@@ -63,6 +57,15 @@ REPORT_REASON_OPTIONS: list[dict[str, str]] = [
     },
 ]
 
+COMM_REASON_KEYS = {
+    "verbal_abuse",
+    "violence",
+    "harass",
+    "self_harm",
+    "hate",
+    "spam",
+}
+
 
 def _thread_id(user1: str, user2: str) -> str:
     first, second = sorted((user1, user2), key=lambda x: (x.lower(), x))
@@ -81,6 +84,12 @@ def _normalize_reason(reason: str) -> str:
     if key == "cheating":
         return "cheat"
     return "other"
+
+
+def _reason_options_for_source(source: str) -> list[dict[str, str]]:
+    if source == "inbox":
+        return [opt for opt in REPORT_REASON_OPTIONS if opt["key"] in COMM_REASON_KEYS]
+    return REPORT_REASON_OPTIONS
 
 
 async def _load_inbox_messages(app_state, reporter: str, suspect: str) -> list[dict[str, str]]:
@@ -128,6 +137,10 @@ async def _build_report_context(
     if source not in REPORT_SOURCES:
         source = "profile"
     reason = _normalize_reason(reason)
+    reason_options = _reason_options_for_source(source)
+    reason_keys = {opt["key"] for opt in reason_options}
+    if reason not in reason_keys:
+        reason = reason_options[0]["key"] if reason_options else "other"
 
     suspect = await _resolve_username(app_state, username) if username else None
     user_locked = bool(username.strip())
@@ -141,12 +154,11 @@ async def _build_report_context(
     context["view_css"] = "report.css"
     context["report_error"] = error
     context["report_source"] = source
-    context["report_source_label"] = REPORT_SOURCE_LABELS.get(source, source.title())
     context["report_username"] = suspect or username
     context["report_reason"] = reason
     context["report_details"] = details
     context["report_game_id"] = game_id
-    context["report_reason_options"] = REPORT_REASON_OPTIONS
+    context["report_reason_options"] = reason_options
     context["report_user_locked"] = user_locked
     context["report_inbox_msgs"] = inbox_msgs
     context["report_selected_msgs"] = selected_msgs or []

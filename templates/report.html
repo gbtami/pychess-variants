@@ -18,11 +18,6 @@
             <input type="hidden" name="source" value="{{ report_source }}">
 
             <div class="form-group">
-                <label class="form-label">Source</label>
-                <div class="form-control report-source-readonly">{{ report_source_label }}</div>
-            </div>
-
-            <div class="form-group">
                 <label class="form-label" for="form3-username">User</label>
                 {% if report_user_locked %}
                 <div class="report-user-readonly">

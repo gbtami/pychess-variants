@@ -410,7 +410,6 @@ class ViewContext(TypedDict, total=False):
     report_reason: str
     report_details: str
     report_game_id: str
-    report_source_label: str
     report_reason_options: list[object]
     report_user_locked: bool
     report_inbox_msgs: list[object]

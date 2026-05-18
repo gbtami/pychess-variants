@@ -97,6 +97,8 @@ class ReportApiTestCase(AioHTTPTestCase):
         body = await resp.text()
         self.assertIn("Messages to report", body)
         self.assertIn("test message", body)
+        self.assertIn("Verbal abuse / Cursing / Trolling", body)
+        self.assertNotIn(">Cheating<", body)
 
     async def test_admin_can_process_and_reopen_report(self):
         app_state = get_app_state(self.app)
