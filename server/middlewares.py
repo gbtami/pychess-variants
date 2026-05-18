@@ -116,8 +116,9 @@ async def cross_origin_policy_middleware(
         request.path.startswith("/variants")
         or request.path.startswith("/blogs")
         or request.path.startswith("/video")
+        or request.path.startswith("/inbox")
     ):
-        # Learn and News pages may have links to other sites
+        # Content-heavy pages can embed/link cross-origin resources.
         response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
     else:
         # required to get stockfish.wasm in Firefox

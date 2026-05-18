@@ -4,7 +4,7 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { timeago } from './datetime';
 import { PyChessModel } from './types';
-import { linkifyNodes } from './linkify';
+import { expandInboxGameEmbeds, makeExternalLinkPopups, renderRichText } from './richTextEnhance';
 
 interface ThreadSummary {
     user: string;
@@ -354,7 +354,7 @@ export function inboxView(model: PyChessModel) {
     function renderMessage(msg: Message) {
         const mine = msg.from === model.username;
         const createdAt = parseDate(msg.createdAt);
-        const textNodes = linkifyNodes(msg.text, 'inbox-msg-link');
+        const textNodes = renderRichText(msg.text);
         return h(`div.inbox-msg${mine ? '.mine' : '.their'}`, [
             h('div.inbox-msg-meta', [
                 h('strong', mine ? _('You') : titleAndName(contactTitle, contact)),
@@ -448,7 +448,20 @@ export function inboxView(model: PyChessModel) {
                         }),
                     ] : []),
                 ]),
-                h('div.inbox-convo-body', loading
+                h('div.inbox-convo-body', {
+                    hook: {
+                        insert(vnode) {
+                            const el = vnode.elm as HTMLElement;
+                            expandInboxGameEmbeds(el);
+                            makeExternalLinkPopups(el, { selector: ".inbox-msg.their a[href^='http']" });
+                        },
+                        postpatch(_oldVnode, vnode) {
+                            const el = vnode.elm as HTMLElement;
+                            expandInboxGameEmbeds(el);
+                            makeExternalLinkPopups(el, { selector: ".inbox-msg.their a[href^='http']" });
+                        },
+                    },
+                }, loading
                     ? h('div.inbox-empty', _('Loading...'))
                     : convoBodyNodes.filter(Boolean) as VNode[],
                 ),
