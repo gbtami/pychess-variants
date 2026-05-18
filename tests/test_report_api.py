@@ -99,6 +99,18 @@ class ReportApiTestCase(AioHTTPTestCase):
         self.assertIn("test message", body)
         self.assertIn("Verbal abuse / Cursing / Trolling", body)
         self.assertNotIn(">Cheating<", body)
+        self.assertIn('href="/report/faq"', body)
+
+    async def test_report_faq_page_renders(self):
+        app_state = get_app_state(self.app)
+        app_state.users["alice"] = User(app_state, username="alice")
+
+        self.set_session_user("alice")
+        resp = await self.client.get("/report/faq")
+        self.assertEqual(resp.status, 200)
+        body = await resp.text()
+        self.assertIn("Report FAQ", body)
+        self.assertIn("When should I submit a report?", body)
 
     async def test_admin_can_process_and_reopen_report(self):
         app_state = get_app_state(self.app)
