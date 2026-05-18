@@ -93,15 +93,17 @@
 
 .inbox-user::before {
   content: '';
-  width: 0.48rem;
-  height: 0.48rem;
+  width: 0.9em;
+  height: 0.9em;
+  border: 2px solid var(--time-text);
   border-radius: 50%;
-  background: var(--time-text);
-  opacity: 0.35;
-  flex: 0 0 0.48rem;
+  background: transparent;
+  opacity: 0.7;
+  flex: 0 0 0.9em;
 }
 
 .inbox-user.online::before {
+  border-color: var(--good);
   background: var(--good);
   opacity: 0.95;
 }
@@ -246,27 +248,31 @@
 .inbox-convo-post {
   border-top: 1px solid var(--border-color);
   padding: 0.8rem;
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
   gap: 0.8rem;
-  align-items: end;
+  align-items: stretch;
   background: var(--bg-color0);
 }
 
-.inbox-convo-post textarea {
-  resize: vertical;
-  min-height: 3.8rem;
+.inbox-convo-post-text {
+  flex: 1 1 auto;
+  resize: none;
+  min-height: 2.7rem;
+  max-height: 10.5rem;
   border: 1px solid var(--input-border);
-  border-radius: 4px;
+  border-radius: 1.5rem;
   background: var(--bg-input);
   color: var(--font-color);
-  padding: 0.6rem 0.7rem;
+  padding: 0.55rem 0.95rem;
+  line-height: 1.35;
 }
 
-.inbox-convo-post .button {
+.inbox-convo-post-submit.button {
+  flex: 0 0 auto;
+  align-self: stretch;
   border-radius: 999px;
   min-width: 5.1rem;
-  padding: 0.55rem 1rem;
+  padding: 0 1rem;
   background: var(--good);
   color: #fff;
   border: 1px solid var(--good);
@@ -274,11 +280,11 @@
   box-shadow: none;
 }
 
-.inbox-convo-post .button:hover:not(:disabled) {
+.inbox-convo-post-submit.button:hover:not(:disabled) {
   filter: brightness(1.05);
 }
 
-.inbox-convo-post .button:disabled {
+.inbox-convo-post-submit.button:disabled {
   background: var(--time-text);
   border-color: var(--time-text);
   cursor: not-allowed;

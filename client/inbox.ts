@@ -456,10 +456,10 @@ export function inboxView(model: PyChessModel) {
                         },
                     },
                 }, [
-                    h('textarea', {
+                    h('textarea.inbox-convo-post-text', {
                         attrs: {
                             placeholder: contact ? _('Write a message...') : _('Select a conversation first'),
-                            rows: 3,
+                            rows: 1,
                             disabled: !contact || sending,
                         },
                         props: { value: draft },
@@ -470,7 +470,7 @@ export function inboxView(model: PyChessModel) {
                             },
                         },
                     }),
-                    h('button.button', {
+                    h('button.inbox-convo-post-submit.button', {
                         props: { type: 'submit', disabled: !contact || sending || !draft.trim() },
                     }, sending ? _('Sending...') : _('Send')),
                 ]),
