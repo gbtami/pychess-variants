@@ -18,6 +18,15 @@ USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 GAME_ID_RE = re.compile(r"^\w{8}$")
 
 REPORT_REASONS = {
+    "cheat",
+    "stall",
+    "boost",
+    "verbal_abuse",
+    "violence",
+    "harass",
+    "self_harm",
+    "hate",
+    "username",
     "cheating",
     "bad_behavior",
     "harassment",
@@ -27,6 +36,24 @@ REPORT_REASONS = {
 }
 REPORT_SOURCES = {"inbox", "profile", "game"}
 MAX_DETAILS_LEN = 3000
+
+REPORT_REASON_LABELS: dict[str, str] = {
+    "cheat": "Cheating",
+    "stall": "Stalling / Leaving games",
+    "boost": "Sandbagging / Boosting / Match fixing",
+    "verbal_abuse": "Verbal abuse / Cursing / Trolling",
+    "violence": "Violence / Threats",
+    "harass": "Harassment / Bullying / Stalking",
+    "self_harm": "Suicide / Self-Injury",
+    "hate": "Hate Speech / Sexism",
+    "spam": "Spamming",
+    "username": "Username",
+    "other": "Other",
+    "cheating": "Cheating",
+    "bad_behavior": "Bad behavior",
+    "harassment": "Harassment / Bullying / Stalking",
+    "impersonation": "Impersonation",
+}
 
 
 def _is_admin_username(username: str) -> bool:

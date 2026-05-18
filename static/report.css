@@ -1,91 +1,135 @@
 .report-wrap {
-  --main-max-width: 920px;
+  --main-max-width: 960px;
 }
 
-.report-page {
+main.report {
   grid-area: main;
   width: 100%;
 }
 
-.report-about {
-  margin-bottom: 0.9rem;
-  padding: 0;
-}
-
-.report-error {
-  color: var(--bad);
-  padding: 0;
-  margin-bottom: 0.8rem;
+main.report .box__top {
+  margin-bottom: 1.2rem;
 }
 
 .report-form {
-  display: grid;
-  gap: 0.9rem;
+  max-width: 760px;
+  margin: 0 auto;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
 }
 
-.report-field {
-  display: grid;
-  gap: 0.35rem;
+.report-form .form-group {
+  margin-bottom: 1rem;
 }
 
-.report-field label {
-  font-weight: 600;
+.report-form .form-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
 }
 
-.report-field input,
-.report-field select,
-.report-field textarea {
+.report-form .form-control {
   width: 100%;
   border: 1px solid var(--input-border);
   border-radius: 4px;
   background: var(--bg-input);
   color: var(--font-color);
-  padding: 0.5rem 0.55rem;
+  padding: 0.6em 0.8em;
 }
 
-.report-msgs {
+.report-form textarea.form-control {
+  resize: vertical;
+}
+
+.report-about {
+  margin-bottom: 1rem;
+}
+
+.report-about p {
+  padding: 0;
+}
+
+.report-error {
+  color: var(--bad);
+  margin: -0.3rem 0 0.8rem;
+  padding: 0;
+}
+
+.report-source-readonly {
+  display: inline-flex;
+  align-items: center;
+  min-height: calc(2.7em + 2px);
+  width: auto;
+  min-width: 11rem;
+  background: var(--bg-color2);
+  border: 1px solid var(--border-color);
+  text-transform: uppercase;
+}
+
+.report-user-readonly {
+  min-height: calc(2.7em + 2px);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.2rem;
+}
+
+.report-inbox-msgs ul {
+  max-height: 40vh;
+  overflow-y: auto;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   background: var(--bg-color1);
-  max-height: 280px;
-  overflow: auto;
+  margin: 0;
+  list-style: none;
 }
 
-.report-msg-item {
-  display: flex;
-  gap: 0.55rem;
-  align-items: flex-start;
-  padding: 0.45rem 0.55rem;
+.report-inbox-msgs li {
   border-bottom: 1px solid var(--border-color);
 }
 
-.report-msg-item:last-child {
+.report-inbox-msgs li:last-child {
   border-bottom: 0;
 }
 
+.report-inbox-msgs li label {
+  display: block;
+  padding: 0.55rem 0.65rem;
+}
+
+.report-inbox-msgs li input {
+  margin-right: 1ch;
+}
+
+.report-reason-help {
+  margin-top: 0.45rem;
+}
+
+.report-reason {
+  color: var(--button-text);
+  font-size: 0.95em;
+}
+
 .report-actions {
+  margin-top: 1.1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 0.35rem;
-}
-
-.report-actions a {
-  color: var(--link-color-blue);
 }
 
 .report-actions button {
   border: 1px solid color-mix(in srgb, var(--good) 75%, #000);
   border-radius: 4px;
-  color: #fff;
   background: var(--good);
-  padding: 0.5rem 1rem;
+  color: #fff;
+  padding: 0.55rem 1rem;
 }
 
 .report-actions button:hover {
   background: var(--green-switch);
 }
 
+.none,
 .hidden {
-  display: none;
+  display: none !important;
 }

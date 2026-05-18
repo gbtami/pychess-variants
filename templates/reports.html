@@ -1,67 +1,68 @@
 {% extends "template.html" %}
 {% block content %}
 <div id="main-wrap" class="reports-wrap">
-    <main class="page-small reports-page box box-pad">
-        <h1>Moderation Reports</h1>
-
-        <div class="reports-filters">
-            <a class="button{% if report_status == 'open' %} active{% endif %}" href="/reports?status=open">Open ({{ report_open_count }})</a>
-            <a class="button{% if report_status == 'processed' %} active{% endif %}" href="/reports?status=processed">Processed ({{ report_processed_count }})</a>
-            <a class="button{% if report_status == 'all' %} active{% endif %}" href="/reports?status=all">All</a>
+    <main id="report_list" class="reports-page box">
+        <div class="header">
+            <span class="icon icon-flag-o"></span>
+            <span class="tabs">
+                <a href="/reports?status=all" class="{% if report_status == 'all' %}active{% endif %}">All<count>{{ report_open_count + report_processed_count }}</count></a>
+                <a href="/reports?status=open" class="{% if report_status == 'open' %}active{% endif %}">Open<count>{{ report_open_count }}</count></a>
+                <a href="/reports?status=processed" class="{% if report_status == 'processed' %}active{% endif %}">Processed<count>{{ report_processed_count }}</count></a>
+            </span>
         </div>
 
-        <div class="reports-list">
-            {% if reports %}
-            <table class="reports-table">
-                <thead>
-                    <tr>
-                        <th>When</th>
-                        <th>Status</th>
-                        <th>Reporter</th>
-                        <th>Suspect</th>
-                        <th>Source</th>
-                        <th>Reason</th>
-                        <th>Details</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for report in reports %}
-                    <tr>
-                        <td><info-date timestamp="{{ report.createdAt.isoformat() if report.createdAt else '' }}"></info-date></td>
-                        <td>{{ report.status }}</td>
-                        <td><a class="user-link" href="/@/{{ report.reporter }}">{{ report.reporter }}</a></td>
-                        <td>
-                            <a class="user-link" href="/@/{{ report.suspect }}">{{ report.suspect }}</a>
-                            {% if report.gameId %}
-                                <div><a href="/{{ report.gameId }}">game {{ report.gameId }}</a></div>
-                            {% endif %}
-                        </td>
-                        <td>{{ report.source }}</td>
-                        <td>{{ report.reason }}</td>
-                        <td><pre class="report-details">{{ report.details }}</pre></td>
-                        <td class="report-actions">
-                            {% if report.status == 'open' %}
-                            <button class="report-btn" data-action="inquiry" data-id="{{ report._id }}">
-                                {% if report.inquiryBy %}
-                                    Inquiry: {{ report.inquiryBy }}
-                                {% else %}
-                                    Start inquiry
-                                {% endif %}
-                            </button>
-                            <button class="report-btn report-btn-process" data-action="process" data-id="{{ report._id }}">Mark processed</button>
+        <table class="reports-table see">
+            <thead>
+                <tr>
+                    <th>Report</th>
+                    <th>By</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr class="{% if report.status == 'open' %}new{% endif %}">
+                    <td>
+                        <span class="reason">{{ report.reasonLabel }}</span>
+                        <br>
+                        <a class="user-link" href="/@/{{ report.suspect }}">{{ report.suspect }}</a>
+                        {% if report.gameId %}
+                        <br>
+                        <a href="/{{ report.gameId }}">/{{ report.gameId }}</a>
+                        {% endif %}
+                        <p class="meta">{{ report.source }} · <info-date timestamp="{{ report.createdAt.isoformat() if report.createdAt else '' }}"></info-date></p>
+                    </td>
+                    <td class="atoms">
+                        <div class="atom">
+                            <span class="head">
+                                <a class="user-link" href="/@/{{ report.reporter }}">{{ report.reporter }}</a>
+                                · <info-date timestamp="{{ report.createdAt.isoformat() if report.createdAt else '' }}"></info-date>
+                            </span>
+                            <p class="text{% if report.details|length > 140 %} large{% endif %}">{{ report.details }}</p>
+                        </div>
+                    </td>
+                    <td>
+                        {% if report.status == 'open' %}
+                        <button class="report-btn inquiry" data-action="inquiry" data-id="{{ report._id }}" title="Toggle inquiry">
+                            {% if report.inquiryBy %}
+                                Open by {{ report.inquiryBy }}
                             {% else %}
-                            <button class="report-btn" data-action="reopen" data-id="{{ report._id }}">Reopen</button>
+                                Start
                             {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p>No reports found for this filter.</p>
-            {% endif %}
-        </div>
+                        </button>
+                        <button class="report-btn process" data-action="process" data-id="{{ report._id }}">Process</button>
+                        {% else %}
+                        <button class="report-btn reopen" data-action="reopen" data-id="{{ report._id }}">Reopen</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3">No reports found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </main>
 </div>
 {% endblock %}
@@ -69,34 +70,32 @@
     <script src="{{ js }}"></script>
     <script>
     (() => {
-        const actionUrl = (action, id) => `/api/reports/${id}/${action}`;
-        const buttons = document.querySelectorAll('button[data-action][data-id]');
-        for (const button of buttons) {
-            button.addEventListener('click', async () => {
-                const action = button.getAttribute('data-action');
-                const id = button.getAttribute('data-id');
-                if (!action || !id) return;
-
-                button.disabled = true;
-                try {
-                    const res = await fetch(actionUrl(action, id), { method: 'POST' });
-                    if (!res.ok) {
-                        let message = `HTTP ${res.status}`;
-                        try {
-                            const body = await res.json();
-                            if (body && body.message) message = body.message;
-                        } catch (_) {}
-                        alert(`Action failed: ${message}`);
-                        button.disabled = false;
-                        return;
-                    }
-                    window.location.reload();
-                } catch (err) {
-                    alert('Action failed.');
-                    button.disabled = false;
-                }
-            });
-        }
+      const actionUrl = (action, id) => `/api/reports/${id}/${action}`;
+      document.querySelectorAll('button[data-action][data-id]').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const action = button.getAttribute('data-action');
+          const id = button.getAttribute('data-id');
+          if (!action || !id) return;
+          button.disabled = true;
+          try {
+            const res = await fetch(actionUrl(action, id), { method: 'POST' });
+            if (!res.ok) {
+              let message = `HTTP ${res.status}`;
+              try {
+                const body = await res.json();
+                if (body && body.message) message = body.message;
+              } catch (_) {}
+              alert(`Action failed: ${message}`);
+              button.disabled = false;
+              return;
+            }
+            window.location.reload();
+          } catch (_) {
+            alert('Action failed.');
+            button.disabled = false;
+          }
+        });
+      });
     })();
     </script>
 {% endblock %}

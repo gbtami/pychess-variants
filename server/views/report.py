@@ -6,15 +6,81 @@ import aiohttp_jinja2
 from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
-from report_api import REPORT_REASONS, REPORT_SOURCES, _resolve_username, create_report_submission
+from report_api import REPORT_SOURCES, _resolve_username, create_report_submission
 from request_utils import read_post_data
 from typing_defs import ViewContext
 from views import get_user_context
+
+REPORT_SOURCE_LABELS = {
+    "profile": "Profile",
+    "inbox": "Inbox",
+    "game": "Game",
+}
+
+REPORT_REASON_OPTIONS: list[dict[str, str]] = [
+    {
+        "key": "cheat",
+        "label": "Cheating",
+        "help": "For cheating reports, include at least one game link.",
+    },
+    {
+        "key": "stall",
+        "label": "Stalling / Leaving games",
+        "help": "Include game links and explain the pattern you observed.",
+    },
+    {
+        "key": "boost",
+        "label": "Sandbagging / Boosting / Match fixing",
+        "help": "Include relevant game links and account names involved.",
+    },
+    {
+        "key": "verbal_abuse",
+        "label": "Verbal abuse / Cursing / Trolling",
+        "help": "Describe what happened and include chat context.",
+    },
+    {
+        "key": "violence",
+        "label": "Violence / Threats",
+        "help": "Include exact statements and context.",
+    },
+    {
+        "key": "harass",
+        "label": "Harassment / Bullying / Stalking",
+        "help": "Describe recurring behavior and include relevant links/messages.",
+    },
+    {
+        "key": "self_harm",
+        "label": "Suicide / Self-Injury",
+        "help": "Include context that triggered concern.",
+    },
+    {"key": "hate", "label": "Hate Speech / Sexism", "help": "Include quoted text and context."},
+    {"key": "spam", "label": "Spamming", "help": "Include repeated messages/posts or links."},
+    {"key": "username", "label": "Username", "help": "Explain why the username is problematic."},
+    {
+        "key": "other",
+        "label": "Other",
+        "help": "Please provide as much information as possible, including relevant links/messages.",
+    },
+]
 
 
 def _thread_id(user1: str, user2: str) -> str:
     first, second = sorted((user1, user2), key=lambda x: (x.lower(), x))
     return f"{first}:{second}"
+
+
+def _normalize_reason(reason: str) -> str:
+    key = reason.strip().lower().replace(" ", "_")
+    reason_keys = {opt["key"] for opt in REPORT_REASON_OPTIONS}
+    if key in reason_keys:
+        return key
+    if key == "harassment":
+        return "harass"
+    if key in ("bad_behavior", "verbal-abuse", "abuse"):
+        return "verbal_abuse"
+    if key == "cheating":
+        return "cheat"
+    return "other"
 
 
 async def _load_inbox_messages(app_state, reporter: str, suspect: str) -> list[dict[str, str]]:
@@ -61,10 +127,10 @@ async def _build_report_context(
 
     if source not in REPORT_SOURCES:
         source = "profile"
-    if reason not in REPORT_REASONS:
-        reason = "other"
+    reason = _normalize_reason(reason)
 
     suspect = await _resolve_username(app_state, username) if username else None
+    user_locked = bool(username.strip())
 
     inbox_msgs: list[dict[str, str]] = []
     if source == "inbox" and suspect is not None:
@@ -75,12 +141,13 @@ async def _build_report_context(
     context["view_css"] = "report.css"
     context["report_error"] = error
     context["report_source"] = source
+    context["report_source_label"] = REPORT_SOURCE_LABELS.get(source, source.title())
     context["report_username"] = suspect or username
     context["report_reason"] = reason
     context["report_details"] = details
     context["report_game_id"] = game_id
-    context["report_sources"] = sorted(REPORT_SOURCES)
-    context["report_reasons"] = sorted(REPORT_REASONS)
+    context["report_reason_options"] = REPORT_REASON_OPTIONS
+    context["report_user_locked"] = user_locked
     context["report_inbox_msgs"] = inbox_msgs
     context["report_selected_msgs"] = selected_msgs or []
 
@@ -132,18 +199,16 @@ async def report_create(request: web.Request) -> ViewContext:
             error="Invalid request",
         )
 
-    source = str(data.get("source") or "profile")
+    source = str(data.get("source") or "profile").strip().lower()
     username = str(data.get("username") or "")
-    reason = str(data.get("reason") or "other")
+    reason = str(data.get("reason") or "other").strip().lower().replace(" ", "_")
     details = str(data.get("details") or "")
     game_id = str(data.get("gameId") or "")
 
     selected_msgs: list[str] = []
     getall = getattr(data, "getall", None)
     if callable(getall):
-        selected_msgs = [
-            str(value).strip() for value in getall("msgs", []) if str(value).strip()
-        ]
+        selected_msgs = [str(value).strip() for value in getall("msgs", []) if str(value).strip()]
 
     status, message, _report_id = await create_report_submission(
         app_state=get_app_state(request.app), reporter=user.username, payload=data

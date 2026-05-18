@@ -1,66 +1,82 @@
 {% extends "template.html" %}
 {% block content %}
 <div id="main-wrap" class="report-wrap">
-    <main class="report-page box box-pad">
+    <main class="page-small box box-pad report">
         <h1 class="box__top">Report a user</h1>
 
-        <p class="report-about">
-            Include specific details and links so moderators can review quickly.
-        </p>
+        <form class="form3 report-form" method="post" action="/report">
+            <div class="form-group report-about">
+                <p>
+                    <a class="text" href="/faq" target="_blank" rel="noopener">Read more about reports</a>
+                </p>
+            </div>
 
-        {% if report_error %}
-        <p class="report-error">{{ report_error }}</p>
-        {% endif %}
+            {% if report_error %}
+            <p class="report-error">{{ report_error }}</p>
+            {% endif %}
 
-        <form class="report-form" method="post" action="/report">
-            <div class="report-field">
-                <label for="report-source">Source</label>
-                <select id="report-source" name="source">
-                    {% for source in report_sources %}
-                    <option value="{{ source }}"{% if source == report_source %} selected{% endif %}>{{ source }}</option>
+            <input type="hidden" name="source" value="{{ report_source }}">
+
+            <div class="form-group">
+                <label class="form-label">Source</label>
+                <div class="form-control report-source-readonly">{{ report_source_label }}</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="form3-username">User</label>
+                {% if report_user_locked %}
+                <div class="report-user-readonly">
+                    <a class="user-link" href="/@/{{ report_username }}">{{ report_username }}</a>
+                    <input type="hidden" name="username" value="{{ report_username }}">
+                </div>
+                {% else %}
+                <input id="form3-username" name="username" class="form-control" value="{{ report_username }}" minlength="3" maxlength="20" required autofocus>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="form3-reason">Reason</label>
+                <select id="form3-reason" name="reason" class="form-control">
+                    {% for option in report_reason_options %}
+                    <option value="{{ option.key }}"{% if option.key == report_reason %} selected{% endif %}>{{ option.label }}</option>
                     {% endfor %}
                 </select>
             </div>
 
-            <div class="report-field">
-                <label for="report-username">User</label>
-                <input id="report-username" name="username" value="{{ report_username }}" minlength="3" maxlength="20" required>
-            </div>
-
-            <div class="report-field">
-                <label for="report-reason">Reason</label>
-                <select id="report-reason" name="reason">
-                    {% for reason in report_reasons %}
-                    <option value="{{ reason }}"{% if reason == report_reason %} selected{% endif %}>{{ reason }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="report-field" id="report-game-field">
-                <label for="report-game-id">Game ID (for game reports)</label>
-                <input id="report-game-id" name="gameId" value="{{ report_game_id }}" maxlength="8" placeholder="AbCd1234">
+            <div class="form-group" id="report-game-group">
+                <label class="form-label" for="form3-game-id">Game ID</label>
+                <input id="form3-game-id" name="gameId" class="form-control" value="{{ report_game_id }}" maxlength="8" placeholder="AbCd1234">
             </div>
 
             {% if report_inbox_msgs %}
-            <div class="report-field" id="report-msgs-field">
-                <label>Messages to report</label>
-                <div class="report-msgs">
+            <div class="form-group report-inbox-msgs" id="report-msgs-group">
+                <label class="form-label">Messages to report</label>
+                <ul>
                     {% for msg in report_inbox_msgs %}
-                    <label class="report-msg-item">
-                        <input type="checkbox" name="msgs" value="{{ msg.id }}"{% if msg.id in report_selected_msgs %} checked{% endif %}>
-                        <span><strong>{{ msg.from }}</strong>: {{ msg.text }}</span>
-                    </label>
+                    <li>
+                        <label for="{{ msg.id }}">
+                            <input id="{{ msg.id }}" type="checkbox" name="msgs" value="{{ msg.id }}"{% if msg.id in report_selected_msgs %} checked{% endif %}>
+                            <strong>{{ msg.from }}</strong>: {{ msg.text }}
+                        </label>
+                    </li>
                     {% endfor %}
-                </div>
+                </ul>
             </div>
             {% endif %}
 
-            <div class="report-field">
-                <label for="report-details">Description</label>
-                <textarea id="report-details" name="details" rows="8" minlength="5" maxlength="3000" required>{{ report_details }}</textarea>
+            <div class="form-group">
+                <label class="form-label" for="form3-details">Description</label>
+                <textarea id="form3-details" name="details" class="form-control" rows="8" maxlength="3000" required>{{ report_details }}</textarea>
+                <div class="report-reason-help">
+                    {% for option in report_reason_options %}
+                    <span class="report-reason report-reason-{{ option.key }}{% if option.key != report_reason %} none{% endif %}">
+                        {{ option.help }} Processed faster in English. Maximum 3000 characters.
+                    </span>
+                    {% endfor %}
+                </div>
             </div>
 
-            <div class="report-actions">
+            <div class="form-actions report-actions">
                 <a href="/">Cancel</a>
                 <button type="submit">Send</button>
             </div>
@@ -72,15 +88,21 @@
     <script src="{{ js }}"></script>
     <script>
     (() => {
-      const source = document.getElementById('report-source');
-      const gameField = document.getElementById('report-game-field');
-      if (!source || !gameField) return;
-      const refresh = () => {
-        const showGame = source.value === 'game';
-        gameField.classList.toggle('hidden', !showGame);
-      };
-      source.addEventListener('change', refresh);
-      refresh();
+      const reason = document.getElementById('form3-reason');
+      const source = "{{ report_source }}";
+      const gameGroup = document.getElementById('report-game-group');
+      const msgsGroup = document.getElementById('report-msgs-group');
+
+      if (gameGroup) gameGroup.classList.toggle('hidden', source !== 'game');
+      if (msgsGroup) msgsGroup.classList.toggle('hidden', source !== 'inbox');
+
+      if (reason) {
+        reason.addEventListener('change', () => {
+          document.querySelectorAll('.report-reason').forEach((el) => el.classList.add('none'));
+          const current = document.querySelector('.report-reason-' + reason.value);
+          if (current) current.classList.remove('none');
+        });
+      }
     })();
     </script>
 {% endblock %}

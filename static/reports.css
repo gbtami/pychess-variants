@@ -1,76 +1,172 @@
 .reports-wrap {
-  --main-max-width: 1700px;
+  --main-max-width: 1450px;
 }
 
-.reports-page {
+#report_list {
   grid-area: main;
   width: 100%;
-  max-width: 100%;
-  overflow: auto;
+  overflow: hidden;
 }
 
-.reports-filters {
+#report_list .header {
   display: flex;
-  gap: 0.6rem;
-  margin: 0.8rem 0 1rem;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 4rem;
 }
 
-.reports-filters .button.active {
-  background: var(--good);
+#report_list .header .icon {
+  flex: 1 1 auto;
+  margin: 0.7rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.65;
+  font-size: 2rem;
+}
+
+#report_list .tabs {
+  display: flex;
+  margin-inline-end: 0.9rem;
+  font-size: 1.1rem;
+}
+
+#report_list .tabs a {
+  color: var(--font-color);
+  text-transform: uppercase;
+  padding: 0.4rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#report_list .tabs a:hover {
+  background: color-mix(in srgb, var(--rusty) 26%, transparent);
   color: #fff;
+}
+
+#report_list .tabs a.active {
+  background: var(--rusty);
+  color: #fff;
+}
+
+#report_list .tabs count {
+  font-size: 0.78em;
+  display: block;
+  height: 1.2em;
 }
 
 .reports-table {
   width: 100%;
   border-collapse: collapse;
+  border-top: 4px solid var(--rusty);
 }
 
 .reports-table th,
 .reports-table td {
   border: 1px solid var(--border-color);
-  padding: 0.45rem 0.55rem;
+  padding: 0.55rem 0.6rem;
   vertical-align: top;
 }
 
-.reports-table th {
-  background: var(--bg-color1);
-  text-align: left;
+.reports-table td:first-child {
+  width: 29%;
 }
 
-.report-details {
-  white-space: pre-wrap;
+.reports-table td:last-child {
+  width: 9.5rem;
+}
+
+.reports-table tr.new td:first-child {
+  border-inline-start: 4px solid var(--rusty);
+}
+
+.reports-table .reason {
+  font-weight: 700;
+}
+
+.reports-table .meta {
+  font-size: 0.88em;
+  margin: 0.55rem 0 0;
+  color: var(--time-text);
+}
+
+.atoms .atom {
+  font-size: 0.93em;
+}
+
+.atoms .head {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.atoms .text {
   overflow-wrap: anywhere;
+  max-height: 110px;
+  overflow: auto;
   margin: 0;
-  max-width: 560px;
-  font-family: inherit;
+  padding: 0;
 }
 
-.report-actions {
-  display: grid;
-  gap: 0.4rem;
-  min-width: 11rem;
+.atoms .text.large {
+  font-size: 0.86em;
 }
 
 .report-btn {
+  display: block;
+  width: 100%;
   border: 1px solid var(--border-color);
   border-radius: 3px;
   background: var(--bg-color1);
   color: var(--font-color);
-  padding: 0.4rem 0.55rem;
+  padding: 0.42rem 0.5rem;
+  margin-bottom: 0.45rem;
   text-align: left;
+}
+
+.report-btn:last-child {
+  margin-bottom: 0;
 }
 
 .report-btn:hover {
   background: var(--bg-color2);
 }
 
-.report-btn-process {
-  color: #fff;
+.report-btn.process {
   background: var(--green-hover);
   border-color: var(--green-hover);
+  color: #fff;
 }
 
-.report-btn-process:hover {
+.report-btn.process:hover {
   background: var(--green-switch);
   border-color: var(--green-switch);
+}
+
+@media (max-width: 900px) {
+  #report_list .tabs a {
+    padding: 0.35rem 0.65rem;
+  }
+
+  .reports-table,
+  .reports-table thead,
+  .reports-table tbody,
+  .reports-table tr,
+  .reports-table th,
+  .reports-table td {
+    display: block;
+  }
+
+  .reports-table tr {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .reports-table th {
+    display: none;
+  }
+
+  .reports-table td {
+    width: 100% !important;
+    border: 0;
+  }
 }

@@ -4,6 +4,7 @@ import aiohttp_jinja2
 from aiohttp import web
 
 from pychess_global_app_state_utils import get_app_state
+from report_api import REPORT_REASON_LABELS
 from settings import ADMINS
 from typing_defs import ViewContext
 from views import get_user_context
@@ -35,7 +36,13 @@ async def reports(request: web.Request) -> ViewContext:
     cursor = app_state.db.user_report.find(query)
     cursor.sort("createdAt", -1)
     cursor.limit(500)
-    report_docs = await cursor.to_list(length=500)
+    raw_report_docs = await cursor.to_list(length=500)
+    report_docs: list[dict[str, object]] = []
+    for doc in raw_report_docs:
+        reason = str(doc.get("reason", "other"))
+        entry = dict(doc)
+        entry["reasonLabel"] = REPORT_REASON_LABELS.get(reason, reason.replace("_", " ").title())
+        report_docs.append(entry)
 
     open_count = await app_state.db.user_report.count_documents({"status": "open"})
     processed_count = await app_state.db.user_report.count_documents({"status": "processed"})
