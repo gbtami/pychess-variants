@@ -455,7 +455,7 @@ export function inboxView(model: PyChessModel) {
                             attrs: { title: _('Delete') },
                             on: { click: deleteConversation },
                         }),
-                        h('a.inbox-action.icon.icon-flag-o', {
+                        h('a.inbox-action.icon.icon-warning', {
                             attrs: { href: reportHref, title: _('Report to moderators') },
                         }),
                     ] : []),

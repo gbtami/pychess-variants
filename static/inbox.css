@@ -185,7 +185,7 @@
   color: var(--bad);
 }
 
-.inbox-action.icon-flag-o:hover {
+.inbox-action.icon-warning:hover {
   color: var(--bad);
 }
 
