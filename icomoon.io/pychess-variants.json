@@ -18131,8 +18131,11 @@
         {
           "ligatures": "warning, sign",
           "name": "warning",
-          "order": 0,
-          "id": 264
+          "order": 528,
+          "id": 264,
+          "prevSize": 32,
+          "code": 59911,
+          "tempChar": ""
         },
         {
           "ligatures": "notification, warning2",
@@ -18165,7 +18168,7 @@
           "id": 269,
           "prevSize": 32,
           "code": 59916,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "cancel-circle, close",
@@ -18264,7 +18267,7 @@
           "id": 285,
           "prevSize": 32,
           "code": 59932,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pause2, player9",
@@ -18273,7 +18276,7 @@
           "id": 286,
           "prevSize": 32,
           "code": 59933,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "stop2, player10",
@@ -18408,7 +18411,7 @@
           "id": 308,
           "prevSize": 32,
           "code": 11016,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-right, right3",
@@ -18423,7 +18426,7 @@
           "id": 310,
           "prevSize": 32,
           "code": 11018,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-down, down",
@@ -27050,7 +27053,7 @@
     "showCodes": true,
     "gridSize": 16,
     "quickUsageToken": {
-      "pychess-variants": "ZTMzZmExMDU0MyMxNzc4NTI5OTE0I3E5a1NoaDVoZzhPc2RUU2lkZmJqT1F4S1pHQk8yem5vcnM1QnVZdEJTZFR5"
+      "pychess-variants": "NTc4MzY0Y2Q4MiMxNzc5MTM5ODMzI1VFOWsyUW1HYXYxMjJWakRpRmJrNDRibTQ2VHZibXZCdUdUZHBOQjdtakpU"
     },
     "showLiga": false
   },

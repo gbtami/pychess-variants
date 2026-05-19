@@ -457,3 +457,6 @@
 .icon-arrow-down-right:before {
   content: "\2b0a";
 }
+.icon-warning:before {
+  content: "\ea07";
+}
