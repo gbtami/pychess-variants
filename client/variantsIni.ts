@@ -442,11 +442,12 @@ customPiece13 = b:KmBcR
 
 capturesToHand = true
 pieceDrops = true
-nFoldMove = 4
+nFoldRule = 4
+perpetualCheckIllegal = true
+shogiPawnDropMateIllegal = true
 dropNoDoubled = p
 promotionRegionWhite = *7 *8 *9
 promotionRegionBlack = *1 *2 *3
 promotedPieceType = p:z f:e g:d y:v t:b 
-nFoldRule = 4
 stalemateValue = loss
-startFen = rygckagyl/1t5f1/ppppppppp/9/9/9/PPPPPPPPP/1F5T1/LYGAKCGYR[Nn] w 0 1`
+startFen = ryctkfayl/1g5g1/ppppppppp/9/9/9/PPPPPPPPP/1G5G1/LYAFKTCYR[Nn] w 0 1`
