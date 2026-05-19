@@ -2,7 +2,7 @@ import asyncio
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Mapping
 
 import aiohttp_session
 from aiohttp import web
@@ -28,6 +28,48 @@ log = logging.getLogger(__name__)
 def _is_admin_username(username: str) -> bool:
     lowered = username.casefold()
     return any(lowered == admin.casefold() for admin in ADMINS)
+
+
+REPORT_REASON_SCORES: dict[str, int] = {
+    "cheat": 90,
+    "cheating": 90,
+    "violence": 88,
+    "self_harm": 88,
+    "hate": 86,
+    "harass": 78,
+    "harassment": 78,
+    "verbal_abuse": 74,
+    "spam": 64,
+    "stall": 62,
+    "boost": 62,
+    "bad_behavior": 62,
+    "impersonation": 58,
+    "username": 56,
+    "other": 50,
+}
+
+
+def _report_priority_score(report: Mapping[str, Any]) -> int:
+    reason = str(report.get("reason", "")).lower()
+    score = REPORT_REASON_SCORES.get(reason, 45)
+    if report.get("source") == "inbox":
+        score += 4
+    if report.get("inquiryBy"):
+        score = max(0, score - 6)
+    return min(99, score)
+
+
+async def _max_open_report_score(request: web.Request) -> int:
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        return 0
+    cursor = app_state.db.user_report.find(
+        {"status": "open"}, projection={"reason": 1, "source": 1, "inquiryBy": 1}
+    ).limit(400)
+    reports = await cursor.to_list(length=400)
+    if not reports:
+        return 0
+    return max(_report_priority_score(report) for report in reports)
 
 
 piece_css_path: Path = Path(Path(__file__).parent.parent.parent, "static/piece-css")
@@ -96,6 +138,10 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
     else:
         menu_variant = user.category_variant_list[0] if user.category_variant_list else "chess"
 
+    mod_report_score = 0
+    if _is_admin_username(user.username):
+        mod_report_score = await _max_open_report_score(request)
+
     context: ViewContext = {
         "user": user,
         "lang": lang,
@@ -112,6 +158,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         "piece_sets": piece_sets,
         "simuling": SIMULING,
         "admin": _is_admin_username(user.username),
+        "mod_report_score": mod_report_score,
     }
     return (user, context)
 

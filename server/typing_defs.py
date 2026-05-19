@@ -396,6 +396,7 @@ class ViewContext(TypedDict, total=False):
     piece_sets: list[str]
     simuling: bool
     admin: bool
+    mod_report_score: int
     allusers: Sequence[User]
     anon_online: int
     blog_item: str

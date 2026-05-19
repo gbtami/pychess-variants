@@ -45,10 +45,6 @@
                     <a class="nav-link" href="/players">{% trans %}Community{% endtrans %}</a>
                     <div class="drp" >
                         <a class="nav-link" href="/players">{% trans %}Players{% endtrans %}</a>
-                        {% if admin %}
-                        <a class="nav-link" href="/reports">Reports</a>
-                        <a class="nav-link" href="/mod/public-chat">Public chats</a>
-                        {% endif %}
                         <a class="nav-link" href="/blogs">{% trans %}Blog{% endtrans %}</a>
                         <a class="nav-link" href="/patron">{% trans %}Donate{% endtrans %}</a>
                     </div>
@@ -124,6 +120,11 @@
                     </a>
                 </div>
             </div>
+            {% endif %}
+            {% if admin and not anon %}
+            <a id="btn-mod" class="mod-link" href="/reports?status=open" aria-label="Moderation" title="Moderation">
+                <div class="icon icon-bullhorn data-count" data-count="{{ mod_report_score }}"></div>
+            </a>
             {% endif %}
             <div id="challenge-panel"></div>
             <div id="notify-panel"></div>

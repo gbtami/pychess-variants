@@ -937,7 +937,7 @@ ul.guide li {
   padding: 0;
 }
 
-#btn-settings, #btn-notify, #btn-challenge {
+#btn-settings, #btn-notify, #btn-challenge, #btn-mod {
   padding: 8px;
   height: var(--site-header-height);
 }
@@ -972,6 +972,18 @@ ul.guide li {
 }
 #challenge-app {
   right: 3.75rem;
+}
+#btn-mod.mod-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--font-color);
+}
+#btn-mod.mod-link:hover {
+  color: var(--blue-hover);
+}
+#btn-mod.mod-link .icon {
+  font-size: 1.25rem;
 }
 .data-count {
   position: relative;
