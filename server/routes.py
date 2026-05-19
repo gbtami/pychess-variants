@@ -63,6 +63,7 @@ from report_api import (
     report_shadowban,
     report_close_account,
 )
+from mod_public_chat_api import public_chat_timeout
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import (
@@ -111,6 +112,7 @@ from views import (
     report_faq,
     report as report_view,
     reports as reports_view,
+    mod_public_chat as mod_public_chat_view,
     user_mini,
     inbox,
     puzzle,
@@ -166,6 +168,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/report/faq", report_faq.report_faq),
     ("/report/thanks", report_view.report_thanks),
     ("/reports", reports_view.reports),
+    ("/mod/public-chat", mod_public_chat_view.mod_public_chat),
     ("/challenges", get_header_challenges),
     ("/notify", subscribe_notify),
     ("/challenge/subscribe", subscribe_challenges),
@@ -284,6 +287,7 @@ post_routes: tuple[RouteDef, ...] = (
     (r"/api/reports/{reportId:\w{8}}/shadowban", report_shadowban),
     (r"/api/reports/{reportId:\w{8}}/close-account", report_close_account),
     (r"/api/reports/{reportId:\w{8}}/reopen", report_reopen),
+    ("/api/mod/public-chat/timeout", public_chat_timeout),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),
     ("/fishnet/move/{workId}", fishnet_move),

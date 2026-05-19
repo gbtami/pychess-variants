@@ -9,6 +9,7 @@
                 <a href="/reports?status=open" class="{% if report_status == 'open' %}active{% endif %}">Open<count>{{ report_open_count }}</count></a>
                 <a href="/reports?status=processed" class="{% if report_status == 'processed' %}active{% endif %}">Processed<count>{{ report_processed_count }}</count></a>
             </span>
+            <a class="public-chat-link" href="/mod/public-chat">Public chats</a>
         </div>
 
         <table class="reports-table see">
@@ -50,8 +51,8 @@
                                 Start
                             {% endif %}
                         </button>
-                        <button class="report-btn silence" data-action="silence" data-id="{{ report._id }}" title="Apply 10-minute chat timeout">
-                            Silence (10m)
+                        <button class="report-btn silence" data-action="silence" data-id="{{ report._id }}" data-suspect="{{ report.suspect }}" data-details="{{ report.details }}" title="Apply 15-minute chat timeout">
+                            Timeout (15m)
                         </button>
                         <button class="report-btn shadowban" data-action="shadowban" data-id="{{ report._id }}" data-confirm="Shadowban this account and process the report?" title="Hide this user's chat and private messages from others">
                             Shadowban
@@ -74,18 +75,97 @@
         </table>
     </main>
 </div>
+<div id="timeout-modal-backdrop" class="timeout-modal-backdrop hidden"></div>
+<div id="timeout-modal" class="timeout-modal hidden" role="dialog" aria-modal="true" aria-labelledby="timeout-modal-title">
+    <h2 id="timeout-modal-title" class="username">username</h2>
+    <p class="text">text</p>
+    <div class="continue-with">
+        <button class="report-btn timeout-reason" data-reason="shaming">Public shaming</button>
+        <button class="report-btn timeout-reason" data-reason="insult">Disrespecting other players</button>
+        <button class="report-btn timeout-reason" data-reason="spam">Spamming the chat</button>
+        <button class="report-btn timeout-reason" data-reason="other">Inappropriate behavior</button>
+    </div>
+    <button id="timeout-modal-cancel" class="report-btn timeout-cancel">Cancel</button>
+</div>
 {% endblock %}
 {% block js %}
     <script src="{{ js }}"></script>
     <script>
     (() => {
       const actionUrl = (action, id) => `/api/reports/${id}/${action}`;
+      const modal = document.getElementById('timeout-modal');
+      const modalBackdrop = document.getElementById('timeout-modal-backdrop');
+      const modalUsername = modal ? modal.querySelector('.username') : null;
+      const modalText = modal ? modal.querySelector('.text') : null;
+      const modalCancel = document.getElementById('timeout-modal-cancel');
+      let timeoutReportId = '';
+
+      const showTimeoutModal = (id, suspect, details) => {
+        if (!modal || !modalBackdrop || !modalUsername || !modalText) return;
+        timeoutReportId = id;
+        modalUsername.textContent = suspect || 'username';
+        modalText.textContent = details || 'No message details available.';
+        modal.classList.remove('hidden');
+        modalBackdrop.classList.remove('hidden');
+      };
+
+      const hideTimeoutModal = () => {
+        if (!modal || !modalBackdrop) return;
+        timeoutReportId = '';
+        modal.classList.add('hidden');
+        modalBackdrop.classList.add('hidden');
+      };
+
+      const submitTimeout = async (reason, button) => {
+        if (!timeoutReportId) return;
+        const id = timeoutReportId;
+        button.disabled = true;
+        try {
+          const payload = new URLSearchParams({ reason });
+          const res = await fetch(actionUrl('silence', id), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: payload.toString(),
+          });
+          if (!res.ok) {
+            let message = `HTTP ${res.status}`;
+            try {
+              const body = await res.json();
+              if (body && body.message) message = body.message;
+            } catch (_) {}
+            alert(`Action failed: ${message}`);
+            button.disabled = false;
+            return;
+          }
+          window.location.reload();
+        } catch (_) {
+          alert('Action failed.');
+          button.disabled = false;
+        }
+      };
+
+      modalCancel?.addEventListener('click', hideTimeoutModal);
+      modalBackdrop?.addEventListener('click', hideTimeoutModal);
+      document.querySelectorAll('.timeout-reason[data-reason]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const reason = button.getAttribute('data-reason');
+          if (!reason) return;
+          submitTimeout(reason, button);
+        });
+      });
+
       document.querySelectorAll('button[data-action][data-id]').forEach((button) => {
         button.addEventListener('click', async () => {
           const action = button.getAttribute('data-action');
           const id = button.getAttribute('data-id');
+          const suspect = button.getAttribute('data-suspect') || '';
+          const details = button.getAttribute('data-details') || '';
           const confirmText = button.getAttribute('data-confirm');
           if (!action || !id) return;
+          if (action === 'silence') {
+            showTimeoutModal(id, suspect, details);
+            return;
+          }
           if (confirmText && !window.confirm(confirmText)) return;
           button.disabled = true;
           try {

@@ -56,6 +56,13 @@
   height: 1.2em;
 }
 
+#report_list .public-chat-link {
+  align-self: center;
+  margin-inline-end: 0.9rem;
+  font-size: 0.95rem;
+  color: var(--link-color);
+}
+
 .reports-table {
   width: 100%;
   border-collapse: collapse;
@@ -174,6 +181,63 @@
 .report-btn.shadowban:hover {
   background: #495168;
   border-color: #495168;
+}
+
+.timeout-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, #000 45%, transparent);
+  z-index: 40;
+}
+
+.timeout-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(520px, calc(100vw - 2rem));
+  transform: translate(-50%, -50%);
+  z-index: 41;
+  background: var(--bg-color1);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: var(--base-shadow);
+  padding: 1rem;
+}
+
+.timeout-modal.hidden,
+.timeout-modal-backdrop.hidden {
+  display: none;
+}
+
+.timeout-modal h2 {
+  margin: 0 0 0.45rem;
+  font-size: 1.2rem;
+}
+
+.timeout-modal p.text {
+  margin: 0 0 0.8rem;
+  padding: 0.5rem 0.6rem;
+  max-height: 8.2rem;
+  overflow: auto;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color2);
+  font-style: italic;
+}
+
+.timeout-modal .continue-with {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.45rem;
+}
+
+.report-btn.timeout-reason {
+  text-align: left;
+  margin: 0;
+}
+
+.report-btn.timeout-cancel {
+  margin-top: 0.7rem;
+  text-align: center;
 }
 
 @media (max-width: 900px) {

@@ -56,6 +56,13 @@ REPORT_REASON_LABELS: dict[str, str] = {
     "impersonation": "Impersonation",
 }
 
+TIMEOUT_REASONS: dict[str, str] = {
+    "shaming": "public shaming",
+    "insult": "disrespecting other players",
+    "spam": "spamming the chat",
+    "other": "inappropriate behavior",
+}
+
 
 def _is_admin_username(username: str) -> bool:
     lowered = username.casefold()
@@ -322,7 +329,15 @@ async def report_silence(request: web.Request) -> web.Response:
     if suspect is None:
         return web.json_response({"type": "error", "message": "Report not found"}, status=404)
 
-    fullchat = silence(app_state, f"/silence {suspect}")
+    data = await read_post_data(request)
+    reason_key = "spam"
+    if data is not None:
+        posted_reason = str(data.get("reason") or "").strip().lower()
+        if posted_reason in TIMEOUT_REASONS:
+            reason_key = posted_reason
+    reason_text = TIMEOUT_REASONS[reason_key]
+
+    fullchat = silence(app_state, f"/silence {suspect}", reason_text=reason_text)
     if fullchat is None:
         return web.json_response(
             {"type": "error", "message": "User must be online to silence"},
@@ -330,8 +345,10 @@ async def report_silence(request: web.Request) -> web.Response:
         )
 
     await app_state.lobby.lobby_broadcast(fullchat)
-    await _mark_report_processed(app_state, report_id, username, moderation_action="silence")
-    return web.json_response({"ok": True, "action": "silence"})
+    await _mark_report_processed(
+        app_state, report_id, username, moderation_action=f"silence:{reason_key}"
+    )
+    return web.json_response({"ok": True, "action": "silence", "reason": reason_key})
 
 
 async def report_close_account(request: web.Request) -> web.Response:

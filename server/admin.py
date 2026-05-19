@@ -99,6 +99,7 @@ def silence(
     app_state: PychessGlobalAppState,
     message: str,
     chat: Deque["ChatLine"] | list["ChatLine"] | None = None,
+    reason_text: str = "spamming the chat",
 ) -> FullChatMessage | None:
     response: FullChatMessage | None = None
     parts = message.split()
@@ -123,7 +124,7 @@ def silence(
             {
                 "type": "lobbychat",
                 "user": "",
-                "message": "%s was timed out 10 minutes for spamming the chat." % spammer,
+                "message": "%s was timed out 15 minutes for %s." % (spammer, reason_text),
             }
         )
         response = {"type": "fullchat", "lines": list(chat_lines)}

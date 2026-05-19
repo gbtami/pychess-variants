@@ -217,12 +217,14 @@ class ReportApiTestCase(AioHTTPTestCase):
 
         self.set_session_user("mod")
         with patch("report_api.ADMINS", ["mod"]), patch("admin.ADMINS", ["mod"]):
-            silence_resp = await self.client.post("/api/reports/SiLn1234/silence")
+            silence_resp = await self.client.post(
+                "/api/reports/SiLn1234/silence", data={"reason": "insult"}
+            )
             self.assertEqual(silence_resp.status, 200)
             self.assertGreater(bob.silence, 0)
             silenced = await app_state.db.user_report.find_one({"_id": "SiLn1234"})
             self.assertEqual("processed", silenced["status"])
-            self.assertEqual("silence", silenced["moderationAction"])
+            self.assertEqual("silence:insult", silenced["moderationAction"])
             self.assertEqual("mod", silenced["processedBy"])
 
             close_resp = await self.client.post("/api/reports/ClOs1234/close-account")

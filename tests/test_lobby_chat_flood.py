@@ -94,7 +94,7 @@ class LobbyChatFloodTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual("fullchat", sent["type"])
         self.assertEqual("other", sent["lines"][0]["user"])
         self.assertEqual("", sent["lines"][-1]["user"])
-        self.assertIn("FrogTheBadass was timed out 10 minutes", sent["lines"][-1]["message"])
+        self.assertIn("FrogTheBadass was timed out 15 minutes", sent["lines"][-1]["message"])
 
     async def test_shadowbanned_user_sees_only_their_own_lobby_message(self) -> None:
         app_state = SimpleNamespace(

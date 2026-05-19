@@ -1,0 +1,230 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap" class="mod-public-wrap">
+    <main id="communication" class="mod-public-page box box-pad">
+        <a class="auto-refresh button active" href="#" id="auto-refresh-toggle">Auto refresh</a>
+
+        <div>
+            <h2>Lobby Chat</h2>
+            <div class="player_chats">
+                <div class="game" data-chan="lobby" data-room="lobby">
+                    <div class="title-time">
+                        <span class="title">/lobby</span>
+                    </div>
+                    <div class="chat">
+                        {% for line in lobby_lines %}
+                        <div class="line{% if line.user == '' %} lichess{% endif %}">
+                            <a class="user-link" href="/@/{{ line.user }}">{{ line.user }}</a>
+                            <span class="text">{{ line.message }}</span>
+                        </div>
+                        {% else %}
+                        <div class="line lichess"><span class="text">No lobby chat lines.</span></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h2>Round Chats</h2>
+            <div class="player_chats">
+                {% for game in round_games %}
+                <div class="game" data-chan="round" data-room="{{ game.id }}">
+                    <div class="title-time">
+                        <a class="title" href="/{{ game.id }}">{{ game.white }} vs {{ game.black }}</a>
+                        <span class="game-meta">{{ game.variant }}</span>
+                    </div>
+                    <div class="chat">
+                        {% for line in game.lines %}
+                        <div class="line{% if line.user == '' %} lichess{% endif %}">
+                            <a class="user-link" href="/@/{{ line.user }}">{{ line.user }}</a>
+                            <span class="text">{{ line.message }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="line lichess"><span class="text">No active round chats.</span></div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div>
+            <h2>Tournament Chats</h2>
+            <div class="player_chats">
+                {% for tournament in tournaments %}
+                <div class="game" data-chan="tournament" data-room="{{ tournament.id }}">
+                    <div class="title-time">
+                        <a class="title" href="/tournament/{{ tournament.id }}">{{ tournament.name }}</a>
+                        <span class="tournament-status">{{ tournament.status }}</span>
+                    </div>
+                    <div class="chat">
+                        {% for line in tournament.lines %}
+                        <div class="line{% if line.user == '' %} lichess{% endif %}">
+                            <a class="user-link" href="/@/{{ line.user }}">{{ line.user }}</a>
+                            <span class="text">{{ line.message }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="line lichess"><span class="text">No tournament chats.</span></div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="timeout-modal-backdrop" class="timeout-modal-backdrop hidden"></div>
+<div id="timeout-modal" class="timeout-modal hidden" role="dialog" aria-modal="true" aria-labelledby="timeout-modal-title">
+    <h2 id="timeout-modal-title" class="username">username</h2>
+    <p class="text">text</p>
+    <div class="continue-with">
+        <button class="report-btn timeout-reason" data-reason="shaming">Public shaming</button>
+        <button class="report-btn timeout-reason" data-reason="insult">Disrespecting other players</button>
+        <button class="report-btn timeout-reason" data-reason="spam">Spamming the chat</button>
+        <button class="report-btn timeout-reason" data-reason="other">Inappropriate behavior</button>
+    </div>
+    <button id="timeout-modal-cancel" class="report-btn timeout-cancel">Cancel</button>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+    <script>
+    (() => {
+      let autoRefreshEnabled = true;
+      let autoRefreshOnHold = false;
+
+      const refreshButton = document.getElementById('auto-refresh-toggle');
+      const modal = document.getElementById('timeout-modal');
+      const modalBackdrop = document.getElementById('timeout-modal-backdrop');
+      const modalUsername = modal ? modal.querySelector('.username') : null;
+      const modalText = modal ? modal.querySelector('.text') : null;
+      const modalCancel = document.getElementById('timeout-modal-cancel');
+
+      let selectedChan = '';
+      let selectedRoom = '';
+      let selectedUser = '';
+      let selectedText = '';
+
+      const renderRefreshButton = () => {
+        if (!refreshButton) return;
+        refreshButton.classList.toggle('active', autoRefreshEnabled);
+        refreshButton.classList.toggle('hold', autoRefreshOnHold);
+      };
+
+      refreshButton?.addEventListener('click', (event) => {
+        event.preventDefault();
+        autoRefreshEnabled = !autoRefreshEnabled;
+        renderRefreshButton();
+      });
+
+      const readLineContext = (line) => {
+        const game = line.closest('.game');
+        const userLink = line.querySelector('.user-link');
+        const textNode = line.querySelector('.text');
+        if (!game || !userLink || !textNode) return null;
+        const chan = game.getAttribute('data-chan') || '';
+        const room = game.getAttribute('data-room') || '';
+        const user = userLink.textContent || '';
+        const text = textNode.textContent || '';
+        if (!chan || !room || !user) return null;
+        return { chan, room, user, text };
+      };
+
+      const showTimeoutModal = (context) => {
+        if (!modal || !modalBackdrop || !modalUsername || !modalText) return;
+        selectedChan = context.chan;
+        selectedRoom = context.room;
+        selectedUser = context.user;
+        selectedText = context.text;
+        modalUsername.textContent = selectedUser;
+        modalText.textContent = selectedText;
+        modal.classList.remove('hidden');
+        modalBackdrop.classList.remove('hidden');
+      };
+
+      const hideTimeoutModal = () => {
+        if (!modal || !modalBackdrop) return;
+        selectedChan = '';
+        selectedRoom = '';
+        selectedUser = '';
+        selectedText = '';
+        modal.classList.add('hidden');
+        modalBackdrop.classList.add('hidden');
+      };
+
+      const timeoutUser = async (reason, button) => {
+        if (!selectedChan || !selectedRoom || !selectedUser) return;
+        button.disabled = true;
+        try {
+          const payload = new URLSearchParams({
+            chan: selectedChan,
+            roomId: selectedRoom,
+            userId: selectedUser,
+            reason,
+            text: selectedText,
+          });
+          const response = await fetch('/api/mod/public-chat/timeout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: payload.toString(),
+          });
+          if (!response.ok) {
+            let message = `HTTP ${response.status}`;
+            try {
+              const body = await response.json();
+              if (body && body.message) message = body.message;
+            } catch (_) {}
+            alert(`Action failed: ${message}`);
+            button.disabled = false;
+            return;
+          }
+          window.location.reload();
+        } catch (_) {
+          alert('Action failed.');
+          button.disabled = false;
+        }
+      };
+
+      const wireLineClicks = () => {
+        document.querySelectorAll('.player_chats .line:not(.lichess)').forEach((line) => {
+          line.addEventListener('click', () => {
+            const context = readLineContext(line);
+            if (!context) return;
+            showTimeoutModal(context);
+          });
+        });
+      };
+
+      document.querySelectorAll('.chat').forEach((chat) => {
+        chat.addEventListener('mouseenter', () => {
+          autoRefreshOnHold = true;
+          renderRefreshButton();
+        });
+        chat.addEventListener('mouseleave', () => {
+          autoRefreshOnHold = false;
+          renderRefreshButton();
+        });
+      });
+
+      modalCancel?.addEventListener('click', hideTimeoutModal);
+      modalBackdrop?.addEventListener('click', hideTimeoutModal);
+      document.querySelectorAll('.timeout-reason[data-reason]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const reason = button.getAttribute('data-reason');
+          if (!reason) return;
+          timeoutUser(reason, button);
+        });
+      });
+
+      wireLineClicks();
+      renderRefreshButton();
+
+      setInterval(() => {
+        if (!autoRefreshEnabled || autoRefreshOnHold || document.hidden) return;
+        window.location.reload();
+      }, 5000);
+    })();
+    </script>
+{% endblock %}
