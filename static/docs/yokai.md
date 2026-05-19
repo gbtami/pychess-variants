@@ -1,6 +1,6 @@
-# ![Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/yokai.svg) Yokai Shogi
+# ![Yokai Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/yokai.svg) Yokai Shogi
 
-![Boards](https://github.com/gbtami/pychess-variants/blob/master/static/images/YokaiShogiGuide/YokaiBoard.png)
+![Yokai Shogi Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/YokaiShogiGuide/YokaiBoard.png)
 
 *Yokai Shogi* (妖怪将棋) is a Shogi variant invented by Couch Tomato in May 2026. The goal was to create a modern Shogi variant that still encapsulates the feel of Shogi but plays differently and also faster. The theme was also established early using Yokai, popular Japanese spirits/monsters/demons entrenched in folklore, mythology, and pop culture. There is also quite a bit of inspiration from Tori Shogi especially with mirrored pieces, but unlike Tori Shogi, Yokai Shogi is played on a standard 9x9 board. One thing that distinguishes Yokai Shogi from many other variants is the use of divergent pieces, pieces that move and capture differently (like the pawn in Chess).
 
