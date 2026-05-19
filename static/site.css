@@ -1287,7 +1287,8 @@ button#btn-sound:hover,
 button#btn-background:hover,
 button#btn-game-category:hover,
 button#btn-board:hover,
-button#btn-zen:hover {
+button#btn-zen:hover,
+button#btn-inbox-menu:hover {
   background-color: var(--green-hover);
 }
 
