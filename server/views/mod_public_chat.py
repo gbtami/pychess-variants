@@ -3,6 +3,7 @@ from __future__ import annotations
 import aiohttp_jinja2
 from aiohttp import web
 
+from const import TStatus
 from settings import ADMINS
 from typing_defs import ViewContext
 from views import get_user_context
@@ -11,6 +12,13 @@ from views import get_user_context
 def _is_admin_username(username: str) -> bool:
     lowered = username.casefold()
     return any(lowered == admin.casefold() for admin in ADMINS)
+
+
+def _tournament_status_label(status: int) -> str:
+    try:
+        return TStatus(status).name.removeprefix("T_").replace("_", " ").title()
+    except ValueError:
+        return str(status)
 
 
 @aiohttp_jinja2.template("mod_public_chat.html")
@@ -34,7 +42,7 @@ async def mod_public_chat(request: web.Request) -> ViewContext:
             {
                 "id": tournament.id,
                 "name": tournament.name,
-                "status": tournament.status_name,
+                "status": _tournament_status_label(int(tournament.status)),
                 "lines": lines,
             }
         )
