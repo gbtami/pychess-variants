@@ -14,10 +14,13 @@ def _is_admin_username(username: str) -> bool:
     return any(lowered == admin.casefold() for admin in ADMINS)
 
 
-def _tournament_status_label(status: int) -> str:
+def _tournament_status_label(status: object) -> str:
+    if isinstance(status, str):
+        return status.removeprefix("T_").replace("_", " ").title()
+
     try:
-        return TStatus(status).name.removeprefix("T_").replace("_", " ").title()
-    except ValueError:
+        return TStatus(int(status)).name.removeprefix("T_").replace("_", " ").title()
+    except (TypeError, ValueError):
         return str(status)
 
 
@@ -42,7 +45,9 @@ async def mod_public_chat(request: web.Request) -> ViewContext:
             {
                 "id": tournament.id,
                 "name": tournament.name,
-                "status": _tournament_status_label(int(tournament.status)),
+                "status": _tournament_status_label(
+                    getattr(tournament, "status", getattr(tournament, "status_name", ""))
+                ),
                 "lines": lines,
             }
         )
