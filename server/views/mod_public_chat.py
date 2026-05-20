@@ -14,13 +14,16 @@ def _is_admin_username(username: str) -> bool:
     return any(lowered == admin.casefold() for admin in ADMINS)
 
 
-def _tournament_status_label(status: object) -> str:
+def _tournament_status_label(status: int | str | None) -> str:
+    if status is None:
+        return ""
+
     if isinstance(status, str):
         return status.removeprefix("T_").replace("_", " ").title()
 
     try:
-        return TStatus(int(status)).name.removeprefix("T_").replace("_", " ").title()
-    except (TypeError, ValueError):
+        return TStatus(status).name.removeprefix("T_").replace("_", " ").title()
+    except ValueError:
         return str(status)
 
 
