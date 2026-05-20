@@ -985,6 +985,10 @@ ul.guide li {
 #btn-mod.mod-link .icon {
   font-size: 1.25rem;
 }
+#btn-mod.mod-link .data-count::after {
+  top: -4px;
+  right: -3px;
+}
 .data-count {
   position: relative;
 }

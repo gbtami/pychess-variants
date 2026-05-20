@@ -123,7 +123,7 @@
             {% endif %}
             {% if admin and not anon %}
             <a id="btn-mod" class="mod-link" href="/reports?status=open" aria-label="Moderation" title="Moderation">
-                <div class="icon icon-bullhorn data-count" data-count="{{ mod_report_score }}"></div>
+                <div class="icon icon-warning data-count" data-count="{{ mod_report_score }}"></div>
             </a>
             {% endif %}
             <div id="challenge-panel"></div>
