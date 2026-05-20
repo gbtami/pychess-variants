@@ -423,7 +423,7 @@ customPiece8 = a:fFbrFvrW
 customPiece9 = c:fFblFvlW
 
 # Yurei = R2 that can't move backwards
-customPiece10 = y:sWfR2
+customPiece10 = y:sfR2
 
 # Promoted Pawn ("Kasa-obake") = copper general
 gold = z
