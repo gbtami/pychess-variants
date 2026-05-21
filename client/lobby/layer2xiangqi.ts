@@ -3,13 +3,14 @@ import { h } from 'snabbdom';
 import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
 import { patch } from '../document';
-import { VARIANTS } from '../variants';
+import { VARIANTS, variantGroups } from '../variants';
 import { goBackToLayer1, variantBoard } from './util';
 import { layer3variant } from './layer3';
 
 
 export function layer2xiangqi(lobbyCtrl: LobbyController, containerId: string, showBack: boolean = true): void {
     const variant = VARIANTS['xiangqi'];
+    const xiangqiVariants = new Set(variantGroups.xiangqi.variants);
     const infoItems = [
         h('h4', _('Xiangqi Variants')),
         variantBoard(variant, variant.startFen),
@@ -55,13 +56,13 @@ export function layer2xiangqi(lobbyCtrl: LobbyController, containerId: string, s
                 ]),
                 h('p.variant-extra-info', _('Asymmetric variant with one side having a super piece')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'jieqi') } }, [
+            ...(xiangqiVariants.has('jieqi') ? [h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'jieqi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['jieqi'].icon(false) } }),
                     h('h3', VARIANTS['jieqi'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('Xiangqi with hidden pieces and a random setup')),
-            ]),
+            ])] : []),
         ]),
     ]);
 

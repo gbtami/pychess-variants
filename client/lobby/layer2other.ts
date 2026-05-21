@@ -1,7 +1,7 @@
 import { h } from 'snabbdom';
 
 import { _ } from '../i18n';
-import { VARIANTS } from '../variants';
+import { VARIANTS, variantGroups } from '../variants';
 import { patch } from '../document';
 import { LobbyController } from '../lobby';
 import { goBackToLayer1, variantBoard } from './util';
@@ -10,6 +10,7 @@ import { layer3variant } from './layer3';
 export function layer2other(lobbyCtrl: LobbyController, containerId: string, showBack: boolean = true): void {
     const ataxx = VARIANTS['ataxx'];
     const borderlands = VARIANTS['borderlands'];
+    const otherVariants = new Set(variantGroups.other.variants);
 
     const infoItems = [
         h('h4', _('Other Variants')),
@@ -34,12 +35,12 @@ export function layer2other(lobbyCtrl: LobbyController, containerId: string, sho
                     h('h3', ataxx.displayName()),
                 ]),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2othercont', lobbyCtrl, 'borderlands') } }, [
+            ...(otherVariants.has('borderlands') ? [h('button.layer-2-category', { on: { click: () => layer3variant('layer2othercont', lobbyCtrl, 'borderlands') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': borderlands.icon() } }),
                     h('h3', borderlands.displayName()),
                 ]),
-            ]),
+            ])] : []),
         ]),
     ]);
 

@@ -4,13 +4,14 @@ import { h } from 'snabbdom';
 import { _ } from '../i18n';
 import { LobbyController } from '../lobby';
 import { patch } from '../document';
-import { VARIANTS } from '../variants';
+import { VARIANTS, variantGroups } from '../variants';
 import { goBackToLayer1, variantBoard } from './util';
 import { layer3variant } from './layer3';
 
 
 export function layer2shogi(lobbyCtrl: LobbyController, containerId: string, showBack: boolean = true): void {
     const variant = VARIANTS['shogi'];
+    const shogiVariants = new Set(variantGroups.shogi.variants);
     const infoItems = [
         h('h4', _('Shogi Variants')),
         variantBoard(variant, variant.startFen),
@@ -35,13 +36,20 @@ export function layer2shogi(lobbyCtrl: LobbyController, containerId: string, sho
                 ]),
                 h('p.variant-extra-info', _('Original Shogi')),
             ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'shoshogi') } }, [
+            ...(shogiVariants.has('shoshogi') ? [h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'shoshogi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['shoshogi'].icon(false) } }),
                     h('h3', VARIANTS['shoshogi'].displayName()),
                 ]),
                 h('p.variant-extra-info', _('9x9 without drops')),
-            ]),
+            ])] : []),
+            ...(shogiVariants.has('yokai') ? [h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'yokai') } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['yokai'].icon(false) } }),
+                    h('h3', VARIANTS['yokai'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Modern 9x9 Shogi variant')),
+            ])] : []),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2shogicont', lobbyCtrl, 'minishogi') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['minishogi'].icon(false) } }),
