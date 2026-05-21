@@ -179,9 +179,14 @@ export function notifyView() {
         const previousUnread = unreadMessageIds(messages);
         messages = nextMessages;
         unread = messages.reduce(newNotifyCounter, 0);
-        const nextUnread = unreadMessageIds(messages);
-        if (allowSound && [...nextUnread].some(messageId => !previousUnread.has(messageId))) {
-            sound.genericNotify();
+        if (allowSound) {
+            const newUnread = messages.filter(
+                message => !message.read && !previousUnread.has(`${message.type}:${message.createdAt}`),
+            );
+            if (newUnread.length > 0) {
+                if (newUnread.some(message => message.type === 'inboxMsg')) sound.newPM();
+                else sound.genericNotify();
+            }
         }
         page = 0;
         redraw();

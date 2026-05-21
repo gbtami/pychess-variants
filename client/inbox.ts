@@ -485,6 +485,7 @@ export function inboxView(model: PyChessModel) {
                         attrs: {
                             placeholder: contact ? _('Write a message...') : _('Select a conversation first'),
                             rows: 1,
+                            enterkeyhint: 'send',
                             disabled: !contact || sending,
                         },
                         props: { value: draft },
@@ -492,6 +493,12 @@ export function inboxView(model: PyChessModel) {
                             input: (e: Event) => {
                                 draft = (e.target as HTMLTextAreaElement).value;
                                 redraw();
+                            },
+                            keydown: (e: KeyboardEvent) => {
+                                if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+                                    e.preventDefault();
+                                    sendMessage();
+                                }
                             },
                         },
                     }),
