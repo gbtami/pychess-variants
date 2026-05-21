@@ -12,7 +12,7 @@ One main difference from standard Shogi is that pieces can move to where they ca
 
 ## Pieces
 
-Unlike Shogi, not all pieces promote. This includes the pieces that have mirror versions of themselves, and the Nurikabe, a piece that starts in hand rather than on the board.
+Unlike Shogi, there are quite a few pieces that don't promote. This includes the pieces that have mirror versions of themselves, and the Nurikabe, a piece that starts in hand rather than on the board.
 
 All pieces that are capable of promoting are typically represented by their head. Once they promote, they appear as a full (or almost full) Yokai.
 
