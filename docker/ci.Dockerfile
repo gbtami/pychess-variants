@@ -1,4 +1,4 @@
-FROM node:22 AS node
+FROM node:24 AS node
 
 
 FROM python:3.13

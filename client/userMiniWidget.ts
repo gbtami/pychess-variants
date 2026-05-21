@@ -209,6 +209,7 @@ class UserMiniWidget {
 
         const profileId = parseProfileId(anchor);
         if (!profileId) return;
+        if (profileId === this.currentUsername && anchor.closest('#username')) return;
 
         this.anchor = anchor;
         this.anchorUser = profileId;
