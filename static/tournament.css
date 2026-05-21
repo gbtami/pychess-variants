@@ -909,10 +909,10 @@ td.bye {
     color: #333 !important;
     text-shadow: 0 0 6px #fff;
 }
-div.cg-wrap.mini {
+#top-game div.cg-wrap.mini {
     width: auto!important;
 }
-div.with-pockets div.cg-wrap.mini {
+#top-game div.with-pockets div.cg-wrap.mini {
     position: relative;
     top: calc(var(--cg-height) / var(--ranks));
 }
