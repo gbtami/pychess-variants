@@ -1219,7 +1219,8 @@ class BughouseBoards:
 
     def set_fen(self, value: str):
         fen_split = value.split("|")
-        assert len(fen_split) == 2, "fen corrupt"
+        if len(fen_split) != 2:
+            raise ValueError("fen corrupt")
         self._boards = (
             SingleBughouseBoard(self, 0, fen_split[0]),
             SingleBughouseBoard(self, 1, fen_split[1]),

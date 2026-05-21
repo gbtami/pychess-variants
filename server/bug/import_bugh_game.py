@@ -9,11 +9,44 @@ from datetime import datetime, timezone
 from compress import R2C, encode_move_standard
 from newid import new_id
 from aiohttp import web
-from bugchess.pgn import read_game, Game
+from bugchess.pgn import read_game, Game, GameBuilder
 import logging
 from variants import get_server_variant
 
 log = logging.getLogger(__name__)
+
+
+class QuietGameBuilder(GameBuilder):
+    def handle_error(self, error: Exception) -> None:
+        # Keep parser errors for response handling without logging full tracebacks.
+        self.game.errors.append(error)
+
+
+def _parse_import_date(value: str) -> datetime:
+    if not value or "?" in value:
+        return datetime.now(timezone.utc)
+    try:
+        date = map(int, value[0:10].split("." if "." in value else "/"))
+        return datetime(*date, tzinfo=timezone.utc)
+    except Exception:
+        return datetime.now(timezone.utc)
+
+
+def _parse_time_control(value: str) -> tuple[int, int]:
+    tc = (value or "").split("+")
+    try:
+        minute = False
+        if len(tc) == 1:
+            tc.append("0")
+        if tc[0] and tc[0][-1] == "分":
+            minute = True
+            tc[0] = tc[0][:-1]
+        if tc[1] and tc[1][-1] == "秒":
+            tc[1] = tc[1][:-1]
+        tc = list(map(int, tc))
+        return int((tc[0] / 60) if not minute else tc[0]), int(tc[1])
+    except Exception:
+        return 0, 0
 
 
 def get_main_variation(
@@ -94,9 +127,17 @@ async def import_game_bpgn(request):
         "][", "]\n["
     )  # bmacho returns bgpns with 2 header entries on same line sometimes
 
-    first_game = read_game(pgn)
+    first_game = read_game(pgn, Visitor=QuietGameBuilder)
     if first_game is None:
         return web.json_response({"error": "Invalid BPGN."})
+    if first_game.errors:
+        first_error = str(first_game.errors[0]).strip() or "parse error"
+        return web.json_response({"error": f"Invalid BPGN: {first_error}."})
+
+    required_headers = ("WhiteA", "BlackA", "WhiteB", "BlackB")
+    missing_headers = [header for header in required_headers if not first_game.headers.get(header)]
+    if missing_headers:
+        return web.json_response({"error": "Invalid BPGN: missing bughouse player headers."})
 
     wp_a = first_game.headers.get("WhiteA")
     bp_a = first_game.headers.get("BlackA")
@@ -117,30 +158,8 @@ async def import_game_bpgn(request):
     final_fen = first_game.headers.get("final_fen", "")
     status = int(first_game.headers.get("Status", UNKNOWNFINISH))
     result = first_game.headers.get("Result", "*")
-    try:
-        date = first_game.headers.get("Date", "")[0:10]
-        date = map(int, date.split("." if "." in date else "/"))
-        date = datetime(*date, tzinfo=timezone.utc)
-    except Exception:
-        log.exception("Date tag parsing failed")
-        date = datetime.now(timezone.utc)
-
-    tc = first_game.headers.get("TimeControl", "").split("+")
-    try:
-        minute = False
-        if len(tc) == 1:
-            tc.append("0")
-        if tc[0][-1] == "分":
-            minute = True
-            tc[0] = tc[0][:-1]
-        if tc[1][-1] == "秒":
-            tc[1] = tc[1][:-1]
-        tc = list(map(int, tc))
-        base = int((tc[0] / 60) if not minute else tc[0])
-        inc = int(tc[1])
-    except Exception:
-        log.exception("TimeControl tag parsing failed")
-        base, inc = 0, 0
+    date = _parse_import_date(first_game.headers.get("Date", ""))
+    base, inc = _parse_time_control(first_game.headers.get("TimeControl", ""))
 
     [move_stack, move_times, boards] = get_main_variation(
         first_game, base * 1000

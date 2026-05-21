@@ -11,7 +11,6 @@ import { importGameBugH } from "@/bug/paste.bug";
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
-const BUGHOUSE_VARIANT = '[WhiteA';
 const IMPORT_FFISH_ERROR_BUFFER: string[] = [];
 const FEN_VALIDATION_ERRORS: Record<number, string> = {
     [-14]: 'Invalid counting rule field',
@@ -48,7 +47,7 @@ export function pasteView(model: PyChessModel): VNode[] {
         //console.log('PGN:', e.value);
         let pgn = e.value;
 
-        if (pgn.indexOf(BUGHOUSE_VARIANT) !== -1 ) {
+        if (shouldImportAsBughouseBpgn(pgn)) {
             importGameBugH(pgn, model["home"]);
             return;
         }
@@ -339,4 +338,15 @@ function buildImportErrorMessage(err: unknown, pgn: string, ffish: FairyStockfis
         return "Failed to parse PGN. Check [Variant], [FEN], and move text formatting.";
     }
     return errorMessage;
+}
+
+function shouldImportAsBughouseBpgn(pgn: string): boolean {
+    if (/\[\s*WhiteA\s+["“]/i.test(pgn)) return true;
+    if (/\[\s*Variant\s+["“]\s*Bughouse(?:\s*960|960)?\s*["”]\s*\]/i.test(pgn)) return true;
+
+    const tags = extractPgnTags(pgn);
+    const variant = tags["Variant"]?.trim().toLowerCase();
+    if (!variant) return false;
+
+    return variant === "bughouse" || variant === "bughouse960" || variant === "bughouse 960";
 }

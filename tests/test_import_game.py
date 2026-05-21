@@ -110,6 +110,35 @@ class ImportGameCleanupTestCase(AioHTTPTestCase):
         self.assertEqual(resp.status, 200)
         self.assertEqual(await resp.json(), {"error": "Missing pgn."})
 
+    async def test_import_bpgn_rejects_corrupt_fen(self):
+        bpgn = (
+            '[Event "Import test"]\n'
+            '[Variant "Bughouse"]\n'
+            '[WhiteA "Alice"]\n'
+            '[BlackA "Bob"]\n'
+            '[WhiteB "Carol"]\n'
+            '[BlackB "Dave"]\n'
+            '[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"]\n'
+            "\n"
+            "*\n"
+        )
+
+        resp = await self.client.post("/import_bpgn", data={"pgn": bpgn})
+
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(await resp.json(), {"error": "Invalid BPGN: fen corrupt."})
+
+    async def test_import_bpgn_rejects_missing_bughouse_player_headers(self):
+        bpgn = "[Event “Import test”]\n\n*\n"
+
+        resp = await self.client.post("/import_bpgn", data={"pgn": bpgn})
+
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(
+            await resp.json(),
+            {"error": "Invalid BPGN: missing bughouse player headers."},
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
