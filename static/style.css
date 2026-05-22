@@ -39,14 +39,15 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.icon-YokaiShogi .path1:before {
-  content: "\1f479";
-  color: rgb(141, 108, 70);
+.icon-admin:before {
+  content: "\e900";
 }
-.icon-YokaiShogi .path2:before {
-  content: "\1f47a";
-  margin-left: -1em;
-  color: rgb(255, 255, 255);
+.icon-developer:before {
+  content: "\e901";
+}
+.icon-YokaiShogi:before {
+  content: "\1f479";
+  color: #8d6c46;
 }
 .icon-ShoShogi-icomoon-bw-elephant:before {
   content: "\1f379";
