@@ -12,7 +12,7 @@ async def inbox(request: web.Request) -> ViewContext:
         raise web.HTTPFound("/")
 
     contact = request.match_info.get("contact")
-    if contact:
+    if contact and contact != user.username:
         context["profile"] = contact
 
     context["title"] = "Inbox • PyChess"

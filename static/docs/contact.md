@@ -12,7 +12,7 @@ For player reports, harassment, cheating, or other abuse reports, use:
 
 For privacy questions, GDPR/data requests, account deletion requests, Terms/Privacy questions, or other legal requests, use:
 
-- Private channel (recommended): [Direct inbox message to site admin](https://www.pychess.org/inbox/gbtami)
+- Private channel (recommended): [Direct inbox message to site admin](/inbox/gbtami)
 - Public channel (do not include sensitive personal data): [GitHub issues](https://github.com/gbtami/pychess-variants/issues)
 
 Please include your username and enough detail to help us identify the request.
@@ -21,7 +21,7 @@ Please include your username and enough detail to help us identify the request.
 
 For responsible disclosure of a security vulnerability, use:
 
-- Private channel (recommended): [Direct inbox message to site admin](https://www.pychess.org/inbox/gbtami)
+- Private channel (recommended): [Direct inbox message to site admin](/inbox/gbtami)
 - [GitHub Security Advisories](https://github.com/gbtami/pychess-variants/security/advisories)
 
 Do not post exploitable details publicly before maintainers can investigate and patch.

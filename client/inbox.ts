@@ -176,6 +176,19 @@ export function inboxView(model: PyChessModel) {
             .then(parseJsonResponse)
             .then(({ status, data }: { status: number; data: ThreadResponse & { type?: string; message?: string } }) => {
                 if (status >= 400 || data.type === 'error') {
+                    if (data.message === 'Invalid contact') {
+                        contact = '';
+                        contactTitle = '';
+                        contactOnline = false;
+                        contactBlocked = false;
+                        messages = [];
+                        hasMoreMessages = false;
+                        loadingMore = false;
+                        loading = false;
+                        history.replaceState({}, '', '/inbox');
+                        redraw();
+                        return;
+                    }
                     alert(data.message || _('Could not open conversation.'));
                     loadingMore = false;
                     loading = false;
