@@ -16,7 +16,7 @@ Both are designed to play chess variants, and both share the same developer ([gb
 
 <details><summary>What is the relationship to [Lichess](https://lichess.org/)?</summary>
 
-Pychess's design is heavily influenced by Lichess and is meant to be comfortable for Lichess users. Pychess has no official relationship to Lichess. However, it does use Lichess accounts to facilitate user management.</details>
+Pychess's design is heavily influenced by Lichess and is meant to be comfortable for Lichess users. Pychess has no official relationship to Lichess. Pychess supports OAuth login providers including Lichess, Lishogi, Google, and Discord.</details>
 
 <details><summary>What is Fairy-Stockfish?</summary>
 
@@ -78,7 +78,7 @@ Random-Mover is a bot that just chooses a random move from the list of available
 
 <details><summary>How do I log in?</summary>
 
-You need to have a Lichess account. If you don't already, please go to [Lichess](https://lichess.org/signup) to make an account.</details>
+You can sign in with one of our OAuth providers: Lichess, Lishogi, Google, or Discord.</details>
 
 <details><summary>Would logging in with my Lichess account compromise my account/password?</summary>
 
@@ -95,6 +95,5 @@ Purely through donations. You can [become a patron](https://www.pychess.org/patr
 <details><summary>Can I contribute?</summary>
 
 You sure can! Pychess is open source. Please communicate your suggestions by [Github](https://github.com/gbtami/pychess-variants) or [Discord](https://discord.gg/aPs8RKr). </details>
-
 
 
