@@ -12,7 +12,7 @@ from aiohttp import web
 from login import logout
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
-from typing_defs import UserDocument
+from typing_defs import UserDocument, ViewContext
 from user_stats import DEFAULT_USER_COUNT
 from views import get_user_context
 import logging
@@ -34,7 +34,7 @@ def _export_section(title: str, payload: Any) -> str:
     return f"\n{'=' * len(title)}\n{title}\n{'=' * len(title)}\n{body}\n"
 
 
-async def _require_logged_in_user(request: web.Request) -> tuple[Any, Any, str]:
+async def _require_logged_in_user(request: web.Request) -> tuple[Any, Any, str | None]:
     app_state = get_app_state(request.app)
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
@@ -61,7 +61,7 @@ def _reopen_token_hash(raw_token: str) -> str:
 
 
 @aiohttp_jinja2.template("account_data.html")
-async def account_personal_data(request: web.Request) -> dict[str, Any]:
+async def account_personal_data(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
     if user.anon:
         raise web.HTTPFound("/login")
@@ -121,7 +121,7 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
 
 
 @aiohttp_jinja2.template("account_close.html")
-async def account_close(request: web.Request) -> dict[str, Any]:
+async def account_close(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
     if user.anon:
         raise web.HTTPFound("/login")
@@ -166,7 +166,7 @@ async def account_close_post(request: web.Request) -> web.StreamResponse:
 
 
 @aiohttp_jinja2.template("account_delete.html")
-async def account_delete(request: web.Request) -> dict[str, Any]:
+async def account_delete(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
     if user.anon:
         raise web.HTTPFound("/login")
@@ -232,7 +232,7 @@ async def account_delete_post(request: web.Request) -> web.StreamResponse:
 
 
 @aiohttp_jinja2.template("account_reopen.html")
-async def account_reopen(request: web.Request) -> dict[str, Any]:
+async def account_reopen(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
     raw_token = str(request.rel_url.query.get("token") or "").strip()
     if not raw_token:
