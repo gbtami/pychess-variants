@@ -39,6 +39,15 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-YokaiShogi .path1:before {
+  content: "\1f479";
+  color: rgb(141, 108, 70);
+}
+.icon-YokaiShogi .path2:before {
+  content: "\1f47a";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
 .icon-ShoShogi-icomoon-bw-elephant:before {
   content: "\1f379";
 }
