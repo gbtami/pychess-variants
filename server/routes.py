@@ -18,6 +18,16 @@ from bot_api import (
     challenge_create,
     bot_token_test,
 )
+from account_api import (
+    account_close,
+    account_close_post,
+    account_personal_data,
+    account_personal_data_export,
+    account_delete,
+    account_delete_post,
+    account_reopen,
+    account_reopen_post,
+)
 from fishnet import (
     fishnet_monitor,
     fishnet_validate_key,
@@ -140,6 +150,13 @@ get_routes: tuple[RouteDef, ...] = (
     ("/login/{provider}", login),
     ("/oauth/{provider}", oauth),
     ("/logout", logout),
+    ("/account/personal-data", account_personal_data),
+    ("/account/personal-data/export", account_personal_data_export),
+    ("/account/data", account_personal_data),
+    ("/account/data/export", account_personal_data_export),
+    ("/account/close", account_close),
+    ("/account/delete", account_delete),
+    ("/account/reopen", account_reopen),
     ("/select-username", select_username),
     ("/", lobby.lobby),
     ("/about", about.about),
@@ -264,6 +281,9 @@ get_routes: tuple[RouteDef, ...] = (
 
 post_routes: tuple[RouteDef, ...] = (
     ("/api/token/test", bot_token_test),
+    ("/account/close", account_close_post),
+    ("/account/delete", account_delete_post),
+    ("/account/reopen", account_reopen_post),
     ("/api/bot/game/{gameId}/abort", bot_abort),
     ("/api/bot/game/{gameId}/resign", bot_resign),
     ("/api/bot/game/{gameId}/chat", bot_chat),

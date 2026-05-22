@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu legal-page">
+<aside></aside>
+<div class="guide legal-doc">
+<h1>My personal data</h1>
+<p>
+Download a copy of account and private interaction data currently stored for your account.
+This export is separate from game PGN export.
+</p>
+<p>
+<a class="button button-empty" href="/account/personal-data/export">Download personal data export</a>
+</p>
+<h2>Related actions</h2>
+<ul>
+    <li><a href="/@/{{ username }}">Profile page</a> (includes game PGN export button)</li>
+    <li><a href="/account/close">Close account</a></li>
+    <li><a href="/account/delete">Delete account (GDPR erase)</a></li>
+</ul>
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+{% endblock %}

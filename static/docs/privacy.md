@@ -202,7 +202,15 @@ If configured by operators, public lobby chat may be relayed to and from externa
 
 ## 11. Account deletion and data requests
 
-You may contact us to request:
+Where available, you can use these self-service account tools:
+
+- **Export personal data:** `/account/personal-data`
+- **Close account:** `/account/close` (disables account access; self-closed accounts may be reopenable)
+- **Delete account (GDPR erase):** `/account/delete` (irreversible account-level erasure/anonymization flow)
+
+Game archive export is separate from personal data export and is available from your profile PGN export.
+
+You may also contact us to request:
 
 - access to personal data we hold about you;
 - correction of inaccurate information;
@@ -212,7 +220,7 @@ You may contact us to request:
 - export of information, where applicable;
 - withdrawal of consent, where processing is based on consent.
 
-Some information may not be fully deleted if it is necessary to preserve the integrity of public game archives, prevent abuse, comply with legal obligations, or protect the rights of others. In such cases, we may delete, anonymize, restrict, or separate account-related information where appropriate.
+Some information may not be fully deleted if it is necessary to preserve the integrity of public game archives, prevent abuse, comply with legal obligations, or protect the rights of others. In such cases, we may delete, anonymize, restrict, hide, or separate account-related information where appropriate.
 
 To make a request, contact:
 

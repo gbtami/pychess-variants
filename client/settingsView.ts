@@ -56,9 +56,24 @@ function showMainSettings() {
 
 function userMenu() {
     return h('div#settings-buttons', [
+        h('button#btn-personal-data', { on: { click: gotoPersonalData } }, _("Export personal data")),
+        h('button#btn-close-account', { on: { click: gotoCloseAccount } }, _("Close account")),
+        h('button#btn-delete-account', { on: { click: gotoDeleteAccount } }, _("Delete account")),
         h('button#btn-inbox-menu', { on: { click: gotoInbox } }, _("Inbox")),
         h('button#btn-logout', { on: { click: logoutDialog } }, _("Log out")),
     ]);
+}
+
+function gotoPersonalData() {
+    window.location.href = "/account/personal-data";
+}
+
+function gotoCloseAccount() {
+    window.location.href = "/account/close";
+}
+
+function gotoDeleteAccount() {
+    window.location.href = "/account/delete";
 }
 
 function gotoInbox() {

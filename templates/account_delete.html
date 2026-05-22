@@ -1,0 +1,35 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu legal-page">
+<aside></aside>
+<div class="guide legal-doc">
+<h1>Delete account (GDPR erase)</h1>
+<p>
+This action disables your account and anonymizes/removes personal account data in application
+records where appropriate. Public game archives may remain for integrity and anti-abuse reasons.
+</p>
+<form method="post" action="/account/delete">
+    <p>
+        Type your username to confirm:
+        <br>
+        <input type="text" name="confirm_username" required>
+    </p>
+    <p>
+        <label>
+            <input type="checkbox" name="understand" required>
+            I understand this action is not reversible.
+        </label>
+    </p>
+    <p>
+        <button type="submit">Delete my account</button>
+    </p>
+</form>
+<p><a href="/account/close">Need a reversible close only?</a></p>
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+{% endblock %}

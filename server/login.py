@@ -3,7 +3,7 @@ import hashlib
 import secrets
 from urllib.parse import urlencode
 from typing import TYPE_CHECKING, TypedDict
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import aiohttp
 import aiohttp_session
@@ -16,6 +16,7 @@ from oauth_config import oauth_config
 from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_json_data
+from newid import new_id
 from security_evasion import (
     collect_client_signals,
     is_signup_blocked_by_signals,
@@ -29,6 +30,7 @@ import logging
 log = logging.getLogger(__name__)
 
 USERNAME_LOWER_FIELD = "username_lower"
+REOPEN_TOKEN_TTL_MINUTES = 20
 
 if TYPE_CHECKING:
     from user import User
@@ -180,7 +182,6 @@ async def login(request: web.Request) -> web.StreamResponse:
 
     log.info("+++ authenticated user: %s", username)
     app_state = get_app_state(request.app)
-    users = app_state.users
     signals = collect_client_signals(request)
 
     # For other OAuth providers, check if user needs to choose a username
@@ -190,21 +191,44 @@ async def login(request: web.Request) -> web.StreamResponse:
     if existing_user:
         # User exists with this OAuth ID, use their existing username
         if not existing_user.get("enabled", True):
-            log.info("Closed account %s tried to log in.", username)
-
-            prev_session_user = session.get("user_name")
-            prev_user = await users.get(prev_session_user)
-            if prev_user is not None:
-                # todo: is consistency with app_state.lobby.lobbysockets lost here?
-                #       also don't we want to close all these sockets - lobby, tournament and game?
-                prev_user.lobby_sockets = set()  # make it offline
-                prev_user.game_sockets = {}
-                prev_user.tournament_sockets = {}
-                prev_user.update_online()
-
-                session["user_name"] = prev_session_user
+            closed_username = existing_user["_id"]
+            can_self_reopen = existing_user.get("closeType") == "self" and not existing_user.get(
+                "gdprErasedAt"
+            )
+            if can_self_reopen:
+                log.info(
+                    "Self-closed account %s tried to log in; redirecting to reopen flow.", username
+                )
+                now = datetime.now(timezone.utc)
+                raw_token = secrets.token_urlsafe(32)
+                token_hash = hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+                await app_state.db.account_reopen_token.delete_many(
+                    {
+                        "$or": [
+                            {"expiresAt": {"$lt": now}},
+                            {"username": closed_username},
+                        ]
+                    }
+                )
+                token_id = await new_id(app_state.db.account_reopen_token)
+                await app_state.db.account_reopen_token.insert_one(
+                    {
+                        "_id": token_id,
+                        "username": closed_username,
+                        "tokenHash": token_hash,
+                        "createdAt": now,
+                        "expiresAt": now + timedelta(minutes=REOPEN_TOKEN_TTL_MINUTES),
+                        "oauthProvider": provider,
+                    }
+                )
+                session["closed_account_user"] = closed_username
+                return web.HTTPFound(f"/account/reopen?token={raw_token}")
+            log.info("Disabled account %s tried to log in; self-reopen unavailable.", username)
+            session.pop("closed_account_user", None)
+            return web.HTTPFound("/contact")
         else:
             session["user_name"] = existing_user["_id"]
+            session.pop("closed_account_user", None)
             await remember_user_signals(app_state.db, existing_user["_id"], signals)
 
     else:
@@ -221,6 +245,7 @@ async def login(request: web.Request) -> web.StreamResponse:
         session["oauth_provider"] = provider
         session["oauth_username"] = username
         session["oauth_title"] = title
+        session.pop("closed_account_user", None)
         return web.HTTPFound("/select-username")
 
     return web.HTTPFound("/")

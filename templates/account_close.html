@@ -1,0 +1,38 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu legal-page">
+<aside></aside>
+<div class="guide legal-doc">
+<h1>Close account</h1>
+<p>
+Closing disables account access and logs you out. Public game archive records may remain.
+</p>
+<p>
+If you later change your mind, sign in with the same OAuth provider and follow the reopen flow.
+If you close the account again after reopening it, automatic reopening is no longer available.
+</p>
+<form method="post" action="/account/close">
+    <p>
+        Type your username to confirm:
+        <br>
+        <input type="text" name="confirm_username" required>
+    </p>
+    <p>
+        <label>
+            <input type="checkbox" name="understand" required>
+            I understand this closes my account access.
+        </label>
+    </p>
+    <p>
+        <button type="submit">Close my account</button>
+    </p>
+</form>
+<p><a href="/account/delete">Need full deletion/anonymization instead?</a></p>
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+{% endblock %}

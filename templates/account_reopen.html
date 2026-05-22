@@ -1,0 +1,44 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu legal-page">
+<aside></aside>
+<div class="guide legal-doc">
+<h1>Reopen your account</h1>
+{% if can_reopen %}
+<p>
+Account <strong>{{ reopen_username }}</strong> was closed through self-service closure and can be reopened now.
+</p>
+<form method="post" action="/account/reopen">
+    <input type="hidden" name="token" value="{{ reopen_token }}">
+    <p>
+        Type your username to confirm:
+        <br>
+        <input type="text" name="confirm_username" required>
+    </p>
+    <p>
+        <label>
+            <input type="checkbox" name="understand" required>
+            I understand this will reopen access to this account.
+        </label>
+    </p>
+    <p>
+        <button type="submit">Reopen account</button>
+    </p>
+</form>
+{% else %}
+<p>
+This account cannot be reopened automatically.
+</p>
+<p>
+Please contact support:
+<a href="/contact">Contact</a>
+</p>
+{% endif %}
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+{% endblock %}

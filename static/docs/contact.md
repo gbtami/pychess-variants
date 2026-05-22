@@ -12,6 +12,10 @@ For player reports, harassment, cheating, or other abuse reports, use:
 
 For privacy questions, GDPR/data requests, account deletion requests, Terms/Privacy questions, or other legal requests, use:
 
+- Self-service options first (when applicable):
+  - [Export personal data](/account/personal-data)
+  - [Close account](/account/close)
+  - [Delete account](/account/delete)
 - Private channel (recommended): [Direct inbox message to site admin](/inbox/gbtami)
 - Public channel (do not include sensitive personal data): [GitHub issues](https://github.com/gbtami/pychess-variants/issues)
 

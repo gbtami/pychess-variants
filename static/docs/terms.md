@@ -188,6 +188,13 @@ This limitation does not apply where liability cannot be limited under applicabl
 
 You may stop using pychess.org at any time.
 
+When available, pychess.org may provide separate self-service actions for:
+
+- account closure (disable access); and
+- account deletion/anonymization requests.
+
+Those flows may have different consequences and reversibility. In particular, self-service closure may allow later reopening, while deletion/anonymization is intended to be irreversible.
+
 We may suspend, restrict, or terminate access to the service at any time if we believe these Terms have been violated, if use of the service creates risk or harm, or if we need to protect the service or other users.
 
 Account closure or restriction does not necessarily require deletion of public games, public activity, moderation records, logs, or other information that we retain under the Privacy Policy.
