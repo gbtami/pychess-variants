@@ -15,5 +15,5 @@ CUSTOM_TROPHY_OWNERS = {
     "arimakat": (
         ("antichess", "acwc19"),
         #        ("3check", "3wc21"),
-    )  # fake example!
+    ),  # fake example!
 }
