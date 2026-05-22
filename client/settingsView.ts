@@ -10,12 +10,11 @@ import { volumeSettings, soundThemeSettings } from './sound';
 import { zenModeSettings } from './zen';
 
 export function settingsView(modelVariant: string) {
-    const anon = getDocumentData('anon');
-    const menu = (anon === 'True') ? [ settingsMenu() ] : [ userMenu(), settingsMenu() ];
+    const anon = getDocumentData('anon') === 'True';
     return h('div#settings-panel', [
         settingsButton(),
         h('div#settings', [
-            h('div#settings-main', menu),
+            h('div#settings-main', [mainMenu(anon)]),
             h('div#settings-sub', [
                 langSettingsView(),
                 soundSettingsView(),
@@ -54,46 +53,39 @@ function showMainSettings() {
     (document.getElementById('settings-sub') as HTMLElement).style.display = 'none';
 }
 
-function userMenu() {
-    return h('div#settings-buttons', [
-        h('button#btn-personal-data', { on: { click: gotoPersonalData } }, _("Export personal data")),
-        h('button#btn-close-account', { on: { click: gotoCloseAccount } }, _("Close account")),
-        h('button#btn-delete-account', { on: { click: gotoDeleteAccount } }, _("Delete account")),
-        h('button#btn-inbox-menu', { on: { click: gotoInbox } }, _("Inbox")),
-        h('button#btn-logout', { on: { click: logoutDialog } }, _("Log out")),
-    ]);
-}
-
-function gotoPersonalData() {
-    window.location.href = "/account/personal-data";
-}
-
-function gotoCloseAccount() {
-    window.location.href = "/account/close";
-}
-
-function gotoDeleteAccount() {
-    window.location.href = "/account/delete";
-}
-
-function gotoInbox() {
-    window.location.href = "/inbox";
-}
-
-function logoutDialog() {
-    if (confirm(_("Are you sure you want to log out?")))
-        window.location.href = "/logout";
-}
-
-function settingsMenu() {
-    return h('div#settings-buttons', [
+function mainMenu(anon: boolean) {
+    const buttons = [
         h('button#btn-lang', { on: { click: showSubsettings } }, translatedLanguage),
         h('button#btn-sound', { on: { click: showSubsettings } }, _('Sound')),
         h('button#btn-background', { on: { click: showSubsettings } }, _('Background')),
         h('button#btn-game-category', { on: { click: showSubsettings } }, translatedGameCategory),
         h('button#btn-board', { on: { click: showSubsettings } }, _('Board Settings')),
         h('button#btn-zen', { on: { click: showSubsettings } }, _('Zen Mode')),
-    ]);
+    ];
+
+    if (!anon) {
+        buttons.push(
+            h('div.settings-menu-separator', { attrs: { role: "separator" } }),
+            h('button#btn-inbox-menu', { on: { click: gotoInbox } }, _("Inbox")),
+            h('button#btn-account-privacy', { on: { click: gotoAccountPrivacy } }, _("Account & Privacy")),
+            h('button#btn-logout', { on: { click: logoutDialog } }, _("Log out")),
+        );
+    }
+
+    return h(anon ? 'div#settings-buttons.anon' : 'div#settings-buttons.logged-in', buttons);
+}
+
+function gotoInbox() {
+    window.location.href = "/inbox";
+}
+
+function gotoAccountPrivacy() {
+    window.location.href = "/contact";
+}
+
+function logoutDialog() {
+    if (confirm(_("Are you sure you want to log out?")))
+        window.location.href = "/logout";
 }
 
 function showSubsettings(evt: MouseEvent) {

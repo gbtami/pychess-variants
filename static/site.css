@@ -1263,15 +1263,16 @@ span.notification.empty span.text {
   margin: 5px;
 }
 
-#btn-logout {
-  border-radius: 5px 0px 0px 0px;
-}
 #settings-lang label:last-child,
 #soundtheme label:last-child,
 #settings-background label:last-child,
 #zen-selector label:last-child,
-#btn-zen {
+#settings-buttons.anon #btn-zen,
+#settings-buttons.logged-in #btn-logout {
   border-radius: 0px 0px 0px 5px;
+}
+#settings-buttons #btn-lang {
+  border-radius: 5px 0px 0px 0px;
 }
 
 #sound-volume {
@@ -1301,6 +1302,13 @@ div.labelled > div {
 }
 #settings-buttons button:hover {
   color: #fff;
+}
+#settings-buttons .settings-menu-separator {
+  border-top: 2px solid var(--rusty);
+  margin: 0.35rem 0;
+}
+button#btn-account-privacy:hover {
+  background-color: var(--rusty);
 }
 button#btn-logout:hover {
   background-color: #c33;
