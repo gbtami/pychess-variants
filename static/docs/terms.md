@@ -4,9 +4,7 @@ _Last updated: May 22, 2026_
 
 These Terms of Service (“Terms”) apply to your use of pychess.org.
 
-pychess.org is an open-source online chess variants server where users can play real-time and correspondence chess variant games, use chat features, and participate in related site activity.
-
-By using pychess.org, you agree to these Terms. If you do not agree, do not use the service.
+pychess.org is an open-source online chess variants server where users can play real-time and correspondence chess variant games, use chat features, and participate in related site activity. By using pychess.org, you agree to these Terms. If you do not agree, do not use the service.
 
 ## 1. About the service
 

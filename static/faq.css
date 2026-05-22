@@ -4,6 +4,86 @@ div.guide {
     width: 100%;
 }
 
+/* Legal pages: single-column, left-aligned, tighter spacing (Lichess-like reading layout) */
+main.page-menu.legal-page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "content";
+}
+
+main.page-menu.legal-page > aside {
+    display: none;
+}
+
+div.guide.legal-doc {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 26px 34px;
+    font-size: 1.05em;
+}
+
+div.guide.legal-doc h1,
+div.guide.legal-doc h2,
+div.guide.legal-doc h3 {
+    text-align: left;
+}
+
+div.guide.legal-doc h1 {
+    display: block;
+    margin: 0 0 0.8rem;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+div.guide.legal-doc h2 {
+    margin: 1.6rem 0 0.7rem;
+    padding: 0 0 0.3rem;
+    border-bottom: 1px solid var(--gold);
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+div.guide.legal-doc h3 {
+    margin: 1.2rem 0 0.45rem;
+    font-size: 1.08rem;
+    font-weight: 700;
+}
+
+div.guide.legal-doc p {
+    margin: 0 0 0.7rem;
+    padding: 0;
+    line-height: 1.58;
+}
+
+div.guide.legal-doc ul,
+div.guide.legal-doc ol {
+    margin: 0.25rem 0 0.95rem 1.2rem;
+}
+
+div.guide.legal-doc li {
+    margin: 0.3rem 0;
+}
+
+div.guide.legal-doc hr {
+    margin: 1.2rem 0;
+}
+
+@media (max-width: 799px) {
+    div.guide.legal-doc {
+        padding: 16px 18px;
+        font-size: 1em;
+    }
+
+    div.guide.legal-doc h1 {
+        font-size: 1.65rem;
+    }
+
+    div.guide.legal-doc h2 {
+        font-size: 1.16rem;
+    }
+}
+
 details > summary {
     list-style: none;
 }

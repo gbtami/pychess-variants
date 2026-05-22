@@ -4,9 +4,7 @@ _Last updated: May 22, 2026_
 
 This Privacy Policy explains how pychess.org (“pychess.org”, “we”, “us”) collects, uses, stores, and protects information when you use our website and services.
 
-pychess.org is an open-source online chess variants server. It allows users to play real-time and correspondence chess variant games, use public and private chat features, participate in site activity, and sign in using third-party OAuth providers.
-
-This document is intended to be a clear, practical privacy notice. It does not override your rights under applicable data protection law, including the General Data Protection Regulation (GDPR), where it applies.
+pychess.org is an open-source online chess variants server. It allows users to play real-time and correspondence chess variant games, use public and private chat features, participate in site activity, and sign in using third-party OAuth providers. This document is intended to be a clear, practical privacy notice. It does not override your rights under applicable data protection law, including the General Data Protection Regulation (GDPR), where it applies.
 
 ## 1. Contact
 
