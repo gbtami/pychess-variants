@@ -102,9 +102,14 @@ export function inboxView(model: PyChessModel) {
     let reconnectTimer: number | null = null;
     let pendingScrollToBottom = false;
     let pendingRestoreScroll: { top: number; height: number } | null = null;
+    let pendingComposerFocus = false;
 
     function convoBodyEl() {
         return document.querySelector('#inbox-app .inbox-convo-body') as HTMLElement | null;
+    }
+
+    function composerEl() {
+        return document.querySelector('#inbox-app .inbox-convo-post-text') as HTMLTextAreaElement | null;
     }
 
     function enhanceConvoBody(el: HTMLElement) {
@@ -123,6 +128,16 @@ export function inboxView(model: PyChessModel) {
         } else if (convoBody && pendingScrollToBottom) {
             convoBody.scrollTop = convoBody.scrollHeight;
             pendingScrollToBottom = false;
+        }
+
+        if (pendingComposerFocus) {
+            const composer = composerEl();
+            if (composer && !composer.disabled) {
+                composer.focus();
+                const cursor = composer.value.length;
+                composer.setSelectionRange(cursor, cursor);
+                pendingComposerFocus = false;
+            }
         }
     }
 
@@ -262,11 +277,13 @@ export function inboxView(model: PyChessModel) {
 
                 draft = '';
                 pendingScrollToBottom = true;
+                pendingComposerFocus = true;
                 openThread(contact);
             })
             .catch((err) => {
                 console.warn('Failed to send inbox message.', err);
                 alert(_('Could not send message.'));
+                pendingComposerFocus = true;
             })
             .finally(() => {
                 sending = false;
@@ -375,15 +392,14 @@ export function inboxView(model: PyChessModel) {
         const createdAt = parseDate(msg.createdAt);
         const textNodes = renderRichText(msg.text);
         return h(`div.inbox-msg${mine ? '.mine' : '.their'}`, [
-            h('div.inbox-msg-meta', [
-                h('strong', mine ? _('You') : titleAndName(contactTitle, contact)),
-                h('span', {
+            h('div.inbox-msg-text', [
+                ...textNodes,
+                h('em.inbox-msg-time', {
                     attrs: {
                         title: createdAt ? createdAt.toLocaleString() : '',
                     },
                 }, renderClockTime(msg.createdAt)),
             ]),
-            h('div.inbox-msg-text', textNodes),
         ]);
     }
 

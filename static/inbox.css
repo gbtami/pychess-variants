@@ -219,9 +219,11 @@
   border: 0;
   border-radius: 7px;
   padding: 0.6rem 0.8rem;
+  padding-right: 3.8rem;
   margin-bottom: 0.35rem;
   max-width: min(74%, 680px);
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+  position: relative;
 }
 
 .inbox-msg.mine {
@@ -229,18 +231,20 @@
   background: var(--inbox-bubble-mine);
 }
 
-.inbox-msg-meta {
-  display: flex;
-  justify-content: space-between;
-  color: var(--time-text);
-  gap: 1rem;
-  margin-bottom: 0.35rem;
-  font-size: 0.92em;
-}
-
 .inbox-msg-text {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.inbox-msg-time {
+  color: var(--time-text);
+  font-size: 0.8em;
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.55rem;
+  user-select: none;
+  font-style: normal;
+  line-height: 1;
 }
 
 .inbox-msg-text img.inbox-msg-inline-image {
