@@ -503,6 +503,13 @@ under-left {
   justify-content: center;
   flex-flow: row wrap;
 }
+.lobby-links-block {
+  display: flex;
+  align-content: flex-start;
+  justify-content: center;
+  flex-flow: row wrap;
+  margin-top: 0.8em;
+}
 .internalLinks {
   display: flex;
   flex: 1 0 100%;
