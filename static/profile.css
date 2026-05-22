@@ -67,6 +67,27 @@ player-title {
 .trophy img {
     height: 80px;
 }
+.trophy.award {
+    speak: none;
+    line-height: 100%;
+}
+.trophy.icon3d {
+    width: 32px;
+    height: 32px;
+    margin-right: 0;
+    font-size: 31px;
+    align-items: center;
+    justify-content: center;
+    color: color-mix(in srgb, var(--font-color) 72%, transparent);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+.trophy.icon3d + .trophy.icon3d {
+    margin-left: 6px;
+}
+.trophy.icon3d::before {
+    display: block;
+    line-height: 1;
+}
 .trophy.top1 {
     filter: drop-shadow(0 0 6px #d59020);
 }

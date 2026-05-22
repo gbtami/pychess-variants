@@ -26,8 +26,10 @@
                 {% if kind == "shield" %}
                 <a class="shield-trophy combo-trophy" title="{{ variant_display_name(key).title() }} {{ cup[kind][1] }}">{{ icons[key] }}</a>
                 {% else %}
-                <span class="trophy perf {{ kind }}" title="{{ variant_display_name(key).title() }} {{ cup[kind][1] }}">
+                <span class="trophy perf {% if kind in ('admin', 'developer') %}award icon3d icon-{{ kind }}{% else %}{{ kind }}{% endif %}" title="{% if kind in ('admin', 'developer') %}{{ cup[kind][1] }}{% else %}{{ variant_display_name(key).title() }} {{ cup[kind][1] }}{% endif %}">
+                    {% if kind not in ('admin', 'developer') %}
                     <img src="{{ cup[kind][0] }}"></img>
+                    {% endif %}
                 </span>
                 {% endif %}
             {% endfor %}
