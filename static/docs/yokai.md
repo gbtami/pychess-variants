@@ -1,4 +1,4 @@
-# ![Yokai Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/yokai.svg) Yokai Shogi
+# ![Yokai Shogi](https://github.com/gbtami/pychess-variants/blob/master/static/icons/YokaiShogi.svg) Yokai Shogi
 
 ![Yokai Shogi Board](https://github.com/gbtami/pychess-variants/blob/master/static/images/YokaiShogiGuide/YokaiBoard.png)
 
@@ -96,5 +96,4 @@ Nurikabe are barrier monsters. They start in each player's hand and can only mov
 ## Notation
 
 Notation follows that of Shogi; see the document for details. Piece symbols are in parentheses above.
-
 

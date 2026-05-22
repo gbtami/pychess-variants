@@ -289,6 +289,7 @@ CATEGORIES = {
     "shogi": (
         "shogi",
         "shoshogi",
+        "yokai",
         "minishogi",
         "kyotoshogi",
         "dobutsu",
