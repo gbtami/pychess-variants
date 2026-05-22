@@ -70,6 +70,13 @@ player-title {
 .trophy.award {
     speak: none;
     line-height: 100%;
+    margin-right: 0;
+}
+.trophy.award.icon3d {
+    color: #a8adb3;
+}
+.trophy:not(.award) + .trophy.award {
+    margin-left: 8px;
 }
 .trophy.icon3d {
     width: 32px;
@@ -84,9 +91,13 @@ player-title {
 .trophy.icon3d + .trophy.icon3d {
     margin-left: 6px;
 }
+.trophy.award + .trophy.award {
+    margin-left: 12px;
+}
 .trophy.icon3d::before {
     display: block;
     line-height: 1;
+    margin-right: 0;
 }
 .trophy.top1 {
     filter: drop-shadow(0 0 6px #d59020);
@@ -123,7 +134,8 @@ player-title {
     border-right: 1px solid var(--border-color);
     color: var(--font-color);
 }
-[class*=" icon-"]::before {
+.btn-rack [class*=" icon-"]::before,
+.btn-rack [class^="icon-"]::before {
     line-height: 2rem;
     margin-right: 0.4em;
 }
