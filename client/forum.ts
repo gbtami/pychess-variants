@@ -1249,7 +1249,7 @@ export function forumView(model: PyChessModel) {
                         },
                     }),
                     h('div.forum-form-help.space-between', [
-                        h('span', _('Markdown available')),
+                        h('span', _('Links and mentions available')),
                         h('a.text', {
                             attrs: {
                                 href: '/page/forum-etiquette',
@@ -1318,7 +1318,7 @@ export function forumView(model: PyChessModel) {
                     },
                 }),
                 h('div.forum-form-help.space-between', [
-                    h('span', _('Markdown available')),
+                    h('span', _('Links and mentions available')),
                     h('a.text', {
                         attrs: {
                             href: '/page/forum-etiquette',
