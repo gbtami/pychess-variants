@@ -9,6 +9,17 @@ Pychess-variants is a free, open-source chess server for playing chess variants.
 - **Chess Engine**: Fairy-Stockfish and fairy-stockfish.wasm for move validation and AI
 - **Board Library**: chessgroundx (fork of lichess chessground)
 
+## Project Skill Index
+
+Use these skills when relevant. Keep details in each skill's `SKILL.md`.
+
+- `lichess` - Use when implementing pychess parity by borrowing code/assets from lila.
+  - `${CODEX_HOME:-$HOME/.codex}/skills/lichess/SKILL.md`
+- `lichess-local-server` - Use when starting/stopping local lila for browser parity checks.
+  - `${CODEX_HOME:-$HOME/.codex}/skills/lichess-local-server/SKILL.md`
+- `fairy-stockfish-debugging` - Use when debugging engine/legal-move/FEN/SAN issues.
+  - `${CODEX_HOME:-$HOME/.codex}/skills/fairy-stockfish-debugging/SKILL.md`
+
 ## Essential Commands
 
 ### Development Setup
