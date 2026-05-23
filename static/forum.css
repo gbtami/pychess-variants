@@ -325,7 +325,7 @@ main.forum .forum-captcha__challenge {
   min-width: 0;
 }
 
-main.forum .forum-captcha__challenge selection {
+main.forum .forum-captcha__challenge .forum-captcha-board {
   display: inline-block;
   max-width: 100%;
 }

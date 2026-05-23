@@ -9,6 +9,8 @@ import { _, translatedGameCategory, translatedLanguage, languageSettings } from 
 import { volumeSettings, soundThemeSettings } from './sound';
 import { zenModeSettings } from './zen';
 
+let boardSettingsVariantUserSelected = false;
+
 export function settingsView(modelVariant: string) {
     const anon = getDocumentData('anon') === 'True';
     return h('div#settings-panel', [
@@ -156,7 +158,10 @@ function boardSettingsView(modelVariant: string) {
                 selectVariant(
                     "settings-variant",
                     variant,
-                    () => showVariantBoardSettings(modelVariant),
+                    () => {
+                        boardSettingsVariantUserSelected = true;
+                        showVariantBoardSettings(modelVariant);
+                    },
                     () => showVariantBoardSettings(modelVariant),
                     [],
                     getDocumentData('game-category') || undefined,
@@ -173,4 +178,17 @@ function showVariantBoardSettings(modelVariant: string) {
     const settings = document.getElementById('board-settings') as HTMLElement;
     settings.innerHTML = "";
     patch(settings, boardSettings.view(selectedVariant, modelVariant));
+}
+
+export function syncBoardSettingsVariant(variantName: string, modelVariant: string) {
+    if (!variantName || getDocumentData('variant') || boardSettingsVariantUserSelected) return;
+
+    const select = document.getElementById('settings-variant') as HTMLSelectElement | null;
+    if (!select) return;
+
+    const option = Array.from(select.options).find(o => o.value === variantName && !o.disabled);
+    if (!option) return;
+
+    select.value = variantName;
+    showVariantBoardSettings(modelVariant);
 }

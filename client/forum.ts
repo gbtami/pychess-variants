@@ -9,6 +9,7 @@ import { timeago } from './datetime';
 import { PyChessModel } from './types';
 import { expandGameEmbeds, makeExternalLinkPopups, renderRichText } from './richTextEnhance';
 import { boardSettings } from './boardSettings';
+import { syncBoardSettingsVariant } from './settingsView';
 import { VARIANTS } from './variants';
 
 /** Supported forum UI modes mapped from URL paths. */
@@ -292,6 +293,7 @@ export function forumView(model: PyChessModel) {
     /** Replace active form captcha challenge and reset move/result state. */
     function setFormCaptcha(captcha: ForumCaptcha | null) {
         formCaptcha = captcha;
+        if (formCaptcha) syncBoardSettingsVariant(captchaVariantKey(formCaptcha), model.variant);
         resetCaptchaState();
     }
 
@@ -375,9 +377,15 @@ export function forumView(model: PyChessModel) {
         const captchaVariant = VARIANTS[variantKey];
         const color = formCaptcha.color === 'black' ? 'black' : 'white';
         const dests = parseCaptchaDests(formCaptcha.moves);
-        return h(`div.forum-captcha${captchaState === 'success' ? '.success' : ''}${captchaState === 'failure' ? '.failure' : ''}`, { key: `captcha-${formCaptcha.gameId}` }, [
+        return h('div.forum-captcha', {
+            key: `captcha-${formCaptcha.gameId}`,
+            class: {
+                success: captchaState === 'success',
+                failure: captchaState === 'failure',
+            },
+        }, [
             h('div.forum-captcha__challenge', [
-                h(`selection.${captchaVariant.boardFamily}.${captchaVariant.pieceFamily}.${captchaVariant.ui.boardMark}`, [
+                h(`selection.forum-captcha-board.${captchaVariant.boardFamily}.${captchaVariant.pieceFamily}.${captchaVariant.ui.boardMark}`, [
                     h(`div.cg-wrap.${captchaVariant.board.cg}.mini`, {
                         hook: {
                             insert(vnode) {
@@ -404,6 +412,10 @@ export function forumView(model: PyChessModel) {
                                     },
                                 });
                             },
+                            update(_oldVnode, vnode) {
+                                boardSettings.updateScopedBoardStyle(captchaVariant, vnode.elm as Element);
+                                boardSettings.updateScopedPieceStyle(captchaVariant, vnode.elm as Element);
+                            },
                         },
                     }),
                 ]),
@@ -411,8 +423,12 @@ export function forumView(model: PyChessModel) {
             h('div.forum-captcha__explanation', [
                 h('label.form-label', color === 'white' ? _('White checkmates in one move') : _('Black checkmates in one move')),
                 h('p', _('This is a mate-in-one captcha. Click two squares to make your move.')),
-                h(`div.forum-captcha__result.success${captchaState === 'success' ? '.visible' : ''}`, _('Checkmate.')),
-                h(`div.forum-captcha__result.failure${captchaState === 'failure' ? '.visible' : ''}`, _('Not a checkmate. Try again.')),
+                h('div.forum-captcha__result.success', {
+                    class: { visible: captchaState === 'success' },
+                }, _('Checkmate.')),
+                h('div.forum-captcha__result.failure', {
+                    class: { visible: captchaState === 'failure' },
+                }, _('Not a checkmate. Try again.')),
             ]),
         ]);
     }
