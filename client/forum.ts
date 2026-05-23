@@ -101,6 +101,7 @@ interface ForumReaction {
 /** Captcha payload returned by forum captcha API endpoints. */
 interface ForumCaptcha {
     gameId: string;
+    variant?: string;
     fen: string;
     color: 'white' | 'black';
     moves: Record<string, string>;
@@ -208,8 +209,6 @@ export function forumView(model: PyChessModel) {
     const mode = route.mode;
     const categ = route.categ || '';
     const slug = route.slug || '';
-    const captchaVariant = VARIANTS.chess;
-
     let appEl: HTMLElement | VNode;
     let loading = true;
     let error = '';
@@ -265,15 +264,22 @@ export function forumView(model: PyChessModel) {
 
     /** Parse compact captcha destination encoding into chessground destination map. */
     function parseCaptchaDests(moves: Record<string, string>): cg.Dests {
+        const squarePattern = /[a-z][0-9]+/g;
         const dests: cg.Dests = new Map();
         Object.entries(moves || {}).forEach(([orig, raw]) => {
             if (!orig || !raw) return;
             const cleaned = raw.replace(/\s+/g, '');
-            const squares = cleaned.match(/.{1,2}/g) || [];
-            const validSquares = squares.filter((sq) => sq.length === 2) as cg.Key[];
+            if (!/^[a-z][0-9]+$/i.test(orig)) return;
+            const squares = cleaned.match(squarePattern) || [];
+            const validSquares = squares as cg.Key[];
             if (validSquares.length > 0) dests.set(orig as cg.Key, validSquares);
         });
         return dests;
+    }
+
+    function captchaVariantKey(captcha: ForumCaptcha): string {
+        const key = (captcha.variant || '').toLowerCase();
+        return key && VARIANTS[key] ? key : 'chess';
     }
 
     /** Reset captcha interaction state while preserving loaded challenge payload. */
@@ -365,6 +371,8 @@ export function forumView(model: PyChessModel) {
             return h('div.forum-captcha-error', _('Captcha unavailable. Please retry.'));
         }
 
+        const variantKey = captchaVariantKey(formCaptcha);
+        const captchaVariant = VARIANTS[variantKey];
         const color = formCaptcha.color === 'black' ? 'black' : 'white';
         const dests = parseCaptchaDests(formCaptcha.moves);
         return h(`div.forum-captcha${captchaState === 'success' ? '.success' : ''}${captchaState === 'failure' ? '.failure' : ''}`, { key: `captcha-${formCaptcha.gameId}` }, [
@@ -376,6 +384,9 @@ export function forumView(model: PyChessModel) {
                             boardSettings.updateScopedPieceStyle(captchaVariant, vnode.elm as Element);
                             const board = Chessground(vnode.elm as HTMLElement, {
                                 fen: formCaptcha!.fen as cg.FEN,
+                                dimensions: captchaVariant.board.dimensions,
+                                notation: captchaVariant.notation,
+                                pocketRoles: captchaVariant.pocket?.roles,
                                 orientation: color,
                                 turnColor: color,
                                 coordinates: false,
@@ -397,7 +408,7 @@ export function forumView(model: PyChessModel) {
             ]),
             h('div.forum-captcha__explanation', [
                 h('label.form-label', color === 'white' ? _('White checkmates in one move') : _('Black checkmates in one move')),
-                h('p', _('This is a chess captcha. Click two squares to make your move.')),
+                h('p', _('This is a mate-in-one captcha. Click two squares to make your move.')),
                 h(`div.forum-captcha__result.success${captchaState === 'success' ? '.visible' : ''}`, _('Checkmate.')),
                 h(`div.forum-captcha__result.failure${captchaState === 'failure' ? '.visible' : ''}`, _('Not a checkmate. Try again.')),
             ]),
@@ -559,7 +570,7 @@ export function forumView(model: PyChessModel) {
         const text = topicTextDraft.trim();
         if (!name || !text || creatingTopic) return;
         if (!formCaptcha || captchaState !== 'success') {
-            alert(_('Please solve the chess captcha.'));
+            alert(_('Please solve the captcha.'));
             return;
         }
         creatingTopic = true;
@@ -594,7 +605,7 @@ export function forumView(model: PyChessModel) {
         const text = composeReply.trim();
         if (!text || sendingReply || !topicData) return;
         if (!formCaptcha || captchaState !== 'success') {
-            alert(_('Please solve the chess captcha.'));
+            alert(_('Please solve the captcha.'));
             return;
         }
         sendingReply = true;
