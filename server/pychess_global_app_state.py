@@ -332,6 +332,27 @@ class PychessGlobalAppState:
                 await self.db.create_collection("inbox_msg")
             await self.db.inbox_msg.create_index([("tid", 1), ("createdAt", 1)])
 
+            if "forum_categ" not in db_collections:
+                await self.db.create_collection("forum_categ")
+            await self.db.forum_categ.create_index("order")
+
+            if "forum_topic" not in db_collections:
+                await self.db.create_collection("forum_topic")
+            await self.db.forum_topic.create_index(
+                [("categId", 1), ("sticky", -1), ("updatedAt", -1)]
+            )
+            await self.db.forum_topic.create_index(
+                [("categId", 1), ("slug", 1)],
+                unique=True,
+                name="forum_topic_categ_slug",
+            )
+
+            if "forum_post" not in db_collections:
+                await self.db.create_collection("forum_post")
+            await self.db.forum_post.create_index([("topicId", 1), ("createdAt", 1)])
+            await self.db.forum_post.create_index([("categId", 1), ("createdAt", -1)])
+            await self.db.forum_post.create_index([("text", "text")])
+
             if "user_report" not in db_collections:
                 await self.db.create_collection("user_report")
             await self.db.user_report.create_index("createdAt")

@@ -13,6 +13,7 @@ import { challengeView, hideChallenge } from './challengeView';
 import { notifyView, hideNotify } from './notifyView';
 import { lobbyView } from './lobby';
 import { inboxView } from './inbox';
+import { forumView } from './forum';
 import { roundView } from './round';
 import { inviteView } from './invite';
 import { directChallengeView } from './directChallenge';
@@ -184,6 +185,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div#stats', statsView());
     case 'inbox':
         return h('div#main-wrap', [inboxView(model)]);
+    case 'forum':
+        return h('div#main-wrap', [forumView(model)]);
     case 'thanks':
         return h('div#main-wrap', h('h2', _('Thank you for your support!')));
     default:

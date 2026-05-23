@@ -1,0 +1,196 @@
+import json
+import time
+from unittest.mock import patch
+
+from aiohttp.test_utils import AioHTTPTestCase
+from mongomock_motor import AsyncMongoMockClient
+
+from pychess_global_app_state_utils import get_app_state
+from server import make_app
+from user import User
+
+
+class ForumApiTestCase(AioHTTPTestCase):
+    """Integration coverage for forum APIs added in the lichess-parity feature."""
+
+    async def get_application(self):
+        return make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+
+    async def tearDownAsync(self):
+        await self.client.close()
+
+    def set_session_user(self, username: str) -> None:
+        session_data = {"session": {"user_name": username}, "created": int(time.time())}
+        self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+
+    def add_user(self, username: str, *, title: str = "FM") -> User:
+        app_state = get_app_state(self.app)
+        user = User(app_state, username=username, title=title)
+        app_state.users[user.username] = user
+        return user
+
+    async def test_forum_topic_reply_mentions_and_participants(self):
+        app_state = get_app_state(self.app)
+        self.add_user("alice")
+        self.add_user("bob")
+
+        self.set_session_user("alice")
+        create_resp = await self.client.post(
+            "/api/forum/general-chess-discussion/topic",
+            data={"name": "hello forum", "text": "hello @bob"},
+        )
+        self.assertEqual(create_resp.status, 200)
+        create_payload = await create_resp.json()
+        self.assertTrue(create_payload.get("ok"))
+        topic_id = create_payload["topic"]["_id"]
+        slug = create_payload["topic"]["slug"]
+
+        bob_notif = await app_state.db.notify.find_one({"notifies": "bob", "type": "forumMention"})
+        self.assertIsNotNone(bob_notif)
+        self.assertEqual("alice", bob_notif["content"]["opp"])
+        self.assertEqual("general-chess-discussion", bob_notif["content"]["categ"])
+        self.assertEqual(slug, bob_notif["content"]["slug"])
+
+        self.set_session_user("bob")
+        participants_resp = await self.client.get(f"/api/forum/participants/{topic_id}")
+        self.assertEqual(participants_resp.status, 200)
+        participants_payload = await participants_resp.json()
+        self.assertEqual(["alice"], participants_payload["participants"])
+
+        reply_resp = await self.client.post(
+            f"/api/forum/general-chess-discussion/{slug}/post",
+            data={"text": "hi @alice"},
+        )
+        self.assertEqual(reply_resp.status, 200)
+        reply_payload = await reply_resp.json()
+        self.assertTrue(reply_payload.get("ok"))
+
+        alice_notif = await app_state.db.notify.find_one(
+            {"notifies": "alice", "type": "forumMention"}
+        )
+        self.assertIsNotNone(alice_notif)
+        self.assertEqual("bob", alice_notif["content"]["opp"])
+
+        participants_resp2 = await self.client.get(f"/api/forum/participants/{topic_id}")
+        participants_payload2 = await participants_resp2.json()
+        self.assertEqual(["alice", "bob"], participants_payload2["participants"])
+
+    async def test_forum_reactions(self):
+        self.add_user("alice")
+        self.add_user("bob")
+
+        self.set_session_user("alice")
+        create_resp = await self.client.post(
+            "/api/forum/general-chess-discussion/topic",
+            data={"name": "reactable", "text": "first post"},
+        )
+        create_payload = await create_resp.json()
+        post_id = create_payload["topic"]["lastPostId"]
+
+        self.set_session_user("bob")
+        react_add = await self.client.post(
+            f"/api/forum/general-chess-discussion/react/{post_id}/%2B1/true"
+        )
+        self.assertEqual(react_add.status, 200)
+        add_payload = await react_add.json()
+        self.assertTrue(add_payload.get("ok"))
+        self.assertEqual(1, add_payload["reactionCounts"].get("+1"))
+        self.assertIn("+1", add_payload.get("myReactions", []))
+
+        react_remove = await self.client.post(
+            f"/api/forum/general-chess-discussion/react/{post_id}/%2B1/false"
+        )
+        self.assertEqual(react_remove.status, 200)
+        remove_payload = await react_remove.json()
+        self.assertTrue(remove_payload.get("ok"))
+        self.assertNotIn("+1", remove_payload.get("reactionCounts", {}))
+
+        self.set_session_user("alice")
+        react_self = await self.client.post(
+            f"/api/forum/general-chess-discussion/react/{post_id}/heart/true"
+        )
+        self.assertEqual(react_self.status, 200)
+        self.assertEqual("error", (await react_self.json()).get("type"))
+
+    async def test_forum_mod_feed_and_relocate(self):
+        app_state = get_app_state(self.app)
+        self.add_user("alice")
+        self.add_user("mod")
+
+        self.set_session_user("alice")
+        create_resp = await self.client.post(
+            "/api/forum/general-chess-discussion/topic",
+            data={"name": "move me", "text": "initial post"},
+        )
+        create_payload = await create_resp.json()
+        post_id = create_payload["topic"]["lastPostId"]
+        topic_id = create_payload["topic"]["_id"]
+
+        self.set_session_user("mod")
+        with patch("forum_api._is_admin", side_effect=lambda username: username == "mod"):
+            mod_feed = await self.client.get("/api/forum/general-chess-discussion/mod-feed")
+            self.assertEqual(mod_feed.status, 200)
+            mod_payload = await mod_feed.json()
+            self.assertEqual(1, mod_payload["total"])
+            self.assertEqual(1, len(mod_payload["items"]))
+
+            relocate_resp = await self.client.post(
+                f"/api/forum/post/{post_id}/relocate",
+                data={"categ": "game-analysis"},
+            )
+            self.assertEqual(relocate_resp.status, 200)
+            relocate_payload = await relocate_resp.json()
+            self.assertTrue(relocate_payload.get("ok"))
+            self.assertIn("/forum/game-analysis/", relocate_payload.get("redirect", ""))
+
+        moved_topic = await app_state.db.forum_topic.find_one({"_id": topic_id})
+        self.assertEqual("game-analysis", moved_topic["categId"])
+        moved_posts = await app_state.db.forum_post.count_documents(
+            {"topicId": topic_id, "categId": "game-analysis"}
+        )
+        self.assertEqual(1, moved_posts)
+
+    async def test_forum_redirect_to_correct_page(self):
+        app_state = get_app_state(self.app)
+        app_state.chat_flood.allow_message = lambda source, text: True
+        self.add_user("alice")
+        self.add_user("bob")
+
+        self.set_session_user("alice")
+        create_resp = await self.client.post(
+            "/api/forum/general-chess-discussion/topic",
+            data={"name": "paged topic", "text": "post zero"},
+        )
+        self.assertEqual(create_resp.status, 200)
+        create_payload = await create_resp.json()
+        self.assertTrue(create_payload.get("ok"), create_payload)
+        slug = create_payload["topic"]["slug"]
+
+        target_post_id = ""
+        for idx in range(1, 13):
+            user = "alice" if idx % 2 else "bob"
+            self.set_session_user(user)
+            reply_resp = await self.client.post(
+                f"/api/forum/general-chess-discussion/{slug}/post",
+                data={"text": f"reply {idx}"},
+            )
+            self.assertEqual(reply_resp.status, 200)
+            reply_payload = await reply_resp.json()
+            self.assertTrue(reply_payload.get("ok"), reply_payload)
+            if idx == 11:
+                target_post_id = reply_payload["post"]["_id"]
+
+        redirect_resp = await self.client.get(
+            f"/forum/redirect/post/{target_post_id}", allow_redirects=False
+        )
+        self.assertEqual(302, redirect_resp.status)
+        location = redirect_resp.headers.get("Location", "")
+        self.assertIn("/forum/general-chess-discussion/", location)
+        self.assertIn("?page=2", location)
+        self.assertIn(f"#{target_post_id}", location)
+
+
+if __name__ == "__main__":
+    import unittest
+
+    unittest.main(verbosity=2)
