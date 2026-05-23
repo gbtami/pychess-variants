@@ -145,15 +145,16 @@ export function result(variant: Variant, status: number, result: string, bughous
 
     if (status <= 0) {
         return text;
-    } else {
-        if (result === '1/2-1/2') {
-            if (status === 5) {
-                return text;
-            } else {
-                return text + ' • ' + _('Draw');
-            }
+    } else if (result === '1/2-1/2') {
+        if (status === 5) {
+            return text;
         } else {
-            return text + ' • ' + _('%1 won', winner);
+            return text + ' • ' + _('Draw');
         }
+    } else if (result === '1-0' || result === '0-1') {
+        return text + ' • ' + _('%1 won', winner);
+    } else {
+        // Keep unresolved/invalid results from implying a winner.
+        return text;
     }
 }
