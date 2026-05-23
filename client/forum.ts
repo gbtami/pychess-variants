@@ -956,7 +956,7 @@ export function forumView(model: PyChessModel) {
                     h('div.form-actions', [
                         h('a.button.button-empty', { attrs: { href: `/forum/${encodeURIComponent(categ)}` } }, _('Cancel')),
                         h('button.button', {
-                            props: { type: 'submit', disabled: sendingReply || !composeReply.trim() },
+                            props: { type: 'submit', disabled: sendingReply },
                         }, sendingReply ? _('Sending...') : _('Reply')),
                     ]),
                 ])
@@ -1010,7 +1010,7 @@ export function forumView(model: PyChessModel) {
                 h('div.form-actions', [
                     h('a.button.button-empty', { attrs: { href: `/forum/${encodeURIComponent(categ)}` } }, _('Cancel')),
                     h('button.button', {
-                        props: { type: 'submit', disabled: creatingTopic || !topicTitleDraft.trim() || !topicTextDraft.trim() },
+                        props: { type: 'submit', disabled: creatingTopic },
                     }, creatingTopic ? _('Creating...') : _('Create the topic')),
                 ]),
             ]),
