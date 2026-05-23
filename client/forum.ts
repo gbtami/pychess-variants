@@ -174,6 +174,17 @@ function postRedirectHref(postId: string): string {
     return `/forum/redirect/post/${encodeURIComponent(postId)}`;
 }
 
+/** Build report-form URL prefilled for a specific forum post and author. */
+function reportPostHref(post: ForumPost): string {
+    const params = new URLSearchParams({
+        source: 'profile',
+        username: post.user,
+        reason: 'harass',
+        details: `${_('Forum post')}: ${window.location.origin}${postRedirectHref(post._id)}`,
+    });
+    return `/report?${params.toString()}`;
+}
+
 /** Forum SPA entry point for index/category/topic/search/mod-feed rendering and actions. */
 export function forumView(model: PyChessModel) {
     const route = parsePath(window.location.pathname);
@@ -204,7 +215,6 @@ export function forumView(model: PyChessModel) {
     let canSticky = false;
 
     let relocateTargets: ForumCategory[] = [];
-    let participants: string[] = [];
 
     let composeReply = '';
     let sendingReply = false;
@@ -216,6 +226,9 @@ export function forumView(model: PyChessModel) {
     let relocateTargetDraft = '';
 
     const reactingPostIds = new Set<string>();
+    const expandedReactionPostIds = new Set<string>();
+    const editDraftByPostId = new Map<string, string>();
+    const savingEditPostIds = new Set<string>();
 
     /** Re-render the forum vnode tree after state changes. */
     function redraw() {
@@ -286,20 +299,6 @@ export function forumView(model: PyChessModel) {
             });
     }
 
-    /** Load usernames participating in the current thread for mention shortcuts. */
-    function loadParticipants(topicId: string) {
-        return fetch(`/api/forum/participants/${encodeURIComponent(topicId)}`)
-            .then(parseJsonResponse)
-            .then(({ status, data }) => {
-                if (status >= 400 || data.type === 'error') return;
-                participants = Array.isArray(data.participants) ? data.participants : [];
-                redraw();
-            })
-            .catch(() => {
-                participants = [];
-            });
-    }
-
     /** Load one topic page including posts, reactions, and moderation metadata. */
     function loadTopic() {
         fetch(`/api/forum/${encodeURIComponent(categ)}/${encodeURIComponent(slug)}?page=${page}`)
@@ -323,9 +322,6 @@ export function forumView(model: PyChessModel) {
                 }
                 loading = false;
                 redraw();
-                if (topicData?._id) {
-                    void loadParticipants(topicData._id);
-                }
             })
             .catch((err) => {
                 console.warn('Failed to load forum topic.', err);
@@ -457,24 +453,47 @@ export function forumView(model: PyChessModel) {
             });
     }
 
-    /** Prompt and submit an inline post edit. */
+    /** Toggle edit mode for one post and initialize draft from source text. */
     function editPost(post: ForumPost) {
-        const next = window.prompt(_('Edit your post'), post.text);
-        if (next === null) return;
-        const text = next.trim();
-        if (!text || text === post.text.trim()) return;
-        const formData = new URLSearchParams({ text });
+        if (editDraftByPostId.has(post._id)) {
+            editDraftByPostId.delete(post._id);
+            savingEditPostIds.delete(post._id);
+        } else {
+            editDraftByPostId.set(post._id, post.text);
+        }
+        redraw();
+    }
+
+    /** Submit edited post text from inline form and refresh the current page. */
+    function submitEditedPost(event: Event, post: ForumPost) {
+        event.preventDefault();
+        if (savingEditPostIds.has(post._id)) return;
+
+        const draft = (editDraftByPostId.get(post._id) || '').trim();
+        if (!draft) return;
+        if (draft === post.text.trim()) {
+            editDraftByPostId.delete(post._id);
+            redraw();
+            return;
+        }
+
+        savingEditPostIds.add(post._id);
+        redraw();
+
         fetch(`/api/forum/post/${encodeURIComponent(post._id)}/edit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-            body: formData.toString(),
+            body: new URLSearchParams({ text: draft }).toString(),
         })
             .then(parseJsonResponse)
             .then(({ status, data }) => {
+                savingEditPostIds.delete(post._id);
                 if (status >= 400 || data.type === 'error') handleApiError(data, status);
                 window.location.reload();
             })
             .catch((err) => {
+                savingEditPostIds.delete(post._id);
+                redraw();
                 console.warn('Failed to edit post.', err);
                 alert(err instanceof Error ? err.message : _('Could not edit post.'));
             });
@@ -593,30 +612,6 @@ export function forumView(model: PyChessModel) {
         redraw();
     }
 
-    /** Insert a participant mention token at cursor position in the reply box. */
-    function insertMention(username: string) {
-        const reply = document.querySelector('#forum-reply-text') as HTMLTextAreaElement | null;
-        const mention = `@${username} `;
-        if (reply) {
-            const start = reply.selectionStart;
-            const end = reply.selectionEnd;
-            const next = `${reply.value.slice(0, start)}${mention}${reply.value.slice(end)}`;
-            composeReply = next;
-            redraw();
-            window.requestAnimationFrame(() => {
-                const updated = document.querySelector('#forum-reply-text') as HTMLTextAreaElement | null;
-                if (updated) {
-                    const pos = start + mention.length;
-                    updated.focus();
-                    updated.setSelectionRange(pos, pos);
-                }
-            });
-            return;
-        }
-        composeReply += mention;
-        redraw();
-    }
-
     /** Navigate to search route for the current draft text. */
     function submitSearch(event: Event) {
         event.preventDefault();
@@ -630,25 +625,23 @@ export function forumView(model: PyChessModel) {
 
     /** Render the shared top-right search form used across forum modes. */
     function renderSearchBox() {
-        return h('div.box__top__actions', [
-            h('form.search', {
-                on: { submit: submitSearch },
-            }, [
-                h('input', {
-                    attrs: {
-                        type: 'text',
-                        name: 'text',
-                        placeholder: _('Search'),
-                        enterkeyhint: 'search',
+        return h('form.search', {
+            on: { submit: submitSearch },
+        }, [
+            h('input', {
+                attrs: {
+                    type: 'text',
+                    name: 'text',
+                    placeholder: _('Search'),
+                    enterkeyhint: 'search',
+                },
+                props: { value: searchTextDraft },
+                on: {
+                    input: (e: Event) => {
+                        searchTextDraft = (e.target as HTMLInputElement).value;
                     },
-                    props: { value: searchTextDraft },
-                    on: {
-                        input: (e: Event) => {
-                            searchTextDraft = (e.target as HTMLInputElement).value;
-                        },
-                    },
-                }),
-            ]),
+                },
+            }),
         ]);
     }
 
@@ -657,12 +650,32 @@ export function forumView(model: PyChessModel) {
         const canReactPost = Boolean(post.canReact);
         const reactionCounts = post.reactionCounts || {};
         const mine = new Set(post.myReactions || []);
-        const visible = REACTIONS.filter((r) => canReactPost || (reactionCounts[r.key] || 0) > 0);
+        const showAll = expandedReactionPostIds.has(post._id);
+        const visible = REACTIONS.filter((r) => showAll || canReactPost || (reactionCounts[r.key] || 0) > 0);
         if (visible.length === 0) return null;
 
+        const allReactionsVisible = REACTIONS.every((r) => (reactionCounts[r.key] || 0) > 0);
         const loading = REACTIONS.some((r) => reactingPostIds.has(`${post._id}:${r.key}`));
-        return h(`div.reactions${canReactPost ? '.reactions-auth' : ''}${loading ? '.loading' : ''}`,
-            visible.map((r) => {
+        return h(`div.reactions${canReactPost ? '.reactions-auth' : ''}${loading ? '.loading' : ''}`, [
+            canReactPost && !allReactionsVisible
+                ? h('button.reactions-toggle', {
+                    props: {
+                        type: 'button',
+                    },
+                    attrs: {
+                        'data-icon': '+',
+                        title: '+',
+                    },
+                    on: {
+                        click: () => {
+                            if (expandedReactionPostIds.has(post._id)) expandedReactionPostIds.delete(post._id);
+                            else expandedReactionPostIds.add(post._id);
+                            redraw();
+                        },
+                    },
+                })
+                : null,
+            ...visible.map((r) => {
                 const count = reactionCounts[r.key] || 0;
                 const isMine = mine.has(r.key);
                 return h(`button${isMine ? '.mine' : ''}${count > 0 ? '.yes' : '.no'}`, {
@@ -686,13 +699,16 @@ export function forumView(model: PyChessModel) {
                     count > 0 ? h('span', `${count}`) : null,
                 ].filter(Boolean as any));
             }),
-        );
+        ]);
     }
 
     /** Render forum category index table. */
     function renderIndex() {
         return h('main.forum.index.box', [
-            h('div.box__top', [h('h1', _('Forum')), renderSearchBox()]),
+            h('div.box__top', [
+                h('h1', _('Forum')),
+                h('div.box__top__actions', [renderSearchBox()]),
+            ]),
             h('table.categs.slist.slist-pad', [
                 h('thead', [
                     h('tr', [h('th', _('Category')), h('th.right', _('Topics')), h('th.right', _('Posts')), h('th', _('Last post'))]),
@@ -747,12 +763,10 @@ export function forumView(model: PyChessModel) {
                 h('thead', [
                     h('tr', [h('th', _('Topic')), h('th.right', _('Replies')), h('th', _('Last post'))]),
                 ]),
-                h('tbody', topics.map((t) => h(`tr${t.sticky ? '.sticky' : ''}`, [
+                h('tbody', topics.map((t) => h(`tr.paginated${t.sticky ? '.sticky' : ''}`, [
                     h('td.subject', [
                         h('a', { attrs: { href: `/forum/${encodeURIComponent(categ)}/${encodeURIComponent(t.slug)}` } }, t.name),
-                        t.closed ? h('span.forum-topic-flag.closed', _('Closed')) : null,
-                        t.sticky ? h('span.forum-topic-flag.sticky', _('Sticky')) : null,
-                    ].filter(Boolean as any)),
+                    ]),
                     h('td.right', `${t.nbReplies || 0}`),
                     h('td', [
                         h('a', {
@@ -765,7 +779,6 @@ export function forumView(model: PyChessModel) {
                     ]),
                 ]))),
             ]),
-            h('div.forum-count', `${total} ${_('topics')}`),
             renderPagination(`/forum/${encodeURIComponent(categ)}`),
         ]);
     }
@@ -773,6 +786,12 @@ export function forumView(model: PyChessModel) {
     /** Render one topic post card with controls and rich-text content. */
     function renderTopicPost(post: ForumPost, isFirst: boolean) {
         const author = titleAndName(post.userTitle, post.user);
+        const isTopicAuthor = topicData?.user === post.user;
+        const isAnonUser = model.anon === 'True' || model.anon === 'true';
+        const canReport = !isAnonUser && model.username !== post.user;
+        const editing = editDraftByPostId.has(post._id);
+        const editDraft = editDraftByPostId.get(post._id) || post.text;
+        const savingEdit = savingEditPostIds.has(post._id);
         return h(`article.forum-post${isFirst ? '.topic-first' : ''}`, {
             attrs: {
                 id: post._id,
@@ -781,19 +800,34 @@ export function forumView(model: PyChessModel) {
         }, [
             h('div.forum-post__metas', [
                 h('div', [
-                    h('a.user-link.ulpt.author', { attrs: { href: `/@/${encodeURIComponent(post.user)}` } }, author),
-                    h('a.forum-post-time', {
+                    h(`a.user-link.ulpt.author${isTopicAuthor ? '.author--op' : ''}`, {
+                        attrs: { href: `/@/${encodeURIComponent(post.user)}` },
+                    }, author),
+                    h('a', {
                         attrs: { href: `#${post._id}` },
-                    }, post.updatedAt ? `${_('edited')} ${timeago(post.updatedAt)}` : timeago(post.createdAt)),
+                    }, post.updatedAt
+                        ? [h('span.post-edited', `${_('edited')} `), timeago(post.updatedAt)]
+                        : timeago(post.createdAt)),
                     post.canEdit
                         ? h('button.forum-post__button.edit.button.button-empty.text', {
                             props: { type: 'button' },
+                            attrs: {
+                                title: _('Edit'),
+                                'aria-label': _('Edit'),
+                            },
                             on: { click: () => editPost(post) },
-                        }, _('Edit'))
+                        }, [
+                            h('i.icon.icon-pencil'),
+                            h('span', _('Edit')),
+                        ])
                         : null,
                     isFirst && canModerate && relocateTargets.length > 0
-                        ? h('button.forum-post__button.mod-relocate.button.button-empty.text', {
+                        ? h('button.forum-post__button.mod-relocate.button.button-empty.icon-only', {
                             props: { type: 'button' },
+                            attrs: {
+                                title: _('Relocate'),
+                                'aria-label': _('Relocate'),
+                            },
                             on: {
                                 click: () => {
                                     if (!relocateTargetDraft && relocateTargets.length > 0) {
@@ -803,19 +837,39 @@ export function forumView(model: PyChessModel) {
                                     redraw();
                                 },
                             },
-                        }, _('Relocate'))
+                        }, [h('i.icon.icon-step-forward')])
                         : null,
                     post.canDelete
-                        ? h('button.forum-post__button.delete.button.button-empty.text', {
+                        ? h('button.forum-post__button.delete.button.button-empty.icon-only', {
                             props: { type: 'button' },
+                            attrs: {
+                                title: _('Delete'),
+                                'aria-label': _('Delete'),
+                            },
                             on: { click: () => deletePost(post) },
-                        }, _('Delete'))
+                        }, [h('i.icon.icon-trash-o')])
                         : null,
                     canReply
                         ? h('button.forum-post__button.quote.button.button-empty.text', {
                             props: { type: 'button' },
+                            attrs: {
+                                title: _('Quote'),
+                                'aria-label': _('Quote'),
+                            },
                             on: { click: () => quotePost(post) },
-                        }, _('Quote'))
+                        }, [
+                            h('span.quote-glyph', '❝'),
+                            h('span', _('Quote')),
+                        ])
+                        : null,
+                    canReport
+                        ? h('a.forum-post__button.report.button.button-empty.icon-only', {
+                            attrs: {
+                                href: reportPostHref(post),
+                                title: _('Report'),
+                                'aria-label': _('Report'),
+                            },
+                        }, [h('i.icon.icon-warning')])
                         : null,
                 ].filter(Boolean as any)),
             ]),
@@ -831,6 +885,47 @@ export function forumView(model: PyChessModel) {
             }, renderRichText(post.text, { imageClass: 'forum-post-inline-image' })),
             h('div.forum-post__message-source', post.text),
             renderReactions(post),
+            editing
+                ? h('form.edit-post-form', {
+                    on: {
+                        submit: (event: Event) => submitEditedPost(event, post),
+                    },
+                }, [
+                    h('textarea.form-control.post-text-area.edit-post-box', {
+                        attrs: {
+                            required: true,
+                            rows: 10,
+                            maxlength: `${FORUM_MAX_POST_LEN}`,
+                            'data-topic': topicData?._id || '',
+                        },
+                        props: { value: editDraft },
+                        on: {
+                            input: (e: Event) => {
+                                editDraftByPostId.set(post._id, (e.target as HTMLTextAreaElement).value);
+                            },
+                        },
+                    }),
+                    h('div.edit-buttons', [
+                        h('a.edit-post-cancel', {
+                            attrs: { href: '#' },
+                            on: {
+                                click: (event: Event) => {
+                                    event.preventDefault();
+                                    editDraftByPostId.delete(post._id);
+                                    savingEditPostIds.delete(post._id);
+                                    redraw();
+                                },
+                            },
+                        }, _('Cancel')),
+                        h('button.button', {
+                            props: {
+                                type: 'submit',
+                                disabled: savingEdit,
+                            },
+                        }, _('Apply')),
+                    ]),
+                ])
+                : null,
         ].filter(Boolean as any));
     }
 
@@ -883,18 +978,6 @@ export function forumView(model: PyChessModel) {
                     ]),
                 ]),
             ]),
-        ]);
-    }
-
-    /** Render quick participant mention buttons above the reply form. */
-    function renderParticipantsMentions() {
-        if (!canReply || participants.length === 0) return null;
-        return h('div.forum-participants', [
-            h('span.forum-participants__label', _('Thread participants') + ':'),
-            ...participants.slice(0, 24).map((name) => h('button.button.button-empty.text', {
-                props: { type: 'button' },
-                on: { click: () => insertMention(name) },
-            }, `@${name}`)),
         ]);
     }
 
@@ -952,7 +1035,6 @@ export function forumView(model: PyChessModel) {
                             },
                         },
                     }),
-                    renderParticipantsMentions(),
                     h('div.form-actions', [
                         h('a.button.button-empty', { attrs: { href: `/forum/${encodeURIComponent(categ)}` } }, _('Cancel')),
                         h('button.button', {
@@ -1026,7 +1108,7 @@ export function forumView(model: PyChessModel) {
                     h('a.text', { attrs: { href: '/forum' } }, '‹'),
                     text ? `${_('Search')} "${text}"` : _('Search'),
                 ]),
-                renderSearchBox(),
+                h('div.box__top__actions', [renderSearchBox()]),
             ]),
             h('strong.nb-results.box__pad', `${total} ${_('forum posts')}`),
             h('table.slist.slist-pad.slist-invert.search__results', [
