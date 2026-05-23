@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import asyncio
 import json
+import logging
 import math
+import random
 import re
 from datetime import datetime, timedelta, timezone
 from functools import partial
-from secrets import choice
 
 import aiohttp_session
 from aiohttp import web
 
+from fairy.fairy_board import FairyBoard
 from link_filter import sanitize_user_message
 from newid import new_id
 from notify import notify
@@ -74,22 +77,39 @@ DEFAULT_FORUM_CATEGS: tuple[dict[str, object], ...] = (
     },
 )
 
-# Lila-inspired mate-in-1 captcha challenge used by forum create/reply forms.
-# Mirrors lila's fallback challenge from modules/game/src/main/CaptchaApi.scala.
-FORUM_CAPTCHA_CHALLENGES: tuple[dict[str, object], ...] = (
-    {
-        "gameId": "00000000",
-        "fen": "1k3b1r/r5pp/pNQppq2/2p5/4P3/P3B3/1P3PPP/n4RK1",
-        "color": "white",
-        "moves": {"c6": "c8"},
-        "solutions": ("c6 c8",),
-    },
-)
-FORUM_CAPTCHA_BY_GAME_ID: dict[str, dict[str, object]] = {
-    str(challenge["gameId"]): challenge for challenge in FORUM_CAPTCHA_CHALLENGES
+# Lila-inspired mate-in-1 fallback from modules/game/src/main/CaptchaApi.scala.
+FORUM_CAPTCHA_FALLBACK: dict[str, object] = {
+    "gameId": "00000000",
+    "fen": "1k3b1r/r5pp/pNQppq2/2p5/4P3/P3B3/1P3PPP/n4RK1",
+    "color": "white",
+    "moves": {"c6": "c8"},
+    "solutions": ("c6 c8",),
 }
-FORUM_CAPTCHA_DEFAULT = FORUM_CAPTCHA_CHALLENGES[0]
+
+# Intentionally rarer refresh and smaller cache than lila.
+FORUM_CAPTCHA_REFRESH_SECONDS = 120
+FORUM_CAPTCHA_POOL_CAPACITY = 40
+FORUM_CAPTCHA_SAMPLE_SIZE = 120
+FORUM_CAPTCHA_TARGET_PER_REFRESH = 10
+
 FORUM_CAPTCHA_FAIL_MESSAGE = "Please solve the chess captcha."
+FORUM_CAPTCHA_PUZZLE_QUERY = {
+    "v": "chess",
+    "e": "#1",
+    "c": {"$ne": True},
+    "r": {"$ne": False},
+    "f": {"$type": "string"},
+    "m": {"$type": "string"},
+}
+
+_forum_captcha_pool: list[dict[str, object]] = [FORUM_CAPTCHA_FALLBACK]
+_forum_captcha_by_game_id: dict[str, dict[str, object]] = {
+    str(FORUM_CAPTCHA_FALLBACK["gameId"]): FORUM_CAPTCHA_FALLBACK
+}
+_forum_captcha_last_refresh: datetime | None = None
+_forum_captcha_lock: asyncio.Lock | None = None
+
+log = logging.getLogger(__name__)
 
 
 def _is_admin(username: str) -> bool:
@@ -161,14 +181,184 @@ def _extract_mentions(text: str) -> set[str]:
     return {match.group(2) for match in MENTION_RE.finditer(text)}
 
 
+def _captcha_lock() -> asyncio.Lock:
+    global _forum_captcha_lock
+    if _forum_captcha_lock is None:
+        _forum_captcha_lock = asyncio.Lock()
+    return _forum_captcha_lock
+
+
 def _normalize_captcha_solution(value: str) -> str:
     """Normalize captcha move input to lowercase `<orig> <dest>` format."""
     return " ".join(value.strip().lower().split())
 
 
+def _uci_orig_dest(move: str) -> tuple[str, str] | None:
+    """Extract origin/destination squares from a UCI-like move string."""
+    uci = move.strip().lower()
+    if len(uci) < 4:
+        return None
+    orig = uci[:2]
+    dest = uci[2:4]
+    if not (orig[0].isalpha() and orig[1].isdigit() and dest[0].isalpha() and dest[1].isdigit()):
+        return None
+    return orig, dest
+
+
+def _captcha_moves_map(legal_moves: list[str]) -> dict[str, str]:
+    """Encode legal moves into lila-compatible orig->dests compact map."""
+    grouped: dict[str, list[str]] = {}
+    for move in legal_moves:
+        orig_dest = _uci_orig_dest(move)
+        if orig_dest is None:
+            continue
+        orig, dest = orig_dest
+        dests = grouped.setdefault(orig, [])
+        if dest not in dests:
+            dests.append(dest)
+    return {orig: "".join(dests) for orig, dests in grouped.items()}
+
+
+def _captcha_from_fen(*, game_id: str, fen: str) -> dict[str, object] | None:
+    """Build a chess mate-in-1 captcha from a FEN using pyffish move legality."""
+    try:
+        board = FairyBoard("chess", initial_fen=fen)
+        legal_moves = [str(move) for move in board.legal_moves()]
+    except Exception:
+        return None
+    if len(legal_moves) == 0:
+        return None
+
+    solutions: list[str] = []
+    for move in legal_moves:
+        orig_dest = _uci_orig_dest(move)
+        if orig_dest is None:
+            continue
+        if not board.push(move, append=True, raise_on_error=False):
+            continue
+        # After our move it is the opponent to move.
+        is_mate = board.is_checked() and len(board.legal_moves()) == 0
+        board.pop(remove=True)
+        if is_mate:
+            orig, dest = orig_dest
+            solutions.append(f"{orig} {dest}")
+
+    if len(solutions) == 0:
+        return None
+
+    color = "white" if fen.split()[1] == "w" else "black"
+    moves = _captcha_moves_map(legal_moves)
+    if len(moves) == 0:
+        return None
+    return {
+        "gameId": game_id,
+        "fen": fen,
+        "color": color,
+        "moves": moves,
+        "solutions": tuple(sorted(set(solutions))),
+    }
+
+
+def _captcha_from_puzzle_doc(doc: dict[str, object]) -> dict[str, object] | None:
+    """Convert one puzzle document into a forum captcha challenge."""
+    game_id = str(doc.get("_id") or "").strip()
+    fen = str(doc.get("f") or "").strip()
+    if len(game_id) == 0 or len(fen) == 0:
+        return None
+    return _captcha_from_fen(game_id=game_id, fen=fen)
+
+
+async def _refresh_forum_captcha_pool(app_state) -> None:
+    """Refresh in-memory forum captcha pool from random chess mate-in-1 puzzles."""
+    global _forum_captcha_pool, _forum_captcha_by_game_id, _forum_captcha_last_refresh
+    if app_state.db is None:
+        _forum_captcha_last_refresh = datetime.now(timezone.utc)
+        return
+
+    cursor = app_state.db.puzzle.aggregate(
+        [
+            {"$match": FORUM_CAPTCHA_PUZZLE_QUERY},
+            {"$sample": {"size": FORUM_CAPTCHA_SAMPLE_SIZE}},
+            {"$project": {"_id": 1, "f": 1, "m": 1}},
+        ]
+    )
+    docs = await cursor.to_list(length=FORUM_CAPTCHA_SAMPLE_SIZE)
+    random.shuffle(docs)
+
+    additions: list[dict[str, object]] = []
+    for doc in docs:
+        challenge = _captcha_from_puzzle_doc(doc)
+        if challenge is None:
+            continue
+        additions.append(challenge)
+        if len(additions) >= FORUM_CAPTCHA_TARGET_PER_REFRESH:
+            break
+
+    if len(additions) > 0:
+        merged = list(additions)
+        seen = {str(challenge["gameId"]) for challenge in merged}
+        for challenge in _forum_captcha_pool:
+            challenge_id = str(challenge["gameId"])
+            if challenge_id in seen:
+                continue
+            merged.append(challenge)
+            seen.add(challenge_id)
+            if len(merged) >= FORUM_CAPTCHA_POOL_CAPACITY:
+                break
+
+        fallback_id = str(FORUM_CAPTCHA_FALLBACK["gameId"])
+        if fallback_id not in seen:
+            merged.append(FORUM_CAPTCHA_FALLBACK)
+
+        _forum_captcha_pool = merged[:FORUM_CAPTCHA_POOL_CAPACITY]
+        _forum_captcha_by_game_id = {
+            str(challenge["gameId"]): challenge for challenge in _forum_captcha_pool
+        }
+        log.debug("Forum captcha pool refreshed with %s new challenge(s).", len(additions))
+    else:
+        log.debug("Forum captcha refresh found no new mate-in-1 candidates.")
+
+    _forum_captcha_last_refresh = datetime.now(timezone.utc)
+
+
+async def _maybe_refresh_forum_captcha_pool(app_state) -> None:
+    """Refresh captcha pool only when stale and never concurrently."""
+    now = datetime.now(timezone.utc)
+    if (
+        _forum_captcha_last_refresh is not None
+        and (now - _forum_captcha_last_refresh).total_seconds() < FORUM_CAPTCHA_REFRESH_SECONDS
+    ):
+        return
+
+    lock = _captcha_lock()
+    async with lock:
+        latest = _forum_captcha_last_refresh
+        if (
+            latest is not None
+            and (datetime.now(timezone.utc) - latest).total_seconds()
+            < FORUM_CAPTCHA_REFRESH_SECONDS
+        ):
+            return
+        await _refresh_forum_captcha_pool(app_state)
+
+
+async def forum_captcha_refresher(app: web.Application) -> None:
+    """Background captcha refresh task started by app init."""
+    app_state = get_app_state(app)
+    try:
+        await _maybe_refresh_forum_captcha_pool(app_state)
+        while not app_state.shutdown:
+            await asyncio.sleep(FORUM_CAPTCHA_REFRESH_SECONDS)
+            await _maybe_refresh_forum_captcha_pool(app_state)
+    except asyncio.CancelledError:
+        raise
+    except Exception:
+        log.exception("Forum captcha refresher task crashed.")
+
+
 def _forum_captcha_challenge(game_id: str) -> dict[str, object]:
     """Get captcha challenge by id, falling back to the default challenge."""
-    return FORUM_CAPTCHA_BY_GAME_ID.get(game_id, FORUM_CAPTCHA_DEFAULT)
+    return _forum_captcha_by_game_id.get(game_id, FORUM_CAPTCHA_FALLBACK)
 
 
 def _forum_captcha_payload(challenge: dict[str, object]) -> dict[str, object]:
@@ -183,7 +373,9 @@ def _forum_captcha_payload(challenge: dict[str, object]) -> dict[str, object]:
 
 def _forum_captcha_public_payload() -> dict[str, object]:
     """Return one random captcha challenge payload."""
-    return _forum_captcha_payload(choice(FORUM_CAPTCHA_CHALLENGES))
+    if len(_forum_captcha_pool) == 0:
+        return _forum_captcha_payload(FORUM_CAPTCHA_FALLBACK)
+    return _forum_captcha_payload(random.choice(_forum_captcha_pool))
 
 
 def _forum_captcha_is_valid(game_id: str, solution: str) -> bool:
@@ -406,6 +598,8 @@ async def forum_categs(request: web.Request) -> web.Response:
 
 async def forum_captcha(request: web.Request) -> web.Response:
     """Return a mate-in-1 chess captcha challenge payload for forum forms."""
+    app_state = get_app_state(request.app)
+    await _maybe_refresh_forum_captcha_pool(app_state)
     return _json_response({"captcha": _forum_captcha_public_payload()})
 
 
@@ -473,6 +667,8 @@ async def forum_topics(request: web.Request) -> web.Response:
         user = await app_state.users.get(username)
         can_write = _can_write(user)
         can_moderate = _can_moderate(user)
+    if can_write:
+        await _maybe_refresh_forum_captcha_pool(app_state)
 
     return _json_response(
         {
@@ -531,6 +727,8 @@ async def forum_topic(request: web.Request) -> web.Response:
         can_write = _can_write(me)
         can_moderate = _can_moderate(me)
         can_reply = can_write and not bool(topic.get("closed", False))
+    if can_reply:
+        await _maybe_refresh_forum_captcha_pool(app_state)
 
     post_items: list[dict[str, object]] = []
     for post in posts:
