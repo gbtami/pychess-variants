@@ -124,6 +124,26 @@ main.forum p {
   border-collapse: collapse;
 }
 
+main.forum.index.box .slist,
+main.forum.forum-categ.box .slist {
+  width: calc(100% + (2 * var(--box-padding)));
+  margin-inline: calc(-1 * var(--box-padding));
+}
+
+main.forum.index.box .slist.slist-pad th:first-child,
+main.forum.index.box .slist.slist-pad td:first-child,
+main.forum.forum-categ.box .slist.slist-pad th:first-child,
+main.forum.forum-categ.box .slist.slist-pad td:first-child {
+  padding-inline-start: var(--box-padding);
+}
+
+main.forum.index.box .slist.slist-pad th:last-child,
+main.forum.index.box .slist.slist-pad td:last-child,
+main.forum.forum-categ.box .slist.slist-pad th:last-child,
+main.forum.forum-categ.box .slist.slist-pad td:last-child {
+  padding-inline-end: var(--box-padding);
+}
+
 .forum .slist thead th {
   text-align: left;
   border-top: 1px solid var(--border-color);
