@@ -353,7 +353,7 @@ export function forumView(model: PyChessModel) {
             });
     }
 
-    /** Render chess captcha widget used by topic creation and reply forms. */
+    /** Render captcha widget used by topic creation and reply forms. */
     function renderCaptcha() {
         if (loadingCaptcha) return h('div.forum-captcha-loading', _('Loading captcha...'));
         if (captchaError) {
@@ -377,34 +377,36 @@ export function forumView(model: PyChessModel) {
         const dests = parseCaptchaDests(formCaptcha.moves);
         return h(`div.forum-captcha${captchaState === 'success' ? '.success' : ''}${captchaState === 'failure' ? '.failure' : ''}`, { key: `captcha-${formCaptcha.gameId}` }, [
             h('div.forum-captcha__challenge', [
-                h(`div.cg-wrap.${captchaVariant.board.cg}.mini`, {
-                    hook: {
-                        insert(vnode) {
-                            boardSettings.updateScopedBoardStyle(captchaVariant, vnode.elm as Element);
-                            boardSettings.updateScopedPieceStyle(captchaVariant, vnode.elm as Element);
-                            const board = Chessground(vnode.elm as HTMLElement, {
-                                fen: formCaptcha!.fen as cg.FEN,
-                                dimensions: captchaVariant.board.dimensions,
-                                notation: captchaVariant.notation,
-                                pocketRoles: captchaVariant.pocket?.roles,
-                                orientation: color,
-                                turnColor: color,
-                                coordinates: false,
-                                viewOnly: false,
-                                movable: {
-                                    free: false,
-                                    color,
-                                    dests,
-                                    events: {
-                                        after(orig: cg.Key, dest: cg.Key) {
-                                            checkCaptchaMove(`${orig} ${dest}`, board, formCaptcha!.fen, color, dests);
+                h(`selection.${captchaVariant.boardFamily}.${captchaVariant.pieceFamily}.${captchaVariant.ui.boardMark}`, [
+                    h(`div.cg-wrap.${captchaVariant.board.cg}.mini`, {
+                        hook: {
+                            insert(vnode) {
+                                boardSettings.updateScopedBoardStyle(captchaVariant, vnode.elm as Element);
+                                boardSettings.updateScopedPieceStyle(captchaVariant, vnode.elm as Element);
+                                const board = Chessground(vnode.elm as HTMLElement, {
+                                    fen: formCaptcha!.fen as cg.FEN,
+                                    dimensions: captchaVariant.board.dimensions,
+                                    notation: captchaVariant.notation,
+                                    pocketRoles: captchaVariant.pocket?.roles,
+                                    orientation: color,
+                                    turnColor: color,
+                                    coordinates: false,
+                                    viewOnly: false,
+                                    movable: {
+                                        free: false,
+                                        color,
+                                        dests,
+                                        events: {
+                                            after(orig: cg.Key, dest: cg.Key) {
+                                                checkCaptchaMove(`${orig} ${dest}`, board, formCaptcha!.fen, color, dests);
+                                            },
                                         },
                                     },
-                                },
-                            });
+                                });
+                            },
                         },
-                    },
-                }),
+                    }),
+                ]),
             ]),
             h('div.forum-captcha__explanation', [
                 h('label.form-label', color === 'white' ? _('White checkmates in one move') : _('Black checkmates in one move')),

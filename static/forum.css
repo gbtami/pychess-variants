@@ -321,7 +321,17 @@ main.forum .forum-captcha.failure {
 }
 
 main.forum .forum-captcha__challenge {
-  flex: 0 0 250px;
+  flex: 0 1 320px;
+  min-width: 0;
+}
+
+main.forum .forum-captcha__challenge selection {
+  display: inline-block;
+  max-width: 100%;
+}
+
+main.forum .forum-captcha__challenge .cg-wrap.mini {
+  max-width: 100%;
 }
 
 main.forum .forum-captcha__explanation {
