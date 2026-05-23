@@ -3,32 +3,31 @@
 <div id="main-wrap">
 <main class="page-menu legal-page">
 <aside></aside>
-<div class="guide legal-doc">
-<h1>Close account</h1>
-<p>
-Closing disables account access and logs you out. Public game archive records may remain.
-</p>
-<p>
-If you later change your mind, sign in with the same OAuth provider and follow the reopen flow.
-If you close the account again after reopening it, automatic reopening is no longer available.
-</p>
-<form method="post" action="/account/close">
-    <p>
-        Type your username to confirm:
-        <br>
-        <input type="text" name="confirm_username" required>
+<div class="guide legal-doc account-action">
+<section class="account-action__panel">
+    <h1>Close account</h1>
+    <p class="account-action__lead">
+    Closing disables account access and logs you out. Public game archive records may remain.
     </p>
     <p>
-        <label>
+    If you later change your mind, sign in with the same OAuth provider and follow the reopen flow.
+    If you close the account again after reopening it, automatic reopening is no longer available.
+    </p>
+    <form class="account-action__form" method="post" action="/account/close">
+        <div class="account-action__field">
+            <label class="account-action__label" for="account-close-confirm-username">Type your username to confirm</label>
+            <input id="account-close-confirm-username" class="account-action__input" type="text" name="confirm_username" required>
+        </div>
+        <label class="account-action__check">
             <input type="checkbox" name="understand" required>
             I understand this closes my account access.
         </label>
-    </p>
-    <p>
-        <button type="submit">Close my account</button>
-    </p>
-</form>
-<p><a href="/account/delete">Need full deletion/anonymization instead?</a></p>
+        <div class="account-action__actions">
+            <button class="account-action__button account-action__button--warn" type="submit">Close my account</button>
+            <a class="account-action__button account-action__button--secondary" href="/account/delete">Need full deletion/anonymization instead?</a>
+        </div>
+    </form>
+</section>
 </div>
 </main>
 </div>

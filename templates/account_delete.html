@@ -3,29 +3,28 @@
 <div id="main-wrap">
 <main class="page-menu legal-page">
 <aside></aside>
-<div class="guide legal-doc">
-<h1>Delete account (GDPR erase)</h1>
-<p>
-This action disables your account and anonymizes/removes personal account data in application
-records where appropriate. Public game archives may remain for integrity and anti-abuse reasons.
-</p>
-<form method="post" action="/account/delete">
-    <p>
-        Type your username to confirm:
-        <br>
-        <input type="text" name="confirm_username" required>
+<div class="guide legal-doc account-action account-action--danger">
+<section class="account-action__panel">
+    <h1>Delete account (GDPR erase)</h1>
+    <p class="account-action__lead">
+    This action disables your account and anonymizes/removes personal account data in application
+    records where appropriate. Public game archives may remain for integrity and anti-abuse reasons.
     </p>
-    <p>
-        <label>
+    <form class="account-action__form" method="post" action="/account/delete">
+        <div class="account-action__field">
+            <label class="account-action__label" for="account-delete-confirm-username">Type your username to confirm</label>
+            <input id="account-delete-confirm-username" class="account-action__input" type="text" name="confirm_username" required>
+        </div>
+        <label class="account-action__check">
             <input type="checkbox" name="understand" required>
             I understand this action is not reversible.
         </label>
-    </p>
-    <p>
-        <button type="submit">Delete my account</button>
-    </p>
-</form>
-<p><a href="/account/close">Need a reversible close only?</a></p>
+        <div class="account-action__actions">
+            <button class="account-action__button account-action__button--danger" type="submit">Delete my account</button>
+            <a class="account-action__button account-action__button--secondary" href="/account/close">Need a reversible close only?</a>
+        </div>
+    </form>
+</section>
 </div>
 </main>
 </div>

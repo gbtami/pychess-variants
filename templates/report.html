@@ -7,7 +7,7 @@
         <form class="form3 report-form" method="post" action="/report">
             <div class="form-group report-about">
                 <p>
-                    <a class="text" href="/report/faq" target="_blank" rel="noopener">Read more about reports</a>
+                    <a class="text report-faq-link" href="/report/faq" target="_blank" rel="noopener">Read more about reports</a>
                 </p>
             </div>
 
@@ -18,13 +18,16 @@
             <input type="hidden" name="source" value="{{ report_source }}">
 
             <div class="form-group">
-                <label class="form-label" for="form3-username">User</label>
                 {% if report_user_locked %}
-                <div class="report-user-readonly">
-                    <a class="user-link" href="/@/{{ report_username }}">{{ report_username }}</a>
-                    <input type="hidden" name="username" value="{{ report_username }}">
+                <div class="report-user-inline">
+                    <span class="form-label report-user-inline-label">User</span>
+                    <div class="report-user-readonly">
+                        <a class="user-link" href="/@/{{ report_username }}">{{ report_username }}</a>
+                        <input type="hidden" name="username" value="{{ report_username }}">
+                    </div>
                 </div>
                 {% else %}
+                <label class="form-label" for="form3-username">User</label>
                 <input id="form3-username" name="username" class="form-control" value="{{ report_username }}" minlength="3" maxlength="20" required autofocus>
                 {% endif %}
             </div>
@@ -49,10 +52,8 @@
                 <ul>
                     {% for msg in report_inbox_msgs %}
                     <li>
-                        <label for="{{ msg.id }}">
-                            <input id="{{ msg.id }}" type="checkbox" name="msgs" value="{{ msg.id }}"{% if msg.id in report_selected_msgs %} checked{% endif %}>
-                            <strong>{{ msg.from }}</strong>: {{ msg.text }}
-                        </label>
+                        <input id="{{ msg.id }}" type="checkbox" name="msgs" value="{{ msg.id }}"{% if msg.id in report_selected_msgs %} checked{% endif %}>
+                        <label for="{{ msg.id }}"><strong>{{ msg.from }}</strong>: {{ msg.text }}</label>
                     </li>
                     {% endfor %}
                 </ul>
@@ -73,7 +74,7 @@
 
             <div class="form-actions report-actions">
                 <a href="/">Cancel</a>
-                <button type="submit">Send</button>
+                <button class="submit button" type="submit">Send</button>
             </div>
         </form>
     </main>

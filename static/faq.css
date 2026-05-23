@@ -84,6 +84,169 @@ div.guide.legal-doc hr {
     }
 }
 
+/* Account action pages: tighter action-focused card layout */
+div.guide.legal-doc.account-action {
+    max-width: 760px;
+    display: grid;
+    gap: 1rem;
+}
+
+div.guide.legal-doc.account-action h1 {
+    margin-bottom: 0.45rem;
+}
+
+div.guide.legal-doc.account-action h2 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 1.2rem;
+}
+
+.account-action__panel {
+    background: var(--bg-color1);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 1.1rem 1.2rem;
+}
+
+.account-action__lead {
+    margin: 0 0 0.7rem;
+    color: var(--font-color);
+}
+
+.account-action__form {
+    margin-top: 0.75rem;
+}
+
+.account-action__field {
+    margin-bottom: 0.85rem;
+}
+
+.account-action__label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-weight: 700;
+    font-size: 0.98rem;
+}
+
+.account-action__input {
+    width: 100%;
+    min-height: 2.55rem;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    background: var(--bg-input);
+    color: var(--font-color);
+    padding: 0.5rem 0.75rem;
+}
+
+.account-action__input:focus {
+    outline: 2px solid color-mix(in srgb, var(--blue-hover) 55%, transparent);
+    outline-offset: 0;
+    border-color: var(--blue-hover);
+}
+
+.account-action__check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    line-height: 1.45;
+}
+
+.account-action__check input {
+    margin-top: 0.22rem;
+    accent-color: var(--blue-hover);
+}
+
+.account-action__actions {
+    margin-top: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.account-action__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.45rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    padding: 0.45rem 1rem;
+    text-decoration: none;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.account-action__button--primary {
+    background: var(--blue-hover);
+    border-color: var(--blue-hover);
+    color: #fff;
+}
+
+.account-action__button--primary:hover {
+    background: color-mix(in srgb, var(--blue-hover) 86%, #000);
+    border-color: color-mix(in srgb, var(--blue-hover) 86%, #000);
+}
+
+.account-action__button--warn {
+    background: color-mix(in srgb, var(--gold) 58%, #aa6f1f);
+    border-color: color-mix(in srgb, var(--gold) 58%, #aa6f1f);
+    color: #fff;
+}
+
+.account-action__button--warn:hover {
+    background: color-mix(in srgb, var(--gold) 45%, #8f5a17);
+    border-color: color-mix(in srgb, var(--gold) 45%, #8f5a17);
+}
+
+.account-action__button--danger {
+    background: var(--bad);
+    border-color: var(--bad);
+    color: #fff;
+}
+
+.account-action__button--danger:hover {
+    background: color-mix(in srgb, var(--bad) 82%, #000);
+    border-color: color-mix(in srgb, var(--bad) 82%, #000);
+}
+
+.account-action__button--secondary {
+    background: var(--bg-color2);
+    border-color: var(--input-border);
+    color: var(--font-color);
+}
+
+.account-action__button--secondary:hover {
+    background: color-mix(in srgb, var(--bg-color2) 72%, #00000010);
+}
+
+.account-action__links {
+    margin: 0.2rem 0 0;
+    padding-left: 1.2rem;
+}
+
+.account-action__links li {
+    margin: 0.4rem 0;
+}
+
+.account-action--danger .account-action__panel {
+    border-color: color-mix(in srgb, var(--bad) 45%, var(--input-border));
+}
+
+@media (max-width: 799px) {
+    .account-action__panel {
+        padding: 1rem;
+    }
+
+    .account-action__actions {
+        flex-direction: column;
+    }
+
+    .account-action__button {
+        width: 100%;
+    }
+}
+
 details > summary {
     list-style: none;
 }

@@ -1,32 +1,57 @@
 .report-wrap {
-  --main-max-width: 960px;
+  --main-max-width: 1300px;
 }
 
 main.report {
   grid-area: main;
+  max-width: 1000px;
+  margin: auto;
   width: 100%;
 }
 
 main.report .box__top {
-  margin-bottom: 1.2rem;
+  padding: 0 0 1.2rem 0;
+  margin-bottom: 0;
+}
+
+main.report.box {
+  --box-padding: 15px;
+}
+
+@media (min-width: 320px) {
+  main.report.box {
+    --box-padding: calc(15px + 45 * ((100vw - 320px) / 880));
+  }
+}
+
+@media (min-width: 1200px) {
+  main.report.box {
+    --box-padding: 60px;
+  }
+}
+
+main.report.box.box-pad {
+  padding: 5vh var(--box-padding);
 }
 
 .report-form {
-  max-width: 760px;
-  margin: 0 auto;
+  max-width: none;
+  width: 100%;
+  margin: 0;
   background: transparent;
   padding: 0;
   box-shadow: none;
 }
 
 .report-form .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.4rem;
 }
 
 .report-form .form-label {
   display: block;
   font-weight: 700;
   margin-bottom: 0.45rem;
+  padding: 0;
 }
 
 .report-form .form-control {
@@ -42,25 +67,37 @@ main.report .box__top {
   resize: vertical;
 }
 
-.report-about {
-  margin-bottom: 1rem;
+.report-about p {
+  margin: 0;
+  padding: 0;
 }
 
-.report-about p {
-  padding: 0;
+.report-faq-link {
+  font-weight: 700;
 }
 
 .report-error {
   color: var(--bad);
-  margin: -0.3rem 0 0.8rem;
+  margin: 0 0 1rem;
   padding: 0;
 }
 
 .report-user-readonly {
-  min-height: calc(2.7em + 2px);
   display: inline-flex;
   align-items: center;
-  padding: 0 0.2rem;
+  padding: 0;
+  margin-bottom: 0.45rem;
+}
+
+.report-user-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.report-user-inline-label {
+  margin-bottom: 0;
 }
 
 .report-inbox-msgs ul {
@@ -74,7 +111,10 @@ main.report .box__top {
 }
 
 .report-inbox-msgs li {
+  display: flex;
+  align-items: flex-start;
   border-bottom: 1px solid var(--border-color);
+  padding: 0.55rem 0.65rem;
 }
 
 .report-inbox-msgs li:last-child {
@@ -83,10 +123,11 @@ main.report .box__top {
 
 .report-inbox-msgs li label {
   display: block;
-  padding: 0.55rem 0.65rem;
+  flex: 1 1 auto;
 }
 
 .report-inbox-msgs li input {
+  margin-top: 0.18rem;
   margin-right: 1ch;
 }
 
@@ -100,22 +141,28 @@ main.report .box__top {
 }
 
 .report-actions {
-  margin-top: 1.1rem;
+  margin-top: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--input-border);
 }
 
-.report-actions button {
-  border: 1px solid color-mix(in srgb, var(--good) 75%, #000);
-  border-radius: 4px;
-  background: var(--good);
-  color: #fff;
-  padding: 0.55rem 1rem;
+.report-actions .button {
+  min-width: 6rem;
 }
 
-.report-actions button:hover {
-  background: var(--green-switch);
+@media (max-width: 799px) {
+  .report-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+
+  .report-actions .button {
+    width: 100%;
+  }
 }
 
 .none,
