@@ -12,7 +12,8 @@ from functools import partial
 import aiohttp_session
 from aiohttp import web
 
-from const import CATEGORY_VARIANT_SETS, GAME_CATEGORY_ALL, normalize_game_category
+from const import GAME_CATEGORY_ALL, MATE, normalize_game_category
+from convert import mirror5, mirror9, zero2grand
 from fairy.fairy_board import FairyBoard
 from link_filter import sanitize_user_message
 from newid import new_id
@@ -20,6 +21,7 @@ from notify import notify
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from settings import ADMINS
+from variants import C2V, GRANDS, VARIANTS
 
 FORUM_TOPIC_PER_PAGE = 30
 FORUM_POST_PER_PAGE = 10
@@ -95,13 +97,21 @@ FORUM_CAPTCHA_SAMPLE_SIZE = 120
 FORUM_CAPTCHA_TARGET_PER_REFRESH = 10
 
 FORUM_CAPTCHA_FAIL_MESSAGE = "Please solve the captcha."
-FORUM_CAPTCHA_PUZZLE_BASE_QUERY = {
-    "e": "#1",
-    "c": {"$ne": True},
-    "r": {"$ne": False},
-    "f": {"$type": "string"},
-    "m": {"$type": "string"},
-    "v": {"$type": "string"},
+FORUM_CAPTCHA_GAME_BASE_QUERY = {
+    "s": MATE,
+    "m.0": {"$exists": True},
+}
+
+# Prefer one beginner-friendlier representative variant per category.
+FORUM_CAPTCHA_VARIANT_BY_CATEGORY: dict[str, str] = {
+    GAME_CATEGORY_ALL: "chess",
+    "chess": "chess",
+    "shogi": "minishogi",
+    "xiangqi": "minixiangqi",
+    "makruk": "makruk",
+    "fairy": "seirawan",
+    "army": "orda",
+    "other": "ataxx",
 }
 
 _forum_captcha_pool_by_category: dict[str, list[dict[str, object]]] = {
@@ -287,61 +297,138 @@ def _captcha_from_fen(*, game_id: str, fen: str, variant: str) -> dict[str, obje
     }
 
 
-def _captcha_from_puzzle_doc(doc: dict[str, object]) -> dict[str, object] | None:
-    """Convert one puzzle document into a forum captcha challenge."""
-    game_id = str(doc.get("_id") or "").strip()
-    fen = str(doc.get("f") or "").strip()
-    variant = str(doc.get("v") or "").strip().lower()
-    if len(game_id) == 0 or len(fen) == 0 or len(variant) == 0:
-        return None
-    return _captcha_from_fen(game_id=game_id, fen=fen, variant=variant)
+def _forum_captcha_variant_for_category(game_category: str) -> str:
+    """Return configured primary captcha variant for a normalized category."""
+    normalized_category = normalize_game_category(game_category)
+    variant = FORUM_CAPTCHA_VARIANT_BY_CATEGORY.get(
+        normalized_category, FORUM_CAPTCHA_VARIANT_BY_CATEGORY[GAME_CATEGORY_ALL]
+    )
+    if variant in VARIANTS:
+        return variant
+    fallback = FORUM_CAPTCHA_VARIANT_BY_CATEGORY[GAME_CATEGORY_ALL]
+    return fallback if fallback in VARIANTS else "chess"
 
 
-def _forum_captcha_variants_for_category(game_category: str) -> tuple[str, ...]:
-    """Return allowed puzzle variant names for one normalized game category."""
-    if game_category == GAME_CATEGORY_ALL:
-        variants = CATEGORY_VARIANT_SETS[GAME_CATEGORY_ALL]
-    else:
-        variants = CATEGORY_VARIANT_SETS.get(
-            game_category, CATEGORY_VARIANT_SETS[GAME_CATEGORY_ALL]
-        )
-    return tuple(sorted(variants))
-
-
-def _forum_captcha_query(game_category: str) -> dict[str, object]:
-    """Build Mongo puzzle query for one category's mate-in-1 captcha sampling."""
-    query: dict[str, object] = dict(FORUM_CAPTCHA_PUZZLE_BASE_QUERY)
-    allowed_variants = _forum_captcha_variants_for_category(game_category)
-    query["v"] = {"$in": list(allowed_variants)}
+def _forum_captcha_game_query(game_category: str) -> dict[str, object]:
+    """Build Mongo game query for one category's checkmated game sampling."""
+    variant = _forum_captcha_variant_for_category(game_category)
+    query: dict[str, object] = dict(FORUM_CAPTCHA_GAME_BASE_QUERY)
+    query["v"] = VARIANTS[variant].code
     return query
 
 
+def _normalize_legacy_usi_initial_fen(initial_fen: str) -> str:
+    """Convert old USI SFEN orientation format to current UCI-like format."""
+    parts = initial_fen.split()
+    if len(parts) > 3 and parts[1] in "wb":
+        pockets = "[%s]" % parts[2] if parts[2] not in "-0" else ""
+        return parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
+    if len(parts) > 1 and parts[1] in "wb":
+        return parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
+    return initial_fen
+
+
+def _decoded_game_moves_and_fen(
+    doc: dict[str, object], variant: str
+) -> tuple[list[str], str] | None:
+    """Decode one stored game move list and return UCI/USI moves and initial FEN."""
+    encoded_moves = doc.get("m")
+    if not isinstance(encoded_moves, list) or len(encoded_moves) == 0:
+        return None
+
+    decode_method = VARIANTS[variant].move_decoding
+    moves: list[str] = []
+    for move in encoded_moves:
+        if not isinstance(move, str):
+            return None
+        try:
+            decoded = decode_method(move)
+        except Exception:
+            return None
+        moves.append(decoded)
+
+    initial_fen_value = doc.get("if")
+    initial_fen = (
+        str(initial_fen_value).strip()
+        if isinstance(initial_fen_value, str) and len(initial_fen_value.strip()) > 0
+        else FairyBoard.start_fen(variant)
+    )
+
+    usi_format = variant.endswith("shogi") and doc.get("uci") is None
+    if usi_format:
+        initial_fen = _normalize_legacy_usi_initial_fen(initial_fen)
+        if variant in ("shogi", "shoshogi"):
+            moves = [mirror9(move) for move in moves]
+        elif variant in ("minishogi", "kyotoshogi"):
+            moves = [mirror5(move) for move in moves]
+    elif variant in GRANDS:
+        moves = [zero2grand(move) for move in moves]
+
+    return moves, initial_fen
+
+
+def _captcha_from_game_doc(doc: dict[str, object]) -> dict[str, object] | None:
+    """Convert one checkmated game document to a pre-mate mate-in-1 captcha."""
+    game_id = str(doc.get("_id") or "").strip()
+    code = str(doc.get("v") or "").strip()
+    variant = C2V.get(code)
+    if len(game_id) == 0 or variant is None or variant not in VARIANTS:
+        return None
+
+    decoded = _decoded_game_moves_and_fen(doc, variant)
+    if decoded is None:
+        return None
+    moves, initial_fen = decoded
+    if len(moves) == 0:
+        return None
+
+    board_variant = variant[:-3] if variant.endswith("960") else variant
+    try:
+        board = FairyBoard(board_variant, initial_fen=initial_fen)
+    except Exception:
+        return None
+
+    for move in moves[:-1]:
+        if not board.push(move, append=True, raise_on_error=False):
+            return None
+
+    return _captcha_from_fen(game_id=game_id, fen=board.fen, variant=variant)
+
+
 async def _refresh_forum_captcha_pool(app_state, game_category: str) -> None:
-    """Refresh one category's in-memory captcha pool from random mate-in-1 puzzles."""
+    """Refresh one category's in-memory captcha pool from checkmated game positions."""
     normalized_category = normalize_game_category(game_category)
     if app_state.db is None:
         _forum_captcha_last_refresh[normalized_category] = datetime.now(timezone.utc)
         return
 
     previous_pool = _forum_captcha_pool_by_category.get(normalized_category, [])
-    cursor = await app_state.db.puzzle.aggregate(
+    cursor = await app_state.db.game.aggregate(
         [
-            {"$match": _forum_captcha_query(normalized_category)},
+            {"$match": _forum_captcha_game_query(normalized_category)},
             {"$sample": {"size": FORUM_CAPTCHA_SAMPLE_SIZE}},
-            {"$project": {"_id": 1, "v": 1, "f": 1, "m": 1}},
+            {"$project": {"_id": 1, "v": 1, "if": 1, "uci": 1, "m": 1}},
         ]
     )
-    docs = await cursor.to_list(length=FORUM_CAPTCHA_SAMPLE_SIZE)
-    random.shuffle(docs)
 
     additions: list[dict[str, object]] = []
-    for doc in docs:
-        challenge = _captcha_from_puzzle_doc(doc)
+    processed = 0
+    async for doc in cursor:
+        processed += 1
+        challenge = _captcha_from_game_doc(doc)
         if challenge is None:
+            if processed % 8 == 0:
+                await asyncio.sleep(0)
             continue
+
         additions.append(challenge)
+
         if len(additions) >= FORUM_CAPTCHA_TARGET_PER_REFRESH:
             break
+
+        # Yield periodically while decoding/replaying game move lists.
+        if processed % 8 == 0:
+            await asyncio.sleep(0)
 
     if len(additions) > 0:
         merged = list(additions)
@@ -359,14 +446,16 @@ async def _refresh_forum_captcha_pool(app_state, game_category: str) -> None:
         for challenge in additions:
             _forum_captcha_by_game_id[str(challenge["gameId"])] = challenge
         log.debug(
-            "Forum captcha pool refreshed (%s) with %s new challenge(s).",
+            "Forum captcha pool refreshed (%s/%s) with %s new challenge(s).",
             normalized_category,
+            _forum_captcha_variant_for_category(normalized_category),
             len(additions),
         )
     else:
         log.debug(
-            "Forum captcha refresh found no new mate-in-1 candidates for category %s.",
+            "Forum captcha refresh found no new mate-in-1 candidates for category %s (%s).",
             normalized_category,
+            _forum_captcha_variant_for_category(normalized_category),
         )
 
     _forum_captcha_last_refresh[normalized_category] = datetime.now(timezone.utc)
