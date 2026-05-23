@@ -73,6 +73,21 @@ main.forum p {
   unicode-bidi: plaintext;
 }
 
+.forum .slist .subject a:link,
+.forum .slist .subject a:visited,
+.forum .slist td > a:link,
+.forum .slist td > a:visited,
+.forum .search__results .post:link,
+.forum .search__results .post:visited {
+  color: var(--forum-primary);
+}
+
+.forum .slist .subject a:hover,
+.forum .slist td > a:hover,
+.forum .search__results .post:hover {
+  color: color-mix(in srgb, var(--forum-primary) 84%, white);
+}
+
 .forum .box__top {
   display: flex;
   flex-wrap: wrap;
