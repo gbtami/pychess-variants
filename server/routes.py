@@ -65,6 +65,8 @@ from inbox_api import (
 )
 from forum_api import (
     forum_categs,
+    forum_captcha,
+    forum_captcha_check,
     forum_topics,
     forum_topic,
     forum_search,
@@ -145,6 +147,7 @@ from views import (
     user_mini,
     inbox,
     forum,
+    forum_etiquette,
     puzzle,
     shields,
     stats,
@@ -182,6 +185,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/terms", terms.terms),
     ("/privacy", privacy.privacy),
     ("/faq", faq.faq),
+    ("/page/forum-etiquette", forum_etiquette.forum_etiquette),
     ("/stats", stats.stats),
     ("/players", players.players),
     ("/players/{variant}", players50.players50),
@@ -291,6 +295,8 @@ get_routes: tuple[RouteDef, ...] = (
     ("/api/inbox/threads", inbox_threads),
     ("/api/inbox/thread/{contact}", inbox_thread),
     ("/api/forum/categs", forum_categs),
+    ("/api/forum/captcha", forum_captcha),
+    ("/api/forum/captcha/{gameId}/check", forum_captcha_check),
     ("/api/forum/search", forum_search),
     ("/api/forum/participants/{topicId}", forum_topic_participants),
     ("/api/forum/{categ}/mod-feed", forum_mod_feed),

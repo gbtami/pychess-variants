@@ -5,6 +5,7 @@ import math
 import re
 from datetime import datetime, timedelta, timezone
 from functools import partial
+from secrets import choice
 
 import aiohttp_session
 from aiohttp import web
@@ -72,6 +73,23 @@ DEFAULT_FORUM_CATEGS: tuple[dict[str, object], ...] = (
         "nbPosts": 0,
     },
 )
+
+# Lila-inspired mate-in-1 captcha challenge used by forum create/reply forms.
+# Mirrors lila's fallback challenge from modules/game/src/main/CaptchaApi.scala.
+FORUM_CAPTCHA_CHALLENGES: tuple[dict[str, object], ...] = (
+    {
+        "gameId": "00000000",
+        "fen": "1k3b1r/r5pp/pNQppq2/2p5/4P3/P3B3/1P3PPP/n4RK1",
+        "color": "white",
+        "moves": {"c6": "c8"},
+        "solutions": ("c6 c8",),
+    },
+)
+FORUM_CAPTCHA_BY_GAME_ID: dict[str, dict[str, object]] = {
+    str(challenge["gameId"]): challenge for challenge in FORUM_CAPTCHA_CHALLENGES
+}
+FORUM_CAPTCHA_DEFAULT = FORUM_CAPTCHA_CHALLENGES[0]
+FORUM_CAPTCHA_FAIL_MESSAGE = "Please solve the chess captcha."
 
 
 def _is_admin(username: str) -> bool:
@@ -141,6 +159,41 @@ def _parse_bool(value: str | None) -> bool:
 def _extract_mentions(text: str) -> set[str]:
     """Extract unique @mentions from sanitized forum markdown/plain text."""
     return {match.group(2) for match in MENTION_RE.finditer(text)}
+
+
+def _normalize_captcha_solution(value: str) -> str:
+    """Normalize captcha move input to lowercase `<orig> <dest>` format."""
+    return " ".join(value.strip().lower().split())
+
+
+def _forum_captcha_challenge(game_id: str) -> dict[str, object]:
+    """Get captcha challenge by id, falling back to the default challenge."""
+    return FORUM_CAPTCHA_BY_GAME_ID.get(game_id, FORUM_CAPTCHA_DEFAULT)
+
+
+def _forum_captcha_payload(challenge: dict[str, object]) -> dict[str, object]:
+    """Return the public captcha payload without exposing solution strings."""
+    return {
+        "gameId": str(challenge.get("gameId") or ""),
+        "fen": str(challenge.get("fen") or ""),
+        "color": str(challenge.get("color") or "white"),
+        "moves": dict(challenge.get("moves") or {}),
+    }
+
+
+def _forum_captcha_public_payload() -> dict[str, object]:
+    """Return one random captcha challenge payload."""
+    return _forum_captcha_payload(choice(FORUM_CAPTCHA_CHALLENGES))
+
+
+def _forum_captcha_is_valid(game_id: str, solution: str) -> bool:
+    """Validate a proposed captcha move solution for the provided challenge id."""
+    challenge = _forum_captcha_challenge(game_id)
+    solutions = challenge.get("solutions")
+    if not isinstance(solutions, tuple):
+        return False
+    normalized = _normalize_captcha_solution(solution)
+    return normalized in solutions
 
 
 def _can_write(user) -> bool:
@@ -351,6 +404,19 @@ async def forum_categs(request: web.Request) -> web.Response:
     return _json_response({"categs": categs})
 
 
+async def forum_captcha(request: web.Request) -> web.Response:
+    """Return a mate-in-1 chess captcha challenge payload for forum forms."""
+    return _json_response({"captcha": _forum_captcha_public_payload()})
+
+
+async def forum_captcha_check(request: web.Request) -> web.Response:
+    """Check a candidate captcha move and return text `1` for pass, `0` for fail."""
+    game_id = request.match_info.get("gameId", "")
+    solution = str(request.rel_url.query.get("solution") or "")
+    ok = _forum_captcha_is_valid(game_id, solution)
+    return web.Response(text="1" if ok else "0", content_type="text/plain")
+
+
 async def forum_topics(request: web.Request) -> web.Response:
     """Return paginated topics for a category, including write/mod capability flags."""
     app_state = get_app_state(request.app)
@@ -417,6 +483,7 @@ async def forum_topics(request: web.Request) -> web.Response:
             "total": total,
             "canWrite": can_write,
             "canModerate": can_moderate,
+            "captcha": _forum_captcha_public_payload() if can_write else None,
         }
     )
 
@@ -513,6 +580,7 @@ async def forum_topic(request: web.Request) -> web.Response:
             "canClose": can_moderate or (username == topic.get("user")),
             "canSticky": can_moderate,
             "relocateTargets": relocate_targets,
+            "captcha": _forum_captcha_public_payload() if can_reply else None,
         }
     )
 
@@ -639,6 +707,8 @@ async def forum_topic_create(request: web.Request) -> web.Response:
 
     name = str(data.get("name") or "").strip()
     text = str(data.get("text") or "").strip()
+    captcha_game_id = str(data.get("gameId") or "").strip()
+    captcha_move = str(data.get("move") or "").strip()
 
     if len(name) < 3:
         return _json_response({"type": "error", "message": "Topic title is too short"})
@@ -650,6 +720,8 @@ async def forum_topic_create(request: web.Request) -> web.Response:
         return _json_response(
             {"type": "error", "message": f"Message too long (max {MAX_POST_LEN})"}
         )
+    if not _forum_captcha_is_valid(captcha_game_id, captcha_move):
+        return _json_response({"type": "error", "message": FORUM_CAPTCHA_FAIL_MESSAGE})
 
     text = sanitize_user_message(text)
     if not app_state.chat_flood.allow_message(f"forum:{username}:{categ_id}:topic", text):
@@ -736,12 +808,16 @@ async def forum_post_create(request: web.Request) -> web.Response:
         return _json_response({"type": "error", "message": "Invalid request"})
 
     text = str(data.get("text") or "").strip()
+    captcha_game_id = str(data.get("gameId") or "").strip()
+    captcha_move = str(data.get("move") or "").strip()
     if len(text) < 3:
         return _json_response({"type": "error", "message": "Message is too short"})
     if len(text) > MAX_POST_LEN:
         return _json_response(
             {"type": "error", "message": f"Message too long (max {MAX_POST_LEN})"}
         )
+    if not _forum_captcha_is_valid(captcha_game_id, captcha_move):
+        return _json_response({"type": "error", "message": FORUM_CAPTCHA_FAIL_MESSAGE})
     text = sanitize_user_message(text)
 
     if not app_state.chat_flood.allow_message(f"forum:{username}:{topic['_id']}", text):

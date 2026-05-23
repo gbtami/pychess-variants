@@ -272,6 +272,87 @@ main.forum.forum-categ.box .slist.slist-pad td:last-child {
   padding: 0;
 }
 
+.forum .forum-form-help {
+  margin-top: 0.65rem;
+  color: var(--time-text);
+  font-size: 0.94em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.forum .forum-form-help a {
+  color: var(--forum-primary);
+}
+
+main.forum .forum-captcha-loading,
+main.forum .forum-captcha-error {
+  margin-top: 0.8rem;
+  color: var(--time-text);
+}
+
+main.forum .forum-captcha-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+main.forum .forum-captcha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin-top: 0.95rem;
+}
+
+main.forum .forum-captcha.success .forum-captcha__result.success,
+main.forum .forum-captcha.failure .forum-captcha__result.failure,
+main.forum .forum-captcha .forum-captcha__result.visible {
+  display: block;
+}
+
+main.forum .forum-captcha.failure {
+  border: 1px solid color-mix(in srgb, var(--bad) 44%, transparent);
+  border-radius: 7px;
+  padding: 0.7rem;
+  background: color-mix(in srgb, var(--bad) 10%, transparent);
+}
+
+main.forum .forum-captcha__challenge {
+  flex: 0 0 250px;
+}
+
+main.forum .forum-captcha__explanation {
+  flex: 1 1 220px;
+  color: var(--font-color);
+}
+
+main.forum .forum-captcha__explanation .form-label {
+  display: block;
+  font-weight: 700;
+}
+
+main.forum .forum-captcha__explanation p {
+  margin: 0.45rem 0;
+  color: var(--time-text);
+}
+
+main.forum .forum-captcha__result {
+  display: none;
+  margin-top: 0.55rem;
+  font-weight: 700;
+}
+
+main.forum .forum-captcha__result.success {
+  color: var(--good);
+}
+
+main.forum .forum-captcha__result.failure {
+  color: var(--bad);
+}
+
 .forum-topic__posts {
   margin-top: 2rem;
   margin-bottom: 2rem;
@@ -768,5 +849,10 @@ main.forum .button.button-empty:not(.disabled):hover {
   .forum-topic__actions > div .button {
     margin-inline-start: 0;
     margin-inline-end: 0.7rem;
+  }
+
+  .forum .forum-form-help {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

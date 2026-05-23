@@ -1,10 +1,15 @@
 import { h, VNode } from 'snabbdom';
+import { Api } from 'chessgroundx/api';
+import { Chessground } from 'chessgroundx';
+import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { patch } from './document';
 import { timeago } from './datetime';
 import { PyChessModel } from './types';
 import { expandGameEmbeds, makeExternalLinkPopups, renderRichText } from './richTextEnhance';
+import { boardSettings } from './boardSettings';
+import { VARIANTS } from './variants';
 
 /** Supported forum UI modes mapped from URL paths. */
 type ForumMode = 'index' | 'categ' | 'topic' | 'newTopic' | 'search' | 'modFeed';
@@ -92,6 +97,17 @@ interface ForumReaction {
     key: string;
     emoji: string;
 }
+
+/** Captcha payload returned by forum captcha API endpoints. */
+interface ForumCaptcha {
+    gameId: string;
+    fen: string;
+    color: 'white' | 'black';
+    moves: Record<string, string>;
+}
+
+/** Captcha validation state mirrored in form UX feedback. */
+type ForumCaptchaState = 'idle' | 'checking' | 'success' | 'failure';
 
 /** Maximum accepted post length enforced by both UI and backend API. */
 const FORUM_MAX_POST_LEN = 5000;
@@ -187,10 +203,12 @@ function reportPostHref(post: ForumPost): string {
 
 /** Forum SPA entry point for index/category/topic/search/mod-feed rendering and actions. */
 export function forumView(model: PyChessModel) {
+    boardSettings.assetURL = model.assetURL;
     const route = parsePath(window.location.pathname);
     const mode = route.mode;
     const categ = route.categ || '';
     const slug = route.slug || '';
+    const captchaVariant = VARIANTS.chess;
 
     let appEl: HTMLElement | VNode;
     let loading = true;
@@ -224,6 +242,11 @@ export function forumView(model: PyChessModel) {
     let searchTextDraft = searchParam('text');
     let showRelocateModal = false;
     let relocateTargetDraft = '';
+    let formCaptcha: ForumCaptcha | null = null;
+    let loadingCaptcha = false;
+    let captchaMoveDraft = '';
+    let captchaState: ForumCaptchaState = 'idle';
+    let captchaError = '';
 
     const reactingPostIds = new Set<string>();
     const expandedReactionPostIds = new Set<string>();
@@ -238,6 +261,147 @@ export function forumView(model: PyChessModel) {
     /** Convert API errors into thrown exceptions for shared catch handling. */
     function handleApiError(data: { type?: string; message?: string }, status: number) {
         throw new Error(data.message || data.type || `HTTP ${status}`);
+    }
+
+    /** Parse compact captcha destination encoding into chessground destination map. */
+    function parseCaptchaDests(moves: Record<string, string>): cg.Dests {
+        const dests: cg.Dests = new Map();
+        Object.entries(moves || {}).forEach(([orig, raw]) => {
+            if (!orig || !raw) return;
+            const cleaned = raw.replace(/\s+/g, '');
+            const squares = cleaned.match(/.{1,2}/g) || [];
+            const validSquares = squares.filter((sq) => sq.length === 2) as cg.Key[];
+            if (validSquares.length > 0) dests.set(orig as cg.Key, validSquares);
+        });
+        return dests;
+    }
+
+    /** Reset captcha interaction state while preserving loaded challenge payload. */
+    function resetCaptchaState() {
+        captchaMoveDraft = '';
+        captchaState = 'idle';
+        captchaError = '';
+    }
+
+    /** Replace active form captcha challenge and reset move/result state. */
+    function setFormCaptcha(captcha: ForumCaptcha | null) {
+        formCaptcha = captcha;
+        resetCaptchaState();
+    }
+
+    /** Fetch a new forum captcha challenge payload for post forms. */
+    function loadCaptcha() {
+        if (loadingCaptcha) return;
+        loadingCaptcha = true;
+        captchaError = '';
+        redraw();
+        fetch('/api/forum/captcha')
+            .then(parseJsonResponse)
+            .then(({ status, data }) => {
+                loadingCaptcha = false;
+                if (status >= 400 || data.type === 'error') handleApiError(data, status);
+                setFormCaptcha((data.captcha || null) as ForumCaptcha | null);
+                redraw();
+            })
+            .catch((err) => {
+                loadingCaptcha = false;
+                setFormCaptcha(null);
+                captchaError = err instanceof Error ? err.message : _('Could not load captcha.');
+                redraw();
+            });
+    }
+
+    /** Verify the selected captcha move with server API and update status classes. */
+    function checkCaptchaMove(solution: string, board: Api, fen: string, color: cg.Color, dests: cg.Dests) {
+        if (!formCaptcha) return;
+        captchaState = 'checking';
+        captchaMoveDraft = solution;
+        redraw();
+        fetch(`/api/forum/captcha/${encodeURIComponent(formCaptcha.gameId)}/check?solution=${encodeURIComponent(solution)}`)
+            .then((res) => res.text())
+            .then((text) => {
+                if (text.trim() === '1') {
+                    captchaState = 'success';
+                    board.stop();
+                } else {
+                    captchaState = 'failure';
+                    captchaMoveDraft = '';
+                    window.setTimeout(() => {
+                        board.set({
+                            fen,
+                            turnColor: color,
+                            movable: {
+                                color,
+                                free: false,
+                                dests,
+                            },
+                        });
+                    }, 280);
+                }
+                redraw();
+            })
+            .catch(() => {
+                captchaState = 'failure';
+                captchaMoveDraft = '';
+                redraw();
+            });
+    }
+
+    /** Render chess captcha widget used by topic creation and reply forms. */
+    function renderCaptcha() {
+        if (loadingCaptcha) return h('div.forum-captcha-loading', _('Loading captcha...'));
+        if (captchaError) {
+            return h('div.forum-captcha-error', [
+                h('span', captchaError),
+                h('button.button.button-empty.text', {
+                    props: { type: 'button' },
+                    on: {
+                        click: () => loadCaptcha(),
+                    },
+                }, _('Retry')),
+            ]);
+        }
+        if (!formCaptcha) {
+            return h('div.forum-captcha-error', _('Captcha unavailable. Please retry.'));
+        }
+
+        const color = formCaptcha.color === 'black' ? 'black' : 'white';
+        const dests = parseCaptchaDests(formCaptcha.moves);
+        return h(`div.forum-captcha${captchaState === 'success' ? '.success' : ''}${captchaState === 'failure' ? '.failure' : ''}`, { key: `captcha-${formCaptcha.gameId}` }, [
+            h('div.forum-captcha__challenge', [
+                h(`div.cg-wrap.${captchaVariant.board.cg}.mini`, {
+                    hook: {
+                        insert(vnode) {
+                            boardSettings.updateScopedBoardStyle(captchaVariant, vnode.elm as Element);
+                            boardSettings.updateScopedPieceStyle(captchaVariant, vnode.elm as Element);
+                            const board = Chessground(vnode.elm as HTMLElement, {
+                                fen: formCaptcha!.fen as cg.FEN,
+                                orientation: color,
+                                turnColor: color,
+                                coordinates: false,
+                                viewOnly: false,
+                                movable: {
+                                    free: false,
+                                    color,
+                                    dests,
+                                    events: {
+                                        after(orig: cg.Key, dest: cg.Key) {
+                                            checkCaptchaMove(`${orig} ${dest}`, board, formCaptcha!.fen, color, dests);
+                                        },
+                                    },
+                                },
+                            });
+                        },
+                    },
+                }),
+            ]),
+            h('div.forum-captcha__explanation', [
+                h('label.form-label', color === 'white' ? _('White checkmates in one move') : _('Black checkmates in one move')),
+                h('p', _('This is a chess captcha. Click two squares to make your move.')),
+                h(`div.forum-captcha__result.success${captchaState === 'success' ? '.visible' : ''}`, _('Checkmate.')),
+                h(`div.forum-captcha__result.failure${captchaState === 'failure' ? '.visible' : ''}`, _('Not a checkmate. Try again.')),
+            ]),
+        ]);
     }
 
     /** Render simple previous/next pager links for list and topic pages. */
@@ -288,6 +452,7 @@ export function forumView(model: PyChessModel) {
                 total = data.total || 0;
                 canWrite = Boolean(data.canWrite);
                 canModerate = Boolean(data.canModerate);
+                setFormCaptcha((data.captcha || null) as ForumCaptcha | null);
                 loading = false;
                 redraw();
             })
@@ -317,6 +482,8 @@ export function forumView(model: PyChessModel) {
                 canClose = Boolean(data.canClose);
                 canSticky = Boolean(data.canSticky);
                 relocateTargets = data.relocateTargets || [];
+                setFormCaptcha((data.captcha || null) as ForumCaptcha | null);
+                if (canReply && !formCaptcha) loadCaptcha();
                 if (relocateTargetDraft === '' && relocateTargets.length > 0) {
                     relocateTargetDraft = relocateTargets[0]._id;
                 }
@@ -391,9 +558,18 @@ export function forumView(model: PyChessModel) {
         const name = topicTitleDraft.trim();
         const text = topicTextDraft.trim();
         if (!name || !text || creatingTopic) return;
+        if (!formCaptcha || captchaState !== 'success') {
+            alert(_('Please solve the chess captcha.'));
+            return;
+        }
         creatingTopic = true;
         redraw();
-        const formData = new URLSearchParams({ name, text });
+        const formData = new URLSearchParams({
+            name,
+            text,
+            gameId: formCaptcha.gameId,
+            move: captchaMoveDraft,
+        });
         fetch(`/api/forum/${encodeURIComponent(categ)}/topic`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
@@ -417,9 +593,17 @@ export function forumView(model: PyChessModel) {
         event.preventDefault();
         const text = composeReply.trim();
         if (!text || sendingReply || !topicData) return;
+        if (!formCaptcha || captchaState !== 'success') {
+            alert(_('Please solve the chess captcha.'));
+            return;
+        }
         sendingReply = true;
         redraw();
-        const formData = new URLSearchParams({ text });
+        const formData = new URLSearchParams({
+            text,
+            gameId: formCaptcha.gameId,
+            move: captchaMoveDraft,
+        });
         fetch(`/api/forum/${encodeURIComponent(categ)}/${encodeURIComponent(slug)}/post`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
@@ -1035,6 +1219,15 @@ export function forumView(model: PyChessModel) {
                             },
                         },
                     }),
+                    h('div.forum-form-help.space-between', [
+                        h('span', _('Markdown available')),
+                        h('a.text', {
+                            attrs: {
+                                href: '/page/forum-etiquette',
+                            },
+                        }, _('Forum etiquette')),
+                    ]),
+                    renderCaptcha(),
                     h('div.form-actions', [
                         h('a.button.button-empty', { attrs: { href: `/forum/${encodeURIComponent(categ)}` } }, _('Cancel')),
                         h('button.button', {
@@ -1060,6 +1253,12 @@ export function forumView(model: PyChessModel) {
                 h('h2', _('Important')),
                 h('p', _('Your question may already be answered in FAQ or community pages.')),
                 h('p', _('Use reports for moderation issues; keep forum posts constructive and respectful.')),
+                h('p', [
+                    _('Make sure to read'),
+                    ' ',
+                    h('a', { attrs: { href: '/page/forum-etiquette' } }, _('Forum etiquette')),
+                    '.',
+                ]),
             ]),
             h('form.form3', {
                 on: { submit: submitNewTopic },
@@ -1089,6 +1288,15 @@ export function forumView(model: PyChessModel) {
                         },
                     },
                 }),
+                h('div.forum-form-help.space-between', [
+                    h('span', _('Markdown available')),
+                    h('a.text', {
+                        attrs: {
+                            href: '/page/forum-etiquette',
+                        },
+                    }, _('Forum etiquette')),
+                ]),
+                renderCaptcha(),
                 h('div.form-actions', [
                     h('a.button.button-empty', { attrs: { href: `/forum/${encodeURIComponent(categ)}` } }, _('Cancel')),
                     h('button.button', {
@@ -1192,6 +1400,7 @@ export function forumView(model: PyChessModel) {
         else if (mode === 'newTopic') {
             loading = false;
             redraw();
+            loadCaptcha();
         } else if (mode === 'search') loadSearch();
         else if (mode === 'modFeed') loadModFeed();
         else loadIndex();
