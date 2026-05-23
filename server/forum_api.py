@@ -275,7 +275,7 @@ async def _refresh_forum_captcha_pool(app_state) -> None:
         _forum_captcha_last_refresh = datetime.now(timezone.utc)
         return
 
-    cursor = app_state.db.puzzle.aggregate(
+    cursor = await app_state.db.puzzle.aggregate(
         [
             {"$match": FORUM_CAPTCHA_PUZZLE_QUERY},
             {"$sample": {"size": FORUM_CAPTCHA_SAMPLE_SIZE}},
