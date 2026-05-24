@@ -117,6 +117,7 @@ async def cross_origin_policy_middleware(
         or request.path.startswith("/blogs")
         or request.path.startswith("/video")
         or request.path.startswith("/inbox")
+        or request.path.startswith("/forum")
     ):
         # Content-heavy pages can embed/link cross-origin resources.
         response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"

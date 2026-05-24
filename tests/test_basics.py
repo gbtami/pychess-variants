@@ -315,6 +315,13 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         self.assertIn('data-view="games"', text)
         self.assertIn('data-variant=""', text)
 
+    async def test_forum_route_uses_cross_origin_resource_policy(self):
+        resp = await self.client.request("GET", "/forum")
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.headers.get("Cross-Origin-Resource-Policy"), "cross-origin")
+        self.assertIsNone(resp.headers.get("Cross-Origin-Opener-Policy"))
+        self.assertIsNone(resp.headers.get("Cross-Origin-Embedder-Policy"))
+
 
 class HighscoreTestCase(AioHTTPTestCase):
     async def startup(self, app):
