@@ -41,6 +41,7 @@ import { boardSettings } from "@/boardSettings";
 import { ChessgroundController } from "@/cgCtrl";
 import {playerInfoData} from "@/bug/gameInfo.bug";
 import {chatMessageBug, resetChat} from "@/bug/chat.bug";
+import { confirmDialog } from '@/confirmDialog';
 
 export class RoundControllerBughouse implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -541,12 +542,16 @@ export class RoundControllerBughouse implements ChatController {
         }
     }
 
-    private draw = () => {
+    private draw = async () => {
         // console.log("Draw");
-        if (confirm(_('Are you sure you want to draw?'))) {
-            this.doSend({ type: "draw", gameId: this.gameId });
-            this.setDialog(_("Draw offer sent"));
-        }
+        const confirmed = await confirmDialog({
+            text: _('Are you sure you want to draw?'),
+            confirmText: _('Offer draw'),
+            cancelText: _('Cancel'),
+        });
+        if (!confirmed) return;
+        this.doSend({ type: "draw", gameId: this.gameId });
+        this.setDialog(_("Draw offer sent"));
     }
     //
     private rejectDrawOffer = () => {
@@ -579,11 +584,16 @@ export class RoundControllerBughouse implements ChatController {
     }
 
     //
-    private resign = () => {
+    private resign = async () => {
         // console.log("Resign");
-        if (confirm(_('Are you sure you want to resign?'))) {
-            this.doSend({ type: "resign", gameId: this.gameId });
-        }
+        const confirmed = await confirmDialog({
+            text: _('Are you sure you want to resign?'),
+            confirmText: _('Resign'),
+            cancelText: _('Cancel'),
+            danger: true,
+        });
+        if (!confirmed) return;
+        this.doSend({ type: "resign", gameId: this.gameId });
     }
 
     private notifyMsg = (msg: string) => {

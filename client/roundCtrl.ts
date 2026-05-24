@@ -31,6 +31,7 @@ import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from './pocketRow';
 import { SimulRoundHostController } from './simul/simulRoundHost';
+import { confirmDialog } from './confirmDialog';
 import {
     parsePendingMove,
     pendingMoveOnOpenAction,
@@ -570,11 +571,15 @@ export class RoundController extends GameController {
         this.doSend({ type: "takeback", gameId: this.gameId });
     }
 
-    private draw = () => {
-        if (confirm(_('Are you sure you want to draw?'))) {
-            this.doSend({ type: "draw", gameId: this.gameId });
-            this.setDialog(_("Draw offer sent"));
-        }
+    private draw = async () => {
+        const confirmed = await confirmDialog({
+            text: _('Are you sure you want to draw?'),
+            confirmText: _('Offer draw'),
+            cancelText: _('Cancel'),
+        });
+        if (!confirmed) return;
+        this.doSend({ type: "draw", gameId: this.gameId });
+        this.setDialog(_("Draw offer sent"));
     }
 
     private rejectDrawOffer = () => {
@@ -629,11 +634,18 @@ export class RoundController extends GameController {
         if (el) el.style.display= "flex";
     }
 
-    private resign = () => {
-        const doResign = ( localStorage.getItem("confirmresign") === "false" ) || confirm(_('Are you sure you want to resign?')) 
-        if (doResign) {    
-            this.doSend({ type: "resign", gameId: this.gameId });
+    private resign = async () => {
+        const skipConfirm = localStorage.getItem("confirmresign") === "false";
+        if (!skipConfirm) {
+            const confirmed = await confirmDialog({
+                text: _('Are you sure you want to resign?'),
+                confirmText: _('Resign'),
+                cancelText: _('Cancel'),
+                danger: true,
+            });
+            if (!confirmed) return;
         }
+        this.doSend({ type: "resign", gameId: this.gameId });
     }
 
     // Janggi second player (Red) setup

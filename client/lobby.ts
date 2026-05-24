@@ -23,6 +23,7 @@ import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { displayUsername, isAnonUsername } from "./user";
+import { confirmDialog } from './confirmDialog';
 
 
 const autoPairingTCs: [number, number, number][] = [
@@ -1282,8 +1283,12 @@ export class LobbyController implements ChatController {
         window.location.assign('/' + msg.gameId);
     }
 
-    private onMsgGameInProgress(msg: MsgGameInProgress) {
-        const response = confirm(_("You have an unfinished game!\nPress OK to continue."));
+    private async onMsgGameInProgress(msg: MsgGameInProgress) {
+        const response = await confirmDialog({
+            text: _("You have an unfinished game!\nPress OK to continue."),
+            confirmText: _("OK"),
+            cancelText: _("Cancel"),
+        });
         if (response) window.location.assign('/' + msg.gameId);
     }
 

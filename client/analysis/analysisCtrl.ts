@@ -35,6 +35,7 @@ import { updateCount, updatePoint } from '../info';
 import { fogFen } from '../variants';
 import { hideKeyboardHelp, isKeyboardHelpShortcut, showKeyboardHelp } from './keyboardHelp';
 import { PvHoverPreview } from './pvHoverPreview';
+import { confirmDialog } from '../confirmDialog';
 import {
     addOrSelectChild,
     AnalysisTree,
@@ -811,10 +812,15 @@ export class AnalysisController extends GameController {
         this.vpgn = patch(container, h('div#pgntext', pgn));
     }
 
-    private deleteGame() {
-        if (confirm(_('Are you sure you want to delete this game?'))) {
-            this.doSend({ type: "delete", gameId: this.gameId });
-        }
+    private async deleteGame() {
+        const confirmed = await confirmDialog({
+            text: _('Are you sure you want to delete this game?'),
+            confirmText: _('Delete game'),
+            cancelText: _('Cancel'),
+            danger: true,
+        });
+        if (!confirmed) return;
+        this.doSend({ type: "delete", gameId: this.gameId });
     }
 
     onMsgBoard(msg: MsgBoard) {

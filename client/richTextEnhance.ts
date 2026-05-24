@@ -1,5 +1,6 @@
 import type { VNode } from "snabbdom";
 import { h } from "snabbdom";
+import { confirmDialog } from "./confirmDialog";
 
 type RichNode = VNode | string;
 
@@ -296,7 +297,22 @@ export function makeExternalLinkPopups(root: HTMLElement, options: ExternalLinkP
     preparedPopupSelectors.set(root, prepared);
     const siteHost = (options.siteHost || "pychess.org").toLowerCase();
 
+    const openExternalLink = (link: HTMLAnchorElement, href: string, mouseEvent: MouseEvent) => {
+        const target = link.getAttribute("target");
+        const shouldOpenNewTab = target === "_blank" || mouseEvent.metaKey || mouseEvent.ctrlKey;
+        if (shouldOpenNewTab) {
+            window.open(href, "_blank", "noopener");
+            return;
+        }
+        if (target && target !== "_self") {
+            window.open(href, target, "noopener");
+            return;
+        }
+        window.location.assign(href);
+    };
+
     root.addEventListener("click", (event) => {
+        const mouseEvent = event as MouseEvent;
         const target = event.target as HTMLElement | null;
         const link = target?.closest(selector) as HTMLAnchorElement | null;
         if (!link) return;
@@ -312,10 +328,15 @@ export function makeExternalLinkPopups(root: HTMLElement, options: ExternalLinkP
         const sameHost = host === window.location.host.toLowerCase();
         if (sameHost || host.endsWith(`.${siteHost}`) || host === siteHost) return;
 
-        const proceed = window.confirm(`You are leaving ${siteHost} and opening ${host}. Continue?`);
-        if (!proceed) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
+        event.preventDefault();
+        event.stopPropagation();
+        void confirmDialog({
+            text: `You are leaving ${siteHost} and opening ${host}. Continue?`,
+            confirmText: "Continue",
+            cancelText: "Cancel",
+        }).then((proceed) => {
+            if (!proceed) return;
+            openExternalLink(link, parsed.href, mouseEvent);
+        });
     });
 }

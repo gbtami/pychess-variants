@@ -4,6 +4,7 @@ import { _ } from './i18n';
 import { patch } from './document';
 import { timeago } from './datetime';
 import { PyChessModel } from './types';
+import { confirmDialog } from './confirmDialog';
 import { expandInboxGameEmbeds, makeExternalLinkPopups, renderRichText } from './richTextEnhance';
 
 interface ThreadSummary {
@@ -317,11 +318,18 @@ export function inboxView(model: PyChessModel) {
             });
     }
 
-    function deleteConversation() {
+    async function deleteConversation() {
         if (!contact) return;
-        if (!window.confirm(_('Delete conversation?'))) return;
+        const targetContact = contact;
+        const confirmed = await confirmDialog({
+            text: _('Delete conversation?'),
+            confirmText: _('Delete'),
+            cancelText: _('Cancel'),
+            danger: true,
+        });
+        if (!confirmed) return;
 
-        fetch(`/api/inbox/thread/${encodeURIComponent(contact)}/delete`, {
+        fetch(`/api/inbox/thread/${encodeURIComponent(targetContact)}/delete`, {
             method: 'POST',
         })
             .then(parseJsonResponse)
@@ -331,13 +339,15 @@ export function inboxView(model: PyChessModel) {
                     return;
                 }
 
-                threads = threads.filter((t) => t.user !== contact);
-                messages = [];
-                contact = '';
-                contactTitle = '';
-                contactOnline = false;
-                loading = false;
-                history.replaceState({}, '', '/inbox');
+                threads = threads.filter((t) => t.user !== targetContact);
+                if (contact === targetContact) {
+                    messages = [];
+                    contact = '';
+                    contactTitle = '';
+                    contactOnline = false;
+                    loading = false;
+                    history.replaceState({}, '', '/inbox');
+                }
                 loadThreads(true);
                 redraw();
             })

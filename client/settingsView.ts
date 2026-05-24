@@ -8,6 +8,7 @@ import { patch, getDocumentData } from './document';
 import { _, translatedGameCategory, translatedLanguage, languageSettings } from './i18n';
 import { volumeSettings, soundThemeSettings } from './sound';
 import { zenModeSettings } from './zen';
+import { confirmDialog } from './confirmDialog';
 
 export function settingsView(modelVariant: string) {
     const anon = getDocumentData('anon') === 'True';
@@ -83,9 +84,14 @@ function gotoAccountPrivacy() {
     window.location.href = "/contact";
 }
 
-function logoutDialog() {
-    if (confirm(_("Are you sure you want to log out?")))
-        window.location.href = "/logout";
+async function logoutDialog() {
+    const confirmed = await confirmDialog({
+        text: _("Are you sure you want to log out?"),
+        confirmText: _("Log out"),
+        cancelText: _("Cancel"),
+    });
+    if (!confirmed) return;
+    window.location.href = "/logout";
 }
 
 function showSubsettings(evt: MouseEvent) {
