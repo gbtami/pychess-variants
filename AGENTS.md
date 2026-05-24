@@ -56,6 +56,7 @@ Note: Before committing any Python change, run both `ruff format .` and `ruff ch
 Note: When running pyright in a sandboxed Codex environment, request escalated permissions so pyright can read the system Python search paths (e.g., `/usr/lib/python3.13`, site-packages) and match CI behavior.
 Note: Codex may run test and typecheck commands with escalated permissions by default in this repo when sandbox limits would otherwise break them (for example local socket bind restrictions in aiohttp/playwright tests). Do not stop to ask in chat first; request escalation directly through the tool.
 Note: When escalation approval is needed, prefer reusable prefix approvals so repeated test runs do not prompt again (`uv run pyright`, `uv run python -m unittest`, `uv run python -m pytest`, `uv run python -m playwright install`).
+Note: In sandboxed Codex runs, `git add`/`git commit` may fail with `.git/index.lock` write errors (for example read-only filesystem). If this happens during requested VCS work, immediately rerun with escalated permissions and prefer reusable approvals (`git add`, `git commit`).
 Note: For direct unittest module/class/test invocation, use `PYTHONPATH=server:tests` so both server modules and helper modules under `tests/` resolve correctly. The shorter `PYTHONPATH=server` form is only sufficient for `unittest discover -s tests`.
 ```bash
 # Run TypeScript type checking
