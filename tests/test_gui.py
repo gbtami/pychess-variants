@@ -30,9 +30,7 @@ class TestGUI:
             system_chromium = shutil.which("chromium-browser") or shutil.which("chromium")
             if not system_chromium:
                 raise
-            return await playwright.chromium.launch(
-                headless=True, executable_path=system_chromium
-            )
+            return await playwright.chromium.launch(headless=True, executable_path=system_chromium)
 
     async def _playwright_page_for_user(self, browser, base_url: str, username: str):
         context = await browser.new_context()
