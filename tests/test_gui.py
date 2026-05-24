@@ -4,9 +4,10 @@ import re
 import json
 import time
 import asyncio
+import shutil
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
-from playwright.async_api import async_playwright, expect
+from playwright.async_api import async_playwright, expect, Error as PlaywrightError
 from mongomock_motor import AsyncMongoMockClient
 
 from server import make_app
@@ -19,6 +20,20 @@ test_logger.init_test_logger()
 
 @pytest.mark.asyncio
 class TestGUI:
+    async def _launch_browser(self, playwright):
+        try:
+            return await playwright.chromium.launch(headless=True)
+        except PlaywrightError as err:
+            # Local dev fallback: Playwright currently has no bundled Chromium for ubuntu26.04.
+            if "Executable doesn't exist" not in str(err):
+                raise
+            system_chromium = shutil.which("chromium-browser") or shutil.which("chromium")
+            if not system_chromium:
+                raise
+            return await playwright.chromium.launch(
+                headless=True, executable_path=system_chromium
+            )
+
     async def _playwright_page_for_user(self, browser, base_url: str, username: str):
         context = await browser.new_context()
         session_data = {"session": {"user_name": username}, "created": int(time.time())}
@@ -94,7 +109,7 @@ class TestGUI:
         server = await aiohttp_server(app)
 
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+            browser = await self._launch_browser(p)
             context = await browser.new_context()
             page = await context.new_page()
 
@@ -152,7 +167,7 @@ class TestGUI:
                 )
 
             async with async_playwright() as p:
-                browser = await p.chromium.launch(headless=True)
+                browser = await self._launch_browser(p)
                 contexts = []
                 try:
                     pages = {}
@@ -264,6 +279,10 @@ class TestGUI:
                         await white_page.locator("#confirm-dialog .confirm-dialog-confirm").click()
                         await expect(black_page.locator("#offer-dialog .accept")).to_be_visible()
                         await black_page.locator("#offer-dialog .accept").click()
+                        await expect(
+                            black_page.locator("#confirm-dialog .confirm-dialog-confirm")
+                        ).to_be_visible()
+                        await black_page.locator("#confirm-dialog .confirm-dialog-confirm").click()
                         await self._eventually(
                             lambda g=game: g.result == "1/2-1/2",
                             timeout=5.0,
@@ -308,7 +327,7 @@ class TestGUI:
         server = await aiohttp_server(app, host="127.0.0.1", port=8080)
 
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+            browser = await self._launch_browser(p)
             context = await browser.new_context()
             page = await context.new_page()
 
@@ -336,7 +355,7 @@ class TestGUI:
         server = await aiohttp_server(app, host="127.0.0.1", port=8080)
 
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+            browser = await self._launch_browser(p)
             context = await browser.new_context()
             page = await context.new_page()
 
