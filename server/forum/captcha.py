@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import logging
 import random
 from datetime import datetime, timezone
@@ -194,13 +195,14 @@ async def _refresh_forum_captcha_pool(app_state, game_category: str) -> None:
         return
 
     previous_pool = FORUM_CAPTCHA_POOL_BY_CATEGORY.get(normalized_category, [])
-    cursor = app_state.db.game.aggregate(
+    maybe_cursor = app_state.db.game.aggregate(
         [
             {"$match": _forum_captcha_game_query(normalized_category)},
             {"$sample": {"size": FORUM_CAPTCHA_SAMPLE_SIZE}},
             {"$project": {"_id": 1, "v": 1, "if": 1, "uci": 1, "m": 1}},
         ]
     )
+    cursor = await maybe_cursor if inspect.isawaitable(maybe_cursor) else maybe_cursor
 
     additions: list[dict[str, object]] = []
     processed = 0

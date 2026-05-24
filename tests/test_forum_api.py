@@ -5,7 +5,8 @@ from unittest.mock import patch
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
-from forum.captcha import _forum_captcha_challenge
+from const import GAME_CATEGORY_ALL
+from forum.captcha import _forum_captcha_challenge, _refresh_forum_captcha_pool
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
@@ -223,6 +224,37 @@ class ForumApiTestCase(AioHTTPTestCase):
         payload = await resp.json()
         self.assertEqual("general-chess-discussion", payload["categ"]["_id"])
         self.assertTrue(payload["canWrite"])
+
+    async def test_forum_captcha_refresh_awaits_aggregate_cursor(self):
+        class _EmptyAsyncCursor:
+            def __aiter__(self):
+                return self
+
+            async def __anext__(self):
+                raise StopAsyncIteration
+
+        class _AwaitableGameCollection:
+            async def aggregate(self, _pipeline):
+                return _EmptyAsyncCursor()
+
+        class _DirectCursorGameCollection:
+            def aggregate(self, _pipeline):
+                return _EmptyAsyncCursor()
+
+        class _Db:
+            def __init__(self, game):
+                self.game = game
+
+        class _AppState:
+            def __init__(self, game):
+                self.db = _Db(game)
+
+        await _refresh_forum_captcha_pool(
+            _AppState(_AwaitableGameCollection()), GAME_CATEGORY_ALL
+        )
+        await _refresh_forum_captcha_pool(
+            _AppState(_DirectCursorGameCollection()), GAME_CATEGORY_ALL
+        )
 
 
 if __name__ == "__main__":
