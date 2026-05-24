@@ -258,6 +258,10 @@ class TestGUI:
 
                         game = app_state.games[game_id]
                         await white_page.locator("button#draw").click()
+                        await expect(
+                            white_page.locator("#confirm-dialog .confirm-dialog-confirm")
+                        ).to_be_visible()
+                        await white_page.locator("#confirm-dialog .confirm-dialog-confirm").click()
                         await expect(black_page.locator("#offer-dialog .accept")).to_be_visible()
                         await black_page.locator("#offer-dialog .accept").click()
                         await self._eventually(
