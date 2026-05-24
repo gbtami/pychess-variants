@@ -8,6 +8,7 @@ import random
 import re
 from datetime import datetime, timedelta, timezone
 from functools import partial
+from urllib.parse import quote, urlencode
 
 import aiohttp_session
 from aiohttp import web
@@ -1045,7 +1046,11 @@ async def forum_post_redirect(request: web.Request) -> web.StreamResponse:
 
     categ_id = str(topic.get("categId") or "")
     slug = str(topic.get("slug") or "")
-    raise web.HTTPFound(f"/forum/{categ_id}/{slug}?page={page}#{post_id}")
+    safe_categ_id = quote(categ_id, safe="")
+    safe_slug = quote(slug, safe="")
+    safe_post_id = quote(str(post_id), safe="")
+    query = urlencode({"page": page})
+    raise web.HTTPFound(f"/forum/{safe_categ_id}/{safe_slug}?{query}#{safe_post_id}")
 
 
 async def forum_topic_create(request: web.Request) -> web.Response:
