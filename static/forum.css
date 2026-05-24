@@ -562,12 +562,28 @@ main.forum .button.button-empty:not(.disabled):hover {
 }
 
 .forum-post__message a {
+  color: var(--forum-primary);
   text-decoration: underline;
   text-underline-offset: 2px;
   overflow-wrap: anywhere;
 }
 
+.forum-post__message a:visited {
+  color: var(--forum-primary);
+}
+
+.forum-post__message a:hover {
+  color: color-mix(in srgb, var(--forum-primary) 84%, white);
+}
+
+.forum-post__message .hidden-quotes {
+  color: transparent;
+  display: inline-block;
+  width: 0;
+}
+
 .forum-topic .forum-post__message blockquote {
+  margin: 0.45em 0 0.35em 0;
   padding: 0 0.7em;
   border-left: 0.3em solid var(--border-color);
   unicode-bidi: plaintext;

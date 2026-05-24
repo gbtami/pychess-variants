@@ -159,7 +159,35 @@ function titleAndName(title: string | undefined, name: string): string {
 }
 
 /** Apply rich-content enhancers reused from inbox message rendering flow. */
+function renderForumQuoteLinks(html: string): string {
+    return html.replace(
+        /\[\^\]\((\/forum\/redirect\/post\/[A-Za-z0-9_%.-]+)\)/g,
+        (_match, href: string) => `<a class="text" href="${href}">^</a>`,
+    );
+}
+
+function renderForumBlockquotes(html: string): string {
+    if (!html.match(/(^|<br>)&gt;/)) return html;
+
+    const hiddenQuotes = '<span class="hidden-quotes">&gt;</span>';
+    let result = '';
+    let quote: string[] = [];
+    for (const line of html.split('<br>')) {
+        if (line.startsWith('&gt;')) quote.push(hiddenQuotes + line.substring(4).trim());
+        else {
+            if (quote.length > 0) {
+                result += `<blockquote>${quote.join('<br>')}</blockquote>`;
+                quote = [];
+            }
+            result += line + '<br>';
+        }
+    }
+    if (quote.length > 0) result += `<blockquote>${quote.join('<br>')}</blockquote>`;
+    return result;
+}
+
 function enhanceForumPostMessage(el: HTMLElement) {
+    el.innerHTML = renderForumBlockquotes(renderForumQuoteLinks(el.innerHTML));
     expandGameEmbeds(el, {
         linkSelector: 'a:not(.text)',
         expandLinkClass: 'forum-post-game-expand',
@@ -252,6 +280,7 @@ export function forumView(model: PyChessModel) {
     const expandedReactionPostIds = new Set<string>();
     const editDraftByPostId = new Map<string, string>();
     const savingEditPostIds = new Set<string>();
+    const quotedReplies = new Set<string>();
 
     /** Re-render the forum vnode tree after state changes. */
     function redraw() {
@@ -794,12 +823,15 @@ export function forumView(model: PyChessModel) {
     function quotePost(post: ForumPost) {
         const reply = document.querySelector('#forum-reply-text') as HTMLTextAreaElement | null;
         const lines = post.text.split('\n');
+        if (lines[0]?.match(/^(?:> )*@.+ said (?:in #\d+:$|\[\^\]\()/)) lines.shift();
         if (lines.length === 0) return;
 
         const quote =
             `@${post.user} said [^](${postRedirectHref(post._id)})\n` +
-            lines.map((line) => `> ${line}`).join('\n') +
+            lines.map((line) => `> ${line}\n`).join('').trim() +
             '\n\n';
+        if (quotedReplies.has(quote)) return;
+        quotedReplies.add(quote);
 
         if (reply) {
             const start = reply.selectionStart;
