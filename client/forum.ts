@@ -96,6 +96,7 @@ interface ForumModFeedItem {
 interface ForumReaction {
     key: string;
     emoji: string;
+    icon?: string;
 }
 
 /** Captcha payload returned by forum captcha API endpoints. */
@@ -121,7 +122,7 @@ const REACTIONS: ForumReaction[] = [
     { key: 'laugh', emoji: 'laugh' },
     { key: 'thinking', emoji: 'thinking' },
     { key: 'heart', emoji: 'heart' },
-    { key: 'horsey', emoji: 'horsey' },
+    { key: 'elephant', emoji: 'elephant', icon: '/icons/Shatranj.svg' },
 ];
 
 /** Parse current path into the forum mode/categ/slug route state. */
@@ -899,9 +900,10 @@ export function forumView(model: PyChessModel) {
                     },
                     on: canReactPost ? { click: () => reactToPost(post, r.key) } : {},
                 }, [
+                    // Reactions primarily use emoji webp assets, with optional per-reaction icon overrides.
                     h('img', {
                         attrs: {
-                            src: `${model.assetURL}/images/emoji/${encodeURIComponent(r.emoji)}.webp`,
+                            src: r.icon ? `${model.assetURL}${r.icon}` : `${model.assetURL}/images/emoji/${encodeURIComponent(r.emoji)}.webp`,
                             alt: r.key,
                             width: '20',
                             height: '20',

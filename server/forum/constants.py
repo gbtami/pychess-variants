@@ -23,7 +23,7 @@ REACTION_TO_KEY = {
     "laugh": "laugh",
     "thinking": "thinking",
     "heart": "heart",
-    "horsey": "horsey",
+    "elephant": "elephant",
 }
 KEY_TO_REACTION = {value: key for key, value in REACTION_TO_KEY.items()}
 
