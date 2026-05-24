@@ -5,6 +5,7 @@ from unittest.mock import patch
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
+from forum_api import _forum_captcha_challenge
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
@@ -29,15 +30,32 @@ class ForumApiTestCase(AioHTTPTestCase):
         app_state.users[user.username] = user
         return user
 
+    async def with_forum_captcha(self, data: dict[str, str]) -> dict[str, str]:
+        captcha_resp = await self.client.get("/api/forum/captcha")
+        self.assertEqual(captcha_resp.status, 200)
+        captcha_payload = await captcha_resp.json()
+        captcha = captcha_payload.get("captcha", {})
+        game_id = str(captcha.get("gameId", ""))
+        challenge = _forum_captcha_challenge(game_id)
+        solutions = challenge.get("solutions")
+        self.assertIsInstance(solutions, tuple)
+        self.assertGreater(len(solutions), 0)
+
+        payload = dict(data)
+        payload["gameId"] = game_id
+        payload["move"] = str(solutions[0])
+        return payload
+
     async def test_forum_topic_reply_mentions_and_participants(self):
         app_state = get_app_state(self.app)
         self.add_user("alice")
         self.add_user("bob")
 
         self.set_session_user("alice")
+        create_data = await self.with_forum_captcha({"name": "hello forum", "text": "hello @bob"})
         create_resp = await self.client.post(
             "/api/forum/general-chess-discussion/topic",
-            data={"name": "hello forum", "text": "hello @bob"},
+            data=create_data,
         )
         self.assertEqual(create_resp.status, 200)
         create_payload = await create_resp.json()
@@ -57,9 +75,10 @@ class ForumApiTestCase(AioHTTPTestCase):
         participants_payload = await participants_resp.json()
         self.assertEqual(["alice"], participants_payload["participants"])
 
+        reply_data = await self.with_forum_captcha({"text": "hi @alice"})
         reply_resp = await self.client.post(
             f"/api/forum/general-chess-discussion/{slug}/post",
-            data={"text": "hi @alice"},
+            data=reply_data,
         )
         self.assertEqual(reply_resp.status, 200)
         reply_payload = await reply_resp.json()
@@ -80,9 +99,10 @@ class ForumApiTestCase(AioHTTPTestCase):
         self.add_user("bob")
 
         self.set_session_user("alice")
+        create_data = await self.with_forum_captcha({"name": "reactable", "text": "first post"})
         create_resp = await self.client.post(
             "/api/forum/general-chess-discussion/topic",
-            data={"name": "reactable", "text": "first post"},
+            data=create_data,
         )
         create_payload = await create_resp.json()
         post_id = create_payload["topic"]["lastPostId"]
@@ -118,9 +138,10 @@ class ForumApiTestCase(AioHTTPTestCase):
         self.add_user("mod")
 
         self.set_session_user("alice")
+        create_data = await self.with_forum_captcha({"name": "move me", "text": "initial post"})
         create_resp = await self.client.post(
             "/api/forum/general-chess-discussion/topic",
-            data={"name": "move me", "text": "initial post"},
+            data=create_data,
         )
         create_payload = await create_resp.json()
         post_id = create_payload["topic"]["lastPostId"]
@@ -157,9 +178,10 @@ class ForumApiTestCase(AioHTTPTestCase):
         self.add_user("bob")
 
         self.set_session_user("alice")
+        create_data = await self.with_forum_captcha({"name": "paged topic", "text": "post zero"})
         create_resp = await self.client.post(
             "/api/forum/general-chess-discussion/topic",
-            data={"name": "paged topic", "text": "post zero"},
+            data=create_data,
         )
         self.assertEqual(create_resp.status, 200)
         create_payload = await create_resp.json()
@@ -170,9 +192,10 @@ class ForumApiTestCase(AioHTTPTestCase):
         for idx in range(1, 13):
             user = "alice" if idx % 2 else "bob"
             self.set_session_user(user)
+            reply_data = await self.with_forum_captcha({"text": f"reply {idx}"})
             reply_resp = await self.client.post(
                 f"/api/forum/general-chess-discussion/{slug}/post",
-                data={"text": f"reply {idx}"},
+                data=reply_data,
             )
             self.assertEqual(reply_resp.status, 200)
             reply_payload = await reply_resp.json()

@@ -403,7 +403,7 @@ async def _refresh_forum_captcha_pool(app_state, game_category: str) -> None:
         return
 
     previous_pool = _forum_captcha_pool_by_category.get(normalized_category, [])
-    cursor = await app_state.db.game.aggregate(
+    cursor = app_state.db.game.aggregate(
         [
             {"$match": _forum_captcha_game_query(normalized_category)},
             {"$sample": {"size": FORUM_CAPTCHA_SAMPLE_SIZE}},
@@ -515,12 +515,14 @@ def _forum_captcha_challenge(game_id: str) -> dict[str, object]:
 
 def _forum_captcha_payload(challenge: dict[str, object]) -> dict[str, object]:
     """Return the public captcha payload without exposing solution strings."""
+    raw_moves = challenge.get("moves")
+    moves = raw_moves if isinstance(raw_moves, dict) else {}
     return {
         "gameId": str(challenge.get("gameId") or ""),
         "variant": str(challenge.get("variant") or "chess"),
         "fen": str(challenge.get("fen") or ""),
         "color": str(challenge.get("color") or "white"),
-        "moves": dict(challenge.get("moves") or {}),
+        "moves": moves,
     }
 
 
