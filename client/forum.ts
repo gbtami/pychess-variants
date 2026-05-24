@@ -9,7 +9,6 @@ import { timeago } from './datetime';
 import { PyChessModel } from './types';
 import { expandGameEmbeds, makeExternalLinkPopups, renderRichText } from './richTextEnhance';
 import { boardSettings } from './boardSettings';
-import { syncBoardSettingsVariant } from './settingsView';
 import { VARIANTS } from './variants';
 
 /** Supported forum UI modes mapped from URL paths. */
@@ -293,7 +292,6 @@ export function forumView(model: PyChessModel) {
     /** Replace active form captcha challenge and reset move/result state. */
     function setFormCaptcha(captcha: ForumCaptcha | null) {
         formCaptcha = captcha;
-        if (formCaptcha) syncBoardSettingsVariant(captchaVariantKey(formCaptcha), model.variant);
         resetCaptchaState();
     }
 
