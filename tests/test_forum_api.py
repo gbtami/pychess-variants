@@ -249,9 +249,7 @@ class ForumApiTestCase(AioHTTPTestCase):
             def __init__(self, game):
                 self.db = _Db(game)
 
-        await _refresh_forum_captcha_pool(
-            _AppState(_AwaitableGameCollection()), GAME_CATEGORY_ALL
-        )
+        await _refresh_forum_captcha_pool(_AppState(_AwaitableGameCollection()), GAME_CATEGORY_ALL)
         await _refresh_forum_captcha_pool(
             _AppState(_DirectCursorGameCollection()), GAME_CATEGORY_ALL
         )

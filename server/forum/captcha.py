@@ -276,9 +276,7 @@ async def maybe_refresh_forum_captcha_pool(app_state, game_category: str) -> Non
         except Exception:
             # Keep forum/category APIs available even if captcha refresh fails transiently.
             FORUM_CAPTCHA_LAST_REFRESH[normalized_category] = datetime.now(timezone.utc)
-            log.exception(
-                "Forum captcha refresh failed for category %s.", normalized_category
-            )
+            log.exception("Forum captcha refresh failed for category %s.", normalized_category)
 
 
 async def _forum_captcha_game_category(request: web.Request, app_state) -> str:
