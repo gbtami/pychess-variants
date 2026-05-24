@@ -919,7 +919,10 @@ export function forumView(model: PyChessModel) {
     function renderIndex() {
         return h('main.forum.index.box', [
             h('div.box__top', [
-                h('h1', _('Forum')),
+                h('h1', [
+                    h('span.icon-bubbles4.forum-title-icon', { attrs: { 'aria-hidden': 'true' } }),
+                    _('Pychess Forum'),
+                ]),
                 h('div.box__top__actions', [renderSearchBox()]),
             ]),
             h('table.categs.slist.slist-pad', [
