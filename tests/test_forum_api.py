@@ -212,6 +212,18 @@ class ForumApiTestCase(AioHTTPTestCase):
         self.assertIn("?page=2", location)
         self.assertIn(f"#{target_post_id}", location)
 
+    async def test_forum_topics_survive_captcha_refresh_failure(self):
+        self.add_user("alice")
+        self.set_session_user("alice")
+
+        with patch("forum.captcha._refresh_forum_captcha_pool", side_effect=RuntimeError("boom")):
+            resp = await self.client.get("/api/forum/general-chess-discussion/topics?page=1")
+
+        self.assertEqual(resp.status, 200)
+        payload = await resp.json()
+        self.assertEqual("general-chess-discussion", payload["categ"]["_id"])
+        self.assertTrue(payload["canWrite"])
+
 
 if __name__ == "__main__":
     import unittest
