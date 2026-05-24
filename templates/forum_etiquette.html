@@ -1,0 +1,61 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu legal-page">
+<aside></aside>
+<div class="guide legal-doc">
+<h1 id="forum-etiquette">Forum Etiquette</h1>
+<p>
+The forum is for useful discussion between players. Moderators may close or remove threads that break site rules.
+Following these guidelines keeps conversations readable and productive.
+</p>
+
+<h2 id="descriptive-title">A descriptive title</h2>
+<p>Pick a clear subject line so people can understand your thread before opening it.</p>
+<p><strong>Good:</strong> "Tournament feature request: from-position pairings"</p>
+<p><strong>Bad:</strong> "Help", "Bug", "Question", "Hi"</p>
+
+<h2 id="advertising-and-spam">Advertising and spam</h2>
+<p>Promotional posts are not allowed in forum threads.</p>
+<ul>
+<li>Do not post "follow me", "join my team", "join my tournament", or channel promotion threads.</li>
+<li>Do not create engagement bait threads such as "how many likes can this get".</li>
+<li>If you see spam, use the report button on that post instead of replying to it.</li>
+</ul>
+
+<h2 id="correct-sub-forum">Use the correct sub-forum</h2>
+<p>Choose the category that matches your topic.</p>
+<ul>
+<li><strong>General Chess Discussion</strong> for broad chess and variant discussion.</li>
+<li><strong>PyChess Feedback</strong> for bug reports and feature feedback.</li>
+<li><strong>Game Analysis</strong> for sharing and discussing games.</li>
+<li><strong>Off-Topic Discussion</strong> for non-chess conversation.</li>
+</ul>
+
+<h2 id="respect">Respect other players</h2>
+<ul>
+<li>Explain disagreement calmly and focus on ideas, not people.</li>
+<li>No insults, slurs, harassment, or profanity directed at other users.</li>
+<li>Do not escalate arguments into personal fights.</li>
+<li>If a post is abusive or trolling, report it instead of retaliating.</li>
+</ul>
+
+<h2 id="public-shaming">No public shaming</h2>
+<p>
+Do not make accusation threads about named users ("is X cheating?", "X is toxic", etc.).
+Use the dedicated report form instead: <a href="/report">/report</a>.
+</p>
+
+<h2 id="before-posting">Before posting</h2>
+<ul>
+<li>Search the forum first to avoid duplicate topics.</li>
+<li>Read existing FAQ or docs for common questions.</li>
+<li>Keep posts on-topic and readable.</li>
+</ul>
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+{% endblock %}

@@ -366,6 +366,9 @@ class NotificationContent(TypedDict, total=False):
     tid: str
     arr: str
     opp: str
+    topic: str
+    slug: str
+    categ: str
     date: str
     win: bool | None
 

@@ -14,6 +14,9 @@ interface Message {
         tid?: string;
         arr?: string;
         opp: string;
+        topic?: string;
+        slug?: string;
+        categ?: string;
         date?: string;
         win?: boolean | null;
     };
@@ -123,6 +126,22 @@ function messageView(message: Message) {
                 h('span', `${_('New message from')} ${content.opp}`),
             ]),
         ]);
+    case 'forumMention': {
+        const topicName = content.topic || _('a forum topic');
+        const href = content.categ && content.slug
+            ? `/forum/${encodeURIComponent(content.categ)}/${encodeURIComponent(content.slug)}#${encodeURIComponent(content.id)}`
+            : '/forum';
+        return h(`a.notification.corr${read}`, { attrs: { href } }, [
+            h('div.icon.icon-comment-o'),
+            h('span.content', [
+                h('span', [
+                    h('strong', content.opp),
+                    h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                ]),
+                h('span', `${_('mentioned you in')} ${topicName}`),
+            ]),
+        ]);
+    }
     default:
         return '';
     }

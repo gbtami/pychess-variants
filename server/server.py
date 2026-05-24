@@ -142,6 +142,12 @@ async def init_state(app: Application) -> None:
     refresh_task = await logger.start_config_refresh_timer(app[db_key])
     if refresh_task is not None:
         app_state.track_background_task(refresh_task)
+    from forum_api import forum_captcha_refresher
+
+    app_state.create_background_task(
+        forum_captcha_refresher(app),
+        name="forum-captcha-refresh",
+    )
 
     # create test tournament
     if 1:
