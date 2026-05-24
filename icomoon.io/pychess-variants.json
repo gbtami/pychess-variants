@@ -17325,8 +17325,11 @@
         {
           "ligatures": "bubbles4, comments4",
           "name": "bubbles4",
-          "order": 0,
-          "id": 113
+          "order": 533,
+          "id": 113,
+          "prevSize": 32,
+          "code": 59760,
+          "tempChar": ""
         },
         {
           "ligatures": "user, profile2",
@@ -17575,7 +17578,7 @@
           "id": 154,
           "prevSize": 32,
           "code": 128030,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pie-chart, stats",
@@ -17674,7 +17677,7 @@
           "id": 170,
           "prevSize": 32,
           "code": 59817,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "lab, beta",
@@ -17737,7 +17740,7 @@
           "id": 180,
           "prevSize": 32,
           "code": 59827,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "shield, security",
@@ -18244,7 +18247,7 @@
           "id": 264,
           "prevSize": 32,
           "code": 59911,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "notification, warning2",
@@ -18277,7 +18280,7 @@
           "id": 269,
           "prevSize": 32,
           "code": 59916,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "cancel-circle, close",
@@ -18376,7 +18379,7 @@
           "id": 285,
           "prevSize": 32,
           "code": 59932,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "pause2, player9",
@@ -18385,7 +18388,7 @@
           "id": 286,
           "prevSize": 32,
           "code": 59933,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "stop2, player10",
@@ -18520,7 +18523,7 @@
           "id": 308,
           "prevSize": 32,
           "code": 11016,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-right, right3",
@@ -18535,7 +18538,7 @@
           "id": 310,
           "prevSize": 32,
           "code": 11018,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "arrow-down, down",
@@ -27162,7 +27165,7 @@
     "showCodes": true,
     "gridSize": 16,
     "quickUsageToken": {
-      "pychess-variants": "M2M3NDM1MjE5ZiMxNzc5NDUzNjQ0IzVqZy9NSFR3ZEFLMGRaYjFCRmJ0L01jdnAydkt3czlJY3k4YXF0WGRyQXM0"
+      "pychess-variants": "NjRlOGMwZGFhYiMxNzc5NjIxMTc2I0NjMVJsamhVQ2xrYTdJUEphN016aUVVSFBzSkNkTEZnU2pUVjAzOGFlYmtn"
     },
     "showLiga": false
   },
