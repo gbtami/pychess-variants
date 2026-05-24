@@ -5,7 +5,7 @@ from unittest.mock import patch
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
-from forum_api import _forum_captcha_challenge
+from forum.captcha import _forum_captcha_challenge
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
@@ -148,7 +148,7 @@ class ForumApiTestCase(AioHTTPTestCase):
         topic_id = create_payload["topic"]["_id"]
 
         self.set_session_user("mod")
-        with patch("forum_api._is_admin", side_effect=lambda username: username == "mod"):
+        with patch("forum.permissions.is_admin", side_effect=lambda username: username == "mod"):
             mod_feed = await self.client.get("/api/forum/general-chess-discussion/mod-feed")
             self.assertEqual(mod_feed.status, 200)
             mod_payload = await mod_feed.json()

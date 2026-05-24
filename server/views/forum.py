@@ -1,7 +1,7 @@
 import aiohttp_jinja2
 from aiohttp import web
 
-from forum_api import forum_captcha_variant_for_category
+from forum import forum_captcha_variant_for_category
 from typing_defs import ViewContext
 from views import get_user_context
 

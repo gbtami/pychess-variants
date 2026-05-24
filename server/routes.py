@@ -63,7 +63,7 @@ from inbox_api import (
     inbox_read,
     inbox_delete,
 )
-from forum_api import (
+from forum import (
     forum_categs,
     forum_captcha,
     forum_captcha_check,
