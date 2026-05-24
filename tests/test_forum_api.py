@@ -6,6 +6,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
 from const import GAME_CATEGORY_ALL
+from forum.constants import ERASED_POST_TEXT, ERASED_POST_USER
 from forum.captcha import _forum_captcha_challenge, _refresh_forum_captcha_pool
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
@@ -171,6 +172,60 @@ class ForumApiTestCase(AioHTTPTestCase):
             {"topicId": topic_id, "categId": "game-analysis"}
         )
         self.assertEqual(1, moved_posts)
+
+    async def test_forum_owner_delete_erases_post_and_keeps_topic(self):
+        app_state = get_app_state(self.app)
+        self.add_user("alice")
+        self.add_user("bob")
+
+        self.set_session_user("alice")
+        create_data = await self.with_forum_captcha({"name": "erase me", "text": "original post"})
+        create_resp = await self.client.post(
+            "/api/forum/general-chess-discussion/topic",
+            data=create_data,
+        )
+        self.assertEqual(create_resp.status, 200)
+        create_payload = await create_resp.json()
+        self.assertTrue(create_payload.get("ok"))
+        topic_id = create_payload["topic"]["_id"]
+        slug = create_payload["topic"]["slug"]
+        first_post_id = create_payload["topic"]["lastPostId"]
+
+        self.set_session_user("bob")
+        reply_data = await self.with_forum_captcha({"text": "reply here"})
+        reply_resp = await self.client.post(
+            f"/api/forum/general-chess-discussion/{slug}/post",
+            data=reply_data,
+        )
+        self.assertEqual(reply_resp.status, 200)
+        self.assertTrue((await reply_resp.json()).get("ok"))
+
+        self.set_session_user("alice")
+        delete_resp = await self.client.post(f"/api/forum/post/{first_post_id}/delete")
+        self.assertEqual(delete_resp.status, 200)
+        delete_payload = await delete_resp.json()
+        self.assertTrue(delete_payload.get("ok"))
+        self.assertTrue(delete_payload.get("erased"))
+
+        kept_topic = await app_state.db.forum_topic.find_one({"_id": topic_id})
+        self.assertIsNotNone(kept_topic)
+        self.assertEqual(2, kept_topic["nbPosts"])
+
+        erased_post = await app_state.db.forum_post.find_one({"_id": first_post_id})
+        self.assertIsNotNone(erased_post)
+        self.assertEqual(ERASED_POST_USER, erased_post["user"])
+        self.assertEqual(ERASED_POST_TEXT, erased_post["text"])
+        self.assertIsNotNone(erased_post.get("erasedAt"))
+
+        topic_view = await self.client.get(f"/api/forum/general-chess-discussion/{slug}")
+        self.assertEqual(topic_view.status, 200)
+        topic_payload = await topic_view.json()
+        first_post_payload = topic_payload["posts"][0]
+        self.assertEqual(ERASED_POST_USER, first_post_payload["user"])
+        self.assertEqual(ERASED_POST_TEXT, first_post_payload["text"])
+        self.assertFalse(first_post_payload.get("canEdit"))
+        self.assertFalse(first_post_payload.get("canDelete"))
+        self.assertFalse(first_post_payload.get("canReact"))
 
     async def test_forum_redirect_to_correct_page(self):
         app_state = get_app_state(self.app)

@@ -11,6 +11,7 @@ from pychess_global_app_state_utils import get_app_state
 from forum.captcha import maybe_refresh_forum_captcha_pool, forum_captcha_public_payload
 from forum.constants import (
     EDIT_WINDOW_HOURS,
+    ERASED_POST_USER,
     FORUM_POST_PER_PAGE,
     FORUM_SEARCH_PER_PAGE,
     FORUM_TOPIC_PER_PAGE,
@@ -172,10 +173,11 @@ async def forum_topic(request: web.Request) -> web.Response:
     for post in posts:
         owner = str(post.get("user") or "")
         created_at = to_utc(post.get("createdAt"))
+        erased = bool(post.get("erasedAt")) or owner == ERASED_POST_USER
         can_edit = False
         can_delete = False
         can_react = False
-        if username is not None:
+        if username is not None and not erased:
             can_delete = can_moderate_forum or owner == username
             can_edit = can_delete
             if owner == username and created_at is not None:
@@ -189,6 +191,7 @@ async def forum_topic(request: web.Request) -> web.Response:
             {
                 **post,
                 "userTitle": titles.get(owner, ""),
+                "erased": erased,
                 "canEdit": can_edit,
                 "canDelete": can_delete,
                 "canReact": can_react,
@@ -335,7 +338,9 @@ async def forum_topic_participants(request: web.Request) -> web.Response:
     if len(topic_id) != 8:
         return json_response({"type": "error", "message": "Invalid topic id"})
 
-    users = await app_state.db.forum_post.distinct("user", {"topicId": topic_id})
+    users = await app_state.db.forum_post.distinct(
+        "user", {"topicId": topic_id, "user": {"$ne": ERASED_POST_USER}}
+    )
     participants = sorted({str(user) for user in users if isinstance(user, str)}, key=str.casefold)
     return json_response({"participants": participants})
 

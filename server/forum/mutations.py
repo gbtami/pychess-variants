@@ -12,6 +12,8 @@ from request_utils import read_post_data
 from forum.captcha import forum_captcha_is_valid
 from forum.constants import (
     EDIT_WINDOW_HOURS,
+    ERASED_POST_TEXT,
+    ERASED_POST_USER,
     FORUM_CAPTCHA_FAIL_MESSAGE,
     FORUM_POST_PER_PAGE,
     MAX_POST_LEN,
@@ -272,7 +274,7 @@ async def forum_post_edit(request: web.Request) -> web.Response:
 
 
 async def forum_post_delete(request: web.Request) -> web.Response:
-    """Delete a post; deleting the first post removes the whole topic thread."""
+    """Delete a post; owners erase their own posts while moderators can hard-delete."""
     app_state = get_app_state(request.app)
     username = await session_username(request)
     post_id = request.match_info.get("postId", "")
@@ -285,7 +287,8 @@ async def forum_post_delete(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "Post not found"})
 
     me = await app_state.users.get(username)
-    if not (can_moderate(me) or post.get("user") == username):
+    is_owner = post.get("user") == username
+    if not (can_moderate(me) or is_owner):
         return json_response({"type": "error", "message": "Not allowed"})
 
     topic = await app_state.db.forum_topic.find_one({"_id": post.get("topicId")})
@@ -293,6 +296,29 @@ async def forum_post_delete(request: web.Request) -> web.Response:
         await app_state.db.forum_post.delete_one({"_id": post_id})
         await recompute_categ_summary(app_state, str(post.get("categId")))
         return json_response({"ok": True})
+
+    if is_owner:
+        topic_posts = await app_state.db.forum_post.count_documents({"topicId": topic["_id"]})
+        if topic_posts <= 1:
+            await app_state.db.forum_post.delete_many({"topicId": topic["_id"]})
+            await app_state.db.forum_topic.delete_one({"_id": topic["_id"]})
+            await recompute_categ_summary(app_state, str(topic.get("categId")))
+            return json_response({"ok": True, "deletedTopic": True})
+
+        await app_state.db.forum_post.update_one(
+            {"_id": post_id},
+            {
+                "$set": {
+                    "user": ERASED_POST_USER,
+                    "text": ERASED_POST_TEXT,
+                    "erasedAt": datetime.now(timezone.utc),
+                },
+                "$unset": {"reactions": "", "updatedAt": ""},
+            },
+        )
+        await recompute_topic_summary(app_state, str(topic["_id"]))
+        await recompute_categ_summary(app_state, str(topic.get("categId")))
+        return json_response({"ok": True, "erased": True})
 
     first_post = await app_state.db.forum_post.find_one(
         {"topicId": topic["_id"]},
@@ -385,6 +411,8 @@ async def forum_post_react(request: web.Request) -> web.Response:
     post = await app_state.db.forum_post.find_one({"_id": post_id, "categId": categ_id})
     if post is None:
         return json_response({"type": "error", "message": "Post not found"})
+    if post.get("erasedAt") is not None:
+        return json_response({"type": "error", "message": "Cannot react to deleted posts"})
     if post.get("user") == username:
         return json_response({"type": "error", "message": "Cannot react to your own post"})
 

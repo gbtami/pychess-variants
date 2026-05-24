@@ -12,6 +12,8 @@ FORUM_SEARCH_PER_PAGE = 20
 MAX_TOPIC_NAME_LEN = 100
 MAX_POST_LEN = 5000
 EDIT_WINDOW_HOURS = 4
+ERASED_POST_USER = "<erased>"
+ERASED_POST_TEXT = "<Comment deleted by user>"
 
 SLUG_RE = re.compile(r"^[a-z0-9-]{3,80}$")
 MENTION_RE = re.compile(r"(^|[^\\w@#/])@([a-zA-Z0-9_-]{3,20})")

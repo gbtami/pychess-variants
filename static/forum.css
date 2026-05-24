@@ -590,6 +590,20 @@ main.forum .button.button-empty:not(.disabled):hover {
   position: relative;
 }
 
+.forum-post.erased {
+  color: var(--time-text);
+}
+
+.forum-post.erased .forum-post__message {
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 2em;
+}
+
+.forum-post.erased .forum-post__metas > div {
+  justify-content: flex-start;
+}
+
 .post-edited {
   color: var(--time-text);
 }
@@ -760,7 +774,8 @@ main.forum .button.button-empty:not(.disabled):hover {
   gap: 0.5rem;
 }
 
-.forum-relocate-modal {
+.forum-relocate-modal,
+.forum-delete-modal {
   position: fixed;
   inset: 0;
   z-index: 35;

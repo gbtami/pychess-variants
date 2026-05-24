@@ -60,6 +60,8 @@ interface ForumPost {
     text: string;
     createdAt: string;
     updatedAt?: string | null;
+    erasedAt?: string | null;
+    erased?: boolean;
     canEdit?: boolean;
     canDelete?: boolean;
     canReact?: boolean;
@@ -115,6 +117,8 @@ type ForumCaptchaState = 'idle' | 'checking' | 'success' | 'failure';
 const FORUM_MAX_POST_LEN = 5000;
 /** Maximum accepted topic-title length enforced by both UI and backend API. */
 const FORUM_MAX_TOPIC_NAME_LEN = 100;
+const ERASED_POST_USER = '<erased>';
+const ERASED_POST_TEXT = '<Comment deleted by user>';
 /** Supported forum reactions mirrored from the server and lila conventions. */
 const REACTIONS: ForumReaction[] = [
     { key: '+1', emoji: '+1' },
@@ -156,6 +160,10 @@ async function parseJsonResponse(res: Response) {
 /** Compose a human-readable name with optional title prefix (e.g. GM user). */
 function titleAndName(title: string | undefined, name: string): string {
     return title ? `${title} ${name}` : name;
+}
+
+function isErasedPost(post: ForumPost): boolean {
+    return Boolean(post.erased) || Boolean(post.erasedAt) || post.user === ERASED_POST_USER;
 }
 
 /** Apply rich-content enhancers reused from inbox message rendering flow. */
@@ -270,6 +278,8 @@ export function forumView(model: PyChessModel) {
     let searchTextDraft = searchParam('text');
     let showRelocateModal = false;
     let relocateTargetDraft = '';
+    let showDeleteModal = false;
+    let deletePostDraftId = '';
     let formCaptcha: ForumCaptcha | null = null;
     let loadingCaptcha = false;
     let captchaMoveDraft = '';
@@ -679,14 +689,30 @@ export function forumView(model: PyChessModel) {
             });
     }
 
-    /** Delete a post after user confirmation. */
-    function deletePost(post: ForumPost) {
-        if (!window.confirm(_('Delete this post?'))) return;
-        fetch(`/api/forum/post/${encodeURIComponent(post._id)}/delete`, { method: 'POST' })
+    /** Open custom delete-confirmation modal for one post. */
+    function openDeleteModal(postId: string) {
+        deletePostDraftId = postId;
+        showDeleteModal = true;
+        redraw();
+    }
+
+    function closeDeleteModal() {
+        showDeleteModal = false;
+        deletePostDraftId = '';
+        redraw();
+    }
+
+    /** Delete a post using forum API and refresh location accordingly. */
+    function deletePost(postId: string) {
+        fetch(`/api/forum/post/${encodeURIComponent(postId)}/delete`, { method: 'POST' })
             .then(parseJsonResponse)
             .then(({ status, data }) => {
                 if (status >= 400 || data.type === 'error') handleApiError(data, status);
-                window.location.reload();
+                if (data.deletedTopic && categ) {
+                    window.location.assign(`/forum/${encodeURIComponent(categ)}`);
+                } else {
+                    window.location.reload();
+                }
             })
             .catch((err) => {
                 console.warn('Failed to delete post.', err);
@@ -1033,14 +1059,15 @@ export function forumView(model: PyChessModel) {
 
     /** Render one topic post card with controls and rich-text content. */
     function renderTopicPost(post: ForumPost, isFirst: boolean) {
-        const author = titleAndName(post.userTitle, post.user);
-        const isTopicAuthor = topicData?.user === post.user;
+        const erased = isErasedPost(post);
+        const author = erased ? ERASED_POST_USER : titleAndName(post.userTitle, post.user);
+        const isTopicAuthor = !erased && topicData?.user === post.user;
         const isAnonUser = model.anon === 'True' || model.anon === 'true';
-        const canReport = !isAnonUser && model.username !== post.user;
+        const canReport = !erased && !isAnonUser && model.username !== post.user;
         const editing = editDraftByPostId.has(post._id);
         const editDraft = editDraftByPostId.get(post._id) || post.text;
         const savingEdit = savingEditPostIds.has(post._id);
-        return h(`article.forum-post${isFirst ? '.topic-first' : ''}`, {
+        return h(`article.forum-post${isFirst ? '.topic-first' : ''}${erased ? '.erased' : ''}`, {
             attrs: {
                 id: post._id,
                 'data-post-id': post._id,
@@ -1048,15 +1075,17 @@ export function forumView(model: PyChessModel) {
         }, [
             h('div.forum-post__metas', [
                 h('div', [
-                    h(`a.user-link.ulpt.author${isTopicAuthor ? '.author--op' : ''}`, {
-                        attrs: { href: `/@/${encodeURIComponent(post.user)}` },
-                    }, author),
+                    erased
+                        ? h('span.author', author)
+                        : h(`a.user-link.ulpt.author${isTopicAuthor ? '.author--op' : ''}`, {
+                            attrs: { href: `/@/${encodeURIComponent(post.user)}` },
+                        }, author),
                     h('a', {
                         attrs: { href: `#${post._id}` },
                     }, post.updatedAt
                         ? [h('span.post-edited', `${_('edited')} `), timeago(post.updatedAt)]
                         : timeago(post.createdAt)),
-                    post.canEdit
+                    post.canEdit && !erased
                         ? h('button.forum-post__button.edit.button.button-empty.text', {
                             props: { type: 'button' },
                             attrs: {
@@ -1094,10 +1123,10 @@ export function forumView(model: PyChessModel) {
                                 title: _('Delete'),
                                 'aria-label': _('Delete'),
                             },
-                            on: { click: () => deletePost(post) },
+                            on: { click: () => openDeleteModal(post._id) },
                         }, [h('i.icon.icon-trash-o')])
                         : null,
-                    canReply
+                    canReply && !erased
                         ? h('button.forum-post__button.quote.button.button-empty.text', {
                             props: { type: 'button' },
                             attrs: {
@@ -1122,18 +1151,20 @@ export function forumView(model: PyChessModel) {
                 ].filter(Boolean as any)),
             ]),
             h('div.forum-post__message.expand-text', {
-                hook: {
-                    insert(vnode) {
-                        enhanceForumPostMessage(vnode.elm as HTMLElement);
+                hook: erased
+                    ? {}
+                    : {
+                        insert(vnode) {
+                            enhanceForumPostMessage(vnode.elm as HTMLElement);
+                        },
+                        postpatch(_oldVnode, vnode) {
+                            enhanceForumPostMessage(vnode.elm as HTMLElement);
+                        },
                     },
-                    postpatch(_oldVnode, vnode) {
-                        enhanceForumPostMessage(vnode.elm as HTMLElement);
-                    },
-                },
-            }, renderRichText(post.text, { imageClass: 'forum-post-inline-image' })),
-            h('div.forum-post__message-source', post.text),
-            renderReactions(post),
-            editing
+            }, erased ? ERASED_POST_TEXT : renderRichText(post.text, { imageClass: 'forum-post-inline-image' })),
+            !erased ? h('div.forum-post__message-source', post.text) : null,
+            !erased ? renderReactions(post) : null,
+            editing && !erased
                 ? h('form.edit-post-form', {
                     on: {
                         submit: (event: Event) => submitEditedPost(event, post),
@@ -1229,6 +1260,40 @@ export function forumView(model: PyChessModel) {
         ]);
     }
 
+    function renderDeleteModal() {
+        if (!showDeleteModal || !deletePostDraftId) return null;
+        return h('div.forum-delete-modal', [
+            h('div.forum-modal-backdrop', {
+                on: {
+                    click: () => closeDeleteModal(),
+                },
+            }),
+            h('div.forum-modal-body', [
+                h('p', _('Delete the post')),
+                h('form.form3', {
+                    on: {
+                        submit: (e: Event) => {
+                            e.preventDefault();
+                            const postId = deletePostDraftId;
+                            closeDeleteModal();
+                            deletePost(postId);
+                        },
+                    },
+                }, [
+                    h('div.form-actions', [
+                        h('button.button.button-empty.cancel', {
+                            props: { type: 'button' },
+                            on: {
+                                click: () => closeDeleteModal(),
+                            },
+                        }, _('Cancel')),
+                        h('button.button.button-red', { props: { type: 'submit' } }, _('Delete the post')),
+                    ]),
+                ]),
+            ]),
+        ]);
+    }
+
     /** Render full topic page: header, posts, actions, and reply form. */
     function renderTopic() {
         const topicUrl = `/forum/${encodeURIComponent(categ)}/${encodeURIComponent(slug)}`;
@@ -1300,6 +1365,7 @@ export function forumView(model: PyChessModel) {
                     ]),
                 ])
                 : null,
+            renderDeleteModal(),
             firstPostId ? renderRelocateModal(firstPostId) : null,
         ].filter(Boolean as any));
     }
@@ -1386,16 +1452,17 @@ export function forumView(model: PyChessModel) {
             h('table.slist.slist-pad.slist-invert.search__results', [
                 h('tbody', searchPosts.map((row) => {
                     const post = row.post;
+                    const erased = isErasedPost(post);
                     const postHref = postRedirectHref(post._id);
                     return h('tr.stack-row', [
                         h('td', [
                             h('a.post', { attrs: { href: postHref } }, `${row.categ.name} - ${row.topic.name}`),
-                            h('p', shorten(post.text, 220)),
+                            h('p', shorten(erased ? ERASED_POST_TEXT : post.text, 220)),
                         ]),
                         h('td.info', [
                             h('span', timeago(post.createdAt)),
                             h('br'),
-                            h('span', titleAndName(row.postUserTitle, post.user)),
+                            h('span', erased ? ERASED_POST_USER : titleAndName(row.postUserTitle, post.user)),
                         ]),
                     ]);
                 })),
@@ -1419,9 +1486,12 @@ export function forumView(model: PyChessModel) {
                 ]),
                 h('tbody', modFeedItems.map((item) => {
                     const post = item.post;
+                    const erased = isErasedPost(post);
                     return h('tr', [
                         h('td', [
-                            h('a.user-link', { attrs: { href: `/@/${encodeURIComponent(post.user)}` } }, titleAndName(post.userTitle, post.user)),
+                            erased
+                                ? h('span.user-link', ERASED_POST_USER)
+                                : h('a.user-link', { attrs: { href: `/@/${encodeURIComponent(post.user)}` } }, titleAndName(post.userTitle, post.user)),
                         ]),
                         h('td', [
                             h('a', {
@@ -1430,7 +1500,7 @@ export function forumView(model: PyChessModel) {
                                 },
                             }, item.topic.name),
                         ]),
-                        h('td', shorten(post.text, 280)),
+                        h('td', shorten(erased ? ERASED_POST_TEXT : post.text, 280)),
                         h('td', [
                             h('a', { attrs: { href: postRedirectHref(post._id) } }, timeago(post.createdAt)),
                         ]),
