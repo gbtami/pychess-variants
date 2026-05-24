@@ -24,6 +24,7 @@ import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { displayUsername, isAnonUsername } from "./user";
 import { confirmDialog } from './confirmDialog';
+import { alertDialog } from './alertDialog';
 
 
 const autoPairingTCs: [number, number, number][] = [
@@ -917,7 +918,7 @@ export class LobbyController implements ChatController {
             this.doSend({ type: "delete_seek", seekID: seek["seekID"], player: this.username });
         } else {
             if (this.anon && seek.day !== 0) {
-                alert(_('You need an account to do that.'));
+                void alertDialog({ text: _('You need an account to do that.') });
                 return;
             }
             this.doSend({ type: "accept_seek", seekID: seek["seekID"], player: this.username });
@@ -1314,11 +1315,11 @@ export class LobbyController implements ChatController {
     }
 
     private onMsgError(msg: MsgError) {
-        alert(msg.message);
+        void alertDialog({ text: msg.message });
     }
 
     private onMsgShutdown(msg: MsgShutdown) {
-        alert(msg.message);
+        void alertDialog({ text: msg.message });
     }
 
     private onMsgGameCounter(msg: MsgCounter) {

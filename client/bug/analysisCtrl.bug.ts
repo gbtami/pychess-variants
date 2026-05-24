@@ -20,6 +20,7 @@ import { sound } from "../sound";
 import { renderClocks } from "./analysisClock.bug";
 import { variantsIni } from "../variantsIni";
 import { MsgAnalysis } from "../analysis/analysisType";
+import { alertDialog } from '../alertDialog';
 import {
     addOrSelectChild,
     AnalysisTree,
@@ -775,7 +776,7 @@ export default class AnalysisControllerBughouse {
                     this.fsfError.push('');
                     this.fsfError.push(suggestion);
                     const errorMsg = this.fsfError.join('\n');
-                    alert(errorMsg);
+                    void alertDialog({ text: errorMsg });
                     return;
                 }
             }

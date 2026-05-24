@@ -36,7 +36,6 @@ type QueuedXhrResponse = {
 let ffish: FairyStockfish;
 let queuedXhrResponses: QueuedXhrResponse[] = [];
 let sentBodies: FormData[] = [];
-let alertSpy: jest.SpiedFunction<typeof window.alert>;
 let warnSpy: jest.SpiedFunction<typeof console.warn>;
 
 const originalXHR = global.XMLHttpRequest;
@@ -96,10 +95,14 @@ function triggerImport(model: PyChessModel, pgn: string): void {
     clickImport();
 }
 
+function latestAlertText(): string {
+    const text = document.querySelector('#alert-dialog .alert-dialog-content p')?.textContent;
+    return text ?? '';
+}
+
 beforeAll(async () => {
     (global as any).XMLHttpRequest = FakeXMLHttpRequest;
 
-    alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
     warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
     const ffishModuleNs: any = await import('ffish-es6');
@@ -114,14 +117,12 @@ beforeAll(async () => {
 
 afterAll(() => {
     (global as any).XMLHttpRequest = originalXHR;
-    alertSpy.mockRestore();
     warnSpy.mockRestore();
 });
 
 beforeEach(() => {
     queuedXhrResponses = [];
     sentBodies = [];
-    alertSpy.mockClear();
     document.body.innerHTML = '';
 });
 
@@ -137,7 +138,7 @@ test('prepares and submits a valid Grand PGN import request', () => {
     expect(sent.get('final_fen')).toBe(
         '4k5/1n5b2/pq2pA3p/b1pr1pQ1p1/3P3p1c/3P1P4/2P3PN2/PP1N3PPP/2B1K2B2/R8R b - - 4 25',
     );
-    expect(window.alert).not.toHaveBeenCalled();
+    expect(document.querySelector('#alert-dialog')).toBeNull();
 });
 
 test('shows a clear error for unsupported Variant tags', () => {
@@ -146,7 +147,7 @@ test('shows a clear error for unsupported Variant tags', () => {
     triggerImport(makeModel(), unsupportedVariantPgn);
 
     expect(sentBodies).toHaveLength(0);
-    expect(window.alert).toHaveBeenCalledWith('Unsupported PGN Variant tag: NoSuchVariant.');
+    expect(latestAlertText()).toBe('Unsupported PGN Variant tag: NoSuchVariant.');
 });
 
 test('shows mapped FEN validation errors', () => {
@@ -158,9 +159,7 @@ test('shows mapped FEN validation errors', () => {
     triggerImport(makeModel(), invalidFenPgn);
 
     expect(sentBodies).toHaveLength(0);
-    expect(window.alert).toHaveBeenCalledWith(
-        'Invalid [FEN] tag (code -10): Invalid character in board layout.',
-    );
+    expect(latestAlertText()).toBe('Invalid [FEN] tag (code -10): Invalid character in board layout.');
 });
 
 test('shows parser move errors from Fairy-Stockfish bindings', () => {
@@ -169,9 +168,7 @@ test('shows parser move errors from Fairy-Stockfish bindings', () => {
     triggerImport(makeModel(), invalidMovePgn);
 
     expect(sentBodies).toHaveLength(0);
-    expect(window.alert).toHaveBeenCalled();
-    const firstCallArg = (window.alert as jest.Mock).mock.calls[0][0] as string;
-    expect(firstCallArg).toContain('The given sanMove');
+    expect(latestAlertText()).toContain('The given sanMove');
 });
 
 test('shows backend import errors returned as non-200 responses', () => {
@@ -183,7 +180,7 @@ test('shows backend import errors returned as non-200 responses', () => {
     triggerImport(makeModel(), GRAND_PGN);
 
     expect(sentBodies).toHaveLength(1);
-    expect(window.alert).toHaveBeenCalledWith("Invalid move 'Cz9' at ply 2 in imported PGN.");
+    expect(latestAlertText()).toBe("Invalid move 'Cz9' at ply 2 in imported PGN.");
 });
 
 test('shows generic import error for XHR network failures', () => {
@@ -196,5 +193,5 @@ test('shows generic import error for XHR network failures', () => {
     triggerImport(makeModel(), GRAND_PGN);
 
     expect(sentBodies).toHaveLength(1);
-    expect(window.alert).toHaveBeenCalledWith('Import failed');
+    expect(latestAlertText()).toBe('Import failed');
 });

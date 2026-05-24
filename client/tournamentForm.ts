@@ -1,3 +1,5 @@
+import { alertDialog } from './alertDialog';
+
 type FlatpickrOptions = {
     enableTime: boolean;
     time_24hr: boolean;
@@ -313,12 +315,12 @@ export function initTournamentForm(): void {
             });
             if (!response.ok) {
                 const message = (await response.text()).trim() || "Tournament form submission failed.";
-                alert(message);
+                void alertDialog({ text: message });
                 return;
             }
             window.location.assign("/tournaments");
         } catch {
-            alert("Tournament form submission failed.");
+            void alertDialog({ text: "Tournament form submission failed." });
         } finally {
             if (submitter) submitter.disabled = false;
         }

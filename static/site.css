@@ -3893,6 +3893,66 @@ img.logo {
   min-width: 6.8rem;
 }
 
+.alert-dialog-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1250;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.alert-dialog-wrap {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.alert-dialog-content {
+  position: relative;
+  z-index: 1;
+  background: var(--modal-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1rem;
+  width: min(420px, calc(100vw - 2rem));
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
+  color: var(--font-color);
+}
+
+.alert-dialog-content h2 {
+  margin: 0 0 0.6rem;
+  padding: 0;
+  font-size: 1.35rem;
+}
+
+.alert-dialog-content p {
+  margin: 0;
+  padding: 0;
+  white-space: pre-line;
+}
+
+.alert-dialog-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.alert-dialog-actions .button {
+  min-width: 6.8rem;
+}
+
 /* Game Category Intro Dialog */
 .game-category-dialog-content {
   background: var(--modal-bg);

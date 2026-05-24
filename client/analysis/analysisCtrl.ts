@@ -35,6 +35,7 @@ import { updateCount, updatePoint } from '../info';
 import { fogFen } from '../variants';
 import { hideKeyboardHelp, isKeyboardHelpShortcut, showKeyboardHelp } from './keyboardHelp';
 import { PvHoverPreview } from './pvHoverPreview';
+import { alertDialog } from '../alertDialog';
 import { confirmDialog } from '../confirmDialog';
 import {
     addOrSelectChild,
@@ -754,14 +755,14 @@ export class AnalysisController extends GameController {
 
         if (withRequest) {
             if (this.anon) {
-                alert(_('You need an account to do that.'));
+                void alertDialog({ text: _('You need an account to do that.') });
                 return;
             }
 //            if (!this.variantSupportedByFSF) {
 // We can't use FSF WASM detection here because users may use unsupported hardware
 // but server side analysis will work for them at the same time!
             if (this.variant.name === 'alice') {
-                alert(_('This variant is not supported by Fairy-Stockfish.'));
+                void alertDialog({ text: _('This variant is not supported by Fairy-Stockfish.') });
                 return;
             }
             this.doSend({ type: "analysis", username: this.username, gameId: this.gameId });
@@ -934,7 +935,7 @@ export class AnalysisController extends GameController {
                     this.fsfError.push('');
                     this.fsfError.push(suggestion);
                     const errorMsg = this.fsfError.join('\n');
-                    alert(errorMsg);
+                    void alertDialog({ text: errorMsg });
                     return;
                 }
             }

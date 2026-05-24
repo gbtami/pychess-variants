@@ -5,6 +5,7 @@ import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { patch } from './document';
+import { alertDialog } from './alertDialog';
 import { timeago } from './datetime';
 import { PyChessModel } from './types';
 import { expandGameEmbeds, makeExternalLinkPopups, renderRichText } from './richTextEnhance';
@@ -285,6 +286,7 @@ export function forumView(model: PyChessModel) {
     let captchaMoveDraft = '';
     let captchaState: ForumCaptchaState = 'idle';
     let captchaError = '';
+    let formSubmitError = '';
 
     const reactingPostIds = new Set<string>();
     const expandedReactionPostIds = new Set<string>();
@@ -333,6 +335,7 @@ export function forumView(model: PyChessModel) {
     function setFormCaptcha(captcha: ForumCaptcha | null) {
         formCaptcha = captcha;
         resetCaptchaState();
+        formSubmitError = '';
     }
 
     /** Fetch a new forum captcha challenge payload for post forms. */
@@ -368,6 +371,7 @@ export function forumView(model: PyChessModel) {
             .then((text) => {
                 if (text.trim() === '1') {
                     captchaState = 'success';
+                    formSubmitError = '';
                     board.stop();
                 } else {
                     captchaState = 'failure';
@@ -626,9 +630,11 @@ export function forumView(model: PyChessModel) {
         const text = topicTextDraft.trim();
         if (!name || !text || creatingTopic) return;
         if (!formCaptcha || captchaState !== 'success') {
-            alert(_('Please solve the captcha.'));
+            formSubmitError = _('Please solve the captcha.');
+            redraw();
             return;
         }
+        formSubmitError = '';
         creatingTopic = true;
         redraw();
         const formData = new URLSearchParams({
@@ -649,7 +655,7 @@ export function forumView(model: PyChessModel) {
             })
             .catch((err) => {
                 console.warn('Failed to create topic.', err);
-                alert(err instanceof Error ? err.message : _('Could not create topic.'));
+                void alertDialog({ text: err instanceof Error ? err.message : _('Could not create topic.') });
                 creatingTopic = false;
                 redraw();
             });
@@ -661,9 +667,11 @@ export function forumView(model: PyChessModel) {
         const text = composeReply.trim();
         if (!text || sendingReply || !topicData) return;
         if (!formCaptcha || captchaState !== 'success') {
-            alert(_('Please solve the captcha.'));
+            formSubmitError = _('Please solve the captcha.');
+            redraw();
             return;
         }
+        formSubmitError = '';
         sendingReply = true;
         redraw();
         const formData = new URLSearchParams({
@@ -683,7 +691,7 @@ export function forumView(model: PyChessModel) {
             })
             .catch((err) => {
                 console.warn('Failed to post reply.', err);
-                alert(err instanceof Error ? err.message : _('Could not post reply.'));
+                void alertDialog({ text: err instanceof Error ? err.message : _('Could not post reply.') });
                 sendingReply = false;
                 redraw();
             });
@@ -716,7 +724,7 @@ export function forumView(model: PyChessModel) {
             })
             .catch((err) => {
                 console.warn('Failed to delete post.', err);
-                alert(err instanceof Error ? err.message : _('Could not delete post.'));
+                void alertDialog({ text: err instanceof Error ? err.message : _('Could not delete post.') });
             });
     }
 
@@ -762,7 +770,7 @@ export function forumView(model: PyChessModel) {
                 savingEditPostIds.delete(post._id);
                 redraw();
                 console.warn('Failed to edit post.', err);
-                alert(err instanceof Error ? err.message : _('Could not edit post.'));
+                void alertDialog({ text: err instanceof Error ? err.message : _('Could not edit post.') });
             });
     }
 
@@ -776,7 +784,7 @@ export function forumView(model: PyChessModel) {
             })
             .catch((err) => {
                 console.warn('Failed to toggle topic close state.', err);
-                alert(err instanceof Error ? err.message : _('Could not update topic.'));
+                void alertDialog({ text: err instanceof Error ? err.message : _('Could not update topic.') });
             });
     }
 
@@ -790,7 +798,7 @@ export function forumView(model: PyChessModel) {
             })
             .catch((err) => {
                 console.warn('Failed to toggle topic sticky state.', err);
-                alert(err instanceof Error ? err.message : _('Could not update topic.'));
+                void alertDialog({ text: err instanceof Error ? err.message : _('Could not update topic.') });
             });
     }
 
@@ -821,7 +829,7 @@ export function forumView(model: PyChessModel) {
                 reactingPostIds.delete(key);
                 redraw();
                 console.warn('Failed to react to post.', err);
-                alert(err instanceof Error ? err.message : _('Could not react to this post.'));
+                void alertDialog({ text: err instanceof Error ? err.message : _('Could not react to this post.') });
             });
     }
 
@@ -841,7 +849,7 @@ export function forumView(model: PyChessModel) {
             })
             .catch((err) => {
                 console.warn('Failed to relocate thread.', err);
-                alert(err instanceof Error ? err.message : _('Could not relocate this thread.'));
+                void alertDialog({ text: err instanceof Error ? err.message : _('Could not relocate this thread.') });
             });
     }
 
@@ -1345,6 +1353,7 @@ export function forumView(model: PyChessModel) {
                         on: {
                             input: (e: Event) => {
                                 composeReply = (e.target as HTMLTextAreaElement).value;
+                                if (formSubmitError) formSubmitError = '';
                             },
                         },
                     }),
@@ -1356,6 +1365,7 @@ export function forumView(model: PyChessModel) {
                             },
                         }, _('Forum etiquette')),
                     ]),
+                    formSubmitError ? h('div.forum-form-error.error', formSubmitError) : null,
                     renderCaptcha(),
                     h('div.form-actions', [
                         h('a.button.button-empty', { attrs: { href: `/forum/${encodeURIComponent(categ)}` } }, _('Cancel')),
@@ -1400,6 +1410,7 @@ export function forumView(model: PyChessModel) {
                     on: {
                         input: (e: Event) => {
                             topicTitleDraft = (e.target as HTMLInputElement).value;
+                            if (formSubmitError) formSubmitError = '';
                         },
                     },
                 }),
@@ -1415,6 +1426,7 @@ export function forumView(model: PyChessModel) {
                     on: {
                         input: (e: Event) => {
                             topicTextDraft = (e.target as HTMLTextAreaElement).value;
+                            if (formSubmitError) formSubmitError = '';
                         },
                     },
                 }),
@@ -1426,6 +1438,7 @@ export function forumView(model: PyChessModel) {
                         },
                     }, _('Forum etiquette')),
                 ]),
+                formSubmitError ? h('div.forum-form-error.error', formSubmitError) : null,
                 renderCaptcha(),
                 h('div.form-actions', [
                     h('a.button.button-empty', { attrs: { href: `/forum/${encodeURIComponent(categ)}` } }, _('Cancel')),

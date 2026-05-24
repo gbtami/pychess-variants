@@ -4,6 +4,7 @@ import * as idb from 'idb-keyval';
 
 import { Settings } from "./settings";
 import { _, ngettext } from './i18n';
+import { alertDialog } from './alertDialog';
 import { Variant } from './variants';
 
 export function radioList(settings: Settings<string>, name: string, options: { [key: string]: string }, onchange: (evt: Event, key: string) => void): VNode[] {
@@ -122,11 +123,11 @@ function saveNnueFileToIdb (settings: Settings<string>, variant: string, file: F
                     console.log(`${nnuefile} saved!`);
                 })
                 .catch((err) => {
-                    alert(err);
+                    void alertDialog({ text: String(err) });
                 })
             })
             .catch((err) => {
-                alert(err);
+                void alertDialog({ text: String(err) });
             });
     };
     fileReader.readAsArrayBuffer(file);
@@ -195,7 +196,7 @@ function possibleNnueFile(fileName: string, variant: string) {
 
     possible = fileName.startsWith(`${prefix}-`);
     if (!possible) {
-        alert(`.nnue file name required to start with ${prefix}-`);
+        void alertDialog({ text: `.nnue file name required to start with ${prefix}-` });
     }
     return possible;
 }

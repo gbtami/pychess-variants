@@ -6,6 +6,7 @@ import { Api } from "chessgroundx/api";
 import { JSONObject, PyChessModel } from './types';
 import { _ } from './i18n';
 import { patch } from './document';
+import { alertDialog } from './alertDialog';
 import { chatMessage, chatView, ChatController } from './chat';
 import { colorIcon } from './chess';
 import { getLastMoveFen, VARIANTS, Variant } from './variants';
@@ -931,7 +932,7 @@ export class TournamentController implements ChatController {
         this.doSend({ type: "pong", timestamp: msg.timestamp });
     }
     private onMsgError(msg: MsgError) {
-        alert(msg.message);
+        void alertDialog({ text: msg.message });
     }
 
     onMessage(evt: MessageEvent) {

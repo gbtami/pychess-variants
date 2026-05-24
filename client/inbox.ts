@@ -5,6 +5,7 @@ import { patch } from './document';
 import { timeago } from './datetime';
 import { PyChessModel } from './types';
 import { confirmDialog } from './confirmDialog';
+import { alertDialog } from './alertDialog';
 import { expandInboxGameEmbeds, makeExternalLinkPopups, renderRichText } from './richTextEnhance';
 
 interface ThreadSummary {
@@ -205,7 +206,7 @@ export function inboxView(model: PyChessModel) {
                         redraw();
                         return;
                     }
-                    alert(data.message || _('Could not open conversation.'));
+                    void alertDialog({ text: data.message || _('Could not open conversation.') });
                     loadingMore = false;
                     loading = false;
                     redraw();
@@ -272,7 +273,7 @@ export function inboxView(model: PyChessModel) {
             .then(parseJsonResponse)
             .then(({ status, data }) => {
                 if (status >= 400 || data.type === 'error') {
-                    alert(data.message || _('Could not send message.'));
+                    void alertDialog({ text: data.message || _('Could not send message.') });
                     return;
                 }
 
@@ -281,11 +282,11 @@ export function inboxView(model: PyChessModel) {
                 pendingComposerFocus = true;
                 openThread(contact);
             })
-            .catch((err) => {
-                console.warn('Failed to send inbox message.', err);
-                alert(_('Could not send message.'));
-                pendingComposerFocus = true;
-            })
+                .catch((err) => {
+                    console.warn('Failed to send inbox message.', err);
+                    void alertDialog({ text: _('Could not send message.') });
+                    pendingComposerFocus = true;
+                })
             .finally(() => {
                 sending = false;
                 redraw();
@@ -304,7 +305,7 @@ export function inboxView(model: PyChessModel) {
             .then(parseJsonResponse)
             .then(({ status }) => {
                 if (status >= 400) {
-                    alert(_('Could not update block state.'));
+                    void alertDialog({ text: _('Could not update block state.') });
                     return;
                 }
                 contactBlocked = nextBlocked;
@@ -314,7 +315,7 @@ export function inboxView(model: PyChessModel) {
             })
             .catch((err) => {
                 console.warn('Failed to update block state.', err);
-                alert(_('Could not update block state.'));
+                void alertDialog({ text: _('Could not update block state.') });
             });
     }
 
@@ -335,7 +336,7 @@ export function inboxView(model: PyChessModel) {
             .then(parseJsonResponse)
             .then(({ status, data }: { status: number; data: { type?: string; message?: string } }) => {
                 if (status >= 400 || data.type === 'error') {
-                    alert(data.message || _('Could not delete conversation.'));
+                    void alertDialog({ text: data.message || _('Could not delete conversation.') });
                     return;
                 }
 
@@ -353,7 +354,7 @@ export function inboxView(model: PyChessModel) {
             })
             .catch((err) => {
                 console.warn('Failed to delete conversation.', err);
-                alert(_('Could not delete conversation.'));
+                void alertDialog({ text: _('Could not delete conversation.') });
             });
     }
 

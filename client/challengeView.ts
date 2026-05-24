@@ -3,6 +3,7 @@ import { h, VNode } from "snabbdom";
 import { colorIcon } from "./chess";
 import { _ } from "./i18n";
 import { patch } from "./document";
+import { alertDialog } from "./alertDialog";
 import { sound } from "./sound";
 import { VARIANTS } from "./variants";
 
@@ -202,7 +203,7 @@ export function challengeView() {
             .then(res => res.json())
             .then((payload) => {
                 if (payload.type === "error") {
-                    alert(payload.message);
+                    void alertDialog({ text: payload.message });
                 } else if (payload.type === "new_game" && payload.gameId) {
                     window.location.assign(`/${payload.gameId}`);
                     return;

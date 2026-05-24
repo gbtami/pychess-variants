@@ -1,3 +1,5 @@
+import { alertDialog } from '@/alertDialog';
+
 export function importGameBugH(pgn: string, home: string) {
     const XHR = new XMLHttpRequest();
     const FD  = new FormData();
@@ -9,7 +11,7 @@ export function importGameBugH(pgn: string, home: string) {
                 // window.location.assign(model["home"] + '/analysis/' + response['gameId']);
                 window.location.assign(home + '/' + response['gameId']);
             } else if (response['error'] !== undefined) {
-                alert(response['error']);
+                void alertDialog({ text: response['error'] });
             }
         }
     };

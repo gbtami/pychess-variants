@@ -7,6 +7,7 @@ import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
 import { patch } from './document';
+import { alertDialog } from './alertDialog';
 import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
 import { adjacent, uci2LastMove, moveDests, cg2uci, unpromotedRole, UCIMove } from './chess';
 import { InputType } from '@/input/input';
@@ -527,12 +528,12 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     private onMsgGameNotFound = (msg: MsgGameNotFound) => {
-        alert(_("Requested game %1 not found!", msg['gameId']));
+        void alertDialog({ text: _("Requested game %1 not found!", msg['gameId']) });
         window.location.assign(this.home);
     }
 
     private onMsgShutdown = (msg: MsgShutdown) => {
-        alert(msg.message);
+        void alertDialog({ text: msg.message });
     }
 
     protected onMessage(evt: MessageEvent) {

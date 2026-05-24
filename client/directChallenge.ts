@@ -3,6 +3,7 @@ import { h, VNode } from "snabbdom";
 import { _ } from "./i18n";
 import { VARIANTS } from "./variants";
 import { patch } from "./document";
+import { alertDialog } from "./alertDialog";
 import { gameType } from "./result";
 import { timeControlStr } from "./view";
 import { PyChessModel } from "./types";
@@ -132,7 +133,7 @@ export function directChallengeView(model: PyChessModel): VNode[] {
             .then(res => res.json())
             .then(payload => {
                 if (payload.type === "error") {
-                    alert(payload.message);
+                    void alertDialog({ text: payload.message });
                     loadChallenge();
                     return;
                 }

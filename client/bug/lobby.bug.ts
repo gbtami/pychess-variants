@@ -2,6 +2,7 @@ import { Variant, VARIANTS } from "@/variants";
 import { CreateMode, Seek } from "@/lobbyType";
 import { h } from "snabbdom";
 import { _ } from "@/i18n";
+import { alertDialog } from '@/alertDialog';
 import { timeControlStr } from "@/view";
 import { disableCorr, LobbyController } from "@/lobby";
 import { displayUsername, isAnonUsername } from "@/user";
@@ -27,7 +28,7 @@ export function bugJoinSeek(ctrl: LobbyController, e: Event, seek: Seek, joinAs:
     e.stopPropagation();
     // seek[player] = ctrl.username;
     if (ctrl.anon) {
-        alert(_("Anon users cannot join two board games"));
+        void alertDialog({ text: _("Anon users cannot join two board games") });
     }
     ctrl.doSend({ type: "accept_seek", seekID: seek["seekID"], player: ctrl.username, joinAs: joinAs });
 }

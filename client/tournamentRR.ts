@@ -2,6 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
 import { patch } from './document';
+import { alertDialog } from './alertDialog';
 import { chatView, chatMessage, ChatController } from './chat';
 import { timeago } from './datetime';
 import { JSONObject, PyChessModel } from './types';
@@ -1424,7 +1425,7 @@ export class TournamentRRController implements ChatController {
     }
 
     private onMsgError(msg: MsgError) {
-        alert(msg.message);
+        void alertDialog({ text: msg.message });
     }
 
     private onMsgPing(msg: MsgPing) {

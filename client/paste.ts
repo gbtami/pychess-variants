@@ -5,6 +5,7 @@ import { FairyStockfish } from 'ffish-es6';
 import { _ } from './i18n';
 import { variantsIni } from './variantsIni';
 import { VARIANTS } from './variants';
+import { alertDialog } from './alertDialog';
 import { parseKif, resultString } from '../client/kif';
 import { PyChessModel } from "./types";
 import { importGameBugH } from "@/bug/paste.bug";
@@ -109,7 +110,7 @@ export function pasteView(model: PyChessModel): VNode[] {
                         move = moves[idx];
                         const pushed = board.push(move);
                         if (!pushed) {
-                            alert('Illegal move ' + move);
+                            void alertDialog({ text: 'Illegal move ' + move });
                             status = 10;
                             // LOSS for the moving player
                             result = resultString(false, idx + 1, isHandicap);
@@ -146,7 +147,7 @@ export function pasteView(model: PyChessModel): VNode[] {
                         // TODO
                         const error = _('Importing Alice PGN is not supported');
                         e.setCustomValidity(error);
-                        alert(error);
+                        void alertDialog({ text: error });
                         return;
                     }
                     if (!(variant in VARIANTS)) {
@@ -195,7 +196,7 @@ export function pasteView(model: PyChessModel): VNode[] {
             catch(err) {
                 const message = buildImportErrorMessage(err, pgn, ffish);
                 e.setCustomValidity(message);
-                alert(message);
+                void alertDialog({ text: message });
                 return;
             }
 
@@ -217,17 +218,17 @@ export function pasteView(model: PyChessModel): VNode[] {
                         return;
                     }
                     if (response['error'] !== undefined) {
-                        alert(response['error']);
+                        void alertDialog({ text: response['error'] });
                         return;
                     }
-                    alert(_('Import failed'));
+                    void alertDialog({ text: _('Import failed') });
                     return;
                 }
 
-                alert(response['error'] ?? `${_('Import failed')} (${this.status})`);
+                void alertDialog({ text: response['error'] ?? `${_('Import failed')} (${this.status})` });
             };
             XHR.onerror = function() {
-                alert(_('Import failed'));
+                void alertDialog({ text: _('Import failed') });
             };
             XHR.open("POST", "/import", true);
             XHR.send(FD);
