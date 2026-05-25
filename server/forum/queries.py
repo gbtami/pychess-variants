@@ -18,7 +18,7 @@ from forum.constants import (
     SLUG_RE,
 )
 from forum.permissions import can_moderate, can_write
-from forum.storage import ensure_categs, serialize_reactions, topic_by_tree
+from forum.storage import serialize_reactions, topic_by_tree
 from forum.utils import (
     escape_regex,
     json_response,
@@ -36,7 +36,6 @@ async def forum_categs(request: web.Request) -> web.Response:
     if app_state.db is None:
         return json_response({"categs": []})
 
-    await ensure_categs(app_state)
     cursor = app_state.db.forum_categ.find()
     cursor.sort("order", 1)
     categs = await cursor.to_list(length=50)
@@ -48,8 +47,6 @@ async def forum_topics(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     if app_state.db is None:
         return json_response({"type": "error", "message": "Forum unavailable"})
-    await ensure_categs(app_state)
-
     categ_id = request.match_info.get("categ", "")
     if not SLUG_RE.match(categ_id):
         return json_response({"type": "error", "message": "Invalid category"})
@@ -124,8 +121,6 @@ async def forum_topic(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     if app_state.db is None:
         return json_response({"type": "error", "message": "Forum unavailable"})
-    await ensure_categs(app_state)
-
     categ_id = request.match_info.get("categ", "")
     slug = request.match_info.get("slug", "")
     if not SLUG_RE.match(categ_id) or not SLUG_RE.match(slug):

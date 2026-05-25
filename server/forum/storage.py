@@ -13,7 +13,17 @@ async def ensure_categs(app_state) -> None:
     for categ in DEFAULT_FORUM_CATEGS:
         await app_state.db.forum_categ.update_one(
             {"_id": categ["_id"]},
-            {"$setOnInsert": categ},
+            {
+                "$set": {
+                    "name": categ["name"],
+                    "desc": categ["desc"],
+                    "order": categ["order"],
+                },
+                "$setOnInsert": {
+                    "nbTopics": categ["nbTopics"],
+                    "nbPosts": categ["nbPosts"],
+                },
+            },
             upsert=True,
         )
 

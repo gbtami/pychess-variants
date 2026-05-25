@@ -33,15 +33,15 @@ KEY_TO_REACTION = {value: key for key, value in REACTION_TO_KEY.items()}
 DEFAULT_FORUM_CATEGS: tuple[dict[str, object], ...] = (
     {
         "_id": "general-chess-discussion",
-        "name": "General Chess Discussion",
-        "desc": "Discuss chess, variants, and strategy.",
+        "name": "General Variant Discussion",
+        "desc": "Discuss variants, and strategy.",
         "order": 10,
         "nbTopics": 0,
         "nbPosts": 0,
     },
     {
         "_id": "pychess-feedback",
-        "name": "PyChess Feedback",
+        "name": "Pychess Feedback",
         "desc": "Feedback and feature requests about the site.",
         "order": 20,
         "nbTopics": 0,
@@ -58,7 +58,7 @@ DEFAULT_FORUM_CATEGS: tuple[dict[str, object], ...] = (
     {
         "_id": "off-topic-discussion",
         "name": "Off-Topic Discussion",
-        "desc": "Everything else.",
+        "desc": "Everything that isn't related to Pychess.",
         "order": 40,
         "nbTopics": 0,
         "nbPosts": 0,

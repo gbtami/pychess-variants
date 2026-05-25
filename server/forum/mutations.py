@@ -23,7 +23,6 @@ from forum.constants import (
 )
 from forum.permissions import can_moderate, can_write
 from forum.storage import (
-    ensure_categs,
     notify_mentions,
     recompute_categ_summary,
     recompute_topic_summary,
@@ -48,7 +47,6 @@ async def forum_topic_create(request: web.Request) -> web.Response:
 
     if username is None or app_state.db is None:
         return json_response({"type": "error", "message": "Login required"})
-    await ensure_categs(app_state)
     if not SLUG_RE.match(categ_id):
         return json_response({"type": "error", "message": "Invalid category"})
 
@@ -146,7 +144,6 @@ async def forum_post_create(request: web.Request) -> web.Response:
 
     if username is None or app_state.db is None:
         return json_response({"type": "error", "message": "Login required"})
-    await ensure_categs(app_state)
     if not SLUG_RE.match(categ_id) or not SLUG_RE.match(slug):
         return json_response({"type": "error", "message": "Invalid topic"})
 
