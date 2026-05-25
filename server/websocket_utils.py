@@ -119,7 +119,7 @@ async def process_ws(
                         continue
 
                     data = cast(DataT, decoded)
-                    if msg_type != "pong":
+                    if msg_type != "pong" and log.isEnabledFor(logging.DEBUG):
                         masked_data = (
                             {**decoded, "password": "***"}
                             if isinstance(decoded, Mapping) and "password" in decoded
