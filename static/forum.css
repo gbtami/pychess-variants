@@ -1,26 +1,26 @@
 .forum {
   grid-area: main;
   width: 100%;
-  max-width: min(1200px, 100%);
+  max-width: min(1300px, 100%);
   margin-inline: auto;
   --forum-primary: var(--blue-hover);
   min-width: 0;
 }
 
 .forum.box {
-  --box-padding: 15px;
-  padding: 5vh var(--box-padding);
+  --box-padding: 18px;
+  padding: 6vh var(--box-padding);
 }
 
 @media (min-width: 320px) {
   .forum.box {
-    --box-padding: calc(15px + 45 * ((100vw - 320px) / 880));
+    --box-padding: calc(18px + 50 * ((100vw - 320px) / 880));
   }
 }
 
 @media (min-width: 1200px) {
   .forum.box {
-    --box-padding: 60px;
+    --box-padding: 68px;
   }
 }
 
@@ -49,9 +49,16 @@ main.forum p {
   gap: 0.5rem;
 }
 
+.forum.index .box__top h1 {
+  font-size: clamp(2rem, 1.6rem + 1.1vw, 2.6rem);
+  line-height: 1.1;
+  font-weight: 300;
+}
+
 .forum .forum-title-icon {
   font-size: 0.92em;
   line-height: 1;
+  opacity: 0.9;
 }
 
 .forum .box__top h1 > a.text {
@@ -98,7 +105,7 @@ main.forum p {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .forum .box__top__actions {
@@ -125,7 +132,7 @@ main.forum p {
 
 .forum .slist {
   width: 100%;
-  margin-top: 0.7rem;
+  margin-top: 1rem;
   border-collapse: collapse;
 }
 
@@ -211,7 +218,13 @@ main.forum.forum-categ.box .slist.slist-pad td:last-child {
 
 .forum .slist .subject h2 {
   margin: 0;
-  font-size: 1.03rem;
+  font-size: clamp(1.3rem, 1.12rem + 0.45vw, 1.6rem);
+  line-height: 1.2;
+  font-weight: 300;
+}
+
+.forum .slist .subject h2 a {
+  font-weight: inherit;
 }
 
 .forum .slist .subject p,
