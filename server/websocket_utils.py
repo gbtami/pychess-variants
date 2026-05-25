@@ -115,7 +115,7 @@ async def process_ws(
                 else:
                     decoded = _ws_json_loads(msg.data, typed_decoders)
                     try:
-                        msg_type = decoded.get("type")
+                        msg_type = cast("Mapping[str, object]", decoded).get("type")
                     except AttributeError:
                         continue
                     if not isinstance(msg_type, str):
