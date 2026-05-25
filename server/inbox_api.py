@@ -143,9 +143,7 @@ async def inbox_thread(request: web.Request) -> web.Response:
     if profile is None or not profile.enabled or profile.username.startswith("Anon-"):
         return json_response({"type": "error", "message": "User not found"}, status=404)
     if username in profile.blocked:
-        return json_response(
-            {"type": "error", "message": "Cannot message this user"}, status=403
-        )
+        return json_response({"type": "error", "message": "Cannot message this user"}, status=403)
 
     tid = _thread_id(username, contact)
     before = request.rel_url.query.get("before")
@@ -154,9 +152,7 @@ async def inbox_thread(request: web.Request) -> web.Response:
         try:
             before_dt = datetime.fromtimestamp(int(before) / 1000.0, tz=timezone.utc)
         except ValueError:
-            return json_response(
-                {"type": "error", "message": "Invalid before value"}, status=400
-            )
+            return json_response({"type": "error", "message": "Invalid before value"}, status=400)
         query["createdAt"] = {"$lt": before_dt}
 
     cursor = app_state.db.inbox_msg.find(query)
@@ -245,9 +241,7 @@ async def inbox_post(request: web.Request) -> web.Response:
     if profile is None or not profile.enabled or profile.username.startswith("Anon-"):
         return json_response({"type": "error", "message": "User not found"}, status=404)
     if username in profile.blocked:
-        return json_response(
-            {"type": "error", "message": "Cannot message this user"}, status=403
-        )
+        return json_response({"type": "error", "message": "Cannot message this user"}, status=403)
 
     now = datetime.now(timezone.utc)
     tid = _thread_id(username, contact)

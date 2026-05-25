@@ -307,9 +307,7 @@ async def challenge_seek_accept(request: web.Request) -> web.StreamResponse:
         or seek.target != user.username
         or seek.challenge_status not in ACTIVE_DIRECT_CHALLENGE_STATUSES
     ):
-        return json_response(
-            {"type": "error", "message": "Challenge not available"}, status=403
-        )
+        return json_response({"type": "error", "message": "Challenge not available"}, status=403)
 
     result = await join_seek(app_state, user, seek)
     game_ids: dict[str, str] | None = None
@@ -341,9 +339,7 @@ async def challenge_seek_decline(request: web.Request) -> web.StreamResponse:
         or seek.target != user.username
         or seek.challenge_status not in ACTIVE_DIRECT_CHALLENGE_STATUSES
     ):
-        return json_response(
-            {"type": "error", "message": "Challenge not available"}, status=403
-        )
+        return json_response({"type": "error", "message": "Challenge not available"}, status=403)
 
     usernames = challenge_participants(seek)
     reason_data = await read_post_data(request)
@@ -381,9 +377,7 @@ async def challenge_seek_cancel(request: web.Request) -> web.StreamResponse:
         or seek.creator.username != user.username
         or seek.challenge_status not in ACTIVE_DIRECT_CHALLENGE_STATUSES
     ):
-        return json_response(
-            {"type": "error", "message": "Challenge not available"}, status=403
-        )
+        return json_response({"type": "error", "message": "Challenge not available"}, status=403)
 
     usernames = challenge_participants(seek)
     set_direct_challenge_status(seek, DIRECT_CHALLENGE_CANCELED)

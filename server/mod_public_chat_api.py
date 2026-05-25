@@ -59,9 +59,7 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
             return json_response({"type": "error", "message": "Missing room ID"}, status=400)
         tournament = await load_tournament(app_state, room_id)
         if tournament is None:
-            return json_response(
-                {"type": "error", "message": "Tournament not found"}, status=404
-            )
+            return json_response({"type": "error", "message": "Tournament not found"}, status=404)
 
         fullchat = silence(
             app_state,
