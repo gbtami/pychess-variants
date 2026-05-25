@@ -12,6 +12,7 @@ from pymongo.errors import DuplicateKeyError
 
 from broadcast import round_broadcast
 from const import STARTED, reserved
+from json_utils import json_response
 from oauth_config import oauth_config
 from settings import DEV, URI
 from pychess_global_app_state_utils import get_app_state
@@ -324,15 +325,15 @@ async def check_username_availability(request: web.Request) -> web.StreamRespons
     username = data.get("username", "").strip()
 
     if not username:
-        return web.json_response({"available": False, "error": "Username cannot be empty"})
+        return json_response({"available": False, "error": "Username cannot be empty"})
 
     if len(username) < 3:
-        return web.json_response(
+        return json_response(
             {"available": False, "error": "Username must be at least 3 characters"}
         )
 
     if len(username) > 20:
-        return web.json_response(
+        return json_response(
             {"available": False, "error": "Username must be at most 20 characters"}
         )
 
@@ -340,18 +341,18 @@ async def check_username_availability(request: web.Request) -> web.StreamRespons
     import re
 
     if not re.match(r"^[a-zA-Z0-9_-]+$", username):
-        return web.json_response(
+        return json_response(
             {"available": False, "error": "Username can only contain letters, numbers, _ and -"}
         )
 
     if reserved(username):
-        return web.json_response({"available": False, "error": "Username is reserved"})
+        return json_response({"available": False, "error": "Username is reserved"})
 
     app_state = get_app_state(request.app)
     if await username_exists(app_state, username):
-        return web.json_response({"available": False, "error": "Username is already taken"})
+        return json_response({"available": False, "error": "Username is already taken"})
 
-    return web.json_response({"available": True})
+    return json_response({"available": True})
 
 
 async def confirm_username(request: web.Request) -> web.StreamResponse:
@@ -360,7 +361,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
 
     # Check if user is in the middle of OAuth flow
     if "oauth_id" not in session:
-        return web.json_response({"error": "Invalid session"}, status=400)
+        return json_response({"error": "Invalid session"}, status=400)
 
     data = await read_json_data(request)
     if data is None:
@@ -369,30 +370,30 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
 
     # Validate username again by calling the validation logic directly
     if not username:
-        return web.json_response({"error": "Username cannot be empty"}, status=400)
+        return json_response({"error": "Username cannot be empty"}, status=400)
 
     if len(username) < 3:
-        return web.json_response({"error": "Username must be at least 3 characters"}, status=400)
+        return json_response({"error": "Username must be at least 3 characters"}, status=400)
 
     if len(username) > 20:
-        return web.json_response({"error": "Username must be at most 20 characters"}, status=400)
+        return json_response({"error": "Username must be at most 20 characters"}, status=400)
 
     # Check for invalid characters
     import re
 
     if not re.match(r"^[a-zA-Z0-9_-]+$", username):
-        return web.json_response(
+        return json_response(
             {"error": "Username can only contain letters, numbers, _ and -"}, status=400
         )
 
     if reserved(username):
-        return web.json_response({"error": "Username is reserved"}, status=400)
+        return json_response({"error": "Username is reserved"}, status=400)
 
     app_state = get_app_state(request.app)
     username_lower = normalized_username(username)
 
     if await username_exists(app_state, username):
-        return web.json_response({"error": "Username is already taken"}, status=400)
+        return json_response({"error": "Username is already taken"}, status=400)
 
     # Create new user with OAuth information
     oauth_id: str = session["oauth_id"]
@@ -438,7 +439,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
         session.pop("oauth_provider", None)
         session.pop("oauth_username", None)
         session.pop("oauth_title", None)
-        return web.json_response(
+        return json_response(
             {
                 "error": (
                     "Account closed for suspected ban evasion. "
@@ -476,15 +477,15 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
         await remember_user_signals(app_state.db, username, signals)
 
         log.info("Created new user %s via OAuth signup", username)
-        return web.json_response({"success": True})
+        return json_response({"success": True})
 
     except DuplicateKeyError:
         log.info("Duplicate username rejected during OAuth signup: %s", username)
-        return web.json_response({"error": "Username is already taken"}, status=400)
+        return json_response({"error": "Username is already taken"}, status=400)
 
     except Exception as e:
         log.error("Failed to create user %s: %s", username, e)
-        return web.json_response({"error": "Failed to create user"}, status=500)
+        return json_response({"error": "Failed to create user"}, status=500)
 
 
 def get_code_challenge(code_verifier: str) -> str:

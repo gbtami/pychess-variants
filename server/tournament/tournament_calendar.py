@@ -1,13 +1,12 @@
 from __future__ import annotations
-import json
 import datetime as dt
-from functools import partial
 from typing import TYPE_CHECKING
 
 import aiohttp_session
 from aiohttp import web
 
 from const import CATEGORY_VARIANT_SETS, normalize_game_category
+from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
 from tournament.scheduler import new_scheduled_tournaments
 from tournament.tournaments import get_scheduled_tournaments
@@ -100,4 +99,4 @@ async def tournament_calendar(request: web.Request) -> web.Response:
         allowed_variants = CATEGORY_VARIANT_SETS[game_category]
         events = [event for event in events if event.get("title") in allowed_variants]
 
-    return web.json_response(events, dumps=partial(json.dumps, default=dt.datetime.isoformat))
+    return json_response(events)

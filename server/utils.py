@@ -2,13 +2,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable
 
 import asyncio
-import json
 import re
 
 
 import random
 from datetime import date, datetime, timezone, timedelta
-from functools import partial
 
 from aiohttp import web
 import aiohttp_session
@@ -79,6 +77,7 @@ if TYPE_CHECKING:
         SeekStatusMessage,
     )
 from pychess_global_app_state_utils import get_app_state
+from json_utils import json_response
 from request_utils import read_post_data
 import logging
 from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
@@ -325,7 +324,7 @@ async def load_game(
 async def import_game(request):
     data = await read_post_data(request)
     if data is None:
-        return web.json_response({})
+        return json_response({})
     app_state = get_app_state(request.app)
 
     # print("---IMPORT GAME---")
@@ -334,7 +333,7 @@ async def import_game(request):
 
     username = data.get("username")
     if not isinstance(username, str) or not username:
-        return web.json_response({"error": "Missing username."})
+        return json_response({"error": "Missing username."})
 
     wp = data.get("White", "White")
     bp = data.get("Black", "Black")
@@ -396,7 +395,7 @@ async def import_game(request):
     except KeyError:
         message = "Unsupported variant in imported PGN: %s" % variant
         log.warning("PGN import rejected: %s", message)
-        return web.json_response({"error": message})
+        return json_response({"error": message})
 
     moves, import_error = _encode_import_moves(
         data.get("moves", ""),
@@ -404,14 +403,14 @@ async def import_game(request):
         grand_variant=server_variant.server_name in GRANDS,
     )
     if import_error is not None:
-        return web.json_response({"error": import_error})
+        return json_response({"error": import_error})
 
     game_id = await new_id(None if app_state.db is None else app_state.db.game)
     existing = await app_state.db.game.find_one({"_id": {"$eq": game_id}})
     if existing:
         message = "Failed to create game. Game ID %s already in mongodb." % game_id
         log.exception(message)
-        return web.json_response({"error": message})
+        return json_response({"error": message})
 
     new_game: Game | None = None
     try:
@@ -430,7 +429,7 @@ async def import_game(request):
     except Exception:
         message = "Creating new Game %s failed!" % game_id
         log.exception(message)
-        return web.json_response({"error": message})
+        return json_response({"error": message})
 
     try:
         if TYPE_CHECKING:
@@ -474,7 +473,7 @@ async def import_game(request):
         result = await app_state.db.game.insert_one(document)
         # print("db insert IMPORTED game result %s" % repr(result.inserted_id))
 
-        return web.json_response({"gameId": game_id})
+        return json_response({"gameId": game_id})
     finally:
         # import_game() constructs a temporary Game only to validate/import the PGN.
         # It is never cached, so its clock task must be cancelled explicitly.
@@ -1263,11 +1262,11 @@ async def get_names(request):
     names = []
     prefix = request.rel_url.query.get("p")
     if prefix is None:
-        return web.json_response(names)
+        return json_response(names)
 
     prefix = prefix.strip()
     if not USERNAME_PREFIX_RE.fullmatch(prefix):
-        return web.json_response(names)
+        return json_response(names)
 
     # case insensitive _id prefix search
     cursor = app_state.db.user.find(
@@ -1276,7 +1275,7 @@ async def get_names(request):
     )
     async for doc in cursor:
         names.append((doc["_id"], doc["title"]))
-    return web.json_response(names)
+    return json_response(names)
 
 
 async def get_blogs(request, tag=None, limit=0):
@@ -1322,13 +1321,13 @@ async def get_notifications(request):
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
-        return web.json_response({})
+        return json_response({})
 
     user = await app_state.users.get(session_user)
 
     notifications = await notification_items_for_user(app_state, user, page_num)
 
-    return web.json_response(notifications, dumps=partial(json.dumps, default=datetime.isoformat))
+    return json_response(notifications)
 
 
 async def notification_items_for_user(app_state, user: User, page_num: int = 0):
@@ -1386,11 +1385,11 @@ async def notified(request):
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
-        return web.json_response({})
+        return json_response({})
 
     user = await app_state.users.get(session_user)
     await user.notified()
-    return web.json_response({})
+    return json_response({})
 
 
 async def subscribe_notify(request):
@@ -1399,7 +1398,7 @@ async def subscribe_notify(request):
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
-        return web.json_response({})
+        return json_response({})
 
     user = await app_state.users.get(session_user)
     queue = asyncio.Queue()

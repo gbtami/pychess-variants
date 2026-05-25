@@ -24,6 +24,7 @@ from const import (
     normalize_game_category,
 )
 from glicko2.glicko2 import gl2, new_default_perf, perf_map_with_defaults, Rating
+from json_utils import json_response
 from newid import id8
 from notify import notify
 from const import BLOCK, MAX_USER_BLOCK
@@ -776,7 +777,7 @@ async def block_user(request: web.Request) -> web.StreamResponse:
 
     post_data = await read_post_data(request)
     if post_data is None:
-        return web.json_response({})
+        return json_response({})
     block = post_data["block"] == "true"
     try:
         if block:
@@ -794,7 +795,7 @@ async def block_user(request: web.Request) -> web.StreamResponse:
             "block_user() Exception. Failed to save new relation for %s to mongodb!", session_user
         )
 
-    return web.json_response({})
+    return json_response({})
 
 
 async def get_blocked_users(request: web.Request) -> web.StreamResponse:
@@ -806,10 +807,10 @@ async def get_blocked_users(request: web.Request) -> web.StreamResponse:
 
     if user.anon:
         await asyncio.sleep(3)
-        return web.json_response({})
+        return json_response({})
 
     response: UserBlocksResponse = {"blocks": list(user.blocked)}
-    return web.json_response(response)
+    return json_response(response)
 
 
 async def get_status(request: web.Request) -> web.StreamResponse:
@@ -829,4 +830,4 @@ async def get_status(request: web.Request) -> web.StreamResponse:
         status_entry: UserStatusJson = {"status": user.online, "id": uid}
         status_list.append(status_entry)
 
-    return web.json_response(status_list)
+    return json_response(status_list)

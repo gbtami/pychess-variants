@@ -1,5 +1,4 @@
 import asyncio
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Mapping
@@ -9,6 +8,7 @@ from aiohttp import web
 
 from const import ANON_PREFIX, DARK_FEN, STARTED, GAME_CATEGORY_ALL
 from fairy import BLACK, WHITE
+from json_utils import json_dumps
 from lang import LOCALE
 from pychess_global_app_state_utils import get_app_state
 import logging
@@ -199,7 +199,7 @@ def add_game_context(
     context["initialFen"] = game.initial_fen
 
     user_color = WHITE if user == game.wplayer else BLACK if user == game.bplayer else None
-    context["board"] = json.dumps(game.get_board(full=True, persp_color=user_color))
+    context["board"] = json_dumps(game.get_board(full=True, persp_color=user_color))
 
     if game.server_variant.two_boards:
         if TYPE_CHECKING:

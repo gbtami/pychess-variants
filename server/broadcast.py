@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Iterable, Mapping
 import asyncio
-import json
 
+from json_utils import json_dumps
 
 if TYPE_CHECKING:
     from game import Game
@@ -39,4 +39,4 @@ async def round_broadcast(
     # Put response data to sse subscribers queue
     if channels is not None:
         for queue in tuple(channels):
-            await queue.put(json.dumps(response))
+            await queue.put(json_dumps(response))

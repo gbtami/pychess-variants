@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-import json
 import math
 import re
 from datetime import datetime, timezone
-from functools import partial
 
 import aiohttp_session
 from aiohttp import web
 
 from forum.constants import MENTION_RE
+from json_utils import json_response as msgspec_json_response
 
 
 async def session_username(request: web.Request) -> str | None:
@@ -129,4 +128,4 @@ def captcha_moves_map(legal_moves: list[str]) -> dict[str, str]:
 
 def json_response(payload: dict[str, object]) -> web.Response:
     """Serialize API payloads with datetime ISO formatting."""
-    return web.json_response(payload, dumps=partial(json.dumps, default=datetime.isoformat))
+    return msgspec_json_response(payload)

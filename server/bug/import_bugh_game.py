@@ -8,8 +8,8 @@ from const import (
 from datetime import datetime, timezone
 from compress import R2C, encode_move_standard
 from newid import new_id
-from aiohttp import web
 from bugchess.pgn import read_game, Game, GameBuilder
+from json_utils import json_response
 import logging
 from variants import get_server_variant
 
@@ -110,7 +110,7 @@ def get_main_variation(
 async def import_game_bpgn(request):
     data = await read_post_data(request)
     if data is None:
-        return web.json_response({})
+        return json_response({})
     app_state = get_app_state(request.app)
 
     # print("---IMPORT GAME---")
@@ -119,7 +119,7 @@ async def import_game_bpgn(request):
 
     pgn = data.get("pgn")
     if not isinstance(pgn, str) or not pgn:
-        return web.json_response({"error": "Missing pgn."})
+        return json_response({"error": "Missing pgn."})
 
     # strange bug in chess.com bpgn, whenever there is N@ it is instead $146@
     pgn = pgn.replace("$146@", "N@")
@@ -129,15 +129,15 @@ async def import_game_bpgn(request):
 
     first_game = read_game(pgn, Visitor=QuietGameBuilder)
     if first_game is None:
-        return web.json_response({"error": "Invalid BPGN."})
+        return json_response({"error": "Invalid BPGN."})
     if first_game.errors:
         first_error = str(first_game.errors[0]).strip() or "parse error"
-        return web.json_response({"error": f"Invalid BPGN: {first_error}."})
+        return json_response({"error": f"Invalid BPGN: {first_error}."})
 
     required_headers = ("WhiteA", "BlackA", "WhiteB", "BlackB")
     missing_headers = [header for header in required_headers if not first_game.headers.get(header)]
     if missing_headers:
-        return web.json_response({"error": "Invalid BPGN: missing bughouse player headers."})
+        return json_response({"error": "Invalid BPGN: missing bughouse player headers."})
 
     wp_a = first_game.headers.get("WhiteA")
     bp_a = first_game.headers.get("BlackA")
@@ -171,7 +171,7 @@ async def import_game_bpgn(request):
     if existing:
         message = "Failed to create game. Game ID %s allready in mongodb." % game_id
         log.exception(message)
-        return web.json_response({"error": message})
+        return json_response({"error": message})
 
     try:
         log.info(
@@ -198,7 +198,7 @@ async def import_game_bpgn(request):
     except Exception:
         message = "Creating new Game %s failed!" % game_id
         log.exception(message)
-        return web.json_response({"error": message})
+        return json_response({"error": message})
 
     document = {
         "_id": game_id,
@@ -237,4 +237,4 @@ async def import_game_bpgn(request):
     result = await app_state.db.game.insert_one(document)
     log.info("db insert IMPORTED game result %r", result.inserted_id)
 
-    return web.json_response({"gameId": game_id})
+    return json_response({"gameId": game_id})

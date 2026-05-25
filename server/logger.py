@@ -3,10 +3,12 @@ import logging
 import logging.config
 import contextvars
 from typing import Any
-import json
 import traceback
 
+import msgspec
+
 log = logging.getLogger(__name__)
+_STRUCTURED_LOG_JSON_ENCODER = msgspec.json.Encoder()
 
 ############################################################################################
 ###################################### NOTE!!! #############################################
@@ -238,7 +240,7 @@ class AddJsonStructuredLogRecordInContextFilter(logging.Filter):
             setattr(
                 record,
                 "json",
-                json.dumps(
+                _STRUCTURED_LOG_JSON_ENCODER.encode(
                     {
                         "level": record.levelname,
                         "message": record.getMessage(),
@@ -258,7 +260,7 @@ class AddJsonStructuredLogRecordInContextFilter(logging.Filter):
                             else None
                         ),
                     }
-                ),
+                ).decode("utf-8"),
             )
         except Exception as e:
             print(e)

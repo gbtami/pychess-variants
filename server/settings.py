@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import base64
 import os
-import json
 import string
+
+import msgspec
 
 LOCALHOST = "http://127.0.0.1:8080"
 URI = os.getenv("URI", LOCALHOST)
@@ -29,8 +30,8 @@ MAX_AGE = 3600 * 24 * 365
 MONGO_HOST = os.getenv("MONGO_HOST", "mongodb://127.0.0.1:27017")
 MONGO_DB_NAME = "pychess-variants"
 
-BOT_TOKENS = json.loads(os.getenv("BOT_TOKENS", "{}"))
-FISHNET_KEYS = json.loads(os.getenv("FISHNET_KEYS", "{}"))
+BOT_TOKENS = msgspec.json.decode(os.getenv("BOT_TOKENS", "{}"))
+FISHNET_KEYS = msgspec.json.decode(os.getenv("FISHNET_KEYS", "{}"))
 
 ADMINS = os.getenv("ADMINS", "").split(",")
 TOURNAMENT_DIRECTORS = os.getenv("TOURNAMENT_DIRECTORS", "").split(",")

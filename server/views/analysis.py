@@ -1,9 +1,8 @@
-import json
-
 import aiohttp_jinja2
 from aiohttp import web
 
 from fairy import FairyBoard
+from json_utils import json_dumps
 from utils import load_game
 from variants import VARIANTS
 from typing_defs import ViewContext
@@ -44,6 +43,6 @@ async def analysis(request: web.Request) -> ViewContext:
         context["view_css"] = "analysis.css"
 
         if not request.path.startswith("/corr"):
-            context["ct"] = json.dumps(game.crosstable)
+            context["ct"] = json_dumps(game.crosstable)
 
     return context

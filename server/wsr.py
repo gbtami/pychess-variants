@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Mapping
 import asyncio
-import json
 import random
 import string
 from time import monotonic
@@ -74,7 +73,9 @@ if TYPE_CHECKING:
         ViewRematchMessage,
     )
 from pychess_global_app_state_utils import get_app_state
+from json_utils import json_dumps
 from seek import Seek
+from ws_structs import ROUND_TYPED_DECODERS
 from ws_types import BughouseMoveMessage, MoveMessage, RoundInboundMessage
 from utils import (
     analysis_move,
@@ -176,6 +177,7 @@ async def round_socket_handler(request: web.Request) -> web.StreamResponse:
         user,
         lambda app_state, ws, user: init_ws(app_state, ws, user, game),
         process_message_wrapper,
+        typed_decoders=ROUND_TYPED_DECODERS,
     )
     if ws is None:
         return web.HTTPFound("/")
@@ -1177,7 +1179,7 @@ async def handle_roundchat(
         if player.bot:
             if gameId in player.game_queues:
                 await player.game_queues[gameId].put(
-                    json.dumps(
+                    json_dumps(
                         {
                             "type": "chatLine",
                             "username": user.username,

@@ -68,7 +68,7 @@ class FlagClaimValidationTestCase(AioHTTPTestCase):
 
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
-        ws.send_json.assert_not_awaited()
+        ws.send_str.assert_not_awaited()
 
     async def test_flag_ignored_before_server_timeout(self):
         game = self.new_game()
@@ -85,7 +85,7 @@ class FlagClaimValidationTestCase(AioHTTPTestCase):
 
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
-        ws.send_json.assert_not_awaited()
+        ws.send_str.assert_not_awaited()
 
     async def test_flag_accepted_when_server_clock_is_expired(self):
         game = self.new_game()
@@ -105,7 +105,7 @@ class FlagClaimValidationTestCase(AioHTTPTestCase):
 
         self.assertEqual(game.status, FLAG)
         self.assertEqual(game.result, "0-1")
-        ws.send_json.assert_awaited()
+        ws.send_str.assert_awaited()
 
     async def test_first_move_timeout_aborts_rr_arrangement_games(self):
         game = Game(

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import json
 import hashlib
 from datetime import datetime, timezone
 from typing import Any
 
 import aiohttp_jinja2
 import aiohttp_session
+import msgspec
 from aiohttp import web
 
 from login import logout
@@ -29,8 +29,11 @@ def _json_default(value: Any) -> Any:
     return str(value)
 
 
+_EXPORT_JSON_ENCODER = msgspec.json.Encoder(enc_hook=_json_default, order="sorted")
+
+
 def _export_section(title: str, payload: Any) -> str:
-    body = json.dumps(payload, indent=2, sort_keys=True, default=_json_default)
+    body = msgspec.json.format(_EXPORT_JSON_ENCODER.encode(payload), indent=2).decode("utf-8")
     return f"\n{'=' * len(title)}\n{title}\n{'=' * len(title)}\n{body}\n"
 
 

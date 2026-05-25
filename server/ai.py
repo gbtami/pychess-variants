@@ -1,10 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import asyncio
-import json
 import random
 import string
 from time import monotonic
+
+import msgspec
 
 from const import MOVE, STARTED
 from fairy import WHITE
@@ -22,13 +23,14 @@ bot_game_tasks: set[asyncio.Task[None]] = set()
 # Poll interval for bot queues when no messages are arriving; this prevents
 # stuck bot-game tasks from keeping finished games and players alive forever.
 BOT_QUEUE_POLL_SECS = 5
+_BOT_EVENT_DECODER = msgspec.json.Decoder()
 
 
 async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
     def parse_bot_event(line: str, queue_name: str, game_id: str = "-"):
         try:
-            event = json.loads(line)
-        except json.JSONDecodeError:
+            event = _BOT_EVENT_DECODER.decode(line)
+        except msgspec.DecodeError:
             log.error(
                 "Invalid JSON in BOT_task() %s queue. bot=%s game=%s line=%r",
                 queue_name,

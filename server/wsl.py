@@ -84,6 +84,7 @@ from seek import (
     SeekCreateData,
 )
 from settings import ADMINS
+from ws_structs import LOBBY_TYPED_DECODERS
 from tournament_director import is_tournament_director
 from tournament.tournament_spotlights import tournament_spotlights
 from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
@@ -114,7 +115,9 @@ async def lobby_socket_handler(request: web.Request) -> web.StreamResponse:
     logger.set_log_context("username", user.username)
     logger.set_log_context("gameId", "lobby")
 
-    ws = await process_ws(session, request, user, init_ws, process_message)
+    ws = await process_ws(
+        session, request, user, init_ws, process_message, typed_decoders=LOBBY_TYPED_DECODERS
+    )
     if ws is None:
         return web.HTTPFound("/")
     await finally_logic(app_state, ws, user)

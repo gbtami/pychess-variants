@@ -1,10 +1,8 @@
-import json
-from datetime import datetime
-
 import aiohttp_jinja2
 from aiohttp import web
 import aiohttp_session
 
+from json_utils import json_dumps
 from views import get_user_context
 from puzzle import get_daily_puzzle
 from pychess_global_app_state_utils import get_app_state
@@ -67,11 +65,11 @@ async def lobby(request: web.Request) -> ViewContext:
     context["tournamentdirector"] = is_tournament_director(user, app_state)
 
     puzzle = await get_daily_puzzle(request)
-    context["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
+    context["puzzle"] = json_dumps(puzzle)
 
     c_games = corr_games(user.correspondence_games)
-    context["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
+    context["corr_games"] = json_dumps(c_games)
 
     blogs = await get_blogs(request, limit=3)
-    context["blogs"] = json.dumps(blogs)
+    context["blogs"] = json_dumps(blogs)
     return context

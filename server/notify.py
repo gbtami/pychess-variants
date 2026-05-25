@@ -1,7 +1,7 @@
-import json
 from datetime import datetime, timezone
 
 from const import NOTIFY_PAGE_SIZE, NOTIFY_EXPIRE_WEEKS
+from json_utils import json_dumps
 from newid import new_id
 
 
@@ -25,9 +25,7 @@ async def notify(db, user, notif_type, content):
     user.notifications.append(document)
 
     for queue in user.notify_channels:
-        await queue.put(
-            json.dumps(user.notifications[-NOTIFY_PAGE_SIZE:], default=datetime.isoformat)
-        )
+        await queue.put(json_dumps(user.notifications[-NOTIFY_PAGE_SIZE:]))
 
     if db is not None:
         await db.notify.insert_one(document)

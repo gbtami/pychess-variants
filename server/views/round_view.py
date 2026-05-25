@@ -1,10 +1,9 @@
-import json
 from typing import TYPE_CHECKING
-from datetime import datetime
 
 import aiohttp_jinja2
 from aiohttp import web
 
+from json_utils import json_dumps
 from simul.simuls import load_simul
 from tournament.tournaments import get_tournament_name, load_tournament
 from utils import corr_games, load_game, simul_games
@@ -35,7 +34,7 @@ async def round_view(request: web.Request) -> ViewContext:
 
     add_game_context(game, ply, user, context)
 
-    context["ct"] = json.dumps(game.crosstable)
+    context["ct"] = json_dumps(game.crosstable)
 
     if game.tournamentId is not None:
         if TYPE_CHECKING:
@@ -50,7 +49,7 @@ async def round_view(request: web.Request) -> ViewContext:
 
     if game.corr and user.username in (game.wplayer.username, game.bplayer.username):
         c_games = corr_games(user.correspondence_games)
-        context["corr_games"] = json.dumps(c_games, default=datetime.isoformat)
+        context["corr_games"] = json_dumps(c_games)
 
     simul_id: str | None = None
     if not game.server_variant.two_boards:
@@ -71,6 +70,6 @@ async def round_view(request: web.Request) -> ViewContext:
             and user.username == simul.created_by
         ):
             context["simulhost"] = True
-            context["simul_games"] = json.dumps(simul_games(simul.games.values()))
+            context["simul_games"] = json_dumps(simul_games(simul.games.values()))
 
     return context

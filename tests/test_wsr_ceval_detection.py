@@ -104,7 +104,7 @@ class CevalDetectionTestCase(AioHTTPTestCase):
 
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
-        ws.send_json.assert_not_awaited()
+        ws.send_str.assert_not_awaited()
         self.bplayer.send_game_message.assert_not_awaited()
 
         report = await self.latest_report(game)
@@ -137,7 +137,7 @@ class CevalDetectionTestCase(AioHTTPTestCase):
 
         self.assertEqual(game.status, CHEAT)
         self.assertEqual(game.result, "0-1")
-        ws.send_json.assert_awaited()
+        ws.send_str.assert_awaited()
         self.bplayer.send_game_message.assert_awaited()
 
         report = await self.latest_report(game)
@@ -164,7 +164,7 @@ class CevalDetectionTestCase(AioHTTPTestCase):
 
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
-        ws.send_json.assert_not_awaited()
+        ws.send_str.assert_not_awaited()
         self.assertIsNone(await self.latest_report(game))
 
     async def test_ceval_detection_respects_minimum_played_plies(self):
@@ -184,7 +184,7 @@ class CevalDetectionTestCase(AioHTTPTestCase):
 
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
-        ws.send_json.assert_not_awaited()
+        ws.send_str.assert_not_awaited()
         self.assertIsNone(await self.latest_report(game))
 
     async def test_ceval_detection_uses_lower_minimum_for_chess960(self):
@@ -202,7 +202,7 @@ class CevalDetectionTestCase(AioHTTPTestCase):
 
         self.assertEqual(game.status, STARTED)
         self.assertEqual(game.result, "*")
-        ws.send_json.assert_not_awaited()
+        ws.send_str.assert_not_awaited()
         report = await self.latest_report(game)
         self.assertIsNotNone(report)
         self.assertEqual(report["action"], CEVAL_REPORT_ACTION_REPORTED_ONLY)
@@ -245,7 +245,7 @@ class CevalDetectionTestCase(AioHTTPTestCase):
                 )
                 self.assertEqual(excluded_game.status, STARTED)
                 self.assertEqual(excluded_game.result, "*")
-                ws.send_json.assert_not_awaited()
+                ws.send_str.assert_not_awaited()
                 self.assertIsNone(await self.latest_report(excluded_game))
 
 

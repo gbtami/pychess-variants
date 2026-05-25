@@ -5,6 +5,7 @@ from aiohttp import web
 
 from admin import silence
 from broadcast import round_broadcast
+from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
 from report_api import TIMEOUT_REASONS
 from settings import ADMINS
@@ -26,9 +27,9 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
     username = await _session_username(request)
 
     if username is None or app_state.db is None:
-        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+        return json_response({"type": "error", "message": "Login required"}, status=401)
     if not _is_admin_username(username):
-        return web.json_response({"type": "error", "message": "Admin only"}, status=403)
+        return json_response({"type": "error", "message": "Admin only"}, status=403)
 
     data = await request.post()
     chan = str(data.get("chan") or "").strip().lower()
@@ -37,28 +38,28 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
     reason = str(data.get("reason") or "").strip().lower()
 
     if reason not in TIMEOUT_REASONS:
-        return web.json_response({"type": "error", "message": "Invalid timeout reason"}, status=400)
+        return json_response({"type": "error", "message": "Invalid timeout reason"}, status=400)
     if not target_user:
-        return web.json_response({"type": "error", "message": "Missing target user"}, status=400)
+        return json_response({"type": "error", "message": "Missing target user"}, status=400)
 
     reason_text = TIMEOUT_REASONS[reason]
 
     if chan == "lobby":
         fullchat = silence(app_state, f"/silence {target_user}", reason_text=reason_text)
         if fullchat is None:
-            return web.json_response(
+            return json_response(
                 {"type": "error", "message": "User must be online to timeout"},
                 status=409,
             )
         await app_state.lobby.lobby_broadcast(fullchat)
-        return web.json_response({"ok": True, "chan": chan, "reason": reason})
+        return json_response({"ok": True, "chan": chan, "reason": reason})
 
     if chan == "tournament":
         if not room_id:
-            return web.json_response({"type": "error", "message": "Missing room ID"}, status=400)
+            return json_response({"type": "error", "message": "Missing room ID"}, status=400)
         tournament = await load_tournament(app_state, room_id)
         if tournament is None:
-            return web.json_response(
+            return json_response(
                 {"type": "error", "message": "Tournament not found"}, status=404
             )
 
@@ -69,20 +70,20 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
             reason_text=reason_text,
         )
         if fullchat is None:
-            return web.json_response(
+            return json_response(
                 {"type": "error", "message": "User must be online to timeout"},
                 status=409,
             )
 
         await tournament.broadcast(fullchat)
-        return web.json_response({"ok": True, "chan": chan, "reason": reason})
+        return json_response({"ok": True, "chan": chan, "reason": reason})
 
     if chan == "round":
         if not room_id:
-            return web.json_response({"type": "error", "message": "Missing room ID"}, status=400)
+            return json_response({"type": "error", "message": "Missing room ID"}, status=400)
         game = app_state.games.get(room_id)
         if game is None:
-            return web.json_response({"type": "error", "message": "Game not found"}, status=404)
+            return json_response({"type": "error", "message": "Game not found"}, status=404)
 
         fullchat = silence(
             app_state,
@@ -91,7 +92,7 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
             reason_text=reason_text,
         )
         if fullchat is None:
-            return web.json_response(
+            return json_response(
                 {"type": "error", "message": "User must be online to timeout"},
                 status=409,
             )
@@ -101,6 +102,6 @@ async def public_chat_timeout(request: web.Request) -> web.Response:
                 line["room"] = "player"
 
         await round_broadcast(game, fullchat, full=True)
-        return web.json_response({"ok": True, "chan": chan, "reason": reason})
+        return json_response({"ok": True, "chan": chan, "reason": reason})
 
-    return web.json_response({"type": "error", "message": "Unsupported channel"}, status=400)
+    return json_response({"type": "error", "message": "Unsupported channel"}, status=400)

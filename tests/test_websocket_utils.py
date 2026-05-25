@@ -10,7 +10,7 @@ from websocket_utils import ws_send_json, ws_send_json_many, ws_send_str, ws_sen
 class WebSocketUtilsTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_ws_send_json_connection_reset_returns_false_without_error_log(self):
         ws = cast(WebSocketResponse, AsyncMock())
-        ws.send_json.side_effect = ConnectionResetError
+        ws.send_str.side_effect = ConnectionResetError
 
         with patch("websocket_utils.log.error") as error:
             ok = await ws_send_json(ws, {"type": "ping"})
@@ -36,8 +36,8 @@ class WebSocketUtilsTestCase(unittest.IsolatedAsyncioTestCase):
         sent = await ws_send_json_many([ws1, ws2], {"type": "ping"})
 
         self.assertEqual(sent, 1)
-        ws1.send_str.assert_awaited_once_with('{"type": "ping"}')
-        ws2.send_str.assert_awaited_once_with('{"type": "ping"}')
+        ws1.send_str.assert_awaited_once_with('{"type":"ping"}')
+        ws2.send_str.assert_awaited_once_with('{"type":"ping"}')
 
     async def test_ws_send_str_many_ignores_none_socket(self):
         ws = cast(WebSocketResponse, AsyncMock())

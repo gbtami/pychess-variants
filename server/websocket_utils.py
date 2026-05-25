@@ -1,11 +1,12 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, TypeVar, cast
 from collections.abc import Awaitable, Callable, Iterable, Mapping
 import asyncio
-import json
 import logging
+import re
 import aiohttp
 import aiohttp_session
+import msgspec
 from aiohttp import WSMessage, web
 from aiohttp.web_ws import WebSocketResponse
 from aiohttp.client_exceptions import ClientConnectionResetError
@@ -20,6 +21,41 @@ log = logging.getLogger(__name__)
 
 _SEND_CONCURRENCY = 200
 _SEND_TIMEOUT_SECS = 2.0
+_WS_JSON_ENCODER = msgspec.json.Encoder()
+_WS_JSON_DECODER = msgspec.json.Decoder()
+_TYPE_FIELD_RE = re.compile(r'"type"\s*:\s*"([^"\\]+)"')
+_TYPE_PREFIX = '{"type":"'
+
+
+def _ws_json_dumps(msg: Mapping[str, object] | None) -> str:
+    return _WS_JSON_ENCODER.encode(msg).decode("utf-8")
+
+
+def _extract_type_field(message: str) -> str | None:
+    # Fast path for canonical compact JSON produced by browsers/aiohttp.
+    if message.startswith(_TYPE_PREFIX):
+        end = message.find('"', len(_TYPE_PREFIX))
+        if end != -1:
+            return message[len(_TYPE_PREFIX) : end]
+
+    # Fallback for payloads with whitespace or different key order.
+    match = _TYPE_FIELD_RE.search(message)
+    return match.group(1) if match is not None else None
+
+
+def _ws_json_loads(
+    message: str, typed_decoders: Mapping[str, msgspec.json.Decoder] | None = None
+) -> object:
+    if typed_decoders is not None:
+        message_type = _extract_type_field(message)
+        if message_type is not None:
+            decoder = typed_decoders.get(message_type)
+            if decoder is not None:
+                try:
+                    return decoder.decode(message)
+                except (msgspec.DecodeError, msgspec.ValidationError):
+                    pass
+    return _WS_JSON_DECODER.decode(message)
 
 
 async def get_user(session: aiohttp_session.Session, request: web.Request) -> User:
@@ -41,6 +77,7 @@ async def process_ws(
     user: User,
     init_msg: InitMessageHandler | None,
     custom_msg_processor: MessageHandler[DataT],
+    typed_decoders: Mapping[str, msgspec.json.Decoder] | None = None,
 ) -> WebSocketResponse | None:
     """
     Process websocket messages until socket closed or errored. Returns the closed WebSocketResponse object.
@@ -76,16 +113,26 @@ async def process_ws(
                 elif msg.data == "/n":
                     await ws_send_str(ws, "/n")
                 else:
-                    data = json.loads(msg.data)
-                    if not data["type"] == "pong":
+                    decoded = _ws_json_loads(msg.data, typed_decoders)
+                    msg_type = decoded.get("type") if isinstance(decoded, Mapping) else None
+                    if not isinstance(msg_type, str):
+                        continue
+
+                    data = cast(DataT, decoded)
+                    if msg_type != "pong":
+                        masked_data = (
+                            {**decoded, "password": "***"}
+                            if isinstance(decoded, Mapping) and "password" in decoded
+                            else decoded
+                        )
                         log.debug(
                             "Websocket (%s) message: %s",
                             id(ws),
-                            {**data, "password": "***"} if "password" in data else data,
+                            masked_data,
                         )
-                    if data["type"] == "logout":
+                    if msg_type == "logout":
                         await ws.close()
-                    elif data["type"] == "disconnect":
+                    elif msg_type == "disconnect":
                         # Used only to test socket disconnection...
                         await ws.close(code=1009)
                     else:
@@ -174,7 +221,7 @@ async def ws_send_json(ws: WebSocketResponse | None, msg: Mapping[str, object] |
         log.error("ws_send_json: ws is None")
         return False
     try:
-        await asyncio.wait_for(ws.send_json(msg), timeout=_SEND_TIMEOUT_SECS)
+        await asyncio.wait_for(ws.send_str(_ws_json_dumps(msg)), timeout=_SEND_TIMEOUT_SECS)
         return True
     except (ConnectionResetError, ClientConnectionResetError, RuntimeError, asyncio.TimeoutError):
         # Peer disconnected between scheduling and actual send.
@@ -188,7 +235,7 @@ async def ws_send_json_many(
     ws_set: Iterable[WebSocketResponse | None], msg: Mapping[str, object] | None
 ) -> int:
     try:
-        payload = json.dumps(msg)
+        payload = _ws_json_dumps(msg)
     except Exception:
         log.exception("Exception in ws_send_json_many()")
         return 0

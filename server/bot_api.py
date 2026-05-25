@@ -1,12 +1,12 @@
 from __future__ import annotations
 import asyncio
-import json
 from typing import Awaitable, Callable, TYPE_CHECKING, TypeAlias
 
 from aiohttp import web
 
 from broadcast import round_broadcast
 from const import STARTED, RESIGN
+from json_utils import json_dumps, json_response
 from settings import BOT_TOKENS
 from user import User
 from utils import load_game, new_game, play_move, should_send_game_start_to_bot
@@ -49,7 +49,7 @@ def authorized(func: Handler) -> Handler:
 async def bot_token_test(request: web.Request) -> web.StreamResponse:
     text = await read_text_data(request)
     if text is None:
-        return web.json_response({})
+        return json_response({})
     tokens = text.split(",")
 
     response: dict[str, dict[str, object] | None] = {}
@@ -63,23 +63,23 @@ async def bot_token_test(request: web.Request) -> web.StreamResponse:
         else:
             response[token] = None
 
-    return web.json_response(response)
+    return json_response(response)
 
 
 @authorized
 async def account(request: web.Request) -> web.StreamResponse:
-    return web.json_response({"id": username, "username": username, "title": "BOT"})  # noqa: F821
+    return json_response({"id": username, "username": username, "title": "BOT"})  # noqa: F821
 
 
 @authorized
 async def playing(request: web.Request) -> web.StreamResponse:
     resp: dict[str, list[object]] = {"nowPlaying": []}
-    return web.json_response(resp)
+    return json_response(resp)
 
 
 @authorized
 async def challenge_create(request: web.Request) -> web.StreamResponse:
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})
 
 
 @authorized
@@ -105,7 +105,7 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
             # Put response data to sse subscriber queue
             channels = app_state.invite_channels[gameId]
             for queue in channels:
-                await queue.put(json.dumps({"gameId": gameId, "accept": True}))
+                await queue.put(json_dumps({"gameId": gameId, "accept": True}))
         except ConnectionResetError:
             log.error("/api/challenge/{%s}/accept ConnectionResetError", gameId)
 
@@ -118,7 +118,7 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
         if should_send_game_start_to_bot(game):
             await engine.event_queue.put(game.game_start)
 
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})
 
 
 @authorized
@@ -140,11 +140,11 @@ async def challenge_decline(request: web.Request) -> web.StreamResponse:
         # Put response data to sse subscriber queue
         channels = app_state.invite_channels[gameId]
         for queue in channels:
-            await queue.put(json.dumps({"gameId": gameId, "accept": False}))
+            await queue.put(json_dumps({"gameId": gameId, "accept": False}))
     except ConnectionResetError:
         log.error("/api/challenge/{%s}/decline ConnectionResetError", gameId)
 
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})
 
 
 @authorized
@@ -288,7 +288,7 @@ async def bot_move(request: web.Request) -> web.StreamResponse:
 
     await play_move(app_state, user, game, move)
 
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})
 
 
 @authorized
@@ -314,7 +314,7 @@ async def bot_abort(request: web.Request) -> web.StreamResponse:
 
     await round_broadcast(game, response)
 
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})
 
 
 @authorized
@@ -325,7 +325,7 @@ async def bot_resign(request: web.Request) -> web.StreamResponse:
     game = app_state.games[gameId]
     game.status = RESIGN
     game.result = "0-1" if username == game.wplayer.username else "1-0"  # noqa: F821
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})
 
 
 @authorized
@@ -334,7 +334,7 @@ async def bot_chat(request: web.Request) -> web.StreamResponse:
 
     data = await read_post_data(request)
     if data is None:
-        return web.json_response({})
+        return json_response({})
     log.debug("BOT-CHAT %s %r", username, data)  # noqa: F821
 
     gameId = request.match_info["gameId"]
@@ -354,4 +354,4 @@ async def bot_chat(request: web.Request) -> web.StreamResponse:
             },
         )
 
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})

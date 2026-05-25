@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-import json
 from datetime import date, datetime, timedelta, timezone
-from functools import partial
 from typing import TYPE_CHECKING, TypedDict
 
 import aiohttp_session
@@ -20,6 +18,7 @@ from settings import ADMINS
 from tournament.tournaments import get_tournament_name, load_tournament
 from utils import pgn
 from pychess_global_app_state_utils import get_app_state
+from json_utils import json_response
 import logging
 from variants import C2V, GRANDS, get_server_variant, VARIANTS
 
@@ -232,7 +231,7 @@ async def get_variant_stats(request: web.Request) -> web.StreamResponse:
 
         stats[cur_period] = series
 
-    return web.json_response(series, dumps=partial(json.dumps, default=datetime.isoformat))
+    return json_response(series)
 
 
 async def get_tournament_games(request: web.Request) -> web.StreamResponse:
@@ -241,7 +240,7 @@ async def get_tournament_games(request: web.Request) -> web.StreamResponse:
 
     if tournamentId is not None and tournamentId not in app_state.tournaments:
         await asyncio.sleep(3)
-        return web.json_response({})
+        return json_response({})
 
     cursor = app_state.db.game.find({"tid": tournamentId})
     game_doc_list: list[dict[str, object] | GameDoc] = []
@@ -268,7 +267,7 @@ async def get_tournament_games(request: web.Request) -> web.StreamResponse:
             }
         )
 
-    return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
+    return json_response(game_doc_list)
 
 
 async def get_user_games(request: web.Request) -> web.StreamResponse:
@@ -279,7 +278,7 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
         public_profile = await app_state.public_users.get_profile(profileId)
         if public_profile is None:
             await asyncio.sleep(3)
-            return web.json_response({})
+            return json_response({})
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)
@@ -287,7 +286,7 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
     user = await app_state.users.get(session_user)
     if user.anon:
         await asyncio.sleep(3)
-        return web.json_response({})
+        return json_response({})
 
     filter_cond: dict[str, object] = {}
     # print("URL", request.rel_url)
@@ -297,7 +296,7 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
     path_parts: list[str] = request.path.split("/")
 
     if "perf" in path_parts and variant not in VARIANTS:
-        return web.json_response([])
+        return json_response([])
 
     # produce UCI move list for puzzle generator
     uci_moves: bool = "json" in path_parts
@@ -371,7 +370,7 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
     if user.game_category != "all":
         allowed_codes = user.category_variant_codes
         if not allowed_codes:
-            return web.json_response([])
+            return json_response([])
         filter_cond = {"$and": [filter_cond, {"v": {"$in": list(allowed_codes)}}]}
 
     page_num = request.rel_url.query.get("p", 0)
@@ -457,7 +456,7 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
 
                 game_doc_list.append(doc)
 
-    return web.json_response(game_doc_list, dumps=partial(json.dumps, default=datetime.isoformat))
+    return json_response(game_doc_list)
 
 
 async def cancel_invite(request: web.Request) -> web.StreamResponse:
@@ -550,7 +549,7 @@ async def get_games(request: web.Request) -> web.StreamResponse:
             else:
                 user = await app_state.users.get(session_user)
             allowed_variants = user.category_variant_set
-    return web.json_response(
+    return json_response(
         [
             {
                 "gameId": game.id,

@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import re
 from datetime import datetime, timezone
-from functools import partial
 
 import aiohttp_session
 from aiohttp import web
@@ -14,6 +12,7 @@ from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from link_filter import sanitize_user_message
+from json_utils import json_dumps, json_response
 from utils import notification_items_for_user
 
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -58,19 +57,15 @@ async def _push_inbox_state(app_state, username: str, thread_contact: str | None
         return
     user = await app_state.users.get(username)
     unread = await _unread_count(app_state, username)
-    payload = json.dumps(
+    payload = json_dumps(
         {
             "unread": unread,
             "thread": thread_contact,
-        },
-        default=datetime.isoformat,
+        }
     )
     for queue in tuple(user.inbox_channels):
         await queue.put(payload)
-    notify_payload = json.dumps(
-        await notification_items_for_user(app_state, user, 0),
-        default=datetime.isoformat,
-    )
+    notify_payload = json_dumps(await notification_items_for_user(app_state, user, 0))
     for queue in tuple(user.notify_channels):
         await queue.put(notify_payload)
 
@@ -79,15 +74,15 @@ async def inbox_unread(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _session_username(request)
     if username is None:
-        return web.json_response({"unread": 0})
-    return web.json_response({"unread": await _unread_count(app_state, username)})
+        return json_response({"unread": 0})
+    return json_response({"unread": await _unread_count(app_state, username)})
 
 
 async def inbox_threads(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _session_username(request)
     if username is None or app_state.db is None:
-        return web.json_response({"threads": []})
+        return json_response({"threads": []})
 
     cursor = app_state.db.inbox_thread.find({"users": username, "deletedBy": {"$ne": username}})
     cursor.sort("updatedAt", -1)
@@ -126,10 +121,7 @@ async def inbox_threads(request: web.Request) -> web.Response:
             }
         )
 
-    return web.json_response(
-        {"threads": threads},
-        dumps=partial(json.dumps, default=datetime.isoformat),
-    )
+    return json_response({"threads": threads})
 
 
 async def inbox_thread(request: web.Request) -> web.Response:
@@ -138,20 +130,20 @@ async def inbox_thread(request: web.Request) -> web.Response:
     contact = request.match_info.get("contact", "")
 
     if username is None or app_state.db is None:
-        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+        return json_response({"type": "error", "message": "Login required"}, status=401)
 
     if not USERNAME_RE.match(contact) or contact == username:
-        return web.json_response({"type": "error", "message": "Invalid contact"}, status=400)
+        return json_response({"type": "error", "message": "Invalid contact"}, status=400)
 
     me = await app_state.users.get(username)
     if contact in me.blocked:
-        return web.json_response({"type": "error", "message": "User is blocked"}, status=403)
+        return json_response({"type": "error", "message": "User is blocked"}, status=403)
 
     profile = await app_state.public_users.get_profile(contact)
     if profile is None or not profile.enabled or profile.username.startswith("Anon-"):
-        return web.json_response({"type": "error", "message": "User not found"}, status=404)
+        return json_response({"type": "error", "message": "User not found"}, status=404)
     if username in profile.blocked:
-        return web.json_response(
+        return json_response(
             {"type": "error", "message": "Cannot message this user"}, status=403
         )
 
@@ -162,7 +154,7 @@ async def inbox_thread(request: web.Request) -> web.Response:
         try:
             before_dt = datetime.fromtimestamp(int(before) / 1000.0, tz=timezone.utc)
         except ValueError:
-            return web.json_response(
+            return json_response(
                 {"type": "error", "message": "Invalid before value"}, status=400
             )
         query["createdAt"] = {"$lt": before_dt}
@@ -194,7 +186,7 @@ async def inbox_thread(request: web.Request) -> web.Response:
     if update_result.modified_count > 0:
         await _push_inbox_state(app_state, username, contact)
 
-    return web.json_response(
+    return json_response(
         {
             "contact": {
                 "name": profile.username,
@@ -206,8 +198,7 @@ async def inbox_thread(request: web.Request) -> web.Response:
             },
             "messages": msgs,
             "hasMore": has_more,
-        },
-        dumps=partial(json.dumps, default=datetime.isoformat),
+        }
     )
 
 
@@ -217,44 +208,44 @@ async def inbox_post(request: web.Request) -> web.Response:
     contact = request.match_info.get("contact", "")
 
     if username is None or app_state.db is None:
-        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+        return json_response({"type": "error", "message": "Login required"}, status=401)
 
     if not USERNAME_RE.match(contact) or contact == username:
-        return web.json_response({"type": "error", "message": "Invalid contact"}, status=400)
+        return json_response({"type": "error", "message": "Invalid contact"}, status=400)
 
     data = await read_post_data(request)
     if data is None:
-        return web.json_response({"type": "error", "message": "Invalid request"}, status=400)
+        return json_response({"type": "error", "message": "Invalid request"}, status=400)
 
     text = str(data.get("text") or "").strip()
     if len(text) == 0:
-        return web.json_response({"type": "error", "message": "Message is empty"}, status=400)
+        return json_response({"type": "error", "message": "Message is empty"}, status=400)
     if len(text) > MAX_MSG_LEN:
-        return web.json_response(
+        return json_response(
             {"type": "error", "message": f"Message too long (max {MAX_MSG_LEN})"},
             status=400,
         )
     text = sanitize_user_message(text)
     if not app_state.chat_flood.allow_message(f"inbox:{username}:{contact}", text):
-        return web.json_response(
+        return json_response(
             {"type": "error", "message": "Too many similar messages. Please wait and retry."},
             status=429,
         )
 
     me = await app_state.users.get(username)
     if bool(getattr(me, "shadowban", False)):
-        return web.json_response(
+        return json_response(
             {"type": "error", "message": "Cannot send messages from this account"},
             status=403,
         )
     if contact in me.blocked:
-        return web.json_response({"type": "error", "message": "User is blocked"}, status=403)
+        return json_response({"type": "error", "message": "User is blocked"}, status=403)
 
     profile = await app_state.public_users.get_profile(contact)
     if profile is None or not profile.enabled or profile.username.startswith("Anon-"):
-        return web.json_response({"type": "error", "message": "User not found"}, status=404)
+        return json_response({"type": "error", "message": "User not found"}, status=404)
     if username in profile.blocked:
-        return web.json_response(
+        return json_response(
             {"type": "error", "message": "Cannot message this user"}, status=403
         )
 
@@ -293,10 +284,7 @@ async def inbox_post(request: web.Request) -> web.Response:
     await _push_inbox_state(app_state, username, contact)
     await _push_inbox_state(app_state, contact, username)
 
-    return web.json_response(
-        {"ok": True, "message": msg_doc},
-        dumps=partial(json.dumps, default=datetime.isoformat),
-    )
+    return json_response({"ok": True, "message": msg_doc})
 
 
 async def inbox_read(request: web.Request) -> web.Response:
@@ -305,10 +293,10 @@ async def inbox_read(request: web.Request) -> web.Response:
     contact = request.match_info.get("contact", "")
 
     if username is None or app_state.db is None:
-        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+        return json_response({"type": "error", "message": "Login required"}, status=401)
 
     if not USERNAME_RE.match(contact) or contact == username:
-        return web.json_response({"type": "error", "message": "Invalid contact"}, status=400)
+        return json_response({"type": "error", "message": "Invalid contact"}, status=400)
 
     tid = _thread_id(username, contact)
     update_result = await app_state.db.inbox_thread.update_one(
@@ -317,7 +305,7 @@ async def inbox_read(request: web.Request) -> web.Response:
     )
     if update_result.modified_count > 0:
         await _push_inbox_state(app_state, username, contact)
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})
 
 
 async def inbox_delete(request: web.Request) -> web.Response:
@@ -326,10 +314,10 @@ async def inbox_delete(request: web.Request) -> web.Response:
     contact = request.match_info.get("contact", "")
 
     if username is None or app_state.db is None:
-        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+        return json_response({"type": "error", "message": "Login required"}, status=401)
 
     if not USERNAME_RE.match(contact) or contact == username:
-        return web.json_response({"type": "error", "message": "Invalid contact"}, status=400)
+        return json_response({"type": "error", "message": "Invalid contact"}, status=400)
 
     tid = _thread_id(username, contact)
     await app_state.db.inbox_msg.update_many({"tid": tid}, {"$addToSet": {"deletedBy": username}})
@@ -338,14 +326,14 @@ async def inbox_delete(request: web.Request) -> web.Response:
         {"$addToSet": {"deletedBy": username}},
     )
     await _push_inbox_state(app_state, username, contact)
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})
 
 
 async def subscribe_inbox(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     username = await _session_username(request)
     if username is None:
-        return web.json_response({})
+        return json_response({})
 
     user = await app_state.users.get(username)
     queue: asyncio.Queue[str] = asyncio.Queue()
@@ -354,7 +342,7 @@ async def subscribe_inbox(request: web.Request) -> web.StreamResponse:
 
     try:
         async with sse_response(request) as response:
-            await response.send(json.dumps({"unread": await _unread_count(app_state, username)}))
+            await response.send(json_dumps({"unread": await _unread_count(app_state, username)}))
             while response.is_connected():
                 try:
                     payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)

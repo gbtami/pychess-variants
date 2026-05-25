@@ -1,10 +1,9 @@
-import json
-
 import aiohttp_jinja2
 from aiohttp import web
 
 import logging
 
+from json_utils import json_dumps
 from utils import join_seek, load_game, remove_seek
 from typing_defs import ViewContext
 from views import add_game_context, get_user_context
@@ -65,7 +64,7 @@ async def invite(request: web.Request) -> ViewContext:
                         # Put response data to sse subscriber queue
                         channels = app_state.invite_channels.get(gameId, set())
                         for queue in channels:
-                            await queue.put(json.dumps({"gameId": gameId, "accept": True}))
+                            await queue.put(json_dumps({"gameId": gameId, "accept": True}))
                     except ConnectionResetError:
                         log.error("/invite/accept/ ConnectionResetError for user %s", user.username)
             else:

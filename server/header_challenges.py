@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypedDict
 
 import asyncio
-import json
 
 from aiohttp import web
 import aiohttp_session
 from aiohttp_sse import sse_response
 
 from const import SSE_GET_TIMEOUT
+from json_utils import json_dumps, json_response
 from misc import time_control_str
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
@@ -223,7 +223,7 @@ async def push_challenge_state(
     app_state: PychessGlobalAppState, username: str, game_id: str | None = None
 ) -> None:
     user = await app_state.users.get(username)
-    payload = json.dumps(challenge_envelope(app_state, username, game_id))
+    payload = json_dumps(challenge_envelope(app_state, username, game_id))
     for queue in tuple(user.challenge_channels):
         try:
             await queue.put(payload)
@@ -248,8 +248,8 @@ async def get_header_challenges(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
-        return web.json_response({"challenges": []})
-    return web.json_response(challenge_envelope(app_state, session_user))
+        return json_response({"challenges": []})
+    return json_response(challenge_envelope(app_state, session_user))
 
 
 async def subscribe_challenges(request: web.Request) -> web.StreamResponse:
@@ -257,7 +257,7 @@ async def subscribe_challenges(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
-        return web.json_response({})
+        return json_response({})
 
     user = await app_state.users.get(session_user)
     cancel_direct_challenge_offline(user)
@@ -268,7 +268,7 @@ async def subscribe_challenges(request: web.Request) -> web.StreamResponse:
     response: web.StreamResponse = web.Response(status=200)
     try:
         async with sse_response(request) as response:
-            await response.send(json.dumps(challenge_envelope(app_state, session_user)))
+            await response.send(json_dumps(challenge_envelope(app_state, session_user)))
             while response.is_connected():
                 try:
                     payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
@@ -292,13 +292,13 @@ async def challenge_seek_accept(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
-        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+        return json_response({"type": "error", "message": "Login required"}, status=401)
 
     cleanup_expired_direct_challenges(app_state)
 
     seek_id = request.match_info.get("seekId")
     if seek_id is None or seek_id not in app_state.seeks:
-        return web.json_response({"type": "error", "message": "Challenge not found"}, status=404)
+        return json_response({"type": "error", "message": "Challenge not found"}, status=404)
 
     user = await app_state.users.get(session_user)
     seek = app_state.seeks[seek_id]
@@ -307,7 +307,7 @@ async def challenge_seek_accept(request: web.Request) -> web.StreamResponse:
         or seek.target != user.username
         or seek.challenge_status not in ACTIVE_DIRECT_CHALLENGE_STATUSES
     ):
-        return web.json_response(
+        return json_response(
             {"type": "error", "message": "Challenge not available"}, status=403
         )
 
@@ -318,7 +318,7 @@ async def challenge_seek_accept(request: web.Request) -> web.StreamResponse:
 
     await broadcast_challenge_state(app_state, challenge_participants(seek), game_ids=game_ids)
     await app_state.lobby.lobby_broadcast_seeks()
-    return web.json_response(result)
+    return json_response(result)
 
 
 async def challenge_seek_decline(request: web.Request) -> web.StreamResponse:
@@ -326,13 +326,13 @@ async def challenge_seek_decline(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
-        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+        return json_response({"type": "error", "message": "Login required"}, status=401)
 
     cleanup_expired_direct_challenges(app_state)
 
     seek_id = request.match_info.get("seekId")
     if seek_id is None or seek_id not in app_state.seeks:
-        return web.json_response({"type": "error", "message": "Challenge not found"}, status=404)
+        return json_response({"type": "error", "message": "Challenge not found"}, status=404)
 
     user = await app_state.users.get(session_user)
     seek = app_state.seeks[seek_id]
@@ -341,14 +341,14 @@ async def challenge_seek_decline(request: web.Request) -> web.StreamResponse:
         or seek.target != user.username
         or seek.challenge_status not in ACTIVE_DIRECT_CHALLENGE_STATUSES
     ):
-        return web.json_response(
+        return json_response(
             {"type": "error", "message": "Challenge not available"}, status=403
         )
 
     usernames = challenge_participants(seek)
     reason_data = await read_post_data(request)
     if reason_data is None:
-        return web.json_response({})
+        return json_response({})
     reason_key = reason_data.get("reason")
     decline_reason = DIRECT_CHALLENGE_DECLINE_REASONS.get(
         str(reason_key) if reason_key is not None else "generic",
@@ -358,7 +358,7 @@ async def challenge_seek_decline(request: web.Request) -> web.StreamResponse:
     set_direct_challenge_status(seek, DIRECT_CHALLENGE_DECLINED)
     await broadcast_challenge_state(app_state, usernames)
     await app_state.lobby.lobby_broadcast_seeks()
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})
 
 
 async def challenge_seek_cancel(request: web.Request) -> web.StreamResponse:
@@ -366,13 +366,13 @@ async def challenge_seek_cancel(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
-        return web.json_response({"type": "error", "message": "Login required"}, status=401)
+        return json_response({"type": "error", "message": "Login required"}, status=401)
 
     cleanup_expired_direct_challenges(app_state)
 
     seek_id = request.match_info.get("seekId")
     if seek_id is None or seek_id not in app_state.seeks:
-        return web.json_response({"type": "error", "message": "Challenge not found"}, status=404)
+        return json_response({"type": "error", "message": "Challenge not found"}, status=404)
 
     user = await app_state.users.get(session_user)
     seek = app_state.seeks[seek_id]
@@ -381,7 +381,7 @@ async def challenge_seek_cancel(request: web.Request) -> web.StreamResponse:
         or seek.creator.username != user.username
         or seek.challenge_status not in ACTIVE_DIRECT_CHALLENGE_STATUSES
     ):
-        return web.json_response(
+        return json_response(
             {"type": "error", "message": "Challenge not available"}, status=403
         )
 
@@ -389,4 +389,4 @@ async def challenge_seek_cancel(request: web.Request) -> web.StreamResponse:
     set_direct_challenge_status(seek, DIRECT_CHALLENGE_CANCELED)
     await broadcast_challenge_state(app_state, usernames)
     await app_state.lobby.lobby_broadcast_seeks()
-    return web.json_response({"ok": True})
+    return json_response({"ok": True})

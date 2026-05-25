@@ -40,7 +40,7 @@ class UserMiniJoinedAtTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         payload = await response.json()
 
-        self.assertEqual(payload["joinedAt"], "2024-04-20T00:00:00+00:00")
+        self.assertEqual(payload["joinedAt"], "2024-04-20T00:00:00Z")
 
 
 if __name__ == "__main__":

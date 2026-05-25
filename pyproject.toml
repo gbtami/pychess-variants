@@ -27,6 +27,7 @@ dependencies = [
     "sortedcollections==2.1.0",
     "tenacity==9.1.4",
     "tzdata==2026.2",
+    "msgspec==0.21.1",
 ]
 
 [project.optional-dependencies]

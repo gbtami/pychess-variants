@@ -1,9 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 import asyncio
-import json
 from datetime import datetime, timezone
-from functools import partial
 from time import monotonic
 
 from aiohttp import web
@@ -26,6 +24,7 @@ from pychess_global_app_state_utils import get_app_state
 from request_utils import read_json_data
 from settings import FISHNET_KEYS
 from utils import load_game, play_move
+from json_utils import json_response
 import logging
 
 log = logging.getLogger(__name__)
@@ -148,7 +147,7 @@ async def _read_fishnet_json(request: web.Request) -> tuple[object | None, int |
             request.remote,
         )
         return None, 204
-    except (json.JSONDecodeError, web.HTTPBadRequest):
+    except web.HTTPBadRequest:
         log.debug(
             "Invalid fishnet JSON payload on %s from %s",
             request.rel_url.path,
@@ -234,7 +233,7 @@ async def get_work(
                 )
             )
 
-        return web.json_response(work, status=202)
+        return json_response(work, status=202)
 
     # There was no new work in the queue. Ok
     # Now let see are there any long time pending work in app[fishnet_works_key]
@@ -252,7 +251,7 @@ async def get_work(
                 )
             )
             work_item["time"] = now
-            return web.json_response(work_item, status=202)
+            return json_response(work_item, status=202)
     return web.Response(status=204)
 
 
@@ -492,4 +491,4 @@ async def fishnet_monitor(request: web.Request) -> web.Response:
         for worker in app_state.fishnet_monitor
         if app_state.fishnet_monitor[worker]
     }
-    return web.json_response(workers, dumps=partial(json.dumps, default=datetime.isoformat))
+    return json_response(workers)

@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from datetime import MINYEAR, datetime
-from functools import partial
-import json
 
 from aiohttp import web
 import aiohttp_session
@@ -11,6 +9,7 @@ from const import ANON_PREFIX, DARK_FEN, STARTED
 from glicko2.glicko2 import PROVISIONAL_PHI
 from pychess_global_app_state_utils import get_app_state
 from public_users import PublicProfile
+from json_utils import json_response
 from typing_defs import PerfEntry
 from variants import C2V, TWO_BOARD_VARIANT_CODES, VARIANTS, get_server_variant
 
@@ -206,4 +205,4 @@ async def user_mini(request: web.Request) -> web.StreamResponse:
         "playing": await _build_playing_payload(profile_id, request),
     }
 
-    return web.json_response(payload, dumps=partial(json.dumps, default=datetime.isoformat))
+    return json_response(payload)

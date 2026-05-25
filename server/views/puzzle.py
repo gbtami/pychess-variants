@@ -1,9 +1,7 @@
-import json
-from datetime import datetime
-
 import aiohttp_jinja2
 from aiohttp import web
 
+from json_utils import json_dumps
 from puzzle import (
     get_puzzle,
     next_puzzle,
@@ -59,6 +57,6 @@ async def puzzle(request: web.Request) -> ViewContext:
     context["fen"] = puzzle["f"]
     context["wrating"] = wrating
     context["brating"] = brating
-    context["puzzle"] = json.dumps(puzzle, default=datetime.isoformat)
+    context["puzzle"] = json_dumps(puzzle)
 
     return context

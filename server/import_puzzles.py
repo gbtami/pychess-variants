@@ -1,8 +1,8 @@
 import os
-import json
 import sys
 import asyncio
 
+import msgspec
 from motor import motor_asyncio as ma
 
 MONGO_HOST = os.getenv("MONGO_HOST")
@@ -16,7 +16,7 @@ async def upsert_from_json(json_file):
     with open(json_file) as p:
         for line in p:
             i += 1
-            doc = json.loads(line)
+            doc = msgspec.json.decode(line)
             if "uploaded_by" in doc:
                 print(i)
                 try:

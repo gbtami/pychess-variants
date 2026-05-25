@@ -1,8 +1,7 @@
-import json
-
 import aiohttp_jinja2
 from aiohttp import web
 
+from json_utils import json_dumps
 from typing_defs import ViewContext
 from views import add_game_context, get_user_context
 from utils import tv_game, tv_game_user, load_game
@@ -33,7 +32,7 @@ async def tv(request: web.Request) -> ViewContext:
 
     add_game_context(game, ply, user, context)
 
-    context["ct"] = json.dumps(game.crosstable)
+    context["ct"] = json_dumps(game.crosstable)
 
     context["view"] = "tv"
     context["view_css"] = "round.css"

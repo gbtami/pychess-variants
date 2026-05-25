@@ -5,10 +5,10 @@ from datetime import datetime, timezone
 
 import aiohttp_session
 from pymongo.errors import DuplicateKeyError
-from aiohttp import web
 
 from fairy import FairyBoard
 from glicko2.glicko2 import MU, PHI, SIGMA, gl2, Rating
+from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from const import (
@@ -240,7 +240,7 @@ async def puzzle_complete(request):
     puzzleId = request.match_info.get("puzzleId")
     post_data = await _read_puzzle_post(request)
     if post_data is None:
-        return web.json_response({})
+        return json_response({})
     rated = post_data["rated"] == "true"
 
     puzzle_data = await get_puzzle(request, puzzleId)
@@ -252,17 +252,17 @@ async def puzzle_complete(request):
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
-        return web.json_response({})
+        return json_response({})
 
     user = await app_state.users.get(session_user)
 
     if puzzleId in user.puzzles:
-        return web.json_response({})
+        return json_response({})
     else:
         user.puzzles[puzzleId] = NOT_VOTED
 
     if user.anon or (not rated):
-        return web.json_response({})
+        return json_response({})
 
     variant = post_data["v"]
     chess960 = False  # TODO: add chess960 to xxx960 variant puzzles
@@ -283,7 +283,7 @@ async def puzzle_complete(request):
     ratings = await update_puzzle_ratings(
         wplayer, bplayer, white_rating, black_rating, variant, chess960, result
     )
-    return web.json_response(ratings)
+    return json_response(ratings)
 
 
 async def puzzle_vote(request):
@@ -291,7 +291,7 @@ async def puzzle_vote(request):
     puzzleId = request.match_info.get("puzzleId")
     post_data = await _read_puzzle_post(request)
     if post_data is None:
-        return web.json_response({})
+        return json_response({})
     good = post_data["vote"] == "true"
     up_or_down = "u" if good else "d"
 
@@ -299,12 +299,12 @@ async def puzzle_vote(request):
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
-        return web.json_response({})
+        return json_response({})
 
     user = await app_state.users.get(session_user)
 
     if user.puzzles.get(puzzleId):
-        return web.json_response({})
+        return json_response({})
     else:
         user.puzzles[puzzleId] = UP if good else DOWN
 
@@ -312,7 +312,7 @@ async def puzzle_vote(request):
     if db is not None:
         await db.puzzle.find_one_and_update({"_id": puzzleId}, {"$inc": {up_or_down: 1}})
 
-    return web.json_response({})
+    return json_response({})
 
 
 async def update_puzzle_ratings(

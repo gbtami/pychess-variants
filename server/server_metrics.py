@@ -1,5 +1,4 @@
 import inspect
-import json
 import sys
 import gc
 import time
@@ -8,7 +7,6 @@ from asyncio import Task, Queue
 from collections import defaultdict
 from collections.abc import Iterable
 from datetime import datetime, timezone
-from functools import partial
 from typing import TYPE_CHECKING, TypedDict, cast
 
 from aiohttp import web
@@ -29,6 +27,7 @@ from settings import PYCHESS_MONITOR_TOKEN, URI, LOCALHOST
 from tournament.tournament import PlayerData, GameData
 from tournament.arena import ArenaTournament
 from pychess_global_app_state_utils import get_app_state
+from json_utils import json_response
 
 log = logging.getLogger(__name__)
 
@@ -597,4 +596,4 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
     }
     log.debug("Collecting all metrics time: %s", (time.process_time() - start))
 
-    return web.json_response(metrics, dumps=partial(json.dumps, default=datetime.isoformat))
+    return json_response(metrics)
