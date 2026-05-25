@@ -4,7 +4,14 @@ from unittest.mock import AsyncMock, patch
 
 from aiohttp.web_ws import WebSocketResponse
 
-from websocket_utils import ws_send_json, ws_send_json_many, ws_send_str, ws_send_str_many
+from websocket_utils import (
+    _ws_json_loads,
+    ws_send_json,
+    ws_send_json_many,
+    ws_send_str,
+    ws_send_str_many,
+)
+from ws_structs import LOBBY_TYPED_DECODERS
 
 
 class WebSocketUtilsTestCase(unittest.IsolatedAsyncioTestCase):
@@ -45,3 +52,14 @@ class WebSocketUtilsTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(sent, 1)
         ws.send_str.assert_awaited_once_with("ping")
+
+    def test_ws_json_loads_typed_decoder_message_type_for_struct(self):
+        payload = (
+            '{"type":"create_ai_challenge","profileid":"Random-Mover","variant":"chess",'
+            '"rm":true,"fen":"","color":"r","minutes":5,"increment":0,'
+            '"byoyomiPeriod":0,"level":1,"chess960":false}'
+        )
+
+        decoded = _ws_json_loads(payload, LOBBY_TYPED_DECODERS)
+
+        self.assertEqual(decoded.get("type"), "create_ai_challenge")

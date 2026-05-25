@@ -114,7 +114,10 @@ async def process_ws(
                     await ws_send_str(ws, "/n")
                 else:
                     decoded = _ws_json_loads(msg.data, typed_decoders)
-                    msg_type = decoded.get("type") if isinstance(decoded, Mapping) else None
+                    try:
+                        msg_type = decoded.get("type")
+                    except AttributeError:
+                        continue
                     if not isinstance(msg_type, str):
                         continue
 
