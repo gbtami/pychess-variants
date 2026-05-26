@@ -33,6 +33,9 @@ export class PuzzleController extends AnalysisController {
     gaugeNeeded: boolean;
     wrating: string;
     brating: string;
+    // Puzzle completion replaces the whole feedback block, so the delayed
+    // hint/solution reveal must be cancellable to avoid patching dead nodes.
+    private hintRevealTimeout?: number;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model);
@@ -134,13 +137,14 @@ export class PuzzleController extends AnalysisController {
             return;
         }
 
-        function showHintAndSolution() {
+        const showHintAndSolution = () => {
             const viewHintEl = document.querySelector('.view-hint') as HTMLElement;
-            patch(viewHintEl, h('div.view-hint', { class: { show: true } }));
+            // The timeout can fire after `puzzleComplete()` swapped out `.feedback`.
+            if (viewHintEl) patch(viewHintEl, h('div.view-hint', { class: { show: true } }));
             const viewSolutionEl = document.querySelector('.view-solution') as HTMLElement;
-            patch(viewSolutionEl, h('div.view-solution', { class: { show: true } }));
+            if (viewSolutionEl) patch(viewSolutionEl, h('div.view-solution', { class: { show: true } }));
         }
-        setTimeout(showHintAndSolution, 4000);
+        this.hintRevealTimeout = window.setTimeout(showHintAndSolution, 4000);
     }
 
     renderRating(isRated:boolean, color: string, wrating: string, brating: string, success: boolean | undefined=undefined, diff=undefined) {
@@ -387,6 +391,17 @@ export class PuzzleController extends AnalysisController {
             }
         }
         this.completed = true;
+        if (this.hintRevealTimeout !== undefined) {
+            // Completing quickly can beat the delayed reveal callback.
+            window.clearTimeout(this.hintRevealTimeout);
+            this.hintRevealTimeout = undefined;
+        }
+        // After the puzzle ends, switch move handling to analysis-tree mode so
+        // replaying an earlier move and then playing an alternative continuation
+        // creates a sideline variation instead of appending to the mainline tail.
+        this.initAnalysisTreeAtPly(this.ply);
+        this.recordedMainlinePly = this.steps.length - 1;
+        updateMovelist(this, true, false);
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
         patch(feedbackEl,
             h('div.feedback.after', [

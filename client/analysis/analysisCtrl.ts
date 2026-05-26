@@ -1013,6 +1013,10 @@ export class AnalysisController extends GameController {
             moves = matches[8];
         //console.log("---", depth, multiPv, isMate, povEv, evalType, nodes, elapsedMs, moves);
 
+        // A stopped search can still emit trailing info lines from the previous
+        // position. Ignore PVs whose first move is illegal in the currently shown FEN.
+        if (!this.pvStartsLegalInCurrentPosition(moves)) return;
+
         // Sometimes we get #0. Let's just skip it.
         if (isMate && !povEv) return;
 
@@ -1096,7 +1100,10 @@ export class AnalysisController extends GameController {
         // Render PV line
         if (ceval?.p !== undefined && this.multipv > 0) {
             let pvSan: string | VNode | VNode[] = ceval.p;
-            const sanBoard = this.fsfEngineBoard ?? this.ffishBoard;
+            // Prefer the controller's live board state for PV SAN conversion.
+            // In post-puzzle analysis it stays aligned with client-created moves,
+            // while the separate engine helper board can lag behind that state.
+            const sanBoard = this.ffishBoard ?? this.fsfEngineBoard;
             if (sanBoard) {
                 try {
                     // `fsfEngineBoard` is initialized asynchronously after local-engine handshake.
@@ -1202,9 +1209,11 @@ export class AnalysisController extends GameController {
     }
 
     engineStop = () => {
-        this.isEngineReady = false;
+        // Local restarts happen on every explored move. Once the engine has already
+        // completed its initial handshake, a plain `stop` is enough here.
+        // Resetting readiness on each ply can leave the UI toggle disabled and
+        // drop subsequent PV lines while we wait for another `readyok`.
         this.fsfPostMessage('stop');
-        this.fsfPostMessage('isready');
     }
 
     engineGo = () => {
@@ -1250,6 +1259,23 @@ export class AnalysisController extends GameController {
         } else {
             if (this.fsfDebug) console.debug('<---', msg);
             window.fsf.postMessage(msg);
+        }
+    }
+
+    private pvStartsLegalInCurrentPosition(pvLine: string) {
+        const firstMove = pvLine.split(' ')[0];
+        if (!firstMove) return false;
+
+        const validationBoard = this.fsfEngineBoard ?? this.ffishBoard;
+        if (!validationBoard) return false;
+
+        validationBoard.setFen(this.fullfen);
+        try {
+            // Using the legal move list avoids `push()` warnings in the console when
+            // stale PV lines from the previous search race with the new board state.
+            return validationBoard.legalMoves().split(' ').includes(firstMove);
+        } catch {
+            return false;
         }
     }
 
@@ -1588,6 +1614,9 @@ export class AnalysisController extends GameController {
             'sanSAN': sanSAN,
             };
 
+        // `activateTreePath()` already refreshes board state, UCI move list and engine
+        // analysis for tree mode, so we must not kick off a second `engineGo()` here.
+        let treeActivated = false;
         if (this.hasAnalysisTree() && this.analysisTree) {
             const currentNode = this.getTreeCurrentNode() ?? this.analysisTree.root;
             const followMainlineMove = currentNode.children[0]?.step.move;
@@ -1611,6 +1640,7 @@ export class AnalysisController extends GameController {
             }
 
             this.activateTreePath(childPath);
+            treeActivated = true;
         } else {
             this.steps.push(step);
             this.ply = this.steps.length - 1;
@@ -1618,8 +1648,10 @@ export class AnalysisController extends GameController {
             this.checkStatus(msg);
         }
 
-        this.updateUCImoves();
-        if (this.localAnalysis) this.engineGo();
+        if (!treeActivated) {
+            this.updateUCImoves();
+            if (this.localAnalysis) this.engineGo();
+        }
 
         if (!this.puzzle && !this.ongoing) {
             const e = document.getElementById('fullfen') as HTMLInputElement;

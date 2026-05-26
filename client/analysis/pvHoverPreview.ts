@@ -79,40 +79,45 @@ export class PvHoverPreview {
         if (uciMoves.length === 0) return [];
 
         sanBoard.setFen(fullfen);
-        const parts = fullfen.split(' ');
-        let turn: 'w' | 'b' = parts[1] === 'b' ? 'b' : 'w';
-        let moveNumber = parseInt(parts[5] ?? '1', 10);
-        if (!Number.isFinite(moveNumber) || moveNumber < 1) moveNumber = 1;
+        try {
+            const parts = fullfen.split(' ');
+            let turn: 'w' | 'b' = parts[1] === 'b' ? 'b' : 'w';
+            let moveNumber = parseInt(parts[5] ?? '1', 10);
+            if (!Number.isFinite(moveNumber) || moveNumber < 1) moveNumber = 1;
 
-        const rendered: VNode[] = [];
-        for (let i = 0; i < uciMoves.length && i < MAX_PV_HOVER_MOVES; i += 1) {
-            const uciMove = uciMoves[i];
-            if (turn === 'w') {
-                rendered.push(h('span.pv-move-number', `${moveNumber}.`));
-            } else if (i === 0) {
-                rendered.push(h('span.pv-move-number', `${moveNumber}...`));
+            const rendered: VNode[] = [];
+            for (let i = 0; i < uciMoves.length && i < MAX_PV_HOVER_MOVES; i += 1) {
+                const uciMove = uciMoves[i];
+                const san = sanBoard.sanMove(uciMove, notationAsObject);
+                // Only emit the move number after we know the move is legal; otherwise
+                // stale PV lines can leave a dangling `12...` with no SAN after it.
+                if (san === '' || !sanBoard.push(uciMove)) break;
+                const previewFen = sanBoard.fen();
+                if (turn === 'w') {
+                    rendered.push(h('span.pv-move-number', `${moveNumber}.`));
+                } else if (i === 0) {
+                    rendered.push(h('span.pv-move-number', `${moveNumber}...`));
+                }
+                rendered.push(
+                    h('span.pv-san-move', {
+                        attrs: {
+                            'data-fen': previewFen,
+                            'data-uci': uciMove,
+                        },
+                        on: {
+                            mouseenter: () => this.show(previewFen, uciMove, getOrientation()),
+                        },
+                    }, san)
+                );
+
+                if (turn === 'b') moveNumber += 1;
+                turn = turn === 'w' ? 'b' : 'w';
             }
 
-            const san = sanBoard.sanMove(uciMove, notationAsObject);
-            if (san === '' || !sanBoard.push(uciMove)) break;
-            const previewFen = sanBoard.fen();
-            rendered.push(
-                h('span.pv-san-move', {
-                    attrs: {
-                        'data-fen': previewFen,
-                        'data-uci': uciMove,
-                    },
-                    on: {
-                        mouseenter: () => this.show(previewFen, uciMove, getOrientation()),
-                    },
-                }, san)
-            );
-
-            if (turn === 'b') moveNumber += 1;
-            turn = turn === 'w' ? 'b' : 'w';
+            return rendered;
+        } finally {
+            sanBoard.setFen(fullfen);
         }
-
-        return rendered;
     }
 
     private show(fen: string, uci: string, orientation: cg.Color) {
