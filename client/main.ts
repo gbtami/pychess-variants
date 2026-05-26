@@ -42,6 +42,7 @@ import { maybeShowGameCategoryIntro } from './gameCategoryIntro';
 import { initTournamentForm } from './tournamentForm';
 import { initUserMiniWidget } from './userMiniWidget';
 import { initUblogLike } from './ublogLike';
+import { initUblogMarkdown } from './ublogMarkdown';
 
 
 // redirect to correct URL except Heroku preview/dev apps
@@ -243,6 +244,7 @@ function start() {
 
     initUserMiniWidget(model.assetURL, model.username, model.anon);
     initUblogLike();
+    initUblogMarkdown();
 
     (document.querySelector('.hamburger') as HTMLElement).addEventListener('click', () => {
         document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show'));
