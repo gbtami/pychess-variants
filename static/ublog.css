@@ -1,3 +1,6 @@
+@import url("/static/toastui-editor.css");
+@import url("/static/toastui-editor-dark.css");
+
 .ublog-page {
   align-items: flex-start;
 }
@@ -451,6 +454,52 @@
 .ublog-page .ublog-post-form__main textarea {
   min-height: 18rem;
   resize: vertical;
+}
+
+.ublog-page #ublog-form-markdown.ublog-post-form__markdown-source {
+  display: none;
+}
+
+.ublog-page .markdown-toastui {
+  margin-top: 0.45rem;
+  height: 60vh;
+}
+
+.ublog-page .markdown-toastui .toastui-editor-defaultUI {
+  border-radius: 8px;
+  border-color: var(--border-color, #585858);
+  overflow: hidden;
+}
+
+.ublog-page .markdown-toastui .toastui-editor-defaultUI-toolbar {
+  padding: 0 6px;
+}
+
+.ublog-page .markdown-toastui .toastui-editor-toolbar {
+  height: auto;
+}
+
+.ublog-page .markdown-toastui .toastui-editor-toolbar-group button {
+  margin: 6px 3px;
+}
+
+.ublog-page .markdown-toastui .toastui-editor-md-tab-container {
+  display: none;
+}
+
+.ublog-page .markdown-toastui .toastui-editor-contents,
+.ublog-page .markdown-toastui .toastui-editor-md-preview,
+.ublog-page .markdown-toastui .toastui-editor-md-container,
+.ublog-page .markdown-toastui .toastui-editor-ww-container {
+  font-size: 1rem;
+}
+
+.ublog-page .markdown-toastui .toastui-editor-popup {
+  border-color: var(--border-color, #585858);
+}
+
+[data-theme='dark'] .ublog-page .markdown-toastui .toastui-editor-defaultUI {
+  border-color: var(--border-color, #585858);
 }
 
 .ublog-page .ublog-image-fieldset {

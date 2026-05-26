@@ -43,6 +43,7 @@
         </label>
         <label>Markdown body
             <textarea id="ublog-form-markdown" name="markdown" rows="16" maxlength="100000" required>{{ ublog_values['markdown'] }}</textarea>
+            <div class="markdown-toastui"></div>
         </label>
         <label>Topics
             <input type="text" name="topics" maxlength="300" value="{{ ublog_values['topics'] }}" placeholder="opening, strategy, variants">
@@ -81,10 +82,6 @@
                 <input type="checkbox" name="sticky" {% if ublog_values['sticky'] %}checked{% endif %}>
                 Sticky post
             </label>
-        </div>
-        <div class="ublog-preview-box">
-            <h3>Live preview</h3>
-            <div id="ublog-form-preview" class="ublog-markdown-render"></div>
         </div>
         <div class="ublog-form-actions">
             <a class="button button-empty" href="{{ ublog_cancel_url }}">Cancel</a>
