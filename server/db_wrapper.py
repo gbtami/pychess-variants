@@ -116,7 +116,19 @@ class AsyncCursorWrapper:
 
             return wrapper
 
-        # sync methods (sort, limit, skip) returned untouched
+        # Keep wrapper across sync cursor modifiers (sort/limit/skip/etc.).
+        # Those methods return AsyncCursor and would otherwise drop retry wrapping.
+        if callable(attr):
+
+            @functools.wraps(attr)
+            def sync_wrapper(*args, **kwargs):
+                result = attr(*args, **kwargs)
+                if isinstance(result, AsyncCursor):
+                    return AsyncCursorWrapper(result)
+                return result
+
+            return sync_wrapper
+
         return attr
 
 

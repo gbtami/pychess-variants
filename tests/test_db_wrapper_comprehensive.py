@@ -160,6 +160,34 @@ class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
         # Assert that sleep was called once between retries
         mock_sleep.assert_called_once()
 
+    @patch("asyncio.sleep", new_callable=AsyncMock)
+    async def test_cursor_chain_methods_preserve_wrapper_and_retry(self, mock_sleep):
+        """Cursor modifiers like limit() should keep retry behavior on to_list()."""
+        mock_cursor = MagicMock(spec=AsyncCursor)
+        mock_cursor.limit.return_value = mock_cursor
+        mock_cursor.to_list = AsyncMock(
+            side_effect=[
+                CursorNotFound("Cursor not found", 43, {"ns": "test.collection", "cursorId": 123}),
+                [{"_id": "1", "name": "item1"}],
+            ]
+        )
+
+        mock_collection = AsyncMock()
+        mock_collection.find = MagicMock(return_value=mock_cursor)
+
+        mock_db = MagicMock()
+        mock_db.__getitem__.return_value = mock_collection
+
+        wrapped_db = AsyncDBWrapper(mock_db)
+        wrapped_collection = wrapped_db["test_collection"]
+
+        cursor = wrapped_collection.find({}).limit(10)
+        result = await cursor.to_list(length=10)
+
+        self.assertEqual(result, [{"_id": "1", "name": "item1"}])
+        self.assertEqual(mock_cursor.to_list.call_count, 2)
+        mock_sleep.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()

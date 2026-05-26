@@ -5,6 +5,14 @@ from typing import TYPE_CHECKING, Any, Mapping
 
 import aiohttp_session
 from aiohttp import web
+from pymongo.errors import (
+    AutoReconnect,
+    ConnectionFailure,
+    ExecutionTimeout,
+    NetworkTimeout,
+    ServerSelectionTimeoutError,
+    WaitQueueTimeoutError,
+)
 
 from const import ANON_PREFIX, DARK_FEN, STARTED, GAME_CATEGORY_ALL
 from fairy import BLACK, WHITE
@@ -140,7 +148,21 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
 
     mod_report_score = 0
     if _is_admin_username(user.username):
-        mod_report_score = await _max_open_report_score(request)
+        try:
+            mod_report_score = await _max_open_report_score(request)
+        except (
+            ServerSelectionTimeoutError,
+            AutoReconnect,
+            NetworkTimeout,
+            ConnectionFailure,
+            ExecutionTimeout,
+            WaitQueueTimeoutError,
+        ):
+            log.warning(
+                "Failed to load mod report score for %s due to Mongo connectivity/timeout; using fallback=0",
+                user.username,
+                exc_info=True,
+            )
 
     context: ViewContext = {
         "user": user,
