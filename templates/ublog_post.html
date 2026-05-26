@@ -1,0 +1,92 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu ublog-page">
+<aside>
+    <ul class="guide">
+        <li><a href="/blogs"><span>Official blogs</span></a></li>
+        <li><a href="/blogs/community"><span>Community blogs</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}"><span>{{ profile }} blog</span></a></li>
+        {% if ublog_is_owner %}
+        <li><a href="/blogs/@/{{ profile }}/drafts"><span>Drafts</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}/{{ ublog_post['_id'] }}/edit"><span>Edit post</span></a></li>
+        {% endif %}
+    </ul>
+</aside>
+<article class="ublog-box box box-pad ublog-post">
+    {% if ublog_post['image'] %}
+    <img class="ublog-post-image ublog-post__image" src="{{ ublog_post['image_src'] }}" alt="{{ ublog_post['imageAlt'] }}">
+    {% endif %}
+    <div class="box-top">
+        <h1 class="ublog-post__title">{{ ublog_post['title'] }}</h1>
+    </div>
+    <div class="ublog-post-meta ublog-post__meta">
+        <a class="user-link ublog-post__meta__author" href="/@/{{ ublog_post['author'] }}" data-href="/@/{{ ublog_post['author'] }}">
+            <i-side class="{% if ublog_author_online %}online icon icon-online{% else %}offline icon icon-offline{% endif %}"></i-side>
+            <player-title>{{ ublog_post['author_title'] }} </player-title>{{ ublog_post['author'] }}
+        </a>
+        <time class="ublog-post__meta__date">{{ ublog_post['date'] }}</time>
+        <span class="ublog-post__views">{{ ublog_post['views'] }} views</span>
+        <span>{{ ublog_post['language'] }}</span>
+        {% if (not anon) and (username != ublog_post['author']) %}
+        <a class="button button-empty ublog-post__meta__report icon icon-warning"
+            href="/report?source=profile&username={{ ublog_post['author'] }}&reason=bad_behavior&details={{ ublog_post['url'] | urlencode }}"
+            title="{% trans %}Report to moderators{% endtrans %}">{% trans %}Report{% endtrans %}</a>
+        {% endif %}
+    </div>
+    <p class="ublog-post-intro ublog-post__intro">{{ ublog_post['intro'] }}</p>
+    <textarea id="ublog-markdown-source" hidden>{{ ublog_post['markdown'] }}</textarea>
+    <div id="ublog-markdown-render" class="ublog-markdown-render ublog-post__markup"></div>
+    {% if ublog_post['imageCredit'] %}
+    <p class="ublog-post-credit ublog-post__image-credit">Image credit: {{ ublog_post['imageCredit'] }}</p>
+    {% endif %}
+    <section class="ublog-related ublog-post__footer">
+        {% if ublog_post['live'] and ublog_post['discuss'] %}
+        <a class="button text ublog-post__discuss icon icon-bubbles4" href="/blogs/discuss/{{ ublog_post['_id'] }}">Discuss this blog post in the forum</a>
+        {% endif %}
+        {% if ublog_post['live'] %}
+        <div class="ublog-post__actions">
+            {% if (not anon) and (username != ublog_post['author']) %}
+            <form class="ublog-post__like-form" method="post" action="/blogs/@/{{ profile }}/{{ ublog_post['_id'] }}/like">
+                <button class="ublog-post__like button button-red icon icon-heart {% if ublog_post['liked'] %}ublog-post__like--liked{% endif %}" type="submit" title="{% if ublog_post['liked'] %}Unlike{% else %}Like{% endif %}">
+                    <span class="ublog-post__like__nb">{{ ublog_post['likes'] }}</span>
+                    <span class="button-label">{% if ublog_post['liked'] %}Unlike{% else %}Like{% endif %}</span>
+                </button>
+            </form>
+            {% else %}
+            <span class="ublog-post__like ublog-post__like--readonly icon icon-heart {% if ublog_post['liked'] %}ublog-post__like--liked{% endif %}">
+                <span class="ublog-post__like__nb">{{ ublog_post['likes'] }}</span>
+                <span class="button-label">Likes</span>
+            </span>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% if ublog_related %}
+        <h2>You may also like</h2>
+        <div class="ublog-cards ublog-post-cards">
+        {% for rel in ublog_related %}
+            <a class="ublog-card ublog-post-card ublog-post-card--link" href="{{ rel['url'] }}">
+                <span class="ublog-post-card__top">
+                    {% if rel['image'] %}
+                    <img class="ublog-card-image ublog-post-card__image" src="{{ rel['image_src'] }}" alt="{{ rel['imageAlt'] }}">
+                    {% else %}
+                    <div class="ublog-card-image ublog-card-image--empty ublog-post-card__image"></div>
+                    {% endif %}
+                </span>
+                <span class="ublog-post-card__content">
+                    <span class="ublog-card-title ublog-post-card__title">{{ rel['title'] }}</span>
+                    <span class="ublog-card-intro ublog-post-card__intro">{{ rel['intro'] }}</span>
+                </span>
+            </a>
+        {% endfor %}
+        </div>
+        {% endif %}
+    </section>
+</article>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+<script src="{{ static('ublog_markdown.js') }}"></script>
+{% endblock %}

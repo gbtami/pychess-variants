@@ -480,6 +480,14 @@ class PychessGlobalAppState:
 
             await upsert_static_docs(self.db.blog, BLOGS)
             await self.db.blog.create_index("date")
+            if "ublog_post" not in db_collections:
+                await self.db.create_collection("ublog_post")
+            await self.db.ublog_post.create_index([("author", 1), ("live", 1), ("publishedAt", -1)])
+            await self.db.ublog_post.create_index(
+                [("live", 1), ("sticky", -1), ("publishedAt", -1)]
+            )
+            await self.db.ublog_post.create_index([("author", 1), ("slug", 1)])
+            await self.db.ublog_post.create_index("topics")
 
             if "fishnet" in db_collections:
                 cursor = self.db.fishnet.find()

@@ -1,0 +1,48 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu ublog-page">
+<aside>
+    <ul class="guide">
+        <li><a href="/blogs"><span>Official blogs</span></a></li>
+        <li><a href="/blogs/community"><span>Community blogs</span></a></li>
+        {% for topic in community_topics %}
+        <li>
+            <a href="/blogs/community?topic={{ topic }}"><span>#{{ topic }}</span></a>
+        </li>
+        {% endfor %}
+    </ul>
+</aside>
+<div class="ublog-box box box-pad ublog-index">
+    <div class="box-top">
+        <h1>Community blogs</h1>
+    </div>
+    {% if community_topic %}
+    <div class="ublog-topic-filter">Filtered by <strong>#{{ community_topic }}</strong></div>
+    {% endif %}
+    <div class="ublog-cards ublog-post-cards">
+    {% for post in community_posts %}
+        <a class="ublog-card ublog-post-card ublog-post-card--link" href="{{ post['url'] }}">
+            <span class="ublog-post-card__top">
+                {% if post['image'] %}
+                <img class="ublog-card-image ublog-post-card__image" src="{{ post['image_src'] }}" alt="{{ post['imageAlt'] }}">
+                {% else %}
+                <div class="ublog-card-image ublog-card-image--empty ublog-post-card__image"></div>
+                {% endif %}
+                <time class="ublog-post-card__over-image">{{ post['date'] }}</time>
+                <span class="ublog-post-card__over-image user-link"><player-title>{{ post['author_title'] }} </player-title>{{ post['author'] }}</span>
+            </span>
+            <span class="ublog-post-card__content">
+                <span class="ublog-card-title ublog-post-card__title">{{ post['title'] }}</span>
+                <span class="ublog-card-intro ublog-post-card__intro">{{ post['intro'] }}</span>
+            </span>
+        </a>
+    {% endfor %}
+    </div>
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+{% endblock %}

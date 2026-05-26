@@ -6,6 +6,7 @@ from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
 from settings import ADMINS
 from typing_defs import ViewContext
+from ublog import display_date, image_src, post_url, summary_from_markdown
 from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
 from variants import NOT_RATED_VARIANTS, VARIANTS, VARIANT_ICONS
@@ -123,5 +124,35 @@ async def profile(request: web.Request) -> ViewContext:
     context["lishogi_id"] = (
         profile_user.oauth_id if profile_user.oauth_provider == "lishogi" else ""
     )
+    context["ublog_posts"] = []
+    context["ublog_post_count"] = 0
+    if app_state.db is not None:
+        context["ublog_post_count"] = await app_state.db.ublog_post.count_documents(
+            {"author": profileId, "live": True}
+        )
+        posts = await (
+            app_state.db.ublog_post.find({"author": profileId, "live": True})
+            .sort([("sticky", -1), ("publishedAt", -1), ("createdAt", -1)])
+            .limit(3)
+            .to_list(3)
+        )
+        titles = await app_state.public_users.get_titles([profileId])
+        author_title = titles.get(profileId, "")
+        context["ublog_posts"] = [
+            {
+                "_id": post["_id"],
+                "title": str(post.get("title") or ""),
+                "intro": str(post.get("intro") or ""),
+                "summary": summary_from_markdown(str(post.get("markdown") or "")),
+                "date": display_date(post),
+                "image": str(post.get("image") or ""),
+                "image_src": image_src(post),
+                "imageAlt": str(post.get("imageAlt") or ""),
+                "url": post_url(post),
+                "author": profileId,
+                "author_title": author_title,
+            }
+            for post in posts
+        ]
 
     return context

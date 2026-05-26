@@ -2,6 +2,7 @@ import aiohttp_jinja2
 from aiohttp import web
 
 from blogs import BLOG_TAGS
+from ublog import display_date, image_src, post_url, summary_from_markdown
 from utils import get_blogs
 from typing_defs import ViewContext
 from views import get_user_context
@@ -24,6 +25,33 @@ async def blogs(request: web.Request) -> ViewContext:
     context["blog_tag"] = blog_tag
 
     context["blogs"] = blogs
+    context["community_posts"] = []
+    if app_state.db is not None:
+        posts = await (
+            app_state.db.ublog_post.find({"live": True})
+            .sort([("sticky", -1), ("publishedAt", -1), ("createdAt", -1)])
+            .limit(6)
+            .to_list(6)
+        )
+        titles = await app_state.public_users.get_titles(
+            str(post.get("author") or "") for post in posts
+        )
+        context["community_posts"] = [
+            {
+                "_id": post["_id"],
+                "title": str(post.get("title") or ""),
+                "intro": str(post.get("intro") or ""),
+                "summary": summary_from_markdown(str(post.get("markdown") or "")),
+                "author": str(post.get("author") or ""),
+                "author_title": titles.get(str(post.get("author") or ""), ""),
+                "date": display_date(post),
+                "image": str(post.get("image") or ""),
+                "image_src": image_src(post),
+                "imageAlt": str(post.get("imageAlt") or ""),
+                "url": post_url(post),
+            }
+            for post in posts
+        ]
     if user.game_category != "all":
         available_tags = {tag for blog in blogs for tag in blog.get("tags", [])}
         context["tags"] = [tag for tag in BLOG_TAGS if tag in available_tags]
