@@ -15,12 +15,3 @@ find . -type f -name "*.html" -exec perl -pi -e s,$SRC,$DST,g '{}' +
 
 mkdir -p ../../templates/docs
 mv *.html ../../templates/docs
-
-# Blogs
-cd ../blogs
-node ../../md2html.js
-
-find . -type f -name "*.html" -exec perl -pi -e s,$SRC,$DST,g '{}' +
-
-mkdir -p ../../templates/blogs
-mv *.html ../../templates/blogs

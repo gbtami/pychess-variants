@@ -301,7 +301,10 @@ async def community(request: web.Request) -> ViewContext:
         context["view_css"] = "ublog.css"
         return context
 
-    query: dict[str, Any] = {"live": True}
+    query: dict[str, Any] = {
+        "live": True,
+        "$or": [{"blogType": {"$exists": False}}, {"blogType": {"$ne": "site"}}],
+    }
     if topic != "":
         query["topics"] = topic
     cursor = app_state.db.ublog_post.find(query).sort(
@@ -312,7 +315,10 @@ async def community(request: web.Request) -> ViewContext:
     context["community_topic"] = topic
     context["community_topics"] = sorted(
         t
-        for t in await app_state.db.ublog_post.distinct("topics", {"live": True})
+        for t in await app_state.db.ublog_post.distinct(
+            "topics",
+            {"live": True, "$or": [{"blogType": {"$exists": False}}, {"blogType": {"$ne": "site"}}]},
+        )
         if isinstance(t, str)
     )
     context["title"] = "Community blogs • PyChess"

@@ -2,13 +2,18 @@ import * as cg from 'chessgroundx/types';
 
 export interface Post {
     _id: string;
+    post_id?: string;
     date: string;
     image:string;
     alt: string;
+    imageAlt?: string;
     title: string;
     subtitle: string;
+    intro?: string;
     author: string;
     atitle: string;
+    author_title?: string;
+    url?: string;
     tags: string[];
     category?: string | string[];
 }

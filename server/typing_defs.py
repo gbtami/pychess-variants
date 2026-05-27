@@ -402,7 +402,6 @@ class ViewContext(TypedDict, total=False):
     mod_report_score: int
     allusers: Sequence[User]
     anon_online: int
-    blog_item: str
     blog_tag: Callable[[str], str]
     blogs: list[object] | str
     community_posts: list[object]

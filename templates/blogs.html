@@ -16,7 +16,7 @@
     <div class="box-top"><h1>{% trans %}PyChess Blogs{% endtrans %}</h1></div>
     <div class="blog">
     {%- for blog in blogs -%}
-    <a class="card" href="{{ home }}/blogs/{{ blog['_id'] }}"><span class="card-media"><img style="background-image: url('static{{ blog['image'] }}')" alt="{{ blog['alt'] }}"></img><span class="date">{{ blog['date'] }}</span><span class="author"><player-title>{{ blog['atitle'] }} </player-title>{{ blog['author'] }}</span></span><span class="info"><span class="title">{{ blog['title'] }}</span><span class="sub-title">{{ blog['subtitle'] }}</span></span></a>
+    <a class="card" href="{{ blog['url'] if blog['url'] else (home + '/blogs/' + blog['_id']) }}"><span class="card-media"><img style="background-image: url('{{ blog['image_src'] }}')" alt="{{ blog['imageAlt'] }}"></img><span class="date">{{ blog['date'] }}</span><span class="author"><player-title>{{ blog['author_title'] }} </player-title>{{ blog['author'] }}</span></span><span class="info"><span class="title">{{ blog['title'] }}</span><span class="sub-title">{{ blog['intro'] }}</span></span></a>
     {%- endfor -%}
     </div>
     {% if community_posts %}

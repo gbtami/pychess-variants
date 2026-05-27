@@ -53,7 +53,7 @@ from seek import (
 )
 from user import User
 from users import NotInDbUsers
-from blogs import BLOG_CATEGORIES
+from ublog import display_date, image_src, post_url
 from valid_fen import VALID_FEN
 
 if TYPE_CHECKING:
@@ -1288,29 +1288,70 @@ async def get_blogs(request, tag=None, limit=0):
     user = await app_state.users.get(session_user) if session_user else None
     game_category = user.game_category if user is not None else session.get("game_category", "all")
 
-    blogs = []
-    if tag is None:
-        cursor = app_state.db.blog.find()
-    else:
-        cursor = app_state.db.blog.find({"tags": tag})
+    async def enrich_author_titles(blogs: list[dict]) -> list[dict]:
+        for doc in blogs:
+            try:
+                doc_user = await app_state.users.get(doc["author"])
+                doc["author_title"] = doc_user.title
+                doc["atitle"] = doc_user.title
+            except NotInDbUsers:
+                doc["author_title"] = str(doc.get("author_title") or "")
+                doc["atitle"] = str(doc.get("atitle") or doc.get("author_title") or "")
+        return blogs
 
-    cursor.sort("date", -1)
+    # Prefer migrated site blogs from ublog_post.
+    site_query: dict[str, object] = {"live": True, "blogType": "site"}
+    if tag is not None:
+        site_query["tags"] = tag
+    site_cursor = app_state.db.ublog_post.find(site_query).sort(
+        [("sticky", -1), ("publishedAt", -1), ("createdAt", -1)]
+    )
     if limit > 0 and game_category == "all":
-        cursor.limit(limit)
-    async for doc in cursor:
-        category = doc.get("category", BLOG_CATEGORIES.get(doc["_id"], "all"))
-        doc["category"] = category
+        site_cursor.limit(limit)
+
+    site_blogs: list[dict] = []
+    async for raw_doc in site_cursor:
+        category = raw_doc.get("category", "all")
         if not category_matches(game_category, category):
             continue
-        try:
-            user = await app_state.users.get(doc["author"])
-            doc["atitle"] = user.title
-        except NotInDbUsers:
-            pass
-        blogs.append(doc)
-        if limit > 0 and game_category != "all" and len(blogs) >= limit:
+        intro = str(raw_doc.get("intro") or raw_doc.get("subtitle") or "")
+        image_alt = str(raw_doc.get("imageAlt") or raw_doc.get("alt") or "")
+        tags_raw = raw_doc.get("tags")
+        tags = [str(tag) for tag in tags_raw] if isinstance(tags_raw, list) else []
+        topics_raw = raw_doc.get("topics")
+        topics = (
+            [str(topic) for topic in topics_raw]
+            if isinstance(topics_raw, list)
+            else [tag.lower() for tag in tags]
+        )
+        site_blogs.append(
+            {
+                "_id": str(raw_doc.get("legacyBlogId") or raw_doc.get("_id") or ""),
+                "post_id": str(raw_doc.get("_id") or ""),
+                "title": str(raw_doc.get("title") or ""),
+                "intro": intro,
+                "subtitle": intro,
+                "author": str(raw_doc.get("author") or ""),
+                "date": display_date(raw_doc),
+                "image": str(raw_doc.get("image") or ""),
+                "image_src": image_src(raw_doc),
+                "imageAlt": image_alt,
+                "alt": image_alt,
+                "tags": tags,
+                "topics": topics,
+                "category": category,
+                "categoryList": category if isinstance(category, list) else [category],
+                "isOfficial": bool(raw_doc.get("isOfficial", True)),
+                "blogType": "site",
+                "url": post_url(raw_doc),
+            }
+        )
+        if limit > 0 and game_category != "all" and len(site_blogs) >= limit:
             break
-    return blogs
+    if len(site_blogs) > 0:
+        return await enrich_author_titles(site_blogs)
+
+    return []
 
 
 async def get_notifications(request):

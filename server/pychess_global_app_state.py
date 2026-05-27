@@ -90,7 +90,6 @@ from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
 from utils import load_game, should_send_game_start_to_bot
-from blogs import BLOGS
 from videos import VIDEOS
 from youtube import Youtube
 from lang import LOCALE
@@ -477,17 +476,30 @@ class PychessGlobalAppState:
             await load_active_simuls(self)
 
             await upsert_static_docs(self.db.video, VIDEOS)
-
-            await upsert_static_docs(self.db.blog, BLOGS)
-            await self.db.blog.create_index("date")
             if "ublog_post" not in db_collections:
                 await self.db.create_collection("ublog_post")
             await self.db.ublog_post.create_index([("author", 1), ("live", 1), ("publishedAt", -1)])
             await self.db.ublog_post.create_index(
                 [("live", 1), ("sticky", -1), ("publishedAt", -1)]
             )
+            await self.db.ublog_post.create_index([("live", 1), ("blogType", 1), ("publishedAt", -1)])
             await self.db.ublog_post.create_index([("author", 1), ("slug", 1)])
+            await self.db.ublog_post.create_index("legacyBlogId")
             await self.db.ublog_post.create_index("topics")
+
+            if os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
+                from legacy_blog_migration import build_legacy_ublog_docs
+
+                legacy_blog_author_policy = os.getenv("LEGACY_BLOG_AUTHOR_POLICY", "keep")
+                if legacy_blog_author_policy not in ("keep", "official-as-pychess"):
+                    legacy_blog_author_policy = "keep"
+                await upsert_static_docs(
+                    self.db.ublog_post,
+                    build_legacy_ublog_docs(
+                        author_policy=legacy_blog_author_policy,
+                        strip_preamble=True,
+                    ),
+                )
 
             if "fishnet" in db_collections:
                 cursor = self.db.fishnet.find()

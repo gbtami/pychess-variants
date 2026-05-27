@@ -1,52 +1,28 @@
-import os
-
-import aiohttp_jinja2
 from aiohttp import web
 
 from const import category_matches
-from blogs import BLOG_TAGS, BLOG_CATEGORIES, BLOGS
-from lang import get_locale_ext
-from typing_defs import ViewContext
+from ublog import post_url
 from views import get_user_context
+from pychess_global_app_state_utils import get_app_state
 
 
-@aiohttp_jinja2.template("blog.html")
-async def blog(request: web.Request) -> ViewContext:
-    user, context = await get_user_context(request)
+async def blog(request: web.Request) -> web.StreamResponse:
+    user, _context = await get_user_context(request)
+    app_state = get_app_state(request.app)
 
-    blogId = request.match_info.get("blogId")
-    if blogId is None or blogId not in BLOG_CATEGORIES:
+    blog_id = request.match_info.get("blogId")
+    if app_state.db is None or blog_id is None:
         raise web.HTTPNotFound()
 
-    if user.game_category != "all":
-        category = BLOG_CATEGORIES.get(blogId, "all")
-        if not category_matches(user.game_category, category):
-            raise web.HTTPNotFound()
-    blog_item = blogId.replace("_", " ")
-
-    # try translated blog file first
-    item = "blogs/%s%s.html" % (blog_item, get_locale_ext(context))
-    item_path = os.path.abspath(os.path.join("templates", item))
-
-    # if there is no translated use the untranslated one
-    if not os.path.exists(item_path):
-        item = "blogs/%s.html" % blog_item
-        item_path = os.path.abspath(os.path.join("templates", item))
-
-    if not os.path.exists(item_path):
+    migrated = await app_state.db.ublog_post.find_one(
+        {"legacyBlogId": blog_id, "live": True, "blogType": "site"},
+        {"_id": 1, "author": 1, "slug": 1, "category": 1},
+    )
+    if migrated is None:
         raise web.HTTPNotFound()
 
-    context["blog_item"] = item
-    context["view_css"] = "blogs.css"
-    if user.game_category != "all":
-        available_tags = {
-            tag
-            for blog in BLOGS
-            if category_matches(user.game_category, blog.get("category", "all"))
-            for tag in blog.get("tags", [])
-        }
-        context["tags"] = [tag for tag in BLOG_TAGS if tag in available_tags]
-    else:
-        context["tags"] = BLOG_TAGS
+    category = migrated.get("category", "all")
+    if user.game_category != "all" and not category_matches(user.game_category, category):
+        raise web.HTTPNotFound()
 
-    return context
+    raise web.HTTPFound(post_url(migrated))
