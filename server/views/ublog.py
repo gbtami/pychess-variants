@@ -474,7 +474,7 @@ async def user_blog(request: web.Request) -> ViewContext:
     context["profile"] = profile_id
     context["ublog_is_owner"] = is_owner(user.username, profile_id, user.anon)
     context["ublog_is_drafts"] = False
-    context["title"] = f"{profile_id} blog • PyChess"
+    context["title"] = f"By {profile_id} • PyChess"
     context["view_css"] = "ublog.css"
     return context
 

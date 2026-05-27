@@ -4,9 +4,9 @@
 <main class="page-menu ublog-page">
 <aside>
     <ul class="guide">
-        <li><a href="/blogs"><span>Official blogs</span></a></li>
-        <li><a href="/blogs/community"><span>Community blogs</span></a></li>
-        <li><a href="/blogs/@/{{ profile }}"><span>{{ profile }} blog</span></a></li>
+        <li><a href="/blogs"><span>By PyChess</span></a></li>
+        <li><a href="/blogs/community"><span>Community</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}"><span>By {{ profile }}</span></a></li>
         {% if ublog_is_owner %}
         <li><a href="/blogs/@/{{ profile }}/drafts"><span>Drafts</span></a></li>
         <li><a href="/blogs/@/{{ profile }}/{{ ublog_post['_id'] }}/edit"><span>Edit post</span></a></li>

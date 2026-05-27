@@ -4,7 +4,8 @@
 <main class="page-menu">
 <aside>
     <ul class="guide">
-    <li><a href="{{ home }}/blogs/community"><span>Community blogs</span></a></li>
+    <li><a href="{{ home }}/blogs"><span>By PyChess</span></a></li>
+    <li><a href="{{ home }}/blogs/community"><span>Community</span></a></li>
     {% for tag in tags %}
     <li>
     <a href="{{ home }}/blogs?tags={{ tag }}"><span>{{ blog_tag(tag) }}</span></a>

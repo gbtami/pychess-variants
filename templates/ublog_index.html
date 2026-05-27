@@ -4,9 +4,9 @@
 <main class="page-menu ublog-page">
 <aside>
     <ul class="guide">
-        <li><a href="/blogs"><span>Official blogs</span></a></li>
-        <li><a href="/blogs/community"><span>Community blogs</span></a></li>
-        <li><a href="/blogs/@/{{ profile }}"><span>{{ profile }} blog</span></a></li>
+        <li><a href="/blogs"><span>By PyChess</span></a></li>
+        <li><a href="/blogs/community"><span>Community</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}"><span>By {{ profile }}</span></a></li>
         {% if ublog_is_owner %}
         <li><a href="/blogs/@/{{ profile }}/drafts"><span>Drafts</span></a></li>
         <li><a href="/blogs/@/{{ profile }}/new"><span>New post</span></a></li>
@@ -15,7 +15,7 @@
 </aside>
 <div class="ublog-box box box-pad ublog-index">
     <div class="box-top">
-        <h1>{% if ublog_is_drafts %}{{ profile }} drafts{% else %}{{ profile }} blog{% endif %}</h1>
+        <h1>{% if ublog_is_drafts %}{{ profile }} drafts{% else %}By {{ profile }}{% endif %}</h1>
     </div>
     <div class="ublog-cards ublog-post-cards">
     {% for post in ublog_posts %}
