@@ -10,7 +10,7 @@
     </ul>
 </aside>
 <div class="ublog-box box ublog-post-form">
-    <div class="box-top">
+    <div class="box-top ublog-post-form__header">
         <h1>{% if ublog_create_mode %}New post{% else %}Edit your blog post{% endif %}</h1>
     </div>
 
@@ -50,8 +50,8 @@
         </label>
         {% if ublog_create_mode %}
         <div class="ublog-form-actions">
-            <a class="button button-empty" href="{{ ublog_cancel_url }}">Cancel</a>
-            <button class="button button-green" type="submit" name="action" value="save">Save draft</button>
+            <a class="button button-empty ublog-action ublog-action--cancel" href="{{ ublog_cancel_url }}">Cancel</a>
+            <button class="button ublog-action ublog-action--draft" type="submit" name="action" value="save">Save draft</button>
         </div>
         {% else %}
         <label>Language
@@ -69,37 +69,39 @@
                 <input type="text" name="imageCredit" maxlength="200" value="{{ ublog_values['imageCredit'] }}">
             </label>
         </fieldset>
-        <div class="ublog-checks">
-            <label class="checkbox-row">
-                <input type="checkbox" name="discuss" {% if ublog_values['discuss'] %}checked{% endif %}>
-                Create blog discussion
-            </label>
-            <label class="checkbox-row">
-                <input type="checkbox" name="live" {% if ublog_values['live'] %}checked{% endif %}>
-                Publish on your blog
-            </label>
-            <label class="checkbox-row">
-                <input type="checkbox" name="sticky" {% if ublog_values['sticky'] %}checked{% endif %}>
-                Sticky post
-            </label>
-            {% if ublog_can_publish_site %}
-            <label class="checkbox-row">
-                <input type="checkbox" name="siteBlog" {% if ublog_values['siteBlog'] %}checked{% endif %}>
-                Publish in "By PyChess"
-            </label>
-            {% endif %}
-        </div>
-        <div class="ublog-form-actions">
-            <a class="button button-empty" href="{{ ublog_cancel_url }}">Cancel</a>
-            <button class="button button-green" type="submit" name="action" value="apply">Apply</button>
-            <button class="button button-green" type="submit" name="action" value="view-post">Save and open post</button>
+        <div class="ublog-publish-controls">
+            <div class="ublog-checks">
+                <label class="checkbox-row">
+                    <input type="checkbox" name="discuss" {% if ublog_values['discuss'] %}checked{% endif %}>
+                    Create blog discussion
+                </label>
+                <label class="checkbox-row">
+                    <input type="checkbox" name="live" {% if ublog_values['live'] %}checked{% endif %}>
+                    Publish on your blog
+                </label>
+                <label class="checkbox-row">
+                    <input type="checkbox" name="sticky" {% if ublog_values['sticky'] %}checked{% endif %}>
+                    Sticky post
+                </label>
+                {% if ublog_can_publish_site %}
+                <label class="checkbox-row">
+                    <input type="checkbox" name="siteBlog" {% if ublog_values['siteBlog'] %}checked{% endif %}>
+                    Publish in "By PyChess"
+                </label>
+                {% endif %}
+            </div>
+            <div class="ublog-form-actions">
+                <a class="button button-empty ublog-action ublog-action--cancel" href="{{ ublog_cancel_url }}">Cancel</a>
+                <button class="button ublog-action ublog-action--apply" type="submit" name="action" value="apply">Apply</button>
+                <button class="button ublog-action ublog-action--publish" type="submit" name="action" value="view-post">Save and open post</button>
+            </div>
         </div>
         {% endif %}
     </form>
 
     {% if ublog_post %}
     <form method="post" class="ublog-delete-form ublog-post-form__delete" action="/blogs/@/{{ profile }}/{{ ublog_post['_id'] }}/delete">
-        <button class="button button-red button-empty" type="submit">Delete post</button>
+        <button class="button ublog-action ublog-action--delete" type="submit">Delete post</button>
     </form>
     {% endif %}
 </div>
