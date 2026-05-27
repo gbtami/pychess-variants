@@ -488,18 +488,23 @@ class PychessGlobalAppState:
             await self.db.ublog_post.create_index("topics")
 
             if os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
-                from legacy_blog_migration import build_legacy_ublog_docs
+                # Run legacy bootstrap only for an empty target collection.
+                # This keeps first deploy fully automatic while preventing rewrites
+                # of migrated posts on every subsequent restart.
+                ublog_post_count = await self.db.ublog_post.count_documents({}, limit=1)
+                if ublog_post_count == 0:
+                    from legacy_blog_migration import build_legacy_ublog_docs
 
-                legacy_blog_author_policy = os.getenv("LEGACY_BLOG_AUTHOR_POLICY", "keep")
-                if legacy_blog_author_policy not in ("keep", "official-as-pychess"):
-                    legacy_blog_author_policy = "keep"
-                await upsert_static_docs(
-                    self.db.ublog_post,
-                    build_legacy_ublog_docs(
-                        author_policy=legacy_blog_author_policy,
-                        strip_preamble=True,
-                    ),
-                )
+                    legacy_blog_author_policy = os.getenv("LEGACY_BLOG_AUTHOR_POLICY", "keep")
+                    if legacy_blog_author_policy not in ("keep", "official-as-pychess"):
+                        legacy_blog_author_policy = "keep"
+                    await upsert_static_docs(
+                        self.db.ublog_post,
+                        build_legacy_ublog_docs(
+                            author_policy=legacy_blog_author_policy,
+                            strip_preamble=True,
+                        ),
+                    )
 
             if "fishnet" in db_collections:
                 cursor = self.db.fishnet.find()
