@@ -31,7 +31,8 @@
             {% if (not anon) and (username != ublog_post['author']) %}
             <a class="button button-empty ublog-post__meta__report icon icon-warning"
                 href="/report?source=profile&username={{ ublog_post['author'] }}&reason=bad_behavior&details={{ ublog_post['url'] | urlencode }}"
-                title="{% trans %}Report to moderators{% endtrans %}">{% trans %}Report{% endtrans %}</a>
+                title="{% trans %}Report to moderators{% endtrans %}"
+                aria-label="{% trans %}Report to moderators{% endtrans %}"></a>
             {% endif %}
         </div>
         <p class="ublog-post-intro ublog-post__intro">{{ ublog_post['intro'] }}</p>
