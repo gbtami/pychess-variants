@@ -404,6 +404,8 @@ class ViewContext(TypedDict, total=False):
     anon_online: int
     blog_tag: Callable[[str], str]
     blogs: list[object] | str
+    site_tag: str
+    site_tags: list[str]
     community_posts: list[object]
     community_topic: str
     community_topics: list[str]
@@ -453,6 +455,7 @@ class ViewContext(TypedDict, total=False):
     ublog_create_mode: bool
     ublog_cancel_url: str
     ublog_can_publish_site: bool
+    ublog_topic_whitelist: list[str]
     ublog_values: Mapping[str, object]
     ublog_errors: list[str]
     puzzle: str

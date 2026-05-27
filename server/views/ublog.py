@@ -19,6 +19,7 @@ from ublog import (
     UBLOG_MAX_INTRO_LEN,
     UBLOG_MAX_MARKDOWN_LEN,
     UBLOG_MAX_TITLE_LEN,
+    UBLOG_TOPIC_WHITELIST,
     display_date,
     image_src,
     is_owner,
@@ -218,7 +219,7 @@ def _form_values_from_doc(doc: dict[str, Any]) -> dict[str, Any]:
             "title": str(doc.get("title") or ""),
             "intro": str(doc.get("intro") or ""),
             "markdown": str(doc.get("markdown") or ""),
-            "topics": ", ".join(doc.get("topics", [])),
+            "topics": ",".join(doc.get("topics", [])),
             "language": str(doc.get("language") or "en"),
             "image": str(doc.get("image") or ""),
             "imageAlt": str(doc.get("imageAlt") or ""),
@@ -244,6 +245,7 @@ def _build_form_context(
     context["profile"] = profile_id
     context["ublog_values"] = values
     context["ublog_errors"] = errors
+    context["ublog_topic_whitelist"] = UBLOG_TOPIC_WHITELIST
     context["ublog_post"] = post
     context["ublog_create_mode"] = post is None
     context["ublog_cancel_url"] = f"/blogs/@/{profile_id}" if post is None else post_url(post)
@@ -258,7 +260,16 @@ def _extract_form_values(data: Any, defaults: dict[str, Any]) -> dict[str, Any]:
     values["markdown"] = safe_trim(
         str(data.get("markdown") or values["markdown"]), UBLOG_MAX_MARKDOWN_LEN
     )
-    values["topics"] = safe_trim(str(data.get("topics") or values["topics"]), 300)
+    topic_values: list[str] = []
+    getall = getattr(data, "getall", None)
+    if callable(getall):
+        for raw_topic in getall("topics", []):
+            topic = safe_trim(str(raw_topic), 48)
+            if topic != "":
+                topic_values.append(topic)
+        values["topics"] = safe_trim(",".join(topic_values), 300)
+    else:
+        values["topics"] = safe_trim(str(data.get("topics") or values["topics"]), 300)
     values["language"] = safe_trim(str(data.get("language") or values["language"]), 16) or "en"
     values["image"] = safe_trim(str(data.get("image") or values["image"]), 400)
     values["imageAlt"] = safe_trim(

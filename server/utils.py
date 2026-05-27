@@ -1300,9 +1300,8 @@ async def get_blogs(request, tag=None, limit=0):
         return blogs
 
     # Prefer migrated site blogs from ublog_post.
+    tag_filter = tag.casefold() if isinstance(tag, str) and tag.strip() != "" else None
     site_query: dict[str, object] = {"live": True, "blogType": "site"}
-    if tag is not None:
-        site_query["tags"] = tag
     site_cursor = app_state.db.ublog_post.find(site_query).sort(
         [("sticky", -1), ("publishedAt", -1), ("createdAt", -1)]
     )
@@ -1324,6 +1323,11 @@ async def get_blogs(request, tag=None, limit=0):
             if isinstance(topics_raw, list)
             else [tag.lower() for tag in tags]
         )
+        if tag_filter is not None:
+            tag_match = any(isinstance(t, str) and t.casefold() == tag_filter for t in tags)
+            topic_match = any(isinstance(t, str) and t.casefold() == tag_filter for t in topics)
+            if not (tag_match or topic_match):
+                continue
         site_blogs.append(
             {
                 "_id": str(raw_doc.get("legacyBlogId") or raw_doc.get("_id") or ""),

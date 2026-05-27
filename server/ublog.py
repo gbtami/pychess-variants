@@ -12,12 +12,39 @@ UBLOG_MAX_INTRO_LEN = 1_000
 UBLOG_MAX_MARKDOWN_LEN = 100_000
 UBLOG_MAX_IMAGE_TEXT_LEN = 200
 UBLOG_MAX_TOPICS = 5
-UBLOG_TOPIC_RE = re.compile(r"[a-z0-9][a-z0-9-]{1,23}")
 
 UBLOG_STEP_CONTENT = "content"
 UBLOG_STEP_MEDIA = "media"
 UBLOG_STEP_PUBLISH = "publish"
 UBLOG_STEPS = {UBLOG_STEP_CONTENT, UBLOG_STEP_MEDIA, UBLOG_STEP_PUBLISH}
+UBLOG_TOPIC_WHITELIST = (
+    "chess",
+    "analysis",
+    "puzzle",
+    "opening",
+    "endgame",
+    "tactics",
+    "strategy",
+    "engine",
+    "BOT",
+    "over the board",
+    "tournament",
+    "chess variant",
+    "software development",
+    "off topic",
+    "lichess",
+    "lishogi",
+    "playstrategy",
+    "announcement",
+    "fairy",
+    "army",
+    "makruk",
+    "shogi",
+    "xiangqi",
+    "other",
+    "all",
+)
+UBLOG_TOPIC_LOOKUP = {topic.casefold(): topic for topic in UBLOG_TOPIC_WHITELIST}
 
 
 def slugify_title(title: str) -> str:
@@ -34,10 +61,11 @@ def normalize_step(value: str | None) -> str:
 def normalize_topics(raw: str) -> list[str]:
     deduped: list[str] = []
     for part in raw.split(","):
-        topic = part.strip().lower()
-        if topic == "" or topic in deduped:
+        candidate = part.strip()
+        if candidate == "":
             continue
-        if UBLOG_TOPIC_RE.fullmatch(topic) is None:
+        topic = UBLOG_TOPIC_LOOKUP.get(candidate.casefold())
+        if topic is None or topic in deduped:
             continue
         deduped.append(topic)
         if len(deduped) >= UBLOG_MAX_TOPICS:

@@ -1,7 +1,6 @@
 import aiohttp_jinja2
 from aiohttp import web
 
-from blog_tags import BLOG_TAGS
 from ublog import display_date, image_src, post_url, summary_from_markdown
 from utils import get_blogs
 from typing_defs import ViewContext
@@ -11,18 +10,20 @@ from pychess_global_app_state_utils import get_app_state
 
 @aiohttp_jinja2.template("blogs.html")
 async def blogs(request: web.Request) -> ViewContext:
-    user, context = await get_user_context(request)
+    _user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)
-    tag = request.rel_url.query.get("tags")
+    tag = (request.rel_url.query.get("tags") or "").strip().lower()
     blogs = await get_blogs(request, tag=tag, limit=0)
-
-    lang = context["lang"]
-
-    def blog_tag(tag: str) -> str:
-        return app_state.translations[lang].gettext(BLOG_TAGS.get(tag, tag))
-
-    context["blog_tag"] = blog_tag
+    context["site_tag"] = tag
+    context["site_tags"] = sorted(
+        {
+            str(topic)
+            for blog in blogs
+            for topic in blog.get("topics", [])
+            if isinstance(topic, str) and topic.strip() != ""
+        }
+    )
 
     context["blogs"] = blogs
     context["community_posts"] = []
@@ -63,10 +64,4 @@ async def blogs(request: web.Request) -> ViewContext:
             }
             for post in posts
         ]
-    if user.game_category != "all":
-        available_tags = {tag for blog in blogs for tag in blog.get("tags", [])}
-        context["tags"] = [tag for tag in BLOG_TAGS if tag in available_tags]
-    else:
-        context["tags"] = BLOG_TAGS
-
     return context

@@ -6,9 +6,9 @@
     <ul class="guide">
     <li><a href="{{ home }}/blogs"><span>By PyChess</span></a></li>
     <li><a href="{{ home }}/blogs/community"><span>Community</span></a></li>
-    {% for tag in tags %}
+    {% for topic in site_tags %}
     <li>
-    <a href="{{ home }}/blogs?tags={{ tag }}"><span>{{ blog_tag(tag) }}</span></a>
+    <a href="{{ home }}/blogs?tags={{ topic | urlencode }}"><span>#{{ topic }}</span></a>
     </li>
     {% endfor %}
     </ul>
