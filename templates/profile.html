@@ -73,10 +73,6 @@
         </div>
         {% if ublog_posts %}
         <section class="player-ublog box">
-            <div class="box-top">
-                <h2>Recent blogs</h2>
-                <a href="/blogs/@/{{ profile }}">View all ({{ ublog_post_count }})</a>
-            </div>
             <div class="ublog-cards">
             {% for post in ublog_posts %}
                 <a class="ublog-card ublog-post-card ublog-post-card--link" href="{{ post['url'] }}">
@@ -95,13 +91,6 @@
                     </span>
                 </a>
             {% endfor %}
-            </div>
-        </section>
-        {% elif ublog_post_count > 0 %}
-        <section class="player-ublog box">
-            <div class="box-top">
-                <h2>Blogs</h2>
-                <a href="/blogs/@/{{ profile }}">View all ({{ ublog_post_count }})</a>
             </div>
         </section>
         {% endif %}
