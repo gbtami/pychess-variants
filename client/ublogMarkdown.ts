@@ -10,18 +10,28 @@ const converter = new showdown.Converter({
 });
 converter.setFlavor('github');
 
-function escapeHtml(text: string): string {
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
+const ALLOWED_TAGS = new Set([
+    'a', 'p', 'blockquote', 'pre', 'code', 'ul', 'ol', 'li', 'hr', 'br',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'strong', 'em', 'del', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'img', 'span', 'div',
+]);
+
+const ALLOWED_ATTRS: Record<string, Set<string>> = {
+    a: new Set(['href', 'title']),
+    img: new Set(['src', 'alt', 'title', 'width', 'height']),
+    p: new Set(['align']),
+    div: new Set(['align']),
+    code: new Set(['class']),
+    pre: new Set(['class']),
+    th: new Set(['align', 'colspan', 'rowspan']),
+    td: new Set(['align', 'colspan', 'rowspan']),
+};
 
 function safeUrl(url: string): string | null {
     const value = (url || '').trim();
     if (!value) return null;
+    if (value.startsWith('/images/') || value.startsWith('/icons/')) return `/static${value}`;
     if (value.startsWith('/')) return value;
     try {
         const parsed = new URL(value);
@@ -32,9 +42,47 @@ function safeUrl(url: string): string | null {
     }
 }
 
+function sanitizePositiveIntAttr(el: Element, attr: 'width' | 'height'): void {
+    const raw = el.getAttribute(attr);
+    if (!raw) return;
+    const value = Number.parseInt(raw, 10);
+    if (!Number.isFinite(value) || value <= 0 || value > 4096) {
+        el.removeAttribute(attr);
+        return;
+    }
+    el.setAttribute(attr, String(value));
+}
+
 function sanitizeRenderedHtml(html: string): string {
     const host = document.createElement('div');
     host.innerHTML = html;
+
+    host.querySelectorAll<HTMLElement>('*').forEach((el) => {
+        const tag = el.tagName.toLowerCase();
+        if (!ALLOWED_TAGS.has(tag)) {
+            if (tag === 'script' || tag === 'style' || tag === 'iframe' || tag === 'object' || tag === 'embed') {
+                el.remove();
+                return;
+            }
+            const parent = el.parentNode;
+            if (!parent) return;
+            while (el.firstChild) parent.insertBefore(el.firstChild, el);
+            parent.removeChild(el);
+            return;
+        }
+
+        const allowedAttrs = ALLOWED_ATTRS[tag] ?? new Set<string>();
+        Array.from(el.attributes).forEach((attr) => {
+            const attrName = attr.name.toLowerCase();
+            if (attrName.startsWith('on') || attrName === 'style' || attrName === 'id' || attrName === 'name') {
+                el.removeAttribute(attr.name);
+                return;
+            }
+            if (!allowedAttrs.has(attrName)) {
+                el.removeAttribute(attr.name);
+            }
+        });
+    });
 
     host.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((el) => {
         const safe = safeUrl(el.getAttribute('href') || '');
@@ -54,6 +102,8 @@ function sanitizeRenderedHtml(html: string): string {
             return;
         }
         el.setAttribute('src', safe);
+        sanitizePositiveIntAttr(el, 'width');
+        sanitizePositiveIntAttr(el, 'height');
         el.setAttribute('loading', 'lazy');
     });
 
@@ -61,8 +111,7 @@ function sanitizeRenderedHtml(html: string): string {
 }
 
 function renderMarkdown(text: string): string {
-    const escaped = escapeHtml(text || '');
-    return sanitizeRenderedHtml(converter.makeHtml(escaped));
+    return sanitizeRenderedHtml(converter.makeHtml(text || ''));
 }
 
 export function initUblogMarkdown(): void {
