@@ -17,11 +17,20 @@ const ALLOWED_TAGS = new Set([
     'img', 'span', 'div',
 ]);
 
+// Keep legacy presentational align attributes from migrated posts.
+const ALIGN_ATTRS = new Set(['align']);
+
 const ALLOWED_ATTRS: Record<string, Set<string>> = {
     a: new Set(['href', 'title']),
     img: new Set(['src', 'alt', 'title', 'width', 'height']),
-    p: new Set(['align']),
-    div: new Set(['align']),
+    p: ALIGN_ATTRS,
+    div: ALIGN_ATTRS,
+    h1: ALIGN_ATTRS,
+    h2: ALIGN_ATTRS,
+    h3: ALIGN_ATTRS,
+    h4: ALIGN_ATTRS,
+    h5: ALIGN_ATTRS,
+    h6: ALIGN_ATTRS,
     code: new Set(['class']),
     pre: new Set(['class']),
     th: new Set(['align', 'colspan', 'rowspan']),
@@ -39,6 +48,20 @@ function safeUrl(url: string): string | null {
         return null;
     } catch {
         return null;
+    }
+}
+
+function toProxiedImageUrl(url: string): string {
+    try {
+        const parsed = new URL(url, window.location.origin);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+            if (parsed.origin === window.location.origin) return parsed.pathname + parsed.search + parsed.hash;
+            // External inline images are served through our backend to avoid ORB/CORS breakage.
+            return `/blogs/image?url=${encodeURIComponent(parsed.href)}`;
+        }
+        return url;
+    } catch {
+        return url;
     }
 }
 
@@ -101,7 +124,7 @@ function sanitizeRenderedHtml(html: string): string {
             el.remove();
             return;
         }
-        el.setAttribute('src', safe);
+        el.setAttribute('src', toProxiedImageUrl(safe));
         sanitizePositiveIntAttr(el, 'width');
         sanitizePositiveIntAttr(el, 'height');
         el.setAttribute('loading', 'lazy');

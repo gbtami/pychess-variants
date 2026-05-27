@@ -339,6 +339,21 @@ async def image_proxy(request: web.Request) -> web.Response:
     if not (image.startswith("http://") or image.startswith("https://")):
         return web.Response(status=404)
 
+    return await _proxy_image_from_url(image)
+
+
+async def image_proxy_external(request: web.Request) -> web.Response:
+    # Proxy arbitrary external inline blog images referenced from markdown content.
+    raw_url = request.rel_url.query.get("url", "")
+    image = raw_url.strip()
+    if image == "":
+        return web.Response(status=400)
+    if not (image.startswith("http://") or image.startswith("https://")):
+        return web.Response(status=404)
+    return await _proxy_image_from_url(image)
+
+
+async def _proxy_image_from_url(image: str) -> web.Response:
     timeout = ClientTimeout(total=8)
     try:
         async with ClientSession(

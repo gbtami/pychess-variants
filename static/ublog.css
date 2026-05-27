@@ -393,6 +393,23 @@
   margin: 0.85em 0;
 }
 
+/* Match old blog rendering: paragraphs containing images are centered. */
+.ublog-page .ublog-markdown-render p:has(img) {
+  text-align: center;
+}
+
+.ublog-page .ublog-markdown-render [align="center"] {
+  text-align: center;
+}
+
+.ublog-page .ublog-markdown-render [align="right"] {
+  text-align: right;
+}
+
+.ublog-page .ublog-markdown-render [align="left"] {
+  text-align: left;
+}
+
 .ublog-page .ublog-markdown-render ul,
 .ublog-page .ublog-markdown-render ol {
   margin: 0.85em 0;

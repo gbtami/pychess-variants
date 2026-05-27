@@ -259,6 +259,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/level8win", level8win.level8win),
     ("/patron", patron.patron),
     ("/patron/thanks", patron.patron),
+    ("/blogs/image", ublog.image_proxy_external),
     (r"/blogs/image/{postId:\w{8}}", ublog.image_proxy),
     (r"/blogs/discuss/{postId:\w{8}}", ublog.discuss),
     ("/blogs/community", ublog.community),
