@@ -145,14 +145,17 @@ def _empty_form_values() -> dict[str, Any]:
 
 def _to_card(post: dict[str, Any], author_title: str) -> dict[str, Any]:
     image = post.get("image") or ""
+    summary = summary_from_markdown(str(post.get("markdown") or ""))
+    intro = str(post.get("intro") or post.get("subtitle") or summary)
     return {
         "_id": post["_id"],
         "slug": post.get("slug", ""),
         "author": post.get("author", ""),
         "author_title": author_title,
         "title": post.get("title", ""),
-        "intro": post.get("intro", ""),
-        "summary": summary_from_markdown(str(post.get("markdown") or "")),
+        "intro": intro,
+        "subtitle": intro,
+        "summary": summary,
         "topics": post.get("topics", []),
         "image": image,
         "imageAlt": post.get("imageAlt") or "",

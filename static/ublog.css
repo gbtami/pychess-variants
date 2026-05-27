@@ -36,8 +36,15 @@
 .ublog-page .ublog-cards,
 .player-ublog .ublog-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(22em, 1fr));
   gap: 1em;
+}
+
+.ublog-page .ublog-cards {
+  grid-template-columns: repeat(auto-fill, minmax(22em, 1fr));
+}
+
+.player-ublog .ublog-cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .player-ublog {
@@ -59,7 +66,7 @@
 .player-ublog .ublog-post-card {
   position: relative;
   display: grid;
-  grid-template-rows: minmax(0, 72%) minmax(0, 28%);
+  grid-template-rows: minmax(0, 64%) minmax(0, 36%);
   aspect-ratio: 1 / 1;
   direction: ltr;
   text-align: left;
@@ -86,7 +93,8 @@
 .player-ublog .ublog-post-card__image {
   display: block;
   width: 100%;
-  aspect-ratio: 1.6;
+  height: 100%;
+  aspect-ratio: auto;
   object-fit: cover;
   background: linear-gradient(135deg, #d8cfc4, #b6c7d7);
 }
@@ -125,32 +133,28 @@
 
 .ublog-page .ublog-post-card__content,
 .player-ublog .ublog-post-card__content {
-  display: block;
-  padding: 4% 3% 4% 6%;
+  display: flex;
+  flex-direction: column;
+  max-height: 12em;
+  padding: 3% 3% 4% 6%;
   overflow: hidden;
 }
 
 .ublog-page .ublog-post-card__title,
 .player-ublog .ublog-post-card__title {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 1.25em;
+  display: block;
+  font-size: 1.2em;
+  margin-bottom: 10px;
   color: var(--font-color, #ddd);
   font-weight: 700;
 }
 
 .ublog-page .ublog-post-card__intro,
 .player-ublog .ublog-post-card__intro {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  display: block;
   overflow: hidden;
-  text-overflow: ellipsis;
   color: var(--font-color, #bbb);
-  margin-top: 0.5em;
+  margin-top: 0;
 }
 
 .ublog-page .ublog-index__posts--empty {
@@ -539,6 +543,12 @@
 
 .ublog-page .ublog-delete-form {
   padding-top: 2rem;
+}
+
+@media (max-width: 1240px) {
+  .player-ublog .ublog-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 799px) {

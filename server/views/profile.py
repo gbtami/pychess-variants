@@ -138,21 +138,26 @@ async def profile(request: web.Request) -> ViewContext:
         )
         titles = await app_state.public_users.get_titles([profileId])
         author_title = titles.get(profileId, "")
-        context["ublog_posts"] = [
-            {
-                "_id": post["_id"],
-                "title": str(post.get("title") or ""),
-                "intro": str(post.get("intro") or ""),
-                "summary": summary_from_markdown(str(post.get("markdown") or "")),
-                "date": display_date(post),
-                "image": str(post.get("image") or ""),
-                "image_src": image_src(post),
-                "imageAlt": str(post.get("imageAlt") or ""),
-                "url": post_url(post),
-                "author": profileId,
-                "author_title": author_title,
-            }
-            for post in posts
-        ]
+        ublog_posts: list[dict[str, str]] = []
+        for post in posts:
+            summary = summary_from_markdown(str(post.get("markdown") or ""))
+            intro = str(post.get("intro") or post.get("subtitle") or summary)
+            ublog_posts.append(
+                {
+                    "_id": post["_id"],
+                    "title": str(post.get("title") or ""),
+                    "intro": intro,
+                    "subtitle": intro,
+                    "summary": summary,
+                    "date": display_date(post),
+                    "image": str(post.get("image") or ""),
+                    "image_src": image_src(post),
+                    "imageAlt": str(post.get("imageAlt") or ""),
+                    "url": post_url(post),
+                    "author": profileId,
+                    "author_title": author_title,
+                }
+            )
+        context["ublog_posts"] = ublog_posts
 
     return context

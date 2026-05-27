@@ -16,7 +16,7 @@
     <div class="box-top"><h1>{% trans %}PyChess Blogs{% endtrans %}</h1></div>
     <div class="blog">
     {%- for blog in blogs -%}
-    <a class="card" href="{{ home }}/blogs/{{ blog['_id'] }}"><img style="background-image: url('static{{ blog['image'] }}')" alt="{{ blog['alt'] }}"></img><span class="date">{{ blog['date'] }}</span><span class="author"><player-title>{{ blog['atitle'] }} </player-title>{{ blog['author'] }}</span><span class="info"><span class="title">{{ blog['title'] }}</span><span class="sub-title">{{ blog['subtitle'] }}</span></span></a>
+    <a class="card" href="{{ home }}/blogs/{{ blog['_id'] }}"><span class="card-media"><img style="background-image: url('static{{ blog['image'] }}')" alt="{{ blog['alt'] }}"></img><span class="date">{{ blog['date'] }}</span><span class="author"><player-title>{{ blog['atitle'] }} </player-title>{{ blog['author'] }}</span></span><span class="info"><span class="title">{{ blog['title'] }}</span><span class="sub-title">{{ blog['subtitle'] }}</span></span></a>
     {%- endfor -%}
     </div>
     {% if community_posts %}
@@ -24,13 +24,15 @@
     <div class="blog">
     {%- for post in community_posts -%}
     <a class="card" href="{{ post['url'] }}">
-        {% if post['image'] %}
-        <img style="background-image: url('{{ post['image_src'] }}')" alt="{{ post['imageAlt'] }}"></img>
-        {% else %}
-        <img style="background-image: linear-gradient(135deg, #d8cfc4, #b6c7d7)" alt=""></img>
-        {% endif %}
-        <span class="date">{{ post['date'] }}</span>
-        <span class="author"><player-title>{{ post['author_title'] }} </player-title>{{ post['author'] }}</span>
+        <span class="card-media">
+            {% if post['image'] %}
+            <img style="background-image: url('{{ post['image_src'] }}')" alt="{{ post['imageAlt'] }}"></img>
+            {% else %}
+            <img style="background-image: linear-gradient(135deg, #d8cfc4, #b6c7d7)" alt=""></img>
+            {% endif %}
+            <span class="date">{{ post['date'] }}</span>
+            <span class="author"><player-title>{{ post['author_title'] }} </player-title>{{ post['author'] }}</span>
+        </span>
         <span class="info"><span class="title">{{ post['title'] }}</span><span class="sub-title">{{ post['intro'] }}</span></span>
     </a>
     {%- endfor -%}

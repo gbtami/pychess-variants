@@ -69,31 +69,12 @@ span.title {
   height: 40px;
   font-weight: bold;
 }
-span.date {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: .2em .5em .3em .5em;
-  opacity: 1;
-  color: var(--font-color);
-  background: var(--bg-seek);
-}
 span.sub-title {
   display: block;
   color: var(--font-color);
 }
 span.full-title {
   font-weight: bold;
-}
-span.author {
-  display: block;
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: .2em .5em .3em .5em;
-  opacity: 1;
-  color: var(--font-color);
-  background: var(--bg-seek);
 }
 .show {
   grid-area: content;

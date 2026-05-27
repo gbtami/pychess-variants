@@ -86,7 +86,8 @@
                         {% else %}
                         <div class="ublog-card-image ublog-card-image--empty ublog-post-card__image"></div>
                         {% endif %}
-                        <time class="ublog-post-card__over-image pos-bottom">{{ post['date'] }}</time>
+                        <time class="ublog-post-card__over-image">{{ post['date'] }}</time>
+                        <span class="ublog-post-card__over-image user-link pos-bottom"><player-title>{{ post['author_title'] }} </player-title>{{ post['author'] }}</span>
                     </span>
                     <span class="ublog-post-card__content">
                         <span class="ublog-card-title ublog-post-card__title">{{ post['title'] }}</span>
