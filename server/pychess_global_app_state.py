@@ -482,7 +482,9 @@ class PychessGlobalAppState:
             await self.db.ublog_post.create_index(
                 [("live", 1), ("sticky", -1), ("publishedAt", -1)]
             )
-            await self.db.ublog_post.create_index([("live", 1), ("blogType", 1), ("publishedAt", -1)])
+            await self.db.ublog_post.create_index(
+                [("live", 1), ("blogType", 1), ("publishedAt", -1)]
+            )
             await self.db.ublog_post.create_index([("author", 1), ("slug", 1)])
             await self.db.ublog_post.create_index("legacyBlogId")
             await self.db.ublog_post.create_index("topics")

@@ -18,4 +18,6 @@ def legacy_blogs() -> list[dict[str, Any]]:
 
 
 def legacy_blog_categories() -> dict[str, Any]:
-    return {str(blog["_id"]): blog.get("category", "all") for blog in legacy_blogs() if "_id" in blog}
+    return {
+        str(blog["_id"]): blog.get("category", "all") for blog in legacy_blogs() if "_id" in blog
+    }

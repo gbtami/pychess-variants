@@ -168,7 +168,9 @@ def normalize_topics(tags: list[str], category: Any) -> list[str]:
     return topics[:5]
 
 
-def to_ublog_doc(legacy: dict[str, Any], author_policy: str, strip_preamble: bool) -> dict[str, Any]:
+def to_ublog_doc(
+    legacy: dict[str, Any], author_policy: str, strip_preamble: bool
+) -> dict[str, Any]:
     legacy_id = str(legacy["_id"])
     md = markdown_path(legacy_id).read_text(encoding="utf-8")
     tags = [str(tag) for tag in legacy.get("tags", []) if isinstance(tag, str)]

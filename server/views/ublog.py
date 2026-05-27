@@ -327,7 +327,10 @@ async def community(request: web.Request) -> ViewContext:
         t
         for t in await app_state.db.ublog_post.distinct(
             "topics",
-            {"live": True, "$or": [{"blogType": {"$exists": False}}, {"blogType": {"$ne": "site"}}]},
+            {
+                "live": True,
+                "$or": [{"blogType": {"$exists": False}}, {"blogType": {"$ne": "site"}}],
+            },
         )
         if isinstance(t, str)
     )
