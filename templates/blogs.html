@@ -20,26 +20,6 @@
     <a class="card" href="{{ blog['url'] if blog['url'] else (home + '/blogs/' + blog['_id']) }}"><span class="card-media"><img style="background-image: url('{{ blog['image_src'] }}')" alt="{{ blog['imageAlt'] }}"></img><span class="date">{{ blog['date'] }}</span><span class="author"><player-title>{{ blog['author_title'] }} </player-title>{{ blog['author'] }}</span></span><span class="info"><span class="title">{{ blog['title'] }}</span><span class="sub-title">{{ blog['intro'] }}</span></span></a>
     {%- endfor -%}
     </div>
-    {% if community_posts %}
-    <div class="box-top"><h2>Community blogs</h2></div>
-    <div class="blog">
-    {%- for post in community_posts -%}
-    <a class="card" href="{{ post['url'] }}">
-        <span class="card-media">
-            {% if post['image'] %}
-            <img style="background-image: url('{{ post['image_src'] }}')" alt="{{ post['imageAlt'] }}"></img>
-            {% else %}
-            <img style="background-image: linear-gradient(135deg, #d8cfc4, #b6c7d7)" alt=""></img>
-            {% endif %}
-            <span class="date">{{ post['date'] }}</span>
-            <span class="author"><player-title>{{ post['author_title'] }} </player-title>{{ post['author'] }}</span>
-        </span>
-        <span class="info"><span class="title">{{ post['title'] }}</span><span class="sub-title">{{ post['intro'] }}</span></span>
-    </a>
-    {%- endfor -%}
-    </div>
-    <p style="padding: 1rem 0;"><a href="/blogs/community">Browse all community blogs</a></p>
-    {% endif %}
 </div>
 </main>
 </div>
