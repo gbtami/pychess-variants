@@ -14,27 +14,28 @@
     </ul>
 </aside>
 <article class="ublog-box box box-pad ublog-post">
+    <h1 class="ublog-post__title">{{ ublog_post['title'] }}</h1>
     {% if ublog_post['image'] %}
     <img class="ublog-post-image ublog-post__image" src="{{ ublog_post['image_src'] }}" alt="{{ ublog_post['imageAlt'] }}">
     {% endif %}
-    <div class="box-top">
-        <h1 class="ublog-post__title">{{ ublog_post['title'] }}</h1>
+    <div class="ublog-post-meta-headline">
+        <div class="ublog-post-meta ublog-post__meta">
+            <a class="user-link ublog-post__meta__author" href="/@/{{ ublog_post['author'] }}" data-href="/@/{{ ublog_post['author'] }}">
+                <i-side class="{% if ublog_author_online %}online icon icon-online{% else %}offline icon icon-offline{% endif %}"></i-side>
+                <player-title>{{ ublog_post['author_title'] }} </player-title>
+                <span class="ublog-post__meta__author__name">{{ ublog_post['author'] }}</span>
+            </a>
+            <time class="ublog-post__meta__date">{{ ublog_post['date'] }}</time>
+            <span class="ublog-post__views">{{ ublog_post['views'] }} views</span>
+            <span>{{ ublog_post['language'] }}</span>
+            {% if (not anon) and (username != ublog_post['author']) %}
+            <a class="button button-empty ublog-post__meta__report icon icon-warning"
+                href="/report?source=profile&username={{ ublog_post['author'] }}&reason=bad_behavior&details={{ ublog_post['url'] | urlencode }}"
+                title="{% trans %}Report to moderators{% endtrans %}">{% trans %}Report{% endtrans %}</a>
+            {% endif %}
+        </div>
+        <p class="ublog-post-intro ublog-post__intro">{{ ublog_post['intro'] }}</p>
     </div>
-    <div class="ublog-post-meta ublog-post__meta">
-        <a class="user-link ublog-post__meta__author" href="/@/{{ ublog_post['author'] }}" data-href="/@/{{ ublog_post['author'] }}">
-            <i-side class="{% if ublog_author_online %}online icon icon-online{% else %}offline icon icon-offline{% endif %}"></i-side>
-            <player-title>{{ ublog_post['author_title'] }} </player-title>{{ ublog_post['author'] }}
-        </a>
-        <time class="ublog-post__meta__date">{{ ublog_post['date'] }}</time>
-        <span class="ublog-post__views">{{ ublog_post['views'] }} views</span>
-        <span>{{ ublog_post['language'] }}</span>
-        {% if (not anon) and (username != ublog_post['author']) %}
-        <a class="button button-empty ublog-post__meta__report icon icon-warning"
-            href="/report?source=profile&username={{ ublog_post['author'] }}&reason=bad_behavior&details={{ ublog_post['url'] | urlencode }}"
-            title="{% trans %}Report to moderators{% endtrans %}">{% trans %}Report{% endtrans %}</a>
-        {% endif %}
-    </div>
-    <p class="ublog-post-intro ublog-post__intro">{{ ublog_post['intro'] }}</p>
     <textarea id="ublog-markdown-source" hidden>{{ ublog_post['markdown'] }}</textarea>
     <div id="ublog-markdown-render" class="ublog-markdown-render ublog-post__markup"></div>
     {% if ublog_post['imageCredit'] %}
