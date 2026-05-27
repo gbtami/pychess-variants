@@ -14,7 +14,7 @@ const ALLOWED_TAGS = new Set([
     'a', 'p', 'blockquote', 'pre', 'code', 'ul', 'ol', 'li', 'hr', 'br',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'strong', 'em', 'del', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
-    'img', 'span', 'div',
+    'img', 'span', 'div', 'iframe',
 ]);
 
 // Keep legacy presentational align attributes from migrated posts.
@@ -24,7 +24,7 @@ const ALLOWED_ATTRS: Record<string, Set<string>> = {
     a: new Set(['href', 'title']),
     img: new Set(['src', 'alt', 'title', 'width', 'height']),
     p: ALIGN_ATTRS,
-    div: ALIGN_ATTRS,
+    div: new Set(['align', 'class']),
     h1: ALIGN_ATTRS,
     h2: ALIGN_ATTRS,
     h3: ALIGN_ATTRS,
@@ -35,6 +35,7 @@ const ALLOWED_ATTRS: Record<string, Set<string>> = {
     pre: new Set(['class']),
     th: new Set(['align', 'colspan', 'rowspan']),
     td: new Set(['align', 'colspan', 'rowspan']),
+    iframe: new Set(['src', 'width', 'height', 'frameborder', 'allowfullscreen', 'loading', 'referrerpolicy']),
 };
 
 function safeUrl(url: string): string | null {
@@ -62,6 +63,32 @@ function toProxiedImageUrl(url: string): string {
         return url;
     } catch {
         return url;
+    }
+}
+
+function safeIframeUrl(url: string): string | null {
+    const value = (url || '').trim();
+    if (!value) return null;
+    try {
+        const parsed = new URL(value, window.location.origin);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+
+        const host = parsed.hostname.toLowerCase();
+        const path = parsed.pathname;
+        const isLocal = parsed.origin === window.location.origin;
+        const isLichessStudyEmbed = (host === 'lichess.org' || host === 'www.lichess.org') && path.startsWith('/study/embed/');
+        const isYouTubeEmbed = (
+            host === 'www.youtube.com' ||
+            host === 'youtube.com' ||
+            host === 'www.youtube-nocookie.com'
+        ) && path.startsWith('/embed/');
+
+        if (isLocal || isLichessStudyEmbed || isYouTubeEmbed) {
+            return parsed.href;
+        }
+        return null;
+    } catch {
+        return null;
     }
 }
 
@@ -105,6 +132,13 @@ function sanitizeRenderedHtml(html: string): string {
                 el.removeAttribute(attr.name);
             }
         });
+
+        if (tag === 'div') {
+            const className = (el.getAttribute('class') || '').trim();
+            if (className && className !== 'embed') {
+                el.removeAttribute('class');
+            }
+        }
     });
 
     host.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((el) => {
@@ -128,6 +162,22 @@ function sanitizeRenderedHtml(html: string): string {
         sanitizePositiveIntAttr(el, 'width');
         sanitizePositiveIntAttr(el, 'height');
         el.setAttribute('loading', 'lazy');
+    });
+
+    host.querySelectorAll<HTMLIFrameElement>('iframe[src]').forEach((el) => {
+        const safe = safeIframeUrl(el.getAttribute('src') || '');
+        if (!safe) {
+            el.remove();
+            return;
+        }
+        el.setAttribute('src', safe);
+        sanitizePositiveIntAttr(el, 'width');
+        sanitizePositiveIntAttr(el, 'height');
+        el.setAttribute('loading', 'lazy');
+        el.setAttribute('referrerpolicy', 'no-referrer');
+        if (!el.hasAttribute('allowfullscreen')) {
+            el.setAttribute('allowfullscreen', '');
+        }
     });
 
     return host.innerHTML;
