@@ -1,0 +1,40 @@
+/* Shared blog card media/overlay styles used by /blogs and lobby cards. */
+
+.card .card-media,
+a.post span.post-media {
+  display: block;
+  position: relative;
+  line-height: 0;
+}
+
+.card .card-media > span.date,
+a.post span.post-media > time {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0.2em 0.5em 0.3em;
+  line-height: 1.3em;
+  opacity: 1;
+  color: #ddd;
+  text-shadow: 0 1px 1px #000;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 7px 0 7px 0;
+  backdrop-filter: blur(5px);
+}
+
+.card .card-media > span.author,
+a.post span.post-media > span.author {
+  display: block;
+  position: absolute;
+  top: auto;
+  bottom: 0;
+  right: 0;
+  padding: 0.2em 0.5em 0.3em;
+  line-height: 1.3em;
+  opacity: 1;
+  color: #ddd;
+  text-shadow: 0 1px 1px #000;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 0 7px 0 7px;
+  backdrop-filter: blur(5px);
+}

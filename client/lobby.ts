@@ -1531,16 +1531,25 @@ export function lobbyView(model: PyChessModel): VNode[] {
         h('div.tv', [h('a#tv-game', { attrs: {href: '/tv'} })]),
         h('under-lobby', [
             h('posts', blogs.map((post: Post) =>
-                h('a.post', { attrs: {href: `/blogs/${post['_id']}`} }, [
-                    h('img', { attrs: {src: model.assetURL + `${post['image']}`, alt: `${post['alt']}`} }),
-                    h('time', `${post['date']}`),
-                    h('span.author', [
-                        h('player-title', `${post['atitle']} `),
-                        `${post['author']}`,
+                h('a.post', { attrs: {href: post['url'] || `/blogs/${post['_id']}`} }, [
+                    h('span.post-media', [
+                        h('img', {
+                            attrs: {
+                                src: (post['image'] || "").startsWith('http://') || (post['image'] || "").startsWith('https://')
+                                    ? `${post['image']}`
+                                    : model.assetURL + `${post['image']}`,
+                                alt: `${post['imageAlt'] || post['alt'] || ''}`,
+                            }
+                        }),
+                        h('time', `${post['date']}`),
+                        h('span.author', [
+                            h('player-title', `${post['author_title'] || post['atitle'] || ''} `),
+                            `${post['author']}`,
+                        ]),
                     ]),
                     h('span.text', [
                         h('strong', `${post['title']}`),
-                        h('span', `${post['subtitle']}`),
+                        h('span', `${post['intro'] || post['subtitle'] || ''}`),
                     ]),
                 ])
             )),

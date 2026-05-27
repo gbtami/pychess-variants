@@ -1,0 +1,51 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu ublog-page">
+<aside>
+    <ul class="guide">
+        <li><a href="/blogs"><span>By PyChess</span></a></li>
+        <li><a href="/blogs/community"><span>Community</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}"><span>By {{ profile }}</span></a></li>
+        {% if ublog_is_owner %}
+        <li><a href="/blogs/@/{{ profile }}/drafts"><span>Drafts</span></a></li>
+        <li><a href="/blogs/@/{{ profile }}/new"><span>New post</span></a></li>
+        {% endif %}
+    </ul>
+</aside>
+<div class="ublog-box box box-pad ublog-index">
+    <div class="box-top">
+        <h1>{% if ublog_is_drafts %}{{ profile }} drafts{% else %}By {{ profile }}{% endif %}</h1>
+    </div>
+    <div class="ublog-cards ublog-post-cards">
+    {% for post in ublog_posts %}
+        <a class="ublog-card ublog-post-card ublog-post-card--link" href="{{ post['url'] }}">
+            <span class="ublog-post-card__top">
+                {% if post['image'] %}
+                <img class="ublog-card-image ublog-post-card__image" src="{{ post['image_src'] }}" alt="{{ post['imageAlt'] }}">
+                {% else %}
+                <div class="ublog-card-image ublog-card-image--empty ublog-post-card__image"></div>
+                {% endif %}
+                <time class="ublog-post-card__over-image">{{ post['date'] }}</time>
+                <span class="ublog-post-card__over-image user-link pos-bottom"><player-title>{{ post['author_title'] }} </player-title>{{ post['author'] }}</span>
+                {% if post['sticky'] %}
+                <span class="ublog-post-card__over-image user-link pos-top" title="Sticky">&#9733;</span>
+                {% endif %}
+            </span>
+            <span class="ublog-post-card__content">
+                <span class="ublog-card-title ublog-post-card__title">{{ post['title'] }}</span>
+                <span class="ublog-card-intro ublog-post-card__intro">{{ post['intro'] }}</span>
+            </span>
+        </a>
+    {% endfor %}
+    {% if not ublog_posts %}
+    <div class="ublog-empty ublog-index__posts--empty">No posts yet.</div>
+    {% endif %}
+    </div>
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+{% endblock %}

@@ -51,6 +51,7 @@
             {% if (can_challenge) and (not anon) and (profile != username) %}
             <a class="icon icon-crossedswords" href="/@/{{ profile }}/challenge" title="{% trans %}Challenge to a game{% endtrans %}">{% trans %}Challenge{% endtrans %}</a>
             {% endif %}
+            <a class="icon icon-bubble-convo" href="/blogs/@/{{ profile }}" title="User blogs">Blogs</a>
             {% if (not anon) and (profile != username) and (profile_title != "BOT") %}
             <a class="icon icon-comment-o" href="/inbox/{{ profile }}" title="{% trans %}Send a private message{% endtrans %}">{% trans %}Message{% endtrans %}</a>
             <a class="icon icon-warning" href="/report?source=profile&username={{ profile }}&reason=bad_behavior" title="{% trans %}Report to moderators{% endtrans %}">{% trans %}Report{% endtrans %}</a>
@@ -70,6 +71,29 @@
             {% endif %}
             </div>
         </div>
+        {% if ublog_posts %}
+        <section class="player-ublog box">
+            <div class="ublog-cards">
+            {% for post in ublog_posts %}
+                <a class="ublog-card ublog-post-card ublog-post-card--link" href="{{ post['url'] }}">
+                    <span class="ublog-post-card__top">
+                        {% if post['image'] %}
+                        <img class="ublog-card-image ublog-post-card__image" src="{{ post['image_src'] }}" alt="{{ post['imageAlt'] }}">
+                        {% else %}
+                        <div class="ublog-card-image ublog-card-image--empty ublog-post-card__image"></div>
+                        {% endif %}
+                        <time class="ublog-post-card__over-image">{{ post['date'] }}</time>
+                        <span class="ublog-post-card__over-image user-link pos-bottom"><player-title>{{ post['author_title'] }} </player-title>{{ post['author'] }}</span>
+                    </span>
+                    <span class="ublog-post-card__content">
+                        <span class="ublog-card-title ublog-post-card__title">{{ post['title'] }}</span>
+                        <span class="ublog-card-intro ublog-post-card__intro">{{ post['intro'] }}</span>
+                    </span>
+                </a>
+            {% endfor %}
+            </div>
+        </section>
+        {% endif %}
     </div>
     <div id="placeholder">
 </aside>

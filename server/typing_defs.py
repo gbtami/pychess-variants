@@ -402,9 +402,13 @@ class ViewContext(TypedDict, total=False):
     mod_report_score: int
     allusers: Sequence[User]
     anon_online: int
-    blog_item: str
     blog_tag: Callable[[str], str]
     blogs: list[object] | str
+    site_tag: str
+    site_tags: list[str]
+    community_posts: list[object]
+    community_topic: str
+    community_topics: list[str]
     reports: list[object]
     report_status: str
     report_open_count: int
@@ -439,6 +443,21 @@ class ViewContext(TypedDict, total=False):
     online_users: Sequence[User]
     profile: str | None
     profile_title: str
+    ublog_posts: list[object]
+    ublog_post_count: int
+    ublog_is_owner: bool
+    ublog_is_drafts: bool
+    ublog_author_online: bool
+    ublog_post: Mapping[str, object] | None
+    ublog_related: list[object]
+    ublog_step: str
+    ublog_steps: list[str]
+    ublog_create_mode: bool
+    ublog_cancel_url: str
+    ublog_can_publish_site: bool
+    ublog_topic_whitelist: list[str]
+    ublog_values: Mapping[str, object]
+    ublog_errors: list[str]
     puzzle: str
     ratings: dict[str, tuple[str, int]]
     seekempty: bool

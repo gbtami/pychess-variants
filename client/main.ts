@@ -41,6 +41,9 @@ import { showUsernameDialog } from './usernameDialog';
 import { maybeShowGameCategoryIntro } from './gameCategoryIntro';
 import { initTournamentForm } from './tournamentForm';
 import { initUserMiniWidget } from './userMiniWidget';
+import { initUblogLike } from './ublogLike';
+import { initUblogMarkdown } from './ublogMarkdown';
+import { initUblogEditor } from './ublogEditor';
 
 
 // redirect to correct URL except Heroku preview/dev apps
@@ -241,6 +244,9 @@ function start() {
     if (model["embed"]) return;
 
     initUserMiniWidget(model.assetURL, model.username, model.anon);
+    initUblogLike();
+    initUblogMarkdown();
+    initUblogEditor();
 
     (document.querySelector('.hamburger') as HTMLElement).addEventListener('click', () => {
         document.querySelectorAll('.topnav a').forEach(nav => nav.classList.toggle('navbar-show'));
