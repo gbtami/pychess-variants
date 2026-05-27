@@ -74,7 +74,12 @@ function toProxiedImageUrl(url: string): string {
     }
 }
 
-function safeIframeUrl(url: string): string | null {
+type SafeIframe = {
+    href: string;
+    isYouTubeEmbed: boolean;
+};
+
+function safeIframe(url: string): SafeIframe | null {
     const value = (url || '').trim();
     if (!value) return null;
     try {
@@ -92,7 +97,7 @@ function safeIframeUrl(url: string): string | null {
         ) && path.startsWith('/embed/');
 
         if (isLocal || isLichessStudyEmbed || isYouTubeEmbed) {
-            return parsed.href;
+            return { href: parsed.href, isYouTubeEmbed };
         }
         return null;
     } catch {
@@ -178,17 +183,20 @@ function sanitizeRenderedFragment(html: string): DocumentFragment {
         el.setAttribute('loading', 'lazy');
     });
 
-    fragment.querySelectorAll<HTMLIFrameElement>('iframe[src]').forEach((el) => {
-        const safe = safeIframeUrl(el.getAttribute('src') || '');
+    fragment.querySelectorAll<HTMLIFrameElement>('iframe').forEach((el) => {
+        const safe = safeIframe(el.getAttribute('src') || '');
         if (!safe) {
             el.remove();
             return;
         }
-        el.setAttribute('src', safe);
+        el.setAttribute('src', safe.href);
         sanitizePositiveIntAttr(el, 'width');
         sanitizePositiveIntAttr(el, 'height');
         el.setAttribute('loading', 'lazy');
-        el.setAttribute('referrerpolicy', 'no-referrer');
+        el.setAttribute(
+            'referrerpolicy',
+            safe.isYouTubeEmbed ? 'strict-origin-when-cross-origin' : 'no-referrer',
+        );
         if (!el.hasAttribute('allowfullscreen')) {
             el.setAttribute('allowfullscreen', '');
         }
