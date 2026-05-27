@@ -451,8 +451,8 @@
 }
 
 .ublog-page .ublog-post-form {
-  --ublog-form-column: 84ch;
-  --ublog-form-gutter: clamp(1rem, 2.2vw, 1.8rem);
+  --ublog-form-column: 112ch;
+  --ublog-form-gutter: clamp(0.7rem, 1.2vw, 1rem);
   padding-bottom: 2rem;
 }
 
