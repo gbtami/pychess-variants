@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import asyncio
+import ipaddress
+import socket
 from datetime import datetime, timezone
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit, urlunsplit
 
 import aiohttp_jinja2
 from aiohttp import web
@@ -43,6 +46,19 @@ UBLOG_DISCUSS_CATEG_ID = "community-blog-discussions"
 UBLOG_DISCUSS_CATEG_NAME = "Community Blog Discussions"
 UBLOG_DISCUSS_CATEG_DESC = "Discuss community blog posts."
 UBLOG_DISCUSS_CATEG_ORDER = 25
+UBLOG_IMAGE_PROXY_ALLOWED_PORTS = {80, 443}
+
+
+def _safe_path_segment(value: str) -> str:
+    return quote(value, safe="")
+
+
+def _blog_post_edit_url(profile_id: str, post_id: str) -> str:
+    return f"/blogs/@/{_safe_path_segment(profile_id)}/{_safe_path_segment(post_id)}/edit"
+
+
+def _blog_drafts_url(profile_id: str) -> str:
+    return f"/blogs/@/{_safe_path_segment(profile_id)}/drafts"
 
 
 def _is_admin_username(username: str) -> bool:
@@ -196,6 +212,58 @@ def _is_safe_image_content_type(content_type: str | None) -> bool:
         "image/avif",
         "image/svg+xml",
     }
+
+
+def _is_public_ip(ip_value: str) -> bool:
+    try:
+        return ipaddress.ip_address(ip_value).is_global
+    except ValueError:
+        return False
+
+
+async def _is_safe_image_host(hostname: str) -> bool:
+    host = hostname.strip().rstrip(".").casefold()
+    if not host or host == "localhost" or host.endswith(".localhost") or host.endswith(".local"):
+        return False
+
+    if _is_public_ip(host):
+        return True
+
+    loop = asyncio.get_running_loop()
+    try:
+        addr_infos = await loop.getaddrinfo(host, None, type=socket.SOCK_STREAM)
+    except socket.gaierror:
+        return False
+
+    if not addr_infos:
+        return False
+
+    for info in addr_infos:
+        ip_value = info[4][0]
+        if not _is_public_ip(ip_value):
+            return False
+    return True
+
+
+async def _normalize_proxy_image_url(raw_url: str) -> str | None:
+    candidate = raw_url.strip()
+    if candidate == "":
+        return None
+
+    parsed = urlsplit(candidate)
+    if parsed.scheme not in {"http", "https"}:
+        return None
+    if parsed.username or parsed.password:
+        return None
+    if parsed.hostname is None:
+        return None
+    if parsed.port is not None and parsed.port not in UBLOG_IMAGE_PROXY_ALLOWED_PORTS:
+        return None
+    if not await _is_safe_image_host(parsed.hostname):
+        return None
+
+    path = parsed.path if parsed.path else "/"
+    return urlunsplit((parsed.scheme, parsed.netloc, path, parsed.query, ""))
 
 
 async def _profile_exists(app_state: Any, profile_id: str) -> bool:
@@ -360,21 +428,20 @@ async def image_proxy(request: web.Request) -> web.Response:
     if post is None:
         return web.Response(status=404)
     image = str(post.get("image") or "")
-    if not (image.startswith("http://") or image.startswith("https://")):
+    safe_image = await _normalize_proxy_image_url(image)
+    if safe_image is None:
         return web.Response(status=404)
 
-    return await _proxy_image_from_url(image)
+    return await _proxy_image_from_url(safe_image)
 
 
 async def image_proxy_external(request: web.Request) -> web.Response:
     # Proxy arbitrary external inline blog images referenced from markdown content.
-    raw_url = request.rel_url.query.get("url", "")
-    image = raw_url.strip()
-    if image == "":
-        return web.Response(status=400)
-    if not (image.startswith("http://") or image.startswith("https://")):
+    raw_url = str(request.rel_url.query.get("url", ""))
+    safe_image = await _normalize_proxy_image_url(raw_url)
+    if safe_image is None:
         return web.Response(status=404)
-    return await _proxy_image_from_url(image)
+    return await _proxy_image_from_url(safe_image)
 
 
 async def _proxy_image_from_url(image: str) -> web.Response:
@@ -387,7 +454,7 @@ async def _proxy_image_from_url(image: str) -> web.Response:
                 "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
             },
         ) as session:
-            async with session.get(image) as resp:
+            async with session.get(image, allow_redirects=False) as resp:
                 if resp.status != 200:
                     return web.Response(status=404)
                 content_type = resp.headers.get("Content-Type")
@@ -648,7 +715,7 @@ async def create(request: web.Request) -> web.Response:
         "publishedAt": None,
     }
     await app_state.db.ublog_post.insert_one(doc)
-    raise web.HTTPFound(f"/blogs/@/{profile_id}/{post_id}/edit")
+    raise web.HTTPFound(_blog_post_edit_url(profile_id, post_id))
 
 
 @aiohttp_jinja2.template("ublog_form.html")
@@ -730,7 +797,7 @@ async def update(request: web.Request) -> web.Response:
 
     if action == "view-post" and bool(updated.get("live")):
         raise web.HTTPFound(post_url(updated))
-    raise web.HTTPFound(f"/blogs/@/{profile_id}/{post_id}/edit")
+    raise web.HTTPFound(_blog_post_edit_url(profile_id, post_id))
 
 
 async def delete(request: web.Request) -> web.Response:
@@ -743,4 +810,4 @@ async def delete(request: web.Request) -> web.Response:
     if not is_owner(user.username, profile_id, user.anon):
         raise web.HTTPForbidden()
     await app_state.db.ublog_post.delete_one({"_id": post_id, "author": profile_id})
-    raise web.HTTPFound(f"/blogs/@/{profile_id}/drafts")
+    raise web.HTTPFound(_blog_drafts_url(profile_id))

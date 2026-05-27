@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import showdown from 'showdown';
 
 const converter = new showdown.Converter({
@@ -37,6 +38,13 @@ const ALLOWED_ATTRS: Record<string, Set<string>> = {
     td: new Set(['align', 'colspan', 'rowspan']),
     iframe: new Set(['src', 'width', 'height', 'frameborder', 'allowfullscreen', 'loading', 'referrerpolicy']),
 };
+const ALLOWED_ATTR_NAMES = Array.from(
+    new Set(
+        Object.values(ALLOWED_ATTRS)
+            .flatMap((attrs) => Array.from(attrs))
+            .concat(['class'])
+    )
+);
 
 function safeUrl(url: string): string | null {
     const value = (url || '').trim();
@@ -103,11 +111,17 @@ function sanitizePositiveIntAttr(el: Element, attr: 'width' | 'height'): void {
     el.setAttribute(attr, String(value));
 }
 
-function sanitizeRenderedHtml(html: string): string {
-    const host = document.createElement('div');
-    host.innerHTML = html;
+function sanitizeRenderedFragment(html: string): DocumentFragment {
+    const fragment = DOMPurify.sanitize(html, {
+        ALLOWED_TAGS: Array.from(ALLOWED_TAGS),
+        ALLOWED_ATTR: ALLOWED_ATTR_NAMES,
+        FORBID_TAGS: ['script', 'style', 'object', 'embed'],
+        FORBID_ATTR: ['style', 'id', 'name'],
+        KEEP_CONTENT: true,
+        RETURN_DOM_FRAGMENT: true,
+    }) as DocumentFragment;
 
-    host.querySelectorAll<HTMLElement>('*').forEach((el) => {
+    fragment.querySelectorAll<HTMLElement>('*').forEach((el) => {
         const tag = el.tagName.toLowerCase();
         if (!ALLOWED_TAGS.has(tag)) {
             if (tag === 'script' || tag === 'style' || tag === 'iframe' || tag === 'object' || tag === 'embed') {
@@ -141,7 +155,7 @@ function sanitizeRenderedHtml(html: string): string {
         }
     });
 
-    host.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((el) => {
+    fragment.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((el) => {
         const safe = safeUrl(el.getAttribute('href') || '');
         if (!safe) {
             el.removeAttribute('href');
@@ -152,7 +166,7 @@ function sanitizeRenderedHtml(html: string): string {
         el.setAttribute('rel', 'noopener noreferrer nofollow');
     });
 
-    host.querySelectorAll<HTMLImageElement>('img[src]').forEach((el) => {
+    fragment.querySelectorAll<HTMLImageElement>('img[src]').forEach((el) => {
         const safe = safeUrl(el.getAttribute('src') || '');
         if (!safe) {
             el.remove();
@@ -164,7 +178,7 @@ function sanitizeRenderedHtml(html: string): string {
         el.setAttribute('loading', 'lazy');
     });
 
-    host.querySelectorAll<HTMLIFrameElement>('iframe[src]').forEach((el) => {
+    fragment.querySelectorAll<HTMLIFrameElement>('iframe[src]').forEach((el) => {
         const safe = safeIframeUrl(el.getAttribute('src') || '');
         if (!safe) {
             el.remove();
@@ -180,17 +194,17 @@ function sanitizeRenderedHtml(html: string): string {
         }
     });
 
-    return host.innerHTML;
+    return fragment;
 }
 
-function renderMarkdown(text: string): string {
-    return sanitizeRenderedHtml(converter.makeHtml(text || ''));
+function renderMarkdown(text: string): DocumentFragment {
+    return sanitizeRenderedFragment(converter.makeHtml(text || ''));
 }
 
 export function initUblogMarkdown(): void {
     const source = document.getElementById("ublog-markdown-source") as HTMLTextAreaElement | null;
     const render = document.getElementById("ublog-markdown-render");
     if (source && render) {
-        render.innerHTML = renderMarkdown(source.value || source.textContent || "");
+        render.replaceChildren(renderMarkdown(source.value || ""));
     }
 }
