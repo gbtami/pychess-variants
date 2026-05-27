@@ -452,6 +452,7 @@ class ViewContext(TypedDict, total=False):
     ublog_steps: list[str]
     ublog_create_mode: bool
     ublog_cancel_url: str
+    ublog_can_publish_site: bool
     ublog_values: Mapping[str, object]
     ublog_errors: list[str]
     puzzle: str

@@ -51,9 +51,8 @@
   --ublog-gutter: clamp(1rem, 2.2vw, 1.8rem);
 }
 
-.player-ublog .box-top,
 .player-ublog .ublog-cards {
-  padding-inline: var(--ublog-gutter);
+  padding: var(--ublog-gutter);
 }
 
 .ublog-page .ublog-card,
@@ -565,9 +564,20 @@
 }
 
 .ublog-page .checkbox-row {
+  display: flex;
   flex-direction: row !important;
   align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
   font-weight: 500;
+  padding: 0;
+}
+
+.ublog-page .ublog-checks .checkbox-row input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;
 }
 
 .ublog-page .ublog-preview-box {

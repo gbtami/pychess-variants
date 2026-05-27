@@ -82,6 +82,12 @@
                 <input type="checkbox" name="sticky" {% if ublog_values['sticky'] %}checked{% endif %}>
                 Sticky post
             </label>
+            {% if ublog_can_publish_site %}
+            <label class="checkbox-row">
+                <input type="checkbox" name="siteBlog" {% if ublog_values['siteBlog'] %}checked{% endif %}>
+                Publish in "By PyChess"
+            </label>
+            {% endif %}
         </div>
         <div class="ublog-form-actions">
             <a class="button button-empty" href="{{ ublog_cancel_url }}">Cancel</a>

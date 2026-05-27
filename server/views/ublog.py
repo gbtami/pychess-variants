@@ -12,6 +12,7 @@ from forum.storage import recompute_categ_summary, topic_by_tree
 from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
+from settings import ADMINS
 from typing_defs import ViewContext
 from ublog import (
     UBLOG_MAX_IMAGE_TEXT_LEN,
@@ -41,6 +42,11 @@ UBLOG_DISCUSS_CATEG_ID = "community-blog-discussions"
 UBLOG_DISCUSS_CATEG_NAME = "Community Blog Discussions"
 UBLOG_DISCUSS_CATEG_DESC = "Discuss community blog posts."
 UBLOG_DISCUSS_CATEG_ORDER = 25
+
+
+def _is_admin_username(username: str) -> bool:
+    lowered = username.casefold()
+    return any(lowered == admin.casefold() for admin in ADMINS)
 
 
 def _likes_from_doc(post: dict[str, Any]) -> set[str]:
@@ -140,6 +146,7 @@ def _empty_form_values() -> dict[str, Any]:
         "live": False,
         "discuss": False,
         "sticky": False,
+        "siteBlog": False,
     }
 
 
@@ -219,6 +226,7 @@ def _form_values_from_doc(doc: dict[str, Any]) -> dict[str, Any]:
             "live": bool(doc.get("live")),
             "discuss": bool(doc.get("discuss")),
             "sticky": bool(doc.get("sticky")),
+            "siteBlog": str(doc.get("blogType") or "") == "site",
         }
     )
     return values
@@ -239,6 +247,7 @@ def _build_form_context(
     context["ublog_post"] = post
     context["ublog_create_mode"] = post is None
     context["ublog_cancel_url"] = f"/blogs/@/{profile_id}" if post is None else post_url(post)
+    context["ublog_can_publish_site"] = bool(context.get("admin"))
     return context
 
 
@@ -261,6 +270,7 @@ def _extract_form_values(data: Any, defaults: dict[str, Any]) -> dict[str, Any]:
     values["live"] = to_bool(data.get("live"))
     values["discuss"] = to_bool(data.get("discuss"))
     values["sticky"] = to_bool(data.get("sticky"))
+    values["siteBlog"] = to_bool(data.get("siteBlog"))
     return values
 
 
@@ -670,6 +680,7 @@ async def update(request: web.Request) -> web.Response:
 
     image = sanitize_image_url(values["image"])
     next_live = values["live"]
+    can_publish_site = _is_admin_username(user.username)
     update_fields: dict[str, Any] = {
         "updatedAt": datetime.now(timezone.utc),
         "title": values["title"],
@@ -685,6 +696,14 @@ async def update(request: web.Request) -> web.Response:
         "discuss": values["discuss"],
         "sticky": values["sticky"],
     }
+    if can_publish_site:
+        # Admins can publish posts into the official "By PyChess" stream.
+        if bool(values.get("siteBlog")):
+            update_fields["blogType"] = "site"
+            update_fields["isOfficial"] = True
+        else:
+            update_fields["blogType"] = "community"
+            update_fields["isOfficial"] = False
     if next_live and not bool(doc.get("live")):
         update_fields["publishedAt"] = datetime.now(timezone.utc)
     elif not next_live:
