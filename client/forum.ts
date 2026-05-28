@@ -49,6 +49,8 @@ interface ForumTopicSummary {
     sticky?: boolean;
     closed?: boolean;
     lastPage?: number;
+    blogPostId?: string;
+    blogPostUrl?: string;
 }
 
 /** Post payload used by topic, search, and moderation feed views. */
@@ -1306,10 +1308,12 @@ export function forumView(model: PyChessModel) {
     function renderTopic() {
         const topicUrl = `/forum/${encodeURIComponent(categ)}/${encodeURIComponent(slug)}`;
         const firstPostId = topicPosts.length > 0 ? topicPosts[0]._id : '';
+        const blogBackUrl = (topicData?.blogPostUrl || '').trim();
+        const backHref = blogBackUrl || `/forum/${encodeURIComponent(categ)}`;
         return h('main.forum.forum-topic.page-small.box.box-pad', [
             h('div.box__top', [
                 h('h1', [
-                    h('a.text', { attrs: { href: `/forum/${encodeURIComponent(categ)}` } }, '‹'),
+                    h('a.text', { attrs: { href: backHref } }, '‹'),
                     ` ${topicData?.name || ''}`,
                 ]),
             ]),
@@ -1368,7 +1372,7 @@ export function forumView(model: PyChessModel) {
                     formSubmitError ? h('div.forum-form-error.error', formSubmitError) : null,
                     renderCaptcha(),
                     h('div.form-actions', [
-                        h('a.button.button-empty', { attrs: { href: `/forum/${encodeURIComponent(categ)}` } }, _('Cancel')),
+                        h('a.button.button-empty', { attrs: { href: backHref } }, _('Cancel')),
                         h('button.button', {
                             props: { type: 'submit', disabled: sendingReply },
                         }, sendingReply ? _('Sending...') : _('Reply')),

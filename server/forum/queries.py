@@ -29,6 +29,8 @@ from forum.utils import (
     to_utc,
 )
 
+HIDDEN_FORUM_CATEG_IDS = {"community-blog-discussions"}
+
 
 async def forum_categs(request: web.Request) -> web.Response:
     """Return forum categories with summary counters for the forum index view."""
@@ -36,7 +38,7 @@ async def forum_categs(request: web.Request) -> web.Response:
     if app_state.db is None:
         return json_response({"categs": []})
 
-    cursor = app_state.db.forum_categ.find()
+    cursor = app_state.db.forum_categ.find({"_id": {"$nin": list(HIDDEN_FORUM_CATEG_IDS)}})
     cursor.sort("order", 1)
     categs = await cursor.to_list(length=50)
     return json_response({"categs": categs})

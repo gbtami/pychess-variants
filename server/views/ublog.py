@@ -46,6 +46,7 @@ UBLOG_DISCUSS_CATEG_ID = "community-blog-discussions"
 UBLOG_DISCUSS_CATEG_NAME = "Community Blog Discussions"
 UBLOG_DISCUSS_CATEG_DESC = "Discuss community blog posts."
 UBLOG_DISCUSS_CATEG_ORDER = 25
+UBLOG_DISCUSS_TEXT_PREFIX = "Comments on "
 UBLOG_IMAGE_PROXY_ALLOWED_PORTS = {80, 443}
 
 
@@ -110,6 +111,7 @@ async def _discuss_topic_url(app_state: Any, post: dict[str, Any]) -> str:
     await _ensure_ublog_discuss_categ(app_state)
     post_id = str(post.get("_id") or "")
     slug = _ublog_discuss_slug(post_id)
+    blog_url = post_url(post)
     topic = await topic_by_tree(app_state, UBLOG_DISCUSS_CATEG_ID, slug)
     if topic is None:
         now = datetime.now(timezone.utc)
@@ -130,13 +132,15 @@ async def _discuss_topic_url(app_state: Any, post: dict[str, Any]) -> str:
             "lastPostUser": author,
             "closed": False,
             "sticky": False,
+            "blogPostId": post_id,
+            "blogPostUrl": blog_url,
         }
         discuss_post_doc = {
             "_id": discuss_post_id,
             "topicId": topic_id,
             "categId": UBLOG_DISCUSS_CATEG_ID,
             "user": author,
-            "text": f"Comments on {post_url(post)}",
+            "text": f"{UBLOG_DISCUSS_TEXT_PREFIX}{blog_url}",
             "createdAt": now,
             "updatedAt": None,
             "editCount": 0,
@@ -637,7 +641,7 @@ async def post(request: web.Request) -> ViewContext:
     post_card["markdown"] = str(doc.get("markdown") or "")
     post_card["imageCredit"] = str(doc.get("imageCredit") or "")
     post_card["views"] = int(doc.get("views", 0))
-    post_card["discuss"] = bool(doc.get("discuss"))
+    post_card["discuss"] = bool(doc.get("discuss")) or str(doc.get("blogType") or "") == "site"
     post_card["language"] = str(doc.get("language") or "en")
     post_card["image_src"] = image_src(doc)
     likes = _likes_from_doc(doc)

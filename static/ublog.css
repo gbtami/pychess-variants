@@ -307,10 +307,10 @@
 
 .ublog-page .ublog-post__actions .ublog-post__like {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 0;
+  gap: 0.35em;
   margin: 0 1em 2rem;
   padding: 0.8em 1.5em;
   border-radius: 5px;
@@ -332,17 +332,13 @@
 
 .ublog-page .ublog-post__actions .ublog-post__like .ublog-post__like__nb {
   display: inline-block;
-  margin: 0.05em 0 0;
+  margin: 0;
   font-weight: 700;
   color: inherit;
 }
 
 .ublog-page .ublog-post__actions .ublog-post__like .button-label {
-  display: block;
-  margin-top: 1em;
-  font-size: 1rem;
-  font-weight: 400;
-  color: #fff;
+  display: none;
 }
 
 .ublog-page .ublog-post__actions .ublog-post__like:hover {
