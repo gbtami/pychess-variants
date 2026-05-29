@@ -129,6 +129,8 @@ async def _build_report_context(
     reason: str,
     details: str,
     game_id: str,
+    thread: str,
+    url: str,
     error: str,
     selected_msgs: list[str] | None = None,
 ) -> ViewContext:
@@ -148,6 +150,8 @@ async def _build_report_context(
     inbox_msgs: list[dict[str, str]] = []
     if source == "inbox" and suspect is not None:
         inbox_msgs = await _load_inbox_messages(app_state, reporter, suspect)
+        if not thread:
+            thread = _thread_id(reporter, suspect)
 
     context["title"] = "Report a user • PyChess"
     context["view"] = "report"
@@ -158,6 +162,8 @@ async def _build_report_context(
     context["report_reason"] = reason
     context["report_details"] = details
     context["report_game_id"] = game_id
+    context["report_thread"] = thread
+    context["report_url"] = url
     context["report_reason_options"] = reason_options
     context["report_user_locked"] = user_locked
     context["report_inbox_msgs"] = inbox_msgs
@@ -177,6 +183,8 @@ async def report_form(request: web.Request) -> ViewContext:
     reason = request.rel_url.query.get("reason", "other")
     game_id = request.rel_url.query.get("gameId", "")
     details = request.rel_url.query.get("details", "")
+    thread = request.rel_url.query.get("thread", "")
+    url = request.rel_url.query.get("url", "")
 
     return await _build_report_context(
         request,
@@ -187,6 +195,8 @@ async def report_form(request: web.Request) -> ViewContext:
         reason,
         details,
         game_id,
+        thread,
+        url,
         error="",
     )
 
@@ -208,6 +218,8 @@ async def report_create(request: web.Request) -> ViewContext:
             reason="other",
             details="",
             game_id="",
+            thread="",
+            url="",
             error="Invalid request",
         )
 
@@ -216,6 +228,8 @@ async def report_create(request: web.Request) -> ViewContext:
     reason = str(data.get("reason") or "other").strip().lower().replace(" ", "_")
     details = str(data.get("details") or "")
     game_id = str(data.get("gameId") or "")
+    thread = str(data.get("thread") or "")
+    url = str(data.get("url") or "")
 
     selected_msgs: list[str] = []
     getall = getattr(data, "getall", None)
@@ -235,6 +249,8 @@ async def report_create(request: web.Request) -> ViewContext:
             reason,
             details,
             game_id,
+            thread,
+            url,
             error=message,
             selected_msgs=selected_msgs,
         )

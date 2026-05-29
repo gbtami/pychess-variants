@@ -17,7 +17,8 @@
                 <tr>
                     <th>Report</th>
                     <th>By</th>
-                    <th></th>
+                    <th>Actions</th>
+                    <th>Resolution</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,11 +28,30 @@
                         <span class="reason">{{ report.reasonLabel }}</span>
                         <br>
                         <a class="user-link" href="/@/{{ report.suspect }}">{{ report.suspect }}</a>
-                        {% if report.gameId %}
-                        <br>
-                        <a href="/{{ report.gameId }}">/{{ report.gameId }}</a>
+                        <p class="meta">
+                            <span class="source">{{ report.sourceLabel }}</span>
+                            {% if report.sourceContextUrl %}
+                                · <a href="{{ report.sourceContextUrl }}">{{ report.sourceContextLabel }}</a>
+                            {% elif report.sourceContextLabel %}
+                                · <span>{{ report.sourceContextLabel }}</span>
+                            {% endif %}
+                        </p>
+                        <p class="meta"><info-date timestamp="{{ report.createdAt.isoformat() if report.createdAt else '' }}"></info-date></p>
+                        {% if report.sourceMsgSnippets %}
+                        <ul class="source-snippets">
+                            {% for msg in report.sourceMsgSnippets %}
+                            <li>
+                                {% if msg.from %}<strong>{{ msg.from }}</strong>: {% endif %}
+                                {{ msg.text }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% if report.sourceMsgCount > report.sourceMsgSnippets|length %}
+                        <p class="meta">+{{ report.sourceMsgCount - (report.sourceMsgSnippets|length) }} more selected message(s)</p>
                         {% endif %}
-                        <p class="meta">{{ report.source }} · <info-date timestamp="{{ report.createdAt.isoformat() if report.createdAt else '' }}"></info-date></p>
+                        {% elif report.source == 'inbox' and report.sourceMsgCount %}
+                        <p class="meta">{{ report.sourceMsgCount }} selected message(s)</p>
+                        {% endif %}
                     </td>
                     <td class="atoms">
                         <div class="atom">
@@ -54,21 +74,44 @@
                         <button class="report-btn silence" data-action="silence" data-id="{{ report._id }}" data-suspect="{{ report.suspect }}" data-details="{{ report.details }}" title="Apply 15-minute chat timeout">
                             Timeout (15m)
                         </button>
-                        <button class="report-btn shadowban" data-action="shadowban" data-id="{{ report._id }}" data-confirm="Shadowban this account and process the report?" title="Hide this user's chat and private messages from others">
+                        <button class="report-btn shadowban" data-action="shadowban" data-id="{{ report._id }}" data-confirm-title="Shadowban user?" data-confirm-text="Shadowban this account and resolve the report?" title="Hide this user's chat and private messages from others">
                             Shadowban
                         </button>
-                        <button class="report-btn close-account" data-action="close-account" data-id="{{ report._id }}" data-confirm="Close this account and process the report?" title="Disable this account">
+                        <button class="report-btn close-account" data-action="close-account" data-id="{{ report._id }}" data-confirm-title="Close account?" data-confirm-text="Close this account and resolve the report?" title="Disable this account">
                             Close account
                         </button>
-                        <button class="report-btn process" data-action="process" data-id="{{ report._id }}">Process</button>
+                        <button class="report-btn process" data-action="process" data-id="{{ report._id }}" data-confirm-title="Resolve report?" data-confirm-text="Mark this report as resolved without moderation action?">Resolve</button>
                         {% else %}
                         <button class="report-btn reopen" data-action="reopen" data-id="{{ report._id }}">Reopen</button>
+                        {% endif %}
+                    </td>
+                    <td class="resolution">
+                        {% if report.status == 'open' %}
+                            {% if report.inquiryBy %}
+                                Open by <a class="user-link" href="/@/{{ report.inquiryBy }}">{{ report.inquiryBy }}</a>
+                            {% else %}
+                                Pending
+                            {% endif %}
+                        {% else %}
+                            <span class="resolution-label">{{ report.resolutionLabel }}</span>
+                            {% if report.processedBy %}
+                                <br>
+                                by <a class="user-link" href="/@/{{ report.processedBy }}">{{ report.processedBy }}</a>
+                            {% endif %}
+                            {% if report.processedAt %}
+                                {% if report.processedBy %}
+                                    ·
+                                {% else %}
+                                    <br>
+                                {% endif %}
+                                <info-date timestamp="{{ report.processedAt.isoformat() }}"></info-date>
+                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="3">No reports found.</td>
+                    <td colspan="4">No reports found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -87,6 +130,15 @@
     </div>
     <button id="timeout-modal-cancel" class="report-btn timeout-cancel">Cancel</button>
 </div>
+<div id="confirm-modal-backdrop" class="timeout-modal-backdrop hidden"></div>
+<div id="confirm-modal" class="timeout-modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+    <h2 id="confirm-modal-title" class="confirm-title">Confirm action</h2>
+    <p id="confirm-modal-text" class="text">Are you sure?</p>
+    <div class="confirm-actions">
+        <button id="confirm-modal-submit" class="report-btn process timeout-reason">Confirm</button>
+        <button id="confirm-modal-cancel" class="report-btn timeout-cancel">Cancel</button>
+    </div>
+</div>
 {% endblock %}
 {% block js %}
     <script src="{{ js }}"></script>
@@ -98,7 +150,14 @@
       const modalUsername = modal ? modal.querySelector('.username') : null;
       const modalText = modal ? modal.querySelector('.text') : null;
       const modalCancel = document.getElementById('timeout-modal-cancel');
+      const confirmModal = document.getElementById('confirm-modal');
+      const confirmBackdrop = document.getElementById('confirm-modal-backdrop');
+      const confirmTitle = document.getElementById('confirm-modal-title');
+      const confirmText = document.getElementById('confirm-modal-text');
+      const confirmSubmit = document.getElementById('confirm-modal-submit');
+      const confirmCancel = document.getElementById('confirm-modal-cancel');
       let timeoutReportId = '';
+      let pendingConfirm = null;
 
       const showTimeoutModal = (id, suspect, details) => {
         if (!modal || !modalBackdrop || !modalUsername || !modalText) return;
@@ -116,36 +175,69 @@
         modalBackdrop.classList.add('hidden');
       };
 
-      const submitTimeout = async (reason, button) => {
-        if (!timeoutReportId) return;
-        const id = timeoutReportId;
+      const hideConfirmModal = () => {
+        if (!confirmModal || !confirmBackdrop) return;
+        pendingConfirm = null;
+        confirmModal.classList.add('hidden');
+        confirmBackdrop.classList.add('hidden');
+      };
+
+      const showConfirmModal = (title, text, onConfirm) => {
+        if (!confirmModal || !confirmBackdrop || !confirmTitle || !confirmText || !confirmSubmit) return;
+        pendingConfirm = onConfirm;
+        confirmTitle.textContent = title || 'Confirm action';
+        confirmText.textContent = text || 'Are you sure?';
+        confirmSubmit.disabled = false;
+        confirmModal.classList.remove('hidden');
+        confirmBackdrop.classList.remove('hidden');
+      };
+
+      const showActionError = (message) => {
+        alert(`Action failed: ${message}`);
+      };
+
+      const postAction = async (action, id, button, payload) => {
         button.disabled = true;
         try {
-          const payload = new URLSearchParams({ reason });
-          const res = await fetch(actionUrl('silence', id), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-            body: payload.toString(),
-          });
+          const init = { method: 'POST' };
+          if (payload) {
+            init.headers = { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' };
+            init.body = payload.toString();
+          }
+          const res = await fetch(actionUrl(action, id), init);
           if (!res.ok) {
             let message = `HTTP ${res.status}`;
             try {
               const body = await res.json();
               if (body && body.message) message = body.message;
             } catch (_) {}
-            alert(`Action failed: ${message}`);
+            showActionError(message);
             button.disabled = false;
             return;
           }
           window.location.reload();
         } catch (_) {
-          alert('Action failed.');
+          showActionError('Network error');
           button.disabled = false;
         }
       };
 
+      const submitTimeout = async (reason, button) => {
+        if (!timeoutReportId) return;
+        const id = timeoutReportId;
+        const payload = new URLSearchParams({ reason });
+        postAction('silence', id, button, payload);
+      };
+
       modalCancel?.addEventListener('click', hideTimeoutModal);
       modalBackdrop?.addEventListener('click', hideTimeoutModal);
+      confirmCancel?.addEventListener('click', hideConfirmModal);
+      confirmBackdrop?.addEventListener('click', hideConfirmModal);
+      confirmSubmit?.addEventListener('click', async () => {
+        if (!pendingConfirm || !confirmSubmit) return;
+        confirmSubmit.disabled = true;
+        await pendingConfirm();
+      });
       document.querySelectorAll('.timeout-reason[data-reason]').forEach((button) => {
         button.addEventListener('click', () => {
           const reason = button.getAttribute('data-reason');
@@ -160,31 +252,21 @@
           const id = button.getAttribute('data-id');
           const suspect = button.getAttribute('data-suspect') || '';
           const details = button.getAttribute('data-details') || '';
-          const confirmText = button.getAttribute('data-confirm');
+          const confirmTitleText = button.getAttribute('data-confirm-title');
+          const confirmBodyText = button.getAttribute('data-confirm-text');
           if (!action || !id) return;
           if (action === 'silence') {
             showTimeoutModal(id, suspect, details);
             return;
           }
-          if (confirmText && !window.confirm(confirmText)) return;
-          button.disabled = true;
-          try {
-            const res = await fetch(actionUrl(action, id), { method: 'POST' });
-            if (!res.ok) {
-              let message = `HTTP ${res.status}`;
-              try {
-                const body = await res.json();
-                if (body && body.message) message = body.message;
-              } catch (_) {}
-              alert(`Action failed: ${message}`);
-              button.disabled = false;
-              return;
-            }
-            window.location.reload();
-          } catch (_) {
-            alert('Action failed.');
-            button.disabled = false;
+          if (confirmBodyText) {
+            showConfirmModal(confirmTitleText, confirmBodyText, async () => {
+              hideConfirmModal();
+              await postAction(action, id, button);
+            });
+            return;
           }
+          postAction(action, id, button);
         });
       });
     })();

@@ -30,7 +30,7 @@
             <span>{{ ublog_post['language'] }}</span>
             {% if (not anon) and (username != ublog_post['author']) %}
             <a class="button button-empty ublog-post__meta__report icon icon-warning"
-                href="/report?source=profile&username={{ ublog_post['author'] }}&reason=bad_behavior&details={{ ublog_post['url'] | urlencode }}"
+                href="/report?source=profile&username={{ ublog_post['author'] }}&reason=bad_behavior&url={{ ublog_post['url'] | urlencode }}&details={{ ('Blog post: ' ~ ublog_post['title']) | urlencode }}"
                 title="{% trans %}Report to moderators{% endtrans %}"
                 aria-label="{% trans %}Report to moderators{% endtrans %}"></a>
             {% endif %}

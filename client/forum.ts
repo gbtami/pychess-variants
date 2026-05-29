@@ -233,11 +233,13 @@ function postRedirectHref(postId: string): string {
 
 /** Build report-form URL prefilled for a specific forum post and author. */
 function reportPostHref(post: ForumPost): string {
+    const postUrl = `${window.location.origin}${postRedirectHref(post._id)}`;
     const params = new URLSearchParams({
         source: 'profile',
         username: post.user,
         reason: 'harass',
-        details: `${_('Forum post')}: ${window.location.origin}${postRedirectHref(post._id)}`,
+        url: postUrl,
+        details: `${_('Forum post')}: ${postUrl}`,
     });
     return `/report?${params.toString()}`;
 }

@@ -16,6 +16,8 @@
             {% endif %}
 
             <input type="hidden" name="source" value="{{ report_source }}">
+            <input type="hidden" name="thread" value="{{ report_thread }}">
+            <input type="hidden" name="url" value="{{ report_url }}">
 
             <div class="form-group">
                 {% if report_user_locked %}

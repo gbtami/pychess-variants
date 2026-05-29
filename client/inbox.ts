@@ -86,6 +86,12 @@ function renderClockTime(input: string): string {
     return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }
 
+function reportThreadId(user1: string, user2: string): string {
+    return [user1, user2]
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }) || a.localeCompare(b))
+        .join(':');
+}
+
 export function inboxView(model: PyChessModel) {
     let threads: ThreadSummary[] = [];
     let contact = model.profileid || '';
@@ -433,7 +439,7 @@ export function inboxView(model: PyChessModel) {
         const hasContact = Boolean(thread || contact);
         const challengeHref = hasContact ? `/@/${encodeURIComponent(contact)}/challenge` : '#';
         const reportHref = hasContact
-            ? `/report?source=inbox&username=${encodeURIComponent(contact)}&reason=harassment`
+            ? `/report?source=inbox&username=${encodeURIComponent(contact)}&reason=harassment&thread=${encodeURIComponent(reportThreadId(model.username, contact))}`
             : '#';
         const convoBodyNodes: (VNode | null)[] = [];
         if (hasMoreMessages) {
