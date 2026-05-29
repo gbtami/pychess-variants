@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 GAME_PAGE_SIZE = 12
 _seen_discontinued_variants: set[str] = set()
 EXPORT_FAILED_SAMPLE_LIMIT = 5
+USER_GAMES_FILTERS = ("all", "win", "loss", "rated", "playing", "import", "me", "perf")
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -270,6 +271,136 @@ async def get_tournament_games(request: web.Request) -> web.StreamResponse:
     return json_response(game_doc_list)
 
 
+def _parse_positive_int_query_param(request: web.Request, name: str) -> int | None:
+    raw_value = request.rel_url.query.get(name)
+    if raw_value is None:
+        return None
+    try:
+        value = int(raw_value)
+    except ValueError as error:
+        raise web.HTTPBadRequest(
+            text=f"Query parameter '{name}' must be a positive integer."
+        ) from error
+    if value <= 0:
+        raise web.HTTPBadRequest(text=f"Query parameter '{name}' must be a positive integer.")
+    return value
+
+
+def _resolve_user_games_filter_and_variant(
+    request: web.Request,
+) -> tuple[str, str | None, list[str]]:
+    path_parts: list[str] = request.path.split("/")
+    query_filter = request.rel_url.query.get("filter")
+
+    if query_filter is not None:
+        selected_filter = query_filter.lower()
+        if selected_filter not in USER_GAMES_FILTERS:
+            raise web.HTTPBadRequest(
+                text="Query parameter 'filter' must be one of: all, win, loss, rated, playing, import, me, perf."
+            )
+    else:
+        selected_filter = "all"
+        for candidate in USER_GAMES_FILTERS:
+            if candidate != "all" and candidate in path_parts:
+                selected_filter = candidate
+                break
+
+    selected_variant = request.rel_url.query.get("variant")
+    if selected_variant is None and "perf" in path_parts:
+        selected_variant = request.path[request.path.rfind("/") + 1 :]
+
+    return selected_filter, selected_variant, path_parts
+
+
+def _build_user_games_filter_cond(
+    profile_id: str,
+    session_user: str | None,
+    selected_filter: str,
+    selected_variant: str | None,
+    level: str | None,
+) -> dict[str, object] | None:
+    filter_cond: dict[str, object] = {}
+
+    if selected_filter == "win":
+        filter_cond["$or"] = [
+            {"r": "a", "us.0": profile_id},
+            {"r": "b", "us.1": profile_id},
+        ]
+    elif selected_filter == "loss":
+        if level is not None:
+            filter_cond["$and"] = [
+                {"$or": [{"r": "a", "us.1": profile_id}, {"r": "b", "us.0": profile_id}]},
+                {"x": int(level)},
+                {"$or": [{"if": None}, {"v": "j"}]},  # Janggi games always have initial FEN!
+                {
+                    "$or": [
+                        {"s": MATE},
+                        {"s": VARIANTEND},
+                        {"s": INVALIDMOVE},
+                        {"s": CLAIM},
+                    ]
+                },
+            ]
+        else:
+            filter_cond["$or"] = [
+                {"r": "a", "us.1": profile_id},
+                {"r": "b", "us.0": profile_id},
+            ]
+    elif selected_filter == "rated":
+        filter_cond["$or"] = [{"y": 1, "us.1": profile_id}, {"y": 1, "us.0": profile_id}]
+    elif selected_filter == "playing":
+        filter_cond["$and"] = [
+            {"$or": [{"c": True, "us.1": profile_id}, {"c": True, "us.0": profile_id}]},
+            {"s": STARTED},
+        ]
+    elif selected_filter == "import":
+        filter_cond["by"] = profile_id
+        filter_cond["y"] = 2
+    elif selected_filter == "perf":
+        if selected_variant not in VARIANTS:
+            return None
+
+        variant960 = selected_variant.endswith("960")
+        uci_variant = selected_variant[:-3] if variant960 else selected_variant
+
+        v = get_server_variant(uci_variant, variant960)
+        z = 1 if variant960 else 0
+
+        filter_cond["$or"] = [
+            {"v": v.code, "z": z, "us.1": profile_id},
+            {"v": v.code, "z": z, "us.0": profile_id},
+        ]
+    elif selected_filter == "me":
+        filter_cond["$or"] = [
+            {"us.0": session_user, "us.1": profile_id},
+            {"us.1": session_user, "us.0": profile_id},
+        ]
+    else:
+        filter_cond["us"] = profile_id
+
+    if selected_filter != "import":
+        filter_cond = {
+            "$and": [
+                filter_cond,
+                {"y": {"$ne": 2}},
+            ]
+        }
+
+    return filter_cond
+
+
+def _apply_category_filter(
+    filter_cond: dict[str, object], user: object
+) -> dict[str, object] | None:
+    if getattr(user, "game_category", "all") == "all":
+        return filter_cond
+
+    allowed_codes = getattr(user, "category_variant_codes", set())
+    if not allowed_codes:
+        return None
+    return {"$and": [filter_cond, {"v": {"$in": list(allowed_codes)}}]}
+
+
 async def get_user_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profileId = request.match_info.get("profileId")
@@ -287,100 +418,40 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
     if user.anon:
         await asyncio.sleep(3)
         return json_response({})
+    if TYPE_CHECKING:
+        assert profileId is not None
 
-    filter_cond: dict[str, object] = {}
+    selected_filter, selected_variant, path_parts = _resolve_user_games_filter_and_variant(request)
+
     # print("URL", request.rel_url)
     level = request.rel_url.query.get("x")
-    variant = request.path[request.path.rfind("/") + 1 :]
-
-    path_parts: list[str] = request.path.split("/")
-
-    if "perf" in path_parts and variant not in VARIANTS:
+    filter_cond = _build_user_games_filter_cond(
+        profile_id=profileId,
+        session_user=session_user,
+        selected_filter=selected_filter,
+        selected_variant=selected_variant,
+        level=level,
+    )
+    if filter_cond is None:
         return json_response([])
 
     # produce UCI move list for puzzle generator
     uci_moves: bool = "json" in path_parts
-
-    if "win" in path_parts:
-        filter_cond["$or"] = [
-            {"r": "a", "us.0": profileId},
-            {"r": "b", "us.1": profileId},
-        ]
-    elif "loss" in path_parts:
-        # level8win requests Fairy-Stockfish lost games
-        if level is not None:
-            filter_cond["$and"] = [
-                {"$or": [{"r": "a", "us.1": profileId}, {"r": "b", "us.0": profileId}]},
-                {"x": int(level)},
-                {"$or": [{"if": None}, {"v": "j"}]},  # Janggi games always have initial FEN!
-                {
-                    "$or": [
-                        {"s": MATE},
-                        {"s": VARIANTEND},
-                        {"s": INVALIDMOVE},
-                        {"s": CLAIM},
-                    ]
-                },
-            ]
-        else:
-            filter_cond["$or"] = [
-                {"r": "a", "us.1": profileId},
-                {"r": "b", "us.0": profileId},
-            ]
-    elif "rated" in path_parts:
-        filter_cond["$or"] = [{"y": 1, "us.1": profileId}, {"y": 1, "us.0": profileId}]
-    elif "playing" in path_parts:
-        filter_cond["$and"] = [
-            {"$or": [{"c": True, "us.1": profileId}, {"c": True, "us.0": profileId}]},
-            {"s": STARTED},
-        ]
-    elif "import" in path_parts:
-        filter_cond["by"] = profileId
-        filter_cond["y"] = 2
-    elif ("perf" in path_parts or uci_moves) and variant in VARIANTS:
-        variant960 = variant.endswith("960")
-        uci_variant = variant[:-3] if variant960 else variant
-
-        v = get_server_variant(uci_variant, variant960)
-        z = 1 if variant960 else 0
-
-        filter_cond["$or"] = [
-            {"v": v.code, "z": z, "us.1": profileId},
-            {"v": v.code, "z": z, "us.0": profileId},
-        ]
-    elif "me" in path_parts:
-        session = await aiohttp_session.get_session(request)
-        session_user = session.get("user_name")
-        filter_cond["$or"] = [
-            {"us.0": session_user, "us.1": profileId},
-            {"us.1": session_user, "us.0": profileId},
-        ]
-    else:
-        filter_cond["us"] = profileId
-
-    if "import" not in path_parts:
-        new_filter_cond: dict[str, object] = {
-            "$and": [
-                filter_cond,
-                {"y": {"$ne": 2}},
-            ]
-        }
-        filter_cond = new_filter_cond
-
-    if user.game_category != "all":
-        allowed_codes = user.category_variant_codes
-        if not allowed_codes:
-            return json_response([])
-        filter_cond = {"$and": [filter_cond, {"v": {"$in": list(allowed_codes)}}]}
+    filter_cond = _apply_category_filter(filter_cond, user)
+    if filter_cond is None:
+        return json_response([])
 
     page_num = request.rel_url.query.get("p", 0)
+    latest_games = _parse_positive_int_query_param(request, "max")
 
     game_doc_list: list[dict[str, object] | GameDoc] = []
     if profileId is not None:
         # print("FILTER:", filter_cond)
         cursor = app_state.db.game.find(filter_cond)
-        if uci_moves:
+        if uci_moves or latest_games is not None:
             cursor.sort("d", -1)
+            if latest_games is not None:
+                cursor.limit(latest_games)
         else:
             cursor.sort("d", -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
         doc: GameDoc
@@ -418,13 +489,13 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
                 )
 
             server_variant = get_server_variant(variant, bool(doc.get("z", 0)))
+            decode_method = server_variant.move_decoding
             if server_variant.two_boards:
                 mA = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 0]
                 mB = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 1]
                 doc["lm"] = decode_move_standard(mA[-1]) if len(mA) > 0 else ""
                 doc["lmB"] = decode_move_standard(mB[-1]) if len(mB) > 0 else ""
             else:
-                decode_method = server_variant.move_decoding
                 doc["lm"] = decode_method(doc["m"][-1]) if len(doc["m"]) > 0 else ""
 
             if variant in GRANDS and doc["lm"] != "":
@@ -606,7 +677,29 @@ async def export(request: web.Request) -> web.StreamResponse:
             return web.Response(text="")
         if session_user != profileId and session_user not in ADMINS:
             raise web.HTTPForbidden(text="Users can only export their own games.")
-        cursor = app_state.db.game.find({"us": profileId})
+
+        selected_filter, selected_variant, _path_parts = _resolve_user_games_filter_and_variant(
+            request
+        )
+        level = request.rel_url.query.get("x")
+        filter_cond = _build_user_games_filter_cond(
+            profile_id=profileId,
+            session_user=session_user,
+            selected_filter=selected_filter,
+            selected_variant=selected_variant,
+            level=level,
+        )
+        if filter_cond is None:
+            return web.Response(text="")
+
+        filter_cond = _apply_category_filter(filter_cond, requester)
+        if filter_cond is None:
+            return web.Response(text="")
+
+        latest_games = _parse_positive_int_query_param(request, "max")
+        cursor = app_state.db.game.find(filter_cond).sort("d", -1)
+        if latest_games is not None:
+            cursor = cursor.limit(latest_games)
     elif tournamentId is not None:
         cursor = app_state.db.game.find({"tid": tournamentId})
     elif session_user in ADMINS:

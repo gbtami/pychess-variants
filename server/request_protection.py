@@ -161,6 +161,10 @@ class RequestProtectionState:
             return self._NAMES_LIMIT
         if path == "/api/users/status":
             return self._STATUS_LIMIT
+        if path.startswith("/api/games/user/"):
+            if path.endswith("/pgn"):
+                return self._EXPORT_LIMIT
+            return self._PROFILE_API_LIMIT
         if path.startswith("/api/"):
             parts = path.split("/")
             # Dynamic user-centric endpoints use "/api/{profileId}/...". Those

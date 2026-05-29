@@ -327,7 +327,7 @@ class ExportPGNTestCase(AioHTTPTestCase):
         app_state.users[other_user.username] = other_user
 
         export_docs = [
-            {"_id": f"g{i}", "us": ["testuser"], "v": "Z", "d": datetime(2025, 12, 1)}
+            {"_id": f"g{i}", "us": ["testuser"], "v": "Z", "d": datetime(2025, 12, 1 + i)}
             for i in range(6)
         ]
         await app_state.db.game.insert_many(export_docs)
@@ -364,8 +364,8 @@ class ExportPGNTestCase(AioHTTPTestCase):
             if call.args and call.args[0] == "PGN export skipped invalid/legacy games: %s"
         ]
         self.assertEqual(1, len(summary_calls))
-        self.assertIn("g0 ataxx 2025.12.01", summary_calls[0].args[1])
-        self.assertNotIn("g5 ataxx 2025.12.01", summary_calls[0].args[1])
+        self.assertIn("g5 ataxx 2025.12.06", summary_calls[0].args[1])
+        self.assertNotIn("g0 ataxx 2025.12.01", summary_calls[0].args[1])
 
     async def test_export_returns_empty_for_anonymous_session(self):
         with (
@@ -387,6 +387,118 @@ class ExportPGNTestCase(AioHTTPTestCase):
 
         self.assertEqual(response.status, 403)
         pgn_mock.assert_not_called()
+
+    async def test_export_supports_latest_n_via_max_query(self):
+        self.set_session_user("testuser")
+        with patch("game_api.pgn", side_effect=lambda doc: f"{doc['_id']}\n"):
+            response = await self.client.get("/games/export/testuser?max=2")
+            self.assertEqual(response.status, 200)
+            body = await response.text()
+
+        self.assertEqual("g5\ng4\n", body)
+
+
+class UserGamesQueryParamsTestCase(AioHTTPTestCase):
+    async def startup(self, app):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="testuser")
+        other_user = User(app_state, username="otheruser")
+        app_state.users[user.username] = user
+        app_state.users[other_user.username] = other_user
+
+        await app_state.db.user.insert_many(
+            [
+                {"_id": "testuser", "title": ""},
+                {"_id": "otheruser", "title": ""},
+                {"_id": "opponent", "title": ""},
+            ]
+        )
+
+        chess_code = get_server_variant("chess", False).code
+        await app_state.db.game.insert_many(
+            [
+                {
+                    "_id": "g_old_loss",
+                    "us": ["testuser", "opponent"],
+                    "v": chess_code,
+                    "z": 0,
+                    "r": "b",
+                    "m": [],
+                    "s": STARTED + 1,
+                    "d": datetime(2025, 1, 1, tzinfo=timezone.utc),
+                    "y": 1,
+                },
+                {
+                    "_id": "g_mid_win",
+                    "us": ["testuser", "opponent"],
+                    "v": chess_code,
+                    "z": 0,
+                    "r": "a",
+                    "m": [],
+                    "s": STARTED + 1,
+                    "d": datetime(2025, 1, 2, tzinfo=timezone.utc),
+                    "y": 1,
+                },
+                {
+                    "_id": "g_new_win",
+                    "us": ["testuser", "opponent"],
+                    "v": chess_code,
+                    "z": 0,
+                    "r": "a",
+                    "m": [],
+                    "s": STARTED + 1,
+                    "d": datetime(2025, 1, 3, tzinfo=timezone.utc),
+                    "y": 1,
+                },
+            ]
+        )
+
+    async def get_application(self):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        app.on_startup.append(self.startup)
+        return app
+
+    async def tearDownAsync(self):
+        await self.client.close()
+
+    def set_session_user(self, username: str) -> None:
+        session_data = {"session": {"user_name": username}, "created": int(time.time())}
+        self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+
+    async def test_json_unified_endpoint_supports_max_latest_n(self):
+        self.set_session_user("testuser")
+
+        response = await self.client.get("/api/games/user/testuser?max=2")
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertEqual(["g_new_win", "g_mid_win"], [item["_id"] for item in payload])
+
+    async def test_json_unified_endpoint_filter_win_and_max(self):
+        self.set_session_user("testuser")
+
+        response = await self.client.get("/api/games/user/testuser?filter=win&max=1")
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertEqual(["g_new_win"], [item["_id"] for item in payload])
+
+    async def test_pgn_unified_endpoint_uses_same_filter_and_max(self):
+        self.set_session_user("testuser")
+
+        with patch("game_api.pgn", side_effect=lambda doc: f"{doc['_id']}\n"):
+            response = await self.client.get("/api/games/user/testuser/pgn?filter=win&max=1")
+            self.assertEqual(response.status, 200)
+            body = await response.text()
+
+        self.assertEqual("g_new_win\n", body)
+
+    async def test_json_and_pgn_reject_invalid_filter(self):
+        self.set_session_user("testuser")
+
+        json_response_obj = await self.client.get("/api/games/user/testuser?filter=nope")
+        self.assertEqual(json_response_obj.status, 400)
+
+        pgn_response_obj = await self.client.get("/api/games/user/testuser/pgn?filter=nope")
+        self.assertEqual(pgn_response_obj.status, 400)
 
 
 class ExportTournamentTrfTestCase(AioHTTPTestCase):

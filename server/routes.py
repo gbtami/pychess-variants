@@ -294,6 +294,8 @@ get_routes: tuple[RouteDef, ...] = (
     ("/api/{profileId}/import", get_user_games),
     ("/api/{profileId}/me", get_user_games),
     ("/api/{profileId}/perf/{variant}", get_user_games),
+    ("/api/games/user/{profileId}", get_user_games),
+    ("/api/games/user/{profileId}/pgn", export),
     ("/api/calendar", tournament_calendar),
     ("/api/stats", get_variant_stats),
     ("/api/stats/humans", get_variant_stats),
