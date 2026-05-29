@@ -403,14 +403,12 @@ export function inboxView(model: PyChessModel) {
         const createdAt = parseDate(msg.createdAt);
         const textNodes = renderRichText(msg.text);
         return h(`div.inbox-msg${mine ? '.mine' : '.their'}`, [
-            h('div.inbox-msg-text', [
-                ...textNodes,
-                h('em.inbox-msg-time', {
-                    attrs: {
-                        title: createdAt ? createdAt.toLocaleString() : '',
-                    },
-                }, renderClockTime(msg.createdAt)),
-            ]),
+            h('span.inbox-msg-text', textNodes),
+            h('em.inbox-msg-time', {
+                attrs: {
+                    title: createdAt ? createdAt.toLocaleString() : '',
+                },
+            }, renderClockTime(msg.createdAt)),
         ]);
     }
 

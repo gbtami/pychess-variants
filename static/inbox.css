@@ -191,6 +191,8 @@
 
 .inbox-convo-body {
   overflow: auto;
+  display: flex;
+  flex-direction: column;
   padding: 1rem;
   background: var(--bg-color0);
   min-height: 0;
@@ -218,33 +220,33 @@
   background: var(--inbox-bubble-their);
   border: 0;
   border-radius: 7px;
-  padding: 0.6rem 0.8rem;
-  padding-right: 3.8rem;
-  margin-bottom: 0.35rem;
-  max-width: min(74%, 680px);
+  padding: 0.5rem 1rem;
+  margin: 0.2em 0;
+  max-width: min(70%, 680px);
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
-  position: relative;
+  width: fit-content;
+  align-self: flex-start;
 }
 
 .inbox-msg.mine {
-  margin-left: auto;
+  align-self: flex-end;
   background: var(--inbox-bubble-mine);
 }
 
 .inbox-msg-text {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  white-space-collapse: preserve;
 }
 
 .inbox-msg-time {
+  float: right;
   color: var(--time-text);
   font-size: 0.8em;
-  position: absolute;
-  right: 0.8rem;
-  bottom: 0.55rem;
+  margin: 0.4em 0 0 2em;
   user-select: none;
   font-style: normal;
-  line-height: 1;
+  line-height: 1em;
 }
 
 .inbox-msg-text img.inbox-msg-inline-image {
