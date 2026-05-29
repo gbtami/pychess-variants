@@ -1,4 +1,6 @@
 from datetime import datetime, timezone
+import json
+import time
 import unittest
 
 from aiohttp.test_utils import AioHTTPTestCase
@@ -6,6 +8,7 @@ from mongomock_motor import AsyncMongoMockClient
 
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
+from user import User
 
 
 class UserMiniJoinedAtTestCase(AioHTTPTestCase):
@@ -27,6 +30,10 @@ class UserMiniJoinedAtTestCase(AioHTTPTestCase):
     async def tearDownAsync(self):
         await self.client.close()
 
+    def set_session_user(self, username: str) -> None:
+        session_data = {"session": {"user_name": username}, "created": int(time.time())}
+        self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
+
     async def test_user_mini_omits_unknown_joined_at(self):
         response = await self.client.get("/@/legacy-user/mini")
         self.assertEqual(response.status, 200)
@@ -41,6 +48,30 @@ class UserMiniJoinedAtTestCase(AioHTTPTestCase):
         payload = await response.json()
 
         self.assertEqual(payload["joinedAt"], "2024-04-20T00:00:00Z")
+
+    async def test_user_mini_reflects_follow_and_friends_only_message_state(self):
+        app_state = get_app_state(self.app)
+        alice = User(app_state, username="alice")
+        bob = User(app_state, username="bob", pm_friends_only=True)
+        app_state.users[alice.username] = alice
+        app_state.users[bob.username] = bob
+
+        self.set_session_user("alice")
+        response = await self.client.get("/@/bob/mini")
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertFalse(payload.get("canMessage"))
+        self.assertTrue(payload.get("canFollow"))
+        self.assertFalse(payload.get("following"))
+
+        follow_resp = await self.client.post("/api/bob/follow", data={"follow": "true"})
+        self.assertEqual(follow_resp.status, 200)
+
+        response = await self.client.get("/@/bob/mini")
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertTrue(payload.get("canMessage"))
+        self.assertTrue(payload.get("following"))
 
 
 if __name__ == "__main__":

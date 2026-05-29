@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from collections import UserDict
-from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK, NONE_USER
+from const import ANON_PREFIX, BLOCK, FOLLOW, MAX_USER_BLOCK, NONE_USER
 from typing_defs import RelationDocument, UserDocument
 from user import User
 import logging
@@ -72,6 +72,7 @@ class Users(UserDict[str, User]):
                 lang=doc.get("lang", "en"),
                 theme=doc.get("theme", "dark"),
                 game_category=doc.get("ct", "all"),
+                pm_friends_only=doc.get("pmf", False),
                 oauth_id=doc.get("oauth_id") or "",
                 oauth_provider=doc.get("oauth_provider") or "",
                 created_at=doc.get("createdAt"),
@@ -81,8 +82,12 @@ class Users(UserDict[str, User]):
             user.game_category_set = "ct" in doc
             self.data[username] = user
 
-            cursor = self.app_state.db.relation.find({"u1": username, "r": BLOCK})
-            docs: list[RelationDocument] = await cursor.to_list(MAX_USER_BLOCK)
-            user.blocked = {doc["u2"] for doc in docs}
+            blocked_cursor = self.app_state.db.relation.find({"u1": username, "r": BLOCK})
+            blocked_docs: list[RelationDocument] = await blocked_cursor.to_list(MAX_USER_BLOCK)
+            user.blocked = {doc["u2"] for doc in blocked_docs}
+
+            following_cursor = self.app_state.db.relation.find({"u1": username, "r": FOLLOW})
+            following_docs: list[RelationDocument] = await following_cursor.to_list(None)
+            user.following = {doc["u2"] for doc in following_docs}
 
             return user

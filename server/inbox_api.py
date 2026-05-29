@@ -34,6 +34,20 @@ def _other_user(users: list[str], me: str) -> str | None:
     return None
 
 
+async def _can_send_to_contact(app_state, me, contact: str, profile) -> bool:
+    if not profile.pm_friends_only:
+        return True
+    if contact in me.following:
+        return True
+    if app_state.db is None:
+        return False
+    existing = await app_state.db.inbox_thread.find_one(
+        {"_id": _thread_id(me.username, contact), "deletedBy": {"$ne": contact}},
+        projection={"_id": 1},
+    )
+    return existing is not None
+
+
 async def _session_username(request: web.Request) -> str | None:
     session = await aiohttp_session.get_session(request)
     return session.get("user_name")
@@ -144,6 +158,7 @@ async def inbox_thread(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "User not found"}, status=404)
     if username in profile.blocked:
         return json_response({"type": "error", "message": "Cannot message this user"}, status=403)
+    can_message = await _can_send_to_contact(app_state, me, contact, profile)
 
     tid = _thread_id(username, contact)
     before = request.rel_url.query.get("before")
@@ -191,6 +206,7 @@ async def inbox_thread(request: web.Request) -> web.Response:
                     app_state.users.data.get(profile.username)
                     and app_state.users.data[profile.username].online
                 ),
+                "canMessage": can_message,
             },
             "messages": msgs,
             "hasMore": has_more,
@@ -242,6 +258,11 @@ async def inbox_post(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "User not found"}, status=404)
     if username in profile.blocked:
         return json_response({"type": "error", "message": "Cannot message this user"}, status=403)
+    if not await _can_send_to_contact(app_state, me, contact, profile):
+        return json_response(
+            {"type": "error", "message": "Only friends can message this user"},
+            status=403,
+        )
 
     now = datetime.now(timezone.utc)
     tid = _thread_id(username, contact)

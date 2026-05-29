@@ -23,6 +23,7 @@ export function settingsView(modelVariant: string) {
                 gameCategorySettingsView(),
                 boardSettingsView(modelVariant),
                 zenModeSettingsView(),
+                privacySettingsView(),
             ]),
         ]),
     ]);
@@ -68,6 +69,7 @@ function mainMenu(anon: boolean) {
         buttons.push(
             h('div.settings-menu-separator', { attrs: { role: "separator" } }),
             h('button#btn-inbox-menu', { on: { click: gotoInbox } }, _("Inbox")),
+            h('button#btn-privacy', { on: { click: showSubsettings } }, _("Privacy")),
             h('button#btn-account-privacy', { on: { click: gotoAccountPrivacy } }, _("Account & Privacy")),
             h('button#btn-logout', { on: { click: logoutDialog } }, _("Log out")),
         );
@@ -150,6 +152,38 @@ function zenModeSettingsView() {
         backButton(_("Zen Mode")),
         zenModeSettings.view(),
     ]);
+}
+
+function privacySettingsView() {
+    const pmFriendsOnly = getDocumentData('pm-friends-only') === 'True';
+    return h('div#settings-privacy', [
+        backButton(_("Privacy")),
+        h('div', [
+            h('label.switch', [
+                h('input#pm-friends-only', {
+                    attrs: { type: 'checkbox', checked: pmFriendsOnly },
+                    on: {
+                        change: (evt: Event) => {
+                            const next = (evt.target as HTMLInputElement).checked;
+                            setPmFriendsOnly(next);
+                        },
+                    },
+                }),
+                h('span', _('Only friends can message me')),
+            ]),
+        ]),
+    ]);
+}
+
+function setPmFriendsOnly(value: boolean) {
+    const payload = new URLSearchParams({ pm_friends_only: value ? 'true' : 'false' });
+    fetch('/pref/pm-friends-only', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body: payload.toString(),
+    }).catch((error) => {
+        console.warn('Failed to update PM privacy setting.', error);
+    });
 }
 
 function boardSettingsView(modelVariant: string) {

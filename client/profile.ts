@@ -240,6 +240,12 @@ export function profileView(model: PyChessModel) {
     const unblockEl = document.getElementById('unblock') as HTMLElement;
     if (unblockEl !== null) renderUnblock('unblock', profileId);
 
+    const followEl = document.getElementById('follow') as HTMLElement;
+    if (followEl !== null) renderFollow('follow', profileId);
+
+    const unfollowEl = document.getElementById('unfollow') as HTMLElement;
+    if (unfollowEl !== null) renderUnfollow('unfollow', profileId);
+
     let tabs: VNode[] = [];
     tabs.push(h('div.sub-ratings', [h('a', { attrs: { href: '/@/' + profileId }, class: {"active": rated === "None"} }, _('Games'))]));
     if (model["username"] !== profileId) {
@@ -276,6 +282,53 @@ function renderUnblock(id: string, profileId: string) {
             _('Unblock')
         ));
     }
+}
+
+function renderFollow(id: string, profileId: string) {
+    const el = document.getElementById(id) as HTMLElement;
+    if (el !== null) {
+        patch(el, h('a#follow.icon.icon-thumbs-o-up', {
+            attrs: { href: '/api/' + profileId + '/follow', title: _('Follow') },
+            on: { click: (e: Event) => postFollow(e, profileId, true) } },
+            _('Follow')
+        ));
+    }
+}
+
+function renderUnfollow(id: string, profileId: string) {
+    const el = document.getElementById(id) as HTMLElement;
+    if (el !== null) {
+        patch(el, h('a#unfollow.icon.icon-thumbs-o-up', {
+            attrs: { href: '/api/' + profileId + '/follow', title: _('Unfollow') },
+            on: { click: (e: Event) => postFollow(e, profileId, false) } },
+            _('Following')
+        ));
+    }
+}
+
+function postFollow(e: Event, profileId: string, follow: boolean) {
+    e.preventDefault();
+    const XHR = new XMLHttpRequest();
+    const FD = new FormData();
+    FD.append('follow', `${follow}`);
+
+    XHR.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            const response = JSON.parse(this.responseText);
+            if (response['error'] !== undefined) {
+                console.log(response['error']);
+            } else {
+                if (follow) {
+                    renderUnfollow('follow', profileId);
+                } else {
+                    renderFollow('unfollow', profileId);
+                }
+            }
+        }
+    }
+    XHR.open("POST", `/api/${profileId}/follow`, true);
+    XHR.send(FD);
+    return false;
 }
 
 function postBlock(e: Event, profileId: string, block: boolean) {

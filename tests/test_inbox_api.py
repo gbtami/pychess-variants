@@ -181,6 +181,67 @@ class InboxApiTestCase(AioHTTPTestCase):
         payload = await resp.json()
         self.assertEqual("error", payload.get("type"))
 
+    async def test_follow_and_unfollow_endpoint_updates_relation_and_cache(self):
+        app_state = get_app_state(self.app)
+        alice = User(app_state, username="alice")
+        bob = User(app_state, username="bob")
+        app_state.users[alice.username] = alice
+        app_state.users[bob.username] = bob
+
+        self.set_session_user("alice")
+        follow_resp = await self.client.post("/api/bob/follow", data={"follow": "true"})
+        self.assertEqual(follow_resp.status, 200)
+        self.assertIn("bob", alice.following)
+
+        relation_doc = await app_state.db.relation.find_one({"_id": "alice/bob"})
+        self.assertIsNotNone(relation_doc)
+        self.assertEqual(True, relation_doc.get("r"))
+
+        unfollow_resp = await self.client.post("/api/bob/follow", data={"follow": "false"})
+        self.assertEqual(unfollow_resp.status, 200)
+        self.assertNotIn("bob", alice.following)
+
+        relation_doc = await app_state.db.relation.find_one({"_id": "alice/bob"})
+        self.assertIsNone(relation_doc)
+
+    async def test_friends_only_pm_requires_follow_for_new_conversation(self):
+        app_state = get_app_state(self.app)
+        alice = User(app_state, username="alice")
+        bob = User(app_state, username="bob", pm_friends_only=True)
+        app_state.users[alice.username] = alice
+        app_state.users[bob.username] = bob
+
+        self.set_session_user("alice")
+        blocked_resp = await self.client.post("/api/inbox/thread/bob", data={"text": "hello bob"})
+        self.assertEqual(blocked_resp.status, 403)
+        blocked_payload = await blocked_resp.json()
+        self.assertEqual("Only friends can message this user", blocked_payload.get("message"))
+
+        await self.client.post("/api/bob/follow", data={"follow": "true"})
+        allowed_resp = await self.client.post(
+            "/api/inbox/thread/bob", data={"text": "hello after follow"}
+        )
+        self.assertEqual(allowed_resp.status, 200)
+        allowed_payload = await allowed_resp.json()
+        self.assertTrue(allowed_payload.get("ok"))
+
+    async def test_friends_only_pm_allows_reply_in_existing_conversation(self):
+        app_state = get_app_state(self.app)
+        alice = User(app_state, username="alice")
+        bob = User(app_state, username="bob", pm_friends_only=True)
+        app_state.users[alice.username] = alice
+        app_state.users[bob.username] = bob
+
+        self.set_session_user("bob")
+        first = await self.client.post("/api/inbox/thread/alice", data={"text": "hello alice"})
+        self.assertEqual(first.status, 200)
+
+        self.set_session_user("alice")
+        reply = await self.client.post(
+            "/api/inbox/thread/bob", data={"text": "reply without follow"}
+        )
+        self.assertEqual(reply.status, 200)
+
 
 if __name__ == "__main__":
     import unittest

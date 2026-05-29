@@ -41,6 +41,11 @@
             <a class="icon icon-tv" href="/@/{{ profile }}/tv" title="{% trans %}Watch games{% endtrans %}">{% trans %}Watch{% endtrans %}</a>
 
             {% if (profile != username) and (not anon) and (profile_title != "BOT") %}
+            {% if (can_follow) and (is_following) %}
+                <a id="unfollow"></a>
+            {% elif (can_follow) %}
+                <a id="follow"></a>
+            {% endif %}
             {% if (can_block) %}
                 <a id="block"></a>
             {% else %}
@@ -52,8 +57,10 @@
             <a class="icon icon-crossedswords" href="/@/{{ profile }}/challenge" title="{% trans %}Challenge to a game{% endtrans %}">{% trans %}Challenge{% endtrans %}</a>
             {% endif %}
             <a class="icon icon-bubble-convo" href="/blogs/@/{{ profile }}" title="User blogs">Blogs</a>
-            {% if (not anon) and (profile != username) and (profile_title != "BOT") %}
+            {% if (not anon) and (profile != username) and (profile_title != "BOT") and (can_message) %}
             <a class="icon icon-comment-o" href="/inbox/{{ profile }}" title="{% trans %}Send a private message{% endtrans %}">{% trans %}Message{% endtrans %}</a>
+            {% endif %}
+            {% if (not anon) and (profile != username) and (profile_title != "BOT") %}
             <a class="icon icon-warning" href="/report?source=profile&username={{ profile }}&reason=bad_behavior" title="{% trans %}Report to moderators{% endtrans %}">{% trans %}Report{% endtrans %}</a>
             {% endif %}
 

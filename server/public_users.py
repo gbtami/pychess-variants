@@ -31,6 +31,7 @@ class PublicProfile:
     count: UserCount
     perfs: PerfMap
     blocked: frozenset[str]
+    pm_friends_only: bool
     oauth_id: str
     oauth_provider: str
 
@@ -68,6 +69,7 @@ class PublicUsers:
             count=normalize_user_count(user.count),
             perfs=user.perfs,
             blocked=frozenset(user.blocked),
+            pm_friends_only=user.pm_friends_only,
             oauth_id=user.oauth_id,
             oauth_provider=user.oauth_provider,
         )
@@ -88,6 +90,7 @@ class PublicUsers:
             count=normalize_user_count(doc.get("count")),
             perfs=perf_map_with_defaults(RATED_VARIANTS, doc.get("perfs")),
             blocked=blocked,
+            pm_friends_only=doc.get("pmf", False),
             oauth_id=doc.get("oauth_id") or "",
             oauth_provider=doc.get("oauth_provider") or "",
         )
@@ -103,6 +106,7 @@ class PublicUsers:
             count=normalize_user_count(None),
             perfs=perf_map_with_defaults(RATED_VARIANTS, None),
             blocked=frozenset(),
+            pm_friends_only=False,
             oauth_id="",
             oauth_provider="",
         )

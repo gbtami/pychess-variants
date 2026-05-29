@@ -171,6 +171,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         "theme": user.theme,
         "game_category": user.game_category,
         "game_category_intro": (not user.anon) and (not getattr(user, "game_category_set", False)),
+        "pm_friends_only": user.pm_friends_only,
         "menu_variant": menu_variant,
         "title": "%s • PyChess" % view.capitalize(),
         "view": view,

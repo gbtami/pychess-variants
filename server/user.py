@@ -27,7 +27,7 @@ from glicko2.glicko2 import gl2, new_default_perf, perf_map_with_defaults, Ratin
 from json_utils import json_response
 from newid import id8
 from notify import notify
-from const import BLOCK, MAX_USER_BLOCK
+from const import BLOCK, FOLLOW, MAX_USER_BLOCK
 from websocket_utils import ws_send_json_many
 from user_stats import normalize_user_count
 
@@ -104,6 +104,7 @@ class User:
         lang: str | None = None,
         theme: str = "dark",
         game_category: str = "all",
+        pm_friends_only: bool = False,
         oauth_id: str = "",
         oauth_provider: str = "",
         created_at: datetime | None = None,
@@ -117,6 +118,7 @@ class User:
         self.theme: str = theme
         self.game_category: str = "all"
         self.game_category_set: bool = False
+        self.pm_friends_only: bool = pm_friends_only
         self.oauth_id: str = oauth_id
         self.oauth_provider: str = oauth_provider
         self.created_at: datetime = (
@@ -164,6 +166,7 @@ class User:
         self.correspondence_games: List[Game] = []
 
         self.blocked: set[str] = set()
+        self.following: set[str] = set()
 
         if self.bot:
             self.event_queue: Queue[str] = asyncio.Queue()
@@ -762,6 +765,65 @@ async def set_game_category(request: web.Request) -> web.StreamResponse:
         raise web.HTTPNotFound()
 
 
+async def set_pm_friends_only(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    post_data = await read_post_data(request)
+    if post_data is None:
+        return web.Response(status=204)
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+    if user.anon:
+        return web.Response(status=403)
+
+    raw = str(post_data.get("pm_friends_only", "")).strip().lower()
+    value = raw in {"1", "true", "yes", "on"}
+    user.pm_friends_only = value
+    if app_state.db is not None:
+        await app_state.db.user.find_one_and_update(
+            {"_id": user.username}, {"$set": {"pmf": value}}
+        )
+    return web.Response(status=204)
+
+
+def _relation_id(user1: str, user2: str) -> str:
+    return f"{user1}/{user2}"
+
+
+async def follow_user(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    profileId = request.match_info["profileId"]
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+    if user.anon or profileId == user.username:
+        return web.Response(status=403)
+
+    post_data = await read_post_data(request)
+    if post_data is None:
+        return json_response({})
+    follow = post_data.get("follow") == "true"
+    rel_id = _relation_id(user.username, profileId)
+    try:
+        if follow:
+            await app_state.db.relation.find_one_and_update(
+                {"_id": rel_id},
+                {"$set": {"u1": user.username, "u2": profileId, "r": FOLLOW}},
+                upsert=True,
+            )
+            user.following.add(profileId)
+            user.blocked.discard(profileId)
+        else:
+            await app_state.db.relation.delete_one({"_id": rel_id, "r": FOLLOW})
+            user.following.discard(profileId)
+    except Exception:
+        log.error("follow_user() Exception. Failed to update relation for %s", session_user)
+
+    return json_response({})
+
+
 async def block_user(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profileId = request.match_info["profileId"]
@@ -770,6 +832,8 @@ async def block_user(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     user = await app_state.users.get(session_user)
+    if user.anon or profileId == user.username:
+        return web.Response(status=403)
 
     if len(user.blocked) >= MAX_USER_BLOCK:
         # TODO: Alert the user about blocked quota reached
@@ -778,18 +842,20 @@ async def block_user(request: web.Request) -> web.StreamResponse:
     post_data = await read_post_data(request)
     if post_data is None:
         return json_response({})
-    block = post_data["block"] == "true"
+    block = post_data.get("block") == "true"
+    rel_id = _relation_id(user.username, profileId)
     try:
         if block:
             await app_state.db.relation.find_one_and_update(
-                {"_id": "%s/%s" % (user.username, profileId)},
+                {"_id": rel_id},
                 {"$set": {"u1": user.username, "u2": profileId, "r": BLOCK}},
                 upsert=True,
             )
             user.blocked.add(profileId)
+            user.following.discard(profileId)
         else:
-            await app_state.db.relation.delete_one({"_id": "%s/%s" % (user.username, profileId)})
-            user.blocked.remove(profileId)
+            await app_state.db.relation.delete_one({"_id": rel_id, "r": BLOCK})
+            user.blocked.discard(profileId)
     except Exception:
         log.error(
             "block_user() Exception. Failed to save new relation for %s to mongodb!", session_user

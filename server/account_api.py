@@ -205,6 +205,7 @@ async def account_delete_post(request: web.Request) -> web.StreamResponse:
                 "lang": "en",
                 "theme": "dark",
                 "ct": "all",
+                "pmf": False,
                 "gdprErasedAt": now,
                 "closeType": "deleted",
                 "count": dict(DEFAULT_USER_COUNT),
@@ -229,6 +230,8 @@ async def account_delete_post(request: web.Request) -> web.StreamResponse:
     user.pperfs = {}
     user.count = dict(DEFAULT_USER_COUNT)
     user.blocked.clear()
+    user.following.clear()
+    user.pm_friends_only = False
 
     log.info("Account deleted (GDPR erase) for user %s", user.username)
     return await logout(request)

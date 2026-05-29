@@ -45,6 +45,7 @@ class UserDocument(TypedDict, total=False):
     lang: str
     theme: str
     ct: str
+    pmf: bool
     oauth_id: str
     oauth_provider: str
     security: dict[str, object]
@@ -390,6 +391,7 @@ class ViewContext(TypedDict, total=False):
     theme: str
     game_category: str
     game_category_intro: bool
+    pm_friends_only: bool
     menu_variant: str
     title: str
     view: str
@@ -424,6 +426,9 @@ class ViewContext(TypedDict, total=False):
     report_inbox_msgs: list[object]
     report_selected_msgs: list[str]
     can_block: bool
+    can_follow: bool
+    is_following: bool
+    can_message: bool
     can_challenge: bool
     corr_games: str
     simul_games: str

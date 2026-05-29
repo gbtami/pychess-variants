@@ -24,6 +24,11 @@ def _sort_perfs_by_activity(item: tuple[str, PerfEntry]) -> tuple[int, float, st
     return (-perf.get("nb", 0), -last_ts, key)
 
 
+def _thread_id(user1: str, user2: str) -> str:
+    first, second = sorted((user1, user2), key=lambda x: (x.lower(), x))
+    return f"{first}:{second}"
+
+
 def _joined_at_for_payload(created_at: datetime) -> datetime | None:
     # Year 1 is used internally as a sentinel for "unknown creation time".
     if created_at.year <= MINYEAR:
@@ -174,7 +179,42 @@ async def _can_message_profile(
 
     app_state = get_app_state(request.app)
     me = await app_state.users.get(session_user)
-    return profile_id not in me.blocked
+    if profile_id in me.blocked:
+        return False
+    if not profile.pm_friends_only:
+        return True
+    if profile_id in me.following:
+        return True
+    if app_state.db is None:
+        return False
+
+    existing = await app_state.db.inbox_thread.find_one(
+        {"_id": _thread_id(session_user, profile_id), "deletedBy": {"$ne": profile_id}},
+        projection={"_id": 1},
+    )
+    return existing is not None
+
+
+async def _follow_state_for_profile(
+    profile: PublicProfile,
+    profile_id: str,
+    session_user: str | None,
+    request: web.Request,
+) -> tuple[bool, bool]:
+    if session_user is None or session_user == profile_id:
+        return (False, False)
+    if session_user.startswith(ANON_PREFIX) or profile.username.startswith(ANON_PREFIX):
+        return (False, False)
+    if profile.bot:
+        return (False, False)
+    if session_user in profile.blocked:
+        return (False, False)
+
+    app_state = get_app_state(request.app)
+    me = await app_state.users.get(session_user)
+    if profile_id in me.blocked:
+        return (False, False)
+    return (True, profile_id in me.following)
 
 
 async def user_mini(request: web.Request) -> web.StreamResponse:
@@ -204,5 +244,10 @@ async def user_mini(request: web.Request) -> web.StreamResponse:
         "perfs": _select_best8_perfs_by_activity(profile),
         "playing": await _build_playing_payload(profile_id, request),
     }
+    can_follow, following = await _follow_state_for_profile(
+        profile, profile_id, session_user, request
+    )
+    payload["canFollow"] = can_follow
+    payload["following"] = following
 
     return json_response(payload)

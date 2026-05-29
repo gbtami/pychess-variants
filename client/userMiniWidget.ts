@@ -32,6 +32,8 @@ interface MiniPayload {
     title: string;
     online: boolean;
     canMessage?: boolean;
+    canFollow?: boolean;
+    following?: boolean;
     joinedAt: string | null;
     count: {
         game: number;
@@ -477,41 +479,86 @@ class UserMiniWidget {
 
     private renderActions(payload: MiniPayload): HTMLElement | undefined {
         const actions = document.createElement('div');
-        actions.className = 'umw-actions';
+        actions.className = 'umw-actions upt__actions btn-rack';
 
         const watchLink = this.makeActionLink(
             'icon icon-tv',
             `/@/${encodeURIComponent(payload.username)}/tv`,
             _('Watch'),
+            true,
         );
         actions.appendChild(watchLink);
 
         if (!this.isAnon && payload.username !== this.currentUsername) {
-            const challengeLink = this.makeActionLink(
-                'icon icon-crossedswords',
-                `/@/${encodeURIComponent(payload.username)}/challenge`,
-                _('Challenge'),
-            );
-            actions.appendChild(challengeLink);
-
             if (payload.canMessage !== false) {
                 const messageLink = this.makeActionLink(
                     'icon icon-comment-o',
                     `/inbox/${encodeURIComponent(payload.username)}`,
-                    _('Message'),
+                    _('Chat'),
+                    true,
                 );
                 actions.appendChild(messageLink);
+            }
+
+            const challengeLink = this.makeActionLink(
+                'icon icon-crossedswords',
+                `/@/${encodeURIComponent(payload.username)}/challenge`,
+                _('Challenge'),
+                true,
+            );
+            actions.appendChild(challengeLink);
+
+            if (payload.canFollow) {
+                actions.appendChild(this.makeFollowButton(payload.username, payload.following === true));
             }
         }
 
         return actions.childElementCount > 0 ? actions : undefined;
     }
 
-    private makeActionLink(className: string, href: string, text: string): HTMLAnchorElement {
+    private makeFollowButton(username: string, initiallyFollowing: boolean): HTMLAnchorElement {
+        let following = initiallyFollowing;
+        const button = document.createElement('a');
+        button.className = 'umw-action-btn umw-follow-btn btn-rack__btn relation-button text icon icon-thumbs-o-up';
+        button.href = `/api/${encodeURIComponent(username)}/follow`;
+        button.title = _('Follow');
+        button.setAttribute('aria-label', _('Follow'));
+        const renderState = () => {
+            button.textContent = following ? _('Following') : _('Follow');
+        };
+        renderState();
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            const next = !following;
+            const formData = new URLSearchParams({ follow: `${next}` });
+            fetch(`/api/${encodeURIComponent(username)}/follow`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: formData.toString(),
+            })
+                .then((res) => {
+                    if (!res.ok) return;
+                    following = next;
+                    renderState();
+                })
+                .catch(() => undefined);
+        });
+        return button;
+    }
+
+    private makeActionLink(
+        className: string,
+        href: string,
+        text: string,
+        iconOnly: boolean = false,
+    ): HTMLAnchorElement {
         const link = document.createElement('a');
-        link.className = `umw-action-btn ${className}`;
+        link.className = `umw-action-btn btn-rack__btn ${className}`;
+        if (iconOnly) link.classList.add('icon-only');
         link.href = href;
-        link.textContent = text;
+        link.title = text;
+        link.setAttribute('aria-label', text);
+        link.textContent = iconOnly ? '' : text;
         return link;
     }
 

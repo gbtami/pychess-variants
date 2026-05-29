@@ -113,7 +113,15 @@ from twitch import twitch_request_handler
 from puzzle import puzzle_complete, puzzle_vote
 from robots import robots
 from server_metrics import metrics_handler
-from user import block_user, get_blocked_users, set_theme, set_game_category, get_status
+from user import (
+    block_user,
+    follow_user,
+    get_blocked_users,
+    get_status,
+    set_game_category,
+    set_pm_friends_only,
+    set_theme,
+)
 from views import (
     about,
     allplayers,
@@ -351,7 +359,9 @@ post_routes: tuple[RouteDef, ...] = (
     ("/api/confirm-username", confirm_username),
     ("/pref/theme", set_theme),
     ("/pref/game-category", set_game_category),
+    ("/pref/pm-friends-only", set_pm_friends_only),
     ("/api/{profileId}/block", block_user),
+    ("/api/{profileId}/follow", follow_user),
     ("/api/inbox/thread/{contact}", inbox_post),
     ("/api/inbox/thread/{contact}/read", inbox_read),
     ("/api/inbox/thread/{contact}/delete", inbox_delete),

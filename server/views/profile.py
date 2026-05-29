@@ -12,6 +12,11 @@ from pychess_global_app_state_utils import get_app_state
 from variants import NOT_RATED_VARIANTS, VARIANTS, VARIANT_ICONS
 
 
+def _thread_id(user1: str, user2: str) -> str:
+    first, second = sorted((user1, user2), key=lambda x: (x.lower(), x))
+    return f"{first}:{second}"
+
+
 @aiohttp_jinja2.template("profile.html")
 async def profile(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
@@ -46,7 +51,27 @@ async def profile(request: web.Request) -> ViewContext:
     elif request.path[-3:] == "/me":
         rated = -1
 
+    follow_allowed = (profileId not in user.blocked) and (user.username not in profile_user.blocked)
     context["can_block"] = profileId not in user.blocked
+    context["can_follow"] = follow_allowed
+    context["is_following"] = profileId in user.following
+    can_message = (
+        (profileId not in user.blocked)
+        and (user.username not in profile_user.blocked)
+        and ((not profile_user.pm_friends_only) or (profileId in user.following))
+    )
+    if (
+        (not can_message)
+        and profile_user.pm_friends_only
+        and follow_allowed
+        and (app_state.db is not None)
+    ):
+        existing = await app_state.db.inbox_thread.find_one(
+            {"_id": _thread_id(user.username, profileId), "deletedBy": {"$ne": profileId}},
+            projection={"_id": 1},
+        )
+        can_message = existing is not None
+    context["can_message"] = can_message
     context["can_challenge"] = user.username not in profile_user.blocked
     context["can_export_games"] = (
         (not user.anon)
