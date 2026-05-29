@@ -1457,7 +1457,7 @@ button.paste-url {
 }
 .lobby-button {
   width: 100%;
-  margin: 20px 2px;
+  margin: 6px 2px;
 }
 @media (max-width: 799px) {
   .lobby-button {
