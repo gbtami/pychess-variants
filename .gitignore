@@ -1,5 +1,6 @@
 __pycache__/
 node_modules/
+.DS_Store
 templates/docs/
 templates/news/
 static/pychess-variants.js

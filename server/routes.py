@@ -124,6 +124,7 @@ from user import (
 )
 from views import (
     about,
+    api_docs,
     allplayers,
     analysis,
     arena_new,
@@ -190,6 +191,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/select-username", select_username),
     ("/", lobby.lobby),
     ("/about", about.about),
+    ("/api", api_docs.api_docs),
     ("/contact", contact.contact),
     ("/terms", terms.terms),
     ("/privacy", privacy.privacy),

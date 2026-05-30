@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>{{ title }}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <script id="api-reference" type="application/json">
+    {
+      "openapi": "3.1.0",
+      "info": {
+        "title": "PyChess API",
+        "version": "1.0.0",
+        "description": "HTTP API for [pychess-variants](https://www.pychess.org). All API responses are in JSON or NDJSON format.\n\n## Authentication\n\nSome endpoints require OAuth2 authentication. Sign in at [pychess.org](https://www.pychess.org) with Lichess, Lishogi, Google, or Discord.\n\n## Base URL\n\n```\nhttps://www.pychess.org\n```"
+      },
+      "servers": [
+        { "url": "https://www.pychess.org", "description": "Production" }
+      ],
+      "tags": [
+        { "name": "Games", "description": "Access and export games" },
+        { "name": "Users", "description": "User data and status" },
+        { "name": "Challenges", "description": "Create and manage challenges" },
+        { "name": "Tournaments", "description": "Tournament information and games" },
+        { "name": "Stats", "description": "Variant statistics" }
+      ],
+      "paths": {
+        "/api/games/{username}": {
+          "get": {
+            "tags": ["Games"],
+            "summary": "Get games by user",
+            "description": "Download games played by a user. Games are returned in NDJSON format.",
+            "parameters": [
+              {
+                "name": "username",
+                "in": "path",
+                "required": true,
+                "schema": { "type": "string" },
+                "description": "The user's username"
+              },
+              {
+                "name": "variant",
+                "in": "query",
+                "schema": { "type": "string" },
+                "description": "Filter by variant name (e.g. `chess`, `shogi`, `xiangqi`)"
+              },
+              {
+                "name": "limit",
+                "in": "query",
+                "schema": { "type": "integer", "default": 50, "maximum": 200 },
+                "description": "Maximum number of games to return"
+              },
+              {
+                "name": "page",
+                "in": "query",
+                "schema": { "type": "integer", "default": 1 },
+                "description": "Page number for pagination"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "A list of games in NDJSON format",
+                "content": {
+                  "application/x-ndjson": {
+                    "example": "{\"id\":\"abcd1234\",\"variant\":\"chess\",\"speed\":\"blitz\",\"white\":{\"name\":\"user1\"},\"black\":{\"name\":\"user2\"},\"winner\":\"white\"}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "/api/games": {
+          "get": {
+            "tags": ["Games"],
+            "summary": "Get latest games",
+            "description": "Stream the latest games being played across all variants.",
+            "parameters": [
+              {
+                "name": "variant",
+                "in": "query",
+                "schema": { "type": "string" },
+                "description": "Filter by variant name"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Latest games as NDJSON stream"
+              }
+            }
+          }
+        },
+        "/games/export/{gameId}": {
+          "get": {
+            "tags": ["Games"],
+            "summary": "Export a game as PGN",
+            "description": "Download a single game in PGN notation.",
+            "parameters": [
+              {
+                "name": "gameId",
+                "in": "path",
+                "required": true,
+                "schema": { "type": "string", "minLength": 8, "maxLength": 8 },
+                "description": "The 8-character game ID"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Game in PGN format",
+                "content": {
+                  "application/x-chess-pgn": {
+                    "example": "[Event \"PyChess\"]\n[Variant \"Chess\"]\n[White \"user1\"]\n[Black \"user2\"]\n\n1. e4 e5 *"
+                  }
+                }
+              },
+              "404": { "description": "Game not found" }
+            }
+          }
+        },
+        "/api/users/status": {
+          "get": {
+            "tags": ["Users"],
+            "summary": "Get real-time status of users",
+            "description": "Check whether users are online and currently playing.",
+            "parameters": [
+              {
+                "name": "ids",
+                "in": "query",
+                "required": true,
+                "schema": { "type": "string" },
+                "description": "Comma-separated list of usernames (max 100)"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "List of user status objects",
+                "content": {
+                  "application/json": {
+                    "example": "[{\"id\":\"user1\",\"name\":\"user1\",\"online\":true,\"playing\":false}]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "/api/variant-stats": {
+          "get": {
+            "tags": ["Stats"],
+            "summary": "Get variant popularity stats",
+            "description": "Returns game counts and player counts per variant.",
+            "responses": {
+              "200": {
+                "description": "Variant statistics",
+                "content": {
+                  "application/json": {
+                    "example": "{\"chess\":{\"games\":12000,\"players\":3400},\"shogi\":{\"games\":800,\"players\":210}}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "/api/challenges/{challengeId}/accept": {
+          "post": {
+            "tags": ["Challenges"],
+            "summary": "Accept a challenge",
+            "description": "Accept an incoming challenge by ID. Requires authentication.",
+            "security": [{ "oauth2": [] }],
+            "parameters": [
+              {
+                "name": "challengeId",
+                "in": "path",
+                "required": true,
+                "schema": { "type": "string" },
+                "description": "The challenge ID to accept"
+              }
+            ],
+            "responses": {
+              "200": { "description": "Challenge accepted" },
+              "401": { "description": "Not authenticated" },
+              "404": { "description": "Challenge not found" }
+            }
+          }
+        },
+        "/api/challenges/{challengeId}/decline": {
+          "post": {
+            "tags": ["Challenges"],
+            "summary": "Decline a challenge",
+            "description": "Decline an incoming challenge by ID. Requires authentication.",
+            "security": [{ "oauth2": [] }],
+            "parameters": [
+              {
+                "name": "challengeId",
+                "in": "path",
+                "required": true,
+                "schema": { "type": "string" },
+                "description": "The challenge ID to decline"
+              }
+            ],
+            "responses": {
+              "200": { "description": "Challenge declined" },
+              "401": { "description": "Not authenticated" },
+              "404": { "description": "Challenge not found" }
+            }
+          }
+        },
+        "/api/tournament/{tournamentId}/games": {
+          "get": {
+            "tags": ["Tournaments"],
+            "summary": "Get games from a tournament",
+            "description": "Download all games from a specific tournament in NDJSON format.",
+            "parameters": [
+              {
+                "name": "tournamentId",
+                "in": "path",
+                "required": true,
+                "schema": { "type": "string" },
+                "description": "The tournament ID"
+              }
+            ],
+            "responses": {
+              "200": { "description": "Tournament games as NDJSON" },
+              "404": { "description": "Tournament not found" }
+            }
+          }
+        }
+      },
+      "components": {
+        "securitySchemes": {
+          "oauth2": {
+            "type": "oauth2",
+            "description": "Sign in via Lichess, Lishogi, Google, or Discord at pychess.org",
+            "flows": {
+              "authorizationCode": {
+                "authorizationUrl": "https://www.pychess.org/login",
+                "tokenUrl": "https://www.pychess.org/oauth/token",
+                "scopes": {}
+              }
+            }
+          }
+        }
+      }
+    }
+    </script>
+    <!--
+      TODO (backend): expose a real OpenAPI spec at /openapi.json.
+      Once available, replace the inline <script type="application/json"> block above
+      with a single data-url attribute on the existing script tag:
+
+        <script id="api-reference" data-url="/openapi.json"></script>
+
+      aiohttp-swagger3 or a hand-written aiohttp route returning the OpenAPI JSON both work.
+      The Scalar UI will pick it up automatically — no other changes needed.
+    -->
+    <script>
+      document.getElementById('api-reference').dataset.configuration = JSON.stringify({
+        theme: 'default',
+        layout: 'modern',
+        defaultHttpClient: { targetKey: 'js', clientKey: 'fetch' },
+        metaData: {
+          title: 'PyChess API Reference',
+          ogDescription: 'HTTP API for PyChess, the free chess variants server.',
+          ogTitle: 'PyChess API Reference'
+        }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  </body>
+</html>
