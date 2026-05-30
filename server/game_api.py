@@ -10,6 +10,7 @@ from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp_sse import sse_response
 import pymongo
 from pymongo.errors import BulkWriteError
+from aiohttp_swagger3 import swagger_doc
 
 from compress import C2R, decode_move_standard
 from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM, SSE_GET_TIMEOUT, SWISS
@@ -651,6 +652,7 @@ async def get_games(request: web.Request) -> web.StreamResponse:
     )
 
 
+@swagger_doc("docs/api/export_user_pgn.yaml")
 async def export(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profileId = request.match_info.get("profileId")

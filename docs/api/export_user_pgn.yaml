@@ -1,0 +1,109 @@
+summary: Export user games as PGN
+description: >
+  Streams the authenticated user's games in PGN format.
+
+  The requester must be logged in as the same user as `profileId`, unless the
+  requester is an administrator. The response is streamed as PGN text and may
+  contain multiple games.
+
+tags:
+  - Games
+
+operationId: exportUserGamesPgn
+
+parameters:
+  - name: profileId
+    in: path
+    required: true
+    description: Username/profile id whose games should be exported.
+    schema:
+      type: string
+    example: gbtami
+
+  - name: max
+    in: query
+    required: false
+    description: >
+      Maximum number of latest games to export. Must be a positive integer.
+      If omitted, all matching games are exported.
+    schema:
+      type: integer
+      minimum: 1
+    example: 100
+
+  - name: filter
+    in: query
+    required: false
+    description: >
+      Optional game filter. If omitted, all games are exported.
+    schema:
+      type: string
+      enum:
+        - all
+        - win
+        - loss
+        - rated
+        - playing
+        - import
+        - me
+        - perf
+      default: all
+    example: rated
+
+  - name: variant
+    in: query
+    required: false
+    description: >
+      Variant filter, mainly useful together with filter=perf.
+      Use pychess variant names, for example chess, crazyhouse, shogi, xiangqi,
+      capablanca, or chess960-style names where supported.
+    schema:
+      type: string
+    example: chess
+
+  - name: x
+    in: query
+    required: false
+    description: >
+      Engine level filter used by some loss/performance views.
+      This is passed through to the server's existing game filtering logic.
+    schema:
+      type: integer
+      minimum: 1
+    example: 3
+
+responses:
+  "200":
+    description: >
+      PGN export stream. The body may be empty if the profile does not exist,
+      the requester is anonymous, or no games match the filters.
+    content:
+      text/pgn:
+        schema:
+          type: string
+          description: One or more PGN games concatenated into a text stream.
+        example: |
+          [Event "Rated chess game"]
+          [Site "https://www.pychess.org"]
+          [White "Alice"]
+          [Black "Bob"]
+          [Result "1-0"]
+
+          1. e4 e5 2. Nf3 Nc6 1-0
+
+  "400":
+    description: Invalid query parameter, for example max is not a positive integer.
+    content:
+      text/plain:
+        schema:
+          type: string
+        example: Query parameter 'max' must be a positive integer.
+
+  "403":
+    description: The authenticated user is not allowed to export this user's games.
+    content:
+      text/plain:
+        schema:
+          type: string
+        example: Users can only export their own games.
+

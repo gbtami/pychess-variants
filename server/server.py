@@ -18,6 +18,7 @@ import aiohttp_session
 import jinja2
 
 from pymongo import AsyncMongoClient
+from aiohttp_swagger3 import SwaggerDocs, SwaggerInfo
 
 from db_wrapper import AsyncDBWrapper
 from middlewares import (
@@ -58,7 +59,15 @@ def make_app(
     simple_cookie_storage: bool = False,
     anon_as_test_users: bool = False,
 ) -> Application:
+
     app = web.Application()
+
+    swagger = SwaggerDocs(
+        app,
+        validate=False,
+        info=SwaggerInfo(title="Pychess API", version="1.0.0"),
+    )
+
     app.middlewares.append(redirect_to_https)
     app[request_protection_state_key] = RequestProtectionState()
     app.middlewares.append(request_protection_middleware)
@@ -104,11 +113,27 @@ def make_app(
     app.on_shutdown.append(shutdown)
     app.on_cleanup.append(close_mongodb_client)
 
+    async def openapi_json(request):
+        return web.json_response(swagger.spec)
+
+    app.router.add_get("/openapi.json", openapi_json)
+
     # Setup routes.
     for route in get_routes:
-        app.router.add_get(route[0], route[1], allow_head=False)
+        path, handler = route
+        if path == "/api/games/user/{profileId}/pgn":
+            swagger.add_get(
+                path,
+                handler,
+                allow_head=False,
+            )
+        else:
+            app.router.add_get(path, handler, allow_head=False)
+
     for route in post_routes:
-        app.router.add_post(route[0], route[1])
+        path, handler = route
+        app.router.add_post(path, handler)
+
     app.router.add_static("/static", "static", append_version=True)
     app.middlewares.append(handle_404)
 
