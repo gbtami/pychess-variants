@@ -81,7 +81,7 @@ class PushNotifier:
 
         self.vapid_private_key = private_key
         self.vapid_public_key = PUSH_VAPID_PUBLIC_KEY.strip()
-        self.vapid_claims = {"sub": PUSH_VAPID_SUBJECT}
+        self.vapid_claims: dict[str, str | int] = {"sub": PUSH_VAPID_SUBJECT}
         self.retry_attempts = PUSH_RETRY_MAX_ATTEMPTS
         self.retry_wait_initial_seconds = PUSH_RETRY_WAIT_INITIAL_SECONDS
         self.retry_wait_max_seconds = PUSH_RETRY_WAIT_MAX_SECONDS
@@ -219,6 +219,10 @@ class PushNotifier:
     async def _send_with_retry(self, subscription_info: dict, payload: str) -> None:
         """Send push payload with bounded retry for transient errors only."""
 
+        send_webpush = webpush
+        if send_webpush is None:
+            raise RuntimeError("pywebpush is not available")
+
         async for attempt in AsyncRetrying(
             stop=stop_after_attempt(self.retry_attempts),
             wait=wait_exponential_jitter(
@@ -233,7 +237,7 @@ class PushNotifier:
             with attempt:
                 try:
                     await asyncio.to_thread(
-                        webpush,
+                        send_webpush,
                         subscription_info=subscription_info,
                         data=payload,
                         vapid_private_key=self.vapid_private_key,
