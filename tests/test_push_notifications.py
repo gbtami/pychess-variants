@@ -1,4 +1,3 @@
-import asyncio
 import json
 import time
 import unittest
@@ -187,6 +186,9 @@ class PushSubscribeTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         notifier = app_state.push_notifier
         notifier.enabled = True
+        notifier.retry_wait_initial_seconds = 0.0
+        notifier.retry_wait_max_seconds = 0.0
+        notifier.retry_wait_jitter_seconds = 0.0
 
         await app_state.db.push_subscription.insert_one(
             {
@@ -199,13 +201,15 @@ class PushSubscribeTestCase(AioHTTPTestCase):
         )
 
         original_webpush = push_notifications.webpush
+        calls = {"count": 0}
         try:
 
             def fail_webpush(*args, **kwargs):
+                calls["count"] += 1
                 raise RuntimeError("temporary failure")
 
             push_notifications.webpush = fail_webpush
-            should_retry = await notifier._deliver_corr_move(
+            await notifier._deliver_corr_move(
                 push_notifications.CorrMovePushJob(
                     username="retry_user",
                     game_id="abcd1234",
@@ -216,12 +220,15 @@ class PushSubscribeTestCase(AioHTTPTestCase):
         finally:
             push_notifications.webpush = original_webpush
 
-        self.assertTrue(should_retry)
+        self.assertEqual(calls["count"], notifier.retry_attempts)
 
     async def test_deliver_skips_retry_when_at_least_one_send_succeeds(self):
         app_state = get_app_state(self.app)
         notifier = app_state.push_notifier
         notifier.enabled = True
+        notifier.retry_wait_initial_seconds = 0.0
+        notifier.retry_wait_max_seconds = 0.0
+        notifier.retry_wait_jitter_seconds = 0.0
 
         await app_state.db.push_subscription.insert_many(
             [
@@ -248,11 +255,12 @@ class PushSubscribeTestCase(AioHTTPTestCase):
 
             def mixed_webpush(*args, **kwargs):
                 calls["count"] += 1
-                if calls["count"] == 2:
+                endpoint = str(kwargs.get("subscription_info", {}).get("endpoint", ""))
+                if endpoint.endswith("/fail"):
                     raise RuntimeError("temporary failure")
 
             push_notifications.webpush = mixed_webpush
-            should_retry = await notifier._deliver_corr_move(
+            await notifier._deliver_corr_move(
                 push_notifications.CorrMovePushJob(
                     username="mixed_user",
                     game_id="abcd1234",
@@ -263,36 +271,7 @@ class PushSubscribeTestCase(AioHTTPTestCase):
         finally:
             push_notifications.webpush = original_webpush
 
-        self.assertEqual(calls["count"], 2)
-        self.assertFalse(should_retry)
-
-    async def test_schedule_retry_enqueues_incremented_attempt(self):
-        app_state = get_app_state(self.app)
-        notifier = app_state.push_notifier
-        notifier.enabled = True
-
-        original_base_delay = push_notifications.PUSH_RETRY_BASE_DELAY_SECONDS
-        original_max_delay = push_notifications.PUSH_RETRY_MAX_DELAY_SECONDS
-        try:
-            push_notifications.PUSH_RETRY_BASE_DELAY_SECONDS = 0.0
-            push_notifications.PUSH_RETRY_MAX_DELAY_SECONDS = 0.0
-            notifier._schedule_retry(
-                push_notifications.CorrMovePushJob(
-                    username="retry_schedule",
-                    game_id="abcd1234",
-                    opponent="opp",
-                    san="e4",
-                    attempt=0,
-                )
-            )
-            await asyncio.sleep(0)
-            await asyncio.sleep(0)
-        finally:
-            push_notifications.PUSH_RETRY_BASE_DELAY_SECONDS = original_base_delay
-            push_notifications.PUSH_RETRY_MAX_DELAY_SECONDS = original_max_delay
-
-        job = notifier.queue.get_nowait()
-        self.assertEqual(job.attempt, 1)
+        self.assertEqual(calls["count"], 1 + notifier.retry_attempts)
 
 
 if __name__ == "__main__":

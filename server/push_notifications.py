@@ -10,6 +10,13 @@ from typing import TYPE_CHECKING
 
 import aiohttp_session
 from aiohttp import web
+from tenacity import (
+    AsyncRetrying,
+    before_sleep_log,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential_jitter,
+)
 
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
@@ -30,9 +37,10 @@ except ImportError:  # pragma: no cover - covered via config fallback in runtime
 PUSH_SUBSCRIPTION_COLLECTION = "push_subscription"
 PUSH_QUEUE_MAXSIZE = 2048
 MAX_SUBSCRIPTIONS_PER_USER = 5
-PUSH_RETRY_BASE_DELAY_SECONDS = 5.0
-PUSH_RETRY_MAX_DELAY_SECONDS = 60.0
 PUSH_RETRY_MAX_ATTEMPTS = 3
+PUSH_RETRY_WAIT_INITIAL_SECONDS = 1.0
+PUSH_RETRY_WAIT_MAX_SECONDS = 30.0
+PUSH_RETRY_WAIT_JITTER_SECONDS = 0.5
 RETRYABLE_PUSH_STATUS_CODES = {408, 425, 429, 500, 502, 503, 504}
 
 
@@ -42,7 +50,12 @@ class CorrMovePushJob:
     game_id: str
     opponent: str
     san: str
-    attempt: int = 0
+
+
+class PushSendRetryableError(Exception):
+    def __init__(self, message: str, *, status_code: int | None = None) -> None:
+        super().__init__(message)
+        self.status_code = status_code
 
 
 class PushNotifier:
@@ -57,6 +70,10 @@ class PushNotifier:
         self.vapid_private_key = private_key
         self.vapid_public_key = PUSH_VAPID_PUBLIC_KEY.strip()
         self.vapid_claims = {"sub": PUSH_VAPID_SUBJECT}
+        self.retry_attempts = PUSH_RETRY_MAX_ATTEMPTS
+        self.retry_wait_initial_seconds = PUSH_RETRY_WAIT_INITIAL_SECONDS
+        self.retry_wait_max_seconds = PUSH_RETRY_WAIT_MAX_SECONDS
+        self.retry_wait_jitter_seconds = PUSH_RETRY_WAIT_JITTER_SECONDS
         self.enabled = (
             self.app_state.db is not None
             and bool(self.vapid_private_key)
@@ -98,9 +115,7 @@ class PushNotifier:
         while True:
             job = await self.queue.get()
             try:
-                should_retry = await self._deliver_corr_move(job)
-                if should_retry:
-                    self._schedule_retry(job)
+                await self._deliver_corr_move(job)
             except asyncio.CancelledError:
                 raise
             except Exception:
@@ -108,16 +123,16 @@ class PushNotifier:
             finally:
                 self.queue.task_done()
 
-    async def _deliver_corr_move(self, job: CorrMovePushJob) -> bool:
+    async def _deliver_corr_move(self, job: CorrMovePushJob) -> None:
         if self.app_state.db is None or webpush is None:
-            return False
+            return
 
         cursor = self.app_state.db[PUSH_SUBSCRIPTION_COLLECTION].find({"user": job.username})
         cursor.sort("seenAt", -1)
         cursor.limit(MAX_SUBSCRIPTIONS_PER_USER)
         subscriptions = await cursor.to_list(length=MAX_SUBSCRIPTIONS_PER_USER)
         if len(subscriptions) == 0:
-            return False
+            return
 
         payload = json.dumps(
             {
@@ -132,8 +147,6 @@ class PushNotifier:
         )
 
         stale_endpoints: list[str] = []
-        sent_count = 0
-        transient_failure_count = 0
         for subscription in subscriptions:
             endpoint = str(subscription.get("endpoint", ""))
             auth = str(subscription.get("auth", ""))
@@ -150,26 +163,11 @@ class PushNotifier:
             }
 
             try:
-                await asyncio.to_thread(
-                    webpush,
-                    subscription_info=subscription_info,
-                    data=payload,
-                    vapid_private_key=self.vapid_private_key,
-                    vapid_claims=self.vapid_claims,
-                )
-                sent_count += 1
+                await self._send_with_retry(subscription_info, payload)
             except WebPushException as exc:
                 status_code = getattr(getattr(exc, "response", None), "status_code", None)
                 if status_code in (404, 410):
                     stale_endpoints.append(endpoint)
-                elif status_code in RETRYABLE_PUSH_STATUS_CODES:
-                    transient_failure_count += 1
-                    log.warning(
-                        "Push send transient failure for %s endpoint=%s status=%s",
-                        job.username,
-                        endpoint,
-                        status_code,
-                    )
                 else:
                     log.warning(
                         "Push send failed for %s endpoint=%s status=%s",
@@ -177,8 +175,14 @@ class PushNotifier:
                         endpoint,
                         status_code,
                     )
+            except PushSendRetryableError as exc:
+                log.warning(
+                    "Push send transient failure for %s endpoint=%s status=%s",
+                    job.username,
+                    endpoint,
+                    exc.status_code,
+                )
             except Exception:
-                transient_failure_count += 1
                 log.exception("Unexpected push send failure for %s", job.username)
 
         if len(stale_endpoints) > 0:
@@ -188,44 +192,38 @@ class PushNotifier:
                     "endpoint": {"$in": stale_endpoints},
                 }
             )
-        return sent_count == 0 and transient_failure_count > 0
 
-    def _schedule_retry(self, job: CorrMovePushJob) -> None:
-        if job.attempt >= PUSH_RETRY_MAX_ATTEMPTS:
-            log.warning(
-                "Push send exhausted retries for %s game=%s attempts=%s",
-                job.username,
-                job.game_id,
-                job.attempt,
-            )
-            return
-
-        retry_job = CorrMovePushJob(
-            username=job.username,
-            game_id=job.game_id,
-            opponent=job.opponent,
-            san=job.san,
-            attempt=job.attempt + 1,
-        )
-        delay = min(
-            PUSH_RETRY_MAX_DELAY_SECONDS,
-            PUSH_RETRY_BASE_DELAY_SECONDS * (2**job.attempt),
-        )
-        self.app_state.create_background_task(
-            self._enqueue_after_delay(retry_job, delay),
-            name=f"push-retry-{job.username}-{retry_job.attempt}",
-        )
-
-    async def _enqueue_after_delay(self, job: CorrMovePushJob, delay_seconds: float) -> None:
-        await asyncio.sleep(delay_seconds)
-        try:
-            self.queue.put_nowait(job)
-        except asyncio.QueueFull:
-            log.warning(
-                "Push queue full; dropping corr move push retry for %s attempt=%s",
-                job.username,
-                job.attempt,
-            )
+    async def _send_with_retry(self, subscription_info: dict, payload: str) -> None:
+        async for attempt in AsyncRetrying(
+            stop=stop_after_attempt(self.retry_attempts),
+            wait=wait_exponential_jitter(
+                initial=self.retry_wait_initial_seconds,
+                max=self.retry_wait_max_seconds,
+                jitter=self.retry_wait_jitter_seconds,
+            ),
+            retry=retry_if_exception_type(PushSendRetryableError),
+            before_sleep=before_sleep_log(log, logging.WARNING),
+            reraise=True,
+        ):
+            with attempt:
+                try:
+                    await asyncio.to_thread(
+                        webpush,
+                        subscription_info=subscription_info,
+                        data=payload,
+                        vapid_private_key=self.vapid_private_key,
+                        vapid_claims=self.vapid_claims,
+                    )
+                except WebPushException as exc:
+                    status_code = getattr(getattr(exc, "response", None), "status_code", None)
+                    if status_code in RETRYABLE_PUSH_STATUS_CODES:
+                        raise PushSendRetryableError(
+                            "Retryable web push failure",
+                            status_code=status_code,
+                        ) from exc
+                    raise
+                except Exception as exc:
+                    raise PushSendRetryableError("Retryable push delivery failure") from exc
 
 
 async def service_worker(request: web.Request) -> web.StreamResponse:
