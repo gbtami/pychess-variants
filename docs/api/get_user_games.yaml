@@ -1,0 +1,99 @@
+summary: Query user games as JSON
+description: >
+  Returns games for a profile in JSON format with optional filters.
+
+  The requester must be logged in (anonymous sessions receive an empty object).
+  Unknown profiles also return an empty object after a short delay.
+
+tags:
+  - Games
+
+operationId: getUserGamesJson
+
+parameters:
+  - name: profileId
+    in: path
+    required: true
+    description: Username/profile id whose games should be queried.
+    schema:
+      type: string
+    example: gbtami
+
+  - name: p
+    in: query
+    required: false
+    description: Zero-based page number for paginated responses.
+    schema:
+      type: integer
+      minimum: 0
+      default: 0
+    example: 0
+
+  - name: max
+    in: query
+    required: false
+    description: >
+      Maximum number of latest games to return. Must be a positive integer.
+      When omitted, pagination with `p` is used.
+    schema:
+      type: integer
+      minimum: 1
+    example: 50
+
+  - name: filter
+    in: query
+    required: false
+    description: Optional game filter. Defaults to `all`.
+    schema:
+      type: string
+      enum:
+        - all
+        - win
+        - loss
+        - rated
+        - playing
+        - import
+        - me
+        - perf
+      default: all
+    example: rated
+
+  - name: variant
+    in: query
+    required: false
+    description: Variant filter used primarily with `filter=perf`.
+    schema:
+      type: string
+    example: chess
+
+  - name: x
+    in: query
+    required: false
+    description: Engine level filter used by some loss/performance views.
+    schema:
+      type: integer
+      minimum: 1
+    example: 3
+
+responses:
+  "200":
+    description: >
+      Matching games in JSON format. The response may also be `{}` for anonymous
+      sessions or unknown profiles.
+    content:
+      application/json:
+        schema:
+          oneOf:
+            - type: array
+              items:
+                type: object
+            - type: object
+              additionalProperties: true
+
+  "400":
+    description: Invalid query parameter, for example invalid filter or max.
+    content:
+      text/plain:
+        schema:
+          type: string
+        example: "Query parameter 'filter' must be one of: all, win, loss, rated, playing, import, me, perf."

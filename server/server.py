@@ -119,9 +119,13 @@ def make_app(
     app.router.add_get("/openapi.json", openapi_json)
 
     # Setup routes.
+    swagger_get_routes = {
+        "/api/games/user/{profileId}",
+        "/api/games/user/{profileId}/pgn",
+    }
     for route in get_routes:
         path, handler = route
-        if path == "/api/games/user/{profileId}/pgn":
+        if path in swagger_get_routes:
             swagger.add_get(
                 path,
                 handler,

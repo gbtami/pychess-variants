@@ -402,6 +402,7 @@ def _apply_category_filter(
     return {"$and": [filter_cond, {"v": {"$in": list(allowed_codes)}}]}
 
 
+@swagger_doc("docs/api/get_user_games.yaml")
 async def get_user_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profileId = request.match_info.get("profileId")
@@ -652,74 +653,12 @@ async def get_games(request: web.Request) -> web.StreamResponse:
     )
 
 
-@swagger_doc("docs/api/export_user_pgn.yaml")
-async def export(request: web.Request) -> web.StreamResponse:
-    app_state = get_app_state(request.app)
-    profileId = request.match_info.get("profileId")
-    if profileId is not None:
-        public_profile = await app_state.public_users.get_profile(profileId)
-        if public_profile is None:
-            await asyncio.sleep(3)
-            return web.Response(text="")
-
-    tournamentId = request.match_info.get("tournamentId")
-    # Who made the request?
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-
+async def _stream_pgn_cursor(
+    request: web.Request, cursor: object, *, disconnect_message: str
+) -> web.StreamResponse:
     game_counter = 0
     failed = 0
     failed_games: list[str] = []
-    cursor = None
-
-    if profileId is not None:
-        requester = await app_state.users.get(session_user)
-        if requester.anon:
-            await asyncio.sleep(3)
-            return web.Response(text="")
-        if session_user != profileId and session_user not in ADMINS:
-            raise web.HTTPForbidden(text="Users can only export their own games.")
-
-        selected_filter, selected_variant, _path_parts = _resolve_user_games_filter_and_variant(
-            request
-        )
-        level = request.rel_url.query.get("x")
-        filter_cond = _build_user_games_filter_cond(
-            profile_id=profileId,
-            session_user=session_user,
-            selected_filter=selected_filter,
-            selected_variant=selected_variant,
-            level=level,
-        )
-        if filter_cond is None:
-            return web.Response(text="")
-
-        filter_cond = _apply_category_filter(filter_cond, requester)
-        if filter_cond is None:
-            return web.Response(text="")
-
-        latest_games = _parse_positive_int_query_param(request, "max")
-        cursor = app_state.db.game.find(filter_cond).sort("d", -1)
-        if latest_games is not None:
-            cursor = cursor.limit(latest_games)
-    elif tournamentId is not None:
-        cursor = app_state.db.game.find({"tid": tournamentId})
-    elif session_user in ADMINS:
-        yearmonth = request.match_info.get("yearmonth")
-        if TYPE_CHECKING:
-            assert yearmonth is not None
-        log.debug("yearmonth: %r %r", yearmonth[:4], yearmonth[4:])
-        filter_cond = {
-            "$and": [
-                {"$expr": {"s": {"$gt": STARTED}}},  # prevent leaking ongoing fogofwar game info
-                {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
-                {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
-            ]
-        }
-        cursor = app_state.db.game.find(filter_cond)
-
-    if cursor is None:
-        return web.Response(text="")
 
     response = web.StreamResponse()
     response.content_type = "text/pgn"
@@ -729,14 +668,12 @@ async def export(request: web.Request) -> web.StreamResponse:
         async for doc in cursor:
             game_counter += 1
             try:
-                # print(game_counter)
-                # log.info("%s %s %s" % (doc["d"].strftime("%Y.%m.%d"), doc["_id"], C2V[doc["v"]]))
                 pgn_text = pgn(doc)
                 if pgn_text is not None:
                     await response.write(pgn_text.encode())
                     await asyncio.sleep(0)
             except (ConnectionResetError, ClientConnectionResetError):
-                log.debug("Client disconnected during PGN export stream.")
+                log.debug("%s", disconnect_message)
                 break
             except Exception:
                 failed += 1
@@ -752,12 +689,102 @@ async def export(request: web.Request) -> web.StreamResponse:
                 "; ".join(failed_games),
             )
     except (ConnectionResetError, ClientConnectionResetError):
-        log.debug("Client disconnected during PGN export.")
+        log.debug("%s", disconnect_message)
     except Exception:
         log.exception("An unexpected error occurred: ")
     finally:
         await safe_write_eof(response)
     return response
+
+
+@swagger_doc("docs/api/export_user_pgn.yaml")
+async def export_user_pgn(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    profileId = request.match_info.get("profileId")
+    if profileId is not None:
+        public_profile = await app_state.public_users.get_profile(profileId)
+        if public_profile is None:
+            await asyncio.sleep(3)
+            return web.Response(text="")
+    if TYPE_CHECKING:
+        assert profileId is not None
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    requester = await app_state.users.get(session_user)
+    if requester.anon:
+        await asyncio.sleep(3)
+        return web.Response(text="")
+    if session_user != profileId and session_user not in ADMINS:
+        raise web.HTTPForbidden(text="Users can only export their own games.")
+
+    selected_filter, selected_variant, _path_parts = _resolve_user_games_filter_and_variant(request)
+    level = request.rel_url.query.get("x")
+    filter_cond = _build_user_games_filter_cond(
+        profile_id=profileId,
+        session_user=session_user,
+        selected_filter=selected_filter,
+        selected_variant=selected_variant,
+        level=level,
+    )
+    if filter_cond is None:
+        return web.Response(text="")
+
+    filter_cond = _apply_category_filter(filter_cond, requester)
+    if filter_cond is None:
+        return web.Response(text="")
+
+    latest_games = _parse_positive_int_query_param(request, "max")
+    cursor = app_state.db.game.find(filter_cond).sort("d", -1)
+    if latest_games is not None:
+        cursor = cursor.limit(latest_games)
+
+    return await _stream_pgn_cursor(
+        request,
+        cursor,
+        disconnect_message="Client disconnected during user PGN export.",
+    )
+
+
+async def export_tournament_pgn(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    tournament_id = request.match_info.get("tournamentId")
+    if tournament_id is None:
+        return web.Response(text="")
+
+    cursor = app_state.db.game.find({"tid": tournament_id})
+    return await _stream_pgn_cursor(
+        request,
+        cursor,
+        disconnect_message="Client disconnected during tournament PGN export.",
+    )
+
+
+async def export_monthly_pgn(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    if session_user not in ADMINS:
+        return web.Response(text="")
+
+    yearmonth = request.match_info.get("yearmonth")
+    if yearmonth is None:
+        return web.Response(text="")
+
+    log.debug("yearmonth: %r %r", yearmonth[:4], yearmonth[4:])
+    filter_cond = {
+        "$and": [
+            {"$expr": {"s": {"$gt": STARTED}}},  # prevent leaking ongoing fogofwar game info
+            {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
+            {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
+        ]
+    }
+    cursor = app_state.db.game.find(filter_cond)
+    return await _stream_pgn_cursor(
+        request,
+        cursor,
+        disconnect_message="Client disconnected during monthly PGN export.",
+    )
 
 
 async def export_tournament_trf(request: web.Request) -> web.StreamResponse:
