@@ -73,6 +73,8 @@ class PushNotifier:
             return
         if user.anon or user.bot:
             return
+        if not user.corr_push_enabled:
+            return
         if user.is_user_active_in_game(game_id) or user.is_user_active_in_lobby():
             return
 

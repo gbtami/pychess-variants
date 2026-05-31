@@ -156,6 +156,7 @@ function zenModeSettingsView() {
 
 function privacySettingsView() {
     const pmFriendsOnly = getDocumentData('pm-friends-only') === 'True';
+    const corrPushEnabled = getDocumentData('corr-push-enabled') !== 'False';
     return h('div#settings-privacy', [
         backButton(_("Privacy")),
         h('div', [
@@ -171,6 +172,18 @@ function privacySettingsView() {
                 }),
                 h('span', _('Only friends can message me')),
             ]),
+            h('label.switch', [
+                h('input#corr-push-enabled', {
+                    attrs: { type: 'checkbox', checked: corrPushEnabled },
+                    on: {
+                        change: (evt: Event) => {
+                            const next = (evt.target as HTMLInputElement).checked;
+                            setCorrPushEnabled(next);
+                        },
+                    },
+                }),
+                h('span', _('Correspondence move push notifications')),
+            ]),
         ]),
     ]);
 }
@@ -183,6 +196,17 @@ function setPmFriendsOnly(value: boolean) {
         body: payload.toString(),
     }).catch((error) => {
         console.warn('Failed to update PM privacy setting.', error);
+    });
+}
+
+function setCorrPushEnabled(value: boolean) {
+    const payload = new URLSearchParams({ corr_push: value ? 'true' : 'false' });
+    fetch('/pref/corr-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body: payload.toString(),
+    }).catch((error) => {
+        console.warn('Failed to update correspondence push setting.', error);
     });
 }
 
