@@ -53,6 +53,8 @@ export async function initPushSubscription(anon: string, vapidPublicKey: string)
     }
 
     const lastSyncedKey = 'push-subscribed';
+    // Keep subscription metadata in sync periodically in case browser keys rotate
+    // or a service worker update invalidates stored endpoint details server-side.
     const syncWindowMs = 12 * 60 * 60 * 1000;
     const stored = Number(localStorage.getItem(lastSyncedKey) || 0);
     const needsResync = stored + syncWindowMs < Date.now();
@@ -99,6 +101,8 @@ export async function disablePushSubscription(): Promise<void> {
     }
 
     try {
+        // Iterate all registrations so we clean up even if a browser keeps multiple
+        // service worker registrations during updates.
         const registrations = await navigator.serviceWorker.getRegistrations();
         for (const registration of registrations) {
             const existingSubscription = await registration.pushManager.getSubscription();

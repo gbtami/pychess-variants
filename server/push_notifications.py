@@ -1,3 +1,11 @@
+"""Web push notifications for correspondence moves.
+
+Design notes for contributors:
+- Move handling only enqueues lightweight jobs; network I/O runs in a background worker.
+- Delivery is best-effort. We retry transient failures, keep bounded subscriptions per user,
+  and prune stale endpoints reported by push services.
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -46,6 +54,8 @@ RETRYABLE_PUSH_STATUS_CODES = {408, 425, 429, 500, 502, 503, 504}
 
 @dataclass(frozen=True)
 class CorrMovePushJob:
+    """Minimal payload needed to build a turn notification."""
+
     username: str
     game_id: str
     opponent: str
@@ -53,6 +63,8 @@ class CorrMovePushJob:
 
 
 class PushSendRetryableError(Exception):
+    """Raised for retryable delivery failures handled by tenacity."""
+
     def __init__(self, message: str, *, status_code: int | None = None) -> None:
         super().__init__(message)
         self.status_code = status_code
@@ -91,6 +103,8 @@ class PushNotifier:
             log.info("Web push disabled: PUSH_VAPID_PRIVATE_KEY is not configured")
 
     def enqueue_corr_move(self, user: User, game_id: str, opponent: str, san: str) -> None:
+        """Queue a corr-move notification when the user is eligible."""
+
         if not self.enabled:
             return
         if user.anon or user.bot:
@@ -112,6 +126,8 @@ class PushNotifier:
             log.warning("Push queue full; dropping corr move push for %s", user.username)
 
     async def run(self) -> None:
+        """Long-running worker consuming queued push jobs."""
+
         while True:
             job = await self.queue.get()
             try:
@@ -124,6 +140,12 @@ class PushNotifier:
                 self.queue.task_done()
 
     async def _deliver_corr_move(self, job: CorrMovePushJob) -> None:
+        """Deliver one job across recent user subscriptions.
+
+        We intentionally continue per endpoint on errors so one bad subscription
+        does not block sends to other devices.
+        """
+
         if self.app_state.db is None or webpush is None:
             return
 
@@ -167,6 +189,7 @@ class PushNotifier:
             except WebPushException as exc:
                 status_code = getattr(getattr(exc, "response", None), "status_code", None)
                 if status_code in (404, 410):
+                    # Endpoint is gone; remove it after this loop.
                     stale_endpoints.append(endpoint)
                 else:
                     log.warning(
@@ -194,6 +217,8 @@ class PushNotifier:
             )
 
     async def _send_with_retry(self, subscription_info: dict, payload: str) -> None:
+        """Send push payload with bounded retry for transient errors only."""
+
         async for attempt in AsyncRetrying(
             stop=stop_after_attempt(self.retry_attempts),
             wait=wait_exponential_jitter(
@@ -217,6 +242,7 @@ class PushNotifier:
                 except WebPushException as exc:
                     status_code = getattr(getattr(exc, "response", None), "status_code", None)
                     if status_code in RETRYABLE_PUSH_STATUS_CODES:
+                        # Push providers can temporarily reject requests (rate limit/5xx).
                         raise PushSendRetryableError(
                             "Retryable web push failure",
                             status_code=status_code,
@@ -227,6 +253,8 @@ class PushNotifier:
 
 
 async def service_worker(request: web.Request) -> web.StreamResponse:
+    """Serve service worker from app root so scope works for all pages."""
+
     sw_path = Path(__file__).resolve().parent.parent / "static" / "service-worker.js"
     return web.FileResponse(
         sw_path,
@@ -238,6 +266,8 @@ async def service_worker(request: web.Request) -> web.StreamResponse:
 
 
 async def push_subscribe(request: web.Request) -> web.StreamResponse:
+    """Upsert a browser push subscription for the authenticated user."""
+
     app_state = get_app_state(request.app)
     if app_state.db is None:
         return json_response({"error": "Push service unavailable."}, status=503)
@@ -313,6 +343,8 @@ async def push_subscribe(request: web.Request) -> web.StreamResponse:
 
 
 async def push_unsubscribe(request: web.Request) -> web.StreamResponse:
+    """Remove one endpoint subscription, or all user subscriptions as fallback."""
+
     app_state = get_app_state(request.app)
     if app_state.db is None:
         return json_response({"error": "Push service unavailable."}, status=503)

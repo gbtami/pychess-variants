@@ -210,11 +210,13 @@ function setCorrPushEnabled(value: boolean) {
         if (!response.ok) throw new Error(`corr push pref failed: ${response.status}`);
 
         if (value) {
+            // Persist preference first, then sync/create browser subscription.
             const anon = getDocumentData('anon') ?? 'True';
             const vapidPublicKey = getDocumentData('vapid') ?? '';
             await initPushSubscription(anon, vapidPublicKey);
             return;
         }
+        // Disable path removes both server-side endpoint and browser subscription.
         await disablePushSubscription();
     }).catch((error) => {
         console.warn('Failed to update correspondence push setting.', error);
