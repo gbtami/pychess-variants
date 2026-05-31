@@ -178,22 +178,23 @@ function loadGames(model: PyChessModel, page: number) {
     const lang = languageSettings.value;
 
     const xmlhttp = new XMLHttpRequest();
-    let url = "/api/" + model["profileid"]
+    const params = new URLSearchParams({ l: lang, p: String(page) });
     if (model.level) {
-        url = `${url}/loss?l=${lang}&x=8&p=`;
+        params.set("filter", "loss");
+        params.set("x", "8");
     } else if (model.variant) {
-        url = `${url}/perf/${model.variant}?l=${lang}&p=`;
+        params.set("filter", "perf");
+        params.set("variant", model.variant);
     } else if (model.rated === "1") {
-        url = `${url}/rated?l=${lang}&p=`;
+        params.set("filter", "rated");
     } else if (model.rated === "2") {
-        url = `${url}/import?l=${lang}&p=`;
+        params.set("filter", "import");
     } else if (model.rated === "-2") {
-        url = `${url}/playing?l=${lang}&p=`;
+        params.set("filter", "playing");
     } else if (model.rated === "-1") {
-        url = `${url}/me?l=${lang}&p=`;
-    } else {
-        url = `${url}/all?l=${lang}&p=`;
+        params.set("filter", "me");
     }
+    const url = `/api/games/user/${encodeURIComponent(model["profileid"])}?${params.toString()}`;
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
@@ -209,7 +210,7 @@ function loadGames(model: PyChessModel, page: number) {
             renderTimeago();
         }
     };
-    xmlhttp.open("GET", `${url}${page}`, true);
+    xmlhttp.open("GET", url, true);
     xmlhttp.send();
 }
 

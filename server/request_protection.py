@@ -173,10 +173,6 @@ class RequestProtectionState:
             # than static API endpoints.
             if len(parts) >= 4 and parts[2] not in self._STATIC_API_SEGMENTS:
                 return self._PROFILE_API_LIMIT
-        if path.startswith("/games/export/"):
-            return self._EXPORT_LIMIT
-        if path.startswith("/games/json/"):
-            return self._PROFILE_API_LIMIT
         if (
             path.startswith("/invite/")
             or path.startswith("/embed/")

@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, patch
 import test_logger
 from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp.test_utils import AioHTTPTestCase
+from bson.int64 import Int64
 from mongomock_motor import AsyncMongoMockClient
 from pymongo.errors import BulkWriteError
 
@@ -149,7 +150,7 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         self.assertIn(self.profile_probe, await response.text())
         self.assertNotIn(self.profile_probe, app_state.users)
 
-        response = await self.client.get(f"/api/{self.profile_probe}/all")
+        response = await self.client.get(f"/api/games/user/{self.profile_probe}")
         self.assertEqual(response.status, 200)
         payload = await response.json()
         self.assertEqual(["profiledb1"], [item["_id"] for item in payload])
@@ -184,7 +185,9 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
     async def test_api_profile_perf_unknown_variant_returns_empty(self):
         self.set_session_user(self.user.username)
 
-        response = await self.client.get(f"/api/{self.user.username}/perf/notavariant")
+        response = await self.client.get(
+            f"/api/games/user/{self.user.username}?filter=perf&variant=notavariant"
+        )
         self.assertEqual(response.status, 200)
         payload = await response.json()
         self.assertEqual(payload, [])
@@ -351,7 +354,7 @@ class ExportPGNTestCase(AioHTTPTestCase):
             patch("game_api.log.error") as error,
             patch("game_api.log.info") as info,
         ):
-            response = await self.client.get("/games/export/testuser")
+            response = await self.client.get("/api/games/user/testuser/pgn")
             self.assertEqual(response.status, 200)
             await response.text()
 
@@ -372,7 +375,7 @@ class ExportPGNTestCase(AioHTTPTestCase):
             patch("game_api.asyncio.sleep", new=AsyncMock()) as sleep_mock,
             patch("game_api.pgn") as pgn_mock,
         ):
-            response = await self.client.get("/games/export/testuser")
+            response = await self.client.get("/api/games/user/testuser/pgn")
 
         self.assertEqual(response.status, 200)
         self.assertEqual(await response.text(), "")
@@ -383,7 +386,7 @@ class ExportPGNTestCase(AioHTTPTestCase):
         self.set_session_user("otheruser")
 
         with patch("game_api.pgn") as pgn_mock:
-            response = await self.client.get("/games/export/testuser")
+            response = await self.client.get("/api/games/user/testuser/pgn")
 
         self.assertEqual(response.status, 403)
         pgn_mock.assert_not_called()
@@ -391,7 +394,7 @@ class ExportPGNTestCase(AioHTTPTestCase):
     async def test_export_supports_latest_n_via_max_query(self):
         self.set_session_user("testuser")
         with patch("game_api.pgn", side_effect=lambda doc: f"{doc['_id']}\n"):
-            response = await self.client.get("/games/export/testuser?max=2")
+            response = await self.client.get("/api/games/user/testuser/pgn?max=2")
             self.assertEqual(response.status, 200)
             body = await response.text()
 
@@ -449,6 +452,7 @@ class UserGamesQueryParamsTestCase(AioHTTPTestCase):
                     "s": STARTED + 1,
                     "d": datetime(2025, 1, 3, tzinfo=timezone.utc),
                     "y": 1,
+                    "ts": [Int64(60000), Int64(59000)],
                 },
             ]
         )
@@ -480,6 +484,14 @@ class UserGamesQueryParamsTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         payload = await response.json()
         self.assertEqual(["g_new_win"], [item["_id"] for item in payload])
+
+    async def test_json_unified_endpoint_handles_bson_int64_fields(self):
+        self.set_session_user("testuser")
+
+        response = await self.client.get("/api/games/user/testuser?max=1")
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertEqual([60000, 59000], payload[0]["ts"])
 
     async def test_pgn_unified_endpoint_uses_same_filter_and_max(self):
         self.set_session_user("testuser")
