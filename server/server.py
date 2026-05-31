@@ -120,6 +120,8 @@ def make_app(
 
     # Setup routes.
     swagger_get_routes = {
+        "/api/games",
+        "/api/games/{variant}",
         "/api/games/user/{profileId}",
         "/api/games/user/{profileId}/pgn",
     }

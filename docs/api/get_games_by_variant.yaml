@@ -1,0 +1,60 @@
+summary: List ongoing games for a variant
+description: >
+  Returns up to the 20 most recent ongoing games for the selected variant.
+
+  Use variant names with optional `960` suffix (for example `chess` or `chess960`).
+
+tags:
+  - Games
+
+operationId: getOngoingGamesByVariant
+
+parameters:
+  - name: variant
+    in: path
+    required: true
+    description: Variant name (optionally with `960` suffix).
+    schema:
+      type: string
+    example: chess960
+
+responses:
+  "200":
+    description: Ongoing games for the requested variant.
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              gameId:
+                type: string
+              variant:
+                type: string
+              fen:
+                type: string
+              lastMove:
+                type: string
+              tp:
+                type: string
+              w:
+                type: string
+              wTitle:
+                type: string
+              b:
+                type: string
+              bTitle:
+                type: string
+              chess960:
+                type: boolean
+              base:
+                type: integer
+              inc:
+                type: integer
+              byoyomi:
+                type: integer
+              level:
+                type: integer
+              day:
+                type: integer

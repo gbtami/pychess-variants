@@ -603,7 +603,7 @@ async def subscribe_games(request: web.Request) -> web.StreamResponse:
     return response
 
 
-async def get_games(request: web.Request) -> web.StreamResponse:
+async def _get_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     games = app_state.games.values()
     variant = request.match_info.get("variant")
@@ -651,6 +651,16 @@ async def get_games(request: web.Request) -> web.StreamResponse:
             )
         ][-20:]
     )
+
+
+@swagger_doc("docs/api/get_games.yaml")
+async def get_games(request: web.Request) -> web.StreamResponse:
+    return await _get_games(request)
+
+
+@swagger_doc("docs/api/get_games_by_variant.yaml")
+async def get_games_by_variant(request: web.Request) -> web.StreamResponse:
+    return await _get_games(request)
 
 
 async def _stream_pgn_cursor(

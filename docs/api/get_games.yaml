@@ -1,0 +1,51 @@
+summary: List ongoing games
+description: >
+  Returns up to the 20 most recent ongoing games visible to the requester.
+
+  For logged-in users this list is filtered by the user's selected game category.
+
+tags:
+  - Games
+
+operationId: getOngoingGames
+
+responses:
+  "200":
+    description: Ongoing games.
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              gameId:
+                type: string
+              variant:
+                type: string
+              fen:
+                type: string
+              lastMove:
+                type: string
+              tp:
+                type: string
+              w:
+                type: string
+              wTitle:
+                type: string
+              b:
+                type: string
+              bTitle:
+                type: string
+              chess960:
+                type: boolean
+              base:
+                type: integer
+              inc:
+                type: integer
+              byoyomi:
+                type: integer
+              level:
+                type: integer
+              day:
+                type: integer
