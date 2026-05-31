@@ -19,6 +19,7 @@ interface Message {
         categ?: string;
         date?: string;
         win?: boolean | null;
+        san?: string;
     };
 }
 
@@ -68,6 +69,17 @@ function messageView(message: Message) {
                     h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
                 ]),
                 h('span', "Game vs " + content.opp),
+            ]),
+        ]);
+    case 'corrMove':
+        return h(`a.notification.corr${read}`, { attrs: { href: '/' + content.id } }, [
+            h('div.icon.icon-paper-plane'),
+            h('span.content', [
+                h('span', [
+                    h('strong', _('It is your turn')),
+                    h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                ]),
+                h('span', `${content.opp} ${_('played')} ${content.san || ''}`),
             ]),
         ]);
     case 'rrChallenge':

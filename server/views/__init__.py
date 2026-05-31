@@ -182,6 +182,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         "simuling": SIMULING,
         "admin": _is_admin_username(user.username),
         "mod_report_score": mod_report_score,
+        "vapid_public_key": app_state.push_notifier.vapid_public_key if app_state.push_notifier.enabled else "",
     }
     return (user, context)
 

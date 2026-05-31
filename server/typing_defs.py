@@ -367,6 +367,7 @@ class NotificationContent(TypedDict, total=False):
     tid: str
     arr: str
     opp: str
+    san: str
     topic: str
     slug: str
     categ: str
@@ -402,6 +403,7 @@ class ViewContext(TypedDict, total=False):
     simuling: bool
     admin: bool
     mod_report_score: int
+    vapid_public_key: str
     allusers: Sequence[User]
     anon_online: int
     blog_tag: Callable[[str], str]

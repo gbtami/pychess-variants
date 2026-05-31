@@ -218,6 +218,32 @@ class CorrJanggiGameTestCase(AioHTTPTestCase):
         self.assertEqual(doc["if"], BLUE_SETUP_FEN)
         self.assertEqual(doc["f"], C10D8_FEN)  # current FEN
 
+    async def test_corr_move_creates_notification_and_push_job(self):
+        app_state = get_app_state(self.app)
+
+        await self.create_users()
+        game = await self.new_game()
+        app_state.push_notifier.enabled = True
+
+        await simulate_setup(game, "black", RED_SETUP_FEN)
+        await simulate_setup(game, "white", BLUE_SETUP_FEN)
+
+        await game.play_move("c1d3", clocks=CLOCKS)
+
+        red_player = app_state.users["red"]
+        self.assertIsNotNone(red_player.notifications)
+        assert red_player.notifications is not None
+        self.assertEqual(red_player.notifications[-1]["type"], "corrMove")
+        self.assertEqual(red_player.notifications[-1]["content"]["id"], game.id)
+        self.assertEqual(red_player.notifications[-1]["content"]["opp"], "blue")
+        self.assertTrue(red_player.notifications[-1]["content"]["san"])
+
+        job = app_state.push_notifier.queue.get_nowait()
+        self.assertEqual(job.username, "red")
+        self.assertEqual(job.game_id, game.id)
+        self.assertEqual(job.opponent, "blue")
+        app_state.push_notifier.queue.task_done()
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

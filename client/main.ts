@@ -44,6 +44,7 @@ import { initUserMiniWidget } from './userMiniWidget';
 import { initUblogLike } from './ublogLike';
 import { initUblogMarkdown } from './ublogMarkdown';
 import { initUblogEditor } from './ublogEditor';
+import { initPushSubscription } from './push';
 
 
 // redirect to correct URL except Heroku preview/dev apps
@@ -139,6 +140,7 @@ function initModel(el: HTMLElement) {
             oauth_provider: el.getAttribute("data-oauth-provider")!,
             oauth_username: el.getAttribute("data-oauth-username")!,
         } : null,
+        pushVapidKey: el.getAttribute("data-vapid") ?? "",
     };
 }
 
@@ -244,6 +246,7 @@ function start() {
     if (model["embed"]) return;
 
     initUserMiniWidget(model.assetURL, model.username, model.anon);
+    void initPushSubscription(model.anon, model.pushVapidKey);
     initUblogLike();
     initUblogMarkdown();
     initUblogEditor();
