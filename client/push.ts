@@ -26,6 +26,21 @@ async function postSubscription(subscription: PushSubscription): Promise<void> {
     }
 }
 
+async function postUnsubscribe(endpoint: string): Promise<void> {
+    const response = await fetch('/push/unsubscribe', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ endpoint }),
+        credentials: 'same-origin',
+    });
+
+    if (!response.ok || response.redirected) {
+        throw new Error(`push unsubscribe failed: ${response.status}`);
+    }
+}
+
 export async function initPushSubscription(anon: string, vapidPublicKey: string): Promise<void> {
     if (
         anon === 'True' ||
@@ -75,5 +90,34 @@ export async function initPushSubscription(anon: string, vapidPublicKey: string)
                 // Ignore unsubscribe errors.
             }
         }
+    }
+}
+
+export async function disablePushSubscription(): Promise<void> {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        return;
+    }
+
+    try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+            const existingSubscription = await registration.pushManager.getSubscription();
+            if (!existingSubscription) continue;
+
+            try {
+                await postUnsubscribe(existingSubscription.endpoint);
+            } catch (error) {
+                console.warn('Failed to remove server-side push subscription', error);
+            }
+
+            try {
+                await existingSubscription.unsubscribe();
+            } catch (error) {
+                console.warn('Failed to remove browser push subscription', error);
+            }
+        }
+        localStorage.removeItem('push-subscribed');
+    } catch (error) {
+        console.warn('Failed to disable push subscription', error);
     }
 }

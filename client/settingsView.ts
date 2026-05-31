@@ -9,6 +9,7 @@ import { _, translatedGameCategory, translatedLanguage, languageSettings } from 
 import { volumeSettings, soundThemeSettings } from './sound';
 import { zenModeSettings } from './zen';
 import { confirmDialog } from './confirmDialog';
+import { disablePushSubscription, initPushSubscription } from './push';
 
 export function settingsView(modelVariant: string) {
     const anon = getDocumentData('anon') === 'True';
@@ -205,6 +206,16 @@ function setCorrPushEnabled(value: boolean) {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
         body: payload.toString(),
+    }).then(async (response) => {
+        if (!response.ok) throw new Error(`corr push pref failed: ${response.status}`);
+
+        if (value) {
+            const anon = getDocumentData('anon') ?? 'True';
+            const vapidPublicKey = getDocumentData('vapid') ?? '';
+            await initPushSubscription(anon, vapidPublicKey);
+            return;
+        }
+        await disablePushSubscription();
     }).catch((error) => {
         console.warn('Failed to update correspondence push setting.', error);
     });

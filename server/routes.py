@@ -96,7 +96,7 @@ from report_api import (
     report_close_account,
 )
 from mod_public_chat_api import public_chat_timeout
-from push_notifications import push_subscribe, service_worker
+from push_notifications import push_subscribe, push_unsubscribe, service_worker
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import (
@@ -365,6 +365,7 @@ post_routes: tuple[RouteDef, ...] = (
     ("/api/inbox/thread/{contact}/read", inbox_read),
     ("/api/inbox/thread/{contact}/delete", inbox_delete),
     ("/push/subscribe", push_subscribe),
+    ("/push/unsubscribe", push_unsubscribe),
     ("/api/forum/{categ}/topic", forum_topic_create),
     ("/api/forum/{categ}/{slug}/post", forum_post_create),
     ("/api/forum/post/{postId}/edit", forum_post_edit),

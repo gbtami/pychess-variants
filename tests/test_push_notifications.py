@@ -72,6 +72,73 @@ class PushSubscribeTestCase(AioHTTPTestCase):
         response = await self.client.post("/push/subscribe", json=payload)
         self.assertEqual(response.status, 403)
 
+    async def test_push_unsubscribe_removes_only_requested_endpoint(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="unsub_user")
+        app_state.users[user.username] = user
+        self.set_session_user(user.username)
+
+        await app_state.db.push_subscription.insert_many(
+            [
+                {
+                    "user": user.username,
+                    "endpoint": "https://example.com/sub/1",
+                    "auth": "auth-key-1",
+                    "p256dh": "p256dh-key-1",
+                },
+                {
+                    "user": user.username,
+                    "endpoint": "https://example.com/sub/2",
+                    "auth": "auth-key-2",
+                    "p256dh": "p256dh-key-2",
+                },
+            ]
+        )
+
+        response = await self.client.post(
+            "/push/unsubscribe",
+            json={"endpoint": "https://example.com/sub/1"},
+        )
+        self.assertEqual(response.status, 200)
+
+        first = await app_state.db.push_subscription.find_one(
+            {"user": user.username, "endpoint": "https://example.com/sub/1"}
+        )
+        second = await app_state.db.push_subscription.find_one(
+            {"user": user.username, "endpoint": "https://example.com/sub/2"}
+        )
+        self.assertIsNone(first)
+        self.assertIsNotNone(second)
+
+    async def test_push_unsubscribe_without_endpoint_removes_all_user_subscriptions(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="unsub_all_user")
+        app_state.users[user.username] = user
+        self.set_session_user(user.username)
+
+        await app_state.db.push_subscription.insert_many(
+            [
+                {
+                    "user": user.username,
+                    "endpoint": "https://example.com/sub/1",
+                    "auth": "auth-key-1",
+                    "p256dh": "p256dh-key-1",
+                },
+                {
+                    "user": user.username,
+                    "endpoint": "https://example.com/sub/2",
+                    "auth": "auth-key-2",
+                    "p256dh": "p256dh-key-2",
+                },
+            ]
+        )
+
+        response = await self.client.post("/push/unsubscribe", json={})
+        self.assertEqual(response.status, 200)
+
+        remaining = await app_state.db.push_subscription.count_documents({"user": user.username})
+        self.assertEqual(remaining, 0)
+
     async def test_corr_push_pref_updates_user_and_db(self):
         app_state = get_app_state(self.app)
         user = User(app_state, username="pref_user")

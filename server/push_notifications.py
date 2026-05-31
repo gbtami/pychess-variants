@@ -312,3 +312,37 @@ async def push_subscribe(request: web.Request) -> web.StreamResponse:
             )
 
     return json_response({"ok": True})
+
+
+async def push_unsubscribe(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    if app_state.db is None:
+        return json_response({"error": "Push service unavailable."}, status=503)
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    if session_user is None:
+        return json_response({"error": "Authentication required."}, status=401)
+
+    user = await app_state.users.get(session_user)
+    if user.anon:
+        return json_response({"error": "Authenticated users only."}, status=403)
+
+    endpoint = ""
+    try:
+        body = await request.json()
+    except Exception:
+        body = None
+    if isinstance(body, dict):
+        maybe_endpoint = body.get("endpoint")
+        if isinstance(maybe_endpoint, str):
+            endpoint = maybe_endpoint.strip()
+
+    if endpoint != "":
+        await app_state.db[PUSH_SUBSCRIPTION_COLLECTION].delete_many(
+            {"user": user.username, "endpoint": endpoint}
+        )
+    else:
+        await app_state.db[PUSH_SUBSCRIPTION_COLLECTION].delete_many({"user": user.username})
+
+    return json_response({"ok": True})
