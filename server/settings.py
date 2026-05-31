@@ -43,6 +43,10 @@ TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET", "")
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
 
+PUSH_VAPID_PUBLIC_KEY = os.getenv("PUSH_VAPID_PUBLIC_KEY", "")
+PUSH_VAPID_PRIVATE_KEY = os.getenv("PUSH_VAPID_PRIVATE_KEY", "")
+PUSH_VAPID_SUBJECT = os.getenv("PUSH_VAPID_SUBJECT", "mailto:admin@pychess.org")
+
 ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
     "https://www.pychess.org,https://cdn.jsdelivr.net,https://variantslove.netlify.app",

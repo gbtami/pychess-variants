@@ -105,6 +105,7 @@ class User:
         theme: str = "dark",
         game_category: str = "all",
         pm_friends_only: bool = False,
+        corr_push: bool = True,
         oauth_id: str = "",
         oauth_provider: str = "",
         created_at: datetime | None = None,
@@ -119,6 +120,7 @@ class User:
         self.game_category: str = "all"
         self.game_category_set: bool = False
         self.pm_friends_only: bool = pm_friends_only
+        self.corr_push_enabled: bool = corr_push
         self.oauth_id: str = oauth_id
         self.oauth_provider: str = oauth_provider
         self.created_at: datetime = (
@@ -467,6 +469,19 @@ class User:
         }
         await notify(self.app_state.db, self, notif_type, content)
 
+    async def notify_corr_move(self, game: Game, san: str) -> None:
+        opp_name = (
+            game.wplayer.username
+            if game.bplayer.username == self.username
+            else game.bplayer.username
+        )
+        content: NotificationContent = {
+            "id": game.id,
+            "opp": opp_name,
+            "san": san,
+        }
+        await notify(self.app_state.db, self, "corrMove", content)
+
     async def notified(self) -> None:
         if self.notifications is not None:
             self.notifications = [{**notif, "read": True} for notif in self.notifications]
@@ -783,6 +798,28 @@ async def set_pm_friends_only(request: web.Request) -> web.StreamResponse:
     if app_state.db is not None:
         await app_state.db.user.find_one_and_update(
             {"_id": user.username}, {"$set": {"pmf": value}}
+        )
+    return web.Response(status=204)
+
+
+async def set_corr_push(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    post_data = await read_post_data(request)
+    if post_data is None:
+        return web.Response(status=204)
+
+    session = await aiohttp_session.get_session(request)
+    session_user = session.get("user_name")
+    user = await app_state.users.get(session_user)
+    if user.anon:
+        return web.Response(status=403)
+
+    raw = str(post_data.get("corr_push", "")).strip().lower()
+    value = raw in {"1", "true", "yes", "on"}
+    user.corr_push_enabled = value
+    if app_state.db is not None:
+        await app_state.db.user.find_one_and_update(
+            {"_id": user.username}, {"$set": {"cps": value}}
         )
     return web.Response(status=204)
 

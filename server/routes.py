@@ -96,6 +96,7 @@ from report_api import (
     report_close_account,
 )
 from mod_public_chat_api import public_chat_timeout
+from push_notifications import push_subscribe, push_unsubscribe, service_worker
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import (
@@ -121,6 +122,7 @@ from user import (
     follow_user,
     get_blocked_users,
     get_status,
+    set_corr_push,
     set_game_category,
     set_pm_friends_only,
     set_theme,
@@ -238,6 +240,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/challenges", get_header_challenges),
     ("/notify", subscribe_notify),
     ("/challenge/subscribe", subscribe_challenges),
+    ("/service-worker.js", service_worker),
     (r"/challenge/{seekId:\w+}", direct_challenge.direct_challenge),
     ("/notified", notified),
     (r"/{gameId:\w{8}}", game.game),
@@ -355,11 +358,14 @@ post_routes: tuple[RouteDef, ...] = (
     ("/pref/theme", set_theme),
     ("/pref/game-category", set_game_category),
     ("/pref/pm-friends-only", set_pm_friends_only),
+    ("/pref/corr-push", set_corr_push),
     ("/api/{profileId}/block", block_user),
     ("/api/{profileId}/follow", follow_user),
     ("/api/inbox/thread/{contact}", inbox_post),
     ("/api/inbox/thread/{contact}/read", inbox_read),
     ("/api/inbox/thread/{contact}/delete", inbox_delete),
+    ("/push/subscribe", push_subscribe),
+    ("/push/unsubscribe", push_unsubscribe),
     ("/api/forum/{categ}/topic", forum_topic_create),
     ("/api/forum/{categ}/{slug}/post", forum_post_create),
     ("/api/forum/post/{postId}/edit", forum_post_edit),

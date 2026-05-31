@@ -97,6 +97,7 @@ import logging
 import sys
 from variants import VARIANTS, RATED_VARIANTS
 from puzzle import rename_puzzle_fields
+from push_notifications import PUSH_SUBSCRIPTION_COLLECTION, PushNotifier
 
 log = logging.getLogger(__name__)
 
@@ -204,6 +205,9 @@ class PychessGlobalAppState:
         self.__start_gc_stats_logger()
 
         self.started_at = datetime.now(timezone.utc)
+        self.push_notifier = PushNotifier(self)
+        if self.push_notifier.enabled:
+            self.create_background_task(self.push_notifier.run(), name="push-notifier")
 
     async def init_from_db(self):
         if self.db is None:
@@ -321,6 +325,16 @@ class PychessGlobalAppState:
                 await self.db.create_collection("notify")
             await self.db.notify.create_index("notifies")
             await self.db.notify.create_index("expireAt", expireAfterSeconds=0)
+
+            if PUSH_SUBSCRIPTION_COLLECTION not in db_collections:
+                await self.db.create_collection(PUSH_SUBSCRIPTION_COLLECTION)
+            await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index("user")
+            await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index("seenAt")
+            await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index(
+                [("user", 1), ("endpoint", 1)],
+                unique=True,
+                name="push_user_endpoint",
+            )
 
             if "inbox_thread" not in db_collections:
                 await self.db.create_collection("inbox_thread")

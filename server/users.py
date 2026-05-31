@@ -73,6 +73,7 @@ class Users(UserDict[str, User]):
                 theme=doc.get("theme", "dark"),
                 game_category=doc.get("ct", "all"),
                 pm_friends_only=doc.get("pmf", False),
+                corr_push=doc.get("cps", True),
                 oauth_id=doc.get("oauth_id") or "",
                 oauth_provider=doc.get("oauth_provider") or "",
                 created_at=doc.get("createdAt"),

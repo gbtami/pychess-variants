@@ -46,6 +46,7 @@ class UserDocument(TypedDict, total=False):
     theme: str
     ct: str
     pmf: bool
+    cps: bool
     oauth_id: str
     oauth_provider: str
     security: dict[str, object]
@@ -367,6 +368,7 @@ class NotificationContent(TypedDict, total=False):
     tid: str
     arr: str
     opp: str
+    san: str
     topic: str
     slug: str
     categ: str
@@ -392,6 +394,7 @@ class ViewContext(TypedDict, total=False):
     game_category: str
     game_category_intro: bool
     pm_friends_only: bool
+    corr_push_enabled: bool
     menu_variant: str
     title: str
     view: str
@@ -402,6 +405,7 @@ class ViewContext(TypedDict, total=False):
     simuling: bool
     admin: bool
     mod_report_score: int
+    vapid_public_key: str
     allusers: Sequence[User]
     anon_online: int
     blog_tag: Callable[[str], str]

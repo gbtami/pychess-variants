@@ -9,6 +9,7 @@ import { _, translatedGameCategory, translatedLanguage, languageSettings } from 
 import { volumeSettings, soundThemeSettings } from './sound';
 import { zenModeSettings } from './zen';
 import { confirmDialog } from './confirmDialog';
+import { disablePushSubscription, initPushSubscription } from './push';
 
 export function settingsView(modelVariant: string) {
     const anon = getDocumentData('anon') === 'True';
@@ -156,6 +157,7 @@ function zenModeSettingsView() {
 
 function privacySettingsView() {
     const pmFriendsOnly = getDocumentData('pm-friends-only') === 'True';
+    const corrPushEnabled = getDocumentData('corr-push-enabled') !== 'False';
     return h('div#settings-privacy', [
         backButton(_("Privacy")),
         h('div', [
@@ -171,6 +173,18 @@ function privacySettingsView() {
                 }),
                 h('span', _('Only friends can message me')),
             ]),
+            h('label.switch', [
+                h('input#corr-push-enabled', {
+                    attrs: { type: 'checkbox', checked: corrPushEnabled },
+                    on: {
+                        change: (evt: Event) => {
+                            const next = (evt.target as HTMLInputElement).checked;
+                            setCorrPushEnabled(next);
+                        },
+                    },
+                }),
+                h('span', _('Correspondence move push notifications')),
+            ]),
         ]),
     ]);
 }
@@ -183,6 +197,29 @@ function setPmFriendsOnly(value: boolean) {
         body: payload.toString(),
     }).catch((error) => {
         console.warn('Failed to update PM privacy setting.', error);
+    });
+}
+
+function setCorrPushEnabled(value: boolean) {
+    const payload = new URLSearchParams({ corr_push: value ? 'true' : 'false' });
+    fetch('/pref/corr-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body: payload.toString(),
+    }).then(async (response) => {
+        if (!response.ok) throw new Error(`corr push pref failed: ${response.status}`);
+
+        if (value) {
+            // Persist preference first, then sync/create browser subscription.
+            const anon = getDocumentData('anon') ?? 'True';
+            const vapidPublicKey = getDocumentData('vapid') ?? '';
+            await initPushSubscription(anon, vapidPublicKey);
+            return;
+        }
+        // Disable path removes both server-side endpoint and browser subscription.
+        await disablePushSubscription();
+    }).catch((error) => {
+        console.warn('Failed to update correspondence push setting.', error);
     });
 }
 

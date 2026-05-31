@@ -172,6 +172,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         "game_category": user.game_category,
         "game_category_intro": (not user.anon) and (not getattr(user, "game_category_set", False)),
         "pm_friends_only": user.pm_friends_only,
+        "corr_push_enabled": user.corr_push_enabled,
         "menu_variant": menu_variant,
         "title": "%s • PyChess" % view.capitalize(),
         "view": view,
@@ -182,6 +183,9 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         "simuling": SIMULING,
         "admin": _is_admin_username(user.username),
         "mod_report_score": mod_report_score,
+        "vapid_public_key": app_state.push_notifier.vapid_public_key
+        if app_state.push_notifier.enabled
+        else "",
     }
     return (user, context)
 

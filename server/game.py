@@ -530,6 +530,14 @@ class Game:
                         await opp_player.notify_game_end(self)
                 else:
                     await self.save_move(move)
+                    if self.corr and (not opp_player.bot) and (not opp_player.anon):
+                        await opp_player.notify_corr_move(self, san)
+                        self.app_state.push_notifier.enqueue_corr_move(
+                            opp_player,
+                            game_id=self.id,
+                            opponent=cur_player.username,
+                            san=san,
+                        )
                     self.stopwatch.restart()
 
                 if self.simulId is not None:
