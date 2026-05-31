@@ -30,6 +30,10 @@ except ImportError:  # pragma: no cover - covered via config fallback in runtime
 PUSH_SUBSCRIPTION_COLLECTION = "push_subscription"
 PUSH_QUEUE_MAXSIZE = 2048
 MAX_SUBSCRIPTIONS_PER_USER = 5
+PUSH_RETRY_BASE_DELAY_SECONDS = 5.0
+PUSH_RETRY_MAX_DELAY_SECONDS = 60.0
+PUSH_RETRY_MAX_ATTEMPTS = 3
+RETRYABLE_PUSH_STATUS_CODES = {408, 425, 429, 500, 502, 503, 504}
 
 
 @dataclass(frozen=True)
@@ -38,6 +42,7 @@ class CorrMovePushJob:
     game_id: str
     opponent: str
     san: str
+    attempt: int = 0
 
 
 class PushNotifier:
@@ -93,7 +98,9 @@ class PushNotifier:
         while True:
             job = await self.queue.get()
             try:
-                await self._deliver_corr_move(job)
+                should_retry = await self._deliver_corr_move(job)
+                if should_retry:
+                    self._schedule_retry(job)
             except asyncio.CancelledError:
                 raise
             except Exception:
@@ -101,16 +108,16 @@ class PushNotifier:
             finally:
                 self.queue.task_done()
 
-    async def _deliver_corr_move(self, job: CorrMovePushJob) -> None:
+    async def _deliver_corr_move(self, job: CorrMovePushJob) -> bool:
         if self.app_state.db is None or webpush is None:
-            return
+            return False
 
         cursor = self.app_state.db[PUSH_SUBSCRIPTION_COLLECTION].find({"user": job.username})
         cursor.sort("seenAt", -1)
         cursor.limit(MAX_SUBSCRIPTIONS_PER_USER)
         subscriptions = await cursor.to_list(length=MAX_SUBSCRIPTIONS_PER_USER)
         if len(subscriptions) == 0:
-            return
+            return False
 
         payload = json.dumps(
             {
@@ -125,6 +132,8 @@ class PushNotifier:
         )
 
         stale_endpoints: list[str] = []
+        sent_count = 0
+        transient_failure_count = 0
         for subscription in subscriptions:
             endpoint = str(subscription.get("endpoint", ""))
             auth = str(subscription.get("auth", ""))
@@ -148,10 +157,19 @@ class PushNotifier:
                     vapid_private_key=self.vapid_private_key,
                     vapid_claims=self.vapid_claims,
                 )
+                sent_count += 1
             except WebPushException as exc:
                 status_code = getattr(getattr(exc, "response", None), "status_code", None)
                 if status_code in (404, 410):
                     stale_endpoints.append(endpoint)
+                elif status_code in RETRYABLE_PUSH_STATUS_CODES:
+                    transient_failure_count += 1
+                    log.warning(
+                        "Push send transient failure for %s endpoint=%s status=%s",
+                        job.username,
+                        endpoint,
+                        status_code,
+                    )
                 else:
                     log.warning(
                         "Push send failed for %s endpoint=%s status=%s",
@@ -160,6 +178,7 @@ class PushNotifier:
                         status_code,
                     )
             except Exception:
+                transient_failure_count += 1
                 log.exception("Unexpected push send failure for %s", job.username)
 
         if len(stale_endpoints) > 0:
@@ -168,6 +187,44 @@ class PushNotifier:
                     "user": job.username,
                     "endpoint": {"$in": stale_endpoints},
                 }
+            )
+        return sent_count == 0 and transient_failure_count > 0
+
+    def _schedule_retry(self, job: CorrMovePushJob) -> None:
+        if job.attempt >= PUSH_RETRY_MAX_ATTEMPTS:
+            log.warning(
+                "Push send exhausted retries for %s game=%s attempts=%s",
+                job.username,
+                job.game_id,
+                job.attempt,
+            )
+            return
+
+        retry_job = CorrMovePushJob(
+            username=job.username,
+            game_id=job.game_id,
+            opponent=job.opponent,
+            san=job.san,
+            attempt=job.attempt + 1,
+        )
+        delay = min(
+            PUSH_RETRY_MAX_DELAY_SECONDS,
+            PUSH_RETRY_BASE_DELAY_SECONDS * (2**job.attempt),
+        )
+        self.app_state.create_background_task(
+            self._enqueue_after_delay(retry_job, delay),
+            name=f"push-retry-{job.username}-{retry_job.attempt}",
+        )
+
+    async def _enqueue_after_delay(self, job: CorrMovePushJob, delay_seconds: float) -> None:
+        await asyncio.sleep(delay_seconds)
+        try:
+            self.queue.put_nowait(job)
+        except asyncio.QueueFull:
+            log.warning(
+                "Push queue full; dropping corr move push retry for %s attempt=%s",
+                job.username,
+                job.attempt,
             )
 
 

@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 import unittest
@@ -7,6 +8,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
 from pychess_global_app_state_utils import get_app_state
+import push_notifications
 from server import make_app
 from user import User
 
@@ -113,6 +115,117 @@ class PushSubscribeTestCase(AioHTTPTestCase):
             san="e4",
         )
         self.assertEqual(app_state.push_notifier.queue.qsize(), 0)
+
+    async def test_deliver_retries_on_transient_failures_when_nothing_was_sent(self):
+        app_state = get_app_state(self.app)
+        notifier = app_state.push_notifier
+        notifier.enabled = True
+
+        await app_state.db.push_subscription.insert_one(
+            {
+                "user": "retry_user",
+                "endpoint": "https://example.com/sub/retry",
+                "auth": "auth-key",
+                "p256dh": "p256dh-key",
+                "seenAt": 2,
+            }
+        )
+
+        original_webpush = push_notifications.webpush
+        try:
+
+            def fail_webpush(*args, **kwargs):
+                raise RuntimeError("temporary failure")
+
+            push_notifications.webpush = fail_webpush
+            should_retry = await notifier._deliver_corr_move(
+                push_notifications.CorrMovePushJob(
+                    username="retry_user",
+                    game_id="abcd1234",
+                    opponent="opp",
+                    san="e4",
+                )
+            )
+        finally:
+            push_notifications.webpush = original_webpush
+
+        self.assertTrue(should_retry)
+
+    async def test_deliver_skips_retry_when_at_least_one_send_succeeds(self):
+        app_state = get_app_state(self.app)
+        notifier = app_state.push_notifier
+        notifier.enabled = True
+
+        await app_state.db.push_subscription.insert_many(
+            [
+                {
+                    "user": "mixed_user",
+                    "endpoint": "https://example.com/sub/success",
+                    "auth": "auth-key-1",
+                    "p256dh": "p256dh-key-1",
+                    "seenAt": 3,
+                },
+                {
+                    "user": "mixed_user",
+                    "endpoint": "https://example.com/sub/fail",
+                    "auth": "auth-key-2",
+                    "p256dh": "p256dh-key-2",
+                    "seenAt": 2,
+                },
+            ]
+        )
+
+        original_webpush = push_notifications.webpush
+        calls = {"count": 0}
+        try:
+
+            def mixed_webpush(*args, **kwargs):
+                calls["count"] += 1
+                if calls["count"] == 2:
+                    raise RuntimeError("temporary failure")
+
+            push_notifications.webpush = mixed_webpush
+            should_retry = await notifier._deliver_corr_move(
+                push_notifications.CorrMovePushJob(
+                    username="mixed_user",
+                    game_id="abcd1234",
+                    opponent="opp",
+                    san="e4",
+                )
+            )
+        finally:
+            push_notifications.webpush = original_webpush
+
+        self.assertEqual(calls["count"], 2)
+        self.assertFalse(should_retry)
+
+    async def test_schedule_retry_enqueues_incremented_attempt(self):
+        app_state = get_app_state(self.app)
+        notifier = app_state.push_notifier
+        notifier.enabled = True
+
+        original_base_delay = push_notifications.PUSH_RETRY_BASE_DELAY_SECONDS
+        original_max_delay = push_notifications.PUSH_RETRY_MAX_DELAY_SECONDS
+        try:
+            push_notifications.PUSH_RETRY_BASE_DELAY_SECONDS = 0.0
+            push_notifications.PUSH_RETRY_MAX_DELAY_SECONDS = 0.0
+            notifier._schedule_retry(
+                push_notifications.CorrMovePushJob(
+                    username="retry_schedule",
+                    game_id="abcd1234",
+                    opponent="opp",
+                    san="e4",
+                    attempt=0,
+                )
+            )
+            await asyncio.sleep(0)
+            await asyncio.sleep(0)
+        finally:
+            push_notifications.PUSH_RETRY_BASE_DELAY_SECONDS = original_base_delay
+            push_notifications.PUSH_RETRY_MAX_DELAY_SECONDS = original_max_delay
+
+        job = notifier.queue.get_nowait()
+        self.assertEqual(job.attempt, 1)
 
 
 if __name__ == "__main__":
