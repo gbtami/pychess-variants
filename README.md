@@ -53,17 +53,6 @@ All Python commands below should be run with `uv run ...` unless you have alread
 uv run server/server.py
 ```
 
-### Optional: Web push for correspondence moves
-Correspondence move push notifications are enabled only when these environment variables are set:
-
-```bash
-PUSH_VAPID_PUBLIC_KEY=...
-PUSH_VAPID_PRIVATE_KEY=...
-PUSH_VAPID_SUBJECT=mailto:admin@example.com
-```
-
-If keys are missing, the feature is automatically disabled and gameplay still works normally.
-
 ### Python checks and tests
 ```bash
 uv run ruff format .
