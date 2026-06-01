@@ -1244,6 +1244,12 @@ span.notification.empty span.text {
 #settings-board div {
   margin: 5px;
 }
+#settings-privacy > div {
+  margin: 5px;
+}
+#settings-privacy .privacy-toggle {
+  margin: 5px;
+}
 
 #settings-lang label:last-child,
 #soundtheme label:last-child,
@@ -1301,7 +1307,8 @@ button#btn-background:hover,
 button#btn-game-category:hover,
 button#btn-board:hover,
 button#btn-zen:hover,
-button#btn-inbox-menu:hover {
+button#btn-inbox-menu:hover,
+button#btn-privacy:hover {
   background-color: var(--green-hover);
 }
 
@@ -1326,6 +1333,11 @@ button#btn-inbox-menu:hover {
 #board-settings > div {
   flex-direction: row;
   align-items: center; /* in Safari the inputs and labels are not vertically aligned */
+}
+
+#settings-privacy .privacy-toggle {
+  flex-direction: row;
+  align-items: center;
 }
 
 #style-settings {

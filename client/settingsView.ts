@@ -161,7 +161,7 @@ function privacySettingsView() {
     return h('div#settings-privacy', [
         backButton(_("Privacy")),
         h('div', [
-            h('label.switch', [
+            h('div.privacy-toggle', [
                 h('input#pm-friends-only', {
                     attrs: { type: 'checkbox', checked: pmFriendsOnly },
                     on: {
@@ -171,9 +171,9 @@ function privacySettingsView() {
                         },
                     },
                 }),
-                h('span', _('Only friends can message me')),
+                h('label', { attrs: { for: 'pm-friends-only' } }, _('Only friends can message me')),
             ]),
-            h('label.switch', [
+            h('div.privacy-toggle', [
                 h('input#corr-push-enabled', {
                     attrs: { type: 'checkbox', checked: corrPushEnabled },
                     on: {
@@ -183,7 +183,7 @@ function privacySettingsView() {
                         },
                     },
                 }),
-                h('span', _('Correspondence move push notifications')),
+                h('label', { attrs: { for: 'corr-push-enabled' } }, _('Correspondence move push notifications')),
             ]),
         ]),
     ]);
