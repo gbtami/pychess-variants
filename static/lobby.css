@@ -140,6 +140,10 @@
 
 #winners td:nth-child(3) a {
     color: var(--link-color);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .tv {
