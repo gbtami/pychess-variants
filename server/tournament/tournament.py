@@ -2326,7 +2326,7 @@ class Tournament(ABC):
             self.app_state.shield_owners[variant_name] = winner
 
         if self.status in (T_FINISHED, T_ARCHIVED):
-            await self.app_state.rebuild_lobby_tournament_winners_cache()
+            await self.app_state.refresh_lobby_tournament_winners_cache()
 
     def print_leaderboard(self) -> None:
         log.info("--- LEADERBOARD --- %s", self.id)

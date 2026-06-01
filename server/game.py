@@ -860,7 +860,7 @@ class Game:
             )
 
         if should_rebuild_lobby_leaderboard:
-            self.app_state.rebuild_lobby_leaderboard_cache()
+            await self.app_state.refresh_lobby_leaderboard_cache()
 
     def get_player_at(self, color: int, board: FairyBoard) -> User:
         return self.bplayer if color == BLACK else self.wplayer

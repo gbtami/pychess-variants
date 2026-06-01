@@ -213,7 +213,7 @@ class PychessGlobalAppState:
         if self.push_notifier.enabled:
             self.create_background_task(self.push_notifier.run(), name="push-notifier")
 
-    def rebuild_lobby_leaderboard_cache(self, limit: int = 12) -> None:
+    def rebuild_lobby_leaderboard_cache(self, limit: int = 12) -> bool:
         leaderboard: list["LobbyLeaderboardEntry"] = []
         for variant_key, scores in self.highscore.items():
             if len(scores) == 0:
@@ -232,12 +232,25 @@ class PychessGlobalAppState:
                 }
             )
         leaderboard.sort(key=lambda entry: entry["rating"], reverse=True)
-        self.lobby_leaderboard = leaderboard[:limit]
+        updated_leaderboard = leaderboard[:limit]
+        if updated_leaderboard == self.lobby_leaderboard:
+            return False
+        self.lobby_leaderboard = updated_leaderboard
+        return True
 
-    async def rebuild_lobby_tournament_winners_cache(self, limit: int = 12) -> None:
+    async def refresh_lobby_leaderboard_cache(self, limit: int = 12) -> bool:
+        changed = self.rebuild_lobby_leaderboard_cache(limit=limit)
+        if changed:
+            await self.lobby.lobby_broadcast(
+                {"type": "leaderboard", "items": self.lobby_leaderboard}
+            )
+        return changed
+
+    async def rebuild_lobby_tournament_winners_cache(self, limit: int = 12) -> bool:
         if self.db is None:
+            changed = len(self.lobby_tournament_winners) > 0
             self.lobby_tournament_winners = []
-            return
+            return changed
 
         filter_cond = {
             "status": {"$in": [T_FINISHED, T_ARCHIVED]},
@@ -290,7 +303,18 @@ class PychessGlobalAppState:
                     "tournament": tournament_name,
                 }
             )
+        if winners == self.lobby_tournament_winners:
+            return False
         self.lobby_tournament_winners = winners
+        return True
+
+    async def refresh_lobby_tournament_winners_cache(self, limit: int = 12) -> bool:
+        changed = await self.rebuild_lobby_tournament_winners_cache(limit=limit)
+        if changed:
+            await self.lobby.lobby_broadcast(
+                {"type": "tournament_winners", "items": self.lobby_tournament_winners}
+            )
+        return changed
 
     async def init_from_db(self):
         if self.db is None:
@@ -344,8 +368,8 @@ class PychessGlobalAppState:
             async for doc in cursor:
                 if doc["_id"] in self.highscore:
                     self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
-            self.rebuild_lobby_leaderboard_cache()
-            await self.rebuild_lobby_tournament_winners_cache()
+            await self.refresh_lobby_leaderboard_cache()
+            await self.refresh_lobby_tournament_winners_cache()
 
             if "crosstable" not in db_collections:
                 await generate_crosstable(self)
