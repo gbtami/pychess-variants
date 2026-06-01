@@ -17,7 +17,7 @@ import { PyChessModel } from "./types";
 import { model } from './main';
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Post, Stream, Spotlight, MsgInviteCreated, MsgDirectChallengeCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
+import { Post, Stream, Spotlight, MsgInviteCreated, MsgDirectChallengeCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode, MsgLeaderboard, MsgTournamentWinners, LeaderboardEntry, TournamentWinnerEntry } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
 import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
@@ -1023,6 +1023,69 @@ export class LobbyController implements ChatController {
         ]);
     }
 
+    private userWithTitle(username: string, title: string): (VNode | string)[] {
+        const userNodes: (VNode | string)[] = [];
+        if (title) userNodes.push(h('player-title', `${title} `));
+        userNodes.push(this.seekUserLink(username));
+        return userNodes;
+    }
+
+    private leadersView(msg: MsgLeaderboard): VNode {
+        const filtered = msg.items.filter((entry: LeaderboardEntry) =>
+            this.isVariantAllowed(entry.variant + (entry.chess960 ? "960" : ""))
+        );
+        const rows = filtered
+            .map((entry: LeaderboardEntry) => {
+                const variant = VARIANTS[entry.variant];
+                if (!variant) return null;
+                return h('tr', [
+                    h('td', this.userWithTitle(entry.username, entry.title)),
+                    h('td.icon', { attrs: { "data-icon": variant.icon(entry.chess960) } }, [h('variant-name', " " + variant.displayName(entry.chess960))]),
+                    h('td', String(entry.rating)),
+                ]);
+            })
+            .filter((row): row is VNode => row !== null);
+
+        return h('div#leaders.lobby-ranking', [
+            h('a.lobby-ranking-top', { attrs: { href: '/players' } }, [
+                h('strong', _('Leaderboard')),
+                h('span.more', _('More') + ' »'),
+            ]),
+            h('div.lobby-ranking-content', [
+                h('table', [h('tbody', rows)]),
+            ]),
+        ]);
+    }
+
+    private winnersView(msg: MsgTournamentWinners): VNode {
+        const filtered = msg.items.filter((entry: TournamentWinnerEntry) =>
+            this.isVariantAllowed(entry.variant + (entry.chess960 ? "960" : ""))
+        );
+        const rows = filtered
+            .map((entry: TournamentWinnerEntry) => {
+                const variant = VARIANTS[entry.variant];
+                if (!variant) return null;
+                return h('tr', [
+                    h('td', this.userWithTitle(entry.username, entry.title)),
+                    h('td.icon', { attrs: { "data-icon": variant.icon(entry.chess960) } }, [h('variant-name', " " + variant.displayName(entry.chess960))]),
+                    h('td', [
+                        h('a.tourname', { attrs: { href: `/tournament/${entry.tid}`, title: entry.tournament } }, entry.tournament),
+                    ]),
+                ]);
+            })
+            .filter((row): row is VNode => row !== null);
+
+        return h('div#winners.lobby-ranking', [
+            h('a.lobby-ranking-top', { attrs: { href: '/tournaments/winners' } }, [
+                h('strong', _('Tournament winners')),
+                h('span.more', _('More') + ' »'),
+            ]),
+            h('div.lobby-ranking-content', [
+                h('table', [h('tbody', rows)]),
+            ]),
+        ]);
+    }
+
     renderEmptyTvGame() {
         patch(document.getElementById('tv-game') as HTMLElement, h('a#tv-game.empty'));
     }
@@ -1179,6 +1242,12 @@ export class LobbyController implements ChatController {
                 break;
             case "fullchat":
                 this.onMsgFullChat(msg);
+                break;
+            case "leaderboard":
+                this.onMsgLeaderboard(msg);
+                break;
+            case "tournament_winners":
+                this.onMsgTournamentWinners(msg);
                 break;
             case "ping":
                 this.onMsgPing(msg);
@@ -1343,6 +1412,14 @@ export class LobbyController implements ChatController {
     private onMsgStreams(msg: MsgStreams) {
         const items = this.allowedVariants ? [] : msg.items;
         this.streams = patch(this.streams, h('div#streams', items.map(stream => this.streamView(stream))));
+    }
+
+    private onMsgLeaderboard(msg: MsgLeaderboard) {
+        patch(document.getElementById('leaders') as HTMLElement, this.leadersView(msg));
+    }
+
+    private onMsgTournamentWinners(msg: MsgTournamentWinners) {
+        patch(document.getElementById('winners') as HTMLElement, this.winnersView(msg));
     }
 
     private onMsgSpotlights(msg: MsgSpotlights) {
@@ -1568,6 +1645,8 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 ]),
             ]),
         ]),
+        h('div#leaders.lobby-ranking'),
+        h('div#winners.lobby-ranking'),
         h('div.puzzle', showPuzzle ? [h('a#daily-puzzle', { attrs: {href: '/puzzle/daily'} }, dailyPuzzle)] : []),
     ];
 }

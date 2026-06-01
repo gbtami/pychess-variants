@@ -771,6 +771,7 @@ class Game:
 
     async def set_highscore(self, variant: str, chess960: bool, value: dict[str, int]) -> None:
         self.app_state.highscore[variant + ("960" if chess960 else "")].update(value)
+        self.app_state.rebuild_lobby_leaderboard_cache()
         new_data = {
             "scores": dict(
                 self.app_state.highscore[variant + ("960" if chess960 else "")].items()[

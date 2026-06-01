@@ -2325,6 +2325,9 @@ class Tournament(ABC):
             self.app_state.shield[variant_name].append((winner, self.starts_at, self.id))
             self.app_state.shield_owners[variant_name] = winner
 
+        if self.status in (T_FINISHED, T_ARCHIVED):
+            await self.app_state.rebuild_lobby_tournament_winners_cache()
+
     def print_leaderboard(self) -> None:
         log.info("--- LEADERBOARD --- %s", self.id)
         for player, full_score in self.leaderboard.items()[:10]:
