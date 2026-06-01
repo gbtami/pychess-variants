@@ -7,11 +7,13 @@ main.report {
   max-width: 1000px;
   margin: auto;
   width: 100%;
+  --report-content-max-width: 760px;
 }
 
 main.report .box__top {
-  padding: 0 0 1.2rem 0;
-  margin-bottom: 0;
+  width: min(100%, var(--report-content-max-width));
+  margin: 0 auto 1.4rem;
+  padding: 0;
 }
 
 main.report.box {
@@ -35,22 +37,24 @@ main.report.box.box-pad {
 }
 
 .report-form {
+  width: min(100%, var(--report-content-max-width));
   max-width: none;
-  width: 100%;
-  margin: 0;
+  margin: 0 auto;
   background: transparent;
   padding: 0;
   box-shadow: none;
 }
 
 .report-form .form-group {
+  display: grid;
+  gap: 0.45rem;
   margin-bottom: 1.4rem;
 }
 
 .report-form .form-label {
   display: block;
   font-weight: 700;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0;
   padding: 0;
 }
 
@@ -83,17 +87,14 @@ main.report.box.box-pad {
 }
 
 .report-user-readonly {
-  display: inline-flex;
-  align-items: center;
+  display: block;
   padding: 0;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0;
 }
 
 .report-user-inline {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
+  display: grid;
+  gap: 0.45rem;
 }
 
 .report-user-inline-label {
@@ -142,6 +143,7 @@ main.report.box.box-pad {
 
 .report-actions {
   margin-top: 1.5rem;
+  margin-bottom: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
