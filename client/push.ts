@@ -135,6 +135,11 @@ export async function initPushSubscription(anon: string, vapidPublicKey: string)
             : true;
 
         if (existingSubscription && !needsResync && !keyMismatch) {
+            pushDebugLog('Existing subscription is fresh; re-syncing server-side record', {
+                endpoint: existingSubscription.endpoint,
+            });
+            await postSubscription(existingSubscription);
+            localStorage.setItem(lastSyncedKey, `${Date.now()}`);
             pushDebugLog('Existing subscription found and still fresh; no re-subscribe', {
                 endpoint: existingSubscription.endpoint,
             });
