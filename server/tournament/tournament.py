@@ -48,6 +48,7 @@ from const import (
     MAX_CHAT_LINES,
 )
 from game import Game
+from lobby_panels_cache import refresh_lobby_tournament_winners_cache
 from lichess_team_msg import lichess_team_msg
 from misc import time_control_str
 from newid import new_id
@@ -2326,7 +2327,7 @@ class Tournament(ABC):
             self.app_state.shield_owners[variant_name] = winner
 
         if self.status in (T_FINISHED, T_ARCHIVED):
-            await self.app_state.refresh_lobby_tournament_winners_cache()
+            await refresh_lobby_tournament_winners_cache(self.app_state)
 
     def print_leaderboard(self) -> None:
         log.info("--- LEADERBOARD --- %s", self.id)

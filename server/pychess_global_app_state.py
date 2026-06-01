@@ -36,9 +36,7 @@ from const import (
     ARENA,
     WEEKLY,
     SHIELD,
-    T_ARCHIVED,
     T_CREATED,
-    T_FINISHED,
     T_STARTED,
     SCHEDULE_MAX_DAYS,
     STARTED,
@@ -78,6 +76,10 @@ from settings import (
     static_url,
 )
 from gc_telemetry import start_gc_telemetry
+from lobby_panels_cache import (
+    refresh_lobby_leaderboard_cache,
+    refresh_lobby_tournament_winners_cache,
+)
 from public_users import PublicUsers
 from simul.simul import Simul
 from simul.simuls import load_active_simuls
@@ -97,7 +99,7 @@ from youtube import Youtube
 from lang import LOCALE
 import logging
 import sys
-from variants import VARIANTS, C2V, RATED_VARIANTS
+from variants import VARIANTS, RATED_VARIANTS
 from puzzle import rename_puzzle_fields
 from push_notifications import PUSH_SUBSCRIPTION_COLLECTION, PushNotifier
 
@@ -213,109 +215,6 @@ class PychessGlobalAppState:
         if self.push_notifier.enabled:
             self.create_background_task(self.push_notifier.run(), name="push-notifier")
 
-    def rebuild_lobby_leaderboard_cache(self, limit: int = 12) -> bool:
-        leaderboard: list["LobbyLeaderboardEntry"] = []
-        for variant_key, scores in self.highscore.items():
-            if len(scores) == 0:
-                continue
-            top_entry = scores.peekitem(0)
-            identity = str(top_entry[0])
-            rating = int(top_entry[1])
-            username, sep, title = identity.partition("|")
-            leaderboard.append(
-                {
-                    "variant": variant_key.removesuffix("960"),
-                    "chess960": variant_key.endswith("960"),
-                    "username": username,
-                    "title": title if sep else "",
-                    "rating": int(rating),
-                }
-            )
-        leaderboard.sort(key=lambda entry: entry["rating"], reverse=True)
-        updated_leaderboard = leaderboard[:limit]
-        if updated_leaderboard == self.lobby_leaderboard:
-            return False
-        self.lobby_leaderboard = updated_leaderboard
-        return True
-
-    async def refresh_lobby_leaderboard_cache(self, limit: int = 12) -> bool:
-        changed = self.rebuild_lobby_leaderboard_cache(limit=limit)
-        if changed:
-            await self.lobby.lobby_broadcast(
-                {"type": "leaderboard", "items": self.lobby_leaderboard}
-            )
-        return changed
-
-    async def rebuild_lobby_tournament_winners_cache(self, limit: int = 12) -> bool:
-        if self.db is None:
-            changed = len(self.lobby_tournament_winners) > 0
-            self.lobby_tournament_winners = []
-            return changed
-
-        filter_cond = {
-            "status": {"$in": [T_FINISHED, T_ARCHIVED]},
-            "winner": {"$exists": True},
-            "nbGames": {"$gt": 0},
-            "nbPlayers": {"$gte": 3},
-        }
-        projection = {"_id": 1, "winner": 1, "name": 1, "v": 1, "z": 1, "startsAt": 1}
-        cursor = self.db.tournament.find(
-            filter_cond, projection=projection, sort=[("startsAt", -1)]
-        )
-
-        rows: list[tuple[str, bool, str, str, str]] = []
-        usernames: set[str] = set()
-        async for doc in cursor:
-            variant_code = doc.get("v")
-            if not isinstance(variant_code, str):
-                continue
-            variant_name = C2V.get(variant_code)
-            if variant_name is None:
-                continue
-            chess960 = bool(doc.get("z", 0))
-            variant_key = variant_name + ("960" if chess960 else "")
-            if variant_key not in VARIANTS:
-                continue
-
-            winner = doc.get("winner")
-            if not isinstance(winner, str) or winner == "":
-                continue
-
-            tournament_name = doc.get("name", "")
-            if not isinstance(tournament_name, str):
-                tournament_name = str(tournament_name)
-
-            rows.append((variant_name, chess960, winner, str(doc["_id"]), tournament_name))
-            usernames.add(winner)
-            if len(rows) >= limit:
-                break
-
-        titles = await self.public_users.get_titles(usernames)
-        winners: list["TournamentWinnerEntry"] = []
-        for variant, chess960, username, tid, tournament_name in rows:
-            winners.append(
-                {
-                    "variant": variant,
-                    "chess960": chess960,
-                    "username": username,
-                    "title": titles.get(username, ""),
-                    "tid": tid,
-                    "tournament": tournament_name,
-                }
-            )
-        if winners == self.lobby_tournament_winners:
-            return False
-        self.lobby_tournament_winners = winners
-        return True
-
-    async def refresh_lobby_tournament_winners_cache(self, limit: int = 12) -> bool:
-        changed = await self.rebuild_lobby_tournament_winners_cache(limit=limit)
-        if changed:
-            await self.lobby.lobby_broadcast(
-                {"type": "tournament_winners", "items": self.lobby_tournament_winners}
-            )
-        return changed
-
     async def init_from_db(self):
         if self.db is None:
             return
@@ -368,8 +267,8 @@ class PychessGlobalAppState:
             async for doc in cursor:
                 if doc["_id"] in self.highscore:
                     self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
-            await self.refresh_lobby_leaderboard_cache()
-            await self.refresh_lobby_tournament_winners_cache()
+            await refresh_lobby_leaderboard_cache(self)
+            await refresh_lobby_tournament_winners_cache(self)
 
             if "crosstable" not in db_collections:
                 await generate_crosstable(self)

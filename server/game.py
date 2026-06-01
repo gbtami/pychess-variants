@@ -34,6 +34,7 @@ from const import (
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import get_fog_fen, get_san_moves, modded_variant, NOTATION_SAN, FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
+from lobby_panels_cache import refresh_lobby_leaderboard_cache
 from draw import reject_draw
 from settings import URI
 from spectators import spectators
@@ -860,7 +861,7 @@ class Game:
             )
 
         if should_rebuild_lobby_leaderboard:
-            await self.app_state.refresh_lobby_leaderboard_cache()
+            await refresh_lobby_leaderboard_cache(self.app_state)
 
     def get_player_at(self, color: int, board: FairyBoard) -> User:
         return self.bplayer if color == BLACK else self.wplayer
