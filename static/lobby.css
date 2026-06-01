@@ -140,19 +140,21 @@
 }
 
 #winners td:nth-child(3) {
-    width: 61%;
+    width: 58%;
     white-space: nowrap;
     text-align: left;
 }
 
 #winners td.icon {
-    width: 1%;
+    width: 2.2em;
+    text-align: center;
+    overflow: visible;
     padding-left: 0.2em;
     padding-right: 0.2em;
 }
 
 #winners td:first-child {
-    width: 38%;
+    width: 42%;
 }
 
 #winners td:nth-child(3) a {
