@@ -316,7 +316,10 @@ class PushNotifier:
                         ) from exc
                     raise
                 except Exception as exc:
-                    raise PushSendRetryableError("Retryable push delivery failure") from exc
+                    raise PushSendRetryableError(
+                        "Retryable push delivery failure: "
+                        f"{type(exc).__name__}: {exc}"
+                    ) from exc
 
 
 async def service_worker(request: web.Request) -> web.StreamResponse:
