@@ -102,6 +102,8 @@
 .lobby-ranking table {
     width: 100%;
     height: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
 }
 
 #winners table {
@@ -143,6 +145,7 @@
     width: 58%;
     white-space: nowrap;
     text-align: left;
+    color: var(--link-color-blue);
 }
 
 #winners td.icon {
@@ -157,8 +160,9 @@
     width: 42%;
 }
 
-#winners td:nth-child(3) a {
-    color: var(--link-color);
+#winners td:nth-child(3) a,
+#winners td:nth-child(3) a:visited {
+    color: var(--link-color-blue);
     display: block;
     white-space: nowrap;
     overflow: hidden;
