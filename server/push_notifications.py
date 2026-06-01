@@ -316,9 +316,7 @@ class PushNotifier:
                     # pywebpush mutates vapid_claims (adds aud/exp). Use a fresh
                     # per-send dict so cross-provider sends (FCM/Mozilla) never
                     # reuse a stale audience value.
-                    vapid_claims: dict[str, str | int] = {
-                        "sub": str(self.vapid_claims["sub"])
-                    }
+                    vapid_claims: dict[str, str | int] = {"sub": str(self.vapid_claims["sub"])}
                     await asyncio.to_thread(
                         send_webpush,
                         subscription_info=subscription_info,
