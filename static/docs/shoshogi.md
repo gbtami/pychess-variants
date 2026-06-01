@@ -18,3 +18,9 @@ The **Drunken Elephant** can step one square in any direction, orthogonal or dia
 ![image](https://github.com/gbtami/pychess-variants/blob/master/static/images/CrownPrince.png)
 
 The **Crown Prince** can step one square in any direction, orthogonal or diagonal. The Crown Prince effectively doubles as a second king, and must also be captured to win if present.
+
+## Clarification
+
+At the moment, PyChess does **not** support the so-called **bare king** rule in Sho Shogi.
+This is due to current Fairy-Stockfish technical limitations.
+Support may be added in the future.
