@@ -241,7 +241,7 @@ class PychessGlobalAppState:
             "status": {"$in": [T_FINISHED, T_ARCHIVED]},
             "winner": {"$exists": True},
             "nbGames": {"$gt": 0},
-            "nbPlayers": {"$gte": 2},
+            "nbPlayers": {"$gte": 3},
         }
         projection = {"_id": 1, "winner": 1, "name": 1, "v": 1, "z": 1, "startsAt": 1}
         cursor = self.db.tournament.find(

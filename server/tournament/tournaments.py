@@ -749,7 +749,7 @@ async def get_winners(
             "z": z,
             "status": {"$in": [T_FINISHED, T_ARCHIVED]},
             "nbGames": {"$gt": 0},
-            "nbPlayers": {"$gte": 2},
+            "nbPlayers": {"$gte": 3},
         }
         if shield:
             filter_cond["fr"] = SHIELD
