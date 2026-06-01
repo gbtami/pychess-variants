@@ -357,12 +357,16 @@ class PushNotifier:
         ):
             with attempt:
                 try:
+                    # pywebpush mutates vapid_claims (adds aud/exp). Use a fresh
+                    # per-send dict so cross-provider sends (FCM/Mozilla) never
+                    # reuse a stale audience value.
+                    vapid_claims = {"sub": str(self.vapid_claims["sub"])}
                     await asyncio.to_thread(
                         send_webpush,
                         subscription_info=subscription_info,
                         data=payload,
                         vapid_private_key=self.vapid_private_key_for_send,
-                        vapid_claims=self.vapid_claims,
+                        vapid_claims=vapid_claims,
                     )
                 except WebPushException as exc:
                     status_code = getattr(getattr(exc, "response", None), "status_code", None)
