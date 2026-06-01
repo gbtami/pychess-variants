@@ -17,7 +17,7 @@ import { PyChessModel } from "./types";
 import { model } from './main';
 import { MsgBoard, MsgChat, MsgFullChat } from "./messages";
 import { variantPanels } from './lobby/layer1';
-import { Post, Stream, Spotlight, MsgInviteCreated, MsgDirectChallengeCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode } from './lobbyType';
+import { Post, Stream, Spotlight, MsgInviteCreated, MsgDirectChallengeCreated, MsgHostCreated, MsgGetSeeks, MsgNewGame, MsgGameInProgress, MsgUserConnected, MsgPing, MsgError, MsgShutdown, MsgCounter, MsgStreams, MsgSpotlights, Seek, CreateMode, TvGame, TcMode, MsgLeaderboard, MsgTournamentWinners, LeaderboardEntry, TournamentWinnerEntry } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
 import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
@@ -92,6 +92,8 @@ export class LobbyController implements ChatController {
     seeks: Seek[];
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
+    leaders: VNode | HTMLElement;
+    winners: VNode | HTMLElement;
     dialogHeaderEl: VNode | HTMLElement;
     autoPairingActions: VNode | HTMLElement | null;
     tvGame: TvGame;
@@ -148,6 +150,8 @@ export class LobbyController implements ChatController {
         this.streams = document.getElementById('streams') as HTMLElement;
 
         this.spotlights = document.getElementById('spotlights') as HTMLElement;
+        this.leaders = document.getElementById('leaders') as HTMLElement;
+        this.winners = document.getElementById('winners') as HTMLElement;
 
         this.dialogHeaderEl = document.getElementById('header-block') as HTMLElement;
 
@@ -1023,6 +1027,71 @@ export class LobbyController implements ChatController {
         ]);
     }
 
+    private userWithTitle(username: string, title: string): (VNode | string)[] {
+        const userNodes: (VNode | string)[] = [];
+        if (title) userNodes.push(h('player-title', `${title} `));
+        userNodes.push(this.seekUserLink(username));
+        return userNodes;
+    }
+
+    private leadersView(msg: MsgLeaderboard): VNode {
+        const filtered = msg.items.filter((entry: LeaderboardEntry) =>
+            this.isVariantAllowed(entry.variant + (entry.chess960 ? "960" : ""))
+        );
+        const rows = filtered
+            .map((entry: LeaderboardEntry) => {
+                const variant = VARIANTS[entry.variant];
+                if (!variant) return null;
+                const variantName = variant.displayName(entry.chess960);
+                return h('tr', [
+                    h('td', this.userWithTitle(entry.username, entry.title)),
+                    h('td.icon', { attrs: { "data-icon": variant.icon(entry.chess960), "title": variantName } }),
+                    h('td', String(entry.rating)),
+                ]);
+            })
+            .filter((row): row is VNode => row !== null);
+
+        return h('div#leaders.lobby-ranking', [
+            h('a.lobby-ranking-top', { attrs: { href: '/players' } }, [
+                h('strong', _('Leaderboard')),
+                h('span.more', _('More') + ' »'),
+            ]),
+            h('div.lobby-ranking-content', [
+                h('table', [h('tbody', rows)]),
+            ]),
+        ]);
+    }
+
+    private winnersView(msg: MsgTournamentWinners): VNode {
+        const filtered = msg.items.filter((entry: TournamentWinnerEntry) =>
+            this.isVariantAllowed(entry.variant + (entry.chess960 ? "960" : ""))
+        );
+        const rows = filtered
+            .map((entry: TournamentWinnerEntry) => {
+                const variant = VARIANTS[entry.variant];
+                if (!variant) return null;
+                const variantName = variant.displayName(entry.chess960);
+                return h('tr', [
+                    h('td', this.userWithTitle(entry.username, entry.title)),
+                    h('td.icon', { attrs: { "data-icon": variant.icon(entry.chess960), "title": variantName } }),
+                    h('td', [
+                        h('a.tourname', { attrs: { href: `/tournament/${entry.tid}`, title: entry.tournament } }, entry.tournament),
+                    ]),
+                ]);
+            })
+            .filter((row): row is VNode => row !== null);
+
+        return h('div#winners.lobby-ranking', [
+            h('a.lobby-ranking-top', { attrs: { href: '/tournaments/winners' } }, [
+                h('strong', _('Tournament winners')),
+                h('span.more', _('More') + ' »'),
+            ]),
+            h('div.lobby-ranking-content', [
+                h('table', [h('tbody', rows)]),
+            ]),
+        ]);
+    }
+
     renderEmptyTvGame() {
         patch(document.getElementById('tv-game') as HTMLElement, h('a#tv-game.empty'));
     }
@@ -1179,6 +1248,12 @@ export class LobbyController implements ChatController {
                 break;
             case "fullchat":
                 this.onMsgFullChat(msg);
+                break;
+            case "leaderboard":
+                this.onMsgLeaderboard(msg);
+                break;
+            case "tournament_winners":
+                this.onMsgTournamentWinners(msg);
                 break;
             case "ping":
                 this.onMsgPing(msg);
@@ -1343,6 +1418,14 @@ export class LobbyController implements ChatController {
     private onMsgStreams(msg: MsgStreams) {
         const items = this.allowedVariants ? [] : msg.items;
         this.streams = patch(this.streams, h('div#streams', items.map(stream => this.streamView(stream))));
+    }
+
+    private onMsgLeaderboard(msg: MsgLeaderboard) {
+        this.leaders = patch(this.leaders, this.leadersView(msg));
+    }
+
+    private onMsgTournamentWinners(msg: MsgTournamentWinners) {
+        this.winners = patch(this.winners, this.winnersView(msg));
     }
 
     private onMsgSpotlights(msg: MsgSpotlights) {
@@ -1553,6 +1636,10 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                 ])
             )),
+            h('div.lobby-ranking-panels', [
+                h('div#leaders.lobby-ranking'),
+                h('div#winners.lobby-ranking'),
+            ]),
             h('div.lobby-links-block', [
                 h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr', rel: "noopener", target: "_blank" } }, 'Discord'),
                 h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants', rel: "noopener", target: "_blank" } }, 'Github'),

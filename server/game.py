@@ -769,23 +769,31 @@ class Game:
             )
         return (0, 0)
 
-    async def set_highscore(self, variant: str, chess960: bool, value: dict[str, int]) -> None:
-        self.app_state.highscore[variant + ("960" if chess960 else "")].update(value)
-        new_data = {
-            "scores": dict(
-                self.app_state.highscore[variant + ("960" if chess960 else "")].items()[
-                    :MAX_HIGHSCORE_ITEM_LIMIT
-                ]
-            )
-        }
+    async def set_highscore(self, variant: str, chess960: bool, value: dict[str, int]) -> bool:
+        variant_key = variant + ("960" if chess960 else "")
+        variant_scores = self.app_state.highscore[variant_key]
+        prev_top = (
+            (variant_scores.peekitem(0)[0], int(variant_scores.peekitem(0)[1]))
+            if len(variant_scores) > 0
+            else None
+        )
+        variant_scores.update(value)
+        new_top = (
+            (variant_scores.peekitem(0)[0], int(variant_scores.peekitem(0)[1]))
+            if len(variant_scores) > 0
+            else None
+        )
+
+        new_data = {"scores": dict(variant_scores.items()[:MAX_HIGHSCORE_ITEM_LIMIT])}
         try:
             await self.app_state.db.highscore.find_one_and_update(
-                {"_id": variant + ("960" if chess960 else "")},
+                {"_id": variant_key},
                 {"$set": new_data},
                 upsert=True,
             )
         except Exception:
             log.error("Failed to save new %s highscore to mongodb!", variant)
+        return prev_top != new_top
 
     async def update_ratings(self) -> None:
         if self.result == "1-0":
@@ -826,23 +834,33 @@ class Game:
         await self.wplayer.set_rating(self.variant, chess960, new_white_rating)
         await self.bplayer.set_rating(self.variant, chess960, new_black_rating)
 
+        should_rebuild_lobby_leaderboard = False
         w_nb = self.wplayer.perfs[self.variant + ("960" if chess960 else "")]["nb"]
         if w_nb >= HIGHSCORE_MIN_GAMES:
             _id = "%s|%s" % (self.wplayer.username, self.wplayer.title)
-            await self.set_highscore(
-                self.variant,
-                chess960,
-                {_id: int(round(wcurr.mu + wrdiff, 0))},
+            should_rebuild_lobby_leaderboard = (
+                should_rebuild_lobby_leaderboard
+                or await self.set_highscore(
+                    self.variant,
+                    chess960,
+                    {_id: int(round(wcurr.mu + wrdiff, 0))},
+                )
             )
 
         b_nb = self.bplayer.perfs[self.variant + ("960" if chess960 else "")]["nb"]
         if b_nb >= HIGHSCORE_MIN_GAMES:
             _id = "%s|%s" % (self.bplayer.username, self.bplayer.title)
-            await self.set_highscore(
-                self.variant,
-                chess960,
-                {_id: int(round(bcurr.mu + brdiff, 0))},
+            should_rebuild_lobby_leaderboard = (
+                should_rebuild_lobby_leaderboard
+                or await self.set_highscore(
+                    self.variant,
+                    chess960,
+                    {_id: int(round(bcurr.mu + brdiff, 0))},
+                )
             )
+
+        if should_rebuild_lobby_leaderboard:
+            await self.app_state.refresh_lobby_leaderboard_cache()
 
     def get_player_at(self, color: int, board: FairyBoard) -> User:
         return self.bplayer if color == BLACK else self.wplayer

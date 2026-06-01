@@ -744,7 +744,13 @@ async def get_winners(
         v = get_server_variant(uci_variant, variant960)
         z = 1 if variant960 else 0
 
-        filter_cond = {"v": v.code, "z": z, "status": {"$in": [T_FINISHED, T_ARCHIVED]}}
+        filter_cond = {
+            "v": v.code,
+            "z": z,
+            "status": {"$in": [T_FINISHED, T_ARCHIVED]},
+            "nbGames": {"$gt": 0},
+            "nbPlayers": {"$gte": 3},
+        }
         if shield:
             filter_cond["fr"] = SHIELD
 

@@ -85,6 +85,31 @@ export interface MsgSpotlights {
     items: Spotlight[];
 }
 
+export interface LeaderboardEntry {
+    variant: string;
+    chess960: boolean;
+    username: string;
+    title: string;
+    rating: number;
+}
+
+export interface MsgLeaderboard {
+    items: LeaderboardEntry[];
+}
+
+export interface TournamentWinnerEntry {
+    variant: string;
+    chess960: boolean;
+    username: string;
+    title: string;
+    tid: string;
+    tournament: string;
+}
+
+export interface MsgTournamentWinners {
+    items: TournamentWinnerEntry[];
+}
+
 export interface Seek {
     user: string;
     variant: string;

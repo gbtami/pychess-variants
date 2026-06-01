@@ -122,6 +122,33 @@ class StreamsMessage(TypedDict):
     items: list[StreamInfo]
 
 
+class LobbyLeaderboardEntry(TypedDict):
+    variant: str
+    chess960: bool
+    username: str
+    title: str
+    rating: int
+
+
+class LobbyLeaderboardMessage(TypedDict):
+    type: Literal["leaderboard"]
+    items: list[LobbyLeaderboardEntry]
+
+
+class TournamentWinnerEntry(TypedDict):
+    variant: str
+    chess960: bool
+    username: str
+    title: str
+    tid: str
+    tournament: str
+
+
+class TournamentWinnersMessage(TypedDict):
+    type: Literal["tournament_winners"]
+    items: list[TournamentWinnerEntry]
+
+
 class UserPresenceMessage(TypedDict):
     type: Literal["user_present", "user_disconnected"]
     username: str

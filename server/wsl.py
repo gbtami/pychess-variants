@@ -66,8 +66,10 @@ if TYPE_CHECKING:
         LobbyInboundMessage,
         LobbyUserConnectedMessage,
         LobbySeeksMessage,
+        LobbyLeaderboardMessage,
         SpotlightsMessage,
         StreamsMessage,
+        TournamentWinnersMessage,
     )
 from pychess_global_app_state_utils import get_app_state
 from seek import (
@@ -598,6 +600,18 @@ async def send_lobby_user_connected(
     if len(streams) > 0:
         streams_response: StreamsMessage = {"type": "streams", "items": streams}
         await ws_send_json(ws, streams_response)
+
+    leaderboard_response: LobbyLeaderboardMessage = {
+        "type": "leaderboard",
+        "items": app_state.lobby_leaderboard,
+    }
+    await ws_send_json(ws, leaderboard_response)
+
+    winners_response: TournamentWinnersMessage = {
+        "type": "tournament_winners",
+        "items": app_state.lobby_tournament_winners,
+    }
+    await ws_send_json(ws, winners_response)
 
     if app_state.tv is not None and app_state.tv in app_state.games:
         game = app_state.games[app_state.tv]

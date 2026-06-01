@@ -9,7 +9,7 @@
 }
 @media (max-width: 799px) {
     .lobby {
-        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'blog' 'utable' 'uleft' 'tv' 'puzzle';
+        grid-template-areas: 'table' 'app' 'vpanel' 'side' 'blog' 'leader' 'winner' 'utable' 'uleft' 'tv' 'puzzle';
     }
     .sidebar-second {
     margin: 1em 0 1em 0;
@@ -20,7 +20,7 @@
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: fit-content(0) 380px fit-content(0);
         grid-auto-rows: 1fr;
-        grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'tv blog blog puzzle' 'uleft blog blog utable';
+        grid-template-areas: 'side app app table' 'side vpanel vpanel table' 'tv blog blog puzzle' 'tv leader winner puzzle' 'uleft leader winner utable';
     }
 }
 .lobby aside {
@@ -49,6 +49,126 @@
   text-align: center;
 }
 }
+.lobby-ranking-panels {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 800px) {
+    .lobby-ranking-panels {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.lobby-ranking {
+    display: flex;
+    flex-flow: column;
+    background-color: var(--bg-color0);
+    box-shadow: var(--base-shadow);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.lobby-ranking-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35em 0.6em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.lobby-ranking-top strong {
+    font-size: 1em;
+    font-weight: 700;
+    color: var(--font-color);
+}
+
+.lobby-ranking-top .more {
+    color: var(--font-color-gray);
+    transition: color 150ms;
+}
+
+.lobby-ranking-top:hover .more {
+    color: var(--link-color);
+}
+
+.lobby-ranking-content {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.lobby-ranking table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+#winners table {
+    table-layout: fixed;
+}
+
+.lobby-ranking tr:nth-child(even) {
+    background: var(--table-even);
+}
+
+.lobby-ranking td {
+    vertical-align: middle;
+    padding: 0.5em 0.4em;
+    font-size: 0.95em;
+    max-width: 21ch;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lobby-ranking td:first-child {
+    padding-left: 0.7em;
+    max-width: 21ch;
+}
+
+.lobby-ranking .user-link {
+    font-weight: 700;
+    color: var(--font-color);
+}
+
+.lobby-ranking td:nth-child(3) {
+    white-space: nowrap;
+    text-align: right;
+    padding-right: 0.7em;
+    color: var(--link-color);
+}
+
+#winners td:nth-child(3) {
+    width: 58%;
+    white-space: nowrap;
+    text-align: left;
+    color: var(--link-color-blue);
+}
+
+#winners td.icon {
+    width: 2.2em;
+    text-align: center;
+    overflow: visible;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+
+#winners td:first-child {
+    width: 42%;
+}
+
+#winners td:nth-child(3) a,
+#winners td:nth-child(3) a:visited {
+    color: var(--link-color-blue);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .tv {
     grid-area: tv;
     display: block;

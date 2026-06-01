@@ -102,6 +102,8 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
                     "status": T_FINISHED,
                     "startsAt": datetime(2025, 1, 3, tzinfo=timezone.utc),
                     "winner": self.winner_probe,
+                    "nbGames": 1,
+                    "nbPlayers": 3,
                 },
                 {
                     "_id": "Shield01",
@@ -111,6 +113,8 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
                     "startsAt": datetime(2025, 1, 4, tzinfo=timezone.utc),
                     "winner": self.shield_probe,
                     "fr": SHIELD,
+                    "nbGames": 1,
+                    "nbPlayers": 3,
                 },
             ]
         )
