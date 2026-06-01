@@ -3921,6 +3921,42 @@ img.logo {
 
 .confirm-dialog-actions .button {
   min-width: 6.8rem;
+  -webkit-appearance: none;
+  appearance: none;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-color2);
+  color: var(--font-color);
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  font-weight: 500;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+}
+
+.confirm-dialog-actions .button.button-empty {
+  background: transparent;
+}
+
+.confirm-dialog-actions .confirm-dialog-confirm {
+  border-color: transparent;
+  background: var(--blue-hover);
+  color: #fff;
+}
+
+.confirm-dialog-actions .confirm-dialog-confirm.button-red {
+  background: var(--bad);
+}
+
+.confirm-dialog-actions .button:hover {
+  filter: brightness(1.04);
+}
+
+.confirm-dialog-actions .button:focus-visible,
+.alert-dialog-actions .button:focus-visible {
+  outline: 2px solid var(--blue-hover);
+  outline-offset: 2px;
 }
 
 .alert-dialog-root {
@@ -3981,6 +4017,22 @@ img.logo {
 
 .alert-dialog-actions .button {
   min-width: 6.8rem;
+  -webkit-appearance: none;
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--blue-hover);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  font-weight: 500;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+}
+
+.alert-dialog-actions .button:hover {
+  filter: brightness(1.04);
 }
 
 /* Game Category Intro Dialog */
