@@ -104,6 +104,10 @@
     height: 100%;
 }
 
+#winners table {
+    table-layout: fixed;
+}
+
 .lobby-ranking tr:nth-child(even) {
     background: var(--table-even);
 }
@@ -136,11 +140,27 @@
 }
 
 #winners td:nth-child(3) {
+    width: 61%;
+    white-space: nowrap;
     text-align: left;
+}
+
+#winners td.icon {
+    width: 1%;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+
+#winners td:first-child {
+    width: 38%;
 }
 
 #winners td:nth-child(3) a {
     color: var(--link-color);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .tv {
