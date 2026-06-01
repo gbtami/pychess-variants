@@ -112,6 +112,7 @@
     vertical-align: middle;
     padding: 0.5em 0.4em;
     font-size: 0.95em;
+    max-width: 21ch;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -140,12 +141,6 @@
 
 #winners td:nth-child(3) a {
     color: var(--link-color);
-    display: inline-block;
-    max-width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: top;
 }
 
 .tv {
