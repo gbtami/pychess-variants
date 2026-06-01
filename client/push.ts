@@ -11,7 +11,25 @@ function base64UrlToArrayBuffer(base64Url: string): ArrayBuffer {
     return output.buffer as ArrayBuffer;
 }
 
+function pushDebugEnabled(): boolean {
+    try {
+        return localStorage.getItem('push-debug') === 'true';
+    } catch {
+        return false;
+    }
+}
+
+function pushDebugLog(message: string, details?: unknown): void {
+    if (!pushDebugEnabled()) return;
+    if (details === undefined) {
+        console.info(`[push-debug] ${message}`);
+    } else {
+        console.info(`[push-debug] ${message}`, details);
+    }
+}
+
 async function postSubscription(subscription: PushSubscription): Promise<void> {
+    pushDebugLog('POST /push/subscribe', { endpoint: subscription.endpoint });
     const response = await fetch('/push/subscribe', {
         method: 'POST',
         headers: {
@@ -24,9 +42,11 @@ async function postSubscription(subscription: PushSubscription): Promise<void> {
     if (!response.ok || response.redirected) {
         throw new Error(`push subscribe failed: ${response.status}`);
     }
+    pushDebugLog('Subscription persisted server-side', { status: response.status });
 }
 
 async function postUnsubscribe(endpoint: string): Promise<void> {
+    pushDebugLog('POST /push/unsubscribe', { endpoint });
     const response = await fetch('/push/unsubscribe', {
         method: 'POST',
         headers: {
@@ -39,16 +59,28 @@ async function postUnsubscribe(endpoint: string): Promise<void> {
     if (!response.ok || response.redirected) {
         throw new Error(`push unsubscribe failed: ${response.status}`);
     }
+    pushDebugLog('Unsubscribe persisted server-side', { status: response.status });
 }
 
 export async function initPushSubscription(anon: string, vapidPublicKey: string): Promise<void> {
-    if (
-        anon === 'True' ||
-        !vapidPublicKey ||
-        !('serviceWorker' in navigator) ||
-        !('PushManager' in window) ||
-        !('Notification' in window)
-    ) {
+    if (anon === 'True') {
+        pushDebugLog('Skipping push init: anonymous user');
+        return;
+    }
+    if (!vapidPublicKey) {
+        pushDebugLog('Skipping push init: empty VAPID public key');
+        return;
+    }
+    if (!('serviceWorker' in navigator)) {
+        pushDebugLog('Skipping push init: browser has no serviceWorker support');
+        return;
+    }
+    if (!('PushManager' in window)) {
+        pushDebugLog('Skipping push init: browser has no PushManager support');
+        return;
+    }
+    if (!('Notification' in window)) {
+        pushDebugLog('Skipping push init: browser has no Notification support');
         return;
     }
 
@@ -58,6 +90,11 @@ export async function initPushSubscription(anon: string, vapidPublicKey: string)
     const syncWindowMs = 12 * 60 * 60 * 1000;
     const stored = Number(localStorage.getItem(lastSyncedKey) || 0);
     const needsResync = stored + syncWindowMs < Date.now();
+    pushDebugLog('Push init started', {
+        permission: Notification.permission,
+        needsResync,
+        lastSyncedAt: stored || null,
+    });
 
     let newSubscription: PushSubscription | null = null;
 
@@ -66,28 +103,46 @@ export async function initPushSubscription(anon: string, vapidPublicKey: string)
             scope: '/',
             updateViaCache: 'all',
         });
+        pushDebugLog('Service worker registration ok', {
+            scope: registration.scope,
+        });
 
         if (Notification.permission !== 'granted') {
+            pushDebugLog('Skipping push subscribe: Notification permission is not granted', {
+                permission: Notification.permission,
+            });
             return;
         }
 
         const existingSubscription = await registration.pushManager.getSubscription();
         if (existingSubscription && !needsResync) {
+            pushDebugLog('Existing subscription found and still fresh; no re-subscribe', {
+                endpoint: existingSubscription.endpoint,
+            });
             return;
+        }
+        if (existingSubscription && needsResync) {
+            pushDebugLog('Existing subscription found but resync window elapsed; renewing');
+        } else {
+            pushDebugLog('No existing subscription found; creating one');
         }
 
         newSubscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: base64UrlToArrayBuffer(vapidPublicKey),
         });
+        pushDebugLog('PushManager.subscribe() ok', { endpoint: newSubscription.endpoint });
 
         await postSubscription(newSubscription);
         localStorage.setItem(lastSyncedKey, `${Date.now()}`);
+        pushDebugLog('Push subscription initialization completed');
     } catch (error) {
         console.error('Failed to initialize web push subscription', error);
+        pushDebugLog('Push subscription initialization failed', error);
         if (newSubscription !== null) {
             try {
                 await newSubscription.unsubscribe();
+                pushDebugLog('Rolled back failed browser subscription');
             } catch {
                 // Ignore unsubscribe errors.
             }
@@ -97,6 +152,7 @@ export async function initPushSubscription(anon: string, vapidPublicKey: string)
 
 export async function disablePushSubscription(): Promise<void> {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        pushDebugLog('Skipping push disable: serviceWorker/PushManager not supported');
         return;
     }
 
@@ -104,6 +160,7 @@ export async function disablePushSubscription(): Promise<void> {
         // Iterate all registrations so we clean up even if a browser keeps multiple
         // service worker registrations during updates.
         const registrations = await navigator.serviceWorker.getRegistrations();
+        pushDebugLog('Disabling push subscriptions for registrations', { count: registrations.length });
         for (const registration of registrations) {
             const existingSubscription = await registration.pushManager.getSubscription();
             if (!existingSubscription) continue;
@@ -116,12 +173,17 @@ export async function disablePushSubscription(): Promise<void> {
 
             try {
                 await existingSubscription.unsubscribe();
+                pushDebugLog('Removed browser push subscription', {
+                    endpoint: existingSubscription.endpoint,
+                });
             } catch (error) {
                 console.warn('Failed to remove browser push subscription', error);
             }
         }
         localStorage.removeItem('push-subscribed');
+        pushDebugLog('Push disable flow completed');
     } catch (error) {
         console.warn('Failed to disable push subscription', error);
+        pushDebugLog('Push disable flow failed', error);
     }
 }

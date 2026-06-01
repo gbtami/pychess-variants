@@ -106,12 +106,36 @@ class PushNotifier:
         """Queue a corr-move notification when the user is eligible."""
 
         if not self.enabled:
+            log.debug(
+                "Skipping corr push enqueue for %s game=%s: notifier disabled",
+                user.username,
+                game_id,
+            )
             return
         if user.anon or user.bot:
+            log.debug(
+                "Skipping corr push enqueue for %s game=%s: anon=%s bot=%s",
+                user.username,
+                game_id,
+                user.anon,
+                user.bot,
+            )
             return
         if not user.corr_push_enabled:
+            log.debug(
+                "Skipping corr push enqueue for %s game=%s: preference disabled",
+                user.username,
+                game_id,
+            )
             return
         if user.is_user_active_in_game(game_id) or user.is_user_active_in_lobby():
+            log.debug(
+                "Skipping corr push enqueue for %s game=%s: user active game=%s lobby=%s",
+                user.username,
+                game_id,
+                user.is_user_active_in_game(game_id),
+                user.is_user_active_in_lobby(),
+            )
             return
 
         job = CorrMovePushJob(
@@ -122,6 +146,12 @@ class PushNotifier:
         )
         try:
             self.queue.put_nowait(job)
+            log.debug(
+                "Queued corr push job for %s game=%s queue_size=%s",
+                user.username,
+                game_id,
+                self.queue.qsize(),
+            )
         except asyncio.QueueFull:
             log.warning("Push queue full; dropping corr move push for %s", user.username)
 
@@ -154,7 +184,19 @@ class PushNotifier:
         cursor.limit(MAX_SUBSCRIPTIONS_PER_USER)
         subscriptions = await cursor.to_list(length=MAX_SUBSCRIPTIONS_PER_USER)
         if len(subscriptions) == 0:
+            log.info(
+                "No push subscriptions for %s; skipping corr push delivery game=%s",
+                job.username,
+                job.game_id,
+            )
             return
+
+        log.debug(
+            "Delivering corr push to %s subscriptions=%s game=%s",
+            job.username,
+            len(subscriptions),
+            job.game_id,
+        )
 
         payload = json.dumps(
             {
@@ -169,11 +211,17 @@ class PushNotifier:
         )
 
         stale_endpoints: list[str] = []
+        sent_count = 0
         for subscription in subscriptions:
             endpoint = str(subscription.get("endpoint", ""))
             auth = str(subscription.get("auth", ""))
             p256dh = str(subscription.get("p256dh", ""))
             if not endpoint or not auth or not p256dh:
+                log.debug(
+                    "Skipping malformed subscription for %s endpoint=%s",
+                    job.username,
+                    endpoint if endpoint else "<empty>",
+                )
                 continue
 
             subscription_info = {
@@ -186,6 +234,8 @@ class PushNotifier:
 
             try:
                 await self._send_with_retry(subscription_info, payload)
+                sent_count += 1
+                log.debug("Push sent for %s endpoint=%s", job.username, endpoint)
             except WebPushException as exc:
                 status_code = getattr(getattr(exc, "response", None), "status_code", None)
                 if status_code in (404, 410):
@@ -215,6 +265,19 @@ class PushNotifier:
                     "endpoint": {"$in": stale_endpoints},
                 }
             )
+            log.info(
+                "Removed stale push endpoints for %s count=%s",
+                job.username,
+                len(stale_endpoints),
+            )
+
+        log.debug(
+            "Finished corr push delivery for %s game=%s sent=%s stale=%s",
+            job.username,
+            job.game_id,
+            sent_count,
+            len(stale_endpoints),
+        )
 
     async def _send_with_retry(self, subscription_info: dict, payload: str) -> None:
         """Send push payload with bounded retry for transient errors only."""
@@ -274,37 +337,46 @@ async def push_subscribe(request: web.Request) -> web.StreamResponse:
 
     app_state = get_app_state(request.app)
     if app_state.db is None:
+        log.warning("Push subscribe rejected: database unavailable")
         return json_response({"error": "Push service unavailable."}, status=503)
     if not app_state.push_notifier.enabled:
+        log.warning("Push subscribe rejected: notifier is not configured")
         return json_response({"error": "Push service is not configured."}, status=503)
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
+        log.warning("Push subscribe rejected: authentication required")
         return json_response({"error": "Authentication required."}, status=401)
 
     user = await app_state.users.get(session_user)
     if user.anon:
+        log.warning("Push subscribe rejected for %s: anon user", session_user)
         return json_response({"error": "Authenticated users only."}, status=403)
 
     try:
         body = await request.json()
     except Exception:
+        log.warning("Push subscribe rejected for %s: invalid JSON body", user.username)
         return json_response({"error": "Invalid JSON body."}, status=400)
 
     if not isinstance(body, dict):
+        log.warning("Push subscribe rejected for %s: payload is not an object", user.username)
         return json_response({"error": "Invalid subscription payload."}, status=400)
 
     keys = body.get("keys")
     endpoint = body.get("endpoint")
     if not isinstance(keys, dict) or not isinstance(endpoint, str) or endpoint.strip() == "":
+        log.warning("Push subscribe rejected for %s: missing endpoint or keys", user.username)
         return json_response({"error": "Missing endpoint or keys."}, status=400)
 
     auth = keys.get("auth")
     p256dh = keys.get("p256dh")
     if not isinstance(auth, str) or auth.strip() == "":
+        log.warning("Push subscribe rejected for %s: missing keys.auth", user.username)
         return json_response({"error": "Missing keys.auth."}, status=400)
     if not isinstance(p256dh, str) or p256dh.strip() == "":
+        log.warning("Push subscribe rejected for %s: missing keys.p256dh", user.username)
         return json_response({"error": "Missing keys.p256dh."}, status=400)
 
     now = datetime.now(timezone.utc)
@@ -342,6 +414,17 @@ async def push_subscribe(request: web.Request) -> web.StreamResponse:
                     "endpoint": {"$in": stale_endpoints},
                 }
             )
+            log.info(
+                "Trimmed push subscriptions for %s removed=%s",
+                user.username,
+                len(stale_endpoints),
+            )
+
+    log.info(
+        "Push subscription upserted for %s endpoint=%s",
+        user.username,
+        endpoint,
+    )
 
     return json_response({"ok": True})
 
@@ -351,15 +434,18 @@ async def push_unsubscribe(request: web.Request) -> web.StreamResponse:
 
     app_state = get_app_state(request.app)
     if app_state.db is None:
+        log.warning("Push unsubscribe rejected: database unavailable")
         return json_response({"error": "Push service unavailable."}, status=503)
 
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     if session_user is None:
+        log.warning("Push unsubscribe rejected: authentication required")
         return json_response({"error": "Authentication required."}, status=401)
 
     user = await app_state.users.get(session_user)
     if user.anon:
+        log.warning("Push unsubscribe rejected for %s: anon user", session_user)
         return json_response({"error": "Authenticated users only."}, status=403)
 
     endpoint = ""
@@ -376,7 +462,9 @@ async def push_unsubscribe(request: web.Request) -> web.StreamResponse:
         await app_state.db[PUSH_SUBSCRIPTION_COLLECTION].delete_many(
             {"user": user.username, "endpoint": endpoint}
         )
+        log.info("Push endpoint removed for %s endpoint=%s", user.username, endpoint)
     else:
         await app_state.db[PUSH_SUBSCRIPTION_COLLECTION].delete_many({"user": user.username})
+        log.info("All push endpoints removed for %s", user.username)
 
     return json_response({"ok": True})
