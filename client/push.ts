@@ -11,6 +11,19 @@ function base64UrlToArrayBuffer(base64Url: string): ArrayBuffer {
     return output.buffer as ArrayBuffer;
 }
 
+function equalUint8Arrays(a: Uint8Array, b: Uint8Array): boolean {
+    if (a.length !== b.length) return false;
+    for (let index = 0; index < a.length; index += 1) {
+        if (a[index] !== b[index]) return false;
+    }
+    return true;
+}
+
+function asUint8Array(value: BufferSource): Uint8Array {
+    if (value instanceof ArrayBuffer) return new Uint8Array(value);
+    return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+}
+
 function pushDebugEnabled(): boolean {
     try {
         return localStorage.getItem('push-debug') === 'true';
@@ -97,6 +110,7 @@ export async function initPushSubscription(anon: string, vapidPublicKey: string)
     });
 
     let newSubscription: PushSubscription | null = null;
+    const desiredServerKey = new Uint8Array(base64UrlToArrayBuffer(vapidPublicKey));
 
     try {
         const registration = await navigator.serviceWorker.register('/service-worker.js', {
@@ -115,13 +129,34 @@ export async function initPushSubscription(anon: string, vapidPublicKey: string)
         }
 
         const existingSubscription = await registration.pushManager.getSubscription();
-        if (existingSubscription && !needsResync) {
+        const existingServerKey = existingSubscription?.options?.applicationServerKey ?? null;
+        const keyMismatch = existingServerKey
+            ? !equalUint8Arrays(asUint8Array(existingServerKey), desiredServerKey)
+            : true;
+
+        if (existingSubscription && !needsResync && !keyMismatch) {
             pushDebugLog('Existing subscription found and still fresh; no re-subscribe', {
                 endpoint: existingSubscription.endpoint,
             });
             return;
         }
-        if (existingSubscription && needsResync) {
+        if (existingSubscription && keyMismatch) {
+            pushDebugLog('Existing subscription server key mismatch; renewing subscription', {
+                endpoint: existingSubscription.endpoint,
+            });
+
+            try {
+                await postUnsubscribe(existingSubscription.endpoint);
+            } catch (error) {
+                console.warn('Failed to remove stale server-side push subscription', error);
+            }
+
+            try {
+                await existingSubscription.unsubscribe();
+            } catch (error) {
+                console.warn('Failed to remove stale browser push subscription', error);
+            }
+        } else if (existingSubscription && needsResync) {
             pushDebugLog('Existing subscription found but resync window elapsed; renewing');
         } else {
             pushDebugLog('No existing subscription found; creating one');

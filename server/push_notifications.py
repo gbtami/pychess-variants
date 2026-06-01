@@ -296,7 +296,7 @@ class PushNotifier:
                 log.debug("Push sent for %s endpoint=%s", job.username, endpoint)
             except WebPushException as exc:
                 status_code = getattr(getattr(exc, "response", None), "status_code", None)
-                if status_code in (404, 410):
+                if status_code in (401, 404, 410):
                     # Endpoint is gone; remove it after this loop.
                     stale_endpoints.append(endpoint)
                 else:
