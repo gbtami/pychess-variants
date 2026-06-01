@@ -50,7 +50,7 @@
     "esm": "^3.2.25",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
-    "jsdom": "^28.1.0",
+    "jsdom": "^29.1.1",
     "jsdom-global": "^3.0.2",
     "postcss": "8.x",
     "showdown": "^2.1.0",
