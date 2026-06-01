@@ -19,7 +19,7 @@ export function initUblogEditor(): void {
         height: '60vh',
         initialValue: markdownField.value || '',
         initialEditType: 'wysiwyg',
-        hideModeSwitch: true,
+        hideModeSwitch: false,
         toolbarItems: [
             ['heading', 'bold', 'italic', 'strike'],
             ['hr', 'quote'],

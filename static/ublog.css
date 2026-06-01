@@ -542,10 +542,6 @@
   margin: 6px 3px;
 }
 
-.ublog-page .markdown-toastui .toastui-editor-md-tab-container {
-  display: none;
-}
-
 .ublog-page .markdown-toastui .toastui-editor-contents,
 .ublog-page .markdown-toastui .toastui-editor-md-preview,
 .ublog-page .markdown-toastui .toastui-editor-md-container,
