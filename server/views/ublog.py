@@ -244,7 +244,7 @@ async def _is_safe_image_host(hostname: str) -> bool:
 
     for info in addr_infos:
         ip_value = info[4][0]
-        if not _is_public_ip(ip_value):
+        if not isinstance(ip_value, str) or not _is_public_ip(ip_value):
             return False
     return True
 
