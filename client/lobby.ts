@@ -1038,9 +1038,10 @@ export class LobbyController implements ChatController {
             .map((entry: LeaderboardEntry) => {
                 const variant = VARIANTS[entry.variant];
                 if (!variant) return null;
+                const variantName = variant.displayName(entry.chess960);
                 return h('tr', [
                     h('td', this.userWithTitle(entry.username, entry.title)),
-                    h('td.icon', { attrs: { "data-icon": variant.icon(entry.chess960) } }, [h('variant-name', " " + variant.displayName(entry.chess960))]),
+                    h('td.icon', { attrs: { "data-icon": variant.icon(entry.chess960), "title": variantName } }),
                     h('td', String(entry.rating)),
                 ]);
             })
@@ -1065,9 +1066,10 @@ export class LobbyController implements ChatController {
             .map((entry: TournamentWinnerEntry) => {
                 const variant = VARIANTS[entry.variant];
                 if (!variant) return null;
+                const variantName = variant.displayName(entry.chess960);
                 return h('tr', [
                     h('td', this.userWithTitle(entry.username, entry.title)),
-                    h('td.icon', { attrs: { "data-icon": variant.icon(entry.chess960) } }, [h('variant-name', " " + variant.displayName(entry.chess960))]),
+                    h('td.icon', { attrs: { "data-icon": variant.icon(entry.chess960), "title": variantName } }),
                     h('td', [
                         h('a.tourname', { attrs: { href: `/tournament/${entry.tid}`, title: entry.tournament } }, entry.tournament),
                     ]),
