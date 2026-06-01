@@ -2,10 +2,12 @@ import asyncio
 import logging
 import logging.config
 import contextvars
+from copy import deepcopy
 from typing import Any
 import traceback
 
 import msgspec
+from settings import DEV
 
 log = logging.getLogger(__name__)
 _STRUCTURED_LOG_JSON_ENCODER = msgspec.json.Encoder()
@@ -275,14 +277,39 @@ class AddJsonStructuredLogRecordInContextFilter(logging.Filter):
 # logging before initializing the Web App's event loop will use this,
 # after that it will be re-initialized again with what is in the mongo db if any
 def init_default_logger():
-    logging.config.dictConfig(DEFAULT_LOGGING_CONFIG)
+    logging.config.dictConfig(_apply_dev_logging_overrides(DEFAULT_LOGGING_CONFIG))
     log.info("Logging initialized with default config")
+
+
+def _apply_dev_logging_overrides(logging_config: dict[str, Any]) -> dict[str, Any]:
+    """Force verbose logging on DEV without requiring Mongo config edits."""
+
+    if not DEV:
+        return logging_config
+
+    config = deepcopy(logging_config)
+    handlers = config.setdefault("handlers", {})
+    default_handler = handlers.setdefault("default", {})
+    default_handler["level"] = "DEBUG"
+
+    loggers = config.setdefault("loggers", {})
+    root_logger = loggers.setdefault("", {})
+    root_logger["level"] = "DEBUG"
+    root_logger.setdefault("handlers", ["default"])
+    root_logger.setdefault("propagate", False)
+
+    push_logger = loggers.setdefault("push_notifications", {})
+    push_logger["level"] = "DEBUG"
+    push_logger.setdefault("handlers", ["default"])
+    push_logger.setdefault("propagate", False)
+
+    return config
 
 
 # periodic refresh of logging config from mongo:
 async def start_config_refresh_timer(db: Any) -> asyncio.Task[None] | None:
     async def periodic_refresh():
-        last_logging_config = DEFAULT_LOGGING_CONFIG
+        last_logging_config = None
         while True:
             logging_config = await db.config.find_one({"name": "logging.config"})
             if logging_config is None:
@@ -290,14 +317,16 @@ async def start_config_refresh_timer(db: Any) -> asyncio.Task[None] | None:
                 await db.config.insert_one(
                     {"name": "logging.config", "value": DEFAULT_LOGGING_CONFIG}
                 )
+                logging.config.dictConfig(_apply_dev_logging_overrides(DEFAULT_LOGGING_CONFIG))
+                last_logging_config = DEFAULT_LOGGING_CONFIG
             elif last_logging_config != logging_config["value"]:
                 log.info("New logging config detected in db")
                 last_logging_config = logging_config["value"]
-                logging.config.dictConfig(logging_config["value"])
+                logging.config.dictConfig(_apply_dev_logging_overrides(logging_config["value"]))
             await asyncio.sleep(60)
 
     if db:
         return asyncio.create_task(periodic_refresh(), name="logging-config-refresh")
     else:
-        logging.config.dictConfig(DEFAULT_LOGGING_CONFIG)
+        logging.config.dictConfig(_apply_dev_logging_overrides(DEFAULT_LOGGING_CONFIG))
         return None
