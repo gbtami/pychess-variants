@@ -164,36 +164,12 @@ class PushNotifier:
         """Queue a corr-move notification when the user is eligible."""
 
         if not self.enabled:
-            log.debug(
-                "Skipping corr push enqueue for %s game=%s: notifier disabled",
-                user.username,
-                game_id,
-            )
             return
         if user.anon or user.bot:
-            log.debug(
-                "Skipping corr push enqueue for %s game=%s: anon=%s bot=%s",
-                user.username,
-                game_id,
-                user.anon,
-                user.bot,
-            )
             return
         if not user.corr_push_enabled:
-            log.debug(
-                "Skipping corr push enqueue for %s game=%s: preference disabled",
-                user.username,
-                game_id,
-            )
             return
         if user.is_user_active_in_game(game_id) or user.is_user_active_in_lobby():
-            log.debug(
-                "Skipping corr push enqueue for %s game=%s: user active game=%s lobby=%s",
-                user.username,
-                game_id,
-                user.is_user_active_in_game(game_id),
-                user.is_user_active_in_lobby(),
-            )
             return
 
         job = CorrMovePushJob(
@@ -204,12 +180,6 @@ class PushNotifier:
         )
         try:
             self.queue.put_nowait(job)
-            log.debug(
-                "Queued corr push job for %s game=%s queue_size=%s",
-                user.username,
-                game_id,
-                self.queue.qsize(),
-            )
         except asyncio.QueueFull:
             log.warning("Push queue full; dropping corr move push for %s", user.username)
 
@@ -249,13 +219,6 @@ class PushNotifier:
             )
             return
 
-        log.debug(
-            "Delivering corr push to %s subscriptions=%s game=%s",
-            job.username,
-            len(subscriptions),
-            job.game_id,
-        )
-
         payload = json.dumps(
             {
                 "title": "It's your turn!",
@@ -275,11 +238,6 @@ class PushNotifier:
             auth = str(subscription.get("auth", ""))
             p256dh = str(subscription.get("p256dh", ""))
             if not endpoint or not auth or not p256dh:
-                log.debug(
-                    "Skipping malformed subscription for %s endpoint=%s",
-                    job.username,
-                    endpoint if endpoint else "<empty>",
-                )
                 continue
 
             subscription_info = {
@@ -293,7 +251,6 @@ class PushNotifier:
             try:
                 await self._send_with_retry(subscription_info, payload)
                 sent_count += 1
-                log.debug("Push sent for %s endpoint=%s", job.username, endpoint)
             except WebPushException as exc:
                 status_code = getattr(getattr(exc, "response", None), "status_code", None)
                 if status_code in (401, 404, 410):
@@ -329,13 +286,12 @@ class PushNotifier:
                 len(stale_endpoints),
             )
 
-        log.debug(
-            "Finished corr push delivery for %s game=%s sent=%s stale=%s",
-            job.username,
-            job.game_id,
-            sent_count,
-            len(stale_endpoints),
-        )
+        if sent_count == 0:
+            log.info(
+                "No corr push delivered for %s game=%s",
+                job.username,
+                job.game_id,
+            )
 
     async def _send_with_retry(self, subscription_info: dict, payload: str) -> None:
         """Send push payload with bounded retry for transient errors only."""
