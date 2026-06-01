@@ -218,7 +218,9 @@ class PychessGlobalAppState:
         for variant_key, scores in self.highscore.items():
             if len(scores) == 0:
                 continue
-            identity, rating = scores.peekitem(0)
+            top_entry = scores.peekitem(0)
+            identity = str(top_entry[0])
+            rating = int(top_entry[1])
             username, sep, title = identity.partition("|")
             leaderboard.append(
                 {
@@ -248,7 +250,7 @@ class PychessGlobalAppState:
             filter_cond, projection=projection, sort=[("startsAt", -1)]
         )
 
-        rows: list[dict[str, object]] = []
+        rows: list[tuple[str, bool, str, str, str]] = []
         usernames: set[str] = set()
         async for doc in cursor:
             variant_code = doc.get("v")
@@ -266,31 +268,29 @@ class PychessGlobalAppState:
             if not isinstance(winner, str) or winner == "":
                 continue
 
-            rows.append(
-                {
-                    "variant": variant_name,
-                    "chess960": chess960,
-                    "username": winner,
-                    "tid": str(doc["_id"]),
-                    "tournament": doc.get("name", ""),
-                }
-            )
+            tournament_name = doc.get("name", "")
+            if not isinstance(tournament_name, str):
+                tournament_name = str(tournament_name)
+
+            rows.append((variant_name, chess960, winner, str(doc["_id"]), tournament_name))
             usernames.add(winner)
             if len(rows) >= limit:
                 break
 
         titles = await self.public_users.get_titles(usernames)
-        self.lobby_tournament_winners = [
-            {
-                "variant": row["variant"],
-                "chess960": bool(row["chess960"]),
-                "username": str(row["username"]),
-                "title": titles.get(str(row["username"]), ""),
-                "tid": str(row["tid"]),
-                "tournament": str(row["tournament"]),
-            }
-            for row in rows
-        ]
+        winners: list["TournamentWinnerEntry"] = []
+        for variant, chess960, username, tid, tournament_name in rows:
+            winners.append(
+                {
+                    "variant": variant,
+                    "chess960": chess960,
+                    "username": username,
+                    "title": titles.get(username, ""),
+                    "tid": tid,
+                    "tournament": tournament_name,
+                }
+            )
+        self.lobby_tournament_winners = winners
 
     async def init_from_db(self):
         if self.db is None:
