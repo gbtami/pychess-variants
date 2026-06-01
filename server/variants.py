@@ -178,9 +178,7 @@ VARIANT_ICONS: dict[str, str] = {variant.server_name: variant.icon for variant i
 DEV_VARIANTS: tuple[ServerVariants, ...] = (
     ServerVariants.MAKBUG,
     ServerVariants.SUPPLY,
-    ServerVariants.JIEQI,
     ServerVariants.BORDERLANDS,
-    ServerVariants.SHOSHOGI,
     ServerVariants.YOKAI,
 )
 

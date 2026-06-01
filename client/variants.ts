@@ -1301,7 +1301,7 @@ export const noPuzzleVariants = [
 
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 
-export const devVariants = ["borderlands", "makbug", "supply", "jieqi", "shoshogi", "yokai"];
+export const devVariants = ["borderlands", "makbug", "supply", "yokai"];
 
 export function disabledVariantsForCreateMode(
     createMode: "createGame" | "playFriend" | "playAI" | "playBOT" | "createHost",
