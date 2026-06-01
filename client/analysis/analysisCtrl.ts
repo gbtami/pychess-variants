@@ -132,6 +132,8 @@ export class AnalysisController extends GameController {
     private readonly onKeyboardHelpShortcutKeyDown: (event: KeyboardEvent) => void;
     private readonly onKeyboardHelpKeyDown: (event: KeyboardEvent) => void;
     private readonly pvHoverPreview: PvHoverPreview;
+    private awaitingStopReadyok: boolean;
+    private pendingGoAfterStopReadyok: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -195,6 +197,8 @@ export class AnalysisController extends GameController {
         this.analysisPath = '';
         this.treeForkIndex = 0;
         this.keyboardHelpOpen = false;
+        this.awaitingStopReadyok = false;
+        this.pendingGoAfterStopReadyok = false;
         this.onTreeContextMenuDocumentClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
             if (target?.closest('.tree-context-menu')) return;
@@ -952,7 +956,16 @@ export class AnalysisController extends GameController {
 
         if (line.includes('uciok')) this.uciOk = true;
 
-        if (line.includes('readyok')) this.isEngineReady = true;
+        if (line.includes('readyok')) {
+            this.isEngineReady = true;
+            if (this.awaitingStopReadyok) {
+                this.awaitingStopReadyok = false;
+                if (this.pendingGoAfterStopReadyok && this.localAnalysis) {
+                    this.pendingGoAfterStopReadyok = false;
+                    this.engineGo();
+                }
+            }
+        }
 
         if (line.startsWith('Fairy-Stockfish')) {
             window.prompt = function() {
@@ -995,7 +1008,7 @@ export class AnalysisController extends GameController {
 
         this.refreshLocalAnalysisAvailabilityForAntiCheat();
 
-        if (!this.localAnalysis || !this.isEngineReady) return;
+        if (!this.localAnalysis || !this.isEngineReady || this.awaitingStopReadyok) return;
 
         const matches = line.match(EVAL_REGEX);
         if (!matches) {
@@ -1209,15 +1222,22 @@ export class AnalysisController extends GameController {
     }
 
     engineStop = () => {
-        // Local restarts happen on every explored move. Once the engine has already
-        // completed its initial handshake, a plain `stop` is enough here.
-        // Resetting readiness on each ply can leave the UI toggle disabled and
-        // drop subsequent PV lines while we wait for another `readyok`.
+        // Keep the toggle enabled, but still synchronize restart sequencing.
+        // We wait for the matching `readyok` before sending the next `position/go`
+        // so stale PV output from the previous position does not flood the UI.
+        this.awaitingStopReadyok = true;
+        this.pendingGoAfterStopReadyok = false;
         this.fsfPostMessage('stop');
+        this.fsfPostMessage('isready');
     }
 
     engineGo = () => {
         if (!this.variantSupportedByFSF) return;
+        if (this.awaitingStopReadyok) {
+            this.pendingGoAfterStopReadyok = true;
+            return;
+        }
+        this.pendingGoAfterStopReadyok = false;
         this.lastBroadcastLocalAnalysisFen = undefined;
 
         if (this.chess960) {
