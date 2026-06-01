@@ -210,6 +210,10 @@ function setCorrPushEnabled(value: boolean) {
         if (!response.ok) throw new Error(`corr push pref failed: ${response.status}`);
 
         if (value) {
+            if ('Notification' in window && Notification.permission === 'default') {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') return;
+            }
             // Persist preference first, then sync/create browser subscription.
             const anon = getDocumentData('anon') ?? 'True';
             const vapidPublicKey = getDocumentData('vapid') ?? '';
