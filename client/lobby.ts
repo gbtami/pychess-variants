@@ -92,6 +92,8 @@ export class LobbyController implements ChatController {
     seeks: Seek[];
     streams: VNode | HTMLElement;
     spotlights: VNode | HTMLElement;
+    leaders: VNode | HTMLElement;
+    winners: VNode | HTMLElement;
     dialogHeaderEl: VNode | HTMLElement;
     autoPairingActions: VNode | HTMLElement | null;
     tvGame: TvGame;
@@ -148,6 +150,8 @@ export class LobbyController implements ChatController {
         this.streams = document.getElementById('streams') as HTMLElement;
 
         this.spotlights = document.getElementById('spotlights') as HTMLElement;
+        this.leaders = document.getElementById('leaders') as HTMLElement;
+        this.winners = document.getElementById('winners') as HTMLElement;
 
         this.dialogHeaderEl = document.getElementById('header-block') as HTMLElement;
 
@@ -1417,11 +1421,11 @@ export class LobbyController implements ChatController {
     }
 
     private onMsgLeaderboard(msg: MsgLeaderboard) {
-        patch(document.getElementById('leaders') as HTMLElement, this.leadersView(msg));
+        this.leaders = patch(this.leaders, this.leadersView(msg));
     }
 
     private onMsgTournamentWinners(msg: MsgTournamentWinners) {
-        patch(document.getElementById('winners') as HTMLElement, this.winnersView(msg));
+        this.winners = patch(this.winners, this.winnersView(msg));
     }
 
     private onMsgSpotlights(msg: MsgSpotlights) {
