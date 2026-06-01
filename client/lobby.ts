@@ -1632,6 +1632,10 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     ]),
                 ])
             )),
+            h('div.lobby-ranking-panels', [
+                h('div#leaders.lobby-ranking'),
+                h('div#winners.lobby-ranking'),
+            ]),
             h('div.lobby-links-block', [
                 h('a.reflist', { attrs: { href: 'https://discord.gg/aPs8RKr', rel: "noopener", target: "_blank" } }, 'Discord'),
                 h('a.reflist', { attrs: { href: 'https://github.com/gbtami/pychess-variants', rel: "noopener", target: "_blank" } }, 'Github'),
@@ -1647,8 +1651,6 @@ export function lobbyView(model: PyChessModel): VNode[] {
                 ]),
             ]),
         ]),
-        h('div#leaders.lobby-ranking'),
-        h('div#winners.lobby-ranking'),
         h('div.puzzle', showPuzzle ? [h('a#daily-puzzle', { attrs: {href: '/puzzle/daily'} }, dailyPuzzle)] : []),
     ];
 }

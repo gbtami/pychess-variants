@@ -49,12 +49,17 @@
   text-align: center;
 }
 }
-#leaders {
-    grid-area: leader;
+.lobby-ranking-panels {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
 }
 
-#winners {
-    grid-area: winner;
+@media (min-width: 800px) {
+    .lobby-ranking-panels {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 .lobby-ranking {
