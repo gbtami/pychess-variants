@@ -237,7 +237,12 @@ class PychessGlobalAppState:
             self.lobby_tournament_winners = []
             return
 
-        filter_cond = {"status": {"$in": [T_FINISHED, T_ARCHIVED]}, "winner": {"$exists": True}}
+        filter_cond = {
+            "status": {"$in": [T_FINISHED, T_ARCHIVED]},
+            "winner": {"$exists": True},
+            "nbGames": {"$gt": 0},
+            "nbPlayers": {"$gte": 2},
+        }
         projection = {"_id": 1, "winner": 1, "name": 1, "v": 1, "z": 1, "startsAt": 1}
         cursor = self.db.tournament.find(
             filter_cond, projection=projection, sort=[("startsAt", -1)]
