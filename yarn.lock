@@ -957,10 +957,10 @@
   resolved "https://registry.yarnpkg.com/@types/gettext.js/-/gettext.js-2.0.0.tgz#124fac94eb161c23b2505c2b9455d90437f271df"
   integrity sha512-sMtuXoyhrdpPOCuYiiyqy9JzhVZ9Ykp524NQsAcmL1QgPGXW9XPvXU3MUyb/7nudV7p41K7szmyZ2r8PbfvJ4g==
 
-"@types/howler@^2.2.12":
-  version "2.2.12"
-  resolved "https://registry.yarnpkg.com/@types/howler/-/howler-2.2.12.tgz#078d20787911f6e3e871a0e93a23832e13abaa59"
-  integrity sha512-hy769UICzOSdK0Kn1FBk4gN+lswcj1EKRkmiDtMkUGvFfYJzgaDXmVXkSShS2m89ERAatGIPnTUlp2HhfkVo5g==
+"@types/howler@^2.2.13":
+  version "2.2.13"
+  resolved "https://registry.yarnpkg.com/@types/howler/-/howler-2.2.13.tgz#16fe866b3494f5a825041b232ae06de18ec1b2e7"
+  integrity sha512-40+EBjqIHHrC4VShlz/7i0lBUsE3QkgzZinQQji74Hd8sBkJZUBaT7LWFLK6rcabsDOOQpoMbEJvtaFQwxOu/g==
 
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.1", "@types/istanbul-lib-coverage@^2.0.6":
   version "2.0.6"
