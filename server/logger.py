@@ -303,6 +303,11 @@ def _apply_dev_logging_overrides(logging_config: dict[str, Any]) -> dict[str, An
     push_logger.setdefault("handlers", ["default"])
     push_logger.setdefault("propagate", False)
 
+    pymongo_logger = loggers.setdefault("pymongo", {})
+    pymongo_logger["level"] = "ERROR"
+    pymongo_logger.setdefault("handlers", ["default"])
+    pymongo_logger.setdefault("propagate", False)
+
     return config
 
 
