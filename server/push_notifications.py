@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 
 import aiohttp_session
 from aiohttp import web
+from cryptography.hazmat.primitives import serialization
 from tenacity import (
     AsyncRetrying,
     before_sleep_log,
@@ -71,16 +72,39 @@ class PushSendRetryableError(Exception):
 
 
 class PushNotifier:
+    @staticmethod
+    def _strip_wrapping_quotes(value: str) -> str:
+        if len(value) >= 2 and (
+            (value[0] == '"' and value[-1] == '"') or (value[0] == "'" and value[-1] == "'")
+        ):
+            return value[1:-1]
+        return value
+
+    @classmethod
+    def _normalize_vapid_private_key(cls, raw_value: str) -> str:
+        key = cls._strip_wrapping_quotes(raw_value.strip())
+        # Accept env values that store PEM newlines as escaped sequences.
+        if "\\n" in key:
+            key = key.replace("\\n", "\n")
+        return key.strip()
+
+    @staticmethod
+    def _validate_vapid_private_key(private_key: str) -> tuple[bool, str | None]:
+        try:
+            serialization.load_pem_private_key(private_key.encode("utf-8"), password=None)
+            return (True, None)
+        except Exception as exc:
+            return (False, f"{type(exc).__name__}: {exc}")
+
     def __init__(self, app_state):
         self.app_state = app_state
         self.queue: asyncio.Queue[CorrMovePushJob] = asyncio.Queue(maxsize=PUSH_QUEUE_MAXSIZE)
 
-        private_key = PUSH_VAPID_PRIVATE_KEY.strip()
-        if "\\n" in private_key:
-            private_key = private_key.replace("\\n", "\n")
+        private_key = self._normalize_vapid_private_key(PUSH_VAPID_PRIVATE_KEY)
+        vapid_public_key = self._strip_wrapping_quotes(PUSH_VAPID_PUBLIC_KEY.strip())
 
         self.vapid_private_key = private_key
-        self.vapid_public_key = PUSH_VAPID_PUBLIC_KEY.strip()
+        self.vapid_public_key = vapid_public_key
         self.vapid_claims: dict[str, str | int] = {"sub": PUSH_VAPID_SUBJECT}
         self.retry_attempts = PUSH_RETRY_MAX_ATTEMPTS
         self.retry_wait_initial_seconds = PUSH_RETRY_WAIT_INITIAL_SECONDS
@@ -101,6 +125,16 @@ class PushNotifier:
             log.info("Web push disabled: PUSH_VAPID_PUBLIC_KEY is not configured")
         elif not self.vapid_private_key:
             log.info("Web push disabled: PUSH_VAPID_PRIVATE_KEY is not configured")
+        else:
+            private_key_ok, private_key_error = self._validate_vapid_private_key(
+                self.vapid_private_key
+            )
+            if not private_key_ok:
+                self.enabled = False
+                log.error(
+                    "Web push disabled: invalid PUSH_VAPID_PRIVATE_KEY format (%s)",
+                    private_key_error,
+                )
 
     def enqueue_corr_move(self, user: User, game_id: str, opponent: str, san: str) -> None:
         """Queue a corr-move notification when the user is eligible."""
@@ -317,8 +351,7 @@ class PushNotifier:
                     raise
                 except Exception as exc:
                     raise PushSendRetryableError(
-                        "Retryable push delivery failure: "
-                        f"{type(exc).__name__}: {exc}"
+                        f"Retryable push delivery failure: {type(exc).__name__}: {exc}"
                     ) from exc
 
 
