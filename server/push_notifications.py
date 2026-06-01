@@ -14,11 +14,10 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import aiohttp_session
 from aiohttp import web
-from cryptography.hazmat.primitives import serialization
 from tenacity import (
     AsyncRetrying,
     before_sleep_log,
@@ -38,9 +37,11 @@ log = logging.getLogger(__name__)
 
 try:
     from pywebpush import WebPushException, webpush
+    from py_vapid import Vapid
 except ImportError:  # pragma: no cover - covered via config fallback in runtime
     WebPushException = Exception  # type: ignore[assignment]
     webpush = None
+    Vapid = None
 
 
 PUSH_SUBSCRIPTION_COLLECTION = "push_subscription"
@@ -90,8 +91,14 @@ class PushNotifier:
 
     @staticmethod
     def _validate_vapid_private_key(private_key: str) -> tuple[bool, str | None]:
+        if Vapid is None:
+            return (False, "py_vapid is not available")
+
         try:
-            serialization.load_pem_private_key(private_key.encode("utf-8"), password=None)
+            if "-----BEGIN PRIVATE KEY-----" in private_key:
+                Vapid.from_pem(private_key.encode("utf-8"))
+            else:
+                Vapid.from_string(private_key)
             return (True, None)
         except Exception as exc:
             return (False, f"{type(exc).__name__}: {exc}")
@@ -105,6 +112,7 @@ class PushNotifier:
 
         self.vapid_private_key = private_key
         self.vapid_public_key = vapid_public_key
+        self.vapid_private_key_for_send: str | Any = private_key
         self.vapid_claims: dict[str, str | int] = {"sub": PUSH_VAPID_SUBJECT}
         self.retry_attempts = PUSH_RETRY_MAX_ATTEMPTS
         self.retry_wait_initial_seconds = PUSH_RETRY_WAIT_INITIAL_SECONDS
@@ -135,6 +143,22 @@ class PushNotifier:
                     "Web push disabled: invalid PUSH_VAPID_PRIVATE_KEY format (%s)",
                     private_key_error,
                 )
+            elif "-----BEGIN PRIVATE KEY-----" in self.vapid_private_key:
+                # pywebpush parses string keys via Vapid.from_string(), which
+                # does not accept PEM. Convert PEM to a Vapid instance once.
+                try:
+                    if Vapid is None:
+                        raise RuntimeError("py_vapid is not available")
+                    self.vapid_private_key_for_send = Vapid.from_pem(
+                        self.vapid_private_key.encode("utf-8")
+                    )
+                except Exception as exc:
+                    self.enabled = False
+                    log.error(
+                        "Web push disabled: failed to prepare VAPID key object (%s: %s)",
+                        type(exc).__name__,
+                        exc,
+                    )
 
     def enqueue_corr_move(self, user: User, game_id: str, opponent: str, san: str) -> None:
         """Queue a corr-move notification when the user is eligible."""
@@ -337,7 +361,7 @@ class PushNotifier:
                         send_webpush,
                         subscription_info=subscription_info,
                         data=payload,
-                        vapid_private_key=self.vapid_private_key,
+                        vapid_private_key=self.vapid_private_key_for_send,
                         vapid_claims=self.vapid_claims,
                     )
                 except WebPushException as exc:
