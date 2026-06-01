@@ -24,39 +24,39 @@ And yes, this includes:
 
 ## What’s new since the Xiangfu announcement?
 
-- **More variants**
+**More variants**
   - Jieqi and Sho Shogi are now part of this rollout.
   - Ongoing piece-set and visual updates for several families.
 
-- **New Forum feature**
+**New Forum feature**
   - Reactions, mentions, cleaner layout, and moderation support.
   - Anti-spam checks to keep discussions readable.
   - Connection between blog discussions and forum topics.
 
-- **New Inbox / Personal Messages feature**
+**New Inbox / Personal Messages feature**
   - Direct private messaging between players.
   - Better message layout and easier conversation flow.
   - Works together with the new mini-profile widget used across the site.
 
-- **New player reporting and moderation feature**
+**New player reporting and moderation feature**
   - Cleaner report pages.
   - Faster moderator workflow.
   - Clearer report FAQ and follow-up flow.
 
-- **New Blog authoring feature**
+**New Blog authoring feature**
   - New blog editor and post layout.
   - Better blog discovery and profile blog pages.
   - Cleaner image/video embedding in posts.
 
-- **New analysis tree experience**
+**New analysis tree experience**
   - Full analysis tree support, not just sideline-only view.
   - Easier move navigation and cleaner analysis workflow.
 
-- **Correspondence quality-of-life**
+**Correspondence quality-of-life**
   - Optional push notifications for correspondence moves.
   - More reliable delivery and easier notification settings.
 
-- **Account and privacy improvements**
+**Account and privacy improvements**
   - Better account tools and privacy/legal pages.
   - Ongoing safety and anti-abuse improvements.
 
