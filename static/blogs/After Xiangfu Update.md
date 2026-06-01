@@ -2,7 +2,7 @@
 <div class="meta-headline">
     <div class= "meta">
         <span class="text">2026.06.01</span>
-        <span class="text"><a href="/@/CouchTomato87">@CouchTomato87</a></span>
+        <span class="text"><a href="/@/gbtami">@gbtami</a></span>
         <span class="text">Announcements</span>
     </div>
     <div class= "headline">New variants, community tools, and quality-of-life upgrades</div>
@@ -64,4 +64,4 @@ As usual, this release also includes many bug fixes and polish across the site.
 
 Thanks to everyone who tested, reported issues, and kept giving feedback.
 
--Couch Tomato
+-gbtami
