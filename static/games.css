@@ -31,12 +31,15 @@ minigame .row {
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
     padding-bottom: 4px;
 }
 minigame .variant-info {
     display: inline-flex;
     flex-direction: inherit;
     align-items: inherit;
+    flex: 0 0 auto;
 }
 minigame .icon {
     font-size: 2em;
@@ -47,6 +50,14 @@ minigame .tc {
 minigame .name {
     text-align: right;
     padding-top: 4px;
+}
+minigame .row-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-top: 0;
 }
 
 minigame.smaller-text.dobutsu, minigame.smaller-text.shogi5x5, minigame.smaller-text.shogi5x6 {

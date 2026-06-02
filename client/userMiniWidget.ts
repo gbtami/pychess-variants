@@ -4,6 +4,7 @@ import { Api } from 'chessgroundx/api';
 import { _, ngettext } from './i18n';
 import { boardSettings } from './boardSettings';
 import { timeago } from './datetime';
+import { sizeMiniBoardHost } from './miniBoard';
 import { getLastMoveFen, VARIANTS } from './variants';
 import { displayUsername } from './user';
 
@@ -66,26 +67,6 @@ const HOVER_INTENT_POLL_MS = 150;
 const HOVER_INTENT_SENSITIVITY = 7;
 const HIDE_DELAY_MS = 130;
 const CACHE_TTL_MS = 8000;
-
-const MINI_BOARD_WIDTH_PX: Record<string, number> = {
-    'cg-512': 256,
-    'cg-640': 320,
-    'cg-576': 304,
-    'cg-448-516': 224,
-    'cg-260-360': 192,
-    'cg-260': 192,
-    'cg-156': 132,
-    'cg-448': 224,
-    'cg-576-640': 288,
-    'cg-borderlands': 288,
-    'cg-janggi': 320,
-    'cg-640-640': 320,
-    'cg-540': 270,
-};
-
-function miniBoardWidthPx(cgClass: string): number {
-    return MINI_BOARD_WIDTH_PX[cgClass] ?? 256;
-}
 
 function parseProfileId(target: HTMLElement): string | null {
     const href = target.getAttribute('data-href') ?? target.getAttribute('href');
@@ -436,14 +417,10 @@ class UserMiniWidget {
                 const boardHost = document.createElement('div');
                 boardHost.className = `umw-game-board ${variant.boardFamily} ${variant.pieceFamily} ${variant.ui.boardMark}`;
                 if (variant.pocket) boardHost.classList.add('with-pockets');
-                const miniWidth = miniBoardWidthPx(variant.board.cg);
-                boardHost.style.width = `${miniWidth}px`;
-                boardHost.style.maxWidth = '100%';
                 boardHost.style.margin = '0 auto';
 
                 const boardWrap = document.createElement('div');
                 boardWrap.className = `cg-wrap ${variant.board.cg} mini`;
-                boardWrap.style.width = '100%';
                 boardHost.appendChild(boardWrap);
 
                 gameLink.appendChild(boardHost);
@@ -458,6 +435,7 @@ class UserMiniWidget {
                 boardSettings.assetURL = this.assetURL;
                 boardSettings.updateScopedBoardStyle(variant, boardWrap);
                 boardSettings.updateScopedPieceStyle(variant, boardWrap);
+                sizeMiniBoardHost(boardWrap);
 
                 const [lastMove, fen] = getLastMoveFen(variant.name, payload.playing.lastMove, payload.playing.fen);
                 this.cg = Chessground(boardWrap, {

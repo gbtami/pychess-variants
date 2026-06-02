@@ -9,6 +9,7 @@ import { patch } from './document';
 import { timeControlStr } from './view';
 import { PyChessModel } from "./types";
 import { aiLevel } from './result';
+import { sizeMiniBoardHost } from './miniBoard';
 import { getLastMoveFen, VARIANTS } from './variants';
 import { displayUsername } from './user';
 
@@ -48,7 +49,7 @@ function gameView(games: Games, game: Game) {
                 h('div.icon', { props: { title: variant.displayName(game.chess960) }, attrs: { "data-icon": variant.icon(game.chess960) } }),
                 h('div.tc', timeControlStr(game.base, game.inc, game.byoyomi, game.day)),
             ]),
-        h('div.name', [
+        h('div.name.row-name', [
             h('player-title', " " + game.bTitle + " "),
             displayUsername(game.b) + aiLevel(game.bTitle, game.level)
         ]),
@@ -56,9 +57,11 @@ function gameView(games: Games, game: Game) {
         h(`div.cg-wrap.${variant.board.cg}.mini`, {
             hook: {
                 insert: vnode => {
+                    const boardWrap = vnode.elm as HTMLElement;
+                    sizeMiniBoardHost(boardWrap);
                     boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                     boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
-                    const cg = Chessground(vnode.elm as HTMLElement, {
+                    const cg = Chessground(boardWrap, {
                         fen: fen,
                         lastMove: lastMove,
                         dimensions: variant.board.dimensions,

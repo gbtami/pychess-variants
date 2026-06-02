@@ -21,6 +21,7 @@ import { Post, Stream, Spotlight, MsgInviteCreated, MsgDirectChallengeCreated, M
 import { validFen, uci2LastMove } from './chess';
 import { seekViewBughouse, switchEnablingLobbyControls } from "./bug/lobby.bug";
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
+import { sizeMiniBoardHost } from './miniBoard';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { displayUsername, isAnonUsername } from "./user";
 import { confirmDialog } from './confirmDialog';
@@ -1110,15 +1111,17 @@ export class LobbyController implements ChatController {
                 h(`div.cg-wrap.${variant.board.cg}.mini`, {
                     hook: {
                         insert: vnode => {
+                            const boardWrap = vnode.elm as HTMLElement;
+                            const boardHost = sizeMiniBoardHost(boardWrap);
                             boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                             boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
-                            const cg = Chessground(vnode.elm as HTMLElement,  {
+                            const cg = Chessground(boardWrap,  {
                                 fen: game.fen,
                                 lastMove: uci2LastMove(game.lastMove),
                                 dimensions: variant.board.dimensions,
                                 coordinates: false,
                                 viewOnly: true,
-                                addDimensionsCssVarsTo: document.body,
+                                addDimensionsCssVarsTo: boardHost ?? document.body,
                                 pocketRoles: variant.pocket?.roles,
                             });
                             this.tvGameChessground = cg;
@@ -1519,15 +1522,17 @@ export function lobbyView(model: PyChessModel): VNode[] {
                     h(`div.cg-wrap.${variant.board.cg}.mini`, {
                         hook: {
                             insert: vnode => {
+                                const boardWrap = vnode.elm as HTMLElement;
+                                const boardHost = sizeMiniBoardHost(boardWrap);
                                 boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                                 boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
-                                Chessground(vnode.elm as HTMLElement,  {
+                                Chessground(boardWrap,  {
                                     orientation: variant.name === 'racingkings' ? 'white' : turnColor,
                                     fen: puzzle.f,
                                     dimensions: variant.board.dimensions,
                                     coordinates: false,
                                     viewOnly: true,
-                                    addDimensionsCssVarsTo: document.body,
+                                    addDimensionsCssVarsTo: boardHost ?? document.body,
                                     pocketRoles: variant.pocket?.roles,
                                 });
                             }
