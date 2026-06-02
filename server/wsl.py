@@ -99,6 +99,8 @@ from variants import get_server_variant
 
 log = logging.getLogger(__name__)
 
+UNSUPPORTED_FSF_AI_VARIANTS = ("alice", "fogofwar", "jieqi")
+
 
 def get_create_seek_error_message(user: User, data: SeekCreateData) -> str:
     day = data.get("day", 0)
@@ -243,8 +245,14 @@ async def handle_create_ai_challenge(
     variant = data["variant"]
     profileid = data["profileid"]
     engine = app_state.users[profileid]
+    force_random_mover = (
+        variant in UNSUPPORTED_FSF_AI_VARIANTS
+        or data["rm"]
+        or (engine is None)
+        or (not engine.online)
+    )
 
-    if variant in ("alice", "fogofwar") or data["rm"] or (engine is None) or (not engine.online):
+    if force_random_mover:
         # TODO: message that engine is offline, but Random-Mover BOT will play instead
         engine = app_state.users["Random-Mover"]
 
@@ -258,7 +266,7 @@ async def handle_create_ai_challenge(
         base=data["minutes"],
         inc=data["increment"],
         byoyomi_period=data["byoyomiPeriod"],
-        level=0 if data["rm"] else data["level"],
+        level=0 if force_random_mover else data["level"],
         player1=user,
         rated=False,
         chess960=data["chess960"],

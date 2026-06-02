@@ -1,6 +1,6 @@
 import unittest
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import test_logger
 
@@ -41,6 +41,40 @@ def create_ai_payload(variant: str = "janggi") -> dict[str, object]:
 
 
 class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
+    async def test_unsupported_variant_forces_random_mover(self):
+        fairy_engine = SimpleNamespace(
+            online=True,
+            event_queue=SimpleNamespace(put=AsyncMock()),
+            game_queues={},
+        )
+        random_mover = SimpleNamespace(
+            online=True,
+            event_queue=SimpleNamespace(put=AsyncMock()),
+            game_queues={},
+        )
+        app_state = SimpleNamespace(
+            users={"Fairy-Stockfish": fairy_engine, "Random-Mover": random_mover},
+            games={"g1": SimpleNamespace(variant="jieqi", game_start={"type": "gs"})},
+            db=None,
+        )
+        seek_ctor = Mock(return_value=object())
+        join_seek = AsyncMock(return_value={"type": "new_game", "gameId": "g1"})
+
+        with (
+            patch("wsl.send_game_in_progress_if_any", new=AsyncMock(return_value=False)),
+            patch("wsl.new_id", new=AsyncMock(return_value="seek1")),
+            patch("wsl.ws_send_json", new=AsyncMock()),
+            patch("wsl.join_seek", new=join_seek),
+            patch("wsl.Seek", new=seek_ctor),
+        ):
+            await handle_create_ai_challenge(
+                app_state, object(), DummyUser("tester"), create_ai_payload("jieqi")
+            )
+
+        join_seek.assert_awaited_once()
+        self.assertIs(join_seek.await_args.args[1], random_mover)
+        self.assertEqual(seek_ctor.call_args.kwargs["level"], 0)
+
     async def test_janggi_pending_setup_does_not_start_bot(self):
         bot_put = AsyncMock()
         engine = SimpleNamespace(
