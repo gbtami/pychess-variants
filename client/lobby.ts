@@ -721,7 +721,10 @@ export class LobbyController implements ChatController {
 
     playFriend(variantName: string = '') {
         this.createMode = 'playFriend';
-        this.renderVariantsDropDown(variantName, twoBoarsVariants);
+        this.renderVariantsDropDown(
+            variantName,
+            disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon),
+        );
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -735,7 +738,10 @@ export class LobbyController implements ChatController {
 
     playAI(variantName: string = '') {
         this.createMode = 'playAI';
-        this.renderVariantsDropDown(variantName, twoBoarsVariants);
+        this.renderVariantsDropDown(
+            variantName,
+            disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon),
+        );
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = 'none';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -803,8 +809,10 @@ export class LobbyController implements ChatController {
             e = document.getElementById('rmplay') as HTMLInputElement;
             if (unsupportedAiVariants.includes(variant.name)) {
                 e.checked = true;
+                e.disabled = true;
                 document.getElementById('ailevel')!.style.display = 'none';
             } else {
+                e.disabled = false;
                 const vRMplay = localStorage.seek_rmplay ?? "false";
                 e.checked = vRMplay === "true";
                 document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
@@ -863,6 +871,7 @@ export class LobbyController implements ChatController {
     }
     private setRM() {
         const e = document.getElementById('rmplay') as HTMLInputElement;
+        if (e.disabled) e.checked = true;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'block';
     }
     private setStartButtons() {
