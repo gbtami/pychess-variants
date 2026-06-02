@@ -1,5 +1,5 @@
-@import url("/static/toastui-editor.css");
-@import url("/static/toastui-editor-dark.css");
+@import url("toastui-editor.css");
+@import url("toastui-editor-dark.css");
 
 .ublog-page {
   align-items: flex-start;
