@@ -1300,6 +1300,7 @@ export const noPuzzleVariants = [
 ]
 
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
+export const unsupportedAiVariants = ["alice", "fogofwar", "jieqi"];
 
 export const devVariants = ["borderlands", "makbug", "supply", "yokai"];
 
@@ -1311,6 +1312,7 @@ export function disabledVariantsForCreateMode(
     // Two-board variants are only supported by the dedicated multi-seat lobby flow.
     // Hide them whenever the dialog is being used for invites, profile challenges,
     // bot/AI games, or hosting, where the generic single-board flow is used.
+    if (createMode === "playAI") return [...new Set([...twoBoarsVariants, ...unsupportedAiVariants])];
     if (createMode !== "createGame") return twoBoarsVariants;
     return anon || profileid !== "" ? twoBoarsVariants : [];
 }

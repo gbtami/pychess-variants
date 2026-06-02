@@ -124,3 +124,10 @@ test('two-board variants are disabled for targeted game creation', async () => {
     expect(disabledVariantsForCreateMode('createGame', 'berado88', false)).toContain('bughouse');
     expect(disabledVariantsForCreateMode('createGame', '', false)).not.toContain('bughouse');
 });
+
+test('unsupported AI variants are disabled for play with AI', async () => {
+    const disabled = disabledVariantsForCreateMode('playAI', '', false);
+    expect(disabled).toContain('alice');
+    expect(disabled).toContain('fogofwar');
+    expect(disabled).toContain('jieqi');
+});

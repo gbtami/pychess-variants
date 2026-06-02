@@ -10,7 +10,7 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
-import { devVariants, disabledVariantsForCreateMode, enabledVariants, twoBoarsVariants, VARIANTS, selectVariant, Variant, variantGroups } from './variants';
+import { devVariants, disabledVariantsForCreateMode, enabledVariants, twoBoarsVariants, unsupportedAiVariants, VARIANTS, selectVariant, Variant, variantGroups } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -800,7 +800,7 @@ export class LobbyController implements ChatController {
         // Select Random-Mover but disable FSF play for "unsupported by FSF" variants
         if (this.createMode === 'playAI') {
             e = document.getElementById('rmplay') as HTMLInputElement;
-            if ('alice, fogofwar'.includes(variant.name)) {
+            if (unsupportedAiVariants.includes(variant.name)) {
                 e.checked = true;
                 document.getElementById('ailevel')!.style.display = 'none';
             } else {
