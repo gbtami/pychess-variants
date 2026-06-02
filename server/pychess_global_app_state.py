@@ -240,6 +240,10 @@ class PychessGlobalAppState:
                 await self.db.create_collection("tournament_chat")
                 await self.db.tournament_chat.create_index("tid")
 
+            if "simul_chat" not in db_collections:
+                await self.db.create_collection("simul_chat")
+                await self.db.simul_chat.create_index("sid")
+
             await self.db.tournament.create_index("startsAt")
             await self.db.tournament.create_index("status")
 

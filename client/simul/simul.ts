@@ -3,12 +3,16 @@ import { Chessground } from 'chessgroundx';
 import { Api } from "chessgroundx/api";
 
 import { VARIANTS } from '../variants';
+import { getLastMoveFen } from '../variants';
 import { PyChessModel } from '../types';
 import { patch } from '../document';
 import { boardSettings } from '../boardSettings';
-import { chatView, ChatController } from '../chat';
+import { chatMessage, chatView, ChatController } from '../chat';
 import { newWebsocket } from "@/socket/webSocketUtils";
 import { displayUsername, userLink } from "../user";
+import { sizeMiniBoardHost } from '../miniBoard';
+import { timeControlStr } from '../view';
+import { localeOptions } from '../tournamentClock';
 
 const T_CREATED = 0;
 const T_STARTED = 1;
@@ -26,6 +30,7 @@ interface SimulGame {
     bplayer: string;
     variant: string;
     fen: string;
+    lastMove?: string;
     rated: boolean;
     base: number;
     inc: number;
@@ -46,6 +51,10 @@ interface MsgSimulUserConnected {
     base?: number;
     inc?: number;
     status?: number;
+    hostColor?: string;
+    createdAt?: string;
+    startsAt?: string | null;
+    endsAt?: string | null;
     games?: SimulGame[];
 }
 
@@ -88,6 +97,18 @@ interface MsgError {
     message: string;
 }
 
+interface MsgChat {
+    type: "lobbychat";
+    user: string;
+    message: string;
+    time?: number;
+}
+
+interface MsgFullChat {
+    type: "fullchat";
+    lines: MsgChat[];
+}
+
 type SimulInboundMessage =
     | MsgSimulUserConnected
     | MsgNewGame
@@ -96,6 +117,8 @@ type SimulInboundMessage =
     | MsgPlayerApproved
     | MsgPlayerDenied
     | MsgPlayerDisconnected
+    | MsgChat
+    | MsgFullChat
     | MsgError
     | { type: "simul_started" }
     | { type: "simul_finished" };
@@ -119,9 +142,13 @@ export class SimulController implements ChatController {
     variantKey: string;
     base: number;
     inc: number;
+    hostColor: string;
+    createdAt: string;
+    startsAt: string;
+    endsAt: string;
 
     constructor(model: PyChessModel) {
-        this.anon = model["anon"] !== undefined && model["anon"] !== "";
+        this.anon = model["anon"] === "True";
         this.simulId = model["simulId"] || "";
         this.model = model;
         this.createdBy = "";
@@ -130,6 +157,10 @@ export class SimulController implements ChatController {
         this.variantKey = model["variant"] || "chess";
         this.base = Number.isFinite(model.base) ? model.base : 0;
         this.inc = Number.isFinite(model.inc) ? model.inc : 0;
+        this.hostColor = "random";
+        this.createdAt = "";
+        this.startsAt = "";
+        this.endsAt = "";
         boardSettings.assetURL = model.assetURL;
 
         this.sock = newWebsocket('wss');
@@ -140,7 +171,6 @@ export class SimulController implements ChatController {
 
         this.vnode = document.getElementById('simul-view') as HTMLElement;
         this.redraw();
-        patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, "lobbychat"));
     }
 
     doSend(message: object) {
@@ -172,6 +202,12 @@ export class SimulController implements ChatController {
             case "player_disconnected":
                 this.onMsgPlayerDisconnected(msg);
                 break;
+            case "lobbychat":
+                this.onMsgChat(msg);
+                break;
+            case "fullchat":
+                this.onMsgFullChat(msg);
+                break;
             case "simul_started":
                 this.simulStatus = T_STARTED;
                 this.redraw();
@@ -197,6 +233,10 @@ export class SimulController implements ChatController {
         if (typeof msg.base === "number") this.base = msg.base;
         if (typeof msg.inc === "number") this.inc = msg.inc;
         if (typeof msg.status === "number") this.simulStatus = msg.status;
+        if (typeof msg.hostColor === "string") this.hostColor = msg.hostColor;
+        if (typeof msg.createdAt === "string") this.createdAt = msg.createdAt;
+        if (typeof msg.startsAt === "string") this.startsAt = msg.startsAt;
+        if (typeof msg.endsAt === "string") this.endsAt = msg.endsAt;
         this.games = msg.games ?? [];
         this.redraw();
     }
@@ -227,10 +267,15 @@ export class SimulController implements ChatController {
         const game = this.games.find(g => g.gameId === msg.gameId);
         if (game) {
             game.fen = msg.fen;
+            game.lastMove = msg.lastMove;
             game.status = msg.status;
             game.result = msg.result;
             const cg = this.chessgrounds[msg.gameId];
-            if (cg) cg.set({ fen: msg.fen });
+            if (cg) {
+                const variant = VARIANTS[game.variant] || VARIANTS[this.variantKey] || VARIANTS["chess"];
+                const [lastMove, fen] = getLastMoveFen(variant.name, msg.lastMove, msg.fen);
+                cg.set({ fen, lastMove });
+            }
         }
         this.redraw();
     }
@@ -262,6 +307,20 @@ export class SimulController implements ChatController {
         this.redraw();
     }
 
+    onMsgChat(msg: MsgChat) {
+        chatMessage(msg.user, msg.message, "lobbychat", msg.time);
+    }
+
+    onMsgFullChat(msg: MsgFullChat) {
+        const messages = document.getElementById('messages');
+        if (messages) {
+            patch(messages, h('div#messages-clear'));
+            const cleared = document.getElementById('messages-clear');
+            if (cleared) patch(cleared, h('div#messages'));
+        }
+        msg.lines.forEach(line => this.onMsgChat(line));
+    }
+
     approve(username: string) {
         this.doSend({ type: "approve_player", simulId: this.simulId, username: username });
     }
@@ -284,6 +343,57 @@ export class SimulController implements ChatController {
 
     isGameFinished(game: SimulGame): boolean {
         return game.status >= 0;
+    }
+
+    isHostWhite(game: SimulGame): boolean {
+        return game.wplayer === this.createdBy;
+    }
+
+    getHostScore(game: SimulGame): '1' | '0' | '½' | '' {
+        if (!this.isGameFinished(game)) return '';
+        if (game.result === '1/2-1/2') return '½';
+        if (game.result === '1-0') return this.isHostWhite(game) ? '1' : '0';
+        if (game.result === '0-1') return this.isHostWhite(game) ? '0' : '1';
+        return '';
+    }
+
+    getOpponentScore(game: SimulGame): '1' | '0' | '½' | '' {
+        const hostScore = this.getHostScore(game);
+        if (hostScore === '1') return '0';
+        if (hostScore === '0') return '1';
+        if (hostScore === '½') return '½';
+        return '';
+    }
+
+    hostWon(game: SimulGame): boolean {
+        return this.getHostScore(game) === '1';
+    }
+
+    hostLost(game: SimulGame): boolean {
+        return this.getHostScore(game) === '0';
+    }
+
+    hostDrew(game: SimulGame): boolean {
+        return this.getHostScore(game) === '½';
+    }
+
+    renderResultsSummary(): VNode {
+        const playing = this.games.filter(game => !this.isGameFinished(game)).length;
+        const wins = this.games.filter(game => this.hostWon(game)).length;
+        const draws = this.games.filter(game => this.hostDrew(game)).length;
+        const losses = this.games.filter(game => this.hostLost(game)).length;
+
+        const stat = (value: number, label: string) => h('div', [
+            h('div.number', String(value)),
+            h('div.text', label),
+        ]);
+
+        return h('div.results', [
+            stat(playing, 'Playing'),
+            stat(wins, 'Wins'),
+            stat(draws, 'Draws'),
+            stat(losses, 'Losses'),
+        ]);
     }
 
     redirectToGame(gameId: string) {
@@ -311,9 +421,13 @@ export class SimulController implements ChatController {
 
     formatTimeControl(): string {
         if (this.base === 0 && this.inc === 0) return "Untimed";
-        const baseMinutes = this.base > 0 ? `${this.base}m` : '';
-        const incSeconds = this.inc > 0 ? `+${this.inc}s` : '';
-        return `${baseMinutes}${incSeconds}`;
+        return timeControlStr(this.base, this.inc, 0);
+    }
+
+    formatHostColor(): string {
+        if (this.hostColor === "white") return "White";
+        if (this.hostColor === "black") return "Black";
+        return "Random";
     }
 
     getHostAndOpponent(game: SimulGame): { host: string; opponent: string } {
@@ -326,35 +440,340 @@ export class SimulController implements ChatController {
         return { host: game.wplayer, opponent: game.bplayer };
     }
 
+    getVariantInfo() {
+        return VARIANTS[this.variantKey] || VARIANTS["chess"];
+    }
+
+    renderCreatedActionButtons(
+        isHost: boolean,
+        alreadyJoined: boolean,
+        pendingParticipants: SimulPlayer[],
+        approvedParticipants: SimulPlayer[],
+    ): VNode[] {
+        const buttons: VNode[] = [];
+
+        if (isHost) {
+            if (approvedParticipants.length > 0) {
+                buttons.push(
+                    h(
+                        'button.button.button-green.text.simul__cta',
+                        { on: { click: () => this.startSimul() } },
+                        `Start (${approvedParticipants.length})`
+                    )
+                );
+            }
+            if (pendingParticipants.length > 0) {
+                buttons.push(
+                    h(
+                        'button.button.text.simul__cta',
+                        {
+                            on: {
+                                click: () => {
+                                    const randomCandidate = pendingParticipants[Math.floor(Math.random() * pendingParticipants.length)];
+                                    this.approve(randomCandidate.name);
+                                },
+                            },
+                        },
+                        'Accept random candidate'
+                    )
+                );
+            }
+        } else if (!alreadyJoined) {
+            buttons.push(
+                h(
+                    'button.button.text.simul__cta',
+                    { on: { click: () => this.joinSimul() } },
+                    'Join'
+                )
+            );
+        }
+
+        return buttons;
+    }
+
+    renderApplicantRow(player: SimulPlayer, isHost: boolean, isPending: boolean): VNode {
+        const variantInfo = this.getVariantInfo();
+        return h(
+            'tr',
+            {
+                key: player.name,
+                class: {
+                    me: this.model.username === player.name,
+                },
+            },
+            [
+                h('td', [
+                    userLink(
+                        player.name,
+                        [
+                            ...(player.title ? [h('player-title', `${player.title} `)] : []),
+                            displayUsername(player.name),
+                            h('em', ` ${player.rating}`),
+                        ],
+                        { className: 'user-link ulpt' }
+                    ),
+                ]),
+                h('td.variant', { attrs: { 'data-icon': variantInfo.icon(this.variantKey.endsWith("960")) } }),
+                h(
+                    'td.action',
+                    isHost
+                        ? isPending
+                            ? [
+                                h(
+                                    'button.button.simul__table-action',
+                                    { attrs: { title: 'Accept' }, on: { click: () => this.approve(player.name) } },
+                                    'Accept'
+                                ),
+                                h(
+                                    'button.button.button-red.simul__table-action',
+                                    { attrs: { title: 'Reject' }, on: { click: () => this.deny(player.name) } },
+                                    'Reject'
+                                ),
+                            ]
+                            : h(
+                                'button.button.button-red.simul__table-action',
+                                { attrs: { title: 'Remove' }, on: { click: () => this.deny(player.name) } },
+                                'Remove'
+                            )
+                        : null
+                ),
+            ]
+        );
+    }
+
+    renderCreated() {
+        const isHost = this.model.username === this.createdBy;
+        const hostName = this.createdBy ? displayUsername(this.createdBy) : '-';
+        const hostLinkNode = () =>
+            this.createdBy
+                ? userLink(this.createdBy, hostName, { className: 'user-link' })
+                : h('span', hostName);
+        const approvedParticipants = this.players.filter(player => player.name !== this.createdBy);
+        const pendingParticipants = this.pendingPlayers.filter(player => player.name !== this.createdBy);
+        const alreadyJoined =
+            this.players.some(player => player.name === this.model.username) ||
+            this.pendingPlayers.some(player => player.name === this.model.username);
+        const buttons = this.renderCreatedActionButtons(
+            isHost,
+            alreadyJoined,
+            pendingParticipants,
+            approvedParticipants,
+        );
+
+        const instruction = approvedParticipants.some(player => player.name === this.model.username)
+            ? 'You have been selected! Hold still, the simul is about to begin.'
+            : isHost && this.players.length + this.pendingPlayers.length < 6
+                ? 'Share this page URL to let people enter the simul!'
+                : !isHost && alreadyJoined
+                    ? 'Your registration is recorded. Wait for the host to accept you.'
+                    : null;
+
+        return h('div.simul__main.box', [
+            h('div.box__top', [
+                h('h1', [
+                    this.simulName,
+                    h('span.author', [' hosted by ', hostLinkNode()]),
+                ]),
+                h('div.box__top__actions', buttons),
+            ]),
+            instruction ? h('p.instructions', instruction) : null,
+            h('div.halves', [
+                h('div.half.candidates', [
+                    h('table.slist.slist-pad', [
+                        h('thead', [
+                            h('tr', [
+                                h('th', { attrs: { colspan: 3 } }, [
+                                    h('strong', `${pendingParticipants.length}`),
+                                    ' candidate players',
+                                ]),
+                            ]),
+                        ]),
+                        h(
+                            'tbody',
+                            pendingParticipants.length > 0
+                                ? pendingParticipants.map(player => this.renderApplicantRow(player, isHost, true))
+                                : [
+                                    h('tr.empty', [
+                                        h('td', { attrs: { colspan: 3 } }, 'No pending players'),
+                                    ]),
+                                ]
+                        ),
+                    ]),
+                ]),
+                h('div.half.accepted', [
+                    h('table.slist.slist-pad.user_list', [
+                        h('thead', [
+                            h('tr', [
+                                h('th', { attrs: { colspan: 3 } }, [
+                                    h('strong', `${approvedParticipants.length}`),
+                                    ' accepted players',
+                                ]),
+                            ]),
+                            isHost && pendingParticipants.length > 0 && approvedParticipants.length === 0
+                                ? h('tr.help', [
+                                    h('th', { attrs: { colspan: 3 } }, 'Now you get to accept some players, then start the simul'),
+                                ])
+                                : null,
+                        ]),
+                        h(
+                            'tbody',
+                            approvedParticipants.length > 0
+                                ? approvedParticipants.map(player => this.renderApplicantRow(player, isHost, false))
+                                : [
+                                    h('tr.empty', [
+                                        h('td', { attrs: { colspan: 3 } }, 'No approved players yet'),
+                                    ]),
+                                ]
+                        ),
+                    ]),
+                ]),
+            ]),
+        ]);
+    }
+
+    renderStartedOrFinished(
+        isSimulStarted: boolean,
+        isSimulFinished: boolean,
+        simulStatusText: string,
+    ) {
+        return h('div.simul__main.box', [
+            h('div.box__top', [
+                h('h1', this.simulName),
+                h('div.box__top__actions', [
+                    h(
+                        'div.simul-status',
+                        {
+                            class: {
+                                'status-finished': isSimulFinished,
+                                'status-started': isSimulStarted,
+                            },
+                        },
+                        simulStatusText
+                    ),
+                ]),
+            ]),
+            this.renderResultsSummary(),
+            !isSimulFinished ? h('h2.simul__section-title', 'Games in progress') : null,
+            this.renderMiniBoards(),
+        ]);
+    }
+
+    renderSide(simulStatusText: string): VNode {
+        const variantInfo = this.getVariantInfo();
+        const variantName = variantInfo.displayName(this.variantKey.endsWith("960"));
+        const hostName = this.createdBy ? displayUsername(this.createdBy) : '-';
+        const canEdit = this.model["username"] === this.createdBy;
+        const hostLinkNode = () =>
+            this.createdBy
+                ? userLink(this.createdBy, hostName, { className: 'user-link' })
+                : h('span', hostName);
+        const approvedCount = Math.max(0, this.players.length - (this.createdBy ? 1 : 0));
+        const pendingCount = this.pendingPlayers.length;
+        const showPendingCount = this.simulStatus < T_STARTED;
+        const isFinished = this.simulStatus === T_FINISHED;
+        const eventDate = this.getEventDate();
+
+        return h('aside.simul__side', [
+            h('div.box.simul__meta', [
+                h('div.header', [
+                    h('i', { attrs: { 'data-icon': variantInfo.icon(this.variantKey.endsWith("960")) } }),
+                    h('div', [
+                        h('span.clock', this.formatTimeControl()),
+                        h('p.simul__meta__headline', [
+                            h('span', `${variantName} • Casual`),
+                            canEdit ? h('a.icon-cog.simul__meta__edit', {
+                                attrs: {
+                                    href: `/simul/${this.simulId}/edit`,
+                                    title: 'Edit simul',
+                                },
+                            }) : null,
+                        ]),
+                    ]),
+                ]),
+                h('section.game-infos', [
+                    h('p.simul__meta__line', `Host color: ${this.formatHostColor()}`),
+                    ...(showPendingCount ? [h('p.simul__meta__line', `${approvedCount} accepted players`)] : []),
+                    ...(showPendingCount ? [h('p.simul__meta__line', `${pendingCount} pending players`)] : []),
+                ]),
+                h('section', [
+                    h('p.simul__meta__line', ['Hosted by ', hostLinkNode()]),
+                    ...(eventDate ? [h('p.simul__meta__line.simul__meta__date', this.formatEventDate(eventDate))] : []),
+                    ...(!isFinished ? [h('p.simul__meta__line.simul__meta__statusline', simulStatusText)] : []),
+                ]),
+            ]),
+            chatView(this, "lobbychat"),
+        ]);
+    }
+
+    getEventDate(): string {
+        if (this.startsAt) return this.startsAt;
+        if (this.endsAt) return this.endsAt;
+        return this.createdAt;
+    }
+
+    formatEventDate(dateLike: string): string {
+        const date = new Date(dateLike);
+        if (Number.isNaN(date.getTime())) return '';
+        return date.toLocaleString("default", localeOptions);
+    }
+
     renderMiniBoards() {
         if (this.games.length === 0) {
             return h('div.no-games', 'No games created yet');
         }
 
-        return h('div.simul__games', { class: { finished: this.simulStatus === T_FINISHED } }, this.games.map(game => {
+        const sortedGames = [...this.games].sort((left, right) => {
+            const leftFinished = this.isGameFinished(left);
+            const rightFinished = this.isGameFinished(right);
+            if (leftFinished !== rightFinished) return leftFinished ? 1 : -1;
+
+            const outcomeRank = (game: SimulGame) => {
+                if (!this.isGameFinished(game)) return 0;
+                if (this.hostWon(game)) return 1;
+                if (this.hostDrew(game)) return 2;
+                if (this.hostLost(game)) return 3;
+                return 4;
+            };
+
+            return outcomeRank(left) - outcomeRank(right);
+        });
+
+        return h('div.simul__games', { class: { finished: this.simulStatus === T_FINISHED } }, sortedGames.map(game => {
             const variant = VARIANTS[game.variant] || VARIANTS[this.variantKey] || VARIANTS["chess"];
             const isFinished = this.isGameFinished(game);
             const pairing = this.getHostAndOpponent(game);
+            const hostScore = this.getHostScore(game);
+            const opponentScore = this.getOpponentScore(game);
+            const [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove ?? '', game.fen);
             return h('a', {
                 key: game.gameId,
                 attrs: { href: `/${game.gameId}` },
             }, [
+                h('div.mini-game__player', [
+                    h('span.mini-game__user.host', displayUsername(pairing.host)),
+                    h('span.mini-game__result', hostScore),
+                ]),
                 h(`div.mini-game.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, {
                     class: { finished: isFinished },
                     hook: {
                         insert: vnode => {
-                            boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
-                            boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
-                            const cg = Chessground((vnode.elm as HTMLElement).firstElementChild as HTMLElement, {
-                                fen: game.fen,
+                            const boardWrap = (vnode.elm as HTMLElement).firstElementChild as HTMLElement;
+                            sizeMiniBoardHost(boardWrap);
+                            boardSettings.updateScopedBoardStyle(variant, boardWrap);
+                            boardSettings.updateScopedPieceStyle(variant, boardWrap);
+                            const cg = Chessground(boardWrap, {
+                                fen,
+                                lastMove,
+                                dimensions: variant.board.dimensions,
                                 viewOnly: true,
                                 coordinates: false,
+                                pocketRoles: variant.pocket?.roles,
                             });
                             this.chessgrounds[game.gameId] = cg;
                         },
                         update: () => {
                             const cg = this.chessgrounds[game.gameId];
-                            if (cg) cg.set({ fen: game.fen });
+                            if (cg) cg.set({ fen, lastMove });
                         },
                         destroy: () => {
                             const cg = this.chessgrounds[game.gameId];
@@ -365,61 +784,17 @@ export class SimulController implements ChatController {
                         },
                     },
                 }, [
-                    h(`div.cg-wrap.${variant.board.cg}`),
+                    h(`div.cg-wrap.${variant.board.cg}.mini`),
                 ]),
-                h('div.game-header', [
-                    h('span.host', displayUsername(pairing.host)),
-                    h('span.vstext', 'vs'),
-                    h('span.opp', displayUsername(pairing.opponent)),
-                ]),
-                h('div.result-wrap', [
-                    h('span.result', isFinished ? game.result : ''),
-                    h('span.status', isFinished ? 'Finished' : 'Ongoing'),
+                h('div.mini-game__player', [
+                    h('span.mini-game__user.opp', displayUsername(pairing.opponent)),
+                    h('span.mini-game__result', opponentScore),
                 ]),
             ]);
         }));
     }
 
-    renderPlayerRow(player: SimulPlayer, canModerate: boolean, isPending: boolean): VNode {
-        return h('div.simul__player', [
-            h('span.simul__player__identity', [
-                player.title ? h('player-title', player.title + ' ') : null,
-                h('a.user-link', { attrs: { href: `/@/${player.name}` } }, displayUsername(player.name)),
-            ]),
-            h('span.simul__player__rating', `(${player.rating})`),
-            canModerate
-                ? h('span.simul__player__actions', isPending
-                    ? [
-                        h(
-                            'button.button.btn-approve',
-                            { on: { click: () => this.approve(player.name) } },
-                            'Approve'
-                        ),
-                        h(
-                            'button.button.btn-deny',
-                            {
-                                attrs: { title: 'Reject this join request' },
-                                on: { click: () => this.deny(player.name) },
-                            },
-                            'Reject'
-                        ),
-                    ]
-                    : [
-                        h(
-                            'button.button.btn-deny',
-                            {
-                                attrs: { title: 'Remove this approved player from the simul' },
-                                on: { click: () => this.deny(player.name) },
-                            },
-                            'Remove'
-                        ),
-                    ])
-                : null,
-        ]);
-    }
-
     render() {
-        const isHost = this.model.username === this.createdBy;
         const isSimulStarted = this.simulStatus >= T_STARTED;
         const isSimulFinished = this.simulStatus === T_FINISHED;
         const simulStatusText = isSimulFinished
@@ -428,96 +803,11 @@ export class SimulController implements ChatController {
                 ? 'Playing now'
                 : 'Waiting for players';
 
-        const variantInfo = VARIANTS[this.variantKey];
-        const variantName = variantInfo
-            ? variantInfo.displayName(this.variantKey.endsWith("960"))
-            : this.variantKey;
-        const hostName = this.createdBy ? displayUsername(this.createdBy) : '-';
-        const hostLinkNode = () =>
-            this.createdBy
-                ? userLink(this.createdBy, [hostName], { className: 'user-link' })
-                : h('span', hostName);
-
-        const alreadyJoined =
-            this.players.some(player => player.name === this.model.username) ||
-            this.pendingPlayers.some(player => player.name === this.model.username);
-
-        const startButton = isHost && !isSimulStarted
-            ? h('button.button.simul__actions__start', { on: { click: () => this.startSimul() } }, 'Start simul')
-            : null;
-
-        const joinButton = (!isHost && !isSimulStarted && !alreadyJoined)
-            ? h('button.button.simul__actions__join', { on: { click: () => this.joinSimul() } }, 'Join simul')
-            : null;
-
-        const approvedParticipants = this.players.filter(player => player.name !== this.createdBy);
-        const pendingParticipants = this.pendingPlayers.filter(player => player.name !== this.createdBy);
-        const canModeratePlayers = isHost && !isSimulStarted;
-        const actionButtons: VNode[] = [];
-
-        if (startButton) actionButtons.push(startButton);
-        if (joinButton) actionButtons.push(joinButton);
-        if (actionButtons.length === 0 && !isHost && !isSimulStarted && alreadyJoined) {
-            actionButtons.push(h('span.simul__actions__note', 'You are on the participants list.'));
-        }
-
-        const approvedRows = approvedParticipants.length > 0
-            ? approvedParticipants.map(player => this.renderPlayerRow(player, canModeratePlayers, false))
-            : [h('p.simul__empty', 'No approved players yet')];
-        const pendingRows = pendingParticipants.length > 0
-            ? pendingParticipants.map(player => this.renderPlayerRow(player, canModeratePlayers, true))
-            : [h('p.simul__empty', 'No pending players')];
-
-        return h('div.simul__app', [
-            h('div.simul__app__content', [
-                h('div.box.pad.simul__title', [
-                    h('h1', this.simulName),
-                    h(
-                        'span.simul-status',
-                        {
-                            class: {
-                                'status-finished': isSimulFinished,
-                                'status-started': isSimulStarted,
-                                'status-waiting': !isSimulStarted,
-                            },
-                        },
-                        simulStatusText
-                    ),
-                ]),
-                h('div.box.simul__meta', [
-                    h('div.simul__meta__host', ['Host: ', hostLinkNode()]),
-                    h('div.simul__meta__text', `${variantName} • ${this.formatTimeControl()}`),
-                    h('div.simul__meta__games', `${this.games.length} games`),
-                    h('div.simul__meta__text.simul__meta__status', simulStatusText),
-                ]),
-                h('div.box.pad', [
-                    h(
-                        'h2.simul__section-title',
-                        isSimulStarted ? (isSimulFinished ? 'Finished games' : 'Games in progress') : 'Waiting room'
-                    ),
-                    isSimulStarted
-                        ? this.renderMiniBoards()
-                        : h('p.simul__waiting-note', 'Waiting for the host to start once participants are approved.'),
-                ]),
-            ]),
-            h('aside.simul__side', [
-                h('div.box.simul__side__host', [
-                    h('span.simul__side__host__text', [hostLinkNode()]),
-                ]),
-                h('div.box.pad', [
-                    h('h2.simul__section-title', 'Players'),
-                    h('div.simul__actions', actionButtons),
-                    h('div.simul__players-group', [
-                        h('h3', `Approved (${approvedParticipants.length})`),
-                        ...approvedRows,
-                    ]),
-                    h('div.simul__players-group', [
-                        h('h3', `Pending (${pendingParticipants.length})`),
-                        ...pendingRows,
-                    ]),
-                ]),
-            ]),
-            h('div#lobbychat.chat'),
+        return h('div.simul__app', { class: { 'simul-created': !isSimulStarted } }, [
+            this.renderSide(simulStatusText),
+            isSimulStarted
+                ? this.renderStartedOrFinished(isSimulStarted, isSimulFinished, simulStatusText)
+                : this.renderCreated(),
         ]);
     }
 }

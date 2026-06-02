@@ -618,6 +618,12 @@ class SimulUserConnectedRequest(SimulIdMessage):
     type: Literal["simul_user_connected"]
 
 
+class SimulLobbyChatMessage(SimulIdMessage):
+    type: Literal["lobbychat"]
+    message: str
+    room: NotRequired[str]
+
+
 class SimulStartRequest(SimulIdMessage):
     type: Literal["start_simul"]
 
@@ -638,6 +644,7 @@ class SimulDenyPlayerRequest(SimulIdMessage):
 
 SimulInboundMessage = (
     SimulUserConnectedRequest
+    | SimulLobbyChatMessage
     | SimulStartRequest
     | SimulJoinRequest
     | SimulApprovePlayerRequest

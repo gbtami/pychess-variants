@@ -1,21 +1,38 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass
 from datetime import datetime, timezone
 import logging
 from typing import TYPE_CHECKING
 
+from const import MAX_CHAT_LINES
 from const import STARTED, T_CREATED, T_FINISHED, T_STARTED, TStatus
 from game import Game
 from simul.simul import Simul
 from typing_defs import SimulDoc, SimulUpdateData
 from user import User
 from utils import load_game
+from ws_types import ChatLine
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
 log = logging.getLogger(__name__)
+
+
+@dataclass
+class SimulListEntry:
+    id: str
+    name: str
+    variant: str
+    chess960: bool
+    base: int
+    inc: int
+    created_by: str
+    starts_at: datetime | None
+    status: TStatus
+    players_count: int
 
 
 def _as_str_list(value: object) -> list[str]:
@@ -178,6 +195,20 @@ async def load_simul(
         if game.status <= STARTED:
             simul.ongoing_games.add(game)
 
+    chat_cursor = app_state.db.simul_chat.find(
+        {"sid": simul.id},
+        projection={
+            "_id": 0,
+            "type": 1,
+            "user": 1,
+            "message": 1,
+            "room": 1,
+            "time": 1,
+        },
+    )
+    docs: list[ChatLine] = await chat_cursor.to_list(length=MAX_CHAT_LINES)
+    simul.tourneychat = docs
+
     if simul.status == T_STARTED and len(simul.games) == 0:
         simul.status = T_CREATED
         simul.starts_at = None
@@ -215,3 +246,62 @@ async def load_active_simuls(app_state: PychessGlobalAppState) -> None:
         if not isinstance(simul_id, str):
             continue
         await load_simul(app_state, simul_id, simul_doc=doc)
+
+
+async def get_latest_simuls(
+    app_state: PychessGlobalAppState, limit: int = 30
+) -> tuple[list[SimulListEntry], list[SimulListEntry], list[SimulListEntry]]:
+    created: list[SimulListEntry] = []
+    started: list[SimulListEntry] = []
+    finished: list[SimulListEntry] = []
+
+    if app_state.db is None:
+        return created, started, finished
+
+    cursor = app_state.db.simul.find()
+    try:
+        cursor.sort("createdAt", -1)
+    except AttributeError:
+        pass
+
+    count = 0
+    async for doc in cursor:
+        simul_doc: SimulDoc = doc
+        count += 1
+        if count > limit:
+            break
+
+        simul_id = simul_doc.get("_id")
+        created_by = simul_doc.get("createdBy")
+        variant = simul_doc.get("variant")
+        name = simul_doc.get("name")
+        if (
+            not isinstance(simul_id, str)
+            or not isinstance(created_by, str)
+            or not isinstance(variant, str)
+        ):
+            continue
+        if not isinstance(name, str):
+            name = "Simul"
+
+        entry = SimulListEntry(
+            id=simul_id,
+            name=name,
+            variant=variant,
+            chess960=bool(simul_doc.get("chess960", False)),
+            base=_parse_int(simul_doc.get("base"), 1),
+            inc=_parse_int(simul_doc.get("inc"), 0),
+            created_by=created_by,
+            starts_at=_as_datetime(simul_doc.get("startsAt")),
+            status=_parse_status(simul_doc.get("status")),
+            players_count=len(_as_str_list(simul_doc.get("players"))),
+        )
+
+        if entry.status == T_STARTED:
+            started.append(entry)
+        elif entry.status == T_CREATED:
+            created.append(entry)
+        else:
+            finished.append(entry)
+
+    return created, started, finished

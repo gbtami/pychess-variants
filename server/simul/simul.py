@@ -12,6 +12,7 @@ from websocket_utils import ws_send_json_many
 
 if TYPE_CHECKING:
     from user import User
+    from ws_types import ChatLine
 
 
 class Simul:
@@ -83,6 +84,7 @@ class Simul:
             "bplayer": game.bplayer.username,
             "variant": game.variant,
             "fen": game.fen,
+            "lastMove": game.lastmove,
             "rated": bool(game.rated),
             "base": game.base,
             "inc": game.inc,
@@ -160,6 +162,23 @@ class Simul:
             if self.id in spectator.simul_sockets:
                 sockets.extend(list(spectator.simul_sockets[self.id]))
         await ws_send_json_many(sockets, response)
+
+    async def simul_chat_save(self, response: "ChatLine") -> None:
+        self.tourneychat.append(response)
+        if self.app_state.db is None:
+            return
+
+        response_db: ChatLine = {
+            "type": response["type"],
+            "user": response["user"],
+            "message": response["message"],
+        }
+        if "room" in response:
+            response_db["room"] = response["room"]
+        if "time" in response:
+            response_db["time"] = response["time"]
+        response_db["sid"] = self.id
+        await self.app_state.db.simul_chat.insert_one(response_db)
 
     async def create_games(self) -> list["Game"]:
         created_games: list[Game] = []

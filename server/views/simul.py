@@ -8,9 +8,9 @@ from typing_defs import ViewContext
 from views import get_user_context
 from variants import VARIANTS, VARIANT_ICONS
 from simul.simul import Simul
-from simul.simuls import load_simul, upsert_simul_to_db
+from simul.simuls import get_latest_simuls, load_simul, upsert_simul_to_db
 from newid import id8
-from const import T_CREATED, T_STARTED, T_FINISHED
+from const import T_CREATED
 from settings import SIMULING
 
 
@@ -27,6 +27,54 @@ def parse_int_post_field(data, field_name: str, min_value: int, max_value: int) 
     return value
 
 
+def parse_simul_name(data) -> str:
+    name_raw = data.get("name", "")
+    if not isinstance(name_raw, (str, bytes)):
+        raise web.HTTPBadRequest(text="Invalid simul name")
+    if isinstance(name_raw, bytes):
+        name_raw = name_raw.decode("utf-8")
+    name = name_raw.strip()
+    if len(name) < 2 or len(name) > 30:
+        raise web.HTTPBadRequest(text="Invalid simul name length")
+    return name
+
+
+def parse_host_color(data) -> str:
+    host_color = data.get("host_color", "random")
+    if not isinstance(host_color, (str, bytes)):
+        raise web.HTTPBadRequest(text="Invalid host color")
+    if isinstance(host_color, bytes):
+        host_color = host_color.decode("utf-8")
+    if host_color not in ("random", "white", "black"):
+        raise web.HTTPBadRequest(text="Invalid host color value")
+    return host_color
+
+
+def parse_simul_variant(data):
+    variant_key = data.get("variant", "")
+    if not isinstance(variant_key, (str, bytes)):
+        raise web.HTTPBadRequest(text="Invalid simul variant")
+    if isinstance(variant_key, bytes):
+        variant_key = variant_key.decode("utf-8")
+    variant = VARIANTS.get(variant_key)
+    if variant is None:
+        raise web.HTTPBadRequest(text="Unknown variant")
+    if variant.two_boards:
+        raise web.HTTPBadRequest(text="Two-board variants are not allowed in simuls")
+    return variant_key, variant
+
+
+async def get_simul_for_request(request: web.Request) -> Simul:
+    app_state = get_app_state(request.app)
+    simul_id = request.match_info["simulId"]
+    simul = app_state.simuls.get(simul_id)
+    if simul is None:
+        simul = await load_simul(app_state, simul_id)
+    if simul is None:
+        raise web.HTTPNotFound(text="Simul not found")
+    return simul
+
+
 @aiohttp_jinja2.template("simuls.html")
 async def simuls(request: web.Request) -> ViewContext:
     if not SIMULING:
@@ -40,34 +88,11 @@ async def simuls(request: web.Request) -> ViewContext:
         if data is None:
             raise web.HTTPNoContent()
         simul_id = id8()
-        name_raw = data.get("name", "")
-        variant_key = data.get("variant", "")
-        host_color = data.get("host_color", "random")
+        name = parse_simul_name(data)
+        variant_key, variant = parse_simul_variant(data)
+        host_color = parse_host_color(data)
         base = parse_int_post_field(data, "base", min_value=0, max_value=180)
         inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
-
-        if not isinstance(name_raw, (str, bytes)) or not isinstance(variant_key, (str, bytes)):
-            raise web.HTTPBadRequest(text="Invalid simul form data")
-        if not isinstance(host_color, (str, bytes)):
-            raise web.HTTPBadRequest(text="Invalid host color")
-
-        if isinstance(name_raw, bytes):
-            name_raw = name_raw.decode("utf-8")
-        if isinstance(variant_key, bytes):
-            variant_key = variant_key.decode("utf-8")
-        if isinstance(host_color, bytes):
-            host_color = host_color.decode("utf-8")
-
-        name = name_raw.strip()
-        if len(name) < 2 or len(name) > 30:
-            raise web.HTTPBadRequest(text="Invalid simul name length")
-        variant = VARIANTS.get(variant_key)
-        if variant is None:
-            raise web.HTTPBadRequest(text="Unknown variant")
-        if variant.two_boards:
-            raise web.HTTPBadRequest(text="Two-board variants are not allowed in simuls")
-        if host_color not in ("random", "white", "black"):
-            raise web.HTTPBadRequest(text="Invalid host color value")
 
         simul = await Simul.create(
             app_state,
@@ -85,10 +110,10 @@ async def simuls(request: web.Request) -> ViewContext:
         await upsert_simul_to_db(simul, app_state)
         raise web.HTTPFound(f"/simul/{simul_id}")
 
-    simuls = list(app_state.simuls.values())
-    context["created_simuls"] = [s for s in simuls if s.status == T_CREATED]
-    context["started_simuls"] = [s for s in simuls if s.status == T_STARTED]
-    context["finished_simuls"] = [s for s in simuls if s.status == T_FINISHED]
+    created_simuls, started_simuls, finished_simuls = await get_latest_simuls(app_state)
+    context["created_simuls"] = created_simuls
+    context["started_simuls"] = started_simuls
+    context["finished_simuls"] = finished_simuls
     context["icons"] = VARIANT_ICONS
     context["time_control_str"] = time_control_str
     context["view_css"] = "simul.css"
@@ -105,6 +130,37 @@ async def simul_new(request: web.Request) -> ViewContext:
     context["variants"] = {
         key: variant for key, variant in VARIANTS.items() if not variant.two_boards
     }
+    context["edit"] = False
+    context["simul_form_action"] = "/simul"
+    context["simul_form_title"] = "Host a new simul"
+    context["simul_submit_label"] = "Create a new simul"
+    context["simul_cancel_url"] = "/simul"
+    context["simul_editable"] = True
+    context["view_css"] = "simul.css"
+    return context
+
+
+@aiohttp_jinja2.template("simul_new.html")
+async def simul_edit(request: web.Request) -> ViewContext:
+    if not SIMULING:
+        raise web.HTTPForbidden()
+
+    user, context = await get_user_context(request)
+    simul = await get_simul_for_request(request)
+
+    if user.username != simul.created_by:
+        raise web.HTTPForbidden(text="Only the host can edit the simul")
+
+    context["variants"] = {
+        key: variant for key, variant in VARIANTS.items() if not variant.two_boards
+    }
+    context["edit"] = True
+    context["simul"] = simul
+    context["simul_form_action"] = f"/simul/{simul.id}/edit"
+    context["simul_form_title"] = f"Edit {simul.name}"
+    context["simul_submit_label"] = "Save"
+    context["simul_cancel_url"] = f"/simul/{simul.id}"
+    context["simul_editable"] = simul.status == T_CREATED
     context["view_css"] = "simul.css"
     return context
 
@@ -134,6 +190,34 @@ async def simul(request: web.Request) -> ViewContext:
     context["status"] = simul.status
     context["view_css"] = "simul.css"
     return context
+
+
+async def update_simul(request: web.Request) -> web.Response:
+    if not SIMULING:
+        raise web.HTTPForbidden()
+
+    user, _ = await get_user_context(request)
+    simul = await get_simul_for_request(request)
+
+    if user.username != simul.created_by:
+        raise web.HTTPForbidden(text="Only the host can edit the simul")
+
+    data = await read_post_data(request)
+    if data is None:
+        raise web.HTTPNoContent()
+
+    simul.name = parse_simul_name(data)
+
+    if simul.status == T_CREATED:
+        _, variant = parse_simul_variant(data)
+        simul.variant = variant.uci_variant
+        simul.chess960 = variant.chess960
+        simul.base = parse_int_post_field(data, "base", min_value=0, max_value=180)
+        simul.inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
+        simul.host_color = parse_host_color(data)
+
+    await upsert_simul_to_db(simul)
+    raise web.HTTPFound(f"/simul/{simul.id}")
 
 
 async def start_simul(request: web.Request) -> web.Response:

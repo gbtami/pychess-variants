@@ -14,7 +14,7 @@ from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from simul.simul import Simul
-from simul.simuls import load_active_simuls, load_simul
+from simul.simuls import get_latest_simuls, load_active_simuls, load_simul
 from simul import wss as simul_wss
 from pychess_global_app_state import PychessGlobalAppState
 from typedefs import pychess_global_app_state_key
@@ -423,6 +423,48 @@ class TestGUI:
         assert reloaded_simul is not None
         assert reloaded_simul.status == T_FINISHED
         assert game.id in reloaded_simul.games
+
+    async def test_finished_simul_listed_after_restart(self, aiohttp_server):
+        db_client = AsyncMongoMockClient(tz_aware=True)
+        app = make_app(db_client=db_client)
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        sid = id8()
+
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+
+        simul = await Simul.create(
+            app_state, sid, name="Restart Visible Simul", created_by=host_username
+        )
+        app_state.simuls[sid] = simul
+
+        player2 = User(app_state, username="TestUser_2")
+        app_state.users[player2.username] = player2
+        simul.join(player2)
+        simul.approve(player2.username)
+
+        started = await simul.start()
+        assert started is True
+
+        game = next(iter(simul.games.values()))
+        game.update_status(MATE, "1-0")
+        await game.save_game()
+        await simul.game_update(game)
+        assert simul.status == T_FINISHED
+
+        restarted_app = make_app(db_client=db_client)
+        restarted_app[pychess_global_app_state_key] = PychessGlobalAppState(restarted_app)
+        restarted_state = get_app_state(restarted_app)
+
+        created_simuls, started_simuls, finished_simuls = await get_latest_simuls(restarted_state)
+
+        assert created_simuls == []
+        assert started_simuls == []
+        assert any(
+            entry.id == sid and entry.name == "Restart Visible Simul" for entry in finished_simuls
+        )
 
     async def test_aborted_simul_game_finishes_simul(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))

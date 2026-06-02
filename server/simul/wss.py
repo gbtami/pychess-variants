@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 import aiohttp_session
 from aiohttp import web
 
+from chat import chat_response
+from link_filter import sanitize_user_message
 from pychess_global_app_state_utils import get_app_state
 from simul.simuls import load_simul, upsert_simul_to_db
 from websocket_utils import process_ws, get_user, ws_send_json
@@ -15,6 +17,7 @@ if TYPE_CHECKING:
         SimulDenyPlayerRequest,
         SimulInboundMessage,
         SimulJoinRequest,
+        SimulLobbyChatMessage,
         SimulStartRequest,
         SimulUserConnectedRequest,
     )
@@ -65,6 +68,8 @@ async def process_message(
 ) -> None:
     if data["type"] == "simul_user_connected":
         await handle_simul_user_connected(app_state, ws, user, data)
+    elif data["type"] == "lobbychat":
+        await handle_lobbychat(app_state, user, data)
     elif data["type"] == "start_simul":
         await handle_start_simul(app_state, ws, user, data)
     elif data["type"] == "join":
@@ -109,10 +114,15 @@ async def handle_simul_user_connected(
         "base": simul.base,
         "inc": simul.inc,
         "status": simul.status,
+        "hostColor": simul.host_color,
+        "createdAt": simul.created_at.isoformat(),
+        "startsAt": simul.starts_at.isoformat() if simul.starts_at is not None else None,
+        "endsAt": simul.ends_at.isoformat() if simul.ends_at is not None else None,
         "games": simul.all_games_json(),
         "username": user.username,
     }
     await ws_send_json(ws, response)
+    await ws_send_json(ws, {"type": "fullchat", "lines": list(simul.tourneychat)})
 
 
 async def handle_start_simul(
@@ -181,3 +191,20 @@ async def handle_deny_player(
     if simul.deny(username):
         await upsert_simul_to_db(simul, app_state)
         await simul.broadcast({"type": "player_denied", "username": username})
+
+
+async def handle_lobbychat(
+    app_state: PychessGlobalAppState, user: User, data: SimulLobbyChatMessage
+) -> None:
+    simul_id = data["simulId"]
+    simul = await get_simul(app_state, simul_id)
+    if simul is None or user.anon or user.silence != 0:
+        return
+
+    message = sanitize_user_message(data["message"])
+    if not app_state.chat_flood.allow_message(f"public:{user.username}", message):
+        return
+
+    response = chat_response("lobbychat", user.username, message)
+    await simul.simul_chat_save(response)
+    await simul.broadcast(response)

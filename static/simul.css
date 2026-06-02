@@ -11,17 +11,19 @@
     width: 100%;
 }
 
-/* Override main wrap constraint to allow full width for simul pages */
-.simuls #main-wrap,
+/* Override outer layout for the single-simul page. */
 #pychess-variants[data-view="simul"] #main-wrap {
-    grid-template-columns: 0 1fr 1fr 1fr 0;
-    --main-max-width: 100%;
+    --main-max-width: min(96vw, 1600px);
 }
 
-/* For simul pages specifically */
-div#main-wrap[data-view="simul"] {
-    grid-template-columns: 0 1fr 1fr 1fr 0;
-    --main-max-width: 100%;
+#pychess-variants[data-view="simul"] main.simul,
+#pychess-variants[data-view="simul"] #simul-view {
+    width: 100%;
+    min-width: 0;
+}
+
+#pychess-variants[data-view="simul"] #simul-view {
+    display: contents;
 }
 
 a {
@@ -242,111 +244,309 @@ td.header:hover {
     background-color: var(--green-hover);
 }
 
-/* Simul page styling (Lichess-inspired) */
+/* Simul page styling */
 .simul, .simul-new {
     grid-area: main;
 }
 
-.simul__app {
+.simul {
     display: grid;
-    gap: 1rem;
-    grid-template-columns: minmax(0, 1fr) minmax(250px, 320px);
     grid-template-areas:
-        'main side'
-        'main chat';
+        'main'
+        'side';
+    gap: 1.25rem;
+    width: 100%;
+    min-width: 0;
+    align-items: start;
 }
 
-.simul__app__content {
+#pychess-variants[data-view="simul"] .simul h1,
+#pychess-variants[data-view="simul"] .simul h2,
+#pychess-variants[data-view="simul"] .simul p {
+    padding: 0;
+}
+
+#pychess-variants[data-view="simul"] .simul__main.box,
+#pychess-variants[data-view="simul"] .simul__meta.box {
+    padding: 1.1rem 1.2rem;
+}
+
+.simul__app {
+    display: contents;
+}
+
+.simul__main {
     grid-area: main;
-    display: flex;
-    flex-flow: column;
-    gap: 1rem;
-}
-
-.simul__app .chat {
-    grid-area: chat;
-    min-height: 18rem;
+    align-self: start;
 }
 
 .simul__side {
     grid-area: side;
     display: flex;
-    flex-flow: column;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.85rem;
+    align-self: start;
 }
 
-.simul__title {
+.simul__side > .chat {
+    min-height: 18rem;
+}
+
+.simul .box__top {
     display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
     justify-content: space-between;
-    align-items: center;
     gap: 1rem;
+    margin-bottom: 1rem;
 }
 
-.simul__title h1 {
+.simul .box__top h1 {
     margin: 0;
-    font-size: 2rem;
-    line-height: 1.2;
+    font-size: 2.2em;
+    line-height: 1.1;
+}
+
+.simul .box__top h1 .author {
+    font-size: 0.7em;
+    font-weight: normal;
+    color: var(--link-color);
+}
+
+.simul .box__top__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    padding-top: 0.2rem;
+}
+
+.simul__cta,
+.simul__table-action {
+    -webkit-appearance: none;
+    appearance: none;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color2);
+    color: var(--font-color);
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.simul__cta {
+    padding: 0.48rem 0.82rem;
+    font-size: 0.95rem;
+}
+
+.simul__table-action {
+    padding: 0.24rem 0.48rem;
+    margin-inline-start: 0.35rem;
+    font-size: 0.9rem;
+}
+
+.simul .button-green {
+    border-color: transparent;
+    background: var(--green-switch);
+    color: #fff;
+}
+
+.simul .button-red {
+    border-color: transparent;
+    background: var(--bad);
+    color: #fff;
+}
+
+.simul__cta:hover,
+.simul__table-action:hover {
+    filter: brightness(1.05);
+}
+
+.simul .instructions {
+    margin: 0 0 0.8rem;
+    text-align: center;
+    color: var(--link-color);
+}
+
+.simul .halves {
+    display: flex;
+    align-items: stretch;
+}
+
+.simul .half {
+    flex: 0 0 50%;
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+.simul .half:first-child {
+    border-inline-end: 1px solid var(--border-color);
+}
+
+.simul .slist {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: collapse;
+}
+
+.simul .slist thead th {
+    text-align: left;
+    font-size: 0.9rem;
+    letter-spacing: 0.01em;
+}
+
+.simul .slist-pad th:first-child,
+.simul .slist-pad td:first-child {
+    padding-inline-start: 1.2rem;
+}
+
+.simul .slist-pad th:last-child,
+.simul .slist-pad td:last-child {
+    padding-inline-end: 1.2rem;
+}
+
+.simul .half .variant {
+    width: 3rem;
+    text-align: center;
+}
+
+.simul .half .variant::before,
+.simul__meta .header [data-icon]::before {
+    font-size: 1.6em;
+    opacity: 0.8;
+}
+
+.simul .half td.action {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.simul .half thead th {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.simul .half tbody td {
+    padding-top: 0.72rem;
+    padding-bottom: 0.72rem;
+}
+
+.simul .half tr.help th,
+.simul .half tr.empty td {
+    padding: 1.75rem 1.2rem;
+    color: var(--link-color);
+}
+
+.simul .half.candidates tr.me {
+    border-inline-start: 10px solid var(--gold);
+}
+
+.simul .half.accepted tr.me {
+    border-inline-end: 10px solid var(--gold);
+}
+
+.simul .user-link em {
+    font-style: normal;
+    font-weight: bold;
+    padding-inline-start: 5px;
+    color: var(--link-color);
+}
+
+.simul__meta {
+    background: var(--bg-color0);
+}
+
+.simul__meta .header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.simul__meta .header > i,
+.simul__meta .header > [data-icon] {
+    flex: 0 0 auto;
+    font-size: 2.2em;
+}
+
+.simul__meta .header p {
+    margin: 0;
+}
+
+.simul__meta .header .clock {
+    display: block;
+    font-size: 1.45em;
+    line-height: 1.1;
+    box-shadow: none;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+.simul__meta__headline {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.2rem !important;
+    color: var(--link-color);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.simul__meta__edit {
+    opacity: 0.7;
+    font-size: 1.05rem;
+    text-decoration: none;
+}
+
+.simul__meta__edit:hover {
+    opacity: 1;
+}
+
+.simul__meta section {
+    margin-top: 0.6rem;
+}
+
+.simul__meta .game-infos {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0.2rem;
+}
+
+.simul__meta__line {
+    margin: 0.12rem 0 0;
+    color: var(--font-color);
+    line-height: 1.3;
+}
+
+.simul__meta__date {
+    color: var(--link-color);
+}
+
+.simul__meta__statusline {
+    margin-top: 0.45rem;
+    color: var(--link-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.82rem;
 }
 
 .simul-status {
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.35rem 0.65rem;
-    border-radius: 999px;
-}
-
-.status-waiting {
-    background: rgba(54, 146, 231, 0.2);
-    color: var(--link-color-blue);
+    letter-spacing: 0.02em;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    color: var(--font-color);
+    opacity: 0.8;
 }
 
 .status-started {
-    background: rgba(98, 153, 36, 0.22);
-    color: var(--green-hover);
+    color: var(--font-color);
 }
 
 .status-finished {
-    background: rgba(213, 144, 32, 0.22);
-    color: var(--gold);
-}
-
-.simul__meta {
-    display: flex;
-    flex-flow: row wrap;
-}
-
-.simul__meta > div {
-    flex: 1 1 12rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 0.8rem 0.6rem;
-    border-right: 1px solid var(--bg-color2);
-}
-
-.simul__meta > div:last-child {
-    border-right: none;
-}
-
-.simul__meta__host,
-.simul__meta__text {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--link-color);
-    font-size: 0.82rem;
-}
-
-.simul__meta__status {
-    color: var(--font-color);
-    font-weight: 600;
-}
-
-.simul__meta__games {
-    font-size: 1.2rem;
-    font-weight: 700;
     color: var(--font-color);
 }
 
@@ -355,126 +555,37 @@ td.header:hover {
     font-size: 1.2rem;
 }
 
-.simul__waiting-note,
-.simul__empty {
-    color: var(--link-color);
-}
-
-.simul__side__host {
+.simul .results {
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 1.2rem;
+    margin: 0 0 1.15rem;
+    padding-inline: 0.5rem;
 }
 
-.simul__side__host__text {
-    font-size: 1.9rem;
-    font-weight: 700;
-    color: var(--green-switch);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.simul .results > div {
+    flex: 1 1 25%;
+    text-align: center;
 }
 
-.simul__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 0.8rem;
+.simul .results .number {
+    font-size: 2.7rem;
+    font-weight: bold;
+    line-height: 1;
 }
 
-.simul__actions .button {
-    border: 1px solid var(--bg-color2);
-    background: var(--bg-color2);
-    color: var(--font-color);
-    border-radius: 3px;
-    padding: 0.45rem 0.8rem;
-    cursor: pointer;
-}
-
-.simul__actions .button:hover {
-    filter: brightness(1.08);
-}
-
-.simul__actions__start {
-    background: var(--green-switch) !important;
-    border-color: var(--green-switch) !important;
-    color: #fff !important;
-}
-
-.simul__actions__join {
-    background: var(--link-color-blue) !important;
-    border-color: var(--link-color-blue) !important;
-    color: #fff !important;
-}
-
-.simul__actions__note {
-    color: var(--link-color);
-    font-size: 0.95rem;
-}
-
-.simul__players-group h3 {
-    margin: 0.75rem 0 0.35rem;
+.simul .results .text {
+    margin-top: 0.15rem;
     font-size: 0.95rem;
     text-transform: uppercase;
     color: var(--link-color);
-}
-
-.simul__player {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--bg-color2);
-}
-
-.simul__player:last-child {
-    border-bottom: none;
-}
-
-.simul__player__identity {
-    flex: 1 1 auto;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.simul__player__rating {
-    color: var(--link-color);
-    font-size: 0.9rem;
-}
-
-.simul__player__actions {
-    display: flex;
-    gap: 0.35rem;
-}
-
-.simul__player .button {
-    padding: 0.3rem 0.55rem;
-    border-radius: 3px;
-    border: 1px solid var(--bg-color2);
-    background: var(--bg-color2);
-    color: var(--font-color);
-    cursor: pointer;
-}
-
-.simul__player .btn-approve {
-    background: rgba(98, 153, 36, 0.16);
-    border-color: var(--green-switch);
-    color: var(--green-hover);
-}
-
-.simul__player .btn-deny {
-    background: rgba(192, 58, 65, 0.14);
-    border-color: #b94e56;
-    color: #b94e56;
+    letter-spacing: 0.03em;
 }
 
 .simul__games {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
-    gap: 0.95rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.85rem 1rem;
 }
 
 .simul__games a {
@@ -482,7 +593,9 @@ td.header:hover {
     flex-flow: column;
     color: var(--font-color);
     text-decoration: none;
-    gap: 0.3rem;
+    gap: 0.15rem;
+    width: max-content;
+    max-width: 100%;
 }
 
 .simul__games .mini-game {
@@ -495,95 +608,65 @@ td.header:hover {
     box-shadow: inset 0 0 0 2px var(--link-color-blue);
 }
 
-.simul__games .mini-game.finished {
-    opacity: 0.6;
+.simul__games .mini-game__player {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.88rem;
 }
 
-.simul__games .mini-game .cg-wrap {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-}
-
-.simul__games .host,
-.simul__games .opp {
+.simul__games .mini-game__user {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.simul__games .host {
     color: var(--link-color);
 }
 
-.simul__games .vstext {
-    color: var(--link-color);
-    font-size: 0.78rem;
-    text-transform: uppercase;
+.simul__games .mini-game__user.host {
+    color: var(--font-color);
 }
 
-.simul__games .result-wrap {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-}
-
-.simul__games .result-wrap .result {
+.simul__games .mini-game__result {
+    min-width: 1ch;
     font-weight: 700;
 }
 
-.simul__games .result-wrap .status {
-    color: var(--link-color);
-    font-size: 0.78rem;
-    text-transform: uppercase;
-}
+@media (min-width: 800px) {
+    .simul {
+        grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
+        grid-template-areas: 'side main';
+    }
 
-.simul__games.finished {
-    grid-template-columns: 1fr;
-    gap: 0.35rem;
-}
-
-.simul__games.finished a {
-    display: flex;
-    flex-flow: row;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-color2);
-    border-radius: 3px;
-    padding: 0.6rem 0.75rem;
-}
-
-.simul__games.finished .mini-game {
-    display: none;
-}
-
-.simul__games.finished .game-header {
-    display: flex;
-    flex-flow: column;
-    gap: 0.1rem;
-}
-
-.simul__games.finished .result-wrap {
-    display: block;
-    text-align: right;
-}
-
-@media (max-width: 1260px) {
-    .simul__app {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            'main'
-            'side'
-            'chat';
+    .simul:not(.simul-created) {
+        grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
     }
 }
 
 @media (max-width: 799px) {
-    .simul__title {
-        align-items: flex-start;
-        flex-flow: column;
+    .simul .box__top h1 {
+        font-size: 1.7rem;
     }
 
-    .simul__title h1 {
-        font-size: 1.6rem;
+    .simul .results {
+        flex-wrap: wrap;
+        row-gap: 1rem;
+    }
+
+    .simul .results > div {
+        flex-basis: 50%;
+    }
+
+    .simul .halves {
+        flex-direction: column;
+    }
+
+    .simul .half {
+        flex-basis: auto;
+    }
+
+    .simul .half:first-child {
+        border-inline-end: none;
+        border-bottom: 1px solid var(--border-color);
     }
 }

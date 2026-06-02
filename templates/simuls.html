@@ -37,7 +37,7 @@
                     </span>
                 </td>
                 <td>
-                    <span>{% trans count=simul.players|length %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
+                    <span>{% trans count=simul.players_count %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
                 </td>
             </tr>
             {% endfor %}
@@ -72,7 +72,7 @@
                     </span>
                 </td>
                 <td>
-                    <span>{% trans count=simul.players|length %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
+                    <span>{% trans count=simul.players_count %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
                 </td>
             </tr>
             {% endfor %}
@@ -107,7 +107,7 @@
                     </span>
                 </td>
                 <td>
-                    <span>{% trans count=simul.players|length %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
+                    <span>{% trans count=simul.players_count %}{{ count }} player{% pluralize %}{{ count }} players{% endtrans %}</span>
                 </td>
             </tr>
             {% endfor %}
