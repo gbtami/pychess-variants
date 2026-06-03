@@ -9,10 +9,12 @@ import msgspec
 LOCALHOST = "http://127.0.0.1:8080"
 URI = os.getenv("URI", LOCALHOST)
 
-SIMULING = URI == LOCALHOST
-
 PROD = os.getenv("PROD") == "true"
 DEV = not PROD
+
+# Simul remains disabled on production, but should be available on any DEV deployment,
+# including non-local hosts such as the Render dev server.
+SIMULING = DEV
 
 # lichess.org API token created by the pychess-monitor BOT user
 PYCHESS_MONITOR_TOKEN = os.getenv("PYCHESS_MONITOR_TOKEN")
