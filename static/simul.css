@@ -16,6 +16,16 @@
     --main-max-width: min(96vw, 1600px);
 }
 
+.simul-new.page-small {
+    max-width: 840px;
+    width: 100%;
+    margin-inline: auto;
+}
+
+.simul-new > .box.box-pad {
+    padding: 4vh clamp(24px, 4vw, 40px);
+}
+
 #pychess-variants[data-view="simul"] main.simul,
 #pychess-variants[data-view="simul"] #simul-view {
     width: 100%;
@@ -176,26 +186,22 @@ td.header:hover {
 }
 
 /* New Simul Form styling */
-.form3 {
+.simul-new .form3 {
     margin: 0 auto;
-    max-width: 500px;
-    background-color: var(--bg-color);
-    padding: 2em;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 100%;
 }
 
-.form3 .form-group {
+.simul-new .form3 .form-group {
     margin-bottom: 1em;
 }
 
-.form3 .form-label {
+.simul-new .form3 .form-label {
     display: block;
     font-weight: bold;
     margin-bottom: 0.5em;
 }
 
-.form3 .form-control {
+.simul-new .form3 .form-control {
     width: 100%;
     padding: 0.5em;
     border: 1px solid #ccc;
@@ -204,33 +210,59 @@ td.header:hover {
     color: var(--font-color);
 }
 
-.form3 .form-split {
+.simul-new .form3 .form-split {
     display: flex;
+    flex-wrap: wrap;
     gap: 1em;
 }
 
-.form3 .form-half {
-    flex: 1;
+.simul-new .form3 .form-half {
+    flex: 1 1 220px;
+    min-width: 0;
 }
 
-.form3 .form-actions {
+.simul-new .form3 .form-help {
+    color: var(--font-color);
+    opacity: 0.8;
+}
+
+.simul-new .form3 .simul-form__fieldset {
+    margin: 1rem 0 2rem;
+    padding: 1.4rem 1.8rem 0.35rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color2);
+    min-width: 0;
+}
+
+.simul-new .form3 .simul-form__fieldset legend {
+    padding: 0.45rem 1rem;
+    border: none;
+    border-radius: 7px;
+    background: var(--bg-color2);
+    color: var(--font-color);
+    font-size: 1.05em;
+    font-weight: 600;
+}
+
+.simul-new .form3 .form-actions {
     margin-top: 1.5em;
     display: flex;
     justify-content: flex-end;
     align-items: center;
 }
 
-.form3 .form-actions a {
+.simul-new .form3 .form-actions a {
     margin-right: 1em;
     color: var(--link-color-blue);
     text-decoration: none;
 }
 
-.form3 .form-actions a:hover {
+.simul-new .form3 .form-actions a:hover {
     text-decoration: underline;
 }
 
-.form3 .form-actions button {
+.simul-new .form3 .form-actions button {
     padding: 0.8em 1.5em;
     border: none;
     background-color: var(--green-switch);
@@ -240,7 +272,7 @@ td.header:hover {
     font-size: 1em;
 }
 
-.form3 .form-actions button:hover {
+.simul-new .form3 .form-actions button:hover {
     background-color: var(--green-hover);
 }
 

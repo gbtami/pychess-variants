@@ -31,13 +31,146 @@
             {% set simul_entry_min_account_age_days = 0 %}
             {% endif %}
             <h1>{{ simul_form_title }}</h1>
-            <form method="post" class="form3" action="{{ simul_form_action }}">
+            <form method="post" class="form3 simul-form__body" action="{{ simul_form_action }}">
                 <div class="form-group">
                     <label class="form-label" for="form3-name">Name</label>
                     <div>
                         <input id="form3-name" name="name" value="{{ simul_name }}" class="form-control" minlength="2" maxlength="30" />
                     </div>
                 </div>
+                {% if simul_editable %}
+                <fieldset class="simul-form__fieldset">
+                    <legend>Games</legend>
+                    <div class="form-split">
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-variant">Variant</label>
+                            <select id="form3-variant" name="variant" class="form-control">
+                                {% for key in variants %}
+                                <option value="{{ key }}"{% if key == simul_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-host-color">Host color</label>
+                            <select id="form3-host-color" name="host_color" class="form-control">
+                                <option value="random"{% if simul_host_color == 'random' %} selected="selected"{% endif %}>Random</option>
+                                <option value="white"{% if simul_host_color == 'white' %} selected="selected"{% endif %}>White</option>
+                                <option value="black"{% if simul_host_color == 'black' %} selected="selected"{% endif %}>Black</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="simul-form__fieldset">
+                    <legend>Clock</legend>
+                    <div class="form-split">
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-clockTime">Clock initial time</label>
+                            <select id="form3-clockTime" name="base" class="form-control">
+                                <option value="1"{% if simul_base == 1 %} selected="selected"{% endif %}>1 minute</option>
+                                <option value="2"{% if simul_base == 2 %} selected="selected"{% endif %}>2 minutes</option>
+                                <option value="3"{% if simul_base == 3 %} selected="selected"{% endif %}>3 minutes</option>
+                                <option value="5"{% if simul_base == 5 %} selected="selected"{% endif %}>5 minutes</option>
+                                <option value="10"{% if simul_base == 10 %} selected="selected"{% endif %}>10 minutes</option>
+                                <option value="15"{% if simul_base == 15 %} selected="selected"{% endif %}>15 minutes</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-clockIncrement">Clock increment</label>
+                            <select id="form3-clockIncrement" name="inc" class="form-control">
+                                <option value="0"{% if simul_inc == 0 %} selected="selected"{% endif %}>0 seconds</option>
+                                <option value="1"{% if simul_inc == 1 %} selected="selected"{% endif %}>1 second</option>
+                                <option value="2"{% if simul_inc == 2 %} selected="selected"{% endif %}>2 seconds</option>
+                                <option value="3"{% if simul_inc == 3 %} selected="selected"{% endif %}>3 seconds</option>
+                                <option value="5"{% if simul_inc == 5 %} selected="selected"{% endif %}>5 seconds</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-split">
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-hostExtraTime">Host extra initial clock time</label>
+                            <select id="form3-hostExtraTime" name="hostExtraTime" class="form-control">
+                                {% if simul_host_extra_time not in host_extra_time_values %}
+                                <option value="{{ simul_host_extra_time }}" selected="selected">{{ simul_host_extra_time }} seconds (custom)</option>
+                                {% endif %}
+                                {% for value, label in host_extra_time_choices %}
+                                <option value="{{ value }}"{% if simul_host_extra_time == value %} selected="selected"{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-help">Applied only to the host, just like lichess simuls.</small>
+                        </div>
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-hostExtraTimePerPlayer">Host extra clock time per player</label>
+                            <select id="form3-hostExtraTimePerPlayer" name="hostExtraTimePerPlayer" class="form-control">
+                                {% if simul_host_extra_time_per_player not in host_extra_time_per_player_values %}
+                                <option value="{{ simul_host_extra_time_per_player }}" selected="selected">{{ simul_host_extra_time_per_player }} seconds (custom)</option>
+                                {% endif %}
+                                {% for value, label in host_extra_time_per_player_choices %}
+                                <option value="{{ value }}"{% if simul_host_extra_time_per_player == value %} selected="selected"{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-help">Added to the host clock once for each accepted opponent when the simul starts.</small>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="simul-form__fieldset">
+                    <legend>Entry conditions</legend>
+                    <div class="form-split">
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-entryMinRatedGames">Minimum rated games</label>
+                            <select id="form3-entryMinRatedGames" name="entryMinRatedGames" class="form-control">
+                                {% if simul_entry_min_rated_games not in rated_game_values %}
+                                <option value="{{ simul_entry_min_rated_games }}" selected="selected">{{ simul_entry_min_rated_games }} rated games (custom)</option>
+                                {% endif %}
+                                {% for value, label in rated_game_choices %}
+                                <option value="{{ value }}"{% if simul_entry_min_rated_games == value %} selected="selected"{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-help">Required rated games in this variant before a player can join.</small>
+                        </div>
+                    </div>
+                    <div class="form-split">
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-entryMinRating">Minimum rating</label>
+                            <select id="form3-entryMinRating" name="entryMinRating" class="form-control">
+                                {% if simul_entry_min_rating not in min_rating_values %}
+                                <option value="{{ simul_entry_min_rating }}" selected="selected">{{ simul_entry_min_rating }} (custom)</option>
+                                {% endif %}
+                                {% for value, label in min_rating_choices %}
+                                <option value="{{ value }}"{% if simul_entry_min_rating == value %} selected="selected"{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-entryMaxRating">Maximum rating</label>
+                            <select id="form3-entryMaxRating" name="entryMaxRating" class="form-control">
+                                {% if simul_entry_max_rating not in max_rating_values %}
+                                <option value="{{ simul_entry_max_rating }}" selected="selected">{{ simul_entry_max_rating }} (custom)</option>
+                                {% endif %}
+                                {% for value, label in max_rating_choices %}
+                                <option value="{{ value }}"{% if simul_entry_max_rating == value %} selected="selected"{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-split">
+                        <div class="form-group form-half">
+                            <label class="form-label" for="form3-entryMinAccountAgeDays">Minimum account age</label>
+                            <select id="form3-entryMinAccountAgeDays" name="entryMinAccountAgeDays" class="form-control">
+                                {% if simul_entry_min_account_age_days not in account_age_values %}
+                                <option value="{{ simul_entry_min_account_age_days }}" selected="selected">{{ simul_entry_min_account_age_days }} days (custom)</option>
+                                {% endif %}
+                                {% for value, label in account_age_choices %}
+                                <option value="{{ value }}"{% if simul_entry_min_account_age_days == value %} selected="selected"{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+                {% elif edit %}
+                <div class="form-group">
+                    <small class="form-help">Only the simul name and description can be edited after the simul has started or finished.</small>
+                </div>
+                {% endif %}
                 <div class="form-group">
                     <label class="form-label" for="form3-description">Simul description</label>
                     <div>
@@ -45,130 +178,6 @@
                         <small class="form-help">Anything special you want to tell the participants?</small>
                     </div>
                 </div>
-                {% if simul_editable %}
-                <div class="form-split">
-                    <div class="form-group form-half">
-                        <label class="form-label" for="form3-variant">Variant</label>
-                        <select id="form3-variant" name="variant" class="form-control">
-                            {% for key in variants %}
-                            <option value="{{ key }}"{% if key == simul_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group form-half">
-                        <label class="form-label" for="form3-host-color">Host color</label>
-                        <select id="form3-host-color" name="host_color" class="form-control">
-                            <option value="random"{% if simul_host_color == 'random' %} selected="selected"{% endif %}>Random</option>
-                            <option value="white"{% if simul_host_color == 'white' %} selected="selected"{% endif %}>White</option>
-                            <option value="black"{% if simul_host_color == 'black' %} selected="selected"{% endif %}>Black</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-split">
-                    <div class="form-group form-half">
-                        <label class="form-label" for="form3-clockTime">Clock initial time</label>
-                        <select id="form3-clockTime" name="base" class="form-control">
-                            <option value="1"{% if simul_base == 1 %} selected="selected"{% endif %}>1 minute</option>
-                            <option value="2"{% if simul_base == 2 %} selected="selected"{% endif %}>2 minutes</option>
-                            <option value="3"{% if simul_base == 3 %} selected="selected"{% endif %}>3 minutes</option>
-                            <option value="5"{% if simul_base == 5 %} selected="selected"{% endif %}>5 minutes</option>
-                            <option value="10"{% if simul_base == 10 %} selected="selected"{% endif %}>10 minutes</option>
-                            <option value="15"{% if simul_base == 15 %} selected="selected"{% endif %}>15 minutes</option>
-                        </select>
-                    </div>
-                    <div class="form-group form-half">
-                        <label class="form-label" for="form3-clockIncrement">Clock increment</label>
-                        <select id="form3-clockIncrement" name="inc" class="form-control">
-                            <option value="0"{% if simul_inc == 0 %} selected="selected"{% endif %}>0 seconds</option>
-                            <option value="1"{% if simul_inc == 1 %} selected="selected"{% endif %}>1 second</option>
-                            <option value="2"{% if simul_inc == 2 %} selected="selected"{% endif %}>2 seconds</option>
-                            <option value="3"{% if simul_inc == 3 %} selected="selected"{% endif %}>3 seconds</option>
-                            <option value="5"{% if simul_inc == 5 %} selected="selected"{% endif %}>5 seconds</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-split">
-                    <div class="form-group form-half">
-                        <label class="form-label" for="form3-hostExtraTime">Host extra initial clock time</label>
-                        <select id="form3-hostExtraTime" name="hostExtraTime" class="form-control">
-                            {% if simul_host_extra_time not in host_extra_time_values %}
-                            <option value="{{ simul_host_extra_time }}" selected="selected">{{ simul_host_extra_time }} seconds (custom)</option>
-                            {% endif %}
-                            {% for value, label in host_extra_time_choices %}
-                            <option value="{{ value }}"{% if simul_host_extra_time == value %} selected="selected"{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                        <small class="form-help">Applied only to the host, just like lichess simuls.</small>
-                    </div>
-                    <div class="form-group form-half">
-                        <label class="form-label" for="form3-hostExtraTimePerPlayer">Host extra clock time per player</label>
-                        <select id="form3-hostExtraTimePerPlayer" name="hostExtraTimePerPlayer" class="form-control">
-                            {% if simul_host_extra_time_per_player not in host_extra_time_per_player_values %}
-                            <option value="{{ simul_host_extra_time_per_player }}" selected="selected">{{ simul_host_extra_time_per_player }} seconds (custom)</option>
-                            {% endif %}
-                            {% for value, label in host_extra_time_per_player_choices %}
-                            <option value="{{ value }}"{% if simul_host_extra_time_per_player == value %} selected="selected"{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                        <small class="form-help">Added to the host clock once for each accepted opponent when the simul starts.</small>
-                    </div>
-                </div>
-                <div class="form-split">
-                    <div class="form-group form-half">
-                        <label class="form-label" for="form3-entryMinRatedGames">Minimum rated games</label>
-                        <select id="form3-entryMinRatedGames" name="entryMinRatedGames" class="form-control">
-                            {% if simul_entry_min_rated_games not in rated_game_values %}
-                            <option value="{{ simul_entry_min_rated_games }}" selected="selected">{{ simul_entry_min_rated_games }} rated games (custom)</option>
-                            {% endif %}
-                            {% for value, label in rated_game_choices %}
-                            <option value="{{ value }}"{% if simul_entry_min_rated_games == value %} selected="selected"{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                        <small class="form-help">Required rated games in this variant before a player can join.</small>
-                    </div>
-                </div>
-                <div class="form-split">
-                    <div class="form-group form-half">
-                        <label class="form-label" for="form3-entryMinRating">Minimum rating</label>
-                        <select id="form3-entryMinRating" name="entryMinRating" class="form-control">
-                            {% if simul_entry_min_rating not in min_rating_values %}
-                            <option value="{{ simul_entry_min_rating }}" selected="selected">{{ simul_entry_min_rating }} (custom)</option>
-                            {% endif %}
-                            {% for value, label in min_rating_choices %}
-                            <option value="{{ value }}"{% if simul_entry_min_rating == value %} selected="selected"{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group form-half">
-                        <label class="form-label" for="form3-entryMaxRating">Maximum rating</label>
-                        <select id="form3-entryMaxRating" name="entryMaxRating" class="form-control">
-                            {% if simul_entry_max_rating not in max_rating_values %}
-                            <option value="{{ simul_entry_max_rating }}" selected="selected">{{ simul_entry_max_rating }} (custom)</option>
-                            {% endif %}
-                            {% for value, label in max_rating_choices %}
-                            <option value="{{ value }}"{% if simul_entry_max_rating == value %} selected="selected"{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="form-split">
-                    <div class="form-group form-half">
-                        <label class="form-label" for="form3-entryMinAccountAgeDays">Minimum account age</label>
-                        <select id="form3-entryMinAccountAgeDays" name="entryMinAccountAgeDays" class="form-control">
-                            {% if simul_entry_min_account_age_days not in account_age_values %}
-                            <option value="{{ simul_entry_min_account_age_days }}" selected="selected">{{ simul_entry_min_account_age_days }} days (custom)</option>
-                            {% endif %}
-                            {% for value, label in account_age_choices %}
-                            <option value="{{ value }}"{% if simul_entry_min_account_age_days == value %} selected="selected"{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                {% elif edit %}
-                <div class="form-group">
-                    <small class="form-help">Only the simul name and description can be edited after the simul has started or finished.</small>
-                </div>
-                {% endif %}
                 <div class="form-actions">
                     <a href="{{ simul_cancel_url }}">Cancel</a>
                     <button type="submit" data-icon="x" class="submit button text">{{ simul_submit_label }}</button>
