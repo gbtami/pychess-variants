@@ -10,6 +10,8 @@
             {% set simul_inc = simul.inc %}
             {% set simul_host_color = simul.host_color %}
             {% set simul_description = simul.description %}
+            {% set simul_host_extra_time = simul.host_extra_time %}
+            {% set simul_host_extra_time_per_player = simul.host_extra_time_per_player %}
             {% set simul_entry_min_rating = simul.entry_min_rating %}
             {% set simul_entry_max_rating = simul.entry_max_rating %}
             {% set simul_entry_min_rated_games = simul.entry_min_rated_games %}
@@ -21,6 +23,8 @@
             {% set simul_inc = 0 %}
             {% set simul_host_color = 'random' %}
             {% set simul_description = '' %}
+            {% set simul_host_extra_time = 0 %}
+            {% set simul_host_extra_time_per_player = 0 %}
             {% set simul_entry_min_rating = 0 %}
             {% set simul_entry_max_rating = 0 %}
             {% set simul_entry_min_rated_games = 0 %}
@@ -81,6 +85,32 @@
                             <option value="3"{% if simul_inc == 3 %} selected="selected"{% endif %}>3 seconds</option>
                             <option value="5"{% if simul_inc == 5 %} selected="selected"{% endif %}>5 seconds</option>
                         </select>
+                    </div>
+                </div>
+                <div class="form-split">
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-hostExtraTime">Host extra initial clock time</label>
+                        <select id="form3-hostExtraTime" name="hostExtraTime" class="form-control">
+                            {% if simul_host_extra_time not in host_extra_time_values %}
+                            <option value="{{ simul_host_extra_time }}" selected="selected">{{ simul_host_extra_time }} seconds (custom)</option>
+                            {% endif %}
+                            {% for value, label in host_extra_time_choices %}
+                            <option value="{{ value }}"{% if simul_host_extra_time == value %} selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-help">Applied only to the host, just like lichess simuls.</small>
+                    </div>
+                    <div class="form-group form-half">
+                        <label class="form-label" for="form3-hostExtraTimePerPlayer">Host extra clock time per player</label>
+                        <select id="form3-hostExtraTimePerPlayer" name="hostExtraTimePerPlayer" class="form-control">
+                            {% if simul_host_extra_time_per_player not in host_extra_time_per_player_values %}
+                            <option value="{{ simul_host_extra_time_per_player }}" selected="selected">{{ simul_host_extra_time_per_player }} seconds (custom)</option>
+                            {% endif %}
+                            {% for value, label in host_extra_time_per_player_choices %}
+                            <option value="{{ value }}"{% if simul_host_extra_time_per_player == value %} selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-help">Added to the host clock once for each accepted opponent when the simul starts.</small>
                     </div>
                 </div>
                 <div class="form-split">

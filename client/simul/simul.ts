@@ -53,6 +53,8 @@ interface MsgSimulUserConnected {
     inc?: number;
     status?: number;
     hostColor?: string;
+    hostExtraTime?: number;
+    hostExtraTimePerPlayer?: number;
     entryMinRating?: number;
     entryMaxRating?: number;
     entryMinRatedGames?: number;
@@ -148,6 +150,8 @@ export class SimulController implements ChatController {
     base: number;
     inc: number;
     hostColor: string;
+    hostExtraTime: number;
+    hostExtraTimePerPlayer: number;
     description: string;
     entryMinRating: number;
     entryMaxRating: number;
@@ -169,6 +173,8 @@ export class SimulController implements ChatController {
         this.base = Number.isFinite(model.base) ? model.base : 0;
         this.inc = Number.isFinite(model.inc) ? model.inc : 0;
         this.hostColor = "random";
+        this.hostExtraTime = 0;
+        this.hostExtraTimePerPlayer = 0;
         this.description = "";
         this.entryMinRating = 0;
         this.entryMaxRating = 0;
@@ -254,6 +260,8 @@ export class SimulController implements ChatController {
         if (typeof msg.inc === "number") this.inc = msg.inc;
         if (typeof msg.status === "number") this.simulStatus = msg.status;
         if (typeof msg.hostColor === "string") this.hostColor = msg.hostColor;
+        if (typeof msg.hostExtraTime === "number") this.hostExtraTime = msg.hostExtraTime;
+        if (typeof msg.hostExtraTimePerPlayer === "number") this.hostExtraTimePerPlayer = msg.hostExtraTimePerPlayer;
         if (typeof msg.entryMinRating === "number") this.entryMinRating = msg.entryMinRating;
         if (typeof msg.entryMaxRating === "number") this.entryMaxRating = msg.entryMaxRating;
         if (typeof msg.entryMinRatedGames === "number") this.entryMinRatedGames = msg.entryMinRatedGames;
@@ -454,6 +462,16 @@ export class SimulController implements ChatController {
         if (this.hostColor === "white") return "White";
         if (this.hostColor === "black") return "Black";
         return "Random";
+    }
+
+    formatHostExtraTime(seconds: number): string {
+        const sign = seconds > 0 ? '+' : '';
+        const abs = Math.abs(seconds);
+        if (abs % 60 === 0) {
+            const minutes = abs / 60;
+            return `${sign}${seconds < 0 ? '-' : ''}${minutes} minute${minutes === 1 ? '' : 's'}`;
+        }
+        return `${sign}${seconds} seconds`;
     }
 
     getHostAndOpponent(game: SimulGame): { host: string; opponent: string } {
@@ -735,6 +753,8 @@ export class SimulController implements ChatController {
                 ]),
                 h('section.game-infos', [
                     h('p.simul__meta__line', `Host color: ${this.formatHostColor()}`),
+                    ...(this.hostExtraTime !== 0 ? [h('p.simul__meta__line', `Host extra time: ${this.formatHostExtraTime(this.hostExtraTime)}`)] : []),
+                    ...(this.hostExtraTimePerPlayer > 0 ? [h('p.simul__meta__line', `Host extra time per player: +${this.hostExtraTimePerPlayer} seconds`)] : []),
                     ...(showPendingCount ? [h('p.simul__meta__line', `${approvedCount} accepted players`)] : []),
                     ...(showPendingCount ? [h('p.simul__meta__line', `${pendingCount} pending players`)] : []),
                 ]),

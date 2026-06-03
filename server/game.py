@@ -134,6 +134,7 @@ class Game:
         tournamentId: str | None = None,
         tournamentArrangementId: str | None = None,
         simulId: str | None = None,
+        initial_clocks: tuple[int | float, int | float] | None = None,
         new_960_fen_needed_for_rematch: bool = False,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
@@ -218,8 +219,12 @@ class Game:
         self.analysis: list[AnalysisStep] | None = None
 
         clocks_init = (base * 1000 * 60) + 0 if base > 0 else inc * 1000
-        self.clocks_w: list[int | float] = [clocks_init]
-        self.clocks_b: list[int | float] = [clocks_init]
+        if initial_clocks is None:
+            self.clocks_w: list[int | float] = [clocks_init]
+            self.clocks_b: list[int | float] = [clocks_init]
+        else:
+            self.clocks_w = [initial_clocks[0]]
+            self.clocks_b = [initial_clocks[1]]
 
         self.lastmove: str | None = None
         self.check: bool = False

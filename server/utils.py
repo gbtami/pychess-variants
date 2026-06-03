@@ -233,11 +233,16 @@ async def load_game(
         game.analysis = doc["a"]
 
     if "cw" in doc:
-        base_clock_time = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
+        base_clock_time_w = doc.get("cw0")
+        if not isinstance(base_clock_time_w, int):
+            base_clock_time_w = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
+        base_clock_time_b = doc.get("cb0")
+        if not isinstance(base_clock_time_b, int):
+            base_clock_time_b = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
         cw: list[int] = doc["cw"]
         cb: list[int] = doc["cb"]
-        game.clocks_w = [base_clock_time] + cw if len(cw) > 0 else [base_clock_time]
-        game.clocks_b = [base_clock_time] + cb if len(cb) > 0 else [base_clock_time]
+        game.clocks_w = [base_clock_time_w] + cw if len(cw) > 0 else [base_clock_time_w]
+        game.clocks_b = [base_clock_time_b] + cb if len(cb) > 0 else [base_clock_time_b]
 
     level = doc.get("x")
     game.date = doc["d"]
@@ -707,6 +712,10 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
     elif game.variant == "jieqi":
         document["wj"] = "".join(game.board.red_pieces)
         document["bj"] = "".join(game.board.black_pieces)
+
+    if game.clocks_w[0] != game.clocks_b[0]:
+        document["cw0"] = int(game.clocks_w[0])
+        document["cb0"] = int(game.clocks_b[0])
 
     if game.initial_fen or game.chess960:
         document["if"] = game.initial_fen

@@ -77,9 +77,61 @@ ACCOUNT_AGE_CHOICES = [
     (1095, "3 years"),
 ]
 ACCOUNT_AGE_VALUES = [value for value, _ in ACCOUNT_AGE_CHOICES]
+HOST_EXTRA_TIME_CHOICES = [
+    (-7200, "-120 minutes"),
+    (-5400, "-90 minutes"),
+    (-3600, "-60 minutes"),
+    (-3000, "-50 minutes"),
+    (-2400, "-40 minutes"),
+    (-1800, "-30 minutes"),
+    (-1200, "-20 minutes"),
+    (-900, "-15 minutes"),
+    (-600, "-10 minutes"),
+    (-300, "-5 minutes"),
+    (0, "0 minutes"),
+    (300, "+5 minutes"),
+    (600, "+10 minutes"),
+    (900, "+15 minutes"),
+    (1200, "+20 minutes"),
+    (1800, "+30 minutes"),
+    (2400, "+40 minutes"),
+    (3000, "+50 minutes"),
+    (3600, "+60 minutes"),
+    (5400, "+90 minutes"),
+    (7200, "+120 minutes"),
+]
+HOST_EXTRA_TIME_VALUES = [value for value, _ in HOST_EXTRA_TIME_CHOICES]
+HOST_EXTRA_TIME_PER_PLAYER_CHOICES = [
+    (0, "0 seconds"),
+    (10, "10 seconds"),
+    (20, "20 seconds"),
+    (30, "30 seconds"),
+    (40, "40 seconds"),
+    (50, "50 seconds"),
+    (60, "60 seconds"),
+    (90, "90 seconds"),
+    (120, "120 seconds"),
+    (180, "180 seconds"),
+    (240, "240 seconds"),
+    (300, "300 seconds"),
+]
+HOST_EXTRA_TIME_PER_PLAYER_VALUES = [value for value, _ in HOST_EXTRA_TIME_PER_PLAYER_CHOICES]
 
 
 def parse_int_post_field(data, field_name: str, min_value: int, max_value: int) -> int:
+    raw_value = data.get(field_name)
+    if not isinstance(raw_value, (str, bytes)):
+        raise web.HTTPBadRequest(text=f"Missing field: {field_name}")
+    try:
+        value = int(raw_value)
+    except ValueError as exc:
+        raise web.HTTPBadRequest(text=f"Invalid integer value: {field_name}") from exc
+    if value < min_value or value > max_value:
+        raise web.HTTPBadRequest(text=f"Field out of range: {field_name}")
+    return value
+
+
+def parse_signed_int_post_field(data, field_name: str, min_value: int, max_value: int) -> int:
     raw_value = data.get(field_name)
     if not isinstance(raw_value, (str, bytes)):
         raise web.HTTPBadRequest(text=f"Missing field: {field_name}")
@@ -150,6 +202,19 @@ def add_simul_form_context(context: ViewContext) -> None:
     context["max_rating_values"] = MAX_RATING_VALUES
     context["account_age_choices"] = ACCOUNT_AGE_CHOICES
     context["account_age_values"] = ACCOUNT_AGE_VALUES
+    context["host_extra_time_choices"] = HOST_EXTRA_TIME_CHOICES
+    context["host_extra_time_values"] = HOST_EXTRA_TIME_VALUES
+    context["host_extra_time_per_player_choices"] = HOST_EXTRA_TIME_PER_PLAYER_CHOICES
+    context["host_extra_time_per_player_values"] = HOST_EXTRA_TIME_PER_PLAYER_VALUES
+
+
+def ensure_valid_host_extra_time(base: int, inc: int, host_extra_time: int) -> None:
+    total_seconds = (base * 60) + host_extra_time
+    if total_seconds == 0 and inc >= 10:
+        return
+    if total_seconds > 0:
+        return
+    raise web.HTTPBadRequest(text="Invalid host extra time for this clock setup")
 
 
 async def get_simul_for_request(request: web.Request) -> Simul:
@@ -182,6 +247,13 @@ async def simuls(request: web.Request) -> ViewContext:
         base = parse_int_post_field(data, "base", min_value=0, max_value=180)
         inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
         description = parse_simul_description(data)
+        host_extra_time = parse_signed_int_post_field(
+            data, "hostExtraTime", min_value=-7200, max_value=7200
+        )
+        host_extra_time_per_player = parse_int_post_field(
+            data, "hostExtraTimePerPlayer", min_value=0, max_value=300
+        )
+        ensure_valid_host_extra_time(base, inc, host_extra_time)
         entry_min_rating = parse_int_post_field(data, "entryMinRating", min_value=0, max_value=4000)
         entry_max_rating = parse_int_post_field(data, "entryMaxRating", min_value=0, max_value=4000)
         entry_min_rated_games = parse_int_post_field(
@@ -205,6 +277,8 @@ async def simuls(request: web.Request) -> ViewContext:
             base=base,
             inc=inc,
             host_color=host_color,
+            host_extra_time=host_extra_time,
+            host_extra_time_per_player=host_extra_time_per_player,
             entry_min_rating=entry_min_rating,
             entry_max_rating=entry_max_rating,
             entry_min_rated_games=entry_min_rated_games,
@@ -323,6 +397,13 @@ async def update_simul(request: web.Request) -> web.Response:
         simul.base = parse_int_post_field(data, "base", min_value=0, max_value=180)
         simul.inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
         simul.host_color = parse_host_color(data)
+        simul.host_extra_time = parse_signed_int_post_field(
+            data, "hostExtraTime", min_value=-7200, max_value=7200
+        )
+        simul.host_extra_time_per_player = parse_int_post_field(
+            data, "hostExtraTimePerPlayer", min_value=0, max_value=300
+        )
+        ensure_valid_host_extra_time(simul.base, simul.inc, simul.host_extra_time)
         simul.entry_min_rating = parse_int_post_field(
             data, "entryMinRating", min_value=0, max_value=4000
         )

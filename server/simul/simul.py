@@ -33,6 +33,8 @@ class Simul:
         inc=0,
         host_color="random",
         description="",
+        host_extra_time=0,
+        host_extra_time_per_player=0,
         entry_min_rating=0,
         entry_max_rating=0,
         entry_min_rated_games=0,
@@ -50,6 +52,8 @@ class Simul:
         self.inc = inc
         self.host_color = host_color
         self.description = description
+        self.host_extra_time = host_extra_time
+        self.host_extra_time_per_player = host_extra_time_per_player
         self.entry_min_rating = entry_min_rating
         self.entry_max_rating = entry_max_rating
         self.entry_min_rated_games = entry_min_rated_games
@@ -82,6 +86,16 @@ class Simul:
             "title": user.title,
             "rating": user.get_rating_value(self.variant, self.chess960),
         }
+
+    def host_clock_initial_ms(self) -> int:
+        total_seconds = (self.base * 60) + self.host_extra_time
+        return max(total_seconds, 20) * 1000
+
+    def host_extra_time_valid(self) -> bool:
+        total_seconds = (self.base * 60) + self.host_extra_time
+        if total_seconds == 0:
+            return self.inc >= 10
+        return total_seconds > 0
 
     def players_json(self) -> list[dict[str, object]]:
         return [self.player_json(player) for player in self.players.values()]
@@ -245,6 +259,13 @@ class Simul:
                 else:
                     wp, bp = opponent, host
 
+            host_initial_ms = self.host_clock_initial_ms()
+            opponent_initial_ms = (self.base * 60 * 1000) if self.base > 0 else self.inc * 1000
+            if wp.username == self.created_by:
+                initial_clocks = (host_initial_ms, opponent_initial_ms)
+            else:
+                initial_clocks = (opponent_initial_ms, host_initial_ms)
+
             game = Game(
                 self.app_state,
                 game_id,
@@ -257,6 +278,7 @@ class Simul:
                 rated=CASUAL,
                 chess960=self.chess960,
                 simulId=self.id,
+                initial_clocks=initial_clocks,
             )
             self.games[game.id] = game
             self.ongoing_games.add(game)
@@ -272,8 +294,11 @@ class Simul:
         if self.status == T_CREATED:
             if len(self.players) < 2:
                 return False
+            if not self.host_extra_time_valid():
+                return False
             self.status = T_STARTED
             self.starts_at = datetime.now(timezone.utc)
+            self.host_extra_time += (len(self.players) - 1) * self.host_extra_time_per_player
             from simul.simuls import upsert_simul_to_db
 
             await upsert_simul_to_db(self)

@@ -116,6 +116,8 @@ async def handle_simul_user_connected(
         "inc": simul.inc,
         "status": simul.status,
         "hostColor": simul.host_color,
+        "hostExtraTime": simul.host_extra_time,
+        "hostExtraTimePerPlayer": simul.host_extra_time_per_player,
         "entryMinRating": simul.entry_min_rating,
         "entryMaxRating": simul.entry_max_rating,
         "entryMinRatedGames": simul.entry_min_rated_games,
@@ -143,7 +145,10 @@ async def handle_start_simul(
 
     started = await simul.start()
     if not started:
-        await ws_send_json(ws, {"type": "error", "message": "Cannot start simul without opponents"})
+        message = "Cannot start simul without opponents"
+        if len(simul.players) >= 2 and not simul.host_extra_time_valid():
+            message = "Invalid host extra time for this clock setup"
+        await ws_send_json(ws, {"type": "error", "message": message})
 
 
 async def handle_join(

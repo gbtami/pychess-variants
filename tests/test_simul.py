@@ -264,6 +264,8 @@ class TestGUI:
             assert 'value="bughouse"' not in html
             assert 'value="bughouse960"' not in html
             assert 'name="description"' in html
+            assert 'name="hostExtraTime"' in html
+            assert 'name="hostExtraTimePerPlayer"' in html
             assert 'name="entryMinRatedGames"' in html
             assert 'name="entryMinRating"' in html
             assert 'name="entryMaxRating"' in html
@@ -290,6 +292,8 @@ class TestGUI:
                     "host_color": "white",
                     "base": "5",
                     "inc": "3",
+                    "hostExtraTime": "600",
+                    "hostExtraTimePerPlayer": "30",
                     "entryMinRatedGames": "20",
                     "entryMinRating": "1500",
                     "entryMaxRating": "2100",
@@ -303,6 +307,8 @@ class TestGUI:
 
             simul = app_state.simuls[simul_id]
             assert simul.description == "Club practice only"
+            assert simul.host_extra_time == 600
+            assert simul.host_extra_time_per_player == 30
             assert simul.entry_titled_only is False
             assert simul.entry_min_rated_games == 20
             assert simul.entry_min_rating == 1500
@@ -312,6 +318,8 @@ class TestGUI:
             simul_doc = await app_state.db.simul.find_one({"_id": simul_id})
             assert simul_doc is not None
             assert simul_doc["description"] == "Club practice only"
+            assert simul_doc["hostExtraTime"] == 600
+            assert simul_doc["hostExtraTimePerPlayer"] == 30
             assert simul_doc.get("entryTitledOnly") is None
             assert simul_doc["entryMinRatedGames"] == 20
             assert simul_doc["entryMinRating"] == 1500
@@ -370,6 +378,56 @@ class TestGUI:
             await player_ws.close()
             await host_session.close()
             await player_session.close()
+
+    async def test_simul_host_extra_time_applies_only_to_host(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        sid = id8()
+
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+
+        simul = await Simul.create(
+            app_state,
+            sid,
+            name="Extra Time Simul",
+            created_by=host_username,
+            base=5,
+            inc=0,
+            host_color="white",
+            host_extra_time=600,
+            host_extra_time_per_player=30,
+        )
+        app_state.simuls[sid] = simul
+
+        player2 = User(app_state, username="TestUser_2")
+        player3 = User(app_state, username="TestUser_3")
+        app_state.users[player2.username] = player2
+        app_state.users[player3.username] = player3
+        simul.join(player2)
+        simul.join(player3)
+        simul.approve(player2.username)
+        simul.approve(player3.username)
+
+        started = await simul.start()
+        assert started is True
+        assert simul.host_extra_time == 660
+
+        for game in simul.games.values():
+            if game.wplayer.username == host_username:
+                assert game.clocks_w[0] == 960000
+                assert game.clocks_b[0] == 300000
+            else:
+                assert game.clocks_w[0] == 300000
+                assert game.clocks_b[0] == 960000
+
+        if app_state.db is not None:
+            game_doc = await app_state.db.game.find_one({"sid": sid})
+            assert game_doc is not None
+            assert game_doc["cw0"] in (960000, 300000)
+            assert game_doc["cb0"] in (960000, 300000)
 
     async def test_simul_websocket_host_can_remove_approved_player(self, aiohttp_server):
         app = make_app(

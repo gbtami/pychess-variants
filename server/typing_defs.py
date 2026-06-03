@@ -155,6 +155,8 @@ GameDocument = TypedDict(
         "tid": NotRequired[str],
         "aid": NotRequired[str],
         "sid": NotRequired[str],
+        "cw0": NotRequired[int],
+        "cb0": NotRequired[int],
         "a": NotRequired[list[AnalysisStep]],
         "cw": NotRequired[list[int]],
         "cb": NotRequired[list[int]],
@@ -584,6 +586,8 @@ class SimulDoc(TypedDict):
     base: int
     inc: int
     hostColor: str
+    hostExtraTime: int
+    hostExtraTimePerPlayer: int
     entryMinRating: int
     entryMaxRating: int
     entryMinRatedGames: int
@@ -607,6 +611,8 @@ class SimulUpdateData(TypedDict, total=False):
     base: int
     inc: int
     hostColor: str
+    hostExtraTime: int
+    hostExtraTimePerPlayer: int
     entryMinRating: int
     entryMaxRating: int
     entryMinRatedGames: int
