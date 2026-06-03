@@ -7,7 +7,11 @@ from mongomock_motor import AsyncMongoMockClient
 
 from const import GAME_CATEGORY_ALL
 from forum.constants import ERASED_POST_TEXT, ERASED_POST_USER
-from forum.captcha import _forum_captcha_challenge, _forum_captcha_payload, _refresh_forum_captcha_pool
+from forum.captcha import (
+    _forum_captcha_challenge,
+    _forum_captcha_payload,
+    _refresh_forum_captcha_pool,
+)
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
