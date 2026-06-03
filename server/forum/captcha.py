@@ -25,6 +25,7 @@ from forum.constants import (
     FORUM_CAPTCHA_POOL_BY_CATEGORY,
     FORUM_CAPTCHA_POOL_CAPACITY,
     FORUM_CAPTCHA_REFRESH_SECONDS,
+    FORUM_CAPTCHA_REFRESH_TASKS,
     FORUM_CAPTCHA_SAMPLE_SIZE,
     FORUM_CAPTCHA_TARGET_PER_REFRESH,
     FORUM_CAPTCHA_VARIANT_BY_CATEGORY,
@@ -282,6 +283,35 @@ async def maybe_refresh_forum_captcha_pool(app_state, game_category: str) -> Non
             # Keep forum/category APIs available even if captcha refresh fails transiently.
             FORUM_CAPTCHA_LAST_REFRESH[normalized_category] = datetime.now(timezone.utc)
             log.exception("Forum captcha refresh failed for category %s.", normalized_category)
+
+
+def schedule_forum_captcha_refresh(app_state, game_category: str) -> None:
+    """Queue a stale captcha refresh in the background without blocking page reads."""
+    normalized_category = normalize_game_category(game_category)
+    now = datetime.now(timezone.utc)
+    last_refresh = FORUM_CAPTCHA_LAST_REFRESH.get(normalized_category)
+    if last_refresh and (now - last_refresh).total_seconds() < FORUM_CAPTCHA_REFRESH_SECONDS:
+        return
+
+    task = FORUM_CAPTCHA_REFRESH_TASKS.get(normalized_category)
+    if task is not None and not task.done():
+        return
+
+    lock = _captcha_lock(normalized_category)
+    if lock.locked():
+        return
+
+    refresh_task = app_state.create_background_task(
+        maybe_refresh_forum_captcha_pool(app_state, normalized_category),
+        name=f"forum-captcha-refresh-{normalized_category}",
+    )
+    FORUM_CAPTCHA_REFRESH_TASKS[normalized_category] = refresh_task
+
+    def _cleanup(done_task) -> None:
+        if FORUM_CAPTCHA_REFRESH_TASKS.get(normalized_category) is done_task:
+            FORUM_CAPTCHA_REFRESH_TASKS.pop(normalized_category, None)
+
+    refresh_task.add_done_callback(_cleanup)
 
 
 async def _forum_captcha_game_category(request: web.Request, app_state) -> str:

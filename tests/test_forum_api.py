@@ -284,6 +284,47 @@ class ForumApiTestCase(AioHTTPTestCase):
         self.assertEqual("general-chess-discussion", payload["categ"]["_id"])
         self.assertTrue(payload["canWrite"])
 
+    async def test_forum_topic_load_schedules_captcha_refresh_without_blocking(self):
+        class _ScheduledTask:
+            def add_done_callback(self, _callback):
+                return None
+
+            def done(self):
+                return False
+
+        app_state = get_app_state(self.app)
+        self.add_user("alice")
+        self.set_session_user("alice")
+
+        create_data = await self.with_forum_captcha({"name": "hello forum", "text": "first post"})
+        create_resp = await self.client.post(
+            "/api/forum/general-chess-discussion/topic",
+            data=create_data,
+        )
+        self.assertEqual(create_resp.status, 200)
+        slug = (await create_resp.json())["topic"]["slug"]
+
+        scheduled_names: list[str] = []
+
+        def fake_create_background_task(coro, *, name: str):
+            scheduled_names.append(name)
+            coro.close()
+            return _ScheduledTask()
+
+        with (
+            patch.dict("forum.captcha.FORUM_CAPTCHA_LAST_REFRESH", {}, clear=True),
+            patch.dict("forum.captcha.FORUM_CAPTCHA_REFRESH_TASKS", {}, clear=True),
+            patch.object(
+                app_state, "create_background_task", side_effect=fake_create_background_task
+            ),
+        ):
+            resp = await self.client.get(f"/api/forum/general-chess-discussion/{slug}")
+
+        self.assertEqual(resp.status, 200)
+        payload = await resp.json()
+        self.assertEqual(slug, payload["topic"]["slug"])
+        self.assertEqual(["forum-captcha-refresh-all"], scheduled_names)
+
     async def test_forum_captcha_refresh_awaits_aggregate_cursor(self):
         class _EmptyAsyncCursor:
             def __aiter__(self):

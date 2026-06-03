@@ -65,11 +65,11 @@ DEFAULT_FORUM_CATEGS: tuple[dict[str, object], ...] = (
     },
 )
 
-# Intentionally rarer refresh and smaller cache than lila.
-FORUM_CAPTCHA_REFRESH_SECONDS = 120
-FORUM_CAPTCHA_POOL_CAPACITY = 40
-FORUM_CAPTCHA_SAMPLE_SIZE = 120
-FORUM_CAPTCHA_TARGET_PER_REFRESH = 10
+# Keep captcha refreshes cheap; stale challenges are acceptable because fallbacks exist.
+FORUM_CAPTCHA_REFRESH_SECONDS = 300
+FORUM_CAPTCHA_POOL_CAPACITY = 24
+FORUM_CAPTCHA_SAMPLE_SIZE = 48
+FORUM_CAPTCHA_TARGET_PER_REFRESH = 4
 
 FORUM_CAPTCHA_FAIL_MESSAGE = "Please solve the captcha."
 FORUM_CAPTCHA_GAME_BASE_QUERY = {
@@ -202,3 +202,4 @@ FORUM_CAPTCHA_BY_GAME_ID: dict[str, dict[str, object]] = {
 }
 FORUM_CAPTCHA_LAST_REFRESH: dict[str, datetime] = {}
 FORUM_CAPTCHA_LOCKS: dict[str, asyncio.Lock] = {}
+FORUM_CAPTCHA_REFRESH_TASKS: dict[str, asyncio.Task[None]] = {}

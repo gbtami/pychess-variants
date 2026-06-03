@@ -8,7 +8,7 @@ from aiohttp import web
 from const import GAME_CATEGORY_ALL, normalize_game_category
 from pychess_global_app_state_utils import get_app_state
 
-from forum.captcha import maybe_refresh_forum_captcha_pool, forum_captcha_public_payload
+from forum.captcha import forum_captcha_public_payload, schedule_forum_captcha_refresh
 from forum.constants import (
     EDIT_WINDOW_HOURS,
     ERASED_POST_USER,
@@ -102,7 +102,7 @@ async def forum_topics(request: web.Request) -> web.Response:
             can_moderate_forum = can_moderate(user)
             game_category = normalize_game_category(user.game_category)
     if can_write_forum:
-        await maybe_refresh_forum_captcha_pool(app_state, game_category)
+        schedule_forum_captcha_refresh(app_state, game_category)
 
     return json_response(
         {
@@ -164,7 +164,7 @@ async def forum_topic(request: web.Request) -> web.Response:
             can_reply = can_write_forum and not bool(topic.get("closed", False))
             game_category = normalize_game_category(me.game_category)
     if can_reply:
-        await maybe_refresh_forum_captcha_pool(app_state, game_category)
+        schedule_forum_captcha_refresh(app_state, game_category)
 
     post_items: list[dict[str, object]] = []
     for post in posts:
