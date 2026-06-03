@@ -184,7 +184,12 @@ def _captcha_from_game_doc(doc: dict[str, object]) -> dict[str, object] | None:
         if not board.push(move, append=True, raise_on_error=False):
             return None
 
-    return _captcha_from_fen(game_id=game_id, fen=board.fen, variant=variant)
+    challenge = _captcha_from_fen(game_id=game_id, fen=board.fen, variant=variant)
+    if challenge is None:
+        return None
+
+    challenge["helpUrl"] = f"/{game_id}"
+    return challenge
 
 
 async def _refresh_forum_captcha_pool(app_state, game_category: str) -> None:
@@ -315,13 +320,17 @@ def _forum_captcha_payload(challenge: dict[str, object]) -> dict[str, object]:
     """Return the public captcha payload without exposing solution strings."""
     raw_moves = challenge.get("moves")
     moves = raw_moves if isinstance(raw_moves, dict) else {}
-    return {
+    payload = {
         "gameId": str(challenge.get("gameId") or ""),
         "variant": str(challenge.get("variant") or "chess"),
         "fen": str(challenge.get("fen") or ""),
         "color": str(challenge.get("color") or "white"),
         "moves": moves,
     }
+    raw_help_url = challenge.get("helpUrl")
+    if isinstance(raw_help_url, str) and raw_help_url:
+        payload["helpUrl"] = raw_help_url
+    return payload
 
 
 def forum_captcha_public_payload(game_category: str) -> dict[str, object]:

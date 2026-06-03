@@ -111,6 +111,7 @@ interface ForumCaptcha {
     fen: string;
     color: 'white' | 'black';
     moves: Record<string, string>;
+    helpUrl?: string;
 }
 
 /** Captcha validation state mirrored in form UX feedback. */
@@ -328,6 +329,12 @@ export function forumView(model: PyChessModel) {
         return key && VARIANTS[key] ? key : 'chess';
     }
 
+    function captchaVariantLabel(variantKey: string): string {
+        const variant = VARIANTS[variantKey];
+        const rawName = (variant?._displayName || variant?.name || 'chess').trim();
+        return rawName ? rawName.charAt(0).toUpperCase() + rawName.slice(1) : 'Chess';
+    }
+
     /** Reset captcha interaction state while preserving loaded challenge payload. */
     function resetCaptchaState() {
         captchaMoveDraft = '';
@@ -421,7 +428,9 @@ export function forumView(model: PyChessModel) {
 
         const variantKey = captchaVariantKey(formCaptcha);
         const captchaVariant = VARIANTS[variantKey];
+        const variantLabel = captchaVariantLabel(variantKey);
         const color = formCaptcha.color === 'black' ? 'black' : 'white';
+        const sideLabel = _(color === 'white' ? captchaVariant.colors.first : captchaVariant.colors.second);
         const dests = parseCaptchaDests(formCaptcha.moves);
         return h('div.forum-captcha', {
             key: `captcha-${formCaptcha.gameId}`,
@@ -467,8 +476,19 @@ export function forumView(model: PyChessModel) {
                 ]),
             ]),
             h('div.forum-captcha__explanation', [
-                h('label.form-label', color === 'white' ? _('White checkmates in one move') : _('Black checkmates in one move')),
-                h('p', _('This is a mate-in-one captcha. Click two squares to make your move.')),
+                h('label.form-label', _('%1 to checkmate in one move', sideLabel)),
+                h('p', _('This is a %1 CAPTCHA.', variantLabel)),
+                h('p', _('Click on the board to make your move, and prove you are human.')),
+                formCaptcha.helpUrl ? h('p.forum-captcha__help', [
+                    `${_('Help')}: `,
+                    h('a', {
+                        attrs: {
+                            href: formCaptcha.helpUrl,
+                            target: '_blank',
+                            rel: 'noopener',
+                        },
+                    }, formCaptcha.helpUrl),
+                ]) : null,
                 h('div.forum-captcha__result.success', {
                     class: { visible: captchaState === 'success' },
                 }, _('Checkmate.')),

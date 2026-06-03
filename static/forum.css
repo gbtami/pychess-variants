@@ -359,12 +359,19 @@ main.forum .forum-captcha__explanation {
 
 main.forum .forum-captcha__explanation .form-label {
   display: block;
+  padding: 0;
+  margin: 0.45rem 0;
   font-weight: 700;
+  cursor: default;
 }
 
 main.forum .forum-captcha__explanation p {
   margin: 0.45rem 0;
   color: var(--time-text);
+}
+
+main.forum .forum-captcha__explanation .forum-captcha__help {
+  word-break: break-word;
 }
 
 main.forum .forum-captcha__result {
