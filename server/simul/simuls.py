@@ -70,12 +70,17 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
 
     new_data: SimulUpdateData = {
         "name": simul.name,
+        "description": simul.description,
         "variant": simul.variant,
         "chess960": bool(simul.chess960),
         "rated": bool(simul.rated),
         "base": simul.base,
         "inc": simul.inc,
         "hostColor": simul.host_color,
+        "entryMinRating": simul.entry_min_rating,
+        "entryMaxRating": simul.entry_max_rating,
+        "entryMinRatedGames": simul.entry_min_rated_games,
+        "entryMinAccountAgeDays": simul.entry_min_account_age_days,
         "createdBy": simul.created_by,
         "createdAt": simul.created_at,
         "startsAt": simul.starts_at,
@@ -151,12 +156,18 @@ async def load_simul(
         simul_id,
         name=name,
         created_by=created_by,
+        description=doc.get("description", "") if isinstance(doc.get("description"), str) else "",
         variant=variant,
         chess960=bool(doc.get("chess960", False)),
         rated=bool(doc.get("rated", False)),
         base=_parse_int(doc.get("base"), 1),
         inc=_parse_int(doc.get("inc"), 0),
         host_color=host_color,
+        entry_min_rating=_parse_int(doc.get("entryMinRating"), 0),
+        entry_max_rating=_parse_int(doc.get("entryMaxRating"), 0),
+        entry_min_rated_games=_parse_int(doc.get("entryMinRatedGames"), 0),
+        entry_min_account_age_days=_parse_int(doc.get("entryMinAccountAgeDays"), 0),
+        entry_titled_only=False,
     )
     simul.created_at = _as_datetime(doc.get("createdAt")) or datetime.now(timezone.utc)
     simul.starts_at = _as_datetime(doc.get("startsAt"))

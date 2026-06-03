@@ -1,7 +1,7 @@
 from __future__ import annotations
 import random
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Set, Dict, TYPE_CHECKING
 
 from const import T_CREATED, T_STARTED, T_FINISHED, T_ABORTED, CASUAL, STARTED
@@ -32,6 +32,12 @@ class Simul:
         base=1,
         inc=0,
         host_color="random",
+        description="",
+        entry_min_rating=0,
+        entry_max_rating=0,
+        entry_min_rated_games=0,
+        entry_min_account_age_days=0,
+        entry_titled_only=False,
     ):
         self.app_state = app_state
         self.id = simul_id
@@ -43,6 +49,12 @@ class Simul:
         self.base = base
         self.inc = inc
         self.host_color = host_color
+        self.description = description
+        self.entry_min_rating = entry_min_rating
+        self.entry_max_rating = entry_max_rating
+        self.entry_min_rated_games = entry_min_rated_games
+        self.entry_min_account_age_days = entry_min_account_age_days
+        self.entry_titled_only = entry_titled_only
 
         self.players: Dict[str, "User"] = {}
         self.pending_players: Dict[str, "User"] = {}
@@ -107,6 +119,35 @@ class Simul:
             self.pending_players[user.username] = user
             return True
         return False
+
+    def entry_condition_error(self, user: "User") -> str | None:
+        perf_key = self.variant + ("960" if self.chess960 else "")
+        perf = user.perfs.get(perf_key, {})
+        try:
+            rated_games = int(perf.get("nb", 0))
+        except (TypeError, ValueError):
+            rated_games = 0
+
+        if self.entry_min_rated_games > 0 and rated_games < self.entry_min_rated_games:
+            return "This simul requires at least %s rated %s games." % (
+                self.entry_min_rated_games,
+                perf_key.upper() if self.chess960 else self.variant.title(),
+            )
+
+        if self.entry_min_account_age_days > 0:
+            account_age = datetime.now(timezone.utc) - user.created_at
+            if account_age < timedelta(days=self.entry_min_account_age_days):
+                return "This simul requires accounts to be at least %s days old." % (
+                    self.entry_min_account_age_days,
+                )
+
+        rating = user.get_rating_value(self.variant, self.chess960)
+        if self.entry_min_rating > 0 and rating < self.entry_min_rating:
+            return "Your rating is below the minimum allowed for this simul."
+        if self.entry_max_rating > 0 and rating > self.entry_max_rating:
+            return "Your rating is above the maximum allowed for this simul."
+
+        return None
 
     def approve(self, username: str | None) -> bool:
         if self.status != T_CREATED:

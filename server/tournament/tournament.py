@@ -1460,9 +1460,6 @@ class Tournament(ABC):
         return None
 
     def entry_condition_error(self, user: User) -> str | None:
-        if self.entry_titled_only and user.title == "":
-            return "This tournament is limited to titled players."
-
         perf_key = self.variant + ("960" if self.chess960 else "")
         perf = user.perfs.get(perf_key, {})
         try:
@@ -2478,7 +2475,6 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         "entryMaxRating": tournament.entry_max_rating,
         "entryMinRatedGames": tournament.entry_min_rated_games,
         "entryMinAccountAgeDays": tournament.entry_min_account_age_days,
-        "entryTitledOnly": tournament.entry_titled_only,
         "forbiddenPairings": tournament.forbidden_pairings,
         "manualPairings": tournament.manual_pairings,
         "nbPlayers": 0,

@@ -46,12 +46,17 @@ interface MsgSimulUserConnected {
     pendingPlayers: SimulPlayer[];
     createdBy: string;
     name?: string;
+    description?: string;
     variant?: string;
     chess960?: boolean;
     base?: number;
     inc?: number;
     status?: number;
     hostColor?: string;
+    entryMinRating?: number;
+    entryMaxRating?: number;
+    entryMinRatedGames?: number;
+    entryMinAccountAgeDays?: number;
     createdAt?: string;
     startsAt?: string | null;
     endsAt?: string | null;
@@ -143,9 +148,15 @@ export class SimulController implements ChatController {
     base: number;
     inc: number;
     hostColor: string;
+    description: string;
+    entryMinRating: number;
+    entryMaxRating: number;
+    entryMinRatedGames: number;
+    entryMinAccountAgeDays: number;
     createdAt: string;
     startsAt: string;
     endsAt: string;
+    lastError: string;
 
     constructor(model: PyChessModel) {
         this.anon = model["anon"] === "True";
@@ -158,9 +169,15 @@ export class SimulController implements ChatController {
         this.base = Number.isFinite(model.base) ? model.base : 0;
         this.inc = Number.isFinite(model.inc) ? model.inc : 0;
         this.hostColor = "random";
+        this.description = "";
+        this.entryMinRating = 0;
+        this.entryMaxRating = 0;
+        this.entryMinRatedGames = 0;
+        this.entryMinAccountAgeDays = 0;
         this.createdAt = "";
         this.startsAt = "";
         this.endsAt = "";
+        this.lastError = "";
         boardSettings.assetURL = model.assetURL;
 
         this.sock = newWebsocket('wss');
@@ -217,6 +234,8 @@ export class SimulController implements ChatController {
                 this.redraw();
                 break;
             case "error":
+                this.lastError = msg.message;
+                this.redraw();
                 console.warn("Simul error:", msg.message);
                 break;
         }
@@ -227,6 +246,7 @@ export class SimulController implements ChatController {
         this.pendingPlayers = msg.pendingPlayers ?? [];
         this.createdBy = msg.createdBy;
         if (msg.name) this.simulName = msg.name;
+        if (typeof msg.description === "string") this.description = msg.description;
         if (msg.variant) {
             this.variantKey = msg.variant + (msg.chess960 ? "960" : "");
         }
@@ -234,6 +254,10 @@ export class SimulController implements ChatController {
         if (typeof msg.inc === "number") this.inc = msg.inc;
         if (typeof msg.status === "number") this.simulStatus = msg.status;
         if (typeof msg.hostColor === "string") this.hostColor = msg.hostColor;
+        if (typeof msg.entryMinRating === "number") this.entryMinRating = msg.entryMinRating;
+        if (typeof msg.entryMaxRating === "number") this.entryMaxRating = msg.entryMaxRating;
+        if (typeof msg.entryMinRatedGames === "number") this.entryMinRatedGames = msg.entryMinRatedGames;
+        if (typeof msg.entryMinAccountAgeDays === "number") this.entryMinAccountAgeDays = msg.entryMinAccountAgeDays;
         if (typeof msg.createdAt === "string") this.createdAt = msg.createdAt;
         if (typeof msg.startsAt === "string") this.startsAt = msg.startsAt;
         if (typeof msg.endsAt === "string") this.endsAt = msg.endsAt;
@@ -334,7 +358,9 @@ export class SimulController implements ChatController {
     }
 
     joinSimul() {
+        this.lastError = "";
         this.doSend({ type: "join", simulId: this.simulId });
+        this.redraw();
     }
 
     redraw() {
@@ -442,6 +468,23 @@ export class SimulController implements ChatController {
 
     getVariantInfo() {
         return VARIANTS[this.variantKey] || VARIANTS["chess"];
+    }
+
+    renderEntryConditions(): VNode[] {
+        const lines: VNode[] = [];
+        if (this.entryMinRatedGames > 0) {
+            lines.push(h('p.simul__meta__line', `Entry: ${this.entryMinRatedGames}+ rated games in this variant`));
+        }
+        if (this.entryMinRating > 0) {
+            lines.push(h('p.simul__meta__line', `Entry: minimum rating ${this.entryMinRating}`));
+        }
+        if (this.entryMaxRating > 0) {
+            lines.push(h('p.simul__meta__line', `Entry: maximum rating ${this.entryMaxRating}`));
+        }
+        if (this.entryMinAccountAgeDays > 0) {
+            lines.push(h('p.simul__meta__line', `Entry: account age ${this.entryMinAccountAgeDays}+ days`));
+        }
+        return lines;
     }
 
     renderCreatedActionButtons(
@@ -695,10 +738,21 @@ export class SimulController implements ChatController {
                     ...(showPendingCount ? [h('p.simul__meta__line', `${approvedCount} accepted players`)] : []),
                     ...(showPendingCount ? [h('p.simul__meta__line', `${pendingCount} pending players`)] : []),
                 ]),
+                this.description
+                    ? h('section', [
+                        h('p.simul__meta__line.simul__meta__description', this.description),
+                    ])
+                    : null,
+                this.renderEntryConditions().length > 0
+                    ? h('section', [
+                        ...this.renderEntryConditions(),
+                    ])
+                    : null,
                 h('section', [
                     h('p.simul__meta__line', ['Hosted by ', hostLinkNode()]),
                     ...(eventDate ? [h('p.simul__meta__line.simul__meta__date', this.formatEventDate(eventDate))] : []),
                     ...(!isFinished ? [h('p.simul__meta__line.simul__meta__statusline', simulStatusText)] : []),
+                    ...(this.lastError ? [h('p.simul__meta__line.simul__meta__error', this.lastError)] : []),
                 ]),
             ]),
             chatView(this, "lobbychat"),

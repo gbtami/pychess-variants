@@ -530,6 +530,15 @@ td.header:hover {
     font-size: 0.82rem;
 }
 
+.simul__meta__description {
+    white-space: pre-wrap;
+}
+
+.simul__meta__error {
+    margin-top: 0.5rem;
+    color: var(--error);
+}
+
 .simul-status {
     text-transform: uppercase;
     letter-spacing: 0.02em;

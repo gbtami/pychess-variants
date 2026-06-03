@@ -577,12 +577,18 @@ class ScheduledTournamentCreateData(TournamentCreateData):
 class SimulDoc(TypedDict):
     _id: str
     name: str
+    description: str
     variant: str
     chess960: bool
     rated: bool
     base: int
     inc: int
     hostColor: str
+    entryMinRating: int
+    entryMaxRating: int
+    entryMinRatedGames: int
+    entryMinAccountAgeDays: int
+    entryTitledOnly: bool
     createdBy: str
     createdAt: datetime
     startsAt: NotRequired[datetime | None]
@@ -594,12 +600,18 @@ class SimulDoc(TypedDict):
 
 class SimulUpdateData(TypedDict, total=False):
     name: str
+    description: str
     variant: str
     chess960: bool
     rated: bool
     base: int
     inc: int
     hostColor: str
+    entryMinRating: int
+    entryMaxRating: int
+    entryMinRatedGames: int
+    entryMinAccountAgeDays: int
+    entryTitledOnly: bool
     createdBy: str
     createdAt: datetime
     startsAt: datetime | None

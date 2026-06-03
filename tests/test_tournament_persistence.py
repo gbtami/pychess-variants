@@ -58,7 +58,6 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             "entryMaxRating": "2100",
             "entryMinRatedGames": "30",
             "entryMinAccountAgeDays": "14",
-            "entryTitledOnly": "1",
             "forbiddenPairings": "alice bob",
             "manualPairings": "carol dave",
             "startDate": "",
@@ -79,7 +78,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(tournament.entry_max_rating, 2100)
         self.assertEqual(tournament.entry_min_rated_games, 30)
         self.assertEqual(tournament.entry_min_account_age_days, 14)
-        self.assertTrue(tournament.entry_titled_only)
+        self.assertFalse(tournament.entry_titled_only)
         self.assertEqual(tournament.forbidden_pairings, "")
         self.assertEqual(tournament.manual_pairings, "")
 
@@ -90,7 +89,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(doc.get("entryMaxRating"), 2100)
         self.assertEqual(doc.get("entryMinRatedGames"), 30)
         self.assertEqual(doc.get("entryMinAccountAgeDays"), 14)
-        self.assertEqual(doc.get("entryTitledOnly"), True)
+        self.assertIsNone(doc.get("entryTitledOnly"))
         self.assertEqual(doc.get("forbiddenPairings"), "")
         self.assertEqual(doc.get("manualPairings"), "")
 
@@ -914,7 +913,6 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             entry_max_rating=2100,
             entry_min_rated_games=30,
             entry_min_account_age_days=14,
-            entry_titled_only=True,
             forbidden_pairings="alice bob",
             manual_pairings="carol dave",
         )
@@ -926,7 +924,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(doc.get("entryMaxRating"), 2100)
         self.assertEqual(doc.get("entryMinRatedGames"), 30)
         self.assertEqual(doc.get("entryMinAccountAgeDays"), 14)
-        self.assertEqual(doc.get("entryTitledOnly"), True)
+        self.assertIsNone(doc.get("entryTitledOnly"))
         self.assertEqual(doc.get("forbiddenPairings"), "alice bob")
         self.assertEqual(doc.get("manualPairings"), "carol dave")
 
@@ -935,7 +933,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(reloaded_tournament.entry_max_rating, 2100)
         self.assertEqual(reloaded_tournament.entry_min_rated_games, 30)
         self.assertEqual(reloaded_tournament.entry_min_account_age_days, 14)
-        self.assertTrue(reloaded_tournament.entry_titled_only)
+        self.assertFalse(reloaded_tournament.entry_titled_only)
         self.assertEqual(reloaded_tournament.forbidden_pairings, "alice bob")
         self.assertEqual(reloaded_tournament.manual_pairings, "carol dave")
 

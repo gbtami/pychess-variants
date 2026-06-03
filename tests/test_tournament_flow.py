@@ -62,12 +62,6 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         app_state.tournaments[tournament.id] = tournament
 
-        untitled = self._new_condition_user(tournament, f"{tournament.id}_untitled", title="")
-        self.assertEqual(
-            await tournament.join(untitled),
-            "This tournament is limited to titled players.",
-        )
-
         low_rated = self._new_condition_user(tournament, f"{tournament.id}_low", rating=1300)
         self.assertEqual(
             await tournament.join(low_rated),
@@ -106,7 +100,6 @@ class TournamentFlowTestCase(TournamentTestCase):
             entry_max_rating=1800,
             entry_min_rated_games=20,
             entry_min_account_age_days=30,
-            entry_titled_only=True,
         )
         await self._assert_non_swiss_entry_conditions(self.tournament)
 
@@ -126,7 +119,6 @@ class TournamentFlowTestCase(TournamentTestCase):
             entry_max_rating=1800,
             entry_min_rated_games=20,
             entry_min_account_age_days=30,
-            entry_titled_only=True,
         )
         await self._assert_non_swiss_entry_conditions(self.tournament)
 

@@ -434,33 +434,6 @@ class SwissPairingTestCase(TournamentTestCase):
         result = await self.tournament.join(late)
         self.assertEqual(result, "LATE_JOIN_CLOSED")
 
-    async def test_swiss_join_requires_title_when_configured(self):
-        app_state = get_app_state(self.app)
-        tid = id8()
-        self.tournament = SwissTestTournament(
-            app_state,
-            tid,
-            before_start=1,
-            rounds=5,
-            with_clock=False,
-            entry_titled_only=True,
-        )
-        app_state.tournaments[tid] = self.tournament
-
-        untitled = User(app_state, username="untitled_swiss_player")
-        untitled.tournament_sockets[tid] = set((None,))
-        app_state.users[untitled.username] = untitled
-
-        result = await self.tournament.join(untitled)
-        self.assertEqual(result, "This tournament is limited to titled players.")
-
-        titled = User(app_state, username="titled_swiss_player", title="IM")
-        titled.tournament_sockets[tid] = set((None,))
-        app_state.users[titled.username] = titled
-
-        result = await self.tournament.join(titled)
-        self.assertIsNone(result)
-
     async def test_swiss_join_enforces_rating_bounds(self):
         app_state = get_app_state(self.app)
         tid = id8()

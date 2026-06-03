@@ -73,7 +73,7 @@ async def process_message(
     elif data["type"] == "start_simul":
         await handle_start_simul(app_state, ws, user, data)
     elif data["type"] == "join":
-        await handle_join(app_state, user, data)
+        await handle_join(app_state, user, ws, data)
     elif data["type"] == "approve_player":
         await handle_approve_player(app_state, user, data)
     elif data["type"] == "deny_player":
@@ -109,12 +109,17 @@ async def handle_simul_user_connected(
         "pendingPlayers": simul.pending_players_json(),
         "createdBy": simul.created_by,
         "name": simul.name,
+        "description": simul.description,
         "variant": simul.variant,
         "chess960": simul.chess960,
         "base": simul.base,
         "inc": simul.inc,
         "status": simul.status,
         "hostColor": simul.host_color,
+        "entryMinRating": simul.entry_min_rating,
+        "entryMaxRating": simul.entry_max_rating,
+        "entryMinRatedGames": simul.entry_min_rated_games,
+        "entryMinAccountAgeDays": simul.entry_min_account_age_days,
         "createdAt": simul.created_at.isoformat(),
         "startsAt": simul.starts_at.isoformat() if simul.starts_at is not None else None,
         "endsAt": simul.ends_at.isoformat() if simul.ends_at is not None else None,
@@ -141,10 +146,17 @@ async def handle_start_simul(
         await ws_send_json(ws, {"type": "error", "message": "Cannot start simul without opponents"})
 
 
-async def handle_join(app_state: PychessGlobalAppState, user: User, data: SimulJoinRequest) -> None:
+async def handle_join(
+    app_state: PychessGlobalAppState, user: User, ws, data: SimulJoinRequest
+) -> None:
     simulId = data["simulId"]
     simul = await get_simul(app_state, simulId)
     if simul is None:
+        return
+
+    error = simul.entry_condition_error(user)
+    if error is not None:
+        await ws_send_json(ws, {"type": "error", "message": error})
         return
 
     if simul.join(user):

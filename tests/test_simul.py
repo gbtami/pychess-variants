@@ -263,8 +263,113 @@ class TestGUI:
             assert 'value="chess"' in html
             assert 'value="bughouse"' not in html
             assert 'value="bughouse960"' not in html
+            assert 'name="description"' in html
+            assert 'name="entryMinRatedGames"' in html
+            assert 'name="entryMinRating"' in html
+            assert 'name="entryMaxRating"' in html
+            assert 'name="entryMinAccountAgeDays"' in html
         finally:
             await session.close()
+
+    async def test_simul_creation_persists_description_and_entry_conditions(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+        session = await self._session_for_user(host_username)
+
+        try:
+            response = await session.post(
+                f"http://127.0.0.1:{server.port}/simul",
+                data={
+                    "name": "Entry Checked Simul",
+                    "description": "Club practice only",
+                    "variant": "chess",
+                    "host_color": "white",
+                    "base": "5",
+                    "inc": "3",
+                    "entryMinRatedGames": "20",
+                    "entryMinRating": "1500",
+                    "entryMaxRating": "2100",
+                    "entryMinAccountAgeDays": "30",
+                },
+                allow_redirects=False,
+            )
+            assert response.status == 302
+            location = response.headers["Location"]
+            simul_id = location.rsplit("/", 1)[-1]
+
+            simul = app_state.simuls[simul_id]
+            assert simul.description == "Club practice only"
+            assert simul.entry_titled_only is False
+            assert simul.entry_min_rated_games == 20
+            assert simul.entry_min_rating == 1500
+            assert simul.entry_max_rating == 2100
+            assert simul.entry_min_account_age_days == 30
+
+            simul_doc = await app_state.db.simul.find_one({"_id": simul_id})
+            assert simul_doc is not None
+            assert simul_doc["description"] == "Club practice only"
+            assert simul_doc.get("entryTitledOnly") is None
+            assert simul_doc["entryMinRatedGames"] == 20
+            assert simul_doc["entryMinRating"] == 1500
+            assert simul_doc["entryMaxRating"] == 2100
+            assert simul_doc["entryMinAccountAgeDays"] == 30
+        finally:
+            await session.close()
+
+    async def test_simul_join_rejected_by_rating_entry_conditions(self, aiohttp_server):
+        app = make_app(
+            db_client=AsyncMongoMockClient(tz_aware=True),
+            simple_cookie_storage=True,
+            anon_as_test_users=True,
+        )
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        sid = id8()
+
+        host = User(app_state, username=host_username, title="FM")
+        app_state.users[host.username] = host
+
+        simul = await Simul.create(
+            app_state,
+            sid,
+            name="Restricted Simul",
+            created_by=host_username,
+            entry_min_rating=1800,
+        )
+        app_state.simuls[sid] = simul
+
+        player2 = User(app_state, username="TestUser_2")
+        app_state.users[player2.username] = player2
+
+        host_session, host_ws = await self._connect_ws(host_username, server.port)
+        player_session, player_ws = await self._connect_ws(player2.username, server.port)
+
+        try:
+            await host_ws.send_json(
+                {"type": "simul_user_connected", "username": host_username, "simulId": sid}
+            )
+            await host_ws.receive_json()
+
+            await player_ws.send_json(
+                {"type": "simul_user_connected", "username": player2.username, "simulId": sid}
+            )
+            await player_ws.receive_json()
+
+            await player_ws.send_json({"type": "join", "simulId": sid})
+            msg = await self._receive_until_type(player_ws, "error")
+            assert msg["message"] == "Your rating is below the minimum allowed for this simul."
+            assert player2.username not in simul.pending_players
+            assert player2.username not in simul.players
+        finally:
+            await host_ws.close()
+            await player_ws.close()
+            await host_session.close()
+            await player_session.close()
 
     async def test_simul_websocket_host_can_remove_approved_player(self, aiohttp_server):
         app = make_app(

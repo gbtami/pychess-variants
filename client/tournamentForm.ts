@@ -135,7 +135,6 @@ export function initTournamentForm(): void {
     const entryWrapC = document.getElementById("form3-entry-wrap-c");
     const swissPairingsWrapA = document.getElementById("form3-swiss-pairings-wrap-a");
     const entryConditionInputs = [
-        document.getElementById("form3-entryTitledOnly"),
         document.getElementById("form3-entryMinRatedGames"),
         document.getElementById("form3-entryMinRating"),
         document.getElementById("form3-entryMaxRating"),

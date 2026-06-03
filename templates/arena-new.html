@@ -27,7 +27,6 @@
             {% set t_entry_max_rating = tournament.entry_max_rating %}
             {% set t_entry_min_rated_games = tournament.entry_min_rated_games %}
             {% set t_entry_min_account_age_days = tournament.entry_min_account_age_days %}
-            {% set t_entry_titled_only = tournament.entry_titled_only %}
             {% set t_forbidden_pairings = tournament.forbidden_pairings %}
             {% set t_manual_pairings = tournament.manual_pairings %}
             <form id="tournament-form" method="post" class="form3" action="/tournaments/{{ tournament.id }}/edit">
@@ -54,7 +53,6 @@
             {% set t_entry_max_rating = 0 %}
             {% set t_entry_min_rated_games = 0 %}
             {% set t_entry_min_account_age_days = 0 %}
-            {% set t_entry_titled_only = false %}
             {% set t_forbidden_pairings = '' %}
             {% set t_manual_pairings = '' %}
             <form id="tournament-form" method="post" class="form3" action="/tournaments/new">
@@ -380,15 +378,6 @@
                 </div>
 
                 <div id="form3-entry-wrap-a" class="form-split">
-                    <div class="form-check form-group">
-                        <div>
-                            <label class="form-label" for="form3-entryTitledOnly">Titled-only</label>
-                            <span class="form-check-input">
-                                <input id="form3-entryTitledOnly" name="entryTitledOnly" value="1" type="checkbox" class="form-control cmn-toggle" {% if t_entry_titled_only %}checked{% endif %}/>
-                            </span>
-                        </div>
-                        <small class="form-help">Allow only titled users to join this tournament.</small>
-                    </div>
                     <div class="form-group form-half">
                         <label class="form-label" for="form3-entryMinRatedGames">Minimum rated games</label>
                         <select id="form3-entryMinRatedGames" name="entryMinRatedGames" class="form-control">
