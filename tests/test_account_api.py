@@ -68,6 +68,73 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "createdAt": datetime.now(timezone.utc),
             }
         )
+        await app_state.db.forum_post.insert_one(
+            {
+                "_id": "post1",
+                "topicId": "topic1",
+                "categId": "general",
+                "user": "alice",
+                "text": "alice forum post",
+                "createdAt": datetime.now(timezone.utc),
+                "updatedAt": None,
+                "editCount": 0,
+            }
+        )
+        await app_state.db.ublog_post.insert_one(
+            {
+                "_id": "blog1",
+                "author": "alice",
+                "title": "Alice draft",
+                "intro": "intro",
+                "markdown": "blog body",
+                "topics": ["updates"],
+                "language": "en",
+                "image": "",
+                "imageAlt": "",
+                "imageCredit": "",
+                "live": False,
+                "discuss": False,
+                "sticky": False,
+                "views": 0,
+                "likes": [],
+                "createdAt": datetime.now(timezone.utc),
+                "updatedAt": datetime.now(timezone.utc),
+                "publishedAt": None,
+            }
+        )
+        await app_state.db.push_subscription.insert_one(
+            {
+                "_id": "push1",
+                "user": "alice",
+                "endpoint": "https://push.example.test/sub",
+                "auth": "auth-token",
+                "p256dh": "p256dh-token",
+                "createdAt": datetime.now(timezone.utc),
+                "seenAt": datetime.now(timezone.utc),
+            }
+        )
+        await app_state.db.user_report.insert_one(
+            {
+                "_id": "report1",
+                "reporter": "alice",
+                "suspect": "bob",
+                "reason": "abuse",
+                "text": "alice report text",
+                "createdAt": datetime.now(timezone.utc),
+                "status": "open",
+            }
+        )
+        await app_state.db.user_report.insert_one(
+            {
+                "_id": "report2",
+                "reporter": "carol",
+                "suspect": "alice",
+                "reason": "spam",
+                "text": "report about alice",
+                "createdAt": datetime.now(timezone.utc),
+                "status": "open",
+            }
+        )
 
         self.set_session_user("alice")
         response = await self.client.get("/account/personal-data/export")
@@ -76,9 +143,20 @@ class AccountApiTestCase(AioHTTPTestCase):
         body = await response.text()
         self.assertIn("Personal data export for", body)
         self.assertIn('"oauth_id": "alice-oauth"', body)
-        self.assertIn("Inbox messages sent by this account", body)
+        self.assertIn("Direct messages sent by this account", body)
         self.assertIn("hello", body)
         self.assertNotIn("secret from carol", body)
+        self.assertIn("Forum posts by this account", body)
+        self.assertIn("alice forum post", body)
+        self.assertIn("Blog posts by this account", body)
+        self.assertIn("Alice draft", body)
+        self.assertIn("blog body", body)
+        self.assertIn("Push subscriptions", body)
+        self.assertIn("https://push.example.test/sub", body)
+        self.assertIn("Reports created by this account", body)
+        self.assertIn("alice report text", body)
+        self.assertNotIn("report about alice", body)
+        self.assertNotIn("Inbox threads", body)
         self.assertIn("Public game archives are handled separately", body)
 
     async def test_close_account_disables_user(self):

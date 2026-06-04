@@ -82,16 +82,19 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
     relations = await app_state.db.relation.find(
         {"$or": [{"u1": user.username}, {"u2": user.username}]}
     ).to_list(MAX_EXPORT_ROWS)
-    inbox_threads = await app_state.db.inbox_thread.find({"users": user.username}).to_list(
-        MAX_EXPORT_ROWS
-    )
     inbox_messages = await app_state.db.inbox_msg.find({"from": user.username}).to_list(
         MAX_EXPORT_ROWS
     )
-    created_reports = await app_state.db.user_report.find({"reporter": user.username}).to_list(
+    forum_posts = await app_state.db.forum_post.find({"user": user.username}).to_list(
         MAX_EXPORT_ROWS
     )
-    moderation_reports = await app_state.db.user_report.find({"suspect": user.username}).to_list(
+    ublog_posts = await app_state.db.ublog_post.find({"author": user.username}).to_list(
+        MAX_EXPORT_ROWS
+    )
+    push_subscriptions = await app_state.db.push_subscription.find({"user": user.username}).to_list(
+        MAX_EXPORT_ROWS
+    )
+    created_reports = await app_state.db.user_report.find({"reporter": user.username}).to_list(
         MAX_EXPORT_ROWS
     )
 
@@ -108,10 +111,11 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
         _export_section(f"Personal data export for {user.username}", metadata),
         _export_section("Account document", user_doc),
         _export_section("Relations (blocks and related links)", relations),
-        _export_section("Inbox threads", inbox_threads),
-        _export_section("Inbox messages sent by this account", inbox_messages),
+        _export_section("Direct messages sent by this account", inbox_messages),
+        _export_section("Forum posts by this account", forum_posts),
+        _export_section("Blog posts by this account", ublog_posts),
+        _export_section("Push subscriptions", push_subscriptions),
         _export_section("Reports created by this account", created_reports),
-        _export_section("Reports where this account is the suspect", moderation_reports),
         _export_section("End of export", {"ok": True}),
     ]
     payload = "\n".join(chunks)
