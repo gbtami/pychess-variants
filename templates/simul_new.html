@@ -179,11 +179,23 @@
                     </div>
                 </div>
                 <div class="form-actions">
+                {% if edit %}
+                    {% if simul_editable %}
+                    <a href="{{ simul_abort_url }}" class="button red text">Cancel the simul</a>
+                    {% else %}
+                    <a href="{{ simul_cancel_url }}">Cancel</a>
+                    {% endif %}
+                    <button type="submit" data-icon="x" class="submit button text">{{ simul_submit_label }}</button>
+                {% else %}
                     <a href="{{ simul_cancel_url }}">Cancel</a>
                     <button type="submit" data-icon="x" class="submit button text">{{ simul_submit_label }}</button>
+                {% endif %}
                 </div>
             </form>
         </div>
     </main>
 </div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
 {% endblock %}

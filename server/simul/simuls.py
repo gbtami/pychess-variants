@@ -100,6 +100,22 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
         log.exception("Failed to save simul %s", simul.id)
 
 
+async def delete_simul_from_db(
+    simul_id: str, app_state: PychessGlobalAppState | None = None
+) -> None:
+    if app_state is None:
+        return
+
+    if app_state.db is None:
+        return
+
+    try:
+        await app_state.db.simul.delete_one({"_id": simul_id})
+        await app_state.db.simul_chat.delete_many({"sid": simul_id})
+    except Exception:
+        log.exception("Failed to delete simul %s", simul_id)
+
+
 def _parse_status(value: object) -> TStatus:
     if isinstance(value, int):
         try:

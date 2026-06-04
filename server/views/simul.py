@@ -8,7 +8,7 @@ from typing_defs import ViewContext
 from views import get_user_context
 from variants import VARIANTS, VARIANT_ICONS
 from simul.simul import Simul
-from simul.simuls import get_latest_simuls, load_simul, upsert_simul_to_db
+from simul.simuls import delete_simul_from_db, get_latest_simuls, load_simul, upsert_simul_to_db
 from newid import id8
 from const import T_CREATED
 from settings import SIMULING
@@ -340,6 +340,7 @@ async def simul_edit(request: web.Request) -> ViewContext:
     context["simul_form_title"] = f"Edit {simul.name}"
     context["simul_submit_label"] = "Save"
     context["simul_cancel_url"] = f"/simul/{simul.id}"
+    context["simul_abort_url"] = f"/simul/{simul.id}/cancel"
     context["simul_editable"] = simul.status == T_CREATED
     context["view_css"] = "simul.css"
     add_simul_form_context(context)
@@ -425,6 +426,25 @@ async def update_simul(request: web.Request) -> web.Response:
 
     await upsert_simul_to_db(simul)
     raise web.HTTPFound(f"/simul/{simul.id}")
+
+
+async def cancel_simul(request: web.Request) -> web.Response:
+    if not SIMULING:
+        raise web.HTTPForbidden()
+
+    user, _ = await get_user_context(request)
+    app_state = get_app_state(request.app)
+    simul = await get_simul_for_request(request)
+
+    if user.username != simul.created_by:
+        raise web.HTTPForbidden(text="Only the host can cancel the simul")
+    if simul.status != T_CREATED:
+        raise web.HTTPBadRequest(text="Only a created simul can be cancelled")
+
+    await simul.abort()
+    app_state.simuls.pop(simul.id, None)
+    await delete_simul_from_db(simul.id, app_state)
+    raise web.HTTPFound("/simul")
 
 
 async def start_simul(request: web.Request) -> web.Response:
