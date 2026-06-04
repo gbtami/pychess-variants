@@ -173,6 +173,14 @@
     grid-area: tv;
     display: block;
 }
+.tv > a,
+.puzzle > a {
+    display: block;
+}
+.tv #mainboard,
+.puzzle #mainboard {
+    margin-inline: auto;
+}
 .tv #mainboard.with-pockets,
 .puzzle #mainboard.with-pockets {
     padding-bottom: calc((var(--cg-height) / (var(--ranks)) * 2));
