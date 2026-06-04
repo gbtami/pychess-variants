@@ -9,9 +9,12 @@ import aiohttp_session
 import msgspec
 from aiohttp import web
 
+from forum.constants import ERASED_POST_TEXT, ERASED_POST_USER, KEY_TO_REACTION
+from forum.storage import recompute_categ_summary, recompute_topic_summary
 from login import logout
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
+from utils import remove_seek
 from typing_defs import UserDocument, ViewContext
 from user_stats import DEFAULT_USER_COUNT
 from views import get_user_context
@@ -61,6 +64,166 @@ def _clear_public_user_cache(app_state: Any, username: str) -> None:
 
 def _reopen_token_hash(raw_token: str) -> str:
     return hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+
+
+async def _erase_forum_posts_by_user(app_state: Any, username: str, now: datetime) -> None:
+    db = getattr(app_state, "db", None)
+    if db is None:
+        return
+
+    topic_ids = sorted(
+        {
+            str(topic_id)
+            for topic_id in await db.forum_post.distinct("topicId", {"user": username})
+            if isinstance(topic_id, str) and topic_id != ""
+        }
+    )
+    categ_ids = sorted(
+        {
+            str(categ_id)
+            for categ_id in await db.forum_post.distinct("categId", {"user": username})
+            if isinstance(categ_id, str) and categ_id != ""
+        }
+    )
+    if len(topic_ids) == 0 and len(categ_ids) == 0:
+        return
+
+    await db.forum_post.update_many(
+        {"user": username},
+        {
+            "$set": {
+                "user": ERASED_POST_USER,
+                "text": ERASED_POST_TEXT,
+                "erasedAt": now,
+            },
+            "$unset": {"reactions": "", "updatedAt": ""},
+        },
+    )
+    await db.forum_topic.update_many({"user": username}, {"$set": {"user": ERASED_POST_USER}})
+
+    for topic_id in topic_ids:
+        await recompute_topic_summary(app_state, topic_id)
+    for categ_id in categ_ids:
+        await recompute_categ_summary(app_state, categ_id)
+
+
+async def _remove_active_seeks_for_user(app_state: Any, user: Any) -> None:
+    db = getattr(app_state, "db", None)
+    removed = False
+    stale_seek_ids: list[str] = []
+
+    for seek in tuple(app_state.seeks.values()):
+        if getattr(getattr(seek, "creator", None), "username", None) != user.username:
+            continue
+        if getattr(seek, "game_id", None) is not None:
+            app_state.invites.pop(seek.game_id, None)
+        stale_seek_ids.append(seek.id)
+        remove_seek(app_state.seeks, seek)
+        removed = True
+
+    for seek_id in tuple(user.seeks):
+        user.seeks.pop(seek_id, None)
+
+    if db is not None:
+        delete_query: dict[str, object] = {"user": user.username}
+        if len(stale_seek_ids) > 0:
+            delete_query = {"$or": [{"user": user.username}, {"_id": {"$in": stale_seek_ids}}]}
+        await db.seek.delete_many(delete_query)
+
+    if removed:
+        await app_state.lobby.lobby_broadcast_seeks()
+
+
+def _scrub_chat_line(line: Any, username: str) -> None:
+    if not isinstance(line, dict):
+        return
+    if line.get("user") != username:
+        return
+    line["user"] = ERASED_POST_USER
+    line["message"] = ERASED_MESSAGE_TEXT
+
+
+async def _scrub_persisted_bug_game_chats(db: Any, username: str) -> None:
+    cursor = db.game.find({"c.u": username}, {"_id": 1, "c": 1})
+    async for doc in cursor:
+        chat_lines = doc.get("c")
+        if not isinstance(chat_lines, list):
+            continue
+        changed = False
+        new_lines: list[dict[str, Any]] = []
+        for line in chat_lines:
+            if not isinstance(line, dict):
+                new_lines.append(line)
+                continue
+            new_line = dict(line)
+            if new_line.get("u") == username:
+                new_line["u"] = ERASED_POST_USER
+                new_line["m"] = ERASED_MESSAGE_TEXT
+                changed = True
+            new_lines.append(new_line)
+        if changed:
+            await db.game.update_one({"_id": doc["_id"]}, {"$set": {"c": new_lines}})
+
+
+async def _scrub_authored_chat_history(app_state: Any, username: str) -> None:
+    db = getattr(app_state, "db", None)
+    if db is None:
+        return
+
+    for cached_line in getattr(getattr(app_state, "lobby", None), "lobbychat", ()):
+        _scrub_chat_line(cached_line, username)
+
+    for tournament in getattr(app_state, "tournaments", {}).values():
+        for cached_line in getattr(tournament, "tourneychat", ()):
+            _scrub_chat_line(cached_line, username)
+
+    for simul in getattr(app_state, "simuls", {}).values():
+        for cached_line in getattr(simul, "tourneychat", ()):
+            _scrub_chat_line(cached_line, username)
+
+    for game in getattr(app_state, "games", {}).values():
+        for cached_line in getattr(game, "messages", ()):
+            _scrub_chat_line(cached_line, username)
+
+    await db.lobbychat.update_many(
+        {"user": username},
+        {"$set": {"user": ERASED_POST_USER, "message": ERASED_MESSAGE_TEXT}},
+    )
+    await db.tournament_chat.update_many(
+        {"user": username},
+        {"$set": {"user": ERASED_POST_USER, "message": ERASED_MESSAGE_TEXT}},
+    )
+    await db.simul_chat.update_many(
+        {"user": username},
+        {"$set": {"user": ERASED_POST_USER, "message": ERASED_MESSAGE_TEXT}},
+    )
+    await _scrub_persisted_bug_game_chats(db, username)
+
+
+async def _scrub_delete_owned_data(app_state: Any, user: Any, now: datetime) -> None:
+    db = getattr(app_state, "db", None)
+    if db is None:
+        return
+
+    await _erase_forum_posts_by_user(app_state, user.username, now)
+    await db.ublog_post.delete_many({"author": user.username})
+    await db.push_subscription.delete_many({"user": user.username})
+    await db.account_reopen_token.delete_many({"username": user.username})
+    await db.notify.delete_many({"notifies": user.username})
+    await _remove_active_seeks_for_user(app_state, user)
+    await _scrub_authored_chat_history(app_state, user.username)
+
+    await db.inbox_msg.update_many(
+        {"from": user.username},
+        {"$set": {"text": ERASED_MESSAGE_TEXT, "erasedBySenderAt": now}},
+    )
+    await db.relation.delete_many({"$or": [{"u1": user.username}, {"u2": user.username}]})
+
+    await db.ublog_post.update_many({}, {"$pull": {"likes": user.username}})
+    await db.forum_post.update_many(
+        {},
+        {"$pull": {f"reactions.{reaction_key}": user.username for reaction_key in KEY_TO_REACTION}},
+    )
 
 
 @aiohttp_jinja2.template("account_data.html")
@@ -219,11 +382,7 @@ async def account_delete_post(request: web.Request) -> web.StreamResponse:
             "$unset": {"security": ""},
         },
     )
-    await app_state.db.relation.delete_many({"$or": [{"u1": user.username}, {"u2": user.username}]})
-    await app_state.db.inbox_msg.update_many(
-        {"from": user.username},
-        {"$set": {"text": ERASED_MESSAGE_TEXT, "erasedBySenderAt": now}},
-    )
+    await _scrub_delete_owned_data(app_state, user, now)
     _clear_public_user_cache(app_state, user.username)
 
     user.enabled = False
@@ -235,6 +394,7 @@ async def account_delete_post(request: web.Request) -> web.StreamResponse:
     user.count = dict(DEFAULT_USER_COUNT)
     user.blocked.clear()
     user.following.clear()
+    user.notifications = []
     user.pm_friends_only = False
 
     log.info("Account deleted (GDPR erase) for user %s", user.username)

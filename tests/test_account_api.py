@@ -2,10 +2,13 @@ import json
 import time
 import hashlib
 from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
+from forum.constants import ERASED_POST_TEXT, ERASED_POST_USER
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
@@ -210,6 +213,8 @@ class AccountApiTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         user = User(app_state, username="alice", oauth_id="oauth-123", oauth_provider="lichess")
         app_state.users[user.username] = user
+        user.notifications = [{"_id": "cached-notify"}]
+        app_state.lobby.lobby_broadcast_seeks = AsyncMock()
         await app_state.db.user.insert_one(
             {
                 "_id": "alice",
@@ -232,6 +237,140 @@ class AccountApiTestCase(AioHTTPTestCase):
         await app_state.db.relation.insert_one(
             {"_id": "alice/bob", "u1": "alice", "u2": "bob", "r": 1}
         )
+        await app_state.db.forum_topic.insert_many(
+            [
+                {
+                    "_id": "topic1",
+                    "categId": "general-chess-discussion",
+                    "slug": "alice-topic",
+                    "name": "Alice topic",
+                    "user": "alice",
+                    "createdAt": datetime.now(timezone.utc),
+                    "updatedAt": datetime.now(timezone.utc),
+                    "nbPosts": 1,
+                    "lastPostId": "post1",
+                    "lastPostAt": datetime.now(timezone.utc),
+                    "lastPostUser": "alice",
+                    "closed": False,
+                    "sticky": False,
+                },
+                {
+                    "_id": "topic2",
+                    "categId": "general-chess-discussion",
+                    "slug": "bob-topic",
+                    "name": "Bob topic",
+                    "user": "bob",
+                    "createdAt": datetime.now(timezone.utc),
+                    "updatedAt": datetime.now(timezone.utc),
+                    "nbPosts": 1,
+                    "lastPostId": "post2",
+                    "lastPostAt": datetime.now(timezone.utc),
+                    "lastPostUser": "bob",
+                    "closed": False,
+                    "sticky": False,
+                },
+            ]
+        )
+        await app_state.db.forum_post.insert_many(
+            [
+                {
+                    "_id": "post1",
+                    "topicId": "topic1",
+                    "categId": "general-chess-discussion",
+                    "user": "alice",
+                    "text": "Alice forum text",
+                    "createdAt": datetime.now(timezone.utc),
+                    "updatedAt": datetime.now(timezone.utc),
+                    "editCount": 1,
+                },
+                {
+                    "_id": "post2",
+                    "topicId": "topic2",
+                    "categId": "general-chess-discussion",
+                    "user": "bob",
+                    "text": "Bob forum text",
+                    "createdAt": datetime.now(timezone.utc),
+                    "updatedAt": None,
+                    "editCount": 0,
+                    "reactions": {"plusOne": ["alice", "carol"]},
+                },
+            ]
+        )
+        await app_state.db.ublog_post.insert_many(
+            [
+                {
+                    "_id": "blog1",
+                    "author": "alice",
+                    "title": "Alice blog",
+                    "intro": "intro",
+                    "markdown": "body",
+                    "topics": ["updates"],
+                    "language": "en",
+                    "image": "",
+                    "imageAlt": "",
+                    "imageCredit": "",
+                    "live": True,
+                    "discuss": True,
+                    "sticky": False,
+                    "views": 0,
+                    "likes": ["bob"],
+                    "createdAt": datetime.now(timezone.utc),
+                    "updatedAt": datetime.now(timezone.utc),
+                    "publishedAt": datetime.now(timezone.utc),
+                },
+                {
+                    "_id": "blog2",
+                    "author": "bob",
+                    "title": "Bob blog",
+                    "intro": "intro",
+                    "markdown": "body",
+                    "topics": ["updates"],
+                    "language": "en",
+                    "image": "",
+                    "imageAlt": "",
+                    "imageCredit": "",
+                    "live": True,
+                    "discuss": False,
+                    "sticky": False,
+                    "views": 0,
+                    "likes": ["alice", "carol"],
+                    "createdAt": datetime.now(timezone.utc),
+                    "updatedAt": datetime.now(timezone.utc),
+                    "publishedAt": datetime.now(timezone.utc),
+                },
+            ]
+        )
+        await app_state.db.push_subscription.insert_one(
+            {
+                "_id": "push1",
+                "user": "alice",
+                "endpoint": "https://push.example.test/sub",
+                "auth": "auth-token",
+                "p256dh": "p256dh-token",
+                "createdAt": datetime.now(timezone.utc),
+                "seenAt": datetime.now(timezone.utc),
+            }
+        )
+        await app_state.db.account_reopen_token.insert_one(
+            {
+                "_id": "reopen1",
+                "username": "alice",
+                "tokenHash": self.reopen_token_hash("delete-token"),
+                "createdAt": datetime.now(timezone.utc),
+                "expiresAt": datetime.now(timezone.utc) + timedelta(minutes=20),
+            }
+        )
+        await app_state.db.notify.insert_one(
+            {
+                "_id": "notify1",
+                "notifies": "alice",
+                "type": "forumMention",
+                "read": False,
+                "createdAt": datetime.now(timezone.utc),
+                "expireAt": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat(),
+                "content": {"id": "post2", "opp": "bob"},
+            }
+        )
         await app_state.db.inbox_msg.insert_one(
             {
                 "_id": "msg1",
@@ -241,6 +380,108 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "text": "private text",
                 "createdAt": datetime.now(timezone.utc),
             }
+        )
+        await app_state.db.seek.insert_one(
+            {
+                "_id": "seek1",
+                "seekID": "seek1",
+                "user": "alice",
+                "variant": "chess",
+                "target": "",
+                "player1": "alice",
+                "player2": "",
+                "bugPlayer1": "",
+                "bugPlayer2": "",
+                "fen": "",
+                "color": "r",
+                "rated": False,
+                "rrmin": 0,
+                "rrmax": 3000,
+                "rating": 1500,
+                "base": 5,
+                "inc": 0,
+                "byoyomi": 0,
+                "day": 0,
+                "gameId": "invite1",
+            }
+        )
+        seek = SimpleNamespace(id="seek1", creator=user, game_id="invite1")
+        app_state.seeks[seek.id] = seek
+        app_state.invites["invite1"] = seek
+        user.seeks[seek.id] = seek
+        await app_state.db.lobbychat.insert_many(
+            [
+                {"type": "lobbychat", "user": "alice", "message": "alice lobby message"},
+                {"type": "lobbychat", "user": "bob", "message": "bob lobby message"},
+            ]
+        )
+        await app_state.db.tournament_chat.insert_many(
+            [
+                {
+                    "tid": "tour1",
+                    "type": "lobbychat",
+                    "user": "alice",
+                    "message": "alice tournament message",
+                },
+                {
+                    "tid": "tour1",
+                    "type": "lobbychat",
+                    "user": "bob",
+                    "message": "bob tournament message",
+                },
+            ]
+        )
+        await app_state.db.simul_chat.insert_many(
+            [
+                {
+                    "sid": "simul1",
+                    "type": "lobbychat",
+                    "user": "alice",
+                    "message": "alice simul message",
+                },
+                {
+                    "sid": "simul1",
+                    "type": "lobbychat",
+                    "user": "bob",
+                    "message": "bob simul message",
+                },
+            ]
+        )
+        await app_state.db.game.insert_one(
+            {
+                "_id": "bug1",
+                "c": [
+                    {"u": "alice", "m": "alice bug chat", "t": 1},
+                    {"u": "bob", "m": "bob bug chat", "t": 2},
+                ],
+            }
+        )
+        await app_state.db.tournament.insert_one(
+            {"_id": "tour-hist", "createdBy": "alice", "status": 0}
+        )
+        await app_state.db.simul.insert_one({"_id": "sim-hist", "createdBy": "alice", "status": 0})
+        app_state.lobby.lobbychat = [
+            {"type": "lobbychat", "user": "alice", "message": "cached alice lobby"},
+            {"type": "lobbychat", "user": "bob", "message": "cached bob lobby"},
+        ]
+        app_state.tournaments["tour1"] = SimpleNamespace(
+            tourneychat=[
+                {"type": "lobbychat", "user": "alice", "message": "cached alice tournament"},
+                {"type": "lobbychat", "user": "bob", "message": "cached bob tournament"},
+            ]
+        )
+        app_state.simuls["simul1"] = SimpleNamespace(
+            tourneychat=[
+                {"type": "lobbychat", "user": "alice", "message": "cached alice simul"},
+                {"type": "lobbychat", "user": "bob", "message": "cached bob simul"},
+            ]
+        )
+        app_state.games["g1"] = SimpleNamespace(
+            corr=True,
+            messages=[
+                {"type": "roundchat", "user": "alice", "message": "cached alice game"},
+                {"type": "roundchat", "user": "bob", "message": "cached bob game"},
+            ]
         )
 
         self.set_session_user("alice")
@@ -260,6 +501,7 @@ class AccountApiTestCase(AioHTTPTestCase):
         self.assertEqual({}, doc.get("perfs", {}))
         self.assertIn("gdprErasedAt", doc)
         self.assertEqual("deleted", doc.get("closeType"))
+        self.assertEqual([], user.notifications)
 
         relation_doc = await app_state.db.relation.find_one({"_id": "alice/bob"})
         self.assertIsNone(relation_doc)
@@ -267,6 +509,74 @@ class AccountApiTestCase(AioHTTPTestCase):
         msg_doc = await app_state.db.inbox_msg.find_one({"_id": "msg1"})
         self.assertIsNotNone(msg_doc)
         self.assertEqual("[deleted by account deletion request]", msg_doc.get("text"))
+
+        forum_post = await app_state.db.forum_post.find_one({"_id": "post1"})
+        self.assertIsNotNone(forum_post)
+        self.assertEqual(ERASED_POST_USER, forum_post.get("user"))
+        self.assertEqual(ERASED_POST_TEXT, forum_post.get("text"))
+        self.assertIn("erasedAt", forum_post)
+        self.assertNotIn("updatedAt", forum_post)
+
+        forum_topic = await app_state.db.forum_topic.find_one({"_id": "topic1"})
+        self.assertIsNotNone(forum_topic)
+        self.assertEqual(ERASED_POST_USER, forum_topic.get("user"))
+        self.assertEqual(ERASED_POST_USER, forum_topic.get("lastPostUser"))
+
+        other_forum_post = await app_state.db.forum_post.find_one({"_id": "post2"})
+        self.assertEqual(["carol"], other_forum_post.get("reactions", {}).get("plusOne"))
+
+        self.assertIsNone(await app_state.db.ublog_post.find_one({"_id": "blog1"}))
+        other_blog = await app_state.db.ublog_post.find_one({"_id": "blog2"})
+        self.assertEqual(["carol"], other_blog.get("likes"))
+
+        self.assertEqual(0, await app_state.db.push_subscription.count_documents({"user": "alice"}))
+        self.assertEqual(
+            0, await app_state.db.account_reopen_token.count_documents({"username": "alice"})
+        )
+        self.assertEqual(0, await app_state.db.notify.count_documents({"notifies": "alice"}))
+        self.assertEqual(0, await app_state.db.seek.count_documents({"user": "alice"}))
+        self.assertNotIn("seek1", app_state.seeks)
+        self.assertNotIn("invite1", app_state.invites)
+        self.assertEqual({}, user.seeks)
+        app_state.lobby.lobby_broadcast_seeks.assert_awaited_once()
+
+        lobby_rows = await app_state.db.lobbychat.find().sort("user", 1).to_list(10)
+        self.assertEqual(ERASED_POST_USER, lobby_rows[0]["user"])
+        self.assertEqual("[deleted by account deletion request]", lobby_rows[0]["message"])
+        self.assertEqual("bob", lobby_rows[1]["user"])
+        self.assertEqual("bob lobby message", lobby_rows[1]["message"])
+
+        tournament_rows = await app_state.db.tournament_chat.find().sort("user", 1).to_list(10)
+        self.assertEqual(ERASED_POST_USER, tournament_rows[0]["user"])
+        self.assertEqual("[deleted by account deletion request]", tournament_rows[0]["message"])
+        self.assertEqual("bob", tournament_rows[1]["user"])
+        self.assertEqual("bob tournament message", tournament_rows[1]["message"])
+
+        simul_rows = await app_state.db.simul_chat.find().sort("user", 1).to_list(10)
+        self.assertEqual(ERASED_POST_USER, simul_rows[0]["user"])
+        self.assertEqual("[deleted by account deletion request]", simul_rows[0]["message"])
+        self.assertEqual("bob", simul_rows[1]["user"])
+        self.assertEqual("bob simul message", simul_rows[1]["message"])
+
+        bug_game = await app_state.db.game.find_one({"_id": "bug1"})
+        self.assertEqual(ERASED_POST_USER, bug_game["c"][0]["u"])
+        self.assertEqual("[deleted by account deletion request]", bug_game["c"][0]["m"])
+        self.assertEqual("bob", bug_game["c"][1]["u"])
+        self.assertEqual("bob bug chat", bug_game["c"][1]["m"])
+        self.assertEqual(1, await app_state.db.game.count_documents({"_id": "bug1"}))
+        self.assertEqual(1, await app_state.db.tournament.count_documents({"_id": "tour-hist"}))
+        self.assertEqual(1, await app_state.db.simul.count_documents({"_id": "sim-hist"}))
+
+        self.assertEqual(ERASED_POST_USER, app_state.lobby.lobbychat[0]["user"])
+        self.assertEqual("cached bob lobby", app_state.lobby.lobbychat[1]["message"])
+        self.assertEqual(ERASED_POST_USER, app_state.tournaments["tour1"].tourneychat[0]["user"])
+        self.assertEqual(
+            "cached bob tournament", app_state.tournaments["tour1"].tourneychat[1]["message"]
+        )
+        self.assertEqual(ERASED_POST_USER, app_state.simuls["simul1"].tourneychat[0]["user"])
+        self.assertEqual("cached bob simul", app_state.simuls["simul1"].tourneychat[1]["message"])
+        self.assertEqual(ERASED_POST_USER, app_state.games["g1"].messages[0]["user"])
+        self.assertEqual("cached bob game", app_state.games["g1"].messages[1]["message"])
 
     async def test_reopen_self_closed_account(self):
         app_state = get_app_state(self.app)
