@@ -5,7 +5,7 @@ import { _, ngettext } from './i18n';
 import { boardSettings } from './boardSettings';
 import { timeago } from './datetime';
 import { sizeMiniBoardHost } from './miniBoard';
-import { getLastMoveFen, VARIANTS } from './variants';
+import { getLastMoveFen, splitVariantKey, VARIANTS } from './variants';
 import { displayUsername } from './user';
 
 interface MiniPerf {
@@ -82,13 +82,6 @@ function parseProfileId(target: HTMLElement): string | null {
     const parts = url.pathname.split('/').filter(Boolean);
     if (parts.length < 2 || parts[0] !== '@') return null;
     return decodeURIComponent(parts[1]);
-}
-
-function splitVariantKey(variantKey: string): { base: string; chess960: boolean } {
-    if (variantKey.endsWith('960')) {
-        return { base: variantKey.slice(0, -3), chess960: true };
-    }
-    return { base: variantKey, chess960: false };
 }
 
 function clearElement(el: HTMLElement) {

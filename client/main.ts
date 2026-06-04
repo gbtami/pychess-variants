@@ -35,7 +35,7 @@ import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
 import { roundView as bugRoundView } from "./bug/round.bug";
 import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
-import { devVariants, variantGroups, VARIANTS } from './variants';
+import { devVariants, splitVariantKey, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
 import { showUsernameDialog } from './usernameDialog';
 import { maybeShowGameCategoryIntro } from './gameCategoryIntro';
@@ -145,7 +145,7 @@ function initModel(el: HTMLElement) {
 }
 
 export function view(el: HTMLElement, model: PyChessModel): VNode {
-    const variant = (model.variant.endsWith('960') ? model.variant.slice(0, -3) : model.variant);
+    const { base: variant } = splitVariantKey(model.variant);
     const twoBoards = (variant) ? VARIANTS[variant].twoBoards : false;
     switch (el.getAttribute("data-view")) {
     case 'about':

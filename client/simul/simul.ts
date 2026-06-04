@@ -3,7 +3,7 @@ import { Chessground } from 'chessgroundx';
 import { Api } from "chessgroundx/api";
 
 import { VARIANTS } from '../variants';
-import { getLastMoveFen } from '../variants';
+import { getLastMoveFen, getVariantByKey, splitVariantKey } from '../variants';
 import { PyChessModel } from '../types';
 import { patch } from '../document';
 import { boardSettings } from '../boardSettings';
@@ -13,7 +13,6 @@ import { displayUsername, userLink } from "../user";
 import { sizeMiniBoardHost } from '../miniBoard';
 import { timeControlStr } from '../view';
 import { localeOptions } from '../tournamentClock';
-
 const T_CREATED = 0;
 const T_STARTED = 1;
 const T_FINISHED = 3;
@@ -304,7 +303,7 @@ export class SimulController implements ChatController {
             game.result = msg.result;
             const cg = this.chessgrounds[msg.gameId];
             if (cg) {
-                const variant = VARIANTS[game.variant] || VARIANTS[this.variantKey] || VARIANTS["chess"];
+                const variant = VARIANTS[game.variant] || this.getVariantInfo();
                 const [lastMove, fen] = getLastMoveFen(variant.name, msg.lastMove, msg.fen);
                 cg.set({ fen, lastMove });
             }
@@ -485,7 +484,7 @@ export class SimulController implements ChatController {
     }
 
     getVariantInfo() {
-        return VARIANTS[this.variantKey] || VARIANTS["chess"];
+        return getVariantByKey(this.variantKey);
     }
 
     renderEntryConditions(): VNode[] {
@@ -554,6 +553,7 @@ export class SimulController implements ChatController {
 
     renderApplicantRow(player: SimulPlayer, isHost: boolean, isPending: boolean): VNode {
         const variantInfo = this.getVariantInfo();
+        const { chess960 } = splitVariantKey(this.variantKey);
         return h(
             'tr',
             {
@@ -574,7 +574,7 @@ export class SimulController implements ChatController {
                         { className: 'user-link ulpt' }
                     ),
                 ]),
-                h('td.variant', { attrs: { 'data-icon': variantInfo.icon(this.variantKey.endsWith("960")) } }),
+                h('td.variant', { attrs: { 'data-icon': variantInfo.icon(chess960) } }),
                 h(
                     'td.action',
                     isHost
@@ -721,7 +721,8 @@ export class SimulController implements ChatController {
 
     renderSide(simulStatusText: string): VNode {
         const variantInfo = this.getVariantInfo();
-        const variantName = variantInfo.displayName(this.variantKey.endsWith("960"));
+        const { chess960 } = splitVariantKey(this.variantKey);
+        const variantName = variantInfo.displayName(chess960);
         const hostName = this.createdBy ? displayUsername(this.createdBy) : '-';
         const canEdit = this.model["username"] === this.createdBy;
         const hostLinkNode = () =>
@@ -737,7 +738,7 @@ export class SimulController implements ChatController {
         return h('aside.simul__side', [
             h('div.box.simul__meta', [
                 h('div.header', [
-                    h('i', { attrs: { 'data-icon': variantInfo.icon(this.variantKey.endsWith("960")) } }),
+                    h('i', { attrs: { 'data-icon': variantInfo.icon(chess960) } }),
                     h('div', [
                         h('span.clock', this.formatTimeControl()),
                         h('p.simul__meta__headline', [
@@ -813,7 +814,7 @@ export class SimulController implements ChatController {
         });
 
         return h('div.simul__games', { class: { finished: this.simulStatus === T_FINISHED } }, sortedGames.map(game => {
-            const variant = VARIANTS[game.variant] || VARIANTS[this.variantKey] || VARIANTS["chess"];
+            const variant = VARIANTS[game.variant] || this.getVariantInfo();
             const isFinished = this.isGameFinished(game);
             const pairing = this.getHostAndOpponent(game);
             const hostScore = this.getHostScore(game);

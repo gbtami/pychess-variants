@@ -1381,3 +1381,15 @@ export function fogFen(currentFen: string): string {
 export function validVariant(variant: string): string {
     return VARIANTS[variant] ? variant : "chess"; // Default to "chess" if invalid
 }
+
+export function splitVariantKey(variantKey: string): { base: string; chess960: boolean } {
+    if (variantKey.endsWith('960')) {
+        return { base: variantKey.slice(0, -3), chess960: true };
+    }
+    return { base: variantKey, chess960: false };
+}
+
+export function getVariantByKey(variantKey: string): Variant {
+    const { base } = splitVariantKey(variantKey);
+    return VARIANTS[base] || VARIANTS["chess"];
+}
