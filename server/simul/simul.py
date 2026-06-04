@@ -35,6 +35,7 @@ class Simul:
         description="",
         host_extra_time=0,
         host_extra_time_per_player=0,
+        estimated_start_at=None,
         entry_min_rating=0,
         entry_max_rating=0,
         entry_min_rated_games=0,
@@ -54,6 +55,7 @@ class Simul:
         self.description = description
         self.host_extra_time = host_extra_time
         self.host_extra_time_per_player = host_extra_time_per_player
+        self.estimated_start_at = estimated_start_at
         self.entry_min_rating = entry_min_rating
         self.entry_max_rating = entry_max_rating
         self.entry_min_rated_games = entry_min_rated_games

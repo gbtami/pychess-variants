@@ -59,6 +59,7 @@ interface MsgSimulUserConnected {
     entryMinRatedGames?: number;
     entryMinAccountAgeDays?: number;
     createdAt?: string;
+    estimatedStartAt?: string | null;
     startsAt?: string | null;
     endsAt?: string | null;
     games?: SimulGame[];
@@ -157,6 +158,7 @@ export class SimulController implements ChatController {
     entryMinRatedGames: number;
     entryMinAccountAgeDays: number;
     createdAt: string;
+    estimatedStartAt: string;
     startsAt: string;
     endsAt: string;
     lastError: string;
@@ -180,6 +182,7 @@ export class SimulController implements ChatController {
         this.entryMinRatedGames = 0;
         this.entryMinAccountAgeDays = 0;
         this.createdAt = "";
+        this.estimatedStartAt = "";
         this.startsAt = "";
         this.endsAt = "";
         this.lastError = "";
@@ -266,6 +269,7 @@ export class SimulController implements ChatController {
         if (typeof msg.entryMinRatedGames === "number") this.entryMinRatedGames = msg.entryMinRatedGames;
         if (typeof msg.entryMinAccountAgeDays === "number") this.entryMinAccountAgeDays = msg.entryMinAccountAgeDays;
         if (typeof msg.createdAt === "string") this.createdAt = msg.createdAt;
+        if (typeof msg.estimatedStartAt === "string") this.estimatedStartAt = msg.estimatedStartAt;
         if (typeof msg.startsAt === "string") this.startsAt = msg.startsAt;
         if (typeof msg.endsAt === "string") this.endsAt = msg.endsAt;
         this.games = msg.games ?? [];
@@ -733,7 +737,7 @@ export class SimulController implements ChatController {
         const pendingCount = this.pendingPlayers.length;
         const showPendingCount = this.simulStatus < T_STARTED;
         const isFinished = this.simulStatus === T_FINISHED;
-        const eventDate = this.getEventDate();
+        const timingLine = this.renderTimingLine();
 
         return h('aside.simul__side', [
             h('div.box.simul__meta', [
@@ -771,7 +775,7 @@ export class SimulController implements ChatController {
                     : null,
                 h('section', [
                     h('p.simul__meta__line', ['Hosted by ', hostLinkNode()]),
-                    ...(eventDate ? [h('p.simul__meta__line.simul__meta__date', this.formatEventDate(eventDate))] : []),
+                    ...(timingLine ? [timingLine] : []),
                     ...(!isFinished ? [h('p.simul__meta__line.simul__meta__statusline', simulStatusText)] : []),
                     ...(this.lastError ? [h('p.simul__meta__line.simul__meta__error', this.lastError)] : []),
                 ]),
@@ -780,10 +784,26 @@ export class SimulController implements ChatController {
         ]);
     }
 
-    getEventDate(): string {
-        if (this.startsAt) return this.startsAt;
-        if (this.endsAt) return this.endsAt;
-        return this.createdAt;
+    renderTimingLine(): VNode | null {
+        if (this.simulStatus < T_STARTED && this.estimatedStartAt) {
+            return h(
+                'p.simul__meta__line.simul__meta__date',
+                `Estimated start time: ${this.formatEventDate(this.estimatedStartAt)}`
+            );
+        }
+        if (this.startsAt) {
+            return h(
+                'p.simul__meta__line.simul__meta__date',
+                `Started: ${this.formatEventDate(this.startsAt)}`
+            );
+        }
+        if (this.simulStatus === T_FINISHED && this.endsAt) {
+            return h(
+                'p.simul__meta__line.simul__meta__date',
+                `Finished: ${this.formatEventDate(this.endsAt)}`
+            );
+        }
+        return null;
     }
 
     formatEventDate(dateLike: string): string {

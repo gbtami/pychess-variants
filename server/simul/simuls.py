@@ -31,8 +31,15 @@ class SimulListEntry:
     inc: int
     created_by: str
     starts_at: datetime | None
+    estimated_start_at: datetime | None
     status: TStatus
     players_count: int
+
+    @property
+    def display_date(self) -> datetime | None:
+        if self.status == T_CREATED and self.estimated_start_at is not None:
+            return self.estimated_start_at
+        return self.starts_at or self.estimated_start_at
 
 
 def _as_str_list(value: object) -> list[str]:
@@ -86,6 +93,7 @@ async def upsert_simul_to_db(simul: Simul, app_state: PychessGlobalAppState | No
         "createdBy": simul.created_by,
         "createdAt": simul.created_at,
         "startsAt": simul.starts_at,
+        "estimatedStartAt": simul.estimated_start_at,
         "endsAt": simul.ends_at,
         "status": simul.status,
         "players": list(simul.players.keys()),
@@ -183,6 +191,7 @@ async def load_simul(
         host_color=host_color,
         host_extra_time=_parse_int(doc.get("hostExtraTime"), 0),
         host_extra_time_per_player=_parse_int(doc.get("hostExtraTimePerPlayer"), 0),
+        estimated_start_at=_as_datetime(doc.get("estimatedStartAt")),
         entry_min_rating=_parse_int(doc.get("entryMinRating"), 0),
         entry_max_rating=_parse_int(doc.get("entryMaxRating"), 0),
         entry_min_rated_games=_parse_int(doc.get("entryMinRatedGames"), 0),
@@ -324,6 +333,7 @@ async def get_latest_simuls(
             inc=_parse_int(simul_doc.get("inc"), 0),
             created_by=created_by,
             starts_at=_as_datetime(simul_doc.get("startsAt")),
+            estimated_start_at=_as_datetime(simul_doc.get("estimatedStartAt")),
             status=_parse_status(simul_doc.get("status")),
             players_count=len(_as_str_list(simul_doc.get("players"))),
         )

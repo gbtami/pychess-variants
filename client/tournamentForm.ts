@@ -104,10 +104,10 @@ function setMinutesValue(minutesSelect: HTMLSelectElement, minutes: number): voi
 }
 
 export function initTournamentForm(): void {
+    initializeFlatpickr();
+
     const form = document.getElementById("tournament-form");
     if (!(form instanceof HTMLFormElement)) return;
-
-    initializeFlatpickr();
 
     const system = document.getElementById("form3-system");
     const systemHelp = document.getElementById("form3-system-help");

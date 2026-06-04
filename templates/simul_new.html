@@ -12,6 +12,7 @@
             {% set simul_description = simul.description %}
             {% set simul_host_extra_time = simul.host_extra_time %}
             {% set simul_host_extra_time_per_player = simul.host_extra_time_per_player %}
+            {% set simul_estimated_start_at = simul.estimated_start_at.isoformat() if simul.estimated_start_at else '' %}
             {% set simul_entry_min_rating = simul.entry_min_rating %}
             {% set simul_entry_max_rating = simul.entry_max_rating %}
             {% set simul_entry_min_rated_games = simul.entry_min_rated_games %}
@@ -25,6 +26,7 @@
             {% set simul_description = '' %}
             {% set simul_host_extra_time = 0 %}
             {% set simul_host_extra_time_per_player = 0 %}
+            {% set simul_estimated_start_at = '' %}
             {% set simul_entry_min_rating = 0 %}
             {% set simul_entry_max_rating = 0 %}
             {% set simul_entry_min_rated_games = 0 %}
@@ -166,6 +168,13 @@
                         </div>
                     </div>
                 </fieldset>
+                <div class="form-split">
+                    <div class="form-group form-half">
+                        <label class="form-label" for="estimatedStartAt">Estimated start time</label>
+                        <input id="estimatedStartAt" name="estimatedStartAt" value="{{ simul_estimated_start_at }}" class="form-control flatpickr"/>
+                        <small class="form-help">Optional. For display only, in your local timezone.</small>
+                    </div>
+                </div>
                 {% elif edit %}
                 <div class="form-group">
                     <small class="form-help">Only the simul name and description can be edited after the simul has started or finished.</small>
@@ -197,5 +206,7 @@
 </div>
 {% endblock %}
 {% block js %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="{{ js }}"></script>
 {% endblock %}

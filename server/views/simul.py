@@ -1,5 +1,6 @@
 import aiohttp_jinja2
 from aiohttp import web
+from datetime import datetime, timezone
 
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
@@ -179,6 +180,24 @@ def parse_host_color(data) -> str:
     return host_color
 
 
+def parse_optional_datetime_post_field(data, field_name: str) -> datetime | None:
+    raw_value = data.get(field_name, "")
+    if not isinstance(raw_value, (str, bytes)):
+        raise web.HTTPBadRequest(text=f"Invalid datetime value: {field_name}")
+    if isinstance(raw_value, bytes):
+        raw_value = raw_value.decode("utf-8")
+    raw_value = raw_value.strip()
+    if raw_value == "":
+        return None
+    try:
+        parsed = datetime.fromisoformat(raw_value.rstrip("Z")).replace(tzinfo=timezone.utc)
+    except ValueError as exc:
+        raise web.HTTPBadRequest(text=f"Invalid datetime value: {field_name}") from exc
+    if parsed <= datetime.now(timezone.utc):
+        raise web.HTTPBadRequest(text=f"{field_name} must be in the future")
+    return parsed
+
+
 def parse_simul_variant(data):
     variant_key = data.get("variant", "")
     if not isinstance(variant_key, (str, bytes)):
@@ -253,6 +272,7 @@ async def simuls(request: web.Request) -> ViewContext:
         host_extra_time_per_player = parse_int_post_field(
             data, "hostExtraTimePerPlayer", min_value=0, max_value=300
         )
+        estimated_start_at = parse_optional_datetime_post_field(data, "estimatedStartAt")
         ensure_valid_host_extra_time(base, inc, host_extra_time)
         entry_min_rating = parse_int_post_field(data, "entryMinRating", min_value=0, max_value=4000)
         entry_max_rating = parse_int_post_field(data, "entryMaxRating", min_value=0, max_value=4000)
@@ -279,6 +299,7 @@ async def simuls(request: web.Request) -> ViewContext:
             host_color=host_color,
             host_extra_time=host_extra_time,
             host_extra_time_per_player=host_extra_time_per_player,
+            estimated_start_at=estimated_start_at,
             entry_min_rating=entry_min_rating,
             entry_max_rating=entry_max_rating,
             entry_min_rated_games=entry_min_rated_games,
@@ -404,6 +425,7 @@ async def update_simul(request: web.Request) -> web.Response:
         simul.host_extra_time_per_player = parse_int_post_field(
             data, "hostExtraTimePerPlayer", min_value=0, max_value=300
         )
+        simul.estimated_start_at = parse_optional_datetime_post_field(data, "estimatedStartAt")
         ensure_valid_host_extra_time(simul.base, simul.inc, simul.host_extra_time)
         simul.entry_min_rating = parse_int_post_field(
             data, "entryMinRating", min_value=0, max_value=4000

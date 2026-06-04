@@ -123,6 +123,9 @@ async def handle_simul_user_connected(
         "entryMinRatedGames": simul.entry_min_rated_games,
         "entryMinAccountAgeDays": simul.entry_min_account_age_days,
         "createdAt": simul.created_at.isoformat(),
+        "estimatedStartAt": (
+            simul.estimated_start_at.isoformat() if simul.estimated_start_at is not None else None
+        ),
         "startsAt": simul.starts_at.isoformat() if simul.starts_at is not None else None,
         "endsAt": simul.ends_at.isoformat() if simul.ends_at is not None else None,
         "games": simul.all_games_json(),

@@ -4,6 +4,7 @@ import logging
 import test_logger
 import time
 import asyncio
+from datetime import datetime, timedelta, timezone
 import aiohttp
 import pytest
 
@@ -270,6 +271,7 @@ class TestGUI:
             assert 'name="entryMinRating"' in html
             assert 'name="entryMaxRating"' in html
             assert 'name="entryMinAccountAgeDays"' in html
+            assert 'name="estimatedStartAt"' in html
         finally:
             await session.close()
 
@@ -325,6 +327,50 @@ class TestGUI:
             assert simul_doc["entryMinRating"] == 1500
             assert simul_doc["entryMaxRating"] == 2100
             assert simul_doc["entryMinAccountAgeDays"] == 30
+        finally:
+            await session.close()
+
+    async def test_simul_creation_persists_estimated_start_time(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        host_username = "TestUser_1"
+        host = User(app_state, username=host_username)
+        app_state.users[host.username] = host
+        session = await self._session_for_user(host_username)
+        estimated_start = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(
+            second=0, microsecond=0
+        )
+
+        try:
+            response = await session.post(
+                f"http://127.0.0.1:{server.port}/simul",
+                data={
+                    "name": "Scheduled Simul",
+                    "description": "Later today",
+                    "variant": "chess",
+                    "host_color": "random",
+                    "base": "5",
+                    "inc": "0",
+                    "hostExtraTime": "0",
+                    "hostExtraTimePerPlayer": "0",
+                    "entryMinRatedGames": "0",
+                    "entryMinRating": "0",
+                    "entryMaxRating": "0",
+                    "entryMinAccountAgeDays": "0",
+                    "estimatedStartAt": estimated_start.isoformat(),
+                },
+                allow_redirects=False,
+            )
+            assert response.status == 302
+            simul_id = response.headers["Location"].rsplit("/", 1)[-1]
+
+            simul = app_state.simuls[simul_id]
+            assert simul.estimated_start_at == estimated_start
+
+            simul_doc = await app_state.db.simul.find_one({"_id": simul_id})
+            assert simul_doc is not None
+            assert simul_doc["estimatedStartAt"] == estimated_start
         finally:
             await session.close()
 
