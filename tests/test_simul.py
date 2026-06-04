@@ -275,6 +275,45 @@ class TestGUI:
         finally:
             await session.close()
 
+    async def test_anon_simuls_page_hides_host_button(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        session = aiohttp.ClientSession()
+
+        try:
+            response = await session.get(f"http://127.0.0.1:{server.port}/simul")
+            assert response.status == 200
+            html = await response.text()
+            assert "HOST A NEW SIMUL" not in html
+            assert 'href="/simul/new"' not in html
+        finally:
+            await session.close()
+
+    async def test_anon_cannot_open_or_create_simuls(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
+        server = await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        session = aiohttp.ClientSession()
+
+        try:
+            response = await session.get(f"http://127.0.0.1:{server.port}/simul/new")
+            assert response.status == 403
+
+            response = await session.post(
+                f"http://127.0.0.1:{server.port}/simul",
+                data={
+                    "name": "Anon Simul",
+                    "variant": "chess",
+                    "host_color": "random",
+                    "base": "3",
+                    "inc": "0",
+                },
+            )
+            assert response.status == 403
+            assert len(app_state.simuls) == 0
+        finally:
+            await session.close()
+
     async def test_simul_creation_persists_description_and_entry_conditions(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
         server = await aiohttp_server(app, host="127.0.0.1")

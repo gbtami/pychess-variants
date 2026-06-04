@@ -256,6 +256,8 @@ async def simuls(request: web.Request) -> ViewContext:
     app_state = get_app_state(request.app)
 
     if request.method == "POST":
+        if user.anon:
+            raise web.HTTPForbidden()
         data = await read_post_data(request)
         if data is None:
             raise web.HTTPNoContent()
@@ -326,6 +328,8 @@ async def simul_new(request: web.Request) -> ViewContext:
         raise web.HTTPForbidden()
 
     user, context = await get_user_context(request)
+    if user.anon:
+        raise web.HTTPForbidden()
 
     context["variants"] = {
         key: variant for key, variant in VARIANTS.items() if not variant.two_boards

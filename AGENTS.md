@@ -52,7 +52,8 @@ Note: Run linting and tests based on change scope.
 Note: For client-only changes (TypeScript/CSS/static UI only, with no Python/server files touched), run frontend checks (`yarn typecheck`, `yarn test`) and skip server-side Python linting/tests.
 Note: If any Python/server code is changed, run the Python quality/test commands listed below in addition to relevant frontend checks.
 Note: This repo uses `uv` and the project `.venv` so Python commands should run via `uv run ...` unless you have explicitly activated `.venv`.
-Note: Before committing any Python change, run both `ruff format .` and `ruff check .` even for small edits.
+Note: For any Python/server code change, before reporting the task complete, handing results back to the user, or committing, run the applicable Python quality gates and tests for the change scope.
+Note: At minimum, this means running `uv run ruff format .`, `uv run ruff check .`, and `uv run pyright` for Python/server changes, even for small edits.
 Note: When running pyright in a sandboxed Codex environment, request escalated permissions so pyright can read the system Python search paths (e.g., `/usr/lib/python3.13`, site-packages) and match CI behavior.
 Note: Codex may run test and typecheck commands with escalated permissions by default in this repo when sandbox limits would otherwise break them (for example local socket bind restrictions in aiohttp/playwright tests). Do not stop to ask in chat first; request escalation directly through the tool.
 Note: When escalation approval is needed, prefer reusable prefix approvals so repeated test runs do not prompt again (`uv run pyright`, `uv run python -m unittest`, `uv run python -m pytest`, `uv run python -m playwright install`).

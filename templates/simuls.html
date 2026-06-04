@@ -16,7 +16,9 @@
             <div class="box-top">
                 <h1>{% trans %}Simultaneous Exhibitions{% endtrans %}</h1>
                 <div class="actions">
+                    {% if not anon %}
                     <a class="button icon icon-plus-square text" href="{{ home }}/simul/new">{% trans %}HOST A NEW SIMUL{% endtrans %}</a>
+                    {% endif %}
                 </div>
             </div>
 
