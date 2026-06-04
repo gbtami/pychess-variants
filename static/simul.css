@@ -11,6 +11,53 @@
     width: 100%;
 }
 
+.simul-list {
+    overflow: hidden;
+}
+
+.simul-list__help {
+    color: var(--font-color);
+    max-width: 350px;
+    margin-top: 9em;
+    margin-inline-end: 2rem;
+    text-shadow: 0 1px 0 var(--bg-color1);
+    text-align: left;
+    display: none;
+}
+
+.simul-list__help img {
+    width: 100%;
+    border-radius: 7px;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.simul-list__help em {
+    display: block;
+    font-style: italic;
+    padding: 0;
+    margin-bottom: 1em;
+}
+
+.simul-list__help p {
+    padding: 1vh 1vh 1vh 0;
+}
+
+.simul-list__content {
+    min-width: 0;
+}
+
+.simul-list__content .simuls {
+    max-width: none;
+    margin: 0;
+}
+
+@media (min-width: 1120px) {
+    .simul-list__help {
+        display: block;
+    }
+}
+
 /* Override outer layout for the single-simul page. */
 #pychess-variants[data-view="simul"] #main-wrap {
     --main-max-width: min(96vw, 1600px);
