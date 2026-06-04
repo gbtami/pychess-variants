@@ -481,7 +481,7 @@ class AccountApiTestCase(AioHTTPTestCase):
             messages=[
                 {"type": "roundchat", "user": "alice", "message": "cached alice game"},
                 {"type": "roundchat", "user": "bob", "message": "cached bob game"},
-            ]
+            ],
         )
 
         self.set_session_user("alice")
