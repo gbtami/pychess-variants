@@ -707,7 +707,7 @@ export const VARIANTS: Record<string, Variant> = {
 
     yokai: variant({
         name: "yokai", displayName: "yokai shogi", tooltip: "Modern Shogi variant",
-        startFen: "ryctkfayl/1g5g1/ppppppppp/9/9/9/PPPPPPPPP/1G5G1/LYAFKTCYR[Nn] w 0 1",
+        startFen: "rgytkfygl/1c5a1/ppppppppp/9/9/9/PPPPPPPPP/1A5C1/LGYFKTYGR[Nn] w 0 1",
         icon: "👹",
         boardFamily: "shogi9x9", pieceFamily: "yokai",
         notation: cg.Notation.SHOGI_ARBNUM,
