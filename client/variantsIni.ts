@@ -415,17 +415,17 @@ customPiece3 = n:sR
 customPiece4 = r:fRlB
 customPiece5 = l:fRrB
 
-# Tengu (sideways forward knight (fhN), 2 square jump forward (fD)
-customPiece6 = g:fDfsN
+# Tengu (forwards knight)
+customPiece6 = g:fN
 
 # Azure Oni (R) and Crimson Oni (L) = Azure cannot go left or down-left. Crimson cannot go right or down-right.
 customPiece8 = a:fFbrFvrW
 customPiece9 = c:fFblFvlW
 
-# Yurei = R2 that can't move backwards
-customPiece10 = y:sfR2
+# Yurei = R2 that can also jump two spaces without capturing
+customPiece10 = y:R2mD
 
-# Promoted Pawn ("Kasa-obake") = copper general
+# Promoted Pawn ("Kasa-obake") = gold general
 gold = z
 
 # Promoted Tengu ("Dai Tengu") = knight
@@ -442,12 +442,11 @@ customPiece13 = b:KmBcR
 
 capturesToHand = true
 pieceDrops = true
-nFoldRule = 4
-perpetualCheckIllegal = true
-shogiPawnDropMateIllegal = true
 dropNoDoubled = p
+shogiPawnDropMateIllegal = true
 promotionRegionWhite = *7 *8 *9
 promotionRegionBlack = *1 *2 *3
 promotedPieceType = p:z f:e g:d y:v t:b 
+nFoldRule = 4
 stalemateValue = loss
-startFen = ryctkfayl/1g5g1/ppppppppp/9/9/9/PPPPPPPPP/1G5G1/LYAFKTCYR[Nn] w 0 1`
+startFen = rgytkfygl/1c5a1/ppppppppp/9/9/9/PPPPPPPPP/1A5C1/LGYFKTYGR[Nn] w 0 1`
