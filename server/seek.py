@@ -94,20 +94,6 @@ class SeekDbJson(TypedDict):
     challengeDeclineReason: NotRequired[str]
 
 
-class CorrSeekJson(TypedDict):
-    _id: str
-    user: str
-    variant: str
-    chess960: bool | None
-    fen: str
-    color: str
-    rated: bool | int | None
-    rrmin: int
-    rrmax: int
-    day: int | float
-    expireAt: datetime
-
-
 class SeekCreateData(TypedDict):
     variant: str
     fen: str
@@ -329,24 +315,6 @@ class Seek:
         if self.challenge_decline_reason:
             seek_json["challengeDeclineReason"] = self.challenge_decline_reason
         return seek_json
-
-    @property
-    def corr_json(self) -> CorrSeekJson:
-        if TYPE_CHECKING:
-            assert self.expire_at is not None
-        return {
-            "_id": self.id,
-            "user": self.creator.username,
-            "variant": self.variant,
-            "chess960": self.chess960,
-            "fen": self.fen,
-            "color": self.color,
-            "rated": self.rated,
-            "rrmin": self.rrmin,
-            "rrmax": self.rrmax,
-            "day": self.day,
-            "expireAt": self.expire_at,
-        }
 
     @property
     def is_direct_challenge(self) -> bool:

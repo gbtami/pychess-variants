@@ -956,22 +956,17 @@ class PychessGlobalAppState:
         for game in [game for game in self.games.values() if not game.corr]:
             await round_broadcast(game, response, full=True)
 
-        # save correspondence and regular seeks to database
-        corr_seeks = [seek.corr_json for seek in self.seeks.values() if seek.day > 0]
-        reg_seeks = [
+        # Save restart-surviving seeks using one DB document shape.
+        persisted_seeks = [
             seek.seek_db_json
             for seek in self.seeks.values()
-            if seek.day == 0 and (seek.is_direct_challenge or seek.creator.online)
+            if seek.day > 0 or (seek.day == 0 and (seek.is_direct_challenge or seek.creator.online))
         ]
         await self.db.seek.delete_many({})
-        if len(corr_seeks) > 0:
-            for seek in corr_seeks:
-                log.debug("saving correspondence seek to database: %s" % seek)
-            await self.db.seek.insert_many(corr_seeks)
-        if len(reg_seeks) > 0:
-            for seek in reg_seeks:
-                log.debug("saving regular seek to database: %s" % seek)
-            await self.db.seek.insert_many(reg_seeks)
+        if len(persisted_seeks) > 0:
+            for seek in persisted_seeks:
+                log.debug("saving seek to database: %s" % seek)
+            await self.db.seek.insert_many(persisted_seeks)
 
         # save auto pairings
         await self.db.autopairing.delete_many({})
