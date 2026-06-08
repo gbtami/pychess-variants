@@ -40,7 +40,7 @@ dev = [
     "playwright==1.60.0",
     "pre-commit>=4.5.1",
     "pytest<10.0.0",
-    "pytest-aiohttp==1.1.0",
+    "pytest-aiohttp==1.1.1",
     "pyright==1.1.410",
     "ruff==0.15.16",
     "tqdm>=4.67.3",
