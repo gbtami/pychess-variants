@@ -19,9 +19,9 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="2.689952"
-     inkscape:cx="176.58308"
-     inkscape:cy="131.60086"
+     inkscape:zoom="7.6083332"
+     inkscape:cx="35.750274"
+     inkscape:cy="63.351589"
      inkscape:window-width="3840"
      inkscape:window-height="2054"
      inkscape:window-x="-11"
@@ -51,28 +51,6 @@
          in2="offsetBlur"
          id="feBlend1" />
     </filter>
-    <filter
-       id="a"
-       x="-0.11811024"
-       y="-0.098714653"
-       width="1.2854331"
-       height="1.2385604">
-      <feGaussianBlur
-         in="SourceAlpha"
-         result="blur"
-         stdDeviation="2"
-         id="feGaussianBlur1-4" />
-      <feOffset
-         result="offsetBlur"
-         dx="2"
-         dy="2"
-         id="feOffset1-4" />
-      <feBlend
-         in="SourceGraphic"
-         in2="offsetBlur"
-         id="feBlend1-7"
-         mode="normal" />
-    </filter>
   </defs>
   <g
      fill="#f9f9f9"
@@ -83,7 +61,7 @@
        fill="#cdbc68"
        d="M 29.919,4.769 16.438,8.557 9.035,55.23 h 41.93 L 43.8355,8.859 Z"
        id="path1"
-       style="fill:#e9afaf;fill-opacity:1;stroke:#333333"
+       style="fill:#e9b99d;fill-opacity:1;stroke:#333333"
        sodipodi:nodetypes="cccccc" />
   </g>
   <path
