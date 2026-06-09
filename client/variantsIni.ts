@@ -412,8 +412,8 @@ customPiece2 = t:mBcR
 customPiece3 = n:sR
 
 # R Kappa and L Kappa = lance + bishop movement in the direction the kappa faces
-customPiece4 = r:fRlB
-customPiece5 = l:fRrB
+customPiece4 = r:fRlBrF
+customPiece5 = l:fRrBlF
 
 # Tengu (forwards knight)
 customPiece6 = g:fhN
