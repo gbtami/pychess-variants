@@ -13,6 +13,7 @@ import { povChances } from '../analysis/winningChances';
 import { copyTextToClipboard } from '../clipboard';
 import { patch } from '../document';
 import { Chart } from "highcharts";
+import { boardNotationForVariant, rebuildBughouseDisplaySans } from '../notation';
 import { PyChessModel } from "../types";
 import { Ceval, MsgBoard, Step } from "../messages";
 import { GameControllerBughouse } from "./gameCtrl.bug";
@@ -24,6 +25,7 @@ import { alertDialog } from '../alertDialog';
 import {
     addOrSelectChild,
     AnalysisTree,
+    AnalysisTreeNode,
     branchStartPath,
     canPromoteVariation,
     createAnalysisTree,
@@ -140,13 +142,7 @@ export default class AnalysisControllerBughouse {
     teamSecond: [[string, string, string], [string, string, string]]
 
     notation2ffishjs = (n: cg.Notation) => {
-        switch (n) {
-            case cg.Notation.ALGEBRAIC: return this.ffish.Notation.SAN;
-            case cg.Notation.SHOGI_ARBNUM: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
-            case cg.Notation.JANGGI: return this.ffish.Notation.JANGGI;
-            case cg.Notation.XIANGQI_ARBNUM: return this.ffish.Notation.XIANGQI_WXF;
-            default: return this.ffish.Notation.SAN;
-        }
+        return this.b1.notation2ffishjs(n);
     }
 
     constructor(el1: HTMLElement,el1Pocket1: HTMLElement,el1Pocket2: HTMLElement,el2: HTMLElement,el2Pocket1: HTMLElement,el2Pocket2: HTMLElement, model: PyChessModel) {
@@ -211,7 +207,7 @@ export default class AnalysisControllerBughouse {
 
         this.importedBy = '';
 
-        this.notation = this.b1.variant.notation;
+        this.notation = boardNotationForVariant(this.b1.variant);
         this.onTreeContextMenuDocumentClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
             if (target?.closest('.tree-context-menu')) return;
@@ -327,6 +323,49 @@ export default class AnalysisControllerBughouse {
 
     hasAnalysisTree() {
         return this.analysisTree !== undefined;
+    }
+
+    refreshNotation() {
+        this.notation = boardNotationForVariant(this.variant);
+        this.notationAsObject = this.b1.notationAsObject;
+        this.rebuildDisplayedSans();
+        updateMovelist(this, true, false);
+        const cmt = document.getElementById('chart-movetime') as HTMLElement | null;
+        if (cmt && cmt.style.display !== 'none') movetimeChart(this);
+    }
+
+    private rebuildDisplayedSans() {
+        rebuildBughouseDisplaySans(this.b1.ffish, this.variant, this.chess960, this.steps, this.notation);
+        this.rebuildAnalysisTreeDisplaySans();
+    }
+
+    private rebuildAnalysisTreeDisplaySans() {
+        if (!this.analysisTree) return;
+
+        const boardA = new this.b1.ffish.Board(this.variant.name, this.analysisTree.root.step.fen, this.chess960);
+        const boardB = new this.b1.ffish.Board(this.variant.name, this.analysisTree.root.step.fenB ?? this.analysisTree.root.step.fen, this.chess960);
+
+        try {
+            const visit = (nodes: AnalysisTreeNode[]) => {
+                for (const node of nodes) {
+                    const prevFenA = boardA.fen(this.variant.ui.showPromoted, 0);
+                    const prevFenB = boardB.fen(this.variant.ui.showPromoted, 0);
+                    const board = node.step.boardName === 'b' ? boardB : boardA;
+                    const move = node.step.boardName === 'b' ? node.step.moveB : node.step.move;
+                    node.step.displaySan = move === undefined ? node.step.san : board.sanMove(move, this.b1.notationAsObject);
+                    if (node.step.fen) boardA.setFen(node.step.fen);
+                    if (node.step.fenB) boardB.setFen(node.step.fenB);
+                    visit(node.children);
+                    boardA.setFen(prevFenA);
+                    boardB.setFen(prevFenB);
+                }
+            };
+
+            visit(this.analysisTree.root.children);
+        } finally {
+            boardA.delete();
+            boardB.delete();
+        }
     }
 
     private syncBoardHitAreas() {
@@ -700,6 +739,7 @@ export default class AnalysisControllerBughouse {
 
                 this.steps.push(step);
                 });
+            this.rebuildDisplayedSans();
             this.recordedMainlinePly = this.steps.length - 1;
             const initialPly = this.model["ply"] > 0 ? this.model["ply"] : this.ply;
             this.initAnalysisTreeAtPly(initialPly);
@@ -1171,6 +1211,7 @@ export default class AnalysisControllerBughouse {
             'check': b.isCheck,
             'turnColor': b.turnColor,
             'san': san,
+            'displaySan': san,
             'sanSAN': sanSAN,
             'boardName': b.boardName,
             'plyA': this.b1.ply,

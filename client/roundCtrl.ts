@@ -22,6 +22,7 @@ import { renderRdiff } from './result'
 import { player } from './player';
 import { updateCount, updatePoint } from './info';
 import { updateMaterial, emptyMaterial, JieqiCapture } from './material';
+import { rebuildSingleBoardDisplaySans, stepDisplaySan } from './notation';
 import { notify } from './notification';
 import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, RDiffs, CrossTable } from "./messages";
 import { MsgUserDisconnected, MsgUserPresent, MsgMoreTime, MsgDrawOffer, MsgDrawRejected, MsgRematchOffer, MsgRematchRejected, MsgCount, MsgSetup, MsgGameStart, MsgViewRematch, MsgUpdateTV, MsgBerserk } from './roundType';
@@ -429,6 +430,12 @@ export class RoundController extends GameController {
         }
 
         this.onMsgBoard(model["board"] as MsgBoard);
+    }
+
+    refreshNotation(): void {
+        super.refreshNotation();
+        rebuildSingleBoardDisplaySans(this.ffish, this.variant, this.chess960, this.steps, this.notation);
+        updateMovelist(this, true, false, this.status >= 0);
     }
 
     // Helper wrapper keeps key format centralized and explicit at call sites.
@@ -967,6 +974,7 @@ export class RoundController extends GameController {
             msg.steps.forEach((step) => { 
                 this.steps.push(step);
                 });
+            rebuildSingleBoardDisplaySans(this.ffish, this.variant, this.chess960, this.steps, this.notation);
             const full = true;
             const activate = true;
             const result = false;
@@ -979,6 +987,7 @@ export class RoundController extends GameController {
                     'check': msg.check,
                     'turnColor': this.turnColor,
                     'san': msg.steps[0].san,
+                    'displaySan': this.displaySanForCurrentMove(msg.lastMove, msg.steps[0].san),
                     };
                 this.steps.push(step);
                 const full = false;
@@ -1109,7 +1118,7 @@ export class RoundController extends GameController {
                     }
 
                     if (!this.focus) {
-                        const sanMove = (this.fog) ? 'a move' : step.san;
+                        const sanMove = (this.fog) ? 'a move' : stepDisplaySan(step);
                         this.notifyMsg(`Played ${sanMove}\nYour turn.`);
                     }
 

@@ -189,6 +189,9 @@ export class GameControllerBughouse extends GameController {
     toggleSettings(): void {
     }
 
+    refreshNotation(): void {
+        super.refreshNotation();
+        if (this.boardName !== 'b') this.parent.refreshNotation?.();
+    }
+
 }
-
-

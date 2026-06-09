@@ -5,6 +5,7 @@ import { _ } from '@/i18n';
 import { patch } from "@/document";
 import {RoundControllerBughouse} from "@/bug/roundCtrl.bug";
 import {formatChatMessageTime, getLocalMoveNum, selectMove} from "@/bug/movelist.bug";
+import { stepDisplaySan } from "@/notation";
 import {StepChat} from "@/messages";
 import { Variant } from "../variants";
 import { displayUsername, isAnonUsername } from "@/user";
@@ -66,7 +67,7 @@ export function chatMessageBug (ply: number, ctrl: RoundControllerBughouse, x: S
 
     const step = ctrl?.steps[ply!]!;
     const boardName = step.turnColor === 'black' ? step.boardName?.toUpperCase() : step.boardName;
-    const lastMoveSan = ply === 0? "": getLocalMoveNum(step) + '' + boardName + "." + step.san!;
+    const lastMoveSan = ply === 0? "": getLocalMoveNum(step) + '' + boardName + "." + stepDisplaySan(step)!;
 
     const message = x.message
     const messageNodes = linkifyNodes(message, 'chat-message-link');
@@ -98,7 +99,7 @@ export function chatMessageBug (ply: number, ctrl: RoundControllerBughouse, x: S
                 }, [])
             ])]));
     } else {
-        patch(container, h('div#messages', [ h("li.message", [san, h("user", userNode), h("t.bugchatpointer", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, messageNodes)]) ]));
+        patch(container, h('div#messages', [ h("li.message", [san, h("user", userNode), h("t.bugchatpointer", { attrs: {"title": stepDisplaySan(ctrl?.steps[ply!]!)!}, on: { click: () => { onchatclick(ply, ctrl) }}}, messageNodes)]) ]));
     }
 
     if (isBottom) setTimeout(() => {chatDiv.scrollTop = chatDiv.scrollHeight;}, 200);

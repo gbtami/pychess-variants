@@ -228,6 +228,15 @@ export abstract class GameController extends ChessgroundController implements Ch
         }
     }
 
+    protected displaySanForCurrentMove(move: string | undefined, fallback?: string): string | undefined {
+        if (move === undefined) return fallback;
+        try {
+            return this.ffishBoard.sanMove(move, this.notationAsObject);
+        } catch {
+            return fallback;
+        }
+    }
+
     abstract toggleSettings(): void;
 
     abstract doSendMove(move: string): void;

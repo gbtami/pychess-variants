@@ -59,6 +59,20 @@ export function checkbox(settings: Settings<boolean>, name: string, text: string
     ];
 }
 
+export function select(settings: Settings<string>, name: string, text: string, options: Array<{ value: string; label: string }>) {
+    const id = name;
+    return [
+        h('label', { attrs: { for: id } }, text),
+        h(`select#${id}`, {
+            props: { name: id, value: settings.value },
+            on: { change: evt => settings.value = (evt.target as HTMLSelectElement).value },
+        }, options.map((option) => h('option', {
+            props: { value: option.value },
+            attrs: { selected: settings.value === option.value },
+        }, option.label))),
+    ];
+}
+
 export function toggleSwitch(settings: Settings<boolean>, name: string, text: string, disabled: boolean): VNode[] {
     const id = name;
     return [

@@ -1,6 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import { _ } from '@/i18n';
+import { stepDisplaySan } from '@/notation';
 import AnalysisControllerBughouse from './analysisCtrl.bug';
 import { result } from '../result'
 import { patch } from '../document';
@@ -267,7 +268,7 @@ function renderTreeVariationMove(
         },
     }, [
         disclosureButton,
-        ...renderTreeMoveText(bugMovePrefix(node.step), node.step.san),
+        ...renderTreeMoveText(bugMovePrefix(node.step), stepDisplaySan(node.step)),
     ]);
 }
 
@@ -391,7 +392,7 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
             click: (event: MouseEvent) => event.stopPropagation(),
         },
     }, [
-        h('div.title', `${bugMovePrefix(current.step)} ${current.step.san ?? _('Start position')}`),
+        h('div.title', `${bugMovePrefix(current.step)} ${stepDisplaySan(current.step) ?? _('Start position')}`),
         ...actions,
     ]);
 }
@@ -422,7 +423,7 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
         for (const mainlineNode of displayedMainline) {
             const step = mainlineNode.step;
             const ply = mainlineNode.ply;
-            const move = step.san;
+            const move = stepDisplaySan(step);
             if (move === null) continue;
 
             const colIdx = step.boardName === 'a'

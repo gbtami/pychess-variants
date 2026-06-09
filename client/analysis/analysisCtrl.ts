@@ -21,6 +21,7 @@ import { renderClocks } from './analysisClock';
 import { copyBoardToPNG } from '../png';
 import { boardSettings } from '../boardSettings';
 import { patch, downloadPgnText } from '../document';
+import { rebuildSingleBoardDisplaySans } from '../notation';
 import { variantsIni } from '../variantsIni';
 import { Chart } from "highcharts";
 import { PyChessModel } from "../types";
@@ -40,6 +41,7 @@ import { confirmDialog } from '../confirmDialog';
 import {
     addOrSelectChild,
     AnalysisTree,
+    AnalysisTreeNode,
     branchStartPath,
     canPromoteVariation,
     createAnalysisTree,
@@ -860,6 +862,7 @@ export class AnalysisController extends GameController {
                 }
                 this.steps.push(step);
                 });
+            this.rebuildDisplayedSans();
             this.recordedMainlinePly = msg.steps.length - 1;
             this.initAnalysisTreeAtPly(Math.min(this.ply, this.steps.length - 1));
             updateMovelist(this, true, false);
@@ -896,6 +899,7 @@ export class AnalysisController extends GameController {
                     'check': msg.check,
                     'turnColor': this.turnColor,
                     'san': msg.steps[0].san,
+                    'displaySan': this.displaySanForCurrentMove(msg.lastMove, msg.steps[0].san),
                     };
                 this.steps.push(step);
                 updateMovelist(this);
@@ -1599,6 +1603,44 @@ export class AnalysisController extends GameController {
         });
     }
 
+    refreshNotation(): void {
+        super.refreshNotation();
+        this.rebuildDisplayedSans();
+        updateMovelist(this, true, false);
+        if (!this.embed && this.steps[0]?.analysis !== undefined) {
+            this.drawAnalysisChart(false);
+            if (this.steps[1]?.clocks !== undefined) movetimeChart(this);
+        }
+    }
+
+    private rebuildDisplayedSans() {
+        rebuildSingleBoardDisplaySans(this.ffish, this.variant, this.chess960, this.steps, this.notation);
+        this.rebuildAnalysisTreeDisplaySans();
+    }
+
+    private rebuildAnalysisTreeDisplaySans() {
+        if (!this.analysisTree) return;
+
+        const board = new this.ffish.Board(this.variant.name, this.analysisTree.root.step.fen, this.chess960);
+        try {
+            const visit = (nodes: AnalysisTreeNode[]) => {
+                for (const node of nodes) {
+                    const previousFen = board.fen(this.variant.ui.showPromoted, 0);
+                    node.step.displaySan = node.step.move === undefined
+                        ? node.step.san
+                        : board.sanMove(node.step.move, this.notationAsObject);
+                    if (node.step.fen) board.setFen(node.step.fen);
+                    visit(node.children);
+                    board.setFen(previousFen);
+                }
+            };
+
+            visit(this.analysisTree.root.children);
+        } finally {
+            board.delete();
+        }
+    }
+
     doSendMove(move: string) {
         const san = this.ffishBoard.sanMove(move, this.notationAsObject);
         const sanSAN = this.ffishBoard.sanMove(move);
@@ -1631,6 +1673,7 @@ export class AnalysisController extends GameController {
             'check': msg.check,
             'turnColor': this.turnColor,
             'san': san,
+            'displaySan': san,
             'sanSAN': sanSAN,
             };
 
