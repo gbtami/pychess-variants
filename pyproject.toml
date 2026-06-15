@@ -23,7 +23,7 @@ dependencies = [
     "pymongo==4.17.0",
     "pywebpush==2.3.0",
     "rapidfuzz==3.14.5",
-    "pyopenssl==26.2.0",
+    "pyopenssl==26.3.0",
     "python-gettext==5.0",
     "rustworkx==0.17.1",
     "sortedcollections==2.1.0",
