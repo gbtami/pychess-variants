@@ -6,7 +6,7 @@ import { FairyStockfish, Board, Notation } from 'ffish-es6';
 
 import { boardSettings, BoardController } from '@/boardSettings';
 import { CGMove, uci2cg } from '@/chess';
-import { boardNotationForVariant, ffishNotationForBoardNotation } from '@/notation';
+import { boardNotationForVariant, ffishNotationForVariant } from '@/notation';
 import { BoardName, PyChessModel } from '@/types';
 import { fogFen, Variant, VARIANTS, moddedVariant } from '@/variants';
 
@@ -73,7 +73,7 @@ export abstract class ChessgroundController implements BoardController {
         boardSettings.updateActivePieceStyle(this.variant);
         boardSettings.updateZoom(boardFamily, '');
 
-        this.notationAsObject = this.notation2ffishjs(this.notation);
+        this.notationAsObject = ffishNotationForVariant(this.ffish, this.variant);
         this.ffishBoard = new this.ffish.Board(
             moddedVariant(this.variant.name, this.chess960, this.chessground.state.boardState.pieces, parts[2]),
             this.fullfen,
@@ -142,13 +142,9 @@ export abstract class ChessgroundController implements BoardController {
         return this.ffishBoard.legalMoves().split(" ").map(uci2cg) as CGMove[];
     }
 
-    notation2ffishjs(n: cg.Notation): Notation {
-        return ffishNotationForBoardNotation(this.ffish, n);
-    }
-
     refreshNotation(): void {
         this.notation = boardNotationForVariant(this.variant);
-        this.notationAsObject = this.notation2ffishjs(this.notation);
+        this.notationAsObject = ffishNotationForVariant(this.ffish, this.variant);
         this.chessground.set({ notation: this.notation });
         this.chessground.redrawAll();
     }

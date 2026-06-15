@@ -1614,7 +1614,7 @@ export class AnalysisController extends GameController {
     }
 
     private rebuildDisplayedSans() {
-        rebuildSingleBoardDisplaySans(this.ffish, this.variant, this.chess960, this.steps, this.notation);
+        rebuildSingleBoardDisplaySans(this.ffish, this.variant, this.chess960, this.steps, this.notationAsObject);
         this.rebuildAnalysisTreeDisplaySans();
     }
 

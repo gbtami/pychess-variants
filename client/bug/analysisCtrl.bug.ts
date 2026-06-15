@@ -13,7 +13,7 @@ import { povChances } from '../analysis/winningChances';
 import { copyTextToClipboard } from '../clipboard';
 import { patch } from '../document';
 import { Chart } from "highcharts";
-import { boardNotationForVariant, rebuildBughouseDisplaySans } from '../notation';
+import { boardNotationForVariant, ffishNotationForVariant, rebuildBughouseDisplaySans } from '../notation';
 import { PyChessModel } from "../types";
 import { Ceval, MsgBoard, Step } from "../messages";
 import { GameControllerBughouse } from "./gameCtrl.bug";
@@ -141,10 +141,6 @@ export default class AnalysisControllerBughouse {
     teamFirst: [[string, string, string], [string, string, string]]
     teamSecond: [[string, string, string], [string, string, string]]
 
-    notation2ffishjs = (n: cg.Notation) => {
-        return this.b1.notation2ffishjs(n);
-    }
-
     constructor(el1: HTMLElement,el1Pocket1: HTMLElement,el1Pocket2: HTMLElement,el2: HTMLElement,el2Pocket1: HTMLElement,el2Pocket2: HTMLElement, model: PyChessModel) {
 
         this.fsfDebug = true;
@@ -169,7 +165,7 @@ export default class AnalysisControllerBughouse {
         ffishModule().then((loadedModule: any) => {
             this.ffish = loadedModule;
             this.ffish.loadVariantConfig(variantsIni);
-            this.notationAsObject = this.notation2ffishjs(this.notation);
+            this.notationAsObject = ffishNotationForVariant(this.ffish, this.variant);
         });
 
         this.isAnalysisBoard = model["gameId"] === "";
@@ -335,7 +331,7 @@ export default class AnalysisControllerBughouse {
     }
 
     private rebuildDisplayedSans() {
-        rebuildBughouseDisplaySans(this.b1.ffish, this.variant, this.chess960, this.steps, this.notation);
+        rebuildBughouseDisplaySans(this.b1.ffish, this.variant, this.chess960, this.steps, this.notationAsObject);
         this.rebuildAnalysisTreeDisplaySans();
     }
 

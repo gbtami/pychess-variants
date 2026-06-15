@@ -10,6 +10,7 @@ import { timeago } from './datetime';
 import { PyChessModel } from './types';
 import { expandGameEmbeds, makeExternalLinkPopups, renderRichText } from './richTextEnhance';
 import { boardSettings } from './boardSettings';
+import { defaultBoardNotationForVariant } from './notation';
 import { VARIANTS } from './variants';
 
 /** Supported forum UI modes mapped from URL paths. */
@@ -449,7 +450,7 @@ export function forumView(model: PyChessModel) {
                                 const board = Chessground(vnode.elm as HTMLElement, {
                                     fen: formCaptcha!.fen as cg.FEN,
                                     dimensions: captchaVariant.board.dimensions,
-                                    notation: captchaVariant.notation,
+                                    notation: defaultBoardNotationForVariant(captchaVariant),
                                     pocketRoles: captchaVariant.pocket?.roles,
                                     orientation: color,
                                     turnColor: color,

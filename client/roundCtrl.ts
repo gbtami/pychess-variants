@@ -434,7 +434,7 @@ export class RoundController extends GameController {
 
     refreshNotation(): void {
         super.refreshNotation();
-        rebuildSingleBoardDisplaySans(this.ffish, this.variant, this.chess960, this.steps, this.notation);
+        rebuildSingleBoardDisplaySans(this.ffish, this.variant, this.chess960, this.steps, this.notationAsObject);
         updateMovelist(this, true, false, this.status >= 0);
     }
 
@@ -974,7 +974,7 @@ export class RoundController extends GameController {
             msg.steps.forEach((step) => { 
                 this.steps.push(step);
                 });
-            rebuildSingleBoardDisplaySans(this.ffish, this.variant, this.chess960, this.steps, this.notation);
+            rebuildSingleBoardDisplaySans(this.ffish, this.variant, this.chess960, this.steps, this.notationAsObject);
             const full = true;
             const activate = true;
             const result = false;

@@ -17,6 +17,28 @@ export interface PieceFamily {
     readonly pieceCSS: string[];
 }
 
+export type FfishNotationName =
+    | 'DEFAULT'
+    | 'SAN'
+    | 'LAN'
+    | 'SHOGI_HOSKING'
+    | 'SHOGI_HODGES'
+    | 'SHOGI_HODGES_NUMBER'
+    | 'SHOGI_JAPANESE'
+    | 'JANGGI'
+    | 'JANGGI_KOREAN'
+    | 'XIANGQI_WXF'
+    | 'XIANGQI_CHINESE'
+    | 'THAI_SAN'
+    | 'THAI_LAN';
+
+export interface NotationOption {
+    readonly id: string;
+    readonly label: string;
+    readonly boardNotation: cg.Notation;
+    readonly ffishNotation: FfishNotationName;
+}
+
 export type HiddenInfoMode = 'none' | 'fog' | 'covered_pieces';
 
 export const BOARD_FAMILIES: Record<string, BoardFamily> = {
@@ -78,6 +100,29 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     yokai: { pieceCSS: ["yokai", "disguised"] },
 };
 
+const SHOGI_NOTATION_OPTIONS: readonly NotationOption[] = [
+    { id: 'shogi-hodges-number', label: 'Hodges numeric (P-76)', boardNotation: cg.Notation.SHOGI_ARBNUM, ffishNotation: 'SHOGI_HODGES_NUMBER' },
+    { id: 'shogi-hodges', label: 'Hodges western (P-7f)', boardNotation: cg.Notation.SHOGI_ENGLET, ffishNotation: 'SHOGI_HODGES' },
+    { id: 'shogi-hosking', label: 'Hosking (P76)', boardNotation: cg.Notation.SHOGI_ARBNUM, ffishNotation: 'SHOGI_HOSKING' },
+    { id: 'shogi-japanese', label: 'Japanese (３六歩)', boardNotation: cg.Notation.SHOGI_HANNUM, ffishNotation: 'SHOGI_JAPANESE' },
+];
+
+const XIANGQI_NOTATION_OPTIONS: readonly NotationOption[] = [
+    { id: 'xiangqi-wxf', label: 'WXF (N2+3)', boardNotation: cg.Notation.XIANGQI_ARBNUM, ffishNotation: 'XIANGQI_WXF' },
+    { id: 'xiangqi-chinese', label: 'Chinese (馬二進三)', boardNotation: cg.Notation.XIANGQI_HANNUM, ffishNotation: 'XIANGQI_CHINESE' },
+];
+
+const JANGGI_NOTATION_OPTIONS: readonly NotationOption[] = [
+    { id: 'janggi-western', label: 'Western (H02-83)', boardNotation: cg.Notation.JANGGI, ffishNotation: 'JANGGI' },
+    { id: 'janggi-korean', label: 'Korean (02馬83)', boardNotation: cg.Notation.JANGGI, ffishNotation: 'JANGGI_KOREAN' },
+];
+
+const THAI_NOTATION_OPTIONS: readonly NotationOption[] = [
+    { id: 'thai-international', label: 'International SAN (e4)', boardNotation: cg.Notation.ALGEBRAIC, ffishNotation: 'SAN' },
+    { id: 'thai-san', label: 'Thai SAN (จ๔)', boardNotation: cg.Notation.THAI_ALGEBRAIC, ffishNotation: 'THAI_SAN' },
+    { id: 'thai-lan', label: 'Thai LAN (บ จ๓-จ๔)', boardNotation: cg.Notation.THAI_ALGEBRAIC, ffishNotation: 'THAI_LAN' },
+];
+
 export interface Variant {
     readonly name: string;
     readonly _displayName: string;
@@ -95,7 +140,8 @@ export interface Variant {
     readonly startFen: string;
     readonly boardFamily: keyof typeof BOARD_FAMILIES;
     readonly board: BoardFamily;
-    readonly notation: cg.Notation;
+    readonly notationOptions: readonly NotationOption[];
+    readonly defaultNotation: string;
     readonly pieceFamily: keyof typeof PIECE_FAMILIES;
     readonly pieceCSSExclude: string[];
     readonly piece: PieceFamily;
@@ -147,6 +193,17 @@ export interface Variant {
 const pieceFamiliesWithMaterialDifferenceSupported = ["standard", "makruk", "sittuyin", "asean", "xiangqi", "janggi", "shatranj", "capa", "dragon", "seirawan", "shako", "hoppel", "orda", "khans", "synochess", "shinobi", "empire", "ordamirror", "chak", "spartan"];
 
 function variant(config: VariantConfig): Variant {
+    const notationOptions = config.notationOptions ?? [{
+        id: 'default',
+        label: 'Default',
+        boardNotation: config.boardNotation ?? cg.Notation.ALGEBRAIC,
+        ffishNotation: config.ffishNotation ?? 'SAN',
+    }];
+    const defaultNotation = config.defaultNotation ?? notationOptions[0].id;
+    if (!notationOptions.some((option) => option.id === defaultNotation)) {
+        throw new Error(`Unknown default notation '${defaultNotation}' for variant '${config.name}'`);
+    }
+
     return {
         name: config.name,
         _displayName: config.displayName ?? config.name,
@@ -164,9 +221,10 @@ function variant(config: VariantConfig): Variant {
         startFen: config.startFen,
         boardFamily: config.boardFamily,
         board: BOARD_FAMILIES[config.boardFamily],
+        notationOptions,
+        defaultNotation,
         pieceFamily: config.pieceFamily,
         pieceCSSExclude: config.pieceCSSExclude ?? [],
-        notation: config.notation ?? cg.Notation.ALGEBRAIC,
         piece: PIECE_FAMILIES[config.pieceFamily],
         colors: config.colors ?? { first: 'White', second: 'Black' },
         pieceRow: Array.isArray(config.pieceRow) ? {
@@ -255,8 +313,14 @@ interface VariantConfig {
     icon960?: string;
     // Board appearance
     boardFamily: keyof typeof BOARD_FAMILIES;
-    // Chessground coord/move notation (default: cg.Notation.ALGEBRAIC)
-    notation?: cg.Notation;
+    // Default board coordinate notation when no explicit profile list is provided
+    boardNotation?: cg.Notation;
+    // Default Fairy-Stockfish move notation when no explicit profile list is provided
+    ffishNotation?: FfishNotationName;
+    // Full notation profiles for variants with multiple notation systems
+    notationOptions?: readonly NotationOption[];
+    // Default notation profile id when notationOptions is provided
+    defaultNotation?: string;
     // Piece appearance
     pieceFamily: keyof typeof PIECE_FAMILIES;
     // Piece CSS files from the family that cannot render this variant
@@ -583,6 +647,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         icon: "Q",
         boardFamily: "makruk8x8", pieceFamily: "makruk",
+        notationOptions: THAI_NOTATION_OPTIONS,
+        defaultNotation: 'thai-international',
         pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotion: { type: "regular", order: ["m"] },
         ui: { counting: "makruk", showPromoted: true },
@@ -593,6 +659,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR[] w - - 0 1",
         icon: "Q",
         boardFamily: "makruk8x8", pieceFamily: "makruk",
+        notationOptions: THAI_NOTATION_OPTIONS,
+        defaultNotation: 'thai-international',
         pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotion: { type: "regular", order: ["m"] },
         pocket: {
@@ -606,6 +674,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR[] w - - 0 1",
         icon: "Q", twoBoards: true,
         boardFamily: "makruk8x8", pieceFamily: "makruk",
+        notationOptions: THAI_NOTATION_OPTIONS,
+        defaultNotation: 'thai-international',
         pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotion: { type: "regular", order: ["m"] },
         pocket: {
@@ -627,6 +697,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w - - 0 1",
         icon: "O",
         boardFamily: "makruk8x8", pieceFamily: "makruk",
+        notationOptions: THAI_NOTATION_OPTIONS,
+        defaultNotation: 'thai-international',
         pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotion: { type: "regular", order: ["m"] },
         ui: { counting: "makruk", showPromoted: true },
@@ -637,6 +709,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnsmksnr/8/pppppppp/8/8/PPPPPPPP/8/RNSKMSNR w DEde - 0 1",
         icon: "!",
         boardFamily: "makruk8x8", pieceFamily: "makruk",
+        notationOptions: THAI_NOTATION_OPTIONS,
+        defaultNotation: 'thai-international',
         pieceRow: ["k", "s", "m", "n", "r", "p", "m~" as cg.Letter],
         promotion: { type: "regular", order: ["m"] },
         ui: { counting: "makruk", showPromoted: true },
@@ -668,7 +742,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL[-] w 0 1",
         icon: "K",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
-        notation: cg.Notation.SHOGI_ARBNUM,
+        notationOptions: SHOGI_NOTATION_OPTIONS,
+        defaultNotation: 'shogi-hodges-number',
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r"], captureToHand: true },
@@ -696,7 +771,8 @@ export const VARIANTS: Record<string, Variant> = {
         icon: "🍹",
         boardFamily: "shogi9x9", pieceFamily: "shogi",
         pieceCSSExclude: ["shogi", "shogip", "shogim", "shogikw3d", "shogid", "shogiim", "portk"],
-        notation: cg.Notation.SHOGI_ARBNUM,
+        notationOptions: SHOGI_NOTATION_OPTIONS,
+        defaultNotation: 'shogi-hodges-number',
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p", "e"],
         kingRoles: ["k", "+e"],
@@ -710,7 +786,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rgytkfygl/1c5a1/ppppppppp/9/9/9/PPPPPPPPP/1A5C1/LGYFKTYGR[Nn] w 0 1",
         icon: "👹",
         boardFamily: "shogi9x9", pieceFamily: "yokai",
-        notation: cg.Notation.SHOGI_ARBNUM,
+        notationOptions: SHOGI_NOTATION_OPTIONS,
+        defaultNotation: 'shogi-hodges-number',
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "t", "f", "r", "l", "a", "c", "g", "y", "p", "n"],
         pocket: { roles: ["n", "t", "f", "r", "l", "a", "c", "g", "y", "p"], captureToHand: true },
@@ -724,7 +801,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "lnsgkgsnl/1rci1uab1/p1p1p1p1p/9/9/9/P1P1P1P1P/1BAU1ICR1/LNSGKGSNL[-] w 0 1",
         icon: "💣",
         boardFamily: "shogi9x9", pieceFamily: "cannonshogi",
-        notation: cg.Notation.SHOGI_ARBNUM,
+        notationOptions: SHOGI_NOTATION_OPTIONS,
+        defaultNotation: 'shogi-hodges-number',
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "n", "l", "p", "u", "a", "c", "i"],
         pocket: { roles: ["p", "l", "n", "s", "g", "b", "r", "u", "a", "c", "i"], captureToHand: true },
@@ -738,7 +816,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rbsgk/4p/5/P4/KGSBR[-] w 0 1",
         icon: "6",
         boardFamily: "shogi5x5", pieceFamily: "shogi",
-        notation: cg.Notation.SHOGI_ARBNUM,
+        notationOptions: SHOGI_NOTATION_OPTIONS,
+        defaultNotation: 'shogi-hodges-number',
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "r", "b", "s", "p"],
         pocket: { roles: ["p", "s", "g", "b", "r"], captureToHand: true },
@@ -752,7 +831,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "p+nks+l/5/5/5/+LSK+NP[-] w 0 1",
         icon: ")",
         boardFamily: "shogi5x5", pieceFamily: "kyoto",
-        notation: cg.Notation.SHOGI_ARBNUM,
+        notationOptions: SHOGI_NOTATION_OPTIONS,
+        defaultNotation: 'shogi-hodges-number',
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "l", "s", "n", "p"],
         pocket: { roles: ["p", "l", "n", "s"], captureToHand: true },
@@ -766,7 +846,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "gle/1c1/1C1/ELG[-] w 0 1",
         icon: "8",
         boardFamily: "shogi3x4", pieceFamily: "dobutsu",
-        notation: cg.Notation.SHOGI_ARBNUM,
+        notationOptions: SHOGI_NOTATION_OPTIONS,
+        defaultNotation: 'shogi-hodges-number',
         colors: { first: "Black", second: "White" },
         pieceRow: ["l", "g", "e", "c"],
         kingRoles: ["l"],
@@ -781,7 +862,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[-] w 0 1",
         icon: "🐱",
         boardFamily: "shogi5x6", pieceFamily: "shogi",
-        notation: cg.Notation.SHOGI_ARBNUM,
+        notationOptions: SHOGI_NOTATION_OPTIONS,
+        defaultNotation: 'shogi-hodges-number',
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "s", "p"],
         pocket: { roles: ["p", "s", "g"], captureToHand: true },
@@ -795,7 +877,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "sgkgs/5/1ppp1/1PPP1/5/SGKGS[LNln] w 0 1",
         icon: "🐱",
         boardFamily: "shogi5x6", pieceFamily: "shogi",
-        notation: cg.Notation.SHOGI_ARBNUM,
+        notationOptions: SHOGI_NOTATION_OPTIONS,
+        defaultNotation: 'shogi-hodges-number',
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "g", "s", "n", "l", "p"],
         pocket: { roles: ["p", "l", "n", "s", "g"], captureToHand: true },
@@ -813,7 +896,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rpckcpl/3f3/sssssss/2s1S2/SSSSSSS/3F3/LPCKCPR[-] w 0 1",
         icon: "🐦",
         boardFamily: "shogi7x7", pieceFamily: "tori",
-        notation: cg.Notation.SHOGI_ARBNUM,
+        notationOptions: SHOGI_NOTATION_OPTIONS,
+        defaultNotation: 'shogi-hodges-number',
         colors: { first: "Black", second: "White" },
         pieceRow: ["k", "c", "p", "l", "r", "f", "s"],
         pocket: { roles: ["s", "p", "l", "r", "c", "f"], captureToHand: true },
@@ -834,7 +918,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
         icon: "|",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
-        notation: cg.Notation.XIANGQI_ARBNUM,
+        notationOptions: XIANGQI_NOTATION_OPTIONS,
+        defaultNotation: 'xiangqi-wxf',
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -848,7 +933,8 @@ export const VARIANTS: Record<string, Variant> = {
         icon: "⬤",
         boardFamily: "xiangqi9x10",
         pieceFamily: "xiangqi",
-        notation: cg.Notation.XIANGQI_ARBNUM,
+        notationOptions: XIANGQI_NOTATION_OPTIONS,
+        defaultNotation: 'xiangqi-wxf',
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -859,7 +945,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR[] w - - 0 1",
         icon: "+",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
-        notation: cg.Notation.XIANGQI_ARBNUM,
+        notationOptions: XIANGQI_NOTATION_OPTIONS,
+        defaultNotation: 'xiangqi-wxf',
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -874,7 +961,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR[] w - - 0 1",
         icon: "¢", twoBoards: true,
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
-        notation: cg.Notation.XIANGQI_ARBNUM,
+        notationOptions: XIANGQI_NOTATION_OPTIONS,
+        defaultNotation: 'xiangqi-wxf',
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -899,7 +987,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "m1bakab1r/9/9/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
         icon: "{",
         boardFamily: "xiangqi9x10", pieceFamily: "xiangqi",
-        notation: cg.Notation.XIANGQI_ARBNUM,
+        notationOptions: XIANGQI_NOTATION_OPTIONS,
+        defaultNotation: 'xiangqi-wxf',
         colors: { first: "Red", second: "Black" },
         pieceRow: { white: ["k", "a", "c", "r", "b", "n", "p"], black: ["k", "a", "m", "r", "b", "p"] },
         promotion: { type: "regular", roles: [] },
@@ -914,7 +1003,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rnba1abnr/4k4/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/4K4/RNBA1ABNR w - - 0 1",
         icon: "=",
         boardFamily: "janggi9x10", pieceFamily: "janggi",
-        notation: cg.Notation.JANGGI,
+        notationOptions: JANGGI_NOTATION_OPTIONS,
+        defaultNotation: 'janggi-western',
         colors: { first: "Blue", second: "Red" },
         pieceRow: ["k", "a", "c", "r", "b", "n", "p"],
         promotion: { type: "regular", roles: [] },
@@ -931,7 +1021,8 @@ export const VARIANTS: Record<string, Variant> = {
         startFen: "rcnkncr/p1ppp1p/7/7/7/P1PPP1P/RCNKNCR w - - 0 1",
         icon: "7",
         boardFamily: "xiangqi7x7", pieceFamily: "xiangqi",
-        notation: cg.Notation.XIANGQI_ARBNUM,
+        notationOptions: XIANGQI_NOTATION_OPTIONS,
+        defaultNotation: 'xiangqi-wxf',
         colors: { first: "Red", second: "Black" },
         pieceRow: ["k", "c", "r", "n", "p"],
         promotion: { type: "regular", roles: [] },

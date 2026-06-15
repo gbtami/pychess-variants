@@ -544,7 +544,7 @@ export class RoundControllerBughouse implements ChatController {
     }
 
     private rebuildDisplayedSans() {
-        rebuildBughouseDisplaySans(this.b1.ffish, this.variant, this.b1.chess960, this.steps, this.b1.notation);
+        rebuildBughouseDisplaySans(this.b1.ffish, this.variant, this.b1.chess960, this.steps, this.b1.notationAsObject);
     }
 
     refreshNotation() {
