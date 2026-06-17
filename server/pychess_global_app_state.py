@@ -64,7 +64,7 @@ from tournament.scheduler import (
     new_scheduled_tournaments,
     create_scheduled_tournaments,
 )
-from seek import Seek
+from seek import Seek, should_persist_seek_on_shutdown, should_restore_persisted_seek
 from settings import (
     FISHNET_KEYS,
     DISCORD_TOKEN,
@@ -431,8 +431,8 @@ class PychessGlobalAppState:
                         challenge_status=doc.get("challengeStatus"),
                         challenge_decline_reason=doc.get("challengeDeclineReason"),
                     )
-                    if seek.is_expired():
-                        log.debug("Skipping expired seek from database: %s", seek.id)
+                    if not should_restore_persisted_seek(seek):
+                        log.debug("Skipping non-restorable seek from database: %s", seek.id)
                         continue
                     log.debug("Loading seek from database: %s" % seek)
                     self.seeks[seek.id] = seek
@@ -960,7 +960,7 @@ class PychessGlobalAppState:
         persisted_seeks = [
             seek.seek_db_json
             for seek in self.seeks.values()
-            if seek.day > 0 or (seek.day == 0 and (seek.is_direct_challenge or seek.creator.online))
+            if should_persist_seek_on_shutdown(seek)
         ]
         await self.db.seek.delete_many({})
         if len(persisted_seeks) > 0:

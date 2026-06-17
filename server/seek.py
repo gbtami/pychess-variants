@@ -14,6 +14,7 @@ MAX_USER_SEEKS = 10
 ANON_RESTRICTED_SEEK_MESSAGE = (
     "Anonymous users cannot create or join correspondence or bughouse seeks."
 )
+SEEK_LIMIT_REACHED_MESSAGE = "You already have too many active seeks or challenges."
 TWO_BOARD_TARGETED_SEEK_MESSAGE = (
     "Two-board variants are not available for invites or direct challenges."
 )
@@ -217,12 +218,15 @@ class Seek:
     def default_expire_at(self) -> datetime | None:
         if self.target == "Invite-friend":
             return datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
+        if (
+            self.is_direct_challenge
+            and self.challenge_status not in ACTIVE_DIRECT_CHALLENGE_STATUSES
+        ):
+            return datetime.now(timezone.utc) + DIRECT_CHALLENGE_SHORT_EXPIRE
         if self.day > 0:
             return datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS
         if self.is_direct_challenge:
-            if self.challenge_status in ACTIVE_DIRECT_CHALLENGE_STATUSES:
-                return datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
-            return datetime.now(timezone.utc) + DIRECT_CHALLENGE_SHORT_EXPIRE
+            return datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
         return None
 
     def set_challenge_status(self, status: str) -> None:
@@ -403,6 +407,40 @@ def find_duplicate_direct_challenge(
     return None
 
 
+def seek_counts_toward_limit(seek: Seek) -> bool:
+    return (not seek.is_expired()) and (
+        not seek.is_direct_challenge or seek.is_active_direct_challenge
+    )
+
+
+def should_persist_seek_on_shutdown(seek: Seek) -> bool:
+    if seek.is_expired():
+        return False
+    if seek.is_direct_challenge:
+        return seek.is_active_direct_challenge
+    if seek.day > 0:
+        return True
+    return seek.creator.online
+
+
+def should_restore_persisted_seek(seek: Seek) -> bool:
+    if seek.is_expired():
+        return False
+    if seek.is_direct_challenge:
+        return seek.is_active_direct_challenge
+    return True
+
+
+def user_reached_seek_limit(user: User, day: int | float) -> bool:
+    if day == 0:
+        seeks_in_bucket = [seek for seek in user.seeks.values() if seek.day == 0]
+    else:
+        seeks_in_bucket = [seek for seek in user.seeks.values() if seek.day != 0]
+    return (
+        len([seek for seek in seeks_in_bucket if seek_counts_toward_limit(seek)]) >= MAX_USER_SEEKS
+    )
+
+
 async def create_seek(
     db: AsyncDatabase | None,
     invites: dict[str, Seek],
@@ -441,17 +479,7 @@ async def create_seek(
         )
         duplicate.set_challenge_status(DIRECT_CHALLENGE_CANCELED)
 
-    live_seeks = len(
-        [
-            seek
-            for seek in user.seeks.values()
-            if seek.day == 0 and (not seek.is_direct_challenge or seek.is_active_direct_challenge)
-        ]
-    )
-    corr_seeks = len([seek for seek in user.seeks.values() if seek.day != 0])
-    if (
-        (live_seeks >= MAX_USER_SEEKS and day == 0) or (corr_seeks >= MAX_USER_SEEKS and day != 0)
-    ) and not empty:
+    if user_reached_seek_limit(user, day) and not empty:
         return None
 
     target = data.get("target", "")

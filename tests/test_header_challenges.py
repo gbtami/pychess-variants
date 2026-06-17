@@ -1,6 +1,7 @@
 import unittest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
+from datetime import datetime, timedelta, timezone
 
 import test_logger
 
@@ -215,6 +216,58 @@ class HeaderChallengeTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(DIRECT_CHALLENGE_CANCELED, first.challenge_status)
         self.assertEqual(DIRECT_CHALLENGE_CREATED, replacement.challenge_status)
         self.assertNotEqual(first.id, replacement.id)
+
+    async def test_terminal_corr_direct_challenges_do_not_count_toward_seek_limit(self):
+        app_state = self.make_app_state()
+        challenger = User(app_state, username="alice", perfs=PERFS)
+        app_state.users[challenger.username] = challenger
+
+        for idx in range(10):
+            seek = Seek(
+                f"seek-{idx}",
+                challenger,
+                "chess",
+                day=3,
+                target=f"opponent-{idx}",
+                player1=challenger,
+            )
+            set_direct_challenge_status(seek, DIRECT_CHALLENGE_ACCEPTED)
+            app_state.seeks[seek.id] = seek
+            challenger.seeks[seek.id] = seek
+
+        created = await create_seek(
+            app_state.db,
+            app_state.invites,
+            app_state.seeks,
+            challenger,
+            {
+                "variant": "chess",
+                "fen": "",
+                "color": "r",
+                "minutes": 5,
+                "increment": 3,
+                "byoyomiPeriod": 0,
+                "day": 3,
+                "rated": False,
+                "chess960": False,
+            },
+        )
+
+        self.assertIsNotNone(created)
+
+    def test_terminal_corr_direct_challenge_gets_short_expiry(self):
+        app_state = self.make_app_state()
+        challenger = User(app_state, username="alice", perfs=PERFS)
+
+        seek = Seek("seek-accepted", challenger, "chess", day=3, target="bob", player1=challenger)
+        before = datetime.now(timezone.utc)
+        set_direct_challenge_status(seek, DIRECT_CHALLENGE_ACCEPTED)
+        after = datetime.now(timezone.utc)
+
+        self.assertIsNotNone(seek.expire_at)
+        assert seek.expire_at is not None
+        self.assertLessEqual(seek.expire_at, after + timedelta(hours=3, seconds=1))
+        self.assertGreaterEqual(seek.expire_at, before + timedelta(hours=3) - timedelta(seconds=1))
 
 
 if __name__ == "__main__":
