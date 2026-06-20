@@ -75,6 +75,7 @@ from pychess_global_app_state_utils import get_app_state
 from seek import (
     ACTIVE_DIRECT_CHALLENGE_STATUSES,
     ANON_RESTRICTED_SEEK_MESSAGE,
+    DIRECT_CHALLENGE_BLOCKED_MESSAGE,
     DIRECT_CHALLENGE_CANCELED,
     SEEK_LIMIT_REACHED_MESSAGE,
     TWO_BOARD_TARGETED_SEEK_MESSAGE,
@@ -82,6 +83,7 @@ from seek import (
     create_seek,
     get_seeks,
     is_anon_restricted_seek,
+    is_direct_challenge_target,
     is_targeted_two_board_seek,
     user_reached_seek_limit,
     Seek,
@@ -114,6 +116,20 @@ def get_create_seek_error_message(user: User, data: SeekCreateData) -> str:
     if is_targeted_two_board_seek(data["variant"], chess960, data.get("target", "")):
         return TWO_BOARD_TARGETED_SEEK_MESSAGE
     return "Failed to create seek"
+
+
+async def direct_challenge_block_message(
+    app_state: PychessGlobalAppState, user: User, target: str | None
+) -> str | None:
+    if not is_direct_challenge_target(target):
+        return None
+    challenge_target = target or ""
+    target_profile = await app_state.public_users.get_profile(challenge_target)
+    if target_profile is None:
+        return None
+    if challenge_target in user.blocked or user.username in target_profile.blocked:
+        return DIRECT_CHALLENGE_BLOCKED_MESSAGE
+    return None
 
 
 async def lobby_socket_handler(request: web.Request) -> web.StreamResponse:
@@ -297,6 +313,10 @@ async def handle_create_seek(
 
     log.debug("Creating seek from request: %s", data)
     seek_data: SeekCreateData = data
+    block_message = await direct_challenge_block_message(app_state, user, seek_data.get("target"))
+    if block_message is not None:
+        await ws_send_json(ws, {"type": "error", "message": block_message})
+        return
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data)
     if seek is None:
         await ws_send_json(
@@ -530,6 +550,8 @@ async def handle_accept_seek(
     else:
         response = await join_seek(app_state, user, seek)
         await ws_send_json(ws, response)
+        if response["type"] == "error":
+            return
 
         if seek.creator.bot:
             gameId = response["gameId"]

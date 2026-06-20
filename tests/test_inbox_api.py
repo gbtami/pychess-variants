@@ -70,6 +70,27 @@ class InboxApiTestCase(AioHTTPTestCase):
         payload = await resp.json()
         self.assertEqual("error", payload.get("type"))
 
+    async def test_blocked_conversation_remains_readable_but_not_postable(self):
+        app_state = get_app_state(self.app)
+        alice = User(app_state, username="alice")
+        bob = User(app_state, username="bob")
+        app_state.users[alice.username] = alice
+        app_state.users[bob.username] = bob
+
+        self.set_session_user("alice")
+        resp = await self.client.post("/api/inbox/thread/bob", data={"text": "hello bob"})
+        self.assertEqual(resp.status, 200)
+
+        alice.blocked.add("bob")
+
+        thread_resp = await self.client.get("/api/inbox/thread/bob")
+        self.assertEqual(thread_resp.status, 200)
+        thread_payload = await thread_resp.json()
+        self.assertEqual(1, len(thread_payload["messages"]))
+        self.assertFalse(thread_payload["contact"]["canMessage"])
+        self.assertTrue(thread_payload["contact"]["blockedByMe"])
+        self.assertFalse(thread_payload["contact"]["blockedByThem"])
+
     async def test_delete_conversation_hides_only_for_deleting_user(self):
         app_state = get_app_state(self.app)
         alice = User(app_state, username="alice")

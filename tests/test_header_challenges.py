@@ -18,6 +18,7 @@ from seek import (
     get_seeks,
 )
 from user import User
+from utils import join_seek
 from variants import VARIANTS
 
 test_logger.init_test_logger()
@@ -27,7 +28,7 @@ PERFS = new_default_perf_map(VARIANTS)
 
 class HeaderChallengeTestCase(unittest.IsolatedAsyncioTestCase):
     def make_app_state(self):
-        return SimpleNamespace(
+        app_state = SimpleNamespace(
             users={},
             seeks={},
             invites={},
@@ -35,6 +36,24 @@ class HeaderChallengeTestCase(unittest.IsolatedAsyncioTestCase):
             lobby=SimpleNamespace(lobby_broadcast_seeks=AsyncMock()),
             anon_as_test_users=False,
         )
+        app_state.public_users = SimpleNamespace(get_profile=self.get_profile(app_state))
+        return app_state
+
+    @staticmethod
+    def get_profile(app_state):
+        async def _get_profile(username: str):
+            user = app_state.users.get(username)
+            if user is None:
+                return None
+            return SimpleNamespace(
+                username=user.username,
+                title=user.title,
+                enabled=True,
+                blocked=frozenset(user.blocked),
+                pm_friends_only=user.pm_friends_only,
+            )
+
+        return _get_profile
 
     async def test_direct_challenge_seek_has_expiry_and_is_not_marked_pending(self):
         app_state = self.make_app_state()
@@ -216,6 +235,63 @@ class HeaderChallengeTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(DIRECT_CHALLENGE_CANCELED, first.challenge_status)
         self.assertEqual(DIRECT_CHALLENGE_CREATED, replacement.challenge_status)
         self.assertNotEqual(first.id, replacement.id)
+
+    async def test_create_seek_rejects_direct_challenge_when_users_are_blocked(self):
+        app_state = self.make_app_state()
+        challenger = User(app_state, username="alice", perfs=PERFS)
+        target = User(app_state, username="bob", perfs=PERFS)
+        app_state.users[challenger.username] = challenger
+        app_state.users[target.username] = target
+        challenger.blocked.add(target.username)
+
+        created = await create_seek(
+            app_state.db,
+            app_state.invites,
+            app_state.seeks,
+            challenger,
+            {
+                "variant": "chess",
+                "fen": "",
+                "color": "r",
+                "minutes": 5,
+                "increment": 3,
+                "byoyomiPeriod": 0,
+                "rated": True,
+                "chess960": False,
+                "target": target.username,
+            },
+        )
+
+        self.assertIsNone(created)
+        self.assertEqual({}, app_state.seeks)
+
+    async def test_join_seek_rejects_blocked_users(self):
+        app_state = self.make_app_state()
+        creator = User(app_state, username="alice", perfs=PERFS)
+        joiner = User(app_state, username="bob", perfs=PERFS)
+        app_state.users[creator.username] = creator
+        app_state.users[joiner.username] = joiner
+        creator.blocked.add(joiner.username)
+
+        seek = Seek("seek1", creator, "chess")
+        result = await join_seek(app_state, joiner, seek)
+
+        self.assertEqual(
+            {"type": "error", "message": "You cannot accept this seek."},
+            result,
+        )
+
+    async def test_get_user_challenges_hides_blocked_direct_challenge(self):
+        app_state = self.make_app_state()
+        alice = User(app_state, username="alice", perfs=PERFS)
+        bob = User(app_state, username="bob", perfs=PERFS)
+        app_state.users.update({alice.username: alice, bob.username: bob})
+        bob.blocked.add(alice.username)
+
+        seek = Seek("seek1", alice, "chess", target=bob.username)
+        app_state.seeks[seek.id] = seek
+
+        self.assertEqual([], get_user_challenges(app_state, bob.username))
 
     async def test_terminal_corr_direct_challenges_do_not_count_toward_seek_limit(self):
         app_state = self.make_app_state()

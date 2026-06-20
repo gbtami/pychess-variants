@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict, cast
 
 import asyncio
 
@@ -193,11 +193,26 @@ def cancel_direct_challenge_offline(user) -> None:
 
 def get_user_challenges(app_state: PychessGlobalAppState, username: str) -> list[HeaderChallenge]:
     cleanup_expired_direct_challenges(app_state)
+    users = cast(dict[str, Any], getattr(app_state.users, "data", app_state.users))
+    viewer = users.get(username)
+
+    def visible_to_viewer(seek: Seek) -> bool:
+        if viewer is None:
+            return True
+        opponent = seek.creator.username if seek.target == username else seek.target
+        if opponent in viewer.blocked:
+            return False
+        if seek.creator.username == username:
+            target_user = users.get(seek.target)
+            return not (target_user is not None and username in target_user.blocked)
+        return username not in seek.creator.blocked
+
     challenges = [
         serialize_challenge_for_user(seek, username)
         for seek in reversed(tuple(app_state.seeks.values()))
         if direct_challenge_is_visible_for_user(seek, username)
         and username in challenge_participants(seek)
+        and visible_to_viewer(seek)
     ]
     challenges.sort(
         key=lambda challenge: (
@@ -310,6 +325,8 @@ async def challenge_seek_accept(request: web.Request) -> web.StreamResponse:
         return json_response({"type": "error", "message": "Challenge not available"}, status=403)
 
     result = await join_seek(app_state, user, seek)
+    if result["type"] == "error":
+        return json_response(result, status=403)
     game_ids: dict[str, str] | None = None
     if result["type"] == "new_game" and len(seek.creator.lobby_sockets) == 0:
         game_ids = {seek.creator.username: result["gameId"]}

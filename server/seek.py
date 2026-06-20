@@ -27,6 +27,7 @@ DIRECT_CHALLENGE_DECLINED = "declined"
 DIRECT_CHALLENGE_ACCEPTED = "accepted"
 ACTIVE_DIRECT_CHALLENGE_STATUSES = frozenset({DIRECT_CHALLENGE_CREATED, DIRECT_CHALLENGE_OFFLINE})
 DIRECT_CHALLENGE_SHORT_EXPIRE = timedelta(hours=3)
+DIRECT_CHALLENGE_BLOCKED_MESSAGE = "You cannot challenge this user."
 
 if TYPE_CHECKING:
     from pymongo.asynchronous.database import AsyncDatabase
@@ -483,6 +484,18 @@ async def create_seek(
         return None
 
     target = data.get("target", "")
+    if is_direct_challenge_target(target):
+        target_profile = await user.app_state.public_users.get_profile(target)
+        if target_profile is None:
+            return None
+        if target in user.blocked or user.username in target_profile.blocked:
+            log.info(
+                "Rejecting direct challenge by %s against %s because users are blocked",
+                user.username,
+                target,
+            )
+            return None
+
     reserve_game_id = data.get("reserveGameId", False)
     if is_targeted_two_board_seek(data["variant"], chess960, target):
         log.info(

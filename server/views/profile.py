@@ -72,7 +72,9 @@ async def profile(request: web.Request) -> ViewContext:
         )
         can_message = existing is not None
     context["can_message"] = can_message
-    context["can_challenge"] = user.username not in profile_user.blocked
+    context["can_challenge"] = (profileId not in user.blocked) and (
+        user.username not in profile_user.blocked
+    )
     context["can_export_games"] = (
         (not user.anon)
         and (not profile_user.bot)

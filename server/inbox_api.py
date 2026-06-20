@@ -150,15 +150,16 @@ async def inbox_thread(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "Invalid contact"}, status=400)
 
     me = await app_state.users.get(username)
-    if contact in me.blocked:
-        return json_response({"type": "error", "message": "User is blocked"}, status=403)
-
     profile = await app_state.public_users.get_profile(contact)
     if profile is None or not profile.enabled or profile.username.startswith("Anon-"):
         return json_response({"type": "error", "message": "User not found"}, status=404)
-    if username in profile.blocked:
-        return json_response({"type": "error", "message": "Cannot message this user"}, status=403)
-    can_message = await _can_send_to_contact(app_state, me, contact, profile)
+    blocked_by_me = contact in me.blocked
+    blocked_by_them = username in profile.blocked
+    can_message = (
+        (not blocked_by_me)
+        and (not blocked_by_them)
+        and await _can_send_to_contact(app_state, me, contact, profile)
+    )
 
     tid = _thread_id(username, contact)
     before = request.rel_url.query.get("before")
@@ -207,6 +208,8 @@ async def inbox_thread(request: web.Request) -> web.Response:
                     and app_state.users.data[profile.username].online
                 ),
                 "canMessage": can_message,
+                "blockedByMe": blocked_by_me,
+                "blockedByThem": blocked_by_them,
             },
             "messages": msgs,
             "hasMore": has_more,

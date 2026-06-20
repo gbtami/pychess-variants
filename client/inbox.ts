@@ -36,6 +36,8 @@ interface ThreadResponse {
         title: string;
         online?: boolean;
         canMessage?: boolean;
+        blockedByMe?: boolean;
+        blockedByThem?: boolean;
     };
     messages: Message[];
     hasMore?: boolean;
@@ -101,6 +103,7 @@ export function inboxView(model: PyChessModel) {
     let contactCanMessage = true;
     let blockedUsers = new Set<string>();
     let contactBlocked = false;
+    let contactBlockedByThem = false;
     let messages: Message[] = [];
     let hasMoreMessages = false;
     let loadingMore = false;
@@ -207,6 +210,7 @@ export function inboxView(model: PyChessModel) {
                         contactOnline = false;
                         contactCanMessage = true;
                         contactBlocked = false;
+                        contactBlockedByThem = false;
                         messages = [];
                         hasMoreMessages = false;
                         loadingMore = false;
@@ -229,7 +233,8 @@ export function inboxView(model: PyChessModel) {
                     contactTitle = data.contact.title || '';
                     contactOnline = Boolean(data.contact.online);
                     contactCanMessage = data.contact.canMessage !== false;
-                    contactBlocked = blockedUsers.has(contact);
+                    contactBlocked = Boolean(data.contact.blockedByMe);
+                    contactBlockedByThem = Boolean(data.contact.blockedByThem);
                     messages = data.messages || [];
                     history.replaceState({ contact }, '', `/inbox/${encodeURIComponent(contact)}`);
                     loadThreads(false);
@@ -319,6 +324,8 @@ export function inboxView(model: PyChessModel) {
                     return;
                 }
                 contactBlocked = nextBlocked;
+                if (nextBlocked) contactCanMessage = false;
+                else if (!contactBlockedByThem) contactCanMessage = true;
                 if (nextBlocked) blockedUsers.add(contact);
                 else blockedUsers.delete(contact);
                 redraw();
@@ -442,6 +449,7 @@ export function inboxView(model: PyChessModel) {
         const thread = selectedThread();
         const hasContact = Boolean(thread || contact);
         const challengeHref = hasContact ? `/@/${encodeURIComponent(contact)}/challenge` : '#';
+        const challengeBlocked = contactBlocked || contactBlockedByThem;
         const reportHref = hasContact
             ? `/report?source=inbox&username=${encodeURIComponent(contact)}&reason=harassment&thread=${encodeURIComponent(reportThreadId(model.username, contact))}`
             : '#';
@@ -490,9 +498,9 @@ export function inboxView(model: PyChessModel) {
                         ])
                         : h('h2', _('Select a conversation')),
                     h('div.inbox-convo-actions', hasContact ? [
-                        h('a.inbox-action.icon.icon-crossedswords', {
+                        ...(challengeBlocked ? [] : [h('a.inbox-action.icon.icon-crossedswords', {
                             attrs: { href: challengeHref, title: _('Challenge') },
-                        }),
+                        })]),
                         h('button.inbox-action.icon.icon-ban', {
                             props: { type: 'button' },
                             attrs: { title: contactBlocked ? _('Unblock') : _('Block') },
@@ -535,7 +543,9 @@ export function inboxView(model: PyChessModel) {
                             // still lock composing if the recipient only accepts friend PMs.
                             placeholder: !contact
                                 ? _('Select a conversation first')
-                                : contactCanMessage
+                                : contactBlocked || contactBlockedByThem
+                                    ? _('This conversation is blocked')
+                                    : contactCanMessage
                                     ? _('Write a message...')
                                     : _('This user only accepts messages from friends'),
                             rows: 1,

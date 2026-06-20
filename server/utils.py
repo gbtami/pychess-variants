@@ -512,6 +512,9 @@ async def join_seek(
     if is_targeted_two_board_seek(seek.variant, seek.chess960, seek.target):
         return {"type": "error", "message": TWO_BOARD_TARGETED_SEEK_MESSAGE}
 
+    if seek.creator.username in user.blocked or user.username in seek.creator.blocked:
+        return {"type": "error", "message": "You cannot accept this seek."}
+
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
         seek.id,
