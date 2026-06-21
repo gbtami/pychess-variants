@@ -3,7 +3,8 @@ import { h, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import { read as fenRead } from 'chessgroundx/fen';
 
-import { patch } from './document';
+import { boardSettings } from './boardSettings';
+import { pieceStyleClass, patch } from './document';
 import { Variant } from './variants';
 
 export type MaterialDiff = Map<cg.Role, number>;
@@ -198,8 +199,9 @@ function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNod
 }
 
 function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
+    const pieceStyle = pieceStyleClass(variant.pieceFamily, boardSettings.pieceCSS(variant.pieceFamily, variant));
     const jieqiClass = variant.name === 'jieqi' ? '.jieqi-captures' : '';
-    return h(`div.material.material-${position}.${variant.pieceFamily}${jieqiClass}${disabled ? '.disabled' : ''}`, content);
+    return h(`div.material.material-${position}.${variant.pieceFamily}.${pieceStyle}${jieqiClass}${disabled ? '.disabled' : ''}`, content);
 }
 
 export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean, color: cg.Color, jieqiCaptures: JieqiCapture[] = []): [VNode, VNode] {
