@@ -641,16 +641,9 @@ class Game:
                 if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
                     await self.save_crosstable()
 
-            if self.tournamentId is not None:
-                try:
-                    # In case of server restart we have to wait for loading ongoing tournaments
-                    await self.app_state.tournaments_loaded.wait()
-                    await self.app_state.tournaments[self.tournamentId].game_update(self)
-                except Exception:
-                    log.exception("Exception in tournament game_update()")
-
             new_data = {
                 "f": self.board.fen,
+                "p": self.board.ply,
                 "s": self.status,
                 "r": R2C[self.result],
                 "m": [
@@ -681,6 +674,9 @@ class Game:
             if self.tournamentId is not None:
                 new_data["wb"] = self.wberserk
                 new_data["bb"] = self.bberserk
+                round_no = getattr(self, "round", None)
+                if round_no is not None:
+                    new_data["rn"] = round_no
 
             if self.manual_count:
                 if self.board.count_started > 0:
@@ -691,6 +687,14 @@ class Game:
                 await self.app_state.db.game.find_one_and_update(
                     {"_id": self.id}, {"$set": new_data}
                 )
+
+            if self.tournamentId is not None:
+                try:
+                    # In case of server restart we have to wait for loading ongoing tournaments
+                    await self.app_state.tournaments_loaded.wait()
+                    await self.app_state.tournaments[self.tournamentId].game_update(self)
+                except Exception:
+                    log.exception("Exception in tournament game_update()")
 
     async def update_players_game_counts(self) -> None:
         if self.result not in ("1-0", "0-1", "1/2-1/2"):

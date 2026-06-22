@@ -805,6 +805,154 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(arrangement_doc.get("gid"), game.id)
         self.assertEqual(arrangement_doc.get("s"), "finished")
 
+    async def test_save_game_persists_final_tournament_state_before_game_update(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+
+        seen_doc = {}
+
+        async def inspect_saved_doc(saved_game):
+            doc = await app_state.db.game.find_one({"_id": saved_game.id})
+            seen_doc["status"] = doc["s"]
+            seen_doc["result"] = doc["r"]
+            seen_doc["ply"] = doc["p"]
+
+        self.tournament.game_update = inspect_saved_doc
+
+        await game.save_game()
+
+        self.assertEqual(seen_doc, {"status": FLAG, "result": "a", "ply": 20})
+
+    async def test_load_tournament_recovers_scores_from_finished_game_doc(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        player_a = User(
+            app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=make_test_perfs()
+        )
+        player_b = User(
+            app_state, username=f"{TEST_PREFIX}B", title="TEST", perfs=make_test_perfs()
+        )
+        app_state.users[player_a.username] = player_a
+        app_state.users[player_b.username] = player_b
+        player_a.tournament_sockets[tid] = set((None,))
+        player_b.tournament_sockets[tid] = set((None,))
+
+        await self.tournament.join(player_a)
+        await self.tournament.join(player_b)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+
+        async def skip_update(_game):
+            return
+
+        self.tournament.game_update = skip_update
+        await game.save_game()
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        winner = reloaded_tournament.player_data_by_name(game.wplayer.username)
+        loser = reloaded_tournament.player_data_by_name(game.bplayer.username)
+        self.assertEqual(winner.points, [(2, 1)])
+        self.assertEqual(loser.points, [(0, 1)])
+
+        updated_pairing = await reloaded_tournament.app_state.db.tournament_pairing.find_one(
+            {"_id": game.id}
+        )
+        self.assertEqual(updated_pairing["r"], "a")
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_load_tournament_recovers_partial_player_persistence_without_double_scoring(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        player_a = User(
+            app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=make_test_perfs()
+        )
+        player_b = User(
+            app_state, username=f"{TEST_PREFIX}B", title="TEST", perfs=make_test_perfs()
+        )
+        app_state.users[player_a.username] = player_a
+        app_state.users[player_b.username] = player_b
+        player_a.tournament_sockets[tid] = set((None,))
+        player_b.tournament_sockets[tid] = set((None,))
+
+        await self.tournament.join(player_a)
+        await self.tournament.join(player_b)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+
+        async def persist_white_only(saved_game):
+            white_data = self.tournament.player_data_by_name(saved_game.wplayer.username)
+            assert white_data is not None
+            self.tournament._apply_game_result_to_player(saved_game, white_data, is_white=True)
+            await self.tournament.db_update_player(saved_game.wplayer, "GAME_END")
+            raise RuntimeError("simulated mid-game_update crash")
+
+        self.tournament.game_update = persist_white_only
+        await game.save_game()
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        winner = reloaded_tournament.player_data_by_name(game.wplayer.username)
+        loser = reloaded_tournament.player_data_by_name(game.bplayer.username)
+        self.assertEqual(winner.points, [(2, 1)])
+        self.assertEqual(loser.points, [(0, 1)])
+
+        updated_pairing = await reloaded_tournament.app_state.db.tournament_pairing.find_one(
+            {"_id": game.id}
+        )
+        self.assertEqual(updated_pairing["r"], "a")
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
     async def test_load_tournament_recovers_committed_swiss_round_with_stale_round_doc(self):
         app_state = get_app_state(self.app)
         tid = id8()
@@ -861,7 +1009,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
 
-        await self.tournament.join_players(2)
+        await self.tournament.join_players(4)
         await self.tournament.start(datetime.now(timezone.utc))
         self.tournament.current_round = 1
         await self.tournament.set_pairing_in_progress_round(1)
@@ -892,6 +1040,46 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         self.assertEqual(reloaded_doc.get("cr"), 0)
         self.assertNotIn("pairingInProgressRound", reloaded_doc)
         self.assertIsNone(await reloaded_tournament.app_state.db.game.find_one({"tid": tid}))
+
+        if reloaded_tournament.clock_task is not None:
+            reloaded_tournament.clock_task.cancel()
+            try:
+                await reloaded_tournament.clock_task
+            except asyncio.CancelledError:
+                pass
+
+    async def test_load_tournament_recovers_complete_swiss_round_from_game_docs_without_pairings(
+        self,
+    ):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = SwissTestTournament(
+            app_state, tid, before_start=10, rounds=2, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        await self.tournament.join_players(2)
+        await self.tournament.start(datetime.now(timezone.utc))
+        self.tournament.current_round = 1
+        await self.tournament.set_pairing_in_progress_round(1)
+
+        players = list(self.tournament.players.keys())
+        await self.tournament.create_games([(players[0], players[1])])
+
+        self.assertIsNotNone(await app_state.db.game.find_one({"tid": tid}))
+        self.assertIsNone(await app_state.db.tournament_pairing.find_one({"tid": tid, "rn": 1}))
+
+        _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
+        self.assertIsNotNone(reloaded_tournament)
+        assert reloaded_tournament is not None
+        self.assertEqual(reloaded_tournament.current_round, 1)
+        self.assertEqual(len(reloaded_tournament.ongoing_games), 1)
+
+        repaired_pairing = await reloaded_tournament.app_state.db.tournament_pairing.find_one(
+            {"tid": tid, "rn": 1}
+        )
+        self.assertIsNotNone(repaired_pairing)
 
         if reloaded_tournament.clock_task is not None:
             reloaded_tournament.clock_task.cancel()

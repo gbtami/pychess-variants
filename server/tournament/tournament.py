@@ -1891,6 +1891,15 @@ class Tournament(ABC):
         if game.status == ABORTED:
             return
 
+        white_applied = self._player_game_result_applied(game, game.wplayer.username)
+        black_applied = self._player_game_result_applied(game, game.bplayer.username)
+        if white_applied and black_applied:
+            await self.db_update_pairing(game)
+            return
+        if white_applied or black_applied:
+            await self.recover_game_update(game)
+            return
+
         if game.wberserk:
             wplayer.nb_berserk += 1
             self.nb_berserk += 1
@@ -1988,6 +1997,159 @@ class Tournament(ABC):
                 "gameId": game.id,
             }
             await self.broadcast(response)
+
+    def _player_game_index(self, player_data: PlayerData, game_id: str) -> int | None:
+        for index, player_game in enumerate(player_data.games):
+            if getattr(player_game, "id", None) == game_id:
+                return index
+        return None
+
+    def _player_game_result_applied(self, game: Game | GameData, username: str) -> bool:
+        player_data = self.player_data_by_name(username)
+        if player_data is None:
+            return False
+        game_index = self._player_game_index(player_data, game.id)
+        return game_index is not None and game_index < len(player_data.points)
+
+    def game_needs_score_recovery(self, game: Game | GameData) -> bool:
+        return not (
+            self._player_game_result_applied(game, game.wplayer.username)
+            and self._player_game_result_applied(game, game.bplayer.username)
+        )
+
+    def _game_ply(self, game: Game | GameData) -> int:
+        ply = getattr(game, "ply", None)
+        if isinstance(ply, int):
+            return ply
+        board = getattr(game, "board", None)
+        board_ply = getattr(board, "ply", None)
+        return board_ply if isinstance(board_ply, int) else 0
+
+    def _apply_game_result_to_player(
+        self,
+        game: Game | GameData,
+        player_data: PlayerData,
+        *,
+        is_white: bool,
+    ) -> None:
+        own_rating = game.wrating if is_white else game.brating
+        opponent_rating = game.brating if is_white else game.wrating
+        rating_diff = getattr(game, "wrdiff" if is_white else "brdiff", 0) or 0
+        berserk = game.wberserk if is_white else game.bberserk
+        ply = self._game_ply(game)
+
+        point: Point = (0, SCORE)
+        perf = int(opponent_rating.rstrip("?"))
+        won = (game.result == "1-0" and is_white) or (game.result == "0-1" and not is_white)
+        lost = (game.result == "0-1" and is_white) or (game.result == "1-0" and not is_white)
+
+        if self.variant == "janggi":
+            if game.status == VARIANTEND:
+                player_data.win_streak = 0
+                if game.result == "1-0":
+                    point = (4, SCORE) if is_white else (2, SCORE)
+                elif game.result == "0-1":
+                    point = (2, SCORE) if is_white else (4, SCORE)
+            elif won:
+                player_data.nb_win += 1
+                if self.system == ARENA:
+                    if player_data.win_streak == 2:
+                        point = (14, DOUBLE)
+                    else:
+                        player_data.win_streak += 1
+                        point = (7, STREAK if player_data.win_streak == 2 else SCORE)
+                    if berserk and ply >= (13 if is_white else 14):
+                        point = (point[0] + 3, point[1])
+                else:
+                    point = (7, SCORE)
+                perf += 500
+            elif lost:
+                if self.system == ARENA:
+                    player_data.win_streak = 0
+                perf -= 500
+            elif game.result == "1/2-1/2":
+                player_data.win_streak = 0
+        else:
+            if game.result == "1/2-1/2":
+                if self.system == ARENA:
+                    if ply > 10:
+                        point = (2, SCORE) if player_data.win_streak == 2 else (1, SCORE)
+                    player_data.win_streak = 0
+                else:
+                    point = (1, SCORE)
+            elif won:
+                player_data.nb_win += 1
+                if self.system == ARENA:
+                    if player_data.win_streak == 2:
+                        point = (4, DOUBLE)
+                    else:
+                        player_data.win_streak += 1
+                        point = (2, STREAK if player_data.win_streak == 2 else SCORE)
+                else:
+                    point = (2, SCORE)
+                if berserk and ply >= (13 if is_white else 14):
+                    point = (point[0] + 1, point[1])
+                perf += 500
+            elif lost:
+                if self.system == ARENA:
+                    player_data.win_streak = 0
+                perf -= 500
+
+        if berserk:
+            player_data.nb_berserk += 1
+
+        player_data.points.append(point)
+        if point[1] == STREAK and len(player_data.points) >= 2:
+            player_data.points[-2] = (player_data.points[-2][0], STREAK)
+
+        player_data.rating = int(own_rating.rstrip("?")) + int(rating_diff)
+        nb = len(player_data.points)
+        player_data.performance = int(round((player_data.performance * (nb - 1) + perf) / nb, 0))
+
+        point_value = point[0] if isinstance(point[0], int) else 0
+        current_score = self.leaderboard_score_by_username(player_data.username) // SCORE_SHIFT
+        self.set_leaderboard_score_by_username(
+            player_data.username,
+            self.compose_leaderboard_score(current_score + point_value, player_data),
+            player=self.get_player_by_name(player_data.username),
+        )
+
+    async def recover_game_update(self, game: Game | GameData) -> None:
+        if self.status in (T_FINISHED, T_ABORTED) or game.status == ABORTED:
+            return
+
+        player_data = self.game_player_data(game)
+        if player_data is None:
+            return
+        wplayer, bplayer = player_data
+
+        white_applied = self._player_game_result_applied(game, game.wplayer.username)
+        black_applied = self._player_game_result_applied(game, game.bplayer.username)
+        if white_applied and black_applied:
+            await self.db_update_pairing(game)
+            return
+
+        touched_users: list[str] = []
+        if not white_applied:
+            self._apply_game_result_to_player(game, wplayer, is_white=True)
+            touched_users.append(game.wplayer.username)
+        if not black_applied:
+            self._apply_game_result_to_player(game, bplayer, is_white=False)
+            touched_users.append(game.bplayer.username)
+
+        if self.system == SWISS:
+            self.recalculate_berger_tiebreak()
+
+        for username in touched_users:
+            await self.db_update_player(username, "GAME_END")
+        await self.db_update_pairing(game)
+
+        if touched_users:
+            log.warning(
+                "Recovered partially persisted tournament result for game %s in %s",
+                game.id,
+                self.id,
+            )
 
     async def delayed_free(self, game: Game) -> None:
         if self.system == ARENA:

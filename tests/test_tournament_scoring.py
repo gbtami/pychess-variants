@@ -225,3 +225,43 @@ class TournamentScoringTestCase(TournamentTestCase):
                 await reloaded_tournament.clock_task
             except asyncio.CancelledError:
                 pass
+
+    async def test_game_update_is_idempotent_for_finished_arena_game(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        player_a = User(
+            app_state, username=f"{TEST_PREFIX}A", title="TEST", perfs=make_test_perfs()
+        )
+        player_b = User(
+            app_state, username=f"{TEST_PREFIX}B", title="TEST", perfs=make_test_perfs()
+        )
+        app_state.users[player_a.username] = player_a
+        app_state.users[player_b.username] = player_b
+        player_a.tournament_sockets[tid] = set((None,))
+        player_b.tournament_sockets[tid] = set((None,))
+
+        await self.tournament.join(player_a)
+        await self.tournament.join(player_b)
+        await self.tournament.start(datetime.now(timezone.utc))
+
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+
+        await self.tournament.game_update(game)
+        await self.tournament.game_update(game)
+
+        winner = self.tournament.player_data_by_name(game.wplayer.username)
+        loser = self.tournament.player_data_by_name(game.bplayer.username)
+        self.assertEqual(winner.points, [(2, 1)])
+        self.assertEqual(loser.points, [(0, 1)])
+        self.assertEqual(self.tournament.nb_games_finished, 1)

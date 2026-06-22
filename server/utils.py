@@ -686,6 +686,7 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         "m": [],
         "d": game.date,
         "f": game.board.initial_fen,
+        "p": game.board.ply,
         "s": game.status,
         "r": R2C["*"],
         "x": game.level,
@@ -696,6 +697,9 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
 
     if game.tournamentId is not None:
         document["tid"] = game.tournamentId
+        round_no = getattr(game, "round", None)
+        if round_no is not None:
+            document["rn"] = round_no
     if game.tournamentArrangementId is not None:
         document["aid"] = game.tournamentArrangementId
     if game.simulId is not None:

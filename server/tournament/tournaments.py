@@ -221,6 +221,74 @@ def _infer_swiss_point_from_game(
     return (2 if won else 0, 1)
 
 
+def _pairing_round_from_game_doc(
+    tournament: Tournament,
+    game_doc: Mapping[str, Any],
+) -> int | None:
+    round_no = game_doc.get("rn")
+    if isinstance(round_no, int):
+        return round_no
+    if tournament.system == ARENA:
+        return None
+    if tournament.pairing_in_progress_round is not None:
+        return tournament.pairing_in_progress_round
+    if tournament.current_round > 0:
+        return tournament.current_round
+    return 1
+
+
+async def _repair_missing_pairing_docs_from_games(tournament: Tournament) -> None:
+    game_table = tournament.app_state.db.game
+    pairing_table = tournament.app_state.db.tournament_pairing
+
+    pairing_ids = {
+        doc["_id"]
+        async for doc in pairing_table.find({"tid": tournament.id}, projection={"_id": 1})
+    }
+    repaired_ids: list[str] = []
+
+    async for game_doc in game_table.find({"tid": tournament.id}):
+        game_id = game_doc["_id"]
+        if game_id in pairing_ids:
+            continue
+
+        usernames = game_doc.get("us", [])
+        if len(usernames) != 2:
+            continue
+
+        result_code = game_doc.get("r", R2C["*"])
+        result = C2R.get(result_code)
+        if result is None:
+            continue
+
+        white_rating_doc = game_doc.get("p0", {})
+        black_rating_doc = game_doc.get("p1", {})
+        pairing_game = GameData(
+            game_id,
+            usernames[0],
+            str(white_rating_doc.get("e", "1500?")),
+            usernames[1],
+            str(black_rating_doc.get("e", "1500?")),
+            result,
+            game_doc["d"],
+            bool(game_doc.get("wb", False)),
+            bool(game_doc.get("bb", False)),
+            status=game_doc["s"],
+            ply=game_doc.get("p"),
+            round_no=_pairing_round_from_game_doc(tournament, game_doc),
+        )
+        await tournament.db_update_pairing(pairing_game)
+        repaired_ids.append(game_id)
+
+    if repaired_ids:
+        log.warning(
+            "Recovered %s missing tournament pairing docs from db.game in %s: %s",
+            len(repaired_ids),
+            tournament.id,
+            repaired_ids,
+        )
+
+
 async def _repair_swiss_state_from_history(tournament: Tournament) -> None:
     repaired_users: list[str] = []
 
@@ -1168,6 +1236,8 @@ async def load_tournament(
 
     # tournament.print_leaderboard()
 
+    await _repair_missing_pairing_docs_from_games(tournament)
+
     pairing_table = app_state.db.tournament_pairing
     cursor = pairing_table.find({"tid": tournament_id})
     try:
@@ -1178,6 +1248,7 @@ async def load_tournament(
         )  # todo: logic here shouldn't depend on unit tests
 
     w_win, b_win, draw, berserk = 0, 0, 0, 0
+    finished_pairings: list[Game | GameData] = []
     async for doc in cursor:
         pairing_doc: TournamentPairingDoc = doc
         pair_status = pairing_doc.get("s")
@@ -1264,6 +1335,7 @@ async def load_tournament(
                 )
                 tournament.nb_games_finished += 1
                 await tournament.db_update_pairing(game)
+                finished_pairings.append(game)
             else:
                 tournament.ongoing_games.add(game)
                 tournament.update_game_ranks(game)
@@ -1287,6 +1359,7 @@ async def load_tournament(
                 round_no=pair_round,
             )
             tournament.nb_games_finished += 1
+            finished_pairings.append(game)
 
         if res == "a":
             w_win += 1
@@ -1306,6 +1379,20 @@ async def load_tournament(
     tournament.b_win = b_win
     tournament.draw = draw
     tournament.nb_berserk = berserk
+
+    recovered_score_ids: list[str] = []
+    for pairing_game in finished_pairings:
+        if not tournament.game_needs_score_recovery(pairing_game):
+            continue
+        await tournament.recover_game_update(pairing_game)
+        recovered_score_ids.append(pairing_game.id)
+
+    if recovered_score_ids:
+        log.warning(
+            "Recovered tournament player scoring from finished game history in %s: %s",
+            tournament.id,
+            recovered_score_ids,
+        )
 
     for player_data in tournament.players.values():
         _align_player_games_with_points(player_data)
