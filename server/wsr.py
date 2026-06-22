@@ -300,6 +300,7 @@ async def finally_logic(
             task.add_done_callback(lambda task: user.abandon_task_done(task, game.id))
         else:
             game.spectators.discard(user)
+            user.watched_games.discard(game.id)
             await round_broadcast(game, game.spectator_list, full=True)
 
         # not connected to any other game socket after we closed this one. maybe we havae a change of online users count
@@ -998,6 +999,7 @@ async def handle_game_user_connected(
 
     if not game.is_player(user):
         game.spectators.add(user)
+        user.watched_games.add(game.id)
         await round_broadcast(game, game.spectator_list, full=True)
 
     stopwatch_secs = 0
