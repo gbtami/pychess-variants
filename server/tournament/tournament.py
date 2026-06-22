@@ -1878,76 +1878,77 @@ class Tournament(ABC):
 
     async def game_update(self, game: GameType) -> None:
         """Called from Game.update_status()"""
-        if self.status in (T_FINISHED, T_ABORTED):
-            return
         if TYPE_CHECKING:
             assert isinstance(game, Game)
+        await self._apply_finished_game_update(game, warn_on_recovery=False)
 
+    async def _apply_finished_game_update(
+        self,
+        game: Game | GameData,
+        *,
+        warn_on_recovery: bool,
+    ) -> None:
+        """Persist and finalize a finished tournament game idempotently.
+
+        The game result may already be present for zero, one, or both players when this
+        method runs. That can happen after a restart, after a partial MongoDB write, or
+        if the same game end is processed again. We therefore apply only the missing
+        per-player score rows, but still run the live-game finalization tail once when
+        the game is still present in ``ongoing_games``.
+        """
+        if self.status in (T_FINISHED, T_ABORTED) or game.status == ABORTED:
+            return
+
+        touched_users = self._apply_missing_game_result(game)
+        if touched_users is None:
+            return
+
+        if self.system == SWISS and touched_users:
+            self.recalculate_berger_tiebreak()
+
+        for username in touched_users:
+            await self.db_update_player(username, "GAME_END")
+        await self.db_update_pairing(game)
+
+        if warn_on_recovery and touched_users:
+            log.warning(
+                "Recovered partially persisted tournament result for game %s in %s",
+                game.id,
+                self.id,
+            )
+
+        await self._finalize_finished_game_once(game)
+
+    def _apply_missing_game_result(self, game: Game | GameData) -> list[str] | None:
         player_data = self.game_player_data(game)
         if player_data is None:
-            return
+            return None
         wplayer, bplayer = player_data
 
-        if game.status == ABORTED:
-            return
-
+        touched_users: list[str] = []
         white_applied = self._player_game_result_applied(game, game.wplayer.username)
         black_applied = self._player_game_result_applied(game, game.bplayer.username)
-        if white_applied and black_applied:
-            await self.db_update_pairing(game)
+
+        if not white_applied:
+            self._apply_game_result_to_player(game, wplayer, is_white=True)
+            touched_users.append(game.wplayer.username)
+        if not black_applied:
+            self._apply_game_result_to_player(game, bplayer, is_white=False)
+            touched_users.append(game.bplayer.username)
+
+        return touched_users
+
+    def _take_ongoing_game(self, game: Game | GameData) -> Game | None:
+        for ongoing_game in tuple(self.ongoing_games):
+            if ongoing_game.id == game.id:
+                self.ongoing_games.discard(ongoing_game)
+                return ongoing_game
+        return None
+
+    async def _finalize_finished_game_once(self, game: Game | GameData) -> None:
+        live_game = self._take_ongoing_game(game)
+        if live_game is None:
             return
-        if white_applied or black_applied:
-            await self.recover_game_update(game)
-            return
-
-        if game.wberserk:
-            wplayer.nb_berserk += 1
-            self.nb_berserk += 1
-
-        if game.bberserk:
-            bplayer.nb_berserk += 1
-            self.nb_berserk += 1
-
-        if game.variant == "janggi":
-            wpoint, bpoint, wperf, bperf = self.points_perfs_janggi(game)
-        else:
-            wpoint, bpoint, wperf, bperf = self.points_perfs(game)
-
-        wplayer.points.append(wpoint)
-        bplayer.points.append(bpoint)
-        if wpoint[1] == STREAK and len(wplayer.points) >= 2:
-            wplayer.points[-2] = (wplayer.points[-2][0], STREAK)
-        if bpoint[1] == STREAK and len(bplayer.points) >= 2:
-            bplayer.points[-2] = (bplayer.points[-2][0], STREAK)
-
-        wplayer.rating = int(game.wrating.rstrip("?")) + (int(game.wrdiff) if game.wrdiff else 0)
-        bplayer.rating = int(game.brating.rstrip("?")) + (int(game.brdiff) if game.brdiff else 0)
-
-        nb = len(wplayer.points)
-        wplayer.performance = int(round((wplayer.performance * (nb - 1) + wperf) / nb, 0))
-
-        nb = len(bplayer.points)
-        bplayer.performance = int(round((bplayer.performance * (nb - 1) + bperf) / nb, 0))
-
-        wpoint_value = wpoint[0] if isinstance(wpoint[0], int) else 0
-        bpoint_value = bpoint[0] if isinstance(bpoint[0], int) else 0
-
-        wpscore = self.leaderboard_score_by_username(game.wplayer.username) // SCORE_SHIFT
-        self.set_leaderboard_score_by_username(
-            game.wplayer.username,
-            self.compose_leaderboard_score(wpscore + wpoint_value, wplayer),
-            player=game.wplayer,
-        )
-
-        bpscore = self.leaderboard_score_by_username(game.bplayer.username) // SCORE_SHIFT
-        self.set_leaderboard_score_by_username(
-            game.bplayer.username,
-            self.compose_leaderboard_score(bpscore + bpoint_value, bplayer),
-            player=game.bplayer,
-        )
-
-        if self.system == SWISS:
-            self.recalculate_berger_tiebreak()
 
         self.nb_games_finished += 1
 
@@ -1958,7 +1959,11 @@ class Tournament(ABC):
         elif game.result == "1/2-1/2":
             self.draw += 1
 
-        self.ongoing_games.discard(game)
+        if game.wberserk:
+            self.nb_berserk += 1
+        if game.bberserk:
+            self.nb_berserk += 1
+
         now = datetime.now(timezone.utc)
         if (
             self.system != ARENA
@@ -1971,14 +1976,9 @@ class Tournament(ABC):
                 seconds=self.effective_round_interval_seconds()
             )
 
-        # save player points to db
-        await self.db_update_player(game.wplayer, "GAME_END")
-        await self.db_update_player(game.bplayer, "GAME_END")
-        await self.db_update_pairing(game)
-
         await self.broadcast(self.duels_json)
 
-        self.app_state.create_background_task(self.delayed_free(game), name="t-delayed-free")
+        self.app_state.create_background_task(self.delayed_free(live_game), name="t-delayed-free")
 
         await self.broadcast(
             {
@@ -2115,41 +2115,7 @@ class Tournament(ABC):
         )
 
     async def recover_game_update(self, game: Game | GameData) -> None:
-        if self.status in (T_FINISHED, T_ABORTED) or game.status == ABORTED:
-            return
-
-        player_data = self.game_player_data(game)
-        if player_data is None:
-            return
-        wplayer, bplayer = player_data
-
-        white_applied = self._player_game_result_applied(game, game.wplayer.username)
-        black_applied = self._player_game_result_applied(game, game.bplayer.username)
-        if white_applied and black_applied:
-            await self.db_update_pairing(game)
-            return
-
-        touched_users: list[str] = []
-        if not white_applied:
-            self._apply_game_result_to_player(game, wplayer, is_white=True)
-            touched_users.append(game.wplayer.username)
-        if not black_applied:
-            self._apply_game_result_to_player(game, bplayer, is_white=False)
-            touched_users.append(game.bplayer.username)
-
-        if self.system == SWISS:
-            self.recalculate_berger_tiebreak()
-
-        for username in touched_users:
-            await self.db_update_player(username, "GAME_END")
-        await self.db_update_pairing(game)
-
-        if touched_users:
-            log.warning(
-                "Recovered partially persisted tournament result for game %s in %s",
-                game.id,
-                self.id,
-            )
+        await self._apply_finished_game_update(game, warn_on_recovery=True)
 
     async def delayed_free(self, game: Game) -> None:
         if self.system == ARENA:
