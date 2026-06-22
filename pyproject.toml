@@ -42,7 +42,7 @@ dev = [
     "pytest<10.0.0",
     "pytest-aiohttp==1.1.1",
     "pyright==1.1.410",
-    "ruff==0.15.17",
+    "ruff==0.15.18",
     "tqdm>=4.67.3",
 ]
 
