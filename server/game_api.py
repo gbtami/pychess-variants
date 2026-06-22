@@ -458,15 +458,6 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
             cursor.sort("d", -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
         doc: GameDoc
         async for doc in cursor:
-            # filter out private games
-            if (
-                "p" in doc
-                and doc["p"] == 1
-                and session_user != doc["us"][0]
-                and session_user != doc["us"][1]
-            ):
-                continue
-
             try:
                 variant = C2V[doc["v"]]
                 doc["v"] = variant

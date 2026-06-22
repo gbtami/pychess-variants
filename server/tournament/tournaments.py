@@ -274,7 +274,7 @@ async def _repair_missing_pairing_docs_from_games(tournament: Tournament) -> Non
             bool(game_doc.get("wb", False)),
             bool(game_doc.get("bb", False)),
             status=game_doc["s"],
-            ply=game_doc.get("p"),
+            ply=game_doc.get("p", len(game_doc.get("m", []))),
             round_no=_pairing_round_from_game_doc(tournament, game_doc),
         )
         await tournament.db_update_pairing(pairing_game)
