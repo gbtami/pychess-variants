@@ -255,15 +255,14 @@ class PychessGlobalAppState:
 
                 if "tournament_chat" not in db_collections:
                     await self.db.create_collection("tournament_chat")
-                    await self.db.tournament_chat.create_index("tid")
+                await self.db.tournament_chat.create_index("tid")
 
                 if "simul_chat" not in db_collections:
                     await self.db.create_collection("simul_chat")
-                    await self.db.simul_chat.create_index("sid")
+                await self.db.simul_chat.create_index("sid")
 
                 await self.db.tournament.create_index("startsAt")
                 await self.db.tournament.create_index("status")
-                await self.db.tournament_chat.create_index("tid")
                 await self.db.tournament_player.create_index("tid")
                 await self.db.tournament_pairing.create_index("tid")
 
@@ -345,18 +344,13 @@ class PychessGlobalAppState:
                 await self.db.game.create_index("by")
                 await self.db.game.create_index("c")
                 await self.db.game.create_index("tid")
-                # NOTE:
-                # Building these compound indexes on a large production collection can take
-                # long enough to delay dyno boot. Keep disabled by default and build via
-                # one-off admin/migration job, then keep this gate available for controlled runs.
-                if os.getenv("BOOTSTRAP_GAME_PROFILE_COMPOUND_INDEXES", "0") == "1":
-                    await self.db.game.create_index([("us", 1), ("d", -1)], name="us_d_desc")
-                    await self.db.game.create_index([("us.0", 1), ("d", -1)], name="us0_d_desc")
-                    await self.db.game.create_index([("us.1", 1), ("d", -1)], name="us1_d_desc")
-                    await self.db.game.create_index(
-                        [("us.0", 1), ("us.1", 1), ("d", -1)],
-                        name="us0_us1_d_desc",
-                    )
+                await self.db.game.create_index([("us", 1), ("d", -1)], name="us_d_desc")
+                await self.db.game.create_index([("us.0", 1), ("d", -1)], name="us0_d_desc")
+                await self.db.game.create_index([("us.1", 1), ("d", -1)], name="us1_d_desc")
+                await self.db.game.create_index(
+                    [("us.0", 1), ("us.1", 1), ("d", -1)],
+                    name="us0_us1_d_desc",
+                )
 
                 if "notify" not in db_collections:
                     await self.db.create_collection("notify")
