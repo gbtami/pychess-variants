@@ -31,9 +31,9 @@ async def round_broadcast(
     # spectators/channels while we're broadcasting.
     spectators = tuple(game.spectators)
     players = tuple(game.non_bot_players) if full else ()
-    has_channels = channels is not None
+    ch = tuple(channels) if channels is not None else ()
 
-    if not spectators and not players and not has_channels:
+    if not spectators and not players and not ch:
         return
 
     # Encode the response ONCE and fan it out as a raw string. Previously each
@@ -41,14 +41,19 @@ async def round_broadcast(
     # its own independent msgspec encode of the identical payload, which is
     # pure wasted CPU on the single-threaded event loop. One encode here turns
     # an O(spectators) cost into O(1).
-    payload = json_dumps(response)
+    # Guard against bad payloads: preserve the non-raising behaviour that
+    # ws_send_json_many() had (it catches serialization errors internally).
+    try:
+        payload = json_dumps(response)
+    except Exception:
+        log.exception(
+            "round_broadcast: failed to serialize response for game %s: %r", game.id, response
+        )
+        return
 
     for spectator in spectators:
         await spectator.send_game_message_str(game.id, payload)
     for player in players:
         await player.send_game_message_str(game.id, payload)
-    # Put response data to sse subscribers queue
-    if has_channels:
-        assert channels is not None
-        for queue in tuple(channels):
-            await queue.put(payload)
+    for queue in ch:
+        await queue.put(payload)
