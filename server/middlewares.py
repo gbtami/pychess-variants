@@ -17,8 +17,15 @@ from settings import URI
 from users import NotInDbUsers
 from views import page404
 
-# Parsed once at import time — used by redirect_to_canonical_host middleware.
-_CANONICAL_HOST: str = urlparse(URI).netloc
+# Only redirect to canonical host in production (non-localhost deployments).
+# In local dev / tests the server binds to 127.0.0.1 on a random port, so
+# _CANONICAL_HOST would differ from request.host purely by port number.
+_canonical_netloc = urlparse(URI).netloc
+_CANONICAL_HOST: str = (
+    _canonical_netloc
+    if _canonical_netloc and not _canonical_netloc.startswith(("127.0.0.1", "localhost"))
+    else ""
+)
 
 log = logging.getLogger(__name__)
 Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
