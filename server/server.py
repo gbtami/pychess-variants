@@ -31,6 +31,7 @@ from middlewares import (
 from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
 from request_protection import RequestProtectionState, request_protection_middleware
+from startup_timer import StartupTimer
 
 from typedefs import (
     client_key,
@@ -59,135 +60,157 @@ def make_app(
     simple_cookie_storage: bool = False,
     anon_as_test_users: bool = False,
 ) -> Application:
+    startup = StartupTimer(log, "make_app")
 
-    app = web.Application()
+    with startup.phase("create aiohttp application"):
+        app = web.Application()
 
-    swagger = SwaggerDocs(
-        app,
-        validate=False,
-        info=SwaggerInfo(title="Pychess API", version="1.0.0"),
-    )
+    with startup.phase("configure swagger + middleware"):
+        swagger = SwaggerDocs(
+            app,
+            validate=False,
+            info=SwaggerInfo(title="Pychess API", version="1.0.0"),
+        )
 
-    app.middlewares.append(redirect_to_https)
-    app[request_protection_state_key] = RequestProtectionState()
-    app.middlewares.append(request_protection_middleware)
-    app.middlewares.append(request_timing_middleware)
-    app.middlewares.append(cross_origin_policy_middleware)
+        app.middlewares.append(redirect_to_https)
+        app[request_protection_state_key] = RequestProtectionState()
+        app.middlewares.append(request_protection_middleware)
+        app.middlewares.append(request_timing_middleware)
+        app.middlewares.append(cross_origin_policy_middleware)
 
-    app[anon_as_test_users_key] = anon_as_test_users
+        app[anon_as_test_users_key] = anon_as_test_users
 
-    parts = urlparse(URI)
-    is_secure = parts.scheme == "https"
+        parts = urlparse(URI)
+        is_secure = parts.scheme == "https"
 
-    aiohttp_session.setup(
-        app,
-        (
-            SimpleCookieStorage()
-            if simple_cookie_storage
-            else EncryptedCookieStorage(
-                SECRET_KEY,
-                max_age=MAX_AGE,
-                secure=is_secure,
-                samesite="None" if is_secure else "Lax",
-            )
-        ),
-    )
+        aiohttp_session.setup(
+            app,
+            (
+                SimpleCookieStorage()
+                if simple_cookie_storage
+                else EncryptedCookieStorage(
+                    SECRET_KEY,
+                    max_age=MAX_AGE,
+                    secure=is_secure,
+                    samesite="None" if is_secure else "Lax",
+                )
+            ),
+        )
 
-    app.middlewares.append(set_user_locale)
+        app.middlewares.append(set_user_locale)
 
-    aiohttp_jinja2.setup(
-        app,
-        enable_async=True,
-        extensions=["jinja2.ext.i18n"],
-        loader=jinja2.FileSystemLoader("templates"),
-        autoescape=jinja2.select_autoescape(["html"]),
-    )
+        aiohttp_jinja2.setup(
+            app,
+            enable_async=True,
+            extensions=["jinja2.ext.i18n"],
+            loader=jinja2.FileSystemLoader("templates"),
+            autoescape=jinja2.select_autoescape(["html"]),
+        )
 
-    if db_client is not None:
-        app[client_key] = db_client
-        raw_db = app[client_key][MONGO_DB_NAME]
-        # app[db_key] = raw_db
-        app[db_key] = AsyncDBWrapper(raw_db)
+    with startup.phase("attach database wrapper"):
+        if db_client is not None:
+            app[client_key] = db_client
+            raw_db = app[client_key][MONGO_DB_NAME]
+            # app[db_key] = raw_db
+            app[db_key] = AsyncDBWrapper(raw_db)
 
-    app.on_startup.append(init_state)
-    app.on_shutdown.append(shutdown)
-    app.on_cleanup.append(close_mongodb_client)
+    with startup.phase("register lifecycle hooks + openapi route"):
+        app.on_startup.append(init_state)
+        app.on_shutdown.append(shutdown)
+        app.on_cleanup.append(close_mongodb_client)
 
-    async def openapi_json(request):
-        return web.json_response(swagger.spec)
+        async def openapi_json(request):
+            return web.json_response(swagger.spec)
 
-    app.router.add_get("/openapi.json", openapi_json)
+        app.router.add_get("/openapi.json", openapi_json)
 
-    # Setup routes.
-    swagger_get_routes = {
-        "/api/games",
-        "/api/games/{variant}",
-        "/api/games/user/{profileId}",
-        "/api/games/user/{profileId}/pgn",
-    }
-    for route in get_routes:
-        path, handler = route
-        if path in swagger_get_routes:
-            swagger.add_get(
-                path,
-                handler,
-                allow_head=False,
-            )
-        else:
-            app.router.add_get(path, handler, allow_head=False)
+    with startup.phase("register routes"):
+        # Setup routes.
+        swagger_get_routes = {
+            "/api/games",
+            "/api/games/{variant}",
+            "/api/games/user/{profileId}",
+            "/api/games/user/{profileId}/pgn",
+        }
+        for route in get_routes:
+            path, handler = route
+            if path in swagger_get_routes:
+                swagger.add_get(
+                    path,
+                    handler,
+                    allow_head=False,
+                )
+            else:
+                app.router.add_get(path, handler, allow_head=False)
 
-    for route in post_routes:
-        path, handler = route
-        app.router.add_post(path, handler)
+        for route in post_routes:
+            path, handler = route
+            app.router.add_post(path, handler)
 
-    app.router.add_static("/static", "static", append_version=True)
-    app.middlewares.append(handle_404)
+        app.router.add_static("/static", "static", append_version=True)
+        app.middlewares.append(handle_404)
 
-    # Configure default CORS settings.
-    cors = aiohttp_cors.setup(
-        app,
-        defaults={
-            origin: aiohttp_cors.ResourceOptions(
-                allow_credentials=True,
-                expose_headers="*",
-                allow_headers="*",
-            )
-            for origin in ALLOWED_ORIGINS
-        },
-    )
+    with startup.phase("configure cors"):
+        # Configure default CORS settings.
+        cors = aiohttp_cors.setup(
+            app,
+            defaults={
+                origin: aiohttp_cors.ResourceOptions(
+                    allow_credentials=True,
+                    expose_headers="*",
+                    allow_headers="*",
+                )
+                for origin in ALLOWED_ORIGINS
+            },
+        )
 
-    # Configure CORS on all routes.
-    for route in tuple(app.router.routes()):
-        cors.add(route)
+        # Configure CORS on all routes.
+        for route in tuple(app.router.routes()):
+            cors.add(route)
 
+    startup.log_summary()
     return app
 
 
 async def init_state(app: Application) -> None:
-    if db_key not in app:
-        app[db_key] = None
+    startup = StartupTimer(log, "init_state")
 
-    app[pychess_global_app_state_key] = PychessGlobalAppState(app)
-    app_state = app[pychess_global_app_state_key]
-    await app_state.init_from_db()
-    from forum.storage import ensure_categs
+    with startup.phase("ensure db handle"):
+        if db_key not in app:
+            app[db_key] = None
 
-    await ensure_categs(app_state)
-    refresh_task = await logger.start_config_refresh_timer(app[db_key])
-    if refresh_task is not None:
-        app_state.track_background_task(refresh_task)
-    from forum import forum_captcha_refresher
+    with startup.phase("construct global app state"):
+        app[pychess_global_app_state_key] = PychessGlobalAppState(app)
+        app_state = app[pychess_global_app_state_key]
 
-    app_state.create_background_task(
-        forum_captcha_refresher(app),
-        name="forum-captcha-refresh",
-    )
+    with startup.phase("load state from database"):
+        await app_state.init_from_db()
+
+    with startup.phase("ensure forum categories"):
+        from forum.storage import ensure_categs
+
+        await ensure_categs(app_state)
+
+    with startup.phase("start logging config refresh"):
+        refresh_task = await logger.start_config_refresh_timer(app[db_key])
+        if refresh_task is not None:
+            app_state.track_background_task(refresh_task)
+
+    with startup.phase("schedule forum captcha refresher"):
+        from forum import forum_captcha_refresher
+
+        app_state.create_background_task(
+            forum_captcha_refresher(app),
+            name="forum-captcha-refresh",
+        )
 
     # create test tournament
     if 1:
         # from tournament.auto_play_tournament import create_auto_play_tournament
         # await create_auto_play_tournament(app)
         pass
+
+    startup.log_summary()
 
 
 async def shutdown(app: Application) -> None:
@@ -222,20 +245,27 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    db_client = AsyncMongoClient(
-        MONGO_HOST,
-        tz_aware=True,
-        retryReads=True,
-        retryWrites=True,
-        serverSelectionTimeoutMS=3000,
-        connectTimeoutMS=3000,
-    )
+    startup = StartupTimer(log, "__main__ bootstrap")
 
-    app = make_app(
-        db_client=db_client,
-        simple_cookie_storage=args.s,
-        anon_as_test_users=args.a,
-    )
+    with startup.phase("create mongo client"):
+        db_client = AsyncMongoClient(
+            MONGO_HOST,
+            tz_aware=True,
+            retryReads=True,
+            retryWrites=True,
+            serverSelectionTimeoutMS=3000,
+            connectTimeoutMS=3000,
+        )
+
+    with startup.phase("build aiohttp app"):
+        app = make_app(
+            db_client=db_client,
+            simple_cookie_storage=args.s,
+            anon_as_test_users=args.a,
+        )
+
+    startup.log_summary()
+    log.info("[startup] handing off to aiohttp web.run_app()")
 
     web.run_app(
         app,
