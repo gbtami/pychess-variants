@@ -34,13 +34,27 @@ async def init_players(app_state: PychessGlobalAppState, wp_a, bp_a, wp_b, bp_b)
 
 
 async def load_game_bug(app_state: PychessGlobalAppState, game_id, *, cache_finished: bool = True):
-    """Return Game object from app cache or from database."""
+    """Return GameBug object from app cache or from database."""
+    if game_id in app_state.games:
+        return app_state.games[game_id]
+
     log.debug("load_game_bug from db ")
     doc = await app_state.db.game.find_one({"_id": game_id})
-
-    log.debug("load_game_bug parse START")
     if doc is None:
         return None
+
+    return await load_game_bug_from_doc(app_state, doc, cache_finished=cache_finished)
+
+
+async def load_game_bug_from_doc(
+    app_state: PychessGlobalAppState, doc, *, cache_finished: bool = True
+):
+    """Return GameBug object from app cache or an already fetched document."""
+    game_id = doc["_id"]
+    if game_id in app_state.games:
+        return app_state.games[game_id]
+
+    log.debug("load_game_bug parse START")
 
     wp, bp, wp_b, bp_b = doc["us"]
     wplayer, bplayer, wplayer_b, bplayer_b = await init_players(app_state, wp, bp, wp_b, bp_b)

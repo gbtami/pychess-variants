@@ -23,7 +23,6 @@ from sortedcollections import ValueSortedDict
 
 if TYPE_CHECKING:
     from bug.game_bug import GameBug
-    from clock import CorrClock
     from ws_types import ChatLine, LobbyLeaderboardEntry, TournamentWinnerEntry
     from typing_defs import TournamentCalendarEvent
 
@@ -93,7 +92,7 @@ from typedefs import anon_as_test_users_key, client_key
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
-from utils import load_game, should_send_game_start_to_bot
+from utils import load_game_from_doc, should_send_game_start_to_bot
 from videos import VIDEOS
 from youtube import Youtube
 from lang import LOCALE
@@ -132,6 +131,7 @@ class PychessGlobalAppState:
 
         self.shutdown = False
         self.tournaments_loaded = asyncio.Event()
+        self.correspondence_games_loaded = asyncio.Event()
 
         self.db_client = app[client_key]
         self.db: Any = app[db_key]
@@ -440,64 +440,106 @@ class PychessGlobalAppState:
                     if game_id is not None:
                         self.invites[game_id] = seek
 
-            # Read games in play and start their clocks
-            cursor = self.db.game.find({"r": "d", "$or": [{"s": -2}, {"s": -1}]})
-            cursor.sort("d", -1)
+            # Read games in play and start their clocks.
+            #
+            # Correspondence games can be numerous and are not latency-critical during
+            # Heroku restart recovery. Load live non-correspondence games before aiohttp
+            # starts accepting traffic, then restore correspondence games in the background.
             today = datetime.now(timezone.utc)
+            active_game_filter = {"r": "d", "$or": [{"s": -2}, {"s": -1}]}
 
-            async for doc in cursor:
-                corr = doc.get("c", False)
+            async def restore_active_game_doc(doc, *, corr: bool) -> bool:
+                game_id = doc["_id"]
+                try:
+                    game = await load_game_from_doc(self, doc)
+                except NotInDbUsers:
+                    log.error("Failed to load game %s", game_id)
+                    return False
 
-                if corr:
-                    # Don't load old never started corr games
-                    if doc["s"] == -2 and doc["d"] < today - timedelta(days=doc["b"]):
-                        continue
-                else:
-                    # Don't load old uninished games
-                    if doc["d"] < today - timedelta(days=1):
-                        continue
+                if game is None:
+                    return False
 
-                if doc["s"] < ABORTED:
-                    game_id = doc["_id"]
+                self.games[game_id] = game
+                if not corr:
                     try:
-                        game = await load_game(self, game_id)
-                        if game is None:
-                            continue
-                        self.games[game_id] = game
-                        if corr:
-                            if TYPE_CHECKING:
-                                assert isinstance(game, Game)
-                            game.wplayer.correspondence_games.append(game)
-                            game.bplayer.correspondence_games.append(game)
-                            if TYPE_CHECKING:
-                                assert isinstance(game.stopwatch, CorrClock)
-                            game.stopwatch.restart(from_db=True)
-                        else:
-                            try:
-                                if TYPE_CHECKING:
-                                    assert isinstance(game, Game)
-                                game.stopwatch.restart()
-                            except AttributeError:
-                                if TYPE_CHECKING:
-                                    assert isinstance(game, GameBug)
-                                game.gameClocks.restart("a")
-                                game.gameClocks.restart("b")
-                    except NotInDbUsers:
-                        log.error("Failed toload game %s", game_id)
-
-                    if game.bot_game:
                         if TYPE_CHECKING:
                             assert isinstance(game, Game)
-                        if len(game.board.move_stack) > 0 and len(game.steps) == 1:
-                            game.create_steps()
-                        bot_player = game.wplayer if game.wplayer.bot else game.bplayer
-                        bot_player.game_queues[game_id] = asyncio.Queue()
-                        if should_send_game_start_to_bot(game):
-                            await bot_player.event_queue.put(game.game_start)
-                        await bot_player.game_queues[game_id].put(game.game_full)
+                        game.stopwatch.restart()
+                    except AttributeError:
+                        if TYPE_CHECKING:
+                            assert isinstance(game, GameBug)
+                        game.gameClocks.restart("a")
+                        game.gameClocks.restart("b")
 
-                    if game.ply > 0:
-                        self.g_cnt[0] += 1
+                if game.bot_game:
+                    if TYPE_CHECKING:
+                        assert isinstance(game, Game)
+                    if len(game.board.move_stack) > 0 and len(game.steps) == 1:
+                        game.create_steps()
+                    bot_player = game.wplayer if game.wplayer.bot else game.bplayer
+                    bot_player.game_queues[game_id] = asyncio.Queue()
+                    if should_send_game_start_to_bot(game):
+                        await bot_player.event_queue.put(game.game_start)
+                    await bot_player.game_queues[game_id].put(game.game_full)
+
+                if game.ply > 0:
+                    self.g_cnt[0] += 1
+                return True
+
+            async def restore_active_games(cursor, *, corr: bool) -> tuple[int, int]:
+                loaded = 0
+                skipped = 0
+                async for doc in cursor:
+                    if corr:
+                        # Don't load old never-started correspondence games.
+                        if doc["s"] == -2 and doc["d"] < today - timedelta(days=doc.get("b", 1)):
+                            skipped += 1
+                            continue
+                    else:
+                        # Don't load old unfinished games.
+                        if doc["d"] < today - timedelta(days=1):
+                            skipped += 1
+                            continue
+
+                    if doc["s"] >= ABORTED:
+                        skipped += 1
+                        continue
+
+                    if await restore_active_game_doc(doc, corr=corr):
+                        loaded += 1
+                    else:
+                        skipped += 1
+                return loaded, skipped
+
+            live_cursor = self.db.game.find(
+                {
+                    **active_game_filter,
+                    "c": {"$ne": True},
+                    "d": {"$gte": today - timedelta(days=1)},
+                }
+            )
+            live_cursor.sort("d", -1)
+            live_loaded, live_skipped = await restore_active_games(live_cursor, corr=False)
+            log.info(
+                "Loaded active live games from db: %s loaded, %s skipped",
+                live_loaded,
+                live_skipped,
+            )
+
+            async def load_correspondence_games_from_db() -> None:
+                try:
+                    corr_cursor = self.db.game.find({**active_game_filter, "c": True})
+                    corr_cursor.sort("d", -1)
+                    corr_loaded, corr_skipped = await restore_active_games(corr_cursor, corr=True)
+                    log.info(
+                        "Loaded active correspondence games from db: %s loaded, %s skipped",
+                        corr_loaded,
+                        corr_skipped,
+                    )
+                except Exception:
+                    log.exception("Failed to load active correspondence games from db")
+                finally:
+                    self.correspondence_games_loaded.set()
 
             await load_active_simuls(self)
 
@@ -580,6 +622,11 @@ class PychessGlobalAppState:
                     {},  # Empty filter to select all documents
                     [{"$set": {"oauth_id": {"$toLower": "$_id"}, "oauth_provider": "lichess"}}],
                 )
+
+            self.create_background_task(
+                load_correspondence_games_from_db(),
+                name="load-correspondence-games",
+            )
 
         except Exception:
             log.error("init_from_db() Exception")

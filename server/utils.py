@@ -104,6 +104,20 @@ def should_send_game_start_to_bot(game: Game | GameBug) -> bool:
     return game.variant != "janggi" or not (game.bsetup or game.wsetup)
 
 
+def activate_correspondence_game(game: Game) -> None:
+    """Attach an active correspondence game to its players and restore its clock.
+
+    ``load_game()`` can be called lazily from a game URL before the background
+    correspondence restore has finished. Keep the activation idempotent so both
+    paths may safely touch the same game.
+    """
+    if game not in game.wplayer.correspondence_games:
+        game.wplayer.correspondence_games.append(game)
+    if game not in game.bplayer.correspondence_games:
+        game.bplayer.correspondence_games.append(game)
+    game.stopwatch.restart(from_db=True)
+
+
 async def tv_game(app_state: PychessGlobalAppState):
     """Get latest played game id"""
     if app_state.tv is not None:
@@ -142,15 +156,34 @@ async def load_game(
 
     # log.debug("load_game() %s from db ", game_id)
     doc: GameDocument | None = await app_state.db.game.find_one({"_id": game_id})
-
     if doc is None:
         return None
+
+    return await load_game_from_doc(app_state, doc, cache_finished=cache_finished)
+
+
+async def load_game_from_doc(
+    app_state: PychessGlobalAppState,
+    doc: GameDocument,
+    *,
+    cache_finished: bool = True,
+) -> Game | GameBug | None:
+    """Return Game object from app cache or an already fetched database document.
+
+    Startup restore already iterates over game documents from MongoDB. Parsing the
+    document directly avoids one extra ``find_one({_id: ...})`` round trip for
+    every active game restored during server initialization.
+    """
+    game_id = doc["_id"]
+    if game_id in app_state.games:
+        return app_state.games[game_id]
+
     variant = C2V[doc["v"]]
 
     if doc["v"] in TWO_BOARD_VARIANT_CODES:
-        from bug.utils_bug import load_game_bug
+        from bug.utils_bug import load_game_bug_from_doc
 
-        return await load_game_bug(app_state, game_id, cache_finished=cache_finished)
+        return await load_game_bug_from_doc(app_state, doc, cache_finished=cache_finished)
 
     # log.debug("load_game() parse START")
     wp, bp = doc["us"]
@@ -308,6 +341,9 @@ async def load_game(
         game.board.color = WHITE if game.board.fen.split()[1] == "w" else BLACK
         game.lastmove = mlist[-1]
         game.mct = doc.get("mct")
+
+    if game.corr and game.status <= STARTED:
+        activate_correspondence_game(game)
 
     if game.has_crosstable:
         crosstable_doc = await app_state.db.crosstable.find_one({"_id": game.ct_id})
