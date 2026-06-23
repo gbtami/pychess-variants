@@ -23,6 +23,11 @@ class MutatingSpectator:
         if self.other is not None:
             self.game.spectators.discard(self.other)
 
+    async def send_game_message_str(self, game_id: str, payload: str) -> None:
+        self.calls += 1
+        if self.other is not None:
+            self.game.spectators.discard(self.other)
+
 
 class MutatingQueue(asyncio.Queue[str]):
     def __init__(self, channels: set[asyncio.Queue[str]]) -> None:
