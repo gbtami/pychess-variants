@@ -94,18 +94,33 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
     result: NewGameMessage | ErrorMessage = await new_game(app_state, seek, gameId)  # noqa: F821
 
     if result["type"] == "new_game":
-        # TODO: use asyncio.Event()
-        wait_count = 0
-        while gameId not in app_state.invite_channels and wait_count < 10:
-            asyncio.sleep(1)  # type: ignore[unused-coroutine]
-            wait_count += 1
-            log.debug("BOT_API challenge_accept() WAITING FOR SSE: %s", wait_count)
+        # Wait for the SSE channel to be registered by subscribe_invites().
+        # Previously this was a bare asyncio.sleep(1) loop (missing await, so
+        # it never actually yielded) — the notification was silently dropped
+        # whenever the channel wasn't ready yet.
+        if gameId not in app_state.invite_channels:
+            event = asyncio.Event()
+            app_state.invite_events[gameId] = event
+            try:
+                # 10 s matches the old busy-wait budget (wait_count < 10 × sleep(1)).
+                await asyncio.wait_for(event.wait(), timeout=10.0)
+            except asyncio.TimeoutError:
+                log.warning(
+                    "BOT_API challenge_accept() SSE channel timeout for %s", gameId
+                )
+            finally:
+                app_state.invite_events.pop(gameId, None)
 
         try:
             # Put response data to sse subscriber queue
-            channels = app_state.invite_channels[gameId]
-            for queue in channels:
-                await queue.put(json_dumps({"gameId": gameId, "accept": True}))
+            channels = app_state.invite_channels.get(gameId)
+            if channels:
+                for queue in channels:
+                    await queue.put(json_dumps({"gameId": gameId, "accept": True}))
+            else:
+                log.warning(
+                    "BOT_API challenge_accept() no SSE channel found for %s", gameId
+                )
         except ConnectionResetError:
             log.error("/api/challenge/{%s}/accept ConnectionResetError", gameId)
 
@@ -129,18 +144,30 @@ async def challenge_decline(request: web.Request) -> web.StreamResponse:
     if TYPE_CHECKING:
         assert gameId is not None
 
-    # TODO: use asyncio.Event()
-    wait_count = 0
-    while gameId not in app_state.invite_channels and wait_count < 10:
-        await asyncio.sleep(1)
-        wait_count += 1
-        log.debug("BOT_API challenge_decline() WAITING FOR SSE: %s", wait_count)
+    # Wait for the SSE channel to be registered by subscribe_invites().
+    if gameId not in app_state.invite_channels:
+        event = asyncio.Event()
+        app_state.invite_events[gameId] = event
+        try:
+            # 10 s matches the old busy-wait budget (wait_count < 10 × sleep(1)).
+            await asyncio.wait_for(event.wait(), timeout=10.0)
+        except asyncio.TimeoutError:
+            log.warning(
+                "BOT_API challenge_decline() SSE channel timeout for %s", gameId
+            )
+        finally:
+            app_state.invite_events.pop(gameId, None)
 
     try:
         # Put response data to sse subscriber queue
-        channels = app_state.invite_channels[gameId]
-        for queue in channels:
-            await queue.put(json_dumps({"gameId": gameId, "accept": False}))
+        channels = app_state.invite_channels.get(gameId)
+        if channels:
+            for queue in channels:
+                await queue.put(json_dumps({"gameId": gameId, "accept": False}))
+        else:
+            log.warning(
+                "BOT_API challenge_decline() no SSE channel found for %s", gameId
+            )
     except ConnectionResetError:
         log.error("/api/challenge/{%s}/decline ConnectionResetError", gameId)
 
