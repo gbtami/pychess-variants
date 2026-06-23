@@ -42,6 +42,7 @@ from fairy import (
     validate_fen,
 )
 from fairy.jieqi import make_initial_mapping
+from clock import CorrClock
 from game import Game
 from newid import new_id
 from seek import (
@@ -115,6 +116,8 @@ def activate_correspondence_game(game: Game) -> None:
         game.wplayer.correspondence_games.append(game)
     if game not in game.bplayer.correspondence_games:
         game.bplayer.correspondence_games.append(game)
+
+    assert isinstance(game.stopwatch, CorrClock)
     game.stopwatch.restart(from_db=True)
 
 
