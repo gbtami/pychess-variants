@@ -28,7 +28,7 @@ from json_utils import json_response
 from newid import id8
 from notify import notify
 from const import BLOCK, FOLLOW, MAX_USER_BLOCK
-from websocket_utils import ws_send_json_many
+from websocket_utils import ws_send_json_many, ws_send_str_many
 from user_stats import normalize_user_count
 
 if TYPE_CHECKING:
@@ -167,6 +167,12 @@ class User:
         self.background_tasks: set[asyncio.Task[None]] = set()
         self.correspondence_games: List[Game] = []
 
+        # Reverse-index of game ids this user is currently spectating, kept in
+        # sync with game.spectators.add()/discard() (see wsr.py). Lets
+        # clear_spectator_references() drop stale spectator entries in
+        # O(watched games) instead of scanning every active game on the server.
+        self.watched_games: Set[str] = set()
+
         self.blocked: set[str] = set()
         self.following: set[str] = set()
 
@@ -268,9 +274,17 @@ class User:
         self.remove_anon_task = None
 
     async def clear_spectator_references(self) -> None:
+        # Previously scanned every active game on the server (O(total games))
+        # to find which ones this user happened to be spectating. With
+        # watched_games kept in sync at add/discard time, this is now
+        # O(games this user is actually watching), which is almost always 0 or 1.
+        game_ids = tuple(self.watched_games)
+        self.watched_games.clear()
+
         affected_games = []
-        for game in tuple(self.app_state.games.values()):
-            if self in game.spectators:
+        for game_id in game_ids:
+            game = self.app_state.games.get(game_id)
+            if game is not None and self in game.spectators:
                 game.spectators.discard(self)
                 affected_games.append(game)
 
@@ -590,6 +604,15 @@ class User:
         #        )
         #    return
         await ws_send_json_many(ws_set, message)
+
+    async def send_game_message_str(self, game_id: str, payload: str) -> None:
+        # Same as send_game_message(), but takes an already-serialized JSON string.
+        # Used by round_broadcast() so one broadcast to many spectators encodes
+        # the message once instead of once per recipient.
+        ws_set = self.game_sockets.get(game_id)
+        if ws_set is None or len(ws_set) == 0:
+            return
+        await ws_send_str_many(ws_set, payload)
 
     async def close_all_game_sockets(self) -> None:
         for ws_set in tuple(
