@@ -1236,7 +1236,11 @@ async def load_tournament(
 
     # tournament.print_leaderboard()
 
-    await _repair_missing_pairing_docs_from_games(tournament)
+    if tournament.status != T_CREATED:
+        # The recovery scan reads db.game by tournament id. Running it for not-yet-started
+        # tournaments is wasted work and was dominating restart time when many future events
+        # were loaded at boot.
+        await _repair_missing_pairing_docs_from_games(tournament)
 
     pairing_table = app_state.db.tournament_pairing
     cursor = pairing_table.find({"tid": tournament_id})

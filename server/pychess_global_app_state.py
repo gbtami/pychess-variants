@@ -101,6 +101,7 @@ import sys
 from variants import VARIANTS, RATED_VARIANTS
 from puzzle import rename_puzzle_fields
 from push_notifications import PUSH_SUBSCRIPTION_COLLECTION, PushNotifier
+from startup_timer import StartupTimer
 
 log = logging.getLogger(__name__)
 
@@ -126,97 +127,112 @@ class PychessGlobalAppState:
     def __init__(self, app: web.Application):
         from typedefs import db_key
 
-        self.app = app
-        self.anon_as_test_users = app[anon_as_test_users_key]
+        startup = StartupTimer(log, "PychessGlobalAppState.__init__")
 
-        self.shutdown = False
-        self.tournaments_loaded = asyncio.Event()
-        self.correspondence_games_loaded = asyncio.Event()
+        with startup.phase("initialize core state"):
+            self.app = app
+            self.anon_as_test_users = app[anon_as_test_users_key]
 
-        self.db_client = app[client_key]
-        self.db: Any = app[db_key]
-        self.users = self.__init_users()
-        self.public_users = PublicUsers(self)
-        self.disable_new_anons = False
-        self.lobby = Lobby(self)
-        self.chat_flood = ChatFlood()
-        # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
-        self.tourneysockets: dict[str, dict[str, set[WebSocketResponse | None]]] = {}
-        self.background_tasks: set[asyncio.Task[Any]] = set()
-        self.game_remove_tasks: dict[str, asyncio.Task[None]] = {}
-        self.tournament_remove_tasks: dict[str, asyncio.Task[None]] = {}
+            self.shutdown = False
+            self.tournaments_loaded = asyncio.Event()
+            self.correspondence_games_loaded = asyncio.Event()
 
-        # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
-        self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
+            self.db_client = app[client_key]
+            self.db: Any = app[db_key]
+            self.users = self.__init_users()
+            self.public_users = PublicUsers(self)
+            self.disable_new_anons = False
+            self.lobby = Lobby(self)
+            self.chat_flood = ChatFlood()
+            # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
+            self.tourneysockets: dict[str, dict[str, set[WebSocketResponse | None]]] = {}
+            self.background_tasks: set[asyncio.Task[Any]] = set()
+            self.game_remove_tasks: dict[str, asyncio.Task[None]] = {}
+            self.tournament_remove_tasks: dict[str, asyncio.Task[None]] = {}
 
-        self.tournaments: dict[str, Tournament] = {}
-        self.simuls: dict[str, Simul] = {}
+            # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
+            self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
 
-        self.tourney_calendar = None
+            self.tournaments: dict[str, Tournament] = {}
+            self.simuls: dict[str, Simul] = {}
 
-        # lichess allows 7 team message per week, so we will send one (cumulative) per day only
-        # TODO: save/restore from db
-        self.sent_lichess_team_msg: List[date] = []
+            self.tourney_calendar = None
 
-        self.seeks: dict[str, Seek] = {}
-        self.auto_pairing_users: dict[User, tuple[int, int]] = {}
-        self.auto_pairings: dict[tuple[str, bool, int, int, int], set[User]] = {}
-        self.games: dict[str, Game | GameBug] = {}
-        self.invites: dict[str, Seek] = {}
-        self.game_channels: Set[asyncio.Queue[str]] = set()
-        self.invite_channels: dict[str, Set[asyncio.Queue[str]]] = {}
-        self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
-        self.lobby_leaderboard: list["LobbyLeaderboardEntry"] = []
-        self.lobby_tournament_winners: list["TournamentWinnerEntry"] = []
-        self.shield = {}
-        self.shield_owners = {}  # {variant: username, ...}
-        self.daily_puzzle_ids = {}  # {date or date:category: puzzle._id, ...}
+            # lichess allows 7 team message per week, so we will send one (cumulative) per day only
+            # TODO: save/restore from db
+            self.sent_lichess_team_msg: List[date] = []
 
-        # monthly game stats per variant
-        self.stats = {}
-        self.stats_humans = {}
+            self.seeks: dict[str, Seek] = {}
+            self.auto_pairing_users: dict[User, tuple[int, int]] = {}
+            self.auto_pairings: dict[tuple[str, bool, int, int, int], set[User]] = {}
+            self.games: dict[str, Game | GameBug] = {}
+            self.invites: dict[str, Seek] = {}
+            self.game_channels: Set[asyncio.Queue[str]] = set()
+            self.invite_channels: dict[str, Set[asyncio.Queue[str]]] = {}
+            self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
+            self.lobby_leaderboard: list["LobbyLeaderboardEntry"] = []
+            self.lobby_tournament_winners: list["TournamentWinnerEntry"] = []
+            self.shield = {}
+            self.shield_owners = {}  # {variant: username, ...}
+            self.daily_puzzle_ids = {}  # {date or date:category: puzzle._id, ...}
 
-        # counters for games
-        self.g_cnt = [0]
+            # monthly game stats per variant
+            self.stats = {}
+            self.stats_humans = {}
 
-        # last game played
-        self.tv: str | None = None
+            # counters for games
+            self.g_cnt = [0]
 
-        self.twitch = self.__init_twitch()
-        self.youtube = Youtube(self.app)
+            # last game played
+            self.tv: str | None = None
 
-        # fishnet active workers
-        self.workers = set()
-        self.fishnet_worker_last_seen: dict[str, float] = {}
-        # fishnet works
-        self.fishnet_works = {}
-        # fishnet worker tasks
-        self.fishnet_queue = asyncio.PriorityQueue()
-        # fishnet workers monitor
-        self.fishnet_monitor = self.__init_fishnet_monitor()
-        self.fishnet_versions = {}
+        with startup.phase("initialize streaming + worker helpers"):
+            self.twitch = self.__init_twitch()
+            self.youtube = Youtube(self.app)
 
-        # Configure translations
-        self.translations = {}
+            # fishnet active workers
+            self.workers = set()
+            self.fishnet_worker_last_seen: dict[str, float] = {}
+            # fishnet works
+            self.fishnet_works = {}
+            # fishnet worker tasks
+            self.fishnet_queue = asyncio.PriorityQueue()
+            # fishnet workers monitor
+            self.fishnet_monitor = self.__init_fishnet_monitor()
+            self.fishnet_versions = {}
 
-        # self.discord:
-        self.__init_discord()
+            # Configure translations
+            self.translations = {}
 
-        #####
-        # This is set by __start_gc_stats_logger() if telemetry is enabled.
-        self.gc_stats_task = None
+            #####
+            # This is set by __start_gc_stats_logger() if telemetry is enabled.
+            self.gc_stats_task = None
 
-        self.__start_bots()
-        self.__init_translations()
-        self.__start_gc_stats_logger()
+        with startup.phase("initialize discord"):
+            self.__init_discord()
 
-        self.started_at = datetime.now(timezone.utc)
-        self.push_notifier = PushNotifier(self)
-        if self.push_notifier.enabled:
-            self.create_background_task(self.push_notifier.run(), name="push-notifier")
+        with startup.phase("start bots"):
+            self.__start_bots()
+
+        with startup.phase("initialize translations"):
+            self.__init_translations()
+
+        with startup.phase("start gc telemetry"):
+            self.__start_gc_stats_logger()
+
+        with startup.phase("start push notifier"):
+            self.started_at = datetime.now(timezone.utc)
+            self.push_notifier = PushNotifier(self)
+            if self.push_notifier.enabled:
+                self.create_background_task(self.push_notifier.run(), name="push-notifier")
+
+        startup.log_summary()
 
     async def init_from_db(self):
+        startup = StartupTimer(log, "PychessGlobalAppState.init_from_db")
         if self.db is None:
+            log.debug("[startup] PychessGlobalAppState.init_from_db skipped: no database")
+            startup.log_summary()
             return
 
         async def upsert_static_docs(collection, docs):
@@ -229,216 +245,226 @@ class PychessGlobalAppState:
 
         # Read tournaments, users and highscore from db
         try:
-            db_collections = await self.db.list_collection_names()
+            with startup.phase("preflight collections + tournament indexes"):
+                db_collections = await self.db.list_collection_names()
 
-            puzzle = await self.db.puzzle.find_one()
-            puzzle_doc_rename_needed = (puzzle is not None) and ("variant" in puzzle)
-            if puzzle_doc_rename_needed:
-                await rename_puzzle_fields(self.db)
+                puzzle = await self.db.puzzle.find_one()
+                puzzle_doc_rename_needed = (puzzle is not None) and ("variant" in puzzle)
+                if puzzle_doc_rename_needed:
+                    await rename_puzzle_fields(self.db)
 
-            if "tournament_chat" not in db_collections:
-                await self.db.create_collection("tournament_chat")
+                if "tournament_chat" not in db_collections:
+                    await self.db.create_collection("tournament_chat")
+                    await self.db.tournament_chat.create_index("tid")
+
+                if "simul_chat" not in db_collections:
+                    await self.db.create_collection("simul_chat")
+                    await self.db.simul_chat.create_index("sid")
+
+                await self.db.tournament.create_index("startsAt")
+                await self.db.tournament.create_index("status")
                 await self.db.tournament_chat.create_index("tid")
+                await self.db.tournament_player.create_index("tid")
+                await self.db.tournament_pairing.create_index("tid")
 
-            if "simul_chat" not in db_collections:
-                await self.db.create_collection("simul_chat")
-                await self.db.simul_chat.create_index("sid")
-
-            await self.db.tournament.create_index("startsAt")
-            await self.db.tournament.create_index("status")
-
-            cursor = self.db.tournament.find(
-                {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
-            )
-            cursor.sort("startsAt", -1)
-            to_date = (datetime.now(timezone.utc) + timedelta(days=SCHEDULE_MAX_DAYS)).date()
-            async for doc in cursor:
-                if doc["status"] == T_STARTED or (
-                    doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
-                ):
-                    await load_tournament(self, doc["_id"])
-            self.tournaments_loaded.set()
-
-            already_scheduled = await get_scheduled_tournaments(self)
-            new_tournaments_data = new_scheduled_tournaments(already_scheduled)
-            await create_scheduled_tournaments(self, new_tournaments_data)
-
-            self.create_background_task(generate_shield(self), name="generate-shield")
-
-            if "highscore" not in db_collections:
-                await generate_highscore(self)
-            cursor = self.db.highscore.find()
-            async for doc in cursor:
-                if doc["_id"] in self.highscore:
-                    self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
-            await refresh_lobby_leaderboard_cache(self)
-            await refresh_lobby_tournament_winners_cache(self)
-
-            if "crosstable" not in db_collections:
-                await generate_crosstable(self)
-
-            if "dailypuzzle" not in db_collections:
-                try:
-                    daily_max = 365 * len(GAME_CATEGORIES)
-                    await self.db.create_collection(
-                        "dailypuzzle",
-                        capped=True,
-                        size=50000,
-                        max=daily_max,
-                    )
-                except NotImplementedError:
-                    await self.db.create_collection("dailypuzzle")
-            else:
-                cursor = self.db.dailypuzzle.find()
-                docs = await cursor.to_list(length=365 * len(GAME_CATEGORIES))
-                self.daily_puzzle_ids = {doc["_id"]: doc["puzzleId"] for doc in docs}
-
-            if "lobbychat" not in db_collections:
-                try:
-                    await self.db.create_collection(
-                        "lobbychat", capped=True, size=100000, max=MAX_CHAT_LINES
-                    )
-                except NotImplementedError:
-                    await self.db.create_collection("lobbychat")
-            else:
-                cursor = self.db.lobbychat.find(
-                    projection={
-                        "_id": 0,
-                        "type": 1,
-                        "user": 1,
-                        "message": 1,
-                        "room": 1,
-                        "time": 1,
-                    }
+            with startup.phase("restore tournaments"):
+                cursor = self.db.tournament.find(
+                    {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
                 )
-                docs = await cursor.to_list(length=MAX_CHAT_LINES)
-                self.lobby.lobbychat = collections.deque(docs, MAX_CHAT_LINES)
+                cursor.sort("startsAt", -1)
+                to_date = (datetime.now(timezone.utc) + timedelta(days=SCHEDULE_MAX_DAYS)).date()
+                async for doc in cursor:
+                    if doc["status"] == T_STARTED or (
+                        doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
+                    ):
+                        await load_tournament(self, doc["_id"])
+                self.tournaments_loaded.set()
 
-            await self.db.game.create_index("us")
-            await self.db.game.create_index("r")
-            await self.db.game.create_index("v")
-            await self.db.game.create_index("y")
-            await self.db.game.create_index("by")
-            await self.db.game.create_index("c")
-            # NOTE:
-            # Building these compound indexes on a large production collection can take
-            # long enough to delay dyno boot. Keep disabled by default and build via
-            # one-off admin/migration job, then keep this gate available for controlled runs.
-            if os.getenv("BOOTSTRAP_GAME_PROFILE_COMPOUND_INDEXES", "0") == "1":
-                await self.db.game.create_index([("us", 1), ("d", -1)], name="us_d_desc")
-                await self.db.game.create_index([("us.0", 1), ("d", -1)], name="us0_d_desc")
-                await self.db.game.create_index([("us.1", 1), ("d", -1)], name="us1_d_desc")
-                await self.db.game.create_index(
-                    [("us.0", 1), ("us.1", 1), ("d", -1)],
-                    name="us0_us1_d_desc",
+            with startup.phase("create missing scheduled tournaments"):
+                already_scheduled = await get_scheduled_tournaments(self)
+                new_tournaments_data = new_scheduled_tournaments(already_scheduled)
+                await create_scheduled_tournaments(self, new_tournaments_data)
+
+            with startup.phase("restore highscore + lobby caches"):
+                self.create_background_task(generate_shield(self), name="generate-shield")
+
+                if "highscore" not in db_collections:
+                    await generate_highscore(self)
+                cursor = self.db.highscore.find()
+                async for doc in cursor:
+                    if doc["_id"] in self.highscore:
+                        self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
+                await refresh_lobby_leaderboard_cache(self)
+                await refresh_lobby_tournament_winners_cache(self)
+
+                if "crosstable" not in db_collections:
+                    await generate_crosstable(self)
+
+            with startup.phase("bootstrap collections + indexes"):
+                if "dailypuzzle" not in db_collections:
+                    try:
+                        daily_max = 365 * len(GAME_CATEGORIES)
+                        await self.db.create_collection(
+                            "dailypuzzle",
+                            capped=True,
+                            size=50000,
+                            max=daily_max,
+                        )
+                    except NotImplementedError:
+                        await self.db.create_collection("dailypuzzle")
+                else:
+                    cursor = self.db.dailypuzzle.find()
+                    docs = await cursor.to_list(length=365 * len(GAME_CATEGORIES))
+                    self.daily_puzzle_ids = {doc["_id"]: doc["puzzleId"] for doc in docs}
+
+                if "lobbychat" not in db_collections:
+                    try:
+                        await self.db.create_collection(
+                            "lobbychat", capped=True, size=100000, max=MAX_CHAT_LINES
+                        )
+                    except NotImplementedError:
+                        await self.db.create_collection("lobbychat")
+                else:
+                    cursor = self.db.lobbychat.find(
+                        projection={
+                            "_id": 0,
+                            "type": 1,
+                            "user": 1,
+                            "message": 1,
+                            "room": 1,
+                            "time": 1,
+                        }
+                    )
+                    docs = await cursor.to_list(length=MAX_CHAT_LINES)
+                    self.lobby.lobbychat = collections.deque(docs, MAX_CHAT_LINES)
+
+                await self.db.game.create_index("us")
+                await self.db.game.create_index("r")
+                await self.db.game.create_index("v")
+                await self.db.game.create_index("y")
+                await self.db.game.create_index("by")
+                await self.db.game.create_index("c")
+                await self.db.game.create_index("tid")
+                # NOTE:
+                # Building these compound indexes on a large production collection can take
+                # long enough to delay dyno boot. Keep disabled by default and build via
+                # one-off admin/migration job, then keep this gate available for controlled runs.
+                if os.getenv("BOOTSTRAP_GAME_PROFILE_COMPOUND_INDEXES", "0") == "1":
+                    await self.db.game.create_index([("us", 1), ("d", -1)], name="us_d_desc")
+                    await self.db.game.create_index([("us.0", 1), ("d", -1)], name="us0_d_desc")
+                    await self.db.game.create_index([("us.1", 1), ("d", -1)], name="us1_d_desc")
+                    await self.db.game.create_index(
+                        [("us.0", 1), ("us.1", 1), ("d", -1)],
+                        name="us0_us1_d_desc",
+                    )
+
+                if "notify" not in db_collections:
+                    await self.db.create_collection("notify")
+                await self.db.notify.create_index("notifies")
+                await self.db.notify.create_index("expireAt", expireAfterSeconds=0)
+
+                if PUSH_SUBSCRIPTION_COLLECTION not in db_collections:
+                    await self.db.create_collection(PUSH_SUBSCRIPTION_COLLECTION)
+                await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index("user")
+                await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index("seenAt")
+                await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index(
+                    [("user", 1), ("endpoint", 1)],
+                    unique=True,
+                    name="push_user_endpoint",
                 )
 
-            if "notify" not in db_collections:
-                await self.db.create_collection("notify")
-            await self.db.notify.create_index("notifies")
-            await self.db.notify.create_index("expireAt", expireAfterSeconds=0)
+                if "inbox_thread" not in db_collections:
+                    await self.db.create_collection("inbox_thread")
+                await self.db.inbox_thread.create_index("users")
+                await self.db.inbox_thread.create_index("updatedAt")
 
-            if PUSH_SUBSCRIPTION_COLLECTION not in db_collections:
-                await self.db.create_collection(PUSH_SUBSCRIPTION_COLLECTION)
-            await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index("user")
-            await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index("seenAt")
-            await self.db[PUSH_SUBSCRIPTION_COLLECTION].create_index(
-                [("user", 1), ("endpoint", 1)],
-                unique=True,
-                name="push_user_endpoint",
-            )
+                if "inbox_msg" not in db_collections:
+                    await self.db.create_collection("inbox_msg")
+                await self.db.inbox_msg.create_index([("tid", 1), ("createdAt", 1)])
 
-            if "inbox_thread" not in db_collections:
-                await self.db.create_collection("inbox_thread")
-            await self.db.inbox_thread.create_index("users")
-            await self.db.inbox_thread.create_index("updatedAt")
+                if "forum_categ" not in db_collections:
+                    await self.db.create_collection("forum_categ")
+                await self.db.forum_categ.create_index("order")
 
-            if "inbox_msg" not in db_collections:
-                await self.db.create_collection("inbox_msg")
-            await self.db.inbox_msg.create_index([("tid", 1), ("createdAt", 1)])
+                if "forum_topic" not in db_collections:
+                    await self.db.create_collection("forum_topic")
+                await self.db.forum_topic.create_index(
+                    [("categId", 1), ("sticky", -1), ("updatedAt", -1)]
+                )
+                await self.db.forum_topic.create_index(
+                    [("categId", 1), ("slug", 1)],
+                    unique=True,
+                    name="forum_topic_categ_slug",
+                )
 
-            if "forum_categ" not in db_collections:
-                await self.db.create_collection("forum_categ")
-            await self.db.forum_categ.create_index("order")
+                if "forum_post" not in db_collections:
+                    await self.db.create_collection("forum_post")
+                await self.db.forum_post.create_index([("topicId", 1), ("createdAt", 1)])
+                await self.db.forum_post.create_index([("categId", 1), ("createdAt", -1)])
+                await self.db.forum_post.create_index([("text", "text")])
 
-            if "forum_topic" not in db_collections:
-                await self.db.create_collection("forum_topic")
-            await self.db.forum_topic.create_index(
-                [("categId", 1), ("sticky", -1), ("updatedAt", -1)]
-            )
-            await self.db.forum_topic.create_index(
-                [("categId", 1), ("slug", 1)],
-                unique=True,
-                name="forum_topic_categ_slug",
-            )
+                if "user_report" not in db_collections:
+                    await self.db.create_collection("user_report")
+                await self.db.user_report.create_index("createdAt")
+                await self.db.user_report.create_index("status")
+                await self.db.user_report.create_index("reporter")
+                await self.db.user_report.create_index("suspect")
 
-            if "forum_post" not in db_collections:
-                await self.db.create_collection("forum_post")
-            await self.db.forum_post.create_index([("topicId", 1), ("createdAt", 1)])
-            await self.db.forum_post.create_index([("categId", 1), ("createdAt", -1)])
-            await self.db.forum_post.create_index([("text", "text")])
+                if "seek" not in db_collections:
+                    await self.db.create_collection("seek")
+                await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
 
-            if "user_report" not in db_collections:
-                await self.db.create_collection("user_report")
-            await self.db.user_report.create_index("createdAt")
-            await self.db.user_report.create_index("status")
-            await self.db.user_report.create_index("reporter")
-            await self.db.user_report.create_index("suspect")
+                if "security_ban_signal" not in db_collections:
+                    await self.db.create_collection("security_ban_signal")
+                await self.db.security_ban_signal.create_index("expireAt", expireAfterSeconds=0)
 
-            if "seek" not in db_collections:
-                await self.db.create_collection("seek")
-            await self.db.seek.create_index("expireAt", expireAfterSeconds=0)
+            with startup.phase("restore autopairings + seeks"):
+                # Load auto pairings from database
+                async for doc in self.db.autopairing.find():
+                    variant_tc = tuple(doc["variant_tc"])
+                    if variant_tc not in self.auto_pairings:
+                        self.auto_pairings[variant_tc] = set()
 
-            if "security_ban_signal" not in db_collections:
-                await self.db.create_collection("security_ban_signal")
-            await self.db.security_ban_signal.create_index("expireAt", expireAfterSeconds=0)
+                    for username, rrange in doc["users"]:
+                        user = await self.users.get(username)
+                        self.auto_pairings[variant_tc].add(user)
+                        if user not in self.auto_pairing_users:
+                            self.auto_pairing_users[user] = rrange
 
-            # Load auto pairings from database
-            async for doc in self.db.autopairing.find():
-                variant_tc = tuple(doc["variant_tc"])
-                if variant_tc not in self.auto_pairings:
-                    self.auto_pairings[variant_tc] = set()
-
-                for username, rrange in doc["users"]:
-                    user = await self.users.get(username)
-                    self.auto_pairings[variant_tc].add(user)
-                    if user not in self.auto_pairing_users:
-                        self.auto_pairing_users[user] = rrange
-
-            # Load seeks from database
-            async for doc in self.db.seek.find():
-                user = await self.users.get(doc["user"])
-                if user is not None:
-                    game_id = doc.get("gameId") or None
-                    seek = Seek(
-                        doc["_id"],
-                        user,
-                        doc["variant"],
-                        fen=doc["fen"],
-                        color=doc["color"],
-                        base=doc.get("base", 5),
-                        inc=doc.get("inc", 5),
-                        byoyomi_period=doc.get("byoyomi", 0),
-                        day=doc["day"],
-                        rated=doc["rated"],
-                        rrmin=doc.get("rrmin"),
-                        rrmax=doc.get("rrmax"),
-                        chess960=doc["chess960"],
-                        target=doc.get("target"),
-                        game_id=game_id,
-                        player1=user,
-                        expire_at=doc.get("expireAt"),
-                        challenge_status=doc.get("challengeStatus"),
-                        challenge_decline_reason=doc.get("challengeDeclineReason"),
-                    )
-                    if not should_restore_persisted_seek(seek):
-                        log.debug("Skipping non-restorable seek from database: %s", seek.id)
-                        continue
-                    log.debug("Loading seek from database: %s" % seek)
-                    self.seeks[seek.id] = seek
-                    user.seeks[seek.id] = seek
-                    if game_id is not None:
-                        self.invites[game_id] = seek
+                # Load seeks from database
+                async for doc in self.db.seek.find():
+                    user = await self.users.get(doc["user"])
+                    if user is not None:
+                        game_id = doc.get("gameId") or None
+                        seek = Seek(
+                            doc["_id"],
+                            user,
+                            doc["variant"],
+                            fen=doc["fen"],
+                            color=doc["color"],
+                            base=doc.get("base", 5),
+                            inc=doc.get("inc", 5),
+                            byoyomi_period=doc.get("byoyomi", 0),
+                            day=doc["day"],
+                            rated=doc["rated"],
+                            rrmin=doc.get("rrmin"),
+                            rrmax=doc.get("rrmax"),
+                            chess960=doc["chess960"],
+                            target=doc.get("target"),
+                            game_id=game_id,
+                            player1=user,
+                            expire_at=doc.get("expireAt"),
+                            challenge_status=doc.get("challengeStatus"),
+                            challenge_decline_reason=doc.get("challengeDeclineReason"),
+                        )
+                        if not should_restore_persisted_seek(seek):
+                            log.debug("Skipping non-restorable seek from database: %s", seek.id)
+                            continue
+                        log.debug("Loading seek from database: %s" % seek)
+                        self.seeks[seek.id] = seek
+                        user.seeks[seek.id] = seek
+                        if game_id is not None:
+                            self.invites[game_id] = seek
 
             # Read games in play and start their clocks.
             #
@@ -511,20 +537,21 @@ class PychessGlobalAppState:
                         skipped += 1
                 return loaded, skipped
 
-            live_cursor = self.db.game.find(
-                {
-                    **active_game_filter,
-                    "c": {"$ne": True},
-                    "d": {"$gte": today - timedelta(days=1)},
-                }
-            )
-            live_cursor.sort("d", -1)
-            live_loaded, live_skipped = await restore_active_games(live_cursor, corr=False)
-            log.info(
-                "Loaded active live games from db: %s loaded, %s skipped",
-                live_loaded,
-                live_skipped,
-            )
+            with startup.phase("restore active live games"):
+                live_cursor = self.db.game.find(
+                    {
+                        **active_game_filter,
+                        "c": {"$ne": True},
+                        "d": {"$gte": today - timedelta(days=1)},
+                    }
+                )
+                live_cursor.sort("d", -1)
+                live_loaded, live_skipped = await restore_active_games(live_cursor, corr=False)
+                log.info(
+                    "Loaded active live games from db: %s loaded, %s skipped",
+                    live_loaded,
+                    live_skipped,
+                )
 
             async def load_correspondence_games_from_db() -> None:
                 try:
@@ -541,96 +568,110 @@ class PychessGlobalAppState:
                 finally:
                     self.correspondence_games_loaded.set()
 
-            await load_active_simuls(self)
+            with startup.phase("restore simuls + static content"):
+                await load_active_simuls(self)
 
-            await upsert_static_docs(self.db.video, VIDEOS)
-            if "ublog_post" not in db_collections:
-                await self.db.create_collection("ublog_post")
-            await self.db.ublog_post.create_index([("author", 1), ("live", 1), ("publishedAt", -1)])
-            await self.db.ublog_post.create_index(
-                [("live", 1), ("sticky", -1), ("publishedAt", -1)]
-            )
-            await self.db.ublog_post.create_index(
-                [("live", 1), ("blogType", 1), ("publishedAt", -1)]
-            )
-            await self.db.ublog_post.create_index([("author", 1), ("slug", 1)])
-            await self.db.ublog_post.create_index("legacyBlogId")
-            await self.db.ublog_post.create_index("topics")
+                await upsert_static_docs(self.db.video, VIDEOS)
+                if "ublog_post" not in db_collections:
+                    await self.db.create_collection("ublog_post")
+                await self.db.ublog_post.create_index(
+                    [("author", 1), ("live", 1), ("publishedAt", -1)]
+                )
+                await self.db.ublog_post.create_index(
+                    [("live", 1), ("sticky", -1), ("publishedAt", -1)]
+                )
+                await self.db.ublog_post.create_index(
+                    [("live", 1), ("blogType", 1), ("publishedAt", -1)]
+                )
+                await self.db.ublog_post.create_index([("author", 1), ("slug", 1)])
+                await self.db.ublog_post.create_index("legacyBlogId")
+                await self.db.ublog_post.create_index("topics")
 
-            if os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
-                # Run legacy bootstrap only for an empty target collection.
-                # This keeps first deploy fully automatic while preventing rewrites
-                # of migrated posts on every subsequent restart.
-                ublog_post_count = await self.db.ublog_post.count_documents({}, limit=1)
-                if ublog_post_count == 0:
-                    from legacy_blog_migration import build_legacy_ublog_docs
+                if os.getenv("LEGACY_BLOG_BOOTSTRAP", "1") == "1":
+                    # Run legacy bootstrap only for an empty target collection.
+                    # This keeps first deploy fully automatic while preventing rewrites
+                    # of migrated posts on every subsequent restart.
+                    ublog_post_count = await self.db.ublog_post.count_documents({}, limit=1)
+                    if ublog_post_count == 0:
+                        from legacy_blog_migration import build_legacy_ublog_docs
 
-                    legacy_blog_author_policy = os.getenv("LEGACY_BLOG_AUTHOR_POLICY", "keep")
-                    if legacy_blog_author_policy not in ("keep", "official-as-pychess"):
-                        legacy_blog_author_policy = "keep"
-                    await upsert_static_docs(
-                        self.db.ublog_post,
-                        build_legacy_ublog_docs(
-                            author_policy=legacy_blog_author_policy,
-                            strip_preamble=True,
-                        ),
+                        legacy_blog_author_policy = os.getenv("LEGACY_BLOG_AUTHOR_POLICY", "keep")
+                        if legacy_blog_author_policy not in ("keep", "official-as-pychess"):
+                            legacy_blog_author_policy = "keep"
+                        await upsert_static_docs(
+                            self.db.ublog_post,
+                            build_legacy_ublog_docs(
+                                author_policy=legacy_blog_author_policy,
+                                strip_preamble=True,
+                            ),
+                        )
+
+            with startup.phase("restore fishnet + config + user migrations"):
+                if "fishnet" in db_collections:
+                    cursor = self.db.fishnet.find()
+                    async for doc in cursor:
+                        FISHNET_KEYS[doc["_id"]] = doc["name"]
+                        self.fishnet_monitor[doc["name"]] = collections.deque([], 50)
+
+                if "config" not in db_collections:
+                    await self.db.config.insert_one(
+                        {"name": "logging.config", "value": DEFAULT_LOGGING_CONFIG}
+                    )
+                    await self.db.config.create_index("name")
+                await self.db.config.update_one(
+                    {"name": CEVAL_AUTO_LOSE_CONFIG_NAME},
+                    {"$setOnInsert": {"value": False}},
+                    upsert=True,
+                )
+
+                if CHEAT_REPORT_COLLECTION not in db_collections:
+                    await self.db.create_collection(CHEAT_REPORT_COLLECTION)
+                await self.db[CHEAT_REPORT_COLLECTION].create_index("createdAt")
+                await self.db[CHEAT_REPORT_COLLECTION].create_index("gameId")
+                await self.db[CHEAT_REPORT_COLLECTION].create_index("suspect")
+
+                await self.db.user.update_many(
+                    {USERNAME_LOWER_FIELD: {"$exists": False}},
+                    [{"$set": {USERNAME_LOWER_FIELD: {"$toLower": "$_id"}}}],
+                )
+                await self.db.user.create_index(
+                    USERNAME_LOWER_FIELD,
+                    name="username_lower",
+                    partialFilterExpression={USERNAME_LOWER_FIELD: {"$type": "string"}},
+                )
+
+                # TODO: remove this after OAuth2 PR deployed !!!
+                userCollectionHasLichessOauth2Fields = await self.db.user.find_one(
+                    {
+                        "_id": "Fairy-Stockfish",
+                        "oauth_id": "fairy-stockfish",
+                        "oauth_provider": "lichess",
+                    }
+                )
+                if userCollectionHasLichessOauth2Fields is None:
+                    await self.db.user.update_many(
+                        {},  # Empty filter to select all documents
+                        [
+                            {
+                                "$set": {
+                                    "oauth_id": {"$toLower": "$_id"},
+                                    "oauth_provider": "lichess",
+                                }
+                            }
+                        ],
                     )
 
-            if "fishnet" in db_collections:
-                cursor = self.db.fishnet.find()
-                async for doc in cursor:
-                    FISHNET_KEYS[doc["_id"]] = doc["name"]
-                    self.fishnet_monitor[doc["name"]] = collections.deque([], 50)
-
-            if "config" not in db_collections:
-                await self.db.config.insert_one(
-                    {"name": "logging.config", "value": DEFAULT_LOGGING_CONFIG}
+            with startup.phase("schedule correspondence restore"):
+                self.create_background_task(
+                    load_correspondence_games_from_db(),
+                    name="load-correspondence-games",
                 )
-                await self.db.config.create_index("name")
-            await self.db.config.update_one(
-                {"name": CEVAL_AUTO_LOSE_CONFIG_NAME},
-                {"$setOnInsert": {"value": False}},
-                upsert=True,
-            )
-
-            if CHEAT_REPORT_COLLECTION not in db_collections:
-                await self.db.create_collection(CHEAT_REPORT_COLLECTION)
-            await self.db[CHEAT_REPORT_COLLECTION].create_index("createdAt")
-            await self.db[CHEAT_REPORT_COLLECTION].create_index("gameId")
-            await self.db[CHEAT_REPORT_COLLECTION].create_index("suspect")
-
-            await self.db.user.update_many(
-                {USERNAME_LOWER_FIELD: {"$exists": False}},
-                [{"$set": {USERNAME_LOWER_FIELD: {"$toLower": "$_id"}}}],
-            )
-            await self.db.user.create_index(
-                USERNAME_LOWER_FIELD,
-                name="username_lower",
-                partialFilterExpression={USERNAME_LOWER_FIELD: {"$type": "string"}},
-            )
-
-            # TODO: remove this after OAuth2 PR deployed !!!
-            userCollectionHasLichessOauth2Fields = await self.db.user.find_one(
-                {
-                    "_id": "Fairy-Stockfish",
-                    "oauth_id": "fairy-stockfish",
-                    "oauth_provider": "lichess",
-                }
-            )
-            if userCollectionHasLichessOauth2Fields is None:
-                await self.db.user.update_many(
-                    {},  # Empty filter to select all documents
-                    [{"$set": {"oauth_id": {"$toLower": "$_id"}, "oauth_provider": "lichess"}}],
-                )
-
-            self.create_background_task(
-                load_correspondence_games_from_db(),
-                name="load-correspondence-games",
-            )
 
         except Exception:
             log.error("init_from_db() Exception")
             raise
+        finally:
+            startup.log_summary()
 
     def __init_translations(self):
         base = os.path.dirname(__file__)
