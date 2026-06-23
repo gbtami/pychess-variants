@@ -94,18 +94,21 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
     result: NewGameMessage | ErrorMessage = await new_game(app_state, seek, gameId)  # noqa: F821
 
     if result["type"] == "new_game":
-        # TODO: use asyncio.Event()
-        wait_count = 0
-        while gameId not in app_state.invite_channels and wait_count < 10:
-            asyncio.sleep(1)  # type: ignore[unused-coroutine]
-            wait_count += 1
-            log.debug("BOT_API challenge_accept() WAITING FOR SSE: %s", wait_count)
+        if gameId not in app_state.invite_channels:
+            event = app_state.invite_events.setdefault(gameId, asyncio.Event())
+            try:
+                await asyncio.wait_for(event.wait(), timeout=10.0)
+            except asyncio.TimeoutError:
+                log.warning("BOT_API challenge_accept() SSE timeout for %s", gameId)
+            finally:
+                app_state.invite_events.pop(gameId, None)
 
         try:
             # Put response data to sse subscriber queue
-            channels = app_state.invite_channels[gameId]
-            for queue in channels:
-                await queue.put(json_dumps({"gameId": gameId, "accept": True}))
+            channels = app_state.invite_channels.get(gameId)
+            if channels is not None:
+                for queue in channels:
+                    await queue.put(json_dumps({"gameId": gameId, "accept": True}))
         except ConnectionResetError:
             log.error("/api/challenge/{%s}/accept ConnectionResetError", gameId)
 
@@ -129,18 +132,21 @@ async def challenge_decline(request: web.Request) -> web.StreamResponse:
     if TYPE_CHECKING:
         assert gameId is not None
 
-    # TODO: use asyncio.Event()
-    wait_count = 0
-    while gameId not in app_state.invite_channels and wait_count < 10:
-        await asyncio.sleep(1)
-        wait_count += 1
-        log.debug("BOT_API challenge_decline() WAITING FOR SSE: %s", wait_count)
+    if gameId not in app_state.invite_channels:
+        event = app_state.invite_events.setdefault(gameId, asyncio.Event())
+        try:
+            await asyncio.wait_for(event.wait(), timeout=10.0)
+        except asyncio.TimeoutError:
+            log.warning("BOT_API challenge_decline() SSE timeout for %s", gameId)
+        finally:
+            app_state.invite_events.pop(gameId, None)
 
     try:
         # Put response data to sse subscriber queue
-        channels = app_state.invite_channels[gameId]
-        for queue in channels:
-            await queue.put(json_dumps({"gameId": gameId, "accept": False}))
+        channels = app_state.invite_channels.get(gameId)
+        if channels is not None:
+            for queue in channels:
+                await queue.put(json_dumps({"gameId": gameId, "accept": False}))
     except ConnectionResetError:
         log.error("/api/challenge/{%s}/decline ConnectionResetError", gameId)
 
