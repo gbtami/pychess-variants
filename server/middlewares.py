@@ -9,11 +9,16 @@ from typing import Awaitable, Callable
 
 import aiohttp_session
 from aiohttp import web
+from urllib.parse import urlparse
 
 from lang import LOCALE
 from request_utils import safe_log_value
+from settings import URI
 from users import NotInDbUsers
 from views import page404
+
+# Parsed once at import time — used by redirect_to_canonical_host middleware.
+_CANONICAL_HOST: str = urlparse(URI).netloc
 
 log = logging.getLogger(__name__)
 Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
@@ -96,6 +101,19 @@ async def redirect_to_https(request: web.Request, handler: Handler) -> web.Strea
         # request = request.clone(scheme="https")
         url = request.url.with_scheme("https").with_port(None)
         raise web.HTTPPermanentRedirect(url)
+
+    return await handler(request)
+
+
+@web.middleware
+async def redirect_to_canonical_host(request: web.Request, handler: Handler) -> web.StreamResponse:
+    # Redirect raw Heroku hostname to the canonical domain (URI env var, e.g.
+    # https://pychess.org) while preserving the full path and query string.
+    # Without this, pychess-variants.herokuapp.com/analysis/chess redirected to
+    # pychess.org (root) via Heroku's built-in custom-domain redirect, losing
+    # the path entirely.
+    if _CANONICAL_HOST and request.host != _CANONICAL_HOST:
+        raise web.HTTPMovedPermanently(f"{URI.rstrip('/')}{request.path_qs}")
 
     return await handler(request)
 
