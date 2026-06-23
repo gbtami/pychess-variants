@@ -24,6 +24,7 @@ from db_wrapper import AsyncDBWrapper
 from middlewares import (
     cross_origin_policy_middleware,
     handle_404,
+    redirect_to_canonical_host,
     redirect_to_https,
     request_timing_middleware,
     set_user_locale,
@@ -69,6 +70,7 @@ def make_app(
     )
 
     app.middlewares.append(redirect_to_https)
+    app.middlewares.append(redirect_to_canonical_host)
     app[request_protection_state_key] = RequestProtectionState()
     app.middlewares.append(request_protection_middleware)
     app.middlewares.append(request_timing_middleware)
