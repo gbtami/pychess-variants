@@ -688,14 +688,19 @@ async def handle_rematch(
             reused_fen = False
 
         if opp_player.bot:
-            if opp_player.username == "Random-Mover":
-                engine = app_state.users["Random-Mover"]
-            else:
-                engine = app_state.users["Fairy-Stockfish"]
+            engine = opp_player
 
-            if engine is None or not engine.online:
-                # TODO: message that engine is offline, but capture BOT will play instead
-                engine = app_state.users["Random-Mover"]
+            if not engine.online:
+                if engine.username in ("Fairy-Stockfish", "Random-Mover"):
+                    # Preserve old built-in-AI fallback behavior.
+                    engine = app_state.users["Random-Mover"]
+                else:
+                    error_response = {
+                        "type": "error",
+                        "message": f"{engine.username} BOT is offline",
+                    }
+                    await ws_send_json(ws, error_response)
+                    return error_response
 
             color = "w" if game.wplayer.username == opp_name else "b"
             if handicap:
