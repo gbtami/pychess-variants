@@ -13,16 +13,7 @@ from pymongo.errors import BulkWriteError
 from aiohttp_swagger3 import swagger_doc
 
 from compress import C2R, decode_move_standard
-from const import (
-    DARK_FEN,
-    STARTED,
-    MATE,
-    INVALIDMOVE,
-    VARIANTEND,
-    CLAIM,
-    SSE_GET_TIMEOUT,
-    SWISS,
-)
+from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM, SSE_GET_TIMEOUT, SWISS
 from convert import zero2grand
 from settings import ADMINS
 from tournament.tournaments import get_tournament_name, load_tournament
@@ -195,9 +186,7 @@ def variant_counts_from_docs(
         except KeyError:
             if variant not in _seen_discontinued_variants:
                 _seen_discontinued_variants.add(variant)
-                log.info(
-                    "Ignoring discontinued variant %s in historical stats", variant
-                )
+                log.info("Ignoring discontinued variant %s in historical stats", variant)
 
 
 async def get_variant_stats(request: web.Request) -> web.StreamResponse:
@@ -240,9 +229,7 @@ async def get_variant_stats(request: web.Request) -> web.StreamResponse:
             docs = await variant_counts_aggregation(app_state, humans)
             variant_counts_from_docs(variant_counts, docs)
 
-        series = [
-            {"name": variant, "data": variant_counts[variant]} for variant in VARIANTS
-        ]
+        series = [{"name": variant, "data": variant_counts[variant]} for variant in VARIANTS]
 
         stats[cur_period] = series
 
@@ -296,9 +283,7 @@ def _parse_positive_int_query_param(request: web.Request, name: str) -> int | No
             text=f"Query parameter '{name}' must be a positive integer."
         ) from error
     if value <= 0:
-        raise web.HTTPBadRequest(
-            text=f"Query parameter '{name}' must be a positive integer."
-        )
+        raise web.HTTPBadRequest(text=f"Query parameter '{name}' must be a positive integer.")
     return value
 
 
@@ -345,16 +330,9 @@ def _build_user_games_filter_cond(
     elif selected_filter == "loss":
         if level is not None:
             filter_cond["$and"] = [
-                {
-                    "$or": [
-                        {"r": "a", "us.1": profile_id},
-                        {"r": "b", "us.0": profile_id},
-                    ]
-                },
+                {"$or": [{"r": "a", "us.1": profile_id}, {"r": "b", "us.0": profile_id}]},
                 {"x": int(level)},
-                {
-                    "$or": [{"if": None}, {"v": "j"}]
-                },  # Janggi games always have initial FEN!
+                {"$or": [{"if": None}, {"v": "j"}]},  # Janggi games always have initial FEN!
                 {
                     "$or": [
                         {"s": MATE},
@@ -370,10 +348,7 @@ def _build_user_games_filter_cond(
                 {"r": "b", "us.0": profile_id},
             ]
     elif selected_filter == "rated":
-        filter_cond["$or"] = [
-            {"y": 1, "us.1": profile_id},
-            {"y": 1, "us.0": profile_id},
-        ]
+        filter_cond["$or"] = [{"y": 1, "us.1": profile_id}, {"y": 1, "us.0": profile_id}]
     elif selected_filter == "playing":
         filter_cond["$and"] = [
             {"$or": [{"c": True, "us.1": profile_id}, {"c": True, "us.0": profile_id}]},
@@ -448,9 +423,7 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
     if TYPE_CHECKING:
         assert profileId is not None
 
-    selected_filter, selected_variant, path_parts = (
-        _resolve_user_games_filter_and_variant(request)
-    )
+    selected_filter, selected_variant, path_parts = _resolve_user_games_filter_and_variant(request)
 
     # print("URL", request.rel_url)
     level = request.rel_url.query.get("x")
@@ -482,9 +455,7 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
             if latest_games is not None:
                 cursor.limit(latest_games)
         else:
-            cursor.sort("d", -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(
-                GAME_PAGE_SIZE
-            )
+            cursor.sort("d", -1).skip(int(page_num) * GAME_PAGE_SIZE).limit(GAME_PAGE_SIZE)
         doc: GameDoc
         async for doc in cursor:
             try:
@@ -496,41 +467,25 @@ async def get_user_games(request: web.Request) -> web.StreamResponse:
 
             doc["r"] = C2R[doc["r"]]
             doc["wt"] = (
-                app_state.users[doc["us"][0]].title
-                if doc["us"][0] in app_state.users
-                else ""
+                app_state.users[doc["us"][0]].title if doc["us"][0] in app_state.users else ""
             )
             doc["bt"] = (
-                app_state.users[doc["us"][1]].title
-                if doc["us"][1] in app_state.users
-                else ""
+                app_state.users[doc["us"][1]].title if doc["us"][1] in app_state.users else ""
             )
 
             if len(doc["us"]) > 2:
                 doc["wtB"] = (
-                    app_state.users[doc["us"][2]].title
-                    if doc["us"][2] in app_state.users
-                    else ""
+                    app_state.users[doc["us"][2]].title if doc["us"][2] in app_state.users else ""
                 )
                 doc["btB"] = (
-                    app_state.users[doc["us"][3]].title
-                    if doc["us"][3] in app_state.users
-                    else ""
+                    app_state.users[doc["us"][3]].title if doc["us"][3] in app_state.users else ""
                 )
 
             server_variant = get_server_variant(variant, bool(doc.get("z", 0)))
             decode_method = server_variant.move_decoding
             if server_variant.two_boards:
-                mA = [
-                    m
-                    for idx, m in enumerate(doc["m"])
-                    if "o" in doc and doc["o"][idx] == 0
-                ]
-                mB = [
-                    m
-                    for idx, m in enumerate(doc["m"])
-                    if "o" in doc and doc["o"][idx] == 1
-                ]
+                mA = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 0]
+                mB = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 1]
                 doc["lm"] = decode_move_standard(mA[-1]) if len(mA) > 0 else ""
                 doc["lmB"] = decode_move_standard(mB[-1]) if len(mB) > 0 else ""
             else:
@@ -605,9 +560,7 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
         async with sse_response(request) as response:
             while response.is_connected():
                 try:
-                    payload = await asyncio.wait_for(
-                        queue.get(), timeout=SSE_GET_TIMEOUT
-                    )
+                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
                     await response.send(payload)
                     queue.task_done()
                 except asyncio.TimeoutError:
@@ -633,9 +586,7 @@ async def subscribe_games(request: web.Request) -> web.StreamResponse:
         async with sse_response(request) as response:
             while response.is_connected():
                 try:
-                    payload = await asyncio.wait_for(
-                        queue.get(), timeout=SSE_GET_TIMEOUT
-                    )
+                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
                     await response.send(payload)
                     queue.task_done()
                 except asyncio.TimeoutError:
@@ -688,14 +639,9 @@ async def _get_games(request: web.Request) -> web.StreamResponse:
             }
             for game in games
             if game.status == STARTED
+            and ((game.variant == variant and game.chess960 == chess960) if variant else True)
             and (
-                (game.variant == variant and game.chess960 == chess960)
-                if variant
-                else True
-            )
-            and (
-                (f"{game.variant}960" if game.chess960 else game.variant)
-                in allowed_variants
+                (f"{game.variant}960" if game.chess960 else game.variant) in allowed_variants
                 if allowed_variants is not None
                 else True
             )
@@ -739,8 +685,7 @@ async def _stream_pgn_cursor(
                 failed += 1
                 if len(failed_games) < EXPORT_FAILED_SAMPLE_LIMIT:
                     failed_games.append(
-                        "%s %s %s"
-                        % (doc["_id"], C2V[doc["v"]], doc["d"].strftime("%Y.%m.%d"))
+                        "%s %s %s" % (doc["_id"], C2V[doc["v"]], doc["d"].strftime("%Y.%m.%d"))
                     )
                 continue
         log.info("failed/all: %s/%s", failed, game_counter)
@@ -779,9 +724,7 @@ async def export_user_pgn(request: web.Request) -> web.StreamResponse:
     if session_user != profileId and session_user not in ADMINS:
         raise web.HTTPForbidden(text="Users can only export their own games.")
 
-    selected_filter, selected_variant, _path_parts = (
-        _resolve_user_games_filter_and_variant(request)
-    )
+    selected_filter, selected_variant, _path_parts = _resolve_user_games_filter_and_variant(request)
     level = request.rel_url.query.get("x")
     filter_cond = _build_user_games_filter_cond(
         profile_id=profileId,
@@ -837,9 +780,7 @@ async def export_monthly_pgn(request: web.Request) -> web.StreamResponse:
     log.debug("yearmonth: %r %r", yearmonth[:4], yearmonth[4:])
     filter_cond = {
         "$and": [
-            {
-                "$expr": {"s": {"$gt": STARTED}}
-            },  # prevent leaking ongoing fogofwar game info
+            {"$expr": {"s": {"$gt": STARTED}}},  # prevent leaking ongoing fogofwar game info
             {"$expr": {"$eq": [{"$year": "$d"}, int(yearmonth[:4])]}},
             {"$expr": {"$eq": [{"$month": "$d"}, int(yearmonth[4:])]}},
         ]
