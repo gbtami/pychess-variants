@@ -97,8 +97,8 @@ class ArenaTournament(Tournament):
         # print(rx_nodes)
         # print("---")
 
-        sorted_usernames = [p.username for p in self.leaderboard]
-        ranks = [sorted_usernames.index(p.username) + 1 for p in waiting_players]
+        rank_by_username = {p.username: i + 1 for i, p in enumerate(self.leaderboard)}
+        ranks = [rank_by_username[p.username] for p in waiting_players]
         rank_max = max(ranks)
 
         # https://github.com/lichess-org/lila/blob/master/modules/tournament/src/main/arena/PairingSystem.scala
@@ -138,12 +138,11 @@ class ArenaTournament(Tournament):
 
         edges = list(rxg.edge_list())
         weights = rxg.edges()
+        edge_index: dict[tuple[int, int], int] = {pair: i for i, pair in enumerate(edges)}
         sum_weight = 0
         for pair in matching:
-            try:
-                ind = edges.index(pair)
-            except ValueError:
-                ind = edges.index((pair[1], pair[0]))
+            ind = edge_index[pair] if pair in edge_index else edge_index[(pair[1], pair[0])]
+            sum_weight += weights[ind]
             sum_weight += weights[ind]
             log.debug("%r %r %r", rxg[pair[0]], rxg[pair[1]], weights[ind])
 
