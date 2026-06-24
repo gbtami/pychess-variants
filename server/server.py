@@ -3,6 +3,7 @@ from __future__ import annotations
 import logger
 import argparse
 import asyncio
+import uvloop
 import faulthandler
 import logging
 import os
@@ -267,6 +268,7 @@ if __name__ == "__main__":
     startup.log_summary()
     log.info("[startup] handing off to aiohttp web.run_app()")
 
+    uvloop.install()
     web.run_app(
         app,
         access_log=None,
