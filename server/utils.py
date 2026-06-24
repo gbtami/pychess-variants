@@ -105,6 +105,16 @@ def should_send_game_start_to_bot(game: Game | GameBug) -> bool:
     return game.variant != "janggi" or not (game.bsetup or game.wsetup)
 
 
+async def send_bot_game_start_unless_streaming(player: User, game: Game | GameBug) -> bool:
+    """Queue bot gameStart unless Janggi setup is incomplete or a live stream exists."""
+    if not should_send_game_start_to_bot(game):
+        return False
+    if game.id in player.active_game_streams:
+        return False
+    await player.event_queue.put(game.game_start)
+    return True
+
+
 def activate_correspondence_game(game: Game) -> None:
     """Attach an active correspondence game to its players and restore its clock.
 
@@ -1026,7 +1036,7 @@ async def play_move(
                     "Fairy-Stockfish",
                 )
             ):
-                await users[opp_name].event_queue.put(game.game_start)
+                await send_bot_game_start_unless_streaming(users[opp_name], game)
             await put_bot_game_queue(users[opp_name], gameId, game.game_state)
     else:
         if not invalid_move:

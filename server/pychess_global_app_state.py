@@ -92,7 +92,7 @@ from typedefs import anon_as_test_users_key, client_key
 from twitch import Twitch
 from user import User
 from users import Users, NotInDbUsers
-from utils import load_game_from_doc, should_send_game_start_to_bot
+from utils import load_game_from_doc, send_bot_game_start_unless_streaming
 from videos import VIDEOS
 from youtube import Youtube
 from lang import LOCALE
@@ -502,8 +502,7 @@ class PychessGlobalAppState:
                         game.create_steps()
                     bot_player = game.wplayer if game.wplayer.bot else game.bplayer
                     bot_player.game_queues[game_id] = asyncio.Queue()
-                    if should_send_game_start_to_bot(game):
-                        await bot_player.event_queue.put(game.game_start)
+                    await send_bot_game_start_unless_streaming(bot_player, game)
                     await bot_player.game_queues[game_id].put(game.game_full)
 
                 if game.ply > 0:

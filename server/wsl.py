@@ -94,7 +94,7 @@ from ws_structs import LOBBY_TYPED_DECODERS
 from tournament_director import is_tournament_director
 from tournament.tournament_spotlights import tournament_spotlights
 from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
-from utils import join_seek, load_game, remove_seek, should_send_game_start_to_bot
+from utils import join_seek, load_game, remove_seek, send_bot_game_start_unless_streaming
 from websocket_utils import get_user, process_ws, ws_send_json, ws_send_json_many
 import logging
 import logger
@@ -300,8 +300,7 @@ async def handle_create_ai_challenge(
         gameId = response["gameId"]
         engine.game_queues[gameId] = asyncio.Queue()
         game = app_state.games[gameId]
-        if should_send_game_start_to_bot(game):
-            await engine.event_queue.put(game.game_start)
+        await send_bot_game_start_unless_streaming(engine, game)
 
 
 async def handle_create_seek(
@@ -557,8 +556,7 @@ async def handle_accept_seek(
             gameId = response["gameId"]
             seek.creator.game_queues[gameId] = asyncio.Queue()
             game = app_state.games[gameId]
-            if should_send_game_start_to_bot(game):
-                await seek.creator.event_queue.put(game.game_start)
+            await send_bot_game_start_unless_streaming(seek.creator, game)
         else:
             ws_set = tuple(seek.creator.lobby_sockets)
             if len(ws_set) == 0:

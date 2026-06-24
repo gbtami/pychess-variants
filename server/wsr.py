@@ -79,10 +79,10 @@ from ws_structs import ROUND_TYPED_DECODERS
 from ws_types import BughouseMoveMessage, MoveMessage, RoundInboundMessage
 from utils import (
     analysis_move,
-    play_move,
     join_seek,
     load_game,
-    should_send_game_start_to_bot,
+    play_move,
+    send_bot_game_start_unless_streaming,
     tv_game,
     tv_game_user,
 )
@@ -574,8 +574,8 @@ async def handle_setup(
 
         await game.save_setup()
 
-        if opp_player is not None and opp_player.bot and should_send_game_start_to_bot(game):
-            await opp_player.event_queue.put(game.game_start)
+        if opp_player is not None and opp_player.bot:
+            await send_bot_game_start_unless_streaming(opp_player, game)
 
         # restart expiration time after setup phase
         if TYPE_CHECKING:
@@ -735,8 +735,7 @@ async def handle_rematch(
             game.rematch_id = rematch_id
             engine.game_queues[gameId] = asyncio.Queue()
             rematch_game = app_state.games[gameId]
-            if should_send_game_start_to_bot(rematch_game):
-                await engine.event_queue.put(rematch_game.game_start)
+            await send_bot_game_start_unless_streaming(engine, rematch_game)
         else:
             if opp_name in game.rematch_offers:
                 color = "w" if game.wplayer.username == opp_name else "b"
