@@ -167,9 +167,13 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
         # We notify BOT and he can ask to create new game_streams
         # to continue those games
         for gameId in bot_player.game_queues:
-            if gameId in app_state.games and app_state.games[gameId].status == STARTED:
-                if should_send_game_start_to_bot(app_state.games[gameId]):
-                    await bot_player.event_queue.put(app_state.games[gameId].game_start)
+            if (
+                gameId in app_state.games
+                and app_state.games[gameId].status == STARTED
+                and gameId not in bot_player.active_game_streams
+                and should_send_game_start_to_bot(app_state.games[gameId])
+            ):
+                await bot_player.event_queue.put(app_state.games[gameId].game_start)
     else:
         bot_player = User(app_state, bot=True, username=username)  # noqa: F821
         app_state.users[bot_player.username] = bot_player
@@ -218,8 +222,12 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
         await resp.write_eof()
     except Exception:
         log.error("Writing EOF to BOT event_stream failed!")
+        pinger_task.cancel()
+        try:
+            await pinger_task
+        except asyncio.CancelledError:
+            pass
 
-    pinger_task.cancel()
     await bot_player.clear_seeks()
     return resp
 
@@ -239,6 +247,16 @@ async def game_stream(request: web.Request) -> web.StreamResponse:
     await resp.prepare(request)
 
     bot_player = app_state.users[username]  # noqa: F821
+
+    if gameId in bot_player.active_game_streams:
+        log.warning(
+            "Duplicate BOT game_stream ignored. bot=%s game=%s",
+            bot_player.username,
+            gameId,
+        )
+        raise web.HTTPConflict(text="game stream already active")
+
+    bot_player.active_game_streams.add(gameId)
 
     log.info("+++ %s connected to %s game stream", bot_player.username, gameId)
 
@@ -275,7 +293,13 @@ async def game_stream(request: web.Request) -> web.StreamResponse:
         await resp.write_eof()
     except Exception:
         log.error("Writing EOF to BOT game_stream failed!")
-    pinger_task.cancel()
+    finally:
+        bot_player.active_game_streams.discard(gameId)
+        pinger_task.cancel()
+        try:
+            await pinger_task
+        except asyncio.CancelledError:
+            pass
 
     return resp
 

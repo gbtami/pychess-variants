@@ -179,6 +179,7 @@ class User:
         if self.bot:
             self.event_queue: Queue[str] = asyncio.Queue()
             self.game_queues: dict[str, Queue[str]] = {}
+            self.active_game_streams: set[str] = set()
             self.title = "BOT"
 
         self.online: bool = False

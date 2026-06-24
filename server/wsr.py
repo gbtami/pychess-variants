@@ -395,8 +395,11 @@ async def handle_ready(
     opp_player = await users.get(opp_name)
     response: GameStartMessage = {"type": "gameStart", "gameId": data["gameId"]}
     if opp_player is not None and opp_player.bot:
-        if should_send_game_start_to_bot(game):
-            await opp_player.event_queue.put(game.game_start)
+        # Do NOT send game.game_start here!
+        # Bot games are already started by challenge_accept/create-ai/rematch/etc.
+        # Sending it again starts a second pychess-bot worker for the same game.
+        # if should_send_game_start_to_bot(game):
+        #     await opp_player.event_queue.put(game.game_start)
 
         await ws_send_json(ws, response)
     else:

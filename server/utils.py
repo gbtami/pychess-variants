@@ -982,8 +982,11 @@ async def play_move(
             # Clear the one-shot capture hint after each move to avoid reuse.
             game.last_jieqi_capture = None
 
-    if user.bot and game.status > STARTED:
-        await put_bot_game_queue(user, gameId, game.game_end)
+    if user.bot:
+        if game.status > STARTED:
+            await put_bot_game_queue(user, gameId, game.game_end)
+        elif not invalid_move:
+            await put_bot_game_queue(user, gameId, game.game_state)
 
     opp_name = (
         game.wplayer.username if user.username == game.bplayer.username else game.bplayer.username
