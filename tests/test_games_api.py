@@ -591,7 +591,7 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
 
     async def test_subscribe_invites_handles_sse_setup_error(self):
         game_id = "abcd1234"
-        app_state = SimpleNamespace(invite_channels={game_id: set()})
+        app_state = SimpleNamespace(invite_channels={game_id: set()}, invite_events={})
         request = SimpleNamespace(app=object(), match_info={"gameId": game_id})
 
         with (

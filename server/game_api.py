@@ -550,6 +550,11 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
         app_state.invite_channels[gameId] = set()
     app_state.invite_channels[gameId].add(queue)
 
+    # Signal challenge_accept/decline that the SSE channel is now ready.
+    event = app_state.invite_events.get(gameId)
+    if event is not None:
+        event.set()
+
     response: web.StreamResponse = web.Response(status=200)
     try:
         async with sse_response(request) as response:

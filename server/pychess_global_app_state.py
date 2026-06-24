@@ -169,6 +169,10 @@ class PychessGlobalAppState:
             self.invites: dict[str, Seek] = {}
             self.game_channels: Set[asyncio.Queue[str]] = set()
             self.invite_channels: dict[str, Set[asyncio.Queue[str]]] = {}
+            # Signalled by subscribe_invites() as soon as the SSE channel for a
+            # given gameId is ready. challenge_accept/decline wait on this instead
+            # of busy-polling invite_channels.
+            self.invite_events: dict[str, asyncio.Event] = {}
             self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
             self.lobby_leaderboard: list["LobbyLeaderboardEntry"] = []
             self.lobby_tournament_winners: list["TournamentWinnerEntry"] = []
