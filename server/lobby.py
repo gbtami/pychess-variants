@@ -31,6 +31,10 @@ class Lobby:
             str, set[WebSocketResponse]
         ] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
         self.lobbychat: Deque[ChatLine] = collections.deque([], MAX_CHAT_LINES)
+        # Cache the last broadcast count so we can skip the broadcast when the
+        # online count hasn't actually changed (e.g. a page-refresh causes a
+        # rapid leave+join that triggers two calls but net count is the same).
+        self._last_u_cnt: int = -1
 
     # below methods maybe best in separate class eventually
     async def lobby_broadcast(self, response: Mapping[str, object]) -> None:
@@ -41,8 +45,11 @@ class Lobby:
         await ws_send_json_many(all_sockets, response)
 
     async def lobby_broadcast_u_cnt(self) -> None:
-        # todo: probably wont scale great if we broadcast these on every user join/leave.
-        response: LobbyCountMessage = {"type": "u_cnt", "cnt": self.app_state.online_count()}
+        cnt = self.app_state.online_count()
+        if cnt == self._last_u_cnt:
+            return
+        self._last_u_cnt = cnt
+        response: LobbyCountMessage = {"type": "u_cnt", "cnt": cnt}
         await self.lobby_broadcast(response)
 
     async def lobby_broadcast_ap_cnt(self) -> None:
