@@ -46,15 +46,17 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             online=True,
             event_queue=SimpleNamespace(put=AsyncMock()),
             game_queues={},
+            active_game_streams=set(),
         )
         random_mover = SimpleNamespace(
             online=True,
             event_queue=SimpleNamespace(put=AsyncMock()),
             game_queues={},
+            active_game_streams=set(),
         )
         app_state = SimpleNamespace(
             users={"Fairy-Stockfish": fairy_engine, "Random-Mover": random_mover},
-            games={"g1": SimpleNamespace(variant="jieqi", game_start={"type": "gs"})},
+            games={"g1": SimpleNamespace(id="g1", variant="jieqi", game_start={"type": "gs"})},
             db=None,
         )
         seek_ctor = Mock(return_value=object())
@@ -81,9 +83,10 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             online=True,
             event_queue=SimpleNamespace(put=bot_put),
             game_queues={},
+            active_game_streams=set(),
         )
         game = SimpleNamespace(
-            variant="janggi", bsetup=True, wsetup=False, game_start={"type": "gs"}
+            id="g1", variant="janggi", bsetup=True, wsetup=False, game_start={"type": "gs"}
         )
         app_state = SimpleNamespace(
             users={"Fairy-Stockfish": engine, "Random-Mover": engine},
@@ -113,9 +116,10 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             online=True,
             event_queue=SimpleNamespace(put=bot_put),
             game_queues={},
+            active_game_streams=set(),
         )
         game = SimpleNamespace(
-            variant="janggi", bsetup=False, wsetup=False, game_start={"type": "gs"}
+            id="g1", variant="janggi", bsetup=False, wsetup=False, game_start={"type": "gs"}
         )
         app_state = SimpleNamespace(
             users={"Fairy-Stockfish": engine, "Random-Mover": engine},
@@ -145,6 +149,7 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             online=True,
             event_queue=SimpleNamespace(put=bot_put),
             game_queues={},
+            active_game_streams=set(),
         )
         seek = SimpleNamespace(
             id="seek1",
@@ -154,7 +159,7 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             target="bot",
         )
         game = SimpleNamespace(
-            variant="janggi", bsetup=True, wsetup=False, game_start={"type": "gs"}
+            id="g1", variant="janggi", bsetup=True, wsetup=False, game_start={"type": "gs"}
         )
         app_state = SimpleNamespace(
             seeks={"seek1": seek},
@@ -186,6 +191,7 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             online=True,
             event_queue=SimpleNamespace(put=bot_put),
             game_queues={},
+            active_game_streams=set(),
         )
         seek = SimpleNamespace(
             id="seek1",
@@ -195,7 +201,7 @@ class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):
             target="bot",
         )
         game = SimpleNamespace(
-            variant="janggi", bsetup=False, wsetup=False, game_start={"type": "gs"}
+            id="g1", variant="janggi", bsetup=False, wsetup=False, game_start={"type": "gs"}
         )
         app_state = SimpleNamespace(
             seeks={"seek1": seek},
