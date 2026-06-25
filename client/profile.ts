@@ -4,6 +4,7 @@ import { Chessground } from 'chessgroundx';
 import * as cg from "chessgroundx/types";
 
 import { _, ngettext, pgettext, languageSettings } from './i18n';
+import { alertDialog } from './alertDialog';
 import { getLastMoveFen, VARIANTS } from './variants';
 import { patch } from './document';
 import { renderTimeago } from './datetime';
@@ -338,20 +339,41 @@ function postBlock(e: Event, profileId: string, block: boolean) {
     const FD  = new FormData();
     FD.append('block', `${block}`);
 
+    function responseErrorMessage(): string {
+        if (!XHR.responseText) return _('Could not update block state.');
+        try {
+            const response = JSON.parse(XHR.responseText);
+            if (response['error'] === 'blocked_quota_reached') {
+                return _('Block limit reached.');
+            }
+        } catch {
+            // Ignore malformed responses and fall back to a generic message.
+        }
+        return _('Could not update block state.');
+    }
+
     XHR.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            const response = JSON.parse(this.responseText);
-            if (response['error'] !== undefined) {
-                console.log(response['error']);
+        if (this.readyState !== 4) return;
+
+        if (this.status !== 200) {
+            void alertDialog({ text: responseErrorMessage() });
+            return;
+        }
+
+        const response = this.responseText ? JSON.parse(this.responseText) : {};
+        if (response['error'] !== undefined) {
+            void alertDialog({ text: responseErrorMessage() });
+        } else {
+            if (block) {
+                renderUnblock('block', profileId);
             } else {
-                if (block) {
-                    renderUnblock('block', profileId);
-                } else {
-                    renderBlock('unblock', profileId);
-                }
+                renderBlock('unblock', profileId);
             }
         }
     }
+    XHR.onerror = function() {
+        void alertDialog({ text: _('Could not update block state.') });
+    };
     XHR.open("POST", `/api/${profileId}/block`, true);
     XHR.send(FD);
     return false;
