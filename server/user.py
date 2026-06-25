@@ -623,6 +623,7 @@ class User:
                 except Exception:
                     log.error("close_all_game_sockets() Exception for %s %s", self.username, ws)
         self.game_sockets.clear()
+        self.update_online()
 
     def is_user_active_in_game(self, game_id: str | None = None) -> bool:
         # todo: maybe also check if ws is still open or that the sets corresponding to (each) game_id are not empty?
