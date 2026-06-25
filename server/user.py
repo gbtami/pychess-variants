@@ -895,13 +895,15 @@ async def block_user(request: web.Request) -> web.StreamResponse:
     if user.anon or profileId == user.username:
         return web.Response(status=403)
 
-    if len(user.blocked) >= MAX_USER_BLOCK:
-        return json_response({"error": "blocked_quota_reached"}, status=400)
-
     post_data = await read_post_data(request)
     if post_data is None:
         return json_response({})
+
     block = post_data.get("block") == "true"
+
+    if block and profileId not in user.blocked and len(user.blocked) >= MAX_USER_BLOCK:
+        return json_response({"error": "blocked_quota_reached"}, status=400)
+
     rel_id = _relation_id(user.username, profileId)
     try:
         if block:
