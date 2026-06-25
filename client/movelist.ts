@@ -2,6 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
 import { GameController } from './gameCtrl';
+import { stepDisplaySan } from './notation';
 import { result } from './result'
 import { patch } from './document';
 import { AnalysisTreeNode } from './analysis/analysisTree';
@@ -250,7 +251,7 @@ function renderTreeMove(
     parentPath = '',
     parentDisclose?: TreeDiscloseState,
 ): VNode {
-    const move = (ctrl.fog && ctrl.status < 0 && (node.step.turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : node.step.san;
+    const move = (ctrl.fog && ctrl.status < 0 && (node.step.turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : stepDisplaySan(node.step);
     const activePath = ctrl.getTreeActivePath?.();
     const isWhiteMove = node.step.turnColor === 'black';
     let prefix = '';
@@ -448,7 +449,7 @@ function renderTreeColumnMove(
     parentPath = '',
     parentDisclose?: TreeDiscloseState,
 ): VNode {
-    const move = (ctrl.fog && ctrl.status < 0 && (node.step.turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : node.step.san;
+    const move = (ctrl.fog && ctrl.status < 0 && (node.step.turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : stepDisplaySan(node.step);
     const activePath = ctrl.getTreeActivePath?.();
     const scoreStr = node.step.scoreStr ?? '';
     const evalNode = node.mainlinePly !== undefined
@@ -720,7 +721,7 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
             click: (event: MouseEvent) => event.stopPropagation(),
         },
     }, [
-        h('div.title', current.step.san ?? _('Start position')),
+        h('div.title', stepDisplaySan(current.step) ?? _('Start position')),
         ...actions,
     ]);
 }
@@ -766,7 +767,7 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
     }
 
     for (let ply = plyFrom; ply < plyTo; ply++) {
-        const move = (ctrl.fog && ctrl.status < 0 && (ctrl.steps[ply].turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : ctrl.steps[ply].san;
+        const move = (ctrl.fog && ctrl.status < 0 && (ctrl.steps[ply].turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : stepDisplaySan(ctrl.steps[ply]);
         if (move === null) continue;
 
         const whiteMove = ctrl.steps[ply].turnColor === 'black';

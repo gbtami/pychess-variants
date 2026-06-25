@@ -5,9 +5,15 @@ import * as cg from 'chessgroundx/types';
 import { Api } from 'chessgroundx/api';
 
 import { _ } from './i18n';
+import {
+    notationOptionsForVariant,
+    notationSettingsName,
+    selectedNotationOptionId,
+    supportsNotationSelection,
+} from './notation';
 import { ensureBoardStyleOverride, ensurePieceCSS, pieceStyleClass } from './document';
-import { Settings, NumberSettings, BooleanSettings } from './settings';
-import { slider, checkbox } from './view';
+import { Settings, NumberSettings, BooleanSettings, StringSettings } from './settings';
+import { slider, checkbox, select } from './view';
 import { BoardName, PyChessModel } from "./types";
 import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
 import { renderResized, updateBounds } from "chessgroundx/render";
@@ -36,6 +42,7 @@ export interface BoardController {
     chartFunctions?: any[];
     vmaterial0?: VNode | HTMLElement;
     vmaterial1?: VNode | HTMLElement;
+    refreshNotation?: () => void;
 
     flipped(): boolean;
 }
@@ -132,6 +139,8 @@ class BoardSettings {
     getSettings(settingsType: string, family: string, boardName: BoardName = '', variant?: Variant) {
         const fullName = settingsType === "BoardStyle" && variant
             ? boardStyleSettingsName(variant)
+            : settingsType === "NotationStyle" && variant
+                ? notationSettingsName(variant)
             : settingsType === "PieceStyle"
                 ? pieceStyleSettingsName(family, variant)
                 : family + settingsType + boardName;
@@ -143,6 +152,10 @@ class BoardSettings {
                     break;
                 case "PieceStyle":
                     this.settings[fullName] = new PieceStyleSettings(this, family, variant);
+                    break;
+                case "NotationStyle":
+                    if (!variant) throw "NotationStyle settings require a variant";
+                    this.settings[fullName] = new NotationStyleSettings(this, variant);
                     break;
                 case "Zoom":
                     this.settings[fullName] = new ZoomSettings(this, family, boardName);
@@ -276,6 +289,9 @@ class BoardSettings {
         settingsList.push(this.settings["confirmCorrMove"].view());        
 
         settingsList.push(this.settings["materialDifference"].view());
+
+        if (supportsNotationSelection(variant))
+            settingsList.push(this.getSettings("NotationStyle", '', '', variant).view());
 
         if (variantName === modelVariant)
             if (variant.twoBoards) {
@@ -545,6 +561,34 @@ class MaterialDifferenceSettings extends BooleanSettings {
 
     view(): VNode {
         return h('div', checkbox(this, 'captured', _("Show material difference")));
+    }
+}
+
+class NotationStyleSettings extends StringSettings {
+    readonly boardSettings: BoardSettings;
+    readonly variant: Variant;
+
+    constructor(boardSettings: BoardSettings, variant: Variant) {
+        super(notationSettingsName(variant), selectedNotationOptionId(variant));
+        this.boardSettings = boardSettings;
+        this.variant = variant;
+    }
+
+    update(): void {
+        this.updateCtrl(this.boardSettings.ctrl);
+        this.updateCtrl(this.boardSettings.ctrl2);
+    }
+
+    private updateCtrl(ctrl: BoardController | undefined): void {
+        if (ctrl?.variant.name === this.variant.name) ctrl.refreshNotation?.();
+    }
+
+    view(): VNode {
+        const options = notationOptionsForVariant(this.variant).map((option) => ({
+            value: option.id,
+            label: _(option.label),
+        }));
+        return h('div.labelled', select(this, notationSettingsName(this.variant), _('Notation'), options));
     }
 }
 export const boardSettings = new BoardSettings();

@@ -5,6 +5,7 @@ import { selectMainlineMove } from './movelist.bug';
 import { Step } from "../messages";
 import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
 import { BLACK, WHITE } from "@/chess";
+import { stepDisplaySan } from "@/notation";
 import { BugBoardName } from "../types";
 import { displayUsername } from "@/user";
 
@@ -149,7 +150,9 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
         maxMove = Math.max(y, maxMove);
 
-        let label = step.boardName === 'a'? turnA + 'A. ' + step.san: turnB + 'B. ' + step.san;
+        let label = step.boardName === 'a'
+            ? turnA + 'A. ' + stepDisplaySan(step)
+            : turnB + 'B. ' + stepDisplaySan(step);
 
         const movePoint = {
             name: label,

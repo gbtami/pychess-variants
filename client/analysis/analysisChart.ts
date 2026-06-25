@@ -2,6 +2,7 @@ import Highcharts from "highcharts";
 
 import { _ } from '../i18n';
 import { selectMainlineMove } from '../movelist';
+import { stepDisplaySan } from '../notation';
 import { povChances } from './winningChances';
 import { AnalysisController } from './analysisCtrl';
 import { Step } from "../messages";
@@ -19,7 +20,7 @@ export function analysisChart(ctrl: AnalysisController) {
                     const turn = Math.floor((ply - 1) / 2) + 1;
                     const dots = step.turnColor === 'black' ? '.' : '...';
                     const point = {
-                        name: turn + dots + ' ' + step.san,
+                        name: turn + dots + ' ' + stepDisplaySan(step),
                         y: povChances(color, score)
                     };
                     if (ply === 0) point.name = _('Initial position');

@@ -2,6 +2,7 @@ import Highcharts from "highcharts";
 import type { Options } from "highcharts";
 
 import { selectMainlineMove } from '../movelist';
+import { stepDisplaySan } from '../notation';
 import { AnalysisController } from './analysisCtrl';
 import { Step } from "../messages";
 import { WHITE, BLACK } from '../chess';
@@ -59,7 +60,7 @@ export function movetimeChart(ctrl: AnalysisController) {
         const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
         maxMove = Math.max(y, maxMove);
 
-        let label = turn + (color ? '. ' : '... ') + step.san;
+        let label = turn + (color ? '. ' : '... ') + stepDisplaySan(step);
         const movePoint = {
             name: label,
             x: ply,

@@ -19,6 +19,7 @@ export interface Step {
     turnColor: cg.Color;
 
     san?: string;
+    displaySan?: string;
     analysis?: Ceval;
 
     ceval?: Ceval;

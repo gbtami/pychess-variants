@@ -33,6 +33,7 @@ import { BLACK, getTurnColor, uci2LastMove, WHITE } from "../chess";
 import { sound, soundThemeSettings } from "../sound";
 import { player } from "../player";
 import { WebsocketHeartbeatJs } from '../socket/socket';
+import { rebuildBughouseDisplaySans, stepDisplaySan } from "../notation";
 import { notify } from "../notification";
 import { Variant, VARIANTS } from "../variants";
 import { createWebsocket } from "@/socket/webSocketUtils";
@@ -542,6 +543,15 @@ export class RoundControllerBughouse implements ChatController {
         }
     }
 
+    private rebuildDisplayedSans() {
+        rebuildBughouseDisplaySans(this.b1.ffish, this.variant, this.b1.chess960, this.steps, this.b1.notationAsObject);
+    }
+
+    refreshNotation() {
+        this.rebuildDisplayedSans();
+        updateMovelist(this, true, false, this.status >= 0);
+    }
+
     private draw = async () => {
         // console.log("Draw");
         const confirmed = await confirmDialog({
@@ -747,6 +757,7 @@ export class RoundControllerBughouse implements ChatController {
                     chatMessage("", "Game over. All messages visible to all.", "bugroundchat", undefined, this.steps.length, this);
                 }
                 });
+            this.rebuildDisplayedSans();
             updateMovelist(this, true, true, false);
         } else { // single step message
             if (ply === this.steps.length) {
@@ -762,6 +773,9 @@ export class RoundControllerBughouse implements ChatController {
                 }
                 steps[0].plyA = this.plyA;
                 steps[0].plyB = this.plyB;
+                const board = steps[0].boardName === 'b' ? this.b2 : this.b1;
+                const move = steps[0].boardName === 'b' ? steps[0].moveB : steps[0].move;
+                steps[0].displaySan = move === undefined ? steps[0].san : board.san(move);
                 this.steps.push(steps[0]);
                 const full = false;
                 const activate = !this.spectator || latestPly;
@@ -936,7 +950,7 @@ export class RoundControllerBughouse implements ChatController {
                 board.partnerCC.setState(newFen, board.partnerCC.turnColor, lastMovePartner);
                 board.partnerCC.renderState();
 
-                if (!this.focus) this.notifyMsg(`Played ${step.san}\nYour turn.`);
+                if (!this.focus) this.notifyMsg(`Played ${stepDisplaySan(step)}\nYour turn.`);
 
                 if (board.premove) board.performPremove();
             }
