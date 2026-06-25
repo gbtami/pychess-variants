@@ -616,14 +616,13 @@ class User:
         await ws_send_str_many(ws_set, payload)
 
     async def close_all_game_sockets(self) -> None:
-        for ws_set in tuple(
-            self.game_sockets.values()
-        ):  # todo: also clean up this dict after closing?
+        for ws_set in tuple(self.game_sockets.values()):
             for ws in tuple(ws_set):
                 try:
                     await ws.close()
                 except Exception:
                     log.error("close_all_game_sockets() Exception for %s %s", self.username, ws)
+        self.game_sockets.clear()
 
     def is_user_active_in_game(self, game_id: str | None = None) -> bool:
         # todo: maybe also check if ws is still open or that the sets corresponding to (each) game_id are not empty?
@@ -897,8 +896,7 @@ async def block_user(request: web.Request) -> web.StreamResponse:
         return web.Response(status=403)
 
     if len(user.blocked) >= MAX_USER_BLOCK:
-        # TODO: Alert the user about blocked quota reached
-        raise web.HTTPFound("/@/%s" % profileId)
+        return json_response({"error": "blocked_quota_reached"}, status=400)
 
     post_data = await read_post_data(request)
     if post_data is None:
