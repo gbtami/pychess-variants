@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 import asyncio
+import math
 from datetime import datetime, timezone
 from time import monotonic
 
@@ -56,6 +57,20 @@ def _abort_reason(data: FishnetAbortPayload) -> str:
 
 def _work_timeout(work: FishnetWork) -> float:
     return ANALYSIS_WORK_TIME_OUT if work["work"]["type"] == "analysis" else MOVE_WORK_TIME_OUT
+
+
+def _winning_chances(score: dict) -> float:
+    """Convert a fishnet score dict to winning chances in [-1.0, 1.0] from White's POV.
+
+    Formula and mate conversion match pychess client/analysis/winningChances.ts,
+    which mirrors https://github.com/lichess-org/lila/blob/master/ui/ceval/src/winningChances.ts.
+    """
+    if "mate" in score:
+        mate = score["mate"]
+        cp = (21 - min(10, abs(mate))) * 100 * (1 if mate > 0 else -1)
+    else:
+        cp = max(-1000, min(1000, score.get("cp", 0)))
+    return 2 / (1 + math.exp(-0.004 * cp)) - 1
 
 
 def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | None = None) -> int:
@@ -323,13 +338,24 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
         if analysis is not None:
             try:
                 if "analysis" not in game.steps[i]:
-                    # TODO: save PV only for inaccuracy, mistake and blunder
-                    # see https://github.com/lichess-org/lila/blob/master/modules/analyse/src/main/Advice.scala
-                    game.steps[i]["analysis"] = {
+                    # Save PV only for inaccuracy, mistake, or blunder (winning chances drop >= 10%).
+                    # Thresholds from lila: github.com/lichess-org/lila/blob/master/modules/tree/src/main/Advice.scala
+                    prev = data["analysis"][i - 1] if i > 0 else None
+                    save_pv = (
+                        "pv" in analysis
+                        and prev is not None
+                        and abs(
+                            _winning_chances(analysis["score"]) - _winning_chances(prev["score"])
+                        )
+                        >= 0.1
+                    )
+                    step_analysis: dict = {
                         "s": analysis["score"],
                         "d": analysis["depth"],
-                        "p": analysis["pv"],
                     }
+                    if save_pv:
+                        step_analysis["p"] = analysis["pv"]
+                    game.steps[i]["analysis"] = step_analysis
                 else:
                     continue
             except KeyError:
