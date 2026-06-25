@@ -15,6 +15,7 @@ from typing_defs import (
     FishnetAnalysisPayload,
     FishnetKeyPayload,
     FishnetMovePayload,
+    FishnetScore,
     FishnetWork,
 )
 
@@ -59,7 +60,7 @@ def _work_timeout(work: FishnetWork) -> float:
     return ANALYSIS_WORK_TIME_OUT if work["work"]["type"] == "analysis" else MOVE_WORK_TIME_OUT
 
 
-def _winning_chances(score: dict) -> float:
+def _winning_chances(score: FishnetScore) -> float:
     """Convert a fishnet score dict to winning chances in [-1.0, 1.0] from White's POV.
 
     Formula and mate conversion match pychess client/analysis/winningChances.ts,
