@@ -696,6 +696,7 @@ async def handle_rematch(
             if not engine.online:
                 if engine.username in ("Fairy-Stockfish", "Random-Mover"):
                     # Preserve old built-in-AI fallback behavior.
+                    log.warning("%s is offline, falling back to Random-Mover", engine.username)
                     engine = app_state.users["Random-Mover"]
                 else:
                     error_response = {
