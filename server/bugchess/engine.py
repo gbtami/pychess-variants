@@ -1685,7 +1685,7 @@ class UciOptionMap(MutableMapping[str, T]):
                     return False
 
             return True
-        except (TypeError, AttributeError):
+        except TypeError, AttributeError:
             return NotImplemented
 
     def copy(self) -> "UciOptionMap[T]":

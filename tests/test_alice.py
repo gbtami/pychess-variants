@@ -2,7 +2,7 @@
 
 import unittest
 
-from fairy import FairyBoard, STANDARD_FEN
+from fairy import FEN_OK, NOTATION_SAN, FairyBoard, STANDARD_FEN, get_san_moves, validate_fen
 import test_logger
 
 test_logger.init_test_logger()
@@ -112,6 +112,21 @@ class AliceTestCase(unittest.TestCase):
                 board.pop()
 
             self.assertEqual(board.fen, STANDARD_FEN)
+
+    def test_alice_uses_pyffish_alice_engine(self):
+        board = FairyBoard("alice")
+
+        self.assertEqual(board.sf.__name__, "pyffish_alice")
+        self.assertEqual(validate_fen(board.fen, "alice", False), FEN_OK)
+
+        legal_moves = board.legal_moves()
+        self.assertIn("e2e4", legal_moves)
+        self.assertIn("g1f3", legal_moves)
+
+        self.assertEqual(
+            get_san_moves("alice", board.fen, ["e2e4", "e7e5"], False, NOTATION_SAN),
+            ["e4", "e5"],
+        )
 
     def test_game_with_castling(self):
         board = FairyBoard("alice")

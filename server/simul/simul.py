@@ -141,7 +141,7 @@ class Simul:
         perf = user.perfs.get(perf_key, {})
         try:
             rated_games = int(perf.get("nb", 0))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             rated_games = 0
 
         if self.entry_min_rated_games > 0 and rated_games < self.entry_min_rated_games:

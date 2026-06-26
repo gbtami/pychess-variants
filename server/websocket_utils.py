@@ -53,7 +53,7 @@ def _ws_json_loads(
             if decoder is not None:
                 try:
                     return decoder.decode(message)
-                except (msgspec.DecodeError, msgspec.ValidationError):
+                except msgspec.DecodeError, msgspec.ValidationError:
                     pass
     return _WS_JSON_DECODER.decode(message)
 
@@ -180,14 +180,15 @@ async def process_ws(
     finally:
         log.debug("%s finally: await ws.close() %s", request.rel_url.path, user.username)
         await ws.close()
-        return ws
+
+    return ws
 
 
 async def ws_send_str(ws: WebSocketResponse, msg: str) -> bool:
     try:
         await asyncio.wait_for(ws.send_str(msg), timeout=_SEND_TIMEOUT_SECS)
         return True
-    except (ConnectionResetError, ClientConnectionResetError, RuntimeError, asyncio.TimeoutError):
+    except ConnectionResetError, ClientConnectionResetError, RuntimeError, asyncio.TimeoutError:
         # Peer disconnected between scheduling and actual send.
         return False
 
@@ -226,7 +227,7 @@ async def ws_send_json(ws: WebSocketResponse | None, msg: Mapping[str, object] |
     try:
         await asyncio.wait_for(ws.send_str(_ws_json_dumps(msg)), timeout=_SEND_TIMEOUT_SECS)
         return True
-    except (ConnectionResetError, ClientConnectionResetError, RuntimeError, asyncio.TimeoutError):
+    except ConnectionResetError, ClientConnectionResetError, RuntimeError, asyncio.TimeoutError:
         # Peer disconnected between scheduling and actual send.
         return False
     except Exception:

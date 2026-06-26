@@ -678,7 +678,7 @@ async def _stream_pgn_cursor(
                 if pgn_text is not None:
                     await response.write(pgn_text.encode())
                     await asyncio.sleep(0)
-            except (ConnectionResetError, ClientConnectionResetError):
+            except ConnectionResetError, ClientConnectionResetError:
                 log.debug("%s", disconnect_message)
                 break
             except Exception:
@@ -694,7 +694,7 @@ async def _stream_pgn_cursor(
                 "PGN export skipped invalid/legacy games: %s",
                 "; ".join(failed_games),
             )
-    except (ConnectionResetError, ClientConnectionResetError):
+    except ConnectionResetError, ClientConnectionResetError:
         log.debug("%s", disconnect_message)
     except Exception:
         log.exception("An unexpected error occurred: ")
@@ -825,5 +825,5 @@ async def export_tournament_trf(request: web.Request) -> web.StreamResponse:
 async def safe_write_eof(response: web.StreamResponse) -> None:
     try:
         await response.write_eof()
-    except (ConnectionResetError, ClientConnectionResetError):
+    except ConnectionResetError, ClientConnectionResetError:
         log.debug("Connection closed before PGN export EOF write.")
