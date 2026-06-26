@@ -9,6 +9,13 @@ import aiohttp_session
 import msgspec
 from aiohttp import web
 
+from bot_accounts import (
+    create_bot_token,
+    list_bot_tokens,
+    revoke_bot_token,
+    upgrade_user_to_bot_account,
+    user_game_count,
+)
 from forum.constants import ERASED_POST_TEXT, ERASED_POST_USER, KEY_TO_REACTION
 from forum.storage import recompute_categ_summary, recompute_topic_summary
 from login import logout
@@ -24,6 +31,9 @@ log = logging.getLogger(__name__)
 
 MAX_EXPORT_ROWS = 20_000
 ERASED_MESSAGE_TEXT = "[deleted by account deletion request]"
+BOT_NOTICE_SESSION_KEY = "account_bot_notice"
+BOT_ERROR_SESSION_KEY = "account_bot_error"
+BOT_NEW_TOKEN_SESSION_KEY = "account_bot_new_token"
 
 
 def _json_default(value: Any) -> Any:
@@ -64,6 +74,29 @@ def _clear_public_user_cache(app_state: Any, username: str) -> None:
 
 def _reopen_token_hash(raw_token: str) -> str:
     return hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+
+
+def _set_account_bot_flash(
+    session: aiohttp_session.Session,
+    *,
+    notice: str = "",
+    error: str = "",
+    new_token: str = "",
+) -> None:
+    if notice:
+        session[BOT_NOTICE_SESSION_KEY] = notice
+    else:
+        session.pop(BOT_NOTICE_SESSION_KEY, None)
+
+    if error:
+        session[BOT_ERROR_SESSION_KEY] = error
+    else:
+        session.pop(BOT_ERROR_SESSION_KEY, None)
+
+    if new_token:
+        session[BOT_NEW_TOKEN_SESSION_KEY] = new_token
+    else:
+        session.pop(BOT_NEW_TOKEN_SESSION_KEY, None)
 
 
 async def _erase_forum_posts_by_user(app_state: Any, username: str, now: datetime) -> None:
@@ -207,6 +240,7 @@ async def _scrub_delete_owned_data(app_state: Any, user: Any, now: datetime) -> 
 
     await _erase_forum_posts_by_user(app_state, user.username, now)
     await db.ublog_post.delete_many({"author": user.username})
+    await db.bot_token.delete_many({"user": user.username})
     await db.push_subscription.delete_many({"user": user.username})
     await db.account_reopen_token.delete_many({"username": user.username})
     await db.notify.delete_many({"notifies": user.username})
@@ -232,6 +266,35 @@ async def account_personal_data(request: web.Request) -> ViewContext:
     if user.anon:
         raise web.HTTPFound("/login")
     context["view_css"] = "faq.css"
+    return context
+
+
+@aiohttp_jinja2.template("account_bot.html")
+async def account_bot(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    if user.anon:
+        raise web.HTTPFound("/login")
+
+    app_state = get_app_state(request.app)
+    session = await aiohttp_session.get_session(request)
+    user_doc: UserDocument | None = await app_state.db.user.find_one({"_id": user.username})
+    game_count = user_game_count(user_doc)
+    if user_doc is not None and user_doc.get("title") == "BOT" and not user.bot:
+        user.enable_bot_account()
+
+    context["view_css"] = "faq.css"
+    context["bot_tokens"] = await list_bot_tokens(app_state, user.username)
+    context["bot_account_title"] = user.title
+    context["bot_game_count"] = game_count
+    context["bot_upgrade_eligible"] = (not user.bot) and game_count == 0
+    context["bot_upgrade_reason"] = (
+        ""
+        if user.bot or game_count == 0
+        else "Only accounts that never played a single game can be upgraded to BOT."
+    )
+    context["bot_notice"] = str(session.pop(BOT_NOTICE_SESSION_KEY, "") or "")
+    context["bot_error"] = str(session.pop(BOT_ERROR_SESSION_KEY, "") or "")
+    context["new_bot_token"] = str(session.pop(BOT_NEW_TOKEN_SESSION_KEY, "") or "")
     return context
 
 
@@ -288,6 +351,55 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
         f'attachment; filename="pychess_personal_data_{user.username}.txt"'
     )
     return response
+
+
+async def account_bot_token_create(request: web.Request) -> web.StreamResponse:
+    app_state, user, _ = await _require_logged_in_user(request)
+    session = await aiohttp_session.get_session(request)
+    post_data = await read_post_data(request)
+    if post_data is None:
+        return web.Response(status=204)
+
+    description = str(post_data.get("description", "")).strip()[:120]
+    if description == "":
+        description = "pychess-bot"
+
+    _, raw_token = await create_bot_token(app_state, user.username, description)
+    _set_account_bot_flash(
+        session,
+        notice="Created a new BOT API token. Copy it now; it will not be shown again.",
+        new_token=raw_token,
+    )
+    return web.HTTPFound("/account/bot")
+
+
+async def account_bot_token_revoke(request: web.Request) -> web.StreamResponse:
+    app_state, user, _ = await _require_logged_in_user(request)
+    session = await aiohttp_session.get_session(request)
+    token_id = str(request.match_info.get("tokenId") or "").strip()
+    if token_id == "":
+        raise web.HTTPBadRequest(text="Missing token id.")
+
+    revoked = await revoke_bot_token(app_state, user.username, token_id)
+    _set_account_bot_flash(
+        session,
+        notice="BOT API token revoked." if revoked else "",
+        error="" if revoked else "BOT API token was not found or was already revoked.",
+    )
+    return web.HTTPFound("/account/bot")
+
+
+async def account_bot_upgrade_post(request: web.Request) -> web.StreamResponse:
+    app_state, user, _ = await _require_logged_in_user(request)
+    session = await aiohttp_session.get_session(request)
+    try:
+        await upgrade_user_to_bot_account(app_state, user.username)
+    except ValueError as exc:
+        _set_account_bot_flash(session, error=str(exc))
+        return web.HTTPFound("/account/bot")
+
+    _set_account_bot_flash(session, notice="Account upgraded to BOT.")
+    return web.HTTPFound("/account/bot")
 
 
 @aiohttp_jinja2.template("account_close.html")

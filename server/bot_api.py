@@ -1,9 +1,15 @@
 from __future__ import annotations
 import asyncio
-from typing import Awaitable, Callable, TYPE_CHECKING, TypeAlias
+from typing import Any, Awaitable, Callable, TYPE_CHECKING, TypeAlias, cast
 
 from aiohttp import web
 
+from bot_accounts import (
+    BOT_TOKEN_SCOPE,
+    BOT_TOKEN_TEST_EXPIRES_MS,
+    get_db_token_owner,
+    upgrade_user_to_bot_account,
+)
 from broadcast import round_broadcast
 from const import STARTED, RESIGN
 from json_utils import json_dumps, json_response
@@ -17,36 +23,85 @@ import logging
 
 log = logging.getLogger(__name__)
 Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
-username: str
 
 if TYPE_CHECKING:
     from game import Game
     from ws_types import ErrorMessage, NewGameMessage
 
 
-def authorized(func: Handler) -> Handler:
-    """Authorization decorator"""
+def _request_username(request: web.Request) -> str:
+    auth_info = cast(dict[str, Any], request["bot_auth"])
+    return str(auth_info["username"])
 
-    async def inner(request: web.Request) -> web.StreamResponse:
-        auth = request.headers.get("Authorization")
 
-        if auth is None:
-            log.error("BOT request without Authorization header!")
-            raise web.HTTPForbidden()
+def _request_title(request: web.Request) -> str:
+    auth_info = cast(dict[str, Any], request["bot_auth"])
+    return str(auth_info.get("title") or "")
 
-        token = auth[auth.find("Bearer") + 7 :]
-        if token not in BOT_TOKENS:
-            log.error("BOT account token %s is not in BOT_TOKENS!", token)
-            raise web.HTTPForbidden()
 
-        func.__globals__["username"] = BOT_TOKENS[token]
-        response = await func(request)
-        return response
+async def _authorize_token(request: web.Request, *, require_bot: bool) -> None:
+    auth = request.headers.get("Authorization")
+    if auth is None or not auth.startswith("Bearer "):
+        log.error("BOT request without valid Authorization header!")
+        raise web.HTTPForbidden()
 
-    return inner
+    raw_token = auth[7:].strip()
+    if raw_token == "":
+        raise web.HTTPForbidden()
+
+    app_state = get_app_state(request.app)
+    auth_info: dict[str, Any] | None = None
+
+    if raw_token in BOT_TOKENS:
+        username = BOT_TOKENS[raw_token]
+        title = "BOT"
+        if app_state.db is not None:
+            user_doc: UserDocument | None = await app_state.db.user.find_one({"_id": username})
+            if user_doc is not None:
+                if not user_doc.get("enabled", True):
+                    raise web.HTTPForbidden()
+                title = str(user_doc.get("title") or title)
+        auth_info = {"username": username, "title": title}
+    else:
+        user_doc = await get_db_token_owner(app_state, raw_token, mark_used=True)
+        if user_doc is not None:
+            auth_info = {
+                "username": str(user_doc.get("_id") or ""),
+                "title": str(user_doc.get("title") or ""),
+            }
+
+    if auth_info is None or auth_info["username"] == "":
+        log.error("BOT account token authentication failed")
+        raise web.HTTPForbidden()
+
+    if require_bot and auth_info["title"] != "BOT":
+        log.error("Non-BOT account %s tried to use BOT endpoint", auth_info["username"])
+        raise web.HTTPForbidden()
+
+    username = str(auth_info["username"])
+    if (
+        auth_info["title"] == "BOT"
+        and username in app_state.users
+        and not app_state.users[username].bot
+    ):
+        app_state.users[username].enable_bot_account()
+
+    request["bot_auth"] = auth_info
+
+
+def authorized(*, require_bot: bool = True) -> Callable[[Handler], Handler]:
+    def decorator(func: Handler) -> Handler:
+        async def inner(request: web.Request) -> web.StreamResponse:
+            await _authorize_token(request, require_bot=require_bot)
+            return await func(request)
+
+        return inner
+
+    return decorator
 
 
 async def bot_token_test(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
     text = await read_text_data(request)
     if text is None:
         return json_response({})
@@ -56,42 +111,64 @@ async def bot_token_test(request: web.Request) -> web.StreamResponse:
     for token in tokens:
         if token in BOT_TOKENS:
             response[token] = {
-                "scopes": "bot:play",
+                "scopes": BOT_TOKEN_SCOPE,
                 "userId": BOT_TOKENS[token],
-                "expires": 1358509698620,
+                "expires": BOT_TOKEN_TEST_EXPIRES_MS,
             }
-        else:
+            continue
+
+        user_doc = await get_db_token_owner(app_state, token, mark_used=False)
+        if user_doc is None:
             response[token] = None
+            continue
+
+        response[token] = {
+            "scopes": BOT_TOKEN_SCOPE,
+            "userId": user_doc["_id"],
+            "expires": BOT_TOKEN_TEST_EXPIRES_MS,
+        }
 
     return json_response(response)
 
 
-@authorized
+@authorized(require_bot=False)
 async def account(request: web.Request) -> web.StreamResponse:
-    return json_response({"id": username, "username": username, "title": "BOT"})  # noqa: F821
+    username = _request_username(request)
+    return json_response({"id": username, "username": username, "title": _request_title(request)})
 
 
-@authorized
+@authorized(require_bot=False)
 async def playing(request: web.Request) -> web.StreamResponse:
     resp: dict[str, list[object]] = {"nowPlaying": []}
     return json_response(resp)
 
 
-@authorized
+@authorized(require_bot=False)
 async def challenge_create(request: web.Request) -> web.StreamResponse:
+    raise web.HTTPForbidden(text="BOT accounts cannot create challenges on PyChess.")
+
+
+@authorized(require_bot=False)
+async def upgrade_account(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    try:
+        await upgrade_user_to_bot_account(app_state, _request_username(request))
+    except ValueError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
     return json_response({"ok": True})
 
 
-@authorized
+@authorized()
 async def challenge_accept(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
+    username = _request_username(request)
 
     gameId = request.match_info.get("gameId")
     if TYPE_CHECKING:
         assert gameId is not None
     seek = app_state.invites[gameId]
 
-    result: NewGameMessage | ErrorMessage = await new_game(app_state, seek, gameId)  # noqa: F821
+    result: NewGameMessage | ErrorMessage = await new_game(app_state, seek, gameId)
 
     if result["type"] == "new_game":
         if gameId not in app_state.invite_channels:
@@ -112,7 +189,7 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
         except ConnectionResetError:
             log.error("/api/challenge/{%s}/accept ConnectionResetError", gameId)
 
-        engine = await app_state.users.get(username)  # noqa: F821
+        engine = await app_state.users.get(username)
 
         game = await load_game(app_state, gameId)
         if game is None:
@@ -123,7 +200,7 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
     return json_response({"ok": True})
 
 
-@authorized
+@authorized()
 async def challenge_decline(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
 
@@ -152,16 +229,17 @@ async def challenge_decline(request: web.Request) -> web.StreamResponse:
     return json_response({"ok": True})
 
 
-@authorized
+@authorized()
 async def event_stream(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
+    username = _request_username(request)
 
     resp = web.StreamResponse()
     resp.content_type = "application/x-ndjson"
     await resp.prepare(request)
 
-    if username in app_state.users:  # noqa: F821
-        bot_player = app_state.users[username]  # noqa: F821
+    if username in app_state.users:
+        bot_player = app_state.users[username]
         # After BOT lost connection it may have ongoing games
         # We notify BOT and he can ask to create new game_streams
         # to continue those games
@@ -169,15 +247,15 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
             if gameId in app_state.games and app_state.games[gameId].status == STARTED:
                 await send_bot_game_start_unless_streaming(bot_player, app_state.games[gameId])
     else:
-        bot_player = User(app_state, bot=True, username=username)  # noqa: F821
+        bot_player = User(app_state, bot=True, username=username)
         app_state.users[bot_player.username] = bot_player
 
-        doc: UserDocument | None = await app_state.db.user.find_one({"_id": username})  # noqa: F821
+        doc: UserDocument | None = await app_state.db.user.find_one({"_id": username})
         if doc is None:
             result = await app_state.db.user.insert_one(
                 {
-                    "_id": username,  # noqa: F821
-                    "username_lower": username.lower(),  # noqa: F821
+                    "_id": username,
+                    "username_lower": username.lower(),
                     "title": "BOT",
                 }
             )
@@ -209,7 +287,7 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
                 await resp.write(answer.encode())
                 bot_player.event_queue.task_done()
         except Exception:
-            log.error("Writing %s to BOT %s event_stream is broken...", answer, username)  # fmt: skip # noqa: F821
+            log.error("Writing %s to BOT %s event_stream is broken...", answer, username)
             break
 
     try:
@@ -227,11 +305,12 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
     return resp
 
 
-@authorized
+@authorized()
 async def game_stream(request: web.Request) -> web.StreamResponse:
     gameId = request.match_info["gameId"]
 
     app_state = get_app_state(request.app)
+    username = _request_username(request)
 
     game = app_state.games[gameId]
     if TYPE_CHECKING:
@@ -241,7 +320,7 @@ async def game_stream(request: web.Request) -> web.StreamResponse:
     resp.content_type = "application/x-ndjson"
     await resp.prepare(request)
 
-    bot_player = app_state.users[username]  # noqa: F821
+    bot_player = app_state.users[username]
 
     if gameId in bot_player.active_game_streams:
         log.warning(
@@ -281,7 +360,7 @@ async def game_stream(request: web.Request) -> web.StreamResponse:
                 await resp.write(answer.encode())
                 bot_player.game_queues[gameId].task_done()
         except Exception:
-            log.error("Writing %s to BOT %s game_stream failed!", answer, username)  # noqa: F821
+            log.error("Writing %s to BOT %s game_stream failed!", answer, username)
             break
 
     try:
@@ -299,14 +378,15 @@ async def game_stream(request: web.Request) -> web.StreamResponse:
     return resp
 
 
-@authorized
+@authorized()
 async def bot_move(request: web.Request) -> web.StreamResponse:
     gameId = request.match_info["gameId"]
     move = request.match_info["move"]
 
     app_state = get_app_state(request.app)
+    username = _request_username(request)
 
-    user = app_state.users[username]  # noqa: F821
+    user = app_state.users[username]
     game = app_state.games[gameId]
     if TYPE_CHECKING:
         assert isinstance(game, Game)
@@ -316,18 +396,19 @@ async def bot_move(request: web.Request) -> web.StreamResponse:
     return json_response({"ok": True})
 
 
-@authorized
+@authorized()
 async def bot_abort(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
+    username = _request_username(request)
 
     gameId = request.match_info["gameId"]
     game = app_state.games[gameId]
     if TYPE_CHECKING:
         assert isinstance(game, Game)
 
-    bot_player = app_state.users[username]  # noqa: F821
+    bot_player = app_state.users[username]
 
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username  # fmt: skip # noqa: F821
+    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
     opp_player = app_state.users[opp_name]
 
     response = await game.abort_by_server()
@@ -342,38 +423,40 @@ async def bot_abort(request: web.Request) -> web.StreamResponse:
     return json_response({"ok": True})
 
 
-@authorized
+@authorized()
 async def bot_resign(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
+    username = _request_username(request)
 
     gameId = request.match_info["gameId"]
     game = app_state.games[gameId]
     game.status = RESIGN
-    game.result = "0-1" if username == game.wplayer.username else "1-0"  # noqa: F821
+    game.result = "0-1" if username == game.wplayer.username else "1-0"
     return json_response({"ok": True})
 
 
-@authorized
+@authorized()
 async def bot_chat(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
+    username = _request_username(request)
 
     data = await read_post_data(request)
     if data is None:
         return json_response({})
-    log.debug("BOT-CHAT %s %r", username, data)  # noqa: F821
+    log.debug("BOT-CHAT %s %r", username, data)
 
     gameId = request.match_info["gameId"]
 
     game = app_state.games[gameId]
 
-    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username  # fmt: skip  # noqa: F821
+    opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
 
     if not app_state.users[opp_name].bot:
         await app_state.users[opp_name].send_game_message(
             gameId,
             {
                 "type": "roundchat",
-                "user": username,  # noqa: F821
+                "user": username,
                 "room": data["room"],
                 "message": data["text"],
             },
