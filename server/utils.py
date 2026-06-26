@@ -658,7 +658,14 @@ async def new_game(
 
     # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
-        rated = RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL
+        any_bot_player = wplayer.bot or bplayer.bot
+        rated = (
+            CASUAL
+            if any_bot_player
+            else RATED
+            if (seek.rated and (not wplayer.anon) and (not bplayer.anon))
+            else CASUAL
+        )
 
         game = Game(
             app_state,

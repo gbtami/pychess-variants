@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from types import SimpleNamespace
+from unittest.mock import AsyncMock, patch
+
 import test_logger
 
 from aiohttp.test_utils import AioHTTPTestCase
@@ -8,7 +11,7 @@ from mongomock_motor import AsyncMongoMockClient
 from glicko2.glicko2 import new_default_perf_map
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
-from tournament.wst import finally_logic
+from tournament.wst import finally_logic, handle_join
 from user import User
 from variants import VARIANTS
 
@@ -49,3 +52,17 @@ class TournamentSocketCleanupTestCase(AioHTTPTestCase):
 
         self.assertNotIn(tournament_id, self.user.tournament_sockets)
         self.assertNotIn(self.user.username, app_state.tourneysockets[tournament_id])
+
+    async def test_bot_user_cannot_join_tournament(self):
+        app_state = get_app_state(self.app)
+        bot_user = User(app_state, bot=True, username="bot-tourney", perfs=PERFS)
+        ws = SimpleNamespace(send_str=AsyncMock())
+        tournament = SimpleNamespace(
+            join=AsyncMock(return_value="BOT accounts cannot join tournaments.")
+        )
+
+        with patch("tournament.wst.load_tournament", new=AsyncMock(return_value=tournament)):
+            await handle_join(app_state, ws, bot_user, {"type": "join", "tournamentId": "tid"})
+
+        tournament.join.assert_awaited_once_with(bot_user, None)
+        self.assertIn("BOT accounts cannot join tournaments", ws.send_str.call_args.args[0])

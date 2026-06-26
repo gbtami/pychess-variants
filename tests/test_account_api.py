@@ -8,6 +8,7 @@ from unittest.mock import AsyncMock
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
+from bot_accounts import BOT_TOKEN_SCOPE, create_bot_token
 from forum.constants import ERASED_POST_TEXT, ERASED_POST_USER
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
@@ -33,6 +34,110 @@ class AccountApiTestCase(AioHTTPTestCase):
         response = await self.client.get("/account/personal-data", allow_redirects=False)
         self.assertEqual(response.status, 302)
         self.assertEqual(response.headers.get("Location"), "/login")
+
+    async def test_bot_account_page_requires_login(self):
+        response = await self.client.get("/account/bot", allow_redirects=False)
+        self.assertEqual(response.status, 302)
+        self.assertEqual(response.headers.get("Location"), "/login")
+
+    async def test_create_and_revoke_bot_token(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="alice")
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one(
+            {
+                "_id": "alice",
+                "username_lower": "alice",
+                "enabled": True,
+                "count": {"game": 0, "win": 0, "loss": 0, "draw": 0, "rated": 0},
+            }
+        )
+
+        self.set_session_user("alice")
+        response = await self.client.post(
+            "/account/bot/token/create",
+            data={"description": "primary bot"},
+            allow_redirects=False,
+        )
+        self.assertEqual(response.status, 302)
+        self.assertEqual(response.headers.get("Location"), "/account/bot")
+
+        token_doc = await app_state.db.bot_token.find_one({"user": "alice"})
+        self.assertIsNotNone(token_doc)
+        self.assertEqual("primary bot", token_doc.get("description"))
+
+        page = await self.client.get("/account/bot")
+        self.assertEqual(page.status, 200)
+        body = await page.text()
+        self.assertIn("Created a new BOT API token", body)
+        self.assertIn("This token is shown only once.", body)
+        self.assertIn("primary bot", body)
+
+        revoke = await self.client.post(
+            f"/account/bot/token/{token_doc['_id']}/revoke",
+            allow_redirects=False,
+        )
+        self.assertEqual(revoke.status, 302)
+
+        revoked_doc = await app_state.db.bot_token.find_one({"_id": token_doc["_id"]})
+        self.assertIn("revokedAt", revoked_doc)
+
+    async def test_api_bot_account_upgrade_promotes_zero_game_account(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="alice")
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one(
+            {
+                "_id": "alice",
+                "username_lower": "alice",
+                "enabled": True,
+                "count": {"game": 0, "win": 0, "loss": 0, "draw": 0, "rated": 0},
+            }
+        )
+        _, raw_token = await create_bot_token(app_state, "alice", "upgrade token")
+        headers = {"Authorization": f"Bearer {raw_token}"}
+
+        response = await self.client.post("/api/bot/account/upgrade", headers=headers)
+        self.assertEqual(response.status, 200)
+        self.assertEqual({"ok": True}, await response.json())
+
+        user_doc = await app_state.db.user.find_one({"_id": "alice"})
+        self.assertEqual("BOT", user_doc.get("title"))
+        self.assertTrue(user.bot)
+        self.assertEqual("BOT", user.title)
+
+        account_response = await self.client.get("/api/account", headers=headers)
+        self.assertEqual(account_response.status, 200)
+        self.assertEqual("BOT", (await account_response.json())["title"])
+
+        token_test = await self.client.post("/api/token/test", data=raw_token)
+        token_payload = await token_test.json()
+        self.assertEqual(BOT_TOKEN_SCOPE, token_payload[raw_token]["scopes"])
+        self.assertEqual("alice", token_payload[raw_token]["userId"])
+
+    async def test_api_bot_account_upgrade_rejects_played_account(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="alice")
+        app_state.users[user.username] = user
+        await app_state.db.user.insert_one(
+            {
+                "_id": "alice",
+                "username_lower": "alice",
+                "enabled": True,
+                "count": {"game": 1, "win": 1, "loss": 0, "draw": 0, "rated": 0},
+            }
+        )
+        _, raw_token = await create_bot_token(app_state, "alice", "upgrade token")
+
+        response = await self.client.post(
+            "/api/bot/account/upgrade",
+            headers={"Authorization": f"Bearer {raw_token}"},
+        )
+        self.assertEqual(response.status, 400)
+        self.assertIn("never played a single game", await response.text())
+
+        user_doc = await app_state.db.user.find_one({"_id": "alice"})
+        self.assertNotEqual("BOT", user_doc.get("title"))
 
     async def test_personal_data_export_returns_private_sections(self):
         app_state = get_app_state(self.app)

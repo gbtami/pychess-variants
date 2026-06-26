@@ -104,6 +104,14 @@ from variants import get_server_variant
 log = logging.getLogger(__name__)
 
 UNSUPPORTED_FSF_AI_VARIANTS = ("alice", "fogofwar", "jieqi")
+BOT_LOBBY_ACTION_MESSAGE = "BOT accounts cannot create or join lobby games."
+
+
+async def _reject_bot_lobby_action(ws: WebSocketResponse, user: User) -> bool:
+    if not user.bot:
+        return False
+    await ws_send_json(ws, {"type": "error", "message": BOT_LOBBY_ACTION_MESSAGE})
+    return True
 
 
 def get_create_seek_error_message(user: User, data: SeekCreateData) -> str:
@@ -258,6 +266,9 @@ async def handle_create_ai_challenge(
     user: User,
     data: CreateAiChallengeMessage,
 ) -> None:
+    if await _reject_bot_lobby_action(ws, user):
+        return
+
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
         return
@@ -306,6 +317,9 @@ async def handle_create_ai_challenge(
 async def handle_create_seek(
     app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: CreateSeekMessage
 ) -> None:
+    if await _reject_bot_lobby_action(ws, user):
+        return
+
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
         return
@@ -364,6 +378,9 @@ async def handle_create_seek(
 async def handle_create_invite(
     app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: CreateInviteMessage
 ) -> None:
+    if await _reject_bot_lobby_action(ws, user):
+        return
+
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
         return
@@ -394,6 +411,9 @@ async def handle_create_bot_challenge(
     user: User,
     data: CreateBotChallengeMessage,
 ) -> None:
+    if await _reject_bot_lobby_action(ws, user):
+        return
+
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
         return
@@ -405,7 +425,17 @@ async def handle_create_bot_challenge(
         return
 
     log.debug("Creating BOT challenge from request: %s", data)
-    seek_data: SeekCreateData = data
+    seek_data: SeekCreateData = {
+        "variant": data["variant"],
+        "fen": data["fen"],
+        "color": data["color"],
+        "minutes": data["minutes"],
+        "increment": data["increment"],
+        "byoyomiPeriod": data["byoyomiPeriod"],
+        "rated": False,
+        "chess960": data["chess960"],
+        "target": data["target"],
+    }
     seek = await create_seek(
         app_state.db, app_state.invites, app_state.seeks, user, seek_data, engine=engine
     )
@@ -423,9 +453,6 @@ async def handle_create_bot_challenge(
 
     engine.game_queues[seek_value.game_id] = asyncio.Queue()
     bot_challenge = challenge(seek_value)
-    # lichess-bot uses "standard" as variant name, grrrr
-    if seek_value.variant == "chess":
-        bot_challenge = bot_challenge.replace("chess", "standard")
     await engine.event_queue.put(bot_challenge)
 
     bot_game_id = seek_value.game_id
@@ -441,6 +468,9 @@ async def handle_create_bot_challenge(
 async def handle_create_host(
     app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: CreateHostMessage
 ) -> None:
+    if await _reject_bot_lobby_action(ws, user):
+        return
+
     no = not is_tournament_director(user, app_state)
     if no:
         return
@@ -528,6 +558,9 @@ async def handle_leave_seek(
 async def handle_accept_seek(
     app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User, data: AcceptSeekMessage
 ) -> None:
+    if await _reject_bot_lobby_action(ws, user):
+        return
+
     if data["seekID"] not in app_state.seeks:
         return
 
@@ -766,6 +799,9 @@ async def handle_create_auto_pairing(
     user: User,
     data: CreateAutoPairingMessage,
 ) -> None:
+    if await _reject_bot_lobby_action(ws, user):
+        return
+
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
         return

@@ -2,6 +2,8 @@
 
 import asyncio
 import test_logger
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 from aiohttp.test_utils import AioHTTPTestCase
 from aiohttp.web_ws import WebSocketResponse
@@ -10,10 +12,11 @@ from mongomock_motor import AsyncMongoMockClient
 from glicko2.glicko2 import new_default_perf_map
 from game import Game
 from pychess_global_app_state_utils import get_app_state
+from seek import Seek
 from server import make_app
 from user import User
 from variants import VARIANTS
-from wsl import finally_logic
+from wsl import finally_logic, handle_create_bot_challenge, handle_create_seek, handle_accept_seek
 
 test_logger.init_test_logger()
 
@@ -95,3 +98,76 @@ class LobbySocketCleanupTestCase(AioHTTPTestCase):
         # Avoid shutdown-time close() on an unprepared websocket test double.
         self.user.lobby_sockets.discard(ws2)
         app_state.lobby.lobbysockets.pop(self.user.username, None)
+
+    async def test_bot_user_cannot_create_or_join_lobby_games(self):
+        app_state = get_app_state(self.app)
+        bot_user = User(app_state, bot=True, username="bot-lobby", perfs=PERFS)
+        app_state.users[bot_user.username] = bot_user
+        opp = User(app_state, username="human-creator", perfs=PERFS)
+        app_state.users[opp.username] = opp
+
+        seek = Seek("seek1234", opp, "chess", rated=True)
+        app_state.seeks[seek.id] = seek
+
+        create_ws = SimpleNamespace(send_str=AsyncMock())
+        await handle_create_seek(
+            app_state,
+            create_ws,
+            bot_user,
+            {
+                "variant": "chess",
+                "fen": "",
+                "color": "r",
+                "minutes": 5,
+                "increment": 3,
+                "byoyomiPeriod": 0,
+                "day": 0,
+                "rated": True,
+                "rrmin": None,
+                "rrmax": None,
+                "chess960": False,
+                "target": "",
+            },
+        )
+        self.assertIn(
+            "BOT accounts cannot create or join lobby games", create_ws.send_str.call_args.args[0]
+        )
+
+        accept_ws = SimpleNamespace(send_str=AsyncMock())
+        await handle_accept_seek(app_state, accept_ws, bot_user, {"seekID": seek.id})
+        self.assertIn(
+            "BOT accounts cannot create or join lobby games", accept_ws.send_str.call_args.args[0]
+        )
+
+    async def test_bot_challenge_is_forced_casual(self):
+        app_state = get_app_state(self.app)
+        engine = User(app_state, bot=True, username="engine-bot", perfs=PERFS)
+        engine.online = True
+        challenger = User(app_state, username="human", perfs=PERFS)
+        app_state.users[engine.username] = engine
+        app_state.users[challenger.username] = challenger
+
+        ws = SimpleNamespace(send_str=AsyncMock())
+        await handle_create_bot_challenge(
+            app_state,
+            ws,
+            challenger,
+            {
+                "profileid": engine.username,
+                "variant": "chess",
+                "fen": "",
+                "color": "r",
+                "minutes": 5,
+                "increment": 3,
+                "byoyomiPeriod": 0,
+                "rated": True,
+                "chess960": False,
+                "target": "BOT_challenge",
+            },
+        )
+
+        seek = next(iter(app_state.seeks.values()))
+        self.assertFalse(seek.rated)
+        event = await engine.event_queue.get()
+        self.assertIn('"rated":false', event)
+        self.assertIn('"perf":{"name":"chess"}', event)

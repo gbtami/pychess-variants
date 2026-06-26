@@ -453,6 +453,14 @@ class ViewContext(TypedDict, total=False):
     lichess_id: str
     lishogi_id: str
     oauth_username_selection: Mapping[str, str | None] | None
+    bot_tokens: list[Mapping[str, object]]
+    bot_account_title: str
+    bot_game_count: int
+    bot_upgrade_eligible: bool
+    bot_upgrade_reason: str
+    bot_notice: str
+    bot_error: str
+    new_bot_token: str
     online_users: Sequence[User]
     profile: str | None
     profile_title: str

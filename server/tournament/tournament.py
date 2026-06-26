@@ -1396,6 +1396,8 @@ class Tournament(ABC):
     async def join(self, user: User, password: str | None = None) -> str | None:
         if user.anon:
             return None
+        if user.bot:
+            return "BOT accounts cannot join tournaments."
         log.debug("JOIN: %s in tournament %s", user.username, self.id)
 
         if self.password and self.password != password:

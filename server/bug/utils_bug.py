@@ -303,6 +303,7 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
     try:
         if TYPE_CHECKING:
             assert seek.chess960 is not None
+        any_bot_player = wplayer.bot or bplayer.bot or bug_wplayer.bot or bug_bplayer.bot
         game = GameBug(
             app_state,
             game_id,
@@ -315,7 +316,13 @@ async def new_game_bughouse(app_state: PychessGlobalAppState, seek_id, game_id=N
             base=seek.base,
             inc=seek.inc,
             level=seek.level,
-            rated=(RATED if (seek.rated and (not wplayer.anon) and (not bplayer.anon)) else CASUAL),
+            rated=(
+                CASUAL
+                if any_bot_player
+                else RATED
+                if (seek.rated and (not wplayer.anon) and (not bplayer.anon))
+                else CASUAL
+            ),
             chess960=seek.chess960,
             create=True,
             new_960_fen_needed_for_rematch=seek.reused_fen,
