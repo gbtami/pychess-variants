@@ -113,7 +113,7 @@ class User:
         swiss_ban_hours: int = 0,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
-        self.bot: bool = False if username == "PyChessBot" else bot
+        self.bot: bool = bot
         self.anon: bool = anon
         self.lang: str | None = lang
         self.theme: str = theme
