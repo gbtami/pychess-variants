@@ -490,6 +490,13 @@ async def create_seek(
         target_profile = await user.app_state.public_users.get_profile(target)
         if target_profile is None:
             return None
+        if target_profile.title == "BOT":
+            log.info(
+                "Rejecting generic direct challenge to BOT %s by %s",
+                target,
+                user.username,
+            )
+            return None
         if target in user.blocked or user.username in target_profile.blocked:
             log.info(
                 "Rejecting direct challenge by %s against %s because users are blocked",

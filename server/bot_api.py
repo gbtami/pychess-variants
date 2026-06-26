@@ -12,6 +12,7 @@ from bot_accounts import (
 )
 from broadcast import round_broadcast
 from const import STARTED, RESIGN
+from game import Game
 from json_utils import json_dumps, json_response
 from settings import BOT_TOKENS
 from user import User
@@ -25,7 +26,7 @@ log = logging.getLogger(__name__)
 Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
 
 if TYPE_CHECKING:
-    from game import Game
+    from seek import Seek
     from ws_types import ErrorMessage, NewGameMessage
 
 
@@ -37,6 +38,20 @@ def _request_username(request: web.Request) -> str:
 def _request_title(request: web.Request) -> str:
     auth_info = cast(dict[str, Any], request["bot_auth"])
     return str(auth_info.get("title") or "")
+
+
+def _require_bot_invite_owner(username: str, seek: Seek) -> None:
+    if seek.player2 is None or seek.player2.username != username:
+        raise web.HTTPForbidden()
+
+
+async def _load_authorized_game(app_state, game_id: str, username: str) -> Game:
+    game = await load_game(app_state, game_id)
+    if game is None or not isinstance(game, Game):
+        raise web.HTTPNotFound()
+    if username not in (game.wplayer.username, game.bplayer.username):
+        raise web.HTTPForbidden()
+    return game
 
 
 async def _authorize_token(request: web.Request, *, require_bot: bool) -> None:
@@ -166,7 +181,10 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
     gameId = request.match_info.get("gameId")
     if TYPE_CHECKING:
         assert gameId is not None
-    seek = app_state.invites[gameId]
+    seek = app_state.invites.get(gameId)
+    if seek is None:
+        raise web.HTTPNotFound()
+    _require_bot_invite_owner(username, seek)
 
     result: NewGameMessage | ErrorMessage = await new_game(app_state, seek, gameId)
 
@@ -203,10 +221,15 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
 @authorized()
 async def challenge_decline(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
+    username = _request_username(request)
 
     gameId = request.match_info.get("gameId")
     if TYPE_CHECKING:
         assert gameId is not None
+    seek = app_state.invites.get(gameId)
+    if seek is None:
+        raise web.HTTPNotFound()
+    _require_bot_invite_owner(username, seek)
 
     if gameId not in app_state.invite_channels:
         event = app_state.invite_events.setdefault(gameId, asyncio.Event())
@@ -312,9 +335,7 @@ async def game_stream(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     username = _request_username(request)
 
-    game = app_state.games[gameId]
-    if TYPE_CHECKING:
-        assert isinstance(game, Game)
+    game = await _load_authorized_game(app_state, gameId, username)
 
     resp = web.StreamResponse()
     resp.content_type = "application/x-ndjson"
@@ -387,9 +408,7 @@ async def bot_move(request: web.Request) -> web.StreamResponse:
     username = _request_username(request)
 
     user = app_state.users[username]
-    game = app_state.games[gameId]
-    if TYPE_CHECKING:
-        assert isinstance(game, Game)
+    game = await _load_authorized_game(app_state, gameId, username)
 
     await play_move(app_state, user, game, move)
 
@@ -402,9 +421,7 @@ async def bot_abort(request: web.Request) -> web.StreamResponse:
     username = _request_username(request)
 
     gameId = request.match_info["gameId"]
-    game = app_state.games[gameId]
-    if TYPE_CHECKING:
-        assert isinstance(game, Game)
+    game = await _load_authorized_game(app_state, gameId, username)
 
     bot_player = app_state.users[username]
 
@@ -429,7 +446,7 @@ async def bot_resign(request: web.Request) -> web.StreamResponse:
     username = _request_username(request)
 
     gameId = request.match_info["gameId"]
-    game = app_state.games[gameId]
+    game = await _load_authorized_game(app_state, gameId, username)
     game.status = RESIGN
     game.result = "0-1" if username == game.wplayer.username else "1-0"
     return json_response({"ok": True})
@@ -440,14 +457,14 @@ async def bot_chat(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     username = _request_username(request)
 
+    gameId = request.match_info["gameId"]
+
+    game = await _load_authorized_game(app_state, gameId, username)
+
     data = await read_post_data(request)
     if data is None:
         return json_response({})
     log.debug("BOT-CHAT %s %r", username, data)
-
-    gameId = request.match_info["gameId"]
-
-    game = app_state.games[gameId]
 
     opp_name = game.wplayer.username if username == game.bplayer.username else game.bplayer.username
 

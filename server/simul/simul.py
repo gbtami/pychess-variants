@@ -137,6 +137,9 @@ class Simul:
         return False
 
     def entry_condition_error(self, user: "User") -> str | None:
+        if user.bot:
+            return "BOT accounts cannot join simuls."
+
         perf_key = self.variant + ("960" if self.chess960 else "")
         perf = user.perfs.get(perf_key, {})
         try:

@@ -263,6 +263,33 @@ class HeaderChallengeTestCase(unittest.IsolatedAsyncioTestCase):
         )
 
         self.assertIsNone(created)
+
+    async def test_create_seek_rejects_generic_direct_challenge_to_bot_target(self):
+        app_state = self.make_app_state()
+        challenger = User(app_state, username="alice", perfs=PERFS)
+        target = User(app_state, bot=True, username="engine-bot", title="BOT", perfs=PERFS)
+        app_state.users[challenger.username] = challenger
+        app_state.users[target.username] = target
+
+        created = await create_seek(
+            app_state.db,
+            app_state.invites,
+            app_state.seeks,
+            challenger,
+            {
+                "variant": "chess",
+                "fen": "",
+                "color": "r",
+                "minutes": 5,
+                "increment": 3,
+                "byoyomiPeriod": 0,
+                "rated": True,
+                "chess960": False,
+                "target": target.username,
+            },
+        )
+
+        self.assertIsNone(created)
         self.assertEqual({}, app_state.seeks)
 
     async def test_join_seek_rejects_blocked_users(self):
