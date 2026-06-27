@@ -31,9 +31,26 @@ class AccountApiTestCase(AioHTTPTestCase):
         return hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
 
     async def test_account_pages_require_login(self):
-        response = await self.client.get("/account/personal-data", allow_redirects=False)
-        self.assertEqual(response.status, 302)
-        self.assertEqual(response.headers.get("Location"), "/login")
+        for path in ("/account", "/account/personal-data"):
+            response = await self.client.get(path, allow_redirects=False)
+            self.assertEqual(response.status, 302)
+            self.assertEqual(response.headers.get("Location"), "/login")
+
+    async def test_account_hub_links_account_tools(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="alice")
+        app_state.users[user.username] = user
+
+        self.set_session_user("alice")
+        response = await self.client.get("/account")
+        self.assertEqual(response.status, 200)
+        body = await response.text()
+        self.assertIn("BOT API tokens", body)
+        self.assertIn('href="/account/bot"', body)
+        self.assertIn('href="/account/personal-data"', body)
+        self.assertIn('href="/account/close"', body)
+        self.assertIn('href="/account/delete"', body)
+        self.assertIn('href="/contact"', body)
 
     async def test_bot_account_page_requires_login(self):
         response = await self.client.get("/account/bot", allow_redirects=False)
