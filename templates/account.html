@@ -1,0 +1,53 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu legal-page">
+<aside></aside>
+<div class="guide legal-doc account-action">
+<section class="account-action__panel">
+    <h1>Account</h1>
+    <p class="account-action__lead">
+    Manage account tools for <strong>{{ username }}</strong>.
+    </p>
+</section>
+
+<section class="account-action__panel">
+    <h2>Profile and messages</h2>
+    <ul class="account-action__links">
+        <li><a href="/@/{{ username }}">Profile page</a> — public profile, games, and PGN export</li>
+        <li><a href="/inbox">Inbox</a> — private messages</li>
+    </ul>
+</section>
+
+<section class="account-action__panel">
+    <h2>Data and privacy</h2>
+    <ul class="account-action__links">
+        <li><a href="/account/personal-data">Personal data</a> — download a copy of private account data</li>
+        <li><a href="/privacy">Privacy policy</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+    </ul>
+</section>
+
+<section class="account-action__panel">
+    <h2>BOT account</h2>
+    <p>Create BOT API tokens and upgrade an unused account to BOT.</p>
+    <div class="account-action__actions">
+        <a class="account-action__button account-action__button--primary" href="/account/bot">BOT API tokens</a>
+    </div>
+</section>
+
+<section class="account-action__panel">
+    <h2>Account status</h2>
+    <ul class="account-action__links">
+        <li><a href="/account/close">Close account</a> — disable account access, with possible reopening</li>
+        <li><a href="/account/delete">Delete account</a> — irreversible GDPR erase/anonymization flow</li>
+        <li><a href="/contact">Contact</a> — support, reports, legal, and security contact options</li>
+    </ul>
+</section>
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+{% endblock %}
