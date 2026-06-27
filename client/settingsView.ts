@@ -71,7 +71,7 @@ function mainMenu(anon: boolean) {
             h('div.settings-menu-separator', { attrs: { role: "separator" } }),
             h('button#btn-inbox-menu', { on: { click: gotoInbox } }, _("Inbox")),
             h('button#btn-privacy', { on: { click: showSubsettings } }, _("Privacy")),
-            h('button#btn-account-privacy', { on: { click: gotoAccountPrivacy } }, _("Account & Privacy")),
+            h('button#btn-account', { on: { click: gotoAccount } }, _("Account")),
             h('button#btn-logout', { on: { click: logoutDialog } }, _("Log out")),
         );
     }
@@ -83,8 +83,8 @@ function gotoInbox() {
     window.location.href = "/inbox";
 }
 
-function gotoAccountPrivacy() {
-    window.location.href = "/contact";
+function gotoAccount() {
+    window.location.href = "/account";
 }
 
 async function logoutDialog() {

@@ -20,6 +20,7 @@ from bot_api import (
     upgrade_account,
 )
 from account_api import (
+    account_home,
     account_bot,
     account_bot_token_create,
     account_bot_token_revoke,
@@ -191,6 +192,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/login/{provider}", login),
     ("/oauth/{provider}", oauth),
     ("/logout", logout),
+    ("/account", account_home),
     ("/account/personal-data", account_personal_data),
     ("/account/personal-data/export", account_personal_data_export),
     ("/account/data", account_personal_data),

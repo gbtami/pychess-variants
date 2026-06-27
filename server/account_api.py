@@ -260,6 +260,15 @@ async def _scrub_delete_owned_data(app_state: Any, user: Any, now: datetime) -> 
     )
 
 
+@aiohttp_jinja2.template("account.html")
+async def account_home(request: web.Request) -> ViewContext:
+    user, context = await get_user_context(request)
+    if user.anon:
+        raise web.HTTPFound("/login")
+    context["view_css"] = "faq.css"
+    return context
+
+
 @aiohttp_jinja2.template("account_data.html")
 async def account_personal_data(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
