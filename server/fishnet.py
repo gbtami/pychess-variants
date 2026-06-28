@@ -337,44 +337,35 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     for j, analysis in enumerate(reversed(data["analysis"])):
         i = length - j - 1
         if analysis is not None:
-            try:
-                if "analysis" not in game.steps[i]:
-                    # Save PV only for inaccuracy, mistake, or blunder (winning chances drop >= 10%).
-                    # Thresholds from lila: github.com/lichess-org/lila/blob/master/modules/tree/src/main/Advice.scala
-                    prev = data["analysis"][i - 1] if i > 0 else None
-                    save_pv = (
-                        "pv" in analysis
-                        and prev is not None
-                        and abs(
-                            _winning_chances(analysis["score"]) - _winning_chances(prev["score"])
-                        )
-                        >= 0.1
+            if "analysis" not in game.steps[i]:
+                # Save PV only for inaccuracy, mistake, or blunder (winning chances drop >= 10%).
+                # Thresholds from lila: github.com/lichess-org/lila/blob/master/modules/tree/src/main/Advice.scala
+                prev = data["analysis"][i - 1] if i > 0 else None
+                save_pv = False
+                if "pv" in analysis and prev is not None:
+                    white_delta = _winning_chances(analysis["score"]) - _winning_chances(
+                        prev["score"]
                     )
-                    step_analysis: dict = {
-                        "s": analysis["score"],
-                        "d": analysis["depth"],
-                    }
-                    if save_pv:
-                        step_analysis["p"] = analysis["pv"]
-                    game.steps[i]["analysis"] = step_analysis
-                else:
-                    continue
-            except KeyError:
-                game.steps[i]["analysis"] = {
-                    "s": analysis["score"],
+                    drop = -white_delta if i % 2 == 0 else white_delta
+                    save_pv = drop >= 0.1
+                step_analysis: dict = {"s": analysis["score"]}
+                if "depth" in analysis:
+                    step_analysis["d"] = analysis["depth"]
+                if save_pv:
+                    step_analysis["p"] = analysis["pv"]
+                game.steps[i]["analysis"] = step_analysis
+
+                ply = str(i)
+                # response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(analysis)}
+                # await user_ws.send_json(response)
+
+                response = {
+                    "type": "analysis",
+                    "ply": ply,
+                    "color": "w" if i % 2 == 0 else "b",
+                    "ceval": game.steps[i]["analysis"],
                 }
-
-            ply = str(i)
-            # response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(analysis)}
-            # await user_ws.send_json(response)
-
-            response = {
-                "type": "analysis",
-                "ply": ply,
-                "color": "w" if i % 2 == 0 else "b",
-                "ceval": game.steps[i]["analysis"],
-            }
-            await app_state.users[username].send_game_message(gameId, response)
+                await app_state.users[username].send_game_message(gameId, response)
 
     # remove completed work
     if all(data["analysis"]):
