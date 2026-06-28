@@ -25,6 +25,8 @@ import logging
 
 log = logging.getLogger(__name__)
 Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
+BOT_EVENT_STREAM_KEEPALIVE_SECONDS = 6
+BOT_API_ONLINE_TTL_SECONDS = 10
 
 if TYPE_CHECKING:
     from seek import Seek
@@ -44,6 +46,26 @@ def _request_title(request: web.Request) -> str:
 def _require_bot_invite_owner(username: str, seek: Seek) -> None:
     if seek.player2 is None or seek.player2.username != username:
         raise web.HTTPForbidden()
+
+
+def _refresh_bot_api_online(bot_player: User) -> None:
+    bot_player.online = True
+
+    expire_task = bot_player.bot_online_expire_task
+    if expire_task is not None:
+        expire_task.cancel()
+
+    async def expire_online() -> None:
+        await asyncio.sleep(BOT_API_ONLINE_TTL_SECONDS)
+        if bot_player.bot_online_expire_task is asyncio.current_task():
+            bot_player.bot_online_expire_task = None
+            bot_player.online = False
+            log.info("--- BOT %s API presence expired", bot_player.username)
+
+    bot_player.bot_online_expire_task = bot_player.create_background_task(
+        expire_online(),
+        name="bot-api-online-expire-%s" % bot_player.username,
+    )
 
 
 async def _load_authorized_game(app_state, game_id: str, username: str) -> Game:
@@ -285,7 +307,7 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
             )
             log.debug("db insert user result %r", result.inserted_id)
 
-    bot_player.online = True
+    _refresh_bot_api_online(bot_player)
 
     log.info("+++ BOT %s connected", bot_player.username)
 
@@ -293,7 +315,8 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
         """To prevent lichess-bot.py sleep by heroku because of no activity."""
         while True:
             await bot_player.event_queue.put('{"type":"ping"}\n')
-            await asyncio.sleep(6)
+            await asyncio.sleep(BOT_EVENT_STREAM_KEEPALIVE_SECONDS)
+            _refresh_bot_api_online(bot_player)
 
     pinger_task = asyncio.create_task(pinger(), name="BOT-event-stream-pinger")
 
@@ -305,11 +328,11 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
         if TYPE_CHECKING:
             assert answer is not None
         try:
-            if request.transport is not None and request.transport.is_closing():
+            transport = request.transport
+            if transport is None or transport.is_closing():
                 break
-            else:
-                await resp.write(answer.encode())
-                bot_player.event_queue.task_done()
+            await resp.write(answer.encode())
+            bot_player.event_queue.task_done()
         except Exception:
             log.error("Writing %s to BOT %s event_stream is broken...", answer, username)
             break
@@ -324,6 +347,7 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
             await pinger_task
         except asyncio.CancelledError:
             pass
+        log.info("--- BOT %s disconnected", bot_player.username)
 
     await bot_player.clear_seeks()
     return resp

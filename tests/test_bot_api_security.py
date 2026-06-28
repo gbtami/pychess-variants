@@ -174,6 +174,32 @@ class BotApiSecurityTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         self.assertEqual(BOT_CHALLENGE_DECLINED, seek.bot_challenge_status)
 
+    async def test_event_stream_disconnect_marks_bot_offline(self):
+        bot, token = await self.create_bot("owner-bot")
+
+        with (
+            patch("bot_api.BOT_API_ONLINE_TTL_SECONDS", 0.01),
+            patch(
+                "bot_api.web.StreamResponse.write",
+                side_effect=ConnectionResetError("disconnect"),
+            ),
+        ):
+            response = await self.client.get(
+                "/api/stream/event",
+                headers=self.auth_headers(token),
+            )
+
+            self.assertEqual(response.status, 200)
+            self.assertTrue(bot.online)
+
+            for _ in range(40):
+                if not bot.online:
+                    break
+                await asyncio.sleep(0.01)
+
+        self.assertFalse(bot.online)
+        response.close()
+
     async def test_bot_game_endpoints_require_authenticated_bot_to_be_player(self):
         app_state = get_app_state(self.app)
         owner_bot, _ = await self.create_bot("owner-bot")
