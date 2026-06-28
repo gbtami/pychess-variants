@@ -19,6 +19,7 @@ from seek import (
     DIRECT_CHALLENGE_CREATED,
     DIRECT_CHALLENGE_DECLINED,
     DIRECT_CHALLENGE_OFFLINE,
+    resolve_decline_reason,
 )
 from utils import join_seek, remove_seek
 
@@ -46,21 +47,6 @@ class HeaderChallenge(TypedDict):
 class HeaderChallengeEnvelope(TypedDict, total=False):
     challenges: list[HeaderChallenge]
     gameId: str
-
-
-DIRECT_CHALLENGE_DECLINE_REASONS: dict[str, str] = {
-    "generic": "I'm not accepting challenges at the moment.",
-    "later": "This is not the right time for me, please ask again later.",
-    "tooFast": "This time control is too fast for me, please challenge again with a slower game.",
-    "tooSlow": "This time control is too slow for me, please challenge again with a faster game.",
-    "timeControl": "I'm not accepting challenges with this time control.",
-    "rated": "Please send me a rated challenge instead.",
-    "casual": "Please send me a casual challenge instead.",
-    "standard": "I'm not accepting variant challenges right now.",
-    "variant": "I'm not willing to play this variant right now.",
-    "noBot": "I'm not accepting challenges from bots.",
-    "onlyBot": "I'm only accepting challenges from bots.",
-}
 
 
 def challenge_participants(seek: Seek) -> tuple[str, ...]:
@@ -363,10 +349,7 @@ async def challenge_seek_decline(request: web.Request) -> web.StreamResponse:
     if reason_data is None:
         return json_response({})
     reason_key = reason_data.get("reason")
-    decline_reason = DIRECT_CHALLENGE_DECLINE_REASONS.get(
-        str(reason_key) if reason_key is not None else "generic",
-        DIRECT_CHALLENGE_DECLINE_REASONS["generic"],
-    )
+    decline_reason = resolve_decline_reason(None if reason_key is None else str(reason_key))
     seek.set_challenge_decline_reason(decline_reason)
     set_direct_challenge_status(seek, DIRECT_CHALLENGE_DECLINED)
     await broadcast_challenge_state(app_state, usernames)

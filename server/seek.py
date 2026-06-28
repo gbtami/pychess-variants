@@ -20,6 +20,19 @@ TWO_BOARD_TARGETED_SEEK_MESSAGE = (
     "Two-board variants are not available for invites or direct challenges."
 )
 DUPLICATE_DIRECT_CHALLENGE_MESSAGE = "You already have an open challenge for this player."
+DECLINE_REASON_MESSAGES: dict[str, str] = {
+    "generic": "I'm not accepting challenges at the moment.",
+    "later": "This is not the right time for me, please ask again later.",
+    "tooFast": "This time control is too fast for me, please challenge again with a slower game.",
+    "tooSlow": "This time control is too slow for me, please challenge again with a faster game.",
+    "timeControl": "I'm not accepting challenges with this time control.",
+    "rated": "Please send me a rated challenge instead.",
+    "casual": "Please send me a casual challenge instead.",
+    "standard": "I'm not accepting variant challenges right now.",
+    "variant": "I'm not willing to play this variant right now.",
+    "noBot": "I'm not accepting challenges from bots.",
+    "onlyBot": "I'm only accepting challenges from bots.",
+}
 SPECIAL_SEEK_TARGETS = {"", "BOT_challenge", "Invite-friend"}
 DIRECT_CHALLENGE_CREATED = "created"
 DIRECT_CHALLENGE_OFFLINE = "offline"
@@ -27,6 +40,8 @@ DIRECT_CHALLENGE_CANCELED = "canceled"
 DIRECT_CHALLENGE_DECLINED = "declined"
 DIRECT_CHALLENGE_ACCEPTED = "accepted"
 ACTIVE_DIRECT_CHALLENGE_STATUSES = frozenset({DIRECT_CHALLENGE_CREATED, DIRECT_CHALLENGE_OFFLINE})
+BOT_CHALLENGE_CREATED = "created"
+BOT_CHALLENGE_DECLINED = "declined"
 DIRECT_CHALLENGE_SHORT_EXPIRE = timedelta(hours=3)
 DIRECT_CHALLENGE_BLOCKED_MESSAGE = "You cannot challenge this user."
 ESTIMATE_MOVES = 40
@@ -65,6 +80,8 @@ class SeekJson(TypedDict):
     expireAt: NotRequired[str]
     challengeStatus: NotRequired[str]
     challengeDeclineReason: NotRequired[str]
+    botChallengeStatus: NotRequired[str]
+    botChallengeDeclineReason: NotRequired[str]
 
 
 class SeekDbJson(TypedDict):
@@ -96,6 +113,8 @@ class SeekDbJson(TypedDict):
     expireAt: NotRequired[datetime]
     challengeStatus: NotRequired[str]
     challengeDeclineReason: NotRequired[str]
+    botChallengeStatus: NotRequired[str]
+    botChallengeDeclineReason: NotRequired[str]
 
 
 class SeekCreateData(TypedDict):
@@ -144,6 +163,8 @@ class Seek:
         expire_at: datetime | str | None = None,
         challenge_status: str | None = None,
         challenge_decline_reason: str | None = None,
+        bot_challenge_status: str | None = None,
+        bot_challenge_decline_reason: str | None = None,
         reused_fen: bool = False,
     ) -> None:
         self.id: str = seek_id
@@ -177,6 +198,14 @@ class Seek:
         )
         if self.is_direct_challenge and self.challenge_status is None:
             self.challenge_status = DIRECT_CHALLENGE_CREATED
+        self.bot_challenge_status: str | None = (
+            bot_challenge_status if self.is_bot_challenge else None
+        )
+        self.bot_challenge_decline_reason: str | None = (
+            bot_challenge_decline_reason if self.is_bot_challenge else None
+        )
+        if self.is_bot_challenge and self.bot_challenge_status is None:
+            self.bot_challenge_status = BOT_CHALLENGE_CREATED
 
         if expire_at is not None:
             parsed_expire_at = self._parse_expire_at(expire_at)
@@ -226,9 +255,13 @@ class Seek:
             and self.challenge_status not in ACTIVE_DIRECT_CHALLENGE_STATUSES
         ):
             return datetime.now(timezone.utc) + DIRECT_CHALLENGE_SHORT_EXPIRE
+        if self.is_bot_challenge and self.bot_challenge_status != BOT_CHALLENGE_CREATED:
+            return datetime.now(timezone.utc) + DIRECT_CHALLENGE_SHORT_EXPIRE
         if self.day > 0:
             return datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS
         if self.is_direct_challenge:
+            return datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
+        if self.is_bot_challenge:
             return datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
         return None
 
@@ -244,6 +277,19 @@ class Seek:
         if not self.is_direct_challenge:
             return
         self.challenge_decline_reason = reason
+
+    def set_bot_challenge_status(self, status: str) -> None:
+        if not self.is_bot_challenge:
+            return
+        self.bot_challenge_status = status
+        if status != BOT_CHALLENGE_DECLINED:
+            self.bot_challenge_decline_reason = None
+        self.expire_at = self.default_expire_at()
+
+    def set_bot_challenge_decline_reason(self, reason: str | None) -> None:
+        if not self.is_bot_challenge:
+            return
+        self.bot_challenge_decline_reason = reason
 
     @property
     def seek_json(self) -> SeekJson:
@@ -282,6 +328,10 @@ class Seek:
             seek_json["challengeStatus"] = self.challenge_status
         if self.challenge_decline_reason:
             seek_json["challengeDeclineReason"] = self.challenge_decline_reason
+        if self.bot_challenge_status is not None:
+            seek_json["botChallengeStatus"] = self.bot_challenge_status
+        if self.bot_challenge_decline_reason:
+            seek_json["botChallengeDeclineReason"] = self.bot_challenge_decline_reason
         return seek_json
 
     @property
@@ -321,6 +371,10 @@ class Seek:
             seek_json["challengeStatus"] = self.challenge_status
         if self.challenge_decline_reason:
             seek_json["challengeDeclineReason"] = self.challenge_decline_reason
+        if self.bot_challenge_status is not None:
+            seek_json["botChallengeStatus"] = self.bot_challenge_status
+        if self.bot_challenge_decline_reason:
+            seek_json["botChallengeDeclineReason"] = self.bot_challenge_decline_reason
         return seek_json
 
     @property
@@ -332,6 +386,14 @@ class Seek:
         return (
             self.is_direct_challenge and self.challenge_status in ACTIVE_DIRECT_CHALLENGE_STATUSES
         )
+
+    @property
+    def is_bot_challenge(self) -> bool:
+        return self.target == "BOT_challenge"
+
+    @property
+    def is_active_bot_challenge(self) -> bool:
+        return self.is_bot_challenge and self.bot_challenge_status == BOT_CHALLENGE_CREATED
 
     def is_expired(self) -> bool:
         if self.expire_at is None:
@@ -364,7 +426,16 @@ class Seek:
 
         if parsed.tzinfo is None:
             return parsed.replace(tzinfo=timezone.utc)
-        return parsed
+        return parsed.astimezone(timezone.utc)
+
+
+def resolve_decline_reason(reason: str | None, *, allow_custom: bool = False) -> str:
+    reason_key = "" if reason is None else str(reason).strip()
+    if reason_key in DECLINE_REASON_MESSAGES:
+        return DECLINE_REASON_MESSAGES[reason_key]
+    if allow_custom and reason_key:
+        return reason_key[:300]
+    return DECLINE_REASON_MESSAGES["generic"]
 
 
 def is_anon_restricted_seek(
@@ -411,8 +482,10 @@ def find_duplicate_direct_challenge(
 
 
 def seek_counts_toward_limit(seek: Seek) -> bool:
-    return (not seek.is_expired()) and (
-        not seek.is_direct_challenge or seek.is_active_direct_challenge
+    return (
+        (not seek.is_expired())
+        and (not seek.is_direct_challenge or seek.is_active_direct_challenge)
+        and (not seek.is_bot_challenge or seek.is_active_bot_challenge)
     )
 
 
@@ -421,6 +494,8 @@ def should_persist_seek_on_shutdown(seek: Seek) -> bool:
         return False
     if seek.is_direct_challenge:
         return seek.is_active_direct_challenge
+    if seek.is_bot_challenge:
+        return True
     if seek.day > 0:
         return True
     return seek.creator.online
@@ -431,6 +506,8 @@ def should_restore_persisted_seek(seek: Seek) -> bool:
         return False
     if seek.is_direct_challenge:
         return seek.is_active_direct_challenge
+    if seek.is_bot_challenge:
+        return True
     return True
 
 

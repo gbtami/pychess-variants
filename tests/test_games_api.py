@@ -666,6 +666,28 @@ class InviteReloadPersistenceTestCase(AioHTTPTestCase):
                 "expireAt": datetime.now(timezone.utc) - timedelta(minutes=1),
             }
         )
+        await db.seek.insert_one(
+            {
+                "_id": "seekBotDeclined",
+                "user": "InviteCreator",
+                "variant": "atomic",
+                "chess960": False,
+                "target": "BOT_challenge",
+                "fen": "",
+                "color": "r",
+                "rated": False,
+                "rrmin": -10000,
+                "rrmax": 10000,
+                "base": 3,
+                "inc": 2,
+                "byoyomi": 0,
+                "day": 0,
+                "gameId": "BotD1234",
+                "botChallengeStatus": "declined",
+                "botChallengeDeclineReason": "This bot does not support this variant.",
+                "expireAt": datetime.now(timezone.utc) + timedelta(minutes=30),
+            }
+        )
         return make_app(db_client=db_client, simple_cookie_storage=True)
 
     async def tearDownAsync(self):
@@ -705,3 +727,15 @@ class InviteReloadPersistenceTestCase(AioHTTPTestCase):
         self.assertEqual(response.status, 200)
         html = await response.text()
         self.assertIn('data-inviter="expired"', html)
+
+    async def test_reloaded_declined_bot_challenge_shows_decline_reason(self):
+        self._set_session_user("InviteCreator")
+        response = await self.client.get("/bot-challenge/BotD1234")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn('data-view="bot_challenge"', html)
+        self.assertIn('data-bot-challenge-status="declined"', html)
+        self.assertIn(
+            'data-bot-challenge-decline-reason="This bot does not support this variant."',
+            html,
+        )

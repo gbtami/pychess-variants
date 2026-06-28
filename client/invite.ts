@@ -7,7 +7,6 @@ import { gameType } from './result';
 import { copyTextToClipboard } from './clipboard';
 import { timeControlStr } from './view';
 import { PyChessModel } from './types';
-import { sanitizeURL } from './url';
 
 export function inviteView(model: PyChessModel): VNode[] {
     const gameId = model["gameId"];
@@ -36,7 +35,7 @@ export function inviteView(model: PyChessModel): VNode[] {
     evtSource.onmessage = function(event) {
         const message = JSON.parse(event.data);
         if (message.gameId === gameId) {
-            window.location.assign(sanitizeURL(gameURL));
+            window.location.assign(gameURL);
         }
     }
 
