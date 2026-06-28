@@ -148,6 +148,8 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
             ws_send_json.await_args.args[1]["message"],
             "Analysis unavailable right now.",
         )
+
+
 class WinningChancesTestCase(unittest.TestCase):
     """Unit tests for the _winning_chances() helper.
 
@@ -217,11 +219,6 @@ class FishnetAnalysisPvTestCase(unittest.IsolatedAsyncioTestCase):
     Thresholds mirror lila's Advice.scala (inaccuracy >= 0.10).
     """
 
-    def _make_request(self, data, work_id="work1"):
-        request = cast(web.Request, AsyncMock())
-        request.match_info = {"workId": work_id}
-        return request
-
     def _make_app_state(self, game, send_msg=None):
         if send_msg is None:
             send_msg = AsyncMock()
@@ -242,7 +239,8 @@ class FishnetAnalysisPvTestCase(unittest.IsolatedAsyncioTestCase):
     async def _run(self, game, analysis_items, send_msg=None):
         app_state = self._make_app_state(game, send_msg)
         data = {"fishnet": {"apikey": "key"}, "analysis": analysis_items}
-        request = self._make_request(data)
+        request = cast(web.Request, AsyncMock())
+        request.match_info = {"workId": "work1"}
         with (
             patch("fishnet._read_fishnet_json", new=AsyncMock(return_value=(data, None))),
             patch("fishnet.get_app_state", return_value=app_state),
@@ -258,13 +256,10 @@ class FishnetAnalysisPvTestCase(unittest.IsolatedAsyncioTestCase):
         prev={cp:-50} → wc≈-0.10, curr={cp:300} → wc≈+0.54.
         """
         game = SimpleNamespace(id="g1", steps=[{}, {}])
-        await self._run(
-            game,
-            [
-                {"score": {"cp": -50}, "depth": 20, "pv": "e2e4"},
-                {"score": {"cp": 300}, "depth": 20, "pv": "best_reply"},
-            ],
-        )
+        await self._run(game, [
+            {"score": {"cp": -50}, "depth": 20, "pv": "e2e4"},
+            {"score": {"cp": 300}, "depth": 20, "pv": "best_reply"},
+        ])
         self.assertIn("p", game.steps[1]["analysis"])
         self.assertEqual(game.steps[1]["analysis"]["p"], "best_reply")
 
@@ -274,13 +269,10 @@ class FishnetAnalysisPvTestCase(unittest.IsolatedAsyncioTestCase):
         prev={cp:0} → wc=0.0, curr={cp:20} → wc≈0.04.
         """
         game = SimpleNamespace(id="g1", steps=[{}, {}])
-        await self._run(
-            game,
-            [
-                {"score": {"cp": 0}, "depth": 20, "pv": "e2e4"},
-                {"score": {"cp": 20}, "depth": 20, "pv": "e7e5"},
-            ],
-        )
+        await self._run(game, [
+            {"score": {"cp": 0}, "depth": 20, "pv": "e2e4"},
+            {"score": {"cp": 20}, "depth": 20, "pv": "e7e5"},
+        ])
         self.assertNotIn("p", game.steps[1]["analysis"])
 
     async def test_initial_position_never_saves_pv(self):
@@ -292,13 +284,10 @@ class FishnetAnalysisPvTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_missing_pv_key_does_not_crash(self):
         """Fishnet workers may omit 'pv' — analysis stored without 'p' key."""
         game = SimpleNamespace(id="g1", steps=[{}, {}])
-        await self._run(
-            game,
-            [
-                {"score": {"cp": -50}, "depth": 20},
-                {"score": {"cp": 300}, "depth": 20},
-            ],
-        )
+        await self._run(game, [
+            {"score": {"cp": -50}, "depth": 20},
+            {"score": {"cp": 300}, "depth": 20},
+        ])
         self.assertNotIn("p", game.steps[1]["analysis"])
         self.assertIn("s", game.steps[1]["analysis"])
 
@@ -307,14 +296,10 @@ class FishnetAnalysisPvTestCase(unittest.IsolatedAsyncioTestCase):
         existing = {"s": {"cp": 100}, "d": 15, "p": "old_pv"}
         send_msg = AsyncMock()
         game = SimpleNamespace(id="g1", steps=[{}, {"analysis": existing}])
-        await self._run(
-            game,
-            [
-                {"score": {"cp": -50}, "depth": 20, "pv": "e2e4"},
-                {"score": {"cp": 300}, "depth": 20, "pv": "new_pv"},
-            ],
-            send_msg=send_msg,
-        )
+        await self._run(game, [
+            {"score": {"cp": -50}, "depth": 20, "pv": "e2e4"},
+            {"score": {"cp": 300}, "depth": 20, "pv": "new_pv"},
+        ], send_msg=send_msg)
         self.assertIs(game.steps[1]["analysis"], existing)
         sent_plies = {call.args[1]["ply"] for call in send_msg.call_args_list}
         self.assertNotIn("1", sent_plies)
