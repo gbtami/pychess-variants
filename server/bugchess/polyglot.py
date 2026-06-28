@@ -911,7 +911,7 @@ class MemoryMappedReader:
 
         try:
             self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)  # type: Optional[mmap.mmap]
-        except (ValueError, mmap.error):  # type: ignore
+        except ValueError, mmap.error:  # type: ignore
             # Can not memory map empty opening books.
             self.mmap = None
 
@@ -1001,7 +1001,7 @@ class MemoryMappedReader:
         try:
             key = int(board)  # type: ignore
             context = None  # type: Optional[chess.Board]
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             context = typing.cast(chess.Board, board)
             key = zobrist_hash(context)
 

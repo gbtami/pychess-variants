@@ -1396,6 +1396,8 @@ class Tournament(ABC):
     async def join(self, user: User, password: str | None = None) -> str | None:
         if user.anon:
             return None
+        if user.bot:
+            return "BOT accounts cannot join tournaments."
         log.debug("JOIN: %s in tournament %s", user.username, self.id)
 
         if self.password and self.password != password:
@@ -1464,7 +1466,7 @@ class Tournament(ABC):
         perf = user.perfs.get(perf_key, {})
         try:
             rated_games = int(perf.get("nb", 0))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             rated_games = 0
 
         if self.entry_min_rated_games > 0 and rated_games < self.entry_min_rated_games:

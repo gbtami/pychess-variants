@@ -4090,7 +4090,7 @@ class SquareSet:
     def __eq__(self, other: object) -> bool:
         try:
             return self.mask == SquareSet(other).mask  # type: ignore
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return NotImplemented
 
     def __lshift__(self, shift: int) -> "SquareSet":

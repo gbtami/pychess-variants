@@ -1,0 +1,85 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+<main class="page-menu legal-page">
+<aside></aside>
+<div class="guide legal-doc account-action">
+<section class="account-action__panel">
+    <h1>BOT account tools</h1>
+    <p class="account-action__lead">
+    Create BOT API tokens for <strong>{{ username }}</strong>, upgrade an unused account to BOT, and use the token in <code>pychess-bot</code>.
+    </p>
+    <p>
+    Current title:
+    <strong>{% if bot_account_title %}{{ bot_account_title }}{% else %}(none){% endif %}</strong>
+    </p>
+    <p>Total games played: <strong>{{ bot_game_count }}</strong></p>
+    {% if bot_notice %}
+    <p><strong>{{ bot_notice }}</strong></p>
+    {% endif %}
+    {% if bot_error %}
+    <p><strong>{{ bot_error }}</strong></p>
+    {% endif %}
+</section>
+
+<section class="account-action__panel">
+    <h2>Create BOT API token</h2>
+    <p>Create a token, copy it immediately, then put it into your <code>pychess-bot</code> configuration.</p>
+    <form class="account-action__form" method="post" action="/account/bot/token/create">
+        <div class="account-action__field">
+            <label class="account-action__label" for="account-bot-token-description">Description</label>
+            <input id="account-bot-token-description" class="account-action__input" type="text" name="description" maxlength="120" placeholder="pychess-bot">
+        </div>
+        <button class="account-action__button account-action__button--primary" type="submit">Create token</button>
+    </form>
+    {% if new_bot_token %}
+    <div class="account-action__field">
+        <label class="account-action__label" for="account-bot-new-token">New token</label>
+        <input id="account-bot-new-token" class="account-action__input" type="text" readonly value="{{ new_bot_token }}">
+    </div>
+    <p>This token is shown only once.</p>
+    {% endif %}
+</section>
+
+<section class="account-action__panel">
+    <h2>Upgrade account to BOT</h2>
+    {% if bot_account_title == "BOT" %}
+    <p>This account is already a BOT account.</p>
+    {% elif bot_upgrade_eligible %}
+    <p>Only accounts that never played a single game can be upgraded. This account is eligible.</p>
+    <form class="account-action__form" method="post" action="/account/bot/upgrade">
+        <button class="account-action__button account-action__button--primary" type="submit">Upgrade to BOT</button>
+    </form>
+    {% else %}
+    <p>{{ bot_upgrade_reason }}</p>
+    {% endif %}
+</section>
+
+<section class="account-action__panel">
+    <h2>Existing BOT API tokens</h2>
+    {% if bot_tokens %}
+    <ul class="account-action__links">
+        {% for token in bot_tokens %}
+        <li>
+            <strong>{{ token.description or "Unnamed token" }}</strong>
+            {% if token.revokedAt %} (revoked){% endif %}
+            <br>
+            Created: {{ token.createdAt }}
+            {% if token.usedAt %}<br>Last used: {{ token.usedAt }}{% endif %}
+            <form class="account-action__form" method="post" action="/account/bot/token/{{ token._id }}/revoke">
+                <button class="account-action__button account-action__button--secondary" type="submit" {% if token.revokedAt %}disabled{% endif %}>Revoke token</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No BOT API tokens created yet.</p>
+    {% endif %}
+</section>
+</div>
+</main>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{{ js }}"></script>
+{% endblock %}

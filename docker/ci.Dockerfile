@@ -1,7 +1,7 @@
 FROM node:24 AS node
 
 
-FROM python:3.13
+FROM python:3.14
 
 COPY --from=node /usr/local/bin/ /usr/local/bin/
 COPY --from=node /usr/local/include/ /usr/local/include/

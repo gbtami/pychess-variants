@@ -137,11 +137,14 @@ class Simul:
         return False
 
     def entry_condition_error(self, user: "User") -> str | None:
+        if user.bot:
+            return "BOT accounts cannot join simuls."
+
         perf_key = self.variant + ("960" if self.chess960 else "")
         perf = user.perfs.get(perf_key, {})
         try:
             rated_games = int(perf.get("nb", 0))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             rated_games = 0
 
         if self.entry_min_rated_games > 0 and rated_games < self.entry_min_rated_games:

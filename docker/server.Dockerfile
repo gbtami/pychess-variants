@@ -17,7 +17,7 @@ COPY templates /app/templates/
 RUN yarn md
 
 
-FROM python:3.13
+FROM python:3.14
 
 COPY README.md /app/
 COPY pyproject.toml /app/

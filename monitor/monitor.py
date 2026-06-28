@@ -404,7 +404,7 @@ class MemoryMonitorApp(App):
         def format_date(value):
             try:
                 return datetime.fromisoformat(value).strftime("%m/%d/%Y %H:%M") if value else "-"
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 return "-"
 
         for item in items:

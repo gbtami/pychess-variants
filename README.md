@@ -48,6 +48,8 @@ yarn md                                 # Compile md files to html
 
 All Python commands below should be run with `uv run ...` unless you have already activated `.venv`.
 
+The project now targets Python 3.14+.
+
 ### Start server
 ```bash
 uv run server/server.py

@@ -113,7 +113,7 @@ class User:
         swiss_ban_hours: int = 0,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
-        self.bot: bool = False if username == "PyChessBot" else bot
+        self.bot: bool = bot
         self.anon: bool = anon
         self.lang: str | None = lang
         self.theme: str = theme
@@ -177,10 +177,7 @@ class User:
         self.following: set[str] = set()
 
         if self.bot:
-            self.event_queue: Queue[str] = asyncio.Queue()
-            self.game_queues: dict[str, Queue[str]] = {}
-            self.active_game_streams: set[str] = set()
-            self.title = "BOT"
+            self.enable_bot_account()
 
         self.online: bool = False
         self.ever_connected: bool = False
@@ -218,6 +215,16 @@ class User:
             self.remove_anon_task: asyncio.Task[None] | None = task
         else:
             self.remove_anon_task = None
+
+    def enable_bot_account(self) -> None:
+        self.bot = True
+        self.title = "BOT"
+        if not hasattr(self, "event_queue"):
+            self.event_queue = asyncio.Queue()
+        if not hasattr(self, "game_queues"):
+            self.game_queues = {}
+        if not hasattr(self, "active_game_streams"):
+            self.active_game_streams = set()
 
     async def remove(self) -> None:
         def can_remove_anon() -> bool:

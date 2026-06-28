@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Iterable, NotRequired, TypedDict
 
 from const import CORR_SEEK_EXPIRE_WEEKS, INVITE_SEEK_EXPIRE
+from json_utils import json_dumps
 from misc import time_control_str
 from newid import new_id
 import logging
@@ -28,6 +29,7 @@ DIRECT_CHALLENGE_ACCEPTED = "accepted"
 ACTIVE_DIRECT_CHALLENGE_STATUSES = frozenset({DIRECT_CHALLENGE_CREATED, DIRECT_CHALLENGE_OFFLINE})
 DIRECT_CHALLENGE_SHORT_EXPIRE = timedelta(hours=3)
 DIRECT_CHALLENGE_BLOCKED_MESSAGE = "You cannot challenge this user."
+ESTIMATE_MOVES = 40
 
 if TYPE_CHECKING:
     from pymongo.asynchronous.database import AsyncDatabase
@@ -488,6 +490,13 @@ async def create_seek(
         target_profile = await user.app_state.public_users.get_profile(target)
         if target_profile is None:
             return None
+        if target_profile.title == "BOT":
+            log.info(
+                "Rejecting generic direct challenge to BOT %s by %s",
+                target,
+                user.username,
+            )
+            return None
         if target in user.blocked or user.username in target_profile.blocked:
             log.info(
                 "Rejecting direct challenge by %s against %s because users are blocked",
@@ -562,13 +571,47 @@ def get_seeks(user: User, seeks: Iterable[Seek]) -> list[SeekJson]:
 
 def challenge(seek: Seek) -> str:
     """BOT API stream event response"""
-    return (
-        '{"type":"challenge", "challenge": {"id":"%s", "challenger":{"name":"%s", "rating":1500,"title":""},"variant":{"key":"%s"},"rated":"true","timeControl":{"type":"clock","limit":300,"increment":0},"color":"random","finalColor":"white","speed":"rapid","perf":{"name":"Rapid"}, "level":%s, "chess960":%s}}\n'
-        % (
-            seek.game_id,
-            seek.creator.username,
-            seek.variant,
-            seek.level,
-            str(seek.chess960).lower(),
-        )
-    )
+    perf_name = seek.variant + ("960" if seek.chess960 else "")
+    if seek.day > 0:
+        time_control: dict[str, object] = {"type": "correspondence", "daysPerTurn": seek.day}
+        speed = "correspondence"
+    else:
+        estimated_game_time = (60 * float(seek.base)) + (ESTIMATE_MOVES * seek.inc)
+        if estimated_game_time < 30:
+            speed = "ultraBullet"
+        elif estimated_game_time < 180:
+            speed = "bullet"
+        elif estimated_game_time < 480:
+            speed = "blitz"
+        elif estimated_game_time < 1500:
+            speed = "rapid"
+        else:
+            speed = "classical"
+        time_control = {
+            "type": "clock",
+            "limit": int(float(seek.base) * 60),
+            "increment": seek.inc,
+        }
+
+    color = {"w": "white", "b": "black"}.get(seek.color, "random")
+    payload = {
+        "type": "challenge",
+        "challenge": {
+            "id": seek.game_id,
+            "challenger": {
+                "name": seek.creator.username,
+                "rating": seek.rating,
+                "title": seek.creator.title,
+            },
+            "variant": {"key": "standard" if seek.variant == "chess" else seek.variant},
+            "rated": bool(seek.rated),
+            "timeControl": time_control,
+            "color": color,
+            "finalColor": "white" if color == "random" else color,
+            "speed": speed,
+            "perf": {"name": perf_name},
+            "level": seek.level,
+            "chess960": bool(seek.chess960),
+        },
+    }
+    return json_dumps(payload) + "\n"

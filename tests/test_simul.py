@@ -5,6 +5,8 @@ import test_logger
 import time
 import asyncio
 from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
+from unittest.mock import AsyncMock, patch
 import aiohttp
 import pytest
 
@@ -463,6 +465,22 @@ class TestGUI:
             await player_ws.close()
             await host_session.close()
             await player_session.close()
+
+    async def test_bot_user_cannot_join_simul(self, aiohttp_server):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        await aiohttp_server(app, host="127.0.0.1")
+        app_state = get_app_state(app)
+        bot_user = User(app_state, bot=True, username="bot-simul")
+        ws = SimpleNamespace(send_str=AsyncMock())
+        simul = SimpleNamespace(
+            entry_condition_error=lambda user: "BOT accounts cannot join simuls.",
+            join=lambda user: False,
+        )
+
+        with patch.object(simul_wss, "get_simul", new=AsyncMock(return_value=simul)):
+            await simul_wss.handle_join(app_state, bot_user, ws, {"type": "join", "simulId": "sid"})
+
+        assert "BOT accounts cannot join simuls" in ws.send_str.call_args.args[0]
 
     async def test_simul_host_extra_time_applies_only_to_host(self, aiohttp_server):
         app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))

@@ -3,7 +3,7 @@ name = "pychess-variants"
 version = "0.1.0"
 description = "Chess variants server"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "aiohttp==3.14.1",
     "aiohttp-cors==0.8.1",
@@ -18,7 +18,7 @@ dependencies = [
     "jinja2==3.1.6",
     "minify-html==0.18.1",
     "pyffish==0.0.89",
-    "pyffish-alice==0.0.2",
+    "pyffish-alice==0.0.3",
     "py4swiss==0.3.1",
     "pymongo==4.17.0",
     "pywebpush==2.3.0",
@@ -48,7 +48,7 @@ dev = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py314"
 
 [tool.setuptools]
 packages = []  # Disable package discovery

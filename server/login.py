@@ -14,7 +14,7 @@ from broadcast import round_broadcast
 from const import STARTED, reserved
 from json_utils import json_response
 from oauth_config import oauth_config
-from settings import DEV, URI
+from settings import URI
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_json_data
 from newid import new_id
@@ -167,10 +167,6 @@ async def login(request: web.Request) -> web.StreamResponse:
 
     if reserved(username):
         log.error("User %s tried to log in.", username)
-        return web.HTTPFound("/")
-
-    elif (not DEV) and title == "BOT":
-        log.error("BOT user %s tried to log in.", username)
         return web.HTTPFound("/")
 
     elif tosViolation == "true":
