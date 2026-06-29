@@ -19,11 +19,14 @@ from user import User
 from utils import load_game, new_game, play_move, send_bot_game_start_unless_streaming
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data, read_text_data
+from seek import BOT_CHALLENGE_DECLINED, resolve_decline_reason
 from typing_defs import UserDocument
 import logging
 
 log = logging.getLogger(__name__)
 Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
+BOT_EVENT_STREAM_KEEPALIVE_SECONDS = 6
+BOT_API_ONLINE_TTL_SECONDS = 10
 
 if TYPE_CHECKING:
     from seek import Seek
@@ -43,6 +46,26 @@ def _request_title(request: web.Request) -> str:
 def _require_bot_invite_owner(username: str, seek: Seek) -> None:
     if seek.player2 is None or seek.player2.username != username:
         raise web.HTTPForbidden()
+
+
+def _refresh_bot_api_online(bot_player: User) -> None:
+    bot_player.online = True
+
+    expire_task = bot_player.bot_online_expire_task
+    if expire_task is not None:
+        expire_task.cancel()
+
+    async def expire_online() -> None:
+        await asyncio.sleep(BOT_API_ONLINE_TTL_SECONDS)
+        if bot_player.bot_online_expire_task is asyncio.current_task():
+            bot_player.bot_online_expire_task = None
+            bot_player.online = False
+            log.info("--- BOT %s API presence expired", bot_player.username)
+
+    bot_player.bot_online_expire_task = bot_player.create_background_task(
+        expire_online(),
+        name="bot-api-online-expire-%s" % bot_player.username,
+    )
 
 
 async def _load_authorized_game(app_state, game_id: str, username: str) -> Game:
@@ -189,17 +212,9 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
     result: NewGameMessage | ErrorMessage = await new_game(app_state, seek, gameId)
 
     if result["type"] == "new_game":
-        if gameId not in app_state.invite_channels:
-            event = app_state.invite_events.setdefault(gameId, asyncio.Event())
-            try:
-                await asyncio.wait_for(event.wait(), timeout=10.0)
-            except asyncio.TimeoutError:
-                log.warning("BOT_API challenge_accept() SSE timeout for %s", gameId)
-            finally:
-                app_state.invite_events.pop(gameId, None)
-
         try:
-            # Put response data to sse subscriber queue
+            # Bot challenge pages can derive accepted state from the round/game URL,
+            # so accepting must not block on a browser SSE subscriber being ready.
             channels = app_state.invite_channels.get(gameId)
             if channels is not None:
                 for queue in channels:
@@ -231,21 +246,29 @@ async def challenge_decline(request: web.Request) -> web.StreamResponse:
         raise web.HTTPNotFound()
     _require_bot_invite_owner(username, seek)
 
-    if gameId not in app_state.invite_channels:
-        event = app_state.invite_events.setdefault(gameId, asyncio.Event())
-        try:
-            await asyncio.wait_for(event.wait(), timeout=10.0)
-        except asyncio.TimeoutError:
-            log.warning("BOT_API challenge_decline() SSE timeout for %s", gameId)
-        finally:
-            app_state.invite_events.pop(gameId, None)
+    reason_data = await read_post_data(request)
+    reason_key = None if reason_data is None else reason_data.get("reason")
+    decline_reason = resolve_decline_reason(
+        None if reason_key is None else str(reason_key), allow_custom=True
+    )
+    seek.set_bot_challenge_decline_reason(decline_reason)
+    seek.set_bot_challenge_status(BOT_CHALLENGE_DECLINED)
 
     try:
-        # Put response data to sse subscriber queue
+        # Declines are persisted on the seek and rendered by GET /bot-challenge/{id},
+        # so do not block on the browser connecting its SSE listener first.
         channels = app_state.invite_channels.get(gameId)
         if channels is not None:
             for queue in channels:
-                await queue.put(json_dumps({"gameId": gameId, "accept": False}))
+                await queue.put(
+                    json_dumps(
+                        {
+                            "gameId": gameId,
+                            "accept": False,
+                            "declineReason": decline_reason,
+                        }
+                    )
+                )
     except ConnectionResetError:
         log.error("/api/challenge/{%s}/decline ConnectionResetError", gameId)
 
@@ -284,7 +307,7 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
             )
             log.debug("db insert user result %r", result.inserted_id)
 
-    bot_player.online = True
+    _refresh_bot_api_online(bot_player)
 
     log.info("+++ BOT %s connected", bot_player.username)
 
@@ -292,7 +315,8 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
         """To prevent lichess-bot.py sleep by heroku because of no activity."""
         while True:
             await bot_player.event_queue.put('{"type":"ping"}\n')
-            await asyncio.sleep(6)
+            await asyncio.sleep(BOT_EVENT_STREAM_KEEPALIVE_SECONDS)
+            _refresh_bot_api_online(bot_player)
 
     pinger_task = asyncio.create_task(pinger(), name="BOT-event-stream-pinger")
 
@@ -304,11 +328,11 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
         if TYPE_CHECKING:
             assert answer is not None
         try:
-            if request.transport is not None and request.transport.is_closing():
+            transport = request.transport
+            if transport is None or transport.is_closing():
                 break
-            else:
-                await resp.write(answer.encode())
-                bot_player.event_queue.task_done()
+            await resp.write(answer.encode())
+            bot_player.event_queue.task_done()
         except Exception:
             log.error("Writing %s to BOT %s event_stream is broken...", answer, username)
             break
@@ -323,6 +347,7 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
             await pinger_task
         except asyncio.CancelledError:
             pass
+        log.info("--- BOT %s disconnected", bot_player.username)
 
     await bot_player.clear_seeks()
     return resp

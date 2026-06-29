@@ -16,6 +16,7 @@ import { inboxView } from './inbox';
 import { forumView } from './forum';
 import { roundView } from './round';
 import { inviteView } from './invite';
+import { botChallengeView } from './botChallenge';
 import { directChallengeView } from './directChallenge';
 import { renderGames } from './games';
 import { editorView } from '@/editor/editor';
@@ -89,6 +90,9 @@ function initModel(el: HTMLElement) {
         simulname : el.getAttribute("data-simulname") ?? "",
         tournamentcreator: el.getAttribute("data-tournamentcreator") ?? "",
         inviter : el.getAttribute("data-inviter") ?? "",
+        botChallengeStatus : el.getAttribute("data-bot-challenge-status") ?? "",
+        botChallengeDeclineReason : el.getAttribute("data-bot-challenge-decline-reason") ?? "",
+        botChallengeOpponent : el.getAttribute("data-bot-challenge-opponent") ?? "",
         challengeId : el.getAttribute("data-challengeid") ?? "",
         ply : parseInt(""+el.getAttribute("data-ply")),
         initialFen : el.getAttribute("data-initialfen") ?? "",
@@ -172,6 +176,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div#main-wrap', puzzleView(model));
     case 'invite':
         return h('div#main-wrap', inviteView(model));
+    case 'bot_challenge':
+        return h('div#main-wrap', botChallengeView(model));
     case 'challenge':
         return h('div#main-wrap', directChallengeView(model));
     case 'editor':

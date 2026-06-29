@@ -43,7 +43,7 @@ async def invite(request: web.Request) -> ViewContext:
         if seek is None:
             # Invite exists but corresponding seek has already been deleted.
             app_state.invites.pop(gameId, None)
-        elif seek.target == "Invite-friend" and seek.is_expired():
+        elif seek.is_expired():
             app_state.invites.pop(gameId, None)
             remove_seek(app_state.seeks, seek)
             set_expired_invite_context(context, gameId)
@@ -69,7 +69,6 @@ async def invite(request: web.Request) -> ViewContext:
                         log.error("/invite/accept/ ConnectionResetError for user %s", user.username)
             else:
                 inviter = seek.creator.username if user.username != seek.creator.username else ""
-
     if inviter is not None:
         context["gameid"] = gameId
         context["variant"] = seek.variant

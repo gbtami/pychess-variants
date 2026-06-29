@@ -225,6 +225,8 @@ class User:
             self.game_queues = {}
         if not hasattr(self, "active_game_streams"):
             self.active_game_streams = set()
+        if not hasattr(self, "bot_online_expire_task"):
+            self.bot_online_expire_task: asyncio.Task[None] | None = None
 
     async def remove(self) -> None:
         def can_remove_anon() -> bool:

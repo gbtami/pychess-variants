@@ -434,6 +434,10 @@ class PychessGlobalAppState:
                     user = await self.users.get(doc["user"])
                     if user is not None:
                         game_id = doc.get("gameId") or None
+                        player2_name = doc.get("player2") or ""
+                        player2 = (
+                            None if player2_name == "" else await self.users.get(str(player2_name))
+                        )
                         seek = Seek(
                             doc["_id"],
                             user,
@@ -451,9 +455,12 @@ class PychessGlobalAppState:
                             target=doc.get("target"),
                             game_id=game_id,
                             player1=user,
+                            player2=player2,
                             expire_at=doc.get("expireAt"),
                             challenge_status=doc.get("challengeStatus"),
                             challenge_decline_reason=doc.get("challengeDeclineReason"),
+                            bot_challenge_status=doc.get("botChallengeStatus"),
+                            bot_challenge_decline_reason=doc.get("botChallengeDeclineReason"),
                         )
                         if not should_restore_persisted_seek(seek):
                             log.debug("Skipping non-restorable seek from database: %s", seek.id)

@@ -49,6 +49,9 @@ export type PyChessModel = {
     simulname: string;
     tournamentcreator: string;
     inviter: string;
+    botChallengeStatus: string;
+    botChallengeDeclineReason: string;
+    botChallengeOpponent: string;
     challengeId: string;
     ply: number;
     ct: CrossTable | string;
