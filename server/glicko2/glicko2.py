@@ -13,7 +13,6 @@ The Glicko2 rating system.
 from collections.abc import Iterable, Mapping
 from typing import Any, Tuple, cast
 import math
-from calendar import timegm
 from datetime import datetime, timezone
 
 from typing_defs import PerfEntry, PerfMap
@@ -38,6 +37,11 @@ MIN_PHI = 30
 MAX_SIGMA = 0.1
 PROVISIONAL_PHI = 110
 
+_RATIO: float = 173.7178
+_MAX_PHI_SCALED: float = 350.0 / _RATIO
+_3_OVER_PI_SQ: float = 3.0 / math.pi ** 2
+_SECONDS_PER_PERIOD: float = 60.0 * 60 * 24 * 4.665  # 4.665 days = Lichess baseline period
+
 
 class Rating:
     __slots__ = "mu", "phi", "sigma", "ltime"
@@ -61,22 +65,19 @@ class Rating:
         )
 
 
-def pre_rating_RD(phi, sigma, ltime):
+def pre_rating_RD(phi: float, sigma: float, ltime: datetime) -> float:
     """Calculates the player's rating deviation for the beginning of a rating period."""
 
     # First calculate number of rating periods passed since the last rd update
-    # 4.665 days is the length of a “baseline” rating period used by Lichess,
-    # which is essentially arbitrary but calibrated so a typical player’s RD goes from 60 to 110 in a year.
+    # 4.665 days is the length of a "baseline" rating period used by Lichess,
+    # which is essentially arbitrary but calibrated so a typical player's RD goes from 60 to 110 in a year.
+    now_ts = datetime.now(timezone.utc).timestamp()
+    ltime_ts = ltime.timestamp() if ltime.tzinfo is not None else ltime.replace(tzinfo=timezone.utc).timestamp()
 
-    t = (
-        (timegm(datetime.now(timezone.utc).timetuple()) - timegm(ltime.timetuple()))
-        / (60.0 * 60 * 24)
-        / 4.665
-    )
-    # print("pre_rating_RD(", timegm(datetime.now(timezone.utc).timetuple()), timegm(ltime.timetuple()), t)
+    t = (now_ts - ltime_ts) / _SECONDS_PER_PERIOD
     t = max(1, t)
-    ret = math.sqrt(math.pow(phi, 2) + t * math.pow(sigma, 2))
-    return min(ret, 350.0 / 173.7178)
+    ret = math.sqrt(phi ** 2 + t * sigma ** 2)
+    return min(ret, _MAX_PHI_SCALED)
 
 
 class Glicko2:
@@ -89,7 +90,7 @@ class Glicko2:
         self.tau = tau
         self.epsilon = epsilon
 
-    def create_rating(self, mu=None, phi=None, sigma=None, ltime=None):
+    def create_rating(self, mu=None, phi=None, sigma=None, ltime=None) -> Rating:
         if mu is None:
             mu = self.mu
         if phi is None:
@@ -100,15 +101,15 @@ class Glicko2:
             ltime = datetime.now(timezone.utc)
         return Rating(mu, phi, sigma, ltime)
 
-    def scale_down(self, rating, ratio=173.7178):
+    def scale_down(self, rating: Rating, ratio: float = _RATIO) -> Rating:
         mu = (rating.mu - self.mu) / ratio
         phi = rating.phi / ratio
-        return self.create_rating(mu, phi, rating.sigma, rating.ltime)
+        return Rating(mu, phi, rating.sigma, rating.ltime)
 
-    def scale_up(self, rating, ratio=173.7178):
+    def scale_up(self, rating: Rating, ratio: float = _RATIO) -> Rating:
         mu = rating.mu * ratio + self.mu
         phi = rating.phi * ratio
-        return self.create_rating(
+        return Rating(
             max(mu, MIN_MU),
             max(phi, MIN_PHI),
             min(rating.sigma, MAX_SIGMA),
@@ -116,43 +117,49 @@ class Glicko2:
         )
 
     @staticmethod
-    def reduce_impact(rating):
+    def reduce_impact(rating: Rating) -> float:
         """The original form is `g(RD)`. This function reduces the impact of
         games as a function of an opponent's RD.
         """
-        return 1.0 / math.sqrt(1 + (3 * rating.phi**2) / (math.pi**2))
+        return 1.0 / math.sqrt(1 + _3_OVER_PI_SQ * rating.phi ** 2)
 
     @staticmethod
-    def expect_score(rating, other_rating, impact):
+    def expect_score(rating: Rating, other_rating: Rating, impact: float) -> float:
         return 1.0 / (1 + math.exp(-impact * (rating.mu - other_rating.mu)))
 
-    def determine_sigma(self, rating, difference, variance):
+    @staticmethod
+    def _f(x: float, difference_sq: float, phi_sq: float, variance: float,
+           alpha: float, tau_sq: float) -> float:
+        """This function is twice the conditional log-posterior density of phi,
+        and is the optimality criterion.
+        """
+        ex = math.exp(x)
+        tmp = phi_sq + variance + ex
+        a = ex * (difference_sq - tmp) / (2.0 * tmp ** 2)
+        b = (x - alpha) / tau_sq
+        return a - b
+
+    def determine_sigma(self, rating: Rating, difference: float, variance: float) -> float:
         """Determines new sigma."""
         phi = rating.phi
-        difference_squared = difference**2
+        phi_sq = phi ** 2
+        difference_sq = difference ** 2
+        tau_sq = self.tau ** 2
         # 1. Let a = ln(s^2), and define f(x)
-        alpha = math.log(rating.sigma**2)
-
-        def f(x):
-            """This function is twice the conditional log-posterior density of
-            phi, and is the optimality criterion.
-            """
-            tmp = phi**2 + variance + math.exp(x)
-            a = math.exp(x) * (difference_squared - tmp) / (2 * tmp**2)
-            b = (x - alpha) / (self.tau**2)
-            return a - b
+        alpha = math.log(rating.sigma ** 2)
 
         # 2. Set the initial values of the iterative algorithm.
         a = alpha
-        if difference_squared > phi**2 + variance:
-            b = math.log(difference_squared - phi**2 - variance)
+        if difference_sq > phi_sq + variance:
+            b = math.log(difference_sq - phi_sq - variance)
         else:
             k = 1
-            while f(alpha - k * math.sqrt(self.tau**2)) < 0:
+            while self._f(alpha - k * self.tau, difference_sq, phi_sq, variance, alpha, tau_sq) < 0:
                 k += 1
-            b = alpha - k * math.sqrt(self.tau**2)
+            b = alpha - k * self.tau
         # 3. Let fA = f(A) and f(B) = f(B)
-        f_a, f_b = f(a), f(b)
+        f_a = self._f(a, difference_sq, phi_sq, variance, alpha, tau_sq)
+        f_b = self._f(b, difference_sq, phi_sq, variance, alpha, tau_sq)
         # 4. While |B-A| > e, carry out the following steps.
         # (a) Let C = A + (A - B)fA / (fB-fA), and let fC = f(C).
         # (b) If fCfB < 0, then set A <- B and fA <- fB; otherwise, just set
@@ -161,17 +168,16 @@ class Glicko2:
         # (d) Stop if |B-A| <= e. Repeat the above three steps otherwise.
         while abs(b - a) > self.epsilon:
             c = a + (a - b) * f_a / (f_b - f_a)
-            f_c = f(c)
+            f_c = self._f(c, difference_sq, phi_sq, variance, alpha, tau_sq)
             if f_c * f_b < 0:
                 a, f_a = b, f_b
             else:
                 f_a /= 2
             b, f_b = c, f_c
         # 5. Once |B-A| <= e, set s' <- e^(A/2)
-        return math.exp(1) ** (a / 2)
+        return math.exp(a / 2)
 
-    def rate(self, rating, series):
-        # print("rate()", rating, series)
+    def rate(self, rating: Rating, series) -> Rating:
         # Step 2. For each player, convert the rating and RD's onto the
         #         Glicko-2 scale.
         rating = self.scale_down(rating)
@@ -180,22 +186,23 @@ class Glicko2:
         # Step 4. Compute the quantity difference, the estimated improvement in
         #         rating by comparing the pre-period rating to the performance
         #         rating based only on game outcomes.
-        variance_inv = 0
-        difference = 0
+        variance_inv = 0.0
+        difference = 0.0
 
         if not series:
             # If the team didn't play in the series, do only Step 6
-            # phi_star = math.sqrt(rating.phi ** 2 + rating.sigma ** 2)
             phi_star = pre_rating_RD(rating.phi, rating.sigma, rating.ltime)
-            return self.scale_up(
-                self.create_rating(rating.mu, phi_star, rating.sigma, rating.ltime)
-            )
+            return self.scale_up(Rating(rating.mu, phi_star, rating.sigma, rating.ltime))
 
+        # reduce_impact and expect_score are inlined to avoid per-opponent method dispatch.
+        # opponent scale_down is inlined to avoid a temporary Rating allocation per loop iteration.
+        my_mu = rating.mu
         for actual_score, other_rating in series:
-            other_rating = self.scale_down(other_rating)
-            impact = self.reduce_impact(other_rating)
-            expected_score = self.expect_score(rating, other_rating, impact)
-            variance_inv += impact**2 * expected_score * (1 - expected_score)
+            opp_phi = other_rating.phi / _RATIO
+            opp_mu = (other_rating.mu - self.mu) / _RATIO
+            impact = 1.0 / math.sqrt(1.0 + _3_OVER_PI_SQ * opp_phi ** 2)
+            expected_score = 1.0 / (1.0 + math.exp(-impact * (my_mu - opp_mu)))
+            variance_inv += impact ** 2 * expected_score * (1.0 - expected_score)
             difference += impact * (actual_score - expected_score)
 
         difference /= variance_inv
@@ -207,23 +214,22 @@ class Glicko2:
 
         # Step 6. Update the rating deviation to the new pre-rating period
         #         value, Phi*.
-        # phi_star = math.sqrt(phi ** 2 + sigma ** 2)
         phi_star = pre_rating_RD(rating.phi, sigma, rating.ltime)
 
         # Step 7. Update the rating and RD to the new values, Mu' and Phi'.
-        phi = 1.0 / math.sqrt(1 / phi_star**2 + 1 / variance)
-        mu = rating.mu + phi**2 * (difference / variance)
+        phi = 1.0 / math.sqrt(1.0 / phi_star ** 2 + 1.0 / variance)
+        mu = rating.mu + phi ** 2 * (difference / variance)
 
         # Step 8. Convert ratings and RD's back to original scale.
-        return self.scale_up(self.create_rating(mu, phi, sigma, rating.ltime))
+        return self.scale_up(Rating(mu, phi, sigma, rating.ltime))
 
-    def rate_1vs1(self, rating1, rating2, drawn=False):
+    def rate_1vs1(self, rating1: Rating, rating2: Rating, drawn: bool = False) -> Tuple[Rating, Rating]:
         return (
             self.rate(rating1, [(DRAW if drawn else WIN, rating2)]),
             self.rate(rating2, [(DRAW if drawn else LOSS, rating1)]),
         )
 
-    def quality_1vs1(self, rating1, rating2):
+    def quality_1vs1(self, rating1: Rating, rating2: Rating) -> float:
         expected_score1 = self.expect_score(rating1, rating2, self.reduce_impact(rating1))
         expected_score2 = self.expect_score(rating2, rating1, self.reduce_impact(rating2))
         expected_score = (expected_score1 + expected_score2) / 2
