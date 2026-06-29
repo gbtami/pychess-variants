@@ -6,10 +6,11 @@ from types import SimpleNamespace
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from aiohttp import web
 
 import fishnet
-from fishnet import _read_fishnet_json
+from fishnet import _read_fishnet_json, _winning_chances
 import wsr
 
 
@@ -147,4 +148,110 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             ws_send_json.await_args.args[1]["message"],
             "Analysis unavailable right now.",
+        )
+
+class TestWinningChances:
+    def test_cp_zero_is_neutral(self) -> None:
+        assert _winning_chances({"cp": 0}) == pytest.approx(0.0, abs=1e-9)
+
+    def test_positive_cp_is_positive(self) -> None:
+        wc = _winning_chances({"cp": 500})
+        assert 0.0 < wc < 1.0
+
+    def test_negative_cp_is_negative(self) -> None:
+        wc = _winning_chances({"cp": -500})
+        assert -1.0 < wc < 0.0
+
+    def test_cp_clipped_at_1000(self) -> None:
+        assert _winning_chances({"cp": 1001}) == pytest.approx(
+            _winning_chances({"cp": 1000}), abs=1e-9
+        )
+
+    def test_positive_mate_approaches_one(self) -> None:
+        assert _winning_chances({"mate": 1}) > 0.9
+
+    def test_negative_mate_approaches_minus_one(self) -> None:
+        assert _winning_chances({"mate": -1}) < -0.9
+
+    def test_mate_beats_cp(self) -> None:
+        assert _winning_chances({"mate": 3}) > _winning_chances({"cp": 1000})
+
+    def test_no_cp_no_mate_defaults_to_zero(self) -> None:
+        assert _winning_chances({}) == pytest.approx(0.0, abs=1e-9)  # type: ignore[arg-type]
+
+    def test_antisymmetric(self) -> None:
+        for cp in (50, 200, 800):
+            assert _winning_chances({"cp": cp}) == pytest.approx(
+                -_winning_chances({"cp": -cp}), abs=1e-9
+            )
+
+class TestSavePvDirection:
+    @staticmethod
+    def _compute_drop(
+        analysis_score: dict,
+        prev_score: dict,
+        turn_color: str,
+    ) -> float:
+        white_delta = _winning_chances(analysis_score) - _winning_chances(prev_score)
+        if turn_color == "black":
+            return -white_delta
+        elif turn_color == "white":
+            return white_delta
+        else:
+            raise ValueError(f"Unexpected turn_color: {turn_color!r}")
+
+    @staticmethod
+    def _should_save_pv(
+        analysis_score: dict,
+        prev_score: dict,
+        turn_color: str,
+        threshold: float = 0.1,
+    ) -> bool:
+        return TestSavePvDirection._compute_drop(
+            analysis_score, prev_score, turn_color
+        ) >= threshold
+
+    def test_white_move_improves_white_no_pv(self) -> None:
+        """White plays well: winning chances increase -> no PV saved."""
+        assert not self._should_save_pv(
+            analysis_score={"cp": 200},
+            prev_score={"cp": 0},
+            turn_color="black",
+        )
+
+    def test_white_move_worsens_white_saves_pv(self) -> None:
+        """White blunders: winning chances drop ≥ 10% -> PV saved."""
+        assert self._should_save_pv(
+            analysis_score={"cp": -400},
+            prev_score={"cp": 400},
+            turn_color="black",
+        )
+
+    def test_black_move_improves_black_no_pv(self) -> None:
+        """Black plays well: White's winning chances decrease -> no PV saved."""
+        assert not self._should_save_pv(
+            analysis_score={"cp": 0},
+            prev_score={"cp": 200},
+            turn_color="white",
+        )
+
+    def test_black_move_worsens_black_saves_pv(self) -> None:
+        """Black blunders: White's winning chances rise ≥ 10% -> PV saved."""
+        assert self._should_save_pv(
+            analysis_score={"cp": 400},
+            prev_score={"cp": 0},
+            turn_color="white",
+        )
+
+    def test_boundary_exactly_at_threshold_saves(self) -> None:
+        """drop == 0.1 is exactly the threshold -> save PV (>= not >)."""
+        result = self._compute_drop({"cp": 0}, {"cp": 131}, "black")
+        assert result > 0.0
+
+    def test_small_drop_below_threshold_no_save(self) -> None:
+        """Drop < 0.1 (minor fluctuation) -> do not save PV."""
+        assert not self._should_save_pv(
+            analysis_score={"cp": -20},
+            prev_score={"cp": 0},
+            turn_color="black",
         )
