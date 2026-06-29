@@ -11,7 +11,7 @@ The Glicko2 rating system.
 """
 
 from collections.abc import Iterable, Mapping
-from typing import Any, Tuple, cast
+from typing import Any, cast
 import math
 from datetime import datetime, timezone
 
@@ -53,7 +53,7 @@ class Rating:
         self.ltime = ltime
 
     @property
-    def rating_prov(self) -> Tuple[int, str]:
+    def rating_prov(self) -> tuple[int, str]:
         return (int(round(self.mu, 0)), "?" if self.phi > PROVISIONAL_PHI else "")
 
     def __repr__(self):
@@ -70,9 +70,13 @@ def pre_rating_RD(phi: float, sigma: float, ltime: datetime) -> float:
 
     # First calculate number of rating periods passed since the last rd update
     # 4.665 days is the length of a "baseline" rating period used by Lichess,
-    # which is essentially arbitrary but calibrated so a typical player's RD goes from 60 to 110 in a year.
+    # which is essentially arbitrary but calibrated so a typical player's RD
+    # goes from 60 to 110 in a year.
     now_ts = datetime.now(timezone.utc).timestamp()
-    ltime_ts = ltime.timestamp() if ltime.tzinfo is not None else ltime.replace(tzinfo=timezone.utc).timestamp()
+	if ltime.tzinfo is not None:
+    	ltime_ts = ltime.timestamp()
+	else:
+    	ltime_ts = ltime.replace(tzinfo=timezone.utc).timestamp()
 
     t = (now_ts - ltime_ts) / _SECONDS_PER_PERIOD
     t = max(1, t)
@@ -223,7 +227,10 @@ class Glicko2:
         # Step 8. Convert ratings and RD's back to original scale.
         return self.scale_up(Rating(mu, phi, sigma, rating.ltime))
 
-    def rate_1vs1(self, rating1: Rating, rating2: Rating, drawn: bool = False) -> Tuple[Rating, Rating]:
+    def rate_1vs1(
+    self, rating1: Rating, rating2: Rating, drawn: bool = False
+) -> tuple[Rating, Rating]:
+
         return (
             self.rate(rating1, [(DRAW if drawn else WIN, rating2)]),
             self.rate(rating2, [(DRAW if drawn else LOSS, rating1)]),
