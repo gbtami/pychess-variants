@@ -73,7 +73,7 @@ def pre_rating_RD(phi: float, sigma: float, ltime: datetime) -> float:
     # which is essentially arbitrary but calibrated so a typical player's RD
     # goes from 60 to 110 in a year.
     now_ts = datetime.now(timezone.utc).timestamp()
-	ltime_ts = ltime.timestamp() if ltime.tzinfo is not None else ltime.replace(tzinfo=timezone.utc).timestamp()
+    ltime_ts = ltime.timestamp() if ltime.tzinfo is not None else ltime.replace(tzinfo=timezone.utc).timestamp()
 
     t = (now_ts - ltime_ts) / _SECONDS_PER_PERIOD
     t = max(1, t)
