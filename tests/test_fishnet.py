@@ -72,7 +72,9 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True),
-            patch("fishnet.monotonic", return_value=fishnet.ANALYSIS_WORK_TIME_OUT + 100.0),
+            patch(
+                "fishnet.monotonic", return_value=fishnet.ANALYSIS_WORK_TIME_OUT + 100.0
+            ),
         ):
             response = await fishnet.get_work(app_state, payload)
 
@@ -82,8 +84,14 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
     def test_drop_stale_analysis_work_removes_only_old_analysis(self):
         app_state = SimpleNamespace(
             fishnet_works={
-                "analysis1": {"work": {"type": "analysis", "id": "analysis1"}, "time": 0.0},
-                "analysis2": {"work": {"type": "analysis", "id": "analysis2"}, "time": 100.0},
+                "analysis1": {
+                    "work": {"type": "analysis", "id": "analysis1"},
+                    "time": 0.0,
+                },
+                "analysis2": {
+                    "work": {"type": "analysis", "id": "analysis2"},
+                    "time": 100.0,
+                },
                 "move1": {"work": {"type": "move", "id": "move1"}, "time": 0.0},
             },
         )
@@ -120,7 +128,9 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
             variant="chess",
             chess960=False,
         )
-        engine = SimpleNamespace(online=True, game_queues={}, event_queue=asyncio.Queue())
+        engine = SimpleNamespace(
+            online=True, game_queues={}, event_queue=asyncio.Queue()
+        )
         app_state = SimpleNamespace(
             games={"g1": game},
             users={"Fairy-Stockfish": engine},
@@ -149,6 +159,7 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
             ws_send_json.await_args.args[1]["message"],
             "Analysis unavailable right now.",
         )
+
 
 class TestWinningChances:
     def test_cp_zero_is_neutral(self) -> None:
@@ -185,6 +196,7 @@ class TestWinningChances:
                 -_winning_chances({"cp": -cp}), abs=1e-9
             )
 
+
 class TestSavePvDirection:
     @staticmethod
     def _compute_drop(
@@ -207,9 +219,10 @@ class TestSavePvDirection:
         turn_color: str,
         threshold: float = 0.1,
     ) -> bool:
-        return TestSavePvDirection._compute_drop(
-            analysis_score, prev_score, turn_color
-        ) >= threshold
+        return (
+            TestSavePvDirection._compute_drop(analysis_score, prev_score, turn_color)
+            >= threshold
+        )
 
     def test_white_move_improves_white_no_pv(self) -> None:
         """White plays well: winning chances increase -> no PV saved."""
