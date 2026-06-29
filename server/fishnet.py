@@ -346,7 +346,13 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
                     white_delta = _winning_chances(analysis["score"]) - _winning_chances(
                         prev["score"]
                     )
-                    drop = -white_delta if i % 2 == 0 else white_delta
+                    current_turn_color = game.steps[i].get("turnColor")
+                    if current_turn_color == "black":
+                        drop = -white_delta
+                    elif current_turn_color == "white":
+                        drop = white_delta
+                    else:
+                        drop = -white_delta if i % 2 == 1 else white_delta
                     save_pv = drop >= 0.1
                 step_analysis: dict = {"s": analysis["score"]}
                 if "depth" in analysis:
