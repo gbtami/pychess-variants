@@ -128,10 +128,15 @@ export function chatMessage (
 ) {
     if (shouldSkipMessage(message)) return;
 
-    const chatDiv = document.getElementById(chatType + '-messages') as HTMLElement;
+    // when the first duck placement starts, DuckInput.start() calls:
+    // chatMessage('', _('Place the duck on an empty square.'), "roundchat");
+    // But standalone /analysis/duck has no round chat DOM.
+    const chatDiv = document.getElementById(chatType + '-messages') as HTMLElement | null;
+    const container = document.getElementById('messages') as HTMLElement | null;
+    if (!chatDiv || !container) return;
+
     const isBottom = chatDiv.scrollHeight - (chatDiv.scrollTop + chatDiv.offsetHeight) < 80;
     const localTime = time ? new Date(time * 1000).toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit", hour12: false }) : "";
-    const container = document.getElementById('messages') as HTMLElement;
     const isAnon = isAnonUsername(user);
     const displayUser = displayUsername(user);
     const messageNodes = linkifyNodes(message, 'chat-message-link');
