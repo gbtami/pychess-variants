@@ -72,9 +72,7 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True),
-            patch(
-                "fishnet.monotonic", return_value=fishnet.ANALYSIS_WORK_TIME_OUT + 100.0
-            ),
+            patch("fishnet.monotonic", return_value=fishnet.ANALYSIS_WORK_TIME_OUT + 100.0),
         ):
             response = await fishnet.get_work(app_state, payload)
 
@@ -128,9 +126,7 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
             variant="chess",
             chess960=False,
         )
-        engine = SimpleNamespace(
-            online=True, game_queues={}, event_queue=asyncio.Queue()
-        )
+        engine = SimpleNamespace(online=True, game_queues={}, event_queue=asyncio.Queue())
         app_state = SimpleNamespace(
             games={"g1": game},
             users={"Fairy-Stockfish": engine},
@@ -220,8 +216,7 @@ class TestSavePvDirection:
         threshold: float = 0.1,
     ) -> bool:
         return (
-            TestSavePvDirection._compute_drop(analysis_score, prev_score, turn_color)
-            >= threshold
+            TestSavePvDirection._compute_drop(analysis_score, prev_score, turn_color) >= threshold
         )
 
     def test_white_move_improves_white_no_pv(self) -> None:
