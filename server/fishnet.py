@@ -12,6 +12,7 @@ from const import ANALYSIS, MOVE, STARTED
 from typing_defs import (
     FishnetAbortPayload,
     FishnetAcquirePayload,
+    FishnetAnalysisItem,
     FishnetAnalysisPayload,
     FishnetKeyPayload,
     FishnetMovePayload,
@@ -72,6 +73,33 @@ def _winning_chances(score: FishnetScore) -> float:
     else:
         cp = max(-1000, min(1000, score.get("cp", 0)))
     return 2 / (1 + math.exp(-0.004 * cp)) - 1
+
+
+def _should_save_analysis_pv(
+    analysis: FishnetAnalysisItem,
+    prev: FishnetAnalysisItem | None,
+    turn_color: str | None,
+    ply: int,
+) -> bool:
+    """Decide whether the engine PV for this step is worth persisting.
+
+    Save PV only for an inaccuracy, mistake, or blunder (winning chances drop >= 10%).
+    Thresholds from lila: github.com/lichess-org/lila/blob/master/modules/tree/src/main/Advice.scala
+
+    turn_color is the color to move *after* this step (game.steps[i]["turnColor"]),
+    so "black" means White just moved and "white" means Black just moved. When
+    turnColor is missing (legacy/malformed step data) we fall back to ply parity.
+    """
+    if "pv" not in analysis or prev is None:
+        return False
+    white_delta = _winning_chances(analysis["score"]) - _winning_chances(prev["score"])
+    if turn_color == "black":
+        drop = -white_delta
+    elif turn_color == "white":
+        drop = white_delta
+    else:
+        drop = -white_delta if ply % 2 == 1 else white_delta
+    return drop >= 0.1
 
 
 def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | None = None) -> int:
@@ -338,22 +366,9 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
         i = length - j - 1
         if analysis is not None:
             if "analysis" not in game.steps[i]:
-                # Save PV only for inaccuracy, mistake, or blunder (winning chances drop >= 10%).
-                # Thresholds from lila: github.com/lichess-org/lila/blob/master/modules/tree/src/main/Advice.scala
                 prev = data["analysis"][i - 1] if i > 0 else None
-                save_pv = False
-                if "pv" in analysis and prev is not None:
-                    white_delta = _winning_chances(analysis["score"]) - _winning_chances(
-                        prev["score"]
-                    )
-                    current_turn_color = game.steps[i].get("turnColor")
-                    if current_turn_color == "black":
-                        drop = -white_delta
-                    elif current_turn_color == "white":
-                        drop = white_delta
-                    else:
-                        drop = -white_delta if i % 2 == 1 else white_delta
-                    save_pv = drop >= 0.1
+                turn_color = game.steps[i].get("turnColor")
+                save_pv = _should_save_analysis_pv(analysis, prev, turn_color, i)
                 step_analysis: dict = {"s": analysis["score"]}
                 if "depth" in analysis:
                     step_analysis["d"] = analysis["depth"]
