@@ -157,7 +157,7 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
         )
 
 
-class TestWinningChances:
+class TestWinningChances(unittest.TestCase):
     def test_cp_zero_is_neutral(self) -> None:
         assert _winning_chances({"cp": 0}) == pytest.approx(0.0, abs=1e-9)
 
@@ -193,7 +193,7 @@ class TestWinningChances:
             )
 
 
-class TestSavePvDirection:
+class TestSavePvDirection(unittest.TestCase):
     @staticmethod
     def _compute_drop(
         analysis_score: dict,
