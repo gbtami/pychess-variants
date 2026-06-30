@@ -194,72 +194,52 @@ class TestWinningChances(unittest.TestCase):
 
 
 class TestSavePvDirection(unittest.TestCase):
-    @staticmethod
-    def _compute_drop(
-        analysis_score: dict,
-        prev_score: dict,
-        turn_color: str,
-    ) -> float:
-        white_delta = _winning_chances(analysis_score) - _winning_chances(prev_score)
-        if turn_color == "black":
-            return -white_delta
-        elif turn_color == "white":
-            return white_delta
-        else:
-            raise ValueError(f"Unexpected turn_color: {turn_color!r}")
+    """Exercises fishnet._should_save_analysis_pv() directly (the real production
+    function), so these tests fail if the save/drop logic later regresses."""
 
     @staticmethod
-    def _should_save_pv(
-        analysis_score: dict,
-        prev_score: dict,
-        turn_color: str,
-        threshold: float = 0.1,
-    ) -> bool:
-        return (
-            TestSavePvDirection._compute_drop(analysis_score, prev_score, turn_color) >= threshold
-        )
+    def _analysis(cp: int) -> dict:
+        # "pv" must be present, otherwise _should_save_analysis_pv short-circuits to False.
+        return {"score": {"cp": cp}, "pv": "e2e4"}
 
     def test_white_move_improves_white_no_pv(self) -> None:
         """White plays well: winning chances increase -> no PV saved."""
-        assert not self._should_save_pv(
-            analysis_score={"cp": 200},
-            prev_score={"cp": 0},
-            turn_color="black",
+        self.assertFalse(
+            fishnet._should_save_analysis_pv(self._analysis(200), self._analysis(0), "black", 1)
         )
 
     def test_white_move_worsens_white_saves_pv(self) -> None:
-        """White blunders: winning chances drop ≥ 10% -> PV saved."""
-        assert self._should_save_pv(
-            analysis_score={"cp": -400},
-            prev_score={"cp": 400},
-            turn_color="black",
+        """White blunders: winning chances drop >= 10% -> PV saved."""
+        self.assertTrue(
+            fishnet._should_save_analysis_pv(self._analysis(-400), self._analysis(400), "black", 1)
         )
 
     def test_black_move_improves_black_no_pv(self) -> None:
         """Black plays well: White's winning chances decrease -> no PV saved."""
-        assert not self._should_save_pv(
-            analysis_score={"cp": 0},
-            prev_score={"cp": 200},
-            turn_color="white",
+        self.assertFalse(
+            fishnet._should_save_analysis_pv(self._analysis(0), self._analysis(200), "white", 2)
         )
 
     def test_black_move_worsens_black_saves_pv(self) -> None:
-        """Black blunders: White's winning chances rise ≥ 10% -> PV saved."""
-        assert self._should_save_pv(
-            analysis_score={"cp": 400},
-            prev_score={"cp": 0},
-            turn_color="white",
+        """Black blunders: White's winning chances rise >= 10% -> PV saved."""
+        self.assertTrue(
+            fishnet._should_save_analysis_pv(self._analysis(400), self._analysis(0), "white", 2)
         )
 
-    def test_boundary_exactly_at_threshold_saves(self) -> None:
-        """drop == 0.1 is exactly the threshold -> save PV (>= not >)."""
-        result = self._compute_drop({"cp": 0}, {"cp": 131}, "black")
-        assert result > 0.0
+    def test_boundary_white_move_cp_minus_50_does_not_save(self) -> None:
+        """White move cp 0 -> -50: drop ~0.0997, just under the 0.1 threshold -> no save."""
+        self.assertFalse(
+            fishnet._should_save_analysis_pv(self._analysis(-50), self._analysis(0), "black", 1)
+        )
+
+    def test_boundary_white_move_cp_minus_51_saves(self) -> None:
+        """White move cp 0 -> -51: drop ~0.1016, crosses the 0.1 threshold -> save."""
+        self.assertTrue(
+            fishnet._should_save_analysis_pv(self._analysis(-51), self._analysis(0), "black", 1)
+        )
 
     def test_small_drop_below_threshold_no_save(self) -> None:
-        """Drop < 0.1 (minor fluctuation) -> do not save PV."""
-        assert not self._should_save_pv(
-            analysis_score={"cp": -20},
-            prev_score={"cp": 0},
-            turn_color="black",
+        """Drop well below 0.1 (minor fluctuation) -> do not save PV."""
+        self.assertFalse(
+            fishnet._should_save_analysis_pv(self._analysis(-20), self._analysis(0), "black", 1)
         )
