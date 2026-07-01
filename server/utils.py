@@ -81,7 +81,7 @@ from pychess_global_app_state_utils import get_app_state
 from json_utils import json_response
 from request_utils import read_post_data
 import logging
-from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant
+from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant, is_catalogued_variant
 from settings import URI
 
 log = logging.getLogger(__name__)
@@ -190,6 +190,11 @@ async def load_game_from_doc(
     game_id = doc["_id"]
     if game_id in app_state.games:
         return app_state.games[game_id]
+
+    if doc.get("vini") and doc["v"] not in C2V:
+        from catalogued_variants import ensure_catalogued_variant_from_game_doc
+
+        ensure_catalogued_variant_from_game_doc(app_state, doc)
 
     variant = C2V[doc["v"]]
 
@@ -658,10 +663,11 @@ async def new_game(
 
     # print("new_game", game_id, seek.variant, seek.fen, wplayer, bplayer, seek.base, seek.inc, seek.level, seek.rated, seek.chess960)
     try:
+        catalogued_casual = is_catalogued_variant(seek.variant)
         any_bot_player = wplayer.bot or bplayer.bot
         rated = (
             CASUAL
-            if any_bot_player
+            if catalogued_casual or any_bot_player
             else RATED
             if (seek.rated and (not wplayer.anon) and (not bplayer.anon))
             else CASUAL
@@ -735,7 +741,7 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         "us": [game.wplayer.username, game.bplayer.username],
         "p0": {"e": game.wrating},
         "p1": {"e": game.brating},
-        "v": game.server_variant.code,
+        "v": game.variant if is_catalogued_variant(game.variant) else game.server_variant.code,
         "b": game.base,
         "i": game.inc,
         "bp": game.byoyomi_period,
@@ -775,6 +781,13 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
     elif game.variant == "jieqi":
         document["wj"] = "".join(game.board.red_pieces)
         document["bj"] = "".join(game.board.black_pieces)
+
+    if is_catalogued_variant(game.variant):
+        catalogued_doc = app_state.catalogued_variants.get(game.variant, {})
+        if catalogued_doc.get("ini"):
+            document["vini"] = catalogued_doc["ini"]
+            document["vd"] = catalogued_doc.get("displayName", game.variant)
+            document["vby"] = catalogued_doc.get("author", "")
 
     if game.clocks_w[0] != game.clocks_b[0]:
         document["cw0"] = int(game.clocks_w[0])
@@ -1078,6 +1091,15 @@ async def play_move(
 
 
 def pgn(doc):
+    if doc.get("vini") and doc["v"] not in C2V:
+        # Export helpers may run outside normal startup caches. Load the inline
+        # rules saved with the game so the move decoder and FSF replay can work.
+        class _NoState:
+            catalogued_variants: dict = {}
+
+        from catalogued_variants import ensure_catalogued_variant_from_game_doc
+
+        ensure_catalogued_variant_from_game_doc(_NoState(), doc)
     variant = C2V[doc["v"]]
     chess960 = bool(int(doc.get("z"))) if "z" in doc else False
 

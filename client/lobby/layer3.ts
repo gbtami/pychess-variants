@@ -3,7 +3,7 @@ import { h } from 'snabbdom';
 import { _ } from '../i18n';
 import { createModeStr, LobbyController } from '../lobby';
 import { patch } from '../document';
-import { Variant, VARIANTS } from '../variants';
+import { isCataloguedVariant, Variant, VARIANTS } from '../variants';
 import { variantBoard } from './util';
 import { layer2chess } from './layer2chess';
 import { layer2fairy } from './layer2fairy';
@@ -16,8 +16,8 @@ import { layer2other } from './layer2other';
 export function layer3variant (container2Id: string, lobbyCtrl: LobbyController, variantName: string): void {
     const variant: Variant = VARIANTS[variantName];
     const chess960 = false;
-
-    let leve2func: (lobbyCtrl: LobbyController, containerId: string, showBack?: boolean) => void, container3Id: string='';
+    const catalogued = isCataloguedVariant(variantName);
+    let leve2func: (lobbyCtrl: LobbyController, containerId: string, showBack?: boolean) => void = layer2chess, container3Id: string='';
     switch (container2Id) {
     case 'layer2chesscont':
         leve2func = layer2chess; container3Id = 'chessl3cont'; break;
@@ -55,7 +55,7 @@ export function layer3variant (container2Id: string, lobbyCtrl: LobbyController,
         h('button.layer-2-category l3t', [
             h('p.variant-extra-info', (chess960) ? chess960Tooltip(variant.name) : variant.tooltip),
             h('a.variant-extra-info', { class: {"icon": true, "icon-book": true}, attrs: { href: lobbyCtrl.home + '/variants/' + variant.name + (chess960 ? '960': ''), target: '_blank' } }, _('Rules')),
-            h('p.variant-extra-info', _('Tip: ') + proTip(variant.name, chess960)),
+            catalogued ? '' : h('p.variant-extra-info', _('Tip: ') + proTip(variant.name, chess960)),
         ]),
     ]);
 

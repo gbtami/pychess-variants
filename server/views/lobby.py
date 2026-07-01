@@ -9,7 +9,7 @@ from pychess_global_app_state_utils import get_app_state
 from tournament_director import is_tournament_director
 from typing_defs import ViewContext
 from utils import corr_games, get_blogs
-from variants import VARIANTS
+from variants import ALL_VARIANTS
 
 
 @aiohttp_jinja2.template("index.html")
@@ -32,7 +32,7 @@ async def lobby(request: web.Request) -> ViewContext:
 
     # Seek from Editor with custom start position
     variant = request.match_info.get("variant")
-    if (variant is not None) and (variant not in VARIANTS):
+    if (variant is not None) and (variant not in ALL_VARIANTS):
         variant = "chess"
 
     fen = request.rel_url.query.get("fen")

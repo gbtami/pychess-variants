@@ -304,6 +304,7 @@ class FishnetWork(TypedDict):
     username: NotRequired[str]
     nodes: NotRequired[int]
     skipPositions: NotRequired[list[int]]
+    variantsSha256: NotRequired[str]
     abort_count: NotRequired[int]
     engine_crash_count: NotRequired[int]
     last_abort_reason: NotRequired[str]

@@ -7,7 +7,7 @@ import * as Mousetrap from 'mousetrap';
 
 import { _ } from '../i18n';
 import { uci2LastMove, uci2cg } from '../chess';
-import { Variant, VARIANTS } from "../variants"
+import { allVariantsIni, Variant, VARIANTS } from "../variants"
 import { createMovelistButtons, updateMovelist, selectMove } from './movelist.bug';
 import { povChances } from '../analysis/winningChances';
 import { copyTextToClipboard } from '../clipboard';
@@ -127,6 +127,8 @@ export default class AnalysisControllerBughouse {
     fsfDebug: boolean;
     fsfError: string[];
     fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
+    private fsfOriginalPrompt?: typeof window.prompt;
+    private fsfInputQueue: string[];
     analysisTree?: AnalysisTree;
     analysisPath: string;
     treeForkIndex: number;
@@ -153,6 +155,7 @@ export default class AnalysisControllerBughouse {
 
         this.fsfDebug = true;
         this.fsfError = [];
+        this.fsfInputQueue = [];
         this.embed = this.gameId === undefined;
         this.username = model["username"];
         this.chess960 = model.chess960 === 'True';
@@ -172,7 +175,7 @@ export default class AnalysisControllerBughouse {
 
         ffishModule().then((loadedModule: any) => {
             this.ffish = loadedModule;
-            this.ffish.loadVariantConfig(variantsIni);
+            this.ffish.loadVariantConfig(allVariantsIni(variantsIni));
             this.notationAsObject = this.notation2ffishjs(this.notation);
         });
 
@@ -764,6 +767,36 @@ export default class AnalysisControllerBughouse {
         window.fsf.postMessage(msg);
     }
 
+    loadVariantsIntoFsfEngine() {
+        const marker = 'PYCHESS_VARIANTS_INI_EOF_' + Date.now();
+        const lines = allVariantsIni(variantsIni).replace(/\r\n/g, '\n').split('\n');
+        this.installFsfPromptQueue([...lines, marker]);
+        if (this.fsfDebug) console.debug('<---', '... variants.ini content queued for prompt stdin ...');
+        this.fsfPostMessage('load <<' + marker);
+        this.fsfPostMessage('uci');
+    }
+
+    installFsfPromptQueue(lines: string[]) {
+        if (this.fsfOriginalPrompt === undefined) this.fsfOriginalPrompt = window.prompt;
+        this.fsfInputQueue = lines;
+        window.prompt = ((message?: string, defaultValue?: string): string => {
+            const line = this.fsfInputQueue.shift();
+            if (line !== undefined) return line;
+            if (this.fsfDebug) {
+                console.warn('Fairy-Stockfish requested unexpected stdin input:', message, defaultValue);
+            }
+            return '';
+        }) as typeof window.prompt;
+    }
+
+    restoreFsfPrompt() {
+        if (this.fsfOriginalPrompt !== undefined) {
+            window.prompt = this.fsfOriginalPrompt;
+            this.fsfOriginalPrompt = undefined;
+        }
+        this.fsfInputQueue = [];
+    }
+
     onFSFline = (line: string) => {
         if (this.fsfDebug) console.debug('--->', line);
 
@@ -782,13 +815,12 @@ export default class AnalysisControllerBughouse {
             }
         }
 
+        if (line.includes('uciok')) this.restoreFsfPrompt();
+
         if (line.includes('readyok')) this.isEngineReady = true;
 
         if (line.startsWith('Fairy-Stockfish')) {
-            window.prompt = function() {
-                return variantsIni + '\nEOF';
-            }
-            this.fsfPostMessage('load <<EOF');
+            this.loadVariantsIntoFsfEngine();
         }
 
 

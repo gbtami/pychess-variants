@@ -28,6 +28,7 @@ import { tournamentRRView } from './tournamentRR';
 import { simulView } from './simul/simul';
 import { calendarView } from './calendar';
 import { pasteView, recordImportFfishError } from './paste';
+import { myVariantsView } from './myVariants';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
 import { patch } from './document';
@@ -36,7 +37,7 @@ import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
 import { roundView as bugRoundView } from "./bug/round.bug";
 import { analysisView as bugAnalysisView } from "./bug/analysis.bug";
-import { devVariants, splitVariantKey, variantGroups, VARIANTS } from './variants';
+import { allVariantsIni, devVariants, loadCataloguedVariantsFromJson, splitVariantKey, variantGroups, VARIANTS } from './variants';
 import { variantsIni } from './variantsIni';
 import { showUsernameDialog } from './usernameDialog';
 import { maybeShowGameCategoryIntro } from './gameCategoryIntro';
@@ -54,6 +55,8 @@ if (window.location.href.includes('heroku') && !window.location.href.includes('-
 }
 
 function initModel(el: HTMLElement) {
+    loadCataloguedVariantsFromJson(el.getAttribute("data-catalogued-variants"));
+
     // Remove twoBoards variants from variants on prod site until they stabilize
     if (el.getAttribute("data-dev") !== "True") {
         Object.keys(variantGroups).forEach(g => {
@@ -192,6 +195,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div', renderGames(model));
     case 'paste':
         return h('div#main-wrap', pasteView(model));
+    case 'my-variants':
+        return h('div#main-wrap', myVariantsView(model));
     case 'stats':
         return h('div#stats', statsView());
     case 'inbox':
@@ -229,7 +234,7 @@ function start() {
                     : ffishAliceModule();
                 loadModule.then((loadedModule: any) => {
                     console.timeEnd('load ffish_alice');
-                    loadedModule.loadVariantConfig(variantsIni);
+                    loadedModule.loadVariantConfig(allVariantsIni(variantsIni));
                     model.ffish = loadedModule;
                     patch(placeholder, view(el, model));
                 });
@@ -239,7 +244,7 @@ function start() {
                     : ffishModule();
                 loadModule.then((loadedModule: any) => {
                     console.timeEnd('load ffish');
-                    loadedModule.loadVariantConfig(variantsIni);
+                    loadedModule.loadVariantConfig(allVariantsIni(variantsIni));
                     model.ffish = loadedModule;
                     patch(placeholder, view(el, model));
                 });

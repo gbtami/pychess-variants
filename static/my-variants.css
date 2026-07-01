@@ -1,0 +1,82 @@
+.my-variants {
+    grid-area: main;
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.my-variants header,
+.catalogued-card {
+    background: var(--bg-box, #f7f6f3);
+    border-radius: 6px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.catalogued-form form {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.catalogued-form label {
+    display: grid;
+    gap: 0.25rem;
+    font-weight: bold;
+}
+
+.catalogued-form input,
+.catalogued-form textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.5rem;
+}
+
+.catalogued-form textarea {
+    min-height: 18rem;
+    font-family: monospace;
+}
+
+.catalogued-help,
+.catalogued-empty,
+.catalogued-message {
+    opacity: 0.85;
+}
+
+.catalogued-message {
+    font-weight: bold;
+}
+
+.catalogued-actions,
+.catalogued-row-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.catalogued-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.catalogued-table th,
+.catalogued-table td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.6rem;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+.catalogued-table code {
+    display: block;
+    margin-top: 0.25rem;
+    opacity: 0.75;
+}
+
+.catalogued-table p {
+    margin: 0.25rem 0 0;
+}
+
+.catalogued-table tr.archived {
+    opacity: 0.65;
+}

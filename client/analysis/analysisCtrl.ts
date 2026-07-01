@@ -32,7 +32,7 @@ import { setAriaTabClick } from '../view';
 import { createWebsocket } from "@/socket/webSocketUtils";
 import { setPocketRowCssVars } from '../pocketRow';
 import { updateCount, updatePoint } from '../info';
-import { fogFen } from '../variants';
+import { allVariantsIni, fogFen } from '../variants';
 import { hideKeyboardHelp, isKeyboardHelpShortcut, showKeyboardHelp } from './keyboardHelp';
 import { PvHoverPreview } from './pvHoverPreview';
 import { alertDialog } from '../alertDialog';
@@ -134,6 +134,8 @@ export class AnalysisController extends GameController {
     private readonly pvHoverPreview: PvHoverPreview;
     private awaitingStopReadyok: boolean;
     private pendingGoAfterStopReadyok: boolean;
+    private fsfOriginalPrompt?: typeof window.prompt;
+    private fsfInputQueue: string[];
 
     constructor(el: HTMLElement, model: PyChessModel) {
         super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
@@ -199,6 +201,7 @@ export class AnalysisController extends GameController {
         this.keyboardHelpOpen = false;
         this.awaitingStopReadyok = false;
         this.pendingGoAfterStopReadyok = false;
+        this.fsfInputQueue = [];
         this.onTreeContextMenuDocumentClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
             if (target?.closest('.tree-context-menu')) return;
@@ -954,7 +957,10 @@ export class AnalysisController extends GameController {
             }
         }
 
-        if (line.includes('uciok')) this.uciOk = true;
+        if (line.includes('uciok')) {
+            this.uciOk = true;
+            this.restoreFsfPrompt();
+        }
 
         if (line.includes('readyok')) {
             this.isEngineReady = true;
@@ -968,10 +974,7 @@ export class AnalysisController extends GameController {
         }
 
         if (line.startsWith('Fairy-Stockfish')) {
-            window.prompt = function() {
-                return variantsIni + '\nEOF';
-            }
-            this.fsfPostMessage('load <<EOF');
+            this.loadVariantsIntoFsfEngine();
             this.fsfPostMessage('uci');
         }
 
@@ -1272,14 +1275,53 @@ export class AnalysisController extends GameController {
         }
     }
 
-    fsfPostMessage(msg: string) {
+    fsfPostMessage(msg: string, debug = true) {
         if (window.fsf === undefined) {
             // At very first time we may have to wait for fsf module to initialize
-            setTimeout(this.fsfPostMessage.bind(this), 100, msg);
+            setTimeout(this.fsfPostMessage.bind(this), 100, msg, debug);
         } else {
-            if (this.fsfDebug) console.debug('<---', msg);
+            if (debug && this.fsfDebug) console.debug('<---', msg);
             window.fsf.postMessage(msg);
         }
+    }
+
+    loadVariantsIntoFsfEngine() {
+        const config = allVariantsIni(variantsIni);
+        const marker = 'PYCHESS_VARIANTS_INI_EOF_' + Date.now();
+        const lines = config.replace(/\r\n/g, '\n').split('\n');
+
+        // The current fairy-stockfish.wasm shell falls back to window.prompt()
+        // when C++ reads stdin. A here-doc `load <<MARKER` therefore needs a
+        // prompt shim that returns one config line per read. Posting those lines
+        // with postMessage does not satisfy this stdin path and the browser shows
+        // the default "Input:" prompt instead.
+        this.installFsfPromptQueue([...lines, marker]);
+        if (this.fsfDebug) console.debug('<---', '... variants.ini content queued for prompt stdin ...');
+        this.fsfPostMessage('load <<' + marker);
+    }
+
+    installFsfPromptQueue(lines: string[]) {
+        if (this.fsfOriginalPrompt === undefined) this.fsfOriginalPrompt = window.prompt;
+        this.fsfInputQueue = lines;
+        window.prompt = ((message?: string, defaultValue?: string): string => {
+            const line = this.fsfInputQueue.shift();
+            if (line !== undefined) return line;
+
+            // Do not show the browser's modal prompt. Unexpected empty stdin is
+            // safer than blocking the analysis page with an "Input:" dialog.
+            if (this.fsfDebug) {
+                console.warn('Fairy-Stockfish requested unexpected stdin input:', message, defaultValue);
+            }
+            return '';
+        }) as typeof window.prompt;
+    }
+
+    restoreFsfPrompt() {
+        if (this.fsfOriginalPrompt !== undefined) {
+            window.prompt = this.fsfOriginalPrompt;
+            this.fsfOriginalPrompt = undefined;
+        }
+        this.fsfInputQueue = [];
     }
 
     private pvStartsLegalInCurrentPosition(pvLine: string) {

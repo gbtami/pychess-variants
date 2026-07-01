@@ -37,6 +37,7 @@ from account_api import (
 from fishnet import (
     fishnet_monitor,
     fishnet_validate_key,
+    fishnet_variants,
     fishnet_acquire,
     fishnet_abort,
     fishnet_analysis,
@@ -103,6 +104,17 @@ from report_api import (
 )
 from mod_public_chat_api import public_chat_timeout
 from push_notifications import push_subscribe, push_unsubscribe, service_worker
+from catalogued_variants import (
+    archive_catalogued_variant,
+    check_catalogued_variant_rules,
+    clone_catalogued_variant,
+    delete_catalogued_variant,
+    get_catalogued_variants,
+    get_my_catalogued_variants,
+    restore_catalogued_variant,
+    update_catalogued_variant,
+    upload_catalogued_variant,
+)
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import (
@@ -156,6 +168,7 @@ from views import (
     lobby,
     memory,
     paste,
+    my_variants,
     patron,
     players,
     players50,
@@ -225,11 +238,11 @@ get_routes: tuple[RouteDef, ...] = (
     (r"/puzzle/{puzzleId:\w{5}}", puzzle.puzzle),
     ("/puzzle/{variant}", puzzle.puzzle),
     (r"/corranalysis/{gameId:\w{8}}", analysis.analysis),
-    (r"/analysis/{variant:[a-z0-9]+}", analysis.analysis),
-    (r"/analysis/{variant:[a-z0-9]+}/{fen}", analysis.analysis),
+    (r"/analysis/{variant:[a-z0-9_]+}", analysis.analysis),
+    (r"/analysis/{variant:[a-z0-9_]+}/{fen}", analysis.analysis),
     ("/seek/{variant}", lobby.lobby),
-    (r"/editor/{variant:[a-z0-9]+}", editor.editor),
-    (r"/editor/{variant:[a-z0-9]+}/{fen}", editor.editor),
+    (r"/editor/{variant:[a-z0-9_]+}", editor.editor),
+    (r"/editor/{variant:[a-z0-9_]+}/{fen}", editor.editor),
     ("/notifications", get_notifications),
     ("/inbox", inbox.inbox),
     ("/inbox/subscribe", subscribe_inbox),
@@ -319,6 +332,8 @@ get_routes: tuple[RouteDef, ...] = (
     ("/api/calendar", tournament_calendar),
     ("/api/stats", get_variant_stats),
     ("/api/stats/humans", get_variant_stats),
+    ("/api/catalogued-variants", get_catalogued_variants),
+    ("/api/catalogued-variants/mine", get_my_catalogued_variants),
     ("/api/games", get_games),
     ("/api/games/{variant}", get_games_by_variant),
     ("/api/users/status", get_status),
@@ -339,12 +354,14 @@ get_routes: tuple[RouteDef, ...] = (
     ("/api/reports/queue", report_queue),
     ("/api/names", get_names),
     ("/paste", paste.paste),
+    ("/my-variants", my_variants.my_variants),
     (r"/games/export/monthly/{yearmonth:\d{6}}", export_monthly_pgn),
     ("/games/export/tournament/{tournamentId}", export_tournament_pgn),
     ("/games/export/tournament/{tournamentId}/trf", export_tournament_trf),
     ("/tournament/json/{tournamentId}", get_tournament_games),
     ("/fishnet/monitor", fishnet_monitor),
     ("/fishnet/key/{key}", fishnet_validate_key),
+    ("/fishnet/variants/{key}", fishnet_variants),
     ("/robots.txt", robots),
 )
 
@@ -401,6 +418,13 @@ post_routes: tuple[RouteDef, ...] = (
     (r"/api/reports/{reportId:\w{8}}/close-account", report_close_account),
     (r"/api/reports/{reportId:\w{8}}/reopen", report_reopen),
     ("/api/mod/public-chat/timeout", public_chat_timeout),
+    ("/api/catalogued-variants", upload_catalogued_variant),
+    ("/api/catalogued-variants/check", check_catalogued_variant_rules),
+    ("/api/catalogued-variants/{name}", update_catalogued_variant),
+    ("/api/catalogued-variants/{name}/delete", delete_catalogued_variant),
+    ("/api/catalogued-variants/{name}/archive", archive_catalogued_variant),
+    ("/api/catalogued-variants/{name}/restore", restore_catalogued_variant),
+    ("/api/catalogued-variants/{name}/clone", clone_catalogued_variant),
     ("/fishnet/acquire", fishnet_acquire),
     ("/fishnet/analysis/{workId}", fishnet_analysis),
     ("/fishnet/move/{workId}", fishnet_move),

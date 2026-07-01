@@ -4,7 +4,7 @@ from aiohttp import web
 from fairy import FairyBoard
 from json_utils import json_dumps
 from utils import load_game
-from variants import VARIANTS
+from variants import ALL_VARIANTS
 from typing_defs import ViewContext
 from views import add_game_context, get_user_context
 from pychess_global_app_state_utils import get_app_state
@@ -16,10 +16,11 @@ async def analysis(request: web.Request) -> ViewContext:
 
     gameId = request.match_info.get("gameId")
     variant_key = request.match_info.get("variant") or "chess"
-    if variant_key not in VARIANTS:
-        variant_key = "chess"
-    chess960 = variant_key.endswith("960")
-    variant = variant_key[:-3] if chess960 else variant_key
+    server_variant = ALL_VARIANTS.get(variant_key)
+    if server_variant is None:
+        server_variant = ALL_VARIANTS["chess"]
+    chess960 = bool(server_variant.chess960)
+    variant = server_variant.uci_variant
     ply = request.rel_url.query.get("ply")
 
     if gameId is None:
