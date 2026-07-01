@@ -269,9 +269,11 @@ function cancelEdit(model: PyChessModel): void {
 function renderForm(model: PyChessModel): VNode {
     const editing = state.editing;
     return h('section.catalogued-card.catalogued-form', [
-        h('h2', editing ? _('Edit variant') : _('Upload new variant')),
-        h('p', _('Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first played game.')),
-        h('p.catalogued-help', _('If you change the rules of an unused variant, also change the INI section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.')),
+        h('div.catalogued-form-head', [
+            h('h2', editing ? _('Edit variant') : _('Upload new variant')),
+            h('p', _('Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first played game.')),
+            h('p.catalogued-help', _('If you change the rules of an unused variant, also change the INI section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.')),
+        ]),
         h('form', {
             on: {
                 submit: (event: Event) => {
@@ -332,8 +334,10 @@ function renderForm(model: PyChessModel): VNode {
                 }),
             ]),
             h('div.catalogued-actions', [
-                h('button.lobby-button', { props: { type: 'submit', disabled: state.saving } }, editing ? _('Save changes') : _('Upload variant')),
-                h('button', {
+                h(`button.button-primary.catalogued-primary-action${state.saving ? '.disabled' : ''}`, {
+                    props: { type: 'submit', disabled: state.saving },
+                }, editing ? _('Save changes') : _('Upload variant')),
+                h('button.catalogued-secondary-action', {
                     props: { type: 'button', disabled: state.saving },
                     on: {
                         click: (event: Event) => {
@@ -343,7 +347,12 @@ function renderForm(model: PyChessModel): VNode {
                         },
                     },
                 }, _('Check rules')),
-                editing ? h('button', { props: { type: 'button', disabled: state.saving }, on: { click: () => cancelEdit(model) } }, _('Cancel')) : null,
+                editing
+                    ? h('button.catalogued-secondary-action', {
+                        props: { type: 'button', disabled: state.saving },
+                        on: { click: () => cancelEdit(model) },
+                    }, _('Cancel'))
+                    : null,
             ]),
             state.formMessage ? h('p.catalogued-message', { attrs: { 'aria-live': 'polite' } }, state.formMessage) : null,
         ]),
@@ -354,36 +363,58 @@ function renderRows(model: PyChessModel): VNode {
     if (!state.loaded) return h('p', _('Loading...'));
     if (state.variants.length === 0) return h('p.catalogued-empty', _('You have not uploaded any variants yet.'));
 
-    return h('table.catalogued-table', [
-        h('thead', h('tr', [
-            h('th', _('Name')),
-            h('th', _('Status')),
-            h('th', _('Games')),
-            h('th', _('Actions')),
-        ])),
-        h('tbody', state.variants.map(variant => {
-            const locked = !!variant.locked;
-            const archived = !!variant.archived || variant.enabled === false;
-            const lockTitle = locked ? _('This variant already has games. Clone it to change the rules.') : '';
-            return h('tr', { class: { archived } }, [
-                h('td', [
-                    h('strong', variant.displayName),
-                    h('code', variant.name),
-                    variant.tooltip ? h('p', variant.tooltip) : null,
-                ]),
-                h('td', archived ? _('Archived') : locked ? _('Locked') : _('Editable')),
-                h('td', String(variant.gameCount ?? 0)),
-                h('td.catalogued-row-actions', [
-                    h('button', { props: { type: 'button', disabled: archived }, on: { click: () => playVariant(model, variant) } }, _('Play')),
-                    h('button', { props: { type: 'button', disabled: locked || state.saving }, attrs: { title: lockTitle }, on: { click: () => editVariant(model, variant) } }, _('Edit')),
-                    h('button', { props: { type: 'button', disabled: locked || state.saving }, attrs: { title: lockTitle }, on: { click: () => void postAction(model, variant, 'delete') } }, _('Delete')),
-                    archived
-                        ? h('button', { props: { type: 'button', disabled: state.saving }, on: { click: () => void postAction(model, variant, 'restore') } }, _('Restore'))
-                        : h('button', { props: { type: 'button', disabled: state.saving }, on: { click: () => void postAction(model, variant, 'archive') } }, _('Archive')),
-                    h('button', { props: { type: 'button', disabled: state.saving }, on: { click: () => void postAction(model, variant, 'clone') } }, _('Clone')),
-                ]),
-            ]);
-        })),
+    return h('div.catalogued-table-wrap', [
+        h('table.catalogued-table', [
+            h('thead', h('tr', [
+                h('th', _('Name')),
+                h('th', _('Status')),
+                h('th', _('Games')),
+                h('th', _('Actions')),
+            ])),
+            h('tbody', state.variants.map(variant => {
+                const locked = !!variant.locked;
+                const archived = !!variant.archived || variant.enabled === false;
+                const lockTitle = locked ? _('This variant already has games. Clone it to change the rules.') : '';
+                return h('tr', { class: { archived } }, [
+                    h('td', [
+                        h('strong', variant.displayName),
+                        h('code', variant.name),
+                        variant.tooltip ? h('p', variant.tooltip) : null,
+                    ]),
+                    h('td', archived ? _('Archived') : locked ? _('Locked') : _('Editable')),
+                    h('td', String(variant.gameCount ?? 0)),
+                    h('td.catalogued-row-actions', [
+                        h('button.button-primary.catalogued-row-button', {
+                            props: { type: 'button', disabled: archived },
+                            on: { click: () => playVariant(model, variant) },
+                        }, _('Play')),
+                        h('button.catalogued-row-button.catalogued-secondary-action', {
+                            props: { type: 'button', disabled: locked || state.saving },
+                            attrs: { title: lockTitle },
+                            on: { click: () => editVariant(model, variant) },
+                        }, _('Edit')),
+                        h('button.catalogued-row-button.catalogued-secondary-action', {
+                            props: { type: 'button', disabled: locked || state.saving },
+                            attrs: { title: lockTitle },
+                            on: { click: () => void postAction(model, variant, 'delete') },
+                        }, _('Delete')),
+                        archived
+                            ? h('button.catalogued-row-button.catalogued-secondary-action', {
+                                props: { type: 'button', disabled: state.saving },
+                                on: { click: () => void postAction(model, variant, 'restore') },
+                            }, _('Restore'))
+                            : h('button.catalogued-row-button.catalogued-secondary-action', {
+                                props: { type: 'button', disabled: state.saving },
+                                on: { click: () => void postAction(model, variant, 'archive') },
+                            }, _('Archive')),
+                        h('button.catalogued-row-button.catalogued-secondary-action', {
+                            props: { type: 'button', disabled: state.saving },
+                            on: { click: () => void postAction(model, variant, 'clone') },
+                        }, _('Clone')),
+                    ]),
+                ]);
+            })),
+        ]),
     ]);
 }
 
@@ -396,7 +427,7 @@ function renderRoot(model: PyChessModel): VNode {
             },
         },
     }, [
-        h('header', [
+        h('header.catalogued-page-header', [
             h('h1', _('Manage my variants')),
             h('p', _('Uploaded variants appear in the Other group of the game creation dialog. They are always casual/unrated, but can be played against humans or Fairy-Stockfish.')),
         ]),
@@ -405,7 +436,7 @@ function renderRoot(model: PyChessModel): VNode {
                 h('h2', _('Sign in required')),
                 h('p', _('Please sign in to upload and manage your variants.')),
             ])
-            : h('div', [
+            : h('div.catalogued-layout', [
                 state.message ? h('p.catalogued-message', state.message) : null,
                 renderForm(model),
                 h('section.catalogued-card', [
