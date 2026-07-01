@@ -2,6 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { alertDialog } from './alertDialog';
 import { patch } from './document';
+import { checkRulesWithFsfWasm } from './fairyStockfish';
 import { _ } from './i18n';
 import { PyChessModel } from './types';
 import {
@@ -137,6 +138,18 @@ function validateBasicIni(ini: string, editingName?: string): string {
     return name;
 }
 
+async function checkRulesStrictly(ini: string): Promise<void> {
+    await checkRulesWithFsfWasm(ini);
+}
+
+async function checkRulesOnServer(ini: string, currentName?: string | null): Promise<void> {
+    const response = await fetch('/api/catalogued-variants/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ini, currentName }),
+    });
+    if (!response.ok) throw new Error(await responseError(response));
+}
 
 async function validateCurrentForm(model: PyChessModel): Promise<void> {
     const body = readForm();
@@ -151,12 +164,8 @@ async function validateCurrentForm(model: PyChessModel): Promise<void> {
         state.saving = true;
         state.formMessage = `${_('Checking rules for')} ${name}...`;
         rerender(model);
-        const response = await fetch('/api/catalogued-variants/check', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ini: body.ini, currentName }),
-        });
-        if (!response.ok) throw new Error(await responseError(response));
+        await checkRulesStrictly(body.ini.trim());
+        await checkRulesOnServer(body.ini, currentName);
         state.formMessage = `${_('Fairy-Stockfish check passed for')} ${name}.`;
     } catch (err) {
         state.formMessage = err instanceof Error ? err.message : _('Variant check failed');
@@ -183,10 +192,12 @@ async function saveVariant(model: PyChessModel): Promise<void> {
     }
 
     state.saving = true;
+    state.formMessage = `${_('Checking rules for')} ${extractVariantName(body.ini.trim())}...`;
     rerender(model);
 
     const url = editingName ? `/api/catalogued-variants/${encodeURIComponent(editingName)}` : '/api/catalogued-variants';
     try {
+        await checkRulesStrictly(body.ini.trim());
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
