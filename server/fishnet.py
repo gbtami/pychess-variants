@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 import asyncio
+import math
 from datetime import datetime, timezone
 from time import monotonic
 
@@ -9,11 +10,14 @@ from aiohttp import web
 from broadcast import round_broadcast
 from const import ANALYSIS, MOVE, STARTED
 from typing_defs import (
+    AnalysisStep,
     FishnetAbortPayload,
     FishnetAcquirePayload,
+    FishnetAnalysisItem,
     FishnetAnalysisPayload,
     FishnetKeyPayload,
     FishnetMovePayload,
+    FishnetScore,
     FishnetWork,
 )
 
@@ -56,6 +60,52 @@ def _abort_reason(data: FishnetAbortPayload) -> str:
 
 def _work_timeout(work: FishnetWork) -> float:
     return ANALYSIS_WORK_TIME_OUT if work["work"]["type"] == "analysis" else MOVE_WORK_TIME_OUT
+
+
+def _winning_chances(score: FishnetScore) -> float:
+    """Convert a fishnet score dict to winning chances in [-1.0, 1.0] from White's POV.
+
+    Formula and mate conversion match pychess client/analysis/winningChances.ts,
+    which mirrors https://github.com/lichess-org/lila/blob/master/ui/ceval/src/winningChances.ts.
+    """
+    if "mate" in score:
+        mate = score["mate"]
+        cp = (21 - min(10, abs(mate))) * 100 * (1 if mate > 0 else -1)
+    else:
+        cp = max(-1000, min(1000, score.get("cp", 0)))
+    return 2 / (1 + math.exp(-0.004 * cp)) - 1
+
+
+def _should_save_analysis_pv(
+    analysis: FishnetAnalysisItem,
+    prev: FishnetAnalysisItem | None,
+    turn_color: str | None,
+    ply: int,
+) -> bool:
+    """Decide whether the engine PV for this step is worth persisting.
+
+    Save PV only for an inaccuracy, mistake, or blunder (winning chances drop >= 10%).
+    Thresholds from lila: github.com/lichess-org/lila/blob/master/modules/tree/src/main/Advice.scala
+
+    turn_color is the color to move *after* this step (game.steps[i]["turnColor"]),
+    so "black" means White just moved and "white" means Black just moved. When
+    turnColor is missing (legacy/malformed step data) we fall back to ply parity.
+    """
+    if "pv" not in analysis or prev is None:
+        return False
+    if "score" not in analysis or "score" not in prev:
+        # Defensive guard against a future {"skipped": True}-style payload shape
+        # (pychess does not send skipPositions today, but this keeps the function
+        # itself safe to call with a malformed/partial FishnetAnalysisItem).
+        return False
+    white_delta = _winning_chances(analysis["score"]) - _winning_chances(prev["score"])
+    if turn_color == "black":
+        drop = -white_delta
+    elif turn_color == "white":
+        drop = white_delta
+    else:
+        drop = -white_delta if ply % 2 == 1 else white_delta
+    return drop >= 0.1
 
 
 def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | None = None) -> int:
@@ -320,34 +370,51 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     length = len(data["analysis"])
     for j, analysis in enumerate(reversed(data["analysis"])):
         i = length - j - 1
-        if analysis is not None:
-            try:
-                if "analysis" not in game.steps[i]:
-                    # TODO: save PV only for inaccuracy, mistake and blunder
-                    # see https://github.com/lichess-org/lila/blob/master/modules/analyse/src/main/Advice.scala
-                    game.steps[i]["analysis"] = {
-                        "s": analysis["score"],
-                        "d": analysis["depth"],
-                        "p": analysis["pv"],
-                    }
-                else:
-                    continue
-            except KeyError:
-                game.steps[i]["analysis"] = {
-                    "s": analysis["score"],
-                }
+        if analysis is None:
+            continue
 
-            ply = str(i)
-            # response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(analysis)}
-            # await user_ws.send_json(response)
+        # `existing` may already hold a partial record (created on an earlier,
+        # partial progress report from fairyfishnet with prev=None at the time,
+        # so "p" could not yet be evaluated). We must keep re-entering this
+        # branch on later reports so a PV that becomes decidable once its
+        # neighbour ply arrives can still be added — the old code's
+        # `if "analysis" not in game.steps[i]:` gate closed this permanently
+        # after the first report, which is the bug this restructure fixes.
+        existing: AnalysisStep | None = game.steps[i].get("analysis")
+        created = existing is None
 
-            response = {
-                "type": "analysis",
-                "ply": ply,
-                "color": "w" if i % 2 == 0 else "b",
-                "ceval": game.steps[i]["analysis"],
-            }
-            await app_state.users[username].send_game_message(gameId, response)
+        if created:
+            step_analysis: AnalysisStep = {"s": analysis["score"]}
+            if "depth" in analysis:
+                step_analysis["d"] = analysis["depth"]
+            game.steps[i]["analysis"] = step_analysis
+        else:
+            step_analysis = existing
+
+        prev = data["analysis"][i - 1] if i > 0 else None
+        turn_color = game.steps[i].get("turnColor")
+
+        added_pv = False
+        if "p" not in step_analysis and _should_save_analysis_pv(analysis, prev, turn_color, i):
+            step_analysis["p"] = analysis["pv"]
+            added_pv = True
+
+        # Nothing new to tell the client: this step already existed before this
+        # report AND nothing changed on it during this pass. Re-sending would be
+        # a redundant duplicate "analysis" message for a step the client already has.
+        if not created and not added_pv:
+            continue
+
+        ply = str(i)
+        response = {
+            "type": "analysis",
+            "ply": ply,
+            "color": "w" if i % 2 == 0 else "b",
+            # step_analysis IS game.steps[i]["analysis"] (same dict object in both
+            # branches above), so this reflects any "p" just added.
+            "ceval": step_analysis,
+        }
+        await app_state.users[username].send_game_message(gameId, response)
 
     # remove completed work
     if all(data["analysis"]):
