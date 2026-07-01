@@ -19,7 +19,7 @@
   },
   "funding": "patreon.com/pychess",
   "dependencies": {
-    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/core": "^6.1.21",
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/interaction": "^6.1.20",
     "@fullcalendar/list": "^6.1.20",
@@ -36,7 +36,7 @@
     "html-to-image": "^1.11.13",
     "idb-keyval": "^6.2.1",
     "mousetrap": "^1.6.5",
-    "snabbdom": "^3.6.3"
+    "snabbdom": "^3.6.4"
   },
   "devDependencies": {
     "@jest/globals": "^30",
@@ -48,7 +48,7 @@
     "esbuild": "^0.28.1",
     "esbuild-plugin-compress": "^1.0.1",
     "esm": "^3.2.25",
-    "jest": "^30.3.0",
+    "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "jsdom": "^29.1.1",
     "jsdom-global": "^3.0.2",
