@@ -20,8 +20,8 @@ from pychess_global_app_state_utils import get_app_state
 from request_utils import read_json_data, read_post_data, read_text_data
 from settings import ADMINS
 from variants import (
-    ALL_VARIANTS,
     CATALOGUED_VARIANTS,
+    ServerVariants,
     is_catalogued_variant,
     register_catalogued_server_variant,
     unregister_catalogued_server_variant,
@@ -39,6 +39,7 @@ VARIANT_NAME_RE = re.compile(r"^[a-z][a-z0-9_]{2,31}$")
 SECTION_RE = re.compile(r"^\s*\[\s*([A-Za-z0-9_]+)(:[^\]]+)?\s*\]\s*$", re.MULTILINE)
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FSF_CHECK_TIMEOUT_SECONDS = 8.0
+BUILTIN_VARIANT_NAMES = frozenset(variant.server_name for variant in ServerVariants)
 
 
 class CataloguedVariantDocument(TypedDict):
@@ -323,7 +324,11 @@ async def check_catalogued_ini_without_mutating_server(ini: str, name: str) -> s
 
 
 def _is_builtin_variant_name(name: str) -> bool:
-    return name in ALL_VARIANTS and name not in CATALOGUED_VARIANTS
+    # Do not use the mutable ALL_VARIANTS map here. A previously-buggy upload
+    # could have registered a catalogued variant with a built-in key and hidden
+    # the original entry in ALL_VARIANTS. The enum is the stable source of all
+    # built-in site/FSF variant names.
+    return name in BUILTIN_VARIANT_NAMES
 
 
 async def ensure_catalogued_variant_name_available(app_state: Any, name: str, *, current_name: str | None = None) -> None:
@@ -334,11 +339,14 @@ async def ensure_catalogued_variant_name_available(app_state: Any, name: str, *,
     catalogued variant owned by any user.
     """
 
+    if _is_builtin_variant_name(name):
+        raise web.HTTPConflict(text="This variant name conflicts with an existing site variant.")
+
     if current_name is not None and name == current_name:
         return
 
-    if _is_builtin_variant_name(name):
-        raise web.HTTPConflict(text="This variant name conflicts with an existing site variant.")
+    if name in CATALOGUED_VARIANTS:
+        raise web.HTTPConflict(text="A catalogued variant with this name already exists.")
 
     if name in getattr(app_state, "catalogued_variants", {}):
         raise web.HTTPConflict(text="A catalogued variant with this name already exists.")

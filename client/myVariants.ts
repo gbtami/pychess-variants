@@ -6,6 +6,7 @@ import { _ } from './i18n';
 import { PyChessModel } from './types';
 import {
     CataloguedVariantClientDocument,
+    isBuiltinVariantName,
     registerCataloguedVariant,
     unregisterCataloguedVariant,
     VARIANTS,
@@ -25,6 +26,9 @@ type State = {
     variants: ManagedVariant[];
     editing: ManagedVariant | null;
     message: string;
+    draftDisplayName: string;
+    draftDescription: string;
+    draftIni: string;
 };
 
 const state: State = {
@@ -33,6 +37,9 @@ const state: State = {
     variants: [],
     editing: null,
     message: '',
+    draftDisplayName: '',
+    draftDescription: '',
+    draftIni: '',
 };
 
 let rootVNode: VNode | Element | null = null;
@@ -64,10 +71,22 @@ async function loadMine(model: PyChessModel): Promise<void> {
 
 function readForm(): { displayName: string; description: string; ini: string } {
     return {
-        displayName: (document.getElementById('catalogued-display-name') as HTMLInputElement | null)?.value ?? '',
-        description: (document.getElementById('catalogued-description') as HTMLInputElement | null)?.value ?? '',
-        ini: (document.getElementById('catalogued-ini') as HTMLTextAreaElement | null)?.value ?? '',
+        displayName: (document.getElementById('catalogued-display-name') as HTMLInputElement | null)?.value ?? state.draftDisplayName,
+        description: (document.getElementById('catalogued-description') as HTMLInputElement | null)?.value ?? state.draftDescription,
+        ini: (document.getElementById('catalogued-ini') as HTMLTextAreaElement | null)?.value ?? state.draftIni,
     };
+}
+
+function clearDraft(): void {
+    state.draftDisplayName = '';
+    state.draftDescription = '';
+    state.draftIni = '';
+}
+
+function setDraftFromVariant(variant: ManagedVariant): void {
+    state.draftDisplayName = variant.displayName ?? '';
+    state.draftDescription = variant.tooltip === 'Catalogued variant' ? '' : variant.tooltip ?? '';
+    state.draftIni = variant.ini ?? '';
 }
 
 function registerFromPayload(payload: { oldName?: string; variant?: ManagedVariant }): void {
@@ -94,6 +113,9 @@ function extractVariantName(ini: string): string {
 }
 
 function validateVariantNameAvailable(name: string, editingName?: string): void {
+    if (isBuiltinVariantName(name)) {
+        throw new Error(_('This variant name conflicts with an existing site variant.'));
+    }
     if (editingName && name === editingName) return;
     if (Object.prototype.hasOwnProperty.call(VARIANTS, name)) {
         throw new Error(_('A variant with this name already exists.'));
@@ -123,6 +145,9 @@ async function validateCurrentForm(model: PyChessModel): Promise<void> {
     const currentName = state.editing?.name;
     try {
         const name = validateBasicIni(body.ini.trim(), currentName);
+        state.saving = true;
+        state.message = `${_('Checking rules for')} ${name}...`;
+        rerender(model);
         const response = await fetch('/api/catalogued-variants/check', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -132,6 +157,8 @@ async function validateCurrentForm(model: PyChessModel): Promise<void> {
         state.message = `${_('Fairy-Stockfish check passed for')} ${name}.`;
     } catch (err) {
         state.message = err instanceof Error ? err.message : _('Variant check failed');
+    } finally {
+        state.saving = false;
     }
     rerender(model);
 }
@@ -166,6 +193,7 @@ async function saveVariant(model: PyChessModel): Promise<void> {
         const payload = await response.json() as { oldName?: string; variant?: ManagedVariant };
         registerFromPayload(payload);
         state.editing = null;
+        clearDraft();
         state.message = editingName ? _('Variant updated.') : _('Variant uploaded.');
         await loadMine(model);
     } catch (err) {
@@ -212,6 +240,7 @@ function playVariant(model: PyChessModel, variant: ManagedVariant): void {
 
 function editVariant(model: PyChessModel, variant: ManagedVariant): void {
     state.editing = variant;
+    setDraftFromVariant(variant);
     state.message = '';
     rerender(model);
     setTimeout(() => document.getElementById('catalogued-display-name')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
@@ -219,6 +248,7 @@ function editVariant(model: PyChessModel, variant: ManagedVariant): void {
 
 function cancelEdit(model: PyChessModel): void {
     state.editing = null;
+    clearDraft();
     state.message = '';
     rerender(model);
 }
@@ -241,38 +271,50 @@ function renderForm(model: PyChessModel): VNode {
                 h('span', _('Display name')),
                 h('input#catalogued-display-name', {
                     props: {
-                        value: editing?.displayName ?? '',
+                        value: state.draftDisplayName,
                         placeholder: _('Display name'),
                         autocomplete: 'off',
                         disabled: state.saving,
                     },
+                    on: { input: (event: Event) => state.draftDisplayName = (event.target as HTMLInputElement).value },
                 }),
             ]),
             h('label', [
                 h('span', _('Short description')),
                 h('input#catalogued-description', {
                     props: {
-                        value: editing?.tooltip === 'Catalogued variant' ? '' : editing?.tooltip ?? '',
+                        value: state.draftDescription,
                         placeholder: _('Short description'),
                         autocomplete: 'off',
                         disabled: state.saving,
                     },
+                    on: { input: (event: Event) => state.draftDescription = (event.target as HTMLInputElement).value },
                 }),
             ]),
             h('label', [
                 h('span', _('Variant definition')),
                 h('textarea#catalogued-ini', {
                     props: {
-                        value: editing?.ini ?? '',
+                        value: state.draftIni,
                         placeholder: '[myvariant:chess]\nvariantTemplate = chess\n',
                         spellcheck: false,
                         disabled: state.saving,
                     },
+                    on: { input: (event: Event) => state.draftIni = (event.target as HTMLTextAreaElement).value },
                 }),
             ]),
             h('div.catalogued-actions', [
                 h('button.lobby-button', { props: { type: 'submit', disabled: state.saving } }, editing ? _('Save changes') : _('Upload variant')),
-                h('button', { props: { type: 'button', disabled: state.saving }, on: { click: () => void validateCurrentForm(model) } }, _('Check rules')),
+                h('button', {
+                    props: { type: 'button', disabled: state.saving },
+                    on: {
+                        click: (event: Event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            void validateCurrentForm(model);
+                        },
+                    },
+                }, _('Check rules')),
                 editing ? h('button', { props: { type: 'button', disabled: state.saving }, on: { click: () => cancelEdit(model) } }, _('Cancel')) : null,
             ]),
         ]),
@@ -319,7 +361,7 @@ function renderRows(model: PyChessModel): VNode {
 function renderRoot(model: PyChessModel): VNode {
     return h('main#my-variants.my-variants', {
         hook: {
-            insert: vnode => {
+            insert: (vnode: VNode) => {
                 rootVNode = vnode;
                 if (!state.loaded) void loadMine(model);
             },

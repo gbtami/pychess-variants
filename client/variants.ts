@@ -1279,6 +1279,11 @@ export const VARIANTS: Record<string, Variant> = {
 };
 
 export const variants = Object.keys(VARIANTS);
+const BUILTIN_VARIANT_NAMES = new Set(Object.keys(VARIANTS));
+
+export function isBuiltinVariantName(name: string | undefined | null): boolean {
+    return !!name && BUILTIN_VARIANT_NAMES.has(name);
+}
 const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro", "shinobi", "makrukhouse", "xiangqihouse" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
