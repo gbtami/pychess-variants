@@ -10,6 +10,7 @@ from aiohttp import web
 from broadcast import round_broadcast
 from const import ANALYSIS, MOVE, STARTED
 from typing_defs import (
+    AnalysisStep,
     FishnetAbortPayload,
     FishnetAcquirePayload,
     FishnetAnalysisItem,
@@ -91,6 +92,11 @@ def _should_save_analysis_pv(
     turnColor is missing (legacy/malformed step data) we fall back to ply parity.
     """
     if "pv" not in analysis or prev is None:
+        return False
+    if "score" not in analysis or "score" not in prev:
+        # Defensive guard against a future {"skipped": True}-style payload shape
+        # (pychess does not send skipPositions today, but this keeps the function
+        # itself safe to call with a malformed/partial FishnetAnalysisItem).
         return False
     white_delta = _winning_chances(analysis["score"]) - _winning_chances(prev["score"])
     if turn_color == "black":
@@ -364,29 +370,51 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     length = len(data["analysis"])
     for j, analysis in enumerate(reversed(data["analysis"])):
         i = length - j - 1
-        if analysis is not None:
-            if "analysis" not in game.steps[i]:
-                prev = data["analysis"][i - 1] if i > 0 else None
-                turn_color = game.steps[i].get("turnColor")
-                save_pv = _should_save_analysis_pv(analysis, prev, turn_color, i)
-                step_analysis: dict = {"s": analysis["score"]}
-                if "depth" in analysis:
-                    step_analysis["d"] = analysis["depth"]
-                if save_pv:
-                    step_analysis["p"] = analysis["pv"]
-                game.steps[i]["analysis"] = step_analysis
+        if analysis is None:
+            continue
 
-                ply = str(i)
-                # response = {"type": "roundchat", "user": bot_name, "room": "spectator", "message": ply + " " + json.dumps(analysis)}
-                # await user_ws.send_json(response)
+        # `existing` may already hold a partial record (created on an earlier,
+        # partial progress report from fairyfishnet with prev=None at the time,
+        # so "p" could not yet be evaluated). We must keep re-entering this
+        # branch on later reports so a PV that becomes decidable once its
+        # neighbour ply arrives can still be added — the old code's
+        # `if "analysis" not in game.steps[i]:` gate closed this permanently
+        # after the first report, which is the bug this restructure fixes.
+        existing: AnalysisStep | None = game.steps[i].get("analysis")
+        created = existing is None
 
-                response = {
-                    "type": "analysis",
-                    "ply": ply,
-                    "color": "w" if i % 2 == 0 else "b",
-                    "ceval": game.steps[i]["analysis"],
-                }
-                await app_state.users[username].send_game_message(gameId, response)
+        if created:
+            step_analysis: AnalysisStep = {"s": analysis["score"]}
+            if "depth" in analysis:
+                step_analysis["d"] = analysis["depth"]
+            game.steps[i]["analysis"] = step_analysis
+        else:
+            step_analysis = existing
+
+        prev = data["analysis"][i - 1] if i > 0 else None
+        turn_color = game.steps[i].get("turnColor")
+
+        added_pv = False
+        if "p" not in step_analysis and _should_save_analysis_pv(analysis, prev, turn_color, i):
+            step_analysis["p"] = analysis["pv"]
+            added_pv = True
+
+        # Nothing new to tell the client: this step already existed before this
+        # report AND nothing changed on it during this pass. Re-sending would be
+        # a redundant duplicate "analysis" message for a step the client already has.
+        if not created and not added_pv:
+            continue
+
+        ply = str(i)
+        response = {
+            "type": "analysis",
+            "ply": ply,
+            "color": "w" if i % 2 == 0 else "b",
+            # step_analysis IS game.steps[i]["analysis"] (same dict object in both
+            # branches above), so this reflects any "p" just added.
+            "ceval": step_analysis,
+        }
+        await app_state.users[username].send_game_message(gameId, response)
 
     # remove completed work
     if all(data["analysis"]):
