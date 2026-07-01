@@ -243,3 +243,95 @@ class TestSavePvDirection(unittest.TestCase):
         self.assertFalse(
             fishnet._should_save_analysis_pv(self._analysis(-20), self._analysis(0), "black", 1)
         )
+
+
+class FishnetAnalysisPvRegressionTestCase(unittest.IsolatedAsyncioTestCase):
+    """Exercises the real fishnet.fishnet_analysis() endpoint across multiple
+    calls, reproducing fairyfishnet's partial-progress-report behaviour.
+
+    Regression coverage for the gbtami Tur #2 finding: the old
+    `if "analysis" not in game.steps[i]:` gate permanently blocked a step from
+    ever receiving its PV once *any* progress report had touched it, even if
+    the neighbouring ply needed for the PV decision only became available in a
+    later report. See HANDOFF.md section 6.
+    """
+
+    @staticmethod
+    def _score(cp: int) -> dict:
+        return {"cp": cp}
+
+    @staticmethod
+    def _make_app_state(game: SimpleNamespace) -> SimpleNamespace:
+        return SimpleNamespace(
+            fishnet_works={"work1": {"game_id": "g1", "username": "botuser"}},
+            fishnet_monitor=defaultdict(list),
+            fishnet_worker_last_seen={},
+            games={"g1": game},
+            users={"botuser": SimpleNamespace(send_game_message=AsyncMock())},
+            db=SimpleNamespace(game=SimpleNamespace(find_one_and_update=AsyncMock())),
+        )
+
+    @staticmethod
+    async def _call(app_state: SimpleNamespace, game: SimpleNamespace, analysis_payload: list):
+        """Invoke the real, unmodified fishnet.fishnet_analysis() once."""
+        data = {"fishnet": {"apikey": "testkey"}, "analysis": analysis_payload}
+        request = cast(web.Request, SimpleNamespace(match_info={"workId": "work1"}, app=None))
+        with (
+            patch.dict(fishnet.FISHNET_KEYS, {"testkey": "worker1"}, clear=True),
+            patch("fishnet.get_app_state", return_value=app_state),
+            patch("fishnet._read_fishnet_json", new=AsyncMock(return_value=(data, None))),
+            patch("fishnet.load_game", new=AsyncMock(return_value=game)),
+        ):
+            return await fishnet.fishnet_analysis(request)
+
+    async def test_partial_report_then_full_report_adds_missing_pv(self) -> None:
+        # ply 0: White's move (neutral eval). ply 1: Black's move that blunders,
+        # swinging White's winning chances from ~0 to strongly positive.
+        game = SimpleNamespace(id="g1", steps=[{"turnColor": "black"}, {"turnColor": "white"}])
+        app_state = self._make_app_state(game)
+        analysis_ply0 = {"score": self._score(0), "pv": "e2e4", "depth": 20}
+        analysis_ply1 = {"score": self._score(400), "pv": "Qxf7+", "depth": 18}
+
+        # Call 1: fairyfishnet has only finished ply 1 so far; ply 0 is still
+        # None, so prev for ply 1 is unavailable and the PV cannot be decided.
+        await self._call(app_state, game, [None, analysis_ply1])
+
+        self.assertNotIn("p", game.steps[1]["analysis"])
+        self.assertNotIn("analysis", game.steps[0])
+        self.assertEqual(app_state.users["botuser"].send_game_message.await_count, 1)
+        self.assertIn("work1", app_state.fishnet_works)  # not complete yet
+
+        # Call 2: ply 0 has now also arrived. Under the old gate, ply 1 already
+        # having an "analysis" dict meant it was skipped forever and "p" could
+        # never be added even though prev is now known - that must not happen.
+        await self._call(app_state, game, [analysis_ply0, analysis_ply1])
+
+        self.assertEqual(game.steps[1]["analysis"]["p"], "Qxf7+")
+        self.assertNotIn("p", game.steps[0]["analysis"])  # ply 0 never has a prev
+        # 1 message from call 1 (ply1, no PV yet) + 2 from call 2 (ply1 gains
+        # PV, ply0 is created for the first time).
+        self.assertEqual(app_state.users["botuser"].send_game_message.await_count, 3)
+        self.assertNotIn("work1", app_state.fishnet_works)  # all analysed -> cleaned up
+        app_state.db.game.find_one_and_update.assert_awaited_once()
+
+    async def test_unchanged_step_does_not_resend_message(self) -> None:
+        """A step that already has its final analysis (PV included, where
+        applicable) must not trigger another websocket message when the same
+        report is redelivered - only newly created or newly-PV'd steps notify.
+        """
+        game = SimpleNamespace(
+            id="g1",
+            steps=[
+                {"turnColor": "black", "analysis": {"s": {"cp": 0}}},
+                {"turnColor": "white", "analysis": {"s": {"cp": 400}, "p": "Qxf7+"}},
+            ],
+        )
+        app_state = self._make_app_state(game)
+        analysis_ply0 = {"score": self._score(0), "pv": "e2e4", "depth": 20}
+        analysis_ply1 = {"score": self._score(400), "pv": "Qxf7+", "depth": 18}
+
+        await self._call(app_state, game, [analysis_ply0, analysis_ply1])
+
+        app_state.users["botuser"].send_game_message.assert_not_awaited()
+        self.assertNotIn("work1", app_state.fishnet_works)
+        app_state.db.game.find_one_and_update.assert_awaited_once()
