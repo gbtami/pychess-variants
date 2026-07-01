@@ -398,6 +398,7 @@ class ViewContext(TypedDict, total=False):
     theme: str
     game_category: str
     game_category_intro: bool
+    catalogued_variants: str
     pm_friends_only: bool
     corr_push_enabled: bool
     menu_variant: str

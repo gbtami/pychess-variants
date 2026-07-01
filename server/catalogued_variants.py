@@ -126,31 +126,22 @@ def _board_part_from_fen(fen: str) -> str:
 
 
 def _iter_fen_piece_letters(board_part: str):
-    promoted = False
-    in_pocket = False
     for ch in board_part:
         if ch == "[":
-            in_pocket = True
             continue
         if ch == "]":
-            in_pocket = False
             continue
         if ch in "/~":
             continue
         if ch == "+":
-            promoted = True
             continue
         if ch.isalpha():
             # In FSF FEN a promoted piece is written as +P. The piece role used
             # by the UI is still the base letter; the promotion marker is not a square.
             yield ch.lower()
-            promoted = False
             continue
         if ch.isdigit():
-            promoted = False
             continue
-        if in_pocket:
-            promoted = False
 
 
 def board_dimensions_from_fen(fen: str) -> tuple[int, int]:
@@ -275,7 +266,9 @@ async def _run_process(args: list[str], *, stdin: str | None = None) -> tuple[in
             cwd=PROJECT_ROOT,
         )
     except FileNotFoundError as exc:
-        raise web.HTTPServiceUnavailable(text=f"Fairy-Stockfish checker executable was not found: {args[0]}") from exc
+        raise web.HTTPServiceUnavailable(
+            text=f"Fairy-Stockfish checker executable was not found: {args[0]}"
+        ) from exc
 
     try:
         stdout, stderr = await asyncio.wait_for(
@@ -307,7 +300,9 @@ async def _check_ini_with_pyffish_child(ini: str, name: str) -> str:
         payload = json.loads(output.splitlines()[-1])
         return str(payload.get("startFen") or "")
     except Exception as exc:
-        raise web.HTTPBadRequest(text=f"Fairy-Stockfish validation returned invalid output: {output.strip()}") from exc
+        raise web.HTTPBadRequest(
+            text=f"Fairy-Stockfish validation returned invalid output: {output.strip()}"
+        ) from exc
 
 
 async def check_catalogued_ini_without_mutating_server(ini: str, name: str) -> str:
@@ -331,7 +326,9 @@ def _is_builtin_variant_name(name: str) -> bool:
     return name in BUILTIN_VARIANT_NAMES
 
 
-async def ensure_catalogued_variant_name_available(app_state: Any, name: str, *, current_name: str | None = None) -> None:
+async def ensure_catalogued_variant_name_available(
+    app_state: Any, name: str, *, current_name: str | None = None
+) -> None:
     """Ensure a user-uploaded variant key is globally unique.
 
     Names are game document variant codes, FSF UCI_Variant keys, URL slugs, and
@@ -354,25 +351,32 @@ async def ensure_catalogued_variant_name_available(app_state: Any, name: str, *,
     if app_state.db is None:
         raise web.HTTPServiceUnavailable(text="Database is unavailable.")
 
-    existing = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": name}, projection={"_id": 1})
+    existing = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one(
+        {"_id": name}, projection={"_id": 1}
+    )
     if existing is not None:
         raise web.HTTPConflict(text="A catalogued variant with this name already exists.")
 
 
-def validate_catalogued_ini(ini: str) -> tuple[str, str, int, int, list[str], list[str], list[str], bool, list[str]]:
+def validate_catalogued_ini(
+    ini: str,
+) -> tuple[str, str, int, int, list[str], list[str], list[str], bool, list[str]]:
     if len(ini.encode("utf-8")) > MAX_CATALOGUED_INI_BYTES:
         raise web.HTTPBadRequest(text="The INI file is too large.")
     name = extract_variant_name(ini)
-
 
     try:
         sf.load_variant_config(ini)
         start_fen = sf.start_fen(name)
     except Exception as exc:
-        raise web.HTTPBadRequest(text=f"Fairy-Stockfish rejected this variant definition: {exc}") from exc
+        raise web.HTTPBadRequest(
+            text=f"Fairy-Stockfish rejected this variant definition: {exc}"
+        ) from exc
 
     if not start_fen:
-        raise web.HTTPBadRequest(text="Fairy-Stockfish did not provide a start FEN for this variant.")
+        raise web.HTTPBadRequest(
+            text="Fairy-Stockfish did not provide a start FEN for this variant."
+        )
 
     width, height = board_dimensions_from_fen(start_fen)
     pieces = piece_letters_from_fen(start_fen)
@@ -380,10 +384,22 @@ def validate_catalogued_ini(ini: str) -> tuple[str, str, int, int, list[str], li
     pocket_roles = catalogued_pocket_roles(ini, start_fen, pieces)
     capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
     promotion_roles = catalogued_promotion_roles(ini, pieces)
-    return name, start_fen, width, height, pieces, king_roles, pocket_roles, capture_to_hand, promotion_roles
+    return (
+        name,
+        start_fen,
+        width,
+        height,
+        pieces,
+        king_roles,
+        pocket_roles,
+        capture_to_hand,
+        promotion_roles,
+    )
 
 
-def _client_doc(doc: Mapping[str, Any], *, game_count: int | None = None) -> CataloguedVariantClientDocument:
+def _client_doc(
+    doc: Mapping[str, Any], *, game_count: int | None = None
+) -> CataloguedVariantClientDocument:
     description = str(doc.get("description") or "")
     tooltip = description or "Catalogued variant"
     ini = str(doc["ini"])
@@ -395,7 +411,9 @@ def _client_doc(doc: Mapping[str, Any], *, game_count: int | None = None) -> Cat
         else list(doc.get("kingRoles") or catalogued_king_roles(ini, pieces))
     )
     pocket_roles = list(doc.get("pocketRoles") or catalogued_pocket_roles(ini, start_fen, pieces))
-    capture_to_hand = bool(doc.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False)))
+    capture_to_hand = bool(
+        doc.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
+    )
     promotion_roles = list(doc.get("promotionRoles") or catalogued_promotion_roles(ini, pieces))
     client_doc: CataloguedVariantClientDocument = {
         "name": str(doc["name"]),
@@ -422,8 +440,6 @@ def _client_doc(doc: Mapping[str, Any], *, game_count: int | None = None) -> Cat
     return client_doc
 
 
-
-
 async def find_catalogued_variant_doc(app_state: Any, name: str) -> Mapping[str, Any] | None:
     docs = getattr(app_state, "catalogued_variants", {})
     if name in docs:
@@ -443,7 +459,9 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
         width, height = board_dimensions_from_fen(start_fen) if start_fen else (8, 8)
     return {
         "name": str(doc.get("name") or doc.get("_id") or ""),
-        "displayName": str(doc.get("displayName") or doc.get("name") or doc.get("_id") or "Catalogued variant"),
+        "displayName": str(
+            doc.get("displayName") or doc.get("name") or doc.get("_id") or "Catalogued variant"
+        ),
         "description": str(doc.get("description") or ""),
         "author": str(doc.get("author") or ""),
         "ini": ini,
@@ -451,9 +469,15 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
         "width": width,
         "height": height,
         "pieces": ", ".join(pieces),
-        "pocketRoles": ", ".join(list(doc.get("pocketRoles") or catalogued_pocket_roles(ini, start_fen, pieces))),
-        "promotionRoles": ", ".join(list(doc.get("promotionRoles") or catalogued_promotion_roles(ini, pieces))),
-        "captureToHand": bool(doc.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))),
+        "pocketRoles": ", ".join(
+            list(doc.get("pocketRoles") or catalogued_pocket_roles(ini, start_fen, pieces))
+        ),
+        "promotionRoles": ", ".join(
+            list(doc.get("promotionRoles") or catalogued_promotion_roles(ini, pieces))
+        ),
+        "captureToHand": bool(
+            doc.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
+        ),
         "enabled": bool(doc.get("enabled", True)),
         "archived": bool(doc.get("archived", False)),
     }
@@ -463,12 +487,16 @@ def catalogued_variants_for_client(app_state: Any) -> list[CataloguedVariantClie
     docs = getattr(app_state, "catalogued_variants", {})
     return [
         _client_doc(doc)
-        for doc in sorted(docs.values(), key=lambda item: str(item.get("displayName", item["name"])).casefold())
+        for doc in sorted(
+            docs.values(), key=lambda item: str(item.get("displayName", item["name"])).casefold()
+        )
         if _is_active_catalogued_doc(doc)
     ]
 
 
-def register_catalogued_variant_doc(app_state: Any, doc: Mapping[str, Any], *, load_config: bool = True) -> None:
+def register_catalogued_variant_doc(
+    app_state: Any, doc: Mapping[str, Any], *, load_config: bool = True
+) -> None:
     name = str(doc["name"])
     if not _is_active_catalogued_doc(doc):
         getattr(app_state, "catalogued_variants", {}).pop(name, None)
@@ -490,7 +518,17 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
     code = str(doc.get("v") or "")
     if not code or is_catalogued_variant(code) or not doc.get("vini"):
         return
-    name, start_fen, width, height, pieces, king_roles, pocket_roles, capture_to_hand, promotion_roles = validate_catalogued_ini(str(doc["vini"]))
+    (
+        name,
+        start_fen,
+        width,
+        height,
+        pieces,
+        king_roles,
+        pocket_roles,
+        capture_to_hand,
+        promotion_roles,
+    ) = validate_catalogued_ini(str(doc["vini"]))
     if name != code:
         raise ValueError(f"Inline game variant INI defines {name!r}, but game uses {code!r}")
     now = datetime.now(timezone.utc)
@@ -686,7 +724,17 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
     await ensure_catalogued_variant_name_available(app_state, name)
     await check_catalogued_ini_without_mutating_server(ini, name)
 
-    name, start_fen, width, height, pieces, king_roles, pocket_roles, capture_to_hand, promotion_roles = validate_catalogued_ini(ini)
+    (
+        name,
+        start_fen,
+        width,
+        height,
+        pieces,
+        king_roles,
+        pocket_roles,
+        capture_to_hand,
+        promotion_roles,
+    ) = validate_catalogued_ini(ini)
 
     now = datetime.now(timezone.utc)
     doc = _build_doc(
@@ -717,7 +765,11 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
 async def get_my_catalogued_variants(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _current_human_username(request)
-    query: dict[str, Any] = {} if _is_admin_username(username) and request.rel_url.query.get("all") == "1" else {"author": username}
+    query: dict[str, Any] = (
+        {}
+        if _is_admin_username(username) and request.rel_url.query.get("all") == "1"
+        else {"author": username}
+    )
     variants: list[CataloguedVariantClientDocument] = []
     if app_state.db is not None:
         cursor = app_state.db[CATALOGUED_VARIANT_COLLECTION].find(query).sort("updatedAt", -1)
@@ -744,7 +796,9 @@ async def _load_owned_doc(request: web.Request) -> tuple[Any, str, str, Mapping[
 async def update_catalogued_variant(request: web.Request) -> web.Response:
     app_state, username, old_name, existing = await _load_owned_doc(request)
     if await _has_games(app_state, old_name):
-        raise web.HTTPConflict(text="This variant already has games. Its rules are locked; clone it to make a changed version.")
+        raise web.HTTPConflict(
+            text="This variant already has games. Its rules are locked; clone it to make a changed version."
+        )
 
     ini, display_name, description = await _read_upload_payload(request)
     ini = ini.strip()
@@ -762,16 +816,32 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
 
     if rules_changed or new_name != old_name:
         await check_catalogued_ini_without_mutating_server(ini, new_name)
-        new_name, start_fen, width, height, pieces, king_roles, pocket_roles, capture_to_hand, promotion_roles = validate_catalogued_ini(ini)
+        (
+            new_name,
+            start_fen,
+            width,
+            height,
+            pieces,
+            king_roles,
+            pocket_roles,
+            capture_to_hand,
+            promotion_roles,
+        ) = validate_catalogued_ini(ini)
     else:
         start_fen = str(existing["startFen"])
         width = int(existing["width"])
         height = int(existing["height"])
         pieces = list(existing.get("pieces") or ["k"])
         king_roles = list(existing.get("kingRoles") or [])
-        pocket_roles = list(existing.get("pocketRoles") or catalogued_pocket_roles(ini, start_fen, pieces))
-        capture_to_hand = bool(existing.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False)))
-        promotion_roles = list(existing.get("promotionRoles") or catalogued_promotion_roles(ini, pieces))
+        pocket_roles = list(
+            existing.get("pocketRoles") or catalogued_pocket_roles(ini, start_fen, pieces)
+        )
+        capture_to_hand = bool(
+            existing.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
+        )
+        promotion_roles = list(
+            existing.get("promotionRoles") or catalogued_promotion_roles(ini, pieces)
+        )
 
     doc = _build_doc(
         name=new_name,
@@ -795,20 +865,26 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         try:
             await app_state.db[CATALOGUED_VARIANT_COLLECTION].insert_one(doc)
         except DuplicateKeyError as exc:
-            raise web.HTTPConflict(text="A catalogued variant with this name already exists.") from exc
+            raise web.HTTPConflict(
+                text="A catalogued variant with this name already exists."
+            ) from exc
         await app_state.db[CATALOGUED_VARIANT_COLLECTION].delete_one({"_id": old_name})
         unregister_catalogued_server_variant(old_name)
         app_state.catalogued_variants.pop(old_name, None)
     else:
         await app_state.db[CATALOGUED_VARIANT_COLLECTION].replace_one({"_id": new_name}, doc)
     register_catalogued_variant_doc(app_state, doc, load_config=False)
-    return json_response({"ok": True, "oldName": old_name, "variant": _client_doc(doc, game_count=0)})
+    return json_response(
+        {"ok": True, "oldName": old_name, "variant": _client_doc(doc, game_count=0)}
+    )
 
 
 async def delete_catalogued_variant(request: web.Request) -> web.Response:
     app_state, _username, name, _doc = await _load_owned_doc(request)
     if await _has_games(app_state, name):
-        raise web.HTTPConflict(text="This variant already has games. Archive it instead of deleting it.")
+        raise web.HTTPConflict(
+            text="This variant already has games. Archive it instead of deleting it."
+        )
     await app_state.db[CATALOGUED_VARIANT_COLLECTION].delete_one({"_id": name})
     app_state.catalogued_variants.pop(name, None)
     unregister_catalogued_server_variant(name)
@@ -862,7 +938,17 @@ async def clone_catalogued_variant(request: web.Request) -> web.Response:
 
     ini = replace_variant_section_name(str(doc["ini"]), new_name)
     await check_catalogued_ini_without_mutating_server(ini, new_name)
-    new_name, start_fen, width, height, pieces, king_roles, pocket_roles, capture_to_hand, promotion_roles = validate_catalogued_ini(ini)
+    (
+        new_name,
+        start_fen,
+        width,
+        height,
+        pieces,
+        king_roles,
+        pocket_roles,
+        capture_to_hand,
+        promotion_roles,
+    ) = validate_catalogued_ini(ini)
     now = datetime.now(timezone.utc)
     display_name = f"{doc.get('displayName') or name} v{new_name.rsplit('_v', 1)[-1]}"
     cloned = _build_doc(

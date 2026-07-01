@@ -105,7 +105,9 @@ log = logging.getLogger(__name__)
 
 UNSUPPORTED_FSF_AI_VARIANTS = ("alice", "fogofwar", "jieqi")
 BOT_LOBBY_ACTION_MESSAGE = "BOT accounts cannot create or join lobby games."
-CATALOGUED_CASUAL_ONLY_MESSAGE = "Catalogued variants are casual-only and not available for auto-pairing."
+CATALOGUED_CASUAL_ONLY_MESSAGE = (
+    "Catalogued variants are casual-only and not available for auto-pairing."
+)
 
 
 async def _reject_bot_lobby_action(ws: WebSocketResponse, user: User) -> bool:

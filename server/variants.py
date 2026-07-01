@@ -176,7 +176,9 @@ class ServerVariants(Enum):
 del _
 
 
-def get_server_variant(uci_variant: str, chess960: bool | None) -> "ServerVariants | CataloguedServerVariant":
+def get_server_variant(
+    uci_variant: str, chess960: bool | None
+) -> "ServerVariants | CataloguedServerVariant":
     if uci_variant in CATALOGUED_VARIANTS:
         return CATALOGUED_VARIANTS[uci_variant]
     return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
@@ -237,7 +239,9 @@ NOT_RATED_VARIANTS: tuple[str, ...] = tuple(
 C2V: dict[str, str] = {variant.code: variant.uci_variant for variant in ServerVariants}
 
 
-def register_catalogued_server_variant(name: str, display_name: str, icon: str = "◇") -> CataloguedServerVariant:
+def register_catalogued_server_variant(
+    name: str, display_name: str, icon: str = "◇"
+) -> CataloguedServerVariant:
     """Register a casual uploaded variant in the runtime server variant maps.
 
     The variant name itself is used as the game document code. Built-ins keep
@@ -274,13 +278,13 @@ def register_catalogued_server_variant(name: str, display_name: str, icon: str =
         CATEGORY_VARIANT_GROUPS.setdefault(category, {})[name] = category
         CATEGORY_VARIANT_LISTS[category] = tuple(CATEGORY_VARIANTS[category].keys())
         CATEGORY_VARIANT_SETS[category] = frozenset(CATEGORY_VARIANTS[category].keys())
-        CATEGORY_VARIANT_CODES[category] = frozenset(v.code for v in CATEGORY_VARIANTS[category].values())
+        CATEGORY_VARIANT_CODES[category] = frozenset(
+            v.code for v in CATEGORY_VARIANTS[category].values()
+        )
     except Exception:
         pass
 
     return variant
-
-
 
 
 def unregister_catalogued_server_variant(name: str) -> None:
@@ -310,7 +314,9 @@ def unregister_catalogued_server_variant(name: str) -> None:
         CATEGORY_VARIANT_GROUPS.get(category, {}).pop(name, None)
         CATEGORY_VARIANT_LISTS[category] = tuple(CATEGORY_VARIANTS.get(category, {}).keys())
         CATEGORY_VARIANT_SETS[category] = frozenset(CATEGORY_VARIANTS.get(category, {}).keys())
-        CATEGORY_VARIANT_CODES[category] = frozenset(v.code for v in CATEGORY_VARIANTS.get(category, {}).values())
+        CATEGORY_VARIANT_CODES[category] = frozenset(
+            v.code for v in CATEGORY_VARIANTS.get(category, {}).values()
+        )
     except Exception:
         pass
 
@@ -321,6 +327,7 @@ def is_catalogued_variant(name: str | None) -> bool:
 
 def is_catalogued_variant_code(code: str | None) -> bool:
     return bool(code) and code in CATALOGUED_VARIANTS
+
 
 GRANDS: tuple[str, ...] = tuple(variant.server_name for variant in ServerVariants if variant.grand)
 

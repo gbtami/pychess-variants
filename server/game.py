@@ -49,7 +49,13 @@ from typing_defs import (
     GameStep,
     TvGameJson,
 )
-from variants import CataloguedServerVariant, get_server_variant, GRANDS, ServerVariants, is_catalogued_variant
+from variants import (
+    CataloguedServerVariant,
+    get_server_variant,
+    GRANDS,
+    ServerVariants,
+    is_catalogued_variant,
+)
 
 log = logging.getLogger(__name__)
 
@@ -179,7 +185,9 @@ class Game:
         self.new_960_fen_needed_for_rematch: bool = new_960_fen_needed_for_rematch
         self.imported_by: str = ""
 
-        self.server_variant: ServerVariants | CataloguedServerVariant = get_server_variant(variant, chess960)
+        self.server_variant: ServerVariants | CataloguedServerVariant = get_server_variant(
+            variant, chess960
+        )
         self.encode_method: Callable[[str], str] = self.server_variant.move_encoding
 
         self.berserk_time: int | float = self.base * 1000 * 30
