@@ -77,7 +77,6 @@ export function variantPanels(lobbyCtrl: LobbyController): VNode {
                     h('img.sliding-pieces.OKI', { attrs: {src: assetUrl + '/images/pieces/shogi/ctp/0KI.svg', alt: "" } }),
                 ]),
             ]),
-
             h('button#layer1xiangqi.variant-category.xiangqi', { on: { click: () => layer2xiangqi(lobbyCtrl, 'panel-container') } }, [
                 h('div.variant-title', [h('h3', _('Xiangqi Variants'))]),
                 h('div.piece-container', [
