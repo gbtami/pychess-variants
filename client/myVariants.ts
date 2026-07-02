@@ -396,7 +396,7 @@ function renderForm(model: PyChessModel): VNode {
             h('p.catalogued-help', _('If you change the rules of an unused variant, also change the INI section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.')),
             editing?.locked ? h('p.catalogued-help', _('This variant already has games. Only metadata and visibility can be changed; clone it to change the rules.')) : null,
         ]),
-        h('form', {
+        h('form.catalogued-form-grid', {
             on: {
                 submit: (event: Event) => {
                     event.preventDefault();
@@ -404,7 +404,7 @@ function renderForm(model: PyChessModel): VNode {
                 },
             },
         }, [
-            h('label', [
+            h('label.catalogued-field.catalogued-field-half', [
                 h('span', _('Display name')),
                 h('input#catalogued-display-name', {
                     props: {
@@ -421,7 +421,7 @@ function renderForm(model: PyChessModel): VNode {
                     },
                 }),
             ]),
-            h('label', [
+            h('label.catalogued-field.catalogued-field-half', [
                 h('span', _('Short description')),
                 h('input#catalogued-description', {
                     props: {
@@ -438,7 +438,7 @@ function renderForm(model: PyChessModel): VNode {
                     },
                 }),
             ]),
-            h('label', [
+            h('label.catalogued-field.catalogued-field-half', [
                 h('span', _('Visibility')),
                 h('select#catalogued-visibility', {
                     props: {
@@ -458,7 +458,7 @@ function renderForm(model: PyChessModel): VNode {
                 ]),
                 h('span.catalogued-help', visibilityHelp(state.draftVisibility)),
             ]),
-            h('label', [
+            h('label.catalogued-field.catalogued-field-full', [
                 h('span', _('Variant definition')),
                 h('textarea#catalogued-ini', {
                     props: {
@@ -475,7 +475,7 @@ function renderForm(model: PyChessModel): VNode {
                     },
                 }),
             ]),
-            h('div.catalogued-actions', [
+            h('div.catalogued-actions.catalogued-field-full', [
                 h(`button.button-primary.catalogued-primary-action${state.saving ? '.disabled' : ''}`, {
                     props: { type: 'submit', disabled: state.saving },
                 }, editing ? _('Save changes') : _('Upload variant')),
@@ -496,7 +496,9 @@ function renderForm(model: PyChessModel): VNode {
                     }, _('Cancel'))
                     : null,
             ]),
-            state.formMessage ? h('p.catalogued-message', { attrs: { 'aria-live': 'polite' } }, state.formMessage) : null,
+            state.formMessage
+                ? h('p.catalogued-message.catalogued-field-full', { attrs: { 'aria-live': 'polite' } }, state.formMessage)
+                : null,
         ]),
     ]);
 }
@@ -664,7 +666,7 @@ function renderRoot(model: PyChessModel): VNode {
             : h('div.catalogued-layout', [
                 state.message ? h('p.catalogued-message', state.message) : null,
                 renderForm(model),
-                h('section.catalogued-card', [
+                h('section.catalogued-card.catalogued-list-card', [
                     h('h2', _('My variants')),
                     state.maxVariants === null ? null : h('p.catalogued-help', `${state.variants.length}/${state.maxVariants} ${_('variant slots used')}`),
                     renderRows(model),
