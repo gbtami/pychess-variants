@@ -15,8 +15,9 @@ div.guide ol, div.guide ul {
     margin: 0;
 }
 
-.community-variants-page {
-    max-width: 920px;
+.community-variants-page,
+.catalogued-variant-rules {
+    max-width: 1100px;
 }
 
 .community-variants-search {
@@ -57,7 +58,7 @@ div.guide ol, div.guide ul {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-.community-variant-card header {
+.community-variant-card-head {
     display: flex;
     gap: 0.75rem;
     align-items: baseline;
@@ -90,6 +91,32 @@ div.guide ol, div.guide ul {
 
 .community-variant-card dd {
     margin: 0;
+}
+
+
+.community-variants-page .button,
+.catalogued-variant-rules .button {
+    display: inline-block;
+    border: 1px solid var(--bg-color2);
+    border-radius: 4px;
+    background: var(--bg-box);
+    color: var(--font-color);
+    padding: 0.8em 1em;
+    margin: 2px;
+    box-shadow: var(--base-shadow);
+    line-height: 1.1;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.community-variants-page button.button {
+    font: inherit;
+    cursor: pointer;
+}
+
+.community-variants-page .button:hover:not(:disabled),
+.catalogued-variant-rules .button:hover {
+    background: var(--bg-color0);
 }
 
 .community-variant-actions,

@@ -52,10 +52,10 @@
     <div class="community-variants-list">
         {% for item in community_variants.variants %}
         <section class="community-variant-card">
-            <header>
+            <div class="community-variant-card-head">
                 <h2><a href="{{ home }}/variants/{{ item.name }}">{{ item.displayName }}</a></h2>
                 <code>{{ item.name }}</code>
-            </header>
+            </div>
             {% if item.description %}<p>{{ item.description }}</p>{% endif %}
             <dl>
                 {% if item.author %}<div><dt>Author</dt><dd>{{ item.author }}</dd></div>{% endif %}
@@ -121,7 +121,7 @@
 {% else %}
 {% include variant %}
 {% endif %}
-<div>
+</div>
 </main>
 </div>
 {% endblock %}

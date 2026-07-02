@@ -489,7 +489,7 @@ function renderRoot(model: PyChessModel): VNode {
             },
         },
     }, [
-        h('header.catalogued-page-header', [
+        h('section.catalogued-page-header', [
             h('h1', _('Manage my variants')),
             h('p', _('Uploaded variants stay out of the regular variant catalog. They are always casual/unrated, but can be played from this page against humans or Fairy-Stockfish.')),
             h('p', [
