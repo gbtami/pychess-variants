@@ -70,8 +70,8 @@ for letter in ascii_uppercase:
 # Keep the historical a0-j9 and drop encodings stable, then append extra
 # board files for wider user-defined variants. 10-rank boards are normalized
 # through grand2zero(), so ranks 0..9 are enough for both 9-rank and 10-rank
-# variants. With the current one-byte codec this leaves room for files k..s.
-for file_ in "klmnopqrs":
+# variants. With the current one-byte codec this leaves room for files k..p.
+for file_ in "klmnop":
     for rank in "0123456789":
         M2C[f"{file_}{rank}"] = m2c_len
         m2c_len += 1
