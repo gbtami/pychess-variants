@@ -6,9 +6,11 @@ from compress import (
     encode_move_duck,
     encode_move_flipping,
     encode_move_standard,
+    encode_move_extended,
     decode_move_duck,
     decode_move_flipping,
     decode_move_standard,
+    decode_move_extended,
 )
 from settings import PROD
 
@@ -245,6 +247,7 @@ def register_catalogued_server_variant(
     icon: str = "◇",
     *,
     grand: bool = False,
+    extended_move_codec: bool = False,
 ) -> CataloguedServerVariant:
     """Register a casual uploaded variant in the runtime server variant maps.
 
@@ -260,6 +263,8 @@ def register_catalogued_server_variant(
         translated_name=display_name,
         icon=icon,
         grand=grand,
+        move_encoding=encode_move_extended if extended_move_codec else encode_move_standard,
+        move_decoding=decode_move_extended if extended_move_codec else decode_move_standard,
     )
     CATALOGUED_VARIANTS[name] = variant
     ALL_VARIANTS[name] = variant

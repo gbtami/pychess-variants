@@ -2,7 +2,8 @@ from __future__ import annotations
 from itertools import product
 from string import ascii_uppercase
 
-MAX_COMPRESSED_BOARD_WIDTH = 19
+MAX_COMPRESSED_BOARD_WIDTH = 16
+MAX_COMPRESSED_BOARD_HEIGHT = 16
 
 """
 We use the simplest compression method for moves here: 2 byte square to 1 byte ascii.
@@ -69,8 +70,8 @@ for letter in ascii_uppercase:
 
 # Keep the historical a0-j9 and drop encodings stable, then append extra
 # board files for wider user-defined variants. 10-rank boards are normalized
-# through grand2zero(), so ranks 0..9 are enough for both 9-rank and 10-rank
-# variants. With the current one-byte codec this leaves room for files k..p.
+# through grand2zero(), so ranks 0..9 are enough for all <=10-rank variants.
+# With all uppercase drop letters this leaves room for files k..p.
 for file_ in "klmnop":
     for rank in "0123456789":
         M2C[f"{file_}{rank}"] = m2c_len
@@ -80,6 +81,64 @@ for file_ in "klmnop":
 #    print(x, M2C[x])
 
 C2M = {v: k for k, v in M2C.items()}
+
+# Extended codecs are intentionally separate from the historical standard codec.
+# Only catalogued variants with 11..16 ranks use these slower variable-rank
+# parsers. Built-in variants and catalogued variants up to 10 ranks keep the
+# old fixed-slice encode/decode functions above and, when needed, the existing
+# grand2zero()/zero2grand() normalization.
+EXTENDED_FILES = "abcdefghijklmnop"
+EXTENDED_RANKS = tuple(str(rank) for rank in range(1, MAX_COMPRESSED_BOARD_HEIGHT + 1))
+EXTENDED_M2C = dict(
+    zip(
+        [file_ + rank for file_, rank in product(EXTENDED_FILES, EXTENDED_RANKS)],
+        range(34, 34 + len(EXTENDED_FILES) * len(EXTENDED_RANKS)),
+    )
+)
+ext_m2c_len = max(EXTENDED_M2C.values()) + 1
+for letter in ascii_uppercase:
+    EXTENDED_M2C[f"{letter}@"] = ext_m2c_len
+    ext_m2c_len += 1
+EXTENDED_C2M = {v: k for k, v in EXTENDED_M2C.items()}
+
+
+def _parse_extended_square(move: str, index: int) -> tuple[str, int]:
+    if index >= len(move):
+        raise KeyError(move[index:])
+
+    file_ = move[index]
+    if file_ not in EXTENDED_FILES:
+        raise KeyError(file_)
+
+    rank_start = index + 1
+    rank_end = rank_start
+    while rank_end < len(move) and move[rank_end].isdigit():
+        rank_end += 1
+
+    if rank_end == rank_start:
+        raise KeyError(move[index:rank_end])
+
+    square = move[index:rank_end]
+    if square not in EXTENDED_M2C:
+        raise KeyError(square)
+
+    return square, rank_end
+
+
+def _parse_extended_move(move: str) -> tuple[str, str, str]:
+    if len(move) >= 3 and move[1] == "@":
+        from_part = move[:2]
+        to_part, end = _parse_extended_square(move, 2)
+        if end != len(move):
+            raise KeyError(move[end:])
+        return from_part, to_part, ""
+
+    from_part, index = _parse_extended_square(move, 0)
+    to_part, index = _parse_extended_square(move, index)
+    promotion = move[index:]
+    if len(promotion) > 1:
+        raise KeyError(promotion)
+    return from_part, to_part, promotion
 
 
 def encode_move_flipping(move):
@@ -103,6 +162,11 @@ def encode_move_standard(move):
     return chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
 
 
+def encode_move_extended(move):
+    from_part, to_part, promotion = _parse_extended_move(move)
+    return chr(EXTENDED_M2C[from_part]) + chr(EXTENDED_M2C[to_part]) + promotion
+
+
 def decode_move_flipping(move):
     return (
         C2M[ord(move[0])] + "@" + C2M[ord(move[1])]
@@ -124,3 +188,9 @@ def decode_move_duck(move):
 
 def decode_move_standard(move):
     return C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
+
+
+def decode_move_extended(move):
+    from_part = EXTENDED_C2M[ord(move[0])]
+    to_part = EXTENDED_C2M[ord(move[1])]
+    return from_part + to_part + (move[2] if len(move) == 3 else "")

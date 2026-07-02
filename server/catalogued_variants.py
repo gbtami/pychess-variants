@@ -13,7 +13,7 @@ import aiohttp_session
 from aiohttp import web
 from pymongo.errors import DuplicateKeyError
 
-from compress import MAX_COMPRESSED_BOARD_WIDTH
+from compress import MAX_COMPRESSED_BOARD_HEIGHT, MAX_COMPRESSED_BOARD_WIDTH
 from const import ANON_PREFIX
 from fairy.fairy_board import sf
 from json_utils import json_response
@@ -161,16 +161,7 @@ def _catalogued_public_query() -> dict[str, Any]:
     }
 
 
-def _catalogued_grand_from_dimensions(width: int, height: int) -> bool:
-    """Return whether moves need 10-rank zero-based compression.
-
-    Pychess stores moves with a compact one-byte-per-square codec. Normal
-    variants use two-character UCI squares (for example e4). Ten-rank variants
-    need the Grand/Xiangqi normalization step so rank 10 becomes rank 9 before
-    compression. Boards taller than 10 ranks cannot be represented by the
-    current saved-game move codec.
-    """
-
+def _ensure_catalogued_dimensions_supported(width: int, height: int) -> None:
     if width > MAX_COMPRESSED_BOARD_WIDTH:
         raise web.HTTPBadRequest(
             text=(
@@ -178,14 +169,32 @@ def _catalogued_grand_from_dimensions(width: int, height: int) -> bool:
                 f"User-defined variants can have at most {MAX_COMPRESSED_BOARD_WIDTH} files."
             )
         )
-    if height > 10:
+    if height > MAX_COMPRESSED_BOARD_HEIGHT:
         raise web.HTTPBadRequest(
             text=(
                 "This board is too tall for the current saved-game move codec. "
-                "User-defined variants can have at most 10 ranks."
+                f"User-defined variants can have at most {MAX_COMPRESSED_BOARD_HEIGHT} ranks."
             )
         )
+
+
+def _catalogued_grand_from_dimensions(width: int, height: int) -> bool:
+    """Return whether moves can use the old fast 10-rank Grand codec."""
+
+    _ensure_catalogued_dimensions_supported(width, height)
     return height == 10
+
+
+def _catalogued_extended_move_codec_from_dimensions(width: int, height: int) -> bool:
+    """Return whether moves need the slower variable-rank codec.
+
+    Variants up to 10 ranks keep the old standard codec plus optional
+    grand2zero()/zero2grand() normalization. Only 11..16-rank user-defined
+    variants use the extended parser/codec.
+    """
+
+    _ensure_catalogued_dimensions_supported(width, height)
+    return height > 10
 
 
 def _is_valid_variant_name(name: str) -> bool:
@@ -743,6 +752,7 @@ def register_catalogued_variant_doc(
         str(doc.get("displayName") or name),
         str(doc.get("icon") or CATALOGUED_ICON),
         grand=_catalogued_grand_from_dimensions(width, height),
+        extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
     )
     app_state.catalogued_variants[name] = dict(doc)
 
