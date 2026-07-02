@@ -22,12 +22,14 @@ type ManagedVariant = CataloguedVariantClientDocument & {
     gameCount?: number;
     locked?: boolean;
     visibility?: VariantVisibility;
+    hasPieceSet?: boolean;
 };
 
 type State = {
     loaded: boolean;
     saving: boolean;
     variants: ManagedVariant[];
+    maxVariants: number | null;
     editing: ManagedVariant | null;
     message: string;
     formMessage: string;
@@ -41,6 +43,7 @@ const state: State = {
     loaded: false,
     saving: false,
     variants: [],
+    maxVariants: null,
     editing: null,
     message: '',
     formMessage: '',
@@ -66,8 +69,9 @@ async function loadMine(model: PyChessModel): Promise<void> {
     try {
         const response = await fetch('/api/catalogued-variants/mine');
         if (!response.ok) throw new Error(await responseError(response));
-        const payload = await response.json() as { variants: ManagedVariant[] };
+        const payload = await response.json() as { variants: ManagedVariant[]; maxVariants?: number | null };
         state.variants = payload.variants || [];
+        state.maxVariants = payload.maxVariants ?? null;
         state.loaded = true;
         state.message = '';
     } catch (err) {
@@ -266,6 +270,68 @@ async function postAction(model: PyChessModel, variant: ManagedVariant, action: 
     }
 }
 
+
+function expectedPieceSetFiles(variant: ManagedVariant): string[] {
+    const pieces = [...new Set((variant.pieces?.length ? variant.pieces : ['k']).map(piece => piece.toLowerCase()))].sort();
+    const promoted = [...new Set((variant.promotionRoles ?? []).map(piece => piece.toLowerCase()))].sort();
+    const names: string[] = [];
+    for (const color of ['w', 'b']) {
+        for (const piece of pieces) names.push(`${color}${piece.toUpperCase()}.svg`);
+        for (const piece of promoted) names.push(`${color}+${piece.toUpperCase()}.svg`);
+    }
+    return names;
+}
+
+async function uploadPieceSet(model: PyChessModel, variant: ManagedVariant, files: FileList | null): Promise<void> {
+    if (!files || files.length === 0) return;
+    const expected = expectedPieceSetFiles(variant);
+    if (files.length !== expected.length) {
+        await alertDialog({ text: `${_('Custom piece sets must be complete. Expected files')}: ${expected.join(', ')}` });
+        return;
+    }
+
+    const form = new FormData();
+    for (const file of Array.from(files)) form.append('pieces', file, file.name);
+
+    state.saving = true;
+    rerender(model);
+    try {
+        const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/piece-set`, {
+            method: 'POST',
+            body: form,
+        });
+        if (!response.ok) throw new Error(await responseError(response));
+        const payload = await response.json() as { variant?: ManagedVariant };
+        registerFromPayload(payload);
+        state.message = _('Custom piece set uploaded.');
+        await loadMine(model);
+    } catch (err) {
+        state.message = err instanceof Error ? err.message : _('Failed to upload piece set');
+    } finally {
+        state.saving = false;
+        rerender(model);
+    }
+}
+
+async function deletePieceSet(model: PyChessModel, variant: ManagedVariant): Promise<void> {
+    if (!variant.hasPieceSet || !window.confirm(`${_('delete')} ${_('custom piece set')}?`)) return;
+    state.saving = true;
+    rerender(model);
+    try {
+        const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/piece-set/delete`, { method: 'POST' });
+        if (!response.ok) throw new Error(await responseError(response));
+        const payload = await response.json() as { variant?: ManagedVariant };
+        registerFromPayload(payload);
+        state.message = _('Custom piece set deleted.');
+        await loadMine(model);
+    } catch (err) {
+        state.message = err instanceof Error ? err.message : _('Failed to delete piece set');
+    } finally {
+        state.saving = false;
+        rerender(model);
+    }
+}
+
 function playVariant(model: PyChessModel, variant: ManagedVariant): void {
     if (variant.archived || variant.enabled === false) return;
     localStorage.seek_variant = variant.name;
@@ -419,6 +485,38 @@ function renderForm(model: PyChessModel): VNode {
     ]);
 }
 
+
+function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): VNode {
+    const expected = expectedPieceSetFiles(variant);
+    return h('div.catalogued-piece-set-controls', [
+        h('strong', variant.hasPieceSet ? _('Custom') : _('Letters')),
+        h('span.catalogued-help', { attrs: { title: expected.join(', ') } },
+            `${_('Required SVG files')}: ${expected.length}`),
+        h('label.catalogued-row-button.catalogued-secondary-action.catalogued-file-action', [
+            _('Upload set'),
+            h('input', {
+                props: {
+                    type: 'file',
+                    accept: '.svg,image/svg+xml',
+                    multiple: true,
+                    disabled: state.saving || !!variant.archived || variant.enabled === false,
+                },
+                on: {
+                    change: (event: Event) => {
+                        const input = event.target as HTMLInputElement;
+                        void uploadPieceSet(model, variant, input.files);
+                        input.value = '';
+                    },
+                },
+            }),
+        ]),
+        variant.hasPieceSet ? h('button.catalogued-row-button.catalogued-secondary-action', {
+            props: { type: 'button', disabled: state.saving },
+            on: { click: () => void deletePieceSet(model, variant) },
+        }, _('Delete set')) : null,
+    ]);
+}
+
 function renderRows(model: PyChessModel): VNode {
     if (!state.loaded) return h('p', _('Loading...'));
     if (state.variants.length === 0) return h('p.catalogued-empty', _('You have not uploaded any variants yet.'));
@@ -430,6 +528,7 @@ function renderRows(model: PyChessModel): VNode {
                 h('th', _('Status')),
                 h('th', _('Visibility')),
                 h('th', _('Games')),
+                h('th', _('Pieces')),
                 h('th', _('Actions')),
             ])),
             h('tbody', state.variants.map(variant => {
@@ -445,6 +544,7 @@ function renderRows(model: PyChessModel): VNode {
                     h('td', archived ? _('Archived') : locked ? _('Locked') : _('Editable')),
                     h('td', visibilityLabel(variant.visibility)),
                     h('td', String(variant.gameCount ?? 0)),
+                    h('td', renderPieceSetControls(model, variant)),
                     h('td.catalogued-row-actions', [
                         h('button.button-primary.catalogued-row-button', {
                             props: { type: 'button', disabled: archived },
@@ -506,6 +606,7 @@ function renderRoot(model: PyChessModel): VNode {
                 renderForm(model),
                 h('section.catalogued-card', [
                     h('h2', _('My variants')),
+                    state.maxVariants === null ? null : h('p.catalogued-help', `${state.variants.length}/${state.maxVariants} ${_('variant slots used')}`),
                     renderRows(model),
                 ]),
             ]),

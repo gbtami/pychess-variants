@@ -72,6 +72,9 @@ export function ensurePieceCSS(assetUrl: string, family: string, cssFile: string
         `piece-set-${cssFile}` :
         `piece-set-${family}-${cssFile}`;
     let newUrl = sanitizeURL(`${assetUrl}/piece-css/${family}/${cssFile}.css`);
+    if (family.startsWith('catalogued-') && cssFile === 'custom') {
+        newUrl = `/api/catalogued-variants/${encodeURIComponent(family.slice('catalogued-'.length))}/piece-css.css`;
+    }
     if (cssFile === 'letters') newUrl = sanitizeURL(`${assetUrl}/piece-css/letters.css`);
     if (cssFile === 'invisible') newUrl = sanitizeURL(`${assetUrl}/piece-css/invisible.css`);
 

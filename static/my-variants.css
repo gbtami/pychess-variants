@@ -131,7 +131,7 @@
 .catalogued-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 720px;
+    min-width: 980px;
 }
 
 .catalogued-table th,
@@ -193,4 +193,23 @@
         margin-left: 0;
         margin-right: 0;
     }
+}
+
+.catalogued-piece-set-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 14rem;
+}
+
+.catalogued-file-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.catalogued-file-action input[type="file"] {
+    display: none;
 }

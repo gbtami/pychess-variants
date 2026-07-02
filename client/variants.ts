@@ -1330,6 +1330,7 @@ export interface CataloguedVariantClientDocument {
     readonly gameCount?: number;
     readonly locked?: boolean;
     readonly visibility?: 'private' | 'unlisted' | 'public';
+    readonly hasPieceSet?: boolean;
 }
 
 const cataloguedVariantInis: Record<string, string> = {};
@@ -1369,6 +1370,10 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
     const pocketRoles = (meta.pocketRoles ?? []) as cg.Letter[];
     const promotionRoles = (meta.promotionRoles ?? []) as cg.Letter[];
     const boardFamily = ensureCataloguedBoardFamily(meta.width, meta.height);
+    const cataloguedPieceFamily = `catalogued-${meta.name}`;
+    const pieceFamily = meta.hasPieceSet ? cataloguedPieceFamily : 'letter';
+    if (meta.hasPieceSet) PIECE_FAMILIES[cataloguedPieceFamily] = { pieceCSS: ['custom'] };
+    else delete PIECE_FAMILIES[cataloguedPieceFamily];
     VARIANTS[meta.name] = variant({
         name: meta.name,
         displayName: meta.displayName || meta.name,
@@ -1376,7 +1381,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         startFen: meta.startFen,
         icon: meta.icon || '◇',
         boardFamily,
-        pieceFamily: 'letter',
+        pieceFamily,
         pieceRow: pieces,
         kingRoles,
         pocket: pocketRoles.length ? { roles: pocketRoles, captureToHand: !!meta.captureToHand } : undefined,
@@ -1391,6 +1396,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
 export function unregisterCataloguedVariant(name: string | undefined | null): void {
     if (!name || !cataloguedVariantNames.has(name)) return;
     delete VARIANTS[name];
+    delete PIECE_FAMILIES[`catalogued-${name}`];
     delete cataloguedVariantInis[name];
     cataloguedVariantNames.delete(name);
 }
