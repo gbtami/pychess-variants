@@ -174,7 +174,7 @@ export class LobbyController implements ChatController {
             // CREATE GAME from the main menu
             if (this.profileid === 'any#') {
                 this.profileid = '';
-                this.createGame();
+                this.createGame(model.variant);
             }
         }
 
@@ -943,8 +943,20 @@ export class LobbyController implements ChatController {
         ])
     }
 
+    private seekViewUnknown(seek: Seek) {
+        return h('tr.disabled', { attrs: { title: _('This user-defined variant is not available to you.') } }, [
+            h('td', [ this.colorIcon(seek.color) ]),
+            h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
+            h('td', seek.rating),
+            h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi, seek.day)),
+            h('td.icon', { attrs: { "data-icon": '◇' } }, [h('variant-name', ` ${seek.variant}`)]),
+            h('td', this.mode(seek)),
+        ])
+    }
+
     private seekView(seek: Seek) {
         const variant = VARIANTS[seek.variant];
+        if (!variant) return this.hide(seek) ? "" : this.seekViewUnknown(seek);
         return this.hide(seek) ? "" : variant.twoBoards ? seekViewBughouse(this, seek): this.seekViewRegular(seek);
     }
 
@@ -995,8 +1007,9 @@ export class LobbyController implements ChatController {
             return this.seekUserLink(seek["target"]);
     }
     private hide(seek: Seek) {
+        const variant = VARIANTS[seek.variant];
         return ((this.anon || this.title === 'BOT') && seek["rated"]) ||
-            (this.anon && VARIANTS[seek.variant].twoBoards) ||
+            (this.anon && !!variant?.twoBoards) ||
             (seek['target'] !== '' && this.username !== seek['user'] && this.username !== seek['target']);
     }
     public tooltip(seek: Seek, variant: Variant) {

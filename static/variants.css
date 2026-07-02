@@ -14,3 +14,98 @@ div.guide ol, div.guide ul {
     padding: 1.2rem;
     margin: 0;
 }
+
+.community-variants-page {
+    max-width: 920px;
+}
+
+.community-variants-search {
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: minmax(14rem, 1fr) minmax(10rem, 14rem) minmax(9rem, 12rem) auto;
+    align-items: end;
+    margin: 1rem 0;
+}
+
+.community-variants-search label {
+    display: grid;
+    gap: 0.25rem;
+    font-weight: bold;
+}
+
+.community-variants-search input,
+.community-variants-search select {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.45rem;
+}
+
+.community-variants-count {
+    opacity: 0.85;
+}
+
+.community-variants-list {
+    display: grid;
+    gap: 0.85rem;
+    margin: 1rem 0;
+}
+
+.community-variant-card {
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--bg-box, #f7f6f3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.community-variant-card header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+
+.community-variant-card h2 {
+    margin: 0;
+}
+
+.community-variant-card p {
+    margin: 0.6rem 0 0;
+}
+
+.community-variant-card dl {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 0.75rem 0 0;
+}
+
+.community-variant-card dl div {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.community-variant-card dt {
+    font-weight: bold;
+}
+
+.community-variant-card dd {
+    margin: 0;
+}
+
+.community-variant-actions,
+.community-variants-pages {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.community-variants-pages {
+    margin: 1rem 0;
+}
+
+@media (max-width: 799px) {
+    .community-variants-search {
+        grid-template-columns: 1fr;
+    }
+}

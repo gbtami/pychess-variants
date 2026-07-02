@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,6 +13,7 @@ import aiohttp_session
 from aiohttp import web
 from pymongo.errors import DuplicateKeyError
 
+from compress import MAX_COMPRESSED_BOARD_WIDTH
 from const import ANON_PREFIX
 from fairy.fairy_board import sf
 from json_utils import json_response
@@ -31,6 +33,13 @@ log = logging.getLogger(__name__)
 CATALOGUED_VARIANT_COLLECTION = "catalogued_variant"
 CATALOGUED_CATEGORY = "other"
 CATALOGUED_ICON = "◇"
+CATALOGUED_VISIBILITY_PRIVATE = "private"
+CATALOGUED_VISIBILITY_UNLISTED = "unlisted"
+CATALOGUED_VISIBILITY_PUBLIC = "public"
+CATALOGUED_VISIBILITIES = frozenset(
+    {CATALOGUED_VISIBILITY_PRIVATE, CATALOGUED_VISIBILITY_UNLISTED, CATALOGUED_VISIBILITY_PUBLIC}
+)
+CATALOGUED_COMMUNITY_PAGE_SIZE = 20
 
 MAX_CATALOGUED_INI_BYTES = 64 * 1024
 MAX_DESCRIPTION_LEN = 1000
@@ -72,6 +81,7 @@ class CataloguedVariantDocument(TypedDict):
     promotionRoles: list[str]
     icon: str
     category: str
+    visibility: str
     createdAt: datetime
     updatedAt: datetime
 
@@ -96,6 +106,7 @@ class CataloguedVariantClientDocument(TypedDict):
     enabled: NotRequired[bool]
     gameCount: NotRequired[int]
     locked: NotRequired[bool]
+    visibility: NotRequired[str]
 
 
 def _is_admin_username(username: str) -> bool:
@@ -105,6 +116,76 @@ def _is_admin_username(username: str) -> bool:
 
 def _is_active_catalogued_doc(doc: Mapping[str, Any]) -> bool:
     return bool(doc.get("enabled", True)) and not bool(doc.get("archived", False))
+
+
+def _catalogued_visibility(doc: Mapping[str, Any]) -> str:
+    visibility = str(doc.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE).strip().lower()
+    return visibility if visibility in CATALOGUED_VISIBILITIES else CATALOGUED_VISIBILITY_PRIVATE
+
+
+def _clean_visibility(visibility: str | None) -> str:
+    cleaned = str(visibility or CATALOGUED_VISIBILITY_PRIVATE).strip().lower()
+    if cleaned not in CATALOGUED_VISIBILITIES:
+        raise web.HTTPBadRequest(text="Variant visibility must be private, unlisted, or public.")
+    return cleaned
+
+
+def _can_preload_catalogued_doc(username: str | None, doc: Mapping[str, Any]) -> bool:
+    if not _is_active_catalogued_doc(doc):
+        return False
+    if _catalogued_visibility(doc) == CATALOGUED_VISIBILITY_PUBLIC:
+        return True
+    if not username:
+        return False
+    return doc.get("author") == username or _is_admin_username(username)
+
+
+def _can_open_catalogued_doc(username: str | None, doc: Mapping[str, Any]) -> bool:
+    if not _is_active_catalogued_doc(doc):
+        return False
+    if _catalogued_visibility(doc) in {
+        CATALOGUED_VISIBILITY_PUBLIC,
+        CATALOGUED_VISIBILITY_UNLISTED,
+    }:
+        return True
+    if not username:
+        return False
+    return doc.get("author") == username or _is_admin_username(username)
+
+
+def _catalogued_public_query() -> dict[str, Any]:
+    return {
+        "enabled": {"$ne": False},
+        "archived": {"$ne": True},
+        "visibility": CATALOGUED_VISIBILITY_PUBLIC,
+    }
+
+
+def _catalogued_grand_from_dimensions(width: int, height: int) -> bool:
+    """Return whether moves need 10-rank zero-based compression.
+
+    Pychess stores moves with a compact one-byte-per-square codec. Normal
+    variants use two-character UCI squares (for example e4). Ten-rank variants
+    need the Grand/Xiangqi normalization step so rank 10 becomes rank 9 before
+    compression. Boards taller than 10 ranks cannot be represented by the
+    current saved-game move codec.
+    """
+
+    if width > MAX_COMPRESSED_BOARD_WIDTH:
+        raise web.HTTPBadRequest(
+            text=(
+                "This board is too wide for the current saved-game move codec. "
+                f"User-defined variants can have at most {MAX_COMPRESSED_BOARD_WIDTH} files."
+            )
+        )
+    if height > 10:
+        raise web.HTTPBadRequest(
+            text=(
+                "This board is too tall for the current saved-game move codec. "
+                "User-defined variants can have at most 10 ranks."
+            )
+        )
+    return height == 10
 
 
 def _is_valid_variant_name(name: str) -> bool:
@@ -490,6 +571,7 @@ def validate_catalogued_ini(
         )
 
     width, height = board_dimensions_from_fen(start_fen)
+    _catalogued_grand_from_dimensions(width, height)
     pieces = piece_letters_from_fen(start_fen)
     king_roles = catalogued_king_roles(ini, pieces)
     pocket_roles = catalogued_pocket_roles(ini, start_fen, pieces)
@@ -544,6 +626,7 @@ def _client_doc(
         "icon": str(doc.get("icon") or CATALOGUED_ICON),
         "category": CATALOGUED_CATEGORY,
         "author": str(doc.get("author") or ""),
+        "visibility": _catalogued_visibility(doc),
         "archived": bool(doc.get("archived", False)),
         "enabled": bool(doc.get("enabled", True)),
     }
@@ -553,15 +636,36 @@ def _client_doc(
     return client_doc
 
 
-async def find_catalogued_variant_doc(app_state: Any, name: str) -> Mapping[str, Any] | None:
+async def find_catalogued_variant_doc(
+    app_state: Any,
+    name: str,
+    username: str | None = None,
+) -> Mapping[str, Any] | None:
     docs = getattr(app_state, "catalogued_variants", {})
-    if name in docs:
-        return docs[name]
-
-    if app_state.db is None:
+    doc = docs.get(name)
+    if doc is None and app_state.db is not None:
+        doc = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": name})
+    if doc is None or not _can_open_catalogued_doc(username, doc):
         return None
+    return doc
 
-    return await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": name})
+
+def catalogued_variant_client_doc_for_name(
+    app_state: Any,
+    name: str,
+    username: str | None = None,
+) -> CataloguedVariantClientDocument | None:
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None or not _can_open_catalogued_doc(username, doc):
+        return None
+    return _client_doc(doc)
+
+
+def can_create_catalogued_seek(app_state: Any, name: str, username: str | None) -> bool:
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None:
+        return False
+    return _can_open_catalogued_doc(username, doc)
 
 
 def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
@@ -596,17 +700,21 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
         ),
         "enabled": bool(doc.get("enabled", True)),
         "archived": bool(doc.get("archived", False)),
+        "visibility": _catalogued_visibility(doc),
     }
 
 
-def catalogued_variants_for_client(app_state: Any) -> list[CataloguedVariantClientDocument]:
+def catalogued_variants_for_client(
+    app_state: Any,
+    username: str | None = None,
+) -> list[CataloguedVariantClientDocument]:
     docs = getattr(app_state, "catalogued_variants", {})
     return [
         _client_doc(doc)
         for doc in sorted(
             docs.values(), key=lambda item: str(item.get("displayName", item["name"])).casefold()
         )
-        if _is_active_catalogued_doc(doc)
+        if _can_preload_catalogued_doc(username, doc)
     ]
 
 
@@ -625,10 +733,16 @@ def register_catalogued_variant_doc(
     if load_config:
         sf.load_variant_config(str(doc["ini"]))
 
+    width = int(doc.get("width") or 0)
+    height = int(doc.get("height") or 0)
+    if not width or not height:
+        width, height = board_dimensions_from_fen(str(doc["startFen"]))
+
     register_catalogued_server_variant(
         name,
         str(doc.get("displayName") or name),
         str(doc.get("icon") or CATALOGUED_ICON),
+        grand=_catalogued_grand_from_dimensions(width, height),
     )
     app_state.catalogued_variants[name] = dict(doc)
 
@@ -675,6 +789,7 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
             "promotionRoles": promotion_roles,
             "icon": CATALOGUED_ICON,
             "category": CATALOGUED_CATEGORY,
+            "visibility": CATALOGUED_VISIBILITY_PRIVATE,
             "createdAt": now,
             "updatedAt": now,
         },
@@ -693,6 +808,7 @@ async def init_catalogued_variants(app_state: Any, db_collections: list[str]) ->
     await collection.create_index("enabled")
     await collection.create_index("archived")
     await collection.create_index("author")
+    await collection.create_index("visibility")
     await collection.create_index("createdAt")
 
     cursor = collection.find({"enabled": {"$ne": False}, "archived": {"$ne": True}})
@@ -705,7 +821,22 @@ async def init_catalogued_variants(app_state: Any, db_collections: list[str]) ->
 
 async def get_catalogued_variants(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
-    return json_response({"variants": catalogued_variants_for_client(app_state)})
+    username = await _optional_human_username(request)
+    return json_response({"variants": catalogued_variants_for_client(app_state, username)})
+
+
+async def _optional_human_username(request: web.Request) -> str | None:
+    app_state = get_app_state(request.app)
+    session = await aiohttp_session.get_session(request)
+    username = session.get("user_name")
+    if not username or str(username).startswith(ANON_PREFIX):
+        return None
+
+    user = await app_state.users.get(username)
+    if user.anon or user.bot:
+        return None
+
+    return str(username)
 
 
 async def _current_human_username(request: web.Request) -> str:
@@ -738,7 +869,100 @@ async def _has_games(app_state: Any, name: str) -> bool:
     return await app_state.db.game.find_one({"v": name}, projection={"_id": 1}) is not None
 
 
-async def _read_upload_payload(request: web.Request) -> tuple[str, str, str]:
+def _search_regex(text: str) -> re.Pattern[str]:
+    # Escape user text before handing it to MongoDB as a regex. This keeps the
+    # community search simple while avoiding user-controlled regex execution.
+    return re.compile(re.escape(text), re.IGNORECASE)
+
+
+async def community_catalogued_variants_page(
+    app_state: Any,
+    *,
+    q: str = "",
+    author: str = "",
+    sort: str = "updated",
+    page: int = 1,
+) -> dict[str, Any]:
+    q = q.strip()[:80]
+    author = author.strip()[:40]
+    page = max(1, page)
+
+    if app_state.db is None:
+        return {
+            "variants": [],
+            "q": q,
+            "author": author,
+            "sort": sort,
+            "page": 1,
+            "pages": 1,
+            "total": 0,
+            "prev_page": None,
+            "next_page": None,
+        }
+
+    query = _catalogued_public_query()
+    if q:
+        regex = _search_regex(q)
+        query["$or"] = [
+            {"name": {"$regex": regex}},
+            {"displayName": {"$regex": regex}},
+            {"description": {"$regex": regex}},
+            {"author": {"$regex": regex}},
+        ]
+    if author:
+        query["author"] = author
+
+    if sort == "name":
+        sort_spec = [("displayName", 1), ("name", 1)]
+    elif sort == "newest":
+        sort_spec = [("createdAt", -1), ("name", 1)]
+    else:
+        sort = "updated"
+        sort_spec = [("updatedAt", -1), ("name", 1)]
+
+    total = await app_state.db[CATALOGUED_VARIANT_COLLECTION].count_documents(query)
+    pages = max(1, (total + CATALOGUED_COMMUNITY_PAGE_SIZE - 1) // CATALOGUED_COMMUNITY_PAGE_SIZE)
+    page = min(page, pages)
+    skip = (page - 1) * CATALOGUED_COMMUNITY_PAGE_SIZE
+
+    variants: list[dict[str, Any]] = []
+    cursor = (
+        app_state.db[CATALOGUED_VARIANT_COLLECTION]
+        .find(query)
+        .sort(sort_spec)
+        .skip(skip)
+        .limit(CATALOGUED_COMMUNITY_PAGE_SIZE)
+    )
+    async for doc in cursor:
+        name = str(doc.get("name") or doc.get("_id") or "")
+        count = await _game_count(app_state, name) if name else 0
+        variants.append(
+            {
+                "name": name,
+                "displayName": str(doc.get("displayName") or name),
+                "description": str(doc.get("description") or ""),
+                "author": str(doc.get("author") or ""),
+                "width": int(doc.get("width") or 0),
+                "height": int(doc.get("height") or 0),
+                "gameCount": count,
+                "updatedAt": doc.get("updatedAt"),
+            }
+        )
+
+    return {
+        "variants": variants,
+        "q": q,
+        "author": author,
+        "sort": sort,
+        "page": page,
+        "pages": pages,
+        "total": total,
+        "prev_page": page - 1 if page > 1 else None,
+        "next_page": page + 1 if page < pages else None,
+    }
+
+
+async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str]:
     content_type = request.content_type or ""
 
     if content_type == "application/json":
@@ -748,11 +972,12 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str]:
         ini = str(data.get("ini") or "")
         display_name = str(data.get("displayName") or data.get("display_name") or "")
         description = str(data.get("description") or "")
-        return ini, display_name, description
+        visibility = _clean_visibility(str(data.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE))
+        return ini, display_name, description, visibility
 
     if content_type.startswith("text/"):
         ini = await read_text_data(request)
-        return ini or "", "", ""
+        return ini or "", "", "", CATALOGUED_VISIBILITY_PRIVATE
 
     data = await read_post_data(request)
     if data is None:
@@ -767,7 +992,8 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str]:
 
     display_name = str(data.get("displayName") or data.get("display_name") or "")
     description = str(data.get("description") or "")
-    return ini, display_name, description
+    visibility = _clean_visibility(str(data.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE))
+    return ini, display_name, description, visibility
 
 
 async def check_catalogued_variant_rules(request: web.Request) -> web.Response:
@@ -813,6 +1039,7 @@ def _build_doc(
     capture_to_hand: bool,
     promotion_roles: list[str],
     created_at: datetime,
+    visibility: str = CATALOGUED_VISIBILITY_PRIVATE,
     archived: bool = False,
 ) -> CataloguedVariantDocument:
     return {
@@ -834,6 +1061,7 @@ def _build_doc(
         "promotionRoles": promotion_roles,
         "icon": CATALOGUED_ICON,
         "category": CATALOGUED_CATEGORY,
+        "visibility": _clean_visibility(visibility),
         "createdAt": created_at,
         "updatedAt": datetime.now(timezone.utc),
     }
@@ -842,7 +1070,7 @@ def _build_doc(
 async def upload_catalogued_variant(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _current_human_username(request)
-    ini, display_name, description = await _read_upload_payload(request)
+    ini, display_name, description, visibility = await _read_upload_payload(request)
     ini = ini.strip()
     if not ini:
         raise web.HTTPBadRequest(text="Missing INI content.")
@@ -881,6 +1109,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
         capture_to_hand=capture_to_hand,
         promotion_roles=promotion_roles,
         created_at=now,
+        visibility=visibility,
     )
 
     try:
@@ -930,18 +1159,19 @@ async def _load_owned_doc(request: web.Request) -> tuple[Any, str, str, Mapping[
 
 async def update_catalogued_variant(request: web.Request) -> web.Response:
     app_state, username, old_name, existing = await _load_owned_doc(request)
-    if await _has_games(app_state, old_name):
-        raise web.HTTPConflict(
-            text="This variant already has games. Its rules are locked; clone it to make a changed version."
-        )
 
-    ini, display_name, description = await _read_upload_payload(request)
+    ini, display_name, description, visibility = await _read_upload_payload(request)
     ini = ini.strip()
     if not ini:
         raise web.HTTPBadRequest(text="Missing INI content.")
 
     new_name = extract_variant_name(ini)
     rules_changed = ini != str(existing.get("ini") or "")
+    if (rules_changed or new_name != old_name) and await _has_games(app_state, old_name):
+        raise web.HTTPConflict(
+            text="This variant already has games. Its rules are locked; clone it to make a changed version."
+        )
+
     if rules_changed and new_name == old_name:
         raise web.HTTPConflict(
             text=(
@@ -997,6 +1227,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         capture_to_hand=capture_to_hand,
         promotion_roles=promotion_roles,
         created_at=existing.get("createdAt", datetime.now(timezone.utc)),
+        visibility=visibility,
         archived=bool(existing.get("archived", False)),
     )
 

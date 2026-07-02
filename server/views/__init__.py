@@ -175,7 +175,9 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         "theme": user.theme,
         "game_category": user.game_category,
         "game_category_intro": (not user.anon) and (not getattr(user, "game_category_set", False)),
-        "catalogued_variants": json_dumps(catalogued_variants_for_client(app_state)),
+        "catalogued_variants": json_dumps(
+            catalogued_variants_for_client(app_state, user.username if not user.anon else None)
+        ),
         "pm_friends_only": user.pm_friends_only,
         "corr_push_enabled": user.corr_push_enabled,
         "menu_variant": menu_variant,

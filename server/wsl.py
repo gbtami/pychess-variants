@@ -100,6 +100,7 @@ import logging
 import logger
 
 from variants import get_server_variant, is_catalogued_variant
+from catalogued_variants import can_create_catalogued_seek
 
 log = logging.getLogger(__name__)
 
@@ -114,6 +115,22 @@ async def _reject_bot_lobby_action(ws: WebSocketResponse, user: User) -> bool:
     if not user.bot:
         return False
     await ws_send_json(ws, {"type": "error", "message": BOT_LOBBY_ACTION_MESSAGE})
+    return True
+
+
+async def _reject_inaccessible_catalogued_variant(
+    app_state: PychessGlobalAppState,
+    ws: WebSocketResponse,
+    user: User,
+    variant: str,
+) -> bool:
+    if not is_catalogued_variant(variant):
+        return False
+    if can_create_catalogued_seek(app_state, variant, None if user.anon else user.username):
+        return False
+    await ws_send_json(
+        ws, {"type": "error", "message": "This user-defined variant is not available."}
+    )
     return True
 
 
@@ -327,6 +344,9 @@ async def handle_create_seek(
     if no:
         return
 
+    if await _reject_inaccessible_catalogued_variant(app_state, ws, user, data["variant"]):
+        return
+
     log.debug("Creating seek from request: %s", data)
     seek_data: SeekCreateData = data
     if is_catalogued_variant(seek_data["variant"]):
@@ -390,6 +410,9 @@ async def handle_create_invite(
 
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
+        return
+
+    if await _reject_inaccessible_catalogued_variant(app_state, ws, user, data["variant"]):
         return
 
     log.debug("Creating seek invite from request: %s", data)

@@ -1,3 +1,5 @@
+import json
+
 import aiohttp_jinja2
 from aiohttp import web
 import aiohttp_session
@@ -9,7 +11,8 @@ from pychess_global_app_state_utils import get_app_state
 from tournament_director import is_tournament_director
 from typing_defs import ViewContext
 from utils import corr_games, get_blogs
-from variants import ALL_VARIANTS
+from variants import ALL_VARIANTS, is_catalogued_variant
+from catalogued_variants import catalogued_variant_client_doc_for_name
 
 
 @aiohttp_jinja2.template("index.html")
@@ -36,6 +39,20 @@ async def lobby(request: web.Request) -> ViewContext:
         variant = "chess"
 
     fen = request.rel_url.query.get("fen")
+    selected_variant = request.rel_url.query.get("variant")
+    if selected_variant is not None and selected_variant in ALL_VARIANTS:
+        catalogued_doc = None
+        if is_catalogued_variant(selected_variant):
+            catalogued_doc = catalogued_variant_client_doc_for_name(
+                app_state, selected_variant, user.username if not user.anon else None
+            )
+            if catalogued_doc is not None:
+                catalogued_variants = json.loads(str(context.get("catalogued_variants") or "[]"))
+                if not any(item.get("name") == selected_variant for item in catalogued_variants):
+                    catalogued_variants.append(catalogued_doc)
+                    context["catalogued_variants"] = json_dumps(catalogued_variants)
+        if catalogued_doc is not None or not is_catalogued_variant(selected_variant):
+            context["variant"] = selected_variant
 
     if fen is not None:
         context["variant"] = variant

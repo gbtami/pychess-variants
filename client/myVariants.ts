@@ -13,12 +13,15 @@ import {
     VARIANTS,
 } from './variants';
 
+type VariantVisibility = 'private' | 'unlisted' | 'public';
+
 type ManagedVariant = CataloguedVariantClientDocument & {
     author?: string;
     archived?: boolean;
     enabled?: boolean;
     gameCount?: number;
     locked?: boolean;
+    visibility?: VariantVisibility;
 };
 
 type State = {
@@ -30,6 +33,7 @@ type State = {
     formMessage: string;
     draftDisplayName: string;
     draftDescription: string;
+    draftVisibility: VariantVisibility;
     draftIni: string;
 };
 
@@ -42,6 +46,7 @@ const state: State = {
     formMessage: '',
     draftDisplayName: '',
     draftDescription: '',
+    draftVisibility: 'private',
     draftIni: '',
 };
 
@@ -72,10 +77,11 @@ async function loadMine(model: PyChessModel): Promise<void> {
     rerender(model);
 }
 
-function readForm(): { displayName: string; description: string; ini: string } {
+function readForm(): { displayName: string; description: string; visibility: VariantVisibility; ini: string } {
     return {
         displayName: (document.getElementById('catalogued-display-name') as HTMLInputElement | null)?.value ?? state.draftDisplayName,
         description: (document.getElementById('catalogued-description') as HTMLInputElement | null)?.value ?? state.draftDescription,
+        visibility: ((document.getElementById('catalogued-visibility') as HTMLSelectElement | null)?.value as VariantVisibility | undefined) ?? state.draftVisibility,
         ini: (document.getElementById('catalogued-ini') as HTMLTextAreaElement | null)?.value ?? state.draftIni,
     };
 }
@@ -83,6 +89,7 @@ function readForm(): { displayName: string; description: string; ini: string } {
 function clearDraft(): void {
     state.draftDisplayName = '';
     state.draftDescription = '';
+    state.draftVisibility = 'private';
     state.draftIni = '';
     state.formMessage = '';
 }
@@ -90,6 +97,7 @@ function clearDraft(): void {
 function setDraftFromVariant(variant: ManagedVariant): void {
     state.draftDisplayName = variant.displayName ?? '';
     state.draftDescription = variant.tooltip === 'Catalogued variant' ? '' : variant.tooltip ?? '';
+    state.draftVisibility = variant.visibility ?? 'private';
     state.draftIni = variant.ini ?? '';
 }
 
@@ -151,6 +159,11 @@ async function checkRulesOnServer(ini: string, currentName?: string | null): Pro
     if (!response.ok) throw new Error(await responseError(response));
 }
 
+function currentRulesChanged(ini: string): boolean {
+    if (!state.editing) return true;
+    return ini.trim() !== (state.editing.ini ?? '').trim();
+}
+
 async function validateCurrentForm(model: PyChessModel): Promise<void> {
     const body = readForm();
     if (!body.ini.trim()) {
@@ -162,6 +175,10 @@ async function validateCurrentForm(model: PyChessModel): Promise<void> {
     try {
         const name = validateBasicIni(body.ini.trim(), currentName);
         state.saving = true;
+        if (!currentRulesChanged(body.ini)) {
+            state.formMessage = _('The rules are unchanged; metadata and visibility can still be saved.');
+            return;
+        }
         state.formMessage = `${_('Checking rules for')} ${name}...`;
         rerender(model);
         await checkRulesStrictly(body.ini.trim());
@@ -191,13 +208,16 @@ async function saveVariant(model: PyChessModel): Promise<void> {
         return;
     }
 
+    const rulesChanged = currentRulesChanged(body.ini);
     state.saving = true;
-    state.formMessage = `${_('Checking rules for')} ${extractVariantName(body.ini.trim())}...`;
+    state.formMessage = rulesChanged
+        ? `${_('Checking rules for')} ${extractVariantName(body.ini.trim())}...`
+        : _('Saving metadata and visibility...');
     rerender(model);
 
     const url = editingName ? `/api/catalogued-variants/${encodeURIComponent(editingName)}` : '/api/catalogued-variants';
     try {
-        await checkRulesStrictly(body.ini.trim());
+        if (rulesChanged) await checkRulesStrictly(body.ini.trim());
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -266,6 +286,25 @@ function cancelEdit(model: PyChessModel): void {
     rerender(model);
 }
 
+function visibilityLabel(visibility: VariantVisibility | undefined): string {
+    switch (visibility) {
+    case 'public': return _('Public');
+    case 'unlisted': return _('Unlisted');
+    default: return _('Private');
+    }
+}
+
+function visibilityHelp(visibility: VariantVisibility): string {
+    switch (visibility) {
+    case 'public':
+        return _('Public variants appear on the Community variants page and can be found by search.');
+    case 'unlisted':
+        return _('Unlisted variants stay out of search but can be opened by direct link.');
+    default:
+        return _('Private variants are visible only to you and site admins.');
+    }
+}
+
 function renderForm(model: PyChessModel): VNode {
     const editing = state.editing;
     return h('section.catalogued-card.catalogued-form', [
@@ -273,6 +312,7 @@ function renderForm(model: PyChessModel): VNode {
             h('h2', editing ? _('Edit variant') : _('Upload new variant')),
             h('p', _('Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first played game.')),
             h('p.catalogued-help', _('If you change the rules of an unused variant, also change the INI section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.')),
+            editing?.locked ? h('p.catalogued-help', _('This variant already has games. Only metadata and visibility can be changed; clone it to change the rules.')) : null,
         ]),
         h('form', {
             on: {
@@ -317,13 +357,33 @@ function renderForm(model: PyChessModel): VNode {
                 }),
             ]),
             h('label', [
+                h('span', _('Visibility')),
+                h('select#catalogued-visibility', {
+                    props: {
+                        value: state.draftVisibility,
+                        disabled: state.saving,
+                    },
+                    on: {
+                        change: (event: Event) => {
+                            state.draftVisibility = (event.target as HTMLSelectElement).value as VariantVisibility;
+                            state.formMessage = visibilityHelp(state.draftVisibility);
+                        },
+                    },
+                }, [
+                    h('option', { props: { value: 'private', selected: state.draftVisibility === 'private' } }, _('Private')),
+                    h('option', { props: { value: 'unlisted', selected: state.draftVisibility === 'unlisted' } }, _('Unlisted')),
+                    h('option', { props: { value: 'public', selected: state.draftVisibility === 'public' } }, _('Public')),
+                ]),
+                h('span.catalogued-help', visibilityHelp(state.draftVisibility)),
+            ]),
+            h('label', [
                 h('span', _('Variant definition')),
                 h('textarea#catalogued-ini', {
                     props: {
                         value: state.draftIni,
                         placeholder: '[myvariant:chess]\nvariantTemplate = chess\n',
                         spellcheck: false,
-                        disabled: state.saving,
+                        disabled: state.saving || !!state.editing?.locked,
                     },
                     on: {
                         input: (event: Event) => {
@@ -368,6 +428,7 @@ function renderRows(model: PyChessModel): VNode {
             h('thead', h('tr', [
                 h('th', _('Name')),
                 h('th', _('Status')),
+                h('th', _('Visibility')),
                 h('th', _('Games')),
                 h('th', _('Actions')),
             ])),
@@ -382,6 +443,7 @@ function renderRows(model: PyChessModel): VNode {
                         variant.tooltip ? h('p', variant.tooltip) : null,
                     ]),
                     h('td', archived ? _('Archived') : locked ? _('Locked') : _('Editable')),
+                    h('td', visibilityLabel(variant.visibility)),
                     h('td', String(variant.gameCount ?? 0)),
                     h('td.catalogued-row-actions', [
                         h('button.button-primary.catalogued-row-button', {
@@ -389,7 +451,7 @@ function renderRows(model: PyChessModel): VNode {
                             on: { click: () => playVariant(model, variant) },
                         }, _('Play')),
                         h('button.catalogued-row-button.catalogued-secondary-action', {
-                            props: { type: 'button', disabled: locked || state.saving },
+                            props: { type: 'button', disabled: state.saving },
                             attrs: { title: lockTitle },
                             on: { click: () => editVariant(model, variant) },
                         }, _('Edit')),
@@ -430,6 +492,9 @@ function renderRoot(model: PyChessModel): VNode {
         h('header.catalogued-page-header', [
             h('h1', _('Manage my variants')),
             h('p', _('Uploaded variants stay out of the regular variant catalog. They are always casual/unrated, but can be played from this page against humans or Fairy-Stockfish.')),
+            h('p', [
+                h('a', { attrs: { href: `${model.home}/variants/community` } }, _('Browse community variants')),
+            ]),
         ]),
         model.anon === 'True'
             ? h('section.catalogued-card', [

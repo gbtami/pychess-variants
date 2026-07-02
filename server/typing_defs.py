@@ -421,6 +421,9 @@ class ViewContext(TypedDict, total=False):
     community_posts: list[object]
     community_topic: str
     community_topics: list[str]
+    community_variants: dict[str, object]
+    community_prev_href: str
+    community_next_href: str
     reports: list[object]
     report_status: str
     report_open_count: int

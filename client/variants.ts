@@ -1329,6 +1329,7 @@ export interface CataloguedVariantClientDocument {
     readonly enabled?: boolean;
     readonly gameCount?: number;
     readonly locked?: boolean;
+    readonly visibility?: 'private' | 'unlisted' | 'public';
 }
 
 const cataloguedVariantInis: Record<string, string> = {};

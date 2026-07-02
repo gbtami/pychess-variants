@@ -240,7 +240,11 @@ C2V: dict[str, str] = {variant.code: variant.uci_variant for variant in ServerVa
 
 
 def register_catalogued_server_variant(
-    name: str, display_name: str, icon: str = "◇"
+    name: str,
+    display_name: str,
+    icon: str = "◇",
+    *,
+    grand: bool = False,
 ) -> CataloguedServerVariant:
     """Register a casual uploaded variant in the runtime server variant maps.
 
@@ -255,11 +259,17 @@ def register_catalogued_server_variant(
         display_name=display_name.upper(),
         translated_name=display_name,
         icon=icon,
+        grand=grand,
     )
     CATALOGUED_VARIANTS[name] = variant
     ALL_VARIANTS[name] = variant
     VARIANT_ICONS[name] = icon
     C2V[name] = name
+    if grand:
+        if name not in GRANDS:
+            GRANDS.append(name)
+    elif name in GRANDS:
+        GRANDS.remove(name)
 
     return variant
 
@@ -276,6 +286,8 @@ def unregister_catalogued_server_variant(name: str) -> None:
     ALL_VARIANTS.pop(name, None)
     VARIANT_ICONS.pop(name, None)
     C2V.pop(name, None)
+    if name in GRANDS:
+        GRANDS.remove(name)
 
 
 def is_catalogued_variant(name: str | None) -> bool:
@@ -286,7 +298,7 @@ def is_catalogued_variant_code(code: str | None) -> bool:
     return bool(code) and code in CATALOGUED_VARIANTS
 
 
-GRANDS: tuple[str, ...] = tuple(variant.server_name for variant in ServerVariants if variant.grand)
+GRANDS: list[str] = [variant.server_name for variant in ServerVariants if variant.grand]
 
 BYOS: tuple[str, ...] = tuple(variant.server_name for variant in ServerVariants if variant.byo)
 

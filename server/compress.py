@@ -2,6 +2,8 @@ from __future__ import annotations
 from itertools import product
 from string import ascii_uppercase
 
+MAX_COMPRESSED_BOARD_WIDTH = 19
+
 """
 We use the simplest compression method for moves here: 2 byte square to 1 byte ascii.
 For better result consider compressing moves using indexes in valid move lists.
@@ -63,6 +65,15 @@ m2c_len = len(M2C) + 34
 for letter in ascii_uppercase:
     if "%s@" % letter not in M2C:
         M2C["%s@" % letter] = m2c_len
+        m2c_len += 1
+
+# Keep the historical a0-j9 and drop encodings stable, then append extra
+# board files for wider user-defined variants. 10-rank boards are normalized
+# through grand2zero(), so ranks 0..9 are enough for both 9-rank and 10-rank
+# variants. With the current one-byte codec this leaves room for files k..s.
+for file_ in "klmnopqrs":
+    for rank in "0123456789":
+        M2C[f"{file_}{rank}"] = m2c_len
         m2c_len += 1
 
 # for x in M2C:
