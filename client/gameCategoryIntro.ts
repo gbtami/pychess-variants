@@ -6,6 +6,7 @@ import { getDocumentData, patch } from './document';
 let dialogVNode: VNode | null = null;
 
 function shouldShowIntro(): boolean {
+    if (getDocumentData('view') === 'my-variants') return false;
     return getDocumentData('game-category-intro') === 'True';
 }
 

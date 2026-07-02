@@ -12,9 +12,51 @@
         <a class="icon {{ groups[key] }}" data-icon="{{ icons[key] }}" href="{{ home }}/variants/{{ key }}">{{ variant_display_name(key) }}</a>
     </li>
     {% endfor %}
+    {% if catalogued_variant_links %}
+    <li class="catalogued-guide-heading">Catalogued variants</li>
+    {% for item in catalogued_variant_links %}
+    <li>
+        <a class="icon other" data-icon="{{ item.icon }}" href="{{ home }}/variants/{{ item.name }}">{{ item.displayName }}</a>
+    </li>
+    {% endfor %}
+    {% endif %}
     </ul>
 </aside>
-<div class="guide">{% include variant %}<div>
+<div class="guide">
+{% if catalogued_variant %}
+<article class="catalogued-variant-rules">
+    <h1>{{ catalogued_variant.displayName }}</h1>
+    {% if catalogued_variant.description %}
+    <p>{{ catalogued_variant.description }}</p>
+    {% endif %}
+    <p>
+        This is a user-catalogued casual variant. The rules below are the Fairy-Stockfish
+        <code>variants.ini</code> definition stored by pychess.org.
+    </p>
+    <table>
+        <tbody>
+            <tr><th>Variant key</th><td><code>{{ catalogued_variant.name }}</code></td></tr>
+            {% if catalogued_variant.author %}<tr><th>Uploaded by</th><td>{{ catalogued_variant.author }}</td></tr>{% endif %}
+            <tr><th>Board size</th><td>{{ catalogued_variant.width }} × {{ catalogued_variant.height }}</td></tr>
+            <tr><th>Start FEN</th><td><code>{{ catalogued_variant.startFen }}</code></td></tr>
+            <tr><th>Pieces</th><td>{{ catalogued_variant.pieces }}</td></tr>
+            {% if catalogued_variant.pocketRoles %}<tr><th>Pocket roles</th><td>{{ catalogued_variant.pocketRoles }}</td></tr>{% endif %}
+            {% if catalogued_variant.promotionRoles %}<tr><th>Promotion roles</th><td>{{ catalogued_variant.promotionRoles }}</td></tr>{% endif %}
+            <tr><th>Captures to hand</th><td>{{ "yes" if catalogued_variant.captureToHand else "no" }}</td></tr>
+            <tr><th>Status</th><td>{{ "archived" if catalogued_variant.archived else "active" }}</td></tr>
+        </tbody>
+    </table>
+    <p>
+        <a class="button" href="{{ home }}/?any">Open lobby</a>
+        <a class="button" href="{{ home }}/analysis/{{ catalogued_variant.name }}">Analysis board</a>
+    </p>
+    <h2>Fairy-Stockfish rules</h2>
+    <pre class="catalogued-variant-ini"><code>{{ catalogued_variant.ini }}</code></pre>
+</article>
+{% else %}
+{% include variant %}
+{% endif %}
+<div>
 </main>
 </div>
 {% endblock %}

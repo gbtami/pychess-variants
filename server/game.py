@@ -49,7 +49,13 @@ from typing_defs import (
     GameStep,
     TvGameJson,
 )
-from variants import get_server_variant, GRANDS, ServerVariants
+from variants import (
+    CataloguedServerVariant,
+    get_server_variant,
+    GRANDS,
+    ServerVariants,
+    is_catalogued_variant,
+)
 
 log = logging.getLogger(__name__)
 
@@ -146,6 +152,17 @@ class Game:
         self.wplayer: User = wplayer
         self.bplayer: User = bplayer
 
+        catalogued_casual = is_catalogued_variant(variant)
+        if catalogued_casual:
+            # Uploaded variants are casual-only and are not first-class
+            # tournament/rating variants, but they can still be played against
+            # Fairy-Stockfish and as correspondence games.
+            rated = CASUAL
+            chess960 = False
+            tournamentId = None
+            tournamentArrangementId = None
+            simulId = None
+
         self.bot_game: bool = self.bplayer.bot or self.wplayer.bot
 
         self.all_players: list[User] = [self.wplayer, self.bplayer]
@@ -168,7 +185,9 @@ class Game:
         self.new_960_fen_needed_for_rematch: bool = new_960_fen_needed_for_rematch
         self.imported_by: str = ""
 
-        self.server_variant: ServerVariants = get_server_variant(variant, chess960)
+        self.server_variant: ServerVariants | CataloguedServerVariant = get_server_variant(
+            variant, chess960
+        )
         self.encode_method: Callable[[str], str] = self.server_variant.move_encoding
 
         self.berserk_time: int | float = self.base * 1000 * 30
@@ -179,12 +198,17 @@ class Game:
             self.bplayer.username,
         )
 
-        # rating info
-        white_rating = wplayer.get_rating(variant, chess960)
-        self.wrating: str = "%s%s" % white_rating.rating_prov
+        # rating info. Catalogued casual games have no ratings/leaderboards at
+        # all, so avoid creating transient perfs entries for their dynamic names.
+        if catalogued_casual:
+            self.wrating = "1500?"
+            self.brating = "1500?"
+        else:
+            white_rating = wplayer.get_rating(variant, chess960)
+            self.wrating = "%s%s" % white_rating.rating_prov
+            black_rating = bplayer.get_rating(variant, chess960)
+            self.brating = "%s%s" % black_rating.rating_prov
         self.wrdiff: int | str = 0
-        black_rating = bplayer.get_rating(variant, chess960)
-        self.brating: str = "%s%s" % black_rating.rating_prov
         self.brdiff: int | str = 0
 
         # crosstable info (this have to be updated after game creation from db !)

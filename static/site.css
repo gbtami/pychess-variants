@@ -4253,3 +4253,26 @@ div button.login-btn {
     min-width: 160px;
   }
 }
+
+.catalogued-guide-heading {
+    margin-top: 1rem;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.catalogued-variant-rules table {
+    margin: 1rem 0;
+}
+
+.catalogued-variant-rules th {
+    text-align: left;
+    padding-right: 1rem;
+    white-space: nowrap;
+}
+
+.catalogued-variant-ini {
+    max-width: 100%;
+    overflow: auto;
+    padding: 1rem;
+    border-radius: 4px;
+}

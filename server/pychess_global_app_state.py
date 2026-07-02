@@ -143,6 +143,7 @@ class PychessGlobalAppState:
             self.public_users = PublicUsers(self)
             self.disable_new_anons = False
             self.lobby = Lobby(self)
+            self.catalogued_variants: dict[str, dict[str, Any]] = {}
             self.chat_flood = ChatFlood()
             # one dict per tournament! {tournamentId: {user.username: user.tournament_sockets, ...}, ...}
             self.tourneysockets: dict[str, dict[str, set[WebSocketResponse | None]]] = {}
@@ -269,6 +270,11 @@ class PychessGlobalAppState:
                 await self.db.tournament.create_index("status")
                 await self.db.tournament_player.create_index("tid")
                 await self.db.tournament_pairing.create_index("tid")
+
+            with startup.phase("load catalogued casual variants"):
+                from catalogued_variants import init_catalogued_variants
+
+                await init_catalogued_variants(self, db_collections)
 
             with startup.phase("restore tournaments"):
                 cursor = self.db.tournament.find(

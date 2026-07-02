@@ -304,6 +304,7 @@ class FishnetWork(TypedDict):
     username: NotRequired[str]
     nodes: NotRequired[int]
     skipPositions: NotRequired[list[int]]
+    variantsSha256: NotRequired[str]
     abort_count: NotRequired[int]
     engine_crash_count: NotRequired[int]
     last_abort_reason: NotRequired[str]
@@ -397,6 +398,7 @@ class ViewContext(TypedDict, total=False):
     theme: str
     game_category: str
     game_category_intro: bool
+    catalogued_variants: str
     pm_friends_only: bool
     corr_push_enabled: bool
     menu_variant: str

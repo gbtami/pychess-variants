@@ -4,6 +4,7 @@ import { FairyStockfish } from 'ffish-es6';
 
 import { _ } from './i18n';
 import { variantsIni } from './variantsIni';
+import { allVariantsIni } from './variants';
 import { VARIANTS } from './variants';
 import { alertDialog } from './alertDialog';
 import { parseKif, resultString } from '../client/kif';
@@ -75,7 +76,7 @@ export function pasteView(model: PyChessModel): VNode[] {
         }
 
         if (ffish !== null) {
-            ffish.loadVariantConfig(variantsIni);
+            ffish.loadVariantConfig(allVariantsIni(variantsIni));
             const XHR = new XMLHttpRequest();
             const FD  = new FormData();
             const ffishErrorStart = IMPORT_FFISH_ERROR_BUFFER.length;

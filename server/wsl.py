@@ -99,12 +99,15 @@ from websocket_utils import get_user, process_ws, ws_send_json, ws_send_json_man
 import logging
 import logger
 
-from variants import get_server_variant
+from variants import get_server_variant, is_catalogued_variant
 
 log = logging.getLogger(__name__)
 
 UNSUPPORTED_FSF_AI_VARIANTS = ("alice", "fogofwar", "jieqi")
 BOT_LOBBY_ACTION_MESSAGE = "BOT accounts cannot create or join lobby games."
+CATALOGUED_CASUAL_ONLY_MESSAGE = (
+    "Catalogued variants are casual-only and not available for auto-pairing."
+)
 
 
 async def _reject_bot_lobby_action(ws: WebSocketResponse, user: User) -> bool:
@@ -116,7 +119,7 @@ async def _reject_bot_lobby_action(ws: WebSocketResponse, user: User) -> bool:
 
 def get_create_seek_error_message(user: User, data: SeekCreateData) -> str:
     day = data.get("day", 0)
-    chess960 = data.get("chess960")
+    chess960 = False if is_catalogued_variant(data["variant"]) else data.get("chess960")
     if is_anon_restricted_seek(user, data["variant"], chess960, day):
         return ANON_RESTRICTED_SEEK_MESSAGE
     if user_reached_seek_limit(user, day):
@@ -326,6 +329,10 @@ async def handle_create_seek(
 
     log.debug("Creating seek from request: %s", data)
     seek_data: SeekCreateData = data
+    if is_catalogued_variant(seek_data["variant"]):
+        seek_data = dict(seek_data)  # type: ignore[assignment]
+        seek_data["rated"] = False
+        seek_data["chess960"] = False
     block_message = await direct_challenge_block_message(app_state, user, seek_data.get("target"))
     if block_message is not None:
         await ws_send_json(ws, {"type": "error", "message": block_message})
@@ -343,7 +350,7 @@ async def handle_create_seek(
 
     matching_user = None
     # auto pairing games are never corr and always rated, so anon seek will never match!
-    if seek_value.day == 0 and not user.anon:
+    if seek_value.day == 0 and not user.anon and not is_catalogued_variant(seek_value.variant):
         variant_tc = (
             seek_value.variant,
             seek_value.chess960,
@@ -387,6 +394,10 @@ async def handle_create_invite(
 
     log.debug("Creating seek invite from request: %s", data)
     seek_data: SeekCreateData = data
+    if is_catalogued_variant(seek_data["variant"]):
+        seek_data = dict(seek_data)  # type: ignore[assignment]
+        seek_data["rated"] = False
+        seek_data["chess960"] = False
     seek = await create_seek(app_state.db, app_state.invites, app_state.seeks, user, seek_data)
     if seek is None:
         await ws_send_json(
@@ -804,6 +815,10 @@ async def handle_create_auto_pairing(
 
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
+        return
+
+    if is_catalogued_variant(data["variant"]):
+        await ws_send_json(ws, {"type": "error", "message": CATALOGUED_CASUAL_ONLY_MESSAGE})
         return
 
     auto_variant_tc, matching_user, matching_seek = add_to_auto_pairings(app_state, user, data)

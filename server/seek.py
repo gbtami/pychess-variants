@@ -7,7 +7,7 @@ from json_utils import json_dumps
 from misc import time_control_str
 from newid import new_id
 import logging
-from variants import get_server_variant
+from variants import get_server_variant, is_catalogued_variant
 
 log = logging.getLogger(__name__)
 
@@ -172,6 +172,11 @@ class Seek:
         self.variant: str = variant
         self.color: str = color
         self.fen: str = "" if fen is None else fen
+        if is_catalogued_variant(variant):
+            rated = False
+            chess960 = False
+            tournament_id = None
+            rr_arrangement_id = None
         self.rated: bool | int | None = rated
         self.rating: int = creator.get_rating_value(variant, chess960)
         self.rrmin: int = rrmin if (rrmin is not None and rrmin != -1000) else -10000
@@ -539,6 +544,12 @@ async def create_seek(
     Currently there is no limit for them since they're used for tournament organisation purposes
     They can only be created by trusted users
     """
+    if is_catalogued_variant(data["variant"]):
+        data = dict(data)  # type: ignore[assignment]
+        data["rated"] = False
+        data["chess960"] = False
+        data["tournamentId"] = None  # type: ignore[typeddict-item]
+        data["rrArrangementId"] = None  # type: ignore[typeddict-item]
     day = data.get("day", 0)
     chess960: bool | None = data.get("chess960")
     if is_anon_restricted_seek(user, data["variant"], chess960, day):

@@ -2,9 +2,10 @@ from __future__ import annotations
 from datetime import timedelta
 from enum import global_enum, IntEnum, StrEnum
 import re
+from typing import TypeAlias
 
 from settings import static_url
-from variants import VARIANTS, get_server_variant
+from variants import CataloguedServerVariant, ServerVariants, VARIANTS, get_server_variant
 
 POCKET_PATTERN = re.compile("\\[(.*)\\]")
 
@@ -309,8 +310,10 @@ for categ in CATEGORIES:
 GAME_CATEGORY_ALL = "all"
 GAME_CATEGORIES = (GAME_CATEGORY_ALL, *CATEGORIES.keys())
 
-CATEGORY_VARIANTS = {
-    GAME_CATEGORY_ALL: VARIANTS,
+CategoryVariantMap: TypeAlias = dict[str, ServerVariants | CataloguedServerVariant]
+
+CATEGORY_VARIANTS: dict[str, CategoryVariantMap] = {
+    GAME_CATEGORY_ALL: dict(VARIANTS),
 }
 CATEGORY_VARIANT_GROUPS = {
     GAME_CATEGORY_ALL: VARIANT_GROUPS,
@@ -326,7 +329,7 @@ CATEGORY_VARIANT_CODES = {
 }
 
 for category in CATEGORIES:
-    variants = {v: VARIANTS[v] for v in CATEGORIES[category] if v in VARIANTS}
+    variants: CategoryVariantMap = {v: VARIANTS[v] for v in CATEGORIES[category] if v in VARIANTS}
     CATEGORY_VARIANTS[category] = variants
     CATEGORY_VARIANT_GROUPS[category] = {v: category for v in variants}
     CATEGORY_VARIANT_LISTS[category] = tuple(variants.keys())

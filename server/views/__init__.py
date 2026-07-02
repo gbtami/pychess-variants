@@ -24,6 +24,7 @@ import logging
 from user import User
 from typing_defs import UserDocument, ViewContext
 from variants import ALL_VARIANTS
+from catalogued_variants import catalogued_variants_for_client
 from settings import SIMULING, ADMINS
 
 if TYPE_CHECKING:
@@ -139,7 +140,10 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
     gettext = app_state.translations[lang].gettext
 
     def variant_display_name(variant: str) -> str:
-        return gettext(ALL_VARIANTS[variant].translated_name)
+        server_variant = ALL_VARIANTS.get(variant)
+        if server_variant is None:
+            return variant
+        return gettext(server_variant.translated_name)
 
     if user.game_category == GAME_CATEGORY_ALL:
         menu_variant = "chess"
@@ -171,6 +175,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         "theme": user.theme,
         "game_category": user.game_category,
         "game_category_intro": (not user.anon) and (not getattr(user, "game_category_set", False)),
+        "catalogued_variants": json_dumps(catalogued_variants_for_client(app_state)),
         "pm_friends_only": user.pm_friends_only,
         "corr_push_enabled": user.corr_push_enabled,
         "menu_variant": menu_variant,
