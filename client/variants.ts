@@ -76,7 +76,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     xiangfu: { pieceCSS: ["eventintl", "eventhanzi", "eventhanziguided", "disguised"] },
     borderlands: { pieceCSS: ["borderlands", "disguised"] },
     yokai: { pieceCSS: ["yokai", "disguised"] },
-    letter: { pieceCSS: ["letters", "disguised"] },
+    letter: { pieceCSS: ["disguised"] },
 };
 
 export interface Variant {
@@ -1331,6 +1331,7 @@ export interface CataloguedVariantClientDocument {
     readonly locked?: boolean;
     readonly visibility?: 'private' | 'unlisted' | 'public';
     readonly hasPieceSet?: boolean;
+    readonly pieceSetRevision?: string;
 }
 
 const cataloguedVariantInis: Record<string, string> = {};
@@ -1371,9 +1372,11 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
     const promotionRoles = (meta.promotionRoles ?? []) as cg.Letter[];
     const boardFamily = ensureCataloguedBoardFamily(meta.width, meta.height);
     const cataloguedPieceFamily = `catalogued-${meta.name}`;
-    const pieceFamily = meta.hasPieceSet ? cataloguedPieceFamily : 'letter';
-    if (meta.hasPieceSet) PIECE_FAMILIES[cataloguedPieceFamily] = { pieceCSS: ['custom'] };
-    else delete PIECE_FAMILIES[cataloguedPieceFamily];
+    const pieceFamily = cataloguedPieceFamily;
+    const customPieceCss = meta.pieceSetRevision ? `custom-${meta.pieceSetRevision}` : 'custom';
+    PIECE_FAMILIES[cataloguedPieceFamily] = {
+        pieceCSS: meta.hasPieceSet ? [customPieceCss, 'disguised'] : ['disguised'],
+    };
     VARIANTS[meta.name] = variant({
         name: meta.name,
         displayName: meta.displayName || meta.name,

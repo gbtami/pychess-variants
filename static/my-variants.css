@@ -213,3 +213,43 @@
 .catalogued-file-action input[type="file"] {
     display: none;
 }
+
+.catalogued-piece-preview {
+    margin-top: 0.35rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color, #d8d8d8);
+    border-radius: 0.4rem;
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.catalogued-piece-preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+}
+
+.catalogued-piece-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+    gap: 0.45rem;
+}
+
+.catalogued-piece-preview-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.catalogued-piece-preview-cell piece {
+    display: block;
+    width: 3rem;
+    height: 3rem;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}

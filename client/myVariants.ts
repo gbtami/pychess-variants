@@ -1,7 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import { alertDialog } from './alertDialog';
-import { patch } from './document';
+import { ensurePieceCSS, patch } from './document';
 import { checkRulesWithFsfWasm } from './fairyStockfish';
 import { _ } from './i18n';
 import { PyChessModel } from './types';
@@ -23,6 +23,7 @@ type ManagedVariant = CataloguedVariantClientDocument & {
     locked?: boolean;
     visibility?: VariantVisibility;
     hasPieceSet?: boolean;
+    pieceSetRevision?: string;
 };
 
 type State = {
@@ -37,6 +38,7 @@ type State = {
     draftDescription: string;
     draftVisibility: VariantVisibility;
     draftIni: string;
+    piecePreviewVariant: string;
 };
 
 const state: State = {
@@ -51,6 +53,7 @@ const state: State = {
     draftDescription: '',
     draftVisibility: 'private',
     draftIni: '',
+    piecePreviewVariant: '',
 };
 
 let rootVNode: VNode | Element | null = null;
@@ -65,7 +68,7 @@ async function responseError(response: Response): Promise<string> {
     return text || `${_('Request failed')} (${response.status})`;
 }
 
-async function loadMine(model: PyChessModel): Promise<void> {
+async function loadMine(model: PyChessModel, options: { clearMessage?: boolean } = {}): Promise<void> {
     try {
         const response = await fetch('/api/catalogued-variants/mine');
         if (!response.ok) throw new Error(await responseError(response));
@@ -73,7 +76,7 @@ async function loadMine(model: PyChessModel): Promise<void> {
         state.variants = payload.variants || [];
         state.maxVariants = payload.maxVariants ?? null;
         state.loaded = true;
-        state.message = '';
+        if (options.clearMessage !== false) state.message = '';
     } catch (err) {
         state.loaded = true;
         state.message = err instanceof Error ? err.message : _('Failed to load variants');
@@ -261,7 +264,7 @@ async function postAction(model: PyChessModel, variant: ManagedVariant, action: 
         if (payload.archived) unregisterCataloguedVariant(payload.archived);
         registerFromPayload(payload);
         state.message = _('Done.');
-        await loadMine(model);
+        await loadMine(model, { clearMessage: false });
     } catch (err) {
         state.message = err instanceof Error ? err.message : _('Action failed');
     } finally {
@@ -270,6 +273,14 @@ async function postAction(model: PyChessModel, variant: ManagedVariant, action: 
     }
 }
 
+
+function cataloguedCustomPieceCss(variant: ManagedVariant): string {
+    return variant.pieceSetRevision ? `custom-${variant.pieceSetRevision}` : 'custom';
+}
+
+function ensureCataloguedCustomPieceCSS(model: PyChessModel, variant: ManagedVariant): void {
+    ensurePieceCSS(model.assetURL, `catalogued-${variant.name}`, cataloguedCustomPieceCss(variant));
+}
 
 function expectedPieceSetFiles(variant: ManagedVariant): string[] {
     const pieces = [...new Set((variant.pieces?.length ? variant.pieces : ['k']).map(piece => piece.toLowerCase()))].sort();
@@ -303,8 +314,12 @@ async function uploadPieceSet(model: PyChessModel, variant: ManagedVariant, file
         if (!response.ok) throw new Error(await responseError(response));
         const payload = await response.json() as { variant?: ManagedVariant };
         registerFromPayload(payload);
+        if (payload.variant?.hasPieceSet) {
+            ensureCataloguedCustomPieceCSS(model, payload.variant);
+            state.piecePreviewVariant = payload.variant.name;
+        }
         state.message = _('Custom piece set uploaded.');
-        await loadMine(model);
+        await loadMine(model, { clearMessage: false });
     } catch (err) {
         state.message = err instanceof Error ? err.message : _('Failed to upload piece set');
     } finally {
@@ -322,8 +337,9 @@ async function deletePieceSet(model: PyChessModel, variant: ManagedVariant): Pro
         if (!response.ok) throw new Error(await responseError(response));
         const payload = await response.json() as { variant?: ManagedVariant };
         registerFromPayload(payload);
+        if (state.piecePreviewVariant === variant.name) state.piecePreviewVariant = '';
         state.message = _('Custom piece set deleted.');
-        await loadMine(model);
+        await loadMine(model, { clearMessage: false });
     } catch (err) {
         state.message = err instanceof Error ? err.message : _('Failed to delete piece set');
     } finally {
@@ -486,6 +502,36 @@ function renderForm(model: PyChessModel): VNode {
 }
 
 
+function pieceSetPreviewRoleClass(filename: string): string {
+    const promoted = filename[1] === '+';
+    const letter = filename[promoted ? 2 : 1]?.toLowerCase() || 'k';
+    return promoted ? `p${letter}-piece` : `${letter}-piece`;
+}
+
+function pieceSetPreviewColorClass(filename: string): 'white' | 'black' {
+    return filename[0] === 'b' ? 'black' : 'white';
+}
+
+function renderPieceSetPreview(model: PyChessModel, variant: ManagedVariant): VNode | null {
+    if (!variant.hasPieceSet || state.piecePreviewVariant !== variant.name) return null;
+    ensureCataloguedCustomPieceCSS(model, variant);
+    const styleClass = `piece-style-catalogued-${variant.name}-custom`;
+    return h('div.catalogued-piece-preview', [
+        h('div.catalogued-piece-preview-head', [
+            h('strong', _('Piece set preview')),
+            h('button.catalogued-row-button.catalogued-secondary-action', {
+                props: { type: 'button' },
+                on: { click: () => { state.piecePreviewVariant = ''; rerender(model); } },
+            }, _('Close')),
+        ]),
+        h('div.catalogued-piece-preview-grid', { class: { [styleClass]: true } },
+            expectedPieceSetFiles(variant).map(filename => h('div.catalogued-piece-preview-cell', [
+                h('piece', { class: { [pieceSetPreviewRoleClass(filename)]: true, [pieceSetPreviewColorClass(filename)]: true } }),
+                h('span', filename),
+            ]))),
+    ]);
+}
+
 function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): VNode {
     const expected = expectedPieceSetFiles(variant);
     return h('div.catalogued-piece-set-controls', [
@@ -512,8 +558,22 @@ function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): V
         ]),
         variant.hasPieceSet ? h('button.catalogued-row-button.catalogued-secondary-action', {
             props: { type: 'button', disabled: state.saving },
+            on: {
+                click: () => {
+                    if (state.piecePreviewVariant === variant.name) state.piecePreviewVariant = '';
+                    else {
+                        ensureCataloguedCustomPieceCSS(model, variant);
+                        state.piecePreviewVariant = variant.name;
+                    }
+                    rerender(model);
+                },
+            },
+        }, state.piecePreviewVariant === variant.name ? _('Hide preview') : _('Preview')) : null,
+        variant.hasPieceSet ? h('button.catalogued-row-button.catalogued-secondary-action', {
+            props: { type: 'button', disabled: state.saving },
             on: { click: () => void deletePieceSet(model, variant) },
         }, _('Delete set')) : null,
+        renderPieceSetPreview(model, variant),
     ]);
 }
 

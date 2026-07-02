@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, NamedTuple, NotRequired, TypedDict
+from urllib.parse import unquote
 
 import aiohttp_session
 from aiohttp import web
@@ -121,6 +122,7 @@ class CataloguedVariantClientDocument(TypedDict):
     locked: NotRequired[bool]
     visibility: NotRequired[str]
     hasPieceSet: NotRequired[bool]
+    pieceSetRevision: NotRequired[str]
 
 
 def _is_admin_username(username: str) -> bool:
@@ -452,8 +454,9 @@ def catalogued_promotion_roles(ini: str, pieces: list[str]) -> list[str]:
     return []
 
 
-
 PIECE_SET_FILENAME_RE = re.compile(r"^([wb])(\+?)([A-Za-z])\.svg$")
+XML_DECL_RE = re.compile(r"^\ufeff?\s*<\?xml\s+[^?]*\?>", re.IGNORECASE)
+XML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 SAFE_SVG_TAGS = frozenset(
     {
         "svg",
@@ -508,6 +511,25 @@ SAFE_SVG_ATTRS = frozenset(
         "role",
     }
 )
+SAFE_SVG_STYLE_ATTRS = frozenset(
+    {
+        "fill",
+        "stroke",
+        "stroke-width",
+        "stroke-linecap",
+        "stroke-linejoin",
+        "stroke-miterlimit",
+        "stroke-dasharray",
+        "stroke-dashoffset",
+        "fill-rule",
+        "clip-rule",
+        "opacity",
+        "fill-opacity",
+        "stroke-opacity",
+        "transform",
+        "transform-origin",
+    }
+)
 SAFE_SVG_VALUE_RE = re.compile(r"^[#%,.0-9A-Za-z_() +\-/:]*$")
 
 
@@ -517,7 +539,47 @@ def _local_xml_name(name: str) -> str:
     return name
 
 
+def _svg_value_is_unsafe(value: str) -> bool:
+    lowered = value.casefold()
+    return "url(" in lowered or "javascript:" in lowered or "data:" in lowered
+
+
+def _parse_safe_svg_style(style: str, filename: str) -> dict[str, str]:
+    parsed: dict[str, str] = {}
+    for chunk in style.split(";"):
+        declaration = chunk.strip()
+        if not declaration:
+            continue
+        name, separator, value = declaration.partition(":")
+        if not separator:
+            raise web.HTTPBadRequest(text=f"{filename} contains malformed SVG style declarations.")
+        prop = name.strip().casefold()
+        cleaned_value = value.strip()
+        if _svg_value_is_unsafe(cleaned_value):
+            raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
+        if not SAFE_SVG_VALUE_RE.fullmatch(cleaned_value):
+            raise web.HTTPBadRequest(text=f"{filename} contains unsupported SVG attribute values.")
+        if prop in SAFE_SVG_STYLE_ATTRS:
+            parsed[prop] = cleaned_value
+    return parsed
+
+
+def _prune_unsupported_svg_children(element: ET.Element) -> None:
+    for child in list(element):
+        if not isinstance(child.tag, str):
+            element.remove(child)
+            continue
+        tag = _local_xml_name(child.tag)
+        if tag not in SAFE_SVG_TAGS:
+            element.remove(child)
+            continue
+        child.tag = tag
+        _prune_unsupported_svg_children(child)
+
+
 def _canonical_piece_set_filename(filename: str) -> str | None:
+    filename = filename.rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
+    filename = unquote(filename)
     filename = filename.rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
     match = PIECE_SET_FILENAME_RE.fullmatch(filename)
     if match is None:
@@ -544,6 +606,34 @@ def _catalogued_piece_set_required_filenames_text(doc: Mapping[str, Any]) -> str
     return ", ".join(_catalogued_piece_set_required_filenames(doc))
 
 
+def _catalogued_piece_set_storage_key(filename_or_key: str) -> str:
+    # MongoDB field names with dots are awkward and can fail on older server /
+    # driver combinations. Store wP.svg as wP and w+P.svg as w+P, but accept
+    # the old dotted keys when reading in case any test data was already saved.
+    key = filename_or_key
+    if key.endswith(".svg"):
+        key = key[:-4]
+    return key
+
+
+def _catalogued_piece_set_required_keys(doc: Mapping[str, Any]) -> set[str]:
+    return {
+        _catalogued_piece_set_storage_key(filename)
+        for filename in _catalogued_piece_set_required_filenames(doc)
+    }
+
+
+def _catalogued_piece_set_public_filename(key: str) -> str:
+    return key if key.endswith(".svg") else f"{key}.svg"
+
+
+def _piece_set_revision(doc: Mapping[str, Any]) -> str:
+    updated_at = doc.get("pieceSetUpdatedAt")
+    if isinstance(updated_at, datetime):
+        return str(int(updated_at.timestamp()))
+    return re.sub(r"\W+", "", str(updated_at or "0")) or "0"
+
+
 def _sanitize_catalogued_piece_svg(raw: bytes, filename: str) -> str:
     if not raw:
         raise web.HTTPBadRequest(text=f"{filename} is empty.")
@@ -556,10 +646,14 @@ def _sanitize_catalogued_piece_svg(raw: bytes, filename: str) -> str:
         )
 
     text = raw.decode("utf-8", errors="strict").strip()
+    xml_decl = XML_DECL_RE.match(text)
+    if xml_decl is not None:
+        text = text[xml_decl.end() :].lstrip()
+    text = XML_COMMENT_RE.sub("", text)
     lowered = text.casefold()
     if "<!" in text or "<?" in text:
         raise web.HTTPBadRequest(
-            text=f"{filename} contains unsupported XML declarations or doctypes."
+            text=f"{filename} contains unsupported doctypes or processing instructions."
         )
     if any(token in lowered for token in ("<script", "foreignobject", "javascript:", "data:")):
         raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG content.")
@@ -572,51 +666,57 @@ def _sanitize_catalogued_piece_svg(raw: bytes, filename: str) -> str:
     if _local_xml_name(root.tag) != "svg":
         raise web.HTTPBadRequest(text=f"{filename} must contain one <svg> root element.")
 
+    root.tag = "svg"
+    _prune_unsupported_svg_children(root)
+
     for element in root.iter():
         if not isinstance(element.tag, str):
             raise web.HTTPBadRequest(text=f"{filename} contains unsupported SVG nodes.")
-        tag = _local_xml_name(element.tag)
-        element.tag = tag
-        if tag not in SAFE_SVG_TAGS:
-            raise web.HTTPBadRequest(text=f"{filename} contains unsupported <{tag}> SVG elements.")
+        if element.tag not in SAFE_SVG_TAGS:
+            raise web.HTTPBadRequest(
+                text=f"{filename} contains unsupported <{element.tag}> SVG elements."
+            )
 
-        for attr in list(element.attrib):
+        clean_attrs: dict[str, str] = {}
+        for attr, raw_value in list(element.attrib.items()):
             local_attr = _local_xml_name(attr)
-            value = element.attrib[attr].strip()
-            lowered_value = value.casefold()
+            value = raw_value.strip()
+            if local_attr == "style":
+                clean_attrs.update(_parse_safe_svg_style(value, filename))
+                continue
             if local_attr.startswith("on"):
-                raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG event attributes.")
-            if local_attr in {"href", "src", "style", "class", "id"}:
-                raise web.HTTPBadRequest(text=f"{filename} contains unsupported SVG attributes.")
+                continue
+            if local_attr in {"href", "src", "class", "id"}:
+                continue
             if local_attr not in SAFE_SVG_ATTRS:
-                raise web.HTTPBadRequest(
-                    text=f"{filename} contains unsupported SVG attribute {local_attr}."
-                )
-            if (
-                "url(" in lowered_value
-                or "javascript:" in lowered_value
-                or "data:" in lowered_value
-            ):
+                continue
+            if _svg_value_is_unsafe(value):
                 raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
             if not SAFE_SVG_VALUE_RE.fullmatch(value):
                 raise web.HTTPBadRequest(
                     text=f"{filename} contains unsupported SVG attribute values."
                 )
+            clean_attrs[local_attr] = value
 
-            if attr != local_attr:
-                element.attrib[local_attr] = element.attrib.pop(attr)
+        element.attrib.clear()
+        element.attrib.update(clean_attrs)
 
     root.attrib["xmlns"] = "http://www.w3.org/2000/svg"
     return ET.tostring(root, encoding="unicode", short_empty_elements=True)
 
 
 def _catalogued_piece_css_selector(variant_name: str, key: str) -> str:
-    # key format is wP.svg, bP.svg, w+P.svg, b+P.svg.
+    # key format is wP, bP, w+P, b+P. Accept *.svg legacy keys too.
+    key = _catalogued_piece_set_storage_key(key)
     color = "white" if key[0] == "w" else "black"
     promoted = key[1] == "+"
     letter = key[2 if promoted else 1].lower()
     role_class = f"p{letter}-piece" if promoted else f"{letter}-piece"
-    return f".piece-style-catalogued-{variant_name}-custom piece.{role_class}.{color}"
+    style_class = f".piece-style-catalogued-{variant_name}-custom"
+    return (
+        f"{style_class} piece.{role_class}.{color}, "
+        f"label.piece.catalogued-custom-preview{style_class}.{role_class}.{color}"
+    )
 
 
 def _catalogued_piece_set_css(variant_name: str, piece_set: Mapping[str, Any]) -> str:
@@ -629,17 +729,46 @@ def _catalogued_piece_set_css(variant_name: str, piece_set: Mapping[str, Any]) -
         data = base64.b64encode(svg.encode("utf-8")).decode("ascii")
         lines.append(
             f"{_catalogued_piece_css_selector(variant_name, key)} "
-            "{background-position:center;background-size:contain;background-image:"
-            f"url(\"data:image/svg+xml;base64,{data}\");}}"
+            "{background-position:center;background-size:contain;background-repeat:no-repeat;background-image:"
+            f'url("data:image/svg+xml;base64,{data}");}}'
         )
     return "\n".join(lines) + "\n"
+
+
+def _catalogued_disguised_piece_css(variant_name: str) -> str:
+    style_class = f".piece-style-catalogued-{variant_name}-disguised"
+    preview_class = f"label.piece.catalogued-disguised-preview{style_class}.white"
+    white_svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">'
+        '<circle cx="256" cy="256" r="170" fill="#fff" stroke="#000" stroke-width="20"/>'
+        "</svg>"
+    )
+    black_svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">'
+        '<circle cx="256" cy="256" r="170" fill="#000" stroke="#000" stroke-width="20"/>'
+        "</svg>"
+    )
+    white_data = base64.b64encode(white_svg.encode("utf-8")).decode("ascii")
+    black_data = base64.b64encode(black_svg.encode("utf-8")).decode("ascii")
+    return (
+        "\n".join(
+            (
+                f'{style_class} piece.white, {preview_class} {{background-image:url("data:image/svg+xml;base64,{white_data}");background-position:center;background-size:contain;background-repeat:no-repeat;}}',
+                f'{style_class} piece.black {{background-image:url("data:image/svg+xml;base64,{black_data}");background-position:center;background-size:contain;background-repeat:no-repeat;}}',
+            )
+        )
+        + "\n"
+    )
 
 
 def _has_complete_piece_set(doc: Mapping[str, Any]) -> bool:
     piece_set = doc.get("pieceSet")
     if not isinstance(piece_set, Mapping):
         return False
-    return set(piece_set) == set(_catalogued_piece_set_required_filenames(doc))
+    return {
+        _catalogued_piece_set_storage_key(str(key)) for key in piece_set
+    } == _catalogued_piece_set_required_keys(doc)
+
 
 def catalogued_king_roles(ini: str, pieces: list[str]) -> list[str]:
     extinction_value = _ini_option(ini, "extinctionValue")
@@ -866,6 +995,8 @@ def _client_doc(
         "archived": bool(doc.get("archived", False)),
         "enabled": bool(doc.get("enabled", True)),
     }
+    if client_doc["hasPieceSet"]:
+        client_doc["pieceSetRevision"] = _piece_set_revision(doc)
     if game_count is not None:
         client_doc["gameCount"] = game_count
         client_doc["locked"] = game_count > 0
@@ -1378,7 +1509,6 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
     return json_response({"ok": True, "variant": _client_doc(doc, game_count=0)})
 
 
-
 async def upload_catalogued_piece_set(request: web.Request) -> web.Response:
     app_state, _username, name, doc = await _load_owned_doc(request)
     if app_state.db is None:
@@ -1398,7 +1528,7 @@ async def upload_catalogued_piece_set(request: web.Request) -> web.Response:
     if not uploads:
         raise web.HTTPBadRequest(text="Upload one SVG file for every required piece.")
 
-    required = set(_catalogued_piece_set_required_filenames(doc))
+    required = _catalogued_piece_set_required_keys(doc)
     if not required:
         raise web.HTTPBadRequest(text="This variant has no renderable piece roles.")
 
@@ -1413,9 +1543,10 @@ async def upload_catalogued_piece_set(request: web.Request) -> web.Response:
             raise web.HTTPBadRequest(
                 text="Piece SVG filenames must look like wP.svg, bP.svg, w+P.svg, or b+P.svg."
             )
-        if canonical in piece_set:
+        key = _catalogued_piece_set_storage_key(canonical)
+        if key in piece_set:
             raise web.HTTPBadRequest(text=f"Duplicate piece SVG: {canonical}.")
-        if canonical not in required:
+        if key not in required:
             raise web.HTTPBadRequest(text=f"Unexpected piece SVG: {canonical}.")
         if not hasattr(upload, "file"):
             raise web.HTTPBadRequest(text=f"{canonical} is not a file upload.")
@@ -1431,12 +1562,16 @@ async def upload_catalogued_piece_set(request: web.Request) -> web.Response:
                 )
             )
         svg = _sanitize_catalogued_piece_svg(raw, canonical)
-        piece_set[canonical] = {"svg": svg, "size": len(svg.encode("utf-8"))}
+        piece_set[key] = {"svg": svg, "size": len(svg.encode("utf-8"))}
 
     uploaded = set(piece_set)
     if uploaded != required:
-        missing = ", ".join(sorted(required - uploaded))
-        extra = ", ".join(sorted(uploaded - required))
+        missing = ", ".join(
+            _catalogued_piece_set_public_filename(key) for key in sorted(required - uploaded)
+        )
+        extra = ", ".join(
+            _catalogued_piece_set_public_filename(key) for key in sorted(uploaded - required)
+        )
         details = []
         if missing:
             details.append(f"missing: {missing}")
@@ -1447,14 +1582,16 @@ async def upload_catalogued_piece_set(request: web.Request) -> web.Response:
         )
 
     now = datetime.now(timezone.utc)
-    await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
+    result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
         {"_id": name},
         {"$set": {"pieceSet": piece_set, "pieceSetUpdatedAt": now, "updatedAt": now}},
     )
-    updated = dict(doc)
-    updated["pieceSet"] = piece_set
-    updated["pieceSetUpdatedAt"] = now
-    updated["updatedAt"] = now
+    if result.matched_count != 1:
+        raise web.HTTPNotFound(text="Catalogued variant not found.")
+
+    updated = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": name})
+    if updated is None:
+        raise web.HTTPNotFound(text="Catalogued variant not found after update.")
     app_state.catalogued_variants[name] = updated
     count = await _game_count(app_state, name)
     return json_response({"ok": True, "variant": _client_doc(updated, game_count=count)})
@@ -1466,14 +1603,16 @@ async def delete_catalogued_piece_set(request: web.Request) -> web.Response:
         raise web.HTTPServiceUnavailable(text="Database is unavailable.")
 
     now = datetime.now(timezone.utc)
-    await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
+    result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
         {"_id": name},
         {"$unset": {"pieceSet": "", "pieceSetUpdatedAt": ""}, "$set": {"updatedAt": now}},
     )
-    updated = dict(doc)
-    updated.pop("pieceSet", None)
-    updated.pop("pieceSetUpdatedAt", None)
-    updated["updatedAt"] = now
+    if result.matched_count != 1:
+        raise web.HTTPNotFound(text="Catalogued variant not found.")
+
+    updated = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": name})
+    if updated is None:
+        raise web.HTTPNotFound(text="Catalogued variant not found after update.")
     app_state.catalogued_variants[name] = updated
     count = await _game_count(app_state, name)
     return json_response({"ok": True, "variant": _client_doc(updated, game_count=count)})
@@ -1493,6 +1632,21 @@ async def get_catalogued_piece_css(request: web.Request) -> web.Response:
 
     return web.Response(
         text=_catalogued_piece_set_css(str(doc["name"]), piece_set),
+        content_type="text/css",
+        headers={"Cache-Control": "private, max-age=300"},
+    )
+
+
+async def get_catalogued_disguised_piece_css(request: web.Request) -> web.Response:
+    app_state = get_app_state(request.app)
+    username = await _optional_human_username(request)
+    name = request.match_info["name"]
+    doc = await find_catalogued_variant_doc(app_state, name, username)
+    if doc is None:
+        raise web.HTTPNotFound(text="Catalogued variant not found.")
+
+    return web.Response(
+        text=_catalogued_disguised_piece_css(str(doc["name"])),
         content_type="text/css",
         headers={"Cache-Control": "private, max-age=300"},
     )

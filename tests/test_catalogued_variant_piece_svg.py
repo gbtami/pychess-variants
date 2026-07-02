@@ -1,0 +1,86 @@
+import unittest
+
+from aiohttp import web
+
+import test_logger
+from catalogued_variants import (
+    _canonical_piece_set_filename,
+    _catalogued_disguised_piece_css,
+    _sanitize_catalogued_piece_svg,
+)
+
+test_logger.init_test_logger()
+
+
+class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
+    def test_canonical_filename_accepts_percent_encoded_plus(self) -> None:
+        self.assertEqual("w+O.svg", _canonical_piece_set_filename("w%2BO.svg"))
+        self.assertEqual("b+O.svg", _canonical_piece_set_filename("b%2bO.svg"))
+
+    def test_accepts_leading_xml_declaration(self) -> None:
+        svg = b"""<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45">
+  <path d="M 1 1 L 10 10" fill="#000"/>
+</svg>
+"""
+
+        sanitized = _sanitize_catalogued_piece_svg(svg, "wP.svg")
+
+        self.assertNotIn("<?xml", sanitized)
+        self.assertIn("<svg", sanitized)
+        self.assertIn('xmlns="http://www.w3.org/2000/svg"', sanitized)
+
+    def test_strips_comments_metadata_and_unsafe_attrs_but_keeps_safe_style(self) -> None:
+        svg = b"""<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+  <!-- editor note -->
+  <metadata><foo /></metadata>
+  <g inkscape:label="Layer 1" style="display:inline">
+    <path class="piece" id="p1" style="fill:#000;stroke:#fff;stroke-width:2;display:inline" d="M 0 0 L 10 10" />
+  </g>
+</svg>
+"""
+
+        sanitized = _sanitize_catalogued_piece_svg(svg, "wP.svg")
+
+        self.assertNotIn("<!--", sanitized)
+        self.assertNotIn("metadata", sanitized)
+        self.assertNotIn("class=", sanitized)
+        self.assertNotIn("id=", sanitized)
+        self.assertNotIn("display:inline", sanitized)
+        self.assertIn('fill="#000"', sanitized)
+        self.assertIn('stroke="#fff"', sanitized)
+        self.assertIn('stroke-width="2"', sanitized)
+        self.assertIn('d="M 0 0 L 10 10"', sanitized)
+
+    def test_rejects_doctype(self) -> None:
+        svg = b"""<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45"></svg>
+"""
+
+        with self.assertRaises(web.HTTPBadRequest) as exc:
+            _sanitize_catalogued_piece_svg(svg, "wP.svg")
+
+        self.assertIn("unsupported doctypes or processing instructions", exc.exception.text)
+
+    def test_rejects_non_xml_processing_instruction(self) -> None:
+        svg = b"""<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="evil.css"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45"></svg>
+"""
+
+        with self.assertRaises(web.HTTPBadRequest) as exc:
+            _sanitize_catalogued_piece_svg(svg, "wP.svg")
+
+        self.assertIn("unsupported doctypes or processing instructions", exc.exception.text)
+
+    def test_catalogued_disguised_css_contains_board_and_preview_selectors(self) -> None:
+        css = _catalogued_disguised_piece_css("wildebeest")
+
+        self.assertIn(".piece-style-catalogued-wildebeest-disguised piece.white", css)
+        self.assertIn(".piece-style-catalogued-wildebeest-disguised piece.black", css)
+        self.assertIn(
+            "label.piece.catalogued-disguised-preview.piece-style-catalogued-wildebeest-disguised.white",
+            css,
+        )

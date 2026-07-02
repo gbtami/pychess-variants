@@ -49,7 +49,11 @@ function pieceCSSOptions(pieceFamily: keyof typeof PIECE_FAMILIES | string, vari
     const excluded = new Set(variant?.pieceCSSExclude ?? []);
     return PIECE_FAMILIES[pieceFamily].pieceCSS
         .map((css, idx) => ({ css, idx }))
-        .filter(({ css }) => !excluded.has(css));
+        .filter(({ css }) => css !== 'letters' && css !== 'invisible' && !excluded.has(css));
+}
+
+function isCataloguedPreviewStyle(pieceFamily: string, css: string): boolean {
+    return pieceFamily.startsWith('catalogued-') && (css.startsWith('custom') || css === 'disguised');
 }
 
 function selectedPieceCSS(pieceFamily: keyof typeof PIECE_FAMILIES | string, idx: number, variant?: Variant): string {
@@ -135,6 +139,30 @@ class BoardSettings {
             : settingsType === "PieceStyle"
                 ? pieceStyleSettingsName(family, variant)
                 : family + settingsType + boardName;
+        const existing = this.settings[fullName];
+        if (
+            existing
+            && settingsType === "BoardStyle"
+            && variant
+            && (
+                !(existing instanceof BoardStyleSettings)
+                || existing.boardFamily !== family
+                || existing.variant !== variant
+            )
+        ) {
+            delete this.settings[fullName];
+        }
+        if (
+            existing
+            && settingsType === "PieceStyle"
+            && (
+                !(existing instanceof PieceStyleSettings)
+                || existing.pieceFamily !== family
+                || existing.variant !== variant
+            )
+        ) {
+            delete this.settings[fullName];
+        }
         if (!this.settings[fullName]) {
             switch (settingsType) {
                 case "BoardStyle":
@@ -408,14 +436,30 @@ class PieceStyleSettings extends NumberSettings {
         const pieceCSS = pieceCSSOptions(this.pieceFamily, this.variant);
         const checkedPiece = (vpiece === 98 || vpiece === 99 || pieceCSS.some(({ idx }) => idx === vpiece))
             ? vpiece
-            : pieceCSS[0]?.idx;
+            : pieceCSS[0]?.idx ?? 99;
+        const previewRole = this.variant?.pieceRow.white[0] ?? this.variant?.kingRoles[0] ?? 'k-piece';
         for (const { idx } of pieceCSS) {
+            const css = selectedPieceCSS(this.pieceFamily, idx, this.variant);
+            const previewClass = css === 'letters' ? 'piece99' : css === 'invisible' ? 'piece98' : 'piece' + idx;
+            const isCataloguedPreview = !!this.variant && isCataloguedPreviewStyle(this.pieceFamily, css);
+            if (isCataloguedPreview) ensurePieceCSS(this.boardSettings.assetURL, this.pieceFamily, css);
             pieces.push(h('input#piece' + idx, {
                 on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
                 props: { type: "radio", name: "piece", value: idx },
                 attrs: { checked: checkedPiece === idx },
             }));
-            pieces.push(h('label.piece.piece' + idx + '.' + this.pieceFamily, { attrs: { for: "piece" + idx } }, ""));
+            pieces.push(h('label.piece.' + previewClass + '.' + this.pieceFamily, {
+                attrs: { for: "piece" + idx },
+                class: isCataloguedPreview
+                    ? {
+                        'catalogued-custom-preview': css.startsWith('custom'),
+                        'catalogued-disguised-preview': css === 'disguised',
+                        [pieceStyleClass(this.pieceFamily, css)]: true,
+                        [previewRole]: true,
+                        white: true,
+                    }
+                    : undefined,
+            }, ""));
         }
 
         // Add invisible piece
