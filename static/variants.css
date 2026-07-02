@@ -45,6 +45,12 @@ div.guide .catalogued-variant-rules h1 {
     align-items: flex-start;
     justify-content: space-between;
     flex-wrap: wrap;
+    /* Reset the global site header rule.  site.css styles every <header>
+       as the fixed-height top navigation bar, but this header is ordinary
+       page content and must grow with its children. */
+    height: auto;
+    max-width: none;
+    z-index: auto;
     padding: 1rem 1.2rem;
     margin-top: 1rem;
     border: 1px solid var(--border-color);
