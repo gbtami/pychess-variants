@@ -261,29 +261,6 @@ def register_catalogued_server_variant(
     VARIANT_ICONS[name] = icon
     C2V[name] = name
 
-    # Keep the Other server-side category in sync without adding uploaded
-    # variants to the regular all/rated/site-wide variant maps. Import lazily to
-    # avoid a variants -> const -> variants startup cycle.
-    try:
-        from const import (
-            CATEGORY_VARIANTS,
-            CATEGORY_VARIANT_CODES,
-            CATEGORY_VARIANT_GROUPS,
-            CATEGORY_VARIANT_LISTS,
-            CATEGORY_VARIANT_SETS,
-        )
-
-        category = "other"
-        CATEGORY_VARIANTS.setdefault(category, {})[name] = variant
-        CATEGORY_VARIANT_GROUPS.setdefault(category, {})[name] = category
-        CATEGORY_VARIANT_LISTS[category] = tuple(CATEGORY_VARIANTS[category].keys())
-        CATEGORY_VARIANT_SETS[category] = frozenset(CATEGORY_VARIANTS[category].keys())
-        CATEGORY_VARIANT_CODES[category] = frozenset(
-            v.code for v in CATEGORY_VARIANTS[category].values()
-        )
-    except Exception:
-        pass
-
     return variant
 
 
@@ -291,34 +268,14 @@ def unregister_catalogued_server_variant(name: str) -> None:
     """Remove an uploaded variant from runtime site maps.
 
     Fairy-Stockfish itself cannot unload an already loaded config from the
-    current process, so this only hides the variant from pychess routing,
-    selection, ratings, and category maps. Saved games keep their inline INI.
+    current process, so this only hides the variant from pychess routing and
+    runtime lookups. Saved games keep their inline INI.
     """
 
     CATALOGUED_VARIANTS.pop(name, None)
     ALL_VARIANTS.pop(name, None)
     VARIANT_ICONS.pop(name, None)
     C2V.pop(name, None)
-
-    try:
-        from const import (
-            CATEGORY_VARIANTS,
-            CATEGORY_VARIANT_CODES,
-            CATEGORY_VARIANT_GROUPS,
-            CATEGORY_VARIANT_LISTS,
-            CATEGORY_VARIANT_SETS,
-        )
-
-        category = "other"
-        CATEGORY_VARIANTS.get(category, {}).pop(name, None)
-        CATEGORY_VARIANT_GROUPS.get(category, {}).pop(name, None)
-        CATEGORY_VARIANT_LISTS[category] = tuple(CATEGORY_VARIANTS.get(category, {}).keys())
-        CATEGORY_VARIANT_SETS[category] = frozenset(CATEGORY_VARIANTS.get(category, {}).keys())
-        CATEGORY_VARIANT_CODES[category] = frozenset(
-            v.code for v in CATEGORY_VARIANTS.get(category, {}).values()
-        )
-    except Exception:
-        pass
 
 
 def is_catalogued_variant(name: str | None) -> bool:

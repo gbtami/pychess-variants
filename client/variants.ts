@@ -1384,7 +1384,6 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         ui: { showPromoted: promotionRoles.length > 0 },
     });
     cataloguedVariantNames.add(meta.name);
-    if (!variantGroups.other.variants.includes(meta.name)) variantGroups.other.variants.push(meta.name);
     if (meta.ini) cataloguedVariantInis[meta.name] = meta.ini;
 }
 
@@ -1393,8 +1392,6 @@ export function unregisterCataloguedVariant(name: string | undefined | null): vo
     delete VARIANTS[name];
     delete cataloguedVariantInis[name];
     cataloguedVariantNames.delete(name);
-    const idx = variantGroups.other.variants.indexOf(name);
-    if (idx >= 0) variantGroups.other.variants.splice(idx, 1);
 }
 
 export function loadCataloguedVariantsFromJson(raw: string | null): void {
@@ -1436,22 +1433,32 @@ export function variantGroupLabel(group: string): string {
 }
 
 export function selectVariant(id: string, selected: string | null, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = [], gameCategory: string = "all"): VNode {
+    const groupedOptions = Object.keys(variantGroups).filter(g => gameCategory === "all" || g === gameCategory).map(g => {
+        const group = variantGroups[g];
+        return h('optgroup', { props: { label: variantGroupLabel(g) } }, group.variants.filter(v => !!VARIANTS[v]).map(v => {
+            const variant = VARIANTS[v];
+            return h('option', {
+                props: { value: v, title: variant.tooltip },
+                attrs: { selected: v === selected, disabled: disableds.includes(variant.name) },
+            }, variant.displayName(false));
+        }));
+    });
+
+    if (selected && isCataloguedVariant(selected) && VARIANTS[selected] && !Object.values(variantGroups).some(group => group.variants.includes(selected))) {
+        const variant = VARIANTS[selected];
+        groupedOptions.push(h('optgroup', { props: { label: _('Selected custom variant') } }, [
+            h('option', {
+                props: { value: selected, title: variant.tooltip },
+                attrs: { selected: true, disabled: disableds.includes(variant.name) },
+            }, variant.displayName(false)),
+        ]));
+    }
+
     return h('select#' + id, {
         props: { name: id },
         on: { change: onChange },
         hook: { insert: hookInsert },
-    },
-        Object.keys(variantGroups).filter(g => gameCategory === "all" || g === gameCategory).map(g => {
-            const group = variantGroups[g];
-            return h('optgroup', { props: { label: variantGroupLabel(g) } }, group.variants.filter(v => !!VARIANTS[v]).map(v => {
-                const variant = VARIANTS[v];
-                return h('option', {
-                    props: { value: v, title: variant.tooltip },
-                    attrs: { selected: v === selected, disabled: disableds.includes(variant.name) },
-                }, variant.displayName(false));
-            }));
-        }),
-    );
+    }, groupedOptions);
 }
 
 // Some variants need to be treated differently according to the FEN.

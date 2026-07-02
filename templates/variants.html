@@ -12,14 +12,6 @@
         <a class="icon {{ groups[key] }}" data-icon="{{ icons[key] }}" href="{{ home }}/variants/{{ key }}">{{ variant_display_name(key) }}</a>
     </li>
     {% endfor %}
-    {% if catalogued_variant_links %}
-    <li class="catalogued-guide-heading">Catalogued variants</li>
-    {% for item in catalogued_variant_links %}
-    <li>
-        <a class="icon other" data-icon="{{ item.icon }}" href="{{ home }}/variants/{{ item.name }}">{{ item.displayName }}</a>
-    </li>
-    {% endfor %}
-    {% endif %}
     </ul>
 </aside>
 <div class="guide">

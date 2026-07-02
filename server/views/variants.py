@@ -7,11 +7,7 @@ from lang import get_locale_ext
 from typing_defs import ViewContext
 from views import get_user_context
 from variants import VARIANTS, VARIANT_ICONS
-from catalogued_variants import (
-    catalogued_variant_rule_context,
-    catalogued_variants_for_client,
-    find_catalogued_variant_doc,
-)
+from catalogued_variants import catalogued_variant_rule_context, find_catalogued_variant_doc
 from pychess_global_app_state_utils import get_app_state
 
 
@@ -29,8 +25,6 @@ async def variants(request: web.Request) -> ViewContext:
 
     context["variants"] = user.category_variants
     context["groups"] = user.category_variant_groups
-    context["catalogued_variant_links"] = catalogued_variants_for_client(app_state)
-
     context["icons"] = VARIANT_ICONS
 
     if catalogued_doc is not None:
