@@ -5,6 +5,7 @@ import * as cg from 'chessgroundx/types';
 import { Api } from 'chessgroundx/api';
 
 import { _ } from './i18n';
+import { getDocumentData } from './document';
 import { ensureBoardStyleOverride, ensurePieceCSS, pieceStyleClass } from './document';
 import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
@@ -69,6 +70,19 @@ function selectedPieceCSS(pieceFamily: keyof typeof PIECE_FAMILIES | string, idx
         return pieceCSSOptions(pieceFamily, variant)[0]?.css ?? PIECE_FAMILIES[pieceFamily].pieceCSS[0];
     }
     }
+}
+
+function defaultPieceStyleIndex(pieceFamily: keyof typeof PIECE_FAMILIES | string, variant?: Variant): number {
+    const styles = PIECE_FAMILIES[pieceFamily]?.pieceCSS ?? [];
+    if (
+        variant
+        && pieceFamily.startsWith('catalogued-')
+        && styles.length === 1
+        && styles[0] === 'disguised'
+    ) {
+        return 99;
+    }
+    return 0;
 }
 
 function pieceStyleSettingsName(pieceFamily: string, variant?: Variant): string {
@@ -419,10 +433,16 @@ class PieceStyleSettings extends NumberSettings {
     readonly variant?: Variant;
 
     constructor(boardSettings: BoardSettings, pieceFamily: string, variant?: Variant) {
-        super(pieceStyleSettingsName(pieceFamily, variant), 0);
+        const settingsName = pieceStyleSettingsName(pieceFamily, variant);
+        const defaultValue = defaultPieceStyleIndex(pieceFamily, variant);
+        super(settingsName, defaultValue);
         this.boardSettings = boardSettings;
         this.pieceFamily = pieceFamily;
         this.variant = variant;
+
+        if (!getDocumentData(settingsName) && localStorage.getItem(settingsName) === null) {
+            this._value = defaultValue;
+        }
     }
 
     update(): void {
