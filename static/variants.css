@@ -107,6 +107,7 @@ div.guide ol, div.guide ul {
     line-height: 1.1;
     text-decoration: none;
     white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .community-variants-page button.button {
@@ -116,7 +117,9 @@ div.guide ol, div.guide ul {
 
 .community-variants-page .button:hover:not(:disabled),
 .catalogued-variant-rules .button:hover {
-    background: var(--bg-color0);
+    background: color-mix(in srgb, var(--link-hover) 12%, var(--bg-box));
+    border-color: color-mix(in srgb, var(--link-hover) 26%, var(--border-color));
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.225);
 }
 
 .community-variant-actions,

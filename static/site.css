@@ -28,6 +28,7 @@
   --bg-color2: WhiteSmoke;
   --bg-seek: rgba(255, 255, 255, 0.8);
   --bg-meta: #f7f6f5;
+  --bg-box: #f7f6f3;
   --bg-input: #fafaf9;
   --game-hover: #d1e6fa;
   --green-hover: #89b25b;
@@ -110,6 +111,7 @@
   --bg-color2: #302e2c;
   --bg-seek: rgb(46, 42, 36,0.8);
   --bg-meta: #302e2c;
+  --bg-box: #302e2c;
   --bg-input: #24221e;
   --game-hover: #223344;
   --green-hover: #537c23;

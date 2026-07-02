@@ -116,10 +116,13 @@
     margin: 2px;
     box-shadow: var(--base-shadow);
     white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .catalogued-secondary-action:hover:not(:disabled) {
-    background: var(--bg-color0);
+    background: color-mix(in srgb, var(--link-hover) 12%, var(--bg-box));
+    border-color: color-mix(in srgb, var(--link-hover) 26%, var(--border-color));
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.225);
 }
 
 .catalogued-secondary-action:disabled,
@@ -127,6 +130,14 @@
 .catalogued-primary-action:disabled {
     opacity: 0.55;
     cursor: not-allowed;
+}
+
+.my-variants button.catalogued-secondary-action:disabled {
+    color: var(--font-color);
+}
+
+.my-variants button.button-primary:disabled {
+    color: White;
 }
 
 .catalogued-table-wrap {
