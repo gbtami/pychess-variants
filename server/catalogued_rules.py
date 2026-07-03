@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 # fmt: off
+from collections.abc import Iterable
 from dataclasses import dataclass, field
+from functools import lru_cache
 import re
 from typing import Any, Mapping, TypedDict
 
@@ -20,6 +22,10 @@ class CataloguedRuleSummary(TypedDict):
     intro: list[str]
     sections: list[CataloguedRuleSection]
     unknown: list[CataloguedRuleLine]
+
+
+RULE_SUMMARY_CACHE_SIZE = 512
+RULE_SUMMARY_GENERATOR_VERSION = 1
 
 
 @dataclass
@@ -889,7 +895,36 @@ def _unknown_lines(parsed: ParsedCataloguedIni) -> list[CataloguedRuleLine]:
     return unknown
 
 
-def catalogued_rule_summary(doc: Mapping[str, Any]) -> CataloguedRuleSummary:
+def _string_tuple(value: object) -> tuple[str, ...]:
+    if value is None or value == "":
+        return ()
+    if isinstance(value, str):
+        return (value,)
+    if isinstance(value, Iterable):
+        return tuple(str(item) for item in value)
+    return (str(value),)
+
+
+def _int_cache_value(value: object) -> int:
+    if value is None or value == "":
+        return 0
+    if isinstance(value, int):
+        return value
+    if isinstance(value, (float, str)):
+        try:
+            return int(value)
+        except ValueError:
+            return 0
+    return 0
+
+
+def _optional_bool_cache_value(doc: Mapping[str, Any], key: str) -> bool | None:
+    if key not in doc:
+        return None
+    return bool(doc.get(key))
+
+
+def _build_catalogued_rule_summary(doc: Mapping[str, Any]) -> CataloguedRuleSummary:
     parsed = parse_catalogued_ini(str(doc.get("ini") or ""))
     intro: list[str] = []
     if parsed.parent:
@@ -923,5 +958,46 @@ def catalogued_rule_summary(doc: Mapping[str, Any]) -> CataloguedRuleSummary:
         )
 
     return {"intro": intro, "sections": sections, "unknown": unknown}
+
+
+@lru_cache(maxsize=RULE_SUMMARY_CACHE_SIZE)
+def _cached_catalogued_rule_summary(
+    ini: str,
+    start_fen: str,
+    width: int,
+    height: int,
+    pieces: tuple[str, ...],
+    pocket_roles: tuple[str, ...],
+    promotion_roles: tuple[str, ...],
+    capture_to_hand: bool | None,
+    generator_version: int,
+) -> CataloguedRuleSummary:
+    del generator_version  # Cache-busting key for future wording/renderer changes.
+    doc: dict[str, Any] = {
+        "ini": ini,
+        "startFen": start_fen,
+        "width": width,
+        "height": height,
+        "pieces": list(pieces),
+        "pocketRoles": list(pocket_roles),
+        "promotionRoles": list(promotion_roles),
+    }
+    if capture_to_hand is not None:
+        doc["captureToHand"] = capture_to_hand
+    return _build_catalogued_rule_summary(doc)
+
+
+def catalogued_rule_summary(doc: Mapping[str, Any]) -> CataloguedRuleSummary:
+    return _cached_catalogued_rule_summary(
+        str(doc.get("ini") or ""),
+        str(doc.get("startFen") or ""),
+        _int_cache_value(doc.get("width")),
+        _int_cache_value(doc.get("height")),
+        _string_tuple(doc.get("pieces")),
+        _string_tuple(doc.get("pocketRoles")),
+        _string_tuple(doc.get("promotionRoles")),
+        _optional_bool_cache_value(doc, "captureToHand"),
+        RULE_SUMMARY_GENERATOR_VERSION,
+    )
 
 # fmt: on
