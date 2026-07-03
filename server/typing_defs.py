@@ -253,8 +253,13 @@ class FishnetKeyPayload(TypedDict):
     fishnet: FishnetKey
 
 
+class FishnetScore(TypedDict, total=False):
+    cp: int
+    mate: int
+
+
 class FishnetAnalysisItem(TypedDict):
-    score: object
+    score: FishnetScore
     depth: NotRequired[int]
     pv: NotRequired[str]
 
