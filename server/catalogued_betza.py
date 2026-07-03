@@ -95,7 +95,7 @@ def _custom_piece_definitions(ini: str) -> list[_CustomPieceDefinition]:
 def _preview_dimension(value: object, *, fallback: int = 11) -> int:
     try:
         dimension = int(value or fallback)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         dimension = fallback
     return min(11, max(5, dimension))
 
