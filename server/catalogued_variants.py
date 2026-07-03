@@ -21,6 +21,8 @@ from const import ANON_PREFIX
 from fairy.fairy_board import sf
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
+from catalogued_betza import catalogued_betza_diagrams
+from catalogued_rules import catalogued_rule_summary
 from request_utils import read_json_data, read_post_data, read_text_data
 from settings import ADMINS
 from variants import (
@@ -1068,6 +1070,8 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
         "enabled": bool(doc.get("enabled", True)),
         "archived": bool(doc.get("archived", False)),
         "visibility": _catalogued_visibility(doc),
+        "ruleSummary": catalogued_rule_summary(doc),
+        "customPieceDiagrams": catalogued_betza_diagrams(doc),
     }
 
 

@@ -123,6 +123,8 @@
         <a class="button" href="{{ home }}/analysis/{{ catalogued_variant.name }}">Analysis board</a>
         <a class="button" href="{{ home }}/variants/community">Community variants</a>
     </nav>
+    {% include "catalogued/rule_summary.html" %}
+    {% include "catalogued/betza_diagrams.html" %}
     <section class="catalogued-variant-rules-block">
         <h2>Fairy-Stockfish rules</h2>
         <pre class="catalogued-variant-ini"><code>{{ catalogued_variant.ini }}</code></pre>

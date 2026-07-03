@@ -11,6 +11,7 @@ dependencies = [
     "aiohttp-session==2.12.1",
     "aiohttp-sse==2.2.0",
     "aiohttp-swagger3==0.10.0",
+    "betza-visualizer==0.1.0",
     "brotli==1.2.0",
     "cryptography==49.0.0",
     "discord-py==2.7.1",

@@ -205,6 +205,14 @@ wheels = [
 ]
 
 [[package]]
+name = "betza-visualizer"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c3/8d/88d804df663beee529ff4d080bde345e5c39b0de47093e21757b0da50b17/betza_visualizer-0.1.0-py3-none-any.whl", hash = "sha256:4314f5f2682b8c683bac4849c448cceee51cc206a0699f95ee5778e85ca95cf6", size = 10511, upload-time = "2026-07-03T11:59:00.878Z" },
+]
+
+[[package]]
 name = "brotli"
 version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -746,6 +754,7 @@ dependencies = [
     { name = "aiohttp-session" },
     { name = "aiohttp-sse" },
     { name = "aiohttp-swagger3" },
+    { name = "betza-visualizer" },
     { name = "brotli" },
     { name = "cryptography" },
     { name = "discord-py" },
@@ -789,6 +798,7 @@ requires-dist = [
     { name = "aiohttp-session", specifier = "==2.12.1" },
     { name = "aiohttp-sse", specifier = "==2.2.0" },
     { name = "aiohttp-swagger3", specifier = "==0.10.0" },
+    { name = "betza-visualizer", specifier = "==0.1.0" },
     { name = "brotli", specifier = "==1.2.0" },
     { name = "cryptography", specifier = "==49.0.0" },
     { name = "discord-py", specifier = "==2.7.1" },
