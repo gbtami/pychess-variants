@@ -24,6 +24,7 @@ class _CustomPieceDefinition(NamedTuple):
 
 
 MAX_CATALOGUED_BETZA_DIAGRAMS = 26  # 25 customPiece slots + optional custom king.
+BETZA_DIAGRAM_CACHE_SIZE = 512
 BETZA_DIAGRAM_RENDERER_VERSION = 1
 
 
@@ -137,12 +138,14 @@ def _cached_betza_svg(
     return render_betza_svg(betza, options)
 
 
-def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDiagram]:
-    """Return inline SVG movement diagrams for custom Betza pieces in a variant doc."""
-
-    ini = str(doc.get("ini") or "")
-    board_width = _preview_dimension(doc.get("width"))
-    board_height = _preview_dimension(doc.get("height"))
+@lru_cache(maxsize=BETZA_DIAGRAM_CACHE_SIZE)
+def _cached_catalogued_betza_diagrams(
+    ini: str,
+    board_width: int,
+    board_height: int,
+    renderer_version: int,
+) -> tuple[CataloguedBetzaDiagram, ...]:
+    del renderer_version  # Cache-busting key for future diagram wording/layout changes.
     diagrams: list[CataloguedBetzaDiagram] = []
 
     for definition in _custom_piece_definitions(ini):
@@ -175,4 +178,20 @@ def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDia
             }
         )
 
-    return diagrams
+    return tuple(diagrams)
+
+
+def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDiagram]:
+    """Return inline SVG movement diagrams for custom Betza pieces in a variant doc."""
+
+    ini = str(doc.get("ini") or "")
+    board_width = _preview_dimension(doc.get("width"))
+    board_height = _preview_dimension(doc.get("height"))
+    return list(
+        _cached_catalogued_betza_diagrams(
+            ini,
+            board_width,
+            board_height,
+            BETZA_DIAGRAM_RENDERER_VERSION,
+        )
+    )

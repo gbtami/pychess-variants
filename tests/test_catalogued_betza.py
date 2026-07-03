@@ -1,11 +1,17 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 
+import catalogued_betza
 from catalogued_betza import catalogued_betza_diagrams
 
 
 class CataloguedBetzaDiagramTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        catalogued_betza._cached_betza_svg.cache_clear()
+        catalogued_betza._cached_catalogued_betza_diagrams.cache_clear()
+
     def test_custom_piece_diagrams_are_generated_from_betza_definitions(self):
         diagrams = catalogued_betza_diagrams(
             {
@@ -46,6 +52,26 @@ class CataloguedBetzaDiagramTestCase(unittest.TestCase):
         self.assertEqual(with_custom_king[0]["piece"], "k")
         self.assertEqual(with_custom_king[0]["betza"], "KN")
         self.assertEqual(bare_king, [])
+
+    def test_custom_piece_diagram_list_is_cached_by_ini_and_preview_size(self):
+        doc = {
+            "ini": """
+            [cachetest:chess]
+            customPiece1 = a:BN
+            """,
+            "width": 8,
+            "height": 8,
+        }
+
+        with patch(
+            "catalogued_betza._custom_piece_definitions",
+            wraps=catalogued_betza._custom_piece_definitions,
+        ) as definitions:
+            first = catalogued_betza_diagrams(doc)
+            second = catalogued_betza_diagrams(dict(doc))
+
+        self.assertEqual(first, second)
+        self.assertEqual(definitions.call_count, 1)
 
 
 if __name__ == "__main__":
