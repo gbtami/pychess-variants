@@ -12,6 +12,11 @@ label.piece, label.board {
 label.piece {
     background-size: contain;
 }
+label.piece.catalogued-custom-preview {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
 label.board {
     background-size: 90%;
 }

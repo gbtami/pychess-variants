@@ -7,6 +7,9 @@
     <li>
         <a class="icon" data-icon="" href="{{ home }}/variants/terminology">Terminology</a>
     </li>
+    <li>
+        <a class="icon" data-icon="◇" href="{{ home }}/variants/community">Community variants</a>
+    </li>
     {% for key in variants %}
     <li>
         <a class="icon {{ groups[key] }}" data-icon="{{ icons[key] }}" href="{{ home }}/variants/{{ key }}">{{ variant_display_name(key) }}</a>
@@ -14,7 +17,121 @@
     {% endfor %}
     </ul>
 </aside>
-<div class="guide">{% include variant %}<div>
+<div class="guide">
+{% if community_variants %}
+<article class="community-variants-page">
+    <h1>Community variants</h1>
+    <p>
+        Browse public user-defined variants. They stay outside the regular variant catalog and are always casual/unrated.
+    </p>
+    <form class="community-variants-search" method="get" action="{{ home }}/variants/community">
+        <label>
+            Search
+            <input type="search" name="q" value="{{ community_variants.q }}" placeholder="Name, description, or author">
+        </label>
+        <label>
+            Author
+            <input type="search" name="author" value="{{ community_variants.author }}" placeholder="Exact username">
+        </label>
+        <label>
+            Sort
+            <select name="sort">
+                <option value="updated" {% if community_variants.sort == "updated" %}selected{% endif %}>Recently updated</option>
+                <option value="newest" {% if community_variants.sort == "newest" %}selected{% endif %}>Newest</option>
+                <option value="name" {% if community_variants.sort == "name" %}selected{% endif %}>Name</option>
+            </select>
+        </label>
+        <button type="submit" class="button">Search</button>
+    </form>
+
+    <p class="community-variants-count">
+        {{ community_variants.total }} public variant{% if community_variants.total != 1 %}s{% endif %}
+    </p>
+
+    {% if community_variants.variants %}
+    <div class="community-variants-list">
+        {% for item in community_variants.variants %}
+        <section class="community-variant-card">
+            <div class="community-variant-card-head">
+                <h2><a href="{{ home }}/variants/{{ item.name }}">{{ item.displayName }}</a></h2>
+                <code>{{ item.name }}</code>
+            </div>
+            {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+            <dl>
+                {% if item.author %}<div><dt>Author</dt><dd>{{ item.author }}</dd></div>{% endif %}
+                <div><dt>Board</dt><dd>{{ item.width }} × {{ item.height }}</dd></div>
+                <div><dt>Games</dt><dd>{{ item.gameCount }}</dd></div>
+            </dl>
+            <p class="community-variant-actions">
+                <a class="button" href="{{ home }}/?any&variant={{ item.name }}">Play</a>
+                <a class="button" href="{{ home }}/analysis/{{ item.name }}">Analysis</a>
+                <a class="button" href="{{ home }}/variants/{{ item.name }}">Rules</a>
+            </p>
+        </section>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No public variants found.</p>
+    {% endif %}
+
+    {% if community_variants.pages > 1 %}
+    <nav class="community-variants-pages">
+        {% if community_prev_href %}<a class="button" href="{{ community_prev_href }}">Previous</a>{% endif %}
+        <span>Page {{ community_variants.page }} / {{ community_variants.pages }}</span>
+        {% if community_next_href %}<a class="button" href="{{ community_next_href }}">Next</a>{% endif %}
+    </nav>
+    {% endif %}
+
+    <p>
+        <a class="button" href="{{ home }}/my-variants">Upload or manage my variants</a>
+    </p>
+</article>
+{% elif catalogued_variant %}
+<article class="catalogued-variant-rules">
+    <header class="catalogued-variant-hero">
+        <div class="catalogued-variant-hero-copy">
+            <div class="catalogued-variant-kicker">Community variant</div>
+            <h1>{{ catalogued_variant.displayName }}</h1>
+            {% if catalogued_variant.description %}
+            <div class="catalogued-variant-description">{{ catalogued_variant.description }}</div>
+            {% endif %}
+            <div class="catalogued-variant-intro">
+                This is a user-catalogued casual variant. Technical details such as board size,
+                FEN, pieces, and hand rules are defined in the Fairy-Stockfish
+                <code>variants.ini</code> block below.
+            </div>
+        </div>
+        <dl class="catalogued-variant-meta">
+            {% if catalogued_variant.author %}
+            <div>
+                <dt>Uploaded by</dt>
+                <dd>{{ catalogued_variant.author }}</dd>
+            </div>
+            {% endif %}
+            <div>
+                <dt>Visibility</dt>
+                <dd>{{ catalogued_variant.visibility }}</dd>
+            </div>
+            <div>
+                <dt>Status</dt>
+                <dd>{{ "archived" if catalogued_variant.archived else "active" }}</dd>
+            </div>
+        </dl>
+    </header>
+    <nav class="catalogued-variant-actions" aria-label="Catalogued variant actions">
+        <a class="button" href="{{ home }}/?any&variant={{ catalogued_variant.name }}">Play</a>
+        <a class="button" href="{{ home }}/analysis/{{ catalogued_variant.name }}">Analysis board</a>
+        <a class="button" href="{{ home }}/variants/community">Community variants</a>
+    </nav>
+    <section class="catalogued-variant-rules-block">
+        <h2>Fairy-Stockfish rules</h2>
+        <pre class="catalogued-variant-ini"><code>{{ catalogued_variant.ini }}</code></pre>
+    </section>
+</article>
+{% else %}
+{% include variant %}
+{% endif %}
+</div>
 </main>
 </div>
 {% endblock %}

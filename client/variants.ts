@@ -76,6 +76,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     xiangfu: { pieceCSS: ["eventintl", "eventhanzi", "eventhanziguided", "disguised"] },
     borderlands: { pieceCSS: ["borderlands", "disguised"] },
     yokai: { pieceCSS: ["yokai", "disguised"] },
+    letter: { pieceCSS: ["disguised"] },
 };
 
 export interface Variant {
@@ -146,7 +147,7 @@ export interface Variant {
 
 const pieceFamiliesWithMaterialDifferenceSupported = ["standard", "makruk", "sittuyin", "asean", "xiangqi", "janggi", "shatranj", "capa", "dragon", "seirawan", "shako", "hoppel", "orda", "khans", "synochess", "shinobi", "empire", "ordamirror", "chak", "spartan"];
 
-function variant(config: VariantConfig): Variant {
+export function variant(config: VariantConfig): Variant {
     return {
         name: config.name,
         _displayName: config.displayName ?? config.name,
@@ -1278,6 +1279,11 @@ export const VARIANTS: Record<string, Variant> = {
 };
 
 export const variants = Object.keys(VARIANTS);
+const BUILTIN_VARIANT_NAMES = new Set(Object.keys(VARIANTS));
+
+export function isBuiltinVariantName(name: string | undefined | null): boolean {
+    return !!name && BUILTIN_VARIANT_NAMES.has(name);
+}
 const disabledVariants = [ "gothic", "gothhouse", "embassy", "embassyhouse", "gorogoro", "shinobi", "makrukhouse", "xiangqihouse" ];
 export const enabledVariants = variants.filter(v => !disabledVariants.includes(v));
 
@@ -1304,6 +1310,110 @@ export const unsupportedAiVariants = ["alice", "fogofwar", "jieqi"];
 
 export const devVariants = ["borderlands", "makbug", "supply", "yokai"];
 
+export interface CataloguedVariantClientDocument {
+    readonly name: string;
+    readonly displayName: string;
+    readonly tooltip?: string;
+    readonly ini: string;
+    readonly startFen: string;
+    readonly width: number;
+    readonly height: number;
+    readonly pieces: cg.Letter[];
+    readonly kingRoles?: cg.Letter[];
+    readonly pocketRoles?: cg.Letter[];
+    readonly captureToHand?: boolean;
+    readonly promotionRoles?: cg.Letter[];
+    readonly icon?: string;
+    readonly category?: string;
+    readonly archived?: boolean;
+    readonly enabled?: boolean;
+    readonly gameCount?: number;
+    readonly locked?: boolean;
+    readonly visibility?: 'private' | 'unlisted' | 'public';
+    readonly hasPieceSet?: boolean;
+    readonly pieceSetRevision?: string;
+}
+
+const cataloguedVariantInis: Record<string, string> = {};
+const cataloguedVariantNames = new Set<string>();
+
+export function allVariantsIni(baseIni: string): string {
+    return [baseIni, ...Object.values(cataloguedVariantInis)].filter(Boolean).join('\n');
+}
+
+export function isCataloguedVariant(name: string | undefined | null): boolean {
+    return !!name && cataloguedVariantNames.has(name);
+}
+
+function ensureCataloguedBoardFamily(width: number, height: number): keyof typeof BOARD_FAMILIES {
+    const safeWidth = Math.max(1, Math.min(16, Math.floor(width || 8)));
+    const safeHeight = Math.max(1, Math.min(16, Math.floor(height || 8)));
+    const key = `catalogued${safeWidth}x${safeHeight}`;
+    if (!BOARD_FAMILIES[key]) {
+        BOARD_FAMILIES[key] = {
+            dimensions: { width: safeWidth, height: safeHeight },
+            cg: `cg-catalogued-${safeWidth}x${safeHeight}`,
+            // A concrete file is still needed by the board settings code. The
+            // catalogued board CSS below overrides the image with a scalable
+            // checkerboard matching the dynamic dimensions.
+            boardCSS: ["8x8brown.svg"],
+        };
+    }
+    return key;
+}
+
+export function registerCataloguedVariant(meta: CataloguedVariantClientDocument): void {
+    if (!meta?.name) return;
+    if (VARIANTS[meta.name] && !cataloguedVariantNames.has(meta.name)) return;
+
+    const pieces = (meta.pieces?.length ? meta.pieces : ['k']) as cg.Letter[];
+    const kingRoles = (meta.kingRoles ?? []) as cg.Letter[];
+    const pocketRoles = (meta.pocketRoles ?? []) as cg.Letter[];
+    const promotionRoles = (meta.promotionRoles ?? []) as cg.Letter[];
+    const boardFamily = ensureCataloguedBoardFamily(meta.width, meta.height);
+    const cataloguedPieceFamily = `catalogued-${meta.name}`;
+    const pieceFamily = cataloguedPieceFamily;
+    const customPieceCss = meta.pieceSetRevision ? `custom-${meta.pieceSetRevision}` : 'custom';
+    PIECE_FAMILIES[cataloguedPieceFamily] = {
+        pieceCSS: meta.hasPieceSet ? [customPieceCss, 'disguised'] : ['disguised'],
+    };
+    VARIANTS[meta.name] = variant({
+        name: meta.name,
+        displayName: meta.displayName || meta.name,
+        tooltip: meta.tooltip || 'Catalogued variant',
+        startFen: meta.startFen,
+        icon: meta.icon || '◇',
+        boardFamily,
+        pieceFamily,
+        pieceRow: pieces,
+        kingRoles,
+        pocket: pocketRoles.length ? { roles: pocketRoles, captureToHand: !!meta.captureToHand } : undefined,
+        promotion: { type: promotionRoles.length ? 'shogi' : 'regular', roles: promotionRoles },
+        rules: { defaultTimeControl: 'incremental' },
+        ui: { showPromoted: promotionRoles.length > 0 },
+    });
+    cataloguedVariantNames.add(meta.name);
+    if (meta.ini) cataloguedVariantInis[meta.name] = meta.ini;
+}
+
+export function unregisterCataloguedVariant(name: string | undefined | null): void {
+    if (!name || !cataloguedVariantNames.has(name)) return;
+    delete VARIANTS[name];
+    delete PIECE_FAMILIES[`catalogued-${name}`];
+    delete cataloguedVariantInis[name];
+    cataloguedVariantNames.delete(name);
+}
+
+export function loadCataloguedVariantsFromJson(raw: string | null): void {
+    if (!raw) return;
+    try {
+        const variants = JSON.parse(raw) as CataloguedVariantClientDocument[];
+        variants.forEach(registerCataloguedVariant);
+    } catch (error) {
+        console.error('Failed to load catalogued variants', error);
+    }
+}
+
 export function disabledVariantsForCreateMode(
     createMode: "createGame" | "playFriend" | "playAI" | "playBOT" | "createHost",
     profileid: string,
@@ -1313,6 +1423,7 @@ export function disabledVariantsForCreateMode(
     // Hide them whenever the dialog is being used for invites, profile challenges,
     // bot/AI games, or hosting, where the generic single-board flow is used.
     if (createMode === "playAI") return [...new Set([...twoBoarsVariants, ...unsupportedAiVariants])];
+    if (["playBOT", "createHost"].includes(createMode)) return twoBoarsVariants;
     if (createMode !== "createGame") return twoBoarsVariants;
     return anon || profileid !== "" ? twoBoarsVariants : [];
 }
@@ -1324,30 +1435,40 @@ export const variantGroups: { [ key: string ]: { variants: string[] } } = {
     xiangqi:  { variants: [ "xiangqi", "supply", "manchu", "janggi", "minixiangqi", "jieqi" ] },
     fairy:    { variants: [ "shatranj", "capablanca", "capahouse", "dragon", "seirawan", "shouse", "grand", "grandhouse", "shako", "shogun", "hoppelpoppel", "mansindam" ] },
     army:     { variants: [ "orda", "khans", "synochess", "shinobiplus", "empire", "ordamirror", "chak", "chennis", "spartan", "xiangfu" ] },
-    other:    { variants: [ "borderlands", "ataxx" ] }
+    other:    { variants: [ "borderlands", "ataxx" ] },
 };
 
 export function variantGroupLabel(group: string): string {
     return gameCategoryLabel(group);
 }
 
-export function selectVariant(id: string, selected: string, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = [], gameCategory: string = "all"): VNode {
+export function selectVariant(id: string, selected: string | null, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = [], gameCategory: string = "all"): VNode {
+    const groupedOptions = Object.keys(variantGroups).filter(g => gameCategory === "all" || g === gameCategory).map(g => {
+        const group = variantGroups[g];
+        return h('optgroup', { props: { label: variantGroupLabel(g) } }, group.variants.filter(v => !!VARIANTS[v]).map(v => {
+            const variant = VARIANTS[v];
+            return h('option', {
+                props: { value: v, title: variant.tooltip },
+                attrs: { selected: v === selected, disabled: disableds.includes(variant.name) },
+            }, variant.displayName(false));
+        }));
+    });
+
+    if (selected && isCataloguedVariant(selected) && VARIANTS[selected] && !Object.values(variantGroups).some(group => group.variants.includes(selected))) {
+        const variant = VARIANTS[selected];
+        groupedOptions.push(h('optgroup', { props: { label: _('Selected custom variant') } }, [
+            h('option', {
+                props: { value: selected, title: variant.tooltip },
+                attrs: { selected: true, disabled: disableds.includes(variant.name) },
+            }, variant.displayName(false)),
+        ]));
+    }
+
     return h('select#' + id, {
         props: { name: id },
         on: { change: onChange },
         hook: { insert: hookInsert },
-    },
-        Object.keys(variantGroups).filter(g => gameCategory === "all" || g === gameCategory).map(g => {
-            const group = variantGroups[g];
-            return h('optgroup', { props: { label: variantGroupLabel(g) } }, group.variants.map(v => {
-                const variant = VARIANTS[v];
-                return h('option', {
-                    props: { value: v, title: variant.tooltip },
-                    attrs: { selected: v === selected, disabled: disableds.includes(variant.name) },
-                }, variant.displayName(false));
-            }));
-        }),
-    );
+    }, groupedOptions);
 }
 
 // Some variants need to be treated differently according to the FEN.

@@ -2,8 +2,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 import asyncio
 import math
+import hashlib
 from datetime import datetime, timezone
 from time import monotonic
+from pathlib import Path
 
 from aiohttp import web
 
@@ -33,7 +35,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-REQUIRED_FISHNET_VERSION = "1.16.42"
+REQUIRED_FISHNET_VERSION = "1.16.59"
 MOVE_WORK_TIME_OUT = 5.0
 ANALYSIS_WORK_TIME_OUT = 15 * 60.0
 FISHNET_ACTIVITY_TIMEOUT = 10 * 60.0
@@ -44,6 +46,41 @@ MOVE_ABORT_LIMIT = 6
 MOVE_ENGINE_CRASH_LIMIT = 2
 ANALYSIS_ABORT_LIMIT = 4
 ANALYSIS_ENGINE_CRASH_LIMIT = 2
+
+
+def fishnet_variants_ini(app_state: PychessGlobalAppState) -> str:
+    """Return the full Fairy-Stockfish variant config fishnet workers should use."""
+
+    base_path = Path(__file__).resolve().parents[1] / "variants.ini"
+    base_ini = base_path.read_text(encoding="utf-8")
+    catalogued_docs = getattr(app_state, "catalogued_variants", {})
+    catalogued_ini = "\n\n".join(
+        str(doc["ini"]).strip()
+        for doc in sorted(catalogued_docs.values(), key=lambda item: str(item.get("name", "")))
+        if doc.get("enabled", True) and doc.get("ini")
+    )
+    return "\n\n".join(part.strip() for part in (base_ini, catalogued_ini) if part.strip()) + "\n"
+
+
+def fishnet_variants_payload(app_state: PychessGlobalAppState) -> dict[str, str]:
+    variants_ini = fishnet_variants_ini(app_state)
+    return {
+        "variantsIni": variants_ini,
+        "variantsSha256": hashlib.sha256(variants_ini.encode("utf-8")).hexdigest(),
+    }
+
+
+def _attach_variants_hash(app_state: PychessGlobalAppState, work: FishnetWork) -> None:
+    work["variantsSha256"] = fishnet_variants_payload(app_state)["variantsSha256"]
+
+
+async def fishnet_variants(request: web.Request) -> web.Response:
+    key = request.match_info["key"]
+    if key not in FISHNET_KEYS:
+        return web.Response(status=404)
+
+    app_state = get_app_state(request.app)
+    return json_response(fishnet_variants_payload(app_state))
 
 
 def _work_priority(work: FishnetWork) -> int:
@@ -283,6 +320,7 @@ async def get_work(
                 )
             )
 
+        _attach_variants_hash(app_state, work)
         return json_response(work, status=202)
 
     # There was no new work in the queue. Ok
@@ -301,6 +339,7 @@ async def get_work(
                 )
             )
             work_item["time"] = now
+            _attach_variants_hash(app_state, work_item)
             return json_response(work_item, status=202)
     return web.Response(status=204)
 

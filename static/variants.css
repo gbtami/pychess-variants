@@ -14,3 +14,278 @@ div.guide ol, div.guide ul {
     padding: 1.2rem;
     margin: 0;
 }
+
+.community-variants-page,
+.catalogued-variant-rules {
+    max-width: 1100px;
+}
+
+.catalogued-variant-rules {
+    color: var(--font-color);
+}
+
+div.guide .catalogued-variant-rules h1,
+div.guide .catalogued-variant-rules h2,
+div.guide .catalogued-variant-rules .catalogued-variant-description,
+div.guide .catalogued-variant-rules .catalogued-variant-intro,
+div.guide .catalogued-variant-rules .catalogued-variant-kicker {
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    text-align: left;
+}
+
+div.guide .catalogued-variant-rules h1 {
+    display: block;
+}
+
+.catalogued-variant-hero {
+    display: flex;
+    gap: 1rem 1.5rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    /* Reset the global site header rule.  site.css styles every <header>
+       as the fixed-height top navigation bar, but this header is ordinary
+       page content and must grow with its children. */
+    height: auto;
+    max-width: none;
+    z-index: auto;
+    padding: 1rem 1.2rem;
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-box);
+    box-shadow: var(--base-shadow);
+}
+
+.catalogued-variant-hero h1 {
+    margin: 0;
+    text-align: left;
+}
+
+.catalogued-variant-rules h2 {
+    padding: 0;
+}
+
+.catalogued-variant-kicker {
+    margin: 0 0 0.35rem;
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    font-weight: bold;
+    opacity: 0.72;
+}
+
+.catalogued-variant-hero-copy {
+    display: grid;
+    gap: 0.65rem;
+    flex: 1 1 32rem;
+    min-width: 0;
+}
+
+.catalogued-variant-description {
+    color: var(--font-color);
+}
+
+.catalogued-variant-intro {
+    max-width: 60ch;
+    opacity: 0.9;
+}
+
+.catalogued-variant-meta {
+    display: grid;
+    gap: 0.7rem;
+    align-content: start;
+    margin: 0;
+    flex: 0 1 18rem;
+    min-width: 15rem;
+}
+
+.catalogued-variant-meta div {
+    padding: 0.7rem 0.85rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color2);
+}
+
+.catalogued-variant-meta dt {
+    margin: 0;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: bold;
+    opacity: 0.72;
+}
+
+.catalogued-variant-meta dd {
+    margin: 0.35rem 0 0;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.catalogued-variant-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 1rem 0 0;
+    padding: 0;
+}
+
+.catalogued-variant-rules-block {
+    margin-top: 1rem;
+    padding: 1rem 1.2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-box);
+    box-shadow: var(--base-shadow);
+}
+
+.catalogued-variant-rules-block h2 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    text-align: left;
+}
+
+.community-variants-search {
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: minmax(14rem, 1fr) minmax(10rem, 14rem) minmax(9rem, 12rem) auto;
+    align-items: end;
+    margin: 1rem 0;
+}
+
+.community-variants-search label {
+    display: grid;
+    gap: 0.25rem;
+    font-weight: bold;
+}
+
+.community-variants-search input,
+.community-variants-search select {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.45rem;
+}
+
+.community-variants-count {
+    opacity: 0.85;
+}
+
+.community-variants-list {
+    display: grid;
+    gap: 0.85rem;
+    margin: 1rem 0;
+}
+
+.community-variant-card {
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--bg-box, #f7f6f3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.community-variant-card-head {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+
+.community-variant-card h2 {
+    margin: 0;
+}
+
+.community-variant-card p {
+    margin: 0.6rem 0 0;
+}
+
+.community-variant-card dl {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1.2rem;
+}
+
+.community-variant-card dl div {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.community-variant-card dt {
+    font-weight: bold;
+}
+
+.community-variant-card dd {
+    margin: 0;
+}
+
+
+.community-variants-page .button,
+.catalogued-variant-rules .button {
+    display: inline-block;
+    border: 1px solid var(--bg-color2);
+    border-radius: 4px;
+    background: var(--bg-box);
+    color: var(--font-color);
+    padding: 0.8em 1em;
+    margin: 2px;
+    box-shadow: var(--base-shadow);
+    line-height: 1.1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.community-variants-page button.button {
+    font: inherit;
+    cursor: pointer;
+}
+
+.community-variants-page .button:hover:not(:disabled),
+.catalogued-variant-rules .button:hover {
+    background: color-mix(in srgb, var(--link-hover) 12%, var(--bg-box));
+    border-color: color-mix(in srgb, var(--link-hover) 26%, var(--border-color));
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.225);
+}
+
+.community-variant-actions,
+.community-variants-pages {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.community-variants-pages {
+    margin: 1rem 0;
+}
+
+.catalogued-variant-ini {
+    margin: 0;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color2);
+    color: var(--font-color);
+}
+
+@media (max-width: 799px) {
+    .community-variants-search {
+        grid-template-columns: 1fr;
+    }
+
+    .catalogued-variant-hero {
+        display: block;
+        padding: 1rem;
+    }
+
+    .catalogued-variant-rules-block {
+        padding: 1rem;
+    }
+
+    .catalogued-variant-meta {
+        min-width: 0;
+        margin-top: 1rem;
+    }
+}

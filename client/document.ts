@@ -64,6 +64,9 @@ export function ensureBoardStyleOverride() {
 
 export function pieceStyleClass(family: string, cssFile: string) {
     if (cssFile === 'letters' || cssFile === 'invisible') return `piece-style-${cssFile}`;
+    if (family.startsWith('catalogued-') && cssFile.startsWith('custom')) {
+        return `piece-style-${family}-custom`;
+    }
     return `piece-style-${family}-${cssFile}`;
 }
 
@@ -72,6 +75,13 @@ export function ensurePieceCSS(assetUrl: string, family: string, cssFile: string
         `piece-set-${cssFile}` :
         `piece-set-${family}-${cssFile}`;
     let newUrl = sanitizeURL(`${assetUrl}/piece-css/${family}/${cssFile}.css`);
+    if (family.startsWith('catalogued-') && cssFile.startsWith('custom')) {
+        const revision = cssFile.startsWith('custom-') ? cssFile.slice('custom-'.length) : '';
+        const query = revision ? `?v=${encodeURIComponent(revision)}` : '';
+        newUrl = `/api/catalogued-variants/${encodeURIComponent(family.slice('catalogued-'.length))}/piece-css.css${query}`;
+    } else if (family.startsWith('catalogued-') && cssFile === 'disguised') {
+        newUrl = `/api/catalogued-variants/${encodeURIComponent(family.slice('catalogued-'.length))}/piece-disguised.css`;
+    }
     if (cssFile === 'letters') newUrl = sanitizeURL(`${assetUrl}/piece-css/letters.css`);
     if (cssFile === 'invisible') newUrl = sanitizeURL(`${assetUrl}/piece-css/invisible.css`);
 

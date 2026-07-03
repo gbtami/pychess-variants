@@ -6,9 +6,11 @@ from compress import (
     encode_move_duck,
     encode_move_flipping,
     encode_move_standard,
+    encode_move_extended,
     decode_move_duck,
     decode_move_flipping,
     decode_move_standard,
+    decode_move_extended,
 )
 from settings import PROD
 
@@ -31,6 +33,36 @@ class Variant:
     base_variant: str = ""
     move_encoding: MoveCodec = encode_move_standard
     move_decoding: MoveCodec = decode_move_standard
+
+
+@dataclass
+class CataloguedServerVariant:
+    """Runtime-loaded, user-catalogued variant.
+
+    These variants deliberately look like ServerVariants to the rest of the
+    game/replay code, but they are not members of VARIANTS/RATED_VARIANTS.
+    That keeps them out of ratings, leaderboards, tournament schedules,
+    puzzles, and other site-wide first-class variant features.
+    """
+
+    code: str
+    uci_variant: str
+    display_name: str
+    translated_name: str
+    icon: str = "◇"
+    chess960: bool = False
+    grand: bool = False
+    byo: bool = False
+    two_boards: bool = False
+    hidden_info: bool = False
+    hidden_info_mode: HiddenInfoMode = "none"
+    base_variant: str = ""
+    move_encoding: MoveCodec = encode_move_standard
+    move_decoding: MoveCodec = decode_move_standard
+
+    @property
+    def server_name(self) -> str:
+        return self.uci_variant
 
 
 #  Deferred translations!
@@ -146,7 +178,11 @@ class ServerVariants(Enum):
 del _
 
 
-def get_server_variant(uci_variant: str, chess960: bool | None) -> "ServerVariants":
+def get_server_variant(
+    uci_variant: str, chess960: bool | None
+) -> "ServerVariants | CataloguedServerVariant":
+    if uci_variant in CATALOGUED_VARIANTS:
+        return CATALOGUED_VARIANTS[uci_variant]
     return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
 
 
@@ -164,9 +200,11 @@ TWO_BOARD_VARIANTS: tuple[ServerVariants, ...] = tuple(
 )
 TWO_BOARD_VARIANT_CODES: list[str] = [variant.code for variant in TWO_BOARD_VARIANTS]
 
-ALL_VARIANTS: dict[str, ServerVariants] = {
+ALL_VARIANTS: dict[str, ServerVariants | CataloguedServerVariant] = {
     variant.server_name: variant for variant in ServerVariants
 }
+
+CATALOGUED_VARIANTS: dict[str, CataloguedServerVariant] = {}
 
 VARIANTS: dict[str, ServerVariants] = {
     variant.server_name: variant for variant in ServerVariants if variant not in NO_VARIANTS
@@ -202,7 +240,70 @@ NOT_RATED_VARIANTS: tuple[str, ...] = tuple(
 
 C2V: dict[str, str] = {variant.code: variant.uci_variant for variant in ServerVariants}
 
-GRANDS: tuple[str, ...] = tuple(variant.server_name for variant in ServerVariants if variant.grand)
+
+def register_catalogued_server_variant(
+    name: str,
+    display_name: str,
+    icon: str = "◇",
+    *,
+    grand: bool = False,
+    extended_move_codec: bool = False,
+) -> CataloguedServerVariant:
+    """Register a casual uploaded variant in the runtime server variant maps.
+
+    The variant name itself is used as the game document code. Built-ins keep
+    their short one-character codes, while catalogued variants need a stable
+    full key so old games can be replayed without adding a new hard-coded code.
+    """
+
+    variant = CataloguedServerVariant(
+        code=name,
+        uci_variant=name,
+        display_name=display_name.upper(),
+        translated_name=display_name,
+        icon=icon,
+        grand=grand,
+        move_encoding=encode_move_extended if extended_move_codec else encode_move_standard,
+        move_decoding=decode_move_extended if extended_move_codec else decode_move_standard,
+    )
+    CATALOGUED_VARIANTS[name] = variant
+    ALL_VARIANTS[name] = variant
+    VARIANT_ICONS[name] = icon
+    C2V[name] = name
+    if grand:
+        if name not in GRANDS:
+            GRANDS.append(name)
+    elif name in GRANDS:
+        GRANDS.remove(name)
+
+    return variant
+
+
+def unregister_catalogued_server_variant(name: str) -> None:
+    """Remove an uploaded variant from runtime site maps.
+
+    Fairy-Stockfish itself cannot unload an already loaded config from the
+    current process, so this only hides the variant from pychess routing and
+    runtime lookups. Saved games keep their inline INI.
+    """
+
+    CATALOGUED_VARIANTS.pop(name, None)
+    ALL_VARIANTS.pop(name, None)
+    VARIANT_ICONS.pop(name, None)
+    C2V.pop(name, None)
+    if name in GRANDS:
+        GRANDS.remove(name)
+
+
+def is_catalogued_variant(name: str | None) -> bool:
+    return bool(name) and name in CATALOGUED_VARIANTS
+
+
+def is_catalogued_variant_code(code: str | None) -> bool:
+    return bool(code) and code in CATALOGUED_VARIANTS
+
+
+GRANDS: list[str] = [variant.server_name for variant in ServerVariants if variant.grand]
 
 BYOS: tuple[str, ...] = tuple(variant.server_name for variant in ServerVariants if variant.byo)
 

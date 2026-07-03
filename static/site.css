@@ -28,6 +28,7 @@
   --bg-color2: WhiteSmoke;
   --bg-seek: rgba(255, 255, 255, 0.8);
   --bg-meta: #f7f6f5;
+  --bg-box: #f7f6f3;
   --bg-input: #fafaf9;
   --game-hover: #d1e6fa;
   --green-hover: #89b25b;
@@ -110,6 +111,7 @@
   --bg-color2: #302e2c;
   --bg-seek: rgb(46, 42, 36,0.8);
   --bg-meta: #302e2c;
+  --bg-box: #302e2c;
   --bg-input: #24221e;
   --game-hover: #223344;
   --green-hover: #537c23;
@@ -4252,4 +4254,27 @@ div button.login-btn {
     right: -10px;
     min-width: 160px;
   }
+}
+
+.catalogued-guide-heading {
+    margin-top: 1rem;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.catalogued-variant-rules table {
+    margin: 1rem 0;
+}
+
+.catalogued-variant-rules th {
+    text-align: left;
+    padding-right: 1rem;
+    white-space: nowrap;
+}
+
+.catalogued-variant-ini {
+    max-width: 100%;
+    overflow: auto;
+    padding: 1rem;
+    border-radius: 4px;
 }

@@ -390,3 +390,773 @@ piece.fading {
       transform: translateY(39%);
     }
 }
+
+/* Catalogued casual runtime variant boards. */
+.cg-wrap.cg-catalogued-1x1 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-1x1.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x1 cg-board square, .cg-wrap.cg-catalogued-1x1 piece { width: 100.00000000%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-1x2 { padding-bottom: 200.00000000%; }
+.cg-wrap.cg-catalogued-1x2.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x2 cg-board square, .cg-wrap.cg-catalogued-1x2 piece { width: 100.00000000%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-1x3 { padding-bottom: 300.00000000%; }
+.cg-wrap.cg-catalogued-1x3.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x3 cg-board square, .cg-wrap.cg-catalogued-1x3 piece { width: 100.00000000%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-1x4 { padding-bottom: 400.00000000%; }
+.cg-wrap.cg-catalogued-1x4.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x4 cg-board square, .cg-wrap.cg-catalogued-1x4 piece { width: 100.00000000%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-1x5 { padding-bottom: 500.00000000%; }
+.cg-wrap.cg-catalogued-1x5.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x5 cg-board square, .cg-wrap.cg-catalogued-1x5 piece { width: 100.00000000%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-1x6 { padding-bottom: 600.00000000%; }
+.cg-wrap.cg-catalogued-1x6.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x6 cg-board square, .cg-wrap.cg-catalogued-1x6 piece { width: 100.00000000%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-1x7 { padding-bottom: 700.00000000%; }
+.cg-wrap.cg-catalogued-1x7.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x7 cg-board square, .cg-wrap.cg-catalogued-1x7 piece { width: 100.00000000%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-1x8 { padding-bottom: 800.00000000%; }
+.cg-wrap.cg-catalogued-1x8.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x8 cg-board square, .cg-wrap.cg-catalogued-1x8 piece { width: 100.00000000%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-1x9 { padding-bottom: 900.00000000%; }
+.cg-wrap.cg-catalogued-1x9.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x9 cg-board square, .cg-wrap.cg-catalogued-1x9 piece { width: 100.00000000%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-1x10 { padding-bottom: 1000.00000000%; }
+.cg-wrap.cg-catalogued-1x10.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x10 cg-board square, .cg-wrap.cg-catalogued-1x10 piece { width: 100.00000000%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-1x11 { padding-bottom: 1100.00000000%; }
+.cg-wrap.cg-catalogued-1x11.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x11 cg-board square, .cg-wrap.cg-catalogued-1x11 piece { width: 100.00000000%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-1x12 { padding-bottom: 1200.00000000%; }
+.cg-wrap.cg-catalogued-1x12.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x12 cg-board square, .cg-wrap.cg-catalogued-1x12 piece { width: 100.00000000%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-1x13 { padding-bottom: 1300.00000000%; }
+.cg-wrap.cg-catalogued-1x13.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x13 cg-board square, .cg-wrap.cg-catalogued-1x13 piece { width: 100.00000000%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-1x14 { padding-bottom: 1400.00000000%; }
+.cg-wrap.cg-catalogued-1x14.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x14 cg-board square, .cg-wrap.cg-catalogued-1x14 piece { width: 100.00000000%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-1x15 { padding-bottom: 1500.00000000%; }
+.cg-wrap.cg-catalogued-1x15.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x15 cg-board square, .cg-wrap.cg-catalogued-1x15 piece { width: 100.00000000%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-1x16 { padding-bottom: 1600.00000000%; }
+.cg-wrap.cg-catalogued-1x16.mini { --mini-board-width: 132px; }
+.cg-catalogued-1x16 cg-board square, .cg-wrap.cg-catalogued-1x16 piece { width: 100.00000000%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-2x1 { padding-bottom: 50.00000000%; }
+.cg-wrap.cg-catalogued-2x1.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x1 cg-board square, .cg-wrap.cg-catalogued-2x1 piece { width: 50.00000000%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-2x2 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-2x2.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x2 cg-board square, .cg-wrap.cg-catalogued-2x2 piece { width: 50.00000000%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-2x3 { padding-bottom: 150.00000000%; }
+.cg-wrap.cg-catalogued-2x3.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x3 cg-board square, .cg-wrap.cg-catalogued-2x3 piece { width: 50.00000000%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-2x4 { padding-bottom: 200.00000000%; }
+.cg-wrap.cg-catalogued-2x4.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x4 cg-board square, .cg-wrap.cg-catalogued-2x4 piece { width: 50.00000000%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-2x5 { padding-bottom: 250.00000000%; }
+.cg-wrap.cg-catalogued-2x5.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x5 cg-board square, .cg-wrap.cg-catalogued-2x5 piece { width: 50.00000000%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-2x6 { padding-bottom: 300.00000000%; }
+.cg-wrap.cg-catalogued-2x6.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x6 cg-board square, .cg-wrap.cg-catalogued-2x6 piece { width: 50.00000000%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-2x7 { padding-bottom: 350.00000000%; }
+.cg-wrap.cg-catalogued-2x7.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x7 cg-board square, .cg-wrap.cg-catalogued-2x7 piece { width: 50.00000000%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-2x8 { padding-bottom: 400.00000000%; }
+.cg-wrap.cg-catalogued-2x8.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x8 cg-board square, .cg-wrap.cg-catalogued-2x8 piece { width: 50.00000000%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-2x9 { padding-bottom: 450.00000000%; }
+.cg-wrap.cg-catalogued-2x9.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x9 cg-board square, .cg-wrap.cg-catalogued-2x9 piece { width: 50.00000000%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-2x10 { padding-bottom: 500.00000000%; }
+.cg-wrap.cg-catalogued-2x10.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x10 cg-board square, .cg-wrap.cg-catalogued-2x10 piece { width: 50.00000000%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-2x11 { padding-bottom: 550.00000000%; }
+.cg-wrap.cg-catalogued-2x11.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x11 cg-board square, .cg-wrap.cg-catalogued-2x11 piece { width: 50.00000000%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-2x12 { padding-bottom: 600.00000000%; }
+.cg-wrap.cg-catalogued-2x12.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x12 cg-board square, .cg-wrap.cg-catalogued-2x12 piece { width: 50.00000000%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-2x13 { padding-bottom: 650.00000000%; }
+.cg-wrap.cg-catalogued-2x13.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x13 cg-board square, .cg-wrap.cg-catalogued-2x13 piece { width: 50.00000000%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-2x14 { padding-bottom: 700.00000000%; }
+.cg-wrap.cg-catalogued-2x14.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x14 cg-board square, .cg-wrap.cg-catalogued-2x14 piece { width: 50.00000000%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-2x15 { padding-bottom: 750.00000000%; }
+.cg-wrap.cg-catalogued-2x15.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x15 cg-board square, .cg-wrap.cg-catalogued-2x15 piece { width: 50.00000000%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-2x16 { padding-bottom: 800.00000000%; }
+.cg-wrap.cg-catalogued-2x16.mini { --mini-board-width: 132px; }
+.cg-catalogued-2x16 cg-board square, .cg-wrap.cg-catalogued-2x16 piece { width: 50.00000000%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-3x1 { padding-bottom: 33.33333333%; }
+.cg-wrap.cg-catalogued-3x1.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x1 cg-board square, .cg-wrap.cg-catalogued-3x1 piece { width: 33.33333333%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-3x2 { padding-bottom: 66.66666667%; }
+.cg-wrap.cg-catalogued-3x2.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x2 cg-board square, .cg-wrap.cg-catalogued-3x2 piece { width: 33.33333333%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-3x3 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-3x3.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x3 cg-board square, .cg-wrap.cg-catalogued-3x3 piece { width: 33.33333333%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-3x4 { padding-bottom: 133.33333333%; }
+.cg-wrap.cg-catalogued-3x4.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x4 cg-board square, .cg-wrap.cg-catalogued-3x4 piece { width: 33.33333333%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-3x5 { padding-bottom: 166.66666667%; }
+.cg-wrap.cg-catalogued-3x5.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x5 cg-board square, .cg-wrap.cg-catalogued-3x5 piece { width: 33.33333333%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-3x6 { padding-bottom: 200.00000000%; }
+.cg-wrap.cg-catalogued-3x6.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x6 cg-board square, .cg-wrap.cg-catalogued-3x6 piece { width: 33.33333333%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-3x7 { padding-bottom: 233.33333333%; }
+.cg-wrap.cg-catalogued-3x7.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x7 cg-board square, .cg-wrap.cg-catalogued-3x7 piece { width: 33.33333333%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-3x8 { padding-bottom: 266.66666667%; }
+.cg-wrap.cg-catalogued-3x8.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x8 cg-board square, .cg-wrap.cg-catalogued-3x8 piece { width: 33.33333333%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-3x9 { padding-bottom: 300.00000000%; }
+.cg-wrap.cg-catalogued-3x9.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x9 cg-board square, .cg-wrap.cg-catalogued-3x9 piece { width: 33.33333333%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-3x10 { padding-bottom: 333.33333333%; }
+.cg-wrap.cg-catalogued-3x10.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x10 cg-board square, .cg-wrap.cg-catalogued-3x10 piece { width: 33.33333333%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-3x11 { padding-bottom: 366.66666667%; }
+.cg-wrap.cg-catalogued-3x11.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x11 cg-board square, .cg-wrap.cg-catalogued-3x11 piece { width: 33.33333333%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-3x12 { padding-bottom: 400.00000000%; }
+.cg-wrap.cg-catalogued-3x12.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x12 cg-board square, .cg-wrap.cg-catalogued-3x12 piece { width: 33.33333333%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-3x13 { padding-bottom: 433.33333333%; }
+.cg-wrap.cg-catalogued-3x13.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x13 cg-board square, .cg-wrap.cg-catalogued-3x13 piece { width: 33.33333333%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-3x14 { padding-bottom: 466.66666667%; }
+.cg-wrap.cg-catalogued-3x14.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x14 cg-board square, .cg-wrap.cg-catalogued-3x14 piece { width: 33.33333333%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-3x15 { padding-bottom: 500.00000000%; }
+.cg-wrap.cg-catalogued-3x15.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x15 cg-board square, .cg-wrap.cg-catalogued-3x15 piece { width: 33.33333333%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-3x16 { padding-bottom: 533.33333333%; }
+.cg-wrap.cg-catalogued-3x16.mini { --mini-board-width: 132px; }
+.cg-catalogued-3x16 cg-board square, .cg-wrap.cg-catalogued-3x16 piece { width: 33.33333333%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-4x1 { padding-bottom: 25.00000000%; }
+.cg-wrap.cg-catalogued-4x1.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x1 cg-board square, .cg-wrap.cg-catalogued-4x1 piece { width: 25.00000000%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-4x2 { padding-bottom: 50.00000000%; }
+.cg-wrap.cg-catalogued-4x2.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x2 cg-board square, .cg-wrap.cg-catalogued-4x2 piece { width: 25.00000000%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-4x3 { padding-bottom: 75.00000000%; }
+.cg-wrap.cg-catalogued-4x3.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x3 cg-board square, .cg-wrap.cg-catalogued-4x3 piece { width: 25.00000000%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-4x4 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-4x4.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x4 cg-board square, .cg-wrap.cg-catalogued-4x4 piece { width: 25.00000000%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-4x5 { padding-bottom: 125.00000000%; }
+.cg-wrap.cg-catalogued-4x5.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x5 cg-board square, .cg-wrap.cg-catalogued-4x5 piece { width: 25.00000000%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-4x6 { padding-bottom: 150.00000000%; }
+.cg-wrap.cg-catalogued-4x6.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x6 cg-board square, .cg-wrap.cg-catalogued-4x6 piece { width: 25.00000000%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-4x7 { padding-bottom: 175.00000000%; }
+.cg-wrap.cg-catalogued-4x7.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x7 cg-board square, .cg-wrap.cg-catalogued-4x7 piece { width: 25.00000000%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-4x8 { padding-bottom: 200.00000000%; }
+.cg-wrap.cg-catalogued-4x8.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x8 cg-board square, .cg-wrap.cg-catalogued-4x8 piece { width: 25.00000000%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-4x9 { padding-bottom: 225.00000000%; }
+.cg-wrap.cg-catalogued-4x9.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x9 cg-board square, .cg-wrap.cg-catalogued-4x9 piece { width: 25.00000000%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-4x10 { padding-bottom: 250.00000000%; }
+.cg-wrap.cg-catalogued-4x10.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x10 cg-board square, .cg-wrap.cg-catalogued-4x10 piece { width: 25.00000000%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-4x11 { padding-bottom: 275.00000000%; }
+.cg-wrap.cg-catalogued-4x11.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x11 cg-board square, .cg-wrap.cg-catalogued-4x11 piece { width: 25.00000000%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-4x12 { padding-bottom: 300.00000000%; }
+.cg-wrap.cg-catalogued-4x12.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x12 cg-board square, .cg-wrap.cg-catalogued-4x12 piece { width: 25.00000000%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-4x13 { padding-bottom: 325.00000000%; }
+.cg-wrap.cg-catalogued-4x13.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x13 cg-board square, .cg-wrap.cg-catalogued-4x13 piece { width: 25.00000000%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-4x14 { padding-bottom: 350.00000000%; }
+.cg-wrap.cg-catalogued-4x14.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x14 cg-board square, .cg-wrap.cg-catalogued-4x14 piece { width: 25.00000000%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-4x15 { padding-bottom: 375.00000000%; }
+.cg-wrap.cg-catalogued-4x15.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x15 cg-board square, .cg-wrap.cg-catalogued-4x15 piece { width: 25.00000000%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-4x16 { padding-bottom: 400.00000000%; }
+.cg-wrap.cg-catalogued-4x16.mini { --mini-board-width: 132px; }
+.cg-catalogued-4x16 cg-board square, .cg-wrap.cg-catalogued-4x16 piece { width: 25.00000000%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-5x1 { padding-bottom: 20.00000000%; }
+.cg-wrap.cg-catalogued-5x1.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x1 cg-board square, .cg-wrap.cg-catalogued-5x1 piece { width: 20.00000000%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-5x2 { padding-bottom: 40.00000000%; }
+.cg-wrap.cg-catalogued-5x2.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x2 cg-board square, .cg-wrap.cg-catalogued-5x2 piece { width: 20.00000000%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-5x3 { padding-bottom: 60.00000000%; }
+.cg-wrap.cg-catalogued-5x3.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x3 cg-board square, .cg-wrap.cg-catalogued-5x3 piece { width: 20.00000000%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-5x4 { padding-bottom: 80.00000000%; }
+.cg-wrap.cg-catalogued-5x4.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x4 cg-board square, .cg-wrap.cg-catalogued-5x4 piece { width: 20.00000000%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-5x5 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-5x5.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x5 cg-board square, .cg-wrap.cg-catalogued-5x5 piece { width: 20.00000000%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-5x6 { padding-bottom: 120.00000000%; }
+.cg-wrap.cg-catalogued-5x6.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x6 cg-board square, .cg-wrap.cg-catalogued-5x6 piece { width: 20.00000000%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-5x7 { padding-bottom: 140.00000000%; }
+.cg-wrap.cg-catalogued-5x7.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x7 cg-board square, .cg-wrap.cg-catalogued-5x7 piece { width: 20.00000000%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-5x8 { padding-bottom: 160.00000000%; }
+.cg-wrap.cg-catalogued-5x8.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x8 cg-board square, .cg-wrap.cg-catalogued-5x8 piece { width: 20.00000000%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-5x9 { padding-bottom: 180.00000000%; }
+.cg-wrap.cg-catalogued-5x9.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x9 cg-board square, .cg-wrap.cg-catalogued-5x9 piece { width: 20.00000000%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-5x10 { padding-bottom: 200.00000000%; }
+.cg-wrap.cg-catalogued-5x10.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x10 cg-board square, .cg-wrap.cg-catalogued-5x10 piece { width: 20.00000000%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-5x11 { padding-bottom: 220.00000000%; }
+.cg-wrap.cg-catalogued-5x11.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x11 cg-board square, .cg-wrap.cg-catalogued-5x11 piece { width: 20.00000000%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-5x12 { padding-bottom: 240.00000000%; }
+.cg-wrap.cg-catalogued-5x12.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x12 cg-board square, .cg-wrap.cg-catalogued-5x12 piece { width: 20.00000000%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-5x13 { padding-bottom: 260.00000000%; }
+.cg-wrap.cg-catalogued-5x13.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x13 cg-board square, .cg-wrap.cg-catalogued-5x13 piece { width: 20.00000000%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-5x14 { padding-bottom: 280.00000000%; }
+.cg-wrap.cg-catalogued-5x14.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x14 cg-board square, .cg-wrap.cg-catalogued-5x14 piece { width: 20.00000000%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-5x15 { padding-bottom: 300.00000000%; }
+.cg-wrap.cg-catalogued-5x15.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x15 cg-board square, .cg-wrap.cg-catalogued-5x15 piece { width: 20.00000000%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-5x16 { padding-bottom: 320.00000000%; }
+.cg-wrap.cg-catalogued-5x16.mini { --mini-board-width: 160px; }
+.cg-catalogued-5x16 cg-board square, .cg-wrap.cg-catalogued-5x16 piece { width: 20.00000000%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-6x1 { padding-bottom: 16.66666667%; }
+.cg-wrap.cg-catalogued-6x1.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x1 cg-board square, .cg-wrap.cg-catalogued-6x1 piece { width: 16.66666667%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-6x2 { padding-bottom: 33.33333333%; }
+.cg-wrap.cg-catalogued-6x2.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x2 cg-board square, .cg-wrap.cg-catalogued-6x2 piece { width: 16.66666667%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-6x3 { padding-bottom: 50.00000000%; }
+.cg-wrap.cg-catalogued-6x3.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x3 cg-board square, .cg-wrap.cg-catalogued-6x3 piece { width: 16.66666667%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-6x4 { padding-bottom: 66.66666667%; }
+.cg-wrap.cg-catalogued-6x4.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x4 cg-board square, .cg-wrap.cg-catalogued-6x4 piece { width: 16.66666667%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-6x5 { padding-bottom: 83.33333333%; }
+.cg-wrap.cg-catalogued-6x5.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x5 cg-board square, .cg-wrap.cg-catalogued-6x5 piece { width: 16.66666667%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-6x6 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-6x6.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x6 cg-board square, .cg-wrap.cg-catalogued-6x6 piece { width: 16.66666667%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-6x7 { padding-bottom: 116.66666667%; }
+.cg-wrap.cg-catalogued-6x7.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x7 cg-board square, .cg-wrap.cg-catalogued-6x7 piece { width: 16.66666667%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-6x8 { padding-bottom: 133.33333333%; }
+.cg-wrap.cg-catalogued-6x8.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x8 cg-board square, .cg-wrap.cg-catalogued-6x8 piece { width: 16.66666667%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-6x9 { padding-bottom: 150.00000000%; }
+.cg-wrap.cg-catalogued-6x9.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x9 cg-board square, .cg-wrap.cg-catalogued-6x9 piece { width: 16.66666667%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-6x10 { padding-bottom: 166.66666667%; }
+.cg-wrap.cg-catalogued-6x10.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x10 cg-board square, .cg-wrap.cg-catalogued-6x10 piece { width: 16.66666667%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-6x11 { padding-bottom: 183.33333333%; }
+.cg-wrap.cg-catalogued-6x11.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x11 cg-board square, .cg-wrap.cg-catalogued-6x11 piece { width: 16.66666667%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-6x12 { padding-bottom: 200.00000000%; }
+.cg-wrap.cg-catalogued-6x12.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x12 cg-board square, .cg-wrap.cg-catalogued-6x12 piece { width: 16.66666667%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-6x13 { padding-bottom: 216.66666667%; }
+.cg-wrap.cg-catalogued-6x13.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x13 cg-board square, .cg-wrap.cg-catalogued-6x13 piece { width: 16.66666667%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-6x14 { padding-bottom: 233.33333333%; }
+.cg-wrap.cg-catalogued-6x14.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x14 cg-board square, .cg-wrap.cg-catalogued-6x14 piece { width: 16.66666667%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-6x15 { padding-bottom: 250.00000000%; }
+.cg-wrap.cg-catalogued-6x15.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x15 cg-board square, .cg-wrap.cg-catalogued-6x15 piece { width: 16.66666667%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-6x16 { padding-bottom: 266.66666667%; }
+.cg-wrap.cg-catalogued-6x16.mini { --mini-board-width: 192px; }
+.cg-catalogued-6x16 cg-board square, .cg-wrap.cg-catalogued-6x16 piece { width: 16.66666667%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-7x1 { padding-bottom: 14.28571429%; }
+.cg-wrap.cg-catalogued-7x1.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x1 cg-board square, .cg-wrap.cg-catalogued-7x1 piece { width: 14.28571429%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-7x2 { padding-bottom: 28.57142857%; }
+.cg-wrap.cg-catalogued-7x2.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x2 cg-board square, .cg-wrap.cg-catalogued-7x2 piece { width: 14.28571429%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-7x3 { padding-bottom: 42.85714286%; }
+.cg-wrap.cg-catalogued-7x3.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x3 cg-board square, .cg-wrap.cg-catalogued-7x3 piece { width: 14.28571429%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-7x4 { padding-bottom: 57.14285714%; }
+.cg-wrap.cg-catalogued-7x4.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x4 cg-board square, .cg-wrap.cg-catalogued-7x4 piece { width: 14.28571429%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-7x5 { padding-bottom: 71.42857143%; }
+.cg-wrap.cg-catalogued-7x5.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x5 cg-board square, .cg-wrap.cg-catalogued-7x5 piece { width: 14.28571429%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-7x6 { padding-bottom: 85.71428571%; }
+.cg-wrap.cg-catalogued-7x6.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x6 cg-board square, .cg-wrap.cg-catalogued-7x6 piece { width: 14.28571429%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-7x7 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-7x7.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x7 cg-board square, .cg-wrap.cg-catalogued-7x7 piece { width: 14.28571429%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-7x8 { padding-bottom: 114.28571429%; }
+.cg-wrap.cg-catalogued-7x8.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x8 cg-board square, .cg-wrap.cg-catalogued-7x8 piece { width: 14.28571429%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-7x9 { padding-bottom: 128.57142857%; }
+.cg-wrap.cg-catalogued-7x9.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x9 cg-board square, .cg-wrap.cg-catalogued-7x9 piece { width: 14.28571429%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-7x10 { padding-bottom: 142.85714286%; }
+.cg-wrap.cg-catalogued-7x10.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x10 cg-board square, .cg-wrap.cg-catalogued-7x10 piece { width: 14.28571429%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-7x11 { padding-bottom: 157.14285714%; }
+.cg-wrap.cg-catalogued-7x11.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x11 cg-board square, .cg-wrap.cg-catalogued-7x11 piece { width: 14.28571429%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-7x12 { padding-bottom: 171.42857143%; }
+.cg-wrap.cg-catalogued-7x12.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x12 cg-board square, .cg-wrap.cg-catalogued-7x12 piece { width: 14.28571429%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-7x13 { padding-bottom: 185.71428571%; }
+.cg-wrap.cg-catalogued-7x13.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x13 cg-board square, .cg-wrap.cg-catalogued-7x13 piece { width: 14.28571429%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-7x14 { padding-bottom: 200.00000000%; }
+.cg-wrap.cg-catalogued-7x14.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x14 cg-board square, .cg-wrap.cg-catalogued-7x14 piece { width: 14.28571429%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-7x15 { padding-bottom: 214.28571429%; }
+.cg-wrap.cg-catalogued-7x15.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x15 cg-board square, .cg-wrap.cg-catalogued-7x15 piece { width: 14.28571429%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-7x16 { padding-bottom: 228.57142857%; }
+.cg-wrap.cg-catalogued-7x16.mini { --mini-board-width: 224px; }
+.cg-catalogued-7x16 cg-board square, .cg-wrap.cg-catalogued-7x16 piece { width: 14.28571429%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-8x1 { padding-bottom: 12.50000000%; }
+.cg-wrap.cg-catalogued-8x1.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x1 cg-board square, .cg-wrap.cg-catalogued-8x1 piece { width: 12.50000000%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-8x2 { padding-bottom: 25.00000000%; }
+.cg-wrap.cg-catalogued-8x2.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x2 cg-board square, .cg-wrap.cg-catalogued-8x2 piece { width: 12.50000000%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-8x3 { padding-bottom: 37.50000000%; }
+.cg-wrap.cg-catalogued-8x3.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x3 cg-board square, .cg-wrap.cg-catalogued-8x3 piece { width: 12.50000000%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-8x4 { padding-bottom: 50.00000000%; }
+.cg-wrap.cg-catalogued-8x4.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x4 cg-board square, .cg-wrap.cg-catalogued-8x4 piece { width: 12.50000000%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-8x5 { padding-bottom: 62.50000000%; }
+.cg-wrap.cg-catalogued-8x5.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x5 cg-board square, .cg-wrap.cg-catalogued-8x5 piece { width: 12.50000000%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-8x6 { padding-bottom: 75.00000000%; }
+.cg-wrap.cg-catalogued-8x6.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x6 cg-board square, .cg-wrap.cg-catalogued-8x6 piece { width: 12.50000000%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-8x7 { padding-bottom: 87.50000000%; }
+.cg-wrap.cg-catalogued-8x7.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x7 cg-board square, .cg-wrap.cg-catalogued-8x7 piece { width: 12.50000000%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-8x8 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-8x8.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x8 cg-board square, .cg-wrap.cg-catalogued-8x8 piece { width: 12.50000000%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-8x9 { padding-bottom: 112.50000000%; }
+.cg-wrap.cg-catalogued-8x9.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x9 cg-board square, .cg-wrap.cg-catalogued-8x9 piece { width: 12.50000000%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-8x10 { padding-bottom: 125.00000000%; }
+.cg-wrap.cg-catalogued-8x10.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x10 cg-board square, .cg-wrap.cg-catalogued-8x10 piece { width: 12.50000000%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-8x11 { padding-bottom: 137.50000000%; }
+.cg-wrap.cg-catalogued-8x11.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x11 cg-board square, .cg-wrap.cg-catalogued-8x11 piece { width: 12.50000000%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-8x12 { padding-bottom: 150.00000000%; }
+.cg-wrap.cg-catalogued-8x12.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x12 cg-board square, .cg-wrap.cg-catalogued-8x12 piece { width: 12.50000000%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-8x13 { padding-bottom: 162.50000000%; }
+.cg-wrap.cg-catalogued-8x13.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x13 cg-board square, .cg-wrap.cg-catalogued-8x13 piece { width: 12.50000000%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-8x14 { padding-bottom: 175.00000000%; }
+.cg-wrap.cg-catalogued-8x14.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x14 cg-board square, .cg-wrap.cg-catalogued-8x14 piece { width: 12.50000000%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-8x15 { padding-bottom: 187.50000000%; }
+.cg-wrap.cg-catalogued-8x15.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x15 cg-board square, .cg-wrap.cg-catalogued-8x15 piece { width: 12.50000000%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-8x16 { padding-bottom: 200.00000000%; }
+.cg-wrap.cg-catalogued-8x16.mini { --mini-board-width: 256px; }
+.cg-catalogued-8x16 cg-board square, .cg-wrap.cg-catalogued-8x16 piece { width: 12.50000000%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-9x1 { padding-bottom: 11.11111111%; }
+.cg-wrap.cg-catalogued-9x1.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x1 cg-board square, .cg-wrap.cg-catalogued-9x1 piece { width: 11.11111111%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-9x2 { padding-bottom: 22.22222222%; }
+.cg-wrap.cg-catalogued-9x2.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x2 cg-board square, .cg-wrap.cg-catalogued-9x2 piece { width: 11.11111111%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-9x3 { padding-bottom: 33.33333333%; }
+.cg-wrap.cg-catalogued-9x3.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x3 cg-board square, .cg-wrap.cg-catalogued-9x3 piece { width: 11.11111111%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-9x4 { padding-bottom: 44.44444444%; }
+.cg-wrap.cg-catalogued-9x4.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x4 cg-board square, .cg-wrap.cg-catalogued-9x4 piece { width: 11.11111111%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-9x5 { padding-bottom: 55.55555556%; }
+.cg-wrap.cg-catalogued-9x5.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x5 cg-board square, .cg-wrap.cg-catalogued-9x5 piece { width: 11.11111111%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-9x6 { padding-bottom: 66.66666667%; }
+.cg-wrap.cg-catalogued-9x6.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x6 cg-board square, .cg-wrap.cg-catalogued-9x6 piece { width: 11.11111111%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-9x7 { padding-bottom: 77.77777778%; }
+.cg-wrap.cg-catalogued-9x7.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x7 cg-board square, .cg-wrap.cg-catalogued-9x7 piece { width: 11.11111111%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-9x8 { padding-bottom: 88.88888889%; }
+.cg-wrap.cg-catalogued-9x8.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x8 cg-board square, .cg-wrap.cg-catalogued-9x8 piece { width: 11.11111111%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-9x9 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-9x9.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x9 cg-board square, .cg-wrap.cg-catalogued-9x9 piece { width: 11.11111111%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-9x10 { padding-bottom: 111.11111111%; }
+.cg-wrap.cg-catalogued-9x10.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x10 cg-board square, .cg-wrap.cg-catalogued-9x10 piece { width: 11.11111111%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-9x11 { padding-bottom: 122.22222222%; }
+.cg-wrap.cg-catalogued-9x11.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x11 cg-board square, .cg-wrap.cg-catalogued-9x11 piece { width: 11.11111111%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-9x12 { padding-bottom: 133.33333333%; }
+.cg-wrap.cg-catalogued-9x12.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x12 cg-board square, .cg-wrap.cg-catalogued-9x12 piece { width: 11.11111111%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-9x13 { padding-bottom: 144.44444444%; }
+.cg-wrap.cg-catalogued-9x13.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x13 cg-board square, .cg-wrap.cg-catalogued-9x13 piece { width: 11.11111111%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-9x14 { padding-bottom: 155.55555556%; }
+.cg-wrap.cg-catalogued-9x14.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x14 cg-board square, .cg-wrap.cg-catalogued-9x14 piece { width: 11.11111111%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-9x15 { padding-bottom: 166.66666667%; }
+.cg-wrap.cg-catalogued-9x15.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x15 cg-board square, .cg-wrap.cg-catalogued-9x15 piece { width: 11.11111111%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-9x16 { padding-bottom: 177.77777778%; }
+.cg-wrap.cg-catalogued-9x16.mini { --mini-board-width: 288px; }
+.cg-catalogued-9x16 cg-board square, .cg-wrap.cg-catalogued-9x16 piece { width: 11.11111111%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-10x1 { padding-bottom: 10.00000000%; }
+.cg-wrap.cg-catalogued-10x1.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x1 cg-board square, .cg-wrap.cg-catalogued-10x1 piece { width: 10.00000000%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-10x2 { padding-bottom: 20.00000000%; }
+.cg-wrap.cg-catalogued-10x2.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x2 cg-board square, .cg-wrap.cg-catalogued-10x2 piece { width: 10.00000000%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-10x3 { padding-bottom: 30.00000000%; }
+.cg-wrap.cg-catalogued-10x3.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x3 cg-board square, .cg-wrap.cg-catalogued-10x3 piece { width: 10.00000000%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-10x4 { padding-bottom: 40.00000000%; }
+.cg-wrap.cg-catalogued-10x4.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x4 cg-board square, .cg-wrap.cg-catalogued-10x4 piece { width: 10.00000000%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-10x5 { padding-bottom: 50.00000000%; }
+.cg-wrap.cg-catalogued-10x5.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x5 cg-board square, .cg-wrap.cg-catalogued-10x5 piece { width: 10.00000000%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-10x6 { padding-bottom: 60.00000000%; }
+.cg-wrap.cg-catalogued-10x6.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x6 cg-board square, .cg-wrap.cg-catalogued-10x6 piece { width: 10.00000000%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-10x7 { padding-bottom: 70.00000000%; }
+.cg-wrap.cg-catalogued-10x7.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x7 cg-board square, .cg-wrap.cg-catalogued-10x7 piece { width: 10.00000000%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-10x8 { padding-bottom: 80.00000000%; }
+.cg-wrap.cg-catalogued-10x8.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x8 cg-board square, .cg-wrap.cg-catalogued-10x8 piece { width: 10.00000000%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-10x9 { padding-bottom: 90.00000000%; }
+.cg-wrap.cg-catalogued-10x9.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x9 cg-board square, .cg-wrap.cg-catalogued-10x9 piece { width: 10.00000000%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-10x10 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-10x10.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x10 cg-board square, .cg-wrap.cg-catalogued-10x10 piece { width: 10.00000000%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-10x11 { padding-bottom: 110.00000000%; }
+.cg-wrap.cg-catalogued-10x11.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x11 cg-board square, .cg-wrap.cg-catalogued-10x11 piece { width: 10.00000000%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-10x12 { padding-bottom: 120.00000000%; }
+.cg-wrap.cg-catalogued-10x12.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x12 cg-board square, .cg-wrap.cg-catalogued-10x12 piece { width: 10.00000000%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-10x13 { padding-bottom: 130.00000000%; }
+.cg-wrap.cg-catalogued-10x13.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x13 cg-board square, .cg-wrap.cg-catalogued-10x13 piece { width: 10.00000000%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-10x14 { padding-bottom: 140.00000000%; }
+.cg-wrap.cg-catalogued-10x14.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x14 cg-board square, .cg-wrap.cg-catalogued-10x14 piece { width: 10.00000000%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-10x15 { padding-bottom: 150.00000000%; }
+.cg-wrap.cg-catalogued-10x15.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x15 cg-board square, .cg-wrap.cg-catalogued-10x15 piece { width: 10.00000000%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-10x16 { padding-bottom: 160.00000000%; }
+.cg-wrap.cg-catalogued-10x16.mini { --mini-board-width: 320px; }
+.cg-catalogued-10x16 cg-board square, .cg-wrap.cg-catalogued-10x16 piece { width: 10.00000000%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-11x1 { padding-bottom: 9.09090909%; }
+.cg-wrap.cg-catalogued-11x1.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x1 cg-board square, .cg-wrap.cg-catalogued-11x1 piece { width: 9.09090909%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-11x2 { padding-bottom: 18.18181818%; }
+.cg-wrap.cg-catalogued-11x2.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x2 cg-board square, .cg-wrap.cg-catalogued-11x2 piece { width: 9.09090909%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-11x3 { padding-bottom: 27.27272727%; }
+.cg-wrap.cg-catalogued-11x3.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x3 cg-board square, .cg-wrap.cg-catalogued-11x3 piece { width: 9.09090909%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-11x4 { padding-bottom: 36.36363636%; }
+.cg-wrap.cg-catalogued-11x4.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x4 cg-board square, .cg-wrap.cg-catalogued-11x4 piece { width: 9.09090909%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-11x5 { padding-bottom: 45.45454545%; }
+.cg-wrap.cg-catalogued-11x5.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x5 cg-board square, .cg-wrap.cg-catalogued-11x5 piece { width: 9.09090909%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-11x6 { padding-bottom: 54.54545455%; }
+.cg-wrap.cg-catalogued-11x6.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x6 cg-board square, .cg-wrap.cg-catalogued-11x6 piece { width: 9.09090909%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-11x7 { padding-bottom: 63.63636364%; }
+.cg-wrap.cg-catalogued-11x7.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x7 cg-board square, .cg-wrap.cg-catalogued-11x7 piece { width: 9.09090909%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-11x8 { padding-bottom: 72.72727273%; }
+.cg-wrap.cg-catalogued-11x8.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x8 cg-board square, .cg-wrap.cg-catalogued-11x8 piece { width: 9.09090909%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-11x9 { padding-bottom: 81.81818182%; }
+.cg-wrap.cg-catalogued-11x9.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x9 cg-board square, .cg-wrap.cg-catalogued-11x9 piece { width: 9.09090909%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-11x10 { padding-bottom: 90.90909091%; }
+.cg-wrap.cg-catalogued-11x10.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x10 cg-board square, .cg-wrap.cg-catalogued-11x10 piece { width: 9.09090909%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-11x11 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-11x11.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x11 cg-board square, .cg-wrap.cg-catalogued-11x11 piece { width: 9.09090909%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-11x12 { padding-bottom: 109.09090909%; }
+.cg-wrap.cg-catalogued-11x12.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x12 cg-board square, .cg-wrap.cg-catalogued-11x12 piece { width: 9.09090909%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-11x13 { padding-bottom: 118.18181818%; }
+.cg-wrap.cg-catalogued-11x13.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x13 cg-board square, .cg-wrap.cg-catalogued-11x13 piece { width: 9.09090909%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-11x14 { padding-bottom: 127.27272727%; }
+.cg-wrap.cg-catalogued-11x14.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x14 cg-board square, .cg-wrap.cg-catalogued-11x14 piece { width: 9.09090909%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-11x15 { padding-bottom: 136.36363636%; }
+.cg-wrap.cg-catalogued-11x15.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x15 cg-board square, .cg-wrap.cg-catalogued-11x15 piece { width: 9.09090909%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-11x16 { padding-bottom: 145.45454545%; }
+.cg-wrap.cg-catalogued-11x16.mini { --mini-board-width: 320px; }
+.cg-catalogued-11x16 cg-board square, .cg-wrap.cg-catalogued-11x16 piece { width: 9.09090909%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-12x1 { padding-bottom: 8.33333333%; }
+.cg-wrap.cg-catalogued-12x1.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x1 cg-board square, .cg-wrap.cg-catalogued-12x1 piece { width: 8.33333333%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-12x2 { padding-bottom: 16.66666667%; }
+.cg-wrap.cg-catalogued-12x2.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x2 cg-board square, .cg-wrap.cg-catalogued-12x2 piece { width: 8.33333333%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-12x3 { padding-bottom: 25.00000000%; }
+.cg-wrap.cg-catalogued-12x3.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x3 cg-board square, .cg-wrap.cg-catalogued-12x3 piece { width: 8.33333333%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-12x4 { padding-bottom: 33.33333333%; }
+.cg-wrap.cg-catalogued-12x4.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x4 cg-board square, .cg-wrap.cg-catalogued-12x4 piece { width: 8.33333333%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-12x5 { padding-bottom: 41.66666667%; }
+.cg-wrap.cg-catalogued-12x5.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x5 cg-board square, .cg-wrap.cg-catalogued-12x5 piece { width: 8.33333333%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-12x6 { padding-bottom: 50.00000000%; }
+.cg-wrap.cg-catalogued-12x6.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x6 cg-board square, .cg-wrap.cg-catalogued-12x6 piece { width: 8.33333333%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-12x7 { padding-bottom: 58.33333333%; }
+.cg-wrap.cg-catalogued-12x7.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x7 cg-board square, .cg-wrap.cg-catalogued-12x7 piece { width: 8.33333333%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-12x8 { padding-bottom: 66.66666667%; }
+.cg-wrap.cg-catalogued-12x8.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x8 cg-board square, .cg-wrap.cg-catalogued-12x8 piece { width: 8.33333333%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-12x9 { padding-bottom: 75.00000000%; }
+.cg-wrap.cg-catalogued-12x9.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x9 cg-board square, .cg-wrap.cg-catalogued-12x9 piece { width: 8.33333333%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-12x10 { padding-bottom: 83.33333333%; }
+.cg-wrap.cg-catalogued-12x10.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x10 cg-board square, .cg-wrap.cg-catalogued-12x10 piece { width: 8.33333333%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-12x11 { padding-bottom: 91.66666667%; }
+.cg-wrap.cg-catalogued-12x11.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x11 cg-board square, .cg-wrap.cg-catalogued-12x11 piece { width: 8.33333333%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-12x12 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-12x12.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x12 cg-board square, .cg-wrap.cg-catalogued-12x12 piece { width: 8.33333333%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-12x13 { padding-bottom: 108.33333333%; }
+.cg-wrap.cg-catalogued-12x13.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x13 cg-board square, .cg-wrap.cg-catalogued-12x13 piece { width: 8.33333333%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-12x14 { padding-bottom: 116.66666667%; }
+.cg-wrap.cg-catalogued-12x14.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x14 cg-board square, .cg-wrap.cg-catalogued-12x14 piece { width: 8.33333333%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-12x15 { padding-bottom: 125.00000000%; }
+.cg-wrap.cg-catalogued-12x15.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x15 cg-board square, .cg-wrap.cg-catalogued-12x15 piece { width: 8.33333333%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-12x16 { padding-bottom: 133.33333333%; }
+.cg-wrap.cg-catalogued-12x16.mini { --mini-board-width: 320px; }
+.cg-catalogued-12x16 cg-board square, .cg-wrap.cg-catalogued-12x16 piece { width: 8.33333333%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-13x1 { padding-bottom: 7.69230769%; }
+.cg-wrap.cg-catalogued-13x1.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x1 cg-board square, .cg-wrap.cg-catalogued-13x1 piece { width: 7.69230769%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-13x2 { padding-bottom: 15.38461538%; }
+.cg-wrap.cg-catalogued-13x2.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x2 cg-board square, .cg-wrap.cg-catalogued-13x2 piece { width: 7.69230769%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-13x3 { padding-bottom: 23.07692308%; }
+.cg-wrap.cg-catalogued-13x3.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x3 cg-board square, .cg-wrap.cg-catalogued-13x3 piece { width: 7.69230769%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-13x4 { padding-bottom: 30.76923077%; }
+.cg-wrap.cg-catalogued-13x4.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x4 cg-board square, .cg-wrap.cg-catalogued-13x4 piece { width: 7.69230769%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-13x5 { padding-bottom: 38.46153846%; }
+.cg-wrap.cg-catalogued-13x5.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x5 cg-board square, .cg-wrap.cg-catalogued-13x5 piece { width: 7.69230769%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-13x6 { padding-bottom: 46.15384615%; }
+.cg-wrap.cg-catalogued-13x6.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x6 cg-board square, .cg-wrap.cg-catalogued-13x6 piece { width: 7.69230769%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-13x7 { padding-bottom: 53.84615385%; }
+.cg-wrap.cg-catalogued-13x7.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x7 cg-board square, .cg-wrap.cg-catalogued-13x7 piece { width: 7.69230769%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-13x8 { padding-bottom: 61.53846154%; }
+.cg-wrap.cg-catalogued-13x8.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x8 cg-board square, .cg-wrap.cg-catalogued-13x8 piece { width: 7.69230769%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-13x9 { padding-bottom: 69.23076923%; }
+.cg-wrap.cg-catalogued-13x9.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x9 cg-board square, .cg-wrap.cg-catalogued-13x9 piece { width: 7.69230769%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-13x10 { padding-bottom: 76.92307692%; }
+.cg-wrap.cg-catalogued-13x10.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x10 cg-board square, .cg-wrap.cg-catalogued-13x10 piece { width: 7.69230769%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-13x11 { padding-bottom: 84.61538462%; }
+.cg-wrap.cg-catalogued-13x11.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x11 cg-board square, .cg-wrap.cg-catalogued-13x11 piece { width: 7.69230769%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-13x12 { padding-bottom: 92.30769231%; }
+.cg-wrap.cg-catalogued-13x12.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x12 cg-board square, .cg-wrap.cg-catalogued-13x12 piece { width: 7.69230769%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-13x13 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-13x13.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x13 cg-board square, .cg-wrap.cg-catalogued-13x13 piece { width: 7.69230769%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-13x14 { padding-bottom: 107.69230769%; }
+.cg-wrap.cg-catalogued-13x14.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x14 cg-board square, .cg-wrap.cg-catalogued-13x14 piece { width: 7.69230769%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-13x15 { padding-bottom: 115.38461538%; }
+.cg-wrap.cg-catalogued-13x15.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x15 cg-board square, .cg-wrap.cg-catalogued-13x15 piece { width: 7.69230769%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-13x16 { padding-bottom: 123.07692308%; }
+.cg-wrap.cg-catalogued-13x16.mini { --mini-board-width: 320px; }
+.cg-catalogued-13x16 cg-board square, .cg-wrap.cg-catalogued-13x16 piece { width: 7.69230769%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-14x1 { padding-bottom: 7.14285714%; }
+.cg-wrap.cg-catalogued-14x1.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x1 cg-board square, .cg-wrap.cg-catalogued-14x1 piece { width: 7.14285714%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-14x2 { padding-bottom: 14.28571429%; }
+.cg-wrap.cg-catalogued-14x2.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x2 cg-board square, .cg-wrap.cg-catalogued-14x2 piece { width: 7.14285714%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-14x3 { padding-bottom: 21.42857143%; }
+.cg-wrap.cg-catalogued-14x3.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x3 cg-board square, .cg-wrap.cg-catalogued-14x3 piece { width: 7.14285714%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-14x4 { padding-bottom: 28.57142857%; }
+.cg-wrap.cg-catalogued-14x4.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x4 cg-board square, .cg-wrap.cg-catalogued-14x4 piece { width: 7.14285714%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-14x5 { padding-bottom: 35.71428571%; }
+.cg-wrap.cg-catalogued-14x5.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x5 cg-board square, .cg-wrap.cg-catalogued-14x5 piece { width: 7.14285714%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-14x6 { padding-bottom: 42.85714286%; }
+.cg-wrap.cg-catalogued-14x6.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x6 cg-board square, .cg-wrap.cg-catalogued-14x6 piece { width: 7.14285714%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-14x7 { padding-bottom: 50.00000000%; }
+.cg-wrap.cg-catalogued-14x7.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x7 cg-board square, .cg-wrap.cg-catalogued-14x7 piece { width: 7.14285714%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-14x8 { padding-bottom: 57.14285714%; }
+.cg-wrap.cg-catalogued-14x8.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x8 cg-board square, .cg-wrap.cg-catalogued-14x8 piece { width: 7.14285714%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-14x9 { padding-bottom: 64.28571429%; }
+.cg-wrap.cg-catalogued-14x9.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x9 cg-board square, .cg-wrap.cg-catalogued-14x9 piece { width: 7.14285714%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-14x10 { padding-bottom: 71.42857143%; }
+.cg-wrap.cg-catalogued-14x10.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x10 cg-board square, .cg-wrap.cg-catalogued-14x10 piece { width: 7.14285714%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-14x11 { padding-bottom: 78.57142857%; }
+.cg-wrap.cg-catalogued-14x11.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x11 cg-board square, .cg-wrap.cg-catalogued-14x11 piece { width: 7.14285714%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-14x12 { padding-bottom: 85.71428571%; }
+.cg-wrap.cg-catalogued-14x12.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x12 cg-board square, .cg-wrap.cg-catalogued-14x12 piece { width: 7.14285714%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-14x13 { padding-bottom: 92.85714286%; }
+.cg-wrap.cg-catalogued-14x13.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x13 cg-board square, .cg-wrap.cg-catalogued-14x13 piece { width: 7.14285714%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-14x14 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-14x14.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x14 cg-board square, .cg-wrap.cg-catalogued-14x14 piece { width: 7.14285714%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-14x15 { padding-bottom: 107.14285714%; }
+.cg-wrap.cg-catalogued-14x15.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x15 cg-board square, .cg-wrap.cg-catalogued-14x15 piece { width: 7.14285714%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-14x16 { padding-bottom: 114.28571429%; }
+.cg-wrap.cg-catalogued-14x16.mini { --mini-board-width: 320px; }
+.cg-catalogued-14x16 cg-board square, .cg-wrap.cg-catalogued-14x16 piece { width: 7.14285714%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-15x1 { padding-bottom: 6.66666667%; }
+.cg-wrap.cg-catalogued-15x1.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x1 cg-board square, .cg-wrap.cg-catalogued-15x1 piece { width: 6.66666667%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-15x2 { padding-bottom: 13.33333333%; }
+.cg-wrap.cg-catalogued-15x2.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x2 cg-board square, .cg-wrap.cg-catalogued-15x2 piece { width: 6.66666667%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-15x3 { padding-bottom: 20.00000000%; }
+.cg-wrap.cg-catalogued-15x3.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x3 cg-board square, .cg-wrap.cg-catalogued-15x3 piece { width: 6.66666667%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-15x4 { padding-bottom: 26.66666667%; }
+.cg-wrap.cg-catalogued-15x4.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x4 cg-board square, .cg-wrap.cg-catalogued-15x4 piece { width: 6.66666667%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-15x5 { padding-bottom: 33.33333333%; }
+.cg-wrap.cg-catalogued-15x5.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x5 cg-board square, .cg-wrap.cg-catalogued-15x5 piece { width: 6.66666667%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-15x6 { padding-bottom: 40.00000000%; }
+.cg-wrap.cg-catalogued-15x6.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x6 cg-board square, .cg-wrap.cg-catalogued-15x6 piece { width: 6.66666667%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-15x7 { padding-bottom: 46.66666667%; }
+.cg-wrap.cg-catalogued-15x7.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x7 cg-board square, .cg-wrap.cg-catalogued-15x7 piece { width: 6.66666667%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-15x8 { padding-bottom: 53.33333333%; }
+.cg-wrap.cg-catalogued-15x8.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x8 cg-board square, .cg-wrap.cg-catalogued-15x8 piece { width: 6.66666667%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-15x9 { padding-bottom: 60.00000000%; }
+.cg-wrap.cg-catalogued-15x9.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x9 cg-board square, .cg-wrap.cg-catalogued-15x9 piece { width: 6.66666667%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-15x10 { padding-bottom: 66.66666667%; }
+.cg-wrap.cg-catalogued-15x10.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x10 cg-board square, .cg-wrap.cg-catalogued-15x10 piece { width: 6.66666667%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-15x11 { padding-bottom: 73.33333333%; }
+.cg-wrap.cg-catalogued-15x11.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x11 cg-board square, .cg-wrap.cg-catalogued-15x11 piece { width: 6.66666667%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-15x12 { padding-bottom: 80.00000000%; }
+.cg-wrap.cg-catalogued-15x12.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x12 cg-board square, .cg-wrap.cg-catalogued-15x12 piece { width: 6.66666667%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-15x13 { padding-bottom: 86.66666667%; }
+.cg-wrap.cg-catalogued-15x13.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x13 cg-board square, .cg-wrap.cg-catalogued-15x13 piece { width: 6.66666667%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-15x14 { padding-bottom: 93.33333333%; }
+.cg-wrap.cg-catalogued-15x14.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x14 cg-board square, .cg-wrap.cg-catalogued-15x14 piece { width: 6.66666667%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-15x15 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-15x15.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x15 cg-board square, .cg-wrap.cg-catalogued-15x15 piece { width: 6.66666667%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-15x16 { padding-bottom: 106.66666667%; }
+.cg-wrap.cg-catalogued-15x16.mini { --mini-board-width: 320px; }
+.cg-catalogued-15x16 cg-board square, .cg-wrap.cg-catalogued-15x16 piece { width: 6.66666667%; height: 6.25000000%; }
+.cg-wrap.cg-catalogued-16x1 { padding-bottom: 6.25000000%; }
+.cg-wrap.cg-catalogued-16x1.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x1 cg-board square, .cg-wrap.cg-catalogued-16x1 piece { width: 6.25000000%; height: 100.00000000%; }
+.cg-wrap.cg-catalogued-16x2 { padding-bottom: 12.50000000%; }
+.cg-wrap.cg-catalogued-16x2.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x2 cg-board square, .cg-wrap.cg-catalogued-16x2 piece { width: 6.25000000%; height: 50.00000000%; }
+.cg-wrap.cg-catalogued-16x3 { padding-bottom: 18.75000000%; }
+.cg-wrap.cg-catalogued-16x3.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x3 cg-board square, .cg-wrap.cg-catalogued-16x3 piece { width: 6.25000000%; height: 33.33333333%; }
+.cg-wrap.cg-catalogued-16x4 { padding-bottom: 25.00000000%; }
+.cg-wrap.cg-catalogued-16x4.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x4 cg-board square, .cg-wrap.cg-catalogued-16x4 piece { width: 6.25000000%; height: 25.00000000%; }
+.cg-wrap.cg-catalogued-16x5 { padding-bottom: 31.25000000%; }
+.cg-wrap.cg-catalogued-16x5.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x5 cg-board square, .cg-wrap.cg-catalogued-16x5 piece { width: 6.25000000%; height: 20.00000000%; }
+.cg-wrap.cg-catalogued-16x6 { padding-bottom: 37.50000000%; }
+.cg-wrap.cg-catalogued-16x6.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x6 cg-board square, .cg-wrap.cg-catalogued-16x6 piece { width: 6.25000000%; height: 16.66666667%; }
+.cg-wrap.cg-catalogued-16x7 { padding-bottom: 43.75000000%; }
+.cg-wrap.cg-catalogued-16x7.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x7 cg-board square, .cg-wrap.cg-catalogued-16x7 piece { width: 6.25000000%; height: 14.28571429%; }
+.cg-wrap.cg-catalogued-16x8 { padding-bottom: 50.00000000%; }
+.cg-wrap.cg-catalogued-16x8.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x8 cg-board square, .cg-wrap.cg-catalogued-16x8 piece { width: 6.25000000%; height: 12.50000000%; }
+.cg-wrap.cg-catalogued-16x9 { padding-bottom: 56.25000000%; }
+.cg-wrap.cg-catalogued-16x9.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x9 cg-board square, .cg-wrap.cg-catalogued-16x9 piece { width: 6.25000000%; height: 11.11111111%; }
+.cg-wrap.cg-catalogued-16x10 { padding-bottom: 62.50000000%; }
+.cg-wrap.cg-catalogued-16x10.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x10 cg-board square, .cg-wrap.cg-catalogued-16x10 piece { width: 6.25000000%; height: 10.00000000%; }
+.cg-wrap.cg-catalogued-16x11 { padding-bottom: 68.75000000%; }
+.cg-wrap.cg-catalogued-16x11.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x11 cg-board square, .cg-wrap.cg-catalogued-16x11 piece { width: 6.25000000%; height: 9.09090909%; }
+.cg-wrap.cg-catalogued-16x12 { padding-bottom: 75.00000000%; }
+.cg-wrap.cg-catalogued-16x12.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x12 cg-board square, .cg-wrap.cg-catalogued-16x12 piece { width: 6.25000000%; height: 8.33333333%; }
+.cg-wrap.cg-catalogued-16x13 { padding-bottom: 81.25000000%; }
+.cg-wrap.cg-catalogued-16x13.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x13 cg-board square, .cg-wrap.cg-catalogued-16x13 piece { width: 6.25000000%; height: 7.69230769%; }
+.cg-wrap.cg-catalogued-16x14 { padding-bottom: 87.50000000%; }
+.cg-wrap.cg-catalogued-16x14.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x14 cg-board square, .cg-wrap.cg-catalogued-16x14 piece { width: 6.25000000%; height: 7.14285714%; }
+.cg-wrap.cg-catalogued-16x15 { padding-bottom: 93.75000000%; }
+.cg-wrap.cg-catalogued-16x15.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x15 cg-board square, .cg-wrap.cg-catalogued-16x15 piece { width: 6.25000000%; height: 6.66666667%; }
+.cg-wrap.cg-catalogued-16x16 { padding-bottom: 100.00000000%; }
+.cg-wrap.cg-catalogued-16x16.mini { --mini-board-width: 320px; }
+.cg-catalogued-16x16 cg-board square, .cg-wrap.cg-catalogued-16x16 piece { width: 6.25000000%; height: 6.25000000%; }

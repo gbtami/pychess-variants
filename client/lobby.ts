@@ -10,7 +10,7 @@ import { _, ngettext, languageSettings } from './i18n';
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
-import { devVariants, disabledVariantsForCreateMode, enabledVariants, twoBoarsVariants, unsupportedAiVariants, VARIANTS, selectVariant, Variant, variantGroups } from './variants';
+import { devVariants, disabledVariantsForCreateMode, enabledVariants, isCataloguedVariant, unsupportedAiVariants, VARIANTS, selectVariant, Variant, variantGroups } from './variants';
 import { timeControlStr, changeTabs, setAriaTabClick } from './view';
 import { notify } from './notification';
 import { PyChessModel } from "./types";
@@ -174,7 +174,7 @@ export class LobbyController implements ChatController {
             // CREATE GAME from the main menu
             if (this.profileid === 'any#') {
                 this.profileid = '';
-                this.createGame();
+                this.createGame(model.variant);
             }
         }
 
@@ -324,6 +324,7 @@ export class LobbyController implements ChatController {
         let e;
         e = document.getElementById('variant') as HTMLSelectElement;
         const variant = VARIANTS[e.options[e.selectedIndex].value];
+        const catalogued = isCataloguedVariant(variant.name);
         localStorage.seek_variant = variant.name;
 
         // TODO Standardize seek color
@@ -367,7 +368,8 @@ export class LobbyController implements ChatController {
             this.title === "BOT" ||
             fen !== "" ||
             (minutes < 1 && increment === 0) ||
-            (minutes === 0 && increment === 1)
+            (minutes === 0 && increment === 1) ||
+            catalogued
             )
             rated = false;
         else
@@ -383,7 +385,7 @@ export class LobbyController implements ChatController {
         localStorage.seek_rating_max = e.value;
 
         e = document.getElementById('chess960') as HTMLInputElement;
-        const chess960 = (variant.chess960 && fen.trim() === "") ? e.checked : false;
+        const chess960 = (!catalogued && variant.chess960 && fen.trim() === "") ? e.checked : false;
         localStorage.seek_chess960 = e.checked;
 
         // console.log("CREATE SEEK variant, color, fen, minutes, increment, hide, chess960", variant, color, fen, minutes, increment, chess960, rated, rrMin, rrMax);
@@ -444,19 +446,21 @@ export class LobbyController implements ChatController {
     }
 
     renderSeekDialog() {
-        const vVariant = localStorage.seek_variant || "chess";
+        let vVariant = localStorage.seek_variant || "chess";
+        if (!VARIANTS[vVariant]) vVariant = "chess";
         const disabledVariants = disabledVariantsForCreateMode(
             this.createMode,
             this.profileid,
             this.anon,
         );
         const twoBoards = VARIANTS[vVariant].twoBoards;
+        const catalogued = isCataloguedVariant(vVariant);
         // 5+3 default TC needs vMin 9 because of the partial numbers at the beginning of minutesValues
         const vMin = localStorage.seek_min ?? "9";
         const vInc = localStorage.seek_inc ?? "3";
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vDay = localStorage.seek_day ?? "1";
-        const vRated = twoBoards ? "0": localStorage.seek_rated ?? "0";
+        const vRated = (twoBoards || catalogued) ? "0": localStorage.seek_rated ?? "0";
         const vRatingMin = localStorage.seek_rating_min ?? -1000;
         const vRatingMax = localStorage.seek_rating_max ?? 1000;
         const vLevel = Number(localStorage.seek_level ?? "1");
@@ -553,7 +557,7 @@ export class LobbyController implements ChatController {
                                     h('label', { attrs: { for: "casual"} }, _("Casual")),
                                     h('input#rated', {
                                         props: { type: "radio", name: "mode", value: "1" },
-                                        attrs: { checked: vRated === "1", disabled: this.anon || twoBoards }, /*dont support rated bughouse atm*/
+                                        attrs: { checked: vRated === "1", disabled: this.anon || twoBoards || catalogued }, /*dont support rated bughouse/catalogued atm*/
                                         on: { input: e => this.setRated((e.target as HTMLInputElement).value) },
                                         hook: { insert: vnode => this.setRated((vnode.elm as HTMLInputElement).value) },
                                     }),
@@ -693,7 +697,7 @@ export class LobbyController implements ChatController {
     renderVariantsDropDown(variantName: string = '', disabled: string[]) {
         // variantName and chess960 are set when this was called from the variant catalog (layer3.ts)
         let vVariant = variantName || localStorage.seek_variant || "chess";
-        if (disabled.includes(vVariant)) vVariant = "chess";
+        if (!VARIANTS[vVariant] || disabled.includes(vVariant)) vVariant = "chess";
         const vChess960 = localStorage.seek_chess960 === 'true' || false;
         const e = document.getElementById('variant');
         e!.replaceChildren();
@@ -702,7 +706,7 @@ export class LobbyController implements ChatController {
     }
 
     createGame(variantName: string = '') {
-        const twoBoards = (variantName) ? VARIANTS[variantName].twoBoards : false;
+        const selectedVariant = variantName || localStorage.seek_variant || "chess";
         this.createMode = 'createGame';
         this.renderVariantsDropDown(
             variantName,
@@ -710,13 +714,17 @@ export class LobbyController implements ChatController {
         );
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
-        document.getElementById('rating-range-setting')!.style.display = 'block';
+        const selectedElement = document.getElementById('variant') as HTMLSelectElement;
+        const selectedVariantAfterRender = selectedElement?.value || selectedVariant;
+        const selectedTwoBoards = !!VARIANTS[selectedVariantAfterRender]?.twoBoards;
+        const selectedCatalogued = isCataloguedVariant(selectedVariantAfterRender);
+        document.getElementById('rating-range-setting')!.style.display = selectedCatalogued ? 'none' : 'block';
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         (document.getElementById('id01') as HTMLDialogElement).showModal();
         document.getElementById('color-button-group')!.style.display = 'block';
         document.getElementById('create-button')!.style.display = 'none';
-        disableCorr(this.anon || twoBoards);
+        disableCorr(this.anon || selectedTwoBoards);
     }
 
     playFriend(variantName: string = '') {
@@ -756,7 +764,10 @@ export class LobbyController implements ChatController {
 
     createHost(variantName: string = '') {
         this.createMode = 'createHost';
-        this.renderVariantsDropDown(variantName, twoBoarsVariants);
+        this.renderVariantsDropDown(
+            variantName,
+            disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon),
+        );
         this.renderDialogHeader(createModeStr(this.createMode))
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
         document.getElementById('rating-range-setting')!.style.display = 'none';
@@ -775,10 +786,20 @@ export class LobbyController implements ChatController {
         const variant = VARIANTS[e.options[e.selectedIndex].value];
         if (!variant) return;
         const byoyomi = variant.rules.defaultTimeControl === "byoyomi";
+        const catalogued = isCataloguedVariant(variant.name);
         if (variant.twoBoards) {
             const select = document.getElementById('tc') as HTMLSelectElement;
             select.selectedIndex = 0;
             this.tcMode = 'real';
+        }
+        const rated = document.getElementById('rated') as HTMLInputElement;
+        const casual = document.getElementById('casual') as HTMLInputElement;
+        if (rated && casual) {
+            rated.disabled = this.anon || variant.twoBoards || catalogued;
+            if (catalogued) {
+                casual.checked = true;
+                rated.checked = false;
+            }
         }
         // TODO use toggle class instead of setting style directly
         document.getElementById('chess960-block')!.style.display = variant.chess960 ? 'block' : 'none';
@@ -922,8 +943,20 @@ export class LobbyController implements ChatController {
         ])
     }
 
+    private seekViewUnknown(seek: Seek) {
+        return h('tr.disabled', { attrs: { title: _('This user-defined variant is not available to you.') } }, [
+            h('td', [ this.colorIcon(seek.color) ]),
+            h('td', [ this.challengeIcon(seek), this.seekTitle(seek), this.user(seek) ]),
+            h('td', seek.rating),
+            h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi, seek.day)),
+            h('td.icon', { attrs: { "data-icon": '◇' } }, [h('variant-name', ` ${seek.variant}`)]),
+            h('td', this.mode(seek)),
+        ])
+    }
+
     private seekView(seek: Seek) {
         const variant = VARIANTS[seek.variant];
+        if (!variant) return this.hide(seek) ? "" : this.seekViewUnknown(seek);
         return this.hide(seek) ? "" : variant.twoBoards ? seekViewBughouse(this, seek): this.seekViewRegular(seek);
     }
 
@@ -974,8 +1007,9 @@ export class LobbyController implements ChatController {
             return this.seekUserLink(seek["target"]);
     }
     private hide(seek: Seek) {
+        const variant = VARIANTS[seek.variant];
         return ((this.anon || this.title === 'BOT') && seek["rated"]) ||
-            (this.anon && VARIANTS[seek.variant].twoBoards) ||
+            (this.anon && !!variant?.twoBoards) ||
             (seek['target'] !== '' && this.username !== seek['user'] && this.username !== seek['target']);
     }
     public tooltip(seek: Seek, variant: Variant) {
@@ -1186,7 +1220,7 @@ export class LobbyController implements ChatController {
         const variantList: VNode[] = [];
         enabledVariants.forEach(v => {
             if (!this.isVariantAllowed(v)) return;
-            if (devVariants.includes(v)) return;
+            if (devVariants.includes(v) || isCataloguedVariant(v)) return;
             const variant = VARIANTS[v];
             let variantName = variant.name;
             let checked = localStorage[`va_${variantName}`] ?? "false";
