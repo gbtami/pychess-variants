@@ -286,14 +286,12 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
             }
         },
         tooltip: {
-            pointFormatter: function(format: string) {
-                format = format.replace('{series.name}', '');
-                const self: Highcharts.Point = this;
-                const step = ctrl.steps[self.x];
+            pointFormatter: function(this: Highcharts.Point) {
+                const step = ctrl.steps[this.x];
                 const movetime = step?.movetime;
                 if (movetime === undefined) return '';
-                else return format.replace('{point.y}', (movetime / 1000).toFixed(1) + "s");
-            } as Highcharts.FormatterCallbackFunction<Highcharts.Point>
+                return `<span style="color:${this.color}">●</span> <b>${(movetime / 1000).toFixed(1)}s</b><br/>`;
+            }
         },
         xAxis: {
             title: { text: undefined },

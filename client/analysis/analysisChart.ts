@@ -91,14 +91,12 @@ export function analysisChart(ctrl: AnalysisController) {
             }
         },
         tooltip: {
-            pointFormatter: function(format: string) {
-                format = format.replace('{series.name}', _('Advantage'));
-                const self: Highcharts.Point = this;
-                const step = ctrl.steps[self.x];
+            pointFormatter: function(this: Highcharts.Point) {
+                const step = ctrl.steps[this.x];
                 const ceval = step?.ceval?.s;
-                if (!ceval) return '';
-                else return format.replace('{point.y}', step.scoreStr || '');
-            } as Highcharts.FormatterCallbackFunction<Highcharts.Point>
+                if (ceval === undefined) return '';
+                return `<span style="color:${this.color}">●</span> ${_('Advantage')}: <b>${step.scoreStr || ''}</b><br/>`;
+            }
         },
         xAxis: {
             title: { text: undefined },
