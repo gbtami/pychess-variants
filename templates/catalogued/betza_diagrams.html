@@ -1,0 +1,29 @@
+{% if catalogued_variant.customPieceDiagrams %}
+<section class="catalogued-variant-rules-block catalogued-betza-diagrams">
+    <h2>Custom piece movement</h2>
+    <p class="catalogued-betza-note">
+        These diagrams show the basic movement pattern from White's perspective on a compact preview board.
+        Some special moves, especially hoppers, can still depend on blockers or game state.
+    </p>
+    <div class="catalogued-betza-grid">
+        {% for diagram in catalogued_variant.customPieceDiagrams %}
+        <figure class="catalogued-betza-card">
+            <figcaption>
+                <strong>{{ diagram.title }}</strong>
+                <code>{{ diagram.betza }}</code>
+            </figcaption>
+            <div class="catalogued-betza-svg-wrap">
+                {{ diagram.svg | safe }}
+            </div>
+        </figure>
+        {% endfor %}
+    </div>
+    <div class="catalogued-betza-legend" aria-label="Betza diagram legend">
+        <span><i class="catalogued-betza-legend-move"></i>move</span>
+        <span><i class="catalogued-betza-legend-capture"></i>capture</span>
+        <span><i class="catalogued-betza-legend-both"></i>move or capture</span>
+        <span><i class="catalogued-betza-legend-initial"></i>initial only</span>
+        <span><i class="catalogued-betza-legend-hop"></i>hopper target</span>
+    </div>
+</section>
+{% endif %}

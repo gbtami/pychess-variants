@@ -1,0 +1,33 @@
+{% if catalogued_variant.ruleSummary %}
+<section class="catalogued-variant-rules-block catalogued-variant-generated-rules">
+    <h2>Generated rule overview</h2>
+    {% for paragraph in catalogued_variant.ruleSummary.intro %}
+    <p>{{ paragraph }}</p>
+    {% endfor %}
+
+    {% for section in catalogued_variant.ruleSummary.sections %}
+    <section class="catalogued-rule-section">
+        <h3>{{ section.title }}</h3>
+        <ul>
+            {% for line in section.lines %}
+            <li>{{ line.text }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endfor %}
+
+    {% if catalogued_variant.ruleSummary.unknown %}
+    <details class="catalogued-rule-technical-notes">
+        <summary>Other technical options</summary>
+        <ul>
+            {% for line in catalogued_variant.ruleSummary.unknown %}
+            <li>
+                <span>{{ line.text }}</span>
+                <code>{{ line.technical }}</code>
+            </li>
+            {% endfor %}
+        </ul>
+    </details>
+    {% endif %}
+</section>
+{% endif %}
