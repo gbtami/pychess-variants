@@ -472,9 +472,7 @@ def _ensure_catalogued_rules_supported(ini: str) -> None:
         if _ini_option_is_enabled(ini, key):
             unsupported.append(f"{key}: {reason}")
 
-    if _ini_option_is_enabled(ini, "gating") and not _ini_option_is_enabled(
-        ini, "seirawanGating"
-    ):
+    if _ini_option_is_enabled(ini, "gating") and not _ini_option_is_enabled(ini, "seirawanGating"):
         unsupported.append(
             "gating: only Seirawan-style gating is supported for user-defined variants so far."
         )
@@ -595,8 +593,7 @@ def catalogued_promotion_roles(ini: str, pieces: list[str]) -> list[str]:
         return _catalogued_promotion_pawn_letters(ini, pieces)
 
     if (
-        _ini_bool(ini, "mandatoryPawnPromotion")
-        or _ini_bool(ini, "mandatoryPiecePromotion")
+        _ini_bool(ini, "mandatoryPawnPromotion") or _ini_bool(ini, "mandatoryPiecePromotion")
     ) and "p" in pieces:
         return ["p"]
 
@@ -613,8 +610,7 @@ def catalogued_show_promoted(ini: str, start_fen: str) -> bool:
     if (_ini_option(ini, "promotedPieceType") or "").strip():
         return True
     if any(
-        _ini_bool(ini, key)
-        for key in ("pieceDemotion", "piecePromotionOnCapture", "dropPromoted")
+        _ini_bool(ini, key) for key in ("pieceDemotion", "piecePromotionOnCapture", "dropPromoted")
     ):
         return True
     return "+" in _board_part_from_fen(start_fen)
@@ -1200,7 +1196,9 @@ def _client_doc(
     )
     promotion_type = str(doc.get("promotionType") or catalogued_promotion_type(ini))
     promotion_roles = list(doc.get("promotionRoles") or catalogued_promotion_roles(ini, pieces))
-    promotion_order = list(doc.get("promotionOrder") or catalogued_promotion_order(ini, promotion_type))
+    promotion_order = list(
+        doc.get("promotionOrder") or catalogued_promotion_order(ini, promotion_type)
+    )
     show_promoted = bool(doc.get("showPromoted", catalogued_show_promoted(ini, start_fen)))
     rules_gate = bool(doc.get("rulesGate", catalogued_rules_gate(ini)))
     rules_pass = bool(doc.get("rulesPass", catalogued_rules_pass(ini)))
@@ -1355,7 +1353,9 @@ def register_catalogued_variant_doc(
         str(doc.get("icon") or CATALOGUED_ICON),
         grand=_catalogued_grand_from_dimensions(width, height),
         extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
-        show_promoted=bool(doc.get("showPromoted", catalogued_show_promoted(ini, str(doc["startFen"])))),
+        show_promoted=bool(
+            doc.get("showPromoted", catalogued_show_promoted(ini, str(doc["startFen"])))
+        ),
         legal_moves_need_history=bool(
             doc.get("legalMovesNeedHistory", catalogued_legal_moves_need_history(ini))
         ),
@@ -2023,9 +2023,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         promotion_order = list(
             existing.get("promotionOrder") or catalogued_promotion_order(ini, promotion_type)
         )
-        show_promoted = bool(
-            existing.get("showPromoted", catalogued_show_promoted(ini, start_fen))
-        )
+        show_promoted = bool(existing.get("showPromoted", catalogued_show_promoted(ini, start_fen)))
         rules_gate = bool(existing.get("rulesGate", catalogued_rules_gate(ini)))
         rules_pass = bool(existing.get("rulesPass", catalogued_rules_pass(ini)))
         legal_moves_need_history = bool(
