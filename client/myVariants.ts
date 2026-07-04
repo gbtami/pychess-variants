@@ -651,7 +651,7 @@ function renderRows(model: PyChessModel): VNode {
                             props: { type: 'button', disabled: archived },
                             on: { click: () => playVariant(model, variant) },
                         }, _('Play')),
-                        h('button.catalogued-row-button.catalogued-secondary-action', {
+                        h('button.catalogued-row-button.catalogued-secondary-action.catalogued-ai-action', {
                             props: { type: 'button', disabled: archived },
                             on: { click: () => playVariantWithAI(model, variant) },
                         }, _('Play AI')),

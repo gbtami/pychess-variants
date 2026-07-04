@@ -133,6 +133,18 @@
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.225);
 }
 
+.catalogued-ai-action {
+    border-color: var(--green-switch);
+    background: var(--green-switch);
+    color: White;
+}
+
+.catalogued-ai-action:hover:not(:disabled) {
+    border-color: var(--green-hover);
+    background: var(--green-hover);
+    color: White;
+}
+
 .catalogued-secondary-action:disabled,
 .catalogued-row-button:disabled,
 .catalogued-primary-action:disabled {
@@ -144,7 +156,8 @@
     color: var(--font-color);
 }
 
-.my-variants button.button-primary:disabled {
+.my-variants button.button-primary:disabled,
+.my-variants button.catalogued-ai-action:disabled {
     color: White;
 }
 

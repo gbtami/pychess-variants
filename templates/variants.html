@@ -63,10 +63,10 @@
                 <div><dt>Games</dt><dd>{{ item.gameCount }}</dd></div>
             </dl>
             <p class="community-variant-actions">
-                <a class="button" href="{{ home }}/?any&variant={{ item.name }}">Play</a>
-                <a class="button" href="{{ home }}/?ai&variant={{ item.name }}">Play AI</a>
-                <a class="button" href="{{ home }}/analysis/{{ item.name }}">Analysis</a>
-                <a class="button" href="{{ home }}/variants/{{ item.name }}">Rules</a>
+                <a class="button catalogued-action-primary" href="{{ home }}/?any&variant={{ item.name }}">Play</a>
+                <a class="button catalogued-action-ai" href="{{ home }}/?ai&variant={{ item.name }}">Play AI</a>
+                <a class="button catalogued-action-analysis" href="{{ home }}/analysis/{{ item.name }}">Analysis</a>
+                <a class="button catalogued-action-secondary" href="{{ home }}/variants/{{ item.name }}">Rules</a>
             </p>
         </section>
         {% endfor %}
@@ -120,10 +120,10 @@
         </dl>
     </header>
     <nav class="catalogued-variant-actions" aria-label="Catalogued variant actions">
-        <a class="button" href="{{ home }}/?any&variant={{ catalogued_variant.name }}">Play</a>
-        <a class="button" href="{{ home }}/?ai&variant={{ catalogued_variant.name }}">Play AI</a>
-        <a class="button" href="{{ home }}/analysis/{{ catalogued_variant.name }}">Analysis board</a>
-        <a class="button" href="{{ home }}/variants/community">Community variants</a>
+        <a class="button catalogued-action-primary" href="{{ home }}/?any&variant={{ catalogued_variant.name }}">Play</a>
+        <a class="button catalogued-action-ai" href="{{ home }}/?ai&variant={{ catalogued_variant.name }}">Play AI</a>
+        <a class="button catalogued-action-analysis" href="{{ home }}/analysis/{{ catalogued_variant.name }}">Analysis board</a>
+        <a class="button catalogued-action-secondary" href="{{ home }}/variants/community">Community variants</a>
     </nav>
     {% include "catalogued/rule_summary.html" %}
     {% include "catalogued/betza_diagrams.html" %}

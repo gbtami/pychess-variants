@@ -251,6 +251,48 @@ div.guide .catalogued-variant-rules h1 {
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.225);
 }
 
+.community-variants-page .button.catalogued-action-primary,
+.catalogued-variant-rules .button.catalogued-action-primary {
+    border-color: var(--blue-hover);
+    background: var(--blue-hover);
+    color: White;
+}
+
+.community-variants-page .button.catalogued-action-primary:hover,
+.catalogued-variant-rules .button.catalogued-action-primary:hover {
+    border-color: color-mix(in srgb, var(--blue-hover) 84%, #000);
+    background: color-mix(in srgb, var(--blue-hover) 84%, #000);
+    color: White;
+}
+
+.community-variants-page .button.catalogued-action-ai,
+.catalogued-variant-rules .button.catalogued-action-ai {
+    border-color: var(--green-switch);
+    background: var(--green-switch);
+    color: White;
+}
+
+.community-variants-page .button.catalogued-action-ai:hover,
+.catalogued-variant-rules .button.catalogued-action-ai:hover {
+    border-color: var(--green-hover);
+    background: var(--green-hover);
+    color: White;
+}
+
+.community-variants-page .button.catalogued-action-analysis,
+.catalogued-variant-rules .button.catalogued-action-analysis {
+    border-color: color-mix(in srgb, var(--blue-hover) 70%, var(--border-color));
+    background: color-mix(in srgb, var(--blue-hover) 10%, var(--bg-box));
+    color: var(--link-hover);
+}
+
+.community-variants-page .button.catalogued-action-analysis:hover,
+.catalogued-variant-rules .button.catalogued-action-analysis:hover {
+    border-color: var(--blue-hover);
+    background: color-mix(in srgb, var(--blue-hover) 18%, var(--bg-box));
+    color: var(--link-hover);
+}
+
 .community-variant-actions,
 .community-variants-pages {
     display: flex;
