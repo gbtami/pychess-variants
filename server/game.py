@@ -274,7 +274,7 @@ class Game:
         # One-move hint used to send capture identity to the current mover only.
         self.last_jieqi_capture: str | None = None
 
-        self.n_fold_is_draw = self.variant in (
+        self.n_fold_is_draw = self.server_variant.n_fold_is_draw or self.variant in (
             "makruk",
             "makpong",
             "cambodian",
@@ -333,7 +333,13 @@ class Game:
 
         if TYPE_CHECKING:
             assert self.chess960 is not None
-        self.board = FairyBoard(self.variant, self.initial_fen, self.chess960)
+        self.board = FairyBoard(
+            self.variant,
+            self.initial_fen,
+            self.chess960,
+            show_promoted=self.server_variant.show_promoted,
+            legal_moves_need_history=self.server_variant.legal_moves_need_history,
+        )
 
         # Janggi setup needed when player is not BOT
         if self.variant == "janggi":
@@ -1371,7 +1377,13 @@ class Game:
             # maps this start position to Embassy rules, where these moves are
             # invalid. Rebuild steps on an unmodded Capablanca board so legacy
             # archives still replay without corrupting move history.
-            replay_board = FairyBoard(self.variant, self.board.initial_fen, bool(self.chess960))
+            replay_board = FairyBoard(
+                self.variant,
+                self.board.initial_fen,
+                bool(self.chess960),
+                show_promoted=self.server_variant.show_promoted,
+                legal_moves_need_history=self.server_variant.legal_moves_need_history,
+            )
             # FairyBoard constructor applies modded_variant() automatically.
             # Force the original stored variant here to preserve old move coords.
             replay_board.variant = self.variant

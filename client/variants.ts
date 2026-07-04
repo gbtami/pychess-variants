@@ -1315,6 +1315,7 @@ export interface CataloguedVariantClientDocument {
     readonly displayName: string;
     readonly tooltip?: string;
     readonly ini: string;
+    readonly baseVariant?: string;
     readonly startFen: string;
     readonly width: number;
     readonly height: number;
@@ -1322,7 +1323,13 @@ export interface CataloguedVariantClientDocument {
     readonly kingRoles?: cg.Letter[];
     readonly pocketRoles?: cg.Letter[];
     readonly captureToHand?: boolean;
+    readonly promotionType?: PromotionType;
     readonly promotionRoles?: cg.Letter[];
+    readonly promotionOrder?: PromotionSuffix[];
+    readonly showPromoted?: boolean;
+    readonly rulesGate?: boolean;
+    readonly rulesPass?: boolean;
+    readonly showCheckCounters?: boolean;
     readonly icon?: string;
     readonly category?: string;
     readonly archived?: boolean;
@@ -1362,14 +1369,62 @@ function ensureCataloguedBoardFamily(width: number, height: number): keyof typeo
     return key;
 }
 
+function cataloguedIniHasOption(ini: string | undefined, key: string): boolean {
+    if (!ini) return false;
+    const wanted = key.toLowerCase();
+    return ini.split(/\r?\n/).some(line => {
+        const stripped = line.trim();
+        if (!stripped || stripped.startsWith('#') || !stripped.includes('=')) return false;
+        return stripped.split('=', 1)[0].trim().toLowerCase() === wanted;
+    });
+}
+
 export function registerCataloguedVariant(meta: CataloguedVariantClientDocument): void {
     if (!meta?.name) return;
     if (VARIANTS[meta.name] && !cataloguedVariantNames.has(meta.name)) return;
 
+    const baseVariant = meta.baseVariant ? VARIANTS[meta.baseVariant] : undefined;
     const pieces = (meta.pieces?.length ? meta.pieces : ['k']) as cg.Letter[];
-    const kingRoles = (meta.kingRoles ?? []) as cg.Letter[];
-    const pocketRoles = (meta.pocketRoles ?? []) as cg.Letter[];
-    const promotionRoles = (meta.promotionRoles ?? []) as cg.Letter[];
+    const kingRoles = (meta.kingRoles ?? baseVariant?.kingRoles.map(util.letterOf) ?? []) as cg.Letter[];
+    const explicitCaptureToHand = cataloguedIniHasOption(meta.ini, 'capturesToHand');
+    const captureToHand = explicitCaptureToHand
+        ? !!meta.captureToHand
+        : (!!meta.captureToHand || !!baseVariant?.pocket?.captureToHand);
+    const hasPocketOverride = meta.startFen.includes('[') || [
+        'pocketSize',
+        'pieceDrops',
+        'capturesToHand',
+        'whiteDropRegion',
+        'blackDropRegion',
+        'dropRegionWhite',
+        'dropRegionBlack',
+    ].some(key => cataloguedIniHasOption(meta.ini, key));
+    const pocketRoles = (meta.pocketRoles?.length || hasPocketOverride
+        ? (meta.pocketRoles ?? [])
+        : (baseVariant?.pocket?.roles.white.map(util.letterOf) ?? [])) as cg.Letter[];
+    const hasPromotionOverride = [
+        'promotionPawnTypes',
+        'promotionPawnTypesWhite',
+        'promotionPawnTypesBlack',
+        'promotionPieceTypes',
+        'promotionPieceTypesWhite',
+        'promotionPieceTypesBlack',
+        'promotedPieceType',
+        'mandatoryPawnPromotion',
+        'mandatoryPiecePromotion',
+        'pieceDemotion',
+        'piecePromotionOnCapture',
+        'dropPromoted',
+    ].some(key => cataloguedIniHasOption(meta.ini, key));
+    const promotionType = hasPromotionOverride
+        ? (meta.promotionType ?? 'regular')
+        : (baseVariant?.promotion.type ?? meta.promotionType ?? 'regular');
+    const promotionRoles = (hasPromotionOverride || meta.promotionRoles?.length
+        ? (meta.promotionRoles ?? [])
+        : (baseVariant?.promotion.roles.map(util.letterOf) ?? [])) as cg.Letter[];
+    const promotionOrder = meta.promotionOrder?.length
+        ? [...meta.promotionOrder]
+        : (hasPromotionOverride ? undefined : (baseVariant ? [...baseVariant.promotion.order] : undefined));
     const boardFamily = ensureCataloguedBoardFamily(meta.width, meta.height);
     const cataloguedPieceFamily = `catalogued-${meta.name}`;
     const pieceFamily = cataloguedPieceFamily;
@@ -1387,10 +1442,25 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         pieceFamily,
         pieceRow: pieces,
         kingRoles,
-        pocket: pocketRoles.length ? { roles: pocketRoles, captureToHand: !!meta.captureToHand } : undefined,
-        promotion: { type: promotionRoles.length ? 'shogi' : 'regular', roles: promotionRoles },
-        rules: { defaultTimeControl: 'incremental' },
-        ui: { showPromoted: promotionRoles.length > 0 },
+        pocket: pocketRoles.length ? { roles: pocketRoles, captureToHand } : undefined,
+        promotion: { type: promotionType, roles: promotionRoles, order: promotionOrder },
+        rules: {
+            defaultTimeControl: baseVariant?.rules.defaultTimeControl ?? 'incremental',
+            enPassant: !!baseVariant?.rules.enPassant,
+            gate: !!meta.rulesGate || !!baseVariant?.rules.gate,
+            duck: !!baseVariant?.rules.duck,
+            pass: !!meta.rulesPass || !!baseVariant?.rules.pass,
+            setup: !!baseVariant?.rules.setup,
+            noDrawOffer: !!baseVariant?.rules.noDrawOffer,
+        },
+        ui: {
+            showPromoted: !!meta.showPromoted || !!baseVariant?.ui.showPromoted,
+            showCheckCounters: !!meta.showCheckCounters || !!baseVariant?.ui.showCheckCounters,
+            counting: baseVariant?.ui.counting,
+            materialPoint: baseVariant?.ui.materialPoint,
+            pieceSound: baseVariant?.ui.pieceSound,
+            boardMark: baseVariant?.ui.boardMark || undefined,
+        },
     });
     cataloguedVariantNames.add(meta.name);
     if (meta.ini) cataloguedVariantInis[meta.name] = meta.ini;

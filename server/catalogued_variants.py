@@ -54,6 +54,19 @@ MAX_CATALOGUED_INI_BYTES = 64 * 1024
 MAX_DESCRIPTION_LEN = 1000
 MAX_DISPLAY_NAME_LEN = 80
 
+UNSUPPORTED_CATALOGUED_BOOL_RULES: dict[str, str] = {
+    "twoBoards": "two-board variants need the dedicated bughouse/supply lobby and game flow.",
+    "cambodianMoves": "Cambodian/Ouk opening moves need dedicated client-side move input support.",
+    "materialCounting": "material counting needs variant-specific adjudication and UI support.",
+    "extinctionClaim": "claimable extinction endings need dedicated claim/adjudication UI.",
+    "freeDrops": "free drops need dedicated pocket/setup-flow tests.",
+}
+
+UNSUPPORTED_CATALOGUED_VALUE_RULES: dict[str, str] = {
+    "countingRule": "regional counting needs dedicated adjudication and UI support.",
+    "chasingRule": "chasing/perpetual adjudication needs history-aware regional-rule tests.",
+}
+
 VARIANT_NAME_ERROR = (
     "Variant names must be 3-32 chars, start with a lowercase letter, "
     "and contain only lowercase letters, digits, hyphens, and underscores."
@@ -72,6 +85,27 @@ class VariantSectionMatch(NamedTuple):
     suffix: str
 
 
+class CataloguedVariantValidation(NamedTuple):
+    name: str
+    start_fen: str
+    width: int
+    height: int
+    pieces: list[str]
+    king_roles: list[str]
+    pocket_roles: list[str]
+    capture_to_hand: bool
+    promotion_type: str
+    promotion_roles: list[str]
+    promotion_order: list[str]
+    show_promoted: bool
+    rules_gate: bool
+    rules_pass: bool
+    legal_moves_need_history: bool
+    n_fold_is_draw: bool
+    show_check_counters: bool
+    base_variant: str
+
+
 class CataloguedVariantPieceSetSvg(TypedDict):
     svg: str
     size: int
@@ -84,6 +118,7 @@ class CataloguedVariantDocument(TypedDict):
     description: str
     author: str
     ini: str
+    baseVariant: str
     enabled: bool
     archived: bool
     startFen: str
@@ -93,7 +128,15 @@ class CataloguedVariantDocument(TypedDict):
     kingRoles: list[str]
     pocketRoles: list[str]
     captureToHand: bool
+    promotionType: str
     promotionRoles: list[str]
+    promotionOrder: list[str]
+    showPromoted: bool
+    rulesGate: bool
+    rulesPass: bool
+    legalMovesNeedHistory: bool
+    nFoldIsDraw: bool
+    showCheckCounters: bool
     icon: str
     category: str
     visibility: str
@@ -108,6 +151,7 @@ class CataloguedVariantClientDocument(TypedDict):
     displayName: str
     tooltip: str
     ini: str
+    baseVariant: str
     startFen: str
     width: int
     height: int
@@ -115,7 +159,13 @@ class CataloguedVariantClientDocument(TypedDict):
     kingRoles: list[str]
     pocketRoles: list[str]
     captureToHand: bool
+    promotionType: str
     promotionRoles: list[str]
+    promotionOrder: list[str]
+    showPromoted: bool
+    rulesGate: bool
+    rulesPass: bool
+    showCheckCounters: bool
     icon: str
     category: str
     author: NotRequired[str]
@@ -278,6 +328,15 @@ def extract_variant_name(ini: str) -> str:
     return name
 
 
+def extract_variant_base_name(ini: str) -> str:
+    matches = _catalogued_variant_section_matches(ini)
+    if len(matches) != 1:
+        raise web.HTTPBadRequest(text="The INI must contain exactly one variant section.")
+
+    suffix = matches[0].suffix.strip()
+    return suffix[1:].strip() if suffix.startswith(":") else ""
+
+
 def replace_variant_section_name(ini: str, new_name: str) -> str:
     if not _is_valid_variant_name(new_name):
         raise web.HTTPBadRequest(text=VARIANT_NAME_ERROR)
@@ -392,6 +451,52 @@ def _ini_bool(ini: str, key: str, default: bool = False) -> bool:
     return value.casefold() in {"true", "yes", "1", "on"}
 
 
+def _ini_option_is_enabled(ini: str, key: str) -> bool:
+    value = _ini_option(ini, key)
+    if value is None:
+        return False
+    return value.strip().casefold() in {"true", "yes", "1", "on"}
+
+
+def _ini_option_has_non_neutral_value(ini: str, key: str) -> bool:
+    value = _ini_option(ini, key)
+    if value is None:
+        return False
+    return value.strip().casefold() not in {"", "-", "0", "false", "no", "off", "none"}
+
+
+def _ensure_catalogued_rules_supported(ini: str) -> None:
+    unsupported: list[str] = []
+
+    for key, reason in UNSUPPORTED_CATALOGUED_BOOL_RULES.items():
+        if _ini_option_is_enabled(ini, key):
+            unsupported.append(f"{key}: {reason}")
+
+    if _ini_option_is_enabled(ini, "gating") and not _ini_option_is_enabled(
+        ini, "seirawanGating"
+    ):
+        unsupported.append(
+            "gating: only Seirawan-style gating is supported for user-defined variants so far."
+        )
+
+    if _ini_option_has_non_neutral_value(ini, "wallingRule"):
+        unsupported.append(
+            "wallingRule: walling/duck-style moves need dedicated client input and move encoding support."
+        )
+
+    for key, reason in UNSUPPORTED_CATALOGUED_VALUE_RULES.items():
+        if _ini_option_has_non_neutral_value(ini, key):
+            unsupported.append(f"{key}: {reason}")
+
+    if unsupported:
+        raise web.HTTPBadRequest(
+            text=(
+                "This Fairy-Stockfish rule is not supported for user-defined variants yet: "
+                + "; ".join(unsupported)
+            )
+        )
+
+
 def _ini_piece_letters(ini: str, key: str) -> list[str]:
     value = _ini_option(ini, key) or ""
     seen: set[str] = set()
@@ -437,6 +542,41 @@ def catalogued_pocket_roles(ini: str, start_fen: str, pieces: list[str]) -> list
     return pocket_letters or pieces
 
 
+def _catalogued_promotion_piece_letters(ini: str) -> list[str]:
+    letters: list[str] = []
+    seen: set[str] = set()
+    for key in ("promotionPieceTypes", "promotionPieceTypesWhite", "promotionPieceTypesBlack"):
+        for letter in _ini_piece_letters(ini, key):
+            if letter not in seen:
+                seen.add(letter)
+                letters.append(letter)
+    return letters
+
+
+def _catalogued_promotion_pawn_letters(ini: str, pieces: list[str]) -> list[str]:
+    letters: list[str] = []
+    seen: set[str] = set()
+    for key in ("promotionPawnTypes", "promotionPawnTypesWhite", "promotionPawnTypesBlack"):
+        for letter in _ini_piece_letters(ini, key):
+            if letter not in seen:
+                seen.add(letter)
+                letters.append(letter)
+
+    if letters:
+        return letters
+
+    if "p" in pieces:
+        return ["p"]
+    return []
+
+
+def catalogued_promotion_type(ini: str) -> str:
+    promoted_piece_type = (_ini_option(ini, "promotedPieceType") or "").strip()
+    if promoted_piece_type:
+        return "shogi"
+    return "regular"
+
+
 def catalogued_promotion_roles(ini: str, pieces: list[str]) -> list[str]:
     promoted_piece_type = _ini_option(ini, "promotedPieceType") or ""
     roles: list[str] = []
@@ -451,10 +591,72 @@ def catalogued_promotion_roles(ini: str, pieces: list[str]) -> list[str]:
     if roles:
         return roles
 
-    if _ini_bool(ini, "mandatoryPawnPromotion") and "p" in pieces:
+    if _catalogued_promotion_piece_letters(ini):
+        return _catalogued_promotion_pawn_letters(ini, pieces)
+
+    if (
+        _ini_bool(ini, "mandatoryPawnPromotion")
+        or _ini_bool(ini, "mandatoryPiecePromotion")
+    ) and "p" in pieces:
         return ["p"]
 
     return []
+
+
+def catalogued_promotion_order(ini: str, promotion_type: str) -> list[str]:
+    if promotion_type == "shogi":
+        return ["+", ""]
+    return _catalogued_promotion_piece_letters(ini)
+
+
+def catalogued_show_promoted(ini: str, start_fen: str) -> bool:
+    if (_ini_option(ini, "promotedPieceType") or "").strip():
+        return True
+    if any(
+        _ini_bool(ini, key)
+        for key in ("pieceDemotion", "piecePromotionOnCapture", "dropPromoted")
+    ):
+        return True
+    return "+" in _board_part_from_fen(start_fen)
+
+
+def catalogued_rules_gate(ini: str) -> bool:
+    return _ini_bool(ini, "seirawanGating")
+
+
+def catalogued_rules_pass(ini: str) -> bool:
+    return any(
+        _ini_bool(ini, key)
+        for key in (
+            "pass",
+            "passWhite",
+            "passBlack",
+            "passOnStalemate",
+            "passOnStalemateWhite",
+            "passOnStalemateBlack",
+        )
+    )
+
+
+def catalogued_legal_moves_need_history(ini: str) -> bool:
+    return catalogued_rules_pass(ini) or any(
+        _ini_bool(ini, key)
+        for key in (
+            "perpetualCheckIllegal",
+            "moveRepetitionIllegal",
+            "bikjangRule",
+        )
+    )
+
+
+def catalogued_n_fold_is_draw(ini: str) -> bool:
+    if not _ini_option_has_non_neutral_value(ini, "nFoldRule"):
+        return False
+    return (_ini_option(ini, "nFoldValue") or "draw").strip().casefold() == "draw"
+
+
+def catalogued_show_check_counters(ini: str) -> bool:
+    return _ini_bool(ini, "checkCounting") or _ini_bool(ini, "dupleCheck")
 
 
 PIECE_SET_FILENAME_RE = re.compile(r"^([wb])(\+?)([A-Za-z])\.svg$")
@@ -815,6 +1017,7 @@ async def _run_process(args: list[str], *, stdin: str | None = None) -> tuple[in
 async def _check_ini_with_pyffish_child(ini: str, name: str) -> str:
     """Validate in a child process so trial checks do not mutate server pyffish state."""
     _ensure_catalogued_ini_size(ini)
+    _ensure_catalogued_rules_supported(ini)
 
     code = """
 import json
@@ -920,11 +1123,11 @@ async def ensure_catalogued_variant_name_available(
         raise web.HTTPConflict(text="A catalogued variant with this name already exists.")
 
 
-def validate_catalogued_ini(
-    ini: str,
-) -> tuple[str, str, int, int, list[str], list[str], list[str], bool, list[str]]:
+def validate_catalogued_ini(ini: str) -> CataloguedVariantValidation:
     _ensure_catalogued_ini_size(ini)
+    _ensure_catalogued_rules_supported(ini)
     name = extract_variant_name(ini)
+    base_variant = extract_variant_base_name(ini)
 
     try:
         sf.load_variant_config(ini)
@@ -946,9 +1149,17 @@ def validate_catalogued_ini(
     king_roles = catalogued_king_roles(ini, pieces)
     pocket_roles = catalogued_pocket_roles(ini, start_fen, pieces)
     capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
+    promotion_type = catalogued_promotion_type(ini)
     promotion_roles = catalogued_promotion_roles(ini, pieces)
+    promotion_order = catalogued_promotion_order(ini, promotion_type)
+    show_promoted = catalogued_show_promoted(ini, start_fen)
+    rules_gate = catalogued_rules_gate(ini)
+    rules_pass = catalogued_rules_pass(ini)
+    legal_moves_need_history = catalogued_legal_moves_need_history(ini)
+    n_fold_is_draw = catalogued_n_fold_is_draw(ini)
+    show_check_counters = catalogued_show_check_counters(ini)
 
-    return (
+    return CataloguedVariantValidation(
         name,
         start_fen,
         width,
@@ -957,7 +1168,16 @@ def validate_catalogued_ini(
         king_roles,
         pocket_roles,
         capture_to_hand,
+        promotion_type,
         promotion_roles,
+        promotion_order,
+        show_promoted,
+        rules_gate,
+        rules_pass,
+        legal_moves_need_history,
+        n_fold_is_draw,
+        show_check_counters,
+        base_variant,
     )
 
 
@@ -978,13 +1198,20 @@ def _client_doc(
     capture_to_hand = bool(
         doc.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
     )
+    promotion_type = str(doc.get("promotionType") or catalogued_promotion_type(ini))
     promotion_roles = list(doc.get("promotionRoles") or catalogued_promotion_roles(ini, pieces))
+    promotion_order = list(doc.get("promotionOrder") or catalogued_promotion_order(ini, promotion_type))
+    show_promoted = bool(doc.get("showPromoted", catalogued_show_promoted(ini, start_fen)))
+    rules_gate = bool(doc.get("rulesGate", catalogued_rules_gate(ini)))
+    rules_pass = bool(doc.get("rulesPass", catalogued_rules_pass(ini)))
+    show_check_counters = bool(doc.get("showCheckCounters", catalogued_show_check_counters(ini)))
 
     client_doc: CataloguedVariantClientDocument = {
         "name": str(doc["name"]),
         "displayName": str(doc.get("displayName") or doc["name"]),
         "tooltip": tooltip,
         "ini": ini,
+        "baseVariant": str(doc.get("baseVariant") or extract_variant_base_name(ini)),
         "startFen": start_fen,
         "width": int(doc["width"]),
         "height": int(doc["height"]),
@@ -992,7 +1219,13 @@ def _client_doc(
         "kingRoles": king_roles,
         "pocketRoles": pocket_roles,
         "captureToHand": capture_to_hand,
+        "promotionType": promotion_type,
         "promotionRoles": promotion_roles,
+        "promotionOrder": promotion_order,
+        "showPromoted": show_promoted,
+        "rulesGate": rules_gate,
+        "rulesPass": rules_pass,
+        "showCheckCounters": show_check_counters,
         "icon": str(doc.get("icon") or CATALOGUED_ICON),
         "category": CATALOGUED_CATEGORY,
         "author": str(doc.get("author") or ""),
@@ -1105,8 +1338,11 @@ def register_catalogued_variant_doc(
         unregister_catalogued_server_variant(name)
         return
 
+    ini = str(doc["ini"])
+    _ensure_catalogued_rules_supported(ini)
+
     if load_config:
-        sf.load_variant_config(str(doc["ini"]))
+        sf.load_variant_config(ini)
 
     width = int(doc.get("width") or 0)
     height = int(doc.get("height") or 0)
@@ -1119,6 +1355,11 @@ def register_catalogued_variant_doc(
         str(doc.get("icon") or CATALOGUED_ICON),
         grand=_catalogued_grand_from_dimensions(width, height),
         extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
+        show_promoted=bool(doc.get("showPromoted", catalogued_show_promoted(ini, str(doc["startFen"])))),
+        legal_moves_need_history=bool(
+            doc.get("legalMovesNeedHistory", catalogued_legal_moves_need_history(ini))
+        ),
+        n_fold_is_draw=bool(doc.get("nFoldIsDraw", catalogued_n_fold_is_draw(ini))),
     )
     app_state.catalogued_variants[name] = dict(doc)
 
@@ -1129,17 +1370,8 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
     if not code or is_catalogued_variant(code) or not doc.get("vini"):
         return
 
-    (
-        name,
-        start_fen,
-        width,
-        height,
-        pieces,
-        king_roles,
-        pocket_roles,
-        capture_to_hand,
-        promotion_roles,
-    ) = validate_catalogued_ini(str(doc["vini"]))
+    validated = validate_catalogued_ini(str(doc["vini"]))
+    name = validated.name
     if name != code:
         raise ValueError(f"Inline game variant INI defines {name!r}, but game uses {code!r}")
 
@@ -1153,16 +1385,25 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
             "description": "Loaded from saved game",
             "author": str(doc.get("vby") or ""),
             "ini": str(doc["vini"]),
+            "baseVariant": validated.base_variant,
             "enabled": True,
             "archived": False,
-            "startFen": start_fen,
-            "width": width,
-            "height": height,
-            "pieces": pieces,
-            "kingRoles": king_roles,
-            "pocketRoles": pocket_roles,
-            "captureToHand": capture_to_hand,
-            "promotionRoles": promotion_roles,
+            "startFen": validated.start_fen,
+            "width": validated.width,
+            "height": validated.height,
+            "pieces": validated.pieces,
+            "kingRoles": validated.king_roles,
+            "pocketRoles": validated.pocket_roles,
+            "captureToHand": validated.capture_to_hand,
+            "promotionType": validated.promotion_type,
+            "promotionRoles": validated.promotion_roles,
+            "promotionOrder": validated.promotion_order,
+            "showPromoted": validated.show_promoted,
+            "rulesGate": validated.rules_gate,
+            "rulesPass": validated.rules_pass,
+            "legalMovesNeedHistory": validated.legal_moves_need_history,
+            "nFoldIsDraw": validated.n_fold_is_draw,
+            "showCheckCounters": validated.show_check_counters,
             "icon": CATALOGUED_ICON,
             "category": CATALOGUED_CATEGORY,
             "visibility": CATALOGUED_VISIBILITY_PRIVATE,
@@ -1421,6 +1662,7 @@ def _clean_description(description: str) -> str:
 def _build_doc(
     *,
     name: str,
+    base_variant: str,
     display_name: str,
     description: str,
     username: str,
@@ -1432,7 +1674,15 @@ def _build_doc(
     king_roles: list[str],
     pocket_roles: list[str],
     capture_to_hand: bool,
+    promotion_type: str,
     promotion_roles: list[str],
+    promotion_order: list[str],
+    show_promoted: bool,
+    rules_gate: bool,
+    rules_pass: bool,
+    legal_moves_need_history: bool,
+    n_fold_is_draw: bool,
+    show_check_counters: bool,
     created_at: datetime,
     visibility: str = CATALOGUED_VISIBILITY_PRIVATE,
     archived: bool = False,
@@ -1444,6 +1694,7 @@ def _build_doc(
         "description": _clean_description(description),
         "author": username,
         "ini": ini,
+        "baseVariant": base_variant,
         "enabled": not archived,
         "archived": archived,
         "startFen": start_fen,
@@ -1453,7 +1704,15 @@ def _build_doc(
         "kingRoles": king_roles,
         "pocketRoles": pocket_roles,
         "captureToHand": capture_to_hand,
+        "promotionType": promotion_type,
         "promotionRoles": promotion_roles,
+        "promotionOrder": promotion_order,
+        "showPromoted": show_promoted,
+        "rulesGate": rules_gate,
+        "rulesPass": rules_pass,
+        "legalMovesNeedHistory": legal_moves_need_history,
+        "nFoldIsDraw": n_fold_is_draw,
+        "showCheckCounters": show_check_counters,
         "icon": CATALOGUED_ICON,
         "category": CATALOGUED_CATEGORY,
         "visibility": _clean_visibility(visibility),
@@ -1477,33 +1736,33 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
     await ensure_catalogued_variant_name_available(app_state, name)
     await check_catalogued_ini_without_mutating_server(ini, name)
 
-    (
-        name,
-        start_fen,
-        width,
-        height,
-        pieces,
-        king_roles,
-        pocket_roles,
-        capture_to_hand,
-        promotion_roles,
-    ) = validate_catalogued_ini(ini)
+    validated = validate_catalogued_ini(ini)
+    name = validated.name
 
     now = datetime.now(timezone.utc)
     doc = _build_doc(
         name=name,
+        base_variant=validated.base_variant,
         display_name=display_name,
         description=description,
         username=username,
         ini=ini,
-        start_fen=start_fen,
-        width=width,
-        height=height,
-        pieces=pieces,
-        king_roles=king_roles,
-        pocket_roles=pocket_roles,
-        capture_to_hand=capture_to_hand,
-        promotion_roles=promotion_roles,
+        start_fen=validated.start_fen,
+        width=validated.width,
+        height=validated.height,
+        pieces=validated.pieces,
+        king_roles=validated.king_roles,
+        pocket_roles=validated.pocket_roles,
+        capture_to_hand=validated.capture_to_hand,
+        promotion_type=validated.promotion_type,
+        promotion_roles=validated.promotion_roles,
+        promotion_order=validated.promotion_order,
+        show_promoted=validated.show_promoted,
+        rules_gate=validated.rules_gate,
+        rules_pass=validated.rules_pass,
+        legal_moves_need_history=validated.legal_moves_need_history,
+        n_fold_is_draw=validated.n_fold_is_draw,
+        show_check_counters=validated.show_check_counters,
         created_at=now,
         visibility=visibility,
     )
@@ -1725,18 +1984,27 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
 
     if rules_changed or new_name != old_name:
         await check_catalogued_ini_without_mutating_server(ini, new_name)
-        (
-            new_name,
-            start_fen,
-            width,
-            height,
-            pieces,
-            king_roles,
-            pocket_roles,
-            capture_to_hand,
-            promotion_roles,
-        ) = validate_catalogued_ini(ini)
+        validated = validate_catalogued_ini(ini)
+        new_name = validated.name
+        base_variant = validated.base_variant
+        start_fen = validated.start_fen
+        width = validated.width
+        height = validated.height
+        pieces = validated.pieces
+        king_roles = validated.king_roles
+        pocket_roles = validated.pocket_roles
+        capture_to_hand = validated.capture_to_hand
+        promotion_type = validated.promotion_type
+        promotion_roles = validated.promotion_roles
+        promotion_order = validated.promotion_order
+        show_promoted = validated.show_promoted
+        rules_gate = validated.rules_gate
+        rules_pass = validated.rules_pass
+        legal_moves_need_history = validated.legal_moves_need_history
+        n_fold_is_draw = validated.n_fold_is_draw
+        show_check_counters = validated.show_check_counters
     else:
+        base_variant = str(existing.get("baseVariant") or extract_variant_base_name(ini))
         start_fen = str(existing["startFen"])
         width = int(existing["width"])
         height = int(existing["height"])
@@ -1748,12 +2016,29 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         capture_to_hand = bool(
             existing.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
         )
+        promotion_type = str(existing.get("promotionType") or catalogued_promotion_type(ini))
         promotion_roles = list(
             existing.get("promotionRoles") or catalogued_promotion_roles(ini, pieces)
+        )
+        promotion_order = list(
+            existing.get("promotionOrder") or catalogued_promotion_order(ini, promotion_type)
+        )
+        show_promoted = bool(
+            existing.get("showPromoted", catalogued_show_promoted(ini, start_fen))
+        )
+        rules_gate = bool(existing.get("rulesGate", catalogued_rules_gate(ini)))
+        rules_pass = bool(existing.get("rulesPass", catalogued_rules_pass(ini)))
+        legal_moves_need_history = bool(
+            existing.get("legalMovesNeedHistory", catalogued_legal_moves_need_history(ini))
+        )
+        n_fold_is_draw = bool(existing.get("nFoldIsDraw", catalogued_n_fold_is_draw(ini)))
+        show_check_counters = bool(
+            existing.get("showCheckCounters", catalogued_show_check_counters(ini))
         )
 
     doc = _build_doc(
         name=new_name,
+        base_variant=base_variant,
         display_name=display_name,
         description=description,
         username=str(existing.get("author") or username),
@@ -1765,7 +2050,15 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         king_roles=king_roles,
         pocket_roles=pocket_roles,
         capture_to_hand=capture_to_hand,
+        promotion_type=promotion_type,
         promotion_roles=promotion_roles,
+        promotion_order=promotion_order,
+        show_promoted=show_promoted,
+        rules_gate=rules_gate,
+        rules_pass=rules_pass,
+        legal_moves_need_history=legal_moves_need_history,
+        n_fold_is_draw=n_fold_is_draw,
+        show_check_counters=show_check_counters,
         created_at=existing.get("createdAt", datetime.now(timezone.utc)),
         visibility=visibility,
         archived=bool(existing.get("archived", False)),
@@ -1858,34 +2151,34 @@ async def clone_catalogued_variant(request: web.Request) -> web.Response:
 
     ini = replace_variant_section_name(str(doc["ini"]), new_name)
     await check_catalogued_ini_without_mutating_server(ini, new_name)
-    (
-        new_name,
-        start_fen,
-        width,
-        height,
-        pieces,
-        king_roles,
-        pocket_roles,
-        capture_to_hand,
-        promotion_roles,
-    ) = validate_catalogued_ini(ini)
+    validated = validate_catalogued_ini(ini)
+    new_name = validated.name
 
     now = datetime.now(timezone.utc)
     display_name = f"{doc.get('displayName') or name} v{new_name.rsplit('_v', 1)[-1]}"
     cloned = _build_doc(
         name=new_name,
+        base_variant=validated.base_variant,
         display_name=display_name,
         description=str(doc.get("description") or ""),
         username=username,
         ini=ini,
-        start_fen=start_fen,
-        width=width,
-        height=height,
-        pieces=pieces,
-        king_roles=king_roles,
-        pocket_roles=pocket_roles,
-        capture_to_hand=capture_to_hand,
-        promotion_roles=promotion_roles,
+        start_fen=validated.start_fen,
+        width=validated.width,
+        height=validated.height,
+        pieces=validated.pieces,
+        king_roles=validated.king_roles,
+        pocket_roles=validated.pocket_roles,
+        capture_to_hand=validated.capture_to_hand,
+        promotion_type=validated.promotion_type,
+        promotion_roles=validated.promotion_roles,
+        promotion_order=validated.promotion_order,
+        show_promoted=validated.show_promoted,
+        rules_gate=validated.rules_gate,
+        rules_pass=validated.rules_pass,
+        legal_moves_need_history=validated.legal_moves_need_history,
+        n_fold_is_draw=validated.n_fold_is_draw,
+        show_check_counters=validated.show_check_counters,
         created_at=now,
     )
 

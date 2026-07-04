@@ -403,13 +403,10 @@ export abstract class GameController extends ChessgroundController implements Ch
             if (!passKey) {
                 const pieces = this.chessground.state.boardState.pieces;
                 const dests = this.chessground.state.movable.dests;
-                const passPieceRole = this.variant.name == 'ataxx' ? 'p-piece' : 'k-piece';
                 for (const [k, p] of pieces) {
-                    if (p.role === passPieceRole && p.color === this.turnColor) {
-                        if (dests?.get(k)?.includes(k)) {
-                            passKey = k;
-                            break;
-                        }
+                    if (p.color === this.turnColor && dests?.get(k)?.includes(k)) {
+                        passKey = k;
+                        break;
                     }
                 }
             }

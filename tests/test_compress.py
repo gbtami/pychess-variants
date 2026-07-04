@@ -42,6 +42,17 @@ class EncodeDecodeTestCase(unittest.TestCase):
         saved_restored = [*map(decode_move_extended, map(encode_move_extended, moves))]
         self.assertEqual(saved_restored, moves)
 
+    def test_catalogued_move_codec_preserves_gating_suffixes(self):
+        moves = ["e1g1h", "e1g1ha1", "a11a12hp10"]
+        self.assertEqual(decode_move_standard(encode_move_standard(moves[0])), moves[0])
+        self.assertEqual(decode_move_standard(encode_move_standard(moves[1])), moves[1])
+        self.assertEqual(decode_move_extended(encode_move_extended(moves[2])), moves[2])
+
+    def test_catalogued_move_codec_preserves_promoted_drops(self):
+        moves = ["+A@a1", "+Z@p16"]
+        self.assertEqual(decode_move_standard(encode_move_standard(moves[0])), moves[0])
+        self.assertEqual(decode_move_extended(encode_move_extended(moves[1])), moves[1])
+
     def test_catalogued_extended_registration_uses_extended_codec(self):
         name = "testsixteen"
         unregister_catalogued_server_variant(name)

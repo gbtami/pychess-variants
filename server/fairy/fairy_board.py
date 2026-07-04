@@ -95,14 +95,21 @@ def modded_variant(variant: str, chess960: bool, initial_fen: str) -> str:
 
 class FairyBoard:
     def __init__(
-        self, variant: str, initial_fen="", chess960=False, count_started=0, disabled_fen=""
+        self,
+        variant: str,
+        initial_fen="",
+        chess960=False,
+        count_started=0,
+        disabled_fen="",
+        show_promoted: bool = False,
+        legal_moves_need_history: bool = False,
     ):
         normalized_variant, normalized_chess960 = _normalize_variant_and_chess960(variant, chess960)
         self.variant = modded_variant(normalized_variant, normalized_chess960, initial_fen)
         self.sf = sf_alice if normalized_variant == "alice" else sf
         self.chess960 = normalized_chess960
         self.sfen = False
-        self.show_promoted = variant in (
+        self.show_promoted = show_promoted or variant in (
             "makruk",
             "makpong",
             "cambodian",
@@ -110,7 +117,7 @@ class FairyBoard:
             "supply",
             "makbug",
         )
-        self.legal_moves_need_history = variant in ("janggi", "ataxx")
+        self.legal_moves_need_history = legal_moves_need_history or variant in ("janggi", "ataxx")
         self.nnue = initial_fen == ""
 
         self.movelist_supported = self.variant != "jieqi"

@@ -77,6 +77,13 @@ for file_ in "klmnop":
         M2C[f"{file_}{rank}"] = m2c_len
         m2c_len += 1
 
+# User-defined variants with dropPromoted can use promoted drop origins for any role.
+for piece in ascii_uppercase:
+    key = "+%s" % piece
+    if key not in M2C:
+        M2C[key] = m2c_len
+        m2c_len += 1
+
 # for x in M2C:
 #    print(x, M2C[x])
 
@@ -98,6 +105,9 @@ EXTENDED_M2C = dict(
 ext_m2c_len = max(EXTENDED_M2C.values()) + 1
 for letter in ascii_uppercase:
     EXTENDED_M2C[f"{letter}@"] = ext_m2c_len
+    ext_m2c_len += 1
+for letter in ascii_uppercase:
+    EXTENDED_M2C[f"+{letter}"] = ext_m2c_len
     ext_m2c_len += 1
 EXTENDED_C2M = {v: k for k, v in EXTENDED_M2C.items()}
 
@@ -129,15 +139,16 @@ def _parse_extended_move(move: str) -> tuple[str, str, str]:
     if len(move) >= 3 and move[1] == "@":
         from_part = move[:2]
         to_part, end = _parse_extended_square(move, 2)
-        if end != len(move):
-            raise KeyError(move[end:])
-        return from_part, to_part, ""
+        return from_part, to_part, move[end:]
+
+    if len(move) >= 4 and move[0] == "+" and move[2] == "@":
+        from_part = move[:2]
+        to_part, end = _parse_extended_square(move, 3)
+        return from_part, to_part, move[end:]
 
     from_part, index = _parse_extended_square(move, 0)
     to_part, index = _parse_extended_square(move, index)
     promotion = move[index:]
-    if len(promotion) > 1:
-        raise KeyError(promotion)
     return from_part, to_part, promotion
 
 
@@ -159,7 +170,9 @@ def encode_move_duck(move):
 
 
 def encode_move_standard(move):
-    return chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + (move[4] if len(move) == 5 else "")
+    if len(move) >= 4 and move[0] == "+" and move[2] == "@":
+        return chr(M2C[move[0:2]]) + chr(M2C[move[3:5]]) + move[5:]
+    return chr(M2C[move[0:2]]) + chr(M2C[move[2:4]]) + move[4:]
 
 
 def encode_move_extended(move):
@@ -187,10 +200,18 @@ def decode_move_duck(move):
 
 
 def decode_move_standard(move):
-    return C2M[ord(move[0])] + C2M[ord(move[1])] + (move[2] if len(move) == 3 else "")
+    from_part = C2M[ord(move[0])]
+    to_part = C2M[ord(move[1])]
+    suffix = move[2:]
+    if from_part.startswith("+"):
+        return from_part + "@" + to_part + suffix
+    return from_part + to_part + suffix
 
 
 def decode_move_extended(move):
     from_part = EXTENDED_C2M[ord(move[0])]
     to_part = EXTENDED_C2M[ord(move[1])]
-    return from_part + to_part + (move[2] if len(move) == 3 else "")
+    suffix = move[2:]
+    if from_part.startswith("+"):
+        return from_part + "@" + to_part + suffix
+    return from_part + to_part + suffix

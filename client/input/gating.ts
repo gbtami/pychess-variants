@@ -18,9 +18,8 @@ export class GatingInput extends ExtraInput {
     }
 
     /*
-     * NOTE: This code only works with S-Chess, S-Chess960, and S-House
-     *       Some parts assume an 8x8 board
-     *       Please modify as you see fit if other gating variants come along
+     * Seirawan-style gating: a piece from hand may enter on the square vacated
+     * by an unmoved back-rank piece, or on the rook square while castling.
      */
     start(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata): void {
         this.data = { piece, orig, dest, meta };
@@ -62,8 +61,10 @@ export class GatingInput extends ExtraInput {
         const parts = fen.split(" ");
         const castling = parts[2];
         const color = parts[1] === 'w' ? 'white' : 'black';
-        const gateRank = color === 'white' ? '1' : '8';
-        if (orig[1] === gateRank) {
+        const height = this.ctrl.variant.board.dimensions.height;
+        const origRank = util.key2pos(orig)[1];
+        const gateRank = color === 'white' ? 0 : height - 1;
+        if (origRank === gateRank) {
             if (castling.includes(colorCase(color, orig[0]))) {
                 return true;
             }
@@ -137,10 +138,12 @@ export class GatingInput extends ExtraInput {
     }
 
     private squareView(orig: cg.Key, color: cg.Color, orientation: cg.Color): VNode[] {
+        const width = this.ctrl.variant.board.dimensions.width;
+        const height = this.ctrl.variant.board.dimensions.height;
         const leftFile = util.key2pos(orig)[0];
-        const left = (orientation === "white" ? leftFile : 7 - leftFile) * 12.5;
+        const left = (orientation === "white" ? leftFile : width - 1 - leftFile) * (100 / width);
         return this.choices[orig]!.map((role, i) => {
-            const top = (color === orientation ? 7 - i : i) * 12.5;
+            const top = (color === orientation ? height - 1 - i : i) * (100 / height);
             console.log(role, orig);
             return h("square", {
                 style: { top: top + "%", left: left + "%" },

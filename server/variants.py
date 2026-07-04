@@ -31,6 +31,9 @@ class Variant:
     hidden_info: bool = False
     hidden_info_mode: HiddenInfoMode = "none"
     base_variant: str = ""
+    show_promoted: bool = False
+    legal_moves_need_history: bool = False
+    n_fold_is_draw: bool = False
     move_encoding: MoveCodec = encode_move_standard
     move_decoding: MoveCodec = decode_move_standard
 
@@ -57,6 +60,9 @@ class CataloguedServerVariant:
     hidden_info: bool = False
     hidden_info_mode: HiddenInfoMode = "none"
     base_variant: str = ""
+    show_promoted: bool = False
+    legal_moves_need_history: bool = False
+    n_fold_is_draw: bool = False
     move_encoding: MoveCodec = encode_move_standard
     move_decoding: MoveCodec = decode_move_standard
 
@@ -84,6 +90,9 @@ class ServerVariants(Enum):
         self.hidden_info = variant.hidden_info
         self.hidden_info_mode = variant.hidden_info_mode
         self.base_variant = variant.base_variant
+        self.show_promoted = variant.show_promoted
+        self.legal_moves_need_history = variant.legal_moves_need_history
+        self.n_fold_is_draw = variant.n_fold_is_draw
         self.move_encoding = variant.move_encoding
         self.move_decoding = variant.move_decoding
 
@@ -248,6 +257,9 @@ def register_catalogued_server_variant(
     *,
     grand: bool = False,
     extended_move_codec: bool = False,
+    show_promoted: bool = False,
+    legal_moves_need_history: bool = False,
+    n_fold_is_draw: bool = False,
 ) -> CataloguedServerVariant:
     """Register a casual uploaded variant in the runtime server variant maps.
 
@@ -263,6 +275,9 @@ def register_catalogued_server_variant(
         translated_name=display_name,
         icon=icon,
         grand=grand,
+        show_promoted=show_promoted,
+        legal_moves_need_history=legal_moves_need_history,
+        n_fold_is_draw=n_fold_is_draw,
         move_encoding=encode_move_extended if extended_move_codec else encode_move_standard,
         move_decoding=decode_move_extended if extended_move_codec else decode_move_standard,
     )
