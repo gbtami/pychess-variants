@@ -84,7 +84,9 @@ test('accepts hyphenated inherited variant names', async () => {
     await expect(
         checkRulesWithFsfWasm('[fsf-tencubed:tencubed]\n'),
     ).resolves.toBeUndefined();
-    expect(engine.commands).toContain('check << variants.txt');
+    expect(engine.commands.some((command) => /^check <<PYCHESS_VARIANT_CHECK_EOF_\d+$/.test(command))).toBe(
+        true,
+    );
 });
 
 
