@@ -26,7 +26,7 @@ class MockFairyStockfishEngine {
 
         if (message.startsWith('check <<')) {
             const input = this.readQueuedInput(message).join('\n');
-            const nameMatch = input.match(/^\s*\[\s*([A-Za-z0-9_]+)/m);
+            const nameMatch = input.match(/^\s*\[\s*([A-Za-z0-9_-]+)/m);
             const name = nameMatch?.[1] ?? 'variant';
             this.pendingOutput = [`Parsing variant: ${name}`];
             if (input.includes('capturetohand=')) {
@@ -74,6 +74,19 @@ test('surfaces invalid option diagnostics from Fairy-Stockfish check', async () 
         checkRulesWithFsfWasm('[crazyhousex:chess]\ncapturetohand=true\n'),
     ).rejects.toThrow('Invalid option: capturetohand');
 });
+
+test('accepts hyphenated inherited variant names', async () => {
+    const engine = new MockFairyStockfishEngine();
+    (window as typeof window & { fsf: unknown }).fsf = engine;
+
+    const { checkRulesWithFsfWasm } = await import('../client/fairyStockfish');
+
+    await expect(
+        checkRulesWithFsfWasm('[fsf-tencubed:tencubed]\n'),
+    ).resolves.toBeUndefined();
+    expect(engine.commands).toContain('check << variants.txt');
+});
+
 
 test('loads base variants once and accepts valid rules', async () => {
     const engine = new MockFairyStockfishEngine();

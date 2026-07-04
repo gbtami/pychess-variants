@@ -120,13 +120,13 @@ function registerFromPayload(payload: { oldName?: string; variant?: ManagedVaria
     }
 }
 
-const SECTION_RE = /^\s*\[\s*([A-Za-z0-9_]+)(?::[^\]]+)?\s*\]\s*$/gm;
+const SECTION_RE = /^\s*\[\s*([A-Za-z0-9_-]+)(?::[^\]]+)?\s*\]\s*$/gm;
 function extractVariantName(ini: string): string {
     const sections = [...ini.matchAll(SECTION_RE)].map(match => match[1]);
     if (sections.length !== 1) throw new Error(_('The INI must contain exactly one variant section.'));
     const name = sections[0];
-    if (!/^[a-z][a-z0-9_]{2,31}$/.test(name)) {
-        throw new Error(_('Variant names must be 3-32 chars, start with a lowercase letter, and contain only lowercase letters, digits, and underscores.'));
+    if (!/^[a-z][a-z0-9_-]{2,31}$/.test(name)) {
+        throw new Error(_('Variant names must be 3-32 chars, start with a lowercase letter, and contain only lowercase letters, digits, hyphens, and underscores.'));
     }
     return name;
 }

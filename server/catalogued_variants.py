@@ -56,12 +56,13 @@ MAX_DISPLAY_NAME_LEN = 80
 
 VARIANT_NAME_ERROR = (
     "Variant names must be 3-32 chars, start with a lowercase letter, "
-    "and contain only lowercase letters, digits, and underscores."
+    "and contain only lowercase letters, digits, hyphens, and underscores."
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FSF_CHECK_TIMEOUT_SECONDS = 8.0
 BUILTIN_VARIANT_NAMES = frozenset(variant.server_name for variant in ServerVariants)
+BUILTIN_FSF_VARIANT_NAMES = frozenset(sf.variants())
 
 
 class VariantSectionMatch(NamedTuple):
@@ -220,7 +221,7 @@ def _is_valid_variant_name(name: str) -> bool:
         return False
     if not "a" <= name[0] <= "z":
         return False
-    return all(("a" <= ch <= "z") or ch.isdigit() or ch == "_" for ch in name)
+    return all(("a" <= ch <= "z") or ch.isdigit() or ch in {"-", "_"} for ch in name)
 
 
 def _ensure_catalogued_ini_size(ini: str) -> None:
@@ -877,9 +878,10 @@ async def check_catalogued_ini_without_mutating_server(ini: str, name: str) -> s
 def _is_builtin_variant_name(name: str) -> bool:
     # Do not use the mutable ALL_VARIANTS map here. A previously-buggy upload
     # could have registered a catalogued variant with a built-in key and hidden
-    # the original entry in ALL_VARIANTS. The enum is the stable source of all
-    # built-in site/FSF variant names.
-    return name in BUILTIN_VARIANT_NAMES
+    # the original entry in ALL_VARIANTS. ServerVariants is the stable source
+    # for built-in site names, while sf.variants() at import time covers
+    # Fairy-Stockfish-only built-ins such as tencubed.
+    return name in BUILTIN_VARIANT_NAMES or name in BUILTIN_FSF_VARIANT_NAMES
 
 
 async def ensure_catalogued_variant_name_available(
@@ -895,7 +897,7 @@ async def ensure_catalogued_variant_name_available(
     catalogued variant owned by any user.
     """
     if _is_builtin_variant_name(name):
-        raise web.HTTPConflict(text="This variant name conflicts with an existing site variant.")
+        raise web.HTTPConflict(text="This variant name conflicts with an existing built-in variant.")
 
     if current_name is not None and name == current_name:
         return
