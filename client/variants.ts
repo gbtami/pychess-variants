@@ -1385,7 +1385,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
 
     const baseVariant = meta.baseVariant ? VARIANTS[meta.baseVariant] : undefined;
     const pieces = (meta.pieces?.length ? meta.pieces : ['k']) as cg.Letter[];
-    const kingRoles = (meta.kingRoles ?? baseVariant?.kingRoles.map(util.letterOf) ?? []) as cg.Letter[];
+    const kingRoles = (meta.kingRoles ?? baseVariant?.kingRoles.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
     const explicitCaptureToHand = cataloguedIniHasOption(meta.ini, 'capturesToHand');
     const captureToHand = explicitCaptureToHand
         ? !!meta.captureToHand
@@ -1401,7 +1401,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
     ].some(key => cataloguedIniHasOption(meta.ini, key));
     const pocketRoles = (meta.pocketRoles?.length || hasPocketOverride
         ? (meta.pocketRoles ?? [])
-        : (baseVariant?.pocket?.roles.white.map(util.letterOf) ?? [])) as cg.Letter[];
+        : (baseVariant?.pocket?.roles.white.map(role => util.letterOf(role)) ?? [])) as cg.Letter[];
     const hasPromotionOverride = [
         'promotionPawnTypes',
         'promotionPawnTypesWhite',
@@ -1421,7 +1421,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         : (baseVariant?.promotion.type ?? meta.promotionType ?? 'regular');
     const promotionRoles = (hasPromotionOverride || meta.promotionRoles?.length
         ? (meta.promotionRoles ?? [])
-        : (baseVariant?.promotion.roles.map(util.letterOf) ?? [])) as cg.Letter[];
+        : (baseVariant?.promotion.roles.map(role => util.letterOf(role)) ?? [])) as cg.Letter[];
     const promotionOrder = meta.promotionOrder?.length
         ? [...meta.promotionOrder]
         : (hasPromotionOverride ? undefined : (baseVariant ? [...baseVariant.promotion.order] : undefined));
