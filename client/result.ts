@@ -1,7 +1,7 @@
 import { h } from 'snabbdom';
 
 import { _ } from './i18n';
-import { Variant } from './variants';
+import { isCataloguedVariant, Variant } from './variants';
 
 export function gameType(rated: string | number) {
     switch (rated) {
@@ -134,7 +134,7 @@ export function result(variant: Variant, status: number, result: string, bughous
                     text = _('Point counting');
                     break;
                 default:
-                    text = _('Repetition');
+                    text = isCataloguedVariant(variantName) ? _('Claimed variant ending') : _('Repetition');
                     break;
             }
             break;

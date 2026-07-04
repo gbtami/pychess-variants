@@ -58,7 +58,6 @@ UNSUPPORTED_CATALOGUED_BOOL_RULES: dict[str, str] = {
     "twoBoards": "two-board variants need the dedicated bughouse/supply lobby and game flow.",
     "cambodianMoves": "Cambodian/Ouk opening moves need dedicated client-side move input support.",
     "materialCounting": "material counting needs variant-specific adjudication and UI support.",
-    "extinctionClaim": "claimable extinction endings need dedicated claim/adjudication UI.",
     "freeDrops": "free drops need dedicated pocket/setup-flow tests.",
 }
 
@@ -1432,6 +1431,12 @@ async def init_catalogued_variants(app_state: Any, db_collections: list[str]) ->
     async for doc in cursor:
         try:
             register_catalogued_variant_doc(app_state, doc)
+        except web.HTTPException as exc:
+            log.warning(
+                "Skipped catalogued variant %s: %s",
+                doc.get("name"),
+                exc.text or exc.reason,
+            )
         except Exception:
             log.exception("Failed to load catalogued variant %s", doc.get("name"))
 

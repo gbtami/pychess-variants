@@ -804,7 +804,8 @@ def _ending_lines(parsed: ParsedCataloguedIni) -> list[CataloguedRuleLine]:
         value = _value_result_text(parsed.option("extinctionValue"), default="none")
         piece_types = parsed.option("extinctionPieceTypes") or "configured pieces"
         count = parsed.option("extinctionPieceCount") or "0"
-        _add(lines, f"An extinction rule is active: reaching {count} remaining {_piece_code_text(piece_types)} causes {value}.", "extinctionValue", parsed.option("extinctionValue"))
+        claim_text = " The ending is claimable." if _bool_value(parsed.option("extinctionClaim")) else ""
+        _add(lines, f"An extinction rule is active: reaching {count} remaining {_piece_code_text(piece_types)} causes {value}.{claim_text}", "extinctionValue", parsed.option("extinctionValue"))
 
     if parsed.has("flagRegion") or parsed.has("flagRegionWhite") or parsed.has("flagRegionBlack"):
         piece = parsed.option("flagPiece") or parsed.option("flagPieceWhite") or parsed.option("flagPieceBlack") or "*"
