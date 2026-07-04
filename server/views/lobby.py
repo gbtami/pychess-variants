@@ -65,9 +65,19 @@ async def lobby(request: web.Request) -> ViewContext:
     # Play menu (Create a game)
     if request.rel_url.query.get("any") is not None:
         profileId = "any#"
-        context["profile"] = profileId
 
-    if "/challenge" in request.path or "/play" in request.path:
+    # Direct AI entry point used by custom/catalogued variant pages.  Keep it
+    # query based so ?variant=... can preload unlisted catalogued variants too.
+    if request.rel_url.query.get("ai") is not None:
+        profileId = "Fairy-Stockfish"
+
+    opens_lobby_dialog = profileId is not None and (
+        "/challenge" in request.path
+        or "/play" in request.path
+        or request.rel_url.query.get("any") is not None
+        or request.rel_url.query.get("ai") is not None
+    )
+    if opens_lobby_dialog:
         context["profile"] = profileId
         context["profile_title"] = (
             app_state.users[profileId].title
@@ -75,7 +85,7 @@ async def lobby(request: web.Request) -> ViewContext:
             else ""
         )
         context["view_css"] = "lobby.css"
-        if user.anon and context["profile_title"] != "BOT":
+        if user.anon and context["profile_title"] != "BOT" and profileId != "any#":
             raise web.HTTPNotFound()
 
     context["title"] = "PyChess • Free Online Chess Variants"

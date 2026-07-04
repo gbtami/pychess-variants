@@ -379,7 +379,13 @@ async function deletePieceSet(model: PyChessModel, variant: ManagedVariant): Pro
 function playVariant(model: PyChessModel, variant: ManagedVariant): void {
     if (variant.archived || variant.enabled === false) return;
     localStorage.seek_variant = variant.name;
-    window.location.assign(`${model.home}/?any`);
+    window.location.assign(`${model.home}/?any&variant=${encodeURIComponent(variant.name)}`);
+}
+
+function playVariantWithAI(model: PyChessModel, variant: ManagedVariant): void {
+    if (variant.archived || variant.enabled === false) return;
+    localStorage.seek_variant = variant.name;
+    window.location.assign(`${model.home}/?ai&variant=${encodeURIComponent(variant.name)}`);
 }
 
 function editVariant(model: PyChessModel, variant: ManagedVariant): void {
@@ -645,6 +651,10 @@ function renderRows(model: PyChessModel): VNode {
                             props: { type: 'button', disabled: archived },
                             on: { click: () => playVariant(model, variant) },
                         }, _('Play')),
+                        h('button.catalogued-row-button.catalogued-secondary-action', {
+                            props: { type: 'button', disabled: archived },
+                            on: { click: () => playVariantWithAI(model, variant) },
+                        }, _('Play AI')),
                         h('button.catalogued-row-button.catalogued-secondary-action', {
                             props: { type: 'button', disabled: state.saving },
                             attrs: { title: lockTitle },

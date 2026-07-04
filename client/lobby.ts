@@ -160,7 +160,10 @@ export class LobbyController implements ChatController {
         if (this.profileid !== "") {
             if (this.title === 'BOT') {
                 this.createMode = (this.profileid === 'Fairy-Stockfish') ? 'playAI' : 'playBOT';
-                this.preSelectVariant(model.variant);
+                this.renderVariantsDropDown(
+                    model.variant,
+                    disabledVariantsForCreateMode(this.createMode, this.profileid, this.anon),
+                );
             }
             else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
             document.getElementById('game-mode')!.style.display = (this.anon || this.title === 'BOT') ? 'none' : 'inline-flex';
