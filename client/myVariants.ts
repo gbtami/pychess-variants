@@ -1,6 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import { alertDialog } from './alertDialog';
+import { confirmDialog } from './confirmDialog';
 import { ensurePieceCSS, patch } from './document';
 import { checkRulesWithFsfWasm } from './fairyStockfish';
 import { _ } from './i18n';
@@ -14,6 +15,7 @@ import {
 } from './variants';
 
 type VariantVisibility = 'private' | 'unlisted' | 'public';
+type MessageTone = 'neutral' | 'success' | 'error';
 
 type ManagedVariant = CataloguedVariantClientDocument & {
     author?: string;
@@ -34,6 +36,7 @@ type State = {
     editing: ManagedVariant | null;
     message: string;
     formMessage: string;
+    formMessageTone: MessageTone;
     draftDisplayName: string;
     draftDescription: string;
     draftVisibility: VariantVisibility;
@@ -49,6 +52,7 @@ const state: State = {
     editing: null,
     message: '',
     formMessage: '',
+    formMessageTone: 'neutral',
     draftDisplayName: '',
     draftDescription: '',
     draftVisibility: 'private',
@@ -99,6 +103,7 @@ function clearDraft(): void {
     state.draftVisibility = 'private';
     state.draftIni = '';
     state.formMessage = '';
+    state.formMessageTone = 'neutral';
 }
 
 function setDraftFromVariant(variant: ManagedVariant): void {
@@ -183,20 +188,24 @@ async function validateCurrentForm(model: PyChessModel): Promise<void> {
         const name = validateBasicIni(body.ini.trim(), currentName);
         state.saving = true;
         if (!currentRulesChanged(body.ini)) {
-            state.formMessage = _('The rules are unchanged; metadata and visibility can still be saved.');
+            state.formMessage = _('These rules are unchanged and already passed validation.');
+            state.formMessageTone = 'success';
             return;
         }
         state.formMessage = `${_('Checking rules for')} ${name}...`;
+        state.formMessageTone = 'neutral';
         rerender(model);
         await checkRulesStrictly(body.ini.trim());
         await checkRulesOnServer(body.ini, currentName);
         state.formMessage = `${_('Fairy-Stockfish check passed for')} ${name}.`;
+        state.formMessageTone = 'success';
     } catch (err) {
         state.formMessage = err instanceof Error ? err.message : _('Variant check failed');
+        state.formMessageTone = 'error';
     } finally {
         state.saving = false;
+        rerender(model);
     }
-    rerender(model);
 }
 
 async function saveVariant(model: PyChessModel): Promise<void> {
@@ -211,6 +220,7 @@ async function saveVariant(model: PyChessModel): Promise<void> {
         validateBasicIni(body.ini.trim(), editingName);
     } catch (err) {
         state.formMessage = err instanceof Error ? err.message : _('Variant check failed');
+        state.formMessageTone = 'error';
         rerender(model);
         return;
     }
@@ -220,6 +230,7 @@ async function saveVariant(model: PyChessModel): Promise<void> {
     state.formMessage = rulesChanged
         ? `${_('Checking rules for')} ${extractVariantName(body.ini.trim())}...`
         : _('Saving metadata and visibility...');
+    state.formMessageTone = 'neutral';
     rerender(model);
 
     const url = editingName ? `/api/catalogued-variants/${encodeURIComponent(editingName)}` : '/api/catalogued-variants';
@@ -236,9 +247,11 @@ async function saveVariant(model: PyChessModel): Promise<void> {
         state.editing = null;
         clearDraft();
         state.formMessage = editingName ? _('Variant updated.') : _('Variant uploaded.');
+        state.formMessageTone = 'success';
         await loadMine(model);
     } catch (err) {
         state.formMessage = err instanceof Error ? err.message : _('Failed to save variant');
+        state.formMessageTone = 'error';
     } finally {
         state.saving = false;
         rerender(model);
@@ -252,7 +265,15 @@ async function postAction(model: PyChessModel, variant: ManagedVariant, action: 
         restore: _('restore'),
         clone: _('clone'),
     };
-    if ((action === 'delete' || action === 'archive') && !window.confirm(`${labels[action]} ${variant.displayName}?`)) return;
+    if (action === 'delete' || action === 'archive') {
+        const confirmed = await confirmDialog({
+            text: `${labels[action]} ${variant.displayName}?`,
+            confirmText: action === 'delete' ? _('Delete') : _('Archive'),
+            cancelText: _('Cancel'),
+            danger: true,
+        });
+        if (!confirmed) return;
+    }
 
     state.saving = true;
     rerender(model);
@@ -329,7 +350,14 @@ async function uploadPieceSet(model: PyChessModel, variant: ManagedVariant, file
 }
 
 async function deletePieceSet(model: PyChessModel, variant: ManagedVariant): Promise<void> {
-    if (!variant.hasPieceSet || !window.confirm(`${_('delete')} ${_('custom piece set')}?`)) return;
+    if (!variant.hasPieceSet) return;
+    const confirmed = await confirmDialog({
+        text: `${_('delete')} ${_('custom piece set')}?`,
+        confirmText: _('Delete'),
+        cancelText: _('Cancel'),
+        danger: true,
+    });
+    if (!confirmed) return;
     state.saving = true;
     rerender(model);
     try {
@@ -358,6 +386,7 @@ function editVariant(model: PyChessModel, variant: ManagedVariant): void {
     state.editing = variant;
     setDraftFromVariant(variant);
     state.formMessage = '';
+    state.formMessageTone = 'neutral';
     rerender(model);
     setTimeout(() => document.getElementById('catalogued-display-name')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
 }
@@ -417,6 +446,7 @@ function renderForm(model: PyChessModel): VNode {
                         input: (event: Event) => {
                             state.draftDisplayName = (event.target as HTMLInputElement).value;
                             state.formMessage = '';
+                            state.formMessageTone = 'neutral';
                         },
                     },
                 }),
@@ -434,6 +464,7 @@ function renderForm(model: PyChessModel): VNode {
                         input: (event: Event) => {
                             state.draftDescription = (event.target as HTMLInputElement).value;
                             state.formMessage = '';
+                            state.formMessageTone = 'neutral';
                         },
                     },
                 }),
@@ -449,6 +480,7 @@ function renderForm(model: PyChessModel): VNode {
                         change: (event: Event) => {
                             state.draftVisibility = (event.target as HTMLSelectElement).value as VariantVisibility;
                             state.formMessage = visibilityHelp(state.draftVisibility);
+                            state.formMessageTone = 'neutral';
                         },
                     },
                 }, [
@@ -471,6 +503,7 @@ function renderForm(model: PyChessModel): VNode {
                         input: (event: Event) => {
                             state.draftIni = (event.target as HTMLTextAreaElement).value;
                             state.formMessage = '';
+                            state.formMessageTone = 'neutral';
                         },
                     },
                 }),
@@ -497,7 +530,7 @@ function renderForm(model: PyChessModel): VNode {
                     : null,
             ]),
             state.formMessage
-                ? h('p.catalogued-message.catalogued-field-full', { attrs: { 'aria-live': 'polite' } }, state.formMessage)
+                ? h(`p.catalogued-message.catalogued-field-full.${state.formMessageTone}`, { attrs: { 'aria-live': 'polite' } }, state.formMessage)
                 : null,
         ]),
     ]);

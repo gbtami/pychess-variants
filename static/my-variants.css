@@ -96,6 +96,14 @@
     font-weight: bold;
 }
 
+.catalogued-message.success {
+    color: var(--good);
+}
+
+.catalogued-message.error {
+    color: var(--bad);
+}
+
 .catalogued-actions {
     display: flex;
     gap: 0.5rem;
