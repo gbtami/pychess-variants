@@ -897,7 +897,9 @@ async def ensure_catalogued_variant_name_available(
     catalogued variant owned by any user.
     """
     if _is_builtin_variant_name(name):
-        raise web.HTTPConflict(text="This variant name conflicts with an existing built-in variant.")
+        raise web.HTTPConflict(
+            text="This variant name conflicts with an existing built-in variant."
+        )
 
     if current_name is not None and name == current_name:
         return
