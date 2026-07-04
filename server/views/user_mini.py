@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import logging
 from datetime import MINYEAR, datetime
+from time import monotonic
 
 from aiohttp import web
 import aiohttp_session
@@ -12,6 +14,15 @@ from public_users import PublicProfile
 from json_utils import json_response
 from typing_defs import PerfEntry
 from variants import C2V, TWO_BOARD_VARIANT_CODES, VARIANTS, get_server_variant
+
+
+log = logging.getLogger(__name__)
+SLOW_USER_MINI_MS = 250.0
+SLOW_USER_MINI_PLAYING_QUERY_MS = 100.0
+
+
+def _elapsed_ms(started_at: float) -> float:
+    return (monotonic() - started_at) * 1000.0
 
 
 def _sort_perfs_by_activity(item: tuple[str, PerfEntry]) -> tuple[int, float, str]:
@@ -114,14 +125,29 @@ async def _build_playing_payload(profile_id: str, request: web.Request) -> dict[
                 "orientation": "white" if profile_id == game.wplayer.username else "black",
             }
 
+    if app_state.db is None:
+        return None
+
+    query_started_at = monotonic()
     doc = await app_state.db.game.find_one(
         {
             "us": profile_id,
             "s": STARTED,
             "v": {"$nin": list(TWO_BOARD_VARIANT_CODES)},
         },
+        projection={
+            "_id": 1,
+            "v": 1,
+            "z": 1,
+            "m": {"$slice": -1},
+            "us": 1,
+            "f": 1,
+        },
         sort=[("d", -1)],
     )
+    query_ms = _elapsed_ms(query_started_at)
+    if query_ms >= SLOW_USER_MINI_PLAYING_QUERY_MS:
+        log.info("slow user mini active-game lookup profile=%s query=%.1fms", profile_id, query_ms)
     if doc is None:
         return None
 
@@ -218,6 +244,7 @@ async def _follow_state_for_profile(
 
 
 async def user_mini(request: web.Request) -> web.StreamResponse:
+    request_started_at = monotonic()
     app_state = get_app_state(request.app)
     profile_id = request.match_info["profileId"]
 
@@ -226,28 +253,65 @@ async def user_mini(request: web.Request) -> web.StreamResponse:
     session_user_value = session.get("user_name")
     session_user = session_user_value if isinstance(session_user_value, str) else None
 
+    profile_started_at = monotonic()
     profile = await app_state.public_users.get_profile(profile_id)
+    profile_ms = _elapsed_ms(profile_started_at)
     if profile is None or not profile.enabled:
         raise web.HTTPNotFound()
 
     live_user = app_state.users.data.get(profile_id)
     online = bool(live_user.online) if live_user is not None else False
 
+    can_message_started_at = monotonic()
+    can_message = await _can_message_profile(profile, profile_id, session_user, request)
+    can_message_ms = _elapsed_ms(can_message_started_at)
+
+    vs_score_started_at = monotonic()
+    vs_score = await _build_vs_score_payload(profile_id, session_user, request)
+    vs_score_ms = _elapsed_ms(vs_score_started_at)
+
+    perfs_started_at = monotonic()
+    perfs = _select_best8_perfs_by_activity(profile)
+    perfs_ms = _elapsed_ms(perfs_started_at)
+
+    playing_started_at = monotonic()
+    playing = await _build_playing_payload(profile_id, request)
+    playing_ms = _elapsed_ms(playing_started_at)
+
+    can_follow_started_at = monotonic()
+    can_follow, following = await _follow_state_for_profile(
+        profile, profile_id, session_user, request
+    )
+    can_follow_ms = _elapsed_ms(can_follow_started_at)
+
     payload: dict[str, object] = {
         "username": profile.username,
         "title": profile.title,
         "online": online,
-        "canMessage": await _can_message_profile(profile, profile_id, session_user, request),
+        "canMessage": can_message,
         "joinedAt": _joined_at_for_payload(profile.created_at),
         "count": profile.count,
-        "vsScore": await _build_vs_score_payload(profile_id, session_user, request),
-        "perfs": _select_best8_perfs_by_activity(profile),
-        "playing": await _build_playing_payload(profile_id, request),
+        "vsScore": vs_score,
+        "perfs": perfs,
+        "playing": playing,
+        "canFollow": can_follow,
+        "following": following,
     }
-    can_follow, following = await _follow_state_for_profile(
-        profile, profile_id, session_user, request
-    )
-    payload["canFollow"] = can_follow
-    payload["following"] = following
+
+    total_ms = _elapsed_ms(request_started_at)
+    if total_ms >= SLOW_USER_MINI_MS:
+        log.info(
+            "slow user mini profile=%s total=%.1fms profile=%.1fms "
+            "can_message=%.1fms vs_score=%.1fms perfs=%.1fms playing=%.1fms "
+            "can_follow=%.1fms",
+            profile_id,
+            total_ms,
+            profile_ms,
+            can_message_ms,
+            vs_score_ms,
+            perfs_ms,
+            playing_ms,
+            can_follow_ms,
+        )
 
     return json_response(payload)

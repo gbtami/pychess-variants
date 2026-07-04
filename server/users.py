@@ -83,11 +83,15 @@ class Users(UserDict[str, User]):
             user.game_category_set = "ct" in doc
             self.data[username] = user
 
-            blocked_cursor = self.app_state.db.relation.find({"u1": username, "r": BLOCK})
+            blocked_cursor = self.app_state.db.relation.find(
+                {"u1": username, "r": BLOCK}, projection={"_id": 0, "u2": 1}
+            )
             blocked_docs: list[RelationDocument] = await blocked_cursor.to_list(MAX_USER_BLOCK)
             user.blocked = {doc["u2"] for doc in blocked_docs}
 
-            following_cursor = self.app_state.db.relation.find({"u1": username, "r": FOLLOW})
+            following_cursor = self.app_state.db.relation.find(
+                {"u1": username, "r": FOLLOW}, projection={"_id": 0, "u2": 1}
+            )
             following_docs: list[RelationDocument] = await following_cursor.to_list(None)
             user.following = {doc["u2"] for doc in following_docs}
 

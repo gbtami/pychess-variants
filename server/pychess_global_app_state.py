@@ -270,6 +270,7 @@ class PychessGlobalAppState:
                 await self.db.tournament.create_index("status")
                 await self.db.tournament_player.create_index("tid")
                 await self.db.tournament_pairing.create_index("tid")
+                await self.db.relation.create_index([("u1", 1), ("r", 1)], name="u1_r")
 
             with startup.phase("load catalogued casual variants"):
                 from catalogued_variants import init_catalogued_variants
@@ -355,6 +356,9 @@ class PychessGlobalAppState:
                 await self.db.game.create_index("c")
                 await self.db.game.create_index("tid")
                 await self.db.game.create_index([("us", 1), ("d", -1)], name="us_d_desc")
+                await self.db.game.create_index(
+                    [("us", 1), ("s", 1), ("d", -1)], name="us_s_d_desc"
+                )
                 await self.db.game.create_index([("us.0", 1), ("d", -1)], name="us0_d_desc")
                 await self.db.game.create_index([("us.1", 1), ("d", -1)], name="us1_d_desc")
                 await self.db.game.create_index(

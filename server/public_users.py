@@ -138,7 +138,9 @@ class PublicUsers:
             self._titles[username] = (now + PUBLIC_TITLE_CACHE_TTL_SECONDS, None)
             return None
 
-        cursor = self.app_state.db.relation.find({"u1": username, "r": BLOCK})
+        cursor = self.app_state.db.relation.find(
+            {"u1": username, "r": BLOCK}, projection={"_id": 0, "u2": 1}
+        )
         docs: list[RelationDocument] = await cursor.to_list(MAX_USER_BLOCK)
         profile = self._profile_from_doc(
             username=username,
