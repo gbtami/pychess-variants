@@ -9,15 +9,18 @@ import test_logger
 
 from compress import R2C
 from const import MATE
+from glicko2.glicko2 import new_default_perf_map
 from game import Game
 from fairy.fairy_board import FairyBoard
+from user import User
 from utils import pgn as export_pgn
-from variants import get_server_variant
+from variants import VARIANTS, get_server_variant
 
 test_logger.init_test_logger()
 
 
 CAPA_CASTLING_FEN = "r3k4r/10/10/10/10/10/10/R3K4R b KQkq - 0 1"
+PERFS = new_default_perf_map(VARIANTS)
 
 
 def make_export_doc(move: str) -> dict:
@@ -37,43 +40,43 @@ def make_export_doc(move: str) -> dict:
     }
 
 
-def make_game_for_pgn(move: str) -> Game:
-    game = Game.__new__(Game)
-    game.jieqi = False
-    game.variant = "capablanca"
-    game.initial_fen = CAPA_CASTLING_FEN
-    game.board = SimpleNamespace(initial_fen=CAPA_CASTLING_FEN, move_stack=[move])
-    game.chess960 = False
-    game.id = "embassy-game"
-    game.rated = 0
+def make_game(game_id: str, variant: str, initial_fen: str, *, corr: bool = False) -> Game:
+    app_state = SimpleNamespace(anon_as_test_users=False)
+    wplayer = User(app_state, username="White", perfs=PERFS)
+    bplayer = User(app_state, username="Black", perfs=PERFS)
+    with (
+        patch("game.Clock", return_value=SimpleNamespace()),
+        patch("game.CorrClock", return_value=SimpleNamespace()),
+    ):
+        game = Game(
+            app_state,
+            game_id,
+            variant,
+            initial_fen,
+            wplayer,
+            bplayer,
+            base=10,
+            inc=0,
+            rated=False,
+            chess960=False,
+            corr=corr,
+        )
     game.date = datetime(2026, 2, 18, tzinfo=timezone.utc)
-    game.wplayer = SimpleNamespace(username="White")
-    game.bplayer = SimpleNamespace(username="Black")
-    game.result = "*"
-    game.wrating = "1500?"
-    game.brating = "1500?"
-    game.base = 10
-    game.inc = 0
+    return game
+
+
+def make_game_for_pgn(move: str) -> Game:
+    game = make_game("embassy-game", "capablanca", CAPA_CASTLING_FEN)
+    game.board = SimpleNamespace(initial_fen=CAPA_CASTLING_FEN, move_stack=[move])
     return game
 
 
 class EmbassyCastlingPgnTestCase(unittest.TestCase):
     def test_create_steps_replays_legacy_capablanca_castling_coordinate(self) -> None:
-        game = Game.__new__(Game)
-        game.id = "embassy-replay"
-        game.variant = "capablanca"
-        game.jieqi = False
-        game.chess960 = False
-        game.usi_format = False
-        game.corr = True
-        game.mct = None
-        game.analysis = None
+        game = make_game("embassy-replay", "capablanca", CAPA_CASTLING_FEN, corr=True)
         game.steps = []
         game.clocks_w = [0]
         game.clocks_b = [0]
-        game.jieqi_captures = None
-        game.jieqi_capture_stack = None
-        game.date = datetime(2026, 2, 18, tzinfo=timezone.utc)
         game.loaded_at = None
         game.status = MATE
 
@@ -90,20 +93,10 @@ class EmbassyCastlingPgnTestCase(unittest.TestCase):
         self.assertEqual("h8e8", game.steps[2]["move"])
 
     def test_create_steps_downgrades_historical_replay_failures(self) -> None:
-        game = Game.__new__(Game)
-        game.id = "legacy-replay"
-        game.variant = "chess"
-        game.jieqi = False
-        game.chess960 = False
-        game.usi_format = False
-        game.corr = True
-        game.mct = None
-        game.analysis = None
+        game = make_game("legacy-replay", "chess", "", corr=True)
         game.steps = []
         game.clocks_w = [0]
         game.clocks_b = [0]
-        game.jieqi_captures = None
-        game.jieqi_capture_stack = None
         game.date = datetime(2025, 1, 1, tzinfo=timezone.utc)
         game.loaded_at = datetime(2026, 4, 1, tzinfo=timezone.utc)
         game.status = MATE
