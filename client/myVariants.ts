@@ -485,8 +485,9 @@ function renderForm(model: PyChessModel): VNode {
                     on: {
                         change: (event: Event) => {
                             state.draftVisibility = (event.target as HTMLSelectElement).value as VariantVisibility;
-                            state.formMessage = visibilityHelp(state.draftVisibility);
+                            state.formMessage = '';
                             state.formMessageTone = 'neutral';
+                            rerender(model);
                         },
                     },
                 }, [

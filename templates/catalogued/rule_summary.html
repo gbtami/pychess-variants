@@ -6,13 +6,23 @@
     {% endfor %}
 
     {% for section in catalogued_variant.ruleSummary.sections %}
-    <section class="catalogued-rule-section">
+    <section class="catalogued-rule-section{% if section.kind %} catalogued-rule-section--{{ section.kind }}{% endif %}">
         <h3>{{ section.title }}</h3>
+        {% if section.kind == "boardSetup" and catalogued_variant.startBoardPreview %}
+        <figure class="catalogued-start-board-figure">
+            <div class="catalogued-start-board-preview">
+                {{ catalogued_variant.startBoardPreview.svg | safe }}
+            </div>
+            <figcaption>Default starting position</figcaption>
+        </figure>
+        {% endif %}
+        {% if section.lines %}
         <ul>
             {% for line in section.lines %}
             <li>{{ line.text }}</li>
             {% endfor %}
         </ul>
+        {% endif %}
     </section>
     {% endfor %}
 

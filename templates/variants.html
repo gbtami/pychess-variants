@@ -51,23 +51,30 @@
     {% if community_variants.variants %}
     <div class="community-variants-list">
         {% for item in community_variants.variants %}
-        <section class="community-variant-card">
-            <div class="community-variant-card-head">
-                <h2><a href="{{ home }}/variants/{{ item.name }}">{{ item.displayName }}</a></h2>
-                <code>{{ item.name }}</code>
+        <section class="community-variant-card{% if item.startBoardPreview %} community-variant-card--with-preview{% endif %}">
+            <div class="community-variant-card-main">
+                <div class="community-variant-card-head">
+                    <h2><a href="{{ home }}/variants/{{ item.name }}">{{ item.displayName }}</a></h2>
+                    <code>{{ item.name }}</code>
+                </div>
+                {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+                <dl>
+                    {% if item.author %}<div><dt>Author</dt><dd>{{ item.author }}</dd></div>{% endif %}
+                    <div><dt>Board</dt><dd>{{ item.width }} × {{ item.height }}</dd></div>
+                    <div><dt>Games</dt><dd>{{ item.gameCount }}</dd></div>
+                </dl>
+                <p class="community-variant-actions">
+                    <a class="button catalogued-action-primary" href="{{ home }}/?any&variant={{ item.name }}">Play</a>
+                    <a class="button catalogued-action-ai" href="{{ home }}/?ai&variant={{ item.name }}">Play AI</a>
+                    <a class="button catalogued-action-analysis" href="{{ home }}/analysis/{{ item.name }}">Analysis</a>
+                    <a class="button catalogued-action-secondary" href="{{ home }}/variants/{{ item.name }}">Rules</a>
+                </p>
             </div>
-            {% if item.description %}<p>{{ item.description }}</p>{% endif %}
-            <dl>
-                {% if item.author %}<div><dt>Author</dt><dd>{{ item.author }}</dd></div>{% endif %}
-                <div><dt>Board</dt><dd>{{ item.width }} × {{ item.height }}</dd></div>
-                <div><dt>Games</dt><dd>{{ item.gameCount }}</dd></div>
-            </dl>
-            <p class="community-variant-actions">
-                <a class="button catalogued-action-primary" href="{{ home }}/?any&variant={{ item.name }}">Play</a>
-                <a class="button catalogued-action-ai" href="{{ home }}/?ai&variant={{ item.name }}">Play AI</a>
-                <a class="button catalogued-action-analysis" href="{{ home }}/analysis/{{ item.name }}">Analysis</a>
-                <a class="button catalogued-action-secondary" href="{{ home }}/variants/{{ item.name }}">Rules</a>
-            </p>
+            {% if item.startBoardPreview %}
+            <a class="community-variant-card-preview" href="{{ home }}/variants/{{ item.name }}" aria-label="View {{ item.displayName }} rules">
+                {{ item.startBoardPreview.svg | safe }}
+            </a>
+            {% endif %}
         </section>
         {% endfor %}
     </div>

@@ -22,6 +22,7 @@ from fairy.fairy_board import sf
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
 from catalogued_betza import catalogued_betza_diagrams
+from catalogued_board import catalogued_start_board_preview
 from catalogued_rules import catalogued_rule_summary
 from request_utils import read_json_data, read_post_data, read_text_data
 from settings import ADMINS
@@ -1306,6 +1307,7 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
         "visibility": _catalogued_visibility(doc),
         "ruleSummary": catalogued_rule_summary(doc),
         "customPieceDiagrams": catalogued_betza_diagrams(doc),
+        "startBoardPreview": catalogued_start_board_preview(doc),
     }
 
 
@@ -1587,6 +1589,7 @@ async def community_catalogued_variants_page(
                 "height": int(doc.get("height") or 0),
                 "gameCount": count,
                 "updatedAt": doc.get("updatedAt"),
+                "startBoardPreview": catalogued_start_board_preview(doc),
             }
         )
 

@@ -5,7 +5,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from functools import lru_cache
 import re
-from typing import Any, Mapping, TypedDict
+from typing import Any, Mapping, NotRequired, TypedDict
 
 
 class CataloguedRuleLine(TypedDict):
@@ -16,6 +16,7 @@ class CataloguedRuleLine(TypedDict):
 class CataloguedRuleSection(TypedDict):
     title: str
     lines: list[CataloguedRuleLine]
+    kind: NotRequired[str]
 
 
 class CataloguedRuleSummary(TypedDict):
@@ -25,7 +26,7 @@ class CataloguedRuleSummary(TypedDict):
 
 
 RULE_SUMMARY_CACHE_SIZE = 512
-RULE_SUMMARY_GENERATOR_VERSION = 1
+RULE_SUMMARY_GENERATOR_VERSION = 2
 
 
 @dataclass
@@ -460,22 +461,6 @@ def _add(lines: list[CataloguedRuleLine], text: str, key: str, value: Any) -> No
 
 def _board_setup_lines(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> list[CataloguedRuleLine]:
     lines: list[CataloguedRuleLine] = []
-    width = int(doc.get("width") or 0)
-    height = int(doc.get("height") or 0)
-    start_fen = str(doc.get("startFen") or parsed.option("startFen") or "")
-
-    if width and height:
-        _add(lines, f"The board is {width} files by {height} ranks.", "board", f"{width}x{height}")
-    elif parsed.has("maxFile") or parsed.has("maxRank"):
-        _add(
-            lines,
-            f"The board size is configured as file {parsed.option('maxFile') or 'h'} by rank {parsed.option('maxRank') or '8'}.",
-            "maxFile/maxRank",
-            f"{parsed.option('maxFile') or '8'} / {parsed.option('maxRank') or '8'}",
-        )
-
-    if start_fen:
-        _add(lines, "The starting position is defined by the variant FEN.", "startFen", start_fen)
 
     if _bool_value(parsed.option("chess960")):
         _add(lines, "The variant supports Chess960-style randomized starting positions/castling.", "chess960", "true")
@@ -938,8 +923,12 @@ def _build_catalogued_rule_summary(doc: Mapping[str, Any]) -> CataloguedRuleSumm
         )
 
     sections: list[CataloguedRuleSection] = []
+    board_setup_lines = _board_setup_lines(parsed, doc)
+    has_start_board = bool(doc.get("startFen")) or bool(doc.get("width")) or bool(doc.get("height"))
+    if board_setup_lines or has_start_board:
+        sections.append({"title": "Board and setup", "kind": "boardSetup", "lines": board_setup_lines})
+
     for title, lines in (
-        ("Board and setup", _board_setup_lines(parsed, doc)),
         ("Pieces and movement", _piece_lines(parsed, doc)),
         ("Move rules", _move_rule_lines(parsed)),
         ("Drops and hands", _drop_lines(parsed, doc)),

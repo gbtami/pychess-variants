@@ -483,3 +483,105 @@ div.guide .catalogued-variant-rules h1 {
     color: #9b51e0;
     border-style: dashed !important;
 }
+
+.community-variant-card--with-preview {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(7.5rem, 18vw, 11rem);
+    gap: 1rem;
+    align-items: center;
+}
+
+.community-variant-card-main {
+    min-width: 0;
+}
+
+.community-variant-card-preview {
+    display: block;
+    justify-self: end;
+    width: 100%;
+    max-width: 11rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--bg-color2);
+    box-shadow: var(--base-shadow);
+    line-height: 0;
+}
+
+.community-variant-card-preview:hover {
+    border-color: var(--link-hover);
+}
+
+.catalogued-start-board-figure {
+    display: grid;
+    gap: 0.55rem;
+    width: min(100%, 22rem);
+    margin: 0.35rem auto 0.85rem;
+    justify-items: center;
+}
+
+.catalogued-start-board-preview {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-color2);
+    box-shadow: var(--base-shadow);
+}
+
+.catalogued-start-board-figure figcaption {
+    font-size: 0.9rem;
+    opacity: 0.82;
+    text-align: center;
+}
+
+.catalogued-start-board-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.catalogued-start-board-light {
+    fill: #f0d9b5;
+}
+
+.catalogued-start-board-dark {
+    fill: #b58863;
+}
+
+.catalogued-start-board-piece {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 800;
+    paint-order: stroke fill;
+    pointer-events: none;
+}
+
+.catalogued-start-board-piece-white {
+    fill: #ffffff;
+    stroke: rgba(0, 0, 0, 0.62);
+    stroke-width: 1.8px;
+}
+
+.catalogued-start-board-piece-black {
+    fill: #1f1f1f;
+    stroke: rgba(255, 255, 255, 0.72);
+    stroke-width: 1.5px;
+}
+
+.catalogued-start-board-piece-neutral,
+.catalogued-start-board-piece-hidden {
+    fill: var(--font-color);
+    stroke: rgba(255, 255, 255, 0.58);
+    stroke-width: 1.4px;
+}
+
+@media (max-width: 699px) {
+    .community-variant-card--with-preview {
+        grid-template-columns: 1fr;
+    }
+
+    .community-variant-card-preview {
+        justify-self: start;
+        width: min(11rem, 100%);
+    }
+}

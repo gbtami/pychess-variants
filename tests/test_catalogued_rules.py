@@ -83,6 +83,28 @@ class CataloguedRulesTestCase(unittest.TestCase):
         self.assertIn("the promotion region for White is all the ranks from 1 to 9", all_text)
         self.assertIn("the promotion region for Black is all the ranks from 9 to 1", all_text)
 
+    def test_board_setup_uses_visual_preview_instead_of_fen_sentences(self):
+        summary = catalogued_rule_summary(
+            {
+                "ini": """
+                [visualsetup:chess]
+                """,
+                "startFen": "8/8/8/8/8/8/8/K6k w - - 0 1",
+                "width": 8,
+                "height": 8,
+            }
+        )
+
+        board_section = next(
+            section for section in summary["sections"] if section["title"] == "Board and setup"
+        )
+        self.assertEqual(board_section.get("kind"), "boardSetup")
+        all_text = "\n".join(
+            line["text"] for section in summary["sections"] for line in section["lines"]
+        )
+        self.assertNotIn("The board is", all_text)
+        self.assertNotIn("starting position is defined", all_text)
+
 
 if __name__ == "__main__":
     unittest.main()
