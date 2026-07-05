@@ -43,19 +43,19 @@ Onis are Japanese demons, often coming in pairs. ("Azure" and "Crimson" are used
 
 ![Kappas](https://github.com/gbtami/pychess-variants/blob/master/static/images/YokaiShogiGuide/Kappas.png) 
 
-Kappas are aquatic demons; in this game, there are two of them that have mirror movement like the Onis. Both Kappas can move any number of squares forward (like a Shogi lance). The left Kappa can move like a bishop that can only go to the right. Likewise, the right Kappa can move like a bishop that can only go to the left. These do not promote. These will become trapped in the opposite corner of the board.
+Kappas are aquatic demons; in this game, there are two of them that have mirror movement like the Onis. Both Kappas can move any number of squares forward (like a Shogi lance). The left Kappa can move like a bishop that can only go to the right. They can also move one square diagonally in the opposite direction. Likewise, the right Kappa can move like a bishop that can only go to the left and one square diagonally to the right.  Think of these like Silver Generals from standard shogi that have extended range in 3 of their 5 directions. These do not promote. 
 
 ### Yurei (Y) and Vengeful Spirit
 
 ![Yurei](https://github.com/gbtami/pychess-variants/blob/master/static/images/YokaiShogiGuide/Yurei.png) 
 
-Yurei are ghosts; they can move up to two squares forward or sideways. Upon promotion, they become a Vengeful Spirit that gains the ability to also move two squares backward. On top of that, they gain the ability to jump anywhere within 2 squares (including a knight jump away) without capturing. They can even pass through pieces that are adjacent!
+Yurei are ghosts; they can move up to two squares forward or sideways. If a piece is blocking them, then they still move past that piece (like a ghost) but cannot capture on that second square. Upon promotion, they become a Vengeful Spirit that gains the ability to also move two squares backward. On top of that, they gain the ability to jump anywhere within 2 squares (including a knight jump away) without capturing. 
 
 ### Tengu (G) and Dai-tengu
 
 ![Tengu](https://github.com/gbtami/pychess-variants/blob/master/static/images/YokaiShogiGuide/Tengu.png) 
 
-Tengu are flying goblin-like or crow-like demons. They can jump to three different squares, either a sideways knight-leap forward (1 up and 2 to the side) or jump 2 squares directly ahead. Upon promotion, they become a Dai-tengu that moves exactly like a chess knight (they lose the 2-square forward jump).
+Tengu are flying goblin-like or crow-like demons. They can jump to any of the four squares reachable in front of them as a chess knight jump. Upon promotion, they become a Dai-tengu that moves exactly like a chess knight.
 
 
 ### Kitsune (F) and Nine-tailed Fox
