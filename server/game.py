@@ -434,7 +434,7 @@ class Game:
             "cb": self.clocks_b[1:],
         }
 
-        # update_one is sufficient -- the returned document is never used.
+        # update_one is sufficient — the returned document is never used.
         await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
 
     async def play_move(
@@ -567,33 +567,60 @@ class Game:
                     if self.corr:
                         await opp_player.notify_game_end(self)
                 else:
-                    # Snapshot all mutable state BEFORE yielding control.
-                    # save_move runs as a background task so the WebSocket
-                    # broadcast (done by the caller after play_move returns)
-                    # is no longer blocked by the MongoDB round-trip.
-                    # Without snapshotting, a second move processed before
-                    # the task resumes would corrupt fen/clock in the DB.
+                    # Capture all mutable board/clock state before any yield
+                    # point. save_move() uses only these snapshots so it is
+                    # safe to run after subsequent moves have been pushed.
                     _fen: str = self.board.fen
                     _status: int = self.status
                     _now: datetime = datetime.now(timezone.utc)
                     _clock: int | float = (
                         self.clocks_w[-1] if cur_color == WHITE else self.clocks_b[-1]
                     )
-                    # Update last_move_time synchronously so get_board()
-                    # clock adjustment is correct before the write lands.
+                    # Set last_move_time synchronously so get_board() clock
+                    # adjustment is correct even before the DB write lands.
                     self.last_move_time = _now
 
-                    self.app_state.create_background_task(
-                        self.save_move(
+                    if self.corr:
+                        # Correspondence games: keep the write synchronous.
+                        #
+                        # Two reasons:
+                        # 1. Janggi setup -- setup moves go through play_move()
+                        #    and save_setup() is awaited immediately after. A
+                        #    background task scheduled here could run AFTER
+                        #    save_setup() and silently overwrite "f" with a
+                        #    stale intermediate FEN.
+                        # 2. Tests assert against DB state right after
+                        #    play_move() returns. With no round_broadcast in
+                        #    the corr path there is no natural await point that
+                        #    would flush the task before the assertion fires.
+                        #
+                        # Latency is not a concern for corr games (turns span
+                        # hours/days), so there is no cost to awaiting here.
+                        await self.save_move(
                             move,
                             fen=_fen,
                             status=_status,
                             last_move_time=_now,
                             cur_color=cur_color,
                             clock=_clock,
-                        ),
-                        name="save-move-%s" % self.board.ply,
-                    )
+                        )
+                    else:
+                        # Live games: fire-and-forget so the WS broadcast in
+                        # the caller is not blocked by the MongoDB round-trip.
+                        # The caller's round_broadcast is the natural flush
+                        # point -- the task runs before the next move can
+                        # arrive over the network.
+                        self.app_state.create_background_task(
+                            self.save_move(
+                                move,
+                                fen=_fen,
+                                status=_status,
+                                last_move_time=_now,
+                                cur_color=cur_color,
+                                clock=_clock,
+                            ),
+                            name="save-move-%s" % self.board.ply,
+                        )
                     if self.corr and (not opp_player.bot) and (not opp_player.anon):
                         await opp_player.notify_corr_move(self, san)
                         self.app_state.push_notifier.enqueue_corr_move(
@@ -684,7 +711,7 @@ class Game:
             "bs": self.bsetup,
         }
         if self.app_state.db is not None:
-            # update_one is sufficient -- the returned document is never used.
+            # update_one is sufficient — the returned document is never used.
             await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
 
     async def save_game(self) -> None:
@@ -773,7 +800,7 @@ class Game:
                 new_data["mct"] = self.manual_count_toggled
 
             if self.app_state.db is not None:
-                # update_one is sufficient -- the returned document is never used.
+                # update_one is sufficient — the returned document is never used.
                 await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
                 if is_catalogued_variant(self.variant) and self.result in (
                     "1-0",
@@ -856,7 +883,7 @@ class Game:
             "r": crosstable["r"],
         }
         try:
-            # update_one(upsert=True) is sufficient -- the returned document
+            # update_one(upsert=True) is sufficient — the returned document
             # is never used and find_one_and_update costs an extra round-trip.
             await self.app_state.db.crosstable.update_one(
                 {"_id": self.ct_id}, {"$set": new_data}, upsert=True
@@ -892,7 +919,7 @@ class Game:
 
         new_data = {"scores": dict(variant_scores.items()[:MAX_HIGHSCORE_ITEM_LIMIT])}
         try:
-            # update_one(upsert=True) is sufficient -- the returned document
+            # update_one(upsert=True) is sufficient — the returned document
             # is never used and find_one_and_update costs an extra round-trip.
             await self.app_state.db.highscore.update_one(
                 {"_id": variant_key},
