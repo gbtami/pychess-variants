@@ -434,7 +434,8 @@ class Game:
             "cb": self.clocks_b[1:],
         }
 
-        await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+        # update_one is sufficient — the returned document is never used.
+        await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
 
     async def play_move(
         self, move: str, clocks: ClockValues | None = None, ply: int | None = None
@@ -566,7 +567,33 @@ class Game:
                     if self.corr:
                         await opp_player.notify_game_end(self)
                 else:
-                    await self.save_move(move)
+                    # Snapshot all mutable state BEFORE yielding control.
+                    # save_move runs as a background task so the WebSocket
+                    # broadcast (done by the caller after play_move returns)
+                    # is no longer blocked by the MongoDB round-trip.
+                    # Without snapshotting, a second move processed before
+                    # the task resumes would corrupt fen/clock in the DB.
+                    _fen: str = self.board.fen
+                    _status: int = self.status
+                    _now: datetime = datetime.now(timezone.utc)
+                    _clock: int | float = (
+                        self.clocks_w[-1] if cur_color == WHITE else self.clocks_b[-1]
+                    )
+                    # Update last_move_time synchronously so get_board()
+                    # clock adjustment is correct before the write lands.
+                    self.last_move_time = _now
+
+                    self.app_state.create_background_task(
+                        self.save_move(
+                            move,
+                            fen=_fen,
+                            status=_status,
+                            last_move_time=_now,
+                            cur_color=cur_color,
+                            clock=_clock,
+                        ),
+                        name="save-move-%s" % self.board.ply,
+                    )
                     if self.corr and (not opp_player.bot) and (not opp_player.anon):
                         await opp_player.notify_corr_move(self, san)
                         self.app_state.push_notifier.enqueue_corr_move(
@@ -590,23 +617,55 @@ class Game:
                 if self.corr:
                     await opp_player.notify_game_end(self)
 
-    async def save_move(self, move: str) -> None:
-        self.last_move_time = datetime.now(timezone.utc)
-        move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
+    async def save_move(
+        self,
+        move: str,
+        *,
+        fen: str,
+        status: int,
+        last_move_time: datetime,
+        cur_color: int,
+        clock: int | float,
+    ) -> None:
+        """Persist a single in-progress move to the database.
 
-        new_data = {
-            "f": self.board.fen,
-            "l": self.last_move_time,
-            "s": self.status,
+        All keyword arguments are snapshots captured synchronously in
+        ``play_move()`` before this coroutine is scheduled as a background
+        task, ensuring the write reflects the correct board/clock state
+        even if a subsequent move is processed before this task resumes.
+
+        Clock persistence uses ``$push`` (single new value) instead of
+        ``$set`` (full ever-growing array) to keep the wire payload O(1)
+        regardless of game length. ``save_game()`` still writes the
+        authoritative full arrays at game end, keeping the document
+        consistent on close.
+
+        Takeback (``pop_move_from_db``) is bot-only and bot games are
+        always CASUAL, so clock arrays are never written for those games
+        and no matching ``$pop`` is required here.
+        """
+        move_encoded = self.encode_method(
+            grand2zero(move) if self.variant in GRANDS else move
+        )
+
+        set_data: dict[str, object] = {
+            "f": fen,
+            "l": last_move_time,
+            "s": status,
         }
-
+        # Push only the clock that changed this ply; the other array is
+        # left untouched until save_game() overwrites both at game end.
+        push_data: dict[str, object] = {"m": move_encoded}
         if self.rated == RATED:
-            new_data["cw"] = self.clocks_w[1:]
-            new_data["cb"] = self.clocks_b[1:]
+            if cur_color == WHITE:
+                push_data["cw"] = clock
+            else:
+                push_data["cb"] = clock
 
         if self.app_state.db is not None:
             await self.app_state.db.game.update_one(
-                {"_id": self.id}, {"$set": new_data, "$push": {"m": move_encoded}}
+                {"_id": self.id},
+                {"$set": set_data, "$push": push_data},
             )
 
     async def pop_move_from_db(self) -> None:
@@ -627,7 +686,8 @@ class Game:
             "bs": self.bsetup,
         }
         if self.app_state.db is not None:
-            await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+            # update_one is sufficient — the returned document is never used.
+            await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
 
     async def save_game(self) -> None:
         if self.saved:
@@ -715,7 +775,8 @@ class Game:
                 new_data["mct"] = self.manual_count_toggled
 
             if self.app_state.db is not None:
-                await self.app_state.db.game.find_one_and_update(
+                # update_one is sufficient — the returned document is never used.
+                await self.app_state.db.game.update_one(
                     {"_id": self.id}, {"$set": new_data}
                 )
                 if is_catalogued_variant(self.variant) and self.result in (
@@ -799,7 +860,9 @@ class Game:
             "r": crosstable["r"],
         }
         try:
-            await self.app_state.db.crosstable.find_one_and_update(
+            # update_one(upsert=True) is sufficient — the returned document
+            # is never used and find_one_and_update costs an extra round-trip.
+            await self.app_state.db.crosstable.update_one(
                 {"_id": self.ct_id}, {"$set": new_data}, upsert=True
             )
         except Exception:
@@ -833,7 +896,9 @@ class Game:
 
         new_data = {"scores": dict(variant_scores.items()[:MAX_HIGHSCORE_ITEM_LIMIT])}
         try:
-            await self.app_state.db.highscore.find_one_and_update(
+            # update_one(upsert=True) is sufficient — the returned document
+            # is never used and find_one_and_update costs an extra round-trip.
+            await self.app_state.db.highscore.update_one(
                 {"_id": variant_key},
                 {"$set": new_data},
                 upsert=True,
