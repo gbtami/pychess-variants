@@ -583,14 +583,31 @@ def catalogued_promotion_type(ini: str) -> str:
     return "regular"
 
 
-def catalogued_promotion_roles(ini: str, pieces: list[str]) -> list[str]:
+PROMOTED_PIECE_TYPE_RE = re.compile(r"([A-Za-z])\s*:\s*([A-Za-z-])")
+
+
+def _catalogued_promoted_piece_type_pairs(ini: str) -> list[tuple[str, str]]:
     promoted_piece_type = _ini_option(ini, "promotedPieceType") or ""
+    pairs: list[tuple[str, str]] = []
+    seen: set[str] = set()
+
+    for match in PROMOTED_PIECE_TYPE_RE.finditer(promoted_piece_type):
+        source = match.group(1).lower()
+        target = match.group(2).lower()
+        if source in seen:
+            continue
+        seen.add(source)
+        pairs.append((source, target))
+
+    return pairs
+
+
+def catalogued_promotion_roles(ini: str, pieces: list[str]) -> list[str]:
     roles: list[str] = []
     seen: set[str] = set()
 
-    for token in promoted_piece_type.split():
-        source = token.split(":", 1)[0].strip().lower()
-        if len(source) == 1 and source.isalpha() and source not in seen:
+    for source, _target in _catalogued_promoted_piece_type_pairs(ini):
+        if source not in seen:
             seen.add(source)
             roles.append(source)
 
@@ -988,7 +1005,40 @@ def catalogued_king_roles(ini: str, pieces: list[str]) -> list[str]:
         if not pseudo_royal:
             return []
 
-    return ["k"] if "k" in pieces else []
+    roles: list[str] = []
+    seen: set[str] = set()
+
+    def add(role: str) -> None:
+        if role not in seen:
+            seen.add(role)
+            roles.append(role)
+
+    if "k" in pieces:
+        add("k")
+
+    if extinction_value is None:
+        royal_targets = {"k"}
+    else:
+        extinction_piece_types = (_ini_option(ini, "extinctionPieceTypes") or "").strip()
+        if "*" in extinction_piece_types:
+            royal_targets = set(pieces)
+            royal_targets.update(
+                target
+                for _source, target in _catalogued_promoted_piece_type_pairs(ini)
+                if target != "-"
+            )
+        else:
+            royal_targets = set(_ini_piece_letters(ini, "extinctionPieceTypes"))
+
+        for piece in pieces:
+            if piece in royal_targets:
+                add(piece)
+
+    for source, target in _catalogued_promoted_piece_type_pairs(ini):
+        if source in pieces and target in royal_targets:
+            add(f"+{source}")
+
+    return roles
 
 
 async def _run_process(args: list[str], *, stdin: str | None = None) -> tuple[int, str]:
