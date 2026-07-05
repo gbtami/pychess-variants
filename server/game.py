@@ -434,7 +434,7 @@ class Game:
             "cb": self.clocks_b[1:],
         }
 
-        # update_one is sufficient — the returned document is never used.
+        # update_one is sufficient -- the returned document is never used.
         await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
 
     async def play_move(
@@ -644,9 +644,7 @@ class Game:
         always CASUAL, so clock arrays are never written for those games
         and no matching ``$pop`` is required here.
         """
-        move_encoded = self.encode_method(
-            grand2zero(move) if self.variant in GRANDS else move
-        )
+        move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
 
         set_data: dict[str, object] = {
             "f": fen,
@@ -686,7 +684,7 @@ class Game:
             "bs": self.bsetup,
         }
         if self.app_state.db is not None:
-            # update_one is sufficient — the returned document is never used.
+            # update_one is sufficient -- the returned document is never used.
             await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
 
     async def save_game(self) -> None:
@@ -775,10 +773,8 @@ class Game:
                 new_data["mct"] = self.manual_count_toggled
 
             if self.app_state.db is not None:
-                # update_one is sufficient — the returned document is never used.
-                await self.app_state.db.game.update_one(
-                    {"_id": self.id}, {"$set": new_data}
-                )
+                # update_one is sufficient -- the returned document is never used.
+                await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
                 if is_catalogued_variant(self.variant) and self.result in (
                     "1-0",
                     "0-1",
@@ -860,7 +856,7 @@ class Game:
             "r": crosstable["r"],
         }
         try:
-            # update_one(upsert=True) is sufficient — the returned document
+            # update_one(upsert=True) is sufficient -- the returned document
             # is never used and find_one_and_update costs an extra round-trip.
             await self.app_state.db.crosstable.update_one(
                 {"_id": self.ct_id}, {"$set": new_data}, upsert=True
@@ -896,7 +892,7 @@ class Game:
 
         new_data = {"scores": dict(variant_scores.items()[:MAX_HIGHSCORE_ITEM_LIMIT])}
         try:
-            # update_one(upsert=True) is sufficient — the returned document
+            # update_one(upsert=True) is sufficient -- the returned document
             # is never used and find_one_and_update costs an extra round-trip.
             await self.app_state.db.highscore.update_one(
                 {"_id": variant_key},
