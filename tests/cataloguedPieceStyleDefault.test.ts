@@ -8,7 +8,7 @@ import {
     VARIANTS,
 } from '../client/variants';
 
-const variantNames = ['testlettersdefault', 'testcustomdefault'];
+const variantNames = ['testlettersdefault', 'testcustomdefault', 'testpromotedkingroles'];
 
 function register(meta: CataloguedVariantClientDocument) {
     registerCataloguedVariant(meta);
@@ -55,4 +55,31 @@ test('catalogued variants with a custom piece set still default to that custom s
     });
 
     expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('custom-r1');
+});
+
+test('catalogued variants mark shogi-style promoted kings as king roles', () => {
+    const variant = register({
+        name: 'testpromotedkingroles',
+        displayName: 'Test Promoted King Roles',
+        tooltip: 'Catalogued variant',
+        ini: `[testpromotedkingroles:chess]
+extinctionValue = loss
+extinctionPieceTypes = jk
+extinctionPseudoRoyal = true
+mandatoryPiecePromotion = true
+promotedPieceType = n:y b:y p:z r:o q:a k:j
+promotionPieceTypes = -`,
+        startFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        width: 8,
+        height: 8,
+        pieces: ['k', 'q', 'r', 'b', 'n', 'p'],
+        kingRoles: ['k'],
+        promotionType: 'shogi',
+        promotionRoles: ['n', 'b', 'p', 'r', 'q', 'k'],
+        promotionOrder: ['+', ''],
+        showPromoted: true,
+    });
+
+    expect(variant.kingRoles).toContain('k-piece');
+    expect(variant.kingRoles).toContain('pk-piece');
 });

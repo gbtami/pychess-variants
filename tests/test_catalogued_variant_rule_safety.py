@@ -5,6 +5,7 @@ from aiohttp import web
 import test_logger
 from catalogued_variants import (
     _ensure_catalogued_rules_supported,
+    catalogued_king_roles,
     catalogued_legal_moves_need_history,
     catalogued_n_fold_is_draw,
     catalogued_promotion_order,
@@ -115,6 +116,28 @@ promotionPieceTypes = -
         self.assertEqual(catalogued_promotion_type(ini), "shogi")
         self.assertEqual(catalogued_promotion_roles(ini, ["k", "q", "c", "p", "n"]), ["p", "n"])
         self.assertEqual(catalogued_promotion_order(ini, "shogi"), ["+", ""])
+
+    def test_promoted_pseudo_royal_king_is_marked_as_king_role(self) -> None:
+        ini = """[promotion:chess]
+extinctionValue = loss
+extinctionPieceTypes = jk
+extinctionPseudoRoyal = true
+extinctionPieceCount = 64
+mandatoryPiecePromotion = true
+promotedPieceType = n:y b:y p:z r:o q:a k:j
+promotionPieceTypes = -
+"""
+
+        self.assertEqual(catalogued_king_roles(ini, ["k", "q", "r", "b", "n", "p"]), ["k", "+k"])
+
+    def test_pseudo_royal_extinction_piece_is_marked_as_king_role(self) -> None:
+        ini = """[royalqueen:chess]
+extinctionValue = loss
+extinctionPieceTypes = q
+extinctionPseudoRoyal = true
+"""
+
+        self.assertEqual(catalogued_king_roles(ini, ["k", "q", "r", "b", "n", "p"]), ["k", "q"])
 
     def test_accepts_demoting_and_promoted_drop_metadata(self) -> None:
         ini = """[testflip:chess]

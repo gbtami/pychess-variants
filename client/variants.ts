@@ -1369,6 +1369,30 @@ function ensureCataloguedBoardFamily(width: number, height: number): keyof typeo
     return key;
 }
 
+
+function cataloguedKingRolesWithPromotions(
+    kingRoles: cg.Letter[],
+    promotionType: PromotionType,
+    promotionRoles: cg.Letter[],
+): cg.Letter[] {
+    if (promotionType !== 'shogi') return kingRoles;
+
+    const roles = [...kingRoles];
+    const seen = new Set<cg.Letter>(roles);
+    const promotable = new Set<cg.Letter>(promotionRoles);
+
+    for (const role of kingRoles) {
+        if (role.startsWith('+') || !promotable.has(role)) continue;
+        const promotedRole = `+${role}` as cg.Letter;
+        if (!seen.has(promotedRole)) {
+            seen.add(promotedRole);
+            roles.push(promotedRole);
+        }
+    }
+
+    return roles;
+}
+
 function cataloguedIniHasOption(ini: string | undefined, key: string): boolean {
     if (!ini) return false;
     const wanted = key.toLowerCase();
@@ -1404,7 +1428,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
 
     const baseVariant = meta.baseVariant ? VARIANTS[meta.baseVariant] : undefined;
     const pieces = (meta.pieces?.length ? meta.pieces : ['k']) as cg.Letter[];
-    const kingRoles = (meta.kingRoles ?? baseVariant?.kingRoles.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
+    let kingRoles = (meta.kingRoles ?? baseVariant?.kingRoles.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
     const explicitCaptureToHand = cataloguedIniHasOption(meta.ini, 'capturesToHand');
     const captureToHand = explicitCaptureToHand
         ? !!meta.captureToHand
@@ -1448,6 +1472,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
     const promotionOrder = meta.promotionOrder?.length
         ? [...meta.promotionOrder]
         : (hasPromotionOverride ? undefined : (baseVariant ? [...baseVariant.promotion.order] : undefined));
+    kingRoles = cataloguedKingRolesWithPromotions(kingRoles, promotionType, promotionRoles);
     const boardFamily = ensureCataloguedBoardFamily(meta.width, meta.height);
     const cataloguedPieceFamily = `catalogued-${meta.name}`;
     const pieceFamily = cataloguedPieceFamily;
