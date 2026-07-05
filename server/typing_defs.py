@@ -47,6 +47,7 @@ class UserDocument(TypedDict, total=False):
     ct: str
     pmf: bool
     cps: bool
+    cvf: list[str]
     oauth_id: str
     oauth_provider: str
     security: dict[str, object]

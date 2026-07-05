@@ -7,6 +7,7 @@ from datetime import datetime, timezone, timedelta
 from time import monotonic
 
 from broadcast import round_broadcast
+from catalogued_variants import increment_catalogued_variant_game_count
 from clock import Clock, CorrClock
 from compress import R2C
 from const import (
@@ -717,6 +718,12 @@ class Game:
                 await self.app_state.db.game.find_one_and_update(
                     {"_id": self.id}, {"$set": new_data}
                 )
+                if is_catalogued_variant(self.variant) and self.result in (
+                    "1-0",
+                    "0-1",
+                    "1/2-1/2",
+                ):
+                    await increment_catalogued_variant_game_count(self.app_state, self.variant)
 
             if self.tournamentId is not None:
                 try:

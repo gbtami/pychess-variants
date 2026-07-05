@@ -19,7 +19,7 @@
 </aside>
 <div class="guide">
 {% if community_variants %}
-<article class="community-variants-page">
+<article class="community-variants-page" data-favorites-only="{{ 1 if community_variants.favoritesOnly else 0 }}">
     <h1>Community variants</h1>
     <p>
         Browse public user-defined variants. They stay outside the regular variant catalog and are always casual/unrated.
@@ -37,9 +37,18 @@
             Sort
             <select name="sort">
                 <option value="updated" {% if community_variants.sort == "updated" %}selected{% endif %}>Recently updated</option>
+                {% if community_variants.canFavorite %}<option value="favorites" {% if community_variants.sort == "favorites" %}selected{% endif %}>Favorites first</option>{% endif %}
+                <option value="played" {% if community_variants.sort == "played" %}selected{% endif %}>Most played</option>
                 <option value="newest" {% if community_variants.sort == "newest" %}selected{% endif %}>Newest</option>
                 <option value="name" {% if community_variants.sort == "name" %}selected{% endif %}>Name</option>
             </select>
+        </label>
+        <label class="community-variants-favorites-filter" title="{% if not community_variants.canFavorite %}Sign in to use favorites{% endif %}">
+            <span>Favorites</span>
+            <span class="community-variants-checkbox">
+                <input type="checkbox" name="favorites" value="1" {% if community_variants.favoritesOnly %}checked{% endif %} {% if not community_variants.canFavorite %}disabled{% endif %}>
+                Favorites only
+            </span>
         </label>
         <button type="submit" class="button">Search</button>
     </form>
@@ -51,12 +60,26 @@
     {% if community_variants.variants %}
     <div class="community-variants-list">
         {% for item in community_variants.variants %}
-        <section class="community-variant-card{% if item.startBoardPreview %} community-variant-card--with-preview{% endif %}">
-            <div class="community-variant-card-main">
-                <div class="community-variant-card-head">
+        <section class="community-variant-card{% if item.startBoardPreview %} community-variant-card--with-preview{% endif %}{% if item.favorite %} community-variant-card--favorite{% endif %}" data-variant="{{ item.name }}">
+            <div class="community-variant-card-head">
+                <div class="community-variant-card-title">
                     <h2><a href="{{ home }}/variants/{{ item.name }}">{{ item.displayName }}</a></h2>
                     <code>{{ item.name }}</code>
                 </div>
+                {% if community_variants.canFavorite %}
+                <button
+                    type="button"
+                    class="community-variant-favorite{% if item.favorite %} is-favorite{% endif %}"
+                    data-variant="{{ item.name }}"
+                    aria-pressed="{{ 'true' if item.favorite else 'false' }}"
+                    aria-label="{{ 'Remove from favorites' if item.favorite else 'Add to favorites' }}"
+                    title="{{ 'Remove from favorites' if item.favorite else 'Add to favorites' }}"
+                >{{ "♥" if item.favorite else "♡" }}</button>
+                {% else %}
+                <span class="community-variant-favorite community-variant-favorite-disabled" title="Sign in to favorite variants" aria-hidden="true">♡</span>
+                {% endif %}
+            </div>
+            <div class="community-variant-card-main">
                 {% if item.description %}<p>{{ item.description }}</p>{% endif %}
                 <dl>
                     {% if item.author %}<div><dt>Author</dt><dd>{{ item.author }}</dd></div>{% endif %}

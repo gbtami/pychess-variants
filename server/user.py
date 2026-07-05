@@ -106,6 +106,7 @@ class User:
         game_category: str = "all",
         pm_friends_only: bool = False,
         corr_push: bool = True,
+        catalogued_variant_favorites: list[str] | set[str] | None = None,
         oauth_id: str = "",
         oauth_provider: str = "",
         created_at: datetime | None = None,
@@ -121,6 +122,9 @@ class User:
         self.game_category_set: bool = False
         self.pm_friends_only: bool = pm_friends_only
         self.corr_push_enabled: bool = corr_push
+        self.catalogued_variant_favorites: set[str] = {
+            str(name) for name in (catalogued_variant_favorites or []) if isinstance(name, str)
+        }
         self.oauth_id: str = oauth_id
         self.oauth_provider: str = oauth_provider
         self.created_at: datetime = (

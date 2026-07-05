@@ -59,6 +59,10 @@ async def variants(request: web.Request) -> ViewContext:
             author=request.rel_url.query.get("author", ""),
             sort=request.rel_url.query.get("sort", "updated"),
             page=_positive_page(request.rel_url.query.get("page")),
+            favorite_names=(
+                user.catalogued_variant_favorites if not user.anon and not user.bot else None
+            ),
+            favorites_only=request.rel_url.query.get("favorites") == "1",
         )
         context["community_variants"] = community_variants
         context["community_prev_href"] = _community_page_href(

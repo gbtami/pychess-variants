@@ -152,7 +152,7 @@ div.guide .catalogued-variant-rules h1 {
 .community-variants-search {
     display: grid;
     gap: 0.8rem;
-    grid-template-columns: minmax(14rem, 1fr) minmax(10rem, 14rem) minmax(9rem, 12rem) auto;
+    grid-template-columns: minmax(14rem, 1fr) minmax(10rem, 14rem) minmax(9rem, 12rem) max-content auto;
     align-items: end;
     margin: 1rem 0;
 }
@@ -168,6 +168,19 @@ div.guide .catalogued-variant-rules h1 {
     box-sizing: border-box;
     width: 100%;
     padding: 0.45rem;
+}
+
+.community-variants-checkbox {
+    display: inline-flex;
+    gap: 0.35rem;
+    align-items: center;
+    min-height: 2.25rem;
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+.community-variants-checkbox input {
+    width: auto;
 }
 
 .community-variants-count {
@@ -190,23 +203,79 @@ div.guide .catalogued-variant-rules h1 {
 .community-variant-card-head {
     display: flex;
     gap: 0.75rem;
+    align-items: start;
+    justify-content: space-between;
+}
+
+.community-variant-card-title {
+    display: flex;
+    gap: 0.75rem;
     align-items: baseline;
     flex-wrap: wrap;
+    min-width: 0;
 }
 
-.community-variant-card h2 {
+.community-variant-favorite {
+    appearance: none;
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    margin-left: 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--font-color);
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.4rem;
+    line-height: 1;
+    opacity: 0.68;
+    transition: color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.community-variant-favorite:hover:not(:disabled),
+.community-variant-favorite:focus-visible {
+    background: color-mix(in srgb, #eb5757 12%, transparent);
+    color: #eb5757;
+    opacity: 1;
+}
+
+.community-variant-favorite.is-favorite {
+    color: #eb5757;
+    opacity: 1;
+}
+
+.community-variant-favorite.is-busy {
+    cursor: wait;
+    transform: scale(0.94);
+}
+
+.community-variant-favorite-disabled {
+    cursor: help;
+    opacity: 0.35;
+}
+
+.community-variants-page .community-variant-card h2 {
     margin: 0;
+    padding: 0;
+    line-height: 1.2;
+    text-align: left;
 }
 
-.community-variant-card p {
-    margin: 0.6rem 0 0;
+.community-variants-page .community-variant-card p {
+    margin: 0.5rem 0 0;
+    padding: 0;
+    line-height: 1.35;
 }
 
-.community-variant-card dl {
+.community-variants-page .community-variant-card dl {
     display: flex;
-    gap: 1rem;
+    gap: 0.35rem 1rem;
     flex-wrap: wrap;
-    margin: 1.2rem;
+    margin: 0.55rem 0 0;
+    line-height: 1.35;
 }
 
 .community-variant-card dl div {
@@ -487,8 +556,12 @@ div.guide .catalogued-variant-rules h1 {
 .community-variant-card--with-preview {
     display: grid;
     grid-template-columns: minmax(0, 1fr) clamp(7.5rem, 18vw, 11rem);
-    gap: 1rem;
+    gap: 0.85rem 1rem;
     align-items: center;
+}
+
+.community-variant-card--with-preview .community-variant-card-head {
+    grid-column: 1 / -1;
 }
 
 .community-variant-card-main {

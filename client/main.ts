@@ -47,6 +47,7 @@ import { initUblogLike } from './ublogLike';
 import { initUblogMarkdown } from './ublogMarkdown';
 import { initUblogEditor } from './ublogEditor';
 import { initPushSubscription } from './push';
+import { initCommunityVariantFavorites } from './communityVariants';
 
 
 // redirect to correct URL except Heroku preview/dev apps
@@ -336,6 +337,7 @@ function start() {
     });
 
     maybeShowGameCategoryIntro();
+    initCommunityVariantFavorites();
 
     patch(document.getElementById('zen-button') as HTMLElement, zenButtonView()).elm as HTMLElement;
 }

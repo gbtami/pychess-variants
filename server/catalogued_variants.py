@@ -47,6 +47,7 @@ CATALOGUED_VISIBILITIES = frozenset(
 )
 CATALOGUED_COMMUNITY_PAGE_SIZE = 20
 MAX_CATALOGUED_VARIANTS_PER_USER = 20
+MAX_CATALOGUED_FAVORITES_PER_USER = 500
 
 MAX_CATALOGUED_PIECE_SET_TOTAL_BYTES = 256 * 1024
 MAX_CATALOGUED_PIECE_SVG_BYTES = 32 * 1024
@@ -142,6 +143,7 @@ class CataloguedVariantDocument(TypedDict):
     visibility: str
     pieceSet: NotRequired[dict[str, CataloguedVariantPieceSetSvg]]
     pieceSetUpdatedAt: NotRequired[datetime]
+    gameCount: int
     createdAt: datetime
     updatedAt: datetime
 
@@ -272,6 +274,12 @@ def _is_valid_variant_name(name: str) -> bool:
     if not "a" <= name[0] <= "z":
         return False
     return all(("a" <= ch <= "z") or ch.isdigit() or ch in {"-", "_"} for ch in name)
+
+
+def _clean_favorite_names(value: object) -> set[str]:
+    if not isinstance(value, (list, tuple, set)):
+        return set()
+    return {str(name) for name in value if isinstance(name, str) and _is_valid_variant_name(name)}
 
 
 def _ensure_catalogued_ini_size(ini: str) -> None:
@@ -1237,6 +1245,8 @@ def _client_doc(
     if game_count is not None:
         client_doc["gameCount"] = game_count
         client_doc["locked"] = game_count > 0
+    elif "gameCount" in doc:
+        client_doc["gameCount"] = int(doc.get("gameCount") or 0)
     return client_doc
 
 
@@ -1493,6 +1503,23 @@ async def _has_games(app_state: Any, name: str) -> bool:
     return await app_state.db.game.find_one({"v": name}, projection={"_id": 1}) is not None
 
 
+async def increment_catalogued_variant_game_count(app_state: Any, name: str) -> None:
+    """Increment the stored played-game counter for a saved catalogued game."""
+
+    if app_state.db is None or not _is_valid_variant_name(name):
+        return
+
+    result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
+        {"_id": name}, {"$inc": {"gameCount": 1}}
+    )
+    if not result.matched_count:
+        return
+
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is not None:
+        doc["gameCount"] = int(doc.get("gameCount") or 0) + 1
+
+
 async def _catalogued_variant_count_for_user(app_state: Any, username: str) -> int:
     if app_state.db is None:
         return 0
@@ -1525,10 +1552,15 @@ async def community_catalogued_variants_page(
     author: str = "",
     sort: str = "updated",
     page: int = 1,
+    favorite_names: set[str] | None = None,
+    favorites_only: bool = False,
 ) -> dict[str, Any]:
     q = q.strip()[:80]
     author = author.strip()[:40]
     page = max(1, page)
+    can_favorite = favorite_names is not None
+    favorite_names = _clean_favorite_names(favorite_names or set())
+    favorites_only = favorites_only and can_favorite
 
     if app_state.db is None:
         return {
@@ -1536,6 +1568,8 @@ async def community_catalogued_variants_page(
             "q": q,
             "author": author,
             "sort": sort,
+            "favoritesOnly": favorites_only,
+            "canFavorite": can_favorite,
             "page": 1,
             "pages": 1,
             "total": 0,
@@ -1554,11 +1588,33 @@ async def community_catalogued_variants_page(
         ]
     if author:
         query["author"] = author
+    if favorites_only:
+        if favorite_names:
+            query["name"] = {"$in": sorted(favorite_names)}
+        else:
+            return {
+                "variants": [],
+                "q": q,
+                "author": author,
+                "sort": sort,
+                "favoritesOnly": favorites_only,
+                "canFavorite": can_favorite,
+                "page": 1,
+                "pages": 1,
+                "total": 0,
+                "prev_page": None,
+                "next_page": None,
+            }
 
+    use_favorite_sort = sort == "favorites" and can_favorite
     if sort == "name":
         sort_spec = [("displayName", 1), ("name", 1)]
     elif sort == "newest":
         sort_spec = [("createdAt", -1), ("name", 1)]
+    elif sort == "played":
+        sort_spec = [("gameCount", -1), ("updatedAt", -1), ("name", 1)]
+    elif use_favorite_sort:
+        sort_spec = [("updatedAt", -1), ("name", 1)]
     else:
         sort = "updated"
         sort_spec = [("updatedAt", -1), ("name", 1)]
@@ -1569,16 +1625,33 @@ async def community_catalogued_variants_page(
     skip = (page - 1) * CATALOGUED_COMMUNITY_PAGE_SIZE
 
     variants: list[dict[str, Any]] = []
-    cursor = (
-        app_state.db[CATALOGUED_VARIANT_COLLECTION]
-        .find(query)
-        .sort(sort_spec)
-        .skip(skip)
-        .limit(CATALOGUED_COMMUNITY_PAGE_SIZE)
-    )
+    if use_favorite_sort:
+        cursor = await app_state.db[CATALOGUED_VARIANT_COLLECTION].aggregate(
+            [
+                {"$match": query},
+                {
+                    "$addFields": {
+                        "favoriteSort": {
+                            "$cond": [{"$in": ["$name", sorted(favorite_names)]}, 0, 1]
+                        }
+                    }
+                },
+                {"$sort": {"favoriteSort": 1, "updatedAt": -1, "name": 1}},
+                {"$skip": skip},
+                {"$limit": CATALOGUED_COMMUNITY_PAGE_SIZE},
+            ]
+        )
+    else:
+        cursor = (
+            app_state.db[CATALOGUED_VARIANT_COLLECTION]
+            .find(query)
+            .sort(sort_spec)
+            .skip(skip)
+            .limit(CATALOGUED_COMMUNITY_PAGE_SIZE)
+        )
     async for doc in cursor:
         name = str(doc.get("name") or doc.get("_id") or "")
-        count = await _game_count(app_state, name) if name else 0
+        count = int(doc.get("gameCount") or 0)
         variants.append(
             {
                 "name": name,
@@ -1589,6 +1662,7 @@ async def community_catalogued_variants_page(
                 "height": int(doc.get("height") or 0),
                 "gameCount": count,
                 "updatedAt": doc.get("updatedAt"),
+                "favorite": name in favorite_names,
                 "startBoardPreview": catalogued_start_board_preview(doc),
             }
         )
@@ -1598,12 +1672,51 @@ async def community_catalogued_variants_page(
         "q": q,
         "author": author,
         "sort": sort,
+        "favoritesOnly": favorites_only,
+        "canFavorite": can_favorite,
         "page": page,
         "pages": pages,
         "total": total,
         "prev_page": page - 1 if page > 1 else None,
         "next_page": page + 1 if page < pages else None,
     }
+
+
+async def set_catalogued_variant_favorite(request: web.Request) -> web.Response:
+    app_state = get_app_state(request.app)
+    username = await _current_human_username(request)
+    name = request.match_info["name"]
+    if not _is_valid_variant_name(name):
+        raise web.HTTPBadRequest(text=VARIANT_NAME_ERROR)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Database is unavailable.")
+
+    doc = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one(
+        {"_id": name, **_catalogued_public_query()}, projection={"_id": 1}
+    )
+    if doc is None:
+        raise web.HTTPNotFound(text="Public catalogued variant not found.")
+
+    data = await read_json_data(request)
+    if not isinstance(data, Mapping):
+        raise web.HTTPBadRequest(text="Expected JSON object.")
+    favorite = bool(data.get("favorite"))
+
+    user = await app_state.users.get(username)
+    favorites = _clean_favorite_names(getattr(user, "catalogued_variant_favorites", set()))
+    if favorite:
+        if name not in favorites and len(favorites) >= MAX_CATALOGUED_FAVORITES_PER_USER:
+            raise web.HTTPConflict(
+                text=f"You can favorite at most {MAX_CATALOGUED_FAVORITES_PER_USER} variants."
+            )
+        favorites.add(name)
+        await app_state.db.user.update_one({"_id": username}, {"$addToSet": {"cvf": name}})
+    else:
+        favorites.discard(name)
+        await app_state.db.user.update_one({"_id": username}, {"$pull": {"cvf": name}})
+
+    user.catalogued_variant_favorites = favorites
+    return json_response({"ok": True, "name": name, "favorite": favorite})
 
 
 async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str]:
@@ -1694,6 +1807,7 @@ def _build_doc(
     created_at: datetime,
     visibility: str = CATALOGUED_VISIBILITY_PRIVATE,
     archived: bool = False,
+    game_count: int = 0,
 ) -> CataloguedVariantDocument:
     return {
         "_id": name,
@@ -1724,6 +1838,7 @@ def _build_doc(
         "icon": CATALOGUED_ICON,
         "category": CATALOGUED_CATEGORY,
         "visibility": _clean_visibility(visibility),
+        "gameCount": max(0, int(game_count)),
         "createdAt": created_at,
         "updatedAt": datetime.now(timezone.utc),
     }
@@ -2068,6 +2183,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         created_at=existing.get("createdAt", datetime.now(timezone.utc)),
         visibility=visibility,
         archived=bool(existing.get("archived", False)),
+        game_count=int(existing.get("gameCount") or 0),
     )
 
     if not rules_changed and new_name == old_name and _has_complete_piece_set(existing):
