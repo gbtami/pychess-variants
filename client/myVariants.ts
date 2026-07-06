@@ -342,7 +342,9 @@ async function uploadPieceSet(model: PyChessModel, variant: ManagedVariant, file
         state.message = _('Custom piece set uploaded.');
         await loadMine(model, { clearMessage: false });
     } catch (err) {
-        state.message = err instanceof Error ? err.message : _('Failed to upload piece set');
+        const message = err instanceof Error ? err.message : _('Failed to upload piece set');
+        state.message = message;
+        await alertDialog({ text: message });
     } finally {
         state.saving = false;
         rerender(model);

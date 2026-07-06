@@ -53,16 +53,29 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
         self.assertIn('stroke-width="2"', sanitized)
         self.assertIn('d="M 0 0 L 10 10"', sanitized)
 
-    def test_rejects_doctype(self) -> None:
+    def test_strips_legacy_external_svg_doctype(self) -> None:
         svg = b"""<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45"></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45">
+  <path d="M 1 1 L 10 10" fill="#000"/>
+</svg>
+"""
+
+        sanitized = _sanitize_catalogued_piece_svg(svg, "wP.svg")
+
+        self.assertNotIn("<!DOCTYPE", sanitized)
+        self.assertIn("<svg", sanitized)
+        self.assertIn('d="M 1 1 L 10 10"', sanitized)
+
+    def test_rejects_doctype_with_internal_subset(self) -> None:
+        svg = b"""<!DOCTYPE svg [<!ENTITY bad SYSTEM "file:///etc/passwd">]>
+<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45">&bad;</svg>
 """
 
         with self.assertRaises(web.HTTPBadRequest) as exc:
             _sanitize_catalogued_piece_svg(svg, "wP.svg")
 
-        self.assertIn("unsupported doctypes or processing instructions", exc.exception.text)
+        self.assertIn("unsupported doctypes", exc.exception.text)
 
     def test_rejects_non_xml_processing_instruction(self) -> None:
         svg = b"""<?xml version="1.0" encoding="UTF-8"?>

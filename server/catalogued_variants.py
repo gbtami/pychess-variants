@@ -682,6 +682,11 @@ def catalogued_show_check_counters(ini: str) -> bool:
 
 PIECE_SET_FILENAME_RE = re.compile(r"^([wb])(\+?)([A-Za-z])\.svg$")
 XML_DECL_RE = re.compile(r"^\ufeff?\s*<\?xml\s+[^?]*\?>", re.IGNORECASE)
+SVG_DOCTYPE_RE = re.compile(
+    r"^\s*<!DOCTYPE\s+svg\s+"
+    r'(?:PUBLIC\s+"[^"]*"\s+"[^"]*"|SYSTEM\s+"[^"]*")\s*>',
+    re.IGNORECASE,
+)
 XML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 SAFE_SVG_TAGS = frozenset(
     {
@@ -875,11 +880,23 @@ def _sanitize_catalogued_piece_svg(raw: bytes, filename: str) -> str:
     xml_decl = XML_DECL_RE.match(text)
     if xml_decl is not None:
         text = text[xml_decl.end() :].lstrip()
+
+    # Many editor-exported SVG files include the legacy SVG 1.1 external DTD.
+    # It does not carry image data, and keeping it only makes otherwise safe
+    # piece sets fail. Strip only the simple external SVG doctype form; any
+    # internal subset / entity declaration is still rejected by the check below.
+    svg_doctype = SVG_DOCTYPE_RE.match(text)
+    if svg_doctype is not None:
+        text = text[svg_doctype.end() :].lstrip()
+
     text = XML_COMMENT_RE.sub("", text)
     lowered = text.casefold()
     if "<!" in text or "<?" in text:
         raise web.HTTPBadRequest(
-            text=f"{filename} contains unsupported doctypes or processing instructions."
+            text=(
+                f"{filename} contains unsupported doctypes, entity declarations, "
+                "or processing instructions."
+            )
         )
     if any(token in lowered for token in ("<script", "foreignobject", "javascript:", "data:")):
         raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG content.")
