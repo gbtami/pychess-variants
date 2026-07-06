@@ -809,8 +809,8 @@ def _parse_safe_svg_style(style: str, filename: str) -> dict[str, str]:
             raise web.HTTPBadRequest(text=f"{filename} contains malformed SVG style declarations.")
         prop = name.strip().casefold()
         cleaned_value = value.strip()
-        allow_local_ref = prop in {"fill", "stroke"}
-        if _svg_value_is_unsafe(cleaned_value, allow_local_ref=allow_local_ref):
+        allow_local_ref_value = prop in {"fill", "stroke"}
+        if _svg_value_is_unsafe(cleaned_value, allow_local_ref=allow_local_ref_value):
             raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
         if not SAFE_SVG_VALUE_RE.fullmatch(cleaned_value):
             raise web.HTTPBadRequest(text=f"{filename} contains unsupported SVG attribute values.")
@@ -896,7 +896,11 @@ def _board_svg_revision(doc: Mapping[str, Any]) -> str:
     return re.sub(r"\W+", "", str(updated_at or "0")) or "0"
 
 
-def _sanitize_catalogued_svg(raw: bytes, filename: str, max_bytes: int) -> str:
+def _sanitize_catalogued_svg(
+    raw: bytes,
+    filename: str,
+    max_bytes: int,
+) -> str:
     if not raw:
         raise web.HTTPBadRequest(text=f"{filename} is empty.")
     if len(raw) > max_bytes:
@@ -963,8 +967,8 @@ def _sanitize_catalogued_svg(raw: bytes, filename: str, max_bytes: int) -> str:
                 continue
             if local_attr == "id" and not SAFE_SVG_ID_RE.fullmatch(value):
                 continue
-            allow_local_ref = local_attr in {"fill", "stroke"}
-            if _svg_value_is_unsafe(value, allow_local_ref=allow_local_ref):
+            allow_local_ref_value = local_attr in {"fill", "stroke"}
+            if _svg_value_is_unsafe(value, allow_local_ref=allow_local_ref_value):
                 raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
             if not SAFE_SVG_VALUE_RE.fullmatch(value):
                 raise web.HTTPBadRequest(

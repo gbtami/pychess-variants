@@ -37,8 +37,13 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
   <!-- editor note -->
   <metadata><foo /></metadata>
+  <defs>
+    <pattern id="p1" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path style="fill:#000;stroke:#fff;stroke-width:2;display:inline" d="M 0 0 L 10 10" />
+    </pattern>
+  </defs>
   <g inkscape:label="Layer 1" style="display:inline">
-    <path class="piece" id="p1" style="fill:#000;stroke:#fff;stroke-width:2;display:inline" d="M 0 0 L 10 10" />
+    <path class="piece" id="piece-1" fill="url(#p1)" d="M 0 0 L 10 10" />
   </g>
 </svg>
 """
@@ -48,8 +53,10 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
         self.assertNotIn("<!--", sanitized)
         self.assertNotIn("metadata", sanitized)
         self.assertNotIn("class=", sanitized)
-        self.assertNotIn("id=", sanitized)
         self.assertNotIn("display:inline", sanitized)
+        self.assertIn('id="p1"', sanitized)
+        self.assertIn('id="piece-1"', sanitized)
+        self.assertIn('fill="url(#p1)"', sanitized)
         self.assertIn('fill="#000"', sanitized)
         self.assertIn('stroke="#fff"', sanitized)
         self.assertIn('stroke-width="2"', sanitized)
