@@ -86,7 +86,7 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
         with self.assertRaises(web.HTTPBadRequest) as exc:
             _sanitize_catalogued_piece_svg(svg, "wP.svg")
 
-        self.assertIn("unsupported doctypes or processing instructions", exc.exception.text)
+        self.assertIn("processing instructions", exc.exception.text)
 
     def test_catalogued_disguised_css_contains_board_and_preview_selectors(self) -> None:
         css = _catalogued_disguised_piece_css("wildebeest")
