@@ -246,6 +246,10 @@
     min-width: 14rem;
 }
 
+.catalogued-piece-compat {
+    line-height: 1.25;
+}
+
 .catalogued-file-action {
     display: inline-flex;
     align-items: center;

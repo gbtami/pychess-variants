@@ -1422,18 +1422,38 @@ function cataloguedDerivedPocketRoles(
     return (baseVariant?.pocket?.roles.white.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
 }
 
-export function registerCataloguedVariant(meta: CataloguedVariantClientDocument): void {
-    if (!meta?.name) return;
-    if (VARIANTS[meta.name] && !cataloguedVariantNames.has(meta.name)) return;
+interface CataloguedPieceInfo {
+    pieces: cg.Letter[];
+    kingRoles: cg.Letter[];
+    pocketRoles: cg.Letter[];
+    promotionType: PromotionType;
+    promotionRoles: cg.Letter[];
+    promotionOrder?: PromotionSuffix[];
+    baseVariant?: Variant;
+}
 
-    const baseVariant = meta.baseVariant ? VARIANTS[meta.baseVariant] : undefined;
-    const pieces = (meta.pieces?.length ? meta.pieces : ['k']) as cg.Letter[];
-    let kingRoles = (meta.kingRoles ?? baseVariant?.kingRoles.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
-    const explicitCaptureToHand = cataloguedIniHasOption(meta.ini, 'capturesToHand');
-    const captureToHand = explicitCaptureToHand
-        ? !!meta.captureToHand
-        : (!!meta.captureToHand || !!baseVariant?.pocket?.captureToHand);
-    const hasPocketOverride = meta.startFen.includes('[') || [
+function normalPieceLetter(letter: string | undefined): cg.Letter | undefined {
+    const normalized = (letter ?? '').trim().toLowerCase();
+    return /^\+?[a-z]$/.test(normalized) ? normalized as cg.Letter : undefined;
+}
+
+function addPieceLetter(target: Set<cg.Letter>, letter: string | undefined): void {
+    const normalized = normalPieceLetter(letter);
+    if (normalized) target.add(normalized);
+}
+
+function addPieceLetters(target: Set<cg.Letter>, letters: readonly string[] | undefined): void {
+    for (const letter of letters ?? []) addPieceLetter(target, letter);
+}
+
+function promotedPieceLetter(letter: string): cg.Letter | undefined {
+    const normalized = normalPieceLetter(letter);
+    if (!normalized || normalized.startsWith('+')) return normalized;
+    return `+${normalized}` as cg.Letter;
+}
+
+function cataloguedHasPocketOverride(meta: CataloguedVariantClientDocument): boolean {
+    return meta.startFen.includes('[') || [
         'pocketSize',
         'pieceDrops',
         'capturesToHand',
@@ -1442,14 +1462,10 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         'dropRegionWhite',
         'dropRegionBlack',
     ].some(key => cataloguedIniHasOption(meta.ini, key));
-    const pocketRoles = cataloguedDerivedPocketRoles(
-        meta,
-        pieces,
-        kingRoles,
-        baseVariant,
-        hasPocketOverride,
-    );
-    const hasPromotionOverride = [
+}
+
+function cataloguedHasPromotionOverride(meta: CataloguedVariantClientDocument): boolean {
+    return [
         'promotionPawnTypes',
         'promotionPawnTypesWhite',
         'promotionPawnTypesBlack',
@@ -1463,6 +1479,21 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         'piecePromotionOnCapture',
         'dropPromoted',
     ].some(key => cataloguedIniHasOption(meta.ini, key));
+}
+
+function cataloguedPieceInfo(meta: CataloguedVariantClientDocument): CataloguedPieceInfo {
+    const baseVariant = meta.baseVariant ? VARIANTS[meta.baseVariant] : undefined;
+    const pieces = (meta.pieces?.length ? meta.pieces : ['k']) as cg.Letter[];
+    let kingRoles = (meta.kingRoles ?? baseVariant?.kingRoles.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
+    const hasPocketOverride = cataloguedHasPocketOverride(meta);
+    const pocketRoles = cataloguedDerivedPocketRoles(
+        meta,
+        pieces,
+        kingRoles,
+        baseVariant,
+        hasPocketOverride,
+    );
+    const hasPromotionOverride = cataloguedHasPromotionOverride(meta);
     const promotionType = hasPromotionOverride
         ? (meta.promotionType ?? 'regular')
         : (baseVariant?.promotion.type ?? meta.promotionType ?? 'regular');
@@ -1473,13 +1504,104 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         ? [...meta.promotionOrder]
         : (hasPromotionOverride ? undefined : (baseVariant ? [...baseVariant.promotion.order] : undefined));
     kingRoles = cataloguedKingRolesWithPromotions(kingRoles, promotionType, promotionRoles);
+
+    return { pieces, kingRoles, pocketRoles, promotionType, promotionRoles, promotionOrder, baseVariant };
+}
+
+function variantPieceLetters(variant: Variant): Set<cg.Letter> {
+    const letters = new Set<cg.Letter>();
+    addPieceLetters(letters, variant.pieceRow.white.map(role => util.letterOf(role)));
+    addPieceLetters(letters, variant.pieceRow.black.map(role => util.letterOf(role)));
+    addPieceLetters(letters, variant.kingRoles.map(role => util.letterOf(role)));
+    addPieceLetters(letters, variant.pocket?.roles.white.map(role => util.letterOf(role)));
+    addPieceLetters(letters, variant.pocket?.roles.black.map(role => util.letterOf(role)));
+    if (variant.promotion.type === 'shogi') {
+        for (const role of variant.promotion.roles) addPieceLetter(letters, promotedPieceLetter(util.letterOf(role)));
+    }
+    return letters;
+}
+
+function cataloguedNeededPieceLetters(meta: CataloguedVariantClientDocument): Set<cg.Letter> {
+    const info = cataloguedPieceInfo(meta);
+    const letters = new Set<cg.Letter>();
+    addPieceLetters(letters, info.pieces);
+    addPieceLetters(letters, info.kingRoles);
+    addPieceLetters(letters, info.pocketRoles);
+    if (info.promotionType === 'shogi') {
+        for (const role of info.promotionRoles) addPieceLetter(letters, promotedPieceLetter(role));
+    }
+    return letters;
+}
+
+function isSubset<T>(needed: Set<T>, available: Set<T>): boolean {
+    for (const value of needed) {
+        if (!available.has(value)) return false;
+    }
+    return needed.size > 0;
+}
+
+interface CataloguedCompatiblePieceSource {
+    pieceFamily: keyof typeof PIECE_FAMILIES;
+    pieceCSSExclude: string[];
+    variantName: string;
+    roleCount: number;
+}
+
+function cataloguedCompatiblePieceSource(
+    meta: CataloguedVariantClientDocument,
+    options: { ignoreCustomPieceSet?: boolean } = {},
+): CataloguedCompatiblePieceSource | undefined {
+    if (meta.hasPieceSet && !options.ignoreCustomPieceSet) return undefined;
+
+    const needed = cataloguedNeededPieceLetters(meta);
+    const baseVariantName = meta.baseVariant;
+    return Object.values(VARIANTS)
+        .filter(variant => !cataloguedVariantNames.has(variant.name))
+        .map(variant => ({ variant, roles: variantPieceLetters(variant) }))
+        .filter(({ roles }) => isSubset(needed, roles))
+        .map(({ variant, roles }) => ({
+            pieceFamily: variant.pieceFamily,
+            pieceCSSExclude: [...variant.pieceCSSExclude],
+            variantName: variant.name,
+            roleCount: roles.size,
+        }))
+        .sort((left, right) => {
+            if (left.variantName === baseVariantName && right.variantName !== baseVariantName) return -1;
+            if (right.variantName === baseVariantName && left.variantName !== baseVariantName) return 1;
+            return left.roleCount - right.roleCount || left.pieceCSSExclude.length - right.pieceCSSExclude.length;
+        })[0];
+}
+
+export function cataloguedCompatiblePieceFamily(
+    meta: CataloguedVariantClientDocument,
+    options: { ignoreCustomPieceSet?: boolean } = {},
+): keyof typeof PIECE_FAMILIES | undefined {
+    return cataloguedCompatiblePieceSource(meta, options)?.pieceFamily;
+}
+
+export function registerCataloguedVariant(meta: CataloguedVariantClientDocument): void {
+    if (!meta?.name) return;
+    if (VARIANTS[meta.name] && !cataloguedVariantNames.has(meta.name)) return;
+
+    const info = cataloguedPieceInfo(meta);
+    const { pieces, kingRoles, pocketRoles, promotionType, promotionRoles, promotionOrder, baseVariant } = info;
+    const explicitCaptureToHand = cataloguedIniHasOption(meta.ini, 'capturesToHand');
+    const captureToHand = explicitCaptureToHand
+        ? !!meta.captureToHand
+        : (!!meta.captureToHand || !!baseVariant?.pocket?.captureToHand);
     const boardFamily = ensureCataloguedBoardFamily(meta.width, meta.height);
     const cataloguedPieceFamily = `catalogued-${meta.name}`;
-    const pieceFamily = cataloguedPieceFamily;
+    delete PIECE_FAMILIES[cataloguedPieceFamily];
+    const compatiblePieceSource = meta.hasPieceSet
+        ? undefined
+        : cataloguedCompatiblePieceSource(meta, { ignoreCustomPieceSet: true });
+    const pieceFamily = compatiblePieceSource?.pieceFamily ?? cataloguedPieceFamily;
     const customPieceCss = meta.pieceSetRevision ? `custom-${meta.pieceSetRevision}` : 'custom';
-    PIECE_FAMILIES[cataloguedPieceFamily] = {
-        pieceCSS: meta.hasPieceSet ? [customPieceCss, 'disguised'] : ['disguised'],
-    };
+    if (pieceFamily === cataloguedPieceFamily) {
+        PIECE_FAMILIES[cataloguedPieceFamily] = {
+            pieceCSS: meta.hasPieceSet ? [customPieceCss, 'disguised'] : ['disguised'],
+        };
+    }
     VARIANTS[meta.name] = variant({
         name: meta.name,
         displayName: meta.displayName || meta.name,
@@ -1488,6 +1610,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         icon: meta.icon || '◇',
         boardFamily,
         pieceFamily,
+        pieceCSSExclude: compatiblePieceSource?.pieceCSSExclude,
         pieceRow: pieces,
         kingRoles,
         pocket: pocketRoles.length ? { roles: pocketRoles, captureToHand } : undefined,
