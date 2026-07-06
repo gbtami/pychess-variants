@@ -2,7 +2,12 @@ import { h, VNode } from 'snabbdom';
 
 import { alertDialog } from './alertDialog';
 import { confirmDialog } from './confirmDialog';
-import { ensurePieceCSS, patch } from './document';
+import {
+    ensureCataloguedBoardCSS,
+    ensurePieceCSS,
+    patch,
+    removeCataloguedBoardCSS,
+} from './document';
 import { checkRulesWithFsfWasm } from './fairyStockfish';
 import { _ } from './i18n';
 import { PyChessModel } from './types';
@@ -28,6 +33,8 @@ type ManagedVariant = CataloguedVariantClientDocument & {
     visibility?: VariantVisibility;
     hasPieceSet?: boolean;
     pieceSetRevision?: string;
+    hasBoard?: boolean;
+    boardRevision?: string;
 };
 
 type State = {
@@ -44,6 +51,7 @@ type State = {
     draftVisibility: VariantVisibility;
     draftIni: string;
     piecePreviewVariant: string;
+    boardPreviewVariant: string;
 };
 
 const state: State = {
@@ -60,6 +68,7 @@ const state: State = {
     draftVisibility: 'private',
     draftIni: '',
     piecePreviewVariant: '',
+    boardPreviewVariant: '',
 };
 
 let rootVNode: VNode | Element | null = null;
@@ -283,7 +292,10 @@ async function postAction(model: PyChessModel, variant: ManagedVariant, action: 
         const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/${action}`, { method: 'POST' });
         if (!response.ok) throw new Error(await responseError(response));
         const payload = await response.json() as { deleted?: string; archived?: string; variant?: ManagedVariant };
-        if (payload.deleted) unregisterCataloguedVariant(payload.deleted);
+        if (payload.deleted) {
+            unregisterCataloguedVariant(payload.deleted);
+            removeCataloguedBoardCSS(payload.deleted);
+        }
         if (payload.archived) unregisterCataloguedVariant(payload.archived);
         registerFromPayload(payload);
         state.message = _('Done.');
@@ -303,6 +315,10 @@ function cataloguedCustomPieceCss(variant: ManagedVariant): string {
 
 function ensureCataloguedCustomPieceCSS(model: PyChessModel, variant: ManagedVariant): void {
     ensurePieceCSS(model.assetURL, `catalogued-${variant.name}`, cataloguedCustomPieceCss(variant));
+}
+
+function ensureCataloguedCustomBoardCSS(variant: ManagedVariant): void {
+    ensureCataloguedBoardCSS(variant.name, variant.boardRevision);
 }
 
 function expectedPieceSetFiles(variant: ManagedVariant): string[] {
@@ -374,6 +390,70 @@ async function deletePieceSet(model: PyChessModel, variant: ManagedVariant): Pro
         await loadMine(model, { clearMessage: false });
     } catch (err) {
         state.message = err instanceof Error ? err.message : _('Failed to delete piece set');
+    } finally {
+        state.saving = false;
+        rerender(model);
+    }
+}
+
+async function uploadBoard(model: PyChessModel, variant: ManagedVariant, files: FileList | null): Promise<void> {
+    if (!files || files.length === 0) return;
+    if (files.length !== 1) {
+        await alertDialog({ text: _('Upload exactly one board SVG file.') });
+        return;
+    }
+
+    const form = new FormData();
+    form.append('board', files[0], files[0].name);
+
+    state.saving = true;
+    rerender(model);
+    try {
+        const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/board`, {
+            method: 'POST',
+            body: form,
+        });
+        if (!response.ok) throw new Error(await responseError(response));
+        const payload = await response.json() as { variant?: ManagedVariant };
+        registerFromPayload(payload);
+        if (payload.variant?.hasBoard) {
+            ensureCataloguedCustomBoardCSS(payload.variant);
+            state.boardPreviewVariant = payload.variant.name;
+        }
+        state.message = _('Custom board uploaded.');
+        await loadMine(model, { clearMessage: false });
+    } catch (err) {
+        const message = err instanceof Error ? err.message : _('Failed to upload board');
+        state.message = message;
+        await alertDialog({ text: message });
+    } finally {
+        state.saving = false;
+        rerender(model);
+    }
+}
+
+async function deleteBoard(model: PyChessModel, variant: ManagedVariant): Promise<void> {
+    if (!variant.hasBoard) return;
+    const confirmed = await confirmDialog({
+        text: `${_('delete')} ${_('custom board')}?`,
+        confirmText: _('Delete'),
+        cancelText: _('Cancel'),
+        danger: true,
+    });
+    if (!confirmed) return;
+    state.saving = true;
+    rerender(model);
+    try {
+        const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/board/delete`, { method: 'POST' });
+        if (!response.ok) throw new Error(await responseError(response));
+        const payload = await response.json() as { variant?: ManagedVariant };
+        registerFromPayload(payload);
+        removeCataloguedBoardCSS(variant.name);
+        if (state.boardPreviewVariant === variant.name) state.boardPreviewVariant = '';
+        state.message = _('Custom board deleted.');
+        await loadMine(model, { clearMessage: false });
+    } catch (err) {
+        state.message = err instanceof Error ? err.message : _('Failed to delete board');
     } finally {
         state.saving = false;
         rerender(model);
@@ -644,6 +724,71 @@ function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): V
     ]);
 }
 
+
+function renderBoardPreview(model: PyChessModel, variant: ManagedVariant): VNode | null {
+    if (!variant.hasBoard || state.boardPreviewVariant !== variant.name) return null;
+    ensureCataloguedCustomBoardCSS(variant);
+    return h('div.catalogued-board-preview', [
+        h('div.catalogued-piece-preview-head', [
+            h('strong', _('Board preview')),
+            h('button.catalogued-row-button.catalogued-secondary-action', {
+                props: { type: 'button' },
+                on: { click: () => { state.boardPreviewVariant = ''; rerender(model); } },
+            }, _('Close')),
+        ]),
+        h('div.catalogued-board-preview-surface', {
+            attrs: { 'data-board-variant': variant.name },
+            style: { aspectRatio: `${variant.width} / ${variant.height}` },
+        }),
+    ]);
+}
+
+function renderBoardControls(model: PyChessModel, variant: ManagedVariant): VNode {
+    const boardStatus = variant.hasBoard ? _('Custom') : _('Default');
+    return h('div.catalogued-board-controls', [
+        h('strong', boardStatus),
+        h('span.catalogued-help', variant.hasBoard
+            ? _('This variant uses its uploaded board SVG.')
+            : _('Default generated checkerboard. Upload an SVG board if the variant needs special regions.')),
+        h('label.catalogued-row-button.catalogued-secondary-action.catalogued-file-action', [
+            _('Upload board'),
+            h('input', {
+                props: {
+                    type: 'file',
+                    accept: '.svg,image/svg+xml',
+                    multiple: false,
+                    disabled: state.saving || !!variant.archived || variant.enabled === false,
+                },
+                on: {
+                    change: (event: Event) => {
+                        const input = event.target as HTMLInputElement;
+                        void uploadBoard(model, variant, input.files);
+                        input.value = '';
+                    },
+                },
+            }),
+        ]),
+        variant.hasBoard ? h('button.catalogued-row-button.catalogued-secondary-action', {
+            props: { type: 'button', disabled: state.saving },
+            on: {
+                click: () => {
+                    if (state.boardPreviewVariant === variant.name) state.boardPreviewVariant = '';
+                    else {
+                        ensureCataloguedCustomBoardCSS(variant);
+                        state.boardPreviewVariant = variant.name;
+                    }
+                    rerender(model);
+                },
+            },
+        }, state.boardPreviewVariant === variant.name ? _('Hide preview') : _('Preview')) : null,
+        variant.hasBoard ? h('button.catalogued-row-button.catalogued-secondary-action', {
+            props: { type: 'button', disabled: state.saving },
+            on: { click: () => void deleteBoard(model, variant) },
+        }, _('Delete board')) : null,
+        renderBoardPreview(model, variant),
+    ]);
+}
+
 function renderRows(model: PyChessModel): VNode {
     if (!state.loaded) return h('p', _('Loading...'));
     if (state.variants.length === 0) return h('p.catalogued-empty', _('You have not uploaded any variants yet.'));
@@ -656,6 +801,7 @@ function renderRows(model: PyChessModel): VNode {
                 h('th', _('Visibility')),
                 h('th', _('Games')),
                 h('th', _('Pieces')),
+                h('th', _('Board')),
                 h('th', _('Actions')),
             ])),
             h('tbody', state.variants.map(variant => {
@@ -672,6 +818,7 @@ function renderRows(model: PyChessModel): VNode {
                     h('td', visibilityLabel(variant.visibility)),
                     h('td', String(variant.gameCount ?? 0)),
                     h('td', renderPieceSetControls(model, variant)),
+                    h('td', renderBoardControls(model, variant)),
                     h('td.catalogued-row-actions', [
                         h('button.button-primary.catalogued-row-button', {
                             props: { type: 'button', disabled: archived },

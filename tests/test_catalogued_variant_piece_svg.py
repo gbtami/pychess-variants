@@ -5,7 +5,9 @@ from aiohttp import web
 import test_logger
 from catalogued_variants import (
     _canonical_piece_set_filename,
+    _catalogued_board_svg_css,
     _catalogued_disguised_piece_css,
+    _sanitize_catalogued_board_svg,
     _sanitize_catalogued_piece_svg,
 )
 
@@ -97,3 +99,61 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
             "label.piece.catalogued-disguised-preview.piece-style-catalogued-wildebeest-disguised.white",
             css,
         )
+
+
+class CataloguedVariantBoardSvgTestCase(unittest.TestCase):
+    def test_accepts_board_svg_matching_variant_aspect_ratio(self) -> None:
+        svg = b"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 800">
+  <rect x="0" y="0" width="1000" height="800" fill="#f0d9b5"/>
+  <rect x="0" y="0" width="100" height="800" fill="#cc0000" opacity="0.25"/>
+</svg>"""
+
+        sanitized = _sanitize_catalogued_board_svg(svg, "board.svg", 10, 8)
+
+        self.assertIn('viewBox="0 0 1000 800"', sanitized)
+        self.assertIn('fill="#cc0000"', sanitized)
+
+    def test_accepts_board_svg_with_internal_pattern_fill(self) -> None:
+        svg = b"""<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <pattern id="a" height="100" patternUnits="userSpaceOnUse" width="100">
+    <path d="m0 0h100v100h-100z" fill="#efd783" stroke="#000" stroke-width="2"/>
+  </pattern>
+  <path d="m0 0h800v800h-800z" fill="url(#a)"/>
+</svg>"""
+
+        sanitized = _sanitize_catalogued_board_svg(svg, "makruk.svg", 8, 8)
+
+        self.assertIn("<pattern", sanitized)
+        self.assertIn('id="a"', sanitized)
+        self.assertIn('fill="url(#a)"', sanitized)
+
+    def test_rejects_board_svg_without_view_box(self) -> None:
+        svg = b"""<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="800">
+  <rect x="0" y="0" width="1000" height="800" fill="#f0d9b5"/>
+</svg>"""
+
+        with self.assertRaises(web.HTTPBadRequest) as exc:
+            _sanitize_catalogued_board_svg(svg, "board.svg", 10, 8)
+
+        self.assertIn("viewBox", exc.exception.text)
+
+    def test_rejects_board_svg_with_wrong_aspect_ratio(self) -> None:
+        svg = b"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <rect x="0" y="0" width="1000" height="1000" fill="#f0d9b5"/>
+</svg>"""
+
+        with self.assertRaises(web.HTTPBadRequest) as exc:
+            _sanitize_catalogued_board_svg(svg, "board.svg", 10, 8)
+
+        self.assertIn("aspect ratio", exc.exception.text)
+
+    def test_board_css_overrides_board_and_preview_backgrounds(self) -> None:
+        css = _catalogued_board_svg_css(
+            "regionchess",
+            {"svg": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" />'},
+        )
+
+        self.assertIn('[data-board-variant="regionchess"] cg-board', css)
+        self.assertIn('[data-board-variant="regionchess"].catalogued-board-preview-surface', css)
+        self.assertIn('background-image: url("data:image/svg+xml;base64,', css)
+        self.assertIn("!important", css)

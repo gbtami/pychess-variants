@@ -96,6 +96,8 @@ export interface Variant {
     readonly startFen: string;
     readonly boardFamily: keyof typeof BOARD_FAMILIES;
     readonly board: BoardFamily;
+    readonly hasBoard: boolean;
+    readonly boardRevision?: string;
     readonly notation: cg.Notation;
     readonly pieceFamily: keyof typeof PIECE_FAMILIES;
     readonly pieceCSSExclude: string[];
@@ -165,6 +167,8 @@ export function variant(config: VariantConfig): Variant {
         startFen: config.startFen,
         boardFamily: config.boardFamily,
         board: BOARD_FAMILIES[config.boardFamily],
+        hasBoard: !!config.hasBoard,
+        boardRevision: config.boardRevision,
         pieceFamily: config.pieceFamily,
         pieceCSSExclude: config.pieceCSSExclude ?? [],
         notation: config.notation ?? cg.Notation.ALGEBRAIC,
@@ -256,6 +260,9 @@ interface VariantConfig {
     icon960?: string;
     // Board appearance
     boardFamily: keyof typeof BOARD_FAMILIES;
+    // Custom uploaded board SVG attached to a catalogued variant
+    hasBoard?: boolean;
+    boardRevision?: string;
     // Chessground coord/move notation (default: cg.Notation.ALGEBRAIC)
     notation?: cg.Notation;
     // Piece appearance
@@ -1339,6 +1346,8 @@ export interface CataloguedVariantClientDocument {
     readonly visibility?: 'private' | 'unlisted' | 'public';
     readonly hasPieceSet?: boolean;
     readonly pieceSetRevision?: string;
+    readonly hasBoard?: boolean;
+    readonly boardRevision?: string;
 }
 
 const cataloguedVariantInis: Record<string, string> = {};
@@ -1609,6 +1618,8 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         startFen: meta.startFen,
         icon: meta.icon || '◇',
         boardFamily,
+        hasBoard: !!meta.hasBoard,
+        boardRevision: meta.boardRevision,
         pieceFamily,
         pieceCSSExclude: compatiblePieceSource?.pieceCSSExclude,
         pieceRow: pieces,
