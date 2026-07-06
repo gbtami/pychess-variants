@@ -155,5 +155,9 @@ class CataloguedVariantBoardSvgTestCase(unittest.TestCase):
 
         self.assertIn('[data-board-variant="regionchess"] cg-board', css)
         self.assertIn('[data-board-variant="regionchess"].catalogued-board-preview-surface', css)
+        self.assertIn(
+            'label.board.catalogued-custom-board-preview[data-board-variant="regionchess"]',
+            css,
+        )
         self.assertIn('background-image: url("data:image/svg+xml;base64,', css)
         self.assertIn("!important", css)

@@ -1082,8 +1082,11 @@ def _catalogued_board_svg_css(variant_name: str, board_svg: Mapping[str, Any]) -
     image = f'url("data:image/svg+xml;base64,{encoded}")'
     selector = f'[data-board-variant="{variant_name}"] cg-board'
     preview_selector = f'[data-board-variant="{variant_name}"].catalogued-board-preview-surface'
+    settings_preview_selector = (
+        f'label.board.catalogued-custom-board-preview[data-board-variant="{variant_name}"]'
+    )
     return (
-        f"{selector}, {preview_selector} {{\n"
+        f"{selector}, {preview_selector}, {settings_preview_selector} {{\n"
         f"  background-image: {image} !important;\n"
         "  background-size: 100% 100% !important;\n"
         "  background-repeat: no-repeat !important;\n"

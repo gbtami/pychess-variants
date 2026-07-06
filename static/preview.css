@@ -20,6 +20,12 @@ label.piece.catalogued-custom-preview {
 label.board {
     background-size: 90%;
 }
+label.board.catalogued-custom-board-preview {
+    background-size: 100% 100%;
+    box-sizing: border-box;
+    min-width: 60px;
+    min-height: 60px;
+}
 
 /* Gray colored "?" */
 label.piece.piece98 {

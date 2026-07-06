@@ -429,8 +429,15 @@ class BoardStyleSettings extends NumberSettings {
 
     view(): VNode {
         if (this.variant.hasBoard) {
+            ensureCataloguedBoardCSS(this.variant.name, this.variant.boardRevision);
             return h('settings-board', [
-                h('p.catalogued-help', _('This custom variant uses its uploaded board SVG.')),
+                h('input#board0', {
+                    props: { type: "radio", name: "board", value: 0, checked: true, disabled: true },
+                }),
+                h('label.board.catalogued-custom-board-preview', {
+                    attrs: { for: "board0", 'data-board-variant': this.variant.name },
+                    style: { aspectRatio: `${this.variant.board.dimensions.width} / ${this.variant.board.dimensions.height}` },
+                }, ""),
             ]);
         }
 
