@@ -10,7 +10,7 @@ import { ensureBoardStyleOverride, ensurePieceCSS, pieceStyleClass } from './doc
 import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { BoardName, PyChessModel } from "./types";
-import { BOARD_FAMILIES, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
+import { BOARD_FAMILIES, isCataloguedVariant, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
 import { renderResized, updateBounds } from "chessgroundx/render";
 
 export interface BoardController {
@@ -76,7 +76,7 @@ function defaultPieceStyleIndex(pieceFamily: keyof typeof PIECE_FAMILIES | strin
     const styles = PIECE_FAMILIES[pieceFamily]?.pieceCSS ?? [];
     if (
         variant
-        && pieceFamily.startsWith('catalogued-')
+        && isCataloguedVariant(variant.name)
         && styles.length === 1
         && styles[0] === 'disguised'
     ) {

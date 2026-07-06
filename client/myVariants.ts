@@ -8,6 +8,8 @@ import { _ } from './i18n';
 import { PyChessModel } from './types';
 import {
     CataloguedVariantClientDocument,
+    PIECE_FAMILIES,
+    cataloguedCompatiblePieceFamily,
     isBuiltinVariantName,
     registerCataloguedVariant,
     unregisterCataloguedVariant,
@@ -342,7 +344,9 @@ async function uploadPieceSet(model: PyChessModel, variant: ManagedVariant, file
         state.message = _('Custom piece set uploaded.');
         await loadMine(model, { clearMessage: false });
     } catch (err) {
-        state.message = err instanceof Error ? err.message : _('Failed to upload piece set');
+        const message = err instanceof Error ? err.message : _('Failed to upload piece set');
+        state.message = message;
+        await alertDialog({ text: message });
     } finally {
         state.saving = false;
         rerender(model);
@@ -574,10 +578,31 @@ function renderPieceSetPreview(model: PyChessModel, variant: ManagedVariant): VN
     ]);
 }
 
+function renderCompatiblePieceSetInfo(variant: ManagedVariant): VNode | null {
+    const family = cataloguedCompatiblePieceFamily(variant, { ignoreCustomPieceSet: true });
+    if (!family) return null;
+
+    const styleCount = PIECE_FAMILIES[family]?.pieceCSS.length ?? 0;
+    const styleText = styleCount > 0
+        ? `${styleCount} ${_('built-in piece styles')}`
+        : _('built-in piece styles');
+
+    if (variant.hasPieceSet) {
+        return h('span.catalogued-help.catalogued-piece-compat',
+            `${_('Also compatible with')} ${family} (${styleText}). ${_('Delete the custom set to use those built-in styles again.')}`);
+    }
+
+    return h('span.catalogued-help.catalogued-piece-compat',
+        `${_('Compatible with')} ${family} (${styleText}). ${_('Upload a custom set only if you want to replace these styles.')}`);
+}
+
 function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): VNode {
     const expected = expectedPieceSetFiles(variant);
+    const compatibleFamily = cataloguedCompatiblePieceFamily(variant, { ignoreCustomPieceSet: true });
+    const pieceStatus = variant.hasPieceSet ? _('Custom') : compatibleFamily ? _('Built-in') : _('Letters');
     return h('div.catalogued-piece-set-controls', [
-        h('strong', variant.hasPieceSet ? _('Custom') : _('Letters')),
+        h('strong', pieceStatus),
+        renderCompatiblePieceSetInfo(variant),
         h('span.catalogued-help', { attrs: { title: expected.join(', ') } },
             `${_('Required SVG files')}: ${expected.length}`),
         h('label.catalogued-row-button.catalogued-secondary-action.catalogued-file-action', [

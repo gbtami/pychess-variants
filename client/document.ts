@@ -18,12 +18,12 @@ export function downloadPgnText(filename: string) {
     document.body.removeChild(element);
 }
 
-export function getDocumentData(name: string) {
+export function getDocumentData(name: string): string | null {
     const elm = document.getElementById('pychess-variants');
     if (elm) {
         return elm.getAttribute('data-' + name.toLowerCase());
     } else {
-        return "";
+        return null;
     }
 }
 

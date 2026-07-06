@@ -3,12 +3,14 @@ import { afterEach, expect, test } from '@jest/globals';
 import { boardSettings } from '../client/boardSettings';
 import {
     CataloguedVariantClientDocument,
+    cataloguedCompatiblePieceFamily,
+    PIECE_FAMILIES,
     registerCataloguedVariant,
     unregisterCataloguedVariant,
     VARIANTS,
 } from '../client/variants';
 
-const variantNames = ['testlettersdefault', 'testcustomdefault', 'testpromotedkingroles'];
+const variantNames = ['testbuiltindefault', 'testlettersdefault', 'testcustomdefault', 'testpromotedkingroles'];
 
 function register(meta: CataloguedVariantClientDocument) {
     registerCataloguedVariant(meta);
@@ -23,8 +25,26 @@ afterEach(() => {
     });
 });
 
-test('catalogued variants without a custom piece set default to letters', () => {
-    const variant = register({
+test('catalogued variants with a compatible built-in piece family default to that family', () => {
+    const meta: CataloguedVariantClientDocument = {
+        name: 'testbuiltindefault',
+        displayName: 'Test Built-in Default',
+        tooltip: 'Catalogued variant',
+        ini: '[testbuiltindefault:chess]',
+        startFen: '8/8/8/8/8/8/8/K6k w - - 0 1',
+        width: 8,
+        height: 8,
+        pieces: ['k', 'p'],
+        kingRoles: ['k'],
+    };
+    const variant = register(meta);
+
+    expect(variant.pieceFamily).toBe(cataloguedCompatiblePieceFamily(meta, { ignoreCustomPieceSet: true }));
+    expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe(PIECE_FAMILIES[variant.pieceFamily].pieceCSS[0]);
+});
+
+test('catalogued variants without a compatible built-in piece family default to letters', () => {
+    const meta: CataloguedVariantClientDocument = {
         name: 'testlettersdefault',
         displayName: 'Test Letters Default',
         tooltip: 'Catalogued variant',
@@ -32,10 +52,13 @@ test('catalogued variants without a custom piece set default to letters', () => 
         startFen: '8/8/8/8/8/8/8/K6k w - - 0 1',
         width: 8,
         height: 8,
-        pieces: ['k', 'p'],
+        pieces: ['k', 'x'],
         kingRoles: ['k'],
-    });
+    };
+    const variant = register(meta);
 
+    expect(cataloguedCompatiblePieceFamily(meta, { ignoreCustomPieceSet: true })).toBeUndefined();
+    expect(variant.pieceFamily).toBe(`catalogued-${variant.name}`);
     expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('letters');
 });
 
