@@ -1297,9 +1297,6 @@ div.labelled > div {
   border-top: 2px solid var(--rusty);
   margin: 0.35rem 0;
 }
-button#btn-account-privacy:hover {
-  background-color: var(--rusty);
-}
 button#btn-logout:hover {
   background-color: #c33;
 }
@@ -1310,7 +1307,8 @@ button#btn-game-category:hover,
 button#btn-board:hover,
 button#btn-zen:hover,
 button#btn-inbox-menu:hover,
-button#btn-privacy:hover {
+button#btn-privacy:hover,
+button#btn-account:hover {
   background-color: var(--green-hover);
 }
 
