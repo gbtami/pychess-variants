@@ -567,60 +567,7 @@ class Game:
                     if self.corr:
                         await opp_player.notify_game_end(self)
                 else:
-                    # Capture all mutable board/clock state before any yield
-                    # point. save_move() uses only these snapshots so it is
-                    # safe to run after subsequent moves have been pushed.
-                    _fen: str = self.board.fen
-                    _status: int = self.status
-                    _now: datetime = datetime.now(timezone.utc)
-                    _clock: int | float = (
-                        self.clocks_w[-1] if cur_color == WHITE else self.clocks_b[-1]
-                    )
-                    # Set last_move_time synchronously so get_board() clock
-                    # adjustment is correct even before the DB write lands.
-                    self.last_move_time = _now
-
-                    if self.corr:
-                        # Correspondence games: keep the write synchronous.
-                        #
-                        # Two reasons:
-                        # 1. Janggi setup -- setup moves go through play_move()
-                        #    and save_setup() is awaited immediately after. A
-                        #    background task scheduled here could run AFTER
-                        #    save_setup() and silently overwrite "f" with a
-                        #    stale intermediate FEN.
-                        # 2. Tests assert against DB state right after
-                        #    play_move() returns. With no round_broadcast in
-                        #    the corr path there is no natural await point that
-                        #    would flush the task before the assertion fires.
-                        #
-                        # Latency is not a concern for corr games (turns span
-                        # hours/days), so there is no cost to awaiting here.
-                        await self.save_move(
-                            move,
-                            fen=_fen,
-                            status=_status,
-                            last_move_time=_now,
-                            cur_color=cur_color,
-                            clock=_clock,
-                        )
-                    else:
-                        # Live games: fire-and-forget so the WS broadcast in
-                        # the caller is not blocked by the MongoDB round-trip.
-                        # The caller's round_broadcast is the natural flush
-                        # point -- the task runs before the next move can
-                        # arrive over the network.
-                        self.app_state.create_background_task(
-                            self.save_move(
-                                move,
-                                fen=_fen,
-                                status=_status,
-                                last_move_time=_now,
-                                cur_color=cur_color,
-                                clock=_clock,
-                            ),
-                            name="save-move-%s" % self.board.ply,
-                        )
+                    await self.save_move(move, cur_color)
                     if self.corr and (not opp_player.bot) and (not opp_player.anon):
                         await opp_player.notify_corr_move(self, san)
                         self.app_state.push_notifier.enqueue_corr_move(
