@@ -85,9 +85,18 @@
 }
 
 .catalogued-form textarea {
+    resize: vertical;
+}
+
+.catalogued-form textarea#catalogued-ini {
     min-height: 18rem;
     font-family: monospace;
-    resize: vertical;
+}
+
+.catalogued-form textarea.catalogued-description-input {
+    min-height: 4.5rem;
+    font-family: inherit;
+    line-height: 1.35;
 }
 
 .catalogued-help,
@@ -218,7 +227,13 @@
 
 @media (min-width: 900px) {
     .catalogued-form-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(12rem, 1fr) minmax(0, 3fr);
+    }
+
+    .catalogued-description-field {
+        grid-row: span 2;
+        align-content: start;
+        align-self: start;
     }
 }
 

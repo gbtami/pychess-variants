@@ -102,7 +102,7 @@ async function loadMine(model: PyChessModel, options: { clearMessage?: boolean }
 function readForm(): { displayName: string; description: string; visibility: VariantVisibility; ini: string } {
     return {
         displayName: (document.getElementById('catalogued-display-name') as HTMLInputElement | null)?.value ?? state.draftDisplayName,
-        description: (document.getElementById('catalogued-description') as HTMLInputElement | null)?.value ?? state.draftDescription,
+        description: (document.getElementById('catalogued-description') as HTMLTextAreaElement | null)?.value ?? state.draftDescription,
         visibility: ((document.getElementById('catalogued-visibility') as HTMLSelectElement | null)?.value as VariantVisibility | undefined) ?? state.draftVisibility,
         ini: (document.getElementById('catalogued-ini') as HTMLTextAreaElement | null)?.value ?? state.draftIni,
     };
@@ -542,18 +542,22 @@ function renderForm(model: PyChessModel): VNode {
                     },
                 }),
             ]),
-            h('label.catalogued-field.catalogued-field-half', [
+            h('label.catalogued-field.catalogued-field-half.catalogued-description-field', [
                 h('span', _('Short description')),
-                h('input#catalogued-description', {
+                h('textarea#catalogued-description.catalogued-description-input', {
                     props: {
                         value: state.draftDescription,
                         placeholder: _('Short description'),
                         autocomplete: 'off',
                         disabled: state.saving,
+                        rows: 3,
+                    },
+                    attrs: {
+                        maxlength: '1000',
                     },
                     on: {
                         input: (event: Event) => {
-                            state.draftDescription = (event.target as HTMLInputElement).value;
+                            state.draftDescription = (event.target as HTMLTextAreaElement).value;
                             state.formMessage = '';
                             state.formMessageTone = 'neutral';
                         },
