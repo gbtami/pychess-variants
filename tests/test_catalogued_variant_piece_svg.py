@@ -7,11 +7,51 @@ from catalogued_variants import (
     _canonical_piece_set_filename,
     _catalogued_board_svg_css,
     _catalogued_disguised_piece_css,
+    _catalogued_piece_set_required_filenames,
+    _catalogued_pychess_piece_roles,
     _sanitize_catalogued_board_svg,
     _sanitize_catalogued_piece_svg,
+    validate_catalogued_ini,
 )
 
 test_logger.init_test_logger()
+
+
+class CataloguedVariantPieceMetadataTestCase(unittest.TestCase):
+    def test_pychess_pieces_comment_declares_promoted_roles(self) -> None:
+        pieces, promoted = _catalogued_pychess_piece_roles(
+            "[inheritshogi:shogi]\n# pychessPieces = k,g,s,+s,n,+n,p,+p\n"
+        )
+
+        self.assertEqual(["k", "g", "s", "n", "p"], pieces)
+        self.assertEqual(["s", "n", "p"], promoted)
+
+    def test_pychess_pieces_comment_accepts_semicolon_comments(self) -> None:
+        pieces, promoted = _catalogued_pychess_piece_roles(
+            "[inheritshogi:shogi]\n; pychessPieces = K, +P p\n"
+        )
+
+        self.assertEqual(["k", "p"], pieces)
+        self.assertEqual(["p"], promoted)
+
+    def test_pychess_pieces_comment_rejects_multi_letter_roles(self) -> None:
+        with self.assertRaises(web.HTTPBadRequest) as exc:
+            _catalogued_pychess_piece_roles("[bad:chess]\n# pychessPieces = king,+p\n")
+
+        self.assertIn("one-letter piece roles", exc.exception.text)
+
+    def test_pychess_pieces_comment_extends_required_piece_set_files(self) -> None:
+        validated = validate_catalogued_ini(
+            "[pychesspiecehint:chess]\n"
+            "# pychessPieces = k,q,r,+r,b,+b,n,p,+p\n"
+        )
+        doc = {"pieces": validated.pieces, "promotionRoles": validated.promotion_roles}
+
+        self.assertIn("w+P.svg", _catalogued_piece_set_required_filenames(doc))
+        self.assertIn("b+B.svg", _catalogued_piece_set_required_filenames(doc))
+        self.assertIn("wR.svg", _catalogued_piece_set_required_filenames(doc))
+        self.assertEqual("shogi", validated.promotion_type)
+        self.assertTrue(validated.show_promoted)
 
 
 class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):

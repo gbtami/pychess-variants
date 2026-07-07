@@ -587,7 +587,7 @@ function renderForm(model: PyChessModel): VNode {
                 h('textarea#catalogued-ini', {
                     props: {
                         value: state.draftIni,
-                        placeholder: '[myvariant:chess]\nvariantTemplate = chess\n',
+                        placeholder: '[myvariant:chess]\nvariantTemplate = chess\n# pychessPieces = k,q,r,b,n,p',
                         spellcheck: false,
                         disabled: state.saving || !!state.editing?.locked,
                     },
@@ -599,6 +599,7 @@ function renderForm(model: PyChessModel): VNode {
                         },
                     },
                 }),
+                h('span.catalogued-help', _('If inherited rules use promoted pieces that pychess cannot detect automatically, add a comment like # pychessPieces = k,q,r,+r,p,+p. This affects only piece-set upload and board rendering; Fairy-Stockfish ignores it.')),
             ]),
             h('div.catalogued-actions.catalogued-field-full', [
                 h(`button.button-primary.catalogued-primary-action${state.saving ? '.disabled' : ''}`, {
