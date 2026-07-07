@@ -5,6 +5,8 @@ from aiohttp import web
 import test_logger
 from catalogued_variants import (
     _ensure_catalogued_rules_supported,
+    _strip_pychess_pieces_metadata,
+    catalogued_pychess_piece_roles,
     catalogued_king_roles,
     catalogued_legal_moves_need_history,
     catalogued_n_fold_is_draw,
@@ -21,6 +23,28 @@ test_logger.init_test_logger()
 
 
 class CataloguedVariantRuleSafetyTestCase(unittest.TestCase):
+    def test_accepts_pychess_piece_metadata_comments(self) -> None:
+        ini = """[testmeta:chess]
+# pychessPieces = k,q,r,+r p,+p ; inherited promotion pieces
+; pychessPieces = b,+b # another metadata line
+"""
+
+        self.assertEqual(
+            catalogued_pychess_piece_roles(ini),
+            (["k", "q", "r", "p", "b"], ["r", "p", "b"]),
+        )
+        self.assertEqual(_strip_pychess_pieces_metadata(ini), "[testmeta:chess]")
+
+    def test_rejects_invalid_pychess_piece_metadata_tokens(self) -> None:
+        ini = """[testmeta:chess]
+# pychessPieces = k,++p
+"""
+
+        with self.assertRaises(web.HTTPBadRequest) as exc:
+            catalogued_pychess_piece_roles(ini)
+
+        self.assertIn("pychessPieces", exc.exception.text)
+
     def test_rejects_two_board_variants(self) -> None:
         ini = """[testbug:chess]
 twoBoards = true

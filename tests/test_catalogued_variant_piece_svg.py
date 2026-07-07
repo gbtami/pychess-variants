@@ -1,4 +1,7 @@
 import unittest
+from datetime import datetime, timezone
+from typing import Any
+from unittest.mock import patch
 
 from aiohttp import web
 
@@ -7,8 +10,11 @@ from catalogued_variants import (
     _canonical_piece_set_filename,
     _catalogued_board_svg_css,
     _catalogued_disguised_piece_css,
+    _catalogued_piece_set_required_filenames,
+    _copy_piece_set_if_complete_for_doc,
     _sanitize_catalogued_board_svg,
     _sanitize_catalogued_piece_svg,
+    validate_catalogued_ini,
 )
 
 test_logger.init_test_logger()
@@ -168,3 +174,132 @@ class CataloguedVariantBoardSvgTestCase(unittest.TestCase):
         )
         self.assertIn('background-image: url("data:image/svg+xml;base64,', css)
         self.assertIn("!important", css)
+
+
+class CataloguedVariantPieceMetadataTestCase(unittest.TestCase):
+    def test_validate_ini_uses_pychess_pieces_metadata_for_promoted_svgs(self) -> None:
+        ini = """[metapromo:chess]
+# pychessPieces = k,q,r,+r,p,+p
+"""
+
+        with (
+            patch("catalogued_variants.sf.load_variant_config"),
+            patch(
+                "catalogued_variants.sf.start_fen",
+                return_value="r3k2r/8/8/8/8/8/8/4K2P w - - 0 1",
+            ),
+        ):
+            validated = validate_catalogued_ini(ini)
+
+        self.assertEqual(validated.pieces, ["k", "r", "p", "q"])
+        self.assertEqual(validated.promotion_type, "shogi")
+        self.assertEqual(validated.promotion_roles, ["r", "p"])
+        self.assertEqual(validated.promotion_order, ["+", ""])
+        self.assertTrue(validated.show_promoted)
+        self.assertIn(
+            "w+P.svg",
+            _catalogued_piece_set_required_filenames(
+                {"pieces": validated.pieces, "promotionRoles": validated.promotion_roles}
+            ),
+        )
+
+    def test_existing_piece_set_is_not_preserved_when_metadata_adds_required_svgs(self) -> None:
+        updated_doc: Any = {
+            "_id": "metapromo",
+            "name": "metapromo",
+            "displayName": "metapromo",
+            "description": "",
+            "author": "alice",
+            "ini": "[metapromo:chess]\n# pychessPieces = k,p,+p",
+            "baseVariant": "chess",
+            "enabled": True,
+            "archived": False,
+            "startFen": "4k3/8/8/8/8/8/8/4K2P w - - 0 1",
+            "width": 8,
+            "height": 8,
+            "pieces": ["k", "p"],
+            "kingRoles": ["k"],
+            "pocketRoles": [],
+            "captureToHand": False,
+            "promotionType": "shogi",
+            "promotionRoles": ["p"],
+            "promotionOrder": ["+", ""],
+            "showPromoted": True,
+            "rulesGate": False,
+            "rulesPass": False,
+            "legalMovesNeedHistory": False,
+            "nFoldIsDraw": False,
+            "showCheckCounters": False,
+            "icon": "◇",
+            "category": "other",
+            "visibility": "private",
+            "gameCount": 0,
+            "createdAt": datetime.now(timezone.utc),
+            "updatedAt": datetime.now(timezone.utc),
+        }
+        old_complete_before_metadata: Any = {
+            "pieceSet": {
+                "wK": {"svg": "<svg />", "size": 7},
+                "bK": {"svg": "<svg />", "size": 7},
+                "wP": {"svg": "<svg />", "size": 7},
+                "bP": {"svg": "<svg />", "size": 7},
+            },
+            "pieceSetUpdatedAt": datetime.now(timezone.utc),
+        }
+
+        _copy_piece_set_if_complete_for_doc(updated_doc, old_complete_before_metadata)
+
+        self.assertNotIn("pieceSet", updated_doc)
+
+    def test_existing_piece_set_is_preserved_when_it_matches_new_metadata_requirements(
+        self,
+    ) -> None:
+        updated_doc: Any = {
+            "_id": "metapromo",
+            "name": "metapromo",
+            "displayName": "metapromo",
+            "description": "",
+            "author": "alice",
+            "ini": "[metapromo:chess]\n# pychessPieces = k,p,+p",
+            "baseVariant": "chess",
+            "enabled": True,
+            "archived": False,
+            "startFen": "4k3/8/8/8/8/8/8/4K2P w - - 0 1",
+            "width": 8,
+            "height": 8,
+            "pieces": ["k", "p"],
+            "kingRoles": ["k"],
+            "pocketRoles": [],
+            "captureToHand": False,
+            "promotionType": "shogi",
+            "promotionRoles": ["p"],
+            "promotionOrder": ["+", ""],
+            "showPromoted": True,
+            "rulesGate": False,
+            "rulesPass": False,
+            "legalMovesNeedHistory": False,
+            "nFoldIsDraw": False,
+            "showCheckCounters": False,
+            "icon": "◇",
+            "category": "other",
+            "visibility": "private",
+            "gameCount": 0,
+            "createdAt": datetime.now(timezone.utc),
+            "updatedAt": datetime.now(timezone.utc),
+        }
+        matching_piece_set: Any = {
+            "pieceSet": {
+                "wK": {"svg": "<svg />", "size": 7},
+                "bK": {"svg": "<svg />", "size": 7},
+                "wP": {"svg": "<svg />", "size": 7},
+                "bP": {"svg": "<svg />", "size": 7},
+                "w+P": {"svg": "<svg />", "size": 7},
+                "b+P": {"svg": "<svg />", "size": 7},
+            },
+            "pieceSetUpdatedAt": datetime.now(timezone.utc),
+        }
+
+        _copy_piece_set_if_complete_for_doc(updated_doc, matching_piece_set)
+
+        self.assertIn("pieceSet", updated_doc)
+        self.assertIn("w+P", updated_doc["pieceSet"])
