@@ -587,7 +587,7 @@ function renderForm(model: PyChessModel): VNode {
                 h('textarea#catalogued-ini', {
                     props: {
                         value: state.draftIni,
-                        placeholder: '[myvariant:chess]\nvariantTemplate = chess\n# pychessPieces = k,q,r,b,n,p,+p',
+                        placeholder: '[myvariant:chess]\n# inherits chess rules through the section suffix',
                         spellcheck: false,
                         disabled: state.saving,
                     },

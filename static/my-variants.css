@@ -69,6 +69,10 @@
     font-weight: bold;
 }
 
+.catalogued-field .catalogued-help {
+    font-weight: normal;
+}
+
 .catalogued-field-full {
     grid-column: 1 / -1;
 }
@@ -178,6 +182,10 @@
     vertical-align: top;
     padding: 0.6rem;
     border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+.catalogued-table th {
+    font-weight: bold;
 }
 
 .catalogued-table code {
