@@ -591,48 +591,38 @@ class Game:
                 if self.corr:
                     await opp_player.notify_game_end(self)
 
-    async def save_move(
-        self,
-        move: str,
-        *,
-        fen: str,
-        status: int,
-        last_move_time: datetime,
-        cur_color: int,
-        clock: int | float,
-    ) -> None:
+    async def save_move(self, move: str, cur_color: int) -> None:
         """Persist a single in-progress move to the database.
 
-        All keyword arguments are snapshots captured synchronously in
-        ``play_move()`` before this coroutine is scheduled as a background
-        task, ensuring the write reflects the correct board/clock state
-        even if a subsequent move is processed before this task resumes.
+        ``cur_color`` is the moving side captured before ``board.push()``
+        in ``play_move()``; after the push ``board.color`` has already
+        flipped to the opponent, so we can't derive it from board state.
 
-        Clock persistence uses ``$push`` (single new value) instead of
-        ``$set`` (full ever-growing array) to keep the wire payload O(1)
-        regardless of game length. ``save_game()`` still writes the
-        authoritative full arrays at game end, keeping the document
-        consistent on close.
+        Clock persistence uses ``$push`` (single new value per ply) instead
+        of ``$set`` (full ever-growing array) to keep the wire payload O(1)
+        regardless of game length. ``save_game()`` writes the authoritative
+        full arrays at game end, so the document is always consistent on close.
 
-        Takeback (``pop_move_from_db``) is bot-only and bot games are
-        always CASUAL, so clock arrays are never written for those games
-        and no matching ``$pop`` is required here.
+        Takeback (``pop_move_from_db``) is bot-only and bot games are always
+        CASUAL, so clock arrays are never written for those games and no
+        matching ``$pop`` is required here.
         """
+        self.last_move_time = datetime.now(timezone.utc)
         move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
 
         set_data: dict[str, object] = {
-            "f": fen,
-            "l": last_move_time,
-            "s": status,
+            "f": self.board.fen,
+            "l": self.last_move_time,
+            "s": self.status,
         }
         # Push only the clock that changed this ply; the other array is
         # left untouched until save_game() overwrites both at game end.
         push_data: dict[str, object] = {"m": move_encoded}
         if self.rated == RATED:
             if cur_color == WHITE:
-                push_data["cw"] = clock
+                push_data["cw"] = self.clocks_w[-1]
             else:
-                push_data["cb"] = clock
+                push_data["cb"] = self.clocks_b[-1]
 
         if self.app_state.db is not None:
             await self.app_state.db.game.update_one(
