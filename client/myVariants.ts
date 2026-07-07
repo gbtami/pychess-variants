@@ -815,17 +815,17 @@ function renderRows(model: PyChessModel): VNode {
                 const archived = !!variant.archived || variant.enabled === false;
                 const lockTitle = locked ? _('This variant already has saved public games. Clone it to change the rules.') : '';
                 return h('tr', { class: { archived } }, [
-                    h('td', [
+                    h('td.catalogued-name-cell', { attrs: { 'data-label': _('Name') } }, [
                         h('strong', variant.displayName),
                         h('code', variant.name),
                         variant.tooltip ? h('p', variant.tooltip) : null,
                     ]),
-                    h('td', archived ? _('Archived') : locked ? _('Locked') : _('Editable')),
-                    h('td', visibilityLabel(variant.visibility)),
-                    h('td', String(variant.gameCount ?? 0)),
-                    h('td', renderPieceSetControls(model, variant)),
-                    h('td', renderBoardControls(model, variant)),
-                    h('td.catalogued-row-actions', [
+                    h('td', { attrs: { 'data-label': _('Status') } }, archived ? _('Archived') : locked ? _('Locked') : _('Editable')),
+                    h('td', { attrs: { 'data-label': _('Visibility') } }, visibilityLabel(variant.visibility)),
+                    h('td', { attrs: { 'data-label': _('Games') } }, String(variant.gameCount ?? 0)),
+                    h('td', { attrs: { 'data-label': _('Pieces') } }, renderPieceSetControls(model, variant)),
+                    h('td', { attrs: { 'data-label': _('Board') } }, renderBoardControls(model, variant)),
+                    h('td.catalogued-row-actions', { attrs: { 'data-label': _('Actions') } }, [
                         h('button.button-primary.catalogued-row-button', {
                             props: { type: 'button', disabled: archived },
                             on: { click: () => playVariant(model, variant) },
