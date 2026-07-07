@@ -6,7 +6,13 @@ import { Api } from 'chessgroundx/api';
 
 import { _ } from './i18n';
 import { getDocumentData } from './document';
-import { ensureBoardStyleOverride, ensurePieceCSS, pieceStyleClass } from './document';
+import {
+    ensureBoardStyleOverride,
+    ensureCataloguedBoardCSS,
+    ensurePieceCSS,
+    pieceStyleClass,
+    removeCataloguedBoardCSS,
+} from './document';
 import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
 import { BoardName, PyChessModel } from "./types";
@@ -100,6 +106,11 @@ function selectedBoardCSS(boardFamily: keyof typeof BOARD_FAMILIES | string, idx
 function setBoardStyle(target: HTMLElement, assetURL: string, css: string): void {
     ensureBoardStyleOverride();
     target.style.setProperty('--board-image', `url(${assetURL}/images/board/${css})`);
+}
+
+function setCataloguedBoardStyle(target: HTMLElement, variant: Variant): void {
+    ensureCataloguedBoardCSS(variant.name, variant.boardRevision);
+    target.style.removeProperty('--board-image');
 }
 
 function setPieceStyleClass(target: HTMLElement, family: string, css: string): void {
@@ -211,7 +222,12 @@ class BoardSettings {
     updateActiveBoardStyle(variant: Variant) {
         const family = variant.boardFamily;
         const css = this.boardCSS(family, variant);
-        boardStyleTargets(variant).forEach(target => setBoardStyle(target, this.assetURL, css));
+        if (variant.hasBoard) {
+            boardStyleTargets(variant).forEach(target => setCataloguedBoardStyle(target, variant));
+        } else {
+            removeCataloguedBoardCSS(variant.name);
+            boardStyleTargets(variant).forEach(target => setBoardStyle(target, this.assetURL, css));
+        }
     }
 
     updateScopedBoardStyle(variant: Variant, el?: Element) {
@@ -221,7 +237,11 @@ class BoardSettings {
         if (el instanceof HTMLElement) {
             const target = (el.closest('.' + family) as HTMLElement | null) ?? el;
             target.dataset.boardVariant = variant.name;
-            setBoardStyle(target, this.assetURL, css);
+            if (variant.hasBoard) setCataloguedBoardStyle(target, variant);
+            else {
+                removeCataloguedBoardCSS(variant.name);
+                setBoardStyle(target, this.assetURL, css);
+            }
         }
     }
 
@@ -408,6 +428,19 @@ class BoardStyleSettings extends NumberSettings {
     }
 
     view(): VNode {
+        if (this.variant.hasBoard) {
+            ensureCataloguedBoardCSS(this.variant.name, this.variant.boardRevision);
+            return h('settings-board', [
+                h('input#board0', {
+                    props: { type: "radio", name: "board", value: 0, checked: true, disabled: true },
+                }),
+                h('label.board.catalogued-custom-board-preview', {
+                    attrs: { for: "board0", 'data-board-variant': this.variant.name },
+                    style: { aspectRatio: `${this.variant.board.dimensions.width} / ${this.variant.board.dimensions.height}` },
+                }, ""),
+            ]);
+        }
+
         const vboard = this.value;
         const boards : VNode[] = [];
 

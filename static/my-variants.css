@@ -307,3 +307,28 @@
         min-width: 0;
     }
 }
+
+.catalogued-board-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 12rem;
+}
+
+.catalogued-board-preview {
+    margin-top: 0.35rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color, #d8d8d8);
+    border-radius: 0.4rem;
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.catalogued-board-preview-surface {
+    width: min(100%, 14rem);
+    min-height: 6rem;
+    border: 1px solid var(--border-color, #d8d8d8);
+    border-radius: 0.25rem;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+}

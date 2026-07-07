@@ -62,6 +62,31 @@ export function ensureBoardStyleOverride() {
     document.head.appendChild(style);
 }
 
+function cataloguedBoardCssId(variantName: string): string {
+    return `board-set-catalogued-${variantName}`;
+}
+
+export function ensureCataloguedBoardCSS(variantName: string, revision?: string): void {
+    const cssId = cataloguedBoardCssId(variantName);
+    const query = revision ? `?v=${encodeURIComponent(revision)}` : '';
+    const href = `/api/catalogued-variants/${encodeURIComponent(variantName)}/board-css.css${query}`;
+    const existing = document.getElementById(cssId) as HTMLLinkElement | null;
+    if (existing) {
+        if (existing.getAttribute('href') !== href) existing.setAttribute('href', href);
+        return;
+    }
+
+    const link = document.createElement('link');
+    link.id = cssId;
+    link.rel = 'stylesheet';
+    link.setAttribute('href', href);
+    document.head.appendChild(link);
+}
+
+export function removeCataloguedBoardCSS(variantName: string): void {
+    document.getElementById(cataloguedBoardCssId(variantName))?.remove();
+}
+
 export function pieceStyleClass(family: string, cssFile: string) {
     if (cssFile === 'letters' || cssFile === 'invisible') return `piece-style-${cssFile}`;
     if (family.startsWith('catalogued-') && cssFile.startsWith('custom')) {

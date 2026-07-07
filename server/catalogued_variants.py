@@ -51,6 +51,8 @@ MAX_CATALOGUED_FAVORITES_PER_USER = 500
 
 MAX_CATALOGUED_PIECE_SET_TOTAL_BYTES = 256 * 1024
 MAX_CATALOGUED_PIECE_SVG_BYTES = 32 * 1024
+MAX_CATALOGUED_BOARD_SVG_BYTES = 128 * 1024
+CATALOGUED_BOARD_ASPECT_RATIO_TOLERANCE = 0.02
 
 MAX_CATALOGUED_INI_BYTES = 64 * 1024
 MAX_DESCRIPTION_LEN = 1000
@@ -112,6 +114,11 @@ class CataloguedVariantPieceSetSvg(TypedDict):
     size: int
 
 
+class CataloguedVariantBoardSvg(TypedDict):
+    svg: str
+    size: int
+
+
 class CataloguedVariantDocument(TypedDict):
     _id: str
     name: str
@@ -143,6 +150,8 @@ class CataloguedVariantDocument(TypedDict):
     visibility: str
     pieceSet: NotRequired[dict[str, CataloguedVariantPieceSetSvg]]
     pieceSetUpdatedAt: NotRequired[datetime]
+    boardSvg: NotRequired[CataloguedVariantBoardSvg]
+    boardSvgUpdatedAt: NotRequired[datetime]
     gameCount: int
     createdAt: datetime
     updatedAt: datetime
@@ -178,6 +187,8 @@ class CataloguedVariantClientDocument(TypedDict):
     visibility: NotRequired[str]
     hasPieceSet: NotRequired[bool]
     pieceSetRevision: NotRequired[str]
+    hasBoard: NotRequired[bool]
+    boardRevision: NotRequired[str]
 
 
 def _is_admin_username(username: str) -> bool:
@@ -691,7 +702,9 @@ XML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 SAFE_SVG_TAGS = frozenset(
     {
         "svg",
+        "defs",
         "g",
+        "pattern",
         "path",
         "rect",
         "circle",
@@ -707,9 +720,13 @@ SAFE_SVG_ATTRS = frozenset(
     {
         "xmlns",
         "version",
+        "id",
         "viewBox",
         "width",
         "height",
+        "patternUnits",
+        "patternContentUnits",
+        "patternTransform",
         "x",
         "y",
         "x1",
@@ -762,6 +779,8 @@ SAFE_SVG_STYLE_ATTRS = frozenset(
     }
 )
 SAFE_SVG_VALUE_RE = re.compile(r"^[#%,.0-9A-Za-z_() +\-/:]*$")
+SAFE_SVG_ID_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.:-]*$")
+SAFE_SVG_LOCAL_REF_RE = re.compile(r"^url\(#[A-Za-z_][A-Za-z0-9_.:-]*\)$")
 
 
 def _local_xml_name(name: str) -> str:
@@ -770,9 +789,13 @@ def _local_xml_name(name: str) -> str:
     return name
 
 
-def _svg_value_is_unsafe(value: str) -> bool:
+def _svg_value_is_unsafe(value: str, *, allow_local_ref: bool = False) -> bool:
     lowered = value.casefold()
-    return "url(" in lowered or "javascript:" in lowered or "data:" in lowered
+    if "javascript:" in lowered or "data:" in lowered:
+        return True
+    if "url(" not in lowered:
+        return False
+    return not (allow_local_ref and SAFE_SVG_LOCAL_REF_RE.fullmatch(value) is not None)
 
 
 def _parse_safe_svg_style(style: str, filename: str) -> dict[str, str]:
@@ -786,7 +809,8 @@ def _parse_safe_svg_style(style: str, filename: str) -> dict[str, str]:
             raise web.HTTPBadRequest(text=f"{filename} contains malformed SVG style declarations.")
         prop = name.strip().casefold()
         cleaned_value = value.strip()
-        if _svg_value_is_unsafe(cleaned_value):
+        allow_local_ref_value = prop in {"fill", "stroke"}
+        if _svg_value_is_unsafe(cleaned_value, allow_local_ref=allow_local_ref_value):
             raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
         if not SAFE_SVG_VALUE_RE.fullmatch(cleaned_value):
             raise web.HTTPBadRequest(text=f"{filename} contains unsupported SVG attribute values.")
@@ -865,15 +889,23 @@ def _piece_set_revision(doc: Mapping[str, Any]) -> str:
     return re.sub(r"\W+", "", str(updated_at or "0")) or "0"
 
 
-def _sanitize_catalogued_piece_svg(raw: bytes, filename: str) -> str:
+def _board_svg_revision(doc: Mapping[str, Any]) -> str:
+    updated_at = doc.get("boardSvgUpdatedAt")
+    if isinstance(updated_at, datetime):
+        return str(int(updated_at.timestamp()))
+    return re.sub(r"\W+", "", str(updated_at or "0")) or "0"
+
+
+def _sanitize_catalogued_svg(
+    raw: bytes,
+    filename: str,
+    max_bytes: int,
+) -> str:
     if not raw:
         raise web.HTTPBadRequest(text=f"{filename} is empty.")
-    if len(raw) > MAX_CATALOGUED_PIECE_SVG_BYTES:
+    if len(raw) > max_bytes:
         raise web.HTTPBadRequest(
-            text=(
-                f"{filename} is too large. Each SVG must be at most "
-                f"{MAX_CATALOGUED_PIECE_SVG_BYTES // 1024} KiB."
-            )
+            text=(f"{filename} is too large. The SVG must be at most {max_bytes // 1024} KiB.")
         )
 
     text = raw.decode("utf-8", errors="strict").strip()
@@ -929,11 +961,14 @@ def _sanitize_catalogued_piece_svg(raw: bytes, filename: str) -> str:
                 continue
             if local_attr.startswith("on"):
                 continue
-            if local_attr in {"href", "src", "class", "id"}:
+            if local_attr in {"href", "src", "class"}:
                 continue
             if local_attr not in SAFE_SVG_ATTRS:
                 continue
-            if _svg_value_is_unsafe(value):
+            if local_attr == "id" and not SAFE_SVG_ID_RE.fullmatch(value):
+                continue
+            allow_local_ref_value = local_attr in {"fill", "stroke"}
+            if _svg_value_is_unsafe(value, allow_local_ref=allow_local_ref_value):
                 raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
             if not SAFE_SVG_VALUE_RE.fullmatch(value):
                 raise web.HTTPBadRequest(
@@ -946,6 +981,47 @@ def _sanitize_catalogued_piece_svg(raw: bytes, filename: str) -> str:
 
     root.attrib["xmlns"] = "http://www.w3.org/2000/svg"
     return ET.tostring(root, encoding="unicode", short_empty_elements=True)
+
+
+def _sanitize_catalogued_piece_svg(raw: bytes, filename: str) -> str:
+    return _sanitize_catalogued_svg(raw, filename, MAX_CATALOGUED_PIECE_SVG_BYTES)
+
+
+def _parse_svg_view_box_size(svg: str, filename: str) -> tuple[float, float]:
+    try:
+        root = ET.fromstring(svg)
+    except ET.ParseError as exc:
+        raise web.HTTPBadRequest(text=f"{filename} is not a valid SVG file.") from exc
+
+    raw_view_box = str(root.attrib.get("viewBox") or "").strip()
+    if not raw_view_box:
+        raise web.HTTPBadRequest(text=f"{filename} must define a viewBox.")
+
+    parts = [part for part in re.split(r"[\s,]+", raw_view_box) if part]
+    if len(parts) != 4:
+        raise web.HTTPBadRequest(text=f"{filename} has an invalid viewBox.")
+
+    try:
+        _min_x, _min_y, width, height = (float(part) for part in parts)
+    except ValueError as exc:
+        raise web.HTTPBadRequest(text=f"{filename} has an invalid viewBox.") from exc
+
+    if width <= 0 or height <= 0:
+        raise web.HTTPBadRequest(text=f"{filename} viewBox must have positive width and height.")
+    return width, height
+
+
+def _sanitize_catalogued_board_svg(raw: bytes, filename: str, width: int, height: int) -> str:
+    sanitized = _sanitize_catalogued_svg(raw, filename, MAX_CATALOGUED_BOARD_SVG_BYTES)
+    view_box_width, view_box_height = _parse_svg_view_box_size(sanitized, filename)
+    expected_ratio = width / height
+    actual_ratio = view_box_width / view_box_height
+    ratio_delta = abs(actual_ratio - expected_ratio) / expected_ratio
+    if ratio_delta > CATALOGUED_BOARD_ASPECT_RATIO_TOLERANCE:
+        raise web.HTTPBadRequest(
+            text=(f"{filename} viewBox aspect ratio does not match the {width}x{height} board.")
+        )
+    return sanitized
 
 
 def _catalogued_piece_css_selector(variant_name: str, key: str) -> str:
@@ -1004,6 +1080,25 @@ def _catalogued_disguised_piece_css(variant_name: str) -> str:
     )
 
 
+def _catalogued_board_svg_css(variant_name: str, board_svg: Mapping[str, Any]) -> str:
+    svg = str(board_svg.get("svg") or "")
+    encoded = base64.b64encode(svg.encode("utf-8")).decode("ascii")
+    image = f'url("data:image/svg+xml;base64,{encoded}")'
+    selector = f'[data-board-variant="{variant_name}"] cg-board'
+    preview_selector = f'[data-board-variant="{variant_name}"].catalogued-board-preview-surface'
+    settings_preview_selector = (
+        f'label.board.catalogued-custom-board-preview[data-board-variant="{variant_name}"]'
+    )
+    return (
+        f"{selector}, {preview_selector}, {settings_preview_selector} {{\n"
+        f"  background-image: {image} !important;\n"
+        "  background-size: 100% 100% !important;\n"
+        "  background-repeat: no-repeat !important;\n"
+        "  background-position: center center !important;\n"
+        "}\n"
+    )
+
+
 def _has_complete_piece_set(doc: Mapping[str, Any]) -> bool:
     piece_set = doc.get("pieceSet")
     if not isinstance(piece_set, Mapping):
@@ -1011,6 +1106,11 @@ def _has_complete_piece_set(doc: Mapping[str, Any]) -> bool:
     return {
         _catalogued_piece_set_storage_key(str(key)) for key in piece_set
     } == _catalogued_piece_set_required_keys(doc)
+
+
+def _has_board_svg(doc: Mapping[str, Any]) -> bool:
+    board_svg = doc.get("boardSvg")
+    return isinstance(board_svg, Mapping) and bool(board_svg.get("svg"))
 
 
 def catalogued_king_roles(ini: str, pieces: list[str]) -> list[str]:
@@ -1304,11 +1404,14 @@ def _client_doc(
         "author": str(doc.get("author") or ""),
         "visibility": _catalogued_visibility(doc),
         "hasPieceSet": _has_complete_piece_set(doc),
+        "hasBoard": _has_board_svg(doc),
         "archived": bool(doc.get("archived", False)),
         "enabled": bool(doc.get("enabled", True)),
     }
     if client_doc["hasPieceSet"]:
         client_doc["pieceSetRevision"] = _piece_set_revision(doc)
+    if client_doc["hasBoard"]:
+        client_doc["boardRevision"] = _board_svg_revision(doc)
     if game_count is not None:
         client_doc["gameCount"] = game_count
         client_doc["locked"] = game_count > 0
@@ -2075,6 +2178,97 @@ async def delete_catalogued_piece_set(request: web.Request) -> web.Response:
     return json_response({"ok": True, "variant": _client_doc(updated, game_count=count)})
 
 
+async def upload_catalogued_board(request: web.Request) -> web.Response:
+    app_state, _username, name, doc = await _load_owned_doc(request)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Database is unavailable.")
+    if not _is_active_catalogued_doc(doc):
+        raise web.HTTPConflict(text="Archived variants cannot have custom boards.")
+
+    data = await read_post_data(request)
+    if data is None:
+        raise web.HTTPBadRequest(text="Missing form data.")
+
+    upload = None
+    if hasattr(data, "getall"):
+        uploads = []
+        uploads.extend(data.getall("board", []))
+        uploads.extend(data.getall("file", []))
+        uploads.extend(data.getall("files", []))
+        if len(uploads) > 1:
+            raise web.HTTPBadRequest(text="Upload exactly one board SVG file.")
+        upload = uploads[0] if uploads else None
+    if upload is None:
+        upload = data.get("board") or data.get("file")
+    if not hasattr(upload, "file"):
+        raise web.HTTPBadRequest(text="Upload exactly one board SVG file.")
+
+    filename = str(getattr(upload, "filename", "") or "board.svg").strip() or "board.svg"
+    filename = filename.rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
+    filename = unquote(filename).rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
+    if not filename.casefold().endswith(".svg"):
+        raise web.HTTPBadRequest(text="Board upload must be an SVG file.")
+
+    raw = upload.file.read(MAX_CATALOGUED_BOARD_SVG_BYTES + 1)
+    svg = _sanitize_catalogued_board_svg(raw, filename, int(doc["width"]), int(doc["height"]))
+    board_svg: CataloguedVariantBoardSvg = {"svg": svg, "size": len(svg.encode("utf-8"))}
+
+    now = datetime.now(timezone.utc)
+    result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
+        {"_id": name},
+        {"$set": {"boardSvg": board_svg, "boardSvgUpdatedAt": now, "updatedAt": now}},
+    )
+    if result.matched_count != 1:
+        raise web.HTTPNotFound(text="Catalogued variant not found.")
+
+    updated = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": name})
+    if updated is None:
+        raise web.HTTPNotFound(text="Catalogued variant not found after update.")
+    app_state.catalogued_variants[name] = updated
+    count = await _game_count(app_state, name)
+    return json_response({"ok": True, "variant": _client_doc(updated, game_count=count)})
+
+
+async def delete_catalogued_board(request: web.Request) -> web.Response:
+    app_state, _username, name, _doc = await _load_owned_doc(request)
+    if app_state.db is None:
+        raise web.HTTPServiceUnavailable(text="Database is unavailable.")
+
+    now = datetime.now(timezone.utc)
+    result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
+        {"_id": name},
+        {"$unset": {"boardSvg": "", "boardSvgUpdatedAt": ""}, "$set": {"updatedAt": now}},
+    )
+    if result.matched_count != 1:
+        raise web.HTTPNotFound(text="Catalogued variant not found.")
+
+    updated = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": name})
+    if updated is None:
+        raise web.HTTPNotFound(text="Catalogued variant not found after update.")
+    app_state.catalogued_variants[name] = updated
+    count = await _game_count(app_state, name)
+    return json_response({"ok": True, "variant": _client_doc(updated, game_count=count)})
+
+
+async def get_catalogued_board_css(request: web.Request) -> web.Response:
+    app_state = get_app_state(request.app)
+    username = await _optional_human_username(request)
+    name = request.match_info["name"]
+    doc = await find_catalogued_variant_doc(app_state, name, username)
+    if doc is None:
+        raise web.HTTPNotFound(text="Catalogued variant not found.")
+
+    board_svg = doc.get("boardSvg")
+    if not isinstance(board_svg, Mapping) or not _has_board_svg(doc):
+        raise web.HTTPNotFound(text="This variant has no custom board.")
+
+    return web.Response(
+        text=_catalogued_board_svg_css(str(doc["name"]), board_svg),
+        content_type="text/css",
+        headers={"Cache-Control": "private, max-age=300"},
+    )
+
+
 async def get_catalogued_piece_css(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _optional_human_username(request)
@@ -2257,6 +2451,11 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         doc["pieceSet"] = existing["pieceSet"]
         if "pieceSetUpdatedAt" in existing:
             doc["pieceSetUpdatedAt"] = existing["pieceSetUpdatedAt"]
+
+    if not rules_changed and new_name == old_name and _has_board_svg(existing):
+        doc["boardSvg"] = existing["boardSvg"]
+        if "boardSvgUpdatedAt" in existing:
+            doc["boardSvgUpdatedAt"] = existing["boardSvgUpdatedAt"]
 
     if new_name != old_name:
         try:
