@@ -5,7 +5,7 @@
         <span class="text"><a href="/@/gbtami">@gbtami</a></span>
         <span class="text">Announcements</span>
     </div>
-    <div class= "headline">User-defined variants are now available on PyChess</div>
+    <div class= "headline">New variant moratorium is over. Forever.</div>
 </div>
 </br>
 
