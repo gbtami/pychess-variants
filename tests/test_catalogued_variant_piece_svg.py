@@ -68,6 +68,43 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
         self.assertIn('stroke-width="2"', sanitized)
         self.assertIn('d="M 0 0 L 10 10"', sanitized)
 
+    def test_accepts_safe_local_gradient_and_filter_references(self) -> None:
+        svg = b"""<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="g1">
+      <stop style="stop-color:#000000;stop-opacity:1" offset="0" />
+      <stop style="stop-color:#000000;stop-opacity:0" offset="1" />
+    </linearGradient>
+    <radialGradient xlink:href="#g1" id="rg1" cx="22" cy="22" fx="22" fy="22" r="20" gradientUnits="userSpaceOnUse" />
+    <filter id="blur1" x="-1" y="-1" width="3" height="3">
+      <feGaussianBlur stdDeviation="2" />
+    </filter>
+  </defs>
+  <ellipse style="fill:#e7c870;stroke:url(#rg1);filter:url(#blur1)" cx="23" cy="26" rx="22" ry="22" />
+</svg>"""
+
+        sanitized = _sanitize_catalogued_piece_svg(svg, "wQ.svg")
+
+        self.assertIn("<linearGradient", sanitized)
+        self.assertIn("<radialGradient", sanitized)
+        self.assertIn('href="#g1"', sanitized)
+        self.assertIn("<filter", sanitized)
+        self.assertIn("<feGaussianBlur", sanitized)
+        self.assertIn('stop-color="#000000"', sanitized)
+        self.assertIn('stop-opacity="1"', sanitized)
+        self.assertIn('stroke="url(#rg1)"', sanitized)
+        self.assertIn('filter="url(#blur1)"', sanitized)
+
+    def test_rejects_external_filter_reference(self) -> None:
+        svg = b"""<svg xmlns="http://www.w3.org/2000/svg">
+  <ellipse style="filter:url(http://example.invalid/filter.svg#blur1)" cx="23" cy="26" rx="22" ry="22" />
+</svg>"""
+
+        with self.assertRaises(web.HTTPBadRequest) as exc:
+            _sanitize_catalogued_piece_svg(svg, "wQ.svg")
+
+        self.assertIn("unsafe SVG attribute values", exc.exception.text)
+
     def test_strips_legacy_external_svg_doctype(self) -> None:
         svg = b"""<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">

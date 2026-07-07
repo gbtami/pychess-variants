@@ -791,6 +791,11 @@ SAFE_SVG_TAGS = frozenset(
         "defs",
         "g",
         "pattern",
+        "linearGradient",
+        "radialGradient",
+        "stop",
+        "filter",
+        "feGaussianBlur",
         "path",
         "rect",
         "circle",
@@ -813,6 +818,8 @@ SAFE_SVG_ATTRS = frozenset(
         "patternUnits",
         "patternContentUnits",
         "patternTransform",
+        "gradientUnits",
+        "gradientTransform",
         "x",
         "y",
         "x1",
@@ -821,13 +828,18 @@ SAFE_SVG_ATTRS = frozenset(
         "y2",
         "cx",
         "cy",
+        "fx",
+        "fy",
         "r",
         "rx",
         "ry",
+        "offset",
         "d",
         "points",
         "fill",
         "stroke",
+        "stop-color",
+        "stop-opacity",
         "stroke-width",
         "stroke-linecap",
         "stroke-linejoin",
@@ -839,8 +851,11 @@ SAFE_SVG_ATTRS = frozenset(
         "opacity",
         "fill-opacity",
         "stroke-opacity",
+        "filter",
+        "stdDeviation",
         "transform",
         "transform-origin",
+        "href",
         "aria-label",
         "role",
     }
@@ -849,6 +864,8 @@ SAFE_SVG_STYLE_ATTRS = frozenset(
     {
         "fill",
         "stroke",
+        "stop-color",
+        "stop-opacity",
         "stroke-width",
         "stroke-linecap",
         "stroke-linejoin",
@@ -860,6 +877,7 @@ SAFE_SVG_STYLE_ATTRS = frozenset(
         "opacity",
         "fill-opacity",
         "stroke-opacity",
+        "filter",
         "transform",
         "transform-origin",
     }
@@ -867,6 +885,7 @@ SAFE_SVG_STYLE_ATTRS = frozenset(
 SAFE_SVG_VALUE_RE = re.compile(r"^[#%,.0-9A-Za-z_() +\-/:]*$")
 SAFE_SVG_ID_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.:-]*$")
 SAFE_SVG_LOCAL_REF_RE = re.compile(r"^url\(#[A-Za-z_][A-Za-z0-9_.:-]*\)$")
+SAFE_SVG_FRAGMENT_REF_RE = re.compile(r"^#[A-Za-z_][A-Za-z0-9_.:-]*$")
 
 
 def _local_xml_name(name: str) -> str:
@@ -894,14 +913,15 @@ def _parse_safe_svg_style(style: str, filename: str) -> dict[str, str]:
         if not separator:
             raise web.HTTPBadRequest(text=f"{filename} contains malformed SVG style declarations.")
         prop = name.strip().casefold()
+        if prop not in SAFE_SVG_STYLE_ATTRS:
+            continue
         cleaned_value = value.strip()
-        allow_local_ref_value = prop in {"fill", "stroke"}
+        allow_local_ref_value = prop in {"fill", "stroke", "filter"}
         if _svg_value_is_unsafe(cleaned_value, allow_local_ref=allow_local_ref_value):
             raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
         if not SAFE_SVG_VALUE_RE.fullmatch(cleaned_value):
             raise web.HTTPBadRequest(text=f"{filename} contains unsupported SVG attribute values.")
-        if prop in SAFE_SVG_STYLE_ATTRS:
-            parsed[prop] = cleaned_value
+        parsed[prop] = cleaned_value
     return parsed
 
 
@@ -1047,13 +1067,18 @@ def _sanitize_catalogued_svg(
                 continue
             if local_attr.startswith("on"):
                 continue
-            if local_attr in {"href", "src", "class"}:
+            if local_attr in {"src", "class"}:
                 continue
             if local_attr not in SAFE_SVG_ATTRS:
                 continue
             if local_attr == "id" and not SAFE_SVG_ID_RE.fullmatch(value):
                 continue
-            allow_local_ref_value = local_attr in {"fill", "stroke"}
+            if local_attr == "href":
+                if not SAFE_SVG_FRAGMENT_REF_RE.fullmatch(value):
+                    continue
+                clean_attrs[local_attr] = value
+                continue
+            allow_local_ref_value = local_attr in {"fill", "stroke", "filter"}
             if _svg_value_is_unsafe(value, allow_local_ref=allow_local_ref_value):
                 raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
             if not SAFE_SVG_VALUE_RE.fullmatch(value):
