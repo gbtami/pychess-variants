@@ -71,6 +71,7 @@ class CataloguedAiJoinSeekAccessTestCase(unittest.IsolatedAsyncioTestCase):
             creator=owner,
             variant=self.variant_name,
             chess960=False,
+            day=0,
             target="",
             fen="",
             player1=owner,
