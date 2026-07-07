@@ -17,7 +17,7 @@ from aiohttp import web
 from pymongo.errors import DuplicateKeyError
 
 from compress import MAX_COMPRESSED_BOARD_HEIGHT, MAX_COMPRESSED_BOARD_WIDTH
-from const import ANON_PREFIX
+from const import ANON_PREFIX, STARTED
 from fairy.fairy_board import sf
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
@@ -1673,6 +1673,28 @@ async def _has_games(app_state: Any, name: str) -> bool:
     return await app_state.db.game.find_one({"v": name}, projection={"_id": 1}) is not None
 
 
+def catalogued_variant_games_are_persisted(app_state: Any, name: str) -> bool:
+    """Return whether newly created games for this catalogued variant are saved.
+
+    The decision is intentionally made at game creation time. Public variants
+    create durable games; private and unlisted variants are test/sandbox
+    variants whose games remain in memory only.
+    """
+
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None:
+        # Preserve the old behaviour for unexpected/migrating runtime state.
+        return True
+    return _catalogued_visibility(doc) == CATALOGUED_VISIBILITY_PUBLIC
+
+
+def _has_active_catalogued_games(app_state: Any, name: str) -> bool:
+    for game in getattr(app_state, "games", {}).values():
+        if getattr(game, "variant", None) == name and getattr(game, "status", STARTED) <= STARTED:
+            return True
+    return False
+
+
 async def increment_catalogued_variant_game_count(app_state: Any, name: str) -> None:
     """Increment the stored played-game counter for a saved catalogued game."""
 
@@ -2471,16 +2493,24 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         await app_state.db[CATALOGUED_VARIANT_COLLECTION].replace_one({"_id": new_name}, doc)
 
     register_catalogued_variant_doc(app_state, doc, load_config=False)
+    count = await _game_count(app_state, new_name)
     return json_response(
-        {"ok": True, "oldName": old_name, "variant": _client_doc(doc, game_count=0)}
+        {"ok": True, "oldName": old_name, "variant": _client_doc(doc, game_count=count)}
     )
 
 
 async def delete_catalogued_variant(request: web.Request) -> web.Response:
     app_state, _username, name, _doc = await _load_owned_doc(request)
+    if _has_active_catalogued_games(app_state, name):
+        raise web.HTTPConflict(
+            text=(
+                "This variant still has an active game. "
+                "Finish or abort it before deleting the variant."
+            )
+        )
     if await _has_games(app_state, name):
         raise web.HTTPConflict(
-            text="This variant already has games. Archive it instead of deleting it."
+            text="This variant already has saved public games. Archive it instead of deleting it."
         )
 
     await app_state.db[CATALOGUED_VARIANT_COLLECTION].delete_one({"_id": name})

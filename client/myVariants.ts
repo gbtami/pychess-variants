@@ -498,11 +498,11 @@ function visibilityLabel(visibility: VariantVisibility | undefined): string {
 function visibilityHelp(visibility: VariantVisibility): string {
     switch (visibility) {
     case 'public':
-        return _('Public variants appear on the Community variants page and can be found by search.');
+        return _('Public variants appear on the Community variants page and their games are saved.');
     case 'unlisted':
-        return _('Unlisted variants stay out of search but can be opened by direct link.');
+        return _('Unlisted variants stay out of search; their games are not saved.');
     default:
-        return _('Private variants are visible only to you and site admins.');
+        return _('Private variants are visible only to you and site admins; their games are not saved.');
     }
 }
 
@@ -511,9 +511,10 @@ function renderForm(model: PyChessModel): VNode {
     return h('section.catalogued-card.catalogued-form', [
         h('div.catalogued-form-head', [
             h('h2', editing ? _('Edit variant') : _('Upload new variant')),
-            h('p', _('Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first played game.')),
+            h('p', _('Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first saved public game.')),
+            h('p.catalogued-help', _('Private and unlisted variants are sandbox variants: games are playable but are not saved.')),
             h('p.catalogued-help', _('If you change the rules of an unused variant, also change the INI section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.')),
-            editing?.locked ? h('p.catalogued-help', _('This variant already has games. Only metadata and visibility can be changed; clone it to change the rules.')) : null,
+            editing?.locked ? h('p.catalogued-help', _('This variant already has saved public games. Only metadata and visibility can be changed; clone it to change the rules.')) : null,
         ]),
         h('form.catalogued-form-grid', {
             on: {
@@ -807,7 +808,7 @@ function renderRows(model: PyChessModel): VNode {
             h('tbody', state.variants.map(variant => {
                 const locked = !!variant.locked;
                 const archived = !!variant.archived || variant.enabled === false;
-                const lockTitle = locked ? _('This variant already has games. Clone it to change the rules.') : '';
+                const lockTitle = locked ? _('This variant already has saved public games. Clone it to change the rules.') : '';
                 return h('tr', { class: { archived } }, [
                     h('td', [
                         h('strong', variant.displayName),

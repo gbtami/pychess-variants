@@ -7,7 +7,10 @@ from datetime import datetime, timezone, timedelta
 from time import monotonic
 
 from broadcast import round_broadcast
-from catalogued_variants import increment_catalogued_variant_game_count
+from catalogued_variants import (
+    catalogued_variant_games_are_persisted,
+    increment_catalogued_variant_game_count,
+)
 from clock import Clock, CorrClock
 from compress import R2C
 from const import (
@@ -154,10 +157,17 @@ class Game:
         self.bplayer: User = bplayer
 
         catalogued_casual = is_catalogued_variant(variant)
+        self.persist_to_db: bool = (
+            (not catalogued_casual)
+            or (not create)
+            or catalogued_variant_games_are_persisted(app_state, variant)
+        )
         if catalogued_casual:
             # Uploaded variants are casual-only and are not first-class
             # tournament/rating variants, but they can still be played against
-            # Fairy-Stockfish and as correspondence games.
+            # Fairy-Stockfish and as correspondence games. Only public
+            # catalogued variants create durable game documents; private and
+            # unlisted games are in-memory tests decided at creation time.
             rated = CASUAL
             chess960 = False
             tournamentId = None
@@ -214,7 +224,9 @@ class Game:
 
         # crosstable info (this have to be updated after game creation from db !)
         self.need_crosstable_save: bool = False
-        self.has_crosstable: bool = not (self.bot_game or self.wplayer.anon or self.bplayer.anon)
+        self.has_crosstable: bool = self.persist_to_db and not (
+            self.bot_game or self.wplayer.anon or self.bplayer.anon
+        )
         if self.has_crosstable:
             if self.wplayer.username < self.bplayer.username:
                 self.s1player: str = self.wplayer.username
@@ -653,6 +665,7 @@ class Game:
 
         if (
             self.board.ply < 3
+            and self.persist_to_db
             and (self.app_state.db is not None)
             and (self.tournamentId is None)
             and (self.tournamentArrangementId is None)
@@ -668,9 +681,10 @@ class Game:
             if self.result != "*":
                 if self.rated == RATED:
                     await self.update_ratings()
-                await self.update_players_game_counts()
-                if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
-                    await self.save_crosstable()
+                if self.persist_to_db:
+                    await self.update_players_game_counts()
+                    if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
+                        await self.save_crosstable()
 
             new_data = {
                 "f": self.board.fen,
@@ -714,7 +728,7 @@ class Game:
                     self.manual_count_toggled.append((self.board.count_started, self.board.ply + 1))
                 new_data["mct"] = self.manual_count_toggled
 
-            if self.app_state.db is not None:
+            if self.persist_to_db and self.app_state.db is not None:
                 await self.app_state.db.game.find_one_and_update(
                     {"_id": self.id}, {"$set": new_data}
                 )

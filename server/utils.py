@@ -732,8 +732,9 @@ async def new_game(
 
 
 async def insert_game_to_db(game, app_state: PychessGlobalAppState):
-    # unit test app may have no db
-    if app_state.db is None:
+    # unit test app may have no db. Private/unlisted catalogued variant
+    # games are test games and intentionally stay in memory only.
+    if app_state.db is None or not game.persist_to_db:
         return
 
     document = {
