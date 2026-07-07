@@ -29,6 +29,7 @@ from settings import ADMINS
 from variants import (
     CATALOGUED_VARIANTS,
     ServerVariants,
+    get_server_variant,
     is_catalogued_variant,
     register_catalogued_server_variant,
     unregister_catalogued_server_variant,
@@ -1450,6 +1451,30 @@ def can_create_catalogued_seek(app_state: Any, name: str, username: str | None) 
     if doc is None:
         return False
     return _can_open_catalogued_doc(username, doc)
+
+
+def is_public_catalogued_variant(app_state: Any, name: str) -> bool:
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None:
+        return False
+    return (
+        _is_active_catalogued_doc(doc)
+        and _catalogued_visibility(doc) == CATALOGUED_VISIBILITY_PUBLIC
+    )
+
+
+def public_catalogued_variants_for_forms(app_state: Any) -> dict[str, Any]:
+    """Return public uploaded variants that are safe in durable site events."""
+
+    docs = getattr(app_state, "catalogued_variants", {})
+    return {
+        name: get_server_variant(name, False)
+        for name, doc in sorted(
+            docs.items(),
+            key=lambda item: str(item[1].get("displayName", item[0])).casefold(),
+        )
+        if is_public_catalogued_variant(app_state, name)
+    }
 
 
 def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:

@@ -569,6 +569,13 @@ async def join_seek(
     if seek.creator.username in user.blocked or user.username in seek.creator.blocked:
         return {"type": "error", "message": "You cannot accept this seek."}
 
+    if is_catalogued_variant(seek.variant):
+        from catalogued_variants import can_create_catalogued_seek
+
+        username = None if user.anon else user.username
+        if not can_create_catalogued_seek(app_state, seek.variant, username):
+            return {"type": "error", "message": "This user-defined variant is not available."}
+
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
         seek.id,

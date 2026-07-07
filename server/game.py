@@ -163,16 +163,13 @@ class Game:
             or catalogued_variant_games_are_persisted(app_state, variant)
         )
         if catalogued_casual:
-            # Uploaded variants are casual-only and are not first-class
-            # tournament/rating variants, but they can still be played against
-            # Fairy-Stockfish and as correspondence games. Only public
-            # catalogued variants create durable game documents; private and
-            # unlisted games are in-memory tests decided at creation time.
+            # Uploaded variants are casual-only. They can still be used in
+            # normal games, public correspondence games, unrated tournaments,
+            # and simuls. Only public catalogued variants create durable game
+            # documents; private and unlisted games are in-memory tests decided
+            # at creation time.
             rated = CASUAL
             chess960 = False
-            tournamentId = None
-            tournamentArrangementId = None
-            simulId = None
 
         self.bot_game: bool = self.bplayer.bot or self.wplayer.bot
 

@@ -63,7 +63,8 @@ from typing_defs import (
     TournamentPlayerDoc,
 )
 from ws_types import ChatLine
-from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS
+from catalogued_variants import is_public_catalogued_variant
+from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS, is_catalogued_variant
 from user import User
 from utils import load_game
 from settings import DEV
@@ -482,11 +483,21 @@ async def create_or_update_tournament(
     """Manual tournament creation from /tournaments/new form input values"""
 
     variant = form["variant"]
-    variant960 = variant.endswith("960")
+    variant960 = False if is_catalogued_variant(variant) else variant.endswith("960")
     variant_name = variant[:-3] if variant960 else variant
+    if is_catalogued_variant(variant_name) and not is_public_catalogued_variant(
+        app_state, variant_name
+    ):
+        raise web.HTTPBadRequest(
+            text="Only public user-defined variants can be used in tournaments."
+        )
     server_variant = get_server_variant(variant_name, variant960)
 
-    rated = form.get("rated", "") == "1" and form["position"] == ""
+    rated = (
+        form.get("rated", "") == "1"
+        and form["position"] == ""
+        and not is_catalogued_variant(variant_name)
+    )
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
     bp = int(form["byoyomiPeriod"])
