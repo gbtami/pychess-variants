@@ -572,7 +572,12 @@ async def join_seek(
     if is_catalogued_variant(seek.variant):
         from catalogued_variants import can_create_catalogued_seek
 
-        username = None if user.anon else user.username
+        # AI games are created as a human-owned seek that the internal engine
+        # user immediately joins.  Access for that internal bot join should be
+        # determined by the human creator; otherwise private variants owned by
+        # the player are rejected as inaccessible to Random-Mover/Fairy-Stockfish.
+        access_user = seek.creator if getattr(user, "bot", False) else user
+        username = None if access_user.anon else access_user.username
         if not can_create_catalogued_seek(app_state, seek.variant, username):
             return {"type": "error", "message": "This user-defined variant is not available."}
 
