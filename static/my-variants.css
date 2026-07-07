@@ -1,5 +1,13 @@
+#pychess-variants[data-view='my-variants'] #main-wrap {
+    grid-template-columns:
+        var(--main-margin) minmax(0, 1fr) minmax(0, var(--main-max-width))
+        minmax(0, 1fr) var(--main-margin);
+}
+
 .my-variants {
     grid-area: main;
+    width: 100%;
+    min-width: 0;
     max-width: 1500px;
     margin: 2rem auto;
     padding: 0 1rem;
@@ -29,6 +37,7 @@
 .catalogued-layout {
     display: grid;
     gap: 1rem;
+    min-width: 0;
 }
 
 .catalogued-layout > .catalogued-message {
@@ -37,6 +46,7 @@
 }
 
 .catalogued-card {
+    min-width: 0;
     background: var(--bg-box, #f7f6f3);
     border-radius: 8px;
     padding: 1.25rem;
@@ -175,6 +185,7 @@
 }
 
 .catalogued-table-wrap {
+    max-width: 100%;
     overflow-x: auto;
     margin-top: 1rem;
 }
@@ -238,6 +249,10 @@
 }
 
 @media (max-width: 799px) {
+    #pychess-variants[data-view='my-variants'] #main-wrap {
+        --main-max-width: 100%;
+    }
+
     .my-variants {
         margin: 1rem auto 2rem;
     }
