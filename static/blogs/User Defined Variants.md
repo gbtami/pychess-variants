@@ -44,7 +44,7 @@ PyChess uses [Fairy-Stockfish](https://github.com/fairy-stockfish/Fairy-Stockfis
 
 Fairy-Stockfish custom variants are described with an INI-style configuration format, usually called `variants.ini`. A custom variant definition can describe things such as:
 
-- the base variant or template,
+- the base or inherited variant,
 - board size,
 - piece types and their movements,
 - starting position,
@@ -67,7 +67,7 @@ A very small definition can look like this:
 
 ```ini
 [myvariant:chess]
-variantTemplate = chess
+# inherits chess rules through the section suffix
 ```
 
 Real variants are usually more interesting than that, of course. They may define custom pieces, a different board size, special promotion rules, pockets, regions, or a completely different starting position.
@@ -83,6 +83,8 @@ The **Check rules** button tries to catch unsupported or unsafe definitions befo
 This is intentional. It is better to reject a rule clearly than to allow a variant that later breaks move input, game saving, analysis, clocks, spectators, or old game replays.
 
 If your definition is rejected, read the error message carefully. Often the solution is to simplify the rule, use a closer existing template, or ask for help in the PyChess community.
+
+Some Fairy-Stockfish rule names can also be confusing because they are only relevant to WinBoard/XBoard compatibility and are not used by PyChess itself. In particular, `variantTemplate`, `pieceToCharTable`, and `pocketSize` are WinBoard/XBoard-specific settings. PyChess does not use them for its browser UI, piece mapping, pockets, game saving, or multiplayer logic.
 
 ## Visibility: private, unlisted, public
 
@@ -227,22 +229,6 @@ Please do not publish many tiny test variants. Use private and unlisted visibili
 
 Because public game history must remain replayable, changing the rules of a public variant after saved games exist is not allowed. This is a feature, not a bug.
 
-## Tips for variant authors
-
-Start small. First make sure the board loads and legal moves work. Then add extra rules one by one.
-
-Use private AI games for quick checks. The AI can reveal obvious problems such as missing kings, impossible starts, broken promotions, or pieces that do not move as intended.
-
-Use unlisted visibility for early human feedback. Humans find different problems than engines: confusing graphics, unclear goals, boring openings, or rules that are technically legal but hard to understand.
-
-Make regions visible. If your rules use special zones, show them on the board.
-
-Use familiar pieces when possible. If your variant can use existing chess, shogi, xiangqi, or fairy-piece styles, players will learn it faster. Upload custom pieces when the existing styles are not expressive enough.
-
-Write a good description. A variant with clever rules but no explanation is hard for new players to try.
-
-When publishing a revised version, give it a new internal name. This avoids conflicts with already loaded runtime definitions and makes it clear which version people are playing.
-
 ## Frequently asked questions
 
 ### Can anonymous users play user-defined variants?
@@ -284,6 +270,8 @@ Please report issues on GitHub or Discord. When reporting a problem with a user-
 ## Thank you
 
 This feature is a big step toward making PyChess a place where the community can not only play variants, but also create them, test them, improve them, and share them.
+
+PyChess also reserves the right to suspend, hide, archive, or delete user-defined variants when necessary. This includes variants that cause Fairy-Stockfish crashes or stability problems, and variants that are clearly spam, trolling, abusive, or have no real value for other users. This is not meant to limit creative variant design; it is needed to keep the site stable and useful for the community.
 
 Have fun experimenting, and please publish only the variants you are ready for others to enjoy!
 
