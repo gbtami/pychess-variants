@@ -21,7 +21,7 @@ This does **not** mean that every possible chess-like game can be supported auto
 
 ## Where to start
 
-Go to **My variants** from your account menu. There you can upload, check, edit, clone, archive, delete, test, and decorate your own variants.
+Go to **My variants** from TOOLs menu. There you can upload, check, edit, clone, archive, delete, test, and decorate your own variants.
 
 The basic workflow is:
 
