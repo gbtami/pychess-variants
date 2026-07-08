@@ -35,13 +35,15 @@ import logging
 
 log = logging.getLogger(__name__)
 
-REQUIRED_FISHNET_VERSION = "1.16.59"
+REQUIRED_FISHNET_VERSION = "1.16.63"
 MOVE_WORK_TIME_OUT = 5.0
 ANALYSIS_WORK_TIME_OUT = 15 * 60.0
 FISHNET_ACTIVITY_TIMEOUT = 10 * 60.0
 ENGINE_CRASH_REASON = "engine_crash"
+ENGINE_TIMEOUT_REASON = "engine_timeout"
+ENGINE_FAILURE_REASONS = frozenset((ENGINE_CRASH_REASON, ENGINE_TIMEOUT_REASON))
 # Keep generic abort limits conservative so transient worker/network issues do not
-# adjudicate games too aggressively. Explicit engine crashes use a tighter limit.
+# adjudicate games too aggressively. Explicit engine failures use a tighter limit.
 MOVE_ABORT_LIMIT = 6
 MOVE_ENGINE_CRASH_LIMIT = 2
 ANALYSIS_ABORT_LIMIT = 4
@@ -179,15 +181,22 @@ def has_pending_analysis_work_for_game(app_state: PychessGlobalAppState, game_id
     )
 
 
+def _engine_failure_count(work: FishnetWork) -> int:
+    # engine_crash_count is kept as a fallback for work created by older server code.
+    return work.get("engine_failure_count", work.get("engine_crash_count", 0))
+
+
 def _is_terminal_abort(work: FishnetWork, abort_reason: str) -> bool:
     abort_count = work.get("abort_count", 0)
-    engine_crash_count = work.get("engine_crash_count", 0)
+    engine_failure_count = _engine_failure_count(work)
     if work["work"]["type"] == "move":
         return (abort_count >= MOVE_ABORT_LIMIT) or (
-            abort_reason == ENGINE_CRASH_REASON and engine_crash_count >= MOVE_ENGINE_CRASH_LIMIT
+            abort_reason in ENGINE_FAILURE_REASONS
+            and engine_failure_count >= MOVE_ENGINE_CRASH_LIMIT
         )
     return (abort_count >= ANALYSIS_ABORT_LIMIT) or (
-        abort_reason == ENGINE_CRASH_REASON and engine_crash_count >= ANALYSIS_ENGINE_CRASH_LIMIT
+        abort_reason in ENGINE_FAILURE_REASONS
+        and engine_failure_count >= ANALYSIS_ENGINE_CRASH_LIMIT
     )
 
 
@@ -204,11 +213,11 @@ async def _adjudicate_failing_move_work(
         return
 
     log.warning(
-        "Adjudicating move work %s as engine loss after repeated aborts (reason=%s, aborts=%s, crashes=%s)",
+        "Adjudicating move work %s as engine loss after repeated aborts (reason=%s, aborts=%s, engine_failures=%s)",
         work_id,
         abort_reason,
         work.get("abort_count", 0),
-        work.get("engine_crash_count", 0),
+        _engine_failure_count(work),
     )
 
     bot_user = app_state.users["Fairy-Stockfish"]
@@ -552,8 +561,10 @@ async def fishnet_abort(request: web.Request) -> web.Response:
 
     work["abort_count"] = work.get("abort_count", 0) + 1
     work["last_abort_reason"] = abort_reason
-    if abort_reason == ENGINE_CRASH_REASON:
-        work["engine_crash_count"] = work.get("engine_crash_count", 0) + 1
+    if abort_reason in ENGINE_FAILURE_REASONS:
+        work["engine_failure_count"] = _engine_failure_count(work) + 1
+        if abort_reason == ENGINE_CRASH_REASON:
+            work["engine_crash_count"] = work.get("engine_crash_count", 0) + 1
 
     if _is_terminal_abort(work, abort_reason):
         del app_state.fishnet_works[work_id]
@@ -561,11 +572,11 @@ async def fishnet_abort(request: web.Request) -> web.Response:
             await _adjudicate_failing_move_work(app_state, work_id, work, abort_reason)
         else:
             log.warning(
-                "Dropping analysis work %s after repeated aborts (reason=%s, aborts=%s, crashes=%s)",
+                "Dropping analysis work %s after repeated aborts (reason=%s, aborts=%s, engine_failures=%s)",
                 work_id,
                 abort_reason,
                 work.get("abort_count", 0),
-                work.get("engine_crash_count", 0),
+                _engine_failure_count(work),
             )
         if no_workers:
             app_state.users["Fairy-Stockfish"].online = False
