@@ -1,8 +1,16 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
 
 import fishnet
+from catalogued_variants import (
+    CATALOGUED_AI_FAILURE_LIMIT,
+    catalogued_variant_ai_disabled,
+    clear_catalogued_variant_ai_failures,
+    record_catalogued_variant_ai_failure,
+)
 
 
 def make_work(
@@ -84,6 +92,62 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
     def test_analysis_job_not_terminal_before_stale_reissue_limit(self) -> None:
         work = make_work("analysis", stale_reissues=fishnet.ANALYSIS_STALE_REISSUE_LIMIT - 1)
         self.assertFalse(fishnet._is_terminal_stale_reissue(work))
+
+    def test_fishnet_variants_ini_omits_ai_disabled_catalogued_docs(self) -> None:
+        app_state = SimpleNamespace(
+            catalogued_variants={
+                "badvariant": {
+                    "name": "badvariant",
+                    "enabled": True,
+                    "ini": "[badvariant]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1",
+                    "aiDisabledUntil": datetime.now(timezone.utc) + timedelta(hours=1),
+                },
+                "goodvariant": {
+                    "name": "goodvariant",
+                    "enabled": True,
+                    "ini": "[goodvariant]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1",
+                },
+            }
+        )
+
+        ini = fishnet.fishnet_variants_ini(app_state)
+
+        self.assertIn("[goodvariant]", ini)
+        self.assertNotIn("[badvariant]", ini)
+
+
+class CataloguedAiFailurePolicyTestCase(unittest.IsolatedAsyncioTestCase):
+    async def test_record_catalogued_ai_failure_disables_after_limit(self) -> None:
+        doc = {"name": "custom", "enabled": True}
+        app_state = SimpleNamespace(catalogued_variants={"custom": doc}, db=None)
+
+        for _ in range(CATALOGUED_AI_FAILURE_LIMIT - 1):
+            disabled = await record_catalogued_variant_ai_failure(
+                app_state, "custom", fishnet.ENGINE_TIMEOUT_REASON
+            )
+            self.assertFalse(disabled)
+            self.assertFalse(catalogued_variant_ai_disabled(doc))
+
+        disabled = await record_catalogued_variant_ai_failure(
+            app_state, "custom", fishnet.ENGINE_TIMEOUT_REASON
+        )
+
+        self.assertTrue(disabled)
+        self.assertTrue(catalogued_variant_ai_disabled(doc))
+
+    async def test_clear_catalogued_ai_failures_removes_quarantine_fields(self) -> None:
+        doc = {
+            "name": "custom",
+            "enabled": True,
+            "aiFailureCount": 3,
+            "aiDisabledUntil": datetime.now(timezone.utc) + timedelta(hours=1),
+        }
+        app_state = SimpleNamespace(catalogued_variants={"custom": doc}, db=None)
+
+        await clear_catalogued_variant_ai_failures(app_state, "custom")
+
+        self.assertNotIn("aiFailureCount", doc)
+        self.assertNotIn("aiDisabledUntil", doc)
 
 
 if __name__ == "__main__":

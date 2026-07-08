@@ -831,7 +831,7 @@ export class LobbyController implements ChatController {
         // Select Random-Mover but disable FSF play for "unsupported by FSF" variants
         if (this.createMode === 'playAI') {
             e = document.getElementById('rmplay') as HTMLInputElement;
-            if (unsupportedAiVariants.includes(variant.name)) {
+            if (unsupportedAiVariants.includes(variant.name) || variant.aiDisabled) {
                 e.checked = true;
                 e.disabled = true;
                 document.getElementById('ailevel')!.style.display = 'none';

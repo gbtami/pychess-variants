@@ -13,6 +13,7 @@ from bug.wsr_bug import handle_resign_bughouse, handle_rematch_bughouse, handle_
 import game
 from broadcast import round_broadcast
 from chat import chat_response
+from catalogued_variants import catalogued_variant_allows_fishnet
 from link_filter import sanitize_user_message
 from cheat_report import (
     CEVAL_REPORT_ACTION_AUTO_FORFEIT,
@@ -603,7 +604,11 @@ async def handle_analysis(
         log.warning("Dropped %s stale fishnet analysis work items", dropped_stale_work)
 
     # If there is any active fishnet client, use it.
-    if len(app_state.workers) > 0 and has_recent_fishnet_activity(app_state):
+    if (
+        len(app_state.workers) > 0
+        and has_recent_fishnet_activity(app_state)
+        and catalogued_variant_allows_fishnet(app_state, game.variant)
+    ):
         work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
         work = {
             "work": {
@@ -629,6 +634,14 @@ async def handle_analysis(
         app_state.fishnet_works[work_id] = work
         app_state.fishnet_queue.put_nowait((ANALYSIS, work_id))
         analysis_requested = True
+    elif len(app_state.workers) > 0 and not catalogued_variant_allows_fishnet(
+        app_state, game.variant
+    ):
+        log.warning(
+            "Skipping analysis request for %s because Fairy-Stockfish AI is temporarily disabled for variant %s",
+            game.id,
+            game.variant,
+        )
     elif len(app_state.workers) > 0:
         log.warning(
             "Skipping analysis request for %s because fishnet workers have been idle for too long",

@@ -10,6 +10,12 @@ from pathlib import Path
 from aiohttp import web
 
 from broadcast import round_broadcast
+from catalogued_variants import (
+    catalogued_variant_ai_disabled,
+    catalogued_variant_allows_fishnet,
+    clear_catalogued_variant_ai_failures,
+    record_catalogued_variant_ai_failure,
+)
 from const import ANALYSIS, MOVE, STARTED
 from typing_defs import (
     AnalysisStep,
@@ -42,7 +48,11 @@ FISHNET_ACTIVITY_TIMEOUT = 10 * 60.0
 ENGINE_CRASH_REASON = "engine_crash"
 ENGINE_TIMEOUT_REASON = "engine_timeout"
 STALE_WORK_TIMEOUT_REASON = "work_timeout"
+VARIANT_AI_DISABLED_REASON = "variant_ai_disabled"
 ENGINE_FAILURE_REASONS = frozenset((ENGINE_CRASH_REASON, ENGINE_TIMEOUT_REASON))
+CATALOGUED_QUARANTINE_REASONS = frozenset(
+    (ENGINE_CRASH_REASON, ENGINE_TIMEOUT_REASON, STALE_WORK_TIMEOUT_REASON)
+)
 # Keep generic abort limits conservative so transient worker/network issues do not
 # adjudicate games too aggressively. Explicit engine failures use a tighter limit.
 MOVE_ABORT_LIMIT = 6
@@ -65,7 +75,9 @@ def fishnet_variants_ini(app_state: PychessGlobalAppState) -> str:
     catalogued_ini = "\n\n".join(
         str(doc["ini"]).strip()
         for doc in sorted(catalogued_docs.values(), key=lambda item: str(item.get("name", "")))
-        if doc.get("enabled", True) and doc.get("ini")
+        if doc.get("enabled", True)
+        and doc.get("ini")
+        and not catalogued_variant_ai_disabled(doc)
     )
     return "\n\n".join(part.strip() for part in (base_ini, catalogued_ini) if part.strip()) + "\n"
 
@@ -222,6 +234,24 @@ def _is_terminal_abort(work: FishnetWork, abort_reason: str) -> bool:
     )
 
 
+def _work_variant_allows_fishnet(app_state: PychessGlobalAppState, work: FishnetWork) -> bool:
+    return catalogued_variant_allows_fishnet(app_state, str(work.get("variant") or ""))
+
+
+async def _record_terminal_catalogued_ai_failure(
+    app_state: PychessGlobalAppState,
+    work: FishnetWork,
+    failure_reason: str,
+) -> None:
+    if failure_reason not in CATALOGUED_QUARANTINE_REASONS:
+        return
+    await record_catalogued_variant_ai_failure(
+        app_state,
+        str(work.get("variant") or ""),
+        failure_reason,
+    )
+
+
 async def _adjudicate_failing_move_work(
     app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, failure_reason: str
 ) -> None:
@@ -259,6 +289,7 @@ async def _adjudicate_failing_move_work(
 async def _drop_terminal_work_failure(
     app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, failure_reason: str
 ) -> None:
+    await _record_terminal_catalogued_ai_failure(app_state, work, failure_reason)
     del app_state.fishnet_works[work_id]
     if work["work"]["type"] == "move":
         await _adjudicate_failing_move_work(app_state, work_id, work, failure_reason)
@@ -321,6 +352,16 @@ async def get_work(
         if work is None:
             log.debug("Skipping stale fishnet queue item %s", work_id)
             continue
+        if not _work_variant_allows_fishnet(app_state, work):
+            log.warning(
+                "Dropping fishnet work %s because AI is temporarily disabled for variant %s",
+                work_id,
+                work.get("variant"),
+            )
+            await _drop_terminal_work_failure(
+                app_state, work_id, work, VARIANT_AI_DISABLED_REASON
+            )
+            continue
 
         # Track the latest assignment time so timeout-based re-acquire does not
         # immediately recycle the same work while another worker is processing it.
@@ -379,6 +420,16 @@ async def get_work(
     # (in case when worker grabbed it from queue but not responded after timeout)
     now = monotonic()
     for work_id, work_item in tuple(app_state.fishnet_works.items()):
+        if not _work_variant_allows_fishnet(app_state, work_item):
+            log.warning(
+                "Dropping stale fishnet work %s because AI is temporarily disabled for variant %s",
+                work_id,
+                work_item.get("variant"),
+            )
+            await _drop_terminal_work_failure(
+                app_state, work_id, work_item, VARIANT_AI_DISABLED_REASON
+            )
+            continue
         if now - work_item["time"] <= _work_timeout(work_item):
             continue
 
@@ -534,6 +585,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     # remove completed work
     if all(data["analysis"]):
         del app_state.fishnet_works[work_id]
+        await clear_catalogued_variant_ai_failures(app_state, str(work.get("variant") or ""))
         new_data = {"a": [step["analysis"] for step in game.steps]}
         await app_state.db.game.find_one_and_update({"_id": game.id}, {"$set": new_data})
 
@@ -586,6 +638,8 @@ async def fishnet_move(request: web.Request) -> web.Response:
             await play_move(app_state, user, game, move)
     else:
         log.info("DISCARD FISHNET move %s", move)
+
+    await clear_catalogued_variant_ai_failures(app_state, str(work.get("variant") or ""))
 
     response = await get_work(app_state, data)
     return response

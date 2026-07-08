@@ -7,6 +7,7 @@ from time import monotonic
 
 import msgspec
 
+from catalogued_variants import catalogued_variant_allows_fishnet
 from const import MOVE, STARTED
 from fairy import WHITE
 
@@ -97,6 +98,14 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
                     async with game.move_lock:
                         await play_move(app_state, bot, game, random.choice(legal_moves))
                 elif len(app_state.workers) > 0:
+                    if not catalogued_variant_allows_fishnet(app_state, game.variant):
+                        log.warning(
+                            "Aborting bot game %s because Fairy-Stockfish AI is temporarily disabled for variant %s",
+                            game.id,
+                            game.variant,
+                        )
+                        await game.abort_by_server()
+                        break
                     AI_move(game, level)
             except Exception:
                 log.exception(

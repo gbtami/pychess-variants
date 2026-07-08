@@ -87,6 +87,7 @@ export interface Variant {
     readonly _tooltip: string;
     readonly tooltip: string;
     readonly chess960: boolean;
+    readonly aiDisabled: boolean;
     readonly twoBoards: boolean;
     readonly hiddenInfo: boolean;
     readonly hiddenInfoMode: HiddenInfoMode;
@@ -158,6 +159,7 @@ export function variant(config: VariantConfig): Variant {
         _tooltip: config.tooltip,
         get tooltip() { return _(this._tooltip) },
         chess960: !!config.chess960,
+        aiDisabled: !!config.aiDisabled,
         twoBoards: !!config.twoBoards,
         hiddenInfo: !!config.hiddenInfo,
         hiddenInfoMode: config.hiddenInfoMode ?? 'none',
@@ -248,6 +250,8 @@ interface VariantConfig {
     startFen: string;
     // Whether it is possible to play a randomized starting position (default: false)
     chess960?: boolean;
+    // Whether Fairy-Stockfish AI is temporarily disabled for this catalogued variant
+    aiDisabled?: boolean;
     // Pocket pieces are added from an external source, usually from a second board (e.g., bughouse)
     twoBoards?: boolean;
     // Whether some information must be hidden from one or more viewers
@@ -1344,6 +1348,9 @@ export interface CataloguedVariantClientDocument {
     readonly gameCount?: number;
     readonly locked?: boolean;
     readonly visibility?: 'private' | 'unlisted' | 'public';
+    readonly aiDisabled?: boolean;
+    readonly aiDisabledReason?: string;
+    readonly aiDisabledUntil?: string;
     readonly hasPieceSet?: boolean;
     readonly pieceSetRevision?: string;
     readonly hasBoard?: boolean;
@@ -1684,6 +1691,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         name: meta.name,
         displayName: meta.displayName || meta.name,
         tooltip: meta.tooltip || 'Catalogued variant',
+        aiDisabled: !!meta.aiDisabled,
         startFen: meta.startFen,
         icon: meta.icon || '◇',
         boardFamily,
