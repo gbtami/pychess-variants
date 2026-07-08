@@ -8,6 +8,7 @@ from time import monotonic
 import msgspec
 
 from catalogued_variants import catalogued_variant_allows_fishnet
+from fishnet import has_available_fishnet_worker
 from const import MOVE, STARTED
 from fairy import WHITE
 
@@ -97,7 +98,7 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
                         continue
                     async with game.move_lock:
                         await play_move(app_state, bot, game, random.choice(legal_moves))
-                elif len(app_state.workers) > 0:
+                elif has_available_fishnet_worker(app_state):
                     if not catalogued_variant_allows_fishnet(app_state, game.variant):
                         log.warning(
                             "Aborting bot game %s because Fairy-Stockfish AI is temporarily disabled for variant %s",
@@ -107,6 +108,13 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
                         await game.abort_by_server()
                         break
                     AI_move(game, level)
+                else:
+                    log.warning(
+                        "Aborting bot game %s because no recent Fairy-Stockfish worker is available",
+                        game.id,
+                    )
+                    await game.abort_by_server()
+                    break
             except Exception:
                 log.exception(
                     "Break in BOT_task() game_task(). %s BOT play_move/AI_move failed", game.id
@@ -185,8 +193,8 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
         if TYPE_CHECKING:
             assert isinstance(game, Game)
 
-        if len(app_state.workers) == 0 and not random_mover:
-            log.error("ERROR: No fairyfisnet worker alive!")
+        if not random_mover and not has_available_fishnet_worker(app_state):
+            log.error("ERROR: No recent fairyfishnet worker alive!")
             # TODO: send msg to player
             await game.abort_by_server()
             continue

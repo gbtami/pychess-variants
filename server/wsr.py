@@ -26,7 +26,7 @@ from draw import draw, reject_draw
 from fairy import WHITE, BLACK, FairyBoard
 from fishnet import (
     drop_stale_analysis_work,
-    has_recent_fishnet_activity,
+    has_available_fishnet_worker,
 )
 from newid import new_id
 
@@ -604,11 +604,9 @@ async def handle_analysis(
         log.warning("Dropped %s stale fishnet analysis work items", dropped_stale_work)
 
     # If there is any active fishnet client, use it.
-    if (
-        len(app_state.workers) > 0
-        and has_recent_fishnet_activity(app_state)
-        and catalogued_variant_allows_fishnet(app_state, game.variant)
-    ):
+    has_fishnet_worker = has_available_fishnet_worker(app_state)
+
+    if has_fishnet_worker and catalogued_variant_allows_fishnet(app_state, game.variant):
         work_id = "".join(random.choice(string.ascii_letters + string.digits) for x in range(6))
         work = {
             "work": {
@@ -634,15 +632,13 @@ async def handle_analysis(
         app_state.fishnet_works[work_id] = work
         app_state.fishnet_queue.put_nowait((ANALYSIS, work_id))
         analysis_requested = True
-    elif len(app_state.workers) > 0 and not catalogued_variant_allows_fishnet(
-        app_state, game.variant
-    ):
+    elif has_fishnet_worker and not catalogued_variant_allows_fishnet(app_state, game.variant):
         log.warning(
             "Skipping analysis request for %s because Fairy-Stockfish AI is temporarily disabled for variant %s",
             game.id,
             game.variant,
         )
-    elif len(app_state.workers) > 0:
+    elif has_fishnet_worker:
         log.warning(
             "Skipping analysis request for %s because fishnet workers have been idle for too long",
             game.id,

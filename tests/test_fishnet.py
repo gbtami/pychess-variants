@@ -151,7 +151,54 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
             )
         )
 
-    async def test_handle_analysis_with_stale_worker_keeps_bot_available(self):
+    def test_prune_stale_fishnet_workers_removes_stale_and_marks_offline(self):
+        engine = SimpleNamespace(online=True)
+        app_state = SimpleNamespace(
+            workers={"stale", "fresh"},
+            fishnet_worker_last_seen={"stale": 0.0, "fresh": 100.0},
+            fishnet_monitor=defaultdict(list),
+            users={"Fairy-Stockfish": engine},
+        )
+
+        with patch.dict(
+            fishnet.FISHNET_KEYS, {"stale": "stale-worker", "fresh": "fresh-worker"}, clear=True
+        ):
+            pruned = fishnet.prune_stale_fishnet_workers(
+                app_state, now=100.0 + fishnet.FISHNET_ACTIVITY_TIMEOUT - 1.0
+            )
+
+        self.assertEqual(pruned, 1)
+        self.assertEqual(app_state.workers, {"fresh"})
+        self.assertNotIn("stale", app_state.fishnet_worker_last_seen)
+        self.assertTrue(engine.online)
+        self.assertTrue(app_state.fishnet_monitor["stale-worker"])
+
+        pruned = fishnet.prune_stale_fishnet_workers(
+            app_state, now=100.0 + fishnet.FISHNET_ACTIVITY_TIMEOUT + 1.0
+        )
+
+        self.assertEqual(pruned, 1)
+        self.assertEqual(app_state.workers, set())
+        self.assertFalse(engine.online)
+
+    def test_has_available_fishnet_worker_prunes_before_answering(self):
+        engine = SimpleNamespace(online=True)
+        app_state = SimpleNamespace(
+            workers={"k"},
+            fishnet_worker_last_seen={"k": 0.0},
+            fishnet_monitor=defaultdict(list),
+            users={"Fairy-Stockfish": engine},
+        )
+
+        self.assertFalse(
+            fishnet.has_available_fishnet_worker(
+                app_state, now=fishnet.FISHNET_ACTIVITY_TIMEOUT + 1.0
+            )
+        )
+        self.assertEqual(app_state.workers, set())
+        self.assertFalse(engine.online)
+
+    async def test_handle_analysis_with_stale_worker_prunes_worker(self):
         game = SimpleNamespace(
             id="g1",
             steps=[],
@@ -165,6 +212,7 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
             users={"Fairy-Stockfish": engine},
             workers={"k"},
             fishnet_worker_last_seen={"k": 0.0},
+            fishnet_monitor=defaultdict(list),
             fishnet_works={},
             fishnet_queue=asyncio.PriorityQueue(),
         )
@@ -174,13 +222,13 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch("wsr.ws_send_json", new=ws_send_json),
-            patch("wsr.has_recent_fishnet_activity", return_value=False),
+            patch("fishnet.monotonic", return_value=fishnet.FISHNET_ACTIVITY_TIMEOUT + 1.0),
             patch("wsr.log"),
         ):
             await wsr.handle_analysis(app_state, ws, data, game)
 
-        self.assertTrue(engine.online)
-        self.assertEqual(app_state.workers, {"k"})
+        self.assertFalse(engine.online)
+        self.assertEqual(app_state.workers, set())
         self.assertEqual(app_state.fishnet_works, {})
         self.assertEqual(engine.event_queue.qsize(), 0)
         self.assertEqual(ws_send_json.await_count, 1)

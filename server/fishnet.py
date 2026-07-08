@@ -297,16 +297,55 @@ def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | N
     return len(stale_ids)
 
 
+def _fishnet_worker_is_recent(
+    app_state: PychessGlobalAppState, key: str, now: float
+) -> bool:
+    return now - app_state.fishnet_worker_last_seen.get(key, 0.0) <= FISHNET_ACTIVITY_TIMEOUT
+
+
+def prune_stale_fishnet_workers(
+    app_state: PychessGlobalAppState, *, now: float | None = None
+) -> int:
+    if now is None:
+        now = monotonic()
+
+    stale_keys = [
+        key
+        for key in tuple(app_state.workers)
+        if not _fishnet_worker_is_recent(app_state, key, now)
+    ]
+    monitor = getattr(app_state, "fishnet_monitor", None)
+    for key in stale_keys:
+        app_state.workers.discard(key)
+        app_state.fishnet_worker_last_seen.pop(key, None)
+        worker = FISHNET_KEYS.get(key, key)
+        if monitor is not None:
+            monitor[worker].append(
+                "%s %s %s" % (datetime.now(timezone.utc), "-", "timed out")
+            )
+
+    if stale_keys and len(app_state.workers) == 0:
+        users = app_state.users
+        if "Fairy-Stockfish" in users:
+            users["Fairy-Stockfish"].online = False
+
+    return len(stale_keys)
+
+
 def has_recent_fishnet_activity(
     app_state: PychessGlobalAppState, *, now: float | None = None
 ) -> bool:
     if now is None:
         now = monotonic()
 
-    return any(
-        now - app_state.fishnet_worker_last_seen.get(key, 0.0) <= FISHNET_ACTIVITY_TIMEOUT
-        for key in app_state.workers
-    )
+    return any(_fishnet_worker_is_recent(app_state, key, now) for key in app_state.workers)
+
+
+def has_available_fishnet_worker(
+    app_state: PychessGlobalAppState, *, now: float | None = None
+) -> bool:
+    prune_stale_fishnet_workers(app_state, now=now)
+    return len(app_state.workers) > 0
 
 
 def has_pending_analysis_work_for_game(app_state: PychessGlobalAppState, game_id: str) -> bool:
