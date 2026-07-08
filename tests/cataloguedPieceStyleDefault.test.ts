@@ -10,7 +10,14 @@ import {
     VARIANTS,
 } from '../client/variants';
 
-const variantNames = ['testbuiltindefault', 'testlettersdefault', 'testcustomdefault', 'testpromotedkingroles'];
+const variantNames = [
+    'testbuiltindefault',
+    'testlettersdefault',
+    'testcustomdefault',
+    'testcustompiecelettersdefault',
+    'testpromotedcustomdefault',
+    'testpromotedkingroles',
+];
 
 function register(meta: CataloguedVariantClientDocument) {
     registerCataloguedVariant(meta);
@@ -78,6 +85,65 @@ test('catalogued variants with a custom piece set still default to that custom s
     });
 
     expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('custom-r1');
+});
+
+test('catalogued variants needing custom piece roles default to letters instead of matching by role letter only', () => {
+    const meta: CataloguedVariantClientDocument = {
+        name: 'testcustompiecelettersdefault',
+        displayName: 'Test Custom Piece Letters Default',
+        tooltip: 'Catalogued variant',
+        ini: `[testcustompiecelettersdefault]
+pawn = p
+knight = n
+customPiece1 = e:FA
+rook = r
+customPiece2 = g:BWD
+king = k
+promotionPieceTypes = gren
+doubleStep = false
+castling = false
+stalemateValue = loss`,
+        startFen: 'rnegkenr/pppppppp/8/8/8/8/PPPPPPPP/RNEGKENR w - - 0 1',
+        width: 8,
+        height: 8,
+        pieces: ['k', 'r', 'n', 'p', 'e', 'g'],
+        kingRoles: ['k'],
+        promotionType: 'regular',
+        promotionRoles: ['p'],
+        promotionOrder: ['g', 'r', 'e', 'n'],
+    };
+    const variant = register(meta);
+
+    expect(cataloguedCompatiblePieceFamily(meta, { ignoreCustomPieceSet: true })).toBeUndefined();
+    expect(variant.pieceFamily).toBe(`catalogued-${variant.name}`);
+    expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('letters');
+});
+
+test('catalogued variants with custom promoted target pieces default to letters', () => {
+    const meta: CataloguedVariantClientDocument = {
+        name: 'testpromotedcustomdefault',
+        displayName: 'Test Promoted Custom Default',
+        tooltip: 'Catalogued variant',
+        ini: `[testpromotedcustomdefault]
+king = k
+pawn = p
+customPiece1 = z:WAD
+promotedPieceType = p:z`,
+        startFen: '8/8/8/8/8/8/P7/K6k w - - 0 1',
+        width: 8,
+        height: 8,
+        pieces: ['k', 'p'],
+        kingRoles: ['k'],
+        promotionType: 'shogi',
+        promotionRoles: ['p'],
+        promotionOrder: ['+', ''],
+        showPromoted: true,
+    };
+    const variant = register(meta);
+
+    expect(cataloguedCompatiblePieceFamily(meta, { ignoreCustomPieceSet: true })).toBeUndefined();
+    expect(variant.pieceFamily).toBe(`catalogued-${variant.name}`);
+    expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('letters');
 });
 
 test('catalogued variants mark shogi-style promoted kings as king roles', () => {
