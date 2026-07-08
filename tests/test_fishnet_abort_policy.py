@@ -19,6 +19,7 @@ def make_work(
     crashes: int = 0,
     failures: int | None = None,
     stale_reissues: int = 0,
+    move_failures: int = 0,
 ) -> fishnet.FishnetWork:
     work: fishnet.FishnetWork = {
         "work": {"type": work_type, "id": "abc123"},
@@ -31,6 +32,7 @@ def make_work(
         "abort_count": aborts,
         "engine_crash_count": crashes,
         "stale_reissue_count": stale_reissues,
+        "move_failure_count": move_failures,
     }
     if failures is not None:
         work["engine_failure_count"] = failures
@@ -72,6 +74,35 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
     def test_move_job_not_terminal_before_stale_reissue_limit(self) -> None:
         work = make_work("move", stale_reissues=fishnet.MOVE_STALE_REISSUE_LIMIT - 1)
         self.assertFalse(fishnet._is_terminal_stale_reissue(work))
+
+    def test_move_job_terminal_on_invalid_move_limit(self) -> None:
+        work = make_work("move", move_failures=fishnet.MOVE_INVALID_MOVE_LIMIT)
+        self.assertTrue(fishnet._is_terminal_invalid_move(work))
+
+    def test_move_job_not_terminal_before_invalid_move_limit(self) -> None:
+        work = make_work("move", move_failures=fishnet.MOVE_INVALID_MOVE_LIMIT - 1)
+        self.assertFalse(fishnet._is_terminal_invalid_move(work))
+
+    def test_fishnet_bestmove_rejects_empty_or_none_move(self) -> None:
+        self.assertIsNone(
+            fishnet._fishnet_bestmove({"fishnet": {"apikey": "k"}, "move": {"bestmove": ""}})
+        )
+        self.assertIsNone(
+            fishnet._fishnet_bestmove(
+                {"fishnet": {"apikey": "k"}, "move": {"bestmove": "(none)"}}
+            )
+        )
+        self.assertIsNone(
+            fishnet._fishnet_bestmove({"fishnet": {"apikey": "k"}, "move": {"bestmove": None}})
+        )
+
+    def test_fishnet_bestmove_strips_valid_move(self) -> None:
+        self.assertEqual(
+            fishnet._fishnet_bestmove(
+                {"fishnet": {"apikey": "k"}, "move": {"bestmove": " e2e4 "}}
+            ),
+            "e2e4",
+        )
 
     def test_analysis_job_terminal_on_engine_crash_limit(self) -> None:
         work = make_work("analysis", aborts=2, failures=fishnet.ANALYSIS_ENGINE_CRASH_LIMIT)

@@ -17,7 +17,7 @@ from catalogued_variants import (
     record_catalogued_variant_ai_failure,
     extract_variant_base_name,
 )
-from const import ANALYSIS, MOVE, STARTED
+from const import ANALYSIS, INVALIDMOVE, MOVE, STARTED
 from typing_defs import (
     AnalysisStep,
     FishnetAbortPayload,
@@ -49,10 +49,16 @@ FISHNET_ACTIVITY_TIMEOUT = 10 * 60.0
 ENGINE_CRASH_REASON = "engine_crash"
 ENGINE_TIMEOUT_REASON = "engine_timeout"
 STALE_WORK_TIMEOUT_REASON = "work_timeout"
+INVALID_FISHNET_MOVE_REASON = "invalid_move"
 VARIANT_AI_DISABLED_REASON = "variant_ai_disabled"
 ENGINE_FAILURE_REASONS = frozenset((ENGINE_CRASH_REASON, ENGINE_TIMEOUT_REASON))
 CATALOGUED_QUARANTINE_REASONS = frozenset(
-    (ENGINE_CRASH_REASON, ENGINE_TIMEOUT_REASON, STALE_WORK_TIMEOUT_REASON)
+    (
+        ENGINE_CRASH_REASON,
+        ENGINE_TIMEOUT_REASON,
+        STALE_WORK_TIMEOUT_REASON,
+        INVALID_FISHNET_MOVE_REASON,
+    )
 )
 # Keep generic abort limits conservative so transient worker/network issues do not
 # adjudicate games too aggressively. Explicit engine failures use a tighter limit.
@@ -65,6 +71,11 @@ ANALYSIS_ENGINE_CRASH_LIMIT = 2
 # separately so a dead worker/process cannot make the same job circulate forever.
 MOVE_STALE_REISSUE_LIMIT = 6
 ANALYSIS_STALE_REISSUE_LIMIT = 2
+# A fishnet move failure means the worker returned a malformed/empty move or the
+# backend rejected the returned move before it could be applied safely. Retry a
+# small number of times before adjudicating the game and recording a catalogued
+# variant AI failure.
+MOVE_INVALID_MOVE_LIMIT = 2
 
 
 FISHNET_VARIANTS_PAYLOAD_CACHE_SIZE = 128
@@ -360,6 +371,32 @@ def _engine_failure_count(work: FishnetWork) -> int:
     return work.get("engine_failure_count", work.get("engine_crash_count", 0))
 
 
+def _invalid_move_count(work: FishnetWork) -> int:
+    return work.get("move_failure_count", 0)
+
+
+def _is_terminal_invalid_move(work: FishnetWork) -> bool:
+    return _invalid_move_count(work) >= MOVE_INVALID_MOVE_LIMIT
+
+
+def _fishnet_bestmove(data: FishnetMovePayload) -> str | None:
+    # Be defensive at the HTTP boundary even though normal fairyfishnet clients
+    # send the typed shape. A crashed/buggy worker or future protocol change must
+    # not turn into a backend 500 or lose the work item.
+    move_info = data.get("move")
+    if not isinstance(move_info, dict):
+        return None
+
+    bestmove = move_info.get("bestmove")
+    if not isinstance(bestmove, str):
+        return None
+
+    bestmove = bestmove.strip()
+    if not bestmove or bestmove == "(none)":
+        return None
+    return bestmove
+
+
 def _stale_reissue_limit(work: FishnetWork) -> int:
     return (
         ANALYSIS_STALE_REISSUE_LIMIT
@@ -459,6 +496,37 @@ async def _drop_terminal_work_failure(
             _engine_failure_count(work),
             _stale_reissue_count(work),
         )
+
+
+async def _handle_invalid_fishnet_move(
+    app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, detail: str
+) -> None:
+    work["move_failure_count"] = _invalid_move_count(work) + 1
+    work["last_abort_reason"] = INVALID_FISHNET_MOVE_REASON
+
+    if _is_terminal_invalid_move(work):
+        log.warning(
+            "Dropping fishnet move work %s after repeated invalid moves "
+            "(failures=%s, detail=%s)",
+            work_id,
+            _invalid_move_count(work),
+            detail,
+        )
+        await _drop_terminal_work_failure(
+            app_state, work_id, work, INVALID_FISHNET_MOVE_REASON
+        )
+        return
+
+    log.warning(
+        "Requeueing fishnet move work %s after invalid move response "
+        "(failures=%s/%s, detail=%s)",
+        work_id,
+        _invalid_move_count(work),
+        MOVE_INVALID_MOVE_LIMIT,
+        detail,
+    )
+    work["time"] = monotonic()
+    app_state.fishnet_queue.put_nowait((_work_priority(work), work_id))
 
 
 async def _read_fishnet_json(request: web.Request) -> tuple[object | None, int | None]:
@@ -775,26 +843,53 @@ async def fishnet_move(request: web.Request) -> web.Response:
     work: FishnetWork = app_state.fishnet_works[work_id]
     gameId = work["game_id"]
 
-    # remove work from works
-    del app_state.fishnet_works[work_id]
+    move = _fishnet_bestmove(data)
+    if move is None:
+        await _handle_invalid_fishnet_move(
+            app_state, work_id, work, "missing or empty bestmove"
+        )
+        return web.Response(status=204)
 
     game = await load_game(app_state, gameId)
     if game is None:
+        # The game disappeared while the worker was thinking; this work can no
+        # longer be applied, but it is not an engine/variant failure.
+        app_state.fishnet_works.pop(work_id, None)
         return web.Response(status=204)
     if TYPE_CHECKING:
         assert isinstance(game, Game)
 
     user = app_state.users["Fairy-Stockfish"]
-    move = data["move"]["bestmove"]
-    fen = data["move"].get("fen")
+    fen = data.get("move", {}).get("fen")
 
-    # Allow to make fishnet move if no takeback changed the current FEN
+    # Allow to make fishnet move if no takeback changed the current FEN. Keep the
+    # work item until play_move() returns safely, so unexpected backend-side move
+    # rejection does not silently lose the pending job.
     if fen is None or fen == game.board.fen:
-        async with game.move_lock:
-            await play_move(app_state, user, game, move)
+        try:
+            async with game.move_lock:
+                await play_move(app_state, user, game, move)
+        except Exception:
+            log.exception(
+                "Fishnet move %s for work %s failed while being applied",
+                move,
+                work_id,
+            )
+            await _handle_invalid_fishnet_move(
+                app_state, work_id, work, "play_move raised"
+            )
+            return web.Response(status=204)
+
+        if game.status == INVALIDMOVE:
+            app_state.fishnet_works.pop(work_id, None)
+            await _record_terminal_catalogued_ai_failure(
+                app_state, work, INVALID_FISHNET_MOVE_REASON
+            )
+            return web.Response(status=204)
     else:
         log.info("DISCARD FISHNET move %s", move)
 
+    app_state.fishnet_works.pop(work_id, None)
     await clear_catalogued_variant_ai_failures(app_state, str(work.get("variant") or ""))
 
     response = await get_work(app_state, data)

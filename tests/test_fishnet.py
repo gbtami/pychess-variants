@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from aiohttp import web
 
+from typedefs import pychess_global_app_state_key
 import fishnet
 from fishnet import _read_fishnet_json, _winning_chances
 import wsr
@@ -111,6 +112,102 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(response.status, 204)
         self.assertNotIn("work123", app_state.fishnet_works)
+
+    async def test_fishnet_move_play_move_exception_requeues_without_deleting_work(self):
+        work = {
+            "work": {"type": "move", "id": "work123", "level": 1},
+            "game_id": "g1",
+            "position": "startpos",
+            "variant": "chess",
+            "chess960": False,
+            "moves": "",
+            "nnue": True,
+            "time": 100.0,
+        }
+        app_state = SimpleNamespace(
+            fishnet_monitor=defaultdict(list, {"worker1": []}),
+            fishnet_queue=asyncio.PriorityQueue(),
+            fishnet_works={"work123": work},
+            workers={"k"},
+            fishnet_worker_last_seen={"k": 100.0},
+            users={"Fairy-Stockfish": SimpleNamespace(online=True)},
+            catalogued_variants={},
+        )
+        game = SimpleNamespace(
+            id="g1",
+            status=fishnet.STARTED,
+            board=SimpleNamespace(fen="fen"),
+            move_lock=asyncio.Lock(),
+        )
+        request = cast(web.Request, AsyncMock())
+        request.match_info = {"workId": "work123"}
+        request.app = {pychess_global_app_state_key: app_state}
+        request.rel_url = SimpleNamespace(path="/fishnet/move/work123")
+        request.remote = "10.1.1.1"
+        request.json = AsyncMock(
+            return_value={
+                "fishnet": {"apikey": "k"},
+                "move": {"bestmove": "e2e4", "fen": "fen"},
+            }
+        )
+
+        with (
+            patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True),
+            patch("fishnet.load_game", AsyncMock(return_value=game)),
+            patch("fishnet.play_move", AsyncMock(side_effect=RuntimeError("boom"))),
+            patch("fishnet.monotonic", return_value=101.0),
+        ):
+            response = await fishnet.fishnet_move(request)
+
+        self.assertEqual(response.status, 204)
+        self.assertIn("work123", app_state.fishnet_works)
+        self.assertEqual(app_state.fishnet_works["work123"]["move_failure_count"], 1)
+        self.assertEqual(app_state.fishnet_queue.qsize(), 1)
+
+    async def test_fishnet_move_malformed_bestmove_requeues_without_loading_game(self):
+        work = {
+            "work": {"type": "move", "id": "work123", "level": 1},
+            "game_id": "g1",
+            "position": "startpos",
+            "variant": "chess",
+            "chess960": False,
+            "moves": "",
+            "nnue": True,
+            "time": 100.0,
+        }
+        app_state = SimpleNamespace(
+            fishnet_monitor=defaultdict(list, {"worker1": []}),
+            fishnet_queue=asyncio.PriorityQueue(),
+            fishnet_works={"work123": work},
+            workers={"k"},
+            fishnet_worker_last_seen={"k": 100.0},
+            users={"Fairy-Stockfish": SimpleNamespace(online=True)},
+            catalogued_variants={},
+        )
+        request = cast(web.Request, AsyncMock())
+        request.match_info = {"workId": "work123"}
+        request.app = {pychess_global_app_state_key: app_state}
+        request.rel_url = SimpleNamespace(path="/fishnet/move/work123")
+        request.remote = "10.1.1.1"
+        request.json = AsyncMock(
+            return_value={
+                "fishnet": {"apikey": "k"},
+                "move": {"bestmove": None, "fen": "fen"},
+            }
+        )
+
+        with (
+            patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True),
+            patch("fishnet.load_game", AsyncMock()) as load_game,
+            patch("fishnet.monotonic", return_value=101.0),
+        ):
+            response = await fishnet.fishnet_move(request)
+
+        self.assertEqual(response.status, 204)
+        load_game.assert_not_awaited()
+        self.assertIn("work123", app_state.fishnet_works)
+        self.assertEqual(app_state.fishnet_works["work123"]["move_failure_count"], 1)
+        self.assertEqual(app_state.fishnet_queue.qsize(), 1)
 
     def test_drop_stale_analysis_work_removes_only_old_analysis(self):
         app_state = SimpleNamespace(

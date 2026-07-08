@@ -314,6 +314,7 @@ class FishnetWork(TypedDict):
     variantsScope: NotRequired[str]
     abort_count: NotRequired[int]
     stale_reissue_count: NotRequired[int]
+    move_failure_count: NotRequired[int]
     engine_failure_count: NotRequired[int]
     engine_crash_count: NotRequired[int]
     last_abort_reason: NotRequired[str]
