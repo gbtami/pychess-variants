@@ -720,10 +720,7 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
         return web.Response(status=404)
     if not _fishnet_version_is_supported(version):
         return json_response(
-            {
-                "error": "Fishnet %s is too old. Please restart fishnet to upgrade."
-                % version
-            },
+            {"error": "Fishnet %s is too old. Please restart fishnet to upgrade." % version},
             status=426,
         )
 
