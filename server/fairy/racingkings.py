@@ -963,3 +963,4 @@ RACINGKINGS_FENS = (
 "8/8/8/8/8/8/nkrrRRKN/bnqbBQNB",
 "8/8/8/8/8/8/nnrrRRNN/qkbbBBKQ",
 "8/8/8/8/8/8/nkrrRRKN/nqbbBBQN",
+)
