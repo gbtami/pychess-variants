@@ -78,6 +78,39 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(response.status, 202)
         self.assertIn("work123", response.text)
+        self.assertEqual(app_state.fishnet_works["work123"]["stale_reissue_count"], 1)
+
+    async def test_get_work_drops_stale_analysis_after_reissue_limit(self):
+        app_state = SimpleNamespace(
+            fishnet_monitor=defaultdict(list, {"worker1": []}),
+            fishnet_queue=asyncio.PriorityQueue(),
+            fishnet_works={
+                "work123": {
+                    "work": {"type": "analysis", "id": "work123"},
+                    "game_id": "g1",
+                    "position": "startpos",
+                    "variant": "chess",
+                    "chess960": False,
+                    "moves": "",
+                    "nnue": True,
+                    "time": 0.0,
+                    "stale_reissue_count": fishnet.ANALYSIS_STALE_REISSUE_LIMIT - 1,
+                }
+            },
+            workers={"k"},
+            fishnet_worker_last_seen={"k": 100.0},
+            users={"Fairy-Stockfish": SimpleNamespace(online=True)},
+        )
+        payload = {"fishnet": {"apikey": "k"}}
+
+        with (
+            patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True),
+            patch("fishnet.monotonic", return_value=fishnet.ANALYSIS_WORK_TIME_OUT + 100.0),
+        ):
+            response = await fishnet.get_work(app_state, payload)
+
+        self.assertEqual(response.status, 204)
+        self.assertNotIn("work123", app_state.fishnet_works)
 
     def test_drop_stale_analysis_work_removes_only_old_analysis(self):
         app_state = SimpleNamespace(

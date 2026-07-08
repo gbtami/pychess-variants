@@ -41,6 +41,7 @@ ANALYSIS_WORK_TIME_OUT = 15 * 60.0
 FISHNET_ACTIVITY_TIMEOUT = 10 * 60.0
 ENGINE_CRASH_REASON = "engine_crash"
 ENGINE_TIMEOUT_REASON = "engine_timeout"
+STALE_WORK_TIMEOUT_REASON = "work_timeout"
 ENGINE_FAILURE_REASONS = frozenset((ENGINE_CRASH_REASON, ENGINE_TIMEOUT_REASON))
 # Keep generic abort limits conservative so transient worker/network issues do not
 # adjudicate games too aggressively. Explicit engine failures use a tighter limit.
@@ -48,6 +49,11 @@ MOVE_ABORT_LIMIT = 6
 MOVE_ENGINE_CRASH_LIMIT = 2
 ANALYSIS_ABORT_LIMIT = 4
 ANALYSIS_ENGINE_CRASH_LIMIT = 2
+# A stale reissue means fishnet acquired the job, but the backend did not receive
+# a move, analysis update, or explicit abort before the work timeout. Count these
+# separately so a dead worker/process cannot make the same job circulate forever.
+MOVE_STALE_REISSUE_LIMIT = 6
+ANALYSIS_STALE_REISSUE_LIMIT = 2
 
 
 def fishnet_variants_ini(app_state: PychessGlobalAppState) -> str:
@@ -186,6 +192,22 @@ def _engine_failure_count(work: FishnetWork) -> int:
     return work.get("engine_failure_count", work.get("engine_crash_count", 0))
 
 
+def _stale_reissue_limit(work: FishnetWork) -> int:
+    return (
+        ANALYSIS_STALE_REISSUE_LIMIT
+        if work["work"]["type"] == "analysis"
+        else MOVE_STALE_REISSUE_LIMIT
+    )
+
+
+def _stale_reissue_count(work: FishnetWork) -> int:
+    return work.get("stale_reissue_count", 0)
+
+
+def _is_terminal_stale_reissue(work: FishnetWork) -> bool:
+    return _stale_reissue_count(work) >= _stale_reissue_limit(work)
+
+
 def _is_terminal_abort(work: FishnetWork, abort_reason: str) -> bool:
     abort_count = work.get("abort_count", 0)
     engine_failure_count = _engine_failure_count(work)
@@ -201,7 +223,7 @@ def _is_terminal_abort(work: FishnetWork, abort_reason: str) -> bool:
 
 
 async def _adjudicate_failing_move_work(
-    app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, abort_reason: str
+    app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, failure_reason: str
 ) -> None:
     game = await load_game(app_state, work["game_id"])
     if game is None:
@@ -213,11 +235,13 @@ async def _adjudicate_failing_move_work(
         return
 
     log.warning(
-        "Adjudicating move work %s as engine loss after repeated aborts (reason=%s, aborts=%s, engine_failures=%s)",
+        "Adjudicating move work %s as engine loss after repeated fishnet failures "
+        "(reason=%s, aborts=%s, engine_failures=%s, stale_reissues=%s)",
         work_id,
-        abort_reason,
+        failure_reason,
         work.get("abort_count", 0),
         _engine_failure_count(work),
+        _stale_reissue_count(work),
     )
 
     bot_user = app_state.users["Fairy-Stockfish"]
@@ -230,6 +254,24 @@ async def _adjudicate_failing_move_work(
             await player.game_queues[game.id].put(game.game_end)
 
     await round_broadcast(game, response, full=True)
+
+
+async def _drop_terminal_work_failure(
+    app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, failure_reason: str
+) -> None:
+    del app_state.fishnet_works[work_id]
+    if work["work"]["type"] == "move":
+        await _adjudicate_failing_move_work(app_state, work_id, work, failure_reason)
+    else:
+        log.warning(
+            "Dropping analysis work %s after repeated fishnet failures "
+            "(reason=%s, aborts=%s, engine_failures=%s, stale_reissues=%s)",
+            work_id,
+            failure_reason,
+            work.get("abort_count", 0),
+            _engine_failure_count(work),
+            _stale_reissue_count(work),
+        )
 
 
 async def _read_fishnet_json(request: web.Request) -> tuple[object | None, int | None]:
@@ -336,20 +378,45 @@ async def get_work(
     # Now let see are there any long time pending work in app[fishnet_works_key]
     # (in case when worker grabbed it from queue but not responded after timeout)
     now = monotonic()
-    for work_id, work_item in app_state.fishnet_works.items():
-        if now - work_item["time"] > _work_timeout(work_item):
+    for work_id, work_item in tuple(app_state.fishnet_works.items()):
+        if now - work_item["time"] <= _work_timeout(work_item):
+            continue
+
+        work_item["stale_reissue_count"] = _stale_reissue_count(work_item) + 1
+        work_item["last_abort_reason"] = STALE_WORK_TIMEOUT_REASON
+        if _is_terminal_stale_reissue(work_item):
             fm[worker].append(
                 "%s %s %s %s"
                 % (
                     datetime.now(timezone.utc),
                     work_id,
-                    "request",
-                    "%s AGAIN" % work_item["work"]["type"],
+                    "drop",
+                    "%s after %s stale reissues"
+                    % (work_item["work"]["type"], _stale_reissue_count(work_item)),
                 )
             )
-            work_item["time"] = now
-            _attach_variants_hash(app_state, work_item)
-            return json_response(work_item, status=202)
+            await _drop_terminal_work_failure(
+                app_state, work_id, work_item, STALE_WORK_TIMEOUT_REASON
+            )
+            continue
+
+        fm[worker].append(
+            "%s %s %s %s"
+            % (
+                datetime.now(timezone.utc),
+                work_id,
+                "request",
+                "%s AGAIN (%s/%s)"
+                % (
+                    work_item["work"]["type"],
+                    _stale_reissue_count(work_item),
+                    _stale_reissue_limit(work_item),
+                ),
+            )
+        )
+        work_item["time"] = now
+        _attach_variants_hash(app_state, work_item)
+        return json_response(work_item, status=202)
     return web.Response(status=204)
 
 
@@ -567,17 +634,7 @@ async def fishnet_abort(request: web.Request) -> web.Response:
             work["engine_crash_count"] = work.get("engine_crash_count", 0) + 1
 
     if _is_terminal_abort(work, abort_reason):
-        del app_state.fishnet_works[work_id]
-        if work["work"]["type"] == "move":
-            await _adjudicate_failing_move_work(app_state, work_id, work, abort_reason)
-        else:
-            log.warning(
-                "Dropping analysis work %s after repeated aborts (reason=%s, aborts=%s, engine_failures=%s)",
-                work_id,
-                abort_reason,
-                work.get("abort_count", 0),
-                _engine_failure_count(work),
-            )
+        await _drop_terminal_work_failure(app_state, work_id, work, abort_reason)
         if no_workers:
             app_state.users["Fairy-Stockfish"].online = False
         return web.Response(status=204)

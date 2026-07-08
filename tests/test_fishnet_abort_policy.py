@@ -6,7 +6,11 @@ import fishnet
 
 
 def make_work(
-    work_type: str, aborts: int = 0, crashes: int = 0, failures: int | None = None
+    work_type: str,
+    aborts: int = 0,
+    crashes: int = 0,
+    failures: int | None = None,
+    stale_reissues: int = 0,
 ) -> fishnet.FishnetWork:
     work: fishnet.FishnetWork = {
         "work": {"type": work_type, "id": "abc123"},
@@ -18,6 +22,7 @@ def make_work(
         "nnue": True,
         "abort_count": aborts,
         "engine_crash_count": crashes,
+        "stale_reissue_count": stale_reissues,
     }
     if failures is not None:
         work["engine_failure_count"] = failures
@@ -52,6 +57,14 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
         work = make_work("move", aborts=fishnet.MOVE_ABORT_LIMIT, crashes=0)
         self.assertTrue(fishnet._is_terminal_abort(work, "unknown"))
 
+    def test_move_job_terminal_on_stale_reissue_limit(self) -> None:
+        work = make_work("move", stale_reissues=fishnet.MOVE_STALE_REISSUE_LIMIT)
+        self.assertTrue(fishnet._is_terminal_stale_reissue(work))
+
+    def test_move_job_not_terminal_before_stale_reissue_limit(self) -> None:
+        work = make_work("move", stale_reissues=fishnet.MOVE_STALE_REISSUE_LIMIT - 1)
+        self.assertFalse(fishnet._is_terminal_stale_reissue(work))
+
     def test_analysis_job_terminal_on_engine_crash_limit(self) -> None:
         work = make_work("analysis", aborts=2, failures=fishnet.ANALYSIS_ENGINE_CRASH_LIMIT)
         self.assertTrue(fishnet._is_terminal_abort(work, fishnet.ENGINE_CRASH_REASON))
@@ -63,6 +76,14 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
     def test_analysis_job_terminal_on_generic_abort_limit(self) -> None:
         work = make_work("analysis", aborts=fishnet.ANALYSIS_ABORT_LIMIT, crashes=0)
         self.assertTrue(fishnet._is_terminal_abort(work, "unknown"))
+
+    def test_analysis_job_terminal_on_stale_reissue_limit(self) -> None:
+        work = make_work("analysis", stale_reissues=fishnet.ANALYSIS_STALE_REISSUE_LIMIT)
+        self.assertTrue(fishnet._is_terminal_stale_reissue(work))
+
+    def test_analysis_job_not_terminal_before_stale_reissue_limit(self) -> None:
+        work = make_work("analysis", stale_reissues=fishnet.ANALYSIS_STALE_REISSUE_LIMIT - 1)
+        self.assertFalse(fishnet._is_terminal_stale_reissue(work))
 
 
 if __name__ == "__main__":
