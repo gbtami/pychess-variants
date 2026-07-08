@@ -283,15 +283,18 @@ async def load_game_from_doc(
     if "a" in doc:
         game.analysis = doc["a"]
 
-    if "cw" in doc:
+    if "cw" in doc or "cb" in doc:
+        # Use .get() with a fallback so documents written before this change
+        # (or mid-game documents that only have one side's clock pushed yet)
+        # load without a KeyError.
         base_clock_time_w = doc.get("cw0")
         if not isinstance(base_clock_time_w, int):
             base_clock_time_w = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
         base_clock_time_b = doc.get("cb0")
         if not isinstance(base_clock_time_b, int):
             base_clock_time_b = (game.base * 1000 * 60) + (0 if game.base > 0 else game.inc * 1000)
-        cw: list[int] = doc["cw"]
-        cb: list[int] = doc["cb"]
+        cw: list[int] = doc.get("cw", [])
+        cb: list[int] = doc.get("cb", [])
         game.clocks_w = [base_clock_time_w] + cw if len(cw) > 0 else [base_clock_time_w]
         game.clocks_b = [base_clock_time_b] + cb if len(cb) > 0 else [base_clock_time_b]
 
@@ -805,6 +808,14 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
     if game.clocks_w[0] != game.clocks_b[0]:
         document["cw0"] = int(game.clocks_w[0])
         document["cb0"] = int(game.clocks_b[0])
+
+    if game.rated == RATED:
+        # Initialize clock arrays so load_game_from_doc() can always find
+        # both keys together. Without this, a server restart after exactly
+        # one rated move (White's first push) would leave "cb" absent from
+        # the document, causing a KeyError when loading the game back.
+        document["cw"] = []
+        document["cb"] = []
 
     if game.initial_fen or game.chess960:
         document["if"] = game.initial_fen
