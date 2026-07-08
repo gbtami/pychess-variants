@@ -750,7 +750,6 @@ class Game:
             if self.persist_to_db and self.app_state.db is not None:
                 # update_one is sufficient — the returned document is never used.
                 await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
-
                 if is_catalogued_variant(self.variant) and self.result in (
                     "1-0",
                     "0-1",
