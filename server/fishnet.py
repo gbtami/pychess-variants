@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, cast
 import asyncio
 import math
 import hashlib
+import re
 from datetime import datetime, timezone
 from time import monotonic
 from pathlib import Path
@@ -43,6 +44,7 @@ import logging
 log = logging.getLogger(__name__)
 
 REQUIRED_FISHNET_VERSION = "1.16.64"
+_FISHNET_VERSION_RE = re.compile(r"\d+")
 MOVE_WORK_TIME_OUT = 5.0
 ANALYSIS_WORK_TIME_OUT = 15 * 60.0
 FISHNET_ACTIVITY_TIMEOUT = 10 * 60.0
@@ -230,6 +232,19 @@ def _work_priority(work: FishnetWork) -> int:
     return ANALYSIS if work["work"]["type"] == "analysis" else MOVE
 
 
+def _fishnet_version_tuple(version: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in _FISHNET_VERSION_RE.findall(version))
+
+
+def _fishnet_version_is_supported(version: str) -> bool:
+    parsed = _fishnet_version_tuple(version)
+    required = _fishnet_version_tuple(REQUIRED_FISHNET_VERSION)
+    if not parsed or not required:
+        return False
+    width = max(len(parsed), len(required))
+    return parsed + (0,) * (width - len(parsed)) >= required + (0,) * (width - len(required))
+
+
 def _abort_reason(data: FishnetAbortPayload) -> str:
     error = data.get("error")
     if error is None:
@@ -386,6 +401,14 @@ def _fishnet_bestmove(data: FishnetMovePayload) -> str | None:
     if not bestmove or bestmove == "(none)":
         return None
     return bestmove
+
+
+def _game_move_stack_string(game: Game) -> str:
+    return " ".join(game.board.move_stack)
+
+
+def _fishnet_work_matches_current_position(work: FishnetWork, game: Game) -> bool:
+    return str(work.get("moves") or "") == _game_move_stack_string(game)
 
 
 def _stale_reissue_limit(work: FishnetWork) -> int:
@@ -693,8 +716,16 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
     en = data["stockfish"]["name"]
     nnue = data["stockfish"].get("nnue", "")
 
-    if (key not in FISHNET_KEYS) or version < REQUIRED_FISHNET_VERSION:
+    if key not in FISHNET_KEYS:
         return web.Response(status=404)
+    if not _fishnet_version_is_supported(version):
+        return json_response(
+            {
+                "error": "Fishnet %s is too old. Please restart fishnet to upgrade."
+                % version
+            },
+            status=426,
+        )
 
     worker = FISHNET_KEYS[key]
     app_state.fishnet_worker_last_seen[key] = monotonic()
@@ -843,32 +874,53 @@ async def fishnet_move(request: web.Request) -> web.Response:
         assert isinstance(game, Game)
 
     user = app_state.users["Fairy-Stockfish"]
-    fen = data.get("move", {}).get("fen")
+    reported_fen = data.get("move", {}).get("fen")
 
-    # Allow to make fishnet move if no takeback changed the current FEN. Keep the
-    # work item until play_move() returns safely, so unexpected backend-side move
-    # rejection does not silently lose the pending job.
-    if fen is None or fen == game.board.fen:
-        try:
-            async with game.move_lock:
-                await play_move(app_state, user, game, move)
-        except Exception:
-            log.exception(
-                "Fishnet move %s for work %s failed while being applied",
-                move,
-                work_id,
-            )
-            await _handle_invalid_fishnet_move(app_state, work_id, work, "play_move raised")
-            return web.Response(status=204)
+    # Allow the fishnet move only if the server-side move stack is still the one
+    # used to create the work item.  Do not rely on the worker-reported FEN for
+    # this guard: fairyfishnet may run several worker threads, while pyffish's
+    # VariantPath is process-global. With per-work scoped variants.ini files,
+    # another worker can change pyffish's VariantPath before the reporting worker
+    # computes its echo FEN. The server's own move stack is the authoritative
+    # stale-work check.
+    if not _fishnet_work_matches_current_position(work, game):
+        log.info(
+            "DISCARD FISHNET move %s for stale work %s (work moves=%r, game moves=%r)",
+            move,
+            work_id,
+            work.get("moves", ""),
+            _game_move_stack_string(game),
+        )
+        app_state.fishnet_works.pop(work_id, None)
+        response = await get_work(app_state, data)
+        return response
 
-        if game.status == INVALIDMOVE:
-            app_state.fishnet_works.pop(work_id, None)
-            await _record_terminal_catalogued_ai_failure(
-                app_state, work, INVALID_FISHNET_MOVE_REASON
-            )
-            return web.Response(status=204)
-    else:
-        log.info("DISCARD FISHNET move %s", move)
+    if reported_fen is not None and reported_fen != game.board.fen:
+        log.warning(
+            "Fishnet move %s for work %s reported FEN %r, but current server FEN is %r; "
+            "applying because the server-side move stack still matches",
+            move,
+            work_id,
+            reported_fen,
+            game.board.fen,
+        )
+
+    try:
+        async with game.move_lock:
+            await play_move(app_state, user, game, move)
+    except Exception:
+        log.exception(
+            "Fishnet move %s for work %s failed while being applied",
+            move,
+            work_id,
+        )
+        await _handle_invalid_fishnet_move(app_state, work_id, work, "play_move raised")
+        return web.Response(status=204)
+
+    if game.status == INVALIDMOVE:
+        app_state.fishnet_works.pop(work_id, None)
+        await _record_terminal_catalogued_ai_failure(app_state, work, INVALID_FISHNET_MOVE_REASON)
+        return web.Response(status=204)
 
     app_state.fishnet_works.pop(work_id, None)
     await clear_catalogued_variant_ai_failures(app_state, str(work.get("variant") or ""))

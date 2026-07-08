@@ -51,6 +51,14 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
         }
         self.assertEqual(fishnet._abort_reason(payload), fishnet.ENGINE_CRASH_REASON)
 
+    def test_fishnet_version_comparison_is_numeric(self) -> None:
+        self.assertFalse(fishnet._fishnet_version_is_supported("1.16.9"))
+        self.assertFalse(fishnet._fishnet_version_is_supported("1.16.62"))
+        self.assertTrue(fishnet._fishnet_version_is_supported("1.16.64"))
+        self.assertTrue(fishnet._fishnet_version_is_supported("1.16.100"))
+        self.assertTrue(fishnet._fishnet_version_is_supported("1.17.0"))
+        self.assertFalse(fishnet._fishnet_version_is_supported("not-a-version"))
+
     def test_move_job_terminal_on_engine_crash_limit(self) -> None:
         work = make_work("move", aborts=2, failures=fishnet.MOVE_ENGINE_CRASH_LIMIT)
         self.assertTrue(fishnet._is_terminal_abort(work, fishnet.ENGINE_CRASH_REASON))
