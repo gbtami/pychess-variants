@@ -472,6 +472,16 @@ function playVariantWithAI(model: PyChessModel, variant: ManagedVariant): void {
     window.location.assign(`${model.home}/?ai&variant=${encodeURIComponent(variant.name)}`);
 }
 
+function openAnalysisBoard(model: PyChessModel, variant: ManagedVariant): void {
+    if (variant.archived || variant.enabled === false) return;
+    window.location.assign(`${model.home}/analysis/${encodeURIComponent(variant.name)}`);
+}
+
+function openRulesPage(model: PyChessModel, variant: ManagedVariant): void {
+    if (variant.archived || variant.enabled === false) return;
+    window.location.assign(`${model.home}/variants/${encodeURIComponent(variant.name)}`);
+}
+
 function editVariant(model: PyChessModel, variant: ManagedVariant): void {
     state.editing = variant;
     setDraftFromVariant(variant);
@@ -834,6 +844,14 @@ function renderRows(model: PyChessModel): VNode {
                             props: { type: 'button', disabled: archived },
                             on: { click: () => playVariantWithAI(model, variant) },
                         }, _('Play AI')),
+                        h('button.catalogued-row-button.catalogued-secondary-action.catalogued-analysis-action', {
+                            props: { type: 'button', disabled: archived },
+                            on: { click: () => openAnalysisBoard(model, variant) },
+                        }, _('Analysis')),
+                        h('button.catalogued-row-button.catalogued-secondary-action', {
+                            props: { type: 'button', disabled: archived },
+                            on: { click: () => openRulesPage(model, variant) },
+                        }, _('Rules')),
                         h('button.catalogued-row-button.catalogued-secondary-action', {
                             props: { type: 'button', disabled: state.saving },
                             attrs: { title: lockTitle },

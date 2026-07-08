@@ -168,6 +168,18 @@
     color: White;
 }
 
+.catalogued-analysis-action {
+    border-color: color-mix(in srgb, var(--blue-hover) 70%, var(--border-color));
+    background: color-mix(in srgb, var(--blue-hover) 10%, var(--bg-box));
+    color: var(--link-hover);
+}
+
+.catalogued-analysis-action:hover:not(:disabled) {
+    border-color: var(--blue-hover);
+    background: color-mix(in srgb, var(--blue-hover) 18%, var(--bg-box));
+    color: var(--link-hover);
+}
+
 .catalogued-secondary-action:disabled,
 .catalogued-row-button:disabled,
 .catalogued-primary-action:disabled {
