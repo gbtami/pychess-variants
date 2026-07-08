@@ -23,6 +23,10 @@ interface Message {
     };
 }
 
+function corrMoveText(opp: string, san?: string) {
+    return `${opp} ${_('played')} ${san || _('a move')}`;
+}
+
 function result(win: boolean | null) {
     switch (win) {
     case true :
@@ -79,7 +83,7 @@ function messageView(message: Message) {
                     h('strong', _('It is your turn')),
                     h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
                 ]),
-                h('span', `${content.opp} ${_('played')} ${content.san || ''}`),
+                h('span', corrMoveText(content.opp, content.san)),
             ]),
         ]);
     case 'rrChallenge':

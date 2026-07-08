@@ -61,7 +61,7 @@ class CorrMovePushJob:
     username: str
     game_id: str
     opponent: str
-    san: str
+    san: str | None
 
 
 class PushSendRetryableError(Exception):
@@ -160,7 +160,13 @@ class PushNotifier:
                         exc,
                     )
 
-    def enqueue_corr_move(self, user: User, game_id: str, opponent: str, san: str) -> None:
+    @staticmethod
+    def _corr_move_body(opponent: str, san: str | None) -> str:
+        if san:
+            return f"{opponent} played {san}"
+        return f"{opponent} played a move"
+
+    def enqueue_corr_move(self, user: User, game_id: str, opponent: str, san: str | None) -> None:
         """Queue a corr-move notification when the user is eligible."""
 
         if not self.enabled:
@@ -222,7 +228,7 @@ class PushNotifier:
         payload = json.dumps(
             {
                 "title": "It's your turn!",
-                "body": f"{job.opponent} played {job.san}",
+                "body": self._corr_move_body(job.opponent, job.san),
                 "tag": "corr-move",
                 "payload": {
                     "url": f"/{job.game_id}",
