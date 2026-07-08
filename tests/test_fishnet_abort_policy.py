@@ -88,9 +88,7 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
             fishnet._fishnet_bestmove({"fishnet": {"apikey": "k"}, "move": {"bestmove": ""}})
         )
         self.assertIsNone(
-            fishnet._fishnet_bestmove(
-                {"fishnet": {"apikey": "k"}, "move": {"bestmove": "(none)"}}
-            )
+            fishnet._fishnet_bestmove({"fishnet": {"apikey": "k"}, "move": {"bestmove": "(none)"}})
         )
         self.assertIsNone(
             fishnet._fishnet_bestmove({"fishnet": {"apikey": "k"}, "move": {"bestmove": None}})
@@ -98,9 +96,7 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
 
     def test_fishnet_bestmove_strips_valid_move(self) -> None:
         self.assertEqual(
-            fishnet._fishnet_bestmove(
-                {"fishnet": {"apikey": "k"}, "move": {"bestmove": " e2e4 "}}
-            ),
+            fishnet._fishnet_bestmove({"fishnet": {"apikey": "k"}, "move": {"bestmove": " e2e4 "}}),
             "e2e4",
         )
 

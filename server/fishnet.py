@@ -128,9 +128,7 @@ def _catalogued_fishnet_ini_docs(
     if not variant_name:
         return [
             doc
-            for doc in sorted(
-                catalogued_docs.values(), key=lambda item: str(item.get("name", ""))
-            )
+            for doc in sorted(catalogued_docs.values(), key=lambda item: str(item.get("name", "")))
             if doc.get("enabled", True)
             and doc.get("ini")
             and not catalogued_variant_ai_disabled(doc)
@@ -165,9 +163,7 @@ def _catalogued_fishnet_ini_docs(
     return chain
 
 
-def fishnet_variants_ini(
-    app_state: PychessGlobalAppState, variant_name: str | None = None
-) -> str:
+def fishnet_variants_ini(app_state: PychessGlobalAppState, variant_name: str | None = None) -> str:
     """Return the Fairy-Stockfish variant config fishnet workers should use.
 
     When variant_name is provided, include only the catalogued variant needed by
@@ -178,8 +174,7 @@ def fishnet_variants_ini(
     base_path = Path(__file__).resolve().parents[1] / "variants.ini"
     base_ini = base_path.read_text(encoding="utf-8")
     catalogued_ini = "\n\n".join(
-        str(doc["ini"]).strip()
-        for doc in _catalogued_fishnet_ini_docs(app_state, variant_name)
+        str(doc["ini"]).strip() for doc in _catalogued_fishnet_ini_docs(app_state, variant_name)
     )
     return "\n\n".join(part.strip() for part in (base_ini, catalogued_ini) if part.strip()) + "\n"
 
@@ -308,9 +303,7 @@ def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | N
     return len(stale_ids)
 
 
-def _fishnet_worker_is_recent(
-    app_state: PychessGlobalAppState, key: str, now: float
-) -> bool:
+def _fishnet_worker_is_recent(app_state: PychessGlobalAppState, key: str, now: float) -> bool:
     return now - app_state.fishnet_worker_last_seen.get(key, 0.0) <= FISHNET_ACTIVITY_TIMEOUT
 
 
@@ -331,9 +324,7 @@ def prune_stale_fishnet_workers(
         app_state.fishnet_worker_last_seen.pop(key, None)
         worker = FISHNET_KEYS.get(key, key)
         if monitor is not None:
-            monitor[worker].append(
-                "%s %s %s" % (datetime.now(timezone.utc), "-", "timed out")
-            )
+            monitor[worker].append("%s %s %s" % (datetime.now(timezone.utc), "-", "timed out"))
 
     if stale_keys and len(app_state.workers) == 0:
         users = app_state.users
@@ -506,20 +497,16 @@ async def _handle_invalid_fishnet_move(
 
     if _is_terminal_invalid_move(work):
         log.warning(
-            "Dropping fishnet move work %s after repeated invalid moves "
-            "(failures=%s, detail=%s)",
+            "Dropping fishnet move work %s after repeated invalid moves (failures=%s, detail=%s)",
             work_id,
             _invalid_move_count(work),
             detail,
         )
-        await _drop_terminal_work_failure(
-            app_state, work_id, work, INVALID_FISHNET_MOVE_REASON
-        )
+        await _drop_terminal_work_failure(app_state, work_id, work, INVALID_FISHNET_MOVE_REASON)
         return
 
     log.warning(
-        "Requeueing fishnet move work %s after invalid move response "
-        "(failures=%s/%s, detail=%s)",
+        "Requeueing fishnet move work %s after invalid move response (failures=%s/%s, detail=%s)",
         work_id,
         _invalid_move_count(work),
         MOVE_INVALID_MOVE_LIMIT,
@@ -582,9 +569,7 @@ async def get_work(
                 work_id,
                 work.get("variant"),
             )
-            await _drop_terminal_work_failure(
-                app_state, work_id, work, VARIANT_AI_DISABLED_REASON
-            )
+            await _drop_terminal_work_failure(app_state, work_id, work, VARIANT_AI_DISABLED_REASON)
             continue
 
         # Track the latest assignment time so timeout-based re-acquire does not
@@ -845,9 +830,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
 
     move = _fishnet_bestmove(data)
     if move is None:
-        await _handle_invalid_fishnet_move(
-            app_state, work_id, work, "missing or empty bestmove"
-        )
+        await _handle_invalid_fishnet_move(app_state, work_id, work, "missing or empty bestmove")
         return web.Response(status=204)
 
     game = await load_game(app_state, gameId)
@@ -875,9 +858,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
                 move,
                 work_id,
             )
-            await _handle_invalid_fishnet_move(
-                app_state, work_id, work, "play_move raised"
-            )
+            await _handle_invalid_fishnet_move(app_state, work_id, work, "play_move raised")
             return web.Response(status=204)
 
         if game.status == INVALIDMOVE:

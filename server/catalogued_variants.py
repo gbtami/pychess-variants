@@ -238,9 +238,7 @@ def catalogued_variant_ai_disabled_until(
     return disabled_until if disabled_until > now else None
 
 
-def catalogued_variant_ai_disabled(
-    doc: Mapping[str, Any], *, now: datetime | None = None
-) -> bool:
+def catalogued_variant_ai_disabled(doc: Mapping[str, Any], *, now: datetime | None = None) -> bool:
     return catalogued_variant_ai_disabled_until(doc, now=now) is not None
 
 
