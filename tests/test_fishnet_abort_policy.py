@@ -115,6 +115,79 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
         self.assertIn("[goodvariant]", ini)
         self.assertNotIn("[badvariant]", ini)
 
+    def test_fishnet_variants_ini_scopes_catalogued_payload_to_requested_variant(self) -> None:
+        app_state = SimpleNamespace(
+            catalogued_variants={
+                "requested": {
+                    "name": "requested",
+                    "enabled": True,
+                    "ini": "[requested]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1",
+                },
+                "unrelated": {
+                    "name": "unrelated",
+                    "enabled": True,
+                    "ini": "[unrelated]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1",
+                },
+            }
+        )
+
+        ini = fishnet.fishnet_variants_ini(app_state, "requested")
+
+        self.assertIn("[requested]", ini)
+        self.assertNotIn("[unrelated]", ini)
+
+    def test_fishnet_variants_ini_includes_catalogued_base_chain(self) -> None:
+        app_state = SimpleNamespace(
+            catalogued_variants={
+                "custombase": {
+                    "name": "custombase",
+                    "enabled": True,
+                    "ini": "[custombase]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1",
+                },
+                "child": {
+                    "name": "child",
+                    "baseVariant": "custombase",
+                    "enabled": True,
+                    "ini": "[child:custombase]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1",
+                },
+                "unrelated": {
+                    "name": "unrelated",
+                    "enabled": True,
+                    "ini": "[unrelated]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1",
+                },
+            }
+        )
+
+        ini = fishnet.fishnet_variants_ini(app_state, "child")
+
+        self.assertLess(ini.index("[custombase]"), ini.index("[child:custombase]"))
+        self.assertNotIn("[unrelated]", ini)
+
+    def test_attach_variants_hash_caches_scoped_payload(self) -> None:
+        app_state = SimpleNamespace(
+            catalogued_variants={
+                "requested": {
+                    "name": "requested",
+                    "enabled": True,
+                    "ini": "[requested]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1",
+                },
+                "unrelated": {
+                    "name": "unrelated",
+                    "enabled": True,
+                    "ini": "[unrelated]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1",
+                },
+            }
+        )
+        work = make_work("move")
+        work["variant"] = "requested"
+
+        fishnet._attach_variants_hash(app_state, work)
+
+        self.assertEqual(work["variantsScope"], "requested")
+        payload = app_state.fishnet_variant_payloads[work["variantsSha256"]]
+        self.assertIn("[requested]", payload["variantsIni"])
+        self.assertNotIn("[unrelated]", payload["variantsIni"])
+
 
 class CataloguedAiFailurePolicyTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_record_catalogued_ai_failure_disables_after_limit(self) -> None:
