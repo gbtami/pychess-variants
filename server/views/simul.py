@@ -7,7 +7,8 @@ from request_utils import read_post_data
 from misc import time_control_str
 from typing_defs import ViewContext
 from views import get_user_context
-from variants import VARIANTS, VARIANT_ICONS
+from catalogued_variants import is_public_catalogued_variant, public_catalogued_variants_for_forms
+from variants import VARIANTS, VARIANT_ICONS, get_server_variant, is_catalogued_variant
 from simul.simul import Simul
 from simul.simuls import delete_simul_from_db, get_latest_simuls, load_simul, upsert_simul_to_db
 from newid import id8
@@ -198,15 +199,22 @@ def parse_optional_datetime_post_field(data, field_name: str) -> datetime | None
     return parsed
 
 
-def parse_simul_variant(data):
+def parse_simul_variant(app_state, data):
     variant_key = data.get("variant", "")
     if not isinstance(variant_key, (str, bytes)):
         raise web.HTTPBadRequest(text="Invalid simul variant")
     if isinstance(variant_key, bytes):
         variant_key = variant_key.decode("utf-8")
-    variant = VARIANTS.get(variant_key)
-    if variant is None:
-        raise web.HTTPBadRequest(text="Unknown variant")
+    if is_catalogued_variant(variant_key):
+        if not is_public_catalogued_variant(app_state, variant_key):
+            raise web.HTTPBadRequest(
+                text="Only public user-defined variants can be used in simuls."
+            )
+        variant = get_server_variant(variant_key, False)
+    else:
+        variant = VARIANTS.get(variant_key)
+        if variant is None:
+            raise web.HTTPBadRequest(text="Unknown variant")
     if variant.two_boards:
         raise web.HTTPBadRequest(text="Two-board variants are not allowed in simuls")
     return variant_key, variant
@@ -263,7 +271,7 @@ async def simuls(request: web.Request) -> ViewContext:
             raise web.HTTPNoContent()
         simul_id = id8()
         name = parse_simul_name(data)
-        variant_key, variant = parse_simul_variant(data)
+        variant_key, variant = parse_simul_variant(app_state, data)
         host_color = parse_host_color(data)
         base = parse_int_post_field(data, "base", min_value=0, max_value=180)
         inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
@@ -334,6 +342,7 @@ async def simul_new(request: web.Request) -> ViewContext:
     context["variants"] = {
         key: variant for key, variant in VARIANTS.items() if not variant.two_boards
     }
+    context["variants"].update(public_catalogued_variants_for_forms(get_app_state(request.app)))
     context["edit"] = False
     context["simul_form_action"] = "/simul"
     context["simul_form_title"] = "Host a new simul"
@@ -359,6 +368,7 @@ async def simul_edit(request: web.Request) -> ViewContext:
     context["variants"] = {
         key: variant for key, variant in VARIANTS.items() if not variant.two_boards
     }
+    context["variants"].update(public_catalogued_variants_for_forms(get_app_state(request.app)))
     context["edit"] = True
     context["simul"] = simul
     context["simul_form_action"] = f"/simul/{simul.id}/edit"
@@ -404,6 +414,7 @@ async def update_simul(request: web.Request) -> web.Response:
         raise web.HTTPForbidden()
 
     user, _ = await get_user_context(request)
+    app_state = get_app_state(request.app)
     simul = await get_simul_for_request(request)
 
     if user.username != simul.created_by:
@@ -417,7 +428,7 @@ async def update_simul(request: web.Request) -> web.Response:
     simul.description = parse_simul_description(data)
 
     if simul.status == T_CREATED:
-        _, variant = parse_simul_variant(data)
+        _, variant = parse_simul_variant(app_state, data)
         simul.variant = variant.uci_variant
         simul.chess960 = variant.chess960
         simul.base = parse_int_post_field(data, "base", min_value=0, max_value=180)

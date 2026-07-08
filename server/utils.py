@@ -569,6 +569,18 @@ async def join_seek(
     if seek.creator.username in user.blocked or user.username in seek.creator.blocked:
         return {"type": "error", "message": "You cannot accept this seek."}
 
+    if is_catalogued_variant(seek.variant):
+        from catalogued_variants import can_create_catalogued_seek
+
+        # AI games are created as a human-owned seek that the internal engine
+        # user immediately joins.  Access for that internal bot join should be
+        # determined by the human creator; otherwise private variants owned by
+        # the player are rejected as inaccessible to Random-Mover/Fairy-Stockfish.
+        access_user = seek.creator if getattr(user, "bot", False) else user
+        username = None if access_user.anon else access_user.username
+        if not can_create_catalogued_seek(app_state, seek.variant, username):
+            return {"type": "error", "message": "This user-defined variant is not available."}
+
     log.info(
         "+++ Seek %s joined by %s FEN:%s 960:%s",
         seek.id,
@@ -732,8 +744,9 @@ async def new_game(
 
 
 async def insert_game_to_db(game, app_state: PychessGlobalAppState):
-    # unit test app may have no db
-    if app_state.db is None:
+    # unit test app may have no db. Private/unlisted catalogued variant
+    # games are test games and intentionally stay in memory only.
+    if app_state.db is None or not game.persist_to_db:
         return
 
     document = {

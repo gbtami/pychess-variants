@@ -4,6 +4,8 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import test_logger
 
+from utils import join_seek
+from variants import register_catalogued_server_variant, unregister_catalogued_server_variant
 from wsl import handle_accept_seek, handle_create_ai_challenge
 
 
@@ -11,10 +13,11 @@ test_logger.init_test_logger()
 
 
 class DummyUser:
-    def __init__(self, username: str) -> None:
+    def __init__(self, username: str, *, bot: bool = False) -> None:
         self.username = username
         self.anon = False
-        self.bot = False
+        self.bot = bot
+        self.blocked: set[str] = set()
         self.title = ""
         self.game_in_progress = None
 
@@ -38,6 +41,71 @@ def create_ai_payload(variant: str = "janggi") -> dict[str, object]:
         "color": "b",
         "profileid": "Fairy-Stockfish",
     }
+
+
+class CataloguedAiJoinSeekAccessTestCase(unittest.IsolatedAsyncioTestCase):
+    variant_name = "privatebotai"
+
+    def setUp(self) -> None:
+        register_catalogued_server_variant(self.variant_name, "Private Bot AI")
+
+    def tearDown(self) -> None:
+        unregister_catalogued_server_variant(self.variant_name)
+
+    def _app_state(self) -> SimpleNamespace:
+        return SimpleNamespace(
+            catalogued_variants={
+                self.variant_name: {
+                    "name": self.variant_name,
+                    "author": "owner",
+                    "visibility": "private",
+                    "enabled": True,
+                    "archived": False,
+                }
+            }
+        )
+
+    def _seek(self, owner: DummyUser) -> SimpleNamespace:
+        return SimpleNamespace(
+            id="seek1",
+            creator=owner,
+            variant=self.variant_name,
+            chess960=False,
+            day=0,
+            target="",
+            fen="",
+            player1=owner,
+            player2=None,
+            is_expired=lambda: False,
+        )
+
+    async def test_internal_bot_can_join_private_catalogued_seek_for_owner_ai_game(self):
+        owner = DummyUser("owner")
+        bot = DummyUser("Random-Mover", bot=True)
+        seek = self._seek(owner)
+        new_game = AsyncMock(return_value={"type": "new_game", "gameId": "game1"})
+
+        with patch("utils.new_game", new=new_game):
+            response = await join_seek(self._app_state(), bot, seek)
+
+        self.assertEqual(response, {"type": "new_game", "gameId": "game1"})
+        self.assertIs(seek.player2, bot)
+        new_game.assert_awaited_once()
+
+    async def test_human_non_owner_still_cannot_join_private_catalogued_seek(self):
+        owner = DummyUser("owner")
+        other = DummyUser("other")
+        seek = self._seek(owner)
+        new_game = AsyncMock(return_value={"type": "new_game", "gameId": "game1"})
+
+        with patch("utils.new_game", new=new_game):
+            response = await join_seek(self._app_state(), other, seek)
+
+        self.assertEqual(
+            response, {"type": "error", "message": "This user-defined variant is not available."}
+        )
+        self.assertIsNone(seek.player2)
+        new_game.assert_not_awaited()
 
 
 class WslCreateAiChallengeJanggiTestCase(unittest.IsolatedAsyncioTestCase):

@@ -100,7 +100,7 @@ import logging
 import logger
 
 from variants import get_server_variant, is_catalogued_variant
-from catalogued_variants import can_create_catalogued_seek
+from catalogued_variants import can_create_catalogued_seek, catalogued_variant_games_are_persisted
 
 log = logging.getLogger(__name__)
 
@@ -139,6 +139,12 @@ def get_create_seek_error_message(user: User, data: SeekCreateData) -> str:
     chess960 = False if is_catalogued_variant(data["variant"]) else data.get("chess960")
     if is_anon_restricted_seek(user, data["variant"], chess960, day):
         return ANON_RESTRICTED_SEEK_MESSAGE
+    if (
+        is_catalogued_variant(data["variant"])
+        and day > 0
+        and not catalogued_variant_games_are_persisted(user.app_state, data["variant"])
+    ):
+        return "Only public user-defined variants can be used for correspondence games."
     if user_reached_seek_limit(user, day):
         return SEEK_LIMIT_REACHED_MESSAGE
     if is_targeted_two_board_seek(data["variant"], chess960, data.get("target", "")):
@@ -450,6 +456,9 @@ async def handle_create_bot_challenge(
 
     no = await send_game_in_progress_if_any(app_state, user, ws)
     if no:
+        return
+
+    if await _reject_inaccessible_catalogued_variant(app_state, ws, user, data["variant"]):
         return
 
     profileid = data["profileid"]

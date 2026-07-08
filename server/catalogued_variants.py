@@ -9,7 +9,7 @@ import sys
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Mapping, NamedTuple, NotRequired, TypedDict
+from typing import Any, Mapping, NamedTuple, NotRequired, TypedDict, cast
 from urllib.parse import unquote
 
 import aiohttp_session
@@ -17,7 +17,7 @@ from aiohttp import web
 from pymongo.errors import DuplicateKeyError
 
 from compress import MAX_COMPRESSED_BOARD_HEIGHT, MAX_COMPRESSED_BOARD_WIDTH
-from const import ANON_PREFIX
+from const import ANON_PREFIX, STARTED
 from fairy.fairy_board import sf
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
@@ -29,6 +29,7 @@ from settings import ADMINS
 from variants import (
     CATALOGUED_VARIANTS,
     ServerVariants,
+    get_server_variant,
     is_catalogued_variant,
     register_catalogued_server_variant,
     unregister_catalogued_server_variant,
@@ -74,6 +75,7 @@ VARIANT_NAME_ERROR = (
     "Variant names must be 3-32 chars, start with a lowercase letter, "
     "and contain only lowercase letters, digits, hyphens, and underscores."
 )
+PYCHESS_PIECES_METADATA_KEY = "pychesspieces"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FSF_CHECK_TIMEOUT_SECONDS = 8.0
@@ -525,6 +527,75 @@ def _ini_piece_letters(ini: str, key: str) -> list[str]:
     return letters
 
 
+def _pychess_pieces_metadata_value(line: str) -> str | None:
+    stripped = line.strip()
+    if not stripped or stripped[0] not in {"#", ";"}:
+        return None
+
+    body = stripped[1:].lstrip()
+    key, separator, value = body.partition("=")
+    if not separator or key.strip().casefold() != PYCHESS_PIECES_METADATA_KEY:
+        return None
+
+    # After the leading Fairy-Stockfish comment marker has made the line safe
+    # for FSF, let users add ordinary inline notes after the pychess metadata.
+    return value.split("#", 1)[0].split(";", 1)[0].strip()
+
+
+def _pychess_pieces_metadata_lines(ini: str) -> list[str]:
+    values: list[str] = []
+    for line in ini.splitlines():
+        value = _pychess_pieces_metadata_value(line)
+        if value is not None:
+            values.append(value)
+    return values
+
+
+def _strip_pychess_pieces_metadata(ini: str) -> str:
+    return "\n".join(
+        line for line in ini.splitlines() if _pychess_pieces_metadata_value(line) is None
+    ).strip()
+
+
+def _parse_pychess_piece_token(token: str) -> tuple[str, str] | None:
+    token = token.strip()
+    if not token:
+        return None
+    promoted = token.startswith("+")
+    role = token[1:] if promoted else token
+    if len(role) != 1 or not role.isascii() or not role.isalpha():
+        raise web.HTTPBadRequest(
+            text=(
+                "Invalid pychessPieces metadata. Use one-letter piece roles like "
+                "k,q,r,p and promoted roles like +p."
+            )
+        )
+    return ("promoted" if promoted else "base"), role.lower()
+
+
+def catalogued_pychess_piece_roles(ini: str) -> tuple[list[str], list[str]]:
+    base_roles: list[str] = []
+    promoted_roles: list[str] = []
+    seen_base: set[str] = set()
+    seen_promoted: set[str] = set()
+
+    for value in _pychess_pieces_metadata_lines(ini):
+        for raw_token in value.replace(",", " ").split():
+            parsed = _parse_pychess_piece_token(raw_token)
+            if parsed is None:
+                continue
+            kind, role = parsed
+            if kind == "promoted":
+                if role not in seen_promoted:
+                    seen_promoted.add(role)
+                    promoted_roles.append(role)
+            elif role not in seen_base:
+                seen_base.add(role)
+                base_roles.append(role)
+
+    return base_roles, promoted_roles
+
+
 def _merge_piece_letters(first: list[str], second: list[str]) -> list[str]:
     merged = list(first)
     seen = set(merged)
@@ -533,6 +604,14 @@ def _merge_piece_letters(first: list[str], second: list[str]) -> list[str]:
             seen.add(letter)
             merged.append(letter)
     return merged
+
+
+def _catalogued_piece_roles_from_ini(ini: str, start_fen: str) -> list[str]:
+    pychess_base_roles, _pychess_promoted_roles = catalogued_pychess_piece_roles(ini)
+    pieces = _merge_piece_letters(
+        piece_letters_from_fen(start_fen), _ini_piece_letters(ini, "promotionPieceTypes")
+    )
+    return _merge_piece_letters(pieces, pychess_base_roles)
 
 
 def pocket_letters_from_fen(fen: str) -> list[str]:
@@ -589,7 +668,8 @@ def _catalogued_promotion_pawn_letters(ini: str, pieces: list[str]) -> list[str]
 
 def catalogued_promotion_type(ini: str) -> str:
     promoted_piece_type = (_ini_option(ini, "promotedPieceType") or "").strip()
-    if promoted_piece_type:
+    _pychess_base_roles, pychess_promoted_roles = catalogued_pychess_piece_roles(ini)
+    if promoted_piece_type or pychess_promoted_roles:
         return "shogi"
     return "regular"
 
@@ -617,23 +697,28 @@ def catalogued_promotion_roles(ini: str, pieces: list[str]) -> list[str]:
     roles: list[str] = []
     seen: set[str] = set()
 
+    def add_role(role: str) -> None:
+        if role not in seen:
+            seen.add(role)
+            roles.append(role)
+
     for source, _target in _catalogued_promoted_piece_type_pairs(ini):
-        if source not in seen:
-            seen.add(source)
-            roles.append(source)
+        add_role(source)
 
-    if roles:
-        return roles
+    if not roles:
+        if _catalogued_promotion_piece_letters(ini):
+            for role in _catalogued_promotion_pawn_letters(ini, pieces):
+                add_role(role)
+        elif (
+            _ini_bool(ini, "mandatoryPawnPromotion") or _ini_bool(ini, "mandatoryPiecePromotion")
+        ) and "p" in pieces:
+            add_role("p")
 
-    if _catalogued_promotion_piece_letters(ini):
-        return _catalogued_promotion_pawn_letters(ini, pieces)
+    _pychess_base_roles, pychess_promoted_roles = catalogued_pychess_piece_roles(ini)
+    for role in pychess_promoted_roles:
+        add_role(role)
 
-    if (
-        _ini_bool(ini, "mandatoryPawnPromotion") or _ini_bool(ini, "mandatoryPiecePromotion")
-    ) and "p" in pieces:
-        return ["p"]
-
-    return []
+    return roles
 
 
 def catalogued_promotion_order(ini: str, promotion_type: str) -> list[str]:
@@ -643,7 +728,8 @@ def catalogued_promotion_order(ini: str, promotion_type: str) -> list[str]:
 
 
 def catalogued_show_promoted(ini: str, start_fen: str) -> bool:
-    if (_ini_option(ini, "promotedPieceType") or "").strip():
+    _pychess_base_roles, pychess_promoted_roles = catalogued_pychess_piece_roles(ini)
+    if (_ini_option(ini, "promotedPieceType") or "").strip() or pychess_promoted_roles:
         return True
     if any(
         _ini_bool(ini, key) for key in ("pieceDemotion", "piecePromotionOnCapture", "dropPromoted")
@@ -705,6 +791,11 @@ SAFE_SVG_TAGS = frozenset(
         "defs",
         "g",
         "pattern",
+        "linearGradient",
+        "radialGradient",
+        "stop",
+        "filter",
+        "feGaussianBlur",
         "path",
         "rect",
         "circle",
@@ -727,6 +818,8 @@ SAFE_SVG_ATTRS = frozenset(
         "patternUnits",
         "patternContentUnits",
         "patternTransform",
+        "gradientUnits",
+        "gradientTransform",
         "x",
         "y",
         "x1",
@@ -735,13 +828,18 @@ SAFE_SVG_ATTRS = frozenset(
         "y2",
         "cx",
         "cy",
+        "fx",
+        "fy",
         "r",
         "rx",
         "ry",
+        "offset",
         "d",
         "points",
         "fill",
         "stroke",
+        "stop-color",
+        "stop-opacity",
         "stroke-width",
         "stroke-linecap",
         "stroke-linejoin",
@@ -753,8 +851,11 @@ SAFE_SVG_ATTRS = frozenset(
         "opacity",
         "fill-opacity",
         "stroke-opacity",
+        "filter",
+        "stdDeviation",
         "transform",
         "transform-origin",
+        "href",
         "aria-label",
         "role",
     }
@@ -763,6 +864,8 @@ SAFE_SVG_STYLE_ATTRS = frozenset(
     {
         "fill",
         "stroke",
+        "stop-color",
+        "stop-opacity",
         "stroke-width",
         "stroke-linecap",
         "stroke-linejoin",
@@ -774,6 +877,7 @@ SAFE_SVG_STYLE_ATTRS = frozenset(
         "opacity",
         "fill-opacity",
         "stroke-opacity",
+        "filter",
         "transform",
         "transform-origin",
     }
@@ -781,6 +885,7 @@ SAFE_SVG_STYLE_ATTRS = frozenset(
 SAFE_SVG_VALUE_RE = re.compile(r"^[#%,.0-9A-Za-z_() +\-/:]*$")
 SAFE_SVG_ID_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.:-]*$")
 SAFE_SVG_LOCAL_REF_RE = re.compile(r"^url\(#[A-Za-z_][A-Za-z0-9_.:-]*\)$")
+SAFE_SVG_FRAGMENT_REF_RE = re.compile(r"^#[A-Za-z_][A-Za-z0-9_.:-]*$")
 
 
 def _local_xml_name(name: str) -> str:
@@ -808,14 +913,15 @@ def _parse_safe_svg_style(style: str, filename: str) -> dict[str, str]:
         if not separator:
             raise web.HTTPBadRequest(text=f"{filename} contains malformed SVG style declarations.")
         prop = name.strip().casefold()
+        if prop not in SAFE_SVG_STYLE_ATTRS:
+            continue
         cleaned_value = value.strip()
-        allow_local_ref_value = prop in {"fill", "stroke"}
+        allow_local_ref_value = prop in {"fill", "stroke", "filter"}
         if _svg_value_is_unsafe(cleaned_value, allow_local_ref=allow_local_ref_value):
             raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
         if not SAFE_SVG_VALUE_RE.fullmatch(cleaned_value):
             raise web.HTTPBadRequest(text=f"{filename} contains unsupported SVG attribute values.")
-        if prop in SAFE_SVG_STYLE_ATTRS:
-            parsed[prop] = cleaned_value
+        parsed[prop] = cleaned_value
     return parsed
 
 
@@ -961,13 +1067,18 @@ def _sanitize_catalogued_svg(
                 continue
             if local_attr.startswith("on"):
                 continue
-            if local_attr in {"href", "src", "class"}:
+            if local_attr in {"src", "class"}:
                 continue
             if local_attr not in SAFE_SVG_ATTRS:
                 continue
             if local_attr == "id" and not SAFE_SVG_ID_RE.fullmatch(value):
                 continue
-            allow_local_ref_value = local_attr in {"fill", "stroke"}
+            if local_attr == "href":
+                if not SAFE_SVG_FRAGMENT_REF_RE.fullmatch(value):
+                    continue
+                clean_attrs[local_attr] = value
+                continue
+            allow_local_ref_value = local_attr in {"fill", "stroke", "filter"}
             if _svg_value_is_unsafe(value, allow_local_ref=allow_local_ref_value):
                 raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
             if not SAFE_SVG_VALUE_RE.fullmatch(value):
@@ -1106,6 +1217,24 @@ def _has_complete_piece_set(doc: Mapping[str, Any]) -> bool:
     return {
         _catalogued_piece_set_storage_key(str(key)) for key in piece_set
     } == _catalogued_piece_set_required_keys(doc)
+
+
+def _copy_piece_set_if_complete_for_doc(
+    target_doc: CataloguedVariantDocument, source_doc: Mapping[str, Any]
+) -> None:
+    piece_set = source_doc.get("pieceSet")
+    if not isinstance(piece_set, Mapping):
+        return
+
+    candidate = dict(target_doc)
+    candidate["pieceSet"] = piece_set
+    if not _has_complete_piece_set(candidate):
+        return
+
+    target_doc["pieceSet"] = cast(dict[str, CataloguedVariantPieceSetSvg], dict(piece_set))
+    updated_at = source_doc.get("pieceSetUpdatedAt")
+    if isinstance(updated_at, datetime):
+        target_doc["pieceSetUpdatedAt"] = updated_at
 
 
 def _has_board_svg(doc: Mapping[str, Any]) -> bool:
@@ -1314,9 +1443,7 @@ def validate_catalogued_ini(ini: str) -> CataloguedVariantValidation:
 
     width, height = board_dimensions_from_fen(start_fen)
     _catalogued_grand_from_dimensions(width, height)
-    pieces = _merge_piece_letters(
-        piece_letters_from_fen(start_fen), _ini_piece_letters(ini, "promotionPieceTypes")
-    )
+    pieces = _catalogued_piece_roles_from_ini(ini, start_fen)
     king_roles = catalogued_king_roles(ini, pieces)
     pocket_roles = catalogued_pocket_roles(ini, start_fen, pieces)
     capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
@@ -1450,6 +1577,30 @@ def can_create_catalogued_seek(app_state: Any, name: str, username: str | None) 
     if doc is None:
         return False
     return _can_open_catalogued_doc(username, doc)
+
+
+def is_public_catalogued_variant(app_state: Any, name: str) -> bool:
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None:
+        return False
+    return (
+        _is_active_catalogued_doc(doc)
+        and _catalogued_visibility(doc) == CATALOGUED_VISIBILITY_PUBLIC
+    )
+
+
+def public_catalogued_variants_for_forms(app_state: Any) -> dict[str, Any]:
+    """Return public uploaded variants that are safe in durable site events."""
+
+    docs = getattr(app_state, "catalogued_variants", {})
+    return {
+        name: get_server_variant(name, False)
+        for name, doc in sorted(
+            docs.items(),
+            key=lambda item: str(item[1].get("displayName", item[0])).casefold(),
+        )
+        if is_public_catalogued_variant(app_state, name)
+    }
 
 
 def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
@@ -1671,6 +1822,28 @@ async def _has_games(app_state: Any, name: str) -> bool:
     if app_state.db is None:
         return False
     return await app_state.db.game.find_one({"v": name}, projection={"_id": 1}) is not None
+
+
+def catalogued_variant_games_are_persisted(app_state: Any, name: str) -> bool:
+    """Return whether newly created games for this catalogued variant are saved.
+
+    The decision is intentionally made at game creation time. Public variants
+    create durable games; private and unlisted variants are test/sandbox
+    variants whose games remain in memory only.
+    """
+
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None:
+        # Preserve the old behaviour for unexpected/migrating runtime state.
+        return True
+    return _catalogued_visibility(doc) == CATALOGUED_VISIBILITY_PUBLIC
+
+
+def _has_active_catalogued_games(app_state: Any, name: str) -> bool:
+    for game in getattr(app_state, "games", {}).values():
+        if getattr(game, "variant", None) == name and getattr(game, "status", STARTED) <= STARTED:
+            return True
+    return False
 
 
 async def increment_catalogued_variant_game_count(app_state: Any, name: str) -> None:
@@ -1937,6 +2110,7 @@ async def check_catalogued_variant_rules(request: web.Request) -> web.Response:
         raise web.HTTPBadRequest(text="Missing INI content.")
 
     name = extract_variant_name(ini)
+    catalogued_pychess_piece_roles(ini)
     await ensure_catalogued_variant_name_available(app_state, name, current_name=current_name)
     start_fen = await check_catalogued_ini_without_mutating_server(ini, name)
     return json_response({"ok": True, "name": name, "startFen": start_fen})
@@ -2349,13 +2523,16 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         raise web.HTTPBadRequest(text="Missing INI content.")
 
     new_name = extract_variant_name(ini)
-    rules_changed = ini != str(existing.get("ini") or "")
-    if (rules_changed or new_name != old_name) and await _has_games(app_state, old_name):
+    existing_ini = str(existing.get("ini") or "")
+    fsf_rules_changed = _strip_pychess_pieces_metadata(ini) != _strip_pychess_pieces_metadata(
+        existing_ini
+    )
+    if (fsf_rules_changed or new_name != old_name) and await _has_games(app_state, old_name):
         raise web.HTTPConflict(
             text="This variant already has games. Its rules are locked; clone it to make a changed version."
         )
 
-    if rules_changed and new_name == old_name:
+    if fsf_rules_changed and new_name == old_name:
         raise web.HTTPConflict(
             text=(
                 "Changing rules requires a new variant section name because Fairy-Stockfish "
@@ -2366,7 +2543,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
     if new_name != old_name:
         await ensure_catalogued_variant_name_available(app_state, new_name, current_name=old_name)
 
-    if rules_changed or new_name != old_name:
+    if fsf_rules_changed or new_name != old_name:
         await check_catalogued_ini_without_mutating_server(ini, new_name)
         validated = validate_catalogued_ini(ini)
         new_name = validated.name
@@ -2392,31 +2569,19 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         start_fen = str(existing["startFen"])
         width = int(existing["width"])
         height = int(existing["height"])
-        pieces = list(existing.get("pieces") or ["k"])
-        king_roles = list(existing.get("kingRoles") or [])
-        pocket_roles = list(
-            existing.get("pocketRoles") or catalogued_pocket_roles(ini, start_fen, pieces)
-        )
-        capture_to_hand = bool(
-            existing.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
-        )
-        promotion_type = str(existing.get("promotionType") or catalogued_promotion_type(ini))
-        promotion_roles = list(
-            existing.get("promotionRoles") or catalogued_promotion_roles(ini, pieces)
-        )
-        promotion_order = list(
-            existing.get("promotionOrder") or catalogued_promotion_order(ini, promotion_type)
-        )
-        show_promoted = bool(existing.get("showPromoted", catalogued_show_promoted(ini, start_fen)))
-        rules_gate = bool(existing.get("rulesGate", catalogued_rules_gate(ini)))
-        rules_pass = bool(existing.get("rulesPass", catalogued_rules_pass(ini)))
-        legal_moves_need_history = bool(
-            existing.get("legalMovesNeedHistory", catalogued_legal_moves_need_history(ini))
-        )
-        n_fold_is_draw = bool(existing.get("nFoldIsDraw", catalogued_n_fold_is_draw(ini)))
-        show_check_counters = bool(
-            existing.get("showCheckCounters", catalogued_show_check_counters(ini))
-        )
+        pieces = _catalogued_piece_roles_from_ini(ini, start_fen)
+        king_roles = catalogued_king_roles(ini, pieces)
+        pocket_roles = catalogued_pocket_roles(ini, start_fen, pieces)
+        capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
+        promotion_type = catalogued_promotion_type(ini)
+        promotion_roles = catalogued_promotion_roles(ini, pieces)
+        promotion_order = catalogued_promotion_order(ini, promotion_type)
+        show_promoted = catalogued_show_promoted(ini, start_fen)
+        rules_gate = catalogued_rules_gate(ini)
+        rules_pass = catalogued_rules_pass(ini)
+        legal_moves_need_history = catalogued_legal_moves_need_history(ini)
+        n_fold_is_draw = catalogued_n_fold_is_draw(ini)
+        show_check_counters = catalogued_show_check_counters(ini)
 
     doc = _build_doc(
         name=new_name,
@@ -2447,12 +2612,10 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         game_count=int(existing.get("gameCount") or 0),
     )
 
-    if not rules_changed and new_name == old_name and _has_complete_piece_set(existing):
-        doc["pieceSet"] = existing["pieceSet"]
-        if "pieceSetUpdatedAt" in existing:
-            doc["pieceSetUpdatedAt"] = existing["pieceSetUpdatedAt"]
+    if not fsf_rules_changed and new_name == old_name:
+        _copy_piece_set_if_complete_for_doc(doc, existing)
 
-    if not rules_changed and new_name == old_name and _has_board_svg(existing):
+    if not fsf_rules_changed and new_name == old_name and _has_board_svg(existing):
         doc["boardSvg"] = existing["boardSvg"]
         if "boardSvgUpdatedAt" in existing:
             doc["boardSvgUpdatedAt"] = existing["boardSvgUpdatedAt"]
@@ -2471,16 +2634,24 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         await app_state.db[CATALOGUED_VARIANT_COLLECTION].replace_one({"_id": new_name}, doc)
 
     register_catalogued_variant_doc(app_state, doc, load_config=False)
+    count = await _game_count(app_state, new_name)
     return json_response(
-        {"ok": True, "oldName": old_name, "variant": _client_doc(doc, game_count=0)}
+        {"ok": True, "oldName": old_name, "variant": _client_doc(doc, game_count=count)}
     )
 
 
 async def delete_catalogued_variant(request: web.Request) -> web.Response:
     app_state, _username, name, _doc = await _load_owned_doc(request)
+    if _has_active_catalogued_games(app_state, name):
+        raise web.HTTPConflict(
+            text=(
+                "This variant still has an active game. "
+                "Finish or abort it before deleting the variant."
+            )
+        )
     if await _has_games(app_state, name):
         raise web.HTTPConflict(
-            text="This variant already has games. Archive it instead of deleting it."
+            text="This variant already has saved public games. Archive it instead of deleting it."
         )
 
     await app_state.db[CATALOGUED_VARIANT_COLLECTION].delete_one({"_id": name})

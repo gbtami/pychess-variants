@@ -102,7 +102,7 @@ async function loadMine(model: PyChessModel, options: { clearMessage?: boolean }
 function readForm(): { displayName: string; description: string; visibility: VariantVisibility; ini: string } {
     return {
         displayName: (document.getElementById('catalogued-display-name') as HTMLInputElement | null)?.value ?? state.draftDisplayName,
-        description: (document.getElementById('catalogued-description') as HTMLInputElement | null)?.value ?? state.draftDescription,
+        description: (document.getElementById('catalogued-description') as HTMLTextAreaElement | null)?.value ?? state.draftDescription,
         visibility: ((document.getElementById('catalogued-visibility') as HTMLSelectElement | null)?.value as VariantVisibility | undefined) ?? state.draftVisibility,
         ini: (document.getElementById('catalogued-ini') as HTMLTextAreaElement | null)?.value ?? state.draftIni,
     };
@@ -498,11 +498,11 @@ function visibilityLabel(visibility: VariantVisibility | undefined): string {
 function visibilityHelp(visibility: VariantVisibility): string {
     switch (visibility) {
     case 'public':
-        return _('Public variants appear on the Community variants page and can be found by search.');
+        return _('Public variants appear on the Community variants page and their games are saved.');
     case 'unlisted':
-        return _('Unlisted variants stay out of search but can be opened by direct link.');
+        return _('Unlisted variants stay out of search; their games are not saved.');
     default:
-        return _('Private variants are visible only to you and site admins.');
+        return _('Private variants are visible only to you and site admins; their games are not saved.');
     }
 }
 
@@ -511,9 +511,10 @@ function renderForm(model: PyChessModel): VNode {
     return h('section.catalogued-card.catalogued-form', [
         h('div.catalogued-form-head', [
             h('h2', editing ? _('Edit variant') : _('Upload new variant')),
-            h('p', _('Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first played game.')),
+            h('p', _('Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first saved public game.')),
+            h('p.catalogued-help', _('Private and unlisted variants are sandbox variants: games are playable but are not saved.')),
             h('p.catalogued-help', _('If you change the rules of an unused variant, also change the INI section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.')),
-            editing?.locked ? h('p.catalogued-help', _('This variant already has games. Only metadata and visibility can be changed; clone it to change the rules.')) : null,
+            editing?.locked ? h('p.catalogued-help', _('This variant already has saved public games. Only metadata and visibility can be changed; clone it to change the rules.')) : null,
         ]),
         h('form.catalogued-form-grid', {
             on: {
@@ -541,18 +542,22 @@ function renderForm(model: PyChessModel): VNode {
                     },
                 }),
             ]),
-            h('label.catalogued-field.catalogued-field-half', [
+            h('label.catalogued-field.catalogued-field-half.catalogued-description-field', [
                 h('span', _('Short description')),
-                h('input#catalogued-description', {
+                h('textarea#catalogued-description.catalogued-description-input', {
                     props: {
                         value: state.draftDescription,
                         placeholder: _('Short description'),
                         autocomplete: 'off',
                         disabled: state.saving,
+                        rows: 3,
+                    },
+                    attrs: {
+                        maxlength: '1000',
                     },
                     on: {
                         input: (event: Event) => {
-                            state.draftDescription = (event.target as HTMLInputElement).value;
+                            state.draftDescription = (event.target as HTMLTextAreaElement).value;
                             state.formMessage = '';
                             state.formMessageTone = 'neutral';
                         },
@@ -586,9 +591,9 @@ function renderForm(model: PyChessModel): VNode {
                 h('textarea#catalogued-ini', {
                     props: {
                         value: state.draftIni,
-                        placeholder: '[myvariant:chess]\nvariantTemplate = chess\n',
+                        placeholder: '[myvariant:chess]\n# inherits chess rules through the section suffix',
                         spellcheck: false,
-                        disabled: state.saving || !!state.editing?.locked,
+                        disabled: state.saving,
                     },
                     on: {
                         input: (event: Event) => {
@@ -598,6 +603,7 @@ function renderForm(model: PyChessModel): VNode {
                         },
                     },
                 }),
+                h('span.catalogued-help', _('If inherited rules use pieces or promoted pieces that pychess cannot detect automatically, add a comment like # pychessPieces = k,q,r,+r,p,+p. This affects only piece-set upload and board rendering; Fairy-Stockfish ignores it. For locked variants with games, only this pychessPieces metadata can be changed.')),
             ]),
             h('div.catalogued-actions.catalogued-field-full', [
                 h(`button.button-primary.catalogued-primary-action${state.saving ? '.disabled' : ''}`, {
@@ -807,19 +813,19 @@ function renderRows(model: PyChessModel): VNode {
             h('tbody', state.variants.map(variant => {
                 const locked = !!variant.locked;
                 const archived = !!variant.archived || variant.enabled === false;
-                const lockTitle = locked ? _('This variant already has games. Clone it to change the rules.') : '';
+                const lockTitle = locked ? _('This variant already has saved public games. Clone it to change the rules.') : '';
                 return h('tr', { class: { archived } }, [
-                    h('td', [
+                    h('td.catalogued-name-cell', { attrs: { 'data-label': _('Name') } }, [
                         h('strong', variant.displayName),
                         h('code', variant.name),
                         variant.tooltip ? h('p', variant.tooltip) : null,
                     ]),
-                    h('td', archived ? _('Archived') : locked ? _('Locked') : _('Editable')),
-                    h('td', visibilityLabel(variant.visibility)),
-                    h('td', String(variant.gameCount ?? 0)),
-                    h('td', renderPieceSetControls(model, variant)),
-                    h('td', renderBoardControls(model, variant)),
-                    h('td.catalogued-row-actions', [
+                    h('td', { attrs: { 'data-label': _('Status') } }, archived ? _('Archived') : locked ? _('Locked') : _('Editable')),
+                    h('td', { attrs: { 'data-label': _('Visibility') } }, visibilityLabel(variant.visibility)),
+                    h('td', { attrs: { 'data-label': _('Games') } }, String(variant.gameCount ?? 0)),
+                    h('td', { attrs: { 'data-label': _('Pieces') } }, renderPieceSetControls(model, variant)),
+                    h('td', { attrs: { 'data-label': _('Board') } }, renderBoardControls(model, variant)),
+                    h('td.catalogued-row-actions', { attrs: { 'data-label': _('Actions') } }, [
                         h('button.button-primary.catalogued-row-button', {
                             props: { type: 'button', disabled: archived },
                             on: { click: () => playVariant(model, variant) },

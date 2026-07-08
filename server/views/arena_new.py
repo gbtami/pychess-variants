@@ -7,6 +7,7 @@ from tournament_director import is_tournament_director
 from typedefs import pychess_global_app_state_key as app_state_key
 from typing_defs import ViewContext
 from views import get_user_context
+from catalogued_variants import public_catalogued_variants_for_forms
 from variants import VARIANTS
 
 
@@ -20,7 +21,7 @@ async def arena_new(request: web.Request) -> ViewContext:
     if not is_tournament_director(user, app_state):
         raise web.HTTPForbidden()
 
-    context["variants"] = VARIANTS
+    context["variants"] = {**VARIANTS, **public_catalogued_variants_for_forms(app_state)}
     context["view_css"] = "arena-new.css"
     context["edit"] = tournamentId is not None
     context["admin"] = user.username in ADMINS

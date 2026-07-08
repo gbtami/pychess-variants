@@ -7,6 +7,10 @@ from json_utils import json_dumps
 from misc import time_control_str
 from newid import new_id
 import logging
+from catalogued_variants import (
+    can_create_catalogued_seek,
+    catalogued_variant_games_are_persisted,
+)
 from variants import get_server_variant, is_catalogued_variant
 
 log = logging.getLogger(__name__)
@@ -548,8 +552,6 @@ async def create_seek(
         data = dict(data)  # type: ignore[assignment]
         data["rated"] = False
         data["chess960"] = False
-        data["tournamentId"] = None  # type: ignore[typeddict-item]
-        data["rrArrangementId"] = None  # type: ignore[typeddict-item]
     day = data.get("day", 0)
     chess960: bool | None = data.get("chess960")
     if is_anon_restricted_seek(user, data["variant"], chess960, day):
@@ -560,6 +562,23 @@ async def create_seek(
             day,
         )
         return None
+
+    if is_catalogued_variant(data["variant"]):
+        username = None if user.anon else user.username
+        if not can_create_catalogued_seek(user.app_state, data["variant"], username):
+            log.info(
+                "Rejecting inaccessible catalogued seek creation by %s (variant=%s)",
+                user.username,
+                data["variant"],
+            )
+            return None
+        if day > 0 and not catalogued_variant_games_are_persisted(user.app_state, data["variant"]):
+            log.info(
+                "Rejecting private/unlisted catalogued correspondence seek by %s (variant=%s)",
+                user.username,
+                data["variant"],
+            )
+            return None
 
     duplicate = find_duplicate_direct_challenge(seeks, user, data)
     if duplicate is not None:
@@ -644,6 +663,13 @@ async def create_seek(
     return seek
 
 
+def _catalogued_seek_visible_to_user(user: User, seek: Seek) -> bool:
+    if not is_catalogued_variant(seek.variant):
+        return True
+    username = None if user.anon else user.username
+    return can_create_catalogued_seek(user.app_state, seek.variant, username)
+
+
 def get_seeks(user: User, seeks: Iterable[Seek]) -> list[SeekJson]:
     return [
         seek.seek_json
@@ -652,6 +678,7 @@ def get_seeks(user: User, seeks: Iterable[Seek]) -> list[SeekJson]:
             not seek.pending
             and not seek.is_expired()
             and (not seek.is_direct_challenge or seek.is_active_direct_challenge)
+            and _catalogued_seek_visible_to_user(user, seek)
             and user.compatible_with_seek(seek)
         )
     ]
