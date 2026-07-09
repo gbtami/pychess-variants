@@ -10,6 +10,7 @@ from catalogued_betza import catalogued_betza_diagrams
 class CataloguedBetzaDiagramTestCase(unittest.TestCase):
     def setUp(self) -> None:
         catalogued_betza._cached_betza_svg.cache_clear()
+        catalogued_betza._cached_piece_diagram_definitions.cache_clear()
         catalogued_betza._cached_catalogued_betza_diagrams.cache_clear()
 
     def test_custom_piece_diagrams_are_generated_from_betza_definitions(self):

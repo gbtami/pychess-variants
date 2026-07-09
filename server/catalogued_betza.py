@@ -230,6 +230,14 @@ def _doc_piece_letters(doc: Mapping[str, Any]) -> set[str]:
     return set()
 
 
+def _doc_piece_letters_key(doc: Mapping[str, Any]) -> tuple[str, ...]:
+    return tuple(sorted(_doc_piece_letters(doc)))
+
+
+def _doc_variant_name(value: object) -> str:
+    return str(value or "").strip().lower()
+
+
 def _fsf_builtin_variant_names(doc: Mapping[str, Any], ini: str) -> list[str]:
     candidates = [
         doc.get("fsfBuiltinVariant"),
@@ -296,6 +304,28 @@ def _cached_betza_svg(
 
 
 @lru_cache(maxsize=BETZA_DIAGRAM_CACHE_SIZE)
+def _cached_piece_diagram_definitions(
+    ini: str,
+    pieces: tuple[str, ...],
+    fsf_builtin_variant: str,
+    name: str,
+    base_variant: str,
+    renderer_version: int,
+) -> tuple[_PieceDiagramDefinition, ...]:
+    del renderer_version  # Cache-busting key for future built-in definition changes.
+    custom_definitions = _custom_piece_definitions(ini)
+    occupied_pieces = {definition.piece for definition in custom_definitions}
+    fsf_doc = {
+        "pieces": pieces,
+        "fsfBuiltinVariant": fsf_builtin_variant,
+        "name": name,
+        "baseVariant": base_variant,
+    }
+    definitions = custom_definitions + _fsf_builtin_piece_definitions(fsf_doc, ini, occupied_pieces)
+    return tuple(definitions[:MAX_CATALOGUED_BETZA_DIAGRAMS])
+
+
+@lru_cache(maxsize=BETZA_DIAGRAM_CACHE_SIZE)
 def _cached_catalogued_betza_diagrams(
     definitions: tuple[_PieceDiagramDefinition, ...],
     board_width: int,
@@ -341,11 +371,14 @@ def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDia
     """Return inline SVG movement diagrams for custom and known FSF built-in pieces."""
 
     ini = str(doc.get("ini") or "")
-    custom_definitions = _custom_piece_definitions(ini)
-    occupied_pieces = {definition.piece for definition in custom_definitions}
-    definitions = tuple(
-        custom_definitions + _fsf_builtin_piece_definitions(doc, ini, occupied_pieces)
-    )[:MAX_CATALOGUED_BETZA_DIAGRAMS]
+    definitions = _cached_piece_diagram_definitions(
+        ini,
+        _doc_piece_letters_key(doc),
+        _doc_variant_name(doc.get("fsfBuiltinVariant")),
+        _doc_variant_name(doc.get("name")),
+        _doc_variant_name(doc.get("baseVariant")),
+        BETZA_DIAGRAM_RENDERER_VERSION,
+    )
     board_width = _preview_dimension(doc.get("width"))
     board_height = _preview_dimension(doc.get("height"))
     return list(
