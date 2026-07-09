@@ -1539,7 +1539,6 @@ function cataloguedNeedsCustomPieceGlyphs(
 
 function cataloguedHasPocketOverride(meta: CataloguedVariantClientDocument): boolean {
     return meta.startFen.includes('[') || [
-        'pocketSize',
         'pieceDrops',
         'capturesToHand',
         'whiteDropRegion',

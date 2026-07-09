@@ -65,3 +65,23 @@ startFen = vnlgkqglnv/1r6b1/pppppppppp/10/10/10/PPPPPPPPPP/1B6R1/VNLGQKGLNV w - 
     ]);
     expect(variant.pocket?.roles.white.map(role => util.letterOf(role))).not.toContain('s');
 });
+
+test('catalogued pocketSize alone does not suppress inherited shogi pocket roles', () => {
+    const variant = register({
+        name: variantName,
+        displayName: 'Pocket Size Only Test',
+        tooltip: 'Catalogued variant',
+        ini: `[${variantName}:shogi]
+pocketSize = 7
+startFen = 4k4/9/9/9/9/9/9/9/4K3P w - - 0 1`,
+        baseVariant: 'shogi',
+        startFen: '4k4/9/9/9/9/9/9/9/4K3P w - - 0 1',
+        width: 9,
+        height: 9,
+        pieces: ['k', 'p'],
+        kingRoles: ['k'],
+    });
+
+    expect(variant.pocket?.captureToHand).toBe(true);
+    expect(variant.pocket?.roles.white.map(role => util.letterOf(role))).toEqual(['p']);
+});

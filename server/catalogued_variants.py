@@ -1486,11 +1486,52 @@ def pocket_letters_from_fen(fen: str) -> list[str]:
     return letters
 
 
-def catalogued_pocket_roles(ini: str, start_fen: str, pieces: list[str]) -> list[str]:
-    if not _ini_bool(ini, "pieceDrops") and "[" not in _board_part_from_fen(start_fen):
+def _non_royal_hand_roles(pieces: list[str], king_roles: list[str] | None) -> list[str]:
+    royal_base_roles = {
+        role[1:] if role.startswith("+") else role for role in (king_roles or []) if role
+    }
+    return [piece for piece in pieces if piece not in royal_base_roles]
+
+
+def catalogued_pocket_roles(
+    ini: str,
+    start_fen: str,
+    pieces: list[str],
+    king_roles: list[str] | None = None,
+    *,
+    capture_to_hand: bool | None = None,
+) -> list[str]:
+    has_pocket = _ini_bool(ini, "pieceDrops") or "[" in _board_part_from_fen(start_fen)
+    if not has_pocket:
         return []
+
     pocket_letters = pocket_letters_from_fen(start_fen)
-    return pocket_letters or pieces
+    roles = pocket_letters or pieces
+
+    if capture_to_hand is None:
+        capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
+    if capture_to_hand:
+        roles = _merge_piece_letters(roles, _non_royal_hand_roles(pieces, king_roles))
+
+    return roles
+
+
+def _catalogued_pocket_roles_from_doc(
+    doc: Mapping[str, Any],
+    ini: str,
+    start_fen: str,
+    pieces: list[str],
+    king_roles: list[str],
+) -> list[str]:
+    capture_to_hand = bool(
+        doc.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
+    )
+    stored_pocket_roles = list(doc.get("pocketRoles") or [])
+    if stored_pocket_roles and capture_to_hand:
+        return _merge_piece_letters(stored_pocket_roles, _non_royal_hand_roles(pieces, king_roles))
+    return stored_pocket_roles or catalogued_pocket_roles(
+        ini, start_fen, pieces, king_roles, capture_to_hand=capture_to_hand
+    )
 
 
 def _catalogued_promotion_piece_letters(ini: str) -> list[str]:
@@ -2300,8 +2341,10 @@ def validate_catalogued_ini(ini: str) -> CataloguedVariantValidation:
     _catalogued_grand_from_dimensions(width, height)
     pieces = _catalogued_piece_roles_from_ini(ini, start_fen)
     king_roles = catalogued_king_roles(ini, pieces)
-    pocket_roles = catalogued_pocket_roles(ini, start_fen, pieces)
     capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
+    pocket_roles = catalogued_pocket_roles(
+        ini, start_fen, pieces, king_roles, capture_to_hand=capture_to_hand
+    )
     promotion_type = catalogued_promotion_type(ini)
     promotion_roles = catalogued_promotion_roles(ini, pieces)
     promotion_order = catalogued_promotion_order(ini, promotion_type)
@@ -2351,7 +2394,7 @@ def _client_doc(
         if _ini_option(ini, "extinctionValue") is not None
         else list(doc.get("kingRoles") or catalogued_king_roles(ini, pieces))
     )
-    pocket_roles = list(doc.get("pocketRoles") or catalogued_pocket_roles(ini, start_fen, pieces))
+    pocket_roles = _catalogued_pocket_roles_from_doc(doc, ini, start_fen, pieces, king_roles)
     capture_to_hand = bool(
         doc.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
     )
@@ -2578,6 +2621,7 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
     height = int(doc.get("height") or 0)
     if not width or not height:
         width, height = board_dimensions_from_fen(start_fen) if start_fen else (8, 8)
+    king_roles = list(doc.get("kingRoles") or catalogued_king_roles(ini, pieces))
 
     return {
         "name": str(doc.get("name") or doc.get("_id") or ""),
@@ -2593,7 +2637,7 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
         "height": height,
         "pieces": ", ".join(pieces),
         "pocketRoles": ", ".join(
-            list(doc.get("pocketRoles") or catalogued_pocket_roles(ini, start_fen, pieces))
+            _catalogued_pocket_roles_from_doc(doc, ini, start_fen, pieces, king_roles)
         ),
         "promotionRoles": ", ".join(
             list(doc.get("promotionRoles") or catalogued_promotion_roles(ini, pieces))
@@ -3305,7 +3349,11 @@ def _build_fsf_builtin_doc(
         "", pieces
     )
     pocket_roles = _fsf_metadata_string_list(metadata, "pocketRoles") or catalogued_pocket_roles(
-        "", start_fen, pieces
+        "",
+        start_fen,
+        pieces,
+        king_roles,
+        capture_to_hand=_fsf_metadata_bool(metadata, "captureToHand", False),
     )
     promotion_type = str(metadata.get("promotionType") or catalogued_promotion_type(""))
     promotion_roles = _fsf_metadata_string_list(
@@ -3858,8 +3906,10 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         height = int(existing["height"])
         pieces = _catalogued_piece_roles_from_ini(ini, start_fen)
         king_roles = catalogued_king_roles(ini, pieces)
-        pocket_roles = catalogued_pocket_roles(ini, start_fen, pieces)
         capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
+        pocket_roles = catalogued_pocket_roles(
+            ini, start_fen, pieces, king_roles, capture_to_hand=capture_to_hand
+        )
         promotion_type = catalogued_promotion_type(ini)
         promotion_roles = catalogued_promotion_roles(ini, pieces)
         promotion_order = catalogued_promotion_order(ini, promotion_type)
