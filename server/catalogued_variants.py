@@ -454,6 +454,368 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
 }
 
 
+# Structured backlog of Fairy-Stockfish built-ins that are not currently
+# first-class pychess variants and are not seeded through
+# FSF_CATALOGUED_BUILTIN_VARIANTS above. This constant is deliberately unused by
+# the runtime seeding path: entries here are candidates for future review only.
+#
+# To enable one, move/copy its metadata to FSF_CATALOGUED_BUILTIN_VARIANTS and
+# test the complete pychess flow first: game creation, move input, replay,
+# analysis, fishnet/AI, piece-set compatibility, rules text, board preview,
+# clocks/byo where relevant, and saved-game export/import. Some entries are
+# aliases, internal helpers, drop/setup variants, pass/wall/flipping games, or
+# regionally adjudicated rule sets, so presence here does not imply that the
+# variant is safe or useful to expose.
+FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
+    "ai-wok": {
+        "displayName": "Ai-Wok",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "makruk",
+        "reviewNotes": "Makruk-family fairy-piece variant; review pieces and promotion UI.",
+    },
+    "amazons": {
+        "displayName": "Game of the Amazons",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Game_of_the_Amazons",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Non-chess placement/blocking game; needs move-input and rules review.",
+    },
+    "armageddon": {
+        "displayName": "Armageddon Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Fast_chess#Armageddon",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Likely needs time-odds/draw-odds UI before exposing.",
+    },
+    "breakthrough": {
+        "displayName": "Breakthrough",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Breakthrough_(board_game)",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Non-checkmate objective; verify result handling and notation.",
+    },
+    "caparandom": {
+        "displayName": "Capablanca Random Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Capablanca_random_chess",
+        ),
+        "baseVariant": "capablanca",
+        "reviewNotes": "Shuffle variant; pychess already has Capablanca960-style support.",
+    },
+    "checkshogi": {
+        "displayName": "Check-Shogi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "shogi",
+        "reviewNotes": "Shogi-family check-counting variant; review byo/check-counter UI.",
+    },
+    "chessgi": {
+        "displayName": "Chessgi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Crazyhouse#Variations",
+        ),
+        "baseVariant": "crazyhouse",
+        "reviewNotes": "Drop variant with changed pawn-drop rules; review pocket/drop UI.",
+    },
+    "chigorin": {
+        "displayName": "Chigorin Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/diffsetup.dir/chigorin.html",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Asymmetric piece movement; review piece identities and diagrams.",
+    },
+    "clobber": {
+        "displayName": "Clobber",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Clobber"),
+        "baseVariant": "chess",
+        "reviewNotes": "Non-chess game; verify pass/stalemate/objective handling.",
+    },
+    "clobber10": {
+        "displayName": "Clobber 10x10",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Clobber"),
+        "baseVariant": "clobber",
+        "reviewNotes": "Large-board non-chess game; verify board sizing and objective handling.",
+    },
+    "euroshogi": {
+        "displayName": "EuroShogi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/EuroShogi"),
+        "baseVariant": "shogi",
+        "reviewNotes": "Shogi-family drops/promotions; review piece assets and byo UI.",
+    },
+    "fairy": {
+        "displayName": "Fairy",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "chess",
+        "reviewNotes": "Internal helper used by Fairy-Stockfish endgame initialization; do not expose.",
+    },
+    "fischerandom": {
+        "displayName": "Fischer Random Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Fischer_random_chess",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Alias of Chess960; pychess already exposes this as Chess960.",
+    },
+    "flipello": {
+        "displayName": "Flipello",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Reversi#Othello",
+        ),
+        "baseVariant": "flipersi",
+        "reviewNotes": "Reversi-like placement game; verify pass/drop-like move flow.",
+    },
+    "flipello10": {
+        "displayName": "Flipello 10x10",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Reversi"),
+        "baseVariant": "flipello",
+        "reviewNotes": "Large-board Reversi-like placement game; verify pass/drop-like move flow.",
+    },
+    "flipersi": {
+        "displayName": "Flipersi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Reversi"),
+        "baseVariant": "chess",
+        "reviewNotes": "Reversi-like placement game; verify pass/drop-like move flow.",
+    },
+    "fox-and-hounds": {
+        "displayName": "Fox and Hounds",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://boardgamegeek.com/boardgame/148180/fox-and-hounds",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Asymmetric non-capturing game; verify result handling and pieces.",
+    },
+    "gorogoro": {
+        "displayName": "Gorogoro Shogi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/D%C5%8Dbutsu_sh%C5%8Dgi#Variation",
+        ),
+        "baseVariant": "shogi",
+        "reviewNotes": "Pychess exposes Gorogoro+ separately; compare rule differences first.",
+    },
+    "gustav3": {
+        "displayName": "Gustav III Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/play/gustav-iiis-chess",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Uses wall squares; needs dedicated board/move-input review.",
+    },
+    "isolation": {
+        "displayName": "Isolation",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://boardgamegeek.com/boardgame/1875/isolation",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Non-chess blocking game; verify move encoding and result handling.",
+    },
+    "isolation7x7": {
+        "displayName": "Isolation 7x7",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://boardgamegeek.com/boardgame/1875/isolation",
+        ),
+        "baseVariant": "isolation",
+        "reviewNotes": "Non-chess blocking game; verify move encoding and result handling.",
+    },
+    "janggicasual": {
+        "displayName": "Janggi Casual",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "janggi",
+        "reviewNotes": "Janggi rule-set alias/variant; compare with existing pychess Janggi support.",
+    },
+    "janggimodern": {
+        "displayName": "Janggi Modern",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "janggi",
+        "reviewNotes": "Janggi rule-set alias/variant; compare with existing pychess Janggi support.",
+    },
+    "janggitraditional": {
+        "displayName": "Janggi Traditional",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "janggi",
+        "reviewNotes": "Janggi rule-set alias/variant; compare with existing pychess Janggi support.",
+    },
+    "jesonmor": {
+        "displayName": "Jeson Mor",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Jeson_Mor"),
+        "baseVariant": "chess",
+        "reviewNotes": "Asymmetric goal variant; review result handling and piece identities.",
+    },
+    "joust": {
+        "displayName": "Joust",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/programs.dir/joust.html",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Non-capturing knight game; verify objective and move display.",
+    },
+    "judkins": {
+        "displayName": "Judkins Shogi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Judkins_shogi"),
+        "baseVariant": "shogi",
+        "reviewNotes": "Shogi-family drops/promotions; review piece assets and byo UI.",
+    },
+    "karouk": {
+        "displayName": "Kar Ouk",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Makruk#Ka_Ouk",
+        ),
+        "baseVariant": "cambodian",
+        "reviewNotes": "Cambodian/Makruk-family first-check-wins variant; review adjudication/UI.",
+    },
+    "koedem": {
+        "displayName": "Koedem",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "http://schachclub-oetigheim.de/wp-content/uploads/2016/04/Koedem-rules.pdf",
+        ),
+        "baseVariant": "bughouse",
+        "reviewNotes": "Bughouse-family/two-board variant; not suitable for catalogued flow yet.",
+    },
+    "loop": {
+        "displayName": "Loop Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Crazyhouse#Variations",
+        ),
+        "baseVariant": "crazyhouse",
+        "reviewNotes": "Drop variant; review pocket/drop UI and promoted-piece capture behavior.",
+    },
+    "micro": {
+        "displayName": "Micro Shogi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Micro_shogi"),
+        "baseVariant": "shogi",
+        "reviewNotes": "Kyoto-style flipping/demotion mechanics; review move encoding/UI.",
+    },
+    "mini": {
+        "displayName": "Mini Shogi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "minishogi",
+        "reviewNotes": "Alias of Minishogi; pychess already exposes Minishogi.",
+    },
+    "normal": {
+        "displayName": "Normal Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Chess"),
+        "baseVariant": "chess",
+        "reviewNotes": "Alias of standard chess; pychess already exposes Chess.",
+    },
+    "okisakishogi": {
+        "displayName": "Okisaki Shogi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Okisaki_shogi"),
+        "baseVariant": "shogi",
+        "reviewNotes": "Shogi-family drops/promotions; review piece assets and byo UI.",
+    },
+    "omicron": {
+        "displayName": "Omicron Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "http://www.eglebbk.dds.nl/program/chess-omicron.html",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "12x10 Omega-family variant; review board sizing, pieces and promotion UI.",
+    },
+    "paradigm": {
+        "displayName": "Paradigm Chess30",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/rules/paradigm-chess30",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Uses non-standard bishop/horse hybrid pieces; review identities/assets.",
+    },
+    "petrified": {
+        "displayName": "Petrified",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://www.chess.com/variants/petrified"),
+        "baseVariant": "pawnsideways",
+        "reviewNotes": "Petrification mechanic may need dedicated UI/replay testing.",
+    },
+    "pocketknight": {
+        "displayName": "Pocket Knight Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/other.dir/pocket.html",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Pocket/drop variant; review pocket UI and drop legality display.",
+    },
+    "raazuvaa": {
+        "displayName": "Raazuvaa",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "chess",
+        "reviewNotes": "Maldivian chess-like rules; needs rules/reference and adjudication review.",
+    },
+    "snailtrail": {
+        "displayName": "Snail Trail",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://boardgamegeek.com/boardgame/37135/snailtrail",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Non-chess blocking game; verify move encoding and result handling.",
+    },
+    "sortofalmost": {
+        "displayName": "Sort-of-Almost Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Almost_chess#Sort_of_almost_chess",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Asymmetric Almost Chess variant; verify pieces and castling assumptions.",
+    },
+    "troitzky": {
+        "displayName": "Troitzky Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/play/troitzky-chess",
+        ),
+        "baseVariant": "chess",
+        "reviewNotes": "Large/fairy-piece variant; review piece identities and promotion UI.",
+    },
+    "wolf": {
+        "displayName": "Wolf Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Wolf_chess"),
+        "baseVariant": "chess",
+        "reviewNotes": "10x8 fairy-piece variant; review piece identities and promotion UI.",
+    },
+    "yarishogi": {
+        "displayName": "Yari Shogi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Yari_shogi"),
+        "baseVariant": "shogi",
+        "reviewNotes": "Shogi-family drops/promotions; review piece assets and byo UI.",
+    },
+}
+
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FSF_CHECK_TIMEOUT_SECONDS = 8.0
 BUILTIN_VARIANT_NAMES = frozenset(variant.server_name for variant in ServerVariants)
