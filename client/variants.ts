@@ -1603,6 +1603,187 @@ function variantPieceLetters(variant: Variant): Set<cg.Letter> {
     return letters;
 }
 
+type CataloguedPieceIdentityMap = Record<string, string>;
+
+// Piece-set compatibility is stricter than role-letter compatibility: CSS files
+// can only render the same letters, but those letters must also depict the
+// same piece. Fairy-Stockfish built-ins reuse letters across variants (for
+// example c can be Chancellor, Centaur or Champion; n can be Knight,
+// Nightrider or Kniroo), so keep the known identities variant-scoped.
+const CATALOGUED_PIECE_IDENTITIES_BY_CONTEXT: Record<string, CataloguedPieceIdentityMap> = {
+    'pieceFamily:capa': { a: 'archbishop', c: 'chancellor' },
+    'pieceFamily:shatranj': { b: 'alfil', q: 'fers' },
+    almost: { c: 'chancellor' },
+    amazon: { a: 'amazon' },
+    berolina: { p: 'berolina-pawn' },
+    capablanca: { a: 'archbishop', c: 'chancellor' },
+    centaur: { c: 'centaur' },
+    chancellor: { c: 'chancellor' },
+    chaturanga: { b: 'alfil', q: 'fers' },
+    courier: { e: 'alfil', f: 'fers', m: 'commoner', w: 'wazir' },
+    extinction: { k: 'commoner' },
+    georgian: { a: 'amazon' },
+    giveaway: { k: 'commoner' },
+    gothic: { a: 'archbishop', c: 'chancellor' },
+    grand: { a: 'archbishop', c: 'chancellor' },
+    grasshopper: { g: 'grasshopper' },
+    janus: { j: 'archbishop' },
+    knightmate: { m: 'commoner' },
+    legan: { p: 'legan-pawn' },
+    modern: { m: 'archbishop' },
+    newzealand: { n: 'kniroo', r: 'rookni' },
+    nightrider: { n: 'nightrider' },
+    nocheckatomic: { k: 'commoner' },
+    opulent: { a: 'archbishop', c: 'chancellor', n: 'marquis', w: 'wizard', l: 'lion' },
+    pawnback: { p: 'backward-pawn' },
+    pawnsideways: { p: 'sideways-pawn' },
+    perfect: { c: 'chancellor', m: 'archbishop', g: 'amazon' },
+    shatar: { j: 'bers' },
+    shatranj: { b: 'alfil', q: 'fers' },
+    tencubed: { a: 'archbishop', m: 'chancellor', c: 'champion', w: 'wizard' },
+    threekings: { k: 'commoner' },
+};
+
+const CATALOGUED_FSF_PIECE_OPTION_IDENTITIES: Record<string, string> = {
+    king: 'king',
+    commoner: 'commoner',
+    queen: 'queen',
+    rook: 'rook',
+    bishop: 'bishop',
+    knight: 'knight',
+    pawn: 'pawn',
+    shogipawn: 'pawn',
+    archbishop: 'archbishop',
+    chancellor: 'chancellor',
+    amazon: 'amazon',
+    centaur: 'centaur',
+    champion: 'champion',
+    wizard: 'wizard',
+    marquis: 'marquis',
+    lion: 'lion',
+    grasshopper: 'grasshopper',
+    nightrider: 'nightrider',
+    alfil: 'alfil',
+    fers: 'fers',
+    ferz: 'fers',
+    wazir: 'wazir',
+    bers: 'bers',
+    rookni: 'rookni',
+    kniroo: 'kniroo',
+};
+
+function cataloguedPieceIdentityDefault(letter: cg.Letter): string {
+    const normalized = normalPieceLetter(letter) ?? letter;
+    const promoted = normalized.startsWith('+');
+    const base = (promoted ? normalized.slice(1) : normalized) as cg.Letter;
+    const identity = ({
+        k: 'king',
+        q: 'queen',
+        r: 'rook',
+        b: 'bishop',
+        n: 'knight',
+        p: 'pawn',
+    } as Record<string, string>)[base] ?? `letter:${base}`;
+    return promoted ? `promoted:${identity}` : identity;
+}
+
+function cataloguedPieceIdentityFromMap(
+    letter: cg.Letter,
+    identities: CataloguedPieceIdentityMap | undefined,
+): string | undefined {
+    if (!identities) return undefined;
+    const normalized = normalPieceLetter(letter) ?? letter;
+    const promoted = normalized.startsWith('+');
+    const base = promoted ? normalized.slice(1) : normalized;
+    const identity = identities[base];
+    if (!identity) return undefined;
+    return promoted ? `promoted:${identity}` : identity;
+}
+
+function cataloguedContextPieceIdentity(
+    letter: cg.Letter,
+    contextKeys: readonly string[],
+    explicitIdentities?: ReadonlyMap<cg.Letter, string>,
+): string {
+    const normalized = normalPieceLetter(letter) ?? letter;
+    const promoted = normalized.startsWith('+');
+    const base = (promoted ? normalized.slice(1) : normalized) as cg.Letter;
+    const explicit = explicitIdentities?.get(base);
+    if (explicit) return promoted ? `promoted:${explicit}` : explicit;
+
+    for (const key of contextKeys) {
+        const identity = cataloguedPieceIdentityFromMap(normalized, CATALOGUED_PIECE_IDENTITIES_BY_CONTEXT[key]);
+        if (identity) return identity;
+    }
+    return cataloguedPieceIdentityDefault(normalized);
+}
+
+function cataloguedIniPieceIdentityOverrides(ini: string | undefined): Map<cg.Letter, string> {
+    const identities = new Map<cg.Letter, string>();
+    if (!ini) return identities;
+
+    for (const line of ini.split(/\r?\n/)) {
+        const stripped = line.trim();
+        if (!stripped || stripped.startsWith('#') || !stripped.includes('=')) continue;
+        const [left, ...right] = stripped.split('=');
+        const key = left.trim().replace(/[_-]/g, '').toLowerCase();
+        if (!key || /^custompiece\d+$/i.test(key)) continue;
+        const identity = CATALOGUED_FSF_PIECE_OPTION_IDENTITIES[key];
+        if (!identity) continue;
+
+        const value = right.join('=').split('#', 1)[0].trim();
+        const match = /^\+?([A-Za-z])(?:\s*:|\s*$)/.exec(value);
+        const letter = normalPieceLetter(match?.[1]);
+        if (letter) identities.set(letter, identity);
+    }
+
+    return identities;
+}
+
+function addCataloguedContextKey(keys: string[], seen: Set<string>, key: string | undefined | null): void {
+    const normalized = (key ?? '').trim().toLowerCase();
+    if (!normalized || seen.has(normalized)) return;
+    seen.add(normalized);
+    keys.push(normalized);
+}
+
+function cataloguedPieceIdentityContextKeys(meta: CataloguedVariantClientDocument): string[] {
+    const keys: string[] = [];
+    const seen = new Set<string>();
+    addCataloguedContextKey(keys, seen, meta.fsfBuiltinVariant);
+    if (meta.source === 'fairy-stockfish-builtin') addCataloguedContextKey(keys, seen, meta.name);
+    addCataloguedContextKey(keys, seen, meta.baseVariant);
+
+    const baseVariant = meta.baseVariant ? VARIANTS[meta.baseVariant] : undefined;
+    addCataloguedContextKey(keys, seen, baseVariant?.name);
+    addCataloguedContextKey(keys, seen, baseVariant ? `pieceFamily:${baseVariant.pieceFamily}` : undefined);
+    return keys;
+}
+
+function variantPieceIdentityContextKeys(variant: Variant): string[] {
+    const keys: string[] = [];
+    const seen = new Set<string>();
+    addCataloguedContextKey(keys, seen, variant.name);
+    addCataloguedContextKey(keys, seen, `pieceFamily:${variant.pieceFamily}`);
+    return keys;
+}
+
+function pieceIdentitiesForLetters(
+    letters: Iterable<cg.Letter>,
+    contextKeys: readonly string[],
+    explicitIdentities?: ReadonlyMap<cg.Letter, string>,
+): Set<string> {
+    const identities = new Set<string>();
+    for (const letter of letters) {
+        identities.add(cataloguedContextPieceIdentity(letter, contextKeys, explicitIdentities));
+    }
+    return identities;
+}
+
+function variantPieceIdentities(variant: Variant, letters: Set<cg.Letter>): Set<string> {
+    return pieceIdentitiesForLetters(letters, variantPieceIdentityContextKeys(variant));
+}
+
 function cataloguedNeededPieceLetters(meta: CataloguedVariantClientDocument): Set<cg.Letter> {
     const info = cataloguedPieceInfo(meta);
     const letters = new Set<cg.Letter>();
@@ -1613,6 +1794,14 @@ function cataloguedNeededPieceLetters(meta: CataloguedVariantClientDocument): Se
         for (const role of info.promotionRoles) addPieceLetter(letters, promotedPieceLetter(role));
     }
     return letters;
+}
+
+function cataloguedNeededPieceIdentities(meta: CataloguedVariantClientDocument, letters: Set<cg.Letter>): Set<string> {
+    return pieceIdentitiesForLetters(
+        letters,
+        cataloguedPieceIdentityContextKeys(meta),
+        cataloguedIniPieceIdentityOverrides(meta.ini),
+    );
 }
 
 function isSubset<T>(needed: Set<T>, available: Set<T>): boolean {
@@ -1642,12 +1831,16 @@ function cataloguedCompatiblePieceSource(
     // custom-piece roles; otherwise e.g. an unrelated custom "g" can be
     // mistaken for a Shogi gold general.
     if (cataloguedNeedsCustomPieceGlyphs(meta, needed)) return undefined;
+    const neededIdentities = cataloguedNeededPieceIdentities(meta, needed);
 
     const baseVariantName = meta.baseVariant;
     return Object.values(VARIANTS)
         .filter(variant => !cataloguedVariantNames.has(variant.name))
-        .map(variant => ({ variant, roles: variantPieceLetters(variant) }))
-        .filter(({ roles }) => isSubset(needed, roles))
+        .map(variant => {
+            const roles = variantPieceLetters(variant);
+            return { variant, roles, identities: variantPieceIdentities(variant, roles) };
+        })
+        .filter(({ roles, identities }) => isSubset(needed, roles) && isSubset(neededIdentities, identities))
         .map(({ variant, roles }) => ({
             pieceFamily: variant.pieceFamily,
             pieceCSSExclude: [...variant.pieceCSSExclude],
