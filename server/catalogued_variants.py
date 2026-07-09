@@ -525,6 +525,7 @@ class CataloguedVariantClientDocument(TypedDict):
     aiDisabled: NotRequired[bool]
     aiDisabledReason: NotRequired[str]
     aiDisabledUntil: NotRequired[datetime]
+    favorite: NotRequired[bool]
     hasPieceSet: NotRequired[bool]
     pieceSetRevision: NotRequired[str]
     hasBoard: NotRequired[bool]
@@ -1857,7 +1858,10 @@ def validate_catalogued_ini(ini: str) -> CataloguedVariantValidation:
 
 
 def _client_doc(
-    doc: Mapping[str, Any], *, game_count: int | None = None
+    doc: Mapping[str, Any],
+    *,
+    game_count: int | None = None,
+    favorite_names: set[str] | None = None,
 ) -> CataloguedVariantClientDocument:
     description = str(doc.get("description") or "")
     tooltip = description or "Catalogued variant"
@@ -1927,6 +1931,8 @@ def _client_doc(
         client_doc["aiDisabledUntil"] = ai_disabled_until
         if doc.get("aiDisabledReason"):
             client_doc["aiDisabledReason"] = str(doc["aiDisabledReason"])
+    if favorite_names is not None and str(client_doc["name"]) in favorite_names:
+        client_doc["favorite"] = True
     if game_count is not None:
         client_doc["gameCount"] = game_count
         client_doc["locked"] = game_count > 0
@@ -2123,10 +2129,11 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
 def catalogued_variants_for_client(
     app_state: Any,
     username: str | None = None,
+    favorite_names: set[str] | None = None,
 ) -> list[CataloguedVariantClientDocument]:
     docs = getattr(app_state, "catalogued_variants", {})
     return [
-        _client_doc(doc)
+        _client_doc(doc, favorite_names=favorite_names)
         for doc in sorted(
             docs.values(), key=lambda item: str(item.get("displayName", item["name"])).casefold()
         )
@@ -2260,7 +2267,17 @@ async def init_catalogued_variants(app_state: Any, db_collections: list[str]) ->
 async def get_catalogued_variants(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _optional_human_username(request)
-    return json_response({"variants": catalogued_variants_for_client(app_state, username)})
+    favorite_names: set[str] | None = None
+    if username is not None:
+        user = await app_state.users.get(username)
+        favorite_names = _clean_favorite_names(getattr(user, "catalogued_variant_favorites", set()))
+    return json_response(
+        {
+            "variants": catalogued_variants_for_client(
+                app_state, username, favorite_names=favorite_names
+            )
+        }
+    )
 
 
 async def _optional_human_username(request: web.Request) -> str | None:

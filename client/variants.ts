@@ -1355,6 +1355,7 @@ export interface CataloguedVariantClientDocument {
     readonly aiDisabled?: boolean;
     readonly aiDisabledReason?: string;
     readonly aiDisabledUntil?: string;
+    readonly favorite?: boolean;
     readonly hasPieceSet?: boolean;
     readonly pieceSetRevision?: string;
     readonly hasBoard?: boolean;
@@ -1363,6 +1364,7 @@ export interface CataloguedVariantClientDocument {
 
 const cataloguedVariantInis: Record<string, string> = {};
 const cataloguedVariantNames = new Set<string>();
+const favoriteCataloguedVariantNames = new Set<string>();
 
 export function allVariantsIni(baseIni: string): string {
     return [baseIni, ...Object.values(cataloguedVariantInis)].filter(Boolean).join('\n');
@@ -1919,6 +1921,8 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         },
     });
     cataloguedVariantNames.add(meta.name);
+    if (meta.favorite) favoriteCataloguedVariantNames.add(meta.name);
+    else favoriteCataloguedVariantNames.delete(meta.name);
     if (meta.ini) cataloguedVariantInis[meta.name] = meta.ini;
 }
 
@@ -1928,6 +1932,7 @@ export function unregisterCataloguedVariant(name: string | undefined | null): vo
     delete PIECE_FAMILIES[`catalogued-${name}`];
     delete cataloguedVariantInis[name];
     cataloguedVariantNames.delete(name);
+    favoriteCataloguedVariantNames.delete(name);
 }
 
 export function loadCataloguedVariantsFromJson(raw: string | null): void {
@@ -1968,26 +1973,46 @@ export function variantGroupLabel(group: string): string {
     return gameCategoryLabel(group);
 }
 
+function variantSelectOption(name: string, selected: string | null, disableds: string[]): VNode | null {
+    const variant = VARIANTS[name];
+    if (!variant) return null;
+    return h('option', {
+        props: { value: name, title: variant.tooltip },
+        attrs: { selected: name === selected, disabled: disableds.includes(variant.name) },
+    }, variant.displayName(false));
+}
+
+function listedCataloguedVariantNames(): Set<string> {
+    return new Set<string>([
+        ...Object.values(variantGroups).flatMap(group => group.variants),
+        ...favoriteCataloguedVariantNames,
+    ]);
+}
+
 export function selectVariant(id: string, selected: string | null, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = [], gameCategory: string = "all"): VNode {
     const groupedOptions = Object.keys(variantGroups).filter(g => gameCategory === "all" || g === gameCategory).map(g => {
         const group = variantGroups[g];
-        return h('optgroup', { props: { label: variantGroupLabel(g) } }, group.variants.filter(v => !!VARIANTS[v]).map(v => {
-            const variant = VARIANTS[v];
-            return h('option', {
-                props: { value: v, title: variant.tooltip },
-                attrs: { selected: v === selected, disabled: disableds.includes(variant.name) },
-            }, variant.displayName(false));
-        }));
+        return h('optgroup', { props: { label: variantGroupLabel(g) } },
+            group.variants
+                .map(v => variantSelectOption(v, selected, disableds))
+                .filter((option): option is VNode => option !== null)
+        );
     });
 
-    if (selected && isCataloguedVariant(selected) && VARIANTS[selected] && !Object.values(variantGroups).some(group => group.variants.includes(selected))) {
-        const variant = VARIANTS[selected];
-        groupedOptions.push(h('optgroup', { props: { label: _('Selected custom variant') } }, [
-            h('option', {
-                props: { value: selected, title: variant.tooltip },
-                attrs: { selected: true, disabled: disableds.includes(variant.name) },
-            }, variant.displayName(false)),
-        ]));
+    const favoriteOptions = [...favoriteCataloguedVariantNames]
+        .filter(v => !!VARIANTS[v])
+        .sort((left, right) => VARIANTS[left].displayName(false).localeCompare(VARIANTS[right].displayName(false)))
+        .map(v => variantSelectOption(v, selected, disableds))
+        .filter((option): option is VNode => option !== null);
+    if (favoriteOptions.length) {
+        groupedOptions.push(h('optgroup', { props: { label: _('Favorite custom variants') } }, favoriteOptions));
+    }
+
+    if (selected && isCataloguedVariant(selected) && VARIANTS[selected] && !listedCataloguedVariantNames().has(selected)) {
+        const option = variantSelectOption(selected, selected, disableds);
+        if (option) {
+            groupedOptions.push(h('optgroup', { props: { label: _('Selected custom variant') } }, [option]));
+        }
     }
 
     return h('select#' + id, {
