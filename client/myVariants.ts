@@ -381,7 +381,9 @@ function ensureCataloguedCustomBoardCSS(variant: ManagedVariant): void {
 
 function expectedPieceSetFiles(variant: ManagedVariant): string[] {
     const pieces = [...new Set((variant.pieces?.length ? variant.pieces : ['k']).map(piece => piece.toLowerCase()))].sort();
-    const promoted = [...new Set((variant.promotionRoles ?? []).map(piece => piece.toLowerCase()))].sort();
+    const promoted = variant.promotionType === 'shogi'
+        ? [...new Set((variant.promotionRoles ?? []).map(piece => piece.toLowerCase()))].sort()
+        : [];
     const names: string[] = [];
     for (const color of ['w', 'b']) {
         for (const piece of pieces) names.push(`${color}${piece.toUpperCase()}.svg`);

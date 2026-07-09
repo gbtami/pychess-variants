@@ -236,7 +236,44 @@ class CataloguedVariantPieceMetadataTestCase(unittest.TestCase):
         self.assertIn(
             "w+P.svg",
             _catalogued_piece_set_required_filenames(
-                {"pieces": validated.pieces, "promotionRoles": validated.promotion_roles}
+                {
+                    "pieces": validated.pieces,
+                    "promotionType": validated.promotion_type,
+                    "promotionRoles": validated.promotion_roles,
+                }
+            ),
+        )
+
+    def test_regular_promotion_roles_do_not_require_promoted_svgs(self) -> None:
+        self.assertEqual(
+            [
+                "wA.svg",
+                "wB.svg",
+                "wC.svg",
+                "wK.svg",
+                "wM.svg",
+                "wN.svg",
+                "wP.svg",
+                "wQ.svg",
+                "wR.svg",
+                "wW.svg",
+                "bA.svg",
+                "bB.svg",
+                "bC.svg",
+                "bK.svg",
+                "bM.svg",
+                "bN.svg",
+                "bP.svg",
+                "bQ.svg",
+                "bR.svg",
+                "bW.svg",
+            ],
+            _catalogued_piece_set_required_filenames(
+                {
+                    "pieces": ["k", "q", "r", "b", "n", "p", "a", "m", "c", "w"],
+                    "promotionType": "regular",
+                    "promotionRoles": ["p"],
+                }
             ),
         )
 

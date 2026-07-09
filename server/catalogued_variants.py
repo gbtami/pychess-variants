@@ -1858,9 +1858,14 @@ def _canonical_piece_set_filename(filename: str) -> str | None:
 
 def _catalogued_piece_set_required_filenames(doc: Mapping[str, Any]) -> list[str]:
     roles = {str(role).lower() for role in doc.get("pieces", []) if str(role).isalpha()}
-    promoted_roles = {
-        str(role).lower() for role in doc.get("promotionRoles", []) if str(role).isalpha()
-    }
+    promotion_type = str(
+        doc.get("promotionType") or catalogued_promotion_type(str(doc.get("ini") or ""))
+    ).casefold()
+    promoted_roles = (
+        {str(role).lower() for role in doc.get("promotionRoles", []) if str(role).isalpha()}
+        if promotion_type == "shogi"
+        else set()
+    )
     filenames: list[str] = []
     for color in ("w", "b"):
         for role in sorted(roles):
