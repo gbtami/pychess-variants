@@ -27,10 +27,10 @@
     <form class="community-variants-search" method="get" action="{{ home }}/variants/community">
         <label>
             Search
-            <input type="search" name="q" value="{{ community_variants.q }}" placeholder="Name, description, or author">
+            <input type="search" name="q" value="{{ community_variants.q }}" placeholder="Name, description, or uploader">
         </label>
         <label>
-            Author
+            Uploaded by
             <input type="search" name="author" value="{{ community_variants.author }}" placeholder="Exact username">
         </label>
         <label>
@@ -81,8 +81,16 @@
             </div>
             <div class="community-variant-card-main">
                 {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+                {% if item.references %}
+                <p class="catalogued-variant-references">
+                    References:
+                    {% for reference in item.references %}
+                    <a href="{{ reference.url }}" target="_blank" rel="noopener noreferrer nofollow">{{ reference.label }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                {% endif %}
                 <dl>
-                    {% if item.author %}<div><dt>Author</dt><dd>{{ item.author }}</dd></div>{% endif %}
+                    {% if item.author %}<div><dt>Uploaded by</dt><dd>{{ item.author }}</dd></div>{% endif %}
                     <div><dt>Board</dt><dd>{{ item.width }} × {{ item.height }}</dd></div>
                     <div><dt>Games</dt><dd>{{ item.gameCount }}</dd></div>
                 </dl>
@@ -125,6 +133,14 @@
             <h1>{{ catalogued_variant.displayName }}</h1>
             {% if catalogued_variant.description %}
             <div class="catalogued-variant-description">{{ catalogued_variant.description }}</div>
+            {% endif %}
+            {% if catalogued_variant.references %}
+            <div class="catalogued-variant-references">
+                References:
+                {% for reference in catalogued_variant.references %}
+                <a href="{{ reference.url }}" target="_blank" rel="noopener noreferrer nofollow">{{ reference.label }}</a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </div>
             {% endif %}
             <div class="catalogued-variant-intro">
                 This is a user-catalogued casual variant. Technical details such as board size,

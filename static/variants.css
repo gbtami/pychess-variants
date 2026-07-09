@@ -27,6 +27,7 @@ div.guide ol, div.guide ul {
 div.guide .catalogued-variant-rules h1,
 div.guide .catalogued-variant-rules h2,
 div.guide .catalogued-variant-rules .catalogued-variant-description,
+div.guide .catalogued-variant-rules .catalogued-variant-references,
 div.guide .catalogued-variant-rules .catalogued-variant-intro,
 div.guide .catalogued-variant-rules .catalogued-variant-kicker {
     margin: 0;
@@ -87,6 +88,10 @@ div.guide .catalogued-variant-rules h1 {
 
 .catalogued-variant-description {
     color: var(--font-color);
+}
+
+.catalogued-variant-references {
+    font-size: 0.92rem;
 }
 
 .catalogued-variant-intro {

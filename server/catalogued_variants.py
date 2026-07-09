@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping, NamedTuple, NotRequired, TypedDict, cast
-from urllib.parse import unquote
+from urllib.parse import unquote, urlparse
 
 import aiohttp_session
 from aiohttp import web
@@ -88,10 +88,33 @@ FSF_CATALOGUED_BUILTIN_DESCRIPTION = (
 )
 
 
-def _fsf_builtin_description(*links: str) -> str:
-    if not links:
-        return FSF_CATALOGUED_BUILTIN_DESCRIPTION
-    return f"{FSF_CATALOGUED_BUILTIN_DESCRIPTION} Reference: {', '.join(links)}"
+def _reference_label_for_url(url: str) -> str:
+    host = urlparse(url).netloc.casefold().removeprefix("www.")
+    if not host:
+        return "Reference"
+    if host.endswith("wikipedia.org"):
+        return "Wikipedia"
+    if host == "chessvariants.com":
+        return "Chess Variant Pages"
+    if host == "chessclub.com":
+        return "ICC help"
+    if host == "freechess.org":
+        return "FICS help"
+    if host == "arxiv.org":
+        return "arXiv"
+    if host == "github.com":
+        return "GitHub"
+    if host == "web.archive.org":
+        return "Archived rules"
+    if host == "binnewirtz.com":
+        return "Binnewirtz"
+    if host == "kotesovec.cz":
+        return "Kotesovec"
+    return host
+
+
+def _fsf_builtin_references(*urls: str) -> tuple[dict[str, str], ...]:
+    return tuple({"label": _reference_label_for_url(url), "url": url} for url in urls)
 
 
 # Curated subset of Fairy-Stockfish built-ins that pychess exposes through the
@@ -117,15 +140,17 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "almost": {
         "displayName": "Almost Chess",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Almost_chess"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Almost_chess"),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
         "promotionOrder": ("c", "r", "b", "n"),
     },
     "amazon": {
         "displayName": "Amazon Chess",
-        "description": _fsf_builtin_description(
-            "https://www.chessvariants.com/diffmove.dir/amazone.html"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/diffmove.dir/amazone.html",
         ),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
@@ -133,9 +158,11 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "atomar": {
         "displayName": "Atomar",
-        "description": _fsf_builtin_description(
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
             "https://web.archive.org/web/20230519082613/"
-            "https://chronatog.com/wp-content/uploads/2021/09/atomar-chess-rules.pdf"
+            "https://chronatog.com/wp-content/uploads/2021/09/"
+            "atomar-chess-rules.pdf",
         ),
         "baseVariant": "atomic",
         "promotionRoles": ("p",),
@@ -143,8 +170,9 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "berolina": {
         "displayName": "Berolina Chess",
-        "description": _fsf_builtin_description(
-            "https://www.chessvariants.com/dpieces.dir/berlin.html"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/dpieces.dir/berlin.html",
         ),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
@@ -152,8 +180,9 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "centaur": {
         "displayName": "Centaur Chess",
-        "description": _fsf_builtin_description(
-            "https://www.chessvariants.com/large.dir/contest/royalcourt.html"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/large.dir/contest/royalcourt.html",
         ),
         "baseVariant": "capablanca",
         "promotionRoles": ("p",),
@@ -161,27 +190,31 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "chancellor": {
         "displayName": "Chancellor Chess",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Chancellor_chess"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Chancellor_chess"),
         "baseVariant": "capablanca",
         "promotionRoles": ("p",),
         "promotionOrder": ("c", "q", "r", "b", "n"),
     },
     "chaturanga": {
         "displayName": "Chaturanga",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Chaturanga"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Chaturanga"),
         "baseVariant": "shatranj",
     },
     "codrus": {
         "displayName": "Codrus",
-        "description": _fsf_builtin_description("http://www.binnewirtz.com/Schlagschach1.htm"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("http://www.binnewirtz.com/Schlagschach1.htm"),
         "baseVariant": "antichess",
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "coregal": {
         "displayName": "Coregal Chess",
-        "description": _fsf_builtin_description(
-            "https://www.chessvariants.com/winning.dir/coregal.html"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/winning.dir/coregal.html",
         ),
         "baseVariant": "chess",
         "kingRoles": ("k", "q"),
@@ -190,22 +223,25 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "courier": {
         "displayName": "Courier Chess",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Courier_chess"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Courier_chess"),
         "baseVariant": "shatranj",
         "promotionRoles": ("p",),
         "promotionOrder": ("f",),
     },
     "extinction": {
         "displayName": "Extinction Chess",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Extinction_chess"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Extinction_chess"),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
         "promotionOrder": ("k", "q", "r", "b", "n"),
     },
     "gardner": {
         "displayName": "Gardner Minichess",
-        "description": _fsf_builtin_description(
-            "https://en.wikipedia.org/wiki/Minichess#5%C3%975_chess"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/Minichess#5%C3%975_chess",
         ),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
@@ -220,8 +256,9 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "giveaway": {
         "displayName": "Giveaway Chess",
-        "description": _fsf_builtin_description(
-            "https://www.chessvariants.com/diffobjective.dir/giveaway.old.html"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/diffobjective.dir/giveaway.old.html",
         ),
         "baseVariant": "antichess",
         "promotionRoles": ("p",),
@@ -229,22 +266,25 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "grasshopper": {
         "displayName": "Grasshopper Chess",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Grasshopper_chess"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Grasshopper_chess"),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
         "promotionOrder": ("q", "r", "b", "n", "g"),
     },
     "janus": {
         "displayName": "Janus Chess",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Janus_Chess"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Janus_Chess"),
         "baseVariant": "capablanca",
         "promotionRoles": ("p",),
         "promotionOrder": ("j", "q", "r", "b", "n"),
     },
     "kinglet": {
         "displayName": "Kinglet",
-        "description": _fsf_builtin_description(
-            "https://en.wikipedia.org/wiki/V._R._Parton#Kinglet_chess"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://en.wikipedia.org/wiki/V._R._Parton#Kinglet_chess",
         ),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
@@ -252,8 +292,9 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "knightmate": {
         "displayName": "Knightmate",
-        "description": _fsf_builtin_description(
-            "https://www.chessvariants.com/diffobjective.dir/knightmate.html"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/diffobjective.dir/knightmate.html",
         ),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
@@ -261,37 +302,40 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "legan": {
         "displayName": "Legan Chess",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Legan_chess"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Legan_chess"),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "losalamos": {
         "displayName": "Los Alamos Chess",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Los_Alamos_chess"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Los_Alamos_chess"),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
         "promotionOrder": ("q", "r", "n"),
     },
     "losers": {
         "displayName": "Losers Chess",
-        "description": _fsf_builtin_description("https://www.chessclub.com/help/Wild17"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://www.chessclub.com/help/Wild17"),
         "baseVariant": "antichess",
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "misere": {
         "displayName": "Misère Chess",
-        "description": _fsf_builtin_description(
-            "http://www.kotesovec.cz/gustav/gustav_alybadix.htm"
-        ),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("http://www.kotesovec.cz/gustav/gustav_alybadix.htm"),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "modern": {
         "displayName": "Modern Chess",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Modern_chess"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Modern_chess"),
         "baseVariant": "capablanca",
         "promotionRoles": ("p",),
         "promotionOrder": ("m", "q", "r", "b", "n"),
@@ -305,7 +349,8 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "nightrider": {
         "displayName": "Nightrider Chess",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Nightrider_(chess)"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Nightrider_(chess)"),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
@@ -319,38 +364,41 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "nocheckatomic": {
         "displayName": "No-Check Atomic",
-        "description": _fsf_builtin_description("https://www.chessclub.com/help/atomic"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://www.chessclub.com/help/atomic"),
         "baseVariant": "atomic",
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "opulent": {
         "displayName": "Opulent Chess",
-        "description": _fsf_builtin_description(
-            "https://www.chessvariants.com/rules/opulent-chess"
-        ),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://www.chessvariants.com/rules/opulent-chess"),
         "baseVariant": "grand",
         "promotionRoles": ("p",),
         "promotionOrder": ("q", "r", "b", "a", "c", "n", "w", "l"),
     },
     "pawnback": {
         "displayName": "Pawnback Chess",
-        "description": _fsf_builtin_description("https://arxiv.org/abs/2009.04374"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://arxiv.org/abs/2009.04374"),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "pawnsideways": {
         "displayName": "Pawnsideways Chess",
-        "description": _fsf_builtin_description("https://arxiv.org/abs/2009.04374"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://arxiv.org/abs/2009.04374"),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "perfect": {
         "displayName": "Perfect Chess",
-        "description": _fsf_builtin_description(
-            "https://www.chessvariants.com/diffmove.dir/perfectchess.html"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/diffmove.dir/perfectchess.html",
         ),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
@@ -358,15 +406,17 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "shatar": {
         "displayName": "Shatar",
-        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Shatar"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Shatar"),
         "baseVariant": "shatranj",
         "promotionRoles": ("p",),
         "promotionOrder": ("j",),
     },
     "suicide": {
         "displayName": "Suicide Chess",
-        "description": _fsf_builtin_description(
-            "https://www.freechess.org/Help/HelpFiles/suicide_chess.html"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.freechess.org/Help/HelpFiles/suicide_chess.html",
         ),
         "baseVariant": "antichess",
         "promotionRoles": ("p",),
@@ -374,8 +424,9 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "tencubed": {
         "displayName": "Ten Cubed Chess",
-        "description": _fsf_builtin_description(
-            "https://www.chessvariants.com/contests/10/tencubedchess.html"
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/contests/10/tencubedchess.html",
         ),
         "baseVariant": "grand",
         "promotionRoles": ("p",),
@@ -383,9 +434,10 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "threekings": {
         "displayName": "Three Kings",
-        "description": _fsf_builtin_description(
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
             "https://github.com/cutechess/cutechess/blob/master/"
-            "projects/lib/src/board/threekingsboard.h"
+            "projects/lib/src/board/threekingsboard.h",
         ),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
@@ -393,7 +445,8 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "torpedo": {
         "displayName": "Torpedo Chess",
-        "description": _fsf_builtin_description("https://arxiv.org/abs/2009.04374"),
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://arxiv.org/abs/2009.04374"),
         "baseVariant": "chess",
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
@@ -445,6 +498,11 @@ class CataloguedVariantBoardSvg(TypedDict):
     size: int
 
 
+class CataloguedVariantReference(TypedDict):
+    label: str
+    url: str
+
+
 class CataloguedVariantDocument(TypedDict):
     _id: str
     name: str
@@ -476,6 +534,7 @@ class CataloguedVariantDocument(TypedDict):
     visibility: str
     source: NotRequired[str]
     fsfBuiltinVariant: NotRequired[str]
+    references: NotRequired[list[CataloguedVariantReference]]
     pieceSet: NotRequired[dict[str, CataloguedVariantPieceSetSvg]]
     pieceSetUpdatedAt: NotRequired[datetime]
     boardSvg: NotRequired[CataloguedVariantBoardSvg]
@@ -517,6 +576,7 @@ class CataloguedVariantClientDocument(TypedDict):
     source: NotRequired[str]
     system: NotRequired[bool]
     fsfBuiltinVariant: NotRequired[str]
+    references: NotRequired[list[CataloguedVariantReference]]
     archived: NotRequired[bool]
     enabled: NotRequired[bool]
     gameCount: NotRequired[int]
@@ -1921,6 +1981,9 @@ def _client_doc(
     }
     if _is_fsf_builtin_catalogued_doc(doc):
         client_doc["fsfBuiltinVariant"] = _fsf_builtin_variant_name(doc)
+        references = _catalogued_references_for_display(doc)
+        if references:
+            client_doc["references"] = references
     if client_doc["hasPieceSet"]:
         client_doc["pieceSetRevision"] = _piece_set_revision(doc)
     if client_doc["hasBoard"]:
@@ -2103,6 +2166,7 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
         ),
         "description": str(doc.get("description") or ""),
         "author": str(doc.get("author") or ""),
+        "references": _catalogued_references_for_display(doc),
         "ini": ini,
         "startFen": start_fen,
         "width": width,
@@ -2501,6 +2565,7 @@ async def community_catalogued_variants_page(
                 "displayName": str(doc.get("displayName") or name),
                 "description": str(doc.get("description") or ""),
                 "author": str(doc.get("author") or ""),
+                "references": _catalogued_references_for_display(doc),
                 "width": int(doc.get("width") or 0),
                 "height": int(doc.get("height") or 0),
                 "gameCount": count,
@@ -2727,12 +2792,66 @@ def _fsf_metadata_bool(metadata: Mapping[str, Any], key: str, default: bool) -> 
     return bool(value)
 
 
+def _clean_catalogued_reference(value: Any) -> CataloguedVariantReference | None:
+    if not isinstance(value, Mapping):
+        return None
+
+    url = str(value.get("url") or "").strip()
+    parsed = urlparse(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return None
+
+    label = str(value.get("label") or "").strip()[:80] or _reference_label_for_url(url)
+    return {"label": label, "url": url}
+
+
+def _clean_catalogued_references(value: Any) -> list[CataloguedVariantReference]:
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    seen: set[str] = set()
+    references: list[CataloguedVariantReference] = []
+    for item in value:
+        reference = _clean_catalogued_reference(item)
+        if reference is None or reference["url"] in seen:
+            continue
+        seen.add(reference["url"])
+        references.append(reference)
+    return references
+
+
+def _fsf_legacy_reference_description(references: list[CataloguedVariantReference]) -> str:
+    if not references:
+        return FSF_CATALOGUED_BUILTIN_DESCRIPTION
+    urls = ", ".join(reference["url"] for reference in references)
+    return f"{FSF_CATALOGUED_BUILTIN_DESCRIPTION} Reference: {urls}"
+
+
+def _fsf_builtin_description_is_auto(
+    description: str, metadata: Mapping[str, Any], references: list[CataloguedVariantReference]
+) -> bool:
+    metadata_description = str(metadata.get("description") or FSF_CATALOGUED_BUILTIN_DESCRIPTION)
+    return not description or description in {
+        FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        metadata_description,
+        _fsf_legacy_reference_description(references),
+    }
+
+
+def _catalogued_references_for_display(doc: Mapping[str, Any]) -> list[CataloguedVariantReference]:
+    if not _is_fsf_builtin_catalogued_doc(doc):
+        return []
+    return _clean_catalogued_references(doc.get("references"))
+
+
 def _fsf_builtin_description_for_doc(
-    metadata: Mapping[str, Any], existing: Mapping[str, Any] | None
+    metadata: Mapping[str, Any],
+    existing: Mapping[str, Any] | None,
+    references: list[CataloguedVariantReference],
 ) -> str:
-    metadata_description = str(metadata.get("description") or "")
+    metadata_description = str(metadata.get("description") or FSF_CATALOGUED_BUILTIN_DESCRIPTION)
     existing_description = str((existing or {}).get("description") or "")
-    if not existing_description or existing_description == FSF_CATALOGUED_BUILTIN_DESCRIPTION:
+    if _fsf_builtin_description_is_auto(existing_description, metadata, references):
         return metadata_description
     return existing_description
 
@@ -2766,14 +2885,15 @@ def _build_fsf_builtin_doc(
     promotion_order = _fsf_metadata_string_list(
         metadata, "promotionOrder"
     ) or catalogued_promotion_order("", promotion_type)
+    references = _clean_catalogued_references(metadata.get("references"))
 
-    return _build_doc(
+    doc = _build_doc(
         name=name,
         base_variant=str(metadata.get("baseVariant") or ""),
         display_name=str(
             (existing or {}).get("displayName") or metadata.get("displayName") or name
         ),
-        description=_fsf_builtin_description_for_doc(metadata, existing),
+        description=_fsf_builtin_description_for_doc(metadata, existing, references),
         username=CATALOGUED_FSF_BUILTIN_AUTHOR,
         ini="",
         start_fen=start_fen,
@@ -2801,6 +2921,8 @@ def _build_fsf_builtin_doc(
         source=CATALOGUED_SOURCE_FSF_BUILTIN,
         fsf_builtin_variant=name,
     )
+    doc["references"] = references
+    return doc
 
 
 def _fsf_builtin_synced_fields(doc: Mapping[str, Any]) -> dict[str, Any]:
@@ -2837,6 +2959,7 @@ def _fsf_builtin_synced_fields(doc: Mapping[str, Any]) -> dict[str, Any]:
         "category",
         "source",
         "fsfBuiltinVariant",
+        "references",
     )
     return {key: doc[key] for key in keys if key in doc}
 
@@ -2876,7 +2999,8 @@ async def ensure_fsf_catalogued_builtin_variants(app_state: Any) -> None:
 
         synced_fields = _fsf_builtin_synced_fields(doc)
         existing_description = str(existing.get("description") or "")
-        if not existing_description or existing_description == FSF_CATALOGUED_BUILTIN_DESCRIPTION:
+        references = _clean_catalogued_references(doc.get("references"))
+        if _fsf_builtin_description_is_auto(existing_description, metadata, references):
             synced_fields["description"] = doc["description"]
 
         await collection.update_one(
