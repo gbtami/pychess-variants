@@ -1,6 +1,7 @@
 import json
 import time
 import unittest
+from types import SimpleNamespace
 
 import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
@@ -181,6 +182,35 @@ class PushSubscribeTestCase(AioHTTPTestCase):
             san="e4",
         )
         self.assertEqual(app_state.push_notifier.queue.qsize(), 0)
+
+    async def test_corr_move_notification_hides_san_for_fogofwar(self):
+        app_state = get_app_state(self.app)
+        white = User(app_state, username="white")
+        black = User(app_state, username="black")
+        game = SimpleNamespace(id="foggame", wplayer=white, bplayer=black, fow=True)
+
+        await white.notify_corr_move(game, "c3")
+
+        self.assertIsNotNone(white.notifications)
+        assert white.notifications is not None
+        notification = white.notifications[-1]
+        self.assertEqual(notification["type"], "corrMove")
+        self.assertEqual(notification["content"]["opp"], "black")
+        self.assertNotIn("san", notification["content"])
+
+        stored = await app_state.db.notify.find_one({"notifies": "white", "type": "corrMove"})
+        self.assertIsNotNone(stored)
+        self.assertNotIn("san", stored["content"])
+
+    async def test_corr_push_body_hides_missing_san(self):
+        self.assertEqual(
+            push_notifications.PushNotifier._corr_move_body("opponent", None),
+            "opponent played a move",
+        )
+        self.assertEqual(
+            push_notifications.PushNotifier._corr_move_body("opponent", "e4"),
+            "opponent played e4",
+        )
 
     async def test_deliver_retries_on_transient_failures_when_nothing_was_sent(self):
         app_state = get_app_state(self.app)

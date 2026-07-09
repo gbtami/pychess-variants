@@ -87,6 +87,7 @@ export interface Variant {
     readonly _tooltip: string;
     readonly tooltip: string;
     readonly chess960: boolean;
+    readonly aiDisabled: boolean;
     readonly twoBoards: boolean;
     readonly hiddenInfo: boolean;
     readonly hiddenInfoMode: HiddenInfoMode;
@@ -158,6 +159,7 @@ export function variant(config: VariantConfig): Variant {
         _tooltip: config.tooltip,
         get tooltip() { return _(this._tooltip) },
         chess960: !!config.chess960,
+        aiDisabled: !!config.aiDisabled,
         twoBoards: !!config.twoBoards,
         hiddenInfo: !!config.hiddenInfo,
         hiddenInfoMode: config.hiddenInfoMode ?? 'none',
@@ -248,6 +250,8 @@ interface VariantConfig {
     startFen: string;
     // Whether it is possible to play a randomized starting position (default: false)
     chess960?: boolean;
+    // Whether Fairy-Stockfish AI is temporarily disabled for this catalogued variant
+    aiDisabled?: boolean;
     // Pocket pieces are added from an external source, usually from a second board (e.g., bughouse)
     twoBoards?: boolean;
     // Whether some information must be hidden from one or more viewers
@@ -1344,6 +1348,9 @@ export interface CataloguedVariantClientDocument {
     readonly gameCount?: number;
     readonly locked?: boolean;
     readonly visibility?: 'private' | 'unlisted' | 'public';
+    readonly aiDisabled?: boolean;
+    readonly aiDisabledReason?: string;
+    readonly aiDisabledUntil?: string;
     readonly hasPieceSet?: boolean;
     readonly pieceSetRevision?: string;
     readonly hasBoard?: boolean;
@@ -1402,14 +1409,21 @@ function cataloguedKingRolesWithPromotions(
     return roles;
 }
 
-function cataloguedIniHasOption(ini: string | undefined, key: string): boolean {
-    if (!ini) return false;
+function cataloguedIniOption(ini: string | undefined, key: string): string | undefined {
+    if (!ini) return undefined;
     const wanted = key.toLowerCase();
-    return ini.split(/\r?\n/).some(line => {
+    for (const line of ini.split(/\r?\n/)) {
         const stripped = line.trim();
-        if (!stripped || stripped.startsWith('#') || !stripped.includes('=')) return false;
-        return stripped.split('=', 1)[0].trim().toLowerCase() === wanted;
-    });
+        if (!stripped || stripped.startsWith('#') || !stripped.includes('=')) continue;
+        const [left, ...right] = stripped.split('=');
+        if (left.trim().toLowerCase() !== wanted) continue;
+        return right.join('=').split('#', 1)[0].trim();
+    }
+    return undefined;
+}
+
+function cataloguedIniHasOption(ini: string | undefined, key: string): boolean {
+    return cataloguedIniOption(ini, key) !== undefined;
 }
 
 function cataloguedDerivedPocketRoles(
@@ -1459,6 +1473,61 @@ function promotedPieceLetter(letter: string): cg.Letter | undefined {
     const normalized = normalPieceLetter(letter);
     if (!normalized || normalized.startsWith('+')) return normalized;
     return `+${normalized}` as cg.Letter;
+}
+
+function cataloguedCustomPieceRoles(ini: string | undefined): Set<cg.Letter> {
+    const roles = new Set<cg.Letter>();
+    if (!ini) return roles;
+
+    for (const line of ini.split(/\r?\n/)) {
+        const stripped = line.trim();
+        if (!stripped || stripped.startsWith('#') || !stripped.includes('=')) continue;
+        const [left, ...right] = stripped.split('=');
+        if (!/^customPiece\d+$/i.test(left.trim())) continue;
+        const value = right.join('=').split('#', 1)[0].trim();
+        const match = /^([A-Za-z])\s*:/.exec(value);
+        addPieceLetter(roles, match?.[1]);
+    }
+
+    return roles;
+}
+
+const CATALOGUED_PROMOTED_PIECE_PAIR_RE = /([A-Za-z])\s*:\s*([A-Za-z-])/g;
+
+function cataloguedPromotedPieceTypePairs(ini: string | undefined): [cg.Letter, cg.Letter | '-'][] {
+    const value = cataloguedIniOption(ini, 'promotedPieceType') ?? '';
+    const pairs: [cg.Letter, cg.Letter | '-'][] = [];
+    const seen = new Set<cg.Letter>();
+    for (const match of value.matchAll(CATALOGUED_PROMOTED_PIECE_PAIR_RE)) {
+        const source = normalPieceLetter(match[1]);
+        if (!source || source.startsWith('+') || seen.has(source)) continue;
+        seen.add(source);
+        const rawTarget = match[2].toLowerCase();
+        const target = rawTarget === '-' ? '-' : normalPieceLetter(rawTarget);
+        if (target) pairs.push([source, target]);
+    }
+    return pairs;
+}
+
+function cataloguedNeedsCustomPieceGlyphs(
+    meta: CataloguedVariantClientDocument,
+    needed: Set<cg.Letter>,
+): boolean {
+    const customRoles = cataloguedCustomPieceRoles(meta.ini);
+    for (const role of customRoles) {
+        if (needed.has(role)) return true;
+    }
+
+    if (cataloguedPieceInfo(meta).promotionType !== 'shogi') return false;
+
+    for (const [source, target] of cataloguedPromotedPieceTypePairs(meta.ini)) {
+        const promotedSource = promotedPieceLetter(source);
+        if (promotedSource && target !== '-' && customRoles.has(target) && needed.has(promotedSource)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 function cataloguedHasPocketOverride(meta: CataloguedVariantClientDocument): boolean {
@@ -1563,6 +1632,13 @@ function cataloguedCompatiblePieceSource(
     if (meta.hasPieceSet && !options.ignoreCustomPieceSet) return undefined;
 
     const needed = cataloguedNeededPieceLetters(meta);
+    // A Fairy-Stockfish customPiece role only tells pychess which FEN letter is
+    // used, not that the matching built-in SVG depicts the same piece. Be
+    // conservative and keep letter glyphs/custom uploads for variants that need
+    // custom-piece roles; otherwise e.g. an unrelated custom "g" can be
+    // mistaken for a Shogi gold general.
+    if (cataloguedNeedsCustomPieceGlyphs(meta, needed)) return undefined;
+
     const baseVariantName = meta.baseVariant;
     return Object.values(VARIANTS)
         .filter(variant => !cataloguedVariantNames.has(variant.name))
@@ -1615,6 +1691,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         name: meta.name,
         displayName: meta.displayName || meta.name,
         tooltip: meta.tooltip || 'Catalogued variant',
+        aiDisabled: !!meta.aiDisabled,
         startFen: meta.startFen,
         icon: meta.icon || '◇',
         boardFamily,

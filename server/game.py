@@ -578,12 +578,13 @@ class Game:
                 else:
                     await self.save_move(move, cur_color)
                     if self.corr and (not opp_player.bot) and (not opp_player.anon):
-                        await opp_player.notify_corr_move(self, san)
+                        corr_notification_san = None if self.fow else san
+                        await opp_player.notify_corr_move(self, corr_notification_san)
                         self.app_state.push_notifier.enqueue_corr_move(
                             opp_player,
                             game_id=self.id,
                             opponent=cur_player.username,
-                            san=san,
+                            san=corr_notification_san,
                         )
                     self.stopwatch.restart()
 

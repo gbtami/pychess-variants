@@ -497,7 +497,7 @@ class User:
         }
         await notify(self.app_state.db, self, notif_type, content)
 
-    async def notify_corr_move(self, game: Game, san: str) -> None:
+    async def notify_corr_move(self, game: Game, san: str | None) -> None:
         opp_name = (
             game.wplayer.username
             if game.bplayer.username == self.username
@@ -506,8 +506,9 @@ class User:
         content: NotificationContent = {
             "id": game.id,
             "opp": opp_name,
-            "san": san,
         }
+        if not game.fow and san:
+            content["san"] = san
         await notify(self.app_state.db, self, "corrMove", content)
 
     async def notified(self) -> None:

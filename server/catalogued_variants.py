@@ -7,7 +7,7 @@ import logging
 import re
 import sys
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping, NamedTuple, NotRequired, TypedDict, cast
 from urllib.parse import unquote
@@ -49,6 +49,8 @@ CATALOGUED_VISIBILITIES = frozenset(
 CATALOGUED_COMMUNITY_PAGE_SIZE = 20
 MAX_CATALOGUED_VARIANTS_PER_USER = 20
 MAX_CATALOGUED_FAVORITES_PER_USER = 500
+CATALOGUED_AI_FAILURE_LIMIT = 3
+CATALOGUED_AI_DISABLE_SECONDS = 24 * 60 * 60
 
 MAX_CATALOGUED_PIECE_SET_TOTAL_BYTES = 256 * 1024
 MAX_CATALOGUED_PIECE_SVG_BYTES = 32 * 1024
@@ -154,6 +156,12 @@ class CataloguedVariantDocument(TypedDict):
     pieceSetUpdatedAt: NotRequired[datetime]
     boardSvg: NotRequired[CataloguedVariantBoardSvg]
     boardSvgUpdatedAt: NotRequired[datetime]
+    aiFailureCount: NotRequired[int]
+    aiLastFailureAt: NotRequired[datetime]
+    aiLastFailureReason: NotRequired[str]
+    aiDisabledAt: NotRequired[datetime]
+    aiDisabledUntil: NotRequired[datetime]
+    aiDisabledReason: NotRequired[str]
     gameCount: int
     createdAt: datetime
     updatedAt: datetime
@@ -187,6 +195,9 @@ class CataloguedVariantClientDocument(TypedDict):
     gameCount: NotRequired[int]
     locked: NotRequired[bool]
     visibility: NotRequired[str]
+    aiDisabled: NotRequired[bool]
+    aiDisabledReason: NotRequired[str]
+    aiDisabledUntil: NotRequired[datetime]
     hasPieceSet: NotRequired[bool]
     pieceSetRevision: NotRequired[str]
     hasBoard: NotRequired[bool]
@@ -205,6 +216,30 @@ def _is_active_catalogued_doc(doc: Mapping[str, Any]) -> bool:
 def _catalogued_visibility(doc: Mapping[str, Any]) -> str:
     visibility = str(doc.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE).strip().lower()
     return visibility if visibility in CATALOGUED_VISIBILITIES else CATALOGUED_VISIBILITY_PRIVATE
+
+
+def _utc_datetime(value: Any) -> datetime | None:
+    if not isinstance(value, datetime):
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
+def catalogued_variant_ai_disabled_until(
+    doc: Mapping[str, Any], *, now: datetime | None = None
+) -> datetime | None:
+    """Return an active fishnet AI-disable deadline for this catalogued variant."""
+
+    disabled_until = _utc_datetime(doc.get("aiDisabledUntil"))
+    if disabled_until is None:
+        return None
+    now = now or datetime.now(timezone.utc)
+    return disabled_until if disabled_until > now else None
+
+
+def catalogued_variant_ai_disabled(doc: Mapping[str, Any], *, now: datetime | None = None) -> bool:
+    return catalogued_variant_ai_disabled_until(doc, now=now) is not None
 
 
 def _clean_visibility(visibility: str | None) -> str:
@@ -1539,6 +1574,12 @@ def _client_doc(
         client_doc["pieceSetRevision"] = _piece_set_revision(doc)
     if client_doc["hasBoard"]:
         client_doc["boardRevision"] = _board_svg_revision(doc)
+    ai_disabled_until = catalogued_variant_ai_disabled_until(doc)
+    if ai_disabled_until is not None:
+        client_doc["aiDisabled"] = True
+        client_doc["aiDisabledUntil"] = ai_disabled_until
+        if doc.get("aiDisabledReason"):
+            client_doc["aiDisabledReason"] = str(doc["aiDisabledReason"])
     if game_count is not None:
         client_doc["gameCount"] = game_count
         client_doc["locked"] = game_count > 0
@@ -1587,6 +1628,96 @@ def is_public_catalogued_variant(app_state: Any, name: str) -> bool:
         _is_active_catalogued_doc(doc)
         and _catalogued_visibility(doc) == CATALOGUED_VISIBILITY_PUBLIC
     )
+
+
+def catalogued_variant_allows_fishnet(app_state: Any, name: str) -> bool:
+    """Return whether Fairy-Stockfish/fishnet should currently handle this variant."""
+
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None:
+        return not is_catalogued_variant(name)
+    return not catalogued_variant_ai_disabled(doc)
+
+
+async def record_catalogued_variant_ai_failure(
+    app_state: Any,
+    name: str,
+    reason: str,
+) -> bool:
+    """Record a fishnet engine failure and quarantine the variant after repeated failures.
+
+    Returns True when this call put the variant into the temporary AI-disabled state.
+    """
+
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None:
+        return False
+
+    now = datetime.now(timezone.utc)
+    failure_count = int(doc.get("aiFailureCount") or 0) + 1
+    update_set: dict[str, Any] = {
+        "aiFailureCount": failure_count,
+        "aiLastFailureAt": now,
+        "aiLastFailureReason": reason,
+    }
+    disabled = failure_count >= CATALOGUED_AI_FAILURE_LIMIT
+    if disabled:
+        update_set.update(
+            {
+                "aiDisabledAt": now,
+                "aiDisabledUntil": now + timedelta(seconds=CATALOGUED_AI_DISABLE_SECONDS),
+                "aiDisabledReason": reason,
+            }
+        )
+
+    if getattr(app_state, "db", None) is not None:
+        try:
+            await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
+                {"_id": name}, {"$set": update_set}
+            )
+        except Exception:
+            log.exception("Failed to persist catalogued variant AI failure for %s", name)
+
+    doc.update(update_set)
+    if disabled:
+        log.warning(
+            "Temporarily disabled Fairy-Stockfish AI for catalogued variant %s after %s failures "
+            "(latest reason=%s)",
+            name,
+            failure_count,
+            reason,
+        )
+    return disabled
+
+
+async def clear_catalogued_variant_ai_failures(app_state: Any, name: str) -> None:
+    """Clear transient fishnet AI failure/quarantine fields after successful engine work."""
+
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None:
+        return
+
+    fields = {
+        "aiFailureCount",
+        "aiLastFailureAt",
+        "aiLastFailureReason",
+        "aiDisabledAt",
+        "aiDisabledUntil",
+        "aiDisabledReason",
+    }
+    if not any(field in doc for field in fields):
+        return
+
+    if getattr(app_state, "db", None) is not None:
+        try:
+            await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
+                {"_id": name}, {"$unset": {field: "" for field in fields}}
+            )
+        except Exception:
+            log.exception("Failed to clear catalogued variant AI failure fields for %s", name)
+
+    for field in fields:
+        doc.pop(field, None)
 
 
 def public_catalogued_variants_for_forms(app_state: Any) -> dict[str, Any]:
@@ -2619,6 +2750,18 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         doc["boardSvg"] = existing["boardSvg"]
         if "boardSvgUpdatedAt" in existing:
             doc["boardSvgUpdatedAt"] = existing["boardSvgUpdatedAt"]
+
+    if not fsf_rules_changed and new_name == old_name:
+        for field in (
+            "aiFailureCount",
+            "aiLastFailureAt",
+            "aiLastFailureReason",
+            "aiDisabledAt",
+            "aiDisabledUntil",
+            "aiDisabledReason",
+        ):
+            if field in existing:
+                doc[field] = existing[field]
 
     if new_name != old_name:
         try:

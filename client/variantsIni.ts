@@ -444,6 +444,7 @@ capturesToHand = true
 pieceDrops = true
 dropNoDoubled = p
 shogiPawnDropMateIllegal = true
+immobilityIllegal = true
 promotionRegionWhite = *7 *8 *9
 promotionRegionBlack = *1 *2 *3
 promotedPieceType = p:z f:e g:d y:v t:b 

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, cast
 import asyncio
 import math
 import hashlib
+import re
 from datetime import datetime, timezone
 from time import monotonic
 from pathlib import Path
@@ -10,7 +11,14 @@ from pathlib import Path
 from aiohttp import web
 
 from broadcast import round_broadcast
-from const import ANALYSIS, MOVE, STARTED
+from catalogued_variants import (
+    catalogued_variant_ai_disabled,
+    catalogued_variant_allows_fishnet,
+    clear_catalogued_variant_ai_failures,
+    record_catalogued_variant_ai_failure,
+    extract_variant_base_name,
+)
+from const import ANALYSIS, INVALIDMOVE, MOVE, STARTED
 from typing_defs import (
     AnalysisStep,
     FishnetAbortPayload,
@@ -35,43 +43,162 @@ import logging
 
 log = logging.getLogger(__name__)
 
-REQUIRED_FISHNET_VERSION = "1.16.59"
+REQUIRED_FISHNET_VERSION = "1.16.64"
+_FISHNET_VERSION_RE = re.compile(r"\d+")
 MOVE_WORK_TIME_OUT = 5.0
 ANALYSIS_WORK_TIME_OUT = 15 * 60.0
 FISHNET_ACTIVITY_TIMEOUT = 10 * 60.0
 ENGINE_CRASH_REASON = "engine_crash"
+ENGINE_TIMEOUT_REASON = "engine_timeout"
+STALE_WORK_TIMEOUT_REASON = "work_timeout"
+INVALID_FISHNET_MOVE_REASON = "invalid_move"
+VARIANT_AI_DISABLED_REASON = "variant_ai_disabled"
+ENGINE_FAILURE_REASONS = frozenset((ENGINE_CRASH_REASON, ENGINE_TIMEOUT_REASON))
+CATALOGUED_QUARANTINE_REASONS = frozenset(
+    (
+        ENGINE_CRASH_REASON,
+        ENGINE_TIMEOUT_REASON,
+        STALE_WORK_TIMEOUT_REASON,
+        INVALID_FISHNET_MOVE_REASON,
+    )
+)
 # Keep generic abort limits conservative so transient worker/network issues do not
-# adjudicate games too aggressively. Explicit engine crashes use a tighter limit.
+# adjudicate games too aggressively. Explicit engine failures use a tighter limit.
 MOVE_ABORT_LIMIT = 6
 MOVE_ENGINE_CRASH_LIMIT = 2
 ANALYSIS_ABORT_LIMIT = 4
 ANALYSIS_ENGINE_CRASH_LIMIT = 2
+# A stale reissue means fishnet acquired the job, but the backend did not receive
+# a move, analysis update, or explicit abort before the work timeout. Count these
+# separately so a dead worker/process cannot make the same job circulate forever.
+MOVE_STALE_REISSUE_LIMIT = 6
+ANALYSIS_STALE_REISSUE_LIMIT = 2
+# A fishnet move failure means the worker returned a malformed/empty move or the
+# backend rejected the returned move before it could be applied safely. Retry a
+# small number of times before adjudicating the game and recording a catalogued
+# variant AI failure.
+MOVE_INVALID_MOVE_LIMIT = 2
 
 
-def fishnet_variants_ini(app_state: PychessGlobalAppState) -> str:
-    """Return the full Fairy-Stockfish variant config fishnet workers should use."""
+FISHNET_VARIANTS_PAYLOAD_CACHE_SIZE = 128
+
+
+def _fishnet_variants_payload_cache(
+    app_state: PychessGlobalAppState,
+) -> dict[str, dict[str, str]]:
+    cache = getattr(app_state, "fishnet_variant_payloads", None)
+    if cache is None:
+        cache = {}
+        setattr(app_state, "fishnet_variant_payloads", cache)
+    return cache
+
+
+def _cache_fishnet_variants_payload(
+    app_state: PychessGlobalAppState, payload: dict[str, str]
+) -> dict[str, str]:
+    cache = _fishnet_variants_payload_cache(app_state)
+    sha256 = payload["variantsSha256"]
+    cache[sha256] = payload
+    while len(cache) > FISHNET_VARIANTS_PAYLOAD_CACHE_SIZE:
+        cache.pop(next(iter(cache)))
+    return payload
+
+
+def _catalogued_doc_base_name(doc: dict[str, object]) -> str:
+    base_name = str(doc.get("baseVariant") or "").strip()
+    if base_name:
+        return base_name
+    try:
+        return extract_variant_base_name(str(doc.get("ini") or "")).strip()
+    except Exception:
+        return ""
+
+
+def _catalogued_fishnet_ini_docs(
+    app_state: PychessGlobalAppState, variant_name: str | None
+) -> list[dict[str, object]]:
+    """Return enabled, AI-allowed catalogued docs needed by one fishnet job.
+
+    Fishnet workers used to receive every enabled user-defined variant in one
+    global variants.ini. That means one bad unrelated section could poison every
+    worker as soon as the file was loaded. For a concrete move/analysis job we
+    only need the requested catalogued variant plus any catalogued base chain;
+    built-in bases already live in the repository variants.ini.
+    """
+
+    catalogued_docs = getattr(app_state, "catalogued_variants", {})
+    if not variant_name:
+        return [
+            doc
+            for doc in sorted(catalogued_docs.values(), key=lambda item: str(item.get("name", "")))
+            if doc.get("enabled", True)
+            and doc.get("ini")
+            and not catalogued_variant_ai_disabled(doc)
+        ]
+
+    doc = catalogued_docs.get(variant_name)
+    if doc is None:
+        return []
+
+    chain: list[dict[str, object]] = []
+    seen: set[str] = set()
+    current: dict[str, object] | None = doc
+    while current is not None:
+        name = str(current.get("name") or "")
+        if not name or name in seen:
+            break
+        seen.add(name)
+
+        if (
+            not current.get("enabled", True)
+            or not current.get("ini")
+            or catalogued_variant_ai_disabled(current)
+        ):
+            return []
+
+        chain.append(current)
+        base_name = _catalogued_doc_base_name(current)
+        base_doc = catalogued_docs.get(base_name) if base_name else None
+        current = base_doc
+
+    chain.reverse()
+    return chain
+
+
+def fishnet_variants_ini(app_state: PychessGlobalAppState, variant_name: str | None = None) -> str:
+    """Return the Fairy-Stockfish variant config fishnet workers should use.
+
+    When variant_name is provided, include only the catalogued variant needed by
+    that job. The unscoped/full payload is retained for diagnostics and older
+    clients, but current workers receive per-work scoped payloads.
+    """
 
     base_path = Path(__file__).resolve().parents[1] / "variants.ini"
     base_ini = base_path.read_text(encoding="utf-8")
-    catalogued_docs = getattr(app_state, "catalogued_variants", {})
     catalogued_ini = "\n\n".join(
-        str(doc["ini"]).strip()
-        for doc in sorted(catalogued_docs.values(), key=lambda item: str(item.get("name", "")))
-        if doc.get("enabled", True) and doc.get("ini")
+        str(doc["ini"]).strip() for doc in _catalogued_fishnet_ini_docs(app_state, variant_name)
     )
     return "\n\n".join(part.strip() for part in (base_ini, catalogued_ini) if part.strip()) + "\n"
 
 
-def fishnet_variants_payload(app_state: PychessGlobalAppState) -> dict[str, str]:
-    variants_ini = fishnet_variants_ini(app_state)
-    return {
+def fishnet_variants_payload(
+    app_state: PychessGlobalAppState, variant_name: str | None = None
+) -> dict[str, str]:
+    variants_ini = fishnet_variants_ini(app_state, variant_name)
+    payload = {
         "variantsIni": variants_ini,
         "variantsSha256": hashlib.sha256(variants_ini.encode("utf-8")).hexdigest(),
     }
+    if variant_name:
+        payload["variantsScope"] = variant_name
+    return _cache_fishnet_variants_payload(app_state, payload)
 
 
 def _attach_variants_hash(app_state: PychessGlobalAppState, work: FishnetWork) -> None:
-    work["variantsSha256"] = fishnet_variants_payload(app_state)["variantsSha256"]
+    variant_name = str(work.get("variant") or "")
+    payload = fishnet_variants_payload(app_state, variant_name)
+    work["variantsSha256"] = payload["variantsSha256"]
+    work["variantsScope"] = payload.get("variantsScope", "")
 
 
 async def fishnet_variants(request: web.Request) -> web.Response:
@@ -80,11 +207,42 @@ async def fishnet_variants(request: web.Request) -> web.Response:
         return web.Response(status=404)
 
     app_state = get_app_state(request.app)
-    return json_response(fishnet_variants_payload(app_state))
+    requested_sha256 = request.query.get("sha256")
+    variant_name = request.query.get("variant")
+
+    if requested_sha256:
+        cached = _fishnet_variants_payload_cache(app_state).get(requested_sha256)
+        if cached is not None and (
+            not variant_name or catalogued_variant_allows_fishnet(app_state, variant_name)
+        ):
+            return json_response(cached)
+
+    payload = fishnet_variants_payload(app_state, variant_name)
+    if requested_sha256 and payload["variantsSha256"] != requested_sha256:
+        log.warning(
+            "Fishnet requested variants.ini hash %s for variant %s, but current hash is %s",
+            requested_sha256,
+            variant_name or "<full>",
+            payload["variantsSha256"],
+        )
+    return json_response(payload)
 
 
 def _work_priority(work: FishnetWork) -> int:
     return ANALYSIS if work["work"]["type"] == "analysis" else MOVE
+
+
+def _fishnet_version_tuple(version: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in _FISHNET_VERSION_RE.findall(version))
+
+
+def _fishnet_version_is_supported(version: str) -> bool:
+    parsed = _fishnet_version_tuple(version)
+    required = _fishnet_version_tuple(REQUIRED_FISHNET_VERSION)
+    if not parsed or not required:
+        return False
+    width = max(len(parsed), len(required))
+    return parsed + (0,) * (width - len(parsed)) >= required + (0,) * (width - len(required))
 
 
 def _abort_reason(data: FishnetAbortPayload) -> str:
@@ -160,16 +318,51 @@ def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | N
     return len(stale_ids)
 
 
+def _fishnet_worker_is_recent(app_state: PychessGlobalAppState, key: str, now: float) -> bool:
+    return now - app_state.fishnet_worker_last_seen.get(key, 0.0) <= FISHNET_ACTIVITY_TIMEOUT
+
+
+def prune_stale_fishnet_workers(
+    app_state: PychessGlobalAppState, *, now: float | None = None
+) -> int:
+    if now is None:
+        now = monotonic()
+
+    stale_keys = [
+        key
+        for key in tuple(app_state.workers)
+        if not _fishnet_worker_is_recent(app_state, key, now)
+    ]
+    monitor = getattr(app_state, "fishnet_monitor", None)
+    for key in stale_keys:
+        app_state.workers.discard(key)
+        app_state.fishnet_worker_last_seen.pop(key, None)
+        worker = FISHNET_KEYS.get(key, key)
+        if monitor is not None:
+            monitor[worker].append("%s %s %s" % (datetime.now(timezone.utc), "-", "timed out"))
+
+    if stale_keys and len(app_state.workers) == 0:
+        users = app_state.users
+        if "Fairy-Stockfish" in users:
+            users["Fairy-Stockfish"].online = False
+
+    return len(stale_keys)
+
+
 def has_recent_fishnet_activity(
     app_state: PychessGlobalAppState, *, now: float | None = None
 ) -> bool:
     if now is None:
         now = monotonic()
 
-    return any(
-        now - app_state.fishnet_worker_last_seen.get(key, 0.0) <= FISHNET_ACTIVITY_TIMEOUT
-        for key in app_state.workers
-    )
+    return any(_fishnet_worker_is_recent(app_state, key, now) for key in app_state.workers)
+
+
+def has_available_fishnet_worker(
+    app_state: PychessGlobalAppState, *, now: float | None = None
+) -> bool:
+    prune_stale_fishnet_workers(app_state, now=now)
+    return len(app_state.workers) > 0
 
 
 def has_pending_analysis_work_for_game(app_state: PychessGlobalAppState, game_id: str) -> bool:
@@ -179,20 +372,95 @@ def has_pending_analysis_work_for_game(app_state: PychessGlobalAppState, game_id
     )
 
 
+def _engine_failure_count(work: FishnetWork) -> int:
+    # engine_crash_count is kept as a fallback for work created by older server code.
+    return work.get("engine_failure_count", work.get("engine_crash_count", 0))
+
+
+def _invalid_move_count(work: FishnetWork) -> int:
+    return work.get("move_failure_count", 0)
+
+
+def _is_terminal_invalid_move(work: FishnetWork) -> bool:
+    return _invalid_move_count(work) >= MOVE_INVALID_MOVE_LIMIT
+
+
+def _fishnet_bestmove(data: FishnetMovePayload) -> str | None:
+    # Be defensive at the HTTP boundary even though normal fairyfishnet clients
+    # send the typed shape. A crashed/buggy worker or future protocol change must
+    # not turn into a backend 500 or lose the work item.
+    move_info = data.get("move")
+    if not isinstance(move_info, dict):
+        return None
+
+    bestmove = move_info.get("bestmove")
+    if not isinstance(bestmove, str):
+        return None
+
+    bestmove = bestmove.strip()
+    if not bestmove or bestmove == "(none)":
+        return None
+    return bestmove
+
+
+def _game_move_stack_string(game: Game) -> str:
+    return " ".join(game.board.move_stack)
+
+
+def _fishnet_work_matches_current_position(work: FishnetWork, game: Game) -> bool:
+    return str(work.get("moves") or "") == _game_move_stack_string(game)
+
+
+def _stale_reissue_limit(work: FishnetWork) -> int:
+    return (
+        ANALYSIS_STALE_REISSUE_LIMIT
+        if work["work"]["type"] == "analysis"
+        else MOVE_STALE_REISSUE_LIMIT
+    )
+
+
+def _stale_reissue_count(work: FishnetWork) -> int:
+    return work.get("stale_reissue_count", 0)
+
+
+def _is_terminal_stale_reissue(work: FishnetWork) -> bool:
+    return _stale_reissue_count(work) >= _stale_reissue_limit(work)
+
+
 def _is_terminal_abort(work: FishnetWork, abort_reason: str) -> bool:
     abort_count = work.get("abort_count", 0)
-    engine_crash_count = work.get("engine_crash_count", 0)
+    engine_failure_count = _engine_failure_count(work)
     if work["work"]["type"] == "move":
         return (abort_count >= MOVE_ABORT_LIMIT) or (
-            abort_reason == ENGINE_CRASH_REASON and engine_crash_count >= MOVE_ENGINE_CRASH_LIMIT
+            abort_reason in ENGINE_FAILURE_REASONS
+            and engine_failure_count >= MOVE_ENGINE_CRASH_LIMIT
         )
     return (abort_count >= ANALYSIS_ABORT_LIMIT) or (
-        abort_reason == ENGINE_CRASH_REASON and engine_crash_count >= ANALYSIS_ENGINE_CRASH_LIMIT
+        abort_reason in ENGINE_FAILURE_REASONS
+        and engine_failure_count >= ANALYSIS_ENGINE_CRASH_LIMIT
+    )
+
+
+def _work_variant_allows_fishnet(app_state: PychessGlobalAppState, work: FishnetWork) -> bool:
+    return catalogued_variant_allows_fishnet(app_state, str(work.get("variant") or ""))
+
+
+async def _record_terminal_catalogued_ai_failure(
+    app_state: PychessGlobalAppState,
+    work: FishnetWork,
+    failure_reason: str,
+) -> None:
+    if failure_reason not in CATALOGUED_QUARANTINE_REASONS:
+        return
+    await record_catalogued_variant_ai_failure(
+        app_state,
+        str(work.get("variant") or ""),
+        failure_reason,
     )
 
 
 async def _adjudicate_failing_move_work(
-    app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, abort_reason: str
+    app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, failure_reason: str
 ) -> None:
     game = await load_game(app_state, work["game_id"])
     if game is None:
@@ -204,11 +472,13 @@ async def _adjudicate_failing_move_work(
         return
 
     log.warning(
-        "Adjudicating move work %s as engine loss after repeated aborts (reason=%s, aborts=%s, crashes=%s)",
+        "Adjudicating move work %s as engine loss after repeated fishnet failures "
+        "(reason=%s, aborts=%s, engine_failures=%s, stale_reissues=%s)",
         work_id,
-        abort_reason,
+        failure_reason,
         work.get("abort_count", 0),
-        work.get("engine_crash_count", 0),
+        _engine_failure_count(work),
+        _stale_reissue_count(work),
     )
 
     bot_user = app_state.users["Fairy-Stockfish"]
@@ -221,6 +491,52 @@ async def _adjudicate_failing_move_work(
             await player.game_queues[game.id].put(game.game_end)
 
     await round_broadcast(game, response, full=True)
+
+
+async def _drop_terminal_work_failure(
+    app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, failure_reason: str
+) -> None:
+    await _record_terminal_catalogued_ai_failure(app_state, work, failure_reason)
+    del app_state.fishnet_works[work_id]
+    if work["work"]["type"] == "move":
+        await _adjudicate_failing_move_work(app_state, work_id, work, failure_reason)
+    else:
+        log.warning(
+            "Dropping analysis work %s after repeated fishnet failures "
+            "(reason=%s, aborts=%s, engine_failures=%s, stale_reissues=%s)",
+            work_id,
+            failure_reason,
+            work.get("abort_count", 0),
+            _engine_failure_count(work),
+            _stale_reissue_count(work),
+        )
+
+
+async def _handle_invalid_fishnet_move(
+    app_state: PychessGlobalAppState, work_id: str, work: FishnetWork, detail: str
+) -> None:
+    work["move_failure_count"] = _invalid_move_count(work) + 1
+    work["last_abort_reason"] = INVALID_FISHNET_MOVE_REASON
+
+    if _is_terminal_invalid_move(work):
+        log.warning(
+            "Dropping fishnet move work %s after repeated invalid moves (failures=%s, detail=%s)",
+            work_id,
+            _invalid_move_count(work),
+            detail,
+        )
+        await _drop_terminal_work_failure(app_state, work_id, work, INVALID_FISHNET_MOVE_REASON)
+        return
+
+    log.warning(
+        "Requeueing fishnet move work %s after invalid move response (failures=%s/%s, detail=%s)",
+        work_id,
+        _invalid_move_count(work),
+        MOVE_INVALID_MOVE_LIMIT,
+        detail,
+    )
+    work["time"] = monotonic()
+    app_state.fishnet_queue.put_nowait((_work_priority(work), work_id))
 
 
 async def _read_fishnet_json(request: web.Request) -> tuple[object | None, int | None]:
@@ -269,6 +585,14 @@ async def get_work(
         work = app_state.fishnet_works.get(work_id)
         if work is None:
             log.debug("Skipping stale fishnet queue item %s", work_id)
+            continue
+        if not _work_variant_allows_fishnet(app_state, work):
+            log.warning(
+                "Dropping fishnet work %s because AI is temporarily disabled for variant %s",
+                work_id,
+                work.get("variant"),
+            )
+            await _drop_terminal_work_failure(app_state, work_id, work, VARIANT_AI_DISABLED_REASON)
             continue
 
         # Track the latest assignment time so timeout-based re-acquire does not
@@ -327,20 +651,55 @@ async def get_work(
     # Now let see are there any long time pending work in app[fishnet_works_key]
     # (in case when worker grabbed it from queue but not responded after timeout)
     now = monotonic()
-    for work_id, work_item in app_state.fishnet_works.items():
-        if now - work_item["time"] > _work_timeout(work_item):
+    for work_id, work_item in tuple(app_state.fishnet_works.items()):
+        if not _work_variant_allows_fishnet(app_state, work_item):
+            log.warning(
+                "Dropping stale fishnet work %s because AI is temporarily disabled for variant %s",
+                work_id,
+                work_item.get("variant"),
+            )
+            await _drop_terminal_work_failure(
+                app_state, work_id, work_item, VARIANT_AI_DISABLED_REASON
+            )
+            continue
+        if now - work_item["time"] <= _work_timeout(work_item):
+            continue
+
+        work_item["stale_reissue_count"] = _stale_reissue_count(work_item) + 1
+        work_item["last_abort_reason"] = STALE_WORK_TIMEOUT_REASON
+        if _is_terminal_stale_reissue(work_item):
             fm[worker].append(
                 "%s %s %s %s"
                 % (
                     datetime.now(timezone.utc),
                     work_id,
-                    "request",
-                    "%s AGAIN" % work_item["work"]["type"],
+                    "drop",
+                    "%s after %s stale reissues"
+                    % (work_item["work"]["type"], _stale_reissue_count(work_item)),
                 )
             )
-            work_item["time"] = now
-            _attach_variants_hash(app_state, work_item)
-            return json_response(work_item, status=202)
+            await _drop_terminal_work_failure(
+                app_state, work_id, work_item, STALE_WORK_TIMEOUT_REASON
+            )
+            continue
+
+        fm[worker].append(
+            "%s %s %s %s"
+            % (
+                datetime.now(timezone.utc),
+                work_id,
+                "request",
+                "%s AGAIN (%s/%s)"
+                % (
+                    work_item["work"]["type"],
+                    _stale_reissue_count(work_item),
+                    _stale_reissue_limit(work_item),
+                ),
+            )
+        )
+        work_item["time"] = now
+        _attach_variants_hash(app_state, work_item)
+        return json_response(work_item, status=202)
     return web.Response(status=204)
 
 
@@ -357,8 +716,13 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
     en = data["stockfish"]["name"]
     nnue = data["stockfish"].get("nnue", "")
 
-    if (key not in FISHNET_KEYS) or version < REQUIRED_FISHNET_VERSION:
+    if key not in FISHNET_KEYS:
         return web.Response(status=404)
+    if not _fishnet_version_is_supported(version):
+        return json_response(
+            {"error": "Fishnet %s is too old. Please restart fishnet to upgrade." % version},
+            status=426,
+        )
 
     worker = FISHNET_KEYS[key]
     app_state.fishnet_worker_last_seen[key] = monotonic()
@@ -458,6 +822,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
     # remove completed work
     if all(data["analysis"]):
         del app_state.fishnet_works[work_id]
+        await clear_catalogued_variant_ai_failures(app_state, str(work.get("variant") or ""))
         new_data = {"a": [step["analysis"] for step in game.steps]}
         await app_state.db.game.find_one_and_update({"_id": game.id}, {"$set": new_data})
 
@@ -491,25 +856,71 @@ async def fishnet_move(request: web.Request) -> web.Response:
     work: FishnetWork = app_state.fishnet_works[work_id]
     gameId = work["game_id"]
 
-    # remove work from works
-    del app_state.fishnet_works[work_id]
+    move = _fishnet_bestmove(data)
+    if move is None:
+        await _handle_invalid_fishnet_move(app_state, work_id, work, "missing or empty bestmove")
+        return web.Response(status=204)
 
     game = await load_game(app_state, gameId)
     if game is None:
+        # The game disappeared while the worker was thinking; this work can no
+        # longer be applied, but it is not an engine/variant failure.
+        app_state.fishnet_works.pop(work_id, None)
         return web.Response(status=204)
     if TYPE_CHECKING:
         assert isinstance(game, Game)
 
     user = app_state.users["Fairy-Stockfish"]
-    move = data["move"]["bestmove"]
-    fen = data["move"].get("fen")
+    reported_fen = data.get("move", {}).get("fen")
 
-    # Allow to make fishnet move if no takeback changed the current FEN
-    if fen is None or fen == game.board.fen:
+    # Allow the fishnet move only if the server-side move stack is still the one
+    # used to create the work item.  Do not rely on the worker-reported FEN for
+    # this guard: fairyfishnet may run several worker threads, while pyffish's
+    # VariantPath is process-global. With per-work scoped variants.ini files,
+    # another worker can change pyffish's VariantPath before the reporting worker
+    # computes its echo FEN. The server's own move stack is the authoritative
+    # stale-work check.
+    if not _fishnet_work_matches_current_position(work, game):
+        log.info(
+            "DISCARD FISHNET move %s for stale work %s (work moves=%r, game moves=%r)",
+            move,
+            work_id,
+            work.get("moves", ""),
+            _game_move_stack_string(game),
+        )
+        app_state.fishnet_works.pop(work_id, None)
+        response = await get_work(app_state, data)
+        return response
+
+    if reported_fen is not None and reported_fen != game.board.fen:
+        log.warning(
+            "Fishnet move %s for work %s reported FEN %r, but current server FEN is %r; "
+            "applying because the server-side move stack still matches",
+            move,
+            work_id,
+            reported_fen,
+            game.board.fen,
+        )
+
+    try:
         async with game.move_lock:
             await play_move(app_state, user, game, move)
-    else:
-        log.info("DISCARD FISHNET move %s", move)
+    except Exception:
+        log.exception(
+            "Fishnet move %s for work %s failed while being applied",
+            move,
+            work_id,
+        )
+        await _handle_invalid_fishnet_move(app_state, work_id, work, "play_move raised")
+        return web.Response(status=204)
+
+    if game.status == INVALIDMOVE:
+        app_state.fishnet_works.pop(work_id, None)
+        await _record_terminal_catalogued_ai_failure(app_state, work, INVALID_FISHNET_MOVE_REASON)
+        return web.Response(status=204)
+
+    app_state.fishnet_works.pop(work_id, None)
+    await clear_catalogued_variant_ai_failures(app_state, str(work.get("variant") or ""))
 
     response = await get_work(app_state, data)
     return response
@@ -552,21 +963,13 @@ async def fishnet_abort(request: web.Request) -> web.Response:
 
     work["abort_count"] = work.get("abort_count", 0) + 1
     work["last_abort_reason"] = abort_reason
-    if abort_reason == ENGINE_CRASH_REASON:
-        work["engine_crash_count"] = work.get("engine_crash_count", 0) + 1
+    if abort_reason in ENGINE_FAILURE_REASONS:
+        work["engine_failure_count"] = _engine_failure_count(work) + 1
+        if abort_reason == ENGINE_CRASH_REASON:
+            work["engine_crash_count"] = work.get("engine_crash_count", 0) + 1
 
     if _is_terminal_abort(work, abort_reason):
-        del app_state.fishnet_works[work_id]
-        if work["work"]["type"] == "move":
-            await _adjudicate_failing_move_work(app_state, work_id, work, abort_reason)
-        else:
-            log.warning(
-                "Dropping analysis work %s after repeated aborts (reason=%s, aborts=%s, crashes=%s)",
-                work_id,
-                abort_reason,
-                work.get("abort_count", 0),
-                work.get("engine_crash_count", 0),
-            )
+        await _drop_terminal_work_failure(app_state, work_id, work, abort_reason)
         if no_workers:
             app_state.users["Fairy-Stockfish"].online = False
         return web.Response(status=204)

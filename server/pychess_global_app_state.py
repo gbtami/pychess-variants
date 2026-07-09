@@ -200,6 +200,9 @@ class PychessGlobalAppState:
             self.fishnet_worker_last_seen: dict[str, float] = {}
             # fishnet works
             self.fishnet_works = {}
+            # Per-work fishnet variants.ini payloads by sha256. Workers use this
+            # to fetch only the catalogued variant required for the assigned job.
+            self.fishnet_variant_payloads: dict[str, dict[str, str]] = {}
             # fishnet worker tasks
             self.fishnet_queue = asyncio.PriorityQueue()
             # fishnet workers monitor

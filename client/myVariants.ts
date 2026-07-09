@@ -824,6 +824,7 @@ function renderRows(model: PyChessModel): VNode {
                 const locked = !!variant.locked;
                 const archived = !!variant.archived || variant.enabled === false;
                 const lockTitle = locked ? _('This variant already has saved public games. Clone it to change the rules.') : '';
+                const aiTitle = variant.aiDisabled ? _('Fairy-Stockfish AI is temporarily disabled for this variant; Random-Mover can still be used.') : '';
                 return h('tr', { class: { archived } }, [
                     h('td.catalogued-name-cell', { attrs: { 'data-label': _('Name') } }, [
                         h('strong', variant.displayName),
@@ -842,6 +843,7 @@ function renderRows(model: PyChessModel): VNode {
                         }, _('Play')),
                         h('button.catalogued-row-button.catalogued-secondary-action.catalogued-ai-action', {
                             props: { type: 'button', disabled: archived },
+                            attrs: { title: aiTitle },
                             on: { click: () => playVariantWithAI(model, variant) },
                         }, _('Play AI')),
                         h('button.catalogued-row-button.catalogued-secondary-action.catalogued-analysis-action', {
