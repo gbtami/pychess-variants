@@ -50,6 +50,7 @@ type State = {
     formMessageTone: MessageTone;
     draftDisplayName: string;
     draftDescription: string;
+    draftPieceFamilyOverride: string;
     draftVisibility: VariantVisibility;
     draftIni: string;
     piecePreviewVariant: string;
@@ -68,6 +69,7 @@ const state: State = {
     formMessageTone: 'neutral',
     draftDisplayName: '',
     draftDescription: '',
+    draftPieceFamilyOverride: '',
     draftVisibility: 'private',
     draftIni: '',
     piecePreviewVariant: '',
@@ -111,10 +113,21 @@ async function loadMine(model: PyChessModel, options: { clearMessage?: boolean }
     rerender(model);
 }
 
-function readForm(): { displayName: string; description: string; visibility: VariantVisibility; ini: string } {
+type VariantFormBody = {
+    displayName: string;
+    description: string;
+    pieceFamilyOverride: string;
+    visibility: VariantVisibility;
+    ini: string;
+};
+
+function readForm(): VariantFormBody {
     return {
         displayName: (document.getElementById('catalogued-display-name') as HTMLInputElement | null)?.value ?? state.draftDisplayName,
         description: (document.getElementById('catalogued-description') as HTMLTextAreaElement | null)?.value ?? state.draftDescription,
+        pieceFamilyOverride:
+            (document.getElementById('catalogued-piece-family-override') as HTMLSelectElement | null)?.value
+            ?? state.draftPieceFamilyOverride,
         visibility: ((document.getElementById('catalogued-visibility') as HTMLSelectElement | null)?.value as VariantVisibility | undefined) ?? state.draftVisibility,
         ini: (document.getElementById('catalogued-ini') as HTMLTextAreaElement | null)?.value ?? state.draftIni,
     };
@@ -123,6 +136,7 @@ function readForm(): { displayName: string; description: string; visibility: Var
 function clearDraft(): void {
     state.draftDisplayName = '';
     state.draftDescription = '';
+    state.draftPieceFamilyOverride = '';
     state.draftVisibility = 'private';
     state.draftIni = '';
     state.formMessage = '';
@@ -132,6 +146,7 @@ function clearDraft(): void {
 function setDraftFromVariant(variant: ManagedVariant): void {
     state.draftDisplayName = variant.displayName ?? '';
     state.draftDescription = variant.tooltip === 'Catalogued variant' ? '' : variant.tooltip ?? '';
+    state.draftPieceFamilyOverride = variant.pieceFamilyOverride ?? '';
     state.draftVisibility = variant.visibility ?? 'private';
     state.draftIni = variant.ini ?? '';
 }
@@ -275,7 +290,12 @@ async function saveVariant(model: PyChessModel): Promise<void> {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(editingSystem
-                ? { displayName: body.displayName, description: body.description, visibility: body.visibility }
+                ? {
+                    displayName: body.displayName,
+                    description: body.description,
+                    pieceFamilyOverride: body.pieceFamilyOverride,
+                    visibility: body.visibility,
+                }
                 : body),
         });
         if (!response.ok) throw new Error(await responseError(response));
@@ -542,6 +562,15 @@ function visibilityHelp(visibility: VariantVisibility): string {
     }
 }
 
+function sitePieceFamilyOptions(): string[] {
+    return Object.keys(PIECE_FAMILIES)
+        .filter(family => !family.startsWith('catalogued-'));
+}
+
+function pieceFamilyOverrideLabel(pieceFamily: string): string {
+    return pieceFamily === 'letter' ? _('Letters') : pieceFamily;
+}
+
 function renderForm(model: PyChessModel): VNode {
     const editing = state.editing;
     const editingSystem = isSystemManagedVariant(editing);
@@ -604,6 +633,31 @@ function renderForm(model: PyChessModel): VNode {
                     },
                 }),
             ]),
+            model.admin ? h('label.catalogued-field.catalogued-field-half', [
+                h('span', _('Compatible piece set')),
+                h('select#catalogued-piece-family-override', {
+                    props: {
+                        value: state.draftPieceFamilyOverride,
+                        disabled: state.saving,
+                    },
+                    on: {
+                        change: (event: Event) => {
+                            state.draftPieceFamilyOverride = (event.target as HTMLSelectElement).value;
+                            state.formMessage = '';
+                            state.formMessageTone = 'neutral';
+                            rerender(model);
+                        },
+                    },
+                }, [
+                    h('option', { props: { value: '', selected: state.draftPieceFamilyOverride === '' } }, _('Auto-detect')),
+                    ...sitePieceFamilyOptions().map(family => h('option', {
+                        props: { value: family, selected: state.draftPieceFamilyOverride === family },
+                    }, pieceFamilyOverrideLabel(family))),
+                ]),
+                h('span.catalogued-help', _(
+                    'Admin only. Overrides automatic built-in piece-set detection; custom SVG piece sets still take precedence.',
+                )),
+            ]) : null,
             h('label.catalogued-field.catalogued-field-half', [
                 h('span', _('Visibility')),
                 h('select#catalogued-visibility', {
@@ -710,7 +764,7 @@ function renderPieceSetPreview(model: PyChessModel, variant: ManagedVariant): VN
 
 function renderCompatiblePieceSetInfo(variant: ManagedVariant): VNode | null {
     const family = cataloguedCompatiblePieceFamily(variant, { ignoreCustomPieceSet: true });
-    if (!family) return null;
+    if (!family || family === 'letter') return null;
 
     const styleCount = PIECE_FAMILIES[family]?.pieceCSS.length ?? 0;
     const styleText = styleCount > 0
@@ -729,7 +783,11 @@ function renderCompatiblePieceSetInfo(variant: ManagedVariant): VNode | null {
 function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): VNode {
     const expected = expectedPieceSetFiles(variant);
     const compatibleFamily = cataloguedCompatiblePieceFamily(variant, { ignoreCustomPieceSet: true });
-    const pieceStatus = variant.hasPieceSet ? _('Custom') : compatibleFamily ? _('Built-in') : _('Letters');
+    const pieceStatus = variant.hasPieceSet
+        ? _('Custom')
+        : compatibleFamily && compatibleFamily !== 'letter'
+        ? _('Built-in')
+        : _('Letters');
     return h('div.catalogued-piece-set-controls', [
         h('strong', pieceStatus),
         renderCompatiblePieceSetInfo(variant),

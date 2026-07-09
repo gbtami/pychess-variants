@@ -1347,6 +1347,7 @@ export interface CataloguedVariantClientDocument {
     readonly source?: 'user' | 'fairy-stockfish-builtin';
     readonly system?: boolean;
     readonly fsfBuiltinVariant?: string;
+    readonly pieceFamilyOverride?: keyof typeof PIECE_FAMILIES;
     readonly archived?: boolean;
     readonly enabled?: boolean;
     readonly gameCount?: number;
@@ -1825,6 +1826,15 @@ function cataloguedCompatiblePieceSource(
     options: { ignoreCustomPieceSet?: boolean } = {},
 ): CataloguedCompatiblePieceSource | undefined {
     if (meta.hasPieceSet && !options.ignoreCustomPieceSet) return undefined;
+
+    if (meta.pieceFamilyOverride && PIECE_FAMILIES[meta.pieceFamilyOverride]) {
+        return {
+            pieceFamily: meta.pieceFamilyOverride,
+            pieceCSSExclude: [],
+            variantName: meta.name,
+            roleCount: 0,
+        };
+    }
 
     const needed = cataloguedNeededPieceLetters(meta);
     // A Fairy-Stockfish customPiece role only tells pychess which FEN letter is

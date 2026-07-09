@@ -22,6 +22,7 @@ const variantNames = [
     'testfsfalmostcapa',
     'testfsfgrandcapa',
     'testfsfpieceoptioncapa',
+    'testfsfthreekingsstandard',
 ];
 
 function register(meta: CataloguedVariantClientDocument) {
@@ -295,4 +296,29 @@ chancellor = c`,
 
     expect(cataloguedCompatiblePieceFamily(meta, { ignoreCustomPieceSet: true })).toBe('capa');
     expect(variant.pieceFamily).toBe('capa');
+});
+
+test('catalogued piece family override bypasses conservative identity detection', () => {
+    const meta: CataloguedVariantClientDocument = {
+        name: 'testfsfthreekingsstandard',
+        displayName: 'Test FSF Three Kings Standard',
+        tooltip: 'Catalogued variant',
+        ini: '',
+        source: 'fairy-stockfish-builtin',
+        fsfBuiltinVariant: 'threekings',
+        pieceFamilyOverride: 'standard',
+        baseVariant: 'chess',
+        startFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        width: 8,
+        height: 8,
+        pieces: ['k', 'q', 'r', 'b', 'n', 'p'],
+        kingRoles: ['k'],
+        promotionType: 'regular',
+        promotionRoles: ['p'],
+        promotionOrder: ['q', 'r', 'b', 'n'],
+    };
+    const variant = register(meta);
+
+    expect(cataloguedCompatiblePieceFamily(meta, { ignoreCustomPieceSet: true })).toBe('standard');
+    expect(variant.pieceFamily).toBe('standard');
 });
