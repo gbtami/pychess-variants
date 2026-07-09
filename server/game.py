@@ -443,7 +443,8 @@ class Game:
             "cb": self.clocks_b[1:],
         }
 
-        await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+        # update_one is sufficient — the returned document is never used.
+        await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
 
     async def play_move(
         self, move: str, clocks: ClockValues | None = None, ply: int | None = None
@@ -575,7 +576,7 @@ class Game:
                     if self.corr:
                         await opp_player.notify_game_end(self)
                 else:
-                    await self.save_move(move)
+                    await self.save_move(move, cur_color)
                     if self.corr and (not opp_player.bot) and (not opp_player.anon):
                         corr_notification_san = None if self.fow else san
                         await opp_player.notify_corr_move(self, corr_notification_san)
@@ -600,23 +601,43 @@ class Game:
                 if self.corr:
                     await opp_player.notify_game_end(self)
 
-    async def save_move(self, move: str) -> None:
+    async def save_move(self, move: str, cur_color: int) -> None:
+        """Persist a single in-progress move to the database.
+
+        ``cur_color`` is the moving side captured before ``board.push()``
+        in ``play_move()``; after the push ``board.color`` has already
+        flipped to the opponent, so we can't derive it from board state.
+
+        Clock persistence uses ``$push`` (single new value per ply) instead
+        of ``$set`` (full ever-growing array) to keep the wire payload O(1)
+        regardless of game length. ``save_game()`` writes the authoritative
+        full arrays at game end, so the document is always consistent on close.
+
+        Takeback (``pop_move_from_db``) is bot-only and bot games are always
+        CASUAL, so clock arrays are never written for those games and no
+        matching ``$pop`` is required here.
+        """
         self.last_move_time = datetime.now(timezone.utc)
         move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
 
-        new_data = {
+        set_data: dict[str, object] = {
             "f": self.board.fen,
             "l": self.last_move_time,
             "s": self.status,
         }
-
+        # Push only the clock that changed this ply; the other array is
+        # left untouched until save_game() overwrites both at game end.
+        push_data: dict[str, object] = {"m": move_encoded}
         if self.rated == RATED:
-            new_data["cw"] = self.clocks_w[1:]
-            new_data["cb"] = self.clocks_b[1:]
+            if cur_color == WHITE:
+                push_data["cw"] = self.clocks_w[-1]
+            else:
+                push_data["cb"] = self.clocks_b[-1]
 
         if self.app_state.db is not None:
             await self.app_state.db.game.update_one(
-                {"_id": self.id}, {"$set": new_data, "$push": {"m": move_encoded}}
+                {"_id": self.id},
+                {"$set": set_data, "$push": push_data},
             )
 
     async def pop_move_from_db(self) -> None:
@@ -637,7 +658,8 @@ class Game:
             "bs": self.bsetup,
         }
         if self.app_state.db is not None:
-            await self.app_state.db.game.find_one_and_update({"_id": self.id}, {"$set": new_data})
+            # update_one is sufficient — the returned document is never used.
+            await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
 
     async def save_game(self) -> None:
         if self.saved:
@@ -727,9 +749,8 @@ class Game:
                 new_data["mct"] = self.manual_count_toggled
 
             if self.persist_to_db and self.app_state.db is not None:
-                await self.app_state.db.game.find_one_and_update(
-                    {"_id": self.id}, {"$set": new_data}
-                )
+                # update_one is sufficient — the returned document is never used.
+                await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
                 if is_catalogued_variant(self.variant) and self.result in (
                     "1-0",
                     "0-1",
@@ -811,7 +832,9 @@ class Game:
             "r": crosstable["r"],
         }
         try:
-            await self.app_state.db.crosstable.find_one_and_update(
+            # update_one(upsert=True) is sufficient — the returned document
+            # is never used and find_one_and_update costs an extra round-trip.
+            await self.app_state.db.crosstable.update_one(
                 {"_id": self.ct_id}, {"$set": new_data}, upsert=True
             )
         except Exception:
@@ -845,7 +868,9 @@ class Game:
 
         new_data = {"scores": dict(variant_scores.items()[:MAX_HIGHSCORE_ITEM_LIMIT])}
         try:
-            await self.app_state.db.highscore.find_one_and_update(
+            # update_one(upsert=True) is sufficient — the returned document
+            # is never used and find_one_and_update costs an extra round-trip.
+            await self.app_state.db.highscore.update_one(
                 {"_id": variant_key},
                 {"$set": new_data},
                 upsert=True,
