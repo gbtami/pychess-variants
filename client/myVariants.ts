@@ -121,13 +121,25 @@ type VariantFormBody = {
     ini: string;
 };
 
+function isSitePieceFamilyOverride(pieceFamily: string): boolean {
+    return !!pieceFamily &&
+        Object.prototype.hasOwnProperty.call(PIECE_FAMILIES, pieceFamily) &&
+        !pieceFamily.startsWith('catalogued-');
+}
+
+function cleanPieceFamilyOverrideDraft(pieceFamily: string | undefined | null): string {
+    const cleaned = (pieceFamily ?? '').trim();
+    return isSitePieceFamilyOverride(cleaned) ? cleaned : '';
+}
+
 function readForm(): VariantFormBody {
     return {
         displayName: (document.getElementById('catalogued-display-name') as HTMLInputElement | null)?.value ?? state.draftDisplayName,
         description: (document.getElementById('catalogued-description') as HTMLTextAreaElement | null)?.value ?? state.draftDescription,
-        pieceFamilyOverride:
+        pieceFamilyOverride: cleanPieceFamilyOverrideDraft(
             (document.getElementById('catalogued-piece-family-override') as HTMLSelectElement | null)?.value
             ?? state.draftPieceFamilyOverride,
+        ),
         visibility: ((document.getElementById('catalogued-visibility') as HTMLSelectElement | null)?.value as VariantVisibility | undefined) ?? state.draftVisibility,
         ini: (document.getElementById('catalogued-ini') as HTMLTextAreaElement | null)?.value ?? state.draftIni,
     };
@@ -146,7 +158,7 @@ function clearDraft(): void {
 function setDraftFromVariant(variant: ManagedVariant): void {
     state.draftDisplayName = variant.displayName ?? '';
     state.draftDescription = variant.tooltip === 'Catalogued variant' ? '' : variant.tooltip ?? '';
-    state.draftPieceFamilyOverride = variant.pieceFamilyOverride ?? '';
+    state.draftPieceFamilyOverride = cleanPieceFamilyOverrideDraft(variant.pieceFamilyOverride);
     state.draftVisibility = variant.visibility ?? 'private';
     state.draftIni = variant.ini ?? '';
 }
@@ -564,7 +576,7 @@ function visibilityHelp(visibility: VariantVisibility): string {
 
 function sitePieceFamilyOptions(): string[] {
     return Object.keys(PIECE_FAMILIES)
-        .filter(family => !family.startsWith('catalogued-'));
+        .filter(isSitePieceFamilyOverride);
 }
 
 function pieceFamilyOverrideLabel(pieceFamily: string): string {

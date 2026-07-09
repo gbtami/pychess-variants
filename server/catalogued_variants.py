@@ -1016,11 +1016,22 @@ def _catalogued_source(doc: Mapping[str, Any]) -> str:
 
 def _clean_piece_family_override(piece_family: str | None) -> str:
     cleaned = str(piece_family or "").strip().lower()
-    if not cleaned:
+    if cleaned in {"", "auto", "auto-detect", "autodetect"}:
         return ""
     if cleaned not in CATALOGUED_PIECE_FAMILY_OVERRIDES:
         raise web.HTTPBadRequest(text="Unknown catalogued piece-set override.")
     return cleaned
+
+
+def _read_piece_family_override(data: Mapping[str, Any]) -> str:
+    # Treat an explicit empty modern field as a request to clear the override.
+    # Do not let a stale legacy snake_case value revive an old override when the
+    # admin selects "Auto-detect" in the current UI.
+    if "pieceFamilyOverride" in data:
+        value = data.get("pieceFamilyOverride")
+    else:
+        value = data.get("piece_family_override")
+    return _clean_piece_family_override(str(value or ""))
 
 
 def _catalogued_piece_family_override(doc: Mapping[str, Any]) -> str:
@@ -3101,9 +3112,7 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
         ini = str(data.get("ini") or "")
         display_name = str(data.get("displayName") or data.get("display_name") or "")
         description = str(data.get("description") or "")
-        piece_family_override = _clean_piece_family_override(
-            str(data.get("pieceFamilyOverride") or data.get("piece_family_override") or "")
-        )
+        piece_family_override = _read_piece_family_override(data)
         visibility = _clean_visibility(str(data.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE))
         return ini, display_name, description, piece_family_override, visibility
 
@@ -3124,9 +3133,7 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
 
     display_name = str(data.get("displayName") or data.get("display_name") or "")
     description = str(data.get("description") or "")
-    piece_family_override = _clean_piece_family_override(
-        str(data.get("pieceFamilyOverride") or data.get("piece_family_override") or "")
-    )
+    piece_family_override = _read_piece_family_override(data)
     visibility = _clean_visibility(str(data.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE))
     return ini, display_name, description, piece_family_override, visibility
 
