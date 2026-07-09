@@ -46,6 +46,9 @@ CATALOGUED_VISIBILITY_PUBLIC = "public"
 CATALOGUED_VISIBILITIES = frozenset(
     {CATALOGUED_VISIBILITY_PRIVATE, CATALOGUED_VISIBILITY_UNLISTED, CATALOGUED_VISIBILITY_PUBLIC}
 )
+CATALOGUED_SOURCE_USER = "user"
+CATALOGUED_SOURCE_FSF_BUILTIN = "fairy-stockfish-builtin"
+CATALOGUED_FSF_BUILTIN_AUTHOR = "Fairy-Stockfish"
 CATALOGUED_COMMUNITY_PAGE_SIZE = 20
 MAX_CATALOGUED_VARIANTS_PER_USER = 20
 MAX_CATALOGUED_FAVORITES_PER_USER = 500
@@ -78,6 +81,325 @@ VARIANT_NAME_ERROR = (
     "and contain only lowercase letters, digits, hyphens, and underscores."
 )
 PYCHESS_PIECES_METADATA_KEY = "pychesspieces"
+
+CATALOGUED_CHESS_PROMOTION_ORDER = ("q", "r", "b", "n")
+FSF_CATALOGUED_BUILTIN_DESCRIPTION = (
+    "Fairy-Stockfish built-in variant exposed as a casual community variant."
+)
+
+
+def _fsf_builtin_description(*links: str) -> str:
+    if not links:
+        return FSF_CATALOGUED_BUILTIN_DESCRIPTION
+    return f"{FSF_CATALOGUED_BUILTIN_DESCRIPTION} Reference: {', '.join(links)}"
+
+
+# Curated subset of Fairy-Stockfish built-ins that pychess exposes through the
+# community/user-defined variant UI. Keep this list intentionally conservative
+# and add entries only after the board, pieces, move input, analysis and
+# saved-game paths have been tested on pychess. The catalogue entry name must
+# remain the real Fairy-Stockfish UCI_Variant key so matching NNUE files can
+# still be used.
+#
+# Avoid aliases/internal helpers, variants that need custom move encoding
+# (duck/walling/flipping), setup/drop/gating flows, two-board flows, covered
+# information, side-specific promotion UI, or regional adjudication that needs
+# first-class client support. Admins can still fill in display metadata and
+# upload piece/board SVGs for entries in this allowlist.
+FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
+    "5check": {
+        "displayName": "Five-Check Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "3check",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+        "showCheckCounters": True,
+    },
+    "almost": {
+        "displayName": "Almost Chess",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Almost_chess"),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("c", "r", "b", "n"),
+    },
+    "amazon": {
+        "displayName": "Amazon Chess",
+        "description": _fsf_builtin_description(
+            "https://www.chessvariants.com/diffmove.dir/amazone.html"
+        ),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("a", "r", "b", "n"),
+    },
+    "atomar": {
+        "displayName": "Atomar",
+        "description": _fsf_builtin_description(
+            "https://web.archive.org/web/20230519082613/"
+            "https://chronatog.com/wp-content/uploads/2021/09/atomar-chess-rules.pdf"
+        ),
+        "baseVariant": "atomic",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "berolina": {
+        "displayName": "Berolina Chess",
+        "description": _fsf_builtin_description(
+            "https://www.chessvariants.com/dpieces.dir/berlin.html"
+        ),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "centaur": {
+        "displayName": "Centaur Chess",
+        "description": _fsf_builtin_description(
+            "https://www.chessvariants.com/large.dir/contest/royalcourt.html"
+        ),
+        "baseVariant": "capablanca",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("c", "q", "r", "b", "n"),
+    },
+    "chancellor": {
+        "displayName": "Chancellor Chess",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Chancellor_chess"),
+        "baseVariant": "capablanca",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("c", "q", "r", "b", "n"),
+    },
+    "chaturanga": {
+        "displayName": "Chaturanga",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Chaturanga"),
+        "baseVariant": "shatranj",
+    },
+    "codrus": {
+        "displayName": "Codrus",
+        "description": _fsf_builtin_description("http://www.binnewirtz.com/Schlagschach1.htm"),
+        "baseVariant": "antichess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "coregal": {
+        "displayName": "Coregal Chess",
+        "description": _fsf_builtin_description(
+            "https://www.chessvariants.com/winning.dir/coregal.html"
+        ),
+        "baseVariant": "chess",
+        "kingRoles": ("k", "q"),
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "courier": {
+        "displayName": "Courier Chess",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Courier_chess"),
+        "baseVariant": "shatranj",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("f",),
+    },
+    "extinction": {
+        "displayName": "Extinction Chess",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Extinction_chess"),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("k", "q", "r", "b", "n"),
+    },
+    "gardner": {
+        "displayName": "Gardner Minichess",
+        "description": _fsf_builtin_description(
+            "https://en.wikipedia.org/wiki/Minichess#5%C3%975_chess"
+        ),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "georgian": {
+        "displayName": "Georgian Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("a", "r", "b", "n"),
+    },
+    "giveaway": {
+        "displayName": "Giveaway Chess",
+        "description": _fsf_builtin_description(
+            "https://www.chessvariants.com/diffobjective.dir/giveaway.old.html"
+        ),
+        "baseVariant": "antichess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("k", "q", "r", "b", "n"),
+    },
+    "grasshopper": {
+        "displayName": "Grasshopper Chess",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Grasshopper_chess"),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("q", "r", "b", "n", "g"),
+    },
+    "janus": {
+        "displayName": "Janus Chess",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Janus_Chess"),
+        "baseVariant": "capablanca",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("j", "q", "r", "b", "n"),
+    },
+    "kinglet": {
+        "displayName": "Kinglet",
+        "description": _fsf_builtin_description(
+            "https://en.wikipedia.org/wiki/V._R._Parton#Kinglet_chess"
+        ),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("k",),
+    },
+    "knightmate": {
+        "displayName": "Knightmate",
+        "description": _fsf_builtin_description(
+            "https://www.chessvariants.com/diffobjective.dir/knightmate.html"
+        ),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("m", "q", "r", "b"),
+    },
+    "legan": {
+        "displayName": "Legan Chess",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Legan_chess"),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "losalamos": {
+        "displayName": "Los Alamos Chess",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Los_Alamos_chess"),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("q", "r", "n"),
+    },
+    "losers": {
+        "displayName": "Losers Chess",
+        "description": _fsf_builtin_description("https://www.chessclub.com/help/Wild17"),
+        "baseVariant": "antichess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "misere": {
+        "displayName": "Misère Chess",
+        "description": _fsf_builtin_description(
+            "http://www.kotesovec.cz/gustav/gustav_alybadix.htm"
+        ),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "modern": {
+        "displayName": "Modern Chess",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Modern_chess"),
+        "baseVariant": "capablanca",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("m", "q", "r", "b", "n"),
+    },
+    "newzealand": {
+        "displayName": "New Zealand Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "nightrider": {
+        "displayName": "Nightrider Chess",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Nightrider_(chess)"),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "nocastle": {
+        "displayName": "No-Castle Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "nocheckatomic": {
+        "displayName": "No-Check Atomic",
+        "description": _fsf_builtin_description("https://www.chessclub.com/help/atomic"),
+        "baseVariant": "atomic",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "opulent": {
+        "displayName": "Opulent Chess",
+        "description": _fsf_builtin_description(
+            "https://www.chessvariants.com/rules/opulent-chess"
+        ),
+        "baseVariant": "grand",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("q", "r", "b", "a", "c", "n", "w", "l"),
+    },
+    "pawnback": {
+        "displayName": "Pawnback Chess",
+        "description": _fsf_builtin_description("https://arxiv.org/abs/2009.04374"),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "pawnsideways": {
+        "displayName": "Pawnsideways Chess",
+        "description": _fsf_builtin_description("https://arxiv.org/abs/2009.04374"),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "perfect": {
+        "displayName": "Perfect Chess",
+        "description": _fsf_builtin_description(
+            "https://www.chessvariants.com/diffmove.dir/perfectchess.html"
+        ),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("g", "c", "m", "q", "r", "b", "n"),
+    },
+    "shatar": {
+        "displayName": "Shatar",
+        "description": _fsf_builtin_description("https://en.wikipedia.org/wiki/Shatar"),
+        "baseVariant": "shatranj",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("j",),
+    },
+    "suicide": {
+        "displayName": "Suicide Chess",
+        "description": _fsf_builtin_description(
+            "https://www.freechess.org/Help/HelpFiles/suicide_chess.html"
+        ),
+        "baseVariant": "antichess",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("k", "q", "r", "b", "n"),
+    },
+    "tencubed": {
+        "displayName": "Ten Cubed Chess",
+        "description": _fsf_builtin_description(
+            "https://www.chessvariants.com/contests/10/tencubedchess.html"
+        ),
+        "baseVariant": "grand",
+        "promotionRoles": ("p",),
+        "promotionOrder": ("a", "m", "q"),
+    },
+    "threekings": {
+        "displayName": "Three Kings",
+        "description": _fsf_builtin_description(
+            "https://github.com/cutechess/cutechess/blob/master/"
+            "projects/lib/src/board/threekingsboard.h"
+        ),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+    "torpedo": {
+        "displayName": "Torpedo Chess",
+        "description": _fsf_builtin_description("https://arxiv.org/abs/2009.04374"),
+        "baseVariant": "chess",
+        "promotionRoles": ("p",),
+        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
+    },
+}
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FSF_CHECK_TIMEOUT_SECONDS = 8.0
@@ -152,6 +474,8 @@ class CataloguedVariantDocument(TypedDict):
     icon: str
     category: str
     visibility: str
+    source: NotRequired[str]
+    fsfBuiltinVariant: NotRequired[str]
     pieceSet: NotRequired[dict[str, CataloguedVariantPieceSetSvg]]
     pieceSetUpdatedAt: NotRequired[datetime]
     boardSvg: NotRequired[CataloguedVariantBoardSvg]
@@ -190,6 +514,9 @@ class CataloguedVariantClientDocument(TypedDict):
     icon: str
     category: str
     author: NotRequired[str]
+    source: NotRequired[str]
+    system: NotRequired[bool]
+    fsfBuiltinVariant: NotRequired[str]
     archived: NotRequired[bool]
     enabled: NotRequired[bool]
     gameCount: NotRequired[int]
@@ -216,6 +543,21 @@ def _is_active_catalogued_doc(doc: Mapping[str, Any]) -> bool:
 def _catalogued_visibility(doc: Mapping[str, Any]) -> str:
     visibility = str(doc.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE).strip().lower()
     return visibility if visibility in CATALOGUED_VISIBILITIES else CATALOGUED_VISIBILITY_PRIVATE
+
+
+def _catalogued_source(doc: Mapping[str, Any]) -> str:
+    source = str(doc.get("source") or CATALOGUED_SOURCE_USER).strip().lower()
+    if source == CATALOGUED_SOURCE_FSF_BUILTIN:
+        return CATALOGUED_SOURCE_FSF_BUILTIN
+    return CATALOGUED_SOURCE_USER
+
+
+def _is_fsf_builtin_catalogued_doc(doc: Mapping[str, Any]) -> bool:
+    return _catalogued_source(doc) == CATALOGUED_SOURCE_FSF_BUILTIN
+
+
+def _fsf_builtin_variant_name(doc: Mapping[str, Any]) -> str:
+    return str(doc.get("fsfBuiltinVariant") or doc.get("name") or doc.get("_id") or "")
 
 
 def _utc_datetime(value: Any) -> datetime | None:
@@ -1519,8 +1861,9 @@ def _client_doc(
 ) -> CataloguedVariantClientDocument:
     description = str(doc.get("description") or "")
     tooltip = description or "Catalogued variant"
-    ini = str(doc["ini"])
+    ini = str(doc.get("ini") or "")
     start_fen = str(doc["startFen"])
+    base_variant = str(doc.get("baseVariant") or "")
     pieces = list(doc.get("pieces") or ["k"])
     king_roles = (
         catalogued_king_roles(ini, pieces)
@@ -1546,7 +1889,7 @@ def _client_doc(
         "displayName": str(doc.get("displayName") or doc["name"]),
         "tooltip": tooltip,
         "ini": ini,
-        "baseVariant": str(doc.get("baseVariant") or extract_variant_base_name(ini)),
+        "baseVariant": base_variant or (extract_variant_base_name(ini) if ini else ""),
         "startFen": start_fen,
         "width": int(doc["width"]),
         "height": int(doc["height"]),
@@ -1564,12 +1907,16 @@ def _client_doc(
         "icon": str(doc.get("icon") or CATALOGUED_ICON),
         "category": CATALOGUED_CATEGORY,
         "author": str(doc.get("author") or ""),
+        "source": _catalogued_source(doc),
+        "system": _is_fsf_builtin_catalogued_doc(doc),
         "visibility": _catalogued_visibility(doc),
         "hasPieceSet": _has_complete_piece_set(doc),
         "hasBoard": _has_board_svg(doc),
         "archived": bool(doc.get("archived", False)),
         "enabled": bool(doc.get("enabled", True)),
     }
+    if _is_fsf_builtin_catalogued_doc(doc):
+        client_doc["fsfBuiltinVariant"] = _fsf_builtin_variant_name(doc)
     if client_doc["hasPieceSet"]:
         client_doc["pieceSetRevision"] = _piece_set_revision(doc)
     if client_doc["hasBoard"]:
@@ -1799,10 +2146,12 @@ def register_catalogued_variant_doc(
         unregister_catalogued_server_variant(name)
         return
 
-    ini = str(doc["ini"])
-    _ensure_catalogued_rules_supported(ini)
+    ini = str(doc.get("ini") or "")
+    is_fsf_builtin = _is_fsf_builtin_catalogued_doc(doc)
+    if not is_fsf_builtin:
+        _ensure_catalogued_rules_supported(ini)
 
-    if load_config:
+    if load_config and not is_fsf_builtin:
         sf.load_variant_config(ini)
 
     width = int(doc.get("width") or 0)
@@ -1890,6 +2239,9 @@ async def init_catalogued_variants(app_state: Any, db_collections: list[str]) ->
     await collection.create_index("author")
     await collection.create_index("visibility")
     await collection.create_index("createdAt")
+    await collection.create_index("source")
+
+    await ensure_fsf_catalogued_builtin_variants(app_state)
 
     cursor = collection.find({"enabled": {"$ne": False}, "archived": {"$ne": True}})
     async for doc in cursor:
@@ -2283,8 +2635,10 @@ def _build_doc(
     visibility: str = CATALOGUED_VISIBILITY_PRIVATE,
     archived: bool = False,
     game_count: int = 0,
+    source: str = CATALOGUED_SOURCE_USER,
+    fsf_builtin_variant: str | None = None,
 ) -> CataloguedVariantDocument:
-    return {
+    doc: CataloguedVariantDocument = {
         "_id": name,
         "name": name,
         "displayName": _clean_display_name(display_name, name),
@@ -2313,10 +2667,205 @@ def _build_doc(
         "icon": CATALOGUED_ICON,
         "category": CATALOGUED_CATEGORY,
         "visibility": _clean_visibility(visibility),
+        "source": source,
         "gameCount": max(0, int(game_count)),
         "createdAt": created_at,
         "updatedAt": datetime.now(timezone.utc),
     }
+    if fsf_builtin_variant:
+        doc["fsfBuiltinVariant"] = fsf_builtin_variant
+    return doc
+
+
+def _fsf_metadata_string_list(metadata: Mapping[str, Any], key: str) -> list[str]:
+    value = metadata.get(key)
+    if value is None:
+        return []
+    if isinstance(value, str):
+        items = value.replace(",", " ").split()
+    elif isinstance(value, (list, tuple)):
+        items = [str(item) for item in value]
+    else:
+        return []
+
+    seen: set[str] = set()
+    result: list[str] = []
+    for item in items:
+        item = item.strip().lower()
+        if not item or item in seen:
+            continue
+        seen.add(item)
+        result.append(item)
+    return result
+
+
+def _fsf_metadata_bool(metadata: Mapping[str, Any], key: str, default: bool) -> bool:
+    value = metadata.get(key)
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().casefold() in {"true", "yes", "1", "on"}
+    return bool(value)
+
+
+def _fsf_builtin_description_for_doc(
+    metadata: Mapping[str, Any], existing: Mapping[str, Any] | None
+) -> str:
+    metadata_description = str(metadata.get("description") or "")
+    existing_description = str((existing or {}).get("description") or "")
+    if not existing_description or existing_description == FSF_CATALOGUED_BUILTIN_DESCRIPTION:
+        return metadata_description
+    return existing_description
+
+
+def _build_fsf_builtin_doc(
+    name: str,
+    metadata: Mapping[str, Any],
+    *,
+    existing: Mapping[str, Any] | None = None,
+) -> CataloguedVariantDocument:
+    start_fen = sf.start_fen(name)
+    if not start_fen:
+        raise ValueError(f"Fairy-Stockfish did not provide a start FEN for {name!r}.")
+
+    width, height = board_dimensions_from_fen(start_fen)
+    _catalogued_grand_from_dimensions(width, height)
+    pieces = _merge_piece_letters(
+        _catalogued_piece_roles_from_ini("", start_fen),
+        _fsf_metadata_string_list(metadata, "pieces"),
+    )
+    king_roles = _fsf_metadata_string_list(metadata, "kingRoles") or catalogued_king_roles(
+        "", pieces
+    )
+    pocket_roles = _fsf_metadata_string_list(metadata, "pocketRoles") or catalogued_pocket_roles(
+        "", start_fen, pieces
+    )
+    promotion_type = str(metadata.get("promotionType") or catalogued_promotion_type(""))
+    promotion_roles = _fsf_metadata_string_list(
+        metadata, "promotionRoles"
+    ) or catalogued_promotion_roles("", pieces)
+    promotion_order = _fsf_metadata_string_list(
+        metadata, "promotionOrder"
+    ) or catalogued_promotion_order("", promotion_type)
+
+    return _build_doc(
+        name=name,
+        base_variant=str(metadata.get("baseVariant") or ""),
+        display_name=str(
+            (existing or {}).get("displayName") or metadata.get("displayName") or name
+        ),
+        description=_fsf_builtin_description_for_doc(metadata, existing),
+        username=CATALOGUED_FSF_BUILTIN_AUTHOR,
+        ini="",
+        start_fen=start_fen,
+        width=width,
+        height=height,
+        pieces=pieces,
+        king_roles=king_roles,
+        pocket_roles=pocket_roles,
+        capture_to_hand=_fsf_metadata_bool(metadata, "captureToHand", False),
+        promotion_type=promotion_type,
+        promotion_roles=promotion_roles,
+        promotion_order=promotion_order,
+        show_promoted=_fsf_metadata_bool(
+            metadata, "showPromoted", catalogued_show_promoted("", start_fen)
+        ),
+        rules_gate=_fsf_metadata_bool(metadata, "rulesGate", False),
+        rules_pass=_fsf_metadata_bool(metadata, "rulesPass", False),
+        legal_moves_need_history=_fsf_metadata_bool(metadata, "legalMovesNeedHistory", False),
+        n_fold_is_draw=_fsf_metadata_bool(metadata, "nFoldIsDraw", False),
+        show_check_counters=_fsf_metadata_bool(metadata, "showCheckCounters", False),
+        created_at=cast(datetime, (existing or {}).get("createdAt") or datetime.now(timezone.utc)),
+        visibility=str((existing or {}).get("visibility") or CATALOGUED_VISIBILITY_PUBLIC),
+        archived=bool((existing or {}).get("archived", False)),
+        game_count=int((existing or {}).get("gameCount") or 0),
+        source=CATALOGUED_SOURCE_FSF_BUILTIN,
+        fsf_builtin_variant=name,
+    )
+
+
+def _fsf_builtin_synced_fields(doc: Mapping[str, Any]) -> dict[str, Any]:
+    """Fields controlled by the server-side curated FSF built-in list.
+
+    Admin-editable metadata (displayName, description, visibility), assets,
+    counters and AI-disable state are intentionally not overwritten at startup.
+    Startup seeding may separately replace only the old generic description.
+    """
+
+    keys = (
+        "name",
+        "author",
+        "ini",
+        "baseVariant",
+        "enabled",
+        "startFen",
+        "width",
+        "height",
+        "pieces",
+        "kingRoles",
+        "pocketRoles",
+        "captureToHand",
+        "promotionType",
+        "promotionRoles",
+        "promotionOrder",
+        "showPromoted",
+        "rulesGate",
+        "rulesPass",
+        "legalMovesNeedHistory",
+        "nFoldIsDraw",
+        "showCheckCounters",
+        "icon",
+        "category",
+        "source",
+        "fsfBuiltinVariant",
+    )
+    return {key: doc[key] for key in keys if key in doc}
+
+
+async def ensure_fsf_catalogued_builtin_variants(app_state: Any) -> None:
+    if app_state.db is None:
+        return
+
+    collection = app_state.db[CATALOGUED_VARIANT_COLLECTION]
+    for name, metadata in FSF_CATALOGUED_BUILTIN_VARIANTS.items():
+        if name not in BUILTIN_FSF_VARIANT_NAMES:
+            log.warning(
+                "Skipped FSF catalogued built-in %s: Fairy-Stockfish does not know it", name
+            )
+            continue
+
+        existing = await collection.find_one({"_id": name})
+        if existing is not None and not _is_fsf_builtin_catalogued_doc(existing):
+            log.warning(
+                "Skipped FSF catalogued built-in %s: a non-system catalogued variant already uses that key",
+                name,
+            )
+            continue
+
+        try:
+            doc = _build_fsf_builtin_doc(name, metadata, existing=existing)
+        except Exception:
+            log.exception("Failed to prepare FSF catalogued built-in %s", name)
+            continue
+
+        if existing is None:
+            try:
+                await collection.insert_one(doc)
+            except DuplicateKeyError:
+                log.warning("Skipped FSF catalogued built-in %s: duplicate key", name)
+            continue
+
+        synced_fields = _fsf_builtin_synced_fields(doc)
+        existing_description = str(existing.get("description") or "")
+        if not existing_description or existing_description == FSF_CATALOGUED_BUILTIN_DESCRIPTION:
+            synced_fields["description"] = doc["description"]
+
+        await collection.update_one(
+            {"_id": name},
+            {"$set": synced_fields},
+        )
 
 
 async def upload_catalogued_variant(request: web.Request) -> web.Response:
@@ -2611,11 +3160,14 @@ async def get_catalogued_disguised_piece_css(request: web.Request) -> web.Respon
 async def get_my_catalogued_variants(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _current_human_username(request)
-    query: dict[str, Any] = (
-        {}
-        if _is_admin_username(username) and request.rel_url.query.get("all") == "1"
-        else {"author": username}
-    )
+    admin = _is_admin_username(username)
+    scope = request.rel_url.query.get("scope")
+    if admin and scope == "fsf":
+        query: dict[str, Any] = {"source": CATALOGUED_SOURCE_FSF_BUILTIN}
+    elif admin and (scope == "all" or request.rel_url.query.get("all") == "1"):
+        query = {}
+    else:
+        query = {"author": username}
 
     variants: list[CataloguedVariantClientDocument] = []
     if app_state.db is not None:
@@ -2650,6 +3202,28 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
 
     ini, display_name, description, visibility = await _read_upload_payload(request)
     ini = ini.strip()
+    if _is_fsf_builtin_catalogued_doc(existing):
+        now = datetime.now(timezone.utc)
+        await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
+            {"_id": old_name},
+            {
+                "$set": {
+                    "displayName": _clean_display_name(display_name, old_name),
+                    "description": _clean_description(description),
+                    "visibility": visibility,
+                    "updatedAt": now,
+                }
+            },
+        )
+        updated = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": old_name})
+        if updated is None:
+            raise web.HTTPNotFound(text="Catalogued variant not found after update.")
+        register_catalogued_variant_doc(app_state, updated, load_config=False)
+        count = await _game_count(app_state, old_name)
+        return json_response(
+            {"ok": True, "oldName": old_name, "variant": _client_doc(updated, game_count=count)}
+        )
+
     if not ini:
         raise web.HTTPBadRequest(text="Missing INI content.")
 
@@ -2784,7 +3358,9 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
 
 
 async def delete_catalogued_variant(request: web.Request) -> web.Response:
-    app_state, _username, name, _doc = await _load_owned_doc(request)
+    app_state, _username, name, doc = await _load_owned_doc(request)
+    if _is_fsf_builtin_catalogued_doc(doc):
+        raise web.HTTPConflict(text="Fairy-Stockfish built-in catalogue entries cannot be deleted.")
     if _has_active_catalogued_games(app_state, name):
         raise web.HTTPConflict(
             text=(
@@ -2836,6 +3412,8 @@ async def clone_catalogued_variant(request: web.Request) -> web.Response:
     app_state, username, name, doc = await _load_owned_doc(request)
     if app_state.db is None:
         raise web.HTTPServiceUnavailable(text="Database is unavailable.")
+    if _is_fsf_builtin_catalogued_doc(doc):
+        raise web.HTTPConflict(text="Fairy-Stockfish built-in catalogue entries cannot be cloned.")
 
     await _ensure_catalogued_variant_quota(app_state, username)
 

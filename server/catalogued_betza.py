@@ -17,15 +17,99 @@ class CataloguedBetzaDiagram(TypedDict):
     svg: str
 
 
-class _CustomPieceDefinition(NamedTuple):
-    option: str
+class _PieceDiagramDefinition(NamedTuple):
+    key: str
     piece: str
+    betza: str
+    title: str
+
+
+class _FsfBuiltinPieceDefinition(NamedTuple):
+    piece: str
+    title: str
     betza: str
 
 
-MAX_CATALOGUED_BETZA_DIAGRAMS = 26  # 25 customPiece slots + optional custom king.
+MAX_CATALOGUED_BETZA_DIAGRAMS = 32  # 25 customPiece slots + known FSF built-in pieces.
 BETZA_DIAGRAM_CACHE_SIZE = 512
 BETZA_DIAGRAM_RENDERER_VERSION = 1
+
+# Fairy-Stockfish built-in pieces that can appear in catalogued/user-defined
+# variants through inherited built-in variants rather than customPieceN INI
+# lines. Keep this variant-scoped instead of global-by-letter: several FSF
+# variants intentionally reuse familiar letters for different pieces (for
+# example New Zealand's rook/knight, Nightrider's knight, and Shatranj's
+# bishop/queen letters), so the same letter must not be interpreted outside
+# the variant where Fairy-Stockfish assigns that built-in piece name.
+FSF_BUILTIN_PIECE_DIAGRAMS_BY_VARIANT: Mapping[str, tuple[_FsfBuiltinPieceDefinition, ...]] = {
+    "almost": (_FsfBuiltinPieceDefinition("c", "Chancellor", "RN"),),
+    "amazon": (_FsfBuiltinPieceDefinition("a", "Amazon", "QN"),),
+    "berolina": (_FsfBuiltinPieceDefinition("p", "Berolina pawn", "mfFcfeWimfnA"),),
+    "capablanca": (
+        _FsfBuiltinPieceDefinition("a", "Archbishop", "BN"),
+        _FsfBuiltinPieceDefinition("c", "Chancellor", "RN"),
+    ),
+    "centaur": (_FsfBuiltinPieceDefinition("c", "Centaur", "KN"),),
+    "chancellor": (_FsfBuiltinPieceDefinition("c", "Chancellor", "RN"),),
+    "chaturanga": (
+        _FsfBuiltinPieceDefinition("b", "Alfil", "A"),
+        _FsfBuiltinPieceDefinition("q", "Fers", "F"),
+    ),
+    "courier": (
+        _FsfBuiltinPieceDefinition("e", "Alfil", "A"),
+        _FsfBuiltinPieceDefinition("f", "Fers", "F"),
+        _FsfBuiltinPieceDefinition("m", "Commoner", "K"),
+        _FsfBuiltinPieceDefinition("w", "Wazir", "W"),
+    ),
+    "extinction": (_FsfBuiltinPieceDefinition("k", "Commoner", "K"),),
+    "georgian": (_FsfBuiltinPieceDefinition("a", "Amazon", "QN"),),
+    "giveaway": (_FsfBuiltinPieceDefinition("k", "Commoner", "K"),),
+    "gothic": (
+        _FsfBuiltinPieceDefinition("a", "Archbishop", "BN"),
+        _FsfBuiltinPieceDefinition("c", "Chancellor", "RN"),
+    ),
+    "grand": (
+        _FsfBuiltinPieceDefinition("a", "Archbishop", "BN"),
+        _FsfBuiltinPieceDefinition("c", "Chancellor", "RN"),
+    ),
+    "grasshopper": (_FsfBuiltinPieceDefinition("g", "Grasshopper", "gQ"),),
+    "janus": (_FsfBuiltinPieceDefinition("j", "Archbishop", "BN"),),
+    "knightmate": (_FsfBuiltinPieceDefinition("m", "Commoner", "K"),),
+    "legan": (_FsfBuiltinPieceDefinition("p", "Legan pawn", "mflFcflW"),),
+    "modern": (_FsfBuiltinPieceDefinition("m", "Archbishop", "BN"),),
+    "newzealand": (
+        _FsfBuiltinPieceDefinition("r", "Rookni", "mRcN"),
+        _FsfBuiltinPieceDefinition("n", "Kniroo", "mNcR"),
+    ),
+    "nightrider": (_FsfBuiltinPieceDefinition("n", "Nightrider", "NN"),),
+    "nocheckatomic": (_FsfBuiltinPieceDefinition("k", "Commoner", "K"),),
+    "opulent": (
+        _FsfBuiltinPieceDefinition("a", "Archbishop", "BN"),
+        _FsfBuiltinPieceDefinition("c", "Chancellor", "RN"),
+        _FsfBuiltinPieceDefinition("n", "Marquis", "NW"),
+        _FsfBuiltinPieceDefinition("w", "Wizard", "CF"),
+        _FsfBuiltinPieceDefinition("l", "Lion", "FDH"),
+    ),
+    "pawnback": (_FsfBuiltinPieceDefinition("p", "Backward pawn", "fbmWfceFifmnD"),),
+    "pawnsideways": (_FsfBuiltinPieceDefinition("p", "Sideways pawn", "fsmWfceFifmnD"),),
+    "perfect": (
+        _FsfBuiltinPieceDefinition("c", "Chancellor", "RN"),
+        _FsfBuiltinPieceDefinition("m", "Archbishop", "BN"),
+        _FsfBuiltinPieceDefinition("g", "Amazon", "QN"),
+    ),
+    "shatar": (_FsfBuiltinPieceDefinition("j", "Bers", "RF"),),
+    "shatranj": (
+        _FsfBuiltinPieceDefinition("b", "Alfil", "A"),
+        _FsfBuiltinPieceDefinition("q", "Fers", "F"),
+    ),
+    "tencubed": (
+        _FsfBuiltinPieceDefinition("a", "Archbishop", "BN"),
+        _FsfBuiltinPieceDefinition("m", "Chancellor", "RN"),
+        _FsfBuiltinPieceDefinition("c", "Champion", "DAW"),
+        _FsfBuiltinPieceDefinition("w", "Wizard", "CF"),
+    ),
+    "threekings": (_FsfBuiltinPieceDefinition("k", "Commoner", "K"),),
+}
 
 
 def _strip_inline_comment(line: str) -> str:
@@ -64,8 +148,8 @@ def _custom_piece_sort_key(option: str) -> tuple[int, int]:
     return (0, int(suffix) if suffix.isdigit() else 0)
 
 
-def _custom_piece_definitions(ini: str) -> list[_CustomPieceDefinition]:
-    definitions: list[_CustomPieceDefinition] = []
+def _custom_piece_definitions(ini: str) -> list[_PieceDiagramDefinition]:
+    definitions: list[_PieceDiagramDefinition] = []
 
     for key, value in _iter_ini_options(ini):
         lowered = key.casefold()
@@ -87,9 +171,17 @@ def _custom_piece_definitions(ini: str) -> list[_CustomPieceDefinition]:
         if len(piece) != 1 or not piece.isalpha():
             continue
 
-        definitions.append(_CustomPieceDefinition(option=key, piece=piece.lower(), betza=betza))
+        piece = piece.lower()
+        definitions.append(
+            _PieceDiagramDefinition(
+                key=key,
+                piece=piece,
+                betza=betza,
+                title=f"{_custom_piece_title(key, piece)} movement",
+            )
+        )
 
-    definitions.sort(key=lambda item: _custom_piece_sort_key(item.option))
+    definitions.sort(key=lambda item: _custom_piece_sort_key(item.key))
     return definitions[:MAX_CATALOGUED_BETZA_DIAGRAMS]
 
 
@@ -108,13 +200,78 @@ def _preview_dimension(value: object, *, fallback: int = 11) -> int:
     return min(11, max(5, dimension))
 
 
-def _piece_title(definition: _CustomPieceDefinition) -> str:
-    if definition.option.casefold() == "king":
-        return f"Custom king ({definition.piece.upper()})"
-    suffix = definition.option.casefold().removeprefix("custompiece")
+def _custom_piece_title(option: str, piece: str) -> str:
+    if option.casefold() == "king":
+        return f"Custom king ({piece.upper()})"
+    suffix = option.casefold().removeprefix("custompiece")
     if suffix.isdigit():
-        return f"Custom piece {suffix} ({definition.piece.upper()})"
-    return f"Custom piece {definition.piece.upper()}"
+        return f"Custom piece {suffix} ({piece.upper()})"
+    return f"Custom piece {piece.upper()}"
+
+
+def _section_base_variant(ini: str) -> str:
+    for raw_line in ini.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("[") and "]" in line:
+            section = line[1 : line.index("]")].strip()
+            _name, separator, base = section.partition(":")
+            return base.strip().lower() if separator else ""
+    return ""
+
+
+def _doc_piece_letters(doc: Mapping[str, Any]) -> set[str]:
+    pieces = doc.get("pieces")
+    if isinstance(pieces, str):
+        return {piece.lower() for piece in pieces.replace(",", " ").split() if piece}
+    if isinstance(pieces, (list, tuple, set)):
+        return {str(piece).lower() for piece in pieces if str(piece)}
+    return set()
+
+
+def _fsf_builtin_variant_names(doc: Mapping[str, Any], ini: str) -> list[str]:
+    candidates = [
+        doc.get("fsfBuiltinVariant"),
+        doc.get("name"),
+        doc.get("baseVariant"),
+        _section_base_variant(ini),
+    ]
+    names: list[str] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        name = str(candidate or "").strip().lower()
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        names.append(name)
+    return names
+
+
+def _fsf_builtin_piece_definitions(
+    doc: Mapping[str, Any],
+    ini: str,
+    occupied_pieces: set[str],
+) -> list[_PieceDiagramDefinition]:
+    pieces = _doc_piece_letters(doc)
+    if not pieces:
+        return []
+
+    definitions: list[_PieceDiagramDefinition] = []
+    for variant_name in _fsf_builtin_variant_names(doc, ini):
+        for known in FSF_BUILTIN_PIECE_DIAGRAMS_BY_VARIANT.get(variant_name, ()):
+            if known.piece not in pieces or known.piece in occupied_pieces:
+                continue
+            occupied_pieces.add(known.piece)
+            definitions.append(
+                _PieceDiagramDefinition(
+                    key=f"fsf:{variant_name}:{known.piece}",
+                    piece=known.piece,
+                    betza=known.betza,
+                    title=f"{known.title} movement",
+                )
+            )
+    return definitions
 
 
 @lru_cache(maxsize=1024)
@@ -140,7 +297,7 @@ def _cached_betza_svg(
 
 @lru_cache(maxsize=BETZA_DIAGRAM_CACHE_SIZE)
 def _cached_catalogued_betza_diagrams(
-    ini: str,
+    definitions: tuple[_PieceDiagramDefinition, ...],
     board_width: int,
     board_height: int,
     renderer_version: int,
@@ -148,13 +305,12 @@ def _cached_catalogued_betza_diagrams(
     del renderer_version  # Cache-busting key for future diagram wording/layout changes.
     diagrams: list[CataloguedBetzaDiagram] = []
 
-    for definition in _custom_piece_definitions(ini):
-        title = f"{_piece_title(definition)} movement"
+    for definition in definitions:
         try:
             svg = _cached_betza_svg(
                 definition.betza,
                 definition.piece.upper(),
-                title,
+                definition.title,
                 board_width,
                 board_height,
                 BETZA_DIAGRAM_RENDERER_VERSION,
@@ -162,7 +318,7 @@ def _cached_catalogued_betza_diagrams(
         except Exception:
             log.warning(
                 "Failed to render Betza diagram for %s (%s)",
-                definition.option,
+                definition.key,
                 definition.betza,
                 exc_info=True,
             )
@@ -173,7 +329,7 @@ def _cached_catalogued_betza_diagrams(
             {
                 "piece": definition.piece,
                 "betza": definition.betza,
-                "title": title,
+                "title": definition.title,
                 "svg": svg,
             }
         )
@@ -182,14 +338,19 @@ def _cached_catalogued_betza_diagrams(
 
 
 def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDiagram]:
-    """Return inline SVG movement diagrams for custom Betza pieces in a variant doc."""
+    """Return inline SVG movement diagrams for custom and known FSF built-in pieces."""
 
     ini = str(doc.get("ini") or "")
+    custom_definitions = _custom_piece_definitions(ini)
+    occupied_pieces = {definition.piece for definition in custom_definitions}
+    definitions = tuple(
+        custom_definitions + _fsf_builtin_piece_definitions(doc, ini, occupied_pieces)
+    )[:MAX_CATALOGUED_BETZA_DIAGRAMS]
     board_width = _preview_dimension(doc.get("width"))
     board_height = _preview_dimension(doc.get("height"))
     return list(
         _cached_catalogued_betza_diagrams(
-            ini,
+            definitions,
             board_width,
             board_height,
             BETZA_DIAGRAM_RENDERER_VERSION,

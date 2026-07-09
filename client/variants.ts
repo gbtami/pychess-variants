@@ -1343,6 +1343,10 @@ export interface CataloguedVariantClientDocument {
     readonly showCheckCounters?: boolean;
     readonly icon?: string;
     readonly category?: string;
+    readonly author?: string;
+    readonly source?: 'user' | 'fairy-stockfish-builtin';
+    readonly system?: boolean;
+    readonly fsfBuiltinVariant?: string;
     readonly archived?: boolean;
     readonly enabled?: boolean;
     readonly gameCount?: number;

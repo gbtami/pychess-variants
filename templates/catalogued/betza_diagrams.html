@@ -1,9 +1,10 @@
 {% if catalogued_variant.customPieceDiagrams %}
 <section class="catalogued-variant-rules-block catalogued-betza-diagrams">
-    <h2>Custom piece movement</h2>
+    <h2>Piece movement</h2>
     <p class="catalogued-betza-note">
-        These diagrams show the basic movement pattern from White's perspective on a compact preview board.
-        Some special moves, especially hoppers, can still depend on blockers or game state.
+        These diagrams show custom pieces and known Fairy-Stockfish built-in fairy pieces from
+        White's perspective on a compact preview board. Some special moves, especially hoppers
+        and game-state-dependent moves, can still depend on blockers or game state.
     </p>
     <div class="catalogued-betza-grid">
         {% for diagram in catalogued_variant.customPieceDiagrams %}

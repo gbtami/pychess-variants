@@ -23,6 +23,7 @@ import {
 
 type VariantVisibility = 'private' | 'unlisted' | 'public';
 type MessageTone = 'neutral' | 'success' | 'error';
+type AdminScope = 'mine' | 'fsf' | 'all';
 
 type ManagedVariant = CataloguedVariantClientDocument & {
     author?: string;
@@ -42,6 +43,7 @@ type State = {
     saving: boolean;
     variants: ManagedVariant[];
     maxVariants: number | null;
+    adminScope: AdminScope;
     editing: ManagedVariant | null;
     message: string;
     formMessage: string;
@@ -59,6 +61,7 @@ const state: State = {
     saving: false,
     variants: [],
     maxVariants: null,
+    adminScope: 'mine',
     editing: null,
     message: '',
     formMessage: '',
@@ -78,6 +81,15 @@ function rerender(model: PyChessModel): void {
     rootVNode = patch(rootVNode, renderRoot(model));
 }
 
+function isSystemManagedVariant(variant: ManagedVariant | null | undefined): boolean {
+    return !!variant?.system || variant?.source === 'fairy-stockfish-builtin';
+}
+
+function myVariantsUrl(model: PyChessModel): string {
+    if (!model.admin || state.adminScope === 'mine') return '/api/catalogued-variants/mine';
+    return `/api/catalogued-variants/mine?scope=${encodeURIComponent(state.adminScope)}`;
+}
+
 async function responseError(response: Response): Promise<string> {
     const text = await response.text();
     return text || `${_('Request failed')} (${response.status})`;
@@ -85,7 +97,7 @@ async function responseError(response: Response): Promise<string> {
 
 async function loadMine(model: PyChessModel, options: { clearMessage?: boolean } = {}): Promise<void> {
     try {
-        const response = await fetch('/api/catalogued-variants/mine');
+        const response = await fetch(myVariantsUrl(model));
         if (!response.ok) throw new Error(await responseError(response));
         const payload = await response.json() as { variants: ManagedVariant[]; maxVariants?: number | null };
         state.variants = payload.variants || [];
@@ -188,6 +200,13 @@ function currentRulesChanged(ini: string): boolean {
 }
 
 async function validateCurrentForm(model: PyChessModel): Promise<void> {
+    if (isSystemManagedVariant(state.editing)) {
+        state.formMessage = _('Fairy-Stockfish built-in catalogue entries do not have editable INI rules.');
+        state.formMessageTone = 'neutral';
+        rerender(model);
+        return;
+    }
+
     const body = readForm();
     if (!body.ini.trim()) {
         await alertDialog({ text: _('Paste one Fairy-Stockfish variant definition first.') });
@@ -221,24 +240,29 @@ async function validateCurrentForm(model: PyChessModel): Promise<void> {
 
 async function saveVariant(model: PyChessModel): Promise<void> {
     const body = readForm();
-    if (!body.ini.trim()) {
+    const editingSystem = isSystemManagedVariant(state.editing);
+    if (!editingSystem && !body.ini.trim()) {
         await alertDialog({ text: _('Paste one Fairy-Stockfish variant definition first.') });
         return;
     }
 
     const editingName = state.editing?.name;
-    try {
-        validateBasicIni(body.ini.trim(), editingName);
-    } catch (err) {
-        state.formMessage = err instanceof Error ? err.message : _('Variant check failed');
-        state.formMessageTone = 'error';
-        rerender(model);
-        return;
+    if (!editingSystem) {
+        try {
+            validateBasicIni(body.ini.trim(), editingName);
+        } catch (err) {
+            state.formMessage = err instanceof Error ? err.message : _('Variant check failed');
+            state.formMessageTone = 'error';
+            rerender(model);
+            return;
+        }
     }
 
-    const rulesChanged = currentRulesChanged(body.ini);
+    const rulesChanged = !editingSystem && currentRulesChanged(body.ini);
     state.saving = true;
-    state.formMessage = rulesChanged
+    state.formMessage = editingSystem
+        ? _('Saving metadata and visibility...')
+        : rulesChanged
         ? `${_('Checking rules for')} ${extractVariantName(body.ini.trim())}...`
         : _('Saving metadata and visibility...');
     state.formMessageTone = 'neutral';
@@ -250,7 +274,9 @@ async function saveVariant(model: PyChessModel): Promise<void> {
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
+            body: JSON.stringify(editingSystem
+                ? { displayName: body.displayName, description: body.description, visibility: body.visibility }
+                : body),
         });
         if (!response.ok) throw new Error(await responseError(response));
         const payload = await response.json() as { oldName?: string; variant?: ManagedVariant };
@@ -518,13 +544,17 @@ function visibilityHelp(visibility: VariantVisibility): string {
 
 function renderForm(model: PyChessModel): VNode {
     const editing = state.editing;
+    const editingSystem = isSystemManagedVariant(editing);
     return h('section.catalogued-card.catalogued-form', [
         h('div.catalogued-form-head', [
-            h('h2', editing ? _('Edit variant') : _('Upload new variant')),
-            h('p', _('Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first saved public game.')),
-            h('p.catalogued-help', _('Private and unlisted variants are sandbox variants: games are playable but are not saved.')),
-            h('p.catalogued-help', _('If you change the rules of an unused variant, also change the INI section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.')),
-            editing?.locked ? h('p.catalogued-help', _('This variant already has saved public games. Only metadata and visibility can be changed; clone it to change the rules.')) : null,
+            h('h2', editingSystem ? _('Edit Fairy-Stockfish variant') : editing ? _('Edit variant') : _('Upload new variant')),
+            editingSystem
+                ? h('p', _('This entry is backed by a built-in Fairy-Stockfish variant. Its rules are not editable here, so NNUE files can keep matching the original engine variant name.'))
+                : h('p', _('Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first saved public game.')),
+            editingSystem ? null : h('p.catalogued-help', _('Private and unlisted variants are sandbox variants: games are playable but are not saved.')),
+            editingSystem ? null : h('p.catalogued-help', _('If you change the rules of an unused variant, also change the INI section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.')),
+            editingSystem ? h('p.catalogued-help', _('Admins can edit metadata, visibility, piece SVGs, and board SVGs for this system-owned catalogue entry.')) : null,
+            !editingSystem && editing?.locked ? h('p.catalogued-help', _('This variant already has saved public games. Only metadata and visibility can be changed; clone it to change the rules.')) : null,
         ]),
         h('form.catalogued-form-grid', {
             on: {
@@ -601,9 +631,11 @@ function renderForm(model: PyChessModel): VNode {
                 h('textarea#catalogued-ini', {
                     props: {
                         value: state.draftIni,
-                        placeholder: '[myvariant:chess]\n# inherits chess rules through the section suffix',
+                        placeholder: editingSystem
+                            ? _('Built-in Fairy-Stockfish variant; no INI is stored.')
+                            : '[myvariant:chess]\n# inherits chess rules through the section suffix',
                         spellcheck: false,
-                        disabled: state.saving,
+                        disabled: state.saving || editingSystem,
                     },
                     on: {
                         input: (event: Event) => {
@@ -613,14 +645,16 @@ function renderForm(model: PyChessModel): VNode {
                         },
                     },
                 }),
-                h('span.catalogued-help', _('If inherited rules use pieces or promoted pieces that pychess cannot detect automatically, add a comment like # pychessPieces = k,q,r,+r,p,+p. This affects only piece-set upload and board rendering; Fairy-Stockfish ignores it. For locked variants with games, only this pychessPieces metadata can be changed.')),
+                editingSystem
+                    ? h('span.catalogued-help', _('The catalogue key remains the Fairy-Stockfish UCI_Variant name. Use display name and description for nicer wording.'))
+                    : h('span.catalogued-help', _('If inherited rules use pieces or promoted pieces that pychess cannot detect automatically, add a comment like # pychessPieces = k,q,r,+r,p,+p. This affects only piece-set upload and board rendering; Fairy-Stockfish ignores it. For locked variants with games, only this pychessPieces metadata can be changed.')),
             ]),
             h('div.catalogued-actions.catalogued-field-full', [
                 h(`button.button-primary.catalogued-primary-action${state.saving ? '.disabled' : ''}`, {
                     props: { type: 'submit', disabled: state.saving },
                 }, editing ? _('Save changes') : _('Upload variant')),
                 h('button.catalogued-secondary-action', {
-                    props: { type: 'button', disabled: state.saving },
+                    props: { type: 'button', disabled: state.saving || editingSystem },
                     on: {
                         click: (event: Event) => {
                             event.preventDefault();
@@ -805,6 +839,31 @@ function renderBoardControls(model: PyChessModel, variant: ManagedVariant): VNod
     ]);
 }
 
+function renderAdminScopeControls(model: PyChessModel): VNode | null {
+    if (!model.admin) return null;
+
+    const scopeButton = (scope: AdminScope, label: string): VNode => h('button.catalogued-row-button.catalogued-secondary-action', {
+        props: { type: 'button', disabled: state.saving || state.adminScope === scope },
+        on: {
+            click: () => {
+                state.adminScope = scope;
+                state.loaded = false;
+                state.editing = null;
+                clearDraft();
+                void loadMine(model);
+                rerender(model);
+            },
+        },
+    }, label);
+
+    return h('div.catalogued-admin-scope', [
+        h('strong', _('Admin view')),
+        scopeButton('mine', _('Mine')),
+        scopeButton('fsf', _('Fairy-Stockfish')),
+        scopeButton('all', _('All')),
+    ]);
+}
+
 function renderRows(model: PyChessModel): VNode {
     if (!state.loaded) return h('p', _('Loading...'));
     if (state.variants.length === 0) return h('p.catalogued-empty', _('You have not uploaded any variants yet.'));
@@ -823,7 +882,9 @@ function renderRows(model: PyChessModel): VNode {
             h('tbody', state.variants.map(variant => {
                 const locked = !!variant.locked;
                 const archived = !!variant.archived || variant.enabled === false;
+                const systemManaged = isSystemManagedVariant(variant);
                 const lockTitle = locked ? _('This variant already has saved public games. Clone it to change the rules.') : '';
+                const systemTitle = systemManaged ? _('Fairy-Stockfish built-in catalogue entries keep their engine rules and key fixed.') : '';
                 const aiTitle = variant.aiDisabled ? _('Fairy-Stockfish AI is temporarily disabled for this variant; Random-Mover can still be used.') : '';
                 return h('tr', { class: { archived } }, [
                     h('td.catalogued-name-cell', { attrs: { 'data-label': _('Name') } }, [
@@ -831,7 +892,7 @@ function renderRows(model: PyChessModel): VNode {
                         h('code', variant.name),
                         variant.tooltip ? h('p', variant.tooltip) : null,
                     ]),
-                    h('td', { attrs: { 'data-label': _('Status') } }, archived ? _('Archived') : locked ? _('Locked') : _('Editable')),
+                    h('td', { attrs: { 'data-label': _('Status') } }, archived ? _('Archived') : systemManaged ? _('System') : locked ? _('Locked') : _('Editable')),
                     h('td', { attrs: { 'data-label': _('Visibility') } }, visibilityLabel(variant.visibility)),
                     h('td', { attrs: { 'data-label': _('Games') } }, String(variant.gameCount ?? 0)),
                     h('td', { attrs: { 'data-label': _('Pieces') } }, renderPieceSetControls(model, variant)),
@@ -856,12 +917,12 @@ function renderRows(model: PyChessModel): VNode {
                         }, _('Rules')),
                         h('button.catalogued-row-button.catalogued-secondary-action', {
                             props: { type: 'button', disabled: state.saving },
-                            attrs: { title: lockTitle },
+                            attrs: { title: systemTitle || lockTitle },
                             on: { click: () => editVariant(model, variant) },
                         }, _('Edit')),
                         h('button.catalogued-row-button.catalogued-secondary-action', {
-                            props: { type: 'button', disabled: locked || state.saving },
-                            attrs: { title: lockTitle },
+                            props: { type: 'button', disabled: systemManaged || locked || state.saving },
+                            attrs: { title: systemTitle || lockTitle },
                             on: { click: () => void postAction(model, variant, 'delete') },
                         }, _('Delete')),
                         archived
@@ -874,7 +935,8 @@ function renderRows(model: PyChessModel): VNode {
                                 on: { click: () => void postAction(model, variant, 'archive') },
                             }, _('Archive')),
                         h('button.catalogued-row-button.catalogued-secondary-action', {
-                            props: { type: 'button', disabled: state.saving },
+                            props: { type: 'button', disabled: systemManaged || state.saving },
+                            attrs: { title: systemTitle },
                             on: { click: () => void postAction(model, variant, 'clone') },
                         }, _('Clone')),
                     ]),
@@ -885,6 +947,12 @@ function renderRows(model: PyChessModel): VNode {
 }
 
 function renderRoot(model: PyChessModel): VNode {
+    const listTitle = state.adminScope === 'fsf'
+        ? _('Fairy-Stockfish variants')
+        : state.adminScope === 'all'
+        ? _('All variants')
+        : _('My variants');
+
     return h('main#my-variants.my-variants', {
         hook: {
             insert: (vnode: VNode) => {
@@ -909,7 +977,8 @@ function renderRoot(model: PyChessModel): VNode {
                 state.message ? h('p.catalogued-message', state.message) : null,
                 renderForm(model),
                 h('section.catalogued-card.catalogued-list-card', [
-                    h('h2', _('My variants')),
+                    h('h2', listTitle),
+                    renderAdminScopeControls(model),
                     state.maxVariants === null ? null : h('p.catalogued-help', `${state.variants.length}/${state.maxVariants} ${_('variant slots used')}`),
                     renderRows(model),
                 ]),
