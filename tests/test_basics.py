@@ -341,7 +341,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         self.assertEqual(resp.status, 200)
         text = await resp.text()
         self.assertIn(f'data-variant="{name}"', text)
-        self.assertIn("&quot;name&quot;:&quot;editor-catalogued-test&quot;", text)
+        self.assertRegex(text, r'data-catalogued-variants="[^"]*editor-catalogued-test[^"]*"')
 
     async def test_games_unknown_variant_is_normalized(self):
         resp = await self.client.request("GET", "/games/notavariant")
