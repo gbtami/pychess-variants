@@ -22,7 +22,11 @@ from server import make_app
 from user import User
 from utils import sanitize_fen, play_move
 from pychess_global_app_state_utils import get_app_state
-from variants import VARIANTS
+from variants import (
+    VARIANTS,
+    register_catalogued_server_variant,
+    unregister_catalogued_server_variant,
+)
 
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
@@ -307,6 +311,37 @@ class RequestLobbyTestCase(AioHTTPTestCase):
         text = await resp.text()
         self.assertIn('data-variant="chess"', text)
         self.assertIn('data-chess960="True"', text)
+
+    async def test_editor_keeps_accessible_catalogued_variant(self):
+        name = "editor-catalogued-test"
+        app_state = get_app_state(self.app)
+        app_state.catalogued_variants[name] = {
+            "name": name,
+            "displayName": "Editor catalogued test",
+            "ini": f"[{name}:shogi]\nmaxFile = 10\nmaxRank = 10\n",
+            "baseVariant": "shogi",
+            "startFen": "10/10/10/10/10/10/10/10/10/10 w - - 0 1",
+            "width": 10,
+            "height": 10,
+            "pieces": ["k", "p"],
+            "kingRoles": ["k"],
+            "promotionType": "shogi",
+            "promotionRoles": ["p"],
+            "promotionOrder": ["+"],
+            "author": "",
+            "visibility": "unlisted",
+            "enabled": True,
+            "archived": False,
+        }
+        register_catalogued_server_variant(name, "Editor catalogued test", "◇")
+        self.addCleanup(unregister_catalogued_server_variant, name)
+
+        fen = "10/10/10/10/10/10/10/10/10/10_w_-_-_0_1"
+        resp = await self.client.request("GET", f"/editor/{name}?fen={fen}")
+        self.assertEqual(resp.status, 200)
+        text = await resp.text()
+        self.assertIn(f'data-variant="{name}"', text)
+        self.assertIn("&quot;name&quot;:&quot;editor-catalogued-test&quot;", text)
 
     async def test_games_unknown_variant_is_normalized(self):
         resp = await self.client.request("GET", "/games/notavariant")

@@ -114,6 +114,13 @@ label.piece.piece6.capa {
     background-image: url('images/pieces/disguised/w.svg');
 }
 
+label.piece.piece0.perfect {
+    background-image: url('images/pieces/green/amazon-w.svg');
+}
+label.piece.piece1.perfect {
+    background-image: url('images/pieces/disguised/w.svg');
+}
+
 label.piece.piece0.dragon {
     background-image: url('images/pieces/green/wD.svg');
 }

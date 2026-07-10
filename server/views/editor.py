@@ -1,9 +1,14 @@
+import json
+
 import aiohttp_jinja2
 from aiohttp import web
 
+from catalogued_variants import catalogued_variant_client_doc_for_name
 from fairy import FairyBoard
-from variants import VARIANTS
+from json_utils import json_dumps
+from pychess_global_app_state_utils import get_app_state
 from typing_defs import ViewContext
+from variants import ALL_VARIANTS, is_catalogued_variant
 from views import get_user_context
 
 
@@ -12,10 +17,25 @@ async def editor(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 
     variant_key = request.match_info.get("variant") or "chess"
-    if variant_key not in VARIANTS:
-        variant_key = "chess"
-    chess960 = variant_key.endswith("960")
-    variant = variant_key[:-3] if chess960 else variant_key
+    catalogued_doc = None
+    if is_catalogued_variant(variant_key):
+        catalogued_doc = catalogued_variant_client_doc_for_name(
+            get_app_state(request.app), variant_key, user.username if not user.anon else None
+        )
+        if catalogued_doc is None:
+            variant_key = "chess"
+
+    server_variant = ALL_VARIANTS.get(variant_key)
+    if server_variant is None:
+        server_variant = ALL_VARIANTS["chess"]
+    elif catalogued_doc is not None:
+        catalogued_variants = json.loads(str(context.get("catalogued_variants") or "[]"))
+        if not any(item.get("name") == variant_key for item in catalogued_variants):
+            catalogued_variants.append(catalogued_doc)
+            context["catalogued_variants"] = json_dumps(catalogued_variants)
+
+    chess960 = bool(server_variant.chess960)
+    variant = server_variant.uci_variant
 
     fen = request.rel_url.query.get("fen")
     if fen is None:

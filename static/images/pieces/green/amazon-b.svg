@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+	Szuperkirálynő (fekete)
+	Készült: a queen-b.svg felhasználásával
+	Felhasználási feltételek: Nevezd meg! - Így add tovább! (Creative Commons)
+	Uray M. János
+	2017-2018
+-->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="128" height="128" viewBox="0 0 45 45">
+	<!-- alap -->
+	<g fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+		<!-- csápok -->
+		<path d="M 7,25 C 17.5,23.5 27.5,23.5 38,25 L 40.5,12.5 L 34,24 L 33.7,9.9 L 28.5,23.5 L 26.5,9 L 22.5,23 L 18.5,9 L 16.5,23.5 L 11.3,9.9 L 11,24 L 4.5,12.5 L 7,25 Z"/>
+		<!-- test -->
+		<path d="M 7,25 C 7,27 9.5,27 10.5,29 C 11,30 12,31 11,35 C 9.5,36.5 9.5,37 9.5,37 C 8,38.5 10,39.5 10,39.5 C 17.5,40.5 27.5,40.5 35,39.5 C 35,39.5 37,38.5 35.5,37 C 35.5,37 35.5,36.5 34,35 C 33,31 34,30 34.5,29 C 35.5,27 38,27 38,25 C 27.5,23.5 17.5,23.5 7,25 Z"/>
+	</g>
+	<!-- vízszintes vonalak -->
+	<g fill="none" stroke="#FFF" stroke-width="1.5" stroke-linecap="round">
+		<path d="M 7,24 C 17.5,22.5 27.5,22.5 38,24"/>
+		<path d="M 11,28.5 C 17,27.5 28,27.5 34,28.5"/>
+		<path d="M 11.5,35 C 18,34 27,34 33.5,35"/>
+	</g>
+	<!-- pöttyök -->
+	<g fill="#FFF" stroke="none">
+		<circle cx="17.5" cy="31.25" r="2"/>
+		<circle cx="27.5" cy="31.25" r="2"/>
+	</g>
+	<!-- bojtok -->
+	<g fill="#FFF" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+		<circle cx="4"    cy="11"  r="2.5"/>
+		<circle cx="11"   cy="8"   r="2.5"/>
+		<circle cx="18.5" cy="6.5" r="2.5"/>
+		<circle cx="26.5" cy="6.5" r="2.5"/>
+		<circle cx="34"   cy="8"   r="2.5"/>
+		<circle cx="41"   cy="11"  r="2.5"/>
+	</g>
+</svg>

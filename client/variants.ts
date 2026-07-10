@@ -76,6 +76,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     xiangfu: { pieceCSS: ["eventintl", "eventhanzi", "eventhanziguided", "disguised"] },
     borderlands: { pieceCSS: ["borderlands", "disguised"] },
     yokai: { pieceCSS: ["yokai", "disguised"] },
+    perfect: { pieceCSS: ["perfect0", "disguised"] },
     letter: { pieceCSS: ["disguised"] },
 };
 

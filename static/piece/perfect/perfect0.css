@@ -1,0 +1,62 @@
+.perfect piece.m-piece.white {
+    background-image: url('../../images/pieces/green/wA.svg');
+}
+.perfect piece.c-piece.white {
+    background-image: url('../../images/pieces/green/wC.svg');
+}
+.perfect piece.a-piece.white {
+    background-image: url('../../images/pieces/green/amazon-w.svg');
+}
+.perfect piece.g-piece.white {
+    background-image: url('../../images/pieces/green/amazon-w.svg');
+}
+
+.perfect piece.m-piece.black {
+    background-image: url('../../images/pieces/green/bA.svg');
+}
+.perfect piece.c-piece.black {
+    background-image: url('../../images/pieces/green/bC.svg');
+}
+.perfect piece.a-piece.black {
+    background-image: url('../../images/pieces/green/amazon-b.svg');
+}
+.perfect piece.g-piece.black {
+    background-image: url('../../images/pieces/green/amazon-b.svg');
+}
+
+.perfect piece.p-piece.white {
+    background-image: url('../../images/pieces/green/wP.svg');
+}
+.perfect piece.b-piece.white {
+    background-image: url('../../images/pieces/green/wB.svg');
+}
+.perfect piece.n-piece.white {
+    background-image: url('../../images/pieces/green/wN.svg');
+}
+.perfect piece.r-piece.white {
+    background-image: url('../../images/pieces/green/wR.svg');
+}
+.perfect piece.q-piece.white {
+    background-image: url('../../images/pieces/green/wQ.svg');
+}
+.perfect piece.k-piece.white {
+    background-image: url('../../images/pieces/green/wK.svg');
+}
+.perfect piece.p-piece.black {
+    background-image: url('../../images/pieces/green/bP.svg');
+}
+.perfect piece.b-piece.black {
+    background-image: url('../../images/pieces/green/bB.svg');
+}
+.perfect piece.n-piece.black {
+    background-image: url('../../images/pieces/green/bN.svg');
+}
+.perfect piece.r-piece.black {
+    background-image: url('../../images/pieces/green/bR.svg');
+}
+.perfect piece.q-piece.black {
+    background-image: url('../../images/pieces/green/bQ.svg');
+}
+.perfect piece.k-piece.black {
+    background-image: url('../../images/pieces/green/bK.svg');
+}
