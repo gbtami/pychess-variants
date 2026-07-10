@@ -97,3 +97,10 @@ Nurikabe are barrier monsters. They start in each player's hand and can only mov
 
 Notation follows that of Shogi; see the document for details. Piece symbols are in parentheses above.
 
+## Strategy
+
+The game is still relatively new, so strategy is far from being developed. However, here are a few tips to get you started:
+
+* The 'animals' (Tanuki and Kitsune) are not nearly as strong as their standard Shogi counterparts. Pay attention to the fact that once they make a capture, they can't go back the same way they came. Consequently, their value isn't particularly high until later in the game when you can promote, at which point they become some of the strongest pieces in the game.
+* Similarly, the other yokai are also very strong and not nearly as weak as their standard Shogi counterparts. Aside from pawns, there are no real "weak" pieces and the value depends on the stage on the stage of the game. Early on, these pieces may be even more valuable than animals because of their greater flexibility.
+* Be mindful of where Nurikabe drops can happen, both where you can find an opening to attack or where the opponent may find an opening in your rank.
