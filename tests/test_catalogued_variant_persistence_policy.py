@@ -93,10 +93,33 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         unregister_catalogued_server_variant(name)
         self.addCleanup(unregister_catalogued_server_variant, name)
 
-        with patch("catalogued_variants.sf.load_variant_config") as load_variant_config:
+        validation = SimpleNamespace(
+            name=name,
+            base_variant="chess",
+            start_fen="8/8/8/8/8/8/8/K6k w - - 0 1",
+            width=8,
+            height=8,
+            pieces=["k"],
+            king_roles=["k"],
+            pocket_roles=[],
+            capture_to_hand=False,
+            promotion_type="",
+            promotion_roles=[],
+            promotion_order=[],
+            show_promoted=False,
+            rules_gate=False,
+            rules_pass=False,
+            legal_moves_need_history=False,
+            n_fold_is_draw=False,
+            show_check_counters=False,
+        )
+
+        with patch(
+            "catalogued_variants.validate_catalogued_ini", return_value=validation
+        ) as validate_catalogued_ini:
             ensure_catalogued_variant_from_game_doc(app_state, game_doc)
 
-        load_variant_config.assert_called_once_with(game_doc["vini"])
+        validate_catalogued_ini.assert_called_once_with(game_doc["vini"])
         self.assertTrue(is_catalogued_variant(name))
         self.assertIn(name, app_state.catalogued_variants)
         restored = app_state.catalogued_variants[name]
