@@ -26,6 +26,7 @@ from variants import C2V, GRANDS, get_server_variant, VARIANTS
 log = logging.getLogger(__name__)
 
 GAME_PAGE_SIZE = 12
+GAME_SEARCH_MAX_TIME_MS = 10_000
 _seen_discontinued_variants: set[str] = set()
 EXPORT_FAILED_SAMPLE_LIMIT = 5
 USER_GAMES_FILTERS = ("all", "win", "loss", "rated", "playing", "import", "me", "perf")
@@ -1051,13 +1052,23 @@ async def search_games(request: web.Request) -> web.StreamResponse:
     filter_cond: dict[str, object] = conditions[0] if len(conditions) == 1 else {"$and": conditions}
     filter_cond = _apply_category_filter(filter_cond, user) or {"_id": None}
     direction = 1 if query.get("sort") == "oldest" else -1
+    # Player-oriented indexes end with ``d``. Adding ``_id`` to the sort forces
+    # MongoDB to perform a blocking sort instead of reading those indexes in
+    # order, which is especially costly for prolific players. Date values are
+    # already sufficiently precise for the existing page/skip pagination, and
+    # this matches the long-standing profile-game query. Keep the deterministic
+    # tie-breaker for searches that can use the d/_id catalogue indexes.
+    sort_fields = [("d", direction)]
+    if not players:
+        sort_fields.append(("_id", direction))
+
     try:
         docs = await (
             app_state.db.game.find(filter_cond)
-            .sort([("d", direction), ("_id", direction)])
+            .sort(sort_fields)
             .skip(page * GAME_PAGE_SIZE)
             .limit(GAME_PAGE_SIZE + 1)
-            .max_time_ms(3000)
+            .max_time_ms(GAME_SEARCH_MAX_TIME_MS)
             .to_list(GAME_PAGE_SIZE + 1)
         )
     except ExecutionTimeout:

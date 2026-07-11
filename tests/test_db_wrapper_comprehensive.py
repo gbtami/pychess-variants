@@ -6,6 +6,7 @@ from pymongo.errors import (
     OperationFailure,
     NotPrimaryError,
     CursorNotFound,
+    ExecutionTimeout,
 )
 from pymongo.asynchronous.cursor import AsyncCursor
 import sys
@@ -21,7 +22,7 @@ class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
     async def test_is_retryable_operation_failure_with_retryable_codes(self):
         """Test that OperationFailure with retryable codes returns True."""
         # Test retryable error codes relevant to single-node setup
-        retryable_codes = [6, 7, 89, 91, 9001, 262, 64, 189]
+        retryable_codes = [6, 7, 89, 91, 9001, 64, 189]
 
         for code in retryable_codes:
             with self.subTest(code=code):
@@ -31,7 +32,7 @@ class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
     async def test_is_retryable_operation_failure_with_non_retryable_codes(self):
         """Test that OperationFailure with non-retryable codes returns False."""
         # Test non-retryable error codes
-        non_retryable_codes = [11000, 121, 123]  # Duplicate key, validation error, etc.
+        non_retryable_codes = [50, 262, 11000, 121, 123]  # Time limits, duplicate key, etc.
 
         for code in non_retryable_codes:
             with self.subTest(code=code):
@@ -118,6 +119,28 @@ class TestDBWrapperComprehensive(unittest.IsolatedAsyncioTestCase):
 
         # Assert that sleep was called once between retries
         mock_sleep.assert_called_once()
+
+    @patch("asyncio.sleep", new_callable=AsyncMock)
+    async def test_execution_timeout_is_not_retried(self, mock_sleep):
+        """A deliberate maxTimeMS expiration must reach the caller unchanged."""
+        mock_cursor = MagicMock(spec=AsyncCursor)
+        mock_cursor.to_list = AsyncMock(
+            side_effect=ExecutionTimeout("operation exceeded time limit")
+        )
+
+        mock_collection = AsyncMock()
+        mock_collection.find = MagicMock(return_value=mock_cursor)
+
+        mock_db = MagicMock()
+        mock_db.__getitem__.return_value = mock_collection
+
+        cursor = AsyncDBWrapper(mock_db)["test_collection"].find({})
+
+        with self.assertRaises(ExecutionTimeout):
+            await cursor.to_list(length=10)
+
+        self.assertEqual(mock_cursor.to_list.call_count, 1)
+        mock_sleep.assert_not_called()
 
     @patch("asyncio.sleep", new_callable=AsyncMock)
     async def test_retry_logic_with_cursor_not_found(self, mock_sleep):

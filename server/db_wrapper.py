@@ -19,7 +19,6 @@ from pymongo.errors import (
     NotPrimaryError,
     OperationFailure,
     CursorNotFound,
-    ExecutionTimeout,
     WTimeoutError,
     WaitQueueTimeoutError,
 )
@@ -37,8 +36,6 @@ RETRYABLE_ERROR_CODES = {
     89,  # NetworkInterfaceExceededTimeLimit / NetworkTimeout
     91,  # ShutdownInProgress
     9001,  # SocketException
-    # Time limits
-    262,  # ExceededTimeLimit
     # Write concern related (certain cases)
     64,  # WriteConcernFailed (certain cases)
     # Some replica set codes that might occur (for broader compatibility)
@@ -52,7 +49,6 @@ RETRYABLE = (
     ConnectionFailure,
     NotPrimaryError,
     CursorNotFound,
-    ExecutionTimeout,
     WTimeoutError,
     WaitQueueTimeoutError,
 )
