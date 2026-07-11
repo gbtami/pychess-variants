@@ -76,9 +76,33 @@
 
 .actions {
     display: flex;
+    align-items: center;
     gap: 0.75rem;
     justify-content: center;
     padding-top: 1rem !important;
+}
+
+.actions .button {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.8rem;
+}
+
+.actions .button-empty {
+    padding: 0.8em 1em;
+    border-radius: 4px;
+    color: var(--link-hover);
+    background: none;
+    box-shadow: none;
+    text-transform: uppercase;
+}
+
+.actions .button-empty:hover {
+    color: var(--link-hover);
+    background: var(--bg-color2);
+    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 22.5%);
 }
 
 .error {

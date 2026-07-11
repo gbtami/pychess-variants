@@ -39,6 +39,20 @@ export function initGameSearch(model: PyChessModel): void {
         );
     }
 
+    const variantSelect = form.elements.namedItem('variant') as HTMLSelectElement | null;
+    form.addEventListener('submit', () => {
+        if (!variantSelect) return;
+        if (
+            variantSelect.selectedIndex !== 0
+            && variantSelect.value
+            && variantSelect.value !== 'all'
+        ) return;
+
+        // Native GET form submission must omit the synthetic "Any variant" option.
+        variantSelect.disabled = true;
+        window.setTimeout(() => { variantSelect.disabled = false; }, 0);
+    });
+
     const playerRoleNames = ['white', 'black', 'winner', 'loser'];
     params.forEach((value, name) => {
         if (playerRoleNames.includes(name)) return;

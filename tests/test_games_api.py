@@ -199,12 +199,14 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
     async def test_advanced_search_treats_all_variant_as_no_filter(self):
         self.set_session_user(self.user.username)
 
-        response = await self.client.get(
-            f"/api/games/search?player1={self.user.username}&variant=all"
-        )
-        self.assertEqual(response.status, 200)
-        payload = await response.json()
-        self.assertIn("db1", [item["_id"] for item in payload["games"]])
+        for variant_value in ("all", "ALL", ""):
+            with self.subTest(variant=variant_value):
+                response = await self.client.get(
+                    f"/api/games/search?player1={self.user.username}&variant={variant_value}"
+                )
+                self.assertEqual(response.status, 200)
+                payload = await response.json()
+                self.assertIn("db1", [item["_id"] for item in payload["games"]])
 
     async def test_advanced_search_resolves_player_names_case_insensitively(self):
         self.set_session_user(self.user.username)

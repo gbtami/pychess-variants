@@ -165,8 +165,14 @@
                     <tr>
                         <th></th>
                         <td class="actions">
-                            <button class="button" type="submit">{% trans %}Search{% endtrans %}</button>
-                            <a class="button secondary" href="/games/search">{% trans %}Clear{% endtrans %}</a>
+                            <button
+                                class="submit button text"
+                                type="submit"
+                                data-icon="x"
+                            >{% trans %}Search{% endtrans %}</button>
+                            <a class="button button-empty" href="/games/search">
+                                {% trans %}Clear{% endtrans %}
+                            </a>
                         </td>
                     </tr>
                 </tbody>

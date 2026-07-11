@@ -980,7 +980,7 @@ async def search_games(request: web.Request) -> web.StreamResponse:
         )
 
     variant_name = query.get("variant", "").strip()
-    if variant_name == "all":
+    if variant_name.casefold() in {"", "all"}:
         variant_name = ""
     if variant_name:
         variant_code = next((code for code, name in C2V.items() if name == variant_name), None)
