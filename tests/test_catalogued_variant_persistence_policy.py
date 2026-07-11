@@ -1,13 +1,15 @@
-from types import SimpleNamespace
 import unittest
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from const import ABORTED, STARTED
 from catalogued_variants import (
     _has_active_catalogued_games,
     archive_catalogued_variant,
+    catalogued_variant_client_doc_for_game,
     catalogued_variant_games_are_persisted,
     ensure_catalogued_variant_from_game_doc,
+    find_catalogued_variant_doc,
 )
 from variants import (
     is_catalogued_variant,
@@ -47,6 +49,94 @@ class CataloguedVariantPersistencePolicyTest(unittest.TestCase):
         self.assertTrue(_has_active_catalogued_games(app_state, "sandbox"))
         app_state.games["active"].status = ABORTED
         self.assertFalse(_has_active_catalogued_games(app_state, "sandbox"))
+
+
+class CataloguedVariantGameClientDocumentTest(unittest.IsolatedAsyncioTestCase):
+    def make_game(self, name: str):
+        server_variant = register_catalogued_server_variant(name, name, "V")
+        self.addCleanup(unregister_catalogued_server_variant, name)
+        return SimpleNamespace(
+            id="game-id",
+            variant=name,
+            server_variant=server_variant,
+            wplayer=SimpleNamespace(username="author"),
+            bplayer=SimpleNamespace(username="participant"),
+        )
+
+    async def test_participant_receives_non_public_variant_from_memory(self) -> None:
+        name = "participant_private_test"
+        game = self.make_game(name)
+        doc = {"name": name, "visibility": "private"}
+        app_state = SimpleNamespace(catalogued_variants={name: doc}, db=None)
+
+        with patch("catalogued_variants._client_doc", return_value={"name": name}) as client_doc:
+            result = await catalogued_variant_client_doc_for_game(app_state, game, "participant")
+
+        self.assertEqual(result, {"name": name})
+        client_doc.assert_called_once_with(doc)
+
+    async def test_participant_receives_archived_variant_from_database(self) -> None:
+        name = "participant_archived_test"
+        game = self.make_game(name)
+        doc = {"name": name, "archived": True, "enabled": False}
+        collection = SimpleNamespace(find_one=AsyncMock(return_value=doc))
+        app_state = SimpleNamespace(
+            catalogued_variants={},
+            db={"catalogued_variant": collection},
+        )
+
+        with patch("catalogued_variants._client_doc", return_value={"name": name}):
+            result = await catalogued_variant_client_doc_for_game(app_state, game, "participant")
+
+        self.assertEqual(result, {"name": name})
+        collection.find_one.assert_awaited_once_with({"_id": name})
+
+    async def test_non_participant_cannot_receive_game_variant_metadata(self) -> None:
+        name = "non_participant_test"
+        game = self.make_game(name)
+        collection = SimpleNamespace(find_one=AsyncMock())
+        app_state = SimpleNamespace(
+            catalogued_variants={},
+            db={"catalogued_variant": collection},
+        )
+
+        result = await catalogued_variant_client_doc_for_game(app_state, game, "stranger")
+
+        self.assertIsNone(result)
+        collection.find_one.assert_not_awaited()
+
+    async def test_active_game_participant_can_open_archived_assets_and_rules(self) -> None:
+        name = "participant_archived_assets_test"
+        game = self.make_game(name)
+        game.status = STARTED
+        doc = {"name": name, "archived": True, "enabled": False}
+        collection = SimpleNamespace(find_one=AsyncMock(return_value=doc))
+        app_state = SimpleNamespace(
+            games={game.id: game},
+            catalogued_variants={},
+            db={"catalogued_variant": collection},
+        )
+
+        result = await find_catalogued_variant_doc(app_state, name, "participant")
+
+        self.assertIs(result, doc)
+        collection.find_one.assert_awaited_once_with({"_id": name})
+
+    async def test_archived_assets_remain_hidden_from_non_participants(self) -> None:
+        name = "non_participant_archived_assets_test"
+        game = self.make_game(name)
+        game.status = STARTED
+        doc = {"name": name, "archived": True, "enabled": False}
+        collection = SimpleNamespace(find_one=AsyncMock(return_value=doc))
+        app_state = SimpleNamespace(
+            games={game.id: game},
+            catalogued_variants={},
+            db={"catalogued_variant": collection},
+        )
+
+        result = await find_catalogued_variant_doc(app_state, name, "stranger")
+
+        self.assertIsNone(result)
 
 
 class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):

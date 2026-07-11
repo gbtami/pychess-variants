@@ -6,9 +6,9 @@ from aiohttp import web
 from json_utils import json_dumps
 from simul.simuls import load_simul
 from tournament.tournaments import get_tournament_name, load_tournament
-from utils import corr_games, load_game, simul_games
+from utils import load_game, simul_games
 from typing_defs import ViewContext
-from views import add_game_context, get_user_context
+from views import add_corr_games_context, add_game_context, get_user_context
 from pychess_global_app_state_utils import get_app_state
 
 if TYPE_CHECKING:
@@ -48,8 +48,7 @@ async def round_view(request: web.Request) -> ViewContext:
         context["bberserk"] = game.bberserk
 
     if game.corr and user.username in (game.wplayer.username, game.bplayer.username):
-        c_games = corr_games(user.correspondence_games)
-        context["corr_games"] = json_dumps(c_games)
+        await add_corr_games_context(app_state, user, context)
 
     simul_id: str | None = None
     if not game.server_variant.two_boards:

@@ -28,6 +28,7 @@ from request_utils import read_json_data, read_post_data, read_text_data
 from settings import ADMINS
 from variants import (
     CATALOGUED_VARIANTS,
+    CataloguedServerVariant,
     ServerVariants,
     get_server_variant,
     is_catalogued_variant,
@@ -2484,6 +2485,24 @@ def _client_doc(
     return client_doc
 
 
+def _is_active_catalogued_game_participant(
+    app_state: Any,
+    name: str,
+    username: str | None,
+) -> bool:
+    if not username:
+        return False
+    for game in getattr(app_state, "games", {}).values():
+        if getattr(game, "variant", None) != name or getattr(game, "status", STARTED) > STARTED:
+            continue
+        if username in {
+            str(getattr(getattr(game, "wplayer", None), "username", "")),
+            str(getattr(getattr(game, "bplayer", None), "username", "")),
+        }:
+            return True
+    return False
+
+
 async def find_catalogued_variant_doc(
     app_state: Any,
     name: str,
@@ -2493,9 +2512,13 @@ async def find_catalogued_variant_doc(
     doc = docs.get(name)
     if doc is None and app_state.db is not None:
         doc = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": name})
-    if doc is None or not _can_open_catalogued_doc(username, doc):
+    if doc is None:
         return None
-    return doc
+    if _can_open_catalogued_doc(username, doc) or _is_active_catalogued_game_participant(
+        app_state, name, username
+    ):
+        return doc
+    return None
 
 
 def catalogued_variant_client_doc_for_name(
@@ -2505,6 +2528,40 @@ def catalogued_variant_client_doc_for_name(
 ) -> CataloguedVariantClientDocument | None:
     doc = getattr(app_state, "catalogued_variants", {}).get(name)
     if doc is None or not _can_open_catalogued_doc(username, doc):
+        return None
+    return _client_doc(doc)
+
+
+async def catalogued_variant_client_doc_for_game(
+    app_state: Any,
+    game: Any,
+    username: str,
+) -> CataloguedVariantClientDocument | None:
+    """Return variant metadata needed by a participant's existing game.
+
+    Existing games must remain renderable after their catalogued variant becomes
+    private, unlisted, or archived.  This deliberately bypasses normal catalogue
+    visibility checks, but only after verifying that ``username`` is one of the
+    game's players.
+    """
+
+    if not username or username not in {
+        str(getattr(getattr(game, "wplayer", None), "username", "")),
+        str(getattr(getattr(game, "bplayer", None), "username", "")),
+    }:
+        return None
+
+    if not isinstance(getattr(game, "server_variant", None), CataloguedServerVariant):
+        return None
+
+    name = str(getattr(game, "variant", ""))
+    if not name:
+        return None
+
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is None and getattr(app_state, "db", None) is not None:
+        doc = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": name})
+    if doc is None:
         return None
     return _client_doc(doc)
 

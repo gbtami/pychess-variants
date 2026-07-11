@@ -3622,6 +3622,23 @@ games-grid div {
     padding-left: 0.3em;
     padding-right: 0.3em;
 }
+
+games-grid a.ongoing-game-error {
+    display: grid;
+    gap: 0.3em;
+    text-decoration: none;
+}
+
+games-grid .ongoing-game-error__board {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 8em;
+    overflow-wrap: anywhere;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    color: var(--font-color);
+}
 div[role=tabpanel] {
     height: var(--panel-height);
     display: none;

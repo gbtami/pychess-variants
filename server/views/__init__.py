@@ -1,4 +1,6 @@
 import asyncio
+import json
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Mapping
@@ -14,18 +16,20 @@ from pymongo.errors import (
     WaitQueueTimeoutError,
 )
 
-from const import ANON_PREFIX, DARK_FEN, STARTED, GAME_CATEGORY_ALL
+from catalogued_variants import (
+    catalogued_variant_client_doc_for_game,
+    catalogued_variants_for_client,
+)
+from const import ANON_PREFIX, DARK_FEN, GAME_CATEGORY_ALL, STARTED
 from fairy import BLACK, WHITE
 from json_utils import json_dumps
 from lang import LOCALE
 from pychess_global_app_state_utils import get_app_state
-import logging
-
-from user import User
+from settings import ADMINS, SIMULING
 from typing_defs import UserDocument, ViewContext
+from user import User
+from utils import corr_games
 from variants import ALL_VARIANTS
-from catalogued_variants import catalogued_variants_for_client
-from settings import SIMULING, ADMINS
 
 if TYPE_CHECKING:
     from game import Game
@@ -201,6 +205,42 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         else "",
     }
     return (user, context)
+
+
+async def add_corr_games_context(
+    app_state: Any,
+    user: User,
+    context: ViewContext,
+) -> None:
+    """Add ongoing correspondence games and their required variant metadata."""
+
+    games = user.correspondence_games
+    context["corr_games"] = json_dumps(corr_games(games))
+    if not games:
+        return
+
+    catalogued_variants = json.loads(str(context.get("catalogued_variants") or "[]"))
+    attempted_names = {str(item.get("name") or "") for item in catalogued_variants}
+
+    for game in games:
+        name = str(game.variant)
+        if not name or name in attempted_names:
+            continue
+        attempted_names.add(name)
+        try:
+            catalogued_doc = await catalogued_variant_client_doc_for_game(
+                app_state, game, user.username
+            )
+        except Exception:
+            log.exception(
+                "Failed to load catalogued variant metadata for ongoing game %s",
+                getattr(game, "id", ""),
+            )
+            continue
+        if catalogued_doc is not None:
+            catalogued_variants.append(catalogued_doc)
+
+    context["catalogued_variants"] = json_dumps(catalogued_variants)
 
 
 def add_game_context(

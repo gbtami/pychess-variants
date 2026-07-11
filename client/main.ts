@@ -412,20 +412,33 @@ if (el instanceof Element) {
     volumeSettings.update();
 
     const lang = el.getAttribute("data-lang") ?? 'en';
-    fetch(model.assetURL + '/lang/' + lang + '/LC_MESSAGES/client.json')
-      .then(res => res.json())
-      .then(translation => {
-        i18n.loadJSON(translation, 'messages');
-        i18n.setLocale(lang ?? "en");
-        // console.log('Loaded translations for lang', lang);
-        start();
-        initLoginDropdown();
-      })
-      .catch((error) => {
-        console.error('Could not load translations for lang', lang);
-        console.error(error);
-        i18n.setLocale('');
-        start();
-        initLoginDropdown();
-      });
+
+    async function loadTranslations(): Promise<void> {
+        try {
+            const response = await fetch(
+                model.assetURL + '/lang/' + lang + '/LC_MESSAGES/client.json',
+            );
+            if (!response.ok) {
+                throw new Error(`Translation request failed with status ${response.status}`);
+            }
+            const translation = await response.json();
+            i18n.loadJSON(translation, 'messages');
+            i18n.setLocale(lang);
+            // console.log('Loaded translations for lang', lang);
+        } catch (error) {
+            console.error('Could not load translations for lang', lang);
+            console.error(error);
+            i18n.setLocale('');
+        }
+    }
+
+    void loadTranslations()
+        .then(() => {
+            start();
+            initLoginDropdown();
+        })
+        .catch((error) => {
+            console.error('Could not start the client');
+            console.error(error);
+        });
 }

@@ -157,6 +157,22 @@ export function gameViewPlaying(
     const oppDisplay = displayUsername(opp);
     const mycolor = (username === game.w) ? 'white' : 'black';
 
+    if (variant === undefined) {
+        console.error('Missing variant metadata for ongoing game', game.gameId, game.variant);
+        return h('a.ongoing-game-error', {
+            attrs: {
+                href: game.gameId,
+                title: `Missing variant metadata: ${game.variant}`,
+            },
+        }, [
+            h('div.ongoing-game-error__board', game.variant),
+            h('span.vstext', [
+                h('span', oppDisplay),
+                gameIndicator(isMyTurn, game.date, mode),
+            ]),
+        ]);
+    }
+
     let lastMove, fen;
     [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen)
 

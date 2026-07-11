@@ -5,12 +5,12 @@ from aiohttp import web
 import aiohttp_session
 
 from json_utils import json_dumps
-from views import get_user_context
+from views import add_corr_games_context, get_user_context
 from puzzle import get_daily_puzzle
 from pychess_global_app_state_utils import get_app_state
 from tournament_director import is_tournament_director
 from typing_defs import ViewContext
-from utils import corr_games, get_blogs
+from utils import get_blogs
 from variants import ALL_VARIANTS, is_catalogued_variant
 from catalogued_variants import catalogued_variant_client_doc_for_name
 
@@ -94,8 +94,7 @@ async def lobby(request: web.Request) -> ViewContext:
     puzzle = await get_daily_puzzle(request)
     context["puzzle"] = json_dumps(puzzle)
 
-    c_games = corr_games(user.correspondence_games)
-    context["corr_games"] = json_dumps(c_games)
+    await add_corr_games_context(app_state, user, context)
 
     blogs = await get_blogs(request, limit=3)
     context["blogs"] = json_dumps(blogs)
