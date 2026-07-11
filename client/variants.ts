@@ -1999,15 +1999,31 @@ function listedCataloguedVariantNames(): Set<string> {
     ]);
 }
 
-export function selectVariant(id: string, selected: string | null, onChange: EventListener, hookInsert: InsertHook, disableds: string[] = [], gameCategory: string = "all"): VNode {
-    const groupedOptions = Object.keys(variantGroups).filter(g => gameCategory === "all" || g === gameCategory).map(g => {
+export function selectVariant(
+    id: string,
+    selected: string | null,
+    onChange: EventListener,
+    hookInsert: InsertHook,
+    disableds: string[] = [],
+    gameCategory: string = "all",
+    emptyLabel?: string,
+): VNode {
+    const groupedOptions: VNode[] = [];
+    if (emptyLabel !== undefined) {
+        groupedOptions.push(h('option', {
+            props: { value: '' },
+            attrs: { selected: !selected },
+        }, emptyLabel));
+    }
+
+    groupedOptions.push(...Object.keys(variantGroups).filter(g => gameCategory === "all" || g === gameCategory).map(g => {
         const group = variantGroups[g];
         return h('optgroup', { props: { label: variantGroupLabel(g) } },
             group.variants
                 .map(v => variantSelectOption(v, selected, disableds))
                 .filter((option): option is VNode => option !== null)
         );
-    });
+    }));
 
     const favoriteOptions = [...favoriteCataloguedVariantNames]
         .filter(v => !!VARIANTS[v])

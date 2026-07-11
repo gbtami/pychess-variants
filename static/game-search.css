@@ -1,0 +1,146 @@
+@import "profile.css";
+
+.game-search {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    grid-area: main;
+}
+
+.game-search h1 {
+    margin-top: 0;
+}
+
+.search-form-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.search-form-table th {
+    width: 190px;
+    padding: 0.55rem 1rem 0.55rem 0;
+    text-align: left;
+    vertical-align: middle;
+    font-weight: bold;
+}
+
+.search-form-table td {
+    padding: 0.4rem 0;
+}
+
+.search-form-table input:not([type="checkbox"]),
+.search-form-table select {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 0.6rem 0.75rem;
+}
+
+#game-search-variant,
+#game-search-variant select {
+    width: 100%;
+}
+
+.two-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.two-columns > * {
+    flex: 1 1 180px;
+    min-width: 0;
+}
+
+.inline-field {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: normal;
+}
+
+.inline-field span {
+    flex: 0 0 auto;
+}
+
+.inline-field input {
+    flex: 1 1 auto;
+}
+
+.check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: normal;
+}
+
+.actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    padding-top: 1rem !important;
+}
+
+.error {
+    min-height: 1.4em;
+    margin-left: 190px;
+    color: var(--error-color, #c33);
+}
+
+#game-search-results {
+    margin-top: 1.5rem;
+}
+
+.game-search-results-header {
+    margin: 0 0 1rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.game-search-results-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+@media (max-width: 700px) {
+    .game-search {
+        margin: 0;
+        padding: 1rem;
+    }
+
+    .search-form-table,
+    .search-form-table tbody,
+    .search-form-table tr,
+    .search-form-table th,
+    .search-form-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .search-form-table tr {
+        margin-bottom: 0.8rem;
+    }
+
+    .search-form-table th {
+        box-sizing: border-box;
+        padding: 0 0 0.3rem;
+    }
+
+    .search-form-table td {
+        box-sizing: border-box;
+        padding: 0;
+    }
+
+    .search-form-table tr[hidden] {
+        display: none;
+    }
+
+    .actions {
+        justify-content: flex-start;
+        padding-top: 0.25rem !important;
+    }
+
+    .error {
+        margin-left: 0;
+    }
+}

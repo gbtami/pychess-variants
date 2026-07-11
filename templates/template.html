@@ -57,6 +57,7 @@
                         <a class="nav-link" href="/editor/{{ menu_variant }}">{% trans %}Editor{% endtrans %}</a>
                         <a class="nav-link" href="/analysis/{{ menu_variant }}">{% trans %}Analysis{% endtrans %}</a>
                         <a class="nav-link" href="/paste">{% trans %}Import game{% endtrans %}</a>
+                        {% if not anon %}<a class="nav-link" href="/games/search">{% trans %}Advanced search{% endtrans %}</a>{% endif %}
                         <a class="nav-link" href="/my-variants">{% trans %}My variants{% endtrans %}</a>
                     </div>
                 </section>

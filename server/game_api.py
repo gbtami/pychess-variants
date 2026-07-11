@@ -827,3 +827,254 @@ async def safe_write_eof(response: web.StreamResponse) -> None:
         await response.write_eof()
     except ConnectionResetError, ClientConnectionResetError:
         log.debug("Connection closed before PGN export EOF write.")
+
+
+def _search_int(value: str | None, minimum: int = 0) -> int | None:
+    if value in (None, ""):
+        return None
+    try:
+        parsed = int(value)
+    except ValueError:
+        return None
+    return parsed if parsed >= minimum else None
+
+
+async def _canonical_search_username(app_state: PychessGlobalAppState, raw_username: str) -> str:
+    candidate = raw_username.strip().lstrip("@")
+    if not candidate or app_state.db is None:
+        return candidate
+
+    user_doc = await app_state.db.user.find_one(
+        {
+            "$or": [
+                {"_id": candidate},
+                {"username_lower": candidate.lower()},
+            ]
+        },
+        projection={"_id": 1},
+    )
+    if user_doc is None:
+        return candidate
+
+    username = user_doc.get("_id")
+    return username if isinstance(username, str) else candidate
+
+
+async def _game_doc_for_list(request: web.Request, doc: GameDoc) -> GameDoc | None:
+    app_state = get_app_state(request.app)
+    try:
+        variant = C2V[doc["v"]]
+    except KeyError:
+        log.error("game search: unknown variant code %r", doc.get("v"))
+        return None
+    doc["v"] = variant
+    doc["r"] = C2R[doc["r"]]
+    doc["wt"] = app_state.users[doc["us"][0]].title if doc["us"][0] in app_state.users else ""
+    doc["bt"] = app_state.users[doc["us"][1]].title if doc["us"][1] in app_state.users else ""
+    if len(doc["us"]) > 2:
+        doc["wtB"] = app_state.users[doc["us"][2]].title if doc["us"][2] in app_state.users else ""
+        doc["btB"] = app_state.users[doc["us"][3]].title if doc["us"][3] in app_state.users else ""
+
+    server_variant = get_server_variant(variant, bool(doc.get("z", 0)))
+    decode_method = server_variant.move_decoding
+    if server_variant.two_boards:
+        m_a = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 0]
+        m_b = [m for idx, m in enumerate(doc["m"]) if "o" in doc and doc["o"][idx] == 1]
+        doc["lm"] = decode_move_standard(m_a[-1]) if m_a else ""
+        doc["lmB"] = decode_move_standard(m_b[-1]) if m_b else ""
+    else:
+        doc["lm"] = decode_method(doc["m"][-1]) if doc["m"] else ""
+    if variant in GRANDS and doc["lm"]:
+        doc["lm"] = zero2grand(doc["lm"])
+    tournament_id = doc.get("tid")
+    if tournament_id is not None:
+        doc["tn"] = await get_tournament_name(request, tournament_id)
+    doc["initialFen"] = doc.get("if", "")
+    if doc["s"] <= STARTED and variant == "fogofwar":
+        doc["f"] = DARK_FEN
+        doc["lm"] = ""
+        doc["m"] = ""
+    return doc
+
+
+async def search_games(request: web.Request) -> web.StreamResponse:
+    app_state = get_app_state(request.app)
+    session = await aiohttp_session.get_session(request)
+    user = await app_state.users.get(session.get("user_name"))
+    if user.anon:
+        return json_response({"error": "Login required."}, status=401)
+
+    query = request.rel_url.query
+    page = min(_search_int(query.get("p")) or 0, 99)
+    conditions: list[dict[str, object]] = []
+
+    raw_players = [
+        query.get("player1", "").strip().lstrip("@"),
+        query.get("player2", "").strip().lstrip("@"),
+    ]
+    players: list[str] = []
+    player_aliases: dict[str, str] = {}
+    seen_players: set[str] = set()
+    for raw_player in raw_players:
+        if not raw_player:
+            continue
+        alias = raw_player.casefold()
+        canonical = player_aliases.get(alias)
+        if canonical is None:
+            canonical = await _canonical_search_username(app_state, raw_player)
+            player_aliases[alias] = canonical
+            player_aliases[canonical.casefold()] = canonical
+        canonical_key = canonical.casefold()
+        if canonical_key not in seen_players:
+            players.append(canonical)
+            seen_players.add(canonical_key)
+
+    tournament = query.get("tournament", "").strip()
+    if len(players) == 1:
+        conditions.append({"us": players[0]})
+    elif len(players) == 2:
+        conditions.append({"us": {"$all": players}})
+    if tournament:
+        conditions.append({"tid": tournament})
+
+    player_roles: dict[str, str] = {}
+    for role in ("white", "black", "winner", "loser"):
+        requested = query.get(role, "").strip().lstrip("@")
+        if not requested:
+            player_roles[role] = ""
+            continue
+        canonical = player_aliases.get(requested.casefold())
+        if canonical is None:
+            return json_response(
+                {
+                    "error": (
+                        "White, black, winner, and loser must be one of the two searched players."
+                    )
+                },
+                status=400,
+            )
+        player_roles[role] = canonical
+    if player_roles["white"]:
+        conditions.append({"us.0": player_roles["white"]})
+    if player_roles["black"]:
+        conditions.append({"us.1": player_roles["black"]})
+    if player_roles["winner"]:
+        winner = player_roles["winner"]
+        conditions.append(
+            {
+                "$or": [
+                    {"r": "a", "$or": [{"us.0": winner}, {"us.3": winner}]},
+                    {"r": "b", "$or": [{"us.1": winner}, {"us.2": winner}]},
+                ]
+            }
+        )
+    if player_roles["loser"]:
+        loser = player_roles["loser"]
+        conditions.append(
+            {
+                "$or": [
+                    {"r": "a", "$or": [{"us.1": loser}, {"us.2": loser}]},
+                    {"r": "b", "$or": [{"us.0": loser}, {"us.3": loser}]},
+                ]
+            }
+        )
+
+    variant_name = query.get("variant", "").strip()
+    if variant_name == "all":
+        variant_name = ""
+    if variant_name:
+        variant_code = next((code for code, name in C2V.items() if name == variant_name), None)
+        if variant_code is None:
+            return json_response({"error": "Unknown variant."}, status=400)
+        conditions.append({"v": variant_code})
+
+    result_value = query.get("result", "")
+    result_codes = {"1-0": "a", "0-1": "b", "1/2-1/2": "c"}
+    if result_value:
+        if result_value not in result_codes:
+            return json_response({"error": "Invalid result."}, status=400)
+        conditions.append({"r": result_codes[result_value]})
+
+    game_type = query.get("type", "")
+    type_conditions = {
+        "casual": {"y": 0, "c": {"$ne": True}},
+        "rated": {"y": 1, "c": {"$ne": True}},
+        "imported": {"y": 2},
+        "correspondence": {"c": True},
+    }
+    if game_type:
+        if game_type not in type_conditions:
+            return json_response({"error": "Invalid game type."}, status=400)
+        conditions.append(type_conditions[game_type])
+
+    date_range: dict[str, datetime] = {}
+    try:
+        if query.get("from"):
+            date_range["$gte"] = datetime.fromisoformat(query["from"]).replace(tzinfo=timezone.utc)
+        if query.get("to"):
+            date_range["$lt"] = datetime.fromisoformat(query["to"]).replace(
+                tzinfo=timezone.utc
+            ) + timedelta(days=1)
+    except ValueError:
+        return json_response({"error": "Invalid date."}, status=400)
+    if date_range:
+        conditions.append({"d": date_range})
+
+    min_moves = _search_int(query.get("minMoves"))
+    max_moves = _search_int(query.get("maxMoves"))
+    if (query.get("minMoves") and min_moves is None) or (
+        query.get("maxMoves") and max_moves is None
+    ):
+        return json_response({"error": "Invalid move count."}, status=400)
+    if min_moves is not None or max_moves is not None:
+        ply_range: dict[str, int] = {}
+        if min_moves is not None:
+            ply_range["$gte"] = min_moves
+        if max_moves is not None:
+            ply_range["$lte"] = max_moves
+        conditions.append({"p": ply_range})
+    if query.get("analysed") == "1":
+        conditions.append({"a.0": {"$exists": True}})
+
+    if not conditions:
+        return json_response({"error": "Choose at least one search condition."}, status=400)
+    if not (players or tournament or variant_name or date_range):
+        return json_response(
+            {
+                "error": (
+                    "Add a player, variant, tournament, or date range to keep the search efficient."
+                )
+            },
+            status=400,
+        )
+
+    filter_cond: dict[str, object] = conditions[0] if len(conditions) == 1 else {"$and": conditions}
+    filter_cond = _apply_category_filter(filter_cond, user) or {"_id": None}
+    direction = 1 if query.get("sort") == "oldest" else -1
+    try:
+        docs = await (
+            app_state.db.game.find(filter_cond)
+            .sort([("d", direction), ("_id", direction)])
+            .skip(page * GAME_PAGE_SIZE)
+            .limit(GAME_PAGE_SIZE + 1)
+            .max_time_ms(3000)
+            .to_list(GAME_PAGE_SIZE + 1)
+        )
+    except pymongo.errors.ExecutionTimeout:
+        return json_response(
+            {
+                "error": (
+                    "Search took too long. Add a player, variant, tournament, "
+                    "or narrower date range."
+                )
+            },
+            status=422,
+        )
+
+    has_more = len(docs) > GAME_PAGE_SIZE and page < 99
+    games: list[GameDoc] = []
+    for raw_doc in docs[:GAME_PAGE_SIZE]:
+        prepared = await _game_doc_for_list(request, raw_doc)
+        if prepared is not None:
+            games.append(prepared)
+    return json_response({"games": games, "hasMore": has_more})

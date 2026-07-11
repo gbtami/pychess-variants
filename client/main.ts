@@ -48,6 +48,7 @@ import { initUblogMarkdown } from './ublogMarkdown';
 import { initUblogEditor } from './ublogEditor';
 import { initPushSubscription } from './push';
 import { initCommunityVariantFavorites } from './communityVariants';
+import { gameSearchView, initGameSearch } from './gameSearch';
 
 
 // redirect to correct URL except Heroku preview/dev apps
@@ -194,6 +195,8 @@ export function view(el: HTMLElement, model: PyChessModel): VNode {
         return h('div#calendar', calendarView());
     case 'games':
         return h('div', renderGames(model));
+    case 'game-search':
+        return h('div', gameSearchView(model));
     case 'paste':
         return h('div#main-wrap', pasteView(model));
     case 'my-variants':
@@ -215,7 +218,6 @@ function start() {
     const placeholder = document.getElementById('placeholder');
     if (placeholder && el) {
         const dataView = el.getAttribute("data-view") ?? "";
-
         // Check if we need to show username selection dialog
         if (model.oauthUsernameSelection && model.oauthUsernameSelection.oauth_id) {
             try {
@@ -252,6 +254,7 @@ function start() {
             }
         } else  {
             patch(placeholder, view(el, model));
+            if (dataView === 'game-search') initGameSearch(model);
         }
     }
 

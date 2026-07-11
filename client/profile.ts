@@ -72,7 +72,11 @@ function tournamentInfo(game: Game) {
     return elements;
 }
 
-function renderGames(model: PyChessModel, games: Game[]) {
+export function gameListView(sentinel: VNode): VNode[] {
+    return [h('table#games'), sentinel];
+}
+
+export function renderGames(model: PyChessModel, games: Game[]) {
     const rows = games.map(game => {
         const variant = VARIANTS[game.v];
         const chess960 = game.z === 1;
@@ -149,7 +153,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
                     h('div.info-result', {
                         class: {
                             "win": isWinClass(model, game),
-                            "lose": ['1-0', '0-1'].includes(game["r"]) && !isWinClass(model, game),
+                            "lose": !!model["profileid"] && ['1-0', '0-1'].includes(game["r"]) && !isWinClass(model, game),
                         }}, result(variant, game["s"], game["r"], teamFirst, teamSecond)
                     ),
                 ]),
@@ -166,6 +170,7 @@ function renderGames(model: PyChessModel, games: Game[]) {
 }
 
 function isWinClass(model: PyChessModel, game: Game): boolean {
+    if (!model["profileid"]) return false;
     const variant = VARIANTS[game.v];
     if (variant.twoBoards){
         const team = game["us"][0] === model["profileid"] || game["us"][3] === model["profileid"]? 0: 1;
@@ -259,8 +264,9 @@ export function profileView(model: PyChessModel) {
 
     return [
         h('div.filter-tabs', tabs),
-        h('table#games'),
-        h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) } }),
+        ...gameListView(
+            h('div#sentinel', { hook: { insert: (vnode) => observeSentinel(vnode, model) } })
+        ),
     ];
 }
 

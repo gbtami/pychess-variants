@@ -196,6 +196,45 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         payload = await response.json()
         self.assertEqual(payload, [])
 
+    async def test_advanced_search_treats_all_variant_as_no_filter(self):
+        self.set_session_user(self.user.username)
+
+        response = await self.client.get(
+            f"/api/games/search?player1={self.user.username}&variant=all"
+        )
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertIn("db1", [item["_id"] for item in payload["games"]])
+
+    async def test_advanced_search_resolves_player_names_case_insensitively(self):
+        self.set_session_user(self.user.username)
+        app_state = get_app_state(self.app)
+        username = "CaseSensitive"
+        chess_code = get_server_variant("chess", False).code
+        await app_state.db.user.insert_one(
+            {"_id": username, "username_lower": username.lower(), "title": ""}
+        )
+        await app_state.db.game.insert_one(
+            {
+                "_id": "searchcase1",
+                "us": [username, "white"],
+                "v": chess_code,
+                "z": 0,
+                "r": "a",
+                "m": [],
+                "s": STARTED,
+                "d": datetime(2025, 1, 5, tzinfo=timezone.utc),
+                "y": 1,
+            }
+        )
+
+        response = await self.client.get(
+            "/api/games/search?player1=%40casesensitive&white=CASESENSITIVE"
+        )
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertEqual(["searchcase1"], [item["_id"] for item in payload["games"]])
+
 
 class VariantStatsTestCase(unittest.TestCase):
     def test_discontinued_variants_logged_once(self):

@@ -1,0 +1,185 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="game-search box">
+        <h1>{% trans %}Advanced game search{% endtrans %}</h1>
+        <form id="game-search-form" method="get" action="/games/search">
+            <table class="search-form-table">
+                <tbody>
+                    <tr>
+                        <th>{% trans %}Players{% endtrans %}</th>
+                        <td class="two-columns usernames">
+                            <input
+                                id="game-search-player1"
+                                name="player1"
+                                value="{{ search_query.get('player1', '') }}"
+                                placeholder="{% trans %}Player 1{% endtrans %}"
+                                aria-label="{% trans %}Player 1{% endtrans %}"
+                                autocomplete="off"
+                            >
+                            <input
+                                id="game-search-player2"
+                                name="player2"
+                                value="{{ search_query.get('player2', '') }}"
+                                placeholder="{% trans %}Player 2{% endtrans %}"
+                                aria-label="{% trans %}Player 2{% endtrans %}"
+                                autocomplete="off"
+                            >
+                        </td>
+                    </tr>
+                    <tr class="player-role-row" hidden>
+                        <th><label for="game-search-white">{% trans %}White player{% endtrans %}</label></th>
+                        <td>
+                            <select id="game-search-white" name="white">
+                                <option value="">{% trans %}Any player{% endtrans %}</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="player-role-row" hidden>
+                        <th><label for="game-search-black">{% trans %}Black player{% endtrans %}</label></th>
+                        <td>
+                            <select id="game-search-black" name="black">
+                                <option value="">{% trans %}Any player{% endtrans %}</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="player-role-row" hidden>
+                        <th><label for="game-search-winner">{% trans %}Winner{% endtrans %}</label></th>
+                        <td>
+                            <select id="game-search-winner" name="winner">
+                                <option value="">{% trans %}Any player{% endtrans %}</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="player-role-row" hidden>
+                        <th><label for="game-search-loser">{% trans %}Loser{% endtrans %}</label></th>
+                        <td>
+                            <select id="game-search-loser" name="loser">
+                                <option value="">{% trans %}Any player{% endtrans %}</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="variant">{% trans %}Variant{% endtrans %}</label></th>
+                        <td><div id="game-search-variant"></div></td>
+                    </tr>
+                    <tr>
+                        <th><label for="game-search-result">{% trans %}Result{% endtrans %}</label></th>
+                        <td>
+                            <select id="game-search-result" name="result">
+                                <option value="">{% trans %}Any result{% endtrans %}</option>
+                                <option value="1-0">1-0</option>
+                                <option value="0-1">0-1</option>
+                                <option value="1/2-1/2">1/2-1/2</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="game-search-type">{% trans %}Game type{% endtrans %}</label></th>
+                        <td>
+                            <select id="game-search-type" name="type">
+                                <option value="">{% trans %}Any type{% endtrans %}</option>
+                                <option value="casual">{% trans %}Casual{% endtrans %}</option>
+                                <option value="rated">{% trans %}Rated{% endtrans %}</option>
+                                <option value="imported">{% trans %}Imported{% endtrans %}</option>
+                                <option value="correspondence">{% trans %}Correspondence{% endtrans %}</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans %}Date{% endtrans %}</th>
+                        <td class="two-columns">
+                            <label class="inline-field" for="game-search-from">
+                                <span>{% trans %}From{% endtrans %}</span>
+                                <input
+                                    id="game-search-from"
+                                    type="date"
+                                    name="from"
+                                    value="{{ search_query.get('from', '') }}"
+                                >
+                            </label>
+                            <label class="inline-field" for="game-search-to">
+                                <span>{% trans %}To{% endtrans %}</span>
+                                <input
+                                    id="game-search-to"
+                                    type="date"
+                                    name="to"
+                                    value="{{ search_query.get('to', '') }}"
+                                >
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="game-search-tournament">{% trans %}Tournament ID{% endtrans %}</label></th>
+                        <td>
+                            <input
+                                id="game-search-tournament"
+                                name="tournament"
+                                value="{{ search_query.get('tournament', '') }}"
+                            >
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans %}Plies{% endtrans %}</th>
+                        <td class="two-columns">
+                            <label class="inline-field" for="game-search-min-moves">
+                                <span>{% trans %}From{% endtrans %}</span>
+                                <input
+                                    id="game-search-min-moves"
+                                    type="number"
+                                    min="0"
+                                    name="minMoves"
+                                    value="{{ search_query.get('minMoves', '') }}"
+                                >
+                            </label>
+                            <label class="inline-field" for="game-search-max-moves">
+                                <span>{% trans %}To{% endtrans %}</span>
+                                <input
+                                    id="game-search-max-moves"
+                                    type="number"
+                                    min="0"
+                                    name="maxMoves"
+                                    value="{{ search_query.get('maxMoves', '') }}"
+                                >
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="game-search-sort">{% trans %}Sort{% endtrans %}</label></th>
+                        <td>
+                            <select id="game-search-sort" name="sort">
+                                <option value="newest">{% trans %}Newest first{% endtrans %}</option>
+                                <option value="oldest">{% trans %}Oldest first{% endtrans %}</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="game-search-analysed">{% trans %}Analysis{% endtrans %}</label></th>
+                        <td>
+                            <label class="check" for="game-search-analysed">
+                                <input id="game-search-analysed" type="checkbox" name="analysed" value="1">
+                                {% trans %}Computer analysis available{% endtrans %}
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td class="actions">
+                            <button class="button" type="submit">{% trans %}Search{% endtrans %}</button>
+                            <a class="button secondary" href="/games/search">{% trans %}Clear{% endtrans %}</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p id="game-search-error" class="error"></p>
+        </form>
+        <section id="game-search-results">
+            <header id="game-search-results-header" class="game-search-results-header" hidden>
+                <h2>{% trans %}Search results{% endtrans %}</h2>
+            </header>
+            <div id="placeholder"></div>
+        </section>
+    </main>
+</div>
+{% endblock %}
+{% block js %}<script src="{{ js }}"></script>{% endblock %}
