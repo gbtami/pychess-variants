@@ -359,11 +359,11 @@ class PychessGlobalAppState:
                 await self.db.game.create_index("c")
                 await self.db.game.create_index("tid")
 
-# TODO:
-#                await self.db.game.create_index([("d", -1), ("_id", -1)], name="d_id_desc")
-#                await self.db.game.create_index(
-#                    [("v", 1), ("d", -1), ("_id", -1)], name="v_d_id_desc"
-#                )
+                # Advanced search needs some indexes to be able to respond in reasonable times
+                await self.db.game.create_index([("d", -1), ("_id", -1)], name="d_id_desc")
+                await self.db.game.create_index(
+                    [("v", 1), ("d", -1), ("_id", -1)], name="v_d_id_desc"
+                )
 
                 await self.db.game.create_index([("us", 1), ("d", -1)], name="us_d_desc")
                 await self.db.game.create_index(
