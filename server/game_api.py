@@ -9,7 +9,7 @@ from aiohttp import web
 from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp_sse import sse_response
 import pymongo
-from pymongo.errors import BulkWriteError
+from pymongo.errors import BulkWriteError, ExecutionTimeout
 from aiohttp_swagger3 import swagger_doc
 
 from compress import C2R, decode_move_standard
@@ -1060,7 +1060,7 @@ async def search_games(request: web.Request) -> web.StreamResponse:
             .max_time_ms(3000)
             .to_list(GAME_PAGE_SIZE + 1)
         )
-    except pymongo.errors.ExecutionTimeout:
+    except ExecutionTimeout:
         return json_response(
             {
                 "error": (
