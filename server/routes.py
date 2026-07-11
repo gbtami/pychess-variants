@@ -124,6 +124,7 @@ from catalogued_variants import (
     upload_catalogued_piece_set,
     upload_catalogued_variant,
 )
+from client_reset import client_reset, client_reset_page
 from utils import import_game, get_names, get_notifications, subscribe_notify, notified
 from bug.import_bugh_game import import_game_bpgn
 from login import (
@@ -230,6 +231,7 @@ get_routes: tuple[RouteDef, ...] = (
     ("/about", about.about),
     ("/api", api_docs.api_docs),
     ("/contact", contact.contact),
+    ("/client-reset", client_reset_page),
     ("/terms", terms.terms),
     ("/privacy", privacy.privacy),
     ("/faq", faq.faq),
@@ -381,6 +383,7 @@ get_routes: tuple[RouteDef, ...] = (
 )
 
 post_routes: tuple[RouteDef, ...] = (
+    ("/client-reset", client_reset),
     ("/api/token/test", bot_token_test),
     ("/account/close", account_close_post),
     ("/account/delete", account_delete_post),
