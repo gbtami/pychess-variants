@@ -12,10 +12,10 @@ export function renderClocks(ctrl: AnalysisController) {
         : ctrl.steps[ctrl.ply];
     if (!lastStep) return;
     if (lastStep.clocks) {
-        renderClocksCC([lastStep.clocks[WHITE], lastStep.clocks[BLACK]], ctrl.b1, "");
+        renderClocksCC([lastStep.clocks[WHITE], lastStep.clocks[BLACK]], ctrl.boardA, "");
     }
     if (lastStep.clocksB) {
-        renderClocksCC([lastStep.clocksB[WHITE], lastStep.clocksB[BLACK]], ctrl.b2, ".bug");
+        renderClocksCC([lastStep.clocksB[WHITE], lastStep.clocksB[BLACK]], ctrl.boardB, ".bug");
     }
 }
 

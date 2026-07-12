@@ -28,10 +28,12 @@ RUN pip install .
 
 COPY lang /app/lang/
 COPY server /app/server/
+COPY docs /app/docs/
+COPY --from=frontend /app/client /app/client/
 COPY --from=frontend /app/static /app/static/
 COPY --from=frontend /app/templates /app/templates/
 COPY variants.ini /app/
 
 EXPOSE 8080
 
-CMD ["python", "server/server.py"]
+CMD ["python", "server/server.py", "-a"]

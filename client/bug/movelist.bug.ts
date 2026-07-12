@@ -57,12 +57,16 @@ interface ParsedTreeMove {
     };
 }
 
+function teamsOf(ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
+    return ctrl instanceof RoundControllerBughouse ? ctrl.playersState : ctrl;
+}
+
 function asTreeCtrl(ctrl: AnalysisControllerBughouse | RoundControllerBughouse): TreeCtrl | undefined {
     const treeCtrl = ctrl as TreeCtrl;
     return treeCtrl.hasAnalysisTree?.() ? treeCtrl : undefined;
 }
 
-export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number, _plyVari = 0): void {
+export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number): void {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
         if (ply < 0) return;
@@ -87,7 +91,7 @@ export function selectMainlineMove(ctrl: AnalysisControllerBughouse | RoundContr
         treeCtrl.activateTreeMainlinePly(ply);
         return;
     }
-    selectMove(ctrl, ply, 0);
+    selectMove(ctrl, ply);
 }
 
 function activatePly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
@@ -141,7 +145,7 @@ export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundC
                 const target = treeCtrl.getTreeParentPath?.();
                 if (target !== undefined) treeCtrl.activateTreePath?.(target);
             } else {
-                selectMove(ctrl, ctrl.ply - 1, 0);
+                selectMove(ctrl, ctrl.ply - 1);
             }
         } } }, [ h('i.icon.icon-step-backward') ]),
         h('button', { on: { click: () => {
@@ -150,7 +154,7 @@ export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundC
                 const target = treeCtrl.getTreeMainChildPath?.();
                 if (target !== undefined) treeCtrl.activateTreePath?.(target);
             } else {
-                selectMove(ctrl, ctrl.ply + 1, 0);
+                selectMove(ctrl, ctrl.ply + 1);
             }
         } } }, [ h('i.icon.icon-step-forward') ]),
         h('button', { on: { click: () => selectVariationBound(false) } }, [ h('i.icon.icon-fast-forward') ]),
@@ -524,10 +528,11 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
         }
 
         if (ctrl.status >= 0 && needResult) {
-            const teamFirst = displayUsername(ctrl.teamFirst[0][0]) + "+" + displayUsername(ctrl.teamFirst[1][0]);
-            const teamSecond = displayUsername(ctrl.teamSecond[0][0]) + "+" + displayUsername(ctrl.teamSecond[1][0]);
+            const teams = teamsOf(ctrl);
+            const teamFirst = displayUsername(teams.teamFirst[0][0]) + "+" + displayUsername(teams.teamFirst[1][0]);
+            const teamSecond = displayUsername(teams.teamSecond[0][0]) + "+" + displayUsername(teams.teamSecond[1][0]);
             moves.push(h('div.result', ctrl.result));
-            moves.push(h('div.status', result(ctrl.b1.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
+            moves.push(h('div.status', result(ctrl.boardA.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
         }
         const contextMenu = renderTreeContextMenu(treeCtrl);
         if (contextMenu) moves.push(contextMenu);
@@ -617,10 +622,11 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
     }
 
     if (ctrl.status >= 0 && needResult) {
-        const teamFirst = displayUsername(ctrl.teamFirst[0][0]) + "+" + displayUsername(ctrl.teamFirst[1][0]);
-        const teamSecond = displayUsername(ctrl.teamSecond[0][0]) + "+" + displayUsername(ctrl.teamSecond[1][0]);
+        const teams = teamsOf(ctrl);
+        const teamFirst = displayUsername(teams.teamFirst[0][0]) + "+" + displayUsername(teams.teamFirst[1][0]);
+        const teamSecond = displayUsername(teams.teamSecond[0][0]) + "+" + displayUsername(teams.teamSecond[1][0]);
         moves.push(h('div.result', ctrl.result));
-        moves.push(h('div.status', result(ctrl.b1.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
+        moves.push(h('div.status', result(ctrl.boardA.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
     }
 
     const container = document.getElementById('movelist') as HTMLElement;
@@ -658,12 +664,13 @@ export function updateResult (ctrl: AnalysisControllerBughouse | RoundController
 
     const container = document.getElementById('movelist') as HTMLElement;
 
-    const teamFirst = ctrl.teamFirst[0][0] + "+" + ctrl.teamFirst[1][0];
-    const teamSecond = ctrl.teamSecond[0][0] + "+" + ctrl.teamSecond[1][0];
+    const teams = teamsOf(ctrl);
+    const teamFirst = teams.teamFirst[0][0] + "+" + teams.teamFirst[1][0];
+    const teamSecond = teams.teamSecond[0][0] + "+" + teams.teamSecond[1][0];
 
     ctrl.vmovelist = patch(container, h('div#movelist', [
         h('div.result', ctrl.result),
-        h('div.status', result(ctrl.b1.variant, ctrl.status, ctrl.result, teamFirst, teamSecond))
+        h('div.status', result(ctrl.boardA.variant, ctrl.status, ctrl.result, teamFirst, teamSecond))
     ]));
     container.scrollTop = 99999;
 }

@@ -68,8 +68,8 @@ export default class AnalysisControllerBughouse {
     model;
     // sock;
 
-    b1: GameControllerBughouse;
-    b2: GameControllerBughouse;
+    boardA: GameControllerBughouse;
+    boardB: GameControllerBughouse;
 
     wplayer: string;
     bplayer: string;
@@ -165,13 +165,13 @@ export default class AnalysisControllerBughouse {
         this.teamFirst = [playerInfoData(model, "w", "a"), playerInfoData(model, "b", "b")]
         this.teamSecond = [playerInfoData(model, "b", "a"), playerInfoData(model, "w", "b")]
 
-        this.b1 = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
-        this.b2 = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
-        this.b2.chessground.set({orientation:"black"});
-        this.b1.partnerCC = this.b2;
-        this.b2.partnerCC = this.b1;
-        this.b1.parent = this;
-        this.b2.parent = this;
+        this.boardA = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
+        this.boardB = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
+        this.boardB.chessground.set({orientation:"black"});
+        this.boardA.partnerCC = this.boardB;
+        this.boardB.partnerCC = this.boardA;
+        this.boardA.parent = this;
+        this.boardB.parent = this;
 
         ffishModule().then((loadedModule: any) => {
             this.ffish = loadedModule;
@@ -214,7 +214,7 @@ export default class AnalysisControllerBughouse {
 
         this.importedBy = '';
 
-        this.notation = this.b1.variant.notation;
+        this.notation = this.boardA.variant.notation;
         this.onTreeContextMenuDocumentClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
             if (target?.closest('.tree-context-menu')) return;
@@ -228,15 +228,15 @@ export default class AnalysisControllerBughouse {
             'fenB': fens[1],
             'move': undefined,
             'check': false,//not relevant/meaningful - we use the fens for that
-            'turnColor': this.b1.turnColor,//not relevant/meaningful - we use the fens for that
+            'turnColor': this.boardA.turnColor,//not relevant/meaningful - we use the fens for that
             });
 
         createMovelistButtons(this);
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
         //
-        patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput(this.b1)));
-        patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', this.renderInput(this.b2)));
+        patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput(this.boardA)));
+        patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', this.renderInput(this.boardB)));
 
         this.vscore = document.getElementById('score') as HTMLElement;
         this.vscorePartner = document.getElementById('scorePartner') as HTMLElement;
@@ -281,7 +281,7 @@ export default class AnalysisControllerBughouse {
         //
         this.onMsgBoard(model["board"] as MsgBoard);
 
-        initBoardSettings(this.b1, this.b2, this.variant);
+        initBoardSettings(this.boardA, this.boardB, this.variant);
         this.syncBoardHitAreas();
 
         (document.getElementById('gaugePartner') as HTMLElement).classList.add('flipped');
@@ -337,8 +337,8 @@ export default class AnalysisControllerBughouse {
         // are created. Force a post-layout redraw so pointer bounds stay aligned with
         // the final rendered board positions on both boards.
         requestAnimationFrame(() => {
-            this.b1.chessground.redrawAll();
-            this.b2.chessground.redrawAll();
+            this.boardA.chessground.redrawAll();
+            this.boardB.chessground.redrawAll();
         });
     }
 
@@ -572,12 +572,12 @@ export default class AnalysisControllerBughouse {
     }
 
     pvboxIni() {
-        if (this.b1.localAnalysis || this.b2.localAnalysis) this.engineStop();
+        if (this.boardA.localAnalysis || this.boardB.localAnalysis) this.engineStop();
         this.clearPvlines();
-        if (this.b1.localAnalysis) {
-            this.engineGo(this.b1);
-        } else if (this.b2.localAnalysis) {
-            this.engineGo(this.b2);
+        if (this.boardA.localAnalysis) {
+            this.engineGo(this.boardA);
+        } else if (this.boardB.localAnalysis) {
+            this.engineGo(this.boardB);
         }
     }
 
@@ -588,7 +588,7 @@ export default class AnalysisControllerBughouse {
 
     clearPvlines() {
         for (let i = 4; i >= 0; i--) {
-            if (i + 1 <= this.multipv && (this.b1.localAnalysis || this.b2.localAnalysis)) {
+            if (i + 1 <= this.multipv && (this.boardA.localAnalysis || this.boardB.localAnalysis)) {
                 this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, [h('pvline', h('pvline', '-'))]));
             } else {
                 this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}`));
@@ -597,8 +597,8 @@ export default class AnalysisControllerBughouse {
     }
 
     flipBoards = (): void => {
-        this.b1.toggleOrientation();
-        this.b2.toggleOrientation();
+        this.boardA.toggleOrientation();
+        this.boardB.toggleOrientation();
     }
 
     switchBoards = (): void => {
@@ -654,7 +654,7 @@ export default class AnalysisControllerBughouse {
         }
 
         const e = document.getElementById('fullfen') as HTMLInputElement;
-        e.value = this.b1.fullfen + " | " + this.b2.fullfen;
+        e.value = this.boardA.fullfen + " | " + this.boardB.fullfen;
 
         container = document.getElementById('pgntext') as HTMLElement;
         this.vpgn = patch(container, h('div#pgntext', pgn));
@@ -827,10 +827,10 @@ export default class AnalysisControllerBughouse {
         patch(document.getElementById('input') as HTMLElement, h('input#input', {attrs: {disabled: false}}));
         patch(document.getElementById('inputPartner') as HTMLElement, h('input#inputPartner', {attrs: {disabled: false}}));
 
-        this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.b1.fullfen, false);
+        this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.boardA.fullfen, false);
         window.addEventListener('beforeunload', () => this.fsfEngineBoard.delete());
 
-        if (!(this.b1.localAnalysis || this.b2.localAnalysis) || !this.isEngineReady) return;
+        if (!(this.boardA.localAnalysis || this.boardB.localAnalysis) || !this.isEngineReady) return;
 
         const matches = line.match(EVAL_REGEX);
         if (!matches) {
@@ -864,7 +864,7 @@ export default class AnalysisControllerBughouse {
             score = {cp: povEv};
         }
         const knps = nodes / elapsedMs;
-        const boardInAnalysis = this.b1.localAnalysis? this.b1: this.b2;
+        const boardInAnalysis = this.boardA.localAnalysis? this.boardA: this.boardB;
         const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: boardInAnalysis.turnColor.slice(0, 1), ceval: {d: depth, multipv: multiPv, p: moves, s: score, k: knps}};
         this.onMsgAnalysis(msg, boardInAnalysis);
     };
@@ -902,7 +902,7 @@ export default class AnalysisControllerBughouse {
     onMoreDepth = () => {
         this.maxDepth = 99;
         this.engineStop();
-        this.engineGo(this.b1);
+        this.engineGo(this.boardA);
     }
 
     makePvMove (pv_line: string, cc: GameControllerBughouse) {
@@ -1024,7 +1024,7 @@ export default class AnalysisControllerBughouse {
             if (!node) return;
 
             const step = node.step;
-            const activeBoard = step.boardName === 'b' ? this.b2 : this.b1;
+            const activeBoard = step.boardName === 'b' ? this.boardB : this.boardA;
             const fenA = step.fen;
             const fenB = step.fenB ?? this.steps[0].fenB!;
             const moveA = uci2LastMove(step.move);
@@ -1047,27 +1047,27 @@ export default class AnalysisControllerBughouse {
             this.ply = ply;
             this.plyVari = 0;
 
-            if (this.b1.localAnalysis || this.b2.localAnalysis) {
+            if (this.boardA.localAnalysis || this.boardB.localAnalysis) {
                 this.engineStop();
                 this.clearPvlines();
             }
 
-            this.b1.setState(fenA, turnColorA, moveA);
-            this.b1.renderState();
-            this.b1.chessground.set({ movable: { color: turnColorA } });
+            this.boardA.setState(fenA, turnColorA, moveA);
+            this.boardA.renderState();
+            this.boardA.chessground.set({ movable: { color: turnColorA } });
 
-            this.b2.setState(fenB, turnColorB, moveB);
-            this.b2.renderState();
-            this.b2.chessground.set({ movable: { color: turnColorB } });
+            this.boardB.setState(fenB, turnColorB, moveB);
+            this.boardB.renderState();
+            this.boardB.chessground.set({ movable: { color: turnColorB } });
 
             this.disableMovableOnCheckmate(activeBoard);
             renderClocks(this);
             this.checkStatus();
 
-            if (this.b1.localAnalysis) {
-                this.engineGo(this.b1);
-            } else if (this.b2.localAnalysis) {
-                this.engineGo(this.b2);
+            if (this.boardA.localAnalysis) {
+                this.engineGo(this.boardA);
+            } else if (this.boardB.localAnalysis) {
+                this.engineGo(this.boardB);
             }
 
             return;
@@ -1076,7 +1076,7 @@ export default class AnalysisControllerBughouse {
         const step = this.steps[ply];
         if (step === undefined) return;
 
-        const board = step.boardName === 'a'? this.b1: this.b2;
+        const board = step.boardName === 'a'? this.boardA: this.boardB;
 
         const fen = step.boardName === 'a'? step.fen: step.fenB!;
         const fenPartner = step.boardName === 'b'? step.fen: step.fenB!;
@@ -1100,7 +1100,7 @@ export default class AnalysisControllerBughouse {
 
         ////////////// above is more or less copy/pasted from gameCtrl.ts->goPLy. other places just call super.goPly
 
-        if (this.b1.localAnalysis || this.b2.localAnalysis) {
+        if (this.boardA.localAnalysis || this.boardB.localAnalysis) {
             this.engineStop();
             this.clearPvlines();
         }
@@ -1139,7 +1139,7 @@ export default class AnalysisControllerBughouse {
             const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
 
             const event = '[Event "?"]';
-            const site = `[Site "${this.b1.home}/analysis/${this.variant.name}"]`;
+            const site = `[Site "${this.boardA.home}/analysis/${this.variant.name}"]`;
             const date = `[Date "${today}"]`;
             const whiteA = '[WhiteA "' + this.model['wplayer'] + '"]';
             const blackA = '[BlackA "' + this.model['bplayer'] + '"]';
@@ -1170,7 +1170,7 @@ export default class AnalysisControllerBughouse {
         const today = new Date().toISOString().substring(0, 10).replace(/-/g, '.');
 
         const event = '[Event "?"]';
-        const site = `[Site "${this.b1.home}/analysis/${this.variant.name}"]`;
+        const site = `[Site "${this.boardA.home}/analysis/${this.variant.name}"]`;
         const date = `[Date "${today}"]`;
         const whiteA = '[WhiteA "'+this.model['wplayer']+'"]';
         const blackA = '[BlackA "'+this.model['bplayer']+'"]';
@@ -1196,8 +1196,8 @@ export default class AnalysisControllerBughouse {
         //~
 
         const step = {  //no matter on which board the ply is happening i always need both fens and moves for both boards. this way when jumping to a ply in the middle of the list i can setup both boards and highlight both last moves
-            fen: this.b1.fullfen,
-            fenB: this.b2.fullfen,
+            fen: this.boardA.fullfen,
+            fenB: this.boardB.fullfen,
             'move': b.boardName==='a'? move: this.steps[this.steps.length-1].move,  // if the new move is not for A, repeat value from previous step for A
             'moveB': b.boardName==='b'? move: this.steps[this.steps.length-1].moveB, // if the new move is not for B, repeat value from previous step for B
             'check': b.isCheck,
@@ -1205,8 +1205,8 @@ export default class AnalysisControllerBughouse {
             'san': san,
             'sanSAN': sanSAN,
             'boardName': b.boardName,
-            'plyA': this.b1.ply,
-            'plyB': this.b2.ply,
+            'plyA': this.boardA.ply,
+            'plyB': this.boardB.ply,
         };
 
         const tree = this.analysisTree;

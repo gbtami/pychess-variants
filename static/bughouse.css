@@ -578,6 +578,37 @@ round-player1.bug {
   flex-direction: row-reverse;
 }
 
+/* wraps a single clock + its difference indicator so the indicator can be
+   positioned on top of the clock's own box, clipped to it */
+.clock-holder {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.clock-holder > div[id^="difference"] {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+.clock-difference {
+  font-size: 1em;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0.1em 0.3em;
+  color: var(--font-color);
+  background-color: var(--bg-color0);
+}
+
+.clock-difference.negative {
+  color: var(--bad);
+}
+
+.clock-difference.positive {
+  color: var(--good);
+}
+
 #messages {
   width: 100%;
 }

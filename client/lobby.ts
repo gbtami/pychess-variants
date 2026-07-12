@@ -525,7 +525,8 @@ export class LobbyController implements ChatController {
                                         h('label#incrementlabel', { attrs: { for: "inc" } }, ''),
                                         h('span#increment'),
                                         h('input#inc.slider', {
-                                            props: { name: "inc", type: "range", min: 0, max: this.incrementValues.length - 1, value: vInc },
+                                            props: { name: "inc", type: "range", min: 0, max: this.incrementValues.length - 1, value: twoBoards ? 0 : vInc },
+                                            attrs: { disabled: twoBoards },
                                             on: { input: e => this.setIncrement(this.incrementValues[parseInt((e.target as HTMLInputElement).value)]) },
                                             hook: { insert: vnode => this.setIncrement(this.incrementValues[parseInt((vnode.elm as HTMLInputElement).value)]) },
                                         }),
@@ -794,6 +795,14 @@ export class LobbyController implements ChatController {
             const select = document.getElementById('tc') as HTMLSelectElement;
             select.selectedIndex = 0;
             this.tcMode = 'real';
+        }
+        const inc = document.getElementById('inc') as HTMLInputElement;
+        if (inc) {
+            inc.disabled = variant.twoBoards;
+            if (variant.twoBoards) {
+                inc.value = "0";
+                this.setIncrement(0);
+            }
         }
         const rated = document.getElementById('rated') as HTMLInputElement;
         const casual = document.getElementById('casual') as HTMLInputElement;

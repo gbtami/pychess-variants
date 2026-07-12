@@ -56,7 +56,10 @@ export function roundView(model: PyChessModel): VNode[] {
 
             h('div.info-wrap0', [
                 h('div.clock-wrap', [
-                    h('div#clock0a'),
+                    h('div.clock-holder', [
+                        h('div#clock0a'),
+                        h('div#difference0a'),
+                    ]),
                     // h('div#more-time'),
                     h('div#berserk0a'),
                 ]),
@@ -65,7 +68,10 @@ export function roundView(model: PyChessModel): VNode[] {
             ]),
             h('div.info-wrap0.bug', [
                 h('div.clock-wrap.bug', [
-                    h('div#clock0b'),
+                    h('div.clock-holder', [
+                        h('div#clock0b'),
+                        h('div#difference0b'),
+                    ]),
                     // h('div#more-time'),
                     h('div#berserk0b'),
                 ]),
@@ -88,7 +94,10 @@ export function roundView(model: PyChessModel): VNode[] {
             ]),
             h('div.info-wrap1', [
                 h('div.clock-wrap', [
-                    h('div#clock1a'),
+                    h('div.clock-holder', [
+                        h('div#clock1a'),
+                        h('div#difference1a'),
+                    ]),
                     h('div#berserk1a'),
                 ]),
                 h('round-player1#rplayer1a'),
@@ -96,7 +105,10 @@ export function roundView(model: PyChessModel): VNode[] {
             ]),
             h('div.info-wrap1.bug', [
                 h('div.clock-wrap.bug', [
-                    h('div#clock1b'),
+                    h('div.clock-holder', [
+                        h('div#clock1b'),
+                        h('div#difference1b'),
+                    ]),
                     h('div#berserk1b'),
                 ]),
                 h('round-player1.bug#rplayer1b'),

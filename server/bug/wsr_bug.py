@@ -29,39 +29,23 @@ async def handle_reconnect_bughouse(
     # dataA = data.get("lastMaybeSentMsgMoveA")
     # dataB = data.get("lastMaybeSentMsgMoveB")
     async with game.move_lock:
-        if moves_queued is not None and len(moves_queued) > 0 and moves_queued[0] is not None:
+        for move_queued in moves_queued or []:
+            if move_queued is None:
+                continue
             try:
                 await play_move(
                     app_state,
                     user,
                     game,
-                    moves_queued[0]["move"],
-                    game_clocks[0],  # moves_queued[0]["clocks"],
-                    game_clocks[1],  # moves_queued[0]["clocksB"],
-                    moves_queued[0]["board"],
+                    move_queued["move"],
+                    game_clocks[0],  # move_queued["clocks"],
+                    game_clocks[1],  # move_queued["clocksB"],
+                    move_queued["board"],
                 )
             except Exception:
                 log.exception(
                     "ERROR: Exception in play_move() in %s by %s ",
-                    moves_queued[0]["gameId"],
-                    user.username,
-                )
-        ####
-        if moves_queued is not None and len(moves_queued) > 1 and moves_queued[1] is not None:
-            try:
-                await play_move(
-                    app_state,
-                    user,
-                    game,
-                    moves_queued[1]["move"],
-                    game_clocks[0],  # moves_queued[1]["clocks"],
-                    game_clocks[1],  # moves_queued[1]["clocksB"],
-                    moves_queued[1]["board"],
-                )
-            except Exception:
-                log.exception(
-                    "ERROR: Exception in play_move() in %s by %s ",
-                    moves_queued[1]["gameId"],
+                    move_queued["gameId"],
                     user.username,
                 )
 
