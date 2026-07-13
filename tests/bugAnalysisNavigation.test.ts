@@ -190,11 +190,12 @@ describe('bughouse analysis mainline navigation', () => {
 
         const disclosureMove = document.querySelector('move-bug[ply="2"]') as HTMLElement | null;
         expect(disclosureMove?.textContent).toContain('B1');
-        expect(disclosureMove?.querySelector('button.disclosure')).not.toBeNull();
+        const disclosureButton = disclosureMove?.querySelector('button.disclosure') as HTMLButtonElement | null;
+        expect(disclosureButton).not.toBeNull();
         expect(document.getElementById('movelist')?.textContent).toContain('B2');
         expect(document.getElementById('movelist')?.textContent).toContain('B3');
 
-        (disclosureMove?.querySelector('button.disclosure') as HTMLButtonElement).click();
+        disclosureButton!.click();
 
         expect(document.getElementById('movelist')?.textContent).toContain('B1');
         expect(document.getElementById('movelist')?.textContent).not.toContain('B2');

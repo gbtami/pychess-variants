@@ -4,7 +4,7 @@ type LinkifyNode = VNode | string;
 
 // Mirrors the Lichess rich text URL detection style, with our own domain.
 const linkRegex =
-    /(^|[\s\n]|<[A-Za-z]*\/?>)((?:(?:https?|ftp):\/\/|pychess\.org)[\-A-Z0-9+\u0026\u2019@#/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#/%=~()_|])/gi;
+    /(^|[\s\n]|<[A-Za-z]*\/?>)((?:(?:https?|ftp):\/\/|pychess\.org)[-A-Z0-9+\u0026\u2019@#/%?=()~_|!:,.;]*[-A-Z0-9+\u0026@#/%=~()_|])/gi;
 
 function toHref(url: string): string {
     if (url.match(/^[A-Za-z]+:\/\//)) return url;

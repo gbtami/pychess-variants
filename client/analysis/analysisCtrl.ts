@@ -303,11 +303,9 @@ export class AnalysisController extends GameController {
 
             this.vscore = document.getElementById('score') as HTMLElement;
             this.vinfo = document.getElementById('info') as HTMLElement;
-            this.vpvlines = [
-                ...Array(5)
-                    .fill(null)
-                    .map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement),
-            ];
+            this.vpvlines = Array(5)
+                .fill(null)
+                .map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement);
             this.pvHoverPreview.init(
                 document.querySelector('div.pvbox') as HTMLElement | null,
                 this.fullfen,
@@ -1238,7 +1236,7 @@ export class AnalysisController extends GameController {
                         pvSan = sanBoard.variationSan(ceval.p, this.notationAsObject);
                     }
                     if (typeof pvSan === 'string' && pvSan === '') pvSan = emptySan;
-                } catch (error) {
+                } catch {
                     pvSan = emptySan;
                 }
             }
@@ -1544,7 +1542,7 @@ export class AnalysisController extends GameController {
             }
 
             if (!this.ongoing) {
-                this.autoShapes = new Array(this.multipv).fill([]);
+                this.autoShapes = Array.from({ length: this.multipv }, () => []);
                 this.chessground.setAutoShapes([]);
                 this.drawEval(step.ceval, step.scoreStr, step.turnColor);
                 if (node.mainlinePly !== undefined) this.drawServerEval(node.mainlinePly, step.scoreStr);
@@ -1597,7 +1595,7 @@ export class AnalysisController extends GameController {
         }
 
         if (!this.ongoing) {
-            this.autoShapes = new Array(this.multipv).fill([]);
+            this.autoShapes = Array.from({ length: this.multipv }, () => []);
             this.chessground.setAutoShapes([]);
             this.drawEval(step.ceval, step.scoreStr, step.turnColor);
             this.drawServerEval(ply, step.scoreStr);

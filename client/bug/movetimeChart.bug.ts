@@ -168,7 +168,6 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                 const chatTime = step.chat[i].time;
                 const chatTxt = step.chat[i].message;
                 const chatUsr = displayUsername(step.chat[i].username);
-                ("url('../../static/images/bugroundchat/noR.svg')");
                 const yChat = Math.pow(Math.log(0.005 * Math.min(chatTime, 12e4) + 3), 2) - logC;
                 const chatPoint = {
                     name: chatUsr + ':' + chatTxt,

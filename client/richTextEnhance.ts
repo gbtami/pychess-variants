@@ -6,7 +6,7 @@ type RichNode = VNode | string;
 
 // Derived from lichess rich text behavior, adapted for pychess.
 const linkRegex =
-    /(^|[\s\n]|<[A-Za-z]*\/?>)((?:(?:https?|ftp):\/\/|pychess\.org)[\-A-Z0-9+\u0026\u2019@#/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#/%=~()_|])/gi;
+    /(^|[\s\n]|<[A-Za-z]*\/?>)((?:(?:https?|ftp):\/\/|pychess\.org)[-A-Z0-9+\u0026\u2019@#/%?=()~_|!:,.;]*[-A-Z0-9+\u0026@#/%=~()_|])/gi;
 const mentionRegex = /(^|[^\w@#/])@([a-z0-9_-]{2,30})/gi;
 const gameIdRegex = /(\s#)([\w]{8})($|[^\w-])/g;
 const imgurRegex = /https?:\/\/(?:i\.)?imgur\.com\/(?!gallery\b)(\w{7})(?:\.jpe?g|\.png|\.gif)?/i;

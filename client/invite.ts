@@ -68,7 +68,7 @@ export function inviteView(model: PyChessModel): VNode[] {
             break;
         default:
             title = model['inviter'];
-            formAction = '/invite/accept/' + gameId + (!!player ? '/' + player : '');
+            formAction = '/invite/accept/' + gameId + (player ? '/' + player : '');
             buttonClass = { join: true };
             buttonText = _('JOIN THE GAME');
     }

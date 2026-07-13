@@ -216,7 +216,7 @@ export function pasteView(model: PyChessModel): VNode[] {
                 if (this.responseText) {
                     try {
                         response = JSON.parse(this.responseText);
-                    } catch (_err) {
+                    } catch {
                         response = {};
                     }
                 }

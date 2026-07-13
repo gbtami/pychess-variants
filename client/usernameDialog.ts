@@ -49,7 +49,7 @@ async function checkUsernameAvailability(username: string): Promise<void> {
             dialogState.error = data.error || 'Username not available';
             console.log('Username availability check failed:', data);
         }
-    } catch (error) {
+    } catch {
         dialogState.isAvailable = false;
         dialogState.error = 'Failed to check username availability';
     }
@@ -101,7 +101,7 @@ async function confirmUsername(): Promise<void> {
             dialogState.isSubmitting = false;
             console.error('Username confirmation failed:', data);
         }
-    } catch (error) {
+    } catch {
         dialogState.error = 'Failed to create account';
         dialogState.isSubmitting = false;
     }

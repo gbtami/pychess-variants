@@ -29,11 +29,9 @@ export function getDocumentData(name: string): string | null {
 
 export function debounce(callback: any, wait: number) {
     let timeout: ReturnType<typeof setTimeout>;
-    return function () {
-        const context = this,
-            args = arguments;
+    return function (this: unknown, ...args: unknown[]) {
         clearTimeout(timeout);
-        timeout = setTimeout(() => callback.apply(context, args), wait);
+        timeout = setTimeout(() => callback.apply(this, args), wait);
     };
 }
 

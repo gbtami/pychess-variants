@@ -148,7 +148,7 @@ export class RoundController extends GameController {
                     try {
                         console.log('resending unsent message ', pendingMove);
                         this.doSend(pendingMove);
-                    } catch (e) {
+                    } catch {
                         console.log('could not even REsend unsent message ', pendingMove);
                     }
                 } else if (action === 'clear') {

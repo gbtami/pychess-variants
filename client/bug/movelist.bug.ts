@@ -205,7 +205,7 @@ function treePathContains(outerPath: string, innerPath: string | undefined): boo
 function parseTreeMove(move: string | undefined): ParsedTreeMove {
     if (!move || move === '?') return { san: move ?? '' };
 
-    const match = move.match(/^(.*?)(\?\?|\!\!|\!\?|\?\!|\!|\?)$/);
+    const match = move.match(/^(.*?)(\?\?|!!|!\?|\?!|!|\?)$/);
     if (!match) return { san: move };
 
     const [, san, glyphText] = match;

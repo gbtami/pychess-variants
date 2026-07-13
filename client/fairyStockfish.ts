@@ -33,7 +33,7 @@ function wasmThreadsSupported(): boolean {
     let memory: WebAssembly.Memory;
     try {
         memory = new WebAssembly.Memory({ shared: true, initial: 8, maximum: 16 });
-    } catch (_error) {
+    } catch {
         return false;
     }
     if (!(memory.buffer instanceof SharedArrayBuffer)) return false;
@@ -41,7 +41,7 @@ function wasmThreadsSupported(): boolean {
     try {
         window.postMessage(memory, '*');
         memory.grow(8);
-    } catch (_error) {
+    } catch {
         return false;
     }
 

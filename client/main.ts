@@ -298,7 +298,7 @@ function start() {
             setTimeout(() => searchInput.focus(), 200);
     };
 
-    function showResults(val: String) {
+    function showResults(val: string) {
         const acResult = document.getElementById('ac-result') as HTMLElement;
         if (val.length < 4) {
             acResult.innerHTML = '';
@@ -307,11 +307,11 @@ function start() {
         const params = new URLSearchParams({ p: val.toString() });
         fetch('/api/names?' + params.toString())
             .then(res => res.json())
-            .then(data => {
+            .then((data: [username: string, title: string][]) => {
                 // console.log(data);
-                const list = data.map((el: String) => {
-                    const title = el[1] ? `<player-title>${el[1]} </player-title>` : '';
-                    return `<li><a class="user-link" href="${model['home']}/@/${el[0]}">${title}${el[0]}</a></li>`;
+                const list = data.map(([username, playerTitle]) => {
+                    const title = playerTitle ? `<player-title>${playerTitle} </player-title>` : '';
+                    return `<li><a class="user-link" href="${model['home']}/@/${username}">${title}${username}</a></li>`;
                 });
                 // console.log(list);
                 acResult.innerHTML = '<ul class="box">' + list.join('') + '</ul>';
@@ -351,7 +351,7 @@ function start() {
     maybeShowGameCategoryIntro();
     initCommunityVariantFavorites();
 
-    patch(document.getElementById('zen-button') as HTMLElement, zenButtonView()).elm as HTMLElement;
+    patch(document.getElementById('zen-button') as HTMLElement, zenButtonView());
 }
 
 window.addEventListener('resize', () => document.body.dispatchEvent(new Event('chessground.resize')));

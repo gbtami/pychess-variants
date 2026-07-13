@@ -1,15 +1,3 @@
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "categories": {
-    "correctness": "off"
-  },
-  "rules": {
-    "no-debugger": "error",
-    "no-dupe-keys": "error",
-    "no-duplicate-case": "error",
-    "no-func-assign": "error",
-    "no-import-assign": "error",
-    "no-unreachable": "error",
-    "no-unsafe-finally": "error"
-  }
+  "$schema": "./node_modules/oxlint/configuration_schema.json"
 }

@@ -620,7 +620,7 @@ export function inboxView(model: PyChessModel) {
         appEl = document.getElementById('inbox-app') as HTMLElement;
         loadBlockedUsers();
         if (contact) openThread(contact);
-        loadThreads(!Boolean(contact));
+        loadThreads(!contact);
         connectInbox();
     }, 0);
 

@@ -7,7 +7,7 @@ function setPcfpCookie(): void {
 
     try {
         tz = Intl.DateTimeFormat().resolvedOptions().timeZone ?? '';
-    } catch (_error) {
+    } catch {
         tz = '';
     }
 

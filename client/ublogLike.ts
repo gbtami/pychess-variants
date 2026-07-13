@@ -40,7 +40,7 @@ export function initUblogLike(): void {
                 const payload = (await response.json()) as LikePayload;
                 if (payload.ok !== true) throw new Error('invalid like payload');
                 updateButton(button, !!payload.liked, Number(payload.likes || 0));
-            } catch (_err) {
+            } catch {
                 form.submit();
                 return;
             } finally {

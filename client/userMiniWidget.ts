@@ -75,7 +75,7 @@ function parseProfileId(target: HTMLElement): string | null {
     let url: URL;
     try {
         url = new URL(href, window.location.origin);
-    } catch (_err) {
+    } catch {
         return null;
     }
 
@@ -294,7 +294,7 @@ class UserMiniWidget {
             if (this.anchorUser !== profileId) return;
             this.renderPayload(payload);
             this.positionForAnchor(anchor);
-        } catch (_err) {
+        } catch {
             if (seq !== this.requestSeq) return;
             this.root.classList.add('hidden');
             this.clearLiveBoard();

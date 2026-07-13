@@ -62,7 +62,7 @@ export class SimulRoundHostController {
             const games = JSON.parse(simulGamesJson);
             if (!Array.isArray(games)) return [];
             return (games as Game[]).sort(compareGames(this.username, 'simul'));
-        } catch (_error) {
+        } catch {
             return [];
         }
     }

@@ -47,7 +47,7 @@ function getCevalTabId(now: number): string {
         const created = makeCevalTabId(now);
         sessionStorage.setItem(CEVAL_TAB_ID_SESSION_KEY, created);
         return created;
-    } catch (_error) {
+    } catch {
         fallbackCevalTabId ??= makeCevalTabId(now);
         return fallbackCevalTabId;
     }
@@ -68,7 +68,7 @@ function parseActiveCevalRoundsState(raw: string | null): ActiveCevalRoundsState
             }
         }
         return state;
-    } catch (_error) {
+    } catch {
         return {};
     }
 }
@@ -90,7 +90,7 @@ function readActiveCevalRoundsState(now: number): ActiveCevalRoundsState {
         }
 
         return pruned;
-    } catch (_error) {
+    } catch {
         return {};
     }
 }
@@ -98,7 +98,7 @@ function readActiveCevalRoundsState(now: number): ActiveCevalRoundsState {
 function writeActiveCevalRoundsState(state: ActiveCevalRoundsState): void {
     try {
         localStorage.setItem(CEVAL_ACTIVE_ROUNDS_STORAGE_KEY, JSON.stringify(state));
-    } catch (_error) {
+    } catch {
         // Ignore storage failures in restricted browser contexts.
     }
 }
@@ -156,7 +156,7 @@ export function parseCevalPositionPayload(raw: string | null): CevalPositionPayl
             chess960: payload.chess960,
             fen: payload.fen,
         };
-    } catch (_error) {
+    } catch {
         return;
     }
 }

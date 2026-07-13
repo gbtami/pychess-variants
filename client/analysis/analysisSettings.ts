@@ -163,7 +163,7 @@ class MultiPVSettings extends NumberSettings {
         if ('multipv' in ctrl) {
             ctrl.multipv = this.value;
             ctrl.pvboxIni();
-            ctrl.autoShapes = new Array(ctrl.multipv).fill([]);
+            ctrl.autoShapes = Array.from({ length: ctrl.multipv }, () => []);
             ctrl.chessground.setAutoShapes([]);
             const settingsEl = document.querySelector('div.multipv_range_value') as HTMLElement;
             patch(settingsEl, h('div.multipv_range_value', `${this.value} / 5`));

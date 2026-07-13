@@ -259,11 +259,9 @@ export default class AnalysisControllerBughouse {
         this.vscore = document.getElementById('score') as HTMLElement;
         this.vscorePartner = document.getElementById('scorePartner') as HTMLElement;
         this.vinfo = document.getElementById('info') as HTMLElement;
-        this.vpvlines = [
-            ...Array(5)
-                .fill(null)
-                .map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement),
-        ];
+        this.vpvlines = Array(5)
+            .fill(null)
+            .map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement);
 
         const pgn = this.isAnalysisBoard ? this.getPgn() : this.pgn;
         this.renderFENAndPGN(pgn);
@@ -303,7 +301,6 @@ export default class AnalysisControllerBughouse {
         (document.querySelector('[tabindex="0"]') as HTMLElement).style.display = 'flex';
         // const menuEl = document.getElementById('bars') as HTMLElement;
         // menuEl.style.display = 'block';
-        ``;
         //
         this.onMsgBoard(model['board'] as MsgBoard);
 
@@ -1001,7 +998,7 @@ export default class AnalysisControllerBughouse {
                     this.fsfEngineBoard.setFen(boardInAnalysis.fullfen);
                     pvSan = this.fsfEngineBoard.variationSan(ceval.p, this.notationAsObject);
                     if (pvSan === '') pvSan = emptySan;
-                } catch (error) {
+                } catch {
                     pvSan = emptySan;
                 }
             }
