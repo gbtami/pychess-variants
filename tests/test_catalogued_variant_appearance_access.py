@@ -10,6 +10,7 @@ from catalogued_variants import (
     update_catalogued_variant,
     upload_catalogued_variant,
 )
+from fsf_variant_info_fixture import make_fsf_variant_info
 
 INI = "[appearanceaccess:chess]"
 PAYLOAD = (
@@ -22,6 +23,7 @@ PAYLOAD = (
     "standard8x8",
     "private",
 )
+VALIDATION_INFO = make_fsf_variant_info(name="appearanceaccess")
 VALIDATION = CataloguedVariantValidation(
     name="appearanceaccess",
     start_fen="8/8/8/8/8/8/8/K6k w - - 0 1",
@@ -41,6 +43,7 @@ VALIDATION = CataloguedVariantValidation(
     n_fold_is_draw=False,
     show_check_counters=False,
     base_variant="chess",
+    fsf_variant_info=VALIDATION_INFO,
 )
 
 
@@ -128,6 +131,7 @@ class CataloguedVariantAppearanceAccessTestCase(unittest.IsolatedAsyncioTestCase
             legal_moves_need_history=VALIDATION.legal_moves_need_history,
             n_fold_is_draw=VALIDATION.n_fold_is_draw,
             show_check_counters=VALIDATION.show_check_counters,
+            fsf_variant_info=VALIDATION.fsf_variant_info,
             created_at=datetime.now(UTC),
         )
         collection = AppearanceCollection()

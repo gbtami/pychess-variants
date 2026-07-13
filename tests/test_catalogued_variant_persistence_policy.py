@@ -11,6 +11,7 @@ from catalogued_variants import (
     find_catalogued_variant_doc,
 )
 from const import ABORTED, STARTED
+from fsf_variant_info_fixture import make_fsf_variant_info
 from variants import (
     is_catalogued_variant,
     register_catalogued_server_variant,
@@ -183,8 +184,10 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         unregister_catalogued_server_variant(name)
         self.addCleanup(unregister_catalogued_server_variant, name)
 
+        fsf_variant_info = make_fsf_variant_info(name=name)
         validation = SimpleNamespace(
             name=name,
+            fsf_variant_info=fsf_variant_info,
             base_variant="chess",
             start_fen="8/8/8/8/8/8/8/K6k w - - 0 1",
             width=8,
@@ -218,6 +221,7 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(restored["author"], game_doc["vby"])
         self.assertFalse(restored["archived"])
         self.assertTrue(restored["enabled"])
+        self.assertEqual(restored["fsfVariantInfo"], fsf_variant_info)
 
 
 if __name__ == "__main__":
