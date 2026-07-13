@@ -12,10 +12,35 @@ const converter = new showdown.Converter({
 converter.setFlavor('github');
 
 const ALLOWED_TAGS = new Set([
-    'a', 'p', 'blockquote', 'pre', 'code', 'ul', 'ol', 'li', 'hr', 'br',
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'strong', 'em', 'del', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
-    'img', 'span', 'div', 'iframe',
+    'a',
+    'p',
+    'blockquote',
+    'pre',
+    'code',
+    'ul',
+    'ol',
+    'li',
+    'hr',
+    'br',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'strong',
+    'em',
+    'del',
+    'table',
+    'thead',
+    'tbody',
+    'tr',
+    'th',
+    'td',
+    'img',
+    'span',
+    'div',
+    'iframe',
 ]);
 
 // Keep legacy presentational align attributes from migrated posts.
@@ -41,9 +66,9 @@ const ALLOWED_ATTRS: Record<string, Set<string>> = {
 const ALLOWED_ATTR_NAMES = Array.from(
     new Set(
         Object.values(ALLOWED_ATTRS)
-            .flatMap((attrs) => Array.from(attrs))
-            .concat(['class'])
-    )
+            .flatMap(attrs => Array.from(attrs))
+            .concat(['class']),
+    ),
 );
 
 function safeUrl(url: string): string | null {
@@ -89,12 +114,11 @@ function safeIframe(url: string): SafeIframe | null {
         const host = parsed.hostname.toLowerCase();
         const path = parsed.pathname;
         const isLocal = parsed.origin === window.location.origin;
-        const isLichessStudyEmbed = (host === 'lichess.org' || host === 'www.lichess.org') && path.startsWith('/study/embed/');
-        const isYouTubeEmbed = (
-            host === 'www.youtube.com' ||
-            host === 'youtube.com' ||
-            host === 'www.youtube-nocookie.com'
-        ) && path.startsWith('/embed/');
+        const isLichessStudyEmbed =
+            (host === 'lichess.org' || host === 'www.lichess.org') && path.startsWith('/study/embed/');
+        const isYouTubeEmbed =
+            (host === 'www.youtube.com' || host === 'youtube.com' || host === 'www.youtube-nocookie.com') &&
+            path.startsWith('/embed/');
 
         if (isLocal || isLichessStudyEmbed || isYouTubeEmbed) {
             return { href: parsed.href, isYouTubeEmbed };
@@ -126,7 +150,7 @@ function sanitizeRenderedFragment(html: string): DocumentFragment {
         RETURN_DOM_FRAGMENT: true,
     }) as DocumentFragment;
 
-    fragment.querySelectorAll<HTMLElement>('*').forEach((el) => {
+    fragment.querySelectorAll<HTMLElement>('*').forEach(el => {
         const tag = el.tagName.toLowerCase();
         if (!ALLOWED_TAGS.has(tag)) {
             if (tag === 'script' || tag === 'style' || tag === 'iframe' || tag === 'object' || tag === 'embed') {
@@ -141,7 +165,7 @@ function sanitizeRenderedFragment(html: string): DocumentFragment {
         }
 
         const allowedAttrs = ALLOWED_ATTRS[tag] ?? new Set<string>();
-        Array.from(el.attributes).forEach((attr) => {
+        Array.from(el.attributes).forEach(attr => {
             const attrName = attr.name.toLowerCase();
             if (attrName.startsWith('on') || attrName === 'style' || attrName === 'id' || attrName === 'name') {
                 el.removeAttribute(attr.name);
@@ -160,7 +184,7 @@ function sanitizeRenderedFragment(html: string): DocumentFragment {
         }
     });
 
-    fragment.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((el) => {
+    fragment.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(el => {
         const safe = safeUrl(el.getAttribute('href') || '');
         if (!safe) {
             el.removeAttribute('href');
@@ -171,7 +195,7 @@ function sanitizeRenderedFragment(html: string): DocumentFragment {
         el.setAttribute('rel', 'noopener noreferrer nofollow');
     });
 
-    fragment.querySelectorAll<HTMLImageElement>('img[src]').forEach((el) => {
+    fragment.querySelectorAll<HTMLImageElement>('img[src]').forEach(el => {
         const safe = safeUrl(el.getAttribute('src') || '');
         if (!safe) {
             el.remove();
@@ -183,7 +207,7 @@ function sanitizeRenderedFragment(html: string): DocumentFragment {
         el.setAttribute('loading', 'lazy');
     });
 
-    fragment.querySelectorAll<HTMLIFrameElement>('iframe').forEach((el) => {
+    fragment.querySelectorAll<HTMLIFrameElement>('iframe').forEach(el => {
         const safe = safeIframe(el.getAttribute('src') || '');
         if (!safe) {
             el.remove();
@@ -193,10 +217,7 @@ function sanitizeRenderedFragment(html: string): DocumentFragment {
         sanitizePositiveIntAttr(el, 'width');
         sanitizePositiveIntAttr(el, 'height');
         el.setAttribute('loading', 'lazy');
-        el.setAttribute(
-            'referrerpolicy',
-            safe.isYouTubeEmbed ? 'strict-origin-when-cross-origin' : 'no-referrer',
-        );
+        el.setAttribute('referrerpolicy', safe.isYouTubeEmbed ? 'strict-origin-when-cross-origin' : 'no-referrer');
         if (!el.hasAttribute('allowfullscreen')) {
             el.setAttribute('allowfullscreen', '');
         }
@@ -210,9 +231,9 @@ function renderMarkdown(text: string): DocumentFragment {
 }
 
 export function initUblogMarkdown(): void {
-    const source = document.getElementById("ublog-markdown-source") as HTMLTextAreaElement | null;
-    const render = document.getElementById("ublog-markdown-render");
+    const source = document.getElementById('ublog-markdown-source') as HTMLTextAreaElement | null;
+    const render = document.getElementById('ublog-markdown-render');
     if (source && render) {
-        render.replaceChildren(renderMarkdown(source.value || ""));
+        render.replaceChildren(renderMarkdown(source.value || ''));
     }
 }

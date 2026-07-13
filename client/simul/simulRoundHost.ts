@@ -4,13 +4,7 @@ import { Api } from 'chessgroundx/api';
 
 import { _ } from '../i18n';
 import { patch } from '../document';
-import {
-    Game,
-    OngoingGameUpdate,
-    compareGames,
-    gameViewPlaying,
-    handleOngoingGameEvents,
-} from '../nowPlaying';
+import { Game, OngoingGameUpdate, compareGames, gameViewPlaying, handleOngoingGameEvents } from '../nowPlaying';
 import { MsgBoard } from '../messages';
 
 const SIMUL_AUTO_SKIP_KEY = 'simulAutoSkip';
@@ -23,16 +17,17 @@ export class SimulRoundHostController {
     private simulAutoSkip: boolean;
     private simulAutoSkipRequestedPly: number | null;
     private simulGames: Game[];
-    private readonly simulCgMap: {[gameId: string]: [Api, string]};
+    private readonly simulCgMap: { [gameId: string]: [Api, string] };
 
     constructor(username: string, gameId: string, home: string, simulGamesJson: string) {
         this.username = username;
         this.gameId = gameId;
         this.home = home;
 
-        this.simulAutoSkip = localStorage[SIMUL_AUTO_SKIP_KEY] === undefined
-            ? true
-            : localStorage.getItem(SIMUL_AUTO_SKIP_KEY) === 'true';
+        this.simulAutoSkip =
+            localStorage[SIMUL_AUTO_SKIP_KEY] === undefined
+                ? true
+                : localStorage.getItem(SIMUL_AUTO_SKIP_KEY) === 'true';
         this.simulAutoSkipRequestedPly = null;
         this.simulGames = this.parseAndSortGames(simulGamesJson);
         this.simulCgMap = {};
@@ -76,35 +71,38 @@ export class SimulRoundHostController {
         const container = document.querySelector('.games-container') as HTMLElement | null;
         if (!container) return;
 
-        patch(container, h('div.simul-games-container', [
-            h('div.simul-games-controls', [
-                h('label.simul-auto-skip', [
-                    h('input', {
-                        props: { type: 'checkbox', checked: this.simulAutoSkip },
-                        on: { change: this.onSimulAutoSkipChange },
-                    }),
-                    h('span', _('Auto skip to next game')),
+        patch(
+            container,
+            h('div.simul-games-container', [
+                h('div.simul-games-controls', [
+                    h('label.simul-auto-skip', [
+                        h('input', {
+                            props: { type: 'checkbox', checked: this.simulAutoSkip },
+                            on: { change: this.onSimulAutoSkipChange },
+                        }),
+                        h('span', _('Auto skip to next game')),
+                    ]),
                 ]),
+                h(
+                    'games-grid#games',
+                    this.simulGames.flatMap((game: Game) =>
+                        game.gameId === this.gameId
+                            ? []
+                            : [gameViewPlaying(this.simulCgMap, game, this.username, 'simul')],
+                    ),
+                ),
             ]),
-            h(
-                'games-grid#games',
-                this.simulGames.flatMap((game: Game) => (
-                    game.gameId === this.gameId
-                        ? []
-                        : [gameViewPlaying(this.simulCgMap, game, this.username, 'simul')]
-                )),
-            ),
-        ]));
+        );
     }
 
     private onSimulAutoSkipChange = (event: Event): void => {
         const target = event.target as HTMLInputElement;
         this.simulAutoSkip = target.checked;
         localStorage[SIMUL_AUTO_SKIP_KEY] = this.simulAutoSkip ? 'true' : 'false';
-    }
+    };
 
     private onSimulOngoingGameUpdate = (message: OngoingGameUpdate): void => {
-        const game = this.simulGames.find((simulGame) => simulGame.gameId === message.gameId);
+        const game = this.simulGames.find(simulGame => simulGame.gameId === message.gameId);
         if (!game) return;
 
         game.fen = message.fen;
@@ -113,10 +111,10 @@ export class SimulRoundHostController {
         game.date = message.date;
         if (typeof message.status === 'number') game.status = message.status;
         if (typeof message.result === 'string') game.result = message.result;
-    }
+    };
 
     private updateCurrentGameState(msg: MsgBoard): void {
-        const game = this.simulGames.find((simulGame) => simulGame.gameId === this.gameId);
+        const game = this.simulGames.find(simulGame => simulGame.gameId === this.gameId);
         if (!game) return;
 
         game.fen = msg.fen;
@@ -128,11 +126,12 @@ export class SimulRoundHostController {
 
     private getNextSimulGameToPlay(): Game | undefined {
         const playableGames = this.simulGames
-            .filter((game) => (
-                game.gameId !== this.gameId
-                && game.tp === this.username
-                && (typeof game.status !== 'number' || game.status < 0)
-            ))
+            .filter(
+                game =>
+                    game.gameId !== this.gameId &&
+                    game.tp === this.username &&
+                    (typeof game.status !== 'number' || game.status < 0),
+            )
             .sort(compareGames(this.username, 'simul'));
         return playableGames[0];
     }

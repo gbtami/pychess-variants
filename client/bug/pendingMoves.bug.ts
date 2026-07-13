@@ -1,5 +1,5 @@
-import { MsgMove, MsgMovesAfterReconnect } from "../messages";
-import { BugBoardName } from "../types";
+import { MsgMove, MsgMovesAfterReconnect } from '../messages';
+import { BugBoardName } from '../types';
 
 // One pending-move-per-board cache per game, so a dropped connection can resend
 // the last unconfirmed move for each board on reconnect. Keeping it in localStorage
@@ -21,7 +21,7 @@ export function loadPendingMoves(gameId: string): MsgMovesAfterReconnect {
     const stored = readStoredPendingMoves(gameId);
     const movesQueued = Object.values(stored).sort((a, b) => a.ply - b.ply);
 
-    return { type: "reconnect", gameId, movesQueued };
+    return { type: 'reconnect', gameId, movesQueued };
 }
 
 export function recordPendingMove(gameId: string, moveMsg: MsgMove): void {

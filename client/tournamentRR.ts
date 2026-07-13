@@ -49,10 +49,7 @@ type FlatpickrInstance = {
     destroy: () => void;
 };
 
-type RRFlatpickrFunction = (
-    element: HTMLElement,
-    options: RRFlatpickrOptions,
-) => FlatpickrInstance;
+type RRFlatpickrFunction = (element: HTMLElement, options: RRFlatpickrOptions) => FlatpickrInstance;
 
 type FlatpickrElement = HTMLInputElement & {
     _flatpickr?: FlatpickrInstance;
@@ -181,13 +178,20 @@ export class TournamentRRController implements ChatController {
 
         this.sock = newWebsocket('wst');
         this.sock.onopen = () => {
-            this.doSend({ type: 'tournament_user_connected', tournamentId: this.tournamentId, username: this.username });
+            this.doSend({
+                type: 'tournament_user_connected',
+                tournamentId: this.tournamentId,
+                username: this.username,
+            });
             this.doSend({ type: 'get_players', tournamentId: this.tournamentId, page: this.page });
         };
         this.sock.onmessage = (e: MessageEvent) => this.onMessage(e);
 
         patch(document.getElementById('lobbychat') as HTMLElement, chatView(this, 'lobbychat'));
-        this.descriptionNode = patch(document.getElementById('description') as HTMLElement, h('div#description.description'));
+        this.descriptionNode = patch(
+            document.getElementById('description') as HTMLElement,
+            h('div#description.description'),
+        );
         this.startsAtNode = patch(document.getElementById('startsAt') as HTMLElement, h('div#startsAt'));
         this.systemNode = patch(document.getElementById('tsystem') as HTMLElement, h('div#tsystem'));
         this.creatorNode = patch(document.getElementById('createdBy') as HTMLElement, h('div#createdBy'));
@@ -213,7 +217,7 @@ export class TournamentRRController implements ChatController {
     }
 
     playerByName(name: string) {
-        return this.players.find((player) => player.name === name);
+        return this.players.find(player => player.name === name);
     }
 
     login() {
@@ -398,10 +402,12 @@ export class TournamentRRController implements ChatController {
         const cell = this.selectedArrangement();
         if (!cell) return;
         try {
-            const response = await fetch(`/api/users/status?ids=${encodeURIComponent(cell.white)},${encodeURIComponent(cell.black)}`);
+            const response = await fetch(
+                `/api/users/status?ids=${encodeURIComponent(cell.white)},${encodeURIComponent(cell.black)}`,
+            );
             if (!response.ok) return;
-            const payload = await response.json() as Array<{ id: string; status?: boolean }>;
-            payload.forEach((entry) => {
+            const payload = (await response.json()) as Array<{ id: string; status?: boolean }>;
+            payload.forEach(entry => {
                 this.onlineByUsername[entry.id] = entry.status;
             });
             this.renderModal();
@@ -431,29 +437,53 @@ export class TournamentRRController implements ChatController {
     updateActionButton() {
         let button = h('div#action');
         if (this.viewMode === 'manage') {
-            button = h('button#action', {
-                on: { click: () => this.setViewMode('overview') },
-                class: { icon: true, 'icon-step-backward': true },
-            }, _('Back'));
+            button = h(
+                'button#action',
+                {
+                    on: { click: () => this.setViewMode('overview') },
+                    class: { icon: true, 'icon-step-backward': true },
+                },
+                _('Back'),
+            );
         } else if (this.anon && 'created|started'.includes(this.tournamentStatus)) {
-            button = h('button#action', { on: { click: () => this.login() }, class: { icon: true, 'icon-play': true } }, _('LOG IN'));
+            button = h(
+                'button#action',
+                { on: { click: () => this.login() }, class: { icon: true, 'icon-play': true } },
+                _('LOG IN'),
+            );
         } else if (this.tournamentStatus === 'created') {
             if (this.userStatus === 'pending') {
                 button = h('div#action.pending-note', _('JOIN REQUEST PENDING'));
             } else if (this.userStatus === 'denied') {
                 button = h('div#action.pending-note', _('JOIN REQUEST DENIED'));
             } else if (this.userStatus === 'joined') {
-                button = h('button#action', { on: { click: () => this.withdraw() }, class: { icon: true, 'icon-flag-o': true } }, _('WITHDRAW'));
+                button = h(
+                    'button#action',
+                    { on: { click: () => this.withdraw() }, class: { icon: true, 'icon-flag-o': true } },
+                    _('WITHDRAW'),
+                );
             } else if (this.joiningClosed && !this.isHost()) {
                 button = h('div#action.pending-note', _('JOINING CLOSED'));
             } else {
-                button = h('button#action', { on: { click: () => this.join() }, class: { icon: true, 'icon-play': true } }, _('JOIN'));
+                button = h(
+                    'button#action',
+                    { on: { click: () => this.join() }, class: { icon: true, 'icon-play': true } },
+                    _('JOIN'),
+                );
             }
         } else if (this.tournamentStatus === 'started') {
             if ('spectator|paused|withdrawn|denied|pending'.includes(this.userStatus)) {
-                button = h('button#action', { on: { click: () => this.join() }, class: { icon: true, 'icon-play': true } }, _('JOIN'));
+                button = h(
+                    'button#action',
+                    { on: { click: () => this.join() }, class: { icon: true, 'icon-play': true } },
+                    _('JOIN'),
+                );
             } else {
-                button = h('button#action', { on: { click: () => this.withdraw() }, class: { icon: true, 'icon-flag-o': true } }, _('WITHDRAW'));
+                button = h(
+                    'button#action',
+                    { on: { click: () => this.withdraw() }, class: { icon: true, 'icon-flag-o': true } },
+                    _('WITHDRAW'),
+                );
             }
         }
         this.action = patch(this.action, button);
@@ -467,9 +497,21 @@ export class TournamentRRController implements ChatController {
         this.descriptionNode = patch(this.descriptionNode, h('div#description.description', msg.description));
         const startsAtDate = new Date(msg.startsAt);
         const endsAtDate = new Date(startsAtDate.getTime() + msg.tminutes * 60 * 1000);
-        this.startsAtNode = patch(this.startsAtNode, h('div#startsAt', `${startsAtDate.toLocaleString('default', localeOptions)} - ${endsAtDate.toLocaleString('default', localeOptions)}`));
-        this.systemNode = patch(this.systemNode, h('div#tsystem', `${this.rated === 'True' ? _('Rated') : _('Unrated')} - ${_('Round-Robin')}`));
-        this.creatorNode = patch(this.creatorNode, h('div#createdBy', [h('strong', _('By')), ' ', userLink(msg.createdBy, [displayUsername(msg.createdBy)])]));
+        this.startsAtNode = patch(
+            this.startsAtNode,
+            h(
+                'div#startsAt',
+                `${startsAtDate.toLocaleString('default', localeOptions)} - ${endsAtDate.toLocaleString('default', localeOptions)}`,
+            ),
+        );
+        this.systemNode = patch(
+            this.systemNode,
+            h('div#tsystem', `${this.rated === 'True' ? _('Rated') : _('Unrated')} - ${_('Round-Robin')}`),
+        );
+        this.creatorNode = patch(
+            this.creatorNode,
+            h('div#createdBy', [h('strong', _('By')), ' ', userLink(msg.createdBy, [displayUsername(msg.createdBy)])]),
+        );
         this.minutesNode = patch(this.minutesNode, h('span#tminutes', ` • ${msg.tminutes}m`));
         this.secondsToStart = msg.secondsToStart;
         this.secondsToFinish = msg.secondsToFinish;
@@ -483,7 +525,7 @@ export class TournamentRRController implements ChatController {
     gameListRows(): RRGameListRow[] {
         const rows: RRGameListRow[] = [];
         const seen = new Set<string>();
-        const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map((player) => player.name);
+        const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map(player => player.name);
         for (const player of order) {
             const row = this.matrix[player] || {};
             for (const cell of Object.values(row)) {
@@ -520,34 +562,41 @@ export class TournamentRRController implements ChatController {
     }
 
     gamesVNode() {
-        const rows = this.gameListRows().map((row) => {
+        const rows = this.gameListRows().map(row => {
             const target = this.findArrangementById(row.id);
             const icon = row.gameId && row.status === 'finished' ? '●' : '◌';
-            return h('tr', {
-                class: {
-                    actionable: !!target,
-                    ongoing: !!row.gameId && row.status !== 'finished',
-                    finished: row.status === 'finished',
-                },
-                on: {
-                    click: () => {
-                        if (row.gameId) {
-                            window.location.assign('/' + row.gameId);
-                        } else if (target) {
-                            this.selectArrangement(target);
-                        }
+            return h(
+                'tr',
+                {
+                    class: {
+                        actionable: !!target,
+                        ongoing: !!row.gameId && row.status !== 'finished',
+                        finished: row.status === 'finished',
+                    },
+                    on: {
+                        click: () => {
+                            if (row.gameId) {
+                                window.location.assign('/' + row.gameId);
+                            } else if (target) {
+                                this.selectArrangement(target);
+                            }
+                        },
                     },
                 },
-            }, [
-                h('td.icon-col', icon),
-                h('td.matchup', [
-                    userLink(row.white, [displayUsername(row.white)]),
-                    ' vs ',
-                    userLink(row.black, [displayUsername(row.black)]),
-                ]),
-                h('td.status-col', this.gameListStatus(row)),
-                h('td.time-col', row.date ? h('info-date', { attrs: { timestamp: row.date } }, timeago(row.date)) : ''),
-            ]);
+                [
+                    h('td.icon-col', icon),
+                    h('td.matchup', [
+                        userLink(row.white, [displayUsername(row.white)]),
+                        ' vs ',
+                        userLink(row.black, [displayUsername(row.black)]),
+                    ]),
+                    h('td.status-col', this.gameListStatus(row)),
+                    h(
+                        'td.time-col',
+                        row.date ? h('info-date', { attrs: { timestamp: row.date } }, timeago(row.date)) : '',
+                    ),
+                ],
+            );
         });
         return h('table#games.box.pairings', [
             h('thead', h('tr', [h('th'), h('th', _('Games')), h('th', _('Status')), h('th', _('When'))])),
@@ -599,7 +648,7 @@ export class TournamentRRController implements ChatController {
     challengeRows(): RRChallengeRow[] {
         const rows: RRChallengeRow[] = [];
         const seen = new Set<string>();
-        const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map((player) => player.name);
+        const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map(player => player.name);
         for (const player of order) {
             const row = this.matrix[player] || {};
             for (const cell of Object.values(row)) {
@@ -609,7 +658,9 @@ export class TournamentRRController implements ChatController {
                 const isVisible = ['challenged', 'started'].includes(cell.status) || cell.gameId !== '';
                 if (!isVisible && !(canAct && cell.status === 'pending')) continue;
                 const opponent = canAct
-                    ? (cell.white === this.username ? cell.black : cell.white)
+                    ? cell.white === this.username
+                        ? cell.black
+                        : cell.white
                     : `${cell.white} vs ${cell.black}`;
                 const incoming = canAct && cell.status === 'challenged' && cell.challenger !== this.username;
                 const color = canAct ? (cell.white === this.username ? 'white' : 'black') : ' ';
@@ -646,7 +697,7 @@ export class TournamentRRController implements ChatController {
     }
 
     renderCrossTable() {
-        const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map((player) => player.name);
+        const order = this.rrPlayers.length > 0 ? this.rrPlayers : this.players.map(player => player.name);
         const rowHoverHandlers = (rowPlayer: string) => ({
             mouseenter: () => this.setHoveredRow(rowPlayer),
             mouseleave: () => this.clearHovered(),
@@ -661,123 +712,161 @@ export class TournamentRRController implements ChatController {
         });
         const rows = order.map((rowPlayer, rowIndex) => {
             const rowPlayerData = this.playerByName(rowPlayer);
-            return h('tr', {
-                class: {
-                    hovered: this.hoveredRow === rowPlayer,
-                    'selected-player': this.selectedPlayer === rowPlayer,
-                    selectable: true,
-                    withdrawn: !!rowPlayerData?.withdrawn,
+            return h(
+                'tr',
+                {
+                    class: {
+                        hovered: this.hoveredRow === rowPlayer,
+                        'selected-player': this.selectedPlayer === rowPlayer,
+                        selectable: true,
+                        withdrawn: !!rowPlayerData?.withdrawn,
+                    },
+                    on: {
+                        click: () => this.selectPlayer(rowPlayer),
+                        ...rowHoverHandlers(rowPlayer),
+                    },
                 },
-                on: {
-                    click: () => this.selectPlayer(rowPlayer),
-                    ...rowHoverHandlers(rowPlayer),
-                },
-            }, [
-                h('th', { on: rowHoverHandlers(rowPlayer) }, `${rowIndex + 1}`),
-                h('th', { on: rowHoverHandlers(rowPlayer) }, userLink(rowPlayer, [
-                    rowPlayerData?.withdrawn ? h('span.rr-player-state', '• ') : '',
-                    displayUsername(rowPlayer),
-                ])),
-            ]);
+                [
+                    h('th', { on: rowHoverHandlers(rowPlayer) }, `${rowIndex + 1}`),
+                    h(
+                        'th',
+                        { on: rowHoverHandlers(rowPlayer) },
+                        userLink(rowPlayer, [
+                            rowPlayerData?.withdrawn ? h('span.rr-player-state', '• ') : '',
+                            displayUsername(rowPlayer),
+                        ]),
+                    ),
+                ],
+            );
         });
 
-        const arrangementRows = order.map((rowPlayer) =>
-            h('tr', {
-                class: {
-                    hovered: this.hoveredRow === rowPlayer,
-                    withdrawn: !!this.playerByName(rowPlayer)?.withdrawn,
+        const arrangementRows = order.map(rowPlayer =>
+            h(
+                'tr',
+                {
+                    class: {
+                        hovered: this.hoveredRow === rowPlayer,
+                        withdrawn: !!this.playerByName(rowPlayer)?.withdrawn,
+                    },
+                    on: rowHoverHandlers(rowPlayer),
                 },
-                on: rowHoverHandlers(rowPlayer),
-            }, order.map((colPlayer) => {
-                const cell = this.matrix[rowPlayer]?.[colPlayer];
-                if (rowPlayer === colPlayer) return h('td.rr-cell.rr-self', {
-                    class: {
-                        hovered: this.hoveredRow === rowPlayer || this.hoveredCol === colPlayer,
-                    },
-                    on: cellHoverHandlers(rowPlayer, colPlayer),
-                });
-                const isMe = !!cell && [cell.white, cell.black].includes(this.username);
-                const display = cell ? this.cellDisplay(cell) : '';
-                const rowIsWhite = cell?.color === 'white';
-                const drawResult = cell?.result === '1/2-1/2';
-                const winResult = !!cell && ((cell.result === '1-0' && rowIsWhite) || (cell.result === '0-1' && !rowIsWhite));
-                const lossResult = !!cell && ((cell.result === '1-0' && !rowIsWhite) || (cell.result === '0-1' && rowIsWhite));
-                const isSelected = this.selectedArrangementId !== '' && cell?.id === this.selectedArrangementId;
-                return h('td.rr-cell', {
-                    attrs: {
-                        title: cell ? `${rowPlayer} vs ${colPlayer}` : '',
-                    },
-                    class: {
-                        actionable: !!cell && isMe,
-                        hovered: this.hoveredRow === rowPlayer || this.hoveredCol === colPlayer,
-                        selected: isSelected,
-                        pending: cell?.status === 'pending',
-                        challenged: cell?.status === 'challenged',
-                        incoming: cell?.status === 'challenged' && cell?.challenger !== this.username,
-                        outgoing: cell?.status === 'challenged' && cell?.challenger === this.username,
-                        started: cell?.status === 'started',
-                        draw: drawResult,
-                        win: winResult,
-                        loss: lossResult,
-                        empty: !cell,
-                    },
-                    on: cell ? {
-                        click: () => this.selectArrangement(cell),
-                        ...cellHoverHandlers(rowPlayer, colPlayer),
-                    } : cellHoverHandlers(rowPlayer, colPlayer),
-                }, display !== '' ? h('div', display) : '');
-            })),
+                order.map(colPlayer => {
+                    const cell = this.matrix[rowPlayer]?.[colPlayer];
+                    if (rowPlayer === colPlayer)
+                        return h('td.rr-cell.rr-self', {
+                            class: {
+                                hovered: this.hoveredRow === rowPlayer || this.hoveredCol === colPlayer,
+                            },
+                            on: cellHoverHandlers(rowPlayer, colPlayer),
+                        });
+                    const isMe = !!cell && [cell.white, cell.black].includes(this.username);
+                    const display = cell ? this.cellDisplay(cell) : '';
+                    const rowIsWhite = cell?.color === 'white';
+                    const drawResult = cell?.result === '1/2-1/2';
+                    const winResult =
+                        !!cell && ((cell.result === '1-0' && rowIsWhite) || (cell.result === '0-1' && !rowIsWhite));
+                    const lossResult =
+                        !!cell && ((cell.result === '1-0' && !rowIsWhite) || (cell.result === '0-1' && rowIsWhite));
+                    const isSelected = this.selectedArrangementId !== '' && cell?.id === this.selectedArrangementId;
+                    return h(
+                        'td.rr-cell',
+                        {
+                            attrs: {
+                                title: cell ? `${rowPlayer} vs ${colPlayer}` : '',
+                            },
+                            class: {
+                                actionable: !!cell && isMe,
+                                hovered: this.hoveredRow === rowPlayer || this.hoveredCol === colPlayer,
+                                selected: isSelected,
+                                pending: cell?.status === 'pending',
+                                challenged: cell?.status === 'challenged',
+                                incoming: cell?.status === 'challenged' && cell?.challenger !== this.username,
+                                outgoing: cell?.status === 'challenged' && cell?.challenger === this.username,
+                                started: cell?.status === 'started',
+                                draw: drawResult,
+                                win: winResult,
+                                loss: lossResult,
+                                empty: !cell,
+                            },
+                            on: cell
+                                ? {
+                                      click: () => this.selectArrangement(cell),
+                                      ...cellHoverHandlers(rowPlayer, colPlayer),
+                                  }
+                                : cellHoverHandlers(rowPlayer, colPlayer),
+                        },
+                        display !== '' ? h('div', display) : '',
+                    );
+                }),
+            ),
         );
 
-        const scoreRows = order.map((playerName) => {
+        const scoreRows = order.map(playerName => {
             const player = this.playerByName(playerName);
             const playerScore = player ? Math.trunc(player.score / SCORE_SHIFT) : 0;
-            const maxScore = Math.max(0, ...this.players.map((entry) => Math.trunc(entry.score / SCORE_SHIFT)));
-            return h('tr', {
-                class: {
-                    hovered: this.hoveredRow === playerName,
-                    'selected-player': this.selectedPlayer === playerName,
-                    withdrawn: !!player?.withdrawn,
-                },
-                on: rowHoverHandlers(playerName),
-            }, [
-                h('td', {
+            const maxScore = Math.max(0, ...this.players.map(entry => Math.trunc(entry.score / SCORE_SHIFT)));
+            return h(
+                'tr',
+                {
                     class: {
-                        me: playerName === this.username,
-                        winner: !!player && playerScore === maxScore && maxScore > 0,
+                        hovered: this.hoveredRow === playerName,
+                        'selected-player': this.selectedPlayer === playerName,
+                        withdrawn: !!player?.withdrawn,
                     },
                     on: rowHoverHandlers(playerName),
-                }, `${playerScore}`),
-            ]);
+                },
+                [
+                    h(
+                        'td',
+                        {
+                            class: {
+                                me: playerName === this.username,
+                                winner: !!player && playerScore === maxScore && maxScore > 0,
+                            },
+                            on: rowHoverHandlers(playerName),
+                        },
+                        `${playerScore}`,
+                    ),
+                ],
+            );
         });
 
         if (this.crossTableNode === null) return;
-        this.crossTableNode = patch(this.crossTableNode, h('div#rr-crosstable.r-table-wrap', [
-            h('div.r-table-wrap-players', [
-                h('table', [
-                    h('thead', h('tr', [h('th', '#'), h('th', _('Player'))])),
-                    h('tbody', rows),
+        this.crossTableNode = patch(
+            this.crossTableNode,
+            h('div#rr-crosstable.r-table-wrap', [
+                h('div.r-table-wrap-players', [
+                    h('table', [h('thead', h('tr', [h('th', '#'), h('th', _('Player'))])), h('tbody', rows)]),
+                ]),
+                h('div.r-table-wrap-arrs', [
+                    h('table', [
+                        h(
+                            'thead',
+                            h(
+                                'tr',
+                                order.map((playerName, index) =>
+                                    h(
+                                        'th',
+                                        {
+                                            class: {
+                                                hovered: this.hoveredCol === playerName,
+                                                me: playerName === this.username,
+                                            },
+                                            on: colHoverHandlers(playerName),
+                                        },
+                                        `${index + 1}`,
+                                    ),
+                                ),
+                            ),
+                        ),
+                        h('tbody', arrangementRows),
+                    ]),
+                ]),
+                h('div.r-table-wrap-scores', [
+                    h('table', [h('thead', h('tr', [h('th', 'Σ')])), h('tbody', scoreRows)]),
                 ]),
             ]),
-            h('div.r-table-wrap-arrs', [
-                h('table', [
-                    h('thead', h('tr', order.map((playerName, index) => h('th', {
-                        class: {
-                            hovered: this.hoveredCol === playerName,
-                            me: playerName === this.username,
-                        },
-                        on: colHoverHandlers(playerName),
-                    }, `${index + 1}`)))),
-                    h('tbody', arrangementRows),
-                ]),
-            ]),
-            h('div.r-table-wrap-scores', [
-                h('table', [
-                    h('thead', h('tr', [h('th', 'Σ')])),
-                    h('tbody', scoreRows),
-                ]),
-            ]),
-        ]));
+        );
     }
 
     renderManageButton() {
@@ -785,13 +874,20 @@ export class TournamentRRController implements ChatController {
             this.manageNode = patch(this.manageNode, h('div#rr-manage'));
             return;
         }
-        this.manageNode = patch(this.manageNode, h('div#rr-manage', [
-            h(`button.button.manage-players.button-primary${this.viewMode === 'manage' ? '.active' : ''}`, {
-                on: {
-                    click: () => this.setViewMode(this.viewMode === 'manage' ? 'overview' : 'manage'),
-                },
-            }, _('Manage players')),
-        ]));
+        this.manageNode = patch(
+            this.manageNode,
+            h('div#rr-manage', [
+                h(
+                    `button.button.manage-players.button-primary${this.viewMode === 'manage' ? '.active' : ''}`,
+                    {
+                        on: {
+                            click: () => this.setViewMode(this.viewMode === 'manage' ? 'overview' : 'manage'),
+                        },
+                    },
+                    _('Manage players'),
+                ),
+            ]),
+        );
     }
 
     viewNavVNode() {
@@ -799,40 +895,49 @@ export class TournamentRRController implements ChatController {
             ['overview', _('Games')],
             ['challenges', _('Challenges')],
         ] as Array<[RRViewMode, string]>;
-        return h('div#rr-nav', {
-            attrs: {
-                role: 'tablist',
-                'aria-label': _('Round-robin views'),
-            },
-        }, nav.map(([mode, label], idx) =>
-            h('span', {
+        return h(
+            'div#rr-nav',
+            {
                 attrs: {
-                    role: 'tab',
-                    id: `rr-tab-${mode}`,
-                    'aria-selected': this.viewMode === mode ? 'true' : 'false',
-                    'aria-controls': `rr-panel-${mode}`,
-                    tabindex: this.viewMode === mode ? '0' : '-1',
+                    role: 'tablist',
+                    'aria-label': _('Round-robin views'),
                 },
-                on: { click: () => this.setViewMode(mode) },
-                hook: {
-                    insert: vnode => {
-                        const el = vnode.elm as HTMLElement | undefined;
-                        if (!el) return;
-                        el.onkeydown = (e: KeyboardEvent) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                this.setViewMode(mode);
-                            }
-                            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-                                e.preventDefault();
-                                const nextMode = nav[(idx + (e.key === 'ArrowRight' ? 1 : nav.length - 1)) % nav.length][0];
-                                this.setViewMode(nextMode);
-                            }
-                        };
+            },
+            nav.map(([mode, label], idx) =>
+                h(
+                    'span',
+                    {
+                        attrs: {
+                            role: 'tab',
+                            id: `rr-tab-${mode}`,
+                            'aria-selected': this.viewMode === mode ? 'true' : 'false',
+                            'aria-controls': `rr-panel-${mode}`,
+                            tabindex: this.viewMode === mode ? '0' : '-1',
+                        },
+                        on: { click: () => this.setViewMode(mode) },
+                        hook: {
+                            insert: vnode => {
+                                const el = vnode.elm as HTMLElement | undefined;
+                                if (!el) return;
+                                el.onkeydown = (e: KeyboardEvent) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        this.setViewMode(mode);
+                                    }
+                                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                                        e.preventDefault();
+                                        const nextMode =
+                                            nav[(idx + (e.key === 'ArrowRight' ? 1 : nav.length - 1)) % nav.length][0];
+                                        this.setViewMode(nextMode);
+                                    }
+                                };
+                            },
+                        },
                     },
-                },
-            }, label),
-        ));
+                    label,
+                ),
+            ),
+        );
     }
 
     scheduleCalendarOpen(cell: RRArrangementCell) {
@@ -861,11 +966,15 @@ export class TournamentRRController implements ChatController {
     formatArrangementDate(dateText: string): VNode {
         if (!dateText) return h('span.date', '-');
         const date = new Date(dateText);
-        return h('span.date', {
-            attrs: {
-                title: date.toUTCString(),
+        return h(
+            'span.date',
+            {
+                attrs: {
+                    title: date.toUTCString(),
+                },
             },
-        }, this.formatDateTime(date));
+            this.formatDateTime(date),
+        );
     }
 
     modalPlayerLink(username: string): VNode {
@@ -878,11 +987,15 @@ export class TournamentRRController implements ChatController {
                     'icon-offline': !this.playerOnline(username),
                 },
             }),
-            userLink(username, [
-                player?.title ? h('player-title', `${player.title} `) : '',
-                displayUsername(username),
-                player?.title !== 'BOT' && player?.rating ? ` (${player.rating})` : '',
-            ], { className: 'user-link' }),
+            userLink(
+                username,
+                [
+                    player?.title ? h('player-title', `${player.title} `) : '',
+                    displayUsername(username),
+                    player?.title !== 'BOT' && player?.rating ? ` (${player.rating})` : '',
+                ],
+                { className: 'user-link' },
+            ),
         ]);
     }
 
@@ -911,17 +1024,21 @@ export class TournamentRRController implements ChatController {
                 title = _('Accept challenge');
             }
         }
-        return h('button.button.fbt', {
-            class: {
-                ready,
+        return h(
+            'button.button.fbt',
+            {
+                class: {
+                    ready,
+                },
+                attrs: {
+                    title,
+                },
+                on: {
+                    click: () => this.arrangementAction(cell),
+                },
             },
-            attrs: {
-                title,
-            },
-            on: {
-                click: () => this.arrangementAction(cell),
-            },
-        }, h('span', label));
+            h('span', label),
+        );
     }
 
     modalPlayerAction(cell: RRArrangementCell, username: string): VNode | null {
@@ -941,7 +1058,7 @@ export class TournamentRRController implements ChatController {
                         placeholder: _('Suggested time'),
                     },
                     hook: {
-                        insert: (vnode) => {
+                        insert: vnode => {
                             const input = vnode.elm as HTMLInputElement;
                             input.value = suggestedAt ? this.formatDateTime(suggestedAt) : '';
                         },
@@ -952,123 +1069,149 @@ export class TournamentRRController implements ChatController {
                         },
                     },
                 }),
-                h('button.fbt', {
-                    attrs: {
-                        disabled: !suggestedAt,
-                        title: _('Accept suggested time'),
-                    },
-                    on: {
-                        click: () => {
-                            if (!suggestedAt) return;
-                            const acceptedDraft = this.defaultScheduleDraft({
-                                ...cell,
-                                whiteSuggestedAt: cell.white === this.username ? suggestedAt : cell.whiteSuggestedAt,
-                                blackSuggestedAt: cell.black === this.username ? suggestedAt : cell.blackSuggestedAt,
-                            });
-                            this.setScheduleDraft(cell.id, acceptedDraft);
-                            this.submitSchedule(cell, acceptedDraft);
+                h(
+                    'button.fbt',
+                    {
+                        attrs: {
+                            disabled: !suggestedAt,
+                            title: _('Accept suggested time'),
+                        },
+                        on: {
+                            click: () => {
+                                if (!suggestedAt) return;
+                                const acceptedDraft = this.defaultScheduleDraft({
+                                    ...cell,
+                                    whiteSuggestedAt:
+                                        cell.white === this.username ? suggestedAt : cell.whiteSuggestedAt,
+                                    blackSuggestedAt:
+                                        cell.black === this.username ? suggestedAt : cell.blackSuggestedAt,
+                                });
+                                this.setScheduleDraft(cell.id, acceptedDraft);
+                                this.submitSchedule(cell, acceptedDraft);
+                            },
                         },
                     },
-                }, _('Accept')),
+                    _('Accept'),
+                ),
             ]);
         }
 
-        return h('div.suggested-time-wrap', {
-            class: {
-                'hide-calendar': !this.scheduleCalendarOpen(cell),
-            },
-        }, [
-            h('div.flatpickr-input-wrap', {
-                on: {
-                    click: () => this.openScheduleCalendar(cell),
+        return h(
+            'div.suggested-time-wrap',
+            {
+                class: {
+                    'hide-calendar': !this.scheduleCalendarOpen(cell),
                 },
-            }, [
-                h('input.flatpickr', {
-                    key: perspective.mine || perspective.agreed || '',
-                    attrs: {
-                        title: perspective.mine ? _('Suggest different time') : _('Suggested time'),
-                        placeholder: _('Suggest time'),
-                    },
-                    hook: {
-                        insert: (vnode) => {
-                            const input = vnode.elm as FlatpickrElement;
-                            this.flatpickrReady.then(() => {
-                                const flatpickr = this.flatpickrFunction();
-                                if (typeof flatpickr !== 'function') {
-                                    input.value = perspective.mine ? this.formatDateTime(perspective.mine) : '';
-                                    return;
-                                }
-                                input._flatpickr?.destroy();
-                                input._flatpickr = flatpickr(input, {
-                                    enableTime: true,
-                                    time_24hr: true,
-                                    dateFormat: 'Z',
-                                    altInput: true,
-                                    altFormat: 'Y-m-d H:i',
-                                    inline: true,
-                                    minDate: 'today',
-                                    maxDate: this.scheduleMaxDate(),
-                                    monthSelectorType: 'static',
-                                    disableMobile: true,
-                                    defaultDate: draft ? new Date(draft).toISOString() : undefined,
-                                    onChange: (selectedDates) => {
-                                        const selected = selectedDates[0];
-                                        this.setScheduleDraft(cell.id, selected ? this.localDateInputValue(selected) : '');
-                                    },
-                                });
-                                if (perspective.mine) {
-                                    const scheduledDate = new Date(perspective.mine);
-                                    input._flatpickr.setDate(scheduledDate, false);
-                                }
-                            }).catch(() => undefined);
-                        },
-                        update: (oldVnode, vnode) => {
-                            const input = vnode.elm as FlatpickrElement;
-                            if (!input._flatpickr) return;
-                            if (oldVnode.key === vnode.key && this.scheduleDraft(cell) === draft) return;
-                            if (draft) input._flatpickr.setDate(new Date(draft), false);
-                        },
-                        destroy: (vnode) => {
-                            const input = vnode.elm as FlatpickrElement;
-                            input._flatpickr?.destroy();
-                            delete input._flatpickr;
+            },
+            [
+                h(
+                    'div.flatpickr-input-wrap',
+                    {
+                        on: {
+                            click: () => this.openScheduleCalendar(cell),
                         },
                     },
-                }),
-            ]),
-            h('div.calendar-button-wrap', [
-                h('button.button.button-green.text', {
-                    on: {
-                        click: () => {
-                            this.closeScheduleCalendar(cell);
-                            this.submitSchedule(cell, this.scheduleDraft(cell));
+                    [
+                        h('input.flatpickr', {
+                            key: perspective.mine || perspective.agreed || '',
+                            attrs: {
+                                title: perspective.mine ? _('Suggest different time') : _('Suggested time'),
+                                placeholder: _('Suggest time'),
+                            },
+                            hook: {
+                                insert: vnode => {
+                                    const input = vnode.elm as FlatpickrElement;
+                                    this.flatpickrReady
+                                        .then(() => {
+                                            const flatpickr = this.flatpickrFunction();
+                                            if (typeof flatpickr !== 'function') {
+                                                input.value = perspective.mine
+                                                    ? this.formatDateTime(perspective.mine)
+                                                    : '';
+                                                return;
+                                            }
+                                            input._flatpickr?.destroy();
+                                            input._flatpickr = flatpickr(input, {
+                                                enableTime: true,
+                                                time_24hr: true,
+                                                dateFormat: 'Z',
+                                                altInput: true,
+                                                altFormat: 'Y-m-d H:i',
+                                                inline: true,
+                                                minDate: 'today',
+                                                maxDate: this.scheduleMaxDate(),
+                                                monthSelectorType: 'static',
+                                                disableMobile: true,
+                                                defaultDate: draft ? new Date(draft).toISOString() : undefined,
+                                                onChange: selectedDates => {
+                                                    const selected = selectedDates[0];
+                                                    this.setScheduleDraft(
+                                                        cell.id,
+                                                        selected ? this.localDateInputValue(selected) : '',
+                                                    );
+                                                },
+                                            });
+                                            if (perspective.mine) {
+                                                const scheduledDate = new Date(perspective.mine);
+                                                input._flatpickr.setDate(scheduledDate, false);
+                                            }
+                                        })
+                                        .catch(() => undefined);
+                                },
+                                update: (oldVnode, vnode) => {
+                                    const input = vnode.elm as FlatpickrElement;
+                                    if (!input._flatpickr) return;
+                                    if (oldVnode.key === vnode.key && this.scheduleDraft(cell) === draft) return;
+                                    if (draft) input._flatpickr.setDate(new Date(draft), false);
+                                },
+                                destroy: vnode => {
+                                    const input = vnode.elm as FlatpickrElement;
+                                    input._flatpickr?.destroy();
+                                    delete input._flatpickr;
+                                },
+                            },
+                        }),
+                    ],
+                ),
+                h('div.calendar-button-wrap', [
+                    h(
+                        'button.button.button-green.text',
+                        {
+                            on: {
+                                click: () => {
+                                    this.closeScheduleCalendar(cell);
+                                    this.submitSchedule(cell, this.scheduleDraft(cell));
+                                },
+                            },
                         },
-                    },
-                }, _('Confirm')),
-            ]),
-        ]);
+                        _('Confirm'),
+                    ),
+                ]),
+            ],
+        );
     }
 
     modalPlayerSection(cell: RRArrangementCell, username: string, position: 'top' | 'bottom'): VNode {
         return h(`div.rr-arr-user.rr-arr-user-${position}`, [
-            h('div.rr-arr-name', [
-                this.modalPlayerLink(username),
-                this.modalPlayerColors(cell, username),
-            ]),
+            h('div.rr-arr-name', [this.modalPlayerLink(username), this.modalPlayerColors(cell, username)]),
             this.modalPlayerAction(cell, username),
         ]);
     }
 
     modalValueRows(cell: RRArrangementCell): Array<VNode | null> {
         return [
-            cell.scheduledAt ? h('div.title-value-wrap', [
-                h('span.title', `${_('Scheduled at')}:`),
-                h('span.value', this.formatArrangementDate(cell.scheduledAt)),
-            ]) : null,
-            cell.gameId ? h('div.title-value-wrap', [
-                h('span.title', `${_('Started at')}:`),
-                h('span.value', this.formatArrangementDate(cell.date)),
-            ]) : null,
+            cell.scheduledAt
+                ? h('div.title-value-wrap', [
+                      h('span.title', `${_('Scheduled at')}:`),
+                      h('span.value', this.formatArrangementDate(cell.scheduledAt)),
+                  ])
+                : null,
+            cell.gameId
+                ? h('div.title-value-wrap', [
+                      h('span.title', `${_('Started at')}:`),
+                      h('span.value', this.formatArrangementDate(cell.date)),
+                  ])
+                : null,
         ];
     }
 
@@ -1083,75 +1226,119 @@ export class TournamentRRController implements ChatController {
         const canAct = [cell.white, cell.black].includes(this.username);
         const users = cell.white === this.username ? [cell.black, cell.white] : [cell.white, cell.black];
         const actionButton = this.modalActionButton(cell);
-        this.modalNode = patch(this.modalNode, h('div#rr-modal.modal-overlay.modal-overlay-fullscreen', {
-            style: { display: 'flex' },
-            on: {
-                click: (evt: Event) => {
-                    if (evt.target === evt.currentTarget) this.closeArrangement();
-                },
-            },
-        }, [
-            h('div.rr-modal-content.rr-arr-modal', [
-                h('div.rr-arr-header', [
-                    h('span.close', {
-                        on: { click: () => this.closeArrangement() },
-                        attrs: {
-                            'data-icon': 'j',
-                            title: _('Cancel'),
+        this.modalNode = patch(
+            this.modalNode,
+            h(
+                'div#rr-modal.modal-overlay.modal-overlay-fullscreen',
+                {
+                    style: { display: 'flex' },
+                    on: {
+                        click: (evt: Event) => {
+                            if (evt.target === evt.currentTarget) this.closeArrangement();
                         },
-                    }),
-                    h('h3', `${_('Game scheduling')} • ${_('Round')} ${cell.round}`),
-                ]),
-                h('div.rr-arr-users', [
-                    this.modalPlayerSection(cell, users[0], 'top'),
-                    this.modalPlayerSection(cell, users[1], 'bottom'),
-                ]),
-                h('div.rr-total-section', [
-                    h('div.values', this.modalValueRows(cell).filter((row): row is VNode => row !== null)),
-                    cell.gameId ? actionButton : (actionButton && canAct ? h('div.arr-start-wrap', [
-                        actionButton,
-                        h('span.help', _('The game will not start automatically at the scheduled time.')),
-                    ]) : null),
-                ]),
-            ]),
-        ]));
+                    },
+                },
+                [
+                    h('div.rr-modal-content.rr-arr-modal', [
+                        h('div.rr-arr-header', [
+                            h('span.close', {
+                                on: { click: () => this.closeArrangement() },
+                                attrs: {
+                                    'data-icon': 'j',
+                                    title: _('Cancel'),
+                                },
+                            }),
+                            h('h3', `${_('Game scheduling')} • ${_('Round')} ${cell.round}`),
+                        ]),
+                        h('div.rr-arr-users', [
+                            this.modalPlayerSection(cell, users[0], 'top'),
+                            this.modalPlayerSection(cell, users[1], 'bottom'),
+                        ]),
+                        h('div.rr-total-section', [
+                            h(
+                                'div.values',
+                                this.modalValueRows(cell).filter((row): row is VNode => row !== null),
+                            ),
+                            cell.gameId
+                                ? actionButton
+                                : actionButton && canAct
+                                  ? h('div.arr-start-wrap', [
+                                        actionButton,
+                                        h(
+                                            'span.help',
+                                            _('The game will not start automatically at the scheduled time.'),
+                                        ),
+                                    ])
+                                  : null,
+                        ]),
+                    ]),
+                ],
+            ),
+        );
     }
 
     challengesVNode() {
         const rows = this.challengeRows();
         return h('div#rr-challenges.box', [
-            rows.length === 0 ? h('div.rr-empty', _('No current challenges or active pairing actions.')) : h('table.players', [
-                h('thead', h('tr', [
-                    h('th', _('Opponent')),
-                    h('th', _('Round')),
-                    h('th', _('Color')),
-                    h('th', _('Status')),
-                    h('th', _('When')),
-                    h('th', _('Action')),
-                ])),
-                h('tbody', rows.map((row) => {
-                    const cell = this.selectedArrangementId === row.id ? this.selectedArrangement() : undefined;
-                    const target = cell || this.findArrangementById(row.id);
-                    return h('tr', {
-                        class: { incoming: row.incoming },
-                        on: target ? { click: () => this.selectArrangement(target) } : {},
-                    }, [
-                        h('td', userLink(row.opponent, [displayUsername(row.opponent)])),
-                        h('td', `${row.round}`),
-                        h('td', row.color.toUpperCase()),
-                        h('td', row.status === 'pending' && row.when ? _('Scheduled') : row.status),
-                        h('td', row.when ? h('info-date', { attrs: { timestamp: row.when } }, timeago(row.when)) : ''),
-                        h('td', row.actionable && target ? h('button.button', {
-                            on: {
-                                click: (evt: Event) => {
-                                    evt.stopPropagation();
-                                    this.arrangementAction(target);
-                                },
-                            },
-                        }, row.label) : row.label),
-                    ]);
-                })),
-            ]),
+            rows.length === 0
+                ? h('div.rr-empty', _('No current challenges or active pairing actions.'))
+                : h('table.players', [
+                      h(
+                          'thead',
+                          h('tr', [
+                              h('th', _('Opponent')),
+                              h('th', _('Round')),
+                              h('th', _('Color')),
+                              h('th', _('Status')),
+                              h('th', _('When')),
+                              h('th', _('Action')),
+                          ]),
+                      ),
+                      h(
+                          'tbody',
+                          rows.map(row => {
+                              const cell =
+                                  this.selectedArrangementId === row.id ? this.selectedArrangement() : undefined;
+                              const target = cell || this.findArrangementById(row.id);
+                              return h(
+                                  'tr',
+                                  {
+                                      class: { incoming: row.incoming },
+                                      on: target ? { click: () => this.selectArrangement(target) } : {},
+                                  },
+                                  [
+                                      h('td', userLink(row.opponent, [displayUsername(row.opponent)])),
+                                      h('td', `${row.round}`),
+                                      h('td', row.color.toUpperCase()),
+                                      h('td', row.status === 'pending' && row.when ? _('Scheduled') : row.status),
+                                      h(
+                                          'td',
+                                          row.when
+                                              ? h('info-date', { attrs: { timestamp: row.when } }, timeago(row.when))
+                                              : '',
+                                      ),
+                                      h(
+                                          'td',
+                                          row.actionable && target
+                                              ? h(
+                                                    'button.button',
+                                                    {
+                                                        on: {
+                                                            click: (evt: Event) => {
+                                                                evt.stopPropagation();
+                                                                this.arrangementAction(target);
+                                                            },
+                                                        },
+                                                    },
+                                                    row.label,
+                                                )
+                                              : row.label,
+                                      ),
+                                  ],
+                              );
+                          }),
+                      ),
+                  ]),
         ]);
     }
 
@@ -1166,102 +1353,185 @@ export class TournamentRRController implements ChatController {
 
     renderManagement() {
         if (!this.isHost()) {
-            this.bodyNode = patch(this.bodyNode, h('div#rr-body', [h('div#rr-management.box.rr-empty', _('Player management is only available to the organizer.'))]));
+            this.bodyNode = patch(
+                this.bodyNode,
+                h('div#rr-body', [
+                    h('div#rr-management.box.rr-empty', _('Player management is only available to the organizer.')),
+                ]),
+            );
             return;
         }
 
-        const approved = this.players.filter((player) => player.name !== this.createdBy && !player.withdrawn);
-        const kickOptions = Array.from(new Set([
-            ...approved.map((player) => player.name),
-            ...this.pendingPlayers.map((player) => player.name),
-            ...this.deniedPlayers.map((player) => player.name),
-        ])).sort();
+        const approved = this.players.filter(player => player.name !== this.createdBy && !player.withdrawn);
+        const kickOptions = Array.from(
+            new Set([
+                ...approved.map(player => player.name),
+                ...this.pendingPlayers.map(player => player.name),
+                ...this.deniedPlayers.map(player => player.name),
+            ]),
+        ).sort();
 
-        const renderRow = (player: TournamentManagePlayer, actions: VNode[]) => h('tr', [
-            h('td', userLink(player.name, [h('player-title', ` ${player.title} `), displayUsername(player.name)])),
-            h('td', `${player.rating}`),
-            h('td.manage-actions', actions),
-        ]);
+        const renderRow = (player: TournamentManagePlayer, actions: VNode[]) =>
+            h('tr', [
+                h('td', userLink(player.name, [h('player-title', ` ${player.title} `), displayUsername(player.name)])),
+                h('td', `${player.rating}`),
+                h('td.manage-actions', actions),
+            ]);
         const button = (label: string, message: object, reject = false) =>
             h(`button.button${reject ? '.reject' : ''}`, { on: { click: () => this.doSend(message as any) } }, label);
 
-        this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
-            h('div#rr-management.box', [
-                h('div.rr-section-header', [
-                    h('h2', _('Player management')),
-                    h(`button.button${this.joiningClosed ? '.button-green' : '.button-red'}`, {
-                        on: { click: () => this.doSend({ type: 'rr_set_joining_closed', tournamentId: this.tournamentId, closed: !this.joiningClosed }) },
-                    }, this.joiningClosed ? _('Open joining') : _('Close joining')),
-                ]),
-                h('div.rr-kick-wrap', [
-                    h('label', { attrs: { for: 'rr-kick-user' } }, _('Kick player')),
-                    h('div.rr-kick-controls', [
-                        h('input#rr-kick-user', {
-                            attrs: { list: 'rr-kick-options', placeholder: _('Enter username') },
-                            props: { value: this.kickUsername },
-                            on: {
-                                input: (evt: Event) => {
-                                    this.kickUsername = (evt.target as HTMLInputElement).value;
+        this.bodyNode = patch(
+            this.bodyNode,
+            h('div#rr-body', [
+                h('div#rr-management.box', [
+                    h('div.rr-section-header', [
+                        h('h2', _('Player management')),
+                        h(
+                            `button.button${this.joiningClosed ? '.button-green' : '.button-red'}`,
+                            {
+                                on: {
+                                    click: () =>
+                                        this.doSend({
+                                            type: 'rr_set_joining_closed',
+                                            tournamentId: this.tournamentId,
+                                            closed: !this.joiningClosed,
+                                        }),
                                 },
                             },
-                        }),
-                        h('datalist#rr-kick-options', kickOptions.map((name) => h('option', { attrs: { value: name } }))),
-                        h('button.button.reject', {
-                            class: { disabled: this.kickUsername.trim() === '' },
-                            on: {
-                                click: () => {
-                                    const username = this.kickUsername.trim();
-                                    if (username === '') return;
-                                    this.doSend({ type: 'rr_kick_player', tournamentId: this.tournamentId, username });
-                                    this.kickUsername = '';
-                                    this.renderBody();
-                                },
-                            },
-                        }, _('Kick')),
+                            this.joiningClosed ? _('Open joining') : _('Close joining'),
+                        ),
                     ]),
+                    h('div.rr-kick-wrap', [
+                        h('label', { attrs: { for: 'rr-kick-user' } }, _('Kick player')),
+                        h('div.rr-kick-controls', [
+                            h('input#rr-kick-user', {
+                                attrs: { list: 'rr-kick-options', placeholder: _('Enter username') },
+                                props: { value: this.kickUsername },
+                                on: {
+                                    input: (evt: Event) => {
+                                        this.kickUsername = (evt.target as HTMLInputElement).value;
+                                    },
+                                },
+                            }),
+                            h(
+                                'datalist#rr-kick-options',
+                                kickOptions.map(name => h('option', { attrs: { value: name } })),
+                            ),
+                            h(
+                                'button.button.reject',
+                                {
+                                    class: { disabled: this.kickUsername.trim() === '' },
+                                    on: {
+                                        click: () => {
+                                            const username = this.kickUsername.trim();
+                                            if (username === '') return;
+                                            this.doSend({
+                                                type: 'rr_kick_player',
+                                                tournamentId: this.tournamentId,
+                                                username,
+                                            });
+                                            this.kickUsername = '';
+                                            this.renderBody();
+                                        },
+                                    },
+                                },
+                                _('Kick'),
+                            ),
+                        ]),
+                    ]),
+                    this.approvalRequired ? h('h3', _('Pending requests')) : null,
+                    this.approvalRequired
+                        ? h('table.players', [
+                              h(
+                                  'tbody',
+                                  this.pendingPlayers.length > 0
+                                      ? this.pendingPlayers.map(player =>
+                                            renderRow(player, [
+                                                button(_('Accept'), {
+                                                    type: 'rr_approve_player',
+                                                    tournamentId: this.tournamentId,
+                                                    username: player.name,
+                                                }),
+                                                button(
+                                                    _('Deny'),
+                                                    {
+                                                        type: 'rr_deny_player',
+                                                        tournamentId: this.tournamentId,
+                                                        username: player.name,
+                                                    },
+                                                    true,
+                                                ),
+                                            ]),
+                                        )
+                                      : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No pending requests'))])],
+                              ),
+                          ])
+                        : null,
+                    h('h3', _('Approved players')),
+                    h('table.players', [
+                        h(
+                            'tbody',
+                            approved.length > 0
+                                ? approved.map(player =>
+                                      renderRow(player, [
+                                          button(
+                                              _('Kick'),
+                                              {
+                                                  type: 'rr_kick_player',
+                                                  tournamentId: this.tournamentId,
+                                                  username: player.name,
+                                              },
+                                              true,
+                                          ),
+                                      ]),
+                                  )
+                                : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No approved players'))])],
+                        ),
+                    ]),
+                    this.approvalRequired ? h('h3', _('Denied players')) : null,
+                    this.approvalRequired
+                        ? h('table.players', [
+                              h(
+                                  'tbody',
+                                  this.deniedPlayers.length > 0
+                                      ? this.deniedPlayers.map(player =>
+                                            renderRow(player, [
+                                                button(_('Accept'), {
+                                                    type: 'rr_approve_player',
+                                                    tournamentId: this.tournamentId,
+                                                    username: player.name,
+                                                }),
+                                            ]),
+                                        )
+                                      : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No denied players'))])],
+                              ),
+                          ])
+                        : null,
                 ]),
-                this.approvalRequired ? h('h3', _('Pending requests')) : null,
-                this.approvalRequired ? h('table.players', [
-                    h('tbody', this.pendingPlayers.length > 0
-                        ? this.pendingPlayers.map((player) => renderRow(player, [
-                            button(_('Accept'), { type: 'rr_approve_player', tournamentId: this.tournamentId, username: player.name }),
-                            button(_('Deny'), { type: 'rr_deny_player', tournamentId: this.tournamentId, username: player.name }, true),
-                        ]))
-                        : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No pending requests'))])]),
-                ]) : null,
-                h('h3', _('Approved players')),
-                h('table.players', [
-                    h('tbody', approved.length > 0
-                        ? approved.map((player) => renderRow(player, [
-                            button(_('Kick'), { type: 'rr_kick_player', tournamentId: this.tournamentId, username: player.name }, true),
-                        ]))
-                        : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No approved players'))])]),
-                ]),
-                this.approvalRequired ? h('h3', _('Denied players')) : null,
-                this.approvalRequired ? h('table.players', [
-                    h('tbody', this.deniedPlayers.length > 0
-                        ? this.deniedPlayers.map((player) => renderRow(player, [
-                            button(_('Accept'), { type: 'rr_approve_player', tournamentId: this.tournamentId, username: player.name }),
-                        ]))
-                        : [h('tr', [h('td', { attrs: { colspan: 3 } }, _('No denied players'))])]),
-                ]) : null,
             ]),
-        ]));
+        );
     }
 
     renderMatrixShell(lowerContent: VNode) {
-        this.bodyNode = patch(this.bodyNode, h('div#rr-body', [
-            h('div#player', [
-                h('div#stats', [h('div#rr-crosstable')]),
-                this.viewNavVNode(),
-                h('div', {
-                    attrs: {
-                        id: `rr-panel-${this.viewMode}`,
-                        'aria-labelledby': `rr-tab-${this.viewMode}`,
-                    },
-                }, [lowerContent]),
+        this.bodyNode = patch(
+            this.bodyNode,
+            h('div#rr-body', [
+                h('div#player', [
+                    h('div#stats', [h('div#rr-crosstable')]),
+                    this.viewNavVNode(),
+                    h(
+                        'div',
+                        {
+                            attrs: {
+                                id: `rr-panel-${this.viewMode}`,
+                                'aria-labelledby': `rr-tab-${this.viewMode}`,
+                            },
+                        },
+                        [lowerContent],
+                    ),
+                ]),
             ]),
-        ]));
+        );
         this.crossTableNode = patch(document.getElementById('rr-crosstable') as HTMLElement, h('div#rr-crosstable'));
         this.renderCrossTable();
     }
@@ -1304,19 +1574,25 @@ export class TournamentRRController implements ChatController {
             return;
         }
         const msg = this.summaryStats;
-        this.summaryNode = patch(this.summaryNode, h('div#summarybox', [
-            h('div#summary.box', [
-                h('h2', _('Tournament complete')),
-                h('table', [
-                    h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
-                    h('tr', [h('th', _('Average rating')), h('td', msg.nbPlayers > 0 ? Math.round(msg.sumRating / msg.nbPlayers) : 0)]),
-                    h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
-                    h('tr', [h('th', _('%1 wins', _('White'))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
-                    h('tr', [h('th', _('%1 wins', _('Black'))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
-                    h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
+        this.summaryNode = patch(
+            this.summaryNode,
+            h('div#summarybox', [
+                h('div#summary.box', [
+                    h('h2', _('Tournament complete')),
+                    h('table', [
+                        h('tr', [h('th', _('Players')), h('td', msg.nbPlayers)]),
+                        h('tr', [
+                            h('th', _('Average rating')),
+                            h('td', msg.nbPlayers > 0 ? Math.round(msg.sumRating / msg.nbPlayers) : 0),
+                        ]),
+                        h('tr', [h('th', _('Games played')), h('td', msg.nbGames)]),
+                        h('tr', [h('th', _('%1 wins', _('White'))), h('td', this.calcRate(msg.nbGames, msg.wWin))]),
+                        h('tr', [h('th', _('%1 wins', _('Black'))), h('td', this.calcRate(msg.nbGames, msg.bWin))]),
+                        h('tr', [h('th', _('Draws')), h('td', this.calcRate(msg.nbGames, msg.draw))]),
+                    ]),
                 ]),
             ]),
-        ]));
+        );
     }
 
     renderPodium() {
@@ -1325,17 +1601,33 @@ export class TournamentRRController implements ChatController {
             return;
         }
         const classes = ['first', 'second', 'third'];
-        this.podiumNode = patch(this.podiumNode, h('div#podium', [
-            h('div.podium', this.podiumPlayers.slice(0, 3).map((player, index) => h(`div.${classes[index] || 'third'}`, [
-                h('div.trophy'),
-                userLink(player.name, [h('player-title', ` ${player.title} `), displayUsername(player.name)]),
-                h('table.stats', [
-                    h('tr', [h('th', _('Performance')), h('td', player.perf)]),
-                    h('tr', [h('th', _('Games played')), h('td', player.nbGames)]),
-                    h('tr', [h('th', _('Win rate')), h('td', this.calcRate(player.nbGames, player.nbWin))]),
-                ]),
-            ]))),
-        ]));
+        this.podiumNode = patch(
+            this.podiumNode,
+            h('div#podium', [
+                h(
+                    'div.podium',
+                    this.podiumPlayers
+                        .slice(0, 3)
+                        .map((player, index) =>
+                            h(`div.${classes[index] || 'third'}`, [
+                                h('div.trophy'),
+                                userLink(player.name, [
+                                    h('player-title', ` ${player.title} `),
+                                    displayUsername(player.name),
+                                ]),
+                                h('table.stats', [
+                                    h('tr', [h('th', _('Performance')), h('td', player.perf)]),
+                                    h('tr', [h('th', _('Games played')), h('td', player.nbGames)]),
+                                    h('tr', [
+                                        h('th', _('Win rate')),
+                                        h('td', this.calcRate(player.nbGames, player.nbWin)),
+                                    ]),
+                                ]),
+                            ]),
+                        ),
+                ),
+            ]),
+        );
     }
 
     private onMsgUserConnected(msg: MsgUserConnectedTournament) {
@@ -1387,9 +1679,11 @@ export class TournamentRRController implements ChatController {
         this.matrix = msg.matrix;
         this.completedGames = msg.completedGames;
         this.totalGames = msg.totalGames;
-        Object.values(this.matrix).forEach((row) => Object.values(row).forEach((cell) => {
-            this.scheduleDrafts[cell.id] = this.defaultScheduleDraft(cell);
-        }));
+        Object.values(this.matrix).forEach(row =>
+            Object.values(row).forEach(cell => {
+                this.scheduleDrafts[cell.id] = this.defaultScheduleDraft(cell);
+            }),
+        );
         if (this.selectedArrangementId !== '' && !this.selectedArrangement()) this.selectedArrangementId = '';
         this.renderBody();
     }
@@ -1444,45 +1738,45 @@ export class TournamentRRController implements ChatController {
         if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
-        case 'tournament_user_connected':
-            this.onMsgUserConnected(msg);
-            break;
-        case 'tstatus':
-            this.onMsgTournamentStatus(msg);
-            break;
-        case 'get_players':
-            this.onMsgGetPlayers(msg);
-            break;
-        case 'get_games':
-            this.onMsgGetGames(msg);
-            break;
-        case 'rr_arrangements':
-            this.onMsgRRArrangements(msg);
-            break;
-        case 'rr_management':
-            this.onMsgRRManagement(msg);
-            break;
-        case 'rr_settings':
-            this.onMsgRRSettings(msg);
-            break;
-        case 'ustatus':
-            this.onMsgUserStatus(msg);
-            break;
-        case 'new_game':
-            this.onMsgNewGame(msg);
-            break;
-        case 'lobbychat':
-            this.onMsgChat(msg);
-            break;
-        case 'fullchat':
-            this.onMsgFullChat(msg);
-            break;
-        case 'ping':
-            this.onMsgPing(msg);
-            break;
-        case 'error':
-            this.onMsgError(msg);
-            break;
+            case 'tournament_user_connected':
+                this.onMsgUserConnected(msg);
+                break;
+            case 'tstatus':
+                this.onMsgTournamentStatus(msg);
+                break;
+            case 'get_players':
+                this.onMsgGetPlayers(msg);
+                break;
+            case 'get_games':
+                this.onMsgGetGames(msg);
+                break;
+            case 'rr_arrangements':
+                this.onMsgRRArrangements(msg);
+                break;
+            case 'rr_management':
+                this.onMsgRRManagement(msg);
+                break;
+            case 'rr_settings':
+                this.onMsgRRSettings(msg);
+                break;
+            case 'ustatus':
+                this.onMsgUserStatus(msg);
+                break;
+            case 'new_game':
+                this.onMsgNewGame(msg);
+                break;
+            case 'lobbychat':
+                this.onMsgChat(msg);
+                break;
+            case 'fullchat':
+                this.onMsgFullChat(msg);
+                break;
+            case 'ping':
+                this.onMsgPing(msg);
+                break;
+            case 'error':
+                this.onMsgError(msg);
+                break;
         }
     }
 }
@@ -1509,12 +1803,14 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
                         ]),
                         h('div#rr-info-meta', [
                             h('div#tsystem'),
-                            canEdit ? h('a.icon-cog.edit-tournament', {
-                                attrs: {
-                                    href: `/tournaments/${model.tournamentId}/edit`,
-                                    title: _('Edit tournament'),
-                                },
-                            }) : null,
+                            canEdit
+                                ? h('a.icon-cog.edit-tournament', {
+                                      attrs: {
+                                          href: `/tournaments/${model.tournamentId}/edit`,
+                                          title: _('Edit tournament'),
+                                      },
+                                  })
+                                : null,
                         ]),
                         h('div#createdBy'),
                     ]),
@@ -1527,13 +1823,10 @@ export function tournamentRRView(model: PyChessModel): VNode[] {
         ]),
         h(`div.players.${model.variant}`, [
             h('div.box', [
-                h('div.tour-header', [
-                    h('h1', model.tournamentname),
-                    h('div#clockdiv'),
-                ]),
+                h('div.tour-header', [h('h1', model.tournamentname), h('div#clockdiv')]),
                 h('div#podium'),
                 h('div#page-controls.btn-controls', [h('div#action')]),
-                h('div#rr-shell', { hook: { insert: (vnode) => runTournamentRR(vnode, model) } }),
+                h('div#rr-shell', { hook: { insert: vnode => runTournamentRR(vnode, model) } }),
                 h('div#rr-body'),
                 h('div#summarybox'),
                 h('div.tour-faq'),

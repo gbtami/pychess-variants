@@ -1,7 +1,5 @@
 function base64UrlToArrayBuffer(base64Url: string): ArrayBuffer {
-    const base64 = (base64Url + '==='.slice((base64Url.length + 3) % 4))
-        .replace(/-/g, '+')
-        .replace(/_/g, '/');
+    const base64 = (base64Url + '==='.slice((base64Url.length + 3) % 4)).replace(/-/g, '+').replace(/_/g, '/');
 
     const raw = atob(base64);
     const output = new Uint8Array(raw.length);

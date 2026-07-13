@@ -42,15 +42,13 @@ export function initGameSearch(model: PyChessModel): void {
     const variantSelect = form.elements.namedItem('variant') as HTMLSelectElement | null;
     form.addEventListener('submit', () => {
         if (!variantSelect) return;
-        if (
-            variantSelect.selectedIndex !== 0
-            && variantSelect.value
-            && variantSelect.value !== 'all'
-        ) return;
+        if (variantSelect.selectedIndex !== 0 && variantSelect.value && variantSelect.value !== 'all') return;
 
         // Native GET form submission must omit the synthetic "Any variant" option.
         variantSelect.disabled = true;
-        window.setTimeout(() => { variantSelect.disabled = false; }, 0);
+        window.setTimeout(() => {
+            variantSelect.disabled = false;
+        }, 0);
     });
 
     const playerRoleNames = ['white', 'black', 'winner', 'loser'];
@@ -65,12 +63,8 @@ export function initGameSearch(model: PyChessModel): void {
         }
     });
 
-    const playerInputs = ['player1', 'player2'].map(name =>
-        form.elements.namedItem(name) as HTMLInputElement | null
-    );
-    const playerSelectors = playerRoleNames.map(name =>
-        form.elements.namedItem(name) as HTMLSelectElement | null
-    );
+    const playerInputs = ['player1', 'player2'].map(name => form.elements.namedItem(name) as HTMLInputElement | null);
+    const playerSelectors = playerRoleNames.map(name => form.elements.namedItem(name) as HTMLSelectElement | null);
 
     function refreshPlayerSelectors(): void {
         const players: string[] = [];
@@ -99,7 +93,7 @@ export function initGameSearch(model: PyChessModel): void {
         const requested = params.get(role);
         if (select && requested) {
             const option = Array.from(select.options).find(
-                candidate => candidate.value.toLowerCase() === requested.toLowerCase()
+                candidate => candidate.value.toLowerCase() === requested.toLowerCase(),
             );
             if (option) select.value = option.value;
         }
@@ -116,9 +110,12 @@ export function initGameSearch(model: PyChessModel): void {
     let done = false;
     const error = document.getElementById('game-search-error');
     const resultsHeader = document.getElementById('game-search-results-header');
-    const observer = new IntersectionObserver(entries => {
-        if (!done && !loading && entries.some(entry => entry.isIntersecting)) void load();
-    }, { rootMargin: '200px' });
+    const observer = new IntersectionObserver(
+        entries => {
+            if (!done && !loading && entries.some(entry => entry.isIntersecting)) void load();
+        },
+        { rootMargin: '200px' },
+    );
 
     async function load(): Promise<void> {
         loading = true;
@@ -126,7 +123,7 @@ export function initGameSearch(model: PyChessModel): void {
         query.set('p', String(page));
         try {
             const response = await fetch(`/api/games/search?${query.toString()}`);
-            const data = await response.json() as {
+            const data = (await response.json()) as {
                 games?: Game[];
                 error?: string;
                 hasMore?: boolean;

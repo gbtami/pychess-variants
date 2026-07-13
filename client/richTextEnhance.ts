@@ -1,6 +1,6 @@
-import type { VNode } from "snabbdom";
-import { h } from "snabbdom";
-import { confirmDialog } from "./confirmDialog";
+import type { VNode } from 'snabbdom';
+import { h } from 'snabbdom';
+import { confirmDialog } from './confirmDialog';
 
 type RichNode = VNode | string;
 
@@ -14,14 +14,14 @@ const giphyRegex = /https:\/\/(?:media\.giphy\.com\/media\/|giphy\.com\/gifs\/(?
 const imageExtRegex = /\.(jpg|jpeg|png|gif)$/i;
 const gamePathRegex = /^\/(?:embed\/(?:game\/)?)?(?:game\/)?(\w{8})(?:\/(white|black))?$/i;
 const nonGamePaths = new Set([
-    "training",
-    "analysis",
-    "insights",
-    "practice",
-    "features",
-    "password",
-    "streamer",
-    "timeline",
+    'training',
+    'analysis',
+    'insights',
+    'practice',
+    'features',
+    'password',
+    'streamer',
+    'timeline',
 ]);
 
 const preparedPopupSelectors = new WeakMap<HTMLElement, Set<string>>();
@@ -44,22 +44,18 @@ interface ExternalLinkPopupOptions {
 
 function escapeHtml(input: string): string {
     return input
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 function toUrl(url: string): URL | null {
     try {
-        const value = /^[A-Za-z]+:\/\//.test(url)
-            ? url
-            : url.startsWith("/")
-                ? url
-                : `https://${url}`;
+        const value = /^[A-Za-z]+:\/\//.test(url) ? url : url.startsWith('/') ? url : `https://${url}`;
         const parsed = new URL(value, window.location.origin);
-        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
         return parsed;
     } catch {
         return null;
@@ -72,14 +68,14 @@ function safeHref(url: string): string | null {
 }
 
 function linkHtml(href: string, body: string, expandable = true): string {
-    const classes = expandable ? "" : ' class="text"';
+    const classes = expandable ? '' : ' class="text"';
     return `<a${classes} target="_blank" rel="nofollow noreferrer noopener" href="${escapeHtml(href)}">${body}</a>`;
 }
 
 function expandLink(url: string): string {
     const href = safeHref(url);
     if (!href) return escapeHtml(url);
-    return linkHtml(href, escapeHtml(url.replace(/^https?:\/\//i, "")));
+    return linkHtml(href, escapeHtml(url.replace(/^https?:\/\//i, '')));
 }
 
 function imageHtml(src: string, imageClass: string): string {
@@ -96,7 +92,7 @@ function sameOrigin(href: string): boolean {
 
 function canEmbedImageHref(href: string, options: EnhanceRichTextOptions): boolean {
     if (sameOrigin(href)) return true;
-    if (typeof options.allowExternalMediaEmbeds === "boolean") return options.allowExternalMediaEmbeds;
+    if (typeof options.allowExternalMediaEmbeds === 'boolean') return options.allowExternalMediaEmbeds;
 
     // With COEP/COOP isolation, many third-party images are blocked by CORP.
     // Default to link-only for cross-origin media in that mode.
@@ -107,7 +103,7 @@ function expandImageLike(url: string, options: EnhanceRichTextOptions): string |
     const href = safeHref(url);
     if (!href) return undefined;
     if (!canEmbedImageHref(href, options)) return undefined;
-    const imageClass = options.imageClass || "inbox-msg-inline-image";
+    const imageClass = options.imageClass || 'inbox-msg-inline-image';
 
     const imgur = href.match(imgurRegex);
     if (imgur) {
@@ -150,7 +146,7 @@ function enhanceGameIds(html: string): string {
 
 export function enhanceRichText(text: string, options: EnhanceRichTextOptions = {}): string {
     const escaped = escapeHtml(text);
-    return enhanceGameIds(enhanceMentions(enhanceUrls(escaped, options))).replace(/\n/g, "<br>");
+    return enhanceGameIds(enhanceMentions(enhanceUrls(escaped, options))).replace(/\n/g, '<br>');
 }
 
 export function isMoreThanText(text: string): boolean {
@@ -160,7 +156,7 @@ export function isMoreThanText(text: string): boolean {
 export function renderRichText(text: string, options: EnhanceRichTextOptions = {}): RichNode[] {
     if (!isMoreThanText(text)) return [text];
     return [
-        h("span", {
+        h('span', {
             hook: {
                 create(_emptyVnode, vnode) {
                     const el = vnode.elm as HTMLElement;
@@ -191,15 +187,15 @@ export function renderRichText(text: string, options: EnhanceRichTextOptions = {
 }
 
 function isLichessHost(host: string): boolean {
-    return host === "lichess.org" || host.endsWith(".lichess.org");
+    return host === 'lichess.org' || host.endsWith('.lichess.org');
 }
 
 function isLishogiHost(host: string): boolean {
-    return host === "lishogi.org" || host.endsWith(".lishogi.org");
+    return host === 'lishogi.org' || host.endsWith('.lishogi.org');
 }
 
 function isPychessHost(host: string): boolean {
-    return host === "pychess.org" || host.endsWith(".pychess.org") || host === "pychess-variants.herokuapp.com";
+    return host === 'pychess.org' || host.endsWith('.pychess.org') || host === 'pychess-variants.herokuapp.com';
 }
 
 function parseGameLink(link: HTMLAnchorElement): { embedSrc: string } | null {
@@ -217,7 +213,7 @@ function parseGameLink(link: HTMLAnchorElement): { embedSrc: string } | null {
     const pychessHost = isPychessHost(host);
     if (!sameHost && !pychessHost && !lichessHost && !lishogiHost) return null;
 
-    const path = parsed.pathname.replace(/\/+$/g, "");
+    const path = parsed.pathname.replace(/\/+$/g, '');
     const match = path.match(gamePathRegex);
     if (!match) return null;
 
@@ -226,10 +222,10 @@ function parseGameLink(link: HTMLAnchorElement): { embedSrc: string } | null {
     if (nonGamePaths.has(id.toLowerCase())) return null;
     const orientation = match[2] || undefined;
 
-    const hash = parsed.hash.startsWith("#") ? parsed.hash.slice(1) : "";
+    const hash = parsed.hash.startsWith('#') ? parsed.hash.slice(1) : '';
     const ply = /^\d+$/.test(hash) ? hash : undefined;
-    const orientationPath = orientation ? `/${orientation}` : "";
-    const hashPart = ply ? `#${ply}` : "";
+    const orientationPath = orientation ? `/${orientation}` : '';
+    const hashPart = ply ? `#${ply}` : '';
 
     if (sameHost) return { embedSrc: `/embed/${id}${hashPart}` };
     if (pychessHost) return { embedSrc: `${parsed.origin}/embed/${id}${hashPart}` };
@@ -239,26 +235,26 @@ function parseGameLink(link: HTMLAnchorElement): { embedSrc: string } | null {
 }
 
 function renderGameEmbed(link: HTMLAnchorElement, game: { embedSrc: string }, embedContainerClass: string) {
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     container.className = embedContainerClass;
 
-    const iframe = document.createElement("iframe");
+    const iframe = document.createElement('iframe');
     iframe.src = game.embedSrc;
-    iframe.loading = "lazy";
-    iframe.referrerPolicy = "no-referrer";
-    iframe.title = "Embedded game";
+    iframe.loading = 'lazy';
+    iframe.referrerPolicy = 'no-referrer';
+    iframe.title = 'Embedded game';
 
     container.appendChild(iframe);
     link.replaceWith(container);
 }
 
 export function expandGameEmbeds(root: HTMLElement, options: ExpandGameEmbedsOptions = {}) {
-    const linkSelector = options.linkSelector || "a:not(.text)";
-    const expandLinkClass = options.expandLinkClass || "inbox-msg-game-expand";
-    const embedContainerClass = options.embedContainerClass || "inbox-msg-game-embed";
+    const linkSelector = options.linkSelector || 'a:not(.text)';
+    const expandLinkClass = options.expandLinkClass || 'inbox-msg-game-expand';
+    const embedContainerClass = options.embedContainerClass || 'inbox-msg-game-embed';
     const links = Array.from(root.querySelectorAll(linkSelector)) as HTMLAnchorElement[];
     const games = links
-        .map((link) => ({ link, parsed: parseGameLink(link) }))
+        .map(link => ({ link, parsed: parseGameLink(link) }))
         .filter((item): item is { link: HTMLAnchorElement; parsed: { embedSrc: string } } => item.parsed !== null);
 
     if (games.length === 0) return;
@@ -270,22 +266,26 @@ export function expandGameEmbeds(root: HTMLElement, options: ExpandGameEmbedsOpt
 
     games.forEach(({ link, parsed }) => {
         link.classList.add(expandLinkClass);
-        link.title = "Click to expand";
-        if (link.dataset.embedReady === "1") return;
-        link.dataset.embedReady = "1";
-        link.addEventListener("click", (event) => {
-            if (event.button !== 0) return;
-            event.preventDefault();
-            renderGameEmbed(link, parsed, embedContainerClass);
-        }, { once: true });
+        link.title = 'Click to expand';
+        if (link.dataset.embedReady === '1') return;
+        link.dataset.embedReady = '1';
+        link.addEventListener(
+            'click',
+            event => {
+                if (event.button !== 0) return;
+                event.preventDefault();
+                renderGameEmbed(link, parsed, embedContainerClass);
+            },
+            { once: true },
+        );
     });
 }
 
 export function expandInboxGameEmbeds(root: HTMLElement) {
     expandGameEmbeds(root, {
-        linkSelector: "a:not(.text)",
-        expandLinkClass: "inbox-msg-game-expand",
-        embedContainerClass: "inbox-msg-game-embed",
+        linkSelector: 'a:not(.text)',
+        expandLinkClass: 'inbox-msg-game-expand',
+        embedContainerClass: 'inbox-msg-game-embed',
     });
 }
 
@@ -295,23 +295,23 @@ export function makeExternalLinkPopups(root: HTMLElement, options: ExternalLinkP
     if (prepared.has(selector)) return;
     prepared.add(selector);
     preparedPopupSelectors.set(root, prepared);
-    const siteHost = (options.siteHost || "pychess.org").toLowerCase();
+    const siteHost = (options.siteHost || 'pychess.org').toLowerCase();
 
     const openExternalLink = (link: HTMLAnchorElement, href: string, mouseEvent: MouseEvent) => {
-        const target = link.getAttribute("target");
-        const shouldOpenNewTab = target === "_blank" || mouseEvent.metaKey || mouseEvent.ctrlKey;
+        const target = link.getAttribute('target');
+        const shouldOpenNewTab = target === '_blank' || mouseEvent.metaKey || mouseEvent.ctrlKey;
         if (shouldOpenNewTab) {
-            window.open(href, "_blank", "noopener");
+            window.open(href, '_blank', 'noopener');
             return;
         }
-        if (target && target !== "_self") {
-            window.open(href, target, "noopener");
+        if (target && target !== '_self') {
+            window.open(href, target, 'noopener');
             return;
         }
         window.location.assign(href);
     };
 
-    root.addEventListener("click", (event) => {
+    root.addEventListener('click', event => {
         const mouseEvent = event as MouseEvent;
         const target = event.target as HTMLElement | null;
         const link = target?.closest(selector) as HTMLAnchorElement | null;
@@ -332,9 +332,9 @@ export function makeExternalLinkPopups(root: HTMLElement, options: ExternalLinkP
         event.stopPropagation();
         void confirmDialog({
             text: `You are leaving ${siteHost} and opening ${host}. Continue?`,
-            confirmText: "Continue",
-            cancelText: "Cancel",
-        }).then((proceed) => {
+            confirmText: 'Continue',
+            cancelText: 'Cancel',
+        }).then(proceed => {
             if (!proceed) return;
             openExternalLink(link, parsed.href, mouseEvent);
         });

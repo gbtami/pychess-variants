@@ -2,12 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { alertDialog } from './alertDialog';
 import { confirmDialog } from './confirmDialog';
-import {
-    ensureCataloguedBoardCSS,
-    ensurePieceCSS,
-    patch,
-    removeCataloguedBoardCSS,
-} from './document';
+import { ensureCataloguedBoardCSS, ensurePieceCSS, patch, removeCataloguedBoardCSS } from './document';
 import { checkRulesWithFsfWasm } from './fairyStockfish';
 import { _ } from './i18n';
 import { PyChessModel } from './types';
@@ -101,7 +96,7 @@ async function loadMine(model: PyChessModel, options: { clearMessage?: boolean }
     try {
         const response = await fetch(myVariantsUrl(model));
         if (!response.ok) throw new Error(await responseError(response));
-        const payload = await response.json() as { variants: ManagedVariant[]; maxVariants?: number | null };
+        const payload = (await response.json()) as { variants: ManagedVariant[]; maxVariants?: number | null };
         state.variants = payload.variants || [];
         state.maxVariants = payload.maxVariants ?? null;
         state.loaded = true;
@@ -122,9 +117,11 @@ type VariantFormBody = {
 };
 
 function isSitePieceFamilyOverride(pieceFamily: string): boolean {
-    return !!pieceFamily &&
+    return (
+        !!pieceFamily &&
         Object.prototype.hasOwnProperty.call(PIECE_FAMILIES, pieceFamily) &&
-        !pieceFamily.startsWith('catalogued-');
+        !pieceFamily.startsWith('catalogued-')
+    );
 }
 
 function cleanPieceFamilyOverrideDraft(pieceFamily: string | undefined | null): string {
@@ -134,13 +131,20 @@ function cleanPieceFamilyOverrideDraft(pieceFamily: string | undefined | null): 
 
 function readForm(): VariantFormBody {
     return {
-        displayName: (document.getElementById('catalogued-display-name') as HTMLInputElement | null)?.value ?? state.draftDisplayName,
-        description: (document.getElementById('catalogued-description') as HTMLTextAreaElement | null)?.value ?? state.draftDescription,
+        displayName:
+            (document.getElementById('catalogued-display-name') as HTMLInputElement | null)?.value ??
+            state.draftDisplayName,
+        description:
+            (document.getElementById('catalogued-description') as HTMLTextAreaElement | null)?.value ??
+            state.draftDescription,
         pieceFamilyOverride: cleanPieceFamilyOverrideDraft(
-            (document.getElementById('catalogued-piece-family-override') as HTMLSelectElement | null)?.value
-            ?? state.draftPieceFamilyOverride,
+            (document.getElementById('catalogued-piece-family-override') as HTMLSelectElement | null)?.value ??
+                state.draftPieceFamilyOverride,
         ),
-        visibility: ((document.getElementById('catalogued-visibility') as HTMLSelectElement | null)?.value as VariantVisibility | undefined) ?? state.draftVisibility,
+        visibility:
+            ((document.getElementById('catalogued-visibility') as HTMLSelectElement | null)?.value as
+                | VariantVisibility
+                | undefined) ?? state.draftVisibility,
         ini: (document.getElementById('catalogued-ini') as HTMLTextAreaElement | null)?.value ?? state.draftIni,
     };
 }
@@ -157,7 +161,7 @@ function clearDraft(): void {
 
 function setDraftFromVariant(variant: ManagedVariant): void {
     state.draftDisplayName = variant.displayName ?? '';
-    state.draftDescription = variant.tooltip === 'Catalogued variant' ? '' : variant.tooltip ?? '';
+    state.draftDescription = variant.tooltip === 'Catalogued variant' ? '' : (variant.tooltip ?? '');
     state.draftPieceFamilyOverride = cleanPieceFamilyOverrideDraft(variant.pieceFamilyOverride);
     state.draftVisibility = variant.visibility ?? 'private';
     state.draftIni = variant.ini ?? '';
@@ -181,7 +185,11 @@ function extractVariantName(ini: string): string {
     if (sections.length !== 1) throw new Error(_('The INI must contain exactly one variant section.'));
     const name = sections[0];
     if (!/^[a-z][a-z0-9_-]{2,31}$/.test(name)) {
-        throw new Error(_('Variant names must be 3-32 chars, start with a lowercase letter, and contain only lowercase letters, digits, hyphens, and underscores.'));
+        throw new Error(
+            _(
+                'Variant names must be 3-32 chars, start with a lowercase letter, and contain only lowercase letters, digits, hyphens, and underscores.',
+            ),
+        );
     }
     return name;
 }
@@ -203,7 +211,11 @@ function validateBasicIni(ini: string, editingName?: string): string {
     const previousIni = state.editing?.ini ?? '';
     const rulesChanged = !!editingName && ini.trim() !== previousIni.trim();
     if (rulesChanged && name === editingName) {
-        throw new Error(_('Changing rules requires a new variant section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.'));
+        throw new Error(
+            _(
+                'Changing rules requires a new variant section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.',
+            ),
+        );
     }
     return name;
 }
@@ -290,28 +302,32 @@ async function saveVariant(model: PyChessModel): Promise<void> {
     state.formMessage = editingSystem
         ? _('Saving metadata and visibility...')
         : rulesChanged
-        ? `${_('Checking rules for')} ${extractVariantName(body.ini.trim())}...`
-        : _('Saving metadata and visibility...');
+          ? `${_('Checking rules for')} ${extractVariantName(body.ini.trim())}...`
+          : _('Saving metadata and visibility...');
     state.formMessageTone = 'neutral';
     rerender(model);
 
-    const url = editingName ? `/api/catalogued-variants/${encodeURIComponent(editingName)}` : '/api/catalogued-variants';
+    const url = editingName
+        ? `/api/catalogued-variants/${encodeURIComponent(editingName)}`
+        : '/api/catalogued-variants';
     try {
         if (rulesChanged) await checkRulesStrictly(body.ini.trim());
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(editingSystem
-                ? {
-                    displayName: body.displayName,
-                    description: body.description,
-                    pieceFamilyOverride: body.pieceFamilyOverride,
-                    visibility: body.visibility,
-                }
-                : body),
+            body: JSON.stringify(
+                editingSystem
+                    ? {
+                          displayName: body.displayName,
+                          description: body.description,
+                          pieceFamilyOverride: body.pieceFamilyOverride,
+                          visibility: body.visibility,
+                      }
+                    : body,
+            ),
         });
         if (!response.ok) throw new Error(await responseError(response));
-        const payload = await response.json() as { oldName?: string; variant?: ManagedVariant };
+        const payload = (await response.json()) as { oldName?: string; variant?: ManagedVariant };
         registerFromPayload(payload);
         state.editing = null;
         clearDraft();
@@ -327,7 +343,11 @@ async function saveVariant(model: PyChessModel): Promise<void> {
     }
 }
 
-async function postAction(model: PyChessModel, variant: ManagedVariant, action: 'delete' | 'archive' | 'restore' | 'clone'): Promise<void> {
+async function postAction(
+    model: PyChessModel,
+    variant: ManagedVariant,
+    action: 'delete' | 'archive' | 'restore' | 'clone',
+): Promise<void> {
     const labels = {
         delete: _('delete'),
         archive: _('archive'),
@@ -347,9 +367,11 @@ async function postAction(model: PyChessModel, variant: ManagedVariant, action: 
     state.saving = true;
     rerender(model);
     try {
-        const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/${action}`, { method: 'POST' });
+        const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/${action}`, {
+            method: 'POST',
+        });
         if (!response.ok) throw new Error(await responseError(response));
-        const payload = await response.json() as { deleted?: string; archived?: string; variant?: ManagedVariant };
+        const payload = (await response.json()) as { deleted?: string; archived?: string; variant?: ManagedVariant };
         if (payload.deleted) {
             unregisterCataloguedVariant(payload.deleted);
             removeCataloguedBoardCSS(payload.deleted);
@@ -366,7 +388,6 @@ async function postAction(model: PyChessModel, variant: ManagedVariant, action: 
     }
 }
 
-
 function cataloguedCustomPieceCss(variant: ManagedVariant): string {
     return variant.pieceSetRevision ? `custom-${variant.pieceSetRevision}` : 'custom';
 }
@@ -380,10 +401,13 @@ function ensureCataloguedCustomBoardCSS(variant: ManagedVariant): void {
 }
 
 function expectedPieceSetFiles(variant: ManagedVariant): string[] {
-    const pieces = [...new Set((variant.pieces?.length ? variant.pieces : ['k']).map(piece => piece.toLowerCase()))].sort();
-    const promoted = variant.promotionType === 'shogi'
-        ? [...new Set((variant.promotionRoles ?? []).map(piece => piece.toLowerCase()))].sort()
-        : [];
+    const pieces = [
+        ...new Set((variant.pieces?.length ? variant.pieces : ['k']).map(piece => piece.toLowerCase())),
+    ].sort();
+    const promoted =
+        variant.promotionType === 'shogi'
+            ? [...new Set((variant.promotionRoles ?? []).map(piece => piece.toLowerCase()))].sort()
+            : [];
     const names: string[] = [];
     for (const color of ['w', 'b']) {
         for (const piece of pieces) names.push(`${color}${piece.toUpperCase()}.svg`);
@@ -396,7 +420,9 @@ async function uploadPieceSet(model: PyChessModel, variant: ManagedVariant, file
     if (!files || files.length === 0) return;
     const expected = expectedPieceSetFiles(variant);
     if (files.length !== expected.length) {
-        await alertDialog({ text: `${_('Custom piece sets must be complete. Expected files')}: ${expected.join(', ')}` });
+        await alertDialog({
+            text: `${_('Custom piece sets must be complete. Expected files')}: ${expected.join(', ')}`,
+        });
         return;
     }
 
@@ -411,7 +437,7 @@ async function uploadPieceSet(model: PyChessModel, variant: ManagedVariant, file
             body: form,
         });
         if (!response.ok) throw new Error(await responseError(response));
-        const payload = await response.json() as { variant?: ManagedVariant };
+        const payload = (await response.json()) as { variant?: ManagedVariant };
         registerFromPayload(payload);
         if (payload.variant?.hasPieceSet) {
             ensureCataloguedCustomPieceCSS(model, payload.variant);
@@ -441,9 +467,11 @@ async function deletePieceSet(model: PyChessModel, variant: ManagedVariant): Pro
     state.saving = true;
     rerender(model);
     try {
-        const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/piece-set/delete`, { method: 'POST' });
+        const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/piece-set/delete`, {
+            method: 'POST',
+        });
         if (!response.ok) throw new Error(await responseError(response));
-        const payload = await response.json() as { variant?: ManagedVariant };
+        const payload = (await response.json()) as { variant?: ManagedVariant };
         registerFromPayload(payload);
         if (state.piecePreviewVariant === variant.name) state.piecePreviewVariant = '';
         state.message = _('Custom piece set deleted.');
@@ -474,7 +502,7 @@ async function uploadBoard(model: PyChessModel, variant: ManagedVariant, files: 
             body: form,
         });
         if (!response.ok) throw new Error(await responseError(response));
-        const payload = await response.json() as { variant?: ManagedVariant };
+        const payload = (await response.json()) as { variant?: ManagedVariant };
         registerFromPayload(payload);
         if (payload.variant?.hasBoard) {
             ensureCataloguedCustomBoardCSS(payload.variant);
@@ -504,9 +532,11 @@ async function deleteBoard(model: PyChessModel, variant: ManagedVariant): Promis
     state.saving = true;
     rerender(model);
     try {
-        const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/board/delete`, { method: 'POST' });
+        const response = await fetch(`/api/catalogued-variants/${encodeURIComponent(variant.name)}/board/delete`, {
+            method: 'POST',
+        });
         if (!response.ok) throw new Error(await responseError(response));
-        const payload = await response.json() as { variant?: ManagedVariant };
+        const payload = (await response.json()) as { variant?: ManagedVariant };
         registerFromPayload(payload);
         removeCataloguedBoardCSS(variant.name);
         if (state.boardPreviewVariant === variant.name) state.boardPreviewVariant = '';
@@ -548,7 +578,11 @@ function editVariant(model: PyChessModel, variant: ManagedVariant): void {
     state.formMessage = '';
     state.formMessageTone = 'neutral';
     rerender(model);
-    setTimeout(() => document.getElementById('catalogued-display-name')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+    setTimeout(
+        () =>
+            document.getElementById('catalogued-display-name')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        0,
+    );
 }
 
 function cancelEdit(model: PyChessModel): void {
@@ -559,26 +593,28 @@ function cancelEdit(model: PyChessModel): void {
 
 function visibilityLabel(visibility: VariantVisibility | undefined): string {
     switch (visibility) {
-    case 'public': return _('Public');
-    case 'unlisted': return _('Unlisted');
-    default: return _('Private');
+        case 'public':
+            return _('Public');
+        case 'unlisted':
+            return _('Unlisted');
+        default:
+            return _('Private');
     }
 }
 
 function visibilityHelp(visibility: VariantVisibility): string {
     switch (visibility) {
-    case 'public':
-        return _('Public variants appear on the Community variants page and their games are saved.');
-    case 'unlisted':
-        return _('Unlisted variants stay out of search; their games are not saved.');
-    default:
-        return _('Private variants are visible only to you and site admins; their games are not saved.');
+        case 'public':
+            return _('Public variants appear on the Community variants page and their games are saved.');
+        case 'unlisted':
+            return _('Unlisted variants stay out of search; their games are not saved.');
+        default:
+            return _('Private variants are visible only to you and site admins; their games are not saved.');
     }
 }
 
 function sitePieceFamilyOptions(): string[] {
-    return Object.keys(PIECE_FAMILIES)
-        .filter(isSitePieceFamilyOverride);
+    return Object.keys(PIECE_FAMILIES).filter(isSitePieceFamilyOverride);
 }
 
 function pieceFamilyOverrideLabel(pieceFamily: string): string {
@@ -590,161 +626,272 @@ function renderForm(model: PyChessModel): VNode {
     const editingSystem = isSystemManagedVariant(editing);
     return h('section.catalogued-card.catalogued-form', [
         h('div.catalogued-form-head', [
-            h('h2', editingSystem ? _('Edit Fairy-Stockfish variant') : editing ? _('Edit variant') : _('Upload new variant')),
-            editingSystem
-                ? h('p', _('This entry is backed by a built-in Fairy-Stockfish variant. Its rules are not editable here, so NNUE files can keep matching the original engine variant name.'))
-                : h('p', _('Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first saved public game.')),
-            editingSystem ? null : h('p.catalogued-help', _('Private and unlisted variants are sandbox variants: games are playable but are not saved.')),
-            editingSystem ? null : h('p.catalogued-help', _('If you change the rules of an unused variant, also change the INI section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.')),
-            editingSystem ? h('p.catalogued-help', _('Admins can edit metadata, visibility, piece SVGs, and board SVGs for this system-owned catalogue entry.')) : null,
-            !editingSystem && editing?.locked ? h('p.catalogued-help', _('This variant already has saved public games. Only metadata and visibility can be changed; clone it to change the rules.')) : null,
-        ]),
-        h('form.catalogued-form-grid', {
-            on: {
-                submit: (event: Event) => {
-                    event.preventDefault();
-                    void saveVariant(model);
-                },
-            },
-        }, [
-            h('label.catalogued-field.catalogued-field-half', [
-                h('span', _('Display name')),
-                h('input#catalogued-display-name', {
-                    props: {
-                        value: state.draftDisplayName,
-                        placeholder: _('Display name'),
-                        autocomplete: 'off',
-                        disabled: state.saving,
-                    },
-                    on: {
-                        input: (event: Event) => {
-                            state.draftDisplayName = (event.target as HTMLInputElement).value;
-                            state.formMessage = '';
-                            state.formMessageTone = 'neutral';
-                        },
-                    },
-                }),
-            ]),
-            h('label.catalogued-field.catalogued-field-half.catalogued-description-field', [
-                h('span', _('Short description')),
-                h('textarea#catalogued-description.catalogued-description-input', {
-                    props: {
-                        value: state.draftDescription,
-                        placeholder: _('Short description'),
-                        autocomplete: 'off',
-                        disabled: state.saving,
-                        rows: 3,
-                    },
-                    attrs: {
-                        maxlength: '1000',
-                    },
-                    on: {
-                        input: (event: Event) => {
-                            state.draftDescription = (event.target as HTMLTextAreaElement).value;
-                            state.formMessage = '';
-                            state.formMessageTone = 'neutral';
-                        },
-                    },
-                }),
-            ]),
-            model.admin ? h('label.catalogued-field.catalogued-field-half', [
-                h('span', _('Compatible piece set')),
-                h('select#catalogued-piece-family-override', {
-                    props: {
-                        value: state.draftPieceFamilyOverride,
-                        disabled: state.saving,
-                    },
-                    on: {
-                        change: (event: Event) => {
-                            state.draftPieceFamilyOverride = (event.target as HTMLSelectElement).value;
-                            state.formMessage = '';
-                            state.formMessageTone = 'neutral';
-                            rerender(model);
-                        },
-                    },
-                }, [
-                    h('option', { props: { value: '', selected: state.draftPieceFamilyOverride === '' } }, _('Auto-detect')),
-                    ...sitePieceFamilyOptions().map(family => h('option', {
-                        props: { value: family, selected: state.draftPieceFamilyOverride === family },
-                    }, pieceFamilyOverrideLabel(family))),
-                ]),
-                h('span.catalogued-help', _(
-                    'Admin only. Overrides automatic built-in piece-set detection; custom SVG piece sets still take precedence.',
-                )),
-            ]) : null,
-            h('label.catalogued-field.catalogued-field-half', [
-                h('span', _('Visibility')),
-                h('select#catalogued-visibility', {
-                    props: {
-                        value: state.draftVisibility,
-                        disabled: state.saving,
-                    },
-                    on: {
-                        change: (event: Event) => {
-                            state.draftVisibility = (event.target as HTMLSelectElement).value as VariantVisibility;
-                            state.formMessage = '';
-                            state.formMessageTone = 'neutral';
-                            rerender(model);
-                        },
-                    },
-                }, [
-                    h('option', { props: { value: 'private', selected: state.draftVisibility === 'private' } }, _('Private')),
-                    h('option', { props: { value: 'unlisted', selected: state.draftVisibility === 'unlisted' } }, _('Unlisted')),
-                    h('option', { props: { value: 'public', selected: state.draftVisibility === 'public' } }, _('Public')),
-                ]),
-                h('span.catalogued-help', visibilityHelp(state.draftVisibility)),
-            ]),
-            h('label.catalogued-field.catalogued-field-full', [
-                h('span', _('Variant definition')),
-                h('textarea#catalogued-ini', {
-                    props: {
-                        value: state.draftIni,
-                        placeholder: editingSystem
-                            ? _('Built-in Fairy-Stockfish variant; no INI is stored.')
-                            : '[myvariant:chess]\n# inherits chess rules through the section suffix',
-                        spellcheck: false,
-                        disabled: state.saving || editingSystem,
-                    },
-                    on: {
-                        input: (event: Event) => {
-                            state.draftIni = (event.target as HTMLTextAreaElement).value;
-                            state.formMessage = '';
-                            state.formMessageTone = 'neutral';
-                        },
-                    },
-                }),
+            h(
+                'h2',
                 editingSystem
-                    ? h('span.catalogued-help', _('The catalogue key remains the Fairy-Stockfish UCI_Variant name. Use display name and description for nicer wording.'))
-                    : h('span.catalogued-help', _('If inherited rules use pieces or promoted pieces that pychess cannot detect automatically, add a comment like # pychessPieces = k,q,r,+r,p,+p. This affects only piece-set upload and board rendering; Fairy-Stockfish ignores it. For locked variants with games, only this pychessPieces metadata can be changed.')),
-            ]),
-            h('div.catalogued-actions.catalogued-field-full', [
-                h(`button.button-primary.catalogued-primary-action${state.saving ? '.disabled' : ''}`, {
-                    props: { type: 'submit', disabled: state.saving },
-                }, editing ? _('Save changes') : _('Upload variant')),
-                h('button.catalogued-secondary-action', {
-                    props: { type: 'button', disabled: state.saving || editingSystem },
-                    on: {
-                        click: (event: Event) => {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            void validateCurrentForm(model);
-                        },
-                    },
-                }, _('Check rules')),
-                editing
-                    ? h('button.catalogued-secondary-action', {
-                        props: { type: 'button', disabled: state.saving },
-                        on: { click: () => cancelEdit(model) },
-                    }, _('Cancel'))
-                    : null,
-            ]),
-            state.formMessage
-                ? h(`p.catalogued-message.catalogued-field-full.${state.formMessageTone}`, { attrs: { 'aria-live': 'polite' } }, state.formMessage)
+                    ? _('Edit Fairy-Stockfish variant')
+                    : editing
+                      ? _('Edit variant')
+                      : _('Upload new variant'),
+            ),
+            editingSystem
+                ? h(
+                      'p',
+                      _(
+                          'This entry is backed by a built-in Fairy-Stockfish variant. Its rules are not editable here, so NNUE files can keep matching the original engine variant name.',
+                      ),
+                  )
+                : h(
+                      'p',
+                      _(
+                          'Paste exactly one Fairy-Stockfish variant definition. Rules are locked after the first saved public game.',
+                      ),
+                  ),
+            editingSystem
+                ? null
+                : h(
+                      'p.catalogued-help',
+                      _('Private and unlisted variants are sandbox variants: games are playable but are not saved.'),
+                  ),
+            editingSystem
+                ? null
+                : h(
+                      'p.catalogued-help',
+                      _(
+                          'If you change the rules of an unused variant, also change the INI section name, because Fairy-Stockfish cannot replace an already loaded runtime variant.',
+                      ),
+                  ),
+            editingSystem
+                ? h(
+                      'p.catalogued-help',
+                      _(
+                          'Admins can edit metadata, visibility, piece SVGs, and board SVGs for this system-owned catalogue entry.',
+                      ),
+                  )
+                : null,
+            !editingSystem && editing?.locked
+                ? h(
+                      'p.catalogued-help',
+                      _(
+                          'This variant already has saved public games. Only metadata and visibility can be changed; clone it to change the rules.',
+                      ),
+                  )
                 : null,
         ]),
+        h(
+            'form.catalogued-form-grid',
+            {
+                on: {
+                    submit: (event: Event) => {
+                        event.preventDefault();
+                        void saveVariant(model);
+                    },
+                },
+            },
+            [
+                h('label.catalogued-field.catalogued-field-half', [
+                    h('span', _('Display name')),
+                    h('input#catalogued-display-name', {
+                        props: {
+                            value: state.draftDisplayName,
+                            placeholder: _('Display name'),
+                            autocomplete: 'off',
+                            disabled: state.saving,
+                        },
+                        on: {
+                            input: (event: Event) => {
+                                state.draftDisplayName = (event.target as HTMLInputElement).value;
+                                state.formMessage = '';
+                                state.formMessageTone = 'neutral';
+                            },
+                        },
+                    }),
+                ]),
+                h('label.catalogued-field.catalogued-field-half.catalogued-description-field', [
+                    h('span', _('Short description')),
+                    h('textarea#catalogued-description.catalogued-description-input', {
+                        props: {
+                            value: state.draftDescription,
+                            placeholder: _('Short description'),
+                            autocomplete: 'off',
+                            disabled: state.saving,
+                            rows: 3,
+                        },
+                        attrs: {
+                            maxlength: '1000',
+                        },
+                        on: {
+                            input: (event: Event) => {
+                                state.draftDescription = (event.target as HTMLTextAreaElement).value;
+                                state.formMessage = '';
+                                state.formMessageTone = 'neutral';
+                            },
+                        },
+                    }),
+                ]),
+                model.admin
+                    ? h('label.catalogued-field.catalogued-field-half', [
+                          h('span', _('Compatible piece set')),
+                          h(
+                              'select#catalogued-piece-family-override',
+                              {
+                                  props: {
+                                      value: state.draftPieceFamilyOverride,
+                                      disabled: state.saving,
+                                  },
+                                  on: {
+                                      change: (event: Event) => {
+                                          state.draftPieceFamilyOverride = (event.target as HTMLSelectElement).value;
+                                          state.formMessage = '';
+                                          state.formMessageTone = 'neutral';
+                                          rerender(model);
+                                      },
+                                  },
+                              },
+                              [
+                                  h(
+                                      'option',
+                                      { props: { value: '', selected: state.draftPieceFamilyOverride === '' } },
+                                      _('Auto-detect'),
+                                  ),
+                                  ...sitePieceFamilyOptions().map(family =>
+                                      h(
+                                          'option',
+                                          {
+                                              props: {
+                                                  value: family,
+                                                  selected: state.draftPieceFamilyOverride === family,
+                                              },
+                                          },
+                                          pieceFamilyOverrideLabel(family),
+                                      ),
+                                  ),
+                              ],
+                          ),
+                          h(
+                              'span.catalogued-help',
+                              _(
+                                  'Admin only. Overrides automatic built-in piece-set detection; custom SVG piece sets still take precedence.',
+                              ),
+                          ),
+                      ])
+                    : null,
+                h('label.catalogued-field.catalogued-field-half', [
+                    h('span', _('Visibility')),
+                    h(
+                        'select#catalogued-visibility',
+                        {
+                            props: {
+                                value: state.draftVisibility,
+                                disabled: state.saving,
+                            },
+                            on: {
+                                change: (event: Event) => {
+                                    state.draftVisibility = (event.target as HTMLSelectElement)
+                                        .value as VariantVisibility;
+                                    state.formMessage = '';
+                                    state.formMessageTone = 'neutral';
+                                    rerender(model);
+                                },
+                            },
+                        },
+                        [
+                            h(
+                                'option',
+                                { props: { value: 'private', selected: state.draftVisibility === 'private' } },
+                                _('Private'),
+                            ),
+                            h(
+                                'option',
+                                { props: { value: 'unlisted', selected: state.draftVisibility === 'unlisted' } },
+                                _('Unlisted'),
+                            ),
+                            h(
+                                'option',
+                                { props: { value: 'public', selected: state.draftVisibility === 'public' } },
+                                _('Public'),
+                            ),
+                        ],
+                    ),
+                    h('span.catalogued-help', visibilityHelp(state.draftVisibility)),
+                ]),
+                h('label.catalogued-field.catalogued-field-full', [
+                    h('span', _('Variant definition')),
+                    h('textarea#catalogued-ini', {
+                        props: {
+                            value: state.draftIni,
+                            placeholder: editingSystem
+                                ? _('Built-in Fairy-Stockfish variant; no INI is stored.')
+                                : '[myvariant:chess]\n# inherits chess rules through the section suffix',
+                            spellcheck: false,
+                            disabled: state.saving || editingSystem,
+                        },
+                        on: {
+                            input: (event: Event) => {
+                                state.draftIni = (event.target as HTMLTextAreaElement).value;
+                                state.formMessage = '';
+                                state.formMessageTone = 'neutral';
+                            },
+                        },
+                    }),
+                    editingSystem
+                        ? h(
+                              'span.catalogued-help',
+                              _(
+                                  'The catalogue key remains the Fairy-Stockfish UCI_Variant name. Use display name and description for nicer wording.',
+                              ),
+                          )
+                        : h(
+                              'span.catalogued-help',
+                              _(
+                                  'If inherited rules use pieces or promoted pieces that pychess cannot detect automatically, add a comment like # pychessPieces = k,q,r,+r,p,+p. This affects only piece-set upload and board rendering; Fairy-Stockfish ignores it. For locked variants with games, only this pychessPieces metadata can be changed.',
+                              ),
+                          ),
+                ]),
+                h('div.catalogued-actions.catalogued-field-full', [
+                    h(
+                        `button.button-primary.catalogued-primary-action${state.saving ? '.disabled' : ''}`,
+                        {
+                            props: { type: 'submit', disabled: state.saving },
+                        },
+                        editing ? _('Save changes') : _('Upload variant'),
+                    ),
+                    h(
+                        'button.catalogued-secondary-action',
+                        {
+                            props: { type: 'button', disabled: state.saving || editingSystem },
+                            on: {
+                                click: (event: Event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    void validateCurrentForm(model);
+                                },
+                            },
+                        },
+                        _('Check rules'),
+                    ),
+                    editing
+                        ? h(
+                              'button.catalogued-secondary-action',
+                              {
+                                  props: { type: 'button', disabled: state.saving },
+                                  on: { click: () => cancelEdit(model) },
+                              },
+                              _('Cancel'),
+                          )
+                        : null,
+                ]),
+                state.formMessage
+                    ? h(
+                          `p.catalogued-message.catalogued-field-full.${state.formMessageTone}`,
+                          { attrs: { 'aria-live': 'polite' } },
+                          state.formMessage,
+                      )
+                    : null,
+            ],
+        ),
     ]);
 }
-
 
 function pieceSetPreviewRoleClass(filename: string): string {
     const promoted = filename[1] === '+';
@@ -763,16 +910,35 @@ function renderPieceSetPreview(model: PyChessModel, variant: ManagedVariant): VN
     return h('div.catalogued-piece-preview', [
         h('div.catalogued-piece-preview-head', [
             h('strong', _('Piece set preview')),
-            h('button.catalogued-row-button.catalogued-secondary-action', {
-                props: { type: 'button' },
-                on: { click: () => { state.piecePreviewVariant = ''; rerender(model); } },
-            }, _('Close')),
+            h(
+                'button.catalogued-row-button.catalogued-secondary-action',
+                {
+                    props: { type: 'button' },
+                    on: {
+                        click: () => {
+                            state.piecePreviewVariant = '';
+                            rerender(model);
+                        },
+                    },
+                },
+                _('Close'),
+            ),
         ]),
-        h('div.catalogued-piece-preview-grid', { class: { [styleClass]: true } },
-            expectedPieceSetFiles(variant).map(filename => h('div.catalogued-piece-preview-cell', [
-                h('piece', { class: { [pieceSetPreviewRoleClass(filename)]: true, [pieceSetPreviewColorClass(filename)]: true } }),
-                h('span', filename),
-            ]))),
+        h(
+            'div.catalogued-piece-preview-grid',
+            { class: { [styleClass]: true } },
+            expectedPieceSetFiles(variant).map(filename =>
+                h('div.catalogued-piece-preview-cell', [
+                    h('piece', {
+                        class: {
+                            [pieceSetPreviewRoleClass(filename)]: true,
+                            [pieceSetPreviewColorClass(filename)]: true,
+                        },
+                    }),
+                    h('span', filename),
+                ]),
+            ),
+        ),
     ]);
 }
 
@@ -781,17 +947,19 @@ function renderCompatiblePieceSetInfo(variant: ManagedVariant): VNode | null {
     if (!family || family === 'letter') return null;
 
     const styleCount = PIECE_FAMILIES[family]?.pieceCSS.length ?? 0;
-    const styleText = styleCount > 0
-        ? `${styleCount} ${_('built-in piece styles')}`
-        : _('built-in piece styles');
+    const styleText = styleCount > 0 ? `${styleCount} ${_('built-in piece styles')}` : _('built-in piece styles');
 
     if (variant.hasPieceSet) {
-        return h('span.catalogued-help.catalogued-piece-compat',
-            `${_('Also compatible with')} ${family} (${styleText}). ${_('Delete the custom set to use those built-in styles again.')}`);
+        return h(
+            'span.catalogued-help.catalogued-piece-compat',
+            `${_('Also compatible with')} ${family} (${styleText}). ${_('Delete the custom set to use those built-in styles again.')}`,
+        );
     }
 
-    return h('span.catalogued-help.catalogued-piece-compat',
-        `${_('Compatible with')} ${family} (${styleText}). ${_('Upload a custom set only if you want to replace these styles.')}`);
+    return h(
+        'span.catalogued-help.catalogued-piece-compat',
+        `${_('Compatible with')} ${family} (${styleText}). ${_('Upload a custom set only if you want to replace these styles.')}`,
+    );
 }
 
 function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): VNode {
@@ -800,13 +968,16 @@ function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): V
     const pieceStatus = variant.hasPieceSet
         ? _('Custom')
         : compatibleFamily && compatibleFamily !== 'letter'
-        ? _('Built-in')
-        : _('Letters');
+          ? _('Built-in')
+          : _('Letters');
     return h('div.catalogued-piece-set-controls', [
         h('strong', pieceStatus),
         renderCompatiblePieceSetInfo(variant),
-        h('span.catalogued-help', { attrs: { title: expected.join(', ') } },
-            `${_('Required SVG files')}: ${expected.length}`),
+        h(
+            'span.catalogued-help',
+            { attrs: { title: expected.join(', ') } },
+            `${_('Required SVG files')}: ${expected.length}`,
+        ),
         h('label.catalogued-row-button.catalogued-secondary-action.catalogued-file-action', [
             _('Upload set'),
             h('input', {
@@ -825,27 +996,38 @@ function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): V
                 },
             }),
         ]),
-        variant.hasPieceSet ? h('button.catalogued-row-button.catalogued-secondary-action', {
-            props: { type: 'button', disabled: state.saving },
-            on: {
-                click: () => {
-                    if (state.piecePreviewVariant === variant.name) state.piecePreviewVariant = '';
-                    else {
-                        ensureCataloguedCustomPieceCSS(model, variant);
-                        state.piecePreviewVariant = variant.name;
-                    }
-                    rerender(model);
-                },
-            },
-        }, state.piecePreviewVariant === variant.name ? _('Hide preview') : _('Preview')) : null,
-        variant.hasPieceSet ? h('button.catalogued-row-button.catalogued-secondary-action', {
-            props: { type: 'button', disabled: state.saving },
-            on: { click: () => void deletePieceSet(model, variant) },
-        }, _('Delete set')) : null,
+        variant.hasPieceSet
+            ? h(
+                  'button.catalogued-row-button.catalogued-secondary-action',
+                  {
+                      props: { type: 'button', disabled: state.saving },
+                      on: {
+                          click: () => {
+                              if (state.piecePreviewVariant === variant.name) state.piecePreviewVariant = '';
+                              else {
+                                  ensureCataloguedCustomPieceCSS(model, variant);
+                                  state.piecePreviewVariant = variant.name;
+                              }
+                              rerender(model);
+                          },
+                      },
+                  },
+                  state.piecePreviewVariant === variant.name ? _('Hide preview') : _('Preview'),
+              )
+            : null,
+        variant.hasPieceSet
+            ? h(
+                  'button.catalogued-row-button.catalogued-secondary-action',
+                  {
+                      props: { type: 'button', disabled: state.saving },
+                      on: { click: () => void deletePieceSet(model, variant) },
+                  },
+                  _('Delete set'),
+              )
+            : null,
         renderPieceSetPreview(model, variant),
     ]);
 }
-
 
 function renderBoardPreview(model: PyChessModel, variant: ManagedVariant): VNode | null {
     if (!variant.hasBoard || state.boardPreviewVariant !== variant.name) return null;
@@ -853,10 +1035,19 @@ function renderBoardPreview(model: PyChessModel, variant: ManagedVariant): VNode
     return h('div.catalogued-board-preview', [
         h('div.catalogued-piece-preview-head', [
             h('strong', _('Board preview')),
-            h('button.catalogued-row-button.catalogued-secondary-action', {
-                props: { type: 'button' },
-                on: { click: () => { state.boardPreviewVariant = ''; rerender(model); } },
-            }, _('Close')),
+            h(
+                'button.catalogued-row-button.catalogued-secondary-action',
+                {
+                    props: { type: 'button' },
+                    on: {
+                        click: () => {
+                            state.boardPreviewVariant = '';
+                            rerender(model);
+                        },
+                    },
+                },
+                _('Close'),
+            ),
         ]),
         h('div.catalogued-board-preview-surface', {
             attrs: { 'data-board-variant': variant.name },
@@ -869,9 +1060,12 @@ function renderBoardControls(model: PyChessModel, variant: ManagedVariant): VNod
     const boardStatus = variant.hasBoard ? _('Custom') : _('Default');
     return h('div.catalogued-board-controls', [
         h('strong', boardStatus),
-        h('span.catalogued-help', variant.hasBoard
-            ? _('This variant uses its uploaded board SVG.')
-            : _('Default generated checkerboard. Upload an SVG board if the variant needs special regions.')),
+        h(
+            'span.catalogued-help',
+            variant.hasBoard
+                ? _('This variant uses its uploaded board SVG.')
+                : _('Default generated checkerboard. Upload an SVG board if the variant needs special regions.'),
+        ),
         h('label.catalogued-row-button.catalogued-secondary-action.catalogued-file-action', [
             _('Upload board'),
             h('input', {
@@ -890,23 +1084,35 @@ function renderBoardControls(model: PyChessModel, variant: ManagedVariant): VNod
                 },
             }),
         ]),
-        variant.hasBoard ? h('button.catalogued-row-button.catalogued-secondary-action', {
-            props: { type: 'button', disabled: state.saving },
-            on: {
-                click: () => {
-                    if (state.boardPreviewVariant === variant.name) state.boardPreviewVariant = '';
-                    else {
-                        ensureCataloguedCustomBoardCSS(variant);
-                        state.boardPreviewVariant = variant.name;
-                    }
-                    rerender(model);
-                },
-            },
-        }, state.boardPreviewVariant === variant.name ? _('Hide preview') : _('Preview')) : null,
-        variant.hasBoard ? h('button.catalogued-row-button.catalogued-secondary-action', {
-            props: { type: 'button', disabled: state.saving },
-            on: { click: () => void deleteBoard(model, variant) },
-        }, _('Delete board')) : null,
+        variant.hasBoard
+            ? h(
+                  'button.catalogued-row-button.catalogued-secondary-action',
+                  {
+                      props: { type: 'button', disabled: state.saving },
+                      on: {
+                          click: () => {
+                              if (state.boardPreviewVariant === variant.name) state.boardPreviewVariant = '';
+                              else {
+                                  ensureCataloguedCustomBoardCSS(variant);
+                                  state.boardPreviewVariant = variant.name;
+                              }
+                              rerender(model);
+                          },
+                      },
+                  },
+                  state.boardPreviewVariant === variant.name ? _('Hide preview') : _('Preview'),
+              )
+            : null,
+        variant.hasBoard
+            ? h(
+                  'button.catalogued-row-button.catalogued-secondary-action',
+                  {
+                      props: { type: 'button', disabled: state.saving },
+                      on: { click: () => void deleteBoard(model, variant) },
+                  },
+                  _('Delete board'),
+              )
+            : null,
         renderBoardPreview(model, variant),
     ]);
 }
@@ -914,19 +1120,24 @@ function renderBoardControls(model: PyChessModel, variant: ManagedVariant): VNod
 function renderAdminScopeControls(model: PyChessModel): VNode | null {
     if (!model.admin) return null;
 
-    const scopeButton = (scope: AdminScope, label: string): VNode => h('button.catalogued-row-button.catalogued-secondary-action', {
-        props: { type: 'button', disabled: state.saving || state.adminScope === scope },
-        on: {
-            click: () => {
-                state.adminScope = scope;
-                state.loaded = false;
-                state.editing = null;
-                clearDraft();
-                void loadMine(model);
-                rerender(model);
+    const scopeButton = (scope: AdminScope, label: string): VNode =>
+        h(
+            'button.catalogued-row-button.catalogued-secondary-action',
+            {
+                props: { type: 'button', disabled: state.saving || state.adminScope === scope },
+                on: {
+                    click: () => {
+                        state.adminScope = scope;
+                        state.loaded = false;
+                        state.editing = null;
+                        clearDraft();
+                        void loadMine(model);
+                        rerender(model);
+                    },
+                },
             },
-        },
-    }, label);
+            label,
+        );
 
     return h('div.catalogued-admin-scope', [
         h('strong', _('Admin view')),
@@ -942,120 +1153,195 @@ function renderRows(model: PyChessModel): VNode {
 
     return h('div.catalogued-table-wrap', [
         h('table.catalogued-table', [
-            h('thead', h('tr', [
-                h('th', _('Name')),
-                h('th', _('Status')),
-                h('th', _('Visibility')),
-                h('th', _('Games')),
-                h('th', _('Pieces')),
-                h('th', _('Board')),
-                h('th', _('Actions')),
-            ])),
-            h('tbody', state.variants.map(variant => {
-                const locked = !!variant.locked;
-                const archived = !!variant.archived || variant.enabled === false;
-                const systemManaged = isSystemManagedVariant(variant);
-                const lockTitle = locked ? _('This variant already has saved public games. Clone it to change the rules.') : '';
-                const systemTitle = systemManaged ? _('Fairy-Stockfish built-in catalogue entries keep their engine rules and key fixed.') : '';
-                const aiTitle = variant.aiDisabled ? _('Fairy-Stockfish AI is temporarily disabled for this variant; Random-Mover can still be used.') : '';
-                return h('tr', { class: { archived } }, [
-                    h('td.catalogued-name-cell', { attrs: { 'data-label': _('Name') } }, [
-                        h('strong', variant.displayName),
-                        h('code', variant.name),
-                        variant.tooltip ? h('p', variant.tooltip) : null,
-                    ]),
-                    h('td', { attrs: { 'data-label': _('Status') } }, archived ? _('Archived') : systemManaged ? _('System') : locked ? _('Locked') : _('Editable')),
-                    h('td', { attrs: { 'data-label': _('Visibility') } }, visibilityLabel(variant.visibility)),
-                    h('td', { attrs: { 'data-label': _('Games') } }, String(variant.gameCount ?? 0)),
-                    h('td', { attrs: { 'data-label': _('Pieces') } }, renderPieceSetControls(model, variant)),
-                    h('td', { attrs: { 'data-label': _('Board') } }, renderBoardControls(model, variant)),
-                    h('td.catalogued-row-actions', { attrs: { 'data-label': _('Actions') } }, [
-                        h('button.button-primary.catalogued-row-button', {
-                            props: { type: 'button', disabled: archived },
-                            on: { click: () => playVariant(model, variant) },
-                        }, _('Play')),
-                        h('button.catalogued-row-button.catalogued-secondary-action.catalogued-ai-action', {
-                            props: { type: 'button', disabled: archived },
-                            attrs: { title: aiTitle },
-                            on: { click: () => playVariantWithAI(model, variant) },
-                        }, _('Play AI')),
-                        h('button.catalogued-row-button.catalogued-secondary-action.catalogued-analysis-action', {
-                            props: { type: 'button', disabled: archived },
-                            on: { click: () => openAnalysisBoard(model, variant) },
-                        }, _('Analysis')),
-                        h('button.catalogued-row-button.catalogued-secondary-action', {
-                            props: { type: 'button', disabled: archived },
-                            on: { click: () => openRulesPage(model, variant) },
-                        }, _('Rules')),
-                        h('button.catalogued-row-button.catalogued-secondary-action', {
-                            props: { type: 'button', disabled: state.saving },
-                            attrs: { title: systemTitle || lockTitle },
-                            on: { click: () => editVariant(model, variant) },
-                        }, _('Edit')),
-                        h('button.catalogued-row-button.catalogued-secondary-action', {
-                            props: { type: 'button', disabled: systemManaged || locked || state.saving },
-                            attrs: { title: systemTitle || lockTitle },
-                            on: { click: () => void postAction(model, variant, 'delete') },
-                        }, _('Delete')),
-                        archived
-                            ? h('button.catalogued-row-button.catalogued-secondary-action', {
-                                props: { type: 'button', disabled: state.saving },
-                                on: { click: () => void postAction(model, variant, 'restore') },
-                            }, _('Restore'))
-                            : h('button.catalogued-row-button.catalogued-secondary-action', {
-                                props: { type: 'button', disabled: state.saving },
-                                on: { click: () => void postAction(model, variant, 'archive') },
-                            }, _('Archive')),
-                        h('button.catalogued-row-button.catalogued-secondary-action', {
-                            props: { type: 'button', disabled: systemManaged || state.saving },
-                            attrs: { title: systemTitle },
-                            on: { click: () => void postAction(model, variant, 'clone') },
-                        }, _('Clone')),
-                    ]),
-                ]);
-            })),
+            h(
+                'thead',
+                h('tr', [
+                    h('th', _('Name')),
+                    h('th', _('Status')),
+                    h('th', _('Visibility')),
+                    h('th', _('Games')),
+                    h('th', _('Pieces')),
+                    h('th', _('Board')),
+                    h('th', _('Actions')),
+                ]),
+            ),
+            h(
+                'tbody',
+                state.variants.map(variant => {
+                    const locked = !!variant.locked;
+                    const archived = !!variant.archived || variant.enabled === false;
+                    const systemManaged = isSystemManagedVariant(variant);
+                    const lockTitle = locked
+                        ? _('This variant already has saved public games. Clone it to change the rules.')
+                        : '';
+                    const systemTitle = systemManaged
+                        ? _('Fairy-Stockfish built-in catalogue entries keep their engine rules and key fixed.')
+                        : '';
+                    const aiTitle = variant.aiDisabled
+                        ? _(
+                              'Fairy-Stockfish AI is temporarily disabled for this variant; Random-Mover can still be used.',
+                          )
+                        : '';
+                    return h('tr', { class: { archived } }, [
+                        h('td.catalogued-name-cell', { attrs: { 'data-label': _('Name') } }, [
+                            h('strong', variant.displayName),
+                            h('code', variant.name),
+                            variant.tooltip ? h('p', variant.tooltip) : null,
+                        ]),
+                        h(
+                            'td',
+                            { attrs: { 'data-label': _('Status') } },
+                            archived
+                                ? _('Archived')
+                                : systemManaged
+                                  ? _('System')
+                                  : locked
+                                    ? _('Locked')
+                                    : _('Editable'),
+                        ),
+                        h('td', { attrs: { 'data-label': _('Visibility') } }, visibilityLabel(variant.visibility)),
+                        h('td', { attrs: { 'data-label': _('Games') } }, String(variant.gameCount ?? 0)),
+                        h('td', { attrs: { 'data-label': _('Pieces') } }, renderPieceSetControls(model, variant)),
+                        h('td', { attrs: { 'data-label': _('Board') } }, renderBoardControls(model, variant)),
+                        h('td.catalogued-row-actions', { attrs: { 'data-label': _('Actions') } }, [
+                            h(
+                                'button.button-primary.catalogued-row-button',
+                                {
+                                    props: { type: 'button', disabled: archived },
+                                    on: { click: () => playVariant(model, variant) },
+                                },
+                                _('Play'),
+                            ),
+                            h(
+                                'button.catalogued-row-button.catalogued-secondary-action.catalogued-ai-action',
+                                {
+                                    props: { type: 'button', disabled: archived },
+                                    attrs: { title: aiTitle },
+                                    on: { click: () => playVariantWithAI(model, variant) },
+                                },
+                                _('Play AI'),
+                            ),
+                            h(
+                                'button.catalogued-row-button.catalogued-secondary-action.catalogued-analysis-action',
+                                {
+                                    props: { type: 'button', disabled: archived },
+                                    on: { click: () => openAnalysisBoard(model, variant) },
+                                },
+                                _('Analysis'),
+                            ),
+                            h(
+                                'button.catalogued-row-button.catalogued-secondary-action',
+                                {
+                                    props: { type: 'button', disabled: archived },
+                                    on: { click: () => openRulesPage(model, variant) },
+                                },
+                                _('Rules'),
+                            ),
+                            h(
+                                'button.catalogued-row-button.catalogued-secondary-action',
+                                {
+                                    props: { type: 'button', disabled: state.saving },
+                                    attrs: { title: systemTitle || lockTitle },
+                                    on: { click: () => editVariant(model, variant) },
+                                },
+                                _('Edit'),
+                            ),
+                            h(
+                                'button.catalogued-row-button.catalogued-secondary-action',
+                                {
+                                    props: { type: 'button', disabled: systemManaged || locked || state.saving },
+                                    attrs: { title: systemTitle || lockTitle },
+                                    on: { click: () => void postAction(model, variant, 'delete') },
+                                },
+                                _('Delete'),
+                            ),
+                            archived
+                                ? h(
+                                      'button.catalogued-row-button.catalogued-secondary-action',
+                                      {
+                                          props: { type: 'button', disabled: state.saving },
+                                          on: { click: () => void postAction(model, variant, 'restore') },
+                                      },
+                                      _('Restore'),
+                                  )
+                                : h(
+                                      'button.catalogued-row-button.catalogued-secondary-action',
+                                      {
+                                          props: { type: 'button', disabled: state.saving },
+                                          on: { click: () => void postAction(model, variant, 'archive') },
+                                      },
+                                      _('Archive'),
+                                  ),
+                            h(
+                                'button.catalogued-row-button.catalogued-secondary-action',
+                                {
+                                    props: { type: 'button', disabled: systemManaged || state.saving },
+                                    attrs: { title: systemTitle },
+                                    on: { click: () => void postAction(model, variant, 'clone') },
+                                },
+                                _('Clone'),
+                            ),
+                        ]),
+                    ]);
+                }),
+            ),
         ]),
     ]);
 }
 
 function renderRoot(model: PyChessModel): VNode {
-    const listTitle = state.adminScope === 'fsf'
-        ? _('Fairy-Stockfish variants')
-        : state.adminScope === 'all'
-        ? _('All variants')
-        : _('My variants');
+    const listTitle =
+        state.adminScope === 'fsf'
+            ? _('Fairy-Stockfish variants')
+            : state.adminScope === 'all'
+              ? _('All variants')
+              : _('My variants');
 
-    return h('main#my-variants.my-variants', {
-        hook: {
-            insert: (vnode: VNode) => {
-                rootVNode = vnode;
-                if (!state.loaded) void loadMine(model);
+    return h(
+        'main#my-variants.my-variants',
+        {
+            hook: {
+                insert: (vnode: VNode) => {
+                    rootVNode = vnode;
+                    if (!state.loaded) void loadMine(model);
+                },
             },
         },
-    }, [
-        h('section.catalogued-page-header', [
-            h('h1', _('Manage my variants')),
-            h('p', _('Uploaded variants stay out of the regular variant catalog. They are always casual/unrated, but can be played from this page against humans or Fairy-Stockfish.')),
-            h('p', [
-                h('a', { attrs: { href: `${model.home}/variants/community` } }, _('Browse community variants')),
-            ]),
-        ]),
-        model.anon === 'True'
-            ? h('section.catalogued-card', [
-                h('h2', _('Sign in required')),
-                h('p', _('Please sign in to upload and manage your variants.')),
-            ])
-            : h('div.catalogued-layout', [
-                state.message ? h('p.catalogued-message', state.message) : null,
-                renderForm(model),
-                h('section.catalogued-card.catalogued-list-card', [
-                    h('h2', listTitle),
-                    renderAdminScopeControls(model),
-                    state.maxVariants === null ? null : h('p.catalogued-help', `${state.variants.length}/${state.maxVariants} ${_('variant slots used')}`),
-                    renderRows(model),
+        [
+            h('section.catalogued-page-header', [
+                h('h1', _('Manage my variants')),
+                h(
+                    'p',
+                    _(
+                        'Uploaded variants stay out of the regular variant catalog. They are always casual/unrated, but can be played from this page against humans or Fairy-Stockfish.',
+                    ),
+                ),
+                h('p', [
+                    h('a', { attrs: { href: `${model.home}/variants/community` } }, _('Browse community variants')),
                 ]),
             ]),
-    ]);
+            model.anon === 'True'
+                ? h('section.catalogued-card', [
+                      h('h2', _('Sign in required')),
+                      h('p', _('Please sign in to upload and manage your variants.')),
+                  ])
+                : h('div.catalogued-layout', [
+                      state.message ? h('p.catalogued-message', state.message) : null,
+                      renderForm(model),
+                      h('section.catalogued-card.catalogued-list-card', [
+                          h('h2', listTitle),
+                          renderAdminScopeControls(model),
+                          state.maxVariants === null
+                              ? null
+                              : h(
+                                    'p.catalogued-help',
+                                    `${state.variants.length}/${state.maxVariants} ${_('variant slots used')}`,
+                                ),
+                          renderRows(model),
+                      ]),
+                  ]),
+        ],
+    );
 }
 
 export function myVariantsView(model: PyChessModel): VNode[] {

@@ -1,7 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import * as idb from 'idb-keyval';
-import * as Mousetrap  from 'mousetrap';
+import * as Mousetrap from 'mousetrap';
 
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
@@ -22,14 +22,14 @@ import { copyBoardToPNG } from '../png';
 import { boardSettings } from '../boardSettings';
 import { patch, downloadPgnText } from '../document';
 import { variantsIni } from '../variantsIni';
-import { Chart } from "highcharts";
-import { PyChessModel } from "../types";
-import { Ceval, MsgBoard, MsgUserConnected, Step, CrossTable } from "../messages";
+import { Chart } from 'highcharts';
+import { PyChessModel } from '../types';
+import { Ceval, MsgBoard, MsgUserConnected, Step, CrossTable } from '../messages';
 import { MsgAnalysis, MsgAnalysisBoard } from './analysisType';
 import { GameController } from '../gameCtrl';
 import { analysisSettings, EngineSettings } from './analysisSettings';
 import { setAriaTabClick } from '../view';
-import { createWebsocket } from "@/socket/webSocketUtils";
+import { createWebsocket } from '@/socket/webSocketUtils';
 import { setPocketRowCssVars } from '../pocketRow';
 import { updateCount, updatePoint } from '../info';
 import { allVariantsIni, fogFen } from '../variants';
@@ -70,20 +70,26 @@ import {
     publishCevalPosition,
 } from '../antiCheat';
 
-const EVAL_REGEX = new RegExp(''
-  + /^info depth (\d+) seldepth \d+ multipv (\d+) /.source
-  + /score (cp|mate) ([-\d]+) /.source
-  + /(?:(upper|lower)bound )?nodes (\d+) nps \S+ /.source
-  + /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source
-  + /pv (.+)/.source);
+const EVAL_REGEX = new RegExp(
+    '' +
+        /^info depth (\d+) seldepth \d+ multipv (\d+) /.source +
+        /score (cp|mate) ([-\d]+) /.source +
+        /(?:(upper|lower)bound )?nodes (\d+) nps \S+ /.source +
+        /(?:hashfull \d+ )?(?:tbhits \d+ )?time (\S+) /.source +
+        /pv (.+)/.source,
+);
 
 const maxDepth = 18;
 const TREE_COLLAPSED_STORAGE_KEY = 'analysisTreeCollapsedPaths';
 
 const emptySan = '\xa0';
 
-export function titleCase (words: string) {return words.split(' ').map(w =>  w.substring(0,1).toUpperCase() + w.substring(1).toLowerCase()).join(' ');}
-
+export function titleCase(words: string) {
+    return words
+        .split(' ')
+        .map(w => w.substring(0, 1).toUpperCase() + w.substring(1).toLowerCase())
+        .join(' ');
+}
 
 export class AnalysisController extends GameController {
     vpgn: VNode;
@@ -117,7 +123,7 @@ export class AnalysisController extends GameController {
     ongoing: boolean;
     fsfDebug: boolean;
     fsfError: string[];
-    fsfEngineBoard: any;  // used to convert pv UCI move list to SAN
+    fsfEngineBoard: any; // used to convert pv UCI move list to SAN
     variantSupportedByFSF: boolean;
     autoShapes: DrawShape[][];
     lastBroadcastLocalAnalysisFen?: string;
@@ -138,21 +144,28 @@ export class AnalysisController extends GameController {
     private fsfInputQueue: string[];
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
+        super(
+            el,
+            model,
+            model.fen,
+            document.getElementById('pocket0') as HTMLElement,
+            document.getElementById('pocket1') as HTMLElement,
+            '',
+        );
         this.pvHoverPreview = new PvHoverPreview(this.variant);
         this.fsfError = [];
         this.embed = model.embed;
-        this.puzzle = model["puzzle"] !== "";
-        this.isAnalysisBoard = this.gameId === "" && !this.puzzle;
+        this.puzzle = model['puzzle'] !== '';
+        this.isAnalysisBoard = this.gameId === '' && !this.puzzle;
         if (!this.embed) {
             this.chartFunctions = [analysisChart, movetimeChart];
         }
 
         const onOpen = () => {
             if (this.embed) {
-                this.doSend({ type: "embed_user_connected", gameId: this.gameId });
+                this.doSend({ type: 'embed_user_connected', gameId: this.gameId });
             } else if (!this.isAnalysisBoard) {
-                this.doSend({ type: "game_user_connected", username: this.username, gameId: this.gameId });
+                this.doSend({ type: 'game_user_connected', username: this.username, gameId: this.gameId });
             }
         };
 
@@ -163,10 +176,10 @@ export class AnalysisController extends GameController {
 
         // is local engine analysis enabled? (the switch)
         this.localAnalysis =
-            localStorage.localAnalysis !== undefined
-            && !this.ongoing
-            && !this.isLocalAnalysisBlockedByAntiCheat()
-            && localStorage.localAnalysis === "true";
+            localStorage.localAnalysis !== undefined &&
+            !this.ongoing &&
+            !this.isLocalAnalysisBlockedByAntiCheat() &&
+            localStorage.localAnalysis === 'true';
 
         // UCI isready/readyok
         this.isEngineReady = false;
@@ -180,17 +193,19 @@ export class AnalysisController extends GameController {
         this.settings = true;
         this.dblClickPass = true;
 
-        this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === "true";
-        const infiniteAnalysis = localStorage.infiniteAnalysis === undefined ? false : localStorage.infiniteAnalysis === "true";
-        this.maxDepth = (infiniteAnalysis) ? 99 : maxDepth;
+        this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === 'true';
+        const infiniteAnalysis =
+            localStorage.infiniteAnalysis === undefined ? false : localStorage.infiniteAnalysis === 'true';
+        this.maxDepth = infiniteAnalysis ? 99 : maxDepth;
         this.multipv = localStorage.multipv === undefined ? 1 : parseInt(localStorage.multipv);
-        this.evalFile = localStorage[`${this.variant.name}-nnue`] === undefined ? '' : localStorage[`${this.variant.name}-nnue`];
+        this.evalFile =
+            localStorage[`${this.variant.name}-nnue`] === undefined ? '' : localStorage[`${this.variant.name}-nnue`];
         this.threads = localStorage.threads === undefined ? 1 : parseInt(localStorage.threads);
         this.hash = localStorage.hash === undefined ? 16 : parseInt(localStorage.hash);
-        this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === "true";
-        this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === "true";
-        this.inlineNotation = localStorage.inlineNotation === "true";
-        this.disclosureMode = localStorage.disclosureMode === "true";
+        this.nnue = localStorage.nnue === undefined ? true : localStorage.nnue === 'true';
+        this.fsfDebug = localStorage.fsfDebug === undefined ? false : localStorage.fsfDebug === 'true';
+        this.inlineNotation = localStorage.inlineNotation === 'true';
+        this.disclosureMode = localStorage.disclosureMode === 'true';
         this.variantSupportedByFSF = false;
         this.uciOk = false;
         this.nnueOk = false;
@@ -211,7 +226,8 @@ export class AnalysisController extends GameController {
             if (this.keyboardHelpOpen || !isKeyboardHelpShortcut(event)) return;
 
             const target = event.target;
-            if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]')) return;
+            if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]'))
+                return;
 
             event.preventDefault();
             event.stopPropagation();
@@ -249,7 +265,7 @@ export class AnalysisController extends GameController {
                 events: {
                     after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
                     afterNewPiece: (piece, dest, meta) => this.onUserDrop(piece, dest, meta),
-                }
+                },
             },
             events: {
                 move: this.onMove(),
@@ -258,16 +274,18 @@ export class AnalysisController extends GameController {
             },
         });
 
-
         if (this.hasPockets) {
             setPocketRowCssVars(this);
         }
 
         if (!this.isAnalysisBoard && !this.embed && !this.ongoing) {
             this.ctableContainer = document.getElementById('panel-3') as HTMLElement;
-            if (model["ct"]) {
+            if (model['ct']) {
                 this.ctableContainer = patch(this.ctableContainer, h('panel-3'));
-                this.ctableContainer = patch(this.ctableContainer, crosstableView(model["ct"] as CrossTable, this.gameId));
+                this.ctableContainer = patch(
+                    this.ctableContainer,
+                    crosstableView(model['ct'] as CrossTable, this.gameId),
+                );
             }
         }
 
@@ -275,7 +293,7 @@ export class AnalysisController extends GameController {
         this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
         if (!this.isAnalysisBoard && !this.embed && !this.puzzle && !this.ongoing) {
-            patch(document.getElementById('roundchat') as HTMLElement, chatView(this, "roundchat"));
+            patch(document.getElementById('roundchat') as HTMLElement, chatView(this, 'roundchat'));
         }
 
         if (!this.embed && !this.ongoing) {
@@ -285,7 +303,11 @@ export class AnalysisController extends GameController {
 
             this.vscore = document.getElementById('score') as HTMLElement;
             this.vinfo = document.getElementById('info') as HTMLElement;
-            this.vpvlines = [...Array(5).fill(null).map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement)];
+            this.vpvlines = [
+                ...Array(5)
+                    .fill(null)
+                    .map((_, i) => document.querySelector(`.pvbox :nth-child(${i + 1})`) as HTMLElement),
+            ];
             this.pvHoverPreview.init(
                 document.querySelector('div.pvbox') as HTMLElement | null,
                 this.fullfen,
@@ -294,7 +316,7 @@ export class AnalysisController extends GameController {
 
             if (!this.puzzle) {
                 (document.querySelector('div.feedback') as HTMLElement).style.display = 'none';
-                const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+                const pgn = this.isAnalysisBoard ? this.getPgn() : this.pgn;
                 this.renderFENAndPGN(pgn);
             }
         }
@@ -318,12 +340,16 @@ export class AnalysisController extends GameController {
             (document.getElementById('misc-infob') as HTMLElement).style.textAlign = 'center';
         }
 
-        setAriaTabClick("analysis_tab");
+        setAriaTabClick('analysis_tab');
 
         if (!this.puzzle && !this.ongoing && !this.embed) {
             const initialEl = document.querySelector('[tabindex="0"]') as HTMLElement;
             initialEl.setAttribute('aria-selected', 'true');
-            (initialEl!.parentNode!.parentNode!.querySelector(`#${initialEl.getAttribute('aria-controls')}`)! as HTMLElement).style.display = 'block';
+            (
+                initialEl!.parentNode!.parentNode!.querySelector(
+                    `#${initialEl.getAttribute('aria-controls')}`,
+                )! as HTMLElement
+            ).style.display = 'block';
 
             const menuEl = document.getElementById('bars') as HTMLElement;
             menuEl.style.display = 'block';
@@ -334,9 +360,15 @@ export class AnalysisController extends GameController {
         }
 
         if (!this.puzzle && !this.ongoing && this.gameId) {
-            this.sock = createWebsocket('wsr/' + this.gameId, onOpen, () => {}, () => {}, (e: MessageEvent) => this.onMessage(e));
+            this.sock = createWebsocket(
+                'wsr/' + this.gameId,
+                onOpen,
+                () => {},
+                () => {},
+                (e: MessageEvent) => this.onMessage(e),
+            );
         } else {
-            this.onMsgBoard(model["board"] as MsgBoard);
+            this.onMsgBoard(model['board'] as MsgBoard);
             if (this.isAnalysisBoard && !this.hasAnalysisTree()) {
                 this.initAnalysisTreeAtPly(this.ply);
                 updateMovelist(this, true, false);
@@ -350,10 +382,12 @@ export class AnalysisController extends GameController {
 
         analysisSettings.ctrl = this;
 
-        Mousetrap.bind('p', () => copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site ${model.home}/${this.gameId}\n`));
+        Mousetrap.bind('p', () =>
+            copyTextToClipboard(`${this.fullfen};variant ${this.variant.name};site ${model.home}/${this.gameId}\n`),
+        );
 
         const gaugeEl = document.getElementById('gauge') as HTMLElement;
-        if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add("flipped");
+        if (this.variant.name !== 'racingkings' && this.mycolor === 'black') gaugeEl.classList.add('flipped');
 
         this.autoShapes = [];
 
@@ -545,11 +579,13 @@ export class AnalysisController extends GameController {
         if (!this.analysisTree) return;
         this.ensureTreeSanSan();
         const onMainline = this.pathIsTreeMainline(path) && !this.pathIsTreeForcedVariation(path);
-        copyTextToClipboard(renderLinePgnMoveText(
-            this.analysisTree,
-            onMainline ? extendPath(this.analysisTree, path, true) : path,
-            (node) => node.step.sanSAN ?? '',
-        ));
+        copyTextToClipboard(
+            renderLinePgnMoveText(
+                this.analysisTree,
+                onMainline ? extendPath(this.analysisTree, path, true) : path,
+                node => node.step.sanSAN ?? '',
+            ),
+        );
         this.closeTreeContextMenu();
     }
 
@@ -646,7 +682,7 @@ export class AnalysisController extends GameController {
 
         // First prefer the currently selected branch. Falling back to persisted mainline
         // preserves older callers that still address positions by raw ply only.
-        const nodeOnActivePath = this.getTreeNodeList().find((n) => n.ply === ply);
+        const nodeOnActivePath = this.getTreeNodeList().find(n => n.ply === ply);
         if (nodeOnActivePath) return nodeOnActivePath;
 
         const mainlinePath = mainlinePathAtPly(this.analysisTree, ply);
@@ -698,11 +734,7 @@ export class AnalysisController extends GameController {
 
         const engineToggle = document.getElementById('engine-enabled') as HTMLInputElement | null;
         if (engineToggle !== null) {
-            engineToggle.disabled =
-                blocked
-                || !this.localEngine
-                || !this.isEngineReady
-                || !this.variantSupportedByFSF;
+            engineToggle.disabled = blocked || !this.localEngine || !this.isEngineReady || !this.variantSupportedByFSF;
         }
     }
 
@@ -723,11 +755,18 @@ export class AnalysisController extends GameController {
     pvView(i: number, pv: VNode | undefined) {
         if (i >= 0) {
             if (this.vpvlines === undefined) this.pvboxIni();
-            this.vpvlines[i] = patch(this.vpvlines[i], h(`div#pv${i + 1}.pv`, {
-                on: {
-                    mouseleave: () => this.pvHoverPreview.scheduleHide(),
-                },
-            }, pv));
+            this.vpvlines[i] = patch(
+                this.vpvlines[i],
+                h(
+                    `div#pv${i + 1}.pv`,
+                    {
+                        on: {
+                            mouseleave: () => this.pvHoverPreview.scheduleHide(),
+                        },
+                    },
+                    pv,
+                ),
+            );
         }
     }
 
@@ -743,10 +782,10 @@ export class AnalysisController extends GameController {
     }
 
     toggleOrientation() {
-        super.toggleOrientation()
+        super.toggleOrientation();
         this.pvHoverPreview.onOrientationChange();
         boardSettings.updateDropSuggestion();
-        (document.getElementById('gauge') as HTMLElement).classList.toggle("flipped");
+        (document.getElementById('gauge') as HTMLElement).classList.toggle('flipped');
         const clocktimes = this.steps[1]?.clocks;
         if (clocktimes !== undefined) {
             renderClocks(this);
@@ -765,34 +804,35 @@ export class AnalysisController extends GameController {
                 void alertDialog({ text: _('You need an account to do that.') });
                 return;
             }
-//            if (!this.variantSupportedByFSF) {
-// We can't use FSF WASM detection here because users may use unsupported hardware
-// but server side analysis will work for them at the same time!
+            //            if (!this.variantSupportedByFSF) {
+            // We can't use FSF WASM detection here because users may use unsupported hardware
+            // but server side analysis will work for them at the same time!
             if (this.variant.name === 'alice') {
                 void alertDialog({ text: _('This variant is not supported by Fairy-Stockfish.') });
                 return;
             }
-            this.doSend({ type: "analysis", username: this.username, gameId: this.gameId });
+            this.doSend({ type: 'analysis', username: this.username, gameId: this.gameId });
             const loaderEl = document.getElementById('loader') as HTMLElement;
             loaderEl.style.display = 'block';
         }
         const chartEl = document.getElementById('chart-analysis') as HTMLElement;
         chartEl.style.display = 'block';
         analysisChart(this);
-    }
+    };
 
     checkStatus(msg: MsgBoard | MsgAnalysisBoard) {
         if ((msg.gameId !== this.gameId && !this.isAnalysisBoard) || this.embed) return;
-        if (("status" in msg && msg.status >= 0) || this.isAnalysisBoard) {
-
+        if (('status' in msg && msg.status >= 0) || this.isAnalysisBoard) {
             // Save finished game full pgn sent by server
-            if ("pgn" in msg && msg.pgn !== undefined) this.pgn = msg.pgn;
+            if ('pgn' in msg && msg.pgn !== undefined) this.pgn = msg.pgn;
             // but on analysis page we always present pgn move list leading to current shown position!
-            const pgn = (this.isAnalysisBoard) ? this.getPgn() : this.pgn;
+            const pgn = this.isAnalysisBoard ? this.getPgn() : this.pgn;
 
-            if ("uci_usi" in msg) { this.uci_usi = msg.uci_usi; }
+            if ('uci_usi' in msg) {
+                this.uci_usi = msg.uci_usi;
+            }
 
-            this.renderFENAndPGN( pgn );
+            this.renderFENAndPGN(pgn);
 
             if (!this.isAnalysisBoard) selectMove(this, this.ply);
         }
@@ -802,14 +842,38 @@ export class AnalysisController extends GameController {
         let container = document.getElementById('copyfen') as HTMLElement;
         if (container !== null) {
             const buttons = [
-                h('a.i-pgn', { on: { click: () => downloadPgnText("pychess-variants_" + this.gameId) } }, [
-                    h('i', {props: {title: _('Download game to PGN file')}, class: {"icon": true, "icon-download": true} }, _('Download PGN'))]),
+                h('a.i-pgn', { on: { click: () => downloadPgnText('pychess-variants_' + this.gameId) } }, [
+                    h(
+                        'i',
+                        {
+                            props: { title: _('Download game to PGN file') },
+                            class: { icon: true, 'icon-download': true },
+                        },
+                        _('Download PGN'),
+                    ),
+                ]),
                 h('a.i-pgn', { on: { click: () => copyTextToClipboard(this.uci_usi) } }, [
-                    h('i', {props: {title: _('Copy USI/UCI to clipboard')}, class: {"icon": true, "icon-clipboard": true} }, _('Copy UCI/USI'))]),
+                    h(
+                        'i',
+                        {
+                            props: { title: _('Copy USI/UCI to clipboard') },
+                            class: { icon: true, 'icon-clipboard': true },
+                        },
+                        _('Copy UCI/USI'),
+                    ),
+                ]),
                 h('a.i-pgn', { on: { click: () => copyBoardToPNG(this.fullfen) } }, [
-                    h('i', {props: {title: _('Download position to PNG image file')}, class: {"icon": true, "icon-download": true} }, _('PNG image'))]),
+                    h(
+                        'i',
+                        {
+                            props: { title: _('Download position to PNG image file') },
+                            class: { icon: true, 'icon-download': true },
+                        },
+                        _('PNG image'),
+                    ),
+                ]),
                 h('div#imported'),
-                ]
+            ];
             patch(container, h('div.pgnbuttons', buttons));
         }
 
@@ -828,7 +892,7 @@ export class AnalysisController extends GameController {
             danger: true,
         });
         if (!confirmed) return;
-        this.doSend({ type: "delete", gameId: this.gameId });
+        this.doSend({ type: 'delete', gameId: this.gameId });
     }
 
     onMsgBoard(msg: MsgBoard) {
@@ -838,15 +902,21 @@ export class AnalysisController extends GameController {
         // Enable to delete imported games
         if (this.rated === '2' && this.importedBy === this.username) {
             const importedEl = document.getElementById('imported') as HTMLElement;
-            patch(importedEl,
+            patch(
+                importedEl,
                 h('a.i-pgn', { on: { click: () => this.deleteGame() } }, [
-                    h('i', {props: {title: _('Delete game')}, class: {"icon": true, "icon-trash-o": true} }, _('Delete game'))])
+                    h(
+                        'i',
+                        { props: { title: _('Delete game') }, class: { icon: true, 'icon-trash-o': true } },
+                        _('Delete game'),
+                    ),
+                ]),
             );
         }
 
         // console.log("got board msg:", msg);
         this.fullfen = msg.fen;
-        this.turnColor = getTurnColor(msg.fen);// turnColor have to be actualized before setDests() !!!
+        this.turnColor = getTurnColor(msg.fen); // turnColor have to be actualized before setDests() !!!
 
         this.setDests();
 
@@ -858,11 +928,11 @@ export class AnalysisController extends GameController {
             msg.steps.forEach((step, ply) => {
                 if (step.analysis !== undefined) {
                     step.ceval = step.analysis;
-                    const scoreStr = this.buildScoreStr(ply % 2 === 0 ? "w" : "b", step.analysis);
+                    const scoreStr = this.buildScoreStr(ply % 2 === 0 ? 'w' : 'b', step.analysis);
                     step.scoreStr = scoreStr;
                 }
                 this.steps.push(step);
-                });
+            });
             this.recordedMainlinePly = msg.steps.length - 1;
             this.initAnalysisTreeAtPly(Math.min(this.ply, this.steps.length - 1));
             updateMovelist(this, true, false);
@@ -871,9 +941,24 @@ export class AnalysisController extends GameController {
                 if (!this.isAnalysisBoard && !this.embed) {
                     const el = document.getElementById('request-analysis') as HTMLElement;
                     el.style.display = 'flex';
-                    patch(el, h('div#request-analysis', [h('button.request-analysis.button-primary', { on: { click: () => this.drawAnalysisChart(true) } }, [
-                        h('i', {props: {title: _('Request Computer Analysis')}, class: {"icon": true, "icon-bar-chart": true} }, _('Request Analysis'))])
-                        ])
+                    patch(
+                        el,
+                        h('div#request-analysis', [
+                            h(
+                                'button.request-analysis.button-primary',
+                                { on: { click: () => this.drawAnalysisChart(true) } },
+                                [
+                                    h(
+                                        'i',
+                                        {
+                                            props: { title: _('Request Computer Analysis') },
+                                            class: { icon: true, 'icon-bar-chart': true },
+                                        },
+                                        _('Request Analysis'),
+                                    ),
+                                ],
+                            ),
+                        ]),
                     );
                 }
             } else {
@@ -890,16 +975,15 @@ export class AnalysisController extends GameController {
                 cmt.style.display = 'block';
                 movetimeChart(this);
             }
-
         } else {
             if (msg.ply === this.steps.length) {
                 const step: Step = {
-                    'fen': msg.fen,
-                    'move': msg.lastMove,
-                    'check': msg.check,
-                    'turnColor': this.turnColor,
-                    'san': msg.steps[0].san,
-                    };
+                    fen: msg.fen,
+                    move: msg.lastMove,
+                    check: msg.check,
+                    turnColor: this.turnColor,
+                    san: msg.steps[0].san,
+                };
                 this.steps.push(step);
                 updateMovelist(this);
             }
@@ -915,7 +999,9 @@ export class AnalysisController extends GameController {
         let capture = false;
         if (lastMove) {
             const piece = this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key);
-            capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture =
+                (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') ||
+                step.san?.slice(1, 2) === 'x';
         }
         if (msg.steps.length === 1 && lastMove && (this.turnColor === this.mycolor || this.spectator)) {
             sound.moveSound(this.variant, capture);
@@ -984,17 +1070,17 @@ export class AnalysisController extends GameController {
             this.fsfPostMessage('isready');
 
             if (this.evalFile) {
-                idb.get(`${this.variant.name}--nnue-file`).then((nnuefile) => {
+                idb.get(`${this.variant.name}--nnue-file`).then(nnuefile => {
                     if (nnuefile === this.evalFile) {
-                        idb.get(`${this.variant.name}--nnue-data`).then((data) => {
+                        idb.get(`${this.variant.name}--nnue-data`).then(data => {
                             const array = new Uint8Array(data);
-                            const filename = "/" + this.evalFile;
+                            const filename = '/' + this.evalFile;
                             window.fsf.FS.writeFile(filename, array);
                             console.log('Loaded to fsf.FS:', filename);
                             this.nnueOk = true;
                             const nnueEl = document.querySelector('.nnue') as HTMLElement;
                             const title = _('Multi-threaded WebAssembly (with NNUE evaluation)');
-                            patch(nnueEl, h('span.nnue', { props: {title: title } } , 'NNUE'));
+                            patch(nnueEl, h('span.nnue', { props: { title: title } }, 'NNUE'));
                             if (this.localAnalysis) {
                                 this.engineStop();
                                 this.engineGo();
@@ -1044,18 +1130,21 @@ export class AnalysisController extends GameController {
 
         let score;
         if (isMate) {
-            score = {mate: povEv};
+            score = { mate: povEv };
         } else {
-            score = {cp: povEv};
+            score = { cp: povEv };
         }
         const knps = nodes / elapsedMs;
         if (this.lastBroadcastLocalAnalysisFen !== this.fullfen) {
-            publishCevalPosition(
-                buildCevalPositionPayload(this.variant.name, this.chess960, this.fullfen)
-            );
+            publishCevalPosition(buildCevalPositionPayload(this.variant.name, this.chess960, this.fullfen));
             this.lastBroadcastLocalAnalysisFen = this.fullfen;
         }
-        const msg: MsgAnalysis = {type: 'local-analysis', ply: this.ply, color: this.turnColor.slice(0, 1), ceval: {d: depth, multipv: multiPv, p: moves, s: score, k: knps}};
+        const msg: MsgAnalysis = {
+            type: 'local-analysis',
+            ply: this.ply,
+            color: this.turnColor.slice(0, 1),
+            ceval: { d: depth, multipv: multiPv, p: moves, s: score, k: knps },
+        };
         this.onMsgAnalysis(msg);
     };
 
@@ -1063,34 +1152,38 @@ export class AnalysisController extends GameController {
         this.maxDepth = 99;
         this.engineStop();
         this.engineGo();
-    }
+    };
 
-    makePvMove (pv_line: string) {
-        const move = pv_line.split(" ")[0];
+    makePvMove(pv_line: string) {
+        const move = pv_line.split(' ')[0];
         this.doSendMove(move);
     }
 
-    shapeFromMove (pv_idx: number, pv_move: string, turnColor: cg.Color) {
+    shapeFromMove(pv_idx: number, pv_move: string, turnColor: cg.Color) {
         const atPos = pv_move.indexOf('@');
         // drop
         if (atPos > -1) {
             const d = pv_move.slice(atPos + 1, atPos + 3) as cg.Key;
             const dropPieceRole = util.roleOf(pv_move.slice(0, atPos) as cg.Letter);
 
-            this.autoShapes[pv_idx] = [{
-                orig: d,
-                brush: 'paleGreen',
-                piece: {
-                    color: turnColor,
-                    role: dropPieceRole
-                }},
-                { orig: d, brush: 'paleGreen' }
+            this.autoShapes[pv_idx] = [
+                {
+                    orig: d,
+                    brush: 'paleGreen',
+                    piece: {
+                        color: turnColor,
+                        role: dropPieceRole,
+                    },
+                },
+                { orig: d, brush: 'paleGreen' },
             ];
         } else {
             // arrow
             const o = pv_move.slice(0, 2) as cg.Key;
             const d = pv_move.slice(2, 4) as cg.Key;
-            this.autoShapes[pv_idx] = [{ orig: o, dest: d, brush: 'paleGreen', piece: undefined, modifiers: { lineWidth: 14 - pv_idx * 2.5 } }];
+            this.autoShapes[pv_idx] = [
+                { orig: o, dest: d, brush: 'paleGreen', piece: undefined, modifiers: { lineWidth: 14 - pv_idx * 2.5 } },
+            ];
 
             // duck
             if (this.variant.rules.duck && pv_move.includes(',')) {
@@ -1099,9 +1192,9 @@ export class AnalysisController extends GameController {
                     brush: 'paleGreen',
                     piece: {
                         color: turnColor,
-                        role: '_-piece'
-                    }
-                })
+                        role: '_-piece',
+                    },
+                });
             }
 
             // TODO: gating, promotion
@@ -1112,7 +1205,7 @@ export class AnalysisController extends GameController {
 
     // Updates PV, score, gauge and the best move arrow
     drawEval = (ceval: Ceval | undefined, scoreStr: string | undefined, turnColor: cg.Color) => {
-        const pvlineIdx = (ceval && ceval.multipv) ? ceval.multipv - 1 : 0;
+        const pvlineIdx = ceval && ceval.multipv ? ceval.multipv - 1 : 0;
         // Render PV line
         if (ceval?.p !== undefined && this.multipv > 0) {
             let pvSan: string | VNode | VNode[] = ceval.p;
@@ -1150,11 +1243,14 @@ export class AnalysisController extends GameController {
                 }
             }
             if (pvSan !== emptySan) {
-                pvSan = h('pv-san', { on: { click: () => this.makePvMove(ceval.p as string) } } , pvSan)
-                this.pvView(pvlineIdx, h('pvline', [(this.multipv > 1 && this.localAnalysis) ? h('strong', scoreStr) : '', pvSan]));
+                pvSan = h('pv-san', { on: { click: () => this.makePvMove(ceval.p as string) } }, pvSan);
+                this.pvView(
+                    pvlineIdx,
+                    h('pvline', [this.multipv > 1 && this.localAnalysis ? h('strong', scoreStr) : '', pvSan]),
+                );
             }
         } else if (ceval === undefined) {
-            this.pvView(pvlineIdx, h('pvline', (this.localAnalysis) ? h('pvline', '-') : ''));
+            this.pvView(pvlineIdx, h('pvline', this.localAnalysis ? h('pvline', '-') : ''));
         }
 
         // Render gauge and main score value for first PV line only
@@ -1168,8 +1264,7 @@ export class AnalysisController extends GameController {
                     if (score !== undefined) {
                         const ev = povChances(color, score);
                         fillEl.style.height = String(100 - (ev + 1) * 50) + '%';
-                    }
-                    else {
+                    } else {
                         fillEl.style.height = '50%';
                     }
                 }
@@ -1182,9 +1277,9 @@ export class AnalysisController extends GameController {
                     if (ceval.d === this.maxDepth && this.maxDepth !== 99) {
                         info.push(
                             h('a.icon.icon-plus-square', {
-                                props: {type: "button", title: _("Go deeper")},
-                                on: { click: () => this.onMoreDepth() }
-                            })
+                                props: { type: 'button', title: _('Go deeper') },
+                                on: { click: () => this.onMoreDepth() },
+                            }),
                         );
                     } else if (ceval.d !== 99) {
                         info.push(h('span', ', ' + Math.round(ceval.k) + ' knodes/s'));
@@ -1201,11 +1296,11 @@ export class AnalysisController extends GameController {
         if (ceval?.p !== undefined) {
             // console.log("ARROW", this.arrow);
             if (this.arrow) {
-                const pv_move = uci2cg(ceval.p.split(" ")[0]);
+                const pv_move = uci2cg(ceval.p.split(' ')[0]);
                 this.shapeFromMove(pvlineIdx, pv_move, turnColor);
             }
         }
-    }
+    };
 
     // Updates chart and score in movelist
     drawServerEval = (ply: number, scoreStr?: string) => {
@@ -1222,7 +1317,7 @@ export class AnalysisController extends GameController {
                 if (hcPt !== undefined) hcPt.select();
             }
         }
-    }
+    };
 
     engineStop = () => {
         // Keep the toggle enabled, but still synchronize restart sequencing.
@@ -1232,7 +1327,7 @@ export class AnalysisController extends GameController {
         this.pendingGoAfterStopReadyok = false;
         this.fsfPostMessage('stop');
         this.fsfPostMessage('isready');
-    }
+    };
 
     engineGo = () => {
         if (!this.variantSupportedByFSF) return;
@@ -1273,7 +1368,7 @@ export class AnalysisController extends GameController {
         } else {
             this.fsfPostMessage('go movetime 90000 depth ' + this.maxDepth);
         }
-    }
+    };
 
     fsfPostMessage(msg: string, debug = true) {
         if (window.fsf === undefined) {
@@ -1342,7 +1437,7 @@ export class AnalysisController extends GameController {
     }
 
     disableLocalAnalysisForAntiCheat() {
-        localStorage.localAnalysis = "false";
+        localStorage.localAnalysis = 'false';
         const wasEnabled = this.localAnalysis;
         this.localAnalysis = false;
         this.lastBroadcastLocalAnalysisFen = undefined;
@@ -1364,7 +1459,7 @@ export class AnalysisController extends GameController {
         }
 
         this.refreshLocalAnalysisAvailabilityForAntiCheat();
-    }
+    };
 
     goPly(ply: number, plyVari = 0) {
         if (this.hasAnalysisTree() && plyVari === 0) {
@@ -1379,7 +1474,9 @@ export class AnalysisController extends GameController {
             let capture = false;
             if (lastMove) {
                 const piece = this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key);
-                capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+                capture =
+                    (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') ||
+                    step.san?.slice(1, 2) === 'x';
             }
 
             const fen = this.mirrorBoard ? this.getAliceFen(step.fen) : step.fen;
@@ -1400,11 +1497,20 @@ export class AnalysisController extends GameController {
             this.duck.inputState = undefined;
 
             if (this.variant.ui.counting) {
-                [this.vmiscInfoW, this.vmiscInfoB] = updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+                [this.vmiscInfoW, this.vmiscInfoB] = updateCount(
+                    step.fen,
+                    document.getElementById('misc-infow') as HTMLElement,
+                    document.getElementById('misc-infob') as HTMLElement,
+                );
             }
 
             if (this.variant.ui.materialPoint) {
-                [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+                [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(
+                    this.variant,
+                    step.fen,
+                    document.getElementById('misc-infow') as HTMLElement,
+                    document.getElementById('misc-infob') as HTMLElement,
+                );
             }
 
             if (ply === this.ply + 1) {
@@ -1479,9 +1585,9 @@ export class AnalysisController extends GameController {
             renderClocks(this);
             const hc = this.movetimeChart;
             if (hc !== undefined) {
-                const idx = (step.turnColor === 'white') ? 1 : 0;
+                const idx = step.turnColor === 'white' ? 1 : 0;
                 const turn = (ply + 1) >> 1;
-                const hcPt = hc.series[idx].data[turn-1];
+                const hcPt = hc.series[idx].data[turn - 1];
                 if (hcPt !== undefined) hcPt.select();
             }
         }
@@ -1511,7 +1617,6 @@ export class AnalysisController extends GameController {
                 window.history.replaceState({}, '', hist);
             }
         }
-
     }
 
     updateUCImoves() {
@@ -1522,7 +1627,7 @@ export class AnalysisController extends GameController {
             // to the selected node. This keeps engine analysis aligned with the branch
             // the user is currently exploring.
             const nodeList = this.getTreeNodeList();
-            nodeList.slice(1).forEach((node) => {
+            nodeList.slice(1).forEach(node => {
                 if (node.step.move) this.UCImovelist.push(node.step.move);
             });
             return;
@@ -1534,7 +1639,7 @@ export class AnalysisController extends GameController {
     }
 
     getPgn() {
-        const moves : string[] = [];
+        const moves: string[] = [];
         let moveCounter: string = '';
         let whiteMove: boolean = true;
         let blackStarts: boolean = this.steps[0].turnColor === 'black';
@@ -1550,22 +1655,23 @@ export class AnalysisController extends GameController {
 
         if (this.hasAnalysisTree()) {
             this.ensureTreeSanSan();
-        } else for (let ply = 1; ply <= this.ply; ply++) {
+        } else
+            for (let ply = 1; ply <= this.ply; ply++) {
                 if (blackStarts && ply === 1) {
                     moveCounter = '1...';
                 } else {
                     whiteMove = this.steps[ply].turnColor === 'black';
-                    moveCounter = (whiteMove) ? Math.ceil((ply + 1) / 2) + '.' : '';
+                    moveCounter = whiteMove ? Math.ceil((ply + 1) / 2) + '.' : '';
                 }
                 if (sanSANneeded) {
                     this.steps[ply]['sanSAN'] = this.ffishBoard.sanMove(this.steps[ply].move!);
                     this.ffishBoard.push(this.steps[ply].move!);
-                };
+                }
                 moves.push(moveCounter + this.steps[ply]['sanSAN']);
-        }
+            }
 
         if (this.hasAnalysisTree()) {
-            moves.push(renderFullTreePgnMoveText(this.analysisTree!, (node) => node.step.sanSAN ?? ''));
+            moves.push(renderFullTreePgnMoveText(this.analysisTree!, node => node.step.sanSAN ?? ''));
         }
 
         if (sanSANneeded || this.hasAnalysisTree()) {
@@ -1593,7 +1699,7 @@ export class AnalysisController extends GameController {
         if (!this.analysisTree) return;
 
         const visit = (parentFen: string, nodes: AnalysisTree['root']['children']) => {
-            nodes.forEach((node) => {
+            nodes.forEach(node => {
                 if (node.step.sanSAN === undefined && node.step.move !== undefined) {
                     this.ffishBoard.setFen(parentFen);
                     node.step.sanSAN = this.ffishBoard.sanMove(node.step.move);
@@ -1617,7 +1723,7 @@ export class AnalysisController extends GameController {
         } catch {
             collapsedPaths = [];
         }
-        collapsedPaths.forEach((path) => {
+        collapsedPaths.forEach(path => {
             const node = nodeAtPath(this.analysisTree!, path);
             if (node) node.collapsed = true;
         });
@@ -1636,9 +1742,11 @@ export class AnalysisController extends GameController {
 
     private revealTreePath(path: string) {
         if (!this.analysisTree) return;
-        getNodeList(this.analysisTree, path).slice(0, -1).forEach((node) => {
-            node.collapsed = false;
-        });
+        getNodeList(this.analysisTree, path)
+            .slice(0, -1)
+            .forEach(node => {
+                node.collapsed = false;
+            });
     }
 
     doSendMove(move: string) {
@@ -1648,33 +1756,33 @@ export class AnalysisController extends GameController {
         // Instead of sending moves to the server we can get new FEN and dests from ffishjs
         this.ffishBoard.push(move);
         const fen = this.ffishBoard.fen();
-        const parts = fen.split(" ");
+        const parts = fen.split(' ');
         // turnColor have to be actualized before setDests() !!!
-        this.turnColor = parts[1] === "w" ? "white" : "black";
+        this.turnColor = parts[1] === 'w' ? 'white' : 'black';
 
         this.setDests();
 
         const newPly = this.ply + 1;
 
-        const msg : MsgAnalysisBoard = {
+        const msg: MsgAnalysisBoard = {
             gameId: this.gameId,
             fen: this.ffishBoard.fen(this.variant.ui.showPromoted, 0),
             ply: newPly,
             lastMove: move,
             bikjang: this.ffishBoard.isBikjang(),
             check: this.ffishBoard.isCheck(),
-        }
+        };
 
         this.onMsgAnalysisBoard(msg);
 
         const step = {
-            'fen': msg.fen,
-            'move': msg.lastMove,
-            'check': msg.check,
-            'turnColor': this.turnColor,
-            'san': san,
-            'sanSAN': sanSAN,
-            };
+            fen: msg.fen,
+            move: msg.lastMove,
+            check: msg.check,
+            turnColor: this.turnColor,
+            san: san,
+            sanSAN: sanSAN,
+        };
 
         // `activateTreePath()` already refreshes board state, UCI move list and engine
         // analysis for tree mode, so we must not kick off a second `engineGo()` here.
@@ -1719,7 +1827,7 @@ export class AnalysisController extends GameController {
             const e = document.getElementById('fullfen') as HTMLInputElement;
             e.value = this.fullfen;
 
-            if (this.isAnalysisBoard || this.result == "*") {
+            if (this.isAnalysisBoard || this.result == '*') {
                 this.vpgn = patch(this.vpgn, h('div#pgntext', this.getPgn()));
             }
         }
@@ -1736,10 +1844,10 @@ export class AnalysisController extends GameController {
         if (!this.ongoing) this.clearPvlines();
 
         this.fullfen = msg.fen;
-        this.ply = msg.ply
+        this.ply = msg.ply;
 
-        const parts = msg.fen.split(" ");
-        this.turnColor = parts[1] === "w" ? "white" : "black";
+        const parts = msg.fen.split(' ');
+        this.turnColor = parts[1] === 'w' ? 'white' : 'black';
 
         this.chessground.set({
             fen: this.fullfen,
@@ -1752,25 +1860,24 @@ export class AnalysisController extends GameController {
         });
 
         if (msg.check) sound.check();
-
     }
 
     private buildScoreStr = (color: string, analysis: Ceval) => {
         const score = analysis['s'];
         let scoreStr = '';
-        let ceval : number;
+        let ceval: number;
         if (score['mate'] !== undefined) {
-            ceval = score['mate']
-            const sign = ((color === 'b' && Number(ceval) > 0) || (color === 'w' && Number(ceval) < 0)) ? '-': '';
+            ceval = score['mate'];
+            const sign = (color === 'b' && Number(ceval) > 0) || (color === 'w' && Number(ceval) < 0) ? '-' : '';
             scoreStr = '#' + sign + Math.abs(Number(ceval));
         } else if (score['cp'] !== undefined) {
-            ceval = score['cp']
+            ceval = score['cp'];
             let nscore = Number(ceval) / 100.0;
             if (color === 'b') nscore = -nscore;
             scoreStr = nscore.toFixed(1);
         }
         return scoreStr;
-    }
+    };
 
     private onMsgAnalysis = (msg: MsgAnalysis) => {
         if (msg['ceval']['s'] === undefined) return;
@@ -1782,7 +1889,11 @@ export class AnalysisController extends GameController {
             this.steps[msg.ply]['ceval'] = msg.ceval;
             this.steps[msg.ply]['scoreStr'] = scoreStr;
 
-            if (this.steps.every((step) => {return step.scoreStr !== undefined;})) {
+            if (
+                this.steps.every(step => {
+                    return step.scoreStr !== undefined;
+                })
+            ) {
                 const element = document.getElementById('loader-wrapper') as HTMLElement;
                 element.style.display = 'none';
             }
@@ -1791,25 +1902,25 @@ export class AnalysisController extends GameController {
             const turnColor = msg.color === 'w' ? 'white' : 'black';
             this.drawEval(msg.ceval, scoreStr, turnColor);
         }
-    }
+    };
 
     // User running a fishnet worker asked new server side analysis with chat message: !analysis
     private onMsgRequestAnalysis = () => {
-        this.steps.forEach((step) => {
+        this.steps.forEach(step => {
             step.analysis = undefined;
             step.ceval = undefined;
             step.scoreStr = undefined;
         });
         this.drawAnalysisChart(true);
-    }
+    };
 
     private onMsgUserConnected = (msg: MsgUserConnected) => {
-        this.username = msg["username"];
-    }
+        this.username = msg['username'];
+    };
 
     private onMsgDeleted = () => {
-        window.location.assign(this.home + "/@/" + this.username + '/import');
-    }
+        window.location.assign(this.home + '/@/' + this.username + '/import');
+    };
 
     protected onMessage(evt: MessageEvent) {
         // console.log("<+++ onMessage():", evt.data);
@@ -1818,23 +1929,23 @@ export class AnalysisController extends GameController {
         if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
-            case "board":
+            case 'board':
                 this.onMsgBoard(msg);
                 break;
-            case "analysis_board":
+            case 'analysis_board':
                 this.onMsgAnalysisBoard(msg);
-                break
-            case "analysis":
+                break;
+            case 'analysis':
                 this.onMsgAnalysis(msg);
                 break;
-            case "embed_user_connected":
-            case "game_user_connected":
+            case 'embed_user_connected':
+            case 'game_user_connected':
                 this.onMsgUserConnected(msg);
                 break;
-            case "request_analysis":
-                this.onMsgRequestAnalysis()
+            case 'request_analysis':
+                this.onMsgRequestAnalysis();
                 break;
-            case "deleted":
+            case 'deleted':
                 this.onMsgDeleted();
                 break;
         }

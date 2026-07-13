@@ -7,7 +7,6 @@ import { VARIANTS, variantGroups } from '../variants';
 import { goBackToLayer1, variantBoard } from './util';
 import { layer3variant } from './layer3';
 
-
 export function layer2xiangqi(lobbyCtrl: LobbyController, containerId: string, showBack: boolean = true): void {
     const variant = VARIANTS['xiangqi'];
     const xiangqiVariants = new Set(variantGroups.xiangqi.variants);
@@ -19,50 +18,79 @@ export function layer2xiangqi(lobbyCtrl: LobbyController, containerId: string, s
 
     if (showBack) {
         infoItems.push(
-            h('h5#xiangqil2back', { class: { "icon": true, "icon-reply": true }, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2xiangqicont') } }, _('Go Back')),
+            h(
+                'h5#xiangqil2back',
+                {
+                    class: { icon: true, 'icon-reply': true },
+                    on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2xiangqicont') },
+                },
+                _('Go Back'),
+            ),
         );
     }
 
     const layer2cont = h('div#layer2xiangqicont.layer-2-container.fairy-grid', [
-        h('button.layer-2-category generic-variant-info.generic-fairy', [
-            h('div.layer-two-category-info', infoItems),
-        ]),
+        h('button.layer-2-category generic-variant-info.generic-fairy', [h('div.layer-two-category-info', infoItems)]),
         h('div.button-grid', [
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'xiangqi') } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['xiangqi'].icon(false) } }),
-                    h('h3', VARIANTS['xiangqi'].displayName()),
-                ]),
-                h('p.variant-extra-info', _('Chinese Chess, one of the most played games in the world')),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'janggi') } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['janggi'].icon(false) } }),
-                    h('h3', VARIANTS['janggi'].displayName()),
-                ]),
-                h('p.variant-extra-info', _('Korean Chess, based on Xiangqi but very different')),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'minixiangqi') } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['minixiangqi'].icon(false) } }),
-                    h('h3', VARIANTS['minixiangqi'].displayName()),
-                ]),
-                h('p.variant-extra-info', _('Compact Xiangqi on a 7x7 board')),
-            ]),
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'manchu') } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['manchu'].icon(false) } }),
-                    h('h3', VARIANTS['manchu'].displayName()),
-                ]),
-                h('p.variant-extra-info', _('Asymmetric variant with one side having a super piece')),
-            ]),
-            ...(xiangqiVariants.has('jieqi') ? [h('button.layer-2-category', { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'jieqi') } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': VARIANTS['jieqi'].icon(false) } }),
-                    h('h3', VARIANTS['jieqi'].displayName()),
-                ]),
-                h('p.variant-extra-info', _('Xiangqi with hidden pieces and a random setup')),
-            ])] : []),
+            h(
+                'button.layer-2-category',
+                { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'xiangqi') } },
+                [
+                    h('div.variant-title-l2', [
+                        h('div.icon', { attrs: { 'data-icon': VARIANTS['xiangqi'].icon(false) } }),
+                        h('h3', VARIANTS['xiangqi'].displayName()),
+                    ]),
+                    h('p.variant-extra-info', _('Chinese Chess, one of the most played games in the world')),
+                ],
+            ),
+            h(
+                'button.layer-2-category',
+                { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'janggi') } },
+                [
+                    h('div.variant-title-l2', [
+                        h('div.icon', { attrs: { 'data-icon': VARIANTS['janggi'].icon(false) } }),
+                        h('h3', VARIANTS['janggi'].displayName()),
+                    ]),
+                    h('p.variant-extra-info', _('Korean Chess, based on Xiangqi but very different')),
+                ],
+            ),
+            h(
+                'button.layer-2-category',
+                { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'minixiangqi') } },
+                [
+                    h('div.variant-title-l2', [
+                        h('div.icon', { attrs: { 'data-icon': VARIANTS['minixiangqi'].icon(false) } }),
+                        h('h3', VARIANTS['minixiangqi'].displayName()),
+                    ]),
+                    h('p.variant-extra-info', _('Compact Xiangqi on a 7x7 board')),
+                ],
+            ),
+            h(
+                'button.layer-2-category',
+                { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'manchu') } },
+                [
+                    h('div.variant-title-l2', [
+                        h('div.icon', { attrs: { 'data-icon': VARIANTS['manchu'].icon(false) } }),
+                        h('h3', VARIANTS['manchu'].displayName()),
+                    ]),
+                    h('p.variant-extra-info', _('Asymmetric variant with one side having a super piece')),
+                ],
+            ),
+            ...(xiangqiVariants.has('jieqi')
+                ? [
+                      h(
+                          'button.layer-2-category',
+                          { on: { click: () => layer3variant('layer2xiangqicont', lobbyCtrl, 'jieqi') } },
+                          [
+                              h('div.variant-title-l2', [
+                                  h('div.icon', { attrs: { 'data-icon': VARIANTS['jieqi'].icon(false) } }),
+                                  h('h3', VARIANTS['jieqi'].displayName()),
+                              ]),
+                              h('p.variant-extra-info', _('Xiangqi with hidden pieces and a random setup')),
+                          ],
+                      ),
+                  ]
+                : []),
         ]),
     ]);
 

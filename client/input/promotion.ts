@@ -30,18 +30,20 @@ export class PromotionInput extends ExtraInput {
 
         const choices = this.promotionChoices(piece, orig, dest);
         const autoSuffix = this.ctrl.variant.promotion.order[0];
-        const autoRole = this.ctrl.variant.promotion.type === "shogi" ? undefined : util.roleOf(autoSuffix as cg.Letter);
+        const autoRole =
+            this.ctrl.variant.promotion.type === 'shogi' ? undefined : util.roleOf(autoSuffix as cg.Letter);
         const disableAutoPromote = meta.ctrlKey;
 
-        if (this.ctrl.variant.promotion.autoPromoteable &&
+        if (
+            this.ctrl.variant.promotion.autoPromoteable &&
             this.ctrl.autoPromote &&
             !disableAutoPromote &&
             autoRole &&
             autoSuffix &&
-            choices[autoRole] === autoSuffix)
+            choices[autoRole] === autoSuffix
+        )
             this.choices = { [autoRole]: autoSuffix };
-        else
-            this.choices = choices;
+        else this.choices = choices;
 
         if (Object.keys(this.choices).length === 1) {
             const role = Object.keys(this.choices)[0] as cg.Role;
@@ -72,16 +74,25 @@ export class PromotionInput extends ExtraInput {
         const ground = this.ctrl.chessground;
         const piece = ground.state.boardState.pieces.get(key);
         if (piece && piece.role !== role) {
-            ground.setPieces(new Map([[key, {
-                color: piece.color,
-                role: role,
-                promoted: true
-            }]]));
+            ground.setPieces(
+                new Map([
+                    [
+                        key,
+                        {
+                            color: piece.color,
+                            role: role,
+                            promoted: true,
+                        },
+                    ],
+                ]),
+            );
         }
     }
 
     private drawPromo(dest: cg.Key, color: cg.Color): void {
-        const container = toVNode(this.ctrl.chessground.state.dom.elements.container.querySelector('extension') as Node);
+        const container = toVNode(
+            this.ctrl.chessground.state.dom.elements.container.querySelector('extension') as Node,
+        );
         patch(container, this.view(dest, color, this.ctrl.chessground.state.orientation));
     }
 
@@ -94,17 +105,22 @@ export class PromotionInput extends ExtraInput {
         if (this.data) {
             this.drawNoPromo();
             this.promote(this.data.dest, role);
-            if (util.isDropOrig(this.data.orig))
-                this.dropNext(role);
-            else
-                this.next(this.choices[role]!);
+            if (util.isDropOrig(this.data.orig)) this.dropNext(role);
+            else this.next(this.choices[role]!);
         }
     }
 
     private dropNext(role: cg.Role): void {
         // Drop promotion is executed by modifying the orig
         if (this.data)
-            this.ctrl.processInput(this.data.piece, util.dropOrigOf(role), this.data.dest, this.data.meta, '', 'promotion');
+            this.ctrl.processInput(
+                this.data.piece,
+                util.dropOrigOf(role),
+                this.data.dest,
+                this.data.meta,
+                '',
+                'promotion',
+            );
         this.data = undefined;
     }
 
@@ -120,40 +136,51 @@ export class PromotionInput extends ExtraInput {
         const pos = util.key2pos(dest);
 
         const choices = Object.keys(this.choices) as cg.Role[];
-        choices.sort((a, b) => variant.promotion.order.indexOf(this.choices[a]!) - variant.promotion.order.indexOf(this.choices[b]!));
+        choices.sort(
+            (a, b) =>
+                variant.promotion.order.indexOf(this.choices[a]!) - variant.promotion.order.indexOf(this.choices[b]!),
+        );
 
-        const direction = color === orientation ? "bottom" : "top";
-        const leftFile = (orientation === "white") ? pos[0] : width - 1 - pos[0];
+        const direction = color === orientation ? 'bottom' : 'top';
+        const leftFile = orientation === 'white' ? pos[0] : width - 1 - pos[0];
         const left = leftFile * (100 / width);
-        const topRank = (orientation === "white") ? height - 1 - pos[1] : pos[1];
+        const topRank = orientation === 'white' ? height - 1 - pos[1] : pos[1];
 
-        const side = color === orientation ? "ally" : "enemy";
+        const side = color === orientation ? 'ally' : 'enemy';
 
-        return h("div#extension_choice", {
-            hook: {
-                insert: vnode => {
-                    const el = vnode.elm as HTMLElement;
-                    el.addEventListener("click", () => this.cancel());
-                    el.addEventListener("contextmenu", e => {
-                        e.preventDefault();
-                        return false;
-                    });
-                }
-            }
-        },
-            choices.map((role, i) => {
-                const rank = topRank + (direction === "bottom" ? i : -i);
-                const top = rank * (100 / height);
-                return h("square", {
-                    style: { top: top + "%", left: left + "%" },
-                    hook: bind("click", e => {
-                        e.stopPropagation();
-                        this.finish(role as cg.Role);
-                    }, null)
+        return h(
+            'div#extension_choice',
+            {
+                hook: {
+                    insert: vnode => {
+                        const el = vnode.elm as HTMLElement;
+                        el.addEventListener('click', () => this.cancel());
+                        el.addEventListener('contextmenu', e => {
+                            e.preventDefault();
+                            return false;
+                        });
+                    },
                 },
-                    [ h(`piece.${role}.${color}.${side}`) ]
+            },
+            choices.map((role, i) => {
+                const rank = topRank + (direction === 'bottom' ? i : -i);
+                const top = rank * (100 / height);
+                return h(
+                    'square',
+                    {
+                        style: { top: top + '%', left: left + '%' },
+                        hook: bind(
+                            'click',
+                            e => {
+                                e.stopPropagation();
+                                this.finish(role as cg.Role);
+                            },
+                            null,
+                        ),
+                    },
+                    [h(`piece.${role}.${color}.${side}`)],
                 );
-            })
+            }),
         );
     }
 }

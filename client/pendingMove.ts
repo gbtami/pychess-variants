@@ -1,6 +1,6 @@
-import { MsgMove } from "./messages";
+import { MsgMove } from './messages';
 
-export type PendingMoveOnOpenAction = "resend" | "clear" | "noop";
+export type PendingMoveOnOpenAction = 'resend' | 'clear' | 'noop';
 
 // One pending move cache entry per game. Keeping the key game-scoped prevents any
 // accidental cross-game reuse if the user quickly switches tabs/games.
@@ -11,15 +11,15 @@ export function pendingMoveStorageKey(gameId: string): string {
 // We intentionally validate only the minimum fields needed for safe resend decisions.
 // If payload shape does not match, callers treat it as absent and clear local cache.
 function isValidPendingMove(value: unknown, gameId: string): value is MsgMove {
-    if (typeof value !== "object" || value === null) return false;
+    if (typeof value !== 'object' || value === null) return false;
     const move = value as MsgMove;
-    if (move.type !== "move") return false;
+    if (move.type !== 'move') return false;
     if (move.gameId !== gameId) return false;
-    if (typeof move.move !== "string") return false;
+    if (typeof move.move !== 'string') return false;
     if (!Array.isArray(move.clocks) || move.clocks.length < 2) return false;
-    if (typeof move.clocks[0] !== "number" || typeof move.clocks[1] !== "number") return false;
-    if (typeof move.ply !== "number") return false;
-    if (move.positionId !== undefined && typeof move.positionId !== "string") return false;
+    if (typeof move.clocks[0] !== 'number' || typeof move.clocks[1] !== 'number') return false;
+    if (typeof move.ply !== 'number') return false;
+    if (move.positionId !== undefined && typeof move.positionId !== 'string') return false;
     return true;
 }
 
@@ -50,18 +50,15 @@ export function pendingMoveOnOpenAction(
     currentPly: number,
     currentPositionId?: string,
 ): PendingMoveOnOpenAction {
-    if (!pendingMove) return "noop";
-    if (pendingMove.ply !== currentPly + 1) return "clear";
-    if (pendingMove.positionId === undefined && currentPositionId === undefined) return "resend";
-    return pendingMove.positionId === currentPositionId ? "resend" : "clear";
+    if (!pendingMove) return 'noop';
+    if (pendingMove.ply !== currentPly + 1) return 'clear';
+    if (pendingMove.positionId === undefined && currentPositionId === undefined) return 'resend';
+    return pendingMove.positionId === currentPositionId ? 'resend' : 'clear';
 }
 
 // Once server reports ply >= cached pending ply, that move is no longer pending:
 // either it was accepted or game advanced past it. In both cases, cached resend
 // state must be removed to prevent stale retries after future reconnects/reloads.
-export function shouldClearPendingMoveByServerPly(
-    pendingMove: MsgMove | undefined,
-    serverPly: number,
-): boolean {
+export function shouldClearPendingMoveByServerPly(pendingMove: MsgMove | undefined, serverPly: number): boolean {
     return !!pendingMove && serverPly >= pendingMove.ply;
 }

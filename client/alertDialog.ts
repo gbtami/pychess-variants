@@ -56,12 +56,16 @@ function renderDialog(options: AlertDialogOptions): void {
     contentChildren.push(h('p', options.text));
     contentChildren.push(
         h('div.alert-dialog-actions', [
-            h('button.button.alert-dialog-ok', {
-                props: { type: 'button' },
-                on: {
-                    click: () => closeDialog(),
+            h(
+                'button.button.alert-dialog-ok',
+                {
+                    props: { type: 'button' },
+                    on: {
+                        click: () => closeDialog(),
+                    },
                 },
-            }, options.okText || 'OK'),
+                options.okText || 'OK',
+            ),
         ]),
     );
 
@@ -71,12 +75,16 @@ function renderDialog(options: AlertDialogOptions): void {
                 click: () => closeDialog(),
             },
         }),
-        h('div.alert-dialog-content', {
-            attrs: {
-                role: 'dialog',
-                'aria-modal': 'true',
+        h(
+            'div.alert-dialog-content',
+            {
+                attrs: {
+                    role: 'dialog',
+                    'aria-modal': 'true',
+                },
             },
-        }, contentChildren),
+            contentChildren,
+        ),
     ]);
 
     if (dialogVNode === null) {
@@ -112,7 +120,7 @@ export function alertDialog(options: AlertDialogOptions): Promise<void> {
     };
     document.addEventListener('keydown', keydownHandler);
 
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
         pendingResolve = resolve;
     });
 }

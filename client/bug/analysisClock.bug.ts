@@ -1,26 +1,24 @@
 import { h, VNode } from 'snabbdom';
 
 import { patch } from '../document';
-import AnalysisController from "./analysisCtrl.bug";
-import { GameControllerBughouse } from "./gameCtrl.bug";
-import { Clocks } from "../messages";
-import { BLACK, WHITE } from "../chess";
+import AnalysisController from './analysisCtrl.bug';
+import { GameControllerBughouse } from './gameCtrl.bug';
+import { Clocks } from '../messages';
+import { BLACK, WHITE } from '../chess';
 
 export function renderClocks(ctrl: AnalysisController) {
-    const lastStep = ctrl.hasAnalysisTree?.()
-        ? ctrl.getTreeCurrentNode?.()?.step
-        : ctrl.steps[ctrl.ply];
+    const lastStep = ctrl.hasAnalysisTree?.() ? ctrl.getTreeCurrentNode?.()?.step : ctrl.steps[ctrl.ply];
     if (!lastStep) return;
     if (lastStep.clocks) {
-        renderClocksCC([lastStep.clocks[WHITE], lastStep.clocks[BLACK]], ctrl.boardA, "");
+        renderClocksCC([lastStep.clocks[WHITE], lastStep.clocks[BLACK]], ctrl.boardA, '');
     }
     if (lastStep.clocksB) {
-        renderClocksCC([lastStep.clocksB[WHITE], lastStep.clocksB[BLACK]], ctrl.boardB, ".bug");
+        renderClocksCC([lastStep.clocksB[WHITE], lastStep.clocksB[BLACK]], ctrl.boardB, '.bug');
     }
 }
 
 export function renderClocksCC(clocks: Clocks, ctrl: GameControllerBughouse, suffix: string) {
-    const isWhiteTurn = ctrl.turnColor === "white";
+    const isWhiteTurn = ctrl.turnColor === 'white';
     const whitePov = !ctrl.flipped();
 
     const wclass = whitePov ? 'bottom' : 'top';
@@ -29,38 +27,37 @@ export function renderClocksCC(clocks: Clocks, ctrl: GameControllerBughouse, suf
     let wel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${wclass}${suffix}`) as HTMLElement;
     if (wel) {
         wel = patch(wel, h(`div.anal-clock.${wclass}${suffix}`, ''));
-        patch(wel, renderClock(wtime!, isWhiteTurn, wclass+suffix));
+        patch(wel, renderClock(wtime!, isWhiteTurn, wclass + suffix));
     }
     const bclass = whitePov ? 'top' : 'bottom';
     const btime = clocks[BLACK];
     let bel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${bclass}${suffix}`) as HTMLElement;
     if (bel) {
         bel = patch(bel, h(`div.anal-clock.${bclass}${suffix}`, ''));
-        patch(bel, renderClock(btime!, !isWhiteTurn, bclass+suffix));
+        patch(bel, renderClock(btime!, !isWhiteTurn, bclass + suffix));
     }
 }
 
-
 function renderClock(time: number, active: boolean, cls: string): VNode {
-  return h(
-    'div.anal-clock.' + cls,
-    {
-      class: { active },
-    },
-    clockContent(time)
-  );
+    return h(
+        'div.anal-clock.' + cls,
+        {
+            class: { active },
+        },
+        clockContent(time),
+    );
 }
 
 function clockContent(time: number): Array<string | VNode> {
-  if (!time && time !== 0) return ['-'];
-  const date = new Date(time),
-    millis = date.getUTCMilliseconds(),
-    sep = ':',
-    baseStr = pad2(date.getUTCMinutes()) + sep + pad2(date.getUTCSeconds());
-  if (time >= 3600000) return [Math.floor(time / 3600000) + sep + baseStr];
-  return time >= 60000 ? [baseStr] : [baseStr, h('tenths', '.' + Math.floor(millis / 100).toString())];
+    if (!time && time !== 0) return ['-'];
+    const date = new Date(time),
+        millis = date.getUTCMilliseconds(),
+        sep = ':',
+        baseStr = pad2(date.getUTCMinutes()) + sep + pad2(date.getUTCSeconds());
+    if (time >= 3600000) return [Math.floor(time / 3600000) + sep + baseStr];
+    return time >= 60000 ? [baseStr] : [baseStr, h('tenths', '.' + Math.floor(millis / 100).toString())];
 }
 
 function pad2(num: number): string {
-  return (num < 10 ? '0' : '') + num;
+    return (num < 10 ? '0' : '') + num;
 }

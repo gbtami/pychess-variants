@@ -2,7 +2,6 @@ import * as cg from 'chessgroundx/types';
 
 import { ChessgroundController } from './cgCtrl';
 
-
 function setCssVars(ctrl: ChessgroundController, color: cg.Color, pocket: HTMLElement) {
     if (ctrl.variant.pocket) {
         const width = ctrl.variant.board.dimensions.width;

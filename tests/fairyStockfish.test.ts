@@ -36,7 +36,7 @@ class MockFairyStockfishEngine {
         }
 
         if (message === 'isready') {
-            this.pendingOutput.forEach((line) => this.emit(line));
+            this.pendingOutput.forEach(line => this.emit(line));
             this.emit('readyok');
             this.pendingOutput = [];
         }
@@ -54,7 +54,7 @@ class MockFairyStockfishEngine {
     }
 
     private emit(line: string): void {
-        [...this.listeners].forEach((listener) => listener(line));
+        [...this.listeners].forEach(listener => listener(line));
     }
 }
 
@@ -70,9 +70,9 @@ test('surfaces invalid option diagnostics from Fairy-Stockfish check', async () 
 
     const { checkRulesWithFsfWasm } = await import('../client/fairyStockfish');
 
-    await expect(
-        checkRulesWithFsfWasm('[crazyhousex:chess]\ncapturetohand=true\n'),
-    ).rejects.toThrow('Invalid option: capturetohand');
+    await expect(checkRulesWithFsfWasm('[crazyhousex:chess]\ncapturetohand=true\n')).rejects.toThrow(
+        'Invalid option: capturetohand',
+    );
 });
 
 test('accepts hyphenated inherited variant names', async () => {
@@ -81,14 +81,9 @@ test('accepts hyphenated inherited variant names', async () => {
 
     const { checkRulesWithFsfWasm } = await import('../client/fairyStockfish');
 
-    await expect(
-        checkRulesWithFsfWasm('[fsf-tencubed:tencubed]\n'),
-    ).resolves.toBeUndefined();
-    expect(engine.commands.some((command) => /^check <<PYCHESS_VARIANT_CHECK_EOF_\d+$/.test(command))).toBe(
-        true,
-    );
+    await expect(checkRulesWithFsfWasm('[fsf-tencubed:tencubed]\n')).resolves.toBeUndefined();
+    expect(engine.commands.some(command => /^check <<PYCHESS_VARIANT_CHECK_EOF_\d+$/.test(command))).toBe(true);
 });
-
 
 test('loads base variants once and accepts valid rules', async () => {
     const engine = new MockFairyStockfishEngine();
@@ -96,13 +91,9 @@ test('loads base variants once and accepts valid rules', async () => {
 
     const { checkRulesWithFsfWasm } = await import('../client/fairyStockfish');
 
-    await expect(
-        checkRulesWithFsfWasm('[crazyhousex:chess]\ncapturesToHand=true\n'),
-    ).resolves.toBeUndefined();
-    await expect(
-        checkRulesWithFsfWasm('[caparules:capablanca]\n'),
-    ).resolves.toBeUndefined();
+    await expect(checkRulesWithFsfWasm('[crazyhousex:chess]\ncapturesToHand=true\n')).resolves.toBeUndefined();
+    await expect(checkRulesWithFsfWasm('[caparules:capablanca]\n')).resolves.toBeUndefined();
 
-    expect(engine.commands.filter((command) => command.startsWith('load <<'))).toHaveLength(1);
-    expect(engine.commands.filter((command) => command.startsWith('check <<'))).toHaveLength(2);
+    expect(engine.commands.filter(command => command.startsWith('load <<'))).toHaveLength(1);
+    expect(engine.commands.filter(command => command.startsWith('check <<'))).toHaveLength(2);
 });

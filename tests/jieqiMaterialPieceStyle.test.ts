@@ -18,15 +18,9 @@ test('Jieqi material keeps the active piece-style class after re-render', () => 
     document.body.appendChild(top);
     document.body.appendChild(bottom);
 
-    const [, renderedBottom] = updateMaterial(
-        variant,
-        variant.startFen,
-        top,
-        bottom,
-        false,
-        'white',
-        [{ role: 'p-piece', color: 'white', kind: 'covered-hidden' }],
-    );
+    const [, renderedBottom] = updateMaterial(variant, variant.startFen, top, bottom, false, 'white', [
+        { role: 'p-piece', color: 'white', kind: 'covered-hidden' },
+    ]);
 
     expect((renderedBottom.elm as HTMLElement).classList.contains(expectedClass)).toBe(true);
 });

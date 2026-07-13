@@ -7,27 +7,26 @@ import { AnalysisController } from './analysisCtrl';
 import { patch } from '../document';
 import { updateMovelist } from '../movelist';
 
-
 class AnalysisSettings {
     ctrl: AnalysisController;
-    settings: { [ key: string]: Settings<number | boolean | string> };
+    settings: { [key: string]: Settings<number | boolean | string> };
     assetURL: string;
 
     constructor() {
         this.settings = {};
-        this.settings["arrow"] = new ArrowSettings(this);
-        this.settings["inlineNotation"] = new InlineNotationSettings(this);
-        this.settings["disclosureMode"] = new DisclosureModeSettings(this);
-        this.settings["infiniteAnalysis"] = new InfiniteAnalysisSettings(this);
-        this.settings["multipv"] = new MultiPVSettings(this);
-        this.settings["threads"] = new ThreadsSettings(this);
-        this.settings["hash"] = new HashSettings(this);
-        this.settings["nnue"] = new NnueSettings(this);
-        this.settings["fsfDebug"] = new FsfDebugSettings(this);
+        this.settings['arrow'] = new ArrowSettings(this);
+        this.settings['inlineNotation'] = new InlineNotationSettings(this);
+        this.settings['disclosureMode'] = new DisclosureModeSettings(this);
+        this.settings['infiniteAnalysis'] = new InfiniteAnalysisSettings(this);
+        this.settings['multipv'] = new MultiPVSettings(this);
+        this.settings['threads'] = new ThreadsSettings(this);
+        this.settings['hash'] = new HashSettings(this);
+        this.settings['nnue'] = new NnueSettings(this);
+        this.settings['fsfDebug'] = new FsfDebugSettings(this);
     }
 
     getSettings(family: string) {
-        const fullName = family + "Nnue";
+        const fullName = family + 'Nnue';
         if (!this.settings[fullName]) {
             this.settings[fullName] = new NnueFileSettings(this, family);
         }
@@ -35,29 +34,29 @@ class AnalysisSettings {
     }
 
     view(variantName: string) {
-        if (!variantName) return h("div.analysis-settings");
+        if (!variantName) return h('div.analysis-settings');
 
-        const settingsList : VNode[] = [];
+        const settingsList: VNode[] = [];
 
-        settingsList.push(this.settings["arrow"].view());
+        settingsList.push(this.settings['arrow'].view());
 
-        settingsList.push(this.settings["inlineNotation"].view());
+        settingsList.push(this.settings['inlineNotation'].view());
 
-        settingsList.push(this.settings["disclosureMode"].view());
+        settingsList.push(this.settings['disclosureMode'].view());
 
-        settingsList.push(this.settings["infiniteAnalysis"].view());
+        settingsList.push(this.settings['infiniteAnalysis'].view());
 
-        settingsList.push(this.settings["multipv"].view());
+        settingsList.push(this.settings['multipv'].view());
 
-        settingsList.push(this.settings["threads"].view());
+        settingsList.push(this.settings['threads'].view());
 
-        settingsList.push(this.settings["hash"].view());
+        settingsList.push(this.settings['hash'].view());
 
-        settingsList.push(this.settings["nnue"].view());
+        settingsList.push(this.settings['nnue'].view());
 
         settingsList.push(this.getSettings(variantName as string).view());
 
-        settingsList.push(this.settings["fsfDebug"].view());
+        settingsList.push(this.settings['fsfDebug'].view());
 
         settingsList.push();
 
@@ -82,12 +81,7 @@ class InlineNotationSettings extends BooleanSettings {
     view(): VNode {
         return h(
             'div.inlineNotation-toggle',
-            toggleSwitch(
-                this,
-                'inlineNotation-enabled',
-                _("Inline notation"),
-                false,
-            )
+            toggleSwitch(this, 'inlineNotation-enabled', _('Inline notation'), false),
         );
     }
 }
@@ -109,12 +103,7 @@ class DisclosureModeSettings extends BooleanSettings {
     view(): VNode {
         return h(
             'div.disclosureMode-toggle',
-            toggleSwitch(
-                this,
-                'disclosureMode-enabled',
-                _("Disclosure buttons"),
-                false,
-            )
+            toggleSwitch(this, 'disclosureMode-enabled', _('Disclosure buttons'), false),
         );
     }
 }
@@ -133,15 +122,7 @@ class ArrowSettings extends BooleanSettings {
     }
 
     view(): VNode {
-        return h(
-            'div.arrow-toggle',
-            toggleSwitch(
-                this,
-                'arrow-enabled',
-                _("Best move arrow"),
-                false,
-            )
-        );
+        return h('div.arrow-toggle', toggleSwitch(this, 'arrow-enabled', _('Best move arrow'), false));
     }
 }
 
@@ -156,7 +137,7 @@ class InfiniteAnalysisSettings extends BooleanSettings {
     update(): void {
         const ctrl = this.analysisSettings.ctrl;
         if ('maxDepth' in ctrl) {
-            ctrl.maxDepth = (this.value) ? 99 : 18;
+            ctrl.maxDepth = this.value ? 99 : 18;
             ctrl.pvboxIni();
         }
     }
@@ -164,12 +145,7 @@ class InfiniteAnalysisSettings extends BooleanSettings {
     view(): VNode {
         return h(
             'div.infiniteAnalysis-toggle',
-            toggleSwitch(
-                this,
-                'infiniteAnalysis-enabled',
-                _("Infinite analysis"),
-                false,
-            )
+            toggleSwitch(this, 'infiniteAnalysis-enabled', _('Infinite analysis'), false),
         );
     }
 }
@@ -241,8 +217,10 @@ const isIPad = (): boolean => navigator?.maxTouchPoints > 2 && /iPad|Macintosh/.
 // steer the high performance crowd towards external engine as it gets better
 const maxHashMB = (): number => {
     let maxHash = 512; // allocating 1024 often fails and offers little benefit over 512, or 16 for that matter
-    if (isAndroid()) maxHash = 64; // budget androids are easy to crash @ 128
-    else if (isIPad()) maxHash = 64; // iPadOS safari pretends to be desktop but acts more like iphone
+    if (isAndroid())
+        maxHash = 64; // budget androids are easy to crash @ 128
+    else if (isIPad())
+        maxHash = 64; // iPadOS safari pretends to be desktop but acts more like iphone
     else if (isIOS()) maxHash = 32;
     return maxHash;
 };
@@ -269,7 +247,7 @@ class HashSettings extends NumberSettings {
 
     view(): VNode {
         const hashList = [...Array(10).keys()].map(i => 2 ** i).filter(n => n >= 16 && n <= this.maxHash);
-        const els = sliderFromList(this, 'hash', _('Memory'), "hashList", hashList);
+        const els = sliderFromList(this, 'hash', _('Memory'), 'hashList', hashList);
         els.push(h('div.hash_range_value', `${this.value}MB`));
         return h('div.labelled', els);
     }
@@ -292,15 +270,7 @@ class NnueSettings extends BooleanSettings {
     }
 
     view(): VNode {
-        return h(
-            'div.nnue-toggle',
-            toggleSwitch(
-                this,
-                'nnue-enabled',
-                _("Use NNUE"),
-                false,
-            )
-        );
+        return h('div.nnue-toggle', toggleSwitch(this, 'nnue-enabled', _('Use NNUE'), false));
     }
 }
 
@@ -344,20 +314,11 @@ class FsfDebugSettings extends BooleanSettings {
     }
 
     view(): VNode {
-        return h(
-            'div.fsfDebug-toggle',
-            toggleSwitch(
-                this,
-                'fsfDebug-enabled',
-                _("Enable engine debug"),
-                false,
-            )
-        );
+        return h('div.fsfDebug-toggle', toggleSwitch(this, 'fsfDebug-enabled', _('Enable engine debug'), false));
     }
 }
 
 export const analysisSettings = new AnalysisSettings();
-
 
 export class EngineSettings extends BooleanSettings {
     ctrl: AnalysisController;
@@ -392,11 +353,11 @@ export class EngineSettings extends BooleanSettings {
                 this,
                 'engine-enabled',
                 '',
-                this.ctrl.isLocalAnalysisBlockedByAntiCheat()
-                || !this.ctrl.localEngine
-                || !this.ctrl.isEngineReady
-                || !this.ctrl.variantSupportedByFSF
-            )
+                this.ctrl.isLocalAnalysisBlockedByAntiCheat() ||
+                    !this.ctrl.localEngine ||
+                    !this.ctrl.isEngineReady ||
+                    !this.ctrl.variantSupportedByFSF,
+            ),
         );
     }
 }

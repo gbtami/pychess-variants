@@ -20,8 +20,8 @@ export abstract class ChessgroundController implements BoardController {
     ffishBoard: Board;
     notationAsObject: Notation;
 
-    readonly variant : Variant;
-    readonly chess960 : boolean;
+    readonly variant: Variant;
+    readonly chess960: boolean;
     readonly hasPockets: boolean;
     readonly anon: boolean;
     mycolor: cg.Color;
@@ -31,7 +31,14 @@ export abstract class ChessgroundController implements BoardController {
     notation: cg.Notation;
     fog: boolean;
 
-    constructor(el: HTMLElement, model: PyChessModel, fullfen: string, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
+    constructor(
+        el: HTMLElement,
+        model: PyChessModel,
+        fullfen: string,
+        pocket0: HTMLElement,
+        pocket1: HTMLElement,
+        boardName: BoardName = '',
+    ) {
         this.boardName = boardName;
         this.home = model.home;
         this.ffish = model.ffish;
@@ -45,21 +52,24 @@ export abstract class ChessgroundController implements BoardController {
         this.notation = this.variant.notation;
         this.fog = this.variant.hiddenInfoMode === 'fog';
 
-        const parts = this.fullfen.split(" ");
-        const fen = (this.fog)
-            ? ([fogFen(parts[0]), ...parts.slice(1)].join(' ') as cg.FEN)
-            : (this.fullfen as cg.FEN);
+        const parts = this.fullfen.split(' ');
+        const fen = this.fog ? ([fogFen(parts[0]), ...parts.slice(1)].join(' ') as cg.FEN) : (this.fullfen as cg.FEN);
 
-        this.chessground = Chessground(el, {
-            fen,
-            dimensions: this.variant.board.dimensions,
-            notation: this.notation,
-            addDimensionsCssVarsTo: document.body,
-            dimensionsCssVarsSuffix: this.boardName,
-            kingRoles: this.variant.kingRoles,
-            pocketRoles: this.variant.pocket?.roles,
-            events: { insert: this.onInsert() }
-        }, pocket0, pocket1);
+        this.chessground = Chessground(
+            el,
+            {
+                fen,
+                dimensions: this.variant.board.dimensions,
+                notation: this.notation,
+                addDimensionsCssVarsTo: document.body,
+                dimensionsCssVarsSuffix: this.boardName,
+                kingRoles: this.variant.kingRoles,
+                pocketRoles: this.variant.pocket?.roles,
+                events: { insert: this.onInsert() },
+            },
+            pocket0,
+            pocket1,
+        );
 
         if (this.boardName === 'b') {
             boardSettings.ctrl2 = this;
@@ -76,13 +86,14 @@ export abstract class ChessgroundController implements BoardController {
         this.ffishBoard = new this.ffish.Board(
             moddedVariant(this.variant.name, this.chess960, this.chessground.state.boardState.pieces, parts[2]),
             this.fullfen,
-            this.chess960);
+            this.chess960,
+        );
         window.addEventListener('beforeunload', () => this.ffishBoard.delete());
     }
 
     onInsert = () => {
         return (elements: cg.Elements) => {
-            console.log("onInsert()");
+            console.log('onInsert()');
             const el = document.createElement('cg-resize');
             elements.container.appendChild(el);
 
@@ -126,8 +137,8 @@ export abstract class ChessgroundController implements BoardController {
 
             el.addEventListener('touchstart', startResize, { passive: false });
             el.addEventListener('mousedown', startResize, { passive: false });
-        }
-    }
+        };
+    };
 
     toggleOrientation(): void {
         this.chessground.toggleOrientation();
@@ -138,22 +149,27 @@ export abstract class ChessgroundController implements BoardController {
     }
 
     legalMoves(): CGMove[] {
-        return this.ffishBoard.legalMoves().split(" ").map(uci2cg) as CGMove[];
+        return this.ffishBoard.legalMoves().split(' ').map(uci2cg) as CGMove[];
     }
 
     notation2ffishjs(n: cg.Notation): Notation {
         switch (n) {
-            case cg.Notation.ALGEBRAIC: return this.ffish.Notation.SAN;
-            case cg.Notation.SHOGI_ARBNUM: return this.ffish.Notation.SHOGI_HODGES_NUMBER;
-            case cg.Notation.JANGGI: return this.ffish.Notation.JANGGI;
-            case cg.Notation.XIANGQI_ARBNUM: return this.ffish.Notation.XIANGQI_WXF;
-            default: return this.ffish.Notation.SAN;
+            case cg.Notation.ALGEBRAIC:
+                return this.ffish.Notation.SAN;
+            case cg.Notation.SHOGI_ARBNUM:
+                return this.ffish.Notation.SHOGI_HODGES_NUMBER;
+            case cg.Notation.JANGGI:
+                return this.ffish.Notation.JANGGI;
+            case cg.Notation.XIANGQI_ARBNUM:
+                return this.ffish.Notation.XIANGQI_WXF;
+            default:
+                return this.ffish.Notation.SAN;
         }
     }
 }
 
 function eventPosition(e: MouchEvent): [number, number] | undefined {
-  if (e.clientX || e.clientX === 0) return [e.clientX, e.clientY!];
-  if (e.targetTouches?.[0]) return [e.targetTouches[0].clientX, e.targetTouches[0].clientY];
-  return;
+    if (e.clientX || e.clientX === 0) return [e.clientX, e.clientY!];
+    if (e.targetTouches?.[0]) return [e.targetTouches[0].clientX, e.targetTouches[0].clientY];
+    return;
 }

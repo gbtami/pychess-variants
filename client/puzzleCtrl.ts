@@ -1,16 +1,15 @@
-import { h, VNode } from 'snabbdom'
+import { h, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 
 import { _ } from './i18n';
 import { AnalysisController } from './analysis/analysisCtrl';
-import { PyChessModel } from "./types";
+import { PyChessModel } from './types';
 import { patch } from './document';
 import { lmBeforeEp, uci2LastMove, UCIMove, uci2cg } from './chess';
 import { updateMovelist } from './movelist';
 import { variants } from './variants';
 import { RatedSettings, AutoNextSettings } from './puzzleSettings';
 import { updatePoint } from './info';
-
 
 export class PuzzleController extends AnalysisController {
     username: string;
@@ -43,14 +42,14 @@ export class PuzzleController extends AnalysisController {
         this._id = data._id;
         this.gameId = data.g;
         this.site = data.s;
-        this.played = data.p ?? "0";
+        this.played = data.p ?? '0';
         this.puzzleType = data.t;
         this.puzzleEval = data.e;
         // We have to split the duck move list on every second comma!
-        this.solution = (model.variant==='duck') ? data.m.match(/[^,]+,[^,]+/g) : data.m.split(',');
+        this.solution = model.variant === 'duck' ? data.m.match(/[^,]+,[^,]+/g) : data.m.split(',');
         this.username = model.username;
         this.moves = [];
-        this.steps = [{"fen": this.fullfen, "turnColor": this.turnColor, "check": false, "move": undefined}];
+        this.steps = [{ fen: this.fullfen, turnColor: this.turnColor, check: false, move: undefined }];
         this.ply = 0;
         this.plyVari = 0;
         this.color = this.turnColor;
@@ -59,10 +58,10 @@ export class PuzzleController extends AnalysisController {
         this.posted = false;
         this.wrating = model.wrating;
         this.brating = model.brating;
-        this.isRated = localStorage.puzzle_rated === undefined ? true : localStorage.puzzle_rated === "true";
-        this.autoNext = localStorage.puzzle_autoNext === undefined ? false : localStorage.puzzle_autoNext === "true";
+        this.isRated = localStorage.puzzle_rated === undefined ? true : localStorage.puzzle_rated === 'true';
+        this.autoNext = localStorage.puzzle_autoNext === undefined ? false : localStorage.puzzle_autoNext === 'true';
         this.localAnalysis = false;
-        const lm = (data.lm) ? data.lm : lmBeforeEp(this.variant, this.fullfen);
+        const lm = data.lm ? data.lm : lmBeforeEp(this.variant, this.fullfen);
 
         this.chessground.set({
             orientation: this.variant.name === 'racingkings' ? 'white' : this.turnColor,
@@ -74,7 +73,7 @@ export class PuzzleController extends AnalysisController {
                 events: {
                     after: (orig, dest, meta) => this.onUserMove(orig, dest, meta),
                     afterNewPiece: (role, dest, meta) => this.onUserDrop(role, dest, meta),
-                }
+                },
             },
             events: {
                 move: this.onMove(),
@@ -85,13 +84,13 @@ export class PuzzleController extends AnalysisController {
 
         const rt = document.querySelector('.rated-toggle') as HTMLElement;
         if (this.anon) {
-            patch(rt, h('div', [
-                h('div', 'To solve the puzzles rated'),
-                h('button.join',
-                    { on: { click: () => window.location.assign('/login') } },
-                    _('LOGIN')
-                )
-            ]));
+            patch(
+                rt,
+                h('div', [
+                    h('div', 'To solve the puzzles rated'),
+                    h('button.join', { on: { click: () => window.location.assign('/login') } }, _('LOGIN')),
+                ]),
+            );
         } else {
             const ratedSettings = new RatedSettings(this);
             patch(rt, ratedSettings.view());
@@ -114,19 +113,12 @@ export class PuzzleController extends AnalysisController {
         engineEl.style.display = 'none';
 
         const viewHintEl = document.querySelector('.hint') as HTMLElement;
-        patch(viewHintEl,
-            h('a.button.hint.button-empty',
-                { on: { click: () => this.viewHint() } },
-                _('Hint')
-            )
-        );
+        patch(viewHintEl, h('a.button.hint.button-empty', { on: { click: () => this.viewHint() } }, _('Hint')));
 
         const viewSolutionEl = document.querySelector('.solution') as HTMLElement;
-        patch(viewSolutionEl,
-            h('a.button.solution.button-empty',
-                { on: { click: () => this.viewSolution() } },
-                _('View the solution')
-            )
+        patch(
+            viewSolutionEl,
+            h('a.button.solution.button-empty', { on: { click: () => this.viewSolution() } }, _('View the solution')),
         );
 
         this.renderInfos();
@@ -143,32 +135,44 @@ export class PuzzleController extends AnalysisController {
             if (viewHintEl) patch(viewHintEl, h('div.view-hint', { class: { show: true } }));
             const viewSolutionEl = document.querySelector('.view-solution') as HTMLElement;
             if (viewSolutionEl) patch(viewSolutionEl, h('div.view-solution', { class: { show: true } }));
-        }
+        };
         this.hintRevealTimeout = window.setTimeout(showHintAndSolution, 4000);
     }
 
-    renderRating(isRated:boolean, color: string, wrating: string, brating: string, success: boolean | undefined=undefined, diff=undefined) {
+    renderRating(
+        isRated: boolean,
+        color: string,
+        wrating: string,
+        brating: string,
+        success: boolean | undefined = undefined,
+        diff = undefined,
+    ) {
         if (isRated) {
             var diffEl: VNode | string = '';
             if (diff) {
                 if (success) {
-                    diffEl = h('good.rp', [h('span', { attrs: { "data-icon": '⬈' } }, ' '), '+' + diff]);
+                    diffEl = h('good.rp', [h('span', { attrs: { 'data-icon': '⬈' } }, ' '), '+' + diff]);
                 } else {
-                    diffEl = h('bad.rp', [h('span', { attrs: { "data-icon": '⬊' } }, ' '), diff]);
+                    diffEl = h('bad.rp', [h('span', { attrs: { 'data-icon': '⬊' } }, ' '), diff]);
                 }
             }
             const ratingEl = document.querySelector('.rating') as HTMLElement;
-            patch(ratingEl, h(`div.rating.${(diff)?'final':'rated'}`, [
-                h('strong', [
-                    (color==="white") ? wrating : brating,
-                    diffEl
+            patch(
+                ratingEl,
+                h(`div.rating.${diff ? 'final' : 'rated'}`, [
+                    h('strong', [color === 'white' ? wrating : brating, diffEl]),
                 ]),
-            ]));
+            );
         } else {
             const ratingEl = document.querySelector('.rating') as HTMLElement;
-            patch(ratingEl, h('div.rating.casual',
-                _('Your puzzle rating will not change. Note that puzzles are not a competition. Ratings help select the best puzzles for your current skill.')
-                )
+            patch(
+                ratingEl,
+                h(
+                    'div.rating.casual',
+                    _(
+                        'Your puzzle rating will not change. Note that puzzles are not a competition. Ratings help select the best puzzles for your current skill.',
+                    ),
+                ),
             );
         }
     }
@@ -178,7 +182,7 @@ export class PuzzleController extends AnalysisController {
         var sourceText: string = this.gameId;
         if (!this.gameId) {
             if (!this.site || this.site.toLowerCase().includes('fairy-stockfish')) {
-                sourceLink =  'https://fairy-stockfish.github.io';
+                sourceLink = 'https://fairy-stockfish.github.io';
                 sourceText = 'Fairy-Stockfish';
             } else {
                 sourceLink = this.site;
@@ -189,7 +193,7 @@ export class PuzzleController extends AnalysisController {
 
         var mateIn: string = '';
         if (this.puzzleType === 'mate') {
-            const parts =  this.puzzleEval.split('#');
+            const parts = this.puzzleEval.split('#');
             if (parseInt(parts[1]) * 2 - 1 === this.solution.length) {
                 mateIn = ' #' + parts[1];
             }
@@ -199,39 +203,44 @@ export class PuzzleController extends AnalysisController {
         }
 
         const infosEl = document.querySelector('.infos') as HTMLElement;
-        patch(infosEl, h('div.game-info', [
-            h('section', [
-                h('div.info0.icon.icon-puzzle', [
+        patch(
+            infosEl,
+            h('div.game-info', [
+                h('section', [
+                    h('div.info0.icon.icon-puzzle', [
+                        h('div.info2', [
+                            h('div', [
+                                h('span', _('Puzzle')),
+                                this._id === '0'
+                                    ? ''
+                                    : h('a', { attrs: { href: `/puzzle/${this._id}` } }, `#${this._id}`),
+                            ]),
+                            h('div', [h('span', _('Rating:')), h('span.hidden', _('hidden'))]),
+                            h('div', [h('span', _('Played:')), this.played]),
+                        ]),
+                    ]),
+                ]),
+                h('div.info0.icon', { attrs: { 'data-icon': this.variant.icon() } }, [
                     h('div.info2', [
-                        h('div', [h('span', _('Puzzle')), (this._id === '0') ? '' : h('a', { attrs: { href: `/puzzle/${this._id}` } }, `#${this._id}`) ]),
-                        h('div', [h('span', _('Rating:')), h('span.hidden', _('hidden'))]),
-                        h('div', [h('span', _('Played:')), this.played])
-                    ])
+                        h('div', [
+                            h('span', _('Variant')),
+                            h(
+                                'a',
+                                {
+                                    attrs: {
+                                        target: '_blank',
+                                        href: '/variants/' + this.variant.name,
+                                    },
+                                },
+                                this.variant.displayName(),
+                            ),
+                        ]),
+                        h('div', [h('span', _('Source:')), h('a', { attrs: { href: sourceLink } }, sourceText)]),
+                        h('div', [h('span', _('Type:')), this.puzzleType + mateIn]),
+                    ]),
                 ]),
             ]),
-            h('div.info0.icon', { attrs: { "data-icon": this.variant.icon() } }, [
-                h('div.info2', [
-                    h('div', [
-                        h('span', _('Variant')),
-                        h('a', {
-                            attrs: {
-                                target: '_blank',
-                                href: '/variants/' + this.variant.name,
-                            }
-                        },
-                        this.variant.displayName())
-                    ]),
-                    h('div', [
-                        h('span', _('Source:')),
-                        h('a', { attrs: { href: sourceLink } }, sourceText),
-                    ]),
-                    h('div', [
-                        h('span', _('Type:')),
-                        this.puzzleType + mateIn
-                    ])
-                ]),
-            ])
-        ]));
+        );
     }
 
     viewSolution() {
@@ -254,17 +263,17 @@ export class PuzzleController extends AnalysisController {
         if (this.solution[this.ply] !== move) {
             if (this.moves.length + 1 === this.solution.length) {
                 this.ffishBoard.push(move);
-                const win_result = (this.turnColor === 'white' ? '1-0' : '0-1');
+                const win_result = this.turnColor === 'white' ? '1-0' : '0-1';
                 // last move can be any winning one
-                if (this.ffishBoard.result() === win_result){
+                if (this.ffishBoard.result() === win_result) {
                     this.ffishBoard.pop();
                     this.makeMove(move);
                     this.puzzleComplete(true);
                     return;
                 } else {
                     this.ffishBoard.pop();
-                };
-            };
+                }
+            }
 
             this.goPly(this.ply);
             this.ffishBoard.setFen(this.fullfen);
@@ -293,24 +302,29 @@ export class PuzzleController extends AnalysisController {
         this.setDests();
 
         const step = {
-            'fen': this.fullfen,
-            'move': move,
-            'check': this.ffishBoard.isCheck(),
-            'turnColor': this.turnColor,
-            'san': san,
-            };
+            fen: this.fullfen,
+            move: move,
+            check: this.ffishBoard.isCheck(),
+            turnColor: this.turnColor,
+            san: san,
+        };
         this.steps.push(step);
-        this.ply += 1
+        this.ply += 1;
         updateMovelist(this);
 
         if (this.variant.ui.materialPoint) {
-            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, this.ffishBoard.fen(), this.vmiscInfoW, this.vmiscInfoB);
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(
+                this.variant,
+                this.ffishBoard.fen(),
+                this.vmiscInfoW,
+                this.vmiscInfoB,
+            );
         }
     }
 
     cgConfig = (move: string) => {
         this.fullfen = this.ffishBoard.fen(this.variant.ui.showPromoted, 0);
-        this.turnColor = this.fullfen.split(" ")[1] === "w" ? "white" : "black" as cg.Color;
+        this.turnColor = this.fullfen.split(' ')[1] === 'w' ? 'white' : ('black' as cg.Color);
         return {
             fen: this.fullfen,
             turnColor: this.turnColor,
@@ -319,23 +333,24 @@ export class PuzzleController extends AnalysisController {
             },
             check: this.ffishBoard.isCheck(),
             lastMove: uci2LastMove(move),
-            drawable: {autoShapes: []},
-        }
-    }
+            drawable: { autoShapes: [] },
+        };
+    };
     yourTurn() {
-        const turnColor = this.fullfen.split(" ")[1];
-        const pieceColor = (turnColor == 'w') ? 'white' : 'black';
+        const turnColor = this.fullfen.split(' ')[1];
+        const pieceColor = turnColor == 'w' ? 'white' : 'black';
         const kingRole = this.variant.kingRoles[0];
         const first = _(this.variant.colors.first);
         const second = _(this.variant.colors.second);
-        this.playerEl = patch(this.playerEl,
+        this.playerEl = patch(
+            this.playerEl,
             h(`div.player.${this.variant.pieceFamily}`, [
                 h(`piece.${pieceColor}.no-square.${kingRole}.ally`),
                 h('div.instruction', [
                     h('strong', _('Your turn')),
-                    h('em', _('Find the best move for %1.', (turnColor === 'w') ? first : second)),
+                    h('em', _('Find the best move for %1.', turnColor === 'w' ? first : second)),
                 ]),
-            ])
+            ]),
         );
     }
 
@@ -345,7 +360,8 @@ export class PuzzleController extends AnalysisController {
             this.postSuccess(false);
         }
         this.failed = true;
-        this.playerEl = patch(this.playerEl,
+        this.playerEl = patch(
+            this.playerEl,
             h('div.player', [
                 h('div.icon', '✗'),
                 h('div.instruction', [
@@ -353,7 +369,7 @@ export class PuzzleController extends AnalysisController {
                     h('strong', _("That's not the move!")),
                     h('em', _('Try something else.')),
                 ]),
-            ])
+            ]),
         );
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
         feedbackEl.classList.toggle('good', false);
@@ -361,14 +377,12 @@ export class PuzzleController extends AnalysisController {
     }
 
     bestMove() {
-        this.playerEl = patch(this.playerEl,
+        this.playerEl = patch(
+            this.playerEl,
             h('div.player', [
                 h('div.icon', '✓'),
-                h('div.instruction', [
-                    h('strong', _("Best move!")),
-                    h('em', _('Keep going...')),
-                ]),
-            ])
+                h('div.instruction', [h('strong', _('Best move!')), h('em', _('Keep going...'))]),
+            ]),
         );
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
         feedbackEl.classList.toggle('fail', false);
@@ -403,31 +417,25 @@ export class PuzzleController extends AnalysisController {
         this.recordedMainlinePly = this.steps.length - 1;
         updateMovelist(this, true, false);
         const feedbackEl = document.querySelector('.feedback') as HTMLInputElement;
-        patch(feedbackEl,
+        patch(
+            feedbackEl,
             h('div.feedback.after', [
                 h('div.complete', text),
                 h('div.puzzle_vote', [
                     h('div.puzzle_vote_help', [
                         h('p', _('Did you like this puzzle?')),
-                        h('p', _('Vote to load the next one!'))
+                        h('p', _('Vote to load the next one!')),
                     ]),
                     h('div.puzzle_vote_buttons.enabled', [
-                        h('div.vote.vote-up.icon.icon-thumbs-o-up',
-                            { on: { click: () => this.postVote(true) } }
-                        ),
-                        h('div.vote.vote-down.icon.icon-thumbs-o-up',
-                            { on: { click: () => this.postVote(false) } }
-                        )
-                    ])
+                        h('div.vote.vote-up.icon.icon-thumbs-o-up', { on: { click: () => this.postVote(true) } }),
+                        h('div.vote.vote-down.icon.icon-thumbs-o-up', { on: { click: () => this.postVote(false) } }),
+                    ]),
                 ]),
                 h('div.more', [
-                    h('a',
-                        { on: { click: () => this.continueTraining(this.variant.name) } },
-                        _('Continue training')
-                    ),
+                    h('a', { on: { click: () => this.continueTraining(this.variant.name) } }, _('Continue training')),
                 ]),
-            ])
-        )
+            ]),
+        );
         if (this.gaugeNeeded) {
             const gaugeEl = document.getElementById('gauge') as HTMLElement;
             gaugeEl.style.display = 'block';
@@ -441,7 +449,8 @@ export class PuzzleController extends AnalysisController {
         if (this.autoNext && success) {
             this.continueTraining(this.variant.name);
         } else {
-            this.localAnalysis = localStorage.localAnalysis === undefined ? false : localStorage.localAnalysis === "true";
+            this.localAnalysis =
+                localStorage.localAnalysis === undefined ? false : localStorage.localAnalysis === 'true';
         }
     }
 
@@ -460,12 +469,12 @@ export class PuzzleController extends AnalysisController {
 
     postVote(vote: boolean) {
         const XHR = new XMLHttpRequest();
-        const FD  = new FormData();
+        const FD = new FormData();
         FD.append('vote', `${vote}`);
         const continueTraining = this.continueTraining;
         const variant = this.variant.name;
 
-        XHR.onreadystatechange = function() {
+        XHR.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 const response = JSON.parse(this.responseText);
                 // console.log("RESPONSE:", response);
@@ -475,8 +484,8 @@ export class PuzzleController extends AnalysisController {
                     continueTraining(variant);
                 }
             }
-        }
-        XHR.open("POST", `/puzzle/vote/${this._id}`, true);
+        };
+        XHR.open('POST', `/puzzle/vote/${this._id}`, true);
         XHR.send(FD);
         // console.log("XHR.send()", FD);
     }
@@ -486,7 +495,7 @@ export class PuzzleController extends AnalysisController {
         this.posted = true;
 
         const XHR = new XMLHttpRequest();
-        const FD  = new FormData();
+        const FD = new FormData();
         FD.append('win', `${success}`);
         FD.append('v', this.variant.name);
         FD.append('color', this.color);
@@ -498,25 +507,28 @@ export class PuzzleController extends AnalysisController {
         const brating = this.brating;
         const renderRating = this.renderRating;
 
-        XHR.onreadystatechange = function() {
+        XHR.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 const response = JSON.parse(this.responseText);
                 // console.log("RESPONSE:", response);
                 if (response['error'] !== undefined) {
                     console.log(response['error']);
                 } else {
-                    patch(document.getElementById('puzzle-rated') as HTMLElement, h('input#puzzle-rated', {attrs: {disabled: true}}));
+                    patch(
+                        document.getElementById('puzzle-rated') as HTMLElement,
+                        h('input#puzzle-rated', { attrs: { disabled: true } }),
+                    );
                     if (isRated) {
                         const hiddenEl = document.querySelector('.hidden') as HTMLElement;
-                        patch(hiddenEl, h('span.hidden', (color==="white") ? brating : wrating));
+                        patch(hiddenEl, h('span.hidden', color === 'white' ? brating : wrating));
 
-                        const diff = response[(color==="white" ? 0 : 1)]
+                        const diff = response[color === 'white' ? 0 : 1];
                         renderRating(isRated, color, wrating, brating, success, diff);
                     }
                 }
             }
-        }
-        XHR.open("POST", `/puzzle/complete/${this._id}`, true);
+        };
+        XHR.open('POST', `/puzzle/complete/${this._id}`, true);
         XHR.send(FD);
         // console.log("XHR.send()", FD);
     }

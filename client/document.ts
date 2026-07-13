@@ -29,8 +29,9 @@ export function getDocumentData(name: string): string | null {
 
 export function debounce(callback: any, wait: number) {
     let timeout: ReturnType<typeof setTimeout>;
-    return function() {
-        const context = this, args = arguments;
+    return function () {
+        const context = this,
+            args = arguments;
         clearTimeout(timeout);
         timeout = setTimeout(() => callback.apply(context, args), wait);
     };
@@ -38,19 +39,18 @@ export function debounce(callback: any, wait: number) {
 
 export function getCookie(name: string) {
     const cookies = document.cookie.split(';');
-    for(let i = 0; i < cookies.length; i++) {
+    for (let i = 0; i < cookies.length; i++) {
         const pair = cookies[i].trim().split('=');
-        if(pair[0] === name)
-            return pair[1];
+        if (pair[0] === name) return pair[1];
     }
-    return "";
+    return '';
 }
 
 export function setCookie(cname: string, cvalue: string, exdays: number) {
     const d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    const expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+    const expires = 'expires=' + d.toUTCString();
+    document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
 }
 
 export function ensureBoardStyleOverride() {
@@ -96,9 +96,8 @@ export function pieceStyleClass(family: string, cssFile: string) {
 }
 
 export function ensurePieceCSS(assetUrl: string, family: string, cssFile: string) {
-    const cssId = (cssFile === 'letters' || cssFile === 'invisible') ?
-        `piece-set-${cssFile}` :
-        `piece-set-${family}-${cssFile}`;
+    const cssId =
+        cssFile === 'letters' || cssFile === 'invisible' ? `piece-set-${cssFile}` : `piece-set-${family}-${cssFile}`;
     let newUrl = sanitizeURL(`${assetUrl}/piece-css/${family}/${cssFile}.css`);
     if (family.startsWith('catalogued-') && cssFile.startsWith('custom')) {
         const revision = cssFile.startsWith('custom-') ? cssFile.slice('custom-'.length) : '';
@@ -115,7 +114,7 @@ export function ensurePieceCSS(assetUrl: string, family: string, cssFile: string
     const link = document.createElement('link');
     link.id = cssId;
     link.rel = 'stylesheet';
-    link.setAttribute("href", newUrl);
+    link.setAttribute('href', newUrl);
 
     const anchor = document.querySelector('link[rel="stylesheet"][href*="extensions.css"]');
     if (anchor && anchor.parentNode) {
@@ -133,6 +132,6 @@ export function bind(eventName: string, f: (e: Event) => void, redraw: null | ((
                 if (redraw) redraw();
                 return res;
             });
-        }
+        },
     };
 }

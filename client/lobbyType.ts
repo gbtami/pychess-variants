@@ -4,7 +4,7 @@ export interface Post {
     _id: string;
     post_id?: string;
     date: string;
-    image:string;
+    image: string;
     alt: string;
     imageAlt?: string;
     title: string;
@@ -29,7 +29,7 @@ export interface Spotlight {
     variant: string;
     chess960: boolean;
     nbPlayers: number;
-    names: {[key: string]: string};
+    names: { [key: string]: string };
     startsAt: string;
     tid: string;
 }
@@ -47,7 +47,7 @@ export interface MsgHostCreated {
 }
 
 export interface MsgGetSeeks {
-    seeks: Seek[]
+    seeks: Seek[];
 }
 
 export interface MsgNewGame {
@@ -63,7 +63,7 @@ export interface MsgUserConnected {
 }
 
 export interface MsgPing {
-    timestamp: string;//TODO: not sure string or number or other - can't find anywhere where this is actually read and not just copied to "pong", where again not read anywhere in python or ts
+    timestamp: string; //TODO: not sure string or number or other - can't find anywhere where this is actually read and not just copied to "pong", where again not read anywhere in python or ts
 }
 
 export interface MsgError {

@@ -1,14 +1,14 @@
 import { WebsocketHeartbeatJs } from './socket/socket';
 
 import { h, VNode } from 'snabbdom';
-import * as Mousetrap  from 'mousetrap';
+import * as Mousetrap from 'mousetrap';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { _ } from './i18n';
 import { patch } from './document';
 import { alertDialog } from './alertDialog';
-import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown,MsgGameNotFound } from './messages';
+import { Step, MsgChat, MsgFullChat, MsgSpectators, MsgShutdown, MsgGameNotFound } from './messages';
 import { adjacent, uci2LastMove, moveDests, cg2uci, unpromotedRole, UCIMove } from './chess';
 import { InputType } from '@/input/input';
 import { GatingInput } from './input/gating';
@@ -20,9 +20,9 @@ import { updateCount, updatePoint } from './info';
 import { sound } from './sound';
 import { chatMessage, ChatController } from './chat';
 import { selectMove } from './movelist';
-import { Api } from "chessgroundx/api";
-import { fogFen, Variant } from "./variants";
-import { isAnonUsername } from "./user";
+import { Api } from 'chessgroundx/api';
+import { fogFen, Variant } from './variants';
+import { isAnonUsername } from './user';
 
 export abstract class GameController extends ChessgroundController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -37,7 +37,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     bplayer: string;
     aiLevel: number;
     rated: string;
-    corr : boolean;
+    corr: boolean;
 
     base: number;
     inc: number;
@@ -61,7 +61,7 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     setupFen: string;
 
-    premove?: { orig: cg.Orig, dest: cg.Key, metadata?: cg.SetPremoveMetadata };
+    premove?: { orig: cg.Orig; dest: cg.Key; metadata?: cg.SetPremoveMetadata };
     preaction: boolean;
 
     steps: Step[];
@@ -97,27 +97,34 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     undo?: any;
 
-    constructor(el: HTMLElement, model: PyChessModel, fullfen: string, pocket0: HTMLElement, pocket1: HTMLElement, boardName: BoardName = '') {
-        super (el, model, fullfen, pocket0, pocket1, boardName);
+    constructor(
+        el: HTMLElement,
+        model: PyChessModel,
+        fullfen: string,
+        pocket0: HTMLElement,
+        pocket1: HTMLElement,
+        boardName: BoardName = '',
+    ) {
+        super(el, model, fullfen, pocket0, pocket1, boardName);
 
-        this.gameId = model["gameId"] as string;
-        this.tournamentId = model["tournamentId"]
-        this.tournamentSystem = Number(model["tsystem"] || 0);
-        this.username = model["username"];
-        this.wplayer = model["wplayer"];
-        this.bplayer = model["bplayer"];
-        this.base = Number(model["base"]);
-        this.inc = Number(model["inc"]);
-        this.status = Number(model["status"]);
+        this.gameId = model['gameId'] as string;
+        this.tournamentId = model['tournamentId'];
+        this.tournamentSystem = Number(model['tsystem'] || 0);
+        this.username = model['username'];
+        this.wplayer = model['wplayer'];
+        this.bplayer = model['bplayer'];
+        this.base = Number(model['base']);
+        this.inc = Number(model['inc']);
+        this.status = Number(model['status']);
         this.steps = [];
-        this.pgn = "";
-        this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
-        this.wtitle = model["wtitle"];
-        this.btitle = model["btitle"];
-        this.wrating = model["wrating"];
-        this.brating = model["brating"];
-        this.rated = model["rated"];
-        this.corr = model["corr"] === 'True';
+        this.pgn = '';
+        this.ply = isNaN(model['ply']) ? 0 : model['ply'];
+        this.wtitle = model['wtitle'];
+        this.btitle = model['btitle'];
+        this.wrating = model['wrating'];
+        this.brating = model['brating'];
+        this.rated = model['rated'];
+        this.corr = model['corr'] === 'True';
         this.mirrorBoard = false;
 
         this.spectator = this.username !== this.wplayer && this.username !== this.bplayer;
@@ -137,39 +144,39 @@ export abstract class GameController extends ChessgroundController implements Ch
 
         // players[0] is top player, players[1] is bottom player
         this.players = [
-            this.mycolor === "white" ? this.bplayer : this.wplayer,
-            this.mycolor === "white" ? this.wplayer : this.bplayer
+            this.mycolor === 'white' ? this.bplayer : this.wplayer,
+            this.mycolor === 'white' ? this.wplayer : this.bplayer,
         ];
         this.titles = [
-            this.mycolor === "white" ? this.btitle : this.wtitle,
-            this.mycolor === "white" ? this.wtitle : this.btitle
+            this.mycolor === 'white' ? this.btitle : this.wtitle,
+            this.mycolor === 'white' ? this.wtitle : this.btitle,
         ];
         this.ratings = [
-            this.mycolor === "white" ? this.brating : this.wrating,
-            this.mycolor === "white" ? this.wrating : this.brating
+            this.mycolor === 'white' ? this.brating : this.wrating,
+            this.mycolor === 'white' ? this.wrating : this.brating,
         ];
 
-        this.result = "*";
-        const parts = this.fullfen.split(" ");
+        this.result = '*';
+        const parts = this.fullfen.split(' ');
 
-        this.turnColor = parts[1] === "w" ? "white" : "black";
+        this.turnColor = parts[1] === 'w' ? 'white' : 'black';
         this.suffix = '';
 
         this.chessground.set({
             animation: {
-                enabled: (localStorage.animation === undefined || localStorage.animation === "true") && !this.fog,
+                enabled: (localStorage.animation === undefined || localStorage.animation === 'true') && !this.fog,
             },
             movable: {
-                showDests: localStorage.showDests === undefined || localStorage.showDests === "true",
+                showDests: localStorage.showDests === undefined || localStorage.showDests === 'true',
             },
         });
 
         this.steps.push({
-            'fen': this.fullfen,
-            'move': undefined,
-            'check': false,
-            'turnColor': this.turnColor,
-            });
+            fen: this.fullfen,
+            move: undefined,
+            check: false,
+            turnColor: this.turnColor,
+        });
 
         this.setDests();
 
@@ -191,14 +198,17 @@ export abstract class GameController extends ChessgroundController implements Ch
     }
 
     flipped() {
-        return (this.variant.name === 'racingkings')
-        ? this.chessground.state.orientation !== 'white'
-        : this.chessground.state.orientation !== this.mycolor;
+        return this.variant.name === 'racingkings'
+            ? this.chessground.state.orientation !== 'white'
+            : this.chessground.state.orientation !== this.mycolor;
     }
 
     setDests() {
         // console.log("gameCtrl.setDests()");
-        const legalMoves = this.ffishBoard.legalMoves().split(" ").filter(o => o);
+        const legalMoves = this.ffishBoard
+            .legalMoves()
+            .split(' ')
+            .filter(o => o);
         const fakeDrops = this.variant.name === 'ataxx';
         const pieces = this.chessground.state.boardState.pieces;
         const dests = moveDests(legalMoves as UCIMove[], fakeDrops, pieces, this.turnColor);
@@ -208,23 +218,33 @@ export abstract class GameController extends ChessgroundController implements Ch
                     const origPiece = pieces.get(orig);
                     if (origPiece?.role === 'r-piece') {
                         // Remove rook takes king from the legal destinations
-                        dests.set(orig, destArray.filter(dest => {
-                            const destPiece = pieces.get(dest);
-                            return !(destPiece && destPiece.role === 'k-piece' && origPiece.color === destPiece.color);
-                        }));
+                        dests.set(
+                            orig,
+                            destArray.filter(dest => {
+                                const destPiece = pieces.get(dest);
+                                return !(
+                                    destPiece &&
+                                    destPiece.role === 'k-piece' &&
+                                    origPiece.color === destPiece.color
+                                );
+                            }),
+                        );
                     }
                     if (origPiece?.role === 'a-piece' && origPiece?.promoted) {
                         // Fake advisor can’t leave the palace
-                        dests.set(orig, destArray.filter(dest => {
-                            return !['c2', 'g2', 'c9', 'g9'].includes(dest);
-                        }));
+                        dests.set(
+                            orig,
+                            destArray.filter(dest => {
+                                return !['c2', 'g2', 'c9', 'g9'].includes(dest);
+                            }),
+                        );
                     }
                 }
             }
         }
-        this.chessground.set({ movable: { dests: dests }});
+        this.chessground.set({ movable: { dests: dests } });
         if (this.steps.length === 1) {
-            this.chessground.set({ check: (this.ffishBoard.isCheck()) ? this.turnColor : false});
+            this.chessground.set({ check: this.ffishBoard.isCheck() ? this.turnColor : false });
         }
     }
 
@@ -232,7 +252,14 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     abstract doSendMove(move: string): void;
 
-    processInput(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata, lastSuffix?: string, lastInputType?: InputType): void {
+    processInput(
+        piece: cg.Piece,
+        orig: cg.Orig,
+        dest: cg.Key,
+        meta: cg.MoveMetadata,
+        lastSuffix?: string,
+        lastInputType?: InputType,
+    ): void {
         switch (lastInputType) {
             case undefined:
                 this.suffix = '';
@@ -265,7 +292,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         if (!this.mirrorBoard) {
             return fen;
         } else {
-            const placement = fen.split(" ")[0];
+            const placement = fen.split(' ')[0];
             let newPlacement: string[] = [];
             let mirrorPiece: boolean = false;
             for (const c of placement) {
@@ -305,18 +332,20 @@ export abstract class GameController extends ChessgroundController implements Ch
             // 960 king takes rook castling is not capture
             // TODO Defer this logic to ffish.js
             const piece = this.chessground.state.boardState.pieces.get(lastMove[1] as cg.Key);
-            capture = (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') || (step.san?.slice(1, 2) === 'x');
+            capture =
+                (piece !== undefined && piece.role !== '_-piece' && step.san?.slice(0, 2) !== 'O-') ||
+                step.san?.slice(1, 2) === 'x';
         }
 
-        const fen = (this.mirrorBoard) ? this.getAliceFen(step.fen) : step.fen;
+        const fen = this.mirrorBoard ? this.getAliceFen(step.fen) : step.fen;
         this.chessground.set({
-            fen: (this.fog) ? fogFen(fen) : fen,
+            fen: this.fog ? fogFen(fen) : fen,
             turnColor: step.turnColor,
             movable: {
                 color: step.turnColor,
             },
-            check: (this.fog) ? false : step.check,
-            lastMove: (this.fog) ? undefined : lastMove,
+            check: this.fog ? false : step.check,
+            lastMove: this.fog ? undefined : lastMove,
         });
 
         // turnColor have to be actualized before setDests() !!!
@@ -329,11 +358,20 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.duck.inputState = undefined;
 
         if (this.variant.ui.counting) {
-            [this.vmiscInfoW, this.vmiscInfoB] = updateCount(step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+            [this.vmiscInfoW, this.vmiscInfoB] = updateCount(
+                step.fen,
+                document.getElementById('misc-infow') as HTMLElement,
+                document.getElementById('misc-infob') as HTMLElement,
+            );
         }
 
         if (this.variant.ui.materialPoint) {
-            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(this.variant, step.fen, document.getElementById('misc-infow') as HTMLElement, document.getElementById('misc-infob') as HTMLElement);
+            [this.vmiscInfoW, this.vmiscInfoB] = updatePoint(
+                this.variant,
+                step.fen,
+                document.getElementById('misc-infow') as HTMLElement,
+                document.getElementById('misc-infob') as HTMLElement,
+            );
         }
 
         if (ply === this.ply + 1) {
@@ -341,26 +379,25 @@ export abstract class GameController extends ChessgroundController implements Ch
             if (step.check) sound.check();
         }
 
-        this.ply = ply
+        this.ply = ply;
     }
 
     doSend = (message: JSONObject) => {
         // console.log("---> doSend():", message);
         this.sock.send(JSON.stringify(message));
-    }
+    };
 
     protected onMove = () => {
         return (_orig: cg.Key, _dest: cg.Key, capturedPiece: cg.Piece) => {
             sound.moveSound(this.variant, !!capturedPiece);
-        }
-    }
+        };
+    };
 
     protected onDrop = () => {
         return (piece: cg.Piece, _dest: cg.Key) => {
-            if (piece.role)
-                sound.moveSound(this.variant, false);
-        }
-    }
+            if (piece.role) sound.moveSound(this.variant, false);
+        };
+    };
 
     protected onSelect = () => {
         let lastTime = performance.now();
@@ -373,14 +410,22 @@ export abstract class GameController extends ChessgroundController implements Ch
             if (this.chessground.state.stats.ctrlKey || (lastKey === key && curTime - lastTime < 500)) {
                 if (this.chessground.state.movable.dests.get(key)?.includes(key)) {
                     const piece = this.chessground.state.boardState.pieces.get(key)!;
-                    if (this.variant.name === 'sittuyin') { // TODO make this more generic
+                    if (this.variant.name === 'sittuyin') {
+                        // TODO make this more generic
                         // Sittuyin in place promotion on Ctrl or double click
                         // console.log("In place promotion", key);
-                        this.chessground.setPieces(new Map([[key, {
-                            color: piece.color,
-                            role: 'f-piece',
-                            promoted: true
-                        }]]));
+                        this.chessground.setPieces(
+                            new Map([
+                                [
+                                    key,
+                                    {
+                                        color: piece.color,
+                                        role: 'f-piece',
+                                        promoted: true,
+                                    },
+                                ],
+                            ]),
+                        );
                         this.chessground.state.movable.dests = undefined;
                         this.chessground.selectSquare(key);
                         sound.moveSound(this.variant, false);
@@ -395,11 +440,14 @@ export abstract class GameController extends ChessgroundController implements Ch
                 lastKey = key;
                 lastTime = curTime;
             }
-        }
-    }
+        };
+    };
 
     protected pass = (passKey?: cg.Key) => {
-        if (this.turnColor === this.chessground.state.movable.color || this.chessground.state.movable.color === 'both') {
+        if (
+            this.turnColor === this.chessground.state.movable.color ||
+            this.chessground.state.movable.color === 'both'
+        ) {
             if (!passKey) {
                 const pieces = this.chessground.state.boardState.pieces;
                 const dests = this.chessground.state.movable.dests;
@@ -417,13 +465,13 @@ export abstract class GameController extends ChessgroundController implements Ch
                 this.sendMove(passKey, passKey, '');
             }
         }
-    }
+    };
 
     /**
-      * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
-      */
+     * Custom variant-specific logic to be triggered on move and alter state of board/pocket depending on variant rules.
+     */
     protected onUserMove(orig: cg.Key, dest: cg.Key, meta: cg.MoveMetadata) {
-        if (this.duck.inputState === "move") {
+        if (this.duck.inputState === 'move') {
             this.duck.finish(dest);
             return;
         }
@@ -435,7 +483,7 @@ export abstract class GameController extends ChessgroundController implements Ch
         const pieces = this.chessground.state.boardState.pieces;
         let moved = pieces.get(dest);
         // Fix king to rook 960 castling case
-        if (moved === undefined) moved = {role: 'k-piece', color: this.mycolor} as cg.Piece;
+        if (moved === undefined) moved = { role: 'k-piece', color: this.mycolor } as cg.Piece;
 
         // chessground doesn't know about en passant, so we have to remove the captured pawn manually
         this.performEnPassant(meta, moved, orig, dest, pieces, this.chessground, this.variant, this.mycolor);
@@ -454,8 +502,23 @@ export abstract class GameController extends ChessgroundController implements Ch
         this.preaction = false;
     }
 
-    public performEnPassant(meta: cg.MoveMetadata, moved: cg.Piece, orig: cg.Key, dest: cg.Key, pieces: cg.Pieces, chessground: Api, variant: Variant, mycolor: cg.Color) {
-        if (meta.captured === undefined && moved !== undefined && moved.role === "p-piece" && orig[0] !== dest[0] && variant.rules.enPassant) {
+    public performEnPassant(
+        meta: cg.MoveMetadata,
+        moved: cg.Piece,
+        orig: cg.Key,
+        dest: cg.Key,
+        pieces: cg.Pieces,
+        chessground: Api,
+        variant: Variant,
+        mycolor: cg.Color,
+    ) {
+        if (
+            meta.captured === undefined &&
+            moved !== undefined &&
+            moved.role === 'p-piece' &&
+            orig[0] !== dest[0] &&
+            variant.rules.enPassant
+        ) {
             const pos = util.key2pos(dest),
                 pawnKey = util.pos2key([pos[0], pos[1] + (mycolor === 'white' ? -1 : 1)]);
             meta.captured = pieces.get(pawnKey);
@@ -478,36 +541,41 @@ export abstract class GameController extends ChessgroundController implements Ch
         if (container) {
             this.spectatorsContainer = patch(
                 this.spectatorsContainer ?? container,
-                h('under-left#spectators', this.renderSpectators(msg.spectators))
+                h('under-left#spectators', this.renderSpectators(msg.spectators)),
             );
         }
-    }
+    };
 
     private renderSpectators(raw: string): Array<VNode | string> {
         if (/^\d+$/.test(raw)) {
             return [_('Spectators: '), raw];
         }
 
-        const parts = raw.split(',').map((part) => part.trim()).filter(Boolean);
+        const parts = raw
+            .split(',')
+            .map(part => part.trim())
+            .filter(Boolean);
         const children: Array<VNode | string> = [_('Spectators: ')];
         parts.forEach((part, idx) => {
             if (idx > 0) children.push(', ');
             if (isAnonUsername(part) || part.startsWith('Anonymous(')) {
                 children.push(part);
             } else {
-                children.push(
-                    h('a.user-link', { attrs: { href: `/@/${encodeURIComponent(part)}` } }, part)
-                );
+                children.push(h('a.user-link', { attrs: { href: `/@/${encodeURIComponent(part)}` } }, part));
             }
         });
         return children;
     }
 
     private onMsgChat = (msg: MsgChat) => {
-        if ((this.spectator && msg.room === 'spectator') || (!this.spectator && msg.room !== 'spectator') || msg.user.length === 0) {
-            chatMessage(msg.user, msg.message, "roundchat", msg.time);
+        if (
+            (this.spectator && msg.room === 'spectator') ||
+            (!this.spectator && msg.room !== 'spectator') ||
+            msg.user.length === 0
+        ) {
+            chatMessage(msg.user, msg.message, 'roundchat', msg.time);
         }
-    }
+    };
 
     private onMsgFullChat = (msg: MsgFullChat) => {
         const container = document.getElementById('messages') as HTMLElement;
@@ -516,45 +584,49 @@ export abstract class GameController extends ChessgroundController implements Ch
             patch(container, h('div#messages-clear'));
             // then create a new one
             patch(document.getElementById('messages-clear') as HTMLElement, h('div#messages'));
-            msg.lines.forEach((line) => {
-                if ((this.spectator && line.room === 'spectator') || (!this.spectator && line.room !== 'spectator') || line.user.length === 0) {
-                    chatMessage(line.user, line.message, "roundchat", line.time);
+            msg.lines.forEach(line => {
+                if (
+                    (this.spectator && line.room === 'spectator') ||
+                    (!this.spectator && line.room !== 'spectator') ||
+                    line.user.length === 0
+                ) {
+                    chatMessage(line.user, line.message, 'roundchat', line.time);
                 }
             });
         }
-    }
+    };
 
     private onMsgGameNotFound = (msg: MsgGameNotFound) => {
-        void alertDialog({ text: _("Requested game %1 not found!", msg['gameId']) });
+        void alertDialog({ text: _('Requested game %1 not found!', msg['gameId']) });
         window.location.assign(this.home);
-    }
+    };
 
     private onMsgShutdown = (msg: MsgShutdown) => {
         void alertDialog({ text: msg.message });
-    }
+    };
 
     protected onMessage(evt: MessageEvent) {
         // console.log("<+++ onMessage():", evt.data);
         if (evt.data === '/n') return;
         const msg = JSON.parse(evt.data);
         switch (msg.type) {
-            case "spectators":
+            case 'spectators':
                 this.onMsgSpectators(msg);
-                break
-            case "roundchat":
+                break;
+            case 'roundchat':
                 this.onMsgChat(msg);
                 break;
-            case "fullchat":
+            case 'fullchat':
                 this.onMsgFullChat(msg);
                 break;
-            case "game_not_found":
+            case 'game_not_found':
                 this.onMsgGameNotFound(msg);
-                break
-            case "shutdown":
+                break;
+            case 'shutdown':
                 this.onMsgShutdown(msg);
                 break;
-            case "logout":
-                this.doSend({type: "logout"});
+            case 'logout':
+                this.doSend({ type: 'logout' });
                 break;
         }
     }

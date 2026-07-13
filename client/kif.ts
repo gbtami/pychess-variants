@@ -3,32 +3,52 @@
 // mirror letters to digits
 function l2d(c: string) {
     switch (c) {
-    case 'a': return '9';
-    case 'b': return '8';
-    case 'c': return '7';
-    case 'd': return '6';
-    case 'e': return '5';
-    case 'f': return '4';
-    case 'g': return '3';
-    case 'h': return '2';
-    case 'i': return '1';
-    default: return '_'
+        case 'a':
+            return '9';
+        case 'b':
+            return '8';
+        case 'c':
+            return '7';
+        case 'd':
+            return '6';
+        case 'e':
+            return '5';
+        case 'f':
+            return '4';
+        case 'g':
+            return '3';
+        case 'h':
+            return '2';
+        case 'i':
+            return '1';
+        default:
+            return '_';
     }
 }
 
 // mirror digits to letters
 function d2l(c: string) {
     switch (c) {
-    case '1': return 'i';
-    case '2': return 'h';
-    case '3': return 'g';
-    case '4': return 'f';
-    case '5': return 'e';
-    case '6': return 'd';
-    case '7': return 'c';
-    case '8': return 'b';
-    case '9': return 'a';
-    default: return '_'
+        case '1':
+            return 'i';
+        case '2':
+            return 'h';
+        case '3':
+            return 'g';
+        case '4':
+            return 'f';
+        case '5':
+            return 'e';
+        case '6':
+            return 'd';
+        case '7':
+            return 'c';
+        case '8':
+            return 'b';
+        case '9':
+            return 'a';
+        default:
+            return '_';
     }
 }
 
@@ -36,20 +56,51 @@ function mirror(p: string) {
     return d2l(p[0]) + l2d(p[1]);
 }
 
-const dict = (keys: string[], values: string[]) : {[key: string]: string} => keys.reduce((obj, key, index) => ({ ...obj, [key]: values[index] }), {});
+const dict = (keys: string[], values: string[]): { [key: string]: string } =>
+    keys.reduce((obj, key, index) => ({ ...obj, [key]: values[index] }), {});
 
 // TODO: add missing handicap types to chess.ts
 // recognise more initial handicap positions
 // see https://en.wikipedia.org/wiki/Handicap_(shogi)#Types_of_handicap_games
-const HC_TYPES = ["香落ち", "右香落ち", "角落ち", "飛車落ち", "飛香落ち", "二枚落ち", "三枚落ち", "四枚落ち", "五枚落ち", "左五枚落ち", "六枚落ち", "八枚落ち", "十枚落ち", "その他"];
-const HC_NAMES = ["Lance HC", "RLance HC", "Bishop HC", "Rook HC", "Rook+Lance HC", "2-Piece HC", "3-Piece HC", "4-Piece HC", "5-Piece HC", "LL 5-Piece HC", "6-Piece HC", "8-Piece HC", "10-Piece HC", "Other-HC"];
+const HC_TYPES = [
+    '香落ち',
+    '右香落ち',
+    '角落ち',
+    '飛車落ち',
+    '飛香落ち',
+    '二枚落ち',
+    '三枚落ち',
+    '四枚落ち',
+    '五枚落ち',
+    '左五枚落ち',
+    '六枚落ち',
+    '八枚落ち',
+    '十枚落ち',
+    'その他',
+];
+const HC_NAMES = [
+    'Lance HC',
+    'RLance HC',
+    'Bishop HC',
+    'Rook HC',
+    'Rook+Lance HC',
+    '2-Piece HC',
+    '3-Piece HC',
+    '4-Piece HC',
+    '5-Piece HC',
+    'LL 5-Piece HC',
+    '6-Piece HC',
+    '8-Piece HC',
+    '10-Piece HC',
+    'Other-HC',
+];
 const hc_map = dict(HC_TYPES, HC_NAMES);
 
 const alpha = 'abcdefghi'.split('');
 const zensuji = '１２３４５６７８９'.split('');
 const kansuji = '一二三四五六七八九'.split('');
 
-const zen_map: {[key: string]: string} = dict(zensuji, ['1','2','3','4','5','6','7','8','9']);
+const zen_map: { [key: string]: string } = dict(zensuji, ['1', '2', '3', '4', '5', '6', '7', '8', '9']);
 const kan_map = dict(kansuji, alpha);
 
 const pieces = '歩香桂銀金角飛玉と馬龍竜';
@@ -58,10 +109,10 @@ const piece_map = dict('歩香桂銀金角飛玉と馬龍竜'.split(''), 'PLNSGB
 const line_re = /(\d+) +([^ ]+)/u;
 
 export function resultString(movingPlayerWin: boolean, ply: number, isHandicap: boolean) {
-    if (ply % 2 === ((movingPlayerWin) ? 1 : 0)) {
-        return (!isHandicap) ? '1-0' : '0-1';
+    if (ply % 2 === (movingPlayerWin ? 1 : 0)) {
+        return !isHandicap ? '1-0' : '0-1';
     } else {
-        return (!isHandicap) ? '0-1' : '1-0';
+        return !isHandicap ? '0-1' : '1-0';
     }
 }
 
@@ -78,22 +129,31 @@ export interface KIF {
 }
 
 export function parseKif(text: string): KIF {
-    let date: string = '', place: string = '', tc: string = '', sente: string = '', gote: string = '', handicap = '';
+    let date: string = '',
+        place: string = '',
+        tc: string = '',
+        sente: string = '',
+        gote: string = '',
+        handicap = '';
     let status = 11; // unknown
     let result = '*'; // unknown
     const move_list: string[] = [];
     let tagsProcessed = false;
     let isHandicap = false;
-    let movesStartLineNumber: number = 0, ply: number;
+    let movesStartLineNumber: number = 0,
+        ply: number;
 
     const lines: string[] = text.split(/\r?\n/u);
-    let piace_name: string, prev_position: string, next_position: string = '', rest: string;
+    let piace_name: string,
+        prev_position: string,
+        next_position: string = '',
+        rest: string;
     const WIN = true;
     const LOSS = false;
 
     for (let i = 0; i < lines.length; i++) {
         const firstChar = lines[i][0];
-        if ( firstChar === '#' || firstChar === '*') continue;
+        if (firstChar === '#' || firstChar === '*') continue;
 
         if (!tagsProcessed) {
             const symbols = [...lines[i]];
@@ -101,26 +161,26 @@ export function parseKif(text: string): KIF {
             if (idx > -1) {
                 const tagPair = [symbols.slice(0, idx).join(''), symbols.slice(idx + 1).join('')];
                 switch (tagPair[0]) {
-                case '開始日時':
-                    date = tagPair[1];
-                    break;
-                case '場所':
-                    place = tagPair[1];
-                    break;
-                case '持ち時間':
-                    tc = tagPair[1];
-                    break;
-                case '手合割':
-                    handicap = tagPair[1];
-                    isHandicap = HC_TYPES.includes(handicap);
-                    handicap = (isHandicap) ? hc_map[handicap] : '';
-                    break;
-                case '先手':
-                    sente = tagPair[1];
-                    break;
-                case '後手':
-                    gote = tagPair[1];
-                    break;
+                    case '開始日時':
+                        date = tagPair[1];
+                        break;
+                    case '場所':
+                        place = tagPair[1];
+                        break;
+                    case '持ち時間':
+                        tc = tagPair[1];
+                        break;
+                    case '手合割':
+                        handicap = tagPair[1];
+                        isHandicap = HC_TYPES.includes(handicap);
+                        handicap = isHandicap ? hc_map[handicap] : '';
+                        break;
+                    case '先手':
+                        sente = tagPair[1];
+                        break;
+                    case '後手':
+                        gote = tagPair[1];
+                        break;
                 }
             } else {
                 tagsProcessed = true;
@@ -181,7 +241,7 @@ export function parseKif(text: string): KIF {
                 break;
             } else {
                 console.log('Unknown Move', s[0], lines[i], res);
-                throw new Error('Unknown Move '+ s[0]);//return [];
+                throw new Error('Unknown Move ' + s[0]); //return [];
             }
 
             if (pieces.includes(s[2])) {
@@ -192,20 +252,20 @@ export function parseKif(text: string): KIF {
                 rest = s.slice(4);
             } else {
                 console.log('Unknown Piece', s[2], lines[i], res);
-                throw new Error('Unknown Piece '+ s[2]);//return [];
+                throw new Error('Unknown Piece ' + s[2]); //return [];
             }
 
             let promote = '';
             if (rest[0] === '成') {
                 promote = '+';
-                prev_position = rest[2] + alpha[parseInt(rest[3])-1];
+                prev_position = rest[2] + alpha[parseInt(rest[3]) - 1];
             } else if (rest[0] === '打') {
                 prev_position = '@';
             } else if (rest[0] === '(') {
-                prev_position = rest[1] + alpha[parseInt(rest[2])-1];
+                prev_position = rest[1] + alpha[parseInt(rest[2]) - 1];
             } else {
                 console.log('Unknown ???', rest[0], lines[i], res);
-                throw new Error('Unknown ??? '+ rest[0]);//return [];
+                throw new Error('Unknown ??? ' + rest[0]); //return [];
             }
 
             //const num = parseInt(res[1]);
@@ -220,5 +280,15 @@ export function parseKif(text: string): KIF {
             move_list.push(move);
         }
     }
-    return {'date': date, 'place': place, 'tc': tc, 'handicap': handicap, 'sente': sente, 'gote': gote, 'moves': move_list, 'status': status, 'result': result};
+    return {
+        date: date,
+        place: place,
+        tc: tc,
+        handicap: handicap,
+        sente: sente,
+        gote: gote,
+        moves: move_list,
+        status: status,
+        result: result,
+    };
 }

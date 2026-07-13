@@ -26,12 +26,13 @@ export class DuckInput extends ExtraInput {
             return;
         }
 
-        this.duckDests = this.ctrl.legalMoves().
-            filter(move => move.includes(orig + dest)).
-            map(move => move.slice(-2)) as cg.Key[];
+        this.duckDests = this.ctrl
+            .legalMoves()
+            .filter(move => move.includes(orig + dest))
+            .map(move => move.slice(-2)) as cg.Key[];
 
         let duckKey: cg.Key | undefined;
-        const pieces = this.ctrl.chessground.state.boardState.pieces
+        const pieces = this.ctrl.chessground.state.boardState.pieces;
         for (const [k, p] of pieces) {
             if (p.role === '_-piece') {
                 duckKey = k;
@@ -48,8 +49,11 @@ export class DuckInput extends ExtraInput {
 
         const undo = document.getElementById('undo') as HTMLElement;
         if (undo && undo.tagName === 'DIV') {
-            patch(undo,
-                h('button#undo', { on: { click: () => this.ctrl.undo() }, props: {title: _('Undo')} }, [h('i', {class: {"icon": true, "icon-reply": true } } ), ])
+            patch(
+                undo,
+                h('button#undo', { on: { click: () => this.ctrl.undo() }, props: { title: _('Undo') } }, [
+                    h('i', { class: { icon: true, 'icon-reply': true } }),
+                ]),
             );
         }
 
@@ -57,9 +61,9 @@ export class DuckInput extends ExtraInput {
         // When the game starts there is no duck piece on the board
         if (!duckKey) {
             duckKey = 'a0';
-            this.ctrl.chessground.state.boardState.pieces.set(duckKey, {role: '_-piece', color: 'white'});
+            this.ctrl.chessground.state.boardState.pieces.set(duckKey, { role: '_-piece', color: 'white' });
             const message = _('Place the duck on an empty square.');
-            chatMessage('', message, "roundchat");
+            chatMessage('', message, 'roundchat');
         }
         // Change the duck's color so that it became movable by the player
         this.ctrl.chessground.state.boardState.pieces.get(duckKey)!.color = piece.color;

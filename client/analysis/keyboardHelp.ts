@@ -40,7 +40,7 @@ function renderKey(key: string): VNode {
 function renderKeys(keys: string[]): VNode {
     return h(
         'div.keys',
-        keys.flatMap((key, index) => index === 0 ? [renderKey(key)] : [h('span.sep', _('or')), renderKey(key)]),
+        keys.flatMap((key, index) => (index === 0 ? [renderKey(key)] : [h('span.sep', _('or')), renderKey(key)])),
     );
 }
 
@@ -72,9 +72,7 @@ export function buildKeyboardHelpSections(ctrl: AnalysisController): ShortcutSec
     if (ctrl.variant.rules.gate || ctrl.variant.name === 'duck' || ctrl.variant.name === 'supply') {
         sections.push({
             title: _('Input'),
-            items: [
-                { keys: ['enter'], description: _('Confirm current move input') },
-            ],
+            items: [{ keys: ['enter'], description: _('Confirm current move input') }],
         });
     }
 
@@ -84,50 +82,60 @@ export function buildKeyboardHelpSections(ctrl: AnalysisController): ShortcutSec
 function view(ctrl: AnalysisController): VNode {
     const sections = buildKeyboardHelpSections(ctrl);
 
-    return h('div.analysis-keyboard-help', {
-        attrs: {
-            role: 'dialog',
-            'aria-modal': 'true',
-            'aria-labelledby': 'analysis-keyboard-help-title',
-        },
-        on: {
-            click: (event: MouseEvent) => {
-                if (event.target === event.currentTarget) ctrl.closeKeyboardHelp();
+    return h(
+        'div.analysis-keyboard-help',
+        {
+            attrs: {
+                role: 'dialog',
+                'aria-modal': 'true',
+                'aria-labelledby': 'analysis-keyboard-help-title',
+            },
+            on: {
+                click: (event: MouseEvent) => {
+                    if (event.target === event.currentTarget) ctrl.closeKeyboardHelp();
+                },
             },
         },
-    }, [
-        h('div.analysis-keyboard-help__content', [
-            h('div.analysis-keyboard-help__header', [
-                h('h2#analysis-keyboard-help-title', _('Keyboard shortcuts')),
-                h('button.analysis-keyboard-help__close', {
-                    attrs: { type: 'button', 'aria-label': _('Close') },
-                    on: { click: () => ctrl.closeKeyboardHelp() },
-                    hook: {
-                        insert: (vnode) => {
-                            (vnode.elm as HTMLButtonElement).focus();
+        [
+            h('div.analysis-keyboard-help__content', [
+                h('div.analysis-keyboard-help__header', [
+                    h('h2#analysis-keyboard-help-title', _('Keyboard shortcuts')),
+                    h(
+                        'button.analysis-keyboard-help__close',
+                        {
+                            attrs: { type: 'button', 'aria-label': _('Close') },
+                            on: { click: () => ctrl.closeKeyboardHelp() },
+                            hook: {
+                                insert: vnode => {
+                                    (vnode.elm as HTMLButtonElement).focus();
+                                },
+                            },
                         },
-                    },
-                }, '×'),
-            ]),
-            h('div.analysis-keyboard-help__grid',
-                sections.map((section) =>
-                    h('section.analysis-keyboard-help__section', [
-                        h('h3', section.title),
-                        h('table', [
-                            h('tbody',
-                                section.items.map((item) =>
-                                    h('tr', [
-                                        h('td.keys-cell', renderKeys(item.keys)),
-                                        h('td.description-cell', item.description),
-                                    ])
-                                )
-                            ),
+                        '×',
+                    ),
+                ]),
+                h(
+                    'div.analysis-keyboard-help__grid',
+                    sections.map(section =>
+                        h('section.analysis-keyboard-help__section', [
+                            h('h3', section.title),
+                            h('table', [
+                                h(
+                                    'tbody',
+                                    section.items.map(item =>
+                                        h('tr', [
+                                            h('td.keys-cell', renderKeys(item.keys)),
+                                            h('td.description-cell', item.description),
+                                        ]),
+                                    ),
+                                ),
+                            ]),
                         ]),
-                    ])
-                )
-            ),
-        ]),
-    ]);
+                    ),
+                ),
+            ]),
+        ],
+    );
 }
 
 function ensureContainer() {

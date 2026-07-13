@@ -19,8 +19,8 @@ export function initUblogLike(): void {
     const forms = document.querySelectorAll<HTMLFormElement>('.ublog-post__like-form');
     if (forms.length === 0) return;
 
-    forms.forEach((form) => {
-        form.addEventListener('submit', async (event) => {
+    forms.forEach(form => {
+        form.addEventListener('submit', async event => {
             event.preventDefault();
             const button = form.querySelector<HTMLButtonElement>('.ublog-post__like');
             if (!button) return;

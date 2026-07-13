@@ -147,7 +147,7 @@ class UserMiniWidget {
         });
 
         this.ongoingSource = new EventSource('/api/ongoing');
-        this.ongoingSource.onmessage = (event) => {
+        this.ongoingSource.onmessage = event => {
             if (!this.liveGameId || !this.cg || !this.liveVariantName) return;
             const msg = JSON.parse(event.data) as OngoingMessage;
             if (msg.gameId !== this.liveGameId) return;
@@ -376,8 +376,7 @@ class UserMiniWidget {
         if (payload.vsScore) {
             const score = document.createElement('div');
             score.className = 'umw-score';
-            score.textContent =
-                `${_('Your score')}: ${formatTenthsScore(payload.vsScore.mineTenths)} - ${formatTenthsScore(payload.vsScore.oppTenths)}`;
+            score.textContent = `${_('Your score')}: ${formatTenthsScore(payload.vsScore.mineTenths)} - ${formatTenthsScore(payload.vsScore.oppTenths)}`;
             this.content.appendChild(score);
         }
 
@@ -498,7 +497,7 @@ class UserMiniWidget {
             button.textContent = following ? _('Following') : _('Follow');
         };
         renderState();
-        button.addEventListener('click', (event) => {
+        button.addEventListener('click', event => {
             event.preventDefault();
             const next = !following;
             const formData = new URLSearchParams({ follow: `${next}` });
@@ -507,7 +506,7 @@ class UserMiniWidget {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
                 body: formData.toString(),
             })
-                .then((res) => {
+                .then(res => {
                     if (!res.ok) return;
                     following = next;
                     renderState();
@@ -556,9 +555,9 @@ class UserMiniWidget {
         // In that case, keep the widget near the pointer instead of defaulting near top-left.
         if (
             !anchor.isConnected ||
-            (!Number.isFinite(rect.left) ||
-                !Number.isFinite(rect.top) ||
-                (rect.left === 0 && rect.top === 0 && rect.width === 0 && rect.height === 0))
+            !Number.isFinite(rect.left) ||
+            !Number.isFinite(rect.top) ||
+            (rect.left === 0 && rect.top === 0 && rect.width === 0 && rect.height === 0)
         ) {
             this.placeByPoint(this.lastMouseX, this.lastMouseY);
             return;

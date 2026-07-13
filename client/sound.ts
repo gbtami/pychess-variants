@@ -7,9 +7,7 @@ import { Variant } from './variants';
 import { StringSettings, NumberSettings } from './settings';
 import { radioList, slider } from './view';
 
-
 class Sounds {
-
     private static readonly trackNames = {
         GenericNotify: 'GenericNotify',
         SocialNotify: 'SocialNotify',
@@ -39,7 +37,7 @@ class Sounds {
         q: 'queen',
         h: 'horse',
         e: 'elephant',
-//        c: 'chariot',
+        //        c: 'chariot',
         c: 'cannon',
         a: 'advisor',
         nop: 'no-pawn',
@@ -49,7 +47,7 @@ class Sounds {
         noq: 'no-queen',
         noh: 'no-horse',
         noe: 'no-elephant',
-//        noc: 'no-chariot',
+        //        noc: 'no-chariot',
         noc: 'no-cannon',
         noa: 'no-advisor',
         sit: 'sit',
@@ -78,28 +76,28 @@ class Sounds {
     }
 
     buildBugChatSounds(assetURL: string) {
-        Object.keys(Sounds.bugTrackNames).forEach( (key: keyof typeof Sounds.bugTrackNames) => {
+        Object.keys(Sounds.bugTrackNames).forEach((key: keyof typeof Sounds.bugTrackNames) => {
             this.tracks[key] = this.buildSound(assetURL, 'bugchat', Sounds.bugTrackNames[key]);
         });
     }
 
     updateSoundTheme(assetURL: string) {
         const soundTheme = soundThemeSettings.value;
-        Object.keys(Sounds.trackNames).forEach( (key: keyof typeof Sounds.trackNames) => {
+        Object.keys(Sounds.trackNames).forEach((key: keyof typeof Sounds.trackNames) => {
             this.tracks[key] = this.buildSound(assetURL, soundTheme, Sounds.trackNames[key]);
         });
     }
 
     private buildSound(assetURL: string, soundTheme: string, trackName: string) {
-        const soundTrack = (soundTheme === 'silent') ? 'Silence' : trackName;
+        const soundTrack = soundTheme === 'silent' ? 'Silence' : trackName;
         const sound = new Howl({
             src: [
                 assetURL + '/sound/' + soundTheme + '/' + soundTrack + '.ogg',
-                assetURL + '/sound/' + soundTheme + '/' + soundTrack + '.mp3'
+                assetURL + '/sound/' + soundTheme + '/' + soundTrack + '.mp3',
             ],
-            onplayerror: function() {
-                sound.once('unlock', function() {
-                sound.play();
+            onplayerror: function () {
+                sound.once('unlock', function () {
+                    sound.play();
                 });
             },
             volume: volumeSettings.value,
@@ -111,86 +109,118 @@ class Sounds {
         return soundThemeSettings.value !== 'silent';
     }
 
-    genericNotify() { if (this.audio()) this.tracks.GenericNotify.play(); }
-    socialNotify()  { if (this.audio()) this.tracks.SocialNotify.play(); }
-    newPM()         { if (this.audio()) this.tracks.NewPM.play(); }
-    newChallenge()  { if (this.audio()) this.tracks.NewChallenge.play(); }
-    move()          { if (this.audio()) this.tracks.Move.play(); }
-    capture()       { if (this.audio()) this.tracks.Capture.play(); }
-    check()         { if (this.audio()) this.tracks.Check.play(); }
-    draw()          { if (this.audio()) this.tracks.Draw.play(); }
-    victory()       { if (this.audio()) this.tracks.Victory.play(); }
-    defeat()        { if (this.audio()) this.tracks.Defeat.play(); }
-    shogimove()     { if (this.audio()) this.tracks.ShogiMove.play(); }
-    shogicapture()  { if (this.audio()) this.tracks.ShogiCapture.play(); }
-    chat()          { if (this.audio()) this.tracks.Chat.play(); }
-    setup()         { if (this.audio()) this.tracks.Setup.play(); }
-    lowTime()       { if (this.audio()) this.tracks.LowTime.play(); }
-    tick()          { if (this.audio()) this.tracks.Tick.play(); }
-    explosion()     { if (this.audio()) this.tracks.Explosion.play(); }
-    berserk()       { if (this.audio()) this.tracks.Berserk.play(); }
+    genericNotify() {
+        if (this.audio()) this.tracks.GenericNotify.play();
+    }
+    socialNotify() {
+        if (this.audio()) this.tracks.SocialNotify.play();
+    }
+    newPM() {
+        if (this.audio()) this.tracks.NewPM.play();
+    }
+    newChallenge() {
+        if (this.audio()) this.tracks.NewChallenge.play();
+    }
+    move() {
+        if (this.audio()) this.tracks.Move.play();
+    }
+    capture() {
+        if (this.audio()) this.tracks.Capture.play();
+    }
+    check() {
+        if (this.audio()) this.tracks.Check.play();
+    }
+    draw() {
+        if (this.audio()) this.tracks.Draw.play();
+    }
+    victory() {
+        if (this.audio()) this.tracks.Victory.play();
+    }
+    defeat() {
+        if (this.audio()) this.tracks.Defeat.play();
+    }
+    shogimove() {
+        if (this.audio()) this.tracks.ShogiMove.play();
+    }
+    shogicapture() {
+        if (this.audio()) this.tracks.ShogiCapture.play();
+    }
+    chat() {
+        if (this.audio()) this.tracks.Chat.play();
+    }
+    setup() {
+        if (this.audio()) this.tracks.Setup.play();
+    }
+    lowTime() {
+        if (this.audio()) this.tracks.LowTime.play();
+    }
+    tick() {
+        if (this.audio()) this.tracks.Tick.play();
+    }
+    explosion() {
+        if (this.audio()) this.tracks.Explosion.play();
+    }
+    berserk() {
+        if (this.audio()) this.tracks.Berserk.play();
+    }
 
-    bugchat(msg:string) { if (this.audio()) this.tracks[msg].play(); }
+    bugchat(msg: string) {
+        if (this.audio()) this.tracks[msg].play();
+    }
 
-    private moveSoundSet: {[k:string]: { move: ()=> void; capture: ()=>void;}} = {
+    private moveSoundSet: { [k: string]: { move: () => void; capture: () => void } } = {
         regular: { move: () => this.move(), capture: () => this.capture() },
         shogi: { move: () => this.shogimove(), capture: () => this.shogicapture() },
         atomic: { move: () => this.move(), capture: () => this.explosion() },
     };
 
-    bugChatSound(msg: string) { this.bugchat(msg) }
+    bugChatSound(msg: string) {
+        this.bugchat(msg);
+    }
 
     moveSound(variant: Variant, capture: boolean) {
-        const soundSet = variant.ui.pieceSound in this.moveSoundSet? this.moveSoundSet[variant.ui.pieceSound] : this.moveSoundSet.regular;
-        if (capture)
-            soundSet.capture();
-        else
-            soundSet.move();
+        const soundSet =
+            variant.ui.pieceSound in this.moveSoundSet
+                ? this.moveSoundSet[variant.ui.pieceSound]
+                : this.moveSoundSet.regular;
+        if (capture) soundSet.capture();
+        else soundSet.move();
     }
 
     gameEndSound(result: string, color: string) {
         switch (result) {
-            case "1/2-1/2":
+            case '1/2-1/2':
                 this.draw();
                 break;
-            case "1-0":
-                if (color === "white")
-                    this.victory();
-                else
-                    this.defeat();
+            case '1-0':
+                if (color === 'white') this.victory();
+                else this.defeat();
                 break;
-            case "0-1":
-                if (color === "black")
-                    this.victory();
-                else
-                    this.defeat();
+            case '0-1':
+                if (color === 'black') this.victory();
+                else this.defeat();
                 break;
         }
     }
 
     gameEndSoundBughouse(result: string, team: '1' | '2') {
         switch (result) {
-            case "1/2-1/2":
+            case '1/2-1/2':
                 this.draw();
                 break;
-            case "1-0":
-                if (team === "1")
-                    this.victory();
-                else
-                    this.defeat();
+            case '1-0':
+                if (team === '1') this.victory();
+                else this.defeat();
                 break;
-            case "0-1":
-                if (team === "2")
-                    this.victory();
-                else
-                    this.defeat();
+            case '0-1':
+                if (team === '2') this.victory();
+                else this.defeat();
                 break;
         }
     }
 }
 
 class VolumeSettings extends NumberSettings {
-
     constructor() {
         super('volume', 1);
     }
@@ -205,14 +235,14 @@ class VolumeSettings extends NumberSettings {
 }
 
 const soundThemes = {
-    silent: "Silent",
-    standard: "Standard",
-    piano: "Piano",
-    nes: "NES",
-    sfx: "SFX",
-    futuristic: "Futuristic",
-    lisp: "Lisp",
-    robot: "Robot",
+    silent: 'Silent',
+    standard: 'Standard',
+    piano: 'Piano',
+    nes: 'NES',
+    sfx: 'SFX',
+    futuristic: 'Futuristic',
+    lisp: 'Lisp',
+    robot: 'Robot',
 };
 
 class SoundThemeSettings extends StringSettings {
@@ -231,10 +261,13 @@ class SoundThemeSettings extends StringSettings {
     }
 
     view(): VNode {
-        return h('div#soundtheme.radio-list', radioList(this, 'soundtheme', soundThemes, (_, key) => this.value = key));
+        return h(
+            'div#soundtheme.radio-list',
+            radioList(this, 'soundtheme', soundThemes, (_, key) => (this.value = key)),
+        );
     }
 }
 
-export const sound = new(Sounds);
+export const sound = new Sounds();
 export const volumeSettings = new VolumeSettings();
 export const soundThemeSettings = new SoundThemeSettings();

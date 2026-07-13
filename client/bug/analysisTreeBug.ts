@@ -28,12 +28,12 @@ function renderBugPgnSequence(
 
         tokens.push(`${bugMovePrefix(current.step)} ${getSan(current)}`);
 
-        branchSiblings.forEach((sideline) => {
+        branchSiblings.forEach(sideline => {
             tokens.push(`(${renderBugPgnSequence([sideline], false, getSan).join(' ')})`);
         });
         branchSiblings = [];
 
-        current.children.slice(1).forEach((sideline) => {
+        current.children.slice(1).forEach(sideline => {
             tokens.push(`(${renderBugPgnSequence([sideline], false, getSan).join(' ')})`);
         });
 
@@ -43,10 +43,7 @@ function renderBugPgnSequence(
     return tokens;
 }
 
-export function renderBughouseTreePgnMoveText(
-    tree: AnalysisTree,
-    getSan: (node: AnalysisTreeNode) => string,
-): string {
+export function renderBughouseTreePgnMoveText(tree: AnalysisTree, getSan: (node: AnalysisTreeNode) => string): string {
     return renderBugPgnSequence(tree.root.children, true, getSan).join(' ');
 }
 
@@ -65,7 +62,7 @@ function collectBughouseLineNodes(tree: AnalysisTree, path: string): AnalysisTre
     }
 
     const pathNodes = getNodeList(tree, path);
-    const firstVariationIdx = pathNodes.findIndex((node) => node.mainlinePly === undefined);
+    const firstVariationIdx = pathNodes.findIndex(node => node.mainlinePly === undefined);
     const nodes = pathNodes.slice(firstVariationIdx);
     let current = nodes[nodes.length - 1];
     while (current?.children[0]) {
@@ -81,6 +78,6 @@ export function renderBughouseLinePgnMoveText(
     getSan: (node: AnalysisTreeNode) => string,
 ): string {
     return collectBughouseLineNodes(tree, path)
-        .map((node) => `${bugMovePrefix(node.step)} ${getSan(node)}`)
+        .map(node => `${bugMovePrefix(node.step)} ${getSan(node)}`)
         .join(' ');
 }

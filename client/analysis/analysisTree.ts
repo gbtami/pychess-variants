@@ -117,7 +117,7 @@ export function getNodeList(tree: AnalysisTree, path: string): AnalysisTreeNode[
     const segments = path.split(PATH_SEPARATOR).filter(Boolean);
     let current = tree.root;
     for (const segment of segments) {
-        const child = current.children.find((c) => c.id === segment);
+        const child = current.children.find(c => c.id === segment);
         if (!child) break;
         nodes.push(child);
         current = child;
@@ -187,7 +187,7 @@ export function projectPath(tree: AnalysisTree, path: string): TreePathProjectio
 
     const anchorIdx = firstOffMainlineIdx - 1;
     const anchorNode = nodeList[anchorIdx];
-    const variationSteps = nodeList.slice(anchorIdx + 1).map((node) => node.step);
+    const variationSteps = nodeList.slice(anchorIdx + 1).map(node => node.step);
 
     return {
         isMainline: false,
@@ -208,7 +208,7 @@ export function pathIsMainline(tree: AnalysisTree, path: string): boolean {
 }
 
 export function pathIsForcedVariation(tree: AnalysisTree, path: string): boolean {
-    return getNodeList(tree, path).some((node) => !!node.forceVariation);
+    return getNodeList(tree, path).some(node => !!node.forceVariation);
 }
 
 export function extendPath(tree: AnalysisTree, path: string, isMainline: boolean): string {
@@ -219,11 +219,7 @@ export function extendPath(tree: AnalysisTree, path: string, isMainline: boolean
     return path;
 }
 
-export function stepLinePath(
-    tree: AnalysisTree,
-    fromPath: string,
-    which: 'prev' | 'next',
-): string {
+export function stepLinePath(tree: AnalysisTree, fromPath: string, which: 'prev' | 'next'): string {
     let path = parentPath(fromPath);
     let parent = nodeAtPath(tree, path);
     let siblings = parent?.children ?? [];
@@ -235,14 +231,12 @@ export function stepLinePath(
     }
 
     const idx = siblings.findIndex(
-        (child) => fromPath === child.path || fromPath.startsWith(`${child.path}${PATH_SEPARATOR}`),
+        child => fromPath === child.path || fromPath.startsWith(`${child.path}${PATH_SEPARATOR}`),
     );
     if (idx < 0) return fromPath;
 
     const target =
-        which === 'next'
-            ? (siblings[idx + 1] ?? siblings[0])
-            : (siblings[idx - 1] ?? siblings[siblings.length - 1]);
+        which === 'next' ? (siblings[idx + 1] ?? siblings[0]) : (siblings[idx - 1] ?? siblings[siblings.length - 1]);
     return target?.path ?? fromPath;
 }
 
@@ -262,9 +256,11 @@ function exitVariationPath(tree: AnalysisTree, path: string): string {
     if (pathIsMainline(tree, path)) return path;
 
     let found = ROOT_PATH;
-    getNodeList(tree, path).slice(1, -1).forEach((node) => {
-        if (node.children[1]) found = node.path;
-    });
+    getNodeList(tree, path)
+        .slice(1, -1)
+        .forEach(node => {
+            if (node.children[1]) found = node.path;
+        });
     return found || path;
 }
 
@@ -296,11 +292,11 @@ export function addOrSelectChild(
     // Reuse an existing child when the same move already exists from this position.
     // This keeps repeated clicks or engine lines from duplicating branches.
     const existing = parent.children.find(
-        (child) =>
-            child.step.move === step.move
-            && child.step.fen === step.fen
-            && child.step.moveB === step.moveB
-            && child.step.fenB === step.fenB,
+        child =>
+            child.step.move === step.move &&
+            child.step.fen === step.fen &&
+            child.step.moveB === step.moveB &&
+            child.step.fenB === step.fenB,
     );
     if (existing) return existing.path;
 
@@ -328,10 +324,7 @@ export function promoteNodePath(tree: AnalysisTree, path: string, toMainline: bo
         const node = nodes[i + 1];
         const parent = nodes[i];
         if (parent.children[0]?.id !== node.id) {
-            parent.children = [
-                node,
-                ...parent.children.filter((child) => child.id !== node.id),
-            ];
+            parent.children = [node, ...parent.children.filter(child => child.id !== node.id)];
             if (!toMainline) break;
         } else if (node.forceVariation) {
             node.forceVariation = false;
@@ -341,7 +334,7 @@ export function promoteNodePath(tree: AnalysisTree, path: string, toMainline: bo
 }
 
 export function forceVariationAt(tree: AnalysisTree, path: string, force: boolean): void {
-    tree.byPath.forEach((node) => {
+    tree.byPath.forEach(node => {
         node.forceVariation = false;
     });
     const node = nodeAtPath(tree, path);
@@ -350,7 +343,7 @@ export function forceVariationAt(tree: AnalysisTree, path: string, force: boolea
 
 function deleteBranchFromIndex(tree: AnalysisTree, nodes: AnalysisTreeNode[], idx: number): void {
     const node = nodes[idx];
-    node.children.forEach((child) => deleteBranchFromIndex(tree, [...nodes, child], nodes.length));
+    node.children.forEach(child => deleteBranchFromIndex(tree, [...nodes, child], nodes.length));
     tree.byPath.delete(node.path);
 }
 
@@ -362,7 +355,7 @@ export function deleteNodePath(tree: AnalysisTree, path: string): void {
     if (!node || !parent) return;
 
     deleteBranchFromIndex(tree, nodes, nodes.length - 1);
-    parent.children = parent.children.filter((child) => child.id !== node.id);
+    parent.children = parent.children.filter(child => child.id !== node.id);
 }
 
 export function someCollapsedFrom(tree: AnalysisTree, collapsed: boolean, from = ROOT_PATH): boolean {
@@ -377,12 +370,7 @@ export function someCollapsedFrom(tree: AnalysisTree, collapsed: boolean, from =
     return visit(start);
 }
 
-export function setCollapsedFrom(
-    tree: AnalysisTree,
-    from: string,
-    collapsed: boolean,
-    thisBranchOnly = false,
-): void {
+export function setCollapsedFrom(tree: AnalysisTree, from: string, collapsed: boolean, thisBranchOnly = false): void {
     const start = nodeAtPath(tree, from);
     if (!start) return;
 
@@ -421,7 +409,9 @@ function renderPgnSequence(
 
     while (current) {
         if (current.forceVariation && isMainline) {
-            tokens.push(`(${renderPgnSequence([current, ...branchSiblings], rootTurnColor, true, false, getSan).join(' ')})`);
+            tokens.push(
+                `(${renderPgnSequence([current, ...branchSiblings], rootTurnColor, true, false, getSan).join(' ')})`,
+            );
             break;
         }
 
@@ -429,12 +419,12 @@ function renderPgnSequence(
         tokens.push(prefix ? `${prefix} ${getSan(current)}` : getSan(current));
 
         // Siblings represent alternative moves from the same parent position.
-        branchSiblings.forEach((sideline) => {
+        branchSiblings.forEach(sideline => {
             tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, false, getSan).join(' ')})`);
         });
         branchSiblings = [];
 
-        current.children.slice(1).forEach((sideline) => {
+        current.children.slice(1).forEach(sideline => {
             tokens.push(`(${renderPgnSequence([sideline], rootTurnColor, true, false, getSan).join(' ')})`);
         });
 
@@ -445,16 +435,16 @@ function renderPgnSequence(
     return tokens;
 }
 
-export function renderFullTreePgnMoveText(
-    tree: AnalysisTree,
-    getSan: (node: AnalysisTreeNode) => string,
-): string {
+export function renderFullTreePgnMoveText(tree: AnalysisTree, getSan: (node: AnalysisTreeNode) => string): string {
     // PGN movetext is closest to the inline-notation renderer: a single token stream
     // with recursive parenthesized alternatives attached at each branch point.
     return renderPgnSequence(tree.root.children, tree.root.step.turnColor, false, true, getSan).join(' ');
 }
 
-function collectLineNodes(tree: AnalysisTree, path: string): {
+function collectLineNodes(
+    tree: AnalysisTree,
+    path: string,
+): {
     nodes: AnalysisTreeNode[];
     firstInVariation: boolean;
 } {
@@ -472,7 +462,7 @@ function collectLineNodes(tree: AnalysisTree, path: string): {
     }
 
     const pathNodes = getNodeList(tree, path);
-    const firstVariationIdx = pathNodes.findIndex((node) => node.mainlinePly === undefined);
+    const firstVariationIdx = pathNodes.findIndex(node => node.mainlinePly === undefined);
     const nodes = pathNodes.slice(firstVariationIdx);
     let current = nodes[nodes.length - 1];
     while (current?.children[0]) {

@@ -5,20 +5,20 @@ import { isCataloguedVariant, Variant } from './variants';
 
 export function gameType(rated: string | number) {
     switch (rated) {
-    case "True":
-    case "1":
-    case 1:
-        return _("Rated");
-    case "2":
-    case 2:
-        return _("IMPORT");
-    default:
-        return _("Casual");
+        case 'True':
+        case '1':
+        case 1:
+            return _('Rated');
+        case '2':
+        case 2:
+            return _('IMPORT');
+        default:
+            return _('Casual');
     }
 }
 
 export function aiLevel(title: string, level: number) {
-    return (title === 'BOT' && level >= 0) ? ' ' + _('level %1', level): '';
+    return title === 'BOT' && level >= 0 ? ' ' + _('level %1', level) : '';
 }
 
 export function renderRdiff(rdiff: number) {
@@ -35,18 +35,34 @@ export function renderRdiff(rdiff: number) {
     }
 }
 
-export function result(variant: Variant, status: number, result: string, bughouseTeamNameFirst: string='', bughouseTeamNameSecond: string='') {
+export function result(
+    variant: Variant,
+    status: number,
+    result: string,
+    bughouseTeamNameFirst: string = '',
+    bughouseTeamNameSecond: string = '',
+) {
     let text = '';
     const variantName = variant.name;
     // console.log("result()", variantName, status, result);
     const first = _(variant.colors.first);
     const second = _(variant.colors.second);
 
-    const loserSingleBoard = (result === '1-0') ? second : first;
-    const loser = (bughouseTeamNameFirst !== '') ? ((result === '1-0') ? bughouseTeamNameSecond : bughouseTeamNameFirst) : loserSingleBoard;
+    const loserSingleBoard = result === '1-0' ? second : first;
+    const loser =
+        bughouseTeamNameFirst !== ''
+            ? result === '1-0'
+                ? bughouseTeamNameSecond
+                : bughouseTeamNameFirst
+            : loserSingleBoard;
 
-    const winnerSingleBoard = (result === '0-1') ? second : first;
-    const winner = (bughouseTeamNameFirst !== '') ? ((result === '0-1') ? bughouseTeamNameSecond : bughouseTeamNameFirst) : winnerSingleBoard;
+    const winnerSingleBoard = result === '0-1' ? second : first;
+    const winner =
+        bughouseTeamNameFirst !== ''
+            ? result === '0-1'
+                ? bughouseTeamNameSecond
+                : bughouseTeamNameFirst
+            : winnerSingleBoard;
 
     switch (status) {
         case -2:
@@ -140,7 +156,7 @@ export function result(variant: Variant, status: number, result: string, bughous
             break;
         default:
             text = '*';
-            break
+            break;
     }
 
     if (status <= 0) {

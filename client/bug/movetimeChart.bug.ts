@@ -1,19 +1,19 @@
-import Highcharts from "highcharts";
-import type { Options } from "highcharts";
+import Highcharts from 'highcharts';
+import type { Options } from 'highcharts';
 
 import { selectMainlineMove } from './movelist.bug';
-import { Step } from "../messages";
-import AnalysisControllerBughouse from "@/bug/analysisCtrl.bug";
-import { BLACK, WHITE } from "@/chess";
-import { BugBoardName } from "../types";
-import { displayUsername } from "@/user";
+import { Step } from '../messages';
+import AnalysisControllerBughouse from '@/bug/analysisCtrl.bug';
+import { BLACK, WHITE } from '@/chess';
+import { BugBoardName } from '../types';
+import { displayUsername } from '@/user';
 
 export interface MovePoint {
-  y: number;
-  x?: number;
-  name?: any;
-  marker?: any;
-  color: string;
+    y: number;
+    x?: number;
+    name?: any;
+    marker?: any;
+    color: string;
 }
 
 function getChatImagePath(chatCode: string): string {
@@ -84,7 +84,8 @@ function getChatImagePath(chatCode: string): string {
 }
 
 export function movetimeChart(ctrl: AnalysisControllerBughouse) {
-    let maxMove = 0, maxTotal = 0;
+    let maxMove = 0,
+        maxTotal = 0;
 
     const highlightColor = '#3893E8';
     const xAxisColor = '#cccccc99';
@@ -111,7 +112,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
 
     let plyA = 0;
     let plyB = 0;
-    const clocktimeLast = {'a': [0, 0], 'b': [0, 0]};
+    const clocktimeLast = { a: [0, 0], b: [0, 0] };
     ctrl.steps.forEach((step: Step, ply: number) => {
         if (step.boardName === 'a') {
             plyA++;
@@ -121,8 +122,11 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         const turnA = (plyA + 1) >> 1;
         const turnB = (plyB + 1) >> 1;
         // const colorName = step.turnColor;
-        const moveColor = step.turnColor === 'white'? BLACK: WHITE;
-        const team = moveColor === WHITE && step.boardName === 'a' || moveColor === BLACK && step.boardName === 'b' ? '1': '2';
+        const moveColor = step.turnColor === 'white' ? BLACK : WHITE;
+        const team =
+            (moveColor === WHITE && step.boardName === 'a') || (moveColor === BLACK && step.boardName === 'b')
+                ? '1'
+                : '2';
         if (ply === 0) {
             //moveSeries[colorName].push({y: 0});
             clocktimeLast['a'][WHITE] = step.clocks![WHITE];
@@ -140,22 +144,22 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         //         (ctrl.steps[ply-2].clocks![WHITE] - (ctrl.steps[ply].clocks![WHITE] - ctrl.inc * 1000)) :
         //         (ctrl.steps[ply-2].clocks![BLACK] - (ctrl.steps[ply].clocks![BLACK] - ctrl.inc * 1000));
         // }
-        const boardName = step.boardName! as BugBoardName
-        const moveClocktime = step.boardName === 'a'? step.clocks![moveColor]: step.clocksB![moveColor];
+        const boardName = step.boardName! as BugBoardName;
+        const moveClocktime = step.boardName === 'a' ? step.clocks![moveColor] : step.clocksB![moveColor];
         const lastClocktime = clocktimeLast[boardName][moveColor];
         clocktimeLast[boardName][moveColor] = moveClocktime;
-        step.movetime = lastClocktime - (moveClocktime - ctrl.inc * 1000 );
+        step.movetime = lastClocktime - (moveClocktime - ctrl.inc * 1000);
 
         const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
         maxMove = Math.max(y, maxMove);
 
-        let label = step.boardName === 'a'? turnA + 'A. ' + step.san: turnB + 'B. ' + step.san;
+        let label = step.boardName === 'a' ? turnA + 'A. ' + step.san : turnB + 'B. ' + step.san;
 
         const movePoint = {
             name: label,
             x: ply,
             y: team === '1' ? y : -y,
-            color: moveColor === WHITE? whiteColumnFill: blackColumnFill,
+            color: moveColor === WHITE ? whiteColumnFill : blackColumnFill,
         };
         moveSeries[team].push(movePoint);
         //
@@ -164,18 +168,18 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                 const chatTime = step.chat[i].time;
                 const chatTxt = step.chat[i].message;
                 const chatUsr = displayUsername(step.chat[i].username);
-                'url(\'../../static/images/bugroundchat/noR.svg\')'
+                ("url('../../static/images/bugroundchat/noR.svg')");
                 const yChat = Math.pow(Math.log(0.005 * Math.min(chatTime, 12e4) + 3), 2) - logC;
                 const chatPoint = {
-                    name: chatUsr + ":" + chatTxt,
+                    name: chatUsr + ':' + chatTxt,
                     x: ply,
                     y: team === '1' ? yChat : -yChat,
-                    color: moveColor === WHITE? whiteColumnFill: blackColumnFill,
+                    color: moveColor === WHITE ? whiteColumnFill : blackColumnFill,
                     marker: {
-                            symbol: getChatImagePath(chatTxt.replace('!bug!','')),
-                            width: '2em',
-                            height: '2em'
-                        }
+                        symbol: getChatImagePath(chatTxt.replace('!bug!', '')),
+                        width: '2em',
+                        height: '2em',
+                    },
                 };
                 chatSeries.push(chatPoint);
             }
@@ -190,7 +194,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                 name: label,
                 x: ply,
                 y: team === '1' ? clock : -clock,
-                color: team === '1'? "green": "red",
+                color: team === '1' ? 'green' : 'red',
             });
         }
 
@@ -200,12 +204,12 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
     const clickableOptions = {
         cursor: 'pointer',
         events: {
-            click: function(event: any) {
+            click: function (event: any) {
                 if (event.point) {
                     event.point.select();
                     selectMainlineMove(ctrl, event.point.x);
                 }
-            }
+            },
         },
     };
     const foregrondLineOptions = {
@@ -213,29 +217,30 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         color: highlightColor,
         lineWidth: 2,
         states: {
-          hover: {
-            lineWidth: 2,
-          },
+            hover: {
+                lineWidth: 2,
+            },
         },
         marker: {
-          radius: 1,
-          states: {
-            hover: {
-              radius: 3,
-              lineColor: highlightColor,
-              fillColor: 'white',
+            radius: 1,
+            states: {
+                hover: {
+                    radius: 3,
+                    lineColor: highlightColor,
+                    fillColor: 'white',
+                },
+                select: {
+                    radius: 4,
+                    lineColor: highlightColor,
+                    fillColor: 'white',
+                },
             },
-            select: {
-              radius: 4,
-              lineColor: highlightColor,
-              fillColor: 'white',
-            },
-          },
         },
     };
 
     ctrl.movetimeChart = Highcharts.chart('chart-movetime', {
-        chart: { type: 'column',
+        chart: {
+            type: 'column',
             alignTicks: false,
             spacing: [2, 0, 2, 0],
             animation: false,
@@ -257,12 +262,12 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                 fillColor: whiteAreaFill,
                 negativeFillColor: blackAreaFill,
                 events: {
-                    click: function(event) {
+                    click: function (event) {
                         if (event.point) {
                             event.point.select();
                             selectMainlineMove(ctrl, event.point.x);
                         }
-                    }
+                    },
                 },
             },
             line: foregrondLineOptions,
@@ -279,49 +284,51 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                         color: highlightColor,
                         borderColor: highlightColor,
                     },
-                }
+                },
             },
             scatter: {
-                ...clickableOptions
-            }
+                ...clickableOptions,
+            },
         },
         tooltip: {
-            pointFormatter: function(this: Highcharts.Point) {
+            pointFormatter: function (this: Highcharts.Point) {
                 const step = ctrl.steps[this.x];
                 const movetime = step?.movetime;
                 if (movetime === undefined) return '';
                 return `<span style="color:${this.color}">●</span> <b>${(movetime / 1000).toFixed(1)}s</b><br/>`;
-            }
+            },
         },
         xAxis: {
             title: { text: undefined },
             labels: { enabled: false },
             gridLineWidth: 1,
             lineWidth: 0,
-            tickWidth: 0
+            tickWidth: 0,
         },
         yAxis: [
-        {
-            title: { text: null },
-            labels: { enabled: false },
-            alternateGridColor: undefined,
-            min: -maxMove,
-            max: maxMove,
-            gridLineWidth: 0,
-            plotLines: [{
-                color: xAxisColor,
-                width: 1,
-                value: 0,
-                zIndex: 10,
-            }]
-        },
-        {
-            title: { text: null },
-            min: -maxTotal,
-            max: maxTotal,
-            labels: { enabled: false },
-            gridLineWidth: 0,
-        },
+            {
+                title: { text: null },
+                labels: { enabled: false },
+                alternateGridColor: undefined,
+                min: -maxMove,
+                max: maxMove,
+                gridLineWidth: 0,
+                plotLines: [
+                    {
+                        color: xAxisColor,
+                        width: 1,
+                        value: 0,
+                        zIndex: 10,
+                    },
+                ],
+            },
+            {
+                title: { text: null },
+                min: -maxTotal,
+                max: maxTotal,
+                labels: { enabled: false },
+                gridLineWidth: 0,
+            },
         ],
         series: [
             {
@@ -368,10 +375,10 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                 yAxis: 0,
                 data: chatSeries,
             },
-        ]
+        ],
     } as Options);
 }
 
 const formatClock = (movetime: number) => {
-    return (movetime / 1000).toFixed(1) + "s";
+    return (movetime / 1000).toFixed(1) + 's';
 };

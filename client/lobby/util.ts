@@ -14,24 +14,24 @@ export function goBackToLayer1(lobbyCtrl: LobbyController, containerId: string):
     if (container) patch(container, variantPanels(lobbyCtrl));
 }
 
-export function variantBoard(variant: Variant, fen: string, check: boolean=false, lastMove?: cg.Move): VNode {
+export function variantBoard(variant: Variant, fen: string, check: boolean = false, lastMove?: cg.Move): VNode {
     return h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
         h(`div.cg-wrap.${variant.board.cg}`, {
             hook: {
                 insert: (vnode: VNode) => {
                     boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                     boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
-                    Chessground(vnode.elm as HTMLElement,  {
+                    Chessground(vnode.elm as HTMLElement, {
                         fen: fen,
-                        turnColor: fen.split(" ")[1] === "b" ? "white" : "black",
+                        turnColor: fen.split(' ')[1] === 'b' ? 'white' : 'black',
                         check: check,
                         lastMove: lastMove,
                         dimensions: variant.board.dimensions,
                         coordinates: false,
-                        viewOnly: true
+                        viewOnly: true,
                     });
-                }
-            }
+                },
+            },
         }),
-    ])
+    ]);
 }

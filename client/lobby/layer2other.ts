@@ -20,27 +20,44 @@ export function layer2other(lobbyCtrl: LobbyController, containerId: string, sho
 
     if (showBack) {
         infoItems.push(
-            h('h5#otherl2back', { class: { "icon": true, "icon-reply": true }, on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2othercont') } }, _('Go Back')),
+            h(
+                'h5#otherl2back',
+                {
+                    class: { icon: true, 'icon-reply': true },
+                    on: { click: () => goBackToLayer1(lobbyCtrl, 'layer2othercont') },
+                },
+                _('Go Back'),
+            ),
         );
     }
 
     const layer2cont = h('div#layer2othercont.layer-2-container.fairy-grid', [
-        h('button.layer-2-category generic-variant-info.generic-fairy', [
-            h('div.layer-two-category-info', infoItems),
-        ]),
+        h('button.layer-2-category generic-variant-info.generic-fairy', [h('div.layer-two-category-info', infoItems)]),
         h('div.button-grid', [
-            h('button.layer-2-category', { on: { click: () => layer3variant('layer2othercont', lobbyCtrl, 'ataxx') } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': ataxx.icon() } }),
-                    h('h3', ataxx.displayName()),
-                ]),
-            ]),
-            ...(otherVariants.has('borderlands') ? [h('button.layer-2-category', { on: { click: () => layer3variant('layer2othercont', lobbyCtrl, 'borderlands') } }, [
-                h('div.variant-title-l2', [
-                    h('div.icon', { attrs: { 'data-icon': borderlands.icon() } }),
-                    h('h3', borderlands.displayName()),
-                ]),
-            ])] : []),
+            h(
+                'button.layer-2-category',
+                { on: { click: () => layer3variant('layer2othercont', lobbyCtrl, 'ataxx') } },
+                [
+                    h('div.variant-title-l2', [
+                        h('div.icon', { attrs: { 'data-icon': ataxx.icon() } }),
+                        h('h3', ataxx.displayName()),
+                    ]),
+                ],
+            ),
+            ...(otherVariants.has('borderlands')
+                ? [
+                      h(
+                          'button.layer-2-category',
+                          { on: { click: () => layer3variant('layer2othercont', lobbyCtrl, 'borderlands') } },
+                          [
+                              h('div.variant-title-l2', [
+                                  h('div.icon', { attrs: { 'data-icon': borderlands.icon() } }),
+                                  h('h3', borderlands.displayName()),
+                              ]),
+                          ],
+                      ),
+                  ]
+                : []),
         ]),
     ]);
 

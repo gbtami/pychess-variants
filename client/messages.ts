@@ -2,7 +2,7 @@
 //       Other such (message) types which are specific only to single file/page and never re-used in multiple places exist in their corresponding files.
 //       Would be good to review the types here and those other types in each specific file (e.g. roundCtrl.ts, analysisCtrl.ts, editorCtrl.ts, tournament.ts, lobby.ts)
 //       and see if there is any duplication or the ones that are here should be split or any other improvement that might be needed or better organization can be found
-import * as cg from "chessgroundx/types";
+import * as cg from 'chessgroundx/types';
 
 import { BoardName } from './types';
 
@@ -28,21 +28,21 @@ export interface Step {
 
     boardName?: BoardName;
 
-    chat?: StepChat[],
+    chat?: StepChat[];
 
-    clocks?: Clocks,
-    clocksB?: Clocks,
-    movetime?: number,
-    movetimeB?: number,
-    plyA?: number,
-    plyB?: number,
+    clocks?: Clocks;
+    clocksB?: Clocks;
+    movetime?: number;
+    movetimeB?: number;
+    plyA?: number;
+    plyB?: number;
 }
 
 export interface StepChat {
-    message: string,
-    username: string,
-    time: number,
-    room: string,
+    message: string;
+    username: string;
+    time: number;
+    room: string;
 }
 
 export interface CrossTable {
@@ -87,7 +87,7 @@ export interface MsgBoard {
     uci_usi: string;
     result: string;
     steps: Step[];
-    berserk: { w: boolean, b: boolean };
+    berserk: { w: boolean; b: boolean };
     jieqiCaptures?: string[];
     // Per-move captured fake identities for Jieqi; only populated for the viewer during play.
     jieqiCaptureStack?: Array<string | null>;
@@ -104,7 +104,7 @@ export interface Ceval {
     multipv?: number;
     m?: string;
     p?: string;
-    s: { cp?: number ; mate?: number};
+    s: { cp?: number; mate?: number };
     k?: number;
 }
 
@@ -139,8 +139,9 @@ export interface RDiffs {
     wrdiff: number;
 }
 
-export type MsgMove = { // cannot be interface because cannot be converted to an indexed type and JSONObject, which is used in doSend is such
-    type: string;//"move"
+export type MsgMove = {
+    // cannot be interface because cannot be converted to an indexed type and JSONObject, which is used in doSend is such
+    type: string; //"move"
     gameId: string;
     move: string;
     clocks: Clocks;
@@ -149,10 +150,10 @@ export type MsgMove = { // cannot be interface because cannot be converted to an
     positionId?: string;
     board?: BoardName;
     jieqiCapture?: string;
-}
+};
 
 export type MsgMovesAfterReconnect = {
-    type: string;//"reconnect"
+    type: string; //"reconnect"
     gameId: string;
     movesQueued: MsgMove[]; // in case of simul we might have 2 moves queued
-}
+};

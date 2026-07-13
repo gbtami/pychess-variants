@@ -1,4 +1,4 @@
-import { h } from "snabbdom";
+import { h } from 'snabbdom';
 
 import { backgroundSettings } from './background';
 import { gameCategorySettings } from './gameCategory';
@@ -31,7 +31,7 @@ export function settingsView(modelVariant: string) {
 }
 
 function settingsButton() {
-    return h('button#btn-settings', { on: { click: toggleSettings }, attrs: { 'aria-label': "Settings" } }, [
+    return h('button#btn-settings', { on: { click: toggleSettings }, attrs: { 'aria-label': 'Settings' } }, [
         h('div.icon.icon-cog'),
     ]);
 }
@@ -68,11 +68,11 @@ function mainMenu(anon: boolean) {
 
     if (!anon) {
         buttons.push(
-            h('div.settings-menu-separator', { attrs: { role: "separator" } }),
-            h('button#btn-inbox-menu', { on: { click: gotoInbox } }, _("Inbox")),
-            h('button#btn-privacy', { on: { click: showSubsettings } }, _("Privacy")),
-            h('button#btn-account', { on: { click: gotoAccount } }, _("Account")),
-            h('button#btn-logout', { on: { click: logoutDialog } }, _("Log out")),
+            h('div.settings-menu-separator', { attrs: { role: 'separator' } }),
+            h('button#btn-inbox-menu', { on: { click: gotoInbox } }, _('Inbox')),
+            h('button#btn-privacy', { on: { click: showSubsettings } }, _('Privacy')),
+            h('button#btn-account', { on: { click: gotoAccount } }, _('Account')),
+            h('button#btn-logout', { on: { click: logoutDialog } }, _('Log out')),
         );
     }
 
@@ -80,28 +80,28 @@ function mainMenu(anon: boolean) {
 }
 
 function gotoInbox() {
-    window.location.href = "/inbox";
+    window.location.href = '/inbox';
 }
 
 function gotoAccount() {
-    window.location.href = "/account";
+    window.location.href = '/account';
 }
 
 async function logoutDialog() {
     const confirmed = await confirmDialog({
-        text: _("Are you sure you want to log out?"),
-        confirmText: _("Log out"),
-        cancelText: _("Cancel"),
+        text: _('Are you sure you want to log out?'),
+        confirmText: _('Log out'),
+        cancelText: _('Cancel'),
     });
     if (!confirmed) return;
-    window.location.href = "/logout";
+    window.location.href = '/logout';
 }
 
 function showSubsettings(evt: MouseEvent) {
     const mainSettings = document.getElementById('settings-main') as HTMLElement;
     const subSettings = document.getElementById('settings-sub') as HTMLElement;
 
-    Array.from(subSettings.children).forEach((sub: HTMLElement) => sub.style.display = 'none');
+    Array.from(subSettings.children).forEach((sub: HTMLElement) => (sub.style.display = 'none'));
 
     const settingsName = (<HTMLButtonElement>evt.target).id.slice(4);
     const targetSettings = document.getElementById('settings-' + settingsName) as HTMLElement;
@@ -112,54 +112,37 @@ function showSubsettings(evt: MouseEvent) {
 }
 
 function backButton(text: string) {
-    return h('button.back', { on: { click: showMainSettings } }, [
-        h('back.icon.icon-left', text),
-    ]);
+    return h('button.back', { on: { click: showMainSettings } }, [h('back.icon.icon-left', text)]);
 }
 
 function langSettingsView() {
-    return h('div#settings-lang', [
-        backButton(translatedLanguage),
-        languageSettings.view(),
-    ]);
+    return h('div#settings-lang', [backButton(translatedLanguage), languageSettings.view()]);
 }
 
 function soundSettingsView() {
     return h('div#settings-sound', [
-        backButton(_("Sound")),
-        h('div', [
-            volumeSettings.view(),
-            soundThemeSettings.view(),
-        ]),
+        backButton(_('Sound')),
+        h('div', [volumeSettings.view(), soundThemeSettings.view()]),
     ]);
 }
 
 function backgroundSettingsView() {
-    return h('div#settings-background', [
-        backButton(_("Background")),
-        backgroundSettings.view(),
-    ]);
+    return h('div#settings-background', [backButton(_('Background')), backgroundSettings.view()]);
 }
 
 function gameCategorySettingsView() {
-    return h('div#settings-game-category', [
-        backButton(translatedGameCategory),
-        gameCategorySettings.view(),
-    ]);
+    return h('div#settings-game-category', [backButton(translatedGameCategory), gameCategorySettings.view()]);
 }
 
 function zenModeSettingsView() {
-    return h('div#settings-zen', [
-        backButton(_("Zen Mode")),
-        zenModeSettings.view(),
-    ]);
+    return h('div#settings-zen', [backButton(_('Zen Mode')), zenModeSettings.view()]);
 }
 
 function privacySettingsView() {
     const pmFriendsOnly = getDocumentData('pm-friends-only') === 'True';
     const corrPushEnabled = getDocumentData('corr-push-enabled') !== 'False';
     return h('div#settings-privacy', [
-        backButton(_("Privacy")),
+        backButton(_('Privacy')),
         h('div', [
             h('div.privacy-toggle', [
                 h('input#pm-friends-only', {
@@ -195,7 +178,7 @@ function setPmFriendsOnly(value: boolean) {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
         body: payload.toString(),
-    }).catch((error) => {
+    }).catch(error => {
         console.warn('Failed to update PM privacy setting.', error);
     });
 }
@@ -206,36 +189,38 @@ function setCorrPushEnabled(value: boolean) {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
         body: payload.toString(),
-    }).then(async (response) => {
-        if (!response.ok) throw new Error(`corr push pref failed: ${response.status}`);
+    })
+        .then(async response => {
+            if (!response.ok) throw new Error(`corr push pref failed: ${response.status}`);
 
-        if (value) {
-            if ('Notification' in window && Notification.permission === 'default') {
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') return;
+            if (value) {
+                if ('Notification' in window && Notification.permission === 'default') {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') return;
+                }
+                // Persist preference first, then sync/create browser subscription.
+                const anon = getDocumentData('anon') ?? 'True';
+                const vapidPublicKey = getDocumentData('vapid') ?? '';
+                await initPushSubscription(anon, vapidPublicKey);
+                return;
             }
-            // Persist preference first, then sync/create browser subscription.
-            const anon = getDocumentData('anon') ?? 'True';
-            const vapidPublicKey = getDocumentData('vapid') ?? '';
-            await initPushSubscription(anon, vapidPublicKey);
-            return;
-        }
-        // Disable path removes both server-side endpoint and browser subscription.
-        await disablePushSubscription();
-    }).catch((error) => {
-        console.warn('Failed to update correspondence push setting.', error);
-    });
+            // Disable path removes both server-side endpoint and browser subscription.
+            await disablePushSubscription();
+        })
+        .catch(error => {
+            console.warn('Failed to update correspondence push setting.', error);
+        });
 }
 
 function boardSettingsView(modelVariant: string) {
-    const variant = getDocumentData('variant') || "chess";
+    const variant = getDocumentData('variant') || 'chess';
     return h('div#settings-board', [
-        backButton(_("Board Settings")),
+        backButton(_('Board Settings')),
         h('div', [
             h('div.labelled', [
-                h('label', { props: { for: "settings-variant" } }, _("Variant")),
+                h('label', { props: { for: 'settings-variant' } }, _('Variant')),
                 selectVariant(
-                    "settings-variant",
+                    'settings-variant',
                     variant,
                     () => showVariantBoardSettings(modelVariant),
                     () => showVariantBoardSettings(modelVariant),
@@ -252,6 +237,6 @@ function showVariantBoardSettings(modelVariant: string) {
     const e = document.getElementById('settings-variant') as HTMLSelectElement;
     const selectedVariant = e.options[e.selectedIndex].value;
     const settings = document.getElementById('board-settings') as HTMLElement;
-    settings.innerHTML = "";
+    settings.innerHTML = '';
     patch(settings, boardSettings.view(selectedVariant, modelVariant));
 }

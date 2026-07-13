@@ -4,9 +4,9 @@ import { h, VNode } from 'snabbdom';
 
 function createPeriods() {
     const periodList: string[] = [];
-    const date = new Date(2019, 6, 1, 0, 0, 0);  // (2019-07-01) the month is 0-indexed
+    const date = new Date(2019, 6, 1, 0, 0, 0); // (2019-07-01) the month is 0-indexed
     const endDate = new Date();
-    const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+    const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 
     while (date <= endDate) {
         const year = date.getFullYear().toString();
@@ -18,13 +18,13 @@ function createPeriods() {
 }
 
 function buildChart() {
-    const axisTypeEl = document.getElementById("linear") as HTMLInputElement;
-    const humanGamesEl = document.getElementById("humans") as HTMLInputElement;
+    const axisTypeEl = document.getElementById('linear') as HTMLInputElement;
+    const humanGamesEl = document.getElementById('humans') as HTMLInputElement;
 
     const xmlhttp = new XMLHttpRequest();
-    const url = humanGamesEl.checked ? "/api/stats/humans" : "/api/stats";
+    const url = humanGamesEl.checked ? '/api/stats/humans' : '/api/stats';
 
-    xmlhttp.onreadystatechange = function() {
+    xmlhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
 
@@ -41,30 +41,32 @@ function buildChart() {
                     verticalAlign: 'top',
                 },
                 xAxis: {
-                    categories: createPeriods(),  
+                    categories: createPeriods(),
                 },
                 yAxis: {
                     type: axisTypeEl.checked ? 'linear' : 'logarithmic',
                 },
                 responsive: {
-                    rules: [{
-                        condition: {
-                            maxWidth: 1200
+                    rules: [
+                        {
+                            condition: {
+                                maxWidth: 1200,
+                            },
+                            chartOptions: {
+                                legend: {
+                                    align: 'center',
+                                    verticalAlign: 'bottom',
+                                    layout: 'horizontal',
+                                },
+                            },
                         },
-                        chartOptions: {
-                            legend: {
-                                align: 'center',
-                                verticalAlign: 'bottom',
-                                layout: 'horizontal'
-                            }
-                        }
-                    }]
+                    ],
                 },
-                series: response
+                series: response,
             });
         }
     };
-    xmlhttp.open("GET", url, true);
+    xmlhttp.open('GET', url, true);
     xmlhttp.send();
 }
 

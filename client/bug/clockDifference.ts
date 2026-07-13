@@ -17,12 +17,16 @@ export class ClockDifference {
 
     view(value: number): VNode {
         return h('div#' + this.id, [
-            h('div.clock-difference', {
-                class: {
-                    negative: value < 0,
-                    positive: value >= 0,
+            h(
+                'div.clock-difference',
+                {
+                    class: {
+                        negative: value < 0,
+                        positive: value >= 0,
+                    },
                 },
-            }, `${value}`),
+                `${value}`,
+            ),
         ]);
     }
 

@@ -30,7 +30,7 @@ async function favoriteVariant(button: HTMLButtonElement): Promise<void> {
             const text = await response.text();
             throw new Error(text || _('Failed to update favorite'));
         }
-        const payload = await response.json() as { favorite?: boolean };
+        const payload = (await response.json()) as { favorite?: boolean };
         const savedFavorite = !!payload.favorite;
         setFavoriteButton(button, savedFavorite);
 

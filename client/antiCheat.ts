@@ -27,11 +27,7 @@ type CevalStoragePayload = CevalPositionPayload & {
     at: number;
 };
 
-export function buildCevalPositionPayload(
-    variant: string,
-    chess960: boolean,
-    fen: string,
-): CevalPositionPayload {
+export function buildCevalPositionPayload(variant: string, chess960: boolean, fen: string): CevalPositionPayload {
     return { variant, chess960, fen };
 }
 
@@ -64,11 +60,7 @@ function parseActiveCevalRoundsState(raw: string | null): ActiveCevalRoundsState
         const parsed = JSON.parse(raw) as Record<string, Partial<ActiveCevalRoundPayload>>;
         const state: ActiveCevalRoundsState = {};
         for (const [tabId, entry] of Object.entries(parsed)) {
-            if (
-                typeof tabId === 'string'
-                && typeof entry.gameId === 'string'
-                && typeof entry.updatedAt === 'number'
-            ) {
+            if (typeof tabId === 'string' && typeof entry.gameId === 'string' && typeof entry.updatedAt === 'number') {
                 state[tabId] = {
                     gameId: entry.gameId,
                     updatedAt: entry.updatedAt,
@@ -81,12 +73,9 @@ function parseActiveCevalRoundsState(raw: string | null): ActiveCevalRoundsState
     }
 }
 
-function pruneActiveCevalRoundsState(
-    state: ActiveCevalRoundsState,
-    now: number,
-): ActiveCevalRoundsState {
+function pruneActiveCevalRoundsState(state: ActiveCevalRoundsState, now: number): ActiveCevalRoundsState {
     return Object.fromEntries(
-        Object.entries(state).filter(([, entry]) => now - entry.updatedAt <= CEVAL_ACTIVE_ROUND_TTL_MS)
+        Object.entries(state).filter(([, entry]) => now - entry.updatedAt <= CEVAL_ACTIVE_ROUND_TTL_MS),
     );
 }
 
@@ -118,10 +107,7 @@ export function minCevalReportPly(chess960: boolean): number {
     return chess960 ? MIN_CEVAL_REPORT_PLY_CHESS960 : MIN_CEVAL_REPORT_PLY;
 }
 
-export function sameCevalPosition(
-    left: CevalPositionPayload,
-    right: CevalPositionPayload,
-): boolean {
+export function sameCevalPosition(left: CevalPositionPayload, right: CevalPositionPayload): boolean {
     return boardOnlyFen(left.fen) === boardOnlyFen(right.fen);
 }
 
@@ -159,9 +145,9 @@ export function parseCevalPositionPayload(raw: string | null): CevalPositionPayl
     try {
         const payload = JSON.parse(raw) as Partial<CevalStoragePayload>;
         if (
-            typeof payload.variant !== 'string'
-            || typeof payload.chess960 !== 'boolean'
-            || typeof payload.fen !== 'string'
+            typeof payload.variant !== 'string' ||
+            typeof payload.chess960 !== 'boolean' ||
+            typeof payload.fen !== 'string'
         ) {
             return;
         }

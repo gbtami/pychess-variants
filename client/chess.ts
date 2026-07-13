@@ -8,23 +8,23 @@ export const WHITE = 0;
 export const BLACK = 1;
 
 export const ranksUCI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
-export type UCIRank = typeof ranksUCI[number];
-export type UCIKey =  'a0' | `${cg.File}${UCIRank}`;
+export type UCIRank = (typeof ranksUCI)[number];
+export type UCIKey = 'a0' | `${cg.File}${UCIRank}`;
 export type UCIOrig = UCIKey | cg.DropOrig;
-export type PromotionSuffix = cg.Letter | "+" | "-" | "";
+export type PromotionSuffix = cg.Letter | '+' | '-' | '';
 
 export type UCIMove = `${UCIOrig}${UCIKey}`; // TODO: this is missing suffix for promotion which is also part of the move
 export type CGMove = `${cg.Orig}${cg.Key}`; // TODO: this is missing suffix for promotion which is also part of the move
 
-export type ColorName = "White" | "Black" | "Red" | "Blue" | "Gold" | "Pink" | "Green";
-export type PromotionType = "regular" | "shogi";
-export type TimeControlType = "incremental" | "byoyomi";
-export type CountingType = "makruk" | "asean";
-export type MaterialPointType = "janggi" | "ataxx";
-export type BoardMarkType = "alice" | "campmate" | "racingkings" | "kingofthehill";
-export type PieceSoundType = "regular" | "atomic" | "shogi";
+export type ColorName = 'White' | 'Black' | 'Red' | 'Blue' | 'Gold' | 'Pink' | 'Green';
+export type PromotionType = 'regular' | 'shogi';
+export type TimeControlType = 'incremental' | 'byoyomi';
+export type CountingType = 'makruk' | 'asean';
+export type MaterialPointType = 'janggi' | 'ataxx';
+export type BoardMarkType = 'alice' | 'campmate' | 'racingkings' | 'kingofthehill';
+export type PieceSoundType = 'regular' | 'atomic' | 'shogi';
 
-const handicapKeywords = [ "HC", "Handicap", "Odds" ];
+const handicapKeywords = ['HC', 'Handicap', 'Odds'];
 export function isHandicap(name: string): boolean {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
 }
@@ -40,7 +40,7 @@ export function hasCastling(variant: Variant, color: cg.Color): boolean {
 }
 
 export function uci2cg(move: string): string {
-    return move.replace(/10/g, ":");
+    return move.replace(/10/g, ':');
 }
 
 export function uci2LastMove(move: string | undefined): cg.Orig[] | undefined {
@@ -48,13 +48,13 @@ export function uci2LastMove(move: string | undefined): cg.Orig[] | undefined {
     let moveStr = uci2cg(move);
     if (moveStr.startsWith('+')) moveStr = moveStr.slice(1);
     const comma = moveStr.indexOf(',');
-    const lastMove = [ moveStr.slice(0, 2) as cg.Orig, moveStr.slice(2, 4) as cg.Key ];
+    const lastMove = [moveStr.slice(0, 2) as cg.Orig, moveStr.slice(2, 4) as cg.Key];
     if (comma > -1) lastMove.push(moveStr.slice(-2) as cg.Key);
     return lastMove;
 }
 
 export function cg2uci(move: string): string {
-    return move.replace(/:/g, "10");
+    return move.replace(/:/g, '10');
 }
 
 // Get the latest move from FEN if ep square is given
@@ -63,7 +63,7 @@ export function lmBeforeEp(variant: Variant, fen: string): string {
     if (variant.rules.enPassant) {
         const parts = fen.split(' ');
         const epSquare = parts[3];
-        if (epSquare !== "-") {
+        if (epSquare !== '-') {
             const file = epSquare.slice(0, 1);
             const rank = Number(epSquare.slice(1));
             if (rank < 4) {
@@ -80,7 +80,12 @@ export function lmBeforeEp(variant: Variant, fen: string): string {
 export function validFen(variant: Variant, fen: string): boolean {
     const as = variant.alternateStart;
     if (as !== undefined) {
-        if (Object.keys(as).some((key) => {return as[key].includes(fen);})) return true;
+        if (
+            Object.keys(as).some(key => {
+                return as[key].includes(fen);
+            })
+        )
+            return true;
     }
     const variantName = variant.name;
     if (variantName === 'alice') return true;
@@ -96,22 +101,22 @@ export function validFen(variant: Variant, fen: string): boolean {
     // Allowed characters in placement part
     const placement = parts[0];
     const startPlacement = start[0];
-    let good = startPlacement +
-        ((variantName === "orda") ? "Hq" : "") +
-        ((variantName === "dobutsu") ? "Hh" : "") +
-        ((variantName === "duck" || variantName === "ataxx") ? "*" : "") +
-        "~+0123456789[]-";
+    let good =
+        startPlacement +
+        (variantName === 'orda' ? 'Hq' : '') +
+        (variantName === 'dobutsu' ? 'Hh' : '') +
+        (variantName === 'duck' || variantName === 'ataxx' ? '*' : '') +
+        '~+0123456789[]-';
     const alien = (element: string) => !good.includes(element);
     if (placement.split('').some(alien)) return false;
 
-    if (variantName === "duck" && lc(placement, "*", false) > 1) return false;
+    if (variantName === 'duck' && lc(placement, '*', false) > 1) return false;
 
     // RK currently not implemented due to not being able to check for checks
     // if (variantName === "racingkings") return false;
 
     // Brackets paired
     if (lc(placement, '[', false) !== lc(placement, ']', false)) return false;
-
 
     // Check with chessgroundx's parsing
     const dimensions = variant.board.dimensions;
@@ -123,8 +128,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     if (lc(placement, '/', false) < height - 1) return false;
     for (const [k, _] of boardState.pieces) {
         const pos = util.key2pos(k);
-        if (pos[0] > width - 1 || pos[1] > height - 1)
-            return false;
+        if (pos[0] > width - 1 || pos[1] > height - 1) return false;
     }
 
     // Starting colors
@@ -137,13 +141,13 @@ export function validFen(variant: Variant, fen: string): boolean {
     if (variantName !== 'atomic' && touchingKings(boardState.pieces)) return false;
 
     // Castling rights (piece virginity)
-    good = (variantName === 'seirawan' || variantName === 'shouse') ? 'KQABCDEFGHkqabcdefgh-' : start[2] + "-";
+    good = variantName === 'seirawan' || variantName === 'shouse' ? 'KQABCDEFGHkqabcdefgh-' : start[2] + '-';
     const wrong = (element: string) => !good.includes(element);
     const rookStart: { [right: string]: cg.Pos } = {
-        K: (variantName === 'shako') ? [width - 2, 1] : [width - 1, 0],
-        Q: (variantName === 'shako') ? [1, 1] : [0, 0],
-        k: (variantName === 'shako') ? [width - 2, height - 2] : [width - 1, height - 1],
-        q: (variantName === 'shako') ? [1, height - 2] : [0, height - 1],
+        K: variantName === 'shako' ? [width - 2, 1] : [width - 1, 0],
+        Q: variantName === 'shako' ? [1, 1] : [0, 0],
+        k: variantName === 'shako' ? [width - 2, height - 2] : [width - 1, height - 1],
+        q: variantName === 'shako' ? [1, height - 2] : [0, height - 1],
     };
     if (parts.length > 2 && variantName !== 'dobutsu') {
         if (parts[2].split('').some(wrong)) return false;
@@ -153,24 +157,23 @@ export function validFen(variant: Variant, fen: string): boolean {
 
         // It is better to enable castling right validation for seirawan and shouse as well to be safe
         //if (variantName !== 'seirawan' && variantName !== 'shouse') {
-            // Castling right need rooks and king placed in starting square
-            // capablanca: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
-            // shako: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
-            for (const c of parts[2]) {
-                const piece = rookStart[c] ? boardState.pieces.get(util.pos2key(rookStart[c])) : undefined;
-                const color = c === c.toUpperCase() ? 'white' : 'black';
-                switch (c) {
-                    case 'K':
-                    case 'Q':
-                    case 'k':
-                    case 'q':
-                        if (!piece || !util.samePiece(piece, { role: 'r-piece', color: color }))
-                            return false;
-                        // TODO check king position
-                        break;
-                    // TODO Gating right
-                }
+        // Castling right need rooks and king placed in starting square
+        // capablanca: "rnabqkbcnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNABQKBCNR w KQkq - 0 1",
+        // shako: "c8c/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/C8C w KQkq - 0 1",
+        for (const c of parts[2]) {
+            const piece = rookStart[c] ? boardState.pieces.get(util.pos2key(rookStart[c])) : undefined;
+            const color = c === c.toUpperCase() ? 'white' : 'black';
+            switch (c) {
+                case 'K':
+                case 'Q':
+                case 'k':
+                case 'q':
+                    if (!piece || !util.samePiece(piece, { role: 'r-piece', color: color })) return false;
+                    // TODO check king position
+                    break;
+                // TODO Gating right
             }
+        }
         //}
     }
 
@@ -183,7 +186,7 @@ export function validFen(variant: Variant, fen: string): boolean {
             if (bK === 0 || bK > 2 || wK !== 1) return false;
             break;
         case 'xiangfu':
-            if (bK === 0 || bK > 2 || wK === 0 || wK > 2 ) return false;
+            if (bK === 0 || bK > 2 || wK === 0 || wK > 2) return false;
             break;
         case 'horde':
             if (bK !== 1 || wK !== 0) return false;
@@ -197,11 +200,11 @@ export function validFen(variant: Variant, fen: string): boolean {
 
 function countOcurrences(str: string, word: string): number {
     const escapedWord = word.replace(/[+]/g, '\\$&');
-    const regex = new RegExp(escapedWord, "g");
+    const regex = new RegExp(escapedWord, 'g');
     return (str.match(regex) || []).length;
 }
 
-function diff(a: number, b:number): number {
+function diff(a: number, b: number): number {
     return Math.abs(a - b);
 }
 
@@ -210,9 +213,10 @@ export function adjacent(key1: cg.Key, key2: cg.Key): boolean {
 }
 
 function touchingKings(pieces: cg.Pieces): boolean {
-    let wk: cg.Key = 'a1', bk: cg.Key = 'h8';
+    let wk: cg.Key = 'a1',
+        bk: cg.Key = 'h8';
     for (const [k, p] of pieces) {
-        if (p.role === "k-piece") {
+        if (p.role === 'k-piece') {
             if (p.color === 'white') wk = k;
             if (p.color === 'black') bk = k;
         }
@@ -222,23 +226,22 @@ function touchingKings(pieces: cg.Pieces): boolean {
 
 // turn color part of the FEN
 export function getTurnColor(fen: string): cg.Color {
-    const c = fen.split(" ")[1];
-    return c === "w" ? "white" : "black";
+    const c = fen.split(' ')[1];
+    return c === 'w' ? 'white' : 'black';
 }
 
 // pocket part of the FEN (including brackets)
 export function getPockets(fen: string): string {
-    const placement = fen.split(" ")[0];
-    let pockets = "";
-    const bracketPos = placement.indexOf("[");
-    if (bracketPos !== -1)
-        pockets = placement.slice(bracketPos);
+    const placement = fen.split(' ')[0];
+    let pockets = '';
+    const bracketPos = placement.indexOf('[');
+    if (bracketPos !== -1) pockets = placement.slice(bracketPos);
     return pockets;
 }
 
 // Get counting information for makruk et al
 export function getCounting(fen: string): [number, number, string, string] {
-    const parts = fen.split(" ");
+    const parts = fen.split(' ');
 
     let countingPly = Number(parts[4]);
     if (isNaN(countingPly)) countingPly = 0;
@@ -250,11 +253,13 @@ export function getCounting(fen: string): [number, number, string, string] {
     const whitePieces = (board.match(/[A-Z]/g) || []).length;
     const blackPieces = (board.match(/[a-z]/g) || []).length;
     const pawns = (board.match(/[Pp]/g) || []).length;
-    const countingType = (countingLimit === 0) ? 'none' : (pawns === 0 && (whitePieces <= 1 || blackPieces <= 1) ? 'piece' : 'board');
+    const countingType =
+        countingLimit === 0 ? 'none' : pawns === 0 && (whitePieces <= 1 || blackPieces <= 1) ? 'piece' : 'board';
 
     const sideToMove = parts[1];
-    const opponent = (sideToMove === 'w') ? 'b' : 'w';
-    const countingSide = (countingType === 'none' || countingPly === 0) ? '' : ((countingPly % 2 === 0) ? sideToMove : opponent);
+    const opponent = sideToMove === 'w' ? 'b' : 'w';
+    const countingSide =
+        countingType === 'none' || countingPly === 0 ? '' : countingPly % 2 === 0 ? sideToMove : opponent;
 
     return [countingPly, countingLimit, countingSide, countingType];
 }
@@ -265,19 +270,39 @@ export function getJanggiPoints(board: string): number[] {
     let hanPoint = 1.5;
     for (const c of board) {
         switch (c) {
-            case 'P': choPoint += 2; break;
+            case 'P':
+                choPoint += 2;
+                break;
             case 'A':
-            case 'B': choPoint += 3; break;
-            case 'N': choPoint += 5; break;
-            case 'C': choPoint += 7; break;
-            case 'R': choPoint += 13; break;
+            case 'B':
+                choPoint += 3;
+                break;
+            case 'N':
+                choPoint += 5;
+                break;
+            case 'C':
+                choPoint += 7;
+                break;
+            case 'R':
+                choPoint += 13;
+                break;
 
-            case 'p': hanPoint += 2; break;
+            case 'p':
+                hanPoint += 2;
+                break;
             case 'a':
-            case 'b': hanPoint += 3; break;
-            case 'n': hanPoint += 5; break;
-            case 'c': hanPoint += 7; break;
-            case 'r': hanPoint += 13; break;
+            case 'b':
+                hanPoint += 3;
+                break;
+            case 'n':
+                hanPoint += 5;
+                break;
+            case 'c':
+                hanPoint += 7;
+                break;
+            case 'r':
+                hanPoint += 13;
+                break;
         }
     }
     return [choPoint, hanPoint];
@@ -289,8 +314,12 @@ export function getAtaxxPoints(board: string): number[] {
     let bluePoint = 0;
     for (const c of board) {
         switch (c) {
-            case 'P': redPoint += 1; break;
-            case 'p': bluePoint += 1; break;
+            case 'P':
+                redPoint += 1;
+                break;
+            case 'p':
+                bluePoint += 1;
+                break;
         }
     }
     return [redPoint, bluePoint];
@@ -298,10 +327,8 @@ export function getAtaxxPoints(board: string): number[] {
 
 export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     if (piece.promoted) {
-        if (variant.promotion.type === 'shogi')
-            return piece.role.slice(1) as cg.Role;
-        else
-            return 'p-piece';
+        if (variant.promotion.type === 'shogi') return piece.role.slice(1) as cg.Role;
+        else return 'p-piece';
     } else {
         return piece.role;
     }
@@ -309,10 +336,8 @@ export function unpromotedRole(variant: Variant, piece: cg.Piece): cg.Role {
 
 export function promotedRole(variant: Variant, piece: cg.Piece): cg.Role {
     if (!piece.promoted && variant.promotion.roles.includes(piece.role)) {
-        if (variant.promotion.type === 'shogi')
-            return 'p' + piece.role as cg.Role;
-        else
-            return util.roleOf(variant.promotion.order[0] as cg.Letter);
+        if (variant.promotion.type === 'shogi') return ('p' + piece.role) as cg.Role;
+        else return util.roleOf(variant.promotion.order[0] as cg.Letter);
     } else {
         return piece.role;
     }
@@ -345,28 +370,28 @@ export function moveDests(legalMoves: UCIMove[], fakeDrops: boolean, pieces: cg.
             // and create drop moves in GameController.onUserMove()
             if (orig === 'P@') {
                 const candidates = neighbours(dest);
-                candidates.forEach((key) => {
+                candidates.forEach(key => {
                     const piece = pieces.get(key);
                     if (piece && piece.role === 'p-piece' && piece.color === color) {
                         if (dests.has(key)) {
                             dests.get(key)!.push(dest);
                         } else {
-                            dests.set(key, [ dest ]);
+                            dests.set(key, [dest]);
                         }
                     }
-                })
+                });
             } else {
                 if (dests.has(orig)) {
                     dests.get(orig)!.push(dest);
                 } else {
-                    dests.set(orig, [ dest ]);
+                    dests.set(orig, [dest]);
                 }
             }
         } else {
             if (dests.has(orig)) {
                 dests.get(orig)!.push(dest);
             } else {
-                dests.set(orig, [ dest ]);
+                dests.set(orig, [dest]);
             }
         }
     });
@@ -380,38 +405,30 @@ export function promotionSuffix(move: UCIMove | CGMove): PromotionSuffix {
         const comma = move.indexOf(',');
         if (comma > -1) move = move.substring(0, comma) as UCIMove;
         const last = move.slice(-1);
-        if (last.match(/[a-z+-]/))
-            return last as PromotionSuffix;
-        else
-            return '';
+        if (last.match(/[a-z+-]/)) return last as PromotionSuffix;
+        else return '';
     }
 }
 
 // Count given letter occurrences in a string
 export function lc(str: string, letter: string, uppercase: boolean): number {
-    if (uppercase)
-        letter = letter.toUpperCase();
-    else
-        letter = letter.toLowerCase();
+    if (uppercase) letter = letter.toUpperCase();
+    else letter = letter.toLowerCase();
     let letterCount = 0;
-    for (let position = 0; position < str.length; position++)
-        if (str.charAt(position) === letter)
-            letterCount += 1;
+    for (let position = 0; position < str.length; position++) if (str.charAt(position) === letter) letterCount += 1;
     return letterCount;
 }
 
 // Convert the string to uppercase if color is white,
 // or convert it to lowercase if color is black
 export function colorCase(color: cg.Color, str: string): string {
-    if (color === 'white')
-        return str.toUpperCase();
-    else
-        return str.toLowerCase();
+    if (color === 'white') return str.toUpperCase();
+    else return str.toLowerCase();
 }
 
 export function colorIcon(variant: string, color: string) {
     if (variantGroups.shogi.variants.includes(variant)) {
-        return (color === 'Black') ? 'icon-sente' : 'icon-gote';
+        return color === 'Black' ? 'icon-sente' : 'icon-gote';
     } else {
         return `icon-${color.toLowerCase()}`;
     }

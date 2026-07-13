@@ -5,7 +5,6 @@ import { BooleanSettings } from './settings';
 import { toggleSwitch } from './view';
 import { PuzzleController } from './puzzleCtrl';
 
-
 export class RatedSettings extends BooleanSettings {
     ctrl: PuzzleController;
 
@@ -20,15 +19,7 @@ export class RatedSettings extends BooleanSettings {
     }
 
     view(): VNode {
-        return h(
-            'div.rated-toggle',
-            toggleSwitch(
-                this,
-                'puzzle-rated',
-                _("Rated"),
-                false
-            )
-        );
+        return h('div.rated-toggle', toggleSwitch(this, 'puzzle-rated', _('Rated'), false));
     }
 }
 
@@ -45,14 +36,6 @@ export class AutoNextSettings extends BooleanSettings {
     }
 
     view(): VNode {
-        return h(
-            'div.auto-next-toggle',
-            toggleSwitch(
-                this,
-                'auto-next',
-                _("Jump to next puzzle immediately"),
-                false
-            )
-        );
+        return h('div.auto-next-toggle', toggleSwitch(this, 'auto-next', _('Jump to next puzzle immediately'), false));
     }
 }

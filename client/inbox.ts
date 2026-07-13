@@ -67,9 +67,11 @@ function parseDate(input: string): Date | null {
 }
 
 function sameDay(left: Date, right: Date): boolean {
-    return left.getDate() === right.getDate()
-        && left.getMonth() === right.getMonth()
-        && left.getFullYear() === right.getFullYear();
+    return (
+        left.getDate() === right.getDate() &&
+        left.getMonth() === right.getMonth() &&
+        left.getFullYear() === right.getFullYear()
+    );
 }
 
 function renderDayLabel(date: Date): string {
@@ -175,7 +177,7 @@ export function inboxView(model: PyChessModel) {
                 if (!contact || threads.length === 0) loading = false;
                 redraw();
             })
-            .catch((err) => {
+            .catch(err => {
                 console.warn('Failed to load inbox threads.', err);
                 loading = false;
                 redraw();
@@ -191,7 +193,7 @@ export function inboxView(model: PyChessModel) {
                 contactBlocked = blockedUsers.has(contact);
                 redraw();
             })
-            .catch((err) => console.warn('Failed to load blocked users.', err));
+            .catch(err => console.warn('Failed to load blocked users.', err));
     }
 
     function openThread(user: string, before?: number, loadingOlder = false) {
@@ -202,51 +204,53 @@ export function inboxView(model: PyChessModel) {
         const query = before ? `?before=${before}` : '';
         fetch(`/api/inbox/thread/${encodeURIComponent(user)}${query}`)
             .then(parseJsonResponse)
-            .then(({ status, data }: { status: number; data: ThreadResponse & { type?: string; message?: string } }) => {
-                if (status >= 400 || data.type === 'error') {
-                    if (data.message === 'Invalid contact') {
-                        contact = '';
-                        contactTitle = '';
-                        contactOnline = false;
-                        contactCanMessage = true;
-                        contactBlocked = false;
-                        contactBlockedByThem = false;
-                        messages = [];
-                        hasMoreMessages = false;
+            .then(
+                ({ status, data }: { status: number; data: ThreadResponse & { type?: string; message?: string } }) => {
+                    if (status >= 400 || data.type === 'error') {
+                        if (data.message === 'Invalid contact') {
+                            contact = '';
+                            contactTitle = '';
+                            contactOnline = false;
+                            contactCanMessage = true;
+                            contactBlocked = false;
+                            contactBlockedByThem = false;
+                            messages = [];
+                            hasMoreMessages = false;
+                            loadingMore = false;
+                            loading = false;
+                            history.replaceState({}, '', '/inbox');
+                            redraw();
+                            return;
+                        }
+                        void alertDialog({ text: data.message || _('Could not open conversation.') });
                         loadingMore = false;
                         loading = false;
-                        history.replaceState({}, '', '/inbox');
                         redraw();
                         return;
                     }
-                    void alertDialog({ text: data.message || _('Could not open conversation.') });
+
+                    if (loadingOlder) {
+                        messages = (data.messages || []).concat(messages);
+                    } else {
+                        contact = data.contact.name;
+                        contactTitle = data.contact.title || '';
+                        contactOnline = Boolean(data.contact.online);
+                        contactCanMessage = data.contact.canMessage !== false;
+                        contactBlocked = Boolean(data.contact.blockedByMe);
+                        contactBlockedByThem = Boolean(data.contact.blockedByThem);
+                        messages = data.messages || [];
+                        history.replaceState({ contact }, '', `/inbox/${encodeURIComponent(contact)}`);
+                        loadThreads(false);
+                        pendingScrollToBottom = true;
+                    }
+
+                    hasMoreMessages = Boolean(data.hasMore);
                     loadingMore = false;
                     loading = false;
                     redraw();
-                    return;
-                }
-
-                if (loadingOlder) {
-                    messages = (data.messages || []).concat(messages);
-                } else {
-                    contact = data.contact.name;
-                    contactTitle = data.contact.title || '';
-                    contactOnline = Boolean(data.contact.online);
-                    contactCanMessage = data.contact.canMessage !== false;
-                    contactBlocked = Boolean(data.contact.blockedByMe);
-                    contactBlockedByThem = Boolean(data.contact.blockedByThem);
-                    messages = data.messages || [];
-                    history.replaceState({ contact }, '', `/inbox/${encodeURIComponent(contact)}`);
-                    loadThreads(false);
-                    pendingScrollToBottom = true;
-                }
-
-                hasMoreMessages = Boolean(data.hasMore);
-                loadingMore = false;
-                loading = false;
-                redraw();
-            })
-            .catch((err) => {
+                },
+            )
+            .catch(err => {
                 console.warn('Failed to load inbox thread.', err);
                 loadingMore = false;
                 loading = false;
@@ -297,11 +301,11 @@ export function inboxView(model: PyChessModel) {
                 pendingComposerFocus = true;
                 openThread(contact);
             })
-                .catch((err) => {
-                    console.warn('Failed to send inbox message.', err);
-                    void alertDialog({ text: _('Could not send message.') });
-                    pendingComposerFocus = true;
-                })
+            .catch(err => {
+                console.warn('Failed to send inbox message.', err);
+                void alertDialog({ text: _('Could not send message.') });
+                pendingComposerFocus = true;
+            })
             .finally(() => {
                 sending = false;
                 redraw();
@@ -330,7 +334,7 @@ export function inboxView(model: PyChessModel) {
                 else blockedUsers.delete(contact);
                 redraw();
             })
-            .catch((err) => {
+            .catch(err => {
                 console.warn('Failed to update block state.', err);
                 void alertDialog({ text: _('Could not update block state.') });
             });
@@ -357,7 +361,7 @@ export function inboxView(model: PyChessModel) {
                     return;
                 }
 
-                threads = threads.filter((t) => t.user !== targetContact);
+                threads = threads.filter(t => t.user !== targetContact);
                 if (contact === targetContact) {
                     messages = [];
                     contact = '';
@@ -369,7 +373,7 @@ export function inboxView(model: PyChessModel) {
                 loadThreads(true);
                 redraw();
             })
-            .catch((err) => {
+            .catch(err => {
                 console.warn('Failed to delete conversation.', err);
                 void alertDialog({ text: _('Could not delete conversation.') });
             });
@@ -387,7 +391,7 @@ export function inboxView(model: PyChessModel) {
                 loadThreads(false);
             }
         };
-        evtSource.onerror = function() {
+        evtSource.onerror = function () {
             if (evtSource !== null) {
                 evtSource.close();
                 evtSource = null;
@@ -403,16 +407,20 @@ export function inboxView(model: PyChessModel) {
     function renderThreadItem(thread: ThreadSummary) {
         const isSelected = thread.user === contact;
         const statusClass = thread.online ? '.online' : '';
-        return h(`button.inbox-thread${isSelected ? '.active' : ''}${thread.unread ? '.unread' : ''}`, {
-            props: { type: 'button' },
-            on: { click: () => openThread(thread.user) },
-        }, [
-            h('div.inbox-thread-head', [
-                h(`strong.inbox-user${statusClass}`, titleAndName(thread.title, thread.user)),
-                h('span.inbox-thread-date', timeago(thread.lastMsg?.createdAt || thread.updatedAt)),
-            ]),
-            h('div.inbox-thread-body', thread.lastMsg?.text || ''),
-        ]);
+        return h(
+            `button.inbox-thread${isSelected ? '.active' : ''}${thread.unread ? '.unread' : ''}`,
+            {
+                props: { type: 'button' },
+                on: { click: () => openThread(thread.user) },
+            },
+            [
+                h('div.inbox-thread-head', [
+                    h(`strong.inbox-user${statusClass}`, titleAndName(thread.title, thread.user)),
+                    h('span.inbox-thread-date', timeago(thread.lastMsg?.createdAt || thread.updatedAt)),
+                ]),
+                h('div.inbox-thread-body', thread.lastMsg?.text || ''),
+            ],
+        );
     }
 
     function renderMessage(msg: Message) {
@@ -421,11 +429,15 @@ export function inboxView(model: PyChessModel) {
         const textNodes = renderRichText(msg.text);
         return h(`div.inbox-msg${mine ? '.mine' : '.their'}`, [
             h('span.inbox-msg-text', textNodes),
-            h('em.inbox-msg-time', {
-                attrs: {
-                    title: createdAt ? createdAt.toLocaleString() : '',
+            h(
+                'em.inbox-msg-time',
+                {
+                    attrs: {
+                        title: createdAt ? createdAt.toLocaleString() : '',
+                    },
                 },
-            }, renderClockTime(msg.createdAt)),
+                renderClockTime(msg.createdAt),
+            ),
         ]);
     }
 
@@ -433,7 +445,7 @@ export function inboxView(model: PyChessModel) {
         const nodes: VNode[] = [];
         let lastDate: Date | null = null;
 
-        msgs.forEach((msg) => {
+        msgs.forEach(msg => {
             const date = parseDate(msg.createdAt);
             if (date !== null && (lastDate === null || !sameDay(lastDate, date))) {
                 nodes.push(h('div.inbox-day', renderDayLabel(date)));
@@ -456,10 +468,14 @@ export function inboxView(model: PyChessModel) {
         const convoBodyNodes: (VNode | null)[] = [];
         if (hasMoreMessages) {
             convoBodyNodes.push(
-                h('button.inbox-load-more.button.button-empty', {
-                    props: { type: 'button', disabled: loadingMore },
-                    on: { click: loadOlderMessages },
-                }, loadingMore ? _('Loading...') : _('Load more')),
+                h(
+                    'button.inbox-load-more.button.button-empty',
+                    {
+                        props: { type: 'button', disabled: loadingMore },
+                        on: { click: loadOlderMessages },
+                    },
+                    loadingMore ? _('Loading...') : _('Load more'),
+                ),
             );
         }
         if (messages.length) {
@@ -484,95 +500,118 @@ export function inboxView(model: PyChessModel) {
                         },
                     }),
                 ]),
-                h('div.inbox-thread-list', threads.length
-                    ? threads.map(renderThreadItem)
-                    : [h('div.inbox-empty', _('No conversations yet.'))]),
+                h(
+                    'div.inbox-thread-list',
+                    threads.length ? threads.map(renderThreadItem) : [h('div.inbox-empty', _('No conversations yet.'))],
+                ),
             ]),
             h('section.inbox-convo', [
                 h('div.inbox-convo-head', [
                     thread
                         ? h('h2', [
-                            h(`a.user-link.ulpt.inbox-user${contactOnline ? '.online' : ''}`, {
-                                attrs: { href: `/@/${encodeURIComponent(thread.user)}` },
-                            }, titleAndName(thread.title || contactTitle, thread.user)),
-                        ])
+                              h(
+                                  `a.user-link.ulpt.inbox-user${contactOnline ? '.online' : ''}`,
+                                  {
+                                      attrs: { href: `/@/${encodeURIComponent(thread.user)}` },
+                                  },
+                                  titleAndName(thread.title || contactTitle, thread.user),
+                              ),
+                          ])
                         : h('h2', _('Select a conversation')),
-                    h('div.inbox-convo-actions', hasContact ? [
-                        ...(challengeBlocked ? [] : [h('a.inbox-action.icon.icon-crossedswords', {
-                            attrs: { href: challengeHref, title: _('Challenge') },
-                        })]),
-                        h('button.inbox-action.icon.icon-ban', {
-                            props: { type: 'button' },
-                            attrs: { title: contactBlocked ? _('Unblock') : _('Block') },
-                            on: { click: toggleBlock },
-                        }),
-                        h('button.inbox-action.icon.icon-trash-o', {
-                            props: { type: 'button' },
-                            attrs: { title: _('Delete') },
-                            on: { click: deleteConversation },
-                        }),
-                        h('a.inbox-action.icon.icon-warning', {
-                            attrs: { href: reportHref, title: _('Report to moderators') },
-                        }),
-                    ] : []),
+                    h(
+                        'div.inbox-convo-actions',
+                        hasContact
+                            ? [
+                                  ...(challengeBlocked
+                                      ? []
+                                      : [
+                                            h('a.inbox-action.icon.icon-crossedswords', {
+                                                attrs: { href: challengeHref, title: _('Challenge') },
+                                            }),
+                                        ]),
+                                  h('button.inbox-action.icon.icon-ban', {
+                                      props: { type: 'button' },
+                                      attrs: { title: contactBlocked ? _('Unblock') : _('Block') },
+                                      on: { click: toggleBlock },
+                                  }),
+                                  h('button.inbox-action.icon.icon-trash-o', {
+                                      props: { type: 'button' },
+                                      attrs: { title: _('Delete') },
+                                      on: { click: deleteConversation },
+                                  }),
+                                  h('a.inbox-action.icon.icon-warning', {
+                                      attrs: { href: reportHref, title: _('Report to moderators') },
+                                  }),
+                              ]
+                            : [],
+                    ),
                 ]),
-                h('div.inbox-convo-body', {
-                    hook: {
-                        insert(vnode) {
-                            enhanceConvoBody(vnode.elm as HTMLElement);
-                        },
-                        postpatch(_oldVnode, vnode) {
-                            enhanceConvoBody(vnode.elm as HTMLElement);
+                h(
+                    'div.inbox-convo-body',
+                    {
+                        hook: {
+                            insert(vnode) {
+                                enhanceConvoBody(vnode.elm as HTMLElement);
+                            },
+                            postpatch(_oldVnode, vnode) {
+                                enhanceConvoBody(vnode.elm as HTMLElement);
+                            },
                         },
                     },
-                }, loading
-                    ? h('div.inbox-empty', _('Loading...'))
-                    : convoBodyNodes.filter(Boolean) as VNode[],
+                    loading ? h('div.inbox-empty', _('Loading...')) : (convoBodyNodes.filter(Boolean) as VNode[]),
                 ),
-                h('form.inbox-convo-post', {
-                    on: {
-                        submit: (event: Event) => {
-                            event.preventDefault();
-                            sendMessage();
+                h(
+                    'form.inbox-convo-post',
+                    {
+                        on: {
+                            submit: (event: Event) => {
+                                event.preventDefault();
+                                sendMessage();
+                            },
                         },
                     },
-                }, [
-                    h('textarea.inbox-convo-post-text', {
-                        attrs: {
-                            // The server keeps existing conversation access visible, but can
-                            // still lock composing if the recipient only accepts friend PMs.
-                            placeholder: !contact
-                                ? _('Select a conversation first')
-                                : contactBlocked || contactBlockedByThem
-                                    ? _('This conversation is blocked')
-                                    : contactCanMessage
-                                    ? _('Write a message...')
-                                    : _('This user only accepts messages from friends'),
-                            rows: 1,
-                            enterkeyhint: 'send',
-                            disabled: !contact || sending || !contactCanMessage,
-                        },
-                        props: { value: draft },
-                        on: {
-                            input: (e: Event) => {
-                                draft = (e.target as HTMLTextAreaElement).value;
-                                redraw();
+                    [
+                        h('textarea.inbox-convo-post-text', {
+                            attrs: {
+                                // The server keeps existing conversation access visible, but can
+                                // still lock composing if the recipient only accepts friend PMs.
+                                placeholder: !contact
+                                    ? _('Select a conversation first')
+                                    : contactBlocked || contactBlockedByThem
+                                      ? _('This conversation is blocked')
+                                      : contactCanMessage
+                                        ? _('Write a message...')
+                                        : _('This user only accepts messages from friends'),
+                                rows: 1,
+                                enterkeyhint: 'send',
+                                disabled: !contact || sending || !contactCanMessage,
                             },
-                            keydown: (e: KeyboardEvent) => {
-                                if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
-                                    e.preventDefault();
-                                    sendMessage();
-                                }
+                            props: { value: draft },
+                            on: {
+                                input: (e: Event) => {
+                                    draft = (e.target as HTMLTextAreaElement).value;
+                                    redraw();
+                                },
+                                keydown: (e: KeyboardEvent) => {
+                                    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+                                        e.preventDefault();
+                                        sendMessage();
+                                    }
+                                },
                             },
-                        },
-                    }),
-                    h('button.inbox-convo-post-submit.button', {
-                        props: {
-                            type: 'submit',
-                            disabled: !contact || sending || !contactCanMessage || !draft.trim(),
-                        },
-                    }, sending ? _('Sending...') : _('Send')),
-                ]),
+                        }),
+                        h(
+                            'button.inbox-convo-post-submit.button',
+                            {
+                                props: {
+                                    type: 'submit',
+                                    disabled: !contact || sending || !contactCanMessage || !draft.trim(),
+                                },
+                            },
+                            sending ? _('Sending...') : _('Send'),
+                        ),
+                    ],
+                ),
             ]),
         ]);
     }

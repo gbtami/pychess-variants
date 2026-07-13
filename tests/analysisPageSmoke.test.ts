@@ -166,17 +166,21 @@ describe('analysis page smoke coverage', () => {
     });
 
     test('puzzle view keeps analysis tools but omits PGN tab content', () => {
-        const root = renderNodes(puzzleView(makeModel({
-            gameId: '',
-            puzzle: JSON.stringify({
-                _id: 'abcde',
-                v: 'chess',
-                f: 'rn1qkbnr/pppb1ppp/8/3pp3/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-                m: 'e2e4,e7e5',
-                t: 'advantage',
-                e: '+1.2',
-            }),
-        })));
+        const root = renderNodes(
+            puzzleView(
+                makeModel({
+                    gameId: '',
+                    puzzle: JSON.stringify({
+                        _id: 'abcde',
+                        v: 'chess',
+                        f: 'rn1qkbnr/pppb1ppp/8/3pp3/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                        m: 'e2e4,e7e5',
+                        t: 'advantage',
+                        e: '+1.2',
+                    }),
+                }),
+            ),
+        );
 
         expect(root.querySelector('#movelist')).not.toBeNull();
         expect(root.querySelector('#move-controls')).not.toBeNull();
@@ -344,9 +348,9 @@ describe('analysis tree movelist gating', () => {
 
         updateMovelist(ctrl, true, false, false);
 
-        const sans = [...document.querySelectorAll('#movelist san')].map((el) => el.textContent);
-        expect(sans.filter((san) => san === 'h6')).toHaveLength(1);
-        expect(sans.filter((san) => san === 'd5')).toHaveLength(1);
+        const sans = [...document.querySelectorAll('#movelist san')].map(el => el.textContent);
+        expect(sans.filter(san => san === 'h6')).toHaveLength(1);
+        expect(sans.filter(san => san === 'd5')).toHaveLength(1);
         expect(document.querySelectorAll('#movelist inline inline')).toHaveLength(0);
     });
 
@@ -384,7 +388,8 @@ describe('analysis tree movelist gating', () => {
             hasAnalysisTree: () => true,
             isTreeInlineNotation: () => false,
             isTreeDisclosureMode: () => true,
-            getTreeActivePath: () => tree.root.children[0].children[0].children[0].children[0].children[0].children[0].children[0].path,
+            getTreeActivePath: () =>
+                tree.root.children[0].children[0].children[0].children[0].children[0].children[0].children[0].path,
             getTreeSelectedChildPath: () => undefined,
             activateTreePath: () => undefined,
             toggleTreeCollapsed: () => undefined,
@@ -479,9 +484,11 @@ describe('analysis tree movelist gating', () => {
             hasAnalysisTree: () => true,
             isTreeInlineNotation: () => false,
             isTreeDisclosureMode: () => true,
-            getTreeActivePath: () => tree.root.children[0].children[0].children[0].children[0].children[0].children[0].path,
+            getTreeActivePath: () =>
+                tree.root.children[0].children[0].children[0].children[0].children[0].children[0].path,
             getTreeSelectedChildPath: () => undefined,
-            getTreeNodeAtPath: (path: string) => path === branchPath ? tree.root.children[0].children[0].children[0].children[0].children[0] : undefined,
+            getTreeNodeAtPath: (path: string) =>
+                path === branchPath ? tree.root.children[0].children[0].children[0].children[0].children[0] : undefined,
             pathIsTreeMainline: () => false,
             canPromoteTreeVariation: () => true,
             someTreeCollapsed: (collapsed: boolean) => !collapsed,
@@ -541,7 +548,7 @@ describe('analysis tree movelist gating', () => {
             isTreeDisclosureMode: () => false,
             getTreeActivePath: () => mainlinePath,
             getTreeSelectedChildPath: () => undefined,
-            getTreeNodeAtPath: (path: string) => path === mainlinePath ? mainlineNode : undefined,
+            getTreeNodeAtPath: (path: string) => (path === mainlinePath ? mainlineNode : undefined),
             pathIsTreeMainline: () => true,
             pathIsTreeForcedVariation: () => false,
             canPromoteTreeVariation: () => false,

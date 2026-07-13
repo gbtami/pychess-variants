@@ -26,17 +26,20 @@ describe('mainline tree selection', () => {
         let selectedMainlinePly: number | undefined;
         let rawGoPlyCalls = 0;
 
-        selectMainlineMove({
-            hasAnalysisTree: () => true,
-            activateTreeMainlinePly: (ply: number) => {
-                selectedMainlinePly = ply;
-            },
-            goPly: () => {
-                rawGoPlyCalls += 1;
-            },
-            steps: [{}, {}, {}],
-            ply: 0,
-        } as any, 2);
+        selectMainlineMove(
+            {
+                hasAnalysisTree: () => true,
+                activateTreeMainlinePly: (ply: number) => {
+                    selectedMainlinePly = ply;
+                },
+                goPly: () => {
+                    rawGoPlyCalls += 1;
+                },
+                steps: [{}, {}, {}],
+                ply: 0,
+            } as any,
+            2,
+        );
 
         expect(selectedMainlinePly).toBe(2);
         expect(rawGoPlyCalls).toBe(0);

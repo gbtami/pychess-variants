@@ -54,18 +54,26 @@ function renderDialog(options: ConfirmDialogOptions): void {
     contentChildren.push(h('p', options.text));
     contentChildren.push(
         h('div.confirm-dialog-actions', [
-            h('button.button.button-empty.confirm-dialog-cancel', {
-                props: { type: 'button' },
-                on: {
-                    click: () => closeDialog(false),
+            h(
+                'button.button.button-empty.confirm-dialog-cancel',
+                {
+                    props: { type: 'button' },
+                    on: {
+                        click: () => closeDialog(false),
+                    },
                 },
-            }, options.cancelText || 'Cancel'),
-            h(`button.button.confirm-dialog-confirm${options.danger ? '.button-red' : ''}`, {
-                props: { type: 'button' },
-                on: {
-                    click: () => closeDialog(true),
+                options.cancelText || 'Cancel',
+            ),
+            h(
+                `button.button.confirm-dialog-confirm${options.danger ? '.button-red' : ''}`,
+                {
+                    props: { type: 'button' },
+                    on: {
+                        click: () => closeDialog(true),
+                    },
                 },
-            }, options.confirmText || 'OK'),
+                options.confirmText || 'OK',
+            ),
         ]),
     );
 
@@ -75,12 +83,16 @@ function renderDialog(options: ConfirmDialogOptions): void {
                 click: () => closeDialog(false),
             },
         }),
-        h('div.confirm-dialog-content', {
-            attrs: {
-                role: 'dialog',
-                'aria-modal': 'true',
+        h(
+            'div.confirm-dialog-content',
+            {
+                attrs: {
+                    role: 'dialog',
+                    'aria-modal': 'true',
+                },
             },
-        }, contentChildren),
+            contentChildren,
+        ),
     ]);
 
     if (dialogVNode === null) {
@@ -116,7 +128,7 @@ export function confirmDialog(options: ConfirmDialogOptions): Promise<boolean> {
     };
     document.addEventListener('keydown', keydownHandler);
 
-    return new Promise<boolean>((resolve) => {
+    return new Promise<boolean>(resolve => {
         pendingResolve = resolve;
     });
 }

@@ -106,8 +106,7 @@ beforeAll(async () => {
     warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
     const ffishModuleNs: any = await import('ffish-es6');
-    const initFfish =
-        ffishModuleNs.default?.default ?? ffishModuleNs.default ?? ffishModuleNs;
+    const initFfish = ffishModuleNs.default?.default ?? ffishModuleNs.default ?? ffishModuleNs;
     const wasmPath = path.resolve(process.cwd(), 'node_modules/ffish-es6/ffish.wasm');
     ffish = await initFfish({
         wasmBinary: fs.readFileSync(wasmPath),

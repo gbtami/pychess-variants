@@ -15,7 +15,7 @@ let dialogState: UsernameDialogState = {
     isChecking: false,
     isAvailable: null,
     error: null,
-    isSubmitting: false
+    isSubmitting: false,
 };
 
 let checkUsernameTimeout: number | null = null;
@@ -36,7 +36,7 @@ async function checkUsernameAvailability(username: string): Promise<void> {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ username: username.trim() })
+            body: JSON.stringify({ username: username.trim() }),
         });
 
         const data = await response.json();
@@ -88,7 +88,7 @@ async function confirmUsername(): Promise<void> {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ username: dialogState.username.trim() })
+            body: JSON.stringify({ username: dialogState.username.trim() }),
         });
 
         const data = await response.json();
@@ -129,48 +129,55 @@ function renderUsernameDialog(): void {
     const canSubmit = dialogState.isAvailable === true && !dialogState.isSubmitting;
     const statusIcon = getUsernameStatusIcon();
 
-    const vnode = h('div.username-dialog-content', [
-        h('h2', _('Choose your username')),
-        h('p', _('Please choose a username for your account.')),
-        h('div.username-input-container', [
-            h('input#username-input', {
-                attrs: {
-                    type: 'text',
-                    placeholder: _('Username'),
-                    value: dialogState.username,
-                    maxlength: '20',
-                    minlength: '3'
-                },
-                on: {
-                    input: onUsernameInput,
-                    keypress: (event: KeyboardEvent) => {
-                        if (event.key === 'Enter' && canSubmit) {
-                            confirmUsername();
-                        }
-                    }
-                }
-            }),
-            ...(statusIcon ? [statusIcon] : [])
-        ]),
-        dialogState.error ? h('div.error-message', dialogState.error) : null,
-        h('div.username-requirements', [
-            h('ul', [
-                h('li', _('3-20 characters')),
-                h('li', _('Letters, numbers, underscore and dash only')),
-                h('li', _('Must be unique'))
-            ])
-        ]),
-        h('div.dialog-buttons', [
-            h('button.confirm-btn', {
-                attrs: {
-                    disabled: !canSubmit
-                },
-                on: {
-                    click: confirmUsername
-                }
-            }, dialogState.isSubmitting ? _('Creating account...') : _('Confirm'))
-        ])
-    ].filter((item): item is VNode => item !== null));
+    const vnode = h(
+        'div.username-dialog-content',
+        [
+            h('h2', _('Choose your username')),
+            h('p', _('Please choose a username for your account.')),
+            h('div.username-input-container', [
+                h('input#username-input', {
+                    attrs: {
+                        type: 'text',
+                        placeholder: _('Username'),
+                        value: dialogState.username,
+                        maxlength: '20',
+                        minlength: '3',
+                    },
+                    on: {
+                        input: onUsernameInput,
+                        keypress: (event: KeyboardEvent) => {
+                            if (event.key === 'Enter' && canSubmit) {
+                                confirmUsername();
+                            }
+                        },
+                    },
+                }),
+                ...(statusIcon ? [statusIcon] : []),
+            ]),
+            dialogState.error ? h('div.error-message', dialogState.error) : null,
+            h('div.username-requirements', [
+                h('ul', [
+                    h('li', _('3-20 characters')),
+                    h('li', _('Letters, numbers, underscore and dash only')),
+                    h('li', _('Must be unique')),
+                ]),
+            ]),
+            h('div.dialog-buttons', [
+                h(
+                    'button.confirm-btn',
+                    {
+                        attrs: {
+                            disabled: !canSubmit,
+                        },
+                        on: {
+                            click: confirmUsername,
+                        },
+                    },
+                    dialogState.isSubmitting ? _('Creating account...') : _('Confirm'),
+                ),
+            ]),
+        ].filter((item): item is VNode => item !== null),
+    );
 
     // Use Snabbdom patch to render VNode to DOM
     if (dialogVNode === null) {
@@ -203,7 +210,7 @@ export function showUsernameDialog(oauthData: {
         isChecking: false,
         isAvailable: null,
         error: null,
-        isSubmitting: false
+        isSubmitting: false,
     };
 
     // Create dialog element if it doesn't exist

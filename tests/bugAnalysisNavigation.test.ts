@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import { h } from 'snabbdom';
 
-import { addOrSelectChild, createAnalysisTree, forceVariationAt, mainlinePathAtPly, nodeAtPath } from '../client/analysis/analysisTree';
+import {
+    addOrSelectChild,
+    createAnalysisTree,
+    forceVariationAt,
+    mainlinePathAtPly,
+    nodeAtPath,
+} from '../client/analysis/analysisTree';
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
 import { updateMovelist } from '../client/bug/movelist.bug';
@@ -65,8 +71,14 @@ describe('bughouse analysis mainline navigation', () => {
                 selectedMainlinePly = ply;
             },
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [['wA', '', ''], ['bB', '', '']],
-            teamSecond: [['bA', '', ''], ['wB', '', '']],
+            teamFirst: [
+                ['wA', '', ''],
+                ['bB', '', ''],
+            ],
+            teamSecond: [
+                ['bA', '', ''],
+                ['wB', '', ''],
+            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
@@ -111,8 +123,14 @@ describe('bughouse analysis mainline navigation', () => {
             activateTreePath: () => undefined,
             activateTreeMainlinePly: () => undefined,
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [['wA', '', ''], ['bB', '', '']],
-            teamSecond: [['bA', '', ''], ['wB', '', '']],
+            teamFirst: [
+                ['wA', '', ''],
+                ['bB', '', ''],
+            ],
+            teamSecond: [
+                ['bA', '', ''],
+                ['wB', '', ''],
+            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
@@ -158,8 +176,14 @@ describe('bughouse analysis mainline navigation', () => {
                 updateMovelist(ctrl as any, true, false, false);
             },
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [['wA', '', ''], ['bB', '', '']],
-            teamSecond: [['bA', '', ''], ['wB', '', '']],
+            teamFirst: [
+                ['wA', '', ''],
+                ['bB', '', ''],
+            ],
+            teamSecond: [
+                ['bA', '', ''],
+                ['wB', '', ''],
+            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
@@ -222,14 +246,24 @@ describe('bughouse analysis mainline navigation', () => {
                 deletedPath = path;
             },
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [['wA', '', ''], ['bB', '', '']],
-            teamSecond: [['bA', '', ''], ['wB', '', '']],
+            teamFirst: [
+                ['wA', '', ''],
+                ['bB', '', ''],
+            ],
+            teamSecond: [
+                ['bA', '', ''],
+                ['wB', '', ''],
+            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
 
-        const labels = Array.from(document.querySelectorAll('.tree-context-menu button span')).map((el) => el.textContent);
-        expect(labels).toEqual(expect.arrayContaining(['Convert to variation', 'Collapse all', 'Copy main line PGN', 'Delete from here']));
+        const labels = Array.from(document.querySelectorAll('.tree-context-menu button span')).map(
+            el => el.textContent,
+        );
+        expect(labels).toEqual(
+            expect.arrayContaining(['Convert to variation', 'Collapse all', 'Copy main line PGN', 'Delete from here']),
+        );
         expect(labels).not.toContain('Make main line');
 
         (document.querySelectorAll('.tree-context-menu button')[2] as HTMLButtonElement).click();
@@ -253,7 +287,12 @@ describe('bughouse analysis mainline navigation', () => {
         const tree = createAnalysisTree(steps);
         const a1Path = mainlinePathAtPly(tree, 1);
         addOrSelectChild(tree, a1Path, makeStep('fa1', 'fb2', 'a1', 'b2', 'black', 'B2', 'b', 1, 1), false);
-        const b3Path = addOrSelectChild(tree, a1Path, makeStep('fa1', 'fb3', 'a1', 'b3', 'black', 'B3', 'b', 1, 1), false);
+        const b3Path = addOrSelectChild(
+            tree,
+            a1Path,
+            makeStep('fa1', 'fb3', 'a1', 'b3', 'black', 'B3', 'b', 1, 1),
+            false,
+        );
 
         let promoted: { path: string; toMainline: boolean } | undefined;
         let copiedPath: string | undefined;
@@ -285,14 +324,24 @@ describe('bughouse analysis mainline navigation', () => {
             },
             deleteTreeNode: () => undefined,
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [['wA', '', ''], ['bB', '', '']],
-            teamSecond: [['bA', '', ''], ['wB', '', '']],
+            teamFirst: [
+                ['wA', '', ''],
+                ['bB', '', ''],
+            ],
+            teamSecond: [
+                ['bA', '', ''],
+                ['wB', '', ''],
+            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
 
-        const labels = Array.from(document.querySelectorAll('.tree-context-menu button span')).map((el) => el.textContent);
-        expect(labels).toEqual(expect.arrayContaining(['Promote variation', 'Make main line', 'Copy variation PGN', 'Delete from here']));
+        const labels = Array.from(document.querySelectorAll('.tree-context-menu button span')).map(
+            el => el.textContent,
+        );
+        expect(labels).toEqual(
+            expect.arrayContaining(['Promote variation', 'Make main line', 'Copy variation PGN', 'Delete from here']),
+        );
 
         (document.querySelectorAll('.tree-context-menu button')[0] as HTMLButtonElement).click();
         expect(promoted).toEqual({ path: b3Path, toMainline: false });
@@ -317,7 +366,12 @@ describe('bughouse analysis mainline navigation', () => {
         ];
         const tree = createAnalysisTree(steps);
         const a1Path = mainlinePathAtPly(tree, 1);
-        const branchPath = addOrSelectChild(tree, a1Path, makeStep('fa1', 'fb2', 'a1', 'b2', 'black', 'B2?!', 'b', 1, 1), false);
+        const branchPath = addOrSelectChild(
+            tree,
+            a1Path,
+            makeStep('fa1', 'fb2', 'a1', 'b2', 'black', 'B2?!', 'b', 1, 1),
+            false,
+        );
 
         const ctrl = {
             steps,
@@ -335,8 +389,14 @@ describe('bughouse analysis mainline navigation', () => {
             activateTreeMainlinePly: () => undefined,
             toggleTreeCollapsed: () => undefined,
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [['wA', '', ''], ['bB', '', '']],
-            teamSecond: [['bA', '', ''], ['wB', '', '']],
+            teamFirst: [
+                ['wA', '', ''],
+                ['bB', '', ''],
+            ],
+            teamSecond: [
+                ['bA', '', ''],
+                ['wB', '', ''],
+            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
@@ -379,8 +439,14 @@ describe('bughouse analysis mainline navigation', () => {
             activateTreeMainlinePly: () => undefined,
             toggleTreeCollapsed: () => undefined,
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [['wA', '', ''], ['bB', '', '']],
-            teamSecond: [['bA', '', ''], ['wB', '', '']],
+            teamFirst: [
+                ['wA', '', ''],
+                ['bB', '', ''],
+            ],
+            teamSecond: [
+                ['bA', '', ''],
+                ['wB', '', ''],
+            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);

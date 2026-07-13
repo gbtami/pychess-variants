@@ -4,17 +4,16 @@ import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
 import { _ } from '@/i18n';
-import { validFen, hasCastling, unpromotedRole, promotedRole } from '@/chess'
+import { validFen, hasCastling, unpromotedRole, promotedRole } from '@/chess';
 import { diff, calculatePieceNumber } from '@/material';
 import { copyBoardToPNG } from '@/png';
 import { patch } from '@/document';
-import { PyChessModel } from "@/types";
+import { PyChessModel } from '@/types';
 import { ChessgroundController } from '@/cgCtrl';
 import { copyTextToClipboard } from '@/clipboard';
 import { initPieceRow } from './pieceRow';
 import { setPocketRowCssVars } from '@/pocketRow';
 import { AliceMirrorSettings } from './editorSettings';
-
 
 export class EditorController extends ChessgroundController {
     model: PyChessModel;
@@ -29,16 +28,23 @@ export class EditorController extends ChessgroundController {
     aliceMirror: boolean;
 
     constructor(el: HTMLElement, model: PyChessModel) {
-        super(el, model, model.fen, document.getElementById('pocket0') as HTMLElement, document.getElementById('pocket1') as HTMLElement, '');
+        super(
+            el,
+            model,
+            model.fen,
+            document.getElementById('pocket0') as HTMLElement,
+            document.getElementById('pocket1') as HTMLElement,
+            '',
+        );
         this.model = model;
-        this.startfen = model["fen"] as string;
-        console.log("startfen", this.startfen);
+        this.startfen = model['fen'] as string;
+        console.log('startfen', this.startfen);
 
-        this.parts = this.startfen.split(" ");
+        this.parts = this.startfen.split(' ');
         this.castling = this.parts.length > 2 ? this.parts[2] : '';
 
         // is aliceMirror on? (the switch)
-        this.aliceMirror = localStorage.aliceMirror === undefined ? false : localStorage.aliceMirror === "true";
+        this.aliceMirror = localStorage.aliceMirror === undefined ? false : localStorage.aliceMirror === 'true';
 
         this.chessground.set({
             autoCastle: false,
@@ -51,7 +57,7 @@ export class EditorController extends ChessgroundController {
                 select: this.onSelect(),
             },
             selectable: {
-                enabled: false
+                enabled: false,
             },
             draggable: {
                 deleteOnDropOff: true,
@@ -61,10 +67,12 @@ export class EditorController extends ChessgroundController {
             },
         });
 
-        [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(pocketEl => {
-            pocketEl?.addEventListener('mouseup', this.dropOnPocket);
-            pocketEl?.addEventListener('touchend', this.dropOnPocket);
-        });
+        [this.chessground.state.dom.elements.pocketTop, this.chessground.state.dom.elements.pocketBottom].forEach(
+            pocketEl => {
+                pocketEl?.addEventListener('mouseup', this.dropOnPocket);
+                pocketEl?.addEventListener('touchend', this.dropOnPocket);
+            },
+        );
 
         this.chessground.state.dom.elements.board.addEventListener('touchend', this.dropOnPocket);
 
@@ -80,10 +88,11 @@ export class EditorController extends ChessgroundController {
         }
 
         const e = document.getElementById('fen') as HTMLElement;
-        this.vfen = patch(e,
+        this.vfen = patch(
+            e,
             h('input#fen', {
-                props: { name: 'fen', value: model["fen"] },
-                on: { input: () => this.onChangeFen(), paste: (e) => this.onPasteFen(e) },
+                props: { name: 'fen', value: model['fen'] },
+                on: { input: () => this.onChangeFen(), paste: e => this.onPasteFen(e) },
             }),
         );
 
@@ -95,73 +104,80 @@ export class EditorController extends ChessgroundController {
         if (container !== null) {
             const buttons = [
                 h('div#turn-block', [
-                    h('select#turn', {
-                        props: { name: "turn" },
-                        on: { change: (e) => this.onChangeTurn(e) },
-                    }, [
-                        h('option', { props: { value: 'white' } }, _('%1 to play', firstColor)),
-                        h('option', { props: { value: 'black' } }, _('%1 to play', secondColor)),
-                    ]),
-                    (!hasCastling(this.variant, 'white')) ? '' :
-                    h('strong', _("Castling")),
-                    (!hasCastling(this.variant, 'white')) ? '' :
-                    h('div.castling', [
-                        h('label.OO', { attrs: { for: "wOO" } }, _("White") + " O-O"),
-                        h('input#wOO', {
-                            props: {name: "wOO", type: "checkbox"},
-                            attrs: {checked: this.parts[2].includes('K')},
-                            on: { change: () => this.onChangeCastling() },
-                        }),
-                        h('label.OOO', { attrs: { for: "wOOO" } }, "O-O-O"),
-                        h('input#wOOO', {
-                            props: {name: "wOOO", type: "checkbox"},
-                            attrs: {checked: this.parts[2].includes('Q')},
-                            on: { change: () => this.onChangeCastling() },
-                        }),
-                    ]),
-                    (!hasCastling(this.variant, 'black')) ? '' :
-                    h('div.castling', [
-                        h('label.OO', { attrs: { for: "bOO" } }, _("Black") +  " O-O"),
-                        h('input#bOO', {
-                            props: {name: "bOO", type: "checkbox"},
-                            attrs: {checked: this.parts[2].includes('k')},
-                            on: { change: () => this.onChangeCastling() },
-                        }),
-                        h('label.OOO', { attrs: { for: "bOOO" } }, "O-O-O"),
-                        h('input#bOOO', {
-                            props: {name: "bOOO", type: "checkbox"},
-                            attrs: {checked: this.parts[2].includes('q')},
-                            on: { change: () => this.onChangeCastling() },
-                        }),
-                    ]),
+                    h(
+                        'select#turn',
+                        {
+                            props: { name: 'turn' },
+                            on: { change: e => this.onChangeTurn(e) },
+                        },
+                        [
+                            h('option', { props: { value: 'white' } }, _('%1 to play', firstColor)),
+                            h('option', { props: { value: 'black' } }, _('%1 to play', secondColor)),
+                        ],
+                    ),
+                    !hasCastling(this.variant, 'white') ? '' : h('strong', _('Castling')),
+                    !hasCastling(this.variant, 'white')
+                        ? ''
+                        : h('div.castling', [
+                              h('label.OO', { attrs: { for: 'wOO' } }, _('White') + ' O-O'),
+                              h('input#wOO', {
+                                  props: { name: 'wOO', type: 'checkbox' },
+                                  attrs: { checked: this.parts[2].includes('K') },
+                                  on: { change: () => this.onChangeCastling() },
+                              }),
+                              h('label.OOO', { attrs: { for: 'wOOO' } }, 'O-O-O'),
+                              h('input#wOOO', {
+                                  props: { name: 'wOOO', type: 'checkbox' },
+                                  attrs: { checked: this.parts[2].includes('Q') },
+                                  on: { change: () => this.onChangeCastling() },
+                              }),
+                          ]),
+                    !hasCastling(this.variant, 'black')
+                        ? ''
+                        : h('div.castling', [
+                              h('label.OO', { attrs: { for: 'bOO' } }, _('Black') + ' O-O'),
+                              h('input#bOO', {
+                                  props: { name: 'bOO', type: 'checkbox' },
+                                  attrs: { checked: this.parts[2].includes('k') },
+                                  on: { change: () => this.onChangeCastling() },
+                              }),
+                              h('label.OOO', { attrs: { for: 'bOOO' } }, 'O-O-O'),
+                              h('input#bOOO', {
+                                  props: { name: 'bOOO', type: 'checkbox' },
+                                  attrs: { checked: this.parts[2].includes('q') },
+                                  on: { change: () => this.onChangeCastling() },
+                              }),
+                          ]),
                 ]),
 
                 h('a#flip.i-pgn', { on: { click: () => this.toggleOrientation() } }, [
-                    h('div.icon.icon-refresh', _('FLIP BOARD'))
+                    h('div.icon.icon-refresh', _('FLIP BOARD')),
                 ]),
                 h('a#clear.i-pgn', { on: { click: () => this.setEmptyFen() } }, [
-                    h('div.icon.icon-trash-o', _('CLEAR BOARD'))
+                    h('div.icon.icon-trash-o', _('CLEAR BOARD')),
                 ]),
-                this.variant.pocket?.captureToHand ? h('a#fill.i-pgn', { on: { click: () => this.fillHand() } }, [
-                    h('div.icon.icon-sign-in', _("FILL %1'S HAND", secondColor.toUpperCase()))
-                ]) : '',
+                this.variant.pocket?.captureToHand
+                    ? h('a#fill.i-pgn', { on: { click: () => this.fillHand() } }, [
+                          h('div.icon.icon-sign-in', _("FILL %1'S HAND", secondColor.toUpperCase())),
+                      ])
+                    : '',
                 h('a#start.i-pgn', { on: { click: () => this.setStartFen() } }, [
-                    h('div.icon.' + dataIcon, _('STARTING POSITION'))
+                    h('div.icon.' + dataIcon, _('STARTING POSITION')),
                 ]),
                 h('a#analysis.i-pgn', { on: { click: () => this.setAnalysisFen() } }, [
-                    h('div.icon.icon-microscope', _('ANALYSIS BOARD'))
+                    h('div.icon.icon-microscope', _('ANALYSIS BOARD')),
                 ]),
                 h('a#challengeAI.i-pgn', { on: { click: () => this.setChallengeAIFen() } }, [
-                    h('div.icon.icon-bot', _('PLAY WITH MACHINE'))
+                    h('div.icon.icon-bot', _('PLAY WITH MACHINE')),
                 ]),
                 h('a#createseek.i-pgn', { on: { click: () => this.setSeekFen() } }, [
-                    h('div.icon.icon-crossedswords', _('CONTINUE FROM HERE'))
+                    h('div.icon.icon-crossedswords', _('CONTINUE FROM HERE')),
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyBoardToPNG(this.parts.join(' ')) } }, [
-                    h('div.icon.icon-download', _('EXPORT TO PNG'))
+                    h('div.icon.icon-download', _('EXPORT TO PNG')),
                 ]),
                 h('a#pgn.i-pgn', { on: { click: () => copyTextToClipboard(this.parts.join(' ')) } }, [
-                    h('div.icon.icon-clipboard', _('COPY FEN TO CLIPBOARD'))
+                    h('div.icon.icon-clipboard', _('COPY FEN TO CLIPBOARD')),
                 ]),
             ];
             if (this.variant.name === 'alice') {
@@ -173,7 +189,7 @@ export class EditorController extends ChessgroundController {
     }
 
     toggleOrientation() {
-        super.toggleOrientation()
+        super.toggleOrientation();
 
         if (this.vpieces0 !== undefined && this.vpieces1 !== undefined) {
             initPieceRow(this, this.vpieces0, this.vpieces1);
@@ -185,17 +201,17 @@ export class EditorController extends ChessgroundController {
     }
 
     private onChangeTurn = (e: Event) => {
-        this.parts[1] = ((<HTMLSelectElement>e.target).value === 'white') ? 'w' : 'b';
+        this.parts[1] = (<HTMLSelectElement>e.target).value === 'white' ? 'w' : 'b';
         this.onChangeBoard();
-    }
+    };
 
     private onChangeCastling = () => {
-        const castlings: {[key:string]:string} = {
-            'wOO': 'K',
-            'wOOO': 'Q',
-            'bOO': 'k',
-            'bOOO': 'q',
-        }
+        const castlings: { [key: string]: string } = {
+            wOO: 'K',
+            wOOO: 'Q',
+            bOO: 'k',
+            bOOO: 'q',
+        };
         const castl: string[] = [];
         for (const key in castlings) {
             const el = document.getElementById(key) as HTMLInputElement;
@@ -214,25 +230,26 @@ export class EditorController extends ChessgroundController {
         this.parts[2] = castl.join('') + gatings;
         if (this.parts[2].length === 0) this.parts[2] = '-';
         this.onChangeBoard();
-    }
+    };
 
     // Remove accidentally selected leading spaces from FEN (mostly may happen on mobile)
     private onPasteFen = (e: ClipboardEvent) => {
-        (<HTMLInputElement>e.target).value = e.clipboardData?.getData('text').trim() ?? "";
+        (<HTMLInputElement>e.target).value = e.clipboardData?.getData('text').trim() ?? '';
         e.preventDefault();
         this.onChangeFen();
-    }
+    };
 
     private validFen = () => {
         const fen = (document.getElementById('fen') as HTMLInputElement).value;
         const valid = validFen(this.variant, fen);
         const ff = this.ffish.validateFen(fen, this.variant.name);
-        const ffValid = (ff === 1) || 
-            (this.variant.rules.gate && ff === -5) || 
-            (this.variant.rules.duck && ff === -10) || 
+        const ffValid =
+            ff === 1 ||
+            (this.variant.rules.gate && ff === -5) ||
+            (this.variant.rules.duck && ff === -10) ||
             (this.variant.name === 'alice' && ff === -11);
         return valid && ffValid;
-    }
+    };
 
     private setInvalid = (invalid: boolean) => {
         const analysis = document.getElementById('analysis') as HTMLElement;
@@ -243,13 +260,13 @@ export class EditorController extends ChessgroundController {
 
         const e = document.getElementById('fen') as HTMLInputElement;
         e.setCustomValidity(invalid ? _('Invalid FEN') : '');
-    }
+    };
 
     private setStartFen = () => {
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.startfen;
         this.onChangeFen();
-    }
+    };
 
     private setEmptyFen = () => {
         const w = this.variant.board.dimensions.width;
@@ -258,37 +275,36 @@ export class EditorController extends ChessgroundController {
 
         const pocketsPart = this.hasPockets ? '[]' : '';
         this.parts[0] = emptyFen + pocketsPart;
-        this.parts[1] = 'w'
+        this.parts[1] = 'w';
         if (this.parts.length > 2) this.parts[2] = '-';
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.parts.join(' ');
         this.onChangeFen();
-    }
+    };
 
     private fillHand = () => {
         const initialMaterial = calculatePieceNumber(this.variant);
         const currentMaterial = calculatePieceNumber(this.variant, this.fullfen);
         const neededMaterial = diff(initialMaterial, currentMaterial);
         for (const [role, num] of neededMaterial)
-            if (num > 0)
-                this.chessground.changePocket({ role, color: 'black' }, num);
+            if (num > 0) this.chessground.changePocket({ role, color: 'black' }, num);
         this.onChangeBoard();
-    }
+    };
 
     private setAnalysisFen = () => {
         const fen = this.parts.join('_').replace(/\+/g, '.');
-        window.location.assign(this.model["home"] + '/analysis/' + this.model["variant"] + '?fen=' + fen);
-    }
+        window.location.assign(this.model['home'] + '/analysis/' + this.model['variant'] + '?fen=' + fen);
+    };
 
     private setChallengeAIFen = () => {
         const fen = this.parts.join('_').replace(/\+/g, '.');
-        window.location.assign(this.model["home"] + '/@/Fairy-Stockfish/play/' + this.model["variant"] + '?fen=' + fen);
-    }
+        window.location.assign(this.model['home'] + '/@/Fairy-Stockfish/play/' + this.model['variant'] + '?fen=' + fen);
+    };
 
     private setSeekFen = () => {
         const fen = this.parts.join('_').replace(/\+/g, '.');
-        window.location.assign(this.model["home"] + '/seek/' + this.model["variant"] + '?fen=' + fen);
-    }
+        window.location.assign(this.model['home'] + '/seek/' + this.model['variant'] + '?fen=' + fen);
+    };
 
     private onChangeFen = () => {
         const fen = (document.getElementById('fen') as HTMLInputElement).value;
@@ -298,19 +314,19 @@ export class EditorController extends ChessgroundController {
 
         if (this.parts.length > 1) {
             const turn = document.getElementById('turn') as HTMLInputElement;
-            turn.value = (this.parts[1] === 'w') ? 'white' : 'black';
+            turn.value = this.parts[1] === 'w' ? 'white' : 'black';
         }
 
         this.fullfen = fen;
 
         if (hasCastling(this.variant, 'white')) {
             if (this.parts.length >= 3) {
-                const castlings: {[ket:string]: string} = {
-                    'K': 'wOO',
-                    'Q': 'wOOO',
-                    'k': 'bOO',
-                    'q': 'bOOO',
-                }
+                const castlings: { [ket: string]: string } = {
+                    K: 'wOO',
+                    Q: 'wOOO',
+                    k: 'bOO',
+                    q: 'bOOO',
+                };
                 for (const key in castlings) {
                     const el = document.getElementById(castlings[key]) as HTMLInputElement;
                     // There are no black castlings in asymmetric variants!
@@ -318,7 +334,7 @@ export class EditorController extends ChessgroundController {
                 }
             }
         }
-    }
+    };
 
     private onChangeBoard = () => {
         if (this.variant.promotion.strict) {
@@ -341,7 +357,7 @@ export class EditorController extends ChessgroundController {
         const e = document.getElementById('fen') as HTMLInputElement;
         e.value = this.fullfen;
         this.setInvalid(!this.validFen());
-    }
+    };
 
     private onSelect = () => {
         let lastTime = performance.now();
@@ -350,7 +366,7 @@ export class EditorController extends ChessgroundController {
             const piece = this.chessground.state.boardState.pieces.get(key);
             const curTime = performance.now();
             // Check double click (promote/unpromote)
-            if ((lastKey === key && curTime - lastTime < 500)) {
+            if (lastKey === key && curTime - lastTime < 500) {
                 if (piece) {
                     const newColor = this.variant.pocket?.captureToHand ? util.opposite(piece.color) : piece.color;
                     let newPiece: cg.Piece;
@@ -362,7 +378,8 @@ export class EditorController extends ChessgroundController {
                         };
                     } else {
                         const newRole = promotedRole(this.variant, piece);
-                        if (newRole !== piece.role) { // The piece can be promoted
+                        if (newRole !== piece.role) {
+                            // The piece can be promoted
                             newPiece = {
                                 color: piece.color,
                                 role: newRole,
@@ -382,7 +399,7 @@ export class EditorController extends ChessgroundController {
                 }
                 lastKey = undefined;
             } else {
-                const aliceMirrorOn = (this.variant.name === 'alice' && this.aliceMirror);
+                const aliceMirrorOn = this.variant.name === 'alice' && this.aliceMirror;
                 if (aliceMirrorOn && piece) {
                     this.movePieceToTheOtherBoard(key);
                     const e = document.getElementById('fen') as HTMLInputElement;
@@ -393,8 +410,8 @@ export class EditorController extends ChessgroundController {
                 lastKey = key;
                 lastTime = curTime;
             }
-        }
-    }
+        };
+    };
 
     private dropOnPocket = () => {
         const dragCurrent = this.chessground.state.draggable.current;
@@ -410,11 +427,11 @@ export class EditorController extends ChessgroundController {
                 this.onChangeBoard();
             }
         }
-    }
+    };
 
     private movePieceToTheOtherBoard = (key: cg.Key) => {
-        const files = "abcdefgh";
-        const fenParts = this.fullfen.split(" ");
+        const files = 'abcdefgh';
+        const fenParts = this.fullfen.split(' ');
         const placement = fenParts[0].split('/');
         const rank = 8 - parseInt(key[1]);
         let part = placement[rank];
@@ -440,5 +457,5 @@ export class EditorController extends ChessgroundController {
                 }
             }
         }
-    }
+    };
 }

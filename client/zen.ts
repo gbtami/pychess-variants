@@ -6,12 +6,11 @@ import { radioList } from './view';
 import { patch } from './document';
 
 const zenModeOptions = {
-    off: _("Off"),
-    on: _("On"),
+    off: _('Off'),
+    on: _('On'),
 };
 
 class ZenModeSettings extends StringSettings {
-
     constructor() {
         super('zen', 'off');
     }
@@ -21,9 +20,11 @@ class ZenModeSettings extends StringSettings {
     }
 
     view(): VNode {
-        return h('div#zen-selector', radioList(this, 'zen', zenModeOptions, (_, key) => this.value = key));
+        return h(
+            'div#zen-selector',
+            radioList(this, 'zen', zenModeOptions, (_, key) => (this.value = key)),
+        );
     }
-
 }
 
 export const zenModeSettings = new ZenModeSettings();
@@ -33,13 +34,10 @@ function deactivateZenMode() {
     zenModeSettings.update();
 
     const zenSettings = document.getElementById('zen-selector') as HTMLElement;
-    zenSettings.innerHTML = "";
+    zenSettings.innerHTML = '';
     patch(zenSettings, zenModeSettings.view());
 }
 
 export function zenButtonView() {
-    return h('a#zen-button', { on: { click: deactivateZenMode } }, [
-        h('div.icon.icon-check', _('ZEN MODE'))
-    ]);
+    return h('a#zen-button', { on: { click: deactivateZenMode } }, [h('div.icon.icon-check', _('ZEN MODE'))]);
 }
-

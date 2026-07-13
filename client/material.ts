@@ -14,35 +14,36 @@ export type JieqiCapture = { role: cg.Role; color: cg.Color; kind: JieqiCaptureK
 
 export function diff(lhs: MaterialDiff, rhs: MaterialDiff): MaterialDiff {
     const keys = new Set([...lhs.keys(), ...rhs.keys()]);
-    const res = new Map()
-    for (const role of keys)
-        res.set(role, (lhs.get(role) ?? 0) - (rhs.get(role) ?? 0));
+    const res = new Map();
+    for (const role of keys) res.set(role, (lhs.get(role) ?? 0) - (rhs.get(role) ?? 0));
     return res;
 }
 
 export function equivalentRole(role: cg.Role, equivalences: Equivalence, captureToHand: boolean): cg.Role {
     if (captureToHand) {
-        if (role.indexOf('-') > 1)
-            return role.slice(1) as cg.Role;
-        else
-            return role;
+        if (role.indexOf('-') > 1) return role.slice(1) as cg.Role;
+        else return role;
     } else {
-        if (role in equivalences)
-            return equivalences[role]!;
-        else
-            return role;
+        if (role in equivalences) return equivalences[role]!;
+        else return role;
     }
 }
 
-export function calculateDiff(fen: string, dimensions: cg.BoardDimensions, equivalences: Equivalence, captureToHand: boolean): MaterialDiff {
-    const materialDiff : MaterialDiff = new Map();
+export function calculateDiff(
+    fen: string,
+    dimensions: cg.BoardDimensions,
+    equivalences: Equivalence,
+    captureToHand: boolean,
+): MaterialDiff {
+    const materialDiff: MaterialDiff = new Map();
     const boardState = fenRead(fen, dimensions);
 
     for (const [_, piece] of boardState.pieces) {
         const role = equivalentRole(piece.role, equivalences, captureToHand);
         const num = materialDiff.get(role) ?? 0;
-        if (piece.role !== '_-piece') //Exclude duck/any other type of brick
-            materialDiff.set(role, (piece.color === 'white') ? num - 1 : num + 1);
+        if (piece.role !== '_-piece')
+            //Exclude duck/any other type of brick
+            materialDiff.set(role, piece.color === 'white' ? num - 1 : num + 1);
     }
 
     if (boardState.pockets) {
@@ -61,7 +62,12 @@ export function calculateDiff(fen: string, dimensions: cg.BoardDimensions, equiv
 }
 
 export function calculateMaterialDiff(variant: Variant, fen?: string): MaterialDiff {
-    return calculateDiff(fen ?? variant.startFen, variant.board.dimensions, variant.material.equivalences, !!variant.pocket?.captureToHand);
+    return calculateDiff(
+        fen ?? variant.startFen,
+        variant.board.dimensions,
+        variant.material.equivalences,
+        !!variant.pocket?.captureToHand,
+    );
 }
 
 export function calculatePieceNumber(variant: Variant, fen?: string): MaterialDiff {
@@ -99,15 +105,14 @@ function generateContentFromDiff(variant: Variant, imbalance: MaterialDiff): [VN
     const blackContent: VNode[] = [];
     const whiteCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['black'], variant.pieceRow['white']);
     const blackCapturedOrder: cg.Role[] = mergeOrders(variant.pieceRow['white'], variant.pieceRow['black']);
-    
+
     for (const role of whiteCapturedOrder) {
         const num = imbalance.get(role);
         if (num === undefined) continue;
         if (num < 0) {
             const pieceDiff = Math.abs(num);
             const currentDiv: VNode[] = [];
-            for (let i = 0; i < pieceDiff; i++)
-            currentDiv.push(h('mpiece.' + role));
+            for (let i = 0; i < pieceDiff; i++) currentDiv.push(h('mpiece.' + role));
             whiteContent.push(h('div', currentDiv));
         }
     }
@@ -117,8 +122,7 @@ function generateContentFromDiff(variant: Variant, imbalance: MaterialDiff): [VN
         if (num > 0) {
             const pieceDiff = Math.abs(num);
             const currentDiv: VNode[] = [];
-            for (let i = 0; i < pieceDiff; i++)
-            currentDiv.push(h('mpiece.' + role));
+            for (let i = 0; i < pieceDiff; i++) currentDiv.push(h('mpiece.' + role));
             blackContent.push(h('div', currentDiv));
         }
     }
@@ -129,7 +133,11 @@ function generateContent(variant: Variant, fen: string): [VNode[], VNode[]] {
     return generateContentFromDiff(variant, calculateGameDiff(variant, fen));
 }
 
-function jieqiCaptureDiffs(captures: JieqiCapture[]): { normal: MaterialDiff; covered: MaterialDiff; hidden: MaterialDiff } {
+function jieqiCaptureDiffs(captures: JieqiCapture[]): {
+    normal: MaterialDiff;
+    covered: MaterialDiff;
+    hidden: MaterialDiff;
+} {
     const normal: MaterialDiff = new Map();
     const covered: MaterialDiff = new Map();
     const hidden: MaterialDiff = new Map();
@@ -198,26 +206,42 @@ function generateJieqiContent(variant: Variant, captures: JieqiCapture[]): [VNod
     return [whiteContent, blackContent];
 }
 
-function makeMaterialVNode(variant: Variant, position: 'top'|'bottom', content: VNode[], disabled = false): VNode {
+function makeMaterialVNode(variant: Variant, position: 'top' | 'bottom', content: VNode[], disabled = false): VNode {
     const pieceStyle = pieceStyleClass(variant.pieceFamily, boardSettings.pieceCSS(variant.pieceFamily, variant));
     const jieqiClass = variant.name === 'jieqi' ? '.jieqi-captures' : '';
-    return h(`div.material.material-${position}.${variant.pieceFamily}.${pieceStyle}${jieqiClass}${disabled ? '.disabled' : ''}`, content);
+    return h(
+        `div.material.material-${position}.${variant.pieceFamily}.${pieceStyle}${jieqiClass}${disabled ? '.disabled' : ''}`,
+        content,
+    );
 }
 
-export function updateMaterial(variant: Variant, fen: string, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement, flip: boolean, color: cg.Color, jieqiCaptures: JieqiCapture[] = []): [VNode, VNode] {
-    const [whiteContent, blackContent] = variant.name === 'jieqi'
-        // Jieqi shows captured pieces (normal + covered), not material balance.
-        ? generateJieqiContent(variant, jieqiCaptures)
-        : generateContent(variant, fen);
-    const topContent = (color === 'white') ? blackContent : whiteContent;
-    const botomContent = (color === 'white') ? whiteContent : blackContent;
+export function updateMaterial(
+    variant: Variant,
+    fen: string,
+    vmaterialTop: VNode | HTMLElement,
+    vmaterialBottom: VNode | HTMLElement,
+    flip: boolean,
+    color: cg.Color,
+    jieqiCaptures: JieqiCapture[] = [],
+): [VNode, VNode] {
+    const [whiteContent, blackContent] =
+        variant.name === 'jieqi'
+            ? // Jieqi shows captured pieces (normal + covered), not material balance.
+              generateJieqiContent(variant, jieqiCaptures)
+            : generateContent(variant, fen);
+    const topContent = color === 'white' ? blackContent : whiteContent;
+    const botomContent = color === 'white' ? whiteContent : blackContent;
     return [
         patch(vmaterialTop, makeMaterialVNode(variant, 'top', flip ? botomContent : topContent)),
         patch(vmaterialBottom, makeMaterialVNode(variant, 'bottom', flip ? topContent : botomContent)),
     ];
 }
 
-export function emptyMaterial(variant: Variant, vmaterialTop: VNode | HTMLElement, vmaterialBottom: VNode | HTMLElement): [VNode, VNode] {
+export function emptyMaterial(
+    variant: Variant,
+    vmaterialTop: VNode | HTMLElement,
+    vmaterialBottom: VNode | HTMLElement,
+): [VNode, VNode] {
     return [
         patch(vmaterialTop, makeMaterialVNode(variant, 'top', [], true)),
         patch(vmaterialBottom, makeMaterialVNode(variant, 'bottom', [], true)),

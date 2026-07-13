@@ -1,4 +1,10 @@
-import { hasSpamPhrase, hasSuspiciousLink, resetChatSpamStateForTests, selfReport, shouldSkipMessage } from '../client/chatSpam';
+import {
+    hasSpamPhrase,
+    hasSuspiciousLink,
+    resetChatSpamStateForTests,
+    selfReport,
+    shouldSkipMessage,
+} from '../client/chatSpam';
 
 beforeEach(() => {
     resetChatSpamStateForTests();

@@ -2,113 +2,218 @@ import { h } from 'snabbdom';
 
 import { _ } from './i18n';
 
-
 function ratedStatus(rated: string) {
-if (rated === 'False') {
-    return _('This tournament is *not* rated and will *not* affect your rating.');
-}
-return _('This tournament is rated and will affect your rating.');
+    if (rated === 'False') {
+        return _('This tournament is *not* rated and will *not* affect your rating.');
+    }
+    return _('This tournament is rated and will affect your rating.');
 }
 
 export function faq(rated: string) {
-return h('div.tour-faq', [
-h('p', _('You will be notified when the tournament starts, so it is safe to play in another tab while waiting.')),
-h('h2', _('Is it rated?')),
-h('p', ratedStatus(rated)),
-h('h2', _('How are scores calculated?')),
-h('p', [
-_('A win has a base score of 2 points, a draw 1 point, and a loss is worth no points.'),
-h('br'),
-_('If you win two games consecutively you will start a double point streak, represented by a flame icon.'),
-h('br'),
-_('The following games will continue to be worth double points until you fail to win a game.'),
-h('br'),
-_('That is, a win will be worth 4 points, a draw 2 points, and a loss will still not award any points.'),
-h('br'),
-_('For example, two wins followed by a draw will be worth 6 points: 2 + 2 + (2 × 1)'),
-h('br'),
-h('br'),
-_('(Janggi scores are different. A win has a base score of 7 points, and a loss is worth no points. Point counting win and loss worth 4 and 2 points respectively.)'),
-]),
-h('h2', _('Arena Berserk')),
-h('p', _('When a player clicks the Berserk button at the beginning of the game, they lose half of their clock time, but the win is worth one extra tournament point.')),
-h('br'),
-h('p', _('Going Berserk in time controls with an increment also cancels the increment. (1+2 is an exception, it gives 1+0)')),
-h('br'),
-h('p', _('Berserk is not available for games with zero initial time (0+1, 0+2).')),
-h('br'),
-h('p', _('Berserk only grants an extra point if you play at least 7 moves in the game.')),
-h('h2', _('How is the winner decided?')),
-h('p', _("The player(s) with the most points after the tournament's set time limit will be announced the winner(s).")),
-h('br'),
-h('p', _('When two or more players have the same number of points, the tournament performance is the tie break.')),
-h('h2', _('How does the pairing work?')),
-h('p', _('At the beginning of the tournament, players are paired based on their rating.')),
-h('br'),
-h('p', _('As soon as you finish a game, return to the tournament lobby: you will then be paired with a player close to your ranking. This ensures minimum wait time, however you may not face all other players in the tournament.')),
-h('br'),
-h('p', _('Play fast and return to the lobby to play more games and win more points.')),
-h('h2', _('How does it end?')),
-h('p', _("The tournament has a countdown clock. When it reaches zero, the tournament rankings are frozen, and the winner is announced. Games in progress must be finished, however they don't count for the tournament.")),
-h('h2', _('Other important rules')),
-h('p', _('There is a countdown for your first move. Failing to make a move within this time will forfeit the game to your opponent.')),
-h('br'),
-h('p', _('Drawing the game before each player has moved 5 times will earn neither player any points.')),
-]);
+    return h('div.tour-faq', [
+        h(
+            'p',
+            _('You will be notified when the tournament starts, so it is safe to play in another tab while waiting.'),
+        ),
+        h('h2', _('Is it rated?')),
+        h('p', ratedStatus(rated)),
+        h('h2', _('How are scores calculated?')),
+        h('p', [
+            _('A win has a base score of 2 points, a draw 1 point, and a loss is worth no points.'),
+            h('br'),
+            _('If you win two games consecutively you will start a double point streak, represented by a flame icon.'),
+            h('br'),
+            _('The following games will continue to be worth double points until you fail to win a game.'),
+            h('br'),
+            _('That is, a win will be worth 4 points, a draw 2 points, and a loss will still not award any points.'),
+            h('br'),
+            _('For example, two wins followed by a draw will be worth 6 points: 2 + 2 + (2 × 1)'),
+            h('br'),
+            h('br'),
+            _(
+                '(Janggi scores are different. A win has a base score of 7 points, and a loss is worth no points. Point counting win and loss worth 4 and 2 points respectively.)',
+            ),
+        ]),
+        h('h2', _('Arena Berserk')),
+        h(
+            'p',
+            _(
+                'When a player clicks the Berserk button at the beginning of the game, they lose half of their clock time, but the win is worth one extra tournament point.',
+            ),
+        ),
+        h('br'),
+        h(
+            'p',
+            _(
+                'Going Berserk in time controls with an increment also cancels the increment. (1+2 is an exception, it gives 1+0)',
+            ),
+        ),
+        h('br'),
+        h('p', _('Berserk is not available for games with zero initial time (0+1, 0+2).')),
+        h('br'),
+        h('p', _('Berserk only grants an extra point if you play at least 7 moves in the game.')),
+        h('h2', _('How is the winner decided?')),
+        h(
+            'p',
+            _(
+                "The player(s) with the most points after the tournament's set time limit will be announced the winner(s).",
+            ),
+        ),
+        h('br'),
+        h(
+            'p',
+            _('When two or more players have the same number of points, the tournament performance is the tie break.'),
+        ),
+        h('h2', _('How does the pairing work?')),
+        h('p', _('At the beginning of the tournament, players are paired based on their rating.')),
+        h('br'),
+        h(
+            'p',
+            _(
+                'As soon as you finish a game, return to the tournament lobby: you will then be paired with a player close to your ranking. This ensures minimum wait time, however you may not face all other players in the tournament.',
+            ),
+        ),
+        h('br'),
+        h('p', _('Play fast and return to the lobby to play more games and win more points.')),
+        h('h2', _('How does it end?')),
+        h(
+            'p',
+            _(
+                "The tournament has a countdown clock. When it reaches zero, the tournament rankings are frozen, and the winner is announced. Games in progress must be finished, however they don't count for the tournament.",
+            ),
+        ),
+        h('h2', _('Other important rules')),
+        h(
+            'p',
+            _(
+                'There is a countdown for your first move. Failing to make a move within this time will forfeit the game to your opponent.',
+            ),
+        ),
+        h('br'),
+        h('p', _('Drawing the game before each player has moved 5 times will earn neither player any points.')),
+    ]);
 }
 
 export function roundRobinFaq(rated: string) {
-return h('div.tour-faq', [
-h('h2', _('Is it rated?')),
-h('p', ratedStatus(rated)),
-h('h2', _('How does round-robin work?')),
-h('p', _('In a round-robin tournament, each player can play one game against every other player.')),
-h('h2', _('How do I play a game?')),
-h('p', _('To play, click the cell in the table where you and the opponent you want to play against meet. You can schedule a date and time of the game or start the game right away by sending a challenge to your opponent.')),
-h('h2', _('How are points given?')),
-h('p', _('You get 2 points for a win, 1 for a draw, and 0 for a loss. Every match counts toward your total score.')),
-h('h2', _('How is the winner decided?')),
-h('p', _('The player with the most points at the end wins. If players have the same number of points, the one with the higher tournament performance is ranked higher.')),
-h('h2', _('How does it end?')),
-h('p', _('The tournament ends when all scheduled games are completed, or when the configured end time is reached. Aborted games do not count and can be scheduled and played again later.')),
-]);
+    return h('div.tour-faq', [
+        h('h2', _('Is it rated?')),
+        h('p', ratedStatus(rated)),
+        h('h2', _('How does round-robin work?')),
+        h('p', _('In a round-robin tournament, each player can play one game against every other player.')),
+        h('h2', _('How do I play a game?')),
+        h(
+            'p',
+            _(
+                'To play, click the cell in the table where you and the opponent you want to play against meet. You can schedule a date and time of the game or start the game right away by sending a challenge to your opponent.',
+            ),
+        ),
+        h('h2', _('How are points given?')),
+        h(
+            'p',
+            _(
+                'You get 2 points for a win, 1 for a draw, and 0 for a loss. Every match counts toward your total score.',
+            ),
+        ),
+        h('h2', _('How is the winner decided?')),
+        h(
+            'p',
+            _(
+                'The player with the most points at the end wins. If players have the same number of points, the one with the higher tournament performance is ranked higher.',
+            ),
+        ),
+        h('h2', _('How does it end?')),
+        h(
+            'p',
+            _(
+                'The tournament ends when all scheduled games are completed, or when the configured end time is reached. Aborted games do not count and can be scheduled and played again later.',
+            ),
+        ),
+    ]);
 }
 
 export function swissFaq(rated: string) {
-return h('div.tour-faq', [
-h('h2', _('Swiss Rules')),
-h('p', _('Swiss tournaments are played in fixed rounds. After each round finishes, the next round starts and players are paired with others on similar score.')),
-h('h2', _('Is it rated?')),
-h('p', ratedStatus(rated)),
-h('h2', _('How does pairing work?')),
-h('p', _('Players are paired by Swiss rules with score-group logic and color constraints.')),
-h('br'),
-h('p', _('You cannot play the same opponent twice, and the system may assign a bye if no legal opponent exists in a round.')),
-h('h2', _('How are scores calculated?')),
-h('p', _('Most variants use 2/1/0 scoring for win/draw/loss.')),
-h('br'),
-h('p', _('Janggi uses 7/0 for full win/loss, and 4/2 for point-counting win/loss.')),
-h('br'),
-h('p', _('A pairing-allocated bye gives full win points. A late join gives a single half-bye compensation even if several rounds were missed.')),
-h('br'),
-h('p', _('Janggi exception: the late-join half-bye is worth 2 points, pairing-allocated byes give 7 points, and absent rounds give 0 points.')),
-h('h2', _('Late join and absences')),
-h('p', _('You can join a Swiss after it starts, but only until half of the rounds have been played.')),
-h('br'),
-h('p', _('Most variants: late joiners get one half-point compensation, and no points for other missed rounds.')),
-h('br'),
-h('p', _('If you miss a round, you are not paired for that round and score 0 points for it.')),
-h('br'),
-h('p', _('If you miss an actual Swiss game without moving, you are temporarily blocked from entering a new Swiss until the no-show timeout expires.')),
-h('br'),
-h('p', _('Absent and late-join placeholder rounds are shown in the standings, and you can still return for later rounds.')),
-h('h2', _('Tie-break')),
-h('p', _('If players have the same score, Sonneborn-Berger values decide final ranking.')),
-h('br'),
-h('p', _('Wins count the full score of the opponent, draws count half, and pairing-allocated byes use a virtual-opponent style value. Late-join and absent placeholder rounds do not add tie-break credit.')),
-h('h2', _('What if the event has too many rounds?')),
-h('p', _('If no legal new pairing can be produced, the Swiss finishes early and the current standings become final.')),
-h('h2', _('How does it end?')),
-h('p', _('The tournament ends after all scheduled rounds are completed, or earlier if no further legal pairings exist.')),
-]);
+    return h('div.tour-faq', [
+        h('h2', _('Swiss Rules')),
+        h(
+            'p',
+            _(
+                'Swiss tournaments are played in fixed rounds. After each round finishes, the next round starts and players are paired with others on similar score.',
+            ),
+        ),
+        h('h2', _('Is it rated?')),
+        h('p', ratedStatus(rated)),
+        h('h2', _('How does pairing work?')),
+        h('p', _('Players are paired by Swiss rules with score-group logic and color constraints.')),
+        h('br'),
+        h(
+            'p',
+            _(
+                'You cannot play the same opponent twice, and the system may assign a bye if no legal opponent exists in a round.',
+            ),
+        ),
+        h('h2', _('How are scores calculated?')),
+        h('p', _('Most variants use 2/1/0 scoring for win/draw/loss.')),
+        h('br'),
+        h('p', _('Janggi uses 7/0 for full win/loss, and 4/2 for point-counting win/loss.')),
+        h('br'),
+        h(
+            'p',
+            _(
+                'A pairing-allocated bye gives full win points. A late join gives a single half-bye compensation even if several rounds were missed.',
+            ),
+        ),
+        h('br'),
+        h(
+            'p',
+            _(
+                'Janggi exception: the late-join half-bye is worth 2 points, pairing-allocated byes give 7 points, and absent rounds give 0 points.',
+            ),
+        ),
+        h('h2', _('Late join and absences')),
+        h('p', _('You can join a Swiss after it starts, but only until half of the rounds have been played.')),
+        h('br'),
+        h(
+            'p',
+            _('Most variants: late joiners get one half-point compensation, and no points for other missed rounds.'),
+        ),
+        h('br'),
+        h('p', _('If you miss a round, you are not paired for that round and score 0 points for it.')),
+        h('br'),
+        h(
+            'p',
+            _(
+                'If you miss an actual Swiss game without moving, you are temporarily blocked from entering a new Swiss until the no-show timeout expires.',
+            ),
+        ),
+        h('br'),
+        h(
+            'p',
+            _(
+                'Absent and late-join placeholder rounds are shown in the standings, and you can still return for later rounds.',
+            ),
+        ),
+        h('h2', _('Tie-break')),
+        h('p', _('If players have the same score, Sonneborn-Berger values decide final ranking.')),
+        h('br'),
+        h(
+            'p',
+            _(
+                'Wins count the full score of the opponent, draws count half, and pairing-allocated byes use a virtual-opponent style value. Late-join and absent placeholder rounds do not add tie-break credit.',
+            ),
+        ),
+        h('h2', _('What if the event has too many rounds?')),
+        h(
+            'p',
+            _(
+                'If no legal new pairing can be produced, the Swiss finishes early and the current standings become final.',
+            ),
+        ),
+        h('h2', _('How does it end?')),
+        h(
+            'p',
+            _(
+                'The tournament ends after all scheduled rounds are completed, or earlier if no further legal pairings exist.',
+            ),
+        ),
+    ]);
 }

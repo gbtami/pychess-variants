@@ -4,12 +4,12 @@ import { variants, VARIANTS } from '../client/variants';
 
 test('getPockets test', () => {
     const result = getPockets(VARIANTS['chess'].startFen);
-    expect(result).toBe("");
+    expect(result).toBe('');
 });
 
 test('getPockets test', () => {
     const result = getPockets(VARIANTS['seirawan'].startFen);
-    expect(result).toBe("[HEhe]");
+    expect(result).toBe('[HEhe]');
 });
 
 test('isHandicap test', () => {
@@ -18,7 +18,7 @@ test('isHandicap test', () => {
 });
 
 test('validFen test', () => {
-    variants.forEach( (variant) => {
+    variants.forEach(variant => {
         const result = validFen(VARIANTS[variant], VARIANTS[variant].startFen);
         expect(result).toBeTruthy();
     });

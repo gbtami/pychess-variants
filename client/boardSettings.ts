@@ -1,6 +1,5 @@
 import { h, VNode } from 'snabbdom';
 
-
 import * as cg from 'chessgroundx/types';
 import { Api } from 'chessgroundx/api';
 
@@ -15,9 +14,9 @@ import {
 } from './document';
 import { Settings, NumberSettings, BooleanSettings } from './settings';
 import { slider, checkbox } from './view';
-import { BoardName, PyChessModel } from "./types";
+import { BoardName, PyChessModel } from './types';
 import { BOARD_FAMILIES, isCataloguedVariant, PIECE_FAMILIES, Variant, VARIANTS } from './variants';
-import { renderResized, updateBounds } from "chessgroundx/render";
+import { renderResized, updateBounds } from 'chessgroundx/render';
 
 export interface BoardController {
     readonly chessground: Api;
@@ -65,27 +64,22 @@ function isCataloguedPreviewStyle(pieceFamily: string, css: string): boolean {
 
 function selectedPieceCSS(pieceFamily: keyof typeof PIECE_FAMILIES | string, idx: number, variant?: Variant): string {
     switch (idx) {
-    case 98:
-        return 'invisible';
-    case 99:
-        return 'letters';
-    default: {
-        const css = PIECE_FAMILIES[pieceFamily].pieceCSS[idx];
-        const excluded = variant?.pieceCSSExclude ?? [];
-        if (css && !excluded.includes(css)) return css;
-        return pieceCSSOptions(pieceFamily, variant)[0]?.css ?? PIECE_FAMILIES[pieceFamily].pieceCSS[0];
-    }
+        case 98:
+            return 'invisible';
+        case 99:
+            return 'letters';
+        default: {
+            const css = PIECE_FAMILIES[pieceFamily].pieceCSS[idx];
+            const excluded = variant?.pieceCSSExclude ?? [];
+            if (css && !excluded.includes(css)) return css;
+            return pieceCSSOptions(pieceFamily, variant)[0]?.css ?? PIECE_FAMILIES[pieceFamily].pieceCSS[0];
+        }
     }
 }
 
 function defaultPieceStyleIndex(pieceFamily: keyof typeof PIECE_FAMILIES | string, variant?: Variant): number {
     const styles = PIECE_FAMILIES[pieceFamily]?.pieceCSS ?? [];
-    if (
-        variant
-        && isCataloguedVariant(variant.name)
-        && styles.length === 1
-        && styles[0] === 'disguised'
-    ) {
+    if (variant && isCataloguedVariant(variant.name) && styles.length === 1 && styles[0] === 'disguised') {
         return 99;
     }
     return 0;
@@ -145,63 +139,60 @@ function boardStyleTargets(variant: Variant, root: ParentNode = document): Set<H
 class BoardSettings {
     ctrl: BoardController;
     ctrl2: BoardController;
-    settings: { [ key: string]: Settings<number | boolean | string> };
+    settings: { [key: string]: Settings<number | boolean | string> };
     assetURL: string;
 
     constructor() {
         this.settings = {};
-        this.settings["animation"] = new AnimationSettings(this);
-        this.settings["confirmresign"] = new ConfirmResignSettings(this);        
-        this.settings["showDests"] = new ShowDestsSettings(this);
-        this.settings["autoPromote"] = new AutoPromoteSettings(this);
-        this.settings["confirmCorrMove"] = new ConfirmCorrMoveSettings(this);        
-        this.settings["materialDifference"] = new MaterialDifferenceSettings(this);
+        this.settings['animation'] = new AnimationSettings(this);
+        this.settings['confirmresign'] = new ConfirmResignSettings(this);
+        this.settings['showDests'] = new ShowDestsSettings(this);
+        this.settings['autoPromote'] = new AutoPromoteSettings(this);
+        this.settings['confirmCorrMove'] = new ConfirmCorrMoveSettings(this);
+        this.settings['materialDifference'] = new MaterialDifferenceSettings(this);
     }
 
     getSettings(settingsType: string, family: string, boardName: BoardName = '', variant?: Variant) {
-        const fullName = settingsType === "BoardStyle" && variant
-            ? boardStyleSettingsName(variant)
-            : settingsType === "PieceStyle"
-                ? pieceStyleSettingsName(family, variant)
-                : family + settingsType + boardName;
+        const fullName =
+            settingsType === 'BoardStyle' && variant
+                ? boardStyleSettingsName(variant)
+                : settingsType === 'PieceStyle'
+                  ? pieceStyleSettingsName(family, variant)
+                  : family + settingsType + boardName;
         const existing = this.settings[fullName];
         if (
-            existing
-            && settingsType === "BoardStyle"
-            && variant
-            && (
-                !(existing instanceof BoardStyleSettings)
-                || existing.boardFamily !== family
-                || existing.variant !== variant
-            )
+            existing &&
+            settingsType === 'BoardStyle' &&
+            variant &&
+            (!(existing instanceof BoardStyleSettings) ||
+                existing.boardFamily !== family ||
+                existing.variant !== variant)
         ) {
             delete this.settings[fullName];
         }
         if (
-            existing
-            && settingsType === "PieceStyle"
-            && (
-                !(existing instanceof PieceStyleSettings)
-                || existing.pieceFamily !== family
-                || existing.variant !== variant
-            )
+            existing &&
+            settingsType === 'PieceStyle' &&
+            (!(existing instanceof PieceStyleSettings) ||
+                existing.pieceFamily !== family ||
+                existing.variant !== variant)
         ) {
             delete this.settings[fullName];
         }
         if (!this.settings[fullName]) {
             switch (settingsType) {
-                case "BoardStyle":
-                    if (!variant) throw "BoardStyle settings require a variant";
+                case 'BoardStyle':
+                    if (!variant) throw 'BoardStyle settings require a variant';
                     this.settings[fullName] = new BoardStyleSettings(this, family, variant);
                     break;
-                case "PieceStyle":
+                case 'PieceStyle':
                     this.settings[fullName] = new PieceStyleSettings(this, family, variant);
                     break;
-                case "Zoom":
+                case 'Zoom':
                     this.settings[fullName] = new ZoomSettings(this, family, boardName);
                     break;
                 default:
-                    throw "Unknown settings type " + settingsType;
+                    throw 'Unknown settings type ' + settingsType;
             }
         }
         return this.settings[fullName];
@@ -215,7 +206,7 @@ class BoardSettings {
     }
 
     boardCSS(family: keyof typeof BOARD_FAMILIES, variant: Variant) {
-        const idx = this.getSettings("BoardStyle", family as string, '', variant).value as number;
+        const idx = this.getSettings('BoardStyle', family as string, '', variant).value as number;
         return selectedBoardCSS(family, idx);
     }
 
@@ -252,7 +243,9 @@ class BoardSettings {
 
         const targets = pieceStyleTargets(variant);
         if (this.ctrl?.variant.name === variant.name || this.ctrl2?.variant.name === variant.name) {
-            const root = document.getElementById('mainboard')?.closest('.round-app, .analysis-app, .embed-app, .editor-app') ?? document;
+            const root =
+                document.getElementById('mainboard')?.closest('.round-app, .analysis-app, .embed-app, .editor-app') ??
+                document;
             if (root instanceof HTMLElement && root.classList.contains(family)) targets.add(root);
             root.querySelectorAll('.' + family).forEach(el => {
                 if (el instanceof HTMLElement) targets.add(el);
@@ -264,7 +257,7 @@ class BoardSettings {
     }
 
     pieceCSS(family: keyof typeof PIECE_FAMILIES, variant?: Variant) {
-        const idx = this.getSettings("PieceStyle", family as string, '', variant).value as number;
+        const idx = this.getSettings('PieceStyle', family as string, '', variant).value as number;
         return selectedPieceCSS(family, idx, variant);
     }
 
@@ -300,7 +293,7 @@ class BoardSettings {
     updateZoom(family: keyof typeof BOARD_FAMILIES, boardName: BoardName = '') {
         const variant = this.ctrl?.variant;
         if (variant && variant.boardFamily === family) {
-            const suffix = (boardName) ? '-' + boardName : '';
+            const suffix = boardName ? '-' + boardName : '';
             const zoomSettings = this.getSettings('Zoom', family as string, boardName) as ZoomSettings;
             const zoom = zoomSettings.value;
             const el = document.querySelector('.cg-wrap') as HTMLElement;
@@ -318,41 +311,41 @@ class BoardSettings {
     }
 
     view(variantName: string, modelVariant: string) {
-        if (!variantName) return h("div#board-settings");
+        if (!variantName) return h('div#board-settings');
         const variant = VARIANTS[variantName];
 
-        const settingsList : VNode[] = [];
+        const settingsList: VNode[] = [];
 
         const boardFamily = VARIANTS[variantName].boardFamily;
         const pieceFamily = VARIANTS[variantName].pieceFamily;
 
-        settingsList.push(this.settings["animation"].view());
+        settingsList.push(this.settings['animation'].view());
 
-        settingsList.push(this.settings["confirmresign"].view());        
+        settingsList.push(this.settings['confirmresign'].view());
 
-        settingsList.push(this.settings["showDests"].view());
+        settingsList.push(this.settings['showDests'].view());
 
-        if (variant.promotion.autoPromoteable)
-            settingsList.push(this.settings["autoPromote"].view());
+        if (variant.promotion.autoPromoteable) settingsList.push(this.settings['autoPromote'].view());
 
-        settingsList.push(this.settings["confirmCorrMove"].view());        
+        settingsList.push(this.settings['confirmCorrMove'].view());
 
-        settingsList.push(this.settings["materialDifference"].view());
+        settingsList.push(this.settings['materialDifference'].view());
 
         if (variantName === modelVariant)
             if (variant.twoBoards) {
-                settingsList.push(this.getSettings("Zoom", boardFamily as string, 'a').view());
-                settingsList.push(this.getSettings("Zoom", boardFamily as string, 'b').view());
+                settingsList.push(this.getSettings('Zoom', boardFamily as string, 'a').view());
+                settingsList.push(this.getSettings('Zoom', boardFamily as string, 'b').view());
             } else {
-                settingsList.push(this.getSettings("Zoom", boardFamily as string, '').view());
+                settingsList.push(this.getSettings('Zoom', boardFamily as string, '').view());
             }
 
-        settingsList.push(h('div#style-settings', [
-            this.getSettings("BoardStyle", boardFamily as string, '', variant).view(),
-            (this.getSettings("PieceStyle", pieceFamily as string, '', variant) as PieceStyleSettings).view(),
-            ])
+        settingsList.push(
+            h('div#style-settings', [
+                this.getSettings('BoardStyle', boardFamily as string, '', variant).view(),
+                (this.getSettings('PieceStyle', pieceFamily as string, '', variant) as PieceStyleSettings).view(),
+            ]),
         );
-        
+
         settingsList.push();
 
         return h('div#board-settings', settingsList);
@@ -373,7 +366,7 @@ class AnimationSettings extends BooleanSettings {
     }
 
     view(): VNode {
-        return h('div', checkbox(this, 'animation', _("Piece animation")));
+        return h('div', checkbox(this, 'animation', _('Piece animation')));
     }
 }
 
@@ -385,12 +378,10 @@ class ConfirmResignSettings extends BooleanSettings {
         this.boardSettings = boardSettings;
     }
 
-    update(): void {
-
-    }
+    update(): void {}
 
     view(): VNode {
-        return h('div', checkbox(this, 'confirmresign', _("Confirm resigning")));
+        return h('div', checkbox(this, 'confirmresign', _('Confirm resigning')));
     }
 }
 
@@ -402,12 +393,10 @@ class ConfirmCorrMoveSettings extends BooleanSettings {
         this.boardSettings = boardSettings;
     }
 
-    update(): void {
-
-    }
+    update(): void {}
 
     view(): VNode {
-        return h('div', checkbox(this, 'confirmCorrMove', _("Confirm correspondence move")));
+        return h('div', checkbox(this, 'confirmCorrMove', _('Confirm correspondence move')));
     }
 }
 
@@ -432,29 +421,43 @@ class BoardStyleSettings extends NumberSettings {
             ensureCataloguedBoardCSS(this.variant.name, this.variant.boardRevision);
             return h('settings-board', [
                 h('input#board0', {
-                    props: { type: "radio", name: "board", value: 0, checked: true, disabled: true },
+                    props: { type: 'radio', name: 'board', value: 0, checked: true, disabled: true },
                 }),
-                h('label.board.catalogued-custom-board-preview', {
-                    attrs: { for: "board0", 'data-board-variant': this.variant.name },
-                    style: { aspectRatio: `${this.variant.board.dimensions.width} / ${this.variant.board.dimensions.height}` },
-                }, ""),
+                h(
+                    'label.board.catalogued-custom-board-preview',
+                    {
+                        attrs: { for: 'board0', 'data-board-variant': this.variant.name },
+                        style: {
+                            aspectRatio: `${this.variant.board.dimensions.width} / ${this.variant.board.dimensions.height}`,
+                        },
+                    },
+                    '',
+                ),
             ]);
         }
 
         const vboard = this.value;
-        const boards : VNode[] = [];
+        const boards: VNode[] = [];
 
         const boardCSS = BOARD_FAMILIES[this.boardFamily].boardCSS;
         for (let i = 0; i < boardCSS.length; i++) {
-            boards.push(h('input#board' + i, {
-                on: { change: evt => this.value = Number((evt.target as HTMLInputElement).value) },
-                props: { type: "radio", name: "board", value: i },
-                attrs: { checked: vboard === i },
-            }));
-            boards.push(h('label.board.board' + i + '.' + this.boardFamily, {
-                attrs: { for: "board" + i },
-                style: { backgroundImage: `url('/static/images/board/${boardCSS[i]}')` },
-            }, ""));
+            boards.push(
+                h('input#board' + i, {
+                    on: { change: evt => (this.value = Number((evt.target as HTMLInputElement).value)) },
+                    props: { type: 'radio', name: 'board', value: i },
+                    attrs: { checked: vboard === i },
+                }),
+            );
+            boards.push(
+                h(
+                    'label.board.board' + i + '.' + this.boardFamily,
+                    {
+                        attrs: { for: 'board' + i },
+                        style: { backgroundImage: `url('/static/images/board/${boardCSS[i]}')` },
+                    },
+                    '',
+                ),
+            );
         }
         return h('settings-board', boards);
     }
@@ -484,54 +487,67 @@ class PieceStyleSettings extends NumberSettings {
 
     view(): VNode {
         const vpiece = this.value;
-        const pieces : VNode[] = [];
+        const pieces: VNode[] = [];
 
         const pieceCSS = pieceCSSOptions(this.pieceFamily, this.variant);
-        const checkedPiece = (vpiece === 98 || vpiece === 99 || pieceCSS.some(({ idx }) => idx === vpiece))
-            ? vpiece
-            : pieceCSS[0]?.idx ?? 99;
+        const checkedPiece =
+            vpiece === 98 || vpiece === 99 || pieceCSS.some(({ idx }) => idx === vpiece)
+                ? vpiece
+                : (pieceCSS[0]?.idx ?? 99);
         const previewRole = this.variant?.pieceRow.white[0] ?? this.variant?.kingRoles[0] ?? 'k-piece';
         for (const { idx } of pieceCSS) {
             const css = selectedPieceCSS(this.pieceFamily, idx, this.variant);
             const previewClass = css === 'letters' ? 'piece99' : css === 'invisible' ? 'piece98' : 'piece' + idx;
             const isCataloguedPreview = !!this.variant && isCataloguedPreviewStyle(this.pieceFamily, css);
             if (isCataloguedPreview) ensurePieceCSS(this.boardSettings.assetURL, this.pieceFamily, css);
-            pieces.push(h('input#piece' + idx, {
-                on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
-                props: { type: "radio", name: "piece", value: idx },
-                attrs: { checked: checkedPiece === idx },
-            }));
-            pieces.push(h('label.piece.' + previewClass + '.' + this.pieceFamily, {
-                attrs: { for: "piece" + idx },
-                class: isCataloguedPreview
-                    ? {
-                        'catalogued-custom-preview': css.startsWith('custom'),
-                        'catalogued-disguised-preview': css === 'disguised',
-                        [pieceStyleClass(this.pieceFamily, css)]: true,
-                        [previewRole]: true,
-                        white: true,
-                    }
-                    : undefined,
-            }, ""));
+            pieces.push(
+                h('input#piece' + idx, {
+                    on: { change: e => (this.value = Number((e.target as HTMLInputElement).value)) },
+                    props: { type: 'radio', name: 'piece', value: idx },
+                    attrs: { checked: checkedPiece === idx },
+                }),
+            );
+            pieces.push(
+                h(
+                    'label.piece.' + previewClass + '.' + this.pieceFamily,
+                    {
+                        attrs: { for: 'piece' + idx },
+                        class: isCataloguedPreview
+                            ? {
+                                  'catalogued-custom-preview': css.startsWith('custom'),
+                                  'catalogued-disguised-preview': css === 'disguised',
+                                  [pieceStyleClass(this.pieceFamily, css)]: true,
+                                  [previewRole]: true,
+                                  white: true,
+                              }
+                            : undefined,
+                    },
+                    '',
+                ),
+            );
         }
 
         // Add invisible piece
-        const i=98;
-        pieces.push(h('input#piece' + i, {
-            on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
-            props: { type: "radio", name: "piece", value: i },
-            attrs: { checked: vpiece === i },
-        }));
-        pieces.push(h('label.piece.piece98', { attrs: { for: "piece" + i } }, ""));
+        const i = 98;
+        pieces.push(
+            h('input#piece' + i, {
+                on: { change: e => (this.value = Number((e.target as HTMLInputElement).value)) },
+                props: { type: 'radio', name: 'piece', value: i },
+                attrs: { checked: vpiece === i },
+            }),
+        );
+        pieces.push(h('label.piece.piece98', { attrs: { for: 'piece' + i } }, ''));
 
         // Finally add letter piece
-        const l=99;
-        pieces.push(h('input#piece' + l, {
-            on: { change: e => this.value = Number((e.target as HTMLInputElement).value) },
-            props: { type: "radio", name: "piece", value: l },
-            attrs: { checked: vpiece === l },
-        }));
-        pieces.push(h('label.piece.piece99', { attrs: { for: "piece" + l } }, ""));
+        const l = 99;
+        pieces.push(
+            h('input#piece' + l, {
+                on: { change: e => (this.value = Number((e.target as HTMLInputElement).value)) },
+                props: { type: 'radio', name: 'piece', value: l },
+                attrs: { checked: vpiece === l },
+            }),
+        );
+        pieces.push(h('label.piece.piece99', { attrs: { for: 'piece' + l } }, ''));
         return h('settings-pieces', pieces);
     }
 }
@@ -542,7 +558,7 @@ class ZoomSettings extends NumberSettings {
     readonly boardName: BoardName;
 
     constructor(boardSettings: BoardSettings, boardFamily: string, boardName: BoardName = '') {
-        const suffix = (boardName) ? '-' + boardName : '';
+        const suffix = boardName ? '-' + boardName : '';
         super(boardFamily + '-zoom' + suffix, 80);
         this.boardSettings = boardSettings;
         this.boardFamily = boardFamily;
@@ -555,9 +571,10 @@ class ZoomSettings extends NumberSettings {
             // In case of bughouse updateZoom() doesn't trigger chessgroundx onResize() via ResizeObserver
             // to prevent recursive call, so we have to force manual onResize() here
             setTimeout(() => {
-                const state = (this.boardName === this.boardSettings.ctrl2.boardName) ?
-                    this.boardSettings.ctrl2.chessground.state:
-                    this.boardSettings.ctrl.chessground.state;
+                const state =
+                    this.boardName === this.boardSettings.ctrl2.boardName
+                        ? this.boardSettings.ctrl2.chessground.state
+                        : this.boardSettings.ctrl.chessground.state;
                 updateBounds(state);
                 renderResized(state);
             }, 100);
@@ -565,7 +582,10 @@ class ZoomSettings extends NumberSettings {
     }
 
     view(): VNode {
-        return h('div.labelled', slider(this, 'zoom' + this.boardName, 0, 100, this.boardFamily.includes("shogi") ? 1 : 1.15625, _('Zoom')));
+        return h(
+            'div.labelled',
+            slider(this, 'zoom' + this.boardName, 0, 100, this.boardFamily.includes('shogi') ? 1 : 1.15625, _('Zoom')),
+        );
     }
 }
 
@@ -591,7 +611,7 @@ class ShowDestsSettings extends BooleanSettings {
     }
 
     view(): VNode {
-        return h('div', checkbox(this, 'showDests', _("Show piece destinations")));
+        return h('div', checkbox(this, 'showDests', _('Show piece destinations')));
     }
 }
 
@@ -609,12 +629,11 @@ class AutoPromoteSettings extends BooleanSettings {
     }
 
     updateCtrl(ctrl: BoardController): void {
-        if ('autoPromote' in ctrl)
-            ctrl.autoPromote = this.value;
+        if ('autoPromote' in ctrl) ctrl.autoPromote = this.value;
     }
 
     view(): VNode {
-        return h('div', checkbox(this, 'autoPromote', _("Promote to the top choice automatically")));
+        return h('div', checkbox(this, 'autoPromote', _('Promote to the top choice automatically')));
     }
 }
 
@@ -641,7 +660,7 @@ class MaterialDifferenceSettings extends BooleanSettings {
     }
 
     view(): VNode {
-        return h('div', checkbox(this, 'captured', _("Show material difference")));
+        return h('div', checkbox(this, 'captured', _('Show material difference')));
     }
 }
 export const boardSettings = new BoardSettings();

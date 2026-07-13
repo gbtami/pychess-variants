@@ -1,11 +1,11 @@
-import { h } from "snabbdom";
+import { h } from 'snabbdom';
 
 import { _ } from './i18n';
 import { patch } from './document';
-import { RoundControllerBughouse } from "./bug/roundCtrl.bug";
-import { onchatclick, renderBugChatPresets} from "@/bug/chat.bug";
+import { RoundControllerBughouse } from './bug/roundCtrl.bug';
+import { onchatclick, renderBugChatPresets } from '@/bug/chat.bug';
 import { selfReport, shouldSkipMessage } from './chatSpam';
-import { displayUsername, isAnonUsername } from "./user";
+import { displayUsername, isAnonUsername } from './user';
 import { linkifyNodes } from './linkify';
 
 export interface ChatController {
@@ -40,7 +40,7 @@ function assignUsernameColors(usernames: string[]): Record<string, string> {
         const name = sorted[i];
         if (!userColorMap[name]) {
             const lightness = lBase + (name.length % lMod);
-            const hue = Math.round((i + 1) * 360 / (total + 1));
+            const hue = Math.round(((i + 1) * 360) / (total + 1));
             colors[name] = `hsl(${hue} ${s} ${lightness})`;
             userColorMap[name] = colors[name];
         } else {
@@ -55,9 +55,9 @@ const activeUsernames = new Set<string>();
 const userColorMap: { [username: string]: string } = {};
 
 export function chatView(ctrl: ChatController, chatType: string) {
-    const spectator = ("spectator" in ctrl && ctrl.spectator);
+    const spectator = 'spectator' in ctrl && ctrl.spectator;
     const bughouse = ctrl instanceof RoundControllerBughouse;
-    function blur (e: Event) {
+    function blur(e: Event) {
         if (bughouse) {
             console.log(e);
             // always keep focus on chat text input for faster chatting when in bughouse round page
@@ -65,66 +65,70 @@ export function chatView(ctrl: ChatController, chatType: string) {
             //(e.target as HTMLInputElement).focus();
         }
     }
-    function onKeyPress (e: KeyboardEvent) {
-        const cb = (<HTMLInputElement>document.getElementById('checkbox'));
-        if (cb && !cb.checked)
-            return;
+    function onKeyPress(e: KeyboardEvent) {
+        const cb = <HTMLInputElement>document.getElementById('checkbox');
+        if (cb && !cb.checked) return;
         const message = (e.target as HTMLInputElement).value.trim();
         if ((e.keyCode === 13 || e.which === 13) && message.length > 0) {
             sendMessage(message);
-            (e.target as HTMLInputElement).value = "";
+            (e.target as HTMLInputElement).value = '';
         }
     }
     function sendMessage(message: string) {
         selfReport(message);
-        const m: any = {type: chatType, message: message, room: spectator ? "spectator" : "player"};
-        if ("gameId" in ctrl)
-            m["gameId"] = ctrl.gameId;
-        if ("tournamentId" in ctrl)
-            m["tournamentId"] = ctrl.tournamentId
+        const m: any = { type: chatType, message: message, room: spectator ? 'spectator' : 'player' };
+        if ('gameId' in ctrl) m['gameId'] = ctrl.gameId;
+        if ('tournamentId' in ctrl) m['tournamentId'] = ctrl.tournamentId;
         ctrl.doSend(m);
     }
-    function onClick () {
+    function onClick() {
         const activated = (<HTMLInputElement>document.getElementById('checkbox')).checked;
-        const chatEntry = (<HTMLInputElement>document.getElementById('chat-entry'));
-        (<HTMLElement>document.getElementById(chatType + "-messages")).style.display = activated ? "block" : "none";
+        const chatEntry = <HTMLInputElement>document.getElementById('chat-entry');
+        (<HTMLElement>document.getElementById(chatType + '-messages')).style.display = activated ? 'block' : 'none';
         chatEntry.disabled = !activated;
-        chatEntry.placeholder = activated ? (ctrl.anon ? _('Sign in to chat') : _('Please be nice in the chat!')) : _("Chat is disabled");
+        chatEntry.placeholder = activated
+            ? ctrl.anon
+                ? _('Sign in to chat')
+                : _('Please be nice in the chat!')
+            : _('Chat is disabled');
     }
     return h(`div#${chatType}.${chatType}.chat`, [
-        bughouse? h('div.chatroom'): h('div.chatroom', [
-            (spectator) ? _('Spectator room') : _('Chat room'),
-            h('input#checkbox', { props: { title: _("Toggle the chat"), name: "checkbox", type: "checkbox", checked: "true" }, on: { click: onClick } })
-        ]),
-        h(`ol#${chatType}-messages`, [ h('div#messages') ]),
-        bughouse && !ctrl.spectator? renderBugChatPresets(ctrl.variant, sendMessage): null,
+        bughouse
+            ? h('div.chatroom')
+            : h('div.chatroom', [
+                  spectator ? _('Spectator room') : _('Chat room'),
+                  h('input#checkbox', {
+                      props: { title: _('Toggle the chat'), name: 'checkbox', type: 'checkbox', checked: 'true' },
+                      on: { click: onClick },
+                  }),
+              ]),
+        h(`ol#${chatType}-messages`, [h('div#messages')]),
+        bughouse && !ctrl.spectator ? renderBugChatPresets(ctrl.variant, sendMessage) : null,
         h('input#chat-entry', {
             props: {
-                type: "text",
-                name: "entry",
-                autocomplete: "off",
-                placeholder: (ctrl.anon) ? _('Sign in to chat') : _('Please be nice in the chat!'),
+                type: 'text',
+                name: 'entry',
+                autocomplete: 'off',
+                placeholder: ctrl.anon ? _('Sign in to chat') : _('Please be nice in the chat!'),
                 disabled: ctrl.anon,
             },
             attrs: {
                 maxlength: 140,
                 // autofocus: "true",
-                'aria-label': "Chat input"
+                'aria-label': 'Chat input',
             },
             on: { keypress: onKeyPress, blur: blur },
-
-        })
+        }),
     ]);
 }
 
-
-export function chatMessage (
+export function chatMessage(
     user: string,
     message: string,
     chatType: string,
     time?: number,
     ply?: number,
-    ctrl?: RoundControllerBughouse
+    ctrl?: RoundControllerBughouse,
 ) {
     if (shouldSkipMessage(message)) return;
 
@@ -136,7 +140,9 @@ export function chatMessage (
     if (!chatDiv || !container) return;
 
     const isBottom = chatDiv.scrollHeight - (chatDiv.scrollTop + chatDiv.offsetHeight) < 80;
-    const localTime = time ? new Date(time * 1000).toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit", hour12: false }) : "";
+    const localTime = time
+        ? new Date(time * 1000).toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit', hour12: false })
+        : '';
     const isAnon = isAnonUsername(user);
     const displayUser = displayUsername(user);
     const messageNodes = linkifyNodes(message, 'chat-message-link');
@@ -146,7 +152,7 @@ export function chatMessage (
         activeUsernames.add(displayUser);
     }
     // Special handling for Discord-Relay messages
-    let discordUser = "";
+    let discordUser = '';
     if (user === 'Discord-Relay') {
         const colonIndex = message.indexOf(':');
         if (colonIndex > 0) {
@@ -158,51 +164,87 @@ export function chatMessage (
     const usernameColorMap = assignUsernameColors(Array.from(activeUsernames));
 
     if (user.length === 0) {
-        patch(container, h('div#messages', [ h("li.message.offer", [h("t", messageNodes)]) ]));
+        patch(container, h('div#messages', [h('li.message.offer', [h('t', messageNodes)])]));
     } else if (user === '_server') {
-        patch(container, h('div#messages', [ h("li.message.server", [h("div.time", localTime), h("user", _('Server')), h("t", messageNodes)]) ]));
+        patch(
+            container,
+            h('div#messages', [
+                h('li.message.server', [h('div.time', localTime), h('user', _('Server')), h('t', messageNodes)]),
+            ]),
+        );
     } else if (user === 'Discord-Relay') {
         const colonIndex = message.indexOf(':');
         if (colonIndex > 0) {
             discordUser = message.substring(0, colonIndex);
             const discordMessage = message.substring(colonIndex + 2);
             const discordMessageNodes = linkifyNodes(discordMessage, 'chat-message-link');
-            patch(container, h('div#messages', [
-                h("li.message", [
-                    h("div.time", localTime),
-                    h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })),
-                    h("user", { style: { color: usernameColorMap[discordUser] || "#aaa" } }, discordUser),
-                    h("t", discordMessageNodes)
-                ])
-            ]));
+            patch(
+                container,
+                h('div#messages', [
+                    h('li.message', [
+                        h('div.time', localTime),
+                        h(
+                            'div.discord-icon-container',
+                            h('img.icon-discord-icon', { attrs: { src: '/static/icons/discord.svg', alt: '' } }),
+                        ),
+                        h('user', { style: { color: usernameColorMap[discordUser] || '#aaa' } }, discordUser),
+                        h('t', discordMessageNodes),
+                    ]),
+                ]),
+            );
         } else {
-            patch(container, h('div#messages', [
-                h("li.message", [
-                    h("div.time", localTime),
-                    h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg', alt: "" } })),
-                    h("user", { style: { color: "#aaa" } }, user),
-                    h("t", messageNodes)
-                ])
-            ]));
+            patch(
+                container,
+                h('div#messages', [
+                    h('li.message', [
+                        h('div.time', localTime),
+                        h(
+                            'div.discord-icon-container',
+                            h('img.icon-discord-icon', { attrs: { src: '/static/icons/discord.svg', alt: '' } }),
+                        ),
+                        h('user', { style: { color: '#aaa' } }, user),
+                        h('t', messageNodes),
+                    ]),
+                ]),
+            );
         }
     } else {
         const userNode = isAnon
-            ? h("span", { style: { color: usernameColorMap[displayUser] || "#aaa" } }, displayUser)
-            : h("a", {
-                attrs: { href: "/@/" + user },
-                class: { "user-link": true },
-                style: { color: usernameColorMap[displayUser] || "#aaa" }
-            }, displayUser);
-        patch(container, h('div#messages', [
-            h("li.message", [
-                h("div.time", localTime),
-                h("user", [
-                    userNode
+            ? h('span', { style: { color: usernameColorMap[displayUser] || '#aaa' } }, displayUser)
+            : h(
+                  'a',
+                  {
+                      attrs: { href: '/@/' + user },
+                      class: { 'user-link': true },
+                      style: { color: usernameColorMap[displayUser] || '#aaa' },
+                  },
+                  displayUser,
+              );
+        patch(
+            container,
+            h('div#messages', [
+                h('li.message', [
+                    h('div.time', localTime),
+                    h('user', [userNode]),
+                    h(
+                        't',
+                        {
+                            attrs: { title: ctrl?.steps[ply!].san! },
+                            on: {
+                                click: () => {
+                                    onchatclick(ply, ctrl);
+                                },
+                            },
+                        },
+                        messageNodes,
+                    ),
                 ]),
-                h("t", { attrs: {"title": ctrl?.steps[ply!].san!}, on: { click: () => { onchatclick(ply, ctrl) }}}, messageNodes)
-            ])
-        ]));
+            ]),
+        );
     }
 
-    if (isBottom) setTimeout(() => {chatDiv.scrollTop = chatDiv.scrollHeight;}, 200);
+    if (isBottom)
+        setTimeout(() => {
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }, 200);
 }

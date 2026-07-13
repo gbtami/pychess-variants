@@ -1,20 +1,21 @@
-import Highcharts from "highcharts";
-import type { Options } from "highcharts";
+import Highcharts from 'highcharts';
+import type { Options } from 'highcharts';
 
 import { selectMainlineMove } from '../movelist';
 import { AnalysisController } from './analysisCtrl';
-import { Step } from "../messages";
+import { Step } from '../messages';
 import { WHITE, BLACK } from '../chess';
 
 export interface MovePoint {
-  y: number;
-  x?: number;
-  name?: any;
-  marker?: any;
+    y: number;
+    x?: number;
+    name?: any;
+    marker?: any;
 }
 
 export function movetimeChart(ctrl: AnalysisController) {
-    let maxMove = 0, maxTotal = 0;
+    let maxMove = 0,
+        maxTotal = 0;
 
     const highlightColor = '#3893E8';
     const xAxisColor = '#cccccc99';
@@ -39,7 +40,7 @@ export function movetimeChart(ctrl: AnalysisController) {
 
     ctrl.steps.forEach((step: Step, ply: number) => {
         const turn = (ply + 1) >> 1;
-        const color = ((ply & 1) === 1) ? 0 : 1;
+        const color = (ply & 1) === 1 ? 0 : 1;
         const colorName = color ? 'black' : 'white';
 
         if (ply === 0) {
@@ -49,11 +50,13 @@ export function movetimeChart(ctrl: AnalysisController) {
 
         // const hasClocks = (msg.steps[1].clocks?.white !== undefined);
 
-        if (ply <= 2) {step.movetime = 0;
+        if (ply <= 2) {
+            step.movetime = 0;
         } else {
-            step.movetime = (ply % 2 === 1) ?
-                (ctrl.steps[ply-2]?.clocks![WHITE] - (ctrl.steps[ply]?.clocks![WHITE] - ctrl.inc * 1000)) :
-                (ctrl.steps[ply-2]?.clocks![BLACK] - (ctrl.steps[ply]?.clocks![BLACK] - ctrl.inc * 1000));
+            step.movetime =
+                ply % 2 === 1
+                    ? ctrl.steps[ply - 2]?.clocks![WHITE] - (ctrl.steps[ply]?.clocks![WHITE] - ctrl.inc * 1000)
+                    : ctrl.steps[ply - 2]?.clocks![BLACK] - (ctrl.steps[ply]?.clocks![BLACK] - ctrl.inc * 1000);
         }
 
         const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
@@ -84,12 +87,12 @@ export function movetimeChart(ctrl: AnalysisController) {
     const clickableOptions = {
         cursor: 'pointer',
         events: {
-            click: function(event: any) {
+            click: function (event: any) {
                 if (event.point) {
                     event.point.select();
                     selectMainlineMove(ctrl, event.point.x);
                 }
-            }
+            },
         },
     };
     const foregrondLineOptions = {
@@ -97,29 +100,30 @@ export function movetimeChart(ctrl: AnalysisController) {
         color: highlightColor,
         lineWidth: 2,
         states: {
-          hover: {
-            lineWidth: 2,
-          },
+            hover: {
+                lineWidth: 2,
+            },
         },
         marker: {
-          radius: 1,
-          states: {
-            hover: {
-              radius: 3,
-              lineColor: highlightColor,
-              fillColor: 'white',
+            radius: 1,
+            states: {
+                hover: {
+                    radius: 3,
+                    lineColor: highlightColor,
+                    fillColor: 'white',
+                },
+                select: {
+                    radius: 4,
+                    lineColor: highlightColor,
+                    fillColor: 'white',
+                },
             },
-            select: {
-              radius: 4,
-              lineColor: highlightColor,
-              fillColor: 'white',
-            },
-          },
         },
     };
 
     ctrl.movetimeChart = Highcharts.chart('chart-movetime', {
-        chart: { type: 'column',
+        chart: {
+            type: 'column',
             alignTicks: false,
             spacing: [2, 0, 2, 0],
             animation: false,
@@ -141,12 +145,12 @@ export function movetimeChart(ctrl: AnalysisController) {
                 fillColor: whiteAreaFill,
                 negativeFillColor: blackAreaFill,
                 events: {
-                    click: function(event) {
+                    click: function (event) {
                         if (event.point) {
                             event.point.select();
                             selectMainlineMove(ctrl, event.point.x);
                         }
-                    }
+                    },
                 },
             },
             line: foregrondLineOptions,
@@ -163,46 +167,48 @@ export function movetimeChart(ctrl: AnalysisController) {
                         color: highlightColor,
                         borderColor: highlightColor,
                     },
-                }
-            }
+                },
+            },
         },
         tooltip: {
-            pointFormatter: function(this: Highcharts.Point) {
+            pointFormatter: function (this: Highcharts.Point) {
                 const step = ctrl.steps[this.x];
                 const movetime = step?.movetime;
                 if (movetime === undefined) return '';
                 return `<span style="color:${this.color}">●</span> <b>${(movetime / 1000).toFixed(1)}s</b><br/>`;
-            }
+            },
         },
         xAxis: {
             title: { text: undefined },
             labels: { enabled: false },
             gridLineWidth: 1,
             lineWidth: 0,
-            tickWidth: 0
+            tickWidth: 0,
         },
         yAxis: [
-        {
-            title: { text: null },
-            labels: { enabled: false },
-            alternateGridColor: undefined,
-            min: -maxMove,
-            max: maxMove,
-            gridLineWidth: 0,
-            plotLines: [{
-                color: xAxisColor,
-                width: 1,
-                value: 0,
-                zIndex: 10,
-            }]
-        },
-        {
-            title: { text: null },
-            min: -maxTotal,
-            max: maxTotal,
-            labels: { enabled: false },
-            gridLineWidth: 0,
-        },
+            {
+                title: { text: null },
+                labels: { enabled: false },
+                alternateGridColor: undefined,
+                min: -maxMove,
+                max: maxMove,
+                gridLineWidth: 0,
+                plotLines: [
+                    {
+                        color: xAxisColor,
+                        width: 1,
+                        value: 0,
+                        zIndex: 10,
+                    },
+                ],
+            },
+            {
+                title: { text: null },
+                min: -maxTotal,
+                max: maxTotal,
+                labels: { enabled: false },
+                gridLineWidth: 0,
+            },
         ],
         series: [
             {
@@ -243,10 +249,10 @@ export function movetimeChart(ctrl: AnalysisController) {
                 yAxis: 1,
                 data: totalSeries.black,
             },
-        ]
+        ],
     } as Options);
 }
 
 const formatClock = (movetime: number) => {
-    return (movetime / 1000).toFixed(1) + "s";
+    return (movetime / 1000).toFixed(1) + 's';
 };

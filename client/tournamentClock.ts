@@ -2,7 +2,7 @@ import { h } from 'snabbdom';
 
 import { _, ngettext } from './i18n';
 import { patch } from './document';
-import { TournamentController } from "./tournament";
+import { TournamentController } from './tournament';
 
 export const localeOptions: Intl.DateTimeFormatOptions = {
     year: 'numeric',
@@ -13,7 +13,6 @@ export const localeOptions: Intl.DateTimeFormatOptions = {
 };
 
 function getTimeRemaining(endtime: number) {
-
     const totalSecs = endtime - Date.now();
 
     const seconds = Math.floor((totalSecs / 1000) % 60);
@@ -21,7 +20,7 @@ function getTimeRemaining(endtime: number) {
     const hours = Math.floor((totalSecs / (1000 * 60 * 60)) % 24);
     const days = Math.floor(totalSecs / (1000 * 60 * 60 * 24));
     // console.log('getTimeRemaining()', endtime, '-', totalSecs, '-', days, hours, minutes, seconds);
-    return {totalSecs, days, hours, minutes, seconds};
+    return { totalSecs, days, hours, minutes, seconds };
 }
 
 function renderHHMMSS(endtime: number) {
@@ -40,23 +39,27 @@ export function initializeClock(ctrl: TournamentController) {
 
     if (ctrl.system > 0 && ctrl.tournamentStatus === 'started') {
         if (ctrl.roundOngoingGames > 0) {
-            ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [
-                ngettext('%1 ongoing game', '%1 ongoing games', ctrl.roundOngoingGames),
-            ]));
+            ctrl.clockdiv = patch(
+                ctrl.clockdiv,
+                h('div#clockdiv', [ngettext('%1 ongoing game', '%1 ongoing games', ctrl.roundOngoingGames)]),
+            );
             return;
         }
 
         if (ctrl.manualNextRoundPending) {
-            ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [
-                h('span.shy', _('NEXT ROUND READY')),
-                h('span', _('waiting for organizer')),
-            ]));
+            ctrl.clockdiv = patch(
+                ctrl.clockdiv,
+                h('div#clockdiv', [h('span.shy', _('NEXT ROUND READY')), h('span', _('waiting for organizer'))]),
+            );
             return;
         }
 
         if (ctrl.secondsToNextRound > 0) {
             const endtime = Date.now() + ctrl.secondsToNextRound * 1000;
-            ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [h('span.shy', _('NEXT ROUND IN')), h('span#clock')]));
+            ctrl.clockdiv = patch(
+                ctrl.clockdiv,
+                h('div#clockdiv', [h('span.shy', _('NEXT ROUND IN')), h('span#clock')]),
+            );
             const clock = document.getElementById('clock');
 
             const updatePauseClock = () => {
@@ -67,9 +70,10 @@ export function initializeClock(ctrl: TournamentController) {
                 if (t.totalSecs <= 1000 && ctrl.clockInterval !== null) {
                     clearInterval(ctrl.clockInterval);
                     ctrl.clockInterval = null;
-                    ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [
-                        ngettext('%1 ongoing game', '%1 ongoing games', 0),
-                    ]));
+                    ctrl.clockdiv = patch(
+                        ctrl.clockdiv,
+                        h('div#clockdiv', [ngettext('%1 ongoing game', '%1 ongoing games', 0)]),
+                    );
                 }
             };
 
@@ -78,9 +82,7 @@ export function initializeClock(ctrl: TournamentController) {
             return;
         }
 
-        ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [
-            ngettext('%1 ongoing game', '%1 ongoing games', 0),
-        ]));
+        ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [ngettext('%1 ongoing game', '%1 ongoing games', 0)]));
         return;
     }
 
@@ -93,7 +95,12 @@ export function initializeClock(ctrl: TournamentController) {
         const remaining = getTimeRemaining(endtime);
         if (remaining.days > 0) {
             const startDate = new Date(ctrl.startDate);
-            ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [h('info-date', { attrs: { 'timestamp': startDate.toLocaleString("default", localeOptions) } })]));
+            ctrl.clockdiv = patch(
+                ctrl.clockdiv,
+                h('div#clockdiv', [
+                    h('info-date', { attrs: { timestamp: startDate.toLocaleString('default', localeOptions) } }),
+                ]),
+            );
         } else {
             ctrl.clockdiv = patch(ctrl.clockdiv, h('div#clockdiv', [h('span.shy', _('STARTING IN')), h('span#clock')]));
         }

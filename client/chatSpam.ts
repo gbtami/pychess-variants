@@ -38,12 +38,7 @@ function escapeRegExp(text: string): string {
     return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-const spamRegex = new RegExp(
-    spamRegexFragments
-        .concat(spamHostnames.map(escapeRegExp))
-        .join('|'),
-    'i',
-);
+const spamRegex = new RegExp(spamRegexFragments.concat(spamHostnames.map(escapeRegExp)).join('|'), 'i');
 
 const followMeRegex = /follow me|join my team/i;
 

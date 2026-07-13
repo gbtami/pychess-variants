@@ -1,6 +1,11 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { addOrSelectChild, createAnalysisTree, forceVariationAt, mainlinePathAtPly } from '../client/analysis/analysisTree';
+import {
+    addOrSelectChild,
+    createAnalysisTree,
+    forceVariationAt,
+    mainlinePathAtPly,
+} from '../client/analysis/analysisTree';
 import { renderBughouseTreePgnMoveText } from '../client/bug/analysisTreeBug';
 import { Step } from '../client/messages';
 
@@ -60,7 +65,7 @@ describe('bughouse analysis tree', () => {
         const branchPath = addOrSelectChild(tree, '01', branch, false);
         addOrSelectChild(tree, branchPath, sub, false);
 
-        expect(renderBughouseTreePgnMoveText(tree, (node) => node.step.sanSAN ?? '')).toBe(
+        expect(renderBughouseTreePgnMoveText(tree, node => node.step.sanSAN ?? '')).toBe(
             '1A. A1 (1b. B2 1A. A2) 1B. B1',
         );
     });
@@ -76,8 +81,6 @@ describe('bughouse analysis tree', () => {
 
         forceVariationAt(tree, mainlinePathAtPly(tree, 2), true);
 
-        expect(renderBughouseTreePgnMoveText(tree, (node) => node.step.sanSAN ?? '')).toBe(
-            '1A. A1 (1B. B1 1a. A2)',
-        );
+        expect(renderBughouseTreePgnMoveText(tree, node => node.step.sanSAN ?? '')).toBe('1A. A1 (1B. B1 1a. A2)');
     });
 });

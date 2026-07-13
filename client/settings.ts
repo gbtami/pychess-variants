@@ -34,18 +34,15 @@ export abstract class StringSettings extends Settings<string> {
 export abstract class NumberSettings extends Settings<number> {
     constructor(name: string, defaultValue: number) {
         super(name);
-        this._value = Number(getDocumentData(name) ?? (localStorage[name] ?? defaultValue));
+        this._value = Number(getDocumentData(name) ?? localStorage[name] ?? defaultValue);
     }
 }
 
 export abstract class BooleanSettings extends Settings<boolean> {
     constructor(name: string, defaultValue: boolean) {
         super(name);
-        if (getDocumentData(name))
-            this._value = getDocumentData(name) === 'True';
-        else if (localStorage[name])
-            this._value = localStorage[name] === 'true';
-        else
-            this._value = defaultValue;
+        if (getDocumentData(name)) this._value = getDocumentData(name) === 'True';
+        else if (localStorage[name]) this._value = localStorage[name] === 'true';
+        else this._value = defaultValue;
     }
 }

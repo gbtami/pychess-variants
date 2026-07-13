@@ -1,4 +1,4 @@
-import { h, VNode } from "snabbdom";
+import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
 import { patch } from './document';
@@ -29,137 +29,158 @@ function corrMoveText(opp: string, san?: string) {
 
 function result(win: boolean | null) {
     switch (win) {
-    case true :
-        return "Congratulations, you won!"; break;
-    case false :
-        return "Defeat"; break;
-    default:
-        return "Draw";
+        case true:
+            return 'Congratulations, you won!';
+            break;
+        case false:
+            return 'Defeat';
+            break;
+        default:
+            return 'Draw';
     }
 }
 
 function messageView(message: Message) {
-    const read = (message.read) ? '' : '.new';
+    const read = message.read ? '' : '.new';
     const content = message.content;
     switch (message.type) {
-    case 'gameAborted':
-        return h(`div.notification.corr${read}`, [
-            h('div.icon.icon-paper-plane'),
-            h('span.content',[
-                h('span', [
-                    h('strong', "Game vs " + content.opp),
-                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
+        case 'gameAborted':
+            return h(`div.notification.corr${read}`, [
+                h('div.icon.icon-paper-plane'),
+                h('span.content', [
+                    h('span', [
+                        h('strong', 'Game vs ' + content.opp),
+                        h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                    ]),
+                    h('span', 'Game aborted'),
                 ]),
-                h('span', 'Game aborted'),
-            ]),
-        ]);
-    case 'gameEnd':
-        return h(`a.notification.corr${read}`, { attrs: { href: '/' + content.id} }, [
-            h('div.icon.icon-paper-plane'),
-            h('span.content',[
-                h('span', [
-                    h('strong', "Game vs " + content.opp),
-                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
+            ]);
+        case 'gameEnd':
+            return h(`a.notification.corr${read}`, { attrs: { href: '/' + content.id } }, [
+                h('div.icon.icon-paper-plane'),
+                h('span.content', [
+                    h('span', [
+                        h('strong', 'Game vs ' + content.opp),
+                        h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                    ]),
+                    h('span', result(content.win ?? null)),
                 ]),
-                h('span', result(content.win ?? null)),
-            ]),
-        ]);
-    case 'corrAlarm':
-        return h(`a.notification.corr${read}`, { attrs: { href: '/' + content.id} }, [
-            h('div.icon.icon-paper-plane'),
-            h('span.content',[
-                h('span', [
-                    h('strong', "Time is almost up!"),
-                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
+            ]);
+        case 'corrAlarm':
+            return h(`a.notification.corr${read}`, { attrs: { href: '/' + content.id } }, [
+                h('div.icon.icon-paper-plane'),
+                h('span.content', [
+                    h('span', [
+                        h('strong', 'Time is almost up!'),
+                        h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                    ]),
+                    h('span', 'Game vs ' + content.opp),
                 ]),
-                h('span', "Game vs " + content.opp),
-            ]),
-        ]);
-    case 'corrMove':
-        return h(`a.notification.corr${read}`, { attrs: { href: '/' + content.id } }, [
-            h('div.icon.icon-paper-plane'),
-            h('span.content', [
-                h('span', [
-                    h('strong', _('It is your turn')),
-                    h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+            ]);
+        case 'corrMove':
+            return h(`a.notification.corr${read}`, { attrs: { href: '/' + content.id } }, [
+                h('div.icon.icon-paper-plane'),
+                h('span.content', [
+                    h('span', [
+                        h('strong', _('It is your turn')),
+                        h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                    ]),
+                    h('span', corrMoveText(content.opp, content.san)),
                 ]),
-                h('span', corrMoveText(content.opp, content.san)),
-            ]),
-        ]);
-    case 'rrChallenge':
-        return h(`a.notification.corr${read}`, {
-            attrs: {
-                href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
-            },
-        }, [
-            h('div.icon.icon-crossedswords'),
-            h('span.content', [
-                h('span', [
-                    h('strong', _('Round-robin challenge')),
-                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
+            ]);
+        case 'rrChallenge':
+            return h(
+                `a.notification.corr${read}`,
+                {
+                    attrs: {
+                        href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
+                    },
+                },
+                [
+                    h('div.icon.icon-crossedswords'),
+                    h('span.content', [
+                        h('span', [
+                            h('strong', _('Round-robin challenge')),
+                            h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                        ]),
+                        h('span', `${content.opp} ${_('challenged you in your tournament pairing.')}`),
+                    ]),
+                ],
+            );
+        case 'rrArrangementTime':
+            return h(
+                `a.notification.corr${read}`,
+                {
+                    attrs: {
+                        href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
+                    },
+                },
+                [
+                    h('div.icon.icon-check'),
+                    h('span.content', [
+                        h('span', [
+                            h('strong', _('Round-robin scheduling')),
+                            h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                        ]),
+                        h(
+                            'span',
+                            `${content.opp} ${_('agreed on')} ${content.date ? new Date(content.date).toLocaleString() : _('your proposed game time')}.`,
+                        ),
+                    ]),
+                ],
+            );
+        case 'rrArrangementReminder':
+            return h(
+                `a.notification.corr${read}`,
+                {
+                    attrs: {
+                        href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
+                    },
+                },
+                [
+                    h('div.icon.icon-bullhorn'),
+                    h('span.content', [
+                        h('span', [
+                            h('strong', _('Round-robin reminder')),
+                            h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                        ]),
+                        h(
+                            'span',
+                            `${_('Your scheduled pairing with')} ${content.opp} ${_('is coming up at')} ${content.date ? new Date(content.date).toLocaleString() : ''}.`,
+                        ),
+                    ]),
+                ],
+            );
+        case 'inboxMsg':
+            return h(`a.notification.corr${read}`, { attrs: { href: `/inbox/${encodeURIComponent(content.id)}` } }, [
+                h('div.icon.icon-comment-o'),
+                h('span.content', [
+                    h('span', [
+                        h('strong', _('Inbox message')),
+                        h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                    ]),
+                    h('span', `${_('New message from')} ${content.opp}`),
                 ]),
-                h('span', `${content.opp} ${_('challenged you in your tournament pairing.')}`),
-            ]),
-        ]);
-    case 'rrArrangementTime':
-        return h(`a.notification.corr${read}`, {
-            attrs: {
-                href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
-            },
-        }, [
-            h('div.icon.icon-check'),
-            h('span.content', [
-                h('span', [
-                    h('strong', _('Round-robin scheduling')),
-                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
+            ]);
+        case 'forumMention': {
+            const topicName = content.topic || _('a forum topic');
+            const href =
+                content.categ && content.slug
+                    ? `/forum/${encodeURIComponent(content.categ)}/${encodeURIComponent(content.slug)}#${encodeURIComponent(content.id)}`
+                    : '/forum';
+            return h(`a.notification.corr${read}`, { attrs: { href } }, [
+                h('div.icon.icon-comment-o'),
+                h('span.content', [
+                    h('span', [
+                        h('strong', content.opp),
+                        h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
+                    ]),
+                    h('span', `${_('mentioned you in')} ${topicName}`),
                 ]),
-                h('span', `${content.opp} ${_('agreed on')} ${content.date ? new Date(content.date).toLocaleString() : _('your proposed game time')}.`),
-            ]),
-        ]);
-    case 'rrArrangementReminder':
-        return h(`a.notification.corr${read}`, {
-            attrs: {
-                href: `/tournament/${content.tid || content.id}${content.arr ? `#${content.arr}` : ''}`,
-            },
-        }, [
-            h('div.icon.icon-bullhorn'),
-            h('span.content', [
-                h('span', [
-                    h('strong', _('Round-robin reminder')),
-                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
-                ]),
-                h('span', `${_('Your scheduled pairing with')} ${content.opp} ${_('is coming up at')} ${content.date ? new Date(content.date).toLocaleString() : ''}.`),
-            ]),
-        ]);
-    case 'inboxMsg':
-        return h(`a.notification.corr${read}`, { attrs: { href: `/inbox/${encodeURIComponent(content.id)}` } }, [
-            h('div.icon.icon-comment-o'),
-            h('span.content',[
-                h('span', [
-                    h('strong', _('Inbox message')),
-                    h('info.date', { attrs: { timestamp: message.createdAt} }, timeago(message.createdAt)),
-                ]),
-                h('span', `${_('New message from')} ${content.opp}`),
-            ]),
-        ]);
-    case 'forumMention': {
-        const topicName = content.topic || _('a forum topic');
-        const href = content.categ && content.slug
-            ? `/forum/${encodeURIComponent(content.categ)}/${encodeURIComponent(content.slug)}#${encodeURIComponent(content.id)}`
-            : '/forum';
-        return h(`a.notification.corr${read}`, { attrs: { href } }, [
-            h('div.icon.icon-comment-o'),
-            h('span.content', [
-                h('span', [
-                    h('strong', content.opp),
-                    h('info.date', { attrs: { timestamp: message.createdAt } }, timeago(message.createdAt)),
-                ]),
-                h('span', `${_('mentioned you in')} ${topicName}`),
-            ]),
-        ]);
-    }
-    default:
-        return '';
+            ]);
+        }
+        default:
+            return '';
     }
 }
 
@@ -173,10 +194,7 @@ function renderMessages(messages: Message[]) {
     let renderedMessages = [];
     if (messages.length === 0) {
         renderedMessages.push(
-            h('span.notification.empty', [
-                h('div.icon.icon-info', '🛈'),
-                h('span.text', _('No notifications.')),
-            ]),
+            h('span.notification.empty', [h('div.icon.icon-info', '🛈'), h('span.text', _('No notifications.'))]),
         );
     } else {
         messages.sort(compareMessages).forEach((message: Message) => renderedMessages.push(messageView(message)));
@@ -193,10 +211,10 @@ export function notifyView() {
     let notifyStreamReady = false;
 
     const xmlhttp = new XMLHttpRequest();
-    const url = "/notifications?p=";
+    const url = '/notifications?p=';
     var notifyAppEl: HTMLElement | VNode;
 
-    const newNotifyCounter = (sum: number, message: Message) => sum + ((message.read) ? 0 : 1);
+    const newNotifyCounter = (sum: number, message: Message) => sum + (message.read ? 0 : 1);
 
     function redraw() {
         const counter = document.querySelector('#btn-notify .data-count') as HTMLElement | null;
@@ -237,12 +255,12 @@ export function notifyView() {
 
     function connectNotifications() {
         if (evtSource !== null) evtSource.close();
-        evtSource = new EventSource("/notify");
-        evtSource.onmessage = function(event) {
+        evtSource = new EventSource('/notify');
+        evtSource.onmessage = function (event) {
             applyMessages(JSON.parse(event.data), notifyStreamReady);
             notifyStreamReady = true;
         };
-        evtSource.onerror = function() {
+        evtSource.onerror = function () {
             if (evtSource !== null) {
                 evtSource.close();
                 evtSource = null;
@@ -251,34 +269,34 @@ export function notifyView() {
         };
     }
 
-    xmlhttp.onreadystatechange = function() {
+    xmlhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             notifyAppEl = document.getElementById('notify-app') as HTMLElement;
             applyMessages(JSON.parse(this.responseText));
             connectNotifications();
         }
     };
-    xmlhttp.open("GET", `${url}${page}`, true);
+    xmlhttp.open('GET', `${url}${page}`, true);
     xmlhttp.send();
 
     function sendNotified() {
         const xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
+        xmlhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
-                console.log("sendNotified() was OK");
+                console.log('sendNotified() was OK');
             }
-        }
-        xmlhttp.open("GET", "/notified", true);
+        };
+        xmlhttp.open('GET', '/notified', true);
         xmlhttp.send();
     }
 
     function showNotify() {
         if (unread > 0) {
-            messages.forEach(msg => msg.read = true);
+            messages.forEach(msg => (msg.read = true));
             unread = 0;
             (document.querySelector('#btn-notify .data-count') as HTMLElement).setAttribute('data-count', `${unread}`);
             sendNotified();
-        } else { 
+        } else {
             document.querySelectorAll('#notify-app .notification.new').forEach(el => el.classList.remove('new'));
         }
         (document.getElementById('btn-notify') as HTMLElement).classList.add('shown');
@@ -294,8 +312,8 @@ export function notifyView() {
     }
 
     return h('div#notify-panel', [
-        h('button#btn-notify', { on: { click: toggleNotify }, attrs: { 'aria-label': `Notifications: ${unread}`} }, [
-            h('div.icon.icon-bell-o.data-count', {attrs: { 'data-count': 0 }}),
+        h('button#btn-notify', { on: { click: toggleNotify }, attrs: { 'aria-label': `Notifications: ${unread}` } }, [
+            h('div.icon.icon-bell-o.data-count', { attrs: { 'data-count': 0 } }),
         ]),
         h('div#notify-app'),
     ]);

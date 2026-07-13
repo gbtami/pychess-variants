@@ -54,19 +54,62 @@ function renderIntro(): void {
 
     const vnode = h('div.game-category-dialog-content', [
         h('h2', _('Game category filter')),
-        h('p', _('Pychess supports more than 60 variants across many chess families, so the lobby, puzzles, tournaments, and menus can feel very broad.')),
-        h('p', _('If you mostly play a regional chess, you can focus the whole site to that family: Shogi (Japanese), Xiangqi/Janggi (Chinese/Korean), or Makruk/Ouk Chaktrang (Thai/Cambodian).')),
-        h('p', _('This trims the variant lists, keeps recommendations and events in your area of interest, and makes the site feel like a dedicated hub rather than a huge catalog. Think of it as creating a lishogi.org-style experience inside Pychess.')),
-        h('p', _('You can switch anytime in Preferences (gear icon). If you want everything, choose "All" and nothing is filtered.')),
+        h(
+            'p',
+            _(
+                'Pychess supports more than 60 variants across many chess families, so the lobby, puzzles, tournaments, and menus can feel very broad.',
+            ),
+        ),
+        h(
+            'p',
+            _(
+                'If you mostly play a regional chess, you can focus the whole site to that family: Shogi (Japanese), Xiangqi/Janggi (Chinese/Korean), or Makruk/Ouk Chaktrang (Thai/Cambodian).',
+            ),
+        ),
+        h(
+            'p',
+            _(
+                'This trims the variant lists, keeps recommendations and events in your area of interest, and makes the site feel like a dedicated hub rather than a huge catalog. Think of it as creating a lishogi.org-style experience inside Pychess.',
+            ),
+        ),
+        h(
+            'p',
+            _(
+                'You can switch anytime in Preferences (gear icon). If you want everything, choose "All" and nothing is filtered.',
+            ),
+        ),
         h('div.game-category-dialog-actions', [
-            h('button.secondary-btn', {
-                props: { type: 'button' },
-                on: { click: (event) => { event.preventDefault(); event.stopPropagation(); void setGameCategoryAll(); hideIntro(); } },
-            }, _('Keep all variants')),
-            h('button.confirm-btn', {
-                props: { type: 'button' },
-                on: { click: (event) => { event.preventDefault(); event.stopPropagation(); void setGameCategoryAll(); hideIntro(); showGameCategorySettings(); } },
-            }, _('Open preferences')),
+            h(
+                'button.secondary-btn',
+                {
+                    props: { type: 'button' },
+                    on: {
+                        click: event => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            void setGameCategoryAll();
+                            hideIntro();
+                        },
+                    },
+                },
+                _('Keep all variants'),
+            ),
+            h(
+                'button.confirm-btn',
+                {
+                    props: { type: 'button' },
+                    on: {
+                        click: event => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            void setGameCategoryAll();
+                            hideIntro();
+                            showGameCategorySettings();
+                        },
+                    },
+                },
+                _('Open preferences'),
+            ),
         ]),
     ]);
 

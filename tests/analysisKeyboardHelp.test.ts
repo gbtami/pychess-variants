@@ -8,9 +8,9 @@ describe('analysis keyboard help', () => {
             variant: { name: 'chess', rules: { gate: false } },
         } as any);
 
-        expect(sections.map((section) => section.title)).toContain('Navigation');
-        expect(sections.flatMap((section) => section.items).some((item) => item.keys.includes('?'))).toBe(true);
-        expect(sections.flatMap((section) => section.items).some((item) => item.keys.includes('f'))).toBe(true);
+        expect(sections.map(section => section.title)).toContain('Navigation');
+        expect(sections.flatMap(section => section.items).some(item => item.keys.includes('?'))).toBe(true);
+        expect(sections.flatMap(section => section.items).some(item => item.keys.includes('f'))).toBe(true);
     });
 
     test('adds the input section for gated move entry variants', () => {
@@ -18,8 +18,8 @@ describe('analysis keyboard help', () => {
             variant: { name: 'duck', rules: { gate: false } },
         } as any);
 
-        expect(sections.some((section) => section.title === 'Input')).toBe(true);
-        expect(sections.flatMap((section) => section.items).some((item) => item.keys.includes('enter'))).toBe(true);
+        expect(sections.some(section => section.title === 'Input')).toBe(true);
+        expect(sections.flatMap(section => section.items).some(item => item.keys.includes('enter'))).toBe(true);
     });
 
     test('detects the help shortcut from semantic key events', () => {

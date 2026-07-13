@@ -34,7 +34,7 @@ export class GatingInput extends ExtraInput {
 
         if (piece.role === 'k-piece' && orig[1] === dest[1]) {
             // Handle castling giving gating choices on two squares
-            const rookOrig = this.ctrl.chess960 ? dest : (dest[0] === 'g' ? 'h' : 'a') + orig[1] as cg.Key;
+            const rookOrig = this.ctrl.chess960 ? dest : (((dest[0] === 'g' ? 'h' : 'a') + orig[1]) as cg.Key);
             const rookChoices = this.gatingChoices(rookOrig, orig);
             if (rookChoices.length > 0) {
                 rookChoices.push(''); // Add the empty choice to the rook square for aesthetics
@@ -52,13 +52,12 @@ export class GatingInput extends ExtraInput {
             // Handle the cases of 960 castling with no possible gating square
             // and S-House moving an unmoved piece with nothing in the pocket
             this.finish(this.choices[keys[0] as cg.Key]![0], orig);
-        else
-            this.drawGating(piece.color, this.ctrl.chessground.state.orientation);
+        else this.drawGating(piece.color, this.ctrl.chessground.state.orientation);
     }
 
     private canGate(orig: cg.Key): boolean {
         const fen = this.ctrl.fullfen;
-        const parts = fen.split(" ");
+        const parts = fen.split(' ');
         const castling = parts[2];
         const color = parts[1] === 'w' ? 'white' : 'black';
         const height = this.ctrl.variant.board.dimensions.height;
@@ -71,12 +70,8 @@ export class GatingInput extends ExtraInput {
             if (!this.ctrl.chess960) {
                 // In non-960, if both the king and the corresponding rook haven't moved,
                 // the virginity of BOTH pieces will be encoded in the castling right
-                if (orig[0] === 'e' || orig[0] === 'h')
-                    if (castling.includes(colorCase(color, 'K')))
-                        return true;
-                if (orig[0] === 'e' || orig[0] === 'a')
-                    if (castling.includes(colorCase(color, 'Q')))
-                        return true;
+                if (orig[0] === 'e' || orig[0] === 'h') if (castling.includes(colorCase(color, 'K'))) return true;
+                if (orig[0] === 'e' || orig[0] === 'a') if (castling.includes(colorCase(color, 'Q'))) return true;
             }
         }
         return false;
@@ -84,7 +79,7 @@ export class GatingInput extends ExtraInput {
 
     private gatingChoices(orig: cg.Key, dest: cg.Key): (cg.Role | '')[] {
         const possibleGating = this.ctrl.legalMoves().filter(move => move.includes(orig + dest));
-        return possibleGating.map(promotionSuffix).map(s => s === '' ? '' : util.roleOf(s as cg.Letter));
+        return possibleGating.map(promotionSuffix).map(s => (s === '' ? '' : util.roleOf(s as cg.Letter)));
     }
 
     private gate(piece: cg.Piece, key: cg.Key): void {
@@ -110,10 +105,8 @@ export class GatingInput extends ExtraInput {
                 this.next('');
             } else {
                 this.gate({ role: role, color: this.data.piece.color }, key);
-                if (key === this.data.orig)
-                    this.next(letter);
-                else
-                    this.castlingNext(letter, key);
+                if (key === this.data.orig) this.next(letter);
+                else this.castlingNext(letter, key);
             }
             this.choices = {};
         }
@@ -141,24 +134,30 @@ export class GatingInput extends ExtraInput {
         const width = this.ctrl.variant.board.dimensions.width;
         const height = this.ctrl.variant.board.dimensions.height;
         const leftFile = util.key2pos(orig)[0];
-        const left = (orientation === "white" ? leftFile : width - 1 - leftFile) * (100 / width);
+        const left = (orientation === 'white' ? leftFile : width - 1 - leftFile) * (100 / width);
         return this.choices[orig]!.map((role, i) => {
             const top = (color === orientation ? height - 1 - i : i) * (100 / height);
             console.log(role, orig);
-            return h("square", {
-                style: { top: top + "%", left: left + "%" },
-                hook: bind("click", e => {
-                    e.stopPropagation();
-                    this.finish(role, orig);
-                }, null)
-            }, [
-                h("piece." + role + "." + color)
-            ]);
-        })
+            return h(
+                'square',
+                {
+                    style: { top: top + '%', left: left + '%' },
+                    hook: bind(
+                        'click',
+                        e => {
+                            e.stopPropagation();
+                            this.finish(role, orig);
+                        },
+                        null,
+                    ),
+                },
+                [h('piece.' + role + '.' + color)],
+            );
+        });
     }
 
     private view(color: cg.Color, orientation: cg.Color): VNode {
-        const direction = color === orientation ? "top" : "bottom";
+        const direction = color === orientation ? 'top' : 'bottom';
         let squares: VNode[] = [];
         const pocket = this.ctrl.variant.pocket!.roles[color];
         let orig: cg.Key;
@@ -166,19 +165,21 @@ export class GatingInput extends ExtraInput {
             this.choices[orig]!.sort((a, b) => pocket.indexOf(a as cg.Role) - pocket.indexOf(b as cg.Role));
             squares.push(...this.squareView(orig, color, orientation));
         }
-        return h("div#extension_choice." + direction, {
-            hook: {
-                insert: vnode => {
-                    const el = vnode.elm as HTMLElement;
-                    el.addEventListener("click", () => this.cancel());
-                    el.addEventListener("contextmenu", e => {
-                        e.preventDefault();
-                        return false;
-                    });
-                }
-            }
-        },
-            squares
+        return h(
+            'div#extension_choice.' + direction,
+            {
+                hook: {
+                    insert: vnode => {
+                        const el = vnode.elm as HTMLElement;
+                        el.addEventListener('click', () => this.cancel());
+                        el.addEventListener('contextmenu', e => {
+                            e.preventDefault();
+                            return false;
+                        });
+                    },
+                },
+            },
+            squares,
         );
     }
 }

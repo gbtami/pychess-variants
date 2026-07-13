@@ -68,13 +68,7 @@ export class PvHoverPreview {
         this.cg.redrawAll();
     }
 
-    renderPvSanLine({
-        pvLine,
-        sanBoard,
-        fullfen,
-        notationAsObject,
-        getOrientation,
-    }: RenderPvSanLineArgs): VNode[] {
+    renderPvSanLine({ pvLine, sanBoard, fullfen, notationAsObject, getOrientation }: RenderPvSanLineArgs): VNode[] {
         const uciMoves = pvLine.split(' ').filter(Boolean);
         if (uciMoves.length === 0) return [];
 
@@ -99,15 +93,19 @@ export class PvHoverPreview {
                     rendered.push(h('span.pv-move-number', `${moveNumber}...`));
                 }
                 rendered.push(
-                    h('span.pv-san-move', {
-                        attrs: {
-                            'data-fen': previewFen,
-                            'data-uci': uciMove,
+                    h(
+                        'span.pv-san-move',
+                        {
+                            attrs: {
+                                'data-fen': previewFen,
+                                'data-uci': uciMove,
+                            },
+                            on: {
+                                mouseenter: () => this.show(previewFen, uciMove, getOrientation()),
+                            },
                         },
-                        on: {
-                            mouseenter: () => this.show(previewFen, uciMove, getOrientation()),
-                        },
-                    }, san)
+                        san,
+                    ),
                 );
 
                 if (turn === 'b') moveNumber += 1;

@@ -8,8 +8,8 @@ import { allVariantsIni } from './variants';
 import { VARIANTS } from './variants';
 import { alertDialog } from './alertDialog';
 import { parseKif, resultString } from '../client/kif';
-import { PyChessModel } from "./types";
-import { importGameBugH } from "@/bug/paste.bug";
+import { PyChessModel } from './types';
+import { importGameBugH } from '@/bug/paste.bug';
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';
@@ -40,17 +40,16 @@ export function recordImportFfishError(text: string): void {
     if (IMPORT_FFISH_ERROR_BUFFER.length > 200) IMPORT_FFISH_ERROR_BUFFER.shift();
 }
 
-
 export function pasteView(model: PyChessModel): VNode[] {
     const ffish: FairyStockfish = model.ffish;
 
     const importGame = (model: PyChessModel, ffish: any) => {
-        const e = document.getElementById("pgnpaste") as HTMLInputElement;
+        const e = document.getElementById('pgnpaste') as HTMLInputElement;
         //console.log('PGN:', e.value);
         let pgn = e.value;
 
         if (shouldImportAsBughouseBpgn(pgn)) {
-            importGameBugH(pgn, model["home"]);
+            importGameBugH(pgn, model['home']);
             return;
         }
 
@@ -59,10 +58,14 @@ export function pasteView(model: PyChessModel): VNode[] {
             const lines = pgn.split(/\n/);
 
             // fix FEN
-            const fenIndex = lines.findIndex((elem) => {return elem.startsWith('[FEN ');});
+            const fenIndex = lines.findIndex(elem => {
+                return elem.startsWith('[FEN ');
+            });
             lines[fenIndex] = `[FEN "${VARIANTS['embassy'].startFen}"]`;
 
-            const variantIndex = lines.findIndex((elem) => {return elem.startsWith('[Variant ');});
+            const variantIndex = lines.findIndex(elem => {
+                return elem.startsWith('[Variant ');
+            });
             if (variantIndex < 0) {
                 // add missing variant tag
                 lines.splice(variantIndex, 0, '[Variant "Capablanca"]');
@@ -71,14 +74,19 @@ export function pasteView(model: PyChessModel): VNode[] {
                 lines.splice(variantIndex, 1, '[Variant "Capablanca"]');
             }
 
-            lines.forEach((line, idx) => {if (idx > fenIndex) lines[idx] = line.replace(/(O-O-O|O-O)/g, (match) => { return match === 'O-O' ? 'O-O-O' : 'O-O' });});
+            lines.forEach((line, idx) => {
+                if (idx > fenIndex)
+                    lines[idx] = line.replace(/(O-O-O|O-O)/g, match => {
+                        return match === 'O-O' ? 'O-O-O' : 'O-O';
+                    });
+            });
             pgn = lines.join('\n');
         }
 
         if (ffish !== null) {
             ffish.loadVariantConfig(allVariantsIni(variantsIni));
             const XHR = new XMLHttpRequest();
-            const FD  = new FormData();
+            const FD = new FormData();
             const ffishErrorStart = IMPORT_FFISH_ERROR_BUFFER.length;
 
             let variant: string;
@@ -98,12 +106,12 @@ export function pasteView(model: PyChessModel): VNode[] {
                     let status = kif['status'];
                     let result = kif['result'];
                     const as = VARIANTS['shogi'].alternateStart;
-                    const isHandicap = (handicap !== '' && as![handicap] !== undefined);
+                    const isHandicap = handicap !== '' && as![handicap] !== undefined;
                     if (isHandicap) {
                         FD.append('FEN', as![handicap]);
                     }
 
-                    const fen = (isHandicap) ? as![handicap] : VARIANTS['shogi'].startFen;
+                    const fen = isHandicap ? as![handicap] : VARIANTS['shogi'].startFen;
                     board = new ffish.Board('shogi', fen);
                     let move;
 
@@ -127,21 +135,19 @@ export function pasteView(model: PyChessModel): VNode[] {
                     FD.append('TimeControl', kif['tc']);
                     FD.append('moves', mainlineMoves.join(' '));
                     FD.append('Result', result);
-                    FD.append('Status', ""+status);
+                    FD.append('Status', '' + status);
                     FD.append('final_fen', board.fen());
                     FD.append('username', model['username']);
 
                     board.delete();
-
                 } else {
-
                     const game = ffish.readGamePGN(pgn);
                     const parserError = getLatestFfishError(ffishErrorStart);
                     if (parserError) {
                         throw new Error(parserError);
                     }
 
-                    const variantInfo = parseVariantTag(game.headers("Variant"));
+                    const variantInfo = parseVariantTag(game.headers('Variant'));
                     variant = variantInfo.variant;
 
                     if (variant === 'alice') {
@@ -156,7 +162,7 @@ export function pasteView(model: PyChessModel): VNode[] {
                     }
 
                     initialFen = VARIANTS[variant].startFen;
-                    const f = game.headers("FEN");
+                    const f = game.headers('FEN');
                     if (f) {
                         const fenValidation = validateFenTag(ffish, f, variantInfo.variant, variantInfo.chess960);
                         if (fenValidation !== null) {
@@ -165,16 +171,19 @@ export function pasteView(model: PyChessModel): VNode[] {
                         initialFen = f;
                     }
 
-                    const t = game.headers("Termination");
+                    const t = game.headers('Termination');
                     //console.log("Termination:", t);
                     if (t) {
                         const status = getStatus(t.toLowerCase());
-                        FD.append('Status', ""+status);
+                        FD.append('Status', '' + status);
                     }
 
                     board = new ffish.Board(variant, initialFen, variantInfo.chess960);
 
-                    mainlineMoves = game.mainlineMoves().split(/\s+/).filter((move: string) => move.length > 0);
+                    mainlineMoves = game
+                        .mainlineMoves()
+                        .split(/\s+/)
+                        .filter((move: string) => move.length > 0);
                     for (let idx = 0; idx < mainlineMoves.length; ++idx) {
                         const pushed = board.push(mainlineMoves[idx]);
                         if (!pushed) {
@@ -183,25 +192,24 @@ export function pasteView(model: PyChessModel): VNode[] {
                     }
 
                     const tags = (game.headerKeys() as string).split(' ');
-                    tags.forEach((tag) => {
-                        FD.append( tag, game.headers(tag) );
+                    tags.forEach(tag => {
+                        FD.append(tag, game.headers(tag));
                     });
                     FD.append('moves', mainlineMoves.join(' '));
                     FD.append('final_fen', board.fen());
-                    FD.append('username', model["username"]);
+                    FD.append('username', model['username']);
 
                     board.delete();
                     game.delete();
                 }
-            }
-            catch(err) {
+            } catch (err) {
                 const message = buildImportErrorMessage(err, pgn, ffish);
                 e.setCustomValidity(message);
                 void alertDialog({ text: message });
                 return;
             }
 
-            XHR.onreadystatechange = function() {
+            XHR.onreadystatechange = function () {
                 if (this.readyState !== 4) return;
 
                 let response: Record<string, string> = {};
@@ -215,7 +223,7 @@ export function pasteView(model: PyChessModel): VNode[] {
 
                 if (this.status === 200) {
                     if (response['gameId'] !== undefined) {
-                        window.location.assign(model["home"] + '/' + response['gameId']);
+                        window.location.assign(model['home'] + '/' + response['gameId']);
                         return;
                     }
                     if (response['error'] !== undefined) {
@@ -228,25 +236,27 @@ export function pasteView(model: PyChessModel): VNode[] {
 
                 void alertDialog({ text: response['error'] ?? `${_('Import failed')} (${this.status})` });
             };
-            XHR.onerror = function() {
+            XHR.onerror = function () {
                 void alertDialog({ text: _('Import failed') });
             };
-            XHR.open("POST", "/import", true);
+            XHR.open('POST', '/import', true);
             XHR.send(FD);
         }
-    }
+    };
 
-    return [ h('div.paste', [
-        h('div.container', [
-            h('strong', _('Paste the PGN text here')),
-            h('textarea#pgnpaste', {attrs: {spellcheck: "false"}}),
-            h('div.import', [
-                h('button#import', {on: { click: () => importGame(model, ffish) }}, [
-                    h('i', {class: {"icon": true, "icon-cloud-upload": true} }, _('IMPORT GAME'))
-                ])
-            ])
-        ])
-    ])];
+    return [
+        h('div.paste', [
+            h('div.container', [
+                h('strong', _('Paste the PGN text here')),
+                h('textarea#pgnpaste', { attrs: { spellcheck: 'false' } }),
+                h('div.import', [
+                    h('button#import', { on: { click: () => importGame(model, ffish) } }, [
+                        h('i', { class: { icon: true, 'icon-cloud-upload': true } }, _('IMPORT GAME')),
+                    ]),
+                ]),
+            ]),
+        ]),
+    ];
 }
 
 /*
@@ -274,20 +284,20 @@ function getStatus(termination: string) {
     if (termination.includes('insufficient')) return '5';
     if (termination.includes('time')) return '6';
     if (termination.includes('abandon')) return '7';
-    return '11';  // unknown
+    return '11'; // unknown
 }
 
 function parseVariantTag(rawVariant: string): { variant: string; chess960: boolean; raw: string } {
     const raw = rawVariant || 'chess';
     let variant = raw.toLowerCase();
-    let chess960 = variant.includes("960") || variant.includes('random');
+    let chess960 = variant.includes('960') || variant.includes('random');
 
     variant = variant.endsWith('960') ? variant.slice(0, -3) : variant;
-    if (variant === "caparandom") {
-        variant = "capablanca";
+    if (variant === 'caparandom') {
+        variant = 'capablanca';
         chess960 = true;
-    } else if (variant === "fischerandom") {
-        variant = "chess";
+    } else if (variant === 'fischerandom') {
+        variant = 'chess';
         chess960 = true;
     }
     return { variant, chess960, raw };
@@ -319,25 +329,22 @@ function extractPgnTags(pgn: string): Record<string, string> {
 
 function buildImportErrorMessage(err: unknown, pgn: string, ffish: FairyStockfish): string {
     const tags = extractPgnTags(pgn);
-    const variantInfo = parseVariantTag(tags["Variant"] ?? "chess");
+    const variantInfo = parseVariantTag(tags['Variant'] ?? 'chess');
 
     if (!(variantInfo.variant in VARIANTS)) {
         return `Unsupported PGN Variant tag: ${variantInfo.raw}.`;
     }
 
-    const fen = tags["FEN"];
+    const fen = tags['FEN'];
     if (fen) {
         const fenValidation = validateFenTag(ffish, fen, variantInfo.variant, variantInfo.chess960);
         if (fenValidation !== null) return fenValidation;
     }
 
-    const errorMessage =
-        err instanceof Error
-            ? err.message
-            : (typeof err === "string" ? err : "");
+    const errorMessage = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
     if (!errorMessage) return _('Invalid PGN');
-    if (errorMessage.includes("memory access out of bounds")) {
-        return "Failed to parse PGN. Check [Variant], [FEN], and move text formatting.";
+    if (errorMessage.includes('memory access out of bounds')) {
+        return 'Failed to parse PGN. Check [Variant], [FEN], and move text formatting.';
     }
     return errorMessage;
 }
@@ -347,8 +354,8 @@ function shouldImportAsBughouseBpgn(pgn: string): boolean {
     if (/\[\s*Variant\s+["“]\s*Bughouse(?:\s*960|960)?\s*["”]\s*\]/i.test(pgn)) return true;
 
     const tags = extractPgnTags(pgn);
-    const variant = tags["Variant"]?.trim().toLowerCase();
+    const variant = tags['Variant']?.trim().toLowerCase();
     if (!variant) return false;
 
-    return variant === "bughouse" || variant === "bughouse960" || variant === "bughouse 960";
+    return variant === 'bughouse' || variant === 'bughouse960' || variant === 'bughouse 960';
 }

@@ -1,8 +1,8 @@
 import { h } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
-import { Api } from "chessgroundx/api";
-import * as cg from "chessgroundx/types";
+import { Api } from 'chessgroundx/api';
+import * as cg from 'chessgroundx/types';
 
 import { patch } from './document';
 import { boardSettings } from './boardSettings';
@@ -52,13 +52,13 @@ type OngoingGameEventOptions = {
 
 export function handleOngoingGameEvents(
     username: string,
-    cgMap: {[gameId: string]: [Api, string]},
+    cgMap: { [gameId: string]: [Api, string] },
     options: OngoingGameEventOptions = {},
 ) {
     const mode = options.mode ?? 'corr';
-    const updateUnreadCounter = options.updateUnreadCounter ?? (mode === 'corr');
-    const evtSource = new EventSource("/api/ongoing");
-    evtSource.onmessage = function(event) {
+    const updateUnreadCounter = options.updateUnreadCounter ?? mode === 'corr';
+    const evtSource = new EventSource('/api/ongoing');
+    evtSource.onmessage = function (event) {
         const message = JSON.parse(event.data) as OngoingGameUpdate;
 
         if (options.onUpdate) {
@@ -71,7 +71,7 @@ export function handleOngoingGameEvents(
         [cg, variantName] = cgMap[message.gameId];
 
         let lastMove, fen;
-        [lastMove, fen] = getLastMoveFen(variantName, message.lastMove, message.fen)
+        [lastMove, fen] = getLastMoveFen(variantName, message.lastMove, message.fen);
 
         cg.set({
             fen: fen,
@@ -91,26 +91,26 @@ export function handleOngoingGameEvents(
 
         const diff = isMyTurn ? 1 : -1;
         const count = parseInt(noreadEl.dataset.count || '0') + diff;
-        patch(noreadEl, h('span.noread.data-count', {attrs: { 'data-count': count }}));
-    }
+        patch(noreadEl, h('span.noread.data-count', { attrs: { 'data-count': count } }));
+    };
 }
 
 function timer(date: string) {
-  return h(
-    'time.timeago',
-    {
-      hook: {
-        insert(vnode) {
-          (vnode.elm as HTMLElement).setAttribute('datetime', '' + date);
+    return h(
+        'time.timeago',
+        {
+            hook: {
+                insert(vnode) {
+                    (vnode.elm as HTMLElement).setAttribute('datetime', '' + date);
+                },
+            },
         },
-      },
-    },
-    timeago(date),
-  );
+        timeago(date),
+    );
 }
 
-function corrClockIndicator(isMyTurn:boolean, date: string) {
-    return h('span.indicator', isMyTurn ? timer(date) : h('span', '\xa0')) // &nbsp;
+function corrClockIndicator(isMyTurn: boolean, date: string) {
+    return h('span.indicator', isMyTurn ? timer(date) : h('span', '\xa0')); // &nbsp;
 }
 
 function simulTurnIndicator(isMyTurn: boolean) {
@@ -122,7 +122,7 @@ function gameIndicator(isMyTurn: boolean, date: string, mode: OngoingGamesMode) 
 }
 
 export function compareGames(username: string, mode: OngoingGamesMode = 'corr') {
-    return function(a: Game, b: Game) {
+    return function (a: Game, b: Game) {
         const aFinished = typeof a.status === 'number' && a.status >= 0;
         const bFinished = typeof b.status === 'number' && b.status >= 0;
         if (aFinished && !bFinished) return 1;
@@ -146,58 +146,60 @@ export function compareGames(username: string, mode: OngoingGamesMode = 'corr') 
 }
 
 export function gameViewPlaying(
-    cgMap: {[gameId: string]: [Api, string]},
+    cgMap: { [gameId: string]: [Api, string] },
     game: Game,
     username: string,
     mode: OngoingGamesMode = 'corr',
 ) {
     const variant = VARIANTS[game.variant];
     const isMyTurn = game.tp === username;
-    const opp = (username === game.w) ? game.b : game.w;
+    const opp = username === game.w ? game.b : game.w;
     const oppDisplay = displayUsername(opp);
-    const mycolor = (username === game.w) ? 'white' : 'black';
+    const mycolor = username === game.w ? 'white' : 'black';
 
     if (variant === undefined) {
         console.error('Missing variant metadata for ongoing game', game.gameId, game.variant);
-        return h('a.ongoing-game-error', {
-            attrs: {
-                href: game.gameId,
-                title: `Missing variant metadata: ${game.variant}`,
+        return h(
+            'a.ongoing-game-error',
+            {
+                attrs: {
+                    href: game.gameId,
+                    title: `Missing variant metadata: ${game.variant}`,
+                },
             },
-        }, [
-            h('div.ongoing-game-error__board', game.variant),
-            h('span.vstext', [
-                h('span', oppDisplay),
-                gameIndicator(isMyTurn, game.date, mode),
-            ]),
-        ]);
+            [
+                h('div.ongoing-game-error__board', game.variant),
+                h('span.vstext', [h('span', oppDisplay), gameIndicator(isMyTurn, game.date, mode)]),
+            ],
+        );
     }
 
     let lastMove, fen;
-    [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen)
+    [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen);
 
-    return h(`a.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, { attrs: { href: game.gameId } }, [
-        h(`div.cg-wrap.${variant.board.cg}`, {
-            hook: {
-                insert: vnode => {
-                    boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
-                    boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
-                    const cg = Chessground(vnode.elm as HTMLElement, {
-                        orientation: mycolor,
-                        fen: fen,
-                        lastMove: lastMove,
-                        dimensions: variant.board.dimensions,
-                        coordinates: false,
-                        viewOnly: true,
-                        pocketRoles: variant.pocket?.roles,
-                    });
-                    cgMap[game.gameId] = [cg, variant.name];
-                }
-            }
-        }),
-        h('span.vstext', [
-            h('span', oppDisplay),
-            gameIndicator(isMyTurn, game.date, mode),
-        ]),
-    ]);
+    return h(
+        `a.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`,
+        { attrs: { href: game.gameId } },
+        [
+            h(`div.cg-wrap.${variant.board.cg}`, {
+                hook: {
+                    insert: vnode => {
+                        boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
+                        boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
+                        const cg = Chessground(vnode.elm as HTMLElement, {
+                            orientation: mycolor,
+                            fen: fen,
+                            lastMove: lastMove,
+                            dimensions: variant.board.dimensions,
+                            coordinates: false,
+                            viewOnly: true,
+                            pocketRoles: variant.pocket?.roles,
+                        });
+                        cgMap[game.gameId] = [cg, variant.name];
+                    },
+                },
+            }),
+            h('span.vstext', [h('span', oppDisplay), gameIndicator(isMyTurn, game.date, mode)]),
+        ],
+    );
 }

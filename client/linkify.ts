@@ -30,16 +30,22 @@ export function linkifyNodes(text: string, linkClass: string): LinkifyNode[] {
         if (fullStart > lastIndex) nodes.push(text.slice(lastIndex, fullStart));
         if (prefix.length > 0) nodes.push(prefix);
 
-        nodes.push(h(`a.${linkClass}`, {
-            attrs: {
-                href: toHref(url),
-                target: '_blank',
-                rel: 'nofollow noopener noreferrer',
-            },
-            on: {
-                click: (event: MouseEvent) => event.stopPropagation(),
-            },
-        }, toLabel(url)));
+        nodes.push(
+            h(
+                `a.${linkClass}`,
+                {
+                    attrs: {
+                        href: toHref(url),
+                        target: '_blank',
+                        rel: 'nofollow noopener noreferrer',
+                    },
+                    on: {
+                        click: (event: MouseEvent) => event.stopPropagation(),
+                    },
+                },
+                toLabel(url),
+            ),
+        );
 
         lastIndex = fullStart + full.length;
     }

@@ -2,7 +2,7 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from './i18n';
 import { GameController } from './gameCtrl';
-import { result } from './result'
+import { result } from './result';
 import { patch } from './document';
 import { AnalysisTreeNode } from './analysis/analysisTree';
 
@@ -107,10 +107,10 @@ function asTreeCtrl(ctrl: GameController): TreeCtrl | undefined {
 }
 
 function clearActiveMoveHighlight() {
-    document.querySelectorAll('move.active, vari-move.active').forEach((el) => el.classList.remove('active'));
+    document.querySelectorAll('move.active, vari-move.active').forEach(el => el.classList.remove('active'));
 }
 
-export function selectMove (ctrl: GameController, ply: number, _plyVari = 0): void {
+export function selectMove(ctrl: GameController, ply: number, _plyVari = 0): void {
     //console.log("selectMove()", ply);
 
     const treeCtrl = asTreeCtrl(ctrl);
@@ -123,13 +123,12 @@ export function selectMove (ctrl: GameController, ply: number, _plyVari = 0): vo
     }
 
     if (ply < 0 || ply > ctrl.steps.length - 1) {
-        return
+        return;
     }
 
     ctrl.goPly(ply, 0);
     activatePly(ctrl);
     scrollToPly(ctrl);
-
 }
 
 export function selectMainlineMove(ctrl: GameController, ply: number): void {
@@ -141,7 +140,7 @@ export function selectMainlineMove(ctrl: GameController, ply: number): void {
     selectMove(ctrl, ply, 0);
 }
 
-function activatePly (ctrl: GameController) {
+function activatePly(ctrl: GameController) {
     //console.log('activatePly()', ctrl.ply, ctrl.plyVari);
     clearActiveMoveHighlight();
 
@@ -149,7 +148,7 @@ function activatePly (ctrl: GameController) {
     if (elPly) elPly.classList.add('active');
 }
 
-function scrollToPly (ctrl: GameController) {
+function scrollToPly(ctrl: GameController) {
     const movelistEl = document.getElementById('movelist') as HTMLElement;
     const plyEl = movelistEl.querySelector('move.active') as HTMLElement | null;
 
@@ -158,15 +157,10 @@ function scrollToPly (ctrl: GameController) {
     if (ctrl.ply === 0) st = 0;
     else if (plyEl) st = plyEl.offsetTop - movelistEl.offsetHeight / 2 + plyEl.offsetHeight / 2;
 
-    if (st !== undefined)
-        movelistEl.scrollTop = st;
+    if (st !== undefined) movelistEl.scrollTop = st;
 }
 
-export function isTheoreticalMove(
-    ply: number,
-    status: number,
-    recordedMainlinePly: number | undefined,
-) {
+export function isTheoreticalMove(ply: number, status: number, recordedMainlinePly: number | undefined) {
     // In finished games, moves beyond the persisted game tail are analysis-only.
     return status >= 0 && recordedMainlinePly !== undefined && ply > recordedMainlinePly;
 }
@@ -183,7 +177,7 @@ export function getFastMoveSelection(
     };
 }
 
-export function createMovelistButtons (ctrl: GameController) {
+export function createMovelistButtons(ctrl: GameController) {
     const container = document.getElementById('move-controls') as HTMLElement;
 
     const selectVariationBound = (goToStart: boolean) => {
@@ -198,42 +192,66 @@ export function createMovelistButtons (ctrl: GameController) {
     };
 
     let buttons = [
-        h('button', { on: { click: () => ctrl.toggleOrientation() }, props: { title: _('Flip board')} }, [ h('i.icon.icon-refresh') ]),
-        h('button', { on: { click: () => selectVariationBound(true) } }, [ h('i.icon.icon-fast-backward') ]),
-        h('button', {
-            on: {
-                click: () => {
-                    const treeCtrl = asTreeCtrl(ctrl);
-                    if (treeCtrl) {
-                        const target = treeCtrl.getTreeParentPath?.();
-                        if (target !== undefined) treeCtrl.activateTreePath?.(target);
-                    } else selectMove(ctrl, ctrl.ply - 1, 0);
-                }
-            }
-        }, [ h('i.icon.icon-step-backward') ]),
-        h('button', {
-            on: {
-                click: () => {
-                    const treeCtrl = asTreeCtrl(ctrl);
-                    if (treeCtrl) {
-                        const target = treeCtrl.getTreeMainChildPath?.();
-                        if (target !== undefined) treeCtrl.activateTreePath?.(target);
-                    } else selectMove(ctrl, ctrl.ply + 1, 0);
-                }
-            }
-        }, [ h('i.icon.icon-step-forward') ]),
-        h('button', { on: { click: () => selectVariationBound(false) } }, [ h('i.icon.icon-fast-forward') ]),
+        h('button', { on: { click: () => ctrl.toggleOrientation() }, props: { title: _('Flip board') } }, [
+            h('i.icon.icon-refresh'),
+        ]),
+        h('button', { on: { click: () => selectVariationBound(true) } }, [h('i.icon.icon-fast-backward')]),
+        h(
+            'button',
+            {
+                on: {
+                    click: () => {
+                        const treeCtrl = asTreeCtrl(ctrl);
+                        if (treeCtrl) {
+                            const target = treeCtrl.getTreeParentPath?.();
+                            if (target !== undefined) treeCtrl.activateTreePath?.(target);
+                        } else selectMove(ctrl, ctrl.ply - 1, 0);
+                    },
+                },
+            },
+            [h('i.icon.icon-step-backward')],
+        ),
+        h(
+            'button',
+            {
+                on: {
+                    click: () => {
+                        const treeCtrl = asTreeCtrl(ctrl);
+                        if (treeCtrl) {
+                            const target = treeCtrl.getTreeMainChildPath?.();
+                            if (target !== undefined) treeCtrl.activateTreePath?.(target);
+                        } else selectMove(ctrl, ctrl.ply + 1, 0);
+                    },
+                },
+            },
+            [h('i.icon.icon-step-forward')],
+        ),
+        h('button', { on: { click: () => selectVariationBound(false) } }, [h('i.icon.icon-fast-forward')]),
     ];
     if (ctrl.variant.name === 'alice') {
-        buttons.push(h('button#alice', { on: { click: () => ctrl.switchAliceBoards() }, props: { title: _('Switch boards')} }, [ h('i.icon.icon-exchange') ]));
+        buttons.push(
+            h('button#alice', { on: { click: () => ctrl.switchAliceBoards() }, props: { title: _('Switch boards') } }, [
+                h('i.icon.icon-exchange'),
+            ]),
+        );
     }
 
-    if ("localEngine" in ctrl) {
-        buttons.push(h('button#bars', { on: { click: () => ctrl.toggleSettings() }, props: { title: _('Menu')} }, [ h('i.icon.icon-bars') ]));
+    if ('localEngine' in ctrl) {
+        buttons.push(
+            h('button#bars', { on: { click: () => ctrl.toggleSettings() }, props: { title: _('Menu') } }, [
+                h('i.icon.icon-bars'),
+            ]),
+        );
     } else {
         if (ctrl.corr && ctrl.variant.name !== 'fogofwar') {
             const url = ctrl.home + '/corranalysis/' + ctrl.gameId + `?ply=${ctrl.ply + 1}`;
-            buttons.push(h('button#corr', { on: { click: () => window.location.assign(url) }, props: { title: _('Analysis board')} }, [ h('i.icon.icon-microscope') ]));
+            buttons.push(
+                h(
+                    'button#corr',
+                    { on: { click: () => window.location.assign(url) }, props: { title: _('Analysis board') } },
+                    [h('i.icon.icon-microscope')],
+                ),
+            );
         }
     }
 
@@ -250,7 +268,8 @@ function renderTreeMove(
     parentPath = '',
     parentDisclose?: TreeDiscloseState,
 ): VNode {
-    const move = (ctrl.fog && ctrl.status < 0 && (node.step.turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : node.step.san;
+    const move =
+        ctrl.fog && ctrl.status < 0 && (node.step.turnColor === ctrl.mycolor || ctrl.spectator) ? '?' : node.step.san;
     const activePath = ctrl.getTreeActivePath?.();
     const isWhiteMove = node.step.turnColor === 'black';
     let prefix = '';
@@ -263,57 +282,54 @@ function renderTreeMove(
     }
 
     const scoreStr = node.step.scoreStr ?? '';
-    const evalNode = node.mainlinePly !== undefined
-        ? h(`eval#ply${node.mainlinePly}`, scoreStr)
-        : h('eval', scoreStr);
+    const evalNode = node.mainlinePly !== undefined ? h(`eval#ply${node.mainlinePly}`, scoreStr) : h('eval', scoreStr);
 
     const recordedMainlinePly = (ctrl as GameController & { recordedMainlinePly?: number }).recordedMainlinePly;
     const theoretical =
-        node.mainlinePly === undefined
-        || (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
+        node.mainlinePly === undefined ||
+        (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
     const currentline = treePathContains(path, activePath);
     const recorded = node.mainlinePly !== undefined && !theoretical;
     const showDisclosureButtons = ctrl.isTreeDisclosureMode?.() ?? false;
     const disclosureButton =
         parentDisclose && showDisclosureButtons
             ? h('button.disclosure', {
-                class: { expanded: parentDisclose === 'expanded' },
-                on: {
-                    click: (event: MouseEvent) => {
-                        event.stopPropagation();
-                        ctrl.toggleTreeCollapsed?.(parentPath);
-                    }
-                },
-            })
+                  class: { expanded: parentDisclose === 'expanded' },
+                  on: {
+                      click: (event: MouseEvent) => {
+                          event.stopPropagation();
+                          ctrl.toggleTreeCollapsed?.(parentPath);
+                      },
+                  },
+              })
             : undefined;
 
-    return h('move', {
-        class: {
-            active: path === ctrl.getTreeActivePath?.(),
-            currentline,
-            selected: path === ctrl.getTreeSelectedChildPath?.(),
-            recorded,
-            theoretical,
-            branchpoint: node.children.length > 1,
-            sideline: !isMainline,
-            'tree-node': true,
-            mainline: isMainline,
-        },
-        attrs: { 'data-path': path },
-        on: {
-            click: () => ctrl.activateTreePath?.(path),
-            contextmenu: (event: MouseEvent) => {
-                event.preventDefault();
-                event.stopPropagation();
-                ctrl.openTreeContextMenu?.(path, event.clientX, event.clientY);
+    return h(
+        'move',
+        {
+            class: {
+                active: path === ctrl.getTreeActivePath?.(),
+                currentline,
+                selected: path === ctrl.getTreeSelectedChildPath?.(),
+                recorded,
+                theoretical,
+                branchpoint: node.children.length > 1,
+                sideline: !isMainline,
+                'tree-node': true,
+                mainline: isMainline,
+            },
+            attrs: { 'data-path': path },
+            on: {
+                click: () => ctrl.activateTreePath?.(path),
+                contextmenu: (event: MouseEvent) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    ctrl.openTreeContextMenu?.(path, event.clientX, event.clientY);
+                },
             },
         },
-    }, [
-        disclosureButton,
-        prefix ? h('index', prefix) : undefined,
-        ...renderTreeMoveText(move),
-        evalNode,
-    ]);
+        [disclosureButton, prefix ? h('index', prefix) : undefined, ...renderTreeMoveText(move), evalNode],
+    );
 }
 
 function renderTreeBranch(
@@ -339,43 +355,46 @@ function renderTreeBranch(
         const currentNode: AnalysisTreeNode = current;
         if (isMainline && currentNode.forceVariation) {
             if (currentParentDisclose !== 'collapsed') {
-                [currentNode, ...currentBranchSiblings].forEach((sideline) => {
-                    out.push(h('inline', renderTreeBranch(
-                        ctrl,
-                        sideline,
-                        [],
-                        true,
-                        rootTurnColor,
-                        false,
-                        currentParentPath,
-                        undefined,
-                    )));
+                [currentNode, ...currentBranchSiblings].forEach(sideline => {
+                    out.push(
+                        h(
+                            'inline',
+                            renderTreeBranch(
+                                ctrl,
+                                sideline,
+                                [],
+                                true,
+                                rootTurnColor,
+                                false,
+                                currentParentPath,
+                                undefined,
+                            ),
+                        ),
+                    );
                 });
             }
             break;
         }
-        out.push(renderTreeMove(
-            ctrl,
-            currentNode.path,
-            currentNode,
-            rootTurnColor,
-            isFirst,
-            isMainline,
-            currentParentPath,
-            currentParentDisclose,
-        ));
+        out.push(
+            renderTreeMove(
+                ctrl,
+                currentNode.path,
+                currentNode,
+                rootTurnColor,
+                isFirst,
+                isMainline,
+                currentParentPath,
+                currentParentDisclose,
+            ),
+        );
         if (currentParentDisclose !== 'collapsed') {
-            currentBranchSiblings.forEach((sideline) => {
-                out.push(h('inline', renderTreeBranch(
-                    ctrl,
-                    sideline,
-                    [],
-                    true,
-                    rootTurnColor,
-                    false,
-                    currentParentPath,
-                    undefined,
-                )));
+            currentBranchSiblings.forEach(sideline => {
+                out.push(
+                    h(
+                        'inline',
+                        renderTreeBranch(ctrl, sideline, [], true, rootTurnColor, false, currentParentPath, undefined),
+                    ),
+                );
             });
         }
 
@@ -395,7 +414,10 @@ function renderTreeMovelist(ctrl: TreeCtrl): VNode[] {
     const moves: VNode[] = [];
     const mainline = root.children[0];
     const rootDisclose = treeDiscloseState(root);
-    if (mainline) moves.push(...renderTreeBranch(ctrl, mainline, root.children.slice(1), false, rootTurnColor, true, '', rootDisclose));
+    if (mainline)
+        moves.push(
+            ...renderTreeBranch(ctrl, mainline, root.children.slice(1), false, rootTurnColor, true, '', rootDisclose),
+        );
     return moves;
 }
 
@@ -416,7 +438,7 @@ interface TreeColumnArgs {
 function hasBranching(node: AnalysisTreeNode, depth: number): boolean {
     if (node.children.length > 1) return true;
     if (depth <= 1) return false;
-    return node.children.some((child) => hasBranching(child, depth - 1));
+    return node.children.some(child => hasBranching(child, depth - 1));
 }
 
 function isParentheticalVariation(node: AnalysisTreeNode): boolean {
@@ -448,66 +470,61 @@ function renderTreeColumnMove(
     parentPath = '',
     parentDisclose?: TreeDiscloseState,
 ): VNode {
-    const move = (ctrl.fog && ctrl.status < 0 && (node.step.turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : node.step.san;
+    const move =
+        ctrl.fog && ctrl.status < 0 && (node.step.turnColor === ctrl.mycolor || ctrl.spectator) ? '?' : node.step.san;
     const activePath = ctrl.getTreeActivePath?.();
     const scoreStr = node.step.scoreStr ?? '';
-    const evalNode = node.mainlinePly !== undefined
-        ? h(`eval#ply${node.mainlinePly}`, scoreStr)
-        : h('eval', scoreStr);
+    const evalNode = node.mainlinePly !== undefined ? h(`eval#ply${node.mainlinePly}`, scoreStr) : h('eval', scoreStr);
 
     const recordedMainlinePly = (ctrl as GameController & { recordedMainlinePly?: number }).recordedMainlinePly;
     const theoretical =
-        node.mainlinePly === undefined
-        || (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
+        node.mainlinePly === undefined ||
+        (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
     const currentline = treePathContains(path, activePath);
     const recorded = node.mainlinePly !== undefined && !theoretical;
     const showDisclosureButtons = ctrl.isTreeDisclosureMode?.() ?? false;
     const disclosureButton =
         parentDisclose && showDisclosureButtons
             ? h('button.disclosure', {
-                class: { expanded: parentDisclose === 'expanded' },
-                on: {
-                    click: (event: MouseEvent) => {
-                        event.stopPropagation();
-                        ctrl.toggleTreeCollapsed?.(parentPath);
-                    }
-                },
-            })
+                  class: { expanded: parentDisclose === 'expanded' },
+                  on: {
+                      click: (event: MouseEvent) => {
+                          event.stopPropagation();
+                          ctrl.toggleTreeCollapsed?.(parentPath);
+                      },
+                  },
+              })
             : undefined;
 
-    return h('move', {
-        class: {
-            active: path === ctrl.getTreeActivePath?.(),
-            currentline,
-            selected: path === ctrl.getTreeSelectedChildPath?.(),
-            recorded,
-            theoretical,
-            branchpoint: node.children.length > 1,
-            sideline: !isMainline,
-            'tree-node': true,
-            mainline: isMainline,
-        },
-        attrs: { 'data-path': path },
-        on: {
-            click: () => ctrl.activateTreePath?.(path),
-            contextmenu: (event: MouseEvent) => {
-                event.preventDefault();
-                event.stopPropagation();
-                ctrl.openTreeContextMenu?.(path, event.clientX, event.clientY);
+    return h(
+        'move',
+        {
+            class: {
+                active: path === ctrl.getTreeActivePath?.(),
+                currentline,
+                selected: path === ctrl.getTreeSelectedChildPath?.(),
+                recorded,
+                theoretical,
+                branchpoint: node.children.length > 1,
+                sideline: !isMainline,
+                'tree-node': true,
+                mainline: isMainline,
+            },
+            attrs: { 'data-path': path },
+            on: {
+                click: () => ctrl.activateTreePath?.(path),
+                contextmenu: (event: MouseEvent) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    ctrl.openTreeContextMenu?.(path, event.clientX, event.clientY);
+                },
             },
         },
-    }, [
-        disclosureButton,
-        ...renderTreeMoveText(move),
-        evalNode,
-    ]);
+        [disclosureButton, ...renderTreeMoveText(move), evalNode],
+    );
 }
 
-function renderTreeLineSequence(
-    ctrl: TreeCtrl,
-    nodes: AnalysisTreeNode[],
-    args: TreeColumnArgs,
-): VNode[] {
+function renderTreeLineSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args: TreeColumnArgs): VNode[] {
     // Column mode still reuses inline fragments inside a sideline row. The split between
     // `renderTreeLineSequence` and `renderTreeVariationLines` is what lets us switch
     // between "same flowing row" and "start a new branch row" at each branching point.
@@ -553,43 +570,41 @@ function renderTreeLineSequence(
     return moves;
 }
 
-function renderTreeVariationLines(
-    ctrl: TreeCtrl,
-    lines: AnalysisTreeNode[],
-    args: TreeColumnArgs,
-): VNode {
+function renderTreeVariationLines(ctrl: TreeCtrl, lines: AnalysisTreeNode[], args: TreeColumnArgs): VNode {
     // Only direct sibling alternatives become separate rows in column mode.
     // Once inside one of those rows, deeper sub-variations continue inline so the
     // row wraps naturally at panel boundaries like a long notation string.
     if (!args.isMainline && (args.parenthetical || args.flowInline)) {
-        return h('inline', renderTreeLineSequence(ctrl, lines, {
-            ...args,
-            isMainline: false,
-            parentDisclose: undefined,
-            firstInVariation: true,
-            flowInline: true,
-        }));
-    }
-
-    return h('lines', lines.map((line) =>
-        h('line', [
-            h('branch'),
-            ...renderTreeLineSequence(ctrl, [line], {
+        return h(
+            'inline',
+            renderTreeLineSequence(ctrl, lines, {
                 ...args,
                 isMainline: false,
                 parentDisclose: undefined,
                 firstInVariation: true,
                 flowInline: true,
             }),
-        ])
-    ));
+        );
+    }
+
+    return h(
+        'lines',
+        lines.map(line =>
+            h('line', [
+                h('branch'),
+                ...renderTreeLineSequence(ctrl, [line], {
+                    ...args,
+                    isMainline: false,
+                    parentDisclose: undefined,
+                    firstInVariation: true,
+                    flowInline: true,
+                }),
+            ]),
+        ),
+    );
 }
 
-function renderTreeColumnNodes(
-    ctrl: TreeCtrl,
-    nodes: AnalysisTreeNode[],
-    args: TreeColumnArgs,
-): VNode[] {
+function renderTreeColumnNodes(ctrl: TreeCtrl, nodes: AnalysisTreeNode[], args: TreeColumnArgs): VNode[] {
     // Top-level column mode preserves the traditional "move number / white / black"
     // rhythm, but hands side branches off to `interrupt -> lines -> line` blocks.
     const [child, ...siblings] = nodes;
@@ -620,10 +635,12 @@ function renderTreeColumnNodes(
     }
 
     if (child.children.length > 0) {
-        out.push(...renderTreeColumnNodes(ctrl, child.children, {
-            ...nextTreeColumnArgs(child, args, true),
-            parentDisclose: treeDiscloseState(child),
-        }));
+        out.push(
+            ...renderTreeColumnNodes(ctrl, child.children, {
+                ...nextTreeColumnArgs(child, args, true),
+                parentDisclose: treeDiscloseState(child),
+            }),
+        );
     }
 
     return out;
@@ -638,15 +655,17 @@ function renderTreeColumnMovelist(ctrl: TreeCtrl): VNode[] {
         moves.push(h('move.empty', '...'));
     }
 
-    moves.push(...renderTreeColumnNodes(ctrl, root.children, {
-        isMainline: true,
-        rootTurnColor: root.step.turnColor,
-        parentNode: root,
-        parentPath: '',
-        parentDisclose: treeDiscloseState(root),
-        firstInVariation: false,
-        flowInline: false,
-    }));
+    moves.push(
+        ...renderTreeColumnNodes(ctrl, root.children, {
+            isMainline: true,
+            rootTurnColor: root.step.turnColor,
+            parentNode: root,
+            parentPath: '',
+            parentDisclose: treeDiscloseState(root),
+            firstInVariation: false,
+            flowInline: false,
+        }),
+    );
 
     return moves;
 }
@@ -658,16 +677,18 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     const current = ctrl.getTreeNodeAtPath?.(menu.path);
     if (!current) return undefined;
 
-    const onMainline = (ctrl.pathIsTreeMainline?.(menu.path) ?? true) && !(ctrl.pathIsTreeForcedVariation?.(menu.path) ?? false);
+    const onMainline =
+        (ctrl.pathIsTreeMainline?.(menu.path) ?? true) && !(ctrl.pathIsTreeForcedVariation?.(menu.path) ?? false);
     const canPromote = ctrl.canPromoteTreeVariation?.(menu.path) ?? false;
     const actions: VNode[] = [];
     const action = (iconClass: TreeMenuIconClass, text: string, onClick: () => void) =>
-        h('button', {
-            on: { click: onClick },
-        }, [
-            h(`i.icon.${iconClass}`),
-            h('span', text),
-        ]);
+        h(
+            'button',
+            {
+                on: { click: onClick },
+            },
+            [h(`i.icon.${iconClass}`), h('span', text)],
+        );
     const positionMenu = (el: HTMLElement) => {
         const container = el.offsetParent as HTMLElement | null;
         if (!container) return;
@@ -682,7 +703,9 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     };
 
     if (canPromote) {
-        actions.push(action('icon-arrow-up-right', _('Promote variation'), () => ctrl.promoteTreeVariation?.(menu.path, false)));
+        actions.push(
+            action('icon-arrow-up-right', _('Promote variation'), () => ctrl.promoteTreeVariation?.(menu.path, false)),
+        );
     }
 
     if (!onMainline) {
@@ -690,7 +713,11 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     }
 
     if (menu.path && onMainline) {
-        actions.push(action('icon-arrow-down-right', _('Convert to variation'), () => ctrl.forceTreeVariation?.(menu.path, true)));
+        actions.push(
+            action('icon-arrow-down-right', _('Convert to variation'), () =>
+                ctrl.forceTreeVariation?.(menu.path, true),
+            ),
+        );
     }
 
     if (ctrl.someTreeCollapsed?.(false)) {
@@ -701,31 +728,32 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
         actions.push(action('icon-plus-square', _('Expand all'), () => ctrl.expandAllTree?.()));
     }
 
-    actions.push(action(
-        'icon-clipboard',
-        onMainline ? _('Copy main line PGN') : _('Copy variation PGN'),
-        () => ctrl.copyTreeLinePgn?.(menu.path),
-    ));
+    actions.push(
+        action('icon-clipboard', onMainline ? _('Copy main line PGN') : _('Copy variation PGN'), () =>
+            ctrl.copyTreeLinePgn?.(menu.path),
+        ),
+    );
 
     if (menu.path) {
         actions.push(action('icon-trash-o', _('Delete from here'), () => ctrl.deleteTreeNode?.(menu.path)));
     }
 
-    return h('div.tree-context-menu', {
-        hook: {
-            insert: (vnode) => positionMenu(vnode.elm as HTMLElement),
-            postpatch: (_oldVnode, vnode) => positionMenu(vnode.elm as HTMLElement),
+    return h(
+        'div.tree-context-menu',
+        {
+            hook: {
+                insert: vnode => positionMenu(vnode.elm as HTMLElement),
+                postpatch: (_oldVnode, vnode) => positionMenu(vnode.elm as HTMLElement),
+            },
+            on: {
+                click: (event: MouseEvent) => event.stopPropagation(),
+            },
         },
-        on: {
-            click: (event: MouseEvent) => event.stopPropagation(),
-        },
-    }, [
-        h('div.title', current.step.san ?? _('Start position')),
-        ...actions,
-    ]);
+        [h('div.title', current.step.san ?? _('Start position')), ...actions],
+    );
 }
 
-export function updateMovelist (ctrl: GameController, full = true, activate = true, needResult = true) {
+export function updateMovelist(ctrl: GameController, full = true, activate = true, needResult = true) {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
         const inlineNotation = treeCtrl.isTreeInlineNotation?.() ?? false;
@@ -742,19 +770,26 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
                 container.removeChild(container.lastChild);
             }
         }
-        ctrl.vmovelist = patch(container, h('div#movelist', {
-            class: {
-                tview2: true,
-                'tview2-inline': inlineNotation,
-                'tview2-column': !inlineNotation,
-                'analysis-tree': true,
-            },
-        }, moves));
+        ctrl.vmovelist = patch(
+            container,
+            h(
+                'div#movelist',
+                {
+                    class: {
+                        tview2: true,
+                        'tview2-inline': inlineNotation,
+                        'tview2-column': !inlineNotation,
+                        'analysis-tree': true,
+                    },
+                },
+                moves,
+            ),
+        );
         if (activate) scrollToPly(ctrl);
         return;
     }
 
-    const plyFrom = (full) ? 1 : ctrl.steps.length -1
+    const plyFrom = full ? 1 : ctrl.steps.length - 1;
     const plyTo = ctrl.steps.length;
 
     const moves: VNode[] = [];
@@ -766,28 +801,37 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
     }
 
     for (let ply = plyFrom; ply < plyTo; ply++) {
-        const move = (ctrl.fog && ctrl.status < 0 && (ctrl.steps[ply].turnColor === ctrl.mycolor || ctrl.spectator)) ? '?' : ctrl.steps[ply].san;
+        const move =
+            ctrl.fog && ctrl.status < 0 && (ctrl.steps[ply].turnColor === ctrl.mycolor || ctrl.spectator)
+                ? '?'
+                : ctrl.steps[ply].san;
         if (move === null) continue;
 
         const whiteMove = ctrl.steps[ply].turnColor === 'black';
-        const moveEl = [ h('san', move) ];
+        const moveEl = [h('san', move)];
         const scoreStr = ctrl.steps[ply]['scoreStr'] ?? '';
         moveEl.push(h('eval#ply' + ply, scoreStr));
 
-        if (whiteMove)
-            moves.push(h('move.counter', Math.ceil((ply + 1) / 2)));
+        if (whiteMove) moves.push(h('move.counter', Math.ceil((ply + 1) / 2)));
 
-        const el = h('move', {
-            class: {
-                active: ((ply === plyTo - 1) && activate),
-                theoretical: isTheoreticalMove(ply, ctrl.status, (ctrl as GameController & { recordedMainlinePly?: number }).recordedMainlinePly),
+        const el = h(
+            'move',
+            {
+                class: {
+                    active: ply === plyTo - 1 && activate,
+                    theoretical: isTheoreticalMove(
+                        ply,
+                        ctrl.status,
+                        (ctrl as GameController & { recordedMainlinePly?: number }).recordedMainlinePly,
+                    ),
+                },
+                attrs: { ply: ply },
+                on: { click: () => selectMove(ctrl, ply) },
             },
-            attrs: { ply: ply },
-            on: { click: () => selectMove(ctrl, ply) },
-        }, moveEl);
+            moveEl,
+        );
 
         moves.push(el);
-        
     }
 
     if (ctrl.status >= 0 && needResult) {
@@ -809,7 +853,7 @@ export function updateMovelist (ctrl: GameController, full = true, activate = tr
     }
 }
 
-export function updateResult (ctrl: GameController) {
+export function updateResult(ctrl: GameController) {
     if (ctrl.status < 0) return;
 
     // Prevent to render it twice
@@ -817,9 +861,12 @@ export function updateResult (ctrl: GameController) {
     if (resultEl) return;
 
     const container = document.getElementById('movelist') as HTMLElement;
-    ctrl.vmovelist = patch(container, h('div#movelist', [
-        h('div.result', ctrl.result),
-        h('div.status', result(ctrl.variant, ctrl.status, ctrl.result))
-    ]));
+    ctrl.vmovelist = patch(
+        container,
+        h('div#movelist', [
+            h('div.result', ctrl.result),
+            h('div.status', result(ctrl.variant, ctrl.status, ctrl.result)),
+        ]),
+    );
     container.scrollTop = 99999;
 }

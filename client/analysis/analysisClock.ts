@@ -16,8 +16,8 @@ function getClockSourceStep(ctrl: AnalysisController) {
 }
 
 export function renderClocks(ctrl: AnalysisController) {
-    const isWhiteTurn = ctrl.turnColor === "white";
-    const whitePov = (ctrl.mycolor === "white" && !ctrl.flipped()) || ( ctrl.mycolor === "black" && ctrl.flipped());
+    const isWhiteTurn = ctrl.turnColor === 'white';
+    const whitePov = (ctrl.mycolor === 'white' && !ctrl.flipped()) || (ctrl.mycolor === 'black' && ctrl.flipped());
     const clockStep = getClockSourceStep(ctrl);
 
     const wclass = whitePov ? 'bottom' : 'top';
@@ -37,25 +37,25 @@ export function renderClocks(ctrl: AnalysisController) {
 }
 
 function renderClock(time: number | undefined, active: boolean, cls: string): VNode {
-  return h(
-    'div.anal-clock.' + cls,
-    {
-      class: { active },
-    },
-    clockContent(time)
-  );
+    return h(
+        'div.anal-clock.' + cls,
+        {
+            class: { active },
+        },
+        clockContent(time),
+    );
 }
 
 function clockContent(time: number | undefined): Array<string | VNode> {
-  if (!time && time !== 0) return ['-'];
-  const date = new Date(time),
-    millis = date.getUTCMilliseconds(),
-    sep = ':',
-    baseStr = pad2(date.getUTCMinutes()) + sep + pad2(date.getUTCSeconds());
-  if (time >= 3600000) return [Math.floor(time / 3600000) + sep + baseStr];
-  return time >= 60000 ? [baseStr] : [baseStr, h('tenths', '.' + Math.floor(millis / 100).toString())];
+    if (!time && time !== 0) return ['-'];
+    const date = new Date(time),
+        millis = date.getUTCMilliseconds(),
+        sep = ':',
+        baseStr = pad2(date.getUTCMinutes()) + sep + pad2(date.getUTCSeconds());
+    if (time >= 3600000) return [Math.floor(time / 3600000) + sep + baseStr];
+    return time >= 60000 ? [baseStr] : [baseStr, h('tenths', '.' + Math.floor(millis / 100).toString())];
 }
 
 function pad2(num: number): string {
-  return (num < 10 ? '0' : '') + num;
+    return (num < 10 ? '0' : '') + num;
 }

@@ -179,7 +179,6 @@ promotionPieceTypes = -`,
     expect(variant.kingRoles).toContain('pk-piece');
 });
 
-
 test('FSF built-in Nightrider identity does not match standard knight letters', () => {
     const meta: CataloguedVariantClientDocument = {
         name: 'testfsfnightriderletters',

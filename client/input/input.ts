@@ -7,7 +7,7 @@ export type InputType = 'gating' | 'promotion' | 'duck';
 export abstract class ExtraInput {
     protected readonly ctrl: GameController;
     protected type: InputType;
-    protected data?: { piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata };
+    protected data?: { piece: cg.Piece; orig: cg.Orig; dest: cg.Key; meta: cg.MoveMetadata };
 
     constructor(ctrl: GameController) {
         this.ctrl = ctrl;

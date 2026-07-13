@@ -2,13 +2,13 @@ import { h, VNode } from 'snabbdom';
 
 import { _ } from '@/i18n';
 import AnalysisControllerBughouse from './analysisCtrl.bug';
-import { result } from '../result'
+import { result } from '../result';
 import { patch } from '../document';
-import { RoundControllerBughouse } from "./roundCtrl.bug";
-import {Step, StepChat} from "../messages";
-import { displayUsername, isAnonUsername } from "@/user";
-import { AnalysisTreeNode, nodeAtPath, parentPath } from "../analysis/analysisTree";
-import { bugMovePrefix } from "./analysisTreeBug";
+import { RoundControllerBughouse } from './roundCtrl.bug';
+import { Step, StepChat } from '../messages';
+import { displayUsername, isAnonUsername } from '@/user';
+import { AnalysisTreeNode, nodeAtPath, parentPath } from '../analysis/analysisTree';
+import { bugMovePrefix } from './analysisTreeBug';
 
 type TreeCtrl = AnalysisControllerBughouse & {
     analysisTree?: { root: AnalysisTreeNode };
@@ -66,7 +66,7 @@ function asTreeCtrl(ctrl: AnalysisControllerBughouse | RoundControllerBughouse):
     return treeCtrl.hasAnalysisTree?.() ? treeCtrl : undefined;
 }
 
-export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number): void {
+export function selectMove(ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number): void {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
         if (ply < 0) return;
@@ -77,7 +77,7 @@ export function selectMove (ctrl: AnalysisControllerBughouse | RoundControllerBu
     }
 
     if (ply < 0 || ply > ctrl.steps.length - 1) {
-        return
+        return;
     }
 
     ctrl.goPly(ply, 0);
@@ -94,20 +94,22 @@ export function selectMainlineMove(ctrl: AnalysisControllerBughouse | RoundContr
     selectMove(ctrl, ply);
 }
 
-function activatePly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
+function activatePly(ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
     const active = document.querySelector('move-bug.active');
     if (active) {
-        const p = active.getAttribute("ply");
+        const p = active.getAttribute('ply');
         active.classList.remove('active');
-        document.querySelectorAll('move-bug[_ply="'+p+'"]').forEach(v => v.setAttribute("style", "display: none;"));
+        document.querySelectorAll('move-bug[_ply="' + p + '"]').forEach(v => v.setAttribute('style', 'display: none;'));
     }
 
     const elPly = document.querySelector(`move-bug[ply="${ctrl.ply}"]`);
     if (elPly) elPly.classList.add('active');
-    document.querySelectorAll('move-bug[_ply="'+ctrl.ply+'"]').forEach(v => v.setAttribute("style", "display: block;"));
+    document
+        .querySelectorAll('move-bug[_ply="' + ctrl.ply + '"]')
+        .forEach(v => v.setAttribute('style', 'display: block;'));
 }
 
-function scrollToPly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
+function scrollToPly(ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
     if (ctrl.steps.length < 9) return;
     const movelistEl = document.getElementById('movelist') as HTMLElement;
     const plyEl = movelistEl.querySelector('move-bug.active, vari-move.active') as HTMLElement | null;
@@ -118,11 +120,10 @@ function scrollToPly (ctrl: AnalysisControllerBughouse | RoundControllerBughouse
     else if (ctrl.ply === ctrl.steps.length - 1) st = 99999;
     else if (plyEl) st = plyEl.offsetTop - movelistEl.offsetHeight / 2 + plyEl.offsetHeight / 2;
 
-    if (st !== undefined)
-        movelistEl.scrollTop = st;
+    if (st !== undefined) movelistEl.scrollTop = st;
 }
 
-export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundControllerBughouse ) {
+export function createMovelistButtons(ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
     const container = document.getElementById('move-controls') as HTMLElement;
 
     const selectVariationBound = (goToStart: boolean) => {
@@ -136,36 +137,62 @@ export function createMovelistButtons (ctrl: AnalysisControllerBughouse | RoundC
     };
 
     let buttons = [
-        h('button', { on: { click: () => ctrl.flipBoards() }, props: { title: _('Flip boards')} }, [ h('i.icon.icon-refresh') ]),
-        h('button', { on: { click: () => ctrl.switchBoards() }, props: { title: _('Switch boards')} }, [ h('i.icon.icon-exchange') ]),
-        h('button', { on: { click: () => selectVariationBound(true) } }, [ h('i.icon.icon-fast-backward') ]),
-        h('button', { on: { click: () => {
-            const treeCtrl = asTreeCtrl(ctrl);
-            if (treeCtrl) {
-                const target = treeCtrl.getTreeParentPath?.();
-                if (target !== undefined) treeCtrl.activateTreePath?.(target);
-            } else {
-                selectMove(ctrl, ctrl.ply - 1);
-            }
-        } } }, [ h('i.icon.icon-step-backward') ]),
-        h('button', { on: { click: () => {
-            const treeCtrl = asTreeCtrl(ctrl);
-            if (treeCtrl) {
-                const target = treeCtrl.getTreeMainChildPath?.();
-                if (target !== undefined) treeCtrl.activateTreePath?.(target);
-            } else {
-                selectMove(ctrl, ctrl.ply + 1);
-            }
-        } } }, [ h('i.icon.icon-step-forward') ]),
-        h('button', { on: { click: () => selectVariationBound(false) } }, [ h('i.icon.icon-fast-forward') ]),
+        h('button', { on: { click: () => ctrl.flipBoards() }, props: { title: _('Flip boards') } }, [
+            h('i.icon.icon-refresh'),
+        ]),
+        h('button', { on: { click: () => ctrl.switchBoards() }, props: { title: _('Switch boards') } }, [
+            h('i.icon.icon-exchange'),
+        ]),
+        h('button', { on: { click: () => selectVariationBound(true) } }, [h('i.icon.icon-fast-backward')]),
+        h(
+            'button',
+            {
+                on: {
+                    click: () => {
+                        const treeCtrl = asTreeCtrl(ctrl);
+                        if (treeCtrl) {
+                            const target = treeCtrl.getTreeParentPath?.();
+                            if (target !== undefined) treeCtrl.activateTreePath?.(target);
+                        } else {
+                            selectMove(ctrl, ctrl.ply - 1);
+                        }
+                    },
+                },
+            },
+            [h('i.icon.icon-step-backward')],
+        ),
+        h(
+            'button',
+            {
+                on: {
+                    click: () => {
+                        const treeCtrl = asTreeCtrl(ctrl);
+                        if (treeCtrl) {
+                            const target = treeCtrl.getTreeMainChildPath?.();
+                            if (target !== undefined) treeCtrl.activateTreePath?.(target);
+                        } else {
+                            selectMove(ctrl, ctrl.ply + 1);
+                        }
+                    },
+                },
+            },
+            [h('i.icon.icon-step-forward')],
+        ),
+        h('button', { on: { click: () => selectVariationBound(false) } }, [h('i.icon.icon-fast-forward')]),
     ];
     ctrl.moveControls = patch(container, h('div#btn-controls-top.btn-controls', buttons));
 }
 
-function fillWithEmpty(moves: VNode[], countOfEmptyCellsToAdd: number, cls: string = '', ply: string = '', style: string = '') {
-    for (let i = 0; i<countOfEmptyCellsToAdd;i++) {
-        moves.push(h('move-bug.counter'+cls, {attrs: { _ply: ply, style: style }}));
-        const el = h('move-bug'+cls, {attrs: { _ply: ply, style: style }});
+function fillWithEmpty(
+    moves: VNode[],
+    countOfEmptyCellsToAdd: number,
+    cls: string = '',
+    ply: string = '',
+    style: string = '',
+) {
+    for (let i = 0; i < countOfEmptyCellsToAdd; i++) {
+        moves.push(h('move-bug.counter' + cls, { attrs: { _ply: ply, style: style } }));
+        const el = h('move-bug' + cls, { attrs: { _ply: ply, style: style } });
         moves.push(el);
     }
 }
@@ -212,11 +239,7 @@ function renderTreeMoveText(prefix: string, move: string | undefined): VNode[] {
     return nodes;
 }
 
-function isTheoreticalMove(
-    ply: number,
-    status: number,
-    recordedMainlinePly: number | undefined,
-) {
+function isTheoreticalMove(ply: number, status: number, recordedMainlinePly: number | undefined) {
     return status >= 0 && recordedMainlinePly !== undefined && ply > recordedMainlinePly;
 }
 
@@ -235,44 +258,44 @@ function renderTreeVariationMove(
     const currentline = treePathContains(node.path, activePath);
     const recordedMainlinePly = ctrl.recordedMainlinePly;
     const theoretical =
-        node.mainlinePly === undefined
-        || (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
+        node.mainlinePly === undefined ||
+        (node.mainlinePly !== undefined && isTheoreticalMove(node.mainlinePly, ctrl.status, recordedMainlinePly));
     const recorded = node.mainlinePly !== undefined && !theoretical;
-    const disclosureButton =
-        disclosureState
-            ? h('button.disclosure', {
-                class: { expanded: disclosureState === 'expanded' },
-                on: {
-                    click: (event: MouseEvent) => {
-                        event.stopPropagation();
-                        ctrl.toggleTreeCollapsed?.(disclosureParentPath);
-                    },
-                },
-            })
-            : undefined;
+    const disclosureButton = disclosureState
+        ? h('button.disclosure', {
+              class: { expanded: disclosureState === 'expanded' },
+              on: {
+                  click: (event: MouseEvent) => {
+                      event.stopPropagation();
+                      ctrl.toggleTreeCollapsed?.(disclosureParentPath);
+                  },
+              },
+          })
+        : undefined;
 
-    return h('vari-move', {
-        class: {
-            active: node.path === ctrl.getTreeActivePath?.(),
-            selected: node.path === ctrl.getTreeSelectedChildPath?.(),
-            currentline,
-            recorded,
-            theoretical,
-            branchpoint: node.children.length > 1,
-        },
-        attrs: { ply: node.ply, 'data-path': node.path },
-        on: {
-            click: () => ctrl.activateTreePath?.(node.path),
-            contextmenu: (event: MouseEvent) => {
-                event.preventDefault();
-                event.stopPropagation();
-                ctrl.openTreeContextMenu?.(node.path, event.clientX, event.clientY);
+    return h(
+        'vari-move',
+        {
+            class: {
+                active: node.path === ctrl.getTreeActivePath?.(),
+                selected: node.path === ctrl.getTreeSelectedChildPath?.(),
+                currentline,
+                recorded,
+                theoretical,
+                branchpoint: node.children.length > 1,
+            },
+            attrs: { ply: node.ply, 'data-path': node.path },
+            on: {
+                click: () => ctrl.activateTreePath?.(node.path),
+                contextmenu: (event: MouseEvent) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    ctrl.openTreeContextMenu?.(node.path, event.clientX, event.clientY);
+                },
             },
         },
-    }, [
-        disclosureButton,
-        ...renderTreeMoveText(bugMovePrefix(node.step), node.step.san),
-    ]);
+        [disclosureButton, ...renderTreeMoveText(bugMovePrefix(node.step), node.step.san)],
+    );
 }
 
 function renderTreeVariationSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[]): VNode[] {
@@ -290,13 +313,13 @@ function renderTreeVariationSequence(ctrl: TreeCtrl, nodes: AnalysisTreeNode[]):
     while (current) {
         moves.push(renderTreeVariationMove(ctrl, current, currentParentPath, currentParentDisclose));
         if (currentParentDisclose !== 'collapsed') {
-            branchSiblings.forEach((sideline) => {
+            branchSiblings.forEach(sideline => {
                 moves.push(h('inline', renderTreeVariationSequence(ctrl, [sideline])));
             });
         }
         branchSiblings = [];
         if (!current.collapsed) {
-            current.children.slice(1).forEach((sideline) => {
+            current.children.slice(1).forEach(sideline => {
                 moves.push(h('inline', renderTreeVariationSequence(ctrl, [sideline])));
             });
         }
@@ -312,7 +335,7 @@ function renderTreeVariationRows(ctrl: TreeCtrl, nodes: AnalysisTreeNode[]): VNo
     return nodes.map((node, idx) =>
         h(`vari#tree-vari-${idx}-${node.path.replace(/\./g, '-')}`, { class: { 'tree-variation': true } }, [
             ...renderTreeVariationSequence(ctrl, [node]),
-        ])
+        ]),
     );
 }
 
@@ -333,16 +356,18 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     const current = ctrl.getTreeNodeAtPath?.(menu.path);
     if (!current) return undefined;
 
-    const onMainline = (ctrl.pathIsTreeMainline?.(menu.path) ?? true) && !(ctrl.pathIsTreeForcedVariation?.(menu.path) ?? false);
+    const onMainline =
+        (ctrl.pathIsTreeMainline?.(menu.path) ?? true) && !(ctrl.pathIsTreeForcedVariation?.(menu.path) ?? false);
     const canPromote = ctrl.canPromoteTreeVariation?.(menu.path) ?? false;
     const actions: VNode[] = [];
     const action = (iconClass: TreeMenuIconClass, text: string, onClick: () => void) =>
-        h('button', {
-            on: { click: onClick },
-        }, [
-            h(`i.icon.${iconClass}`),
-            h('span', text),
-        ]);
+        h(
+            'button',
+            {
+                on: { click: onClick },
+            },
+            [h(`i.icon.${iconClass}`), h('span', text)],
+        );
     const positionMenu = (el: HTMLElement) => {
         const container = el.offsetParent as HTMLElement | null;
         if (!container) return;
@@ -357,7 +382,9 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     };
 
     if (canPromote) {
-        actions.push(action('icon-arrow-up-right', _('Promote variation'), () => ctrl.promoteTreeVariation?.(menu.path, false)));
+        actions.push(
+            action('icon-arrow-up-right', _('Promote variation'), () => ctrl.promoteTreeVariation?.(menu.path, false)),
+        );
     }
 
     if (!onMainline) {
@@ -365,7 +392,11 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     }
 
     if (menu.path && onMainline) {
-        actions.push(action('icon-arrow-down-right', _('Convert to variation'), () => ctrl.forceTreeVariation?.(menu.path, true)));
+        actions.push(
+            action('icon-arrow-down-right', _('Convert to variation'), () =>
+                ctrl.forceTreeVariation?.(menu.path, true),
+            ),
+        );
     }
 
     if (ctrl.someTreeCollapsed?.(false)) {
@@ -376,31 +407,37 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
         actions.push(action('icon-plus-square', _('Expand all'), () => ctrl.expandAllTree?.()));
     }
 
-    actions.push(action(
-        'icon-clipboard',
-        onMainline ? _('Copy main line PGN') : _('Copy variation PGN'),
-        () => ctrl.copyTreeLinePgn?.(menu.path),
-    ));
+    actions.push(
+        action('icon-clipboard', onMainline ? _('Copy main line PGN') : _('Copy variation PGN'), () =>
+            ctrl.copyTreeLinePgn?.(menu.path),
+        ),
+    );
 
     if (menu.path) {
         actions.push(action('icon-trash-o', _('Delete from here'), () => ctrl.deleteTreeNode?.(menu.path)));
     }
 
-    return h('div.tree-context-menu', {
-        hook: {
-            insert: (vnode) => positionMenu(vnode.elm as HTMLElement),
-            postpatch: (_oldVnode, vnode) => positionMenu(vnode.elm as HTMLElement),
+    return h(
+        'div.tree-context-menu',
+        {
+            hook: {
+                insert: vnode => positionMenu(vnode.elm as HTMLElement),
+                postpatch: (_oldVnode, vnode) => positionMenu(vnode.elm as HTMLElement),
+            },
+            on: {
+                click: (event: MouseEvent) => event.stopPropagation(),
+            },
         },
-        on: {
-            click: (event: MouseEvent) => event.stopPropagation(),
-        },
-    }, [
-        h('div.title', `${bugMovePrefix(current.step)} ${current.step.san ?? _('Start position')}`),
-        ...actions,
-    ]);
+        [h('div.title', `${bugMovePrefix(current.step)} ${current.step.san ?? _('Start position')}`), ...actions],
+    );
 }
 
-export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControllerBughouse, full = true, activate = true, needResult = true) {
+export function updateMovelist(
+    ctrl: AnalysisControllerBughouse | RoundControllerBughouse,
+    full = true,
+    activate = true,
+    needResult = true,
+) {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
         if (ctrl.steps.length <= 1) {
@@ -414,10 +451,9 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
         let didWeRenderVariSectionAfterLastMove = false;
         let didWeRenderChatSectionAfterLastMove = false;
         const displayedMainline = treeCtrl.analysisTree ? getDisplayedMainlineNodes(treeCtrl.analysisTree) : [];
-        const rootChildren =
-            treeCtrl.analysisTree?.root.children[0]?.forceVariation
-                ? treeCtrl.analysisTree.root.children
-                : treeCtrl.analysisTree?.root.children.slice(1) ?? [];
+        const rootChildren = treeCtrl.analysisTree?.root.children[0]?.forceVariation
+            ? treeCtrl.analysisTree.root.children
+            : (treeCtrl.analysisTree?.root.children.slice(1) ?? []);
 
         if (treeCtrl.analysisTree && !treeCtrl.analysisTree.root.collapsed) {
             moves.push(...renderTreeVariationRows(treeCtrl, rootChildren));
@@ -429,15 +465,15 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             const move = step.san;
             if (move === null) continue;
 
-            const colIdx = step.boardName === 'a'
-                ? step.turnColor === 'black' ? 1 : 2
-                : step.turnColor === 'black' ? 3 : 4;
+            const colIdx =
+                step.boardName === 'a' ? (step.turnColor === 'black' ? 1 : 2) : step.turnColor === 'black' ? 3 : 4;
 
             if (didWeRenderVariSectionAfterLastMove) {
                 fillWithEmpty(moves, colIdx - 1);
                 didWeRenderVariSectionAfterLastMove = false;
             } else {
-                const countOfEmptyCellsToAdd = colIdx > lastColIdx ? colIdx - lastColIdx - 1 : 4 + colIdx - lastColIdx - 1;
+                const countOfEmptyCellsToAdd =
+                    colIdx > lastColIdx ? colIdx - lastColIdx - 1 : 4 + colIdx - lastColIdx - 1;
                 fillWithEmpty(moves, countOfEmptyCellsToAdd);
             }
 
@@ -447,14 +483,15 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             }
             lastColIdx = colIdx;
 
-            const currentline = mainlineNode ? treePathContains(mainlineNode.path, treeCtrl.getTreeActivePath?.()) : false;
+            const currentline = mainlineNode
+                ? treePathContains(mainlineNode.path, treeCtrl.getTreeActivePath?.())
+                : false;
             const theoretical =
-                mainlineNode?.mainlinePly === undefined
-                || (mainlineNode?.mainlinePly !== undefined && isTheoreticalMove(mainlineNode.mainlinePly, ctrl.status, treeCtrl.recordedMainlinePly));
+                mainlineNode?.mainlinePly === undefined ||
+                (mainlineNode?.mainlinePly !== undefined &&
+                    isTheoreticalMove(mainlineNode.mainlinePly, ctrl.status, treeCtrl.recordedMainlinePly));
             const recorded = !!mainlineNode && mainlineNode.mainlinePly !== undefined && !theoretical;
-            const moveEl = mainlineNode
-                ? renderTreeMoveText('', move)
-                : [h('san', move)];
+            const moveEl = mainlineNode ? renderTreeMoveText('', move) : [h('san', move)];
             const scoreStr = step['scoreStr'] ?? '';
             moveEl.push(h('eval#ply' + ply, scoreStr));
             let chats: VNode | undefined = undefined;
@@ -465,55 +502,64 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
                     const m = x.message.replace('!bug!', '');
                     const displayUser = displayUsername(x.username);
                     const userNode = isAnonUsername(x.username)
-                        ? h("span", displayUser)
-                        : h("a", { attrs: { href: "/@/" + x.username }, class: { "user-link": true } }, displayUser);
-                    chatMessages.push(h("li.message", [
-                        h("div.time", time),
-                        h("user", userNode),
-                        x.message.indexOf('!bug') > -1 ? h('div.bugchat.' + m, []) : h('div', [x.message]),
-                    ]));
+                        ? h('span', displayUser)
+                        : h('a', { attrs: { href: '/@/' + x.username }, class: { 'user-link': true } }, displayUser);
+                    chatMessages.push(
+                        h('li.message', [
+                            h('div.time', time),
+                            h('user', userNode),
+                            x.message.indexOf('!bug') > -1 ? h('div.bugchat.' + m, []) : h('div', [x.message]),
+                        ]),
+                    );
                 }
-                chats = h("ol.bugchatpopup.chat", chatMessages);
+                chats = h('ol.bugchatpopup.chat', chatMessages);
                 didWeRenderChatSectionAfterLastMove = true;
             }
 
             const branchPoint =
                 treeCtrl.analysisTree && mainlineNode
-                    ? nodeAtPath(treeCtrl.analysisTree, parentPath(mainlineNode.path)) ?? treeCtrl.analysisTree.root
+                    ? (nodeAtPath(treeCtrl.analysisTree, parentPath(mainlineNode.path)) ?? treeCtrl.analysisTree.root)
                     : undefined;
             const disclosureButton =
                 branchPoint && branchPoint.children.length > 1
                     ? h('button.disclosure', {
-                        class: { expanded: !branchPoint.collapsed },
-                        on: {
-                            click: (event: MouseEvent) => {
-                                event.stopPropagation();
-                                treeCtrl.toggleTreeCollapsed?.(branchPoint.path);
-                            },
-                        },
-                    })
+                          class: { expanded: !branchPoint.collapsed },
+                          on: {
+                              click: (event: MouseEvent) => {
+                                  event.stopPropagation();
+                                  treeCtrl.toggleTreeCollapsed?.(branchPoint.path);
+                              },
+                          },
+                      })
                     : undefined;
             moves.push(h('move-bug.counter', getLocalMoveNum(step)));
-            moves.push(h('move-bug', {
-                class: {
-                    active: mainlineNode?.path === treeCtrl.getTreeActivePath?.(),
-                    currentline,
-                    selected: mainlineNode?.path === treeCtrl.getTreeSelectedChildPath?.(),
-                    recorded,
-                    theoretical,
-                    branchpoint: !!mainlineNode && mainlineNode.children.length > 1,
-                    haschat: !!step.chat,
-                },
-                attrs: { ply: ply },
-                on: {
-                    click: () => selectMainlineMove(ctrl, ply),
-                    contextmenu: (event: MouseEvent) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        if (mainlineNode) treeCtrl.openTreeContextMenu?.(mainlineNode.path, event.clientX, event.clientY);
+            moves.push(
+                h(
+                    'move-bug',
+                    {
+                        class: {
+                            active: mainlineNode?.path === treeCtrl.getTreeActivePath?.(),
+                            currentline,
+                            selected: mainlineNode?.path === treeCtrl.getTreeSelectedChildPath?.(),
+                            recorded,
+                            theoretical,
+                            branchpoint: !!mainlineNode && mainlineNode.children.length > 1,
+                            haschat: !!step.chat,
+                        },
+                        attrs: { ply: ply },
+                        on: {
+                            click: () => selectMainlineMove(ctrl, ply),
+                            contextmenu: (event: MouseEvent) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                if (mainlineNode)
+                                    treeCtrl.openTreeContextMenu?.(mainlineNode.path, event.clientX, event.clientY);
+                            },
+                        },
                     },
-                },
-            }, disclosureButton ? [disclosureButton, ...moveEl] : moveEl));
+                    disclosureButton ? [disclosureButton, ...moveEl] : moveEl,
+                ),
+            );
             if (chats) moves.push(chats);
 
             const variationChildren = mainlineNode.children[0]?.forceVariation
@@ -529,8 +575,8 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
 
         if (ctrl.status >= 0 && needResult) {
             const teams = teamsOf(ctrl);
-            const teamFirst = displayUsername(teams.teamFirst[0][0]) + "+" + displayUsername(teams.teamFirst[1][0]);
-            const teamSecond = displayUsername(teams.teamSecond[0][0]) + "+" + displayUsername(teams.teamSecond[1][0]);
+            const teamFirst = displayUsername(teams.teamFirst[0][0]) + '+' + displayUsername(teams.teamFirst[1][0]);
+            const teamSecond = displayUsername(teams.teamSecond[0][0]) + '+' + displayUsername(teams.teamSecond[1][0]);
             moves.push(h('div.result', ctrl.result));
             moves.push(h('div.status', result(ctrl.boardA.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
         }
@@ -548,14 +594,23 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
         return;
     }
 
-    const plyFrom = (full) ? 1 : ctrl.steps.length -1;
+    const plyFrom = full ? 1 : ctrl.steps.length - 1;
     if (plyFrom === 0) return; // that is the very initial message with single dummy step. No moves yet
 
     const plyTo = ctrl.steps.length;
 
     const moves: VNode[] = [];
-    const prevPly = ctrl.steps[plyFrom-1];
-    let lastColIdx = plyFrom ===1? 0: prevPly.boardName === 'a'? prevPly.turnColor === 'white'/*black made the move*/? 2: 1: prevPly.turnColor === 'white'/*black made the move*/? 4: 3;
+    const prevPly = ctrl.steps[plyFrom - 1];
+    let lastColIdx =
+        plyFrom === 1
+            ? 0
+            : prevPly.boardName === 'a'
+              ? prevPly.turnColor === 'white' /*black made the move*/
+                  ? 2
+                  : 1
+              : prevPly.turnColor === 'white' /*black made the move*/
+                ? 4
+                : 3;
     let didWeRenderVariSectionAfterLastMove = false;
     let didWeRenderChatSectionAfterLastMove = false;
 
@@ -563,13 +618,20 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
         const move = ctrl.steps[ply].san;
         if (move === null) continue;
 
-        const colIdx = ctrl.steps[ply].boardName === 'a'? ctrl.steps[ply].turnColor === 'black'/*meaning move was made by white and now black's turn*/? 1 : 2 : ctrl.steps[ply].turnColor === 'black'? 3 : 4 ;
+        const colIdx =
+            ctrl.steps[ply].boardName === 'a'
+                ? ctrl.steps[ply].turnColor === 'black' /*meaning move was made by white and now black's turn*/
+                    ? 1
+                    : 2
+                : ctrl.steps[ply].turnColor === 'black'
+                  ? 3
+                  : 4;
 
         if (didWeRenderVariSectionAfterLastMove) {
-            fillWithEmpty(moves, colIdx-1);
-            didWeRenderVariSectionAfterLastMove=false;
+            fillWithEmpty(moves, colIdx - 1);
+            didWeRenderVariSectionAfterLastMove = false;
         } else {
-            const countOfEmptyCellsToAdd = colIdx > lastColIdx? colIdx - lastColIdx - 1: 4 + colIdx - lastColIdx - 1;
+            const countOfEmptyCellsToAdd = colIdx > lastColIdx ? colIdx - lastColIdx - 1 : 4 + colIdx - lastColIdx - 1;
             fillWithEmpty(moves, countOfEmptyCellsToAdd);
         }
 
@@ -577,54 +639,58 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
             // todo: this is really ugly solution for padding ply elems when chat div breaks the list
             //       and tbh the similar padding solution for variations is not best either - consider some
             //       other layout where these things can be done more natural, without all those dummy padding elements
-            fillWithEmpty(moves, lastColIdx,'.ch', ''+(ply - 1), 'display: none');
-            didWeRenderChatSectionAfterLastMove=false;
+            fillWithEmpty(moves, lastColIdx, '.ch', '' + (ply - 1), 'display: none');
+            didWeRenderChatSectionAfterLastMove = false;
         }
         lastColIdx = colIdx;
 
-        const moveEl = [ h('san', move) ];
+        const moveEl = [h('san', move)];
         const scoreStr = ctrl.steps[ply]['scoreStr'] ?? '';
         moveEl.push(h('eval#ply' + ply, scoreStr));
-        var chats: VNode| undefined = undefined;
+        var chats: VNode | undefined = undefined;
         if (ctrl.steps[ply].chat) {
             const chatMessages: VNode[] = [];
             for (let x of ctrl.steps[ply].chat!) {
-                const time = formatChatMessageTime(x)
-                const m = x.message.replace('!bug!','');
+                const time = formatChatMessageTime(x);
+                const m = x.message.replace('!bug!', '');
                 const displayUser = displayUsername(x.username);
                 const userNode = isAnonUsername(x.username)
-                    ? h("span", displayUser)
-                    : h("a", { attrs: {href: "/@/" + x.username}, class: { "user-link": true } }, displayUser);
-                const v = h("li.message",
-                    [h("div.time", time), h("user", userNode),
-                        /*h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } }))*/
-                        x.message.indexOf('!bug')>-1? h('div.bugchat.'+m,[]):h('div',[x.message])
-                    ]);
+                    ? h('span', displayUser)
+                    : h('a', { attrs: { href: '/@/' + x.username }, class: { 'user-link': true } }, displayUser);
+                const v = h('li.message', [
+                    h('div.time', time),
+                    h('user', userNode),
+                    /*h("div.discord-icon-container", h("img.icon-discord-icon", { attrs: { src: '/static/icons/discord.svg' } }))*/
+                    x.message.indexOf('!bug') > -1 ? h('div.bugchat.' + m, []) : h('div', [x.message]),
+                ]);
 
-                chatMessages.push(v/*h("div", +" "+x.username+": "+x.message)*/);
+                chatMessages.push(v /*h("div", +" "+x.username+": "+x.message)*/);
             }
             /*moveEl.push(h('bugchat#ply' + ply, [ h("img", { attrs: { src: '/static/icons/bugchatmove.svg' } })]));*/
-            chats = h("ol.bugchatpopup.chat",chatMessages);
+            chats = h('ol.bugchatpopup.chat', chatMessages);
             didWeRenderChatSectionAfterLastMove = true;
         }
 
-        moves.push(h('move-bug.counter',  getLocalMoveNum(ctrl.steps[ply])));
+        moves.push(h('move-bug.counter', getLocalMoveNum(ctrl.steps[ply])));
 
-        const el = h('move-bug', {
-            class: { active: ((ply === plyTo - 1) && activate), haschat: !!ctrl.steps[ply].chat },
-            attrs: { ply: ply },
-            on: { click: () => selectMove(ctrl, ply) },
-        }, moveEl);
+        const el = h(
+            'move-bug',
+            {
+                class: { active: ply === plyTo - 1 && activate, haschat: !!ctrl.steps[ply].chat },
+                attrs: { ply: ply },
+                on: { click: () => selectMove(ctrl, ply) },
+            },
+            moveEl,
+        );
 
         moves.push(el);
         if (chats) moves.push(chats);
-
     }
 
     if (ctrl.status >= 0 && needResult) {
         const teams = teamsOf(ctrl);
-        const teamFirst = displayUsername(teams.teamFirst[0][0]) + "+" + displayUsername(teams.teamFirst[1][0]);
-        const teamSecond = displayUsername(teams.teamSecond[0][0]) + "+" + displayUsername(teams.teamSecond[1][0]);
+        const teamFirst = displayUsername(teams.teamFirst[0][0]) + '+' + displayUsername(teams.teamFirst[1][0]);
+        const teamSecond = displayUsername(teams.teamSecond[0][0]) + '+' + displayUsername(teams.teamSecond[1][0]);
         moves.push(h('div.result', ctrl.result));
         moves.push(h('div.status', result(ctrl.boardA.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
     }
@@ -644,18 +710,18 @@ export function updateMovelist (ctrl: AnalysisControllerBughouse | RoundControll
 }
 
 export function getLocalMoveNum(step: Step) {
-    return Math.floor(step.boardName === 'a'? (step.plyA! + 1) / 2 : (step.plyB! + 1) / 2 );
+    return Math.floor(step.boardName === 'a' ? (step.plyA! + 1) / 2 : (step.plyB! + 1) / 2);
 }
 
 export function formatChatMessageTime(x: StepChat) {
-    const min = Math.floor(x.time/60000);
-    const sec = Math.floor((x.time - min*60000)/1000);
-    const millis = x.time - min*60000 - sec*1000;
-    const time = min+":"+(sec.toString().padStart(2, '0'))+"."+(millis.toString().padStart(3, '0'));
+    const min = Math.floor(x.time / 60000);
+    const sec = Math.floor((x.time - min * 60000) / 1000);
+    const millis = x.time - min * 60000 - sec * 1000;
+    const time = min + ':' + sec.toString().padStart(2, '0') + '.' + millis.toString().padStart(3, '0');
     return time;
 }
 
-export function updateResult (ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
+export function updateResult(ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
     if (ctrl.status < 0) return;
 
     // Prevent to render it twice
@@ -665,12 +731,15 @@ export function updateResult (ctrl: AnalysisControllerBughouse | RoundController
     const container = document.getElementById('movelist') as HTMLElement;
 
     const teams = teamsOf(ctrl);
-    const teamFirst = teams.teamFirst[0][0] + "+" + teams.teamFirst[1][0];
-    const teamSecond = teams.teamSecond[0][0] + "+" + teams.teamSecond[1][0];
+    const teamFirst = teams.teamFirst[0][0] + '+' + teams.teamFirst[1][0];
+    const teamSecond = teams.teamSecond[0][0] + '+' + teams.teamSecond[1][0];
 
-    ctrl.vmovelist = patch(container, h('div#movelist', [
-        h('div.result', ctrl.result),
-        h('div.status', result(ctrl.boardA.variant, ctrl.status, ctrl.result, teamFirst, teamSecond))
-    ]));
+    ctrl.vmovelist = patch(
+        container,
+        h('div#movelist', [
+            h('div.result', ctrl.result),
+            h('div.status', result(ctrl.boardA.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)),
+        ]),
+    );
     container.scrollTop = 99999;
 }

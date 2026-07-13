@@ -33,7 +33,9 @@ describe('pending move parsing', () => {
         expect(parsePendingMove(null, gameId)).toBeUndefined();
         expect(parsePendingMove('not-json', gameId)).toBeUndefined();
         expect(parsePendingMove(JSON.stringify({ type: 'move', gameId: 'other' }), gameId)).toBeUndefined();
-        expect(parsePendingMove(JSON.stringify({ type: 'move', gameId, move: 'e2e4', clocks: [], ply: 5 }), gameId)).toBeUndefined();
+        expect(
+            parsePendingMove(JSON.stringify({ type: 'move', gameId, move: 'e2e4', clocks: [], ply: 5 }), gameId),
+        ).toBeUndefined();
     });
 });
 
@@ -42,12 +44,8 @@ describe('pending move reconnect policy', () => {
         const pending = makeMove(25);
         expect(pendingMoveOnOpenAction(pending, 24, 'pos-24')).toBe('resend');
         expect(pendingMoveOnOpenAction(pending, 24, 'other-pos')).toBe('clear');
-        expect(pendingMoveOnOpenAction({ ...pending, positionId: undefined }, 24, 'pos-24')).toBe(
-            'clear',
-        );
-        expect(pendingMoveOnOpenAction({ ...pending, positionId: undefined }, 24, undefined)).toBe(
-            'resend',
-        );
+        expect(pendingMoveOnOpenAction({ ...pending, positionId: undefined }, 24, 'pos-24')).toBe('clear');
+        expect(pendingMoveOnOpenAction({ ...pending, positionId: undefined }, 24, undefined)).toBe('resend');
         expect(pendingMoveOnOpenAction(pending, 25, 'pos-24')).toBe('clear');
         expect(pendingMoveOnOpenAction(pending, 23, 'pos-24')).toBe('clear');
         expect(pendingMoveOnOpenAction(undefined, 24, 'pos-24')).toBe('noop');

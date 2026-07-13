@@ -10,11 +10,10 @@ import { h, VNode } from 'snabbdom';
 import { VARIANTS } from './variants';
 
 function buildCalendar() {
-
     const xmlhttp = new XMLHttpRequest();
-    const url = "/api/calendar";
+    const url = '/api/calendar';
 
-    xmlhttp.onreadystatechange = function() {
+    xmlhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
 
@@ -28,44 +27,42 @@ function buildCalendar() {
                 response[i].title = VARIANTS[variant].displayName(chess960);
             }
 
-        // console.log(response);
-        let calendarEl: HTMLElement = document.getElementById('fullcalendar')!;
+            // console.log(response);
+            let calendarEl: HTMLElement = document.getElementById('fullcalendar')!;
 
-        let calendar = new Calendar(calendarEl, {
-            plugins: [ interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin ],
-            locales: allLocales,
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-            },
-            firstDay: 1,
-            showNonCurrentDates: false,
-            fixedWeekCount: false,
-            navLinks: true, // can click day/week names to navigate views
-            dayMaxEvents: true, // allow "more" link when too many events
-            nextDayThreshold: '06:00:00', // events only considered to take up the next day if it ends after this time
-            events: response
-        });
+            let calendar = new Calendar(calendarEl, {
+                plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
+                locales: allLocales,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+                },
+                firstDay: 1,
+                showNonCurrentDates: false,
+                fixedWeekCount: false,
+                navLinks: true, // can click day/week names to navigate views
+                dayMaxEvents: true, // allow "more" link when too many events
+                nextDayThreshold: '06:00:00', // events only considered to take up the next day if it ends after this time
+                events: response,
+            });
 
-        let locale = 'en'
-        const el = document.getElementById('pychess-variants');
-        if (el) {
-            const lang = el.getAttribute("data-lang")!;
-            if (calendar.getAvailableLocaleCodes().includes(lang)) locale = lang;
-            if (lang === 'zh') locale = 'zh-cn';
-        }
-        calendar.setOption('locale', locale);
+            let locale = 'en';
+            const el = document.getElementById('pychess-variants');
+            if (el) {
+                const lang = el.getAttribute('data-lang')!;
+                if (calendar.getAvailableLocaleCodes().includes(lang)) locale = lang;
+                if (lang === 'zh') locale = 'zh-cn';
+            }
+            calendar.setOption('locale', locale);
 
-        calendar.render();
+            calendar.render();
         }
     };
-    xmlhttp.open("GET", url, true);
+    xmlhttp.open('GET', url, true);
     xmlhttp.send();
 }
 
 export function calendarView(): VNode[] {
-    return [
-        h('div#fullcalendar.box', { hook: { insert: () => buildCalendar() } }),
-    ];
+    return [h('div#fullcalendar.box', { hook: { insert: () => buildCalendar() } })];
 }

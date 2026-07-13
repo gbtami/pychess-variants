@@ -56,7 +56,11 @@ function loadStockfishScript(): Promise<void> {
         const existing = document.querySelector('script[data-fsf-loader="true"]') as HTMLScriptElement | null;
         if (existing) {
             existing.addEventListener('load', () => resolve(), { once: true });
-            existing.addEventListener('error', () => reject(new Error(_('Failed to load Fairy-Stockfish WASM support.'))), { once: true });
+            existing.addEventListener(
+                'error',
+                () => reject(new Error(_('Failed to load Fairy-Stockfish WASM support.'))),
+                { once: true },
+            );
             return;
         }
 
@@ -76,7 +80,7 @@ function loadStockfishScript(): Promise<void> {
             reject(new Error(_('Failed to load Fairy-Stockfish WASM support.')));
         };
         document.head.appendChild(script);
-    }).catch((error) => {
+    }).catch(error => {
         stockfishScriptPromise = null;
         throw error;
     });
@@ -99,7 +103,7 @@ async function ensureFsfEngine(): Promise<FairyStockfishEngine> {
         const fsf = await window.Stockfish();
         window.fsf = fsf;
         return fsf;
-    })().catch((error) => {
+    })().catch(error => {
         stockfishEnginePromise = null;
         throw error;
     });
@@ -126,7 +130,10 @@ function restorePromptQueue(): void {
 
 function queueEngineTask<T>(task: () => Promise<T>): Promise<T> {
     const run = engineQueue.then(task, task);
-    engineQueue = run.then(() => undefined, () => undefined);
+    engineQueue = run.then(
+        () => undefined,
+        () => undefined,
+    );
     return run;
 }
 
@@ -192,7 +199,7 @@ async function ensureBaseVariantsLoaded(fsf: FairyStockfishEngine): Promise<void
             completionLine: 'readyok',
             timeoutMs: STOCKFISH_LOAD_TIMEOUT_MS,
         });
-    })().catch((error) => {
+    })().catch(error => {
         baseVariantsPromise = null;
         throw error;
     });
@@ -202,11 +209,11 @@ async function ensureBaseVariantsLoaded(fsf: FairyStockfishEngine): Promise<void
 
 function extractDiagnostics(lines: string[]): string[] {
     return lines
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0)
-        .filter((line) => !line.startsWith('Fairy-Stockfish '))
-        .filter((line) => !line.startsWith('Parsing variant: '))
-        .filter((line) => line !== 'readyok');
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .filter(line => !line.startsWith('Fairy-Stockfish '))
+        .filter(line => !line.startsWith('Parsing variant: '))
+        .filter(line => line !== 'readyok');
 }
 
 export async function checkRulesWithFsfWasm(ini: string): Promise<void> {
