@@ -50,6 +50,15 @@ All Python commands below should be run with `uv run ...` unless you have alread
 
 The project now targets Python 3.14+.
 
+### TypeScript and JavaScript checks
+```bash
+yarn format
+yarn check-format
+yarn lint
+yarn typecheck
+yarn test
+```
+
 ### Start server
 ```bash
 uv run server/server.py
