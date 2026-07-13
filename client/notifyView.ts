@@ -31,10 +31,8 @@ function result(win: boolean | null) {
     switch (win) {
         case true:
             return 'Congratulations, you won!';
-            break;
         case false:
             return 'Defeat';
-            break;
         default:
             return 'Draw';
     }
