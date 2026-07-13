@@ -5,47 +5,16 @@ from aiohttp import web
 import test_logger
 from catalogued_variants import (
     _ensure_catalogued_rules_supported,
-    _strip_pychess_pieces_metadata,
-    catalogued_pychess_piece_roles,
-    catalogued_king_roles,
-    catalogued_legal_moves_need_history,
-    catalogued_n_fold_is_draw,
-    catalogued_promotion_order,
-    catalogued_promotion_roles,
-    catalogued_promotion_type,
-    catalogued_rules_gate,
-    catalogued_rules_pass,
-    catalogued_show_check_counters,
-    catalogued_show_promoted,
+    _ensure_resolved_catalogued_rules_supported,
 )
+from fsf_variant_info import derive_catalogued_variant_info
+from fsf_variant_info_fixture import fsf_piece, make_fsf_variant_info
 
 test_logger.init_test_logger()
 
 
 class CataloguedVariantRuleSafetyTestCase(unittest.TestCase):
-    def test_accepts_pychess_piece_metadata_comments(self) -> None:
-        ini = """[testmeta:chess]
-# pychessPieces = k,q,r,+r p,+p ; inherited promotion pieces
-; pychessPieces = b,+b # another metadata line
-"""
-
-        self.assertEqual(
-            catalogued_pychess_piece_roles(ini),
-            (["k", "q", "r", "p", "b"], ["r", "p", "b"]),
-        )
-        self.assertEqual(_strip_pychess_pieces_metadata(ini), "[testmeta:chess]")
-
-    def test_rejects_invalid_pychess_piece_metadata_tokens(self) -> None:
-        ini = """[testmeta:chess]
-# pychessPieces = k,++p
-"""
-
-        with self.assertRaises(web.HTTPBadRequest) as exc:
-            catalogued_pychess_piece_roles(ini)
-
-        self.assertIn("pychessPieces", exc.exception.text)
-
-    def test_rejects_two_board_variants(self) -> None:
+    def test_rejects_two_board_variants_before_loading_fsf(self) -> None:
         ini = """[testbug:chess]
 twoBoards = true
 """
@@ -55,121 +24,112 @@ twoBoards = true
 
         self.assertIn("twoBoards", exc.exception.text)
 
-    def test_rejects_duck_walling_variants(self) -> None:
-        ini = """[testduck:chess]
-wallingRule = duck
-"""
+    def test_rejects_unsupported_rules_inherited_from_template(self) -> None:
+        info = make_fsf_variant_info()
+        info["movement"]["cambodianMoves"] = True
+        info["gameEnd"]["chasingRule"] = "axf"
 
         with self.assertRaises(web.HTTPBadRequest) as exc:
-            _ensure_catalogued_rules_supported(ini)
-
-        self.assertIn("wallingRule", exc.exception.text)
-
-    def test_rejects_cambodian_and_chasing_rules(self) -> None:
-        ini = """[testregional:chess]
-cambodianMoves = true
-chasingRule = axf
-"""
-
-        with self.assertRaises(web.HTTPBadRequest) as exc:
-            _ensure_catalogued_rules_supported(ini)
+            _ensure_resolved_catalogued_rules_supported(info)
 
         self.assertIn("cambodianMoves", exc.exception.text)
         self.assertIn("chasingRule", exc.exception.text)
 
-    def test_rejects_generic_non_seirawan_gating(self) -> None:
-        ini = """[testgate:chess]
-gating = true
-"""
+    def test_rejects_generic_non_seirawan_gating_after_resolution(self) -> None:
+        info = make_fsf_variant_info()
+        info["gating"]["enabled"] = True
 
         with self.assertRaises(web.HTTPBadRequest) as exc:
-            _ensure_catalogued_rules_supported(ini)
+            _ensure_resolved_catalogued_rules_supported(info)
 
         self.assertIn("gating", exc.exception.text)
 
-    def test_accepts_automatic_adjudication_rules(self) -> None:
-        ini = """[testflag:chess]
-flagPiece = k
-flagRegionWhite = *8
-flagRegionBlack = *1
-connectN = 4
-connectHorizontal = true
-stalemateValue = loss
-extinctionPieceTypes = k
-extinctionPieceCount = 0
-castlingWins = true
-"""
+    def test_accepts_supported_resolved_client_and_termination_rules(self) -> None:
+        info = make_fsf_variant_info()
+        info["gating"].update({"enabled": True, "seirawan": True})
+        info["movement"]["passOnStalemate"]["white"] = True
+        info["gameEnd"].update(
+            {
+                "perpetualCheckIllegal": True,
+                "moveRepetitionIllegal": True,
+                "nFoldRule": 4,
+                "nFoldValue": "draw",
+                "checkCounting": True,
+            }
+        )
 
-        _ensure_catalogued_rules_supported(ini)
+        _ensure_resolved_catalogued_rules_supported(info)
+        derived = derive_catalogued_variant_info(info)
 
-    def test_accepts_supported_client_rule_metadata(self) -> None:
-        ini = """[testrules:chess]
-seirawanGating = true
-passOnStalemate = true
-perpetualCheckIllegal = true
-moveRepetitionIllegal = true
-nFoldRule = 4
-nFoldValue = draw
-checkCounting = true
-"""
+        self.assertTrue(derived.rules_gate)
+        self.assertTrue(derived.rules_pass)
+        self.assertTrue(derived.legal_moves_need_history)
+        self.assertTrue(derived.n_fold_is_draw)
+        self.assertTrue(derived.show_check_counters)
 
-        _ensure_catalogued_rules_supported(ini)
-        self.assertTrue(catalogued_rules_gate(ini))
-        self.assertTrue(catalogued_rules_pass(ini))
-        self.assertTrue(catalogued_legal_moves_need_history(ini))
-        self.assertTrue(catalogued_n_fold_is_draw(ini))
-        self.assertTrue(catalogued_show_check_counters(ini))
+    def test_regular_promotion_is_derived_from_resolved_piece_types(self) -> None:
+        info = make_fsf_variant_info(
+            pieces=[
+                fsf_piece("pawn", "p"),
+                fsf_piece("knight", "n"),
+                fsf_piece("queen", "q"),
+                fsf_piece("custom1", "h", custom_betza="NAD"),
+                fsf_piece("king", "k"),
+            ]
+        )
+        info["promotion"]["pieceTypes"] = {
+            "white": ["queen", "custom1"],
+            "black": ["queen", "custom1"],
+        }
 
-    def test_accepts_regular_promotion_metadata(self) -> None:
-        ini = """[testpromo:chess]
-promotionPieceTypes = qh
-"""
+        derived = derive_catalogued_variant_info(info)
 
-        _ensure_catalogued_rules_supported(ini)
-        self.assertEqual(catalogued_promotion_type(ini), "regular")
-        self.assertEqual(catalogued_promotion_roles(ini, ["k", "q", "h", "p"]), ["p"])
-        self.assertEqual(catalogued_promotion_order(ini, "regular"), ["q", "h"])
+        self.assertEqual(derived.promotion_type, "regular")
+        self.assertEqual(derived.promotion_roles, ["p"])
+        self.assertEqual(derived.promotion_order, ["q", "h"])
 
-    def test_accepts_shogi_style_promotion_metadata(self) -> None:
-        ini = """[testshogi:chess]
-promotedPieceType = p:q n:c
-promotionPieceTypes = -
-"""
+    def test_shogi_promotion_and_promoted_royal_are_derived_from_resolved_mapping(self) -> None:
+        info = make_fsf_variant_info(
+            pieces=[
+                fsf_piece("pawn", "p"),
+                fsf_piece("knight", "n"),
+                fsf_piece("custom1", "j", custom_betza="K"),
+                fsf_piece("king", "k"),
+            ]
+        )
+        info["promotion"].update(
+            {
+                "pieceTypes": {"white": [], "black": []},
+                "promotedPieceTypes": {"pawn": "custom1", "king": "custom1"},
+                "mandatoryPiece": True,
+                "shogiStyle": True,
+            }
+        )
+        info["extinction"].update(
+            {
+                "value": "loss",
+                "pseudoRoyal": True,
+                "pieceTypes": ["custom1", "king"],
+                "pieceCount": 64,
+            }
+        )
 
-        _ensure_catalogued_rules_supported(ini)
-        self.assertEqual(catalogued_promotion_type(ini), "shogi")
-        self.assertEqual(catalogued_promotion_roles(ini, ["k", "q", "c", "p", "n"]), ["p", "n"])
-        self.assertEqual(catalogued_promotion_order(ini, "shogi"), ["+", ""])
+        derived = derive_catalogued_variant_info(info)
 
-    def test_promoted_pseudo_royal_king_is_marked_as_king_role(self) -> None:
-        ini = """[promotion:chess]
-extinctionValue = loss
-extinctionPieceTypes = jk
-extinctionPseudoRoyal = true
-extinctionPieceCount = 64
-mandatoryPiecePromotion = true
-promotedPieceType = n:y b:y p:z r:o q:a k:j
-promotionPieceTypes = -
-"""
+        self.assertEqual(derived.promotion_type, "shogi")
+        self.assertEqual(derived.promotion_roles, ["p", "k"])
+        self.assertEqual(derived.promotion_order, ["+", ""])
+        self.assertIn("k", derived.king_roles)
+        self.assertIn("+k", derived.king_roles)
+        self.assertTrue(derived.show_promoted)
 
-        self.assertEqual(catalogued_king_roles(ini, ["k", "q", "r", "b", "n", "p"]), ["k", "+k"])
+    def test_promoted_drop_and_demotion_flags_enable_promoted_rendering(self) -> None:
+        info = make_fsf_variant_info()
+        info["promotion"].update({"demotion": True, "onCapture": True})
+        info["drops"]["promoted"] = True
 
-    def test_pseudo_royal_extinction_piece_is_marked_as_king_role(self) -> None:
-        ini = """[royalqueen:chess]
-extinctionValue = loss
-extinctionPieceTypes = q
-extinctionPseudoRoyal = true
-"""
+        self.assertTrue(derive_catalogued_variant_info(info).show_promoted)
 
-        self.assertEqual(catalogued_king_roles(ini, ["k", "q", "r", "b", "n", "p"]), ["k", "q"])
 
-    def test_accepts_demoting_and_promoted_drop_metadata(self) -> None:
-        ini = """[testflip:chess]
-promotedPieceType = p:r
-pieceDemotion = true
-piecePromotionOnCapture = true
-dropPromoted = true
-"""
-
-        _ensure_catalogued_rules_supported(ini)
-        self.assertTrue(catalogued_show_promoted(ini, "8/8/8/8/8/8/8/8[] w - - 0 1"))
+if __name__ == "__main__":
+    unittest.main()

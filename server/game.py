@@ -1006,8 +1006,13 @@ class Game:
             elif self.check:
                 self.status = MATE
 
-                if self.variant == "atomic" and game_result_value == 0:
-                    # If Fairy game_result() is 0 it is not mate but stalemate
+                capture_rules = self.server_variant.fsf_variant_info.get("capture", {})
+                is_blast_variant = isinstance(capture_rules, Mapping) and bool(
+                    capture_rules.get("blast")
+                )
+                if (self.variant == "atomic" or is_blast_variant) and game_result_value == 0:
+                    # In blast-capture variants a checked position with no legal
+                    # move can still be a draw according to Fairy-Stockfish.
                     self.status = STALEMATE
 
                 # Draw if the checkmating player is the one counting

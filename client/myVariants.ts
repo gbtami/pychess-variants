@@ -401,17 +401,69 @@ function ensureCataloguedCustomBoardCSS(variant: ManagedVariant): void {
 }
 
 function expectedPieceSetFiles(variant: ManagedVariant): string[] {
-    const pieces = [
-        ...new Set((variant.pieces?.length ? variant.pieces : ['k']).map(piece => piece.toLowerCase())),
-    ].sort();
-    const promoted =
-        variant.promotionType === 'shogi'
-            ? [...new Set((variant.promotionRoles ?? []).map(piece => piece.toLowerCase()))].sort()
-            : [];
+    const fsf = variant.fsfVariantInfo;
+    if (!fsf) {
+        const pieces = [
+            ...new Set((variant.pieces?.length ? variant.pieces : ['k']).map(piece => piece.toLowerCase())),
+        ].sort();
+        const promoted =
+            variant.promotionType === 'shogi'
+                ? [...new Set((variant.promotionRoles ?? []).map(piece => piece.toLowerCase()))].sort()
+                : [];
+        const names: string[] = [];
+        for (const color of ['w', 'b']) {
+            for (const piece of pieces) names.push(`${color}${piece.toUpperCase()}.svg`);
+            for (const piece of promoted) names.push(`${color}+${piece.toUpperCase()}.svg`);
+        }
+        return names;
+    }
+
+    const roles = { white: new Set<string>(), black: new Set<string>() };
+    const promoted = { white: new Set<string>(), black: new Set<string>() };
+    const roleByType = { white: new Map<string, string>(), black: new Map<string, string>() };
+    for (const piece of fsf.pieces) {
+        for (const color of ['white', 'black'] as const) {
+            const role = piece.fen[color].trim().toLowerCase();
+            if (/^[a-z]$/.test(role)) {
+                roles[color].add(role);
+                roleByType[color].set(piece.type, role);
+            }
+        }
+    }
+
+    let isPromoted = false;
+    for (const character of fsf.board.startFen.split(' ', 1)[0] ?? '') {
+        if (character === '[' || character === ']') {
+            isPromoted = false;
+            continue;
+        }
+        if (character === '+') {
+            isPromoted = true;
+            continue;
+        }
+        if (!/[A-Za-z]/.test(character)) {
+            isPromoted = false;
+            continue;
+        }
+        const color = character === character.toUpperCase() ? 'white' : 'black';
+        const role = character.toLowerCase();
+        (isPromoted ? promoted[color] : roles[color]).add(role);
+        isPromoted = false;
+    }
+    for (const sourceType of Object.keys(fsf.promotion.promotedPieceTypes)) {
+        for (const color of ['white', 'black'] as const) {
+            const role = roleByType[color].get(sourceType);
+            if (role) promoted[color].add(role);
+        }
+    }
+
     const names: string[] = [];
-    for (const color of ['w', 'b']) {
-        for (const piece of pieces) names.push(`${color}${piece.toUpperCase()}.svg`);
-        for (const piece of promoted) names.push(`${color}+${piece.toUpperCase()}.svg`);
+    for (const [color, prefix] of [
+        ['white', 'w'],
+        ['black', 'b'],
+    ] as const) {
+        for (const role of [...roles[color]].sort()) names.push(`${prefix}${role.toUpperCase()}.svg`);
+        for (const role of [...promoted[color]].sort()) names.push(`${prefix}+${role.toUpperCase()}.svg`);
     }
     return names;
 }
@@ -844,7 +896,7 @@ function renderForm(model: PyChessModel): VNode {
                         : h(
                               'span.catalogued-help',
                               _(
-                                  'If inherited rules use pieces or promoted pieces that pychess cannot detect automatically, add a comment like # pychessPieces = k,q,r,+r,p,+p. This affects only piece-set upload and board rendering; Fairy-Stockfish ignores it. For locked variants with games, only this pychessPieces metadata can be changed.',
+                                  'Pychess uses Fairy-Stockfish’s fully resolved variant information, including inherited pieces, promotions, pockets, regions, and ending rules.',
                               ),
                           ),
                 ]),
@@ -1051,7 +1103,9 @@ function renderBoardPreview(model: PyChessModel, variant: ManagedVariant): VNode
         ]),
         h('div.catalogued-board-preview-surface', {
             attrs: { 'data-board-variant': variant.name },
-            style: { aspectRatio: `${variant.width} / ${variant.height}` },
+            style: {
+                aspectRatio: `${variant.fsfVariantInfo?.board.width ?? variant.width} / ${variant.fsfVariantInfo?.board.height ?? variant.height}`,
+            },
         }),
     ]);
 }

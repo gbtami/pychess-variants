@@ -1,6 +1,7 @@
 import unittest
 
 from catalogued_rules import catalogued_rule_summary, parse_catalogued_ini
+from fsf_variant_info_fixture import make_fsf_variant_info
 
 
 class CataloguedRulesTestCase(unittest.TestCase):
@@ -45,6 +46,44 @@ class CataloguedRulesTestCase(unittest.TestCase):
         self.assertIn("Move rules", section_titles)
         self.assertIn("Drops and hands", section_titles)
         self.assertIn("Promotion", section_titles)
+        self.assertEqual(summary["unknown"], [])
+
+    def test_resolved_fsf_info_is_authoritative_over_raw_ini(self):
+        info = make_fsf_variant_info(name="resolvedrules", template="shogi")
+        info["drops"].update({"enabled": True, "capturesToHand": True})
+        info["movement"]["pass"]["black"] = True
+        info["promotion"].update(
+            {
+                "shogiStyle": True,
+                "promotedPieceTypes": {"pawn": "queen"},
+            }
+        )
+        info["gameEnd"]["checkCounting"] = True
+
+        summary = catalogued_rule_summary(
+            {
+                "name": "resolvedrules",
+                "ini": """
+                [resolvedrules:chess]
+                pieceDrops = false
+                capturesToHand = false
+                pass = false
+                """,
+                "fsfVariantInfo": info,
+            }
+        )
+
+        self.assertIn("fully resolved", summary["intro"][0])
+        section_titles = [section["title"] for section in summary["sections"]]
+        self.assertIn("Drops and hands", section_titles)
+        self.assertIn("Promotion", section_titles)
+        self.assertIn("Winning and losing", section_titles)
+        all_text = "\n".join(
+            line["text"] for section in summary["sections"] for line in section["lines"]
+        )
+        self.assertIn("Captured pieces return to the capturer’s hand", all_text)
+        self.assertIn("Black may pass a turn", all_text)
+        self.assertIn("Checks are counted as a win condition", all_text)
         self.assertEqual(summary["unknown"], [])
 
     def test_generated_text_does_not_need_raw_ini_echo(self):

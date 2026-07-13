@@ -19,6 +19,15 @@ from pymongo.errors import DuplicateKeyError
 from compress import MAX_COMPRESSED_BOARD_HEIGHT, MAX_COMPRESSED_BOARD_WIDTH
 from const import ANON_PREFIX, STARTED
 from fairy.fairy_board import sf
+from fsf_variant_info import (
+    FsfVariantInfoError,
+    catalogued_variant_derived_fields,
+    derive_catalogued_variant_info,
+    mapping as fsf_mapping,
+    parse_fsf_variant_info,
+    piece_type_roles_by_color,
+    validate_fsf_variant_info,
+)
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
 from catalogued_betza import catalogued_betza_diagrams
@@ -81,7 +90,6 @@ VARIANT_NAME_ERROR = (
     "Variant names must be 3-32 chars, start with a lowercase letter, "
     "and contain only lowercase letters, digits, hyphens, and underscores."
 )
-PYCHESS_PIECES_METADATA_KEY = "pychesspieces"
 CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
     {
         "asean",
@@ -121,7 +129,6 @@ CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
     }
 )
 
-CATALOGUED_CHESS_PROMOTION_ORDER = ("q", "r", "b", "n")
 FSF_CATALOGUED_BUILTIN_DESCRIPTION = (
     "Fairy-Stockfish built-in variant exposed as a casual community variant."
 )
@@ -173,17 +180,12 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
         "displayName": "Five-Check Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "baseVariant": "3check",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
-        "showCheckCounters": True,
     },
     "almost": {
         "displayName": "Almost Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Almost_chess"),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("c", "r", "b", "n"),
     },
     "amazon": {
         "displayName": "Amazon Chess",
@@ -192,8 +194,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://www.chessvariants.com/diffmove.dir/amazone.html",
         ),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("a", "r", "b", "n"),
     },
     "atomar": {
         "displayName": "Atomar",
@@ -204,8 +204,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "atomar-chess-rules.pdf",
         ),
         "baseVariant": "atomic",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "berolina": {
         "displayName": "Berolina Chess",
@@ -214,8 +212,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://www.chessvariants.com/dpieces.dir/berlin.html",
         ),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "centaur": {
         "displayName": "Centaur Chess",
@@ -224,16 +220,12 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://www.chessvariants.com/large.dir/contest/royalcourt.html",
         ),
         "baseVariant": "capablanca",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("c", "q", "r", "b", "n"),
     },
     "chancellor": {
         "displayName": "Chancellor Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Chancellor_chess"),
         "baseVariant": "capablanca",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("c", "q", "r", "b", "n"),
     },
     "chaturanga": {
         "displayName": "Chaturanga",
@@ -246,8 +238,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("http://www.binnewirtz.com/Schlagschach1.htm"),
         "baseVariant": "antichess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "coregal": {
         "displayName": "Coregal Chess",
@@ -256,25 +246,18 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://www.chessvariants.com/winning.dir/coregal.html",
         ),
         "baseVariant": "chess",
-        "kingRoles": ("k", "q"),
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "courier": {
         "displayName": "Courier Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Courier_chess"),
         "baseVariant": "shatranj",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("f",),
     },
     "extinction": {
         "displayName": "Extinction Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Extinction_chess"),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("k", "q", "r", "b", "n"),
     },
     "gardner": {
         "displayName": "Gardner Minichess",
@@ -283,15 +266,11 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://en.wikipedia.org/wiki/Minichess#5%C3%975_chess",
         ),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "georgian": {
         "displayName": "Georgian Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("a", "r", "b", "n"),
     },
     "giveaway": {
         "displayName": "Giveaway Chess",
@@ -300,24 +279,18 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://www.chessvariants.com/diffobjective.dir/giveaway.old.html",
         ),
         "baseVariant": "antichess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("k", "q", "r", "b", "n"),
     },
     "grasshopper": {
         "displayName": "Grasshopper Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Grasshopper_chess"),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("q", "r", "b", "n", "g"),
     },
     "janus": {
         "displayName": "Janus Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Janus_Chess"),
         "baseVariant": "capablanca",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("j", "q", "r", "b", "n"),
     },
     "kinglet": {
         "displayName": "Kinglet",
@@ -326,8 +299,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://en.wikipedia.org/wiki/V._R._Parton#Kinglet_chess",
         ),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("k",),
     },
     "knightmate": {
         "displayName": "Knightmate",
@@ -336,102 +307,76 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://www.chessvariants.com/diffobjective.dir/knightmate.html",
         ),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("m", "q", "r", "b"),
     },
     "legan": {
         "displayName": "Legan Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Legan_chess"),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "losalamos": {
         "displayName": "Los Alamos Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Los_Alamos_chess"),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("q", "r", "n"),
     },
     "losers": {
         "displayName": "Losers Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://www.chessclub.com/help/Wild17"),
         "baseVariant": "antichess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "misere": {
         "displayName": "Misère Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("http://www.kotesovec.cz/gustav/gustav_alybadix.htm"),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "modern": {
         "displayName": "Modern Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Modern_chess"),
         "baseVariant": "capablanca",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("m", "q", "r", "b", "n"),
     },
     "newzealand": {
         "displayName": "New Zealand Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "nightrider": {
         "displayName": "Nightrider Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Nightrider_(chess)"),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "nocastle": {
         "displayName": "No-Castle Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "nocheckatomic": {
         "displayName": "No-Check Atomic",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://www.chessclub.com/help/atomic"),
         "baseVariant": "atomic",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "opulent": {
         "displayName": "Opulent Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://www.chessvariants.com/rules/opulent-chess"),
         "baseVariant": "grand",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("q", "r", "b", "a", "c", "n", "w", "l"),
     },
     "pawnback": {
         "displayName": "Pawnback Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://arxiv.org/abs/2009.04374"),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "pawnsideways": {
         "displayName": "Pawnsideways Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://arxiv.org/abs/2009.04374"),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "perfect": {
         "displayName": "Perfect Chess",
@@ -440,16 +385,12 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://www.chessvariants.com/diffmove.dir/perfectchess.html",
         ),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("g", "c", "m", "q", "r", "b", "n"),
     },
     "shatar": {
         "displayName": "Shatar",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Shatar"),
         "baseVariant": "shatranj",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("j",),
     },
     "suicide": {
         "displayName": "Suicide Chess",
@@ -458,8 +399,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://www.freechess.org/Help/HelpFiles/suicide_chess.html",
         ),
         "baseVariant": "antichess",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("k", "q", "r", "b", "n"),
     },
     "tencubed": {
         "displayName": "Ten Cubed Chess",
@@ -468,8 +407,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "https://www.chessvariants.com/contests/10/tencubedchess.html",
         ),
         "baseVariant": "grand",
-        "promotionRoles": ("p",),
-        "promotionOrder": ("a", "m", "q"),
     },
     "threekings": {
         "displayName": "Three Kings",
@@ -479,19 +416,14 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
             "projects/lib/src/board/threekingsboard.h",
         ),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
     "torpedo": {
         "displayName": "Torpedo Chess",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
         "references": _fsf_builtin_references("https://arxiv.org/abs/2009.04374"),
         "baseVariant": "chess",
-        "promotionRoles": ("p",),
-        "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
 }
-
 
 # Structured backlog of Fairy-Stockfish built-ins that are not currently
 # first-class pychess variants and are not seeded through
@@ -887,6 +819,7 @@ class CataloguedVariantValidation(NamedTuple):
     n_fold_is_draw: bool
     show_check_counters: bool
     base_variant: str
+    fsf_variant_info: dict[str, Any]
 
 
 class CataloguedVariantPieceSetSvg(TypedDict):
@@ -930,6 +863,7 @@ class CataloguedVariantDocument(TypedDict):
     legalMovesNeedHistory: bool
     nFoldIsDraw: bool
     showCheckCounters: bool
+    fsfVariantInfo: NotRequired[dict[str, Any]]
     icon: str
     category: str
     visibility: str
@@ -972,6 +906,7 @@ class CataloguedVariantClientDocument(TypedDict):
     rulesGate: bool
     rulesPass: bool
     showCheckCounters: bool
+    fsfVariantInfo: NotRequired[dict[str, Any]]
     icon: str
     category: str
     author: NotRequired[str]
@@ -1245,80 +1180,6 @@ def _one_line_log_text(text: str, limit: int = 500) -> str:
     return collapsed
 
 
-def _board_part_from_fen(fen: str) -> str:
-    return fen.split(maxsplit=1)[0]
-
-
-def _iter_fen_piece_letters(board_part: str):
-    for ch in board_part:
-        if ch == "[":
-            continue
-        if ch == "]":
-            continue
-        if ch in "/~":
-            continue
-        if ch == "+":
-            continue
-        if ch.isalpha():
-            # In FSF FEN a promoted piece is written as +P. The piece role used
-            # by the UI is still the base letter; the promotion marker is not a square.
-            yield ch.lower()
-            continue
-        if ch.isdigit():
-            continue
-
-
-def board_dimensions_from_fen(fen: str) -> tuple[int, int]:
-    board_part = _board_part_from_fen(fen).split("[", 1)[0]
-    ranks = board_part.split("/")
-    widths: list[int] = []
-
-    for rank in ranks:
-        width = 0
-        i = 0
-        while i < len(rank):
-            ch = rank[i]
-            if ch.isdigit():
-                j = i
-                while j < len(rank) and rank[j].isdigit():
-                    j += 1
-                width += int(rank[i:j])
-                i = j
-                continue
-            if ch == "+":
-                i += 1
-                continue
-            if ch in "~":
-                i += 1
-                continue
-            width += 1
-            i += 1
-        widths.append(width)
-
-    if not widths or any(width != widths[0] for width in widths):
-        raise web.HTTPBadRequest(text="The variant start FEN has inconsistent board rank widths.")
-
-    return widths[0], len(ranks)
-
-
-def piece_letters_from_fen(fen: str) -> list[str]:
-    seen: set[str] = set()
-    pieces: list[str] = []
-
-    for letter in _iter_fen_piece_letters(_board_part_from_fen(fen)):
-        if letter not in seen:
-            seen.add(letter)
-            pieces.append(letter)
-
-    if not pieces:
-        pieces = ["k"]
-
-    # Keep common king/pawn/power pieces early in the editor row when present,
-    # then append any fantasy letters in their first-seen order.
-    preferred = [letter for letter in "kqrbnpacefwhm" if letter in seen]
-    return preferred + [letter for letter in pieces if letter not in preferred]
-
-
 def _ini_option(ini: str, key: str) -> str | None:
     wanted = key.casefold()
 
@@ -1331,13 +1192,6 @@ def _ini_option(ini: str, key: str) -> str | None:
             return right.split("#", 1)[0].strip()
 
     return None
-
-
-def _ini_bool(ini: str, key: str, default: bool = False) -> bool:
-    value = _ini_option(ini, key)
-    if value is None:
-        return default
-    return value.casefold() in {"true", "yes", "1", "on"}
 
 
 def _ini_option_is_enabled(ini: str, key: str) -> bool:
@@ -1384,306 +1238,78 @@ def _ensure_catalogued_rules_supported(ini: str) -> None:
         )
 
 
-def _ini_piece_letters(ini: str, key: str) -> list[str]:
-    value = _ini_option(ini, key) or ""
-    seen: set[str] = set()
-    letters: list[str] = []
-    for ch in value:
-        if ch.isalpha() and ch.lower() not in seen:
-            seen.add(ch.lower())
-            letters.append(ch.lower())
-    return letters
-
-
-def _pychess_pieces_metadata_value(line: str) -> str | None:
-    stripped = line.strip()
-    if not stripped or stripped[0] not in {"#", ";"}:
-        return None
-
-    body = stripped[1:].lstrip()
-    key, separator, value = body.partition("=")
-    if not separator or key.strip().casefold() != PYCHESS_PIECES_METADATA_KEY:
-        return None
-
-    # After the leading Fairy-Stockfish comment marker has made the line safe
-    # for FSF, let users add ordinary inline notes after the pychess metadata.
-    return value.split("#", 1)[0].split(";", 1)[0].strip()
-
-
-def _pychess_pieces_metadata_lines(ini: str) -> list[str]:
-    values: list[str] = []
-    for line in ini.splitlines():
-        value = _pychess_pieces_metadata_value(line)
-        if value is not None:
-            values.append(value)
-    return values
-
-
-def _strip_pychess_pieces_metadata(ini: str) -> str:
-    return "\n".join(
-        line for line in ini.splitlines() if _pychess_pieces_metadata_value(line) is None
-    ).strip()
-
-
-def _parse_pychess_piece_token(token: str) -> tuple[str, str] | None:
-    token = token.strip()
-    if not token:
-        return None
-    promoted = token.startswith("+")
-    role = token[1:] if promoted else token
-    if len(role) != 1 or not role.isascii() or not role.isalpha():
-        raise web.HTTPBadRequest(
+def _resolved_variant_info(name: str) -> dict[str, Any]:
+    variant_info = getattr(sf, "variant_info", None)
+    if variant_info is None:
+        raise web.HTTPServiceUnavailable(
             text=(
-                "Invalid pychessPieces metadata. Use one-letter piece roles like "
-                "k,q,r,p and promoted roles like +p."
+                "This pychess server requires a Fairy-Stockfish Python binding "
+                "with variant_info() support."
             )
         )
-    return ("promoted" if promoted else "base"), role.lower()
+    try:
+        return parse_fsf_variant_info(variant_info(name), expected_name=name)
+    except FsfVariantInfoError as exc:
+        log.warning("Invalid Fairy-Stockfish variant information for %s", name, exc_info=True)
+        raise web.HTTPBadRequest(text=str(exc)) from exc
 
 
-def catalogued_pychess_piece_roles(ini: str) -> tuple[list[str], list[str]]:
-    base_roles: list[str] = []
-    promoted_roles: list[str] = []
-    seen_base: set[str] = set()
-    seen_promoted: set[str] = set()
-
-    for value in _pychess_pieces_metadata_lines(ini):
-        for raw_token in value.replace(",", " ").split():
-            parsed = _parse_pychess_piece_token(raw_token)
-            if parsed is None:
-                continue
-            kind, role = parsed
-            if kind == "promoted":
-                if role not in seen_promoted:
-                    seen_promoted.add(role)
-                    promoted_roles.append(role)
-            elif role not in seen_base:
-                seen_base.add(role)
-                base_roles.append(role)
-
-    return base_roles, promoted_roles
+def _stored_variant_info(doc: Mapping[str, Any]) -> dict[str, Any]:
+    name = str(doc.get("name") or doc.get("_id") or "")
+    try:
+        return validate_fsf_variant_info(doc.get("fsfVariantInfo"), expected_name=name or None)
+    except FsfVariantInfoError:
+        return {}
 
 
-def _merge_piece_letters(first: list[str], second: list[str]) -> list[str]:
-    merged = list(first)
-    seen = set(merged)
-    for letter in second:
-        if letter not in seen:
-            seen.add(letter)
-            merged.append(letter)
-    return merged
+def _ensure_resolved_catalogued_rules_supported(info: Mapping[str, Any]) -> None:
+    """Reject unsupported behavior after inheritance and defaults are resolved by FSF."""
 
+    board = fsf_mapping(info.get("board"))
+    movement = fsf_mapping(info.get("movement"))
+    drops = fsf_mapping(info.get("drops"))
+    gating = fsf_mapping(info.get("gating"))
+    game_end = fsf_mapping(info.get("gameEnd"))
 
-def _catalogued_piece_roles_from_ini(ini: str, start_fen: str) -> list[str]:
-    pychess_base_roles, _pychess_promoted_roles = catalogued_pychess_piece_roles(ini)
-    pieces = _merge_piece_letters(
-        piece_letters_from_fen(start_fen), _ini_piece_letters(ini, "promotionPieceTypes")
-    )
-    return _merge_piece_letters(pieces, pychess_base_roles)
-
-
-def pocket_letters_from_fen(fen: str) -> list[str]:
-    board_part = _board_part_from_fen(fen)
-    if "[" not in board_part or "]" not in board_part:
-        return []
-
-    pocket = board_part.split("[", 1)[1].split("]", 1)[0]
-    seen: set[str] = set()
-    letters: list[str] = []
-
-    for ch in pocket:
-        if ch.isalpha() and ch.lower() not in seen:
-            seen.add(ch.lower())
-            letters.append(ch.lower())
-
-    return letters
-
-
-def _non_royal_hand_roles(pieces: list[str], king_roles: list[str] | None) -> list[str]:
-    royal_base_roles = {
-        role[1:] if role.startswith("+") else role for role in (king_roles or []) if role
-    }
-    return [piece for piece in pieces if piece not in royal_base_roles]
-
-
-def catalogued_pocket_roles(
-    ini: str,
-    start_fen: str,
-    pieces: list[str],
-    king_roles: list[str] | None = None,
-    *,
-    capture_to_hand: bool | None = None,
-) -> list[str]:
-    has_pocket = _ini_bool(ini, "pieceDrops") or "[" in _board_part_from_fen(start_fen)
-    if not has_pocket:
-        return []
-
-    pocket_letters = pocket_letters_from_fen(start_fen)
-    roles = pocket_letters or pieces
-
-    if capture_to_hand is None:
-        capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
-    if capture_to_hand:
-        roles = _merge_piece_letters(roles, _non_royal_hand_roles(pieces, king_roles))
-
-    return roles
-
-
-def _catalogued_pocket_roles_from_doc(
-    doc: Mapping[str, Any],
-    ini: str,
-    start_fen: str,
-    pieces: list[str],
-    king_roles: list[str],
-) -> list[str]:
-    capture_to_hand = bool(
-        doc.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
-    )
-    stored_pocket_roles = list(doc.get("pocketRoles") or [])
-    if stored_pocket_roles and capture_to_hand:
-        return _merge_piece_letters(stored_pocket_roles, _non_royal_hand_roles(pieces, king_roles))
-    return stored_pocket_roles or catalogued_pocket_roles(
-        ini, start_fen, pieces, king_roles, capture_to_hand=capture_to_hand
-    )
-
-
-def _catalogued_promotion_piece_letters(ini: str) -> list[str]:
-    letters: list[str] = []
-    seen: set[str] = set()
-    for key in ("promotionPieceTypes", "promotionPieceTypesWhite", "promotionPieceTypesBlack"):
-        for letter in _ini_piece_letters(ini, key):
-            if letter not in seen:
-                seen.add(letter)
-                letters.append(letter)
-    return letters
-
-
-def _catalogued_promotion_pawn_letters(ini: str, pieces: list[str]) -> list[str]:
-    letters: list[str] = []
-    seen: set[str] = set()
-    for key in ("promotionPawnTypes", "promotionPawnTypesWhite", "promotionPawnTypesBlack"):
-        for letter in _ini_piece_letters(ini, key):
-            if letter not in seen:
-                seen.add(letter)
-                letters.append(letter)
-
-    if letters:
-        return letters
-
-    if "p" in pieces:
-        return ["p"]
-    return []
-
-
-def catalogued_promotion_type(ini: str) -> str:
-    promoted_piece_type = (_ini_option(ini, "promotedPieceType") or "").strip()
-    _pychess_base_roles, pychess_promoted_roles = catalogued_pychess_piece_roles(ini)
-    if promoted_piece_type or pychess_promoted_roles:
-        return "shogi"
-    return "regular"
-
-
-PROMOTED_PIECE_TYPE_RE = re.compile(r"([A-Za-z])\s*:\s*([A-Za-z-])")
-
-
-def _catalogued_promoted_piece_type_pairs(ini: str) -> list[tuple[str, str]]:
-    promoted_piece_type = _ini_option(ini, "promotedPieceType") or ""
-    pairs: list[tuple[str, str]] = []
-    seen: set[str] = set()
-
-    for match in PROMOTED_PIECE_TYPE_RE.finditer(promoted_piece_type):
-        source = match.group(1).lower()
-        target = match.group(2).lower()
-        if source in seen:
-            continue
-        seen.add(source)
-        pairs.append((source, target))
-
-    return pairs
-
-
-def catalogued_promotion_roles(ini: str, pieces: list[str]) -> list[str]:
-    roles: list[str] = []
-    seen: set[str] = set()
-
-    def add_role(role: str) -> None:
-        if role not in seen:
-            seen.add(role)
-            roles.append(role)
-
-    for source, _target in _catalogued_promoted_piece_type_pairs(ini):
-        add_role(source)
-
-    if not roles:
-        if _catalogued_promotion_piece_letters(ini):
-            for role in _catalogued_promotion_pawn_letters(ini, pieces):
-                add_role(role)
-        elif (
-            _ini_bool(ini, "mandatoryPawnPromotion") or _ini_bool(ini, "mandatoryPiecePromotion")
-        ) and "p" in pieces:
-            add_role("p")
-
-    _pychess_base_roles, pychess_promoted_roles = catalogued_pychess_piece_roles(ini)
-    for role in pychess_promoted_roles:
-        add_role(role)
-
-    return roles
-
-
-def catalogued_promotion_order(ini: str, promotion_type: str) -> list[str]:
-    if promotion_type == "shogi":
-        return ["+", ""]
-    return _catalogued_promotion_piece_letters(ini)
-
-
-def catalogued_show_promoted(ini: str, start_fen: str) -> bool:
-    _pychess_base_roles, pychess_promoted_roles = catalogued_pychess_piece_roles(ini)
-    if (_ini_option(ini, "promotedPieceType") or "").strip() or pychess_promoted_roles:
-        return True
-    if any(
-        _ini_bool(ini, key) for key in ("pieceDemotion", "piecePromotionOnCapture", "dropPromoted")
-    ):
-        return True
-    return "+" in _board_part_from_fen(start_fen)
-
-
-def catalogued_rules_gate(ini: str) -> bool:
-    return _ini_bool(ini, "seirawanGating")
-
-
-def catalogued_rules_pass(ini: str) -> bool:
-    return any(
-        _ini_bool(ini, key)
-        for key in (
-            "pass",
-            "passWhite",
-            "passBlack",
-            "passOnStalemate",
-            "passOnStalemateWhite",
-            "passOnStalemateBlack",
+    unsupported: list[str] = []
+    if bool(board.get("twoBoards")):
+        unsupported.append(
+            "twoBoards: two-board variants need the dedicated bughouse/supply lobby and game flow."
         )
-    )
-
-
-def catalogued_legal_moves_need_history(ini: str) -> bool:
-    return catalogued_rules_pass(ini) or any(
-        _ini_bool(ini, key)
-        for key in (
-            "perpetualCheckIllegal",
-            "moveRepetitionIllegal",
-            "bikjangRule",
+    if bool(movement.get("cambodianMoves")):
+        unsupported.append(
+            "cambodianMoves: Cambodian/Ouk opening moves need dedicated client-side move input support."
         )
-    )
+    if str(game_end.get("materialCounting") or "none") != "none":
+        unsupported.append(
+            "materialCounting: material counting needs variant-specific adjudication and UI support."
+        )
+    if bool(drops.get("free")):
+        unsupported.append("freeDrops: free drops need dedicated pocket/setup-flow tests.")
+    if str(game_end.get("countingRule") or "none") != "none":
+        unsupported.append(
+            "countingRule: regional counting needs dedicated adjudication and UI support."
+        )
+    if str(game_end.get("chasingRule") or "none") != "none":
+        unsupported.append(
+            "chasingRule: chasing/perpetual adjudication needs history-aware regional-rule tests."
+        )
+    if bool(gating.get("enabled")) and not bool(gating.get("seirawan")):
+        unsupported.append(
+            "gating: only Seirawan-style gating is supported for user-defined variants so far."
+        )
+    if str(gating.get("wallingRule") or "none") != "none":
+        unsupported.append(
+            "wallingRule: walling/duck-style moves need dedicated client input and move encoding support."
+        )
 
-
-def catalogued_n_fold_is_draw(ini: str) -> bool:
-    if not _ini_option_has_non_neutral_value(ini, "nFoldRule"):
-        return False
-    return (_ini_option(ini, "nFoldValue") or "draw").strip().casefold() == "draw"
-
-
-def catalogued_show_check_counters(ini: str) -> bool:
-    return _ini_bool(ini, "checkCounting") or _ini_bool(ini, "dupleCheck")
+    if unsupported:
+        raise web.HTTPBadRequest(
+            text=(
+                "This resolved Fairy-Stockfish rule is not supported for user-defined variants yet: "
+                + "; ".join(unsupported)
+            )
+        )
 
 
 PIECE_SET_FILENAME_RE = re.compile(r"^([wb])(\+?)([A-Za-z])\.svg$")
@@ -1858,22 +1484,66 @@ def _canonical_piece_set_filename(filename: str) -> str | None:
     return f"{color}{promoted}{letter.upper()}.svg"
 
 
+def _fen_piece_roles_by_color(start_fen: str) -> dict[str, tuple[set[str], set[str]]]:
+    roles = {"white": (set(), set()), "black": (set(), set())}
+    board_and_pocket = start_fen.split(" ", 1)[0]
+    promoted = False
+    for character in board_and_pocket:
+        if character == "+":
+            promoted = True
+            continue
+        if not character.isascii() or not character.isalpha():
+            promoted = False
+            continue
+        color = "white" if character.isupper() else "black"
+        base_roles, promoted_roles = roles[color]
+        role = character.lower()
+        (promoted_roles if promoted else base_roles).add(role)
+        promoted = False
+    return roles
+
+
 def _catalogued_piece_set_required_filenames(doc: Mapping[str, Any]) -> list[str]:
+    fsf_variant_info = _stored_variant_info(doc)
+    if fsf_variant_info:
+        type_roles = piece_type_roles_by_color(fsf_variant_info)
+        start_fen = str(fsf_mapping(fsf_variant_info.get("board")).get("startFen") or "")
+        fen_roles = _fen_piece_roles_by_color(start_fen)
+        promoted_piece_types = fsf_mapping(
+            fsf_mapping(fsf_variant_info.get("promotion")).get("promotedPieceTypes")
+        )
+        roles_by_color: dict[str, set[str]] = {"white": set(), "black": set()}
+        promoted_by_color: dict[str, set[str]] = {"white": set(), "black": set()}
+        for color in ("white", "black"):
+            roles_by_color[color].update(type_roles[color].values())
+            roles_by_color[color].update(fen_roles[color][0])
+            promoted_by_color[color].update(fen_roles[color][1])
+            for source_type in promoted_piece_types:
+                role = type_roles[color].get(str(source_type))
+                if role:
+                    promoted_by_color[color].add(role)
+
+        filenames: list[str] = []
+        for color, prefix in (("white", "w"), ("black", "b")):
+            filenames.extend(
+                f"{prefix}{role.upper()}.svg" for role in sorted(roles_by_color[color])
+            )
+            filenames.extend(
+                f"{prefix}+{role.upper()}.svg" for role in sorted(promoted_by_color[color])
+            )
+        return filenames
+
     roles = {str(role).lower() for role in doc.get("pieces", []) if str(role).isalpha()}
-    promotion_type = str(
-        doc.get("promotionType") or catalogued_promotion_type(str(doc.get("ini") or ""))
-    ).casefold()
+    promotion_type = str(doc.get("promotionType") or "regular").casefold()
     promoted_roles = (
         {str(role).lower() for role in doc.get("promotionRoles", []) if str(role).isalpha()}
         if promotion_type == "shogi"
         else set()
     )
-    filenames: list[str] = []
+    filenames = []
     for color in ("w", "b"):
-        for role in sorted(roles):
-            filenames.append(f"{color}{role.upper()}.svg")
-        for role in sorted(promoted_roles):
-            filenames.append(f"{color}+{role.upper()}.svg")
+        filenames.extend(f"{color}{role.upper()}.svg" for role in sorted(roles))
+        filenames.extend(f"{color}+{role.upper()}.svg" for role in sorted(promoted_roles))
     return filenames
 
 
@@ -2156,51 +1826,6 @@ def _has_board_svg(doc: Mapping[str, Any]) -> bool:
     return isinstance(board_svg, Mapping) and bool(board_svg.get("svg"))
 
 
-def catalogued_king_roles(ini: str, pieces: list[str]) -> list[str]:
-    extinction_value = _ini_option(ini, "extinctionValue")
-    if extinction_value is not None:
-        # Extinction/custom-goal variants often have no royal/check concept.
-        # Do not invent a king role just because one of the piece letters is "k".
-        pseudo_royal = _ini_bool(ini, "extinctionPseudoRoyal", default=False)
-        if not pseudo_royal:
-            return []
-
-    roles: list[str] = []
-    seen: set[str] = set()
-
-    def add(role: str) -> None:
-        if role not in seen:
-            seen.add(role)
-            roles.append(role)
-
-    if "k" in pieces:
-        add("k")
-
-    if extinction_value is None:
-        royal_targets = {"k"}
-    else:
-        extinction_piece_types = (_ini_option(ini, "extinctionPieceTypes") or "").strip()
-        if "*" in extinction_piece_types:
-            royal_targets = set(pieces)
-            royal_targets.update(
-                target
-                for _source, target in _catalogued_promoted_piece_type_pairs(ini)
-                if target != "-"
-            )
-        else:
-            royal_targets = set(_ini_piece_letters(ini, "extinctionPieceTypes"))
-
-        for piece in pieces:
-            if piece in royal_targets:
-                add(piece)
-
-    for source, target in _catalogued_promoted_piece_type_pairs(ini):
-        if source in pieces and target in royal_targets:
-            add(f"+{source}")
-
-    return roles
-
-
 async def _run_process(args: list[str], *, stdin: str | None = None) -> tuple[int, str]:
     try:
         proc = await asyncio.create_subprocess_exec(
@@ -2250,7 +1875,8 @@ try:
     status = sf.validate_fen(start_fen, name, False)
     if status != sf.FEN_OK:
         raise RuntimeError(f"The start FEN is invalid for {name} (status {status}).")
-    print(json.dumps({"ok": True, "startFen": start_fen}))
+    variant_info = json.loads(sf.variant_info(name))
+    print(json.dumps({"ok": True, "startFen": start_fen, "variantInfo": variant_info}))
 except Exception as exc:
     print(json.dumps({"ok": False, "error": str(exc)}))
     raise
@@ -2267,6 +1893,10 @@ except Exception as exc:
 
     try:
         payload = json.loads(output.splitlines()[-1])
+        variant_info = payload.get("variantInfo")
+        if not isinstance(variant_info, Mapping):
+            raise ValueError("missing variantInfo")
+        _ensure_resolved_catalogued_rules_supported(variant_info)
         return str(payload.get("startFen") or "")
     except Exception:
         log.info(
@@ -2341,57 +1971,40 @@ def validate_catalogued_ini(ini: str) -> CataloguedVariantValidation:
     _ensure_catalogued_ini_size(ini)
     _ensure_catalogued_rules_supported(ini)
     name = extract_variant_name(ini)
-    base_variant = extract_variant_base_name(ini)
 
     try:
         sf.load_variant_config(ini)
-        start_fen = sf.start_fen(name)
+        fsf_variant_info = _resolved_variant_info(name)
+        _ensure_resolved_catalogued_rules_supported(fsf_variant_info)
+        derived = derive_catalogued_variant_info(fsf_variant_info)
+    except web.HTTPException:
+        raise
     except Exception:
         log.info("Fairy-Stockfish rejected catalogued variant %s", name, exc_info=True)
         raise web.HTTPBadRequest(text="Fairy-Stockfish rejected this variant definition.") from None
 
-    if not start_fen:
-        raise web.HTTPBadRequest(
-            text="Fairy-Stockfish did not provide a start FEN for this variant."
-        )
-
-    width, height = board_dimensions_from_fen(start_fen)
-    _catalogued_grand_from_dimensions(width, height)
-    pieces = _catalogued_piece_roles_from_ini(ini, start_fen)
-    king_roles = catalogued_king_roles(ini, pieces)
-    capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
-    pocket_roles = catalogued_pocket_roles(
-        ini, start_fen, pieces, king_roles, capture_to_hand=capture_to_hand
-    )
-    promotion_type = catalogued_promotion_type(ini)
-    promotion_roles = catalogued_promotion_roles(ini, pieces)
-    promotion_order = catalogued_promotion_order(ini, promotion_type)
-    show_promoted = catalogued_show_promoted(ini, start_fen)
-    rules_gate = catalogued_rules_gate(ini)
-    rules_pass = catalogued_rules_pass(ini)
-    legal_moves_need_history = catalogued_legal_moves_need_history(ini)
-    n_fold_is_draw = catalogued_n_fold_is_draw(ini)
-    show_check_counters = catalogued_show_check_counters(ini)
+    _catalogued_grand_from_dimensions(derived.width, derived.height)
 
     return CataloguedVariantValidation(
         name,
-        start_fen,
-        width,
-        height,
-        pieces,
-        king_roles,
-        pocket_roles,
-        capture_to_hand,
-        promotion_type,
-        promotion_roles,
-        promotion_order,
-        show_promoted,
-        rules_gate,
-        rules_pass,
-        legal_moves_need_history,
-        n_fold_is_draw,
-        show_check_counters,
-        base_variant,
+        derived.start_fen,
+        derived.width,
+        derived.height,
+        derived.pieces,
+        derived.king_roles,
+        derived.pocket_roles,
+        derived.capture_to_hand,
+        derived.promotion_type,
+        derived.promotion_roles,
+        derived.promotion_order,
+        derived.show_promoted,
+        derived.rules_gate,
+        derived.rules_pass,
+        derived.legal_moves_need_history,
+        derived.n_fold_is_draw,
+        derived.show_check_counters,
+        extract_variant_base_name(ini),
+        fsf_variant_info,
     )
 
 
@@ -2403,38 +2016,52 @@ def _client_doc(
 ) -> CataloguedVariantClientDocument:
     description = str(doc.get("description") or "")
     tooltip = description or "Catalogued variant"
-    ini = str(doc.get("ini") or "")
-    start_fen = str(doc["startFen"])
-    base_variant = str(doc.get("baseVariant") or "")
-    pieces = list(doc.get("pieces") or ["k"])
-    king_roles = (
-        catalogued_king_roles(ini, pieces)
-        if _ini_option(ini, "extinctionValue") is not None
-        else list(doc.get("kingRoles") or catalogued_king_roles(ini, pieces))
-    )
-    pocket_roles = _catalogued_pocket_roles_from_doc(doc, ini, start_fen, pieces, king_roles)
-    capture_to_hand = bool(
-        doc.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
-    )
-    promotion_type = str(doc.get("promotionType") or catalogued_promotion_type(ini))
-    promotion_roles = list(doc.get("promotionRoles") or catalogued_promotion_roles(ini, pieces))
-    promotion_order = list(
-        doc.get("promotionOrder") or catalogued_promotion_order(ini, promotion_type)
-    )
-    show_promoted = bool(doc.get("showPromoted", catalogued_show_promoted(ini, start_fen)))
-    rules_gate = bool(doc.get("rulesGate", catalogued_rules_gate(ini)))
-    rules_pass = bool(doc.get("rulesPass", catalogued_rules_pass(ini)))
-    show_check_counters = bool(doc.get("showCheckCounters", catalogued_show_check_counters(ini)))
+    fsf_variant_info = _stored_variant_info(doc)
+    if fsf_variant_info:
+        derived = derive_catalogued_variant_info(fsf_variant_info)
+        start_fen = derived.start_fen
+        base_variant = str(doc.get("baseVariant") or derived.template)
+        width = derived.width
+        height = derived.height
+        pieces = derived.pieces
+        king_roles = derived.king_roles
+        pocket_roles = derived.pocket_roles
+        capture_to_hand = derived.capture_to_hand
+        promotion_type = derived.promotion_type
+        promotion_roles = derived.promotion_roles
+        promotion_order = derived.promotion_order
+        show_promoted = derived.show_promoted
+        rules_gate = derived.rules_gate
+        rules_pass = derived.rules_pass
+        show_check_counters = derived.show_check_counters
+    else:
+        # Legacy archived documents can be returned before the startup migration
+        # has reloaded them. Use only their stored projection; never reinterpret INI.
+        start_fen = str(doc["startFen"])
+        base_variant = str(doc.get("baseVariant") or "")
+        width = int(doc["width"])
+        height = int(doc["height"])
+        pieces = list(doc.get("pieces") or ["k"])
+        king_roles = list(doc.get("kingRoles") or [])
+        pocket_roles = list(doc.get("pocketRoles") or [])
+        capture_to_hand = bool(doc.get("captureToHand", False))
+        promotion_type = str(doc.get("promotionType") or "regular")
+        promotion_roles = list(doc.get("promotionRoles") or [])
+        promotion_order = list(doc.get("promotionOrder") or [])
+        show_promoted = bool(doc.get("showPromoted", False))
+        rules_gate = bool(doc.get("rulesGate", False))
+        rules_pass = bool(doc.get("rulesPass", False))
+        show_check_counters = bool(doc.get("showCheckCounters", False))
 
     client_doc: CataloguedVariantClientDocument = {
         "name": str(doc["name"]),
         "displayName": str(doc.get("displayName") or doc["name"]),
         "tooltip": tooltip,
-        "ini": ini,
-        "baseVariant": base_variant or (extract_variant_base_name(ini) if ini else ""),
+        "ini": str(doc.get("ini") or ""),
+        "baseVariant": base_variant,
         "startFen": start_fen,
-        "width": int(doc["width"]),
-        "height": int(doc["height"]),
+        "width": width,
+        "height": height,
         "pieces": pieces,
         "kingRoles": king_roles,
         "pocketRoles": pocket_roles,
@@ -2457,6 +2084,8 @@ def _client_doc(
         "archived": bool(doc.get("archived", False)),
         "enabled": bool(doc.get("enabled", True)),
     }
+    if fsf_variant_info:
+        client_doc["fsfVariantInfo"] = fsf_variant_info
     if _is_fsf_builtin_catalogued_doc(doc):
         client_doc["fsfBuiltinVariant"] = _fsf_builtin_variant_name(doc)
         references = _catalogued_references_for_display(doc)
@@ -2688,14 +2317,24 @@ def public_catalogued_variants_for_forms(app_state: Any) -> dict[str, Any]:
 
 
 def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
-    ini = str(doc.get("ini") or "")
-    start_fen = str(doc.get("startFen") or "")
-    pieces = list(doc.get("pieces") or piece_letters_from_fen(start_fen or "8/8/8/8/8/8/8/8"))
-    width = int(doc.get("width") or 0)
-    height = int(doc.get("height") or 0)
-    if not width or not height:
-        width, height = board_dimensions_from_fen(start_fen) if start_fen else (8, 8)
-    king_roles = list(doc.get("kingRoles") or catalogued_king_roles(ini, pieces))
+    fsf_variant_info = _stored_variant_info(doc)
+    if fsf_variant_info:
+        derived = derive_catalogued_variant_info(fsf_variant_info)
+        start_fen = derived.start_fen
+        width = derived.width
+        height = derived.height
+        pieces = derived.pieces
+        pocket_roles = derived.pocket_roles
+        promotion_roles = derived.promotion_roles
+        capture_to_hand = derived.capture_to_hand
+    else:
+        start_fen = str(doc.get("startFen") or "")
+        width = int(doc.get("width") or 8)
+        height = int(doc.get("height") or 8)
+        pieces = list(doc.get("pieces") or [])
+        pocket_roles = list(doc.get("pocketRoles") or [])
+        promotion_roles = list(doc.get("promotionRoles") or [])
+        capture_to_hand = bool(doc.get("captureToHand", False))
 
     return {
         "name": str(doc.get("name") or doc.get("_id") or ""),
@@ -2705,20 +2344,14 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
         "description": str(doc.get("description") or ""),
         "author": str(doc.get("author") or ""),
         "references": _catalogued_references_for_display(doc),
-        "ini": ini,
+        "ini": str(doc.get("ini") or ""),
         "startFen": start_fen,
         "width": width,
         "height": height,
         "pieces": ", ".join(pieces),
-        "pocketRoles": ", ".join(
-            _catalogued_pocket_roles_from_doc(doc, ini, start_fen, pieces, king_roles)
-        ),
-        "promotionRoles": ", ".join(
-            list(doc.get("promotionRoles") or catalogued_promotion_roles(ini, pieces))
-        ),
-        "captureToHand": bool(
-            doc.get("captureToHand", _ini_bool(ini, "capturesToHand", default=False))
-        ),
+        "pocketRoles": ", ".join(pocket_roles),
+        "promotionRoles": ", ".join(promotion_roles),
+        "captureToHand": capture_to_hand,
         "enabled": bool(doc.get("enabled", True)),
         "archived": bool(doc.get("archived", False)),
         "visibility": _catalogued_visibility(doc),
@@ -2748,41 +2381,56 @@ def register_catalogued_variant_doc(
     doc: Mapping[str, Any],
     *,
     load_config: bool = True,
-) -> None:
+) -> dict[str, Any]:
     name = str(doc["name"])
-    if not _is_active_catalogued_doc(doc):
+    runtime_doc = dict(doc)
+    if not _is_active_catalogued_doc(runtime_doc):
         getattr(app_state, "catalogued_variants", {}).pop(name, None)
         unregister_catalogued_server_variant(name)
-        return
+        return runtime_doc
 
-    ini = str(doc.get("ini") or "")
-    is_fsf_builtin = _is_fsf_builtin_catalogued_doc(doc)
+    ini = str(runtime_doc.get("ini") or "")
+    is_fsf_builtin = _is_fsf_builtin_catalogued_doc(runtime_doc)
     if not is_fsf_builtin:
         _ensure_catalogued_rules_supported(ini)
 
-    if load_config and not is_fsf_builtin:
-        sf.load_variant_config(ini)
+    if load_config:
+        if not is_fsf_builtin:
+            sf.load_variant_config(ini)
+        # Re-resolve active variants with the running Fairy-Stockfish build.
+        # This backfills old documents and refreshes metadata if the engine's
+        # parser/exporter semantics changed without a catalogue edit.
+        fsf_variant_info = _resolved_variant_info(name)
+    else:
+        try:
+            fsf_variant_info = validate_fsf_variant_info(
+                runtime_doc.get("fsfVariantInfo"), expected_name=name
+            )
+        except FsfVariantInfoError:
+            fsf_variant_info = _resolved_variant_info(name)
+    if not is_fsf_builtin:
+        _ensure_resolved_catalogued_rules_supported(fsf_variant_info)
+    runtime_doc.update(catalogued_variant_derived_fields(fsf_variant_info))
 
-    width = int(doc.get("width") or 0)
-    height = int(doc.get("height") or 0)
-    if not width or not height:
-        width, height = board_dimensions_from_fen(str(doc["startFen"]))
-
+    width = int(runtime_doc["width"])
+    height = int(runtime_doc["height"])
+    board_info = fsf_mapping(fsf_variant_info.get("board"))
     register_catalogued_server_variant(
         name,
-        str(doc.get("displayName") or name),
-        str(doc.get("icon") or CATALOGUED_ICON),
+        str(runtime_doc.get("displayName") or name),
+        str(runtime_doc.get("icon") or CATALOGUED_ICON),
+        chess960=bool(board_info.get("chess960")),
         grand=_catalogued_grand_from_dimensions(width, height),
+        two_boards=bool(board_info.get("twoBoards")),
+        base_variant=str(runtime_doc.get("baseVariant") or ""),
         extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
-        show_promoted=bool(
-            doc.get("showPromoted", catalogued_show_promoted(ini, str(doc["startFen"])))
-        ),
-        legal_moves_need_history=bool(
-            doc.get("legalMovesNeedHistory", catalogued_legal_moves_need_history(ini))
-        ),
-        n_fold_is_draw=bool(doc.get("nFoldIsDraw", catalogued_n_fold_is_draw(ini))),
+        show_promoted=bool(runtime_doc["showPromoted"]),
+        legal_moves_need_history=bool(runtime_doc["legalMovesNeedHistory"]),
+        n_fold_is_draw=bool(runtime_doc["nFoldIsDraw"]),
+        fsf_variant_info=fsf_variant_info,
     )
-    app_state.catalogued_variants[name] = dict(doc)
+    app_state.catalogued_variants[name] = runtime_doc
+    return runtime_doc
 
 
 def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, Any]) -> None:
@@ -2825,6 +2473,7 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
             "legalMovesNeedHistory": validated.legal_moves_need_history,
             "nFoldIsDraw": validated.n_fold_is_draw,
             "showCheckCounters": validated.show_check_counters,
+            "fsfVariantInfo": validated.fsf_variant_info,
             "icon": CATALOGUED_ICON,
             "category": CATALOGUED_CATEGORY,
             "visibility": CATALOGUED_VISIBILITY_PRIVATE,
@@ -2855,7 +2504,11 @@ async def init_catalogued_variants(app_state: Any, db_collections: list[str]) ->
     cursor = collection.find({"enabled": {"$ne": False}, "archived": {"$ne": True}})
     async for doc in cursor:
         try:
-            register_catalogued_variant_doc(app_state, doc)
+            registered = register_catalogued_variant_doc(app_state, doc)
+            synced = catalogued_variant_derived_fields(registered["fsfVariantInfo"])
+            if any(doc.get(key) != value for key, value in synced.items()):
+                synced["updatedAt"] = doc.get("updatedAt", datetime.now(timezone.utc))
+                await collection.update_one({"_id": doc["_id"]}, {"$set": synced})
         except web.HTTPException as exc:
             log.warning(
                 "Skipped catalogued variant %s: %s",
@@ -3215,7 +2868,6 @@ async def check_catalogued_variant_rules(request: web.Request) -> web.Response:
         raise web.HTTPBadRequest(text="Missing INI content.")
 
     name = extract_variant_name(ini)
-    catalogued_pychess_piece_roles(ini)
     await ensure_catalogued_variant_name_available(app_state, name, current_name=current_name)
     start_fen = await check_catalogued_ini_without_mutating_server(ini, name)
     return json_response({"ok": True, "name": name, "startFen": start_fen})
@@ -3253,6 +2905,7 @@ def _build_doc(
     legal_moves_need_history: bool,
     n_fold_is_draw: bool,
     show_check_counters: bool,
+    fsf_variant_info: dict[str, Any],
     created_at: datetime,
     visibility: str = CATALOGUED_VISIBILITY_PRIVATE,
     piece_family_override: str = "",
@@ -3287,6 +2940,7 @@ def _build_doc(
         "legalMovesNeedHistory": legal_moves_need_history,
         "nFoldIsDraw": n_fold_is_draw,
         "showCheckCounters": show_check_counters,
+        "fsfVariantInfo": fsf_variant_info,
         "icon": CATALOGUED_ICON,
         "category": CATALOGUED_CATEGORY,
         "visibility": _clean_visibility(visibility),
@@ -3300,39 +2954,6 @@ def _build_doc(
     if fsf_builtin_variant:
         doc["fsfBuiltinVariant"] = fsf_builtin_variant
     return doc
-
-
-def _fsf_metadata_string_list(metadata: Mapping[str, Any], key: str) -> list[str]:
-    value = metadata.get(key)
-    if value is None:
-        return []
-    if isinstance(value, str):
-        items = value.replace(",", " ").split()
-    elif isinstance(value, (list, tuple)):
-        items = [str(item) for item in value]
-    else:
-        return []
-
-    seen: set[str] = set()
-    result: list[str] = []
-    for item in items:
-        item = item.strip().lower()
-        if not item or item in seen:
-            continue
-        seen.add(item)
-        result.append(item)
-    return result
-
-
-def _fsf_metadata_bool(metadata: Mapping[str, Any], key: str, default: bool) -> bool:
-    value = metadata.get(key)
-    if value is None:
-        return default
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, str):
-        return value.strip().casefold() in {"true", "yes", "1", "on"}
-    return bool(value)
 
 
 def _clean_catalogued_reference(value: Any) -> CataloguedVariantReference | None:
@@ -3405,62 +3026,37 @@ def _build_fsf_builtin_doc(
     *,
     existing: Mapping[str, Any] | None = None,
 ) -> CataloguedVariantDocument:
-    start_fen = sf.start_fen(name)
-    if not start_fen:
-        raise ValueError(f"Fairy-Stockfish did not provide a start FEN for {name!r}.")
-
-    width, height = board_dimensions_from_fen(start_fen)
-    _catalogued_grand_from_dimensions(width, height)
-    pieces = _merge_piece_letters(
-        _catalogued_piece_roles_from_ini("", start_fen),
-        _fsf_metadata_string_list(metadata, "pieces"),
-    )
-    king_roles = _fsf_metadata_string_list(metadata, "kingRoles") or catalogued_king_roles(
-        "", pieces
-    )
-    pocket_roles = _fsf_metadata_string_list(metadata, "pocketRoles") or catalogued_pocket_roles(
-        "",
-        start_fen,
-        pieces,
-        king_roles,
-        capture_to_hand=_fsf_metadata_bool(metadata, "captureToHand", False),
-    )
-    promotion_type = str(metadata.get("promotionType") or catalogued_promotion_type(""))
-    promotion_roles = _fsf_metadata_string_list(
-        metadata, "promotionRoles"
-    ) or catalogued_promotion_roles("", pieces)
-    promotion_order = _fsf_metadata_string_list(
-        metadata, "promotionOrder"
-    ) or catalogued_promotion_order("", promotion_type)
+    fsf_variant_info = _resolved_variant_info(name)
+    derived = derive_catalogued_variant_info(fsf_variant_info)
+    _catalogued_grand_from_dimensions(derived.width, derived.height)
     references = _clean_catalogued_references(metadata.get("references"))
 
     doc = _build_doc(
         name=name,
-        base_variant=str(metadata.get("baseVariant") or ""),
+        base_variant=str(metadata.get("baseVariant") or derived.template),
         display_name=str(
             (existing or {}).get("displayName") or metadata.get("displayName") or name
         ),
         description=_fsf_builtin_description_for_doc(metadata, existing, references),
         username=CATALOGUED_FSF_BUILTIN_AUTHOR,
         ini="",
-        start_fen=start_fen,
-        width=width,
-        height=height,
-        pieces=pieces,
-        king_roles=king_roles,
-        pocket_roles=pocket_roles,
-        capture_to_hand=_fsf_metadata_bool(metadata, "captureToHand", False),
-        promotion_type=promotion_type,
-        promotion_roles=promotion_roles,
-        promotion_order=promotion_order,
-        show_promoted=_fsf_metadata_bool(
-            metadata, "showPromoted", catalogued_show_promoted("", start_fen)
-        ),
-        rules_gate=_fsf_metadata_bool(metadata, "rulesGate", False),
-        rules_pass=_fsf_metadata_bool(metadata, "rulesPass", False),
-        legal_moves_need_history=_fsf_metadata_bool(metadata, "legalMovesNeedHistory", False),
-        n_fold_is_draw=_fsf_metadata_bool(metadata, "nFoldIsDraw", False),
-        show_check_counters=_fsf_metadata_bool(metadata, "showCheckCounters", False),
+        start_fen=derived.start_fen,
+        width=derived.width,
+        height=derived.height,
+        pieces=derived.pieces,
+        king_roles=derived.king_roles,
+        pocket_roles=derived.pocket_roles,
+        capture_to_hand=derived.capture_to_hand,
+        promotion_type=derived.promotion_type,
+        promotion_roles=derived.promotion_roles,
+        promotion_order=derived.promotion_order,
+        show_promoted=derived.show_promoted,
+        rules_gate=derived.rules_gate,
+        rules_pass=derived.rules_pass,
+        legal_moves_need_history=derived.legal_moves_need_history,
+        n_fold_is_draw=derived.n_fold_is_draw,
+        show_check_counters=derived.show_check_counters,
+        fsf_variant_info=fsf_variant_info,
         created_at=cast(datetime, (existing or {}).get("createdAt") or datetime.now(timezone.utc)),
         visibility=str((existing or {}).get("visibility") or CATALOGUED_VISIBILITY_PUBLIC),
         archived=bool((existing or {}).get("archived", False)),
@@ -3502,6 +3098,7 @@ def _fsf_builtin_synced_fields(doc: Mapping[str, Any]) -> dict[str, Any]:
         "legalMovesNeedHistory",
         "nFoldIsDraw",
         "showCheckCounters",
+        "fsfVariantInfo",
         "icon",
         "category",
         "source",
@@ -3600,6 +3197,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
         legal_moves_need_history=validated.legal_moves_need_history,
         n_fold_is_draw=validated.n_fold_is_draw,
         show_check_counters=validated.show_check_counters,
+        fsf_variant_info=validated.fsf_variant_info,
         created_at=now,
         visibility=visibility,
         piece_family_override=piece_family_override if _is_admin_username(username) else "",
@@ -3929,9 +3527,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
 
     new_name = extract_variant_name(ini)
     existing_ini = str(existing.get("ini") or "")
-    fsf_rules_changed = _strip_pychess_pieces_metadata(ini) != _strip_pychess_pieces_metadata(
-        existing_ini
-    )
+    fsf_rules_changed = ini != existing_ini
     if (fsf_rules_changed or new_name != old_name) and await _has_games(app_state, old_name):
         raise web.HTTPConflict(
             text="This variant already has games. Its rules are locked; clone it to make a changed version."
@@ -3969,26 +3565,35 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         legal_moves_need_history = validated.legal_moves_need_history
         n_fold_is_draw = validated.n_fold_is_draw
         show_check_counters = validated.show_check_counters
+        fsf_variant_info = validated.fsf_variant_info
     else:
-        base_variant = str(existing.get("baseVariant") or extract_variant_base_name(ini))
-        start_fen = str(existing["startFen"])
-        width = int(existing["width"])
-        height = int(existing["height"])
-        pieces = _catalogued_piece_roles_from_ini(ini, start_fen)
-        king_roles = catalogued_king_roles(ini, pieces)
-        capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
-        pocket_roles = catalogued_pocket_roles(
-            ini, start_fen, pieces, king_roles, capture_to_hand=capture_to_hand
-        )
-        promotion_type = catalogued_promotion_type(ini)
-        promotion_roles = catalogued_promotion_roles(ini, pieces)
-        promotion_order = catalogued_promotion_order(ini, promotion_type)
-        show_promoted = catalogued_show_promoted(ini, start_fen)
-        rules_gate = catalogued_rules_gate(ini)
-        rules_pass = catalogued_rules_pass(ini)
-        legal_moves_need_history = catalogued_legal_moves_need_history(ini)
-        n_fold_is_draw = catalogued_n_fold_is_draw(ini)
-        show_check_counters = catalogued_show_check_counters(ini)
+        try:
+            fsf_variant_info = validate_fsf_variant_info(
+                existing.get("fsfVariantInfo"), expected_name=new_name
+            )
+        except FsfVariantInfoError:
+            # Old archived/locked documents are upgraded on their first edit.
+            sf.load_variant_config(ini)
+            fsf_variant_info = _resolved_variant_info(new_name)
+            _ensure_resolved_catalogued_rules_supported(fsf_variant_info)
+        derived = derive_catalogued_variant_info(fsf_variant_info)
+        base_variant = str(existing.get("baseVariant") or derived.template)
+        start_fen = derived.start_fen
+        width = derived.width
+        height = derived.height
+        pieces = derived.pieces
+        king_roles = derived.king_roles
+        pocket_roles = derived.pocket_roles
+        capture_to_hand = derived.capture_to_hand
+        promotion_type = derived.promotion_type
+        promotion_roles = derived.promotion_roles
+        promotion_order = derived.promotion_order
+        show_promoted = derived.show_promoted
+        rules_gate = derived.rules_gate
+        rules_pass = derived.rules_pass
+        legal_moves_need_history = derived.legal_moves_need_history
+        n_fold_is_draw = derived.n_fold_is_draw
+        show_check_counters = derived.show_check_counters
 
     doc = _build_doc(
         name=new_name,
@@ -4013,6 +3618,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         legal_moves_need_history=legal_moves_need_history,
         n_fold_is_draw=n_fold_is_draw,
         show_check_counters=show_check_counters,
+        fsf_variant_info=fsf_variant_info,
         created_at=existing.get("createdAt", datetime.now(timezone.utc)),
         visibility=visibility,
         piece_family_override=piece_family_override,
@@ -4102,11 +3708,13 @@ async def restore_catalogued_variant(request: web.Request) -> web.Response:
     restored["enabled"] = True
     restored["updatedAt"] = now
 
+    restored = register_catalogued_variant_doc(app_state, restored, load_config=True)
+    restored_fields = catalogued_variant_derived_fields(restored["fsfVariantInfo"])
+    restored_fields.update({"archived": False, "enabled": True, "updatedAt": now})
     await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
         {"_id": name},
-        {"$set": {"archived": False, "enabled": True, "updatedAt": now}},
+        {"$set": restored_fields},
     )
-    register_catalogued_variant_doc(app_state, restored, load_config=True)
     count = await _game_count(app_state, name)
     return json_response({"ok": True, "variant": _client_doc(restored, game_count=count)})
 
@@ -4162,6 +3770,7 @@ async def clone_catalogued_variant(request: web.Request) -> web.Response:
         legal_moves_need_history=validated.legal_moves_need_history,
         n_fold_is_draw=validated.n_fold_is_draw,
         show_check_counters=validated.show_check_counters,
+        fsf_variant_info=validated.fsf_variant_info,
         created_at=now,
         piece_family_override=_catalogued_piece_family_override(doc),
     )

@@ -111,6 +111,21 @@ FSF_BUILTIN_PIECE_DIAGRAMS_BY_VARIANT: Mapping[str, tuple[_FsfBuiltinPieceDefini
     "threekings": (_FsfBuiltinPieceDefinition("k", "Commoner", "K"),),
 }
 
+FSF_BUILTIN_PIECE_DIAGRAMS_BY_TYPE: Mapping[str, tuple[str, str]] = {
+    "commoner": ("Commoner", "K"),
+    "fers": ("Fers", "F"),
+    "alfil": ("Alfil", "A"),
+    "fersAlfil": ("Fers-Alfil", "FA"),
+    "archbishop": ("Archbishop", "BN"),
+    "chancellor": ("Chancellor", "RN"),
+    "amazon": ("Amazon", "QN"),
+    "centaur": ("Centaur", "KN"),
+    "wazir": ("Wazir", "W"),
+    "bers": ("Bers", "RF"),
+    "rookni": ("Rook-knight", "mRcN"),
+    "kniroo": ("Knight-rook", "mNcR"),
+}
+
 
 def _strip_inline_comment(line: str) -> str:
     # Fairy-Stockfish examples use # for comments and not inside option values.
@@ -236,6 +251,54 @@ def _doc_piece_letters_key(doc: Mapping[str, Any]) -> tuple[str, ...]:
 
 def _doc_variant_name(value: object) -> str:
     return str(value or "").strip().lower()
+
+
+def _resolved_piece_diagram_definitions(
+    doc: Mapping[str, Any],
+) -> tuple[_PieceDiagramDefinition, ...]:
+    info = doc.get("fsfVariantInfo")
+    if not isinstance(info, Mapping):
+        return ()
+    raw_pieces = info.get("pieces")
+    if not isinstance(raw_pieces, (list, tuple)):
+        return ()
+
+    definitions: list[_PieceDiagramDefinition] = []
+    for raw_piece in raw_pieces:
+        if not isinstance(raw_piece, Mapping):
+            continue
+        fen = raw_piece.get("fen")
+        role = str(fen.get("white") or "").lower() if isinstance(fen, Mapping) else ""
+        if len(role) != 1 or not role.isascii() or not role.isalpha():
+            continue
+        piece_type = str(raw_piece.get("type") or "")
+        custom_betza = raw_piece.get("customBetza")
+        if isinstance(custom_betza, str) and custom_betza:
+            suffix = piece_type.removeprefix("custom")
+            label = f"Custom piece {suffix}" if suffix.isdigit() else "Custom piece"
+            title = f"{label} ({role.upper()}) movement"
+            definitions.append(
+                _PieceDiagramDefinition(
+                    key=f"fsf:{piece_type}:{role}",
+                    piece=role,
+                    betza=custom_betza,
+                    title=title,
+                )
+            )
+            continue
+        known = FSF_BUILTIN_PIECE_DIAGRAMS_BY_TYPE.get(piece_type)
+        if known is None:
+            continue
+        title, betza = known
+        definitions.append(
+            _PieceDiagramDefinition(
+                key=f"fsf:{piece_type}:{role}",
+                piece=role,
+                betza=betza,
+                title=f"{title} movement",
+            )
+        )
+    return tuple(definitions[:MAX_CATALOGUED_BETZA_DIAGRAMS])
 
 
 def _fsf_builtin_variant_names(doc: Mapping[str, Any], ini: str) -> list[str]:
@@ -370,15 +433,17 @@ def _cached_catalogued_betza_diagrams(
 def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDiagram]:
     """Return inline SVG movement diagrams for custom and known FSF built-in pieces."""
 
-    ini = str(doc.get("ini") or "")
-    definitions = _cached_piece_diagram_definitions(
-        ini,
-        _doc_piece_letters_key(doc),
-        _doc_variant_name(doc.get("fsfBuiltinVariant")),
-        _doc_variant_name(doc.get("name")),
-        _doc_variant_name(doc.get("baseVariant")),
-        BETZA_DIAGRAM_RENDERER_VERSION,
-    )
+    definitions = _resolved_piece_diagram_definitions(doc)
+    if not definitions:
+        ini = str(doc.get("ini") or "")
+        definitions = _cached_piece_diagram_definitions(
+            ini,
+            _doc_piece_letters_key(doc),
+            _doc_variant_name(doc.get("fsfBuiltinVariant")),
+            _doc_variant_name(doc.get("name")),
+            _doc_variant_name(doc.get("baseVariant")),
+            BETZA_DIAGRAM_RENDERER_VERSION,
+        )
     board_width = _preview_dimension(doc.get("width"))
     board_height = _preview_dimension(doc.get("height"))
     return list(

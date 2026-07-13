@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from const import ABORTED, STARTED
+from fsf_variant_info_fixture import make_fsf_variant_info
 from catalogued_variants import (
     _has_active_catalogued_games,
     archive_catalogued_variant,
@@ -183,8 +184,10 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         unregister_catalogued_server_variant(name)
         self.addCleanup(unregister_catalogued_server_variant, name)
 
+        fsf_variant_info = make_fsf_variant_info(name=name)
         validation = SimpleNamespace(
             name=name,
+            fsf_variant_info=fsf_variant_info,
             base_variant="chess",
             start_fen="8/8/8/8/8/8/8/K6k w - - 0 1",
             width=8,
@@ -218,6 +221,7 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(restored["author"], game_doc["vby"])
         self.assertFalse(restored["archived"])
         self.assertTrue(restored["enabled"])
+        self.assertEqual(restored["fsfVariantInfo"], fsf_variant_info)
 
 
 if __name__ == "__main__":
