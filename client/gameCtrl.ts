@@ -252,6 +252,8 @@ export abstract class GameController extends ChessgroundController implements Ch
 
     abstract doSendMove(move: string): void;
 
+    // RoundController uses this hook to disambiguate Duck's local cancel action
+    // from a takeback of moves already accepted by the server.
     onDuckInputStateChange(_active: boolean): void {}
 
     processInput(

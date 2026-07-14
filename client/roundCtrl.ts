@@ -578,6 +578,9 @@ export class RoundController extends GameController {
     toggleSettings() {}
 
     onDuckInputStateChange(active: boolean): void {
+        // During duck placement the reply icon means "Cancel piece move" and
+        // rewinds only the unsent first leg. Hide the server takeback action so
+        // two controls with different rewind scopes cannot appear together.
         const takeback = document.getElementById('takeback') as HTMLElement | null;
         if (takeback) takeback.hidden = active;
     }

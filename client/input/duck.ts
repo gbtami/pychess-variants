@@ -19,6 +19,10 @@ export class DuckInput extends ExtraInput {
     }
 
     private setPlacementActive(active: boolean): void {
+        // A Duck turn is sent as one compound move, but is entered in two stages.
+        // While active, the normal piece leg exists only on the client and `undo()`
+        // cancels that partial input by restoring the current server ply. Reuse the
+        // undo slot for that local action until the duck leg completes.
         this.inputState = active ? 'move' : undefined;
         this.ctrl.onDuckInputStateChange(active);
 
@@ -40,6 +44,8 @@ export class DuckInput extends ExtraInput {
     }
 
     cancel(): void {
+        // Board navigation and server resyncs can interrupt the turn between its
+        // two legs, so clear both the temporary UI and all staged move data.
         this.setPlacementActive(false);
         this.data = undefined;
         this.duckDests = [];
