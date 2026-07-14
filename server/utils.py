@@ -244,7 +244,7 @@ async def load_game_from_doc(
         bplayer,
         base=doc["b"],
         inc=doc["i"],
-        byoyomi_period=int(bool(doc.get("bp"))),
+        byoyomi_period=int(doc.get("bp", 0)),
         level=doc.get("x"),
         rated=doc.get("y"),
         chess960=bool(doc.get("z")),
@@ -262,6 +262,44 @@ async def load_game_from_doc(
 
     decode_method = game.server_variant.move_decoding
     mlist = [*map(decode_method, doc["m"])]
+
+    if game.byoyomi:
+        loaded_states: list[tuple[tuple[int, int], bool, int]] = []
+        for raw_state in doc.get("byost", []):
+            if not isinstance(raw_state, dict):
+                continue
+            periods = raw_state.get("p")
+            overtime = raw_state.get("o")
+            correction = raw_state.get("c")
+            if (
+                isinstance(periods, list)
+                and len(periods) == 2
+                and all(isinstance(period, int) for period in periods)
+                and isinstance(overtime, bool)
+                and isinstance(correction, int)
+            ):
+                loaded_states.append(((periods[0], periods[1]), overtime, correction))
+
+        # Only a complete stack is safe for takebacks. Older active games have
+        # no snapshots and remain playable, but takebacks are disabled for them.
+        if len(loaded_states) == len(mlist):
+            game.byoyomi_state_stack.extend(loaded_states)
+
+        current_periods = doc.get("byop")
+        if (
+            isinstance(current_periods, list)
+            and len(current_periods) == 2
+            and all(isinstance(period, int) for period in current_periods)
+        ):
+            game.restore_byoyomi_state(
+                (
+                    (current_periods[0], current_periods[1]),
+                    bool(doc.get("byoo", False)),
+                    int(doc.get("byoc", 0)),
+                )
+            )
+        elif len(game.byoyomi_state_stack) == len(mlist) + 1:
+            game.restore_byoyomi_state(game.byoyomi_state_stack[-1])
 
     if (mlist or game.tournamentId is not None) and doc["s"] > STARTED:
         game.saved = True
@@ -362,6 +400,8 @@ async def load_game_from_doc(
         game.board.color = WHITE if game.board.fen.split()[1] == "w" else BLACK
         game.lastmove = mlist[-1]
         game.mct = doc.get("mct")
+
+    game.counted_as_active = game.status == STARTED and game.board.ply > 0
 
     if game.corr and game.status <= STARTED:
         activate_correspondence_game(game)

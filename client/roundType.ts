@@ -21,6 +21,15 @@ export interface MsgDrawRejected {
     message: string;
 }
 
+export interface MsgTakebackOffer {
+    message: string;
+    username: string;
+}
+
+export interface MsgTakebackRejected {
+    message: string;
+}
+
 export interface MsgRematchOffer {
     message: string;
     username: string;

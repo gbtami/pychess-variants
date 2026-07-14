@@ -12,7 +12,7 @@ from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
 from variants import VARIANTS
-from wsr import handle_setup
+from wsr import handle_setup, handle_takeback
 
 
 PERFS = new_default_perf_map(VARIANTS)
@@ -170,6 +170,64 @@ class JanggiSetupValidationTestCase(AioHTTPTestCase):
         self.assertGreaterEqual(len(ws_send_json_mock.await_args_list), 1)
         sent_payload = ws_send_json_mock.await_args_list[-1].args[1]
         self.assertEqual(sent_payload["type"], "board")
+
+    async def test_takeback_to_ply_zero_keeps_completed_setup_playable(self):
+        app_state = get_app_state(self.app)
+        game = self.new_game()
+        initial_count = app_state.g_cnt[0]
+
+        with patch("wsr.ws_send_json", new=AsyncMock()):
+            await handle_setup(
+                ws=AsyncMock(),
+                users=self.users,
+                user=self.bplayer,
+                data={
+                    "type": "setup",
+                    "gameId": game.id,
+                    "color": "black",
+                    "fen": RED_SETUP_FEN,
+                },
+                game=game,
+            )
+            await handle_setup(
+                ws=AsyncMock(),
+                users=self.users,
+                user=self.wplayer,
+                data={
+                    "type": "setup",
+                    "gameId": game.id,
+                    "color": "white",
+                    "fen": BLUE_SETUP_FEN,
+                },
+                game=game,
+            )
+
+        self.assertEqual(game.status, STARTED)
+        self.assertFalse(game.bsetup)
+        self.assertFalse(game.wsetup)
+        self.assertFalse(game.counted_as_active)
+
+        await game.play_move(game.board.legal_moves()[0])
+        await game.play_move(game.board.legal_moves()[0])
+        self.assertTrue(game.counted_as_active)
+        self.assertEqual(app_state.g_cnt[0], initial_count + 1)
+
+        await handle_takeback(AsyncMock(), self.wplayer, game)
+        await handle_takeback(AsyncMock(), self.bplayer, game)
+
+        self.assertEqual(game.ply, 0)
+        self.assertEqual(game.status, STARTED)
+        self.assertFalse(game.bsetup)
+        self.assertFalse(game.wsetup)
+        self.assertFalse(game.counted_as_active)
+        self.assertEqual(app_state.g_cnt[0], initial_count)
+        self.assertTrue(game.has_legal_move)
+
+        await game.play_move(game.board.legal_moves()[0])
+        self.assertEqual(game.ply, 1)
+        self.assertEqual(game.status, STARTED)
+        self.assertTrue(game.counted_as_active)
+        self.assertEqual(app_state.g_cnt[0], initial_count + 1)
 
 
 if __name__ == "__main__":

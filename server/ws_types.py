@@ -292,10 +292,16 @@ class ByoyomiMessage(TypedDict):
     type: Literal["byoyomi"]
     color: str
     period: int
+    positionId: NotRequired[str]
 
 
 class TakebackMessage(TypedDict):
     type: Literal["takeback"]
+    gameId: NotRequired[str]
+
+
+class RejectTakebackMessage(TypedDict):
+    type: Literal["reject_takeback"]
     gameId: NotRequired[str]
 
 
@@ -393,6 +399,7 @@ RoundInboundMessage: TypeAlias = (
     | RejectDrawMessage
     | ByoyomiMessage
     | TakebackMessage
+    | RejectTakebackMessage
     | AbortResignMessage
     | EmbedUserConnectedMessage
     | IsUserPresentMessage

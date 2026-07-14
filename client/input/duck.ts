@@ -18,6 +18,39 @@ export class DuckInput extends ExtraInput {
         this.duckDests = [];
     }
 
+    private setPlacementActive(active: boolean): void {
+        // A Duck turn is sent as one compound move, but is entered in two stages.
+        // While active, the normal piece leg exists only on the client and `undo()`
+        // cancels that partial input by restoring the current server ply. Reuse the
+        // undo slot for that local action until the duck leg completes.
+        this.inputState = active ? 'move' : undefined;
+        this.ctrl.onDuckInputStateChange(active);
+
+        const undo = document.getElementById('undo') as HTMLElement | null;
+        if (!undo) return;
+        patch(
+            undo,
+            active
+                ? h(
+                      'button#undo',
+                      {
+                          on: { click: () => this.ctrl.undo() },
+                          props: { title: _('Cancel piece move'), type: 'button' },
+                      },
+                      [h('i', { class: { icon: true, 'icon-reply': true } })],
+                  )
+                : h('div#undo'),
+        );
+    }
+
+    cancel(): void {
+        // Board navigation and server resyncs can interrupt the turn between its
+        // two legs, so clear both the temporary UI and all staged move data.
+        this.setPlacementActive(false);
+        this.data = undefined;
+        this.duckDests = [];
+    }
+
     start(piece: cg.Piece, orig: cg.Orig, dest: cg.Key, meta: cg.MoveMetadata): void {
         this.data = { piece, orig, dest, meta };
 
@@ -47,17 +80,7 @@ export class DuckInput extends ExtraInput {
             return;
         }
 
-        const undo = document.getElementById('undo') as HTMLElement;
-        if (undo && undo.tagName === 'DIV') {
-            patch(
-                undo,
-                h('button#undo', { on: { click: () => this.ctrl.undo() }, props: { title: _('Undo') } }, [
-                    h('i', { class: { icon: true, 'icon-reply': true } }),
-                ]),
-            );
-        }
-
-        this.inputState = 'move';
+        this.setPlacementActive(true);
         // When the game starts there is no duck piece on the board
         if (!duckKey) {
             duckKey = 'a0';
@@ -79,9 +102,9 @@ export class DuckInput extends ExtraInput {
     finish(key: cg.Key): void {
         if (this.duckDests.includes(key) && this.data) {
             this.ctrl.chessground.state.lastMove = [this.data.orig, this.data.dest, key];
+            this.setPlacementActive(false);
             this.next(',' + this.data.dest + key);
-            this.inputState = undefined;
-            this.data = undefined;
+            this.duckDests = [];
         }
     }
 }

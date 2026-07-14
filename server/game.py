@@ -244,6 +244,9 @@ class Game:
 
         self.spectators: Set[User] = set()
         self.draw_offers: Set[str] = set()
+        # (username, ply) for an outstanding two-player takeback proposal.
+        # The ply snapshot prevents accepting an offer after the position changed.
+        self.takeback_offer: tuple[str, int] | None = None
         self.rematch_offers: Set[str] = set()
         self.rematch_id: str | None = None
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
@@ -263,6 +266,10 @@ class Game:
         self.lastmove: str | None = None
         self.check: bool = False
         self.status: int = CREATED
+        # Tracks whether this game currently contributes to the global active
+        # game count. Janggi can be STARTED at ply 0 after setup, so status and
+        # ply alone are not sufficient lifecycle indicators.
+        self.counted_as_active = False
         self.result: str = "*"
         self.last_server_clock: float = monotonic()
         self.last_move_time: datetime | None = None
@@ -376,6 +383,12 @@ class Game:
         # On page refresh we have to add extra byoyomi times gained by current player to report correct clock time
         # We adjust this in "byoyomi" messages in wsr.py
         self.byo_correction = 0
+        # One immutable timing snapshot for every board position, including ply 0.
+        # Live byoyomi messages may change the current fields, but not the snapshot
+        # for the position at which the turn began. A takeback restores that snapshot.
+        self.byoyomi_state_stack: list[tuple[tuple[int, int], bool, int]] = (
+            [self.byoyomi_state()] if self.byoyomi else []
+        )
 
         if self.chess960 or self.random_only:
             self.initial_fen = self.board.initial_fen
@@ -458,10 +471,9 @@ class Game:
         if self.status > STARTED:
             return
 
-        # In Janggi games self.status was already set to STARTED when setup phase ended
-        # so we have to check board.ply instead here!
-        if self.board.ply == 0:
+        if self.board.ply == 0 and not self.counted_as_active:
             self.status = STARTED
+            self.counted_as_active = True
             self.app_state.g_cnt[0] += 1
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             await self.app_state.lobby.lobby_broadcast(response)
@@ -474,6 +486,15 @@ class Game:
         response = await reject_draw(self, opp_player)
         if response is not None:
             await round_broadcast(self, response, full=True)
+
+        # Playing on cancels an outstanding takeback proposal.
+        if self.takeback_offer is not None:
+            self.takeback_offer = None
+            await round_broadcast(
+                self,
+                {"type": "takeback_rejected", "message": "Takeback offer canceled"},
+                full=True,
+            )
 
         cur_time = monotonic()
 
@@ -559,6 +580,8 @@ class Game:
                         "clocks": clocks,
                     }
                 )
+                if self.byoyomi:
+                    self.byoyomi_state_stack.append(self.byoyomi_state())
                 if self.jieqi_capture_stack is not None:
                     # Keep a parallel capture stack so takebacks can undo captures cleanly.
                     if jieqi_capture is not None and self.jieqi_captures is not None:
@@ -613,9 +636,9 @@ class Game:
         regardless of game length. ``save_game()`` writes the authoritative
         full arrays at game end, so the document is always consistent on close.
 
-        Takeback (``pop_move_from_db``) is bot-only and bot games are always
-        CASUAL, so clock arrays are never written for those games and no
-        matching ``$pop`` is required here.
+        Takebacks are only allowed in CASUAL games, so clock arrays are never
+        written for games that can call ``pop_move_from_db`` and no matching
+        clock ``$pop`` is required here.
         """
         self.last_move_time = datetime.now(timezone.utc)
         move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
@@ -628,6 +651,14 @@ class Game:
         # Push only the clock that changed this ply; the other array is
         # left untouched until save_game() overwrites both at game end.
         push_data: dict[str, object] = {"m": move_encoded}
+        if self.byoyomi:
+            periods, overtime, correction = self.byoyomi_state_stack[-1]
+            push_data["byost"] = {
+                "p": list(periods),
+                "o": overtime,
+                "c": correction,
+            }
+            set_data.update(self.byoyomi_state_document())
         if self.rated == RATED:
             if cur_color == WHITE:
                 push_data["cw"] = self.clocks_w[-1]
@@ -642,10 +673,50 @@ class Game:
 
     async def pop_move_from_db(self) -> None:
         if self.app_state.db is not None:
-            new_data = {"f": self.board.fen}
+            self.last_move_time = datetime.now(timezone.utc)
+            new_data = {"f": self.board.fen, "l": self.last_move_time}
+            pop_data = {"m": 1}
+            if self.byoyomi:
+                pop_data["byost"] = 1
             await self.app_state.db.game.update_one(
-                {"_id": self.id}, {"$set": new_data, "$pop": {"m": 1}}
+                {"_id": self.id}, {"$set": new_data, "$pop": pop_data}
             )
+
+    def byoyomi_state(self) -> tuple[tuple[int, int], bool, int]:
+        return (
+            (self.byoyomi_periods[WHITE], self.byoyomi_periods[BLACK]),
+            self.overtime,
+            self.byo_correction,
+        )
+
+    def restore_byoyomi_state(self, state: tuple[tuple[int, int], bool, int]) -> None:
+        periods, self.overtime, self.byo_correction = state
+        self.byoyomi_periods = list(periods)
+
+    def byoyomi_state_document(self) -> dict[str, object]:
+        return {
+            "byop": list(self.byoyomi_periods),
+            "byoo": self.overtime,
+            "byoc": self.byo_correction,
+        }
+
+    async def save_byoyomi_state(self) -> None:
+        if self.byoyomi and self.app_state.db is not None:
+            await self.app_state.db.game.update_one(
+                {"_id": self.id}, {"$set": self.byoyomi_state_document()}
+            )
+
+    async def save_takeback_state(self) -> None:
+        if self.app_state.db is None:
+            return
+        state: dict[str, object] = {
+            "f": self.board.fen,
+            "s": self.status,
+            "l": self.last_move_time,
+        }
+        if self.byoyomi:
+            state.update(self.byoyomi_state_document())
+        await self.app_state.db.game.update_one({"_id": self.id}, {"$set": state})
 
     async def save_setup(self) -> None:
         """Used by Janggi prelude phase"""
@@ -676,7 +747,8 @@ class Game:
         self.stopwatch.stop()
         await self.stopwatch.cancel()
 
-        if self.board.ply > 0:
+        if self.counted_as_active:
+            self.counted_as_active = False
             self.app_state.g_cnt[0] -= 1
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             await self.app_state.lobby.lobby_broadcast(response)
@@ -1694,51 +1766,70 @@ class Game:
         digest.update(self.board.fen.encode("utf-8"))
         return digest.hexdigest()
 
-    async def takeback(self) -> None:
-        if self.bot_game and self.board.ply >= 2:
-            cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
-            cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
+    async def takeback(self, requester: User) -> None:
+        """Rewind the move(s) the requester is asking to replay.
 
-            def pop_jieqi_capture() -> None:
-                # Takebacks must also undo any stored Jieqi capture identities.
-                if self.jieqi_capture_stack is None:
-                    return
-                if not self.jieqi_capture_stack:
-                    return
-                capture = self.jieqi_capture_stack.pop()
-                if capture is None:
-                    return
-                if self.jieqi_captures is None:
-                    return
-                color, _piece = capture
-                try:
-                    if self.jieqi_captures[color]:
-                        self.jieqi_captures[color].pop()
-                except Exception:
-                    log.exception("Failed to rollback Jieqi capture for %s", self.id)
+        A request made immediately after the requester's move rewinds one ply.
+        A request made on the requester's turn rewinds the opponent's last move
+        and the requester's preceding move, matching lichess takeback behavior.
+        """
+        # Defense in depth: callers must never mutate rated game history.
+        if (
+            self.rated != CASUAL
+            or self.board.ply < 2
+            or (self.byoyomi and len(self.byoyomi_state_stack) != self.board.ply + 1)
+        ):
+            return
 
+        self.stopwatch.stop()
+        turn_player = self.bplayer if self.board.color == BLACK else self.wplayer
+        plies = 2 if requester.username == turn_player.username else 1
+
+        def pop_jieqi_capture() -> None:
+            # Takebacks must also undo any stored Jieqi capture identities.
+            if self.jieqi_capture_stack is None or not self.jieqi_capture_stack:
+                return
+            capture = self.jieqi_capture_stack.pop()
+            if capture is None or self.jieqi_captures is None:
+                return
+            color, _piece = capture
+            try:
+                if self.jieqi_captures[color]:
+                    self.jieqi_captures[color].pop()
+            except Exception:
+                log.exception("Failed to rollback Jieqi capture for %s", self.id)
+
+        for _ in range(plies):
+            # The side opposite the current turn made the move being removed.
+            mover_color = BLACK if self.board.color == WHITE else WHITE
+            mover_clock = self.clocks_b if mover_color == BLACK else self.clocks_w
             self.board.pop()
             pop_jieqi_capture()
-            if len(cur_clock) > 1:
-                cur_clock.pop()
+            if len(mover_clock) > 1:
+                mover_clock.pop()
             self.steps.pop()
+            if self.byoyomi:
+                self.byoyomi_state_stack.pop()
+                self.restore_byoyomi_state(self.byoyomi_state_stack[-1])
             await self.pop_move_from_db()
 
-            if not cur_player.bot:
-                cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
+        if self.board.ply == 0 and self.counted_as_active:
+            self.counted_as_active = False
+            self.app_state.g_cnt[0] -= 1
+            await self.app_state.lobby.lobby_broadcast(
+                {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
+            )
+            if self.variant != "janggi" or self.bsetup or self.wsetup:
+                self.status = CREATED
 
-                self.board.pop()
-                pop_jieqi_capture()
-                if len(cur_clock) > 1:
-                    cur_clock.pop()
-                self.steps.pop()
-                await self.pop_move_from_db()
-
-            self.has_legal_move = self.board.has_legal_move()
-            if self.random_mover:
-                self.legal_moves = self.board.legal_moves()
-            self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
-            self.check = self.board.is_checked()
+        self.has_legal_move = self.board.has_legal_move()
+        if self.random_mover:
+            self.legal_moves = self.board.legal_moves()
+        self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
+        self.check = self.board.is_checked()
+        await self.save_takeback_state()
+        self.last_server_clock = monotonic()
+        self.stopwatch.restart()
 
     def handle_chat_message(self, chat_message: Mapping[str, object]) -> None:
         self.messages.append(chat_message)

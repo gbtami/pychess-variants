@@ -103,7 +103,7 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         self.assertEqual(game.ply, 18)
         self.assertEqual(game.status, STARTED)
 
-        await game.takeback()
+        await game.takeback(self.player)
         self.assertEqual(game.board.fen, PRE_CASTLE_FEN)
         self.assertEqual(game.ply, 17)
 
@@ -150,7 +150,7 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         await self.play_prefix(game)
 
         await play_move(app_state, self.player, game, "c8b7", clocks=[300000, 300000], ply=18)
-        await game.takeback()
+        await game.takeback(self.player)
         await play_move(app_state, self.player, game, "c8b8", clocks=[300000, 300000], ply=18)
 
         # Even without ply, the normal human websocket path still rejects this message
