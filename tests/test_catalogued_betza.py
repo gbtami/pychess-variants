@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import catalogued_betza
 from catalogued_betza import catalogued_betza_diagrams
+from fsf_variant_info_fixture import fsf_piece, make_fsf_variant_info
 
 
 class CataloguedBetzaDiagramTestCase(unittest.TestCase):
@@ -29,6 +30,24 @@ class CataloguedBetzaDiagramTestCase(unittest.TestCase):
         self.assertEqual([diagram["piece"] for diagram in diagrams], ["n", "a"])
         self.assertEqual([diagram["betza"] for diagram in diagrams], ["N", "BN"])
         self.assertIn("<svg", diagrams[0]["svg"])
+        self.assertIn("Custom piece 1", diagrams[0]["title"])
+
+    def test_resolved_custom_piece_definition_is_authoritative(self):
+        pieces = [fsf_piece("king", "k"), fsf_piece("custom1", "a", custom_betza="BN")]
+        info = make_fsf_variant_info(name="resolvedbetza", pieces=pieces)
+        diagrams = catalogued_betza_diagrams(
+            {
+                "name": "resolvedbetza",
+                "ini": """
+                [resolvedbetza:chess]
+                customPiece1 = z:N
+                """,
+                "fsfVariantInfo": info,
+            }
+        )
+
+        self.assertEqual([diagram["piece"] for diagram in diagrams], ["a"])
+        self.assertEqual([diagram["betza"] for diagram in diagrams], ["BN"])
         self.assertIn("Custom piece 1", diagrams[0]["title"])
 
     def test_custom_king_with_betza_is_rendered_but_bare_king_is_ignored(self):

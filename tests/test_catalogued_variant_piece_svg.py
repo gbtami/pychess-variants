@@ -1,3 +1,4 @@
+import json
 import unittest
 from datetime import datetime, timezone
 from typing import Any
@@ -6,6 +7,8 @@ from unittest.mock import patch
 from aiohttp import web
 
 import test_logger
+from fsf_variant_info_fixture import fsf_piece, make_fsf_variant_info
+
 from catalogued_variants import (
     _canonical_piece_set_filename,
     _catalogued_board_svg_css,
@@ -214,23 +217,36 @@ class CataloguedVariantBoardSvgTestCase(unittest.TestCase):
 
 
 class CataloguedVariantPieceMetadataTestCase(unittest.TestCase):
-    def test_validate_ini_uses_pychess_pieces_metadata_for_promoted_svgs(self) -> None:
+    def test_validate_ini_uses_resolved_inherited_promotions_for_required_svgs(self) -> None:
         ini = """[metapromo:chess]
-# pychessPieces = k,q,r,+r,p,+p
 """
+        info = make_fsf_variant_info(
+            name="metapromo",
+            start_fen="r3k2r/8/8/8/8/8/8/4K2P w - - 0 1",
+            pieces=[
+                fsf_piece("pawn", "p"),
+                fsf_piece("rook", "r"),
+                fsf_piece("queen", "q"),
+                fsf_piece("king", "k"),
+            ],
+        )
+        info["promotion"].update(
+            {
+                "pieceTypes": {"white": [], "black": []},
+                "promotedPieceTypes": {"pawn": "queen", "rook": "queen"},
+                "shogiStyle": True,
+            }
+        )
 
         with (
             patch("catalogued_variants.sf.load_variant_config"),
-            patch(
-                "catalogued_variants.sf.start_fen",
-                return_value="r3k2r/8/8/8/8/8/8/4K2P w - - 0 1",
-            ),
+            patch("catalogued_variants.sf.variant_info", return_value=json.dumps(info)),
         ):
             validated = validate_catalogued_ini(ini)
 
-        self.assertEqual(validated.pieces, ["k", "r", "p", "q"])
+        self.assertEqual(validated.pieces, ["k", "q", "r", "p"])
         self.assertEqual(validated.promotion_type, "shogi")
-        self.assertEqual(validated.promotion_roles, ["r", "p"])
+        self.assertEqual(validated.promotion_roles, ["p", "r"])
         self.assertEqual(validated.promotion_order, ["+", ""])
         self.assertTrue(validated.show_promoted)
         self.assertIn(
@@ -240,6 +256,7 @@ class CataloguedVariantPieceMetadataTestCase(unittest.TestCase):
                     "pieces": validated.pieces,
                     "promotionType": validated.promotion_type,
                     "promotionRoles": validated.promotion_roles,
+                    "fsfVariantInfo": validated.fsf_variant_info,
                 }
             ),
         )
@@ -284,7 +301,7 @@ class CataloguedVariantPieceMetadataTestCase(unittest.TestCase):
             "displayName": "metapromo",
             "description": "",
             "author": "alice",
-            "ini": "[metapromo:chess]\n# pychessPieces = k,p,+p",
+            "ini": "[metapromo:chess]",
             "baseVariant": "chess",
             "enabled": True,
             "archived": False,
@@ -334,7 +351,7 @@ class CataloguedVariantPieceMetadataTestCase(unittest.TestCase):
             "displayName": "metapromo",
             "description": "",
             "author": "alice",
-            "ini": "[metapromo:chess]\n# pychessPieces = k,p,+p",
+            "ini": "[metapromo:chess]",
             "baseVariant": "chess",
             "enabled": True,
             "archived": False,

@@ -382,6 +382,9 @@ export interface Variant {
         readonly showCheckCounters: boolean;
     };
     readonly alternateStart?: Record<string, string>;
+    // Fully resolved Fairy-Stockfish rules for catalogued variants. Built-in
+    // site variants keep using their hand-authored client configuration.
+    readonly fsfVariantInfo?: FsfVariantInfo;
 }
 
 const pieceFamiliesWithMaterialDifferenceSupported = [
@@ -508,6 +511,7 @@ export function variant(config: VariantConfig): Variant {
             showCheckCounters: config.ui?.showCheckCounters ?? false,
         },
         alternateStart: config.alternateStart,
+        fsfVariantInfo: config.fsfVariantInfo,
     };
 }
 
@@ -625,6 +629,8 @@ interface VariantConfig {
     };
     // Alternate starting positions, including handicaps
     alternateStart?: Record<string, string>;
+    // Fully resolved rules supplied by Fairy-Stockfish for catalogued variants.
+    fsfVariantInfo?: FsfVariantInfo;
 }
 
 export const VARIANTS: Record<string, Variant> = {
@@ -1797,6 +1803,174 @@ export const unsupportedAiVariants = ['alice', 'fogofwar', 'jieqi'];
 
 export const devVariants = ['borderlands', 'makbug', 'supply', 'yokai'];
 
+interface FsfColorValue<T> {
+    readonly white: T;
+    readonly black: T;
+}
+
+export interface FsfVariantPieceInfo {
+    readonly type: string;
+    readonly fen: FsfColorValue<string>;
+    readonly synonym: FsfColorValue<string> | null;
+    readonly customBetza: string | null;
+    readonly value: {
+        readonly midgame: number;
+        readonly endgame: number;
+    };
+}
+
+export interface FsfVariantInfo {
+    readonly schemaVersion: 1;
+    readonly name: string;
+    readonly template: string;
+    readonly board: {
+        readonly width: number;
+        readonly height: number;
+        readonly startFen: string;
+        readonly chess960: boolean;
+        readonly twoBoards: boolean;
+        readonly diagonalLines?: readonly string[];
+    };
+    readonly pieces: readonly FsfVariantPieceInfo[];
+    readonly pieceTypes: readonly string[];
+    readonly royalPieceTypes?: readonly string[];
+    readonly movement: {
+        readonly mobilityRegions: Readonly<Record<string, FsfColorValue<readonly string[]>>>;
+        readonly doubleStep: boolean;
+        readonly doubleStepRegions: FsfColorValue<readonly string[]>;
+        readonly tripleStepRegions: FsfColorValue<readonly string[]>;
+        readonly enPassantRegions: FsfColorValue<readonly string[]>;
+        readonly enPassantTypes: FsfColorValue<readonly string[]>;
+        readonly pass: FsfColorValue<boolean>;
+        readonly passOnStalemate: FsfColorValue<boolean>;
+        readonly mustCapture: boolean;
+        readonly immobilityIllegal: boolean;
+        readonly cambodianMoves: boolean;
+        readonly makpongRule: boolean;
+        readonly flyingGeneral: boolean;
+        readonly soldierPromotionRank?: number;
+    };
+    readonly promotion: {
+        readonly regions: FsfColorValue<readonly string[]>;
+        readonly mainPawnTypes: FsfColorValue<string>;
+        readonly pawnTypes: FsfColorValue<readonly string[]>;
+        readonly pieceTypes: FsfColorValue<readonly string[]>;
+        readonly promotedPieceTypes: Readonly<Record<string, string>>;
+        readonly limits: Readonly<Record<string, number>>;
+        readonly sittuyin: boolean;
+        readonly onCapture: boolean;
+        readonly mandatoryPawn: boolean;
+        readonly mandatoryPiece: boolean;
+        readonly demotion: boolean;
+        readonly shogiStyle: boolean;
+    };
+    readonly capture: {
+        readonly blast: boolean;
+        readonly blastImmuneTypes: readonly string[];
+        readonly mutuallyImmuneTypes: readonly string[];
+        readonly petrifyTypes: readonly string[];
+        readonly petrifyBlastPieces: boolean;
+    };
+    readonly castling: {
+        readonly enabled: boolean;
+        readonly droppedPiece: boolean;
+        readonly kingSideFile: number;
+        readonly queenSideFile: number;
+        readonly rank: number;
+        readonly kingFile: number;
+        readonly rookKingSideFile?: number;
+        readonly rookQueenSideFile?: number;
+        readonly kingPieces: FsfColorValue<string>;
+        readonly rookPieces: FsfColorValue<readonly string[]>;
+        readonly opposite: boolean;
+        readonly wins: number | FsfColorValue<{ readonly kingSide: boolean; readonly queenSide: boolean }>;
+    };
+    readonly drops: {
+        readonly enabled: boolean;
+        readonly capturesToHand: boolean;
+        readonly mustDrop: boolean;
+        readonly mustDropType: string;
+        readonly dropLoop: boolean;
+        readonly firstRankPawnDrops: boolean;
+        readonly promotionZonePawnDrops: boolean;
+        readonly regions: FsfColorValue<readonly string[]>;
+        readonly enclosingRule: string;
+        readonly enclosingStart: readonly string[];
+        readonly sittuyinRook: boolean;
+        readonly oppositeColoredBishop: boolean;
+        readonly promoted: boolean;
+        readonly noDoubledType: string;
+        readonly noDoubledCount: number;
+        readonly free: boolean;
+    };
+    readonly gating: {
+        readonly enabled: boolean;
+        readonly seirawan: boolean;
+        readonly wallingRule: string;
+        readonly wallingRegions: FsfColorValue<readonly string[]>;
+        readonly wallOrMove: boolean;
+    };
+    readonly gameEnd: {
+        readonly checking: boolean;
+        readonly dropChecks: boolean;
+        readonly kingType: string;
+        readonly nMoveRule: number;
+        readonly nMoveRuleTypes: FsfColorValue<readonly string[]>;
+        readonly nFoldRule: number;
+        readonly nFoldValue: string;
+        readonly nFoldValueAbsolute: boolean;
+        readonly perpetualCheckIllegal: boolean;
+        readonly moveRepetitionIllegal: boolean;
+        readonly chasingRule: string;
+        readonly stalemateValue: string;
+        readonly stalematePieceCount: boolean;
+        readonly checkmateValue: string;
+        readonly shogiPawnDropMateIllegal: boolean;
+        readonly shatarMateRule: boolean;
+        readonly bikjangRule: boolean;
+        readonly dupleCheck: boolean;
+        readonly checkCounting: boolean;
+        readonly materialCounting: string;
+        readonly adjudicateFullBoard: boolean;
+        readonly countingRule: string;
+    };
+    readonly extinction: {
+        readonly value: string;
+        readonly claim: boolean;
+        readonly pseudoRoyal: boolean;
+        readonly pieceTypes: readonly string[];
+        readonly pieceCount: number;
+        readonly opponentPieceCount: number;
+    };
+    readonly flag: {
+        readonly pieces: FsfColorValue<string>;
+        readonly regions: FsfColorValue<readonly string[]>;
+        readonly pieceCount: number;
+        readonly blockedWin: boolean;
+        readonly move: boolean;
+        readonly safe: boolean;
+    };
+    readonly connect: {
+        readonly n: number;
+        readonly pieceTypes: readonly string[];
+        readonly horizontal: boolean;
+        readonly vertical: boolean;
+        readonly diagonal: boolean;
+        readonly region1: FsfColorValue<readonly string[]>;
+        readonly region2: FsfColorValue<readonly string[]>;
+        readonly nxn: number;
+        readonly collinearN: number;
+        readonly value: string;
+    };
+    readonly enclosing: {
+        readonly flipRule: string;
+    };
+    readonly protocol?: {
+        readonly pieceToCharTable: string;
+        readonly pocketSize: number;
+    };
+}
+
 export interface CataloguedVariantClientDocument {
     readonly name: string;
     readonly displayName: string;
@@ -1817,6 +1991,7 @@ export interface CataloguedVariantClientDocument {
     readonly rulesGate?: boolean;
     readonly rulesPass?: boolean;
     readonly showCheckCounters?: boolean;
+    readonly fsfVariantInfo?: FsfVariantInfo;
     readonly icon?: string;
     readonly category?: string;
     readonly author?: string;
@@ -1868,75 +2043,6 @@ function ensureCataloguedBoardFamily(width: number, height: number): keyof typeo
     return key;
 }
 
-function cataloguedKingRolesWithPromotions(
-    kingRoles: cg.Letter[],
-    promotionType: PromotionType,
-    promotionRoles: cg.Letter[],
-): cg.Letter[] {
-    if (promotionType !== 'shogi') return kingRoles;
-
-    const roles = [...kingRoles];
-    const seen = new Set<cg.Letter>(roles);
-    const promotable = new Set<cg.Letter>(promotionRoles);
-
-    for (const role of kingRoles) {
-        if (role.startsWith('+') || !promotable.has(role)) continue;
-        const promotedRole = `+${role}` as cg.Letter;
-        if (!seen.has(promotedRole)) {
-            seen.add(promotedRole);
-            roles.push(promotedRole);
-        }
-    }
-
-    return roles;
-}
-
-function cataloguedIniOption(ini: string | undefined, key: string): string | undefined {
-    if (!ini) return undefined;
-    const wanted = key.toLowerCase();
-    for (const line of ini.split(/\r?\n/)) {
-        const stripped = line.trim();
-        if (!stripped || stripped.startsWith('#') || !stripped.includes('=')) continue;
-        const [left, ...right] = stripped.split('=');
-        if (left.trim().toLowerCase() !== wanted) continue;
-        return right.join('=').split('#', 1)[0].trim();
-    }
-    return undefined;
-}
-
-function cataloguedIniHasOption(ini: string | undefined, key: string): boolean {
-    return cataloguedIniOption(ini, key) !== undefined;
-}
-
-function cataloguedDerivedPocketRoles(
-    meta: CataloguedVariantClientDocument,
-    pieces: cg.Letter[],
-    kingRoles: cg.Letter[],
-    baseVariant: Variant | undefined,
-    hasPocketOverride: boolean,
-): cg.Letter[] {
-    if (meta.pocketRoles?.length || hasPocketOverride) {
-        return (meta.pocketRoles ?? []) as cg.Letter[];
-    }
-
-    if (baseVariant?.pocket?.captureToHand) {
-        const kingLetters = new Set(kingRoles);
-        return pieces.filter(letter => !kingLetters.has(letter));
-    }
-
-    return (baseVariant?.pocket?.roles.white.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
-}
-
-interface CataloguedPieceInfo {
-    pieces: cg.Letter[];
-    kingRoles: cg.Letter[];
-    pocketRoles: cg.Letter[];
-    promotionType: PromotionType;
-    promotionRoles: cg.Letter[];
-    promotionOrder?: PromotionSuffix[];
-    baseVariant?: Variant;
-}
-
 function normalPieceLetter(letter: string | undefined): cg.Letter | undefined {
     const normalized = (letter ?? '').trim().toLowerCase();
     return /^\+?[a-z]$/.test(normalized) ? (normalized as cg.Letter) : undefined;
@@ -1957,114 +2063,324 @@ function promotedPieceLetter(letter: string): cg.Letter | undefined {
     return `+${normalized}` as cg.Letter;
 }
 
-function cataloguedCustomPieceRoles(ini: string | undefined): Set<cg.Letter> {
-    const roles = new Set<cg.Letter>();
-    if (!ini) return roles;
-
-    for (const line of ini.split(/\r?\n/)) {
-        const stripped = line.trim();
-        if (!stripped || stripped.startsWith('#') || !stripped.includes('=')) continue;
-        const [left, ...right] = stripped.split('=');
-        if (!/^customPiece\d+$/i.test(left.trim())) continue;
-        const value = right.join('=').split('#', 1)[0].trim();
-        const match = /^([A-Za-z])\s*:/.exec(value);
-        addPieceLetter(roles, match?.[1]);
-    }
-
-    return roles;
+interface CataloguedFenRoles {
+    readonly board: Set<cg.Letter>;
+    readonly boardPromoted: Set<cg.Letter>;
+    readonly pocket: Set<cg.Letter>;
+    readonly pocketPromoted: Set<cg.Letter>;
 }
 
-const CATALOGUED_PROMOTED_PIECE_PAIR_RE = /([A-Za-z])\s*:\s*([A-Za-z-])/g;
+function emptyCataloguedFenRoles(): CataloguedFenRoles {
+    return {
+        board: new Set(),
+        boardPromoted: new Set(),
+        pocket: new Set(),
+        pocketPromoted: new Set(),
+    };
+}
 
-function cataloguedPromotedPieceTypePairs(ini: string | undefined): [cg.Letter, cg.Letter | '-'][] {
-    const value = cataloguedIniOption(ini, 'promotedPieceType') ?? '';
-    const pairs: [cg.Letter, cg.Letter | '-'][] = [];
-    const seen = new Set<cg.Letter>();
-    for (const match of value.matchAll(CATALOGUED_PROMOTED_PIECE_PAIR_RE)) {
-        const source = normalPieceLetter(match[1]);
-        if (!source || source.startsWith('+') || seen.has(source)) continue;
-        seen.add(source);
-        const rawTarget = match[2].toLowerCase();
-        const target = rawTarget === '-' ? '-' : normalPieceLetter(rawTarget);
-        if (target) pairs.push([source, target]);
+function cataloguedFenRoles(startFen: string): Record<cg.Color, CataloguedFenRoles> {
+    const result: Record<cg.Color, CataloguedFenRoles> = {
+        white: emptyCataloguedFenRoles(),
+        black: emptyCataloguedFenRoles(),
+    };
+    const boardAndPocket = startFen.split(' ', 1)[0] ?? '';
+    let inPocket = false;
+    let promoted = false;
+    for (const character of boardAndPocket) {
+        if (character === '[') {
+            inPocket = true;
+            promoted = false;
+            continue;
+        }
+        if (character === ']') {
+            inPocket = false;
+            promoted = false;
+            continue;
+        }
+        if (character === '+') {
+            promoted = true;
+            continue;
+        }
+        if (!/[A-Za-z]/.test(character)) {
+            promoted = false;
+            continue;
+        }
+        const color: cg.Color = character === character.toUpperCase() ? 'white' : 'black';
+        const role = character.toLowerCase() as cg.Letter;
+        if (inPocket) {
+            if (promoted) result[color].pocketPromoted.add(role);
+            else result[color].pocket.add(role);
+        } else if (promoted) result[color].boardPromoted.add(role);
+        else result[color].board.add(role);
+        promoted = false;
     }
-    return pairs;
+    return result;
+}
+
+function cataloguedFsfTypeRoles(meta: CataloguedVariantClientDocument): Record<cg.Color, Map<string, cg.Letter>> {
+    const result: Record<cg.Color, Map<string, cg.Letter>> = { white: new Map(), black: new Map() };
+    for (const piece of meta.fsfVariantInfo?.pieces ?? []) {
+        for (const color of ['white', 'black'] as const) {
+            const role = normalPieceLetter(piece.fen[color]);
+            if (role && !role.startsWith('+')) result[color].set(piece.type, role);
+        }
+    }
+    return result;
+}
+
+function cataloguedFsfRoleTypes(meta: CataloguedVariantClientDocument): Record<cg.Color, Map<cg.Letter, string>> {
+    const result: Record<cg.Color, Map<cg.Letter, string>> = { white: new Map(), black: new Map() };
+    for (const piece of meta.fsfVariantInfo?.pieces ?? []) {
+        for (const color of ['white', 'black'] as const) {
+            for (const letter of [piece.fen[color], piece.synonym?.[color]]) {
+                const role = normalPieceLetter(letter);
+                if (role && !role.startsWith('+')) result[color].set(role, piece.type);
+            }
+        }
+    }
+    return result;
+}
+
+function orderedCataloguedRoles(preferred: readonly cg.Letter[], roles: Set<cg.Letter>): cg.Letter[] {
+    const ordered: cg.Letter[] = [];
+    for (const role of preferred) {
+        if (roles.delete(role)) ordered.push(role);
+    }
+    ordered.push(...roles);
+    return ordered;
+}
+
+function cataloguedPieceRows(meta: CataloguedVariantClientDocument): Record<cg.Color, cg.Letter[]> {
+    if (!meta.fsfVariantInfo) {
+        const pieces = (meta.pieces?.length ? [...meta.pieces] : ['k']) as cg.Letter[];
+        return { white: pieces, black: [...pieces] };
+    }
+
+    const typeRoles = cataloguedFsfTypeRoles(meta);
+    const fenRoles = cataloguedFenRoles(meta.fsfVariantInfo.board.startFen);
+    const rows: Record<cg.Color, cg.Letter[]> = { white: [], black: [] };
+    for (const color of ['white', 'black'] as const) {
+        const roles = new Set<cg.Letter>(typeRoles[color].values());
+        fenRoles[color].board.forEach(role => roles.add(role));
+        fenRoles[color].boardPromoted.forEach(role => roles.add(role));
+        rows[color] = orderedCataloguedRoles(meta.pieces ?? [], roles);
+    }
+    return rows;
+}
+
+function cataloguedRoyalPieceTypes(meta: CataloguedVariantClientDocument): Set<string> {
+    const fsf = meta.fsfVariantInfo;
+    if (!fsf) return new Set();
+
+    if (fsf.royalPieceTypes) return new Set(fsf.royalPieceTypes);
+
+    // Compatibility with the first schema-v1 exporter: gameEnd.kingType is
+    // the movement type used by the resolved KING piece (for example WAZIR in
+    // Xiangqi), not the royal piece's identity.
+    const royalTypes = new Set<string>();
+    if (fsf.pieceTypes.includes('king')) royalTypes.add('king');
+    if (fsf.extinction.pseudoRoyal) {
+        fsf.extinction.pieceTypes.forEach(pieceType => royalTypes.add(pieceType));
+    }
+    return royalTypes;
+}
+
+function cataloguedKingRoles(meta: CataloguedVariantClientDocument): cg.Letter[] {
+    const fsf = meta.fsfVariantInfo;
+    if (!fsf) {
+        const roles = [...(meta.kingRoles ?? [])] as cg.Letter[];
+        if (meta.promotionType !== 'shogi') return roles;
+        const seen = new Set(roles);
+        const promotable = new Set(meta.promotionRoles ?? []);
+        for (const role of roles) {
+            if (role.startsWith('+') || !promotable.has(role)) continue;
+            const promoted = `+${role}` as cg.Letter;
+            if (!seen.has(promoted)) {
+                seen.add(promoted);
+                roles.push(promoted);
+            }
+        }
+        return roles;
+    }
+
+    const typeRoles = cataloguedFsfTypeRoles(meta);
+    const royalTypes = cataloguedRoyalPieceTypes(meta);
+    const roles = new Set<cg.Letter>();
+    for (const color of ['white', 'black'] as const) {
+        for (const pieceType of royalTypes) addPieceLetter(roles, typeRoles[color].get(pieceType));
+    }
+    for (const [sourceType, targetType] of Object.entries(fsf.promotion.promotedPieceTypes)) {
+        if (!royalTypes.has(targetType)) continue;
+        for (const color of ['white', 'black'] as const) {
+            const sourceRole = typeRoles[color].get(sourceType);
+            if (sourceRole) roles.add(`+${sourceRole}` as cg.Letter);
+        }
+    }
+    return orderedCataloguedRoles(meta.kingRoles ?? [], roles);
+}
+
+function cataloguedPromotionInfo(meta: CataloguedVariantClientDocument): {
+    type: PromotionType;
+    roles: cg.Letter[];
+    order?: PromotionSuffix[];
+} {
+    const fsf = meta.fsfVariantInfo;
+    if (!fsf) {
+        return {
+            type: meta.promotionType ?? 'regular',
+            roles: [...(meta.promotionRoles ?? [])] as cg.Letter[],
+            order: meta.promotionOrder?.length ? [...meta.promotionOrder] : undefined,
+        };
+    }
+
+    const typeRoles = cataloguedFsfTypeRoles(meta);
+    const promotedMappings = fsf.promotion.promotedPieceTypes;
+    const type: PromotionType = fsf.promotion.shogiStyle || Object.keys(promotedMappings).length ? 'shogi' : 'regular';
+    const sourceTypes =
+        type === 'shogi'
+            ? Object.keys(promotedMappings)
+            : [...fsf.promotion.pawnTypes.white, ...fsf.promotion.pawnTypes.black];
+    const roles = new Set<cg.Letter>();
+    for (const sourceType of sourceTypes) {
+        for (const color of ['white', 'black'] as const) addPieceLetter(roles, typeRoles[color].get(sourceType));
+    }
+
+    if (type === 'shogi') return { type, roles: [...roles], order: ['+', ''] };
+
+    const order = new Set<PromotionSuffix>();
+    for (const color of ['white', 'black'] as const) {
+        for (const targetType of fsf.promotion.pieceTypes[color]) {
+            const role = typeRoles[color].get(targetType);
+            if (role) order.add(role as PromotionSuffix);
+        }
+    }
+    return { type, roles: [...roles], order: [...order] };
+}
+
+function cataloguedPocketRows(meta: CataloguedVariantClientDocument): Record<cg.Color, cg.Letter[]> {
+    const fsf = meta.fsfVariantInfo;
+    if (!fsf) {
+        const roles = [...(meta.pocketRoles ?? [])] as cg.Letter[];
+        return { white: roles, black: [...roles] };
+    }
+    const hasPocket = fsf.board.startFen.split(' ', 1)[0].includes('[');
+    if (!fsf.drops.enabled && !hasPocket) return { white: [], black: [] };
+
+    const fenRoles = cataloguedFenRoles(fsf.board.startFen);
+    const typeRoles = cataloguedFsfTypeRoles(meta);
+    const roleTypes = cataloguedFsfRoleTypes(meta);
+    const royalTypes = cataloguedRoyalPieceTypes(meta);
+    const result: Record<cg.Color, cg.Letter[]> = { white: [], black: [] };
+
+    const addMappedRole = (
+        target: Set<cg.Letter>,
+        targetColor: cg.Color,
+        sourceColor: cg.Color,
+        sourceRole: cg.Letter,
+        promoted: boolean,
+    ): void => {
+        const pieceType = roleTypes[sourceColor].get(sourceRole);
+        if (!pieceType || royalTypes.has(pieceType)) return;
+        const targetRole = typeRoles[targetColor].get(pieceType);
+        if (!targetRole) return;
+        if (promoted && fsf.drops.promoted) {
+            const promotedRole = promotedPieceLetter(targetRole);
+            if (promotedRole) target.add(promotedRole);
+        } else target.add(targetRole);
+    };
+
+    for (const color of ['white', 'black'] as const) {
+        const roles = new Set<cg.Letter>(fenRoles[color].pocket);
+        fenRoles[color].pocketPromoted.forEach(role => {
+            const promotedRole = promotedPieceLetter(role);
+            if (promotedRole) roles.add(promotedRole);
+        });
+
+        if (fsf.drops.capturesToHand) {
+            // Pocket-role sets describe every piece that can become available,
+            // not merely pieces capturable on the next move. Material from
+            // either army can change hands, be dropped, and be recaptured. Map
+            // each source-side FEN role through its FSF piece identity so
+            // asymmetric armies receive the correct destination-side letter.
+            for (const sourceColor of ['white', 'black'] as const) {
+                for (const sourceRole of [...fenRoles[sourceColor].board, ...fenRoles[sourceColor].pocket]) {
+                    addMappedRole(roles, color, sourceColor, sourceRole, false);
+                }
+                for (const sourceRole of [
+                    ...fenRoles[sourceColor].boardPromoted,
+                    ...fenRoles[sourceColor].pocketPromoted,
+                ]) {
+                    addMappedRole(roles, color, sourceColor, sourceRole, true);
+                }
+            }
+        }
+        result[color] = orderedCataloguedRoles(meta.pocketRoles ?? [], roles);
+    }
+    return result;
+}
+
+interface CataloguedPieceInfo {
+    pieceRows: Record<cg.Color, cg.Letter[]>;
+    kingRoles: cg.Letter[];
+    pocketRows: Record<cg.Color, cg.Letter[]>;
+    promotionType: PromotionType;
+    promotionRoles: cg.Letter[];
+    promotionOrder?: PromotionSuffix[];
+    baseVariant?: Variant;
+}
+
+function cataloguedFsfPieceByRole(meta: CataloguedVariantClientDocument): Map<cg.Letter, FsfVariantPieceInfo> {
+    const pieces = new Map<cg.Letter, FsfVariantPieceInfo>();
+    for (const piece of meta.fsfVariantInfo?.pieces ?? []) {
+        for (const color of ['white', 'black'] as const) {
+            const role = normalPieceLetter(piece.fen[color]);
+            if (role && !role.startsWith('+')) pieces.set(role, piece);
+            const synonym = normalPieceLetter(piece.synonym?.[color]);
+            if (synonym && !synonym.startsWith('+')) pieces.set(synonym, piece);
+        }
+    }
+    return pieces;
+}
+
+function cataloguedFsfPieceByType(meta: CataloguedVariantClientDocument): Map<string, FsfVariantPieceInfo> {
+    return new Map((meta.fsfVariantInfo?.pieces ?? []).map(piece => [piece.type, piece]));
 }
 
 function cataloguedNeedsCustomPieceGlyphs(meta: CataloguedVariantClientDocument, needed: Set<cg.Letter>): boolean {
-    const customRoles = cataloguedCustomPieceRoles(meta.ini);
-    for (const role of customRoles) {
-        if (needed.has(role)) return true;
-    }
+    const byRole = cataloguedFsfPieceByRole(meta);
+    const byType = cataloguedFsfPieceByType(meta);
+    const promotedTypes = meta.fsfVariantInfo?.promotion.promotedPieceTypes ?? {};
 
-    if (cataloguedPieceInfo(meta).promotionType !== 'shogi') return false;
-
-    for (const [source, target] of cataloguedPromotedPieceTypePairs(meta.ini)) {
-        const promotedSource = promotedPieceLetter(source);
-        if (promotedSource && target !== '-' && customRoles.has(target) && needed.has(promotedSource)) {
-            return true;
+    for (const role of needed) {
+        const promoted = role.startsWith('+');
+        const baseRole = (promoted ? role.slice(1) : role) as cg.Letter;
+        const source = byRole.get(baseRole);
+        if (source?.customBetza) return true;
+        if (promoted) {
+            const target = source ? byType.get(promotedTypes[source.type]) : undefined;
+            if (target?.customBetza) return true;
         }
     }
-
     return false;
-}
-
-function cataloguedHasPocketOverride(meta: CataloguedVariantClientDocument): boolean {
-    return (
-        meta.startFen.includes('[') ||
-        [
-            'pieceDrops',
-            'capturesToHand',
-            'whiteDropRegion',
-            'blackDropRegion',
-            'dropRegionWhite',
-            'dropRegionBlack',
-        ].some(key => cataloguedIniHasOption(meta.ini, key))
-    );
-}
-
-function cataloguedHasPromotionOverride(meta: CataloguedVariantClientDocument): boolean {
-    return [
-        'promotionPawnTypes',
-        'promotionPawnTypesWhite',
-        'promotionPawnTypesBlack',
-        'promotionPieceTypes',
-        'promotionPieceTypesWhite',
-        'promotionPieceTypesBlack',
-        'promotedPieceType',
-        'mandatoryPawnPromotion',
-        'mandatoryPiecePromotion',
-        'pieceDemotion',
-        'piecePromotionOnCapture',
-        'dropPromoted',
-    ].some(key => cataloguedIniHasOption(meta.ini, key));
 }
 
 function cataloguedPieceInfo(meta: CataloguedVariantClientDocument): CataloguedPieceInfo {
     const baseVariant = meta.baseVariant ? VARIANTS[meta.baseVariant] : undefined;
-    const pieces = (meta.pieces?.length ? meta.pieces : ['k']) as cg.Letter[];
-    let kingRoles = (meta.kingRoles ?? baseVariant?.kingRoles.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
-    const hasPocketOverride = cataloguedHasPocketOverride(meta);
-    const pocketRoles = cataloguedDerivedPocketRoles(meta, pieces, kingRoles, baseVariant, hasPocketOverride);
-    const hasPromotionOverride = cataloguedHasPromotionOverride(meta);
-    const promotionType = hasPromotionOverride
-        ? (meta.promotionType ?? 'regular')
-        : (baseVariant?.promotion.type ?? meta.promotionType ?? 'regular');
-    const promotionRoles = (
-        hasPromotionOverride || meta.promotionRoles?.length
-            ? (meta.promotionRoles ?? [])
-            : (baseVariant?.promotion.roles.map(role => util.letterOf(role)) ?? [])
-    ) as cg.Letter[];
-    const promotionOrder = meta.promotionOrder?.length
-        ? [...meta.promotionOrder]
-        : hasPromotionOverride
-          ? undefined
-          : baseVariant
-            ? [...baseVariant.promotion.order]
-            : undefined;
-    kingRoles = cataloguedKingRolesWithPromotions(kingRoles, promotionType, promotionRoles);
+    const pieceRows = cataloguedPieceRows(meta);
+    const kingRoles = cataloguedKingRoles(meta);
+    const pocketRows = cataloguedPocketRows(meta);
+    const promotion = cataloguedPromotionInfo(meta);
 
-    return { pieces, kingRoles, pocketRoles, promotionType, promotionRoles, promotionOrder, baseVariant };
+    return {
+        pieceRows,
+        kingRoles,
+        pocketRows,
+        promotionType: promotion.type,
+        promotionRoles: promotion.roles,
+        promotionOrder: promotion.order,
+        baseVariant,
+    };
 }
 
 function variantPieceLetters(variant: Variant): Set<cg.Letter> {
@@ -2104,7 +2420,49 @@ type CataloguedPieceIdentityMap = Record<string, string>;
 // Nightrider or Kniroo), so keep the known identities variant-scoped.
 const CATALOGUED_PIECE_IDENTITIES_BY_CONTEXT: Record<string, CataloguedPieceIdentityMap> = {
     'pieceFamily:capa': { a: 'archbishop', c: 'chancellor' },
+    'pieceFamily:janggi': {
+        a: 'wazir',
+        b: 'janggiElephant',
+        c: 'janggiCannon',
+        n: 'horse',
+        p: 'soldier',
+    },
+    'pieceFamily:kyoto': {
+        b: 'bishop',
+        g: 'gold',
+        k: 'king',
+        l: 'lance',
+        n: 'shogiKnight',
+        p: 'shogiPawn',
+        r: 'rook',
+        s: 'silver',
+        '+l': 'promoted:lance->gold',
+        '+n': 'promoted:shogiKnight->gold',
+        '+p': 'promoted:shogiPawn->rook',
+        '+s': 'promoted:silver->bishop',
+    },
+    'pieceFamily:makruk': { m: 'fers', s: 'silver' },
+    'pieceFamily:asean': { b: 'silver', q: 'fers' },
+    'pieceFamily:seirawan': { e: 'chancellor', h: 'archbishop' },
     'pieceFamily:shatranj': { b: 'alfil', q: 'fers' },
+    'pieceFamily:shogi': {
+        b: 'bishop',
+        g: 'gold',
+        k: 'king',
+        l: 'lance',
+        n: 'shogiKnight',
+        p: 'shogiPawn',
+        r: 'rook',
+        s: 'silver',
+        '+b': 'promoted:bishop->dragonHorse',
+        '+l': 'promoted:lance->gold',
+        '+n': 'promoted:shogiKnight->gold',
+        '+p': 'promoted:shogiPawn->gold',
+        '+r': 'promoted:rook->bers',
+        '+s': 'promoted:silver->gold',
+    },
+    'pieceFamily:sittuyin': { f: 'fers', s: 'silver' },
+    'pieceFamily:xiangqi': { a: 'fers', b: 'elephant', c: 'cannon', n: 'horse', p: 'soldier' },
     almost: { c: 'chancellor' },
     amazon: { a: 'amazon' },
     berolina: { p: 'berolina-pawn' },
@@ -2136,34 +2494,6 @@ const CATALOGUED_PIECE_IDENTITIES_BY_CONTEXT: Record<string, CataloguedPieceIden
     threekings: { k: 'commoner' },
 };
 
-const CATALOGUED_FSF_PIECE_OPTION_IDENTITIES: Record<string, string> = {
-    king: 'king',
-    commoner: 'commoner',
-    queen: 'queen',
-    rook: 'rook',
-    bishop: 'bishop',
-    knight: 'knight',
-    pawn: 'pawn',
-    shogipawn: 'pawn',
-    archbishop: 'archbishop',
-    chancellor: 'chancellor',
-    amazon: 'amazon',
-    centaur: 'centaur',
-    champion: 'champion',
-    wizard: 'wizard',
-    marquis: 'marquis',
-    lion: 'lion',
-    grasshopper: 'grasshopper',
-    nightrider: 'nightrider',
-    alfil: 'alfil',
-    fers: 'fers',
-    ferz: 'fers',
-    wazir: 'wazir',
-    bers: 'bers',
-    rookni: 'rookni',
-    kniroo: 'kniroo',
-};
-
 function cataloguedPieceIdentityDefault(letter: cg.Letter): string {
     const normalized = normalPieceLetter(letter) ?? letter;
     const promoted = normalized.startsWith('+');
@@ -2190,21 +2520,15 @@ function cataloguedPieceIdentityFromMap(
     const normalized = normalPieceLetter(letter) ?? letter;
     const promoted = normalized.startsWith('+');
     const base = promoted ? normalized.slice(1) : normalized;
+    const exactIdentity = identities[normalized];
+    if (exactIdentity) return exactIdentity;
     const identity = identities[base];
     if (!identity) return undefined;
     return promoted ? `promoted:${identity}` : identity;
 }
 
-function cataloguedContextPieceIdentity(
-    letter: cg.Letter,
-    contextKeys: readonly string[],
-    explicitIdentities?: ReadonlyMap<cg.Letter, string>,
-): string {
+function cataloguedContextPieceIdentity(letter: cg.Letter, contextKeys: readonly string[]): string {
     const normalized = normalPieceLetter(letter) ?? letter;
-    const promoted = normalized.startsWith('+');
-    const base = (promoted ? normalized.slice(1) : normalized) as cg.Letter;
-    const explicit = explicitIdentities?.get(base);
-    if (explicit) return promoted ? `promoted:${explicit}` : explicit;
 
     for (const key of contextKeys) {
         const identity = cataloguedPieceIdentityFromMap(normalized, CATALOGUED_PIECE_IDENTITIES_BY_CONTEXT[key]);
@@ -2213,46 +2537,11 @@ function cataloguedContextPieceIdentity(
     return cataloguedPieceIdentityDefault(normalized);
 }
 
-function cataloguedIniPieceIdentityOverrides(ini: string | undefined): Map<cg.Letter, string> {
-    const identities = new Map<cg.Letter, string>();
-    if (!ini) return identities;
-
-    for (const line of ini.split(/\r?\n/)) {
-        const stripped = line.trim();
-        if (!stripped || stripped.startsWith('#') || !stripped.includes('=')) continue;
-        const [left, ...right] = stripped.split('=');
-        const key = left.trim().replace(/[_-]/g, '').toLowerCase();
-        if (!key || /^custompiece\d+$/i.test(key)) continue;
-        const identity = CATALOGUED_FSF_PIECE_OPTION_IDENTITIES[key];
-        if (!identity) continue;
-
-        const value = right.join('=').split('#', 1)[0].trim();
-        const match = /^\+?([A-Za-z])(?:\s*:|\s*$)/.exec(value);
-        const letter = normalPieceLetter(match?.[1]);
-        if (letter) identities.set(letter, identity);
-    }
-
-    return identities;
-}
-
 function addCataloguedContextKey(keys: string[], seen: Set<string>, key: string | undefined | null): void {
     const normalized = (key ?? '').trim().toLowerCase();
     if (!normalized || seen.has(normalized)) return;
     seen.add(normalized);
     keys.push(normalized);
-}
-
-function cataloguedPieceIdentityContextKeys(meta: CataloguedVariantClientDocument): string[] {
-    const keys: string[] = [];
-    const seen = new Set<string>();
-    addCataloguedContextKey(keys, seen, meta.fsfBuiltinVariant);
-    if (meta.source === 'fairy-stockfish-builtin') addCataloguedContextKey(keys, seen, meta.name);
-    addCataloguedContextKey(keys, seen, meta.baseVariant);
-
-    const baseVariant = meta.baseVariant ? VARIANTS[meta.baseVariant] : undefined;
-    addCataloguedContextKey(keys, seen, baseVariant?.name);
-    addCataloguedContextKey(keys, seen, baseVariant ? `pieceFamily:${baseVariant.pieceFamily}` : undefined);
-    return keys;
 }
 
 function variantPieceIdentityContextKeys(variant: Variant): string[] {
@@ -2263,15 +2552,9 @@ function variantPieceIdentityContextKeys(variant: Variant): string[] {
     return keys;
 }
 
-function pieceIdentitiesForLetters(
-    letters: Iterable<cg.Letter>,
-    contextKeys: readonly string[],
-    explicitIdentities?: ReadonlyMap<cg.Letter, string>,
-): Set<string> {
+function pieceIdentitiesForLetters(letters: Iterable<cg.Letter>, contextKeys: readonly string[]): Set<string> {
     const identities = new Set<string>();
-    for (const letter of letters) {
-        identities.add(cataloguedContextPieceIdentity(letter, contextKeys, explicitIdentities));
-    }
+    for (const letter of letters) identities.add(cataloguedContextPieceIdentity(letter, contextKeys));
     return identities;
 }
 
@@ -2282,9 +2565,11 @@ function variantPieceIdentities(variant: Variant, letters: Set<cg.Letter>): Set<
 function cataloguedNeededPieceLetters(meta: CataloguedVariantClientDocument): Set<cg.Letter> {
     const info = cataloguedPieceInfo(meta);
     const letters = new Set<cg.Letter>();
-    addPieceLetters(letters, info.pieces);
+    for (const color of ['white', 'black'] as const) {
+        addPieceLetters(letters, info.pieceRows[color]);
+        addPieceLetters(letters, info.pocketRows[color]);
+    }
     addPieceLetters(letters, info.kingRoles);
-    addPieceLetters(letters, info.pocketRoles);
     if (info.promotionType === 'shogi') {
         for (const role of info.promotionRoles) addPieceLetter(letters, promotedPieceLetter(role));
     }
@@ -2292,11 +2577,22 @@ function cataloguedNeededPieceLetters(meta: CataloguedVariantClientDocument): Se
 }
 
 function cataloguedNeededPieceIdentities(meta: CataloguedVariantClientDocument, letters: Set<cg.Letter>): Set<string> {
-    return pieceIdentitiesForLetters(
-        letters,
-        cataloguedPieceIdentityContextKeys(meta),
-        cataloguedIniPieceIdentityOverrides(meta.ini),
-    );
+    const byRole = cataloguedFsfPieceByRole(meta);
+    const promotedTypes = meta.fsfVariantInfo?.promotion.promotedPieceTypes ?? {};
+    const identities = new Set<string>();
+    for (const letter of letters) {
+        const promoted = letter.startsWith('+');
+        const baseRole = (promoted ? letter.slice(1) : letter) as cg.Letter;
+        const sourceType = byRole.get(baseRole)?.type;
+        const identity = sourceType ?? cataloguedPieceIdentityDefault(baseRole);
+        if (!promoted) {
+            identities.add(identity);
+            continue;
+        }
+        const targetType = sourceType ? promotedTypes[sourceType] : undefined;
+        identities.add(targetType ? `promoted:${identity}->${targetType}` : `promoted:${identity}`);
+    }
+    return identities;
 }
 
 function isSubset<T>(needed: Set<T>, available: Set<T>): boolean {
@@ -2370,12 +2666,34 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
     if (VARIANTS[meta.name] && !cataloguedVariantNames.has(meta.name)) return;
 
     const info = cataloguedPieceInfo(meta);
-    const { pieces, kingRoles, pocketRoles, promotionType, promotionRoles, promotionOrder, baseVariant } = info;
-    const explicitCaptureToHand = cataloguedIniHasOption(meta.ini, 'capturesToHand');
-    const captureToHand = explicitCaptureToHand
-        ? !!meta.captureToHand
-        : !!meta.captureToHand || !!baseVariant?.pocket?.captureToHand;
-    const boardFamily = ensureCataloguedBoardFamily(meta.width, meta.height);
+    const { pieceRows, kingRoles, pocketRows, promotionType, promotionRoles, promotionOrder, baseVariant } = info;
+    const fsf = meta.fsfVariantInfo;
+    const captureToHand = fsf?.drops.capturesToHand ?? !!meta.captureToHand;
+    const enPassant = fsf
+        ? fsf.movement.enPassantTypes.white.length > 0 ||
+          fsf.movement.enPassantTypes.black.length > 0 ||
+          fsf.movement.enPassantRegions.white.length > 0 ||
+          fsf.movement.enPassantRegions.black.length > 0
+        : !!baseVariant?.rules.enPassant;
+    const pass = fsf
+        ? fsf.movement.pass.white ||
+          fsf.movement.pass.black ||
+          fsf.movement.passOnStalemate.white ||
+          fsf.movement.passOnStalemate.black
+        : !!meta.rulesPass;
+    const width = fsf?.board.width ?? meta.width;
+    const height = fsf?.board.height ?? meta.height;
+    const startFen = fsf?.board.startFen ?? meta.startFen;
+    const showPromoted = fsf
+        ? fsf.promotion.shogiStyle ||
+          Object.keys(fsf.promotion.promotedPieceTypes).length > 0 ||
+          fsf.promotion.demotion ||
+          fsf.promotion.onCapture ||
+          fsf.drops.promoted ||
+          startFen.split(' ', 1)[0].includes('+')
+        : !!meta.showPromoted;
+    const showCheckCounters = fsf ? fsf.gameEnd.checkCounting || fsf.gameEnd.dupleCheck : !!meta.showCheckCounters;
+    const boardFamily = ensureCataloguedBoardFamily(width, height);
     const cataloguedPieceFamily = `catalogued-${meta.name}`;
     delete PIECE_FAMILIES[cataloguedPieceFamily];
     const compatiblePieceSource = meta.hasPieceSet
@@ -2392,35 +2710,38 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         name: meta.name,
         displayName: meta.displayName || meta.name,
         tooltip: meta.tooltip || 'Catalogued variant',
+        chess960: !!fsf?.board.chess960,
+        twoBoards: !!fsf?.board.twoBoards,
         aiDisabled: !!meta.aiDisabled,
-        startFen: meta.startFen,
+        startFen,
         icon: meta.icon || '◇',
         boardFamily,
         hasBoard: !!meta.hasBoard,
         boardRevision: meta.boardRevision,
         pieceFamily,
         pieceCSSExclude: compatiblePieceSource?.pieceCSSExclude,
-        pieceRow: pieces,
+        pieceRow: pieceRows,
         kingRoles,
-        pocket: pocketRoles.length ? { roles: pocketRoles, captureToHand } : undefined,
+        pocket: pocketRows.white.length || pocketRows.black.length ? { roles: pocketRows, captureToHand } : undefined,
         promotion: { type: promotionType, roles: promotionRoles, order: promotionOrder },
         rules: {
             defaultTimeControl: baseVariant?.rules.defaultTimeControl ?? 'incremental',
-            enPassant: !!baseVariant?.rules.enPassant,
-            gate: !!meta.rulesGate || !!baseVariant?.rules.gate,
-            duck: !!baseVariant?.rules.duck,
-            pass: !!meta.rulesPass || !!baseVariant?.rules.pass,
+            enPassant,
+            gate: fsf?.gating.seirawan ?? !!meta.rulesGate,
+            duck: fsf?.gating.wallingRule === 'duck',
+            pass,
             setup: !!baseVariant?.rules.setup,
             noDrawOffer: !!baseVariant?.rules.noDrawOffer,
         },
         ui: {
-            showPromoted: !!meta.showPromoted || !!baseVariant?.ui.showPromoted,
-            showCheckCounters: !!meta.showCheckCounters || !!baseVariant?.ui.showCheckCounters,
+            showPromoted,
+            showCheckCounters,
             counting: baseVariant?.ui.counting,
             materialPoint: baseVariant?.ui.materialPoint,
-            pieceSound: baseVariant?.ui.pieceSound,
+            pieceSound: fsf?.capture.blast ? 'atomic' : baseVariant?.ui.pieceSound,
             boardMark: baseVariant?.ui.boardMark || undefined,
         },
+        fsfVariantInfo: fsf,
     });
     cataloguedVariantNames.add(meta.name);
     if (meta.favorite) favoriteCataloguedVariantNames.add(meta.name);

@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from functools import lru_cache
+import json
 import re
 from typing import Any, Mapping, NotRequired, TypedDict
 
@@ -910,6 +911,321 @@ def _optional_bool_cache_value(doc: Mapping[str, Any], key: str) -> bool | None:
     return bool(doc.get(key))
 
 
+def _fsf_mapping(value: object) -> Mapping[str, Any]:
+    return value if isinstance(value, Mapping) else {}
+
+
+def _fsf_strings(value: object) -> list[str]:
+    if not isinstance(value, (list, tuple)):
+        return []
+    return [str(item) for item in value if str(item)]
+
+
+def _fsf_color_values(value: object) -> tuple[object, object]:
+    colors = _fsf_mapping(value)
+    return colors.get("white"), colors.get("black")
+
+
+def _fsf_technical(key: str, value: object) -> str:
+    if isinstance(value, (dict, list, tuple)):
+        rendered = json.dumps(value, ensure_ascii=False, sort_keys=True)
+    elif isinstance(value, bool):
+        rendered = "true" if value else "false"
+    else:
+        rendered = str(value)
+    return _technical(key, rendered)
+
+
+def _fsf_add(
+    lines: list[CataloguedRuleLine], text: str, key: str, value: object
+) -> None:
+    lines.append({"text": text, "technical": _fsf_technical(key, value)})
+
+
+def _fsf_piece_names(info: Mapping[str, Any]) -> dict[str, str]:
+    names: dict[str, str] = {}
+    for raw_piece in info.get("pieces") or []:
+        piece = _fsf_mapping(raw_piece)
+        piece_type = str(piece.get("type") or "")
+        fen = _fsf_mapping(piece.get("fen"))
+        role = str(fen.get("white") or "").upper()
+        if piece_type and role:
+            names[piece_type] = f"{piece_type} ({role})"
+    return names
+
+
+def _fsf_piece_type_text(value: object, names: Mapping[str, str]) -> str:
+    piece_types = _fsf_strings(value)
+    return _join_values([names.get(piece_type, piece_type) for piece_type in piece_types]) or "none"
+
+
+def _fsf_region_text(value: object) -> str:
+    squares = _fsf_strings(value)
+    if not squares:
+        return "none"
+    if len(squares) > 12:
+        return f"{len(squares)} squares"
+    return ", ".join(squares)
+
+
+def _build_fsf_rule_summary(
+    info: Mapping[str, Any], base_variant: str = ""
+) -> CataloguedRuleSummary:
+    template = str(info.get("template") or "")
+    inherited_from = base_variant or (template if template and template != "fairy" else "")
+    intro = [
+        (
+            "This is Fairy-Stockfish’s fully resolved rule set after inheriting "
+            f"from `{inherited_from}`."
+            if inherited_from
+            else "This is Fairy-Stockfish’s fully resolved rule set."
+        )
+    ]
+    sections: list[CataloguedRuleSection] = []
+    names = _fsf_piece_names(info)
+
+    board = _fsf_mapping(info.get("board"))
+    board_lines: list[CataloguedRuleLine] = []
+    _fsf_add(
+        board_lines,
+        f"The board is {board.get('width', '?')} files by {board.get('height', '?')} ranks.",
+        "board",
+        {"width": board.get("width"), "height": board.get("height")},
+    )
+    if bool(board.get("chess960")):
+        _fsf_add(board_lines, "Chess960-style randomized starts are supported.", "board.chess960", True)
+    if bool(board.get("twoBoards")):
+        _fsf_add(board_lines, "The rules use two linked boards.", "board.twoBoards", True)
+    diagonal_lines = _fsf_strings(board.get("diagonalLines"))
+    if diagonal_lines:
+        _fsf_add(
+            board_lines,
+            f"Special diagonal lines are active on {_fsf_region_text(diagonal_lines)}.",
+            "board.diagonalLines",
+            diagonal_lines,
+        )
+    sections.append({"title": "Board and setup", "kind": "boardSetup", "lines": board_lines})
+
+    piece_lines: list[CataloguedRuleLine] = []
+    piece_descriptions: list[str] = []
+    for raw_piece in info.get("pieces") or []:
+        piece = _fsf_mapping(raw_piece)
+        piece_type = str(piece.get("type") or "piece")
+        fen = _fsf_mapping(piece.get("fen"))
+        role = str(fen.get("white") or "?").upper()
+        custom_betza = piece.get("customBetza")
+        description = f"{role}: {piece_type}"
+        if custom_betza:
+            description += f" (`{custom_betza}`)"
+        piece_descriptions.append(description)
+    if piece_descriptions:
+        _fsf_add(piece_lines, "Available pieces: " + "; ".join(piece_descriptions) + ".", "pieces", info.get("pieces"))
+    movement = _fsf_mapping(info.get("movement"))
+    mobility = _fsf_mapping(movement.get("mobilityRegions"))
+    restricted = [piece_type for piece_type, regions in mobility.items() if any(_fsf_strings(value) for value in _fsf_color_values(regions))]
+    if restricted:
+        _fsf_add(piece_lines, f"Movement is region-restricted for {_fsf_piece_type_text(restricted, names)}.", "movement.mobilityRegions", mobility)
+    if piece_lines:
+        sections.append({"title": "Pieces and movement", "lines": piece_lines})
+
+    move_lines: list[CataloguedRuleLine] = []
+    if bool(movement.get("mustCapture")):
+        _fsf_add(move_lines, "Captures are mandatory when a legal capture is available.", "movement.mustCapture", True)
+    pass_white, pass_black = _fsf_color_values(movement.get("pass"))
+    if pass_white or pass_black:
+        sides = [side for side, enabled in (("White", pass_white), ("Black", pass_black)) if enabled]
+        _fsf_add(move_lines, f"{_join_values(sides)} may pass a turn.", "movement.pass", movement.get("pass"))
+    stale_white, stale_black = _fsf_color_values(movement.get("passOnStalemate"))
+    if stale_white or stale_black:
+        sides = [side for side, enabled in (("White", stale_white), ("Black", stale_black)) if enabled]
+        _fsf_add(move_lines, f"{_join_values(sides)} may pass when stalemated.", "movement.passOnStalemate", movement.get("passOnStalemate"))
+    if bool(movement.get("doubleStep")):
+        _fsf_add(move_lines, "Pawn double-step moves are enabled.", "movement.doubleStep", True)
+    triple_white, triple_black = _fsf_color_values(movement.get("tripleStepRegions"))
+    if _fsf_strings(triple_white) or _fsf_strings(triple_black):
+        _fsf_add(move_lines, "Some pawns may make a triple-step move from configured regions.", "movement.tripleStepRegions", movement.get("tripleStepRegions"))
+    ep_white, ep_black = _fsf_color_values(movement.get("enPassantTypes"))
+    if _fsf_strings(ep_white) or _fsf_strings(ep_black):
+        _fsf_add(move_lines, "En passant is enabled for configured piece types and regions.", "movement.enPassantTypes", movement.get("enPassantTypes"))
+    soldier_promotion_rank = int(movement.get("soldierPromotionRank") or 0)
+    if soldier_promotion_rank > 1:
+        _fsf_add(
+            move_lines,
+            f"Soldiers use their pre-promotion movement until relative rank {soldier_promotion_rank}.",
+            "movement.soldierPromotionRank",
+            soldier_promotion_rank,
+        )
+    for key, text in (
+        ("immobilityIllegal", "Moves that leave a piece without future legal movement are illegal."),
+        ("cambodianMoves", "Cambodian/Ouk opening moves are enabled."),
+        ("makpongRule", "The Makpong king-movement restriction is enabled."),
+        ("flyingGeneral", "Facing generals or kings on an open file are illegal."),
+    ):
+        if bool(movement.get(key)):
+            _fsf_add(move_lines, text, f"movement.{key}", True)
+    castling = _fsf_mapping(info.get("castling"))
+    if bool(castling.get("enabled")):
+        _fsf_add(move_lines, "Castling is enabled with the resolved king, rook, file, and rank configuration.", "castling", castling)
+    castling_wins = castling.get("wins")
+    if isinstance(castling_wins, Mapping):
+        winning_rights = []
+        for color in ("white", "black"):
+            side = _fsf_mapping(castling_wins.get(color))
+            for flank, label in (("kingSide", "king-side"), ("queenSide", "queen-side")):
+                if bool(side.get(flank)):
+                    winning_rights.append(f"{color} {label}")
+        if winning_rights:
+            _fsf_add(
+                move_lines,
+                f"Winning castling rights: {_join_values(winning_rights)}.",
+                "castling.wins",
+                castling_wins,
+            )
+    elif int(castling_wins or 0):
+        _fsf_add(
+            move_lines,
+            "Some castling rights are win conditions.",
+            "castling.wins",
+            castling_wins,
+        )
+    if move_lines:
+        sections.append({"title": "Move rules", "lines": move_lines})
+
+    drops = _fsf_mapping(info.get("drops"))
+    drop_lines: list[CataloguedRuleLine] = []
+    if bool(drops.get("enabled")):
+        _fsf_add(drop_lines, "Pieces in hand can be dropped onto the board.", "drops.enabled", True)
+    if bool(drops.get("capturesToHand")):
+        _fsf_add(drop_lines, "Captured pieces return to the capturer’s hand.", "drops.capturesToHand", True)
+    if bool(drops.get("mustDrop")):
+        _fsf_add(drop_lines, f"Dropping {names.get(str(drops.get('mustDropType')), str(drops.get('mustDropType')))} is mandatory when possible.", "drops.mustDrop", True)
+    for key, text in (
+        ("firstRankPawnDrops", "Pawn drops on the first rank are allowed."),
+        ("promotionZonePawnDrops", "Pawn drops in the promotion zone are allowed."),
+        ("sittuyinRook", "Sittuyin rook-drop restrictions are enabled."),
+        ("oppositeColoredBishop", "Dropped bishops must obey the opposite-colored-bishop restriction."),
+        ("promoted", "Promoted pieces may be dropped in promoted form."),
+        ("free", "Free/setup-style drops are enabled."),
+    ):
+        if bool(drops.get(key)):
+            _fsf_add(drop_lines, text, f"drops.{key}", True)
+    if str(drops.get("noDoubledType") or "none") != "none":
+        _fsf_add(drop_lines, "Drops are limited to prevent too many same-type pieces on a file or board.", "drops.noDoubledType", drops.get("noDoubledType"))
+    if drop_lines:
+        sections.append({"title": "Drops and hands", "lines": drop_lines})
+
+    promotion = _fsf_mapping(info.get("promotion"))
+    promotion_lines: list[CataloguedRuleLine] = []
+    promoted = _fsf_mapping(promotion.get("promotedPieceTypes"))
+    if promoted:
+        mappings = [f"{names.get(str(source), str(source))} → {names.get(str(target), str(target))}" for source, target in promoted.items()]
+        _fsf_add(promotion_lines, "Promotion mappings: " + "; ".join(mappings) + ".", "promotion.promotedPieceTypes", promoted)
+    white_targets, black_targets = _fsf_color_values(promotion.get("pieceTypes"))
+    targets = list(dict.fromkeys(_fsf_strings(white_targets) + _fsf_strings(black_targets)))
+    if targets:
+        _fsf_add(promotion_lines, f"Regular promotion targets are {_fsf_piece_type_text(targets, names)}.", "promotion.pieceTypes", promotion.get("pieceTypes"))
+    for key, text in (
+        ("sittuyin", "Sittuyin-style promotion is enabled."),
+        ("onCapture", "Eligible pieces promote when they capture."),
+        ("mandatoryPawn", "Pawn promotion is mandatory where applicable."),
+        ("mandatoryPiece", "Piece promotion is mandatory where applicable."),
+        ("demotion", "Promoted pieces can demote according to the resolved rules."),
+        ("shogiStyle", "Shogi-style source-to-target promotion is enabled."),
+    ):
+        if bool(promotion.get(key)):
+            _fsf_add(promotion_lines, text, f"promotion.{key}", True)
+    if promotion_lines:
+        sections.append({"title": "Promotion", "lines": promotion_lines})
+
+    capture = _fsf_mapping(info.get("capture"))
+    capture_lines: list[CataloguedRuleLine] = []
+    if bool(capture.get("blast")):
+        _fsf_add(capture_lines, "Captures cause an atomic-style explosion.", "capture.blast", True)
+    for key, text in (
+        ("blastImmuneTypes", "Some piece types are immune to capture explosions."),
+        ("mutuallyImmuneTypes", "Some piece types are mutually immune to capture."),
+        ("petrifyTypes", "Some capturing pieces become walls after a capture."),
+    ):
+        if _fsf_strings(capture.get(key)):
+            _fsf_add(capture_lines, text, f"capture.{key}", capture.get(key))
+    if bool(capture.get("petrifyBlastPieces")):
+        _fsf_add(capture_lines, "Pieces affected by the combined petrify/blast rule become walls.", "capture.petrifyBlastPieces", True)
+    enclosing = _fsf_mapping(info.get("enclosing"))
+    if str(enclosing.get("flipRule") or "none") != "none":
+        _fsf_add(capture_lines, "Enclosed pieces change color according to the resolved enclosing rule.", "enclosing.flipRule", enclosing.get("flipRule"))
+    if capture_lines:
+        sections.append({"title": "Capture effects", "lines": capture_lines})
+
+    gating = _fsf_mapping(info.get("gating"))
+    wall_lines: list[CataloguedRuleLine] = []
+    if bool(gating.get("seirawan")):
+        _fsf_add(wall_lines, "Seirawan-style gating is enabled.", "gating.seirawan", True)
+    if str(gating.get("wallingRule") or "none") != "none":
+        _fsf_add(wall_lines, f"The `{gating.get('wallingRule')}` wall-placement rule is enabled.", "gating.wallingRule", gating.get("wallingRule"))
+    if bool(gating.get("wallOrMove")):
+        _fsf_add(wall_lines, "A turn may be either a wall placement or a piece move.", "gating.wallOrMove", True)
+    if wall_lines:
+        sections.append({"title": "Gating, walls, and blockers", "lines": wall_lines})
+
+    end = _fsf_mapping(info.get("gameEnd"))
+    ending_lines: list[CataloguedRuleLine] = []
+    _fsf_add(ending_lines, "Check rules are enabled." if bool(end.get("checking")) else "The variant does not use ordinary check rules.", "gameEnd.checking", bool(end.get("checking")))
+    if bool(end.get("checkCounting")):
+        _fsf_add(ending_lines, "Checks are counted as a win condition.", "gameEnd.checkCounting", True)
+    extinction = _fsf_mapping(info.get("extinction"))
+    if str(extinction.get("value") or "none") != "none":
+        _fsf_add(ending_lines, f"Extinction of {_fsf_piece_type_text(extinction.get('pieceTypes'), names)} is scored as {extinction.get('value')}.", "extinction", extinction)
+    flag = _fsf_mapping(info.get("flag"))
+    flag_white, flag_black = _fsf_color_values(flag.get("regions"))
+    if _fsf_strings(flag_white) or _fsf_strings(flag_black):
+        _fsf_add(ending_lines, "A flag/goal-region ending is active.", "flag", flag)
+    connect = _fsf_mapping(info.get("connect"))
+    if int(connect.get("n") or 0) > 0:
+        directions = [name for name, enabled in (("horizontally", connect.get("horizontal")), ("vertically", connect.get("vertical")), ("diagonally", connect.get("diagonal"))) if enabled]
+        _fsf_add(ending_lines, f"Connecting {connect.get('n')} pieces {_join_values(directions)} is a game-ending condition.", "connect.n", connect)
+    if int(connect.get("nxn") or 0) > 0:
+        _fsf_add(ending_lines, f"A {connect.get('nxn')}×{connect.get('nxn')} block is a game-ending condition.", "connect.nxn", connect.get("nxn"))
+    if int(connect.get("collinearN") or 0) > 0:
+        _fsf_add(ending_lines, f"Putting {connect.get('collinearN')} pieces on one line is a game-ending condition.", "connect.collinearN", connect.get("collinearN"))
+    if str(end.get("stalemateValue") or "draw") != "draw":
+        _fsf_add(ending_lines, f"Stalemate is scored as {end.get('stalemateValue')}.", "gameEnd.stalemateValue", end.get("stalemateValue"))
+    if str(end.get("checkmateValue") or "loss") != "loss":
+        _fsf_add(ending_lines, f"Checkmate is scored as {end.get('checkmateValue')}.", "gameEnd.checkmateValue", end.get("checkmateValue"))
+    sections.append({"title": "Winning and losing", "lines": ending_lines})
+
+    draw_lines: list[CataloguedRuleLine] = []
+    n_move = int(end.get("nMoveRule") or 0)
+    if n_move:
+        _fsf_add(draw_lines, f"The n-move rule is set to {n_move} moves.", "gameEnd.nMoveRule", n_move)
+    n_fold = int(end.get("nFoldRule") or 0)
+    if n_fold:
+        _fsf_add(draw_lines, f"{n_fold}-fold repetition is scored as {end.get('nFoldValue')}.", "gameEnd.nFoldRule", {"count": n_fold, "value": end.get("nFoldValue")})
+    for key, text in (
+        ("perpetualCheckIllegal", "Perpetual check is illegal."),
+        ("moveRepetitionIllegal", "Repeating back-and-forth moves with the same piece is illegal."),
+        ("bikjangRule", "The Janggi bikjang rule participates in adjudication."),
+        ("adjudicateFullBoard", "The result is adjudicated when the board becomes full."),
+    ):
+        if bool(end.get(key)):
+            _fsf_add(draw_lines, text, f"gameEnd.{key}", True)
+    for key, label in (("chasingRule", "Chasing"), ("materialCounting", "Material counting"), ("countingRule", "Regional counting")):
+        if str(end.get(key) or "none") != "none":
+            _fsf_add(draw_lines, f"{label} uses the `{end.get(key)}` rule.", f"gameEnd.{key}", end.get(key))
+    if draw_lines:
+        sections.append({"title": "Draws and adjudication", "lines": draw_lines})
+
+    return {"intro": intro, "sections": sections, "unknown": []}
+
+
+@lru_cache(maxsize=RULE_SUMMARY_CACHE_SIZE)
+def _cached_fsf_rule_summary(
+    serialized_info: str, base_variant: str, generator_version: int
+) -> CataloguedRuleSummary:
+    del generator_version
+    info = json.loads(serialized_info)
+    return _build_fsf_rule_summary(info, base_variant)
+
+
 def _build_catalogued_rule_summary(doc: Mapping[str, Any]) -> CataloguedRuleSummary:
     parsed = parse_catalogued_ini(str(doc.get("ini") or ""))
     intro: list[str] = []
@@ -978,6 +1294,13 @@ def _cached_catalogued_rule_summary(
 
 
 def catalogued_rule_summary(doc: Mapping[str, Any]) -> CataloguedRuleSummary:
+    fsf_variant_info = doc.get("fsfVariantInfo")
+    if isinstance(fsf_variant_info, Mapping):
+        return _cached_fsf_rule_summary(
+            json.dumps(fsf_variant_info, ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+            str(doc.get("baseVariant") or ""),
+            RULE_SUMMARY_GENERATOR_VERSION,
+        )
     return _cached_catalogued_rule_summary(
         str(doc.get("ini") or ""),
         str(doc.get("startFen") or ""),

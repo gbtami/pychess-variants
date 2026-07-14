@@ -88,6 +88,7 @@ export function validFen(variant: Variant, fen: string): boolean {
             return true;
     }
     const variantName = variant.name;
+    const fsf = variant.fsfVariantInfo;
     if (variantName === 'alice') return true;
 
     const startfen = variant.startFen;
@@ -101,11 +102,22 @@ export function validFen(variant: Variant, fen: string): boolean {
     // Allowed characters in placement part
     const placement = parts[0];
     const startPlacement = start[0];
+    const resolvedPieceCharacters =
+        fsf?.pieces
+            .flatMap(piece => [
+                piece.fen.white,
+                piece.fen.black,
+                piece.synonym?.white ?? '',
+                piece.synonym?.black ?? '',
+            ])
+            .join('') ?? '';
+    const wallingUsesMarker = fsf !== undefined && fsf.gating.wallingRule !== 'none';
     let good =
         startPlacement +
+        resolvedPieceCharacters +
         (variantName === 'orda' ? 'Hq' : '') +
         (variantName === 'dobutsu' ? 'Hh' : '') +
-        (variantName === 'duck' || variantName === 'ataxx' ? '*' : '') +
+        (variantName === 'duck' || variantName === 'ataxx' || wallingUsesMarker ? '*' : '') +
         '~+0123456789[]-';
     const alien = (element: string) => !good.includes(element);
     if (placement.split('').some(alien)) return false;
@@ -134,11 +146,30 @@ export function validFen(variant: Variant, fen: string): boolean {
     // Starting colors
     if (parts[1] !== 'b' && parts[1] !== 'w') return false;
 
-    // ataxx has no kings at all
-    if (variantName === 'ataxx' || variantName === 'borderlands') return true;
+    // Variants without royal pieces do not need the legacy chess-specific
+    // castling and king-count checks below.
+    const resolvedRoyalTypes =
+        fsf?.royalPieceTypes ??
+        (fsf === undefined
+            ? []
+            : [
+                  ...(fsf.pieceTypes.includes('king') ? ['king'] : []),
+                  ...(fsf.extinction.pseudoRoyal ? fsf.extinction.pieceTypes : []),
+              ]);
+    if (
+        variantName === 'ataxx' ||
+        variantName === 'borderlands' ||
+        (fsf !== undefined && resolvedRoyalTypes.length === 0)
+    )
+        return true;
 
-    // Touching kings
-    if (variantName !== 'atomic' && touchingKings(boardState.pieces)) return false;
+    // Atomic/blast variants allow adjacent kings because captures explode.
+    if (variantName !== 'atomic' && !fsf?.capture.blast && touchingKings(boardState.pieces)) return false;
+
+    // The remaining checks encode assumptions about a handful of built-in site
+    // variants. Fairy-Stockfish/WASM performs the authoritative FEN validation
+    // for catalogued variants, so do not reinterpret their resolved rules here.
+    if (fsf !== undefined) return true;
 
     // Castling rights (piece virginity)
     good = variantName === 'seirawan' || variantName === 'shouse' ? 'KQABCDEFGHkqabcdefgh-' : start[2] + '-';
