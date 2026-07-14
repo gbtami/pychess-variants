@@ -175,7 +175,7 @@ class PushNotifier:
             return
         if not user.corr_push_enabled:
             return
-        if user.is_user_active_in_game(game_id) or user.is_user_active_in_lobby():
+        if user.is_user_active_in_correspondence_game() or user.is_user_active_in_lobby():
             return
 
         job = CorrMovePushJob(

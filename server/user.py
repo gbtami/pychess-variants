@@ -646,6 +646,9 @@ class User:
         else:
             return game_id in self.game_sockets
 
+    def is_user_active_in_correspondence_game(self) -> bool:
+        return any(game.id in self.game_sockets for game in self.correspondence_games)
+
     def is_user_active_in_lobby(self) -> bool:
         return len(self.lobby_sockets) > 0  # todo: check also if open maybe?
 

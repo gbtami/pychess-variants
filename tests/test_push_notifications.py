@@ -2,9 +2,11 @@ import json
 import time
 import unittest
 from types import SimpleNamespace
+from typing import cast
 
 import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
+from aiohttp.web_ws import WebSocketResponse
 from mongomock_motor import AsyncMongoMockClient
 
 from pychess_global_app_state_utils import get_app_state
@@ -182,6 +184,40 @@ class PushSubscribeTestCase(AioHTTPTestCase):
             san="e4",
         )
         self.assertEqual(app_state.push_notifier.queue.qsize(), 0)
+
+    async def test_enqueue_skips_while_user_is_playing_another_corr_game(self):
+        app_state = get_app_state(self.app)
+        app_state.push_notifier.enabled = True
+        user = User(app_state, username="corr_player")
+        open_game = SimpleNamespace(id="open-corr-game")
+        user.correspondence_games.append(open_game)
+        user.add_ws_for_game(open_game.id, cast(WebSocketResponse, object()))
+
+        app_state.push_notifier.enqueue_corr_move(
+            user,
+            game_id="updated-corr-game",
+            opponent="opponent",
+            san="e4",
+        )
+
+        self.assertEqual(app_state.push_notifier.queue.qsize(), 0)
+
+    async def test_enqueue_continues_while_user_is_playing_a_live_game(self):
+        app_state = get_app_state(self.app)
+        app_state.push_notifier.enabled = True
+        user = User(app_state, username="live_player")
+        user.add_ws_for_game("open-live-game", cast(WebSocketResponse, object()))
+
+        app_state.push_notifier.enqueue_corr_move(
+            user,
+            game_id="updated-corr-game",
+            opponent="opponent",
+            san="e4",
+        )
+
+        job = app_state.push_notifier.queue.get_nowait()
+        self.assertEqual(job.username, user.username)
+        app_state.push_notifier.queue.task_done()
 
     async def test_corr_move_notification_hides_san_for_fogofwar(self):
         app_state = get_app_state(self.app)
