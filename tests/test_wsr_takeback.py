@@ -261,6 +261,19 @@ class TakebackBroadcastTestCase(AioHTTPTestCase):
         assert app_state.db is not None
         await game.play_move(game.board.legal_moves()[0])
 
+        original_periods = game.byoyomi_periods.copy()
+        await handle_byoyomi(
+            black,
+            {
+                "type": "byoyomi",
+                "color": "black",
+                "period": 2,
+            },
+            game,
+        )
+        self.assertEqual(game.byoyomi_periods, original_periods)
+        self.assertEqual(game.byo_correction, 0)
+
         await handle_byoyomi(
             black,
             {

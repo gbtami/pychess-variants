@@ -292,7 +292,7 @@ class ByoyomiMessage(TypedDict):
     type: Literal["byoyomi"]
     color: str
     period: int
-    positionId: str
+    positionId: NotRequired[str]
 
 
 class TakebackMessage(TypedDict):

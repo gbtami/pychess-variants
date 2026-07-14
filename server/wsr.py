@@ -872,7 +872,12 @@ async def handle_byoyomi(user: User, data: ByoyomiMessage, game: game.Game) -> N
         if payload_color != user_color:
             log.info("Ignoring byoyomi update with mismatched color in %s", game.id)
             return
-        if data["positionId"] != game.position_id():
+
+        position_id = data.get("positionId")
+        if not isinstance(position_id, str):
+            log.info("Ignoring byoyomi update without position id in %s", game.id)
+            return
+        if position_id != game.position_id():
             log.info("Ignoring stale byoyomi update in %s", game.id)
             return
 
