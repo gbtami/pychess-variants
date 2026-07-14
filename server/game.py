@@ -379,6 +379,12 @@ class Game:
         # On page refresh we have to add extra byoyomi times gained by current player to report correct clock time
         # We adjust this in "byoyomi" messages in wsr.py
         self.byo_correction = 0
+        # One immutable timing snapshot for every board position, including ply 0.
+        # Live byoyomi messages may change the current fields, but not the snapshot
+        # for the position at which the turn began. A takeback restores that snapshot.
+        self.byoyomi_state_stack: list[tuple[tuple[int, int], bool, int]] = (
+            [self.byoyomi_state()] if self.byoyomi else []
+        )
 
         if self.chess960 or self.random_only:
             self.initial_fen = self.board.initial_fen
@@ -571,6 +577,8 @@ class Game:
                         "clocks": clocks,
                     }
                 )
+                if self.byoyomi:
+                    self.byoyomi_state_stack.append(self.byoyomi_state())
                 if self.jieqi_capture_stack is not None:
                     # Keep a parallel capture stack so takebacks can undo captures cleanly.
                     if jieqi_capture is not None and self.jieqi_captures is not None:
@@ -640,6 +648,14 @@ class Game:
         # Push only the clock that changed this ply; the other array is
         # left untouched until save_game() overwrites both at game end.
         push_data: dict[str, object] = {"m": move_encoded}
+        if self.byoyomi:
+            periods, overtime, correction = self.byoyomi_state_stack[-1]
+            push_data["byost"] = {
+                "p": list(periods),
+                "o": overtime,
+                "c": correction,
+            }
+            set_data.update(self.byoyomi_state_document())
         if self.rated == RATED:
             if cur_color == WHITE:
                 push_data["cw"] = self.clocks_w[-1]
@@ -656,9 +672,48 @@ class Game:
         if self.app_state.db is not None:
             self.last_move_time = datetime.now(timezone.utc)
             new_data = {"f": self.board.fen, "l": self.last_move_time}
+            pop_data = {"m": 1}
+            if self.byoyomi:
+                pop_data["byost"] = 1
             await self.app_state.db.game.update_one(
-                {"_id": self.id}, {"$set": new_data, "$pop": {"m": 1}}
+                {"_id": self.id}, {"$set": new_data, "$pop": pop_data}
             )
+
+    def byoyomi_state(self) -> tuple[tuple[int, int], bool, int]:
+        return (
+            (self.byoyomi_periods[WHITE], self.byoyomi_periods[BLACK]),
+            self.overtime,
+            self.byo_correction,
+        )
+
+    def restore_byoyomi_state(self, state: tuple[tuple[int, int], bool, int]) -> None:
+        periods, self.overtime, self.byo_correction = state
+        self.byoyomi_periods = list(periods)
+
+    def byoyomi_state_document(self) -> dict[str, object]:
+        return {
+            "byop": list(self.byoyomi_periods),
+            "byoo": self.overtime,
+            "byoc": self.byo_correction,
+        }
+
+    async def save_byoyomi_state(self) -> None:
+        if self.byoyomi and self.app_state.db is not None:
+            await self.app_state.db.game.update_one(
+                {"_id": self.id}, {"$set": self.byoyomi_state_document()}
+            )
+
+    async def save_takeback_state(self) -> None:
+        if self.app_state.db is None:
+            return
+        state: dict[str, object] = {
+            "f": self.board.fen,
+            "s": self.status,
+            "l": self.last_move_time,
+        }
+        if self.byoyomi:
+            state.update(self.byoyomi_state_document())
+        await self.app_state.db.game.update_one({"_id": self.id}, {"$set": state})
 
     async def save_setup(self) -> None:
         """Used by Janggi prelude phase"""
@@ -1715,7 +1770,11 @@ class Game:
         and the requester's preceding move, matching lichess takeback behavior.
         """
         # Defense in depth: callers must never mutate rated game history.
-        if self.rated != CASUAL or self.board.ply < 2:
+        if (
+            self.rated != CASUAL
+            or self.board.ply < 2
+            or (self.byoyomi and len(self.byoyomi_state_stack) != self.board.ply + 1)
+        ):
             return
 
         self.stopwatch.stop()
@@ -1745,13 +1804,24 @@ class Game:
             if len(mover_clock) > 1:
                 mover_clock.pop()
             self.steps.pop()
+            if self.byoyomi:
+                self.byoyomi_state_stack.pop()
+                self.restore_byoyomi_state(self.byoyomi_state_stack[-1])
             await self.pop_move_from_db()
+
+        if self.board.ply == 0 and self.status == STARTED:
+            self.status = CREATED
+            self.app_state.g_cnt[0] -= 1
+            await self.app_state.lobby.lobby_broadcast(
+                {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
+            )
 
         self.has_legal_move = self.board.has_legal_move()
         if self.random_mover:
             self.legal_moves = self.board.legal_moves()
         self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
         self.check = self.board.is_checked()
+        await self.save_takeback_state()
         self.last_server_clock = monotonic()
         self.stopwatch.restart()
 

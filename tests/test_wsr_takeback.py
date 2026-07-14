@@ -7,7 +7,8 @@ from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 from unittest.mock import AsyncMock
 
-from const import RATED
+from const import CREATED, RATED, STARTED
+from fairy import BLACK
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
@@ -15,7 +16,14 @@ from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
 from variants import VARIANTS
-from wsr import handle_reject_takeback, handle_takeback
+from utils import insert_game_to_db, load_game_from_doc
+from wsr import (
+    handle_board,
+    handle_byoyomi,
+    handle_reject_takeback,
+    handle_takeback,
+    takeback_allowed,
+)
 
 test_logger.init_test_logger()
 
@@ -202,3 +210,103 @@ class TakebackBroadcastTestCase(AioHTTPTestCase):
         response = json.loads(ws.send_str.await_args.args[0])
         self.assertEqual(response["type"], "error")
         self.assertIn("not allowed", response["message"])
+
+    async def test_takeback_to_ply_zero_resets_active_game_lifecycle(self):
+        app_state = get_app_state(self.app)
+        white = User(app_state, username="lifecycle-white", perfs=TEST_PLAYER_PERFS)
+        black = User(app_state, username="lifecycle-black", perfs=TEST_PLAYER_PERFS)
+        game = Game(app_state, id8(), "cambodian", "", white, black, rated=False, create=True)
+        await insert_game_to_db(game, app_state)
+        assert app_state.db is not None
+        initial_count = app_state.g_cnt[0]
+
+        await game.play_move("e3e4")
+        await game.play_move("c8c7")
+        self.assertEqual(game.status, STARTED)
+        self.assertEqual(app_state.g_cnt[0], initial_count + 1)
+
+        await handle_takeback(AsyncMock(), white, game)
+        await handle_takeback(AsyncMock(), black, game)
+
+        self.assertEqual(game.board.ply, 0)
+        self.assertEqual(game.status, CREATED)
+        self.assertEqual(app_state.g_cnt[0], initial_count)
+        document = await app_state.db.game.find_one({"_id": game.id})
+        self.assertEqual(document["s"], CREATED)
+
+        await game.play_move("e3e4")
+        self.assertEqual(game.status, STARTED)
+        self.assertEqual(app_state.g_cnt[0], initial_count + 1)
+
+    async def test_takeback_restores_byoyomi_state_at_start_of_turn(self):
+        app_state = get_app_state(self.app)
+        white = User(app_state, username="byoyomi-white", perfs=TEST_PLAYER_PERFS)
+        black = User(app_state, username="byoyomi-black", perfs=TEST_PLAYER_PERFS)
+        app_state.users[white.username] = white
+        app_state.users[black.username] = black
+        game = Game(
+            app_state,
+            id8(),
+            "shogi",
+            "",
+            white,
+            black,
+            base=0,
+            inc=5,
+            byoyomi_period=3,
+            rated=False,
+            create=True,
+        )
+        await insert_game_to_db(game, app_state)
+        assert app_state.db is not None
+        await game.play_move(game.board.legal_moves()[0])
+
+        await handle_byoyomi(
+            {"type": "byoyomi", "color": "black", "period": 2},
+            game,
+        )
+        game.overtime = True
+        await game.play_move(game.board.legal_moves()[0])
+        self.assertEqual(game.byoyomi_periods[BLACK], 2)
+        self.assertTrue(game.overtime)
+
+        persisted = await app_state.db.game.find_one({"_id": game.id})
+        assert persisted is not None
+        await game.stopwatch.cancel()
+        reloaded = await load_game_from_doc(app_state, persisted)
+        self.assertIsInstance(reloaded, Game)
+        assert isinstance(reloaded, Game)
+        self.assertEqual(len(reloaded.byoyomi_state_stack), reloaded.board.ply + 1)
+        self.assertEqual(reloaded.byoyomi_periods, [3, 2])
+        self.assertTrue(reloaded.overtime)
+        self.assertTrue(takeback_allowed(reloaded, reloaded.bplayer))
+
+        await handle_takeback(AsyncMock(), reloaded.bplayer, reloaded)
+        self.assertEqual(reloaded.takeback_offer, (reloaded.bplayer.username, 2))
+        await handle_takeback(AsyncMock(), reloaded.wplayer, reloaded)
+
+        self.assertEqual(reloaded.board.ply, 1)
+        self.assertEqual(reloaded.byoyomi_periods, [3, 3])
+        self.assertFalse(reloaded.overtime)
+        self.assertEqual(reloaded.byo_correction, 0)
+        document = await app_state.db.game.find_one({"_id": reloaded.id})
+        self.assertEqual(document["byop"], [3, 3])
+        self.assertFalse(document["byoo"])
+        self.assertEqual(len(document["byost"]), 1)
+
+    async def test_pending_takeback_offer_is_resent_on_reconnect(self):
+        app_state = get_app_state(self.app)
+        white = User(app_state, username="reconnect-white", perfs=TEST_PLAYER_PERFS)
+        black = User(app_state, username="reconnect-black", perfs=TEST_PLAYER_PERFS)
+        game = Game(app_state, id8(), "cambodian", "", white, black, rated=False, create=True)
+        await game.play_move("e3e4")
+        await game.play_move("c8c7")
+        await handle_takeback(AsyncMock(), white, game)
+
+        black_ws = AsyncMock()
+        await handle_board(black_ws, black, game)
+
+        reconnect_message = json.loads(black_ws.send_str.await_args.args[0])
+        self.assertEqual(reconnect_message["type"], "takeback_offer")
+        self.assertEqual(reconnect_message["username"], white.username)
+        self.assertEqual(game.board.ply, 2)

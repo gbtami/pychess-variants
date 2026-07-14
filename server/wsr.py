@@ -446,6 +446,17 @@ async def handle_board(ws: WebSocketResponse, user: User, game: game.Game) -> No
         response = await draw(game, offerer)
         await ws_send_json(ws, response)
 
+    if game.is_player(user) and game.takeback_offer is not None:
+        offerer_name, _offer_ply = game.takeback_offer
+        await ws_send_json(
+            ws,
+            {
+                "type": "takeback_offer",
+                "username": offerer_name,
+                "message": "Takeback offer sent",
+            },
+        )
+
 
 async def handle_setup(
     ws: WebSocketResponse,
@@ -853,6 +864,7 @@ async def handle_byoyomi(data: ByoyomiMessage, game: game.Game) -> None:
     game.byo_correction += game.inc * 1000
     color = WHITE if data["color"] == "white" else BLACK
     game.byoyomi_periods[color] = data["period"]
+    await game.save_byoyomi_state()
     # print("BYOYOMI:", data)
 
 
@@ -865,6 +877,7 @@ def takeback_allowed(game: game.Game, user: User) -> bool:
         and game.tournamentId is None
         and game.simulId is None
         and not game.server_variant.two_boards
+        and (not game.byoyomi or len(game.byoyomi_state_stack) == game.board.ply + 1)
     )
 
 
