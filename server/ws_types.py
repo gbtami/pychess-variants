@@ -299,6 +299,11 @@ class TakebackMessage(TypedDict):
     gameId: NotRequired[str]
 
 
+class RejectTakebackMessage(TypedDict):
+    type: Literal["reject_takeback"]
+    gameId: NotRequired[str]
+
+
 class AbortResignMessage(TypedDict):
     type: Literal["abort", "resign", "abandon", "flag"]
     gameId: str
@@ -393,6 +398,7 @@ RoundInboundMessage: TypeAlias = (
     | RejectDrawMessage
     | ByoyomiMessage
     | TakebackMessage
+    | RejectTakebackMessage
     | AbortResignMessage
     | EmbedUserConnectedMessage
     | IsUserPresentMessage

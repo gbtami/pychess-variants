@@ -21,7 +21,7 @@ from cheat_report import (
     append_ceval_cheat_report,
     ceval_auto_lose_enabled,
 )
-from const import ANON_PREFIX, ANALYSIS, STARTED
+from const import ANON_PREFIX, ANALYSIS, CASUAL, STARTED
 from draw import draw, reject_draw
 from fairy import WHITE, BLACK, FairyBoard
 from fishnet import (
@@ -238,10 +238,9 @@ async def process_message(
     elif data["type"] == "byoyomi":
         await handle_byoyomi(data, game)
     elif data["type"] == "takeback":
-        if not game.server_variant.two_boards and game.simulId is not None:
-            await ws_send_json(ws, {"type": "error", "message": "Takebacks are disabled in simuls"})
-            return
-        await handle_takeback(ws, game)
+        await handle_takeback(ws, user, game)
+    elif data["type"] == "reject_takeback":
+        await handle_reject_takeback(user, game)
     elif (
         data["type"] == "abort"
         or data["type"] == "resign"
@@ -857,12 +856,77 @@ async def handle_byoyomi(data: ByoyomiMessage, game: game.Game) -> None:
     # print("BYOYOMI:", data)
 
 
-async def handle_takeback(ws: WebSocketResponse, game: game.Game) -> None:
+def takeback_allowed(game: game.Game, user: User) -> bool:
+    return (
+        game.is_player(user)
+        and game.rated == CASUAL
+        and game.status == STARTED
+        and game.board.ply >= 2
+        and game.tournamentId is None
+        and game.simulId is None
+        and not game.server_variant.two_boards
+    )
+
+
+async def handle_takeback(ws: WebSocketResponse, user: User, game: game.Game) -> None:
     async with game.move_lock:
-        await game.takeback()
+        # Recheck under the move lock so a concurrent move or game end cannot
+        # turn an earlier eligibility result into a stale takeback.
+        if not takeback_allowed(game, user):
+            await ws_send_json(
+                ws, {"type": "error", "message": "Takebacks are not allowed in this game"}
+            )
+            return
+
+        if game.bot_game:
+            await game.takeback(user)
+            board_response = game.get_board(full=True)
+            board_response["takeback"] = True
+            await round_broadcast(game, board_response, full=True)
+            return
+
+        offer = game.takeback_offer
+        if offer is None:
+            game.takeback_offer = (user.username, game.board.ply)
+            await round_broadcast(
+                game,
+                {
+                    "type": "takeback_offer",
+                    "username": user.username,
+                    "message": "Takeback offer sent",
+                },
+                full=True,
+            )
+            return
+
+        offerer_name, offer_ply = offer
+        if offerer_name == user.username:
+            return
+        if offer_ply != game.board.ply:
+            game.takeback_offer = None
+            await ws_send_json(ws, {"type": "error", "message": "Takeback offer expired"})
+            return
+
+        offerer = game.wplayer if offerer_name == game.wplayer.username else game.bplayer
+        game.takeback_offer = None
+        await game.takeback(offerer)
         board_response = game.get_board(full=True)
         board_response["takeback"] = True
-    await round_broadcast(game, board_response, full=True)
+        await round_broadcast(game, board_response, full=True)
+
+
+async def handle_reject_takeback(user: User, game: game.Game) -> None:
+    if not game.is_player(user):
+        return
+    async with game.move_lock:
+        if game.takeback_offer is None:
+            return
+        game.takeback_offer = None
+        await round_broadcast(
+            game,
+            {"type": "takeback_rejected", "message": "Takeback offer rejected"},
+            full=True,
+        )
 
 
 async def handle_abort_resign_abandon_flag(

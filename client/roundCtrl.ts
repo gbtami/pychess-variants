@@ -30,6 +30,8 @@ import {
     MsgMoreTime,
     MsgDrawOffer,
     MsgDrawRejected,
+    MsgTakebackOffer,
+    MsgTakebackRejected,
     MsgRematchOffer,
     MsgRematchRejected,
     MsgCount,
@@ -574,6 +576,11 @@ export class RoundController extends GameController {
 
     toggleSettings() {}
 
+    onDuckInputStateChange(active: boolean): void {
+        const takeback = document.getElementById('takeback') as HTMLElement | null;
+        if (takeback) takeback.hidden = active;
+    }
+
     buttonAbort() {
         return h('button#abort', { on: { click: () => this.abort() }, props: { title: _('Abort') } }, [
             h('i', { class: { icon: true, 'icon-abort': true } }),
@@ -678,9 +685,58 @@ export class RoundController extends GameController {
     };
 
     private takeback = () => {
-        // User requested rewind: queued premoves/pending resend are no longer reliable.
-        this.clearLocalMoveQueueState();
         this.doSend({ type: 'takeback', gameId: this.gameId });
+    };
+
+    private acceptTakeback = () => {
+        // Acceptance can immediately rewind the board, invalidating queued move intent.
+        this.clearLocalMoveQueueState();
+        this.takeback();
+    };
+
+    private rejectTakeback = () => {
+        this.doSend({ type: 'reject_takeback', gameId: this.gameId });
+        this.clearDialog();
+    };
+
+    private renderTakebackOffer = () => {
+        (document.querySelector('.btn-controls.game') as HTMLElement).style.display = 'none';
+        this.vdialog = patch(
+            this.vdialog,
+            h('div#offer-dialog', [
+                h('div.dcontrols', [
+                    h(
+                        'div',
+                        { class: { reject: true }, on: { click: () => this.rejectTakeback() } },
+                        h('i.icon.icon-abort.reject'),
+                    ),
+                    h('div.text', _('Your opponent proposes a takeback')),
+                    h(
+                        'div',
+                        { class: { accept: true }, on: { click: () => this.acceptTakeback() } },
+                        h('i.icon.icon-check'),
+                    ),
+                ]),
+            ]),
+        );
+    };
+
+    private renderTakebackSent = () => {
+        (document.querySelector('.btn-controls.game') as HTMLElement).style.display = 'none';
+        this.vdialog = patch(
+            this.vdialog,
+            h('div#offer-dialog', [
+                h('div.dcontrols', [
+                    h(
+                        'div',
+                        { class: { reject: true }, on: { click: () => this.rejectTakeback() } },
+                        h('i.icon.icon-abort.reject'),
+                    ),
+                    h('div.text', _('Takeback offer sent')),
+                    h('div', { class: { accept: false } }),
+                ]),
+            ]),
+        );
     };
 
     private draw = async () => {
@@ -1075,6 +1131,7 @@ export class RoundController extends GameController {
         if (msg.takeback) {
             // Server confirmed rewind; invalidate any queued local move intent.
             this.clearLocalMoveQueueState();
+            this.clearDialog();
         }
 
         if (latestPly) this.ply = msg.ply;
@@ -1159,8 +1216,11 @@ export class RoundController extends GameController {
         if ((!this.spectator && this.clockOn) || this.tournamentGame) {
             const container = document.getElementById('abort') as HTMLElement;
             if (container) {
-                // No takeback for Duck chess, because it already has undo for first leg of moves
-                if ((this.wtitle === 'BOT' || this.btitle === 'BOT') && !this.variant.rules.duck) {
+                if (
+                    this.rated === CASUAL &&
+                    !this.tournamentGame &&
+                    this.simulId === ''
+                ) {
                     patch(
                         container,
                         h(
@@ -1751,6 +1811,18 @@ export class RoundController extends GameController {
         this.clearDialog();
     };
 
+    private onMsgTakebackOffer = (msg: MsgTakebackOffer) => {
+        chatMessage('', msg.message, 'roundchat');
+        if (this.spectator) return;
+        if (msg.username === this.username) this.renderTakebackSent();
+        else this.renderTakebackOffer();
+    };
+
+    private onMsgTakebackRejected = (msg: MsgTakebackRejected) => {
+        chatMessage('', msg.message, 'roundchat');
+        this.clearDialog();
+    };
+
     private onMsgRematchOffer = (msg: MsgRematchOffer) => {
         chatMessage('', msg.message, 'roundchat');
         if (!this.spectator && msg.username !== this.username) this.renderRematchOffer();
@@ -1811,6 +1883,12 @@ export class RoundController extends GameController {
                 break;
             case 'draw_rejected':
                 this.onMsgDrawRejected(msg);
+                break;
+            case 'takeback_offer':
+                this.onMsgTakebackOffer(msg);
+                break;
+            case 'takeback_rejected':
+                this.onMsgTakebackRejected(msg);
                 break;
             case 'rematch_offer':
                 this.onMsgRematchOffer(msg);

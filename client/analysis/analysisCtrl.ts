@@ -1492,7 +1492,7 @@ export class AnalysisController extends GameController {
             this.setDests();
             this.fullfen = step.fen;
             this.suffix = '';
-            this.duck.inputState = undefined;
+            this.duck.cancel();
 
             if (this.variant.ui.counting) {
                 [this.vmiscInfoW, this.vmiscInfoB] = updateCount(

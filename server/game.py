@@ -244,6 +244,9 @@ class Game:
 
         self.spectators: Set[User] = set()
         self.draw_offers: Set[str] = set()
+        # (username, ply) for an outstanding two-player takeback proposal.
+        # The ply snapshot prevents accepting an offer after the position changed.
+        self.takeback_offer: tuple[str, int] | None = None
         self.rematch_offers: Set[str] = set()
         self.rematch_id: str | None = None
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
@@ -475,6 +478,15 @@ class Game:
         if response is not None:
             await round_broadcast(self, response, full=True)
 
+        # Playing on cancels an outstanding takeback proposal.
+        if self.takeback_offer is not None:
+            self.takeback_offer = None
+            await round_broadcast(
+                self,
+                {"type": "takeback_rejected", "message": "Takeback offer canceled"},
+                full=True,
+            )
+
         cur_time = monotonic()
 
         # BOT players doesn't send times used for moves
@@ -613,9 +625,9 @@ class Game:
         regardless of game length. ``save_game()`` writes the authoritative
         full arrays at game end, so the document is always consistent on close.
 
-        Takeback (``pop_move_from_db``) is bot-only and bot games are always
-        CASUAL, so clock arrays are never written for those games and no
-        matching ``$pop`` is required here.
+        Takebacks are only allowed in CASUAL games, so clock arrays are never
+        written for games that can call ``pop_move_from_db`` and no matching
+        clock ``$pop`` is required here.
         """
         self.last_move_time = datetime.now(timezone.utc)
         move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
@@ -642,7 +654,8 @@ class Game:
 
     async def pop_move_from_db(self) -> None:
         if self.app_state.db is not None:
-            new_data = {"f": self.board.fen}
+            self.last_move_time = datetime.now(timezone.utc)
+            new_data = {"f": self.board.fen, "l": self.last_move_time}
             await self.app_state.db.game.update_one(
                 {"_id": self.id}, {"$set": new_data, "$pop": {"m": 1}}
             )
@@ -1694,51 +1707,53 @@ class Game:
         digest.update(self.board.fen.encode("utf-8"))
         return digest.hexdigest()
 
-    async def takeback(self) -> None:
-        if self.bot_game and self.board.ply >= 2:
-            cur_player = self.bplayer if self.board.color == BLACK else self.wplayer
-            cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
+    async def takeback(self, requester: User) -> None:
+        """Rewind the move(s) the requester is asking to replay.
 
-            def pop_jieqi_capture() -> None:
-                # Takebacks must also undo any stored Jieqi capture identities.
-                if self.jieqi_capture_stack is None:
-                    return
-                if not self.jieqi_capture_stack:
-                    return
-                capture = self.jieqi_capture_stack.pop()
-                if capture is None:
-                    return
-                if self.jieqi_captures is None:
-                    return
-                color, _piece = capture
-                try:
-                    if self.jieqi_captures[color]:
-                        self.jieqi_captures[color].pop()
-                except Exception:
-                    log.exception("Failed to rollback Jieqi capture for %s", self.id)
+        A request made immediately after the requester's move rewinds one ply.
+        A request made on the requester's turn rewinds the opponent's last move
+        and the requester's preceding move, matching lichess takeback behavior.
+        """
+        # Defense in depth: callers must never mutate rated game history.
+        if self.rated != CASUAL or self.board.ply < 2:
+            return
 
+        self.stopwatch.stop()
+        turn_player = self.bplayer if self.board.color == BLACK else self.wplayer
+        plies = 2 if requester.username == turn_player.username else 1
+
+        def pop_jieqi_capture() -> None:
+            # Takebacks must also undo any stored Jieqi capture identities.
+            if self.jieqi_capture_stack is None or not self.jieqi_capture_stack:
+                return
+            capture = self.jieqi_capture_stack.pop()
+            if capture is None or self.jieqi_captures is None:
+                return
+            color, _piece = capture
+            try:
+                if self.jieqi_captures[color]:
+                    self.jieqi_captures[color].pop()
+            except Exception:
+                log.exception("Failed to rollback Jieqi capture for %s", self.id)
+
+        for _ in range(plies):
+            # The side opposite the current turn made the move being removed.
+            mover_color = BLACK if self.board.color == WHITE else WHITE
+            mover_clock = self.clocks_b if mover_color == BLACK else self.clocks_w
             self.board.pop()
             pop_jieqi_capture()
-            if len(cur_clock) > 1:
-                cur_clock.pop()
+            if len(mover_clock) > 1:
+                mover_clock.pop()
             self.steps.pop()
             await self.pop_move_from_db()
 
-            if not cur_player.bot:
-                cur_clock = self.clocks_b if self.board.color == BLACK else self.clocks_w
-
-                self.board.pop()
-                pop_jieqi_capture()
-                if len(cur_clock) > 1:
-                    cur_clock.pop()
-                self.steps.pop()
-                await self.pop_move_from_db()
-
-            self.has_legal_move = self.board.has_legal_move()
-            if self.random_mover:
-                self.legal_moves = self.board.legal_moves()
-            self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
-            self.check = self.board.is_checked()
+        self.has_legal_move = self.board.has_legal_move()
+        if self.random_mover:
+            self.legal_moves = self.board.legal_moves()
+        self.lastmove = self.board.move_stack[-1] if self.board.move_stack else None
+        self.check = self.board.is_checked()
+        self.last_server_clock = monotonic()
+        self.stopwatch.restart()
 
     def handle_chat_message(self, chat_message: Mapping[str, object]) -> None:
         self.messages.append(chat_message)
