@@ -47,6 +47,12 @@ INVITE_SEEK_EXPIRE = timedelta(hours=24)
 # Max number of lobby chat lines (deque limit)
 MAX_CHAT_LINES = 100
 
+# Lobby chat is reserved for established, active players. These limits only
+# affect the main-page lobby chat; game and tournament chats remain unchanged.
+LOBBY_CHAT_MIN_ACCOUNT_AGE = timedelta(hours=24)
+LOBBY_CHAT_MIN_GAMES = 10
+LOBBY_CHAT_MIN_RATED_VARIANT_GAMES = 5
+
 BLOCK, FOLLOW = False, True
 MAX_USER_BLOCK = 100
 

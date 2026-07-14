@@ -88,6 +88,10 @@ O Random-Mover é um bot que escolhe lances legais de forma aleatória. Este tem
 
 Não! O login é feito a partir de OAuth e a sua password nunca irá ser revelada ao Pychess, tal como pode fazer login a outros websites a partir da sua conta Google ou Facebook.
 
+*Por que não consigo enviar mensagens no chat do lobby?*
+
+O chat do lobby destina-se a jogadores ativos do Pychess. Para escrever nele, a sua conta deve ter pelo menos 24 horas, deve ter concluído pelo menos 10 partidas e pelo menos 5 delas devem ser partidas classificadas em variantes diferentes do xadrez padrão. Ainda pode ler o chat do lobby, e esta restrição não afeta o chat das partidas ou dos torneios.
+
 *Qual a melhor maneira de entrar em contato com os desenvolvedores/programadores?*
 
 Pode tentar o chat do Pychess, no entanto os desenvolvedores podem não responder. A melhor maneira será usando o [Discord](https://discord.gg/aPs8RKr).

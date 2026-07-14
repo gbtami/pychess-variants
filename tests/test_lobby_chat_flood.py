@@ -1,9 +1,25 @@
 import unittest
 from collections import deque
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from wsl import handle_lobbychat
+
+
+def eligible_user(**overrides: object) -> SimpleNamespace:
+    values: dict[str, object] = {
+        "username": "tester",
+        "anon": False,
+        "silence": 0,
+        "shadowban": False,
+        "lobby_sockets": set(),
+        "created_at": datetime.now(timezone.utc) - timedelta(days=2),
+        "count": {"game": 10},
+        "perfs": {"atomic": {"nb": 5}},
+    }
+    values.update(overrides)
+    return SimpleNamespace(**values)
 
 
 class _TargetUser:
@@ -24,7 +40,7 @@ class LobbyChatFloodTestCase(unittest.IsolatedAsyncioTestCase):
             ),
             discord=SimpleNamespace(send_to_discord=AsyncMock()),
         )
-        user = SimpleNamespace(username="tester", anon=False, silence=0)
+        user = eligible_user()
         ws = object()
         payload = {"type": "lobbychat", "message": "repeat repeat repeat"}
 
@@ -44,7 +60,7 @@ class LobbyChatFloodTestCase(unittest.IsolatedAsyncioTestCase):
             ),
             discord=SimpleNamespace(send_to_discord=AsyncMock()),
         )
-        user = SimpleNamespace(username="tester", anon=False, silence=0)
+        user = eligible_user()
         ws = object()
         payload = {"type": "lobbychat", "message": "visit https://tinyurl.com/abc"}
 
@@ -106,13 +122,7 @@ class LobbyChatFloodTestCase(unittest.IsolatedAsyncioTestCase):
             discord=SimpleNamespace(send_to_discord=AsyncMock()),
         )
         ws = object()
-        user = SimpleNamespace(
-            username="shadowed",
-            anon=False,
-            silence=0,
-            shadowban=True,
-            lobby_sockets={ws},
-        )
+        user = eligible_user(username="shadowed", shadowban=True, lobby_sockets={ws})
         payload = {"type": "lobbychat", "message": "visible only to me"}
 
         with patch("wsl.ADMINS", []), patch("wsl.ws_send_json_many", new=AsyncMock()) as send_many:
@@ -122,6 +132,26 @@ class LobbyChatFloodTestCase(unittest.IsolatedAsyncioTestCase):
         sent_sockets, sent_payload = send_many.await_args.args
         self.assertEqual({ws}, sent_sockets)
         self.assertEqual("visible only to me", sent_payload["message"])
+        app_state.lobby.lobby_chat_save.assert_not_awaited()
+        app_state.lobby.lobby_broadcast.assert_not_awaited()
+        app_state.discord.send_to_discord.assert_not_awaited()
+
+    async def test_ineligible_user_message_is_silently_ignored(self) -> None:
+        app_state = SimpleNamespace(
+            chat_flood=SimpleNamespace(allow_message=lambda source, text: True),
+            lobby=SimpleNamespace(
+                lobby_chat_save=AsyncMock(),
+                lobby_broadcast=AsyncMock(),
+            ),
+            discord=SimpleNamespace(send_to_discord=AsyncMock()),
+        )
+        user = eligible_user(count={"game": 9})
+        ws = object()
+        payload = {"type": "lobbychat", "message": "hello"}
+
+        with patch("wsl.ADMINS", []):
+            await handle_lobbychat(app_state, ws, user, payload)
+
         app_state.lobby.lobby_chat_save.assert_not_awaited()
         app_state.lobby.lobby_broadcast.assert_not_awaited()
         app_state.discord.send_to_discord.assert_not_awaited()

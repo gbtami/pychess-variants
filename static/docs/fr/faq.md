@@ -84,6 +84,10 @@ You need to have a Lichess account. If you don't already, please go to [Lichess]
 
 No! That is done via OAuth and your password isn't revealed to Pychess, just like how you can log in to third-party websites with your Google or Facebook accounts.</details>
 
+<details><summary>Why can't I send messages in the lobby chat?</summary>
+
+The lobby chat is intended for active Pychess players. To write there, your account must be at least 24 hours old, you must have completed at least 10 games, and at least 5 of those must be rated games in variants other than standard Chess. You can still read the lobby chat, and this restriction does not affect game or tournament chat.</details>
+
 <details><summary>What's the best way to contact the developers?</summary>
 
 You can try the lobby chat, although the developers might not be on to answer. More reliably, we use [Discord](https://discord.gg/aPs8RKr).</details>

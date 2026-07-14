@@ -27,6 +27,7 @@ from auto_pair import (
     find_matching_user_for_seek,
 )
 from chat import chat_response
+from chat_permissions import lobby_chat_eligible
 from const import ANON_PREFIX, STARTED
 from header_challenges import (
     broadcast_challenge_state,
@@ -744,13 +745,17 @@ async def handle_lobbychat(
     if user.username.startswith(ANON_PREFIX):
         return
 
+    is_admin = user.username in ADMINS
+    if not is_admin and user.username != "Discord-Relay" and not lobby_chat_eligible(user):
+        return
+
     message = sanitize_user_message(data["message"])
     response: Mapping[str, object] | None = None
     admin_command = False
 
     is_shadowbanned = bool(getattr(user, "shadowban", False))
 
-    if user.username in ADMINS:
+    if is_admin:
         admin_command = True
         if message.startswith("/silence"):
             response = silence(app_state, message)

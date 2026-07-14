@@ -88,6 +88,10 @@ Necesitas tener una cuenta en Lichess. Si todavía no la tienes, por favor ve a 
 
 ¡No! Este proceso se hace mediante OAuth y tu contraseña nunca es compartida con Pychess, del mismo modo que puedes hacer login en otras páginas con tu cuenta de Google o Facebook.
 
+*¿Por qué no puedo enviar mensajes en el chat del vestíbulo?*
+
+El chat del vestíbulo está destinado a jugadores activos de Pychess. Para escribir allí, tu cuenta debe tener al menos 24 horas, debes haber completado al menos 10 partidas y al menos 5 de ellas deben ser partidas clasificatorias de variantes distintas del ajedrez estándar. Todavía puedes leer el chat del vestíbulo, y esta restricción no afecta al chat de las partidas ni de los torneos.
+
 *¿Cuál es la mejor forma de contactar a los desarrolladores?*
 
 Puedes intentarlo en la sala de chat, aunque los desarrolladores pueden no estar para responder. Más fiable es [Discord](https://discord.gg/aPs8RKr).

@@ -90,6 +90,10 @@ Hai bisogno di un account Licess. Se non lo possiedi, vai su [Lichess](https://l
 
 No! Questo processo avviene tramite OAuth e la tua password non viene rivelata a Pychess, proprio nello stesso modo in cui puoi accedere a siti web di terzi con i tuoi account Google o Facebook.
 
+*Perché non posso inviare messaggi nella chat della lobby?*
+
+La chat della lobby è destinata ai giocatori attivi di Pychess. Per scrivere, il tuo account deve avere almeno 24 ore, devi aver completato almeno 10 partite e almeno 5 di queste devono essere partite classificate in varianti diverse dagli scacchi standard. Puoi comunque leggere la chat della lobby e questa restrizione non riguarda la chat delle partite o dei tornei.
+
 *Qual è il modo migliore di contattare gli sviluppatori?*
 
 Puoi provare la chat della lobby, anche se gli sviluppatori potrebbero non essere presenti per rispondere. Se desideri un modo più affidabile, puoi usare il [server Discord di Pychess](https://discord.gg/aPs8RKr).
