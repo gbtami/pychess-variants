@@ -424,7 +424,7 @@ export class RoundController extends GameController {
         };
 
         const byoyomiCallback = () => {
-            if (this.turnColor === this.mycolor) {
+            if (this.turnColor === this.mycolor && this.positionId !== undefined) {
                 // console.log("Byoyomi", this.clocks[1].byoyomiPeriod);
                 const oppclock = !this.flipped() ? 0 : 1;
                 const myclock = 1 - oppclock;
@@ -433,6 +433,7 @@ export class RoundController extends GameController {
                     gameId: this.gameId,
                     color: this.mycolor,
                     period: this.clocks[myclock].byoyomiPeriod,
+                    positionId: this.positionId,
                 });
             }
         };

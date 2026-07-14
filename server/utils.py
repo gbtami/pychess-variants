@@ -401,6 +401,8 @@ async def load_game_from_doc(
         game.lastmove = mlist[-1]
         game.mct = doc.get("mct")
 
+    game.counted_as_active = game.status == STARTED and game.board.ply > 0
+
     if game.corr and game.status <= STARTED:
         activate_correspondence_game(game)
 

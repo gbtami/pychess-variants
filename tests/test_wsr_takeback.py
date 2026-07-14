@@ -262,7 +262,13 @@ class TakebackBroadcastTestCase(AioHTTPTestCase):
         await game.play_move(game.board.legal_moves()[0])
 
         await handle_byoyomi(
-            {"type": "byoyomi", "color": "black", "period": 2},
+            black,
+            {
+                "type": "byoyomi",
+                "color": "black",
+                "period": 2,
+                "positionId": game.position_id(),
+            },
             game,
         )
         game.overtime = True
@@ -280,6 +286,7 @@ class TakebackBroadcastTestCase(AioHTTPTestCase):
         self.assertEqual(reloaded.byoyomi_periods, [3, 2])
         self.assertTrue(reloaded.overtime)
         self.assertTrue(takeback_allowed(reloaded, reloaded.bplayer))
+        abandoned_position_id = reloaded.position_id()
 
         await handle_takeback(AsyncMock(), reloaded.bplayer, reloaded)
         self.assertEqual(reloaded.takeback_offer, (reloaded.bplayer.username, 2))
@@ -288,6 +295,19 @@ class TakebackBroadcastTestCase(AioHTTPTestCase):
         self.assertEqual(reloaded.board.ply, 1)
         self.assertEqual(reloaded.byoyomi_periods, [3, 3])
         self.assertFalse(reloaded.overtime)
+        self.assertEqual(reloaded.byo_correction, 0)
+        self.assertNotEqual(abandoned_position_id, reloaded.position_id())
+        await handle_byoyomi(
+            reloaded.wplayer,
+            {
+                "type": "byoyomi",
+                "color": "white",
+                "period": 2,
+                "positionId": abandoned_position_id,
+            },
+            reloaded,
+        )
+        self.assertEqual(reloaded.byoyomi_periods, [3, 3])
         self.assertEqual(reloaded.byo_correction, 0)
         document = await app_state.db.game.find_one({"_id": reloaded.id})
         self.assertEqual(document["byop"], [3, 3])

@@ -266,6 +266,10 @@ class Game:
         self.lastmove: str | None = None
         self.check: bool = False
         self.status: int = CREATED
+        # Tracks whether this game currently contributes to the global active
+        # game count. Janggi can be STARTED at ply 0 after setup, so status and
+        # ply alone are not sufficient lifecycle indicators.
+        self.counted_as_active = False
         self.result: str = "*"
         self.last_server_clock: float = monotonic()
         self.last_move_time: datetime | None = None
@@ -467,10 +471,9 @@ class Game:
         if self.status > STARTED:
             return
 
-        # In Janggi games self.status was already set to STARTED when setup phase ended
-        # so we have to check board.ply instead here!
-        if self.board.ply == 0:
+        if self.board.ply == 0 and not self.counted_as_active:
             self.status = STARTED
+            self.counted_as_active = True
             self.app_state.g_cnt[0] += 1
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             await self.app_state.lobby.lobby_broadcast(response)
@@ -744,7 +747,8 @@ class Game:
         self.stopwatch.stop()
         await self.stopwatch.cancel()
 
-        if self.board.ply > 0:
+        if self.counted_as_active:
+            self.counted_as_active = False
             self.app_state.g_cnt[0] -= 1
             response = {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             await self.app_state.lobby.lobby_broadcast(response)
@@ -1809,12 +1813,14 @@ class Game:
                 self.restore_byoyomi_state(self.byoyomi_state_stack[-1])
             await self.pop_move_from_db()
 
-        if self.board.ply == 0 and self.status == STARTED:
-            self.status = CREATED
+        if self.board.ply == 0 and self.counted_as_active:
+            self.counted_as_active = False
             self.app_state.g_cnt[0] -= 1
             await self.app_state.lobby.lobby_broadcast(
                 {"type": "g_cnt", "cnt": self.app_state.g_cnt[0]}
             )
+            if self.variant != "janggi" or self.bsetup or self.wsetup:
+                self.status = CREATED
 
         self.has_legal_move = self.board.has_legal_move()
         if self.random_mover:

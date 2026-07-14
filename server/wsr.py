@@ -236,7 +236,7 @@ async def process_message(
     elif data["type"] == "reject_draw":
         await handle_reject_draw(user, game)
     elif data["type"] == "byoyomi":
-        await handle_byoyomi(data, game)
+        await handle_byoyomi(user, data, game)
     elif data["type"] == "takeback":
         await handle_takeback(ws, user, game)
     elif data["type"] == "reject_takeback":
@@ -860,12 +860,30 @@ async def handle_reject_draw(user: User, game: game.Game) -> None:
         await round_broadcast(game, response, full=True)
 
 
-async def handle_byoyomi(data: ByoyomiMessage, game: game.Game) -> None:
-    game.byo_correction += game.inc * 1000
-    color = WHITE if data["color"] == "white" else BLACK
-    game.byoyomi_periods[color] = data["period"]
-    await game.save_byoyomi_state()
-    # print("BYOYOMI:", data)
+async def handle_byoyomi(user: User, data: ByoyomiMessage, game: game.Game) -> None:
+    async with game.move_lock:
+        if not game.is_player(user) or not game.byoyomi or game.status > STARTED:
+            return
+
+        if data["color"] not in ("white", "black"):
+            return
+        user_color = WHITE if user.username == game.wplayer.username else BLACK
+        payload_color = WHITE if data["color"] == "white" else BLACK
+        if payload_color != user_color:
+            log.info("Ignoring byoyomi update with mismatched color in %s", game.id)
+            return
+        if data["positionId"] != game.position_id():
+            log.info("Ignoring stale byoyomi update in %s", game.id)
+            return
+
+        period = data["period"]
+        current_period = game.byoyomi_periods[user_color]
+        if period < 0 or period >= current_period:
+            return
+
+        game.byo_correction += (current_period - period) * game.inc * 1000
+        game.byoyomi_periods[user_color] = period
+        await game.save_byoyomi_state()
 
 
 def takeback_allowed(game: game.Game, user: User) -> bool:
