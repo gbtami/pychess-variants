@@ -854,7 +854,7 @@ async def handle_create_auto_pairing(
     if no:
         return
 
-    if is_catalogued_variant(data["variant"]):
+    if any(is_catalogued_variant(variant) for variant, _chess960 in data["variants"]):
         await ws_send_json(ws, {"type": "error", "message": CATALOGUED_CASUAL_ONLY_MESSAGE})
         return
 

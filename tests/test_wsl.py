@@ -3,7 +3,7 @@
 import asyncio
 import test_logger
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from aiohttp.web_ws import WebSocketResponse
@@ -16,7 +16,14 @@ from seek import Seek
 from server import make_app
 from user import User
 from variants import VARIANTS
-from wsl import finally_logic, handle_create_bot_challenge, handle_create_seek, handle_accept_seek
+from wsl import (
+    CATALOGUED_CASUAL_ONLY_MESSAGE,
+    finally_logic,
+    handle_accept_seek,
+    handle_create_auto_pairing,
+    handle_create_bot_challenge,
+    handle_create_seek,
+)
 
 test_logger.init_test_logger()
 
@@ -138,6 +145,47 @@ class LobbySocketCleanupTestCase(AioHTTPTestCase):
         self.assertIn(
             "BOT accounts cannot create or join lobby games", accept_ws.send_str.call_args.args[0]
         )
+
+    async def test_standard_variant_auto_pairing_uses_variants_list(self):
+        app_state = get_app_state(self.app)
+        ws = SimpleNamespace(send_str=AsyncMock())
+
+        await handle_create_auto_pairing(
+            app_state,
+            ws,
+            self.user,
+            {
+                "type": "create_auto_pairing",
+                "variants": [("chess", False)],
+                "tcs": [(5, 3, 0)],
+                "rrmin": -1000,
+                "rrmax": 1000,
+            },
+        )
+
+        self.assertIn(self.user, app_state.auto_pairing_users)
+        self.user.remove_from_auto_pairings()
+
+    async def test_catalogued_variant_is_rejected_from_auto_pairing_variants_list(self):
+        app_state = get_app_state(self.app)
+        ws = SimpleNamespace(send_str=AsyncMock())
+
+        with patch("wsl.is_catalogued_variant", side_effect=lambda name: name == "custom"):
+            await handle_create_auto_pairing(
+                app_state,
+                ws,
+                self.user,
+                {
+                    "type": "create_auto_pairing",
+                    "variants": [("chess", False), ("custom", False)],
+                    "tcs": [(5, 3, 0)],
+                    "rrmin": -1000,
+                    "rrmax": 1000,
+                },
+            )
+
+        self.assertNotIn(self.user, app_state.auto_pairing_users)
+        self.assertIn(CATALOGUED_CASUAL_ONLY_MESSAGE, ws.send_str.call_args.args[0])
 
     async def test_bot_challenge_is_forced_casual(self):
         app_state = get_app_state(self.app)
