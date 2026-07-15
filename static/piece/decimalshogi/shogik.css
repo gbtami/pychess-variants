@@ -91,10 +91,10 @@
 
 /* promoted gold = elephant */
 .decimalshogi piece.pg-piece.ally {
-    background-image: url('../../images/pieces/shogi/ctk/0SU.svg');
+    background-image: url('../../images/pieces/shogi/ctk/0_ELEPHANT.svg');
 }
 .decimalshogi piece.pg-piece.enemy {
-    background-image: url('../../images/pieces/shogi/ctk/1SU.svg');
+    background-image: url('../../images/pieces/shogi/ctk/1_ELEPHANT.svg');
 }
 
 /* queen */
