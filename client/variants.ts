@@ -312,6 +312,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     borderlands: { pieceCSS: ['borderlands', 'disguised'] },
     yokai: { pieceCSS: ['yokai', 'disguised'] },
     perfect: { pieceCSS: ['perfect0', 'disguised'] },
+    decimalshogi: { pieceCSS: ['shogik', 'disguised'] },
     letter: { pieceCSS: ['disguised'] },
 };
 

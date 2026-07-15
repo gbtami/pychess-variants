@@ -190,15 +190,15 @@ class CataloguedVariantBoardSvgTestCase(unittest.TestCase):
 
         self.assertIn("viewBox", exc.exception.text)
 
-    def test_rejects_board_svg_with_wrong_aspect_ratio(self) -> None:
-        svg = b"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
-  <rect x="0" y="0" width="1000" height="1000" fill="#f0d9b5"/>
+    def test_accepts_board_svg_with_independent_view_box_aspect_ratio(self) -> None:
+        svg = b"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1200">
+  <rect x="0" y="0" width="1100" height="1200" fill="#fdd775"/>
 </svg>"""
 
-        with self.assertRaises(web.HTTPBadRequest) as exc:
-            _sanitize_catalogued_board_svg(svg, "board.svg", 10, 8)
+        sanitized = _sanitize_catalogued_board_svg(svg, "shogi-board.svg", 10, 10)
 
-        self.assertIn("aspect ratio", exc.exception.text)
+        self.assertIn('viewBox="0 0 1100 1200"', sanitized)
+        self.assertIn('fill="#fdd775"', sanitized)
 
     def test_board_css_overrides_board_and_preview_backgrounds(self) -> None:
         css = _catalogued_board_svg_css(

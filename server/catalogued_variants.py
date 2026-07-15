@@ -59,7 +59,6 @@ CATALOGUED_AI_DISABLE_SECONDS = 24 * 60 * 60
 MAX_CATALOGUED_PIECE_SET_TOTAL_BYTES = 256 * 1024
 MAX_CATALOGUED_PIECE_SVG_BYTES = 32 * 1024
 MAX_CATALOGUED_BOARD_SVG_BYTES = 128 * 1024
-CATALOGUED_BOARD_ASPECT_RATIO_TOLERANCE = 0.02
 
 MAX_CATALOGUED_INI_BYTES = 64 * 1024
 MAX_DESCRIPTION_LEN = 1000
@@ -118,6 +117,7 @@ CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
         "xiangqi",
         "yokai",
         "perfect",
+        "decimalshogi",
     }
 )
 
@@ -2037,15 +2037,12 @@ def _parse_svg_view_box_size(svg: str, filename: str) -> tuple[float, float]:
 
 
 def _sanitize_catalogued_board_svg(raw: bytes, filename: str, width: int, height: int) -> str:
+    # Custom boards are stretched to the rendered board dimensions with CSS, so
+    # the SVG viewBox is only an internal drawing coordinate system. Its aspect
+    # ratio may intentionally differ for regional artwork such as shogi boards.
+    del width, height
     sanitized = _sanitize_catalogued_svg(raw, filename, MAX_CATALOGUED_BOARD_SVG_BYTES)
-    view_box_width, view_box_height = _parse_svg_view_box_size(sanitized, filename)
-    expected_ratio = width / height
-    actual_ratio = view_box_width / view_box_height
-    ratio_delta = abs(actual_ratio - expected_ratio) / expected_ratio
-    if ratio_delta > CATALOGUED_BOARD_ASPECT_RATIO_TOLERANCE:
-        raise web.HTTPBadRequest(
-            text=(f"{filename} viewBox aspect ratio does not match the {width}x{height} board.")
-        )
+    _parse_svg_view_box_size(sanitized, filename)
     return sanitized
 
 
