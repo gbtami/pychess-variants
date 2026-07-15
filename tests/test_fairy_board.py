@@ -38,6 +38,19 @@ class FairyBoardPosNumTestCase(unittest.TestCase):
         self.assertEqual(board.initial_fen, board.fen)
 
 
+class FairyBoardInitialFenValidationTestCase(unittest.TestCase):
+    def test_rejects_initial_fen_without_side_to_move(self) -> None:
+        with self.assertRaisesRegex(ValueError, "explicit side to move"):
+            FairyBoard("chess", initial_fen="8/8/8/8/8/8/8/8")
+
+    def test_rejects_default_fen_without_side_to_move(self) -> None:
+        with (
+            patch("fairy.fairy_board.FairyBoard.start_fen", return_value="8/8/8/8/8/8/8/8"),
+            self.assertRaisesRegex(ValueError, "explicit side to move"),
+        ):
+            FairyBoard("chess")
+
+
 class FairyBoardEmbassyFenTestCase(unittest.TestCase):
     def test_modded_variant_uses_embassy_for_one_sided_castling_rights(self) -> None:
         fen = "rk7r/1pp2P1ppp/p7c1/3NPCP1b1/3P3p2/8P1/PPP4B1P/R3K2R2 w Q - 0 29"

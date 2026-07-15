@@ -1,19 +1,22 @@
 import unittest
 from datetime import datetime, timezone
+from types import SimpleNamespace
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from aiohttp import web
 
 import test_logger
 from catalogued_variants import (
     _canonical_piece_set_filename,
+    _check_ini_with_pyffish_child,
     _catalogued_board_svg_css,
     _catalogued_disguised_piece_css,
     _catalogued_piece_set_required_filenames,
     _copy_piece_set_if_complete_for_doc,
     _sanitize_catalogued_board_svg,
     _sanitize_catalogued_piece_svg,
+    register_catalogued_variant_doc,
     validate_catalogued_ini,
 )
 
@@ -213,6 +216,39 @@ class CataloguedVariantBoardSvgTestCase(unittest.TestCase):
         self.assertIn("!important", css)
 
 
+class CataloguedVariantStartFenValidationTestCase(unittest.IsolatedAsyncioTestCase):
+    async def test_child_checker_rejects_start_fen_without_side_to_move(self) -> None:
+        output = '{"ok": true, "startFen": "8/8/8/8/8/8/8/8"}\n'
+
+        with (
+            patch(
+                "catalogued_variants._run_process",
+                new=AsyncMock(return_value=(0, output)),
+            ),
+            self.assertRaises(web.HTTPBadRequest) as exc,
+        ):
+            await _check_ini_with_pyffish_child(
+                "[missingturn:placement]\nstartFen = 8/8/8/8/8/8/8/8\n",
+                "missingturn",
+            )
+
+        self.assertIn("side to move", exc.exception.text)
+
+    def test_register_rejects_stored_variant_without_side_to_move(self) -> None:
+        app_state = SimpleNamespace(catalogued_variants={})
+        doc = {
+            "name": "missingturn",
+            "ini": "[missingturn:placement]",
+            "startFen": "8/8/8/8/8/8/8/8",
+        }
+
+        with self.assertRaises(web.HTTPBadRequest) as exc:
+            register_catalogued_variant_doc(app_state, doc, load_config=False)
+
+        self.assertIn("side to move", exc.exception.text)
+        self.assertNotIn("missingturn", app_state.catalogued_variants)
+
+
 class CataloguedVariantPieceMetadataTestCase(unittest.TestCase):
     def test_validate_ini_uses_pychess_pieces_metadata_for_promoted_svgs(self) -> None:
         ini = """[metapromo:chess]
@@ -243,6 +279,24 @@ class CataloguedVariantPieceMetadataTestCase(unittest.TestCase):
                 }
             ),
         )
+
+    def test_validate_ini_rejects_start_fen_without_side_to_move(self) -> None:
+        ini = """[missingturn:placement]
+startFen = 8/8/8/8/8/8/8/8
+"""
+
+        with (
+            patch("catalogued_variants.sf.load_variant_config"),
+            patch(
+                "catalogued_variants.sf.start_fen",
+                return_value="8/8/8/8/8/8/8/8",
+            ),
+            self.assertRaises(web.HTTPBadRequest) as exc,
+        ):
+            validate_catalogued_ini(ini)
+
+        self.assertIn("side to move", exc.exception.text)
+        self.assertIn("'w' or 'b'", exc.exception.text)
 
     def test_regular_promotion_roles_do_not_require_promoted_svgs(self) -> None:
         self.assertEqual(

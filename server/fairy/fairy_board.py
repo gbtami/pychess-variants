@@ -93,6 +93,16 @@ def modded_variant(variant: str, chess960: bool, initial_fen: str) -> str:
     return variant
 
 
+def _color_from_initial_fen(initial_fen: str, variant: str) -> int:
+    parts = initial_fen.split()
+    if len(parts) < 2 or parts[1] not in ("w", "b"):
+        raise ValueError(
+            f"Invalid initial FEN for variant {variant!r}: "
+            "expected an explicit side to move ('w' or 'b')."
+        )
+    return WHITE if parts[1] == "w" else BLACK
+
+
 class FairyBoard:
     def __init__(
         self,
@@ -105,6 +115,9 @@ class FairyBoard:
         legal_moves_need_history: bool = False,
     ):
         normalized_variant, normalized_chess960 = _normalize_variant_and_chess960(variant, chess960)
+        initial_color = (
+            _color_from_initial_fen(initial_fen, normalized_variant) if initial_fen else None
+        )
         self.variant = modded_variant(normalized_variant, normalized_chess960, initial_fen)
         self.sf = sf_alice if normalized_variant == "alice" else sf
         self.chess960 = normalized_chess960
@@ -139,7 +152,11 @@ class FairyBoard:
                 )
         self.move_stack: list[str] = []
         self.ply = 0
-        self.color = WHITE if self.initial_fen.split()[1] == "w" else BLACK
+        self.color = (
+            initial_color
+            if initial_color is not None
+            else _color_from_initial_fen(self.initial_fen, self.variant)
+        )
         self.fen = self.initial_fen
         self.manual_count = count_started != 0
         self.count_started = count_started

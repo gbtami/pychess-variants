@@ -2228,6 +2228,14 @@ async def _run_process(args: list[str], *, stdin: str | None = None) -> tuple[in
     return proc.returncode or 0, (stdout + stderr).decode("utf-8", errors="replace")
 
 
+def _ensure_catalogued_start_fen_has_side_to_move(start_fen: str) -> None:
+    parts = start_fen.split()
+    if len(parts) < 2 or parts[1] not in ("w", "b"):
+        raise web.HTTPBadRequest(
+            text="startFen must explicitly include the side to move ('w' or 'b')."
+        )
+
+
 async def _check_ini_with_pyffish_child(ini: str, name: str) -> str:
     """Validate in a child process so trial checks do not mutate server pyffish state."""
     _ensure_catalogued_ini_size(ini)
@@ -2267,7 +2275,11 @@ except Exception as exc:
 
     try:
         payload = json.loads(output.splitlines()[-1])
-        return str(payload.get("startFen") or "")
+        start_fen = str(payload.get("startFen") or "")
+        _ensure_catalogued_start_fen_has_side_to_move(start_fen)
+        return start_fen
+    except web.HTTPException:
+        raise
     except Exception:
         log.info(
             "Fairy-Stockfish validation returned invalid output for catalogued variant %s: %s",
@@ -2354,6 +2366,7 @@ def validate_catalogued_ini(ini: str) -> CataloguedVariantValidation:
         raise web.HTTPBadRequest(
             text="Fairy-Stockfish did not provide a start FEN for this variant."
         )
+    _ensure_catalogued_start_fen_has_side_to_move(start_fen)
 
     width, height = board_dimensions_from_fen(start_fen)
     _catalogued_grand_from_dimensions(width, height)
@@ -2756,6 +2769,8 @@ def register_catalogued_variant_doc(
         return
 
     ini = str(doc.get("ini") or "")
+    start_fen = str(doc.get("startFen") or "")
+    _ensure_catalogued_start_fen_has_side_to_move(start_fen)
     is_fsf_builtin = _is_fsf_builtin_catalogued_doc(doc)
     if not is_fsf_builtin:
         _ensure_catalogued_rules_supported(ini)
@@ -2766,7 +2781,7 @@ def register_catalogued_variant_doc(
     width = int(doc.get("width") or 0)
     height = int(doc.get("height") or 0)
     if not width or not height:
-        width, height = board_dimensions_from_fen(str(doc["startFen"]))
+        width, height = board_dimensions_from_fen(start_fen)
 
     register_catalogued_server_variant(
         name,
@@ -2774,9 +2789,7 @@ def register_catalogued_variant_doc(
         str(doc.get("icon") or CATALOGUED_ICON),
         grand=_catalogued_grand_from_dimensions(width, height),
         extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
-        show_promoted=bool(
-            doc.get("showPromoted", catalogued_show_promoted(ini, str(doc["startFen"])))
-        ),
+        show_promoted=bool(doc.get("showPromoted", catalogued_show_promoted(ini, start_fen))),
         legal_moves_need_history=bool(
             doc.get("legalMovesNeedHistory", catalogued_legal_moves_need_history(ini))
         ),
