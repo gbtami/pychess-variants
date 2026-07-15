@@ -2037,9 +2037,9 @@ def _parse_svg_view_box_size(svg: str, filename: str) -> tuple[float, float]:
 
 
 def _sanitize_catalogued_board_svg(raw: bytes, filename: str, width: int, height: int) -> str:
-    # Custom boards are stretched to the rendered board dimensions with CSS, so
-    # the SVG viewBox is only an internal drawing coordinate system. Its aspect
-    # ratio may intentionally differ for regional artwork such as shogi boards.
+    # Files and ranks describe the logical grid. The SVG viewBox describes the
+    # intended physical board shape, including rectangular cells on regional
+    # boards such as shogi. The generated board CSS applies that shape at render time.
     del width, height
     sanitized = _sanitize_catalogued_svg(raw, filename, MAX_CATALOGUED_BOARD_SVG_BYTES)
     _parse_svg_view_box_size(sanitized, filename)
@@ -2104,19 +2104,30 @@ def _catalogued_disguised_piece_css(variant_name: str) -> str:
 
 def _catalogued_board_svg_css(variant_name: str, board_svg: Mapping[str, Any]) -> str:
     svg = str(board_svg.get("svg") or "")
+    view_box_width, view_box_height = _parse_svg_view_box_size(svg, "board.svg")
+    padding_bottom = view_box_height * 100 / view_box_width
+
     encoded = base64.b64encode(svg.encode("utf-8")).decode("ascii")
     image = f'url("data:image/svg+xml;base64,{encoded}")'
-    selector = f'[data-board-variant="{variant_name}"] cg-board'
-    preview_selector = f'[data-board-variant="{variant_name}"].catalogued-board-preview-surface'
+    scope = f'[data-board-variant="{variant_name}"]'
+    wrapper_selector = f"{scope}.cg-wrap, {scope} .cg-wrap"
+    selector = f"{scope} cg-board"
+    preview_selector = f"{scope}.catalogued-board-preview-surface"
     settings_preview_selector = (
         f'label.board.catalogued-custom-board-preview[data-board-variant="{variant_name}"]'
     )
     return (
+        f"{wrapper_selector} {{\n"
+        f"  padding-bottom: {padding_bottom:.8f}% !important;\n"
+        "}\n"
         f"{selector}, {preview_selector}, {settings_preview_selector} {{\n"
         f"  background-image: {image} !important;\n"
         "  background-size: 100% 100% !important;\n"
         "  background-repeat: no-repeat !important;\n"
         "  background-position: center center !important;\n"
+        "}\n"
+        f"{preview_selector}, {settings_preview_selector} {{\n"
+        f"  aspect-ratio: {view_box_width:g} / {view_box_height:g} !important;\n"
         "}\n"
     )
 

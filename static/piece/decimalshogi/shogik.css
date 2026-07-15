@@ -1,0 +1,106 @@
+.decimalshogi piece.p-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0FU.svg');
+}
+.decimalshogi piece.pp-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0TO.svg');
+}
+.decimalshogi piece.b-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0KA.svg');
+}
+.decimalshogi piece.pb-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0UM.svg');
+}
+.decimalshogi piece.n-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0KE.svg');
+}
+.decimalshogi piece.pn-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0_JUMPING_HORSE.svg');
+}
+.decimalshogi piece.r-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0HI.svg');
+}
+.decimalshogi piece.pr-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0RY.svg');
+}
+.decimalshogi piece.l-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0KY.svg');
+}
+.decimalshogi piece.pl-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0_VERTICAL_MOVER.svg');
+}
+.decimalshogi piece.s-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0GI.svg');
+}
+.decimalshogi piece.ps-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0NG.svg');
+}
+.decimalshogi piece.g-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0KI.svg');
+}
+.decimalshogi piece.k-piece.white.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0GY.svg');
+}
+.decimalshogi piece.k-piece.black.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0OU.svg');
+}
+.decimalshogi piece.p-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1FU.svg');
+}
+.decimalshogi piece.pp-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1TO.svg');
+}
+.decimalshogi piece.b-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1KA.svg');
+}
+.decimalshogi piece.pb-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1UM.svg');
+}
+.decimalshogi piece.n-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1KE.svg');
+}
+.decimalshogi piece.pn-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1_JUMPING_HORSE.svg');
+}
+.decimalshogi piece.r-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1HI.svg');
+}
+.decimalshogi piece.pr-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1RY.svg');
+}
+.decimalshogi piece.l-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1KY.svg');
+}
+.decimalshogi piece.pl-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1_VERTICAL_MOVER.svg');
+}
+.decimalshogi piece.s-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1GI.svg');
+}
+.decimalshogi piece.ps-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1NG.svg');
+}
+.decimalshogi piece.g-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1KI.svg');
+}
+.decimalshogi piece.k-piece.white.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1GY.svg');
+}
+.decimalshogi piece.k-piece.black.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1OU.svg');
+}
+
+/* promoted gold = elephant */
+.decimalshogi piece.pg-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0SU.svg');
+}
+.decimalshogi piece.pg-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1SU.svg');
+}
+
+/* queen */
+.decimalshogi piece.q-piece.ally {
+    background-image: url('../../images/pieces/shogi/ctk/0_QUEEN.svg');
+}
+.decimalshogi piece.q-piece.enemy {
+    background-image: url('../../images/pieces/shogi/ctk/1_QUEEN.svg');
+}

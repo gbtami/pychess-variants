@@ -200,20 +200,23 @@ class CataloguedVariantBoardSvgTestCase(unittest.TestCase):
         self.assertIn('viewBox="0 0 1100 1200"', sanitized)
         self.assertIn('fill="#fdd775"', sanitized)
 
-    def test_board_css_overrides_board_and_preview_backgrounds(self) -> None:
+    def test_board_css_uses_view_box_for_board_and_piece_geometry(self) -> None:
         css = _catalogued_board_svg_css(
-            "regionchess",
-            {"svg": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" />'},
+            "shosushogi",
+            {"svg": ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1200" />')},
         )
 
-        self.assertIn('[data-board-variant="regionchess"] cg-board', css)
-        self.assertIn('[data-board-variant="regionchess"].catalogued-board-preview-surface', css)
+        self.assertIn('[data-board-variant="shosushogi"] cg-board', css)
+        self.assertIn('[data-board-variant="shosushogi"].cg-wrap', css)
+        self.assertIn('[data-board-variant="shosushogi"] .cg-wrap', css)
+        self.assertIn("padding-bottom: 109.09090909% !important", css)
+        self.assertIn('[data-board-variant="shosushogi"].catalogued-board-preview-surface', css)
         self.assertIn(
-            'label.board.catalogued-custom-board-preview[data-board-variant="regionchess"]',
+            'label.board.catalogued-custom-board-preview[data-board-variant="shosushogi"]',
             css,
         )
+        self.assertIn("aspect-ratio: 1100 / 1200 !important", css)
         self.assertIn('background-image: url("data:image/svg+xml;base64,', css)
-        self.assertIn("!important", css)
 
 
 class CataloguedVariantStartFenValidationTestCase(unittest.IsolatedAsyncioTestCase):

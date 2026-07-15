@@ -64,19 +64,27 @@ function cataloguedBoardCssId(variantName: string): string {
     return `board-set-catalogued-${variantName}`;
 }
 
+function notifyChessgroundResize(): void {
+    document.body?.dispatchEvent(new Event('chessground.resize'));
+}
+
 export function ensureCataloguedBoardCSS(variantName: string, revision?: string): void {
     const cssId = cataloguedBoardCssId(variantName);
     const query = revision ? `?v=${encodeURIComponent(revision)}` : '';
     const href = `/api/catalogued-variants/${encodeURIComponent(variantName)}/board-css.css${query}`;
     const existing = document.getElementById(cssId) as HTMLLinkElement | null;
     if (existing) {
-        if (existing.getAttribute('href') !== href) existing.setAttribute('href', href);
+        if (existing.getAttribute('href') !== href) {
+            existing.addEventListener('load', notifyChessgroundResize, { once: true });
+            existing.setAttribute('href', href);
+        }
         return;
     }
 
     const link = document.createElement('link');
     link.id = cssId;
     link.rel = 'stylesheet';
+    link.addEventListener('load', notifyChessgroundResize, { once: true });
     link.setAttribute('href', href);
     document.head.appendChild(link);
 }
