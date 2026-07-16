@@ -198,10 +198,22 @@ def _to_card(post: dict[str, Any], author_title: str) -> dict[str, Any]:
 async def _cards_from_posts(app_state: Any, posts: list[dict[str, Any]]) -> list[dict[str, Any]]:
     if len(posts) == 0:
         return []
-    titles = await app_state.public_users.get_titles(
-        str(post.get("author") or "") for post in posts
+
+    authors = list(dict.fromkeys(str(post.get("author") or "") for post in posts))
+    profiles = await asyncio.gather(
+        *(app_state.public_users.get_profile(author) for author in authors)
     )
-    return [_to_card(post, titles.get(str(post.get("author") or ""), "")) for post in posts]
+    enabled_authors = {
+        author
+        for author, profile in zip(authors, profiles, strict=True)
+        if profile is not None and profile.enabled
+    }
+    visible_posts = [post for post in posts if str(post.get("author") or "") in enabled_authors]
+    if len(visible_posts) == 0:
+        return []
+
+    titles = await app_state.public_users.get_titles(enabled_authors)
+    return [_to_card(post, titles.get(str(post.get("author") or ""), "")) for post in visible_posts]
 
 
 def _is_safe_image_content_type(content_type: str | None) -> bool:
@@ -499,6 +511,11 @@ async def like(request: web.Request) -> web.StreamResponse:
         "application/json" in request.headers.get("Accept", "")
         or request.headers.get("X-Requested-With") == "XMLHttpRequest"
     )
+    if not await _profile_exists(app_state, profile_id):
+        if wants_json:
+            return web.json_response({"ok": False, "error": "not_found"}, status=404)
+        raise web.HTTPNotFound()
+
     doc = await _load_post(app_state, post_id, profile_id)
     if doc is None or not bool(doc.get("live")):
         if wants_json:
@@ -541,6 +558,9 @@ async def like_redirect(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
     profile_id = request.match_info["profileId"]
     post_id = request.match_info["postId"]
+    if not await _profile_exists(app_state, profile_id):
+        raise web.HTTPNotFound()
+
     doc = await _load_post(app_state, post_id, profile_id)
     if doc is None:
         raise web.HTTPFound("/blogs/community")
@@ -608,6 +628,9 @@ async def post(request: web.Request) -> ViewContext:
     profile_id = request.match_info["profileId"]
     post_id = request.match_info["postId"]
     slug = request.match_info["slug"]
+    if not await _profile_exists(app_state, profile_id):
+        raise web.HTTPNotFound()
+
     doc = await _load_post(app_state, post_id, profile_id)
     if doc is None:
         raise web.HTTPNotFound()

@@ -1466,11 +1466,13 @@ async def get_blogs(request, tag=None, limit=0):
     site_cursor = app_state.db.ublog_post.find(site_query).sort(
         [("sticky", -1), ("publishedAt", -1), ("createdAt", -1)]
     )
-    if limit > 0 and game_category == "all":
-        site_cursor.limit(limit)
-
     site_blogs: list[dict] = []
     async for raw_doc in site_cursor:
+        author = str(raw_doc.get("author") or "")
+        author_profile = await app_state.public_users.get_profile(author)
+        if author_profile is None or not author_profile.enabled:
+            continue
+
         category = raw_doc.get("category", "all")
         if not category_matches(game_category, category):
             continue
@@ -1496,7 +1498,7 @@ async def get_blogs(request, tag=None, limit=0):
                 "title": str(raw_doc.get("title") or ""),
                 "intro": intro,
                 "subtitle": intro,
-                "author": str(raw_doc.get("author") or ""),
+                "author": author,
                 "date": display_date(raw_doc),
                 "image": str(raw_doc.get("image") or ""),
                 "image_src": image_src(raw_doc),
@@ -1511,7 +1513,7 @@ async def get_blogs(request, tag=None, limit=0):
                 "url": post_url(raw_doc),
             }
         )
-        if limit > 0 and game_category != "all" and len(site_blogs) >= limit:
+        if limit > 0 and len(site_blogs) >= limit:
             break
     if len(site_blogs) > 0:
         return await enrich_author_titles(site_blogs)

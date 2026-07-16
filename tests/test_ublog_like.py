@@ -21,14 +21,14 @@ class UblogEngagementTestCase(AioHTTPTestCase):
         self.client.session.cookie_jar.clear()
         self.client.session.cookie_jar.update_cookies({"AIOHTTP_SESSION": json.dumps(session_data)})
 
-    async def add_user(self, username: str) -> None:
+    async def add_user(self, username: str, *, enabled: bool = True) -> None:
         app_state = get_app_state(self.app)
-        app_state.users[username] = User(app_state, username=username)
+        app_state.users[username] = User(app_state, username=username, enabled=enabled)
         await app_state.db.user.insert_one(
             {
                 "_id": username,
                 "username_lower": username.casefold(),
-                "enabled": True,
+                "enabled": enabled,
             }
         )
 
@@ -36,13 +36,17 @@ class UblogEngagementTestCase(AioHTTPTestCase):
         self,
         likes: list[str] | None = None,
         views: int = 0,
+        *,
+        post_id: str = "post0001",
+        author: str = "author",
+        title: str = "Post",
     ) -> None:
         app_state = get_app_state(self.app)
         await app_state.db.ublog_post.insert_one(
             {
-                "_id": "post0001",
-                "author": "author",
-                "title": "Post",
+                "_id": post_id,
+                "author": author,
+                "title": title,
                 "slug": "post",
                 "intro": "Intro",
                 "markdown": "Body",
@@ -172,3 +176,50 @@ class UblogEngagementTestCase(AioHTTPTestCase):
         post = await app_state.db.ublog_post.find_one({"_id": "post0001"})
         self.assertEqual(post["views"], 2)
         self.assertEqual(set(post["viewers"]), {"alice", "bob"})
+
+    async def test_disabled_author_post_returns_404(self):
+        await self.add_user("author", enabled=False)
+        await self.add_post()
+
+        response = await self.view()
+
+        self.assertEqual(response.status, 404)
+        app_state = get_app_state(self.app)
+        post = await app_state.db.ublog_post.find_one({"_id": "post0001"})
+        self.assertEqual(post["views"], 0)
+        self.assertNotIn("viewers", post)
+
+    async def test_disabled_author_post_cannot_be_liked(self):
+        await self.add_user("author", enabled=False)
+        await self.add_user("alice")
+        await self.add_post()
+        self.set_session_user("alice")
+
+        response = await self.like()
+
+        self.assertEqual(response.status, 404)
+        self.assertEqual(await response.json(), {"ok": False, "error": "not_found"})
+        app_state = get_app_state(self.app)
+        post = await app_state.db.ublog_post.find_one({"_id": "post0001"})
+        self.assertEqual(post["likes"], [])
+
+    async def test_disabled_author_posts_are_hidden_from_community_list(self):
+        await self.add_user("disabled-author", enabled=False)
+        await self.add_user("enabled-author")
+        await self.add_post(
+            post_id="hidden01",
+            author="disabled-author",
+            title="Hidden post",
+        )
+        await self.add_post(
+            post_id="visible1",
+            author="enabled-author",
+            title="Visible post",
+        )
+
+        response = await self.client.get("/blogs/community")
+        body = await response.text()
+
+        self.assertEqual(response.status, 200)
+        self.assertNotIn("Hidden post", body)
+        self.assertIn("Visible post", body)

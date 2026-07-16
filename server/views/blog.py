@@ -21,6 +21,11 @@ async def blog(request: web.Request) -> web.StreamResponse:
     if migrated is None:
         raise web.HTTPNotFound()
 
+    author = str(migrated.get("author") or "")
+    author_profile = await app_state.public_users.get_profile(author)
+    if author_profile is None or not author_profile.enabled:
+        raise web.HTTPNotFound()
+
     category = migrated.get("category", "all")
     if user.game_category != "all" and not category_matches(user.game_category, category):
         raise web.HTTPNotFound()
