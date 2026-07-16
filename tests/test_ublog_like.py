@@ -9,7 +9,7 @@ from server import make_app
 from user import User
 
 
-class UblogLikeTestCase(AioHTTPTestCase):
+class UblogEngagementTestCase(AioHTTPTestCase):
     async def get_application(self):
         return make_app(db_client=AsyncMongoMockClient(tz_aware=True), simple_cookie_storage=True)
 
@@ -32,7 +32,11 @@ class UblogLikeTestCase(AioHTTPTestCase):
             }
         )
 
-    async def add_post(self, likes: list[str] | None = None) -> None:
+    async def add_post(
+        self,
+        likes: list[str] | None = None,
+        views: int = 0,
+    ) -> None:
         app_state = get_app_state(self.app)
         await app_state.db.ublog_post.insert_one(
             {
@@ -40,7 +44,11 @@ class UblogLikeTestCase(AioHTTPTestCase):
                 "author": "author",
                 "title": "Post",
                 "slug": "post",
+                "intro": "Intro",
+                "markdown": "Body",
+                "language": "en",
                 "live": True,
+                "views": views,
                 "likes": likes or [],
             }
         )
@@ -53,6 +61,9 @@ class UblogLikeTestCase(AioHTTPTestCase):
                 "X-Requested-With": "XMLHttpRequest",
             },
         )
+
+    async def view(self):
+        return await self.client.get("/blogs/@/author/post/post0001")
 
     async def test_one_user_cannot_add_more_than_one_like(self):
         await self.add_user("alice")
@@ -74,6 +85,17 @@ class UblogLikeTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         post = await app_state.db.ublog_post.find_one({"_id": "post0001"})
         self.assertEqual(post["likes"], ["alice"])
+
+    async def test_anonymous_user_cannot_like(self):
+        await self.add_post()
+
+        response = await self.like()
+
+        self.assertEqual(response.status, 403)
+        self.assertEqual(await response.json(), {"ok": False, "error": "forbidden"})
+        app_state = get_app_state(self.app)
+        post = await app_state.db.ublog_post.find_one({"_id": "post0001"})
+        self.assertEqual(post["likes"], [])
 
     async def test_legacy_duplicate_usernames_count_as_one_like(self):
         await self.add_user("alice")
@@ -104,3 +126,49 @@ class UblogLikeTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
         post = await app_state.db.ublog_post.find_one({"_id": "post0001"})
         self.assertEqual(set(post["likes"]), {"alice", "bob"})
+
+    async def test_anonymous_views_are_not_counted(self):
+        await self.add_user("author")
+        await self.add_post()
+
+        response = await self.view()
+
+        self.assertEqual(response.status, 200)
+        app_state = get_app_state(self.app)
+        post = await app_state.db.ublog_post.find_one({"_id": "post0001"})
+        self.assertEqual(post["views"], 0)
+        self.assertNotIn("viewers", post)
+
+    async def test_authenticated_view_is_counted_only_once(self):
+        await self.add_user("author")
+        await self.add_user("alice")
+        await self.add_post()
+        self.set_session_user("alice")
+
+        first = await self.view()
+        second = await self.view()
+
+        self.assertEqual(first.status, 200)
+        self.assertEqual(second.status, 200)
+        app_state = get_app_state(self.app)
+        post = await app_state.db.ublog_post.find_one({"_id": "post0001"})
+        self.assertEqual(post["views"], 1)
+        self.assertEqual(post["viewers"], ["alice"])
+
+    async def test_views_are_counted_per_authenticated_user(self):
+        await self.add_user("author")
+        await self.add_user("alice")
+        await self.add_user("bob")
+        await self.add_post()
+
+        self.set_session_user("alice")
+        alice_response = await self.view()
+        self.set_session_user("bob")
+        bob_response = await self.view()
+
+        self.assertEqual(alice_response.status, 200)
+        self.assertEqual(bob_response.status, 200)
+        app_state = get_app_state(self.app)
+        post = await app_state.db.ublog_post.find_one({"_id": "post0001"})
+        self.assertEqual(post["views"], 2)
+        self.assertEqual(set(post["viewers"]), {"alice", "bob"})

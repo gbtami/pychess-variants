@@ -253,7 +253,10 @@ async def _scrub_delete_owned_data(app_state: Any, user: Any, now: datetime) -> 
     )
     await db.relation.delete_many({"$or": [{"u1": user.username}, {"u2": user.username}]})
 
-    await db.ublog_post.update_many({}, {"$pull": {"likes": user.username}})
+    await db.ublog_post.update_many(
+        {},
+        {"$pull": {"likes": user.username, "viewers": user.username}},
+    )
     await db.forum_post.update_many(
         {},
         {"$pull": {f"reactions.{reaction_key}": user.username for reaction_key in KEY_TO_REACTION}},

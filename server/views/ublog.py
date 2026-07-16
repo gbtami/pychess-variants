@@ -620,9 +620,26 @@ async def post(request: web.Request) -> ViewContext:
     if not canonical.endswith(f"/{slug}/{post_id}"):
         raise web.HTTPFound(canonical)
 
-    if app_state.db is not None and bool(doc.get("live")):
-        await app_state.db.ublog_post.update_one({"_id": post_id}, {"$inc": {"views": 1}})
-        doc["views"] = int(doc.get("views", 0)) + 1
+    if (
+        app_state.db is not None
+        and request.method == "GET"
+        and bool(doc.get("live"))
+        and not user.anon
+    ):
+        result = await app_state.db.ublog_post.update_one(
+            {
+                "_id": post_id,
+                "author": profile_id,
+                "live": True,
+                "viewers": {"$ne": user.username},
+            },
+            {
+                "$addToSet": {"viewers": user.username},
+                "$inc": {"views": 1},
+            },
+        )
+        if result.modified_count == 1:
+            doc["views"] = int(doc.get("views", 0)) + 1
 
     related_docs: list[dict[str, Any]] = []
     if app_state.db is not None:
@@ -713,6 +730,7 @@ async def create(request: web.Request) -> web.Response:
         "discuss": False,
         "sticky": False,
         "views": 0,
+        "viewers": [],
         "likes": [],
         "createdAt": now,
         "updatedAt": now,
