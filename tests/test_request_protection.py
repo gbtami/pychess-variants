@@ -30,8 +30,8 @@ class RequestProtectionTestCase(AioHTTPTestCase):
             statuses.append(resp.status)
 
         # Before rate limit kicks in, this path goes through the normal handler
-        # and the app's existing 404 page middleware renders a 200 response.
-        self.assertIn(200, statuses)
+        # and the app's 404 page middleware preserves the not-found status.
+        self.assertIn(404, statuses)
         self.assertIn(429, statuses)
 
     async def test_inbox_threads_route_is_not_in_profile_rate_limit_bucket(self):

@@ -182,7 +182,7 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         self.set_session_user(self.user.username)
 
         response = await self.client.get(f"/@/{self.user.username}/perf/notavariant")
-        self.assertEqual(response.status, 200)
+        self.assertEqual(response.status, 404)
         text = await response.text()
         self.assertIn("Page not found!", text)
 
