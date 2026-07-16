@@ -53,6 +53,7 @@ export class Clock {
     id: string;
     overtime: boolean;
     byoyomi: boolean;
+    initialByoyomiPeriod: number;
     byoyomiPeriod: number;
     hurry: boolean;
     ticks: boolean[];
@@ -81,6 +82,7 @@ export class Clock {
         this.id = id;
         this.overtime = false;
         this.byoyomi = byoyomiPeriod > 0;
+        this.initialByoyomiPeriod = byoyomiPeriod;
         this.byoyomiPeriod = byoyomiPeriod;
         this.hurry = false;
         this.ticks = [false, false, false, false, false, false, false, false, false, false];
@@ -185,6 +187,14 @@ export class Clock {
     setTime(millis: number) {
         this.duration = Math.max(0, millis);
         this.renderTime(this.duration);
+    }
+
+    syncByoyomiPeriod(period: number) {
+        // Server period counts are authoritative after reconnects and takebacks.
+        // Fewer periods than the initial allocation means main time has expired.
+        this.byoyomiPeriod = period;
+        this.overtime = period < this.initialByoyomiPeriod;
+        this.ticks = [false, false, false, false, false, false, false, false, false, false];
     }
 
     printTime(millis: number) {

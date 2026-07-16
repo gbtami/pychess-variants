@@ -1279,8 +1279,8 @@ export class RoundController extends GameController {
         this.clocks[0].pause(false);
         this.clocks[1].pause(false);
         if (this.byoyomi && msg.byo) {
-            this.clocks[oppclock].byoyomiPeriod = msg.byo[this.oppcolor === 'white' ? WHITE : BLACK];
-            this.clocks[myclock].byoyomiPeriod = msg.byo[this.mycolor === 'white' ? WHITE : BLACK];
+            this.clocks[oppclock].syncByoyomiPeriod(msg.byo[this.oppcolor === 'white' ? WHITE : BLACK]);
+            this.clocks[myclock].syncByoyomiPeriod(msg.byo[this.mycolor === 'white' ? WHITE : BLACK]);
         }
 
         this.clocks[oppclock].setTime(this.clocktimes[this.oppcolor === 'white' ? WHITE : BLACK]);
