@@ -113,6 +113,7 @@ class GameBug:
 
         self.spectators = set()
         self.draw_offers = set()
+        self.takeback_offer: tuple[str, int] | None = None
         self.rematch_offers = set()
         self.rematch_id: str | None = None
         self.messages = collections.deque([], MAX_CHAT_LINES)
