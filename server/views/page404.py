@@ -5,7 +5,7 @@ from typing_defs import ViewContext
 from views import get_user_context
 
 
-@aiohttp_jinja2.template("404.html")
+@aiohttp_jinja2.template("404.html", status=404)
 async def page404(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
 

@@ -42,6 +42,8 @@ class UblogEngagementTestCase(AioHTTPTestCase):
         title: str = "Post",
     ) -> None:
         app_state = get_app_state(self.app)
+        if await app_state.db.user.find_one({"_id": author}) is None:
+            await self.add_user(author)
         await app_state.db.ublog_post.insert_one(
             {
                 "_id": post_id,
