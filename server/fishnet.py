@@ -5,6 +5,7 @@ import math
 import hashlib
 import re
 from datetime import datetime, timezone
+from functools import lru_cache
 from time import monotonic
 from pathlib import Path
 
@@ -43,7 +44,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-REQUIRED_FISHNET_VERSION = "1.16.67"
+REQUIRED_FISHNET_VERSION = "1.16.69"
 _FISHNET_VERSION_RE = re.compile(r"\d+")
 MOVE_WORK_TIME_OUT = 5.0
 ANALYSIS_WORK_TIME_OUT = 15 * 60.0
@@ -114,77 +115,109 @@ def _catalogued_doc_base_name(doc: dict[str, object]) -> str:
         return ""
 
 
-def _catalogued_fishnet_ini_docs(
-    app_state: PychessGlobalAppState, variant_name: str | None
-) -> list[dict[str, object]]:
-    """Return enabled, AI-allowed catalogued docs needed by one fishnet job.
+def _split_fishnet_ini_sections(ini: str) -> dict[str, tuple[str, str]]:
+    """Split a trusted Fairy-Stockfish INI into named section definitions."""
 
-    Fishnet workers used to receive every enabled user-defined variant in one
-    global variants.ini. That means one bad unrelated section could poison every
-    worker as soon as the file was loaded. For a concrete move/analysis job we
-    only need the requested catalogued variant plus any catalogued base chain;
-    built-in bases already live in the repository variants.ini.
-    """
+    sections: dict[str, tuple[str, str]] = {}
+    current_name = ""
+    current_base = ""
+    current_lines: list[str] = []
 
+    def flush() -> None:
+        if not current_name:
+            return
+        text = "".join(current_lines).strip()
+        if text:
+            sections[current_name] = (current_base, text + "\n")
+
+    for line in ini.splitlines(keepends=True):
+        stripped = line.strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            flush()
+            body = stripped[1:-1]
+            name_part, separator, base_part = body.partition(":")
+            current_name = name_part.strip()
+            current_base = base_part.strip() if separator else ""
+            current_lines = [line]
+        elif current_name:
+            current_lines.append(line)
+
+    flush()
+    return sections
+
+
+@lru_cache(maxsize=1)
+def _site_fishnet_ini_sections() -> dict[str, tuple[str, str]]:
+    base_path = Path(__file__).resolve().parents[1] / "variants.ini"
+    return _split_fishnet_ini_sections(base_path.read_text(encoding="utf-8"))
+
+
+_CUSTOM_VARIANT_UNAVAILABLE = object()
+
+
+def _fishnet_custom_definition(
+    app_state: PychessGlobalAppState, variant_name: str
+) -> tuple[str, str] | object | None:
     catalogued_docs = getattr(app_state, "catalogued_variants", {})
-    if not variant_name:
-        return [
-            doc
-            for doc in sorted(catalogued_docs.values(), key=lambda item: str(item.get("name", "")))
-            if doc.get("enabled", True)
-            and doc.get("ini")
-            and not catalogued_variant_ai_disabled(doc)
-        ]
-
     doc = catalogued_docs.get(variant_name)
-    if doc is None:
+    if doc is not None:
+        if (
+            not doc.get("enabled", True)
+            or not doc.get("ini")
+            or catalogued_variant_ai_disabled(doc)
+        ):
+            return _CUSTOM_VARIANT_UNAVAILABLE
+        return _catalogued_doc_base_name(doc), str(doc["ini"]).strip() + "\n"
+
+    return _site_fishnet_ini_sections().get(variant_name)
+
+
+def _fishnet_custom_ini_chain(
+    app_state: PychessGlobalAppState, variant_name: str | None
+) -> list[str]:
+    """Return only the custom definition chain required by one job."""
+
+    if not variant_name:
         return []
 
-    chain: list[dict[str, object]] = []
+    chain: list[str] = []
     seen: set[str] = set()
-    current: dict[str, object] | None = doc
-    while current is not None:
-        name = str(current.get("name") or "")
-        if not name or name in seen:
-            break
-        seen.add(name)
-
-        if (
-            not current.get("enabled", True)
-            or not current.get("ini")
-            or catalogued_variant_ai_disabled(current)
-        ):
+    current_name = variant_name
+    while current_name:
+        if current_name in seen:
+            log.error("Cyclic fishnet variant inheritance involving %s", current_name)
             return []
+        seen.add(current_name)
 
-        chain.append(current)
-        base_name = _catalogued_doc_base_name(current)
-        base_doc = catalogued_docs.get(base_name) if base_name else None
-        current = base_doc
+        definition = _fishnet_custom_definition(app_state, current_name)
+        if definition is _CUSTOM_VARIANT_UNAVAILABLE:
+            return []
+        if definition is None:
+            break
+
+        base_name, ini = cast(tuple[str, str], definition)
+        chain.append(ini)
+        current_name = base_name
 
     chain.reverse()
     return chain
 
 
 def fishnet_variants_ini(app_state: PychessGlobalAppState, variant_name: str | None = None) -> str:
-    """Return the Fairy-Stockfish variant config fishnet workers should use.
+    """Return the minimal custom definition chain required by one fishnet job."""
 
-    When variant_name is provided, include only the catalogued variant needed by
-    that job. The unscoped/full payload is retained for diagnostics; supported
-    workers receive per-work content-addressed payloads.
-    """
-
-    base_path = Path(__file__).resolve().parents[1] / "variants.ini"
-    base_ini = base_path.read_text(encoding="utf-8")
-    catalogued_ini = "\n\n".join(
-        str(doc["ini"]).strip() for doc in _catalogued_fishnet_ini_docs(app_state, variant_name)
-    )
-    return "\n\n".join(part.strip() for part in (base_ini, catalogued_ini) if part.strip()) + "\n"
+    chain = _fishnet_custom_ini_chain(app_state, variant_name)
+    if not chain:
+        return ""
+    return "\n".join(part.strip() for part in chain) + "\n"
 
 
 def fishnet_variants_payload(
     app_state: PychessGlobalAppState, variant_name: str | None = None
-) -> dict[str, str]:
+) -> dict[str, str] | None:
     variants_ini = fishnet_variants_ini(app_state, variant_name)
+    if not variants_ini:
+        return None
     payload = {
         "variantsIni": variants_ini,
         "variantsSha256": hashlib.sha256(variants_ini.encode("utf-8")).hexdigest(),
@@ -196,9 +229,24 @@ def fishnet_variants_payload(
 
 def _attach_variants_hash(app_state: PychessGlobalAppState, work: FishnetWork) -> None:
     variant_name = str(work.get("variant") or "")
+    work.pop("variantsSha256", None)
+    work.pop("variantsScope", None)
     payload = fishnet_variants_payload(app_state, variant_name)
+    if payload is None:
+        return
     work["variantsSha256"] = payload["variantsSha256"]
     work["variantsScope"] = payload.get("variantsScope", "")
+
+
+def _variant_allows_cached_fishnet_payload(
+    app_state: PychessGlobalAppState, variant_name: str | None
+) -> bool:
+    if not variant_name:
+        return False
+    catalogued_docs = getattr(app_state, "catalogued_variants", {})
+    if variant_name in catalogued_docs:
+        return catalogued_variant_allows_fishnet(app_state, variant_name)
+    return variant_name in _site_fishnet_ini_sections()
 
 
 async def fishnet_variants(request: web.Request) -> web.Response:
@@ -212,12 +260,29 @@ async def fishnet_variants(request: web.Request) -> web.Response:
 
     if requested_sha256:
         cached = _fishnet_variants_payload_cache(app_state).get(requested_sha256)
-        if cached is not None and (
-            not variant_name or catalogued_variant_allows_fishnet(app_state, variant_name)
+        if (
+            cached is not None
+            and cached.get("variantsScope") == variant_name
+            and _variant_allows_cached_fishnet_payload(app_state, variant_name)
         ):
             return json_response(cached)
 
     payload = fishnet_variants_payload(app_state, variant_name)
+    if payload is None:
+        if requested_sha256:
+            return json_response(
+                {
+                    "error": (
+                        "The exact variants.ini requested by this fishnet job "
+                        "is no longer available."
+                    )
+                },
+                status=409,
+            )
+        return json_response(
+            {"error": "This variant does not require custom fishnet rules."}, status=404
+        )
+
     if requested_sha256 and payload["variantsSha256"] != requested_sha256:
         log.warning(
             "Fishnet requested variants.ini hash %s for variant %s, but current hash is %s",
@@ -227,7 +292,9 @@ async def fishnet_variants(request: web.Request) -> web.Response:
         )
         return json_response(
             {
-                "error": "The exact variants.ini requested by this fishnet job is no longer available.",
+                "error": (
+                    "The exact variants.ini requested by this fishnet job is no longer available."
+                ),
                 "variantsSha256": payload["variantsSha256"],
             },
             status=409,

@@ -641,7 +641,7 @@ class FishnetVariantsEndpointTestCase(unittest.IsolatedAsyncioTestCase):
         request = cast(web.Request, AsyncMock())
         request.app = {pychess_global_app_state_key: app_state}
         request.match_info = {"key": "k"}
-        request.query = {"sha256": "a" * 64, "variant": "chess"}
+        request.query = {"sha256": "a" * 64, "variant": "grandhouse"}
 
         with patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True):
             response = await fishnet.fishnet_variants(request)
@@ -655,7 +655,7 @@ class FishnetVariantsEndpointTestCase(unittest.IsolatedAsyncioTestCase):
         cached = {
             "variantsIni": "[old]\n",
             "variantsSha256": "b" * 64,
-            "variantsScope": "chess",
+            "variantsScope": "grandhouse",
         }
         app_state = SimpleNamespace(
             catalogued_variants={},
@@ -664,7 +664,7 @@ class FishnetVariantsEndpointTestCase(unittest.IsolatedAsyncioTestCase):
         request = cast(web.Request, AsyncMock())
         request.app = {pychess_global_app_state_key: app_state}
         request.match_info = {"key": "k"}
-        request.query = {"sha256": cached["variantsSha256"], "variant": "chess"}
+        request.query = {"sha256": cached["variantsSha256"], "variant": "grandhouse"}
 
         with patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True):
             response = await fishnet.fishnet_variants(request)

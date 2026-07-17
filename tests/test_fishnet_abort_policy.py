@@ -55,7 +55,8 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
         self.assertFalse(fishnet._fishnet_version_is_supported("1.16.9"))
         self.assertFalse(fishnet._fishnet_version_is_supported("1.16.64"))
         self.assertFalse(fishnet._fishnet_version_is_supported("1.16.66"))
-        self.assertTrue(fishnet._fishnet_version_is_supported("1.16.67"))
+        self.assertFalse(fishnet._fishnet_version_is_supported("1.16.68"))
+        self.assertTrue(fishnet._fishnet_version_is_supported("1.16.69"))
         self.assertTrue(fishnet._fishnet_version_is_supported("1.16.100"))
         self.assertTrue(fishnet._fishnet_version_is_supported("1.17.0"))
         self.assertFalse(fishnet._fishnet_version_is_supported("not-a-version"))
@@ -146,10 +147,11 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
             }
         )
 
-        ini = fishnet.fishnet_variants_ini(app_state)
+        bad_ini = fishnet.fishnet_variants_ini(app_state, "badvariant")
+        good_ini = fishnet.fishnet_variants_ini(app_state, "goodvariant")
 
-        self.assertIn("[goodvariant]", ini)
-        self.assertNotIn("[badvariant]", ini)
+        self.assertEqual(bad_ini, "")
+        self.assertIn("[goodvariant]", good_ini)
 
     def test_fishnet_variants_ini_scopes_catalogued_payload_to_requested_variant(self) -> None:
         app_state = SimpleNamespace(
@@ -199,6 +201,34 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
         self.assertLess(ini.index("[custombase]"), ini.index("[child:custombase]"))
         self.assertNotIn("[unrelated]", ini)
 
+    def test_fishnet_variants_ini_includes_site_base_for_catalogued_variant(
+        self,
+    ) -> None:
+        app_state = SimpleNamespace(
+            catalogued_variants={
+                "child": {
+                    "name": "child",
+                    "baseVariant": "makrukhouse",
+                    "enabled": True,
+                    "ini": ("[child:makrukhouse]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1"),
+                }
+            }
+        )
+
+        ini = fishnet.fishnet_variants_ini(app_state, "child")
+
+        self.assertLess(ini.index("[makrukhouse:makruk]"), ini.index("[child:makrukhouse]"))
+        self.assertNotIn("[grandhouse:grand]", ini)
+
+    def test_fishnet_variants_ini_scopes_site_variant_to_its_chain(self) -> None:
+        app_state = SimpleNamespace(catalogued_variants={})
+
+        ini = fishnet.fishnet_variants_ini(app_state, "makbug")
+
+        self.assertLess(ini.index("[makrukhouse:makruk]"), ini.index("[makbug:makrukhouse]"))
+        self.assertNotIn("[grandhouse:grand]", ini)
+        self.assertNotIn("[xiangqihouse:xiangqi]", ini)
+
     def test_attach_variants_hash_caches_scoped_payload(self) -> None:
         app_state = SimpleNamespace(
             catalogued_variants={
@@ -224,18 +254,30 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
         self.assertIn("[requested]", payload["variantsIni"])
         self.assertNotIn("[unrelated]", payload["variantsIni"])
 
-    def test_attach_variants_hash_always_includes_server_rules_for_site_variant(self) -> None:
+    def test_attach_variants_hash_omits_rules_for_builtin_variant(self) -> None:
         app_state = SimpleNamespace(catalogued_variants={})
         work = make_work("move")
         work["variant"] = "chess"
 
         fishnet._attach_variants_hash(app_state, work)
 
+        self.assertNotIn("variantsSha256", work)
+        self.assertNotIn("variantsScope", work)
+        self.assertFalse(hasattr(app_state, "fishnet_variant_payloads"))
+
+    def test_attach_variants_hash_includes_only_site_variant_chain(self) -> None:
+        app_state = SimpleNamespace(catalogued_variants={})
+        work = make_work("move")
+        work["variant"] = "grandhouse"
+
+        fishnet._attach_variants_hash(app_state, work)
+
         self.assertRegex(work["variantsSha256"], r"^[0-9a-f]{64}$")
-        self.assertEqual(work["variantsScope"], "chess")
+        self.assertEqual(work["variantsScope"], "grandhouse")
         payload = app_state.fishnet_variant_payloads[work["variantsSha256"]]
         self.assertIn("[grandhouse:grand]", payload["variantsIni"])
-        self.assertEqual(payload["variantsScope"], "chess")
+        self.assertNotIn("[gothhouse:capablanca]", payload["variantsIni"])
+        self.assertEqual(payload["variantsScope"], "grandhouse")
 
 
 class CataloguedAiFailurePolicyTestCase(unittest.IsolatedAsyncioTestCase):
