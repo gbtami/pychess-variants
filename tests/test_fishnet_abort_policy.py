@@ -53,8 +53,9 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
 
     def test_fishnet_version_comparison_is_numeric(self) -> None:
         self.assertFalse(fishnet._fishnet_version_is_supported("1.16.9"))
-        self.assertFalse(fishnet._fishnet_version_is_supported("1.16.62"))
-        self.assertTrue(fishnet._fishnet_version_is_supported("1.16.64"))
+        self.assertFalse(fishnet._fishnet_version_is_supported("1.16.64"))
+        self.assertFalse(fishnet._fishnet_version_is_supported("1.16.66"))
+        self.assertTrue(fishnet._fishnet_version_is_supported("1.16.67"))
         self.assertTrue(fishnet._fishnet_version_is_supported("1.16.100"))
         self.assertTrue(fishnet._fishnet_version_is_supported("1.17.0"))
         self.assertFalse(fishnet._fishnet_version_is_supported("not-a-version"))
@@ -222,6 +223,19 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
         payload = app_state.fishnet_variant_payloads[work["variantsSha256"]]
         self.assertIn("[requested]", payload["variantsIni"])
         self.assertNotIn("[unrelated]", payload["variantsIni"])
+
+    def test_attach_variants_hash_always_includes_server_rules_for_site_variant(self) -> None:
+        app_state = SimpleNamespace(catalogued_variants={})
+        work = make_work("move")
+        work["variant"] = "chess"
+
+        fishnet._attach_variants_hash(app_state, work)
+
+        self.assertRegex(work["variantsSha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(work["variantsScope"], "chess")
+        payload = app_state.fishnet_variant_payloads[work["variantsSha256"]]
+        self.assertIn("[grandhouse:grand]", payload["variantsIni"])
+        self.assertEqual(payload["variantsScope"], "chess")
 
 
 class CataloguedAiFailurePolicyTestCase(unittest.IsolatedAsyncioTestCase):

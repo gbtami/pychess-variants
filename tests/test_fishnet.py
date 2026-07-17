@@ -633,3 +633,41 @@ class FishnetAnalysisPvRegressionTestCase(unittest.IsolatedAsyncioTestCase):
         app_state.users["botuser"].send_game_message.assert_not_awaited()
         self.assertNotIn("work1", app_state.fishnet_works)
         app_state.db.game.find_one_and_update.assert_awaited_once()
+
+
+class FishnetVariantsEndpointTestCase(unittest.IsolatedAsyncioTestCase):
+    async def test_variants_endpoint_rejects_unavailable_exact_hash(self):
+        app_state = SimpleNamespace(catalogued_variants={})
+        request = cast(web.Request, AsyncMock())
+        request.app = {pychess_global_app_state_key: app_state}
+        request.match_info = {"key": "k"}
+        request.query = {"sha256": "a" * 64, "variant": "chess"}
+
+        with patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True):
+            response = await fishnet.fishnet_variants(request)
+
+        self.assertEqual(response.status, 409)
+        payload = json.loads(response.text)
+        self.assertIn("no longer available", payload["error"])
+        self.assertRegex(payload["variantsSha256"], r"^[0-9a-f]{64}$")
+
+    async def test_variants_endpoint_returns_cached_exact_payload(self):
+        cached = {
+            "variantsIni": "[old]\n",
+            "variantsSha256": "b" * 64,
+            "variantsScope": "chess",
+        }
+        app_state = SimpleNamespace(
+            catalogued_variants={},
+            fishnet_variant_payloads={cached["variantsSha256"]: cached},
+        )
+        request = cast(web.Request, AsyncMock())
+        request.app = {pychess_global_app_state_key: app_state}
+        request.match_info = {"key": "k"}
+        request.query = {"sha256": cached["variantsSha256"], "variant": "chess"}
+
+        with patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True):
+            response = await fishnet.fishnet_variants(request)
+
+        self.assertEqual(response.status, 200)
+        self.assertEqual(json.loads(response.text), cached)

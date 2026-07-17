@@ -43,7 +43,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-REQUIRED_FISHNET_VERSION = "1.16.64"
+REQUIRED_FISHNET_VERSION = "1.16.67"
 _FISHNET_VERSION_RE = re.compile(r"\d+")
 MOVE_WORK_TIME_OUT = 5.0
 ANALYSIS_WORK_TIME_OUT = 15 * 60.0
@@ -169,8 +169,8 @@ def fishnet_variants_ini(app_state: PychessGlobalAppState, variant_name: str | N
     """Return the Fairy-Stockfish variant config fishnet workers should use.
 
     When variant_name is provided, include only the catalogued variant needed by
-    that job. The unscoped/full payload is retained for diagnostics and older
-    clients, but current workers receive per-work scoped payloads.
+    that job. The unscoped/full payload is retained for diagnostics; supported
+    workers receive per-work content-addressed payloads.
     """
 
     base_path = Path(__file__).resolve().parents[1] / "variants.ini"
@@ -224,6 +224,13 @@ async def fishnet_variants(request: web.Request) -> web.Response:
             requested_sha256,
             variant_name or "<full>",
             payload["variantsSha256"],
+        )
+        return json_response(
+            {
+                "error": "The exact variants.ini requested by this fishnet job is no longer available.",
+                "variantsSha256": payload["variantsSha256"],
+            },
+            status=409,
         )
     return json_response(payload)
 
