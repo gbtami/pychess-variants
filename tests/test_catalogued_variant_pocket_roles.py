@@ -46,6 +46,14 @@ flagRegionWhite = *9
 flagRegionBlack = *1
 """
 
+DRAGONFLY_START_FEN = "rbbknnr/ppppppp/7/7/7/PPPPPPP/RBBKNNR[] w - - 0 1"
+DRAGONFLY_INI = f"""
+[dragonfly:chess]
+pieceDrops = true
+capturesToHand = true
+startFen = {DRAGONFLY_START_FEN}
+"""
+
 
 class CataloguedVariantPocketRolesTestCase(unittest.TestCase):
     def test_capture_to_hand_expands_initial_pocket_roles_to_all_non_royal_pieces(self):
@@ -82,6 +90,46 @@ class CataloguedVariantPocketRolesTestCase(unittest.TestCase):
                 doc, COURTHRONE_INI, COURTHRONE_START_FEN, doc["pieces"], doc["kingRoles"]
             ),
             ["n", "t", "q", "b", "p", "d", "v"],
+        )
+
+    def test_empty_initial_pocket_excludes_royal_roles_from_capture_to_hand(self):
+        pieces = ["k", "r", "b", "n", "p"]
+
+        self.assertEqual(
+            catalogued_pocket_roles(DRAGONFLY_INI, DRAGONFLY_START_FEN, pieces, ["k"]),
+            ["r", "b", "n", "p"],
+        )
+
+    def test_existing_stored_capture_to_hand_docs_filter_royal_roles(self):
+        doc = {
+            "pocketRoles": ["k", "r", "b", "n", "p"],
+            "captureToHand": True,
+        }
+
+        self.assertEqual(
+            _catalogued_pocket_roles_from_doc(
+                doc,
+                DRAGONFLY_INI,
+                DRAGONFLY_START_FEN,
+                ["k", "r", "b", "n", "p"],
+                ["k"],
+            ),
+            ["r", "b", "n", "p"],
+        )
+
+    def test_explicit_initial_royal_pocket_role_is_preserved(self):
+        start_fen = "8/8/8/8/8/8/8/8[KQkq] w - - 0 1"
+        ini = f"[placement:chess]\npieceDrops = true\nstartFen = {start_fen}"
+
+        self.assertEqual(
+            catalogued_pocket_roles(
+                ini,
+                start_fen,
+                ["k", "q"],
+                ["k"],
+                capture_to_hand=True,
+            ),
+            ["k", "q"],
         )
 
 

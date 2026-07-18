@@ -1928,19 +1928,44 @@ function cataloguedDerivedPocketRoles(
     return (baseVariant?.pocket?.roles.white.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
 }
 
-function cataloguedDroppablePocketRoles(meta: CataloguedVariantClientDocument, roles: cg.Letter[]): cg.Letter[] {
+function cataloguedExplicitPocketRoles(startFen: string): Set<cg.Letter> {
+    const pocket = /\[([^\]]*)\]/.exec(startFen)?.[1] ?? '';
+    const roles = new Set<cg.Letter>();
+    for (const letter of pocket.match(/[A-Za-z]/g) ?? []) addPieceLetter(roles, letter);
+    return roles;
+}
+
+function cataloguedRenderablePocketRoles(
+    meta: CataloguedVariantClientDocument,
+    roles: cg.Letter[],
+    kingRoles: cg.Letter[],
+    captureToHand: boolean,
+): cg.Letter[] {
+    let renderableRoles = roles;
+    if (captureToHand) {
+        const explicitPocketRoles = cataloguedExplicitPocketRoles(meta.startFen);
+        const royalBaseRoles = new Set(
+            kingRoles.map(role => (role.startsWith('+') ? (role.slice(1) as cg.Letter) : role)),
+        );
+        renderableRoles = roles.filter(role => {
+            const baseRole = role.startsWith('+') ? (role.slice(1) as cg.Letter) : role;
+            return !royalBaseRoles.has(baseRole) || explicitPocketRoles.has(baseRole);
+        });
+    }
+
     const countValue = cataloguedIniOption(meta.ini, 'dropNoDoubledCount');
     const noDoubledRole = normalPieceLetter(cataloguedIniOption(meta.ini, 'dropNoDoubled'));
-    if (countValue === undefined || !noDoubledRole) return roles;
+    if (countValue === undefined || !noDoubledRole) return renderableRoles;
 
     const noDoubledCount = Number(countValue);
-    if (!Number.isFinite(noDoubledCount) || noDoubledCount > 0) return roles;
+    if (!Number.isFinite(noDoubledCount) || noDoubledCount > 0) return renderableRoles;
 
     // Fairy-Stockfish rejects this role when the number of pieces already on
     // the file is >= dropNoDoubledCount. A non-positive count therefore makes
     // the role permanently undroppable, even though capturesToHand may still
     // keep it in the engine's pocket FEN.
-    return roles.filter(role => role !== noDoubledRole);
+    renderableRoles = renderableRoles.filter(role => role !== noDoubledRole);
+    return renderableRoles;
 }
 
 interface CataloguedPieceInfo {
@@ -2039,6 +2064,12 @@ function cataloguedHasPocketOverride(meta: CataloguedVariantClientDocument): boo
     );
 }
 
+function cataloguedCaptureToHand(meta: CataloguedVariantClientDocument, baseVariant: Variant | undefined): boolean {
+    return cataloguedIniHasOption(meta.ini, 'capturesToHand')
+        ? !!meta.captureToHand
+        : !!meta.captureToHand || !!baseVariant?.pocket?.captureToHand;
+}
+
 function cataloguedHasPromotionOverride(meta: CataloguedVariantClientDocument): boolean {
     return [
         'promotionPawnTypes',
@@ -2061,9 +2092,12 @@ function cataloguedPieceInfo(meta: CataloguedVariantClientDocument): CataloguedP
     const pieces = (meta.pieces?.length ? meta.pieces : ['k']) as cg.Letter[];
     let kingRoles = (meta.kingRoles ?? baseVariant?.kingRoles.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
     const hasPocketOverride = cataloguedHasPocketOverride(meta);
-    const pocketRoles = cataloguedDroppablePocketRoles(
+    const captureToHand = cataloguedCaptureToHand(meta, baseVariant);
+    const pocketRoles = cataloguedRenderablePocketRoles(
         meta,
         cataloguedDerivedPocketRoles(meta, pieces, kingRoles, baseVariant, hasPocketOverride),
+        kingRoles,
+        captureToHand,
     );
     const hasPromotionOverride = cataloguedHasPromotionOverride(meta);
     const promotionType = hasPromotionOverride
@@ -2390,10 +2424,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
 
     const info = cataloguedPieceInfo(meta);
     const { pieces, kingRoles, pocketRoles, promotionType, promotionRoles, promotionOrder, baseVariant } = info;
-    const explicitCaptureToHand = cataloguedIniHasOption(meta.ini, 'capturesToHand');
-    const captureToHand = explicitCaptureToHand
-        ? !!meta.captureToHand
-        : !!meta.captureToHand || !!baseVariant?.pocket?.captureToHand;
+    const captureToHand = cataloguedCaptureToHand(meta, baseVariant);
     const boardFamily = ensureCataloguedBoardFamily(meta.width, meta.height);
     const cataloguedPieceFamily = `catalogued-${meta.name}`;
     delete PIECE_FAMILIES[cataloguedPieceFamily];

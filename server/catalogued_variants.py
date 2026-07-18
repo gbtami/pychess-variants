@@ -1503,7 +1503,11 @@ def _non_royal_hand_roles(pieces: list[str], king_roles: list[str] | None) -> li
     royal_base_roles = {
         role[1:] if role.startswith("+") else role for role in (king_roles or []) if role
     }
-    return [piece for piece in pieces if piece not in royal_base_roles]
+    return [
+        piece
+        for piece in pieces
+        if (piece[1:] if piece.startswith("+") else piece) not in royal_base_roles
+    ]
 
 
 def catalogued_pocket_roles(
@@ -1518,15 +1522,15 @@ def catalogued_pocket_roles(
     if not has_pocket:
         return []
 
-    pocket_letters = pocket_letters_from_fen(start_fen)
-    roles = pocket_letters or pieces
-
     if capture_to_hand is None:
         capture_to_hand = _ini_bool(ini, "capturesToHand", default=False)
     if capture_to_hand:
-        roles = _merge_piece_letters(roles, _non_royal_hand_roles(pieces, king_roles))
+        return _merge_piece_letters(
+            pocket_letters_from_fen(start_fen),
+            _non_royal_hand_roles(pieces, king_roles),
+        )
 
-    return roles
+    return pocket_letters_from_fen(start_fen) or pieces
 
 
 def _catalogued_pocket_roles_from_doc(
@@ -1541,7 +1545,15 @@ def _catalogued_pocket_roles_from_doc(
     )
     stored_pocket_roles = list(doc.get("pocketRoles") or [])
     if stored_pocket_roles and capture_to_hand:
-        return _merge_piece_letters(stored_pocket_roles, _non_royal_hand_roles(pieces, king_roles))
+        explicit_pocket_roles = pocket_letters_from_fen(start_fen)
+        stored_non_royal_roles = _non_royal_hand_roles(stored_pocket_roles, king_roles)
+        return _merge_piece_letters(
+            explicit_pocket_roles,
+            _merge_piece_letters(
+                stored_non_royal_roles,
+                _non_royal_hand_roles(pieces, king_roles),
+            ),
+        )
     return stored_pocket_roles or catalogued_pocket_roles(
         ini, start_fen, pieces, king_roles, capture_to_hand=capture_to_hand
     )

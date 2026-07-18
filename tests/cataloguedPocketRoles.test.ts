@@ -108,10 +108,32 @@ startFen = 4k3/8/8/8/8/8/8/4K3[] w - - 0 1`,
         height: 8,
         pieces: ['k', 'p', 'n', 'b', 'r'],
         kingRoles: ['k'],
-        pocketRoles: ['p', 'n', 'b', 'r'],
+        pocketRoles: ['k', 'p', 'n', 'b', 'r'],
         captureToHand: true,
     });
 
     expect(variant.pocket?.roles.white.map(role => util.letterOf(role))).toEqual(expected);
     expect(variant.pocket?.roles.black.map(role => util.letterOf(role))).toEqual(expected);
+});
+
+test('catalogued variants preserve royal roles explicitly present in the initial pocket', () => {
+    const variant = register({
+        name: variantName,
+        displayName: 'Explicit Royal Pocket Test',
+        tooltip: 'Catalogued variant',
+        ini: `[${variantName}:chess]
+pieceDrops = true
+startFen = 8/8/8/8/8/8/8/8[KQkq] w - - 0 1`,
+        baseVariant: 'chess',
+        startFen: '8/8/8/8/8/8/8/8[KQkq] w - - 0 1',
+        width: 8,
+        height: 8,
+        pieces: ['k', 'q'],
+        kingRoles: ['k'],
+        pocketRoles: ['k', 'q'],
+        captureToHand: false,
+    });
+
+    expect(variant.pocket?.roles.white.map(role => util.letterOf(role))).toEqual(['k', 'q']);
+    expect(variant.pocket?.roles.black.map(role => util.letterOf(role))).toEqual(['k', 'q']);
 });
