@@ -64,8 +64,14 @@ function cataloguedBoardCssId(variantName: string): string {
     return `board-set-catalogued-${variantName}`;
 }
 
-function notifyChessgroundResize(): void {
-    document.body?.dispatchEvent(new Event('chessground.resize'));
+let chessgroundResizeFrame: number | undefined;
+
+export function notifyChessgroundResize(): void {
+    if (chessgroundResizeFrame !== undefined) cancelAnimationFrame(chessgroundResizeFrame);
+    chessgroundResizeFrame = requestAnimationFrame(() => {
+        chessgroundResizeFrame = undefined;
+        document.body?.dispatchEvent(new Event('chessground.resize'));
+    });
 }
 
 export function ensureCataloguedBoardCSS(variantName: string, revision?: string): void {

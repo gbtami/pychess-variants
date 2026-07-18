@@ -6,6 +6,7 @@ import { Settings } from './settings';
 import { _, ngettext } from './i18n';
 import { alertDialog } from './alertDialog';
 import { Variant } from './variants';
+import { notifyChessgroundResize } from './document';
 
 export function radioList(
     settings: Settings<string>,
@@ -273,6 +274,7 @@ export function changeTabs(setting: string, tab: Element) {
     // Show the selected panel
     (grandparent!.parentNode!.querySelector(`#${tab.getAttribute('aria-controls')}`)! as HTMLElement).style.display =
         'block';
+    notifyChessgroundResize();
 
     const tabId = tab.getAttribute('id');
     localStorage[setting] = tabId;

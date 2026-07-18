@@ -31,7 +31,7 @@ import { pasteView, recordImportFfishError } from './paste';
 import { myVariantsView } from './myVariants';
 import { statsView } from './stats';
 import { volumeSettings, soundThemeSettings } from './sound';
-import { patch } from './document';
+import { notifyChessgroundResize, patch } from './document';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
@@ -354,7 +354,8 @@ function start() {
     patch(document.getElementById('zen-button') as HTMLElement, zenButtonView());
 }
 
-window.addEventListener('resize', () => document.body.dispatchEvent(new Event('chessground.resize')));
+window.addEventListener('resize', notifyChessgroundResize);
+window.addEventListener('pageshow', notifyChessgroundResize);
 
 zenModeSettings.update();
 

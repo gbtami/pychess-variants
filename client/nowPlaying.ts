@@ -2,6 +2,7 @@ import { h } from 'snabbdom';
 
 import { Chessground } from 'chessgroundx';
 import { Api } from 'chessgroundx/api';
+import { renderResized, updateBounds } from 'chessgroundx/render';
 import * as cg from 'chessgroundx/types';
 
 import { patch } from './document';
@@ -177,6 +178,19 @@ export function gameViewPlaying(
     let lastMove, fen;
     [lastMove, fen] = getLastMoveFen(variant.name, game.lastMove, game.fen);
 
+    let chessground: Api | undefined;
+    let resizeFrame: number | undefined;
+
+    const scheduleResize = () => {
+        if (resizeFrame !== undefined) cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(() => {
+            resizeFrame = undefined;
+            if (!chessground) return;
+            updateBounds(chessground.state);
+            renderResized(chessground.state);
+        });
+    };
+
     return h(
         `a.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`,
         { attrs: { href: game.gameId } },
@@ -186,7 +200,7 @@ export function gameViewPlaying(
                     insert: vnode => {
                         boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                         boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
-                        const cg = Chessground(vnode.elm as HTMLElement, {
+                        chessground = Chessground(vnode.elm as HTMLElement, {
                             orientation: mycolor,
                             fen: fen,
                             lastMove: lastMove,
@@ -195,7 +209,15 @@ export function gameViewPlaying(
                             viewOnly: true,
                             pocketRoles: variant.pocket?.roles,
                         });
-                        cgMap[game.gameId] = [cg, variant.name];
+                        cgMap[game.gameId] = [chessground, variant.name];
+                        document.body.addEventListener('chessground.resize', scheduleResize);
+                        scheduleResize();
+                    },
+                    destroy: () => {
+                        document.body.removeEventListener('chessground.resize', scheduleResize);
+                        if (resizeFrame !== undefined) cancelAnimationFrame(resizeFrame);
+                        chessground?.destroy();
+                        delete cgMap[game.gameId];
                     },
                 },
             }),
