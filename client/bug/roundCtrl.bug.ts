@@ -8,7 +8,7 @@ import { PlayersState } from './playersState.bug';
 import { RoundControllerBughouseSocket } from './roundCtrl.bug.socket';
 import { recordPendingMove } from './pendingMoves.bug';
 import { ChatController, chatMessage, chatView } from '../chat';
-import { createMovelistButtons, updateMovelist, updateResult, selectMove } from './movelist.bug';
+import { updateMovelist, updateResult, selectMove } from './movelist.bug';
 import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, Step, StepChat } from '../messages';
 import {
     MsgUserDisconnected,
@@ -26,45 +26,23 @@ import { GameControllerBughouse } from './gameCtrl.bug';
 import { BLACK, getTurnColor, uci2LastMove, WHITE } from '../chess';
 import { sound, soundThemeSettings } from '../sound';
 import { notify } from '../notification';
-import { Variant, VARIANTS } from '../variants';
-import AnalysisControllerBughouse from '@/bug/analysisCtrl.bug';
-import { boardSettings } from '@/boardSettings';
-import { ChessgroundController } from '@/cgCtrl';
 import { chatMessageBug, resetChat } from '@/bug/chat.bug';
 import { confirmDialog } from '@/confirmDialog';
+import { TwoBoardController, initBoardSettings, switchBoards } from './twoBoardCtrl';
 
-export class RoundControllerBughouse implements ChatController {
+export class RoundControllerBughouse extends TwoBoardController implements ChatController {
     socket: RoundControllerBughouseSocket;
 
-    boardA: GameControllerBughouse;
-    boardB: GameControllerBughouse;
-
-    username: string;
-    gameId: string;
     readonly anon: boolean;
-
-    steps: Step[];
-    ply: number;
-    plyA: number = 0;
-    plyB: number = 0;
-
-    moveControls: VNode;
-    status: number;
-    result: string;
 
     autoPromote: boolean;
 
-    model: PyChessModel;
     playersState: PlayersState;
-
-    base: number;
-    inc: number;
 
     profileid: string;
     level: number;
 
     vdialog: VNode;
-    settings: boolean;
     tv: boolean;
     animation: boolean;
     showDests: boolean;
@@ -72,13 +50,9 @@ export class RoundControllerBughouse implements ChatController {
     focus: boolean;
     finishedGame: boolean;
 
-    vmovelist: VNode | HTMLElement;
-    variant: Variant;
-
     spectator: boolean;
 
     gameControls: VNode; // todo: usually inherited from gameCtrl - think about some reusable solution (DRY)
-    readonly home: string;
 
     constructor(
         el1: HTMLElement,
@@ -89,17 +63,9 @@ export class RoundControllerBughouse implements ChatController {
         el2Pocket2: HTMLElement,
         model: PyChessModel,
     ) {
-        this.model = model;
+        super(el1, el1Pocket1, el1Pocket2, el2, el2Pocket1, el2Pocket2, model);
 
-        this.home = model.home;
-
-        this.status = Number(model['status']);
-
-        this.gameId = model['gameId'] as string;
-        this.username = model['username'];
         this.anon = model.anon === 'True';
-
-        this.variant = VARIANTS[model.variant];
 
         this.focus = !document.hidden;
         document.addEventListener('visibilitychange', () => {
@@ -117,14 +83,7 @@ export class RoundControllerBughouse implements ChatController {
         this.profileid = model['profileid'];
         this.level = model['level'];
 
-        this.settings = true;
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === 'true';
-
-        this.base = Number(model['base']);
-        this.inc = Number(model['inc']);
-
-        this.steps = [];
-        // this.ply = isNaN(model["ply"]) ? 0 : model["ply"];
 
         this.playersState = new PlayersState(this);
 
@@ -176,15 +135,6 @@ export class RoundControllerBughouse implements ChatController {
         }
 
         //////////////
-
-        this.boardA = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
-        this.boardB = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
-        this.boardA.partnerCC = this.boardB;
-        this.boardB.partnerCC = this.boardA;
-        this.boardA.parent = this;
-        this.boardB.parent = this;
-
-        ///////
         // todo: redundant setting turnColor here. It will be overwritten a moment later in onMsgBoard which is
         //       important and more correct in case of custom fen with black to move
         this.boardA.chessground.set({
@@ -223,9 +173,6 @@ export class RoundControllerBughouse implements ChatController {
         });
 
         ////////////
-        createMovelistButtons(this);
-        this.vmovelist = document.getElementById('movelist') as HTMLElement;
-
         this.vdialog = patch(document.getElementById('offer-dialog')!, h('div#offer-dialog', ''));
 
         // todo: if spectator do not render buttons, also good to render all player's messages for specatotors to see
@@ -542,14 +489,7 @@ export class RoundControllerBughouse implements ChatController {
             patch(container, h('div#movelist'));
 
             steps.forEach((step, idx) => {
-                if (idx > 0) {
-                    //skip first dummy element
-                    if (step.boardName === 'a') {
-                        this.plyA++;
-                    } else {
-                        this.plyB++;
-                    }
-                } else {
+                if (idx === 0) {
                     chatMessage(
                         '',
                         'Messages visible to all 4 players for the first 4 moves',
@@ -559,9 +499,7 @@ export class RoundControllerBughouse implements ChatController {
                         this,
                     );
                 }
-                step.plyA = this.plyA;
-                step.plyB = this.plyB;
-                this.steps.push(step);
+                this.stampStepPlys(step, idx);
                 if (idx === 4) {
                     chatMessage('', 'Chat visible only to your partner', 'bugroundchat', undefined, idx, this);
                 }
@@ -596,14 +534,7 @@ export class RoundControllerBughouse implements ChatController {
         } else {
             // single step message
             if (ply === this.steps.length) {
-                if (ply > 0) {
-                    //skip first dummy element
-                    if (steps[0].boardName === 'a') {
-                        this.plyA++;
-                    } else {
-                        this.plyB++;
-                    }
-                } else {
+                if (ply === 0) {
                     chatMessage(
                         '',
                         'Messages visible to all 4 players for the first 4 moves',
@@ -613,9 +544,7 @@ export class RoundControllerBughouse implements ChatController {
                         this,
                     );
                 }
-                steps[0].plyA = this.plyA;
-                steps[0].plyB = this.plyB;
-                this.steps.push(steps[0]);
+                this.stampStepPlys(steps[0], ply);
                 const full = false;
                 const activate = !this.spectator || latestPly;
                 const result = false;
@@ -942,23 +871,9 @@ export class RoundControllerBughouse implements ChatController {
         const step = this.steps[ply];
         console.log(step);
 
-        const board = step.boardName === 'a' ? this.boardA : this.boardB;
+        const { board, fen, fenPartner, move, movePartner } = this.goPlyCore(step);
 
-        const fen = step.boardName === 'a' ? step.fen : step.fenB;
-        const fenPartner = step.boardName === 'b' ? step.fen : step.fenB;
-
-        const move = step.boardName === 'a' ? uci2LastMove(step.move) : uci2LastMove(step.moveB);
-        const movePartner = step.boardName === 'b' ? uci2LastMove(step.move) : uci2LastMove(step.moveB);
-
-        let capture = false;
-        if (move) {
-            // 960 king takes rook castling is not capture
-            // TODO defer this logic to ffish.js
-            capture =
-                (board.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined &&
-                    step.san?.slice(0, 2) !== 'O-') ||
-                step.san?.slice(1, 2) === 'x';
-        }
+        const capture = this.stepCapture(step, board, move);
 
         board.partnerCC.setState(fenPartner!, getTurnColor(fenPartner!), movePartner);
         board.partnerCC.renderState();
@@ -1146,45 +1061,4 @@ export class RoundControllerBughouse implements ChatController {
             }
         }
     };
-}
-
-export function swap(nodeA: HTMLElement, nodeB: HTMLElement) {
-    const parentA = nodeA.parentNode;
-    const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
-
-    // Move `nodeA` to before the `nodeB`
-    nodeB.parentNode!.insertBefore(nodeA, nodeB);
-
-    // Move `nodeB` to before the sibling of `nodeA`
-    parentA!.insertBefore(nodeB, siblingA);
-}
-
-export function switchBoards(ctrl: RoundControllerBughouse | AnalysisControllerBughouse) {
-    // todo: not sure if best implementation below
-    //       it manipulates the DOM directly switching places of elements identified by whether they are
-    //       main/second board, instead of keeping info about the switch and rendering boards on elements
-    //       called left/right
-    let mainboardVNode = document.getElementById('mainboard');
-    let mainboardPocket0 = document.getElementById('pocket00');
-    let mainboardPocket1 = document.getElementById('pocket01');
-
-    let bugboardVNode = document.getElementById('bugboard');
-    let bugboardPocket0 = document.getElementById('pocket10');
-    let bugboardPocket1 = document.getElementById('pocket11');
-
-    let a = mainboardVNode!.style.gridArea || 'board';
-    mainboardVNode!.style.gridArea = bugboardVNode!.style.gridArea || 'boardPartner';
-    bugboardVNode!.style.gridArea = a;
-
-    swap(mainboardPocket0!, bugboardPocket0!);
-    swap(mainboardPocket1!, bugboardPocket1!);
-
-    ctrl.boardA.chessground.redrawAll();
-    ctrl.boardB.chessground.redrawAll();
-}
-
-export function initBoardSettings(b1: ChessgroundController, b2: ChessgroundController, variant: Variant) {
-    const boardFamily = variant.boardFamily;
-    boardSettings.updateZoom(boardFamily, b1.boardName);
-    boardSettings.updateZoom(boardFamily, b2.boardName);
 }

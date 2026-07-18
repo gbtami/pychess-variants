@@ -7,14 +7,14 @@ import * as Mousetrap from 'mousetrap';
 
 import { _ } from '../i18n';
 import { uci2LastMove, uci2cg } from '../chess';
-import { allVariantsIni, Variant, VARIANTS } from '../variants';
-import { createMovelistButtons, updateMovelist, selectMove } from './movelist.bug';
+import { allVariantsIni } from '../variants';
+import { updateMovelist, selectMove, scrollToActiveMove } from './movelist.bug';
 import { povChances } from '../analysis/winningChances';
 import { copyTextToClipboard } from '../clipboard';
 import { patch } from '../document';
 import { Chart } from 'highcharts';
 import { PyChessModel } from '../types';
-import { Ceval, MsgBoard, Step } from '../messages';
+import { Ceval, MsgBoard } from '../messages';
 import { GameControllerBughouse } from './gameCtrl.bug';
 import { sound } from '../sound';
 import { renderClocks } from './analysisClock.bug';
@@ -48,7 +48,7 @@ import ffishModule from 'ffish-es6';
 import { titleCase } from '@/analysis/analysisCtrl';
 import { movetimeChart } from './movetimeChart.bug';
 import { renderBughouseLinePgnMoveText, renderBughouseTreePgnMoveText } from './analysisTreeBug';
-import { initBoardSettings, switchBoards } from '@/bug/roundCtrl.bug';
+import { TwoBoardController, initBoardSettings, switchBoards } from '@/bug/twoBoardCtrl';
 import { playerInfoData } from '@/bug/gameInfo.bug';
 
 const EVAL_REGEX = new RegExp(
@@ -66,41 +66,22 @@ const maxThreads = Math.max((navigator.hardwareConcurrency || 1) - 1, 1);
 const emptySan = '\xa0';
 const TREE_COLLAPSED_STORAGE_KEY = 'analysisTreeBugCollapsed';
 
-export default class AnalysisControllerBughouse {
-    model;
+export default class AnalysisControllerBughouse extends TwoBoardController {
     // sock;
-
-    boardA: GameControllerBughouse;
-    boardB: GameControllerBughouse;
 
     wplayer: string;
     bplayer: string;
-    base: number;
-    inc: number;
-    gameId: string;
     vpgn: VNode;
     vscore: VNode | HTMLElement;
     vscorePartner: VNode | HTMLElement;
     vinfo: VNode | HTMLElement;
     vpvlines: VNode[] | HTMLElement[];
 
-    variant: Variant;
-
-    vmovelist: VNode | HTMLElement;
-    moveControls: VNode;
     lastmove: cg.Key[];
     premove: { orig: cg.Key; dest: cg.Key; metadata?: cg.SetPremoveMetadata } | null;
-    result: string;
     flip: boolean;
-    settings: boolean;
-    status: number;
-
-    steps: Step[];
-    plyA: number = 0;
-    plyB: number = 0;
 
     pgn: string;
-    ply: number;
     plyVari: number;
     recordedMainlinePly?: number;
     animation: boolean;
@@ -137,7 +118,6 @@ export default class AnalysisControllerBughouse {
     treeContextMenu?: { path: string; x: number; y: number };
     private readonly onTreeContextMenuDocumentClick: (event: MouseEvent) => void;
 
-    username: string;
     chess960: boolean;
 
     teamFirst: [[string, string, string], [string, string, string]];
@@ -167,25 +147,18 @@ export default class AnalysisControllerBughouse {
         el2Pocket2: HTMLElement,
         model: PyChessModel,
     ) {
+        super(el1, el1Pocket1, el1Pocket2, el2, el2Pocket1, el2Pocket2, model);
+
         this.fsfDebug = true;
         this.fsfError = [];
         this.fsfInputQueue = [];
         this.embed = this.gameId === undefined;
-        this.username = model['username'];
         this.chess960 = model.chess960 === 'True';
-
-        this.variant = VARIANTS[model.variant];
 
         this.teamFirst = [playerInfoData(model, 'w', 'a'), playerInfoData(model, 'b', 'b')];
         this.teamSecond = [playerInfoData(model, 'b', 'a'), playerInfoData(model, 'w', 'b')];
 
-        this.boardA = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
-        this.boardB = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
         this.boardB.chessground.set({ orientation: 'black' });
-        this.boardA.partnerCC = this.boardB;
-        this.boardB.partnerCC = this.boardA;
-        this.boardA.parent = this;
-        this.boardB.parent = this;
 
         ffishModule().then((loadedModule: any) => {
             this.ffish = loadedModule;
@@ -206,20 +179,12 @@ export default class AnalysisControllerBughouse {
         this.analysisPath = '';
         this.treeForkIndex = 0;
 
-        this.model = model;
-        this.gameId = model['gameId'] as string;
-
         this.wplayer = model['wplayer'] as string;
         this.bplayer = model['bplayer'] as string;
-        this.base = model['base'];
-        this.inc = model['inc'] as number;
-        this.status = model['status'] as number;
-        this.steps = [];
         this.pgn = '';
         this.ply = isNaN(model['ply']) ? 0 : model['ply'];
 
         this.flip = false;
-        this.settings = true;
         this.animation = localStorage.animation === undefined ? true : localStorage.animation === 'true';
         this.showDests = localStorage.showDests === undefined ? true : localStorage.showDests === 'true';
         this.arrow = localStorage.arrow === undefined ? true : localStorage.arrow === 'true';
@@ -245,9 +210,6 @@ export default class AnalysisControllerBughouse {
             check: false, //not relevant/meaningful - we use the fens for that
             turnColor: this.boardA.turnColor, //not relevant/meaningful - we use the fens for that
         });
-
-        createMovelistButtons(this);
-        this.vmovelist = document.getElementById('movelist') as HTMLElement;
 
         //
         patch(document.getElementById('input') as HTMLElement, h('input#input', this.renderInput(this.boardA)));
@@ -593,7 +555,10 @@ export default class AnalysisControllerBughouse {
         this.plyVari = 0;
         this.goPly(node.ply, 0);
 
-        if (redrawMovelist) updateMovelist(this, true, false);
+        if (redrawMovelist) {
+            updateMovelist(this, true, false);
+            scrollToActiveMove();
+        }
     }
 
     pvboxIni() {
@@ -754,18 +719,7 @@ export default class AnalysisControllerBughouse {
                     step.scoreStr = scoreStr;
                 }
 
-                if (idx > 0) {
-                    //skip first dummy element
-                    if (step.boardName === 'a') {
-                        this.plyA++;
-                    } else {
-                        this.plyB++;
-                    }
-                }
-                step.plyA = this.plyA;
-                step.plyB = this.plyB;
-
-                this.steps.push(step);
+                this.stampStepPlys(step, idx);
             });
             this.recordedMainlinePly = this.steps.length - 1;
             const initialPly = this.model['ply'] > 0 ? this.model['ply'] : this.ply;
@@ -1120,14 +1074,8 @@ export default class AnalysisControllerBughouse {
             const turnColorA = fenA.split(' ')[1] === 'w' ? 'white' : 'black';
             const turnColorB = fenB.split(' ')[1] === 'w' ? 'white' : 'black';
 
-            let capture = false;
             const move = step.boardName === 'b' ? moveB : moveA;
-            if (move) {
-                capture =
-                    (activeBoard.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined &&
-                        step.san?.slice(0, 2) !== 'O-') ||
-                    step.san?.slice(1, 2) === 'x';
-            }
+            const capture = this.stepCapture(step, activeBoard, move);
 
             if (ply === this.ply + 1 && step.boardName !== undefined) {
                 sound.moveSound(activeBoard.variant, capture);
@@ -1164,24 +1112,10 @@ export default class AnalysisControllerBughouse {
         const step = this.steps[ply];
         if (step === undefined) return;
 
-        const board = step.boardName === 'a' ? this.boardA : this.boardB;
+        const { board, fen, fenPartner, move, movePartner } = this.goPlyCore(step);
+        const turnColorPartner = fenPartner!.split(' ')[1] === 'w' ? 'white' : 'black';
 
-        const fen = step.boardName === 'a' ? step.fen : step.fenB!;
-        const fenPartner = step.boardName === 'b' ? step.fen : step.fenB!;
-
-        const move = step.boardName === 'a' ? uci2LastMove(step.move)! : uci2LastMove(step.moveB)!;
-        const movePartner = step.boardName === 'b' ? uci2LastMove(step.move)! : uci2LastMove(step.moveB)!;
-        const turnColorPartner = fenPartner.split(' ')[1] === 'w' ? 'white' : 'black';
-
-        let capture = false;
-        if (move) {
-            // 960 king takes rook castling is not capture
-            // TODO defer this logic to ffish.js
-            capture =
-                (board.chessground.state.boardState.pieces.get(move[1] as cg.Key) !== undefined &&
-                    step.san?.slice(0, 2) !== 'O-') ||
-                step.san?.slice(1, 2) === 'x';
-        }
+        const capture = this.stepCapture(step, board, move);
 
         if (ply === this.ply + 1) {
             // no sound if we are scrolling backwards
@@ -1197,11 +1131,11 @@ export default class AnalysisControllerBughouse {
             this.clearPvlines();
         }
 
-        board.setState(fen, step.turnColor, move!);
+        board.setState(fen!, step.turnColor, move!);
         board.renderState();
         board.chessground.set({ movable: { color: step.turnColor } });
 
-        board.partnerCC.setState(fenPartner, turnColorPartner, movePartner);
+        board.partnerCC.setState(fenPartner!, turnColorPartner, movePartner);
         board.partnerCC.renderState();
         board.partnerCC.chessground.set({ movable: { color: turnColorPartner } });
 

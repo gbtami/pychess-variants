@@ -1,10 +1,11 @@
 import { h, VNode } from 'snabbdom';
 
 import { _ } from '@/i18n';
-import AnalysisControllerBughouse from './analysisCtrl.bug';
+import type AnalysisControllerBughouse from './analysisCtrl.bug';
 import { result } from '../result';
 import { patch } from '../document';
 import { RoundControllerBughouse } from './roundCtrl.bug';
+import { TwoBoardController } from './twoBoardCtrl';
 import { Step, StepChat } from '../messages';
 import { displayUsername, isAnonUsername } from '@/user';
 import { AnalysisTreeNode, nodeAtPath, parentPath } from '../analysis/analysisTree';
@@ -57,16 +58,16 @@ interface ParsedTreeMove {
     };
 }
 
-function teamsOf(ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
-    return ctrl instanceof RoundControllerBughouse ? ctrl.playersState : ctrl;
+function teamsOf(ctrl: TwoBoardController) {
+    return ctrl instanceof RoundControllerBughouse ? ctrl.playersState : (ctrl as AnalysisControllerBughouse);
 }
 
-function asTreeCtrl(ctrl: AnalysisControllerBughouse | RoundControllerBughouse): TreeCtrl | undefined {
+function asTreeCtrl(ctrl: TwoBoardController): TreeCtrl | undefined {
     const treeCtrl = ctrl as TreeCtrl;
     return treeCtrl.hasAnalysisTree?.() ? treeCtrl : undefined;
 }
 
-export function selectMove(ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number): void {
+export function selectMove(ctrl: TwoBoardController, ply: number): void {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
         if (ply < 0) return;
@@ -85,7 +86,7 @@ export function selectMove(ctrl: AnalysisControllerBughouse | RoundControllerBug
     scrollToPly(ctrl);
 }
 
-export function selectMainlineMove(ctrl: AnalysisControllerBughouse | RoundControllerBughouse, ply: number): void {
+export function selectMainlineMove(ctrl: TwoBoardController, ply: number): void {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl?.activateTreeMainlinePly) {
         treeCtrl.activateTreeMainlinePly(ply);
@@ -94,7 +95,7 @@ export function selectMainlineMove(ctrl: AnalysisControllerBughouse | RoundContr
     selectMove(ctrl, ply);
 }
 
-function activatePly(ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
+function activatePly(ctrl: TwoBoardController) {
     const active = document.querySelector('move-bug.active');
     if (active) {
         const p = active.getAttribute('ply');
@@ -109,7 +110,7 @@ function activatePly(ctrl: AnalysisControllerBughouse | RoundControllerBughouse)
         .forEach(v => v.setAttribute('style', 'display: block;'));
 }
 
-function scrollToPly(ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
+function scrollToPly(ctrl: TwoBoardController) {
     if (ctrl.steps.length < 9) return;
     const movelistEl = document.getElementById('movelist') as HTMLElement;
     const plyEl = movelistEl.querySelector('move-bug.active, vari-move.active') as HTMLElement | null;
@@ -123,7 +124,18 @@ function scrollToPly(ctrl: AnalysisControllerBughouse | RoundControllerBughouse)
     if (st !== undefined) movelistEl.scrollTop = st;
 }
 
-export function createMovelistButtons(ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
+export function scrollToActiveMove() {
+    const movelistEl = document.getElementById('movelist') as HTMLElement | null;
+    if (!movelistEl) return;
+    const el = movelistEl.querySelector('move-bug.active, vari-move.active') as HTMLElement | null;
+    if (!el) return;
+    const inView =
+        el.offsetTop >= movelistEl.scrollTop &&
+        el.offsetTop + el.offsetHeight <= movelistEl.scrollTop + movelistEl.clientHeight;
+    if (!inView) movelistEl.scrollTop = el.offsetTop - movelistEl.offsetHeight / 2 + el.offsetHeight / 2;
+}
+
+export function createMovelistButtons(ctrl: TwoBoardController) {
     const container = document.getElementById('move-controls') as HTMLElement;
 
     const selectVariationBound = (goToStart: boolean) => {
@@ -432,17 +444,11 @@ function renderTreeContextMenu(ctrl: TreeCtrl): VNode | undefined {
     );
 }
 
-export function updateMovelist(
-    ctrl: AnalysisControllerBughouse | RoundControllerBughouse,
-    full = true,
-    activate = true,
-    needResult = true,
-) {
+export function updateMovelist(ctrl: TwoBoardController, full = true, activate = true, needResult = true) {
     const treeCtrl = asTreeCtrl(ctrl);
     if (treeCtrl) {
         if (ctrl.steps.length <= 1) {
-            const container = document.getElementById('movelist') as HTMLElement;
-            ctrl.vmovelist = patch(container, h('div#movelist', { class: { 'bug-analysis-tree': true } }));
+            ctrl.vmovelist = patch(ctrl.vmovelist, h('div#movelist', { class: { 'bug-analysis-tree': true } }));
             return;
         }
 
@@ -583,13 +589,10 @@ export function updateMovelist(
         const contextMenu = renderTreeContextMenu(treeCtrl);
         if (contextMenu) moves.push(contextMenu);
 
-        const container = document.getElementById('movelist') as HTMLElement;
-        if (full) {
-            while (container.lastChild) {
-                container.removeChild(container.lastChild);
-            }
-        }
-        ctrl.vmovelist = patch(container, h('div#movelist', { class: { 'bug-analysis-tree': true } }, moves));
+        // diff against the retained vnode so snabbdom updates the list in place;
+        // patching from a fresh element lookup would recreate the whole list and
+        // reset its scroll position on every tree action
+        ctrl.vmovelist = patch(ctrl.vmovelist, h('div#movelist', { class: { 'bug-analysis-tree': true } }, moves));
         if (activate) scrollToPly(ctrl);
         return;
     }
@@ -721,7 +724,7 @@ export function formatChatMessageTime(x: StepChat) {
     return time;
 }
 
-export function updateResult(ctrl: AnalysisControllerBughouse | RoundControllerBughouse) {
+export function updateResult(ctrl: TwoBoardController) {
     if (ctrl.status < 0) return;
 
     // Prevent to render it twice

@@ -1,16 +1,15 @@
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
-import AnalysisControllerBughouse from './analysisCtrl.bug';
 import { GameController } from '../gameCtrl';
 import { BugBoardName, PyChessModel } from '../types';
-import { RoundControllerBughouse } from './roundCtrl.bug';
+import type { TwoBoardController } from './twoBoardCtrl';
 import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import { uci2LastMove } from '@/chess';
 
 export class GameControllerBughouse extends GameController {
     partnerCC: GameControllerBughouse;
-    parent: AnalysisControllerBughouse | RoundControllerBughouse;
+    parent: TwoBoardController;
     localAnalysis: boolean = false;
 
     isCheck: boolean;
