@@ -56,6 +56,22 @@ class InboxApiTestCase(AioHTTPTestCase):
         unread_after = await (await self.client.get("/api/inbox/unread")).json()
         self.assertEqual(0, unread_after["unread"])
 
+    async def test_sending_to_offline_recipient_does_not_cache_full_user(self):
+        app_state = get_app_state(self.app)
+        alice = User(app_state, username="alice")
+        app_state.users[alice.username] = alice
+        await app_state.db.user.insert_one({"_id": "bob", "title": ""})
+
+        self.assertNotIn("bob", app_state.users.data)
+        self.set_session_user("alice")
+        response = await self.client.post(
+            "/api/inbox/thread/bob", data={"text": "hello offline bob"}
+        )
+
+        self.assertEqual(response.status, 200)
+        self.assertNotIn("bob", app_state.users.data)
+        self.assertIsNotNone(await app_state.db.inbox_msg.find_one({"to": "bob"}))
+
     async def test_cannot_send_message_to_blocked_user(self):
         app_state = get_app_state(self.app)
         alice = User(app_state, username="alice")

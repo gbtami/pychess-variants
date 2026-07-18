@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 from const import ABORTED, RR, T_ABORTED, T_ARCHIVED, T_CREATED, T_FINISHED, T_STARTED
-from notify import notify
+from notify import notify_by_username
 from seek import SeekCreateData, create_seek
 from tournament.tournament import ByeGame, PlayerData, RR_MAX_SUPPORTED_PLAYERS, Tournament
 from typing_defs import (
@@ -585,15 +585,13 @@ class RRTournament(Tournament):
         ):
             opponent = arrangement.opponent(user.username)
             if opponent is not None:
-                opponent_user = await self.app_state.users.get(opponent)
-                if opponent_user.username == opponent:
-                    content: NotificationContent = {
-                        "tid": self.id,
-                        "arr": arrangement.id,
-                        "opp": user.username,
-                        "date": arrangement.scheduled_at.isoformat(),
-                    }
-                    await notify(self.app_state.db, opponent_user, "rrArrangementTime", content)
+                content: NotificationContent = {
+                    "tid": self.id,
+                    "arr": arrangement.id,
+                    "opp": user.username,
+                    "date": arrangement.scheduled_at.isoformat(),
+                }
+                await notify_by_username(self.app_state, opponent, "rrArrangementTime", content)
 
         await self.broadcast_arrangements()
         return None
@@ -623,16 +621,13 @@ class RRTournament(Tournament):
                 opponent = arrangement.opponent(username)
                 if opponent is None:
                     continue
-                target_user = await self.app_state.users.get(username)
-                if target_user.username != username:
-                    continue
                 content: NotificationContent = {
                     "tid": self.id,
                     "arr": arrangement.id,
                     "opp": opponent,
                     "date": arrangement.scheduled_at.isoformat(),
                 }
-                await notify(self.app_state.db, target_user, "rrArrangementReminder", content)
+                await notify_by_username(self.app_state, username, "rrArrangementReminder", content)
 
             arrangement.last_reminded_at = now
             await self.db_update_arrangement(arrangement)
@@ -692,14 +687,12 @@ class RRTournament(Tournament):
         arrangement.challenger = user.username
         arrangement.date = datetime.now(timezone.utc)
         await self.db_update_arrangement(arrangement)
-        opponent_user = await self.app_state.users.get(opponent)
-        if opponent_user.username == opponent:
-            content: NotificationContent = {
-                "tid": self.id,
-                "arr": arrangement.id,
-                "opp": user.username,
-            }
-            await notify(self.app_state.db, opponent_user, "rrChallenge", content)
+        content: NotificationContent = {
+            "tid": self.id,
+            "arr": arrangement.id,
+            "opp": user.username,
+        }
+        await notify_by_username(self.app_state, opponent, "rrChallenge", content)
         await self.broadcast_arrangements()
         return None
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import re
 import random
-from functools import cache
+from functools import lru_cache
 from typing import TYPE_CHECKING
 
 # -*- coding: utf-8 -*-
@@ -529,7 +529,10 @@ class FairyBoard:
         return fen
 
 
-@cache
+FOG_FEN_CACHE_SIZE = 4096
+
+
+@lru_cache(maxsize=FOG_FEN_CACHE_SIZE)
 def get_fog_fen(fen, persp_color):
     parts = fen.split(" ")
 

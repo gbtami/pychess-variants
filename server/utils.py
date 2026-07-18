@@ -1450,14 +1450,14 @@ async def get_blogs(request, tag=None, limit=0):
     game_category = user.game_category if user is not None else session.get("game_category", "all")
 
     async def enrich_author_titles(blogs: list[dict]) -> list[dict]:
+        titles = await app_state.public_users.get_titles(
+            str(doc.get("author") or "") for doc in blogs
+        )
         for doc in blogs:
-            try:
-                doc_user = await app_state.users.get(doc["author"])
-                doc["author_title"] = doc_user.title
-                doc["atitle"] = doc_user.title
-            except NotInDbUsers:
-                doc["author_title"] = str(doc.get("author_title") or "")
-                doc["atitle"] = str(doc.get("atitle") or doc.get("author_title") or "")
+            author = str(doc.get("author") or "")
+            title = titles.get(author, str(doc.get("author_title") or ""))
+            doc["author_title"] = title
+            doc["atitle"] = title or str(doc.get("atitle") or "")
         return blogs
 
     # Prefer migrated site blogs from ublog_post.

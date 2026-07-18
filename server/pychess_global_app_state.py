@@ -871,6 +871,13 @@ class PychessGlobalAppState:
         # even when a finished game was loaded from DB and never saved in-memory.
         await game.cancel_clocks_for_eviction()
 
+        # Fishnet queue items are independent references and can outlive a
+        # worker or its game. Once a game is evicted, none of its move/analysis
+        # work can produce a useful result, so remove both the work and queue IDs.
+        from fishnet import drop_fishnet_work_for_game
+
+        drop_fishnet_work_for_game(self, game.id)
+
         if game.id == self.tv:
             self.tv = None
 

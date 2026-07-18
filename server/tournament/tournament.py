@@ -17,7 +17,7 @@ import random
 import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
-from functools import cache
+from functools import lru_cache
 from operator import neg
 
 from pymongo import ReturnDocument
@@ -218,7 +218,10 @@ def berger_to_float(berger: int) -> float:
     return berger / BERGER_NORM
 
 
-@cache
+PLAYER_JSON_CACHE_SIZE = 2048
+
+
+@lru_cache(maxsize=PLAYER_JSON_CACHE_SIZE)
 def player_json(
     player: PlayerData, full_score: int, paused: bool, berger_value: float = 0
 ) -> TournamentPlayerJson:

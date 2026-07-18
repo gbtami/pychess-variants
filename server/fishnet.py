@@ -82,6 +82,14 @@ MOVE_INVALID_MOVE_LIMIT = 2
 
 
 FISHNET_VARIANTS_PAYLOAD_CACHE_SIZE = 128
+FISHNET_VARIANTS_PAYLOAD_CACHE_MAX_BYTES = 2 * 1024 * 1024
+
+
+def fishnet_variants_payload_cache_bytes(app_state: PychessGlobalAppState) -> int:
+    return sum(
+        len(payload.get("variantsIni", "").encode("utf-8"))
+        for payload in _fishnet_variants_payload_cache(app_state).values()
+    )
 
 
 def _fishnet_variants_payload_cache(
@@ -100,7 +108,11 @@ def _cache_fishnet_variants_payload(
     cache = _fishnet_variants_payload_cache(app_state)
     sha256 = payload["variantsSha256"]
     cache[sha256] = payload
-    while len(cache) > FISHNET_VARIANTS_PAYLOAD_CACHE_SIZE:
+    while (
+        len(cache) > FISHNET_VARIANTS_PAYLOAD_CACHE_SIZE
+        or fishnet_variants_payload_cache_bytes(app_state)
+        > FISHNET_VARIANTS_PAYLOAD_CACHE_MAX_BYTES
+    ):
         cache.pop(next(iter(cache)))
     return payload
 
@@ -390,6 +402,37 @@ def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | N
     for work_id in stale_ids:
         del app_state.fishnet_works[work_id]
     return len(stale_ids)
+
+
+def drop_fishnet_work_for_game(app_state: PychessGlobalAppState, game_id: str) -> int:
+    """Remove completed/evicted game work and compact stale PriorityQueue entries."""
+    work_ids = {
+        work_id
+        for work_id, work in tuple(app_state.fishnet_works.items())
+        if work.get("game_id") == game_id
+    }
+    if not work_ids:
+        return 0
+
+    for work_id in work_ids:
+        app_state.fishnet_works.pop(work_id, None)
+
+    retained: list[tuple[int, str]] = []
+    while True:
+        try:
+            item = app_state.fishnet_queue.get_nowait()
+        except asyncio.QueueEmpty:
+            break
+        try:
+            app_state.fishnet_queue.task_done()
+        except ValueError:
+            log.error("Fishnet queue accounting was already unbalanced during game cleanup")
+        if item[1] not in work_ids and item[1] in app_state.fishnet_works:
+            retained.append(item)
+
+    for item in retained:
+        app_state.fishnet_queue.put_nowait(item)
+    return len(work_ids)
 
 
 def _fishnet_worker_is_recent(app_state: PychessGlobalAppState, key: str, now: float) -> bool:
@@ -692,7 +735,8 @@ async def get_work(
             gameId = work["game_id"]
             game = await load_game(app_state, gameId)
             if game is None:
-                return web.Response(status=204)
+                app_state.fishnet_works.pop(work_id, None)
+                continue
 
             for step in game.steps:
                 if "analysis" in step:
@@ -841,6 +885,9 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
 
     gameId = work["game_id"]
     game = await load_game(app_state, gameId)
+    if game is None:
+        app_state.fishnet_works.pop(work_id, None)
+        return web.Response(status=204)
 
     username = work["username"]
 

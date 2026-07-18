@@ -1,33 +1,46 @@
 import inspect
 import sys
 import gc
+import os
+import resource
 import time
 import asyncio
-from asyncio import Task, Queue
+from asyncio import Event, Task, Queue
 from collections import defaultdict
 from collections.abc import Iterable
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, TypedDict, cast
 
 from aiohttp import web
-from aiohttp.web_ws import WebSocketResponse
+from aiohttp.web_response import StreamResponse
 
+from bug.game_bug import GameBug
+from catalogued_betza import (
+    _cached_betza_svg,
+    _cached_catalogued_betza_diagrams,
+    _cached_piece_diagram_definitions,
+)
+from catalogued_board import _cached_start_board_svg
+from catalogued_rules import _cached_catalogued_rule_summary
 from clock import Clock
 from game import Game
+from fishnet import fishnet_variants_payload_cache_bytes
 import logging
 
 from const import STARTED, reserved
 from lobby import Lobby
 from seek import Seek
 from user import User
-from variants import Variant
-from fairy.fairy_board import FairyBoard
+from variants import CataloguedServerVariant, Variant
+from fairy.fairy_board import FairyBoard, get_fog_fen
+from fairy.jieqi import index_to_square, square_to_index
 from glicko2.glicko2 import Rating
 from settings import PYCHESS_MONITOR_TOKEN, URI, LOCALHOST
-from tournament.tournament import PlayerData, GameData
-from tournament.arena import ArenaTournament
+from simul.simul import Simul
+from tournament.tournament import GameData, PlayerData, Tournament, player_json
 from pychess_global_app_state_utils import get_app_state
 from json_utils import json_response
+from typedefs import request_protection_state_key
 
 log = logging.getLogger(__name__)
 
@@ -62,6 +75,90 @@ class QueueInfo(TypedDict):
     size: int
     file: str
     source: str
+
+
+class CacheInfo(TypedDict):
+    name: str
+    hits: int
+    misses: int
+    maxsize: int
+    currsize: int
+    full: bool
+
+
+MONITORED_TYPES = (
+    Clock,
+    Game,
+    GameBug,
+    User,
+    Seek,
+    PlayerData,
+    GameData,
+    Tournament,
+    Simul,
+    Lobby,
+    StreamResponse,
+    Task,
+    Queue,
+    Event,
+    FairyBoard,
+    Rating,
+    Variant,
+    CataloguedServerVariant,
+)
+
+CACHE_FUNCTIONS = (
+    ("fog_fen", get_fog_fen),
+    ("tournament_player_json", player_json),
+    ("catalogued_betza_svg", _cached_betza_svg),
+    ("catalogued_betza_definitions", _cached_piece_diagram_definitions),
+    ("catalogued_betza_diagrams", _cached_catalogued_betza_diagrams),
+    ("catalogued_start_board_svg", _cached_start_board_svg),
+    ("catalogued_rule_summary", _cached_catalogued_rule_summary),
+    ("jieqi_square_to_index", square_to_index),
+    ("jieqi_index_to_square", index_to_square),
+)
+
+
+def cache_stats() -> list[CacheInfo]:
+    rows: list[CacheInfo] = []
+    for name, cached_function in CACHE_FUNCTIONS:
+        info = cached_function.cache_info()
+        maxsize = -1 if info.maxsize is None else info.maxsize
+        rows.append(
+            {
+                "name": name,
+                "hits": info.hits,
+                "misses": info.misses,
+                "maxsize": maxsize,
+                "currsize": info.currsize,
+                "full": info.maxsize is not None and info.currsize >= info.maxsize,
+            }
+        )
+    return rows
+
+
+def process_memory_stats() -> dict[str, float | int]:
+    """Return Linux process RSS alongside Python GC counters."""
+    peak_rss_kib = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    rss_kib = peak_rss_kib
+    try:
+        with open("/proc/self/statm", encoding="ascii") as statm:
+            resident_pages = int(statm.read().split()[1])
+        rss_kib = resident_pages * int(os.sysconf("SC_PAGE_SIZE")) // 1024
+    except OSError, ValueError, IndexError:
+        pass
+
+    gc_gen0, gc_gen1, gc_gen2 = gc.get_count()
+    return {
+        "rss_kib": rss_kib,
+        "rss_mib": round(rss_kib / 1024, 2),
+        "peak_rss_kib": peak_rss_kib,
+        "peak_rss_mib": round(peak_rss_kib / 1024, 2),
+        "gc_gen0": gc_gen0,
+        "gc_gen1": gc_gen1,
+        "gc_gen2": gc_gen2,
+    }
 
 
 def _task_state(task: Task[None] | None) -> str:
@@ -153,25 +250,10 @@ def memory_stats(
     queues: list[QueueInfo] = []
 
     for obj in objects:
-        if type(obj) in (
-            Clock,
-            Game,
-            User,
-            Seek,
-            PlayerData,
-            GameData,
-            ArenaTournament,
-            Lobby,
-            WebSocketResponse,
-            Task,
-            Queue,
-            FairyBoard,
-            Rating,
-            Variant,
-        ):
+        if isinstance(obj, MONITORED_TYPES):
             obj_type = type(obj).__name__
             type_info[obj_type]["count"] += 1
-            if type(obj) is Task:
+            if isinstance(obj, Task):
                 type_info[obj_type]["size"] += sys.getsizeof(obj)
                 # TODO: using inspect modul is rather time consuming
                 # Add a new switch to the monitor TUI to enable this
@@ -202,7 +284,7 @@ def memory_stats(
                     }
                 )
 
-            elif type(obj) is Queue:
+            elif isinstance(obj, Queue):
                 queues.append(
                     {
                         "id": id(obj),
@@ -291,6 +373,8 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
             "game_socket_total": sum(len(ws_set) for ws_set in user.game_sockets.values()),
             "challenge_channels": len(user.challenge_channels),
             "notify_channels": len(user.notify_channels),
+            "inbox_channels": len(user.inbox_channels),
+            "notifications": 0 if user.notifications is None else len(user.notifications),
             "tournament_sockets": sum(len(ws_set) for ws_set in user.tournament_sockets.values()),
             "simul_sockets": sum(len(ws_set) for ws_set in user.simul_sockets.values()),
             "abandon_tasks": len(user.abandon_game_tasks),
@@ -507,6 +591,168 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
 
     started_games_no_round_sockets.sort(key=lambda row: cast(datetime, row["date"]), reverse=True)
 
+    cache_rows = cache_stats()
+    cache_entries = sum(row["currsize"] for row in cache_rows)
+    process_memory_rows = [process_memory_stats()]
+
+    tournament_rows: list[dict[str, object]] = [
+        {
+            "id": tournament_id,
+            "type": type(tournament).__name__,
+            "status": tournament.status,
+            "variant": tournament.variant,
+            "players": tournament.nb_players,
+            "ongoing_games": len(tournament.ongoing_games),
+            "clock_task": _task_state(tournament.clock_task),
+            "created_at": tournament.created_at,
+        }
+        for tournament_id, tournament in app_state.tournaments.items()
+    ]
+    tournament_rows.sort(key=lambda row: cast(datetime, row["created_at"]), reverse=True)
+
+    simul_rows: list[dict[str, object]] = [
+        {
+            "id": simul_id,
+            "status": simul.status,
+            "variant": simul.variant,
+            "host": simul.created_by,
+            "players": len(simul.players),
+            "pending_players": len(simul.pending_players),
+            "games": len(simul.games),
+            "ongoing_games": len(simul.ongoing_games),
+            "spectators": len(simul.spectators),
+            "clock_task": _task_state(simul.clock_task),
+            "created_at": simul.created_at,
+        }
+        for simul_id, simul in app_state.simuls.items()
+    ]
+    simul_rows.sort(key=lambda row: cast(datetime, row["created_at"]), reverse=True)
+
+    monotonic_now = time.monotonic()
+    fishnet_work_rows: list[dict[str, object]] = [
+        {
+            "id": work_id,
+            "type": work["work"]["type"],
+            "game_id": work.get("game_id", ""),
+            "variant": work.get("variant", ""),
+            "age_secs": max(0, int(monotonic_now - work.get("time", monotonic_now))),
+            "stale_reissues": work.get("stale_reissue_count", 0),
+            "abort_count": work.get("abort_count", 0),
+        }
+        for work_id, work in app_state.fishnet_works.items()
+    ]
+    fishnet_work_rows.sort(key=lambda row: cast(int, row["age_secs"]), reverse=True)
+
+    public_profiles = getattr(app_state.public_users, "_profiles", {})
+    public_titles = getattr(app_state.public_users, "_titles", {})
+    request_protection = request.app[request_protection_state_key]
+    fishnet_payload_bytes = fishnet_variants_payload_cache_bytes(app_state)
+    state_summary = [
+        {
+            "users": len(app_state.users),
+            "games": len(app_state.games),
+            "seeks": len(app_state.seeks),
+            "invites": len(app_state.invites),
+            "tournaments": len(app_state.tournaments),
+            "simuls": len(app_state.simuls),
+            "catalogued_variants": len(app_state.catalogued_variants),
+            "game_remove_tasks": len(app_state.game_remove_tasks),
+            "tournament_remove_tasks": len(app_state.tournament_remove_tasks),
+            "background_tasks": len(app_state.background_tasks),
+            "fishnet_works": len(app_state.fishnet_works),
+            "fishnet_queue": app_state.fishnet_queue.qsize(),
+            "fishnet_payloads": len(app_state.fishnet_variant_payloads),
+            "fishnet_payload_bytes": fishnet_payload_bytes,
+            "public_profile_cache": len(public_profiles),
+            "public_title_cache": len(public_titles),
+            "request_limit_buckets": len(request_protection._limiter._events),
+            "request_block_log": len(request_protection._last_block_log),
+        }
+    ]
+    state_entries = sum(cast(int, value) for value in state_summary[0].values())
+
+    lobby_ws = sum(len(ws_set) for ws_set in app_state.lobby.lobbysockets.values())
+    game_ws = sum(
+        len(ws_set) for user in app_state.users.values() for ws_set in user.game_sockets.values()
+    )
+    tournament_ws = sum(
+        sum(1 for ws in ws_set if ws is not None)
+        for user in app_state.users.values()
+        for ws_set in user.tournament_sockets.values()
+    )
+    simul_ws = sum(
+        len(ws_set) for user in app_state.users.values() for ws_set in user.simul_sockets.values()
+    )
+    notify_sse = sum(len(user.notify_channels) for user in app_state.users.values())
+    inbox_sse = sum(len(user.inbox_channels) for user in app_state.users.values())
+    challenge_sse = sum(len(user.challenge_channels) for user in app_state.users.values())
+    invite_sse = sum(len(channels) for channels in app_state.invite_channels.values())
+    active_bot_game_streams = sum(
+        len(user.active_game_streams) for user in app_state.users.values() if user.bot
+    )
+    stream_summary = [
+        {
+            "lobby_websockets": lobby_ws,
+            "game_websockets": game_ws,
+            "tournament_websockets": tournament_ws,
+            "simul_websockets": simul_ws,
+            "game_sse": len(app_state.game_channels),
+            "invite_sse": invite_sse,
+            "invite_sse_groups": len(app_state.invite_channels),
+            "notify_sse": notify_sse,
+            "inbox_sse": inbox_sse,
+            "challenge_sse": challenge_sse,
+            "active_bot_game_streams": active_bot_game_streams,
+        }
+    ]
+    stream_entries = sum(cast(int, value) for value in stream_summary[0].values())
+
+    registered_total = 0
+    registered_online = 0
+    registered_never_connected = 0
+    registered_cache_only = 0
+    registered_notification_users = 0
+    registered_notification_entries = 0
+    for user in app_state.users.values():
+        if user.anon or reserved(user.username):
+            continue
+        registered_total += 1
+        registered_online += int(user.online)
+        registered_never_connected += int(not user.ever_connected)
+        notification_count = 0 if user.notifications is None else len(user.notifications)
+        registered_notification_entries += notification_count
+        registered_notification_users += int(notification_count > 0)
+        has_live_reference = bool(
+            user.online
+            or user.game_in_progress is not None
+            or user.correspondence_games
+            or user.seeks
+            or user.game_sockets
+            or user.lobby_sockets
+            or user.tournament_sockets
+            or user.simul_sockets
+            or user.notify_channels
+            or user.inbox_channels
+            or user.challenge_channels
+            or user.abandon_game_tasks
+            or user.background_tasks
+            or user.watched_games
+        )
+        if not has_live_reference:
+            registered_cache_only += 1
+
+    registered_summary = [
+        {
+            "registered_total": registered_total,
+            "registered_online": registered_online,
+            "registered_offline": registered_total - registered_online,
+            "registered_never_connected": registered_never_connected,
+            "registered_cache_only": registered_cache_only,
+            "registered_notification_users": registered_notification_users,
+            "registered_notification_entries": registered_notification_entries,
+        }
+    ]
+
     anon_summary = [
         {
             "anon_total": anon_total,
@@ -549,6 +795,13 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
     anon_user_memory_size = get_deep_size(anon_users) / 1024
     started_game_no_socket_memory_size = get_deep_size(started_games_no_round_sockets) / 1024
     anon_summary_memory_size = get_deep_size(anon_summary) / 1024
+    registered_summary_memory_size = get_deep_size(registered_summary) / 1024
+    tournament_memory_size = get_deep_size(app_state.tournaments) / 1024
+    simul_memory_size = get_deep_size(app_state.simuls) / 1024
+    fishnet_work_memory_size = get_deep_size(app_state.fishnet_works) / 1024
+    cache_memory_size = get_deep_size(cache_rows) / 1024
+    state_memory_size = get_deep_size(state_summary) / 1024
+    stream_memory_size = get_deep_size(stream_summary) / 1024
 
     metrics: dict[str, object] = {
         "active_connections": len(active_connections),
@@ -564,6 +817,7 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
         ],
         "object_counts": {
             "users": len(users),
+            "seeks": len(seeks),
             "games": len(games),
             "tasks": len(tasks),
             "queues": len(queues),
@@ -571,9 +825,18 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
             "anon_users": len(anon_users),
             "started_games_no_round_sockets": len(started_games_no_round_sockets),
             "anon_summary": len(anon_summary),
+            "registered_summary": len(registered_summary),
+            "tournaments": len(tournament_rows),
+            "simuls": len(simul_rows),
+            "fishnet_works": len(fishnet_work_rows),
+            "caches": cache_entries,
+            "state": state_entries,
+            "streams": stream_entries,
+            "process_memory": cast(int, process_memory_rows[0]["rss_kib"]),
         },
         "object_sizes": {
             "users": user_memory_size,
+            "seeks": get_deep_size(app_state.seeks) / 1024,
             "games": game_memory_size,
             "tasks": task_memory_size,
             "queues": queue_memory_size,
@@ -581,6 +844,14 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
             "anon_users": anon_user_memory_size,
             "started_games_no_round_sockets": started_game_no_socket_memory_size,
             "anon_summary": anon_summary_memory_size,
+            "registered_summary": registered_summary_memory_size,
+            "tournaments": tournament_memory_size,
+            "simuls": simul_memory_size,
+            "fishnet_works": fishnet_work_memory_size,
+            "caches": cache_memory_size,
+            "state": state_memory_size,
+            "streams": stream_memory_size,
+            "process_memory": cast(int, process_memory_rows[0]["rss_kib"]),
         },
         "object_details": {
             "users": users,
@@ -592,6 +863,14 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
             "anon_users": anon_users,
             "started_games_no_round_sockets": started_games_no_round_sockets,
             "anon_summary": anon_summary,
+            "registered_summary": registered_summary,
+            "tournaments": tournament_rows,
+            "simuls": simul_rows,
+            "fishnet_works": fishnet_work_rows,
+            "caches": cache_rows,
+            "state": state_summary,
+            "streams": stream_summary,
+            "process_memory": process_memory_rows,
         },
     }
     log.debug("Collecting all metrics time: %s", (time.process_time() - start))

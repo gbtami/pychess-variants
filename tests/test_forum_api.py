@@ -100,6 +100,26 @@ class ForumApiTestCase(AioHTTPTestCase):
         participants_payload2 = await participants_resp2.json()
         self.assertEqual(["alice", "bob"], participants_payload2["participants"])
 
+    async def test_forum_mention_does_not_cache_offline_recipient(self):
+        app_state = get_app_state(self.app)
+        self.add_user("alice")
+        await app_state.db.user.insert_one({"_id": "bob", "title": "FM", "enabled": True})
+
+        self.set_session_user("alice")
+        create_data = await self.with_forum_captcha(
+            {"name": "offline mention", "text": "hello @bob"}
+        )
+        response = await self.client.post(
+            "/api/forum/general-chess-discussion/topic",
+            data=create_data,
+        )
+
+        self.assertEqual(response.status, 200)
+        self.assertNotIn("bob", app_state.users.data)
+        self.assertIsNotNone(
+            await app_state.db.notify.find_one({"notifies": "bob", "type": "forumMention"})
+        )
+
     async def test_forum_reactions(self):
         self.add_user("alice")
         self.add_user("bob")

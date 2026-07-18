@@ -69,19 +69,29 @@ async def _unread_count(app_state, username: str) -> int:
 async def _push_inbox_state(app_state, username: str, thread_contact: str | None = None) -> None:
     if app_state.db is None:
         return
-    user = await app_state.users.get(username)
-    unread = await _unread_count(app_state, username)
-    payload = json_dumps(
-        {
-            "unread": unread,
-            "thread": thread_contact,
-        }
-    )
-    for queue in tuple(user.inbox_channels):
-        await queue.put(payload)
-    notify_payload = json_dumps(await notification_items_for_user(app_state, user, 0))
-    for queue in tuple(user.notify_channels):
-        await queue.put(notify_payload)
+    # Inbox delivery must not load an otherwise-offline recipient into the
+    # process-wide Users cache. Persisted threads are read from MongoDB when the
+    # recipient next connects; this helper only pushes to existing live streams.
+    user = app_state.users.data.get(username)
+    if user is None:
+        return
+
+    inbox_channels = tuple(user.inbox_channels)
+    if inbox_channels:
+        payload = json_dumps(
+            {
+                "unread": await _unread_count(app_state, username),
+                "thread": thread_contact,
+            }
+        )
+        for queue in inbox_channels:
+            await queue.put(payload)
+
+    notify_channels = tuple(user.notify_channels)
+    if notify_channels:
+        notify_payload = json_dumps(await notification_items_for_user(app_state, user, 0))
+        for queue in notify_channels:
+            await queue.put(notify_payload)
 
 
 async def inbox_unread(request: web.Request) -> web.Response:

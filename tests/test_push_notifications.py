@@ -11,6 +11,7 @@ from mongomock_motor import AsyncMongoMockClient
 
 from pychess_global_app_state_utils import get_app_state
 import push_notifications
+from notify import NOTIFICATION_CACHE_LIMIT, notify
 from server import make_app
 from user import User
 
@@ -237,6 +238,18 @@ class PushSubscribeTestCase(AioHTTPTestCase):
         stored = await app_state.db.notify.find_one({"notifies": "white", "type": "corrMove"})
         self.assertIsNotNone(stored)
         self.assertNotIn("san", stored["content"])
+
+    async def test_in_memory_notification_history_is_bounded(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="bounded-notifications")
+        user.notifications = []
+
+        for index in range(NOTIFICATION_CACHE_LIMIT + 5):
+            await notify(None, user, "corrMove", {"id": str(index)})
+
+        self.assertEqual(len(user.notifications), NOTIFICATION_CACHE_LIMIT)
+        self.assertEqual(user.notifications[0]["content"]["id"], "5")
+        self.assertEqual(user.notifications[-1]["content"]["id"], str(NOTIFICATION_CACHE_LIMIT + 4))
 
     async def test_corr_push_body_hides_missing_san(self):
         self.assertEqual(

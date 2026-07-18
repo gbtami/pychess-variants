@@ -9,6 +9,8 @@ from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
 from user import User
+from fairy.fairy_board import FOG_FEN_CACHE_SIZE
+from tournament.tournament import PLAYER_JSON_CACHE_SIZE
 
 test_logger.init_test_logger()
 
@@ -94,3 +96,60 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
 
         expected_detached = max(0, summary["user_objects_total"] - summary["cached_users"])
         self.assertEqual(summary["detached_user_objects"], expected_detached)
+
+        cache_rows = {row["name"]: row for row in payload["object_details"]["caches"]}
+        self.assertEqual(cache_rows["fog_fen"]["maxsize"], FOG_FEN_CACHE_SIZE)
+        self.assertEqual(cache_rows["tournament_player_json"]["maxsize"], PLAYER_JSON_CACHE_SIZE)
+        self.assertTrue(all(row["maxsize"] > 0 for row in cache_rows.values()))
+        self.assertEqual(
+            payload["object_counts"]["caches"],
+            sum(row["currsize"] for row in cache_rows.values()),
+        )
+
+        state = payload["object_details"]["state"][0]
+        for key in (
+            "tournaments",
+            "simuls",
+            "catalogued_variants",
+            "fishnet_works",
+            "fishnet_queue",
+            "fishnet_payloads",
+            "fishnet_payload_bytes",
+            "public_profile_cache",
+            "public_title_cache",
+            "request_limit_buckets",
+            "request_block_log",
+        ):
+            self.assertIn(key, state)
+
+        registered = payload["object_details"]["registered_summary"][0]
+        for key in (
+            "registered_total",
+            "registered_online",
+            "registered_offline",
+            "registered_never_connected",
+            "registered_cache_only",
+            "registered_notification_users",
+            "registered_notification_entries",
+        ):
+            self.assertIn(key, registered)
+
+        streams = payload["object_details"]["streams"][0]
+        for key in (
+            "lobby_websockets",
+            "game_websockets",
+            "tournament_websockets",
+            "simul_websockets",
+            "game_sse",
+            "invite_sse",
+            "notify_sse",
+            "inbox_sse",
+            "challenge_sse",
+            "active_bot_game_streams",
+        ):
+            self.assertIn(key, streams)
+
+        process_memory = payload["object_details"]["process_memory"][0]
+        self.assertGreater(process_memory["rss_kib"], 0)
+        self.assertGreater(process_memory["peak_rss_kib"], 0)
+        self.assertEqual(payload["object_counts"]["process_memory"], process_memory["rss_kib"])

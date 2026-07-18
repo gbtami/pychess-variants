@@ -259,7 +259,10 @@ class MemoryMonitorApp(App):
                 async with session.get(url, headers=headers) as response:
                     if response.status == 200:
                         data = await response.json()
-                        logger.info(f"Received metrics: {data}")
+                        logger.debug(
+                            "Received metric categories: %s",
+                            list(data.get("object_details", {})),
+                        )
 
                         if not self.categories:
                             self.categories = list(data.get("object_details", {}).keys())

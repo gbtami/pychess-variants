@@ -53,7 +53,7 @@ def pieces_to_fen(board):
     return "/".join(fen_rows)
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=128)
 def square_to_index(square):
     """Convert 'b3' -> flat index 0..89."""
     col = ord(square[0]) - ord("a")
@@ -61,7 +61,7 @@ def square_to_index(square):
     return row * 9 + col
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=128)
 def index_to_square(index):
     row, col = divmod(index, 9)
     return f"{chr(ord('a') + col)}{10 - row}"

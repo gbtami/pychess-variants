@@ -1,11 +1,13 @@
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
 from pychess_global_app_state_utils import get_app_state
 from server import make_app
+from request_protection import RequestProtectionState
 
 
 class RequestProtectionTestCase(AioHTTPTestCase):
@@ -142,6 +144,28 @@ class RequestProtectionTestCase(AioHTTPTestCase):
         response = await self.client.get("/api/users/status")
 
         self.assertEqual(response.status, 400)
+
+
+class RequestProtectionStateTestCase(unittest.TestCase):
+    def test_block_log_is_bounded_under_unique_scanner_flood(self):
+        state = RequestProtectionState()
+        state._BLOCK_LOG_MAX_KEYS = 10
+
+        with patch("request_protection.monotonic", return_value=100.0):
+            for index in range(30):
+                self.assertTrue(state.should_log_block(f"scanner:192.0.2.{index}"))
+
+        self.assertLessEqual(len(state._last_block_log), state._BLOCK_LOG_MAX_KEYS)
+
+    def test_block_log_discards_expired_entries(self):
+        state = RequestProtectionState()
+        state._last_block_log = {"old": 1.0}
+
+        with patch("request_protection.monotonic", return_value=100.0):
+            self.assertTrue(state.should_log_block("new"))
+
+        self.assertNotIn("old", state._last_block_log)
+        self.assertIn("new", state._last_block_log)
 
 
 if __name__ == "__main__":

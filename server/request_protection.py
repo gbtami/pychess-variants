@@ -144,9 +144,14 @@ class RequestProtectionState:
         }
     )
 
+    _BLOCK_LOG_MAX_KEYS = 20_000
+    _BLOCK_LOG_RETENTION_SECONDS = 60.0
+    _BLOCK_LOG_CLEANUP_INTERVAL_SECONDS = 15.0
+
     def __init__(self) -> None:
         self._limiter = SlidingWindowLimiter()
         self._last_block_log: dict[str, float] = {}
+        self._last_block_log_cleanup = 0.0
         self._local_dev_mode = URI == LOCALHOST
 
     def classify(self, path: str) -> RouteRateLimit | None:
@@ -210,11 +215,34 @@ class RequestProtectionState:
 
     def should_log_block(self, key: str) -> bool:
         now = monotonic()
+        self._cleanup_block_log_if_needed(now)
         prev = self._last_block_log.get(key, 0.0)
         if now - prev < 30.0:
             return False
         self._last_block_log[key] = now
         return True
+
+    def _cleanup_block_log_if_needed(self, now: float) -> None:
+        cleanup_due = now - self._last_block_log_cleanup >= self._BLOCK_LOG_CLEANUP_INTERVAL_SECONDS
+        at_capacity = len(self._last_block_log) >= self._BLOCK_LOG_MAX_KEYS
+        if not cleanup_due and not at_capacity:
+            return
+
+        cutoff = now - self._BLOCK_LOG_RETENTION_SECONDS
+        for key, logged_at in tuple(self._last_block_log.items()):
+            if logged_at <= cutoff:
+                del self._last_block_log[key]
+
+        if len(self._last_block_log) >= self._BLOCK_LOG_MAX_KEYS:
+            # Shed a batch so a scanner flood does not force an O(n) eviction
+            # for every subsequent unique address.
+            target_size = max(1, self._BLOCK_LOG_MAX_KEYS * 9 // 10)
+            remove_count = len(self._last_block_log) - target_size
+            oldest = sorted(self._last_block_log, key=self._last_block_log.__getitem__)
+            for key in oldest[:remove_count]:
+                del self._last_block_log[key]
+
+        self._last_block_log_cleanup = now
 
     def allow(self, key: str, route_limit: RouteRateLimit) -> bool:
         return self._limiter.allow(key, route_limit.max_requests, route_limit.window_seconds)

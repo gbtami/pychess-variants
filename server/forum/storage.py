@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from notify import notify
+from notify import notify_by_username
 
 from forum.constants import DEFAULT_FORUM_CATEGS, FORUM_POST_PER_PAGE, KEY_TO_REACTION
 from forum.utils import extract_mentions, post_page_for_index
@@ -170,10 +170,9 @@ async def notify_mentions(
             continue
         if mentioner in profile.blocked:
             continue
-        user = await app_state.users.get(username)
-        await notify(
-            app_state.db,
-            user,
+        await notify_by_username(
+            app_state,
+            username,
             "forumMention",
             {
                 "id": post_id,

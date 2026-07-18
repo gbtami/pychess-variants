@@ -132,6 +132,39 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.status, 204)
         self.assertNotIn("work123", app_state.fishnet_works)
 
+    async def test_get_work_drops_analysis_when_game_no_longer_exists(self):
+        work = {
+            "work": {"type": "analysis", "id": "work123"},
+            "game_id": "missing-game",
+            "position": "startpos",
+            "variant": "chess",
+            "chess960": False,
+            "moves": "",
+            "nnue": True,
+            "time": 0.0,
+        }
+        queue = asyncio.PriorityQueue()
+        queue.put_nowait((fishnet.ANALYSIS, "work123"))
+        app_state = SimpleNamespace(
+            fishnet_monitor=defaultdict(list, {"worker1": []}),
+            fishnet_queue=queue,
+            fishnet_works={"work123": work},
+            workers={"k"},
+            fishnet_worker_last_seen={"k": 100.0},
+            users={"Fairy-Stockfish": SimpleNamespace(online=True)},
+            catalogued_variants={},
+        )
+
+        with (
+            patch.dict(fishnet.FISHNET_KEYS, {"k": "worker1"}, clear=True),
+            patch("fishnet.load_game", AsyncMock(return_value=None)),
+        ):
+            response = await fishnet.get_work(app_state, {"fishnet": {"apikey": "k"}})
+
+        self.assertEqual(response.status, 204)
+        self.assertNotIn("work123", app_state.fishnet_works)
+        self.assertEqual(app_state.fishnet_queue.qsize(), 0)
+
     async def test_fishnet_move_play_move_exception_requeues_without_deleting_work(self):
         work = {
             "work": {"type": "move", "id": "work123", "level": 1},
@@ -350,6 +383,26 @@ class FishnetTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(dropped, 1)
         self.assertEqual(set(app_state.fishnet_works), {"analysis2", "move1"})
+
+    def test_drop_fishnet_work_for_game_compacts_queue(self):
+        queue = asyncio.PriorityQueue()
+        queue.put_nowait((fishnet.MOVE, "drop"))
+        queue.put_nowait((fishnet.ANALYSIS, "keep"))
+        queue.put_nowait((fishnet.MOVE, "already-missing"))
+        app_state = SimpleNamespace(
+            fishnet_works={
+                "drop": {"game_id": "done"},
+                "keep": {"game_id": "active"},
+            },
+            fishnet_queue=queue,
+        )
+
+        dropped = fishnet.drop_fishnet_work_for_game(app_state, "done")
+
+        self.assertEqual(dropped, 1)
+        self.assertEqual(set(app_state.fishnet_works), {"keep"})
+        self.assertEqual(app_state.fishnet_queue.qsize(), 1)
+        self.assertEqual(app_state.fishnet_queue.get_nowait()[1], "keep")
 
     def test_has_recent_fishnet_activity_requires_recent_worker_heartbeat(self):
         app_state = SimpleNamespace(
@@ -636,6 +689,24 @@ class FishnetAnalysisPvRegressionTestCase(unittest.IsolatedAsyncioTestCase):
 
 
 class FishnetVariantsEndpointTestCase(unittest.IsolatedAsyncioTestCase):
+    def test_variants_payload_cache_has_byte_budget(self):
+        app_state = SimpleNamespace(fishnet_variant_payloads={})
+        first = {
+            "variantsIni": "a" * 10,
+            "variantsSha256": "a" * 64,
+        }
+        second = {
+            "variantsIni": "b" * 10,
+            "variantsSha256": "b" * 64,
+        }
+
+        with patch.object(fishnet, "FISHNET_VARIANTS_PAYLOAD_CACHE_MAX_BYTES", 15):
+            fishnet._cache_fishnet_variants_payload(app_state, first)
+            fishnet._cache_fishnet_variants_payload(app_state, second)
+
+        self.assertEqual(set(app_state.fishnet_variant_payloads), {second["variantsSha256"]})
+        self.assertLessEqual(fishnet.fishnet_variants_payload_cache_bytes(app_state), 15)
+
     async def test_variants_endpoint_rejects_unavailable_exact_hash(self):
         app_state = SimpleNamespace(catalogued_variants={})
         request = cast(web.Request, AsyncMock())
