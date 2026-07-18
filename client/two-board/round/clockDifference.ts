@@ -1,6 +1,6 @@
 import { h, VNode } from 'snabbdom';
 
-import { patch } from '../document';
+import { patch } from '../../document';
 
 // UI component rendered next to each of the 4 bughouse clocks, showing the
 // time difference (in seconds) between this clock and the clock of the

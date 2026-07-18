@@ -1,10 +1,10 @@
 import { h, VNode } from 'snabbdom';
 
-import { VARIANTS } from '../variants';
-import { gameInfoBug } from './gameInfo.bug';
-import { renderTimeago } from '../datetime';
-import { PyChessModel } from '../types';
-import { RoundControllerBughouse } from './roundCtrl.bug';
+import { VARIANTS } from '../../variants';
+import { gameInfoBug } from '../common/gameInfo';
+import { renderTimeago } from '../../datetime';
+import { PyChessModel } from '../../types';
+import { RoundControllerBughouse } from './roundCtrl';
 
 function createBoards(
     mainboardVNode: VNode,

@@ -13,7 +13,7 @@ import { alternateStartName, timeControlStr } from './view';
 import { PyChessModel } from './types';
 import { Ceval } from './messages';
 import { aiLevel, gameType, result, renderRdiff } from './result';
-import { renderBugTeamInfo, renderGameBoardsBug } from '@/bug/profile.bug';
+import { renderBugTeamInfo, renderGameBoardsBug } from '@/two-board/profile';
 import { displayUsername, userLink } from './user';
 
 export interface Game {

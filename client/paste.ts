@@ -9,7 +9,7 @@ import { VARIANTS } from './variants';
 import { alertDialog } from './alertDialog';
 import { parseKif, resultString } from '../client/kif';
 import { PyChessModel } from './types';
-import { importGameBugH } from '@/bug/paste.bug';
+import { importGameBugH } from '@/two-board/paste';
 
 const BRAINKING_SITE = '[Site "BrainKing.com (Prague, Czech Republic)"]';
 const EMBASSY_FEN = '[FEN "rnbqkmcbnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKMCBNR w KQkq - 0 1"]';

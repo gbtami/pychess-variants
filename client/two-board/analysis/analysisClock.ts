@@ -1,10 +1,10 @@
 import { h, VNode } from 'snabbdom';
 
-import { patch } from '../document';
-import AnalysisController from './analysisCtrl.bug';
-import { GameControllerBughouse } from './gameCtrl.bug';
-import { Clocks } from '../messages';
-import { BLACK, WHITE } from '../chess';
+import { patch } from '../../document';
+import AnalysisController from './analysisCtrl';
+import { GameControllerBughouse } from '../common/gameCtrl';
+import { Clocks } from '../../messages';
+import { BLACK, WHITE } from '../../chess';
 
 export function renderClocks(ctrl: AnalysisController) {
     const lastStep = ctrl.hasAnalysisTree?.() ? ctrl.getTreeCurrentNode?.()?.step : ctrl.steps[ctrl.ply];

@@ -1,5 +1,5 @@
-import { MsgMove, MsgMovesAfterReconnect } from '../messages';
-import { BugBoardName } from '../types';
+import { MsgMove, MsgMovesAfterReconnect } from '../../messages';
+import { BugBoardName } from '../../types';
 
 // One pending-move-per-board cache per game, so a dropped connection can resend
 // the last unconfirmed move for each board on reconnect. Keeping it in localStorage

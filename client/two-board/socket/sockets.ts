@@ -1,11 +1,11 @@
 import { h } from 'snabbdom';
 
-import { patch } from '../document';
-import { WebsocketHeartbeatJs } from '../socket/socket';
+import { patch } from '../../document';
+import { WebsocketHeartbeatJs } from '../../socket/socket';
 import { createWebsocket } from '@/socket/webSocketUtils';
-import { JSONObject } from '../types';
-import { loadPendingMoves } from './pendingMoves.bug';
-import type { RoundControllerBughouse } from './roundCtrl.bug';
+import { JSONObject } from '../../types';
+import { loadPendingMoves } from './pendingMoves';
+import type { RoundControllerBughouse } from '../round/roundCtrl';
 
 // Owns the round page's websocket connection: creating/reconnecting it and
 // dispatching incoming messages to the RoundControllerBughouse's handlers.

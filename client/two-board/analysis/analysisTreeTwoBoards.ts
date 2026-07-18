@@ -1,5 +1,5 @@
-import { AnalysisTree, AnalysisTreeNode, getNodeList, projectPath } from '../analysis/analysisTree';
-import { Step } from '../messages';
+import { AnalysisTree, AnalysisTreeNode, getNodeList, projectPath } from '../../analysis/analysisTree';
+import { Step } from '../../messages';
 
 export function bugMovePrefix(step: Step): string {
     const boardName = step.turnColor === 'white' ? step.boardName : step.boardName?.toUpperCase();

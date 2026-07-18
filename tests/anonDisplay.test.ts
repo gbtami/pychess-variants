@@ -77,7 +77,7 @@ test('anon usernames are masked in seeks', async () => {
         mode: () => '',
     } as any;
 
-    const { seekViewBughouse } = await import('../client/bug/lobby.bug');
+    const { seekViewBughouse } = await import('../client/two-board/lobby');
     const vnode = seekViewBughouse(ctrl, seek);
     const text = collectText(vnode);
     expect(text).toContain('Anonymous');

@@ -1,11 +1,11 @@
 import Highcharts from 'highcharts';
 import type { Options } from 'highcharts';
 
-import { selectMainlineMove } from './movelist.bug';
-import { Step } from '../messages';
-import AnalysisControllerBughouse from '@/bug/analysisCtrl.bug';
+import { selectMainlineMove } from '../common/movelist';
+import { Step } from '../../messages';
+import AnalysisControllerBughouse from '@/two-board/analysis/analysisCtrl';
 import { BLACK, WHITE } from '@/chess';
-import { BugBoardName } from '../types';
+import { BugBoardName } from '../../types';
 import { displayUsername } from '@/user';
 
 export interface MovePoint {

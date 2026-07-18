@@ -6,7 +6,7 @@ import {
     forceVariationAt,
     mainlinePathAtPly,
 } from '../client/analysis/analysisTree';
-import { renderBughouseTreePgnMoveText } from '../client/bug/analysisTreeBug';
+import { renderBughouseTreePgnMoveText } from '../client/two-board/analysis/analysisTreeTwoBoards';
 import { Step } from '../client/messages';
 
 function makeStep(

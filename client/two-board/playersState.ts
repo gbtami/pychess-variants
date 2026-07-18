@@ -3,13 +3,13 @@ import * as cg from 'chessgroundx/types';
 
 import { patch } from '../document';
 import { Clock } from '../clock';
-import { ClockDifference } from './clockDifference';
+import { ClockDifference } from './round/clockDifference';
 import { Clocks } from '../messages';
 import { BoardName, BugBoardName } from '../types';
 import { BLACK, WHITE } from '../chess';
 import { player } from '../player';
-import { playerInfoData } from './gameInfo.bug';
-import type { RoundControllerBughouse } from './roundCtrl.bug';
+import { playerInfoData } from './common/gameInfo';
+import type { RoundControllerBughouse } from './round/roundCtrl';
 
 // Holds everything about the 4 clocks (and the clock-difference indicators next to them),
 // and about the players/teams/titles/ratings of a bughouse round: who's playing, on which

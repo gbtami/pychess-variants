@@ -1,8 +1,8 @@
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
-import { GameController } from '../gameCtrl';
-import { BugBoardName, PyChessModel } from '../types';
-import type { TwoBoardController } from './twoBoardCtrl';
+import { GameController } from '../../gameCtrl';
+import { BugBoardName, PyChessModel } from '../../types';
+import type { TwoBoardController } from '../twoBoardCtrl';
 import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import { uci2LastMove } from '@/chess';

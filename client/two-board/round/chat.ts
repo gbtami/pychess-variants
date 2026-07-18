@@ -3,10 +3,10 @@ import * as cg from 'chessgroundx/types';
 
 import { _ } from '@/i18n';
 import { patch } from '@/document';
-import { RoundControllerBughouse } from '@/bug/roundCtrl.bug';
-import { formatChatMessageTime, getLocalMoveNum, selectMove } from '@/bug/movelist.bug';
+import { RoundControllerBughouse } from '@/two-board/round/roundCtrl';
+import { formatChatMessageTime, getLocalMoveNum, selectMove } from '@/two-board/common/movelist';
 import { StepChat } from '@/messages';
-import { Variant } from '../variants';
+import { Variant } from '../../variants';
 import { displayUsername, isAnonUsername } from '@/user';
 import { linkifyNodes } from '@/linkify';
 

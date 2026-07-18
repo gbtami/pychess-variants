@@ -2,14 +2,14 @@ import { h, VNode } from 'snabbdom';
 import * as Mousetrap from 'mousetrap';
 import * as cg from 'chessgroundx/types';
 
-import { _ } from '../i18n';
-import { patch } from '../document';
-import { PlayersState } from './playersState.bug';
-import { RoundControllerBughouseSocket } from './roundCtrl.bug.socket';
-import { recordPendingMove } from './pendingMoves.bug';
-import { ChatController, chatMessage, chatView } from '../chat';
-import { updateMovelist, updateResult, selectMove } from './movelist.bug';
-import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, Step, StepChat } from '../messages';
+import { _ } from '../../i18n';
+import { patch } from '../../document';
+import { PlayersState } from '../playersState';
+import { RoundControllerBughouseSocket } from '../socket/sockets';
+import { recordPendingMove } from '../socket/pendingMoves';
+import { ChatController, chatMessage, chatView } from '../../chat';
+import { updateMovelist, updateResult, selectMove } from '../common/movelist';
+import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, Step, StepChat } from '../../messages';
 import {
     MsgUserDisconnected,
     MsgUserPresent,
@@ -20,15 +20,15 @@ import {
     MsgUpdateTV,
     MsgGameStart,
     MsgViewRematch,
-} from '../roundType';
-import { BugBoardName, JSONObject, PyChessModel } from '../types';
-import { GameControllerBughouse } from './gameCtrl.bug';
-import { BLACK, getTurnColor, uci2LastMove, WHITE } from '../chess';
-import { sound, soundThemeSettings } from '../sound';
-import { notify } from '../notification';
-import { chatMessageBug, resetChat } from '@/bug/chat.bug';
+} from '../../roundType';
+import { BugBoardName, JSONObject, PyChessModel } from '../../types';
+import { GameControllerBughouse } from '../common/gameCtrl';
+import { BLACK, getTurnColor, uci2LastMove, WHITE } from '../../chess';
+import { sound, soundThemeSettings } from '../../sound';
+import { notify } from '../../notification';
+import { chatMessageBug, resetChat } from '@/two-board/round/chat';
 import { confirmDialog } from '@/confirmDialog';
-import { TwoBoardController, initBoardSettings, switchBoards } from './twoBoardCtrl';
+import { TwoBoardController, initBoardSettings, switchBoards } from '../twoBoardCtrl';
 
 export class RoundControllerBughouse extends TwoBoardController implements ChatController {
     socket: RoundControllerBughouseSocket;

@@ -35,8 +35,8 @@ import { notifyChessgroundResize, patch } from './document';
 import { renderTimeago } from './datetime';
 import { zenButtonView, zenModeSettings } from './zen';
 import { PyChessModel } from './types';
-import { roundView as bugRoundView } from './bug/round.bug';
-import { analysisView as bugAnalysisView } from './bug/analysis.bug';
+import { roundView as bugRoundView } from './two-board/round/round';
+import { analysisView as bugAnalysisView } from './two-board/analysis/analysis';
 import {
     allVariantsIni,
     devVariants,

@@ -5,22 +5,22 @@ import * as util from 'chessgroundx/util';
 import { DrawShape } from 'chessgroundx/draw';
 import * as Mousetrap from 'mousetrap';
 
-import { _ } from '../i18n';
-import { uci2LastMove, uci2cg } from '../chess';
-import { allVariantsIni } from '../variants';
-import { updateMovelist, selectMove, scrollToActiveMove } from './movelist.bug';
-import { povChances } from '../analysis/winningChances';
-import { copyTextToClipboard } from '../clipboard';
-import { patch } from '../document';
+import { _ } from '../../i18n';
+import { uci2LastMove, uci2cg } from '../../chess';
+import { allVariantsIni } from '../../variants';
+import { updateMovelist, selectMove, scrollToActiveMove } from '../common/movelist';
+import { povChances } from '../../analysis/winningChances';
+import { copyTextToClipboard } from '../../clipboard';
+import { patch } from '../../document';
 import { Chart } from 'highcharts';
-import { PyChessModel } from '../types';
-import { Ceval, MsgBoard } from '../messages';
-import { GameControllerBughouse } from './gameCtrl.bug';
-import { sound } from '../sound';
-import { renderClocks } from './analysisClock.bug';
-import { variantsIni } from '../variantsIni';
-import { MsgAnalysis } from '../analysis/analysisType';
-import { alertDialog } from '../alertDialog';
+import { PyChessModel } from '../../types';
+import { Ceval, MsgBoard } from '../../messages';
+import { GameControllerBughouse } from '../common/gameCtrl';
+import { sound } from '../../sound';
+import { renderClocks } from './analysisClock';
+import { variantsIni } from '../../variantsIni';
+import { MsgAnalysis } from '../../analysis/analysisType';
+import { alertDialog } from '../../alertDialog';
 import {
     addOrSelectChild,
     AnalysisTree,
@@ -43,13 +43,13 @@ import {
     setCollapsedFrom,
     someCollapsedFrom,
     stepLinePath,
-} from '../analysis/analysisTree';
+} from '../../analysis/analysisTree';
 import ffishModule from 'ffish-es6';
 import { titleCase } from '@/analysis/analysisCtrl';
-import { movetimeChart } from './movetimeChart.bug';
-import { renderBughouseLinePgnMoveText, renderBughouseTreePgnMoveText } from './analysisTreeBug';
-import { TwoBoardController, initBoardSettings, switchBoards } from '@/bug/twoBoardCtrl';
-import { playerInfoData } from '@/bug/gameInfo.bug';
+import { movetimeChart } from './movetimeChart';
+import { renderBughouseLinePgnMoveText, renderBughouseTreePgnMoveText } from './analysisTreeTwoBoards';
+import { TwoBoardController, initBoardSettings, switchBoards } from '@/two-board/twoBoardCtrl';
+import { playerInfoData } from '@/two-board/common/gameInfo';
 
 const EVAL_REGEX = new RegExp(
     '' +

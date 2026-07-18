@@ -2,8 +2,8 @@ import { h } from 'snabbdom';
 
 import { _ } from './i18n';
 import { patch } from './document';
-import { RoundControllerBughouse } from './bug/roundCtrl.bug';
-import { onchatclick, renderBugChatPresets } from '@/bug/chat.bug';
+import { RoundControllerBughouse } from './two-board/round/roundCtrl';
+import { onchatclick, renderBugChatPresets } from '@/two-board/round/chat';
 import { selfReport, shouldSkipMessage } from './chatSpam';
 import { displayUsername, isAnonUsername } from './user';
 import { linkifyNodes } from './linkify';

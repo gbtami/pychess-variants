@@ -10,7 +10,7 @@ import {
 } from '../client/analysis/analysisTree';
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
-import { updateMovelist } from '../client/bug/movelist.bug';
+import { updateMovelist } from '../client/two-board/common/movelist';
 
 function makeStep(
     fen: string,

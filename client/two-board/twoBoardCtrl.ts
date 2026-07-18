@@ -8,8 +8,8 @@ import { PyChessModel } from '../types';
 import { Variant, VARIANTS } from '../variants';
 import { boardSettings } from '@/boardSettings';
 import { ChessgroundController } from '@/cgCtrl';
-import { GameControllerBughouse } from './gameCtrl.bug';
-import { createMovelistButtons } from './movelist.bug';
+import { GameControllerBughouse } from './common/gameCtrl';
+import { createMovelistButtons } from './common/movelist';
 
 // Shared core of the two bughouse page controllers (RoundControllerBughouse and
 // AnalysisControllerBughouse): owns the two boards and the state/logic both need.

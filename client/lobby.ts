@@ -55,7 +55,7 @@ import {
     TournamentWinnerEntry,
 } from './lobbyType';
 import { validFen, uci2LastMove } from './chess';
-import { seekViewBughouse, switchEnablingLobbyControls } from './bug/lobby.bug';
+import { seekViewBughouse, switchEnablingLobbyControls } from './two-board/lobby';
 import { handleOngoingGameEvents, Game, gameViewPlaying, compareGames } from './nowPlaying';
 import { sizeMiniBoardHost } from './miniBoard';
 import { createWebsocket } from '@/socket/webSocketUtils';

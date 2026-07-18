@@ -1,15 +1,15 @@
 import { h, VNode } from 'snabbdom';
 
 import { _ } from '@/i18n';
-import type AnalysisControllerBughouse from './analysisCtrl.bug';
-import { result } from '../result';
-import { patch } from '../document';
-import { RoundControllerBughouse } from './roundCtrl.bug';
-import { TwoBoardController } from './twoBoardCtrl';
-import { Step, StepChat } from '../messages';
+import type AnalysisControllerBughouse from '../analysis/analysisCtrl';
+import { result } from '../../result';
+import { patch } from '../../document';
+import { RoundControllerBughouse } from '../round/roundCtrl';
+import { TwoBoardController } from '../twoBoardCtrl';
+import { Step, StepChat } from '../../messages';
 import { displayUsername, isAnonUsername } from '@/user';
-import { AnalysisTreeNode, nodeAtPath, parentPath } from '../analysis/analysisTree';
-import { bugMovePrefix } from './analysisTreeBug';
+import { AnalysisTreeNode, nodeAtPath, parentPath } from '../../analysis/analysisTree';
+import { bugMovePrefix } from '../analysis/analysisTreeTwoBoards';
 
 type TreeCtrl = AnalysisControllerBughouse & {
     analysisTree?: { root: AnalysisTreeNode };
