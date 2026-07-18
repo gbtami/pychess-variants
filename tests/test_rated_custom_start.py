@@ -3,6 +3,9 @@ from types import SimpleNamespace
 
 import test_logger
 
+from aiohttp.test_utils import AioHTTPTestCase
+from mongomock_motor import AsyncMongoMockClient
+
 from const import CASUAL, RATED
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
@@ -95,22 +98,29 @@ class RatedCustomStartTestCase(unittest.TestCase):
         self.assertEqual(CASUAL, seek.rated)
 
 
-class RatedCustomStartGameDefenseTestCase(unittest.IsolatedAsyncioTestCase):
-    def make_players(self):
-        app_state = get_app_state(make_app())
-        white = User(app_state, username="white")
-        black = User(app_state, username="black")
-        return app_state, white, black
+class RatedCustomStartGameDefenseTestCase(AioHTTPTestCase):
+    async def startup(self, app):
+        app_state = get_app_state(self.app)
+        self.white = User(app_state, username="white")
+        self.black = User(app_state, username="black")
+
+    async def get_application(self):
+        app = make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+        app.on_startup.append(self.startup)
+        return app
+
+    async def tearDownAsync(self):
+        await self.client.close()
 
     async def test_new_game_keeps_curated_custom_start_rated(self):
-        app_state, white, black = self.make_players()
+        app_state = get_app_state(self.app)
         game = Game(
             app_state,
             "curated1",
             "chess",
             CHESS_NO_CASTLE_FEN,
-            white,
-            black,
+            self.white,
+            self.black,
             rated=RATED,
             create=True,
         )
@@ -120,14 +130,14 @@ class RatedCustomStartGameDefenseTestCase(unittest.IsolatedAsyncioTestCase):
             await game.stopwatch.cancel()
 
     async def test_new_game_downgrades_unapproved_custom_start(self):
-        app_state, white, black = self.make_players()
+        app_state = get_app_state(self.app)
         game = Game(
             app_state,
             "unsafe01",
             "chess",
             UPSIDE_DOWN_FEN,
-            white,
-            black,
+            self.white,
+            self.black,
             rated=RATED,
             create=True,
         )
@@ -137,14 +147,14 @@ class RatedCustomStartGameDefenseTestCase(unittest.IsolatedAsyncioTestCase):
             await game.stopwatch.cancel()
 
     async def test_empty_chess960_start_remains_rated(self):
-        app_state, white, black = self.make_players()
+        app_state = get_app_state(self.app)
         game = Game(
             app_state,
             "chess960",
             "chess",
             "",
-            white,
-            black,
+            self.white,
+            self.black,
             rated=RATED,
             chess960=True,
             create=True,
@@ -155,14 +165,14 @@ class RatedCustomStartGameDefenseTestCase(unittest.IsolatedAsyncioTestCase):
             await game.stopwatch.cancel()
 
     async def test_loaded_historical_game_keeps_recorded_rating(self):
-        app_state, white, black = self.make_players()
+        app_state = get_app_state(self.app)
         game = Game(
             app_state,
             "legacy01",
             "chess",
             UPSIDE_DOWN_FEN,
-            white,
-            black,
+            self.white,
+            self.black,
             rated=RATED,
             create=False,
         )
