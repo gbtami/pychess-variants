@@ -108,10 +108,10 @@ export function pasteView(model: PyChessModel): VNode[] {
                     const as = VARIANTS['shogi'].alternateStart;
                     const isHandicap = handicap !== '' && as![handicap] !== undefined;
                     if (isHandicap) {
-                        FD.append('FEN', as![handicap]);
+                        FD.append('FEN', as![handicap].fen);
                     }
 
-                    const fen = isHandicap ? as![handicap] : VARIANTS['shogi'].startFen;
+                    const fen = isHandicap ? as![handicap].fen : VARIANTS['shogi'].startFen;
                     board = new ffish.Board('shogi', fen);
                     let move;
 

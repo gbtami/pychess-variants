@@ -316,6 +316,40 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     letter: { pieceCSS: ['disguised'] },
 };
 
+// Keep canRated=true FENs in sync with server/rated_start.py.
+export interface AlternateStart {
+    readonly fen: string;
+    readonly canRated: boolean;
+}
+
+type AlternateStartConfig = string | { readonly fen: string; readonly canRated?: boolean };
+
+function alternateStarts(
+    config: Record<string, AlternateStartConfig> | undefined,
+): Record<string, AlternateStart> | undefined {
+    if (config === undefined) return undefined;
+    return Object.fromEntries(
+        Object.entries(config).map(([name, start]) => [
+            name,
+            typeof start === 'string'
+                ? { fen: start, canRated: false }
+                : { fen: start.fen, canRated: start.canRated ?? false },
+        ]),
+    );
+}
+
+function normalizeStartFen(fen: string): string {
+    return fen.trim().replace(/\s+/g, ' ');
+}
+
+export function canRateCustomStart(variant: Variant, fen: string): boolean {
+    const normalizedFen = normalizeStartFen(fen);
+    if (normalizedFen === '') return true;
+    return Object.values(variant.alternateStart ?? {}).some(
+        start => start.canRated && normalizeStartFen(start.fen) === normalizedFen,
+    );
+}
+
 export interface Variant {
     readonly name: string;
     readonly _displayName: string;
@@ -382,7 +416,7 @@ export interface Variant {
         readonly boardMark: BoardMarkType | '';
         readonly showCheckCounters: boolean;
     };
-    readonly alternateStart?: Record<string, string>;
+    readonly alternateStart?: Record<string, AlternateStart>;
 }
 
 const pieceFamiliesWithMaterialDifferenceSupported = [
@@ -508,7 +542,7 @@ export function variant(config: VariantConfig): Variant {
             boardMark: config.ui?.boardMark ?? '',
             showCheckCounters: config.ui?.showCheckCounters ?? false,
         },
-        alternateStart: config.alternateStart,
+        alternateStart: alternateStarts(config.alternateStart),
     };
 }
 
@@ -624,8 +658,8 @@ interface VariantConfig {
         // Render the remaining check numbers on King pieces
         showCheckCounters?: boolean;
     };
-    // Alternate starting positions, including handicaps
-    alternateStart?: Record<string, string>;
+    // Alternate starting positions, including handicaps. Plain FEN strings default to canRated=false.
+    alternateStart?: Record<string, AlternateStartConfig>;
 }
 
 export const VARIANTS: Record<string, Variant> = {
@@ -720,7 +754,10 @@ export const VARIANTS: Record<string, Variant> = {
             PawnsPassed: 'rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR w KQkq - 0 1',
             UpsideDown: 'RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr w - - 0 1',
             Theban: '1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN w - - 0 1',
-            'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1',
+            'No castle': {
+                fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1',
+                canRated: true,
+            },
         },
     }),
     bughouse: variant({
@@ -782,7 +819,10 @@ export const VARIANTS: Record<string, Variant> = {
             PawnsPassed: 'rnbqkbnr/8/8/PPPPPPPP/pppppppp/8/8/RNBQKBNR[] w KQkq - 0 1',
             UpsideDown: 'RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr[] w - - 0 1',
             Theban: '1p6/2p3kn/3p2pp/4pppp/5ppp/8/PPPPPPPP/PPPPPPKN[] w - - 0 1',
-            'No castle': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w - - 0 1',
+            'No castle': {
+                fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w - - 0 1',
+                canRated: true,
+            },
         },
     }),
 
@@ -1377,14 +1417,38 @@ export const VARIANTS: Record<string, Variant> = {
         rules: { enPassant: true },
         alternateStart: {
             '': '',
-            Bird: 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
-            Carrera: 'ranbqkbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RANBQKBNCR w KQkq - 0 1',
-            Conservative: 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1',
-            Embassy: 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1',
-            Gothic: 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
-            Schoolbook: 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR w KQkq - 0 1',
-            Univers: 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR w KQkq - 0 1',
-            Victorian: 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ w KQkq - 0 1',
+            Bird: {
+                fen: 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR w KQkq - 0 1',
+                canRated: true,
+            },
+            Carrera: {
+                fen: 'ranbqkbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RANBQKBNCR w KQkq - 0 1',
+                canRated: true,
+            },
+            Conservative: {
+                fen: 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC w KQkq - 0 1',
+                canRated: true,
+            },
+            Embassy: {
+                fen: 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR w KQkq - 0 1',
+                canRated: true,
+            },
+            Gothic: {
+                fen: 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR w KQkq - 0 1',
+                canRated: true,
+            },
+            Schoolbook: {
+                fen: 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR w KQkq - 0 1',
+                canRated: true,
+            },
+            Univers: {
+                fen: 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR w KQkq - 0 1',
+                canRated: true,
+            },
+            Victorian: {
+                fen: 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ w KQkq - 0 1',
+                canRated: true,
+            },
         },
     }),
 
@@ -1402,14 +1466,38 @@ export const VARIANTS: Record<string, Variant> = {
         rules: { enPassant: true },
         alternateStart: {
             '': '',
-            Bird: 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR[] w KQkq - 0 1',
-            Carrera: 'ranbqkbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RANBQKBNCR[] w KQkq - 0 1',
-            Conservative: 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC[] w KQkq - 0 1',
-            Embassy: 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1',
-            Gothic: 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1',
-            Schoolbook: 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR[] w KQkq - 0 1',
-            Univers: 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR[] w KQkq - 0 1',
-            Victorian: 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ[] w KQkq - 0 1',
+            Bird: {
+                fen: 'rnbcqkabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBCQKABNR[] w KQkq - 0 1',
+                canRated: true,
+            },
+            Carrera: {
+                fen: 'ranbqkbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RANBQKBNCR[] w KQkq - 0 1',
+                canRated: true,
+            },
+            Conservative: {
+                fen: 'arnbqkbnrc/pppppppppp/10/10/10/10/PPPPPPPPPP/ARNBQKBNRC[] w KQkq - 0 1',
+                canRated: true,
+            },
+            Embassy: {
+                fen: 'rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 1',
+                canRated: true,
+            },
+            Gothic: {
+                fen: 'rnbqckabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQCKABNR[] w KQkq - 0 1',
+                canRated: true,
+            },
+            Schoolbook: {
+                fen: 'rqnbakbncr/pppppppppp/10/10/10/10/PPPPPPPPPP/RQNBAKBNCR[] w KQkq - 0 1',
+                canRated: true,
+            },
+            Univers: {
+                fen: 'rbncqkanbr/pppppppppp/10/10/10/10/PPPPPPPPPP/RBNCQKANBR[] w KQkq - 0 1',
+                canRated: true,
+            },
+            Victorian: {
+                fen: 'crnbakbnrq/pppppppppp/10/10/10/10/PPPPPPPPPP/CRNBAKBNRQ[] w KQkq - 0 1',
+                canRated: true,
+            },
         },
     }),
 

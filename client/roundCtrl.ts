@@ -212,7 +212,7 @@ export class RoundController extends GameController {
 
         this.handicap = this.variant.alternateStart
             ? Object.keys(this.variant.alternateStart!).some(
-                  alt => isHandicap(alt) && this.variant.alternateStart![alt] === this.fullfen,
+                  alt => isHandicap(alt) && this.variant.alternateStart![alt].fen === this.fullfen,
               )
             : false;
 

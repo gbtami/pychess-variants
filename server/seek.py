@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Iterable, NotRequired, TypedDict
 from const import CORR_SEEK_EXPIRE_WEEKS, INVITE_SEEK_EXPIRE
 from json_utils import json_dumps
 from misc import time_control_str
+from rated_start import can_rate_custom_start
 from newid import new_id
 import logging
 from catalogued_variants import (
@@ -181,6 +182,8 @@ class Seek:
             chess960 = False
             tournament_id = None
             rr_arrangement_id = None
+        elif rated and not can_rate_custom_start(variant, self.fen, bool(chess960)):
+            rated = False
         self.rated: bool | int | None = rated
         self.rating: int = creator.get_rating_value(variant, chess960)
         self.rrmin: int = rrmin if (rrmin is not None and rrmin != -1000) else -10000

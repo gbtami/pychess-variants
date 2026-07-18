@@ -11,6 +11,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
 import {
+    canRateCustomStart,
     devVariants,
     disabledVariantsForCreateMode,
     enabledVariants,
@@ -274,7 +275,10 @@ export class LobbyController implements ChatController {
         ).style.display = 'block';
 
         const e = document.getElementById('fen') as HTMLInputElement;
-        if (this.fen !== '') e.value = this.fen;
+        if (this.fen !== '') {
+            e.value = this.fen;
+            this.setFen();
+        }
 
         if (!this.anon) {
             this.renderAutoPairingTable();
@@ -508,7 +512,7 @@ export class LobbyController implements ChatController {
             this.createMode === 'playAI' ||
             this.anon ||
             this.title === 'BOT' ||
-            fen !== '' ||
+            !canRateCustomStart(variant, fen) ||
             (minutes < 1 && increment === 0) ||
             (minutes === 0 && increment === 1) ||
             catalogued
@@ -1143,6 +1147,7 @@ export class LobbyController implements ChatController {
         document.getElementById('corr')!.style.display = this.tcMode === 'corr' ? 'block' : 'none';
         e = document.getElementById('fen') as HTMLInputElement;
         e.value = '';
+        this.updateRatedAvailability(variant, e.value);
         e = document.getElementById('incrementlabel') as HTMLSelectElement;
         patch(
             e,
@@ -1193,7 +1198,7 @@ export class LobbyController implements ChatController {
         e = document.getElementById('alternate-start') as HTMLSelectElement;
         const alt = e.options[e.selectedIndex].value;
         e = document.getElementById('fen') as HTMLSelectElement;
-        e.value = variant.alternateStart![alt];
+        e.value = variant.alternateStart![alt].fen;
         (document.getElementById('chess960') as HTMLInputElement).disabled = alt !== '';
         this.setFen();
     }
@@ -1226,7 +1231,24 @@ export class LobbyController implements ChatController {
     private setFen() {
         const e = document.getElementById('fen') as HTMLInputElement;
         e.setCustomValidity(this.validateFen() ? '' : _('Invalid FEN'));
+        const variantSelect = document.getElementById('variant') as HTMLSelectElement;
+        const variant = VARIANTS[variantSelect.options[variantSelect.selectedIndex].value];
+        this.updateRatedAvailability(variant, e.value);
         this.setStartButtons();
+    }
+    private updateRatedAvailability(variant: Variant, fen: string) {
+        const rated = document.getElementById('rated') as HTMLInputElement;
+        const casual = document.getElementById('casual') as HTMLInputElement;
+        if (!rated || !casual) return;
+        rated.disabled =
+            this.anon ||
+            variant.twoBoards ||
+            isCataloguedVariant(variant.name) ||
+            !canRateCustomStart(variant, fen);
+        if (rated.disabled && rated.checked) {
+            rated.checked = false;
+            casual.checked = true;
+        }
     }
     private setCasual(casual: string) {
         console.log('setCasual', casual);
@@ -1382,8 +1404,8 @@ export class LobbyController implements ChatController {
     }
 
     public mode(seek: Seek) {
-        if (seek.fen) return _('Custom');
-        else if (seek.rated) return _('Rated');
+        if (seek.rated) return _('Rated');
+        else if (seek.fen) return _('Custom');
         else return _('Casual');
     }
 

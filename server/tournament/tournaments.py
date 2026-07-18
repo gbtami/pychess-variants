@@ -64,6 +64,7 @@ from typing_defs import (
 )
 from ws_types import ChatLine
 from catalogued_variants import is_public_catalogued_variant
+from rated_start import can_rate_custom_start
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS, is_catalogued_variant
 from user import User
 from utils import load_game
@@ -495,8 +496,8 @@ async def create_or_update_tournament(
 
     rated = (
         form.get("rated", "") == "1"
-        and form["position"] == ""
         and not is_catalogued_variant(variant_name)
+        and can_rate_custom_start(variant_name, form["position"], variant960)
     )
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])

@@ -377,7 +377,12 @@ async def handle_create_seek(
 
     matching_user = None
     # auto pairing games are never corr and always rated, so anon seek will never match!
-    if seek_value.day == 0 and not user.anon and not is_catalogued_variant(seek_value.variant):
+    if (
+        seek_value.day == 0
+        and not seek_value.fen
+        and not user.anon
+        and not is_catalogued_variant(seek_value.variant)
+    ):
         variant_tc = (
             seek_value.variant,
             seek_value.chess960,

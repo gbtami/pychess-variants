@@ -11,6 +11,7 @@ from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_TIME
 from pychess_global_app_state_utils import get_app_state
+from rated_start import CHESS_NO_CASTLE_FEN
 from settings import LOCALHOST, URI
 from tournament.arena import ArenaTournament
 from tournament.auto_play_tournament import (
@@ -39,6 +40,53 @@ def make_test_perfs():
 
 class TournamentPersistenceTestCase(TournamentTestCase):
     SHORT_SWISS_MINUTES = 0.08
+
+    async def test_only_curated_custom_start_tournaments_can_be_rated(self):
+        app_state = get_app_state(self.app)
+        base_form = {
+            "variant": "chess",
+            "rated": "1",
+            "clockTime": "5",
+            "clockIncrement": "0",
+            "byoyomiPeriod": "0",
+            "shield": "",
+            "system": str(ArenaTournament.system),
+            "rounds": "0",
+            "roundInterval": "auto",
+            "entryMinRating": "0",
+            "entryMaxRating": "0",
+            "entryMinRatedGames": "0",
+            "entryMinAccountAgeDays": "0",
+            "forbiddenPairings": "",
+            "manualPairings": "",
+            "startDate": "",
+            "description": "",
+            "password": "",
+            "waitMinutes": "5",
+            "minutes": "45",
+        }
+        cases = (
+            ("Curated start", CHESS_NO_CASTLE_FEN, True),
+            (
+                "Unsafe start",
+                "RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr w - - 0 1",
+                False,
+            ),
+        )
+
+        for name, position, expected_rated in cases:
+            with self.subTest(name=name):
+                before_ids = set(app_state.tournaments)
+                await create_or_update_tournament(
+                    app_state,
+                    "tester",
+                    {**base_form, "name": name, "position": position},
+                )
+
+                new_ids = set(app_state.tournaments) - before_ids
+                self.assertEqual(len(new_ids), 1)
+                tournament = app_state.tournaments[new_ids.pop()]
+                self.assertEqual(bool(tournament.rated), expected_rated)
 
     async def test_arena_entry_conditions_persisted_from_form(self):
         app_state = get_app_state(self.app)

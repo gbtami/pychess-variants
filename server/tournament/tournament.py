@@ -52,6 +52,7 @@ from lobby_panels_cache import refresh_lobby_tournament_winners_cache
 from lichess_team_msg import lichess_team_msg
 from misc import time_control_str
 from newid import new_id
+from rated_start import can_rate_custom_start
 from websocket_utils import ws_send_json_many
 from typing_defs import (
     TournamentDuelItem,
@@ -81,7 +82,7 @@ from tournament.tournament_spotlights import tournament_spotlights
 from user import User
 from utils import insert_game_to_db
 from settings import URI
-from variants import get_server_variant
+from variants import get_server_variant, is_catalogued_variant
 
 log = logging.getLogger(__name__)
 
@@ -369,7 +370,7 @@ class Tournament(ABC):
         name: str = "",
         password: str = "",
         description: str = "",
-        fen: str = "",
+        fen: str | None = "",
         base: float = 1,
         inc: int = 0,
         byoyomi_period: int = 0,
@@ -399,14 +400,19 @@ class Tournament(ABC):
         self.password: str = password
         self.description: str = description
         self.variant: str = variant
-        self.rated: bool | int = rated
+        self.fen: str = fen or ""
+        self.chess960: bool = chess960
+        self.rated: bool | int = (
+            rated
+            if not is_catalogued_variant(variant)
+            and can_rate_custom_start(variant, self.fen, chess960)
+            else False
+        )
         self.before_start: int = before_start  # in minutes
         self.minutes: int = minutes  # in minutes
-        self.fen: str = fen
         self.base: float = base
         self.inc: int = inc
         self.byoyomi_period: int = byoyomi_period
-        self.chess960: bool = chess960
         self.rounds: int = rounds
         self.rr_max_players: int = rr_max_players
         self.rr_requires_approval: bool = rr_requires_approval

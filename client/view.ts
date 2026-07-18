@@ -186,7 +186,7 @@ export function timeControlStr(minutes: number | string, increment = 0, byoyomiP
 export function alternateStartName(variant: Variant, initialFen: string) {
     if (variant.alternateStart !== undefined) {
         const keys = Object.keys(variant.alternateStart);
-        return keys.find(key => variant.alternateStart![key] === initialFen);
+        return keys.find(key => variant.alternateStart![key].fen === initialFen);
     } else {
         return undefined;
     }

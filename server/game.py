@@ -38,8 +38,9 @@ from const import (
 from convert import grand2zero, uci2usi, mirror5, mirror9
 from fairy import get_fog_fen, get_san_moves, modded_variant, NOTATION_SAN, FairyBoard, BLACK, WHITE
 from glicko2.glicko2 import gl2
-from lobby_panels_cache import refresh_lobby_leaderboard_cache
 from draw import reject_draw
+from lobby_panels_cache import refresh_lobby_leaderboard_cache
+from rated_start import can_rate_custom_start
 from settings import URI
 from spectators import spectators
 import logging
@@ -170,6 +171,15 @@ class Game:
             # at creation time.
             rated = CASUAL
             chess960 = False
+        elif (
+            create
+            and rated == RATED
+            and not can_rate_custom_start(variant, initial_fen, bool(chess960))
+        ):
+            # Do not trust clients to downgrade arbitrary or unbalanced FENs.
+            # Only explicitly curated predefined starts may share a variant's
+            # normal rating pool.
+            rated = CASUAL
 
         self.bot_game: bool = self.bplayer.bot or self.wplayer.bot
 

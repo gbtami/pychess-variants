@@ -82,7 +82,7 @@ export function validFen(variant: Variant, fen: string): boolean {
     if (as !== undefined) {
         if (
             Object.keys(as).some(key => {
-                return as[key].includes(fen);
+                return as[key].fen.includes(fen);
             })
         )
             return true;

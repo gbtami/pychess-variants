@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals';
 
-import { VARIANTS } from '../client/variants';
+import { canRateCustomStart, VARIANTS } from '../client/variants';
 
 test('hidden info metadata is set for fogofwar', () => {
     expect(VARIANTS.fogofwar.hiddenInfo).toBe(true);
@@ -15,4 +15,21 @@ test('hidden info metadata is set for jieqi', () => {
 test('hidden info metadata defaults to none for normal variants', () => {
     expect(VARIANTS.chess.hiddenInfo).toBe(false);
     expect(VARIANTS.chess.hiddenInfoMode).toBe('none');
+});
+
+test('only curated alternate starts can be rated', () => {
+    expect(canRateCustomStart(VARIANTS.chess, VARIANTS.chess.alternateStart!['No castle'].fen)).toBe(
+        true,
+    );
+    expect(canRateCustomStart(VARIANTS.chess, VARIANTS.chess.alternateStart!.UpsideDown.fen)).toBe(
+        false,
+    );
+    expect(canRateCustomStart(VARIANTS.capablanca, VARIANTS.capablanca.alternateStart!.Gothic.fen)).toBe(
+        true,
+    );
+});
+
+test('custom start rating check normalizes whitespace', () => {
+    const noCastle = VARIANTS.chess.alternateStart!['No castle'].fen;
+    expect(canRateCustomStart(VARIANTS.chess, `  ${noCastle.replaceAll(' ', '   ')}  `)).toBe(true);
 });
