@@ -23,7 +23,7 @@ from sortedcollections import ValueSortedDict
 
 if TYPE_CHECKING:
     from bug.game_bug import GameBug
-    from ws_types import ChatLine, LobbyLeaderboardEntry, TournamentWinnerEntry
+    from ws_types import LobbyLeaderboardEntry, TournamentWinnerEntry
     from typing_defs import TournamentCalendarEvent
 
 from ai import BOT_task
@@ -121,7 +121,6 @@ LOCALHOST_CACHE_KEEP_TIME = 1 if _is_test_run() else TOURNAMENT_KEEP_TIME
 
 
 class PychessGlobalAppState:
-    tourneychat: dict[str, collections.deque["ChatLine"]]
     tourney_calendar: list["TournamentCalendarEvent"] | None
 
     def __init__(self, app: web.Application):

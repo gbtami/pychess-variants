@@ -432,7 +432,7 @@ async def handle_lobbychat(
 
     if director:
         if message.startswith("/silence"):
-            response = silence(app_state, message, app_state.tourneychat[tournamentId])
+            response = silence(app_state, message, tournament.tourneychat)
             # silence message was already added to lobbychat in silence()
 
         elif message.startswith("/shadowban"):
