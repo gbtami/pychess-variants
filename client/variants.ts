@@ -1928,6 +1928,21 @@ function cataloguedDerivedPocketRoles(
     return (baseVariant?.pocket?.roles.white.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
 }
 
+function cataloguedDroppablePocketRoles(meta: CataloguedVariantClientDocument, roles: cg.Letter[]): cg.Letter[] {
+    const countValue = cataloguedIniOption(meta.ini, 'dropNoDoubledCount');
+    const noDoubledRole = normalPieceLetter(cataloguedIniOption(meta.ini, 'dropNoDoubled'));
+    if (countValue === undefined || !noDoubledRole) return roles;
+
+    const noDoubledCount = Number(countValue);
+    if (!Number.isFinite(noDoubledCount) || noDoubledCount > 0) return roles;
+
+    // Fairy-Stockfish rejects this role when the number of pieces already on
+    // the file is >= dropNoDoubledCount. A non-positive count therefore makes
+    // the role permanently undroppable, even though capturesToHand may still
+    // keep it in the engine's pocket FEN.
+    return roles.filter(role => role !== noDoubledRole);
+}
+
 interface CataloguedPieceInfo {
     pieces: cg.Letter[];
     kingRoles: cg.Letter[];
@@ -2046,7 +2061,10 @@ function cataloguedPieceInfo(meta: CataloguedVariantClientDocument): CataloguedP
     const pieces = (meta.pieces?.length ? meta.pieces : ['k']) as cg.Letter[];
     let kingRoles = (meta.kingRoles ?? baseVariant?.kingRoles.map(role => util.letterOf(role)) ?? []) as cg.Letter[];
     const hasPocketOverride = cataloguedHasPocketOverride(meta);
-    const pocketRoles = cataloguedDerivedPocketRoles(meta, pieces, kingRoles, baseVariant, hasPocketOverride);
+    const pocketRoles = cataloguedDroppablePocketRoles(
+        meta,
+        cataloguedDerivedPocketRoles(meta, pieces, kingRoles, baseVariant, hasPocketOverride),
+    );
     const hasPromotionOverride = cataloguedHasPromotionOverride(meta);
     const promotionType = hasPromotionOverride
         ? (meta.promotionType ?? 'regular')

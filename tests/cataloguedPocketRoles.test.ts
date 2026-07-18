@@ -85,3 +85,33 @@ startFen = 4k4/9/9/9/9/9/9/9/4K3P w - - 0 1`,
     expect(variant.pocket?.captureToHand).toBe(true);
     expect(variant.pocket?.roles.white.map(role => util.letterOf(role))).toEqual(['p']);
 });
+
+test.each([
+    ['0', ['n', 'b', 'r']],
+    ['-1', ['n', 'b', 'r']],
+    ['1', ['p', 'n', 'b', 'r']],
+    [undefined, ['p', 'n', 'b', 'r']],
+] as const)('catalogued dropNoDoubledCount %s filters only permanently undroppable pocket roles', (count, expected) => {
+    const countRule = count === undefined ? '' : `\ndropNoDoubledCount = ${count}`;
+    const variant = register({
+        name: variantName,
+        displayName: 'Undroppable Pocket Role Test',
+        tooltip: 'Catalogued variant',
+        ini: `[${variantName}:chess]
+pieceDrops = true
+capturesToHand = true
+dropNoDoubled = p${countRule}
+startFen = 4k3/8/8/8/8/8/8/4K3[] w - - 0 1`,
+        baseVariant: 'chess',
+        startFen: '4k3/8/8/8/8/8/8/4K3[] w - - 0 1',
+        width: 8,
+        height: 8,
+        pieces: ['k', 'p', 'n', 'b', 'r'],
+        kingRoles: ['k'],
+        pocketRoles: ['p', 'n', 'b', 'r'],
+        captureToHand: true,
+    });
+
+    expect(variant.pocket?.roles.white.map(role => util.letterOf(role))).toEqual(expected);
+    expect(variant.pocket?.roles.black.map(role => util.letterOf(role))).toEqual(expected);
+});
