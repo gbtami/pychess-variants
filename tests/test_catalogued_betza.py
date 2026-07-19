@@ -31,6 +31,23 @@ class CataloguedBetzaDiagramTestCase(unittest.TestCase):
         self.assertIn("<svg", diagrams[0]["svg"])
         self.assertIn("Custom piece 1", diagrams[0]["title"])
 
+    def test_documentation_ini_generates_diagrams_without_runtime_ini(self):
+        diagrams = catalogued_betza_diagrams(
+            {
+                "ini": "",
+                "rulesIni": """
+                [documented:shogi]
+                customPiece1 = n:fRffN
+                customPiece2 = g:WfFbR
+                """,
+                "width": 7,
+                "height": 9,
+            }
+        )
+
+        self.assertEqual([diagram["piece"] for diagram in diagrams], ["n", "g"])
+        self.assertEqual([diagram["betza"] for diagram in diagrams], ["fRffN", "WfFbR"])
+
     def test_custom_king_with_betza_is_rendered_but_bare_king_is_ignored(self):
         with_custom_king = catalogued_betza_diagrams(
             {

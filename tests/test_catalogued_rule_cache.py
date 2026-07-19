@@ -31,6 +31,25 @@ class CataloguedRuleSummaryCacheTestCase(TestCase):
         self.assertIs(first, second)
         self.assertEqual(parse.call_count, 1)
 
+    def test_rule_summary_uses_documentation_ini_before_runtime_ini(self) -> None:
+        doc = {
+            "ini": "",
+            "rulesIni": """
+            [documented:shogi]
+            customPiece1 = n:fRffN
+            pieceDrops = true
+            """,
+            "pieces": ["p", "n", "k"],
+            "pocketRoles": ["p", "n"],
+        }
+
+        summary = catalogued_rule_summary(doc)
+
+        self.assertIn("`shogi`", summary["intro"][0])
+        section_titles = [section["title"] for section in summary["sections"]]
+        self.assertIn("Pieces and movement", section_titles)
+        self.assertIn("Drops and hands", section_titles)
+
     def test_rule_summary_cache_key_includes_document_context(self) -> None:
         doc = {
             "ini": """

@@ -370,7 +370,7 @@ def _cached_catalogued_betza_diagrams(
 def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDiagram]:
     """Return inline SVG movement diagrams for custom and known FSF built-in pieces."""
 
-    ini = str(doc.get("ini") or "")
+    ini = str(doc.get("rulesIni") or doc.get("ini") or "")
     definitions = _cached_piece_diagram_definitions(
         ini,
         _doc_piece_letters_key(doc),

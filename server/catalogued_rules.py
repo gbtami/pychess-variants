@@ -911,7 +911,7 @@ def _optional_bool_cache_value(doc: Mapping[str, Any], key: str) -> bool | None:
 
 
 def _build_catalogued_rule_summary(doc: Mapping[str, Any]) -> CataloguedRuleSummary:
-    parsed = parse_catalogued_ini(str(doc.get("ini") or ""))
+    parsed = parse_catalogued_ini(str(doc.get("rulesIni") or doc.get("ini") or ""))
     intro: list[str] = []
     if parsed.parent:
         intro.append(
@@ -979,7 +979,7 @@ def _cached_catalogued_rule_summary(
 
 def catalogued_rule_summary(doc: Mapping[str, Any]) -> CataloguedRuleSummary:
     return _cached_catalogued_rule_summary(
-        str(doc.get("ini") or ""),
+        str(doc.get("rulesIni") or doc.get("ini") or ""),
         str(doc.get("startFen") or ""),
         _int_cache_value(doc.get("width")),
         _int_cache_value(doc.get("height")),

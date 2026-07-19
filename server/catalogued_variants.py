@@ -491,6 +491,49 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
+    "yarishogi": {
+        "displayName": "Yari Shogi",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Yari_shogi"),
+        "baseVariant": "shogi",
+        "captureToHand": True,
+        "promotionType": "shogi",
+        "promotionRoles": ("p", "n", "b", "r"),
+        "promotionOrder": ("+", ""),
+        "showPromoted": True,
+        "legalMovesNeedHistory": True,
+        "nFoldIsDraw": True,
+        # Documentation-only transcription of the built-in C++ definition.
+        # Runtime engine/client paths must continue to use the canonical
+        # Fairy-Stockfish built-in name and the empty ``ini`` field.
+        "rulesIni": """\
+[yarishogi:shogi]
+maxRank = 9
+maxFile = 7
+startFen = rnnkbbr/7/ppppppp/7/7/7/PPPPPPP/7/RBBKNNR[-] w 0 1
+shogiPawn = p
+rook = l
+customPiece1 = n:fRffN  # Yari knight
+customPiece2 = b:fFfR   # Yari bishop
+customPiece3 = r:frlR   # Yari rook
+customPiece4 = g:WfFbR  # Yari gold
+customPiece5 = s:fKbR   # Yari silver
+promotionRegionWhite = *7 *8 *9
+promotionRegionBlack = *1 *2 *3
+promotedPieceType = p:s n:g b:g r:l
+pieceDrops = true
+capturesToHand = true
+doubleStep = false
+castling = false
+dropNoDoubled = p
+immobilityIllegal = true
+shogiPawnDropMateIllegal = false
+stalemateValue = loss
+nFoldRule = 3
+nMoveRule = 0
+perpetualCheckIllegal = true
+""",
+    },
 }
 
 
@@ -846,13 +889,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
         "baseVariant": "chess",
         "reviewNotes": "10x8 fairy-piece variant; review piece identities and promotion UI.",
     },
-    "yarishogi": {
-        "displayName": "Yari Shogi",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "references": _fsf_builtin_references("https://en.wikipedia.org/wiki/Yari_shogi"),
-        "baseVariant": "shogi",
-        "reviewNotes": "Shogi-family drops/promotions; review piece assets and byo UI.",
-    },
 }
 
 
@@ -912,6 +948,7 @@ class CataloguedVariantDocument(TypedDict):
     description: str
     author: str
     ini: str
+    rulesIni: NotRequired[str]
     baseVariant: str
     enabled: bool
     archived: bool
@@ -2722,7 +2759,7 @@ def public_catalogued_variants_for_forms(app_state: Any) -> dict[str, Any]:
 
 
 def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
-    ini = str(doc.get("ini") or "")
+    ini = str(doc.get("rulesIni") or doc.get("ini") or "")
     start_fen = str(doc.get("startFen") or "")
     pieces = list(doc.get("pieces") or piece_letters_from_fen(start_fen or "8/8/8/8/8/8/8/8"))
     width = int(doc.get("width") or 0)
@@ -2733,6 +2770,7 @@ def catalogued_variant_rule_context(doc: Mapping[str, Any]) -> dict[str, Any]:
 
     return {
         "name": str(doc.get("name") or doc.get("_id") or ""),
+        "system": _is_fsf_builtin_catalogued_doc(doc),
         "displayName": str(
             doc.get("displayName") or doc.get("name") or doc.get("_id") or "Catalogued variant"
         ),
@@ -3503,6 +3541,7 @@ def _build_fsf_builtin_doc(
         fsf_builtin_variant=name,
     )
     doc["references"] = references
+    doc["rulesIni"] = str(metadata.get("rulesIni") or "").strip()
     return doc
 
 
@@ -3518,6 +3557,7 @@ def _fsf_builtin_synced_fields(doc: Mapping[str, Any]) -> dict[str, Any]:
         "name",
         "author",
         "ini",
+        "rulesIni",
         "baseVariant",
         "enabled",
         "startFen",
