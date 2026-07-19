@@ -17,6 +17,7 @@ const variantNames = [
     'testboarddimensionfallback',
     'testcustomboardoverride',
     'testshogiboardpreview',
+    'testyarishogiboardoverride',
 ];
 
 function register(meta: CataloguedVariantClientDocument) {
@@ -90,6 +91,26 @@ test('dimension-incompatible base and override board families fall back to a gen
 
     expect(cataloguedCompatibleBoardFamily(meta)).toBeUndefined();
     expect(variant.boardFamily).toBe('catalogued10x8');
+});
+
+test('the yarishogi board family is available for 7x9 catalogued variants', () => {
+    const meta: CataloguedVariantClientDocument = {
+        name: 'testyarishogiboardoverride',
+        displayName: 'Test Yarishogi Board Override',
+        ini: '[testyarishogiboardoverride:shogi]\nmaxFile = 7\nmaxRank = 9',
+        baseVariant: 'shogi',
+        boardFamilyOverride: 'shogi7x9',
+        startFen: '7/7/7/7/7/7/7/7/7 w - - 0 1',
+        width: 7,
+        height: 9,
+        pieces: ['k'],
+        kingRoles: ['k'],
+    };
+    const variant = register(meta);
+
+    expect(cataloguedCompatibleBoardFamily(meta)).toBe('shogi7x9');
+    expect(variant.boardFamily).toBe('shogi7x9');
+    expect(boardSettings.boardCSS(variant.boardFamily, variant)).toBe('YariPlain.svg');
 });
 
 test('uploaded custom boards retain priority while preserving the selected fallback family', () => {

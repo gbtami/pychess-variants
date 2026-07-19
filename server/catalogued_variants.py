@@ -134,6 +134,7 @@ CATALOGUED_BOARD_FAMILY_DIMENSIONS: dict[str, tuple[int, int]] = {
     "sittuyin8x8": (8, 8),
     "shogi9x9": (9, 9),
     "shogi7x7": (7, 7),
+    "shogi7x9": (7, 9),
     "shogi5x5": (5, 5),
     "shogi5x6": (5, 6),
     "shogi3x4": (3, 4),

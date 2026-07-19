@@ -113,6 +113,11 @@ export const BOARD_FAMILIES: Record<string, BoardFamily> = {
         cg: 'cg-448-516',
         boardCSS: ['ToriPlain.svg', 'ToriWood.svg', 'ToriDaySky.svg', 'ToriNightSky.svg'],
     },
+    shogi7x9: {
+        dimensions: { width: 7, height: 9 },
+        cg: 'cg-448-664',
+        boardCSS: ['YariPlain.svg'],
+    },
     shogi5x5: {
         dimensions: { width: 5, height: 5 },
         cg: 'cg-260',

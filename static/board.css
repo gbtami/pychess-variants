@@ -25,6 +25,9 @@
 .shogi7x7 cg-board {
     background-image: url('images/board/ToriPlain.svg');
 }
+.shogi7x9 cg-board {
+    background-image: url('images/board/YariPlain.svg');
+}
 .shogi5x6 cg-board {
     background-image: url('images/board/gorogoroboard.svg');
 }

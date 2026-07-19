@@ -227,7 +227,7 @@
 .lobby .mini cg-board {
   top: calc(100% / var(--ranks));
 }
-.lobby .cg-wrap.cg-512.mini, .lobby .cg-wrap.cg-640.mini, .lobby .cg-wrap.cg-576.mini, .lobby .cg-wrap.cg-448-516.mini, .lobby .cg-wrap.cg-260-360.mini, .lobby .cg-wrap.cg-260.mini, .lobby .cg-wrap.cg-156.mini, .lobby .cg-wrap.cg-448.mini, .lobby .cg-wrap.cg-576-640.mini, .lobby .cg-wrap.cg-640-640.mini, .lobby .cg-wrap.cg-janggi.mini, .lobby .cg-wrap.cg-540.mini {
+.lobby .cg-wrap.cg-512.mini, .lobby .cg-wrap.cg-640.mini, .lobby .cg-wrap.cg-576.mini, .lobby .cg-wrap.cg-448-516.mini, .lobby .cg-wrap.cg-448-664.mini, .lobby .cg-wrap.cg-260-360.mini, .lobby .cg-wrap.cg-260.mini, .lobby .cg-wrap.cg-156.mini, .lobby .cg-wrap.cg-448.mini, .lobby .cg-wrap.cg-576-640.mini, .lobby .cg-wrap.cg-640-640.mini, .lobby .cg-wrap.cg-janggi.mini, .lobby .cg-wrap.cg-540.mini {
   max-width: 100%;
 }
 
