@@ -16,6 +16,7 @@ declare global {
 const STOCKFISH_SCRIPT_URL = '/static/stockfish.js';
 const STOCKFISH_LOAD_TIMEOUT_MS = 15000;
 const STOCKFISH_CHECK_TIMEOUT_MS = 10000;
+const PIECE_TO_CHAR_TABLE_RULE_RE = /^[ \t]*pieceToCharTable[ \t]*=/m;
 
 let stockfishScriptPromise: Promise<void> | null = null;
 let stockfishEnginePromise: Promise<FairyStockfishEngine> | null = null;
@@ -207,6 +208,16 @@ async function ensureBaseVariantsLoaded(fsf: FairyStockfishEngine): Promise<void
     return baseVariantsPromise!;
 }
 
+function rulesForFsfCheck(ini: string): string {
+    const normalized = ini.replace(/\r\n/g, '\n');
+    if (PIECE_TO_CHAR_TABLE_RULE_RE.test(normalized)) return normalized;
+
+    // Pychess does not use XBoard piece images. Disable only that inherited-table
+    // consistency check so custom pieces do not produce unrelated diagnostics.
+    const separator = normalized.endsWith('\n') ? '' : '\n';
+    return `${normalized}${separator}pieceToCharTable = -`;
+}
+
 function extractDiagnostics(lines: string[]): string[] {
     return lines
         .map(line => line.trim())
@@ -222,7 +233,7 @@ export async function checkRulesWithFsfWasm(ini: string): Promise<void> {
         await ensureBaseVariantsLoaded(fsf);
 
         const marker = 'PYCHESS_VARIANT_CHECK_EOF_' + Date.now();
-        const lines = ini.replace(/\r\n/g, '\n').split('\n');
+        const lines = rulesForFsfCheck(ini).split('\n');
         const output = await runCommandWithQueuedInput(fsf, {
             command: 'check <<' + marker,
             lines: [...lines, marker],

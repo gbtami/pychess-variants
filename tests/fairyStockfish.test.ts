@@ -5,6 +5,7 @@ type Listener = (line: string) => void;
 class MockFairyStockfishEngine {
     private readonly listeners = new Set<Listener>();
     readonly commands: string[] = [];
+    readonly checkedInputs: string[] = [];
     private pendingOutput: string[] = [];
 
     addMessageListener(listener: Listener): void {
@@ -26,6 +27,7 @@ class MockFairyStockfishEngine {
 
         if (message.startsWith('check <<')) {
             const input = this.readQueuedInput(message).join('\n');
+            this.checkedInputs.push(input);
             const nameMatch = input.match(/^\s*\[\s*([A-Za-z0-9_-]+)/m);
             const name = nameMatch?.[1] ?? 'variant';
             this.pendingOutput = [`Parsing variant: ${name}`];
@@ -83,6 +85,33 @@ test('accepts hyphenated inherited variant names', async () => {
 
     await expect(checkRulesWithFsfWasm('[fsf-tencubed:tencubed]\n')).resolves.toBeUndefined();
     expect(engine.commands.some(command => /^check <<PYCHESS_VARIANT_CHECK_EOF_\d+$/.test(command))).toBe(true);
+});
+
+test('disables inherited pieceToCharTable validation only for the temporary check input', async () => {
+    const engine = new MockFairyStockfishEngine();
+    (window as typeof window & { fsf: unknown }).fsf = engine;
+
+    const { checkRulesWithFsfWasm } = await import('../client/fairyStockfish');
+    const ini = '[customvariant:chess]\ncustomPiece1 = a:KN\n';
+
+    await expect(checkRulesWithFsfWasm(ini)).resolves.toBeUndefined();
+
+    expect(engine.checkedInputs).toEqual([
+        '[customvariant:chess]\ncustomPiece1 = a:KN\npieceToCharTable = -',
+    ]);
+    expect(ini).toBe('[customvariant:chess]\ncustomPiece1 = a:KN\n');
+});
+
+test('preserves an explicitly configured pieceToCharTable during the check', async () => {
+    const engine = new MockFairyStockfishEngine();
+    (window as typeof window & { fsf: unknown }).fsf = engine;
+
+    const { checkRulesWithFsfWasm } = await import('../client/fairyStockfish');
+    const ini = '[customvariant:chess]\npieceToCharTable = PNBRQKpnbrqk\n';
+
+    await expect(checkRulesWithFsfWasm(ini)).resolves.toBeUndefined();
+
+    expect(engine.checkedInputs).toEqual(['[customvariant:chess]\npieceToCharTable = PNBRQKpnbrqk']);
 });
 
 test('loads base variants once and accepts valid rules', async () => {
