@@ -3937,16 +3937,12 @@ async def get_my_catalogued_variants(request: web.Request) -> web.Response:
         total = await collection.count_documents(query)
         pages = max(
             1,
-            (total + CATALOGUED_MANAGEMENT_PAGE_SIZE - 1)
-            // CATALOGUED_MANAGEMENT_PAGE_SIZE,
+            (total + CATALOGUED_MANAGEMENT_PAGE_SIZE - 1) // CATALOGUED_MANAGEMENT_PAGE_SIZE,
         )
         page = min(page, pages)
         skip = (page - 1) * CATALOGUED_MANAGEMENT_PAGE_SIZE
         cursor = (
-            collection.find(query)
-            .sort(sort_spec)
-            .skip(skip)
-            .limit(CATALOGUED_MANAGEMENT_PAGE_SIZE)
+            collection.find(query).sort(sort_spec).skip(skip).limit(CATALOGUED_MANAGEMENT_PAGE_SIZE)
         )
         async for doc in cursor:
             count = await _game_count(app_state, str(doc["name"]))
