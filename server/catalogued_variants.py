@@ -3020,7 +3020,7 @@ async def _ensure_catalogued_variant_quota(app_state: Any, username: str) -> Non
 
 def _search_regex(text: str) -> re.Pattern[str]:
     # Escape user text before handing it to MongoDB as a regex. This keeps the
-    # community search simple while avoiding user-controlled regex execution.
+    # catalogued-variant searches simple while avoiding user-controlled regex execution.
     return re.compile(re.escape(text), re.IGNORECASE)
 
 
@@ -3889,19 +3889,46 @@ def _positive_management_page(value: str | None) -> int:
         return 1
 
 
+def _management_sort_spec(value: str) -> tuple[str, list[tuple[str, int]]]:
+    if value == "name":
+        return value, [("displayName", 1), ("name", 1)]
+    if value == "newest":
+        return value, [("createdAt", -1), ("name", 1)]
+    if value == "played":
+        return value, [("gameCount", -1), ("updatedAt", -1), ("name", 1)]
+    return "updated", [("updatedAt", -1), ("name", 1)]
+
+
 async def get_my_catalogued_variants(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _current_human_username(request)
     admin = _is_admin_username(username)
-    scope = request.rel_url.query.get("scope")
-    if admin and scope == "fsf":
-        query: dict[str, Any] = {"source": CATALOGUED_SOURCE_FSF_BUILTIN}
-    elif admin and (scope == "all" or request.rel_url.query.get("all") == "1"):
-        query = {}
-    else:
-        query = {"author": username}
+    params = request.rel_url.query
 
-    page = _positive_management_page(request.rel_url.query.get("page"))
+    q = params.get("q", "").strip()[:80] if admin else ""
+    if admin and "author" in params:
+        author = params.get("author", "").strip()[:40]
+    elif admin and params.get("scope") == "fsf":
+        author = CATALOGUED_FSF_BUILTIN_AUTHOR
+    elif admin and (params.get("scope") == "all" or params.get("all") == "1"):
+        author = ""
+    else:
+        author = username
+    sort, sort_spec = _management_sort_spec(params.get("sort", "updated") if admin else "updated")
+
+    query: dict[str, Any] = {}
+    if q:
+        regex = _search_regex(q)
+        query["$or"] = [
+            {"name": {"$regex": regex}},
+            {"displayName": {"$regex": regex}},
+            {"description": {"$regex": regex}},
+            {"author": {"$regex": regex}},
+        ]
+    if author:
+        query["author"] = author
+
+    page = _positive_management_page(params.get("page"))
     total = 0
     pages = 1
     variants: list[CataloguedVariantClientDocument] = []
@@ -3917,7 +3944,7 @@ async def get_my_catalogued_variants(request: web.Request) -> web.Response:
         skip = (page - 1) * CATALOGUED_MANAGEMENT_PAGE_SIZE
         cursor = (
             collection.find(query)
-            .sort([("updatedAt", -1), ("name", 1)])
+            .sort(sort_spec)
             .skip(skip)
             .limit(CATALOGUED_MANAGEMENT_PAGE_SIZE)
         )
@@ -3930,6 +3957,9 @@ async def get_my_catalogued_variants(request: web.Request) -> web.Response:
         {
             "variants": variants,
             "maxVariants": max_variants,
+            "q": q,
+            "author": author,
+            "sort": sort,
             "total": total,
             "page": page,
             "pages": pages,

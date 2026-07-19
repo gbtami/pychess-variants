@@ -18,7 +18,7 @@ import {
 
 type VariantVisibility = 'private' | 'unlisted' | 'public';
 type MessageTone = 'neutral' | 'success' | 'error';
-type AdminScope = 'mine' | 'fsf' | 'all';
+type ManagementSort = 'updated' | 'played' | 'newest' | 'name';
 
 type ManagedVariant = CataloguedVariantClientDocument & {
     author?: string;
@@ -43,7 +43,10 @@ type State = {
     pages: number;
     prevPage: number | null;
     nextPage: number | null;
-    adminScope: AdminScope;
+    filtersInitialized: boolean;
+    filterQ: string;
+    filterAuthor: string;
+    filterSort: ManagementSort;
     editing: ManagedVariant | null;
     message: string;
     formMessage: string;
@@ -67,7 +70,10 @@ const state: State = {
     pages: 1,
     prevPage: null,
     nextPage: null,
-    adminScope: 'mine',
+    filtersInitialized: false,
+    filterQ: '',
+    filterAuthor: '',
+    filterSort: 'updated',
     editing: null,
     message: '',
     formMessage: '',
@@ -82,6 +88,20 @@ const state: State = {
 };
 
 let rootVNode: VNode | Element | null = null;
+let managementPopstateBound = false;
+
+function bindManagementPopstate(model: PyChessModel): void {
+    if (!model.admin || managementPopstateBound) return;
+    managementPopstateBound = true;
+    window.addEventListener('popstate', () => {
+        initializeManagementFilters(model, true);
+        state.loaded = false;
+        state.editing = null;
+        clearDraft();
+        void loadMine(model);
+        rerender(model);
+    });
+}
 
 function rerender(model: PyChessModel): void {
     if (!rootVNode) return;
@@ -92,9 +112,57 @@ function isSystemManagedVariant(variant: ManagedVariant | null | undefined): boo
     return !!variant?.system || variant?.source === 'fairy-stockfish-builtin';
 }
 
-function myVariantsUrl(model: PyChessModel): string {
+function managementSort(value: string | null): ManagementSort {
+    return value === 'played' || value === 'newest' || value === 'name' ? value : 'updated';
+}
+
+function positivePage(value: string | null): number {
+    const page = Number.parseInt(value ?? '1', 10);
+    return Number.isFinite(page) && page > 0 ? page : 1;
+}
+
+function initializeManagementFilters(model: PyChessModel, force = false): void {
+    if (state.filtersInitialized && !force) return;
+
+    const query = new URLSearchParams(window.location.search);
+    state.page = positivePage(query.get('page'));
+    if (model.admin) {
+        state.filterQ = (query.get('q') ?? '').slice(0, 80);
+        state.filterAuthor = query.has('author') ? (query.get('author') ?? '').slice(0, 40) : model.username;
+        state.filterSort = managementSort(query.get('sort'));
+    }
+    state.filtersInitialized = true;
+}
+
+function managementLocationUrl(model: PyChessModel): string {
     const query = new URLSearchParams();
-    if (model.admin && state.adminScope !== 'mine') query.set('scope', state.adminScope);
+    if (model.admin) {
+        const q = state.filterQ.trim();
+        if (q) query.set('q', q);
+        query.set('author', state.filterAuthor.trim());
+        if (state.filterSort !== 'updated') query.set('sort', state.filterSort);
+    }
+    if (state.page > 1) query.set('page', String(state.page));
+    const queryString = query.toString();
+    return `${window.location.pathname}${queryString ? `?${queryString}` : ''}`;
+}
+
+function syncManagementLocation(model: PyChessModel, replace: boolean): void {
+    if (!model.admin) return;
+    const url = managementLocationUrl(model);
+    if (replace) window.history.replaceState(null, '', url);
+    else window.history.pushState(null, '', url);
+}
+
+function myVariantsUrl(model: PyChessModel): string {
+    initializeManagementFilters(model);
+    const query = new URLSearchParams();
+    if (model.admin) {
+        const q = state.filterQ.trim();
+        if (q) query.set('q', q);
+        query.set('author', state.filterAuthor.trim());
+        if (state.filterSort !== 'updated') query.set('sort', state.filterSort);
+    }
     if (state.page > 1) query.set('page', String(state.page));
     const queryString = query.toString();
     return `/api/catalogued-variants/mine${queryString ? `?${queryString}` : ''}`;
@@ -117,6 +185,9 @@ async function loadMine(model: PyChessModel, options: { clearMessage?: boolean }
             pages?: number;
             prevPage?: number | null;
             nextPage?: number | null;
+            q?: string;
+            author?: string;
+            sort?: ManagementSort;
         };
         state.variants = payload.variants || [];
         state.maxVariants = payload.maxVariants ?? null;
@@ -125,6 +196,12 @@ async function loadMine(model: PyChessModel, options: { clearMessage?: boolean }
         state.pages = payload.pages ?? 1;
         state.prevPage = payload.prevPage ?? null;
         state.nextPage = payload.nextPage ?? null;
+        if (model.admin) {
+            state.filterQ = payload.q ?? state.filterQ;
+            state.filterAuthor = payload.author ?? state.filterAuthor;
+            state.filterSort = managementSort(payload.sort ?? state.filterSort);
+            syncManagementLocation(model, true);
+        }
         state.loaded = true;
         if (options.clearMessage !== false) state.message = '';
     } catch (err) {
@@ -1143,34 +1220,59 @@ function renderBoardControls(model: PyChessModel, variant: ManagedVariant): VNod
     ]);
 }
 
-function renderAdminScopeControls(model: PyChessModel): VNode | null {
+function renderAdminFilters(model: PyChessModel): VNode | null {
     if (!model.admin) return null;
 
-    const scopeButton = (scope: AdminScope, label: string): VNode =>
-        h(
-            'button.catalogued-row-button.catalogued-secondary-action',
-            {
-                props: { type: 'button', disabled: state.saving || state.adminScope === scope },
-                on: {
-                    click: () => {
-                        state.adminScope = scope;
-                        state.page = 1;
-                        state.loaded = false;
-                        state.editing = null;
-                        clearDraft();
-                        void loadMine(model);
-                        rerender(model);
+    const submit = (event: Event): void => {
+        event.preventDefault();
+        if (state.saving) return;
+        state.page = 1;
+        state.loaded = false;
+        state.editing = null;
+        clearDraft();
+        syncManagementLocation(model, false);
+        void loadMine(model);
+        rerender(model);
+    };
+
+    return h('form.community-variants-search.catalogued-management-search', { on: { submit } }, [
+        h('label', [
+            _('Search'),
+            h('input', {
+                props: { type: 'search', value: state.filterQ, placeholder: _('Name, description, or uploader') },
+                on: { input: event => (state.filterQ = (event.target as HTMLInputElement).value) },
+            }),
+        ]),
+        h('label', [
+            _('Uploaded by'),
+            h('input', {
+                props: { type: 'search', value: state.filterAuthor, placeholder: _('Exact username') },
+                on: { input: event => (state.filterAuthor = (event.target as HTMLInputElement).value) },
+            }),
+        ]),
+        h('label', [
+            _('Sort'),
+            h(
+                'select',
+                {
+                    props: { value: state.filterSort },
+                    on: {
+                        change: event => (state.filterSort = managementSort((event.target as HTMLSelectElement).value)),
                     },
                 },
-            },
-            label,
-        );
-
-    return h('div.catalogued-admin-scope', [
-        h('strong', _('Admin view')),
-        scopeButton('mine', _('Mine')),
-        scopeButton('fsf', _('Fairy-Stockfish')),
-        scopeButton('all', _('All')),
+                [
+                    h('option', { props: { value: 'updated' } }, _('Recently updated')),
+                    h('option', { props: { value: 'played' } }, _('Most played')),
+                    h('option', { props: { value: 'newest' } }, _('Newest')),
+                    h('option', { props: { value: 'name' } }, _('Name')),
+                ],
+            ),
+        ]),
+        h(
+            'button.button.catalogued-secondary-action',
+            { props: { type: 'submit', disabled: state.saving } },
+            _('Search'),
+        ),
     ]);
 }
 
@@ -1180,6 +1282,7 @@ function renderPagination(model: PyChessModel): VNode | null {
     const changePage = (page: number | null): void => {
         if (page === null || page === state.page || state.saving) return;
         state.page = page;
+        syncManagementLocation(model, false);
         state.loaded = false;
         state.editing = null;
         clearDraft();
@@ -1214,7 +1317,11 @@ function renderPagination(model: PyChessModel): VNode | null {
 
 function renderRows(model: PyChessModel): VNode {
     if (!state.loaded) return h('p', _('Loading...'));
-    if (state.variants.length === 0) return h('p.catalogued-empty', _('You have not uploaded any variants yet.'));
+    if (state.variants.length === 0)
+        return h(
+            'p.catalogued-empty',
+            model.admin ? _('No variants found.') : _('You have not uploaded any variants yet.'),
+        );
 
     return h('div.catalogued-table-wrap', [
         h('table.catalogued-table', [
@@ -1355,12 +1462,8 @@ function renderRows(model: PyChessModel): VNode {
 }
 
 function renderRoot(model: PyChessModel): VNode {
-    const listTitle =
-        state.adminScope === 'fsf'
-            ? _('Fairy-Stockfish variants')
-            : state.adminScope === 'all'
-              ? _('All variants')
-              : _('My variants');
+    initializeManagementFilters(model);
+    const listTitle = model.admin ? _('Variants') : _('My variants');
 
     return h(
         'main#my-variants.my-variants',
@@ -1368,6 +1471,7 @@ function renderRoot(model: PyChessModel): VNode {
             hook: {
                 insert: (vnode: VNode) => {
                     rootVNode = vnode;
+                    bindManagementPopstate(model);
                     if (!state.loaded) void loadMine(model);
                 },
             },
@@ -1395,7 +1499,7 @@ function renderRoot(model: PyChessModel): VNode {
                       renderForm(model),
                       h('section.catalogued-card.catalogued-list-card', [
                           h('h2', listTitle),
-                          renderAdminScopeControls(model),
+                          renderAdminFilters(model),
                           state.maxVariants === null
                               ? h(
                                     'p.catalogued-help',

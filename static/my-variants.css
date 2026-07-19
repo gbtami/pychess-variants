@@ -134,16 +134,25 @@
     align-items: center;
 }
 
-.catalogued-admin-scope {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-top: 0.75rem;
+.catalogued-management-search {
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: minmax(14rem, 1fr) minmax(10rem, 14rem) minmax(9rem, 12rem) auto;
+    align-items: end;
+    margin: 1rem 0;
 }
 
-.catalogued-admin-scope strong {
-    margin-right: 0.25rem;
+.catalogued-management-search label {
+    display: grid;
+    gap: 0.25rem;
+    font-weight: bold;
+}
+
+.catalogued-management-search input,
+.catalogued-management-search select {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.45rem;
 }
 
 .catalogued-primary-action {
@@ -283,6 +292,10 @@
 
     .catalogued-card {
         padding: 1rem;
+    }
+
+    .catalogued-management-search {
+        grid-template-columns: 1fr;
     }
 
     .catalogued-actions {

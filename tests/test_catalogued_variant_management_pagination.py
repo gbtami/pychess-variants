@@ -7,8 +7,8 @@ from yarl import URL
 
 from catalogued_variants import (
     CATALOGUED_FSF_BUILTIN_AUTHOR,
-    CATALOGUED_SOURCE_FSF_BUILTIN,
     MAX_CATALOGUED_VARIANTS_PER_USER,
+    _management_sort_spec,
     _positive_management_page,
     get_my_catalogued_variants,
 )
@@ -52,9 +52,18 @@ class FakeCollection:
         self.find_queries = []
         self.cursor = None
 
-    @staticmethod
-    def _matches(doc, query):
-        return all(doc.get(field) == value for field, value in query.items())
+    @classmethod
+    def _matches(cls, doc, query):
+        for field, value in query.items():
+            if field == "$or":
+                if not any(cls._matches(doc, item) for item in value):
+                    return False
+            elif isinstance(value, dict) and "$regex" in value:
+                if value["$regex"].search(str(doc.get(field) or "")) is None:
+                    return False
+            elif doc.get(field) != value:
+                return False
+        return True
 
     async def count_documents(self, query):
         self.count_queries.append(query)
@@ -76,12 +85,16 @@ class FakeDatabase:
 
 class CataloguedVariantManagementPaginationTestCase(unittest.IsolatedAsyncioTestCase):
     @staticmethod
-    def make_docs(count, *, author="owner", source="user"):
+    def make_docs(count, *, author="owner", prefix="variant"):
         return [
             {
-                "name": f"variant{i:02d}",
+                "name": f"{prefix}{i:02d}",
+                "displayName": f"Variant {i:02d}",
+                "description": f"Description {i:02d}",
                 "author": author,
-                "source": source,
+                "source": "user",
+                "gameCount": i % 7,
+                "createdAt": i,
                 "updatedAt": i,
             }
             for i in range(count)
@@ -118,18 +131,42 @@ class CataloguedVariantManagementPaginationTestCase(unittest.IsolatedAsyncioTest
         self.assertEqual(_positive_management_page("-5"), 1)
         self.assertEqual(_positive_management_page("3"), 3)
 
-    async def test_admin_all_scope_returns_requested_page(self):
+    def test_management_sort_options_match_community_sorting(self):
+        self.assertEqual(
+            _management_sort_spec("played"),
+            ("played", [("gameCount", -1), ("updatedAt", -1), ("name", 1)]),
+        )
+        self.assertEqual(
+            _management_sort_spec("invalid"),
+            ("updated", [("updatedAt", -1), ("name", 1)]),
+        )
+
+    async def test_admin_defaults_to_own_username(self):
+        docs = [
+            *self.make_docs(3, author="admin", prefix="mine"),
+            *self.make_docs(4, author="other", prefix="other"),
+        ]
+        payload, collection = await self.call_handler("/api/catalogued-variants/mine", docs)
+
+        expected_query = {"author": "admin"}
+        self.assertEqual(collection.count_queries, [expected_query])
+        self.assertEqual(collection.find_queries, [expected_query])
+        self.assertEqual(payload["author"], "admin")
+        self.assertEqual(payload["total"], 3)
+        self.assertIsNone(payload["maxVariants"])
+
+    async def test_cleared_author_returns_all_variants_on_requested_page(self):
         payload, collection = await self.call_handler(
-            "/api/catalogued-variants/mine?scope=all&page=2",
+            "/api/catalogued-variants/mine?author=&page=2",
             self.make_docs(45),
         )
 
+        self.assertEqual(payload["author"], "")
         self.assertEqual(payload["total"], 45)
         self.assertEqual(payload["page"], 2)
         self.assertEqual(payload["pages"], 3)
         self.assertEqual(payload["prevPage"], 1)
         self.assertEqual(payload["nextPage"], 3)
-        self.assertIsNone(payload["maxVariants"])
         self.assertEqual(
             [variant["name"] for variant in payload["variants"]],
             [f"variant{i:02d}" for i in range(24, 4, -1)],
@@ -142,7 +179,7 @@ class CataloguedVariantManagementPaginationTestCase(unittest.IsolatedAsyncioTest
 
     async def test_page_beyond_end_is_clamped_to_last_page(self):
         payload, _collection = await self.call_handler(
-            "/api/catalogued-variants/mine?scope=all&page=99",
+            "/api/catalogued-variants/mine?author=&page=99",
             self.make_docs(45),
         )
 
@@ -154,18 +191,14 @@ class CataloguedVariantManagementPaginationTestCase(unittest.IsolatedAsyncioTest
             [f"variant{i:02d}" for i in range(4, -1, -1)],
         )
 
-    async def test_fsf_scope_filters_before_pagination(self):
-        fsf_docs = self.make_docs(
-            21,
-            author=CATALOGUED_FSF_BUILTIN_AUTHOR,
-            source=CATALOGUED_SOURCE_FSF_BUILTIN,
-        )
+    async def test_fairy_stockfish_author_filter_is_applied_before_pagination(self):
+        fsf_docs = self.make_docs(21, author=CATALOGUED_FSF_BUILTIN_AUTHOR, prefix="fsf")
         payload, collection = await self.call_handler(
-            "/api/catalogued-variants/mine?scope=fsf&page=2",
+            f"/api/catalogued-variants/mine?author={CATALOGUED_FSF_BUILTIN_AUTHOR}&page=2",
             [*self.make_docs(10), *fsf_docs],
         )
 
-        expected_query = {"source": CATALOGUED_SOURCE_FSF_BUILTIN}
+        expected_query = {"author": CATALOGUED_FSF_BUILTIN_AUTHOR}
         self.assertEqual(collection.count_queries, [expected_query])
         self.assertEqual(collection.find_queries, [expected_query])
         self.assertEqual(payload["total"], 21)
@@ -173,13 +206,61 @@ class CataloguedVariantManagementPaginationTestCase(unittest.IsolatedAsyncioTest
         self.assertEqual(payload["pages"], 2)
         self.assertEqual(len(payload["variants"]), 1)
 
-    async def test_non_admin_cannot_expand_scope_and_total_drives_quota_counter(self):
+    async def test_search_and_author_filters_are_combined(self):
         docs = [
-            *self.make_docs(3, author="alice"),
-            *self.make_docs(4, author="other"),
+            {
+                **self.make_docs(1, author="alice", prefix="makruk")[0],
+                "description": "Royal Thai chess",
+            },
+            {
+                **self.make_docs(1, author="bob", prefix="makruk")[0],
+                "description": "Royal Thai chess",
+            },
+            *self.make_docs(1, author="alice", prefix="shogi"),
         ]
         payload, collection = await self.call_handler(
-            "/api/catalogued-variants/mine?scope=all",
+            "/api/catalogued-variants/mine?author=alice&q=THAI",
+            docs,
+        )
+
+        query = collection.count_queries[0]
+        self.assertEqual(query["author"], "alice")
+        self.assertEqual(query["$or"][0]["name"]["$regex"].pattern, "THAI")
+        self.assertEqual(payload["q"], "THAI")
+        self.assertEqual(payload["total"], 1)
+        self.assertEqual([item["name"] for item in payload["variants"]], ["makruk00"])
+
+    async def test_played_sort_matches_community_page_order(self):
+        docs = self.make_docs(3, author="admin")
+        docs[0]["gameCount"] = 20
+        docs[0]["updatedAt"] = 1
+        docs[1]["gameCount"] = 20
+        docs[1]["updatedAt"] = 3
+        docs[2]["gameCount"] = 5
+        docs[2]["updatedAt"] = 9
+
+        payload, collection = await self.call_handler(
+            "/api/catalogued-variants/mine?sort=played",
+            docs,
+        )
+
+        self.assertEqual(payload["sort"], "played")
+        self.assertEqual(
+            collection.cursor.sort_spec,
+            [("gameCount", -1), ("updatedAt", -1), ("name", 1)],
+        )
+        self.assertEqual(
+            [item["name"] for item in payload["variants"]],
+            ["variant01", "variant00", "variant02"],
+        )
+
+    async def test_non_admin_filters_are_ignored_and_total_drives_quota_counter(self):
+        docs = [
+            *self.make_docs(3, author="alice", prefix="mine"),
+            *self.make_docs(4, author="other", prefix="other"),
+        ]
+        payload, collection = await self.call_handler(
+            "/api/catalogued-variants/mine?author=&q=other&sort=played",
             docs,
             username="alice",
             admin=False,
@@ -188,6 +269,9 @@ class CataloguedVariantManagementPaginationTestCase(unittest.IsolatedAsyncioTest
         expected_query = {"author": "alice"}
         self.assertEqual(collection.count_queries, [expected_query])
         self.assertEqual(collection.find_queries, [expected_query])
+        self.assertEqual(payload["q"], "")
+        self.assertEqual(payload["author"], "alice")
+        self.assertEqual(payload["sort"], "updated")
         self.assertEqual(payload["total"], 3)
         self.assertEqual(payload["maxVariants"], MAX_CATALOGUED_VARIANTS_PER_USER)
         self.assertEqual(len(payload["variants"]), 3)
