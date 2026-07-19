@@ -4,7 +4,7 @@ import * as cg from 'chessgroundx/types';
 
 import { _ } from '../../i18n';
 import { patch } from '../../document';
-import { PlayersState } from '../playersState';
+import { SeatsState } from '../seatsState';
 import { RoundControllerBughouseSocket } from '../socket/sockets';
 import { recordPendingMove } from '../socket/pendingMoves';
 import { ChatController, chatMessage, chatView } from '../../chat';
@@ -23,7 +23,7 @@ import {
 } from '../../roundType';
 import { BugBoardName, JSONObject, PyChessModel } from '../../types';
 import { GameControllerBughouse } from '../common/gameCtrl';
-import { BLACK, getTurnColor, uci2LastMove, WHITE } from '../../chess';
+import { getTurnColor, uci2LastMove } from '../../chess';
 import { sound, soundThemeSettings } from '../../sound';
 import { notify } from '../../notification';
 import { chatMessageBug, resetChat } from '@/two-board/round/chat';
@@ -37,7 +37,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
     autoPromote: boolean;
 
-    playersState: PlayersState;
+    seatsState: SeatsState;
 
     profileid: string;
     level: number;
@@ -85,13 +85,12 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === 'true';
 
-        this.playersState = new PlayersState(this);
+        this.seatsState = new SeatsState(this);
 
-        this.spectator =
-            this.playersState.myColor.get('a') === undefined && this.playersState.myColor.get('b') === undefined;
+        this.spectator = this.players.isSpectator();
 
         const flagCallbackA = () => {
-            if (this.playersState.myColor.get('a') === this.boardA.turnColor) {
+            if (this.players.myColor('a') === this.boardA.turnColor) {
                 this.boardA.chessground.stop();
                 this.boardB.chessground.stop();
                 // console.log("Flag");
@@ -99,7 +98,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             }
         };
         const flagCallbackB = () => {
-            if (this.playersState.myColor.get('b') === this.boardB.turnColor) {
+            if (this.players.myColor('b') === this.boardB.turnColor) {
                 this.boardA.chessground.stop();
                 this.boardB.chessground.stop();
                 // console.log("Flag");
@@ -108,10 +107,8 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         };
 
         if (!this.spectator) {
-            this.playersState.clocks[0].onFlag(flagCallbackA);
-            this.playersState.clocks[1].onFlag(flagCallbackA);
-            this.playersState.clocksB[0].onFlag(flagCallbackB);
-            this.playersState.clocksB[1].onFlag(flagCallbackB);
+            this.seatsState.seatsOn('a').forEach(s => s.clock.onFlag(flagCallbackA));
+            this.seatsState.seatsOn('b').forEach(s => s.clock.onFlag(flagCallbackB));
         }
 
         const container = document.getElementById('game-controls') as HTMLElement;
@@ -137,37 +134,24 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         //////////////
         // todo: redundant setting turnColor here. It will be overwritten a moment later in onMsgBoard which is
         //       important and more correct in case of custom fen with black to move
+        const myColorA = this.players.myColor('a');
+        const myColorB = this.players.myColor('b');
+        // my partner's color on one board is the opposite of my color on the other board
+        const partnerColorA = myColorB === undefined ? undefined : myColorB === 'white' ? 'black' : 'white';
+        const partnerColorB = myColorA === undefined ? undefined : myColorA === 'white' ? 'black' : 'white';
         this.boardA.chessground.set({
-            orientation:
-                this.playersState.myColor.get('a') === 'white' ||
-                this.playersState.partnerColor.get('a') === 'white' ||
-                this.spectator
-                    ? 'white'
-                    : 'black',
+            orientation: myColorA === 'white' || partnerColorA === 'white' || this.spectator ? 'white' : 'black',
             turnColor: 'white',
             movable: {
-                color:
-                    this.playersState.myColor.get('a') === 'white'
-                        ? 'white'
-                        : this.playersState.myColor.get('a') === 'black'
-                          ? 'black'
-                          : undefined,
+                color: myColorA,
             },
             autoCastle: true,
         });
         this.boardB.chessground.set({
-            orientation:
-                this.playersState.myColor.get('b') === 'white' || this.playersState.partnerColor.get('b') === 'white'
-                    ? 'white'
-                    : 'black',
+            orientation: myColorB === 'white' || partnerColorB === 'white' ? 'white' : 'black',
             turnColor: 'white',
             movable: {
-                color:
-                    this.playersState.myColor.get('b') === 'white'
-                        ? 'white'
-                        : this.playersState.myColor.get('b') === 'black'
-                          ? 'black'
-                          : undefined,
+                color: myColorB,
             },
             autoCastle: true,
         });
@@ -184,7 +168,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         // const amISimuling = this.mycolor.get('a') !== undefined && this.mycolor.get('b') !== undefined;
         // const distinctOpps = new Set([this.wplayer, this.bplayer, this.wplayerB, this.bplayerB].filter((e) => e !== this.username));
         // const isOppSimuling = distinctOpps.size === 1;
-        if (this.playersState.myColor.get('a') === undefined && !this.spectator) {
+        if (this.players.me('a') === undefined && !this.spectator) {
             // I am not playing on board A at all. Switch:
             this.switchBoards();
         }
@@ -251,31 +235,27 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         this.clearDialog();
 
         //moveColor is "my color" on that board
-        const moveColor = this.playersState.myColor.get(b.boardName as BugBoardName) === 'black' ? 'black' : 'white';
+        const moveColor = this.players.myColor(b.boardName as BugBoardName) === 'black' ? 'black' : 'white';
 
-        const oppclock = b.chessground.state.orientation === moveColor ? 0 : 1; // only makes sense when board is flipped which not supported in gameplay yet and itself only makes sense in spectators mode todo: also switching boards to be implemented
-        const myclock = 1 - oppclock;
-
-        const clocksInQuestion = b.boardName === 'a' ? this.playersState.clocks : this.playersState.clocksB;
-        clocksInQuestion[myclock].pause(true);
+        this.seatsState.seatAt(b.boardName as BugBoardName, moveColor).clock.pause(true);
 
         const increment = this.inc > 0 ? this.inc * 1000 : 0;
         const bclocktime =
             moveColor === 'black' && b.preaction
-                ? this.playersState.clocktimes[BLACK] + increment
-                : this.playersState.getClock('a', 'black').duration;
+                ? this.seatsState.seatAt('a', 'black').clocktime + increment
+                : this.seatsState.getClock('a', 'black').duration;
         const wclocktime =
             moveColor === 'white' && b.preaction
-                ? this.playersState.clocktimes[WHITE] + increment
-                : this.playersState.getClock('a', 'white').duration;
+                ? this.seatsState.seatAt('a', 'white').clocktime + increment
+                : this.seatsState.getClock('a', 'white').duration;
         const bclocktimeB =
             moveColor === 'black' && b.preaction
-                ? this.playersState.clocktimesB[BLACK] + increment
-                : this.playersState.getClock('b', 'black').duration;
+                ? this.seatsState.seatAt('b', 'black').clocktime + increment
+                : this.seatsState.getClock('b', 'black').duration;
         const wclocktimeB =
             moveColor === 'white' && b.preaction
-                ? this.playersState.clocktimesB[WHITE] + increment
-                : this.playersState.getClock('b', 'white').duration;
+                ? this.seatsState.seatAt('b', 'white').clocktime + increment
+                : this.seatsState.getClock('b', 'white').duration;
 
         const msgClocks = [wclocktime, bclocktime];
         const msgClocksB = [wclocktimeB, bclocktimeB];
@@ -293,7 +273,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         recordPendingMove(this.gameId, moveMsg);
 
         this.socket.doSend(moveMsg as JSONObject);
-        clocksInQuestion[oppclock].start();
+        this.seatsState.seatAt(b.boardName as BugBoardName, moveColor === 'white' ? 'black' : 'white').clock.start();
     };
 
     private draw = async () => {
@@ -363,8 +343,10 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     private notifyMsg = (msg: string) => {
         if (this.status >= 0) return;
 
-        const opp_name =
-            this.username === this.playersState.wplayer ? this.playersState.bplayer : this.playersState.wplayer;
+        // todo: assumes the viewer plays board A — for a board-B player this names the wrong opponent (preserved quirk)
+        const wplayerA = this.players.byBoardAndColor('a', 'white').username;
+        const bplayerA = this.players.byBoardAndColor('a', 'black').username;
+        const opp_name = this.username === wplayerA ? bplayerA : wplayerA;
         const logoUrl = `${this.home}/static/favicon/android-icon-192x192.png`;
         notify('pychess.org', { body: `${opp_name}\n${msg}`, icon: logoUrl });
     };
@@ -447,14 +429,11 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             // game over
             this.status = msg.status;
             this.result = msg.result;
-            this.playersState.clocks[0].pause(false);
-            this.playersState.clocks[1].pause(false);
-            this.playersState.clocksB[0].pause(false);
-            this.playersState.clocksB[1].pause(false);
+            this.seatsState.seats.forEach(s => s.clock.pause(false));
             // this.dests = new Map();
 
             if (this.result !== '*' && !this.spectator && !this.finishedGame) {
-                sound.gameEndSoundBughouse(msg.result, this.playersState.whichTeamAmI());
+                sound.gameEndSoundBughouse(msg.result, this.players.myTeam().teamNumber);
             }
             selectMove(this, this.steps.length - 1); // show final position (also important to disable cg's movable)
             updateResult(this);
@@ -506,12 +485,12 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
                 if (step.chat) {
                     step.chat.forEach(c => {
                         // Check if status < 0 and filter only partners messages
-                        const myTeam =
-                            this.playersState.whichTeamAmI() === '1'
-                                ? this.playersState.teamFirst
-                                : this.playersState.teamSecond;
+                        const myTeam = this.players.myTeam();
                         if (this.status < 0) {
-                            if (c.username === myTeam[0][0] || c.username === myTeam[1][0]) {
+                            if (
+                                c.username === myTeam.players[0].username ||
+                                c.username === myTeam.players[1].username
+                            ) {
                                 chatMessageBug(idx, this, c);
                             }
                         } else {
@@ -564,7 +543,6 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         lastStepB: Step,
         msgClocks: Clocks,
         latestPly: boolean,
-        colors: cg.Color[],
         status: number,
         check: boolean,
     ) => {
@@ -577,7 +555,6 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             lastStepB,
             msgClocks,
             latestPly,
-            colors,
             status,
             check,
         );
@@ -596,7 +573,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         // while the clock values for this move contain what the user making the moves has in their browser, which we
         // consider most accurate
 
-        this.playersState.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
+        this.seatsState.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
 
         //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
         if (latestPly) {
@@ -645,25 +622,23 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         this.boardB.renderState();
 
         if (this.status < 0) {
-            this.playersState.updateClocks('a', this.boardA.turnColor, clocksA, this.status);
-            this.playersState.updateClocks('b', this.boardB.turnColor, clocksB, this.status);
+            this.seatsState.updateClocks('a', this.boardA.turnColor, clocksA, this.status);
+            this.seatsState.updateClocks('b', this.boardB.turnColor, clocksB, this.status);
         } else {
             // // TODO: this logic differs than single board games and lichess - not sure if to preserve+improve or remove
             // //       for finished games they dont update clocks according to move times of last moves and here i do
             // if (lastStepA) {
-            //     this.playersState.updateClocks("a", this.b1.turnColor, lastStepA.clocks!, this.status);
+            //     this.seatsState.updateClocks("a", this.b1.turnColor, lastStepA.clocks!, this.status);
             // }
             // if (lastStepB) {
-            //     this.playersState.updateClocks("b", this.b2.turnColor, lastStepB.clocks!, this.status);
+            //     this.seatsState.updateClocks("b", this.b2.turnColor, lastStepB.clocks!, this.status);
             // }
         }
 
         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
         // console.log("trying to play premove....");
-        if (this.boardA.premove && this.boardA.turnColor == this.playersState.myColor.get('a'))
-            this.boardA.performPremove();
-        if (this.boardB.premove && this.boardB.turnColor == this.playersState.myColor.get('b'))
-            this.boardB.performPremove();
+        if (this.boardA.premove && this.boardA.turnColor == this.players.myColor('a')) this.boardA.performPremove();
+        if (this.boardB.premove && this.boardB.turnColor == this.players.myColor('b')) this.boardB.performPremove();
     };
 
     private updateSingleBoardAndClocks = (
@@ -674,7 +649,6 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         lastStepB: Step,
         msgClocks: Clocks,
         latestPly: boolean,
-        colors: cg.Color[],
         status: number,
         check: boolean,
     ) => {
@@ -687,7 +661,6 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             lastStepB,
             msgClocks,
             latestPly,
-            colors,
             status,
             check,
         );
@@ -696,7 +669,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         const stepPartner = board.boardName === 'b' ? lastStepA : lastStepB;
         const msgTurnColor = step.turnColor; // whose turn it is after this move
         const msgMoveColor = msgTurnColor === 'white' ? 'black' : 'white'; // which color made the move
-        const myMove = this.playersState.myColor.get(board.boardName as BugBoardName) === msgMoveColor; // the received move was made by me
+        const myMove = this.players.myColor(board.boardName as BugBoardName) === msgMoveColor; // the received move was made by me
 
         const move = board.boardName === 'a' ? step.move : step.moveB;
         const lastMove = uci2LastMove(move);
@@ -722,7 +695,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             // time passed since last move on that board, but contain what is last recorded on the server for that board,
             // while the clock values for this move contain what the user making the moves has in their browser, which we
             // consider most accurate
-            this.playersState.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
+            this.seatsState.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
 
             //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
             if (latestPly) {
@@ -747,8 +720,8 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             // session (e.g. this is confirming a move resent after a reconnect/refresh) - sync
             // from the server now instead of leaving it stuck in whatever state the earlier
             // full-board snapshot left it in.
-            if (this.playersState.getClock(board.boardName, msgMoveColor).running) {
-                this.playersState.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
+            if (this.seatsState.getClock(board.boardName, msgMoveColor).running) {
+                this.seatsState.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
             }
             board.setState(fen, board.turnColor === 'white' ? 'black' : 'white', lastMove);
             board.renderState();
@@ -801,7 +774,6 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
                     lastStepB,
                     msg.clocks!,
                     latestPly,
-                    this.playersState.colors,
                     msg.status,
                     msg.check,
                 );
@@ -813,7 +785,6 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
                     lastStepB,
                     msg.clocksB!,
                     latestPly,
-                    this.playersState.colorsB,
                     msg.status,
                     msg.checkB!,
                 );
@@ -830,7 +801,6 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         } else {
             const boardName = msg.steps[msg.steps.length - 1].boardName as BugBoardName;
             const board = boardName === 'a' ? this.boardA : this.boardB;
-            const colors = boardName === 'a' ? this.playersState.colors : this.playersState.colorsB;
             const check = boardName == 'a' ? msg.check : msg.checkB!;
             const clocks = boardName == 'a' ? msg.clocks : msg.clocksB!;
             const fen = boardName == 'a' ? lastStep.fen : lastStep.fenB!;
@@ -844,7 +814,6 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
                     lastStepB,
                     clocks!,
                     latestPly,
-                    colors,
                     msg.status,
                     check,
                 );
@@ -857,7 +826,6 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
                     lastStepB,
                     clocks!,
                     latestPly,
-                    colors,
                     msg.status,
                     check,
                 );
@@ -885,13 +853,13 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             board.chessground.set({ movable: { color: undefined, dests: undefined } });
             board.partnerCC.chessground.set({ movable: { color: undefined, dests: undefined } });
         } else if (ply === this.steps.length - 1) {
-            if (this.playersState.myColor.has('a')) {
+            if (this.players.me('a') !== undefined) {
                 this.boardA.setDests();
-                this.boardA.chessground.set({ movable: { color: this.playersState.myColor.get('a') } });
+                this.boardA.chessground.set({ movable: { color: this.players.myColor('a') } });
             }
-            if (this.playersState.myColor.has('b')) {
+            if (this.players.me('b') !== undefined) {
                 this.boardB.setDests();
-                this.boardB.chessground.set({ movable: { color: this.playersState.myColor.get('b') } });
+                this.boardB.chessground.set({ movable: { color: this.players.myColor('b') } });
             }
         }
 
@@ -952,64 +920,12 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
     onMsgUserPresent = (msg: MsgUserPresent) => {
         console.log(msg);
-        if (msg.username === this.playersState.players[0]) {
-            const container = document.getElementById('player0a') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player0a', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
-        }
-        if (msg.username === this.playersState.players[1]) {
-            const container = document.getElementById('player1a') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1a', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
-        }
-        if (msg.username === this.playersState.playersB[0]) {
-            const container = document.getElementById('player0b') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player0b', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
-        }
-        if (msg.username === this.playersState.playersB[1]) {
-            const container = document.getElementById('player1b') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1b', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
-        }
+        this.seatsState.setPresence(msg.username, true);
     };
 
     onMsgUserDisconnected = (msg: MsgUserDisconnected) => {
         console.log(msg);
-        if (msg.username === this.playersState.players[0]) {
-            const container = document.getElementById('player0a') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player0a', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
-        } else if (msg.username === this.playersState.players[1]) {
-            const container = document.getElementById('player1a') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1a', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
-        }
-        if (msg.username === this.playersState.playersB[0]) {
-            const container = document.getElementById('player0b') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player0b', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
-        } else if (msg.username === this.playersState.playersB[1]) {
-            const container = document.getElementById('player1b') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1b', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
-        }
+        this.seatsState.setPresence(msg.username, false);
     };
 
     onMsgDrawOffer = (msg: MsgDrawOffer) => {

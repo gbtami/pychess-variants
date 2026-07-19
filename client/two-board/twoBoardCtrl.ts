@@ -10,6 +10,7 @@ import { boardSettings } from '@/boardSettings';
 import { ChessgroundController } from '@/cgCtrl';
 import { GameControllerBughouse } from './common/gameCtrl';
 import { createMovelistButtons } from './common/movelist';
+import { TwoBoardPlayers } from './common/players';
 
 // Shared core of the two bughouse page controllers (RoundControllerBughouse and
 // AnalysisControllerBughouse): owns the two boards and the state/logic both need.
@@ -22,6 +23,7 @@ export abstract class TwoBoardController {
     model: PyChessModel;
     gameId: string;
     username: string;
+    players: TwoBoardPlayers;
     variant: Variant;
     base: number;
     inc: number;
@@ -62,6 +64,8 @@ export abstract class TwoBoardController {
         this.status = Number(model['status']);
         this.settings = true;
         this.steps = [];
+
+        this.players = new TwoBoardPlayers(model, this.username);
 
         this.boardA = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
         this.boardB = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);

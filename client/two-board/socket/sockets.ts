@@ -26,7 +26,7 @@ export class RoundControllerBughouseSocket {
                 //TODO:NIKI:now we return false instead of exception
                 console.log('could not even REsend unsent messages ', e);
             }
-            ctrl.playersState.setConnecting(false);
+            ctrl.seatsState.setConnecting(false);
         };
 
         const onReconnect = () => {
@@ -38,7 +38,7 @@ export class RoundControllerBughouseSocket {
         };
 
         const onClose = () => {
-            ctrl.playersState.setConnecting(true);
+            ctrl.seatsState.setConnecting(true);
         };
 
         // last so when it receive initial messages on connect all dom is ready to be updated

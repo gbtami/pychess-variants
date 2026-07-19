@@ -49,7 +49,6 @@ import { titleCase } from '@/analysis/analysisCtrl';
 import { movetimeChart } from './movetimeChart';
 import { renderBughouseLinePgnMoveText, renderBughouseTreePgnMoveText } from './analysisTreeTwoBoards';
 import { TwoBoardController, initBoardSettings, switchBoards } from '@/two-board/twoBoardCtrl';
-import { playerInfoData } from '@/two-board/common/gameInfo';
 
 const EVAL_REGEX = new RegExp(
     '' +
@@ -69,8 +68,6 @@ const TREE_COLLAPSED_STORAGE_KEY = 'analysisTreeBugCollapsed';
 export default class AnalysisControllerBughouse extends TwoBoardController {
     // sock;
 
-    wplayer: string;
-    bplayer: string;
     vpgn: VNode;
     vscore: VNode | HTMLElement;
     vscorePartner: VNode | HTMLElement;
@@ -120,9 +117,6 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
 
     chess960: boolean;
 
-    teamFirst: [[string, string, string], [string, string, string]];
-    teamSecond: [[string, string, string], [string, string, string]];
-
     notation2ffishjs = (n: cg.Notation) => {
         switch (n) {
             case cg.Notation.ALGEBRAIC:
@@ -155,9 +149,6 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
         this.embed = this.gameId === undefined;
         this.chess960 = model.chess960 === 'True';
 
-        this.teamFirst = [playerInfoData(model, 'w', 'a'), playerInfoData(model, 'b', 'b')];
-        this.teamSecond = [playerInfoData(model, 'b', 'a'), playerInfoData(model, 'w', 'b')];
-
         this.boardB.chessground.set({ orientation: 'black' });
 
         ffishModule().then((loadedModule: any) => {
@@ -179,8 +170,6 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
         this.analysisPath = '';
         this.treeForkIndex = 0;
 
-        this.wplayer = model['wplayer'] as string;
-        this.bplayer = model['bplayer'] as string;
         this.pgn = '';
         this.ply = isNaN(model['ply']) ? 0 : model['ply'];
 

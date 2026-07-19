@@ -4,7 +4,6 @@ import { _ } from '@/i18n';
 import type AnalysisControllerBughouse from '../analysis/analysisCtrl';
 import { result } from '../../result';
 import { patch } from '../../document';
-import { RoundControllerBughouse } from '../round/roundCtrl';
 import { TwoBoardController } from '../twoBoardCtrl';
 import { Step, StepChat } from '../../messages';
 import { displayUsername, isAnonUsername } from '@/user';
@@ -56,10 +55,6 @@ interface ParsedTreeMove {
         text: string;
         cls: MoveGlyphClass;
     };
-}
-
-function teamsOf(ctrl: TwoBoardController) {
-    return ctrl instanceof RoundControllerBughouse ? ctrl.playersState : (ctrl as AnalysisControllerBughouse);
 }
 
 function asTreeCtrl(ctrl: TwoBoardController): TreeCtrl | undefined {
@@ -580,9 +575,12 @@ export function updateMovelist(ctrl: TwoBoardController, full = true, activate =
         }
 
         if (ctrl.status >= 0 && needResult) {
-            const teams = teamsOf(ctrl);
-            const teamFirst = displayUsername(teams.teamFirst[0][0]) + '+' + displayUsername(teams.teamFirst[1][0]);
-            const teamSecond = displayUsername(teams.teamSecond[0][0]) + '+' + displayUsername(teams.teamSecond[1][0]);
+            const teams = ctrl.players.teams;
+            // todo: consider Team.name()
+            const teamFirst =
+                displayUsername(teams[0].players[0].username) + '+' + displayUsername(teams[0].players[1].username);
+            const teamSecond =
+                displayUsername(teams[1].players[0].username) + '+' + displayUsername(teams[1].players[1].username);
             moves.push(h('div.result', ctrl.result));
             moves.push(h('div.status', result(ctrl.boardA.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
         }
@@ -691,9 +689,12 @@ export function updateMovelist(ctrl: TwoBoardController, full = true, activate =
     }
 
     if (ctrl.status >= 0 && needResult) {
-        const teams = teamsOf(ctrl);
-        const teamFirst = displayUsername(teams.teamFirst[0][0]) + '+' + displayUsername(teams.teamFirst[1][0]);
-        const teamSecond = displayUsername(teams.teamSecond[0][0]) + '+' + displayUsername(teams.teamSecond[1][0]);
+        const teams = ctrl.players.teams;
+        // todo: consider Team.name()
+        const teamFirst =
+            displayUsername(teams[0].players[0].username) + '+' + displayUsername(teams[0].players[1].username);
+        const teamSecond =
+            displayUsername(teams[1].players[0].username) + '+' + displayUsername(teams[1].players[1].username);
         moves.push(h('div.result', ctrl.result));
         moves.push(h('div.status', result(ctrl.boardA.variant, ctrl.status, ctrl.result, teamFirst, teamSecond)));
     }
@@ -733,9 +734,10 @@ export function updateResult(ctrl: TwoBoardController) {
 
     const container = document.getElementById('movelist') as HTMLElement;
 
-    const teams = teamsOf(ctrl);
-    const teamFirst = teams.teamFirst[0][0] + '+' + teams.teamFirst[1][0];
-    const teamSecond = teams.teamSecond[0][0] + '+' + teams.teamSecond[1][0];
+    const teams = ctrl.players.teams;
+    // todo: consider Team.name()
+    const teamFirst = teams[0].players[0].username + '+' + teams[0].players[1].username;
+    const teamSecond = teams[1].players[0].username + '+' + teams[1].players[1].username;
 
     ctrl.vmovelist = patch(
         container,
