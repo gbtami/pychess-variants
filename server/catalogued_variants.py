@@ -518,6 +518,43 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
         "promotionRoles": ("p",),
         "promotionOrder": CATALOGUED_CHESS_PROMOTION_ORDER,
     },
+    "raazuvaa": {
+        "displayName": "Raazuvaa",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "baseVariant": "chess",
+    },
+    "chigorin": {
+        "displayName": "Chigorin Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/diffsetup.dir/chigorin.html",
+        ),
+        "baseVariant": "chess",
+    },
+    "gustav3": {
+        "displayName": "Gustav III Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/play/gustav-iiis-chess",
+        ),
+        "baseVariant": "chess",
+    },
+    "troitzky": {
+        "displayName": "Troitzky Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/play/troitzky-chess",
+        ),
+        "baseVariant": "chess",
+    },
+    "omicron": {
+        "displayName": "Omicron Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "http://www.eglebbk.dds.nl/program/chess-omicron.html",
+        ),
+        "baseVariant": "chess",
+    },
     "yarishogi": {
         "displayName": "Yari Shogi",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
@@ -634,15 +671,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
         "baseVariant": "crazyhouse",
         "reviewNotes": "Drop variant with changed pawn-drop rules; review pocket/drop UI.",
     },
-    "chigorin": {
-        "displayName": "Chigorin Chess",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "references": _fsf_builtin_references(
-            "https://www.chessvariants.com/diffsetup.dir/chigorin.html",
-        ),
-        "baseVariant": "chess",
-        "reviewNotes": "Asymmetric piece movement; review piece identities and diagrams.",
-    },
     "clobber": {
         "displayName": "Clobber",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
@@ -719,15 +747,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
         ),
         "baseVariant": "shogi",
         "reviewNotes": "Pychess exposes Gorogoro+ separately; compare rule differences first.",
-    },
-    "gustav3": {
-        "displayName": "Gustav III Chess",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "references": _fsf_builtin_references(
-            "https://www.chessvariants.com/play/gustav-iiis-chess",
-        ),
-        "baseVariant": "chess",
-        "reviewNotes": "Uses wall squares; needs dedicated board/move-input review.",
     },
     "isolation": {
         "displayName": "Isolation",
@@ -842,15 +861,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
         "baseVariant": "shogi",
         "reviewNotes": "Shogi-family drops/promotions; review piece assets and byo UI.",
     },
-    "omicron": {
-        "displayName": "Omicron Chess",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "references": _fsf_builtin_references(
-            "http://www.eglebbk.dds.nl/program/chess-omicron.html",
-        ),
-        "baseVariant": "chess",
-        "reviewNotes": "12x10 Omega-family variant; review board sizing, pieces and promotion UI.",
-    },
     "paradigm": {
         "displayName": "Paradigm Chess30",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
@@ -876,12 +886,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
         "baseVariant": "chess",
         "reviewNotes": "Pocket/drop variant; review pocket UI and drop legality display.",
     },
-    "raazuvaa": {
-        "displayName": "Raazuvaa",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "baseVariant": "chess",
-        "reviewNotes": "Maldivian chess-like rules; needs rules/reference and adjudication review.",
-    },
     "snailtrail": {
         "displayName": "Snail Trail",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
@@ -899,15 +903,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
         ),
         "baseVariant": "chess",
         "reviewNotes": "Asymmetric Almost Chess variant; verify pieces and castling assumptions.",
-    },
-    "troitzky": {
-        "displayName": "Troitzky Chess",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "references": _fsf_builtin_references(
-            "https://www.chessvariants.com/play/troitzky-chess",
-        ),
-        "baseVariant": "chess",
-        "reviewNotes": "Large/fairy-piece variant; review piece identities and promotion UI.",
     },
     "wolf": {
         "displayName": "Wolf Chess",
