@@ -38,6 +38,11 @@ type State = {
     saving: boolean;
     variants: ManagedVariant[];
     maxVariants: number | null;
+    total: number;
+    page: number;
+    pages: number;
+    prevPage: number | null;
+    nextPage: number | null;
     adminScope: AdminScope;
     editing: ManagedVariant | null;
     message: string;
@@ -57,6 +62,11 @@ const state: State = {
     saving: false,
     variants: [],
     maxVariants: null,
+    total: 0,
+    page: 1,
+    pages: 1,
+    prevPage: null,
+    nextPage: null,
     adminScope: 'mine',
     editing: null,
     message: '',
@@ -83,8 +93,11 @@ function isSystemManagedVariant(variant: ManagedVariant | null | undefined): boo
 }
 
 function myVariantsUrl(model: PyChessModel): string {
-    if (!model.admin || state.adminScope === 'mine') return '/api/catalogued-variants/mine';
-    return `/api/catalogued-variants/mine?scope=${encodeURIComponent(state.adminScope)}`;
+    const query = new URLSearchParams();
+    if (model.admin && state.adminScope !== 'mine') query.set('scope', state.adminScope);
+    if (state.page > 1) query.set('page', String(state.page));
+    const queryString = query.toString();
+    return `/api/catalogued-variants/mine${queryString ? `?${queryString}` : ''}`;
 }
 
 async function responseError(response: Response): Promise<string> {
@@ -96,9 +109,22 @@ async function loadMine(model: PyChessModel, options: { clearMessage?: boolean }
     try {
         const response = await fetch(myVariantsUrl(model));
         if (!response.ok) throw new Error(await responseError(response));
-        const payload = (await response.json()) as { variants: ManagedVariant[]; maxVariants?: number | null };
+        const payload = (await response.json()) as {
+            variants: ManagedVariant[];
+            maxVariants?: number | null;
+            total?: number;
+            page?: number;
+            pages?: number;
+            prevPage?: number | null;
+            nextPage?: number | null;
+        };
         state.variants = payload.variants || [];
         state.maxVariants = payload.maxVariants ?? null;
+        state.total = payload.total ?? state.variants.length;
+        state.page = payload.page ?? 1;
+        state.pages = payload.pages ?? 1;
+        state.prevPage = payload.prevPage ?? null;
+        state.nextPage = payload.nextPage ?? null;
         state.loaded = true;
         if (options.clearMessage !== false) state.message = '';
     } catch (err) {
@@ -1128,6 +1154,7 @@ function renderAdminScopeControls(model: PyChessModel): VNode | null {
                 on: {
                     click: () => {
                         state.adminScope = scope;
+                        state.page = 1;
                         state.loaded = false;
                         state.editing = null;
                         clearDraft();
@@ -1144,6 +1171,44 @@ function renderAdminScopeControls(model: PyChessModel): VNode | null {
         scopeButton('mine', _('Mine')),
         scopeButton('fsf', _('Fairy-Stockfish')),
         scopeButton('all', _('All')),
+    ]);
+}
+
+function renderPagination(model: PyChessModel): VNode | null {
+    if (!state.loaded || state.pages <= 1) return null;
+
+    const changePage = (page: number | null): void => {
+        if (page === null || page === state.page || state.saving) return;
+        state.page = page;
+        state.loaded = false;
+        state.editing = null;
+        clearDraft();
+        void loadMine(model);
+        rerender(model);
+    };
+
+    return h('nav.catalogued-management-pages', [
+        state.prevPage === null
+            ? null
+            : h(
+                  'button.catalogued-row-button.catalogued-secondary-action',
+                  {
+                      props: { type: 'button', disabled: state.saving },
+                      on: { click: () => changePage(state.prevPage) },
+                  },
+                  _('Previous'),
+              ),
+        h('span', `${_('Page')} ${state.page} / ${state.pages}`),
+        state.nextPage === null
+            ? null
+            : h(
+                  'button.catalogued-row-button.catalogued-secondary-action',
+                  {
+                      props: { type: 'button', disabled: state.saving },
+                      on: { click: () => changePage(state.nextPage) },
+                  },
+                  _('Next'),
+              ),
     ]);
 }
 
@@ -1332,12 +1397,16 @@ function renderRoot(model: PyChessModel): VNode {
                           h('h2', listTitle),
                           renderAdminScopeControls(model),
                           state.maxVariants === null
-                              ? null
+                              ? h(
+                                    'p.catalogued-help',
+                                    `${state.total} ${state.total === 1 ? _('variant') : _('variants')}`,
+                                )
                               : h(
                                     'p.catalogued-help',
-                                    `${state.variants.length}/${state.maxVariants} ${_('variant slots used')}`,
+                                    `${state.total}/${state.maxVariants} ${_('variant slots used')}`,
                                 ),
                           renderRows(model),
+                          renderPagination(model),
                       ]),
                   ]),
         ],

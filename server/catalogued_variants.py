@@ -51,6 +51,7 @@ CATALOGUED_SOURCE_USER = "user"
 CATALOGUED_SOURCE_FSF_BUILTIN = "fairy-stockfish-builtin"
 CATALOGUED_FSF_BUILTIN_AUTHOR = "Fairy-Stockfish"
 CATALOGUED_COMMUNITY_PAGE_SIZE = 20
+CATALOGUED_MANAGEMENT_PAGE_SIZE = 20
 MAX_CATALOGUED_VARIANTS_PER_USER = 20
 MAX_CATALOGUED_FAVORITES_PER_USER = 500
 CATALOGUED_AI_FAILURE_LIMIT = 3
@@ -3881,6 +3882,13 @@ async def get_catalogued_disguised_piece_css(request: web.Request) -> web.Respon
     )
 
 
+def _positive_management_page(value: str | None) -> int:
+    try:
+        return max(1, int(value or "1"))
+    except ValueError:
+        return 1
+
+
 async def get_my_catalogued_variants(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _current_human_username(request)
@@ -3893,15 +3901,42 @@ async def get_my_catalogued_variants(request: web.Request) -> web.Response:
     else:
         query = {"author": username}
 
+    page = _positive_management_page(request.rel_url.query.get("page"))
+    total = 0
+    pages = 1
     variants: list[CataloguedVariantClientDocument] = []
     if app_state.db is not None:
-        cursor = app_state.db[CATALOGUED_VARIANT_COLLECTION].find(query).sort("updatedAt", -1)
+        collection = app_state.db[CATALOGUED_VARIANT_COLLECTION]
+        total = await collection.count_documents(query)
+        pages = max(
+            1,
+            (total + CATALOGUED_MANAGEMENT_PAGE_SIZE - 1)
+            // CATALOGUED_MANAGEMENT_PAGE_SIZE,
+        )
+        page = min(page, pages)
+        skip = (page - 1) * CATALOGUED_MANAGEMENT_PAGE_SIZE
+        cursor = (
+            collection.find(query)
+            .sort([("updatedAt", -1), ("name", 1)])
+            .skip(skip)
+            .limit(CATALOGUED_MANAGEMENT_PAGE_SIZE)
+        )
         async for doc in cursor:
             count = await _game_count(app_state, str(doc["name"]))
             variants.append(_client_doc(doc, game_count=count))
 
-    max_variants = None if _is_admin_username(username) else MAX_CATALOGUED_VARIANTS_PER_USER
-    return json_response({"variants": variants, "maxVariants": max_variants})
+    max_variants = None if admin else MAX_CATALOGUED_VARIANTS_PER_USER
+    return json_response(
+        {
+            "variants": variants,
+            "maxVariants": max_variants,
+            "total": total,
+            "page": page,
+            "pages": pages,
+            "prevPage": page - 1 if page > 1 else None,
+            "nextPage": page + 1 if page < pages else None,
+        }
+    )
 
 
 async def _load_owned_doc(request: web.Request) -> tuple[Any, str, str, Mapping[str, Any]]:

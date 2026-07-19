@@ -457,3 +457,11 @@
     background-repeat: no-repeat;
     background-position: center;
 }
+
+.catalogued-management-pages {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
