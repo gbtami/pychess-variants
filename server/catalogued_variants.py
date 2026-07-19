@@ -121,6 +121,32 @@ CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
         "decimalshogi",
     }
 )
+# Keep these static board families in sync with client/variants.ts. Dynamic
+# catalogued* checkerboard families are deliberately not valid admin overrides.
+CATALOGUED_BOARD_FAMILY_DIMENSIONS: dict[str, tuple[int, int]] = {
+    "ataxx7x7": (7, 7),
+    "standard8x8": (8, 8),
+    "standard9x9": (9, 9),
+    "standard10x8": (10, 8),
+    "standard10x10": (10, 10),
+    "grand10x10": (10, 10),
+    "makruk8x8": (8, 8),
+    "sittuyin8x8": (8, 8),
+    "shogi9x9": (9, 9),
+    "shogi7x7": (7, 7),
+    "shogi5x5": (5, 5),
+    "shogi5x6": (5, 6),
+    "shogi3x4": (3, 4),
+    "xiangqi9x10": (9, 10),
+    "xiangqi7x7": (7, 7),
+    "janggi9x10": (9, 10),
+    "shogun8x8": (8, 8),
+    "chak9x9": (9, 9),
+    "chennis7x7": (7, 7),
+    "xiangfu9x9": (9, 9),
+    "borderlands9x10": (9, 10),
+}
+CATALOGUED_BOARD_FAMILY_OVERRIDES = frozenset(CATALOGUED_BOARD_FAMILY_DIMENSIONS)
 
 CATALOGUED_CHESS_PROMOTION_ORDER = ("q", "r", "b", "n")
 FSF_CATALOGUED_BUILTIN_DESCRIPTION = (
@@ -974,6 +1000,7 @@ class CataloguedVariantDocument(TypedDict):
     source: NotRequired[str]
     fsfBuiltinVariant: NotRequired[str]
     pieceFamilyOverride: NotRequired[str]
+    boardFamilyOverride: NotRequired[str]
     references: NotRequired[list[CataloguedVariantReference]]
     pieceSet: NotRequired[dict[str, CataloguedVariantPieceSetSvg]]
     pieceSetUpdatedAt: NotRequired[datetime]
@@ -1017,6 +1044,7 @@ class CataloguedVariantClientDocument(TypedDict):
     system: NotRequired[bool]
     fsfBuiltinVariant: NotRequired[str]
     pieceFamilyOverride: NotRequired[str]
+    boardFamilyOverride: NotRequired[str]
     references: NotRequired[list[CataloguedVariantReference]]
     archived: NotRequired[bool]
     enabled: NotRequired[bool]
@@ -1079,6 +1107,43 @@ def _catalogued_piece_family_override(doc: Mapping[str, Any]) -> str:
         return _clean_piece_family_override(str(doc.get("pieceFamilyOverride") or ""))
     except web.HTTPBadRequest:
         return ""
+
+
+def _clean_board_family_override(board_family: str | None) -> str:
+    cleaned = str(board_family or "").strip().lower()
+    if cleaned in {"", "auto", "auto-detect", "autodetect"}:
+        return ""
+    if cleaned not in CATALOGUED_BOARD_FAMILY_OVERRIDES:
+        raise web.HTTPBadRequest(text="Unknown catalogued board-style override.")
+    return cleaned
+
+
+def _read_board_family_override(data: Mapping[str, Any]) -> str:
+    if "boardFamilyOverride" in data:
+        value = data.get("boardFamilyOverride")
+    else:
+        value = data.get("board_family_override")
+    return _clean_board_family_override(str(value or ""))
+
+
+def _catalogued_board_family_override(doc: Mapping[str, Any]) -> str:
+    try:
+        return _clean_board_family_override(str(doc.get("boardFamilyOverride") or ""))
+    except web.HTTPBadRequest:
+        return ""
+
+
+def _ensure_board_family_dimensions(board_family: str, width: int, height: int) -> None:
+    if not board_family:
+        return
+    expected_width, expected_height = CATALOGUED_BOARD_FAMILY_DIMENSIONS[board_family]
+    if (width, height) != (expected_width, expected_height):
+        raise web.HTTPBadRequest(
+            text=(
+                f'Board style "{board_family}" requires a '
+                f"{expected_width}x{expected_height} board, not {width}x{height}."
+            )
+        )
 
 
 def _is_fsf_builtin_catalogued_doc(doc: Mapping[str, Any]) -> bool:
@@ -2536,6 +2601,9 @@ def _client_doc(
     piece_family_override = _catalogued_piece_family_override(doc)
     if piece_family_override:
         client_doc["pieceFamilyOverride"] = piece_family_override
+    board_family_override = _catalogued_board_family_override(doc)
+    if board_family_override:
+        client_doc["boardFamilyOverride"] = board_family_override
     if client_doc["hasPieceSet"]:
         client_doc["pieceSetRevision"] = _piece_set_revision(doc)
     if client_doc["hasBoard"]:
@@ -3237,7 +3305,7 @@ async def set_catalogued_variant_favorite(request: web.Request) -> web.Response:
     return json_response({"ok": True, "name": name, "favorite": favorite})
 
 
-async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str, str]:
+async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str, str, str]:
     content_type = request.content_type or ""
 
     if content_type == "application/json":
@@ -3248,12 +3316,20 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
         display_name = str(data.get("displayName") or data.get("display_name") or "")
         description = str(data.get("description") or "")
         piece_family_override = _read_piece_family_override(data)
+        board_family_override = _read_board_family_override(data)
         visibility = _clean_visibility(str(data.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE))
-        return ini, display_name, description, piece_family_override, visibility
+        return (
+            ini,
+            display_name,
+            description,
+            piece_family_override,
+            board_family_override,
+            visibility,
+        )
 
     if content_type.startswith("text/"):
         ini = await read_text_data(request)
-        return ini or "", "", "", "", CATALOGUED_VISIBILITY_PRIVATE
+        return ini or "", "", "", "", "", CATALOGUED_VISIBILITY_PRIVATE
 
     data = await read_post_data(request)
     if data is None:
@@ -3269,8 +3345,16 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
     display_name = str(data.get("displayName") or data.get("display_name") or "")
     description = str(data.get("description") or "")
     piece_family_override = _read_piece_family_override(data)
+    board_family_override = _read_board_family_override(data)
     visibility = _clean_visibility(str(data.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE))
-    return ini, display_name, description, piece_family_override, visibility
+    return (
+        ini,
+        display_name,
+        description,
+        piece_family_override,
+        board_family_override,
+        visibility,
+    )
 
 
 async def check_catalogued_variant_rules(request: web.Request) -> web.Response:
@@ -3328,6 +3412,7 @@ def _build_doc(
     created_at: datetime,
     visibility: str = CATALOGUED_VISIBILITY_PRIVATE,
     piece_family_override: str = "",
+    board_family_override: str = "",
     archived: bool = False,
     game_count: int = 0,
     source: str = CATALOGUED_SOURCE_USER,
@@ -3369,6 +3454,10 @@ def _build_doc(
     }
     if piece_family_override:
         doc["pieceFamilyOverride"] = _clean_piece_family_override(piece_family_override)
+    if board_family_override:
+        cleaned_board_family = _clean_board_family_override(board_family_override)
+        _ensure_board_family_dimensions(cleaned_board_family, width, height)
+        doc["boardFamilyOverride"] = cleaned_board_family
     if fsf_builtin_variant:
         doc["fsfBuiltinVariant"] = fsf_builtin_variant
     return doc
@@ -3633,9 +3722,14 @@ async def ensure_fsf_catalogued_builtin_variants(app_state: Any) -> None:
 async def upload_catalogued_variant(request: web.Request) -> web.Response:
     app_state = get_app_state(request.app)
     username = await _current_human_username(request)
-    ini, display_name, description, piece_family_override, visibility = await _read_upload_payload(
-        request
-    )
+    (
+        ini,
+        display_name,
+        description,
+        piece_family_override,
+        board_family_override,
+        visibility,
+    ) = await _read_upload_payload(request)
     ini = ini.strip()
     await _ensure_catalogued_variant_quota(app_state, username)
     if not ini:
@@ -3677,6 +3771,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
         created_at=now,
         visibility=visibility,
         piece_family_override=piece_family_override if _is_admin_username(username) else "",
+        board_family_override=board_family_override if _is_admin_username(username) else "",
     )
 
     try:
@@ -4025,14 +4120,24 @@ async def _load_owned_doc(request: web.Request) -> tuple[Any, str, str, Mapping[
 async def update_catalogued_variant(request: web.Request) -> web.Response:
     app_state, username, old_name, existing = await _load_owned_doc(request)
 
-    ini, display_name, description, piece_family_override, visibility = await _read_upload_payload(
-        request
-    )
+    (
+        ini,
+        display_name,
+        description,
+        piece_family_override,
+        board_family_override,
+        visibility,
+    ) = await _read_upload_payload(request)
     ini = ini.strip()
     piece_family_override = (
         piece_family_override
         if _is_admin_username(username)
         else _catalogued_piece_family_override(existing)
+    )
+    board_family_override = (
+        board_family_override
+        if _is_admin_username(username)
+        else _catalogued_board_family_override(existing)
     )
     if _is_fsf_builtin_catalogued_doc(existing):
         now = datetime.now(timezone.utc)
@@ -4044,10 +4149,22 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
                 "updatedAt": now,
             }
         }
+        unset_fields: dict[str, str] = {}
         if piece_family_override:
             update["$set"]["pieceFamilyOverride"] = piece_family_override
         else:
-            update["$unset"] = {"pieceFamilyOverride": ""}
+            unset_fields["pieceFamilyOverride"] = ""
+        if board_family_override:
+            _ensure_board_family_dimensions(
+                board_family_override,
+                int(existing.get("width") or 8),
+                int(existing.get("height") or 8),
+            )
+            update["$set"]["boardFamilyOverride"] = board_family_override
+        else:
+            unset_fields["boardFamilyOverride"] = ""
+        if unset_fields:
+            update["$unset"] = unset_fields
         await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one({"_id": old_name}, update)
         updated = await app_state.db[CATALOGUED_VARIANT_COLLECTION].find_one({"_id": old_name})
         if updated is None:
@@ -4150,6 +4267,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         created_at=existing.get("createdAt", datetime.now(timezone.utc)),
         visibility=visibility,
         piece_family_override=piece_family_override,
+        board_family_override=board_family_override,
         archived=bool(existing.get("archived", False)),
         game_count=int(existing.get("gameCount") or 0),
     )
@@ -4298,6 +4416,7 @@ async def clone_catalogued_variant(request: web.Request) -> web.Response:
         show_check_counters=validated.show_check_counters,
         created_at=now,
         piece_family_override=_catalogued_piece_family_override(doc),
+        board_family_override=_catalogued_board_family_override(doc),
     )
 
     try:

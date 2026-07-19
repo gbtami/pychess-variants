@@ -1,4 +1,41 @@
 import { _ } from './i18n';
+import { BOARD_FAMILIES, VARIANTS } from './variants';
+
+function applyCataloguedBoardPreviews(): void {
+    document.querySelectorAll<SVGSVGElement>('.catalogued-start-board-svg').forEach(svg => {
+        if (svg.querySelector('.catalogued-start-board-theme')) return;
+
+        const variantName = svg.closest<HTMLElement>('[data-variant]')?.dataset.variant;
+        const variant = variantName ? VARIANTS[variantName] : undefined;
+        if (!variant || variant.hasBoard || variant.boardFamily.startsWith('catalogued')) return;
+
+        const boardImage = BOARD_FAMILIES[variant.boardFamily]?.boardCSS[0];
+        if (!boardImage) return;
+
+        const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        image.classList.add('catalogued-start-board-theme');
+        image.setAttribute('x', '0');
+        image.setAttribute('y', '0');
+        image.setAttribute('width', svg.getAttribute('width') ?? '100%');
+        image.setAttribute('height', svg.getAttribute('height') ?? '100%');
+        image.setAttribute('preserveAspectRatio', 'none');
+        image.setAttribute('href', `/static/images/board/${boardImage}`);
+
+        const squares = svg.querySelectorAll('.catalogued-start-board-square');
+        image.addEventListener(
+            'error',
+            () => {
+                image.remove();
+                squares.forEach(square => square.removeAttribute('visibility'));
+            },
+            { once: true },
+        );
+        const title = svg.querySelector(':scope > title');
+        if (title?.nextSibling) svg.insertBefore(image, title.nextSibling);
+        else svg.prepend(image);
+        squares.forEach(square => square.setAttribute('visibility', 'hidden'));
+    });
+}
 
 function setFavoriteButton(button: HTMLButtonElement, favorite: boolean): void {
     button.classList.toggle('is-favorite', favorite);
@@ -49,6 +86,7 @@ async function favoriteVariant(button: HTMLButtonElement): Promise<void> {
 }
 
 export function initCommunityVariantFavorites(): void {
+    applyCataloguedBoardPreviews();
     const page = document.querySelector('.community-variants-page');
     if (!page) return;
 

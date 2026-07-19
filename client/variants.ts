@@ -1913,6 +1913,7 @@ export interface CataloguedVariantClientDocument {
     readonly system?: boolean;
     readonly fsfBuiltinVariant?: string;
     readonly pieceFamilyOverride?: keyof typeof PIECE_FAMILIES;
+    readonly boardFamilyOverride?: keyof typeof BOARD_FAMILIES;
     readonly archived?: boolean;
     readonly enabled?: boolean;
     readonly gameCount?: number;
@@ -2506,6 +2507,33 @@ export function cataloguedCompatiblePieceFamily(
     return cataloguedCompatiblePieceSource(meta, options)?.pieceFamily;
 }
 
+function boardFamilyMatchesDimensions(
+    boardFamily: keyof typeof BOARD_FAMILIES,
+    width: number,
+    height: number,
+): boolean {
+    const dimensions = BOARD_FAMILIES[boardFamily]?.dimensions;
+    return !!dimensions && dimensions.width === width && dimensions.height === height;
+}
+
+export function cataloguedCompatibleBoardFamily(
+    meta: CataloguedVariantClientDocument,
+): keyof typeof BOARD_FAMILIES | undefined {
+    if (
+        meta.boardFamilyOverride &&
+        BOARD_FAMILIES[meta.boardFamilyOverride] &&
+        boardFamilyMatchesDimensions(meta.boardFamilyOverride, meta.width, meta.height)
+    ) {
+        return meta.boardFamilyOverride;
+    }
+
+    const baseVariant = meta.baseVariant ? VARIANTS[meta.baseVariant] : undefined;
+    if (baseVariant && boardFamilyMatchesDimensions(baseVariant.boardFamily, meta.width, meta.height)) {
+        return baseVariant.boardFamily;
+    }
+    return undefined;
+}
+
 export function registerCataloguedVariant(meta: CataloguedVariantClientDocument): void {
     if (!meta?.name) return;
     if (VARIANTS[meta.name] && !cataloguedVariantNames.has(meta.name)) return;
@@ -2513,7 +2541,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
     const info = cataloguedPieceInfo(meta);
     const { pieces, kingRoles, pocketRoles, promotionType, promotionRoles, promotionOrder, baseVariant } = info;
     const captureToHand = cataloguedCaptureToHand(meta, baseVariant);
-    const boardFamily = ensureCataloguedBoardFamily(meta.width, meta.height);
+    const boardFamily = cataloguedCompatibleBoardFamily(meta) ?? ensureCataloguedBoardFamily(meta.width, meta.height);
     const cataloguedPieceFamily = `catalogued-${meta.name}`;
     delete PIECE_FAMILIES[cataloguedPieceFamily];
     const compatiblePieceSource = meta.hasPieceSet

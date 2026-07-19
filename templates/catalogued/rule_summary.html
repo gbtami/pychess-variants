@@ -10,7 +10,7 @@
         <h3>{{ section.title }}</h3>
         {% if section.kind == "boardSetup" and catalogued_variant.startBoardPreview %}
         <figure class="catalogued-start-board-figure">
-            <div class="catalogued-start-board-preview">
+            <div class="catalogued-start-board-preview" data-variant="{{ catalogued_variant.name }}">
                 {{ catalogued_variant.startBoardPreview.svg | safe }}
             </div>
             <figcaption>Default starting position</figcaption>

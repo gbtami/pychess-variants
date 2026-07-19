@@ -7,8 +7,10 @@ import { checkRulesWithFsfWasm } from './fairyStockfish';
 import { _ } from './i18n';
 import { PyChessModel } from './types';
 import {
+    BOARD_FAMILIES,
     CataloguedVariantClientDocument,
     PIECE_FAMILIES,
+    cataloguedCompatibleBoardFamily,
     cataloguedCompatiblePieceFamily,
     isBuiltinVariantName,
     registerCataloguedVariant,
@@ -54,6 +56,7 @@ type State = {
     draftDisplayName: string;
     draftDescription: string;
     draftPieceFamilyOverride: string;
+    draftBoardFamilyOverride: string;
     draftVisibility: VariantVisibility;
     draftIni: string;
     piecePreviewVariant: string;
@@ -81,6 +84,7 @@ const state: State = {
     draftDisplayName: '',
     draftDescription: '',
     draftPieceFamilyOverride: '',
+    draftBoardFamilyOverride: '',
     draftVisibility: 'private',
     draftIni: '',
     piecePreviewVariant: '',
@@ -215,6 +219,7 @@ type VariantFormBody = {
     displayName: string;
     description: string;
     pieceFamilyOverride: string;
+    boardFamilyOverride: string;
     visibility: VariantVisibility;
     ini: string;
 };
@@ -232,6 +237,19 @@ function cleanPieceFamilyOverrideDraft(pieceFamily: string | undefined | null): 
     return isSitePieceFamilyOverride(cleaned) ? cleaned : '';
 }
 
+function isSiteBoardFamilyOverride(boardFamily: string): boolean {
+    return (
+        !!boardFamily &&
+        Object.prototype.hasOwnProperty.call(BOARD_FAMILIES, boardFamily) &&
+        !boardFamily.startsWith('catalogued')
+    );
+}
+
+function cleanBoardFamilyOverrideDraft(boardFamily: string | undefined | null): string {
+    const cleaned = (boardFamily ?? '').trim();
+    return isSiteBoardFamilyOverride(cleaned) ? cleaned : '';
+}
+
 function readForm(): VariantFormBody {
     return {
         displayName:
@@ -243,6 +261,10 @@ function readForm(): VariantFormBody {
         pieceFamilyOverride: cleanPieceFamilyOverrideDraft(
             (document.getElementById('catalogued-piece-family-override') as HTMLSelectElement | null)?.value ??
                 state.draftPieceFamilyOverride,
+        ),
+        boardFamilyOverride: cleanBoardFamilyOverrideDraft(
+            (document.getElementById('catalogued-board-family-override') as HTMLSelectElement | null)?.value ??
+                state.draftBoardFamilyOverride,
         ),
         visibility:
             ((document.getElementById('catalogued-visibility') as HTMLSelectElement | null)?.value as
@@ -256,6 +278,7 @@ function clearDraft(): void {
     state.draftDisplayName = '';
     state.draftDescription = '';
     state.draftPieceFamilyOverride = '';
+    state.draftBoardFamilyOverride = '';
     state.draftVisibility = 'private';
     state.draftIni = '';
     state.formMessage = '';
@@ -266,6 +289,7 @@ function setDraftFromVariant(variant: ManagedVariant): void {
     state.draftDisplayName = variant.displayName ?? '';
     state.draftDescription = variant.tooltip === 'Catalogued variant' ? '' : (variant.tooltip ?? '');
     state.draftPieceFamilyOverride = cleanPieceFamilyOverrideDraft(variant.pieceFamilyOverride);
+    state.draftBoardFamilyOverride = cleanBoardFamilyOverrideDraft(variant.boardFamilyOverride);
     state.draftVisibility = variant.visibility ?? 'private';
     state.draftIni = variant.ini ?? '';
 }
@@ -424,6 +448,7 @@ async function saveVariant(model: PyChessModel): Promise<void> {
                           displayName: body.displayName,
                           description: body.description,
                           pieceFamilyOverride: body.pieceFamilyOverride,
+                          boardFamilyOverride: body.boardFamilyOverride,
                           visibility: body.visibility,
                       }
                     : body,
@@ -724,6 +749,22 @@ function pieceFamilyOverrideLabel(pieceFamily: string): string {
     return pieceFamily === 'letter' ? _('Letters') : pieceFamily;
 }
 
+function siteBoardFamilyOptions(): string[] {
+    const dimensions = state.editing ? { width: state.editing.width, height: state.editing.height } : undefined;
+    return Object.keys(BOARD_FAMILIES)
+        .filter(isSiteBoardFamilyOverride)
+        .filter(family => {
+            if (!dimensions) return true;
+            const boardDimensions = BOARD_FAMILIES[family].dimensions;
+            return boardDimensions.width === dimensions.width && boardDimensions.height === dimensions.height;
+        });
+}
+
+function boardFamilyOverrideLabel(boardFamily: string): string {
+    const dimensions = BOARD_FAMILIES[boardFamily].dimensions;
+    return `${boardFamily} (${dimensions.width}×${dimensions.height})`;
+}
+
 function renderForm(model: PyChessModel): VNode {
     const editing = state.editing;
     const editingSystem = isSystemManagedVariant(editing);
@@ -768,7 +809,7 @@ function renderForm(model: PyChessModel): VNode {
                 ? h(
                       'p.catalogued-help',
                       _(
-                          'Admins can edit metadata, visibility, piece SVGs, and board SVGs for this system-owned catalogue entry.',
+                          'Admins can edit metadata, visibility, compatible piece and board styles, piece SVGs, and board SVGs for this system-owned catalogue entry.',
                       ),
                   )
                 : null,
@@ -875,6 +916,53 @@ function renderForm(model: PyChessModel): VNode {
                               'span.catalogued-help',
                               _(
                                   'Admin only. Overrides automatic built-in piece-set detection; custom SVG piece sets still take precedence.',
+                              ),
+                          ),
+                      ])
+                    : null,
+                model.admin
+                    ? h('label.catalogued-field.catalogued-field-half', [
+                          h('span', _('Compatible board style')),
+                          h(
+                              'select#catalogued-board-family-override',
+                              {
+                                  props: {
+                                      value: state.draftBoardFamilyOverride,
+                                      disabled: state.saving,
+                                  },
+                                  on: {
+                                      change: (event: Event) => {
+                                          state.draftBoardFamilyOverride = (event.target as HTMLSelectElement).value;
+                                          state.formMessage = '';
+                                          state.formMessageTone = 'neutral';
+                                          rerender(model);
+                                      },
+                                  },
+                              },
+                              [
+                                  h(
+                                      'option',
+                                      { props: { value: '', selected: state.draftBoardFamilyOverride === '' } },
+                                      _('Auto-detect'),
+                                  ),
+                                  ...siteBoardFamilyOptions().map(family =>
+                                      h(
+                                          'option',
+                                          {
+                                              props: {
+                                                  value: family,
+                                                  selected: state.draftBoardFamilyOverride === family,
+                                              },
+                                          },
+                                          boardFamilyOverrideLabel(family),
+                                      ),
+                                  ),
+                              ],
+                          ),
+                          h(
+                              'span.catalogued-help',
+                              _(
+                                  'Admin only. Overrides the board inherited from the base variant; an uploaded custom board SVG still takes precedence.',
                               ),
                           ),
                       ])
@@ -1160,15 +1248,18 @@ function renderBoardPreview(model: PyChessModel, variant: ManagedVariant): VNode
 }
 
 function renderBoardControls(model: PyChessModel, variant: ManagedVariant): VNode {
-    const boardStatus = variant.hasBoard ? _('Custom') : _('Default');
+    const compatibleFamily = cataloguedCompatibleBoardFamily(variant);
+    const boardStatus = variant.hasBoard ? _('Custom') : compatibleFamily ? _('Built-in') : _('Default');
+    const boardHelp = variant.hasBoard
+        ? compatibleFamily
+            ? `${_('This variant uses its uploaded board SVG.')} ${_('Delete it to use')} ${compatibleFamily}.`
+            : _('This variant uses its uploaded board SVG.')
+        : compatibleFamily
+          ? `${_('Compatible board style')}: ${compatibleFamily}.`
+          : _('Default generated checkerboard. Upload an SVG board if the variant needs special regions.');
     return h('div.catalogued-board-controls', [
         h('strong', boardStatus),
-        h(
-            'span.catalogued-help',
-            variant.hasBoard
-                ? _('This variant uses its uploaded board SVG.')
-                : _('Default generated checkerboard. Upload an SVG board if the variant needs special regions.'),
-        ),
+        h('span.catalogued-help', boardHelp),
         h('label.catalogued-row-button.catalogued-secondary-action.catalogued-file-action', [
             _('Upload board'),
             h('input', {
