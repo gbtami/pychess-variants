@@ -555,6 +555,20 @@ FSF_CATALOGUED_BUILTIN_VARIANTS: Mapping[str, Mapping[str, Any]] = {
         ),
         "baseVariant": "chess",
     },
+    "petrified": {
+        "displayName": "Petrified",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references("https://www.chess.com/variants/petrified"),
+        "baseVariant": "pawnsideways",
+    },
+    "pocketknight": {
+        "displayName": "Pocket Knight Chess",
+        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        "references": _fsf_builtin_references(
+            "https://www.chessvariants.com/other.dir/pocket.html",
+        ),
+        "baseVariant": "chess",
+    },
     "yarishogi": {
         "displayName": "Yari Shogi",
         "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
@@ -869,22 +883,6 @@ FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES: Mapping[str, Mapping[str, Any]] = {
         ),
         "baseVariant": "chess",
         "reviewNotes": "Uses non-standard bishop/horse hybrid pieces; review identities/assets.",
-    },
-    "petrified": {
-        "displayName": "Petrified",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "references": _fsf_builtin_references("https://www.chess.com/variants/petrified"),
-        "baseVariant": "pawnsideways",
-        "reviewNotes": "Petrification mechanic may need dedicated UI/replay testing.",
-    },
-    "pocketknight": {
-        "displayName": "Pocket Knight Chess",
-        "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
-        "references": _fsf_builtin_references(
-            "https://www.chessvariants.com/other.dir/pocket.html",
-        ),
-        "baseVariant": "chess",
-        "reviewNotes": "Pocket/drop variant; review pocket UI and drop legality display.",
     },
     "snailtrail": {
         "displayName": "Snail Trail",
