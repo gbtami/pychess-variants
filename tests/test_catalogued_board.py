@@ -59,6 +59,21 @@ class CataloguedStartBoardPreviewTestCase(TestCase):
         self.assertIn("catalogued-start-board-piece-promoted", preview["svg"])
         self.assertIn("catalogued-start-board-piece-hidden", preview["svg"])
 
+    def test_start_board_preview_uses_brick_svg_for_wall_piece(self) -> None:
+        preview = catalogued_start_board_preview(
+            {
+                "startFen": "8/8/3*4/8/8/8/8/8 w - - 0 1",
+                "width": 8,
+                "height": 8,
+            }
+        )
+
+        self.assertIsNotNone(preview)
+        assert preview is not None
+        self.assertIn("catalogued-start-board-piece-wall", preview["svg"])
+        self.assertIn('href="/static/images/pieces/brick.svg"', preview["svg"])
+        self.assertNotIn(">*</text>", preview["svg"])
+
 
 if __name__ == "__main__":
     import unittest

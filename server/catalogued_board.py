@@ -25,8 +25,9 @@ class _FenPiece:
 BoardRows = tuple[tuple[_FenPiece | None, ...], ...]
 
 START_BOARD_CACHE_SIZE = 512
-START_BOARD_RENDERER_VERSION = 1
+START_BOARD_RENDERER_VERSION = 2
 START_BOARD_CELL_SIZE = 24
+BRICK_PIECE_SVG_URL = "/static/images/pieces/brick.svg"
 
 
 def _board_part_from_fen(fen: str) -> str:
@@ -105,16 +106,25 @@ def _svg_rect(x: int, y: int, size: int, klass: str) -> str:
 
 
 def _svg_piece(piece: _FenPiece, file_index: int, rank_index: int, cell_size: int) -> str:
-    label = escape(_piece_label(piece))
     side = _piece_side(piece)
-    font_size = cell_size * (0.52 if len(label) > 1 else 0.72)
-    x = file_index * cell_size + cell_size / 2
-    y = rank_index * cell_size + cell_size / 2
     classes = f"catalogued-start-board-piece catalogued-start-board-piece-{side}"
     if piece.promoted:
         classes += " catalogued-start-board-piece-promoted"
     if piece.hidden:
         classes += " catalogued-start-board-piece-hidden"
+
+    if piece.symbol == "*":
+        return (
+            f'<image class="{classes} catalogued-start-board-piece-wall" '
+            f'x="{file_index * cell_size}" y="{rank_index * cell_size}" '
+            f'width="{cell_size}" height="{cell_size}" '
+            f'href="{BRICK_PIECE_SVG_URL}"/>'
+        )
+
+    label = escape(_piece_label(piece))
+    font_size = cell_size * (0.52 if len(label) > 1 else 0.72)
+    x = file_index * cell_size + cell_size / 2
+    y = rank_index * cell_size + cell_size / 2
     return (
         f'<text class="{classes}" x="{x:g}" y="{y:g}" '
         f'font-size="{font_size:g}" text-anchor="middle" dominant-baseline="central">'
