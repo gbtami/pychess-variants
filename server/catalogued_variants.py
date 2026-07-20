@@ -6,6 +6,7 @@ import json
 import logging
 import re
 import sys
+import unicodedata
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -63,7 +64,16 @@ MAX_CATALOGUED_BOARD_SVG_BYTES = 128 * 1024
 
 MAX_CATALOGUED_INI_BYTES = 64 * 1024
 MAX_DESCRIPTION_LEN = 1000
-MAX_DISPLAY_NAME_LEN = 80
+MAX_DISPLAY_NAME_LEN = 50
+
+DISPLAY_NAME_ERROR = (
+    f"Display names must be at most {MAX_DISPLAY_NAME_LEN} characters, contain a letter or "
+    "number, and use only letters, numbers, spaces, hyphens, underscores, periods, plus signs, "
+    "slashes, and parentheses."
+)
+DISPLAY_NAME_PUNCTUATION = frozenset(" _-.+/()")
+DISPLAY_NAME_DISALLOWED_EDGE_SEPARATORS = frozenset(" _-")
+DISPLAY_NAME_REPEATED_SEPARATOR_RE = re.compile(r"([ _-])[ _-]+")
 
 UNSUPPORTED_CATALOGUED_BOOL_RULES: dict[str, str] = {
     "twoBoards": "two-board variants need the dedicated bughouse/supply lobby and game flow.",
@@ -3314,7 +3324,9 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
         if not isinstance(data, Mapping):
             raise web.HTTPBadRequest(text="Expected JSON object.")
         ini = str(data.get("ini") or "")
-        display_name = str(data.get("displayName") or data.get("display_name") or "")
+        display_name = normalize_catalogued_display_name(
+            str(data.get("displayName") or data.get("display_name") or "")
+        )
         description = str(data.get("description") or "")
         piece_family_override = _read_piece_family_override(data)
         board_family_override = _read_board_family_override(data)
@@ -3343,7 +3355,9 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
     else:
         ini = str(data.get("ini") or "")
 
-    display_name = str(data.get("displayName") or data.get("display_name") or "")
+    display_name = normalize_catalogued_display_name(
+        str(data.get("displayName") or data.get("display_name") or "")
+    )
     description = str(data.get("description") or "")
     piece_family_override = _read_piece_family_override(data)
     board_family_override = _read_board_family_override(data)
@@ -3376,6 +3390,33 @@ async def check_catalogued_variant_rules(request: web.Request) -> web.Response:
     await ensure_catalogued_variant_name_available(app_state, name, current_name=current_name)
     start_fen = await check_catalogued_ini_without_mutating_server(ini, name)
     return json_response({"ok": True, "name": name, "startFen": start_fen})
+
+
+def normalize_catalogued_display_name(display_name: str) -> str:
+    """Validate and normalize a user-editable catalogue display name."""
+    cleaned = unicodedata.normalize("NFKC", display_name).strip()
+    if not cleaned:
+        return ""
+    if any(
+        char not in DISPLAY_NAME_PUNCTUATION
+        and not (unicodedata.category(char).startswith("L") or unicodedata.category(char) == "Nd")
+        for char in cleaned
+    ):
+        raise web.HTTPBadRequest(text=DISPLAY_NAME_ERROR)
+
+    cleaned = DISPLAY_NAME_REPEATED_SEPARATOR_RE.sub(r"\1", cleaned)
+    has_letter_or_number = any(
+        unicodedata.category(char).startswith("L") or unicodedata.category(char) == "Nd"
+        for char in cleaned
+    )
+    if (
+        len(cleaned) > MAX_DISPLAY_NAME_LEN
+        or not has_letter_or_number
+        or cleaned[0] in DISPLAY_NAME_DISALLOWED_EDGE_SEPARATORS
+        or cleaned[-1] in DISPLAY_NAME_DISALLOWED_EDGE_SEPARATORS
+    ):
+        raise web.HTTPBadRequest(text=DISPLAY_NAME_ERROR)
+    return cleaned
 
 
 def _clean_display_name(display_name: str, fallback: str) -> str:
