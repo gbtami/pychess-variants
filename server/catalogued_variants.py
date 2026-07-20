@@ -1921,6 +1921,13 @@ def _svg_value_is_unsafe(value: str, *, allow_local_ref: bool = False) -> bool:
     return not (allow_local_ref and SAFE_SVG_LOCAL_REF_RE.fullmatch(value) is not None)
 
 
+def _svg_value_is_supported(attribute: str, value: str) -> bool:
+    # Accessible names commonly contain non-ASCII text (for example, the kanji
+    # printed on shogi pieces). ElementTree escapes the value when serializing,
+    # so it is safe to preserve after the unsafe-reference check above.
+    return attribute == "aria-label" or SAFE_SVG_VALUE_RE.fullmatch(value) is not None
+
+
 def _parse_safe_svg_style(style: str, filename: str) -> dict[str, str]:
     parsed: dict[str, str] = {}
     for chunk in style.split(";"):
@@ -2104,7 +2111,7 @@ def _sanitize_catalogued_svg(
             allow_local_ref_value = local_attr in {"fill", "stroke", "filter"}
             if _svg_value_is_unsafe(value, allow_local_ref=allow_local_ref_value):
                 raise web.HTTPBadRequest(text=f"{filename} contains unsafe SVG attribute values.")
-            if not SAFE_SVG_VALUE_RE.fullmatch(value):
+            if not _svg_value_is_supported(local_attr, value):
                 raise web.HTTPBadRequest(
                     text=f"{filename} contains unsupported SVG attribute values."
                 )

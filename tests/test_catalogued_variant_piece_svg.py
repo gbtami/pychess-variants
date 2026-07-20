@@ -98,6 +98,25 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
         self.assertIn('stroke="url(#rg1)"', sanitized)
         self.assertIn('filter="url(#blur1)"', sanitized)
 
+    def test_accepts_unicode_aria_label(self) -> None:
+        svg = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 34">
+  <path d="M 0 0 L 10 10" aria-label="金" />
+</svg>""".encode()
+
+        sanitized = _sanitize_catalogued_piece_svg(svg, "b+B.svg")
+
+        self.assertIn('aria-label="金"', sanitized)
+
+    def test_unicode_remains_unsupported_in_geometry_attributes(self) -> None:
+        svg = """<svg xmlns="http://www.w3.org/2000/svg" width="三" height="34">
+  <path d="M 0 0 L 10 10" />
+</svg>""".encode()
+
+        with self.assertRaises(web.HTTPBadRequest) as exc:
+            _sanitize_catalogued_piece_svg(svg, "wP.svg")
+
+        self.assertIn("unsupported SVG attribute values", exc.exception.text)
+
     def test_rejects_external_filter_reference(self) -> None:
         svg = b"""<svg xmlns="http://www.w3.org/2000/svg">
   <ellipse style="filter:url(http://example.invalid/filter.svg#blur1)" cx="23" cy="26" rx="22" ry="22" />
