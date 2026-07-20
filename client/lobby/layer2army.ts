@@ -38,6 +38,13 @@ export function layer2army(lobbyCtrl: LobbyController, containerId: string, show
     const layer2cont = h('div#layer2armycont.layer-2-container.fairy-grid', [
         h('button.layer-2-category generic-variant-info.generic-fairy', [h('div.layer-two-category-info', infoItems)]),
         h('div.button-grid', [
+            h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'cwda') } }, [
+                h('div.variant-title-l2', [
+                    h('div.icon', { attrs: { 'data-icon': VARIANTS['cwda'].icon(false) } }),
+                    h('h3', VARIANTS['cwda'].displayName()),
+                ]),
+                h('p.variant-extra-info', _('Choose from four balanced armies')),
+            ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'orda') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['orda'].icon(false) } }),

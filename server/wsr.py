@@ -632,7 +632,7 @@ async def handle_analysis(
             "username": data["username"],
             "game_id": data["gameId"],  # optional
             "position": game.board.initial_fen,  # start position (X-FEN)
-            "variant": game.variant,
+            "variant": game.board.variant,
             "chess960": game.chess960,
             "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
             "nnue": game.board.nnue,

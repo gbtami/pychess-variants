@@ -317,6 +317,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     yokai: { pieceCSS: ['yokai', 'disguised'] },
     perfect: { pieceCSS: ['perfect0', 'disguised'] },
     decimalshogi: { pieceCSS: ['shogik', 'disguised'] },
+    cwda: { pieceCSS: ['cwda'] },
     letter: { pieceCSS: ['disguised'] },
 };
 
@@ -664,6 +665,29 @@ interface VariantConfig {
     };
     // Alternate starting positions, including handicaps. Plain FEN strings default to canRated=false.
     alternateStart?: Record<string, AlternateStartConfig>;
+}
+
+const CWDA_DEFAULT_FEN = 'dwackawd/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+const CWDA_PROFILE_BY_ARMIES = new Map<string, string>([
+    ['dwackawd|rnbqkbnr', 'cwda-fide-clobberers'],
+    ['gihokhig|rnbqkbnr', 'cwda-fide-knights'],
+    ['rnbqkbnr|smfekfms', 'cwda-fide-rookies'],
+    ['dwackawd', 'cwda-clobberers'],
+    ['dwackawd|gihokhig', 'cwda-clobberers-knights'],
+    ['dwackawd|smfekfms', 'cwda-clobberers-rookies'],
+    ['gihokhig', 'cwda-knights'],
+    ['gihokhig|smfekfms', 'cwda-knights-rookies'],
+    ['smfekfms', 'cwda-rookies'],
+]);
+
+export function cwdaEngineVariant(initialFen: string): string {
+    if (!initialFen) return 'cwda-fide-clobberers';
+    const ranks = initialFen.trim().split(/\s+/)[0]?.split('/') ?? [];
+    const armies = [ranks[0]?.toLowerCase(), ranks[ranks.length - 1]?.toLowerCase()]
+        .filter((rank): rank is string => !!rank)
+        .sort();
+    return CWDA_PROFILE_BY_ARMIES.get([...new Set(armies)].join('|')) ?? 'cwda';
 }
 
 export const VARIANTS: Record<string, Variant> = {
@@ -1610,6 +1634,81 @@ export const VARIANTS: Record<string, Variant> = {
         pieceFamily: 'hoppel',
         pieceRow: ['k', 'q', 'r', 'b', 'n', 'p'],
         rules: { enPassant: true },
+    }),
+
+    cwda: variant({
+        name: 'cwda',
+        displayName: 'chess with different armies',
+        tooltip: "Betza's Chess with Different Armies: choose one of four balanced armies for each side.",
+        startFen: CWDA_DEFAULT_FEN,
+        icon: '⚔',
+        boardFamily: 'standard8x8',
+        pieceFamily: 'cwda',
+        pieceRow: ['k', 'q', 'r', 'b', 'n', 'd', 'w', 'a', 'c', 'g', 'i', 'h', 'o', 's', 'm', 'f', 'e', 'p'],
+        promotion: {
+            type: 'regular',
+            order: ['q', 'c', 'o', 'e', 'a', 'h', 'f', 'n', 'r', 'd', 'g', 's', 'b', 'w', 'i', 'm'],
+        },
+        rules: { enPassant: true },
+        alternateStart: {
+            'White FIDE — Black Colorbound Clobberers': { fen: CWDA_DEFAULT_FEN, canRated: true },
+            'White FIDE — Black Nutty Knights': {
+                fen: 'gihokhig/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                canRated: true,
+            },
+            'White FIDE — Black Remarkable Rookies': {
+                fen: 'smfekfms/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                canRated: true,
+            },
+            'White Colorbound Clobberers — Black FIDE': {
+                fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1',
+                canRated: true,
+            },
+            'Colorbound Clobberers mirror': {
+                fen: 'dwackawd/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1',
+                canRated: true,
+            },
+            'White Colorbound Clobberers — Black Nutty Knights': {
+                fen: 'gihokhig/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1',
+                canRated: true,
+            },
+            'White Colorbound Clobberers — Black Remarkable Rookies': {
+                fen: 'smfekfms/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1',
+                canRated: true,
+            },
+            'White Nutty Knights — Black FIDE': {
+                fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/GIHOKHIG w KQkq - 0 1',
+                canRated: true,
+            },
+            'White Nutty Knights — Black Colorbound Clobberers': {
+                fen: 'dwackawd/pppppppp/8/8/8/8/PPPPPPPP/GIHOKHIG w KQkq - 0 1',
+                canRated: true,
+            },
+            'Nutty Knights mirror': {
+                fen: 'gihokhig/pppppppp/8/8/8/8/PPPPPPPP/GIHOKHIG w KQkq - 0 1',
+                canRated: true,
+            },
+            'White Nutty Knights — Black Remarkable Rookies': {
+                fen: 'smfekfms/pppppppp/8/8/8/8/PPPPPPPP/GIHOKHIG w KQkq - 0 1',
+                canRated: true,
+            },
+            'White Remarkable Rookies — Black FIDE': {
+                fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/SMFEKFMS w KQkq - 0 1',
+                canRated: true,
+            },
+            'White Remarkable Rookies — Black Colorbound Clobberers': {
+                fen: 'dwackawd/pppppppp/8/8/8/8/PPPPPPPP/SMFEKFMS w KQkq - 0 1',
+                canRated: true,
+            },
+            'White Remarkable Rookies — Black Nutty Knights': {
+                fen: 'gihokhig/pppppppp/8/8/8/8/PPPPPPPP/SMFEKFMS w KQkq - 0 1',
+                canRated: true,
+            },
+            'Remarkable Rookies mirror': {
+                fen: 'smfekfms/pppppppp/8/8/8/8/PPPPPPPP/SMFEKFMS w KQkq - 0 1',
+                canRated: true,
+            },
+        },
     }),
 
     orda: variant({
@@ -2692,6 +2791,7 @@ export const variantGroups: { [key: string]: { variants: string[] } } = {
             'chennis',
             'spartan',
             'xiangfu',
+            'cwda',
         ],
     },
     other: { variants: ['borderlands', 'ataxx'] },
@@ -2793,7 +2893,14 @@ export function selectVariant(
 
 // Some variants need to be treated differently according to the FEN.
 // Refer to server/fairy.py for more information
-export function moddedVariant(variantName: string, chess960: boolean, pieces: cg.Pieces, castling: string): string {
+export function moddedVariant(
+    variantName: string,
+    chess960: boolean,
+    pieces: cg.Pieces,
+    castling: string,
+    initialFen: string = '',
+): string {
+    if (variantName === 'cwda') return cwdaEngineVariant(initialFen);
     if (!chess960 && ['capablanca', 'capahouse'].includes(variantName)) {
         const whiteKing = pieces.get('e1');
         const blackKing = pieces.get('e8');

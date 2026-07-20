@@ -1033,7 +1033,7 @@ export class AnalysisController extends GameController {
         }
 
         if (line.startsWith('option name UCI_Variant')) {
-            if (!line.includes(this.variant.name)) {
+            if (!line.includes(this.engineVariant)) {
                 console.log('This variant is NOT supported by Fairy-Stockfish!');
                 return;
             } else {
@@ -1064,7 +1064,7 @@ export class AnalysisController extends GameController {
 
         if (!this.localEngine && this.uciOk && this.variantSupportedByFSF) {
             this.localEngine = true;
-            this.fsfEngineBoard = new this.ffish.Board(this.variant.name, this.fullfen, this.chess960);
+            this.fsfEngineBoard = new this.ffish.Board(this.engineVariant, this.fullfen, this.chess960);
             this.fsfPostMessage('isready');
 
             if (this.evalFile) {
@@ -1339,8 +1339,8 @@ export class AnalysisController extends GameController {
         if (this.chess960) {
             this.fsfPostMessage('setoption name UCI_Chess960 value true');
         }
-        if (this.variant.name !== 'chess') {
-            this.fsfPostMessage('setoption name UCI_Variant value ' + this.variant.name);
+        if (this.engineVariant !== 'chess') {
+            this.fsfPostMessage('setoption name UCI_Variant value ' + this.engineVariant);
         }
         if (this.evalFile === '' || !this.nnueOk || !this.nnue) {
             this.fsfPostMessage('setoption name Use NNUE value false');

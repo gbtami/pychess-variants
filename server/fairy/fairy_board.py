@@ -10,6 +10,7 @@ from fairy.caparandom import caparandom_rank8
 from fairy.chess960 import CHESS960_FENS
 from fairy.jieqi import make_initial_mapping, apply_move_and_transform, BLACK_PIECES, RED_PIECES
 from const import CATEGORIES
+from cwda import cwda_engine_variant
 from fairy.racingkings import RACINGKINGS_FENS
 import logging
 
@@ -72,6 +73,8 @@ def file_of(piece: str, rank: str) -> int:
 
 def modded_variant(variant: str, chess960: bool, initial_fen: str) -> str:
     """Some variants need to be treated differently by pyffish."""
+    if variant == "cwda":
+        return cwda_engine_variant(initial_fen)
     if not chess960 and variant in ("capablanca", "capahouse") and initial_fen:
         """
         E-file king in a Capablanca/Capahouse variant.

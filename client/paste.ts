@@ -5,7 +5,7 @@ import { FairyStockfish } from 'ffish-es6';
 import { _ } from './i18n';
 import { variantsIni } from './variantsIni';
 import { allVariantsIni } from './variants';
-import { VARIANTS } from './variants';
+import { cwdaEngineVariant, VARIANTS } from './variants';
 import { alertDialog } from './alertDialog';
 import { parseKif, resultString } from '../client/kif';
 import { PyChessModel } from './types';
@@ -141,13 +141,23 @@ export function pasteView(model: PyChessModel): VNode[] {
 
                     board.delete();
                 } else {
-                    const game = ffish.readGamePGN(pgn);
+                    const sourceTags = extractPgnTags(pgn);
+                    const sourceVariantInfo = parseVariantTag(sourceTags['Variant'] ?? 'chess');
+                    const cwdaInitialFen = sourceTags['FEN'] ?? VARIANTS.cwda.startFen;
+                    const parserPgn =
+                        sourceVariantInfo.variant === 'cwda'
+                            ? replacePgnVariantTag(pgn, cwdaEngineVariant(cwdaInitialFen))
+                            : pgn;
+                    const game = ffish.readGamePGN(parserPgn);
                     const parserError = getLatestFfishError(ffishErrorStart);
                     if (parserError) {
                         throw new Error(parserError);
                     }
 
-                    const variantInfo = parseVariantTag(game.headers('Variant'));
+                    const variantInfo =
+                        sourceVariantInfo.variant === 'cwda'
+                            ? sourceVariantInfo
+                            : parseVariantTag(game.headers('Variant'));
                     variant = variantInfo.variant;
 
                     if (variant === 'alice') {
@@ -178,7 +188,11 @@ export function pasteView(model: PyChessModel): VNode[] {
                         FD.append('Status', '' + status);
                     }
 
-                    board = new ffish.Board(variant, initialFen, variantInfo.chess960);
+                    board = new ffish.Board(
+                        variant === 'cwda' ? cwdaEngineVariant(initialFen) : variant,
+                        initialFen,
+                        variantInfo.chess960,
+                    );
 
                     mainlineMoves = game
                         .mainlineMoves()
@@ -193,7 +207,7 @@ export function pasteView(model: PyChessModel): VNode[] {
 
                     const tags = (game.headerKeys() as string).split(' ');
                     tags.forEach(tag => {
-                        FD.append(tag, game.headers(tag));
+                        FD.append(tag, variant === 'cwda' && tag === 'Variant' ? variantInfo.raw : game.headers(tag));
                     });
                     FD.append('moves', mainlineMoves.join(' '));
                     FD.append('final_fen', board.fen());
@@ -325,6 +339,10 @@ function extractPgnTags(pgn: string): Record<string, string> {
         tags[match[1]] = match[2].replace(/\\"/g, '"');
     }
     return tags;
+}
+
+function replacePgnVariantTag(pgn: string, variant: string): string {
+    return pgn.replace(/^(\s*\[Variant\s+")[^"]*("\]\s*)$/im, `$1${variant}$2`);
 }
 
 function buildImportErrorMessage(err: unknown, pgn: string, ffish: FairyStockfish): string {

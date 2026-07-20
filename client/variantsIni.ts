@@ -17,6 +17,82 @@ startFen = rnbqkcabnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNBQKCABNR[] w KQkq - 0 
 pieceDrops = true
 capturesToHand = true
 
+# Betza's Chess with Different Armies. The public cwda variant is a permissive
+# validator; games are routed to one of the matchup profiles below.
+[cwda-base:chess]
+customPiece1 = d:BD
+customPiece2 = w:WA
+customPiece3 = a:FAD
+customPiece4 = c:BN
+customPiece5 = g:fsRbK
+customPiece6 = i:FvN
+customPiece7 = h:fhNbKsW
+customPiece8 = o:KfsRfhN
+customPiece9 = s:R4
+customPiece10 = m:WD
+customPiece11 = f:FDH
+customPiece12 = e:RN
+
+[cwda:cwda-base]
+promotionPieceTypes = r n b q d w a c g i h o s m f e
+castlingRookPieces = r d g s
+castlingQueensideFile = b
+startFen = dwackawd/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+
+[cwda-fide-clobberers:cwda-base]
+promotionPieceTypes = r n b q d w a c
+castlingRookPieces = r d
+castlingQueensideFile = b
+startFen = dwackawd/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+
+[cwda-fide-knights:cwda-base]
+promotionPieceTypes = r n b q g i h o
+castlingRookPieces = r g
+castlingQueensideFile = c
+startFen = gihokhig/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+
+[cwda-fide-rookies:cwda-base]
+promotionPieceTypes = r n b q s m f e
+castlingRookPieces = r s
+castlingQueensideFile = c
+startFen = smfekfms/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+
+[cwda-clobberers:cwda-base]
+promotionPieceTypes = d w a c
+castlingRookPieces = d
+castlingQueensideFile = b
+startFen = dwackawd/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1
+
+[cwda-clobberers-knights:cwda-base]
+promotionPieceTypes = d w a c g i h o
+castlingRookPieces = d g
+castlingQueensideFile = b
+startFen = gihokhig/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1
+
+[cwda-clobberers-rookies:cwda-base]
+promotionPieceTypes = d w a c s m f e
+castlingRookPieces = d s
+castlingQueensideFile = b
+startFen = smfekfms/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1
+
+[cwda-knights:cwda-base]
+promotionPieceTypes = g i h o
+castlingRookPieces = g
+castlingQueensideFile = c
+startFen = gihokhig/pppppppp/8/8/8/8/PPPPPPPP/GIHOKHIG w KQkq - 0 1
+
+[cwda-knights-rookies:cwda-base]
+promotionPieceTypes = g i h o s m f e
+castlingRookPieces = g s
+castlingQueensideFile = c
+startFen = smfekfms/pppppppp/8/8/8/8/PPPPPPPP/GIHOKHIG w KQkq - 0 1
+
+[cwda-rookies:cwda-base]
+promotionPieceTypes = s m f e
+castlingRookPieces = s
+castlingQueensideFile = c
+startFen = smfekfms/pppppppp/8/8/8/8/PPPPPPPP/SMFEKFMS w KQkq - 0 1
+
 [gorogoroplus:gorogoro]
 startFen = sgkgs/5/1ppp1/1PPP1/5/SGKGS[LNln] w 0 1
 lance = l

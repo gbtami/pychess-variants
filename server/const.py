@@ -291,6 +291,7 @@ CATEGORIES = {
         "shinobiplus",
         "spartan",
         "xiangfu",
+        "cwda",
     ),
     "makruk": ("makruk", "makbug", "makpong", "cambodian", "sittuyin", "asean"),
     "shogi": (

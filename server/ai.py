@@ -132,7 +132,7 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
             "time": monotonic(),
             "game_id": game.id,  # optional
             "position": game.board.initial_fen,  # start position (X-FEN)
-            "variant": game.variant,
+            "variant": game.board.variant,
             "chess960": game.chess960,
             "moves": " ".join(game.board.move_stack),  # moves of the game (UCI)
             "nnue": game.board.nnue,

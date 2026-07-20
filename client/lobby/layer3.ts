@@ -185,6 +185,8 @@ function proTip(variant: string, chess960: boolean) {
         case 'hoppelpoppel':
             return _('Other piece sets are available, which may help avoid confusion.');
         // army
+        case 'cwda':
+            return _('Choose both armies with the Alternate Start menu before creating the game.');
         case 'orda':
         case 'khans':
         case 'shinobiplus':

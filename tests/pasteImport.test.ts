@@ -26,6 +26,14 @@ const GRAND_PGN = `[Event "PyChess rated game"]
 const GRAND_UCI_MOVES =
     'e3e5 f9e7 g3g4 c8c7 f3f5 g8g7 c3c4 b8b6 d3d5 e7c8 c2e4 f8f7 f2d3 g9c5 d3c5 b6c5 h2f4 c8b6 d2c3 d9b7 e4c2 i8i7 b2d3 c9a7 d3c5 b7b8 g2e4 b6i6 f4h2 d8d6 c5d3 i9h7 i2h4 h7g5 e4d2 i6j6 d2g5 h8h6 g5e7 a10d10 e5d6 d10d7 c3g7 e9e10 g7j10 e10e9 j10g7 e9e10 e7f8';
 
+const CWDA_ROOKIES_PGN = `[Event "CwDA import test"]
+[Result "*"]
+[Variant "Cwda"]
+[FEN "smfekfms/pppppppp/8/8/8/8/PPPPPPPP/SMFEKFMS w KQkq - 0 1"]
+[SetUp "1"]
+
+1. b3 a6 2. Mb2 a5 3. Ec3 b6 4. Fc4 b5 5. O-O-O *`;
+
 type QueuedXhrResponse = {
     status: number;
     body: Record<string, string> | string;
@@ -137,6 +145,19 @@ test('prepares and submits a valid Grand PGN import request', () => {
     expect(sent.get('final_fen')).toBe(
         '4k5/1n5b2/pq2pA3p/b1pr1pQ1p1/3P3p1c/3P1P4/2P3PN2/PP1N3PPP/2B1K2B2/R8R b - - 4 25',
     );
+    expect(document.querySelector('#alert-dialog')).toBeNull();
+});
+
+test('imports CwDA PGN with the rules profile selected by its starting FEN', () => {
+    queueXhrResponse({ status: 200, body: { gameId: 'CwDa1234' }, skipReadyState: true });
+
+    triggerImport(makeModel(), CWDA_ROOKIES_PGN);
+
+    expect(sentBodies).toHaveLength(1);
+    const sent = sentBodies[0];
+    expect(sent.get('Variant')).toBe('Cwda');
+    expect(sent.get('moves')).toBe('b2b3 a7a6 b1b2 a6a5 d1c3 b7b6 c1c4 b6b5 e1c1');
+    expect(sent.get('final_fen')).toBe('smfekfms/2pppppp/8/pp6/2F5/1PE5/PMPPPPPP/2KS1FMS b kq - 1 5');
     expect(document.querySelector('#alert-dialog')).toBeNull();
 });
 
