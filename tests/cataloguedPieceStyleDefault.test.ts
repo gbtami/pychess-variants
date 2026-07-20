@@ -23,6 +23,7 @@ const variantNames = [
     'testfsfgrandcapa',
     'testfsfpieceoptioncapa',
     'testfsfthreekingsstandard',
+    'testmakrukwall',
 ];
 
 function register(meta: CataloguedVariantClientDocument) {
@@ -54,6 +55,38 @@ test('catalogued variants with a compatible built-in piece family default to tha
 
     expect(variant.pieceFamily).toBe(cataloguedCompatiblePieceFamily(meta, { ignoreCustomPieceSet: true }));
     expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe(PIECE_FAMILIES[variant.pieceFamily].pieceCSS[0]);
+});
+
+test('catalogued wall pieces are marked when both board and piece families are built in', () => {
+    const variant = register({
+        name: 'testmakrukwall',
+        displayName: 'Test Makruk Wall',
+        tooltip: 'Catalogued variant',
+        ini: '[testmakrukwall:makruk]',
+        baseVariant: 'makruk',
+        startFen: '8/8/6**/**4*m/M*4**/**6/8/8 w - - 0 1',
+        width: 8,
+        height: 8,
+        pieces: ['m', 's', 'n'],
+        kingRoles: [],
+        promotionType: 'regular',
+        promotionRoles: ['s'],
+        promotionOrder: ['n'],
+    });
+    const board = document.createElement('div');
+    const wrap = document.createElement('div');
+    board.className = `${variant.boardFamily} ${variant.pieceFamily}`;
+    board.appendChild(wrap);
+    document.body.appendChild(board);
+
+    expect(variant.boardFamily).toBe('makruk8x8');
+    expect(variant.pieceFamily).toBe('makruk');
+
+    boardSettings.updateScopedPieceStyle(variant, wrap);
+    expect(board.classList.contains('catalogued-piece-variant')).toBe(true);
+
+    boardSettings.updateScopedPieceStyle(VARIANTS.makruk, wrap);
+    expect(board.classList.contains('catalogued-piece-variant')).toBe(false);
 });
 
 test('catalogued variants without a compatible built-in piece family default to letters', () => {

@@ -107,11 +107,12 @@ function setCataloguedBoardStyle(target: HTMLElement, variant: Variant): void {
     target.style.removeProperty('--board-image');
 }
 
-function setPieceStyleClass(target: HTMLElement, family: string, css: string): void {
+function setPieceStyleClass(target: HTMLElement, family: string, css: string, variant: Variant): void {
     for (const className of Array.from(target.classList)) {
         if (className.startsWith('piece-style-')) target.classList.remove(className);
     }
     target.classList.add(pieceStyleClass(family, css));
+    target.classList.toggle('catalogued-piece-variant', isCataloguedVariant(variant.name));
 }
 
 function pieceStyleTargets(variant: Variant, root: ParentNode = document): Set<HTMLElement> {
@@ -252,7 +253,7 @@ class BoardSettings {
             });
         }
 
-        targets.forEach(target => setPieceStyleClass(target, family as string, css));
+        targets.forEach(target => setPieceStyleClass(target, family as string, css, variant));
         this.updateDropSuggestion();
     }
 
@@ -269,7 +270,7 @@ class BoardSettings {
         if (el instanceof HTMLElement) {
             const target = (el.closest('.' + family) as HTMLElement | null) ?? el;
             target.dataset.pieceVariant = variant.name;
-            setPieceStyleClass(target, family as string, css);
+            setPieceStyleClass(target, family as string, css, variant);
         }
     }
 
