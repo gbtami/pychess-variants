@@ -1,3 +1,6 @@
+.perfect piece.j-piece.white {
+    background-image: url('../../images/pieces/green/wA.svg');
+}
 .perfect piece.m-piece.white {
     background-image: url('../../images/pieces/green/wA.svg');
 }
@@ -11,6 +14,9 @@
     background-image: url('../../images/pieces/green/amazon-w.svg');
 }
 
+.perfect piece.j-piece.black {
+    background-image: url('../../images/pieces/green/bA.svg');
+}
 .perfect piece.m-piece.black {
     background-image: url('../../images/pieces/green/bA.svg');
 }
