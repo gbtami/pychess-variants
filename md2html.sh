@@ -9,7 +9,7 @@ echo "${TAGNAME}"
 
 SRC='https://github.com/gbtami/pychess-variants/blob/master';
 # DST='https://cdn.jsdelivr.net/gh/gbtami/pychess-variants\@'$TAGNAME;
-DST='https://cdn.jsdelivr.net/gh/gbtami/pychess-variants\@1.11.36';
+DST='https://cdn.jsdelivr.net/gh/gbtami/pychess-variants\@1.11.37';
 echo "${DST}"
 find . -type f -name "*.html" -exec perl -pi -e s,$SRC,$DST,g '{}' +
 
