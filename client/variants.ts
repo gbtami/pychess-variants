@@ -224,7 +224,6 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
             'atopdown',
             'luffy',
             'firi',
-            'sinting',
             'disguised',
         ],
     },
