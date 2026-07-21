@@ -15,7 +15,7 @@ from cwda import (
 from fairy.fairy_board import FairyBoard, modded_variant
 from rated_start import can_rate_custom_start
 from utils import sanitize_fen
-from variants import ServerVariants
+from variants import DEV_VARIANTS, RATED_VARIANTS, ServerVariants
 
 
 class ChessWithDifferentArmiesTestCase(unittest.TestCase):
@@ -52,6 +52,10 @@ class ChessWithDifferentArmiesTestCase(unittest.TestCase):
         self.assertEqual(ServerVariants.CWDA.translated_name, "CWDA")
         self.assertEqual(len(CWDA_START_FENS), 15)
         self.assertEqual(len(set(CWDA_START_FENS)), 15)
+
+    def test_variant_remains_dev_only_until_approved(self) -> None:
+        self.assertIn(ServerVariants.CWDA, DEV_VARIANTS)
+        self.assertNotIn("cwda", RATED_VARIANTS)
 
     def test_public_variant_routes_to_nine_matchup_profiles(self) -> None:
         profiles = {cwda_engine_variant(fen) for fen in CWDA_START_FENS}

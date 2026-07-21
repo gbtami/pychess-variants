@@ -2004,7 +2004,7 @@ export const noPuzzleVariants = [
 export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 export const unsupportedAiVariants = ['alice', 'fogofwar', 'jieqi'];
 
-export const devVariants = ['borderlands', 'makbug', 'supply', 'yokai'];
+export const devVariants = ['borderlands', 'cwda', 'makbug', 'supply', 'yokai'];
 
 export interface CataloguedVariantClientDocument {
     readonly name: string;

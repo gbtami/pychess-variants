@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals';
 
-import { canRateCustomStart, cwdaArmyClassNames, cwdaEngineVariant, VARIANTS } from '../client/variants';
+import { canRateCustomStart, cwdaArmyClassNames, cwdaEngineVariant, devVariants, VARIANTS } from '../client/variants';
 
 test('hidden info metadata is set for fogofwar', () => {
     expect(VARIANTS.fogofwar.hiddenInfo).toBe(true);
@@ -36,6 +36,10 @@ test('Chess with Different Armies exposes every ordered non-FIDE matchup', () =>
     expect(starts).toHaveLength(15);
     expect(new Set(starts.map(start => start.fen)).size).toBe(15);
     expect(starts.every(start => start.canRated)).toBe(true);
+});
+
+test('Chess with Different Armies remains DEV-only until approved', () => {
+    expect(devVariants).toContain('cwda');
 });
 
 test('Chess with Different Armies resolves color reversals to one engine profile', () => {

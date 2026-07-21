@@ -228,6 +228,7 @@ DEV_VARIANTS: tuple[ServerVariants, ...] = (
     ServerVariants.SUPPLY,
     ServerVariants.BORDERLANDS,
     ServerVariants.YOKAI,
+    ServerVariants.CWDA,
 )
 
 # Remove DEV variants on prod site until they stabilize
