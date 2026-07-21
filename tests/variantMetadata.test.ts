@@ -37,6 +37,8 @@ test('custom start rating check normalizes whitespace', () => {
 test('Chess with Different Armies exposes every ordered non-FIDE matchup', () => {
     const starts = Object.values(VARIANTS.cwda.alternateStart!);
 
+    expect(VARIANTS.cwda._displayName).toBe('cwda');
+    expect(Object.keys(VARIANTS.cwda.alternateStart!)[0]).toBe('FIDE — Clobberers');
     expect(starts).toHaveLength(15);
     expect(new Set(starts.map(start => start.fen)).size).toBe(15);
     expect(starts.every(start => start.canRated)).toBe(true);

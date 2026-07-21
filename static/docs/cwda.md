@@ -1,6 +1,6 @@
 # Chess with Different Armies
 
-Chess with Different Armies (CwDA) was designed by Ralph Betza. Each player chooses one of four armies whose pieces are intended to have roughly equal strength. Use the **Alternate Start** menu to choose the White and Black armies.
+Chess with Different Armies (CWDA) was designed by Ralph Betza. Each player chooses one of four armies whose pieces are intended to have roughly equal strength. Use the **Alternate Start** menu to choose both armies. Matchups are listed as **first player's army — second player's army**, using Clobberers, Knights, and Rookies as short names for the three fairy armies.
 
 Kings and pawns move exactly as in Chess. Check, checkmate, stalemate, en passant, the fifty-move rule, and repetition also follow the usual Chess rules.
 

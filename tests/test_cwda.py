@@ -10,10 +10,12 @@ from cwda import CWDA_DEFAULT_FEN, CWDA_START_FENS, cwda_engine_variant
 from fairy.fairy_board import FairyBoard, modded_variant
 from rated_start import can_rate_custom_start
 from utils import sanitize_fen
+from variants import ServerVariants
 
 
 class ChessWithDifferentArmiesTestCase(unittest.TestCase):
     def test_all_ordered_non_fide_matchups_are_available(self) -> None:
+        self.assertEqual(ServerVariants.CWDA.translated_name, "CWDA")
         self.assertEqual(len(CWDA_START_FENS), 15)
         self.assertEqual(len(set(CWDA_START_FENS)), 15)
 

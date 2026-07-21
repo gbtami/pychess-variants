@@ -1638,8 +1638,8 @@ export const VARIANTS: Record<string, Variant> = {
 
     cwda: variant({
         name: 'cwda',
-        displayName: 'chess with different armies',
-        tooltip: "Betza's Chess with Different Armies: choose one of four balanced armies for each side.",
+        displayName: 'cwda',
+        tooltip: 'Choose one of four balanced armies for each player.',
         startFen: CWDA_DEFAULT_FEN,
         icon: '⚔',
         boardFamily: 'standard8x8',
@@ -1651,60 +1651,60 @@ export const VARIANTS: Record<string, Variant> = {
         },
         rules: { enPassant: true },
         alternateStart: {
-            'White FIDE — Black Colorbound Clobberers': { fen: CWDA_DEFAULT_FEN, canRated: true },
-            'White FIDE — Black Nutty Knights': {
+            'FIDE — Clobberers': { fen: CWDA_DEFAULT_FEN, canRated: true },
+            'FIDE — Knights': {
                 fen: 'gihokhig/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
                 canRated: true,
             },
-            'White FIDE — Black Remarkable Rookies': {
+            'FIDE — Rookies': {
                 fen: 'smfekfms/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
                 canRated: true,
             },
-            'White Colorbound Clobberers — Black FIDE': {
+            'Clobberers — FIDE': {
                 fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1',
                 canRated: true,
             },
-            'Colorbound Clobberers mirror': {
+            'Clobberers — Clobberers': {
                 fen: 'dwackawd/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1',
                 canRated: true,
             },
-            'White Colorbound Clobberers — Black Nutty Knights': {
+            'Clobberers — Knights': {
                 fen: 'gihokhig/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1',
                 canRated: true,
             },
-            'White Colorbound Clobberers — Black Remarkable Rookies': {
+            'Clobberers — Rookies': {
                 fen: 'smfekfms/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1',
                 canRated: true,
             },
-            'White Nutty Knights — Black FIDE': {
+            'Knights — FIDE': {
                 fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/GIHOKHIG w KQkq - 0 1',
                 canRated: true,
             },
-            'White Nutty Knights — Black Colorbound Clobberers': {
+            'Knights — Clobberers': {
                 fen: 'dwackawd/pppppppp/8/8/8/8/PPPPPPPP/GIHOKHIG w KQkq - 0 1',
                 canRated: true,
             },
-            'Nutty Knights mirror': {
+            'Knights — Knights': {
                 fen: 'gihokhig/pppppppp/8/8/8/8/PPPPPPPP/GIHOKHIG w KQkq - 0 1',
                 canRated: true,
             },
-            'White Nutty Knights — Black Remarkable Rookies': {
+            'Knights — Rookies': {
                 fen: 'smfekfms/pppppppp/8/8/8/8/PPPPPPPP/GIHOKHIG w KQkq - 0 1',
                 canRated: true,
             },
-            'White Remarkable Rookies — Black FIDE': {
+            'Rookies — FIDE': {
                 fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/SMFEKFMS w KQkq - 0 1',
                 canRated: true,
             },
-            'White Remarkable Rookies — Black Colorbound Clobberers': {
+            'Rookies — Clobberers': {
                 fen: 'dwackawd/pppppppp/8/8/8/8/PPPPPPPP/SMFEKFMS w KQkq - 0 1',
                 canRated: true,
             },
-            'White Remarkable Rookies — Black Nutty Knights': {
+            'Rookies — Knights': {
                 fen: 'gihokhig/pppppppp/8/8/8/8/PPPPPPPP/SMFEKFMS w KQkq - 0 1',
                 canRated: true,
             },
-            'Remarkable Rookies mirror': {
+            'Rookies — Rookies': {
                 fen: 'smfekfms/pppppppp/8/8/8/8/PPPPPPPP/SMFEKFMS w KQkq - 0 1',
                 canRated: true,
             },
