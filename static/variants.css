@@ -458,6 +458,10 @@ div.guide .catalogued-variant-rules h1 {
     overflow: visible;
 }
 
+.cwda-betza-army + .cwda-betza-army {
+    margin-top: 1.5rem;
+}
+
 .catalogued-betza-note {
     margin: 0 0 1rem;
     max-width: 75ch;

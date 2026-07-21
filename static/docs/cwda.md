@@ -17,6 +17,14 @@ Remarkable Rookies | S (`R4`) | M (`WD`) | F (`FDH`) | E (`RN`)
 
 The expressions in parentheses use [Betza notation](https://www.chessvariants.com/piececlopedia.dir/betza.html) to describe how each piece moves.
 
+## Piece movement
+
+These diagrams show the twelve fairy pieces from White's perspective. Standard FIDE pieces are omitted. Directional pieces reverse their forward and backward directions when played by Black.
+
+<section class="cwda-betza-diagrams">
+{% include "cwda_diagrams.html" %}
+</section>
+
 ## Promotion and castling
 
 A pawn may promote to any non-king piece belonging to either army in the game. For example, FIDE versus Nutty Knights offers the four FIDE promotion pieces and all four Nutty Knights pieces.

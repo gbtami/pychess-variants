@@ -6,7 +6,12 @@ from types import SimpleNamespace
 import fishnet
 import pyffish as sf
 
-from cwda import CWDA_DEFAULT_FEN, CWDA_START_FENS, cwda_engine_variant
+from cwda import (
+    CWDA_DEFAULT_FEN,
+    CWDA_START_FENS,
+    cwda_betza_diagram_groups,
+    cwda_engine_variant,
+)
 from fairy.fairy_board import FairyBoard, modded_variant
 from rated_start import can_rate_custom_start
 from utils import sanitize_fen
@@ -14,6 +19,35 @@ from variants import ServerVariants
 
 
 class ChessWithDifferentArmiesTestCase(unittest.TestCase):
+    def test_movement_diagrams_are_grouped_by_fairy_army(self) -> None:
+        groups = cwda_betza_diagram_groups()
+
+        self.assertEqual(
+            [group["name"] for group in groups],
+            ["Colorbound Clobberers", "Nutty Knights", "Remarkable Rookies"],
+        )
+        self.assertEqual([len(group["diagrams"]) for group in groups], [4, 4, 4])
+        self.assertEqual(
+            [diagram["betza"] for group in groups for diagram in group["diagrams"]],
+            [
+                "BD",
+                "WA",
+                "FAD",
+                "BN",
+                "fsRbK",
+                "FvN",
+                "fhNbKsW",
+                "KfsRfhN",
+                "R4",
+                "WD",
+                "FDH",
+                "RN",
+            ],
+        )
+        self.assertTrue(
+            all("<svg" in diagram["svg"] for group in groups for diagram in group["diagrams"])
+        )
+
     def test_all_ordered_non_fide_matchups_are_available(self) -> None:
         self.assertEqual(ServerVariants.CWDA.translated_name, "CWDA")
         self.assertEqual(len(CWDA_START_FENS), 15)

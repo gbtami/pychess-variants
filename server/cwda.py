@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TypedDict
+
+from catalogued_betza import CataloguedBetzaDiagram, betza_diagram
 
 
 @dataclass(frozen=True)
@@ -11,6 +14,11 @@ class Army:
     castling_rook: str
 
 
+class CwdaDiagramGroup(TypedDict):
+    name: str
+    diagrams: list[CataloguedBetzaDiagram]
+
+
 FIDE = Army("FIDE", "rnbqkbnr", "rnbq", "r")
 COLORBOUND_CLOBBERERS = Army("Colorbound Clobberers", "dwackawd", "dwac", "d")
 NUTTY_KNIGHTS = Army("Nutty Knights", "gihokhig", "giho", "g")
@@ -18,6 +26,51 @@ REMARKABLE_ROOKIES = Army("Remarkable Rookies", "smfekfms", "smfe", "s")
 
 CWDA_ARMIES = (FIDE, COLORBOUND_CLOBBERERS, NUTTY_KNIGHTS, REMARKABLE_ROOKIES)
 CWDA_DEFAULT_FEN = "dwackawd/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
+CWDA_FAIRY_PIECES = (
+    (
+        COLORBOUND_CLOBBERERS.name,
+        (
+            ("Bede", "d", "BD"),
+            ("Waffle", "w", "WA"),
+            ("FAD", "a", "FAD"),
+            ("Cardinal", "c", "BN"),
+        ),
+    ),
+    (
+        NUTTY_KNIGHTS.name,
+        (
+            ("Charging rook", "g", "fsRbK"),
+            ("Fibnif", "i", "FvN"),
+            ("Charging knight", "h", "fhNbKsW"),
+            ("Colonel", "o", "KfsRfhN"),
+        ),
+    ),
+    (
+        REMARKABLE_ROOKIES.name,
+        (
+            ("Short rook", "s", "R4"),
+            ("Woody rook", "m", "WD"),
+            ("Half duck", "f", "FDH"),
+            ("Chancellor", "e", "RN"),
+        ),
+    ),
+)
+
+
+def cwda_betza_diagram_groups() -> list[CwdaDiagramGroup]:
+    """Return movement diagrams for the three non-FIDE CWDA armies."""
+
+    return [
+        {
+            "name": army_name,
+            "diagrams": [
+                betza_diagram(piece, betza, f"{piece_name} ({piece.upper()})")
+                for piece_name, piece, betza in pieces
+            ],
+        }
+        for army_name, pieces in CWDA_FAIRY_PIECES
+    ]
 
 
 def cwda_start_fen(white: Army, black: Army) -> str:

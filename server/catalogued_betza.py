@@ -303,6 +303,34 @@ def _cached_betza_svg(
     return render_betza_svg(betza, options)
 
 
+def betza_diagram(
+    piece: str,
+    betza: str,
+    title: str,
+    *,
+    board_width: int = 8,
+    board_height: int = 8,
+    svg_title: str | None = None,
+) -> CataloguedBetzaDiagram:
+    """Return one diagram using the renderer shared by variant rule pages."""
+
+    width = _preview_dimension(board_width, fallback=8)
+    height = _preview_dimension(board_height, fallback=8)
+    return {
+        "piece": piece.lower(),
+        "betza": betza,
+        "title": title,
+        "svg": _cached_betza_svg(
+            betza,
+            piece.upper(),
+            svg_title or f"{title} movement",
+            width,
+            height,
+            BETZA_DIAGRAM_RENDERER_VERSION,
+        ),
+    }
+
+
 @lru_cache(maxsize=BETZA_DIAGRAM_CACHE_SIZE)
 def _cached_piece_diagram_definitions(
     ini: str,
@@ -337,13 +365,13 @@ def _cached_catalogued_betza_diagrams(
 
     for definition in definitions:
         try:
-            svg = _cached_betza_svg(
+            diagram = betza_diagram(
+                definition.piece,
                 definition.betza,
-                definition.piece.upper(),
                 definition.title,
-                board_width,
-                board_height,
-                BETZA_DIAGRAM_RENDERER_VERSION,
+                board_width=board_width,
+                board_height=board_height,
+                svg_title=definition.title,
             )
         except Exception:
             log.warning(
@@ -353,16 +381,9 @@ def _cached_catalogued_betza_diagrams(
                 exc_info=True,
             )
             continue
-        if not svg:
+        if not diagram["svg"]:
             continue
-        diagrams.append(
-            {
-                "piece": definition.piece,
-                "betza": definition.betza,
-                "title": definition.title,
-                "svg": svg,
-            }
-        )
+        diagrams.append(diagram)
 
     return tuple(diagrams)
 
