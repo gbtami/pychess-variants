@@ -70,7 +70,7 @@
     </linearGradient>
   </defs>
   <path
-     fill="#1f1a17"
+     fill="#000080"
      d="m 28.408,15.271587 h 4.216 v -3.395 h 6.796 v 9.295 l -5.5,4.243 0,5.805413 4.22,4.221 v 5.08 h 3.789 V 46.45 H 8.07 v -5.929 h 3.794 v -5.08 l 4.246,-4.221 0,-5.805413 -5.508,-4.243 v -9.295 h 6.774 v 3.395 h 4.242 v -3.395 h 6.79 z"
      id="path891"
      sodipodi:nodetypes="ccccccccccccccccccccccccc" />
