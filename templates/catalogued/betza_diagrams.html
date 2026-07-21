@@ -11,11 +11,11 @@
         <figure class="catalogued-betza-card">
             <figcaption>
                 <strong>{{ diagram.title }}</strong>
-                <code>{{ diagram.betza }}</code>
             </figcaption>
             <div class="catalogued-betza-svg-wrap">
                 {{ diagram.svg | safe }}
             </div>
+            <code title="{{ diagram.betza }}">{{ diagram.betza }}</code>
         </figure>
         {% endfor %}
     </div>

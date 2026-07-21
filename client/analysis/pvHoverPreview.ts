@@ -38,7 +38,7 @@ export class PvHoverPreview {
         pvboxEl.appendChild(rootEl);
 
         boardSettings.updateScopedBoardStyle(this.variant, boardEl);
-        boardSettings.updateScopedPieceStyle(this.variant, boardEl);
+        boardSettings.updateScopedPieceStyle(this.variant, boardEl, initialFen);
         this.cg = Chessground(boardEl, {
             fen: initialFen,
             dimensions: this.variant.board.dimensions,

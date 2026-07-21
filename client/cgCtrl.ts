@@ -21,6 +21,7 @@ export abstract class ChessgroundController implements BoardController {
     notationAsObject: Notation;
 
     readonly variant: Variant;
+    readonly engineVariant: string;
     readonly chess960: boolean;
     readonly hasPockets: boolean;
     readonly anon: boolean;
@@ -79,15 +80,19 @@ export abstract class ChessgroundController implements BoardController {
         boardSettings.assetURL = model.assetURL;
         const boardFamily = this.variant.boardFamily;
         boardSettings.updateScopedBoardStyle(this.variant, el);
+        boardSettings.updateScopedPieceStyle(this.variant, el, model.initialFen || this.fullfen);
         boardSettings.updateActivePieceStyle(this.variant);
         boardSettings.updateZoom(boardFamily, '');
 
         this.notationAsObject = this.notation2ffishjs(this.notation);
-        this.ffishBoard = new this.ffish.Board(
-            moddedVariant(this.variant.name, this.chess960, this.chessground.state.boardState.pieces, parts[2]),
-            this.fullfen,
+        this.engineVariant = moddedVariant(
+            this.variant.name,
             this.chess960,
+            this.chessground.state.boardState.pieces,
+            parts[2],
+            model.initialFen || this.fullfen,
         );
+        this.ffishBoard = new this.ffish.Board(this.engineVariant, this.fullfen, this.chess960);
         window.addEventListener('beforeunload', () => this.ffishBoard.delete());
     }
 

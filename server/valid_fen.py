@@ -9,6 +9,7 @@ from fairy.capa_altarnate import (
     UNIVERS,
     VICTORIAN,
 )
+from fairy.cwda import CWDA_START_FENS
 
 
 def house(fen):
@@ -43,4 +44,5 @@ VALID_FEN = {
         MANCHU_R_FEN,
     ),
     "jieqi": (JIEQI_FEN,),
+    "cwda": CWDA_START_FENS,
 }

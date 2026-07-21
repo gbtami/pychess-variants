@@ -12,6 +12,7 @@ from catalogued_variants import (
     community_catalogued_variants_page,
     find_catalogued_variant_doc,
 )
+from fairy.cwda import cwda_betza_diagram_groups
 from pychess_global_app_state_utils import get_app_state
 
 
@@ -99,5 +100,7 @@ async def variants(request: web.Request) -> ViewContext:
     if not os.path.exists(item_path):
         raise web.HTTPNotFound()
     context["variant"] = item
+    if variant == "cwda":
+        context["cwda_army_diagrams"] = cwda_betza_diagram_groups()
 
     return context

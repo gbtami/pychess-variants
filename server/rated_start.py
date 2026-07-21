@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from fairy.cwda import CWDA_START_FENS
+
 # Keep these curated FENs in sync with the client-side canRated flags in
 # client/variants.ts. Any non-empty FEN not listed here is forced to casual.
 CHESS_NO_CASTLE_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
@@ -28,6 +30,7 @@ RATED_CUSTOM_START_FENS: dict[str, frozenset[str]] = {
     "crazyhouse": frozenset((CRAZYHOUSE_NO_CASTLE_FEN,)),
     "capablanca": frozenset(CAPABLANCA_RATED_START_FENS),
     "capahouse": frozenset(_house(fen) for fen in CAPABLANCA_RATED_START_FENS),
+    "cwda": frozenset(CWDA_START_FENS),
 }
 
 

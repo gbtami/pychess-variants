@@ -163,6 +163,13 @@ docker compose up --build
 4. Add piece/board graphics to `static/` if needed
 5. Create documentation in `static/docs/`
 
+### Generating Piece CSS
+
+- Keep editable piece styles in `static/piece/<family>/<style>.css`, with image URLs pointing to assets under `static/images/pieces/`.
+- From the repository root, run `python3 piece_image_to_css.py static/piece/<family>/<style>.css` to generate the matching `static/piece-css/<family>/<style>.css`. The script scopes the selectors and embeds the images as base64 data URLs.
+- The script also accepts a directory to regenerate every CSS file below it, for example `python3 piece_image_to_css.py static/piece/<family>/`.
+- Do not hand-edit files under `static/piece-css/`; update their source under `static/piece/`, regenerate, and commit both files.
+
 ### WebSocket Communication
 - Server uses `server/wsr.py` for WebSocket message handling
 - Client uses `client/socket/` for WebSocket communication
