@@ -10,7 +10,7 @@ from fairy.caparandom import caparandom_rank8
 from fairy.chess960 import CHESS960_FENS
 from fairy.jieqi import make_initial_mapping, apply_move_and_transform, BLACK_PIECES, RED_PIECES
 from const import CATEGORIES
-from cwda import cwda_engine_variant
+from fairy.cwda import cwda_engine_variant
 from fairy.racingkings import RACINGKINGS_FENS
 import logging
 

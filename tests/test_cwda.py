@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import fishnet
 import pyffish as sf
 
-from cwda import (
+from fairy.cwda import (
     CWDA_DEFAULT_FEN,
     CWDA_START_FENS,
     cwda_betza_diagram_groups,

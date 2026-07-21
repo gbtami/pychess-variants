@@ -12,7 +12,7 @@ from catalogued_variants import (
     community_catalogued_variants_page,
     find_catalogued_variant_doc,
 )
-from cwda import cwda_betza_diagram_groups
+from fairy.cwda import cwda_betza_diagram_groups
 from pychess_global_app_state_utils import get_app_state
 
 

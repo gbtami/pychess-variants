@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from cwda import CWDA_START_FENS
+from fairy.cwda import CWDA_START_FENS
 
 # Keep these curated FENs in sync with the client-side canRated flags in
 # client/variants.ts. Any non-empty FEN not listed here is forced to casual.

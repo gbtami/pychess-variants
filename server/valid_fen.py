@@ -9,7 +9,7 @@ from fairy.capa_altarnate import (
     UNIVERS,
     VICTORIAN,
 )
-from cwda import CWDA_START_FENS
+from fairy.cwda import CWDA_START_FENS
 
 
 def house(fen):
