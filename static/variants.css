@@ -472,10 +472,12 @@ div.guide .catalogued-variant-rules h1 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
     gap: 1rem;
-    align-items: start;
+    align-items: stretch;
 }
 
 .catalogued-betza-card {
+    display: flex;
+    flex-direction: column;
     margin: 0;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
@@ -484,39 +486,33 @@ div.guide .catalogued-variant-rules h1 {
 }
 
 .catalogued-betza-card figcaption {
-    display: flex;
-    gap: 0.5rem;
-    align-items: baseline;
-    justify-content: space-between;
-    flex-wrap: nowrap;
     margin-bottom: 0.6rem;
 }
 
 .catalogued-betza-card figcaption strong {
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: block;
 }
 
 .catalogued-betza-card code {
-    flex: 0 1 auto;
-    min-width: 0;
-    max-width: 50%;
-    overflow: hidden;
+    box-sizing: border-box;
+    display: block;
+    align-self: center;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 0.6rem;
+    overflow-x: auto;
     padding: 0.1rem 0.25rem;
     border-radius: 3px;
     background: var(--bg-box);
     font-size: 0.85em;
     opacity: 0.85;
-    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .catalogued-betza-svg-wrap {
     display: flex;
     justify-content: center;
+    margin-top: auto;
     overflow-x: auto;
 }
 

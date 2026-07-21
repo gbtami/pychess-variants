@@ -5,12 +5,12 @@
         {% for diagram in army.diagrams %}
         <figure class="catalogued-betza-card">
             <figcaption>
-                <strong title="{{ diagram.title }}">{{ diagram.title }}</strong>
-                <code title="{{ diagram.betza }}">{{ diagram.betza }}</code>
+                <strong>{{ diagram.title }}</strong>
             </figcaption>
             <div class="catalogued-betza-svg-wrap">
                 {{ diagram.svg | safe }}
             </div>
+            <code title="{{ diagram.betza }}">{{ diagram.betza }}</code>
         </figure>
         {% endfor %}
     </div>
