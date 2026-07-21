@@ -488,16 +488,30 @@ div.guide .catalogued-variant-rules h1 {
     gap: 0.5rem;
     align-items: baseline;
     justify-content: space-between;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     margin-bottom: 0.6rem;
 }
 
+.catalogued-betza-card figcaption strong {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .catalogued-betza-card code {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 50%;
+    overflow: hidden;
     padding: 0.1rem 0.25rem;
     border-radius: 3px;
     background: var(--bg-box);
     font-size: 0.85em;
     opacity: 0.85;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .catalogued-betza-svg-wrap {
