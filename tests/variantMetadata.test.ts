@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals';
 
-import { canRateCustomStart, cwdaEngineVariant, VARIANTS } from '../client/variants';
+import { canRateCustomStart, cwdaArmyClassNames, cwdaEngineVariant, VARIANTS } from '../client/variants';
 
 test('hidden info metadata is set for fogofwar', () => {
     expect(VARIANTS.fogofwar.hiddenInfo).toBe(true);
@@ -18,15 +18,9 @@ test('hidden info metadata defaults to none for normal variants', () => {
 });
 
 test('only curated alternate starts can be rated', () => {
-    expect(canRateCustomStart(VARIANTS.chess, VARIANTS.chess.alternateStart!['No castle'].fen)).toBe(
-        true,
-    );
-    expect(canRateCustomStart(VARIANTS.chess, VARIANTS.chess.alternateStart!.UpsideDown.fen)).toBe(
-        false,
-    );
-    expect(canRateCustomStart(VARIANTS.capablanca, VARIANTS.capablanca.alternateStart!.Gothic.fen)).toBe(
-        true,
-    );
+    expect(canRateCustomStart(VARIANTS.chess, VARIANTS.chess.alternateStart!['No castle'].fen)).toBe(true);
+    expect(canRateCustomStart(VARIANTS.chess, VARIANTS.chess.alternateStart!.UpsideDown.fen)).toBe(false);
+    expect(canRateCustomStart(VARIANTS.capablanca, VARIANTS.capablanca.alternateStart!.Gothic.fen)).toBe(true);
 });
 
 test('custom start rating check normalizes whitespace', () => {
@@ -51,4 +45,11 @@ test('Chess with Different Armies resolves color reversals to one engine profile
     expect(cwdaEngineVariant(normal)).toBe('cwda-clobberers-knights');
     expect(cwdaEngineVariant(reversed)).toBe('cwda-clobberers-knights');
     expect(cwdaEngineVariant('')).toBe('cwda-fide-clobberers');
+});
+
+test('Chess with Different Armies identifies each side for army-specific artwork', () => {
+    const fen = 'gihokhig/pppppppp/8/8/8/8/PPPPPPPP/DWACKAWD w KQkq - 0 1';
+
+    expect(cwdaArmyClassNames(fen)).toEqual(['cwda-black-knights', 'cwda-white-clobberers']);
+    expect(cwdaArmyClassNames('')).toEqual([]);
 });

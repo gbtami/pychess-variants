@@ -317,7 +317,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     yokai: { pieceCSS: ['yokai', 'disguised'] },
     perfect: { pieceCSS: ['perfect0', 'disguised'] },
     decimalshogi: { pieceCSS: ['shogik', 'disguised'] },
-    cwda: { pieceCSS: ['cwda'] },
+    cwda: { pieceCSS: ['cwda', 'couchtomato'] },
     letter: { pieceCSS: ['disguised'] },
 };
 
@@ -669,6 +669,13 @@ interface VariantConfig {
 
 const CWDA_DEFAULT_FEN = 'dwackawd/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
+const CWDA_ARMY_BY_BACK_RANK = new Map<string, string>([
+    ['rnbqkbnr', 'fide'],
+    ['dwackawd', 'clobberers'],
+    ['gihokhig', 'knights'],
+    ['smfekfms', 'rookies'],
+]);
+
 const CWDA_PROFILE_BY_ARMIES = new Map<string, string>([
     ['dwackawd|rnbqkbnr', 'cwda-fide-clobberers'],
     ['gihokhig|rnbqkbnr', 'cwda-fide-knights'],
@@ -688,6 +695,16 @@ export function cwdaEngineVariant(initialFen: string): string {
         .filter((rank): rank is string => !!rank)
         .sort();
     return CWDA_PROFILE_BY_ARMIES.get([...new Set(armies)].join('|')) ?? 'cwda';
+}
+
+export function cwdaArmyClassNames(initialFen: string): string[] {
+    if (!initialFen) return [];
+    const ranks = initialFen.trim().split(/\s+/)[0]?.split('/') ?? [];
+    const blackArmy = CWDA_ARMY_BY_BACK_RANK.get(ranks[0]?.toLowerCase());
+    const whiteArmy = CWDA_ARMY_BY_BACK_RANK.get(ranks[ranks.length - 1]?.toLowerCase());
+    return [blackArmy && `cwda-black-${blackArmy}`, whiteArmy && `cwda-white-${whiteArmy}`].filter(
+        (className): className is string => !!className,
+    );
 }
 
 export const VARIANTS: Record<string, Variant> = {

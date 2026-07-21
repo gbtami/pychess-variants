@@ -104,7 +104,11 @@ export function renderGames(model: PyChessModel, games: Game[]) {
                                       hook: {
                                           insert: vnode => {
                                               boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
-                                              boardSettings.updateScopedPieceStyle(variant, vnode.elm as Element);
+                                              boardSettings.updateScopedPieceStyle(
+                                                  variant,
+                                                  vnode.elm as Element,
+                                                  game.initialFen,
+                                              );
                                               Chessground(vnode.elm as HTMLElement, {
                                                   coordinates: false,
                                                   viewOnly: true,

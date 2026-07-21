@@ -31,4 +31,4 @@ A pawn may promote to any non-king piece belonging to either army in the game. F
 
 The rook replacements can castle. In a Colorbound Clobberers matchup, queenside castling moves the king to the b-file and the D piece to the c-file. Fairy-Stockfish currently configures that destination per matchup rather than per color, so in a mixed Colorbound game the opponent's queenside castling also uses the b-file destination.
 
-This implementation uses the Alfaerie piece set. See also the [Chess with Different Armies overview](https://en.wikipedia.org/wiki/Chess_with_different_armies) and [Betza's original rules](https://www.chessvariants.com/unequal.dir/cwda.html).
+This implementation offers the Alfaerie piece set and CouchTomato's Cburnett-style CWDA set. See also the [Chess with Different Armies overview](https://en.wikipedia.org/wiki/Chess_with_different_armies) and [Betza's original rules](https://www.chessvariants.com/unequal.dir/cwda.html).

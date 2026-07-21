@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="177.17"
+   height="177.17"
+   shape-rendering="geometricPrecision"
+   image-rendering="optimizeQuality"
+   fill-rule="evenodd"
+   clip-rule="evenodd"
+   viewBox="0 0 50 50"
+   version="1.1"
+   id="svg10137"
+   sodipodi:docname="BlackHalfDuck.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:export-filename="D:\Pictures\Chess Variants\Chess\pieces\Shogun\WhiteMortar.png"
+   inkscape:export-xdpi="198.53"
+   inkscape:export-ydpi="198.53">
+  <metadata
+     id="metadata10141">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="3360"
+     inkscape:window-height="1780"
+     id="namedview10139"
+     showgrid="false"
+     inkscape:zoom="3.7676175"
+     inkscape:cx="14.454233"
+     inkscape:cy="143.26517"
+     inkscape:window-x="6708"
+     inkscape:window-y="1085"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg10137"
+     inkscape:document-rotation="0" />
+  <defs
+     id="defs10131">
+    <linearGradient
+       id="0"
+       x1="21.376"
+       x2="77.64"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(5.0935658,27.115748)">
+      <stop
+         stop-color="#fff"
+         id="stop10126" />
+      <stop
+         offset="1"
+         stop-color="#fff"
+         stop-opacity="0"
+         id="stop10128" />
+    </linearGradient>
+  </defs>
+  <path
+     id="path3569"
+     style="fill:#000080;fill-opacity:1;stroke:#000080;stroke-width:1.75439;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;paint-order:normal"
+     d="m 24.835195,7.171194 -3.313819,12.733842 -5.071048,-1.358159 1.540607,4.838992 -12.5271422,3.486346 12.7332912,3.313268 -1.358159,5.071599 4.839543,-1.540607 3.486345,12.527143 3.313268,-12.733292 5.07105,1.35816 -1.540608,-4.839544 12.527694,-3.486345 -12.733844,-3.313269 1.35816,-5.071048 -4.838993,1.540055 z"
+     sodipodi:nodetypes="ccccccccccccccccc" />
+  <circle
+     style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.69329;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;paint-order:normal"
+     id="path3601"
+     cx="25"
+     cy="26.707405"
+     r="3.3633478" />
+</svg>

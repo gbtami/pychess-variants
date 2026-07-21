@@ -1,0 +1,145 @@
+.cwda piece.p-piece.white {
+  background-image: url('../../images/pieces/green/wP.svg');
+}
+.cwda piece.b-piece.white {
+  background-image: url('../../images/pieces/green/wB.svg');
+}
+.cwda piece.n-piece.white {
+  background-image: url('../../images/pieces/green/wN.svg');
+}
+.cwda piece.r-piece.white {
+  background-image: url('../../images/pieces/green/wR.svg');
+}
+.cwda piece.q-piece.white {
+  background-image: url('../../images/pieces/green/wQ.svg');
+}
+.cwda piece.k-piece.white {
+  background-image: url('../../images/pieces/green/wK.svg');
+}
+.cwda piece.p-piece.black {
+  background-image: url('../../images/pieces/green/bP.svg');
+}
+.cwda piece.b-piece.black {
+  background-image: url('../../images/pieces/green/bB.svg');
+}
+.cwda piece.n-piece.black {
+  background-image: url('../../images/pieces/green/bN.svg');
+}
+.cwda piece.r-piece.black {
+  background-image: url('../../images/pieces/green/bR.svg');
+}
+.cwda piece.q-piece.black {
+  background-image: url('../../images/pieces/green/bQ.svg');
+}
+.cwda piece.k-piece.black {
+  background-image: url('../../images/pieces/green/bK.svg');
+}
+.cwda piece.d-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteBede.svg');
+}
+.cwda piece.w-piece.white {
+  background-image: url('../../images/pieces/cwda/wWaffle.svg');
+}
+.cwda piece.a-piece.white {
+  background-image: url('../../images/pieces/cwda/wFAD.svg');
+}
+.cwda piece.c-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteColorboundArchbishop.svg');
+}
+.cwda piece.g-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteChargingRook.svg');
+}
+.cwda piece.i-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteFibnif.svg');
+}
+.cwda piece.h-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteChargingKnight.svg');
+}
+.cwda piece.o-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteColonel.svg');
+}
+.cwda piece.s-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteShortRook.svg');
+}
+.cwda piece.m-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteWoodyRook.svg');
+}
+.cwda piece.f-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteHalfDuck.svg');
+}
+.cwda piece.e-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteChancellor.svg');
+}
+.cwda piece.d-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackBede.svg');
+}
+.cwda piece.w-piece.black {
+  background-image: url('../../images/pieces/cwda/bWaffle.svg');
+}
+.cwda piece.a-piece.black {
+  background-image: url('../../images/pieces/cwda/bFAD.svg');
+}
+.cwda piece.c-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackColorboundArchbishop.svg');
+}
+.cwda piece.g-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackChargingRook.svg');
+}
+.cwda piece.i-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackFibnif.svg');
+}
+.cwda piece.h-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackChargingKnight.svg');
+}
+.cwda piece.o-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackColonel.svg');
+}
+.cwda piece.s-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackShortRook.svg');
+}
+.cwda piece.m-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackWoodyRook.svg');
+}
+.cwda piece.f-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackHalfDuck.svg');
+}
+.cwda piece.e-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackChancellor.svg');
+}
+
+.cwda-white-clobberers piece.k-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteColorboundKing.svg');
+}
+.cwda-white-clobberers piece.p-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteColorboundPawn.svg');
+}
+.cwda-black-clobberers piece.k-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackColorboundKing.svg');
+}
+.cwda-black-clobberers piece.p-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackColorboundPawn.svg');
+}
+.cwda-white-knights piece.k-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteNuttyKing.svg');
+}
+.cwda-white-knights piece.p-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteNuttyPawn.svg');
+}
+.cwda-black-knights piece.k-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackNuttyKing.svg');
+}
+.cwda-black-knights piece.p-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackNuttyPawn.svg');
+}
+.cwda-white-rookies piece.k-piece.white {
+  background-image: url('../../images/pieces/cwda/WhiteKingRookies.svg');
+}
+.cwda-white-rookies piece.p-piece.white {
+  background-image: url('../../images/pieces/cwda/WhitePawnRookies.svg');
+}
+.cwda-black-rookies piece.k-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackKingRookies.svg');
+}
+.cwda-black-rookies piece.p-piece.black {
+  background-image: url('../../images/pieces/cwda/BlackPawnRookies.svg');
+}
