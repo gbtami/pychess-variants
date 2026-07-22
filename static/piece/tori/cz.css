@@ -1,55 +1,39 @@
-.tori piece.s-piece.ally {
+.tori piece::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.tori piece.enemy::before {
+    transform: rotate(180deg);
+}
+.tori piece.s-piece::before {
     background-image: url('../../images/pieces/tori/cz/0Swallow.svg');
 }
-.tori piece.ps-piece.ally {
+.tori piece.ps-piece::before {
     background-image: url('../../images/pieces/tori/cz/0Goose.svg');
 }
-.tori piece.l-piece.ally {
+.tori piece.l-piece::before {
     background-image: url('../../images/pieces/tori/cz/0LeftQuail.svg');
 }
-.tori piece.r-piece.ally {
+.tori piece.r-piece::before {
     background-image: url('../../images/pieces/tori/cz/0RightQuail.svg');
 }
-.tori piece.p-piece.ally {
+.tori piece.p-piece::before {
     background-image: url('../../images/pieces/tori/cz/0Pheasant.svg');
 }
-.tori piece.c-piece.ally {
+.tori piece.c-piece::before {
     background-image: url('../../images/pieces/tori/cz/0Crane.svg');
 }
-.tori piece.f-piece.ally {
+.tori piece.f-piece::before {
     background-image: url('../../images/pieces/tori/cz/0Falcon.svg');
 }
-.tori piece.pf-piece.ally {
+.tori piece.pf-piece::before {
     background-image: url('../../images/pieces/tori/cz/0Eagle.svg');
 }
-.tori piece.k-piece.ally {
+.tori piece.k-piece::before {
     background-image: url('../../images/pieces/tori/cz/0Phoenix.svg');
-}
-
-.tori piece.s-piece.enemy {
-    background-image: url('../../images/pieces/tori/cz/1Swallow.svg');
-}
-.tori piece.ps-piece.enemy {
-    background-image: url('../../images/pieces/tori/cz/1Goose.svg');
-}
-.tori piece.l-piece.enemy {
-    background-image: url('../../images/pieces/tori/cz/1LeftQuail.svg');
-}
-.tori piece.r-piece.enemy {
-    background-image: url('../../images/pieces/tori/cz/1RightQuail.svg');
-}
-.tori piece.p-piece.enemy {
-    background-image: url('../../images/pieces/tori/cz/1Pheasant.svg');
-}
-.tori piece.c-piece.enemy {
-    background-image: url('../../images/pieces/tori/cz/1Crane.svg');
-}
-.tori piece.f-piece.enemy {
-    background-image: url('../../images/pieces/tori/cz/1Falcon.svg');
-}
-.tori piece.pf-piece.enemy {
-    background-image: url('../../images/pieces/tori/cz/1Eagle.svg');
-}
-.tori piece.k-piece.enemy {
-    background-image: url('../../images/pieces/tori/cz/1Phoenix.svg');
 }
