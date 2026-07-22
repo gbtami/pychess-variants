@@ -131,6 +131,36 @@ CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
         "decimalshogi",
     }
 )
+# Custom piece sets for these Shogi-derived variants use the pointed end of a
+# piece to show ownership. Their uploaded white/black SVGs describe the normal
+# white-oriented board; the generated CSS rotates each player's image when that
+# player is displayed on the opposite side after a board flip.
+CATALOGUED_DIRECTIONAL_PIECE_BASE_VARIANTS = frozenset(
+    {
+        "cannonshogi",
+        "dobutsu",
+        "gorogoro",
+        "gorogoroplus",
+        "kyotoshogi",
+        "minishogi",
+        "shogi",
+        "shoshogi",
+        "torishogi",
+        "yokai",
+    }
+)
+CATALOGUED_DIRECTIONAL_PIECE_FAMILIES = frozenset(
+    {
+        "cannonshogi",
+        "decimalshogi",
+        "dobutsu",
+        "kyoto",
+        "mansindam",
+        "shogi",
+        "tori",
+        "yokai",
+    }
+)
 # Keep these static board families in sync with client/variants.ts. Dynamic
 # catalogued* checkerboard families are deliberately not valid admin overrides.
 CATALOGUED_BOARD_FAMILY_DIMENSIONS: dict[str, tuple[int, int]] = {
@@ -1111,6 +1141,14 @@ def _catalogued_piece_family_override(doc: Mapping[str, Any]) -> str:
         return _clean_piece_family_override(str(doc.get("pieceFamilyOverride") or ""))
     except web.HTTPBadRequest:
         return ""
+
+
+def _catalogued_piece_set_is_directional(doc: Mapping[str, Any]) -> bool:
+    """Whether custom pieces must keep pointing toward the opponent."""
+    base_variant = str(doc.get("baseVariant") or "").strip().lower()
+    if base_variant in CATALOGUED_DIRECTIONAL_PIECE_BASE_VARIANTS:
+        return True
+    return _catalogued_piece_family_override(doc) in CATALOGUED_DIRECTIONAL_PIECE_FAMILIES
 
 
 def _clean_board_family_override(board_family: str | None) -> str:
@@ -2172,7 +2210,9 @@ def _sanitize_catalogued_board_svg(raw: bytes, filename: str, width: int, height
     return sanitized
 
 
-def _catalogued_piece_css_selector(variant_name: str, key: str) -> str:
+def _catalogued_piece_css_selector(
+    variant_name: str, key: str, *, image_layer: bool = False
+) -> str:
     # key format is wP, bP, w+P, b+P. Accept *.svg legacy keys too.
     key = _catalogued_piece_set_storage_key(key)
     color = "white" if key[0] == "w" else "black"
@@ -2180,14 +2220,26 @@ def _catalogued_piece_css_selector(variant_name: str, key: str) -> str:
     letter = key[2 if promoted else 1].lower()
     role_class = f"p{letter}-piece" if promoted else f"{letter}-piece"
     style_class = f".piece-style-catalogued-{variant_name}-custom"
+    piece_suffix = "::before" if image_layer else ""
     return (
-        f"{style_class} piece.{role_class}.{color}, "
+        f"{style_class} piece.{role_class}.{color}{piece_suffix}, "
         f"label.piece.catalogued-custom-preview{style_class}.{role_class}.{color}"
     )
 
 
-def _catalogued_piece_set_css(variant_name: str, piece_set: Mapping[str, Any]) -> str:
+def _catalogued_piece_set_css(
+    variant_name: str,
+    piece_set: Mapping[str, Any],
+    *,
+    directional: bool = False,
+) -> str:
     lines: list[str] = []
+    if directional:
+        style_class = f".piece-style-catalogued-{variant_name}-custom"
+        lines.append(
+            f"{style_class} piece::before "
+            '{content:"";display:block;width:100%;height:100%;pointer-events:none;}'
+        )
     for key in sorted(piece_set):
         item = piece_set[key]
         svg = str(item.get("svg") if isinstance(item, Mapping) else "")
@@ -2195,9 +2247,18 @@ def _catalogued_piece_set_css(variant_name: str, piece_set: Mapping[str, Any]) -
             continue
         data = base64.b64encode(svg.encode("utf-8")).decode("ascii")
         lines.append(
-            f"{_catalogued_piece_css_selector(variant_name, key)} "
+            f"{_catalogued_piece_css_selector(variant_name, key, image_layer=directional)} "
             "{background-position:center;background-size:contain;background-repeat:no-repeat;background-image:"
             f'url("data:image/svg+xml;base64,{data}");}}'
+        )
+    if directional:
+        # chessgroundx owns the piece element's transform for positioning and
+        # animation. Rotate only its image layer so that translation is left
+        # untouched.
+        lines.append(
+            f"{style_class} piece.white.enemy::before, "
+            f"{style_class} piece.black.ally::before "
+            "{transform:rotate(180deg);}"
         )
     return "\n".join(lines) + "\n"
 
@@ -4038,7 +4099,11 @@ async def get_catalogued_piece_css(request: web.Request) -> web.Response:
         raise web.HTTPNotFound(text="This variant has no complete custom piece set.")
 
     return web.Response(
-        text=_catalogued_piece_set_css(str(doc["name"]), piece_set),
+        text=_catalogued_piece_set_css(
+            str(doc["name"]),
+            piece_set,
+            directional=_catalogued_piece_set_is_directional(doc),
+        ),
         content_type="text/css",
         headers={"Cache-Control": "private, max-age=300"},
     )
