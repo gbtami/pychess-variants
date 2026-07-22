@@ -746,6 +746,7 @@ async def new_game(
             tournamentId=seek.tournament_id,
             tournamentArrangementId=seek.rr_arrangement_id,
             new_960_fen_needed_for_rematch=seek.reused_fen,
+            is_rematch=seek.is_rematch,
         )
     except Exception:
         log.exception(

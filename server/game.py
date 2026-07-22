@@ -147,6 +147,7 @@ class Game:
         simulId: str | None = None,
         initial_clocks: tuple[int | float, int | float] | None = None,
         new_960_fen_needed_for_rematch: bool = False,
+        is_rematch: bool = False,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
 
@@ -174,6 +175,7 @@ class Game:
         elif (
             create
             and rated == RATED
+            and not is_rematch
             and not can_rate_custom_start(variant, initial_fen, bool(chess960))
         ):
             # Do not trust clients to downgrade arbitrary or unbalanced FENs.

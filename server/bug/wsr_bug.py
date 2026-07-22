@@ -114,6 +114,7 @@ async def handle_rematch_bughouse(
                 bugPlayer2=game.bplayerB,
                 chess960=game.chess960,
                 reused_fen=reused_fen,
+                is_rematch=True,
             )
             app_state.seeks[seek.id] = seek
 

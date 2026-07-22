@@ -743,6 +743,7 @@ async def handle_rematch(
                 player1=user,
                 chess960=chess960,
                 reused_fen=reused_fen,
+                is_rematch=True,
             )
             app_state.seeks[seek.id] = seek
 
@@ -776,6 +777,7 @@ async def handle_rematch(
                     player1=user,
                     chess960=chess960,
                     reused_fen=reused_fen,
+                    is_rematch=True,
                 )
                 app_state.seeks[seek.id] = seek
 

@@ -171,6 +171,7 @@ class Seek:
         bot_challenge_status: str | None = None,
         bot_challenge_decline_reason: str | None = None,
         reused_fen: bool = False,
+        is_rematch: bool = False,
     ) -> None:
         self.id: str = seek_id
         self.creator: User = creator
@@ -182,7 +183,11 @@ class Seek:
             chess960 = False
             tournament_id = None
             rr_arrangement_id = None
-        elif rated and not can_rate_custom_start(variant, self.fen, bool(chess960)):
+        elif (
+            rated
+            and not is_rematch
+            and not can_rate_custom_start(variant, self.fen, bool(chess960))
+        ):
             rated = False
         self.rated: bool | int | None = rated
         self.rating: int = creator.get_rating_value(variant, chess960)
@@ -231,6 +236,7 @@ class Seek:
 
         # True if this is 960 variant 1st, 3rd etc. rematch seek
         self.reused_fen: bool = reused_fen
+        self.is_rematch: bool = is_rematch
 
         # Seek is pending when it is not corr, and user has no live lobby websocket
         self.pending: bool = False

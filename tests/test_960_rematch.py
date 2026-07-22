@@ -12,6 +12,7 @@ from game import Game
 from wsr import handle_rematch
 from bug.game_bug import GameBug
 from bug.wsr_bug import handle_rematch_bughouse
+from const import RATED
 from glicko2.glicko2 import new_default_perf_map
 from server import make_app
 from user import User
@@ -165,6 +166,25 @@ class RamatchChess960GameTestCase(AioHTTPTestCase):
             chess960=True,
         )
         await self.play_the_match(game)
+
+    async def test_atomic960_rematches_stay_rated(self):
+        app_state = get_app_state(self.app)
+        current_game = Game(
+            app_state,
+            "12345678",
+            "atomic",
+            "",
+            self.Aplayer,
+            self.Bplayer,
+            rated=RATED,
+            chess960=True,
+        )
+        app_state.games[current_game.id] = current_game
+
+        for _ in range(2):
+            response = await self.play_game_and_rematch_game(current_game)
+            current_game = app_state.games[response["gameId"]]
+            self.assertEqual(RATED, current_game.rated)
 
     async def test_bughouse960_late_rematch_returns_existing_game(self):
         app_state = get_app_state(self.app)
