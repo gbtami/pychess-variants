@@ -43,21 +43,18 @@ export function layer2army(lobbyCtrl: LobbyController, containerId: string, show
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['cwda'].icon(false) } }),
                     h('h3', VARIANTS['cwda'].displayName()),
                 ]),
-                h('p.variant-extra-info', _('Choose from four balanced armies')),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'orda') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['orda'].icon(false) } }),
                     h('h3', VARIANTS['orda'].displayName()),
                 ]),
-                h('p.variant-extra-info', _('Horde: Horse-based army')),
             ]),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'khans') } }, [
                 h('div.variant-title-l2', [
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['khans'].icon(false) } }),
                     h('h3', VARIANTS['khans'].displayName()),
                 ]),
-                h('p.variant-extra-info', _('Horde: Horse-based army')),
             ]),
             h(
                 'button.layer-2-category',
@@ -67,7 +64,6 @@ export function layer2army(lobbyCtrl: LobbyController, containerId: string, show
                         h('div.icon', { attrs: { 'data-icon': VARIANTS['empire'].icon(false) } }),
                         h('h3', VARIANTS['empire'].displayName()),
                     ]),
-                    h('p.variant-extra-info', _('Empire: Queen-based army')),
                 ],
             ),
             h(
@@ -78,7 +74,6 @@ export function layer2army(lobbyCtrl: LobbyController, containerId: string, show
                         h('div.icon', { attrs: { 'data-icon': VARIANTS['ordamirror'].icon(false) } }),
                         h('h3', VARIANTS['ordamirror'].displayName()),
                     ]),
-                    h('p.variant-extra-info', _('Horde vs Horde')),
                 ],
             ),
             h(
@@ -89,7 +84,6 @@ export function layer2army(lobbyCtrl: LobbyController, containerId: string, show
                         h('div.icon', { attrs: { 'data-icon': VARIANTS['shinobiplus'].icon(false) } }),
                         h('h3', VARIANTS['shinobiplus'].displayName()),
                     ]),
-                    h('p.variant-extra-info', _('Clan: Drop-based army')),
                 ],
             ),
             h(
@@ -100,7 +94,6 @@ export function layer2army(lobbyCtrl: LobbyController, containerId: string, show
                         h('div.icon', { attrs: { 'data-icon': VARIANTS['synochess'].icon(false) } }),
                         h('h3', VARIANTS['synochess'].displayName()),
                     ]),
-                    h('p.variant-extra-info', _('Dynasty: Xiangqi-based army')),
                 ],
             ),
             h('button.layer-2-category', { on: { click: () => layer3variant('layer2armycont', lobbyCtrl, 'chak') } }, [
@@ -108,7 +101,6 @@ export function layer2army(lobbyCtrl: LobbyController, containerId: string, show
                     h('div.icon', { attrs: { 'data-icon': VARIANTS['chak'].icon(false) } }),
                     h('h3', VARIANTS['chak'].displayName()),
                 ]),
-                h('p.variant-extra-info', _('Mayan chess')),
             ]),
             h(
                 'button.layer-2-category',
@@ -118,7 +110,6 @@ export function layer2army(lobbyCtrl: LobbyController, containerId: string, show
                         h('div.icon', { attrs: { 'data-icon': VARIANTS['chennis'].icon(false) } }),
                         h('h3', VARIANTS['chennis'].displayName()),
                     ]),
-                    h('p.variant-extra-info', _('Alternating pieces')),
                 ],
             ),
             h(
@@ -129,7 +120,6 @@ export function layer2army(lobbyCtrl: LobbyController, containerId: string, show
                         h('div.icon', { attrs: { 'data-icon': VARIANTS['spartan'].icon(false) } }),
                         h('h3', VARIANTS['spartan'].displayName()),
                     ]),
-                    h('p.variant-extra-info', _('Spartans: Army with two kings')),
                 ],
             ),
             h(
@@ -140,7 +130,6 @@ export function layer2army(lobbyCtrl: LobbyController, containerId: string, show
                         h('div.icon', { attrs: { 'data-icon': VARIANTS['xiangfu'].icon(false) } }),
                         h('h3', VARIANTS['xiangfu'].displayName()),
                     ]),
-                    h('p.variant-extra-info', _('Martial arts Xiangqi')),
                 ],
             ),
         ]),
