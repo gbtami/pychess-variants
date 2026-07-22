@@ -135,10 +135,10 @@ class ChessWithDifferentArmiesTestCase(unittest.TestCase):
         ini = fishnet.fishnet_variants_ini(app_state, "cwda-clobberers-knights")
 
         self.assertLess(
-            ini.index("[cwda-base:chess]"),
-            ini.index("[cwda-clobberers-knights:cwda-base]"),
+            ini.index("[cwda:chess]"),
+            ini.index("[cwda-clobberers-knights:cwda]"),
         )
-        self.assertNotIn("[cwda-fide-rookies:cwda-base]", ini)
+        self.assertNotIn("[cwda-fide-rookies:cwda]", ini)
 
 
 if __name__ == "__main__":
