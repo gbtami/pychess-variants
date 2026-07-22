@@ -14,6 +14,14 @@
     max-width: 300px;
 }
 
+/* Eleven army variants need a third column to keep the fixed-height lobby
+   catalog from squeezing the buttons into six rows. */
+@media only screen and (min-width: 800px) {
+    #layer2armycont .button-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
 /* Assigning Elements (Variants Buttons) Grid Area  */
 
 .generic-fairy {
