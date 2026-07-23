@@ -95,6 +95,10 @@ box-shadow: var(--box-shadow-panel-btn);
     filter: saturate(0.05) drop-shadow(1.92px 1.92px 1.92px #000);
 }
 
+.shogi img.OGY {
+    filter: saturate(0.05) drop-shadow(0.63px 0.63px 0.63px #000);
+}
+
 .variant-category img {
     transition: 250ms ease-in-out;
 }
@@ -250,6 +254,10 @@ box-shadow: var(--box-shadow-panel-btn);
 
 .shogi img.ONG {
     filter: saturate(0.05) drop-shadow(1.35px 1.35px 1.35px #000);
+}
+
+.shogi img.OGY {
+    filter: saturate(0.05) drop-shadow(0.4px 0.4px 0.4px #000);
 }
 
 
