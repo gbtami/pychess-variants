@@ -4,6 +4,11 @@
     display: block;
 }
 
+.cg-wrap:not(.pocket) {
+    --cg-board-files: 8;
+    --cg-board-ranks: 8;
+}
+
 .cg-wrap.mini {
     width: var(--mini-board-width, 256px);
     max-width: 100%;
@@ -19,6 +24,8 @@
 /* 10x8 */
 .cg-wrap.cg-640 {
     padding-bottom: calc(512 * 100% / 640);
+    --cg-board-files: 10;
+    --cg-board-ranks: 8;
 }
 .cg-wrap.cg-640.mini {
   --mini-board-width: 320px;
@@ -27,6 +34,8 @@
 /* 9x9 */
 .cg-wrap.cg-576 {
     padding-bottom: calc(1200 * 100% / 1100);
+    --cg-board-files: 9;
+    --cg-board-ranks: 9;
 }
 .cg-wrap.cg-576.mini {
   --mini-board-width: 304px;
@@ -34,6 +43,8 @@
 /* 7x7 shogi */
 .cg-wrap.cg-448-516 {
     padding-bottom: calc(420 * 100% / 364);
+    --cg-board-files: 7;
+    --cg-board-ranks: 7;
 }
 .cg-wrap.cg-448-516.mini {
   --mini-board-width: 224px;
@@ -41,6 +52,8 @@
 /* 7x9 shogi */
 .cg-wrap.cg-448-664 {
     padding-bottom: calc(540 * 100% / 364);
+    --cg-board-files: 7;
+    --cg-board-ranks: 9;
 }
 .cg-wrap.cg-448-664.mini {
   --mini-board-width: 224px;
@@ -48,6 +61,8 @@
 /* 5x6 */
 .cg-wrap.cg-260-360 {
     padding-bottom: calc(540 * 100% / 390);
+    --cg-board-files: 5;
+    --cg-board-ranks: 6;
 }
 .cg-wrap.cg-260-360.mini {
   --mini-board-width: 192px;
@@ -55,6 +70,8 @@
 /* 5x5 */
 .cg-wrap.cg-260 {
     padding-bottom: calc(450 * 100% / 390);
+    --cg-board-files: 5;
+    --cg-board-ranks: 5;
 }
 .cg-wrap.cg-260.mini {
   --mini-board-width: 192px;
@@ -62,6 +79,8 @@
 /* 3x4 */
 .cg-wrap.cg-156 {
     padding-bottom: calc(480 * 100% / 312);
+    --cg-board-files: 3;
+    --cg-board-ranks: 4;
 }
 .cg-wrap.cg-156.mini {
   --mini-board-width: 132px;
@@ -70,6 +89,8 @@
 /* 7x7 */
 .cg-wrap.cg-448 {
     padding-bottom: 100%;
+    --cg-board-files: 7;
+    --cg-board-ranks: 7;
 }
 .cg-wrap.cg-448.mini {
   --mini-board-width: 224px;
@@ -77,6 +98,8 @@
 /* 9x10 */
 .cg-wrap.cg-576-640, .cg-wrap.cg-borderlands {
     padding-bottom: calc(640 * 100% / 576);
+    --cg-board-files: 9;
+    --cg-board-ranks: 10;
 }
 .cg-wrap.cg-576-640.mini, .cg-wrap.cg-borderlands.mini {
   --mini-board-width: 288px;
@@ -84,6 +107,8 @@
 /* 9x10 Janggi */
 .cg-wrap.cg-janggi {
     padding-bottom: 100%;
+    --cg-board-files: 9;
+    --cg-board-ranks: 10;
 }
 .cg-wrap.cg-janggi.mini {
     --mini-board-width: 320px;
@@ -91,6 +116,8 @@
 /* 10x10 */
 .cg-wrap.cg-640-640 {
     padding-bottom: 100%;
+    --cg-board-files: 10;
+    --cg-board-ranks: 10;
 }
 .cg-wrap.cg-640-640.mini {
   --mini-board-width: 320px;
@@ -98,6 +125,8 @@
 /* 9x9 chak */
 .cg-wrap.cg-540 {
     padding-bottom: 100%;
+    --cg-board-files: 9;
+    --cg-board-ranks: 9;
 }
 .cg-wrap.cg-540.mini {
   --mini-board-width: 270px;

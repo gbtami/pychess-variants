@@ -22,10 +22,35 @@
 .kyoto piece.ps-piece.ally {
     background-image: url('../../images/pieces/kyoto/Kanji/0KA.svg');
 }
-.kyoto piece.k-piece.white.ally {
+.kyoto piece.k-piece {
+    --ctk-shadow-size: max(
+        calc(var(--cg-width) / var(--cg-board-files, var(--files)) * 0.0385),
+        calc(var(--cg-height) / var(--cg-board-ranks, var(--ranks)) * 0.03333)
+    );
+    filter: drop-shadow(2px 2px 2px #000);
+    filter: drop-shadow(
+        var(--ctk-shadow-size)
+        var(--ctk-shadow-size)
+        var(--ctk-shadow-size)
+        #000
+    );
+}
+.kyoto piece.k-piece::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.kyoto piece.k-piece.enemy::before {
+    transform: rotate(180deg);
+}
+.kyoto piece.k-piece.white::before {
     background-image: url('../../images/pieces/shogi/ctk/0GY.svg');
 }
-.kyoto piece.k-piece.black.ally {
+.kyoto piece.k-piece.black::before {
     background-image: url('../../images/pieces/shogi/ctk/0OU.svg');
 }
 .kyoto piece.p-piece.enemy {
@@ -51,10 +76,4 @@
 }
 .kyoto piece.ps-piece.enemy {
     background-image: url('../../images/pieces/kyoto/Kanji/1KA.svg');
-}
-.kyoto piece.k-piece.white.enemy {
-    background-image: url('../../images/pieces/shogi/ctk/1GY.svg');
-}
-.kyoto piece.k-piece.black.enemy {
-    background-image: url('../../images/pieces/shogi/ctk/1OU.svg');
 }

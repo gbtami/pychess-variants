@@ -91,6 +91,10 @@ box-shadow: var(--box-shadow-panel-btn);
     opacity: 0.45;    
 }
 
+.shogi img.ONG {
+    filter: saturate(0.05) drop-shadow(1.92px 1.92px 1.92px #000);
+}
+
 .variant-category img {
     transition: 250ms ease-in-out;
 }
@@ -244,6 +248,10 @@ box-shadow: var(--box-shadow-panel-btn);
     height: 35px;
  }
 
+.shogi img.ONG {
+    filter: saturate(0.05) drop-shadow(1.35px 1.35px 1.35px #000);
+}
+
 
 .variant-category:hover .sliding-pieces {
     display: none;
@@ -257,4 +265,3 @@ box-shadow: var(--box-shadow-panel-btn);
 .app .remove-btn {
     display: none;
 }
-

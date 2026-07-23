@@ -194,30 +194,9 @@
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg2" />
-  <filter
-     id="a"
-     x="-0.1200879"
-     y="-0.099474059"
-     width="1.2902124"
-     height="1.2403956">
-    <feGaussianBlur
-       in="SourceAlpha"
-       result="blur"
-       stdDeviation="2"
-       id="feGaussianBlur1" />
-    <feOffset
-       dx="2"
-       dy="2"
-       result="offsetBlur"
-       id="feOffset1" />
-    <feBlend
-       in="SourceGraphic"
-       in2="offsetBlur"
-       mode="normal"
-       id="feBlend1" />
-  </filter>
+
   <g
-     filter="url(#a)"
+
      transform="translate(5 5)"
      id="g1">
     <path

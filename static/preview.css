@@ -225,6 +225,7 @@ label.piece.piece5.asean {
 
 label.piece.piece0.shogi {
     background-image: url('images/pieces/shogi/ctk/0KA.svg');
+    filter: drop-shadow(2px 2px 2px #000);
 }
 label.piece.piece1.shogi {
     background-image: url('images/pieces/shogi/2kanji/0KA.svg');
@@ -277,6 +278,7 @@ label.piece.piece16.shogi {
 
 label.piece.piece0.kyoto {
     background-image: url('images/pieces/shogi/ctk/0KA.svg');
+    filter: drop-shadow(2px 2px 2px #000);
 }
 label.piece.piece1.kyoto {
     background-image: url('images/pieces/kyoto/Kanji/0KA.svg');
