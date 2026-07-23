@@ -139,6 +139,14 @@ Shogi CZ, Cannon Shogi CZ, Cannon Shogi CZ Alt, and Tori Shogi CZ now keep a sin
 
 That change removed 46 redundant orientation SVGs. Because PyChess embeds piece images into generated CSS, the combined generated CSS for those four styles fell from about **1.22 MB to 615 KB**—almost exactly half—without runtime SVG generation and without changing how the sets look across the board.
 
+### Why not deduplicate every Shogi set?
+
+The `cz`, `czalt`, and related `czech` names identify a promising visual family, but the name or the general wooden-piece style is not enough by itself. We used this method only where the two directional files could be audited as effectively the same drawing after a 180-degree rotation. In those sets, one canonical image really can stand in for both directions.
+
+Other Shogi sets may contain deliberate differences between their two sides: separately positioned calligraphy, colour or texture changes, fixed lighting and shadows, asymmetric decoration, or hand-adjusted outlines. Some also distinguish kings or players in ways that must survive a board flip. Replacing such artwork with an automatic rotation could save files while quietly changing the artist's intended result.
+
+So the remaining sets keep their paired images until each family is checked individually. This optimisation is intentionally conservative: deduplication is safe only when *visual equivalence* has been demonstrated, not merely because two SVGs happen to face opposite ways.
+
 ## A turn nobody should notice
 
 There is something pleasing about a fix whose final behaviour is invisible. A player presses the rotation button. Every square moves. Every Shogi piece quietly faces the right opponent. Nothing jumps, no artwork is duplicated unnecessarily, and custom variant authors do not need to upload secret extra files.
