@@ -147,11 +147,53 @@ Other Shogi sets may contain deliberate differences between their two sides: sep
 
 So the remaining sets keep their paired images until each family is checked individually. This optimisation is intentionally conservative: deduplication is safe only when *visual equivalence* has been demonstrated, not merely because two SVGs happen to face opposite ways.
 
+## The shadow that refused to turn
+
+Then two more candidates stepped out of that cautious remainder: the simple one-kanji `ctk` set and its two-kanji relative.
+
+At first glance, their paired SVGs looked perfect for deduplication. Turn a `0` image through 180 degrees and its outline, wood, and calligraphy agreed with the corresponding `1` image. One small detail refused to cooperate: every pentagon carried a soft shadow on its right and bottom edges.
+
+That shadow was not a browser effect. It lived inside each SVG as a filter with a two-unit horizontal and vertical offset. Rotating the finished image therefore rotated its little lighting system too. The piece faced the correct opponent, but the shadow moved to the upper-left—as if somebody had carried the lamp to the other side of the room while the board was turning.
+
+The obvious next idea was to remove the filter from the canonical SVG and reproduce it with CSS. That worked for an ally piece. An enemy piece was more subtle, because its painted layer was also being rotated. We tried compensating for that rotation with a reversed shadow offset. It looked correct in Firefox, and for a moment the problem seemed finished.
+
+BrowserStack supplied the less cheerful second opinion. Chromium, Safari, and Edge put the compensated shadow on the upper-left. A correction that depended on how a transformed, filtered layer was composed had traded one orientation bug for a browser-dependent one.
+
+The reliable solution was another separation of responsibilities:
+
+```css
+piece {
+    filter: drop-shadow(var(--shadow) var(--shadow) var(--shadow) #000);
+}
+
+piece::before {
+    /* The canonical SVG is painted here. */
+}
+
+piece.enemy::before {
+    transform: rotate(180deg);
+}
+```
+
+The inner `::before` layer turns the artwork. The outer `<piece>` element never turns, so its shadow always falls toward the same bottom-right corner of the screen. Chessgroundx still owns the parent's translation, the pseudo-element owns direction, and the parent filter owns lighting. Each transform now has exactly one job.
+
+![Rotating an entire Shogi piece moves its shadow, while rotating only the artwork leaves the shadow fixed](/static/images/ThePointOfView/05-shadow-layers.png "The shadow stays outside the rotating artwork layer")
+
+The CSS shadow is scaled from the actual board geometry rather than being a single fixed number. A pawn on a 5×5 Kyoto board, a normal 9×9 Shogi board, and a 10×10 Decimal Shogi board occupy different-sized rectangles. Their shadow must grow with the rendered piece if it is to reproduce the original SVG offset.
+
+We also made the extraction deliberately mechanical. A small script recognises the exact SVG filter graph we audited, removes that filter and its reference, and refuses unfamiliar structures. This is not a general promise that every SVG shadow can be reconstructed. It is a repeatable operation for a known family of files.
+
+The `ctk` set became the prototype. Its one-kanji artwork now serves Shogi, Kyoto Shogi, and Decimal Shogi from one orientation, with 23 opposite-facing files removed. The generated CSS for the affected styles shrank by about **311 KB**. More importantly, direct local testing and BrowserStack agreed on the bottom-right shadow in Firefox, Chromium, Safari, and Edge.
+
+With that result established, the two-kanji set followed. Fifteen opposite-facing SVGs disappeared; previews, lobby artwork, and the two-kanji kings used by a mixed Kyoto set received the same CSS shadow where necessary. Two experimental Drunken Elephant files disappeared as well after we confirmed that this piece style is deliberately excluded from Sho Shogi. Together, the affected two-kanji generated styles fell by about **595 KB**.
+
+This does not overturn the conservative rule above. It sharpens it. A fixed shadow is a meaningful difference between two rendered images, but it does not always require two copies of the underlying drawing. When the artwork, orientation, lighting, and board movement can be placed on separate layers, each can be tested—and reused—on its own.
+
 ## A turn nobody should notice
 
 There is something pleasing about a fix whose final behaviour is invisible. A player presses the rotation button. Every square moves. Every Shogi piece quietly faces the right opponent. Nothing jumps, no artwork is duplicated unnecessarily, and custom variant authors do not need to upload secret extra files.
 
-The whole result is a pseudo-element and a 180-degree turn.
+The whole result is a pseudo-element, a shadow on its parent, and a 180-degree turn.
 
 Tiny magic, perhaps—but it understands the point of view.
 
