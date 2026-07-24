@@ -234,6 +234,19 @@ def _doc_piece_letters_key(doc: Mapping[str, Any]) -> tuple[str, ...]:
     return tuple(sorted(_doc_piece_letters(doc)))
 
 
+def _doc_piece_names_key(doc: Mapping[str, Any]) -> tuple[tuple[str, str], ...]:
+    value = doc.get("pieceNames")
+    if not isinstance(value, Mapping):
+        return ()
+    return tuple(
+        sorted(
+            (str(piece).strip().lower(), str(name).strip())
+            for piece, name in value.items()
+            if len(str(piece).strip()) == 1 and str(name).strip()
+        )
+    )
+
+
 def _doc_variant_name(value: object) -> str:
     return str(value or "").strip().lower()
 
@@ -335,6 +348,7 @@ def betza_diagram(
 def _cached_piece_diagram_definitions(
     ini: str,
     pieces: tuple[str, ...],
+    piece_names: tuple[tuple[str, str], ...],
     fsf_builtin_variant: str,
     name: str,
     base_variant: str,
@@ -350,6 +364,15 @@ def _cached_piece_diagram_definitions(
         "baseVariant": base_variant,
     }
     definitions = custom_definitions + _fsf_builtin_piece_definitions(fsf_doc, ini, occupied_pieces)
+    names = dict(piece_names)
+    definitions = [
+        definition._replace(
+            title=f"{names[definition.piece]} ({definition.piece.upper()}) movement"
+        )
+        if definition.piece in names
+        else definition
+        for definition in definitions
+    ]
     return tuple(definitions[:MAX_CATALOGUED_BETZA_DIAGRAMS])
 
 
@@ -395,6 +418,7 @@ def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDia
     definitions = _cached_piece_diagram_definitions(
         ini,
         _doc_piece_letters_key(doc),
+        _doc_piece_names_key(doc),
         _doc_variant_name(doc.get("fsfBuiltinVariant")),
         _doc_variant_name(doc.get("name")),
         _doc_variant_name(doc.get("baseVariant")),

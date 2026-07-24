@@ -2010,6 +2010,7 @@ export interface CataloguedVariantClientDocument {
     readonly name: string;
     readonly displayName: string;
     readonly tooltip?: string;
+    readonly pieceNames?: Readonly<Record<string, string>>;
     readonly ini: string;
     readonly baseVariant?: string;
     readonly startFen: string;

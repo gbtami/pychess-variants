@@ -397,7 +397,18 @@ def _side_region_sentence(subject: str, white_region: str | None, black_region: 
     return f"The {_natural_join(parts)}."
 
 
-def _piece_name_map(parsed: ParsedCataloguedIni) -> dict[str, str]:
+def _document_piece_names(doc: Mapping[str, Any]) -> dict[str, str]:
+    value = doc.get("pieceNames")
+    if not isinstance(value, Mapping):
+        return {}
+    return {
+        str(piece).strip().lower(): str(name).strip()
+        for piece, name in value.items()
+        if len(str(piece).strip()) == 1 and str(name).strip()
+    }
+
+
+def _piece_name_map(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> dict[str, str]:
     names: dict[str, str] = {
         "p": "pawn",
         "n": "knight",
@@ -423,6 +434,7 @@ def _piece_name_map(parsed: ParsedCataloguedIni) -> dict[str, str]:
         if len(letter) == 1 and letter.isalpha():
             names[letter] = label
 
+    names.update(_document_piece_names(doc))
     return names
 
 
@@ -482,7 +494,7 @@ def _board_setup_lines(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> l
 
 def _piece_lines(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> list[CataloguedRuleLine]:
     lines: list[CataloguedRuleLine] = []
-    names = _piece_name_map(parsed)
+    names = _piece_name_map(parsed, doc)
     pieces = [str(piece).lower() for piece in doc.get("pieces") or []]
     if pieces:
         _add(
@@ -497,15 +509,22 @@ def _piece_lines(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> list[Ca
         if lowered.startswith("custompiece") and value.strip() and value.strip() != "-":
             letter, _, betza = value.partition(":")
             if betza.strip():
+                piece = letter.strip().lower()
                 _add(
                     lines,
-                    f"Piece {letter.strip()} is a custom piece with Betza movement `{betza.strip()}`.",
+                    f"{names.get(piece, f'piece {piece}')} ({piece}) is a custom piece with Betza movement `{betza.strip()}`.",
                     key,
                     value,
                 )
         elif lowered == "king" and ":" in value:
             letter, _, betza = value.partition(":")
-            _add(lines, f"The royal piece {letter.strip()} uses custom Betza movement `{betza.strip()}`.", key, value)
+            piece = letter.strip().lower()
+            _add(
+                lines,
+                f"The royal piece {names.get(piece, 'piece')} ({piece}) uses custom Betza movement `{betza.strip()}`.",
+                key,
+                value,
+            )
 
     for key, value in parsed.items():
         lowered = key.casefold()
@@ -591,7 +610,7 @@ def _move_rule_lines(parsed: ParsedCataloguedIni) -> list[CataloguedRuleLine]:
 
 def _drop_lines(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> list[CataloguedRuleLine]:
     lines: list[CataloguedRuleLine] = []
-    names = _piece_name_map(parsed)
+    names = _piece_name_map(parsed, doc)
     pocket_roles = [str(piece).lower() for piece in doc.get("pocketRoles") or []]
     piece_drops = _bool_value(parsed.option("pieceDrops")) or bool(pocket_roles)
     captures_to_hand = bool(doc.get("captureToHand", _bool_value(parsed.option("capturesToHand"))))
@@ -657,7 +676,7 @@ def _drop_lines(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> list[Cat
 
 def _promotion_lines(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> list[CataloguedRuleLine]:
     lines: list[CataloguedRuleLine] = []
-    names = _piece_name_map(parsed)
+    names = _piece_name_map(parsed, doc)
     promotion_roles = [str(piece).lower() for piece in doc.get("promotionRoles") or []]
 
     white_promotion_region = _side_specific_option(parsed, "promotionRegion", "White")
@@ -959,6 +978,7 @@ def _cached_catalogued_rule_summary(
     pieces: tuple[str, ...],
     pocket_roles: tuple[str, ...],
     promotion_roles: tuple[str, ...],
+    piece_names: tuple[tuple[str, str], ...],
     capture_to_hand: bool | None,
     generator_version: int,
 ) -> CataloguedRuleSummary:
@@ -971,6 +991,7 @@ def _cached_catalogued_rule_summary(
         "pieces": list(pieces),
         "pocketRoles": list(pocket_roles),
         "promotionRoles": list(promotion_roles),
+        "pieceNames": dict(piece_names),
     }
     if capture_to_hand is not None:
         doc["captureToHand"] = capture_to_hand
@@ -986,6 +1007,7 @@ def catalogued_rule_summary(doc: Mapping[str, Any]) -> CataloguedRuleSummary:
         _string_tuple(doc.get("pieces")),
         _string_tuple(doc.get("pocketRoles")),
         _string_tuple(doc.get("promotionRoles")),
+        tuple(sorted(_document_piece_names(doc).items())),
         _optional_bool_cache_value(doc, "captureToHand"),
         RULE_SUMMARY_GENERATOR_VERSION,
     )

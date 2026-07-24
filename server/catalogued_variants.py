@@ -65,6 +65,8 @@ MAX_CATALOGUED_BOARD_SVG_BYTES = 128 * 1024
 MAX_CATALOGUED_INI_BYTES = 64 * 1024
 MAX_DESCRIPTION_LEN = 1000
 MAX_DISPLAY_NAME_LEN = 50
+MAX_PIECE_NAME_LEN = 50
+MAX_PIECE_NAMES_TEXT_LEN = 2048
 
 DISPLAY_NAME_ERROR = (
     f"Display names must be at most {MAX_DISPLAY_NAME_LEN} characters, contain a letter or "
@@ -1006,6 +1008,7 @@ class CataloguedVariantDocument(TypedDict):
     name: str
     displayName: str
     description: str
+    pieceNames: NotRequired[dict[str, str]]
     author: str
     ini: str
     rulesIni: NotRequired[str]
@@ -1055,6 +1058,7 @@ class CataloguedVariantClientDocument(TypedDict):
     name: str
     displayName: str
     tooltip: str
+    pieceNames: NotRequired[dict[str, str]]
     ini: str
     baseVariant: str
     startFen: str
@@ -2665,6 +2669,9 @@ def _client_doc(
         "archived": bool(doc.get("archived", False)),
         "enabled": bool(doc.get("enabled", True)),
     }
+    piece_names = parse_catalogued_piece_names(doc.get("pieceNames"))
+    if piece_names:
+        client_doc["pieceNames"] = piece_names
     if _is_fsf_builtin_catalogued_doc(doc):
         client_doc["fsfBuiltinVariant"] = _fsf_builtin_variant_name(doc)
         references = _catalogued_references_for_display(doc)
@@ -3377,7 +3384,9 @@ async def set_catalogued_variant_favorite(request: web.Request) -> web.Response:
     return json_response({"ok": True, "name": name, "favorite": favorite})
 
 
-async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str, str, str]:
+async def _read_upload_payload(
+    request: web.Request,
+) -> tuple[str, str, str, dict[str, str], str, str, str]:
     content_type = request.content_type or ""
 
     if content_type == "application/json":
@@ -3389,6 +3398,9 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
             str(data.get("displayName") or data.get("display_name") or "")
         )
         description = str(data.get("description") or "")
+        piece_names = parse_catalogued_piece_names(
+            data.get("pieceNames", data.get("piece_names", ""))
+        )
         piece_family_override = _read_piece_family_override(data)
         board_family_override = _read_board_family_override(data)
         visibility = _clean_visibility(str(data.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE))
@@ -3396,6 +3408,7 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
             ini,
             display_name,
             description,
+            piece_names,
             piece_family_override,
             board_family_override,
             visibility,
@@ -3403,7 +3416,7 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
 
     if content_type.startswith("text/"):
         ini = await read_text_data(request)
-        return ini or "", "", "", "", "", CATALOGUED_VISIBILITY_PRIVATE
+        return ini or "", "", "", {}, "", "", CATALOGUED_VISIBILITY_PRIVATE
 
     data = await read_post_data(request)
     if data is None:
@@ -3420,6 +3433,7 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
         str(data.get("displayName") or data.get("display_name") or "")
     )
     description = str(data.get("description") or "")
+    piece_names = parse_catalogued_piece_names(data.get("pieceNames", data.get("piece_names", "")))
     piece_family_override = _read_piece_family_override(data)
     board_family_override = _read_board_family_override(data)
     visibility = _clean_visibility(str(data.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE))
@@ -3427,6 +3441,7 @@ async def _read_upload_payload(request: web.Request) -> tuple[str, str, str, str
         ini,
         display_name,
         description,
+        piece_names,
         piece_family_override,
         board_family_override,
         visibility,
@@ -3488,12 +3503,83 @@ def _clean_description(description: str) -> str:
     return description.strip()[:MAX_DESCRIPTION_LEN]
 
 
+def _clean_piece_name(piece: str, name: str) -> tuple[str, str]:
+    letter = piece.strip().lower()
+    if len(letter) != 1 or not letter.isascii() or not letter.isalpha():
+        raise web.HTTPBadRequest(
+            text="Invalid piece names. Use one ASCII letter before each colon, such as z:Zebra."
+        )
+
+    cleaned = " ".join(unicodedata.normalize("NFKC", name).split())
+    if (
+        not cleaned
+        or len(cleaned) > MAX_PIECE_NAME_LEN
+        or "," in cleaned
+        or ":" in cleaned
+        or any(unicodedata.category(char).startswith("C") for char in cleaned)
+        or not any(
+            unicodedata.category(char).startswith("L") or unicodedata.category(char) == "Nd"
+            for char in cleaned
+        )
+    ):
+        raise web.HTTPBadRequest(
+            text=(
+                f"Piece names must be 1-{MAX_PIECE_NAME_LEN} characters, contain a letter "
+                "or number, and cannot contain commas or colons."
+            )
+        )
+    return letter, cleaned
+
+
+def parse_catalogued_piece_names(value: object) -> dict[str, str]:
+    """Parse user-facing ``letter:name`` metadata into a normalized mapping."""
+
+    if value is None or value == "":
+        return {}
+
+    raw_entries: list[tuple[object, object]]
+    if isinstance(value, Mapping):
+        raw_entries = list(value.items())
+    elif isinstance(value, str):
+        if len(value) > MAX_PIECE_NAMES_TEXT_LEN:
+            raise web.HTTPBadRequest(text="Piece names are too long.")
+        raw_entries = []
+        for entry in value.split(","):
+            entry = entry.strip()
+            if not entry:
+                continue
+            piece, separator, name = entry.partition(":")
+            if not separator:
+                raise web.HTTPBadRequest(
+                    text=(
+                        "Invalid piece names. Use comma-separated letter:name pairs, "
+                        "such as p:Soldier, z:Zebra."
+                    )
+                )
+            raw_entries.append((piece, name))
+    else:
+        raise web.HTTPBadRequest(
+            text="Invalid piece names. Expected comma-separated letter:name pairs."
+        )
+
+    names: dict[str, str] = {}
+    for raw_piece, raw_name in raw_entries:
+        if not isinstance(raw_piece, str) or not isinstance(raw_name, str):
+            raise web.HTTPBadRequest(text="Piece name letters and names must be text.")
+        piece, name = _clean_piece_name(raw_piece, raw_name)
+        if piece in names:
+            raise web.HTTPBadRequest(text=f"Piece name {piece!r} is listed more than once.")
+        names[piece] = name
+    return names
+
+
 def _build_doc(
     *,
     name: str,
     base_variant: str,
     display_name: str,
     description: str,
+    piece_names: Mapping[str, str] | None,
     username: str,
     ini: str,
     start_fen: str,
@@ -3555,6 +3641,9 @@ def _build_doc(
         "createdAt": created_at,
         "updatedAt": datetime.now(timezone.utc),
     }
+    cleaned_piece_names = parse_catalogued_piece_names(piece_names)
+    if cleaned_piece_names:
+        doc["pieceNames"] = cleaned_piece_names
     if piece_family_override:
         doc["pieceFamilyOverride"] = _clean_piece_family_override(piece_family_override)
     if board_family_override:
@@ -3705,6 +3794,7 @@ def _build_fsf_builtin_doc(
             (existing or {}).get("displayName") or metadata.get("displayName") or name
         ),
         description=_fsf_builtin_description_for_doc(metadata, existing, references),
+        piece_names=(existing or {}).get("pieceNames") or metadata.get("pieceNames"),
         username=CATALOGUED_FSF_BUILTIN_AUTHOR,
         ini="",
         start_fen=start_fen,
@@ -3829,6 +3919,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
         ini,
         display_name,
         description,
+        piece_names,
         piece_family_override,
         board_family_override,
         visibility,
@@ -3853,6 +3944,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
         base_variant=validated.base_variant,
         display_name=display_name,
         description=description,
+        piece_names=piece_names,
         username=username,
         ini=ini,
         start_fen=validated.start_fen,
@@ -4231,6 +4323,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         ini,
         display_name,
         description,
+        piece_names,
         piece_family_override,
         board_family_override,
         visibility,
@@ -4257,6 +4350,10 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
             }
         }
         unset_fields: dict[str, str] = {}
+        if piece_names:
+            update["$set"]["pieceNames"] = piece_names
+        else:
+            unset_fields["pieceNames"] = ""
         if piece_family_override:
             update["$set"]["pieceFamilyOverride"] = piece_family_override
         else:
@@ -4353,6 +4450,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         base_variant=base_variant,
         display_name=display_name,
         description=description,
+        piece_names=piece_names,
         username=str(existing.get("author") or username),
         ini=ini,
         start_fen=start_fen,
@@ -4503,6 +4601,7 @@ async def clone_catalogued_variant(request: web.Request) -> web.Response:
         base_variant=validated.base_variant,
         display_name=display_name,
         description=str(doc.get("description") or ""),
+        piece_names=parse_catalogued_piece_names(doc.get("pieceNames")),
         username=username,
         ini=ini,
         start_fen=validated.start_fen,

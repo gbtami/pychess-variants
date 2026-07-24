@@ -48,6 +48,19 @@ class CataloguedBetzaDiagramTestCase(unittest.TestCase):
         self.assertEqual([diagram["piece"] for diagram in diagrams], ["n", "g"])
         self.assertEqual([diagram["betza"] for diagram in diagrams], ["fRffN", "WfFbR"])
 
+    def test_explicit_piece_name_replaces_custom_piece_fallback(self):
+        diagrams = catalogued_betza_diagrams(
+            {
+                "ini": """
+                [namedpiece:chess]
+                customPiece1 = z:WAD
+                """,
+                "pieceNames": {"z": "Zebra"},
+            }
+        )
+
+        self.assertEqual(diagrams[0]["title"], "Zebra (Z) movement")
+
     def test_custom_king_with_betza_is_rendered_but_bare_king_is_ignored(self):
         with_custom_king = catalogued_betza_diagrams(
             {

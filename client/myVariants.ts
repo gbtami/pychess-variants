@@ -59,6 +59,7 @@ type State = {
     formMessageTone: MessageTone;
     draftDisplayName: string;
     draftDescription: string;
+    draftPieceNames: string;
     draftPieceFamilyOverride: string;
     draftBoardFamilyOverride: string;
     draftVisibility: VariantVisibility;
@@ -87,6 +88,7 @@ const state: State = {
     formMessageTone: 'neutral',
     draftDisplayName: '',
     draftDescription: '',
+    draftPieceNames: '',
     draftPieceFamilyOverride: '',
     draftBoardFamilyOverride: '',
     draftVisibility: 'private',
@@ -222,6 +224,7 @@ async function loadMine(model: PyChessModel, options: { clearMessage?: boolean }
 type VariantFormBody = {
     displayName: string;
     description: string;
+    pieceNames: string;
     pieceFamilyOverride: string;
     boardFamilyOverride: string;
     visibility: VariantVisibility;
@@ -262,6 +265,9 @@ function readForm(): VariantFormBody {
         description:
             (document.getElementById('catalogued-description') as HTMLTextAreaElement | null)?.value ??
             state.draftDescription,
+        pieceNames:
+            (document.getElementById('catalogued-piece-names') as HTMLTextAreaElement | null)?.value ??
+            state.draftPieceNames,
         pieceFamilyOverride: cleanPieceFamilyOverrideDraft(
             (document.getElementById('catalogued-piece-family-override') as HTMLSelectElement | null)?.value ??
                 state.draftPieceFamilyOverride,
@@ -299,6 +305,7 @@ function normalizeDisplayName(displayName: string): string {
 function clearDraft(): void {
     state.draftDisplayName = '';
     state.draftDescription = '';
+    state.draftPieceNames = '';
     state.draftPieceFamilyOverride = '';
     state.draftBoardFamilyOverride = '';
     state.draftVisibility = 'private';
@@ -307,9 +314,16 @@ function clearDraft(): void {
     state.formMessageTone = 'neutral';
 }
 
+function formatPieceNames(pieceNames: Readonly<Record<string, string>> | undefined): string {
+    return Object.entries(pieceNames ?? {})
+        .map(([piece, name]) => `${piece}:${name}`)
+        .join(', ');
+}
+
 function setDraftFromVariant(variant: ManagedVariant): void {
     state.draftDisplayName = variant.displayName ?? '';
     state.draftDescription = variant.tooltip === 'Catalogued variant' ? '' : (variant.tooltip ?? '');
+    state.draftPieceNames = formatPieceNames(variant.pieceNames);
     state.draftPieceFamilyOverride = cleanPieceFamilyOverrideDraft(variant.pieceFamilyOverride);
     state.draftBoardFamilyOverride = cleanBoardFamilyOverrideDraft(variant.boardFamilyOverride);
     state.draftVisibility = variant.visibility ?? 'private';
@@ -478,6 +492,7 @@ async function saveVariant(model: PyChessModel): Promise<void> {
                     ? {
                           displayName: body.displayName,
                           description: body.description,
+                          pieceNames: body.pieceNames,
                           pieceFamilyOverride: body.pieceFamilyOverride,
                           boardFamilyOverride: body.boardFamilyOverride,
                           visibility: body.visibility,
@@ -914,6 +929,34 @@ function renderForm(model: PyChessModel): VNode {
                             },
                         },
                     }),
+                ]),
+                h('label.catalogued-field.catalogued-field-full', [
+                    h('span', _('Piece names (optional)')),
+                    h('textarea#catalogued-piece-names', {
+                        props: {
+                            value: state.draftPieceNames,
+                            placeholder: 'p:Soldier, z:Zebra, c:Camel',
+                            autocomplete: 'off',
+                            disabled: state.saving,
+                            rows: 2,
+                        },
+                        attrs: {
+                            maxlength: '2048',
+                        },
+                        on: {
+                            input: (event: Event) => {
+                                state.draftPieceNames = (event.target as HTMLTextAreaElement).value;
+                                state.formMessage = '';
+                                state.formMessageTone = 'neutral';
+                            },
+                        },
+                    }),
+                    h(
+                        'span.catalogued-help',
+                        _(
+                            'Comma-separated letter:name pairs used by generated rules, for example p:Soldier, z:Zebra. Built-in names can be overridden; missing names use automatic fallbacks.',
+                        ),
+                    ),
                 ]),
                 model.admin
                     ? h('label.catalogued-field.catalogued-field-half', [
