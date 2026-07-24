@@ -15,6 +15,7 @@ import { Ceval } from './messages';
 import { aiLevel, gameType, result, renderRdiff } from './result';
 import { renderBugTeamInfo, renderGameBoardsBug } from '@/two-board/profile';
 import { displayUsername, userLink } from './user';
+import { bindMiniBoardResize, sizeMiniBoardHost } from './miniBoard';
 
 export interface Game {
     _id: string; // mongodb document id
@@ -103,21 +104,31 @@ export function renderGames(model: PyChessModel, games: Game[]) {
                                   h(`div.cg-wrap.${variant.board.cg}.mini`, {
                                       hook: {
                                           insert: vnode => {
+                                              const boardWrap = vnode.elm as HTMLElement;
+                                              const boardHost = sizeMiniBoardHost(boardWrap);
                                               boardSettings.updateScopedBoardStyle(variant, vnode.elm as Element);
                                               boardSettings.updateScopedPieceStyle(
                                                   variant,
                                                   vnode.elm as Element,
                                                   game.initialFen,
                                               );
-                                              Chessground(vnode.elm as HTMLElement, {
+                                              const chessground = Chessground(boardWrap, {
                                                   coordinates: false,
                                                   viewOnly: true,
                                                   fen: fen,
                                                   lastMove: lastMove,
                                                   dimensions: variant.board.dimensions,
+                                                  addDimensionsCssVarsTo: boardHost,
                                                   pocketRoles: variant.pocket?.roles,
                                               });
+                                              const unbindResize = bindMiniBoardResize(chessground);
+                                              (vnode.data as { miniBoardCleanup?: () => void }).miniBoardCleanup = () => {
+                                                  unbindResize();
+                                                  chessground.destroy();
+                                              };
                                           },
+                                          destroy: vnode =>
+                                              (vnode.data as { miniBoardCleanup?: () => void }).miniBoardCleanup?.(),
                                       },
                                   }),
                               ]),
