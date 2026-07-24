@@ -2096,7 +2096,10 @@ def _sanitize_catalogued_svg(
             text=(f"{filename} is too large. The SVG must be at most {max_bytes // 1024} KiB.")
         )
 
-    text = raw.decode("utf-8", errors="strict").strip()
+    try:
+        text = raw.decode("utf-8", errors="strict").strip()
+    except UnicodeDecodeError as exc:
+        raise web.HTTPBadRequest(text=f"{filename} is not a valid UTF-8 SVG file.") from exc
     xml_decl = XML_DECL_RE.match(text)
     if xml_decl is not None:
         text = text[xml_decl.end() :].lstrip()
@@ -2123,7 +2126,7 @@ def _sanitize_catalogued_svg(
 
     try:
         root = ET.fromstring(text)
-    except (ET.ParseError, UnicodeDecodeError) as exc:
+    except ET.ParseError as exc:
         raise web.HTTPBadRequest(text=f"{filename} is not a valid UTF-8 SVG file.") from exc
 
     if _local_xml_name(root.tag) != "svg":

@@ -109,6 +109,14 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
 
         self.assertIn('aria-label="金"', sanitized)
 
+    def test_rejects_non_utf8_file_as_bad_request(self) -> None:
+        png = b"\x89PNG\r\n\x1a\n"
+
+        with self.assertRaises(web.HTTPBadRequest) as exc:
+            _sanitize_catalogued_piece_svg(png, "wP.svg")
+
+        self.assertEqual("wP.svg is not a valid UTF-8 SVG file.", exc.exception.text)
+
     def test_unicode_remains_unsupported_in_geometry_attributes(self) -> None:
         svg = """<svg xmlns="http://www.w3.org/2000/svg" width="三" height="34">
   <path d="M 0 0 L 10 10" />
