@@ -26,7 +26,7 @@
     "@fullcalendar/timegrid": "^6.1.20",
     "@toast-ui/editor": "3.2.2",
     "chessgroundx": "^10.7.5",
-    "dompurify": "^3.4.11",
+    "dompurify": "^3.4.12",
     "fairy-stockfish-nnue.wasm": "^1.1.11",
     "ffish-alice-es6": "^0.0.1",
     "ffish-es6": "^0.7.9",
