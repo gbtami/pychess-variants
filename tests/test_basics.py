@@ -277,6 +277,55 @@ class SanitizeFenTestCase(unittest.TestCase):
         valid, sanitized = sanitize_fen("shouse", fen, chess960)
         self.assertTrue(valid)
 
+    def test_fen_allows_extra_pocket_material_within_engine_limits(self):
+        start_fen = FairyBoard.start_fen("crazyhouse")
+        fen = start_fen.replace("[]", "[%s]" % ("Q" * 14))
+        valid, sanitized = sanitize_fen("crazyhouse", fen, False)
+        self.assertTrue(valid)
+        self.assertEqual(sanitized, fen)
+
+    def test_fen_rejects_too_many_pieces_of_one_pocket_role(self):
+        start_fen = FairyBoard.start_fen("crazyhouse")
+        valid, sanitized = sanitize_fen(
+            "crazyhouse", start_fen.replace("[]", "[%s]" % ("Q" * 15)), False
+        )
+        self.assertFalse(valid)
+        self.assertEqual(sanitized, "")
+
+    def test_fen_rejects_too_many_active_engine_features(self):
+        start_fen = FairyBoard.start_fen("mansindam")
+        extra_pieces = "".join(piece * 16 for piece in "NBRQAC")
+        valid, sanitized = sanitize_fen(
+            "mansindam", start_fen.replace("[]", "[%s]" % extra_pieces), False
+        )
+        self.assertFalse(valid)
+        self.assertEqual(sanitized, "")
+
+    def test_fen_rejects_more_pieces_in_one_hand_than_engine_allocates(self):
+        start_fen = FairyBoard.start_fen("torishogi")
+        two_swallows_on_board = start_fen.replace("sssssss/2s1S2/SSSSSSS", "7/2s1S2/7")
+
+        fen = two_swallows_on_board.replace("[-]", "[%s]" % ("S" * 14))
+        valid, sanitized = sanitize_fen("torishogi", fen, False)
+        self.assertTrue(valid)
+        self.assertEqual(sanitized, fen)
+
+        valid, sanitized = sanitize_fen(
+            "torishogi",
+            two_swallows_on_board.replace("[-]", "[%s]" % ("S" * 15)),
+            False,
+        )
+        self.assertFalse(valid)
+        self.assertEqual(sanitized, "")
+
+    def test_fen_rejects_input_near_http_request_line_limit(self):
+        start_fen = FairyBoard.start_fen("crazyhouse")
+        valid, sanitized = sanitize_fen(
+            "crazyhouse", start_fen.replace("[]", "[%s]" % ("Q" * 4096)), False
+        )
+        self.assertFalse(valid)
+        self.assertEqual(sanitized, "")
+
     def test_fen_opp_king_in_check(self):
         chess960 = False
         fen = "5k3/4a4/3CN4/9/1PP5p/9/8P/4C4/4A4/2B1K4 w - - 0 46"

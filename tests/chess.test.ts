@@ -24,6 +24,33 @@ test('validFen test', () => {
     });
 });
 
+test('validFen allows extra pocket material within Fairy-Stockfish limits', () => {
+    const startFen = VARIANTS['crazyhouse'].startFen;
+
+    expect(validFen(VARIANTS['crazyhouse'], startFen.replace('[]', `[${'Q'.repeat(14)}]`))).toBeTruthy();
+    expect(validFen(VARIANTS['crazyhouse'], startFen.replace('[]', `[${'Q'.repeat(15)}]`))).toBeFalsy();
+});
+
+test('validFen rejects too many active Fairy-Stockfish features', () => {
+    const startFen = VARIANTS['mansindam'].startFen;
+    const extraPieces = ['N', 'B', 'R', 'Q', 'A', 'C'].map(piece => piece.repeat(16)).join('');
+
+    expect(validFen(VARIANTS['mansindam'], startFen.replace('[]', `[${extraPieces}]`))).toBeFalsy();
+});
+
+test('validFen rejects more pieces in one hand than Fairy-Stockfish allocates', () => {
+    const startFen = VARIANTS['torishogi'].startFen;
+    const twoSwallowsOnBoard = startFen.replace('sssssss/2s1S2/SSSSSSS', '7/2s1S2/7');
+
+    expect(validFen(VARIANTS['torishogi'], twoSwallowsOnBoard.replace('[-]', `[${'S'.repeat(14)}]`))).toBeTruthy();
+    expect(validFen(VARIANTS['torishogi'], twoSwallowsOnBoard.replace('[-]', `[${'S'.repeat(15)}]`))).toBeFalsy();
+});
+
+test('validFen leaves headroom below the HTTP request-line limit', () => {
+    const startFen = VARIANTS['crazyhouse'].startFen;
+    expect(validFen(VARIANTS['crazyhouse'], startFen.replace('[]', `[${'Q'.repeat(4096)}]`))).toBeFalsy();
+});
+
 test('uci2cg test', () => {
     const result = uci2cg('a10j10' as UCIMove);
     expect(result).toBe('a:j:');

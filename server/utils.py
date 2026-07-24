@@ -90,6 +90,9 @@ USERNAME_PREFIX_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 NO_LEGAL_MOVES_START_FEN_MESSAGE = (
     "Failed to create game. The starting position leaves the side to move with no legal move."
 )
+MAX_CUSTOM_FEN_LENGTH = 4096
+FAIRY_STOCKFISH_MAX_ACTIVE_PIECES = 128
+FAIRY_STOCKFISH_POCKET_SLOTS_PER_FILE = 2
 
 
 async def put_bot_game_queue(player: User, game_id: str, payload: str) -> bool:
@@ -1257,7 +1260,77 @@ def pgn(doc):
     )
 
 
+def _fen_board_width(placement: str) -> int:
+    board = placement.split("[", maxsplit=1)[0]
+    first_rank = board.split("/", maxsplit=1)[0]
+    width = 0
+    index = 0
+    while index < len(first_rank):
+        char = first_rank[index]
+        if char.isdigit():
+            end = index + 1
+            while end < len(first_rank) and first_rank[end].isdigit():
+                end += 1
+            width += int(first_rank[index:end])
+            index = end
+            continue
+        if char not in "+~|":
+            width += 1
+        index += 1
+    return width
+
+
+def _fen_material_counts(placement: str) -> tuple[dict[str, int], int]:
+    counts: dict[str, int] = {}
+    total = 0
+    for index, char in enumerate(placement):
+        if not char.isascii() or not char.isalpha():
+            continue
+        # In capture-to-hand variants, "~" marks a promoted pawn that returns
+        # to its base type when captured.
+        role = "p" if index + 1 < len(placement) and placement[index + 1] == "~" else char.lower()
+        counts[role] = counts.get(role, 0) + 1
+        total += 1
+
+    return counts, total
+
+
+def _pocket_variant_material_fits_engine(initial_fen: str, start_fen: str) -> bool:
+    placement = initial_fen.split(maxsplit=1)[0]
+    start_placement = start_fen.split(maxsplit=1)[0]
+    if "[" in placement:
+        pocket = placement.split("[", maxsplit=1)[1].split("]", maxsplit=1)[0]
+    elif placement.count("/") > start_placement.count("/"):
+        pocket = placement.rsplit("/", maxsplit=1)[1]
+    else:
+        pocket = ""
+
+    pocket_counts: dict[str, int] = {}
+    for char in pocket:
+        if char.isascii() and char.isalpha():
+            pocket_counts[char] = pocket_counts.get(char, 0) + 1
+
+    pocket_slots_per_role = FAIRY_STOCKFISH_POCKET_SLOTS_PER_FILE * _fen_board_width(
+        start_placement
+    )
+    if any(count > pocket_slots_per_role for count in pocket_counts.values()):
+        return False
+
+    counts, total = _fen_material_counts(placement)
+    if total > FAIRY_STOCKFISH_MAX_ACTIVE_PIECES:
+        return False
+
+    start_counts, _ = _fen_material_counts(start_placement)
+    return all(
+        count <= max(pocket_slots_per_role, start_counts.get(role, 0))
+        for role, count in counts.items()
+    )
+
+
 def sanitize_fen(variant, initial_fen, chess960, base=False):
+    if len(initial_fen) > MAX_CUSTOM_FEN_LENGTH:
+        return False, ""
+
     server_variant = get_server_variant(variant, chess960)
     if server_variant.two_boards and not base:
         fens = initial_fen.split(" | ")
@@ -1275,6 +1348,11 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
     if variant in VALID_FEN and initial_fen in VALID_FEN[variant]:
         return True, initial_fen
 
+    start_fen = FairyBoard.start_fen(variant)
+    start_placement = start_fen.split(maxsplit=1)[0]
+    if "[" in start_placement and not _pocket_variant_material_fits_engine(initial_fen, start_fen):
+        return False, ""
+
     sf_validate = validate_fen(initial_fen, variant, chess960)
     if sf_validate != FEN_OK and variant != "duck":
         return False, ""
@@ -1282,7 +1360,6 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
     # Initial_fen needs validation to prevent segfaulting in pyffish
     sanitized_fen = initial_fen
 
-    start_fen = FairyBoard.start_fen(variant)
     start_fen_length = len(start_fen)
     start = start_fen.split()
     init = initial_fen.split()

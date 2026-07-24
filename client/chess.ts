@@ -24,6 +24,10 @@ export type MaterialPointType = 'janggi' | 'ataxx';
 export type BoardMarkType = 'alice' | 'campmate' | 'racingkings' | 'kingofthehill';
 export type PieceSoundType = 'regular' | 'atomic' | 'shogi';
 
+const MAX_CUSTOM_FEN_LENGTH = 4096;
+const FAIRY_STOCKFISH_MAX_ACTIVE_PIECES = 128;
+const FAIRY_STOCKFISH_POCKET_SLOTS_PER_FILE = 2;
+
 const handicapKeywords = ['HC', 'Handicap', 'Odds'];
 export function isHandicap(name: string): boolean {
     return handicapKeywords.some(keyword => name.endsWith(keyword));
@@ -78,6 +82,8 @@ export function lmBeforeEp(variant: Variant, fen: string): string {
 
 // TODO Will be deprecated after WASM Fairy integration
 export function validFen(variant: Variant, fen: string): boolean {
+    if (fen.length > MAX_CUSTOM_FEN_LENGTH) return false;
+
     const as = variant.alternateStart;
     if (as !== undefined) {
         if (
@@ -109,6 +115,8 @@ export function validFen(variant: Variant, fen: string): boolean {
         '~+0123456789[]-';
     const alien = (element: string) => !good.includes(element);
     if (placement.split('').some(alien)) return false;
+
+    if (variant.pocket && !pocketVariantMaterialFitsEngine(variant, placement)) return false;
 
     if (variantName === 'duck' && lc(placement, '*', false) > 1) return false;
 
@@ -196,6 +204,47 @@ export function validFen(variant: Variant, fen: string): boolean {
     }
 
     return true;
+}
+
+function pocketVariantMaterialFitsEngine(variant: Variant, placement: string): boolean {
+    const countMaterial = (fenPlacement: string): [Map<string, number>, number] => {
+        const counts = new Map<string, number>();
+        let total = 0;
+
+        for (let i = 0; i < fenPlacement.length; i++) {
+            const piece = fenPlacement[i];
+            if (!/[A-Za-z]/.test(piece)) continue;
+
+            // In capture-to-hand variants, "~" marks a promoted pawn that
+            // returns to its base type when captured.
+            const role = fenPlacement[i + 1] === '~' ? 'p' : piece.toLowerCase();
+            counts.set(role, (counts.get(role) ?? 0) + 1);
+            total++;
+        }
+        return [counts, total];
+    };
+
+    const pocketStart = placement.indexOf('[');
+    const pocket =
+        pocketStart >= 0
+            ? placement.slice(pocketStart + 1, placement.indexOf(']', pocketStart))
+            : placement.split('/').length > variant.board.dimensions.height
+              ? placement.slice(placement.lastIndexOf('/') + 1)
+              : '';
+    const pocketCounts = new Map<string, number>();
+    for (const piece of pocket) {
+        if (!/[A-Za-z]/.test(piece)) continue;
+        pocketCounts.set(piece, (pocketCounts.get(piece) ?? 0) + 1);
+    }
+
+    const pocketSlotsPerRole = FAIRY_STOCKFISH_POCKET_SLOTS_PER_FILE * variant.board.dimensions.width;
+    if ([...pocketCounts.values()].some(count => count > pocketSlotsPerRole)) return false;
+
+    const [counts, total] = countMaterial(placement);
+    if (total > FAIRY_STOCKFISH_MAX_ACTIVE_PIECES) return false;
+
+    const [startCounts] = countMaterial(variant.startFen.split(' ')[0]);
+    return [...counts].every(([role, count]) => count <= Math.max(pocketSlotsPerRole, startCounts.get(role) ?? 0));
 }
 
 function countOcurrences(str: string, word: string): number {
