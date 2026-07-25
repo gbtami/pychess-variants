@@ -475,7 +475,7 @@ def _board_setup_lines(parsed: ParsedCataloguedIni, doc: Mapping[str, Any]) -> l
     lines: list[CataloguedRuleLine] = []
 
     if _bool_value(parsed.option("chess960")):
-        _add(lines, "The variant supports Chess960-style randomized starting positions/castling.", "chess960", "true")
+        _add(lines, "The variant supports Chess960-style castling.", "chess960", "true")
 
     if _bool_value(parsed.option("twoBoards")):
         _add(lines, "Pocket pieces can arrive from another board, as in bughouse-style variants.", "twoBoards", "true")

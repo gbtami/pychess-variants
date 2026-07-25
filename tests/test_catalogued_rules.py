@@ -146,6 +146,22 @@ class CataloguedRulesTestCase(unittest.TestCase):
         self.assertNotIn("The board is", all_text)
         self.assertNotIn("starting position is defined", all_text)
 
+    def test_chess960_option_only_describes_castling_support(self):
+        summary = catalogued_rule_summary(
+            {
+                "ini": """
+                [custom960:chess]
+                chess960 = true
+                """,
+            }
+        )
+
+        all_text = "\n".join(
+            line["text"] for section in summary["sections"] for line in section["lines"]
+        )
+        self.assertIn("The variant supports Chess960-style castling.", all_text)
+        self.assertNotIn("randomized starting", all_text)
+
 
 if __name__ == "__main__":
     unittest.main()
