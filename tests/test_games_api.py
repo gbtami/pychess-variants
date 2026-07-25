@@ -151,7 +151,9 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
 
         response = await self.client.get(f"/@/{self.profile_probe}")
         self.assertEqual(response.status, 200)
-        self.assertIn(self.profile_probe, await response.text())
+        body = await response.text()
+        self.assertIn(self.profile_probe, body)
+        self.assertIn(f"/variants/community?author={self.profile_probe}", body)
         self.assertNotIn(self.profile_probe, app_state.users)
 
         response = await self.client.get(f"/api/games/user/{self.profile_probe}")

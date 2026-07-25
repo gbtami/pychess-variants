@@ -3325,6 +3325,7 @@ async def community_catalogued_variants_page(
                 "displayName": str(doc.get("displayName") or name),
                 "description": str(doc.get("description") or ""),
                 "author": str(doc.get("author") or ""),
+                "system": _is_fsf_builtin_catalogued_doc(doc),
                 "references": _catalogued_references_for_display(doc),
                 "width": int(doc.get("width") or 0),
                 "height": int(doc.get("height") or 0),

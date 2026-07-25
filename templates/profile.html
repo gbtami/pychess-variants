@@ -57,6 +57,7 @@
             <a class="icon icon-crossedswords" href="/@/{{ profile }}/challenge" title="{% trans %}Challenge to a game{% endtrans %}">{% trans %}Challenge{% endtrans %}</a>
             {% endif %}
             <a class="icon icon-bubble-convo" href="/blogs/@/{{ profile }}" title="User blogs">Blogs</a>
+            <a class="icon icon-list" href="{{ home }}/variants/community?author={{ profile | urlencode }}" title="{% trans %}Variants{% endtrans %}">{% trans %}Variants{% endtrans %}</a>
             {% if (not anon) and (profile != username) and (profile_title != "BOT") and (can_message) %}
             <a class="icon icon-comment-o" href="/inbox/{{ profile }}" title="{% trans %}Send a private message{% endtrans %}">{% trans %}Message{% endtrans %}</a>
             {% endif %}

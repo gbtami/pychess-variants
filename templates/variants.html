@@ -90,7 +90,18 @@
                 </p>
                 {% endif %}
                 <dl>
-                    {% if item.author %}<div><dt>Uploaded by</dt><dd>{{ item.author }}</dd></div>{% endif %}
+                    {% if item.author %}
+                    <div>
+                        <dt>Uploaded by</dt>
+                        <dd>
+                            {% if item.system %}
+                            {{ item.author }}
+                            {% else %}
+                            <a href="{{ home }}/@/{{ item.author | urlencode }}">{{ item.author }}</a>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    {% endif %}
                     <div><dt>Board</dt><dd>{{ item.width }} × {{ item.height }}</dd></div>
                     <div><dt>Games</dt><dd>{{ item.gameCount }}</dd></div>
                 </dl>
@@ -164,7 +175,13 @@
             {% if catalogued_variant.author %}
             <div>
                 <dt>Uploaded by</dt>
-                <dd>{{ catalogued_variant.author }}</dd>
+                <dd>
+                    {% if catalogued_variant.system %}
+                    {{ catalogued_variant.author }}
+                    {% else %}
+                    <a href="{{ home }}/@/{{ catalogued_variant.author | urlencode }}">{{ catalogued_variant.author }}</a>
+                    {% endif %}
+                </dd>
             </div>
             {% endif %}
             <div>
