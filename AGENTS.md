@@ -54,6 +54,8 @@ Note: If any Python/server code is changed, run the Python quality/test commands
 Note: This repo uses `uv` and the project `.venv` so Python commands should run via `uv run ...` unless you have explicitly activated `.venv`.
 Note: For any Python/server code change, before reporting the task complete, handing results back to the user, or committing, run the applicable Python quality gates and tests for the change scope.
 Note: At minimum, this means running `uv run ruff format .`, `uv run ruff check .`, and `uv run pyright` for Python/server changes, even for small edits.
+Note: Run targeted Python test modules, classes, or individual tests by default. Do not run the full unit test suite for every change; reserve it for broad or cross-cutting changes, explicit requests, or cases where targeted coverage cannot provide sufficient confidence.
+Note: Run tournament-related tests only when tournament code changed, shared code that can affect tournaments changed, or the task explicitly requires tournament coverage. Tournament tests are noisy and time-consuming, so unrelated changes should not trigger them.
 Note: When running pyright in a sandboxed Codex environment, request escalated permissions so pyright can read the system Python search paths (e.g., `/usr/lib/python3.14`, site-packages) and match CI behavior.
 Note: Codex may run test and typecheck commands with escalated permissions by default in this repo when sandbox limits would otherwise break them (for example local socket bind restrictions in aiohttp/playwright tests). Do not stop to ask in chat first; request escalation directly through the tool.
 Note: When escalation approval is needed, prefer reusable prefix approvals so repeated test runs do not prompt again (`uv run pyright`, `uv run python -m unittest`, `uv run python -m pytest`, `uv run python -m playwright install`).
@@ -75,10 +77,10 @@ uv run ruff check .
 # Python type checking
 uv run pyright
 
-# Python unit tests
+# Full Python unit test suite (only when justified by change scope)
 env PYTHONPATH=server uv run python -m unittest discover -s tests
 
-# Python unit tests (quiet summary, full output in /tmp/unittest_full.log)
+# Full Python unit test suite, quiet summary (only when justified by change scope)
 env PYTHONPATH=server uv run python -m unittest discover -s tests > /tmp/unittest_full.log 2>&1; echo EXIT:$?; rg -n "^Ran [0-9]+ tests|^OK$|^FAILED \\(|^ERROR:|^FAIL:" /tmp/unittest_full.log | tail -n 20
 
 # Python unit tests (direct module / class / test invocation)
