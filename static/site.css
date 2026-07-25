@@ -852,7 +852,7 @@ ul.guide li {
     position: relative;
   }
 
-  section a:first-child:hover {
+  .topnav section > a:first-child:hover {
     color: var(--font-color);
   }
 
