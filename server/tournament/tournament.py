@@ -2456,7 +2456,7 @@ class Tournament(ABC):
                 new_data,
             )
 
-        if self.frequency == SHIELD:
+        if self.frequency == SHIELD and self.nb_games_finished > 0:
             variant_name = self.variant + ("960" if self.chess960 else "")
             self.app_state.shield[variant_name].append((winner, self.starts_at, self.id))
             self.app_state.shield_owners[variant_name] = winner

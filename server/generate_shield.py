@@ -18,7 +18,9 @@ async def generate_shield(app_state: PychessGlobalAppState) -> None:
         app_state.shield[variant] = []
 
         cursor = app_state.db.tournament.find(
-            {"v": v.code, "z": z, "fr": SHIELD}, sort=[("startsAt", -1)], limit=5
+            {"v": v.code, "z": z, "fr": SHIELD, "nbGames": {"$gt": 0}},
+            sort=[("startsAt", -1)],
+            limit=5,
         )
         async for doc in cursor:
             if doc["status"] > T_STARTED:
