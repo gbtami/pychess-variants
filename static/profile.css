@@ -44,6 +44,13 @@ div.versus vs-swords {
     background: var(--bg-color2);
     justify-content: flex-end;
 }
+.profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    min-width: 0;
+    padding: 1em;
+}
 player-title {
   white-space: normal;
 }
@@ -129,17 +136,83 @@ player-title {
     border-radius: 3px;
     margin: 1em;
 }
-.btn-rack a {
+.profile-actions__rack {
+    flex: 0 0 auto;
+    flex-flow: row nowrap;
+    margin: 0;
+}
+.profile-actions__rack > a,
+.profile-actions__more {
+    flex: 0 0 auto;
     padding: 0 0.6em;
     text-align: center;
     line-height: 2rem;
     border-right: 1px solid var(--border-color);
     color: var(--font-color);
+    white-space: nowrap;
+    overflow: visible;
 }
-.btn-rack [class*=" icon-"]::before,
-.btn-rack [class^="icon-"]::before {
+.profile-actions__rack > [class*=" icon-"]::before,
+.profile-actions__rack > [class^="icon-"]::before,
+.profile-actions__menu [class*=" icon-"]::before,
+.profile-actions__menu [class^="icon-"]::before {
     line-height: 2rem;
     margin-right: 0.4em;
+}
+.profile-actions__dropdown {
+    position: relative;
+    flex: 0 0 auto;
+}
+.profile-actions__more {
+    display: block;
+    appearance: none;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+}
+.profile-actions__menu {
+    visibility: hidden;
+    position: absolute;
+    z-index: 20;
+    top: 100%;
+    right: -1px;
+    width: min(18em, calc(100vw - 2em));
+    overflow: hidden;
+    background: var(--bg-color2);
+    border: 1px solid var(--border-color);
+    border-radius: 3px 0 3px 3px;
+    box-shadow: var(--base-shadow);
+}
+.profile-actions__menu a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.6em 1em;
+    line-height: normal;
+    text-align: left;
+    white-space: normal;
+    overflow: visible;
+    color: var(--font-color);
+    border-bottom: 1px solid var(--border-color);
+}
+.profile-actions__menu a:last-child {
+    border-bottom: 0;
+}
+.profile-actions__menu a:hover,
+.profile-actions__menu a:focus-visible {
+    color: var(--font-hover);
+    background: var(--button-new-game-hover);
+}
+.profile-actions__dropdown.is-open .profile-actions__menu {
+    visibility: visible;
+}
+@media (hover: hover) and (pointer: fine) {
+    .profile-actions__dropdown:hover .profile-actions__menu,
+    .profile-actions__dropdown:focus-within .profile-actions__menu {
+        visibility: visible;
+    }
 }
 .i-at, .i-tv, .i-dl, .i-ch {
     float: right;

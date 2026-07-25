@@ -56,6 +56,7 @@ import { initUblogEditor } from './ublogEditor';
 import { initPushSubscription } from './push';
 import { initCommunityVariantFavorites } from './communityVariants';
 import { gameSearchView, initGameSearch } from './gameSearch';
+import { initProfileActionOverflow } from './profileActionOverflow';
 
 // redirect to correct URL except Heroku preview/dev apps
 if (
@@ -266,6 +267,7 @@ function start() {
             }
         } else {
             patch(placeholder, view(el, model));
+            if (dataView === 'profile' || dataView === 'level8win') initProfileActionOverflow();
             if (dataView === 'game-search') initGameSearch(model);
         }
     }

@@ -36,7 +36,8 @@
             </div>
         </div>
         <div class="player-social">
-            <div class="btn-rack">
+            <div class="profile-actions">
+                <div class="btn-rack profile-actions__rack">
 
             <a class="icon icon-tv" href="/@/{{ profile }}/tv" title="{% trans %}Watch games{% endtrans %}">{% trans %}Watch{% endtrans %}</a>
 
@@ -77,6 +78,19 @@
             <a class="icon icon-at" href="https://lishogi.org/@/{{ lishogi_id }}" rel="noopener" target="_blank" title="{% trans %}Lishogi profile{% endtrans %}">{% trans %}Lishogi{% endtrans %}</a>
             {% endif %}
             {% endif %}
+                    <div class="profile-actions__dropdown" hidden>
+                        <button
+                            class="profile-actions__more"
+                            type="button"
+                            aria-expanded="false"
+                            aria-haspopup="menu"
+                            aria-controls="profile-actions-menu"
+                        >
+                            {% trans %}More{% endtrans %} ▾
+                        </button>
+                        <div id="profile-actions-menu" class="profile-actions__menu" role="menu"></div>
+                    </div>
+                </div>
             </div>
         </div>
         {% if ublog_posts %}
