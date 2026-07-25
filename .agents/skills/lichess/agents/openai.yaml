@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lichess Reuse"
+  short_description: "Reuse lila code and assets in pychess"
+  default_prompt: "Use $lichess to find and adapt the closest lila implementation for this pychess feature."

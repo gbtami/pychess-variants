@@ -1,199 +1,50 @@
 # AGENTS.md
 
-## Project Overview
+## Project
 
-Pychess-variants is a free, open-source chess server for playing chess variants. It's a full-stack web application with:
+Pychess-variants is a full-stack chess-variant server: Python/aiohttp and MongoDB on the backend, TypeScript/Snabbdom on the frontend, Fairy-Stockfish for chess logic, and chessgroundx for boards.
 
-- **Backend**: Python with aiohttp web framework, MongoDB for data persistence
-- **Frontend**: TypeScript compiled with esbuild, using Snabbdom virtual DOM
-- **Chess Engine**: Fairy-Stockfish and fairy-stockfish.wasm for move validation and AI
-- **Board Library**: chessgroundx (fork of lichess chessground)
+Use `README.md` for installation and common commands. Inspect the repository for architecture and file ownership rather than relying on a duplicated directory guide here.
 
-## Project Skill Index
+## Project Skills
 
-Use these skills when relevant. Keep details in each skill's `SKILL.md`.
+Use these focused skills when their trigger applies. Project-owned skills are checked into `.agents/skills/`.
 
-- `lichess` - Use when implementing pychess parity by borrowing code/assets from lila.
-  - `${CODEX_HOME:-$HOME/.codex}/skills/lichess/SKILL.md`
-- `lichess-local-server` - Use when starting/stopping local lila for browser parity checks.
-  - `${CODEX_HOME:-$HOME/.codex}/skills/lichess-local-server/SKILL.md`
-- `fairy-stockfish-debugging` - Use when debugging engine/legal-move/FEN/SAN issues.
-  - `${CODEX_HOME:-$HOME/.codex}/skills/fairy-stockfish-debugging/SKILL.md`
+- `lichess`: borrow lila code or assets for lichess UI/behavior parity.
+- `fairy-stockfish-debugging`: investigate engine, legal-move, FEN, SAN, fishnet, or BOT behavior.
+- `pychess-css-debugging`: change or debug CSS, themes, responsive layout, or interaction states.
+- `pychess-testing`: select and run change-scoped quality gates before completion or commit.
+- Optional personal skill `lichess-local-server`: when installed, run or stop local lila for live parity checks.
 
-## Essential Commands
+Keep detailed workflows in their skills rather than duplicating them here.
 
-### Development Setup
-```bash
-# Install Python dependencies into the project virtualenv
-uv sync --extra dev
+## Verification Policy
 
-# Install frontend dependencies
-yarn install
+Use `pychess-testing` after code changes. The required baseline is:
 
-# Development build (with sourcemaps)
-yarn dev
+| Change scope | Required checks |
+| --- | --- |
+| TypeScript, CSS, or static UI only | `yarn typecheck`, `yarn test`; skip Python gates |
+| Python or server code | `uv run ruff format .`, `uv run ruff check .`, `uv run pyright`, plus targeted Python tests |
+| Mixed frontend and server | Both frontend and Python checks |
+| Rendered/browser behavior | Add relevant browser or Playwright verification |
 
-# Production build (minified)
-yarn prod
+- Run targeted Python tests by default. Reserve the full suite for broad or cross-cutting changes, explicit requests, or when targeted coverage is insufficient.
+- Run tournament tests only when tournament code changed, shared code can affect tournaments, or the task explicitly requires tournament coverage.
+- Run Python commands through `uv run` unless the project virtualenv is already active.
 
-# Compile markdown docs to HTML
-yarn md
+## Generated Piece CSS
 
-# Start development server
-uv run server/server.py
+- Edit piece styles under `static/piece/<family>/<style>.css`; keep image URLs under `static/images/pieces/`.
+- Never hand-edit `static/piece-css/`.
+- Regenerate one style with:
 
-# Start development server with anon users behaving as logged-in test users
-# Useful for browser/MCP testing of features that require authenticated UX (e.g. PM/inbox)
-uv run server/server.py -a
-```
+  ```bash
+  python3 piece_image_to_css.py static/piece/<family>/<style>.css
+  ```
 
-### Testing and Quality
-Note: Run linting and tests based on change scope.
-Note: For client-only changes (TypeScript/CSS/static UI only, with no Python/server files touched), run frontend checks (`yarn typecheck`, `yarn test`) and skip server-side Python linting/tests.
-Note: If any Python/server code is changed, run the Python quality/test commands listed below in addition to relevant frontend checks.
-Note: This repo uses `uv` and the project `.venv` so Python commands should run via `uv run ...` unless you have explicitly activated `.venv`.
-Note: For any Python/server code change, before reporting the task complete, handing results back to the user, or committing, run the applicable Python quality gates and tests for the change scope.
-Note: At minimum, this means running `uv run ruff format .`, `uv run ruff check .`, and `uv run pyright` for Python/server changes, even for small edits.
-Note: Run targeted Python test modules, classes, or individual tests by default. Do not run the full unit test suite for every change; reserve it for broad or cross-cutting changes, explicit requests, or cases where targeted coverage cannot provide sufficient confidence.
-Note: Run tournament-related tests only when tournament code changed, shared code that can affect tournaments changed, or the task explicitly requires tournament coverage. Tournament tests are noisy and time-consuming, so unrelated changes should not trigger them.
-Note: When running pyright in a sandboxed Codex environment, request escalated permissions so pyright can read the system Python search paths (e.g., `/usr/lib/python3.14`, site-packages) and match CI behavior.
-Note: Codex may run test and typecheck commands with escalated permissions by default in this repo when sandbox limits would otherwise break them (for example local socket bind restrictions in aiohttp/playwright tests). Do not stop to ask in chat first; request escalation directly through the tool.
-Note: When escalation approval is needed, prefer reusable prefix approvals so repeated test runs do not prompt again (`uv run pyright`, `uv run python -m unittest`, `uv run python -m pytest`, `uv run python -m playwright install`).
-Note: In sandboxed Codex runs, `git add`/`git commit` may fail with `.git/index.lock` write errors (for example read-only filesystem). If this happens during requested VCS work, immediately rerun with escalated permissions and prefer reusable approvals (`git add`, `git commit`).
-Note: For direct unittest module/class/test invocation, use `PYTHONPATH=server:tests` so both server modules and helper modules under `tests/` resolve correctly. The shorter `PYTHONPATH=server` form is only sufficient for `unittest discover -s tests`.
-```bash
-# Run TypeScript type checking
-yarn typecheck
+- Passing a directory regenerates every CSS file below it. Commit both the source and generated files.
 
-# Run JavaScript/TypeScript tests
-yarn test
+## Engine Integration
 
-# Python formatting
-uv run ruff format .
-
-# Python linting
-uv run ruff check .
-
-# Python type checking
-uv run pyright
-
-# Full Python unit test suite (only when justified by change scope)
-env PYTHONPATH=server uv run python -m unittest discover -s tests
-
-# Full Python unit test suite, quiet summary (only when justified by change scope)
-env PYTHONPATH=server uv run python -m unittest discover -s tests > /tmp/unittest_full.log 2>&1; echo EXIT:$?; rg -n "^Ran [0-9]+ tests|^OK$|^FAILED \\(|^ERROR:|^FAIL:" /tmp/unittest_full.log | tail -n 20
-
-# Python unit tests (direct module / class / test invocation)
-env PYTHONPATH=server:tests uv run python -m unittest tests.some_test_module
-
-# Python Playwright tests
-# Run tests directly. If browsers are missing, install them first.
-# Avoid --with-deps unless you are provisioning a fresh host with sudo access.
-uv run python -m playwright install
-env PYTHONPATH=server uv run python -m pytest tests/test_e2e.py
-env PYTHONPATH=server uv run python -m pytest tests/test_gui.py
-```
-
-Note: `unittest -q/-b` still produces noisy output in this repo because tests initialize the application logger. Use the redirected command above for low-noise runs, then open `/tmp/unittest_full.log` when you need full details.
-
-Playwright setup tips:
-- The `--with-deps` install uses apt and needs sudo; avoid it unless you are provisioning a fresh host.
-- If browsers are already installed, you can skip `uv run python -m playwright install`.
-- Tests spin up local servers/browsers, so run them in an environment that allows opening local sockets.
-- For authenticated-flow UI testing without a real login setup, run the server with `-a` so anonymous users behave like logged-in test users.
-
-### Docker Development
-```bash
-# Run entire stack with docker-compose
-docker compose up --build
-```
-
-## Architecture
-
-### Server Architecture (Python)
-- **Entry point**: `server/server.py` - Main aiohttp application
-- **Routes**: `server/routes.py` - URL routing for both web and API endpoints
-- **Game logic**: `server/game.py` - Core game state management
-- **WebSocket**: `server/wsr.py` - Real-time communication for gameplay
-- **Bot API**: `server/bot_api.py` - Lichess-compatible bot API
-- **Database**: MongoDB with pymongo (async driver)
-- **Authentication**: Session-based with optional OAuth2 integration
-
-### Client Architecture (TypeScript)
-- **Entry point**: `client/main.ts` - Main application initialization
-- **Views**: Separate modules for lobby, game, analysis, tournaments, etc.
-- **Game control**: `client/gameCtrl.ts` and `client/roundCtrl.ts` for game state
-- **Board**: Uses chessgroundx for visual chess board representation
-- **Chess engine**: Integrates fairy-stockfish.wasm for client-side analysis
-
-### Chess Standards and Engine Integration
-- **Server-side engine bindings**: The server uses Fairy-Stockfish via `pyffish` Python bindings for valid move generation, validation, FEN position creation, game rule enforcement, and PGN creation.
-- **Client-side engine bindings**: The client uses `ffish-es6.js` JavaScript bindings for similar Fairy-Stockfish functionality.
-- **Standards reference**: UCI, PGN, FEN, and coordinate notation used in the codebase are documented at `https://fairy-stockfish.github.io/chess-variant-standards/`.
-
-### Key Components
-- **Variants**: Chess variant definitions in `variants.ini` and `server/variants.py`
-- **Internationalization**: `lang/` directory with gettext .po files
-- **Real-time features**: WebSocket-based for live games, spectating, chat
-- **Analysis**: Server-side Fairy-Stockfish integration + client-side WASM engine
-
-## Important Files and Directories
-
-### Configuration
-- `variants.ini` - Chess variant definitions and rules
-- `tsconfig.json` - TypeScript compiler configuration
-- `esbuild.mjs` - Frontend build configuration
-
-### Python Server
-- `server/pychess_global_app_state.py` - Global application state management
-- `server/users.py` - User management and authentication
-- `server/lobby.py` - Game lobbies and matchmaking
-- `server/tournament/` - Tournament system implementation
-
-### TypeScript Client
-- `client/variants.ts` - Client-side variant definitions
-- `client/socket/` - WebSocket communication layer
-- `client/analysis*.ts` - Analysis board functionality
-- `client/lobby/` - Lobby UI components organized by variant family
-
-## Development Patterns
-
-### Adding New Chess Variants
-1. Define variant rules in `variants.ini`
-2. Add variant metadata to `server/variants.py`
-3. Add client-side variant info to `client/variants.ts`
-4. Add piece/board graphics to `static/` if needed
-5. Create documentation in `static/docs/`
-
-### Generating Piece CSS
-
-- Keep editable piece styles in `static/piece/<family>/<style>.css`, with image URLs pointing to assets under `static/images/pieces/`.
-- From the repository root, run `python3 piece_image_to_css.py static/piece/<family>/<style>.css` to generate the matching `static/piece-css/<family>/<style>.css`. The script scopes the selectors and embeds the images as base64 data URLs.
-- The script also accepts a directory to regenerate every CSS file below it, for example `python3 piece_image_to_css.py static/piece/<family>/`.
-- Do not hand-edit files under `static/piece-css/`; update their source under `static/piece/`, regenerate, and commit both files.
-
-### WebSocket Communication
-- Server uses `server/wsr.py` for WebSocket message handling
-- Client uses `client/socket/` for WebSocket communication
-- Messages follow a structured JSON format for different game events
-
-### Frontend Development
-- Uses Snabbdom virtual DOM (similar to React but smaller)
-- CSS organized by feature/component in `static/`
-- No framework dependencies - vanilla TypeScript with utility libraries
-
-### Testing
-- Jest for JavaScript/TypeScript unit tests in `tests/`
-- Python tests using standard unittest in `tests/`
-- Some integration tests for game scenarios
-
-## Database Schema
-- MongoDB collections for users, games, tournaments, seeks, etc.
-- Games stored with move history and metadata
-- User ratings tracked per variant using Glicko2 system (`server/glicko2/`)
-
-## Deployment
-- Heroku-ready with `Procfile` and `heroku-postbuild` script
-- Docker support via `docker-compose.yaml`
-- Static assets served from `static/` directory
-- CDN integration for piece sets and board themes
+Server-side `pyffish` and client-side `ffish-es6` both enforce variant rules. When notation or engine behavior matters, consult the `fairy-stockfish-debugging` skill and the [Fairy-Stockfish chess variant standards](https://fairy-stockfish.github.io/chess-variant-standards/).

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pychess Testing"
+  short_description: "Select and run scoped pychess checks"
+  default_prompt: "Use $pychess-testing to choose and run the appropriate checks for this change."

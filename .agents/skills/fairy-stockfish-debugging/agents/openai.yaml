@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fairy-Stockfish Debugging"
+  short_description: "Trace engine, fishnet, and server move bugs"
+  default_prompt: "Use $fairy-stockfish-debugging to isolate this chess-engine or BOT-flow issue at the lowest reproducible layer."

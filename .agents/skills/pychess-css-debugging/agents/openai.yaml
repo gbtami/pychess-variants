@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pychess CSS Debugging"
+  short_description: "Debug pychess CSS cascade and style conflicts"
+  default_prompt: "Use $pychess-css-debugging to diagnose and fix a pychess CSS styling regression using computed browser styles."
