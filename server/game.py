@@ -40,7 +40,7 @@ from fairy import get_fog_fen, get_san_moves, modded_variant, NOTATION_SAN, Fair
 from glicko2.glicko2 import gl2
 from draw import reject_draw
 from lobby_panels_cache import refresh_lobby_leaderboard_cache
-from rated_start import can_rate_custom_start
+from rated_start import can_rate_start, can_rate_variant
 from settings import URI
 from spectators import spectators
 import logging
@@ -175,12 +175,15 @@ class Game:
         elif (
             create
             and rated == RATED
-            and not is_rematch
-            and not can_rate_custom_start(variant, initial_fen, bool(chess960))
+            and not can_rate_start(
+                variant,
+                initial_fen,
+                bool(chess960),
+                is_rematch=is_rematch,
+            )
         ):
-            # Do not trust clients to downgrade arbitrary or unbalanced FENs.
-            # Only explicitly curated predefined starts may share a variant's
-            # normal rating pool.
+            # Do not trust clients to rate casual-only variants or unapproved
+            # custom starting positions.
             rated = CASUAL
 
         self.bot_game: bool = self.bplayer.bot or self.wplayer.bot
@@ -218,9 +221,9 @@ class Game:
             self.bplayer.username,
         )
 
-        # rating info. Catalogued casual games have no ratings/leaderboards at
-        # all, so avoid creating transient perfs entries for their dynamic names.
-        if catalogued_casual:
+        # Casual-only variants have no ratings or leaderboards, so avoid
+        # creating transient performance entries for them.
+        if catalogued_casual or not can_rate_variant(variant, bool(chess960)):
             self.wrating = "1500?"
             self.brating = "1500?"
         else:

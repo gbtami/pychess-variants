@@ -138,6 +138,49 @@ class TestGUI:
 
             await browser.close()
 
+    async def test_casual_only_variant_disables_rating_controls(self, aiohttp_server):
+        username = "casual_only_host"
+        with patch("settings.TOURNAMENT_DIRECTORS", [username]):
+            app = make_app(
+                db_client=AsyncMongoMockClient(tz_aware=True),
+                simple_cookie_storage=True,
+            )
+            server = await aiohttp_server(app, host="127.0.0.1")
+            app_state = get_app_state(app)
+            base_url = f"http://{server.host}:{server.port}"
+            await app_state.db.user.insert_one(
+                {
+                    "_id": username,
+                    "enabled": True,
+                    "createdAt": datetime.now(timezone.utc) - timedelta(days=30),
+                    "lang": "en",
+                    "theme": "dark",
+                    "ct": "all",
+                    "perfs": {},
+                    "pperfs": {},
+                }
+            )
+
+            async with async_playwright() as p:
+                browser = await self._launch_browser(p)
+                context, page = await self._playwright_page_for_user(browser, base_url, username)
+                try:
+                    await page.goto(base_url)
+                    await page.get_by_role("button", name="Create a game").click()
+                    await page.select_option("#variant", "cwda")
+                    await expect(page.locator("#rated")).to_be_disabled()
+                    await expect(page.locator("#casual")).to_be_checked()
+
+                    await page.goto(f"{base_url}/tournaments/new")
+                    await page.select_option("#form3-variant", "cwda")
+                    await expect(page.locator("#form3-rated")).to_be_disabled()
+                    await expect(page.locator("#form3-entryMinRatedGames")).to_be_disabled()
+                    await expect(page.locator("#form3-entryMinRating")).to_be_disabled()
+                    await expect(page.locator("#form3-entryMaxRating")).to_be_disabled()
+                finally:
+                    await context.close()
+                    await browser.close()
+
     async def test_round_robin_full_browser_flow(self, aiohttp_server):
         with patch("settings.TOURNAMENT_DIRECTORS", ["rr_host"]):
             app = make_app(

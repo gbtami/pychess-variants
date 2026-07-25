@@ -53,6 +53,15 @@ class PerfDefaultsTestCase(AioHTTPTestCase):
         self.assertEqual(user.perfs[variants[1]]["gl"]["r"], 1500.0)
         self.assertEqual(source_perfs[variants[0]]["gl"]["r"], 1500.0)
 
+    async def test_casual_only_variant_rating_lookup_does_not_create_perf(self):
+        app_state = get_app_state(self.app)
+        user = User(app_state, username="casual-only")
+
+        rating = user.get_rating("cwda", False)
+
+        self.assertEqual(rating.mu, 1500.0)
+        self.assertNotIn("cwda", user.perfs)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

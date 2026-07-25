@@ -42,7 +42,7 @@ if TYPE_CHECKING:
         UserJson,
         UserStatusJson,
     )
-from variants import RATED_VARIANTS, VARIANTS
+from variants import RATED_VARIANTS, VARIANTS, get_server_variant
 from settings import (
     URI,
     LOCALHOST,
@@ -384,13 +384,15 @@ class User:
             return 1500
 
     def get_rating(self, variant: str, chess960: bool | None) -> Rating:
+        variant_key = variant + ("960" if chess960 else "")
         try:
-            gl = self.perfs[variant + ("960" if chess960 else "")]["gl"]
-            la = self.perfs[variant + ("960" if chess960 else "")]["la"]
+            gl = self.perfs[variant_key]["gl"]
+            la = self.perfs[variant_key]["la"]
             return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
         except KeyError:
             rating = gl2.create_rating()
-            self.perfs[variant + ("960" if chess960 else "")] = new_default_perf()
+            if get_server_variant(variant, chess960).rating_enabled:
+                self.perfs[variant_key] = new_default_perf()
             return rating
 
     def get_puzzle_rating(self, variant: str, chess960: bool | None) -> Rating:

@@ -93,12 +93,16 @@ class ChessWithDifferentArmiesTestCase(unittest.TestCase):
         self.assertEqual(board.initial_fen, CWDA_DEFAULT_FEN)
         self.assertEqual(board.variant, "cwda-fide-clobberers")
 
-    def test_all_curated_starts_are_valid_and_rated(self) -> None:
+    def test_all_curated_starts_pass_the_position_level_rating_check(self) -> None:
         for fen in CWDA_START_FENS:
             with self.subTest(fen=fen):
                 self.assertEqual(sf.validate_fen(fen, cwda_engine_variant(fen), False), sf.FEN_OK)
                 self.assertEqual(sanitize_fen("cwda", fen, False), (True, fen))
                 self.assertTrue(can_rate_custom_start("cwda", fen))
+
+    def test_site_variant_is_explicitly_casual_only(self) -> None:
+        self.assertFalse(ServerVariants.CWDA.rating_enabled)
+        self.assertNotIn("cwda", RATED_VARIANTS)
 
     def test_promotion_targets_are_limited_to_the_armies_in_the_game(self) -> None:
         fen = "k7/7P/8/8/8/8/8/K7 w - - 0 1"

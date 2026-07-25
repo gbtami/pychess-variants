@@ -11,7 +11,7 @@ import { patch } from './document';
 import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
 import {
-    canRateCustomStart,
+    canRateStart,
     devVariants,
     disabledVariantsForCreateMode,
     enabledVariants,
@@ -512,7 +512,7 @@ export class LobbyController implements ChatController {
             this.createMode === 'playAI' ||
             this.anon ||
             this.title === 'BOT' ||
-            !canRateCustomStart(variant, fen) ||
+            !canRateStart(variant, fen) ||
             (minutes < 1 && increment === 0) ||
             (minutes === 0 && increment === 1) ||
             catalogued
@@ -662,7 +662,8 @@ export class LobbyController implements ChatController {
         const vInc = localStorage.seek_inc ?? '3';
         const vByoIdx = (localStorage.seek_byo ?? 1) - 1;
         const vDay = localStorage.seek_day ?? '1';
-        const vRated = twoBoards || catalogued ? '0' : (localStorage.seek_rated ?? '0');
+        const vRated =
+            twoBoards || catalogued || !VARIANTS[vVariant].ratingEnabled ? '0' : (localStorage.seek_rated ?? '0');
         const vRatingMin = localStorage.seek_rating_min ?? -1000;
         const vRatingMax = localStorage.seek_rating_max ?? 1000;
         const vLevel = Number(localStorage.seek_level ?? '1');
@@ -1135,8 +1136,8 @@ export class LobbyController implements ChatController {
         const rated = document.getElementById('rated') as HTMLInputElement;
         const casual = document.getElementById('casual') as HTMLInputElement;
         if (rated && casual) {
-            rated.disabled = this.anon || variant.twoBoards || catalogued;
-            if (catalogued) {
+            rated.disabled = this.anon || variant.twoBoards || catalogued || !variant.ratingEnabled;
+            if (rated.disabled) {
                 casual.checked = true;
                 rated.checked = false;
             }
@@ -1241,10 +1242,7 @@ export class LobbyController implements ChatController {
         const casual = document.getElementById('casual') as HTMLInputElement;
         if (!rated || !casual) return;
         rated.disabled =
-            this.anon ||
-            variant.twoBoards ||
-            isCataloguedVariant(variant.name) ||
-            !canRateCustomStart(variant, fen);
+            this.anon || variant.twoBoards || isCataloguedVariant(variant.name) || !canRateStart(variant, fen);
         if (rated.disabled && rated.checked) {
             rated.checked = false;
             casual.checked = true;

@@ -52,7 +52,7 @@ from lobby_panels_cache import refresh_lobby_tournament_winners_cache
 from lichess_team_msg import lichess_team_msg
 from misc import time_control_str
 from newid import new_id
-from rated_start import can_rate_custom_start
+from rated_start import can_rate_start
 from websocket_utils import ws_send_json_many
 from typing_defs import (
     TournamentDuelItem,
@@ -407,8 +407,7 @@ class Tournament(ABC):
         self.chess960: bool = chess960
         self.rated: bool | int = (
             rated
-            if not is_catalogued_variant(variant)
-            and can_rate_custom_start(variant, self.fen, chess960)
+            if not is_catalogued_variant(variant) and can_rate_start(variant, self.fen, chess960)
             else False
         )
         self.before_start: int = before_start  # in minutes

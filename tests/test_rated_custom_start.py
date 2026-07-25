@@ -7,6 +7,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
 
 from const import CASUAL, RATED
+from fairy.cwda import CWDA_START_FENS
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
 from pychess_global_app_state_utils import get_app_state
@@ -15,6 +16,8 @@ from rated_start import (
     CHESS_NO_CASTLE_FEN,
     RATED_CUSTOM_START_FENS,
     can_rate_custom_start,
+    can_rate_start,
+    can_rate_variant,
 )
 from seek import Seek
 from server import make_app
@@ -39,6 +42,11 @@ class RatedCustomStartTestCase(unittest.TestCase):
     def test_empty_start_remains_rateable(self):
         self.assertTrue(can_rate_custom_start("chess", ""))
         self.assertTrue(can_rate_custom_start("chess", None))
+
+    def test_casual_only_variant_rejects_every_start(self):
+        self.assertFalse(can_rate_variant("cwda"))
+        self.assertFalse(can_rate_start("cwda", ""))
+        self.assertFalse(can_rate_start("cwda", next(iter(CWDA_START_FENS))))
 
     def test_capablanca_allowlist_matches_accepted_alternate_fens(self):
         self.assertEqual(
@@ -93,6 +101,19 @@ class RatedCustomStartTestCase(unittest.TestCase):
             fen=CHESS_NO_CASTLE_FEN,
             rated=True,
             chess960=True,
+        )
+
+        self.assertEqual(CASUAL, seek.rated)
+
+    def test_casual_only_variant_is_forced_casual_for_rematches(self):
+        creator = self.make_user("creator")
+        seek = Seek(
+            "casual-cwda",
+            creator,
+            "cwda",
+            fen=next(iter(CWDA_START_FENS)),
+            rated=True,
+            is_rematch=True,
         )
 
         self.assertEqual(CASUAL, seek.rated)
@@ -161,6 +182,26 @@ class RatedCustomStartGameDefenseTestCase(AioHTTPTestCase):
         )
         try:
             self.assertEqual(RATED, game.rated)
+        finally:
+            await game.stopwatch.cancel()
+
+    async def test_new_casual_only_game_is_forced_casual_for_rematches(self):
+        app_state = get_app_state(self.app)
+        game = Game(
+            app_state,
+            "casual01",
+            "cwda",
+            next(iter(CWDA_START_FENS)),
+            self.white,
+            self.black,
+            rated=RATED,
+            create=True,
+            is_rematch=True,
+        )
+        try:
+            self.assertEqual(CASUAL, game.rated)
+            self.assertNotIn("cwda", self.white.perfs)
+            self.assertNotIn("cwda", self.black.perfs)
         finally:
             await game.stopwatch.cancel()
 

@@ -28,6 +28,7 @@ class Variant:
     grand: bool = False
     byo: bool = False
     two_boards: bool = False
+    rating_enabled: bool = True
     hidden_info: bool = False
     hidden_info_mode: HiddenInfoMode = "none"
     base_variant: str = ""
@@ -57,6 +58,7 @@ class CataloguedServerVariant:
     grand: bool = False
     byo: bool = False
     two_boards: bool = False
+    rating_enabled: bool = False
     hidden_info: bool = False
     hidden_info_mode: HiddenInfoMode = "none"
     base_variant: str = ""
@@ -87,6 +89,7 @@ class ServerVariants(Enum):
         self.grand = variant.grand
         self.byo = variant.byo
         self.two_boards = variant.two_boards
+        self.rating_enabled = variant.rating_enabled
         self.hidden_info = variant.hidden_info
         self.hidden_info_mode = variant.hidden_info_mode
         self.base_variant = variant.base_variant
@@ -175,7 +178,7 @@ class ServerVariants(Enum):
     CHENNIS = Variant("H", "chennis", _("Chennis"), "🎾", move_encoding=encode_move_flipping, move_decoding=decode_move_flipping)  # fmt: skip
     SPARTAN = Variant("N", "spartan", _("Spartan"), "⍺")
     XIANGFU = Variant('"', "xiangfu", _("Xiang Fu"), "👊")
-    CWDA = Variant("Æ", "cwda", _("CWDA"), "⚔")
+    CWDA = Variant("Æ", "cwda", _("CWDA"), "⚔", rating_enabled=False)
 
     BORDERLANDS = Variant("$", "borderlands", _("Borderlands"), " 🌄", grand=True)
     ATAXX = Variant("Z", "ataxx", _("Ataxx"), "☣")
@@ -236,11 +239,14 @@ if PROD:
     for variant in DEV_VARIANTS:
         del VARIANTS[variant.server_name]
 
-# Two board variants has no ratings implemented so far
+# Two-board and explicitly casual-only variants have no ratings.
 RATED_VARIANTS: tuple[str, ...] = tuple(
     variant.server_name
     for variant in ServerVariants
-    if (variant not in NO_VARIANTS) and (variant not in DEV_VARIANTS) and not variant.two_boards
+    if (variant not in NO_VARIANTS)
+    and (variant not in DEV_VARIANTS)
+    and not variant.two_boards
+    and variant.rating_enabled
 )
 
 NOT_RATED_VARIANTS: tuple[str, ...] = tuple(

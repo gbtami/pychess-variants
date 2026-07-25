@@ -1,4 +1,5 @@
 import { alertDialog } from './alertDialog';
+import { splitVariantKey, VARIANTS } from './variants';
 
 type FlatpickrOptions = {
     enableTime: boolean;
@@ -110,6 +111,8 @@ export function initTournamentForm(): void {
     if (!(form instanceof HTMLFormElement)) return;
 
     const system = document.getElementById('form3-system');
+    const rated = document.getElementById('form3-rated');
+    const variantSelect = document.getElementById('form3-variant');
     const systemHelp = document.getElementById('form3-system-help');
     const roundsWrap = document.getElementById('form3-rounds-wrap');
     const roundsLabel = document.getElementById('form3-rounds-label');
@@ -134,10 +137,13 @@ export function initTournamentForm(): void {
     const entryWrapB = document.getElementById('form3-entry-wrap-b');
     const entryWrapC = document.getElementById('form3-entry-wrap-c');
     const swissPairingsWrapA = document.getElementById('form3-swiss-pairings-wrap-a');
-    const entryConditionInputs = [
+    const ratingEntryConditionInputs = [
         document.getElementById('form3-entryMinRatedGames'),
         document.getElementById('form3-entryMinRating'),
         document.getElementById('form3-entryMaxRating'),
+    ];
+    const entryConditionInputs = [
+        ...ratingEntryConditionInputs,
         document.getElementById('form3-entryMinAccountAgeDays'),
     ];
     const swissPairingInputs = [
@@ -161,6 +167,20 @@ export function initTournamentForm(): void {
     ) {
         return;
     }
+
+    const syncRatingPolicy = (): void => {
+        if (!(rated instanceof HTMLInputElement) || !(variantSelect instanceof HTMLSelectElement)) return;
+        const { base } = splitVariantKey(variantSelect.value);
+        const ratingEnabled = VARIANTS[base]?.ratingEnabled ?? false;
+        rated.disabled = !ratingEnabled;
+        if (!ratingEnabled) rated.checked = false;
+        ratingEntryConditionInputs.forEach(element => {
+            if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement) {
+                element.disabled = !ratingEnabled;
+                if (!ratingEnabled) element.value = '0';
+            }
+        });
+    };
 
     const effectiveStartDate = (): Date | null => {
         const customStart = readDateValue(startDateInput instanceof HTMLInputElement ? startDateInput : null);
@@ -285,9 +305,13 @@ export function initTournamentForm(): void {
         setVisible(arenaFaq, isArena);
         setVisible(rrFaq, isRR);
         setVisible(swissFaq, isSwiss);
+        syncRatingPolicy();
     };
 
     system.addEventListener('change', updateFormBySystem);
+    if (variantSelect instanceof HTMLSelectElement) {
+        variantSelect.addEventListener('change', syncRatingPolicy);
+    }
     minutesSelect.addEventListener('change', syncEndDateFromSchedule);
     waitMinutesSelect.addEventListener('change', syncEndDateFromSchedule);
     if (startDateInput instanceof HTMLInputElement) {

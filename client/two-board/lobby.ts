@@ -10,11 +10,11 @@ import { displayUsername, isAnonUsername } from '@/user';
 export function switchEnablingLobbyControls(mode: CreateMode, variant: Variant, anon: boolean) {
     const rated = document.getElementById('rated')! as HTMLInputElement;
     const casual = document.getElementById('casual')! as HTMLInputElement;
-    if (variant.twoBoards) {
+    if (variant.twoBoards || !variant.ratingEnabled) {
         rated.disabled = true;
         rated.checked = false;
         casual.checked = true;
-        disableCorr(true);
+        disableCorr(variant.twoBoards || mode === 'playAI' || anon);
     } else {
         const vRated = localStorage.seek_rated ?? '0';
         rated.disabled = false;

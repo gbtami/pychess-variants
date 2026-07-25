@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, patch
 
 from aiohttp import web
 from const import BYEGAME, FLAG, RATED, SHIELD, TEST_PREFIX, T_FINISHED, T_STARTED
+from fairy.cwda import CWDA_START_FENS
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_TIME
@@ -66,27 +67,50 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             "minutes": "45",
         }
         cases = (
-            ("Curated start", CHESS_NO_CASTLE_FEN, True),
+            ("Curated start", "chess", CHESS_NO_CASTLE_FEN, True, {}),
             (
                 "Unsafe start",
+                "chess",
                 "RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr w - - 0 1",
                 False,
+                {},
+            ),
+            (
+                "Casual-only variant",
+                "cwda",
+                next(iter(CWDA_START_FENS)),
+                False,
+                {
+                    "entryMinRating": "1200",
+                    "entryMaxRating": "2200",
+                    "entryMinRatedGames": "20",
+                },
             ),
         )
 
-        for name, position, expected_rated in cases:
+        for name, variant, position, expected_rated, overrides in cases:
             with self.subTest(name=name):
                 before_ids = set(app_state.tournaments)
                 await create_or_update_tournament(
                     app_state,
                     "tester",
-                    {**base_form, "name": name, "position": position},
+                    {
+                        **base_form,
+                        **overrides,
+                        "name": name,
+                        "variant": variant,
+                        "position": position,
+                    },
                 )
 
                 new_ids = set(app_state.tournaments) - before_ids
                 self.assertEqual(len(new_ids), 1)
                 tournament = app_state.tournaments[new_ids.pop()]
                 self.assertEqual(bool(tournament.rated), expected_rated)
+                if variant == "cwda":
+                    self.assertEqual(tournament.entry_min_rating, 0)
+                    self.assertEqual(tournament.entry_max_rating, 0)
+                    self.assertEqual(tournament.entry_min_rated_games, 0)
 
     async def test_arena_entry_conditions_persisted_from_form(self):
         app_state = get_app_state(self.app)

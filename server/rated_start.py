@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from fairy.cwda import CWDA_START_FENS
+from variants import get_server_variant
 
 # Keep these curated FENs in sync with the client-side canRated flags in
-# client/variants.ts. Any non-empty FEN not listed here is forced to casual.
+# client/variants.ts. Any non-empty FEN not listed here fails the position-level
+# rating check even when its variant otherwise supports ratings.
 CHESS_NO_CASTLE_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 CRAZYHOUSE_NO_CASTLE_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w - - 0 1"
 
@@ -47,3 +49,26 @@ def can_rate_custom_start(variant: str, fen: str | None, chess960: bool = False)
     if chess960:
         return False
     return normalized_fen in RATED_CUSTOM_START_FENS.get(variant, ())
+
+
+def can_rate_variant(variant: str, chess960: bool = False) -> bool:
+    """Return whether the site maintains ratings for this variant."""
+
+    try:
+        return get_server_variant(variant, chess960).rating_enabled
+    except KeyError:
+        return False
+
+
+def can_rate_start(
+    variant: str,
+    fen: str | None,
+    chess960: bool = False,
+    *,
+    is_rematch: bool = False,
+) -> bool:
+    """Return whether a newly created game may be rated."""
+
+    return can_rate_variant(variant, chess960) and (
+        is_rematch or can_rate_custom_start(variant, fen, chess960)
+    )

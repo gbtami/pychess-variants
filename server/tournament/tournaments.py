@@ -64,7 +64,7 @@ from typing_defs import (
 )
 from ws_types import ChatLine
 from catalogued_variants import is_public_catalogued_variant
-from rated_start import can_rate_custom_start
+from rated_start import can_rate_start, can_rate_variant
 from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS, is_catalogued_variant
 from user import User
 from utils import load_game
@@ -497,7 +497,7 @@ async def create_or_update_tournament(
     rated = (
         form.get("rated", "") == "1"
         and not is_catalogued_variant(variant_name)
-        and can_rate_custom_start(variant_name, form["position"], variant960)
+        and can_rate_start(variant_name, form["position"], variant960)
     )
     base = float(form["clockTime"])
     inc = int(form["clockIncrement"])
@@ -569,6 +569,10 @@ async def create_or_update_tournament(
     try:
         entry_min_rated_games = int(form.get("entryMinRatedGames", 0) or 0)
     except TypeError, ValueError:
+        entry_min_rated_games = 0
+    if not can_rate_variant(variant_name, variant960):
+        entry_min_rating = 0
+        entry_max_rating = 0
         entry_min_rated_games = 0
     try:
         entry_min_account_age_days = int(form.get("entryMinAccountAgeDays", 0) or 0)

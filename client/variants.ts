@@ -355,6 +355,10 @@ export function canRateCustomStart(variant: Variant, fen: string): boolean {
     );
 }
 
+export function canRateStart(variant: Variant, fen: string): boolean {
+    return variant.ratingEnabled && canRateCustomStart(variant, fen);
+}
+
 export interface Variant {
     readonly name: string;
     readonly _displayName: string;
@@ -365,6 +369,7 @@ export interface Variant {
     readonly chess960: boolean;
     readonly aiDisabled: boolean;
     readonly twoBoards: boolean;
+    readonly ratingEnabled: boolean;
     readonly hiddenInfo: boolean;
     readonly hiddenInfoMode: HiddenInfoMode;
     readonly _icon: string;
@@ -462,6 +467,7 @@ export function variant(config: VariantConfig): Variant {
         chess960: !!config.chess960,
         aiDisabled: !!config.aiDisabled,
         twoBoards: !!config.twoBoards,
+        ratingEnabled: config.ratingEnabled ?? true,
         hiddenInfo: !!config.hiddenInfo,
         hiddenInfoMode: config.hiddenInfoMode ?? 'none',
         _icon: config.icon,
@@ -568,6 +574,8 @@ interface VariantConfig {
     aiDisabled?: boolean;
     // Pocket pieces are added from an external source, usually from a second board (e.g., bughouse)
     twoBoards?: boolean;
+    // Whether games contribute to user ratings and site leaderboards (default: true)
+    ratingEnabled?: boolean;
     // Whether some information must be hidden from one or more viewers
     hiddenInfo?: boolean;
     // Representation family for hidden-information handling
@@ -1656,8 +1664,9 @@ export const VARIANTS: Record<string, Variant> = {
     cwda: variant({
         name: 'cwda',
         displayName: 'cwda',
-        tooltip: 'Choose one of four balanced armies for each player.',
+        tooltip: 'Choose one of four armies for each player.',
         startFen: CWDA_DEFAULT_FEN,
+        ratingEnabled: false,
         icon: '⚔',
         boardFamily: 'standard8x8',
         pieceFamily: 'cwda',
@@ -2680,6 +2689,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         displayName: meta.displayName || meta.name,
         tooltip: meta.tooltip || 'Catalogued variant',
         aiDisabled: !!meta.aiDisabled,
+        ratingEnabled: false,
         startFen: meta.startFen,
         icon: meta.icon || '◇',
         boardFamily,

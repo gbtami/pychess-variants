@@ -1,6 +1,13 @@
 import { expect, test } from '@jest/globals';
 
-import { canRateCustomStart, cwdaArmyClassNames, cwdaEngineVariant, devVariants, VARIANTS } from '../client/variants';
+import {
+    canRateCustomStart,
+    canRateStart,
+    cwdaArmyClassNames,
+    cwdaEngineVariant,
+    devVariants,
+    VARIANTS,
+} from '../client/variants';
 
 test('hidden info metadata is set for fogofwar', () => {
     expect(VARIANTS.fogofwar.hiddenInfo).toBe(true);
@@ -18,6 +25,7 @@ test('hidden info metadata defaults to none for normal variants', () => {
 });
 
 test('only curated alternate starts can be rated', () => {
+    expect(canRateStart(VARIANTS.chess, '')).toBe(true);
     expect(canRateCustomStart(VARIANTS.chess, VARIANTS.chess.alternateStart!['No castle'].fen)).toBe(true);
     expect(canRateCustomStart(VARIANTS.chess, VARIANTS.chess.alternateStart!.UpsideDown.fen)).toBe(false);
     expect(canRateCustomStart(VARIANTS.capablanca, VARIANTS.capablanca.alternateStart!.Gothic.fen)).toBe(true);
@@ -36,6 +44,9 @@ test('Chess with Different Armies exposes every ordered non-FIDE matchup', () =>
     expect(starts).toHaveLength(15);
     expect(new Set(starts.map(start => start.fen)).size).toBe(15);
     expect(starts.every(start => start.canRated)).toBe(true);
+    expect(VARIANTS.cwda.ratingEnabled).toBe(false);
+    expect(canRateStart(VARIANTS.cwda, '')).toBe(false);
+    expect(canRateStart(VARIANTS.cwda, starts[0].fen)).toBe(false);
 });
 
 test('Chess with Different Armies remains DEV-only until approved', () => {
