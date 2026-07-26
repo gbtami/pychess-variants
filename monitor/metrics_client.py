@@ -1,0 +1,39 @@
+from __future__ import annotations
+
+import os
+from typing import Any
+
+import aiohttp
+
+
+DEFAULT_METRICS_URL = "https://www.pychess.org/metrics"
+
+
+def metrics_url() -> str:
+    return os.getenv("PYCHESS_MONITOR_URL", DEFAULT_METRICS_URL)
+
+
+def monitor_token() -> str:
+    return os.getenv("PYCHESS_MONITOR_TOKEN", "")
+
+
+async def fetch_metrics(
+    session: aiohttp.ClientSession,
+    *,
+    url: str | None = None,
+    token: str | None = None,
+    inspect_tasks: bool = False,
+) -> dict[str, Any]:
+    resolved_url = url or metrics_url()
+    resolved_token = monitor_token() if token is None else token
+    if not resolved_token:
+        raise ValueError("PYCHESS_MONITOR_TOKEN is not set")
+
+    params = {"inspect": "True"} if inspect_tasks else None
+    headers = {"Authorization": f"Bearer {resolved_token}"}
+    async with session.get(resolved_url, headers=headers, params=params) as response:
+        response.raise_for_status()
+        data = await response.json()
+        if not isinstance(data, dict):
+            raise TypeError("Metrics response is not a JSON object")
+        return data

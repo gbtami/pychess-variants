@@ -1,8 +1,10 @@
 from datetime import datetime
 import os
 import logging
+from urllib.parse import urlparse
 
 import aiohttp
+from monitor.metrics_client import fetch_metrics, metrics_url, monitor_token
 
 from textual.app import App, ComposeResult
 from textual.css.query import NoMatches
@@ -27,9 +29,8 @@ from rich.text import Text
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-PYCHESS_MONITOR_TOKEN = os.getenv("PYCHESS_MONITOR_TOKEN", "")
-# URL = "http://localhost:8080/metrics"
-URL = "https://www.pychess.org/metrics"
+MIN_PRODUCTION_INTERVAL_SECONDS = 60.0
+DEFAULT_UPDATE_INTERVAL_SECONDS = 600.0
 
 
 class MemoryMonitorApp(App):
@@ -99,23 +100,32 @@ class MemoryMonitorApp(App):
 
     monitoring = reactive(True)  # switch on/off
 
-    categories = reactive([])
+    categories: reactive[list[str]] = reactive([])
 
-    column_configs = reactive({})
+    column_configs: reactive[dict[str, list[tuple[str, str]]]] = reactive({})
 
-    category_counts = reactive({})
-    category_memories = reactive({})
-    category_histories = reactive({})
+    category_counts: reactive[dict[str, int]] = reactive({})
+    category_memories: reactive[dict[str, float]] = reactive({})
+    category_histories: reactive[dict[str, list[int]]] = reactive({})
 
-    top_allocations = reactive([])
-    object_details = reactive({})
+    top_allocations: reactive[list[tuple[str, int, int, str]]] = reactive([])
+    object_details: reactive[dict[str, list[dict[str, object]]]] = reactive({})
 
-    sort_columns = reactive({})
-    sort_ascendings = reactive({})
+    sort_columns: reactive[dict[str, str | None]] = reactive({})
+    sort_ascendings: reactive[dict[str, bool]] = reactive({})
 
     def __init__(self):
         super().__init__()
-        self.update_interval = 5
+        configured_interval = float(
+            os.getenv("PYCHESS_MONITOR_INTERVAL_SECONDS", DEFAULT_UPDATE_INTERVAL_SECONDS)
+        )
+        hostname = urlparse(metrics_url()).hostname
+        is_local = hostname in {"localhost", "127.0.0.1", "::1"}
+        self.update_interval = (
+            configured_interval
+            if is_local
+            else max(MIN_PRODUCTION_INTERVAL_SECONDS, configured_interval)
+        )
         self.max_history = 100
         self.ui_setup_done = False
 
@@ -158,14 +168,14 @@ class MemoryMonitorApp(App):
     def watch_category_counts(self, value: dict) -> None:
         for cat, count in value.items():
             try:
-                self.query_one(f"#{cat}_count_label").update(f"{cat.capitalize()}: {count}")
+                self.query_one(f"#{cat}_count_label", Label).update(f"{cat.capitalize()}: {count}")
             except NoMatches:
                 pass
 
     def watch_category_memories(self, value: dict) -> None:
         for cat, mem in value.items():
             try:
-                self.query_one(f"#{cat}_mem_label").update(
+                self.query_one(f"#{cat}_mem_label", Label).update(
                     f"{cat.capitalize()} Mem: [b]{mem:.2f} KB[/b]"
                 )
             except NoMatches:
@@ -213,7 +223,8 @@ class MemoryMonitorApp(App):
         alloc_table.add_columns("Type", "Count", "Size (bytes)", "Size (human)")
         alloc_table.zebra_stripes = True
 
-        # Start periodic updates
+        # Fetch once immediately, then continue at a production-safe interval.
+        await self.update_metrics()
         self.set_interval(self.update_interval, self.update_metrics)
 
     async def setup_ui(self) -> None:
@@ -251,95 +262,93 @@ class MemoryMonitorApp(App):
         if not self.monitoring:
             return
 
-        need_inspect = True
         async with aiohttp.ClientSession() as session:
             try:
-                headers = {"Authorization": "Bearer %s" % PYCHESS_MONITOR_TOKEN}
-                url = (URL + "?inspect=True") if need_inspect else URL
-                async with session.get(url, headers=headers) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        logger.debug(
-                            "Received metric categories: %s",
-                            list(data.get("object_details", {})),
-                        )
+                data = await fetch_metrics(
+                    session,
+                    url=metrics_url(),
+                    token=monitor_token(),
+                    inspect_tasks=False,
+                )
+                if data:
+                    logger.debug(
+                        "Received metric categories: %s",
+                        list(data.get("object_details", {})),
+                    )
 
-                        if not self.categories:
-                            self.categories = list(data.get("object_details", {}).keys())
-                            object_details = data.get("object_details", {})
-                            self.column_configs = {}
-                            for cat in self.categories:
-                                items = object_details.get(cat, [])
-                                self.column_configs[cat] = self.build_column_config(items)
-                            self.sort_columns = {cat: None for cat in self.categories}
-                            self.sort_ascendings = {cat: True for cat in self.categories}
-                            self.category_histories = {cat: [] for cat in self.categories}
-                            await self.setup_ui()
-                            # Initialize counts and memories after UI setup
-                            self.category_counts = {
-                                cat: data.get("object_counts", {}).get(cat, 0)
-                                for cat in self.categories
-                            }
-                            self.category_memories = {
-                                cat: data.get("object_sizes", {}).get(cat, 0.0)
-                                for cat in self.categories
-                            }
-
-                        else:
-                            object_details = data.get("object_details", {})
-                            new_column_configs = dict(self.column_configs)
-                            columns_changed = False
-                            changed_categories: list[str] = []
-                            for cat in self.categories:
-                                old_config = new_column_configs.get(cat, [])
-                                if old_config:
-                                    continue
-                                items = object_details.get(cat, [])
-                                new_config = self.build_column_config(items)
-                                if not new_config:
-                                    continue
-                                new_column_configs[cat] = new_config
-                                columns_changed = True
-                                changed_categories.append(cat)
-
-                            if columns_changed:
-                                self.column_configs = new_column_configs
-                                for cat in changed_categories:
-                                    self.sync_category_columns(cat)
-
-                            self.category_counts = {
-                                cat: data.get("object_counts", {}).get(cat, 0)
-                                for cat in self.categories
-                            }
-                            self.category_memories = {
-                                cat: data.get("object_sizes", {}).get(cat, 0.0)
-                                for cat in self.categories
-                            }
-
-                        histories = self.category_histories.copy()
+                    if not self.categories:
+                        self.categories = list(data.get("object_details", {}).keys())
+                        object_details = data.get("object_details", {})
+                        self.column_configs = {}
                         for cat in self.categories:
-                            histories[cat] = histories[cat] + [self.category_counts[cat]]
-                            histories[cat] = histories[cat][-self.max_history :]
-                        self.category_histories = histories
-
-                        self.top_allocations = [
-                            (
-                                alloc["type"],
-                                alloc["count"],
-                                alloc["size_bytes"],
-                                alloc["size_human"],
-                            )
-                            for alloc in data.get("top_allocations", [])
-                        ]
-                        self.object_details = data.get(
-                            "object_details",
-                            {cat: [] for cat in self.categories},
-                        )
+                            items = object_details.get(cat, [])
+                            self.column_configs[cat] = self.build_column_config(items)
+                        self.sort_columns = {cat: None for cat in self.categories}
+                        self.sort_ascendings = {cat: True for cat in self.categories}
+                        self.category_histories = {cat: [] for cat in self.categories}
+                        await self.setup_ui()
+                        # Initialize counts and memories after UI setup
+                        self.category_counts = {
+                            cat: data.get("object_counts", {}).get(cat, 0)
+                            for cat in self.categories
+                        }
+                        self.category_memories = {
+                            cat: data.get("object_sizes", {}).get(cat, 0.0)
+                            for cat in self.categories
+                        }
 
                     else:
-                        if self.categories:
-                            self.category_counts = {cat: -1 for cat in self.categories}
-            except aiohttp.ClientError as e:
+                        object_details = data.get("object_details", {})
+                        new_column_configs = dict(self.column_configs)
+                        columns_changed = False
+                        changed_categories: list[str] = []
+                        for cat in self.categories:
+                            old_config = new_column_configs.get(cat, [])
+                            if old_config:
+                                continue
+                            items = object_details.get(cat, [])
+                            new_config = self.build_column_config(items)
+                            if not new_config:
+                                continue
+                            new_column_configs[cat] = new_config
+                            columns_changed = True
+                            changed_categories.append(cat)
+
+                        if columns_changed:
+                            self.column_configs = new_column_configs
+                            for cat in changed_categories:
+                                self.sync_category_columns(cat)
+
+                        self.category_counts = {
+                            cat: data.get("object_counts", {}).get(cat, 0)
+                            for cat in self.categories
+                        }
+                        self.category_memories = {
+                            cat: data.get("object_sizes", {}).get(cat, 0.0)
+                            for cat in self.categories
+                        }
+
+                    histories = self.category_histories.copy()
+                    for cat in self.categories:
+                        histories[cat] = histories[cat] + [self.category_counts[cat]]
+                        histories[cat] = histories[cat][-self.max_history :]
+                    self.category_histories = histories
+
+                    self.top_allocations = [
+                        (
+                            alloc["type"],
+                            alloc["count"],
+                            alloc["size_bytes"],
+                            alloc["size_human"],
+                        )
+                        for alloc in data.get("top_allocations", [])
+                    ]
+                    self.object_details = data.get(
+                        "object_details",
+                        {cat: [] for cat in self.categories},
+                    )
+
+            except (aiohttp.ClientError, TypeError, ValueError) as e:
                 logger.error(f"Failed to fetch metrics: {e}")
                 if self.categories:
                     self.category_counts = {cat: -1 for cat in self.categories}
@@ -433,10 +442,10 @@ class MemoryMonitorApp(App):
 
     def on_data_table_header_selected(self, event: DataTable.HeaderSelected) -> None:
         table_id = event.data_table.id
-        if table_id.endswith("_table"):
+        if table_id is not None and table_id.endswith("_table"):
             category = table_id[:-6]  # remove '_table'
             if category in self.sort_columns:
-                column_key = event.column_key
+                column_key = event.column_key.value or ""
                 new_sort_columns = dict(self.sort_columns)
                 new_sort_ascendings = dict(self.sort_ascendings)
                 if new_sort_columns[category] == column_key:

@@ -1,0 +1,87 @@
+from __future__ import annotations
+
+import unittest
+
+from monitor.record import summarize_metrics, summary_deltas, validate_interval
+
+
+class MonitorRecordTestCase(unittest.TestCase):
+    def test_summarize_metrics_extracts_growth_indicators(self) -> None:
+        metrics = {
+            "object_counts": {"tasks": 17, "queues": 3, "caches": 42},
+            "object_details": {
+                "process_memory": [{"rss_mib": 401.25, "peak_rss_mib": 412.5}],
+                "state": [
+                    {
+                        "users": 120,
+                        "games": 8,
+                        "catalogued_variants": 31,
+                        "fishnet_works": 2,
+                        "fishnet_payload_bytes": 4096,
+                    }
+                ],
+                "registered_summary": [
+                    {
+                        "registered_total": 90,
+                        "registered_cache_only": 70,
+                    }
+                ],
+                "anon_summary": [{"anon_total": 25}],
+                "streams": [
+                    {
+                        "lobby_websockets": 4,
+                        "game_websockets": 5,
+                        "tournament_websockets": 1,
+                        "simul_websockets": 0,
+                        "game_sse": 2,
+                        "invite_sse": 1,
+                        "notify_sse": 3,
+                        "inbox_sse": 0,
+                        "challenge_sse": 1,
+                        "active_bot_game_streams": 2,
+                    }
+                ],
+            },
+        }
+
+        summary = summarize_metrics(metrics)
+
+        self.assertEqual(summary["rss_mib"], 401.25)
+        self.assertEqual(summary["users"], 120)
+        self.assertEqual(summary["registered_cache_only"], 70)
+        self.assertEqual(summary["streams"], 19)
+        self.assertEqual(summary["cache_entries"], 42)
+
+    def test_summary_deltas_compare_first_and_last_samples(self) -> None:
+        first = summarize_metrics(
+            {
+                "object_details": {
+                    "process_memory": [{"rss_mib": 350.0}],
+                    "state": [{"users": 100}],
+                }
+            }
+        )
+        last = summarize_metrics(
+            {
+                "object_details": {
+                    "process_memory": [{"rss_mib": 362.5}],
+                    "state": [{"users": 125}],
+                }
+            }
+        )
+
+        deltas = summary_deltas(first, last)
+
+        self.assertEqual(deltas["rss_mib"], 12.5)
+        self.assertEqual(deltas["users"], 25)
+
+    def test_production_interval_rejects_frequent_polling(self) -> None:
+        with self.assertRaisesRegex(ValueError, "at least 60"):
+            validate_interval("https://www.pychess.org/metrics", 5)
+
+        validate_interval("https://www.pychess.org/metrics", 60)
+        validate_interval("http://127.0.0.1:8080/metrics", 1)
+
+
+if __name__ == "__main__":
+    unittest.main()
