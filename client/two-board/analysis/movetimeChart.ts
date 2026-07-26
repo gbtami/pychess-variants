@@ -1,10 +1,13 @@
+import { h, VNode } from 'snabbdom';
 import Highcharts from 'highcharts';
 import type { Options } from 'highcharts';
+
+import * as cg from 'chessgroundx/types';
 
 import { selectMainlineMove } from '../common/movelist';
 import { Step } from '../../messages';
 import AnalysisControllerBughouse from '@/two-board/analysis/analysisCtrl';
-import { BLACK, WHITE } from '@/chess';
+import { clockTimeAt } from '../common/players';
 import { BugBoardName } from '../../types';
 import { displayUsername } from '@/user';
 
@@ -14,6 +17,27 @@ export interface MovePoint {
     name?: any;
     marker?: any;
     color: string;
+}
+
+// Owns the #chart-movetime container, built ctrl-free so analysis.ts can embed
+// it directly. `visible` bakes in the same isAnalysisBoard-derived initial
+// display style analysis.ts applied inline before. Highcharts owns its own
+// internal DOM subtree once mounted (it isn't a snabbdom-patched widget), so
+// this only hands it a real element reference instead of a string id.
+export class MovetimeChartView {
+    private vnode: VNode;
+
+    constructor(visible: boolean) {
+        this.vnode = h('div#chart-movetime', visible ? { style: { display: 'block' } } : {});
+    }
+
+    placeholder(): VNode {
+        return this.vnode;
+    }
+
+    element(): HTMLElement {
+        return this.vnode.elm as HTMLElement;
+    }
 }
 
 function getChatImagePath(chatCode: string): string {
@@ -112,7 +136,10 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
 
     let plyA = 0;
     let plyB = 0;
-    const clocktimeLast = { a: [0, 0], b: [0, 0] };
+    const clocktimeLast: Record<BugBoardName, Record<cg.Color, number>> = {
+        a: { white: 0, black: 0 },
+        b: { white: 0, black: 0 },
+    };
     ctrl.steps.forEach((step: Step, ply: number) => {
         if (step.boardName === 'a') {
             plyA++;
@@ -121,33 +148,20 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         }
         const turnA = (plyA + 1) >> 1;
         const turnB = (plyB + 1) >> 1;
-        // const colorName = step.turnColor;
-        const moveColor = step.turnColor === 'white' ? BLACK : WHITE;
-        const team =
-            (moveColor === WHITE && step.boardName === 'a') || (moveColor === BLACK && step.boardName === 'b')
-                ? '1'
-                : '2';
         if (ply === 0) {
-            //moveSeries[colorName].push({y: 0});
-            clocktimeLast['a'][WHITE] = step.clocks![WHITE];
-            clocktimeLast['a'][BLACK] = step.clocks![BLACK];
-            clocktimeLast['b'][WHITE] = step.clocksB![WHITE];
-            clocktimeLast['b'][BLACK] = step.clocksB![BLACK];
+            ctrl.seats.all.forEach(p => (clocktimeLast[p.boardName][p.color] = clockTimeAt(step, p)!));
             return;
         }
 
-        // const hasClocks = (msg.steps[1].clocks?.white !== undefined);
-
-        // if (ply <= 2) {step.movetime = 0;
-        // } else {
-        //     step.movetime = (ply % 2 === 1) ?
-        //         (ctrl.steps[ply-2].clocks![WHITE] - (ctrl.steps[ply].clocks![WHITE] - ctrl.inc * 1000)) :
-        //         (ctrl.steps[ply-2].clocks![BLACK] - (ctrl.steps[ply].clocks![BLACK] - ctrl.inc * 1000));
-        // }
         const boardName = step.boardName! as BugBoardName;
-        const moveClocktime = step.boardName === 'a' ? step.clocks![moveColor] : step.clocksB![moveColor];
-        const lastClocktime = clocktimeLast[boardName][moveColor];
-        clocktimeLast[boardName][moveColor] = moveClocktime;
+        // the mover of this step is the player whose turn it no longer is
+        const moverColor: cg.Color = step.turnColor === 'white' ? 'black' : 'white';
+        const mover = ctrl.seats.byBoardAndColor(boardName, moverColor);
+        const team = ctrl.seats.teamOf(mover).teamNumber;
+
+        const moveClocktime = clockTimeAt(step, mover)!;
+        const lastClocktime = clocktimeLast[boardName][moverColor];
+        clocktimeLast[boardName][moverColor] = moveClocktime;
         step.movetime = lastClocktime - (moveClocktime - ctrl.inc * 1000);
 
         const y = Math.pow(Math.log(0.005 * Math.min(step.movetime, 12e4) + 3), 2) - logC;
@@ -159,7 +173,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
             name: label,
             x: ply,
             y: team === '1' ? y : -y,
-            color: moveColor === WHITE ? whiteColumnFill : blackColumnFill,
+            color: moverColor === 'white' ? whiteColumnFill : blackColumnFill,
         };
         moveSeries[team].push(movePoint);
         //
@@ -173,7 +187,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
                     name: chatUsr + ':' + chatTxt,
                     x: ply,
                     y: team === '1' ? yChat : -yChat,
-                    color: moveColor === WHITE ? whiteColumnFill : blackColumnFill,
+                    color: moverColor === 'white' ? whiteColumnFill : blackColumnFill,
                     marker: {
                         symbol: getChatImagePath(chatTxt.replace('!bug!', '')),
                         width: '2em',
@@ -185,7 +199,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         }
         //
 
-        let clock = clocktimeLast[boardName][WHITE] + clocktimeLast[boardName][BLACK];
+        let clock = clocktimeLast[boardName].white + clocktimeLast[boardName].black;
         if (clock !== undefined) {
             label += '<br />' + formatClock(clock);
             maxTotal = Math.max(clock, maxTotal);
@@ -237,7 +251,7 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         },
     };
 
-    ctrl.movetimeChart = Highcharts.chart('chart-movetime', {
+    ctrl.movetimeChart = Highcharts.chart(ctrl.movetimeChartView.element(), {
         chart: {
             type: 'column',
             alignTicks: false,
@@ -331,39 +345,39 @@ export function movetimeChart(ctrl: AnalysisControllerBughouse) {
         ],
         series: [
             {
-                name: 'Board A Clock Area',
+                name: ctrl.seats.teams[0].name() + ' Clock Area',
                 type: 'area',
                 yAxis: 1,
                 data: totalSeries['1'],
             },
             {
-                name: 'Board B Clock Area',
+                name: ctrl.seats.teams[1].name() + ' Clock Area',
                 type: 'area',
                 yAxis: 1,
                 data: totalSeries['2'],
             },
             {
-                name: 'White Move Time',
+                name: ctrl.seats.teams[0].name() + ' Move Time',
                 type: 'column',
                 yAxis: 0,
                 data: moveSeries['1'],
                 borderColor: whiteColumnBorder,
             },
             {
-                name: 'Black Move Time',
+                name: ctrl.seats.teams[1].name() + ' Move Time',
                 type: 'column',
                 yAxis: 0,
                 data: moveSeries['2'],
                 borderColor: blackColumnBorder,
             },
             {
-                name: 'White Clock Line',
+                name: ctrl.seats.teams[0].name() + ' Clock Line',
                 type: 'line',
                 yAxis: 1,
                 data: totalSeries['1'],
             },
             {
-                name: 'Black Clock Line',
+                name: ctrl.seats.teams[1].name() + ' Clock Line',
                 type: 'line',
                 yAxis: 1,
                 data: totalSeries['2'],

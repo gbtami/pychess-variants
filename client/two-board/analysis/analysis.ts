@@ -8,6 +8,12 @@ import { renderTimeago } from '../../datetime';
 import { PyChessModel } from '../../types';
 import AnalysisControllerBughouse from './analysisCtrl';
 import { gauge } from '@/analysis';
+import { renderTabbedPanels } from '../common/tabs';
+import { MovelistView } from '../common/movelist';
+import { EngineController } from './engine';
+import { PgnView } from './pgn';
+import { AnalysisClockView } from './analysisClock';
+import { MovetimeChartView } from './movetimeChart';
 
 function leftSide(model: PyChessModel) {
     if (model['gameId'] !== '') {
@@ -48,6 +54,11 @@ function createBoards(
     bugboardPocket0: VNode,
     bugboardPocket1: VNode,
     model: PyChessModel,
+    movelistView: MovelistView,
+    engine: EngineController,
+    pgnView: PgnView,
+    clockView: AnalysisClockView,
+    movetimeChartView: MovetimeChartView,
 ) {
     /*this.ctrl = */ const ctrl = new AnalysisControllerBughouse(
         mainboardVNode.elm as HTMLElement,
@@ -57,12 +68,18 @@ function createBoards(
         bugboardPocket0.elm as HTMLElement,
         bugboardPocket1.elm as HTMLElement,
         model,
+        movelistView,
+        engine,
+        pgnView,
+        clockView,
+        movetimeChartView,
     );
-    window['onFSFline'] = ctrl.onFSFline;
+    window['onFSFline'] = ctrl.engine.onFSFline;
 }
 
 export function analysisView(model: PyChessModel): VNode[] {
     const variant = VARIANTS[model.variant];
+    const isAnalysisBoard = model['gameId'] === '';
 
     renderTimeago();
 
@@ -79,6 +96,12 @@ export function analysisView(model: PyChessModel): VNode[] {
         bugboardPocket0: VNode,
         bugboardPocket1: VNode;
 
+    const movelistView = new MovelistView();
+    const engine = new EngineController(model.chess960 === 'True');
+    const pgnView = new PgnView();
+    const clockView = new AnalysisClockView();
+    const movetimeChartView = new MovetimeChartView(!isAnalysisBoard);
+
     return [
         h(
             'div.analysis-app.bug',
@@ -93,6 +116,11 @@ export function analysisView(model: PyChessModel): VNode[] {
                             bugboardPocket0,
                             bugboardPocket1,
                             model,
+                            movelistView,
+                            engine,
+                            pgnView,
+                            clockView,
+                            movetimeChartView,
                         );
                     },
                 },
@@ -100,21 +128,21 @@ export function analysisView(model: PyChessModel): VNode[] {
             [
                 h('div.bug-game-info', leftSide(model)),
                 h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
-                    h('div#anal-clock-top'),
+                    clockView.topPlaceholder(),
                     h('div.cg-wrap.' + variant.board.cg, {
                         hook: { insert: vnode => (mainboardVNode = vnode) /*runGround(vnode, model)*/ },
                     }),
-                    h('div#anal-clock-bottom'),
+                    clockView.bottomPlaceholder(),
                 ]),
                 h(`selection#bugboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
-                    h('div#anal-clock-top-bug'),
+                    clockView.bugTopPlaceholder(),
                     h('div.cg-wrap.' + variant.board.cg, {
                         hook: { insert: vnode => (bugboardVNode = vnode) /*runGround(vnode, model)*/ },
                     }),
-                    h('div#anal-clock-bottom-bug'),
+                    clockView.bugBottomPlaceholder(),
                 ]),
                 gauge(variant.colors),
-                gauge(variant.colors, 'gaugePartner'),
+                gauge(variant.colors, 'gaugePartner', 'flipped'),
                 h('div.pocket-top', [
                     h('div.' + variant.pieceFamily + '.twoboards', [
                         h('div.cg-wrap.pocket', [
@@ -142,33 +170,9 @@ export function analysisView(model: PyChessModel): VNode[] {
                     ]),
                 ]),
                 h('div.analysis-tools', [
-                    h('div#ceval', [
-                        h('div.engine', [
-                            h('label.switch', [
-                                h('input#input', {
-                                    props: {
-                                        name: 'engine',
-                                        type: 'checkbox',
-                                    },
-                                }),
-                                h('span#slider.sw-slider'),
-                            ]),
-                            h('score#score', ''),
-                            h('div.infoBug', ['Fairy-Stockfish 11+', h('br'), h('info#info', _('in local browser'))]),
-                            h('score#scorePartner', ''),
-                            h('label.switch', [
-                                h('input#inputPartner', {
-                                    props: {
-                                        name: 'engine',
-                                        type: 'checkbox',
-                                    },
-                                }),
-                                h('span#sliderPartner.sw-slider'),
-                            ]),
-                        ]),
-                    ]),
-                    h('div.pvbox', [h('div#pv1'), h('div#pv2'), h('div#pv3'), h('div#pv4'), h('div#pv5')]),
-                    h('div.movelist-block', [h('div#movelist')]),
+                    h('div#ceval', [engine.renderPanel()]),
+                    engine.pvPanel(),
+                    h('div.movelist-block', [movelistView.placeholder()]),
                     h('div#misc-info', [h('div#misc-infow'), h('div#misc-info-center'), h('div#misc-infob')]),
                 ]),
                 h('div#move-controls'),
@@ -200,56 +204,32 @@ export function analysisView(model: PyChessModel): VNode[] {
                     ]),
                 ]),
                 h('under-left#spectators'),
-                h('under-board', [
-                    h(
-                        'div.chart-container',
-                        { attrs: { id: 'panel-2', role: 'tabpanel', tabindex: '0', 'aria-labelledby': 'tab-1' } },
-                        [h('div#chart-movetime')],
-                    ),
-                    h(
-                        'div',
-                        { attrs: { id: 'panel-4', role: 'tabpanel', tabindex: '1', 'aria-labelledby': 'tab-4' } },
-                        [
-                            h('div#fentext', [
-                                h('strong', 'BFEN'),
-                                h('input#fullfen', {
-                                    attrs: { readonly: true, spellcheck: false },
-                                    on: { click: onClickFullfen },
-                                }),
-                            ]),
-                            h('div#copyfen'),
-                            h('div#pgntext'),
-                        ],
-                    ),
-                    h('div', { attrs: { role: 'tablist', 'aria-label': 'Analysis Tabs' } }, [
-                        h(
-                            'span',
-                            {
-                                attrs: {
-                                    role: 'tab',
-                                    'aria-selected': 'true',
-                                    'aria-controls': 'panel-2',
-                                    id: 'tab-1',
-                                    tabindex: '0',
-                                },
-                            },
-                            _('Move times'),
-                        ),
-                        h(
-                            'span',
-                            {
-                                attrs: {
-                                    role: 'tab',
-                                    'aria-selected': 'false',
-                                    'aria-controls': 'panel-4',
-                                    id: 'tab-4',
-                                    tabindex: '1',
-                                },
-                            },
-                            _('FEN & PGN'),
-                        ),
-                    ]),
-                ]),
+                renderTabbedPanels(
+                    'under-board',
+                    [
+                        {
+                            label: _('Move times'),
+                            panelClass: 'chart-container',
+                            content: [movetimeChartView.placeholder()],
+                        },
+                        {
+                            label: _('FEN & PGN'),
+                            panelClass: 'fenpgn-panel',
+                            content: [
+                                h('div#fentext', [
+                                    h('strong', 'BFEN'),
+                                    h('input#fullfen', {
+                                        attrs: { readonly: true, spellcheck: false },
+                                        on: { click: onClickFullfen },
+                                    }),
+                                ]),
+                                ...pgnView.placeholders(),
+                            ],
+                        },
+                    ],
+                    'Analysis Tabs',
+                    isAnalysisBoard,
+                ),
             ],
         ),
     ];

@@ -8,13 +8,13 @@ import { Clocks } from '../messages';
 import { BoardName, BugBoardName } from '../types';
 import { BLACK, WHITE } from '../chess';
 import { player as playerBar } from '../player';
-import { TwoBoardPlayer, TwoBoardPlayers } from './common/players';
+import { Seat } from './common/players';
 import type { RoundControllerBughouse } from './round/roundCtrl';
 
-// A player's seat on the round page: everything round-only that belongs to one
-// of the four shared players — their clock, their clock-difference indicator,
-// their rendered player bar and their last server-recorded clock time.
-export class RoundSeat {
+// A seat on the round page: the shared seat (board+color coordinate and player)
+// extended with everything round-only — its clock, its clock-difference
+// indicator, its rendered player bar and its last server-recorded clock time.
+export class RoundSeat extends Seat {
     readonly clock: Clock;
     readonly difference: ClockDifference;
     // retained vnode of the rendered player bar, for future in-place re-renders
@@ -23,7 +23,7 @@ export class RoundSeat {
     clocktime: number;
 
     constructor(
-        readonly player: TwoBoardPlayer,
+        seat: Seat,
         // screen position of the seat on its board: 0 = top, 1 = bottom (non-flipped)
         readonly position: 0 | 1,
         base: number,
@@ -33,60 +33,43 @@ export class RoundSeat {
         differenceId: string,
         playerBarId: string,
     ) {
+        super(seat.player, seat.color, seat.boardName);
         this.clocktime = base * 1000 * 60;
         this.clock = new Clock(base, inc, 0, document.getElementById(clockId) as HTMLElement, clockId, false);
         this.difference = new ClockDifference(document.getElementById(differenceId) as HTMLElement, differenceId);
         this.vplayer = patch(
             document.getElementById('r' + playerBarId) as HTMLElement,
-            playerBar(playerBarId, player.title, player.username, player.rating, level),
+            playerBar(playerBarId, this.player.title, this.player.username, this.player.rating, level),
         );
     }
 }
 
-// Round-page presentation state: the four RoundSeats. Player identity itself
-// lives in the shared TwoBoardPlayers instance owned by the controller base class.
+// Round-page presentation state: the four RoundSeats. The seat structure itself
+// lives in the shared TwoBoardSeats instance owned by the controller base class.
 export class SeatsState {
     seats: RoundSeat[];
 
-    private readonly playersInfo: TwoBoardPlayers;
-
     constructor(ctrl: RoundControllerBughouse) {
-        const info = ctrl.players;
-        this.playersInfo = info;
-
-        const spectator = info.isSpectator();
-        const myColorA = info.myColor('a');
-        const myColorB = info.myColor('b');
-        // my partner's color on one board is the opposite of my color on the other board
-        const partnerColorA = myColorB === undefined ? undefined : myColorB === 'white' ? 'black' : 'white';
-        const partnerColorB = myColorA === undefined ? undefined : myColorA === 'white' ? 'black' : 'white';
+        const info = ctrl.seats;
 
         // color rendered at the top (position 0) of each board. This represents only the
         // initial positioning on the screen: flip/switch only move html elements around,
         // so these remain constant as initialized here throughout the whole game.
-        const topColorA: cg.Color = spectator
-            ? 'black'
-            : myColorA === 'black' || partnerColorA === 'black'
-              ? 'white'
-              : 'black';
-        const topColorB: cg.Color = spectator
-            ? 'white'
-            : myColorB === 'black' || partnerColorB === 'black'
-              ? 'white'
-              : 'black';
+        const topColorA = info.initialTopColor('a');
+        const topColorB = info.initialTopColor('b');
 
-        this.seats = info.all.map(p => {
-            const topColor = p.boardName === 'a' ? topColorA : topColorB;
-            const position = (p.color === topColor ? 0 : 1) as 0 | 1;
+        this.seats = info.all.map(s => {
+            const topColor = s.boardName === 'a' ? topColorA : topColorB;
+            const position = (s.color === topColor ? 0 : 1) as 0 | 1;
             return new RoundSeat(
-                p,
+                s,
                 position,
                 ctrl.base,
                 ctrl.inc,
                 ctrl.level,
-                `clock${position}${p.boardName}`,
-                `difference${position}${p.boardName}`,
-                `player${position}${p.boardName}`,
+                `clock${position}${s.boardName}`,
+                `difference${position}${s.boardName}`,
+                `player${position}${s.boardName}`,
             );
         });
 
@@ -99,7 +82,8 @@ export class SeatsState {
         this.seats.forEach(seat => {
             seat.clock.onTick(diff => {
                 seat.clock.renderTime(diff);
-                const counterpart = this.seatOf(info.opponentsPartnerOf(seat.player));
+                const counterpartSeat = info.opponentsPartnerOf(seat);
+                const counterpart = this.seatAt(counterpartSeat.boardName, counterpartSeat.color);
                 const otherMillis = liveTime(counterpart.clock);
                 seat.difference.renderDifference(Math.round((diff - otherMillis) / 1000));
                 counterpart.difference.renderDifference(Math.round((otherMillis - diff) / 1000));
@@ -107,16 +91,12 @@ export class SeatsState {
         });
     }
 
-    seatOf = (player: TwoBoardPlayer): RoundSeat => {
-        return this.seats.find(s => s.player === player)!;
-    };
-
     seatAt = (board: BugBoardName, color: cg.Color): RoundSeat => {
-        return this.seatOf(this.playersInfo.byBoardAndColor(board, color));
+        return this.seats.find(s => s.boardName === board && s.color === color)!;
     };
 
     seatsOn = (board: BugBoardName): RoundSeat[] => {
-        return this.seats.filter(s => s.player.boardName === board);
+        return this.seats.filter(s => s.boardName === board);
     };
 
     setConnecting = (connecting: boolean) => {
@@ -132,7 +112,7 @@ export class SeatsState {
         this.seats
             .filter(s => s.player.username === username)
             .forEach(s => {
-                const id = `player${s.position}${s.player.boardName}`;
+                const id = `player${s.position}${s.boardName}`;
                 patch(
                     document.getElementById(id) as HTMLElement,
                     h(`i-side.online#${id}`, { class: { icon: true, 'icon-online': online, 'icon-offline': !online } }),

@@ -1,14 +1,12 @@
-import { h, VNode } from 'snabbdom';
 import * as Mousetrap from 'mousetrap';
 import * as cg from 'chessgroundx/types';
 
 import { _ } from '../../i18n';
-import { patch } from '../../document';
 import { SeatsState } from '../seatsState';
 import { RoundControllerBughouseSocket } from '../socket/sockets';
 import { recordPendingMove } from '../socket/pendingMoves';
-import { ChatController, chatMessage, chatView } from '../../chat';
-import { updateMovelist, updateResult, selectMove } from '../common/movelist';
+import { ChatController, chatMessage } from '../../chat';
+import { updateMovelist, updateResult, selectMove, MovelistView } from '../common/movelist';
 import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, Step, StepChat } from '../../messages';
 import {
     MsgUserDisconnected,
@@ -28,7 +26,18 @@ import { sound, soundThemeSettings } from '../../sound';
 import { notify } from '../../notification';
 import { chatMessageBug, resetChat } from '@/two-board/round/chat';
 import { confirmDialog } from '@/confirmDialog';
-import { TwoBoardController, initBoardSettings, switchBoards } from '../twoBoardCtrl';
+import { TwoBoardController, initBoardSettings } from '../twoBoardCtrl';
+import {
+    RoundControlsView,
+    renderRoundChat,
+    resetMovelistDom,
+    clearExtensionChoice,
+    clearAbortIndicator,
+    insertRematchButton,
+    showOnlineIcon,
+    swapClockGridAreasForFlip,
+    swapClockGridAreasForSwitch,
+} from './roundControls';
 
 export class RoundControllerBughouse extends TwoBoardController implements ChatController {
     socket: RoundControllerBughouseSocket;
@@ -42,17 +51,14 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     profileid: string;
     level: number;
 
-    vdialog: VNode;
     tv: boolean;
-    animation: boolean;
-    showDests: boolean;
     handicap: boolean = false;
     focus: boolean;
     finishedGame: boolean;
 
     spectator: boolean;
 
-    gameControls: VNode; // todo: usually inherited from gameCtrl - think about some reusable solution (DRY)
+    controlsView: RoundControlsView;
 
     constructor(
         el1: HTMLElement,
@@ -62,8 +68,9 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         el2Pocket1: HTMLElement,
         el2Pocket2: HTMLElement,
         model: PyChessModel,
+        movelistView: MovelistView,
     ) {
-        super(el1, el1Pocket1, el1Pocket2, el2, el2Pocket1, el2Pocket2, model);
+        super(el1, el1Pocket1, el1Pocket2, el2, el2Pocket1, el2Pocket2, model, movelistView);
 
         this.anon = model.anon === 'True';
 
@@ -87,10 +94,10 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
         this.seatsState = new SeatsState(this);
 
-        this.spectator = this.players.isSpectator();
+        this.spectator = this.seats.isSpectator();
 
         const flagCallbackA = () => {
-            if (this.players.myColor('a') === this.boardA.turnColor) {
+            if (this.seats.myColor('a') === this.boardA.turnColor) {
                 this.boardA.chessground.stop();
                 this.boardB.chessground.stop();
                 // console.log("Flag");
@@ -98,7 +105,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             }
         };
         const flagCallbackB = () => {
-            if (this.players.myColor('b') === this.boardB.turnColor) {
+            if (this.seats.myColor('b') === this.boardB.turnColor) {
                 this.boardA.chessground.stop();
                 this.boardB.chessground.stop();
                 // console.log("Flag");
@@ -111,31 +118,18 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             this.seatsState.seatsOn('b').forEach(s => s.clock.onFlag(flagCallbackB));
         }
 
-        const container = document.getElementById('game-controls') as HTMLElement;
-        if (!this.spectator) {
-            let buttons = [];
-            buttons.push(h('button#count', _('Count')));
-            buttons.push(
-                h('button#draw', { on: { click: () => this.draw() }, props: { title: _('Draw') } }, [h('i', '½')]),
-            );
-            buttons.push(
-                h('button#resign', { on: { click: () => this.resign() }, props: { title: _('Resign') } }, [
-                    h('i', { class: { icon: true, 'icon-flag-o': true } }),
-                ]),
-            );
-
-            this.gameControls = patch(container, h('div.btn-controls', buttons));
-
-            patch(document.getElementById('count') as HTMLElement, h('div'));
-        } else {
-            this.gameControls = patch(container, h('div.btn-controls'));
-        }
+        this.controlsView = new RoundControlsView();
+        this.controlsView.renderInitialGameControls(
+            this.spectator,
+            () => this.draw(),
+            () => this.resign(),
+        );
 
         //////////////
         // todo: redundant setting turnColor here. It will be overwritten a moment later in onMsgBoard which is
         //       important and more correct in case of custom fen with black to move
-        const myColorA = this.players.myColor('a');
-        const myColorB = this.players.myColor('b');
+        const myColorA = this.seats.myColor('a');
+        const myColorB = this.seats.myColor('b');
         // my partner's color on one board is the opposite of my color on the other board
         const partnerColorA = myColorB === undefined ? undefined : myColorB === 'white' ? 'black' : 'white';
         const partnerColorB = myColorA === undefined ? undefined : myColorA === 'white' ? 'black' : 'white';
@@ -156,19 +150,16 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             autoCastle: true,
         });
 
-        ////////////
-        this.vdialog = patch(document.getElementById('offer-dialog')!, h('div#offer-dialog', ''));
-
         // todo: if spectator do not render buttons, also good to render all player's messages for specatotors to see
         //       all communication as it happens. However not sure how this can be combined with usual spectators chat
         //       without becoming a bit messy, but maybe it is ok.
-        patch(document.getElementById('bugroundchat') as HTMLElement, chatView(this, 'bugroundchat'));
+        renderRoundChat(this);
 
         /////////////////
         // const amISimuling = this.mycolor.get('a') !== undefined && this.mycolor.get('b') !== undefined;
         // const distinctOpps = new Set([this.wplayer, this.bplayer, this.wplayerB, this.bplayerB].filter((e) => e !== this.username));
         // const isOppSimuling = distinctOpps.size === 1;
-        if (this.players.me('a') === undefined && !this.spectator) {
+        if (this.seats.me('a') === undefined && !this.spectator) {
             // I am not playing on board A at all. Switch:
             this.switchBoards();
         }
@@ -197,45 +188,22 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         return this.socket.doSend;
     }
 
-    flipBoards = (): void => {
-        let infoWrap0 = document.getElementsByClassName('info-wrap0')[0] as HTMLElement;
-        let infoWrap0bug = document.getElementsByClassName('info-wrap0 bug')[0] as HTMLElement;
-        let infoWrap1 = document.getElementsByClassName('info-wrap1')[0] as HTMLElement;
-        let infoWrap1bug = document.getElementsByClassName('info-wrap1 bug')[0] as HTMLElement;
+    flipBoards(): void {
+        swapClockGridAreasForFlip();
+        super.flipBoards();
+    }
 
-        let a = infoWrap0!.style.gridArea || 'clock-top';
-        infoWrap0!.style.gridArea = infoWrap1!.style.gridArea || 'clock-bot';
-        infoWrap1!.style.gridArea = a;
-        a = infoWrap0bug!.style.gridArea || 'clockB-top';
-        infoWrap0bug!.style.gridArea = infoWrap1bug!.style.gridArea || 'clockB-bot';
-        infoWrap1bug!.style.gridArea = a;
-
-        this.boardA.toggleOrientation();
-        this.boardB.toggleOrientation();
-    };
-
-    switchBoards = (): void => {
-        switchBoards(this);
-
-        let infoWrap0 = document.getElementsByClassName('info-wrap0')[0] as HTMLElement;
-        let infoWrap0bug = document.getElementsByClassName('info-wrap0 bug')[0] as HTMLElement;
-        let infoWrap1 = document.getElementsByClassName('info-wrap1')[0] as HTMLElement;
-        let infoWrap1bug = document.getElementsByClassName('info-wrap1 bug')[0] as HTMLElement;
-
-        let a = infoWrap0!.style.gridArea || 'clock-top';
-        infoWrap0!.style.gridArea = infoWrap0bug!.style.gridArea || 'clockB-top';
-        infoWrap0bug!.style.gridArea = a;
-        a = infoWrap1!.style.gridArea || 'clock-bot';
-        infoWrap1!.style.gridArea = infoWrap1bug!.style.gridArea || 'clockB-bot';
-        infoWrap1bug!.style.gridArea = a;
-    };
+    switchBoards(): void {
+        super.switchBoards();
+        swapClockGridAreasForSwitch();
+    }
 
     sendMove = (b: GameControllerBughouse, move: string) => {
         console.log(b, move);
         this.clearDialog();
 
         //moveColor is "my color" on that board
-        const moveColor = this.players.myColor(b.boardName as BugBoardName) === 'black' ? 'black' : 'white';
+        const moveColor = this.seats.myColor(b.boardName as BugBoardName) === 'black' ? 'black' : 'white';
 
         this.seatsState.seatAt(b.boardName as BugBoardName, moveColor).clock.pause(true);
 
@@ -294,37 +262,18 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     };
     //
     private renderDrawOffer = () => {
-        this.vdialog = patch(
-            this.vdialog,
-            h('div#offer-dialog', [
-                h('div.dcontrols', [
-                    h(
-                        'div',
-                        { class: { reject: true }, on: { click: () => this.rejectDrawOffer() } },
-                        h('i.icon.icon-abort.reject'),
-                    ),
-                    h('div.text', _('Your opponent offers a draw')),
-                    h('div', { class: { accept: true }, on: { click: () => this.draw() } }, h('i.icon.icon-check')),
-                ]),
-            ]),
+        this.controlsView.renderDrawOffer(
+            () => this.rejectDrawOffer(),
+            () => this.draw(),
         );
     };
     //
     private setDialog = (message: string) => {
-        this.vdialog = patch(
-            this.vdialog,
-            h('div#offer-dialog', [
-                h('div.dcontrols', [
-                    h('div', { class: { reject: false } }),
-                    h('div.text', message),
-                    h('div', { class: { accept: false } }),
-                ]),
-            ]),
-        );
+        this.controlsView.setDialogMessage(message);
     };
     //
     private clearDialog = () => {
-        this.vdialog = patch(this.vdialog, h('div#offer-dialog', []));
+        this.controlsView.clearDialog();
     };
 
     //
@@ -344,8 +293,8 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         if (this.status >= 0) return;
 
         // todo: assumes the viewer plays board A — for a board-B player this names the wrong opponent (preserved quirk)
-        const wplayerA = this.players.byBoardAndColor('a', 'white').username;
-        const bplayerA = this.players.byBoardAndColor('a', 'black').username;
+        const wplayerA = this.seats.byBoardAndColor('a', 'white').player.username;
+        const bplayerA = this.seats.byBoardAndColor('a', 'black').player.username;
         const opp_name = this.username === wplayerA ? bplayerA : wplayerA;
         const logoUrl = `${this.home}/static/favicon/android-icon-192x192.png`;
         notify('pychess.org', { body: `${opp_name}\n${msg}`, icon: logoUrl });
@@ -365,14 +314,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     };
 
     onMsgViewRematch = (msg: MsgViewRematch) => {
-        const btns_after = document.querySelector('.btn-controls.after') as HTMLElement;
-        let rematch_button = h(
-            'button.newopp',
-            { on: { click: () => window.location.assign(this.home + '/' + msg['gameId']) } },
-            _('VIEW REMATCH'),
-        );
-        let rematch_button_location = btns_after!.insertBefore(document.createElement('div'), btns_after!.firstChild);
-        patch(rematch_button_location, rematch_button);
+        insertRematchButton(() => window.location.assign(this.home + '/' + msg['gameId']));
     };
     //
     private rematch = () => {
@@ -386,19 +328,9 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     };
     //
     private renderRematchOffer = () => {
-        this.vdialog = patch(
-            this.vdialog,
-            h('div#offer-dialog', [
-                h('div.dcontrols', [
-                    h(
-                        'div',
-                        { class: { reject: true }, on: { click: () => this.rejectRematchOffer() } },
-                        h('i.icon.icon-abort.reject'),
-                    ),
-                    h('div.text', _('Your opponent offers a rematch')),
-                    h('div', { class: { accept: true }, on: { click: () => this.rematch() } }, h('i.icon.icon-check')),
-                ]),
-            ]),
+        this.controlsView.renderRematchOffer(
+            () => this.rejectRematchOffer(),
+            () => this.rematch(),
         );
     };
     //
@@ -412,14 +344,12 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     };
 
     private gameOver = () => {
-        this.gameControls = patch(this.gameControls, h('div'));
-        let buttons: VNode[] = [];
-        if (!this.spectator) {
-            buttons.push(h('button.rematch', { on: { click: () => this.rematch() } }, _('REMATCH')));
-            buttons.push(h('button.newopp', { on: { click: () => this.newOpponent(this.home) } }, _('NEW OPPONENT')));
-        }
-        buttons.push(h('button.analysis', { on: { click: () => this.analysis(this.home) } }, _('ANALYSIS BOARD')));
-        patch(this.gameControls, h('div.btn-controls.after', buttons));
+        this.controlsView.renderGameOverControls(
+            this.spectator,
+            () => this.rematch(),
+            () => this.newOpponent(this.home),
+            () => this.analysis(this.home),
+        );
     };
 
     checkStatus = (msg: MsgBoard | MsgGameEnd) => {
@@ -433,15 +363,14 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             // this.dests = new Map();
 
             if (this.result !== '*' && !this.spectator && !this.finishedGame) {
-                sound.gameEndSoundBughouse(msg.result, this.players.myTeam().teamNumber);
+                sound.gameEndSoundBughouse(msg.result, this.seats.myTeam().teamNumber);
             }
             selectMove(this, this.steps.length - 1); // show final position (also important to disable cg's movable)
             updateResult(this);
             this.gameOver();
 
             // clean up gating/promotion widget left over the ground while game ended by time out
-            const container = document.getElementById('extension_choice') as HTMLElement;
-            if (container instanceof Element) patch(container, h('extension'));
+            clearExtensionChoice();
 
             if (this.tv) {
                 setInterval(() => {
@@ -464,8 +393,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             this.plyA = 0;
             this.plyB = 0;
             resetChat();
-            const container = document.getElementById('movelist') as HTMLElement;
-            patch(container, h('div#movelist'));
+            resetMovelistDom();
 
             steps.forEach((step, idx) => {
                 if (idx === 0) {
@@ -485,11 +413,11 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
                 if (step.chat) {
                     step.chat.forEach(c => {
                         // Check if status < 0 and filter only partners messages
-                        const myTeam = this.players.myTeam();
+                        const myTeam = this.seats.myTeam();
                         if (this.status < 0) {
                             if (
-                                c.username === myTeam.players[0].username ||
-                                c.username === myTeam.players[1].username
+                                c.username === myTeam.seats[0].player.username ||
+                                c.username === myTeam.seats[1].player.username
                             ) {
                                 chatMessageBug(idx, this, c);
                             }
@@ -560,8 +488,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         );
 
         if (!this.spectator) {
-            const container = document.getElementById('abort') as HTMLElement;
-            if (container) patch(container, h('div'));
+            clearAbortIndicator();
         }
         const step = board.boardName === 'a' ? lastStepA : lastStepB;
         const stepPartner = board.boardName === 'b' ? lastStepA : lastStepB;
@@ -637,8 +564,8 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
         // prevent sending premove/predrop when (auto)reconnecting websocked asks server to (re)sends the same board to us
         // console.log("trying to play premove....");
-        if (this.boardA.premove && this.boardA.turnColor == this.players.myColor('a')) this.boardA.performPremove();
-        if (this.boardB.premove && this.boardB.turnColor == this.players.myColor('b')) this.boardB.performPremove();
+        if (this.boardA.premove && this.boardA.turnColor == this.seats.myColor('a')) this.boardA.performPremove();
+        if (this.boardB.premove && this.boardB.turnColor == this.seats.myColor('b')) this.boardB.performPremove();
     };
 
     private updateSingleBoardAndClocks = (
@@ -669,7 +596,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         const stepPartner = board.boardName === 'b' ? lastStepA : lastStepB;
         const msgTurnColor = step.turnColor; // whose turn it is after this move
         const msgMoveColor = msgTurnColor === 'white' ? 'black' : 'white'; // which color made the move
-        const myMove = this.players.myColor(board.boardName as BugBoardName) === msgMoveColor; // the received move was made by me
+        const myMove = this.seats.myColor(board.boardName as BugBoardName) === msgMoveColor; // the received move was made by me
 
         const move = board.boardName === 'a' ? step.move : step.moveB;
         const lastMove = uci2LastMove(move);
@@ -853,13 +780,13 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             board.chessground.set({ movable: { color: undefined, dests: undefined } });
             board.partnerCC.chessground.set({ movable: { color: undefined, dests: undefined } });
         } else if (ply === this.steps.length - 1) {
-            if (this.players.me('a') !== undefined) {
+            if (this.seats.me('a') !== undefined) {
                 this.boardA.setDests();
-                this.boardA.chessground.set({ movable: { color: this.players.myColor('a') } });
+                this.boardA.chessground.set({ movable: { color: this.seats.myColor('a') } });
             }
-            if (this.players.me('b') !== undefined) {
+            if (this.seats.me('b') !== undefined) {
                 this.boardB.setDests();
-                this.boardB.chessground.set({ movable: { color: this.players.myColor('b') } });
+                this.boardB.chessground.set({ movable: { color: this.seats.myColor('b') } });
             }
         }
 
@@ -904,11 +831,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     onMsgUserConnected = (msg: MsgUserConnected) => {
         console.log(msg);
         if (!this.spectator) {
-            const container = document.getElementById('player1a') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1a', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-            );
+            showOnlineIcon();
 
             // prevent sending gameStart message when user just reconnecting
             //todo:niki:what is the point of this message - also what if we refresh before moves are made? also what is the point of this whole method at all?

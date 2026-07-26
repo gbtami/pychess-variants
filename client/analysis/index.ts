@@ -271,10 +271,10 @@ export function analysisTools(isOngoingGame: boolean = false) {
     ]);
 }
 
-export function gauge(colors: { first: ColorName; second: ColorName }, id: string = 'gauge') {
+export function gauge(colors: { first: ColorName; second: ColorName }, id: string = 'gauge', extraClass?: string) {
     const sideColors = gaugeSideColors(colors);
     return h(
-        'div#' + id,
+        'div#' + id + (extraClass ? '.' + extraClass : ''),
         {
             attrs: {
                 style: `--analysis-gauge-first: ${sideColors.first}; --analysis-gauge-second: ${sideColors.second};`,

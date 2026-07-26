@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
-import { h } from 'snabbdom';
 
 import {
     addOrSelectChild,
+    AnalysisTree,
     createAnalysisTree,
     forceVariationAt,
     mainlinePathAtPly,
@@ -10,7 +10,7 @@ import {
 } from '../client/analysis/analysisTree';
 import { patch } from '../client/document';
 import { Step } from '../client/messages';
-import { updateMovelist } from '../client/two-board/common/movelist';
+import { MovelistView, updateMovelist } from '../client/two-board/common/movelist';
 
 function makeStep(
     fen: string,
@@ -38,6 +38,39 @@ function makeStep(
     };
 }
 
+// full default surface of AnalysisTreeController, so each test only overrides
+// what it actually exercises (unset context-menu fields safely return falsy)
+function stubTree(tree: AnalysisTree, overrides: Record<string, unknown> = {}) {
+    return {
+        analysisTree: tree,
+        hasAnalysisTree: () => true,
+        getTreeActivePath: () => '',
+        getTreeSelectedChildPath: () => undefined,
+        getTreeLineStartPath: () => '',
+        getTreeLineEndPath: () => '',
+        getTreeParentPath: () => '',
+        getTreeMainChildPath: () => undefined,
+        getTreeNodeAtPath: (path: string) => nodeAtPath(tree, path),
+        getTreeContextMenu: () => undefined,
+        openTreeContextMenu: () => undefined,
+        closeTreeContextMenu: () => undefined,
+        copyTreeLinePgn: () => undefined,
+        pathIsTreeMainline: () => true,
+        pathIsTreeForcedVariation: () => false,
+        canPromoteTreeVariation: () => false,
+        promoteTreeVariation: () => undefined,
+        forceTreeVariation: () => undefined,
+        someTreeCollapsed: () => false,
+        collapseAllTree: () => undefined,
+        expandAllTree: () => undefined,
+        deleteTreeNode: () => undefined,
+        toggleTreeCollapsed: () => undefined,
+        activateTreePath: () => undefined,
+        activateTreeMainlinePly: () => undefined,
+        ...overrides,
+    };
+}
+
 beforeEach(() => {
     document.body.innerHTML = '';
 });
@@ -46,7 +79,8 @@ describe('bughouse analysis mainline navigation', () => {
     test('mainline move clicks use the explicit mainline jump in tree mode', () => {
         const host = document.createElement('div');
         document.body.appendChild(host);
-        patch(host, h('div#movelist'));
+        const movelistView = new MovelistView();
+        patch(host, movelistView.placeholder());
 
         const steps: Step[] = [
             makeStep('fa0', 'fb0', undefined, undefined, 'white', '', 'a', 0, 0),
@@ -62,23 +96,14 @@ describe('bughouse analysis mainline navigation', () => {
             result: '*',
             ply: 2,
             plyVari: 0,
-            vmovelist: document.getElementById('movelist'),
-            analysisTree: tree,
-            hasAnalysisTree: () => true,
-            getTreeActivePath: () => tree.root.children[0].children[0].path,
-            activateTreePath: () => undefined,
-            activateTreeMainlinePly: (ply: number) => {
-                selectedMainlinePly = ply;
-            },
+            movelistView,
+            tree: stubTree(tree, {
+                getTreeActivePath: () => tree.root.children[0].children[0].path,
+                activateTreeMainlinePly: (ply: number) => {
+                    selectedMainlinePly = ply;
+                },
+            }),
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [
-                ['wA', '', ''],
-                ['bB', '', ''],
-            ],
-            teamSecond: [
-                ['bA', '', ''],
-                ['wB', '', ''],
-            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
@@ -94,7 +119,8 @@ describe('bughouse analysis mainline navigation', () => {
     test('variation rows expose the selected child path in tree mode', () => {
         const host = document.createElement('div');
         document.body.appendChild(host);
-        patch(host, h('div#movelist'));
+        const movelistView = new MovelistView();
+        patch(host, movelistView.placeholder());
 
         const steps: Step[] = [
             makeStep('fa0', 'fb0', undefined, undefined, 'white', '', 'a', 0, 0),
@@ -115,22 +141,12 @@ describe('bughouse analysis mainline navigation', () => {
             result: '*',
             ply: 2,
             plyVari: 0,
-            vmovelist: document.getElementById('movelist'),
-            analysisTree: tree,
-            hasAnalysisTree: () => true,
-            getTreeActivePath: () => tree.root.children[0].children[0].path,
-            getTreeSelectedChildPath: () => selectedPath,
-            activateTreePath: () => undefined,
-            activateTreeMainlinePly: () => undefined,
+            movelistView,
+            tree: stubTree(tree, {
+                getTreeActivePath: () => tree.root.children[0].children[0].path,
+                getTreeSelectedChildPath: () => selectedPath,
+            }),
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [
-                ['wA', '', ''],
-                ['bB', '', ''],
-            ],
-            teamSecond: [
-                ['bA', '', ''],
-                ['wB', '', ''],
-            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
@@ -143,7 +159,8 @@ describe('bughouse analysis mainline navigation', () => {
     test('disclosure button is attached to the branched reply and hides bughouse sidelines', () => {
         const host = document.createElement('div');
         document.body.appendChild(host);
-        patch(host, h('div#movelist'));
+        const movelistView = new MovelistView();
+        patch(host, movelistView.placeholder());
 
         const steps: Step[] = [
             makeStep('fa0', 'fb0', undefined, undefined, 'white', '', 'a', 0, 0),
@@ -162,28 +179,17 @@ describe('bughouse analysis mainline navigation', () => {
             result: '*',
             ply: 3,
             plyVari: 0,
-            vmovelist: document.getElementById('movelist'),
-            analysisTree: tree,
-            hasAnalysisTree: () => true,
-            getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
-            getTreeSelectedChildPath: () => undefined,
-            activateTreePath: () => undefined,
-            activateTreeMainlinePly: () => undefined,
-            toggleTreeCollapsed: (path: string) => {
-                const node = nodeAtPath(tree, path);
-                if (!node) return;
-                node.collapsed = !node.collapsed;
-                updateMovelist(ctrl as any, true, false, false);
-            },
+            movelistView,
+            tree: stubTree(tree, {
+                getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
+                toggleTreeCollapsed: (path: string) => {
+                    const node = nodeAtPath(tree, path);
+                    if (!node) return;
+                    node.collapsed = !node.collapsed;
+                    updateMovelist(ctrl as any, true, false, false);
+                },
+            }),
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [
-                ['wA', '', ''],
-                ['bB', '', ''],
-            ],
-            teamSecond: [
-                ['bA', '', ''],
-                ['wB', '', ''],
-            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
@@ -205,7 +211,8 @@ describe('bughouse analysis mainline navigation', () => {
     test('mainline bughouse tree context menu exposes mainline actions', () => {
         const host = document.createElement('div');
         document.body.appendChild(host);
-        patch(host, h('div#movelist'));
+        const movelistView = new MovelistView();
+        patch(host, movelistView.placeholder());
 
         const steps: Step[] = [
             makeStep('fa0', 'fb0', undefined, undefined, 'white', '', 'a', 0, 0),
@@ -225,36 +232,22 @@ describe('bughouse analysis mainline navigation', () => {
             result: '*',
             ply: 3,
             plyVari: 0,
-            vmovelist: document.getElementById('movelist'),
-            analysisTree: tree,
-            hasAnalysisTree: () => true,
-            getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
-            getTreeSelectedChildPath: () => undefined,
-            getTreeNodeAtPath: (path: string) => nodeAtPath(tree, path),
-            getTreeContextMenu: () => ({ path: tree.root.children[0].children[0].path, x: 12, y: 14 }),
-            pathIsTreeMainline: () => true,
-            pathIsTreeForcedVariation: () => false,
-            canPromoteTreeVariation: () => false,
-            someTreeCollapsed: (collapsed: boolean) => !collapsed,
-            activateTreePath: () => undefined,
-            activateTreeMainlinePly: () => undefined,
-            toggleTreeCollapsed: () => undefined,
-            forceTreeVariation: () => undefined,
-            copyTreeLinePgn: (path: string) => {
-                copiedPath = path;
-            },
-            deleteTreeNode: (path: string) => {
-                deletedPath = path;
-            },
+            movelistView,
+            tree: stubTree(tree, {
+                getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
+                getTreeContextMenu: () => ({ path: tree.root.children[0].children[0].path, x: 12, y: 14 }),
+                pathIsTreeMainline: () => true,
+                pathIsTreeForcedVariation: () => false,
+                canPromoteTreeVariation: () => false,
+                someTreeCollapsed: (collapsed: boolean) => !collapsed,
+                copyTreeLinePgn: (path: string) => {
+                    copiedPath = path;
+                },
+                deleteTreeNode: (path: string) => {
+                    deletedPath = path;
+                },
+            }),
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [
-                ['wA', '', ''],
-                ['bB', '', ''],
-            ],
-            teamSecond: [
-                ['bA', '', ''],
-                ['wB', '', ''],
-            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
@@ -277,7 +270,8 @@ describe('bughouse analysis mainline navigation', () => {
     test('sideline bughouse tree context menu exposes variation actions', () => {
         const host = document.createElement('div');
         document.body.appendChild(host);
-        patch(host, h('div#movelist'));
+        const movelistView = new MovelistView();
+        patch(host, movelistView.placeholder());
 
         const steps: Step[] = [
             makeStep('fa0', 'fb0', undefined, undefined, 'white', '', 'a', 0, 0),
@@ -303,36 +297,22 @@ describe('bughouse analysis mainline navigation', () => {
             result: '*',
             ply: 3,
             plyVari: 0,
-            vmovelist: document.getElementById('movelist'),
-            analysisTree: tree,
-            hasAnalysisTree: () => true,
-            getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
-            getTreeSelectedChildPath: () => undefined,
-            getTreeNodeAtPath: (path: string) => nodeAtPath(tree, path),
-            getTreeContextMenu: () => ({ path: b3Path, x: 12, y: 14 }),
-            pathIsTreeMainline: () => false,
-            pathIsTreeForcedVariation: () => true,
-            canPromoteTreeVariation: () => true,
-            someTreeCollapsed: () => false,
-            activateTreePath: () => undefined,
-            activateTreeMainlinePly: () => undefined,
-            toggleTreeCollapsed: () => undefined,
-            promoteTreeVariation: (path: string, toMainline: boolean) => {
-                promoted = { path, toMainline };
-            },
-            copyTreeLinePgn: (path: string) => {
-                copiedPath = path;
-            },
-            deleteTreeNode: () => undefined,
+            movelistView,
+            tree: stubTree(tree, {
+                getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
+                getTreeContextMenu: () => ({ path: b3Path, x: 12, y: 14 }),
+                pathIsTreeMainline: () => false,
+                pathIsTreeForcedVariation: () => true,
+                canPromoteTreeVariation: () => true,
+                someTreeCollapsed: () => false,
+                promoteTreeVariation: (path: string, toMainline: boolean) => {
+                    promoted = { path, toMainline };
+                },
+                copyTreeLinePgn: (path: string) => {
+                    copiedPath = path;
+                },
+            }),
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [
-                ['wA', '', ''],
-                ['bB', '', ''],
-            ],
-            teamSecond: [
-                ['bA', '', ''],
-                ['wB', '', ''],
-            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
@@ -357,7 +337,8 @@ describe('bughouse analysis mainline navigation', () => {
     test('bughouse tree nodes expose selected-line state and split SAN glyph suffixes', () => {
         const host = document.createElement('div');
         document.body.appendChild(host);
-        patch(host, h('div#movelist'));
+        const movelistView = new MovelistView();
+        patch(host, movelistView.placeholder());
 
         const steps: Step[] = [
             makeStep('fa0', 'fb0', undefined, undefined, 'white', '', 'a', 0, 0),
@@ -381,23 +362,12 @@ describe('bughouse analysis mainline navigation', () => {
             ply: 3,
             plyVari: 0,
             recordedMainlinePly: 3,
-            vmovelist: document.getElementById('movelist'),
-            analysisTree: tree,
-            hasAnalysisTree: () => true,
-            getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
-            getTreeSelectedChildPath: () => branchPath,
-            activateTreePath: () => undefined,
-            activateTreeMainlinePly: () => undefined,
-            toggleTreeCollapsed: () => undefined,
+            movelistView,
+            tree: stubTree(tree, {
+                getTreeActivePath: () => tree.root.children[0].children[0].children[0].path,
+                getTreeSelectedChildPath: () => branchPath,
+            }),
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [
-                ['wA', '', ''],
-                ['bB', '', ''],
-            ],
-            teamSecond: [
-                ['bA', '', ''],
-                ['wB', '', ''],
-            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);
@@ -412,7 +382,8 @@ describe('bughouse analysis mainline navigation', () => {
     test('forced bughouse mainline move is rendered as a variation row instead of a mainline cell', () => {
         const host = document.createElement('div');
         document.body.appendChild(host);
-        patch(host, h('div#movelist'));
+        const movelistView = new MovelistView();
+        patch(host, movelistView.placeholder());
 
         const steps: Step[] = [
             makeStep('fa0', 'fb0', undefined, undefined, 'white', '', 'a', 0, 0),
@@ -431,23 +402,11 @@ describe('bughouse analysis mainline navigation', () => {
             result: '*',
             ply: 3,
             plyVari: 0,
-            vmovelist: document.getElementById('movelist'),
-            analysisTree: tree,
-            hasAnalysisTree: () => true,
-            getTreeActivePath: () => b1Path,
-            getTreeSelectedChildPath: () => undefined,
-            activateTreePath: () => undefined,
-            activateTreeMainlinePly: () => undefined,
-            toggleTreeCollapsed: () => undefined,
+            movelistView,
+            tree: stubTree(tree, {
+                getTreeActivePath: () => b1Path,
+            }),
             b1: { variant: { name: 'bughouse' } },
-            teamFirst: [
-                ['wA', '', ''],
-                ['bB', '', ''],
-            ],
-            teamSecond: [
-                ['bA', '', ''],
-                ['wB', '', ''],
-            ],
         } as any;
 
         updateMovelist(ctrl, true, false, false);

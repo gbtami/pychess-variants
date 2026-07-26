@@ -8,9 +8,11 @@ import { timeago } from '../../datetime';
 import { timeControlStr } from '../../view';
 import { PyChessModel } from '../../types';
 import { displayUsername, userLink } from '../../user';
+import { Seat, TwoBoardSeats } from './players';
 
 export function gameInfoBug(model: PyChessModel): VNode {
     // console.log("roundView model=", model);
+    const seats = new TwoBoardSeats(model, model.username);
     const variant = VARIANTS[model.variant];
     const chess960 = model.chess960 === 'True';
     const dataIcon = variant.icon(chess960);
@@ -42,17 +44,17 @@ export function gameInfoBug(model: PyChessModel): VNode {
             ]),
             h('div.player-data', [
                 h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                h('player', playerInfo(model, 'w', 'a')),
+                h('player', playerInfo(seats.byBoardAndColor('a', 'white'), model)),
                 h('div', { style: { display: 'inline', paddingRight: '8px' } }, '+'),
                 h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                h('player', playerInfo(model, 'b', 'b')),
+                h('player', playerInfo(seats.byBoardAndColor('b', 'black'), model)),
             ]),
             h('div.player-data', [
                 h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.second)]: true } }),
-                h('player', playerInfo(model, 'w', 'b')),
+                h('player', playerInfo(seats.byBoardAndColor('b', 'white'), model)),
                 h('div', { style: { display: 'inline', paddingRight: '8px' } }, '+'),
                 h('i-side.icon', { class: { [colorIcon(model.variant, variant.colors.first)]: true } }),
-                h('player', playerInfo(model, 'b', 'a')),
+                h('player', playerInfo(seats.byBoardAndColor('a', 'black'), model)),
             ]),
         ]),
         h('section', [
@@ -72,17 +74,9 @@ export function gameInfoBug(model: PyChessModel): VNode {
     ]);
 }
 
-export function playerInfoData(model: PyChessModel, color: 'w' | 'b', board: 'a' | 'b'): [string, string, string] {
-    const username =
-        model[board == 'a' ? (color === 'w' ? 'wplayer' : 'bplayer') : color === 'w' ? 'wplayerB' : 'bplayerB'];
-    const title = model[board == 'a' ? (color === 'w' ? 'wtitle' : 'btitle') : color === 'w' ? 'wtitleB' : 'btitleB'];
-    const rating =
-        model[board == 'a' ? (color === 'w' ? 'wrating' : 'brating') : color === 'w' ? 'wratingB' : 'bratingB'];
-    return [username, title, rating];
-}
-
-function playerInfo(model: PyChessModel, color: 'w' | 'b', board: 'a' | 'b') {
-    const [username, title, rating] = playerInfoData(model, color, board);
+function playerInfo(seat: Seat, model: PyChessModel) {
+    const { username, title, rating } = seat.player;
+    const color = seat.color === 'white' ? 'w' : 'b';
 
     const level = model.level;
     const displayName = displayUsername(username);

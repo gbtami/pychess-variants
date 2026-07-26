@@ -1,41 +1,93 @@
 import { h, VNode } from 'snabbdom';
 
+import * as cg from 'chessgroundx/types';
+
 import { patch } from '../../document';
 import AnalysisController from './analysisCtrl';
 import { GameControllerBughouse } from '../common/gameCtrl';
+import { clockTimeAt } from '../common/players';
 import { Clocks } from '../../messages';
+import { BugBoardName } from '../../types';
 import { BLACK, WHITE } from '../../chess';
 
-export function renderClocks(ctrl: AnalysisController) {
-    const lastStep = ctrl.hasAnalysisTree?.() ? ctrl.getTreeCurrentNode?.()?.step : ctrl.steps[ctrl.ply];
-    if (!lastStep) return;
-    if (lastStep.clocks) {
-        renderClocksCC([lastStep.clocks[WHITE], lastStep.clocks[BLACK]], ctrl.boardA, '');
+// The four analysis clocks are keyed by physical screen position (not color),
+// since which physical element shows "white" vs "black" depends on current
+// board orientation and flips on flip/switch. Built ctrl-free so analysis.ts
+// can embed the placeholders directly; render() patches the one matching
+// slot in place.
+export type ClockSlot = 'top' | 'bottom' | 'top.bug' | 'bottom.bug';
+
+const SLOT_SELECTOR: Record<ClockSlot, string> = {
+    top: 'div#anal-clock-top.anal-clock.top',
+    bottom: 'div#anal-clock-bottom.anal-clock.bottom',
+    'top.bug': 'div#anal-clock-top-bug.anal-clock.top.bug',
+    'bottom.bug': 'div#anal-clock-bottom-bug.anal-clock.bottom.bug',
+};
+
+export class AnalysisClockView {
+    private slots: Record<ClockSlot, VNode | HTMLElement>;
+
+    constructor() {
+        this.slots = {
+            top: h(SLOT_SELECTOR.top),
+            bottom: h(SLOT_SELECTOR.bottom),
+            'top.bug': h(SLOT_SELECTOR['top.bug']),
+            'bottom.bug': h(SLOT_SELECTOR['bottom.bug']),
+        };
     }
-    if (lastStep.clocksB) {
-        renderClocksCC([lastStep.clocksB[WHITE], lastStep.clocksB[BLACK]], ctrl.boardB, '.bug');
+
+    topPlaceholder(): VNode {
+        return this.slots.top as VNode;
+    }
+
+    bottomPlaceholder(): VNode {
+        return this.slots.bottom as VNode;
+    }
+
+    bugTopPlaceholder(): VNode {
+        return this.slots['top.bug'] as VNode;
+    }
+
+    bugBottomPlaceholder(): VNode {
+        return this.slots['bottom.bug'] as VNode;
+    }
+
+    render(slot: ClockSlot, vnode: VNode): void {
+        this.slots[slot] = patch(this.slots[slot], vnode);
     }
 }
 
-export function renderClocksCC(clocks: Clocks, ctrl: GameControllerBughouse, suffix: string) {
+export function renderClocks(ctrl: AnalysisController) {
+    const lastStep = ctrl.tree.hasAnalysisTree() ? ctrl.tree.getTreeCurrentNode()?.step : ctrl.steps[ctrl.ply];
+    if (!lastStep) return;
+    const seatTime = (board: BugBoardName, color: cg.Color) =>
+        clockTimeAt(lastStep, ctrl.seats.byBoardAndColor(board, color));
+    if (lastStep.clocks) {
+        renderClocksCC(ctrl.clockView, [seatTime('a', 'white')!, seatTime('a', 'black')!], ctrl.boardA, '');
+    }
+    if (lastStep.clocksB) {
+        renderClocksCC(ctrl.clockView, [seatTime('b', 'white')!, seatTime('b', 'black')!], ctrl.boardB, '.bug');
+    }
+}
+
+export function renderClocksCC(
+    clockView: AnalysisClockView,
+    clocks: Clocks,
+    ctrl: GameControllerBughouse,
+    suffix: string,
+) {
     const isWhiteTurn = ctrl.turnColor === 'white';
     const whitePov = !ctrl.flipped();
 
     const wclass = whitePov ? 'bottom' : 'top';
-
     const wtime = clocks[WHITE];
-    let wel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${wclass}${suffix}`) as HTMLElement;
-    if (wel) {
-        wel = patch(wel, h(`div.anal-clock.${wclass}${suffix}`, ''));
-        patch(wel, renderClock(wtime!, isWhiteTurn, wclass + suffix));
-    }
+    const wSlot = (wclass + suffix) as ClockSlot;
+    clockView.render(wSlot, renderClock(wtime!, isWhiteTurn, wSlot));
+
     const bclass = whitePov ? 'top' : 'bottom';
     const btime = clocks[BLACK];
-    let bel: VNode | HTMLElement = document.querySelector(`div.anal-clock.${bclass}${suffix}`) as HTMLElement;
-    if (bel) {
-        bel = patch(bel, h(`div.anal-clock.${bclass}${suffix}`, ''));
-        patch(bel, renderClock(btime!, !isWhiteTurn, bclass + suffix));
-    }
+    const bSlot = (bclass + suffix) as ClockSlot;
+    clockView.render(bSlot, renderClock(btime!, !isWhiteTurn, bSlot));
 }
 
 function renderClock(time: number, active: boolean, cls: string): VNode {

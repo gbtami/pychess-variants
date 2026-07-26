@@ -48,6 +48,13 @@
     grid-area: gaugePartner;
 }
 
+/* FEN & PGN tab panel: mirrors analysis.css's #panel-4 rule for the single-board
+   page, keyed by class instead of id since two-board's panel ids are generated */
+.fenpgn-panel {
+    font-size: 0.9em;
+    flex-flow: column;
+}
+
 /* *****************************************************************************************
  * round.css pocket-top-partner pocket-bot-partner
  ******************************************************************************************* */

@@ -5,6 +5,7 @@ import { gameInfoBug } from '../common/gameInfo';
 import { renderTimeago } from '../../datetime';
 import { PyChessModel } from '../../types';
 import { RoundControllerBughouse } from './roundCtrl';
+import { MovelistView } from '../common/movelist';
 
 function createBoards(
     mainboardVNode: VNode,
@@ -14,6 +15,7 @@ function createBoards(
     bugboardPocket0: VNode,
     bugboardPocket1: VNode,
     model: PyChessModel,
+    movelistView: MovelistView,
 ) {
     /*this.ctrl = */ /*const ctrl = */ new RoundControllerBughouse(
         mainboardVNode.elm as HTMLElement,
@@ -23,6 +25,7 @@ function createBoards(
         bugboardPocket0.elm as HTMLElement,
         bugboardPocket1.elm as HTMLElement,
         model,
+        movelistView,
     );
     // window['onFSFline'] = ctrl.onFSFline;
 }
@@ -39,6 +42,8 @@ export function roundView(model: PyChessModel): VNode[] {
         bugboardPocket0: VNode,
         bugboardPocket1: VNode;
 
+    const movelistView = new MovelistView();
+
     return [
         h('aside.sidebar-first', [gameInfoBug(model)]),
         h(
@@ -54,6 +59,7 @@ export function roundView(model: PyChessModel): VNode[] {
                             bugboardPocket0,
                             bugboardPocket1,
                             model,
+                            movelistView,
                         );
                     },
                 },
@@ -116,7 +122,7 @@ export function roundView(model: PyChessModel): VNode[] {
                     h('div#misc-info0b'),
                 ]),
                 h('div.bug-round-tools-part', [
-                    h('div.movelist-block', [h('div#movelist'), h('div#move-controls')]),
+                    h('div.movelist-block', [movelistView.placeholder(), h('div#move-controls')]),
                     h('div#offer-dialog'),
                     h('div#game-controls'),
                 ]),

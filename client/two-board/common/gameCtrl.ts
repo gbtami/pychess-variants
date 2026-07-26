@@ -167,6 +167,17 @@ export class GameControllerBughouse extends GameController {
         return this.ffishBoard.sanMove(move);
     };
 
+    // applies a locally-computed move (no server round-trip): SAN must be read
+    // before pushMove, since the move is no longer legal on ffishBoard afterward
+    playMove = (move: string): { san: string; sanSAN: string } => {
+        const san = this.san(move);
+        const sanSAN = this.sanSAN(move);
+        this.pushMove(move);
+        this.renderState();
+        this.chessground.set({ movable: { color: this.turnColor } });
+        return { san, sanSAN };
+    };
+
     renderState = () => {
         this.chessground.set({
             fen: this.fullfen,
