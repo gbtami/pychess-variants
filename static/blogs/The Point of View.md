@@ -68,7 +68,7 @@ Then custom variants arrived.
 
 ## The Yari Shogi piece set that found the gap
 
-User-defined variants can upload a custom SVG piece set. The uploader asks for the minimum complete set needed by the variant: a white and black image for each role, plus promoted roles where necessary. It does not ask an author to understand chessgroundx internals or to supply additional viewer-relative copies.
+User-defined variants can upload a custom SVG piece set. At the time of the Yari Shogi fix, the uploader asked for a white and black image for each role, plus promoted roles where necessary. It did not ask an author to understand chessgroundx internals or to supply additional viewer-relative copies.
 
 That is exactly how it should be. A piece artist should prepare pieces, not reverse-engineer the board renderer.
 
@@ -128,6 +128,8 @@ piece.black.ally::before {
 The selectors look slightly unusual until we follow the board around. In White's view, the white image is an ally and the black image is an enemy, so both source orientations are already correct. In Black's view, white becomes the enemy and black becomes the ally. Those are the two images that must rotate.
 
 No SVG is generated or modified at request time. The server still sanitizes and stores exactly the files that were uploaded. It only generates CSS which paints and, when necessary, rotates them. Ordinary non-Shogi custom sets keep their previous rendering path.
+
+The same mechanism later allowed directional custom uploads to shed their redundant player copy as well. Authors may now upload one complete white or black orientation, which PyChess shares between both players and rotates according to `ally` and `enemy`. Shogi-derived variants are detected automatically, while standalone definitions can opt in with the **Directional custom pieces** catalogue metadata. The paired format remains available when the two players intentionally use different artwork.
 
 The decision is based on the variant's Shogi ancestry or an explicit directional piece-family override. Promotion style alone is deliberately not enough: red promoted glyphs do not necessarily imply that a piece's silhouette carries ownership.
 

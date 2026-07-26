@@ -83,6 +83,22 @@
     font-weight: normal;
 }
 
+.catalogued-checkbox-field {
+    align-content: start;
+}
+
+.catalogued-form label.catalogued-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.catalogued-form .catalogued-checkbox-row input[type='checkbox'] {
+    width: auto;
+    padding: 0;
+    margin: 0;
+}
+
 .catalogued-field-full {
     grid-column: 1 / -1;
 }

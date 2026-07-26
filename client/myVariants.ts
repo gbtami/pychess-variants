@@ -60,6 +60,7 @@ type State = {
     draftDisplayName: string;
     draftDescription: string;
     draftPieceNames: string;
+    draftPieceSetDirectional: boolean;
     draftPieceFamilyOverride: string;
     draftBoardFamilyOverride: string;
     draftVisibility: VariantVisibility;
@@ -89,6 +90,7 @@ const state: State = {
     draftDisplayName: '',
     draftDescription: '',
     draftPieceNames: '',
+    draftPieceSetDirectional: false,
     draftPieceFamilyOverride: '',
     draftBoardFamilyOverride: '',
     draftVisibility: 'private',
@@ -225,6 +227,7 @@ type VariantFormBody = {
     displayName: string;
     description: string;
     pieceNames: string;
+    pieceSetDirectional: boolean;
     pieceFamilyOverride: string;
     boardFamilyOverride: string;
     visibility: VariantVisibility;
@@ -268,6 +271,9 @@ function readForm(): VariantFormBody {
         pieceNames:
             (document.getElementById('catalogued-piece-names') as HTMLTextAreaElement | null)?.value ??
             state.draftPieceNames,
+        pieceSetDirectional:
+            (document.getElementById('catalogued-piece-set-directional') as HTMLInputElement | null)?.checked ??
+            state.draftPieceSetDirectional,
         pieceFamilyOverride: cleanPieceFamilyOverrideDraft(
             (document.getElementById('catalogued-piece-family-override') as HTMLSelectElement | null)?.value ??
                 state.draftPieceFamilyOverride,
@@ -285,7 +291,10 @@ function readForm(): VariantFormBody {
 }
 
 function normalizeDisplayName(displayName: string): string {
-    const normalized = displayName.normalize('NFKC').trim().replace(/([ _-])[ _-]+/g, '$1');
+    const normalized = displayName
+        .normalize('NFKC')
+        .trim()
+        .replace(/([ _-])[ _-]+/g, '$1');
     if (!normalized) return '';
     if (
         !DISPLAY_NAME_PATTERN.test(normalized) ||
@@ -306,6 +315,7 @@ function clearDraft(): void {
     state.draftDisplayName = '';
     state.draftDescription = '';
     state.draftPieceNames = '';
+    state.draftPieceSetDirectional = false;
     state.draftPieceFamilyOverride = '';
     state.draftBoardFamilyOverride = '';
     state.draftVisibility = 'private';
@@ -324,6 +334,7 @@ function setDraftFromVariant(variant: ManagedVariant): void {
     state.draftDisplayName = variant.displayName ?? '';
     state.draftDescription = variant.tooltip === 'Catalogued variant' ? '' : (variant.tooltip ?? '');
     state.draftPieceNames = formatPieceNames(variant.pieceNames);
+    state.draftPieceSetDirectional = variant.pieceSetDirectional ?? false;
     state.draftPieceFamilyOverride = cleanPieceFamilyOverrideDraft(variant.pieceFamilyOverride);
     state.draftBoardFamilyOverride = cleanBoardFamilyOverrideDraft(variant.boardFamilyOverride);
     state.draftVisibility = variant.visibility ?? 'private';
@@ -493,6 +504,7 @@ async function saveVariant(model: PyChessModel): Promise<void> {
                           displayName: body.displayName,
                           description: body.description,
                           pieceNames: body.pieceNames,
+                          pieceSetDirectional: body.pieceSetDirectional,
                           pieceFamilyOverride: body.pieceFamilyOverride,
                           boardFamilyOverride: body.boardFamilyOverride,
                           visibility: body.visibility,
@@ -590,12 +602,22 @@ function expectedPieceSetFiles(variant: ManagedVariant): string[] {
     return names;
 }
 
+function expectedSingleColorPieceSetFiles(variant: ManagedVariant, color: 'w' | 'b'): string[] {
+    return expectedPieceSetFiles(variant).filter(filename => filename.startsWith(color));
+}
+
 async function uploadPieceSet(model: PyChessModel, variant: ManagedVariant, files: FileList | null): Promise<void> {
     if (!files || files.length === 0) return;
     const expected = expectedPieceSetFiles(variant);
-    if (files.length !== expected.length) {
+    const singleColorCount = expectedSingleColorPieceSetFiles(variant, 'w').length;
+    const validCount =
+        files.length === expected.length || (variant.directionalPieceSet && files.length === singleColorCount);
+    if (!validCount) {
+        const expectedDescription = variant.directionalPieceSet
+            ? `${singleColorCount} ${_('all-white or all-black files')}, ${_('or')} ${expected.length} ${_('paired files')}`
+            : expected.join(', ');
         await alertDialog({
-            text: `${_('Custom piece sets must be complete. Expected files')}: ${expected.join(', ')}`,
+            text: `${_('Custom piece sets must be complete. Expected files')}: ${expectedDescription}`,
         });
         return;
     }
@@ -903,9 +925,7 @@ function renderForm(model: PyChessModel): VNode {
                     }),
                     h(
                         'span.catalogued-help',
-                        _(
-                            'Up to 50 characters. Repeated spaces, hyphens, and underscores are collapsed.',
-                        ),
+                        _('Up to 50 characters. Repeated spaces, hyphens, and underscores are collapsed.'),
                     ),
                 ]),
                 h('label.catalogued-field.catalogued-field-half.catalogued-description-field', [
@@ -955,6 +975,34 @@ function renderForm(model: PyChessModel): VNode {
                         'span.catalogued-help',
                         _(
                             'Comma-separated letter:name pairs used by generated rules, for example p:Soldier, z:Zebra. Built-in names can be overridden; missing names use automatic fallbacks.',
+                        ),
+                    ),
+                ]),
+                h('div.catalogued-field.catalogued-field-half.catalogued-checkbox-field', [
+                    h('label.catalogued-checkbox-row', [
+                        h('input#catalogued-piece-set-directional', {
+                            props: {
+                                type: 'checkbox',
+                                checked: state.draftPieceSetDirectional,
+                                disabled: state.saving,
+                            },
+                            attrs: {
+                                'aria-describedby': 'catalogued-piece-set-directional-help',
+                            },
+                            on: {
+                                change: (event: Event) => {
+                                    state.draftPieceSetDirectional = (event.target as HTMLInputElement).checked;
+                                    state.formMessage = '';
+                                    state.formMessageTone = 'neutral';
+                                },
+                            },
+                        }),
+                        h('span', _('Directional custom pieces')),
+                    ]),
+                    h(
+                        'span#catalogued-piece-set-directional-help.catalogued-help',
+                        _(
+                            'Enable for standalone variants whose piece direction shows ownership. One complete white or black SVG set can then serve both players. Shogi-derived variants are detected automatically.',
                         ),
                     ),
                 ]),
@@ -1209,6 +1257,8 @@ function renderPieceSetPreview(model: PyChessModel, variant: ManagedVariant): VN
                         class: {
                             [pieceSetPreviewRoleClass(filename)]: true,
                             [pieceSetPreviewColorClass(filename)]: true,
+                            ally: pieceSetPreviewColorClass(filename) === 'white',
+                            enemy: pieceSetPreviewColorClass(filename) === 'black',
                         },
                     }),
                     h('span', filename),
@@ -1240,6 +1290,14 @@ function renderCompatiblePieceSetInfo(variant: ManagedVariant): VNode | null {
 
 function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): VNode {
     const expected = expectedPieceSetFiles(variant);
+    const whiteFiles = expectedSingleColorPieceSetFiles(variant, 'w');
+    const blackFiles = expectedSingleColorPieceSetFiles(variant, 'b');
+    const requiredFilesText = variant.directionalPieceSet
+        ? `${whiteFiles.length} ${_('one-color')} ${_('or')} ${expected.length} ${_('paired')}`
+        : `${expected.length}`;
+    const requiredFilesTitle = variant.directionalPieceSet
+        ? `${_('One-color set')}: ${whiteFiles.join(', ')} ${_('or')} ${blackFiles.join(', ')}. ${_('Paired set')}: ${expected.join(', ')}`
+        : expected.join(', ');
     const compatibleFamily = cataloguedCompatiblePieceFamily(variant, { ignoreCustomPieceSet: true });
     const pieceStatus = variant.hasPieceSet
         ? _('Custom')
@@ -1251,8 +1309,8 @@ function renderPieceSetControls(model: PyChessModel, variant: ManagedVariant): V
         renderCompatiblePieceSetInfo(variant),
         h(
             'span.catalogued-help',
-            { attrs: { title: expected.join(', ') } },
-            `${_('Required SVG files')}: ${expected.length}`,
+            { attrs: { title: requiredFilesTitle } },
+            `${_('Required SVG files')}: ${requiredFilesText}`,
         ),
         h('label.catalogued-row-button.catalogued-secondary-action.catalogued-file-action', [
             _('Upload set'),

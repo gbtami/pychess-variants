@@ -134,9 +134,9 @@ CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
     }
 )
 # Custom piece sets for these Shogi-derived variants use the pointed end of a
-# piece to show ownership. Their uploaded white/black SVGs describe the normal
-# white-oriented board; the generated CSS rotates each player's image when that
-# player is displayed on the opposite side after a board flip.
+# piece to show ownership. A set may upload one canonical player orientation or
+# distinct white/black SVGs. Generated CSS derives the missing orientation when
+# needed and keeps both players facing correctly after a board flip.
 CATALOGUED_DIRECTIONAL_PIECE_BASE_VARIANTS = frozenset(
     {
         "cannonshogi",
@@ -1038,6 +1038,7 @@ class CataloguedVariantDocument(TypedDict):
     fsfBuiltinVariant: NotRequired[str]
     pieceFamilyOverride: NotRequired[str]
     boardFamilyOverride: NotRequired[str]
+    pieceSetDirectional: bool
     references: NotRequired[list[CataloguedVariantReference]]
     pieceSet: NotRequired[dict[str, CataloguedVariantPieceSetSvg]]
     pieceSetUpdatedAt: NotRequired[datetime]
@@ -1093,6 +1094,8 @@ class CataloguedVariantClientDocument(TypedDict):
     aiDisabledReason: NotRequired[str]
     aiDisabledUntil: NotRequired[datetime]
     favorite: NotRequired[bool]
+    pieceSetDirectional: NotRequired[bool]
+    directionalPieceSet: NotRequired[bool]
     hasPieceSet: NotRequired[bool]
     pieceSetRevision: NotRequired[str]
     hasBoard: NotRequired[bool]
@@ -1140,6 +1143,25 @@ def _read_piece_family_override(data: Mapping[str, Any]) -> str:
     return _clean_piece_family_override(str(value or ""))
 
 
+def _read_bool_metadata(data: Mapping[str, Any], key: str, legacy_key: str) -> bool | None:
+    if key in data:
+        value = data.get(key)
+    elif legacy_key in data:
+        value = data.get(legacy_key)
+    else:
+        return None
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return None
+    normalized = str(value).strip().casefold()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"", "0", "false", "no", "off"}:
+        return False
+    raise web.HTTPBadRequest(text=f"Invalid {key} metadata. Use true or false.")
+
+
 def _catalogued_piece_family_override(doc: Mapping[str, Any]) -> str:
     try:
         return _clean_piece_family_override(str(doc.get("pieceFamilyOverride") or ""))
@@ -1149,6 +1171,8 @@ def _catalogued_piece_family_override(doc: Mapping[str, Any]) -> str:
 
 def _catalogued_piece_set_is_directional(doc: Mapping[str, Any]) -> bool:
     """Whether custom pieces must keep pointing toward the opponent."""
+    if bool(doc.get("pieceSetDirectional", False)):
+        return True
     base_variant = str(doc.get("baseVariant") or "").strip().lower()
     if base_variant in CATALOGUED_DIRECTIONAL_PIECE_BASE_VARIANTS:
         return True
@@ -2026,7 +2050,7 @@ def _canonical_piece_set_filename(filename: str) -> str | None:
     return f"{color}{promoted}{letter.upper()}.svg"
 
 
-def _catalogued_piece_set_required_filenames(doc: Mapping[str, Any]) -> list[str]:
+def _catalogued_piece_set_filenames(doc: Mapping[str, Any], colors: tuple[str, ...]) -> list[str]:
     roles = {str(role).lower() for role in doc.get("pieces", []) if str(role).isalpha()}
     promotion_type = str(
         doc.get("promotionType") or catalogued_promotion_type(str(doc.get("ini") or ""))
@@ -2037,12 +2061,20 @@ def _catalogued_piece_set_required_filenames(doc: Mapping[str, Any]) -> list[str
         else set()
     )
     filenames: list[str] = []
-    for color in ("w", "b"):
+    for color in colors:
         for role in sorted(roles):
             filenames.append(f"{color}{role.upper()}.svg")
         for role in sorted(promoted_roles):
             filenames.append(f"{color}+{role.upper()}.svg")
     return filenames
+
+
+def _catalogued_piece_set_required_filenames(doc: Mapping[str, Any]) -> list[str]:
+    return _catalogued_piece_set_filenames(doc, ("w", "b"))
+
+
+def _catalogued_piece_set_single_color_filenames(doc: Mapping[str, Any], color: str) -> list[str]:
+    return _catalogued_piece_set_filenames(doc, (color,))
 
 
 def _catalogued_piece_set_required_filenames_text(doc: Mapping[str, Any]) -> str:
@@ -2064,6 +2096,24 @@ def _catalogued_piece_set_required_keys(doc: Mapping[str, Any]) -> set[str]:
         _catalogued_piece_set_storage_key(filename)
         for filename in _catalogued_piece_set_required_filenames(doc)
     }
+
+
+def _catalogued_piece_set_single_color_keys(doc: Mapping[str, Any], color: str) -> set[str]:
+    return {
+        _catalogued_piece_set_storage_key(filename)
+        for filename in _catalogued_piece_set_single_color_filenames(doc, color)
+    }
+
+
+def _catalogued_piece_set_mode_for_keys(doc: Mapping[str, Any], keys: set[str]) -> str | None:
+    if keys == _catalogued_piece_set_required_keys(doc):
+        return "paired"
+    if not _catalogued_piece_set_is_directional(doc):
+        return None
+    for color in ("w", "b"):
+        if keys == _catalogued_piece_set_single_color_keys(doc, color):
+            return f"canonical-{color}"
+    return None
 
 
 def _catalogued_piece_set_public_filename(key: str) -> str:
@@ -2241,6 +2291,9 @@ def _catalogued_piece_set_css(
     directional: bool = False,
 ) -> str:
     lines: list[str] = []
+    stored_keys = {_catalogued_piece_set_storage_key(str(key)) for key in piece_set}
+    stored_colors = {key[0] for key in stored_keys if key and key[0] in {"w", "b"}}
+    canonical_color = next(iter(stored_colors)) if directional and len(stored_colors) == 1 else None
     if directional:
         style_class = f".piece-style-catalogued-{variant_name}-custom"
         lines.append(
@@ -2253,8 +2306,19 @@ def _catalogued_piece_set_css(
         if not svg:
             continue
         data = base64.b64encode(svg.encode("utf-8")).decode("ascii")
+        selectors = [_catalogued_piece_css_selector(variant_name, key, image_layer=directional)]
+        if canonical_color is not None:
+            stored_key = _catalogued_piece_set_storage_key(str(key))
+            other_color = "b" if canonical_color == "w" else "w"
+            selectors.append(
+                _catalogued_piece_css_selector(
+                    variant_name,
+                    other_color + stored_key[1:],
+                    image_layer=True,
+                )
+            )
         lines.append(
-            f"{_catalogued_piece_css_selector(variant_name, key, image_layer=directional)} "
+            f"{', '.join(selectors)} "
             "{background-position:center;background-size:contain;background-repeat:no-repeat;background-image:"
             f'url("data:image/svg+xml;base64,{data}");}}'
         )
@@ -2262,11 +2326,16 @@ def _catalogued_piece_set_css(
         # chessgroundx owns the piece element's transform for positioning and
         # animation. Rotate only its image layer so that translation is left
         # untouched.
-        lines.append(
-            f"{style_class} piece.white.enemy::before, "
-            f"{style_class} piece.black.ally::before "
-            "{transform:rotate(180deg);}"
-        )
+        if canonical_color == "w":
+            lines.append(f"{style_class} piece.enemy::before {{transform:rotate(180deg);}}")
+        elif canonical_color == "b":
+            lines.append(f"{style_class} piece.ally::before {{transform:rotate(180deg);}}")
+        else:
+            lines.append(
+                f"{style_class} piece.white.enemy::before, "
+                f"{style_class} piece.black.ally::before "
+                "{transform:rotate(180deg);}"
+            )
     return "\n".join(lines) + "\n"
 
 
@@ -2330,9 +2399,8 @@ def _has_complete_piece_set(doc: Mapping[str, Any]) -> bool:
     piece_set = doc.get("pieceSet")
     if not isinstance(piece_set, Mapping):
         return False
-    return {
-        _catalogued_piece_set_storage_key(str(key)) for key in piece_set
-    } == _catalogued_piece_set_required_keys(doc)
+    keys = {_catalogued_piece_set_storage_key(str(key)) for key in piece_set}
+    return _catalogued_piece_set_mode_for_keys(doc, keys) is not None
 
 
 def _copy_piece_set_if_complete_for_doc(
@@ -2667,6 +2735,8 @@ def _client_doc(
         "source": _catalogued_source(doc),
         "system": _is_fsf_builtin_catalogued_doc(doc),
         "visibility": _catalogued_visibility(doc),
+        "pieceSetDirectional": bool(doc.get("pieceSetDirectional", False)),
+        "directionalPieceSet": _catalogued_piece_set_is_directional(doc),
         "hasPieceSet": _has_complete_piece_set(doc),
         "hasBoard": _has_board_svg(doc),
         "archived": bool(doc.get("archived", False)),
@@ -3390,7 +3460,7 @@ async def set_catalogued_variant_favorite(request: web.Request) -> web.Response:
 
 async def _read_upload_payload(
     request: web.Request,
-) -> tuple[str, str, str, dict[str, str], str, str, str]:
+) -> tuple[str, str, str, dict[str, str], bool | None, str, str, str]:
     content_type = request.content_type or ""
 
     if content_type == "application/json":
@@ -3405,6 +3475,9 @@ async def _read_upload_payload(
         piece_names = parse_catalogued_piece_names(
             data.get("pieceNames", data.get("piece_names", ""))
         )
+        piece_set_directional = _read_bool_metadata(
+            data, "pieceSetDirectional", "piece_set_directional"
+        )
         piece_family_override = _read_piece_family_override(data)
         board_family_override = _read_board_family_override(data)
         visibility = _clean_visibility(str(data.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE))
@@ -3413,6 +3486,7 @@ async def _read_upload_payload(
             display_name,
             description,
             piece_names,
+            piece_set_directional,
             piece_family_override,
             board_family_override,
             visibility,
@@ -3420,7 +3494,7 @@ async def _read_upload_payload(
 
     if content_type.startswith("text/"):
         ini = await read_text_data(request)
-        return ini or "", "", "", {}, "", "", CATALOGUED_VISIBILITY_PRIVATE
+        return ini or "", "", "", {}, None, "", "", CATALOGUED_VISIBILITY_PRIVATE
 
     data = await read_post_data(request)
     if data is None:
@@ -3438,6 +3512,9 @@ async def _read_upload_payload(
     )
     description = str(data.get("description") or "")
     piece_names = parse_catalogued_piece_names(data.get("pieceNames", data.get("piece_names", "")))
+    piece_set_directional = _read_bool_metadata(
+        data, "pieceSetDirectional", "piece_set_directional"
+    )
     piece_family_override = _read_piece_family_override(data)
     board_family_override = _read_board_family_override(data)
     visibility = _clean_visibility(str(data.get("visibility") or CATALOGUED_VISIBILITY_PRIVATE))
@@ -3446,6 +3523,7 @@ async def _read_upload_payload(
         display_name,
         description,
         piece_names,
+        piece_set_directional,
         piece_family_override,
         board_family_override,
         visibility,
@@ -3603,6 +3681,7 @@ def _build_doc(
     n_fold_is_draw: bool,
     show_check_counters: bool,
     created_at: datetime,
+    piece_set_directional: bool = False,
     visibility: str = CATALOGUED_VISIBILITY_PRIVATE,
     piece_family_override: str = "",
     board_family_override: str = "",
@@ -3640,6 +3719,7 @@ def _build_doc(
         "icon": CATALOGUED_ICON,
         "category": CATALOGUED_CATEGORY,
         "visibility": _clean_visibility(visibility),
+        "pieceSetDirectional": piece_set_directional,
         "source": source,
         "gameCount": max(0, int(game_count)),
         "createdAt": created_at,
@@ -3924,6 +4004,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
         display_name,
         description,
         piece_names,
+        piece_set_directional,
         piece_family_override,
         board_family_override,
         visibility,
@@ -3968,6 +4049,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
         n_fold_is_draw=validated.n_fold_is_draw,
         show_check_counters=validated.show_check_counters,
         created_at=now,
+        piece_set_directional=bool(piece_set_directional),
         visibility=visibility,
         piece_family_override=piece_family_override if _is_admin_username(username) else "",
         board_family_override=board_family_override if _is_admin_username(username) else "",
@@ -4001,8 +4083,8 @@ async def upload_catalogued_piece_set(request: web.Request) -> web.Response:
     if not uploads:
         raise web.HTTPBadRequest(text="Upload one SVG file for every required piece.")
 
-    required = _catalogued_piece_set_required_keys(doc)
-    if not required:
+    paired_keys = _catalogued_piece_set_required_keys(doc)
+    if not paired_keys:
         raise web.HTTPBadRequest(text="This variant has no renderable piece roles.")
 
     piece_set: dict[str, CataloguedVariantPieceSetSvg] = {}
@@ -4019,7 +4101,7 @@ async def upload_catalogued_piece_set(request: web.Request) -> web.Response:
         key = _catalogued_piece_set_storage_key(canonical)
         if key in piece_set:
             raise web.HTTPBadRequest(text=f"Duplicate piece SVG: {canonical}.")
-        if key not in required:
+        if key not in paired_keys:
             raise web.HTTPBadRequest(text=f"Unexpected piece SVG: {canonical}.")
         if not hasattr(upload, "file"):
             raise web.HTTPBadRequest(text=f"{canonical} is not a file upload.")
@@ -4038,12 +4120,19 @@ async def upload_catalogued_piece_set(request: web.Request) -> web.Response:
         piece_set[key] = {"svg": svg, "size": len(svg.encode("utf-8"))}
 
     uploaded = set(piece_set)
-    if uploaded != required:
+    if _catalogued_piece_set_mode_for_keys(doc, uploaded) is None:
+        if _catalogued_piece_set_is_directional(doc):
+            raise web.HTTPBadRequest(
+                text=(
+                    "Directional custom piece sets must be either one complete color "
+                    "(all white or all black SVGs) or a complete white/black pair."
+                )
+            )
         missing = ", ".join(
-            _catalogued_piece_set_public_filename(key) for key in sorted(required - uploaded)
+            _catalogued_piece_set_public_filename(key) for key in sorted(paired_keys - uploaded)
         )
         extra = ", ".join(
-            _catalogued_piece_set_public_filename(key) for key in sorted(uploaded - required)
+            _catalogued_piece_set_public_filename(key) for key in sorted(uploaded - paired_keys)
         )
         details = []
         if missing:
@@ -4328,11 +4417,14 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         display_name,
         description,
         piece_names,
+        piece_set_directional,
         piece_family_override,
         board_family_override,
         visibility,
     ) = await _read_upload_payload(request)
     ini = ini.strip()
+    if piece_set_directional is None:
+        piece_set_directional = bool(existing.get("pieceSetDirectional", False))
     piece_family_override = (
         piece_family_override
         if _is_admin_username(username)
@@ -4350,6 +4442,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
                 "displayName": _clean_display_name(display_name, old_name),
                 "description": _clean_description(description),
                 "visibility": visibility,
+                "pieceSetDirectional": piece_set_directional,
                 "updatedAt": now,
             }
         }
@@ -4474,6 +4567,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         n_fold_is_draw=n_fold_is_draw,
         show_check_counters=show_check_counters,
         created_at=existing.get("createdAt", datetime.now(timezone.utc)),
+        piece_set_directional=piece_set_directional,
         visibility=visibility,
         piece_family_override=piece_family_override,
         board_family_override=board_family_override,
@@ -4625,6 +4719,7 @@ async def clone_catalogued_variant(request: web.Request) -> web.Response:
         n_fold_is_draw=validated.n_fold_is_draw,
         show_check_counters=validated.show_check_counters,
         created_at=now,
+        piece_set_directional=bool(doc.get("pieceSetDirectional", False)),
         piece_family_override=_catalogued_piece_family_override(doc),
         board_family_override=_catalogued_board_family_override(doc),
     )

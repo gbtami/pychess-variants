@@ -16,6 +16,8 @@ from catalogued_variants import (
     _catalogued_piece_set_is_directional,
     _catalogued_piece_set_required_filenames,
     _copy_piece_set_if_complete_for_doc,
+    _has_complete_piece_set,
+    _read_bool_metadata,
     _sanitize_catalogued_board_svg,
     _sanitize_catalogued_piece_svg,
     register_catalogued_variant_doc,
@@ -206,6 +208,38 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
             css,
         )
 
+    def test_directional_white_canonical_css_shares_images_and_rotates_enemy(self) -> None:
+        css = _catalogued_piece_set_css(
+            "canonicalshogi",
+            {"wP": {"svg": '<svg xmlns="http://www.w3.org/2000/svg" />'}},
+            directional=True,
+        )
+
+        self.assertIn("piece.p-piece.white::before", css)
+        self.assertIn("piece.p-piece.black::before", css)
+        self.assertIn(
+            ".piece-style-catalogued-canonicalshogi-custom piece.enemy::before "
+            "{transform:rotate(180deg);}",
+            css,
+        )
+        self.assertNotIn("piece.white.enemy::before", css)
+
+    def test_directional_black_canonical_css_shares_images_and_rotates_ally(self) -> None:
+        css = _catalogued_piece_set_css(
+            "canonicalshogi",
+            {"bP": {"svg": '<svg xmlns="http://www.w3.org/2000/svg" />'}},
+            directional=True,
+        )
+
+        self.assertIn("piece.p-piece.white::before", css)
+        self.assertIn("piece.p-piece.black::before", css)
+        self.assertIn(
+            ".piece-style-catalogued-canonicalshogi-custom piece.ally::before "
+            "{transform:rotate(180deg);}",
+            css,
+        )
+        self.assertNotIn("piece.black.ally::before", css)
+
     def test_regular_piece_css_does_not_rotate_player_images(self) -> None:
         css = _catalogued_piece_set_css(
             "wildebeest",
@@ -222,6 +256,26 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
         self.assertTrue(
             _catalogued_piece_set_is_directional(
                 {"baseVariant": "chess", "pieceFamilyOverride": "tori"}
+            )
+        )
+
+    def test_directional_checkbox_marks_standalone_custom_set(self) -> None:
+        self.assertTrue(
+            _catalogued_piece_set_is_directional(
+                {
+                    "baseVariant": "",
+                    "pieceSetDirectional": True,
+                }
+            )
+        )
+
+    def test_directional_checkbox_does_not_disable_inherited_rotation(self) -> None:
+        self.assertTrue(
+            _catalogued_piece_set_is_directional(
+                {
+                    "baseVariant": "shogi",
+                    "pieceSetDirectional": False,
+                }
             )
         )
 
@@ -330,6 +384,107 @@ class CataloguedVariantStartFenValidationTestCase(unittest.IsolatedAsyncioTestCa
 
 
 class CataloguedVariantPieceMetadataTestCase(unittest.TestCase):
+    def test_directional_checkbox_metadata_parses_boolean_values(self) -> None:
+        self.assertTrue(
+            _read_bool_metadata(
+                {"pieceSetDirectional": True},
+                "pieceSetDirectional",
+                "piece_set_directional",
+            )
+        )
+        self.assertFalse(
+            _read_bool_metadata(
+                {"piece_set_directional": "off"},
+                "pieceSetDirectional",
+                "piece_set_directional",
+            )
+        )
+        self.assertIsNone(_read_bool_metadata({}, "pieceSetDirectional", "piece_set_directional"))
+
+    def test_directional_checkbox_metadata_rejects_invalid_value(self) -> None:
+        with self.assertRaises(web.HTTPBadRequest):
+            _read_bool_metadata(
+                {"pieceSetDirectional": "sometimes"},
+                "pieceSetDirectional",
+                "piece_set_directional",
+            )
+
+    def test_directional_piece_set_accepts_complete_single_color_or_paired_modes(
+        self,
+    ) -> None:
+        directional_doc: Any = {
+            "baseVariant": "",
+            "pieceSetDirectional": True,
+            "pieces": ["k", "p"],
+            "promotionType": "shogi",
+            "promotionRoles": ["p"],
+        }
+        white = {
+            "wK": {"svg": "<svg />"},
+            "wP": {"svg": "<svg />"},
+            "w+P": {"svg": "<svg />"},
+        }
+        black = {
+            "bK": {"svg": "<svg />"},
+            "bP": {"svg": "<svg />"},
+            "b+P": {"svg": "<svg />"},
+        }
+
+        self.assertTrue(_has_complete_piece_set({**directional_doc, "pieceSet": white}))
+        self.assertTrue(_has_complete_piece_set({**directional_doc, "pieceSet": black}))
+        self.assertTrue(
+            _has_complete_piece_set({**directional_doc, "pieceSet": {**white, **black}})
+        )
+
+    def test_directional_piece_set_rejects_partial_or_mixed_single_color_modes(
+        self,
+    ) -> None:
+        directional_doc: Any = {
+            "baseVariant": "",
+            "pieceSetDirectional": True,
+            "pieces": ["k", "p"],
+            "promotionType": "shogi",
+            "promotionRoles": ["p"],
+        }
+
+        self.assertFalse(
+            _has_complete_piece_set(
+                {
+                    **directional_doc,
+                    "pieceSet": {
+                        "wK": {"svg": "<svg />"},
+                        "wP": {"svg": "<svg />"},
+                    },
+                }
+            )
+        )
+        self.assertFalse(
+            _has_complete_piece_set(
+                {
+                    **directional_doc,
+                    "pieceSet": {
+                        "wK": {"svg": "<svg />"},
+                        "wP": {"svg": "<svg />"},
+                        "b+P": {"svg": "<svg />"},
+                    },
+                }
+            )
+        )
+
+    def test_non_directional_piece_set_still_requires_paired_mode(self) -> None:
+        regular_doc: Any = {
+            "baseVariant": "chess",
+            "pieces": ["k", "p"],
+            "promotionType": "regular",
+            "promotionRoles": ["p"],
+            "pieceSet": {
+                "wK": {"svg": "<svg />"},
+                "wP": {"svg": "<svg />"},
+            },
+        }
+
+        self.assertFalse(_has_complete_piece_set(regular_doc))
+
     def test_validate_ini_uses_pychess_pieces_metadata_for_promoted_svgs(self) -> None:
         ini = """[metapromo:chess]
 # pychessPieces = k,q,r,+r,p,+p

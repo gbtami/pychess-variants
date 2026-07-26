@@ -2053,6 +2053,8 @@ export interface CataloguedVariantClientDocument {
     readonly aiDisabledReason?: string;
     readonly aiDisabledUntil?: string;
     readonly favorite?: boolean;
+    readonly pieceSetDirectional?: boolean;
+    readonly directionalPieceSet?: boolean;
     readonly hasPieceSet?: boolean;
     readonly pieceSetRevision?: string;
     readonly hasBoard?: boolean;

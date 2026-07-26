@@ -167,7 +167,11 @@ Many variants can use existing PyChess piece styles automatically. If your uploa
 
 If the built-in styles are not enough, you can upload a custom SVG piece set from **My variants**.
 
-A custom piece set must be **complete and exact**. The page shows how many SVG files are required. The server expects one SVG for every required white and black piece, including promoted pieces when the variant needs them.
+A custom piece set must be **complete and exact**. The page shows how many SVG files are required. Ordinarily, the server expects one SVG for every required white and black piece, including promoted pieces when the variant needs them.
+
+Directional variants, such as variants derived from Shogi, may instead upload one complete color. PyChess uses that color as the canonical orientation for both players and rotates the artwork in CSS. Either all white files or all black files may be used. A complete white/black pair remains supported for sets with intentionally different player artwork, kings, lighting, or decoration.
+
+Variants inherited from Shogi are detected automatically. For a standalone Fairy-Stockfish definition, enable **Directional custom pieces** in the variant metadata on **My variants**. This keeps the display choice separate from the engine rules.
 
 Filenames must follow the expected pattern, for example:
 
@@ -178,7 +182,7 @@ w+P.svg
 b+P.svg
 ```
 
-The exact required filenames depend on the pieces used by your variant. Extra files are rejected, missing files are rejected, and duplicate files are rejected. This strictness prevents broken boards where some pieces render correctly and others disappear.
+The exact required filenames depend on the pieces used by your variant. A directional upload must be either one complete color or one complete white/black pair; partial and mixed sets are rejected. Extra files, missing files, and duplicate files are also rejected. This strictness prevents broken boards where some pieces render correctly and others disappear.
 
 After uploading a piece set, use **Preview** to check it. You can delete the custom set later if you want to return to the automatically selected built-in styles or the default letter pieces.
 
