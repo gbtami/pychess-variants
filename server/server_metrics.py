@@ -1,18 +1,20 @@
+from __future__ import annotations
+
 import inspect
 import sys
 import gc
-import os
 import resource
 import time
 import asyncio
 from asyncio import Event, Task, Queue
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, Any, TypedDict, cast
 
 from aiohttp import web
 from aiohttp.web_response import StreamResponse
+import pyffish as sf
 
 from bug.game_bug import GameBug
 from catalogued_betza import (
@@ -41,6 +43,9 @@ from tournament.tournament import GameData, PlayerData, Tournament, player_json
 from pychess_global_app_state_utils import get_app_state
 from json_utils import json_response
 from typedefs import request_protection_state_key
+
+if TYPE_CHECKING:
+    from pychess_global_app_state import PychessGlobalAppState
 
 log = logging.getLogger(__name__)
 
@@ -138,26 +143,223 @@ def cache_stats() -> list[CacheInfo]:
     return rows
 
 
-def process_memory_stats() -> dict[str, float | int]:
-    """Return Linux process RSS alongside Python GC counters."""
-    peak_rss_kib = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-    rss_kib = peak_rss_kib
+def _proc_status_memory_kib() -> dict[str, int]:
+    wanted = {"VmRSS", "VmSwap", "VmSize", "RssAnon", "RssFile", "RssShmem"}
+    values: dict[str, int] = {}
     try:
-        with open("/proc/self/statm", encoding="ascii") as statm:
-            resident_pages = int(statm.read().split()[1])
-        rss_kib = resident_pages * int(os.sysconf("SC_PAGE_SIZE")) // 1024
+        with open("/proc/self/status", encoding="ascii") as status:
+            for line in status:
+                name, separator, raw_value = line.partition(":")
+                if not separator or name not in wanted:
+                    continue
+                values[name] = int(raw_value.split()[0])
     except OSError, ValueError, IndexError:
         pass
+    return values
+
+
+def process_memory_stats() -> dict[str, float | int]:
+    """Return Linux RSS/swap breakdown alongside inexpensive Python runtime counters."""
+    peak_rss_kib = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    status_memory = _proc_status_memory_kib()
+    rss_kib = status_memory.get("VmRSS", peak_rss_kib)
+    swap_kib = status_memory.get("VmSwap", 0)
+    rss_plus_swap_kib = rss_kib + swap_kib
 
     gc_gen0, gc_gen1, gc_gen2 = gc.get_count()
     return {
         "rss_kib": rss_kib,
         "rss_mib": round(rss_kib / 1024, 2),
+        "swap_kib": swap_kib,
+        "swap_mib": round(swap_kib / 1024, 2),
+        "rss_plus_swap_kib": rss_plus_swap_kib,
+        "rss_plus_swap_mib": round(rss_plus_swap_kib / 1024, 2),
         "peak_rss_kib": peak_rss_kib,
         "peak_rss_mib": round(peak_rss_kib / 1024, 2),
+        "virtual_memory_kib": status_memory.get("VmSize", 0),
+        "anonymous_rss_kib": status_memory.get("RssAnon", 0),
+        "file_rss_kib": status_memory.get("RssFile", 0),
+        "shared_rss_kib": status_memory.get("RssShmem", 0),
+        "allocated_blocks": sys.getallocatedblocks(),
         "gc_gen0": gc_gen0,
         "gc_gen1": gc_gen1,
         "gc_gen2": gc_gen2,
+    }
+
+
+def _catalogued_payload_stats(
+    catalogued_variants: Mapping[str, Mapping[str, Any]],
+) -> dict[str, int]:
+    def stored_svg_bytes(item: Mapping[str, Any]) -> int:
+        stored_size = item.get("size")
+        if isinstance(stored_size, int) and not isinstance(stored_size, bool) and stored_size >= 0:
+            return stored_size
+        svg = item.get("svg")
+        return len(svg.encode("utf-8")) if isinstance(svg, str) else 0
+
+    ini_bytes = 0
+    piece_svg_bytes = 0
+    board_svg_bytes = 0
+    for doc in catalogued_variants.values():
+        ini_bytes += len(str(doc.get("ini") or "").encode("utf-8"))
+
+        piece_set = doc.get("pieceSet")
+        if isinstance(piece_set, Mapping):
+            for item in piece_set.values():
+                if isinstance(item, Mapping):
+                    piece_svg_bytes += stored_svg_bytes(item)
+
+        board_svg = doc.get("boardSvg")
+        if isinstance(board_svg, Mapping):
+            board_svg_bytes += stored_svg_bytes(board_svg)
+
+    return {
+        "catalogued_ini_bytes": ini_bytes,
+        "catalogued_piece_svg_bytes": piece_svg_bytes,
+        "catalogued_board_svg_bytes": board_svg_bytes,
+        "catalogued_payload_bytes": ini_bytes + piece_svg_bytes + board_svg_bytes,
+    }
+
+
+def _state_summary(
+    app_state: PychessGlobalAppState,
+    request: web.Request,
+) -> dict[str, int]:
+    public_profiles = getattr(app_state.public_users, "_profiles", {})
+    public_titles = getattr(app_state.public_users, "_titles", {})
+    request_protection = request.app[request_protection_state_key]
+    payload_stats = _catalogued_payload_stats(app_state.catalogued_variants)
+    return {
+        "users": len(app_state.users),
+        "games": len(app_state.games),
+        "seeks": len(app_state.seeks),
+        "invites": len(app_state.invites),
+        "tournaments": len(app_state.tournaments),
+        "simuls": len(app_state.simuls),
+        "catalogued_variants": len(app_state.catalogued_variants),
+        "pyffish_variants": len(sf.variants()),
+        **payload_stats,
+        "game_remove_tasks": len(app_state.game_remove_tasks),
+        "tournament_remove_tasks": len(app_state.tournament_remove_tasks),
+        "background_tasks": len(app_state.background_tasks),
+        "active_tasks": len(asyncio.all_tasks()),
+        "fishnet_works": len(app_state.fishnet_works),
+        "fishnet_queue": app_state.fishnet_queue.qsize(),
+        "fishnet_payloads": len(app_state.fishnet_variant_payloads),
+        "fishnet_payload_bytes": fishnet_variants_payload_cache_bytes(app_state),
+        "public_profile_cache": len(public_profiles),
+        "public_title_cache": len(public_titles),
+        "request_limit_buckets": len(request_protection._limiter._events),
+        "request_block_log": len(request_protection._last_block_log),
+    }
+
+
+def _stream_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
+    lobby_ws = sum(len(ws_set) for ws_set in app_state.lobby.lobbysockets.values())
+    game_ws = sum(
+        len(ws_set) for user in app_state.users.values() for ws_set in user.game_sockets.values()
+    )
+    tournament_ws = sum(
+        sum(1 for ws in ws_set if ws is not None)
+        for user in app_state.users.values()
+        for ws_set in user.tournament_sockets.values()
+    )
+    simul_ws = sum(
+        len(ws_set) for user in app_state.users.values() for ws_set in user.simul_sockets.values()
+    )
+    notify_sse = sum(len(user.notify_channels) for user in app_state.users.values())
+    inbox_sse = sum(len(user.inbox_channels) for user in app_state.users.values())
+    challenge_sse = sum(len(user.challenge_channels) for user in app_state.users.values())
+    invite_sse = sum(len(channels) for channels in app_state.invite_channels.values())
+    active_bot_game_streams = sum(
+        len(user.active_game_streams) for user in app_state.users.values() if user.bot
+    )
+    return {
+        "lobby_websockets": lobby_ws,
+        "game_websockets": game_ws,
+        "tournament_websockets": tournament_ws,
+        "simul_websockets": simul_ws,
+        "game_sse": len(app_state.game_channels),
+        "invite_sse": invite_sse,
+        "invite_sse_groups": len(app_state.invite_channels),
+        "notify_sse": notify_sse,
+        "inbox_sse": inbox_sse,
+        "challenge_sse": challenge_sse,
+        "active_bot_game_streams": active_bot_game_streams,
+    }
+
+
+def _registered_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
+    registered_total = 0
+    registered_online = 0
+    registered_never_connected = 0
+    registered_cache_only = 0
+    registered_notification_users = 0
+    registered_notification_entries = 0
+    for user in app_state.users.values():
+        if user.anon or reserved(user.username):
+            continue
+        registered_total += 1
+        registered_online += int(user.online)
+        registered_never_connected += int(not user.ever_connected)
+        notification_count = 0 if user.notifications is None else len(user.notifications)
+        registered_notification_entries += notification_count
+        registered_notification_users += int(notification_count > 0)
+        has_live_reference = bool(
+            user.online
+            or user.game_in_progress is not None
+            or user.correspondence_games
+            or user.seeks
+            or user.game_sockets
+            or user.lobby_sockets
+            or user.tournament_sockets
+            or user.simul_sockets
+            or user.notify_channels
+            or user.inbox_channels
+            or user.challenge_channels
+            or user.abandon_game_tasks
+            or user.background_tasks
+            or user.watched_games
+        )
+        if not has_live_reference:
+            registered_cache_only += 1
+
+    return {
+        "registered_total": registered_total,
+        "registered_online": registered_online,
+        "registered_offline": registered_total - registered_online,
+        "registered_never_connected": registered_never_connected,
+        "registered_cache_only": registered_cache_only,
+        "registered_notification_users": registered_notification_users,
+        "registered_notification_entries": registered_notification_entries,
+    }
+
+
+def _anonymous_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
+    anon_users = [
+        user for user in app_state.users.values() if user.anon and not reserved(user.username)
+    ]
+    return {
+        "anon_total": len(anon_users),
+        "anon_online": sum(int(user.online) for user in anon_users),
+        "anon_never_connected": sum(int(not user.ever_connected) for user in anon_users),
+    }
+
+
+def _lightweight_metrics(
+    app_state: PychessGlobalAppState,
+    request: web.Request,
+) -> dict[str, object]:
+    cache_rows = cache_stats()
+    return {
+        "mode": "summary",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "process_memory": process_memory_stats(),
+        "state": _state_summary(app_state, request),
+        "registered": _registered_summary(app_state),
+        "anonymous": _anonymous_summary(app_state),
+        "streams": _stream_summary(app_state),
+        "caches": cache_rows,
     }
 
 
@@ -337,6 +539,9 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
         raise web.HTTPNotFound()
 
     app_state = get_app_state(request.app)
+    if request.rel_url.query.get("summary", "").casefold() == "true":
+        return json_response(_lightweight_metrics(app_state, request))
+
     active_connections = app_state.lobby.lobbysockets
 
     need_inspect = request.rel_url.query.get("inspect")
@@ -643,115 +848,13 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
     ]
     fishnet_work_rows.sort(key=lambda row: cast(int, row["age_secs"]), reverse=True)
 
-    public_profiles = getattr(app_state.public_users, "_profiles", {})
-    public_titles = getattr(app_state.public_users, "_titles", {})
-    request_protection = request.app[request_protection_state_key]
-    fishnet_payload_bytes = fishnet_variants_payload_cache_bytes(app_state)
-    state_summary = [
-        {
-            "users": len(app_state.users),
-            "games": len(app_state.games),
-            "seeks": len(app_state.seeks),
-            "invites": len(app_state.invites),
-            "tournaments": len(app_state.tournaments),
-            "simuls": len(app_state.simuls),
-            "catalogued_variants": len(app_state.catalogued_variants),
-            "game_remove_tasks": len(app_state.game_remove_tasks),
-            "tournament_remove_tasks": len(app_state.tournament_remove_tasks),
-            "background_tasks": len(app_state.background_tasks),
-            "fishnet_works": len(app_state.fishnet_works),
-            "fishnet_queue": app_state.fishnet_queue.qsize(),
-            "fishnet_payloads": len(app_state.fishnet_variant_payloads),
-            "fishnet_payload_bytes": fishnet_payload_bytes,
-            "public_profile_cache": len(public_profiles),
-            "public_title_cache": len(public_titles),
-            "request_limit_buckets": len(request_protection._limiter._events),
-            "request_block_log": len(request_protection._last_block_log),
-        }
-    ]
+    state_summary = [_state_summary(app_state, request)]
     state_entries = sum(cast(int, value) for value in state_summary[0].values())
 
-    lobby_ws = sum(len(ws_set) for ws_set in app_state.lobby.lobbysockets.values())
-    game_ws = sum(
-        len(ws_set) for user in app_state.users.values() for ws_set in user.game_sockets.values()
-    )
-    tournament_ws = sum(
-        sum(1 for ws in ws_set if ws is not None)
-        for user in app_state.users.values()
-        for ws_set in user.tournament_sockets.values()
-    )
-    simul_ws = sum(
-        len(ws_set) for user in app_state.users.values() for ws_set in user.simul_sockets.values()
-    )
-    notify_sse = sum(len(user.notify_channels) for user in app_state.users.values())
-    inbox_sse = sum(len(user.inbox_channels) for user in app_state.users.values())
-    challenge_sse = sum(len(user.challenge_channels) for user in app_state.users.values())
-    invite_sse = sum(len(channels) for channels in app_state.invite_channels.values())
-    active_bot_game_streams = sum(
-        len(user.active_game_streams) for user in app_state.users.values() if user.bot
-    )
-    stream_summary = [
-        {
-            "lobby_websockets": lobby_ws,
-            "game_websockets": game_ws,
-            "tournament_websockets": tournament_ws,
-            "simul_websockets": simul_ws,
-            "game_sse": len(app_state.game_channels),
-            "invite_sse": invite_sse,
-            "invite_sse_groups": len(app_state.invite_channels),
-            "notify_sse": notify_sse,
-            "inbox_sse": inbox_sse,
-            "challenge_sse": challenge_sse,
-            "active_bot_game_streams": active_bot_game_streams,
-        }
-    ]
+    stream_summary = [_stream_summary(app_state)]
     stream_entries = sum(cast(int, value) for value in stream_summary[0].values())
 
-    registered_total = 0
-    registered_online = 0
-    registered_never_connected = 0
-    registered_cache_only = 0
-    registered_notification_users = 0
-    registered_notification_entries = 0
-    for user in app_state.users.values():
-        if user.anon or reserved(user.username):
-            continue
-        registered_total += 1
-        registered_online += int(user.online)
-        registered_never_connected += int(not user.ever_connected)
-        notification_count = 0 if user.notifications is None else len(user.notifications)
-        registered_notification_entries += notification_count
-        registered_notification_users += int(notification_count > 0)
-        has_live_reference = bool(
-            user.online
-            or user.game_in_progress is not None
-            or user.correspondence_games
-            or user.seeks
-            or user.game_sockets
-            or user.lobby_sockets
-            or user.tournament_sockets
-            or user.simul_sockets
-            or user.notify_channels
-            or user.inbox_channels
-            or user.challenge_channels
-            or user.abandon_game_tasks
-            or user.background_tasks
-            or user.watched_games
-        )
-        if not has_live_reference:
-            registered_cache_only += 1
-
-    registered_summary = [
-        {
-            "registered_total": registered_total,
-            "registered_online": registered_online,
-            "registered_offline": registered_total - registered_online,
-            "registered_never_connected": registered_never_connected,
-            "registered_cache_only": registered_cache_only,
-            "registered_notification_users": registered_notification_users,
-            "registered_notification_entries": registered_notification_entries,
-        }
-    ]
+    registered_summary = [_registered_summary(app_state)]
 
     anon_summary = [
         {

@@ -6,6 +6,53 @@ from monitor.record import summarize_metrics, summary_deltas, validate_interval
 
 
 class MonitorRecordTestCase(unittest.TestCase):
+    def test_summarize_lightweight_metrics_extracts_quota_total_and_native_state(self) -> None:
+        metrics = {
+            "mode": "summary",
+            "process_memory": {
+                "rss_mib": 401.25,
+                "swap_mib": 98.5,
+                "rss_plus_swap_mib": 499.75,
+                "peak_rss_mib": 412.5,
+                "allocated_blocks": 123456,
+            },
+            "state": {
+                "users": 120,
+                "games": 8,
+                "active_tasks": 17,
+                "catalogued_variants": 31,
+                "pyffish_variants": 151,
+                "catalogued_payload_bytes": 8192,
+                "fishnet_works": 2,
+                "fishnet_payload_bytes": 4096,
+            },
+            "registered": {
+                "registered_total": 90,
+                "registered_cache_only": 70,
+            },
+            "anonymous": {"anon_total": 25},
+            "streams": {
+                "lobby_websockets": 4,
+                "game_websockets": 5,
+                "game_sse": 2,
+            },
+            "caches": [
+                {"name": "one", "currsize": 12},
+                {"name": "two", "currsize": 30},
+            ],
+        }
+
+        summary = summarize_metrics(metrics)
+
+        self.assertEqual(summary["rss_plus_swap_mib"], 499.75)
+        self.assertEqual(summary["swap_mib"], 98.5)
+        self.assertEqual(summary["allocated_blocks"], 123456)
+        self.assertEqual(summary["tasks"], 17)
+        self.assertEqual(summary["streams"], 11)
+        self.assertEqual(summary["pyffish_variants"], 151)
+        self.assertEqual(summary["catalogued_payload_bytes"], 8192)
+        self.assertEqual(summary["cache_entries"], 42)
+
     def test_summarize_metrics_extracts_growth_indicators(self) -> None:
         metrics = {
             "object_counts": {"tasks": 17, "queues": 3, "caches": 42},

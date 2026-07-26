@@ -23,15 +23,20 @@ async def fetch_metrics(
     url: str | None = None,
     token: str | None = None,
     inspect_tasks: bool = False,
+    summary_only: bool = False,
 ) -> dict[str, Any]:
     resolved_url = url or metrics_url()
     resolved_token = monitor_token() if token is None else token
     if not resolved_token:
         raise ValueError("PYCHESS_MONITOR_TOKEN is not set")
 
-    params = {"inspect": "True"} if inspect_tasks else None
+    params = {}
+    if inspect_tasks:
+        params["inspect"] = "True"
+    if summary_only:
+        params["summary"] = "True"
     headers = {"Authorization": f"Bearer {resolved_token}"}
-    async with session.get(resolved_url, headers=headers, params=params) as response:
+    async with session.get(resolved_url, headers=headers, params=params or None) as response:
         response.raise_for_status()
         data = await response.json()
         if not isinstance(data, dict):

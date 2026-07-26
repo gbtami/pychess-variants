@@ -23,7 +23,10 @@ MIN_PRODUCTION_INTERVAL_SECONDS = 60.0
 
 SUMMARY_KEYS = (
     "rss_mib",
+    "swap_mib",
+    "rss_plus_swap_mib",
     "peak_rss_mib",
+    "allocated_blocks",
     "users",
     "registered_total",
     "registered_cache_only",
@@ -33,6 +36,8 @@ SUMMARY_KEYS = (
     "queues",
     "streams",
     "catalogued_variants",
+    "pyffish_variants",
+    "catalogued_payload_bytes",
     "fishnet_works",
     "fishnet_payload_bytes",
     "cache_entries",
@@ -55,26 +60,57 @@ def _number(mapping: Mapping[str, Any], key: str) -> int | float:
     return value if isinstance(value, int | float) and not isinstance(value, bool) else 0
 
 
-def summarize_metrics(metrics: Mapping[str, Any]) -> dict[str, int | float]:
-    process = _first_detail(metrics, "process_memory")
-    state = _first_detail(metrics, "state")
-    registered = _first_detail(metrics, "registered_summary")
-    anon = _first_detail(metrics, "anon_summary")
-    streams = _first_detail(metrics, "streams")
+def _mapping(metrics: Mapping[str, Any], key: str) -> Mapping[str, Any]:
+    value = metrics.get(key)
+    return value if isinstance(value, Mapping) else {}
 
-    object_counts = metrics.get("object_counts")
-    counts = object_counts if isinstance(object_counts, Mapping) else {}
+
+def summarize_metrics(metrics: Mapping[str, Any]) -> dict[str, int | float]:
+    summary_mode = metrics.get("mode") == "summary"
+    if summary_mode:
+        process = _mapping(metrics, "process_memory")
+        state = _mapping(metrics, "state")
+        registered = _mapping(metrics, "registered")
+        anon = _mapping(metrics, "anonymous")
+        streams = _mapping(metrics, "streams")
+        counts: Mapping[str, Any] = {}
+        tasks = _number(state, "active_tasks")
+        queues = 0
+        cache_rows = metrics.get("caches")
+        cache_entries = (
+            sum(_number(row, "currsize") for row in cache_rows if isinstance(row, Mapping))
+            if isinstance(cache_rows, Sequence) and not isinstance(cache_rows, str | bytes)
+            else 0
+        )
+    else:
+        process = _first_detail(metrics, "process_memory")
+        state = _first_detail(metrics, "state")
+        registered = _first_detail(metrics, "registered_summary")
+        anon = _first_detail(metrics, "anon_summary")
+        streams = _first_detail(metrics, "streams")
+        object_counts = metrics.get("object_counts")
+        counts = object_counts if isinstance(object_counts, Mapping) else {}
+        tasks = _number(counts, "tasks")
+        queues = _number(counts, "queues")
+        cache_entries = _number(counts, "caches")
 
     return {
         "rss_mib": _number(process, "rss_mib"),
+        "swap_mib": _number(process, "swap_mib"),
+        "rss_plus_swap_mib": _number(
+            process,
+            "rss_plus_swap_mib",
+        )
+        or _number(process, "rss_mib"),
         "peak_rss_mib": _number(process, "peak_rss_mib"),
+        "allocated_blocks": _number(process, "allocated_blocks"),
         "users": _number(state, "users"),
         "registered_total": _number(registered, "registered_total"),
         "registered_cache_only": _number(registered, "registered_cache_only"),
         "anon_total": _number(anon, "anon_total"),
         "games": _number(state, "games"),
-        "tasks": _number(counts, "tasks"),
-        "queues": _number(counts, "queues"),
+        "tasks": tasks,
+        "queues": queues,
         "streams": sum(
             _number(streams, key)
             for key in (
@@ -91,9 +127,11 @@ def summarize_metrics(metrics: Mapping[str, Any]) -> dict[str, int | float]:
             )
         ),
         "catalogued_variants": _number(state, "catalogued_variants"),
+        "pyffish_variants": _number(state, "pyffish_variants"),
+        "catalogued_payload_bytes": _number(state, "catalogued_payload_bytes"),
         "fishnet_works": _number(state, "fishnet_works"),
         "fishnet_payload_bytes": _number(state, "fishnet_payload_bytes"),
-        "cache_entries": _number(counts, "caches"),
+        "cache_entries": cache_entries,
     }
 
 
@@ -132,7 +170,8 @@ def _new_output_file(output: Path | None) -> tuple[Path, Any]:
 
 def _format_summary(sample: int, summary: Mapping[str, int | float]) -> str:
     return (
-        f"sample={sample} rss={summary['rss_mib']:.2f} MiB "
+        f"sample={sample} total={summary['rss_plus_swap_mib']:.2f} MiB "
+        f"rss={summary['rss_mib']:.2f} MiB swap={summary['swap_mib']:.2f} MiB "
         f"users={summary['users']} cache_only={summary['registered_cache_only']} "
         f"games={summary['games']} tasks={summary['tasks']} streams={summary['streams']}"
     )
@@ -177,6 +216,7 @@ async def record_metrics(
                         url=url,
                         token=token,
                         inspect_tasks=False,
+                        summary_only=True,
                     )
                     summary = summarize_metrics(metrics)
                     record: dict[str, Any] = {

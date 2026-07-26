@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
 import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
@@ -21,6 +22,42 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
 
     async def tearDownAsync(self):
         await self.client.close()
+
+    async def test_lightweight_summary_skips_heap_walk_and_reports_quota_memory(self):
+        app_state = get_app_state(self.app)
+        app_state.catalogued_variants["metric_probe"] = {
+            "ini": "abc",
+            "pieceSet": {"wP": {"svg": "piece", "size": 5}},
+            "boardSvg": {"svg": "board", "size": 5},
+        }
+
+        with patch("server_metrics.memory_stats", side_effect=AssertionError("heap walk called")):
+            response = await self.client.get(
+                "/metrics?summary=True",
+                headers={"Authorization": "Bearer test"},
+            )
+
+        self.assertEqual(response.status, 200)
+        payload = await response.json()
+        self.assertEqual(payload["mode"], "summary")
+        self.assertNotIn("object_details", payload)
+
+        process_memory = payload["process_memory"]
+        self.assertGreater(process_memory["rss_kib"], 0)
+        self.assertGreaterEqual(process_memory["swap_kib"], 0)
+        self.assertEqual(
+            process_memory["rss_plus_swap_kib"],
+            process_memory["rss_kib"] + process_memory["swap_kib"],
+        )
+        self.assertGreater(process_memory["allocated_blocks"], 0)
+
+        state = payload["state"]
+        self.assertGreater(state["active_tasks"], 0)
+        self.assertGreaterEqual(state["pyffish_variants"], state["catalogued_variants"])
+        self.assertEqual(state["catalogued_ini_bytes"], 3)
+        self.assertEqual(state["catalogued_piece_svg_bytes"], 5)
+        self.assertEqual(state["catalogued_board_svg_bytes"], 5)
+        self.assertEqual(state["catalogued_payload_bytes"], 13)
 
     async def test_metrics_anon_summary_has_bucket_and_detached_diagnostics(self):
         app_state = get_app_state(self.app)
@@ -151,5 +188,10 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
 
         process_memory = payload["object_details"]["process_memory"][0]
         self.assertGreater(process_memory["rss_kib"], 0)
+        self.assertGreaterEqual(process_memory["swap_kib"], 0)
+        self.assertEqual(
+            process_memory["rss_plus_swap_kib"],
+            process_memory["rss_kib"] + process_memory["swap_kib"],
+        )
         self.assertGreater(process_memory["peak_rss_kib"], 0)
         self.assertEqual(payload["object_counts"]["process_memory"], process_memory["rss_kib"])
