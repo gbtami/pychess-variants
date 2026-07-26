@@ -29,6 +29,7 @@ class MonitorRecordTestCase(unittest.TestCase):
             "registered": {
                 "registered_total": 90,
                 "registered_cache_only": 70,
+                "registered_cache_evictions": 12,
             },
             "anonymous": {"anon_total": 25},
             "streams": {
@@ -47,6 +48,7 @@ class MonitorRecordTestCase(unittest.TestCase):
         self.assertEqual(summary["rss_plus_swap_mib"], 499.75)
         self.assertEqual(summary["swap_mib"], 98.5)
         self.assertEqual(summary["allocated_blocks"], 123456)
+        self.assertEqual(summary["registered_cache_evictions"], 12)
         self.assertEqual(summary["tasks"], 17)
         self.assertEqual(summary["streams"], 11)
         self.assertEqual(summary["pyffish_variants"], 151)

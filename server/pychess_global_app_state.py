@@ -107,6 +107,8 @@ log = logging.getLogger(__name__)
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
 TOURNAMENT_KEEP_TIME = 1800  # keep ended tournaments in cache for TOURNAMENT_KEEP_TIME secs
+REGISTERED_USER_CACHE_TTL = 30 * 60
+REGISTERED_USER_CACHE_SWEEP_INTERVAL = 5 * 60
 T = TypeVar("T")
 USERNAME_LOWER_FIELD = "username_lower"
 
@@ -232,6 +234,12 @@ class PychessGlobalAppState:
             self.push_notifier = PushNotifier(self)
             if self.push_notifier.enabled:
                 self.create_background_task(self.push_notifier.run(), name="push-notifier")
+
+        with startup.phase("start registered user cache cleanup"):
+            self.create_background_task(
+                self._registered_user_cache_cleanup(),
+                name="registered-user-cache-cleanup",
+            )
 
         startup.log_summary()
 
@@ -818,6 +826,57 @@ class PychessGlobalAppState:
         # Keep GC telemetry isolated in its own module to reduce changes here.
         # The helper starts a task only when GC_STATS_INTERVAL is configured.
         self.gc_stats_task = start_gc_telemetry(lambda: self.shutdown)
+
+    def registered_user_cache_references(self) -> set[User]:
+        """Return users owned by live server state outside the global user cache."""
+        protected = set(self.auto_pairing_users)
+        for users in self.auto_pairings.values():
+            protected.update(users)
+
+        for seek_map in (self.seeks, self.invites):
+            for seek in seek_map.values():
+                protected.add(seek.creator)
+                if seek.player1 is not None:
+                    protected.add(seek.player1)
+                if seek.player2 is not None:
+                    protected.add(seek.player2)
+                if seek.bugPlayer1 is not None:
+                    protected.add(seek.bugPlayer1)
+                if seek.bugPlayer2 is not None:
+                    protected.add(seek.bugPlayer2)
+
+        for game in self.games.values():
+            protected.update(game.all_players)
+            protected.update(game.spectators)
+
+        for tournament in self.tournaments.values():
+            protected.update(tournament.players)
+            protected.update(tournament.player_keys_by_name.values())
+            protected.update(tournament.bye_players)
+            protected.update(tournament.spectators)
+
+        for simul in self.simuls.values():
+            protected.update(simul.players.values())
+            protected.update(simul.pending_players.values())
+            protected.update(simul.spectators)
+
+        return protected
+
+    async def _registered_user_cache_cleanup(self) -> None:
+        while not self.shutdown:
+            await asyncio.sleep(REGISTERED_USER_CACHE_SWEEP_INTERVAL)
+            if self.shutdown:
+                return
+            evicted = self.users.prune_registered_cache(
+                self.registered_user_cache_references(),
+                max_idle_seconds=REGISTERED_USER_CACHE_TTL,
+            )
+            if evicted:
+                log.info(
+                    "Evicted %d idle registered users from cache; %d users remain",
+                    len(evicted),
+                    len(self.users),
+                )
 
     def _background_task_done(self, task: asyncio.Task[Any]) -> None:
         self.background_tasks.discard(task)

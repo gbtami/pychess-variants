@@ -536,6 +536,76 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         self.assertIsNone(black.game_in_progress)
         self.assertNotIn(game.id, app_state.games)
 
+    async def test_registered_user_cache_evicts_only_idle_unreferenced_users(self):
+        app_state = get_app_state(self.app)
+        for username in ("cache-idle", "cache-fresh", "cache-protected"):
+            await self._insert_user_doc(username)
+
+        idle = await app_state.users.get("cache-idle")
+        fresh = await app_state.users.get("cache-fresh")
+        protected = await app_state.users.get("cache-protected")
+        app_state.users.cache_access[idle.username] = 100
+        app_state.users.cache_access[fresh.username] = 950
+        app_state.users.cache_access[protected.username] = 100
+
+        evicted = app_state.users.prune_registered_cache(
+            {protected},
+            max_idle_seconds=300,
+            now=1000,
+        )
+
+        self.assertEqual(["cache-idle"], evicted)
+        self.assertNotIn(idle.username, app_state.users)
+        self.assertNotIn(idle.username, app_state.users.cache_access)
+        self.assertIn(fresh.username, app_state.users)
+        self.assertIn(protected.username, app_state.users)
+        self.assertEqual(1, app_state.users.registered_cache_evictions)
+
+        anon = User(app_state, username="Anon-cache-tracking", anon=True)
+        app_state.users[anon.username] = anon
+        self.assertNotIn(anon.username, app_state.users.cache_access)
+
+    async def test_registered_user_cache_protects_players_in_cached_finished_game(self):
+        app_state = get_app_state(self.app)
+        for username in ("cache-game-white", "cache-game-black"):
+            await self._insert_user_doc(username)
+
+        white = await app_state.users.get("cache-game-white")
+        black = await app_state.users.get("cache-game-black")
+        game = Game(
+            app_state,
+            "registered-cache-game",
+            "chess",
+            "",
+            white,
+            black,
+            base=1,
+            inc=0,
+            rated=False,
+        )
+        game.update_status(ABORTED, "*")
+        app_state.games[game.id] = game
+        app_state.users.cache_access[white.username] = 100
+        app_state.users.cache_access[black.username] = 100
+
+        evicted = app_state.users.prune_registered_cache(
+            app_state.registered_user_cache_references(),
+            max_idle_seconds=300,
+            now=1000,
+        )
+
+        self.assertEqual([], evicted)
+        self.assertIn(white.username, app_state.users)
+        self.assertIn(black.username, app_state.users)
+
+        del app_state.games[game.id]
+        evicted = app_state.users.prune_registered_cache(
+            app_state.registered_user_cache_references(),
+            max_idle_seconds=300,
+            now=1000,
+        )
+        self.assertCountEqual([white.username, black.username], evicted)
+
     async def test_user_remove_ignores_missing_cache_entry(self):
         app_state = get_app_state(self.app)
         ghost = User(app_state, username="Anon-missing-cleanup")

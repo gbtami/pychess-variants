@@ -166,6 +166,8 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
             "registered_offline",
             "registered_never_connected",
             "registered_cache_only",
+            "registered_cache_evictions",
+            "registered_cache_tracked",
             "registered_notification_users",
             "registered_notification_entries",
         ):

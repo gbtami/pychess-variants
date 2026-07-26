@@ -290,6 +290,7 @@ def _stream_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
 
 
 def _registered_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
+    protected_users = app_state.registered_user_cache_references()
     registered_total = 0
     registered_online = 0
     registered_never_connected = 0
@@ -305,23 +306,7 @@ def _registered_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
         notification_count = 0 if user.notifications is None else len(user.notifications)
         registered_notification_entries += notification_count
         registered_notification_users += int(notification_count > 0)
-        has_live_reference = bool(
-            user.online
-            or user.game_in_progress is not None
-            or user.correspondence_games
-            or user.seeks
-            or user.game_sockets
-            or user.lobby_sockets
-            or user.tournament_sockets
-            or user.simul_sockets
-            or user.notify_channels
-            or user.inbox_channels
-            or user.challenge_channels
-            or user.abandon_game_tasks
-            or user.background_tasks
-            or user.watched_games
-        )
-        if not has_live_reference:
+        if app_state.users.is_registered_cache_only(user, protected_users):
             registered_cache_only += 1
 
     return {
@@ -330,6 +315,8 @@ def _registered_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
         "registered_offline": registered_total - registered_online,
         "registered_never_connected": registered_never_connected,
         "registered_cache_only": registered_cache_only,
+        "registered_cache_evictions": app_state.users.registered_cache_evictions,
+        "registered_cache_tracked": len(app_state.users.cache_access),
         "registered_notification_users": registered_notification_users,
         "registered_notification_entries": registered_notification_entries,
     }

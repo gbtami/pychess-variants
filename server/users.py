@@ -1,7 +1,12 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
 from collections import UserDict
+from collections.abc import Collection
+from time import monotonic
+from typing import TYPE_CHECKING
+
 from const import ANON_PREFIX, BLOCK, FOLLOW, MAX_USER_BLOCK, NONE_USER
+from const import reserved
 from typing_defs import RelationDocument, UserDocument
 from user import User
 import logging
@@ -31,10 +36,26 @@ class Users(UserDict[str, User]):
     def __init__(self, app_state: PychessGlobalAppState) -> None:
         super().__init__()
         self.app_state: PychessGlobalAppState = app_state
+        self.cache_access: dict[str, float] = {}
+        self.registered_cache_evictions = 0
+
+    def __setitem__(self, username: str, user: User) -> None:
+        super().__setitem__(username, user)
+        if not (user.anon or user.bot or reserved(user.username)):
+            self.cache_access[username] = monotonic()
+        else:
+            self.cache_access.pop(username, None)
+
+    def __delitem__(self, username: str) -> None:
+        super().__delitem__(username)
+        self.cache_access.pop(username, None)
 
     def __getitem__(self, username: str) -> User:
         if username in self.data:
-            return self.data[username]
+            user = self.data[username]
+            if not (user.anon or user.bot or reserved(user.username)):
+                self.cache_access[username] = monotonic()
+            return user
         else:
             # raise NotInAppUsers("%s is not in Users. Use await users.get() instead.", username)
             user = self.data[NONE_USER]
@@ -42,7 +63,7 @@ class Users(UserDict[str, User]):
 
     async def get(self, username: str | None) -> User:  # type: ignore[override]
         if username in self.data:
-            return self.data[username]
+            return self[username]
 
         if username is None:
             user = self.data[NONE_USER]
@@ -82,7 +103,7 @@ class Users(UserDict[str, User]):
                 swiss_ban_hours=doc.get("swissBanHours", 0),
             )
             user.game_category_set = "ct" in doc
-            self.data[username] = user
+            self[username] = user
 
             blocked_cursor = self.app_state.db.relation.find(
                 {"u1": username, "r": BLOCK}, projection={"_id": 0, "u2": 1}
@@ -97,3 +118,51 @@ class Users(UserDict[str, User]):
             user.following = {doc["u2"] for doc in following_docs}
 
             return user
+
+    @staticmethod
+    def is_registered_cache_only(user: User, protected_users: Collection[User]) -> bool:
+        if user.anon or user.bot or reserved(user.username) or user in protected_users:
+            return False
+
+        user.update_online()
+        return not (
+            user.online
+            or user.game_in_progress is not None
+            or user.correspondence_games
+            or user.seeks
+            or user.game_sockets
+            or user.lobby_sockets
+            or user.tournament_sockets
+            or user.simul_sockets
+            or user.notify_channels
+            or user.inbox_channels
+            or user.challenge_channels
+            or user.challenge_offline_task is not None
+            or user.abandon_game_tasks
+            or user.background_tasks
+            or user.watched_games
+            or user.ready_for_auto_pairing
+        )
+
+    def prune_registered_cache(
+        self,
+        protected_users: Collection[User],
+        *,
+        max_idle_seconds: float,
+        now: float | None = None,
+    ) -> list[str]:
+        cutoff = (monotonic() if now is None else now) - max_idle_seconds
+        evicted: list[str] = []
+        for username, user in tuple(self.data.items()):
+            last_access = self.cache_access.get(username)
+            if last_access is None or last_access > cutoff:
+                continue
+            if not self.is_registered_cache_only(user, protected_users):
+                continue
+            if self.data.get(username) is not user:
+                continue
+            del self[username]
+            evicted.append(username)
+
+        self.registered_cache_evictions += len(evicted)
+        return evicted
