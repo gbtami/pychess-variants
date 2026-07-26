@@ -44,6 +44,7 @@ dev = [
     "pytest-aiohttp==1.1.1",
     "pyright==1.1.411",
     "ruff==0.15.22",
+    "textual==8.2.8",
     "tqdm>=4.67.3",
 ]
 
