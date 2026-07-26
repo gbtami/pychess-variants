@@ -1,0 +1,4 @@
+interface:
+  display_name: "PyChess Memory Debugging"
+  short_description: "Diagnose server memory growth safely"
+  default_prompt: "Use $pychess-memory-debugging to investigate rising PyChess server memory without disrupting production gameplay."

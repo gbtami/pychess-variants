@@ -13,6 +13,7 @@ Use these focused skills when their trigger applies. Project-owned skills are ch
 - `lichess`: borrow lila code or assets for lichess UI/behavior parity.
 - `fairy-stockfish-debugging`: investigate engine, legal-move, FEN, SAN, fishnet, or BOT behavior.
 - `pychess-css-debugging`: change or debug CSS, themes, responsive layout, or interaction states.
+- `pychess-memory-debugging`: investigate server memory growth, retained caches/tasks/streams, and safe production sampling.
 - `pychess-testing`: select and run change-scoped quality gates before completion or commit.
 - Optional personal skill `lichess-local-server`: when installed, run or stop local lila for live parity checks.
 
