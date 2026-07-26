@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import UserDict
-from collections.abc import Collection
+from collections.abc import Collection, ItemsView, ValuesView
 from time import monotonic
 from typing import TYPE_CHECKING
 
@@ -60,6 +60,14 @@ class Users(UserDict[str, User]):
             # raise NotInAppUsers("%s is not in Users. Use await users.get() instead.", username)
             user = self.data[NONE_USER]
             return user
+
+    def values(self) -> ValuesView[User]:
+        """Enumerate cached users without marking every entry as recently accessed."""
+        return self.data.values()
+
+    def items(self) -> ItemsView[str, User]:
+        """Enumerate cache entries without marking every user as recently accessed."""
+        return self.data.items()
 
     async def get(self, username: str | None) -> User:  # type: ignore[override]
         if username in self.data:

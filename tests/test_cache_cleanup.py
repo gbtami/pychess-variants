@@ -565,6 +565,19 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         app_state.users[anon.username] = anon
         self.assertNotIn(anon.username, app_state.users.cache_access)
 
+    async def test_registered_user_cache_enumeration_does_not_refresh_access(self):
+        app_state = get_app_state(self.app)
+        await self._insert_user_doc("cache-enumerated")
+        user = await app_state.users.get("cache-enumerated")
+        app_state.users.cache_access[user.username] = 100
+
+        self.assertIn(user, list(app_state.users.values()))
+        self.assertIn((user.username, user), list(app_state.users.items()))
+        self.assertEqual(100, app_state.users.cache_access[user.username])
+
+        self.assertIs(user, app_state.users[user.username])
+        self.assertGreater(app_state.users.cache_access[user.username], 100)
+
     async def test_registered_user_cache_protects_players_in_cached_finished_game(self):
         app_state = get_app_state(self.app)
         for username in ("cache-game-white", "cache-game-black"):
