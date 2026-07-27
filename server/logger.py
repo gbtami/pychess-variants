@@ -173,7 +173,7 @@ DEFAULT_LOGGING_CONFIG = {
 
 ############################################################################################
 # additional logger context
-log_context_data = contextvars.ContextVar("log_context_data", default=dict())
+log_context_data = contextvars.ContextVar("log_context_data", default={})
 
 
 def set_log_context(varname, value):

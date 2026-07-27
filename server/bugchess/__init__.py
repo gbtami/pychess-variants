@@ -1782,12 +1782,11 @@ class Board(BaseBoard):
             return False
 
         checkers = self.attackers_mask(not self.turn, king)
-        if checkers:
-            # If already in check, look if it is an evasion.
-            if move not in self._generate_evasions(
-                king, checkers, BB_SQUARES[move.from_square], BB_SQUARES[move.to_square]
-            ):
-                return True
+        # If already in check, look if it is an evasion.
+        if checkers and move not in self._generate_evasions(
+            king, checkers, BB_SQUARES[move.from_square], BB_SQUARES[move.to_square]
+        ):
+            return True
 
         return not self._is_safe(king, self._slider_blockers(king), move)
 
@@ -1835,9 +1834,8 @@ class Board(BaseBoard):
                 return False
 
         # Handle castling.
-        if piece == KING:
-            if move in self.generate_castling_moves():
-                return True
+        if piece == KING and move in self.generate_castling_moves():
+            return True
 
         # Destination square can not be occupied.
         if self.occupied_co[self.turn] & to_mask:
@@ -2032,9 +2030,8 @@ class Board(BaseBoard):
         or pawn move is equal to or grather than 150. Other means to end a game
         take precedence.
         """
-        if self.halfmove_clock >= 150:
-            if any(self.generate_legal_moves()):
-                return True
+        if self.halfmove_clock >= 150 and any(self.generate_legal_moves()):
+            return True
 
         return False
 
@@ -2063,9 +2060,8 @@ class Board(BaseBoard):
         and the side to move still has a legal move they can make.
         """
         # Fifty-move rule.
-        if self.halfmove_clock >= 100:
-            if any(self.generate_legal_moves()):
-                return True
+        if self.halfmove_clock >= 100 and any(self.generate_legal_moves()):
+            return True
 
         return False
 
@@ -2545,17 +2541,14 @@ class Board(BaseBoard):
         if self.ep_square:
             return None
 
-        if not ignore_turn:
-            if self.turn != WHITE:
-                return None
+        if not ignore_turn and self.turn != WHITE:
+            return None
 
-        if not ignore_castling:
-            if self.clean_castling_rights() != self.rooks:
-                return None
+        if not ignore_castling and self.clean_castling_rights() != self.rooks:
+            return None
 
-        if not ignore_counters:
-            if self.fullmove_number != 1 or self.halfmove_clock != 0:
-                return None
+        if not ignore_counters and (self.fullmove_number != 1 or self.halfmove_clock != 0):
+            return None
 
         return super().chess960_pos()
 

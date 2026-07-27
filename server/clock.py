@@ -106,43 +106,42 @@ class Clock:
                 self.secs -= 1000
 
             # Time was running out
-            if self.running:
-                if self.game.ply == self.ply:
-                    # On lichess rage quit waits 10 seconds
-                    # until the other side gets the win claim,
-                    # and a disconnection gets 120 seconds.
-                    if self.ply >= 2:
-                        await asyncio.sleep(20 + self.game.byoyomi_period * self.game.inc)
+            if self.running and self.game.ply == self.ply:
+                # On lichess rage quit waits 10 seconds
+                # until the other side gets the win claim,
+                # and a disconnection gets 120 seconds.
+                if self.ply >= 2:
+                    await asyncio.sleep(20 + self.game.byoyomi_period * self.game.inc)
 
-                    # If FLAG was not received we have to act
-                    if self.game.status < ABORTED and self.secs <= 0 and self.running:
-                        user = self.game.get_player_at(self.color, self.board)
-                        log.debug("FLAG from server. Secs: %s User: %s", self.secs, user.username)
+                # If FLAG was not received we have to act
+                if self.game.status < ABORTED and self.secs <= 0 and self.running:
+                    user = self.game.get_player_at(self.color, self.board)
+                    log.debug("FLAG from server. Secs: %s User: %s", self.secs, user.username)
 
-                        reason = first_move_timeout_reason(self.game, self.ply)
+                    reason = first_move_timeout_reason(self.game, self.ply)
 
-                        async with self.game.move_lock:
-                            # Re-validate after acquiring the move lock. A move may
-                            # have been processed while we were waiting, in which case
-                            # this timeout belongs to an outdated turn.
-                            if (
-                                self.game.status >= ABORTED
-                                or not self.running
-                                or self.secs > 0
-                                or self.game.ply != self.ply
-                                or self.board.color != self.color
-                            ):
-                                continue
-                            response = await self.game.game_ended(user, reason)
-                            await round_broadcast(self.game, response, full=True)
-                            # If a clock expires, there may be no further gameState
-                            # messages to wake bot queues. Push gameEnd so bot tasks
-                            # can exit and release their references.
-                            await self._notify_bot_game_end()
-                            await self.game.app_state.maybe_remove_finished_game_from_cache_now(
-                                self.game
-                            )
-                        return
+                    async with self.game.move_lock:
+                        # Re-validate after acquiring the move lock. A move may
+                        # have been processed while we were waiting, in which case
+                        # this timeout belongs to an outdated turn.
+                        if (
+                            self.game.status >= ABORTED
+                            or not self.running
+                            or self.secs > 0
+                            or self.game.ply != self.ply
+                            or self.board.color != self.color
+                        ):
+                            continue
+                        response = await self.game.game_ended(user, reason)
+                        await round_broadcast(self.game, response, full=True)
+                        # If a clock expires, there may be no further gameState
+                        # messages to wake bot queues. Push gameEnd so bot tasks
+                        # can exit and release their references.
+                        await self._notify_bot_game_end()
+                        await self.game.app_state.maybe_remove_finished_game_from_cache_now(
+                            self.game
+                        )
+                    return
 
             # After stop() we are just waiting for next restart
             await asyncio.sleep(1)

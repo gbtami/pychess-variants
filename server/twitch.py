@@ -279,20 +279,19 @@ async def twitch_request_handler(request: web.Request) -> web.Response:
                 await broadcast_streams(app_state)
 
         if header_sub_type == "stream.online":
-            if event["type"] == "live":
-                if streamer not in twitch.streams:
-                    twitch.streams[streamer] = {
-                        "username": TWITCH_STREAMERS[streamer],
-                        "streamer": streamer,
-                        "site": "twitch",
-                        "title": "",
-                    }
-                    await broadcast_streams(app_state)
+            if event["type"] == "live" and streamer not in twitch.streams:
+                twitch.streams[streamer] = {
+                    "username": TWITCH_STREAMERS[streamer],
+                    "streamer": streamer,
+                    "site": "twitch",
+                    "title": "",
+                }
+                await broadcast_streams(app_state)
 
-                    app_state.create_background_task(
-                        remove(3600),
-                        name="twitch-remove-streamer",
-                    )  # 1 hour
+                app_state.create_background_task(
+                    remove(3600),
+                    name="twitch-remove-streamer",
+                )  # 1 hour
 
         elif header_sub_type == "stream.offline":
             if streamer in twitch.streams:

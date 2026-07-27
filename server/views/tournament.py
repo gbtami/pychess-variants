@@ -24,10 +24,13 @@ async def tournament(request: web.Request) -> ViewContext:
     if tournament is None:
         return context  # web.HTTPFound("/")
 
-    if is_tournament_director(user, app_state) and tournament.status == T_CREATED:
-        if request.path.endswith("/cancel"):
-            await tournament.abort()
-            raise web.HTTPFound("/tournaments")
+    if (
+        is_tournament_director(user, app_state)
+        and tournament.status == T_CREATED
+        and request.path.endswith("/cancel")
+    ):
+        await tournament.abort()
+        raise web.HTTPFound("/tournaments")
 
     if request.path.endswith("/pause") and tournament.get_player_by_name(user.username) is not None:
         await tournament.pause(user)

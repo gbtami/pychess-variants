@@ -493,12 +493,11 @@ class Tournament(ABC):
             self.name,
         )
 
-        if self.with_clock:
-            # Only start the clock for active or pending tournaments. Finished/aborted/archived
-            # tournaments are loaded for display or history and do not need a live clock task.
-            # Avoiding task creation here keeps the monitor free of finished tournament-clock noise.
-            if self.status in (T_CREATED, T_STARTED):
-                self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
+        # Only start the clock for active or pending tournaments. Finished/aborted/archived
+        # tournaments are loaded for display or history and do not need a live clock task.
+        # Avoiding task creation here keeps the monitor free of finished tournament-clock noise.
+        if self.with_clock and self.status in (T_CREATED, T_STARTED):
+            self.clock_task = asyncio.create_task(self.clock(), name="tournament-clock")
 
     @property
     def creator(self) -> str:

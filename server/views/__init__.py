@@ -114,11 +114,10 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
                     "index() app_state.db.user.find_one Exception. Failed to get user %s from mongodb!",
                     session_user,
                 )
-        if doc is not None:
-            if not doc.get("enabled", True):
-                log.info("Closed account %s tried to connect.", session_user)
-                session.invalidate()
-                raise web.HTTPFound("/")
+        if doc is not None and not doc.get("enabled", True):
+            log.info("Closed account %s tried to connect.", session_user)
+            session.invalidate()
+            raise web.HTTPFound("/")
 
         if session_user in app_state.users:
             user = app_state.users[session_user]

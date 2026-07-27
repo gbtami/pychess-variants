@@ -2115,9 +2115,12 @@ class XBoardProtocol(EngineProtocol):
                         )
                     ):
                         self.cancel(engine)
-                    elif limit.mate is not None and "score" in post_info:
-                        if typing.cast(PovScore, post_info["score"]).relative >= Mate(limit.mate):
-                            self.cancel(engine)
+                    elif (
+                        limit.mate is not None
+                        and "score" in post_info
+                        and typing.cast(PovScore, post_info["score"]).relative >= Mate(limit.mate)
+                    ):
+                        self.cancel(engine)
 
             def end(self, engine: XBoardProtocol) -> None:
                 if self.time_limit_handle:

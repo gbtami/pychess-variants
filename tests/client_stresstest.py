@@ -898,14 +898,15 @@ class TestUser:
                                     self._can_issue_new_challenge()
                                     and self.challenge_retry_secs > 0
                                     and (now - last_challenge_sent) >= self.challenge_retry_secs
-                                ):
-                                    if await self._send_create_ai_challenge(wsl):
-                                        return loop_time()
+                                ) and await self._send_create_ai_challenge(wsl):
+                                    return loop_time()
                                 return last_challenge_sent
 
-                            if self._can_issue_new_challenge():
-                                if await self._send_create_ai_challenge(wsl):
-                                    last_challenge_sent = loop_time()
+                            if (
+                                self._can_issue_new_challenge()
+                                and await self._send_create_ai_challenge(wsl)
+                            ):
+                                last_challenge_sent = loop_time()
 
                             while True:
                                 try:

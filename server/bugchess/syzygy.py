@@ -3084,21 +3084,19 @@ class Tablebase:
             tablename, ext = os.path.splitext(filename)
 
             if is_table_name(tablename) and os.path.isfile(path):
-                if load_wdl:
-                    if (
-                        ext == self.variant.tbw_suffix
-                        or "P" not in tablename
-                        and ext == self.variant.pawnless_tbw_suffix
-                    ):
-                        num += self._open_table(self.wdl, WdlTable, path)
+                if load_wdl and (
+                    ext == self.variant.tbw_suffix
+                    or "P" not in tablename
+                    and ext == self.variant.pawnless_tbw_suffix
+                ):
+                    num += self._open_table(self.wdl, WdlTable, path)
 
-                if load_dtz:
-                    if (
-                        ext == self.variant.tbz_suffix
-                        or "P" not in tablename
-                        and ext == self.variant.pawnless_tbz_suffix
-                    ):
-                        num += self._open_table(self.dtz, DtzTable, path)
+                if load_dtz and (
+                    ext == self.variant.tbz_suffix
+                    or "P" not in tablename
+                    and ext == self.variant.pawnless_tbz_suffix
+                ):
+                    num += self._open_table(self.dtz, DtzTable, path)
 
         return num
 
@@ -3281,11 +3279,10 @@ class Tablebase:
         if v1 > -3:
             if v1 >= v:
                 v = v1
-            elif v == 0:
-                # If there is not at least one legal non-en-passant move we are
-                # forced to play the losing en passant cature.
-                if all(board.is_en_passant(move) for move in board.generate_legal_moves()):
-                    v = v1
+            # If there is not at least one legal non-en-passant move we are
+            # forced to play the losing en passant cature.
+            elif v == 0 and all(board.is_en_passant(move) for move in board.generate_legal_moves()):
+                v = v1
 
         return v
 

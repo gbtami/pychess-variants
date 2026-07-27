@@ -1178,19 +1178,18 @@ def pgn(doc):
     initial_fen = doc.get("if")
     usi_format = variant.endswith("shogi") and doc.get("uci") is None
 
-    if usi_format:
-        # wplayer, bplayer = bplayer, wplayer
-        if initial_fen:
-            # print("load_game() USI SFEN was:", initial_fen)
-            parts = initial_fen.split()
-            if len(parts) > 3 and parts[1] in "wb":
-                pockets = "[%s]" % parts[2] if parts[2] not in "-0" else ""
-                initial_fen = (
-                    parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
-                )
-            else:
-                initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
-            # print("   changed to:", initial_fen)
+    # wplayer, bplayer = bplayer, wplayer
+    if usi_format and initial_fen:
+        # print("load_game() USI SFEN was:", initial_fen)
+        parts = initial_fen.split()
+        if len(parts) > 3 and parts[1] in "wb":
+            pockets = "[%s]" % parts[2] if parts[2] not in "-0" else ""
+            initial_fen = (
+                parts[0] + pockets + (" w" if parts[1] == "b" else " b") + " 0 " + parts[3]
+            )
+        else:
+            initial_fen = parts[0] + (" w" if parts[1] == "b" else " b") + " 0"
+        # print("   changed to:", initial_fen)
 
     if usi_format and variant in ("shogi", "shoshogi"):
         mirror = mirror9
@@ -1388,12 +1387,17 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
     invalid2 = start[0].count("/") != init[0].count("/")
 
     # Accept zh FEN in lichess format (they use / instead if [] for pockets)
-    if invalid2 and variant == "crazyhouse":
-        if (init[0].count("/") == 8) and ("[" not in init[0]) and ("]" not in init[0]):
-            k = init[0].rfind("/")
-            init[0] = init[0][:k] + "[" + init[0][k + 1 :] + "]"
-            sanitized_fen = " ".join(init)
-            invalid2 = False
+    if (
+        invalid2
+        and variant == "crazyhouse"
+        and (init[0].count("/") == 8)
+        and ("[" not in init[0])
+        and ("]" not in init[0])
+    ):
+        k = init[0].rfind("/")
+        init[0] = init[0][:k] + "[" + init[0][k + 1 :] + "]"
+        sanitized_fen = " ".join(init)
+        invalid2 = False
 
     # Allowed starting colors
     invalid3 = len(init) > 1 and init[1] not in "bw"

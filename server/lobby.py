@@ -88,9 +88,8 @@ class Lobby:
         # todo: maybe get rid of lobbysockets at some point and use app_state.users.loobby_sockets instead.
         #       On this event we could clean-up also app_state.users etc. if user is considered no longer online
         # online user counter will be updated in quit_lobby also!
-        if len(user.lobby_sockets) == 0:
-            if user.username in self.lobbysockets:
-                del self.lobbysockets[user.username]
+        if len(user.lobby_sockets) == 0 and user.username in self.lobbysockets:
+            del self.lobbysockets[user.username]
             # response = {"type": "lobbychat", "user": "", "message": "%s left the lobby" % user.username}
             # await lobby_broadcast(sockets, response)
 
