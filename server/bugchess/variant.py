@@ -19,6 +19,7 @@ import itertools
 from collections import OrderedDict
 from collections.abc import Hashable, Iterable, Iterator
 from typing import (
+    ClassVar,
     Generic,
     Self,
     TypeVar,
@@ -28,7 +29,7 @@ import bugchess
 
 
 class SuicideBoard(bugchess.Board):
-    aliases = ["Suicide", "Suicide chess"]
+    aliases: ClassVar[list[str]] = ["Suicide", "Suicide chess"]
     uci_variant = "suicide"
     xboard_variant = "suicide"
 
@@ -171,7 +172,13 @@ class SuicideBoard(bugchess.Board):
 
 
 class GiveawayBoard(SuicideBoard):
-    aliases = ["Giveaway", "Giveaway chess", "Anti", "Antichess", "Anti chess"]
+    aliases: ClassVar[list[str]] = [
+        "Giveaway",
+        "Giveaway chess",
+        "Anti",
+        "Antichess",
+        "Anti chess",
+    ]
     uci_variant = "giveaway"
     xboard_variant = "giveaway"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
@@ -203,7 +210,7 @@ class GiveawayBoard(SuicideBoard):
 
 
 class AtomicBoard(bugchess.Board):
-    aliases = ["Atomic", "Atom", "Atomic chess"]
+    aliases: ClassVar[list[str]] = ["Atomic", "Atom", "Atomic chess"]
     uci_variant = "atomic"
     xboard_variant = "atomic"
 
@@ -357,7 +364,7 @@ class AtomicBoard(bugchess.Board):
 
 
 class KingOfTheHillBoard(bugchess.Board):
-    aliases = ["King of the Hill", "KOTH"]
+    aliases: ClassVar[list[str]] = ["King of the Hill", "KOTH"]
     uci_variant = "kingofthehill"
     xboard_variant = "kingofthehill"  # Unofficial
 
@@ -380,7 +387,7 @@ class KingOfTheHillBoard(bugchess.Board):
 
 
 class RacingKingsBoard(bugchess.Board):
-    aliases = ["Racing Kings", "Racing", "Race", "racingkings"]
+    aliases: ClassVar[list[str]] = ["Racing Kings", "Racing", "Race", "racingkings"]
     uci_variant = "racingkings"
     xboard_variant = "racingkings"  # Unofficial
     starting_fen = "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1"
@@ -479,7 +486,7 @@ class RacingKingsBoard(bugchess.Board):
 
 
 class HordeBoard(bugchess.Board):
-    aliases = ["Horde", "Horde chess"]
+    aliases: ClassVar[list[str]] = ["Horde", "Horde chess"]
     uci_variant = "horde"
     xboard_variant = "horde"  # Unofficial
     starting_fen = "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1"
@@ -547,7 +554,12 @@ class _ThreeCheckBoardState(Generic[ThreeCheckBoardT], bugchess._BoardState["Thr
 
 
 class ThreeCheckBoard(bugchess.Board):
-    aliases = ["Three-check", "Three check", "Threecheck", "Three check chess"]
+    aliases: ClassVar[list[str]] = [
+        "Three-check",
+        "Three check",
+        "Threecheck",
+        "Three check chess",
+    ]
     uci_variant = "3check"
     xboard_variant = "3check"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1"
@@ -750,7 +762,7 @@ class CrazyhousePocket:
 
 
 class CrazyhouseBoard(bugchess.Board):
-    aliases = ["Crazyhouse", "Crazy House", "House", "ZH"]
+    aliases: ClassVar[list[str]] = ["Crazyhouse", "Crazy House", "House", "ZH"]
     uci_variant = "crazyhouse"
     xboard_variant = "crazyhouse"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
@@ -1158,7 +1170,7 @@ BOARDS = [LEFT, RIGHT] = [BOARD_A, BOARD_B] = [0, 1]
 
 
 class BughouseBoards:
-    aliases = ["Bughouse"]
+    aliases: ClassVar[list[str]] = ["Bughouse"]
     uci_variant = "bughouse"
     xboard_variant = "bughouse"
     starting_fen = (

@@ -1,6 +1,7 @@
 import unittest
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from typing import ClassVar
 
 import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
@@ -89,8 +90,8 @@ class GamesApiBughousePreviewTestCase(AioHTTPTestCase):
             preview_fen = "fen-a"
             wplayer = SimpleNamespace(username="whiteA", title="")
             bplayer = SimpleNamespace(username="blackA", title="")
-            spectators: set[object] = set()
-            non_bot_players: list[object] = []
+            spectators: ClassVar[set[object]] = set()
+            non_bot_players: ClassVar[list[object]] = []
 
             @property
             def board(self) -> object:

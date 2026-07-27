@@ -27,11 +27,11 @@ import struct
 import typing
 from collections.abc import Callable
 from types import TracebackType
-from typing import Any, BinaryIO, Union
+from typing import Any, BinaryIO
 
 from bug import chess
 
-PathLike = Union[str, bytes]
+PathLike = str | bytes
 
 
 LOGGER = logging.getLogger(__name__)
@@ -1997,7 +1997,7 @@ class PythonTablebase:
         stream.seek(i)
         return i
 
-    def __enter__(self) -> PythonTablebase:
+    def __enter__(self) -> typing.Self:
         return self
 
     def __exit__(
@@ -2181,7 +2181,7 @@ class NativeTablebase:
             self.libgtb.tbcache_done()
             self.libgtb.tb_done()
 
-    def __enter__(self) -> NativeTablebase:
+    def __enter__(self) -> typing.Self:
         return self
 
     def __exit__(

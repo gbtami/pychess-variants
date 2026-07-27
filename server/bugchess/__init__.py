@@ -39,7 +39,6 @@ from typing import (
     Generic,
     SupportsInt,
     TypeVar,
-    Union,
 )
 
 Color = bool
@@ -1557,7 +1556,7 @@ class Board(BaseBoard):
     :data:`~Board.fullmove_number` directly.
     """
 
-    aliases = ["Standard", "Chess", "Classical", "Normal"]
+    aliases: ClassVar[list[str]] = ["Standard", "Chess", "Classical", "Normal"]
     uci_variant: ClassVar[str | None] = "chess"
     xboard_variant: ClassVar[str | None] = "normal"
     starting_fen = STARTING_FEN
@@ -3814,7 +3813,7 @@ class LegalMoveGenerator:
         return f"<LegalMoveGenerator at {id(self):#x} ({sans})>"
 
 
-IntoSquareSet = Union[SupportsInt, Iterable[Square]]
+IntoSquareSet = SupportsInt | Iterable[Square]
 
 
 class SquareSet:
@@ -3986,7 +3985,7 @@ class SquareSet:
         for other in others:
             self |= other
 
-    def __ior__(self, other: IntoSquareSet) -> SquareSet:
+    def __ior__(self, other: IntoSquareSet) -> typing.Self:
         self.mask |= SquareSet(other).mask
         return self
 
@@ -3994,21 +3993,21 @@ class SquareSet:
         for other in others:
             self &= other
 
-    def __iand__(self, other: IntoSquareSet) -> SquareSet:
+    def __iand__(self, other: IntoSquareSet) -> typing.Self:
         self.mask &= SquareSet(other).mask
         return self
 
     def difference_update(self, other: IntoSquareSet) -> None:
         self -= other
 
-    def __isub__(self, other: IntoSquareSet) -> SquareSet:
+    def __isub__(self, other: IntoSquareSet) -> typing.Self:
         self.mask &= ~SquareSet(other).mask
         return self
 
     def symmetric_difference_update(self, other: IntoSquareSet) -> None:
         self ^= other
 
-    def __ixor__(self, other: IntoSquareSet) -> SquareSet:
+    def __ixor__(self, other: IntoSquareSet) -> typing.Self:
         self.mask ^= SquareSet(other).mask
         return self
 
@@ -4073,11 +4072,11 @@ class SquareSet:
     def __rshift__(self, shift: int) -> SquareSet:
         return SquareSet(self.mask >> shift)
 
-    def __ilshift__(self, shift: int) -> SquareSet:
+    def __ilshift__(self, shift: int) -> typing.Self:
         self.mask = (self.mask << shift) & BB_ALL
         return self
 
-    def __irshift__(self, shift: int) -> SquareSet:
+    def __irshift__(self, shift: int) -> typing.Self:
         self.mask >>= shift
         return self
 

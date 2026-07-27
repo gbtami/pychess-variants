@@ -5,7 +5,7 @@ import random
 import re
 from collections.abc import Callable
 from datetime import UTC, date, datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import aiohttp_session
 from aiohttp import web
@@ -1162,7 +1162,7 @@ def pgn(doc):
         # Export helpers may run outside normal startup caches. Load the inline
         # rules saved with the game so the move decoder and FSF replay can work.
         class _NoState:
-            catalogued_variants: dict = {}
+            catalogued_variants: ClassVar[dict] = {}
 
         from catalogued_variants import ensure_catalogued_variant_from_game_doc
 

@@ -24,12 +24,12 @@ import struct
 import threading
 from collections.abc import Iterator, MutableMapping
 from types import TracebackType
-from typing import Union
+from typing import Self
 
 # import typing
 import bugchess
 
-PathLike = Union[str, bytes]
+PathLike = str | bytes
 
 
 UINT64_BE = struct.Struct(">Q")
@@ -3498,7 +3498,7 @@ class Tablebase:
 
         self.lru.clear()
 
-    def __enter__(self) -> Tablebase:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(

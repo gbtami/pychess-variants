@@ -23,11 +23,10 @@ import struct
 import typing
 from collections.abc import Callable, Container, Iterator
 from types import TracebackType
-from typing import Union
 
 from bug import chess
 
-PathLike = Union[str, bytes]
+PathLike = str | bytes
 
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
@@ -914,7 +913,7 @@ class MemoryMappedReader:
             # Can not memory map empty opening books.
             self.mmap = None
 
-    def __enter__(self) -> MemoryMappedReader:
+    def __enter__(self) -> typing.Self:
         return self
 
     def __exit__(

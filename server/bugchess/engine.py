@@ -221,7 +221,7 @@ class AnalysisComplete(Exception):
     """
 
 
-ConfigValue = Union[str, int, bool, None]
+ConfigValue = str | int | bool | None
 ConfigMapping = Mapping[str, ConfigValue]
 
 
@@ -2421,7 +2421,7 @@ class AnalysisResult:
         except AnalysisComplete:
             raise StopAsyncIteration
 
-    def __enter__(self) -> AnalysisResult:
+    def __enter__(self) -> typing.Self:
         return self
 
     def __exit__(
@@ -2733,7 +2733,7 @@ class SimpleEngine:
             XBoardProtocol, command, timeout=timeout, debug=debug, setpgrp=setpgrp, **popen_args
         )
 
-    def __enter__(self) -> SimpleEngine:
+    def __enter__(self) -> typing.Self:
         return self
 
     def __exit__(
@@ -2825,7 +2825,7 @@ class SimpleAnalysisResult:
         except StopAsyncIteration:
             raise StopIteration
 
-    def __enter__(self) -> SimpleAnalysisResult:
+    def __enter__(self) -> typing.Self:
         return self
 
     def __exit__(

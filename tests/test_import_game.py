@@ -1,5 +1,6 @@
 import unittest
 from types import SimpleNamespace
+from typing import ClassVar
 from unittest.mock import AsyncMock, patch
 
 import test_logger
@@ -51,7 +52,7 @@ class ImportGameCleanupTestCase(AioHTTPTestCase):
 
     async def test_import_game_cancels_temporary_clock(self):
         class DummyGame:
-            instances = []
+            instances: ClassVar[list[object]] = []
 
             def __init__(
                 self,
