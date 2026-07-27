@@ -148,7 +148,7 @@ def _flag_claim_allowed(game: game.Game, user: User) -> bool:
     # where elapsed uses server monotonic time. This avoids trusting client
     # clock values and avoids tolerance-based false positives in this path.
     saved = game.clocks_w[-1] if user_color == WHITE else game.clocks_b[-1]
-    elapsed = int(round((monotonic() - game.last_server_clock) * 1000))
+    elapsed = round((monotonic() - game.last_server_clock) * 1000)
     return (saved - elapsed) <= 0
 
 

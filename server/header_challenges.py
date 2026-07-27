@@ -101,9 +101,7 @@ def direct_challenge_is_visible_for_user(seek: Seek, username: str) -> bool:
         or seek.challenge_status == DIRECT_CHALLENGE_CANCELED
     ):
         return False
-    if seek.challenge_status == DIRECT_CHALLENGE_DECLINED and seek.target == username:
-        return False
-    return True
+    return not (seek.challenge_status == DIRECT_CHALLENGE_DECLINED and seek.target == username)
 
 
 def set_direct_challenge_status(seek: Seek, status: str) -> bool:

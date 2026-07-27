@@ -311,8 +311,8 @@ CATEGORIES = {
 }
 
 VARIANT_GROUPS = {}
-for categ in CATEGORIES:
-    for variant in CATEGORIES[categ]:
+for categ, category_variants in CATEGORIES.items():
+    for variant in category_variants:
         VARIANT_GROUPS[variant] = categ
 
 GAME_CATEGORY_ALL = "all"
@@ -336,8 +336,8 @@ CATEGORY_VARIANT_CODES = {
     GAME_CATEGORY_ALL: frozenset(variant.code for variant in VARIANTS.values()),
 }
 
-for category in CATEGORIES:
-    variants: CategoryVariantMap = {v: VARIANTS[v] for v in CATEGORIES[category] if v in VARIANTS}
+for category, category_variants in CATEGORIES.items():
+    variants: CategoryVariantMap = {v: VARIANTS[v] for v in category_variants if v in VARIANTS}
     CATEGORY_VARIANTS[category] = variants
     CATEGORY_VARIANT_GROUPS[category] = {v: category for v in variants}
     CATEGORY_VARIANT_LISTS[category] = tuple(variants.keys())

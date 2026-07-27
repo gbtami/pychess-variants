@@ -91,13 +91,13 @@ class GameBugClocks:
     def elapsed_both_boards(self):
         cur_time = monotonic()
         return [
-            int(round((cur_time - self.last_server_clock) * 1000)),
-            int(round((cur_time - self.last_server_clockB) * 1000)),
+            round((cur_time - self.last_server_clock) * 1000),
+            round((cur_time - self.last_server_clockB) * 1000),
         ]
 
     def elapsed_since_last_move(self):
         cur_time = monotonic()
-        return int(round((cur_time - self.last_move_clock()) * 1000))
+        return round((cur_time - self.last_move_clock()) * 1000)
 
     async def cancel_stopwatches(self):
         self.stopwatches["a"].stop()

@@ -201,8 +201,8 @@ class MemoryMonitorApp(App):
 
     def watch_sort_columns(self, value: dict) -> None:
         """Update tables when sort_columns changes."""
-        for category in value:
-            if value[category] is not None:
+        for category, sort_column in value.items():
+            if sort_column is not None:
                 self.update_category_table(category)
 
     def watch_sort_ascendings(self, value: dict) -> None:

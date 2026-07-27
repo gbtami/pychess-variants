@@ -1914,10 +1914,7 @@ class Board(BaseBoard):
             return True
 
         # Claim draw.
-        if claim_draw and self.can_claim_draw():
-            return True
-
-        return False
+        return bool(claim_draw and self.can_claim_draw())
 
     def result(self, *, claim_draw: bool = False) -> str:
         """
@@ -2029,10 +2026,7 @@ class Board(BaseBoard):
         or pawn move is equal to or grather than 150. Other means to end a game
         take precedence.
         """
-        if self.halfmove_clock >= 150 and any(self.generate_legal_moves()):
-            return True
-
-        return False
+        return bool(self.halfmove_clock >= 150 and any(self.generate_legal_moves()))
 
     def is_fivefold_repetition(self) -> bool:
         """
@@ -2059,10 +2053,7 @@ class Board(BaseBoard):
         and the side to move still has a legal move they can make.
         """
         # Fifty-move rule.
-        if self.halfmove_clock >= 100 and any(self.generate_legal_moves()):
-            return True
-
-        return False
+        return bool(self.halfmove_clock >= 100 and any(self.generate_legal_moves()))
 
     def can_claim_threefold_repetition(self) -> bool:
         """
@@ -3303,10 +3294,9 @@ class Board(BaseBoard):
         # on e1 or e8.
         if castling_rights & BB_RANK_1 and not self.occupied_co[WHITE] & self.kings & BB_E1:
             return True
-        if castling_rights & BB_RANK_8 and not self.occupied_co[BLACK] & self.kings & BB_E8:
-            return True
-
-        return False
+        return bool(
+            castling_rights & BB_RANK_8 and not self.occupied_co[BLACK] & self.kings & BB_E8
+        )
 
     def status(self) -> Status:
         """
@@ -3445,10 +3435,7 @@ class Board(BaseBoard):
         # because if the latest double pawn move covers a diagonal attack,
         # then the other side would have been in check already.
         diagonal_attackers = self.occupied_co[not self.turn] & (self.bishops | self.queens)
-        if BB_DIAG_ATTACKS[king][BB_DIAG_MASKS[king] & occupancy] & diagonal_attackers:
-            return True
-
-        return False
+        return bool(BB_DIAG_ATTACKS[king][BB_DIAG_MASKS[king] & occupancy] & diagonal_attackers)
 
     def _slider_blockers(self, king: Square) -> Bitboard:
         rooks_and_queens = self.rooks | self.queens

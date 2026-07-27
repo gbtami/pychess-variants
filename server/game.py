@@ -518,7 +518,7 @@ class Game:
         # BOT players doesn't send times used for moves
         if self.bot_game:
             movetime = (
-                int(round((cur_time - self.last_server_clock) * 1000)) if self.board.ply >= 2 else 0
+                round((cur_time - self.last_server_clock) * 1000) if self.board.ply >= 2 else 0
             )
             if cur_player.bot and self.board.ply >= 2:
                 if self.byoyomi:
@@ -1658,7 +1658,7 @@ class Game:
                     elapsed0 = ((self.loaded_at - self.last_move_time).total_seconds()) * 1000
 
                 cur_time = monotonic()
-                elapsed1 = int(round((cur_time - self.last_server_clock) * 1000))
+                elapsed1 = round((cur_time - self.last_server_clock) * 1000)
                 clocks[self.board.color] = max(
                     0, clocks[self.board.color] + self.byo_correction - elapsed0 - elapsed1
                 )

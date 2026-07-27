@@ -297,7 +297,7 @@ async def _repair_missing_pairing_docs_from_games(tournament: Tournament) -> Non
 async def _repair_swiss_state_from_history(tournament: Tournament) -> None:
     repaired_users: list[str] = []
 
-    for user, player_data in tournament.players.items():
+    for player_data in tournament.players.values():
         repaired = False
         username = player_data.username
 
@@ -822,9 +822,9 @@ async def get_winners(
         limit = 5
 
     winner_usernames: set[str] = set()
-    for variant in variants:
-        variant960 = variant.endswith("960")
-        uci_variant = variant[:-3] if variant960 else variant
+    for current_variant in variants:
+        variant960 = current_variant.endswith("960")
+        uci_variant = current_variant[:-3] if variant960 else current_variant
 
         v = get_server_variant(uci_variant, variant960)
         z = 1 if variant960 else 0
@@ -855,7 +855,7 @@ async def get_winners(
                 )
                 winner_usernames.add(winner)
 
-        raw_winners[variant] = winners
+        raw_winners[current_variant] = winners
 
     titles = await app_state.public_users.get_titles(winner_usernames)
     return {
