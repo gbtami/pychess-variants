@@ -52,6 +52,12 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
         state = payload["state"]
         self.assertGreater(state["active_tasks"], 0)
         self.assertGreaterEqual(state["pyffish_variants"], state["catalogued_variants"])
+        self.assertGreaterEqual(state["tournaments"], state["finished_tournaments"])
+        self.assertGreaterEqual(
+            state["tournament_user_references"],
+            state["finished_tournament_user_references"],
+        )
+        self.assertGreaterEqual(state["tournament_active_sockets"], 0)
         self.assertEqual(state["catalogued_ini_bytes"], 3)
         self.assertEqual(state["catalogued_piece_svg_bytes"], 5)
         self.assertEqual(state["catalogued_board_svg_bytes"], 5)

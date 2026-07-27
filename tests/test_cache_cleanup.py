@@ -3,6 +3,8 @@ import unittest
 from contextlib import suppress
 from datetime import UTC, datetime
 from time import monotonic
+from types import SimpleNamespace
+from typing import Any, cast
 from unittest.mock import patch
 
 import ai
@@ -13,7 +15,7 @@ from ai import bot_game_tasks
 from aiohttp.test_utils import AioHTTPTestCase
 from clock import BOT_FIRST_MOVE_TIMEOUT, Clock, CorrClock
 from compress import R2C
-from const import ABORTED, CASUAL
+from const import ABORTED, CASUAL, T_FINISHED
 from fairy import FairyBoard
 from game import Game
 from mongomock_motor import AsyncMongoMockClient
@@ -616,6 +618,93 @@ class CacheCleanupTestCase(AioHTTPTestCase):
             now=1000,
         )
         self.assertCountEqual([white.username, black.username], evicted)
+
+    async def test_finished_tournament_cache_waits_for_active_socket(self):
+        app_state = get_app_state(self.app)
+        tournament_id = "finished-cache-active"
+        viewer = User(app_state, username="finished-cache-viewer")
+        app_state.users[viewer.username] = viewer
+
+        class DummySocket:
+            closed = False
+
+            async def close(self):
+                self.closed = True
+
+        socket = DummySocket()
+        tournament = SimpleNamespace(
+            id=tournament_id,
+            status=T_FINISHED,
+            clock_task=None,
+            players={viewer: object()},
+            player_keys_by_name={viewer.username: viewer},
+            bye_players=[],
+            spectators=set(),
+        )
+        before_stats = app_state.tournament_cache_stats()
+        app_state.tournaments[tournament_id] = cast(Any, tournament)
+        viewer.tournament_sockets[tournament_id] = {cast(Any, socket)}
+        app_state.tourneysockets[tournament_id] = {
+            viewer.username: viewer.tournament_sockets[tournament_id]
+        }
+
+        with patch.object(pychess_global_app_state, "LOCALHOST_CACHE_KEEP_TIME", 0.01):
+            app_state.schedule_tournament_cache_removal(cast(Any, tournament))
+            task = app_state.tournament_remove_tasks[tournament_id]
+            await asyncio.sleep(0.04)
+
+            self.assertIn(tournament_id, app_state.tournaments)
+            stats = app_state.tournament_cache_stats()
+            self.assertEqual(
+                stats["finished_tournaments"],
+                before_stats["finished_tournaments"] + 1,
+            )
+            self.assertEqual(
+                stats["finished_tournament_user_references"],
+                before_stats["finished_tournament_user_references"] + 1,
+            )
+            self.assertEqual(
+                stats["tournament_active_sockets"],
+                before_stats["tournament_active_sockets"] + 1,
+            )
+
+            socket.closed = True
+            await asyncio.wait_for(task, timeout=0.2)
+
+        self.assertNotIn(tournament_id, app_state.tournaments)
+        self.assertNotIn(tournament_id, app_state.tourneysockets)
+        self.assertNotIn(tournament_id, app_state.tournament_cache_access)
+        self.assertNotIn(tournament_id, viewer.tournament_sockets)
+
+    async def test_finished_tournament_cache_refreshes_idle_deadline(self):
+        app_state = get_app_state(self.app)
+        tournament_id = "finished-cache-refresh"
+        tournament = SimpleNamespace(
+            id=tournament_id,
+            status=T_FINISHED,
+            clock_task=None,
+            players={},
+            player_keys_by_name={},
+            bye_players=[],
+            spectators=set(),
+        )
+        app_state.tournaments[tournament_id] = cast(Any, tournament)
+        app_state.tourneysockets[tournament_id] = {}
+
+        with patch.object(pychess_global_app_state, "LOCALHOST_CACHE_KEEP_TIME", 0.05):
+            app_state.schedule_tournament_cache_removal(cast(Any, tournament))
+            task = app_state.tournament_remove_tasks[tournament_id]
+            first_access = app_state.tournament_cache_access[tournament_id]
+            await asyncio.sleep(0.03)
+
+            app_state.schedule_tournament_cache_removal(cast(Any, tournament))
+            self.assertGreater(app_state.tournament_cache_access[tournament_id], first_access)
+            await asyncio.sleep(0.03)
+            self.assertIn(tournament_id, app_state.tournaments)
+
+            await asyncio.wait_for(task, timeout=0.1)
+
+        self.assertNotIn(tournament_id, app_state.tournaments)
 
     async def test_user_remove_ignores_missing_cache_entry(self):
         app_state = get_app_state(self.app)

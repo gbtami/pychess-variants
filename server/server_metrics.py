@@ -227,12 +227,14 @@ def _state_summary(
     public_titles = getattr(app_state.public_users, "_titles", {})
     request_protection = request.app[request_protection_state_key]
     payload_stats = _catalogued_payload_stats(app_state.catalogued_variants)
+    tournament_stats = app_state.tournament_cache_stats()
     return {
         "users": len(app_state.users),
         "games": len(app_state.games),
         "seeks": len(app_state.seeks),
         "invites": len(app_state.invites),
         "tournaments": len(app_state.tournaments),
+        **tournament_stats,
         "simuls": len(app_state.simuls),
         "catalogued_variants": len(app_state.catalogued_variants),
         "pyffish_variants": len(sf.variants()),

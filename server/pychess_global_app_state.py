@@ -7,6 +7,7 @@ import os
 from collections.abc import Coroutine
 from datetime import UTC, date, datetime, timedelta
 from operator import neg
+from time import monotonic
 from typing import TYPE_CHECKING, Any, TypeVar
 
 import aiohttp_jinja2
@@ -108,7 +109,8 @@ from lang import LOCALE
 log = logging.getLogger(__name__)
 
 GAME_KEEP_TIME = 1800  # keep game in app[games_key] for GAME_KEEP_TIME secs
-TOURNAMENT_KEEP_TIME = 1800  # keep ended tournaments in cache for TOURNAMENT_KEEP_TIME secs
+TOURNAMENT_KEEP_TIME = 5 * 60  # retain an idle finished tournament after its last access
+TOURNAMENT_ACTIVE_RECHECK_INTERVAL = 60  # never evict while a viewer socket is active
 REGISTERED_USER_CACHE_TTL = 30 * 60
 REGISTERED_USER_CACHE_SWEEP_INTERVAL = 5 * 60
 T = TypeVar("T")
@@ -153,6 +155,7 @@ class PychessGlobalAppState:
             self.background_tasks: set[asyncio.Task[Any]] = set()
             self.game_remove_tasks: dict[str, asyncio.Task[None]] = {}
             self.tournament_remove_tasks: dict[str, asyncio.Task[None]] = {}
+            self.tournament_cache_access: dict[str, float] = {}
 
             # translated scheduled tournament names {(variant, frequency, t_type): tournament.name, ...}
             self.tourneynames: dict[str, dict] = {lang: {} for lang in LANGUAGES}
@@ -1015,10 +1018,67 @@ class PychessGlobalAppState:
         await asyncio.sleep(LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else GAME_KEEP_TIME)
         await self._evict_game_from_cache(game)
 
+    @staticmethod
+    def _tournament_referenced_users(tournament: Tournament) -> set[User]:
+        users = set(tournament.players)
+        users.update(tournament.player_keys_by_name.values())
+        users.update(tournament.bye_players)
+        users.update(tournament.spectators)
+        return users
+
+    @staticmethod
+    def _tournament_socket_is_active(ws: WebSocketResponse | None) -> bool:
+        return ws is not None and not getattr(ws, "closed", False)
+
+    def tournament_has_active_sockets(self, tournament_id: str) -> bool:
+        central_socket_sets = self.tourneysockets.get(tournament_id, {}).values()
+        if any(
+            self._tournament_socket_is_active(ws) for ws_set in central_socket_sets for ws in ws_set
+        ):
+            return True
+
+        tournament = self.tournaments.get(tournament_id)
+        return tournament is not None and any(
+            self._tournament_socket_is_active(ws)
+            for user in self._tournament_referenced_users(tournament)
+            for ws in user.tournament_sockets.get(tournament_id, ())
+        )
+
+    def tournament_cache_stats(self) -> dict[str, int]:
+        tournament_users: set[User] = set()
+        finished_users: set[User] = set()
+        finished_tournaments = 0
+        tournaments_with_active_sockets = 0
+        active_sockets = 0
+
+        for tournament_id, tournament in self.tournaments.items():
+            referenced_users = self._tournament_referenced_users(tournament)
+            tournament_users.update(referenced_users)
+            if tournament.status > T_STARTED:
+                finished_tournaments += 1
+                finished_users.update(referenced_users)
+
+            tournament_active_sockets = sum(
+                int(self._tournament_socket_is_active(ws))
+                for ws_set in self.tourneysockets.get(tournament_id, {}).values()
+                for ws in ws_set
+            )
+            active_sockets += tournament_active_sockets
+            tournaments_with_active_sockets += int(tournament_active_sockets > 0)
+
+        return {
+            "finished_tournaments": finished_tournaments,
+            "tournament_user_references": len(tournament_users),
+            "finished_tournament_user_references": len(finished_users),
+            "tournaments_with_active_sockets": tournaments_with_active_sockets,
+            "tournament_active_sockets": active_sockets,
+        }
+
     def schedule_tournament_cache_removal(self, tournament: Tournament):
         if tournament is None or tournament.status <= T_STARTED:
             return
 
+        self.tournament_cache_access[tournament.id] = monotonic()
         task = self.tournament_remove_tasks.get(tournament.id)
         if task is not None and not task.done():
             return
@@ -1029,17 +1089,34 @@ class PychessGlobalAppState:
         )
         self.tournament_remove_tasks[tournament.id] = task
 
-        def _cleanup_task(_task, tournament_id=tournament.id):
-            self.tournament_remove_tasks.pop(tournament_id, None)
+        def _cleanup_task(done_task, tournament_id=tournament.id):
+            if self.tournament_remove_tasks.get(tournament_id) is done_task:
+                self.tournament_remove_tasks.pop(tournament_id, None)
 
         task.add_done_callback(_cleanup_task)
 
     async def remove_tournament_from_cache(self, tournament_id: str):
-        await asyncio.sleep(LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else TOURNAMENT_KEEP_TIME)
+        keep_time = LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else TOURNAMENT_KEEP_TIME
+        active_recheck = (
+            LOCALHOST_CACHE_KEEP_TIME if URI == LOCALHOST else TOURNAMENT_ACTIVE_RECHECK_INTERVAL
+        )
+        while True:
+            last_access = self.tournament_cache_access.get(tournament_id)
+            if last_access is None:
+                return
+            remaining = keep_time - (monotonic() - last_access)
+            if remaining > 0:
+                await asyncio.sleep(remaining)
+                continue
 
-        tournament = self.tournaments.get(tournament_id)
-        if tournament is None or tournament.status <= T_STARTED:
-            return
+            tournament = self.tournaments.get(tournament_id)
+            if tournament is None or tournament.status <= T_STARTED:
+                self.tournament_cache_access.pop(tournament_id, None)
+                return
+            if self.tournament_has_active_sockets(tournament_id):
+                await asyncio.sleep(active_recheck)
+                continue
+            break
 
         if tournament.clock_task is not None and not tournament.clock_task.done():
             tournament.clock_task.cancel()
@@ -1048,18 +1125,25 @@ class PychessGlobalAppState:
             except asyncio.CancelledError:
                 pass
 
+        referenced_users = self._tournament_referenced_users(tournament)
+        sockets: set[WebSocketResponse] = set()
         socket_map = self.tourneysockets.pop(tournament_id, {})
         for ws_set in socket_map.values():
-            for ws in tuple(ws_set):
-                if ws is None:
-                    continue
-                try:
-                    await ws.close()
-                except Exception:
-                    log.debug("Failed to close tournament socket for %s", tournament_id)
+            sockets.update(ws for ws in ws_set if ws is not None)
+        for user in referenced_users:
+            ws_set = user.tournament_sockets.pop(tournament_id, ())
+            sockets.update(ws for ws in ws_set if ws is not None)
+            user.update_online()
+
+        for ws in sockets:
+            try:
+                await ws.close()
+            except Exception:
+                log.debug("Failed to close tournament socket for %s", tournament_id)
 
         if tournament_id in self.tournaments:
             del self.tournaments[tournament_id]
+        self.tournament_cache_access.pop(tournament_id, None)
 
         player_json.cache_clear()
         log.debug("Removed tournament %s OK", tournament_id)

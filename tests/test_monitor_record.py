@@ -19,6 +19,13 @@ class MonitorRecordTestCase(unittest.TestCase):
             "state": {
                 "users": 120,
                 "games": 8,
+                "tournaments": 14,
+                "finished_tournaments": 9,
+                "tournament_remove_tasks": 8,
+                "tournament_user_references": 210,
+                "finished_tournament_user_references": 180,
+                "tournaments_with_active_sockets": 2,
+                "tournament_active_sockets": 3,
                 "active_tasks": 17,
                 "catalogued_variants": 31,
                 "pyffish_variants": 151,
@@ -49,6 +56,11 @@ class MonitorRecordTestCase(unittest.TestCase):
         self.assertEqual(summary["swap_mib"], 98.5)
         self.assertEqual(summary["allocated_blocks"], 123456)
         self.assertEqual(summary["registered_cache_evictions"], 12)
+        self.assertEqual(summary["finished_tournaments"], 9)
+        self.assertEqual(summary["tournament_remove_tasks"], 8)
+        self.assertEqual(summary["finished_tournament_user_references"], 180)
+        self.assertEqual(summary["tournaments_with_active_sockets"], 2)
+        self.assertEqual(summary["tournament_active_sockets"], 3)
         self.assertEqual(summary["tasks"], 17)
         self.assertEqual(summary["streams"], 11)
         self.assertEqual(summary["pyffish_variants"], 151)
