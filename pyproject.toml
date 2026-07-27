@@ -52,5 +52,24 @@ dev = [
 line-length = 100
 target-version = "py314"
 
+[tool.ruff.lint]
+# Converting established percent formatting to str.format() is not behavior-neutral
+# for all objects and would make many logging-style expressions less readable.
+ignore = ["UP031"]
+
+[tool.ruff.lint.per-file-ignores]
+# Keep runtime-compatible typing declarations where PEP 695 rewrites can change
+# runtime type objects, generic metadata, or class MRO.
+"server/bot_api.py" = ["UP040"]
+"server/bugchess/__init__.py" = ["UP046"]
+"server/bugchess/engine.py" = ["UP046", "UP047"]
+"server/bugchess/pgn.py" = ["UP046", "UP047"]
+"server/bugchess/variant.py" = ["PYI059", "UP046"]
+"server/const.py" = ["UP040"]
+"server/routes.py" = ["UP040"]
+"server/tournament/tournament.py" = ["UP040"]
+"server/websocket_utils.py" = ["UP047"]
+"server/ws_types.py" = ["UP040"]
+
 [tool.setuptools]
 packages = []  # Disable package discovery
