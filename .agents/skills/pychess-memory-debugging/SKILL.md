@@ -53,6 +53,8 @@ Never remove a cached `User` merely because it is offline. Prevent two live `Use
 Use one central sweep rather than one sleeping task per registered user. Track cache access, apply a conservative TTL, re-check identity before deletion, and expose cumulative eviction telemetry. Test both eviction of idle cache-only users and retention of externally referenced users.
 
 - Beware `collections.UserDict`: its inherited `values()` and `items()` enumerate through `__getitem__`. If `__getitem__` refreshes access time, metrics and global scans keep every entry alive. Override bulk views with timestamp-neutral underlying-dict views and test that explicit lookup still refreshes.
+- Loading a historical tournament materializes every participant as a full `User` and protects those identities while the tournament remains cached. Measure finished tournament counts and unique user references. Use a short last-access-based TTL for finished tournaments, retain active viewers by checking both central and per-user socket maps, and clear both maps on eviction.
+- Re-read the last-access timestamp after every timer sleep; an HTTP or websocket request can refresh it while the removal task is asleep. Remember that tournament eviction and registered-user eviction have separate TTLs.
 
 ## Diagnose Tasks and Streams
 
