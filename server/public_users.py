@@ -7,7 +7,7 @@ from time import monotonic
 from typing import TYPE_CHECKING
 
 from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK
-from glicko2.glicko2 import perf_map_with_defaults
+from glicko2.glicko2 import sparse_perf_map
 from typing_defs import PerfMap, RelationDocument, UserCount, UserDocument
 from user_stats import normalize_user_count
 from variants import RATED_VARIANTS
@@ -89,7 +89,7 @@ class PublicUsers:
             enabled=doc.get("enabled", True),
             created_at=doc.get("createdAt", datetime(MINYEAR, 1, 1, tzinfo=UTC)),
             count=normalize_user_count(doc.get("count")),
-            perfs=perf_map_with_defaults(RATED_VARIANTS, doc.get("perfs")),
+            perfs=sparse_perf_map(RATED_VARIANTS, doc.get("perfs")),
             blocked=blocked,
             pm_friends_only=doc.get("pmf", False),
             oauth_id=doc.get("oauth_id") or "",
@@ -105,7 +105,7 @@ class PublicUsers:
             enabled=True,
             created_at=datetime(MINYEAR, 1, 1, tzinfo=UTC),
             count=normalize_user_count(None),
-            perfs=perf_map_with_defaults(RATED_VARIANTS, None),
+            perfs={},
             blocked=frozenset(),
             pm_friends_only=False,
             oauth_id="",

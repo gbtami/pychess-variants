@@ -230,6 +230,8 @@ def _state_summary(
     tournament_stats = app_state.tournament_cache_stats()
     return {
         "users": len(app_state.users),
+        "user_perf_entries": sum(len(user.perfs) for user in app_state.users.values()),
+        "user_puzzle_perf_entries": sum(len(user.pperfs) for user in app_state.users.values()),
         "games": len(app_state.games),
         "seeks": len(app_state.seeks),
         "invites": len(app_state.invites),

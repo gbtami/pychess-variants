@@ -15,11 +15,10 @@ from const import (
 from draw import draw
 from fairy import BLACK
 from game import MAX_PLY
-from glicko2.glicko2 import new_default_perf_map
+from glicko2.glicko2 import new_default_perf
 from pychess_global_app_state_utils import get_app_state
 from user import User
 from utils import play_move
-from variants import VARIANTS
 
 from tournament.arena import ArenaTournament
 from tournament.rr import RRTournament
@@ -109,9 +108,9 @@ class TestTournament(Tournament):
                 self.app_state,
                 username=name,
                 title="TEST",
-                perfs=new_default_perf_map(VARIANTS),
             )
-            if rating:
+            if rating is not None:
+                player.perfs[self.variant] = new_default_perf()
                 player.perfs[self.variant]["gl"]["r"] = rating
             self.app_state.users[player.username] = player
             player.tournament_sockets[self.id] = {None}

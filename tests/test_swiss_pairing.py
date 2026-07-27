@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from const import FLAG, T_FINISHED, TEST_PREFIX
-from glicko2.glicko2 import new_default_perf_map
+from glicko2.glicko2 import new_default_perf, new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament import swiss as swiss_mod
@@ -450,6 +450,7 @@ class SwissPairingTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
 
         low = User(app_state, username="low_rated_swiss_player", perfs=make_test_perfs())
+        low.perfs["chess"] = new_default_perf()
         low.perfs["chess"]["gl"]["r"] = 1300
         low.tournament_sockets[tid] = {None}
         app_state.users[low.username] = low
@@ -459,6 +460,7 @@ class SwissPairingTestCase(TournamentTestCase):
         )
 
         high = User(app_state, username="high_rated_swiss_player", perfs=make_test_perfs())
+        high.perfs["chess"] = new_default_perf()
         high.perfs["chess"]["gl"]["r"] = 1900
         high.tournament_sockets[tid] = {None}
         app_state.users[high.username] = high
@@ -468,6 +470,7 @@ class SwissPairingTestCase(TournamentTestCase):
         )
 
         allowed = User(app_state, username="allowed_swiss_player", perfs=make_test_perfs())
+        allowed.perfs["chess"] = new_default_perf()
         allowed.perfs["chess"]["gl"]["r"] = 1600
         allowed.tournament_sockets[tid] = {None}
         app_state.users[allowed.username] = allowed
@@ -488,6 +491,7 @@ class SwissPairingTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
 
         newcomer = User(app_state, username="new_swiss_player", perfs=make_test_perfs())
+        newcomer.perfs["chess"] = new_default_perf()
         newcomer.perfs["chess"]["nb"] = 5
         newcomer.tournament_sockets[tid] = {None}
         app_state.users[newcomer.username] = newcomer
@@ -497,6 +501,7 @@ class SwissPairingTestCase(TournamentTestCase):
         )
 
         admitted = User(app_state, username="returning_swiss_player", perfs=make_test_perfs())
+        admitted.perfs["chess"] = new_default_perf()
         admitted.perfs["chess"]["nb"] = 25
         admitted.tournament_sockets[tid] = {None}
         app_state.users[admitted.username] = admitted

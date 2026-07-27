@@ -27,7 +27,7 @@ from const import (
     normalize_game_category,
     reserved,
 )
-from glicko2.glicko2 import Rating, gl2, new_default_perf, perf_map_with_defaults
+from glicko2.glicko2 import MU, Rating, gl2, sparse_perf_map
 from json_utils import json_response
 from newid import id8
 from notify import notify
@@ -38,8 +38,8 @@ if TYPE_CHECKING:
     from typing_defs import (
         NotificationContent,
         NotificationDocument,
+        PerfEntry,
         PerfGl,
-        PerfMap,
         UserBlocksResponse,
         UserCount,
         UserJson,
@@ -51,7 +51,7 @@ from settings import (
     LOCALHOST,
     URI,
 )
-from variants import RATED_VARIANTS, VARIANTS, get_server_variant
+from variants import RATED_VARIANTS, VARIANTS
 
 if TYPE_CHECKING:
     from game import Game
@@ -100,8 +100,8 @@ class User:
         username: str | None = None,
         anon: bool = False,
         title: str = "",
-        perfs: PerfMap | None = None,
-        pperfs: PerfMap | None = None,
+        perfs: Mapping[str, Mapping[str, object]] | None = None,
+        pperfs: Mapping[str, Mapping[str, object]] | None = None,
         count: UserCount | None = None,
         enabled: bool = True,
         shadowban: bool = False,
@@ -199,8 +199,8 @@ class User:
                     "%s User() called with perfs=None. Use await users.get() instead.", username
                 )
 
-        self.perfs = perf_map_with_defaults(RATED_VARIANTS, perfs)
-        self.pperfs = perf_map_with_defaults(RATED_VARIANTS, pperfs)
+        self.perfs = sparse_perf_map(RATED_VARIANTS, perfs)
+        self.pperfs = sparse_perf_map(RATED_VARIANTS, pperfs)
         self.count = normalize_user_count(count)
 
         self.enabled: bool = enabled
@@ -382,32 +382,23 @@ class User:
             self.ever_connected = True
 
     def get_rating_value(self, variant: str, chess960: bool | None) -> int:
-        try:
-            return int(round(self.perfs[variant + ("960" if chess960 else "")]["gl"]["r"], 0))
-        except KeyError:
-            return 1500
+        perf = self.perfs.get(variant + ("960" if chess960 else ""))
+        return int(round(perf["gl"]["r"], 0)) if perf is not None else MU
 
     def get_rating(self, variant: str, chess960: bool | None) -> Rating:
         variant_key = variant + ("960" if chess960 else "")
-        try:
-            gl = self.perfs[variant_key]["gl"]
-            la = self.perfs[variant_key]["la"]
-            return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
-        except KeyError:
-            rating = gl2.create_rating()
-            if get_server_variant(variant, chess960).rating_enabled:
-                self.perfs[variant_key] = new_default_perf()
-            return rating
+        perf = self.perfs.get(variant_key)
+        if perf is None:
+            return gl2.create_rating()
+        gl = perf["gl"]
+        return gl2.create_rating(gl["r"], gl["d"], gl["v"], perf["la"])
 
     def get_puzzle_rating(self, variant: str, chess960: bool | None) -> Rating:
-        try:
-            gl = self.pperfs[variant + ("960" if chess960 else "")]["gl"]
-            la = self.pperfs[variant + ("960" if chess960 else "")]["la"]
-            return gl2.create_rating(gl["r"], gl["d"], gl["v"], la)
-        except KeyError:
-            rating = gl2.create_rating()
-            self.pperfs[variant + ("960" if chess960 else "")] = new_default_perf()
-            return rating
+        perf = self.pperfs.get(variant + ("960" if chess960 else ""))
+        if perf is None:
+            return gl2.create_rating()
+        gl = perf["gl"]
+        return gl2.create_rating(gl["r"], gl["d"], gl["v"], perf["la"])
 
     def set_silence(self) -> None:
         self.silence += SILENCE
@@ -421,35 +412,39 @@ class User:
     async def set_rating(self, variant: str, chess960: bool, rating: Rating) -> None:
         if self.anon:
             return
+        variant_key = variant + ("960" if chess960 else "")
         gl: PerfGl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
         la = datetime.now(UTC)
-        nb = self.perfs[variant + ("960" if chess960 else "")].get("nb", 0)
-        self.perfs[variant + ("960" if chess960 else "")] = {
+        previous = self.perfs.get(variant_key)
+        entry: PerfEntry = {
             "gl": gl,
             "la": la,
-            "nb": nb + 1,
+            "nb": (0 if previous is None else previous["nb"]) + 1,
         }
+        self.perfs[variant_key] = entry
 
         if self.app_state.db is not None:
             await self.app_state.db.user.find_one_and_update(
-                {"_id": self.username}, {"$set": {"perfs": self.perfs}}
+                {"_id": self.username}, {"$set": {f"perfs.{variant_key}": entry}}
             )
 
     async def set_puzzle_rating(self, variant: str, chess960: bool, rating: Rating) -> None:
         if self.anon:
             return
+        variant_key = variant + ("960" if chess960 else "")
         gl: PerfGl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
         la = datetime.now(UTC)
-        nb = self.pperfs[variant + ("960" if chess960 else "")].get("nb", 0)
-        self.pperfs[variant + ("960" if chess960 else "")] = {
+        previous = self.pperfs.get(variant_key)
+        entry: PerfEntry = {
             "gl": gl,
             "la": la,
-            "nb": nb + 1,
+            "nb": (0 if previous is None else previous["nb"]) + 1,
         }
+        self.pperfs[variant_key] = entry
 
         if self.app_state.db is not None:
             await self.app_state.db.user.find_one_and_update(
-                {"_id": self.username}, {"$set": {"pperfs": self.pperfs}}
+                {"_id": self.username}, {"$set": {f"pperfs.{variant_key}": entry}}
             )
 
     async def increment_game_count(self, result: int, rated: bool) -> None:
@@ -742,7 +737,7 @@ class User:
             self.username,
             self.bot,
             self.anon,
-            self.perfs["chess"]["gl"]["r"],
+            self.get_rating_value("chess", False),
         )
 
     def update_game_category(self, game_category: str) -> None:

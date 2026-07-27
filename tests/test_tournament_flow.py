@@ -4,7 +4,7 @@ import unittest
 from datetime import UTC, datetime, timedelta
 
 from const import FLAG, T_CREATED, T_FINISHED, T_STARTED
-from glicko2.glicko2 import new_default_perf_map
+from glicko2.glicko2 import new_default_perf, new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from tournament import swiss as swiss_mod
@@ -43,15 +43,16 @@ class TournamentFlowTestCase(TournamentTestCase):
         account_age_days: int = 60,
     ) -> User:
         app_state = get_app_state(self.app)
+        perfs = {"chess": new_default_perf()}
+        perfs["chess"]["gl"]["r"] = rating
+        perfs["chess"]["nb"] = rated_games
         user = User(
             app_state,
             username=username,
             title=title,
-            perfs=make_test_perfs(),
+            perfs=perfs,
             created_at=datetime.now(UTC) - timedelta(days=account_age_days),
         )
-        user.perfs["chess"]["gl"]["r"] = rating
-        user.perfs["chess"]["nb"] = rated_games
         user.tournament_sockets[tournament.id] = {None}
         app_state.users[user.username] = user
         return user
@@ -1093,6 +1094,7 @@ class TournamentFlowTestCase(TournamentTestCase):
 
         # Simulate rating change
         new_rating = initial_rating + 100
+        player.perfs["chess"] = new_default_perf()
         player.perfs["chess"]["gl"]["r"] = new_rating
 
         await self.tournament.join(player)
@@ -1352,6 +1354,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
         app_state.users[username] = replacement
         new_rating = int(player_data.rating) + 25
+        replacement.perfs["chess960"] = new_default_perf()
         replacement.perfs["chess960"]["gl"]["r"] = new_rating
 
         await self.tournament.join(replacement)

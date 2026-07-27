@@ -27,6 +27,8 @@ SUMMARY_KEYS = (
     "peak_rss_mib",
     "allocated_blocks",
     "users",
+    "user_perf_entries",
+    "user_puzzle_perf_entries",
     "registered_total",
     "registered_cache_only",
     "registered_cache_evictions",
@@ -112,6 +114,8 @@ def summarize_metrics(metrics: Mapping[str, Any]) -> dict[str, int | float]:
         "peak_rss_mib": _number(process, "peak_rss_mib"),
         "allocated_blocks": _number(process, "allocated_blocks"),
         "users": _number(state, "users"),
+        "user_perf_entries": _number(state, "user_perf_entries"),
+        "user_puzzle_perf_entries": _number(state, "user_puzzle_perf_entries"),
         "registered_total": _number(registered, "registered_total"),
         "registered_cache_only": _number(registered, "registered_cache_only"),
         "registered_cache_evictions": _number(registered, "registered_cache_evictions"),
@@ -190,6 +194,7 @@ def _format_summary(sample: int, summary: Mapping[str, int | float]) -> str:
         f"sample={sample} total={summary['rss_plus_swap_mib']:.2f} MiB "
         f"rss={summary['rss_mib']:.2f} MiB swap={summary['swap_mib']:.2f} MiB "
         f"users={summary['users']} cache_only={summary['registered_cache_only']} "
+        f"ratings={summary['user_perf_entries']}+{summary['user_puzzle_perf_entries']} "
         f"games={summary['games']} tasks={summary['tasks']} streams={summary['streams']}"
     )
 

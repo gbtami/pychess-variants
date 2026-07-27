@@ -18,6 +18,8 @@ class MonitorRecordTestCase(unittest.TestCase):
             },
             "state": {
                 "users": 120,
+                "user_perf_entries": 245,
+                "user_puzzle_perf_entries": 18,
                 "games": 8,
                 "tournaments": 14,
                 "finished_tournaments": 9,
@@ -55,6 +57,8 @@ class MonitorRecordTestCase(unittest.TestCase):
         self.assertEqual(summary["rss_plus_swap_mib"], 499.75)
         self.assertEqual(summary["swap_mib"], 98.5)
         self.assertEqual(summary["allocated_blocks"], 123456)
+        self.assertEqual(summary["user_perf_entries"], 245)
+        self.assertEqual(summary["user_puzzle_perf_entries"], 18)
         self.assertEqual(summary["registered_cache_evictions"], 12)
         self.assertEqual(summary["finished_tournaments"], 9)
         self.assertEqual(summary["tournament_remove_tasks"], 8)

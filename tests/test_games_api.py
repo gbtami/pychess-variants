@@ -20,6 +20,7 @@ from game_api import (
     safe_write_eof,
     variant_counts_from_docs,
 )
+from glicko2.glicko2 import new_default_perf
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import BulkWriteError
@@ -160,6 +161,37 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         payload = await response.json()
         self.assertEqual(["profiledb1"], [item["_id"] for item in payload])
         self.assertNotIn(self.profile_probe, app_state.users)
+
+    async def test_profile_sidebar_lists_only_variants_with_rated_games(self):
+        self.set_session_user(self.user.username)
+        app_state = get_app_state(self.app)
+        self.user.update_game_category("all")
+
+        played_perf = new_default_perf()
+        played_perf["gl"]["r"] = 1625.0
+        played_perf["nb"] = 3
+        unplayed_perf = new_default_perf()
+        unplayed_perf["gl"]["r"] = 1550.0
+        await app_state.db.user.update_one(
+            {"_id": self.profile_probe},
+            {
+                "$set": {
+                    "perfs": {
+                        "chess": played_perf,
+                        "antichess": unplayed_perf,
+                    }
+                }
+            },
+        )
+
+        response = await self.client.get(f"/@/{self.profile_probe}")
+        self.assertEqual(response.status, 200)
+        body = await response.text()
+        self.assertIn(f"/@/{self.profile_probe}/perf/chess", body)
+        self.assertNotIn(f"/@/{self.profile_probe}/perf/antichess", body)
+
+        response = await self.client.get(f"/@/{self.profile_probe}/perf/antichess")
+        self.assertEqual(response.status, 200)
 
     async def test_winners_and_shields_pages_do_not_cache_public_users(self):
         self.set_session_user(self.user.username)

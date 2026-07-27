@@ -149,6 +149,8 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
 
         state = payload["object_details"]["state"][0]
         for key in (
+            "user_perf_entries",
+            "user_puzzle_perf_entries",
             "tournaments",
             "simuls",
             "catalogued_variants",

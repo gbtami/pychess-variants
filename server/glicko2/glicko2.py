@@ -280,9 +280,30 @@ def new_default_perf_map(variants: Iterable[str]) -> PerfMap:
     return {variant: new_default_perf() for variant in variants}
 
 
-def perf_map_with_defaults(
-    variants: Iterable[str], perfs: Mapping[str, Mapping[str, object]] | PerfMap | None = None
+def is_default_perf(perf: PerfEntry) -> bool:
+    gl = perf["gl"]
+    return (
+        perf["nb"] == 0
+        and gl["r"] == float(MU)
+        and gl["d"] == float(PHI)
+        and gl["v"] == float(SIGMA)
+    )
+
+
+def sparse_perf_map(
+    variants: Iterable[str],
+    perfs: Mapping[str, Mapping[str, object]] | PerfMap | None = None,
 ) -> PerfMap:
+    """Normalize and retain only ratings that carry non-default state."""
     if perfs is None:
-        return new_default_perf_map(variants)
-    return {variant: perf_entry_with_defaults(perfs.get(variant)) for variant in variants}
+        return {}
+
+    allowed_variants = frozenset(variants)
+    normalized: PerfMap = {}
+    for variant, perf in perfs.items():
+        if variant not in allowed_variants:
+            continue
+        entry = perf_entry_with_defaults(perf if isinstance(perf, Mapping) else None)
+        if not is_default_perf(entry):
+            normalized[variant] = entry
+    return normalized
