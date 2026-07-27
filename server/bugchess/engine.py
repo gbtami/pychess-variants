@@ -2099,8 +2099,8 @@ class XBoardProtocol(EngineProtocol):
                 post_info = _parse_xboard_post(line, engine.board, info | INFO_BASIC)
                 self.analysis.post(post_info)
 
-                if limit is not None:
-                    if (
+                if limit is not None and (
+                    (
                         (
                             limit.time is not None
                             and typing.cast(float, post_info.get("time", 0)) >= limit.time
@@ -2113,14 +2113,14 @@ class XBoardProtocol(EngineProtocol):
                             limit.depth is not None
                             and typing.cast(int, post_info.get("depth", 0)) >= limit.depth
                         )
-                    ):
-                        self.cancel(engine)
-                    elif (
+                    )
+                    or (
                         limit.mate is not None
                         and "score" in post_info
                         and typing.cast(PovScore, post_info["score"]).relative >= Mate(limit.mate)
-                    ):
-                        self.cancel(engine)
+                    )
+                ):
+                    self.cancel(engine)
 
             def end(self, engine: XBoardProtocol) -> None:
                 if self.time_limit_handle:

@@ -3276,13 +3276,12 @@ class Tablebase:
 
             v1 = max(v1, v0)
 
-        if v1 > -3:
-            if v1 >= v:
-                v = v1
-            # If there is not at least one legal non-en-passant move we are
-            # forced to play the losing en passant cature.
-            elif v == 0 and all(board.is_en_passant(move) for move in board.generate_legal_moves()):
-                v = v1
+        if v1 > -3 and (
+            v1 >= v
+            or v == 0
+            and all(board.is_en_passant(move) for move in board.generate_legal_moves())
+        ):
+            v = v1
 
         return v
 
