@@ -123,17 +123,19 @@ async def oauth(request: web.Request) -> web.StreamResponse:
 
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
-        async with aiohttp.ClientSession() as client_session:
-            async with client_session.post(oauth_token_url, data=data, headers=headers) as resp:
-                token_data: dict[str, str] = await resp.json()
-                # print("OAUTH_DATA=", data)
-                token = token_data.get("access_token")
-                if token is not None:
-                    session["token"] = token
-                    return web.HTTPFound("/login/%s" % provider)
-                else:
-                    log.error("Failed to get OAuth token for provider '%s'", provider)
-                    return web.HTTPFound("/")
+        async with (
+            aiohttp.ClientSession() as client_session,
+            client_session.post(oauth_token_url, data=data, headers=headers) as resp,
+        ):
+            token_data: dict[str, str] = await resp.json()
+            # print("OAUTH_DATA=", data)
+            token = token_data.get("access_token")
+            if token is not None:
+                session["token"] = token
+                return web.HTTPFound("/login/%s" % provider)
+            else:
+                log.error("Failed to get OAuth token for provider '%s'", provider)
+                return web.HTTPFound("/")
 
 
 async def login(request: web.Request) -> web.StreamResponse:

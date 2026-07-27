@@ -727,9 +727,9 @@ class CacheCleanupTestCase(AioHTTPTestCase):
             patch.object(user_module, "ANON_TIMEOUT", 123),
             patch.object(user_module, "ANON_NEVER_CONNECTED_TIMEOUT", 7),
             patch.object(user_module.asyncio, "sleep", new=fake_sleep),
+            self.assertRaises(RuntimeError),
         ):
-            with self.assertRaises(RuntimeError):
-                await anon.remove()
+            await anon.remove()
 
         self.assertEqual([123], sleeps)
         self.assertIn(anon.username, app_state.users)

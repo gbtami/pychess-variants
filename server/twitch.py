@@ -115,28 +115,30 @@ class Twitch:
             "grant_type": "client_credentials",
         }
 
-        async with aiohttp.ClientSession() as client_session:
-            async with client_session.post(TWITCH_OAUTH2_TOKEN_URL, json=data) as resp:
-                if resp.status == 400:
-                    log.exception("OAuth2 failed")
-                    return
+        async with (
+            aiohttp.ClientSession() as client_session,
+            client_session.post(TWITCH_OAUTH2_TOKEN_URL, json=data) as resp,
+        ):
+            if resp.status == 400:
+                log.exception("OAuth2 failed")
+                return
 
-                response_data: TwitchOAuthTokenResponse = await resp.json()
-                if "status" in response_data:
-                    if response_data["status"] == 400:
-                        log.error("Invalid TWITCH_CLIENT_ID")
-                    elif response_data["status"] == 403:
-                        log.error("Invalid TWITCH_CLIENT_SECRET")
-                else:
-                    self.token = response_data["access_token"]
-                    self.token_valid_until = datetime.now(UTC) + timedelta(
-                        seconds=response_data["expires_in"]
-                    )
-                    self.headers = {
-                        "Client-ID": TWITCH_CLIENT_ID,
-                        "Authorization": "Bearer %s" % self.token,
-                        "Content-Type": "application/json",
-                    }
+            response_data: TwitchOAuthTokenResponse = await resp.json()
+            if "status" in response_data:
+                if response_data["status"] == 400:
+                    log.error("Invalid TWITCH_CLIENT_ID")
+                elif response_data["status"] == 403:
+                    log.error("Invalid TWITCH_CLIENT_SECRET")
+            else:
+                self.token = response_data["access_token"]
+                self.token_valid_until = datetime.now(UTC) + timedelta(
+                    seconds=response_data["expires_in"]
+                )
+                self.headers = {
+                    "Client-ID": TWITCH_CLIENT_ID,
+                    "Authorization": "Bearer %s" % self.token,
+                    "Content-Type": "application/json",
+                }
 
     async def delete_subscription(self, subscription_id: str) -> None:
         log.debug("delete_subscription %s", subscription_id)
@@ -191,12 +193,14 @@ class Twitch:
 
     async def get_subscriptions(self) -> None:
         log.debug("get_subscriptions from twitch")
-        async with aiohttp.ClientSession() as client_session:
-            async with client_session.get(TWITCH_EVENTSUB_API_URL, headers=self.headers) as resp:
-                response_data: TwitchSubscriptionsResponse = await resp.json()
-                for subs in response_data["data"]:
-                    log.debug("subs: %r", subs)
-                    self.subscriptions[subs["id"]] = subs
+        async with (
+            aiohttp.ClientSession() as client_session,
+            client_session.get(TWITCH_EVENTSUB_API_URL, headers=self.headers) as resp,
+        ):
+            response_data: TwitchSubscriptionsResponse = await resp.json()
+            for subs in response_data["data"]:
+                log.debug("subs: %r", subs)
+                self.subscriptions[subs["id"]] = subs
 
     async def get_users_data(self, usernames: Iterable[str]) -> list[tuple[str, str]]:
         log.debug("get_users_data from twitch")

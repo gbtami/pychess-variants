@@ -255,9 +255,9 @@ class SwissPairingTestCase(TournamentTestCase):
         with (
             patch("tournament.swiss._build_dutch_pairing_state", return_value=fake_state),
             patch("tournament.swiss.DutchEngine", _Engine),
+            self.assertRaisesRegex(PairingUnavailable, "No valid pairing exists"),
         ):
-            with self.assertRaisesRegex(PairingUnavailable, "No valid pairing exists"):
-                self.tournament.create_pairing(waiting)
+            self.tournament.create_pairing(waiting)
 
     async def test_pair_fixed_round_finishes_swiss_when_not_enough_active_players(self):
         app_state = get_app_state(self.app)
