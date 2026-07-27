@@ -1,9 +1,8 @@
 /**
  * WebsocketHeartbeatJs class adapted to TypeScript from https://github.com/zimv/websocket-heartbeat-js.
  * Only added (similar to lichess's, but slightly more sophisticated) logic for showing/hiding connection notifications.
- * TODO: compare to the similar lichess class here: https://github.com/lichess-org/lila/blob/master/ui/site/src/socket.ts
- *       general ping/reconnect approach is the same, but there are some differences, not sure how important yet.
- *       consider also adopting the other logic for queueing messages, etc.
+ * Heartbeat timing and direct replacement of stale sockets follow the Lichess
+ * implementation in ui/lib/src/socket.ts.
  *
  * @param url
  * @param pingTimeout
@@ -107,10 +106,7 @@ export class WebsocketHeartbeatJs {
         };
     };
 
-    reconnect = function () {
-        // todo: lichess calls clearTimeout-s here (the stuff in heartReset() in our code), we don't,
-        //       i guess in our case lockReconnect prevents for second reconnect getting triggered, but lichess approach
-        //       seems simpler/cleaner to me
+    reconnect = function (delay = this.opts.reconnectTimeout) {
         console.log(
             'reconnect() ' +
                 this.opts.repeatLimit +
@@ -123,15 +119,25 @@ export class WebsocketHeartbeatJs {
         );
         if (this.opts.repeatLimit !== null && this.opts.repeatLimit <= this.repeat) return; //limit repeat the number
         if (this.lockReconnect || this.forbidReconnect) return;
+        this.heartReset();
         this.lockReconnect = true;
         this.repeat++;
-        toggleSocketCssOnReconnect(this.opts.reconnectTimeout);
+        toggleSocketCssOnReconnect(delay);
         this.onreconnect();
         setTimeout(() => {
-            console.log('Setting timeout to createWebSocket() in ' + this.opts.reconnectTimeout + ' ms');
-            this.createWebSocket();
+            if (this.forbidReconnect) {
+                this.lockReconnect = false;
+                return;
+            }
+            console.log('Setting timeout to createWebSocket() in ' + delay + ' ms');
+            this.disconnect();
             this.lockReconnect = false;
-        }, this.opts.reconnectTimeout);
+            try {
+                this.createWebSocket();
+            } catch {
+                // createWebSocket schedules the next attempt before rethrowing.
+            }
+        }, delay);
     };
 
     send = function (msg: Parameters<WebSocket['send']>[0]) {
@@ -149,9 +155,10 @@ export class WebsocketHeartbeatJs {
             this.ws.send(typeof this.opts.pingMsg === 'function' ? this.opts.pingMsg() : this.opts.pingMsg);
             this.pongTimeoutId = setTimeout(() => {
                 toggleSocketCssOnPongTimeout();
-                this.ws.close(); // todo: I am not sure if closing is good. If we postpone closing right before
-                //       reconnect we give it more time to have a chance to recover -
-                //       maybe test like that as well
+                // A blackholed socket can remain in CLOSING while waiting for a
+                // close handshake. Replace it directly instead of relying on
+                // onclose to begin recovery.
+                this.reconnect(0);
             }, this.opts.pongTimeout);
         }, this.opts.pingTimeout);
     };
@@ -159,7 +166,15 @@ export class WebsocketHeartbeatJs {
     heartReset = function () {
         clearTimeout(this.pingTimeoutId);
         clearTimeout(this.pongTimeoutId);
-        // todo: here lichess has also a disconnect call and usets this.ws. see method destroy()
+    };
+
+    disconnect = function () {
+        const ws = this.ws;
+        ws.onclose = () => {};
+        ws.onerror = () => {};
+        ws.onopen = () => {};
+        ws.onmessage = () => {};
+        ws.close();
     };
 
     close = function () {

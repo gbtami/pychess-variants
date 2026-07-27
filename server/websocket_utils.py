@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 _SEND_CONCURRENCY = 200
 _SEND_TIMEOUT_SECS = 2.0
+_RECEIVE_TIMEOUT_SECS = 30.0
 _WS_JSON_ENCODER = msgspec.json.Encoder()
 _WS_JSON_DECODER = msgspec.json.Decoder()
 _TYPE_FIELD_RE = re.compile(r'"type"\s*:\s*"([^"\\]+)"')
@@ -90,7 +91,10 @@ async def process_ws(
         session.invalidate()
         return None
 
-    ws = WebSocketResponse(heartbeat=3.0, receive_timeout=10.0)
+    # The client sends an application-level "/n" ping every 2.5 seconds and
+    # reconnects if its pong is missing. Keep server cleanup deliberately
+    # slower so short network stalls do not race an aggressive protocol ping.
+    ws = WebSocketResponse(receive_timeout=_RECEIVE_TIMEOUT_SECS)
     ws_ready = ws.can_prepare(request)
     if not ws_ready.ok:
         log.debug("Ignoring non-websocket request on %s: %r", request.rel_url.path, ws_ready)
@@ -170,8 +174,8 @@ async def process_ws(
                 break
             else:
                 log.debug("%s ws other msg.type %s %s", request.rel_url.path, msg.type, msg)
-    except OSError:
-        # disconnected
+    except TimeoutError, OSError:
+        # Disconnected or stale.
         pass
     except Exception:
         log.exception(

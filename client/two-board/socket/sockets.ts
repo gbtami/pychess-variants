@@ -30,6 +30,7 @@ export class RoundControllerBughouseSocket {
         };
 
         const onReconnect = () => {
+            ctrl.seatsState.setConnecting(true);
             const container = document.getElementById('player1a') as HTMLElement;
             patch(
                 container,
