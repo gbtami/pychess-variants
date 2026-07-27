@@ -22,7 +22,7 @@
     "@fullcalendar/core": "^6.1.21",
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/interaction": "^6.1.20",
-    "@fullcalendar/list": "^6.1.20",
+    "@fullcalendar/list": "^6.1.21",
     "@fullcalendar/timegrid": "^6.1.20",
     "@toast-ui/editor": "3.2.2",
     "chessgroundx": "^10.7.5",
