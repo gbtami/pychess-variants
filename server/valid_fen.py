@@ -1,4 +1,4 @@
-from fairy import STANDARD_FEN, LOOKING_GLASS_ALICE_FEN, MANCHU_FEN, MANCHU_R_FEN, JIEQI_FEN
+from fairy import JIEQI_FEN, LOOKING_GLASS_ALICE_FEN, MANCHU_FEN, MANCHU_R_FEN, STANDARD_FEN
 from fairy.capa_altarnate import (
     BIRD,
     CARRERA,

@@ -1,15 +1,15 @@
 import aiohttp_jinja2
 from aiohttp import web
-
-from const import IMPORTED, RATED, DASH, TROPHIES
+from const import DASH, IMPORTED, RATED, TROPHIES
 from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
+from pychess_global_app_state_utils import get_app_state
 from settings import ADMINS
 from typing_defs import ViewContext
 from ublog import display_date, image_src, post_url, summary_from_markdown
+from variants import NOT_RATED_VARIANTS, VARIANT_ICONS, VARIANTS
+
 from views import get_user_context
-from pychess_global_app_state_utils import get_app_state
-from variants import NOT_RATED_VARIANTS, VARIANTS, VARIANT_ICONS
 
 
 def _thread_id(user1: str, user2: str) -> str:

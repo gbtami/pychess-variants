@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
-from functools import lru_cache
 import logging
-from typing import Any, Mapping, NamedTuple, TypedDict
+from collections.abc import Iterator, Mapping
+from functools import lru_cache
+from typing import Any, NamedTuple, TypedDict
 
 from betza_visualizer import BetzaSvgOptions, render_betza_svg
 

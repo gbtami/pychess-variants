@@ -1,21 +1,21 @@
 from __future__ import annotations
 
-import inspect
-import sys
-import gc
-import resource
-import time
 import asyncio
-from asyncio import Event, Task, Queue
+import gc
+import inspect
+import logging
+import resource
+import sys
+import time
+from asyncio import Event, Queue, Task
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, TypedDict, cast
 
+import pyffish as sf
 from aiohttp import web
 from aiohttp.web_response import StreamResponse
-import pyffish as sf
-
 from bug.game_bug import GameBug
 from catalogued_betza import (
     _cached_betza_svg,
@@ -25,24 +25,22 @@ from catalogued_betza import (
 from catalogued_board import _cached_start_board_svg
 from catalogued_rules import _cached_catalogued_rule_summary
 from clock import Clock
-from game import Game
-from fishnet import fishnet_variants_payload_cache_bytes
-import logging
-
 from const import STARTED, reserved
-from lobby import Lobby
-from seek import Seek
-from user import User
-from variants import CataloguedServerVariant, Variant
 from fairy.fairy_board import FairyBoard, get_fog_fen
 from fairy.jieqi import index_to_square, square_to_index
+from fishnet import fishnet_variants_payload_cache_bytes
+from game import Game
 from glicko2.glicko2 import Rating
-from settings import PYCHESS_MONITOR_TOKEN, URI, LOCALHOST
+from json_utils import json_response
+from lobby import Lobby
+from pychess_global_app_state_utils import get_app_state
+from seek import Seek
+from settings import LOCALHOST, PYCHESS_MONITOR_TOKEN, URI
 from simul.simul import Simul
 from tournament.tournament import GameData, PlayerData, Tournament, player_json
-from pychess_global_app_state_utils import get_app_state
-from json_utils import json_response
 from typedefs import request_protection_state_key
+from user import User
+from variants import CataloguedServerVariant, Variant
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -55,7 +53,7 @@ def _seek_expire_sort_key(seek: Seek) -> float:
     if expire_at is None:
         return float("-inf")
     if expire_at.tzinfo is None:
-        expire_at = expire_at.replace(tzinfo=timezone.utc)
+        expire_at = expire_at.replace(tzinfo=UTC)
     return expire_at.timestamp()
 
 
@@ -340,7 +338,7 @@ def _lightweight_metrics(
     cache_rows = cache_stats()
     return {
         "mode": "summary",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "process_memory": process_memory_stats(),
         "state": _state_summary(app_state, request),
         "registered": _registered_summary(app_state),
@@ -541,7 +539,7 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
     log.debug("Running memory_stats() time: %s", (time.process_time() - start))
 
     # Prepare object details
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     users: list[dict[str, object]] = [
         {
@@ -604,7 +602,7 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
         for game_id, game in sorted(app_state.games.items(), key=lambda x: x[1].date, reverse=True)
     ]
     connections: list[dict[str, str]] = [
-        {"id": username, "timestamp": datetime.now(timezone.utc).isoformat()}
+        {"id": username, "timestamp": datetime.now(UTC).isoformat()}
         for username in app_state.lobby.lobbysockets
     ]
 
@@ -895,7 +893,7 @@ async def metrics_handler(request: web.Request) -> web.StreamResponse:
 
     metrics: dict[str, object] = {
         "active_connections": len(active_connections),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "top_allocations": [
             {
                 "type": stat["type"],

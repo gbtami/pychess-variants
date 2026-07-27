@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 from const import SHIELD, T_STARTED
-from variants import get_server_variant, VARIANTS
+from variants import VARIANTS, get_server_variant
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

@@ -1,20 +1,19 @@
 import unittest
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
-from aiohttp import web
-
 import test_logger
+from aiohttp import web
 from catalogued_variants import (
     _canonical_piece_set_filename,
-    _check_ini_with_pyffish_child,
     _catalogued_board_svg_css,
     _catalogued_disguised_piece_css,
     _catalogued_piece_set_css,
     _catalogued_piece_set_is_directional,
     _catalogued_piece_set_required_filenames,
+    _check_ini_with_pyffish_child,
     _copy_piece_set_if_complete_for_doc,
     _has_complete_piece_set,
     _read_bool_metadata,
@@ -597,8 +596,8 @@ startFen = 8/8/8/8/8/8/8/8
             "category": "other",
             "visibility": "private",
             "gameCount": 0,
-            "createdAt": datetime.now(timezone.utc),
-            "updatedAt": datetime.now(timezone.utc),
+            "createdAt": datetime.now(UTC),
+            "updatedAt": datetime.now(UTC),
         }
         old_complete_before_metadata: Any = {
             "pieceSet": {
@@ -607,7 +606,7 @@ startFen = 8/8/8/8/8/8/8/8
                 "wP": {"svg": "<svg />", "size": 7},
                 "bP": {"svg": "<svg />", "size": 7},
             },
-            "pieceSetUpdatedAt": datetime.now(timezone.utc),
+            "pieceSetUpdatedAt": datetime.now(UTC),
         }
 
         _copy_piece_set_if_complete_for_doc(updated_doc, old_complete_before_metadata)
@@ -647,8 +646,8 @@ startFen = 8/8/8/8/8/8/8/8
             "category": "other",
             "visibility": "private",
             "gameCount": 0,
-            "createdAt": datetime.now(timezone.utc),
-            "updatedAt": datetime.now(timezone.utc),
+            "createdAt": datetime.now(UTC),
+            "updatedAt": datetime.now(UTC),
         }
         matching_piece_set: Any = {
             "pieceSet": {
@@ -659,7 +658,7 @@ startFen = 8/8/8/8/8/8/8/8
                 "w+P": {"svg": "<svg />", "size": 7},
                 "b+P": {"svg": "<svg />", "size": 7},
             },
-            "pieceSetUpdatedAt": datetime.now(timezone.utc),
+            "pieceSetUpdatedAt": datetime.now(UTC),
         }
 
         _copy_piece_set_if_complete_for_doc(updated_doc, matching_piece_set)

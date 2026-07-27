@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import aiohttp_session
-from aiohttp import web
-
 from admin import silence
+from aiohttp import web
 from broadcast import round_broadcast
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state

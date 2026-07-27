@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
 # Copyright (C) 2012-2019 Niklas Fiekas <niklas.fiekas@backscattering.de>
@@ -31,23 +30,14 @@ __version__ = "0.27.3"
 import collections
 import copy
 import enum
-import re
 import itertools
+import re
 import typing
-
+from collections.abc import Callable, Hashable, Iterable, Iterator, Mapping
 from typing import (
-    Callable,
-    Dict,
+    ClassVar,
     Generic,
-    Hashable,
-    Iterable,
-    Iterator,
-    List,
-    Mapping,
-    Optional,
     SupportsInt,
-    Tuple,
-    Type,
     TypeVar,
     Union,
 )
@@ -62,7 +52,7 @@ PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]
 PIECE_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king"]
 
 
-def piece_symbol(piece_type: PieceType, _PIECE_SYMBOLS: List[Optional[str]] = PIECE_SYMBOLS) -> str:
+def piece_symbol(piece_type: PieceType, _PIECE_SYMBOLS: list[str | None] = PIECE_SYMBOLS) -> str:
     return typing.cast(str, _PIECE_SYMBOLS[piece_type])
 
 
@@ -359,7 +349,7 @@ def msb(bb: Bitboard) -> int:
     return bb.bit_length() - 1
 
 
-def scan_reversed(bb: Bitboard, *, _BB_SQUARES: List[Bitboard] = BB_SQUARES) -> Iterator[Square]:
+def scan_reversed(bb: Bitboard, *, _BB_SQUARES: list[Bitboard] = BB_SQUARES) -> Iterator[Square]:
     while bb:
         r = bb.bit_length() - 1
         yield r
@@ -500,7 +490,7 @@ def _carry_rippler(mask: Bitboard) -> Iterator[Bitboard]:
             break
 
 
-def _attack_table(deltas: List[int]) -> Tuple[List[Bitboard], List[Dict[Bitboard, Bitboard]]]:
+def _attack_table(deltas: list[int]) -> tuple[list[Bitboard], list[dict[Bitboard, Bitboard]]]:
     mask_table = []
     attack_table = []
 
@@ -522,7 +512,7 @@ BB_FILE_MASKS, BB_FILE_ATTACKS = _attack_table([-8, 8])
 BB_RANK_MASKS, BB_RANK_ATTACKS = _attack_table([-1, 1])
 
 
-def _rays() -> Tuple[List[List[Bitboard]], List[List[Bitboard]]]:
+def _rays() -> tuple[list[list[Bitboard]], list[list[Bitboard]]]:
     rays = []
     between = []
     for a, bb_a in enumerate(BB_SQUARES):
@@ -589,7 +579,7 @@ class Piece:
         return hash(self.piece_type * (self.color + 1))
 
     def __repr__(self) -> str:
-        return "Piece.from_symbol({!r})".format(self.symbol())
+        return f"Piece.from_symbol({self.symbol()!r})"
 
     def __str__(self) -> str:
         return self.symbol()
@@ -606,7 +596,7 @@ class Piece:
             return NotImplemented
 
     @classmethod
-    def from_symbol(cls, symbol: str) -> "Piece":
+    def from_symbol(cls, symbol: str) -> Piece:
         """
         Creates a :class:`~chess.Piece` instance from a piece symbol.
 
@@ -627,10 +617,10 @@ class Move:
         self,
         from_square: Square,
         to_square: Square,
-        promotion: Optional[PieceType] = None,
-        drop: Optional[PieceType] = None,
-        board_id: Optional[int] = None,
-        move_time: Optional[float] = None,
+        promotion: PieceType | None = None,
+        drop: PieceType | None = None,
+        board_id: int | None = None,
+        move_time: float | None = None,
     ) -> None:
         self.from_square = from_square
         self.to_square = to_square
@@ -680,29 +670,29 @@ class Move:
             return NotImplemented
 
     def __repr__(self) -> str:
-        return "Move.from_uci({!r})".format(self.uci())
+        return f"Move.from_uci({self.uci()!r})"
 
     def __str__(self) -> str:
         if self.board_id is None:
             return self.uci()
         else:
-            return "B{} {}".format(self.board_id + 1, self.uci())
+            return f"B{self.board_id + 1} {self.uci()}"
 
     def __hash__(self) -> int:
         return hash((self.to_square, self.from_square, self.promotion, self.drop, self.board_id))
 
-    def __copy__(self) -> "Move":
+    def __copy__(self) -> Move:
         return type(self)(
             self.from_square, self.to_square, self.promotion, self.drop, self.board_id
         )
 
-    def __deepcopy__(self, memo: Dict[int, object]) -> "Move":
+    def __deepcopy__(self, memo: dict[int, object]) -> Move:
         move = self.__copy__()
         memo[id(self)] = move
         return move
 
     @classmethod
-    def from_uci(cls, uci: str) -> "Move":
+    def from_uci(cls, uci: str) -> Move:
         """
         Parses an UCI string.
 
@@ -722,10 +712,10 @@ class Move:
                 SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion=promotion
             )
         else:
-            raise ValueError("expected uci string to be of length 4 or 5: {!r}".format(uci))
+            raise ValueError(f"expected uci string to be of length 4 or 5: {uci!r}")
 
     @classmethod
-    def null(cls) -> "Move":
+    def null(cls) -> Move:
         """
         Gets a null move.
 
@@ -754,7 +744,7 @@ class BaseBoard:
     is ``None``, an empty board is created.
     """
 
-    def __init__(self, board_fen: Optional[str] = STARTING_BOARD_FEN) -> None:
+    def __init__(self, board_fen: str | None = STARTING_BOARD_FEN) -> None:
         self.occupied_co = [BB_EMPTY, BB_EMPTY]
 
         if board_fen is None:
@@ -815,7 +805,7 @@ class BaseBoard:
 
         return bb & self.occupied_co[color]
 
-    def pieces(self, piece_type: PieceType, color: Color) -> "SquareSet":
+    def pieces(self, piece_type: PieceType, color: Color) -> SquareSet:
         """
         Gets pieces of the given type and color.
 
@@ -823,7 +813,7 @@ class BaseBoard:
         """
         return SquareSet(self.pieces_mask(piece_type, color))
 
-    def piece_at(self, square: Square) -> Optional[Piece]:
+    def piece_at(self, square: Square) -> Piece | None:
         """Gets the :class:`piece <chess.Piece>` at the given square."""
         piece_type = self.piece_type_at(square)
         if piece_type:
@@ -833,7 +823,7 @@ class BaseBoard:
         else:
             return None
 
-    def piece_type_at(self, square: Square) -> Optional[PieceType]:
+    def piece_type_at(self, square: Square) -> PieceType | None:
         """Gets the piece type at the given square."""
         mask = BB_SQUARES[square]
 
@@ -852,7 +842,7 @@ class BaseBoard:
         else:
             return KING
 
-    def king(self, color: Color) -> Optional[Square]:
+    def king(self, color: Color) -> Square | None:
         """
         Finds the king square of the given side. Returns ``None`` if there
         is no king of that color.
@@ -884,7 +874,7 @@ class BaseBoard:
                 )
             return attacks
 
-    def attacks(self, square: Square) -> "SquareSet":
+    def attacks(self, square: Square) -> SquareSet:
         """
         Gets a set of attacked squares from a given square.
 
@@ -926,7 +916,7 @@ class BaseBoard:
         """
         return bool(self.attackers_mask(color, square))
 
-    def attackers(self, color: Color, square: Square) -> "SquareSet":
+    def attackers(self, color: Color, square: Square) -> SquareSet:
         """
         Gets a set of attackers of the given color for the given square.
 
@@ -959,7 +949,7 @@ class BaseBoard:
 
         return BB_ALL
 
-    def pin(self, color: Color, square: Square) -> "SquareSet":
+    def pin(self, color: Color, square: Square) -> SquareSet:
         """
         Detects an absolute pin (and its direction) of the given square to
         the king of the given color.
@@ -994,7 +984,7 @@ class BaseBoard:
         """
         return self.pin_mask(color, square) != BB_ALL
 
-    def _remove_piece_at(self, square: Square) -> Optional[PieceType]:
+    def _remove_piece_at(self, square: Square) -> PieceType | None:
         piece_type = self.piece_type_at(square)
         mask = BB_SQUARES[square]
 
@@ -1021,7 +1011,7 @@ class BaseBoard:
 
         return piece_type
 
-    def remove_piece_at(self, square: Square) -> Optional[Piece]:
+    def remove_piece_at(self, square: Square) -> Piece | None:
         """
         Removes the piece from the given square. Returns the
         :class:`~chess.Piece` or ``None`` if the square was already empty.
@@ -1058,7 +1048,7 @@ class BaseBoard:
         if promoted:
             self.promoted ^= mask
 
-    def set_piece_at(self, square: Square, piece: Optional[Piece], promoted: bool = False) -> None:
+    def set_piece_at(self, square: Square, piece: Piece | None, promoted: bool = False) -> None:
         """
         Sets a piece at the given square.
 
@@ -1070,7 +1060,7 @@ class BaseBoard:
         else:
             self._set_piece_at(square, piece.piece_type, piece.color, promoted)
 
-    def board_fen(self, *, promoted: Optional[bool] = False) -> str:
+    def board_fen(self, *, promoted: bool | None = False) -> str:
         """
         Gets the board FEN.
         """
@@ -1104,12 +1094,12 @@ class BaseBoard:
         # Compability with set_fen().
         fen = fen.strip()
         if " " in fen:
-            raise ValueError("expected position part of fen, got multiple parts: {!r}".format(fen))
+            raise ValueError(f"expected position part of fen, got multiple parts: {fen!r}")
 
         # Ensure the FEN is valid.
         rows = fen.split("/")
         if len(rows) != 8:
-            raise ValueError("expected 8 rows in position part of fen: {!r}".format(fen))
+            raise ValueError(f"expected 8 rows in position part of fen: {fen!r}")
 
         # Validate each row.
         for row in rows:
@@ -1120,17 +1110,13 @@ class BaseBoard:
             for c in row:
                 if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
                     if previous_was_digit:
-                        raise ValueError(
-                            "two subsequent digits in position part of fen: {!r}".format(fen)
-                        )
+                        raise ValueError(f"two subsequent digits in position part of fen: {fen!r}")
                     field_sum += int(c)
                     previous_was_digit = True
                     previous_was_piece = False
                 elif c == "~":
                     if not previous_was_piece:
-                        raise ValueError(
-                            "'~' not after piece in position part of fen: {!r}".format(fen)
-                        )
+                        raise ValueError(f"'~' not after piece in position part of fen: {fen!r}")
                     previous_was_digit = False
                     previous_was_piece = False
                 elif c.lower() in PIECE_SYMBOLS:
@@ -1138,12 +1124,10 @@ class BaseBoard:
                     previous_was_digit = False
                     previous_was_piece = True
                 else:
-                    raise ValueError("invalid character in position part of fen: {!r}".format(fen))
+                    raise ValueError(f"invalid character in position part of fen: {fen!r}")
 
             if field_sum != 8:
-                raise ValueError(
-                    "expected 8 columns per row in position part of fen: {!r}".format(fen)
-                )
+                raise ValueError(f"expected 8 columns per row in position part of fen: {fen!r}")
 
         # Clear the board.
         self._clear_board()
@@ -1168,7 +1152,7 @@ class BaseBoard:
         """
         self._set_board_fen(fen)
 
-    def piece_map(self) -> Dict[Square, Piece]:
+    def piece_map(self) -> dict[Square, Piece]:
         """
         Gets a dictionary of :class:`pieces <chess.Piece>` by square index.
         """
@@ -1191,7 +1175,7 @@ class BaseBoard:
 
     def _set_chess960_pos(self, sharnagl: int) -> None:
         if not 0 <= sharnagl <= 959:
-            raise ValueError("chess960 position index not 0 <= {:d} <= 959".format(sharnagl))
+            raise ValueError(f"chess960 position index not 0 <= {sharnagl:d} <= 959")
 
         # See http://www.russellcottrell.com/Chess/Chess960.htm for
         # a description of the algorithm.
@@ -1199,7 +1183,7 @@ class BaseBoard:
         n, bb = divmod(n, 4)
         n, q = divmod(n, 6)
 
-        for n1 in range(0, 4):
+        for n1 in range(4):
             n2 = n + (3 - n1) * (4 - n1) // 2 - 5
             if n1 < n2 and 1 <= n2 <= 4:
                 break
@@ -1219,7 +1203,7 @@ class BaseBoard:
 
         # Knights.
         self.knights = BB_EMPTY
-        for i in range(0, 8):
+        for i in range(8):
             if i not in used:
                 if n1 == 0 or n2 == 0:
                     self.knights |= BB_FILES[i] & BB_BACKRANKS
@@ -1228,7 +1212,7 @@ class BaseBoard:
                 n2 -= 1
 
         # RKR.
-        for i in range(0, 8):
+        for i in range(8):
             if i not in used:
                 self.rooks = BB_FILES[i] & BB_BACKRANKS
                 used.append(i)
@@ -1257,7 +1241,7 @@ class BaseBoard:
         """
         self._set_chess960_pos(sharnagl)
 
-    def chess960_pos(self) -> Optional[int]:
+    def chess960_pos(self) -> int | None:
         """
         Gets the Chess960 starting position index between 0 and 959
         or ``None``.
@@ -1336,7 +1320,7 @@ class BaseBoard:
             return None
 
     def __repr__(self) -> str:
-        return "{}({!r})".format(type(self).__name__, self.board_fen())
+        return f"{type(self).__name__}({self.board_fen()!r})"
 
     def __str__(self) -> str:
         builder = []
@@ -1437,12 +1421,12 @@ class BaseBoard:
         self.occupied = f(self.occupied)
         self.promoted = f(self.promoted)
 
-    def transform(self: BaseBoardT, f: Callable[[Bitboard], Bitboard]) -> BaseBoardT:
+    def transform(self, f: Callable[[Bitboard], Bitboard]) -> typing.Self:
         board = self.copy()
         board.apply_transform(f)
         return board
 
-    def mirror(self: BaseBoardT) -> BaseBoardT:
+    def mirror(self) -> typing.Self:
         """
         Returns a mirrored copy of the board.
 
@@ -1456,7 +1440,7 @@ class BaseBoard:
         )
         return board
 
-    def copy(self: BaseBoardT) -> BaseBoardT:
+    def copy(self) -> typing.Self:
         """Creates a copy of the board."""
         board = type(self)(None)
 
@@ -1474,16 +1458,16 @@ class BaseBoard:
 
         return board
 
-    def __copy__(self: BaseBoardT) -> BaseBoardT:
+    def __copy__(self) -> typing.Self:
         return self.copy()
 
-    def __deepcopy__(self: BaseBoardT, memo: Dict[int, object]) -> BaseBoardT:
+    def __deepcopy__(self, memo: dict[int, object]) -> typing.Self:
         board = self.copy()
         memo[id(self)] = board
         return board
 
     @classmethod
-    def empty(cls: Type[BaseBoardT]) -> BaseBoardT:
+    def empty(cls) -> typing.Self:
         """
         Creates a new empty board. Also see
         :func:`~chess.BaseBoard.clear_board()`.
@@ -1491,7 +1475,7 @@ class BaseBoard:
         return cls(None)
 
     @classmethod
-    def from_chess960_pos(cls: Type[BaseBoardT], sharnagl: int) -> BaseBoardT:
+    def from_chess960_pos(cls, sharnagl: int) -> typing.Self:
         """
         Creates a new board, initialized with a Chess960 starting position.
 
@@ -1574,36 +1558,36 @@ class Board(BaseBoard):
     """
 
     aliases = ["Standard", "Chess", "Classical", "Normal"]
-    uci_variant = "chess"  # type: ClassVar[Optional[str]]
-    xboard_variant = "normal"  # type: ClassVar[Optional[str]]
+    uci_variant: ClassVar[str | None] = "chess"
+    xboard_variant: ClassVar[str | None] = "normal"
     starting_fen = STARTING_FEN
 
-    tbw_suffix = ".rtbw"  # type: ClassVar[Optional[str]]
-    tbz_suffix = ".rtbz"  # type: ClassVar[Optional[str]]
-    tbw_magic = b"\x71\xe8\x23\x5d"  # type: ClassVar[Optional[bytes]]
-    tbz_magic = b"\xd7\x66\x0c\xa5"  # type: ClassVar[Optional[bytes]]
-    pawnless_tbw_suffix = None  # type: ClassVar[Optional[str]]
-    pawnless_tbz_suffix = None  # type: ClassVar[Optional[str]]
-    pawnless_tbw_magic = None  # type: ClassVar[Optional[bytes]]
-    pawnless_tbz_magic = None  # type: ClassVar[Optional[bytes]]
+    tbw_suffix: ClassVar[str | None] = ".rtbw"
+    tbz_suffix: ClassVar[str | None] = ".rtbz"
+    tbw_magic: ClassVar[bytes | None] = b"\x71\xe8\x23\x5d"
+    tbz_magic: ClassVar[bytes | None] = b"\xd7\x66\x0c\xa5"
+    pawnless_tbw_suffix: ClassVar[str | None] = None
+    pawnless_tbz_suffix: ClassVar[str | None] = None
+    pawnless_tbw_magic: ClassVar[bytes | None] = None
+    pawnless_tbz_magic: ClassVar[bytes | None] = None
     connected_kings = False
     one_king = True
     captures_compulsory = False
 
     def __init__(
-        self: BoardT,
-        fen: Optional[str] = STARTING_FEN,
+        self,
+        fen: str | None = STARTING_FEN,
         *,
         chess960: bool = False,
-        board_id: Optional[int] = None,
+        board_id: int | None = None,
     ) -> None:
         BaseBoard.__init__(self, None)
 
         self.chess960 = chess960
 
-        self.ep_square = None  # type: Optional[Square]
-        self.move_stack = []  # type: List[Move]
-        self._stack = []  # type: List[_BoardState[BoardT]]
+        self.ep_square: Square | None = None
+        self.move_stack: list[Move] = []
+        self._stack: list[_BoardState[BoardT]] = []
         self._transposition_counter = collections.Counter()  # type: Counter[Hashable]
         self._board_id = board_id
 
@@ -1615,15 +1599,15 @@ class Board(BaseBoard):
             self.set_fen(fen)
 
     @property
-    def board_id(self) -> Optional[int]:
+    def board_id(self) -> int | None:
         return self._board_id
 
     @property
-    def pseudo_legal_moves(self) -> "PseudoLegalMoveGenerator":
+    def pseudo_legal_moves(self) -> PseudoLegalMoveGenerator:
         return PseudoLegalMoveGenerator(self)
 
     @property
-    def legal_moves(self) -> "LegalMoveGenerator":
+    def legal_moves(self) -> LegalMoveGenerator:
         return LegalMoveGenerator(self)
 
     def reset(self) -> None:
@@ -1668,7 +1652,7 @@ class Board(BaseBoard):
         del self._stack[:]
         self._transposition_counter.clear()
 
-    def root(self: BoardT) -> BoardT:
+    def root(self) -> typing.Self:
         """Returns a copy of the root position."""
         if self._stack:
             board = type(self)(None, chess960=self.chess960)
@@ -1677,12 +1661,12 @@ class Board(BaseBoard):
         else:
             return self.copy(stack=False)
 
-    def remove_piece_at(self, square: Square) -> Optional[Piece]:
+    def remove_piece_at(self, square: Square) -> Piece | None:
         piece = super().remove_piece_at(square)
         self.clear_stack()
         return piece
 
-    def set_piece_at(self, square: Square, piece: Optional[Piece], promoted: bool = False) -> None:
+    def set_piece_at(self, square: Square, piece: Piece | None, promoted: bool = False) -> None:
         super().set_piece_at(square, piece, promoted=promoted)
         self.clear_stack()
 
@@ -1842,9 +1826,12 @@ class Board(BaseBoard):
             if piece != PAWN:
                 return False
 
-            if self.turn == WHITE and square_rank(move.to_square) != 7:
-                return False
-            elif self.turn == BLACK and square_rank(move.to_square) != 0:
+            if (
+                self.turn == WHITE
+                and square_rank(move.to_square) != 7
+                or self.turn == BLACK
+                and square_rank(move.to_square) != 0
+            ):
                 return False
 
         # Handle castling.
@@ -2127,7 +2114,7 @@ class Board(BaseBoard):
             v >= count for v in self._transposition_counter.values()
         )
 
-    def _board_state(self: BoardT) -> _BoardState[BoardT]:
+    def _board_state(self) -> _BoardState[typing.Self]:
         return _BoardState(self)
 
     def _push_capture(
@@ -2135,7 +2122,7 @@ class Board(BaseBoard):
     ) -> None:
         pass
 
-    def push(self: BoardT, move: Move) -> None:
+    def push(self, move: Move) -> None:
         """
         Updates the position with the given move and puts it onto the
         move stack.
@@ -2200,7 +2187,7 @@ class Board(BaseBoard):
         promoted = bool(self.promoted & from_bb)
         piece_type = self._remove_piece_at(move.from_square)
         assert piece_type is not None, (
-            "push() expects move to be pseudo-legal, but got {} in {}".format(move, self.fen())
+            f"push() expects move to be pseudo-legal, but got {move} in {self.fen()}"
         )
         capture_square = move.to_square
         captured_piece_type = self.piece_type_at(capture_square)
@@ -2263,7 +2250,7 @@ class Board(BaseBoard):
         # Swap turn.
         self.turn = not self.turn
 
-    def pop(self: BoardT) -> Move:
+    def pop(self) -> Move:
         """
         Restores the previous position and returns the last move from the stack.
 
@@ -2340,7 +2327,7 @@ class Board(BaseBoard):
         return self.ep_square is not None and any(self.generate_legal_ep())
 
     def fen(
-        self, *, shredder: bool = False, en_passant: str = "legal", promoted: Optional[bool] = None
+        self, *, shredder: bool = False, en_passant: str = "legal", promoted: bool | None = None
     ) -> str:
         """
         Gets a FEN representation of the position.
@@ -2375,7 +2362,7 @@ class Board(BaseBoard):
             ]
         )
 
-    def shredder_fen(self, *, en_passant: str = "legal", promoted: Optional[bool] = None) -> str:
+    def shredder_fen(self, *, en_passant: str = "legal", promoted: bool | None = None) -> str:
         return " ".join(
             [
                 self.epd(shredder=True, en_passant=en_passant, promoted=promoted),
@@ -2409,7 +2396,7 @@ class Board(BaseBoard):
             elif turn_part == "b":
                 turn = BLACK
             else:
-                raise ValueError("expected 'w' or 'b' for turn part of fen: {!r}".format(fen))
+                raise ValueError(f"expected 'w' or 'b' for turn part of fen: {fen!r}")
 
         # Validate castling part.
         try:
@@ -2418,7 +2405,7 @@ class Board(BaseBoard):
             castling_part = "-"
         else:
             if not FEN_CASTLING_REGEX.match(castling_part):
-                raise ValueError("invalid castling part in fen: {!r}".format(fen))
+                raise ValueError(f"invalid castling part in fen: {fen!r}")
 
         # En passant square.
         try:
@@ -2429,7 +2416,7 @@ class Board(BaseBoard):
             try:
                 ep_square = None if ep_part == "-" else SQUARE_NAMES.index(ep_part)
             except ValueError:
-                raise ValueError("invalid en passant part in fen: {!r}".format(fen))
+                raise ValueError(f"invalid en passant part in fen: {fen!r}")
 
         # Check that the half-move part is valid.
         try:
@@ -2440,10 +2427,10 @@ class Board(BaseBoard):
             try:
                 halfmove_clock = int(halfmove_part)
             except ValueError:
-                raise ValueError("invalid half-move clock in fen: {!r}".format(fen))
+                raise ValueError(f"invalid half-move clock in fen: {fen!r}")
 
             if halfmove_clock < 0:
-                raise ValueError("half-move clock cannot be negative: {!r}".format(fen))
+                raise ValueError(f"half-move clock cannot be negative: {fen!r}")
 
         # Check that the full-move number part is valid.
         # 0 is allowed for compability, but later replaced with 1.
@@ -2455,16 +2442,16 @@ class Board(BaseBoard):
             try:
                 fullmove_number = int(fullmove_part)
             except ValueError:
-                raise ValueError("invalid fullmove number in fen: {!r}".format(fen))
+                raise ValueError(f"invalid fullmove number in fen: {fen!r}")
 
             if fullmove_number < 0:
-                raise ValueError("fullmove number cannot be negative: {!r}".format(fen))
+                raise ValueError(f"fullmove number cannot be negative: {fen!r}")
 
             fullmove_number = max(fullmove_number, 1)
 
         # All parts should be consumed now.
         if parts:
-            raise ValueError("fen string has more parts than expected: {!r}".format(fen))
+            raise ValueError(f"fen string has more parts than expected: {fen!r}")
 
         # Validate the board part and set it.
         self._set_board_fen(board_part)
@@ -2483,7 +2470,7 @@ class Board(BaseBoard):
             return
 
         if not FEN_CASTLING_REGEX.match(castling_fen):
-            raise ValueError("invalid castling fen: {!r}".format(castling_fen))
+            raise ValueError(f"invalid castling fen: {castling_fen!r}")
 
         self.castling_rights = BB_EMPTY
 
@@ -2545,7 +2532,7 @@ class Board(BaseBoard):
         ignore_turn: bool = False,
         ignore_castling: bool = False,
         ignore_counters: bool = True,
-    ) -> Optional[int]:
+    ) -> int | None:
         """
         Gets the Chess960 starting position index between 0 and 956
         or ``None`` if the current position is not a Chess960 starting
@@ -2573,7 +2560,7 @@ class Board(BaseBoard):
         return super().chess960_pos()
 
     def _epd_operations(
-        self, operations: Mapping[str, Union[None, str, int, float, Move, Iterable[Move]]]
+        self, operations: Mapping[str, None | str | int | float | Move | Iterable[Move]]
     ) -> str:
         epd = []
         first_op = True
@@ -2618,9 +2605,7 @@ class Board(BaseBoard):
 
                     for move in iterator:
                         assert isinstance(move, Move), (
-                            "expected homogeneous list of moves, got: {}, ..., {!r}".format(
-                                first_move, move
-                            )
+                            f"expected homogeneous list of moves, got: {first_move}, ..., {move!r}"
                         )
                         epd.append(" ")
                         epd.append(position.san(move))
@@ -2648,8 +2633,8 @@ class Board(BaseBoard):
         *,
         shredder: bool = False,
         en_passant: str = "legal",
-        promoted: Optional[bool] = None,
-        **operations: Union[None, str, int, float, Move, Iterable[Move]],
+        promoted: bool | None = None,
+        **operations: None | str | float | Move | Iterable[Move],
     ) -> str:
         """
         Gets an EPD representation of the current position.
@@ -2692,9 +2677,9 @@ class Board(BaseBoard):
         return " ".join(epd)
 
     def _parse_epd_ops(
-        self: BoardT, operation_part: str, make_board: Callable[[], BoardT]
-    ) -> Dict[str, Union[None, str, int, float, Move, List[Move]]]:
-        operations = {}  # type: Dict[str, Union[None, str, int, float, Move, List[Move]]]
+        self, operation_part: str, make_board: Callable[[], typing.Self]
+    ) -> dict[str, None | str | int | float | Move | list[Move]]:
+        operations: dict[str, None | str | int | float | Move | list[Move]] = {}
         state = "opcode"
         opcode = ""
         operand = ""
@@ -2794,7 +2779,7 @@ class Board(BaseBoard):
         assert state == "opcode"
         return operations
 
-    def set_epd(self, epd: str) -> Dict[str, Union[None, str, int, float, Move, List[Move]]]:
+    def set_epd(self, epd: str) -> dict[str, None | str | int | float | Move | list[Move]]:
         """
         Parses the given EPD string and uses it to set the position.
 
@@ -2869,9 +2854,7 @@ class Board(BaseBoard):
 
         piece_type = self.piece_type_at(move.from_square)
         assert piece_type, (
-            "san() and lan() expect move to be legal or null, but got {} in {}".format(
-                move, self.fen()
-            )
+            f"san() and lan() expect move to be legal or null, but got {move} in {self.fen()}"
         )
         capture = self.is_capture(move)
 
@@ -2948,12 +2931,12 @@ class Board(BaseBoard):
 
         for move in variation:
             if not board.is_legal(move):
-                raise ValueError("illegal move {} in position {}".format(move, board.fen()))
+                raise ValueError(f"illegal move {move} in position {board.fen()}")
 
             if board.turn == WHITE:
-                san.append("{}. {}".format(board.fullmove_number, board.san(move)))
+                san.append(f"{board.fullmove_number}. {board.san(move)}")
             elif not san:
-                san.append("{}...{}".format(board.fullmove_number, board.san(move)))
+                san.append(f"{board.fullmove_number}...{board.san(move)}")
             else:
                 san.append(board.san(move))
 
@@ -2985,7 +2968,7 @@ class Board(BaseBoard):
                     if self.is_queenside_castling(move)
                 )
         except StopIteration:
-            raise ValueError("illegal san: {!r} in {}".format(san, self.fen()))
+            raise ValueError(f"illegal san: {san!r} in {self.fen()}")
 
         # Match normal moves.
         match = SAN_REGEX.match(san)
@@ -2994,7 +2977,7 @@ class Board(BaseBoard):
             if san in ["--", "Z0"]:
                 return Move.null()
 
-            raise ValueError("invalid san: {!r}".format(san))
+            raise ValueError(f"invalid san: {san!r}")
 
         # Get target square.
         to_square = SQUARE_NAMES.index(match.group(4))
@@ -3026,12 +3009,12 @@ class Board(BaseBoard):
                 continue
 
             if matched_move:
-                raise ValueError("ambiguous san: {!r} in {}".format(san, self.fen()))
+                raise ValueError(f"ambiguous san: {san!r} in {self.fen()}")
 
             matched_move = move
 
         if not matched_move:
-            raise ValueError("illegal san: {!r} in {}".format(san, self.fen()))
+            raise ValueError(f"illegal san: {san!r} in {self.fen()}")
 
         return matched_move
 
@@ -3048,7 +3031,7 @@ class Board(BaseBoard):
         self.push(move)
         return move
 
-    def uci(self, move: Move, *, chess960: Optional[bool] = None) -> str:
+    def uci(self, move: Move, *, chess960: bool | None = None) -> str:
         """
         Gets the UCI notation of the move.
 
@@ -3086,7 +3069,7 @@ class Board(BaseBoard):
         )
 
         if not self.is_legal(move):
-            raise ValueError("illegal uci: {!r} in {}".format(uci, self.fen()))
+            raise ValueError(f"illegal uci: {uci!r} in {self.fen()}")
 
         return move
 
@@ -3103,7 +3086,7 @@ class Board(BaseBoard):
         self.push(move)
         return move
 
-    def xboard(self, move: Move, chess960: Optional[bool] = None) -> str:
+    def xboard(self, move: Move, chess960: bool | None = None) -> str:
         if chess960 is None:
             chess960 = self.chess960
 
@@ -3118,7 +3101,7 @@ class Board(BaseBoard):
         if xboard == "@@@@":
             return Move.null()
         elif "," in xboard:
-            raise ValueError("unsupported multi-leg xboard move: {!r}".format(xboard))
+            raise ValueError(f"unsupported multi-leg xboard move: {xboard!r}")
 
         try:
             move = Move.from_uci(xboard)
@@ -3127,7 +3110,7 @@ class Board(BaseBoard):
                 self.chess960, move.from_square, move.to_square, move.promotion, move.drop
             )
             if not self.is_legal(move):
-                raise ValueError("illegal xboard move: {!r} in {}".format(xboard, self.fen()))
+                raise ValueError(f"illegal xboard move: {xboard!r} in {self.fen()}")
             return move
         except ValueError:
             pass
@@ -3135,9 +3118,7 @@ class Board(BaseBoard):
         try:
             return self.parse_san(xboard)
         except ValueError:
-            raise ValueError(
-                "invalid or illegal xboard move: {!r} in {}".format(xboard, self.fen())
-            )
+            raise ValueError(f"invalid or illegal xboard move: {xboard!r} in {self.fen()}")
 
     def push_xboard(self, xboard: str) -> Move:
         move = self.parse_xboard(xboard)
@@ -3405,7 +3386,7 @@ class Board(BaseBoard):
 
         return errors
 
-    def _valid_ep_square(self) -> Optional[Square]:
+    def _valid_ep_square(self) -> Square | None:
         if not self.ep_square:
             return None
 
@@ -3648,9 +3629,9 @@ class Board(BaseBoard):
         chess960: bool,
         from_square: Square,
         to_square: Square,
-        promotion: Optional[PieceType] = None,
-        drop: Optional[PieceType] = None,
-        move_time: Optional[float] = None,
+        promotion: PieceType | None = None,
+        drop: PieceType | None = None,
+        move_time: float | None = None,
     ) -> Move:
         if not chess960 and promotion is None and drop is None:
             if from_square == E1 and self.kings & BB_E1:
@@ -3697,9 +3678,9 @@ class Board(BaseBoard):
 
     def __repr__(self) -> str:
         if not self.chess960:
-            return "{}({!r})".format(type(self).__name__, self.fen())
+            return f"{type(self).__name__}({self.fen()!r})"
         else:
-            return "{}({!r}, chess960=True)".format(type(self).__name__, self.fen())
+            return f"{type(self).__name__}({self.fen()!r}, chess960=True)"
 
     def _repr_svg_(self) -> str:
         import bugchess.svg
@@ -3726,19 +3707,19 @@ class Board(BaseBoard):
         super().apply_transform(f)
         self.clear_stack()
 
-    def transform(self: BoardT, f: Callable[[Bitboard], Bitboard]) -> BoardT:
+    def transform(self, f: Callable[[Bitboard], Bitboard]) -> typing.Self:
         board = self.copy(stack=False)
         board.apply_transform(f)
         board.ep_square = None if self.ep_square is None else msb(f(BB_SQUARES[self.ep_square]))
         board.castling_rights = f(self.castling_rights)
         return board
 
-    def mirror(self: BoardT) -> BoardT:
+    def mirror(self) -> typing.Self:
         board = super().mirror()
         board.turn = not self.turn
         return board
 
-    def copy(self: BoardT, *, stack: Union[bool, int] = True) -> BoardT:
+    def copy(self, *, stack: bool | int = True) -> typing.Self:
         """
         Creates a copy of the board.
 
@@ -3764,14 +3745,14 @@ class Board(BaseBoard):
         return board
 
     @classmethod
-    def empty(cls: Type[BoardT], *, chess960: bool = False) -> BoardT:
+    def empty(cls, *, chess960: bool = False) -> typing.Self:
         """Creates a new empty board. Also see :func:`~chess.Board.clear()`."""
         return cls(None, chess960=chess960)
 
     @classmethod
     def from_epd(
-        cls: Type[BoardT], epd: str, *, chess960: bool = False
-    ) -> Tuple[BoardT, Dict[str, Union[None, str, int, float, Move, List[Move]]]]:
+        cls, epd: str, *, chess960: bool = False
+    ) -> tuple[typing.Self, dict[str, None | str | int | float | Move | list[Move]]]:
         """
         Creates a new board from an EPD string. See
         :func:`~chess.Board.set_epd()`.
@@ -3782,7 +3763,7 @@ class Board(BaseBoard):
         return board, board.set_epd(epd)
 
     @classmethod
-    def from_chess960_pos(cls: Type[BoardT], sharnagl: int) -> BoardT:
+    def from_chess960_pos(cls, sharnagl: int) -> typing.Self:
         board = cls.empty(chess960=True)
         board.set_chess960_pos(sharnagl)
         return board
@@ -3815,7 +3796,7 @@ class PseudoLegalMoveGenerator:
                 builder.append(self.board.uci(move))
 
         sans = ", ".join(builder)
-        return "<PseudoLegalMoveGenerator at {:#x} ({})>".format(id(self), sans)
+        return f"<PseudoLegalMoveGenerator at {id(self):#x} ({sans})>"
 
 
 class LegalMoveGenerator:
@@ -3837,7 +3818,7 @@ class LegalMoveGenerator:
 
     def __repr__(self) -> str:
         sans = ", ".join(self.board.san(move) for move in self)
-        return "<LegalMoveGenerator at {:#x} ({})>".format(id(self), sans)
+        return f"<LegalMoveGenerator at {id(self):#x} ({sans})>"
 
 
 IntoSquareSet = Union[SupportsInt, Iterable[Square]]
@@ -3971,39 +3952,39 @@ class SquareSet:
         """Test if this square set is a superset of another."""
         return not bool(self & ~SquareSet(other))
 
-    def union(self, other: IntoSquareSet) -> "SquareSet":
+    def union(self, other: IntoSquareSet) -> SquareSet:
         return self | other
 
-    def __or__(self, other: IntoSquareSet) -> "SquareSet":
+    def __or__(self, other: IntoSquareSet) -> SquareSet:
         r = SquareSet(other)
         r.mask |= self.mask
         return r
 
-    def intersection(self, other: IntoSquareSet) -> "SquareSet":
+    def intersection(self, other: IntoSquareSet) -> SquareSet:
         return self & other
 
-    def __and__(self, other: IntoSquareSet) -> "SquareSet":
+    def __and__(self, other: IntoSquareSet) -> SquareSet:
         r = SquareSet(other)
         r.mask &= self.mask
         return r
 
-    def difference(self, other: IntoSquareSet) -> "SquareSet":
+    def difference(self, other: IntoSquareSet) -> SquareSet:
         return self - other
 
-    def __sub__(self, other: IntoSquareSet) -> "SquareSet":
+    def __sub__(self, other: IntoSquareSet) -> SquareSet:
         r = SquareSet(other)
         r.mask = self.mask & ~r.mask
         return r
 
-    def symmetric_difference(self, other: IntoSquareSet) -> "SquareSet":
+    def symmetric_difference(self, other: IntoSquareSet) -> SquareSet:
         return self ^ other
 
-    def __xor__(self, other: IntoSquareSet) -> "SquareSet":
+    def __xor__(self, other: IntoSquareSet) -> SquareSet:
         r = SquareSet(other)
         r.mask ^= self.mask
         return r
 
-    def copy(self) -> "SquareSet":
+    def copy(self) -> SquareSet:
         return SquareSet(self.mask)
 
     # set
@@ -4012,7 +3993,7 @@ class SquareSet:
         for other in others:
             self |= other
 
-    def __ior__(self, other: IntoSquareSet) -> "SquareSet":
+    def __ior__(self, other: IntoSquareSet) -> SquareSet:
         self.mask |= SquareSet(other).mask
         return self
 
@@ -4020,21 +4001,21 @@ class SquareSet:
         for other in others:
             self &= other
 
-    def __iand__(self, other: IntoSquareSet) -> "SquareSet":
+    def __iand__(self, other: IntoSquareSet) -> SquareSet:
         self.mask &= SquareSet(other).mask
         return self
 
     def difference_update(self, other: IntoSquareSet) -> None:
         self -= other
 
-    def __isub__(self, other: IntoSquareSet) -> "SquareSet":
+    def __isub__(self, other: IntoSquareSet) -> SquareSet:
         self.mask &= ~SquareSet(other).mask
         return self
 
     def symmetric_difference_update(self, other: IntoSquareSet) -> None:
         self ^= other
 
-    def __ixor__(self, other: IntoSquareSet) -> "SquareSet":
+    def __ixor__(self, other: IntoSquareSet) -> SquareSet:
         self.mask ^= SquareSet(other).mask
         return self
 
@@ -4073,11 +4054,11 @@ class SquareSet:
         """Iterator over the subsets of this set."""
         return _carry_rippler(self.mask)
 
-    def mirror(self) -> "SquareSet":
+    def mirror(self) -> SquareSet:
         """Returns a vertically mirrored copy of this square set."""
         return SquareSet(flip_vertical(self.mask))
 
-    def tolist(self) -> List[bool]:
+    def tolist(self) -> list[bool]:
         """Convert the set to a list of 64 bools."""
         result = [False] * 64
         for square in self:
@@ -4093,21 +4074,21 @@ class SquareSet:
         except TypeError, ValueError:
             return NotImplemented
 
-    def __lshift__(self, shift: int) -> "SquareSet":
+    def __lshift__(self, shift: int) -> SquareSet:
         return SquareSet((self.mask << shift) & BB_ALL)
 
-    def __rshift__(self, shift: int) -> "SquareSet":
+    def __rshift__(self, shift: int) -> SquareSet:
         return SquareSet(self.mask >> shift)
 
-    def __ilshift__(self, shift: int) -> "SquareSet":
+    def __ilshift__(self, shift: int) -> SquareSet:
         self.mask = (self.mask << shift) & BB_ALL
         return self
 
-    def __irshift__(self, shift: int) -> "SquareSet":
+    def __irshift__(self, shift: int) -> SquareSet:
         self.mask >>= shift
         return self
 
-    def __invert__(self) -> "SquareSet":
+    def __invert__(self) -> SquareSet:
         return SquareSet(~self.mask & BB_ALL)
 
     def __int__(self) -> int:
@@ -4117,7 +4098,7 @@ class SquareSet:
         return self.mask
 
     def __repr__(self) -> str:
-        return "SquareSet({0:#018x})".format(self.mask)
+        return f"SquareSet({self.mask:#018x})"
 
     def __str__(self) -> str:
         builder = []
@@ -4139,7 +4120,7 @@ class SquareSet:
         return bugchess.svg.board(squares=self, size=400)
 
     @classmethod
-    def from_square(cls, square: Square) -> "SquareSet":
+    def from_square(cls, square: Square) -> SquareSet:
         """
         Creates a :class:`~chess.SquareSet` from a single square.
 

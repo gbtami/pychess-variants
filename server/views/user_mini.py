@@ -4,17 +4,15 @@ import logging
 from datetime import MINYEAR, datetime
 from time import monotonic
 
-from aiohttp import web
 import aiohttp_session
-
+from aiohttp import web
 from const import ANON_PREFIX, DARK_FEN, STARTED
 from glicko2.glicko2 import PROVISIONAL_PHI
-from pychess_global_app_state_utils import get_app_state
-from public_users import PublicProfile
 from json_utils import json_response
+from public_users import PublicProfile
+from pychess_global_app_state_utils import get_app_state
 from typing_defs import PerfEntry
 from variants import C2V, TWO_BOARD_VARIANT_CODES, VARIANTS, get_server_variant
-
 
 log = logging.getLogger(__name__)
 SLOW_USER_MINI_MS = 250.0

@@ -1,23 +1,23 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, cast
+
 import asyncio
-import math
 import hashlib
+import math
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import lru_cache
-from time import monotonic
 from pathlib import Path
+from time import monotonic
+from typing import TYPE_CHECKING, cast
 
 from aiohttp import web
-
 from broadcast import round_broadcast
 from catalogued_variants import (
     catalogued_variant_ai_disabled,
     catalogued_variant_allows_fishnet,
     clear_catalogued_variant_ai_failures,
-    record_catalogued_variant_ai_failure,
     extract_variant_base_name,
+    record_catalogued_variant_ai_failure,
 )
 from const import ANALYSIS, INVALIDMOVE, MOVE, STARTED
 from typing_defs import (
@@ -35,12 +35,13 @@ from typing_defs import (
 if TYPE_CHECKING:
     from game import Game
     from pychess_global_app_state import PychessGlobalAppState
+import logging
+
+from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_json_data
 from settings import FISHNET_KEYS
 from utils import load_game, play_move
-from json_utils import json_response
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -98,7 +99,7 @@ def _fishnet_variants_payload_cache(
     cache = getattr(app_state, "fishnet_variant_payloads", None)
     if cache is None:
         cache = {}
-        setattr(app_state, "fishnet_variant_payloads", cache)
+        app_state.fishnet_variant_payloads = cache
     return cache
 
 
@@ -456,7 +457,7 @@ def prune_stale_fishnet_workers(
         app_state.fishnet_worker_last_seen.pop(key, None)
         worker = FISHNET_KEYS.get(key, key)
         if monitor is not None:
-            monitor[worker].append("%s %s %s" % (datetime.now(timezone.utc), "-", "timed out"))
+            monitor[worker].append("%s %s %s" % (datetime.now(UTC), "-", "timed out"))
 
     if stale_keys and len(app_state.workers) == 0:
         users = app_state.users
@@ -723,7 +724,7 @@ async def get_work(
             fm[worker].append(
                 "%s %s %s %s of %s moves"
                 % (
-                    datetime.now(timezone.utc),
+                    datetime.now(UTC),
                     work_id,
                     "request",
                     "analysis",
@@ -754,7 +755,7 @@ async def get_work(
             fm[worker].append(
                 "%s %s %s %s for level %s"
                 % (
-                    datetime.now(timezone.utc),
+                    datetime.now(UTC),
                     work_id,
                     "request",
                     "move",
@@ -789,7 +790,7 @@ async def get_work(
             fm[worker].append(
                 "%s %s %s %s"
                 % (
-                    datetime.now(timezone.utc),
+                    datetime.now(UTC),
                     work_id,
                     "drop",
                     "%s after %s stale reissues"
@@ -804,7 +805,7 @@ async def get_work(
         fm[worker].append(
             "%s %s %s %s"
             % (
-                datetime.now(timezone.utc),
+                datetime.now(UTC),
                 work_id,
                 "request",
                 "%s AGAIN (%s/%s)"
@@ -848,9 +849,7 @@ async def fishnet_acquire(request: web.Request) -> web.Response:
 
     if key not in app_state.workers:
         app_state.workers.add(key)
-        app_state.fishnet_monitor[worker].append(
-            "%s %s %s" % (datetime.now(timezone.utc), "-", "joined")
-        )
+        app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(UTC), "-", "joined"))
         app_state.fishnet_monitor[worker].append(nnue)
         app_state.users["Fairy-Stockfish"].online = True
 
@@ -879,9 +878,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
         return response
 
     work: FishnetWork = app_state.fishnet_works[work_id]
-    app_state.fishnet_monitor[worker].append(
-        "%s %s %s" % (datetime.now(timezone.utc), work_id, "analysis")
-    )
+    app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(UTC), work_id, "analysis"))
 
     gameId = work["game_id"]
     game = await load_game(app_state, gameId)
@@ -966,9 +963,7 @@ async def fishnet_move(request: web.Request) -> web.Response:
     worker = FISHNET_KEYS[key]
     app_state.fishnet_worker_last_seen[key] = monotonic()
 
-    app_state.fishnet_monitor[worker].append(
-        "%s %s %s" % (datetime.now(timezone.utc), work_id, "move")
-    )
+    app_state.fishnet_monitor[worker].append("%s %s %s" % (datetime.now(UTC), work_id, "move"))
 
     if work_id not in app_state.fishnet_works:
         response = await get_work(app_state, data)
@@ -1065,7 +1060,7 @@ async def fishnet_abort(request: web.Request) -> web.Response:
     app_state.fishnet_worker_last_seen[key] = monotonic()
 
     app_state.fishnet_monitor[worker].append(
-        "%s %s %s (%s)" % (datetime.now(timezone.utc), work_id, "abort", abort_reason)
+        "%s %s %s (%s)" % (datetime.now(UTC), work_id, "abort", abort_reason)
     )
 
     # remove fishnet client

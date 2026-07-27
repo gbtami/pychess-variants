@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import re
+
 # fmt: off
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from functools import lru_cache
-import re
-from typing import Any, Mapping, NotRequired, TypedDict
+from typing import Any, NotRequired, TypedDict
 
 
 class CataloguedRuleLine(TypedDict):

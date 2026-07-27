@@ -1,14 +1,14 @@
-from datetime import datetime, timezone
 import unittest
+from datetime import UTC, datetime
 
 from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
-
 from glicko2.glicko2 import new_default_perf, new_default_perf_map
+from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from user import User
 from variants import RATED_VARIANTS
+
+from server import make_app
 
 
 class PerfDefaultsTestCase(AioHTTPTestCase):
@@ -35,7 +35,7 @@ class PerfDefaultsTestCase(AioHTTPTestCase):
 
     async def test_user_normalizes_shared_source_map_into_fresh_entries(self):
         app_state = get_app_state(self.app)
-        shared_timestamp = datetime.now(timezone.utc)
+        shared_timestamp = datetime.now(UTC)
         shared_perf = {
             "gl": {"r": 1500.0, "d": 350.0, "v": 0.06},
             "la": shared_timestamp,

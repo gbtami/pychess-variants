@@ -1,13 +1,14 @@
 import unittest
+
 import test_logger
 from fairy import JIEQI_FEN
 from fairy.jieqi import (
-    apply_move_and_transform,
-    make_initial_mapping,
-    xiangqi_fen_to_pieces,
-    square_to_index,
     BLACK_PIECES,
     RED_PIECES,
+    apply_move_and_transform,
+    make_initial_mapping,
+    square_to_index,
+    xiangqi_fen_to_pieces,
 )
 
 test_logger.init_test_logger()

@@ -1,8 +1,7 @@
 import unittest
 
-from aiohttp import web
-
 import test_logger
+from aiohttp import web
 from catalogued_variants import (
     extract_variant_name,
     normalize_catalogued_display_name,

@@ -3,14 +3,12 @@ from __future__ import annotations
 import asyncio
 import ipaddress
 import socket
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import quote, urlsplit, urlunsplit
 
 import aiohttp_jinja2
-from aiohttp import web
-from aiohttp import ClientSession, ClientTimeout
-
+from aiohttp import ClientSession, ClientTimeout, web
 from forum.storage import recompute_categ_summary, topic_by_tree
 from newid import new_id
 from pychess_global_app_state_utils import get_app_state
@@ -34,8 +32,8 @@ from ublog import (
     summary_from_markdown,
     to_bool,
 )
-from views import get_user_context
 
+from views import get_user_context
 
 UBLOG_IMAGE_PROXY_MAX_BYTES = 5 * 1024 * 1024
 UBLOG_IMAGE_PROXY_UA = (
@@ -114,7 +112,7 @@ async def _discuss_topic_url(app_state: Any, post: dict[str, Any]) -> str:
     blog_url = post_url(post)
     topic = await topic_by_tree(app_state, UBLOG_DISCUSS_CATEG_ID, slug)
     if topic is None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         topic_id = await new_id(app_state.db.forum_topic)
         discuss_post_id = await new_id(app_state.db.forum_post)
         author = str(post.get("author") or "")
@@ -395,7 +393,7 @@ def _validate_full(values: dict[str, Any]) -> list[str]:
 
 @aiohttp_jinja2.template("ublog_community.html")
 async def community(request: web.Request) -> ViewContext:
-    user, context = await get_user_context(request)
+    _user, context = await get_user_context(request)
     app_state = get_app_state(request.app)
     topic = (request.rel_url.query.get("topic") or "").strip().lower()
     if app_state.db is None:
@@ -463,27 +461,29 @@ async def image_proxy_external(request: web.Request) -> web.Response:
 async def _proxy_image_from_url(image: str) -> web.Response:
     timeout = ClientTimeout(total=8)
     try:
-        async with ClientSession(
-            timeout=timeout,
-            headers={
-                "User-Agent": UBLOG_IMAGE_PROXY_UA,
-                "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
-            },
-        ) as session:
-            async with session.get(image, allow_redirects=False) as resp:
-                if resp.status != 200:
-                    return web.Response(status=404)
-                content_type = resp.headers.get("Content-Type")
-                if not _is_safe_image_content_type(content_type):
-                    return web.Response(status=404)
-                body = await resp.read()
-                if len(body) > UBLOG_IMAGE_PROXY_MAX_BYTES:
-                    return web.Response(status=413)
-                return web.Response(
-                    body=body,
-                    content_type=content_type.split(";", 1)[0].strip(),
-                    headers={"Cache-Control": "public, max-age=3600"},
-                )
+        async with (
+            ClientSession(
+                timeout=timeout,
+                headers={
+                    "User-Agent": UBLOG_IMAGE_PROXY_UA,
+                    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+                },
+            ) as session,
+            session.get(image, allow_redirects=False) as resp,
+        ):
+            if resp.status != 200:
+                return web.Response(status=404)
+            content_type = resp.headers.get("Content-Type")
+            if not _is_safe_image_content_type(content_type):
+                return web.Response(status=404)
+            body = await resp.read()
+            if len(body) > UBLOG_IMAGE_PROXY_MAX_BYTES:
+                return web.Response(status=413)
+            return web.Response(
+                body=body,
+                content_type=content_type.split(";", 1)[0].strip(),
+                headers={"Cache-Control": "public, max-age=3600"},
+            )
     except Exception:
         return web.Response(status=404)
 
@@ -733,7 +733,7 @@ async def create(request: web.Request) -> web.Response:
         ctx = _build_form_context(context, profile_id, values, errors)
         return aiohttp_jinja2.render_template("ublog_form.html", request, ctx, status=400)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     post_id = await new_id(app_state.db.ublog_post)
     topics = normalize_topics(values["topics"])
     image = sanitize_image_url(values["image"])
@@ -808,7 +808,7 @@ async def update(request: web.Request) -> web.Response:
     next_live = values["live"]
     can_publish_site = _is_admin_username(user.username)
     update_fields: dict[str, Any] = {
-        "updatedAt": datetime.now(timezone.utc),
+        "updatedAt": datetime.now(UTC),
         "title": values["title"],
         "intro": values["intro"],
         "markdown": values["markdown"],
@@ -831,7 +831,7 @@ async def update(request: web.Request) -> web.Response:
             update_fields["blogType"] = "community"
             update_fields["isOfficial"] = False
     if next_live and not bool(doc.get("live")):
-        update_fields["publishedAt"] = datetime.now(timezone.utc)
+        update_fields["publishedAt"] = datetime.now(UTC)
     elif not next_live:
         update_fields["publishedAt"] = None
 

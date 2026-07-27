@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+import logging
 from collections import UserDict
 from collections.abc import Collection, ItemsView, ValuesView
 from time import monotonic
 from typing import TYPE_CHECKING
 
-from const import ANON_PREFIX, BLOCK, FOLLOW, MAX_USER_BLOCK, NONE_USER
-from const import reserved
+from const import ANON_PREFIX, BLOCK, FOLLOW, MAX_USER_BLOCK, NONE_USER, reserved
 from typing_defs import RelationDocument, UserDocument
 from user import User
-import logging
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
 import fishnet
@@ -137,7 +137,7 @@ class FishnetAbortPolicyTestCase(unittest.TestCase):
                     "name": "badvariant",
                     "enabled": True,
                     "ini": "[badvariant]\nstartFen = 8/8/8/8/8/8/8/8 w - - 0 1",
-                    "aiDisabledUntil": datetime.now(timezone.utc) + timedelta(hours=1),
+                    "aiDisabledUntil": datetime.now(UTC) + timedelta(hours=1),
                 },
                 "goodvariant": {
                     "name": "goodvariant",
@@ -304,7 +304,7 @@ class CataloguedAiFailurePolicyTestCase(unittest.IsolatedAsyncioTestCase):
             "name": "custom",
             "enabled": True,
             "aiFailureCount": 3,
-            "aiDisabledUntil": datetime.now(timezone.utc) + timedelta(hours=1),
+            "aiDisabledUntil": datetime.now(UTC) + timedelta(hours=1),
         }
         app_state = SimpleNamespace(catalogued_variants={"custom": doc}, db=None)
 

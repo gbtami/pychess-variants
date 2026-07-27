@@ -1,19 +1,20 @@
+import os
+import sys
 import unittest
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import test_logger
-from unittest.mock import AsyncMock, patch, MagicMock
+from pymongo.asynchronous.cursor import AsyncCursor
 from pymongo.errors import (
     ConnectionFailure,
-    OperationFailure,
-    NotPrimaryError,
     CursorNotFound,
     ExecutionTimeout,
+    NotPrimaryError,
+    OperationFailure,
 )
-from pymongo.asynchronous.cursor import AsyncCursor
-import sys
-import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "server"))
-from db_wrapper import AsyncDBWrapper, is_retryable_operation_failure  # noqa: E402
+from db_wrapper import AsyncDBWrapper, is_retryable_operation_failure
 
 test_logger.init_test_logger()
 

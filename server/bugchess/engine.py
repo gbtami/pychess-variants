@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
 # Copyright (C) 2012-2019 Niklas Fiekas <niklas.fiekas@backscattering.de>
@@ -24,13 +23,13 @@ import contextlib
 import enum
 import functools
 import logging
-import warnings
+import os
 import shlex
 import subprocess
 import sys
 import threading
 import typing
-import os
+import warnings
 
 try:
     # Python 3.7
@@ -44,29 +43,24 @@ try:
 except ImportError:
     _all_tasks = asyncio.Task.all_tasks
 
-from bug import chess
-
+from collections.abc import (
+    Callable,
+    Coroutine,
+    Generator,
+    Iterable,
+    Iterator,
+    Mapping,
+    MutableMapping,
+)
 from types import TracebackType
 from typing import (
     Any,
-    Callable,
-    Coroutine,
-    Dict,
-    Generator,
     Generic,
-    Iterable,
-    Iterator,
-    List,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Text,
-    Tuple,
-    Type,
     TypeVar,
     Union,
 )
 
+from bug import chess
 
 T = TypeVar("T")
 
@@ -99,7 +93,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
         super().__init__()
         self._thread_local = self._ThreadLocal()
 
-    def get_child_watcher(self) -> "asyncio.AbstractChildWatcher":
+    def get_child_watcher(self) -> asyncio.AbstractChildWatcher:
         if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
             return super().get_child_watcher()
 
@@ -136,7 +130,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
             self._thread_local._watcher = PollingChildWatcher()
         return self._thread_local._watcher
 
-    def set_child_watcher(self, watcher: "asyncio.AbstractChildWatcher") -> None:
+    def set_child_watcher(self, watcher: asyncio.AbstractChildWatcher) -> None:
         if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
             return super().set_child_watcher(watcher)
 
@@ -159,7 +153,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
 
 
 def run_in_background(
-    coroutine: "Callable[[concurrent.futures.Future[T]], Coroutine[Any, Any, None]]",
+    coroutine: Callable[[concurrent.futures.Future[T]], Coroutine[Any, Any, None]],
     *,
     debug: bool = False,
     _policy_lock: threading.Lock = threading.Lock(),
@@ -249,20 +243,14 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
             try:
                 value = int(value)
             except ValueError:
-                raise EngineError(
-                    "expected integer for spin option {!r}, got: {!r}".format(self.name, value)
-                )
+                raise EngineError(f"expected integer for spin option {self.name!r}, got: {value!r}")
             if self.min is not None and value < self.min:
                 raise EngineError(
-                    "expected value for option {!r} to be at least {}, got: {}".format(
-                        self.name, self.min, value
-                    )
+                    f"expected value for option {self.name!r} to be at least {self.min}, got: {value}"
                 )
             if self.max is not None and self.max < value:
                 raise EngineError(
-                    "expected value for option {!r} to be at most {}, got: {}".format(
-                        self.name, self.max, value
-                    )
+                    f"expected value for option {self.name!r} to be at most {self.max}, got: {value}"
                 )
             return value
         elif self.type == "combo":
@@ -279,9 +267,7 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
         elif self.type in ["string", "file", "path"]:
             value = str(value)
             if "\n" in value or "\r" in value:
-                raise EngineError(
-                    "invalid line-break in string option {!r}: {!r}".format(self.name, value)
-                )
+                raise EngineError(f"invalid line-break in string option {self.name!r}: {value!r}")
             return value
         else:
             raise EngineError("unknown option type: {}", self.type)
@@ -300,15 +286,15 @@ class Limit:
     def __init__(
         self,
         *,
-        time: Optional[float] = None,
-        depth: Optional[int] = None,
-        nodes: Optional[int] = None,
-        mate: Optional[int] = None,
-        white_clock: Optional[float] = None,
-        black_clock: Optional[float] = None,
-        white_inc: Optional[float] = None,
-        black_inc: Optional[float] = None,
-        remaining_moves: Optional[int] = None,
+        time: float | None = None,
+        depth: int | None = None,
+        nodes: int | None = None,
+        mate: int | None = None,
+        white_clock: float | None = None,
+        black_clock: float | None = None,
+        white_inc: float | None = None,
+        black_inc: float | None = None,
+        remaining_moves: int | None = None,
     ):
         self.time = time
         self.depth = depth
@@ -324,7 +310,7 @@ class Limit:
         return "{}({})".format(
             type(self).__name__,
             ", ".join(
-                "{}={!r}".format(attr, getattr(self, attr))
+                f"{attr}={getattr(self, attr)!r}"
                 for attr in [
                     "time",
                     "depth",
@@ -341,9 +327,9 @@ class Limit:
         )
 
 
-InfoDict = Dict[
+InfoDict = dict[
     str,
-    Union[str, int, float, bool, "PovScore", List[chess.Move], Dict[chess.Move, List[chess.Move]]],
+    Union[str, int, float, bool, "PovScore", list[chess.Move], dict[chess.Move, list[chess.Move]]],
 ]
 
 
@@ -352,9 +338,9 @@ class PlayResult:
 
     def __init__(
         self,
-        move: Optional[chess.Move],
-        ponder: Optional[chess.Move],
-        info: Optional[InfoDict] = None,
+        move: chess.Move | None,
+        ponder: chess.Move | None,
+        info: InfoDict | None = None,
         *,
         draw_offered: bool = False,
         resigned: bool = False,
@@ -366,15 +352,7 @@ class PlayResult:
         self.resigned = resigned
 
     def __repr__(self) -> str:
-        return "<{} at {:#x} (move={}, ponder={}, info={}, draw_offered={}, resigned={})>".format(
-            type(self).__name__,
-            id(self),
-            self.move,
-            self.ponder,
-            self.info,
-            self.draw_offered,
-            self.resigned,
-        )
+        return f"<{type(self).__name__} at {id(self):#x} (move={self.move}, ponder={self.ponder}, info={self.info}, draw_offered={self.draw_offered}, resigned={self.resigned})>"
 
 
 try:
@@ -407,19 +385,19 @@ INFO_ALL = Info.ALL
 class PovScore:
     """A relative :class:`~chess.engine.Score` and the point of view."""
 
-    def __init__(self, relative: "Score", turn: chess.Color) -> None:
+    def __init__(self, relative: Score, turn: chess.Color) -> None:
         self.relative = relative  # type: Score
         self.turn = turn
 
-    def white(self) -> "Score":
+    def white(self) -> Score:
         """Get the score from White's point of view."""
         return self.pov(chess.WHITE)
 
-    def black(self) -> "Score":
+    def black(self) -> Score:
         """Get the score from Black's point of view."""
         return self.pov(chess.BLACK)
 
-    def pov(self, color: chess.Color) -> "Score":
+    def pov(self, color: chess.Color) -> Score:
         """Get the score from the point of view of the given *color*."""
         return self.relative if self.turn == color else -self.relative
 
@@ -469,7 +447,7 @@ class Score(abc.ABC):
     """
 
     @abc.abstractmethod
-    def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
+    def score(self, *, mate_score: int | None = None) -> int | None:
         """
         Returns the centi-pawn score as an integer or ``None``.
 
@@ -485,7 +463,7 @@ class Score(abc.ABC):
         """
 
     @abc.abstractmethod
-    def mate(self) -> Optional[int]:
+    def mate(self) -> int | None:
         """
         Returns the number of plies to mate, negative if we are getting
         mated, or ``None``.
@@ -499,10 +477,10 @@ class Score(abc.ABC):
         return self.mate() is not None
 
     @abc.abstractmethod
-    def __neg__(self) -> "Score":
+    def __neg__(self) -> Score:
         pass
 
-    def _score_tuple(self) -> Tuple[bool, bool, bool, int, Optional[int]]:
+    def _score_tuple(self) -> tuple[bool, bool, bool, int, int | None]:
         return (
             isinstance(self, MateGivenType),
             self.is_mate() and self.mate() > 0,
@@ -533,22 +511,22 @@ class Cp(Score):
     def mate(self) -> None:
         return None
 
-    def score(self, *, mate_score: Optional[int] = None) -> int:
+    def score(self, *, mate_score: int | None = None) -> int:
         return self.cp
 
     def __str__(self) -> str:
-        return "+{:d}".format(self.cp) if self.cp > 0 else str(self.cp)
+        return f"+{self.cp:d}" if self.cp > 0 else str(self.cp)
 
     def __repr__(self) -> str:
-        return "Cp({})".format(self)
+        return f"Cp({self})"
 
-    def __neg__(self) -> "Cp":
+    def __neg__(self) -> Cp:
         return Cp(-self.cp)
 
-    def __pos__(self) -> "Cp":
+    def __pos__(self) -> Cp:
         return Cp(self.cp)
 
-    def __abs__(self) -> "Cp":
+    def __abs__(self) -> Cp:
         return Cp(abs(self.cp))
 
 
@@ -561,7 +539,7 @@ class Mate(Score):
     def mate(self) -> int:
         return self.moves
 
-    def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
+    def score(self, *, mate_score: int | None = None) -> int | None:
         if mate_score is None:
             return None
         elif self.moves > 0:
@@ -570,18 +548,18 @@ class Mate(Score):
             return -mate_score - self.moves
 
     def __str__(self) -> str:
-        return "#+{}".format(self.moves) if self.moves > 0 else "#-{}".format(abs(self.moves))
+        return f"#+{self.moves}" if self.moves > 0 else f"#-{abs(self.moves)}"
 
     def __repr__(self) -> str:
         return "Mate({})".format(str(self).lstrip("#"))
 
-    def __neg__(self) -> Union["MateGivenType", "Mate"]:
+    def __neg__(self) -> MateGivenType | Mate:
         return MateGiven if not self.moves else Mate(-self.moves)
 
-    def __pos__(self) -> "Mate":
+    def __pos__(self) -> Mate:
         return Mate(self.moves)
 
-    def __abs__(self) -> Union["MateGivenType", "Mate"]:
+    def __abs__(self) -> MateGivenType | Mate:
         return MateGiven if not self.moves else Mate(abs(self.moves))
 
 
@@ -591,16 +569,16 @@ class MateGivenType(Score):
     def mate(self) -> int:
         return 0
 
-    def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
+    def score(self, *, mate_score: int | None = None) -> int | None:
         return mate_score
 
     def __neg__(self) -> Mate:
         return Mate(0)
 
-    def __pos__(self) -> "MateGivenType":
+    def __pos__(self) -> MateGivenType:
         return self
 
-    def __abs__(self) -> "MateGivenType":
+    def __abs__(self) -> MateGivenType:
         return self
 
     def __repr__(self) -> str:
@@ -614,24 +592,24 @@ MateGiven = MateGivenType()
 
 
 class MockTransport:
-    def __init__(self, protocol: "EngineProtocol") -> None:
+    def __init__(self, protocol: EngineProtocol) -> None:
         self.protocol = protocol
         self.expectations = collections.deque()  # type: typing.Deque[Tuple[str, List[str]]]
         self.expected_pings = 0
         self.stdin_buffer = bytearray()
         self.protocol.connection_made(self)
 
-    def expect(self, expectation: str, responses: List[str] = []) -> None:
+    def expect(self, expectation: str, responses: list[str] = []) -> None:
         self.expectations.append((expectation, responses))
 
     def expect_ping(self) -> None:
         self.expected_pings += 1
 
     def assert_done(self) -> None:
-        assert not self.expectations, "pending expectations: {}".format(self.expectations)
+        assert not self.expectations, f"pending expectations: {self.expectations}"
 
-    def get_pipe_transport(self, fd: int) -> "MockTransport":
-        assert fd == 0, "expected 0 for stdin, got {}".format(fd)
+    def get_pipe_transport(self, fd: int) -> MockTransport:
+        assert fd == 0, f"expected 0 for stdin, got {fd}"
         return self
 
     def write(self, data: bytes) -> None:
@@ -646,15 +624,15 @@ class MockTransport:
                     1, line.replace("ping ", "pong ").encode("utf-8") + b"\n"
                 )
             else:
-                assert self.expectations, "unexpected: {}".format(line)
+                assert self.expectations, f"unexpected: {line}"
                 expectation, responses = self.expectations.popleft()
-                assert expectation == line, "expected {}, got: {}".format(expectation, line)
+                assert expectation == line, f"expected {expectation}, got: {line}"
                 self.protocol.pipe_data_received(1, "\n".join(responses).encode("utf-8") + b"\n")
 
     def get_pid(self) -> int:
         return id(self)
 
-    def get_returncode(self) -> Optional[int]:
+    def get_returncode(self) -> int | None:
         return None if self.expectations else 0
 
 
@@ -680,7 +658,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         self.transport = transport
         LOGGER.debug("%s: Connection made", self)
 
-    def connection_lost(self, exc: Optional[Exception]) -> None:
+    def connection_lost(self, exc: Exception | None) -> None:
         code = self.transport.get_returncode()
         LOGGER.debug("%s: Connection lost (exit code: %d, error: %s)", self, code, exc)
 
@@ -703,7 +681,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         stdin.write(line.encode("utf-8"))
         stdin.write(b"\n")
 
-    def pipe_data_received(self, fd: int, data: Union[bytes, Text]) -> None:
+    def pipe_data_received(self, fd: int, data: bytes | str) -> None:
         self.buffer[fd].extend(data)
         while b"\n" in self.buffer[fd]:
             line, self.buffer[fd] = self.buffer[fd].split(b"\n", 1)
@@ -730,14 +708,14 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         pass
 
     async def communicate(
-        self: EngineProtocolT,
-        command_factory: Callable[[asyncio.AbstractEventLoop], "BaseCommand[EngineProtocolT, T]"],
+        self,
+        command_factory: Callable[[asyncio.AbstractEventLoop], BaseCommand[typing.Self, T]],
     ) -> T:
         command = command_factory(self.loop)
 
         if self.returncode.done():
             raise EngineTerminatedError(
-                "engine process dead (exit code: {})".format(self.returncode.result())
+                f"engine process dead (exit code: {self.returncode.result()})"
             )
 
         assert command.state == CommandState.New
@@ -749,7 +727,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         self.next_command = command
 
-        def previous_command_finished(_: "asyncio.Future[None]") -> None:
+        def previous_command_finished(_: asyncio.Future[None]) -> None:
             if self.command is not None:
                 self.command._done()
 
@@ -773,7 +751,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     def __repr__(self) -> str:
         pid = self.transport.get_pid() if self.transport is not None else "?"
-        return "<{} (pid={})>".format(type(self).__name__, pid)
+        return f"<{type(self).__name__} (pid={pid})>"
 
     @abc.abstractmethod
     async def initialize(self) -> None:
@@ -805,7 +783,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         game: object = None,
         info: Info = INFO_NONE,
         ponder: bool = False,
-        root_moves: Optional[Iterable[chess.Move]] = None,
+        root_moves: Iterable[chess.Move] | None = None,
         options: ConfigMapping = {},
     ) -> PlayResult:
         """
@@ -838,12 +816,12 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         board: chess.Board,
         limit: Limit,
         *,
-        multipv: Optional[int] = None,
+        multipv: int | None = None,
         game: object = None,
         info: Info = INFO_ALL,
-        root_moves: Optional[Iterable[chess.Move]] = None,
+        root_moves: Iterable[chess.Move] | None = None,
         options: ConfigMapping = {},
-    ) -> Union[List[InfoDict], InfoDict]:
+    ) -> list[InfoDict] | InfoDict:
         """
         Analyses a position and returns a dictionary of
         `information <#chess.engine.PlayResult.info>`_.
@@ -889,14 +867,14 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     async def analysis(
         self,
         board: chess.Board,
-        limit: Optional[Limit] = None,
+        limit: Limit | None = None,
         *,
-        multipv: Optional[int] = None,
+        multipv: int | None = None,
         game: object = None,
         info: Info = INFO_ALL,
-        root_moves: Optional[Iterable[chess.Move]] = None,
+        root_moves: Iterable[chess.Move] | None = None,
         options: ConfigMapping = {},
-    ) -> "AnalysisResult":
+    ) -> AnalysisResult:
         """
         Starts analysing a position.
 
@@ -932,13 +910,13 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @classmethod
     async def popen(
-        cls: Type[EngineProtocolT],
-        command: Union[str, List[str]],
+        cls,
+        command: str | list[str],
         *,
         setpgrp: bool = False,
         loop=None,
         **kwargs: Any,
-    ) -> Tuple[asyncio.SubprocessTransport, EngineProtocolT]:
+    ) -> tuple[asyncio.SubprocessTransport, typing.Self]:
         if not isinstance(command, list):
             command = [command]
 
@@ -972,7 +950,7 @@ class BaseCommand(Generic[EngineProtocolT, T]):
         self.finished = asyncio.Future(loop=loop)  # type: asyncio.Future[None]
 
     def _engine_terminated(self, engine: EngineProtocolT, code: int) -> None:
-        exc = EngineTerminatedError("engine process died unexpectedly (exit code: {})".format(code))
+        exc = EngineTerminatedError(f"engine process died unexpectedly (exit code: {code})")
         if self.state == CommandState.Active:
             self.engine_terminated(engine, exc)
         elif self.state == CommandState.Cancelling:
@@ -986,9 +964,7 @@ class BaseCommand(Generic[EngineProtocolT, T]):
         else:
             self.loop.call_exception_handler(
                 {
-                    "message": "engine command failed after returning preliminary result ({!r})".format(
-                        self.result
-                    ),
+                    "message": f"engine command failed after returning preliminary result ({self.result!r})",
                     "exception": exc,
                     "protocol": engine,
                     "transport": engine.transport,
@@ -998,7 +974,7 @@ class BaseCommand(Generic[EngineProtocolT, T]):
         if not self.finished.done():
             self.finished.set_result(None)
 
-    def set_finished(self: "BaseCommand[EngineProtocolT, None]") -> None:
+    def set_finished(self: BaseCommand[EngineProtocolT, None]) -> None:
         assert self.state in [CommandState.Active, CommandState.Cancelling]
         if not self.result.done():
             self.result.set_result(None)
@@ -1046,9 +1022,7 @@ class BaseCommand(Generic[EngineProtocolT, T]):
         self._handle_exception(engine, exc)
 
     def __repr__(self) -> str:
-        return "<{} at {:#x} (state={}, result={}, finished={}>".format(
-            type(self).__name__, id(self), self.state, self.result, self.finished
-        )
+        return f"<{type(self).__name__} at {id(self):#x} (state={self.state}, result={self.result}, finished={self.finished}>"
 
 
 class UciProtocol(EngineProtocol):
@@ -1182,7 +1156,7 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-    def _getoption(self, option: str, default: Optional[str] = None) -> Optional[ConfigValue]:
+    def _getoption(self, option: str, default: str | None = None) -> ConfigValue | None:
         if option in self.config:
             return self.config[option]
         if option in self.options:
@@ -1215,7 +1189,7 @@ class UciProtocol(EngineProtocol):
     def _configure(self, options: ConfigMapping) -> None:
         for name, value in collections.ChainMap(options, self.target_config).items():
             if name.lower() in MANAGED_OPTIONS:
-                raise EngineError("cannot set {} which is automatically managed".format(name))
+                raise EngineError(f"cannot set {name} which is automatically managed")
             self._setoption(name, value)
 
     async def configure(self, options: ConfigMapping) -> None:
@@ -1264,7 +1238,7 @@ class UciProtocol(EngineProtocol):
         self,
         limit: Limit,
         *,
-        root_moves: Optional[Iterable[chess.Move]] = None,
+        root_moves: Iterable[chess.Move] | None = None,
         ponder: bool = False,
         infinite: bool = False,
     ) -> None:
@@ -1313,7 +1287,7 @@ class UciProtocol(EngineProtocol):
         game: object = None,
         info: Info = INFO_NONE,
         ponder: bool = False,
-        root_moves: Optional[Iterable[chess.Move]] = None,
+        root_moves: Iterable[chess.Move] | None = None,
         options: ConfigMapping = {},
     ) -> PlayResult:
         class Command(BaseCommand[UciProtocol, PlayResult]):
@@ -1411,14 +1385,14 @@ class UciProtocol(EngineProtocol):
     async def analysis(
         self,
         board: chess.Board,
-        limit: Optional[Limit] = None,
+        limit: Limit | None = None,
         *,
-        multipv: Optional[int] = None,
+        multipv: int | None = None,
         game: object = None,
         info: Info = INFO_ALL,
-        root_moves: Optional[Iterable[chess.Move]] = None,
-        options: Mapping[str, Union[str]] = {},
-    ) -> "AnalysisResult":
+        root_moves: Iterable[chess.Move] | None = None,
+        options: Mapping[str, str] = {},
+    ) -> AnalysisResult:
         class Command(BaseCommand[UciProtocol, AnalysisResult]):
             def start(self, engine: UciProtocol) -> None:
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
@@ -1560,9 +1534,12 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
             if current_parameter == "pv" and selector & INFO_PV:
                 pv = []
                 board = root_board.copy(stack=False)
-            elif current_parameter == "refutation" and selector & INFO_REFUTATION:
-                board = root_board.copy(stack=False)
-            elif current_parameter == "currline" and selector & INFO_CURRLINE:
+            elif (
+                current_parameter == "refutation"
+                and selector & INFO_REFUTATION
+                or current_parameter == "currline"
+                and selector & INFO_CURRLINE
+            ):
                 board = root_board.copy(stack=False)
         elif current_parameter in [
             "depth",
@@ -1653,7 +1630,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
 class UciOptionMap(MutableMapping[str, T]):
     """Dictionary with case-insensitive keys."""
 
-    def __init__(self, data: Optional[Union[Iterable[Tuple[str, T]]]] = None, **kwargs: T) -> None:
+    def __init__(self, data: Iterable[tuple[str, T]] | None = None, **kwargs: T) -> None:
         self._store = {}  # type: Dict[str, Tuple[str, T]]
         if data is None:
             data = {}
@@ -1688,14 +1665,14 @@ class UciOptionMap(MutableMapping[str, T]):
         except TypeError, AttributeError:
             return NotImplemented
 
-    def copy(self) -> "UciOptionMap[T]":
+    def copy(self) -> UciOptionMap[T]:
         return type(self)(self._store.values())
 
-    def __copy__(self) -> "UciOptionMap[T]":
+    def __copy__(self) -> UciOptionMap[T]:
         return self.copy()
 
     def __repr__(self) -> str:
-        return "{}({!r})".format(type(self).__name__, dict(self.items()))
+        return f"{type(self).__name__}({dict(self.items())!r})"
 
 
 class XBoardProtocol(EngineProtocol):
@@ -1795,7 +1772,7 @@ class XBoardProtocol(EngineProtocol):
                     engine.send_line("accept smp")
                 if engine.features.get("egt"):
                     for egt in engine.features["egt"].split(","):
-                        name = "egtpath {}".format(egt)
+                        name = f"egtpath {egt}"
                         engine.options[name] = Option(name, "path", None, None, None, None)
                     engine.send_line("accept egt")
 
@@ -1809,9 +1786,9 @@ class XBoardProtocol(EngineProtocol):
         return await self.communicate(Command)
 
     def _ping(self, n: int) -> None:
-        self.send_line("ping {}".format(n))
+        self.send_line(f"ping {n}")
 
-    def _variant(self, variant: Optional[str]) -> None:
+    def _variant(self, variant: str | None) -> None:
         variants = self.features.get("variants", "").split(",")
         if not variant or variant not in variants:
             raise EngineError(
@@ -1820,7 +1797,7 @@ class XBoardProtocol(EngineProtocol):
                 )
             )
 
-        self.send_line("variant {}".format(variant))
+        self.send_line(f"variant {variant}")
 
     def _new(self, board: chess.Board, game: object, options: ConfigMapping) -> None:
         self._configure(options)
@@ -1851,7 +1828,7 @@ class XBoardProtocol(EngineProtocol):
         if new_game:
             fen = root.fen(shredder=board.chess960, en_passant="fen")
             if variant != "normal" or fen != chess.STARTING_FEN or board.chess960:
-                self.send_line("setboard {}".format(fen))
+                self.send_line(f"setboard {fen}")
 
         # Undo moves until common position.
         common_stack_len = 0
@@ -1880,7 +1857,7 @@ class XBoardProtocol(EngineProtocol):
         class Command(BaseCommand[XBoardProtocol, None]):
             def start(self, engine: XBoardProtocol) -> None:
                 n = id(self) & 0xFFFF
-                self.pong = "pong {}".format(n)
+                self.pong = f"pong {n}"
                 engine._ping(n)
 
             def line_received(self, engine: XBoardProtocol, line: str) -> None:
@@ -1899,7 +1876,7 @@ class XBoardProtocol(EngineProtocol):
         game: object = None,
         info: Info = INFO_NONE,
         ponder: bool = False,
-        root_moves: Optional[Iterable[chess.Move]] = None,
+        root_moves: Iterable[chess.Move] | None = None,
         options: ConfigMapping = {},
     ) -> PlayResult:
         if root_moves is not None:
@@ -1924,9 +1901,7 @@ class XBoardProtocol(EngineProtocol):
                         int(limit.white_clock if board.turn else limit.black_clock), 60
                     )
                     engine.send_line(
-                        "level {} {}:{:02d} {}".format(
-                            limit.remaining_moves or 0, base_mins, base_secs, increment
-                        )
+                        f"level {limit.remaining_moves or 0} {base_mins}:{base_secs:02d} {increment}"
                     )
 
                 if limit.nodes is not None:
@@ -1950,11 +1925,11 @@ class XBoardProtocol(EngineProtocol):
                         )
 
                     engine.send_line("nps 1")
-                    engine.send_line("st {}".format(int(limit.nodes)))
+                    engine.send_line(f"st {int(limit.nodes)}")
                 if limit.depth is not None:
-                    engine.send_line("sd {}".format(limit.depth))
+                    engine.send_line(f"sd {limit.depth}")
                 if limit.time is not None:
-                    engine.send_line("st {}".format(limit.time))
+                    engine.send_line(f"st {limit.time}")
                 if limit.white_clock is not None:
                     engine.send_line(
                         "{} {}".format(
@@ -2038,7 +2013,7 @@ class XBoardProtocol(EngineProtocol):
             def _ping_after_move(self, engine: XBoardProtocol) -> None:
                 if self.pong_after_move is None:
                     n = id(self) & 0xFFFF
-                    self.pong_after_move = "pong {}".format(n)
+                    self.pong_after_move = f"pong {n}"
                     engine._ping(n)
 
             def cancel(self, engine: XBoardProtocol) -> None:
@@ -2053,7 +2028,7 @@ class XBoardProtocol(EngineProtocol):
                     engine.send_line("easy")
 
                     n = (id(self) + 1) & 0xFFFF
-                    self.pong_after_ponder = "pong {}".format(n)
+                    self.pong_after_ponder = f"pong {n}"
                     engine._ping(n)
 
             def engine_terminated(self, engine: XBoardProtocol, exc: Exception) -> None:
@@ -2066,14 +2041,14 @@ class XBoardProtocol(EngineProtocol):
     async def analysis(
         self,
         board: chess.Board,
-        limit: Optional[Limit] = None,
+        limit: Limit | None = None,
         *,
-        multipv: Optional[int] = None,
+        multipv: int | None = None,
         game: object = None,
         info: Info = INFO_ALL,
-        root_moves: Optional[Iterable[chess.Move]] = None,
+        root_moves: Iterable[chess.Move] | None = None,
         options: ConfigMapping = {},
-    ) -> "AnalysisResult":
+    ) -> AnalysisResult:
         if multipv is not None:
             raise EngineError("xboard engine does not support multipv")
 
@@ -2096,7 +2071,7 @@ class XBoardProtocol(EngineProtocol):
 
                     engine.send_line("exclude all")
                     for move in root_moves:
-                        engine.send_line("include {}".format(engine.board.xboard(move)))
+                        engine.send_line(f"include {engine.board.xboard(move)}")
 
                 engine.send_line("post")
                 engine.send_line("analyze")
@@ -2126,18 +2101,18 @@ class XBoardProtocol(EngineProtocol):
 
                 if limit is not None:
                     if (
-                        limit.time is not None
-                        and typing.cast(float, post_info.get("time", 0)) >= limit.time
-                    ):
-                        self.cancel(engine)
-                    elif (
-                        limit.nodes is not None
-                        and typing.cast(int, post_info.get("nodes", 0)) >= limit.nodes
-                    ):
-                        self.cancel(engine)
-                    elif (
-                        limit.depth is not None
-                        and typing.cast(int, post_info.get("depth", 0)) >= limit.depth
+                        (
+                            limit.time is not None
+                            and typing.cast(float, post_info.get("time", 0)) >= limit.time
+                        )
+                        or (
+                            limit.nodes is not None
+                            and typing.cast(int, post_info.get("nodes", 0)) >= limit.nodes
+                        )
+                        or (
+                            limit.depth is not None
+                            and typing.cast(int, post_info.get("depth", 0)) >= limit.depth
+                        )
                     ):
                         self.cancel(engine)
                     elif limit.mate is not None and "score" in post_info:
@@ -2160,7 +2135,7 @@ class XBoardProtocol(EngineProtocol):
                 engine.send_line("exit")
 
                 n = id(self) & 0xFFFF
-                self.final_pong = "pong {}".format(n)
+                self.final_pong = f"pong {n}"
                 engine._ping(n)
 
             def engine_terminated(self, engine: XBoardProtocol, exc: Exception) -> None:
@@ -2177,7 +2152,7 @@ class XBoardProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-    def _getoption(self, option: str, default: Optional[str] = None) -> Optional[ConfigValue]:
+    def _getoption(self, option: str, default: str | None = None) -> ConfigValue | None:
         if option in self.config:
             return self.config[option]
         if option in self.options:
@@ -2191,7 +2166,7 @@ class XBoardProtocol(EngineProtocol):
         try:
             option = self.options[name]
         except KeyError:
-            raise EngineError("unsupported xboard option or command: {}".format(name))
+            raise EngineError(f"unsupported xboard option or command: {name}")
 
         self.config[name] = value = option.parse(value)
 
@@ -2199,20 +2174,20 @@ class XBoardProtocol(EngineProtocol):
             # Applied in _new.
             pass
         elif name in ["memory", "cores"] or name.startswith("egtpath "):
-            self.send_line("{} {}".format(name, value))
+            self.send_line(f"{name} {value}")
         elif value is None:
-            self.send_line("option {}".format(name))
+            self.send_line(f"option {name}")
         elif value is True:
-            self.send_line("option {}=1".format(name))
+            self.send_line(f"option {name}=1")
         elif value is False:
-            self.send_line("option {}=0".format(name))
+            self.send_line(f"option {name}=0")
         else:
-            self.send_line("option {}={}".format(name, value))
+            self.send_line(f"option {name}={value}")
 
     def _configure(self, options: ConfigMapping) -> None:
         for name, value in collections.ChainMap(options, self.target_config).items():
             if name.lower() in MANAGED_OPTIONS:
-                raise EngineError("cannot set {} which is automatically managed".format(name))
+                raise EngineError(f"cannot set {name} which is automatically managed")
             self._setoption(name, value)
 
     async def configure(self, options: ConfigMapping) -> None:
@@ -2344,7 +2319,7 @@ class AnalysisResult:
     Automatically stops the analysis when used as a context manager.
     """
 
-    def __init__(self, stop: Optional[Callable[[], None]] = None):
+    def __init__(self, stop: Callable[[], None] | None = None):
         self._stop = stop
         self._queue = asyncio.Queue()  # type: asyncio.Queue[Union[InfoDict, object]]
         self._posted_kork = False
@@ -2428,13 +2403,13 @@ class AnalysisResult:
         """
         return self._seen_kork or self._queue.qsize() <= self._posted_kork
 
-    async def next(self) -> Optional[InfoDict]:
+    async def next(self) -> InfoDict | None:
         try:
             return await self.get()
         except AnalysisComplete:
             return None
 
-    def __aiter__(self) -> "AnalysisResult":
+    def __aiter__(self) -> AnalysisResult:
         return self
 
     async def __anext__(self) -> InfoDict:
@@ -2443,21 +2418,21 @@ class AnalysisResult:
         except AnalysisComplete:
             raise StopAsyncIteration
 
-    def __enter__(self) -> "AnalysisResult":
+    def __enter__(self) -> AnalysisResult:
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.stop()
 
 
 async def popen_uci(
-    command: Union[str, List[str]], *, setpgrp: bool = False, loop=None, **popen_args: Any
-) -> Tuple[asyncio.SubprocessTransport, UciProtocol]:
+    command: str | list[str], *, setpgrp: bool = False, loop=None, **popen_args: Any
+) -> tuple[asyncio.SubprocessTransport, UciProtocol]:
     """
     Spawns and initializes an UCI engine.
 
@@ -2483,8 +2458,8 @@ async def popen_uci(
 
 
 async def popen_xboard(
-    command: Union[str, List[str]], *, setpgrp: bool = False, **popen_args: Any
-) -> Tuple[asyncio.SubprocessTransport, XBoardProtocol]:
+    command: str | list[str], *, setpgrp: bool = False, **popen_args: Any
+) -> tuple[asyncio.SubprocessTransport, XBoardProtocol]:
     """
     Spawns and initializes an XBoard engine.
 
@@ -2531,7 +2506,7 @@ class SimpleEngine:
         transport: asyncio.SubprocessTransport,
         protocol: EngineProtocol,
         *,
-        timeout: Optional[float] = 10.0,
+        timeout: float | None = 10.0,
     ) -> None:
         self.transport = transport
         self.protocol = protocol
@@ -2543,13 +2518,13 @@ class SimpleEngine:
 
         self.returncode = concurrent.futures.Future()  # type: concurrent.futures.Future[int]
 
-    def _timeout_for(self, limit: Optional[Limit]) -> Optional[float]:
+    def _timeout_for(self, limit: Limit | None) -> float | None:
         if self.timeout is None or limit is None or limit.time is None:
             return None
         return self.timeout + limit.time
 
     @contextlib.contextmanager
-    def _not_shut_down(self) -> Generator[None, None, None]:
+    def _not_shut_down(self) -> Generator[None]:
         with self._shutdown_lock:
             if self._shutdown:
                 raise EngineTerminatedError("engine event loop dead")
@@ -2601,7 +2576,7 @@ class SimpleEngine:
         game: object = None,
         info: Info = INFO_NONE,
         ponder: bool = False,
-        root_moves: Optional[Iterable[chess.Move]] = None,
+        root_moves: Iterable[chess.Move] | None = None,
         options: ConfigMapping = {},
     ) -> PlayResult:
         with self._not_shut_down():
@@ -2625,12 +2600,12 @@ class SimpleEngine:
         board: chess.Board,
         limit: Limit,
         *,
-        multipv: Optional[int] = None,
+        multipv: int | None = None,
         game: object = None,
         info: Info = INFO_ALL,
-        root_moves: Optional[Iterable[chess.Move]] = None,
+        root_moves: Iterable[chess.Move] | None = None,
         options: ConfigMapping = {},
-    ) -> Union[InfoDict, List[InfoDict]]:
+    ) -> InfoDict | list[InfoDict]:
         with self._not_shut_down():
             coro = asyncio.wait_for(
                 self.protocol.analyse(
@@ -2650,14 +2625,14 @@ class SimpleEngine:
     def analysis(
         self,
         board: chess.Board,
-        limit: Optional[Limit] = None,
+        limit: Limit | None = None,
         *,
-        multipv: Optional[int] = None,
+        multipv: int | None = None,
         game: object = None,
         info: Info = INFO_ALL,
-        root_moves: Optional[Iterable[chess.Move]] = None,
+        root_moves: Iterable[chess.Move] | None = None,
         options: ConfigMapping = {},
-    ) -> "SimpleAnalysisResult":
+    ) -> SimpleAnalysisResult:
         with self._not_shut_down():
             coro = asyncio.wait_for(
                 self.protocol.analysis(
@@ -2697,15 +2672,15 @@ class SimpleEngine:
     @classmethod
     def popen(
         cls,
-        Protocol: Type[EngineProtocol],
-        command: Union[str, List[str]],
+        Protocol: type[EngineProtocol],
+        command: str | list[str],
         *,
-        timeout: Optional[float] = 10.0,
+        timeout: float | None = 10.0,
         debug: bool = False,
         setpgrp: bool = False,
         **popen_args: Any,
-    ) -> "SimpleEngine":
-        async def background(future: "concurrent.futures.Future[SimpleEngine]") -> None:
+    ) -> SimpleEngine:
+        async def background(future: concurrent.futures.Future[SimpleEngine]) -> None:
             transport, protocol = await Protocol.popen(command, setpgrp=setpgrp, **popen_args)
             simple_engine = cls(transport, protocol, timeout=timeout)
             try:
@@ -2722,13 +2697,13 @@ class SimpleEngine:
     @classmethod
     def popen_uci(
         cls,
-        command: Union[str, List[str]],
+        command: str | list[str],
         *,
-        timeout: Optional[float] = 10.0,
+        timeout: float | None = 10.0,
         debug: bool = False,
         setpgrp: bool = False,
         **popen_args: Any,
-    ) -> "SimpleEngine":
+    ) -> SimpleEngine:
         """
         Spawns and initializes an UCI engine.
         Returns a :class:`~chess.engine.SimpleEngine` instance.
@@ -2740,13 +2715,13 @@ class SimpleEngine:
     @classmethod
     def popen_xboard(
         cls,
-        command: Union[str, List[str]],
+        command: str | list[str],
         *,
-        timeout: Optional[float] = 10.0,
+        timeout: float | None = 10.0,
         debug: bool = False,
         setpgrp: bool = False,
         **popen_args: Any,
-    ) -> "SimpleEngine":
+    ) -> SimpleEngine:
         """
         Spawns and initializes an XBoard engine.
         Returns a :class:`~chess.engine.SimpleEngine` instance.
@@ -2755,20 +2730,20 @@ class SimpleEngine:
             XBoardProtocol, command, timeout=timeout, debug=debug, setpgrp=setpgrp, **popen_args
         )
 
-    def __enter__(self) -> "SimpleEngine":
+    def __enter__(self) -> SimpleEngine:
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.close()
 
     def __repr__(self) -> str:
         pid = self.transport.get_pid()  # This happens to be thread-safe.
-        return "<{} (pid={})>".format(type(self).__name__, pid)
+        return f"<{type(self).__name__} (pid={pid})>"
 
 
 class SimpleAnalysisResult:
@@ -2791,8 +2766,8 @@ class SimpleAnalysisResult:
         return future.result()
 
     @property
-    def multipv(self) -> List[InfoDict]:
-        async def _get() -> List[InfoDict]:
+    def multipv(self) -> list[InfoDict]:
+        async def _get() -> list[InfoDict]:
             return [info.copy() for info in self.inner.multipv]
 
         with self.simple_engine._not_shut_down():
@@ -2825,7 +2800,7 @@ class SimpleAnalysisResult:
             )
         return future.result()
 
-    def next(self) -> Optional[InfoDict]:
+    def next(self) -> InfoDict | None:
         with self.simple_engine._not_shut_down():
             future = asyncio.run_coroutine_threadsafe(
                 self.inner.next(), self.simple_engine.protocol.loop
@@ -2847,13 +2822,13 @@ class SimpleAnalysisResult:
         except StopAsyncIteration:
             raise StopIteration
 
-    def __enter__(self) -> "SimpleAnalysisResult":
+    def __enter__(self) -> SimpleAnalysisResult:
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.stop()

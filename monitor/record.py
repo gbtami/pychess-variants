@@ -2,20 +2,19 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-from collections.abc import Mapping, Sequence
-from datetime import datetime, timezone
 import json
 import os
-from pathlib import Path
 import tempfile
 import time
+from collections.abc import Mapping, Sequence
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
 import aiohttp
 
 from monitor.metrics_client import fetch_metrics, metrics_url, monitor_token
-
 
 DEFAULT_INTERVAL_SECONDS = 600.0
 DEFAULT_SAMPLES = 7
@@ -210,7 +209,7 @@ async def record_metrics(
                 if delay > 0:
                     await asyncio.sleep(delay)
 
-                captured_at = datetime.now(timezone.utc).isoformat()
+                captured_at = datetime.now(UTC).isoformat()
                 request_started = time.monotonic()
                 try:
                     metrics = await fetch_metrics(
@@ -231,7 +230,7 @@ async def record_metrics(
                     first_summary = first_summary or summary
                     last_summary = summary
                     print(_format_summary(sample, summary), flush=True)
-                except (aiohttp.ClientError, asyncio.TimeoutError, TypeError, ValueError) as exc:
+                except (TimeoutError, aiohttp.ClientError, TypeError, ValueError) as exc:
                     record = {
                         "captured_at": captured_at,
                         "elapsed_seconds": round(time.monotonic() - started, 3),

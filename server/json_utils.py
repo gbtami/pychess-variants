@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from bson.int64 import Int64
 import msgspec
 from aiohttp import web
+from bson.int64 import Int64
 
 _JSON_ENCODER = msgspec.json.Encoder()
 

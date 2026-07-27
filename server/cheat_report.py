@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import logging
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
-import logging
-
 if TYPE_CHECKING:
-    from pymongo.asynchronous.database import AsyncDatabase
-
     from game import Game
+    from pymongo.asynchronous.database import AsyncDatabase
     from user import User
 
 log = logging.getLogger(__name__)
@@ -48,7 +46,7 @@ async def append_ceval_cheat_report(
     )
 
     report = {
-        "createdAt": datetime.now(timezone.utc),
+        "createdAt": datetime.now(UTC),
         "kind": CEVAL_REPORT_REASON,
         "action": action,
         "gameId": game.id,

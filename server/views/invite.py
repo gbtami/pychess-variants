@@ -1,13 +1,13 @@
-import aiohttp_jinja2
-from aiohttp import web
-
 import logging
 
+import aiohttp_jinja2
+from aiohttp import web
 from json_utils import json_dumps
-from utils import join_seek, load_game, remove_seek
-from typing_defs import ViewContext
-from views import add_game_context, get_user_context
 from pychess_global_app_state_utils import get_app_state
+from typing_defs import ViewContext
+from utils import join_seek, load_game, remove_seek
+
+from views import add_game_context, get_user_context
 
 log = logging.getLogger(__name__)
 

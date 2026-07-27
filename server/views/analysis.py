@@ -2,15 +2,15 @@ import json
 
 import aiohttp_jinja2
 from aiohttp import web
-
+from catalogued_variants import catalogued_variant_client_doc_for_name
 from fairy import FairyBoard
 from json_utils import json_dumps
+from pychess_global_app_state_utils import get_app_state
+from typing_defs import ViewContext
 from utils import load_game
 from variants import ALL_VARIANTS, is_catalogued_variant
-from catalogued_variants import catalogued_variant_client_doc_for_name
-from typing_defs import ViewContext
+
 from views import add_game_context, get_user_context
-from pychess_global_app_state_utils import get_app_state
 
 
 @aiohttp_jinja2.template("analysis.html")

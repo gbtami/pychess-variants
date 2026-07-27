@@ -1,66 +1,64 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Callable
 
 import asyncio
-import re
-
-
 import random
-from datetime import date, datetime, timezone, timedelta
+import re
+from collections.abc import Callable
+from datetime import UTC, date, datetime, timedelta
+from typing import TYPE_CHECKING
 
-from aiohttp import web
 import aiohttp_session
+from aiohttp import web
 from aiohttp_sse import sse_response
-
 from broadcast import round_broadcast
+from clock import CorrClock
+from compress import C2R, R2C
 from const import (
-    DARK_FEN,
-    NOTIFY_PAGE_SIZE,
-    STARTED,
-    VARIANT_960_TO_PGN,
-    INVALIDMOVE,
-    UNKNOWNFINISH,
     CASUAL,
-    RATED,
+    DARK_FEN,
     IMPORTED,
+    INVALIDMOVE,
+    NOTIFY_PAGE_SIZE,
+    RATED,
     SSE_GET_TIMEOUT,
+    STARTED,
     T_STARTED,
+    UNKNOWNFINISH,
+    VARIANT_960_TO_PGN,
     category_matches,
 )
-from compress import R2C, C2R
-from convert import mirror5, mirror9, grand2zero, zero2grand
+from convert import grand2zero, mirror5, mirror9, zero2grand
 from fairy import (
     BLACK,
-    WHITE,
-    STANDARD_FEN,
-    MANCHU_FEN,
-    FairyBoard,
     FEN_OK,
+    MANCHU_FEN,
     NOTATION_SAN,
+    STANDARD_FEN,
+    WHITE,
+    FairyBoard,
     get_san_moves,
     modded_variant,
     validate_fen,
 )
 from fairy.jieqi import make_initial_mapping
-from clock import CorrClock
 from game import Game
 from newid import new_id
 from seek import (
     ANON_RESTRICTED_SEEK_MESSAGE,
-    TWO_BOARD_TARGETED_SEEK_MESSAGE,
     DIRECT_CHALLENGE_ACCEPTED,
+    TWO_BOARD_TARGETED_SEEK_MESSAGE,
     is_anon_restricted_seek,
     is_targeted_two_board_seek,
 )
+from ublog import display_date, image_src, post_url
 from user import User
 from users import NotInDbUsers
-from ublog import display_date, image_src, post_url
 from valid_fen import VALID_FEN
 
 if TYPE_CHECKING:
     from bug.game_bug import GameBug
-    from pychess_global_app_state import PychessGlobalAppState
     from game import Game
+    from pychess_global_app_state import PychessGlobalAppState
     from seek import Seek
     from typing_defs import (
         ClockValues,
@@ -77,12 +75,13 @@ if TYPE_CHECKING:
         NewGameMessage,
         SeekStatusMessage,
     )
-from pychess_global_app_state_utils import get_app_state
-from json_utils import json_response
-from request_utils import read_post_data
 import logging
-from variants import TWO_BOARD_VARIANT_CODES, C2V, GRANDS, get_server_variant, is_catalogued_variant
+
+from json_utils import json_response
+from pychess_global_app_state_utils import get_app_state
+from request_utils import read_post_data
 from settings import URI
+from variants import C2V, GRANDS, TWO_BOARD_VARIANT_CODES, get_server_variant, is_catalogued_variant
 
 log = logging.getLogger(__name__)
 USERNAME_PREFIX_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -343,7 +342,7 @@ async def load_game_from_doc(
     game.date = doc["d"]
     game.last_move_time = doc.get("l")
     if game.date.tzinfo is None:
-        game.date = game.date.replace(tzinfo=timezone.utc)
+        game.date = game.date.replace(tzinfo=UTC)
     game.status = doc["s"]
     game.level = level if level is not None else 0
     game.result = C2R[doc["r"]]
@@ -415,7 +414,7 @@ async def load_game_from_doc(
             crosstable: Crosstable = crosstable_doc
             game.crosstable = crosstable
 
-    game.loaded_at = datetime.now(timezone.utc)
+    game.loaded_at = datetime.now(UTC)
 
     if game.status <= STARTED or cache_finished:
         app_state.games[game_id] = game
@@ -474,10 +473,10 @@ async def import_game(request):
         date_tag = data.get("Date", "")
         date = date_tag[0:10]
         date = map(int, date.split("." if "." in date else "/"))
-        date = datetime(*date, tzinfo=timezone.utc)
+        date = datetime(*date, tzinfo=UTC)
     except Exception:
         log.debug("Date tag parsing failed. %s", date_tag)
-        date = datetime.now(timezone.utc)
+        date = datetime.now(UTC)
 
     try:
         minute = False
@@ -1383,7 +1382,7 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
         non_piece = "0123456789*-"
     else:
         non_piece = "~+0123456789[]-"
-    invalid1 = any((c not in start[0] + non_piece for c in init[0]))
+    invalid1 = any(c not in start[0] + non_piece for c in init[0])
 
     # Required number of rows
     invalid2 = start[0].count("/") != init[0].count("/")
@@ -1407,18 +1406,18 @@ def sanitize_fen(variant, initial_fen, chess960, base=False):
     invalid4 = False
     if len(init) > 2:
         if variant in ("seirawan", "shouse"):
-            invalid4 = any((c not in "KQABCDEFGHkqabcdefgh-" for c in init[2]))
+            invalid4 = any(c not in "KQABCDEFGHkqabcdefgh-" for c in init[2])
         elif chess960:
-            if all((c in "KQkq-" for c in init[2])):
+            if all(c in "KQkq-" for c in init[2]):
                 chess960 = False
             else:
-                invalid4 = any((c not in "ABCDEFGHIJabcdefghij-" for c in init[2]))
+                invalid4 = any(c not in "ABCDEFGHIJabcdefghij-" for c in init[2])
         elif variant[-5:] != "shogi" and variant not in (
             "dobutsu",
             "gorogoro",
             "gorogoroplus",
         ):
-            invalid4 = any((c not in start[2] + "-" for c in init[2]))
+            invalid4 = any(c not in start[2] + "-" for c in init[2])
 
         # Castling right need rooks and king placed in starting square
         if (
@@ -1649,7 +1648,7 @@ async def notification_items_for_user(app_state, user: User, page_num: int = 0):
         if not opp:
             continue
         last_msg = doc.get("lastMsg", {}) or {}
-        created_at = last_msg.get("createdAt") or doc.get("updatedAt") or datetime.now(timezone.utc)
+        created_at = last_msg.get("createdAt") or doc.get("updatedAt") or datetime.now(UTC)
         inbox_notifications.append(
             {
                 "type": "inboxMsg",
@@ -1697,7 +1696,7 @@ async def subscribe_notify(request):
                     payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
                     await response.send(payload)
                     queue.task_done()
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     if not response.is_connected():
                         break
     except Exception:
@@ -1708,7 +1707,7 @@ async def subscribe_notify(request):
 
 
 def corr_games(games):
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return [
         {
             "gameId": game.id,

@@ -2,14 +2,14 @@ from typing import TYPE_CHECKING
 
 import aiohttp_jinja2
 from aiohttp import web
-
 from json_utils import json_dumps
+from pychess_global_app_state_utils import get_app_state
 from simul.simuls import load_simul
 from tournament.tournaments import get_tournament_name, load_tournament
-from utils import load_game, simul_games
 from typing_defs import ViewContext
+from utils import load_game, simul_games
+
 from views import add_corr_games_context, add_game_context, get_user_context
-from pychess_global_app_state_utils import get_app_state
 
 if TYPE_CHECKING:
     from game import Game

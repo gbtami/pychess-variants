@@ -5,7 +5,6 @@ from typing import Any
 from aiohttp import web
 from aiohttp.client_exceptions import ClientConnectionResetError
 
-
 CLIENT_DISCONNECT_ERRORS = (ConnectionResetError, ClientConnectionResetError)
 
 

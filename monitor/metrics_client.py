@@ -5,7 +5,6 @@ from typing import Any
 
 import aiohttp
 
-
 DEFAULT_METRICS_URL = "https://www.pychess.org/metrics"
 
 

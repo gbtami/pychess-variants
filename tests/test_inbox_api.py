@@ -1,13 +1,13 @@
 import json
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
-
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from user import User
+
+from server import make_app
 
 
 class InboxApiTestCase(AioHTTPTestCase):
@@ -161,7 +161,7 @@ class InboxApiTestCase(AioHTTPTestCase):
         oldest_page1 = page1["messages"][0]["createdAt"]
         oldest_dt = datetime.fromisoformat(oldest_page1)
         if oldest_dt.tzinfo is None:
-            oldest_dt = oldest_dt.replace(tzinfo=timezone.utc)
+            oldest_dt = oldest_dt.replace(tzinfo=UTC)
         before_ms = int(oldest_dt.timestamp() * 1000)
 
         page2_resp = await self.client.get(f"/api/inbox/thread/alice?before={before_ms}")

@@ -1,16 +1,19 @@
 from __future__ import annotations
 
-import os
-from datetime import timedelta, timezone, datetime, date
-from operator import neg
 import asyncio
 import collections
 import gettext
-from typing import Any, Coroutine, List, Set, TYPE_CHECKING, TypeVar
+import os
+from collections.abc import Coroutine
+from datetime import UTC, date, datetime, timedelta
+from operator import neg
+from typing import TYPE_CHECKING, Any, TypeVar
 
+import aiohttp_jinja2
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
-import aiohttp_jinja2
+from pythongettext.msgfmt import Msgfmt, PoSyntaxError
+from sortedcollections import ValueSortedDict
 from tenacity import (
     AsyncRetrying,
     before_sleep_log,
@@ -18,90 +21,89 @@ from tenacity import (
     wait_exponential_jitter,
 )
 
-from pythongettext.msgfmt import Msgfmt, PoSyntaxError
-from sortedcollections import ValueSortedDict
-
 if TYPE_CHECKING:
     from bug.game_bug import GameBug
-    from ws_types import LobbyLeaderboardEntry, TournamentWinnerEntry
     from typing_defs import TournamentCalendarEvent
+    from ws_types import LobbyLeaderboardEntry, TournamentWinnerEntry
+
+import logging
+import sys
 
 from ai import BOT_task
+from broadcast import round_broadcast
+from chat_flood import ChatFlood
+from cheat_report import CEVAL_AUTO_LOSE_CONFIG_NAME, CHEAT_REPORT_COLLECTION
 from const import (
-    NONE_USER,
+    ABORTED,
+    ARENA,
+    GAME_CATEGORIES,
     LANGUAGES,
     MAX_CHAT_LINES,
     MONTHLY,
-    ARENA,
-    WEEKLY,
+    NONE_USER,
+    SCHEDULE_MAX_DAYS,
     SHIELD,
+    STARTED,
     T_CREATED,
     T_STARTED,
-    SCHEDULE_MAX_DAYS,
-    STARTED,
-    ABORTED,
-    GAME_CATEGORIES,
+    WEEKLY,
     reserved,
 )
-from broadcast import round_broadcast
 from discord_bot import DiscordBot, FakeDiscordBot
-from chat_flood import ChatFlood
-from cheat_report import CHEAT_REPORT_COLLECTION, CEVAL_AUTO_LOSE_CONFIG_NAME
 from game import Game
+from gc_telemetry import start_gc_telemetry
 from generate_crosstable import generate_crosstable
 from generate_highscore import generate_highscore
 from generate_shield import generate_shield
 from lobby import Lobby
-from logger import DEFAULT_LOGGING_CONFIG
-from tournament.scheduler import (
-    MONTHLY_VARIANTS,
-    SEATURDAY,
-    NEW_MONTHLY_VARIANTS,
-    PAUSED_MONTHLY_VARIANTS,
-    WEEKLY_VARIANTS,
-    SHIELDS,
-    new_scheduled_tournaments,
-    create_scheduled_tournaments,
-)
-from seek import Seek, should_persist_seek_on_shutdown, should_restore_persisted_seek
-from settings import (
-    FISHNET_KEYS,
-    DISCORD_TOKEN,
-    URI,
-    LOCALHOST,
-    STATIC_ROOT,
-    SOURCE_VERSION,
-    DEV,
-    static_url,
-)
-from gc_telemetry import start_gc_telemetry
 from lobby_panels_cache import (
     refresh_lobby_leaderboard_cache,
     refresh_lobby_tournament_winners_cache,
 )
+from logger import DEFAULT_LOGGING_CONFIG
 from public_users import PublicUsers
+from push_notifications import PUSH_SUBSCRIPTION_COLLECTION, PushNotifier
+from puzzle import rename_puzzle_fields
+from seek import Seek, should_persist_seek_on_shutdown, should_restore_persisted_seek
+from settings import (
+    DEV,
+    DISCORD_TOKEN,
+    FISHNET_KEYS,
+    LOCALHOST,
+    SOURCE_VERSION,
+    STATIC_ROOT,
+    URI,
+    static_url,
+)
 from simul.simul import Simul
 from simul.simuls import load_active_simuls
+from startup_timer import StartupTimer
+from tournament.scheduler import (
+    MONTHLY_VARIANTS,
+    NEW_MONTHLY_VARIANTS,
+    PAUSED_MONTHLY_VARIANTS,
+    SEATURDAY,
+    SHIELDS,
+    WEEKLY_VARIANTS,
+    create_scheduled_tournaments,
+    new_scheduled_tournaments,
+)
 from tournament.tournament import Tournament, player_json
 from tournament.tournaments import (
-    translated_tournament_name,
     get_scheduled_tournaments,
     load_tournament,
+    translated_tournament_name,
 )
-from typedefs import anon_as_test_users_key, client_key
 from twitch import Twitch
+from typedefs import anon_as_test_users_key, client_key
 from user import User
-from users import Users, NotInDbUsers
+from users import NotInDbUsers, Users
 from utils import load_game_from_doc, send_bot_game_start_unless_streaming
+from variants import RATED_VARIANTS, VARIANTS
 from videos import VIDEOS
 from youtube import Youtube
+
 from lang import LOCALE
-import logging
-import sys
-from variants import VARIANTS, RATED_VARIANTS
-from puzzle import rename_puzzle_fields
-from push_notifications import PUSH_SUBSCRIPTION_COLLECTION, PushNotifier
-from startup_timer import StartupTimer
 
 log = logging.getLogger(__name__)
 
@@ -123,7 +125,7 @@ LOCALHOST_CACHE_KEEP_TIME = 1 if _is_test_run() else TOURNAMENT_KEEP_TIME
 
 
 class PychessGlobalAppState:
-    tourney_calendar: list["TournamentCalendarEvent"] | None
+    tourney_calendar: list[TournamentCalendarEvent] | None
 
     def __init__(self, app: web.Application):
         from typedefs import db_key
@@ -162,22 +164,22 @@ class PychessGlobalAppState:
 
             # lichess allows 7 team message per week, so we will send one (cumulative) per day only
             # TODO: save/restore from db
-            self.sent_lichess_team_msg: List[date] = []
+            self.sent_lichess_team_msg: list[date] = []
 
             self.seeks: dict[str, Seek] = {}
             self.auto_pairing_users: dict[User, tuple[int, int]] = {}
             self.auto_pairings: dict[tuple[str, bool, int, int, int], set[User]] = {}
             self.games: dict[str, Game | GameBug] = {}
             self.invites: dict[str, Seek] = {}
-            self.game_channels: Set[asyncio.Queue[str]] = set()
-            self.invite_channels: dict[str, Set[asyncio.Queue[str]]] = {}
+            self.game_channels: set[asyncio.Queue[str]] = set()
+            self.invite_channels: dict[str, set[asyncio.Queue[str]]] = {}
             # Signalled by subscribe_invites() as soon as the SSE channel for a
             # given gameId is ready. challenge_accept/decline wait on this instead
             # of busy-polling invite_channels.
             self.invite_events: dict[str, asyncio.Event] = {}
             self.highscore = {variant: ValueSortedDict(neg) for variant in RATED_VARIANTS}
-            self.lobby_leaderboard: list["LobbyLeaderboardEntry"] = []
-            self.lobby_tournament_winners: list["TournamentWinnerEntry"] = []
+            self.lobby_leaderboard: list[LobbyLeaderboardEntry] = []
+            self.lobby_tournament_winners: list[TournamentWinnerEntry] = []
             self.shield = {}
             self.shield_owners = {}  # {variant: username, ...}
             self.daily_puzzle_ids = {}  # {date or date:category: puzzle._id, ...}
@@ -230,7 +232,7 @@ class PychessGlobalAppState:
             self.__start_gc_stats_logger()
 
         with startup.phase("start push notifier"):
-            self.started_at = datetime.now(timezone.utc)
+            self.started_at = datetime.now(UTC)
             self.push_notifier = PushNotifier(self)
             if self.push_notifier.enabled:
                 self.create_background_task(self.push_notifier.run(), name="push-notifier")
@@ -292,7 +294,7 @@ class PychessGlobalAppState:
                     {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
                 )
                 cursor.sort("startsAt", -1)
-                to_date = (datetime.now(timezone.utc) + timedelta(days=SCHEDULE_MAX_DAYS)).date()
+                to_date = (datetime.now(UTC) + timedelta(days=SCHEDULE_MAX_DAYS)).date()
                 async for doc in cursor:
                     if doc["status"] == T_STARTED or (
                         doc["status"] == T_CREATED and doc["startsAt"].date() <= to_date
@@ -503,7 +505,7 @@ class PychessGlobalAppState:
             # Correspondence games can be numerous and are not latency-critical during
             # Heroku restart recovery. Load live non-correspondence games before aiohttp
             # starts accepting traffic, then restore correspondence games in the background.
-            today = datetime.now(timezone.utc)
+            today = datetime.now(UTC)
             active_game_filter = {"r": "d", "$or": [{"s": -2}, {"s": -1}]}
 
             async def restore_active_game_doc(doc, *, corr: bool) -> bool:
@@ -1204,10 +1206,10 @@ class PychessGlobalAppState:
                 log.debug("%s cancelled" % taskname)
 
     def online_count(self):
-        return sum((1 for user in self.users.values() if user.online))
+        return sum(1 for user in self.users.values() if user.online)
 
     def auto_pairing_count(self):
-        return sum((1 for user in self.auto_pairing_users if user.ready_for_auto_pairing))
+        return sum(1 for user in self.auto_pairing_users if user.ready_for_auto_pairing)
 
     def __str__(self):
         return self.__stringify(str)
@@ -1223,4 +1225,4 @@ class PychessGlobalAppState:
             values.append(strfunc(value))
         clsname = type(self).__name__
         variabs = ", ".join(values)
-        return "{}({})".format(clsname, variabs)
+        return f"{clsname}({variabs})"

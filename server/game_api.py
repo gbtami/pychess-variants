@@ -1,27 +1,26 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import date, datetime, timedelta, timezone
+import logging
+from datetime import UTC, date, datetime, timedelta
 from typing import TYPE_CHECKING, TypedDict
 
 import aiohttp_session
+import pymongo
 from aiohttp import web
 from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp_sse import sse_response
-import pymongo
-from pymongo.errors import BulkWriteError, ExecutionTimeout
 from aiohttp_swagger3 import swagger_doc
-
 from compress import C2R, decode_move_standard
-from const import DARK_FEN, STARTED, MATE, INVALIDMOVE, VARIANTEND, CLAIM, SSE_GET_TIMEOUT, SWISS
+from const import CLAIM, DARK_FEN, INVALIDMOVE, MATE, SSE_GET_TIMEOUT, STARTED, SWISS, VARIANTEND
 from convert import zero2grand
+from json_utils import json_response
+from pychess_global_app_state_utils import get_app_state
+from pymongo.errors import BulkWriteError, ExecutionTimeout
 from settings import ADMINS
 from tournament.tournaments import get_tournament_name, load_tournament
 from utils import pgn
-from pychess_global_app_state_utils import get_app_state
-from json_utils import json_response
-import logging
-from variants import C2V, GRANDS, get_server_variant, VARIANTS
+from variants import C2V, GRANDS, VARIANTS, get_server_variant
 
 log = logging.getLogger(__name__)
 
@@ -152,7 +151,7 @@ async def variant_counts_aggregation(
 
     docs: list[VariantCountDoc] = []
 
-    cur_period = datetime.now(timezone.utc).isoformat()[:7].replace("-", "")
+    cur_period = datetime.now(UTC).isoformat()[:7].replace("-", "")
 
     async for doc in cursor:
         # print(doc)
@@ -564,7 +563,7 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
                     payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
                     await response.send(payload)
                     queue.task_done()
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     if not response.is_connected():
                         break
     except Exception:
@@ -590,7 +589,7 @@ async def subscribe_games(request: web.Request) -> web.StreamResponse:
                     payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
                     await response.send(payload)
                     queue.task_done()
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     if not response.is_connected():
                         break
     except Exception:
@@ -1011,11 +1010,11 @@ async def search_games(request: web.Request) -> web.StreamResponse:
     date_range: dict[str, datetime] = {}
     try:
         if query.get("from"):
-            date_range["$gte"] = datetime.fromisoformat(query["from"]).replace(tzinfo=timezone.utc)
+            date_range["$gte"] = datetime.fromisoformat(query["from"]).replace(tzinfo=UTC)
         if query.get("to"):
-            date_range["$lt"] = datetime.fromisoformat(query["to"]).replace(
-                tzinfo=timezone.utc
-            ) + timedelta(days=1)
+            date_range["$lt"] = datetime.fromisoformat(query["to"]).replace(tzinfo=UTC) + timedelta(
+                days=1
+            )
     except ValueError:
         return json_response({"error": "Invalid date."}, status=400)
     if date_range:

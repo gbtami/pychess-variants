@@ -1,9 +1,9 @@
 from __future__ import annotations
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
 
 from compress import R2C
-from const import MATE
-from const import TYPE_CHECKING
+from const import MATE, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -122,7 +122,7 @@ async def fix_first_minishogi_arena(app_state: PychessGlobalAppState):
     perfs = doc.get("perfs")
 
     la = "2021-07-17T16:07:59.405Z"
-    la = datetime.fromisoformat(la[:-1]).replace(tzinfo=timezone.utc)
+    la = datetime.fromisoformat(la[:-1]).replace(tzinfo=UTC)
     minishogi = {"la": la, "nb": 13, "gl": {"r": 1501 + 322, "d": 315, "v": 0.06}}
     perfs["minishogi"] = minishogi
     app_state.users["ubdip"].perfs = perfs
@@ -132,7 +132,7 @@ async def fix_first_minishogi_arena(app_state: PychessGlobalAppState):
     doc = await app_state.db.user.find_one({"_id": "Diwaditya"})
     perfs = doc.get("perfs")
     la = "2021-07-17T16:10:37.330Z"
-    la = datetime.fromisoformat(la[:-1]).replace(tzinfo=timezone.utc)
+    la = datetime.fromisoformat(la[:-1]).replace(tzinfo=UTC)
     minishogi = {"la": la, "nb": 35, "gl": {"r": 1367 - 209, "d": 252, "v": 0.06}}
     perfs["minishogi"] = minishogi
     app_state.users["Diwaditya"].perfs = perfs

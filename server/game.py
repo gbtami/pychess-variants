@@ -1,10 +1,13 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Callable, Literal, Mapping, Sequence, Set
+
 import asyncio
 import collections
 import hashlib
-from datetime import datetime, timezone, timedelta
+import logging
+from collections.abc import Callable, Mapping, Sequence
+from datetime import UTC, datetime, timedelta
 from time import monotonic
+from typing import TYPE_CHECKING, Literal
 
 from broadcast import round_broadcast
 from catalogued_variants import (
@@ -14,51 +17,50 @@ from catalogued_variants import (
 from clock import Clock, CorrClock
 from compress import R2C
 from const import (
-    CREATED,
-    DARK_FEN,
-    STARTED,
     ABORTED,
-    MATE,
-    STALEMATE,
-    DRAW,
-    FLAG,
+    CASUAL,
     CHEAT,
     CLAIM,
-    INVALIDMOVE,
-    VARIANT_960_TO_PGN,
-    LOSERS,
-    VARIANTEND,
-    CASUAL,
-    RATED,
-    IMPORTED,
+    CREATED,
+    DARK_FEN,
+    DRAW,
+    FLAG,
     HIGHSCORE_MIN_GAMES,
-    MAX_HIGHSCORE_ITEM_LIMIT,
+    IMPORTED,
+    INVALIDMOVE,
+    LOSERS,
+    MATE,
     MAX_CHAT_LINES,
+    MAX_HIGHSCORE_ITEM_LIMIT,
+    RATED,
+    STALEMATE,
+    STARTED,
+    VARIANT_960_TO_PGN,
+    VARIANTEND,
 )
-from convert import grand2zero, uci2usi, mirror5, mirror9
-from fairy import get_fog_fen, get_san_moves, modded_variant, NOTATION_SAN, FairyBoard, BLACK, WHITE
-from glicko2.glicko2 import gl2
+from convert import grand2zero, mirror5, mirror9, uci2usi
 from draw import reject_draw
+from fairy import BLACK, NOTATION_SAN, WHITE, FairyBoard, get_fog_fen, get_san_moves, modded_variant
+from glicko2.glicko2 import gl2
 from lobby_panels_cache import refresh_lobby_leaderboard_cache
 from rated_start import can_rate_start, can_rate_variant
 from settings import URI
 from spectators import spectators
-import logging
 from typing_defs import (
     AnalysisStep,
     ClockValues,
     Crosstable,
     GameBoardResponse,
     GameEndResponse,
-    GameSummaryJson,
     GameStep,
+    GameSummaryJson,
     TvGameJson,
 )
 from variants import (
-    CataloguedServerVariant,
-    get_server_variant,
     GRANDS,
+    CataloguedServerVariant,
     ServerVariants,
+    get_server_variant,
     is_catalogued_variant,
 )
 
@@ -113,11 +115,11 @@ def should_tolerate_historical_replay_failure(
         return False
 
     if game_date.tzinfo is None:
-        game_date = game_date.replace(tzinfo=timezone.utc)
+        game_date = game_date.replace(tzinfo=UTC)
 
-    reference_time = loaded_at if loaded_at is not None else datetime.now(timezone.utc)
+    reference_time = loaded_at if loaded_at is not None else datetime.now(UTC)
     if reference_time.tzinfo is None:
-        reference_time = reference_time.replace(tzinfo=timezone.utc)
+        reference_time = reference_time.replace(tzinfo=UTC)
 
     return (reference_time - game_date) >= HISTORICAL_REPLAY_GRACE_PERIOD
 
@@ -134,7 +136,7 @@ class Game:
         initial_fen: str,
         wplayer: User,
         bplayer: User,
-        base: int | float = 1,
+        base: float = 1,
         inc: int = 0,
         byoyomi_period: int = 0,
         level: int | None = 0,
@@ -257,16 +259,16 @@ class Game:
             self.ct_id = ""
             self.crosstable = ""
 
-        self.spectators: Set[User] = set()
-        self.draw_offers: Set[str] = set()
+        self.spectators: set[User] = set()
+        self.draw_offers: set[str] = set()
         # (username, ply) for an outstanding two-player takeback proposal.
         # The ply snapshot prevents accepting an offer after the position changed.
         self.takeback_offer: tuple[str, int] | None = None
-        self.rematch_offers: Set[str] = set()
+        self.rematch_offers: set[str] = set()
         self.rematch_id: str | None = None
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
 
-        self.date: datetime = datetime.now(timezone.utc)
+        self.date: datetime = datetime.now(UTC)
         self.loaded_at: datetime | None = None
         self.analysis: list[AnalysisStep] | None = None
 
@@ -655,7 +657,7 @@ class Game:
         written for games that can call ``pop_move_from_db`` and no matching
         clock ``$pop`` is required here.
         """
-        self.last_move_time = datetime.now(timezone.utc)
+        self.last_move_time = datetime.now(UTC)
         move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
 
         set_data: dict[str, object] = {
@@ -688,7 +690,7 @@ class Game:
 
     async def pop_move_from_db(self) -> None:
         if self.app_state.db is not None:
-            self.last_move_time = datetime.now(timezone.utc)
+            self.last_move_time = datetime.now(UTC)
             new_data = {"f": self.board.fen, "l": self.last_move_time}
             pop_data = {"m": 1}
             if self.byoyomi:
@@ -737,7 +739,7 @@ class Game:
         """Used by Janggi prelude phase"""
         new_data = {
             "f": self.board.fen,
-            "l": datetime.now(timezone.utc),
+            "l": datetime.now(UTC),
             "s": self.status,
             "if": self.board.fen,
             "ws": self.wsetup,
@@ -1681,7 +1683,7 @@ class Game:
                 base_mins if self.board.color == BLACK else clock_mins,
                 base_mins if self.board.color == WHITE else clock_mins,
             ]
-            date = (datetime.now(timezone.utc) + timedelta(minutes=self.stopwatch.mins)).isoformat()
+            date = (datetime.now(UTC) + timedelta(minutes=self.stopwatch.mins)).isoformat()
 
         response: GameBoardResponse = {
             "type": "board",

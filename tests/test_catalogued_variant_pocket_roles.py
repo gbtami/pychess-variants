@@ -7,7 +7,6 @@ from catalogued_variants import (
     catalogued_pocket_roles,
 )
 
-
 COURTHRONE_START_FEN = "qpbdkdbpq/9/v1v1v1v1v/9/9/9/V1V1V1V1V/9/QPBDKDBPQ[NNTTnntt] w - - 0 1"
 
 COURTHRONE_INI = f"""

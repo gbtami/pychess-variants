@@ -9,10 +9,12 @@ from py4swiss.trf.results import (
     ScoringPointSystem,
     ScoringPointSystemCode,
 )
-from tournament.tournament import ByeGame, SCORE_SHIFT, Tournament
+
+from tournament.tournament import SCORE_SHIFT, ByeGame, Tournament
 
 if TYPE_CHECKING:
     from game import Game
+
     from tournament.tournament import GameData, PlayerData
 
 
@@ -49,7 +51,7 @@ def _half_bye_points_times_ten(variant: str) -> int:
 
 
 def _unplayed_pairing_points_times_ten(token: str, variant: str) -> int:
-    win, draw, _ = _score_values_for_variant(variant)
+    win, _draw, _ = _score_values_for_variant(variant)
     if token in ("U", "F"):
         return win
     if token == "H":

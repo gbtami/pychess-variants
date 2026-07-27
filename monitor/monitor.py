@@ -1,17 +1,18 @@
-from datetime import datetime
-import os
 import logging
+import os
+from datetime import datetime
 from urllib.parse import urlparse
 
 import aiohttp
-from monitor.metrics_client import fetch_metrics, metrics_url, monitor_token
-
+from rich.text import Text
 from textual.app import App, ComposeResult
+from textual.containers import Horizontal, Vertical
 from textual.css.query import NoMatches
+from textual.reactive import reactive
 from textual.widgets import (
-    Header,
-    Footer,
     DataTable,
+    Footer,
+    Header,
     Label,
     Rule,
     Sparkline,
@@ -20,10 +21,8 @@ from textual.widgets import (
     TabbedContent,
     TabPane,
 )
-from textual.containers import Vertical, Horizontal
-from textual.reactive import reactive
-from rich.text import Text
 
+from monitor.metrics_client import fetch_metrics, metrics_url, monitor_token
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

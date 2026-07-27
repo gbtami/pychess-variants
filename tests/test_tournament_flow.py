@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
 import asyncio
 import json
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from const import FLAG, T_CREATED, T_FINISHED, T_STARTED
 from glicko2.glicko2 import new_default_perf_map
@@ -50,11 +48,11 @@ class TournamentFlowTestCase(TournamentTestCase):
             username=username,
             title=title,
             perfs=make_test_perfs(),
-            created_at=datetime.now(timezone.utc) - timedelta(days=account_age_days),
+            created_at=datetime.now(UTC) - timedelta(days=account_age_days),
         )
         user.perfs["chess"]["gl"]["r"] = rating
         user.perfs["chess"]["nb"] = rated_games
-        user.tournament_sockets[tournament.id] = set((None,))
+        user.tournament_sockets[tournament.id] = {None}
         app_state.users[user.username] = user
         return user
 
@@ -268,7 +266,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(NB_PLAYERS)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         self.assertEqual(self.tournament.status, T_STARTED)
         self.assertEqual(self.tournament.rounds, NB_PLAYERS)
@@ -380,7 +378,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             arrangement.black,
             "1500",
             "1-0",
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
             False,
             False,
         )
@@ -439,18 +437,16 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(4)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         self.tournament.current_round = 1
-        self.assertTrue(
-            await self.tournament.maybe_schedule_next_fixed_round(datetime.now(timezone.utc))
-        )
+        self.assertTrue(await self.tournament.maybe_schedule_next_fixed_round(datetime.now(UTC)))
         self.assertTrue(self.tournament.manual_next_round_pending)
         self.assertEqual(self.tournament.current_round, 1)
         self.assertEqual(len(self.tournament.ongoing_games), 0)
         self.assertTrue(self.tournament.live_status()["manualNextRound"])
 
-        self.assertTrue(await self.tournament.start_next_round_now(datetime.now(timezone.utc)))
+        self.assertTrue(await self.tournament.start_next_round_now(datetime.now(UTC)))
         self.assertFalse(self.tournament.manual_next_round_pending)
         self.assertEqual(self.tournament.current_round, 2)
         self.assertGreater(len(self.tournament.ongoing_games), 0)
@@ -463,7 +459,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(3)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         self.tournament.current_round = 1
         waiting_players = list(self.tournament.waiting_players())
@@ -518,7 +514,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             await self.tournament.join(user)
             players.append(user)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
 
         waiting_round_1 = list(self.tournament.waiting_players())
@@ -578,7 +574,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(4)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         for player in self.tournament.players:
             player.tournament_sockets[self.tournament.id] = set()
@@ -608,7 +604,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(len(self.tournament.players), 10)
 
         extra = User(app_state, username=f"{tid}_extra", perfs=make_test_perfs())
-        extra.tournament_sockets[self.tournament.id] = set((None,))
+        extra.tournament_sockets[self.tournament.id] = {None}
         app_state.users[extra.username] = extra
         self.assertEqual(await self.tournament.join(extra), "This round-robin tournament is full.")
 
@@ -627,7 +623,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
 
         await self.tournament.join_players(5)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.assertEqual(self.tournament.rounds, 5)
 
         tid_even = id8()
@@ -643,7 +639,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state.tournaments[tid_even] = even_tournament
 
         await even_tournament.join_players(4)
-        await even_tournament.start(datetime.now(timezone.utc))
+        await even_tournament.start(datetime.now(UTC))
         self.assertEqual(even_tournament.rounds, 3)
 
     async def test_rr_late_join_is_closed_after_start(self):
@@ -661,10 +657,10 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
 
         await self.tournament.join_players(4)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         late = User(app_state, username=f"{tid}_late", perfs=make_test_perfs())
-        late.tournament_sockets[self.tournament.id] = set((None,))
+        late.tournament_sockets[self.tournament.id] = {None}
         app_state.users[late.username] = late
 
         self.assertEqual(
@@ -695,7 +691,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         app_state.users[organizer.username] = organizer
 
         applicant = User(app_state, username=f"{tid}_pending", perfs=make_test_perfs())
-        applicant.tournament_sockets[self.tournament.id] = set((None,))
+        applicant.tournament_sockets[self.tournament.id] = {None}
         app_state.users[applicant.username] = applicant
 
         self.assertEqual(await self.tournament.join(applicant), "JOIN_REQUESTED")
@@ -760,11 +756,11 @@ class TournamentFlowTestCase(TournamentTestCase):
         for suffix in ("A", "B", "C"):
             user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
             users.append(user)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         arrangement = next(
             arr for arr in self.tournament.arrangement_list() if arr.involves(users[0].username)
@@ -801,7 +797,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         for suffix in ("A", "B", "C"):
             user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
             users.append(user)
 
@@ -821,7 +817,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         self.assertEqual(arrangement_before.status, "challenged")
         self.assertIsNotNone(arrangement_before.invite_id)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         arrangement_after = self.tournament.arrangement_by_id(arrangement_id)
         assert arrangement_after is not None
@@ -846,11 +842,11 @@ class TournamentFlowTestCase(TournamentTestCase):
         for suffix in ("A", "B", "C"):
             user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
             users.append(user)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         arrangement = next(
             arr for arr in self.tournament.arrangement_list() if arr.involves(users[0].username)
@@ -858,7 +854,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         white = next(user for user in users if user.username == arrangement.white)
         black = next(user for user in users if user.username == arrangement.black)
 
-        proposed = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(days=1)
+        proposed = datetime.now(UTC).replace(microsecond=0) + timedelta(days=1)
         self.assertIsNone(
             await self.tournament.set_arrangement_time(white, arrangement.id, proposed)
         )
@@ -888,11 +884,11 @@ class TournamentFlowTestCase(TournamentTestCase):
         for suffix in ("A", "B", "C"):
             user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
             users.append(user)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         arrangement = next(
             arr for arr in self.tournament.arrangement_list() if arr.involves(users[0].username)
@@ -900,7 +896,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         white = next(user for user in users if user.username == arrangement.white)
         black = next(user for user in users if user.username == arrangement.black)
 
-        proposed = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(days=2)
+        proposed = datetime.now(UTC).replace(microsecond=0) + timedelta(days=2)
         self.assertIsNone(
             await self.tournament.set_arrangement_time(white, arrangement.id, proposed)
         )
@@ -934,7 +930,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         for suffix in ("A", "B", "C"):
             user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
             users.append(user)
 
@@ -944,7 +940,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             for cell in row.values()
             if cell["id"] and cell["white"] == users[0].username
         )
-        proposed = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(days=3)
+        proposed = datetime.now(UTC).replace(microsecond=0) + timedelta(days=3)
         self.assertIsNone(
             await self.tournament.set_arrangement_time(users[0], arrangement_id, proposed)
         )
@@ -953,7 +949,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         assert arrangement_before is not None
         self.assertEqual(arrangement_before.white_date, proposed)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         arrangement_after = self.tournament.arrangement_by_id(arrangement_id)
         assert arrangement_after is not None
@@ -977,19 +973,19 @@ class TournamentFlowTestCase(TournamentTestCase):
         for suffix in ("A", "B", "C"):
             user = User(app_state, username=f"{tid}_{suffix}", perfs=make_test_perfs())
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
             users.append(user)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         arrangement = next(
             arr for arr in self.tournament.arrangement_list() if arr.involves(users[0].username)
         )
-        arrangement.scheduled_at = datetime.now(timezone.utc) + timedelta(hours=23, minutes=30)
-        arrangement.date = datetime.now(timezone.utc) - timedelta(hours=4)
+        arrangement.scheduled_at = datetime.now(UTC) + timedelta(hours=23, minutes=30)
+        arrangement.date = datetime.now(UTC) - timedelta(hours=4)
 
-        await self.tournament.send_arrangement_reminders(datetime.now(timezone.utc))
+        await self.tournament.send_arrangement_reminders(datetime.now(UTC))
 
         for user in (app_state.users[arrangement.white], app_state.users[arrangement.black]):
             self.assertIsNotNone(user.notifications)
@@ -1012,7 +1008,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             await self.tournament.join(user)
             players.append(user)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
 
         waiting_players = list(self.tournament.waiting_players())
@@ -1040,7 +1036,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         waiting_players = list(self.tournament.waiting_players())
         _, games = await self.tournament.create_new_pairings(waiting_players)
@@ -1065,7 +1061,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(4)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
 
         absent = list(self.tournament.players.keys())[0]
@@ -1136,7 +1132,7 @@ class TournamentFlowTestCase(TournamentTestCase):
 
         await self.tournament.join_players(2)
         player = list(self.tournament.players.keys())[0]
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         await self.tournament.withdraw(player)
 
@@ -1170,7 +1166,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             perfs=original_player.perfs,
         )
         app_state.users[username] = replacement
-        replacement.tournament_sockets[tid] = set((None,))
+        replacement.tournament_sockets[tid] = {None}
         app_state.tourneysockets[tid][username] = replacement.tournament_sockets[tid]
 
         self.assertEqual(len(self.tournament.waiting_players()), 1)
@@ -1206,7 +1202,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             replacement_black.username,
             str(self.tournament.players[black].rating),
             "1-0",
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
             False,
             False,
             wtitle=white.title,
@@ -1260,7 +1256,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             black.username,
             str(self.tournament.players[black].rating),
             "1-0",
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
             False,
             False,
             wtitle=white.title,
@@ -1320,7 +1316,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             black.username,
             str(black_data.rating),
             "1-0",
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
             False,
             False,
         )
@@ -1401,7 +1397,7 @@ class TournamentFlowTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         waiting_players = list(self.tournament.waiting_players())
         _, games = await self.tournament.create_new_pairings(waiting_players)
@@ -1448,7 +1444,7 @@ class TournamentFlowTestCase(TournamentTestCase):
             await self.tournament.join(user)
             players.append(user)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         arrangement = next(iter(self.tournament.arrangements.values()))
 
         seek_error = await self.tournament.create_arrangement_challenge(players[0], arrangement.id)

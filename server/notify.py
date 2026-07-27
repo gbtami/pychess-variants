@@ -1,6 +1,6 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from const import NOTIFY_PAGE_SIZE, NOTIFY_EXPIRE_WEEKS
+from const import NOTIFY_EXPIRE_WEEKS, NOTIFY_PAGE_SIZE
 from json_utils import json_dumps
 from newid import new_id
 from typing_defs import NotificationContent, NotificationDocument
@@ -12,7 +12,7 @@ async def _notification_document(
     db, username: str, notif_type: str, content: NotificationContent
 ) -> NotificationDocument:
     _id = await new_id(None if db is None else db.notify)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return {
         "_id": _id,
         "notifies": username,

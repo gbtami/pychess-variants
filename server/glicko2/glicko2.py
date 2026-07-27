@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 glicko2
 ~~~~~~~
@@ -10,14 +9,13 @@ The Glicko2 rating system.
 :license: BSD, see LICENSE for more details.
 """
 
-from collections.abc import Iterable, Mapping
-from typing import Any, Tuple, cast
 import math
 from calendar import timegm
-from datetime import datetime, timezone
+from collections.abc import Iterable, Mapping
+from datetime import UTC, datetime
+from typing import Any, cast
 
 from typing_defs import PerfEntry, PerfMap
-
 
 #: The actual score for win
 WIN = 1.0
@@ -40,7 +38,7 @@ PROVISIONAL_PHI = 110
 
 
 class Rating:
-    __slots__ = "mu", "phi", "sigma", "ltime"
+    __slots__ = "ltime", "mu", "phi", "sigma"
 
     def __init__(self, mu=MU, phi=PHI, sigma=SIGMA, ltime=None):
         self.mu = mu
@@ -49,7 +47,7 @@ class Rating:
         self.ltime = ltime
 
     @property
-    def rating_prov(self) -> Tuple[int, str]:
+    def rating_prov(self) -> tuple[int, str]:
         return (int(round(self.mu, 0)), "?" if self.phi > PROVISIONAL_PHI else "")
 
     def __repr__(self):
@@ -69,7 +67,7 @@ def pre_rating_RD(phi, sigma, ltime):
     # which is essentially arbitrary but calibrated so a typical player’s RD goes from 60 to 110 in a year.
 
     t = (
-        (timegm(datetime.now(timezone.utc).timetuple()) - timegm(ltime.timetuple()))
+        (timegm(datetime.now(UTC).timetuple()) - timegm(ltime.timetuple()))
         / (60.0 * 60 * 24)
         / 4.665
     )
@@ -80,7 +78,7 @@ def pre_rating_RD(phi, sigma, ltime):
 
 
 class Glicko2:
-    __slots__ = "mu", "phi", "sigma", "tau", "epsilon"
+    __slots__ = "epsilon", "mu", "phi", "sigma", "tau"
 
     def __init__(self, mu=MU, phi=PHI, sigma=SIGMA, tau=TAU, epsilon=EPSILON):
         self.mu = mu
@@ -97,7 +95,7 @@ class Glicko2:
         if sigma is None:
             sigma = self.sigma
         if ltime is None:
-            ltime = datetime.now(timezone.utc)
+            ltime = datetime.now(UTC)
         return Rating(mu, phi, sigma, ltime)
 
     def scale_down(self, rating, ratio=173.7178):
@@ -236,9 +234,9 @@ gl2 = Glicko2()
 def _perf_timestamp(raw: Any) -> datetime:
     if isinstance(raw, datetime):
         if raw.tzinfo is None:
-            return raw.replace(tzinfo=timezone.utc)
-        return raw.astimezone(timezone.utc)
-    return datetime.now(timezone.utc)
+            return raw.replace(tzinfo=UTC)
+        return raw.astimezone(UTC)
+    return datetime.now(UTC)
 
 
 def new_default_perf(ltime: datetime | None = None) -> PerfEntry:

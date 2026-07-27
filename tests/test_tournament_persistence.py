@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-
 import asyncio
 import gc
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, patch
 
 from aiohttp import web
-from const import BYEGAME, FLAG, RATED, SHIELD, TEST_PREFIX, T_FINISHED, T_STARTED
+from const import BYEGAME, FLAG, RATED, SHIELD, T_FINISHED, T_STARTED, TEST_PREFIX
 from fairy.cwda import CWDA_START_FENS
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
@@ -21,11 +19,11 @@ from tournament.auto_play_tournament import (
     SwissTestTournament,
 )
 from tournament.tournament import (
+    SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
     ByeGame,
     GameData,
     PairingUnavailable,
     PlayerData,
-    SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
     Tournament,
     upsert_tournament_to_db,
 )
@@ -200,7 +198,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
 
     async def test_rejects_past_custom_start_date(self):
         app_state = get_app_state(self.app)
-        past_start = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat()
+        past_start = (datetime.now(UTC) - timedelta(minutes=5)).isoformat()
         form = {
             "variant": "chess",
             "rated": "1",
@@ -267,7 +265,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             "entryTitledOnly": "",
             "forbiddenPairings": "",
             "manualPairings": "",
-            "startDate": (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat(),
+            "startDate": (datetime.now(UTC) + timedelta(minutes=30)).isoformat(),
             "endDate": "",
             "name": tournament.name,
             "description": tournament.description,
@@ -457,7 +455,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
     async def test_form_end_date_updates_start_and_minutes(self):
         app_state = get_app_state(self.app)
         before_ids = set(app_state.tournaments)
-        start_at = (datetime.now(timezone.utc) + timedelta(days=1)).replace(second=0, microsecond=0)
+        start_at = (datetime.now(UTC) + timedelta(days=1)).replace(second=0, microsecond=0)
         end_at = start_at + timedelta(minutes=77)
         form = {
             "variant": "chess",
@@ -499,7 +497,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
     async def test_swiss_form_ignores_custom_end_date(self):
         app_state = get_app_state(self.app)
         tid = id8()
-        start_at = (datetime.now(timezone.utc) + timedelta(days=1)).replace(second=0, microsecond=0)
+        start_at = (datetime.now(UTC) + timedelta(days=1)).replace(second=0, microsecond=0)
         tournament = SwissTestTournament(
             app_state,
             tid,
@@ -550,7 +548,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
     async def test_arena_form_ignores_custom_end_date(self):
         app_state = get_app_state(self.app)
         before_ids = set(app_state.tournaments)
-        start_at = (datetime.now(timezone.utc) + timedelta(days=1)).replace(second=0, microsecond=0)
+        start_at = (datetime.now(UTC) + timedelta(days=1)).replace(second=0, microsecond=0)
         form = {
             "variant": "chess",
             "rated": "1",
@@ -597,7 +595,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         app_state.tournaments[tid] = self.tournament
         await upsert_tournament_to_db(self.tournament, app_state)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         await self.tournament.join_players(4)
 
         insert_started = asyncio.Event()
@@ -685,7 +683,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
 
         waiting_round_1 = list(self.tournament.waiting_players())
@@ -707,7 +705,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
             "create_new_pairings",
             side_effect=_raise_pairing_unavailable,
         ):
-            should_continue = await self.tournament.pair_fixed_round(datetime.now(timezone.utc))
+            should_continue = await self.tournament.pair_fixed_round(datetime.now(UTC))
 
         self.assertFalse(should_continue)
 
@@ -739,7 +737,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(4)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         doc = await app_state.db.tournament.find_one({"_id": tid})
         self.assertIsNotNone(doc)
         assert doc is not None
@@ -774,7 +772,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         self.assertEqual(self.tournament.rounds, 1)
         self.assertEqual(len(self.tournament.arrangements), 1)
@@ -794,7 +792,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         await self.tournament.finish()
 
         self.assertNotIn(tid, app_state.tournaments)
@@ -819,7 +817,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(4)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         arrangement = self.tournament.arrangement_list()[0]
         game = await self.tournament.start_arrangement_game(arrangement.id)
         self.assertEqual(game.tournamentArrangementId, arrangement.id)
@@ -852,7 +850,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(4)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         arrangement = self.tournament.arrangement_list()[0]
         game = await self.tournament.start_arrangement_game(arrangement.id)
 
@@ -887,7 +885,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         waiting_players = list(self.tournament.waiting_players())
         _, games = await self.tournament.create_new_pairings(waiting_players)
         game = games[0]
@@ -927,12 +925,12 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         )
         app_state.users[player_a.username] = player_a
         app_state.users[player_b.username] = player_b
-        player_a.tournament_sockets[tid] = set((None,))
-        player_b.tournament_sockets[tid] = set((None,))
+        player_a.tournament_sockets[tid] = {None}
+        player_b.tournament_sockets[tid] = {None}
 
         await self.tournament.join(player_a)
         await self.tournament.join(player_b)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         waiting_players = list(self.tournament.waiting_players())
         _, games = await self.tournament.create_new_pairings(waiting_players)
@@ -983,12 +981,12 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         )
         app_state.users[player_a.username] = player_a
         app_state.users[player_b.username] = player_b
-        player_a.tournament_sockets[tid] = set((None,))
-        player_b.tournament_sockets[tid] = set((None,))
+        player_a.tournament_sockets[tid] = {None}
+        player_b.tournament_sockets[tid] = {None}
 
         await self.tournament.join(player_a)
         await self.tournament.join(player_b)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         waiting_players = list(self.tournament.waiting_players())
         _, games = await self.tournament.create_new_pairings(waiting_players)
@@ -1035,7 +1033,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
         await self.tournament.set_pairing_in_progress_round(1)
 
@@ -1082,7 +1080,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(4)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
         await self.tournament.set_pairing_in_progress_round(1)
 
@@ -1132,7 +1130,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
         await self.tournament.set_pairing_in_progress_round(1)
 
@@ -1252,12 +1250,12 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         )
         app_state.users[player_a.username] = player_a
         app_state.users[player_b.username] = player_b
-        player_a.tournament_sockets[tid] = set((None,))
-        player_b.tournament_sockets[tid] = set((None,))
+        player_a.tournament_sockets[tid] = {None}
+        player_b.tournament_sockets[tid] = {None}
 
         await self.tournament.join(player_a)
         await self.tournament.join(player_b)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         waiting_players = list(self.tournament.waiting_players())
         _, games = await self.tournament.create_new_pairings(waiting_players)
@@ -1333,7 +1331,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(3)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
         await self.tournament.save_current_round()
 
@@ -1356,7 +1354,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(3)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
         await self.tournament.save_current_round()
 
@@ -1398,7 +1396,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
         await self.tournament.save_current_round()
 
@@ -1442,7 +1440,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         await upsert_tournament_to_db(self.tournament, app_state)
 
         await self.tournament.join_players(4)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
         await self.tournament.save_current_round()
 
@@ -1503,11 +1501,11 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 return None
 
         dummy_ws = _DummyWs()
-        winner.tournament_sockets[tid] = set((dummy_ws,))
-        missing.tournament_sockets[tid] = set((dummy_ws,))
+        winner.tournament_sockets[tid] = {dummy_ws}
+        missing.tournament_sockets[tid] = {dummy_ws}
         app_state.tourneysockets[tid][winner.username] = winner.tournament_sockets[tid]
         app_state.tourneysockets[tid][missing.username] = missing.tournament_sockets[tid]
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         waiting_players = list(self.tournament.waiting_players())
         _, games = await self.tournament.create_new_pairings(waiting_players)
@@ -1580,11 +1578,11 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 return None
 
         dummy_ws = _DummyWs()
-        winner.tournament_sockets[tid] = set((dummy_ws,))
-        deleted.tournament_sockets[tid] = set((dummy_ws,))
+        winner.tournament_sockets[tid] = {dummy_ws}
+        deleted.tournament_sockets[tid] = {dummy_ws}
         app_state.tourneysockets[tid][winner.username] = winner.tournament_sockets[tid]
         app_state.tourneysockets[tid][deleted.username] = deleted.tournament_sockets[tid]
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         waiting_players = list(self.tournament.waiting_players())
         _, games = await self.tournament.create_new_pairings(waiting_players)
@@ -1642,7 +1640,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         paused_player = players[-2]
 
         await self.tournament.withdraw(withdrawn_player)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         await self.tournament.pause(paused_player)
 
         waiting_players = list(self.tournament.waiting_players())
@@ -1693,7 +1691,7 @@ class TournamentPersistenceTestCase(TournamentTestCase):
 
         dummy_ws = _DummyWs()
         for player in reloaded_tournament.players:
-            player.tournament_sockets[tid] = set((dummy_ws,))
+            player.tournament_sockets[tid] = {dummy_ws}
             reloaded_tournament.app_state.tourneysockets[tid][player.username] = (
                 player.tournament_sockets[tid]
             )

@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from typing import cast
 
@@ -28,7 +28,7 @@ def make_user(
 
 class LobbyChatEligibilityTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        self.now = datetime(2026, 7, 15, 12, 0, tzinfo=timezone.utc)
+        self.now = datetime(2026, 7, 15, 12, 0, tzinfo=UTC)
 
     def test_account_at_all_thresholds_is_eligible(self) -> None:
         user = make_user(

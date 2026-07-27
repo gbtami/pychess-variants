@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass
-from datetime import datetime, timezone
 import logging
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from const import MAX_CHAT_LINES
-from const import STARTED, T_CREATED, T_FINISHED, T_STARTED, TStatus
+from const import MAX_CHAT_LINES, STARTED, T_CREATED, T_FINISHED, T_STARTED, TStatus
 from game import Game
-from simul.simul import Simul
 from typing_defs import SimulDoc, SimulUpdateData
 from user import User
 from utils import load_game
 from ws_types import ChatLine
+
+from simul.simul import Simul
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -198,7 +198,7 @@ async def load_simul(
         entry_min_account_age_days=_parse_int(doc.get("entryMinAccountAgeDays"), 0),
         entry_titled_only=False,
     )
-    simul.created_at = _as_datetime(doc.get("createdAt")) or datetime.now(timezone.utc)
+    simul.created_at = _as_datetime(doc.get("createdAt")) or datetime.now(UTC)
     simul.starts_at = _as_datetime(doc.get("startsAt"))
     simul.ends_at = _as_datetime(doc.get("endsAt"))
     simul.status = _parse_status(doc.get("status"))
@@ -257,7 +257,7 @@ async def load_simul(
     if simul.status == T_STARTED and len(simul.ongoing_games) == 0 and len(simul.games) > 0:
         simul.status = T_FINISHED
         if simul.ends_at is None:
-            simul.ends_at = datetime.now(timezone.utc)
+            simul.ends_at = datetime.now(UTC)
         await upsert_simul_to_db(simul, app_state)
 
     if simul.status == T_STARTED and len(simul.ongoing_games) > 0:

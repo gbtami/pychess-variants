@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from const import (
@@ -19,7 +19,7 @@ def lobby_chat_eligible(user: User, *, now: datetime | None = None) -> bool:
     if user.anon:
         return False
 
-    current_time = datetime.now(timezone.utc) if now is None else now
+    current_time = datetime.now(UTC) if now is None else now
     if current_time - user.created_at < LOBBY_CHAT_MIN_ACCOUNT_AGE:
         return False
 

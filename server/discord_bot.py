@@ -1,14 +1,12 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-
 
 import logging
 from time import time
+from typing import TYPE_CHECKING
 
 import discord
-from discord.ext.commands import Bot
-
 from const import CATEGORIES
+from discord.ext.commands import Bot
 
 if TYPE_CHECKING:
     from discord import Guild, Message, Role

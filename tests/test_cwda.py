@@ -5,7 +5,6 @@ from types import SimpleNamespace
 
 import fishnet
 import pyffish as sf
-
 from fairy.cwda import (
     CWDA_DEFAULT_FEN,
     CWDA_START_FENS,

@@ -3,7 +3,6 @@ from __future__ import annotations
 import unittest
 
 from aiohttp import web
-
 from catalogued_variants import _client_doc, parse_catalogued_piece_names
 
 

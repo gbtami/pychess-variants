@@ -1,4 +1,4 @@
-def time_control_str(base: int | float, inc: int, byo: int, day: int | float = 0) -> str:
+def time_control_str(base: float, inc: int, byo: int, day: float = 0) -> str:
     if day > 0:
         return f"{day} day" if day == 1 else f"{day} days"
 

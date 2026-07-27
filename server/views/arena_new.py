@@ -1,14 +1,14 @@
 import aiohttp_jinja2
 from aiohttp import web
-
+from catalogued_variants import public_catalogued_variants_for_forms
 from pychess_global_app_state import PychessGlobalAppState
 from settings import ADMINS
 from tournament_director import is_tournament_director
 from typedefs import pychess_global_app_state_key as app_state_key
 from typing_defs import ViewContext
-from views import get_user_context
-from catalogued_variants import public_catalogued_variants_for_forms
 from variants import VARIANTS
+
+from views import get_user_context
 
 
 @aiohttp_jinja2.template("arena-new.html")

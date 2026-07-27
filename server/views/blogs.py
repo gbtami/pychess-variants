@@ -1,8 +1,8 @@
 import aiohttp_jinja2
 from aiohttp import web
-
-from utils import get_blogs
 from typing_defs import ViewContext
+from utils import get_blogs
+
 from views import get_user_context
 
 

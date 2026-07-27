@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from const import TEST_PREFIX
 import settings
+from const import TEST_PREFIX
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

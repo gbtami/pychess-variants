@@ -1,14 +1,14 @@
-from datetime import datetime, timezone
 import json
 import time
 import unittest
+from datetime import UTC, datetime
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
-
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from user import User
+
+from server import make_app
 
 
 class UserMiniJoinedAtTestCase(AioHTTPTestCase):
@@ -23,7 +23,7 @@ class UserMiniJoinedAtTestCase(AioHTTPTestCase):
             [
                 # Missing createdAt uses the internal MINYEAR sentinel path.
                 {"_id": "legacy-user"},
-                {"_id": "recent-user", "createdAt": datetime(2024, 4, 20, tzinfo=timezone.utc)},
+                {"_id": "recent-user", "createdAt": datetime(2024, 4, 20, tzinfo=UTC)},
             ]
         )
 

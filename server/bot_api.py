@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 import asyncio
-from typing import Any, Awaitable, Callable, TYPE_CHECKING, TypeAlias, cast
+import logging
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING, Any, TypeAlias, cast
 
 from aiohttp import web
-
 from bot_accounts import (
     BOT_TOKEN_SCOPE,
     BOT_TOKEN_TEST_EXPIRES_MS,
@@ -11,17 +13,16 @@ from bot_accounts import (
     upgrade_user_to_bot_account,
 )
 from broadcast import round_broadcast
-from const import STARTED, RESIGN
+from const import RESIGN, STARTED
 from game import Game
 from json_utils import json_dumps, json_response
-from settings import BOT_TOKENS
-from user import User
-from utils import load_game, new_game, play_move, send_bot_game_start_unless_streaming
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data, read_text_data
 from seek import BOT_CHALLENGE_DECLINED, resolve_decline_reason
+from settings import BOT_TOKENS
 from typing_defs import UserDocument
-import logging
+from user import User
+from utils import load_game, new_game, play_move, send_bot_game_start_unless_streaming
 
 log = logging.getLogger(__name__)
 Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]

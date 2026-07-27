@@ -12,12 +12,15 @@ import asyncio
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import aiohttp_session
 from aiohttp import web
+from json_utils import json_response
+from pychess_global_app_state_utils import get_app_state
+from settings import PUSH_VAPID_PRIVATE_KEY, PUSH_VAPID_PUBLIC_KEY, PUSH_VAPID_SUBJECT
 from tenacity import (
     AsyncRetrying,
     before_sleep_log,
@@ -26,18 +29,14 @@ from tenacity import (
     wait_exponential_jitter,
 )
 
-from json_utils import json_response
-from pychess_global_app_state_utils import get_app_state
-from settings import PUSH_VAPID_PRIVATE_KEY, PUSH_VAPID_PUBLIC_KEY, PUSH_VAPID_SUBJECT
-
 if TYPE_CHECKING:
     from user import User
 
 log = logging.getLogger(__name__)
 
 try:
-    from pywebpush import WebPushException, webpush
     from py_vapid import Vapid
+    from pywebpush import WebPushException, webpush
 except ImportError:  # pragma: no cover - covered via config fallback in runtime
     WebPushException = Exception  # type: ignore[assignment]
     webpush = None
@@ -405,7 +404,7 @@ async def push_subscribe(request: web.Request) -> web.StreamResponse:
         log.warning("Push subscribe rejected for %s: missing keys.p256dh", user.username)
         return json_response({"error": "Missing keys.p256dh."}, status=400)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     await app_state.db[PUSH_SUBSCRIPTION_COLLECTION].update_one(
         {
             "user": user.username,

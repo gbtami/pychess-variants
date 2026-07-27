@@ -3,7 +3,6 @@ from typing import cast
 from unittest.mock import AsyncMock, patch
 
 from aiohttp.web_ws import WebSocketResponse
-
 from websocket_utils import (
     _ws_json_loads,
     ws_send_json,

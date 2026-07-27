@@ -1,16 +1,16 @@
 import aiohttp_jinja2
 from aiohttp import web
-
 from json_utils import json_dumps
 from puzzle import (
+    default_puzzle_perf,
+    get_daily_puzzle,
     get_puzzle,
     next_puzzle,
-    get_daily_puzzle,
-    default_puzzle_perf,
 )
 from typing_defs import ViewContext
-from views import get_user_context
 from variants import VARIANTS
+
+from views import get_user_context
 
 
 @aiohttp_jinja2.template("analysis.html")

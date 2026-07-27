@@ -1,16 +1,24 @@
 import asyncio
+import contextvars
 import logging
 import logging.config
-import contextvars
-from copy import deepcopy
-from typing import Any
 import traceback
+from copy import deepcopy
+from typing import Any, cast
 
 import msgspec
 from settings import DEV
 
 log = logging.getLogger(__name__)
 _STRUCTURED_LOG_JSON_ENCODER = msgspec.json.Encoder()
+
+
+class PychessLogRecord(logging.LogRecord):
+    name_lineno: str
+    gameId: str
+    username: str
+    json: str
+
 
 ############################################################################################
 ###################################### NOTE!!! #############################################
@@ -192,12 +200,12 @@ class AddPychessContextFilter(logging.Filter):
         if record.levelname == "WARNING":
             record.levelname = "WARN"
         # I want to pad level together with brackets in the log formatter:
-        setattr(record, "levelname_brackets", "[{}]".format(record.levelname))
+        record.levelname_brackets = f"[{record.levelname}]"
         # I want to pad name+lineno together in the log formatter:
-        setattr(record, "name_lineno", record.name + ":" + str(record.lineno))
+        record.name_lineno = record.name + ":" + str(record.lineno)
         # pychess context specific values:
-        setattr(record, "username", context_dict.get("username", "none-user"))
-        setattr(record, "gameId", context_dict.get("gameId", "none-game"))
+        record.username = context_dict.get("username", "none-user")
+        record.gameId = context_dict.get("gameId", "none-game")
 
         return True
 
@@ -238,38 +246,29 @@ class AddJsonStructuredLogRecordInContextFilter(logging.Filter):
         super().__init__()
 
     def filter(self, record: logging.LogRecord):
+        pychess_record = cast(PychessLogRecord, record)
         try:
-            setattr(
-                record,
-                "json",
-                _STRUCTURED_LOG_JSON_ENCODER.encode(
-                    {
-                        "level": record.levelname,
-                        "message": record.getMessage(),
-                        "name_lineno": getattr(record, "name_lineno"),
-                        "stack_info": record.stack_info,
-                        "gameId": getattr(record, "gameId"),
-                        "username": getattr(record, "username"),
-                        "exc_info": (
-                            "".join(
-                                traceback.format_exception(
-                                    record.exc_info[0],
-                                    record.exc_info[1],
-                                    record.exc_info[2],
-                                )
-                            )
-                            if record.exc_info is not None
-                            else None
-                        ),
-                    }
-                ).decode("utf-8"),
-            )
+            pychess_record.json = _STRUCTURED_LOG_JSON_ENCODER.encode(
+                {
+                    "level": record.levelname,
+                    "message": record.getMessage(),
+                    "name_lineno": pychess_record.name_lineno,
+                    "stack_info": record.stack_info,
+                    "gameId": pychess_record.gameId,
+                    "username": pychess_record.username,
+                    "exc_info": "".join(
+                        traceback.format_exception(
+                            record.exc_info[0], record.exc_info[1], record.exc_info[2]
+                        )
+                    )
+                    if record.exc_info is not None
+                    else None,
+                }
+            ).decode("utf-8")
         except Exception as e:
             print(e)
-            setattr(
-                record,
-                "json",
-                "error constructing json structured log record. See stdout for traceback.",
+            pychess_record.json = (
+                "error constructing json structured log record. See stdout for traceback."
             )
         return True
 

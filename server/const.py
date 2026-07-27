@@ -1,11 +1,12 @@
 from __future__ import annotations
-from datetime import timedelta
-from enum import global_enum, IntEnum, StrEnum
+
 import re
+from datetime import timedelta
+from enum import IntEnum, StrEnum, global_enum
 from typing import TypeAlias
 
 from settings import static_url
-from variants import CataloguedServerVariant, ServerVariants, VARIANTS, get_server_variant
+from variants import VARIANTS, CataloguedServerVariant, ServerVariants, get_server_variant
 
 POCKET_PATTERN = re.compile("\\[(.*)\\]")
 

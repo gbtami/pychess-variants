@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock
 
 from aiohttp import web
 from aiohttp.client_exceptions import ClientConnectionResetError
-
 from request_utils import read_json_data, read_post_data, read_text_data, safe_log_value
 
 

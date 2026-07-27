@@ -19,22 +19,21 @@ https://help.heroku.com/WEJQH08E/is-is-possible-to-increase-the-file-descriptor-
 
 import argparse
 import asyncio
-import json
-import random
-import pstats
 import cProfile
+import json
+import pstats
+import random
 import re
 from collections import Counter, defaultdict, deque
-import aiohttp
 from itertools import cycle
 from time import monotonic
 from urllib.parse import urlsplit, urlunsplit
 
-import test_logger
+import aiohttp
 import pyffish as sf
-
-from websocket_utils import ws_send_json
+import test_logger
 from settings import URI
+from websocket_utils import ws_send_json
 
 test_logger.init_test_logger()
 
@@ -914,7 +913,7 @@ class TestUser:
                                         wsl.receive(),
                                         timeout=DEFAULT_LOBBY_RECV_TIMEOUT_SECS,
                                     )
-                                except asyncio.TimeoutError:
+                                except TimeoutError:
                                     now = loop_time()
                                     await self._prune_stale_pending_challenges()
                                     last_challenge_sent = await maybe_send_challenge(now)
@@ -1094,7 +1093,7 @@ class TestUser:
                                     wsr.receive(),
                                     timeout=DEFAULT_ROUND_RECV_TIMEOUT_SECS,
                                 )
-                            except asyncio.TimeoutError:
+                            except TimeoutError:
                                 round_idle_cycles += 1
                                 if round_idle_cycles >= DEFAULT_ROUND_MAX_IDLE_CYCLES:
                                     reconnect_needed = True
@@ -1299,11 +1298,10 @@ async def _fetch_spectator_page(
 ) -> None:
     try:
         if semaphore is not None:
-            async with semaphore:
-                async with session.get(url) as resp:
-                    print(resp.status)
-                    text = await resp.text()
-                    print(text[:80])
+            async with semaphore, session.get(url) as resp:
+                print(resp.status)
+                text = await resp.text()
+                print(text[:80])
             return
         async with session.get(url) as resp:
             print(resp.status)

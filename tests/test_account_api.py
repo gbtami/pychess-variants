@@ -1,18 +1,18 @@
+import hashlib
 import json
 import time
-import hashlib
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
-
 from bot_accounts import BOT_TOKEN_SCOPE, create_bot_token
 from forum.constants import ERASED_POST_TEXT, ERASED_POST_USER
+from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from user import User
+
+from server import make_app
 
 
 class AccountApiTestCase(AioHTTPTestCase):
@@ -167,7 +167,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "enabled": True,
                 "oauth_id": "alice-oauth",
                 "oauth_provider": "lichess",
-                "createdAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
                 "perfs": {},
                 "pperfs": {},
                 "count": {"game": 0, "win": 0, "loss": 0, "draw": 0, "rated": 0},
@@ -180,7 +180,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "from": "alice",
                 "to": "bob",
                 "text": "hello",
-                "createdAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
             }
         )
         await app_state.db.inbox_msg.insert_one(
@@ -190,7 +190,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "from": "carol",
                 "to": "alice",
                 "text": "secret from carol",
-                "createdAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
             }
         )
         await app_state.db.forum_post.insert_one(
@@ -200,7 +200,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "categId": "general",
                 "user": "alice",
                 "text": "alice forum post",
-                "createdAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
                 "updatedAt": None,
                 "editCount": 0,
             }
@@ -222,8 +222,8 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "sticky": False,
                 "views": 0,
                 "likes": [],
-                "createdAt": datetime.now(timezone.utc),
-                "updatedAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
+                "updatedAt": datetime.now(UTC),
                 "publishedAt": None,
             }
         )
@@ -234,8 +234,8 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "endpoint": "https://push.example.test/sub",
                 "auth": "auth-token",
                 "p256dh": "p256dh-token",
-                "createdAt": datetime.now(timezone.utc),
-                "seenAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
+                "seenAt": datetime.now(UTC),
             }
         )
         await app_state.db.user_report.insert_one(
@@ -245,7 +245,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "suspect": "bob",
                 "reason": "abuse",
                 "text": "alice report text",
-                "createdAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
                 "status": "open",
             }
         )
@@ -256,7 +256,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "suspect": "alice",
                 "reason": "spam",
                 "text": "report about alice",
-                "createdAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
                 "status": "open",
             }
         )
@@ -314,7 +314,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "_id": "alice",
                 "username_lower": "alice",
                 "enabled": True,
-                "reopenedAt": datetime.now(timezone.utc),
+                "reopenedAt": datetime.now(UTC),
             }
         )
 
@@ -348,7 +348,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "perfs": {
                     "chess": {
                         "gl": {"r": 1500, "d": 350, "v": 0.06},
-                        "la": datetime.now(timezone.utc),
+                        "la": datetime.now(UTC),
                         "nb": 1,
                     }
                 },
@@ -367,11 +367,11 @@ class AccountApiTestCase(AioHTTPTestCase):
                     "slug": "alice-topic",
                     "name": "Alice topic",
                     "user": "alice",
-                    "createdAt": datetime.now(timezone.utc),
-                    "updatedAt": datetime.now(timezone.utc),
+                    "createdAt": datetime.now(UTC),
+                    "updatedAt": datetime.now(UTC),
                     "nbPosts": 1,
                     "lastPostId": "post1",
-                    "lastPostAt": datetime.now(timezone.utc),
+                    "lastPostAt": datetime.now(UTC),
                     "lastPostUser": "alice",
                     "closed": False,
                     "sticky": False,
@@ -382,11 +382,11 @@ class AccountApiTestCase(AioHTTPTestCase):
                     "slug": "bob-topic",
                     "name": "Bob topic",
                     "user": "bob",
-                    "createdAt": datetime.now(timezone.utc),
-                    "updatedAt": datetime.now(timezone.utc),
+                    "createdAt": datetime.now(UTC),
+                    "updatedAt": datetime.now(UTC),
                     "nbPosts": 1,
                     "lastPostId": "post2",
-                    "lastPostAt": datetime.now(timezone.utc),
+                    "lastPostAt": datetime.now(UTC),
                     "lastPostUser": "bob",
                     "closed": False,
                     "sticky": False,
@@ -401,8 +401,8 @@ class AccountApiTestCase(AioHTTPTestCase):
                     "categId": "general-chess-discussion",
                     "user": "alice",
                     "text": "Alice forum text",
-                    "createdAt": datetime.now(timezone.utc),
-                    "updatedAt": datetime.now(timezone.utc),
+                    "createdAt": datetime.now(UTC),
+                    "updatedAt": datetime.now(UTC),
                     "editCount": 1,
                 },
                 {
@@ -411,7 +411,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                     "categId": "general-chess-discussion",
                     "user": "bob",
                     "text": "Bob forum text",
-                    "createdAt": datetime.now(timezone.utc),
+                    "createdAt": datetime.now(UTC),
                     "updatedAt": None,
                     "editCount": 0,
                     "reactions": {"plusOne": ["alice", "carol"]},
@@ -436,9 +436,9 @@ class AccountApiTestCase(AioHTTPTestCase):
                     "sticky": False,
                     "views": 0,
                     "likes": ["bob"],
-                    "createdAt": datetime.now(timezone.utc),
-                    "updatedAt": datetime.now(timezone.utc),
-                    "publishedAt": datetime.now(timezone.utc),
+                    "createdAt": datetime.now(UTC),
+                    "updatedAt": datetime.now(UTC),
+                    "publishedAt": datetime.now(UTC),
                 },
                 {
                     "_id": "blog2",
@@ -456,9 +456,9 @@ class AccountApiTestCase(AioHTTPTestCase):
                     "sticky": False,
                     "views": 0,
                     "likes": ["alice", "carol"],
-                    "createdAt": datetime.now(timezone.utc),
-                    "updatedAt": datetime.now(timezone.utc),
-                    "publishedAt": datetime.now(timezone.utc),
+                    "createdAt": datetime.now(UTC),
+                    "updatedAt": datetime.now(UTC),
+                    "publishedAt": datetime.now(UTC),
                 },
             ]
         )
@@ -469,8 +469,8 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "endpoint": "https://push.example.test/sub",
                 "auth": "auth-token",
                 "p256dh": "p256dh-token",
-                "createdAt": datetime.now(timezone.utc),
-                "seenAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
+                "seenAt": datetime.now(UTC),
             }
         )
         await app_state.db.account_reopen_token.insert_one(
@@ -478,8 +478,8 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "_id": "reopen1",
                 "username": "alice",
                 "tokenHash": self.reopen_token_hash("delete-token"),
-                "createdAt": datetime.now(timezone.utc),
-                "expiresAt": datetime.now(timezone.utc) + timedelta(minutes=20),
+                "createdAt": datetime.now(UTC),
+                "expiresAt": datetime.now(UTC) + timedelta(minutes=20),
             }
         )
         await app_state.db.notify.insert_one(
@@ -488,8 +488,8 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "notifies": "alice",
                 "type": "forumMention",
                 "read": False,
-                "createdAt": datetime.now(timezone.utc),
-                "expireAt": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat(),
+                "createdAt": datetime.now(UTC),
+                "expireAt": (datetime.now(UTC) + timedelta(days=30)).isoformat(),
                 "content": {"id": "post2", "opp": "bob"},
             }
         )
@@ -500,7 +500,7 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "from": "alice",
                 "to": "bob",
                 "text": "private text",
-                "createdAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
             }
         )
         await app_state.db.seek.insert_one(
@@ -718,8 +718,8 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "_id": "tok1",
                 "username": "alice",
                 "tokenHash": self.reopen_token_hash(raw_token),
-                "createdAt": datetime.now(timezone.utc),
-                "expiresAt": datetime.now(timezone.utc) + timedelta(minutes=20),
+                "createdAt": datetime.now(UTC),
+                "expiresAt": datetime.now(UTC) + timedelta(minutes=20),
             }
         )
 
@@ -759,8 +759,8 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "_id": "tok-expired",
                 "username": "alice",
                 "tokenHash": self.reopen_token_hash(raw_token),
-                "createdAt": datetime.now(timezone.utc) - timedelta(minutes=40),
-                "expiresAt": datetime.now(timezone.utc) - timedelta(minutes=1),
+                "createdAt": datetime.now(UTC) - timedelta(minutes=40),
+                "expiresAt": datetime.now(UTC) - timedelta(minutes=1),
             }
         )
 
@@ -782,8 +782,8 @@ class AccountApiTestCase(AioHTTPTestCase):
                 "_id": "tok2",
                 "username": "alice",
                 "tokenHash": self.reopen_token_hash(raw_token),
-                "createdAt": datetime.now(timezone.utc),
-                "expiresAt": datetime.now(timezone.utc) + timedelta(minutes=20),
+                "createdAt": datetime.now(UTC),
+                "expiresAt": datetime.now(UTC) + timedelta(minutes=20),
             }
         )
 

@@ -2,7 +2,6 @@ from contextvars import ContextVar
 
 import aiohttp_session
 from aiohttp import web
-
 from const import LANGUAGES
 from pychess_global_app_state_utils import get_app_state
 from redirects import safe_redirect_path

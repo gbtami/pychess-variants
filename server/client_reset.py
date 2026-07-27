@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from aiohttp import web
 
-
 _COMMON_HEADERS = {
     "Cache-Control": "no-store, no-cache, must-revalidate",
     "Pragma": "no-cache",

@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
+import logging
+from datetime import UTC, datetime
 from typing import Any
 
 import aiohttp_jinja2
 import aiohttp_session
 import msgspec
 from aiohttp import web
-
 from bot_accounts import (
     create_bot_token,
     list_bot_tokens,
@@ -21,11 +21,10 @@ from forum.storage import recompute_categ_summary, recompute_topic_summary
 from login import logout
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
-from utils import remove_seek
 from typing_defs import UserDocument, ViewContext
 from user_stats import DEFAULT_USER_COUNT
+from utils import remove_seek
 from views import get_user_context
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -337,7 +336,7 @@ async def account_personal_data_export(request: web.Request) -> web.StreamRespon
     )
 
     metadata = {
-        "exportedAt": datetime.now(timezone.utc),
+        "exportedAt": datetime.now(UTC),
         "username": user.username,
         "note": (
             "This export contains account and private interaction data. "
@@ -449,7 +448,7 @@ async def account_close_post(request: web.Request) -> web.StreamResponse:
         {
             "$set": {
                 "enabled": False,
-                "closedAt": datetime.now(timezone.utc),
+                "closedAt": datetime.now(UTC),
                 "closeType": close_type,
             }
         },
@@ -484,7 +483,7 @@ async def account_delete_post(request: web.Request) -> web.StreamResponse:
     if confirm_username != user.username or not understand:
         raise web.HTTPBadRequest(text="Username confirmation and acknowledgement are required.")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     await app_state.db.user.update_one(
         {"_id": user.username},
         {
@@ -527,13 +526,13 @@ async def account_delete_post(request: web.Request) -> web.StreamResponse:
 
 @aiohttp_jinja2.template("account_reopen.html")
 async def account_reopen(request: web.Request) -> ViewContext:
-    user, context = await get_user_context(request)
+    _user, context = await get_user_context(request)
     raw_token = str(request.rel_url.query.get("token") or "").strip()
     if not raw_token:
         raise web.HTTPFound("/login")
 
     app_state = get_app_state(request.app)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     await app_state.db.account_reopen_token.delete_many({"expiresAt": {"$lt": now}})
     token_doc = await app_state.db.account_reopen_token.find_one(
         {
@@ -582,7 +581,7 @@ async def account_reopen_post(request: web.Request) -> web.StreamResponse:
     if not understand:
         raise web.HTTPBadRequest(text="Username confirmation and acknowledgement are required.")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     token_hash = _reopen_token_hash(raw_token)
     matching_token = await app_state.db.account_reopen_token.find_one(
         {
@@ -619,7 +618,7 @@ async def account_reopen_post(request: web.Request) -> web.StreamResponse:
     ):
         raise web.HTTPForbidden(text="This account cannot be reopened automatically.")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     await app_state.db.user.update_one(
         {"_id": closed_username},
         {"$set": {"enabled": True, "reopenedAt": now}, "$unset": {"closedAt": "", "closeType": ""}},

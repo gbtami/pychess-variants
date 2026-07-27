@@ -1,74 +1,77 @@
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING, Iterable, Mapping, Protocol, cast
-from datetime import datetime, timedelta, timezone
+
 import asyncio
+import logging
+from collections.abc import Iterable, Mapping
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 import aiohttp_session
 from aiohttp import web
-import logging
-
-from tournament.arena import ArenaTournament
 from compress import C2R, R2C
 from const import (
     ARENA,
     BYEGAME,
-    RR,
-    SWISS,
-    T_STARTED,
-    T_CREATED,
-    T_ABORTED,
-    T_FINISHED,
-    T_ARCHIVED,
-    SHIELD,
-    MAX_CHAT_LINES,
-    STARTED,
     CATEGORIES,
+    MAX_CHAT_LINES,
+    RR,
+    SHIELD,
+    STARTED,
+    SWISS,
+    T_ABORTED,
+    T_ARCHIVED,
+    T_CREATED,
+    T_FINISHED,
+    T_STARTED,
+    TEST_PREFIX,
     TRANSLATED_FREQUENCY_NAMES,
     TRANSLATED_PAIRING_SYSTEM_NAMES,
-    TEST_PREFIX,
     VARIANTEND,
 )
 from newid import new_id
 
+from tournament.arena import ArenaTournament
+
 if TYPE_CHECKING:
-    from pychess_global_app_state import PychessGlobalAppState
     from game import Game
+    from pychess_global_app_state import PychessGlobalAppState
+from catalogued_variants import is_public_catalogued_variant
 from pychess_global_app_state_utils import get_app_state
-from tournament.rr import RRTournament
-from tournament.swiss import SwissTournament
-from tournament.tournament import (
-    AUTO_ROUND_INTERVAL,
-    MANUAL_ROUND_INTERVAL,
-    ByeGame,
-    GameData,
-    PlayerData,
-    RR_DEFAULT_MAX_PLAYERS,
-    RR_MAX_SUPPORTED_PLAYERS,
-    SCORE_SHIFT,
-    Tournament,
-    upsert_tournament_to_db,
-)
-from tournament.auto_play_tournament import (
-    ArenaTestTournament,
-    SwissTestTournament,
-    RRTestTournament,
-    AUTO_PLAY_TOURNAMENT_ID,
-)
+from rated_start import can_rate_start, can_rate_variant
+from settings import DEV
 from typing_defs import (
     TournamentArrangementDoc,
     TournamentCreateData,
     TournamentDoc,
     TournamentPairingDoc,
-    TournamentPoint,
     TournamentPlayerDoc,
+    TournamentPoint,
 )
-from ws_types import ChatLine
-from catalogued_variants import is_public_catalogued_variant
-from rated_start import can_rate_start, can_rate_variant
-from variants import C2V, get_server_variant, ALL_VARIANTS, VARIANTS, is_catalogued_variant
 from user import User
 from utils import load_game
-from settings import DEV
+from variants import ALL_VARIANTS, C2V, VARIANTS, get_server_variant, is_catalogued_variant
+from ws_types import ChatLine
+
+from tournament.auto_play_tournament import (
+    AUTO_PLAY_TOURNAMENT_ID,
+    ArenaTestTournament,
+    RRTestTournament,
+    SwissTestTournament,
+)
+from tournament.rr import RRTournament
+from tournament.swiss import SwissTournament
+from tournament.tournament import (
+    AUTO_ROUND_INTERVAL,
+    MANUAL_ROUND_INTERVAL,
+    RR_DEFAULT_MAX_PLAYERS,
+    RR_MAX_SUPPORTED_PLAYERS,
+    SCORE_SHIFT,
+    ByeGame,
+    GameData,
+    PlayerData,
+    Tournament,
+    upsert_tournament_to_db,
+)
 
 log = logging.getLogger(__name__)
 
@@ -594,17 +597,17 @@ async def create_or_update_tournament(
     start_date: datetime | None
     raw_start_date = form.get("startDate", "")
     if raw_start_date:
-        start_date = datetime.fromisoformat(raw_start_date.rstrip("Z")).replace(tzinfo=timezone.utc)
+        start_date = datetime.fromisoformat(raw_start_date.rstrip("Z")).replace(tzinfo=UTC)
     else:
         start_date = None
 
     end_date: datetime | None
     if system == RR and form.get("endDate"):
-        end_date = datetime.fromisoformat(form["endDate"].rstrip("Z")).replace(tzinfo=timezone.utc)
+        end_date = datetime.fromisoformat(form["endDate"].rstrip("Z")).replace(tzinfo=UTC)
     else:
         end_date = None
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if start_date is not None and start_date <= now:
         raise web.HTTPBadRequest(text="Tournament start date must be in the future.")
 
@@ -1245,7 +1248,7 @@ async def load_tournament(
             nb_players += 1
 
         if auto_play and tournament.status in (T_CREATED, T_STARTED):
-            user.tournament_sockets[tournament.id] = set((None,))
+            user.tournament_sockets[tournament.id] = {None}
             await tournament.join(user)
 
     tournament.nb_players = nb_players

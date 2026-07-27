@@ -1,8 +1,9 @@
 from __future__ import annotations
+
 import asyncio
 
 from motor import motor_asyncio as ma
-from settings import MONGO_HOST, MONGO_DB_NAME
+from settings import MONGO_DB_NAME, MONGO_HOST
 
 
 async def main():

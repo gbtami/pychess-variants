@@ -1,14 +1,14 @@
 from __future__ import annotations
-from typing import Any, TYPE_CHECKING
+
 import random
 import string
+from typing import TYPE_CHECKING, Any
 
 ID_CHARS = string.ascii_letters + string.digits
 
 
 if TYPE_CHECKING:
-    from typing import Protocol
-    from typing import Any
+    from typing import Any, Protocol
 
     class SupportsFindOne(Protocol):
         async def find_one(

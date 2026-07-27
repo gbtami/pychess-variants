@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import logging
-from pathlib import Path
 import tempfile
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from const import SWISS, T_STARTED
@@ -20,6 +20,7 @@ from py4swiss.trf.results import (
 )
 from py4swiss.trf.sections import PlayerSection, XSection
 from py4swiss.trf.sections.x_section import XSectionConfiguration
+
 from tournament.tournament import PairingUnavailable, Tournament
 
 from .history import (
@@ -32,27 +33,59 @@ from .history import (
     _swiss_berger_tiebreak,
 )
 from .state import (
-    _DutchPairingState,
     _build_dutch_pairing_state,
+    _DutchPairingState,
     _materialize_pairings,
 )
 from .tournament_ops import (
     _active_swiss_ban_until as _active_swiss_ban_until_impl,
+)
+from .tournament_ops import (
     _apply_bye_points as _apply_bye_points_impl,
+)
+from .tournament_ops import (
     _ban_swiss_no_show as _ban_swiss_no_show_impl,
+)
+from .tournament_ops import (
     _clear_consumed_manual_pairings as _clear_consumed_manual_pairings_impl,
+)
+from .tournament_ops import (
     _clear_swiss_ban as _clear_swiss_ban_impl,
+)
+from .tournament_ops import (
     _consume_manual_pairings as _consume_manual_pairings_impl,
+)
+from .tournament_ops import (
     _initialize_late_entry_round_history as _initialize_late_entry_round_history_impl,
+)
+from .tournament_ops import (
     _is_late_join_allowed as _is_late_join_allowed_impl,
+)
+from .tournament_ops import (
     _late_join_half_point as _late_join_half_point_impl,
+)
+from .tournament_ops import (
     _manual_pairing_entries as _manual_pairing_entries_impl,
+)
+from .tournament_ops import (
     _player_who_did_not_move as _player_who_did_not_move_impl,
+)
+from .tournament_ops import (
     _record_bye as _record_bye_impl,
+)
+from .tournament_ops import (
     _update_swiss_no_show_bans as _update_swiss_no_show_bans_impl,
+)
+from .tournament_ops import (
     pair_fixed_round as pair_fixed_round_impl,
+)
+from .tournament_ops import (
     persist_byes as persist_byes_impl,
+)
+from .tournament_ops import (
     persist_unpaired_round_entries as persist_unpaired_round_entries_impl,
+)
+from .tournament_ops import (
     recalculate_berger_tiebreak as recalculate_berger_tiebreak_impl,
 )
 
@@ -155,7 +188,7 @@ class SwissTournament(Tournament):
         return (
             "Because you missed your last Swiss game, you cannot enter a new Swiss tournament "
             "until %s."
-        ) % banned_until.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+        ) % banned_until.astimezone(UTC).strftime("%Y-%m-%d %H:%M UTC")
 
     async def _initialize_late_entry_round_history(self, player: User) -> None:
         await _initialize_late_entry_round_history_impl(self, player)
@@ -263,8 +296,8 @@ class SwissTournament(Tournament):
 __all__ = [
     "ColorToken",
     "DutchEngine",
-    "ParsedTrf",
     "PairingError",
+    "ParsedTrf",
     "PlayerCode",
     "PlayerSection",
     "ResultToken",

@@ -3,10 +3,10 @@ import time
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
-
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from user import User
+
+from server import make_app
 
 
 class UblogEngagementTestCase(AioHTTPTestCase):

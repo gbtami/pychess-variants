@@ -1,16 +1,17 @@
 from __future__ import annotations
+
 import datetime as dt
 from typing import TYPE_CHECKING
 
 import aiohttp_session
 from aiohttp import web
-
 from const import CATEGORY_VARIANT_SETS, normalize_game_category
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
+from typing_defs import ScheduledTournamentCreateData, TournamentCalendarEvent
+
 from tournament.scheduler import new_scheduled_tournaments
 from tournament.tournaments import get_scheduled_tournaments
-from typing_defs import ScheduledTournamentCreateData, TournamentCalendarEvent
 
 ScheduledEntry = tuple[str, str, bool, dt.datetime, int]
 EventData = TournamentCalendarEvent
@@ -24,7 +25,7 @@ def create_scheduled_data(
 ) -> list[ScheduledEntry]:
     if already_scheduled is None:
         already_scheduled = []
-    start = dt.datetime(year, month, day, tzinfo=dt.timezone.utc)
+    start = dt.datetime(year, month, day, tzinfo=dt.UTC)
     data: list[ScheduledTournamentCreateData] = new_scheduled_tournaments(already_scheduled, start)
     entries: list[ScheduledEntry] = []
     for entry in data:
@@ -38,7 +39,7 @@ def create_scheduled_data(
 
 
 def go_day(day: int) -> tuple[int, int, int]:
-    d = dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=day)
+    d = dt.datetime.now(dt.UTC) + dt.timedelta(days=day)
     return (d.year, d.month, d.day)
 
 
@@ -70,7 +71,7 @@ async def tournament_calendar(request: web.Request) -> web.Response:
         created_tournaments = {t[:5]: t[5] for t in scheduled_tournaments}
 
         events = []
-        now = dt.datetime.now(dt.timezone.utc)
+        now = dt.datetime.now(dt.UTC)
         y, m, d = now.year, now.month, now.day
         prev_data = create_scheduled_data(y, m, d)
 

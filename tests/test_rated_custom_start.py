@@ -2,14 +2,12 @@ import unittest
 from types import SimpleNamespace
 
 import test_logger
-
 from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
-
 from const import CASUAL, RATED
 from fairy.cwda import CWDA_START_FENS
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
+from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from rated_start import (
     CAPABLANCA_RATED_START_FENS,
@@ -20,11 +18,11 @@ from rated_start import (
     can_rate_variant,
 )
 from seek import Seek
-from server import make_app
 from user import User
 from valid_fen import VALID_FEN
 from variants import VARIANTS
 
+from server import make_app
 
 test_logger.init_test_logger()
 

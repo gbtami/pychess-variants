@@ -1,7 +1,7 @@
 import pytest
 import test_logger
-from playwright.async_api import async_playwright, expect
 from mongomock_motor import AsyncMongoMockClient
+from playwright.async_api import async_playwright, expect
 
 from server import make_app
 

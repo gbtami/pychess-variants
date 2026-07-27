@@ -2,19 +2,18 @@ import unittest
 from unittest.mock import AsyncMock
 
 from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
-
 from clock import first_move_timeout_reason
 from const import FLAG, STARTED
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
+from mongomock_motor import AsyncMongoMockClient
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from user import User
 from variants import VARIANTS
 from wsr import handle_abort_resign_abandon_flag
 
+from server import make_app
 
 PERFS = new_default_perf_map(VARIANTS)
 

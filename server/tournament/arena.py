@@ -1,14 +1,14 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-import time
-from itertools import product
-
-import rustworkx as rx
-
-from const import ARENA
-from tournament.tournament import Tournament
 
 import logging
+import time
+from itertools import product
+from typing import TYPE_CHECKING
+
+import rustworkx as rx
+from const import ARENA
+
+from tournament.tournament import Tournament
 
 if TYPE_CHECKING:
     from user import User

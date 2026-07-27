@@ -7,7 +7,9 @@ from py4swiss.trf import ParsedTrf
 from py4swiss.trf.codes import PlayerCode
 from py4swiss.trf.sections import PlayerSection, XSection
 from py4swiss.trf.sections.x_section import XSectionConfiguration
+
 from tournament.tournament import Tournament
+
 from .history import (
     _build_player_results,
     _build_rank_map,
@@ -18,8 +20,9 @@ from .history import (
 )
 
 if TYPE_CHECKING:
-    from tournament.tournament import PlayerData
     from user import User
+
+    from tournament.tournament import PlayerData
 
 
 @dataclass(slots=True)

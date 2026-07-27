@@ -1,19 +1,20 @@
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import cast
-from mongomock_motor import AsyncMongoMockClient
-from pymongo.asynchronous.mongo_client import AsyncMongoClient
 
+from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
+from pymongo.asynchronous.mongo_client import AsyncMongoClient
 from seek import (
     ANON_RESTRICTED_SEEK_MESSAGE,
     TWO_BOARD_TARGETED_SEEK_MESSAGE,
     Seek,
     create_seek,
 )
-from server import init_state, make_app
 from user import User
 from utils import NO_LEGAL_MOVES_START_FEN_MESSAGE, join_seek
+
+from server import init_state, make_app
 
 
 class AnonSeekRestrictionsTestCase(unittest.IsolatedAsyncioTestCase):
@@ -252,7 +253,7 @@ class AnonSeekRestrictionsTestCase(unittest.IsolatedAsyncioTestCase):
 
     async def test_seek_expiry_defaults_by_seek_type(self):
         creator = self.add_user("creator-expiry")
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         regular_seek = Seek("seek-regular", creator, "chess", day=0, player1=creator)
         self.assertIsNone(regular_seek.expire_at)

@@ -1,12 +1,7 @@
 import os
 
-from aiohttp import web
 import aiohttp_jinja2
-
-from lang import get_locale_ext
-from typing_defs import ViewContext
-from views import get_user_context
-from variants import VARIANTS, VARIANT_ICONS
+from aiohttp import web
 from catalogued_variants import (
     catalogued_variant_rule_context,
     community_catalogued_variants_page,
@@ -14,6 +9,11 @@ from catalogued_variants import (
 )
 from fairy.cwda import cwda_betza_diagram_groups
 from pychess_global_app_state_utils import get_app_state
+from typing_defs import ViewContext
+from variants import VARIANT_ICONS, VARIANTS
+
+from lang import get_locale_ext
+from views import get_user_context
 
 
 def _positive_page(value: str | None) -> int:

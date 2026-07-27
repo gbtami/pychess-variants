@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from const import FLAG, TEST_PREFIX
 from glicko2.glicko2 import new_default_perf_map
@@ -44,7 +42,7 @@ class TournamentScoringTestCase(TournamentTestCase):
                 perfs=make_test_perfs(),
             )
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
             users.append(user)
 
@@ -120,12 +118,12 @@ class TournamentScoringTestCase(TournamentTestCase):
         )
         app_state.users[player_a.username] = player_a
         app_state.users[player_b.username] = player_b
-        player_a.tournament_sockets[tid] = set((None,))
-        player_b.tournament_sockets[tid] = set((None,))
+        player_a.tournament_sockets[tid] = {None}
+        player_b.tournament_sockets[tid] = {None}
 
         await self.tournament.join(player_a)
         await self.tournament.join(player_b)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         async def finish_game(game, winner):
             if winner is game.wplayer:
@@ -187,12 +185,12 @@ class TournamentScoringTestCase(TournamentTestCase):
         )
         app_state.users[player_a.username] = player_a
         app_state.users[player_b.username] = player_b
-        player_a.tournament_sockets[tid] = set((None,))
-        player_b.tournament_sockets[tid] = set((None,))
+        player_a.tournament_sockets[tid] = {None}
+        player_b.tournament_sockets[tid] = {None}
 
         await self.tournament.join(player_a)
         await self.tournament.join(player_b)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         waiting_players = list(self.tournament.waiting_players())
         _, games = await self.tournament.create_new_pairings(waiting_players)
@@ -243,12 +241,12 @@ class TournamentScoringTestCase(TournamentTestCase):
         )
         app_state.users[player_a.username] = player_a
         app_state.users[player_b.username] = player_b
-        player_a.tournament_sockets[tid] = set((None,))
-        player_b.tournament_sockets[tid] = set((None,))
+        player_a.tournament_sockets[tid] = {None}
+        player_b.tournament_sockets[tid] = {None}
 
         await self.tournament.join(player_a)
         await self.tournament.join(player_b)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
 
         waiting_players = list(self.tournament.waiting_players())
         _, games = await self.tournament.create_new_pairings(waiting_players)

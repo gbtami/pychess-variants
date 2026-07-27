@@ -1,12 +1,14 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Iterable, Mapping
+
 import asyncio
+from collections.abc import Iterable, Mapping
+from typing import TYPE_CHECKING
 
 from json_utils import json_dumps
 
 if TYPE_CHECKING:
-    from game import Game
     from bug.game_bug import GameBug
+    from game import Game
     from pychess_global_app_state import PychessGlobalAppState
 import logging
 

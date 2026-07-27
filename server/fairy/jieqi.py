@@ -1,6 +1,5 @@
 from functools import lru_cache
 
-
 # Covered Jieqi piece squares ordered as they appear in xiangqi starting FEN
 # Ordering is important because it is used to save/restore the randomized covered pieces in mongodb !!!
 BLACK_SQUARES = ["a10", "b10", "c10", "d10", "f10", "g10", "h10", "i10", "b8", "h8", "a7", "c7", "e7", "g7", "i7"]  # fmt: skip

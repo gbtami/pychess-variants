@@ -1,6 +1,6 @@
+import asyncio
 import os
 import sys
-import asyncio
 
 import msgspec
 from motor import motor_asyncio as ma

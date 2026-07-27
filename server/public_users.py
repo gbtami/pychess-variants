@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import MINYEAR, datetime, timezone
+from datetime import MINYEAR, UTC, datetime
 from time import monotonic
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 from const import ANON_PREFIX, BLOCK, MAX_USER_BLOCK
 from glicko2.glicko2 import perf_map_with_defaults
@@ -86,7 +87,7 @@ class PublicUsers:
             title=title,
             bot=title == "BOT",
             enabled=doc.get("enabled", True),
-            created_at=doc.get("createdAt", datetime(MINYEAR, 1, 1, tzinfo=timezone.utc)),
+            created_at=doc.get("createdAt", datetime(MINYEAR, 1, 1, tzinfo=UTC)),
             count=normalize_user_count(doc.get("count")),
             perfs=perf_map_with_defaults(RATED_VARIANTS, doc.get("perfs")),
             blocked=blocked,
@@ -102,7 +103,7 @@ class PublicUsers:
             title="",
             bot=False,
             enabled=True,
-            created_at=datetime(MINYEAR, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(MINYEAR, 1, 1, tzinfo=UTC),
             count=normalize_user_count(None),
             perfs=perf_map_with_defaults(RATED_VARIANTS, None),
             blocked=frozenset(),

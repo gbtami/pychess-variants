@@ -1,59 +1,55 @@
 from __future__ import annotations
-from typing import (
-    Any,
-    TYPE_CHECKING,
-    ClassVar,
-    Deque,
-    Mapping,
-    Set,
-    Tuple,
-    TypeAlias,
-    Literal,
-)
+
 import asyncio
-import logging
 import collections
+import logging
 import random
 import traceback
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta, timezone
+from collections.abc import Mapping
+from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from operator import neg
-
-from pymongo import ReturnDocument
-from sortedcollections import ValueSortedDict
-from sortedcontainers import SortedKeysView
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Literal,
+    TypeAlias,
+)
 
 from chat import chat_response
 from compress import R2C
 from const import (
     ABORTED,
-    CASUAL,
-    DARK_FEN,
-    RATED,
-    CREATED,
-    STARTED,
-    BYEGAME,
-    VARIANTEND,
-    FLAG,
     ARENA,
-    RR,
-    SWISS,
-    T_CREATED,
-    T_STARTED,
-    T_ABORTED,
-    T_FINISHED,
-    T_ARCHIVED,
-    SHIELD,
+    BYEGAME,
+    CASUAL,
+    CREATED,
+    DARK_FEN,
+    FLAG,
     MAX_CHAT_LINES,
+    RATED,
+    RR,
+    SHIELD,
+    STARTED,
+    SWISS,
+    T_ABORTED,
+    T_ARCHIVED,
+    T_CREATED,
+    T_FINISHED,
+    T_STARTED,
+    VARIANTEND,
 )
 from game import Game
-from lobby_panels_cache import refresh_lobby_tournament_winners_cache
 from lichess_team_msg import lichess_team_msg
+from lobby_panels_cache import refresh_lobby_tournament_winners_cache
 from misc import time_control_str
 from newid import new_id
+from pymongo import ReturnDocument
 from rated_start import can_rate_start
-from websocket_utils import ws_send_json_many
+from sortedcollections import ValueSortedDict
+from sortedcontainers import SortedKeysView
 from typing_defs import (
     TournamentDuelItem,
     TournamentDuelsResponse,
@@ -62,27 +58,29 @@ from typing_defs import (
     TournamentPairingDoc,
     TournamentPairingUpdate,
     TournamentPlayerJson,
-    TournamentPlayerUpdate,
     TournamentPlayersResponse,
+    TournamentPlayerUpdate,
     TournamentPoint,
     TournamentSpotlightsResponse,
     TournamentStatusResponse,
     TournamentTopGameResponse,
     TournamentUpdateData,
 )
+from websocket_utils import ws_send_json_many
 
 if TYPE_CHECKING:
-    from pychess_global_app_state import PychessGlobalAppState
     from typing import Literal
+
     from bug.game_bug import GameBug
-    from ws_types import ChatLine
-    from ws_types import SpectatorsMessage
+    from pychess_global_app_state import PychessGlobalAppState
+    from ws_types import ChatLine, SpectatorsMessage
+from settings import URI
 from spectators import spectators
-from tournament.tournament_spotlights import tournament_spotlights
 from user import User
 from utils import insert_game_to_db
-from settings import URI
 from variants import get_server_variant, is_catalogued_variant
+
+from tournament.tournament_spotlights import tournament_spotlights
 
 log = logging.getLogger(__name__)
 
@@ -113,26 +111,22 @@ else:
 class EnoughPlayer(Exception):
     """Raised when RR is already full"""
 
-    pass
-
 
 class PairingUnavailable(RuntimeError):
     """Raised when a fixed-round pairing backend cannot produce legal pairings."""
-
-    pass
 
 
 class ByeGame:
     """Used in RR/Swiss tournaments when pairing odd number of players"""
 
-    __slots__ = "date", "status", "token", "round"
+    __slots__ = "date", "round", "status", "token"
 
     if TYPE_CHECKING:
         wplayer: User
         bplayer: User
 
     def __init__(self, token: str = "U", round_no: int | None = None) -> None:
-        self.date: datetime = datetime.now(timezone.utc)
+        self.date: datetime = datetime.now(UTC)
         self.status: int = BYEGAME
         # TRF token for unplayed rounds (U/H/F/Z). Default is pairing-allocated bye.
         self.token: str = token
@@ -162,26 +156,26 @@ class PlayerData:
     """Used to save/load tournament players to/from mongodb tournament-player documents"""
 
     __slots__ = (
-        "id",
-        "title",
-        "username",
-        "rating",
-        "provisional",
+        "berger",
+        "color_balance",
         "free",
-        "paused",
-        "withdrawn",
-        "win_streak",
         "games",
-        "points",
-        "nb_win",
+        "id",
+        "joined_round",
         "nb_berserk",
         "nb_not_paired",
-        "performance",
-        "berger",
-        "prev_opp",
-        "color_balance",
-        "joined_round",
+        "nb_win",
         "page",
+        "paused",
+        "performance",
+        "points",
+        "prev_opp",
+        "provisional",
+        "rating",
+        "title",
+        "username",
+        "win_streak",
+        "withdrawn",
     )
 
     def __init__(self, title: str, username: str, rating: int, provisional: str) -> None:
@@ -243,7 +237,7 @@ def player_json(
 
 
 class _GameDataPlayer:
-    __slots__ = ("username", "title")
+    __slots__ = ("title", "username")
 
     def __init__(self, username: str, title: str = "") -> None:
         self.username = username
@@ -254,20 +248,20 @@ class GameData:
     """Used to save/load tournament games to/from mongodb tournament-pairing documents"""
 
     __slots__ = (
-        "id",
-        "wname",
-        "_wplayer",
-        "wrating",
-        "bname",
         "_bplayer",
-        "brating",
-        "result",
-        "date",
-        "wberserk",
+        "_wplayer",
         "bberserk",
-        "status",
+        "bname",
+        "brating",
+        "date",
+        "id",
         "ply",
+        "result",
         "round",
+        "status",
+        "wberserk",
+        "wname",
+        "wrating",
     )
 
     def __init__(
@@ -430,12 +424,14 @@ class Tournament(ABC):
         self.manual_pairings: str = manual_pairings
         self.created_by: str = created_by
         self.starts_at: datetime = starts_at  # type: ignore[assignment]
-        self.created_at: datetime = datetime.now(timezone.utc) if created_at is None else created_at
+        self.created_at: datetime = datetime.now(UTC) if created_at is None else created_at
         self.ends_at: datetime
         self.with_clock = with_clock
         self.finish_reason = finish_reason
 
-        self.tourneychat: Deque[ChatLine] | list[ChatLine] = collections.deque([], MAX_CHAT_LINES)
+        self.tourneychat: collections.deque[ChatLine] | list[ChatLine] = collections.deque(
+            [], MAX_CHAT_LINES
+        )
 
         self.wave = timedelta(seconds=7)
         self.wave_delta = timedelta(seconds=1)
@@ -447,7 +443,7 @@ class Tournament(ABC):
         self.bye_players: list[User] = []
 
         self.messages: collections.deque = collections.deque([], MAX_CHAT_LINES)
-        self.spectators: Set[User] = set()
+        self.spectators: set[User] = set()
         self.players: dict[User, PlayerData] = {}
         self.rr_pending_players: set[str] = set()
         self.rr_denied_players: set[str] = set()
@@ -1024,7 +1020,7 @@ class Tournament(ABC):
     async def clock(self):
         try:
             while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
 
                 if self.status == T_CREATED:
                     remaining_time = self.starts_at - now
@@ -1198,7 +1194,7 @@ class Tournament(ABC):
             return (0, 0.0)
 
         if now is None:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
 
         round_ongoing_games = len(self.ongoing_games)
         seconds_to_next_round = 0.0
@@ -1216,7 +1212,7 @@ class Tournament(ABC):
 
     def live_status(self, now: datetime | None = None) -> TournamentStatusResponse:
         if now is None:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
         response: TournamentStatusResponse = {
             "type": "tstatus",
             "tstatus": self.status,
@@ -1325,7 +1321,7 @@ class Tournament(ABC):
 
     async def start_next_round_now(self, now: datetime | None = None) -> bool:
         if now is None:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
 
         if self.system == ARENA or self.status != T_STARTED:
             return False
@@ -1484,7 +1480,7 @@ class Tournament(ABC):
             )
 
         if self.entry_min_account_age_days > 0:
-            account_age = datetime.now(timezone.utc) - user.created_at
+            account_age = datetime.now(UTC) - user.created_at
             if account_age < timedelta(days=self.entry_min_account_age_days):
                 return "This tournament requires accounts to be at least %s days old." % (
                     self.entry_min_account_age_days,
@@ -1741,7 +1737,7 @@ class Tournament(ABC):
 
         return False
 
-    def points_perfs(self, game: Game) -> Tuple[Point, Point, int, int]:
+    def points_perfs(self, game: Game) -> tuple[Point, Point, int, int]:
         player_data = self.game_player_data(game)
         if player_data is None:
             return (
@@ -1808,7 +1804,7 @@ class Tournament(ABC):
 
         return (wpoint, bpoint, wperf, bperf)
 
-    def points_perfs_janggi(self, game: Game) -> Tuple[Point, Point, int, int]:
+    def points_perfs_janggi(self, game: Game) -> tuple[Point, Point, int, int]:
         player_data = self.game_player_data(game)
         if player_data is None:
             return (
@@ -1974,7 +1970,7 @@ class Tournament(ABC):
         if game.bberserk:
             self.nb_berserk += 1
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if (
             self.system != ARENA
             and self.status == T_STARTED
@@ -2214,7 +2210,7 @@ class Tournament(ABC):
             "tid": self.id,
             "u": (player.username, player.username),
             "r": R2C["*"],
-            "d": datetime.now(timezone.utc),
+            "d": datetime.now(UTC),
             "wr": rating,
             "br": rating,
             "wb": False,
@@ -2304,7 +2300,7 @@ class Tournament(ABC):
             )
 
     async def db_update_player(
-        self, user: User | str, action: "Literal['JOIN', 'WITHDRAW', 'PAUSE', 'GAME_END', 'BYE']"
+        self, user: User | str, action: Literal["JOIN", "WITHDRAW", "PAUSE", "GAME_END", "BYE"]
     ) -> None:
         if self.app_state.db is None:
             return

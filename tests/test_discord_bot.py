@@ -5,7 +5,6 @@ from typing import cast
 from unittest.mock import AsyncMock, Mock, patch
 
 import discord
-
 from discord_bot import DiscordBot
 
 
@@ -18,11 +17,11 @@ class DiscordBotTestCase(unittest.IsolatedAsyncioTestCase):
         bot.pychess_lobby_channel = cast(discord.abc.Messageable, AsyncMock())
 
         game_seek_channel = cast(discord.abc.Messageable, AsyncMock())
-        setattr(game_seek_channel, "id", 111)
+        game_seek_channel.id = 111
         bot.game_seek_channel = game_seek_channel
 
         bughouse_channel = cast(discord.abc.Messageable, AsyncMock())
-        setattr(bughouse_channel, "id", 222)
+        bughouse_channel.id = 222
         forbidden = discord.Forbidden(Mock(status=403, reason="Forbidden"), "Missing Access")
         bughouse_channel.send.side_effect = forbidden
         bot.bughouse_channel = bughouse_channel

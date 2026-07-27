@@ -3,7 +3,6 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 import test_logger
-
 from wsl import handle_delete_seek
 
 test_logger.init_test_logger()

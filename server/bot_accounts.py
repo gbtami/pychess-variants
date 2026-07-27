@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import secrets
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, TypedDict
 
 from newid import new_id
@@ -64,7 +64,7 @@ async def create_bot_token(
             "user": username,
             "description": description,
             "tokenHash": bot_token_hash(raw_token),
-            "createdAt": datetime.now(timezone.utc),
+            "createdAt": datetime.now(UTC),
         }
     )
     return token_id, raw_token
@@ -84,7 +84,7 @@ async def revoke_bot_token(app_state: PychessGlobalAppState, username: str, toke
         return False
     result = await app_state.db.bot_token.update_one(
         {"_id": token_id, "user": username, "revokedAt": {"$exists": False}},
-        {"$set": {"revokedAt": datetime.now(timezone.utc)}},
+        {"$set": {"revokedAt": datetime.now(UTC)}},
     )
     return bool(result.modified_count)
 
@@ -99,7 +99,7 @@ async def get_db_token_owner(
     if mark_used:
         token_doc = await app_state.db.bot_token.find_one_and_update(
             token_filter,
-            {"$set": {"usedAt": datetime.now(timezone.utc)}},
+            {"$set": {"usedAt": datetime.now(UTC)}},
         )
     else:
         token_doc = await app_state.db.bot_token.find_one(token_filter)

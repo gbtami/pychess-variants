@@ -5,7 +5,6 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 import test_logger
-
 from wsr import handle_bugroundchat, handle_roundchat
 
 test_logger.init_test_logger()

@@ -1,9 +1,9 @@
 import aiohttp_jinja2
 from aiohttp import web
-
 from typing_defs import ViewContext
+from variants import VARIANT_ICONS, VARIANTS
+
 from views import get_user_context
-from variants import VARIANTS, VARIANT_ICONS
 
 
 @aiohttp_jinja2.template("games.html")

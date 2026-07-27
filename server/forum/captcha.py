@@ -4,11 +4,10 @@ import asyncio
 import inspect
 import logging
 import random
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import aiohttp_session
 from aiohttp import web
-
 from const import GAME_CATEGORY_ALL, normalize_game_category
 from convert import mirror5, mirror9, zero2grand
 from fairy.fairy_board import FairyBoard
@@ -32,8 +31,8 @@ from forum.constants import (
 )
 from forum.utils import (
     captcha_moves_map,
-    normalize_captcha_solution,
     json_response,
+    normalize_captcha_solution,
     uci_orig_dest,
 )
 
@@ -50,7 +49,7 @@ def _captcha_lock(game_category: str) -> asyncio.Lock:
 
 def _captcha_from_fen(*, game_id: str, fen: str, variant: str) -> dict[str, object] | None:
     """Build a mate-in-1 captcha from a FEN using pyffish move legality."""
-    board_variant = variant[:-3] if variant.endswith("960") else variant
+    board_variant = variant.removesuffix("960")
     try:
         board = FairyBoard(board_variant, initial_fen=fen)
         legal_moves = [str(move) for move in board.legal_moves()]
@@ -175,7 +174,7 @@ def _captcha_from_game_doc(doc: dict[str, object]) -> dict[str, object] | None:
     if len(moves) == 0:
         return None
 
-    board_variant = variant[:-3] if variant.endswith("960") else variant
+    board_variant = variant.removesuffix("960")
     try:
         board = FairyBoard(board_variant, initial_fen=initial_fen)
     except Exception:
@@ -197,7 +196,7 @@ async def _refresh_forum_captcha_pool(app_state, game_category: str) -> None:
     """Refresh one category's in-memory captcha pool from checkmated game positions."""
     normalized_category = normalize_game_category(game_category)
     if app_state.db is None:
-        FORUM_CAPTCHA_LAST_REFRESH[normalized_category] = datetime.now(timezone.utc)
+        FORUM_CAPTCHA_LAST_REFRESH[normalized_category] = datetime.now(UTC)
         return
 
     previous_pool = FORUM_CAPTCHA_POOL_BY_CATEGORY.get(normalized_category, [])
@@ -257,13 +256,13 @@ async def _refresh_forum_captcha_pool(app_state, game_category: str) -> None:
             forum_captcha_variant_for_category(normalized_category),
         )
 
-    FORUM_CAPTCHA_LAST_REFRESH[normalized_category] = datetime.now(timezone.utc)
+    FORUM_CAPTCHA_LAST_REFRESH[normalized_category] = datetime.now(UTC)
 
 
 async def maybe_refresh_forum_captcha_pool(app_state, game_category: str) -> None:
     """Refresh one category captcha pool only when stale and never concurrently."""
     normalized_category = normalize_game_category(game_category)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     last_refresh = FORUM_CAPTCHA_LAST_REFRESH.get(normalized_category)
     if last_refresh and (now - last_refresh).total_seconds() < FORUM_CAPTCHA_REFRESH_SECONDS:
         return
@@ -271,24 +270,20 @@ async def maybe_refresh_forum_captcha_pool(app_state, game_category: str) -> Non
     lock = _captcha_lock(normalized_category)
     async with lock:
         latest = FORUM_CAPTCHA_LAST_REFRESH.get(normalized_category)
-        if (
-            latest
-            and (datetime.now(timezone.utc) - latest).total_seconds()
-            < FORUM_CAPTCHA_REFRESH_SECONDS
-        ):
+        if latest and (datetime.now(UTC) - latest).total_seconds() < FORUM_CAPTCHA_REFRESH_SECONDS:
             return
         try:
             await _refresh_forum_captcha_pool(app_state, normalized_category)
         except Exception:
             # Keep forum/category APIs available even if captcha refresh fails transiently.
-            FORUM_CAPTCHA_LAST_REFRESH[normalized_category] = datetime.now(timezone.utc)
+            FORUM_CAPTCHA_LAST_REFRESH[normalized_category] = datetime.now(UTC)
             log.exception("Forum captcha refresh failed for category %s.", normalized_category)
 
 
 def schedule_forum_captcha_refresh(app_state, game_category: str) -> None:
     """Queue a stale captcha refresh in the background without blocking page reads."""
     normalized_category = normalize_game_category(game_category)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     last_refresh = FORUM_CAPTCHA_LAST_REFRESH.get(normalized_category)
     if last_refresh and (now - last_refresh).total_seconds() < FORUM_CAPTCHA_REFRESH_SECONDS:
         return

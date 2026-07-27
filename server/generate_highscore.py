@@ -1,10 +1,10 @@
 from __future__ import annotations
+
 from decimal import Decimal
 from operator import neg
 
-from sortedcollections import ValueSortedDict
-
 from const import HIGHSCORE_MIN_GAMES, MAX_HIGHSCORE_ITEM_LIMIT
+from sortedcollections import ValueSortedDict
 from variants import VARIANTS
 
 

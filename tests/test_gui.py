@@ -1,19 +1,21 @@
+import asyncio
+import json
+import re
+import shutil
+import time
+from datetime import UTC, datetime, timedelta
+from unittest.mock import patch
+
 import pytest
 import test_logger
-import re
-import json
-import time
-import asyncio
-import shutil
-from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
-from playwright.async_api import async_playwright, expect, Error as PlaywrightError
+from const import T_FINISHED
 from mongomock_motor import AsyncMongoMockClient
+from playwright.async_api import Error as PlaywrightError
+from playwright.async_api import async_playwright, expect
+from pychess_global_app_state_utils import get_app_state
+from tournament.tournament import SCORE_SHIFT
 
 from server import make_app
-from pychess_global_app_state_utils import get_app_state
-from const import T_FINISHED
-from tournament.tournament import SCORE_SHIFT
 
 test_logger.init_test_logger()
 
@@ -152,7 +154,7 @@ class TestGUI:
                 {
                     "_id": username,
                     "enabled": True,
-                    "createdAt": datetime.now(timezone.utc) - timedelta(days=30),
+                    "createdAt": datetime.now(UTC) - timedelta(days=30),
                     "lang": "en",
                     "theme": "dark",
                     "ct": "all",
@@ -192,7 +194,7 @@ class TestGUI:
             base_url = f"http://{server.host}:{server.port}"
 
             usernames = ["rr_host", "rr_player2", "rr_player3"]
-            created_at = datetime.now(timezone.utc) - timedelta(days=30)
+            created_at = datetime.now(UTC) - timedelta(days=30)
             for username in usernames:
                 await app_state.db.user.insert_one(
                     {
@@ -249,7 +251,7 @@ class TestGUI:
                     tournament = app_state.tournaments[tournament_id]
                     await self._eventually(lambda: tournament.nb_players == 3, timeout=10.0)
 
-                    await tournament.start(datetime.now(timezone.utc))
+                    await tournament.start(datetime.now(UTC))
                     await self._eventually(lambda: tournament.status != 0, timeout=5.0)
 
                     for username in usernames:

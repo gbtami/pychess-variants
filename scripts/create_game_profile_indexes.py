@@ -8,9 +8,7 @@ from time import monotonic
 from typing import Any
 
 from pymongo import AsyncMongoClient
-
 from settings import MONGO_DB_NAME, MONGO_HOST
-
 
 INDEX_SPECS = (
     ("us_d_desc", [("us", 1), ("d", -1)]),

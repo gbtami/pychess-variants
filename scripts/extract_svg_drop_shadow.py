@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 from xml.etree import ElementTree
 
-
 FILTER_BLOCK_RE = re.compile(
     r"<(?P<prefix>(?:[A-Za-z_][\w.-]*:)?)filter\b"
     r"(?P<attributes>[^>]*)>.*?</(?P=prefix)filter\s*>",

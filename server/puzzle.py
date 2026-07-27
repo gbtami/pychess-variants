@@ -1,22 +1,22 @@
 from __future__ import annotations
-import random
+
 import logging
-from datetime import datetime, timezone
+import random
+from datetime import UTC, datetime
 
 import aiohttp_session
-from pymongo.errors import DuplicateKeyError
-
-from fairy import FairyBoard
-from glicko2.glicko2 import MU, PHI, SIGMA, gl2, Rating
-from json_utils import json_response
-from pychess_global_app_state_utils import get_app_state
-from request_utils import read_post_data
 from const import (
-    GAME_CATEGORY_ALL,
-    CATEGORY_VARIANT_SETS,
     CATEGORY_VARIANT_LISTS,
+    CATEGORY_VARIANT_SETS,
+    GAME_CATEGORY_ALL,
     normalize_game_category,
 )
+from fairy import FairyBoard
+from glicko2.glicko2 import MU, PHI, SIGMA, Rating, gl2
+from json_utils import json_response
+from pychess_global_app_state_utils import get_app_state
+from pymongo.errors import DuplicateKeyError
+from request_utils import read_post_data
 from variants import VARIANTS
 
 log = logging.getLogger(__name__)
@@ -118,7 +118,7 @@ async def get_daily_puzzle(request):
     if "puzzle" not in db_collections:
         return empty_puzzle("chess")
 
-    today = datetime.now(timezone.utc).date().isoformat()
+    today = datetime.now(UTC).date().isoformat()
     daily_puzzle_ids = app_state.daily_puzzle_ids
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
@@ -341,7 +341,7 @@ async def update_puzzle_ratings(
 def default_puzzle_perf(puzzle_eval):
     perf = {
         "gl": {"r": float(MU), "d": float(PHI), "v": float(SIGMA)},
-        "la": datetime.now(timezone.utc),
+        "la": datetime.now(UTC),
         "nb": 0,
     }
     if len(puzzle_eval) > 1 and puzzle_eval[0] == "#":
@@ -363,7 +363,7 @@ class Puzzle:
 
     async def set_puzzle_rating(self, _variant: str, _chess960: bool, rating: Rating):
         gl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
-        la = datetime.now(timezone.utc)
+        la = datetime.now(UTC)
         nb = self.perf.get("nb", 0)
         self.perf = {
             "gl": gl,

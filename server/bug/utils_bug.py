@@ -1,26 +1,27 @@
+import logging
 import random
-from datetime import timezone
+from datetime import UTC
 from typing import TYPE_CHECKING
 
-from pychess_global_app_state import PychessGlobalAppState
-from compress import R2C, C2R
-from convert import zero2grand
-from bug.game_bug import GameBug
+from compress import C2R, R2C
 from const import (
-    MATE,
-    STARTED,
-    INVALIDMOVE,
     CASUAL,
-    RATED,
+    INVALIDMOVE,
+    MATE,
     POCKET_PATTERN,
+    RATED,
+    STARTED,
 )
+from convert import zero2grand
 from glicko2.glicko2 import gl2
 from newid import new_id
+from pychess_global_app_state import PychessGlobalAppState
 from seek import ANON_RESTRICTED_SEEK_MESSAGE, is_anon_restricted_seek
 from utils import remove_seek, round_broadcast, sanitize_fen
-from websocket_utils import ws_send_json_many
-import logging
 from variants import C2V, GRANDS
+from websocket_utils import ws_send_json_many
+
+from bug.game_bug import GameBug
 
 log = logging.getLogger(__name__)
 
@@ -197,7 +198,7 @@ async def load_game_bug_from_doc(
     level = doc.get("x")
     game.date = doc["d"]
     if game.date.tzinfo is None:
-        game.date = game.date.replace(tzinfo=timezone.utc)
+        game.date = game.date.replace(tzinfo=UTC)
     game.status = doc["s"]
     game.level = level if level is not None else 0
     game.result = C2R[doc["r"]]

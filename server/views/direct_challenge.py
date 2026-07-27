@@ -1,9 +1,9 @@
 import aiohttp_jinja2
 from aiohttp import web
-
 from header_challenges import challenge_participants, cleanup_expired_direct_challenges
 from pychess_global_app_state_utils import get_app_state
 from typing_defs import ViewContext
+
 from views import get_user_context
 
 

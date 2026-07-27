@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from aiohttp import web
-
 from link_filter import sanitize_user_message
 from newid import new_id
 from pychess_global_app_state_utils import get_app_state
@@ -91,7 +90,7 @@ async def forum_topic_create(request: web.Request) -> web.Response:
         slug = f"{base_slug}-{i}"
         i += 1
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     topic_id = await new_id(app_state.db.forum_topic)
     post_id = await new_id(app_state.db.forum_post)
 
@@ -177,7 +176,7 @@ async def forum_post_create(request: web.Request) -> web.Response:
             {"type": "error", "message": "Too many similar messages. Please wait and retry."}
         )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     post_id = await new_id(app_state.db.forum_post)
     post_doc = {
         "_id": post_id,
@@ -244,8 +243,7 @@ async def forum_post_edit(request: web.Request) -> web.Response:
 
     created_at = to_utc(post.get("createdAt"))
     if not is_mod and (
-        created_at is None
-        or (datetime.now(timezone.utc) - created_at) > timedelta(hours=EDIT_WINDOW_HOURS)
+        created_at is None or (datetime.now(UTC) - created_at) > timedelta(hours=EDIT_WINDOW_HOURS)
     ):
         return json_response({"type": "error", "message": "Post can no longer be edited"})
 
@@ -263,7 +261,7 @@ async def forum_post_edit(request: web.Request) -> web.Response:
     await app_state.db.forum_post.update_one(
         {"_id": post_id},
         {
-            "$set": {"text": text, "updatedAt": datetime.now(timezone.utc)},
+            "$set": {"text": text, "updatedAt": datetime.now(UTC)},
             "$inc": {"editCount": 1},
         },
     )
@@ -308,7 +306,7 @@ async def forum_post_delete(request: web.Request) -> web.Response:
                 "$set": {
                     "user": ERASED_POST_USER,
                     "text": ERASED_POST_TEXT,
-                    "erasedAt": datetime.now(timezone.utc),
+                    "erasedAt": datetime.now(UTC),
                 },
                 "$unset": {"reactions": "", "updatedAt": ""},
             },
@@ -475,7 +473,7 @@ async def forum_post_relocate(request: web.Request) -> web.Response:
 
     new_slug = str(topic.get("slug") or "")
     if await topic_by_tree(app_state, to_categ, new_slug) is not None:
-        new_slug = f"{new_slug}-{datetime.now(timezone.utc).strftime('%H%M%S')[-4:]}"
+        new_slug = f"{new_slug}-{datetime.now(UTC).strftime('%H%M%S')[-4:]}"
         i = 2
         while await topic_by_tree(app_state, to_categ, new_slug) is not None:
             new_slug = f"{new_slug}-{i}"

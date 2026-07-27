@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
 import json
 import time
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
+import game_api
 import test_logger
+import utils
 from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp.test_utils import AioHTTPTestCase
 from bson.int64 import Int64
-from mongomock_motor import AsyncMongoMockClient
-from pymongo.errors import BulkWriteError
-
-import game_api
 from const import SHIELD, STARTED, SWISS, T_FINISHED
 from game import Game
 from game_api import (
@@ -23,12 +20,14 @@ from game_api import (
     safe_write_eof,
     variant_counts_from_docs,
 )
+from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
-from user import User
-import utils
-from variants import VARIANTS, get_server_variant
+from pymongo.errors import BulkWriteError
 from settings import MONGO_DB_NAME
+from user import User
+from variants import VARIANTS, get_server_variant
+
+from server import make_app
 
 test_logger.init_test_logger()
 
@@ -89,7 +88,7 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
                 "r": "a",
                 "m": [],
                 "s": STARTED,
-                "d": datetime(2025, 1, 2, tzinfo=timezone.utc),
+                "d": datetime(2025, 1, 2, tzinfo=UTC),
                 "y": 1,
             }
         )
@@ -100,7 +99,7 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
                     "v": chess_code,
                     "z": 0,
                     "status": T_FINISHED,
-                    "startsAt": datetime(2025, 1, 3, tzinfo=timezone.utc),
+                    "startsAt": datetime(2025, 1, 3, tzinfo=UTC),
                     "winner": self.winner_probe,
                     "nbGames": 1,
                     "nbPlayers": 3,
@@ -110,7 +109,7 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
                     "v": chess_code,
                     "z": 0,
                     "status": T_FINISHED,
-                    "startsAt": datetime(2025, 1, 4, tzinfo=timezone.utc),
+                    "startsAt": datetime(2025, 1, 4, tzinfo=UTC),
                     "winner": self.shield_probe,
                     "fr": SHIELD,
                     "nbGames": 1,
@@ -227,7 +226,7 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
                 "r": "a",
                 "m": [],
                 "s": STARTED,
-                "d": datetime(2025, 1, 5, tzinfo=timezone.utc),
+                "d": datetime(2025, 1, 5, tzinfo=UTC),
                 "y": 1,
             }
         )
@@ -475,7 +474,7 @@ class UserGamesQueryParamsTestCase(AioHTTPTestCase):
                     "r": "b",
                     "m": [],
                     "s": STARTED + 1,
-                    "d": datetime(2025, 1, 1, tzinfo=timezone.utc),
+                    "d": datetime(2025, 1, 1, tzinfo=UTC),
                     "y": 1,
                 },
                 {
@@ -486,7 +485,7 @@ class UserGamesQueryParamsTestCase(AioHTTPTestCase):
                     "r": "a",
                     "m": [],
                     "s": STARTED + 1,
-                    "d": datetime(2025, 1, 2, tzinfo=timezone.utc),
+                    "d": datetime(2025, 1, 2, tzinfo=UTC),
                     "y": 1,
                 },
                 {
@@ -497,7 +496,7 @@ class UserGamesQueryParamsTestCase(AioHTTPTestCase):
                     "r": "a",
                     "m": [],
                     "s": STARTED + 1,
-                    "d": datetime(2025, 1, 3, tzinfo=timezone.utc),
+                    "d": datetime(2025, 1, 3, tzinfo=UTC),
                     "y": 1,
                     "ts": [Int64(60000), Int64(59000)],
                 },
@@ -706,7 +705,7 @@ class InviteReloadPersistenceTestCase(AioHTTPTestCase):
                 "byoyomi": 0,
                 "day": 0,
                 "gameId": "Expi1234",
-                "expireAt": datetime.now(timezone.utc) - timedelta(minutes=1),
+                "expireAt": datetime.now(UTC) - timedelta(minutes=1),
             }
         )
         await db.seek.insert_one(
@@ -728,7 +727,7 @@ class InviteReloadPersistenceTestCase(AioHTTPTestCase):
                 "gameId": "BotD1234",
                 "botChallengeStatus": "declined",
                 "botChallengeDeclineReason": "This bot does not support this variant.",
-                "expireAt": datetime.now(timezone.utc) + timedelta(minutes=30),
+                "expireAt": datetime.now(UTC) + timedelta(minutes=30),
             }
         )
         return make_app(db_client=db_client, simple_cookie_storage=True)

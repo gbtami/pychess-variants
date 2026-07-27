@@ -1,10 +1,9 @@
 import unittest
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
-from datetime import datetime, timedelta, timezone
 
 import test_logger
-
 from glicko2.glicko2 import new_default_perf_map
 from header_challenges import get_user_challenges, set_direct_challenge_status
 from seek import (
@@ -363,9 +362,9 @@ class HeaderChallengeTestCase(unittest.IsolatedAsyncioTestCase):
         challenger = User(app_state, username="alice", perfs=PERFS)
 
         seek = Seek("seek-accepted", challenger, "chess", day=3, target="bob", player1=challenger)
-        before = datetime.now(timezone.utc)
+        before = datetime.now(UTC)
         set_direct_challenge_status(seek, DIRECT_CHALLENGE_ACCEPTED)
-        after = datetime.now(timezone.utc)
+        after = datetime.now(UTC)
 
         self.assertIsNotNone(seek.expire_at)
         assert seek.expire_at is not None

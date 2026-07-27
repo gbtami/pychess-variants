@@ -1,27 +1,30 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Iterable, NamedTuple, Sequence, TypeVar
+
 import calendar as cal
 import datetime as dt
-import zoneinfo
 import logging
+import zoneinfo
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, NamedTuple, TypeVar
 
 from const import (
     ARENA,
     CATEGORIES,
-    SCHEDULE_MAX_DAYS,
     DAILY,
-    WEEKLY,
     MONTHLY,
-    YEARLY,
+    SCHEDULE_MAX_DAYS,
     SHIELD,
+    WEEKLY,
+    YEARLY,
 )
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
 
-from tournament.tournaments import new_tournament
 from typing_defs import ScheduledTournamentCreateData
-from variants import get_server_variant, GRANDS
+from variants import GRANDS, get_server_variant
+
+from tournament.tournaments import new_tournament
 
 log = logging.getLogger(__name__)
 
@@ -157,11 +160,11 @@ def go_month(orig_date: dt.datetime, month: int = 1) -> dt.datetime:
 class Scheduler:
     def __init__(self, now: dt.datetime | None = None) -> None:
         if now is None:
-            self.now = dt.datetime.now(dt.timezone.utc)
+            self.now = dt.datetime.now(dt.UTC)
         else:
             self.now = now
         # set time info to 0:0:0
-        self.now = dt.datetime.combine(self.now, dt.time.min, tzinfo=dt.timezone.utc)
+        self.now = dt.datetime.combine(self.now, dt.time.min, tzinfo=dt.UTC)
 
     def next_weekday(self, date: dt.datetime, weekday: int) -> dt.datetime:
         days_ahead = weekday - date.weekday()
@@ -171,7 +174,7 @@ class Scheduler:
 
     def first_monthly(self, weekday: int) -> dt.datetime:
         return self.next_weekday(
-            dt.datetime(self.now.year, self.now.month, 1, tzinfo=dt.timezone.utc),
+            dt.datetime(self.now.year, self.now.month, 1, tzinfo=dt.UTC),
             weekday,
         )
 
@@ -203,7 +206,7 @@ class Scheduler:
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
             hour = 14
             try:
-                date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
+                date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.UTC)
                 if date.weekday() == cal.SUNDAY:
                     # Shields on each SUNDAY starts at 12 and 3 hours long, so put this early...
                     hour = 10
@@ -219,7 +222,7 @@ class Scheduler:
             base, inc, byo = TC_MONTHLY_VARIANTS[v]
             hour = 16
             try:
-                date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.timezone.utc)
+                date = dt.datetime(self.now.year, self.now.month, i + 1, tzinfo=dt.UTC)
             except ValueError:
                 log.error("schedule_plan() ValueError")
                 break
@@ -268,11 +271,11 @@ def new_scheduled_tournaments(
     already_scheduled = [t[:5] for t in already_scheduled]
 
     if now is None:
-        now = dt.datetime.now(dt.timezone.utc)
+        now = dt.datetime.now(dt.UTC)
         # set time info to 0:0:0
-        now = dt.datetime.combine(now, dt.time.min, tzinfo=dt.timezone.utc)
+        now = dt.datetime.combine(now, dt.time.min, tzinfo=dt.UTC)
 
-    to_date = dt.datetime.combine(now, dt.time.max, tzinfo=dt.timezone.utc) + dt.timedelta(
+    to_date = dt.datetime.combine(now, dt.time.max, tzinfo=dt.UTC) + dt.timedelta(
         days=SCHEDULE_MAX_DAYS
     )
 
@@ -282,7 +285,7 @@ def new_scheduled_tournaments(
     new_tournaments_data: list[ScheduledTournamentCreateData] = []
 
     budapest = zoneinfo.ZoneInfo("Europe/Budapest")
-    from_now = dt.datetime(2024, 10, 28, tzinfo=dt.timezone.utc)
+    from_now = dt.datetime(2024, 10, 28, tzinfo=dt.UTC)
 
     for plan in plans:
         starts_at = dt.datetime(
@@ -290,7 +293,7 @@ def new_scheduled_tournaments(
             plan.date.month,
             plan.date.day,
             hour=plan.hour,
-            tzinfo=dt.timezone.utc,
+            tzinfo=dt.UTC,
         )
 
         # When it starts outside of daylight saving time (DST), shift it one hour later

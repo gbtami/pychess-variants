@@ -2,7 +2,6 @@ import unittest
 from typing import cast
 
 from aiohttp import web
-
 from client_reset import client_reset, client_reset_page
 
 

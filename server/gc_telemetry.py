@@ -4,7 +4,7 @@ import asyncio
 import gc
 import logging
 import os
-from typing import Callable, Optional
+from collections.abc import Callable
 
 log = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ async def _gc_stats_logger(shutdown_flag: Callable[[], bool]) -> None:
         ]
 
 
-def start_gc_telemetry(shutdown_flag: Callable[[], bool]) -> Optional[asyncio.Task]:
+def start_gc_telemetry(shutdown_flag: Callable[[], bool]) -> asyncio.Task | None:
     """
     Start the GC telemetry task if enabled.
 

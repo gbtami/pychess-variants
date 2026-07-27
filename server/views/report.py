@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import aiohttp_jinja2
 from aiohttp import web
-
 from pychess_global_app_state_utils import get_app_state
 from report_api import REPORT_SOURCES, _resolve_username, create_report_submission
 from request_utils import read_post_data
 from typing_defs import ViewContext
+
 from views import get_user_context
 
 REPORT_REASON_OPTIONS: list[dict[str, str]] = [
@@ -106,7 +106,7 @@ async def _load_inbox_messages(app_state, reporter: str, suspect: str) -> list[d
     for row in rows:
         created_at = row.get("createdAt")
         if isinstance(created_at, datetime):
-            created_at = created_at.astimezone(timezone.utc).isoformat()
+            created_at = created_at.astimezone(UTC).isoformat()
         else:
             created_at = ""
         msgs.append(

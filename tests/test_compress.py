@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
 import string
 import unittest
-import test_logger
 
+import test_logger
 from compress import (
     decode_move_extended,
     decode_move_standard,

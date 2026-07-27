@@ -1,18 +1,15 @@
-# -*- coding: utf-8 -*-
-
 import asyncio
 import logging
 
+import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
-
 from const import BYEGAME, STARTED
+from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from typedefs import pychess_global_app_state_key
 
-import test_logger
+from server import make_app
 
 test_logger.init_test_logger()
 

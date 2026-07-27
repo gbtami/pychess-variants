@@ -1,17 +1,15 @@
-# -*- coding: utf-8 -*-
-
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
-
-from pychess_global_app_state_utils import get_app_state
-from server import make_app
-from user import User
 from fairy.fairy_board import FOG_FEN_CACHE_SIZE
+from mongomock_motor import AsyncMongoMockClient
+from pychess_global_app_state_utils import get_app_state
 from tournament.tournament import PLAYER_JSON_CACHE_SIZE
+from user import User
+
+from server import make_app
 
 test_logger.init_test_logger()
 
@@ -63,11 +61,11 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
         app_state = get_app_state(self.app)
 
         anon_recent = User(app_state, anon=True)
-        anon_recent.last_seen = datetime.now(timezone.utc) - timedelta(minutes=5)
+        anon_recent.last_seen = datetime.now(UTC) - timedelta(minutes=5)
         app_state.users[anon_recent.username] = anon_recent
 
         anon_mid = User(app_state, anon=True)
-        anon_mid.last_seen = datetime.now(timezone.utc) - timedelta(minutes=30)
+        anon_mid.last_seen = datetime.now(UTC) - timedelta(minutes=30)
         app_state.users[anon_mid.username] = anon_mid
 
         anon_default = User(app_state, anon=True)

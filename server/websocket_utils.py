@@ -1,15 +1,17 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, TypeVar, cast
-from collections.abc import Awaitable, Callable, Iterable, Mapping
+
 import asyncio
 import logging
 import re
+from collections.abc import Awaitable, Callable, Iterable, Mapping
+from typing import TYPE_CHECKING, TypeVar, cast
+
 import aiohttp
 import aiohttp_session
 import msgspec
 from aiohttp import WSMessage, web
-from aiohttp.web_ws import WebSocketResponse
 from aiohttp.client_exceptions import ClientConnectionResetError
+from aiohttp.web_ws import WebSocketResponse
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -188,7 +190,7 @@ async def ws_send_str(ws: WebSocketResponse, msg: str) -> bool:
     try:
         await asyncio.wait_for(ws.send_str(msg), timeout=_SEND_TIMEOUT_SECS)
         return True
-    except ConnectionResetError, ClientConnectionResetError, RuntimeError, asyncio.TimeoutError:
+    except TimeoutError, ConnectionResetError, ClientConnectionResetError, RuntimeError:
         # Peer disconnected between scheduling and actual send.
         return False
 
@@ -206,12 +208,7 @@ async def ws_send_str_many(ws_set: Iterable[WebSocketResponse | None], msg: str)
             try:
                 await asyncio.wait_for(ws.send_str(msg), timeout=_SEND_TIMEOUT_SECS)
                 return True
-            except (
-                ConnectionResetError,
-                ClientConnectionResetError,
-                RuntimeError,
-                asyncio.TimeoutError,
-            ):
+            except TimeoutError, ConnectionResetError, ClientConnectionResetError, RuntimeError:
                 return False
             except Exception:
                 return False
@@ -227,7 +224,7 @@ async def ws_send_json(ws: WebSocketResponse | None, msg: Mapping[str, object] |
     try:
         await asyncio.wait_for(ws.send_str(_ws_json_dumps(msg)), timeout=_SEND_TIMEOUT_SECS)
         return True
-    except ConnectionResetError, ClientConnectionResetError, RuntimeError, asyncio.TimeoutError:
+    except TimeoutError, ConnectionResetError, ClientConnectionResetError, RuntimeError:
         # Peer disconnected between scheduling and actual send.
         return False
     except Exception:

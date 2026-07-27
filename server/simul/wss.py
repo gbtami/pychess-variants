@@ -1,13 +1,15 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 import aiohttp_session
 from aiohttp import web
-
 from chat import chat_response
 from link_filter import sanitize_user_message
 from pychess_global_app_state_utils import get_app_state
+from websocket_utils import get_user, process_ws, ws_send_json
+
 from simul.simuls import load_simul, upsert_simul_to_db
-from websocket_utils import process_ws, get_user, ws_send_json
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState

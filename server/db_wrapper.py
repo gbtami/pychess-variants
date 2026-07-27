@@ -2,29 +2,29 @@ import functools
 import inspect
 import logging
 
-from tenacity import (
-    retry,
-    wait_exponential_jitter,
-    stop_after_delay,
-    retry_if_exception_type,
-    retry_if_exception,
-    before_sleep_log,
-    after_log,
-)
+from pymongo.asynchronous.collection import AsyncCollection
+from pymongo.asynchronous.cursor import AsyncCursor
+from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.errors import (
-    ServerSelectionTimeoutError,
     AutoReconnect,
-    NetworkTimeout,
     ConnectionFailure,
+    CursorNotFound,
+    NetworkTimeout,
     NotPrimaryError,
     OperationFailure,
-    CursorNotFound,
-    WTimeoutError,
+    ServerSelectionTimeoutError,
     WaitQueueTimeoutError,
+    WTimeoutError,
 )
-from pymongo.asynchronous.collection import AsyncCollection
-from pymongo.asynchronous.database import AsyncDatabase
-from pymongo.asynchronous.cursor import AsyncCursor
+from tenacity import (
+    after_log,
+    before_sleep_log,
+    retry,
+    retry_if_exception,
+    retry_if_exception_type,
+    stop_after_delay,
+    wait_exponential_jitter,
+)
 
 logger = logging.getLogger("mongo.retry")
 

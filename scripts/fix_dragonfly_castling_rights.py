@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pymongo import AsyncMongoClient
-
 from settings import MONGO_DB_NAME, MONGO_HOST
-
 
 VARIANT_NAME = "dragonfly"
 OLD_START_FEN = "rbbknnr/ppppppp/7/7/7/PPPPPPP/RBBKNNR[] w - - 0 1"
@@ -99,7 +97,7 @@ async def main() -> None:
                 "$set": {
                     "ini": corrected_ini,
                     "startFen": corrected_start_fen,
-                    "updatedAt": datetime.now(timezone.utc),
+                    "updatedAt": datetime.now(UTC),
                 }
             },
         )

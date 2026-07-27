@@ -3,12 +3,11 @@ from __future__ import annotations
 import argparse
 import asyncio
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from time import monotonic
 from typing import Any
 
 from pymongo import AsyncMongoClient, UpdateOne
-
 from settings import MONGO_DB_NAME, MONGO_HOST
 
 try:
@@ -44,8 +43,8 @@ def _index_pattern(index_doc: dict[str, Any]) -> tuple[tuple[str, int], ...]:
 
 def _as_utc(dt: datetime) -> datetime:
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc)
+        return dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC)
 
 
 def _build_user_filter(*, username: str | None, start_after: str | None) -> dict[str, Any]:

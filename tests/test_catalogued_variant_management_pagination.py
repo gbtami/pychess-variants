@@ -3,8 +3,6 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from yarl import URL
-
 from catalogued_variants import (
     CATALOGUED_FSF_BUILTIN_AUTHOR,
     MAX_CATALOGUED_VARIANTS_PER_USER,
@@ -12,6 +10,7 @@ from catalogued_variants import (
     _positive_management_page,
     get_my_catalogued_variants,
 )
+from yarl import URL
 
 
 class FakeCursor:

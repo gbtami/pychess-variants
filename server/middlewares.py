@@ -3,17 +3,17 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+from collections.abc import Awaitable, Callable
 from random import random
 from time import monotonic
-from typing import Awaitable, Callable
 
 import aiohttp_session
 from aiohttp import web
-
-from lang import LOCALE
 from request_utils import safe_log_value
 from users import NotInDbUsers
 from views import page404
+
+from lang import LOCALE
 
 log = logging.getLogger(__name__)
 Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]

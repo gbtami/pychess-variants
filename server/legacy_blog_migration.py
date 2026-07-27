@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
-from pathlib import Path
 import re
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from legacy_blog_catalog import legacy_blogs
@@ -21,7 +21,7 @@ def parse_legacy_date(raw: str) -> datetime:
     value = str(raw or "").strip()
     for fmt in DATE_FORMATS:
         try:
-            return datetime.strptime(value, fmt).replace(tzinfo=timezone.utc)
+            return datetime.strptime(value, fmt).replace(tzinfo=UTC)
         except ValueError:
             continue
     raise ValueError(f"Unsupported date format: {raw!r}")

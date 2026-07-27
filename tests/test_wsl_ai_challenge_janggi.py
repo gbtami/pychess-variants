@@ -3,11 +3,9 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
 import test_logger
-
 from utils import join_seek
 from variants import register_catalogued_server_variant, unregister_catalogued_server_variant
 from wsl import handle_accept_seek, handle_create_ai_challenge
-
 
 test_logger.init_test_logger()
 

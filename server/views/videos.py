@@ -1,12 +1,13 @@
-import aiohttp_jinja2
-from aiohttp import web
 from urllib.parse import quote
 
+import aiohttp_jinja2
+from aiohttp import web
 from const import category_matches
-from videos import VIDEO_TAGS, VIDEO_TARGETS, VIDEO_CATEGORIES
-from typing_defs import VideoDoc, ViewContext
-from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
+from typing_defs import VideoDoc, ViewContext
+from videos import VIDEO_CATEGORIES, VIDEO_TAGS, VIDEO_TARGETS
+
+from views import get_user_context
 
 
 @aiohttp_jinja2.template("videos.html")

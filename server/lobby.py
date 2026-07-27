@@ -1,12 +1,10 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-from collections.abc import Mapping
 
 import collections
-from typing import Optional, Deque
+from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from aiohttp.web_ws import WebSocketResponse
-
 from const import MAX_CHAT_LINES
 from seek import get_seeks
 from websocket_utils import ws_send_json_many
@@ -30,7 +28,7 @@ class Lobby:
         self.lobbysockets: dict[
             str, set[WebSocketResponse]
         ] = {}  # one dict only! {user.username: user.tournament_sockets, ...}
-        self.lobbychat: Deque[ChatLine] = collections.deque([], MAX_CHAT_LINES)
+        self.lobbychat: collections.deque[ChatLine] = collections.deque([], MAX_CHAT_LINES)
         # Cache the last broadcast count so we can skip the broadcast when the
         # online count hasn't actually changed (e.g. a page-refresh causes a
         # rapid leave+join that triggers two calls but net count is the same).
@@ -67,7 +65,7 @@ class Lobby:
             response: LobbySeeksMessage = {"type": "get_seeks", "seeks": compatible_seeks}
             await ws_send_json_many(ws_set, response)
 
-    async def lobby_chat(self, username: str, message: str, time: Optional[int] = None) -> None:
+    async def lobby_chat(self, username: str, message: str, time: int | None = None) -> None:
         response: LobbyChatMessage = {"type": "lobbychat", "user": username, "message": message}
         if time is not None:
             response["time"] = time

@@ -1,8 +1,10 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Deque, Mapping
+
 import collections
 import logging
 import re
+from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from broadcast import broadcast_streams
 from const import NONE_USER, T_CREATED, T_STARTED
@@ -98,7 +100,7 @@ async def set_shadowban(
 def silence(
     app_state: PychessGlobalAppState,
     message: str,
-    chat: Deque["ChatLine"] | list["ChatLine"] | None = None,
+    chat: collections.deque[ChatLine] | list[ChatLine] | None = None,
     reason_text: str = "spamming the chat",
 ) -> FullChatMessage | None:
     response: FullChatMessage | None = None

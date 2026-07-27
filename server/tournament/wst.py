@@ -1,15 +1,15 @@
 from __future__ import annotations
+
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
-from datetime import datetime, timezone
 
 import aiohttp_session
-from aiohttp import web
-
+import logger
 from admin import shadowban, silence, unshadowban
+from aiohttp import web
 from chat import chat_response
 from const import ANON_PREFIX, SHIELD
 from link_filter import sanitize_user_message
-import logger
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -21,24 +21,25 @@ if TYPE_CHECKING:
         TournamentJoinMessage,
         TournamentLobbyChatMessage,
         TournamentMyPageMessage,
-        TournamentRRManagePlayerMessage,
-        TournamentRRManagementMessage,
-        TournamentRRSetJoiningMessage,
+        TournamentPauseMessage,
         TournamentRRArrangementsMessage,
         TournamentRRChallengeMessage,
+        TournamentRRManagementMessage,
+        TournamentRRManagePlayerMessage,
+        TournamentRRSetJoiningMessage,
         TournamentRRSetTimeMessage,
-        TournamentPauseMessage,
         TournamentUserConnectedRequest,
         TournamentWithdrawMessage,
     )
+from const import RR
 from pychess_global_app_state_utils import get_app_state
 from tournament_director import is_tournament_director
-from const import RR
+from websocket_utils import get_user, process_ws, ws_send_json
+from ws_types import ChatLine, FullChatMessage, TournamentUserConnectedMessage
+
 from tournament.rr import RRTournament
 from tournament.tournament import T_CREATED, T_STARTED
 from tournament.tournaments import load_tournament
-from ws_types import ChatLine, FullChatMessage, TournamentUserConnectedMessage
-from websocket_utils import process_ws, get_user, ws_send_json
 
 
 async def tournament_socket_handler(request):
@@ -117,11 +118,11 @@ async def process_message(
         await handle_rr_accept_challenge(app_state, ws, user, data)
     elif data["type"] == "rr_set_time":
         await handle_rr_set_time(app_state, ws, user, data)
-    elif data["type"] == "rr_approve_player":
-        await handle_rr_manage_player(app_state, ws, user, data)
-    elif data["type"] == "rr_deny_player":
-        await handle_rr_manage_player(app_state, ws, user, data)
-    elif data["type"] == "rr_kick_player":
+    elif (
+        data["type"] == "rr_approve_player"
+        or data["type"] == "rr_deny_player"
+        or data["type"] == "rr_kick_player"
+    ):
         await handle_rr_manage_player(app_state, ws, user, data)
     elif data["type"] == "lobbychat":
         await handle_lobbychat(app_state, user, data)
@@ -279,7 +280,7 @@ async def handle_user_connected(
 
     app_state.tourneysockets[tournamentId][user.username] = user.tournament_sockets[tournamentId]
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     response: TournamentUserConnectedMessage = {
         "type": "tournament_user_connected",
         "username": user.username,
@@ -379,9 +380,7 @@ async def handle_rr_set_time(
 
     raw_date = data.get("date")
     parsed_date = (
-        datetime.fromisoformat(raw_date.rstrip("Z")).replace(tzinfo=timezone.utc)
-        if raw_date
-        else None
+        datetime.fromisoformat(raw_date.rstrip("Z")).replace(tzinfo=UTC) if raw_date else None
     )
     result = await rr_tournament.set_arrangement_time(user, data["arrangementId"], parsed_date)
     if result is not None:

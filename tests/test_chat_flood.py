@@ -1,6 +1,6 @@
 import unittest
 
-from chat_flood import ChatFlood, PASSLIST, similar_messages
+from chat_flood import PASSLIST, ChatFlood, similar_messages
 
 
 class ChatFloodTestCase(unittest.TestCase):

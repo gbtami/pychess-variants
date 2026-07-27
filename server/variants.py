@@ -1,16 +1,17 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Literal
+from typing import Literal
 
 from compress import (
-    encode_move_duck,
-    encode_move_flipping,
-    encode_move_standard,
-    encode_move_extended,
     decode_move_duck,
+    decode_move_extended,
     decode_move_flipping,
     decode_move_standard,
-    decode_move_extended,
+    encode_move_duck,
+    encode_move_extended,
+    encode_move_flipping,
+    encode_move_standard,
 )
 from settings import PROD
 
@@ -193,7 +194,7 @@ del _
 
 def get_server_variant(
     uci_variant: str, chess960: bool | None
-) -> "ServerVariants | CataloguedServerVariant":
+) -> ServerVariants | CataloguedServerVariant:
     if uci_variant in CATALOGUED_VARIANTS:
         return CATALOGUED_VARIANTS[uci_variant]
     return ALL_VARIANTS[uci_variant + ("960" if chess960 else "")]
@@ -334,7 +335,7 @@ BYOS: tuple[str, ...] = tuple(variant.server_name for variant in ServerVariants 
 if __name__ == "__main__":
     print(GRANDS)
 
-    from deprecated import VARIANT_ICONS_ORIG, V2C_ORIG
+    from deprecated import V2C_ORIG, VARIANT_ICONS_ORIG
 
     for sn, variant in VARIANTS.items():
         print(variant.code, variant.icon, sn)

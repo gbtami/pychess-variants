@@ -1,10 +1,11 @@
 from __future__ import annotations
-import random
-import asyncio
-from datetime import datetime, timedelta, timezone
-from typing import Set, Dict, TYPE_CHECKING
 
-from const import T_CREATED, T_STARTED, T_FINISHED, T_ABORTED, CASUAL, STARTED
+import asyncio
+import random
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
+
+from const import CASUAL, STARTED, T_ABORTED, T_CREATED, T_FINISHED, T_STARTED
 from game import Game
 from newid import new_id
 from utils import insert_game_to_db
@@ -62,16 +63,16 @@ class Simul:
         self.entry_min_account_age_days = entry_min_account_age_days
         self.entry_titled_only = entry_titled_only
 
-        self.players: Dict[str, "User"] = {}
-        self.pending_players: Dict[str, "User"] = {}
-        self.games: Dict[str, "Game"] = {}
-        self.ongoing_games: Set["Game"] = set()
+        self.players: dict[str, User] = {}
+        self.pending_players: dict[str, User] = {}
+        self.games: dict[str, Game] = {}
+        self.ongoing_games: set[Game] = set()
         self.clock_task: asyncio.Task[None] | None = None
         self.status = T_CREATED
-        self.created_at = datetime.now(timezone.utc)
+        self.created_at = datetime.now(UTC)
         self.starts_at: datetime | None = None
         self.ends_at: datetime | None = None
-        self.spectators: Set["User"] = set()
+        self.spectators: set[User] = set()
         self.tourneychat = []
 
     @classmethod
@@ -82,7 +83,7 @@ class Simul:
             simul.players[created_by] = host
         return simul
 
-    def player_json(self, user: "User") -> dict[str, object]:
+    def player_json(self, user: User) -> dict[str, object]:
         return {
             "name": user.username,
             "title": user.title,
@@ -105,7 +106,7 @@ class Simul:
     def pending_players_json(self) -> list[dict[str, object]]:
         return [self.player_json(player) for player in self.pending_players.values()]
 
-    def game_json(self, game: "Game") -> dict[str, object]:
+    def game_json(self, game: Game) -> dict[str, object]:
         return {
             "gameId": game.id,
             "wplayer": game.wplayer.username,
@@ -124,7 +125,7 @@ class Simul:
     def all_games_json(self) -> list[dict[str, object]]:
         return [self.game_json(game) for game in self.games.values()]
 
-    def join(self, user: "User") -> bool:
+    def join(self, user: User) -> bool:
         if self.status != T_CREATED:
             return False
         if (
@@ -136,7 +137,7 @@ class Simul:
             return True
         return False
 
-    def entry_condition_error(self, user: "User") -> str | None:
+    def entry_condition_error(self, user: User) -> str | None:
         if user.bot:
             return "BOT accounts cannot join simuls."
 
@@ -154,7 +155,7 @@ class Simul:
             )
 
         if self.entry_min_account_age_days > 0:
-            account_age = datetime.now(timezone.utc) - user.created_at
+            account_age = datetime.now(UTC) - user.created_at
             if account_age < timedelta(days=self.entry_min_account_age_days):
                 return "This simul requires accounts to be at least %s days old." % (
                     self.entry_min_account_age_days,
@@ -191,13 +192,13 @@ class Simul:
             return True
         return False
 
-    def leave(self, user: "User"):
+    def leave(self, user: User):
         if user.username in self.players:
             del self.players[user.username]
         if user.username in self.pending_players:
             del self.pending_players[user.username]
 
-    def remove_disconnected_player(self, user: "User") -> str | None:
+    def remove_disconnected_player(self, user: User) -> str | None:
         if self.status != T_CREATED or user.username == self.created_by:
             return None
         if self.id in user.simul_sockets:
@@ -210,10 +211,10 @@ class Simul:
             return "approved"
         return None
 
-    def add_spectator(self, user: "User"):
+    def add_spectator(self, user: User):
         self.spectators.add(user)
 
-    def remove_spectator(self, user: "User"):
+    def remove_spectator(self, user: User):
         self.spectators.discard(user)
 
     async def broadcast(self, response):
@@ -223,7 +224,7 @@ class Simul:
                 sockets.extend(list(spectator.simul_sockets[self.id]))
         await ws_send_json_many(sockets, response)
 
-    async def simul_chat_save(self, response: "ChatLine") -> None:
+    async def simul_chat_save(self, response: ChatLine) -> None:
         self.tourneychat.append(response)
         if self.app_state.db is None:
             return
@@ -240,7 +241,7 @@ class Simul:
         response_db["sid"] = self.id
         await self.app_state.db.simul_chat.insert_one(response_db)
 
-    async def create_games(self) -> list["Game"]:
+    async def create_games(self) -> list[Game]:
         created_games: list[Game] = []
         host = self.players.get(self.created_by)
         if host is None:
@@ -302,7 +303,7 @@ class Simul:
             if not self.host_extra_time_valid():
                 return False
             self.status = T_STARTED
-            self.starts_at = datetime.now(timezone.utc)
+            self.starts_at = datetime.now(UTC)
             self.host_extra_time += (len(self.players) - 1) * self.host_extra_time_per_player
             from simul.simuls import upsert_simul_to_db
 
@@ -317,7 +318,7 @@ class Simul:
     async def finish(self):
         if self.status == T_STARTED:
             self.status = T_FINISHED
-            self.ends_at = datetime.now(timezone.utc)
+            self.ends_at = datetime.now(UTC)
             if self.clock_task is not None:
                 self.clock_task.cancel()
             from simul.simuls import upsert_simul_to_db
@@ -328,7 +329,7 @@ class Simul:
     async def abort(self):
         if self.status == T_CREATED:
             self.status = T_ABORTED
-            self.ends_at = datetime.now(timezone.utc)
+            self.ends_at = datetime.now(UTC)
             from simul.simuls import upsert_simul_to_db
 
             await upsert_simul_to_db(self)

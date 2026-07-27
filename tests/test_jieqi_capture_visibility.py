@@ -1,19 +1,17 @@
-# -*- coding: utf-8 -*-
-
 import unittest
+
 import test_logger
-
 from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
-
 from const import RESIGN
-from fairy import WHITE, BLACK
+from fairy import BLACK, WHITE
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
+from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from user import User
 from variants import VARIANTS
+
+from server import make_app
 
 test_logger.init_test_logger()
 

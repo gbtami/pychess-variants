@@ -1,6 +1,8 @@
 from __future__ import annotations
-from variants import TWO_BOARD_VARIANT_CODES
+
 import logging
+
+from variants import TWO_BOARD_VARIANT_CODES
 
 log = logging.getLogger(__name__)
 

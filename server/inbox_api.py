@@ -2,17 +2,16 @@ from __future__ import annotations
 
 import asyncio
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
-
+from json_utils import json_dumps, json_response
+from link_filter import sanitize_user_message
 from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
-from link_filter import sanitize_user_message
-from json_utils import json_dumps, json_response
 from utils import notification_items_for_user
 
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -176,7 +175,7 @@ async def inbox_thread(request: web.Request) -> web.Response:
     query: dict[str, object] = {"tid": tid, "deletedBy": {"$ne": username}}
     if before is not None:
         try:
-            before_dt = datetime.fromtimestamp(int(before) / 1000.0, tz=timezone.utc)
+            before_dt = datetime.fromtimestamp(int(before) / 1000.0, tz=UTC)
         except ValueError:
             return json_response({"type": "error", "message": "Invalid before value"}, status=400)
         query["createdAt"] = {"$lt": before_dt}
@@ -277,7 +276,7 @@ async def inbox_post(request: web.Request) -> web.Response:
             status=403,
         )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     tid = _thread_id(username, contact)
 
     msg_id = await new_id(app_state.db.inbox_msg)
@@ -376,7 +375,7 @@ async def subscribe_inbox(request: web.Request) -> web.StreamResponse:
                     payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
                     await response.send(payload)
                     queue.task_done()
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     if not response.is_connected():
                         break
     except Exception:

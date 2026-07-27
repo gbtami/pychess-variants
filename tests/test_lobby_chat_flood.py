@@ -1,6 +1,6 @@
 import unittest
 from collections import deque
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
@@ -14,7 +14,7 @@ def eligible_user(**overrides: object) -> SimpleNamespace:
         "silence": 0,
         "shadowban": False,
         "lobby_sockets": set(),
-        "created_at": datetime.now(timezone.utc) - timedelta(days=2),
+        "created_at": datetime.now(UTC) - timedelta(days=2),
         "count": {"game": 10},
         "perfs": {"atomic": {"nb": 5}},
     }

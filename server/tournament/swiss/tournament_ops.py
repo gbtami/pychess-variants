@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
 import logging
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from const import ABORTED
 from fairy import BLACK, WHITE
+
 from tournament.tournament import (
-    ByeGame,
-    PairingUnavailable,
     SCORE_SHIFT,
     SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
     SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS,
+    ByeGame,
+    PairingUnavailable,
 )
 
 from .history import (
@@ -107,7 +108,7 @@ def _active_swiss_ban_until(tournament, user: User, now: datetime | None = None)
     """Return the player's still-active Swiss ban timestamp, if any."""
 
     if now is None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
     banned_until = user.swiss_ban_until
     if banned_until is None or banned_until <= now:
         return None
@@ -200,7 +201,7 @@ async def _update_swiss_no_show_bans(tournament, game: Game) -> None:
         return
 
     culprit = tournament._player_who_did_not_move(game)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     for player in (game.wplayer, game.bplayer):
         if player == culprit:
             await tournament._ban_swiss_no_show(player, now)

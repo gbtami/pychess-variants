@@ -63,7 +63,7 @@ def rss_bytes() -> int:
     raise RuntimeError("VmRSS not found in /proc/self/status")
 
 
-def mib(value_bytes: int | float) -> float:
+def mib(value_bytes: float) -> float:
     return float(value_bytes) / (1024 * 1024)
 
 

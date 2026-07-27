@@ -4,7 +4,6 @@ import unittest
 from unittest.mock import patch
 
 import test_logger
-
 from fairy.fairy_board import FairyBoard, modded_variant
 
 test_logger.init_test_logger()

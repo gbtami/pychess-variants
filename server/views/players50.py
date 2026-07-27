@@ -1,15 +1,15 @@
 import aiohttp_jinja2
 from aiohttp import web
-
-from typing_defs import ViewContext
-from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
+from typing_defs import ViewContext
 from variants import VARIANTS
+
+from views import get_user_context
 
 
 @aiohttp_jinja2.template("players50.html")
 async def players50(request: web.Request) -> ViewContext:
-    user, context = await get_user_context(request)
+    _user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)
     variant = request.match_info.get("variant")

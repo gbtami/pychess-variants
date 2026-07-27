@@ -1,10 +1,11 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Mapping
-from datetime import datetime, timezone
+
+import logging
+from collections.abc import Mapping
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 import aiohttp
-import logging
-
 from const import T_CREATED
 from misc import time_control_str
 
@@ -29,7 +30,7 @@ async def lichess_team_msg(app_state: PychessGlobalAppState) -> None:
     if DEV or LICHESS_API_TOKEN is None:
         return
 
-    to_date = datetime.now(timezone.utc).date()
+    to_date = datetime.now(UTC).date()
     if to_date in app_state.sent_lichess_team_msg:
         log.info("No more lichess team msg for today!")
         return
@@ -52,7 +53,7 @@ async def lichess_team_msg(app_state: PychessGlobalAppState) -> None:
 
 
 def upcoming_tournaments_msgs(tournaments: Mapping[str, Tournament]) -> str:
-    to_date = datetime.now(timezone.utc).date()
+    to_date = datetime.now(UTC).date()
     tourney_msgs = []
 
     for _id, tourney in sorted(tournaments.items(), key=lambda item: item[1].starts_at):

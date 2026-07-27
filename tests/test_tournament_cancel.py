@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
 import json
 import time
-
-from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
 from unittest.mock import patch
 
+from aiohttp.test_utils import AioHTTPTestCase
 from const import T_ABORTED
+from mongomock_motor import AsyncMongoMockClient
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from tournament.auto_play_tournament import SwissTestTournament
 from user import User
+
+from server import make_app
 
 
 class TournamentCancelRedirectTestCase(AioHTTPTestCase):

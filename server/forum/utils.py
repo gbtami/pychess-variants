@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import math
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import aiohttp_session
 from aiohttp import web
+from json_utils import json_response as msgspec_json_response
 
 from forum.constants import MENTION_RE
-from json_utils import json_response as msgspec_json_response
 
 
 async def session_username(request: web.Request) -> str | None:
@@ -22,15 +22,15 @@ def to_utc(value: object) -> datetime | None:
     if not isinstance(value, datetime):
         return None
     if value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc)
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
 
 
 def slugify(value: str) -> str:
     """Create a forum-safe slug from user text using lila-compatible constraints."""
     slug = re.sub(r"[^a-z0-9]+", "-", value.strip().lower()).strip("-")
     if len(slug) < 3:
-        slug = f"topic-{datetime.now(timezone.utc).strftime('%H%M%S')}"
+        slug = f"topic-{datetime.now(UTC).strftime('%H%M%S')}"
     return slug[:80]
 
 

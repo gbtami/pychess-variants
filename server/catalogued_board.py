@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import logging
+from collections.abc import Mapping
 from dataclasses import dataclass
 from functools import lru_cache
 from html import escape
-import logging
-from typing import Any, Mapping, TypedDict
+from typing import Any, TypedDict
 
 log = logging.getLogger(__name__)
 

@@ -1,12 +1,11 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Mapping
+
 import asyncio
-from datetime import datetime, timezone
+from collections.abc import Mapping
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 import aiohttp_session
-from aiohttp import web
-from aiohttp.web_ws import WebSocketResponse
-
 from admin import (
     ban,
     baninfo,
@@ -21,9 +20,11 @@ from admin import (
     unban,
     unshadowban,
 )
+from aiohttp import web
+from aiohttp.web_ws import WebSocketResponse
 from auto_pair import (
-    auto_pair,
     add_to_auto_pairings,
+    auto_pair,
     find_matching_user_for_seek,
 )
 from chat import chat_response
@@ -36,14 +37,15 @@ from header_challenges import (
     schedule_direct_challenge_offline,
     set_direct_challenge_status,
 )
-from newid import new_id
 from link_filter import sanitize_user_message
+from newid import new_id
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from game import Game
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
-    from typing import Literal
     from ws_types import (
         AcceptSeekMessage,
         AutoPairingStatusMessage,
@@ -56,22 +58,27 @@ if TYPE_CHECKING:
         CreateInviteMessage,
         CreateSeekMessage,
         DeleteSeekMessage,
+        DirectChallengeCreatedMessage,
         FullChatMessage,
         GameInProgressMessage,
         HostCreatedMessage,
         InviteCreatedMessage,
-        DirectChallengeCreatedMessage,
-        LobbyCountMessage,
         LeaveSeekMessage,
         LobbyChatMessage,
+        LobbyCountMessage,
         LobbyInboundMessage,
-        LobbyUserConnectedMessage,
-        LobbySeeksMessage,
         LobbyLeaderboardMessage,
+        LobbySeeksMessage,
+        LobbyUserConnectedMessage,
         SpotlightsMessage,
         StreamsMessage,
         TournamentWinnersMessage,
     )
+import logging
+
+import logger
+from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
+from catalogued_variants import can_create_catalogued_seek, catalogued_variant_games_are_persisted
 from pychess_global_app_state_utils import get_app_state
 from seek import (
     ACTIVE_DIRECT_CHALLENGE_STATUSES,
@@ -80,6 +87,8 @@ from seek import (
     DIRECT_CHALLENGE_CANCELED,
     SEEK_LIMIT_REACHED_MESSAGE,
     TWO_BOARD_TARGETED_SEEK_MESSAGE,
+    Seek,
+    SeekCreateData,
     challenge,
     create_seek,
     get_seeks,
@@ -87,21 +96,14 @@ from seek import (
     is_direct_challenge_target,
     is_targeted_two_board_seek,
     user_reached_seek_limit,
-    Seek,
-    SeekCreateData,
 )
 from settings import ADMINS
-from ws_structs import LOBBY_TYPED_DECODERS
-from tournament_director import is_tournament_director
 from tournament.tournament_spotlights import tournament_spotlights
-from bug.utils_bug import handle_accept_seek_bughouse, handle_leave_seek_bughouse
+from tournament_director import is_tournament_director
 from utils import join_seek, load_game, remove_seek, send_bot_game_start_unless_streaming
-from websocket_utils import get_user, process_ws, ws_send_json, ws_send_json_many
-import logging
-import logger
-
 from variants import get_server_variant, is_catalogued_variant
-from catalogued_variants import can_create_catalogued_seek, catalogued_variant_games_are_persisted
+from websocket_utils import get_user, process_ws, ws_send_json, ws_send_json_many
+from ws_structs import LOBBY_TYPED_DECODERS
 
 log = logging.getLogger(__name__)
 
@@ -184,7 +186,7 @@ async def lobby_socket_handler(request: web.Request) -> web.StreamResponse:
 
 
 async def init_ws(app_state: PychessGlobalAppState, ws: WebSocketResponse, user: User) -> None:
-    user.last_seen = datetime.now(timezone.utc)
+    user.last_seen = datetime.now(UTC)
     await send_game_in_progress_if_any(app_state, user, ws)
     await send_lobby_user_connected(app_state, ws, user)
     await send_get_seeks(app_state, ws, user)

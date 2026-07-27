@@ -1,20 +1,20 @@
+from datetime import UTC, datetime
+
 import aiohttp_jinja2
 from aiohttp import web
-from datetime import datetime, timezone
-
+from catalogued_variants import is_public_catalogued_variant, public_catalogued_variants_for_forms
+from const import T_CREATED
+from misc import time_control_str
+from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
-from misc import time_control_str
-from typing_defs import ViewContext
-from views import get_user_context
-from catalogued_variants import is_public_catalogued_variant, public_catalogued_variants_for_forms
-from variants import VARIANTS, VARIANT_ICONS, get_server_variant, is_catalogued_variant
+from settings import SIMULING
 from simul.simul import Simul
 from simul.simuls import delete_simul_from_db, get_latest_simuls, load_simul, upsert_simul_to_db
-from newid import id8
-from const import T_CREATED
-from settings import SIMULING
+from typing_defs import ViewContext
+from variants import VARIANT_ICONS, VARIANTS, get_server_variant, is_catalogued_variant
 
+from views import get_user_context
 
 RATED_GAME_CHOICES = [
     (0, "No restriction"),
@@ -191,10 +191,10 @@ def parse_optional_datetime_post_field(data, field_name: str) -> datetime | None
     if raw_value == "":
         return None
     try:
-        parsed = datetime.fromisoformat(raw_value.rstrip("Z")).replace(tzinfo=timezone.utc)
+        parsed = datetime.fromisoformat(raw_value.rstrip("Z")).replace(tzinfo=UTC)
     except ValueError as exc:
         raise web.HTTPBadRequest(text=f"Invalid datetime value: {field_name}") from exc
-    if parsed <= datetime.now(timezone.utc):
+    if parsed <= datetime.now(UTC):
         raise web.HTTPBadRequest(text=f"{field_name} must be in the future")
     return parsed
 
@@ -271,7 +271,7 @@ async def simuls(request: web.Request) -> ViewContext:
             raise web.HTTPNoContent()
         simul_id = id8()
         name = parse_simul_name(data)
-        variant_key, variant = parse_simul_variant(app_state, data)
+        _variant_key, variant = parse_simul_variant(app_state, data)
         host_color = parse_host_color(data)
         base = parse_int_post_field(data, "base", min_value=0, max_value=180)
         inc = parse_int_post_field(data, "inc", min_value=0, max_value=180)
@@ -387,7 +387,7 @@ async def simul(request: web.Request) -> ViewContext:
     if not SIMULING:
         raise web.HTTPForbidden()
 
-    user, context = await get_user_context(request)
+    _user, context = await get_user_context(request)
     app_state = get_app_state(request.app)
 
     simul_id = request.match_info["simulId"]
@@ -488,7 +488,7 @@ async def start_simul(request: web.Request) -> web.Response:
     if not SIMULING:
         raise web.HTTPForbidden()
 
-    user, context = await get_user_context(request)
+    user, _context = await get_user_context(request)
     app_state = get_app_state(request.app)
     simulId = request.match_info["simulId"]
     simul = app_state.simuls.get(simulId)

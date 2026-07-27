@@ -2,7 +2,6 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from const import ABORTED, STARTED
 from catalogued_variants import (
     _has_active_catalogued_games,
     archive_catalogued_variant,
@@ -11,6 +10,7 @@ from catalogued_variants import (
     ensure_catalogued_variant_from_game_doc,
     find_catalogued_variant_doc,
 )
+from const import ABORTED, STARTED
 from variants import (
     is_catalogued_variant,
     register_catalogued_server_variant,

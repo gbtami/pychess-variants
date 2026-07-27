@@ -1,32 +1,31 @@
 import base64
 import hashlib
+import logging
 import secrets
-from urllib.parse import urlencode
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, TypedDict
-from datetime import datetime, timezone, timedelta
+from urllib.parse import urlencode
 
 import aiohttp
 import aiohttp_session
 from aiohttp import web
-from pymongo.errors import DuplicateKeyError
-
 from broadcast import round_broadcast
 from const import STARTED, reserved
 from json_utils import json_response
-from oauth_config import oauth_config
-from settings import URI
-from pychess_global_app_state_utils import get_app_state
-from request_utils import read_json_data
 from newid import new_id
+from oauth_config import oauth_config
+from pychess_global_app_state_utils import get_app_state
+from pymongo.errors import DuplicateKeyError
+from request_utils import read_json_data
 from security_evasion import (
     collect_client_signals,
     is_signup_blocked_by_signals,
     remember_user_signals,
 )
+from settings import URI
+from typing_defs import UserDocument
 from user_stats import DEFAULT_USER_COUNT
 from websocket_utils import ws_send_json_many
-from typing_defs import UserDocument
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -196,7 +195,7 @@ async def login(request: web.Request) -> web.StreamResponse:
                 log.info(
                     "Self-closed account %s tried to log in; redirecting to reopen flow.", username
                 )
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
                 raw_token = secrets.token_urlsafe(32)
                 token_hash = hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
                 await app_state.db.account_reopen_token.delete_many(
@@ -257,7 +256,7 @@ async def get_user_data(url: str, token: str) -> OAuthUserData:
             return data
 
 
-async def logout(request: web.Request | None, user: "User | None" = None) -> web.StreamResponse:
+async def logout(request: web.Request | None, user: User | None = None) -> web.StreamResponse:
     if request is not None:
         # user clicked the logout
         app_state = get_app_state(request.app)
@@ -399,14 +398,14 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
 
     blocked, match_reason = await is_signup_blocked_by_signals(app_state.db, signals)
     if blocked:
-        auto_close_at = datetime.now(timezone.utc)
+        auto_close_at = datetime.now(UTC)
         log.warning(
             "Auto-closing new account %s due to ban-evasion signal match (%s)",
             username,
             match_reason,
         )
         try:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             await app_state.db.user.insert_one(
                 {
                     "_id": username,
@@ -446,7 +445,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
         )
 
     try:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         result = await app_state.db.user.insert_one(
             {
                 "_id": username,

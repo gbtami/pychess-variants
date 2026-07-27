@@ -4,15 +4,13 @@ import argparse
 import asyncio
 import re
 from collections.abc import Iterable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
-
-from pymongo import AsyncMongoClient
 
 from compress import R2C
 from const import ABORTED, ANON_PREFIX
+from pymongo import AsyncMongoClient
 from settings import MONGO_DB_NAME, MONGO_HOST
-
 
 DEFAULT_STUCK_GAME_IDS = ("yJAvr1xX", "F7XTMwl9")
 
@@ -123,7 +121,7 @@ async def main() -> None:
             print("No matching in-progress correspondence games found.", flush=True)
             return
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         candidates: list[dict[str, Any]] = []
         skipped: list[tuple[str, str]] = []
 

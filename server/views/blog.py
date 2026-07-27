@@ -1,9 +1,9 @@
 from aiohttp import web
-
 from const import category_matches
-from ublog import post_url
-from views import get_user_context
 from pychess_global_app_state_utils import get_app_state
+from ublog import post_url
+
+from views import get_user_context
 
 
 async def blog(request: web.Request) -> web.StreamResponse:

@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Collection, Protocol
+
+from collections.abc import Collection
 from itertools import chain
+from typing import TYPE_CHECKING, Protocol
 
 from const import MAX_NAMED_SPECTATORS
 
@@ -13,7 +15,7 @@ class Spectator(Protocol):
     anon: bool
 
 
-def spectators(spectators_list: Collection[Spectator]) -> "SpectatorsMessage":
+def spectators(spectators_list: Collection[Spectator]) -> SpectatorsMessage:
     named_spectators = (spectator.username for spectator in spectators_list if not spectator.anon)
     anons: tuple[str, ...] = ()
     anon = sum(1 for user in spectators_list if user.anon)

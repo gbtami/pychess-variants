@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
-from fairy import FEN_OK, NOTATION_SAN, FairyBoard, STANDARD_FEN, get_san_moves, validate_fen
 import test_logger
+from fairy import FEN_OK, NOTATION_SAN, STANDARD_FEN, FairyBoard, get_san_moves, validate_fen
 
 test_logger.init_test_logger()
 

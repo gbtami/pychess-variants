@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
-import unittest
-import test_logger
 import datetime as dt
+import unittest
 
+import test_logger
 from const import SCHEDULE_MAX_DAYS
-from tournament.scheduler import new_scheduled_tournaments, MONTHLY_VARIANTS, SHIELDS, Scheduler
+from tournament.scheduler import MONTHLY_VARIANTS, SHIELDS, Scheduler, new_scheduled_tournaments
 
 test_logger.init_test_logger()
 
@@ -15,7 +13,7 @@ ONE_TEST_ONLY = False
 def create_scheduled_data(year, month, day, already_scheduled=None):
     if already_scheduled is None:
         already_scheduled = []
-    start = dt.datetime(year, month, day, tzinfo=dt.timezone.utc)
+    start = dt.datetime(year, month, day, tzinfo=dt.UTC)
     data = new_scheduled_tournaments(already_scheduled, start)
     return [
         (e["frequency"], e["variant"], e["chess960"], e["startDate"], e["minutes"]) for e in data
@@ -24,9 +22,9 @@ def create_scheduled_data(year, month, day, already_scheduled=None):
 
 class TournamentSchedulerTestCase(unittest.TestCase):
     def setUp(self):
-        self.now = dt.datetime.now(dt.timezone.utc)
+        self.now = dt.datetime.now(dt.UTC)
         # set time info to 0:0:0
-        self.now = dt.datetime.combine(self.now, dt.time.min, tzinfo=dt.timezone.utc)
+        self.now = dt.datetime.combine(self.now, dt.time.min, tzinfo=dt.UTC)
         self.ymd = self.now.year, self.now.month, self.now.day
 
     def go_day(self, day):

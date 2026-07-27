@@ -1,7 +1,6 @@
 import unittest
 
 from aiohttp import web
-
 from catalogued_variants import _clean_piece_family_override, _read_piece_family_override
 
 

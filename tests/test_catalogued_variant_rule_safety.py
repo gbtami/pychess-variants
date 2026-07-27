@@ -1,18 +1,17 @@
 import unittest
 
-from aiohttp import web
-
 import test_logger
+from aiohttp import web
 from catalogued_variants import (
     _ensure_catalogued_rules_supported,
     _strip_pychess_pieces_metadata,
-    catalogued_pychess_piece_roles,
     catalogued_king_roles,
     catalogued_legal_moves_need_history,
     catalogued_n_fold_is_draw,
     catalogued_promotion_order,
     catalogued_promotion_roles,
     catalogued_promotion_type,
+    catalogued_pychess_piece_roles,
     catalogued_rules_gate,
     catalogued_rules_pass,
     catalogued_show_check_counters,

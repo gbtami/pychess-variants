@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from urllib.parse import quote, urlencode
 
 from aiohttp import web
-
 from const import GAME_CATEGORY_ALL, normalize_game_category
 from pychess_global_app_state_utils import get_app_state
 
@@ -178,9 +177,7 @@ async def forum_topic(request: web.Request) -> web.Response:
             can_delete = can_moderate_forum or owner == username
             can_edit = can_delete
             if owner == username and created_at is not None:
-                can_edit = (datetime.now(timezone.utc) - created_at) <= timedelta(
-                    hours=EDIT_WINDOW_HOURS
-                )
+                can_edit = (datetime.now(UTC) - created_at) <= timedelta(hours=EDIT_WINDOW_HOURS)
             if me is not None:
                 can_react = can_write(me) and owner != username and not me.bot
         reaction_counts, my_reactions = serialize_reactions(post.get("reactions"), viewer=username)

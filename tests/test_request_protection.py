@@ -4,10 +4,10 @@ from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
-
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from request_protection import RequestProtectionState
+
+from server import make_app
 
 
 class RequestProtectionTestCase(AioHTTPTestCase):

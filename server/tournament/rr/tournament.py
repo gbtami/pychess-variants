@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from const import ABORTED, RR, T_ABORTED, T_ARCHIVED, T_CREATED, T_FINISHED, T_STARTED
 from notify import notify_by_username
 from seek import SeekCreateData, create_seek
-from tournament.tournament import ByeGame, PlayerData, RR_MAX_SUPPORTED_PLAYERS, Tournament
 from typing_defs import (
     NotificationContent,
     TournamentArrangementDoc,
@@ -17,6 +16,8 @@ from typing_defs import (
 )
 from utils import join_seek
 from websocket_utils import ws_send_json_many
+
+from tournament.tournament import RR_MAX_SUPPORTED_PLAYERS, ByeGame, PlayerData, Tournament
 
 from .arrangements import (
     ARR_REMINDER_COOLDOWN_AFTER_AGREEMENT,
@@ -498,7 +499,7 @@ class RRTournament(Tournament):
     async def clock(self):
         try:
             while self.status not in (T_ABORTED, T_FINISHED, T_ARCHIVED):
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
                 if self.status == T_CREATED:
                     if now >= self.starts_at:
                         if len(self.players) < 2:
@@ -534,7 +535,7 @@ class RRTournament(Tournament):
 
     @staticmethod
     def _normalize_arrangement_date(date: datetime | None) -> datetime | None:
-        return None if date is None else date.astimezone(timezone.utc).replace(microsecond=0)
+        return None if date is None else date.astimezone(UTC).replace(microsecond=0)
 
     @staticmethod
     def _dates_within_tolerance(left: datetime, right: datetime) -> bool:
@@ -574,7 +575,7 @@ class RRTournament(Tournament):
         ):
             arrangement.scheduled_at = opponent_date
 
-        arrangement.date = datetime.now(timezone.utc)
+        arrangement.date = datetime.now(UTC)
         if previous_scheduled_at != arrangement.scheduled_at:
             arrangement.last_reminded_at = None
         await self.db_update_arrangement(arrangement)
@@ -685,7 +686,7 @@ class RRTournament(Tournament):
         arrangement.status = ARR_STATUS_CHALLENGED
         arrangement.invite_id = seek.game_id
         arrangement.challenger = user.username
-        arrangement.date = datetime.now(timezone.utc)
+        arrangement.date = datetime.now(UTC)
         await self.db_update_arrangement(arrangement)
         content: NotificationContent = {
             "tid": self.id,
@@ -733,7 +734,7 @@ class RRTournament(Tournament):
         arrangement.black_date = None
         arrangement.scheduled_at = None
         arrangement.last_reminded_at = None
-        arrangement.date = datetime.now(timezone.utc)
+        arrangement.date = datetime.now(UTC)
         self.ongoing_games.add(game)
         self.update_players(game)
         await self.db_update_pairing(game)
@@ -765,7 +766,7 @@ class RRTournament(Tournament):
         arrangement.black_date = None
         arrangement.scheduled_at = None
         arrangement.last_reminded_at = None
-        arrangement.date = datetime.now(timezone.utc)
+        arrangement.date = datetime.now(UTC)
         await self.db_update_arrangement(arrangement)
         await self.broadcast_arrangements()
 

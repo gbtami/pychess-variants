@@ -1,18 +1,18 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
-from typing import Any, Mapping
+from collections.abc import Mapping
+from datetime import UTC, datetime
+from typing import Any
 
 import aiohttp_session
-from aiohttp import web
-
 from admin import ban, set_shadowban, silence
+from aiohttp import web
+from json_utils import json_response
 from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from settings import ADMINS
-from json_utils import json_response
 
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 GAME_ID_RE = re.compile(r"^\w{8}$")
@@ -74,7 +74,7 @@ async def _mark_report_processed(
     username: str,
     moderation_action: str | None = None,
 ) -> int:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     update_set: dict[str, object] = {
         "status": "processed",
         "processedBy": username,
@@ -187,7 +187,7 @@ async def create_report_submission(
         if len(msgs) > 30:
             msgs = msgs[:30]
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     report_id = await new_id(app_state.db.user_report)
     report_doc: dict[str, object] = {
         "_id": report_id,
@@ -280,7 +280,7 @@ async def report_inquiry(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "Report not found"}, status=404)
 
     inquiry_by = report.get("inquiryBy")
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if isinstance(inquiry_by, str) and inquiry_by.casefold() == username.casefold():
         await app_state.db.user_report.update_one(
             {"_id": report_id},
@@ -406,7 +406,7 @@ async def report_reopen(request: web.Request) -> web.Response:
         return json_response({"type": "error", "message": "Admin only"}, status=403)
 
     report_id = request.match_info.get("reportId", "")
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     result = await app_state.db.user_report.update_one(
         {"_id": report_id},
         {

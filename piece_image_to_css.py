@@ -1,7 +1,6 @@
-import sys
 import base64
+import sys
 from pathlib import Path
-
 
 STATIC_DIR = Path("static")
 PIECE_DIR = STATIC_DIR / "piece"

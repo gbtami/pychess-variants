@@ -1,17 +1,19 @@
-from bug.utils_bug import init_players
+import logging
+from datetime import UTC, datetime
+
+from bugchess.pgn import Game, GameBuilder, read_game
+from compress import R2C, encode_move_standard
+from const import (
+    IMPORTED,
+    UNKNOWNFINISH,
+)
+from json_utils import json_response
+from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
-from const import (
-    UNKNOWNFINISH,
-    IMPORTED,
-)
-from datetime import datetime, timezone
-from compress import R2C, encode_move_standard
-from newid import new_id
-from bugchess.pgn import read_game, Game, GameBuilder
-from json_utils import json_response
-import logging
 from variants import get_server_variant
+
+from bug.utils_bug import init_players
 
 log = logging.getLogger(__name__)
 
@@ -24,12 +26,12 @@ class QuietGameBuilder(GameBuilder):
 
 def _parse_import_date(value: str) -> datetime:
     if not value or "?" in value:
-        return datetime.now(timezone.utc)
+        return datetime.now(UTC)
     try:
         date = map(int, value[0:10].split("." if "." in value else "/"))
-        return datetime(*date, tzinfo=timezone.utc)
+        return datetime(*date, tzinfo=UTC)
     except Exception:
-        return datetime.now(timezone.utc)
+        return datetime.now(UTC)
 
 
 def _parse_time_control(value: str) -> tuple[int, int]:

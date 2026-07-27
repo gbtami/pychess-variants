@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Literal, overload
+
 from time import time
+from typing import Literal, overload
 
 from ws_types import ChatLine, ChatMessage, LobbyChatMessage
 

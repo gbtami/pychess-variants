@@ -3,18 +3,17 @@ from typing import Any, cast
 from unittest.mock import AsyncMock, patch
 
 from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
-
 from const import INVALIDMOVE, STARTED
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
+from mongomock_motor import AsyncMongoMockClient
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from user import User
 from utils import play_move
 from variants import VARIANTS
 
+from server import make_app
 
 PERFS = new_default_perf_map(VARIANTS)
 

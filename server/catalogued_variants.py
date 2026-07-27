@@ -8,23 +8,23 @@ import re
 import sys
 import unicodedata
 import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta, timezone
+from collections.abc import Mapping
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Mapping, NamedTuple, NotRequired, TypedDict, cast
+from typing import Any, NamedTuple, NotRequired, TypedDict, cast
 from urllib.parse import unquote, urlparse
 
 import aiohttp_session
 from aiohttp import web
-from pymongo.errors import DuplicateKeyError
-
+from catalogued_betza import catalogued_betza_diagrams
+from catalogued_board import catalogued_start_board_preview
+from catalogued_rules import catalogued_rule_summary
 from compress import MAX_COMPRESSED_BOARD_HEIGHT, MAX_COMPRESSED_BOARD_WIDTH
 from const import ANON_PREFIX, STARTED
 from fairy.fairy_board import sf
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
-from catalogued_betza import catalogued_betza_diagrams
-from catalogued_board import catalogued_start_board_preview
-from catalogued_rules import catalogued_rule_summary
+from pymongo.errors import DuplicateKeyError
 from request_utils import read_json_data, read_post_data, read_text_data
 from settings import ADMINS
 from variants import (
@@ -1228,8 +1228,8 @@ def _utc_datetime(value: Any) -> datetime | None:
     if not isinstance(value, datetime):
         return None
     if value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc)
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
 
 
 def catalogued_variant_ai_disabled_until(
@@ -1240,7 +1240,7 @@ def catalogued_variant_ai_disabled_until(
     disabled_until = _utc_datetime(doc.get("aiDisabledUntil"))
     if disabled_until is None:
         return None
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
     return disabled_until if disabled_until > now else None
 
 
@@ -1673,14 +1673,8 @@ def pocket_letters_from_fen(fen: str) -> list[str]:
 
 
 def _non_royal_hand_roles(pieces: list[str], king_roles: list[str] | None) -> list[str]:
-    royal_base_roles = {
-        role[1:] if role.startswith("+") else role for role in (king_roles or []) if role
-    }
-    return [
-        piece
-        for piece in pieces
-        if (piece[1:] if piece.startswith("+") else piece) not in royal_base_roles
-    ]
+    royal_base_roles = {role.removeprefix("+") for role in (king_roles or []) if role}
+    return [piece for piece in pieces if (piece.removeprefix("+")) not in royal_base_roles]
 
 
 def catalogued_pocket_roles(
@@ -2086,8 +2080,7 @@ def _catalogued_piece_set_storage_key(filename_or_key: str) -> str:
     # driver combinations. Store wP.svg as wP and w+P.svg as w+P, but accept
     # the old dotted keys when reading in case any test data was already saved.
     key = filename_or_key
-    if key.endswith(".svg"):
-        key = key[:-4]
+    key = key.removesuffix(".svg")
     return key
 
 
@@ -2897,7 +2890,7 @@ async def record_catalogued_variant_ai_failure(
     if doc is None:
         return False
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     failure_count = int(doc.get("aiFailureCount") or 0) + 1
     update_set: dict[str, Any] = {
         "aiFailureCount": failure_count,
@@ -3088,7 +3081,7 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
     if name != code:
         raise ValueError(f"Inline game variant INI defines {name!r}, but game uses {code!r}")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     register_catalogued_variant_doc(
         app_state,
         {
@@ -3723,7 +3716,7 @@ def _build_doc(
         "source": source,
         "gameCount": max(0, int(game_count)),
         "createdAt": created_at,
-        "updatedAt": datetime.now(timezone.utc),
+        "updatedAt": datetime.now(UTC),
     }
     cleaned_piece_names = parse_catalogued_piece_names(piece_names)
     if cleaned_piece_names:
@@ -3899,7 +3892,7 @@ def _build_fsf_builtin_doc(
         legal_moves_need_history=_fsf_metadata_bool(metadata, "legalMovesNeedHistory", False),
         n_fold_is_draw=_fsf_metadata_bool(metadata, "nFoldIsDraw", False),
         show_check_counters=_fsf_metadata_bool(metadata, "showCheckCounters", False),
-        created_at=cast(datetime, (existing or {}).get("createdAt") or datetime.now(timezone.utc)),
+        created_at=cast(datetime, (existing or {}).get("createdAt") or datetime.now(UTC)),
         visibility=str((existing or {}).get("visibility") or CATALOGUED_VISIBILITY_PUBLIC),
         archived=bool((existing or {}).get("archived", False)),
         game_count=int((existing or {}).get("gameCount") or 0),
@@ -4023,7 +4016,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
     validated = validate_catalogued_ini(ini)
     name = validated.name
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     doc = _build_doc(
         name=name,
         base_variant=validated.base_variant,
@@ -4143,7 +4136,7 @@ async def upload_catalogued_piece_set(request: web.Request) -> web.Response:
             text="Custom piece sets must be complete and exact (" + "; ".join(details) + ")."
         )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
         {"_id": name},
         {"$set": {"pieceSet": piece_set, "pieceSetUpdatedAt": now, "updatedAt": now}},
@@ -4160,11 +4153,11 @@ async def upload_catalogued_piece_set(request: web.Request) -> web.Response:
 
 
 async def delete_catalogued_piece_set(request: web.Request) -> web.Response:
-    app_state, _username, name, doc = await _load_owned_doc(request)
+    app_state, _username, name, _doc = await _load_owned_doc(request)
     if app_state.db is None:
         raise web.HTTPServiceUnavailable(text="Database is unavailable.")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
         {"_id": name},
         {"$unset": {"pieceSet": "", "pieceSetUpdatedAt": ""}, "$set": {"updatedAt": now}},
@@ -4215,7 +4208,7 @@ async def upload_catalogued_board(request: web.Request) -> web.Response:
     svg = _sanitize_catalogued_board_svg(raw, filename, int(doc["width"]), int(doc["height"]))
     board_svg: CataloguedVariantBoardSvg = {"svg": svg, "size": len(svg.encode("utf-8"))}
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
         {"_id": name},
         {"$set": {"boardSvg": board_svg, "boardSvgUpdatedAt": now, "updatedAt": now}},
@@ -4236,7 +4229,7 @@ async def delete_catalogued_board(request: web.Request) -> web.Response:
     if app_state.db is None:
         raise web.HTTPServiceUnavailable(text="Database is unavailable.")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
         {"_id": name},
         {"$unset": {"boardSvg": "", "boardSvgUpdatedAt": ""}, "$set": {"updatedAt": now}},
@@ -4436,7 +4429,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         else _catalogued_board_family_override(existing)
     )
     if _is_fsf_builtin_catalogued_doc(existing):
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         update: dict[str, Any] = {
             "$set": {
                 "displayName": _clean_display_name(display_name, old_name),
@@ -4566,7 +4559,7 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         legal_moves_need_history=legal_moves_need_history,
         n_fold_is_draw=n_fold_is_draw,
         show_check_counters=show_check_counters,
-        created_at=existing.get("createdAt", datetime.now(timezone.utc)),
+        created_at=existing.get("createdAt", datetime.now(UTC)),
         piece_set_directional=piece_set_directional,
         visibility=visibility,
         piece_family_override=piece_family_override,
@@ -4639,7 +4632,7 @@ async def delete_catalogued_variant(request: web.Request) -> web.Response:
 
 async def archive_catalogued_variant(request: web.Request) -> web.Response:
     app_state, _username, name, _doc = await _load_owned_doc(request)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
         {"_id": name},
         {"$set": {"archived": True, "enabled": False, "updatedAt": now}},
@@ -4651,7 +4644,7 @@ async def archive_catalogued_variant(request: web.Request) -> web.Response:
 
 async def restore_catalogued_variant(request: web.Request) -> web.Response:
     app_state, _username, name, doc = await _load_owned_doc(request)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     restored = dict(doc)
     restored["archived"] = False
     restored["enabled"] = True
@@ -4692,7 +4685,7 @@ async def clone_catalogued_variant(request: web.Request) -> web.Response:
     validated = validate_catalogued_ini(ini)
     new_name = validated.name
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     display_name = f"{doc.get('displayName') or name} v{new_name.rsplit('_v', 1)[-1]}"
     cloned = _build_doc(
         name=new_name,

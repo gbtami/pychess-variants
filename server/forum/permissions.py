@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from settings import ADMINS
 
@@ -24,7 +24,7 @@ def can_write(user) -> bool:
     created_at = to_utc(getattr(user, "created_at", None))
     if created_at is None:
         return False
-    account_age = datetime.now(timezone.utc) - created_at
+    account_age = datetime.now(UTC) - created_at
     return user.count.get("game", 0) > 0 and account_age >= timedelta(days=2)
 
 

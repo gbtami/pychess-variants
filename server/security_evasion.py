@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
 import hashlib
 import hmac
-from typing import Any, Mapping
+from collections.abc import Mapping
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from aiohttp import web
-
 from settings import SECRET_KEY
 
 BAN_SIGNAL_COLLECTION = "security_ban_signal"
@@ -125,7 +125,7 @@ async def remember_user_signals(db: Any, username: str, signals: ClientSignals) 
     if (db is None) or (not signals.has_any()):
         return
 
-    update_doc: dict[str, Any] = {"$set": {"security.updatedAt": datetime.now(timezone.utc)}}
+    update_doc: dict[str, Any] = {"$set": {"security.updatedAt": datetime.now(UTC)}}
     add_to_set: dict[str, str] = {}
     if signals.ip_hash:
         add_to_set["security.ipHashes"] = signals.ip_hash
@@ -151,7 +151,7 @@ async def add_ban_signals_from_user(db: Any, username: str) -> int:
     if not any(signal_hashes.values()):
         return 0
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire_at = now + timedelta(days=BAN_SIGNAL_TTL_DAYS)
     inserted_or_updated = 0
     collection = getattr(db, BAN_SIGNAL_COLLECTION)
@@ -183,7 +183,7 @@ async def remove_ban_signals_from_user(db: Any, username: str) -> tuple[int, int
     if not signal_ids:
         return 0, 0
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     await collection.update_many(
         {"_id": {"$in": signal_ids}}, {"$pull": {"sources": username}, "$set": {"updatedAt": now}}
     )

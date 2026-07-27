@@ -1,14 +1,14 @@
 import json
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
-
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from user import User
+
+from server import make_app
 
 
 class ReportApiTestCase(AioHTTPTestCase):
@@ -87,7 +87,7 @@ class ReportApiTestCase(AioHTTPTestCase):
                 "from": "bob",
                 "to": "alice",
                 "text": "test message",
-                "createdAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
             }
         )
 
@@ -126,8 +126,8 @@ class ReportApiTestCase(AioHTTPTestCase):
                 "details": "harassment details",
                 "reporter": "alice",
                 "suspect": "bob",
-                "createdAt": datetime.now(timezone.utc),
-                "updatedAt": datetime.now(timezone.utc),
+                "createdAt": datetime.now(UTC),
+                "updatedAt": datetime.now(UTC),
                 "inquiryBy": "",
             }
         )
@@ -173,7 +173,7 @@ class ReportApiTestCase(AioHTTPTestCase):
             {"_id": "dave", "enabled": True, "shadowban": False, "username_lower": "dave"}
         )
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         await app_state.db.user_report.insert_many(
             [
                 {

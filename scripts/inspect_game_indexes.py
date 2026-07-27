@@ -7,7 +7,6 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from pymongo import AsyncMongoClient
-
 from settings import MONGO_DB_NAME, MONGO_HOST
 from variants import get_server_variant
 

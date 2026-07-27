@@ -1,12 +1,21 @@
 import asyncio
 import json
 import logging
-from datetime import datetime, timezone
+from collections.abc import Mapping
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING, Any
 
 import aiohttp_session
 from aiohttp import web
+from catalogued_variants import (
+    catalogued_variant_client_doc_for_game,
+    catalogued_variants_for_client,
+)
+from const import ANON_PREFIX, DARK_FEN, GAME_CATEGORY_ALL, STARTED
+from fairy import BLACK, WHITE
+from json_utils import json_dumps
+from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import (
     AutoReconnect,
     ConnectionFailure,
@@ -15,25 +24,17 @@ from pymongo.errors import (
     ServerSelectionTimeoutError,
     WaitQueueTimeoutError,
 )
-
-from catalogued_variants import (
-    catalogued_variant_client_doc_for_game,
-    catalogued_variants_for_client,
-)
-from const import ANON_PREFIX, DARK_FEN, GAME_CATEGORY_ALL, STARTED
-from fairy import BLACK, WHITE
-from json_utils import json_dumps
-from lang import LOCALE
-from pychess_global_app_state_utils import get_app_state
 from settings import ADMINS, SIMULING
 from typing_defs import UserDocument, ViewContext
 from user import User
 from utils import corr_games
 from variants import ALL_VARIANTS
 
+from lang import LOCALE
+
 if TYPE_CHECKING:
-    from game import Game
     from bug.game_bug import GameBug
+    from game import Game
 
 log = logging.getLogger(__name__)
 
@@ -98,7 +99,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
 
-    session["last_visit"] = datetime.now(timezone.utc).isoformat()
+    session["last_visit"] = datetime.now(UTC).isoformat()
     if session_user is not None:
         log.info("+++ Existing user %s connected.", session_user)
         doc: UserDocument | None = None
@@ -244,7 +245,7 @@ async def add_corr_games_context(
 
 
 def add_game_context(
-    game: "Game | GameBug",
+    game: Game | GameBug,
     ply: int | str | None,
     user: User,
     context: ViewContext,
@@ -291,5 +292,3 @@ def add_game_context(
         context["bplayerB"] = game_two_boards.bplayerB.username
         context["btitleB"] = game_two_boards.bplayerB.title
         context["bratingB"] = game_two_boards.brating_b
-
-    return

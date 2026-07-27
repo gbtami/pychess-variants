@@ -1,23 +1,24 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
 import asyncio
 import random
 import string
 from time import monotonic
+from typing import TYPE_CHECKING
 
 import msgspec
-
 from catalogued_variants import catalogued_variant_allows_fishnet
-from fishnet import has_available_fishnet_worker
 from const import MOVE, STARTED
 from fairy import WHITE
+from fishnet import has_available_fishnet_worker
 
 if TYPE_CHECKING:
     from game import Game
     from pychess_global_app_state import PychessGlobalAppState
     from user import User
-from utils import play_move
 import logging
+
+from utils import play_move
 
 log = logging.getLogger(__name__)
 
@@ -64,7 +65,7 @@ async def BOT_task(bot: User, app_state: PychessGlobalAppState) -> None:
                     break
                 line = await asyncio.wait_for(queue.get(), timeout=BOT_QUEUE_POLL_SECS)
                 queue.task_done()
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # Periodically re-check game status so we can exit even if no
                 # further messages are enqueued (e.g., clock/abort endings).
                 if game.status > STARTED:

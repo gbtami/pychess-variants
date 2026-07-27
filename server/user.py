@@ -1,35 +1,38 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Coroutine, List, Mapping, Set
+
 import asyncio
 from asyncio import Queue
-from datetime import MINYEAR, datetime, timezone
+from collections.abc import Coroutine, Mapping
+from datetime import MINYEAR, UTC, datetime
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 import aiohttp_session
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
-
 from broadcast import round_broadcast
 from const import (
     ANON_PREFIX,
-    STARTED,
-    TEST_PREFIX,
-    reserved,
-    CATEGORY_VARIANTS,
-    CATEGORY_VARIANT_GROUPS,
+    BLOCK,
     CATEGORY_VARIANT_CODES,
+    CATEGORY_VARIANT_GROUPS,
     CATEGORY_VARIANT_LISTS,
     CATEGORY_VARIANT_SETS,
+    CATEGORY_VARIANTS,
+    FOLLOW,
     GAME_CATEGORY_ALL,
+    MAX_USER_BLOCK,
+    STARTED,
+    TEST_PREFIX,
     normalize_game_category,
+    reserved,
 )
-from glicko2.glicko2 import gl2, new_default_perf, perf_map_with_defaults, Rating
+from glicko2.glicko2 import Rating, gl2, new_default_perf, perf_map_with_defaults
 from json_utils import json_response
 from newid import id8
 from notify import notify
-from const import BLOCK, FOLLOW, MAX_USER_BLOCK
-from websocket_utils import ws_send_json_many, ws_send_str_many
 from user_stats import normalize_user_count
+from websocket_utils import ws_send_json_many, ws_send_str_many
 
 if TYPE_CHECKING:
     from typing_defs import (
@@ -37,26 +40,27 @@ if TYPE_CHECKING:
         NotificationDocument,
         PerfGl,
         PerfMap,
-        UserCount,
         UserBlocksResponse,
+        UserCount,
         UserJson,
         UserStatusJson,
     )
-from variants import RATED_VARIANTS, VARIANTS, get_server_variant
-from settings import (
-    URI,
-    LOCALHOST,
-)
 from redirects import safe_redirect_path
 from request_utils import read_post_data
+from settings import (
+    LOCALHOST,
+    URI,
+)
+from variants import RATED_VARIANTS, VARIANTS, get_server_variant
 
 if TYPE_CHECKING:
-    from pychess_global_app_state import PychessGlobalAppState
     from game import Game
+    from pychess_global_app_state import PychessGlobalAppState
     from seek import Seek
 
-from pychess_global_app_state_utils import get_app_state
 import logging
+
+from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
 
@@ -78,8 +82,8 @@ def _as_utc(dt: datetime | None) -> datetime | None:
     if dt is None:
         return None
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc)
+        return dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC)
 
 
 def _as_required_utc(dt: datetime) -> datetime:
@@ -128,7 +132,7 @@ class User:
         self.oauth_id: str = oauth_id
         self.oauth_provider: str = oauth_provider
         self.created_at: datetime = (
-            datetime(MINYEAR, 1, 1, tzinfo=timezone.utc)
+            datetime(MINYEAR, 1, 1, tzinfo=UTC)
             if created_at is None
             else _as_required_utc(created_at)
         )
@@ -148,15 +152,15 @@ class User:
         self.seeks: dict[str, Seek] = {}
 
         self.ready_for_auto_pairing: bool = False
-        self.lobby_sockets: Set[WebSocketResponse] = set()
+        self.lobby_sockets: set[WebSocketResponse] = set()
         self.tournament_sockets: dict[
             str, set[WebSocketResponse | None]
         ] = {}  # {tournamentId: set()}
         self.simul_sockets: dict[str, set[WebSocketResponse]] = {}  # {simulId: set()}
 
-        self.notify_channels: Set[Queue[str]] = set()
-        self.inbox_channels: Set[Queue[str]] = set()
-        self.challenge_channels: Set[Queue[str]] = set()
+        self.notify_channels: set[Queue[str]] = set()
+        self.inbox_channels: set[Queue[str]] = set()
+        self.challenge_channels: set[Queue[str]] = set()
         self.challenge_offline_task: asyncio.Task[None] | None = None
 
         self.puzzles: dict[
@@ -169,13 +173,13 @@ class User:
         self.game_in_progress: str | None = None
         self.abandon_game_tasks: dict[str, asyncio.Task[None]] = {}
         self.background_tasks: set[asyncio.Task[None]] = set()
-        self.correspondence_games: List[Game] = []
+        self.correspondence_games: list[Game] = []
 
         # Reverse-index of game ids this user is currently spectating, kept in
         # sync with game.spectators.add()/discard() (see wsr.py). Lets
         # clear_spectator_references() drop stale spectator entries in
         # O(watched games) instead of scanning every active game on the server.
-        self.watched_games: Set[str] = set()
+        self.watched_games: set[str] = set()
 
         self.blocked: set[str] = set()
         self.following: set[str] = set()
@@ -190,7 +194,7 @@ class User:
             # User() with perfs=None can be dangerous
             _id = "%s|%s" % (self.username, self.title)
             hs = app_state.highscore
-            if any((_id in hs[variant] for variant in RATED_VARIANTS)):
+            if any(_id in hs[variant] for variant in RATED_VARIANTS):
                 raise RatingResetError(
                     "%s User() called with perfs=None. Use await users.get() instead.", username
                 )
@@ -202,7 +206,7 @@ class User:
         self.enabled: bool = enabled
         self.shadowban: bool = shadowban
 
-        self.last_seen: datetime = datetime(MINYEAR, 1, 1, tzinfo=timezone.utc)
+        self.last_seen: datetime = datetime(MINYEAR, 1, 1, tzinfo=UTC)
 
         # last game played
         self.tv: str | None = None
@@ -418,7 +422,7 @@ class User:
         if self.anon:
             return
         gl: PerfGl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
-        la = datetime.now(timezone.utc)
+        la = datetime.now(UTC)
         nb = self.perfs[variant + ("960" if chess960 else "")].get("nb", 0)
         self.perfs[variant + ("960" if chess960 else "")] = {
             "gl": gl,
@@ -435,7 +439,7 @@ class User:
         if self.anon:
             return
         gl: PerfGl = {"r": rating.mu, "d": rating.phi, "v": rating.sigma}
-        la = datetime.now(timezone.utc)
+        la = datetime.now(UTC)
         nb = self.pperfs[variant + ("960" if chess960 else "")].get("nb", 0)
         self.pperfs[variant + ("960" if chess960 else "")] = {
             "gl": gl,

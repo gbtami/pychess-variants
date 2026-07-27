@@ -5,7 +5,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-
 _META_PATH = Path(__file__).with_name("blog_legacy_metadata.json")
 
 

@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import unittest
 
-from aiohttp import web
-
 import test_logger
+from aiohttp import web
 from catalogued_variants import _ensure_catalogued_rules_supported
-
 
 test_logger.init_test_logger()
 

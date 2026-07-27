@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import logging
 from collections import deque
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from time import monotonic
-from typing import Awaitable, Callable
 
 from aiohttp import web
-
 from request_utils import safe_log_value
 from settings import LOCALHOST, URI
 from typedefs import request_protection_state_key

@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 from const import (
     LANGUAGES,
-    T_STARTED,
     T_CREATED,
+    T_STARTED,
     TOURNAMENT_SPOTLIGHTS_MAX,
 )
 from typing_defs import TournamentSpotlightItem

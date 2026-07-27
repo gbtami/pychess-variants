@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from types import SimpleNamespace
 import unittest
+from datetime import UTC, datetime
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import test_logger
-
 from compress import R2C
 from const import MATE
-from glicko2.glicko2 import new_default_perf_map
-from game import Game
 from fairy.fairy_board import FairyBoard
+from game import Game
+from glicko2.glicko2 import new_default_perf_map
 from user import User
 from utils import pgn as export_pgn
 from variants import VARIANTS, get_server_variant
@@ -30,7 +29,7 @@ def make_export_doc(move: str) -> dict:
         "v": "c",
         "m": [encode(move)],
         "if": CAPA_CASTLING_FEN,
-        "d": datetime(2026, 2, 18, tzinfo=timezone.utc),
+        "d": datetime(2026, 2, 18, tzinfo=UTC),
         "us": ["White", "Black"],
         "r": R2C["*"],
         "b": 10,
@@ -61,7 +60,7 @@ def make_game(game_id: str, variant: str, initial_fen: str, *, corr: bool = Fals
             chess960=False,
             corr=corr,
         )
-    game.date = datetime(2026, 2, 18, tzinfo=timezone.utc)
+    game.date = datetime(2026, 2, 18, tzinfo=UTC)
     return game
 
 
@@ -97,8 +96,8 @@ class EmbassyCastlingPgnTestCase(unittest.TestCase):
         game.steps = []
         game.clocks_w = [0]
         game.clocks_b = [0]
-        game.date = datetime(2025, 1, 1, tzinfo=timezone.utc)
-        game.loaded_at = datetime(2026, 4, 1, tzinfo=timezone.utc)
+        game.date = datetime(2025, 1, 1, tzinfo=UTC)
+        game.loaded_at = datetime(2026, 4, 1, tzinfo=UTC)
         game.status = MATE
 
         game.board = FairyBoard("chess")

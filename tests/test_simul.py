@@ -1,27 +1,26 @@
-# -*- coding: utf-8 -*-
+import asyncio
 import json
 import logging
-import test_logger
 import time
-import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
+
 import aiohttp
 import pytest
-
+import test_logger
+from const import ABORTED, CASUAL, MATE, T_CREATED, T_FINISHED, T_STARTED
 from mongomock_motor import AsyncMongoMockClient
-
-from const import T_CREATED, T_STARTED, T_FINISHED, CASUAL, MATE, ABORTED
 from newid import id8
+from pychess_global_app_state import PychessGlobalAppState
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
+from simul import wss as simul_wss
 from simul.simul import Simul
 from simul.simuls import get_latest_simuls, load_active_simuls, load_simul
-from simul import wss as simul_wss
-from pychess_global_app_state import PychessGlobalAppState
 from typedefs import pychess_global_app_state_key
 from user import User
+
+from server import make_app
 
 test_logger.init_test_logger()
 
@@ -379,9 +378,7 @@ class TestGUI:
         host = User(app_state, username=host_username)
         app_state.users[host.username] = host
         session = await self._session_for_user(host_username)
-        estimated_start = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(
-            second=0, microsecond=0
-        )
+        estimated_start = (datetime.now(UTC) + timedelta(hours=2)).replace(second=0, microsecond=0)
 
         try:
             response = await session.post(

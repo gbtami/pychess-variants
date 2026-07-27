@@ -1,32 +1,30 @@
-# -*- coding: utf-8 -*-
-
 import asyncio
 import unittest
 from contextlib import suppress
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from time import monotonic
 from unittest.mock import patch
 
+import ai
+import pychess_global_app_state
 import test_logger
-from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
-
+import user as user_module
 from ai import bot_game_tasks
+from aiohttp.test_utils import AioHTTPTestCase
 from clock import BOT_FIRST_MOVE_TIMEOUT, Clock, CorrClock
 from compress import R2C
 from const import ABORTED, CASUAL
 from fairy import FairyBoard
 from game import Game
+from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from seek import Seek
 from user import User
 from utils import load_game
 from variants import get_server_variant
 from wsr import finally_logic
-import pychess_global_app_state
-import ai
-import user as user_module
+
+from server import make_app
 
 test_logger.init_test_logger()
 
@@ -70,7 +68,7 @@ class CacheCleanupTestCase(AioHTTPTestCase):
             "i": 0,
             "bp": 0,
             "m": [],
-            "d": datetime.now(timezone.utc),
+            "d": datetime.now(UTC),
             "f": FairyBoard.start_fen("chess"),
             "s": ABORTED,
             "r": R2C["*"],
@@ -105,7 +103,7 @@ class CacheCleanupTestCase(AioHTTPTestCase):
             "i": 0,
             "bp": 0,
             "m": [],
-            "d": datetime.now(timezone.utc),
+            "d": datetime.now(UTC),
             "f": FairyBoard.start_fen("chess"),
             "s": ABORTED,
             "r": R2C["*"],
@@ -144,7 +142,7 @@ class CacheCleanupTestCase(AioHTTPTestCase):
             "i": 0,
             "m": [],
             "o": [],
-            "d": datetime.now(timezone.utc),
+            "d": datetime.now(UTC),
             "f": FairyBoard.start_fen("bughouse"),
             "s": ABORTED,
             "r": R2C["*"],
@@ -183,7 +181,7 @@ class CacheCleanupTestCase(AioHTTPTestCase):
             "i": 0,
             "m": [],
             "o": [],
-            "d": datetime.now(timezone.utc),
+            "d": datetime.now(UTC),
             "f": FairyBoard.start_fen("bughouse"),
             "s": ABORTED,
             "r": R2C["*"],
@@ -220,7 +218,7 @@ class CacheCleanupTestCase(AioHTTPTestCase):
             "i": 0,
             "bp": 0,
             "m": [],
-            "d": datetime.now(timezone.utc),
+            "d": datetime.now(UTC),
             "f": FairyBoard.start_fen("chess"),
             "s": ABORTED,
             "r": R2C["*"],
@@ -260,7 +258,7 @@ class CacheCleanupTestCase(AioHTTPTestCase):
             "i": 0,
             "bp": 0,
             "m": [],
-            "d": datetime.now(timezone.utc),
+            "d": datetime.now(UTC),
             "f": FairyBoard.start_fen("chess"),
             "s": ABORTED,
             "r": R2C["*"],

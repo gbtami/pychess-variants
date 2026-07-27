@@ -1,38 +1,39 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Mapping
+
 import asyncio
 import random
 import string
+from collections.abc import Mapping
 from time import monotonic
+from typing import TYPE_CHECKING
 
 import aiohttp_session
+import game
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
-
-from bug.wsr_bug import handle_resign_bughouse, handle_rematch_bughouse, handle_reconnect_bughouse
-import game
 from broadcast import round_broadcast
-from chat import chat_response
+from bug.wsr_bug import handle_reconnect_bughouse, handle_rematch_bughouse, handle_resign_bughouse
 from catalogued_variants import catalogued_variant_allows_fishnet
-from link_filter import sanitize_user_message
+from chat import chat_response
 from cheat_report import (
     CEVAL_REPORT_ACTION_AUTO_FORFEIT,
     CEVAL_REPORT_ACTION_REPORTED_ONLY,
     append_ceval_cheat_report,
     ceval_auto_lose_enabled,
 )
-from const import ANON_PREFIX, ANALYSIS, CASUAL, STARTED
+from const import ANALYSIS, ANON_PREFIX, CASUAL, STARTED
 from draw import draw, reject_draw
-from fairy import WHITE, BLACK, FairyBoard
+from fairy import BLACK, WHITE, FairyBoard
 from fishnet import (
     drop_stale_analysis_work,
     has_available_fishnet_worker,
 )
+from link_filter import sanitize_user_message
 from newid import new_id
 
 if TYPE_CHECKING:
-    from clock import Clock
     from bug.game_bug import GameBug
+    from clock import Clock
     from game import Game
     from pychess_global_app_state import PychessGlobalAppState
     from pymongo.asynchronous.database import AsyncDatabase
@@ -42,13 +43,13 @@ if TYPE_CHECKING:
         AbortResignMessage,
         AnalysisMessage,
         AnalysisMoveMessage,
-        ByoyomiMessage,
         BerserkMessage,
         BugRoundChatMessage,
+        ByoyomiMessage,
         CevalDetectedMessage,
         ChatMessage,
-        CountResponse,
         CountMessage,
+        CountResponse,
         DeletedMessage,
         DeleteMessage,
         DrawMessage,
@@ -57,13 +58,13 @@ if TYPE_CHECKING:
         GameStartMessage,
         GameUserConnectedMessage,
         LeaveMessage,
-        MoveMessage,
         MoreTimeMessage,
         MoreTimeRequest,
-        RematchOfferMessage,
-        RematchRejectedMessage,
+        MoveMessage,
         ReadyMessage,
         RematchMessage,
+        RematchOfferMessage,
+        RematchRejectedMessage,
         RequestAnalysisMessage,
         RoundChatMessage,
         RoundInboundMessage,
@@ -73,11 +74,13 @@ if TYPE_CHECKING:
         UserPresenceMessage,
         ViewRematchMessage,
     )
-from pychess_global_app_state_utils import get_app_state
+import logging
+
+import logger
+from bug.utils_bug import play_move as play_move_bug
 from json_utils import json_dumps
+from pychess_global_app_state_utils import get_app_state
 from seek import Seek
-from ws_structs import ROUND_TYPED_DECODERS
-from ws_types import BughouseMoveMessage, MoveMessage, RoundInboundMessage
 from utils import (
     analysis_move,
     join_seek,
@@ -87,10 +90,9 @@ from utils import (
     tv_game,
     tv_game_user,
 )
-from bug.utils_bug import play_move as play_move_bug
-from websocket_utils import process_ws, get_user, ws_send_json
-import logging
-import logger
+from websocket_utils import get_user, process_ws, ws_send_json
+from ws_structs import ROUND_TYPED_DECODERS
+from ws_types import BughouseMoveMessage, MoveMessage, RoundInboundMessage
 
 log = logging.getLogger(__name__)
 

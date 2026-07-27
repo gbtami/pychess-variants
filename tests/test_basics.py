@@ -1,32 +1,29 @@
-# -*- coding: utf-8 -*-
-
 import unittest
-import test_logger
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from operator import neg
 from unittest.mock import AsyncMock, patch
 
-from aiohttp.test_utils import AioHTTPTestCase
-from sortedcollections import ValueSortedDict
-
-from mongomock_motor import AsyncMongoMockClient
-
 import game
-from const import CLAIM, CREATED, STALEMATE, MATE, reserved
+import test_logger
+from aiohttp.test_utils import AioHTTPTestCase
+from bug.game_bug import GameBug
+from const import CLAIM, CREATED, MATE, STALEMATE, reserved
 from fairy import FairyBoard
 from game import Game
-from bug.game_bug import GameBug
-from glicko2.glicko2 import Glicko2, WIN, LOSS, new_default_perf_map
+from glicko2.glicko2 import LOSS, WIN, Glicko2, new_default_perf_map
+from mongomock_motor import AsyncMongoMockClient
 from newid import id8
-from server import make_app
-from user import User
-from utils import sanitize_fen, play_move
 from pychess_global_app_state_utils import get_app_state
+from sortedcollections import ValueSortedDict
+from user import User
+from utils import play_move, sanitize_fen
 from variants import (
     VARIANTS,
     register_catalogued_server_variant,
     unregister_catalogued_server_variant,
 )
+
+from server import make_app
 
 game.KEEP_TIME = 0
 game.MAX_PLY = 120
@@ -54,25 +51,25 @@ PERFS = {
 }
 PERFS["user7"]["crazyhouse960"] = {
     "gl": {"r": 1642, "d": 125, "v": 0.06},
-    "la": datetime.now(timezone.utc),
+    "la": datetime.now(UTC),
     "nb": 100,
 }
 
 PERFS["newplayer"]["crazyhouse960"] = {
     "gl": {"r": 1500, "d": 136, "v": 0.06},
-    "la": datetime.now(timezone.utc),
+    "la": datetime.now(UTC),
     "nb": 100,
 }
 
 PERFS["strongplayer"]["crazyhouse960"] = {
     "gl": {"r": 1500, "d": 350, "v": 0.06},
-    "la": datetime.now(timezone.utc),
+    "la": datetime.now(UTC),
     "nb": 100,
 }
 
 PERFS["weakplayer"]["crazyhouse960"] = {
     "gl": {"r": 1450, "d": 350, "v": 0.06},
-    "la": datetime.now(timezone.utc),
+    "la": datetime.now(UTC),
     "nb": 100,
 }
 
@@ -249,32 +246,32 @@ class SanitizeFenTestCase(unittest.TestCase):
             print()
             print(variant_name, chess960, fen)
 
-            valid, sanitized = sanitize_fen(variant_name, fen, chess960)
+            valid, _sanitized = sanitize_fen(variant_name, fen, chess960)
             self.assertTrue(valid)
 
     def test_fen_lichess_zh_pockets(self):
         chess960 = False
         lichess_fen = "r7/5pkp/b1pPpNpn/p2pP3/N7/BP6/KP3PPP/r3q~3/RQNRPQBb w - - 2 51"
         pychess_fen = "r7/5pkp/b1pPpNpn/p2pP3/N7/BP6/KP3PPP/r3q~3[RQNRPQBb] w - - 2 51"
-        valid, sanitized = sanitize_fen("crazyhouse", lichess_fen, chess960)
+        _valid, sanitized = sanitize_fen("crazyhouse", lichess_fen, chess960)
         self.assertEqual(sanitized, pychess_fen)
 
     def test_fen_slashes(self):
         chess960 = False
         fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1"
-        valid, sanitized = sanitize_fen("chess", fen, chess960)
+        valid, _sanitized = sanitize_fen("chess", fen, chess960)
         self.assertFalse(valid)
 
     def test_fen_castling_rights(self):
         chess960 = False
         # missing h1 rook
         fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN1 w KQkq - 0 1"
-        valid, sanitized = sanitize_fen("chess", fen, chess960)
+        valid, _missing_rook_sanitized = sanitize_fen("chess", fen, chess960)
         self.assertFalse(valid)
 
         # https://www.pychess.org/xYbsTWKM
         fen = "rnbqk1nr/1ppp1ppp/1pb1p3/7e/1b2P3/2NP1N2/PPPQBPPP/R2EK2R[HH] w KQAEHkqabcdegh - 4 9"
-        valid, sanitized = sanitize_fen("shouse", fen, chess960)
+        valid, _sanitized = sanitize_fen("shouse", fen, chess960)
         self.assertTrue(valid)
 
     def test_fen_allows_extra_pocket_material_within_engine_limits(self):
@@ -329,7 +326,7 @@ class SanitizeFenTestCase(unittest.TestCase):
     def test_fen_opp_king_in_check(self):
         chess960 = False
         fen = "5k3/4a4/3CN4/9/1PP5p/9/8P/4C4/4A4/2B1K4 w - - 0 46"
-        valid, sanitized = sanitize_fen("janggi", fen, chess960)
+        valid, _sanitized = sanitize_fen("janggi", fen, chess960)
         self.assertFalse(valid)
 
 
@@ -614,7 +611,7 @@ class RatingTestCase(AioHTTPTestCase):
             username="testuser1",
             perfs={
                 "chess": {
-                    "la": datetime.now(timezone.utc),
+                    "la": datetime.now(UTC),
                     "gl": {"r": 1500, "d": 200, "v": 0.06},
                 }
             },
@@ -630,7 +627,7 @@ class RatingTestCase(AioHTTPTestCase):
             username="testuser2",
             perfs={
                 "chess": {
-                    "la": datetime.now(timezone.utc),
+                    "la": datetime.now(UTC),
                     "gl": {"r": 1400, "d": 30, "v": 0.06},
                 }
             },
@@ -643,7 +640,7 @@ class RatingTestCase(AioHTTPTestCase):
             username="testuser3",
             perfs={
                 "chess": {
-                    "la": datetime.now(timezone.utc),
+                    "la": datetime.now(UTC),
                     "gl": {"r": 1550, "d": 100, "v": 0.06},
                 }
             },
@@ -656,7 +653,7 @@ class RatingTestCase(AioHTTPTestCase):
             username="testuser4",
             perfs={
                 "chess": {
-                    "la": datetime.now(timezone.utc),
+                    "la": datetime.now(UTC),
                     "gl": {"r": 1700, "d": 300, "v": 0.06},
                 }
             },

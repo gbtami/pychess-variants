@@ -1,13 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING, Any, TypedDict, cast
 
-import asyncio
-
-from aiohttp import web
 import aiohttp_session
+from aiohttp import web
 from aiohttp_sse import sse_response
-
 from const import SSE_GET_TIMEOUT
 from json_utils import json_dumps, json_response
 from misc import time_control_str
@@ -275,7 +273,7 @@ async def subscribe_challenges(request: web.Request) -> web.StreamResponse:
                     payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
                     await response.send(payload)
                     queue.task_done()
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     if not response.is_connected():
                         break
     except Exception:

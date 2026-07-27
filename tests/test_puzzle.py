@@ -3,9 +3,8 @@ from types import SimpleNamespace
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
-from aiohttp import web
-
 import puzzle
+from aiohttp import web
 
 
 class PuzzleRequestHandlingTestCase(unittest.IsolatedAsyncioTestCase):

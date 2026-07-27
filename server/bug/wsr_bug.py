@@ -1,16 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Mapping
+import logging
+from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from broadcast import round_broadcast
-from bug.game_bug import GameBug
-from fairy import FairyBoard
 from const import STARTED
+from fairy import FairyBoard
 from newid import new_id
 from pychess_global_app_state import PychessGlobalAppState
 from seek import Seek
-from bug.utils_bug import play_move, join_seek_bughouse
-import logging
+
+from bug.game_bug import GameBug
+from bug.utils_bug import join_seek_bughouse, play_move
 
 if TYPE_CHECKING:
     from user import User

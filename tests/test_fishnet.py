@@ -6,13 +6,12 @@ from types import SimpleNamespace
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
-import pytest
-from aiohttp import web
-
-from typedefs import pychess_global_app_state_key
 import fishnet
-from fishnet import _read_fishnet_json, _winning_chances
+import pytest
 import wsr
+from aiohttp import web
+from fishnet import _read_fishnet_json, _winning_chances
+from typedefs import pychess_global_app_state_key
 
 
 class FishnetTestCase(unittest.IsolatedAsyncioTestCase):

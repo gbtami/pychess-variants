@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 def rebuild_lobby_leaderboard_cache(app_state: PychessGlobalAppState, limit: int = 12) -> bool:
-    leaderboard: list["LobbyLeaderboardEntry"] = []
+    leaderboard: list[LobbyLeaderboardEntry] = []
     for variant_key, scores in app_state.highscore.items():
         if len(scores) == 0:
             continue
@@ -95,7 +95,7 @@ async def rebuild_lobby_tournament_winners_cache(
             break
 
     titles = await app_state.public_users.get_titles(usernames)
-    winners: list["TournamentWinnerEntry"] = []
+    winners: list[TournamentWinnerEntry] = []
     for variant, chess960, username, tid, tournament_name in rows:
         winners.append(
             {

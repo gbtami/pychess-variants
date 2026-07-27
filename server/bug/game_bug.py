@@ -1,32 +1,32 @@
 import asyncio
 import collections
-from typing import TYPE_CHECKING
-from datetime import datetime, timezone
-from time import time_ns
-
-from bug.game_bug_clocks import GameBugClocks
-from pychess_global_app_state import PychessGlobalAppState
-from user import User
 import logging
+from datetime import UTC, datetime
+from time import time_ns
+from typing import TYPE_CHECKING
 
 from compress import R2C
-from convert import grand2zero
 from const import (
-    STARTED,
     ABORTED,
-    MATE,
+    CASUAL,
     DRAW,
+    IMPORTED,
     INVALIDMOVE,
     LOSERS,
-    CASUAL,
-    RATED,
-    IMPORTED,
+    MATE,
     MAX_CHAT_LINES,
     POCKET_PATTERN,
+    RATED,
+    STARTED,
 )
-from fairy import FairyBoard, BLACK, WHITE
+from convert import grand2zero
+from fairy import BLACK, WHITE, FairyBoard
+from pychess_global_app_state import PychessGlobalAppState
 from spectators import spectators
-from variants import get_server_variant, GRANDS
+from user import User
+from variants import GRANDS, get_server_variant
+
+from bug.game_bug_clocks import GameBugClocks
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class GameBug:
         bplayerA,
         wplayerB,
         bplayerB,
-        base: int | float = 1,
+        base: float = 1,
         inc=0,
         level=0,
         rated=CASUAL,
@@ -117,7 +117,7 @@ class GameBug:
         self.rematch_offers = set()
         self.rematch_id: str | None = None
         self.messages = collections.deque([], MAX_CHAT_LINES)
-        self.date = datetime.now(timezone.utc)
+        self.date = datetime.now(UTC)
 
         self.lastmove = None
         self.lastmovePerBoardAndUser = {"a": {}, "b": {}}
@@ -493,9 +493,7 @@ class GameBug:
     def check_checkmate_on_board_and_update_status(self, board: str):
         # it is not mate if there are possible move dests on the given board
         # todo: if it is check that is blockable, but no pieces in pocket, dests might be empty but it is not mate
-        if board == "a" and self.has_legal_moveA:
-            return False
-        elif board == "b" and self.has_legal_moveB:
+        if board == "a" and self.has_legal_moveA or board == "b" and self.has_legal_moveB:
             return False
 
         # did it really end - chess rules for checkmate do not apply here if it is possible to block the check

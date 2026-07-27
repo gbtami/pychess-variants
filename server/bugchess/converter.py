@@ -1,8 +1,7 @@
 import itertools
-from bug import chess
 
+from bug import chess
 from pgn import BaseVisitor, SkipType
-from typing import Optional, Union
 
 SKIP = SkipType.SKIP
 
@@ -28,7 +27,7 @@ class StringExporter(BaseVisitor[str]):
     def __init__(
         self,
         *,
-        columns: Optional[int] = 80,
+        columns: int | None = 80,
         headers: bool = True,
         comments: bool = True,
         variations: bool = True,
@@ -69,13 +68,13 @@ class StringExporter(BaseVisitor[str]):
     def visit_header(self, tagname: str, tagvalue: str) -> None:
         if self.headers:
             self.found_headers = True
-            self.write_line('[{} "{}"]'.format(tagname, tagvalue))
+            self.write_line(f'[{tagname} "{tagvalue}"]')
 
     def end_headers(self) -> None:
         if self.found_headers:
             self.write_line()
 
-    def begin_variation(self) -> Optional[SkipType]:
+    def begin_variation(self) -> SkipType | None:
         self.variation_depth += 1
 
         if self.variations:
@@ -102,7 +101,7 @@ class StringExporter(BaseVisitor[str]):
             self.write_token("$" + str(nag) + " ")
 
     def visit_move(
-        self, board: Union[chess.Board, chess.variant.BughouseBoards], move: chess.Move
+        self, board: chess.Board | chess.variant.BughouseBoards, move: chess.Move
     ) -> None:
         if self.variations or not self.variation_depth:
             # Write the move number.

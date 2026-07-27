@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
 # Copyright (C) 2012-2019 Niklas Fiekas <niklas.fiekas@backscattering.de>
@@ -23,14 +22,12 @@ import os
 import re
 import struct
 import threading
+from collections.abc import Iterator, MutableMapping
+from types import TracebackType
+from typing import Union
 
 # import typing
-
 import bugchess
-
-from types import TracebackType
-from typing import Iterator, List, MutableMapping, Optional, Tuple, Type, Union
-
 
 PathLike = Union[str, bytes]
 
@@ -1995,7 +1992,7 @@ def calc_key(board: bugchess.BaseBoard, *, mirror: bool = False) -> str:
     )
 
 
-def recalc_key(pieces: List[bugchess.PieceType], *, mirror: bool = False) -> str:
+def recalc_key(pieces: list[bugchess.PieceType], *, mirror: bool = False) -> str:
     # Some endgames are stored with a different key than their filename
     # indicates: http://talkchess.com/forum/viewtopic.php?p=695509#695509
 
@@ -2039,8 +2036,6 @@ def dtz_before_zeroing(wdl: int) -> int:
 class MissingTableError(KeyError):
     """Can not probe position because a required table is missing."""
 
-    pass
-
 
 class PairsData:
     def __init__(self) -> None:
@@ -2073,7 +2068,7 @@ class PawnFileDataDtz:
 
 
 class Table:
-    def __init__(self, path: PathLike, *, variant: Type[bugchess.Board] = bugchess.Board) -> None:
+    def __init__(self, path: PathLike, *, variant: type[bugchess.Board] = bugchess.Board) -> None:
         self.path = path
         self.variant = variant
 
@@ -2133,13 +2128,11 @@ class Table:
             if self.data is None:
                 self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
-    def check_magic(self, magic: Optional[bytes], pawnless_magic: Optional[bytes]) -> bool:
+    def check_magic(self, magic: bytes | None, pawnless_magic: bytes | None) -> bool:
         valid_magics = [magic, self.has_pawns and pawnless_magic]
         if self.data[: min(4, len(self.data))] not in valid_magics:
-            raise IOError(
-                "invalid magic header: ensure {!r} is a valid syzygy tablebase file".format(
-                    self.path
-                )
+            raise OSError(
+                f"invalid magic header: ensure {self.path!r} is a valid syzygy tablebase file"
             )
 
     def setup_pairs(self, data_ptr: int, tb_size: int, size_idx: int, wdl: int) -> PairsData:
@@ -2201,7 +2194,7 @@ class Table:
 
         return d
 
-    def set_norm_piece(self, norm: List[int], pieces) -> None:
+    def set_norm_piece(self, norm: list[int], pieces) -> None:
         if self.enc_type == 0:
             norm[0] = 3
         elif self.enc_type == 2:
@@ -2217,7 +2210,7 @@ class Table:
                 j += 1
             i += norm[i]
 
-    def calc_factors_piece(self, factor: List[int], order: int, norm: List[int]) -> int:
+    def calc_factors_piece(self, factor: list[int], order: int, norm: list[int]) -> int:
         if not self.variant.connected_kings:
             PIVFAC = [31332, 28056, 462]
         else:
@@ -2245,7 +2238,7 @@ class Table:
         return f
 
     def calc_factors_pawn(
-        self, factor: int, order: int, order2: int, norm: List[int], f: int
+        self, factor: int, order: int, order2: int, norm: list[int], f: int
     ) -> int:
         i = norm[0]
         if order2 < 0x0F:
@@ -2270,7 +2263,7 @@ class Table:
 
         return fac
 
-    def set_norm_pawn(self, norm: List[int], pieces) -> None:
+    def set_norm_pawn(self, norm: list[int], pieces) -> None:
         norm[0] = self.pawns[0]
         if self.pawns[1]:
             norm[self.pawns[0]] = self.pawns[1]
@@ -2283,7 +2276,7 @@ class Table:
                 j += 1
             i += norm[i]
 
-    def calc_symlen(self, d: PairsData, s: int, tmp: List[int]) -> None:
+    def calc_symlen(self, d: PairsData, s: int, tmp: list[int]) -> None:
         w = d.sympat + 3 * s
         s2 = (self.data[w + 2] << 4) | (self.data[w + 1] >> 4)
         if s2 == 0x0FFF:
@@ -2304,7 +2297,7 @@ class Table:
 
         return FILE_TO_FILE[pos[0] & 0x07]
 
-    def encode_piece(self, norm: List[int], pos: List[bugchess.Square], factor: int) -> int:
+    def encode_piece(self, norm: list[int], pos: list[bugchess.Square], factor: int) -> int:
         n = self.num
 
         if self.enc_type < 3:
@@ -2430,7 +2423,7 @@ class Table:
 
         return idx
 
-    def encode_pawn(self, norm: List[int], pos: bugchess.Square, factor: int) -> int:
+    def encode_pawn(self, norm: list[int], pos: bugchess.Square, factor: int) -> int:
         n = self.num
 
         if pos[0] & 0x04:
@@ -2564,27 +2557,26 @@ class Table:
         return UINT16.unpack_from(self.data, data_ptr)[0]
 
     def close(self) -> None:
-        with self.write_lock:
-            with self.read_condition:
-                while self.read_count > 0:
-                    self.read_condition.wait()
+        with self.write_lock, self.read_condition:
+            while self.read_count > 0:
+                self.read_condition.wait()
 
-                if self.data is not None:
-                    self.data.close()
-                    self.data = None
+            if self.data is not None:
+                self.data.close()
+                self.data = None
 
-                if self.fd is not None:
-                    os.close(self.fd)
-                    self.fd = None
+            if self.fd is not None:
+                os.close(self.fd)
+                self.fd = None
 
     def __enter__(self) -> None:
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.close()
 
@@ -2903,7 +2895,7 @@ class DtzTable(Table):
 
             self.initialized = True
 
-    def probe_dtz_table(self, board: bugchess.Board, wdl: int) -> Tuple[int, int]:
+    def probe_dtz_table(self, board: bugchess.Board, wdl: int) -> tuple[int, int]:
         try:
             with self.read_condition:
                 self.read_count += 1
@@ -2913,7 +2905,7 @@ class DtzTable(Table):
                 self.read_count -= 1
                 self.read_condition.notify()
 
-    def _probe_dtz_table(self, board: bugchess.Board, wdl: int) -> Tuple[int, int]:
+    def _probe_dtz_table(self, board: bugchess.Board, wdl: int) -> tuple[int, int]:
         self.init_table_dtz()
 
         key = calc_key(board)
@@ -3032,7 +3024,7 @@ class Tablebase:
     """
 
     def __init__(
-        self, *, max_fds: Optional[int] = 128, VariantBoard: Type[bugchess.Board] = bugchess.Board
+        self, *, max_fds: int | None = 128, VariantBoard: type[bugchess.Board] = bugchess.Board
     ) -> None:
         self.variant = VariantBoard
 
@@ -3058,7 +3050,7 @@ class Tablebase:
                     self.lru.pop().close()
 
     def _open_table(
-        self, hashtable: MutableMapping[str, Table], Table: Type[Table], path: PathLike
+        self, hashtable: MutableMapping[str, Table], Table: type[Table], path: PathLike
     ) -> int:
         table = Table(path, variant=self.variant)
 
@@ -3093,15 +3085,19 @@ class Tablebase:
 
             if is_table_name(tablename) and os.path.isfile(path):
                 if load_wdl:
-                    if ext == self.variant.tbw_suffix:
-                        num += self._open_table(self.wdl, WdlTable, path)
-                    elif "P" not in tablename and ext == self.variant.pawnless_tbw_suffix:
+                    if (
+                        ext == self.variant.tbw_suffix
+                        or "P" not in tablename
+                        and ext == self.variant.pawnless_tbw_suffix
+                    ):
                         num += self._open_table(self.wdl, WdlTable, path)
 
                 if load_dtz:
-                    if ext == self.variant.tbz_suffix:
-                        num += self._open_table(self.dtz, DtzTable, path)
-                    elif "P" not in tablename and ext == self.variant.pawnless_tbz_suffix:
+                    if (
+                        ext == self.variant.tbz_suffix
+                        or "P" not in tablename
+                        and ext == self.variant.pawnless_tbz_suffix
+                    ):
                         num += self._open_table(self.dtz, DtzTable, path)
 
         return num
@@ -3123,7 +3119,7 @@ class Tablebase:
         try:
             table = self.wdl[key]
         except KeyError:
-            raise MissingTableError("did not find wdl table {}".format(key))
+            raise MissingTableError(f"did not find wdl table {key}")
 
         self._bump_lru(table)
 
@@ -3131,7 +3127,7 @@ class Tablebase:
 
     def probe_ab(
         self, board: bugchess.Board, alpha: int, beta: int, threats: bool = False
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         if self.variant.captures_compulsory:
             if board.is_variant_win():
                 return 2, 2
@@ -3165,7 +3161,7 @@ class Tablebase:
 
     def sprobe_ab(
         self, board: bugchess.Board, alpha: int, beta: int, threats: bool = False
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         if bugchess.popcount(board.occupied_co[not board.turn]) > 1:
             v, captures_found = self.sprobe_capts(board, alpha, beta)
             if captures_found:
@@ -3197,7 +3193,7 @@ class Tablebase:
         else:
             return alpha, 3 if threats_found else 1
 
-    def sprobe_capts(self, board: bugchess.Board, alpha: int, beta: int) -> Tuple[int, int]:
+    def sprobe_capts(self, board: bugchess.Board, alpha: int, beta: int) -> tuple[int, int]:
         captures_found = False
 
         for move in board.generate_legal_captures():
@@ -3252,17 +3248,13 @@ class Tablebase:
         # Positions with castling rights are not in the tablebase.
         if board.castling_rights:
             raise KeyError(
-                "syzygy tables do not contain positions with castling rights: {}".format(
-                    board.fen()
-                )
+                f"syzygy tables do not contain positions with castling rights: {board.fen()}"
             )
 
         # Validate piece count.
         if bugchess.popcount(board.occupied) > 7:
             raise KeyError(
-                "syzygy tables support up to 6 (and experimentally 7) pieces, not {}: {}".format(
-                    bugchess.popcount(board.occupied), board.fen()
-                )
+                f"syzygy tables support up to 6 (and experimentally 7) pieces, not {bugchess.popcount(board.occupied)}: {board.fen()}"
             )
 
         # Probe.
@@ -3284,8 +3276,7 @@ class Tablebase:
             finally:
                 board.pop()
 
-            if v0 > v1:
-                v1 = v0
+            v1 = max(v1, v0)
 
         if v1 > -3:
             if v1 >= v:
@@ -3298,18 +3289,18 @@ class Tablebase:
 
         return v
 
-    def get_wdl(self, board: bugchess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_wdl(self, board: bugchess.Board, default: int | None = None) -> int | None:
         try:
             return self.probe_wdl(board)
         except KeyError:
             return default
 
-    def probe_dtz_table(self, board: bugchess.Board, wdl: int) -> Tuple[int, int]:
+    def probe_dtz_table(self, board: bugchess.Board, wdl: int) -> tuple[int, int]:
         key = calc_key(board)
         try:
             table = self.dtz[key]
         except KeyError:
-            raise MissingTableError("did not find dtz table {}".format(key))
+            raise MissingTableError(f"did not find dtz table {key}")
 
         self._bump_lru(table)
 
@@ -3382,8 +3373,7 @@ class Tablebase:
                 finally:
                     board.pop()
 
-                if v < best:
-                    best = v
+                best = min(best, v)
 
             return best
 
@@ -3470,8 +3460,7 @@ class Tablebase:
             finally:
                 board.pop()
 
-            if v0 > v1:
-                v1 = v0
+            v1 = max(v1, v0)
 
         if v1 > -3:
             v1 = WDL_TO_DTZ[v1 + 2]
@@ -3495,7 +3484,7 @@ class Tablebase:
 
         return v
 
-    def get_dtz(self, board: bugchess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_dtz(self, board: bugchess.Board, default: int | None = None) -> int | None:
         try:
             return self.probe_dtz(board)
         except KeyError:
@@ -3513,14 +3502,14 @@ class Tablebase:
 
         self.lru.clear()
 
-    def __enter__(self) -> "Tablebase":
+    def __enter__(self) -> Tablebase:
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.close()
 
@@ -3530,8 +3519,8 @@ def open_tablebase(
     *,
     load_wdl: bool = True,
     load_dtz: bool = True,
-    max_fds: Optional[int] = 128,
-    VariantBoard: Type[bugchess.Board] = bugchess.Board,
+    max_fds: int | None = 128,
+    VariantBoard: type[bugchess.Board] = bugchess.Board,
 ) -> Tablebase:
     """
     Opens a collection of tables for probing. See

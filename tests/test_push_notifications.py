@@ -4,17 +4,16 @@ import unittest
 from types import SimpleNamespace
 from typing import cast
 
+import push_notifications
 import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
 from aiohttp.web_ws import WebSocketResponse
 from mongomock_motor import AsyncMongoMockClient
-
-from pychess_global_app_state_utils import get_app_state
-import push_notifications
 from notify import NOTIFICATION_CACHE_LIMIT, notify
-from server import make_app
+from pychess_global_app_state_utils import get_app_state
 from user import User
 
+from server import make_app
 
 test_logger.init_test_logger()
 

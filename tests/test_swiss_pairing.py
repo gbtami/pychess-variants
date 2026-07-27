@@ -1,24 +1,24 @@
 import asyncio
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from const import FLAG, TEST_PREFIX, T_FINISHED
+from const import FLAG, T_FINISHED, TEST_PREFIX
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
-from tournament.auto_play_tournament import SwissTestTournament
 from tournament import swiss as swiss_mod
 from tournament import tournaments as tournaments_mod
+from tournament.auto_play_tournament import SwissTestTournament
 from tournament.tournament import (
     AUTO_ROUND_INTERVAL,
-    ByeGame,
-    GameData,
-    PairingUnavailable,
     SCORE_SHIFT,
     SWISS_FINISH_REASON_NO_LEGAL_PAIRING,
     SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS,
+    ByeGame,
+    GameData,
+    PairingUnavailable,
     upsert_tournament_to_db,
 )
 from tournament_test_base import TournamentTestCase
@@ -180,7 +180,7 @@ class SwissPairingTestCase(TournamentTestCase):
         for name in ("test_forbidden_a", "test_forbidden_b"):
             user = User(app_state, username=name, perfs=make_test_perfs())
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
 
         waiting = list(self.tournament.waiting_players())
@@ -203,14 +203,14 @@ class SwissPairingTestCase(TournamentTestCase):
         for name in ("manual_white", "manual_black", "manual_bye"):
             user = User(app_state, username=name, perfs=make_test_perfs())
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
 
         await upsert_tournament_to_db(self.tournament, app_state)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
 
-        self.assertTrue(await self.tournament.pair_fixed_round(datetime.now(timezone.utc)))
+        self.assertTrue(await self.tournament.pair_fixed_round(datetime.now(UTC)))
         self.assertEqual(len(self.tournament.ongoing_games), 1)
 
         game = next(iter(self.tournament.ongoing_games))
@@ -267,10 +267,10 @@ class SwissPairingTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(1)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
 
-        should_continue = await self.tournament.pair_fixed_round(datetime.now(timezone.utc))
+        should_continue = await self.tournament.pair_fixed_round(datetime.now(UTC))
         self.assertFalse(should_continue)
         self.assertEqual(self.tournament.status, T_FINISHED)
         self.assertEqual(self.tournament.finish_reason, SWISS_FINISH_REASON_NOT_ENOUGH_PLAYERS)
@@ -290,7 +290,7 @@ class SwissPairingTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 2
 
         async def _raise_pairing_unavailable(_waiting_players, **_kwargs):
@@ -301,7 +301,7 @@ class SwissPairingTestCase(TournamentTestCase):
             "create_new_pairings",
             side_effect=_raise_pairing_unavailable,
         ):
-            should_continue = await self.tournament.pair_fixed_round(datetime.now(timezone.utc))
+            should_continue = await self.tournament.pair_fixed_round(datetime.now(UTC))
 
         self.assertFalse(should_continue)
         self.assertEqual(self.tournament.status, T_FINISHED)
@@ -322,7 +322,7 @@ class SwissPairingTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(2)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
 
         waiting_round_1 = list(self.tournament.waiting_players())
@@ -339,7 +339,7 @@ class SwissPairingTestCase(TournamentTestCase):
             "create_new_pairings",
             side_effect=_raise_pairing_unavailable,
         ):
-            should_continue = await self.tournament.pair_fixed_round(datetime.now(timezone.utc))
+            should_continue = await self.tournament.pair_fixed_round(datetime.now(UTC))
 
         self.assertFalse(should_continue)
         self.assertEqual(self.tournament.status, T_FINISHED)
@@ -347,7 +347,7 @@ class SwissPairingTestCase(TournamentTestCase):
         self.assertEqual(self.tournament.current_round, 1)
         self.assertEqual(self.tournament.rounds, 1)
         self.assertEqual(self.tournament.summary.get("rounds"), 1)
-        self.assertEqual(self.tournament.live_status(datetime.now(timezone.utc)).get("rounds"), 1)
+        self.assertEqual(self.tournament.live_status(datetime.now(UTC)).get("rounds"), 1)
         self.assertEqual(
             [(line["user"], line["message"]) for line in list(self.tournament.tourneychat)[-2:]],
             [
@@ -385,12 +385,12 @@ class SwissPairingTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(3)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 2
 
         late = User(app_state, username="late_join_user")
         app_state.users[late.username] = late
-        late.tournament_sockets[tid] = set((None,))
+        late.tournament_sockets[tid] = {None}
 
         result = await self.tournament.join(late)
         self.assertIsNone(result)
@@ -424,12 +424,12 @@ class SwissPairingTestCase(TournamentTestCase):
         )
         app_state.tournaments[tid] = self.tournament
         await self.tournament.join_players(3)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 3
 
         late = User(app_state, username="late_join_closed")
         app_state.users[late.username] = late
-        late.tournament_sockets[tid] = set((None,))
+        late.tournament_sockets[tid] = {None}
 
         result = await self.tournament.join(late)
         self.assertEqual(result, "LATE_JOIN_CLOSED")
@@ -451,7 +451,7 @@ class SwissPairingTestCase(TournamentTestCase):
 
         low = User(app_state, username="low_rated_swiss_player", perfs=make_test_perfs())
         low.perfs["chess"]["gl"]["r"] = 1300
-        low.tournament_sockets[tid] = set((None,))
+        low.tournament_sockets[tid] = {None}
         app_state.users[low.username] = low
         self.assertEqual(
             await self.tournament.join(low),
@@ -460,7 +460,7 @@ class SwissPairingTestCase(TournamentTestCase):
 
         high = User(app_state, username="high_rated_swiss_player", perfs=make_test_perfs())
         high.perfs["chess"]["gl"]["r"] = 1900
-        high.tournament_sockets[tid] = set((None,))
+        high.tournament_sockets[tid] = {None}
         app_state.users[high.username] = high
         self.assertEqual(
             await self.tournament.join(high),
@@ -469,7 +469,7 @@ class SwissPairingTestCase(TournamentTestCase):
 
         allowed = User(app_state, username="allowed_swiss_player", perfs=make_test_perfs())
         allowed.perfs["chess"]["gl"]["r"] = 1600
-        allowed.tournament_sockets[tid] = set((None,))
+        allowed.tournament_sockets[tid] = {None}
         app_state.users[allowed.username] = allowed
         self.assertIsNone(await self.tournament.join(allowed))
 
@@ -489,7 +489,7 @@ class SwissPairingTestCase(TournamentTestCase):
 
         newcomer = User(app_state, username="new_swiss_player", perfs=make_test_perfs())
         newcomer.perfs["chess"]["nb"] = 5
-        newcomer.tournament_sockets[tid] = set((None,))
+        newcomer.tournament_sockets[tid] = {None}
         app_state.users[newcomer.username] = newcomer
         self.assertEqual(
             await self.tournament.join(newcomer),
@@ -498,7 +498,7 @@ class SwissPairingTestCase(TournamentTestCase):
 
         admitted = User(app_state, username="returning_swiss_player", perfs=make_test_perfs())
         admitted.perfs["chess"]["nb"] = 25
-        admitted.tournament_sockets[tid] = set((None,))
+        admitted.tournament_sockets[tid] = {None}
         app_state.users[admitted.username] = admitted
         self.assertIsNone(await self.tournament.join(admitted))
 
@@ -522,9 +522,9 @@ class SwissPairingTestCase(TournamentTestCase):
         recent = User(
             app_state,
             username="recent_swiss_player",
-            created_at=datetime.now(timezone.utc) - timedelta(days=5),
+            created_at=datetime.now(UTC) - timedelta(days=5),
         )
-        recent.tournament_sockets[tid] = set((None,))
+        recent.tournament_sockets[tid] = {None}
         app_state.users[recent.username] = recent
         self.assertEqual(
             await self.tournament.join(recent),
@@ -534,9 +534,9 @@ class SwissPairingTestCase(TournamentTestCase):
         established = User(
             app_state,
             username="established_swiss_player",
-            created_at=datetime.now(timezone.utc) - timedelta(days=60),
+            created_at=datetime.now(UTC) - timedelta(days=60),
         )
-        established.tournament_sockets[tid] = set((None,))
+        established.tournament_sockets[tid] = {None}
         app_state.users[established.username] = established
         self.assertIsNone(await self.tournament.join(established))
 
@@ -551,11 +551,11 @@ class SwissPairingTestCase(TournamentTestCase):
         for name in ("swiss_present_player", "swiss_absent_player"):
             user = User(app_state, username=name, perfs=make_test_perfs())
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await app_state.db.user.insert_one({"_id": user.username})
             await self.tournament.join(user)
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
 
         waiting_players = list(self.tournament.waiting_players())
@@ -578,7 +578,7 @@ class SwissPairingTestCase(TournamentTestCase):
             app_state, next_tid, variant="chess", before_start=1, rounds=2, with_clock=False
         )
         app_state.tournaments[next_tid] = next_tournament
-        reloaded_absent.tournament_sockets[next_tid] = set((None,))
+        reloaded_absent.tournament_sockets[next_tid] = {None}
 
         join_error = await next_tournament.join(reloaded_absent)
         self.assertIsNotNone(join_error)
@@ -598,14 +598,14 @@ class SwissPairingTestCase(TournamentTestCase):
         for name in ("swiss_returning_player", "swiss_opponent_player"):
             user = User(app_state, username=name, perfs=make_test_perfs())
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await app_state.db.user.insert_one({"_id": user.username})
             await self.tournament.join(user)
             players.append(user)
 
         banned = players[0]
         banned.swiss_ban_hours = 24
-        banned.swiss_ban_until = datetime.now(timezone.utc) + timedelta(hours=24)
+        banned.swiss_ban_until = datetime.now(UTC) + timedelta(hours=24)
         await app_state.db.user.update_one(
             {"_id": banned.username},
             {
@@ -616,7 +616,7 @@ class SwissPairingTestCase(TournamentTestCase):
             },
         )
 
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
 
         waiting_players = list(self.tournament.waiting_players())
@@ -649,10 +649,10 @@ class SwissPairingTestCase(TournamentTestCase):
                 app_state, username=f"{TEST_PREFIX}{suffix}", title="TEST", perfs=make_test_perfs()
             )
             app_state.users[user.username] = user
-            user.tournament_sockets[tid] = set((None,))
+            user.tournament_sockets[tid] = {None}
             await self.tournament.join(user)
             users.append(user)
-        await self.tournament.start(datetime.now(timezone.utc))
+        await self.tournament.start(datetime.now(UTC))
         self.tournament.current_round = 1
 
         waiting_players = list(self.tournament.waiting_players())
@@ -763,7 +763,7 @@ class SwissScoringRulesTestCase(unittest.TestCase):
             "opp1",
             "1500",
             "1-0",
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
             False,
             False,
             round_no=1,
@@ -775,7 +775,7 @@ class SwissScoringRulesTestCase(unittest.TestCase):
             "opp2",
             "1500",
             "1-0",
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
             False,
             False,
             round_no=3,

@@ -1,10 +1,10 @@
 import aiohttp_jinja2
 from aiohttp import web
-
-from utils import load_game
-from typing_defs import ViewContext
-from views import add_game_context, get_user_context
 from pychess_global_app_state_utils import get_app_state
+from typing_defs import ViewContext
+from utils import load_game
+
+from views import add_game_context, get_user_context
 
 
 @aiohttp_jinja2.template("embed.html")

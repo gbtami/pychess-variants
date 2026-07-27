@@ -3,17 +3,17 @@ from types import SimpleNamespace
 from typing import cast
 
 import test_logger
-from mongomock_motor import AsyncMongoMockClient
-from pymongo.asynchronous.mongo_client import AsyncMongoClient
-
 from glicko2.glicko2 import new_default_perf_map
-from pychess_global_app_state_utils import get_app_state
 from header_challenges import set_direct_challenge_status
+from mongomock_motor import AsyncMongoMockClient
+from pychess_global_app_state_utils import get_app_state
+from pymongo.asynchronous.mongo_client import AsyncMongoClient
 from seek import DIRECT_CHALLENGE_ACCEPTED, DIRECT_CHALLENGE_CREATED, Seek
-from server import init_state, make_app
 from settings import MONGO_DB_NAME
 from user import User
 from variants import VARIANTS
+
+from server import init_state, make_app
 
 test_logger.init_test_logger()
 

@@ -1,17 +1,17 @@
 from __future__ import annotations
+
 from collections import namedtuple
-from datetime import datetime, timezone
-from typing import Tuple
+from datetime import UTC, datetime
 
 from const import RR, T_ARCHIVED
+from pychess_global_app_state_utils import get_app_state
 from tournament import ByeGame
 from tournaments import new_tournament
 from utils import load_game
-from pychess_global_app_state_utils import get_app_state
 
 GameRecord = namedtuple("GameRecord", "color, result, id, oppname")
 
-Pairings = dict[str, Tuple[GameRecord, ...]]
+Pairings = dict[str, tuple[GameRecord, ...]]
 
 pairings: Pairings = {}
 
@@ -108,7 +108,7 @@ async def add_games(app):
         "tid": tid,
         "name": "Ouk Chaktrang Friendship Between Four Countries Tournament",
         "createdBy": "PyChess",
-        "createdAt": datetime(2022, 9, 17, tzinfo=timezone.utc),
+        "createdAt": datetime(2022, 9, 17, tzinfo=UTC),
         "variant": "cambodian",
         "chess960": False,
         "base": 60,

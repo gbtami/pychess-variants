@@ -10,15 +10,16 @@ import time
 
 import pytest
 import test_logger
-from mongomock_motor import AsyncMongoMockClient
-from playwright.async_api import async_playwright, Error as PlaywrightError
-
 from bug.game_bug import GameBug
 from glicko2.glicko2 import new_default_perf_map
+from mongomock_motor import AsyncMongoMockClient
+from playwright.async_api import Error as PlaywrightError
+from playwright.async_api import async_playwright
 from pychess_global_app_state_utils import get_app_state
-from server import make_app
 from user import User
 from variants import VARIANTS
+
+from server import make_app
 
 test_logger.init_test_logger()
 

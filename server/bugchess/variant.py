@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
 # Copyright (C) 2016-2019 Niklas Fiekas <niklas.fiekas@backscattering.de>
@@ -18,18 +17,11 @@
 import copy
 import itertools
 from collections import OrderedDict
+from collections.abc import Hashable, Iterable, Iterator
 from typing import (
-    Dict,
     Generic,
-    Hashable,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Type,
+    Self,
     TypeVar,
-    Union,
-    Tuple,
 )
 
 import bugchess
@@ -164,7 +156,7 @@ class SuicideBoard(bugchess.Board):
         else:
             return super()._transposition_key()
 
-    def board_fen(self, promoted: Optional[bool] = None) -> str:
+    def board_fen(self, promoted: bool | None = None) -> str:
         if promoted is None:
             promoted = self.has_chess960_castling_rights()
         return super().board_fen(promoted=promoted)
@@ -193,7 +185,7 @@ class GiveawayBoard(SuicideBoard):
     pawnless_tbw_magic = b"\x7b\xf6\x93\x15"
     pawnless_tbz_magic = b"\xe4\xcf\xe7\x23"
 
-    def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
+    def __init__(self, fen: str | None = starting_fen, chess960: bool = False) -> None:
         super().__init__(fen, chess960=chess960)
 
     def reset(self) -> None:
@@ -398,7 +390,7 @@ class RacingKingsBoard(bugchess.Board):
     tbw_magic = None
     tbz_magic = None
 
-    def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
+    def __init__(self, fen: str | None = starting_fen, chess960: bool = False) -> None:
         super().__init__(fen, chess960=chess960)
 
     def reset(self) -> None:
@@ -497,7 +489,7 @@ class HordeBoard(bugchess.Board):
     tbw_magic = None
     tbz_magic = None
 
-    def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
+    def __init__(self, fen: str | None = starting_fen, chess960: bool = False) -> None:
         super().__init__(fen, chess960=chess960)
 
     def reset(self) -> None:
@@ -543,12 +535,12 @@ ThreeCheckBoardT = TypeVar("ThreeCheckBoardT", bound="ThreeCheckBoard")
 
 
 class _ThreeCheckBoardState(Generic[ThreeCheckBoardT], bugchess._BoardState["ThreeCheckBoardT"]):
-    def __init__(self, board: "ThreeCheckBoardT") -> None:
+    def __init__(self, board: ThreeCheckBoardT) -> None:
         super().__init__(board)
         self.remaining_checks_w = board.remaining_checks[bugchess.WHITE]
         self.remaining_checks_b = board.remaining_checks[bugchess.BLACK]
 
-    def restore(self, board: "ThreeCheckBoardT") -> None:
+    def restore(self, board: ThreeCheckBoardT) -> None:
         super().restore(board)
         board.remaining_checks[bugchess.WHITE] = self.remaining_checks_w
         board.remaining_checks[bugchess.BLACK] = self.remaining_checks_b
@@ -565,7 +557,7 @@ class ThreeCheckBoard(bugchess.Board):
     tbw_magic = None
     tbz_magic = None
 
-    def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
+    def __init__(self, fen: str | None = starting_fen, chess960: bool = False) -> None:
         self.remaining_checks = [3, 3]
         super().__init__(fen, chess960=chess960)
 
@@ -579,7 +571,7 @@ class ThreeCheckBoard(bugchess.Board):
         self.remaining_checks[bugchess.WHITE] = 3
         self.remaining_checks[bugchess.BLACK] = 3
 
-    def _board_state(self: ThreeCheckBoardT) -> _ThreeCheckBoardState[ThreeCheckBoardT]:
+    def _board_state(self) -> _ThreeCheckBoardState[Self]:
         return _ThreeCheckBoardState(self)
 
     def push(self, move: bugchess.Move) -> None:
@@ -593,7 +585,7 @@ class ThreeCheckBoard(bugchess.Board):
 
     def set_epd(
         self, epd: str
-    ) -> Dict[str, Union[None, str, int, float, bugchess.Move, List[bugchess.Move]]]:
+    ) -> dict[str, None | str | int | float | bugchess.Move | list[bugchess.Move]]:
         parts = epd.strip().rstrip(";").split(None, 5)
 
         # Parse ops.
@@ -619,18 +611,14 @@ class ThreeCheckBoard(bugchess.Board):
                 w, b = check_part[1:].split("+", 1)
                 wc, bc = 3 - int(w), 3 - int(b)
             except ValueError:
-                raise ValueError(
-                    "invalid check part in lichess three-check fen: {}".format(repr(check_part))
-                )
+                raise ValueError(f"invalid check part in lichess three-check fen: {check_part!r}")
         elif len(parts) >= 5 and "+" in parts[4]:
             check_part = parts.pop(4)
             try:
                 w, b = check_part.split("+", 1)
                 wc, bc = int(w), int(b)
             except ValueError:
-                raise ValueError(
-                    "invalid check part in three-check fen: {}".format(repr(check_part))
-                )
+                raise ValueError(f"invalid check part in three-check fen: {check_part!r}")
         else:
             wc, bc = 3, 3
 
@@ -643,15 +631,12 @@ class ThreeCheckBoard(bugchess.Board):
         self,
         shredder: bool = False,
         en_passant: str = "legal",
-        promoted: Optional[bool] = None,
-        **operations: Union[None, str, int, float, bugchess.Move, Iterable[bugchess.Move]],
+        promoted: bool | None = None,
+        **operations: None | str | float | bugchess.Move | Iterable[bugchess.Move],
     ) -> str:
         epd = [
             super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted),
-            "{:d}+{:d}".format(
-                max(self.remaining_checks[bugchess.WHITE], 0),
-                max(self.remaining_checks[bugchess.BLACK], 0),
-            ),
+            f"{max(self.remaining_checks[bugchess.WHITE], 0):d}+{max(self.remaining_checks[bugchess.BLACK], 0):d}",
         ]
         if operations:
             epd.append(self._epd_operations(operations))
@@ -688,12 +673,12 @@ class ThreeCheckBoard(bugchess.Board):
             self.remaining_checks[bugchess.BLACK],
         )
 
-    def copy(self: ThreeCheckBoardT, stack: Union[bool, int] = True) -> ThreeCheckBoardT:
+    def copy(self, stack: bool | int = True) -> Self:
         board = super().copy(stack=stack)
         board.remaining_checks = self.remaining_checks.copy()
         return board
 
-    def mirror(self: ThreeCheckBoardT) -> ThreeCheckBoardT:
+    def mirror(self) -> Self:
         board = super().mirror()
         board.remaining_checks[bugchess.WHITE] = self.remaining_checks[bugchess.BLACK]
         board.remaining_checks[bugchess.BLACK] = self.remaining_checks[bugchess.WHITE]
@@ -704,12 +689,12 @@ CrazyhouseBoardT = TypeVar("CrazyhouseBoardT", bound="CrazyhouseBoard")
 
 
 class _CrazyhouseBoardState(Generic[CrazyhouseBoardT], bugchess._BoardState["CrazyhouseBoardT"]):
-    def __init__(self, board: "CrazyhouseBoardT") -> None:
+    def __init__(self, board: CrazyhouseBoardT) -> None:
         super().__init__(board)
         self.pockets_w = board.pockets[bugchess.WHITE].copy()
         self.pockets_b = board.pockets[bugchess.BLACK].copy()
 
-    def restore(self, board: "CrazyhouseBoardT") -> None:
+    def restore(self, board: CrazyhouseBoardT) -> None:
         super().restore(board)
         board.pockets[bugchess.WHITE] = self.pockets_w.copy()
         board.pockets[bugchess.BLACK] = self.pockets_b.copy()
@@ -747,14 +732,14 @@ class CrazyhousePocket:
         return sum(self.pieces.values())
 
     def __repr__(self) -> str:
-        return "CrazyhousePocket('{}')".format(str(self))
+        return f"CrazyhousePocket('{self!s}')"
 
     def _repr_svg_(self) -> str:
         import bugchess.svg
 
         return bugchess.svg.pocket(self, width=400)
 
-    def copy(self: CrazyhousePocketT) -> CrazyhousePocketT:
+    def copy(self) -> Self:
         pocket = type(self)(self.color)
         pocket.pieces = copy.copy(self.pieces)
         return pocket
@@ -777,9 +762,9 @@ class CrazyhouseBoard(bugchess.Board):
 
     def __init__(
         self,
-        fen: Optional[str] = starting_fen,
+        fen: str | None = starting_fen,
         chess960: bool = False,
-        board_id: Optional[int] = None,
+        board_id: int | None = None,
     ):
         self.pockets = [CrazyhousePocket(bugchess.BLACK), CrazyhousePocket(bugchess.WHITE)]
         super().__init__(fen, chess960=chess960, board_id=board_id)
@@ -794,7 +779,7 @@ class CrazyhouseBoard(bugchess.Board):
         self.pockets[bugchess.WHITE].reset()
         self.pockets[bugchess.BLACK].reset()
 
-    def _board_state(self: CrazyhouseBoardT) -> _CrazyhouseBoardState[CrazyhouseBoardT]:
+    def _board_state(self) -> _CrazyhouseBoardState[Self]:
         return _CrazyhouseBoardState(self)
 
     def push(self, move: bugchess.Move) -> None:
@@ -910,7 +895,7 @@ class CrazyhouseBoard(bugchess.Board):
                 uci = "P" + uci
             move = bugchess.Move.from_uci(uci)
             if not self.is_legal(move):
-                raise ValueError("illegal drop san: {} in {}".format(repr(san), self.fen()))
+                raise ValueError(f"illegal drop san: {san!r} in {self.fen()}")
             return move
         else:
             return super().parse_san(san)
@@ -957,7 +942,7 @@ class CrazyhouseBoard(bugchess.Board):
         self.pockets[bugchess.WHITE] = white_pocket
         self.pockets[bugchess.BLACK] = black_pocket
 
-    def board_fen(self, promoted: Optional[bool] = None) -> str:
+    def board_fen(self, promoted: bool | None = None) -> str:
         if promoted is None:
             promoted = True
         return super().board_fen(promoted=promoted)
@@ -966,25 +951,20 @@ class CrazyhouseBoard(bugchess.Board):
         self,
         shredder: bool = False,
         en_passant: str = "legal",
-        promoted: Optional[bool] = None,
-        **operations: Union[None, str, int, float, bugchess.Move, Iterable[bugchess.Move]],
+        promoted: bool | None = None,
+        **operations: None | str | float | bugchess.Move | Iterable[bugchess.Move],
     ) -> str:
         epd = super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted)
         board_part, info_part = epd.split(" ", 1)
-        return "{}[{}{}] {}".format(
-            board_part,
-            str(self.pockets[bugchess.WHITE]).upper(),
-            str(self.pockets[bugchess.BLACK]),
-            info_part,
-        )
+        return f"{board_part}[{str(self.pockets[bugchess.WHITE]).upper()}{self.pockets[bugchess.BLACK]!s}] {info_part}"
 
-    def copy(self: CrazyhouseBoardT, stack: Union[bool, int] = True) -> CrazyhouseBoardT:
+    def copy(self, stack: bool | int = True) -> Self:
         board = super().copy(stack=stack)
         board.pockets[bugchess.WHITE] = self.pockets[bugchess.WHITE].copy()
         board.pockets[bugchess.BLACK] = self.pockets[bugchess.BLACK].copy()
         return board
 
-    def mirror(self: CrazyhouseBoardT) -> CrazyhouseBoardT:
+    def mirror(self) -> Self:
         board = super().mirror()
         board.pockets[bugchess.WHITE] = self.pockets[bugchess.BLACK].copy()
         board.pockets[bugchess.BLACK] = self.pockets[bugchess.WHITE].copy()
@@ -1020,7 +1000,7 @@ SingleBughouseBoardT = TypeVar("SingleBughouseBoardT", bound="SingleBughouseBoar
 class _SingleBughouseBoardState(
     Generic[SingleBughouseBoardT], bugchess._BoardState["SingleBughouseBoardT"]
 ):
-    def __init__(self, board: "CrazyhouseBoardT", disable_pocket_saving: bool = False) -> None:
+    def __init__(self, board: CrazyhouseBoardT, disable_pocket_saving: bool = False) -> None:
         super().__init__(board)
         if not disable_pocket_saving:
             self.pockets_w = board.pockets[bugchess.WHITE].copy()
@@ -1028,7 +1008,7 @@ class _SingleBughouseBoardState(
         else:
             self.pockets_b = self.pockets_w = None
 
-    def restore(self, board: "CrazyhouseBoardT", restore_pockets: bool = True) -> None:
+    def restore(self, board: CrazyhouseBoardT, restore_pockets: bool = True) -> None:
         super().restore(board)
         if self.pockets_b is not None and restore_pockets:
             board.pockets[bugchess.WHITE] = self.pockets_w.copy()
@@ -1038,9 +1018,9 @@ class _SingleBughouseBoardState(
 class SingleBughouseBoard(CrazyhouseBoard):
     def __init__(
         self,
-        bughouse_boards: "BughouseBoards",
+        bughouse_boards: BughouseBoards,
         board_id: int,
-        fen: Optional[str] = CrazyhouseBoard.starting_fen,
+        fen: str | None = CrazyhouseBoard.starting_fen,
         chess960: bool = False,
     ) -> None:
         self._bughouse_boards = bughouse_boards
@@ -1069,7 +1049,7 @@ class SingleBughouseBoard(CrazyhouseBoard):
     def pop(self) -> bugchess.Move:
         return self._bughouse_boards.pop(self.board_id)
 
-    def _board_state(self: SingleBughouseBoardT) -> _SingleBughouseBoardState[SingleBughouseBoardT]:
+    def _board_state(self) -> _SingleBughouseBoardState[Self]:
         return _SingleBughouseBoardState(self, self.disable_pocket_saving)
 
     def _pop(self) -> bugchess.Move:
@@ -1118,7 +1098,7 @@ class SingleBughouseBoard(CrazyhouseBoard):
     def _generate_pseudo_legal_drops_vp(
         self,
         to_mask: bugchess.Bitboard = bugchess.BB_ALL,
-        virtual_pocket: Optional[CrazyhousePocket] = None,
+        virtual_pocket: CrazyhousePocket | None = None,
     ) -> Iterator[bugchess.Move]:
         pocket = self.pockets[self.turn] if virtual_pocket is None else virtual_pocket
         for to_square in bugchess.scan_forward(to_mask & ~self.occupied):
@@ -1132,14 +1112,14 @@ class SingleBughouseBoard(CrazyhouseBoard):
     def generate_pseudo_legal_drops(
         self,
         to_mask: bugchess.Bitboard = bugchess.BB_ALL,
-        virtual_pocket: Optional[CrazyhousePocket] = None,
+        virtual_pocket: CrazyhousePocket | None = None,
     ) -> Iterator[bugchess.Move]:
         yield from self._generate_pseudo_legal_drops_vp(to_mask, virtual_pocket)
 
     def generate_legal_drops(
         self,
         to_mask: bugchess.Bitboard = bugchess.BB_ALL,
-        virtual_pocket: Optional[CrazyhousePocket] = None,
+        virtual_pocket: CrazyhousePocket | None = None,
     ) -> Iterator[bugchess.Move]:
         yield from self._generate_pseudo_legal_drops_vp(
             to_mask=self.legal_drop_squares_mask() & to_mask, virtual_pocket=virtual_pocket
@@ -1191,15 +1171,15 @@ class BughouseBoards:
     tbw_magic = None
     tbz_magic = None
 
-    def __init__(self, fen: Optional[str] = None, chess960: bool = False):
+    def __init__(self, fen: str | None = None, chess960: bool = False):
         """
 
         :param fen:
         :param chess960: not yet implemented
         """
-        self._boards: Optional[Tuple[SingleBughouseBoard, SingleBughouseBoard]] = None
+        self._boards: tuple[SingleBughouseBoard, SingleBughouseBoard] | None = None
         self.set_fen(self.starting_fen if fen is None else fen)
-        self._move_stack: List[bugchess.Move] = []
+        self._move_stack: list[bugchess.Move] = []
         self.chess960 = chess960
 
     def reset_boards(self) -> None:
@@ -1215,7 +1195,7 @@ class BughouseBoards:
             b.clear_board()
 
     def fen(self) -> str:
-        return "{} | {}".format(self._boards[LEFT].fen(), self._boards[RIGHT].fen())
+        return f"{self._boards[LEFT].fen()} | {self._boards[RIGHT].fen()}"
 
     def set_fen(self, value: str):
         fen_split = value.split("|")
@@ -1230,7 +1210,7 @@ class BughouseBoards:
         self._boards[move.board_id]._push(move)
         self._move_stack.append(move)
 
-    def pop(self, board_index: Optional[int] = None) -> bugchess.Move:
+    def pop(self, board_index: int | None = None) -> bugchess.Move:
         if board_index is None:
             move = self._move_stack.pop()
         else:
@@ -1247,7 +1227,7 @@ class BughouseBoards:
         self._boards[move.board_id]._pop()
         return move
 
-    def peek(self) -> Optional[bugchess.Move]:
+    def peek(self) -> bugchess.Move | None:
         if len(self._move_stack) == 0:
             return None
         return self._move_stack[-1]
@@ -1261,7 +1241,7 @@ class BughouseBoards:
             return [symbols, counts]
 
         def join(line1: str, line2: str):
-            return "{:<15}   {:<15}".format(line1, line2)
+            return f"{line1:<15}   {line2:<15}"
 
         board1_str = str(self._boards[LEFT])
         board1_lines = board1_str.splitlines()
@@ -1286,7 +1266,7 @@ class BughouseBoards:
         )
 
     @property
-    def boards(self) -> Tuple[SingleBughouseBoard, SingleBughouseBoard]:
+    def boards(self) -> tuple[SingleBughouseBoard, SingleBughouseBoard]:
         return self._boards
 
     def _repr_svg_(self):
@@ -1360,7 +1340,7 @@ class BughouseBoards:
     def is_legal(self, move: bugchess.Move) -> bool:
         return self[move.board_id].is_legal(move)
 
-    def copy(self) -> "BughouseBoards":
+    def copy(self) -> BughouseBoards:
         boards = BughouseBoards()
         boards._move_stack = copy.copy(self._move_stack)
         boards._boards = (self._boards[0].copy(), self._boards[1].copy())
@@ -1377,14 +1357,14 @@ class BughouseBoards:
     def __iter__(self):
         return self._boards.__iter__()
 
-    def root(self) -> "BughouseBoards":
+    def root(self) -> BughouseBoards:
         """Returns a copy of the root position."""
         board = type(self)(None, chess960=self.chess960)
         board._boards = [b.root() for b in self]
         return board
 
     @property
-    def move_stack(self) -> List[bugchess.Move]:
+    def move_stack(self) -> list[bugchess.Move]:
         return self._move_stack
 
     @property
@@ -1411,9 +1391,9 @@ VARIANTS = [
 ]  # type: List[Type[bugchess.Board]]
 
 
-def find_variant(name: str) -> Type[bugchess.Board]:
+def find_variant(name: str) -> type[bugchess.Board]:
     """Looks for a variant board class by variant name."""
     for variant in VARIANTS:
         if any(alias.lower() == name.lower() for alias in variant.aliases):
             return variant
-    raise ValueError("unsupported variant: {}".format(name))
+    raise ValueError(f"unsupported variant: {name}")

@@ -34,7 +34,6 @@ class DiscordStartupTestCase(unittest.IsolatedAsyncioTestCase):
 
             async def start(self, token: str) -> None:
                 self.calls += 1
-                return
 
         holder = type("Holder", (), {})()
         bot = CleanBot()

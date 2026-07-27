@@ -1,23 +1,21 @@
-# -*- coding: utf-8 -*-
-
 import asyncio
 import unittest
-import test_logger
-
-from aiohttp.test_utils import AioHTTPTestCase
-from mongomock_motor import AsyncMongoMockClient
 
 import game
-from game import Game
-from wsr import handle_rematch
+import test_logger
+from aiohttp.test_utils import AioHTTPTestCase
 from bug.game_bug import GameBug
 from bug.wsr_bug import handle_rematch_bughouse
 from const import RATED
+from game import Game
 from glicko2.glicko2 import new_default_perf_map
-from server import make_app
-from user import User
+from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
+from user import User
 from variants import VARIANTS
+from wsr import handle_rematch
+
+from server import make_app
 
 game.KEEP_TIME = 0
 game.MAX_PLY = 120

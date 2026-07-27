@@ -1,17 +1,19 @@
 from __future__ import annotations
-from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Iterable, NotRequired, TypedDict
 
-from const import CORR_SEEK_EXPIRE_WEEKS, INVITE_SEEK_EXPIRE
-from json_utils import json_dumps
-from misc import time_control_str
-from rated_start import can_rate_start
-from newid import new_id
 import logging
+from collections.abc import Iterable
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING, NotRequired, TypedDict
+
 from catalogued_variants import (
     can_create_catalogued_seek,
     catalogued_variant_games_are_persisted,
 )
+from const import CORR_SEEK_EXPIRE_WEEKS, INVITE_SEEK_EXPIRE
+from json_utils import json_dumps
+from misc import time_control_str
+from newid import new_id
+from rated_start import can_rate_start
 from variants import get_server_variant, is_catalogued_variant
 
 log = logging.getLogger(__name__)
@@ -148,10 +150,10 @@ class Seek:
         variant: str,
         fen: str = "",
         color: str = "r",
-        base: int | float = 5,
+        base: float = 5,
         inc: int = 5,
         byoyomi_period: int = 0,
-        day: int | float = 0,
+        day: float = 0,
         level: int = 6,
         rated: bool | int | None = False,
         rrmin: int | None = None,
@@ -268,20 +270,20 @@ class Seek:
 
     def default_expire_at(self) -> datetime | None:
         if self.target == "Invite-friend":
-            return datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
+            return datetime.now(UTC) + INVITE_SEEK_EXPIRE
         if (
             self.is_direct_challenge
             and self.challenge_status not in ACTIVE_DIRECT_CHALLENGE_STATUSES
         ):
-            return datetime.now(timezone.utc) + DIRECT_CHALLENGE_SHORT_EXPIRE
+            return datetime.now(UTC) + DIRECT_CHALLENGE_SHORT_EXPIRE
         if self.is_bot_challenge and self.bot_challenge_status != BOT_CHALLENGE_CREATED:
-            return datetime.now(timezone.utc) + DIRECT_CHALLENGE_SHORT_EXPIRE
+            return datetime.now(UTC) + DIRECT_CHALLENGE_SHORT_EXPIRE
         if self.day > 0:
-            return datetime.now(timezone.utc) + CORR_SEEK_EXPIRE_WEEKS
+            return datetime.now(UTC) + CORR_SEEK_EXPIRE_WEEKS
         if self.is_direct_challenge:
-            return datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
+            return datetime.now(UTC) + INVITE_SEEK_EXPIRE
         if self.is_bot_challenge:
-            return datetime.now(timezone.utc) + INVITE_SEEK_EXPIRE
+            return datetime.now(UTC) + INVITE_SEEK_EXPIRE
         return None
 
     def set_challenge_status(self, status: str) -> None:
@@ -419,8 +421,8 @@ class Seek:
             return False
         expire_at = self.expire_at
         if expire_at.tzinfo is None:
-            expire_at = expire_at.replace(tzinfo=timezone.utc)
-        return expire_at <= datetime.now(timezone.utc)
+            expire_at = expire_at.replace(tzinfo=UTC)
+        return expire_at <= datetime.now(UTC)
 
     @property
     def discord_msg(self) -> str:
@@ -444,8 +446,8 @@ class Seek:
             return None
 
         if parsed.tzinfo is None:
-            return parsed.replace(tzinfo=timezone.utc)
-        return parsed.astimezone(timezone.utc)
+            return parsed.replace(tzinfo=UTC)
+        return parsed.astimezone(UTC)
 
 
 def resolve_decline_reason(reason: str | None, *, allow_custom: bool = False) -> str:
@@ -458,7 +460,7 @@ def resolve_decline_reason(reason: str | None, *, allow_custom: bool = False) ->
 
 
 def is_anon_restricted_seek(
-    user: User, variant: str, chess960: bool | None, day: int | float = 0
+    user: User, variant: str, chess960: bool | None, day: float = 0
 ) -> bool:
     server_variant = get_server_variant(variant, chess960)
     return user.anon and (day > 0 or server_variant.two_boards)
@@ -530,7 +532,7 @@ def should_restore_persisted_seek(seek: Seek) -> bool:
     return True
 
 
-def user_reached_seek_limit(user: User, day: int | float) -> bool:
+def user_reached_seek_limit(user: User, day: float) -> bool:
     if day == 0:
         seeks_in_bucket = [seek for seek in user.seeks.values() if seek.day == 0]
     else:

@@ -4,7 +4,6 @@ from typing import Literal
 
 import msgspec
 
-
 Number = int | float
 
 

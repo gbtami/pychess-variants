@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime
-from typing import Callable, Literal, Mapping, NotRequired, Sequence, TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Literal, NotRequired, TypedDict
 
 if TYPE_CHECKING:
     from user import User

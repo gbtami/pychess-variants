@@ -1,110 +1,40 @@
 from __future__ import annotations
 
-from typing import Awaitable, Callable, TypeAlias
+from collections.abc import Awaitable, Callable
+from typing import TypeAlias
 
-from aiohttp import web
-
-from bot_api import (
-    account,
-    playing,
-    event_stream,
-    game_stream,
-    bot_abort,
-    bot_resign,
-    bot_chat,
-    bot_move,
-    challenge_accept,
-    challenge_decline,
-    challenge_create,
-    bot_token_test,
-    upgrade_account,
-)
 from account_api import (
-    account_home,
     account_bot,
     account_bot_token_create,
     account_bot_token_revoke,
     account_bot_upgrade_post,
     account_close,
     account_close_post,
-    account_personal_data,
-    account_personal_data_export,
     account_delete,
     account_delete_post,
+    account_home,
+    account_personal_data,
+    account_personal_data_export,
     account_reopen,
     account_reopen_post,
 )
-from fishnet import (
-    fishnet_monitor,
-    fishnet_validate_key,
-    fishnet_variants,
-    fishnet_acquire,
-    fishnet_abort,
-    fishnet_analysis,
-    fishnet_move,
+from aiohttp import web
+from bot_api import (
+    account,
+    bot_abort,
+    bot_chat,
+    bot_move,
+    bot_resign,
+    bot_token_test,
+    challenge_accept,
+    challenge_create,
+    challenge_decline,
+    event_stream,
+    game_stream,
+    playing,
+    upgrade_account,
 )
-from game_api import (
-    export_monthly_pgn,
-    export_tournament_pgn,
-    export_user_pgn,
-    export_tournament_trf,
-    get_games,
-    get_games_by_variant,
-    get_user_games,
-    search_games,
-    get_tournament_games,
-    subscribe_games,
-    subscribe_invites,
-    get_variant_stats,
-    cancel_invite,
-)
-from header_challenges import (
-    challenge_seek_accept,
-    challenge_seek_cancel,
-    challenge_seek_decline,
-    get_header_challenges,
-    subscribe_challenges,
-)
-from inbox_api import (
-    inbox_unread,
-    inbox_threads,
-    inbox_thread,
-    subscribe_inbox,
-    inbox_post,
-    inbox_read,
-    inbox_delete,
-)
-from forum import (
-    forum_categs,
-    forum_captcha,
-    forum_captcha_check,
-    forum_topics,
-    forum_topic,
-    forum_search,
-    forum_post_redirect,
-    forum_topic_create,
-    forum_post_create,
-    forum_post_edit,
-    forum_post_delete,
-    forum_topic_participants,
-    forum_post_react,
-    forum_mod_feed,
-    forum_post_relocate,
-    forum_topic_close,
-    forum_topic_sticky,
-)
-from report_api import (
-    report_create as report_api_create,
-    report_queue,
-    report_inquiry,
-    report_process,
-    report_reopen,
-    report_silence,
-    report_shadowban,
-    report_close_account,
-)
-from mod_public_chat_api import public_chat_timeout
-from push_notifications import push_subscribe, push_unsubscribe, service_worker
+from bug.import_bugh_game import import_game_bpgn
 from catalogued_variants import (
     archive_catalogued_variant,
     check_catalogued_variant_rules,
@@ -125,26 +55,94 @@ from catalogued_variants import (
     upload_catalogued_variant,
 )
 from client_reset import client_reset, client_reset_page
-from utils import import_game, get_names, get_notifications, subscribe_notify, notified
-from bug.import_bugh_game import import_game_bpgn
+from fishnet import (
+    fishnet_abort,
+    fishnet_acquire,
+    fishnet_analysis,
+    fishnet_monitor,
+    fishnet_move,
+    fishnet_validate_key,
+    fishnet_variants,
+)
+from forum import (
+    forum_captcha,
+    forum_captcha_check,
+    forum_categs,
+    forum_mod_feed,
+    forum_post_create,
+    forum_post_delete,
+    forum_post_edit,
+    forum_post_react,
+    forum_post_redirect,
+    forum_post_relocate,
+    forum_search,
+    forum_topic,
+    forum_topic_close,
+    forum_topic_create,
+    forum_topic_participants,
+    forum_topic_sticky,
+    forum_topics,
+)
+from game_api import (
+    cancel_invite,
+    export_monthly_pgn,
+    export_tournament_pgn,
+    export_tournament_trf,
+    export_user_pgn,
+    get_games,
+    get_games_by_variant,
+    get_tournament_games,
+    get_user_games,
+    get_variant_stats,
+    search_games,
+    subscribe_games,
+    subscribe_invites,
+)
+from header_challenges import (
+    challenge_seek_accept,
+    challenge_seek_cancel,
+    challenge_seek_decline,
+    get_header_challenges,
+    subscribe_challenges,
+)
+from inbox_api import (
+    inbox_delete,
+    inbox_post,
+    inbox_read,
+    inbox_thread,
+    inbox_threads,
+    inbox_unread,
+    subscribe_inbox,
+)
 from login import (
+    check_username_availability,
+    confirm_username,
     login,
     logout,
     oauth,
     select_username,
-    check_username_availability,
-    confirm_username,
 )
-from lang import select_lang
-from wsl import lobby_socket_handler
-from wsr import round_socket_handler
-from tournament.wst import tournament_socket_handler
-from simul.wss import simul_socket_handler
-from tournament.tournament_calendar import tournament_calendar
-from twitch import twitch_request_handler
+from mod_public_chat_api import public_chat_timeout
+from push_notifications import push_subscribe, push_unsubscribe, service_worker
 from puzzle import puzzle_complete, puzzle_vote
+from report_api import (
+    report_close_account,
+    report_inquiry,
+    report_process,
+    report_queue,
+    report_reopen,
+    report_shadowban,
+    report_silence,
+)
+from report_api import (
+    report_create as report_api_create,
+)
 from robots import robots
 from server_metrics import metrics_handler
+from simul.wss import simul_socket_handler
+from tournament.tournament_calendar import tournament_calendar
+from tournament.wst import tournament_socket_handler
+from twitch import twitch_request_handler
 from user import (
     block_user,
     follow_user,
@@ -155,15 +153,15 @@ from user import (
     set_pm_friends_only,
     set_theme,
 )
+from utils import get_names, get_notifications, import_game, notified, subscribe_notify
 from views import (
     about,
-    api_docs,
     allplayers,
     analysis,
+    api_docs,
     arena_new,
     blog,
     blogs,
-    bot_challenge as bot_challenge_view,
     calendar,
     contact,
     direct_challenge,
@@ -171,43 +169,57 @@ from views import (
     embed,
     faq,
     features,
+    forum,
+    forum_etiquette,
     game,
     game_search,
     games,
+    inbox,
     invite,
     level8win,
     lobby,
     memory,
-    paste,
     my_variants,
+    paste,
     patron,
     players,
     players50,
     privacy,
     profile,
-    report_faq,
-    report as report_view,
-    reports as reports_view,
-    mod_public_chat as mod_public_chat_view,
-    user_mini,
-    inbox,
-    forum,
-    forum_etiquette,
     puzzle,
+    report_faq,
     shields,
     stats,
+    terms,
     tournament,
     tournaments,
-    terms,
     tv,
-    variants,
-    videos,
-    video,
-    winners,
     ublog,
+    user_mini,
+    variants,
+    video,
+    videos,
+    winners,
+)
+from views import (
+    bot_challenge as bot_challenge_view,
+)
+from views import (
+    mod_public_chat as mod_public_chat_view,
+)
+from views import (
+    report as report_view,
+)
+from views import (
+    reports as reports_view,
+)
+from views import (
     simul as simul_view,
 )
+from wsl import lobby_socket_handler
+from wsr import round_socket_handler
 
+from lang import select_lang
 
 Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
 RouteDef: TypeAlias = tuple[str, Handler]

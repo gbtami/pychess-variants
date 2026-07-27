@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from typing_defs import TournamentArrangementDoc, TournamentArrangementUpdate
@@ -18,19 +18,19 @@ ARR_REMINDER_COOLDOWN_AFTER_AGREEMENT = timedelta(hours=3)
 
 class RRArrangement:
     __slots__ = (
-        "id",
-        "white",
         "black",
-        "round_no",
-        "status",
-        "game_id",
-        "invite_id",
+        "black_date",
         "challenger",
         "date",
-        "white_date",
-        "black_date",
-        "scheduled_at",
+        "game_id",
+        "id",
+        "invite_id",
         "last_reminded_at",
+        "round_no",
+        "scheduled_at",
+        "status",
+        "white",
+        "white_date",
     )
 
     def __init__(
@@ -58,7 +58,7 @@ class RRArrangement:
         self.game_id = game_id
         self.invite_id = invite_id
         self.challenger = challenger
-        self.date = datetime.now(timezone.utc) if date is None else date
+        self.date = datetime.now(UTC) if date is None else date
         self.white_date = white_date
         self.black_date = black_date
         self.scheduled_at = scheduled_at

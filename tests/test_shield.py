@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, patch
 
 from const import SHIELD, T_FINISHED
@@ -17,7 +17,7 @@ class ShieldTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         variant = "chess"
         previous_owner = "previous-shield-owner"
-        previous_start = datetime.now(timezone.utc) - timedelta(days=30)
+        previous_start = datetime.now(UTC) - timedelta(days=30)
         app_state.shield[variant] = [(previous_owner, previous_start, "previous-shield")]
         app_state.shield_owners[variant] = previous_owner
 
@@ -54,7 +54,7 @@ class ShieldTestCase(TournamentTestCase):
         app_state = get_app_state(self.app)
         variant = "makruk"
         variant_code = get_server_variant(variant, False).code
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         await app_state.db.tournament.insert_many(
             [

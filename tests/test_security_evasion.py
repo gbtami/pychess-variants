@@ -1,25 +1,23 @@
-# -*- coding: utf-8 -*-
-
 import asyncio
 import json
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, patch
 
 import test_logger
+from admin import ban, baninfo, shadowban, unban, unshadowban
 from aiohttp.test_utils import AioHTTPTestCase, make_mocked_request
 from mongomock_motor import AsyncMongoMockClient
-
-from admin import ban, baninfo, shadowban, unban, unshadowban
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from security_evasion import collect_client_signals
-from server import make_app
 from tournament.auto_play_tournament import ArenaTestTournament
 from tournament.tournament import upsert_tournament_to_db
 from tournament.tournaments import load_tournament
 from user import User
 from wsl import handle_lobbychat
+
+from server import make_app
 
 test_logger.init_test_logger()
 
@@ -276,7 +274,7 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
 
     async def test_baninfo_reports_autoclose_reason_and_active_counts(self):
         app_state = get_app_state(self.app)
-        auto_close_at = datetime.now(timezone.utc)
+        auto_close_at = datetime.now(UTC)
         await app_state.db.user.insert_one(
             {
                 "_id": "closed_user",
@@ -438,7 +436,7 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         app_state.tournaments[tid] = tournament
         app_state.tourneysockets[tid] = {}
         await tournament.join(user)
-        await tournament.start(datetime.now(timezone.utc))
+        await tournament.start(datetime.now(UTC))
 
         await ban(app_state, f"/ban {username}")
 
@@ -513,7 +511,7 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
         await upsert_tournament_to_db(tournament, app_state)
         await tournament.join(banned_user)
         await tournament.join(opponent_user)
-        await tournament.start(datetime.now(timezone.utc))
+        await tournament.start(datetime.now(UTC))
 
         await ban(app_state, f"/ban {banned_username}")
 
@@ -541,7 +539,7 @@ class AdminBanUnbanSignalsTestCase(AioHTTPTestCase):
 
         dummy_ws = _DummyWs()
         for player in reloaded.players:
-            player.tournament_sockets[tid] = set((dummy_ws,))
+            player.tournament_sockets[tid] = {dummy_ws}
             reloaded.app_state.tourneysockets[tid][player.username] = player.tournament_sockets[tid]
 
         waiting_players = reloaded.waiting_players()

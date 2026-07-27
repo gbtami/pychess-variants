@@ -1,15 +1,15 @@
 from __future__ import annotations
+
 import asyncio
-from datetime import datetime, timezone
+import logging
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from const import ABORTED
-from fairy import WHITE, BLACK
 from broadcast import round_broadcast
+from const import ABORTED
+from fairy import BLACK, WHITE
 from notify import notify
 from typing_defs import NotificationContent
-
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class Clock:
     """Check game start and time out abandoned games"""
 
     def __init__(
-        self, game: Game, board: FairyBoard | None = None, secs: int | float | None = None
+        self, game: Game, board: FairyBoard | None = None, secs: float | None = None
     ) -> None:
         self.game: Game = game
         self.board: FairyBoard = board if board is not None else game.board
@@ -71,7 +71,7 @@ class Clock:
 
         # self.game = None
 
-    def restart(self, secs: int | float | None = None) -> None:
+    def restart(self, secs: float | None = None) -> None:
         self.ply: int = self.game.ply
         self.color: int = self.board.color
         if secs is not None:
@@ -234,7 +234,7 @@ class CorrClock:
         self.color: int = self.game.board.color
         self.mins: float = self.game.base * 24 * 60
         if from_db and self.game.last_move_time is not None:
-            delta = datetime.now(timezone.utc) - self.game.last_move_time
+            delta = datetime.now(UTC) - self.game.last_move_time
             remaining_mins = self.mins - delta.total_seconds() / 60
             # Clocks may go to negative while server is restarting
             # force to detect it again

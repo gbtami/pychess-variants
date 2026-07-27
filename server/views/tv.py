@@ -1,11 +1,11 @@
 import aiohttp_jinja2
 from aiohttp import web
-
 from json_utils import json_dumps
-from typing_defs import ViewContext
-from views import add_game_context, get_user_context
-from utils import tv_game, tv_game_user, load_game
 from pychess_global_app_state_utils import get_app_state
+from typing_defs import ViewContext
+from utils import load_game, tv_game, tv_game_user
+
+from views import add_game_context, get_user_context
 
 
 @aiohttp_jinja2.template("index.html")

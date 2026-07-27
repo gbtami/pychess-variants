@@ -1,32 +1,30 @@
-# -*- coding: utf-8 -*-
-
 import asyncio
+import logging
 import random
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from pychess_global_app_state_utils import get_app_state
 from const import (
-    BYEGAME,
-    STARTED,
-    VARIANTEND,
     ARENA,
+    BYEGAME,
     RR,
+    STARTED,
     SWISS,
     TEST_PREFIX,
+    VARIANTEND,
 )
 from draw import draw
 from fairy import BLACK
 from game import MAX_PLY
 from glicko2.glicko2 import new_default_perf_map
-from tournament.arena import ArenaTournament
-from tournament.rr import RRTournament
-from tournament.swiss import SwissTournament
-from tournament.tournament import Tournament, upsert_tournament_to_db
+from pychess_global_app_state_utils import get_app_state
 from user import User
 from utils import play_move
 from variants import VARIANTS
 
-import logging
+from tournament.arena import ArenaTournament
+from tournament.rr import RRTournament
+from tournament.swiss import SwissTournament
+from tournament.tournament import Tournament, upsert_tournament_to_db
 
 log = logging.getLogger(__name__)
 
@@ -116,7 +114,7 @@ class TestTournament(Tournament):
             if rating:
                 player.perfs[self.variant]["gl"]["r"] = rating
             self.app_state.users[player.username] = player
-            player.tournament_sockets[self.id] = set((None,))
+            player.tournament_sockets[self.id] = {None}
             result = await self.join(player)
             if result is not None:
                 log.debug(
@@ -144,7 +142,7 @@ class TestTournament(Tournament):
         await game.save_setup()
 
     async def create_new_pairings(self, waiting_players, *, publish_pairings: bool = True):
-        now = datetime.now(timezone.utc).strftime("%H:%M:%S")
+        now = datetime.now(UTC).strftime("%H:%M:%S")
         log.info("--- create_new_pairings at %s ---" % now)
         self.print_leaderboard()
         pairing, games = await Tournament.create_new_pairings(
@@ -190,8 +188,7 @@ class TestTournament(Tournament):
                 await asyncio.sleep(0.01)
                 continue
 
-            if game.status < STARTED:
-                game.status = STARTED
+            game.status = max(game.status, STARTED)
 
             cur_player = game.bplayer if game.board.color == BLACK else game.wplayer
             opp_player = game.wplayer if game.board.color == BLACK else game.bplayer

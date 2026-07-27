@@ -1,12 +1,12 @@
 from itertools import product
-from typing import TYPE_CHECKING
 from random import random
+from typing import TYPE_CHECKING
 
-from variants import BYOS
 from misc import time_control_str
 from newid import new_id
 from seek import Seek
 from utils import join_seek
+from variants import BYOS
 from websocket_utils import ws_send_json_many
 
 
@@ -35,7 +35,7 @@ def add_to_auto_pairings(app_state, user, data):
             variant_tc[1][1],
             variant_tc[1][2],
         )
-        variant, chess960, base, inc, byoyomi_period = variant_tc
+        variant, _chess960, _base, _inc, byoyomi_period = variant_tc
 
         # We don't want to create unsupported variant-TC combinations
         if (
