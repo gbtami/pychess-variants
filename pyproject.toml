@@ -45,7 +45,7 @@ dev = [
     "pyright==1.1.411",
     "ruff==0.16.0",
     "textual==8.2.8",
-    "tqdm>=4.67.3",
+    "tqdm>=4.69.1",
 ]
 
 [tool.ruff]
