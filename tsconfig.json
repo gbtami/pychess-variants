@@ -4,10 +4,12 @@
     ],
     "compilerOptions": {
         "paths": {
-            "@/*": [ "./client/*" ]
+            "@/*": [ "./client/*" ],
+            "@toast-ui/editor": [ "./node_modules/@toast-ui/editor/types/index.d.ts" ]
         },
         "noEmit": true,
         "incremental": true,
+        "strict": false,
         "noImplicitAny": true,
         "strictNullChecks": true,
         "noUnusedLocals": true,
@@ -17,7 +19,7 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "module": "es2020",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "lib": ["DOM", "es2020"],
         "target": "es2020",
         "isolatedModules": true
