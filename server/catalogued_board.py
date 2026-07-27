@@ -163,11 +163,13 @@ def _cached_start_board_svg(
     svg_width = width * cell_size
     svg_height = height * cell_size
     parts: list[str] = [
-        '<svg xmlns="http://www.w3.org/2000/svg" '
-        'class="catalogued-start-board-svg" role="img" '
-        'aria-label="Default starting position" '
-        f'width="{svg_width}" height="{svg_height}" '
-        f'viewBox="0 0 {svg_width} {svg_height}">',
+        (
+            '<svg xmlns="http://www.w3.org/2000/svg" '
+            'class="catalogued-start-board-svg" role="img" '
+            'aria-label="Default starting position" '
+            f'width="{svg_width}" height="{svg_height}" '
+            f'viewBox="0 0 {svg_width} {svg_height}">'
+        ),
         "<title>Default starting position</title>",
     ]
 

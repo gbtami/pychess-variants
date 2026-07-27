@@ -237,7 +237,7 @@ def _is_public_ip(ip_value: str) -> bool:
 
 async def _is_safe_image_host(hostname: str) -> bool:
     host = hostname.strip().rstrip(".").casefold()
-    if not host or host == "localhost" or host.endswith(".localhost") or host.endswith(".local"):
+    if not host or host == "localhost" or host.endswith((".localhost", ".local")):
         return False
 
     if _is_public_ip(host):

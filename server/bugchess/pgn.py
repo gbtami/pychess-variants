@@ -1251,13 +1251,13 @@ def read_game(
     # Ignore leading empty lines and comments.
     lines = pgn.splitlines(True)
     line = readLine(lines).lstrip("\ufeff")
-    while line.isspace() or line.startswith("%") or line.startswith(";"):
+    while line.isspace() or line.startswith(("%", ";")):
         line = readLine(lines)  # handle.readline()
 
     # Parse game headers.
     while line:
         # Ignore comments.
-        if line.startswith("%") or line.startswith(";"):
+        if line.startswith(("%", ";")):
             line = readLine(lines)  # handle.readline()
             continue
 
@@ -1350,7 +1350,7 @@ def read_game(
         read_next_line = True
 
         # Ignore comments.
-        if line.startswith("%") or line.startswith(";"):
+        if line.startswith(("%", ";")):
             line = readLine(lines)  # handle.readline()
             continue
 

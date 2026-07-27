@@ -83,7 +83,7 @@ def _svg(viewbox: int | tuple[int, int] | None, size: int | tuple[int, int] | No
             "xmlns": "http://www.w3.org/2000/svg",
             "version": "1.1",
             "xmlns:xlink": "http://www.w3.org/1999/xlink",
-            "viewBox": "0 0 {0:d} {1:d}".format(*viewbox),
+            "viewBox": "0 0 {:d} {:d}".format(*viewbox),
         },
     )
 

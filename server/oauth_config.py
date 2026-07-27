@@ -33,12 +33,7 @@ oauth_config: dict[str, OAuthProviderConfig] = {
         "client_secret": os.getenv("GOOGLE_CLIENT_SECRET", "secret"),
         "oauth_authorize_url": "https://accounts.google.com/o/oauth2/v2/auth",
         "oauth_token_url": "https://oauth2.googleapis.com/token",
-        "scope": " ".join(
-            [
-                "https://www.googleapis.com/auth/userinfo.profile",
-                "openid",
-            ]
-        ),
+        "scope": "https://www.googleapis.com/auth/userinfo.profile openid",
         "account_api_url": "https://www.googleapis.com/oauth2/v2/userinfo",
     },
     "microsoft": {

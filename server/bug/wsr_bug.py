@@ -86,7 +86,7 @@ async def handle_rematch_bughouse(
         log.info("other_plauers %s.", other_players)
         if all(
             elem in game.rematch_offers
-            for elem in map(lambda u: app_state.users[u.username].username, other_players)
+            for elem in (app_state.users[u.username].username for u in other_players)
         ):
             color = "w"  # if game.wplayer.username == opp_name else "b"
             fen = game.initial_fen

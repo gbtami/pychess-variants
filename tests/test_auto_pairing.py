@@ -36,7 +36,7 @@ ALL_TC = [
     (10, 30, 1),
 ]
 
-ALL_VARIANT = product(map(lambda x: x.removesuffix("960"), VARIANTS), (True, False))
+ALL_VARIANT = product((x.removesuffix("960") for x in VARIANTS), (True, False))
 
 DATA = {
     "all": {"variants": ALL_VARIANT, "tcs": ALL_TC, "rrmin": -1000, "rrmax": 1000},

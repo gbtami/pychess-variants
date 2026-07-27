@@ -130,7 +130,7 @@ class MemoryMonitorApp(App):
 
     @staticmethod
     def build_column_config(items: list[dict[str, object]]) -> list[tuple[str, str]]:
-        keys = sorted({key for item in items for key in item.keys()})
+        keys = sorted({key for item in items for key in item})
         return [(key.replace("_", " ").title(), key) for key in keys]
 
     def sync_category_columns(self, category: str) -> None:

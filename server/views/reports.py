@@ -32,7 +32,7 @@ def _is_admin_username(username: str) -> bool:
 def _report_source_context(report: Mapping[str, Any]) -> tuple[str, str]:
     url = str(report.get("url") or "").strip()
     if url:
-        if url.startswith("/") or url.startswith("http://") or url.startswith("https://"):
+        if url.startswith(("/", "http://", "https://")):
             return ("Context link", url)
         return ("Context link", "")
 

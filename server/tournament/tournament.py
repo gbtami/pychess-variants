@@ -505,7 +505,7 @@ class Tournament(ABC):
         return self.created_by
 
     def __repr__(self) -> str:
-        return " ".join((self.id, self.name, self.created_at.isoformat()))
+        return f"{self.id} {self.name} {self.created_at.isoformat()}"
 
     @abstractmethod
     def create_pairing(self, waiting_players: list[User]) -> list[tuple[User, User]]:
@@ -2563,7 +2563,7 @@ class Tournament(ABC):
 
     def rr_pairing_players(self) -> list[User]:
         players: list[User] = []
-        for player in self.players.keys():
+        for player in self.players:
             player_data = self.player_data_by_name(player.username)
             if player_data is None or player_data.withdrawn:
                 continue

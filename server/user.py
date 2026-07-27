@@ -142,7 +142,7 @@ class User:
         self.update_game_category(game_category)
 
         if username is None:
-            self.anon = False if self.app_state.anon_as_test_users else True
+            self.anon = not self.app_state.anon_as_test_users
             self.username: str = (
                 TEST_PREFIX if self.app_state.anon_as_test_users else ANON_PREFIX
             ) + id8()

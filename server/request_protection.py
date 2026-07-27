@@ -177,11 +177,7 @@ class RequestProtectionState:
             # than static API endpoints.
             if len(parts) >= 4 and parts[2] not in self._STATIC_API_SEGMENTS:
                 return self._PROFILE_API_LIMIT
-        if (
-            path.startswith("/invite/")
-            or path.startswith("/embed/")
-            or path.startswith("/corranalysis/")
-        ):
+        if path.startswith(("/invite/", "/embed/", "/corranalysis/")):
             if self._local_dev_mode:
                 return self._LOCAL_DEV_GAME_VIEW_LIMIT
             return self._GAME_VIEW_LIMIT

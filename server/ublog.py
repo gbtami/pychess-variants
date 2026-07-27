@@ -107,11 +107,11 @@ def post_url(post: Mapping[str, object]) -> str:
 
 def image_src(post: Mapping[str, object]) -> str:
     image = str(post.get("image") or "")
-    if image.startswith("http://") or image.startswith("https://"):
+    if image.startswith(("http://", "https://")):
         post_id = str(post.get("_id") or "")
         if post_id:
             return f"/blogs/image/{post_id}"
-    if image.startswith("/images/") or image.startswith("/icons/"):
+    if image.startswith(("/images/", "/icons/")):
         return f"/static{image}"
     return image
 
