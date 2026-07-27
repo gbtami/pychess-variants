@@ -58,9 +58,7 @@ def _is_forum_candidate(doc: dict) -> bool:
     if not isinstance(doc.get("m"), str):
         return False
     variant = _variant(doc)
-    if not variant:
-        return False
-    return True
+    return bool(variant)
 
 
 def _scan_puzzles(path: Path) -> tuple[int, int, Counter[str], Counter[str]]:

@@ -293,7 +293,7 @@ class GameBug:
 
         # always save them, even if no moves - todo: will optimize eventually, just want it simple now
         # and have trace of all games for later investigation
-        if False and (self.app_state.db is not None) and (self.tournamentId is None):
+        if False:
             result = await self.app_state.db.game.delete_one({"_id": self.id})
             log.debug(
                 "Removed too short game %s from db. Deleted %s game.",

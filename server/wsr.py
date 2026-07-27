@@ -460,6 +460,12 @@ async def handle_board(ws: WebSocketResponse, user: User, game: game.Game) -> No
         )
 
 
+def _user_if_present(users: Users, username: str) -> User | None:
+    if username not in users:
+        return None
+    return users[username]
+
+
 async def handle_setup(
     ws: WebSocketResponse,
     users: Users,
@@ -539,7 +545,7 @@ async def handle_setup(
             if user.username == game.bplayer.username
             else game.bplayer.username
         )
-        opp_player = users[opp_name] if opp_name in users else None
+        opp_player = _user_if_present(users, opp_name)
 
         game.steps[0]["fen"] = data["fen"]
 
