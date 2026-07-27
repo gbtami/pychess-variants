@@ -34,6 +34,7 @@ Investigate memory growth without making gameplay latency worse. Separate bounde
 
 - A locally constructed registered `User` has measured roughly 65–70 KiB RSS. Because `Users.get()` loads ratings, relations, preferences, and sets, an unbounded registered-user cache can explain several MiB per hour.
 - User `perfs` and `pperfs` maps are intentionally sparse: an absent variant means the default rating. Do not eagerly materialize all rated variants or insert defaults during reads. Track `user_perf_entries` and `user_puzzle_perf_entries`; growth should follow ratings actually created, not `users × rated variants`.
+- Legacy MongoDB user documents may still contain eagerly materialized defaults. After deploying sparse-rating server code, use `scripts/compact_user_rating_maps.py` in dry-run mode first, then `--apply`; its optimistic batch filters skip users whose targeted ratings changed after they were read.
 - `tracemalloc` materially inflates memory measurements. Use it for allocation provenance, then repeat RSS probes without it for per-object cost.
 - pyffish registrations allocate native memory that Python heap walks cannot see. Compare `pyffish_variants` with RSS/swap and reproduce registration growth locally.
 - Catalogued SVG/INI payload bytes measure stored text but not every derived cache or native representation. Check the catalogued Betza, board, rules, and client payload caches separately.
