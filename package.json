@@ -58,7 +58,7 @@
     "showdown": "^2.1.0",
     "ts-jest": "^29",
     "tslib": "^2.8.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "yarn": "^1.22.22",
     "zlib": "^1.0.5"
   },
