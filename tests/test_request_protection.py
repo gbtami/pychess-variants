@@ -1,3 +1,4 @@
+import inspect
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -9,6 +10,7 @@ from pychess_global_app_state_utils import get_app_state
 from request_protection import RequestProtectionState
 
 from server import make_app
+from views import get_user_context
 
 
 class RequestProtectionTestCase(AioHTTPTestCase):
@@ -21,6 +23,9 @@ class RequestProtectionTestCase(AioHTTPTestCase):
     async def test_known_scanner_path_returns_not_found(self):
         resp = await self.client.request("GET", "/wp-content/plugins/hellopress/wp_filemanager")
         self.assertEqual(resp.status, 404)
+
+    def test_anonymous_context_creation_has_no_deliberate_request_delay(self):
+        self.assertNotIn("sleep(", inspect.getsource(get_user_context))
 
     async def test_anonymous_page_view_stays_stateless(self):
         app_state = get_app_state(self.app)

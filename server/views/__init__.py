@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 from collections.abc import Mapping
@@ -138,14 +137,12 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         else:
             if app_state.disable_new_anons:
                 session.invalidate()
-                await asyncio.sleep(3)
                 raise web.HTTPFound("/login")
 
             user = User(app_state, anon=not app_state.anon_as_test_users)
             log.info("+++ New guest user %s connected.", user.username)
             app_state.users[user.username] = user
             session["user_name"] = user.username
-            await asyncio.sleep(3)
 
     view = request.path.split("/")[1] if len(request.path) > 2 else "lobby"
     lang = LOCALE.get()
