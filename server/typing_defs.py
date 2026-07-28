@@ -487,6 +487,7 @@ class ViewContext(TypedDict, total=False):
     online_users: Sequence[User]
     profile: str | None
     profile_title: str
+    profile_restricted: bool
     ublog_posts: list[object]
     ublog_post_count: int
     ublog_is_owner: bool

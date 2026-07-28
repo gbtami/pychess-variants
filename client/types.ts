@@ -36,6 +36,7 @@ export type PyChessModel = {
     home: string;
     anon: string;
     profileid: string;
+    profileRestricted: boolean;
     title: string;
     variant: string;
     chess960: string;

@@ -270,6 +270,32 @@ function loadGames(model: PyChessModel, page: number) {
     xmlhttp.send();
 }
 
+function enableRestrictedGameLoading(model: PyChessModel) {
+    const gate = document.getElementById('profile-games-gate');
+    if (gate instanceof Element) {
+        patch(
+            gate,
+            h('div#sentinel', { hook: { insert: vnode => observeSentinel(vnode, model) } }),
+        );
+    }
+}
+
+function restrictedGameListView(model: PyChessModel): VNode[] {
+    return [
+        h('table#games'),
+        h('div#profile-games-gate', [
+            h(
+                'button.button',
+                {
+                    attrs: { type: 'button' },
+                    on: { click: () => enableRestrictedGameLoading(model) },
+                },
+                _('Load games'),
+            ),
+        ]),
+    ];
+}
+
 function observeSentinel(vnode: VNode, model: PyChessModel) {
     const sentinel = vnode.elm as HTMLElement;
     let page = 0;
@@ -346,7 +372,9 @@ export function profileView(model: PyChessModel) {
 
     return [
         h('div.filter-tabs', tabs),
-        ...gameListView(h('div#sentinel', { hook: { insert: vnode => observeSentinel(vnode, model) } })),
+        ...(model.profileRestricted
+            ? restrictedGameListView(model)
+            : gameListView(h('div#sentinel', { hook: { insert: vnode => observeSentinel(vnode, model) } }))),
     ];
 }
 

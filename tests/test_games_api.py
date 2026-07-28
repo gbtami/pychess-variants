@@ -143,6 +143,53 @@ class GamesApiCategoryFilterTestCase(AioHTTPTestCase):
         self.assertIn(("chess", True), variants)
         self.assertNotIn(("shogi", False), variants)
 
+    async def test_direct_anonymous_profile_uses_restricted_rendering(self):
+        app_state = get_app_state(self.app)
+        await app_state.db.ublog_post.insert_one(
+            {
+                "_id": "restricted-profile-post",
+                "author": self.profile_probe,
+                "title": "Restricted profile blog probe",
+                "slug": "restricted-profile-blog-probe",
+                "markdown": "This should not be loaded for a direct anonymous profile request.",
+                "live": True,
+            }
+        )
+
+        response = await self.client.get(f"/@/{self.profile_probe}")
+
+        self.assertEqual(response.status, 200)
+        body = await response.text()
+        self.assertIn('data-profile-restricted="True"', body)
+        self.assertNotIn("Restricted profile blog probe", body)
+        self.assertNotIn(self.profile_probe, app_state.public_users._profiles)
+        self.assertNotIn(self.profile_probe, app_state.public_users._titles)
+
+    async def test_internal_profile_navigation_keeps_full_rendering(self):
+        app_state = get_app_state(self.app)
+        await app_state.db.ublog_post.insert_one(
+            {
+                "_id": "internal-profile-post",
+                "author": self.profile_probe,
+                "title": "Internal profile blog probe",
+                "slug": "internal-profile-blog-probe",
+                "markdown": "This should be loaded after an internal navigation.",
+                "live": True,
+            }
+        )
+
+        response = await self.client.get(
+            f"/@/{self.profile_probe}",
+            headers={"Referer": str(self.client.make_url("/"))},
+        )
+
+        self.assertEqual(response.status, 200)
+        body = await response.text()
+        self.assertIn('data-profile-restricted="False"', body)
+        self.assertIn("Internal profile blog probe", body)
+        self.assertIn(self.profile_probe, app_state.public_users._profiles)
+        self.assertIn(self.profile_probe, app_state.public_users._titles)
+
     async def test_profile_page_and_games_api_do_not_cache_public_user(self):
         self.set_session_user(self.user.username)
         app_state = get_app_state(self.app)

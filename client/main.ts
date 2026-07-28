@@ -90,6 +90,7 @@ function initModel(el: HTMLElement) {
         home: sanitizeURL(el.getAttribute('data-home')) ?? '',
         anon: el.getAttribute('data-anon') ?? '',
         profileid: el.getAttribute('data-profile') ?? '',
+        profileRestricted: el.getAttribute('data-profile-restricted') === 'True',
         title: el.getAttribute('data-title') ?? '',
         variant: el.getAttribute('data-variant') ?? '',
         chess960: el.getAttribute('data-chess960') ?? '',
