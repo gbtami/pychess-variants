@@ -272,9 +272,7 @@ class RequestProtectionState:
     def allow(self, key: str, route_limit: RouteRateLimit) -> bool:
         return self._limiter.allow(key, route_limit.max_requests, route_limit.window_seconds)
 
-    def is_anonymous_profile_request(
-        self, request: web.Request, session_user: str | None
-    ) -> bool:
+    def is_anonymous_profile_request(self, request: web.Request, session_user: str | None) -> bool:
         return (
             request.method in {"GET", "HEAD"}
             and request.path.startswith("/@/")
@@ -346,9 +344,7 @@ async def request_protection_middleware(
         scanner_key = f"scanner:{client}"
         if not state._limiter.allow(scanner_key, max_requests=8, window_seconds=60.0):
             if state.should_log_block(scanner_key):
-                user_agent, referer, http_version, session_cookie = (
-                    request_log_fingerprint(request)
-                )
+                user_agent, referer, http_version, session_cookie = request_log_fingerprint(request)
                 log.warning(
                     "scanner path flood blocked from %s on %s "
                     "ua=%r ref=%r http=%s session_cookie=%s bucket=scanner",
@@ -371,9 +367,7 @@ async def request_protection_middleware(
     bucket = f"{route_limit.name}:{client}"
     if not state.allow(bucket, route_limit):
         if state.should_log_block(bucket):
-            user_agent, referer, http_version, session_cookie = (
-                request_log_fingerprint(request)
-            )
+            user_agent, referer, http_version, session_cookie = request_log_fingerprint(request)
             log.warning(
                 "rate-limited %s from %s at path %s (%s req / %ss) "
                 "ua=%r ref=%r http=%s session_cookie=%s bucket=%s",
@@ -402,9 +396,7 @@ async def request_protection_middleware(
     if not admitted:
         aggregate_bucket = f"{state._ANON_PROFILE_GLOBAL_LIMIT.name}:{reason}"
         if state.should_log_block(aggregate_bucket):
-            user_agent, referer, http_version, session_cookie = (
-                request_log_fingerprint(request)
-            )
+            user_agent, referer, http_version, session_cookie = request_log_fingerprint(request)
             log.warning(
                 "rate-limited anonymous profile traffic reason=%s from %s at path %s "
                 "(inflight=%s max_inflight=%s) ua=%r ref=%r http=%s "
@@ -421,9 +413,7 @@ async def request_protection_middleware(
                 state._ANON_PROFILE_GLOBAL_LIMIT.name,
             )
         retry_after = (
-            max(1, int(state._ANON_PROFILE_GLOBAL_LIMIT.window_seconds))
-            if reason == "rate"
-            else 1
+            max(1, int(state._ANON_PROFILE_GLOBAL_LIMIT.window_seconds)) if reason == "rate" else 1
         )
         raise web.HTTPTooManyRequests(headers={"Retry-After": str(retry_after)})
 

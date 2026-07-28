@@ -14,9 +14,7 @@ def safe_log_value(value: str | None, default: str = "-", max_length: int = 200)
     value = value[:max_length]
     ascii_value = value.encode("ascii", "backslashreplace").decode("ascii")
     # Keep untrusted header/path values on one log line.
-    return "".join(
-        char if 32 <= ord(char) < 127 else f"\\x{ord(char):02x}" for char in ascii_value
-    )
+    return "".join(char if 32 <= ord(char) < 127 else f"\\x{ord(char):02x}" for char in ascii_value)
 
 
 def request_log_fingerprint(request: web.Request) -> tuple[str, str, str, bool]:

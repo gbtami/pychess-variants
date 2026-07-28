@@ -31,8 +31,7 @@ def _has_internal_referer(request: web.Request) -> bool:
         return False
 
     return (
-        parsed.scheme in {"http", "https"}
-        and parsed.netloc.casefold() == request.host.casefold()
+        parsed.scheme in {"http", "https"} and parsed.netloc.casefold() == request.host.casefold()
     )
 
 

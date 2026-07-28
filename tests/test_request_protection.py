@@ -8,10 +8,10 @@ from const import ANON_PREFIX, HTTP_ANON_USER
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from request_protection import RequestProtectionState, RouteRateLimit
-
-from server import make_app
 from typedefs import request_protection_state_key
 from views import get_user_context
+
+from server import make_app
 
 
 class RequestProtectionTestCase(AioHTTPTestCase):
