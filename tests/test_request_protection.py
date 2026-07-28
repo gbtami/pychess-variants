@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
+from const import ANON_PREFIX, HTTP_ANON_USER
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from request_protection import RequestProtectionState
@@ -20,6 +21,59 @@ class RequestProtectionTestCase(AioHTTPTestCase):
     async def test_known_scanner_path_returns_not_found(self):
         resp = await self.client.request("GET", "/wp-content/plugins/hellopress/wp_filemanager")
         self.assertEqual(resp.status, 404)
+
+    async def test_anonymous_page_view_stays_stateless(self):
+        app_state = get_app_state(self.app)
+        before = set(app_state.users)
+
+        resp = await self.client.get("/about")
+
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(before, set(app_state.users))
+        self.assertIn(HTTP_ANON_USER, app_state.users)
+        self.assertFalse(
+            any(name.startswith(ANON_PREFIX) for name in app_state.users if name not in before)
+        )
+        self.assertNotIn("AIOHTTP_SESSION", resp.cookies)
+
+    async def test_websocket_materializes_and_persists_anonymous_identity(self):
+        app_state = get_app_state(self.app)
+        before = set(app_state.users)
+
+        ws = await self.client.ws_connect("/wsl")
+        try:
+            created = [
+                name
+                for name in app_state.users
+                if name not in before and name.startswith(ANON_PREFIX)
+            ]
+            self.assertEqual(1, len(created))
+            cookies = self.client.session.cookie_jar.filter_cookies(self.client.make_url("/"))
+            self.assertIn("AIOHTTP_SESSION", cookies)
+        finally:
+            await ws.close()
+
+    async def test_plain_http_websocket_probe_does_not_create_guest(self):
+        app_state = get_app_state(self.app)
+        before = set(app_state.users)
+
+        resp = await self.client.get("/wsl", allow_redirects=False)
+
+        self.assertEqual(resp.status, 302)
+        self.assertEqual(before, set(app_state.users))
+
+    async def test_malformed_websocket_upgrade_does_not_create_guest(self):
+        app_state = get_app_state(self.app)
+        before = set(app_state.users)
+
+        resp = await self.client.get(
+            "/wsl",
+            headers={"Connection": "Upgrade", "Upgrade": "websocket"},
+            allow_redirects=False,
+        )
+
+        self.assertIn(resp.status, {302, 400})
+        self.assertEqual(before, set(app_state.users))
 
     async def test_profile_route_is_rate_limited(self):
         statuses: list[int] = []

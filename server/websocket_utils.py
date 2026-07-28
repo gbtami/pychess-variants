@@ -12,6 +12,7 @@ import msgspec
 from aiohttp import WSMessage, web
 from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp.web_ws import WebSocketResponse
+from const import NONE_USER
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -28,6 +29,7 @@ _WS_JSON_ENCODER = msgspec.json.Encoder()
 _WS_JSON_DECODER = msgspec.json.Decoder()
 _TYPE_FIELD_RE = re.compile(r'"type"\s*:\s*"([^"\\]+)"')
 _TYPE_PREFIX = '{"type":"'
+_WS_SESSION_CHANGED_KEY = "pychess_ws_session_changed"
 
 
 def _ws_json_dumps(msg: Mapping[str, object] | None) -> str:
@@ -62,9 +64,29 @@ def _ws_json_loads(
 
 
 async def get_user(session: aiohttp_session.Session, request: web.Request) -> User:
-    session_user = session.get("user_name")
-    user = await get_app_state(request.app).users.get(session_user)
-    return user
+    app_state = get_app_state(request.app)
+    session_user_value = session.get("user_name")
+    session_user = session_user_value if isinstance(session_user_value, str) else None
+
+    if session_user is None:
+        if not WebSocketResponse().can_prepare(request).ok:
+            return app_state.users[NONE_USER]
+        if app_state.disable_new_anons:
+            session.invalidate()
+            raise web.HTTPFound("/login")
+
+        # Anonymous page rendering is stateless. Materialize the browser's
+        # persistent identity only when it actually opens a websocket.
+        from user import User
+
+        user = User(app_state, anon=not app_state.anon_as_test_users)
+        app_state.users[user.username] = user
+        session["user_name"] = user.username
+        request[_WS_SESSION_CHANGED_KEY] = True
+        log.info("+++ New websocket guest user %s connected.", user.username)
+        return user
+
+    return await app_state.users.get(session_user)
 
 
 InitMessageHandler = Callable[["PychessGlobalAppState", WebSocketResponse, "User"], Awaitable[None]]
@@ -99,6 +121,14 @@ async def process_ws(
     if not ws_ready.ok:
         log.debug("Ignoring non-websocket request on %s: %r", request.rel_url.path, ws_ready)
         return None
+
+    if request.get(_WS_SESSION_CHANGED_KEY, False):
+        storage = request.get(aiohttp_session.STORAGE_KEY)
+        if storage is None:
+            raise RuntimeError("aiohttp_session storage is not installed")
+        # aiohttp-session intentionally skips prepared websocket responses, so
+        # persist a newly materialized anonymous identity in the handshake.
+        await storage.save_session(request, ws, session)
 
     await ws.prepare(request)
 

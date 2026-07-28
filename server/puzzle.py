@@ -104,6 +104,27 @@ async def _read_puzzle_post(request):
     return await read_post_data(request)
 
 
+async def _get_puzzle_session_user(request):
+    app_state = get_app_state(request.app)
+    session = await aiohttp_session.get_session(request)
+    session_user_value = session.get("user_name")
+    session_user = session_user_value if isinstance(session_user_value, str) else None
+    if session_user is not None:
+        return await app_state.users.get(session_user)
+    if app_state.disable_new_anons:
+        return None
+
+    # The puzzle page itself is stateless, but completing or voting on a
+    # puzzle is an anonymous action that needs a stable browser identity.
+    from user import User
+
+    user = User(app_state, anon=not app_state.anon_as_test_users)
+    app_state.users[user.username] = user
+    session["user_name"] = user.username
+    log.info("+++ New puzzle guest user %s connected.", user.username)
+    return user
+
+
 async def get_puzzle(request, puzzleId):
     puzzle = await get_app_state(request.app).db.puzzle.find_one({"_id": puzzleId})
     return puzzle
@@ -190,7 +211,13 @@ async def get_daily_puzzle(request):
     return puzzle
 
 
-async def next_puzzle(request, user):
+async def next_puzzle(
+    request,
+    user,
+    *,
+    puzzle_variant: str | None = None,
+    use_user_variant: bool = True,
+):
     app_state = get_app_state(request.app)
     skipped = list(user.puzzles.keys())
     filters = [
@@ -198,8 +225,9 @@ async def next_puzzle(request, user):
         {"c": {"$ne": True}},
         {"r": {"$ne": False}},
     ]
-    if user.puzzle_variant is not None:
-        variant = user.puzzle_variant
+    selected_variant = user.puzzle_variant if use_user_variant else puzzle_variant
+    if selected_variant is not None:
+        variant = selected_variant
         filters.append({"v": variant})
     elif user.game_category != GAME_CATEGORY_ALL:
         variant = user.category_variant_list[0] if user.category_variant_list else "chess"
@@ -250,13 +278,9 @@ async def puzzle_complete(request):
 
     await puzzle.set_played()
 
-    # Who made the request?
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-    if session_user is None:
+    user = await _get_puzzle_session_user(request)
+    if user is None:
         return json_response({})
-
-    user = await app_state.users.get(session_user)
 
     if puzzleId in user.puzzles:
         return json_response({})
@@ -297,13 +321,9 @@ async def puzzle_vote(request):
     good = post_data["vote"] == "true"
     up_or_down = "u" if good else "d"
 
-    # Who made the request?
-    session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
-    if session_user is None:
+    user = await _get_puzzle_session_user(request)
+    if user is None:
         return json_response({})
-
-    user = await app_state.users.get(session_user)
 
     if user.puzzles.get(puzzleId):
         return json_response({})

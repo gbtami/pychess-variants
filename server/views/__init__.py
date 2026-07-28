@@ -12,7 +12,7 @@ from catalogued_variants import (
     catalogued_variant_client_doc_for_game,
     catalogued_variants_for_client,
 )
-from const import ANON_PREFIX, DARK_FEN, GAME_CATEGORY_ALL, STARTED
+from const import ANON_PREFIX, DARK_FEN, GAME_CATEGORY_ALL, HTTP_ANON_USER, STARTED
 from fairy import BLACK, WHITE
 from json_utils import json_dumps
 from pychess_global_app_state_utils import get_app_state
@@ -97,10 +97,11 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
 
     # Who made the request?
     session = await aiohttp_session.get_session(request)
-    session_user = session.get("user_name")
+    session_user_value = session.get("user_name")
+    session_user = session_user_value if isinstance(session_user_value, str) else None
 
-    session["last_visit"] = datetime.now(UTC).isoformat()
     if session_user is not None:
+        session["last_visit"] = datetime.now(UTC).isoformat()
         log.info("+++ Existing user %s connected.", session_user)
         doc: UserDocument | None = None
         # Anonymous users are in-memory only and are not persisted in db.user.
@@ -128,16 +129,23 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
                 session.invalidate()
                 raise web.HTTPFound("/")
     else:
-        if app_state.disable_new_anons:
-            session.invalidate()
-            await asyncio.sleep(3)
-            raise web.HTTPFound("/login")
+        # Ordinary anonymous page views stay stateless. A persistent Anon-*
+        # identity is created only when a request can actually perform an
+        # anonymous action (non-GET) or when a websocket is opened. Keep the
+        # existing Test-* behavior for local ``-a`` development mode.
+        if request.method in {"GET", "HEAD"} and not app_state.anon_as_test_users:
+            user = app_state.users[HTTP_ANON_USER]
+        else:
+            if app_state.disable_new_anons:
+                session.invalidate()
+                await asyncio.sleep(3)
+                raise web.HTTPFound("/login")
 
-        user = User(app_state, anon=not app_state.anon_as_test_users)
-        log.info("+++ New guest user %s connected.", user.username)
-        app_state.users[user.username] = user
-        session["user_name"] = user.username
-        await asyncio.sleep(3)
+            user = User(app_state, anon=not app_state.anon_as_test_users)
+            log.info("+++ New guest user %s connected.", user.username)
+            app_state.users[user.username] = user
+            session["user_name"] = user.username
+            await asyncio.sleep(3)
 
     view = request.path.split("/")[1] if len(request.path) > 2 else "lobby"
     lang = LOCALE.get()
