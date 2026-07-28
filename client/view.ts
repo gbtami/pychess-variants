@@ -83,6 +83,7 @@ export function checkbox(settings: Settings<boolean>, name: string, text: string
 export function toggleSwitch(settings: Settings<boolean>, name: string, text: string, disabled: boolean): VNode[] {
     const id = name;
     return [
+        h('label', { attrs: { for: id } }, text),
         h('label.switch', [
             h(`input#${id}`, {
                 props: { name: name, type: 'checkbox' },
@@ -91,7 +92,6 @@ export function toggleSwitch(settings: Settings<boolean>, name: string, text: st
             }),
             h('span.sw-slider'),
         ]),
-        h('label', { attrs: { for: id } }, text),
     ];
 }
 
