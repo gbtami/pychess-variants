@@ -9,11 +9,11 @@ from const import (
     CATEGORY_VARIANT_LISTS,
     CATEGORY_VARIANT_SETS,
     GAME_CATEGORY_ALL,
-    normalize_game_category,
 )
 from fairy import FairyBoard
 from glicko2.glicko2 import MU, PHI, SIGMA, Rating, gl2
 from json_utils import json_response
+from preferences import effective_game_category, effective_theme
 from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import DuplicateKeyError
 from request_protection import enforce_new_anonymous_identity_limit
@@ -121,7 +121,12 @@ async def _get_puzzle_session_user(request):
     from user import User
 
     enforce_new_anonymous_identity_limit(request)
-    user = User(app_state, anon=not app_state.anon_as_test_users)
+    user = User(
+        app_state,
+        anon=not app_state.anon_as_test_users,
+        theme=effective_theme(session, None),
+        game_category=effective_game_category(session, None),
+    )
     app_state.users[user.username] = user
     session["user_name"] = user.username
     request[REQUEST_NEW_SESSION_KEY] = True
@@ -153,12 +158,7 @@ async def get_daily_puzzle(request):
         current_user = await app_state.users.get(session_user)
     else:
         current_user = None
-    game_category = (
-        current_user.game_category
-        if current_user is not None
-        else session.get("game_category", GAME_CATEGORY_ALL)
-    )
-    game_category = normalize_game_category(game_category)
+    game_category = effective_game_category(session, current_user)
     key = daily_puzzle_key(today, game_category)
 
     if key in daily_puzzle_ids:
@@ -233,11 +233,15 @@ async def next_puzzle(
     if selected_variant is not None:
         variant = selected_variant
         filters.append({"v": variant})
-    elif user.game_category != GAME_CATEGORY_ALL:
-        variant = user.category_variant_list[0] if user.category_variant_list else "chess"
-        filters.append({"v": variant})
     else:
-        variant = "chess"
+        session = await aiohttp_session.get_session(request)
+        game_category = effective_game_category(session, user)
+        if game_category != GAME_CATEGORY_ALL:
+            category_variants = CATEGORY_VARIANT_LISTS[game_category]
+            variant = category_variants[0] if category_variants else "chess"
+            filters.append({"v": variant})
+        else:
+            variant = "chess"
 
     puzzle = None
 

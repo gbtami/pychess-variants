@@ -13,6 +13,11 @@ from aiohttp import WSMessage, web
 from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp.web_ws import WebSocketResponse
 from const import NONE_USER
+from preferences import (
+    apply_anonymous_session_preferences,
+    effective_game_category,
+    effective_theme,
+)
 
 if TYPE_CHECKING:
     from pychess_global_app_state import PychessGlobalAppState
@@ -82,7 +87,12 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
         from user import User
 
         enforce_new_anonymous_identity_limit(request)
-        user = User(app_state, anon=not app_state.anon_as_test_users)
+        user = User(
+            app_state,
+            anon=not app_state.anon_as_test_users,
+            theme=effective_theme(session, None),
+            game_category=effective_game_category(session, None),
+        )
         app_state.users[user.username] = user
         session["user_name"] = user.username
         request[REQUEST_NEW_SESSION_KEY] = True
@@ -90,7 +100,9 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
         log.info("+++ New websocket guest user %s connected.", user.username)
         return user
 
-    return await app_state.users.get(session_user)
+    user = await app_state.users.get(session_user)
+    apply_anonymous_session_preferences(session, user)
+    return user
 
 
 InitMessageHandler = Callable[["PychessGlobalAppState", WebSocketResponse, "User"], Awaitable[None]]

@@ -12,9 +12,21 @@ from aiohttp.client_exceptions import ClientConnectionResetError
 from aiohttp_sse import sse_response
 from aiohttp_swagger3 import swagger_doc
 from compress import C2R, decode_move_standard
-from const import CLAIM, DARK_FEN, INVALIDMOVE, MATE, SSE_GET_TIMEOUT, STARTED, SWISS, VARIANTEND
+from const import (
+    CATEGORY_VARIANT_SETS,
+    CLAIM,
+    DARK_FEN,
+    GAME_CATEGORY_ALL,
+    INVALIDMOVE,
+    MATE,
+    SSE_GET_TIMEOUT,
+    STARTED,
+    SWISS,
+    VARIANTEND,
+)
 from convert import zero2grand
 from json_utils import json_response
+from preferences import effective_game_category
 from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import BulkWriteError, ExecutionTimeout
 from settings import ADMINS
@@ -612,12 +624,15 @@ async def _get_games(request: web.Request) -> web.StreamResponse:
     if variant is None:
         session = await aiohttp_session.get_session(request)
         session_user = session.get("user_name")
-        if session_user is not None:
+        user = None
+        if isinstance(session_user, str):
             if session_user in app_state.users:
                 user = app_state.users[session_user]
             else:
                 user = await app_state.users.get(session_user)
-            allowed_variants = user.category_variant_set
+        game_category = effective_game_category(session, user)
+        if game_category != GAME_CATEGORY_ALL:
+            allowed_variants = CATEGORY_VARIANT_SETS[game_category]
     return json_response(
         [
             {

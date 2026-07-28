@@ -5,8 +5,9 @@ from typing import TYPE_CHECKING
 
 import aiohttp_session
 from aiohttp import web
-from const import CATEGORY_VARIANT_SETS, normalize_game_category
+from const import CATEGORY_VARIANT_SETS
 from json_utils import json_response
+from preferences import effective_game_category
 from pychess_global_app_state_utils import get_app_state
 from typing_defs import ScheduledTournamentCreateData, TournamentCalendarEvent
 
@@ -93,8 +94,7 @@ async def tournament_calendar(request: web.Request) -> web.Response:
     session = await aiohttp_session.get_session(request)
     session_user: str | None = session.get("user_name")
     user = await app_state.users.get(session_user) if session_user else None
-    game_category = user.game_category if user is not None else session.get("game_category", "all")
-    game_category = normalize_game_category(game_category)
+    game_category = effective_game_category(session, user)
 
     if game_category != "all":
         allowed_variants = CATEGORY_VARIANT_SETS[game_category]

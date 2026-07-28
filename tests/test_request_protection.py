@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from const import ANON_PREFIX, HTTP_ANON_USER
+from glicko2.glicko2 import new_default_perf
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from request_protection import RequestProtectionState, RouteRateLimit
@@ -41,6 +42,89 @@ class RequestProtectionTestCase(AioHTTPTestCase):
             any(name.startswith(ANON_PREFIX) for name in app_state.users if name not in before)
         )
         self.assertNotIn("AIOHTTP_SESSION", resp.cookies)
+
+    async def test_stateless_anonymous_page_uses_session_preferences(self):
+        app_state = get_app_state(self.app)
+        before = set(app_state.users)
+
+        response = await self.client.post(
+            "/pref/theme",
+            data={"theme": "light"},
+        )
+        self.assertEqual(response.status, 204)
+
+        response = await self.client.post(
+            "/pref/game-category",
+            data={"game_category": "shogi"},
+            allow_redirects=False,
+        )
+        self.assertEqual(response.status, 302)
+
+        response = await self.client.get("/about")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn('data-theme="light"', html)
+        self.assertIn('data-game-category="shogi"', html)
+
+        self.assertEqual(before, set(app_state.users))
+        shared_anon = app_state.users[HTTP_ANON_USER]
+        self.assertEqual(shared_anon.theme, "dark")
+        self.assertEqual(shared_anon.game_category, "all")
+
+    async def test_stateless_anonymous_profile_uses_session_category_filter(self):
+        app_state = get_app_state(self.app)
+        chess_perf = new_default_perf()
+        chess_perf["nb"] = 2
+        shogi_perf = new_default_perf()
+        shogi_perf["nb"] = 3
+        await app_state.db.user.insert_one(
+            {
+                "_id": "CategoryProfile",
+                "perfs": {"chess": chess_perf, "shogi": shogi_perf},
+            }
+        )
+
+        response = await self.client.post(
+            "/pref/game-category",
+            data={"game_category": "shogi"},
+            allow_redirects=False,
+        )
+        self.assertEqual(response.status, 302)
+
+        response = await self.client.get("/@/CategoryProfile")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn("/@/CategoryProfile/perf/shogi", html)
+        self.assertNotIn("/@/CategoryProfile/perf/chess", html)
+
+    async def test_websocket_guest_inherits_session_preferences(self):
+        app_state = get_app_state(self.app)
+
+        response = await self.client.post(
+            "/pref/theme",
+            data={"theme": "light"},
+        )
+        self.assertEqual(response.status, 204)
+        response = await self.client.post(
+            "/pref/game-category",
+            data={"game_category": "shogi"},
+            allow_redirects=False,
+        )
+        self.assertEqual(response.status, 302)
+
+        before = set(app_state.users)
+        ws = await self.client.ws_connect("/wsl")
+        try:
+            created = [
+                app_state.users[name]
+                for name in app_state.users
+                if name not in before and name.startswith(ANON_PREFIX)
+            ]
+            self.assertEqual(1, len(created))
+            self.assertEqual(created[0].theme, "light")
+            self.assertEqual(created[0].game_category, "shogi")
+        finally:
+            await ws.close()
 
     async def test_websocket_materializes_and_persists_anonymous_identity(self):
         app_state = get_app_state(self.app)

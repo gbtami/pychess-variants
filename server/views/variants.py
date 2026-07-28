@@ -49,8 +49,8 @@ async def variants(request: web.Request) -> ViewContext:
         if catalogued_doc is None:
             variant = "chess"
 
-    context["variants"] = user.category_variants
-    context["groups"] = user.category_variant_groups
+    context["variants"] = context["category_variants"]
+    context["groups"] = context["category_variant_groups"]
     context["icons"] = VARIANT_ICONS
 
     if variant == "community":

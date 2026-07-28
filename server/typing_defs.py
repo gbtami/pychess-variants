@@ -412,6 +412,10 @@ class ViewContext(TypedDict, total=False):
     variant_display_name: Callable[[str], str]
     theme: str
     game_category: str
+    category_variants: Mapping[str, object]
+    category_variant_groups: Mapping[str, str]
+    category_variant_list: tuple[str, ...]
+    category_variant_set: frozenset[str]
     game_category_intro: bool
     catalogued_variants: str
     pm_friends_only: bool

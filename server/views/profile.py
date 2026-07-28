@@ -119,7 +119,7 @@ async def profile(request: web.Request) -> ViewContext:
             and (profileId == user.username or user.username in ADMINS)
         )
 
-    allowed_variants = user.category_variant_set
+    allowed_variants = context["category_variant_set"]
 
     _id = "%s|%s" % (profileId, profile_user.title)
     context["trophies"] = [
@@ -155,7 +155,7 @@ async def profile(request: web.Request) -> ViewContext:
         context["variant"] = variant
 
     perfs = [(key, perf) for key, perf in profile_user.perfs.items() if perf["nb"] > 0]
-    if user.game_category != "all":
+    if context["game_category"] != "all":
         perfs = [(k, v) for k, v in perfs if k in allowed_variants]
 
     context["ratings"] = {

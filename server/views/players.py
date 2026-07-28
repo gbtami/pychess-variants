@@ -29,7 +29,7 @@ async def players(request: web.Request) -> ViewContext:
     variant = request.match_info.get("variant")
 
     if variant is None:
-        allowed_variants = user.category_variant_set
+        allowed_variants = context["category_variant_set"]
         context["highscore"] = {
             variant: dict(app_state.highscore[variant].items()[:10])
             for variant in app_state.highscore

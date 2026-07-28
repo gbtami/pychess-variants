@@ -11,9 +11,24 @@ from catalogued_variants import (
     catalogued_variant_client_doc_for_game,
     catalogued_variants_for_client,
 )
-from const import ANON_PREFIX, DARK_FEN, GAME_CATEGORY_ALL, HTTP_ANON_USER, STARTED
+from const import (
+    ANON_PREFIX,
+    CATEGORY_VARIANT_GROUPS,
+    CATEGORY_VARIANT_LISTS,
+    CATEGORY_VARIANT_SETS,
+    CATEGORY_VARIANTS,
+    DARK_FEN,
+    GAME_CATEGORY_ALL,
+    HTTP_ANON_USER,
+    STARTED,
+)
 from fairy import BLACK, WHITE
 from json_utils import json_dumps
+from preferences import (
+    apply_anonymous_session_preferences,
+    effective_game_category,
+    effective_theme,
+)
 from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import (
     AutoReconnect,
@@ -142,11 +157,30 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
                 raise web.HTTPFound("/login")
 
             enforce_new_anonymous_identity_limit(request)
-            user = User(app_state, anon=not app_state.anon_as_test_users)
+            user = User(
+                app_state,
+                anon=not app_state.anon_as_test_users,
+                theme=effective_theme(session, None),
+                game_category=effective_game_category(session, None),
+            )
             log.info("+++ New guest user %s connected.", user.username)
             app_state.users[user.username] = user
             session["user_name"] = user.username
             request[REQUEST_NEW_SESSION_KEY] = True
+
+    theme = effective_theme(session, user)
+    game_category = effective_game_category(session, user)
+
+    # A materialized Anon-* user should carry the browser preferences into
+    # websocket-backed pages and later requests. Never mutate the shared
+    # Anon-HTTP object used by stateless anonymous GET requests.
+    if user.anon and user.username != HTTP_ANON_USER:
+        apply_anonymous_session_preferences(session, user)
+
+    category_variants = CATEGORY_VARIANTS[game_category]
+    category_variant_groups = CATEGORY_VARIANT_GROUPS[game_category]
+    category_variant_list = CATEGORY_VARIANT_LISTS[game_category]
+    category_variant_set = CATEGORY_VARIANT_SETS[game_category]
 
     view = request.path.split("/")[1] if len(request.path) > 2 else "lobby"
     lang = LOCALE.get()
@@ -158,10 +192,10 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
             return variant
         return gettext(server_variant.translated_name)
 
-    if user.game_category == GAME_CATEGORY_ALL:
+    if game_category == GAME_CATEGORY_ALL:
         menu_variant = "chess"
     else:
-        menu_variant = user.category_variant_list[0] if user.category_variant_list else "chess"
+        menu_variant = category_variant_list[0] if category_variant_list else "chess"
 
     mod_report_score = 0
     if _is_admin_username(user.username):
@@ -185,8 +219,12 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
         "user": user,
         "lang": lang,
         "variant_display_name": variant_display_name,
-        "theme": user.theme,
-        "game_category": user.game_category,
+        "theme": theme,
+        "game_category": game_category,
+        "category_variants": category_variants,
+        "category_variant_groups": category_variant_groups,
+        "category_variant_list": category_variant_list,
+        "category_variant_set": category_variant_set,
         "game_category_intro": (not user.anon) and (not getattr(user, "game_category_set", False)),
         "catalogued_variants": json_dumps(
             catalogued_variants_for_client(

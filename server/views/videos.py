@@ -12,7 +12,8 @@ from views import get_user_context
 
 @aiohttp_jinja2.template("videos.html")
 async def videos(request: web.Request) -> ViewContext:
-    user, context = await get_user_context(request)
+    _user, context = await get_user_context(request)
+    game_category = context["game_category"]
 
     app_state = get_app_state(request.app)
 
@@ -26,7 +27,7 @@ async def videos(request: web.Request) -> ViewContext:
     async for doc in cursor:
         category = doc.get("category", VIDEO_CATEGORIES.get(doc["_id"], "all"))
         doc["category"] = category
-        if not category_matches(user.game_category, category):
+        if not category_matches(game_category, category):
             continue
         videos.append(doc)
 
@@ -39,7 +40,7 @@ async def videos(request: web.Request) -> ViewContext:
         return app_state.translations[lang].gettext(VIDEO_TARGETS[target])
 
     context["videos"] = videos
-    if user.game_category != "all":
+    if game_category != "all":
         available_tags = {tag for video in videos for tag in video.get("tags", [])}
         context["tags"] = [tag for tag in VIDEO_TAGS if tag in available_tags]
     else:

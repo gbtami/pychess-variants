@@ -15,8 +15,8 @@ async def games(request: web.Request) -> ViewContext:
         variant = None
 
     context["variant"] = variant if variant is not None else ""
-    context["variants"] = user.category_variants
-    context["groups"] = user.category_variant_groups
+    context["variants"] = context["category_variants"]
+    context["groups"] = context["category_variant_groups"]
 
     context["icons"] = VARIANT_ICONS
 

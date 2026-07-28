@@ -78,6 +78,7 @@ if TYPE_CHECKING:
 import logging
 
 from json_utils import json_response
+from preferences import effective_game_category
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from settings import URI
@@ -1528,7 +1529,7 @@ async def get_blogs(request, tag=None, limit=0):
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
     user = await app_state.users.get(session_user) if session_user else None
-    game_category = user.game_category if user is not None else session.get("game_category", "all")
+    game_category = effective_game_category(session, user)
 
     async def enrich_author_titles(blogs: list[dict]) -> list[dict]:
         titles = await app_state.public_users.get_titles(

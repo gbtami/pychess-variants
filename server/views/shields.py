@@ -10,14 +10,14 @@ from views import get_user_context
 
 @aiohttp_jinja2.template("shields.html")
 async def shields(request: web.Request) -> ViewContext:
-    user, context = await get_user_context(request)
+    _user, context = await get_user_context(request)
 
     app_state = get_app_state(request.app)
 
     variant = request.match_info.get("variant")
     allowed_variants = None
-    if user.game_category != "all":
-        allowed_variants = user.category_variant_list
+    if context["game_category"] != "all":
+        allowed_variants = context["category_variant_list"]
 
     if (variant is not None) and (variant not in VARIANTS):
         variant = None

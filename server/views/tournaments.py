@@ -74,8 +74,8 @@ async def tournaments(request: web.Request) -> ViewContext:
     context["pairing_system_name"] = pairing_system_name
     context["time_control_str"] = time_control_str
     tables = await get_latest_tournaments(app_state, lang)
-    if user.game_category != "all":
-        allowed_variants = user.category_variant_set
+    if context["game_category"] != "all":
+        allowed_variants = context["category_variant_set"]
         started, scheduled, completed = tables
         started = [
             t for t in started if (t.variant + ("960" if t.chess960 else "")) in allowed_variants

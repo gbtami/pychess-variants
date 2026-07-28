@@ -11,6 +11,7 @@ from aiohttp import web
 from const import GAME_CATEGORY_ALL, normalize_game_category
 from convert import mirror5, mirror9, zero2grand
 from fairy.fairy_board import FairyBoard
+from preferences import effective_game_category
 from pychess_global_app_state_utils import get_app_state
 from variants import C2V, GRANDS, VARIANTS
 
@@ -313,13 +314,13 @@ async def _forum_captcha_game_category(request: web.Request, app_state) -> str:
     """Resolve request game category from user preference or session override."""
     session = await aiohttp_session.get_session(request)
     session_user = session.get("user_name")
-    if isinstance(session_user, str) and session_user in app_state.users:
-        return normalize_game_category(app_state.users[session_user].game_category)
-    if session_user:
-        user = await app_state.users.get(session_user)
-        if user is not None:
-            return normalize_game_category(user.game_category)
-    return normalize_game_category(str(session.get("game_category", GAME_CATEGORY_ALL)))
+    user = None
+    if isinstance(session_user, str):
+        if session_user in app_state.users:
+            user = app_state.users[session_user]
+        else:
+            user = await app_state.users.get(session_user)
+    return effective_game_category(session, user)
 
 
 async def forum_captcha_refresher(app: web.Application) -> None:
