@@ -30,6 +30,9 @@ div.info0 {
 .user-link {
     padding: 0;
 }
+.player .user-link {
+    padding: 8px;
+}
 .description {
     max-height: 20vh;
     overflow-y: auto;
