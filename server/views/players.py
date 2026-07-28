@@ -16,7 +16,7 @@ async def players(request: web.Request) -> ViewContext:
     online_users = [
         u
         for u in app_state.users.values()
-        if u.username == user.username or (u.online and not u.anon)
+        if not u.anon and (u.username == user.username or u.online)
     ]
     anon_online = sum(1 for u in app_state.users.values() if u.anon and u.online)
 
