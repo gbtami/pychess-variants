@@ -7,6 +7,7 @@ from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
 from pychess_global_app_state_utils import get_app_state
 from settings import ADMINS
+from typedefs import REQUEST_PROFILE_RESTRICTED_KEY
 from typing_defs import ViewContext
 from ublog import display_date, image_src, post_url, summary_from_markdown
 from variants import VARIANT_ICONS, VARIANTS
@@ -53,6 +54,7 @@ async def profile(request: web.Request) -> ViewContext:
 
     context["icons"] = VARIANT_ICONS
     profile_restricted = user.anon and not _has_internal_referer(request)
+    request[REQUEST_PROFILE_RESTRICTED_KEY] = profile_restricted
     context["profile_restricted"] = profile_restricted
 
     if user.anon and DASH in profileId:

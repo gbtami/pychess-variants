@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
 from pychess_global_app_state_utils import get_app_state
 from request_protection import enforce_new_anonymous_identity_limit
+from typedefs import REQUEST_NEW_SESSION_KEY
 
 log = logging.getLogger(__name__)
 
@@ -84,6 +85,7 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
         user = User(app_state, anon=not app_state.anon_as_test_users)
         app_state.users[user.username] = user
         session["user_name"] = user.username
+        request[REQUEST_NEW_SESSION_KEY] = True
         request[_WS_SESSION_CHANGED_KEY] = True
         log.info("+++ New websocket guest user %s connected.", user.username)
         return user

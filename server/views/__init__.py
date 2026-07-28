@@ -25,6 +25,7 @@ from pymongo.errors import (
 )
 from request_protection import enforce_new_anonymous_identity_limit
 from settings import ADMINS, SIMULING
+from typedefs import REQUEST_NEW_SESSION_KEY
 from typing_defs import UserDocument, ViewContext
 from user import User
 from utils import corr_games
@@ -145,6 +146,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
             log.info("+++ New guest user %s connected.", user.username)
             app_state.users[user.username] = user
             session["user_name"] = user.username
+            request[REQUEST_NEW_SESSION_KEY] = True
 
     view = request.path.split("/")[1] if len(request.path) > 2 else "lobby"
     lang = LOCALE.get()

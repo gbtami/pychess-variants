@@ -9,7 +9,12 @@ from time import monotonic
 
 import aiohttp_session
 from aiohttp import web
-from request_utils import safe_log_value
+from request_utils import request_log_fingerprint, safe_log_value
+from typedefs import (
+    REQUEST_NEW_SESSION_KEY,
+    REQUEST_PROFILE_RESTRICTED_KEY,
+    REQUEST_RATE_LIMIT_BUCKET_KEY,
+)
 from users import NotInDbUsers
 from views import page404
 
@@ -155,12 +160,24 @@ async def request_timing_middleware(request: web.Request, handler: Handler) -> w
             request_id = request.headers.get("X-Request-ID", "-")
             forwarded_for = request.headers.get("X-Forwarded-For", request.remote or "-")
             client_ip = forwarded_for.split(",", maxsplit=1)[0].strip()
+            user_agent, referer, http_version, session_cookie = request_log_fingerprint(request)
+            profile_restricted = request.get(REQUEST_PROFILE_RESTRICTED_KEY, "-")
+            rate_limit_bucket = request.get(REQUEST_RATE_LIMIT_BUCKET_KEY, "-")
             log.warning(
-                "request-trace method=%s path=%s status=%s dur_ms=%.1f req_id=%s fwd=%s",
+                "request-trace method=%s path=%s status=%s dur_ms=%.1f req_id=%s fwd=%s "
+                "ua=%r ref=%r http=%s session_cookie=%s new_session=%s "
+                "profile_restricted=%s rl_bucket=%s",
                 request.method,
                 safe_log_value(path),
                 status,
                 duration_ms,
                 safe_log_value(request_id),
                 safe_log_value(client_ip),
+                user_agent,
+                referer,
+                http_version,
+                session_cookie,
+                request.get(REQUEST_NEW_SESSION_KEY, False),
+                profile_restricted,
+                safe_log_value(str(rate_limit_bucket)),
             )

@@ -9,13 +9,27 @@ from time import monotonic
 import aiohttp_session
 from aiohttp import web
 from const import ANON_PREFIX
-from request_utils import safe_log_value
+from request_utils import request_log_fingerprint, safe_log_value
 from settings import LOCALHOST, URI
-from typedefs import request_protection_state_key
+from typedefs import (
+    REQUEST_RATE_LIMIT_BUCKET_KEY,
+    request_protection_state_key,
+)
 
 log = logging.getLogger(__name__)
 
 Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
+
+
+def _mark_rate_limit_bucket(request: web.Request, bucket: str) -> None:
+    current = request.get(REQUEST_RATE_LIMIT_BUCKET_KEY)
+    if not isinstance(current, str) or not current:
+        request[REQUEST_RATE_LIMIT_BUCKET_KEY] = bucket
+        return
+
+    buckets = current.split(",")
+    if bucket not in buckets:
+        request[REQUEST_RATE_LIMIT_BUCKET_KEY] = f"{current},{bucket}"
 
 
 @dataclass(frozen=True)
@@ -293,16 +307,24 @@ class RequestProtectionState:
 
 def enforce_new_anonymous_identity_limit(request: web.Request) -> None:
     state: RequestProtectionState = request.app[request_protection_state_key]
+    bucket = state._NEW_ANON_IDENTITY_LIMIT.name
+    _mark_rate_limit_bucket(request, bucket)
     if state.allow_new_anonymous_identity():
         return
 
     client = state.client_key(request)
-    bucket = state._NEW_ANON_IDENTITY_LIMIT.name
     if state.should_log_block(f"{bucket}:{client}"):
+        user_agent, referer, http_version, session_cookie = request_log_fingerprint(request)
         log.warning(
-            "rate-limited new anonymous identity from %s at path %s",
+            "rate-limited new anonymous identity from %s at path %s "
+            "ua=%r ref=%r http=%s session_cookie=%s bucket=%s",
             safe_log_value(client),
             safe_log_value(request.path),
+            user_agent,
+            referer,
+            http_version,
+            session_cookie,
+            bucket,
         )
     raise web.HTTPTooManyRequests(headers={"Retry-After": "1"})
 
@@ -320,13 +342,22 @@ async def request_protection_middleware(
     client = state.client_key(request)
 
     if state.is_known_scanner_path(path):
+        _mark_rate_limit_bucket(request, "scanner")
         scanner_key = f"scanner:{client}"
         if not state._limiter.allow(scanner_key, max_requests=8, window_seconds=60.0):
             if state.should_log_block(scanner_key):
+                user_agent, referer, http_version, session_cookie = (
+                    request_log_fingerprint(request)
+                )
                 log.warning(
-                    "scanner path flood blocked from %s on %s",
+                    "scanner path flood blocked from %s on %s "
+                    "ua=%r ref=%r http=%s session_cookie=%s bucket=scanner",
                     safe_log_value(client),
                     safe_log_value(path),
+                    user_agent,
+                    referer,
+                    http_version,
+                    session_cookie,
                 )
             raise web.HTTPTooManyRequests(headers={"Retry-After": "60"})
         # Return 404 for scanner signatures to avoid signaling valid app routes.
@@ -336,16 +367,26 @@ async def request_protection_middleware(
     if route_limit is None:
         return await handler(request)
 
+    _mark_rate_limit_bucket(request, route_limit.name)
     bucket = f"{route_limit.name}:{client}"
     if not state.allow(bucket, route_limit):
         if state.should_log_block(bucket):
+            user_agent, referer, http_version, session_cookie = (
+                request_log_fingerprint(request)
+            )
             log.warning(
-                "rate-limited %s from %s at path %s (%s req / %ss)",
+                "rate-limited %s from %s at path %s (%s req / %ss) "
+                "ua=%r ref=%r http=%s session_cookie=%s bucket=%s",
                 route_limit.name,
                 safe_log_value(client),
                 safe_log_value(path),
                 route_limit.max_requests,
                 route_limit.window_seconds,
+                user_agent,
+                referer,
+                http_version,
+                session_cookie,
+                route_limit.name,
             )
         retry_after = max(1, int(route_limit.window_seconds))
         raise web.HTTPTooManyRequests(headers={"Retry-After": str(retry_after)})
@@ -356,18 +397,28 @@ async def request_protection_middleware(
     if not state.is_anonymous_profile_request(request, session_user):
         return await handler(request)
 
+    _mark_rate_limit_bucket(request, state._ANON_PROFILE_GLOBAL_LIMIT.name)
     admitted, reason = state.enter_anonymous_profile()
     if not admitted:
         aggregate_bucket = f"{state._ANON_PROFILE_GLOBAL_LIMIT.name}:{reason}"
         if state.should_log_block(aggregate_bucket):
+            user_agent, referer, http_version, session_cookie = (
+                request_log_fingerprint(request)
+            )
             log.warning(
                 "rate-limited anonymous profile traffic reason=%s from %s at path %s "
-                "(inflight=%s max_inflight=%s)",
+                "(inflight=%s max_inflight=%s) ua=%r ref=%r http=%s "
+                "session_cookie=%s bucket=%s",
                 reason,
                 safe_log_value(client),
                 safe_log_value(path),
                 state._anonymous_profile_inflight,
                 state._ANON_PROFILE_MAX_INFLIGHT,
+                user_agent,
+                referer,
+                http_version,
+                session_cookie,
+                state._ANON_PROFILE_GLOBAL_LIMIT.name,
             )
         retry_after = (
             max(1, int(state._ANON_PROFILE_GLOBAL_LIMIT.window_seconds))

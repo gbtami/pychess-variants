@@ -21,6 +21,7 @@ from forum.storage import recompute_categ_summary, recompute_topic_summary
 from login import logout
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
+from typedefs import REQUEST_NEW_SESSION_KEY
 from typing_defs import UserDocument, ViewContext
 from user_stats import DEFAULT_USER_COUNT
 from utils import remove_seek
@@ -630,5 +631,6 @@ async def account_reopen_post(request: web.Request) -> web.StreamResponse:
 
     _clear_public_user_cache(app_state, closed_username)
     session["user_name"] = closed_username
+    request[REQUEST_NEW_SESSION_KEY] = True
     session.pop("closed_account_user", None)
     return web.HTTPFound("/")

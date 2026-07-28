@@ -97,6 +97,45 @@ class RequestProtectionTestCase(AioHTTPTestCase):
 
         self.assertEqual([404, 404, 404, 429], statuses)
 
+    async def test_profile_trace_logs_request_fingerprint_and_protection_decisions(self):
+        app_state = get_app_state(self.app)
+        await app_state.db.user.insert_one({"_id": "TraceProfile", "title": ""})
+
+        with (
+            patch("middlewares._should_trace_request", return_value=True),
+            self.assertLogs("middlewares", level="WARNING") as captured,
+        ):
+            response = await self.client.get(
+                "/@/TraceProfile",
+                headers={"User-Agent": "ProfileCrawler/1.0"},
+            )
+
+        self.assertEqual(response.status, 200)
+        message = "\n".join(captured.output)
+        self.assertIn("ua='ProfileCrawler/1.0'", message)
+        self.assertIn("ref='-'", message)
+        self.assertIn("http=1.1", message)
+        self.assertIn("session_cookie=False", message)
+        self.assertIn("new_session=False", message)
+        self.assertIn("profile_restricted=True", message)
+        self.assertIn("rl_bucket=profile,anon_profile_global", message)
+
+    async def test_new_anonymous_session_is_visible_in_request_trace(self):
+        with (
+            patch("middlewares._should_trace_request", return_value=True),
+            self.assertLogs("middlewares", level="WARNING") as captured,
+        ):
+            response = await self.client.post(
+                "/invite/accept/LogSess1",
+                headers={"User-Agent": "AnonymousAction/1.0"},
+            )
+
+        self.assertEqual(response.status, 200)
+        message = "\n".join(captured.output)
+        self.assertIn("session_cookie=False", message)
+        self.assertIn("new_session=True", message)
+        self.assertIn("rl_bucket=game_view,new_anon_identity", message)
+
     async def test_profile_route_is_rate_limited(self):
         statuses: list[int] = []
 

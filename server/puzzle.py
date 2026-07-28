@@ -18,6 +18,7 @@ from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import DuplicateKeyError
 from request_protection import enforce_new_anonymous_identity_limit
 from request_utils import read_post_data
+from typedefs import REQUEST_NEW_SESSION_KEY
 from variants import VARIANTS
 
 log = logging.getLogger(__name__)
@@ -123,6 +124,7 @@ async def _get_puzzle_session_user(request):
     user = User(app_state, anon=not app_state.anon_as_test_users)
     app_state.users[user.username] = user
     session["user_name"] = user.username
+    request[REQUEST_NEW_SESSION_KEY] = True
     log.info("+++ New puzzle guest user %s connected.", user.username)
     return user
 
