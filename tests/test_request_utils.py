@@ -11,6 +11,9 @@ class RequestUtilsTestCase(unittest.IsolatedAsyncioTestCase):
     def test_safe_log_value_escapes_surrogates(self):
         self.assertEqual(safe_log_value("1 \udcc0\udca7"), "1 \\udcc0\\udca7")
 
+    def test_safe_log_value_escapes_line_breaks(self):
+        self.assertEqual(r"line\x0abreak", safe_log_value("line\nbreak"))
+
     async def test_read_post_data_returns_none_on_client_disconnect(self):
         request = cast(web.Request, AsyncMock())
         request.post = AsyncMock(side_effect=ClientConnectionResetError("closed"))

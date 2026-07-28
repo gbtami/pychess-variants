@@ -70,16 +70,15 @@ def make_app(
         )
 
         app.middlewares.append(redirect_to_https)
-        app[request_protection_state_key] = RequestProtectionState()
-        app.middlewares.append(request_protection_middleware)
-        app.middlewares.append(request_timing_middleware)
-        app.middlewares.append(cross_origin_policy_middleware)
 
         app[anon_as_test_users_key] = anon_as_test_users
 
         parts = urlparse(URI)
         is_secure = parts.scheme == "https"
 
+        # Install session handling before request protection so the protection
+        # middleware can distinguish authenticated users from anonymous
+        # profile crawlers without creating any application-level guest state.
         aiohttp_session.setup(
             app,
             (
@@ -94,6 +93,10 @@ def make_app(
             ),
         )
 
+        app[request_protection_state_key] = RequestProtectionState()
+        app.middlewares.append(request_protection_middleware)
+        app.middlewares.append(request_timing_middleware)
+        app.middlewares.append(cross_origin_policy_middleware)
         app.middlewares.append(set_user_locale)
 
         aiohttp_jinja2.setup(

@@ -1,3 +1,5 @@
+from urllib.parse import urlsplit
+
 import aiohttp_jinja2
 from aiohttp import web
 from const import DASH, IMPORTED, RATED, TROPHIES
@@ -5,6 +7,7 @@ from custom_trophy_owners import CUSTOM_TROPHY_OWNERS
 from glicko2.glicko2 import PROVISIONAL_PHI
 from pychess_global_app_state_utils import get_app_state
 from settings import ADMINS
+from typedefs import REQUEST_PROFILE_RESTRICTED_KEY
 from typing_defs import ViewContext
 from ublog import display_date, image_src, post_url, summary_from_markdown
 from variants import VARIANT_ICONS, VARIANTS
@@ -15,6 +18,21 @@ from views import get_user_context
 def _thread_id(user1: str, user2: str) -> str:
     first, second = sorted((user1, user2), key=lambda x: (x.lower(), x))
     return f"{first}:{second}"
+
+
+def _has_internal_referer(request: web.Request) -> bool:
+    referer = request.headers.get("Referer")
+    if not referer:
+        return False
+
+    try:
+        parsed = urlsplit(referer)
+    except ValueError:
+        return False
+
+    return (
+        parsed.scheme in {"http", "https"} and parsed.netloc.casefold() == request.host.casefold()
+    )
 
 
 @aiohttp_jinja2.template("profile.html")
@@ -34,11 +52,18 @@ async def profile(request: web.Request) -> ViewContext:
         context["variant"] = variant
 
     context["icons"] = VARIANT_ICONS
+    profile_restricted = user.anon and not _has_internal_referer(request)
+    request[REQUEST_PROFILE_RESTRICTED_KEY] = profile_restricted
+    context["profile_restricted"] = profile_restricted
 
     if user.anon and DASH in profileId:
         return context
 
-    profile_user = await app_state.public_users.get_profile(profileId)
+    profile_user = await app_state.public_users.get_profile(
+        profileId,
+        cache=not profile_restricted,
+        include_blocked=not profile_restricted,
+    )
     if profile_user is None or not profile_user.enabled:
         raise web.HTTPNotFound()
 
@@ -51,35 +76,48 @@ async def profile(request: web.Request) -> ViewContext:
     elif request.path[-3:] == "/me":
         rated = -1
 
-    follow_allowed = (profileId not in user.blocked) and (user.username not in profile_user.blocked)
-    context["can_block"] = profileId not in user.blocked
-    context["can_follow"] = follow_allowed
-    context["is_following"] = profileId in user.following
-    can_message = (
-        (profileId not in user.blocked)
-        and (user.username not in profile_user.blocked)
-        and ((not profile_user.pm_friends_only) or (profileId in user.following))
-    )
-    if (
-        (not can_message)
-        and profile_user.pm_friends_only
-        and follow_allowed
-        and (app_state.db is not None)
-    ):
-        existing = await app_state.db.inbox_thread.find_one(
-            {"_id": _thread_id(user.username, profileId), "deletedBy": {"$ne": profileId}},
-            projection={"_id": 1},
+    if profile_restricted:
+        # A direct anonymous profile request is likely to be enumeration
+        # traffic. Render public identity/rating data, but avoid relationship
+        # and inbox work that cannot produce actionable controls for an anon.
+        context["can_block"] = False
+        context["can_follow"] = False
+        context["is_following"] = False
+        context["can_message"] = False
+        context["can_challenge"] = False
+        context["can_export_games"] = False
+    else:
+        follow_allowed = (profileId not in user.blocked) and (
+            user.username not in profile_user.blocked
         )
-        can_message = existing is not None
-    context["can_message"] = can_message
-    context["can_challenge"] = (profileId not in user.blocked) and (
-        user.username not in profile_user.blocked
-    )
-    context["can_export_games"] = (
-        (not user.anon)
-        and (not profile_user.bot)
-        and (profileId == user.username or user.username in ADMINS)
-    )
+        context["can_block"] = profileId not in user.blocked
+        context["can_follow"] = follow_allowed
+        context["is_following"] = profileId in user.following
+        can_message = (
+            (profileId not in user.blocked)
+            and (user.username not in profile_user.blocked)
+            and ((not profile_user.pm_friends_only) or (profileId in user.following))
+        )
+        if (
+            (not can_message)
+            and profile_user.pm_friends_only
+            and follow_allowed
+            and (app_state.db is not None)
+        ):
+            existing = await app_state.db.inbox_thread.find_one(
+                {"_id": _thread_id(user.username, profileId), "deletedBy": {"$ne": profileId}},
+                projection={"_id": 1},
+            )
+            can_message = existing is not None
+        context["can_message"] = can_message
+        context["can_challenge"] = (profileId not in user.blocked) and (
+            user.username not in profile_user.blocked
+        )
+        context["can_export_games"] = (
+            (not user.anon)
+            and (not profile_user.bot)
+            and (profileId == user.username or user.username in ADMINS)
+        )
 
     allowed_variants = user.category_variant_set
 
@@ -149,7 +187,7 @@ async def profile(request: web.Request) -> ViewContext:
     )
     context["ublog_posts"] = []
     context["ublog_post_count"] = 0
-    if app_state.db is not None:
+    if app_state.db is not None and not profile_restricted:
         context["ublog_post_count"] = await app_state.db.ublog_post.count_documents(
             {"author": profileId, "live": True}
         )

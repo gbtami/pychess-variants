@@ -6,14 +6,30 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from time import monotonic
 
+import aiohttp_session
 from aiohttp import web
-from request_utils import safe_log_value
+from const import ANON_PREFIX
+from request_utils import request_log_fingerprint, safe_log_value
 from settings import LOCALHOST, URI
-from typedefs import request_protection_state_key
+from typedefs import (
+    REQUEST_RATE_LIMIT_BUCKET_KEY,
+    request_protection_state_key,
+)
 
 log = logging.getLogger(__name__)
 
 Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
+
+
+def _mark_rate_limit_bucket(request: web.Request, bucket: str) -> None:
+    current = request.get(REQUEST_RATE_LIMIT_BUCKET_KEY)
+    if not isinstance(current, str) or not current:
+        request[REQUEST_RATE_LIMIT_BUCKET_KEY] = bucket
+        return
+
+    buckets = current.split(",")
+    if bucket not in buckets:
+        request[REQUEST_RATE_LIMIT_BUCKET_KEY] = f"{current},{bucket}"
 
 
 @dataclass(frozen=True)
@@ -109,6 +125,19 @@ class RequestProtectionState:
     )
 
     _PROFILE_LIMIT = RouteRateLimit("profile", max_requests=40, window_seconds=30.0)
+    # Distributed crawlers can evade a per-IP budget by using one address per
+    # request. Keep a second, application-wide admission budget for anonymous
+    # profile rendering, plus a hard cap on concurrently executing profiles.
+    _ANON_PROFILE_GLOBAL_LIMIT = RouteRateLimit(
+        "anon_profile_global", max_requests=120, window_seconds=60.0
+    )
+    _ANON_PROFILE_MAX_INFLIGHT = 30
+    _NEW_ANON_IDENTITY_LIMIT = RouteRateLimit(
+        "new_anon_identity", max_requests=10, window_seconds=1.0
+    )
+    _LOCAL_DEV_NEW_ANON_IDENTITY_LIMIT = RouteRateLimit(
+        "new_anon_identity", max_requests=1000, window_seconds=1.0
+    )
     _WS_HANDSHAKE_LIMIT = RouteRateLimit("wsr", max_requests=80, window_seconds=30.0)
     _NAMES_LIMIT = RouteRateLimit("names", max_requests=20, window_seconds=30.0)
     _STATUS_LIMIT = RouteRateLimit("status", max_requests=20, window_seconds=30.0)
@@ -152,6 +181,7 @@ class RequestProtectionState:
         self._last_block_log: dict[str, float] = {}
         self._last_block_log_cleanup = 0.0
         self._local_dev_mode = URI == LOCALHOST
+        self._anonymous_profile_inflight = 0
 
     def classify(self, path: str) -> RouteRateLimit | None:
         # Keep checks cheap and explicit; this runs on every request.
@@ -242,6 +272,60 @@ class RequestProtectionState:
     def allow(self, key: str, route_limit: RouteRateLimit) -> bool:
         return self._limiter.allow(key, route_limit.max_requests, route_limit.window_seconds)
 
+    def is_anonymous_profile_request(self, request: web.Request, session_user: str | None) -> bool:
+        return (
+            request.method in {"GET", "HEAD"}
+            and request.path.startswith("/@/")
+            and (session_user is None or session_user.startswith(ANON_PREFIX))
+        )
+
+    def enter_anonymous_profile(self) -> tuple[bool, str | None]:
+        if self._anonymous_profile_inflight >= self._ANON_PROFILE_MAX_INFLIGHT:
+            return False, "concurrency"
+
+        route_limit = self._ANON_PROFILE_GLOBAL_LIMIT
+        if not self.allow(route_limit.name, route_limit):
+            return False, "rate"
+
+        self._anonymous_profile_inflight += 1
+        return True, None
+
+    def leave_anonymous_profile(self) -> None:
+        if self._anonymous_profile_inflight > 0:
+            self._anonymous_profile_inflight -= 1
+
+    def allow_new_anonymous_identity(self) -> bool:
+        route_limit = (
+            self._LOCAL_DEV_NEW_ANON_IDENTITY_LIMIT
+            if self._local_dev_mode
+            else self._NEW_ANON_IDENTITY_LIMIT
+        )
+        return self.allow(route_limit.name, route_limit)
+
+
+def enforce_new_anonymous_identity_limit(request: web.Request) -> None:
+    state: RequestProtectionState = request.app[request_protection_state_key]
+    bucket = state._NEW_ANON_IDENTITY_LIMIT.name
+    _mark_rate_limit_bucket(request, bucket)
+    if state.allow_new_anonymous_identity():
+        return
+
+    client = state.client_key(request)
+    if state.should_log_block(f"{bucket}:{client}"):
+        user_agent, referer, http_version, session_cookie = request_log_fingerprint(request)
+        log.warning(
+            "rate-limited new anonymous identity from %s at path %s "
+            "ua=%r ref=%r http=%s session_cookie=%s bucket=%s",
+            safe_log_value(client),
+            safe_log_value(request.path),
+            user_agent,
+            referer,
+            http_version,
+            session_cookie,
+            bucket,
+        )
+    raise web.HTTPTooManyRequests(headers={"Retry-After": "1"})
+
 
 @web.middleware
 async def request_protection_middleware(
@@ -256,13 +340,20 @@ async def request_protection_middleware(
     client = state.client_key(request)
 
     if state.is_known_scanner_path(path):
+        _mark_rate_limit_bucket(request, "scanner")
         scanner_key = f"scanner:{client}"
         if not state._limiter.allow(scanner_key, max_requests=8, window_seconds=60.0):
             if state.should_log_block(scanner_key):
+                user_agent, referer, http_version, session_cookie = request_log_fingerprint(request)
                 log.warning(
-                    "scanner path flood blocked from %s on %s",
+                    "scanner path flood blocked from %s on %s "
+                    "ua=%r ref=%r http=%s session_cookie=%s bucket=scanner",
                     safe_log_value(client),
                     safe_log_value(path),
+                    user_agent,
+                    referer,
+                    http_version,
+                    session_cookie,
                 )
             raise web.HTTPTooManyRequests(headers={"Retry-After": "60"})
         # Return 404 for scanner signatures to avoid signaling valid app routes.
@@ -272,18 +363,61 @@ async def request_protection_middleware(
     if route_limit is None:
         return await handler(request)
 
+    _mark_rate_limit_bucket(request, route_limit.name)
     bucket = f"{route_limit.name}:{client}"
-    if state.allow(bucket, route_limit):
+    if not state.allow(bucket, route_limit):
+        if state.should_log_block(bucket):
+            user_agent, referer, http_version, session_cookie = request_log_fingerprint(request)
+            log.warning(
+                "rate-limited %s from %s at path %s (%s req / %ss) "
+                "ua=%r ref=%r http=%s session_cookie=%s bucket=%s",
+                route_limit.name,
+                safe_log_value(client),
+                safe_log_value(path),
+                route_limit.max_requests,
+                route_limit.window_seconds,
+                user_agent,
+                referer,
+                http_version,
+                session_cookie,
+                route_limit.name,
+            )
+        retry_after = max(1, int(route_limit.window_seconds))
+        raise web.HTTPTooManyRequests(headers={"Retry-After": str(retry_after)})
+
+    session = await aiohttp_session.get_session(request)
+    session_user_value = session.get("user_name")
+    session_user = session_user_value if isinstance(session_user_value, str) else None
+    if not state.is_anonymous_profile_request(request, session_user):
         return await handler(request)
 
-    if state.should_log_block(bucket):
-        log.warning(
-            "rate-limited %s from %s at path %s (%s req / %ss)",
-            route_limit.name,
-            safe_log_value(client),
-            safe_log_value(path),
-            route_limit.max_requests,
-            route_limit.window_seconds,
+    _mark_rate_limit_bucket(request, state._ANON_PROFILE_GLOBAL_LIMIT.name)
+    admitted, reason = state.enter_anonymous_profile()
+    if not admitted:
+        aggregate_bucket = f"{state._ANON_PROFILE_GLOBAL_LIMIT.name}:{reason}"
+        if state.should_log_block(aggregate_bucket):
+            user_agent, referer, http_version, session_cookie = request_log_fingerprint(request)
+            log.warning(
+                "rate-limited anonymous profile traffic reason=%s from %s at path %s "
+                "(inflight=%s max_inflight=%s) ua=%r ref=%r http=%s "
+                "session_cookie=%s bucket=%s",
+                reason,
+                safe_log_value(client),
+                safe_log_value(path),
+                state._anonymous_profile_inflight,
+                state._ANON_PROFILE_MAX_INFLIGHT,
+                user_agent,
+                referer,
+                http_version,
+                session_cookie,
+                state._ANON_PROFILE_GLOBAL_LIMIT.name,
+            )
+        retry_after = (
+            max(1, int(state._ANON_PROFILE_GLOBAL_LIMIT.window_seconds)) if reason == "rate" else 1
         )
-    retry_after = max(1, int(route_limit.window_seconds))
-    raise web.HTTPTooManyRequests(headers={"Retry-After": str(retry_after)})
+        raise web.HTTPTooManyRequests(headers={"Retry-After": str(retry_after)})
+
+    try:
+        return await handler(request)
+    finally:
+        state.leave_anonymous_profile()

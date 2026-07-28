@@ -38,6 +38,7 @@ from const import (
     ABORTED,
     ARENA,
     GAME_CATEGORIES,
+    HTTP_ANON_USER,
     LANGUAGES,
     MAX_CHAT_LINES,
     MONTHLY,
@@ -1006,6 +1007,9 @@ class PychessGlobalAppState:
         result["Random-Mover"] = User(self, bot=True, username="Random-Mover")
         result["Fairy-Stockfish"] = User(self, bot=True, username="Fairy-Stockfish")
         result["Discord-Relay"] = User(self, anon=True, username="Discord-Relay")
+        # Shared, stateless identity for ordinary anonymous HTTP page views.
+        # It is reserved, so User.__init__ does not create a cleanup task.
+        result[HTTP_ANON_USER] = User(self, anon=True, username=HTTP_ANON_USER)
         result["Random-Mover"].online = True
 
         # To handle old anon user sessions with names prefixed with "Anon-" (hyphen!)

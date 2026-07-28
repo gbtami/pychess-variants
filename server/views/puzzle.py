@@ -1,5 +1,6 @@
 import aiohttp_jinja2
 from aiohttp import web
+from const import HTTP_ANON_USER
 from json_utils import json_dumps
 from puzzle import (
     default_puzzle_perf,
@@ -25,15 +26,23 @@ async def puzzle(request: web.Request) -> ViewContext:
         puzzleId = request.match_info.get("puzzleId")
 
         if puzzleId in VARIANTS:
-            user.puzzle_variant = puzzleId
+            selected_puzzle_variant = puzzleId
             puzzleId = None
         elif variant in VARIANTS:
-            user.puzzle_variant = variant
+            selected_puzzle_variant = variant
         else:
-            user.puzzle_variant = None
+            selected_puzzle_variant = None
+
+        if user.username != HTTP_ANON_USER:
+            user.puzzle_variant = selected_puzzle_variant
 
         if puzzleId is None:
-            puzzle = await next_puzzle(request, user)
+            puzzle = await next_puzzle(
+                request,
+                user,
+                puzzle_variant=selected_puzzle_variant,
+                use_user_variant=user.username != HTTP_ANON_USER,
+            )
         else:
             puzzle = await get_puzzle(request, puzzleId)
 

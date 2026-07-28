@@ -23,6 +23,7 @@ from security_evasion import (
     remember_user_signals,
 )
 from settings import URI
+from typedefs import REQUEST_NEW_SESSION_KEY
 from typing_defs import UserDocument
 from user_stats import DEFAULT_USER_COUNT
 from websocket_utils import ws_send_json_many
@@ -226,6 +227,7 @@ async def login(request: web.Request) -> web.StreamResponse:
             return web.HTTPFound("/contact")
         else:
             session["user_name"] = existing_user["_id"]
+            request[REQUEST_NEW_SESSION_KEY] = True
             session.pop("closed_account_user", None)
             await remember_user_signals(app_state.db, existing_user["_id"], signals)
 
@@ -467,6 +469,7 @@ async def confirm_username(request: web.Request) -> web.StreamResponse:
 
         # Set session username and clean up OAuth data
         session["user_name"] = username
+        request[REQUEST_NEW_SESSION_KEY] = True
         session.pop("oauth_id", None)
         session.pop("oauth_provider", None)
         session.pop("oauth_username", None)

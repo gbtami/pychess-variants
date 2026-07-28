@@ -1,11 +1,15 @@
+import inspect
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from aiohttp.test_utils import AioHTTPTestCase
+from const import ANON_PREFIX, HTTP_ANON_USER
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
-from request_protection import RequestProtectionState
+from request_protection import RequestProtectionState, RouteRateLimit
+from typedefs import request_protection_state_key
+from views import get_user_context
 
 from server import make_app
 
@@ -20,6 +24,117 @@ class RequestProtectionTestCase(AioHTTPTestCase):
     async def test_known_scanner_path_returns_not_found(self):
         resp = await self.client.request("GET", "/wp-content/plugins/hellopress/wp_filemanager")
         self.assertEqual(resp.status, 404)
+
+    def test_anonymous_context_creation_has_no_deliberate_request_delay(self):
+        self.assertNotIn("sleep(", inspect.getsource(get_user_context))
+
+    async def test_anonymous_page_view_stays_stateless(self):
+        app_state = get_app_state(self.app)
+        before = set(app_state.users)
+
+        resp = await self.client.get("/about")
+
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(before, set(app_state.users))
+        self.assertIn(HTTP_ANON_USER, app_state.users)
+        self.assertFalse(
+            any(name.startswith(ANON_PREFIX) for name in app_state.users if name not in before)
+        )
+        self.assertNotIn("AIOHTTP_SESSION", resp.cookies)
+
+    async def test_websocket_materializes_and_persists_anonymous_identity(self):
+        app_state = get_app_state(self.app)
+        before = set(app_state.users)
+
+        ws = await self.client.ws_connect("/wsl")
+        try:
+            created = [
+                name
+                for name in app_state.users
+                if name not in before and name.startswith(ANON_PREFIX)
+            ]
+            self.assertEqual(1, len(created))
+            cookies = self.client.session.cookie_jar.filter_cookies(self.client.make_url("/"))
+            self.assertIn("AIOHTTP_SESSION", cookies)
+        finally:
+            await ws.close()
+
+    async def test_plain_http_websocket_probe_does_not_create_guest(self):
+        app_state = get_app_state(self.app)
+        before = set(app_state.users)
+
+        resp = await self.client.get("/wsl", allow_redirects=False)
+
+        self.assertEqual(resp.status, 302)
+        self.assertEqual(before, set(app_state.users))
+
+    async def test_malformed_websocket_upgrade_does_not_create_guest(self):
+        app_state = get_app_state(self.app)
+        before = set(app_state.users)
+
+        resp = await self.client.get(
+            "/wsl",
+            headers={"Connection": "Upgrade", "Upgrade": "websocket"},
+            allow_redirects=False,
+        )
+
+        self.assertIn(resp.status, {302, 400})
+        self.assertEqual(before, set(app_state.users))
+
+    async def test_anonymous_profiles_share_a_global_budget_across_ips(self):
+        state = self.app[request_protection_state_key]
+        state._ANON_PROFILE_GLOBAL_LIMIT = RouteRateLimit(
+            "anon_profile_global_test", max_requests=3, window_seconds=60.0
+        )
+
+        statuses = []
+        for index in range(4):
+            resp = await self.client.get(
+                "/@/NoSuchDistributedCrawlerTarget",
+                headers={"X-Forwarded-For": f"192.0.2.{index}"},
+            )
+            statuses.append(resp.status)
+
+        self.assertEqual([404, 404, 404, 429], statuses)
+
+    async def test_profile_trace_logs_request_fingerprint_and_protection_decisions(self):
+        app_state = get_app_state(self.app)
+        await app_state.db.user.insert_one({"_id": "TraceProfile", "title": ""})
+
+        with (
+            patch("middlewares._should_trace_request", return_value=True),
+            self.assertLogs("middlewares", level="WARNING") as captured,
+        ):
+            response = await self.client.get(
+                "/@/TraceProfile",
+                headers={"User-Agent": "ProfileCrawler/1.0"},
+            )
+
+        self.assertEqual(response.status, 200)
+        message = "\n".join(captured.output)
+        self.assertIn("ua='ProfileCrawler/1.0'", message)
+        self.assertIn("ref='-'", message)
+        self.assertIn("http=1.1", message)
+        self.assertIn("session_cookie=False", message)
+        self.assertIn("new_session=False", message)
+        self.assertIn("profile_restricted=True", message)
+        self.assertIn("rl_bucket=profile,anon_profile_global", message)
+
+    async def test_new_anonymous_session_is_visible_in_request_trace(self):
+        with (
+            patch("middlewares._should_trace_request", return_value=True),
+            self.assertLogs("middlewares", level="WARNING") as captured,
+        ):
+            response = await self.client.post(
+                "/invite/accept/LogSess1",
+                headers={"User-Agent": "AnonymousAction/1.0"},
+            )
+
+        self.assertEqual(response.status, 200)
+        message = "\n".join(captured.output)
+        self.assertIn("session_cookie=False", message)
+        self.assertIn("new_session=True", message)
+        self.assertIn("rl_bucket=game_view,new_anon_identity", message)
 
     async def test_profile_route_is_rate_limited(self):
         statuses: list[int] = []
@@ -147,6 +262,29 @@ class RequestProtectionTestCase(AioHTTPTestCase):
 
 
 class RequestProtectionStateTestCase(unittest.TestCase):
+    def test_anonymous_profile_concurrency_is_bounded_and_released(self):
+        state = RequestProtectionState()
+        state._ANON_PROFILE_MAX_INFLIGHT = 1
+        state._ANON_PROFILE_GLOBAL_LIMIT = RouteRateLimit(
+            "anon_profile_concurrency_test", max_requests=10, window_seconds=60.0
+        )
+
+        self.assertEqual((True, None), state.enter_anonymous_profile())
+        self.assertEqual((False, "concurrency"), state.enter_anonymous_profile())
+        state.leave_anonymous_profile()
+        self.assertEqual((True, None), state.enter_anonymous_profile())
+
+    def test_new_anonymous_identity_creation_has_a_global_budget(self):
+        state = RequestProtectionState()
+        state._local_dev_mode = False
+        state._NEW_ANON_IDENTITY_LIMIT = RouteRateLimit(
+            "new_anon_identity_test", max_requests=2, window_seconds=60.0
+        )
+
+        self.assertTrue(state.allow_new_anonymous_identity())
+        self.assertTrue(state.allow_new_anonymous_identity())
+        self.assertFalse(state.allow_new_anonymous_identity())
+
     def test_block_log_is_bounded_under_unique_scanner_flood(self):
         state = RequestProtectionState()
         state._BLOCK_LOG_MAX_KEYS = 10
