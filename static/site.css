@@ -1272,8 +1272,15 @@ span.notification.empty span.text {
   display: flex;
   align-items: center;
   flex-direction: row;
+  justify-content: space-between;
 }
-.labelled label {
+.arrow-toggle{
+  margin-top: 20px;
+}
+.infiniteAnalysis-toggle {
+  margin-bottom: 20px;
+}
+.analysis-settings label {
   padding-left: 0;
 }
 div.labelled input[type="range"] {
