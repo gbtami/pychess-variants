@@ -18,7 +18,7 @@ class PlayersPageAnonymousDisplayTestCase(AioHTTPTestCase):
 
         self.assertEqual(response.status, 200)
         html = await response.text()
-        self.assertNotIn(f'/@/{HTTP_ANON_USER}', html)
+        self.assertNotIn(f"/@/{HTTP_ANON_USER}", html)
 
     async def test_materialized_anonymous_user_is_not_listed_by_name(self):
         app_state = get_app_state(self.app)
@@ -36,6 +36,6 @@ class PlayersPageAnonymousDisplayTestCase(AioHTTPTestCase):
             response = await self.client.get("/players")
             self.assertEqual(response.status, 200)
             html = await response.text()
-            self.assertNotIn(f'/@/{created[0]}', html)
+            self.assertNotIn(f"/@/{created[0]}", html)
         finally:
             await ws.close()
