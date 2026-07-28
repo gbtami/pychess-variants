@@ -22,9 +22,7 @@ def session_theme(session: Mapping[str, object], fallback: str = DEFAULT_THEME) 
     return value if isinstance(value, str) and value in VALID_THEMES else fallback
 
 
-def session_game_category(
-    session: Mapping[str, object], fallback: str = GAME_CATEGORY_ALL
-) -> str:
+def session_game_category(session: Mapping[str, object], fallback: str = GAME_CATEGORY_ALL) -> str:
     """Return a normalized game category stored in the browser session cookie."""
 
     value = session.get("game_category")
@@ -41,9 +39,7 @@ def effective_theme(session: Mapping[str, object], user: PreferenceUser | None) 
     return session_theme(session, user.theme) if user.anon else user.theme
 
 
-def effective_game_category(
-    session: Mapping[str, object], user: PreferenceUser | None
-) -> str:
+def effective_game_category(session: Mapping[str, object], user: PreferenceUser | None) -> str:
     """Resolve category from the session for anonymous browsers only."""
 
     if user is None:
