@@ -38,6 +38,12 @@ class AnalysisSettings {
 
         const settingsList: VNode[] = [];
 
+        settingsList.push(this.settings['multipv'].view());
+
+        settingsList.push(this.settings['threads'].view());
+
+        settingsList.push(this.settings['hash'].view());
+
         settingsList.push(this.settings['arrow'].view());
 
         settingsList.push(this.settings['inlineNotation'].view());
@@ -46,15 +52,9 @@ class AnalysisSettings {
 
         settingsList.push(this.settings['infiniteAnalysis'].view());
 
-        settingsList.push(this.settings['multipv'].view());
-
-        settingsList.push(this.settings['threads'].view());
-
-        settingsList.push(this.settings['hash'].view());
+        settingsList.push(this.getSettings(variantName as string).view());
 
         settingsList.push(this.settings['nnue'].view());
-
-        settingsList.push(this.getSettings(variantName as string).view());
 
         settingsList.push(this.settings['fsfDebug'].view());
 
