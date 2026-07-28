@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from user import User
 
 from pychess_global_app_state_utils import get_app_state
+from request_protection import enforce_new_anonymous_identity_limit
 
 log = logging.getLogger(__name__)
 
@@ -79,6 +80,7 @@ async def get_user(session: aiohttp_session.Session, request: web.Request) -> Us
         # persistent identity only when it actually opens a websocket.
         from user import User
 
+        enforce_new_anonymous_identity_limit(request)
         user = User(app_state, anon=not app_state.anon_as_test_users)
         app_state.users[user.username] = user
         session["user_name"] = user.username

@@ -16,6 +16,7 @@ from glicko2.glicko2 import MU, PHI, SIGMA, Rating, gl2
 from json_utils import json_response
 from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import DuplicateKeyError
+from request_protection import enforce_new_anonymous_identity_limit
 from request_utils import read_post_data
 from variants import VARIANTS
 
@@ -118,6 +119,7 @@ async def _get_puzzle_session_user(request):
     # puzzle is an anonymous action that needs a stable browser identity.
     from user import User
 
+    enforce_new_anonymous_identity_limit(request)
     user = User(app_state, anon=not app_state.anon_as_test_users)
     app_state.users[user.username] = user
     session["user_name"] = user.username

@@ -23,6 +23,7 @@ from pymongo.errors import (
     ServerSelectionTimeoutError,
     WaitQueueTimeoutError,
 )
+from request_protection import enforce_new_anonymous_identity_limit
 from settings import ADMINS, SIMULING
 from typing_defs import UserDocument, ViewContext
 from user import User
@@ -139,6 +140,7 @@ async def get_user_context(request: web.Request) -> tuple[User, ViewContext]:
                 session.invalidate()
                 raise web.HTTPFound("/login")
 
+            enforce_new_anonymous_identity_limit(request)
             user = User(app_state, anon=not app_state.anon_as_test_users)
             log.info("+++ New guest user %s connected.", user.username)
             app_state.users[user.username] = user

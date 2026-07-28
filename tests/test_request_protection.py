@@ -7,9 +7,10 @@ from aiohttp.test_utils import AioHTTPTestCase
 from const import ANON_PREFIX, HTTP_ANON_USER
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
-from request_protection import RequestProtectionState
+from request_protection import RequestProtectionState, RouteRateLimit
 
 from server import make_app
+from typedefs import request_protection_state_key
 from views import get_user_context
 
 
@@ -79,6 +80,22 @@ class RequestProtectionTestCase(AioHTTPTestCase):
 
         self.assertIn(resp.status, {302, 400})
         self.assertEqual(before, set(app_state.users))
+
+    async def test_anonymous_profiles_share_a_global_budget_across_ips(self):
+        state = self.app[request_protection_state_key]
+        state._ANON_PROFILE_GLOBAL_LIMIT = RouteRateLimit(
+            "anon_profile_global_test", max_requests=3, window_seconds=60.0
+        )
+
+        statuses = []
+        for index in range(4):
+            resp = await self.client.get(
+                "/@/NoSuchDistributedCrawlerTarget",
+                headers={"X-Forwarded-For": f"192.0.2.{index}"},
+            )
+            statuses.append(resp.status)
+
+        self.assertEqual([404, 404, 404, 429], statuses)
 
     async def test_profile_route_is_rate_limited(self):
         statuses: list[int] = []
@@ -206,6 +223,29 @@ class RequestProtectionTestCase(AioHTTPTestCase):
 
 
 class RequestProtectionStateTestCase(unittest.TestCase):
+    def test_anonymous_profile_concurrency_is_bounded_and_released(self):
+        state = RequestProtectionState()
+        state._ANON_PROFILE_MAX_INFLIGHT = 1
+        state._ANON_PROFILE_GLOBAL_LIMIT = RouteRateLimit(
+            "anon_profile_concurrency_test", max_requests=10, window_seconds=60.0
+        )
+
+        self.assertEqual((True, None), state.enter_anonymous_profile())
+        self.assertEqual((False, "concurrency"), state.enter_anonymous_profile())
+        state.leave_anonymous_profile()
+        self.assertEqual((True, None), state.enter_anonymous_profile())
+
+    def test_new_anonymous_identity_creation_has_a_global_budget(self):
+        state = RequestProtectionState()
+        state._local_dev_mode = False
+        state._NEW_ANON_IDENTITY_LIMIT = RouteRateLimit(
+            "new_anon_identity_test", max_requests=2, window_seconds=60.0
+        )
+
+        self.assertTrue(state.allow_new_anonymous_identity())
+        self.assertTrue(state.allow_new_anonymous_identity())
+        self.assertFalse(state.allow_new_anonymous_identity())
+
     def test_block_log_is_bounded_under_unique_scanner_flood(self):
         state = RequestProtectionState()
         state._BLOCK_LOG_MAX_KEYS = 10
