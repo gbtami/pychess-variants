@@ -101,6 +101,24 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
         self.assertIn('stroke="url(#rg1)"', sanitized)
         self.assertIn('filter="url(#blur1)"', sanitized)
 
+    def test_accepts_digit_prefixed_local_references(self) -> None:
+        svg = b"""<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="0">
+      <stop stop-color="#fff" offset="0" />
+    </linearGradient>
+    <radialGradient id="1a" xlink:href="#0" />
+  </defs>
+  <path fill="url(#1a)" d="M 0 0 L 10 10" />
+</svg>"""
+
+        sanitized = _sanitize_catalogued_piece_svg(svg, "wR.svg")
+
+        self.assertIn('id="0"', sanitized)
+        self.assertIn('id="1a"', sanitized)
+        self.assertIn('href="#0"', sanitized)
+        self.assertIn('fill="url(#1a)"', sanitized)
+
     def test_accepts_unicode_aria_label(self) -> None:
         svg = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 34">
   <path d="M 0 0 L 10 10" aria-label="金" />

@@ -1971,9 +1971,12 @@ SAFE_SVG_STYLE_ATTRS = frozenset(
     }
 )
 SAFE_SVG_VALUE_RE = re.compile(r"^[#%,.0-9A-Za-z_() +\-/:]*$")
-SAFE_SVG_ID_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.:-]*$")
-SAFE_SVG_LOCAL_REF_RE = re.compile(r"^url\(#[A-Za-z_][A-Za-z0-9_.:-]*\)$")
-SAFE_SVG_FRAGMENT_REF_RE = re.compile(r"^#[A-Za-z_][A-Za-z0-9_.:-]*$")
+# Several bundled piece sets use editor-generated numeric IDs such as ``id="0"``.
+# They are safe here because references are still restricted to same-document
+# fragments containing only this narrow character set.
+SAFE_SVG_ID_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.:-]*$")
+SAFE_SVG_LOCAL_REF_RE = re.compile(r"^url\(#[A-Za-z0-9_][A-Za-z0-9_.:-]*\)$")
+SAFE_SVG_FRAGMENT_REF_RE = re.compile(r"^#[A-Za-z0-9_][A-Za-z0-9_.:-]*$")
 
 
 def _local_xml_name(name: str) -> str:
