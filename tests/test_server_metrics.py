@@ -1,3 +1,4 @@
+import asyncio
 from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
@@ -6,6 +7,7 @@ from aiohttp.test_utils import AioHTTPTestCase
 from fairy.fairy_board import FOG_FEN_CACHE_SIZE
 from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
+from server_metrics import memory_stats
 from tournament.tournament import PLAYER_JSON_CACHE_SIZE
 from user import User
 
@@ -62,6 +64,43 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
         self.assertEqual(state["catalogued_piece_svg_bytes"], 5)
         self.assertEqual(state["catalogued_board_svg_bytes"], 5)
         self.assertEqual(state["catalogued_payload_bytes"], 13)
+
+        queue = asyncio.Queue[str](maxsize=2)
+        queue.put_nowait("first")
+        queue.put_nowait("second")
+        app_state.game_channels.add(queue)
+        response = await self.client.get(
+            "/metrics?summary=True",
+            headers={"Authorization": "Bearer test"},
+        )
+        streams = (await response.json())["streams"]
+        self.assertEqual(streams["game_sse"], 1)
+        self.assertEqual(streams["game_sse_queued_messages"], 2)
+        self.assertEqual(streams["game_sse_max_queue"], 2)
+        self.assertEqual(streams["game_sse_full_queues"], 1)
+
+    async def test_full_queue_diagnostics_do_not_serialize_payloads(self):
+        queue = asyncio.Queue[str](maxsize=4)
+        queue.put_nowait("sensitive-payload")
+
+        with patch("server_metrics.gc.get_objects", return_value=[queue]):
+            _stats, _tasks, queues, _counts = memory_stats()
+
+        self.assertEqual(
+            queues,
+            [
+                {
+                    "id": id(queue),
+                    "name": "Queue",
+                    "size": 1,
+                    "maxsize": 4,
+                    "full": False,
+                    "file": "-",
+                    "source": "-",
+                }
+            ],
+        )
+        self.assertNotIn("sensitive-payload", str(queues))
 
     async def test_metrics_anon_summary_has_bucket_and_detached_diagnostics(self):
         app_state = get_app_state(self.app)

@@ -1,6 +1,8 @@
+import asyncio
 import json
 import time
 import unittest
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
@@ -685,6 +687,13 @@ class ExportWriteEofTestCase(unittest.IsolatedAsyncioTestCase):
 
 
 class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
+    class _TrackingSet(set):
+        added = None
+
+        def add(self, item):
+            self.added = item
+            super().add(item)
+
     class _UsersStub:
         def __init__(self, user):
             self.user = user
@@ -725,7 +734,8 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(app_state.invite_channels.get(game_id))
 
     async def test_subscribe_games_handles_sse_setup_error(self):
-        app_state = SimpleNamespace(game_channels=set())
+        game_channels = self._TrackingSet()
+        app_state = SimpleNamespace(game_channels=game_channels)
         request = SimpleNamespace(app=object())
 
         with (
@@ -736,6 +746,42 @@ class SSESubscribeErrorFallbackTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(response.status, 200)
         self.assertEqual(len(app_state.game_channels), 0)
+        queue = game_channels.added
+        self.assertEqual(queue.maxsize, game_api.ONGOING_GAME_QUEUE_MAXSIZE)
+        with self.assertRaises(asyncio.QueueShutDown):
+            queue.get_nowait()
+
+    async def test_subscribe_games_times_out_blocked_send_and_drains_queue(self):
+        game_channels = self._TrackingSet()
+        app_state = SimpleNamespace(game_channels=game_channels)
+        request = SimpleNamespace(app=object())
+
+        class SlowResponse:
+            def is_connected(self):
+                return True
+
+            async def send(self, _payload):
+                await asyncio.Event().wait()
+
+        slow_response = SlowResponse()
+
+        @asynccontextmanager
+        async def slow_sse_response(_request):
+            game_channels.added.put_nowait("payload")
+            yield slow_response
+
+        with (
+            patch("game_api.get_app_state", return_value=app_state),
+            patch("game_api.sse_response", slow_sse_response),
+            patch("game_api.SSE_SEND_TIMEOUT", 0.01),
+        ):
+            response = await game_api.subscribe_games(request)
+
+        self.assertIs(response, slow_response)
+        self.assertEqual(len(game_channels), 0)
+        self.assertEqual(game_channels.added.qsize(), 0)
+        with self.assertRaises(asyncio.QueueShutDown):
+            game_channels.added.get_nowait()
 
 
 class InviteReloadPersistenceTestCase(AioHTTPTestCase):

@@ -69,6 +69,11 @@ MAX_NAMED_SPECTATORS = 20
 
 # Periodically check for sse_request is_connected()
 SSE_GET_TIMEOUT = 10
+SSE_SEND_TIMEOUT = 10
+
+# A slow /api/ongoing SSE subscriber must not retain an unbounded history of
+# serialized board updates.
+ONGOING_GAME_QUEUE_MAXSIZE = 256
 
 
 # tournament status

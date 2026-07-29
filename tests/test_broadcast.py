@@ -36,10 +36,10 @@ class MutatingQueue(asyncio.Queue[str]):
         self.channels = channels
         self.calls = 0
 
-    async def put(self, item: str) -> None:
+    def put_nowait(self, item: str) -> None:
         self.calls += 1
         self.channels.add(asyncio.Queue[str]())
-        await super().put(item)
+        super().put_nowait(item)
 
 
 class RecordingQueue(asyncio.Queue[str]):
@@ -47,9 +47,9 @@ class RecordingQueue(asyncio.Queue[str]):
         super().__init__()
         self.calls = 0
 
-    async def put(self, item: str) -> None:
+    def put_nowait(self, item: str) -> None:
         self.calls += 1
-        await super().put(item)
+        super().put_nowait(item)
 
 
 class RoundBroadcastTestCase(unittest.IsolatedAsyncioTestCase):
@@ -77,6 +77,31 @@ class RoundBroadcastTestCase(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(mutating.calls, 1)
         self.assertEqual(passive.calls, 1)
+
+    async def test_round_broadcast_drops_and_drains_full_channel(self) -> None:
+        game = DummyGame()
+        full = asyncio.Queue[str](maxsize=1)
+        full.put_nowait("stale")
+        healthy = asyncio.Queue[str](maxsize=1)
+        channels = {full, healthy}
+
+        await round_broadcast(game, {"type": "board"}, channels=channels)
+
+        self.assertNotIn(full, channels)
+        self.assertEqual(full.qsize(), 0)
+        with self.assertRaises(asyncio.QueueShutDown):
+            full.get_nowait()
+        self.assertEqual(healthy.qsize(), 1)
+
+    async def test_round_broadcast_discards_shutdown_channel(self) -> None:
+        game = DummyGame()
+        shutdown = asyncio.Queue[str](maxsize=1)
+        shutdown.shutdown(immediate=True)
+        channels = {shutdown}
+
+        await round_broadcast(game, {"type": "board"}, channels=channels)
+
+        self.assertNotIn(shutdown, channels)
 
 
 if __name__ == "__main__":

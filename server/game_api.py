@@ -19,7 +19,9 @@ from const import (
     GAME_CATEGORY_ALL,
     INVALIDMOVE,
     MATE,
+    ONGOING_GAME_QUEUE_MAXSIZE,
     SSE_GET_TIMEOUT,
+    SSE_SEND_TIMEOUT,
     STARTED,
     SWISS,
     VARIANTEND,
@@ -591,7 +593,7 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
 
 async def subscribe_games(request: web.Request) -> web.StreamResponse:
     app_state = get_app_state(request.app)
-    queue: asyncio.Queue[str] = asyncio.Queue()
+    queue: asyncio.Queue[str] = asyncio.Queue(maxsize=ONGOING_GAME_QUEUE_MAXSIZE)
     app_state.game_channels.add(queue)
     response: web.StreamResponse = web.Response(status=200)
     try:
@@ -599,15 +601,24 @@ async def subscribe_games(request: web.Request) -> web.StreamResponse:
             while response.is_connected():
                 try:
                     payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
-                    await response.send(payload)
-                    queue.task_done()
                 except TimeoutError:
                     if not response.is_connected():
                         break
+                    continue
+                except asyncio.QueueShutDown:
+                    break
+
+                try:
+                    await asyncio.wait_for(response.send(payload), timeout=SSE_SEND_TIMEOUT)
+                except TimeoutError:
+                    break
+                finally:
+                    queue.task_done()
     except Exception:
         pass
     finally:
         app_state.game_channels.discard(queue)
+        queue.shutdown(immediate=True)
     return response
 
 

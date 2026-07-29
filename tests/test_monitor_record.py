@@ -45,6 +45,9 @@ class MonitorRecordTestCase(unittest.TestCase):
                 "lobby_websockets": 4,
                 "game_websockets": 5,
                 "game_sse": 2,
+                "game_sse_queued_messages": 37,
+                "game_sse_max_queue": 29,
+                "game_sse_full_queues": 1,
             },
             "caches": [
                 {"name": "one", "currsize": 12},
@@ -67,6 +70,10 @@ class MonitorRecordTestCase(unittest.TestCase):
         self.assertEqual(summary["tournament_active_sockets"], 3)
         self.assertEqual(summary["tasks"], 17)
         self.assertEqual(summary["streams"], 11)
+        self.assertEqual(summary["game_sse"], 2)
+        self.assertEqual(summary["game_sse_queued_messages"], 37)
+        self.assertEqual(summary["game_sse_max_queue"], 29)
+        self.assertEqual(summary["game_sse_full_queues"], 1)
         self.assertEqual(summary["pyffish_variants"], 151)
         self.assertEqual(summary["catalogued_payload_bytes"], 8192)
         self.assertEqual(summary["cache_entries"], 42)
@@ -99,6 +106,9 @@ class MonitorRecordTestCase(unittest.TestCase):
                         "tournament_websockets": 1,
                         "simul_websockets": 0,
                         "game_sse": 2,
+                        "game_sse_queued_messages": 37,
+                        "game_sse_max_queue": 29,
+                        "game_sse_full_queues": 1,
                         "invite_sse": 1,
                         "notify_sse": 3,
                         "inbox_sse": 0,
@@ -115,6 +125,9 @@ class MonitorRecordTestCase(unittest.TestCase):
         self.assertEqual(summary["users"], 120)
         self.assertEqual(summary["registered_cache_only"], 70)
         self.assertEqual(summary["streams"], 19)
+        self.assertEqual(summary["game_sse_queued_messages"], 37)
+        self.assertEqual(summary["game_sse_max_queue"], 29)
+        self.assertEqual(summary["game_sse_full_queues"], 1)
         self.assertEqual(summary["cache_entries"], 42)
 
     def test_summary_deltas_compare_first_and_last_samples(self) -> None:

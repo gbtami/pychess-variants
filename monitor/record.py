@@ -44,6 +44,10 @@ SUMMARY_KEYS = (
     "tasks",
     "queues",
     "streams",
+    "game_sse",
+    "game_sse_queued_messages",
+    "game_sse_max_queue",
+    "game_sse_full_queues",
     "catalogued_variants",
     "pyffish_variants",
     "catalogued_payload_bytes",
@@ -147,6 +151,10 @@ def summarize_metrics(metrics: Mapping[str, Any]) -> dict[str, int | float]:
                 "active_bot_game_streams",
             )
         ),
+        "game_sse": _number(streams, "game_sse"),
+        "game_sse_queued_messages": _number(streams, "game_sse_queued_messages"),
+        "game_sse_max_queue": _number(streams, "game_sse_max_queue"),
+        "game_sse_full_queues": _number(streams, "game_sse_full_queues"),
         "catalogued_variants": _number(state, "catalogued_variants"),
         "pyffish_variants": _number(state, "pyffish_variants"),
         "catalogued_payload_bytes": _number(state, "catalogued_payload_bytes"),
@@ -195,7 +203,10 @@ def _format_summary(sample: int, summary: Mapping[str, int | float]) -> str:
         f"rss={summary['rss_mib']:.2f} MiB swap={summary['swap_mib']:.2f} MiB "
         f"users={summary['users']} cache_only={summary['registered_cache_only']} "
         f"ratings={summary['user_perf_entries']}+{summary['user_puzzle_perf_entries']} "
-        f"games={summary['games']} tasks={summary['tasks']} streams={summary['streams']}"
+        f"games={summary['games']} tasks={summary['tasks']} streams={summary['streams']} "
+        f"game_sse={summary['game_sse']} "
+        f"sse_backlog={summary['game_sse_queued_messages']} "
+        f"sse_max={summary['game_sse_max_queue']}"
     )
 
 

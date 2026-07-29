@@ -76,6 +76,8 @@ class QueueInfo(TypedDict):
     id: int
     name: str
     size: int
+    maxsize: int
+    full: bool
     file: str
     source: str
 
@@ -276,12 +278,20 @@ def _stream_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
     active_bot_game_streams = sum(
         len(user.active_game_streams) for user in app_state.users.values() if user.bot
     )
+    game_sse_queued_messages = sum(queue.qsize() for queue in app_state.game_channels)
+    game_sse_max_queue = max(
+        (queue.qsize() for queue in app_state.game_channels),
+        default=0,
+    )
     return {
         "lobby_websockets": lobby_ws,
         "game_websockets": game_ws,
         "tournament_websockets": tournament_ws,
         "simul_websockets": simul_ws,
         "game_sse": len(app_state.game_channels),
+        "game_sse_queued_messages": game_sse_queued_messages,
+        "game_sse_max_queue": game_sse_max_queue,
+        "game_sse_full_queues": sum(queue.full() for queue in app_state.game_channels),
         "invite_sse": invite_sse,
         "invite_sse_groups": len(app_state.invite_channels),
         "notify_sse": notify_sse,
@@ -479,8 +489,10 @@ def memory_stats(
                 queues.append(
                     {
                         "id": id(obj),
-                        "name": str(obj),
+                        "name": type(obj).__name__,
                         "size": obj.qsize(),
+                        "maxsize": obj.maxsize,
+                        "full": obj.full(),
                         "file": "-",
                         "source": "-",
                     }
