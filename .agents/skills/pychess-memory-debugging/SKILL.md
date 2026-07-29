@@ -7,6 +7,8 @@ description: Diagnose and remedy pychess-variants server memory growth, retained
 
 Investigate memory growth without making gameplay latency worse. Separate bounded caches, traffic-correlated retention, native allocations, and genuine leaks before changing lifecycle code.
 
+Read [docs/heroku-memory.md](../../../docs/heroku-memory.md) when reviewing lifecycle code, interpreting a production recording, or preparing a post-deploy memory check. It records the project-specific ownership rules and the failures that motivated them.
+
 ## Protect Production
 
 - Inspect `monitor.sh` without printing its contents. It contains credentials and is ignored by the root `/*.sh` rule; never stage it.
@@ -14,7 +16,8 @@ Investigate memory growth without making gameplay latency worse. Separate bounde
 - Use `./monitor.sh record` only after the deployed server supports `GET /metrics?summary=True`.
 - Keep production intervals at least 60 seconds. Prefer the recorder defaults: seven samples, ten minutes apart, private mode-0600 JSONL under `/tmp`.
 - Do not periodically call the full `/metrics` endpoint. It performs garbage collection and heap/object inspection and has taken 1.3–1.6 seconds on production.
-- Use an isolated, infrequent full snapshot only when its object detail is necessary and traffic permits it.
+- Use at most one isolated full snapshot when object detail is necessary and traffic permits it. Treat it as a memory-perturbing, potentially sensitive diagnostic.
+- Never render a queue with `str()` or `repr()` in metrics: `asyncio.Queue` representations include pending payloads. Report only its type, identity, `qsize`, `maxsize`, and `full` state.
 - Never expose the monitor token in commands, logs, diffs, commits, or responses.
 
 ## Establish the Signal
@@ -38,6 +41,7 @@ Investigate memory growth without making gameplay latency worse. Separate bounde
 - `tracemalloc` materially inflates memory measurements. Use it for allocation provenance, then repeat RSS probes without it for per-object cost.
 - pyffish registrations allocate native memory that Python heap walks cannot see. Compare `pyffish_variants` with RSS/swap and reproduce registration growth locally.
 - Catalogued SVG/INI payload bytes measure stored text but not every derived cache or native representation. Check the catalogued Betza, board, rules, and client payload caches separately.
+- Test cache-capacity hypotheses locally. Measure the RSS cost at realistic and maximum entry counts, then compare that upper bound with the production slope before tightening a useful cache.
 - Stable Python object counts with rising RSS+swap suggest native allocation, allocator fragmentation, or an unmeasured cache—not proof of a Python leak.
 - Peak RSS never decreases and is diagnostic history, not current quota use.
 
@@ -60,12 +64,15 @@ Use one central sweep rather than one sleeping task per registered user. Track c
 
 ## Diagnose Tasks and Streams
 
-- Check both container membership and task completion/cancellation callbacks.
-- Look for tasks retaining a game/user through closures after removal.
-- Verify websocket/SSE `finally` paths discard queues and socket sets during disconnect races.
-- When removing games or tournaments, cancel clocks/work and clear reverse references before deleting the top-level cache entry.
+- Treat every task, socket, stream, queue, and cache entry as owned state with one terminal cleanup path. Python GC cannot reclaim an object that remains reachable from any global container or live coroutine frame.
+- Retain background tasks in an owner registry, remove them in done callbacks, inspect their exceptions, and cancel plus await them when the owner is evicted or the server shuts down. Check callbacks and closures for captured game/user/tournament objects.
+- Verify websocket/SSE `finally` paths discard both sides of every relationship during disconnect races. Cleanup must be idempotent.
+- Bound event queues or document why reconnect semantics require an unbounded semantic queue. Use nonblocking producers; coalesce replaceable snapshots; define overflow behavior for events; time out the actual network send; and drain or shut down terminal queues.
+- Do not let keepalive producers grow their own queue. Coalesce pings to at most one pending item.
+- When removing games or tournaments, cancel and await clocks/work, clear task references, queues, sockets, spectators, and reverse indexes, then delete the top-level cache entry.
+- Keep paired indexes consistent. For example, fishnet work dictionaries and priority-queue IDs must be removed or compacted together.
 - Prefer reverse indexes over scanning the entire heap or every game during routine cleanup.
 
 ## Validate a Remedy
 
-Use the `pychess-testing` skill for code changes. Add focused tests that prove lifecycle boundaries and race safety, then run Python formatting, Ruff, Pyright, and targeted tests. Do not claim the production slope is fixed until a post-deploy recording spans a representative traffic window and shows bounded counts and RSS+swap.
+Use the `pychess-testing` skill for code changes. Add focused tests that prove lifecycle boundaries and race safety, then run Python formatting, Ruff, Pyright, and targeted tests. Do not claim the production slope is fixed until a post-deploy recording spans a representative traffic window and shows bounded counts and RSS+swap. Queue backlog remaining bounded—ideally zero—even while stream and task counts change is stronger evidence than a single memory reading.
