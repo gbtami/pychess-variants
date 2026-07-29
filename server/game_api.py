@@ -20,8 +20,7 @@ from const import (
     INVALIDMOVE,
     MATE,
     ONGOING_GAME_QUEUE_MAXSIZE,
-    SSE_GET_TIMEOUT,
-    SSE_SEND_TIMEOUT,
+    SSE_SNAPSHOT_QUEUE_MAXSIZE,
     STARTED,
     SWISS,
     VARIANTEND,
@@ -32,6 +31,7 @@ from preferences import effective_game_category
 from pychess_global_app_state_utils import get_app_state
 from pymongo.errors import BulkWriteError, ExecutionTimeout
 from settings import ADMINS
+from sse_utils import consume_sse_queue
 from tournament.tournaments import get_tournament_name, load_tournament
 from utils import pgn
 from variants import C2V, GRANDS, VARIANTS, get_server_variant
@@ -559,7 +559,7 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
     if TYPE_CHECKING:
         assert gameId is not None
 
-    queue: asyncio.Queue[str] = asyncio.Queue()
+    queue: asyncio.Queue[str] = asyncio.Queue(maxsize=SSE_SNAPSHOT_QUEUE_MAXSIZE)
     if gameId not in app_state.invite_channels:
         app_state.invite_channels[gameId] = set()
     app_state.invite_channels[gameId].add(queue)
@@ -572,14 +572,7 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
     response: web.StreamResponse = web.Response(status=200)
     try:
         async with sse_response(request) as response:
-            while response.is_connected():
-                try:
-                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
-                    await response.send(payload)
-                    queue.task_done()
-                except TimeoutError:
-                    if not response.is_connected():
-                        break
+            await consume_sse_queue(response, queue)
     except Exception:
         pass
     finally:
@@ -588,6 +581,7 @@ async def subscribe_invites(request: web.Request) -> web.StreamResponse:
             channels.discard(queue)
             if len(channels) == 0:
                 app_state.invite_channels.pop(gameId, None)
+        queue.shutdown(immediate=True)
     return response
 
 
@@ -598,22 +592,7 @@ async def subscribe_games(request: web.Request) -> web.StreamResponse:
     response: web.StreamResponse = web.Response(status=200)
     try:
         async with sse_response(request) as response:
-            while response.is_connected():
-                try:
-                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
-                except TimeoutError:
-                    if not response.is_connected():
-                        break
-                    continue
-                except asyncio.QueueShutDown:
-                    break
-
-                try:
-                    await asyncio.wait_for(response.send(payload), timeout=SSE_SEND_TIMEOUT)
-                except TimeoutError:
-                    break
-                finally:
-                    queue.task_done()
+            await consume_sse_queue(response, queue)
     except Exception:
         pass
     finally:

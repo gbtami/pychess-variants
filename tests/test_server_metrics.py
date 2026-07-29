@@ -78,6 +78,12 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
         self.assertEqual(streams["game_sse_queued_messages"], 2)
         self.assertEqual(streams["game_sse_max_queue"], 2)
         self.assertEqual(streams["game_sse_full_queues"], 1)
+        self.assertEqual(streams["sse_queued_messages"], 2)
+        self.assertEqual(streams["sse_max_queue"], 2)
+        self.assertEqual(streams["sse_full_queues"], 1)
+        self.assertGreaterEqual(streams["bot_event_queued_messages"], 0)
+        self.assertGreaterEqual(streams["bot_game_queued_messages"], 0)
+        self.assertGreaterEqual(streams["bot_max_queue"], 0)
 
     async def test_full_queue_diagnostics_do_not_serialize_payloads(self):
         queue = asyncio.Queue[str](maxsize=4)
@@ -230,6 +236,16 @@ class ServerMetricsDiagnosticsTestCase(AioHTTPTestCase):
             "inbox_sse",
             "challenge_sse",
             "active_bot_game_streams",
+            "sse_queued_messages",
+            "sse_max_queue",
+            "sse_full_queues",
+            "invite_sse_queued_messages",
+            "notify_sse_queued_messages",
+            "inbox_sse_queued_messages",
+            "challenge_sse_queued_messages",
+            "bot_event_queued_messages",
+            "bot_game_queued_messages",
+            "bot_max_queue",
         ):
             self.assertIn(key, streams)
 

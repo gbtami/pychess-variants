@@ -7,18 +7,19 @@ from datetime import UTC, datetime
 import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
+from const import SSE_EVENT_QUEUE_MAXSIZE
 from json_utils import json_dumps, json_response
 from link_filter import sanitize_user_message
 from newid import new_id
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
+from sse_utils import consume_sse_queue, enqueue_sse_payload, send_sse_payload
 from utils import notification_items_for_user
 
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 MAX_MSG_LEN = 2000
 THREAD_MSG_PAGE_SIZE = 100
 THREAD_LIST_LIMIT = 80
-SSE_GET_TIMEOUT = 30
 
 
 def _thread_id(user1: str, user2: str) -> str:
@@ -84,13 +85,13 @@ async def _push_inbox_state(app_state, username: str, thread_contact: str | None
             }
         )
         for queue in inbox_channels:
-            await queue.put(payload)
+            enqueue_sse_payload(queue, payload)
 
     notify_channels = tuple(user.notify_channels)
     if notify_channels:
         notify_payload = json_dumps(await notification_items_for_user(app_state, user, 0))
         for queue in notify_channels:
-            await queue.put(notify_payload)
+            enqueue_sse_payload(queue, notify_payload, replace_pending=True)
 
 
 async def inbox_unread(request: web.Request) -> web.Response:
@@ -363,24 +364,21 @@ async def subscribe_inbox(request: web.Request) -> web.StreamResponse:
         return json_response({})
 
     user = await app_state.users.get(username)
-    queue: asyncio.Queue[str] = asyncio.Queue()
+    queue: asyncio.Queue[str] = asyncio.Queue(maxsize=SSE_EVENT_QUEUE_MAXSIZE)
     user.inbox_channels.add(queue)
     response: web.StreamResponse = web.Response(status=200)
 
     try:
         async with sse_response(request) as response:
-            await response.send(json_dumps({"unread": await _unread_count(app_state, username)}))
-            while response.is_connected():
-                try:
-                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
-                    await response.send(payload)
-                    queue.task_done()
-                except TimeoutError:
-                    if not response.is_connected():
-                        break
+            await send_sse_payload(
+                response,
+                json_dumps({"unread": await _unread_count(app_state, username)}),
+            )
+            await consume_sse_queue(response, queue)
     except Exception:
         pass
     finally:
         user.inbox_channels.discard(queue)
+        queue.shutdown(immediate=True)
 
     return response

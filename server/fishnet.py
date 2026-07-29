@@ -390,6 +390,34 @@ def _should_save_analysis_pv(
     return drop >= 0.1
 
 
+def _compact_fishnet_queue(app_state: PychessGlobalAppState) -> int:
+    """Drop stale and duplicate queue IDs while preserving genuinely queued work."""
+    retained_ids: set[str] = set()
+    retained: list[tuple[int, str]] = []
+    drained = 0
+
+    while True:
+        try:
+            priority, work_id = app_state.fishnet_queue.get_nowait()
+        except asyncio.QueueEmpty:
+            break
+        drained += 1
+        try:
+            app_state.fishnet_queue.task_done()
+        except ValueError:
+            log.error("Fishnet queue accounting was already unbalanced during compaction")
+
+        work = app_state.fishnet_works.get(work_id)
+        if work is not None and work_id not in retained_ids:
+            retained_ids.add(work_id)
+            retained.append((priority, work_id))
+
+    for item in retained:
+        app_state.fishnet_queue.put_nowait(item)
+
+    return drained - len(retained)
+
+
 def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | None = None) -> int:
     if now is None:
         now = monotonic()
@@ -402,6 +430,7 @@ def drop_stale_analysis_work(app_state: PychessGlobalAppState, *, now: float | N
     ]
     for work_id in stale_ids:
         del app_state.fishnet_works[work_id]
+    _compact_fishnet_queue(app_state)
     return len(stale_ids)
 
 
@@ -412,27 +441,9 @@ def drop_fishnet_work_for_game(app_state: PychessGlobalAppState, game_id: str) -
         for work_id, work in tuple(app_state.fishnet_works.items())
         if work.get("game_id") == game_id
     }
-    if not work_ids:
-        return 0
-
     for work_id in work_ids:
         app_state.fishnet_works.pop(work_id, None)
-
-    retained: list[tuple[int, str]] = []
-    while True:
-        try:
-            item = app_state.fishnet_queue.get_nowait()
-        except asyncio.QueueEmpty:
-            break
-        try:
-            app_state.fishnet_queue.task_done()
-        except ValueError:
-            log.error("Fishnet queue accounting was already unbalanced during game cleanup")
-        if item[1] not in work_ids and item[1] in app_state.fishnet_works:
-            retained.append(item)
-
-    for item in retained:
-        app_state.fishnet_queue.put_nowait(item)
+    _compact_fishnet_queue(app_state)
     return len(work_ids)
 
 

@@ -1,7 +1,9 @@
 import asyncio
+from types import SimpleNamespace
 from typing import Any, cast
 from unittest.mock import patch
 
+import bot_api
 from aiohttp.test_utils import AioHTTPTestCase
 from bot_accounts import create_bot_token
 from game import Game
@@ -196,6 +198,30 @@ class BotApiSecurityTestCase(AioHTTPTestCase):
 
         self.assertFalse(bot.online)
         response.close()
+
+    async def test_bot_stream_write_times_out(self):
+        async def blocked_write(_payload):
+            await asyncio.Event().wait()
+
+        response = SimpleNamespace(write=blocked_write)
+        with (
+            patch("bot_api.BOT_STREAM_WRITE_TIMEOUT_SECONDS", 0.01),
+            self.assertRaises(TimeoutError),
+        ):
+            await bot_api._write_bot_stream_payload(response, "payload")
+
+    async def test_bot_ping_is_coalesced_behind_pending_payload(self):
+        queue = asyncio.Queue[str]()
+        queue.put_nowait("semantic-event")
+
+        self.assertFalse(bot_api._enqueue_bot_ping_if_idle(queue))
+        self.assertEqual(queue.qsize(), 1)
+
+        self.assertEqual(queue.get_nowait(), "semantic-event")
+        queue.task_done()
+        self.assertTrue(bot_api._enqueue_bot_ping_if_idle(queue))
+        self.assertFalse(bot_api._enqueue_bot_ping_if_idle(queue))
+        self.assertEqual(queue.qsize(), 1)
 
     async def test_bot_game_endpoints_require_authenticated_bot_to_be_player(self):
         app_state = get_app_state(self.app)

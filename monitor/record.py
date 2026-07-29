@@ -48,6 +48,12 @@ SUMMARY_KEYS = (
     "game_sse_queued_messages",
     "game_sse_max_queue",
     "game_sse_full_queues",
+    "sse_queued_messages",
+    "sse_max_queue",
+    "sse_full_queues",
+    "bot_event_queued_messages",
+    "bot_game_queued_messages",
+    "bot_max_queue",
     "catalogued_variants",
     "pyffish_variants",
     "catalogued_payload_bytes",
@@ -155,6 +161,12 @@ def summarize_metrics(metrics: Mapping[str, Any]) -> dict[str, int | float]:
         "game_sse_queued_messages": _number(streams, "game_sse_queued_messages"),
         "game_sse_max_queue": _number(streams, "game_sse_max_queue"),
         "game_sse_full_queues": _number(streams, "game_sse_full_queues"),
+        "sse_queued_messages": _number(streams, "sse_queued_messages"),
+        "sse_max_queue": _number(streams, "sse_max_queue"),
+        "sse_full_queues": _number(streams, "sse_full_queues"),
+        "bot_event_queued_messages": _number(streams, "bot_event_queued_messages"),
+        "bot_game_queued_messages": _number(streams, "bot_game_queued_messages"),
+        "bot_max_queue": _number(streams, "bot_max_queue"),
         "catalogued_variants": _number(state, "catalogued_variants"),
         "pyffish_variants": _number(state, "pyffish_variants"),
         "catalogued_payload_bytes": _number(state, "catalogued_payload_bytes"),
@@ -205,8 +217,9 @@ def _format_summary(sample: int, summary: Mapping[str, int | float]) -> str:
         f"ratings={summary['user_perf_entries']}+{summary['user_puzzle_perf_entries']} "
         f"games={summary['games']} tasks={summary['tasks']} streams={summary['streams']} "
         f"game_sse={summary['game_sse']} "
-        f"sse_backlog={summary['game_sse_queued_messages']} "
-        f"sse_max={summary['game_sse_max_queue']}"
+        f"sse_backlog={summary['sse_queued_messages']} "
+        f"sse_max={summary['sse_max_queue']} "
+        f"bot_backlog={summary['bot_event_queued_messages'] + summary['bot_game_queued_messages']}"
     )
 
 

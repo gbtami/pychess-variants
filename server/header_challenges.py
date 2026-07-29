@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, TypedDict, cast
 import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
-from const import SSE_GET_TIMEOUT
+from const import SSE_SNAPSHOT_QUEUE_MAXSIZE
 from json_utils import json_dumps, json_response
 from misc import time_control_str
 from pychess_global_app_state_utils import get_app_state
@@ -19,6 +19,7 @@ from seek import (
     DIRECT_CHALLENGE_OFFLINE,
     resolve_decline_reason,
 )
+from sse_utils import consume_sse_queue, enqueue_sse_payload, send_sse_payload
 from utils import join_seek, remove_seek
 
 if TYPE_CHECKING:
@@ -222,10 +223,7 @@ async def push_challenge_state(
     user = await app_state.users.get(username)
     payload = json_dumps(challenge_envelope(app_state, username, game_id))
     for queue in tuple(user.challenge_channels):
-        try:
-            await queue.put(payload)
-        except ConnectionResetError:
-            continue
+        enqueue_sse_payload(queue, payload, replace_pending=True)
 
 
 async def broadcast_challenge_state(
@@ -258,26 +256,23 @@ async def subscribe_challenges(request: web.Request) -> web.StreamResponse:
 
     user = await app_state.users.get(session_user)
     cancel_direct_challenge_offline(user)
-    queue: asyncio.Queue[str] = asyncio.Queue()
+    queue: asyncio.Queue[str] = asyncio.Queue(maxsize=SSE_SNAPSHOT_QUEUE_MAXSIZE)
     user.challenge_channels.add(queue)
     user.update_online()
     await reactivate_direct_challenges(app_state, session_user)
     response: web.StreamResponse = web.Response(status=200)
     try:
         async with sse_response(request) as response:
-            await response.send(json_dumps(challenge_envelope(app_state, session_user)))
-            while response.is_connected():
-                try:
-                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
-                    await response.send(payload)
-                    queue.task_done()
-                except TimeoutError:
-                    if not response.is_connected():
-                        break
+            await send_sse_payload(
+                response,
+                json_dumps(challenge_envelope(app_state, session_user)),
+            )
+            await consume_sse_queue(response, queue)
     except Exception:
         pass
     finally:
         user.challenge_channels.discard(queue)
+        queue.shutdown(immediate=True)
         user.update_online()
         if not user.online:
             schedule_direct_challenge_offline(app_state, session_user)

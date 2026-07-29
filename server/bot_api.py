@@ -20,6 +20,7 @@ from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data, read_text_data
 from seek import BOT_CHALLENGE_DECLINED, resolve_decline_reason
 from settings import BOT_TOKENS
+from sse_utils import enqueue_sse_payload
 from typing_defs import UserDocument
 from user import User
 from utils import load_game, new_game, play_move, send_bot_game_start_unless_streaming
@@ -28,6 +29,8 @@ log = logging.getLogger(__name__)
 Handler: TypeAlias = Callable[[web.Request], Awaitable[web.StreamResponse]]
 BOT_EVENT_STREAM_KEEPALIVE_SECONDS = 6
 BOT_API_ONLINE_TTL_SECONDS = 10
+BOT_STREAM_WRITE_TIMEOUT_SECONDS = 10
+BOT_STREAM_PING = '{"type":"ping"}\n'
 
 if TYPE_CHECKING:
     from seek import Seek
@@ -66,6 +69,23 @@ def _refresh_bot_api_online(bot_player: User) -> None:
     bot_player.bot_online_expire_task = bot_player.create_background_task(
         expire_online(),
         name="bot-api-online-expire-%s" % bot_player.username,
+    )
+
+
+def _enqueue_bot_ping_if_idle(queue: asyncio.Queue[str]) -> bool:
+    if not queue.empty():
+        return False
+    try:
+        queue.put_nowait(BOT_STREAM_PING)
+        return True
+    except asyncio.QueueFull, asyncio.QueueShutDown:
+        return False
+
+
+async def _write_bot_stream_payload(response: web.StreamResponse, payload: str) -> None:
+    await asyncio.wait_for(
+        response.write(payload.encode()),
+        timeout=BOT_STREAM_WRITE_TIMEOUT_SECONDS,
     )
 
 
@@ -219,7 +239,11 @@ async def challenge_accept(request: web.Request) -> web.StreamResponse:
             channels = app_state.invite_channels.get(gameId)
             if channels is not None:
                 for queue in channels:
-                    await queue.put(json_dumps({"gameId": gameId, "accept": True}))
+                    enqueue_sse_payload(
+                        queue,
+                        json_dumps({"gameId": gameId, "accept": True}),
+                        replace_pending=True,
+                    )
         except ConnectionResetError:
             log.error("/api/challenge/{%s}/accept ConnectionResetError", gameId)
 
@@ -261,14 +285,16 @@ async def challenge_decline(request: web.Request) -> web.StreamResponse:
         channels = app_state.invite_channels.get(gameId)
         if channels is not None:
             for queue in channels:
-                await queue.put(
+                enqueue_sse_payload(
+                    queue,
                     json_dumps(
                         {
                             "gameId": gameId,
                             "accept": False,
                             "declineReason": decline_reason,
                         }
-                    )
+                    ),
+                    replace_pending=True,
                 )
     except ConnectionResetError:
         log.error("/api/challenge/{%s}/decline ConnectionResetError", gameId)
@@ -315,7 +341,7 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
     async def pinger():
         """To prevent lichess-bot.py sleep by heroku because of no activity."""
         while True:
-            await bot_player.event_queue.put('{"type":"ping"}\n')
+            _enqueue_bot_ping_if_idle(bot_player.event_queue)
             await asyncio.sleep(BOT_EVENT_STREAM_KEEPALIVE_SECONDS)
             _refresh_bot_api_online(bot_player)
 
@@ -324,19 +350,21 @@ async def event_stream(request: web.Request) -> web.StreamResponse:
     # send "challenge" and "gameStart" events from event_queue to the BOT
     while bot_player.online:
         answer: str | None = await bot_player.event_queue.get()
-        if answer is None:
-            bot_player.event_queue.task_done()
-        if TYPE_CHECKING:
-            assert answer is not None
         try:
+            if answer is None:
+                break
             transport = request.transport
             if transport is None or transport.is_closing():
                 break
-            await resp.write(answer.encode())
-            bot_player.event_queue.task_done()
+            await _write_bot_stream_payload(resp, answer)
+        except TimeoutError:
+            log.warning("Writing to BOT %s event_stream timed out", username)
+            break
         except Exception:
             log.error("Writing %s to BOT %s event_stream is broken...", answer, username)
             break
+        finally:
+            bot_player.event_queue.task_done()
 
     try:
         await resp.write_eof()
@@ -381,13 +409,14 @@ async def game_stream(request: web.Request) -> web.StreamResponse:
 
     log.info("+++ %s connected to %s game stream", bot_player.username, gameId)
 
-    await bot_player.game_queues[gameId].put(game.game_full)
+    game_queue = bot_player.game_queues[gameId]
+    await game_queue.put(game.game_full)
 
     async def pinger():
         """To help lichess-bot.py abort games showing no activity."""
         while True:
-            if gameId in bot_player.game_queues:
-                await bot_player.game_queues[gameId].put('{"type":"ping"}\n')
+            if bot_player.game_queues.get(gameId) is game_queue:
+                _enqueue_bot_ping_if_idle(game_queue)
                 await asyncio.sleep(6)
             else:
                 break
@@ -395,20 +424,21 @@ async def game_stream(request: web.Request) -> web.StreamResponse:
     pinger_task = asyncio.create_task(pinger(), name="BOT-game-stream-pinger")
 
     while True:
-        answer: str | None = await bot_player.game_queues[gameId].get()
-        if answer is None:
-            bot_player.game_queues[gameId].task_done()
-        if TYPE_CHECKING:
-            assert answer is not None
+        answer: str | None = await game_queue.get()
         try:
+            if answer is None:
+                break
             if request.transport is not None and request.transport.is_closing():
                 break
-            else:
-                await resp.write(answer.encode())
-                bot_player.game_queues[gameId].task_done()
+            await _write_bot_stream_payload(resp, answer)
+        except TimeoutError:
+            log.warning("Writing to BOT %s game_stream timed out", username)
+            break
         except Exception:
             log.error("Writing %s to BOT %s game_stream failed!", answer, username)
             break
+        finally:
+            game_queue.task_done()
 
     try:
         await resp.write_eof()

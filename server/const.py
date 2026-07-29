@@ -71,6 +71,11 @@ MAX_NAMED_SPECTATORS = 20
 SSE_GET_TIMEOUT = 10
 SSE_SEND_TIMEOUT = 10
 
+# State snapshots supersede older snapshots. Event queues allow a short burst
+# before disconnecting a subscriber that cannot keep up.
+SSE_SNAPSHOT_QUEUE_MAXSIZE = 1
+SSE_EVENT_QUEUE_MAXSIZE = 32
+
 # A slow /api/ongoing SSE subscriber must not retain an unbounded history of
 # serialized board updates.
 ONGOING_GAME_QUEUE_MAXSIZE = 256

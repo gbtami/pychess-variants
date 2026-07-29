@@ -20,7 +20,7 @@ from const import (
     INVALIDMOVE,
     NOTIFY_PAGE_SIZE,
     RATED,
-    SSE_GET_TIMEOUT,
+    SSE_SNAPSHOT_QUEUE_MAXSIZE,
     STARTED,
     T_STARTED,
     UNKNOWNFINISH,
@@ -82,6 +82,7 @@ from preferences import effective_game_category
 from pychess_global_app_state_utils import get_app_state
 from request_utils import read_post_data
 from settings import URI
+from sse_utils import consume_sse_queue
 from variants import C2V, GRANDS, TWO_BOARD_VARIANT_CODES, get_server_variant, is_catalogued_variant
 
 log = logging.getLogger(__name__)
@@ -1691,23 +1692,17 @@ async def subscribe_notify(request):
         return json_response({})
 
     user = await app_state.users.get(session_user)
-    queue = asyncio.Queue()
+    queue: asyncio.Queue[str] = asyncio.Queue(maxsize=SSE_SNAPSHOT_QUEUE_MAXSIZE)
     user.notify_channels.add(queue)
     response: web.StreamResponse = web.Response(status=200)
     try:
         async with sse_response(request) as response:
-            while response.is_connected():
-                try:
-                    payload = await asyncio.wait_for(queue.get(), timeout=SSE_GET_TIMEOUT)
-                    await response.send(payload)
-                    queue.task_done()
-                except TimeoutError:
-                    if not response.is_connected():
-                        break
+            await consume_sse_queue(response, queue)
     except Exception:
         pass
     finally:
         user.notify_channels.discard(queue)
+        queue.shutdown(immediate=True)
     return response
 
 

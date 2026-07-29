@@ -271,16 +271,34 @@ def _stream_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
     simul_ws = sum(
         len(ws_set) for user in app_state.users.values() for ws_set in user.simul_sockets.values()
     )
-    notify_sse = sum(len(user.notify_channels) for user in app_state.users.values())
-    inbox_sse = sum(len(user.inbox_channels) for user in app_state.users.values())
-    challenge_sse = sum(len(user.challenge_channels) for user in app_state.users.values())
-    invite_sse = sum(len(channels) for channels in app_state.invite_channels.values())
+    notify_queues = tuple(
+        queue for user in app_state.users.values() for queue in user.notify_channels
+    )
+    inbox_queues = tuple(
+        queue for user in app_state.users.values() for queue in user.inbox_channels
+    )
+    challenge_queues = tuple(
+        queue for user in app_state.users.values() for queue in user.challenge_channels
+    )
+    invite_queues = tuple(
+        queue for channels in app_state.invite_channels.values() for queue in channels
+    )
+    game_queues = tuple(app_state.game_channels)
+    all_sse_queues = game_queues + invite_queues + notify_queues + inbox_queues + challenge_queues
+    bot_event_queues = tuple(user.event_queue for user in app_state.users.values() if user.bot)
+    bot_game_queues = tuple(
+        queue
+        for user in app_state.users.values()
+        if user.bot
+        for queue in user.game_queues.values()
+    )
+    all_bot_queues = bot_event_queues + bot_game_queues
     active_bot_game_streams = sum(
         len(user.active_game_streams) for user in app_state.users.values() if user.bot
     )
-    game_sse_queued_messages = sum(queue.qsize() for queue in app_state.game_channels)
+    game_sse_queued_messages = sum(queue.qsize() for queue in game_queues)
     game_sse_max_queue = max(
-        (queue.qsize() for queue in app_state.game_channels),
+        (queue.qsize() for queue in game_queues),
         default=0,
     )
     return {
@@ -288,16 +306,26 @@ def _stream_summary(app_state: PychessGlobalAppState) -> dict[str, int]:
         "game_websockets": game_ws,
         "tournament_websockets": tournament_ws,
         "simul_websockets": simul_ws,
-        "game_sse": len(app_state.game_channels),
+        "game_sse": len(game_queues),
         "game_sse_queued_messages": game_sse_queued_messages,
         "game_sse_max_queue": game_sse_max_queue,
-        "game_sse_full_queues": sum(queue.full() for queue in app_state.game_channels),
-        "invite_sse": invite_sse,
+        "game_sse_full_queues": sum(queue.full() for queue in game_queues),
+        "invite_sse": len(invite_queues),
         "invite_sse_groups": len(app_state.invite_channels),
-        "notify_sse": notify_sse,
-        "inbox_sse": inbox_sse,
-        "challenge_sse": challenge_sse,
+        "notify_sse": len(notify_queues),
+        "inbox_sse": len(inbox_queues),
+        "challenge_sse": len(challenge_queues),
+        "sse_queued_messages": sum(queue.qsize() for queue in all_sse_queues),
+        "sse_max_queue": max((queue.qsize() for queue in all_sse_queues), default=0),
+        "sse_full_queues": sum(queue.full() for queue in all_sse_queues),
+        "invite_sse_queued_messages": sum(queue.qsize() for queue in invite_queues),
+        "notify_sse_queued_messages": sum(queue.qsize() for queue in notify_queues),
+        "inbox_sse_queued_messages": sum(queue.qsize() for queue in inbox_queues),
+        "challenge_sse_queued_messages": sum(queue.qsize() for queue in challenge_queues),
         "active_bot_game_streams": active_bot_game_streams,
+        "bot_event_queued_messages": sum(queue.qsize() for queue in bot_event_queues),
+        "bot_game_queued_messages": sum(queue.qsize() for queue in bot_game_queues),
+        "bot_max_queue": max((queue.qsize() for queue in all_bot_queues), default=0),
     }
 
 

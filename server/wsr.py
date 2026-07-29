@@ -27,6 +27,7 @@ from fairy import BLACK, WHITE, FairyBoard
 from fishnet import (
     drop_stale_analysis_work,
     has_available_fishnet_worker,
+    has_pending_analysis_work_for_game,
 )
 from link_filter import sanitize_user_message
 from newid import new_id
@@ -616,6 +617,18 @@ async def handle_analysis(
     if dropped_stale_work:
         log.warning("Dropped %s stale fishnet analysis work items", dropped_stale_work)
 
+    if has_pending_analysis_work_for_game(app_state, game.id):
+        await ws_send_json(
+            ws,
+            chat_response(
+                "roundchat",
+                "",
+                "Analysis already requested...",
+                room="spectator",
+            ),
+        )
+        return
+
     # If there is any active fishnet client, use it.
     has_fishnet_worker = has_available_fishnet_worker(app_state)
 
@@ -660,6 +673,17 @@ async def handle_analysis(
         engine = app_state.users["Fairy-Stockfish"]
 
         if (engine is not None) and engine.online:
+            if data["gameId"] in engine.game_queues:
+                await ws_send_json(
+                    ws,
+                    chat_response(
+                        "roundchat",
+                        "",
+                        "Analysis already requested...",
+                        room="spectator",
+                    ),
+                )
+                return
             engine.game_queues[data["gameId"]] = asyncio.Queue()
             await engine.event_queue.put(game.analysis_start(data["username"]))
             analysis_requested = True
