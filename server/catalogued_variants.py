@@ -2399,22 +2399,23 @@ def _has_complete_piece_set(doc: Mapping[str, Any]) -> bool:
     return _catalogued_piece_set_mode_for_keys(doc, keys) is not None
 
 
-def _copy_piece_set_if_complete_for_doc(
+def _copy_catalogued_uploaded_assets(
     target_doc: CataloguedVariantDocument, source_doc: Mapping[str, Any]
 ) -> None:
+    """Keep user uploads even when changed metadata makes them temporarily unusable."""
     piece_set = source_doc.get("pieceSet")
-    if not isinstance(piece_set, Mapping):
-        return
+    if isinstance(piece_set, Mapping):
+        target_doc["pieceSet"] = cast(dict[str, CataloguedVariantPieceSetSvg], dict(piece_set))
+        updated_at = source_doc.get("pieceSetUpdatedAt")
+        if isinstance(updated_at, datetime):
+            target_doc["pieceSetUpdatedAt"] = updated_at
 
-    candidate = dict(target_doc)
-    candidate["pieceSet"] = piece_set
-    if not _has_complete_piece_set(candidate):
-        return
-
-    target_doc["pieceSet"] = cast(dict[str, CataloguedVariantPieceSetSvg], dict(piece_set))
-    updated_at = source_doc.get("pieceSetUpdatedAt")
-    if isinstance(updated_at, datetime):
-        target_doc["pieceSetUpdatedAt"] = updated_at
+    board_svg = source_doc.get("boardSvg")
+    if isinstance(board_svg, Mapping) and board_svg.get("svg"):
+        target_doc["boardSvg"] = cast(CataloguedVariantBoardSvg, dict(board_svg))
+        updated_at = source_doc.get("boardSvgUpdatedAt")
+        if isinstance(updated_at, datetime):
+            target_doc["boardSvgUpdatedAt"] = updated_at
 
 
 def _has_board_svg(doc: Mapping[str, Any]) -> bool:
@@ -4405,6 +4406,110 @@ async def _load_owned_doc(request: web.Request) -> tuple[Any, str, str, Mapping[
     return app_state, username, name, doc
 
 
+CATALOGUED_METADATA_OPTIONAL_FIELDS = (
+    "pieceNames",
+    "pieceFamilyOverride",
+    "boardFamilyOverride",
+)
+
+CATALOGUED_CONCURRENTLY_UPDATED_FIELDS = frozenset(
+    {
+        "_id",
+        "createdAt",
+        "gameCount",
+        "pieceSet",
+        "pieceSetUpdatedAt",
+        "boardSvg",
+        "boardSvgUpdatedAt",
+        "aiFailureCount",
+        "aiLastFailureAt",
+        "aiLastFailureReason",
+        "aiDisabledAt",
+        "aiDisabledUntil",
+        "aiDisabledReason",
+    }
+)
+
+
+def _catalogued_same_name_update(
+    doc: Mapping[str, Any], existing: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Build a non-destructive update for user-editable and derived fields."""
+    set_fields = {
+        key: value
+        for key, value in doc.items()
+        if key not in CATALOGUED_CONCURRENTLY_UPDATED_FIELDS
+    }
+    update: dict[str, Any] = {"$set": set_fields}
+    unset_fields = {
+        field: ""
+        for field in CATALOGUED_METADATA_OPTIONAL_FIELDS
+        if field in existing and field not in doc
+    }
+    if unset_fields:
+        update["$unset"] = unset_fields
+    return update
+
+
+async def _update_catalogued_variant_document(
+    collection: Any,
+    *,
+    name: str,
+    existing: Mapping[str, Any],
+    doc: CataloguedVariantDocument,
+) -> Mapping[str, Any]:
+    result = await collection.update_one(
+        {"_id": name},
+        _catalogued_same_name_update(doc, existing),
+    )
+    if result.matched_count != 1:
+        raise web.HTTPNotFound(text="Catalogued variant not found.")
+    updated = await collection.find_one({"_id": name})
+    if updated is None:
+        raise web.HTTPNotFound(text="Catalogued variant not found after update.")
+    return cast(Mapping[str, Any], updated)
+
+
+def _catalogued_rename_source_query(old_name: str, existing: Mapping[str, Any]) -> dict[str, Any]:
+    """Match the source revision so a concurrent upload cannot be discarded."""
+    query: dict[str, Any] = {"_id": old_name}
+    for field in ("updatedAt", "gameCount"):
+        if field in existing:
+            query[field] = existing[field]
+        else:
+            query[field] = {"$exists": False}
+    return query
+
+
+async def _rename_catalogued_variant_document(
+    collection: Any,
+    *,
+    old_name: str,
+    new_name: str,
+    existing: Mapping[str, Any],
+    doc: CataloguedVariantDocument,
+) -> None:
+    try:
+        await collection.insert_one(doc)
+    except DuplicateKeyError as exc:
+        raise web.HTTPConflict(text="A catalogued variant with this name already exists.") from exc
+
+    deleted = await collection.delete_one(_catalogued_rename_source_query(old_name, existing))
+    if deleted.deleted_count == 1:
+        return
+
+    rollback = await collection.delete_one({"_id": new_name})
+    if rollback.deleted_count != 1:
+        log.error(
+            "Failed to roll back stale catalogued variant rename from %s to %s",
+            old_name,
+            new_name,
+        )
+    raise web.HTTPConflict(
+        text="This variant changed while it was being saved. Please review it and try again."
+    )
+
+
 async def update_catalogued_variant(request: web.Request) -> web.Response:
     app_state, username, old_name, existing = await _load_owned_doc(request)
 
@@ -4571,43 +4676,31 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         game_count=int(existing.get("gameCount") or 0),
     )
 
-    if not fsf_rules_changed and new_name == old_name:
-        _copy_piece_set_if_complete_for_doc(doc, existing)
-
-    if not fsf_rules_changed and new_name == old_name and _has_board_svg(existing):
-        doc["boardSvg"] = existing["boardSvg"]
-        if "boardSvgUpdatedAt" in existing:
-            doc["boardSvgUpdatedAt"] = existing["boardSvgUpdatedAt"]
-
-    if not fsf_rules_changed and new_name == old_name:
-        for field in (
-            "aiFailureCount",
-            "aiLastFailureAt",
-            "aiLastFailureReason",
-            "aiDisabledAt",
-            "aiDisabledUntil",
-            "aiDisabledReason",
-        ):
-            if field in existing:
-                doc[field] = existing[field]
+    _copy_catalogued_uploaded_assets(doc, existing)
 
     if new_name != old_name:
-        try:
-            await app_state.db[CATALOGUED_VARIANT_COLLECTION].insert_one(doc)
-        except DuplicateKeyError as exc:
-            raise web.HTTPConflict(
-                text="A catalogued variant with this name already exists."
-            ) from exc
-        await app_state.db[CATALOGUED_VARIANT_COLLECTION].delete_one({"_id": old_name})
+        await _rename_catalogued_variant_document(
+            app_state.db[CATALOGUED_VARIANT_COLLECTION],
+            old_name=old_name,
+            new_name=new_name,
+            existing=existing,
+            doc=doc,
+        )
         unregister_catalogued_server_variant(old_name)
         app_state.catalogued_variants.pop(old_name, None)
+        updated = doc
     else:
-        await app_state.db[CATALOGUED_VARIANT_COLLECTION].replace_one({"_id": new_name}, doc)
+        updated = await _update_catalogued_variant_document(
+            app_state.db[CATALOGUED_VARIANT_COLLECTION],
+            name=new_name,
+            existing=existing,
+            doc=doc,
+        )
 
-    register_catalogued_variant_doc(app_state, doc, load_config=False)
+    register_catalogued_variant_doc(app_state, updated, load_config=False)
     count = await _game_count(app_state, new_name)
     return json_response(
-        {"ok": True, "oldName": old_name, "variant": _client_doc(doc, game_count=count)}
+        {"ok": True, "oldName": old_name, "variant": _client_doc(updated, game_count=count)}
     )
 
 

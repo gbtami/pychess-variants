@@ -14,7 +14,7 @@ from catalogued_variants import (
     _catalogued_piece_set_is_directional,
     _catalogued_piece_set_required_filenames,
     _check_ini_with_pyffish_child,
-    _copy_piece_set_if_complete_for_doc,
+    _copy_catalogued_uploaded_assets,
     _has_complete_piece_set,
     _read_bool_metadata,
     _sanitize_catalogued_board_svg,
@@ -583,7 +583,7 @@ startFen = 8/8/8/8/8/8/8/8
             ),
         )
 
-    def test_existing_piece_set_is_not_preserved_when_metadata_adds_required_svgs(self) -> None:
+    def test_existing_piece_set_is_preserved_when_metadata_adds_required_svgs(self) -> None:
         updated_doc: Any = {
             "_id": "metapromo",
             "name": "metapromo",
@@ -625,11 +625,18 @@ startFen = 8/8/8/8/8/8/8/8
                 "bP": {"svg": "<svg />", "size": 7},
             },
             "pieceSetUpdatedAt": datetime.now(UTC),
+            "boardSvg": {"svg": "<svg />", "size": 7},
+            "boardSvgUpdatedAt": datetime.now(UTC),
         }
 
-        _copy_piece_set_if_complete_for_doc(updated_doc, old_complete_before_metadata)
+        _copy_catalogued_uploaded_assets(updated_doc, old_complete_before_metadata)
 
-        self.assertNotIn("pieceSet", updated_doc)
+        self.assertIn("pieceSet", updated_doc)
+        self.assertFalse(_has_complete_piece_set(updated_doc))
+        self.assertEqual(updated_doc["boardSvg"], old_complete_before_metadata["boardSvg"])
+        self.assertEqual(
+            updated_doc["boardSvgUpdatedAt"], old_complete_before_metadata["boardSvgUpdatedAt"]
+        )
 
     def test_existing_piece_set_is_preserved_when_it_matches_new_metadata_requirements(
         self,
@@ -679,7 +686,8 @@ startFen = 8/8/8/8/8/8/8/8
             "pieceSetUpdatedAt": datetime.now(UTC),
         }
 
-        _copy_piece_set_if_complete_for_doc(updated_doc, matching_piece_set)
+        _copy_catalogued_uploaded_assets(updated_doc, matching_piece_set)
 
         self.assertIn("pieceSet", updated_doc)
         self.assertIn("w+P", updated_doc["pieceSet"])
+        self.assertTrue(_has_complete_piece_set(updated_doc))
