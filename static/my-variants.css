@@ -107,6 +107,24 @@
     grid-column: 1 / -1;
 }
 
+.catalogued-admin-fields {
+    display: grid;
+    gap: 0.75rem 1rem;
+    box-sizing: border-box;
+    min-width: 0;
+    margin: 0;
+    padding: 0.6rem 1rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--blue-hover) 28%, var(--border-color));
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--blue-hover) 8%, var(--bg-box));
+}
+
+.catalogued-admin-fields legend {
+    padding: 0 0.35rem;
+    color: var(--link-hover);
+    font-weight: bold;
+}
+
 .catalogued-form input,
 .catalogued-form textarea {
     box-sizing: border-box;
@@ -291,6 +309,10 @@
 
 @media (min-width: 900px) {
     .catalogued-form-grid {
+        grid-template-columns: minmax(12rem, 1fr) minmax(0, 3fr);
+    }
+
+    .catalogued-admin-fields {
         grid-template-columns: minmax(12rem, 1fr) minmax(0, 3fr);
     }
 
