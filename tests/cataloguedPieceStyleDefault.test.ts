@@ -24,6 +24,7 @@ const variantNames = [
     'testfsfpieceoptioncapa',
     'testfsfthreekingsstandard',
     'testmakrukwall',
+    'testdecimalshogiimagelayer',
 ];
 
 function register(meta: CataloguedVariantClientDocument) {
@@ -84,9 +85,11 @@ test('catalogued wall pieces are marked when both board and piece families are b
 
     boardSettings.updateScopedPieceStyle(variant, wrap);
     expect(board.classList.contains('catalogued-piece-variant')).toBe(true);
+    expect(board.classList.contains('catalogued-missing-piece-fallback')).toBe(true);
 
     boardSettings.updateScopedPieceStyle(VARIANTS.makruk, wrap);
     expect(board.classList.contains('catalogued-piece-variant')).toBe(false);
+    expect(board.classList.contains('catalogued-missing-piece-fallback')).toBe(false);
 });
 
 test('catalogued variants without a compatible built-in piece family default to letters', () => {
@@ -124,6 +127,47 @@ test('catalogued variants with a custom piece set still default to that custom s
     });
 
     expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('custom-r1');
+
+    const board = document.createElement('div');
+    const wrap = document.createElement('div');
+    board.className = `${variant.boardFamily} ${variant.pieceFamily}`;
+    board.appendChild(wrap);
+    document.body.appendChild(board);
+
+    boardSettings.updateScopedPieceStyle(variant, wrap);
+    expect(board.classList.contains('catalogued-piece-variant')).toBe(true);
+    expect(board.classList.contains('catalogued-missing-piece-fallback')).toBe(false);
+
+    board.remove();
+});
+
+test('catalogued variants using an image-layer piece style do not get a base-image fallback', () => {
+    const variant = register({
+        name: 'testdecimalshogiimagelayer',
+        displayName: 'Test Decimal Shogi Image Layer',
+        tooltip: 'Catalogued variant',
+        ini: '[testdecimalshogiimagelayer:shogi]',
+        baseVariant: 'shogi',
+        startFen: '10/10/10/10/10/10/10/10/10/K8k w - - 0 1',
+        width: 10,
+        height: 10,
+        pieces: ['k', 'q', 'r', 'b', 'n', 'p', 'l', 's', 'g'],
+        kingRoles: ['k'],
+        pieceFamilyOverride: 'decimalshogi',
+    });
+    const board = document.createElement('div');
+    const wrap = document.createElement('div');
+    board.className = `${variant.boardFamily} ${variant.pieceFamily}`;
+    board.appendChild(wrap);
+    document.body.appendChild(board);
+
+    expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('shogik');
+
+    boardSettings.updateScopedPieceStyle(variant, wrap);
+    expect(board.classList.contains('catalogued-piece-variant')).toBe(true);
+    expect(board.classList.contains('catalogued-missing-piece-fallback')).toBe(false);
+
+    board.remove();
 });
 
 test('catalogued variants needing custom piece roles default to letters instead of matching by role letter only', () => {

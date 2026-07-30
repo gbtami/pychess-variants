@@ -112,7 +112,17 @@ function setPieceStyleClass(target: HTMLElement, family: string, css: string, va
         if (className.startsWith('piece-style-')) target.classList.remove(className);
     }
     target.classList.add(pieceStyleClass(family, css));
-    target.classList.toggle('catalogued-piece-variant', isCataloguedVariant(variant.name));
+    const catalogued = isCataloguedVariant(variant.name);
+    const imageLayer = PIECE_FAMILIES[family]?.imageLayerCSS?.includes(css) ?? false;
+    target.classList.toggle('catalogued-piece-variant', catalogued);
+    target.classList.toggle(
+        'catalogued-missing-piece-fallback',
+        catalogued &&
+            !family.startsWith('catalogued-') &&
+            !imageLayer &&
+            css !== 'letters' &&
+            css !== 'invisible',
+    );
 }
 
 function setCwdaArmyClasses(target: HTMLElement, initialFen: string): void {

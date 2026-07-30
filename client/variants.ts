@@ -25,6 +25,10 @@ export interface BoardFamily {
 
 export interface PieceFamily {
     readonly pieceCSS: string[];
+    // These styles draw at least one piece on ::before so its artwork can rotate
+    // without changing the piece element's chessground-owned transform. Applying
+    // the missing-piece background to the element would show both images at once.
+    readonly imageLayerCSS?: string[];
 }
 
 export type HiddenInfoMode = 'none' | 'fog' | 'covered_pieces';
@@ -255,11 +259,21 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
             'firi',
             'disguised',
         ],
+        imageLayerCSS: ['shogik', 'shogi', 'cz'],
     },
-    kyoto: { pieceCSS: ['kyoto', 'kyotok', 'kyotoks', 'kyotoi', 'kyotod', 'disguised'] },
+    kyoto: {
+        pieceCSS: ['kyoto', 'kyotok', 'kyotoks', 'kyotoi', 'kyotod', 'disguised'],
+        imageLayerCSS: ['kyoto', 'kyotok', 'kyotoks'],
+    },
     dobutsu: { pieceCSS: ['dobutsu', 'disguised'] },
-    tori: { pieceCSS: ['torii', 'torik', 'torim', 'porti', 'cz', 'disguised'] },
-    cannonshogi: { pieceCSS: ['ctp3d', 'ctim', 'bnw', 'cz', 'czalt', 'firi', 'disguised'] },
+    tori: {
+        pieceCSS: ['torii', 'torik', 'torim', 'porti', 'cz', 'disguised'],
+        imageLayerCSS: ['cz'],
+    },
+    cannonshogi: {
+        pieceCSS: ['ctp3d', 'ctim', 'bnw', 'cz', 'czalt', 'firi', 'disguised'],
+        imageLayerCSS: ['cz', 'czalt'],
+    },
     xiangqi: {
         pieceCSS: [
             'lishu',
@@ -316,7 +330,10 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
     borderlands: { pieceCSS: ['borderlands', 'disguised'] },
     yokai: { pieceCSS: ['yokai', 'disguised'] },
     perfect: { pieceCSS: ['perfect0', 'disguised'] },
-    decimalshogi: { pieceCSS: ['shogik', 'disguised'] },
+    decimalshogi: {
+        pieceCSS: ['shogik', 'disguised'],
+        imageLayerCSS: ['shogik'],
+    },
     cwda: { pieceCSS: ['cwda', 'couchtomato'] },
     letter: { pieceCSS: ['disguised'] },
 };

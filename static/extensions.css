@@ -290,7 +290,7 @@
 }
 /* Visible fallback for roles missing from a user-selected piece family.
    More specific piece-set rules override this for supported roles. */
-.catalogued-piece-variant piece {
+.catalogued-missing-piece-fallback piece {
   background-image: url('images/pieces/invisible.svg');
 }
 /* Walls in user-defined variants. Piece-set CSS is loaded before this file,
