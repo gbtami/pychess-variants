@@ -1045,115 +1045,109 @@ function renderForm(model: PyChessModel): VNode {
                     ),
                     h('span.catalogued-help', visibilityHelp(state.draftVisibility)),
                 ]),
-                model.admin
-                    ? h('fieldset.catalogued-admin-fields.catalogued-field-full', [
-                          h('legend', _('Admin settings')),
-                          h('label.catalogued-field', [
-                              h('span', _('Compatible piece set')),
-                              h(
-                                  'select#catalogued-piece-family-override',
-                                  {
-                                      props: {
-                                          value: state.draftPieceFamilyOverride,
-                                          disabled: state.saving,
-                                      },
-                                      on: {
-                                          change: (event: Event) => {
-                                              state.draftPieceFamilyOverride = (
-                                                  event.target as HTMLSelectElement
-                                              ).value;
-                                              state.formMessage = '';
-                                              state.formMessageTone = 'neutral';
-                                              rerender(model);
-                                          },
-                                      },
-                                  },
-                                  [
-                                      h(
-                                          'option',
-                                          {
-                                              props: {
-                                                  value: '',
-                                                  selected: state.draftPieceFamilyOverride === '',
-                                              },
-                                          },
-                                          _('Auto-detect'),
-                                      ),
-                                      ...sitePieceFamilyOptions().map(family =>
-                                          h(
-                                              'option',
-                                              {
-                                                  props: {
-                                                      value: family,
-                                                      selected: state.draftPieceFamilyOverride === family,
-                                                  },
-                                              },
-                                              pieceFamilyOverrideLabel(family),
-                                          ),
-                                      ),
-                                  ],
-                              ),
-                              h(
-                                  'span.catalogued-help',
-                                  _(
-                                      'Overrides automatic built-in piece-set detection; custom SVG piece sets still take precedence.',
-                                  ),
-                              ),
-                          ]),
-                          h('label.catalogued-field', [
-                              h('span', _('Compatible board style')),
-                              h(
-                                  'select#catalogued-board-family-override',
-                                  {
-                                      props: {
-                                          value: state.draftBoardFamilyOverride,
-                                          disabled: state.saving,
-                                      },
-                                      on: {
-                                          change: (event: Event) => {
-                                              state.draftBoardFamilyOverride = (
-                                                  event.target as HTMLSelectElement
-                                              ).value;
-                                              state.formMessage = '';
-                                              state.formMessageTone = 'neutral';
-                                              rerender(model);
-                                          },
-                                      },
-                                  },
-                                  [
-                                      h(
-                                          'option',
-                                          {
-                                              props: {
-                                                  value: '',
-                                                  selected: state.draftBoardFamilyOverride === '',
-                                              },
-                                          },
-                                          _('Auto-detect'),
-                                      ),
-                                      ...siteBoardFamilyOptions().map(family =>
-                                          h(
-                                              'option',
-                                              {
-                                                  props: {
-                                                      value: family,
-                                                      selected: state.draftBoardFamilyOverride === family,
-                                                  },
-                                              },
-                                              boardFamilyOverrideLabel(family),
-                                          ),
-                                      ),
-                                  ],
-                              ),
-                              h(
-                                  'span.catalogued-help',
-                                  _(
-                                      'Overrides the board inherited from the base variant; an uploaded custom board SVG still takes precedence.',
-                                  ),
-                              ),
-                          ]),
-                      ])
-                    : null,
+                h('fieldset.catalogued-appearance-fields.catalogued-field-full', [
+                    h('legend', _('Advanced appearance')),
+                    h('label.catalogued-field', [
+                        h('span', _('Compatible piece set')),
+                        h(
+                            'select#catalogued-piece-family-override',
+                            {
+                                props: {
+                                    value: state.draftPieceFamilyOverride,
+                                    disabled: state.saving,
+                                },
+                                on: {
+                                    change: (event: Event) => {
+                                        state.draftPieceFamilyOverride = (event.target as HTMLSelectElement).value;
+                                        state.formMessage = '';
+                                        state.formMessageTone = 'neutral';
+                                        rerender(model);
+                                    },
+                                },
+                            },
+                            [
+                                h(
+                                    'option',
+                                    {
+                                        props: {
+                                            value: '',
+                                            selected: state.draftPieceFamilyOverride === '',
+                                        },
+                                    },
+                                    _('Auto-detect'),
+                                ),
+                                ...sitePieceFamilyOptions().map(family =>
+                                    h(
+                                        'option',
+                                        {
+                                            props: {
+                                                value: family,
+                                                selected: state.draftPieceFamilyOverride === family,
+                                            },
+                                        },
+                                        pieceFamilyOverrideLabel(family),
+                                    ),
+                                ),
+                            ],
+                        ),
+                        h(
+                            'span.catalogued-help',
+                            _(
+                                'Overrides automatic built-in piece-set detection; custom SVG piece sets still take precedence.',
+                            ),
+                        ),
+                    ]),
+                    h('label.catalogued-field', [
+                        h('span', _('Compatible board style')),
+                        h(
+                            'select#catalogued-board-family-override',
+                            {
+                                props: {
+                                    value: state.draftBoardFamilyOverride,
+                                    disabled: state.saving,
+                                },
+                                on: {
+                                    change: (event: Event) => {
+                                        state.draftBoardFamilyOverride = (event.target as HTMLSelectElement).value;
+                                        state.formMessage = '';
+                                        state.formMessageTone = 'neutral';
+                                        rerender(model);
+                                    },
+                                },
+                            },
+                            [
+                                h(
+                                    'option',
+                                    {
+                                        props: {
+                                            value: '',
+                                            selected: state.draftBoardFamilyOverride === '',
+                                        },
+                                    },
+                                    _('Auto-detect'),
+                                ),
+                                ...siteBoardFamilyOptions().map(family =>
+                                    h(
+                                        'option',
+                                        {
+                                            props: {
+                                                value: family,
+                                                selected: state.draftBoardFamilyOverride === family,
+                                            },
+                                        },
+                                        boardFamilyOverrideLabel(family),
+                                    ),
+                                ),
+                            ],
+                        ),
+                        h(
+                            'span.catalogued-help',
+                            _(
+                                'Overrides the board inherited from the base variant; an uploaded custom board SVG still takes precedence.',
+                            ),
+                        ),
+                    ]),
+                ]),
                 h('label.catalogued-field.catalogued-field-full', [
                     h('span', _('Variant definition')),
                     h('textarea#catalogued-ini', {

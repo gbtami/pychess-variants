@@ -4048,8 +4048,8 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
         created_at=now,
         piece_set_directional=bool(piece_set_directional),
         visibility=visibility,
-        piece_family_override=piece_family_override if _is_admin_username(username) else "",
-        board_family_override=board_family_override if _is_admin_username(username) else "",
+        piece_family_override=piece_family_override,
+        board_family_override=board_family_override,
     )
 
     try:
@@ -4526,16 +4526,6 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
     ini = ini.strip()
     if piece_set_directional is None:
         piece_set_directional = bool(existing.get("pieceSetDirectional", False))
-    piece_family_override = (
-        piece_family_override
-        if _is_admin_username(username)
-        else _catalogued_piece_family_override(existing)
-    )
-    board_family_override = (
-        board_family_override
-        if _is_admin_username(username)
-        else _catalogued_board_family_override(existing)
-    )
     if _is_fsf_builtin_catalogued_doc(existing):
         now = datetime.now(UTC)
         update: dict[str, Any] = {
