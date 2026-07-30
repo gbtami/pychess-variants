@@ -899,8 +899,27 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
 
     username = work["username"]
 
-    length = len(data["analysis"])
-    for j, analysis in enumerate(reversed(data["analysis"])):
+    analysis_rows = data["analysis"]
+    step_count = len(game.steps)
+    known_zero_ply_worker_shape = (
+        not work.get("moves") and step_count == 1 and len(analysis_rows) == 2
+    )
+    if len(analysis_rows) != step_count and not known_zero_ply_worker_shape:
+        log.warning(
+            "Fishnet analysis length mismatch for work %s game %s: received=%s steps=%s",
+            work_id,
+            gameId,
+            len(analysis_rows),
+            step_count,
+        )
+
+    # fairyfishnet 1.16.69 treats an empty move string as one empty move and
+    # consequently returns two rows for a zero-ply game. Bound the response to
+    # the server's reconstructed steps so that current deployed workers remain
+    # compatible and malformed/stale responses cannot index past game.steps.
+    analysis_rows = analysis_rows[:step_count]
+    length = len(analysis_rows)
+    for j, analysis in enumerate(reversed(analysis_rows)):
         i = length - j - 1
         if analysis is None:
             continue
@@ -923,7 +942,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
         else:
             step_analysis = existing
 
-        prev = data["analysis"][i - 1] if i > 0 else None
+        prev = analysis_rows[i - 1] if i > 0 else None
         turn_color = game.steps[i].get("turnColor")
 
         added_pv = False
@@ -949,7 +968,7 @@ async def fishnet_analysis(request: web.Request) -> web.Response:
         await app_state.users[username].send_game_message(gameId, response)
 
     # remove completed work
-    if all(data["analysis"]):
+    if len(analysis_rows) == step_count and all(analysis_rows):
         del app_state.fishnet_works[work_id]
         await clear_catalogued_variant_ai_failures(app_state, str(work.get("variant") or ""))
         new_data = {"a": [step["analysis"] for step in game.steps]}

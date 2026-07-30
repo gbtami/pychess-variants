@@ -788,6 +788,45 @@ class FishnetAnalysisPvRegressionTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("work1", app_state.fishnet_works)
         app_state.db.game.find_one_and_update.assert_awaited_once()
 
+    async def test_extra_worker_row_is_ignored_for_zero_ply_game(self) -> None:
+        """fairyfishnet 1.16.69 splits an empty moves string into one empty
+        item, returning two rows for a game whose only step is its start
+        position. The extra row must not index past game.steps.
+        """
+        game = SimpleNamespace(id="g1", steps=[{"turnColor": "white"}])
+        app_state = self._make_app_state(game)
+        initial_position = {"score": self._score(15), "pv": "e2e4", "depth": 20}
+        duplicate_extra_row = {"score": self._score(15), "pv": "e2e4", "depth": 20}
+
+        response = await self._call(
+            app_state,
+            game,
+            [initial_position, duplicate_extra_row],
+        )
+
+        self.assertEqual(response.status, 204)
+        self.assertEqual(game.steps[0]["analysis"], {"s": {"cp": 15}, "d": 20})
+        self.assertEqual(app_state.users["botuser"].send_game_message.await_count, 1)
+        self.assertNotIn("work1", app_state.fishnet_works)
+        app_state.db.game.find_one_and_update.assert_awaited_once_with(
+            {"_id": "g1"},
+            {"$set": {"a": [{"s": {"cp": 15}, "d": 20}]}},
+        )
+
+    async def test_short_worker_response_remains_pending(self) -> None:
+        game = SimpleNamespace(
+            id="g1",
+            steps=[{"turnColor": "white"}, {"turnColor": "black"}],
+        )
+        app_state = self._make_app_state(game)
+        initial_position = {"score": self._score(15), "pv": "e2e4", "depth": 20}
+
+        response = await self._call(app_state, game, [initial_position])
+
+        self.assertEqual(response.status, 204)
+        self.assertIn("work1", app_state.fishnet_works)
+        app_state.db.game.find_one_and_update.assert_not_awaited()
+
 
 class FishnetVariantsEndpointTestCase(unittest.IsolatedAsyncioTestCase):
     def test_variants_payload_cache_has_byte_budget(self):
