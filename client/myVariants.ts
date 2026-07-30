@@ -979,7 +979,7 @@ function renderForm(model: PyChessModel): VNode {
                     ),
                 ]),
                 h('label.catalogued-field.catalogued-field-half.catalogued-checkbox-field', [
-                    h('label.catalogued-checkbox-row', [
+                    h('span.catalogued-checkbox-row', [
                         h('span', _('Directional custom pieces')),
                         h('input#catalogued-piece-set-directional', {
                             props: {
@@ -1005,6 +1005,45 @@ function renderForm(model: PyChessModel): VNode {
                             'Enable for standalone variants whose piece direction shows ownership. One complete white or black SVG set can then serve both players. Shogi-derived variants are detected automatically.',
                         ),
                     ),
+                ]),
+                h('label.catalogued-field.catalogued-field-half', [
+                    h('span', _('Visibility')),
+                    h(
+                        'select#catalogued-visibility',
+                        {
+                            props: {
+                                value: state.draftVisibility,
+                                disabled: state.saving,
+                            },
+                            on: {
+                                change: (event: Event) => {
+                                    state.draftVisibility = (event.target as HTMLSelectElement)
+                                        .value as VariantVisibility;
+                                    state.formMessage = '';
+                                    state.formMessageTone = 'neutral';
+                                    rerender(model);
+                                },
+                            },
+                        },
+                        [
+                            h(
+                                'option',
+                                { props: { value: 'private', selected: state.draftVisibility === 'private' } },
+                                _('Private'),
+                            ),
+                            h(
+                                'option',
+                                { props: { value: 'unlisted', selected: state.draftVisibility === 'unlisted' } },
+                                _('Unlisted'),
+                            ),
+                            h(
+                                'option',
+                                { props: { value: 'public', selected: state.draftVisibility === 'public' } },
+                                _('Public'),
+                            ),
+                        ],
+                    ),
+                    h('span.catalogued-help', visibilityHelp(state.draftVisibility)),
                 ]),
                 model.admin
                     ? h('label.catalogued-field.catalogued-field-half', [
@@ -1100,45 +1139,6 @@ function renderForm(model: PyChessModel): VNode {
                           ),
                       ])
                     : null,
-                h('label.catalogued-field.catalogued-field-half', [
-                    h('span', _('Visibility')),
-                    h(
-                        'select#catalogued-visibility',
-                        {
-                            props: {
-                                value: state.draftVisibility,
-                                disabled: state.saving,
-                            },
-                            on: {
-                                change: (event: Event) => {
-                                    state.draftVisibility = (event.target as HTMLSelectElement)
-                                        .value as VariantVisibility;
-                                    state.formMessage = '';
-                                    state.formMessageTone = 'neutral';
-                                    rerender(model);
-                                },
-                            },
-                        },
-                        [
-                            h(
-                                'option',
-                                { props: { value: 'private', selected: state.draftVisibility === 'private' } },
-                                _('Private'),
-                            ),
-                            h(
-                                'option',
-                                { props: { value: 'unlisted', selected: state.draftVisibility === 'unlisted' } },
-                                _('Unlisted'),
-                            ),
-                            h(
-                                'option',
-                                { props: { value: 'public', selected: state.draftVisibility === 'public' } },
-                                _('Public'),
-                            ),
-                        ],
-                    ),
-                    h('span.catalogued-help', visibilityHelp(state.draftVisibility)),
-                ]),
                 h('label.catalogued-field.catalogued-field-full', [
                     h('span', _('Variant definition')),
                     h('textarea#catalogued-ini', {
