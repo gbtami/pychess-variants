@@ -978,8 +978,9 @@ function renderForm(model: PyChessModel): VNode {
                         ),
                     ),
                 ]),
-                h('div.catalogued-field.catalogued-field-half.catalogued-checkbox-field', [
+                h('label.catalogued-field.catalogued-field-half.catalogued-checkbox-field', [
                     h('label.catalogued-checkbox-row', [
+                        h('span', _('Directional custom pieces')),
                         h('input#catalogued-piece-set-directional', {
                             props: {
                                 type: 'checkbox',
@@ -997,7 +998,6 @@ function renderForm(model: PyChessModel): VNode {
                                 },
                             },
                         }),
-                        h('span', _('Directional custom pieces')),
                     ]),
                     h(
                         'span#catalogued-piece-set-directional-help.catalogued-help',
