@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 from contextlib import redirect_stderr
+from datetime import UTC, datetime
 from io import StringIO
 
 from compress import R2C, encode_move_standard
@@ -11,8 +12,10 @@ from mongomock_motor import AsyncMongoMockClient
 from variants import get_server_variant
 
 from scripts.repair_casual_duplicate_moves import (
+    BACKGROUND_CORRESPONDENCE_LOAD_INTRODUCED_AT,
     UnsafeRepair,
     apply_repair_plan,
+    build_game_query,
     build_repair_plan,
     parse_args,
 )
@@ -74,6 +77,31 @@ class RepairCasualDuplicateMovesTestCase(unittest.TestCase):
     def test_reopen_option_requires_apply(self):
         with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
             parse_args(["--reopen-correspondence-invalid"])
+
+    def test_default_query_starts_at_background_correspondence_load_introduction(self):
+        args = parse_args([])
+
+        self.assertEqual(
+            BACKGROUND_CORRESPONDENCE_LOAD_INTRODUCED_AT,
+            args.started_after,
+        )
+        self.assertEqual(
+            {"$gte": BACKGROUND_CORRESPONDENCE_LOAD_INTRODUCED_AT},
+            build_game_query(args)["d"],
+        )
+
+    def test_all_dates_removes_default_date_boundary(self):
+        args = parse_args(["--all-dates"])
+
+        self.assertNotIn("d", build_game_query(args))
+
+    def test_custom_start_date_is_normalized_to_utc(self):
+        args = parse_args(["--started-after", "2026-06-23T12:13:35+02:00"])
+
+        self.assertEqual(
+            datetime(2026, 6, 23, 10, 13, 35, tzinfo=UTC),
+            build_game_query(args)["d"]["$gte"],
+        )
 
 
 class ApplyRepairPlanTestCase(unittest.IsolatedAsyncioTestCase):

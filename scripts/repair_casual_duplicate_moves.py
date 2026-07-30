@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any
 
 import pyffish as sf
@@ -27,6 +28,11 @@ class _CataloguedVariantState:
 
 
 CATALOGUED_VARIANT_STATE = _CataloguedVariantState()
+
+# Commit 01513577d ("Faster server restart") introduced background loading of
+# correspondence games at this instant. Use it as the requested default game
+# creation boundary while allowing explicit broader historical scans.
+BACKGROUND_CORRESPONDENCE_LOAD_INTRODUCED_AT = datetime(2026, 6, 23, 10, 13, 35, tzinfo=UTC)
 
 
 @dataclass(frozen=True)
@@ -248,6 +254,16 @@ async def apply_repair_plan(
     return result.modified_count == 1
 
 
+def _parse_datetime(value: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(f"invalid ISO-8601 date/time: {value!r}") from exc
+    if parsed.tzinfo is None:
+        raise argparse.ArgumentTypeError("date/time must include a timezone, such as Z or +02:00")
+    return parsed.astimezone(UTC)
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -258,6 +274,23 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--mongo-host", default=MONGO_HOST)
     parser.add_argument("--mongo-db", default=MONGO_DB_NAME)
+    date_scope = parser.add_mutually_exclusive_group()
+    date_scope.add_argument(
+        "--started-after",
+        type=_parse_datetime,
+        default=BACKGROUND_CORRESPONDENCE_LOAD_INTRODUCED_AT,
+        metavar="ISO_DATETIME",
+        help=(
+            "Only scan games created at or after this timezone-aware ISO-8601 date/time. "
+            "Defaults to 2026-06-23T10:13:35Z, when background correspondence loading "
+            "was introduced."
+        ),
+    )
+    date_scope.add_argument(
+        "--all-dates",
+        action="store_true",
+        help="Disable the default introduction-date boundary and scan all historical games.",
+    )
     parser.add_argument(
         "--game-id",
         action="append",
@@ -292,18 +325,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return args
 
 
-async def main() -> None:
-    args = parse_args()
-    client = AsyncMongoClient(args.mongo_host, tz_aware=True)
-    collection = client[args.mongo_db].game
-
+def build_game_query(args: argparse.Namespace) -> dict[str, Any]:
     query: dict[str, Any] = {
         "y": int(CASUAL),
         "us.2": {"$exists": False},
         "m.1": {"$exists": True},
     }
+    if not args.all_dates:
+        query["d"] = {"$gte": args.started_after}
     if args.game_id:
         query["_id"] = {"$in": list(dict.fromkeys(args.game_id))}
+    return query
+
+
+async def main() -> None:
+    args = parse_args()
+    client = AsyncMongoClient(args.mongo_host, tz_aware=True)
+    collection = client[args.mongo_db].game
+
+    query = build_game_query(args)
 
     scanned = 0
     suspicious = 0
@@ -312,7 +352,16 @@ async def main() -> None:
     unsafe = 0
 
     try:
+        if args.all_dates:
+            print("SCOPE dates=all", flush=True)
+        else:
+            print(
+                f"SCOPE started_after={args.started_after.isoformat().replace('+00:00', 'Z')}",
+                flush=True,
+            )
         cursor = collection.find(query).sort("d", 1)
+        if not args.game_id:
+            cursor = cursor.hint("d_id_desc")
         if args.limit:
             cursor = cursor.limit(args.limit)
 
