@@ -223,6 +223,13 @@ class FairyBoard:
         return self.sf.get_fen(self.variant, self.initial_fen, [], False, True)
 
     def push(self, move, append=True, *, raise_on_error=True):
+        previous_fen = self.fen
+        previous_color = self.color
+        previous_ply = self.ply
+        previous_stack_length = len(self.move_stack)
+        previous_jieqi_mapping = (
+            dict(self.jieqi_covered_pieces) if self.jieqi_covered_pieces is not None else None
+        )
         try:
             # log.debug("move=%s, fen=%s", move, self.fen
             if append:
@@ -243,10 +250,12 @@ class FairyBoard:
                     self.count_started,
                 )
         except Exception:
-            try:
-                self.pop(remove=append)
-            except Exception:
-                pass
+            del self.move_stack[previous_stack_length:]
+            self.fen = previous_fen
+            self.color = previous_color
+            self.ply = previous_ply
+            if previous_jieqi_mapping is not None:
+                self.jieqi_covered_pieces = previous_jieqi_mapping
             if raise_on_error:
                 log.error(
                     "sf.get_fen() failed on %s %s %s %s %s %s %s",

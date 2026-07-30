@@ -83,6 +83,10 @@ INVALID_PAWN_DROP_MATE = (
 )
 
 
+class StaleMovePersistenceError(RuntimeError):
+    """The database advanced from a different in-memory game position."""
+
+
 def is_legacy_capablanca_castling_move(move: str) -> bool:
     if len(move) < 4:
         return False
@@ -498,6 +502,8 @@ class Game:
         cur_color = self.board.color
         cur_player = self.bplayer if cur_color == BLACK else self.wplayer
         opp_player = self.wplayer if cur_color == BLACK else self.bplayer
+        previous_fen = self.board.fen
+        previous_ply = self.board.ply
 
         # Move cancels draw offer
         response = await reject_draw(self, opp_player)
@@ -616,7 +622,12 @@ class Game:
                     if self.corr:
                         await opp_player.notify_game_end(self)
                 else:
-                    await self.save_move(move, cur_color)
+                    await self.save_move(
+                        move,
+                        cur_color,
+                        previous_fen=previous_fen,
+                        previous_ply=previous_ply,
+                    )
                     if self.corr and (not opp_player.bot) and (not opp_player.anon):
                         corr_notification_san = None if self.fow else san
                         await opp_player.notify_corr_move(self, corr_notification_san)
@@ -633,6 +644,13 @@ class Game:
                     if simul is not None:
                         await simul.game_update(self)
 
+            except StaleMovePersistenceError:
+                log.warning(
+                    "Discarding stale move state in game %s after persistence compare-and-set failed",
+                    self.id,
+                )
+                self.stopwatch.restart()
+                raise
             except Exception:
                 log.exception("ERROR: Exception in game %s play_move() %s", self.id, move)
                 result = "1-0" if self.board.color == BLACK else "0-1"
@@ -641,7 +659,14 @@ class Game:
                 if self.corr:
                     await opp_player.notify_game_end(self)
 
-    async def save_move(self, move: str, cur_color: int) -> None:
+    async def save_move(
+        self,
+        move: str,
+        cur_color: int,
+        *,
+        previous_fen: str,
+        previous_ply: int,
+    ) -> None:
         """Persist a single in-progress move to the database.
 
         ``cur_color`` is the moving side captured before ``board.push()``
@@ -683,9 +708,53 @@ class Game:
                 push_data["cb"] = self.clocks_b[-1]
 
         if self.app_state.db is not None:
-            await self.app_state.db.game.update_one(
-                {"_id": self.id},
+            move_index = str(previous_ply)
+            persist_filter: dict[str, object] = {
+                "_id": self.id,
+                "f": previous_fen,
+                "s": {"$lte": STARTED},
+                f"m.{move_index}": {"$exists": False},
+            }
+            if previous_ply > 0:
+                persist_filter[f"m.{previous_ply - 1}"] = {"$exists": True}
+
+            result = await self.app_state.db.game.update_one(
+                persist_filter,
                 {"$set": set_data, "$push": push_data},
+            )
+            if result.modified_count == 1:
+                return
+
+            persisted = await self.app_state.db.game.find_one(
+                {"_id": self.id},
+                projection={"m": 1, "f": 1},
+            )
+            if persisted is None:
+                # In-memory-only games are used by tests and private variants.
+                # There is no competing persisted state to protect in this case.
+                log.debug("Skipping move persistence for non-persisted game %s", self.id)
+                return
+
+            current_encoded_moves = [
+                *map(
+                    self.encode_method,
+                    (
+                        map(grand2zero, self.board.move_stack)
+                        if self.variant in GRANDS
+                        else self.board.move_stack
+                    ),
+                )
+            ]
+            if persisted.get("m") == current_encoded_moves and persisted.get("f") == self.board.fen:
+                log.info(
+                    "Move %s in %s was already persisted by another Game instance",
+                    move,
+                    self.id,
+                )
+                return
+
+            raise StaleMovePersistenceError(
+                f"Game {self.id} changed in MongoDB before move {move} could be persisted"
             )
 
     async def pop_move_from_db(self) -> None:
@@ -1486,18 +1555,25 @@ class Game:
             count_started = -1
             count_ended = -1
 
-        if self.jieqi_captures is not None:
-            # Rebuild capture lists when recreating steps so reconnects get
-            # consistent Jieqi capture history for the active player.
-            self.jieqi_captures = {WHITE: [], BLACK: []}
-            self.jieqi_capture_stack = []
-            self.last_jieqi_capture = None
+        replay_jieqi_captures = {WHITE: [], BLACK: []} if self.jieqi_captures is not None else None
+        replay_jieqi_capture_stack: list[tuple[int, str] | None] | None = (
+            [] if self.jieqi_capture_stack is not None else None
+        )
 
         if self.analysis is not None:
             self.steps[0]["analysis"] = self.analysis[0]
 
         moves_to_replay = list(self.board.move_stack)
-        replay_board = self.board
+        replay_board = FairyBoard(
+            self.variant,
+            self.board.initial_fen,
+            bool(self.chess960),
+            count_started=self.board.count_started,
+            show_promoted=self.server_variant.show_promoted,
+            legal_moves_need_history=self.server_variant.legal_moves_need_history,
+        )
+        if self.board.jieqi_covered_pieces is not None:
+            replay_board.jieqi_covered_pieces = dict(self.board.jieqi_covered_pieces)
 
         if should_use_legacy_capablanca_replay(
             self.variant,
@@ -1510,20 +1586,12 @@ class Game:
             # maps this start position to Embassy rules, where these moves are
             # invalid. Rebuild steps on an unmodded Capablanca board so legacy
             # archives still replay without corrupting move history.
-            replay_board = FairyBoard(
-                self.variant,
-                self.board.initial_fen,
-                bool(self.chess960),
-                show_promoted=self.server_variant.show_promoted,
-                legal_moves_need_history=self.server_variant.legal_moves_need_history,
-            )
             # FairyBoard constructor applies modded_variant() automatically.
             # Force the original stored variant here to preserve old move coords.
             replay_board.variant = self.variant
-            replay_board.move_stack = moves_to_replay
 
-        replay_board.fen = replay_board.initial_fen
-        replay_board.color = WHITE if replay_board.fen.split()[1] == "w" else BLACK
+        replay_completed = True
+        replay_check = self.check
         for ply, move in enumerate(moves_to_replay):
             try:
                 if self.mct is not None:
@@ -1560,10 +1628,10 @@ class Game:
 
                 pushed = replay_board.push(
                     move,
-                    append=False,
                     raise_on_error=not tolerate_historical_replay_failure,
                 )
                 if not pushed:
+                    replay_completed = False
                     log.warning(
                         "Stopped step reconstruction for historical game %s %s %s after invalid replay move %s",
                         self.id,
@@ -1572,7 +1640,7 @@ class Game:
                         move,
                     )
                     break
-                self.check = replay_board.is_checked()
+                replay_check = replay_board.is_checked()
                 turnColor = "black" if replay_board.color == BLACK else "white"
 
                 if self.usi_format:
@@ -1582,7 +1650,7 @@ class Game:
                     "move": move,
                     "san": san,
                     "turnColor": turnColor,
-                    "check": self.check,
+                    "check": replay_check,
                 }
 
                 if len(self.clocks_w) > 1 and not self.corr:
@@ -1592,14 +1660,14 @@ class Game:
                         self.clocks_b[move_number - 1 if ply % 2 == 0 else move_number],
                     )
 
-                if self.jieqi_capture_stack is not None:
+                if replay_jieqi_capture_stack is not None:
                     mover_color = WHITE if step["turnColor"] == "black" else BLACK
-                    if jieqi_capture is not None and self.jieqi_captures is not None:
+                    if jieqi_capture is not None and replay_jieqi_captures is not None:
                         # Rebuild capture history without exposing it in steps or SAN.
-                        self.jieqi_captures[mover_color].append(jieqi_capture.lower())
-                        self.jieqi_capture_stack.append((mover_color, jieqi_capture.lower()))
+                        replay_jieqi_captures[mover_color].append(jieqi_capture.lower())
+                        replay_jieqi_capture_stack.append((mover_color, jieqi_capture.lower()))
                     else:
-                        self.jieqi_capture_stack.append(None)
+                        replay_jieqi_capture_stack.append(None)
 
                 self.steps.append(step)
 
@@ -1610,6 +1678,7 @@ class Game:
                         log.error("IndexError in create_steps() %d %s %s", ply, move, san)
 
             except Exception:
+                replay_completed = False
                 if tolerate_historical_replay_failure:
                     log.warning(
                         "Stopped step reconstruction for historical game %s %s %s after replay exception on %s",
@@ -1628,6 +1697,13 @@ class Game:
                         moves_to_replay,
                     )
                 break
+        if replay_completed:
+            self.check = replay_check
+            if replay_jieqi_captures is not None:
+                self.jieqi_captures = replay_jieqi_captures
+                self.jieqi_capture_stack = replay_jieqi_capture_stack
+                self.last_jieqi_capture = None
+                self.board.jieqi_covered_pieces = replay_board.jieqi_covered_pieces
         # log.debug("create_steps() OK")
 
     def get_board(self, full: bool = False, persp_color: int | None = None) -> GameBoardResponse:

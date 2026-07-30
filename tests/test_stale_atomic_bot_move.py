@@ -4,13 +4,13 @@ from unittest.mock import AsyncMock, patch
 
 from aiohttp.test_utils import AioHTTPTestCase
 from const import INVALIDMOVE, STARTED
-from game import Game
+from game import Game, StaleMovePersistenceError
 from glicko2.glicko2 import new_default_perf_map
 from mongomock_motor import AsyncMongoMockClient
 from newid import id8
 from pychess_global_app_state_utils import get_app_state
 from user import User
-from utils import play_move
+from utils import insert_game_to_db, play_move
 from variants import VARIANTS
 
 from server import make_app
@@ -244,6 +244,57 @@ class StaleAtomicBotMoveTestCase(AioHTTPTestCase):
         self.assertEqual(game.lastmove, "c8b7")
         self.assertEqual(game.status, INVALIDMOVE)
         self.assertEqual(game.result, "0-1")
+
+    async def test_duplicate_game_instances_persist_a_move_only_once(self):
+        app_state = get_app_state(self.app)
+        game_id = "duplicate-instance"
+        first = Game(app_state, game_id, "chess", "", self.white, self.black, rated=False)
+        second = Game(app_state, game_id, "chess", "", self.white, self.black, rated=False)
+        await insert_game_to_db(first, app_state)
+
+        await first.play_move("e2e4")
+        await second.play_move("e2e4")
+
+        doc = await app_state.db.game.find_one({"_id": game_id})
+        self.assertEqual(1, len(doc["m"]))
+        self.assertEqual(first.board.fen, doc["f"])
+        self.assertEqual(second.board.fen, doc["f"])
+
+    async def test_compare_and_set_rejects_divergent_stale_move_without_overwriting_db(self):
+        app_state = get_app_state(self.app)
+        game_id = "divergent-instance"
+        first = Game(app_state, game_id, "chess", "", self.white, self.black, rated=False)
+        second = Game(app_state, game_id, "chess", "", self.white, self.black, rated=False)
+        await insert_game_to_db(first, app_state)
+
+        await first.play_move("e2e4")
+        with self.assertRaises(StaleMovePersistenceError):
+            await second.play_move("d2d4")
+
+        doc = await app_state.db.game.find_one({"_id": game_id})
+        self.assertEqual(1, len(doc["m"]))
+        self.assertEqual(first.board.fen, doc["f"])
+        self.assertEqual(STARTED, doc["s"])
+
+    async def test_persistence_conflict_reloads_authoritative_game_before_resync(self):
+        app_state = get_app_state(self.app)
+        game_id = "reload-divergent-instance"
+        authoritative = Game(app_state, game_id, "chess", "", self.white, self.black, rated=False)
+        stale = Game(app_state, game_id, "chess", "", self.white, self.black, rated=False)
+        await insert_game_to_db(authoritative, app_state)
+
+        await authoritative.play_move("e2e4")
+        app_state.games[game_id] = stale
+
+        with patch.object(self.white, "send_game_message", new=AsyncMock()) as mock_send:
+            await play_move(app_state, self.white, stale, "d2d4", ply=1)
+
+        reloaded = app_state.games[game_id]
+        self.assertIsNot(stale, reloaded)
+        self.assertEqual(authoritative.board.fen, reloaded.board.fen)
+        self.assertEqual(["e2e4"], reloaded.board.move_stack)
+        mock_send.assert_awaited_once()
+        self.assertEqual(authoritative.board.fen, mock_send.await_args.args[1]["fen"])
 
 
 if __name__ == "__main__":

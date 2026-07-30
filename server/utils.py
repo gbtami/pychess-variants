@@ -41,7 +41,7 @@ from fairy import (
     validate_fen,
 )
 from fairy.jieqi import make_initial_mapping
-from game import Game
+from game import Game, StaleMovePersistenceError
 from newid import new_id
 from seek import (
     ANON_RESTRICTED_SEEK_MESSAGE,
@@ -185,15 +185,51 @@ async def load_game_from_doc(
     *,
     cache_finished: bool = True,
 ) -> Game | GameBug | None:
-    """Return Game object from app cache or an already fetched database document.
+    """Return one shared Game object for an already fetched database document.
 
     Startup restore already iterates over game documents from MongoDB. Parsing the
     document directly avoids one extra ``find_one({_id: ...})`` round trip for
-    every active game restored during server initialization.
+    every active game restored during server initialization. A construction task
+    is shared by concurrent lazy loads and background restore so a game can never
+    acquire two independent in-process move locks.
     """
     game_id = doc["_id"]
     if game_id in app_state.games:
         return app_state.games[game_id]
+
+    load_task = app_state.game_load_tasks.get(game_id)
+    if load_task is None:
+        load_task = asyncio.create_task(
+            _load_game_from_doc(app_state, doc),
+            name=f"load-game-{game_id}",
+        )
+        app_state.game_load_tasks[game_id] = load_task
+
+        def remove_completed_load_task(done: asyncio.Task[Game | GameBug | None]) -> None:
+            if app_state.game_load_tasks.get(game_id) is done:
+                app_state.game_load_tasks.pop(game_id, None)
+
+        load_task.add_done_callback(remove_completed_load_task)
+
+    game = await asyncio.shield(load_task)
+    if game is None:
+        return None
+
+    if game.status > STARTED and cache_finished:
+        cached_game = app_state.games.setdefault(game_id, game)
+        if cached_game is game:
+            app_state.schedule_game_cache_removal(game)
+        return cached_game
+
+    return game
+
+
+async def _load_game_from_doc(
+    app_state: PychessGlobalAppState,
+    doc: GameDocument,
+) -> Game | GameBug | None:
+    """Construct a game once; callers apply their finished-game cache policy."""
+    game_id = doc["_id"]
 
     if doc.get("vini") and doc["v"] not in C2V:
         from catalogued_variants import ensure_catalogued_variant_from_game_doc
@@ -205,7 +241,7 @@ async def load_game_from_doc(
     if doc["v"] in TWO_BOARD_VARIANT_CODES:
         from bug.utils_bug import load_game_bug_from_doc
 
-        return await load_game_bug_from_doc(app_state, doc, cache_finished=cache_finished)
+        return await load_game_bug_from_doc(app_state, doc, cache_finished=False)
 
     # log.debug("load_game() parse START")
     wp, bp = doc["us"]
@@ -418,10 +454,8 @@ async def load_game_from_doc(
 
     game.loaded_at = datetime.now(UTC)
 
-    if game.status <= STARTED or cache_finished:
+    if game.status <= STARTED:
         app_state.games[game_id] = game
-        if game.status > STARTED:
-            app_state.schedule_game_cache_removal(game)
 
     # log.debug("load_game() parse DONE")
     return game
@@ -1038,6 +1072,29 @@ async def play_move(
 
         try:
             await game.play_move(move, clocks, ply)
+        except StaleMovePersistenceError:
+            log.warning(
+                "Rejecting stale move after persistence conflict in %s by %s (move=%s)",
+                gameId,
+                user.username,
+                move,
+            )
+            cached_game = app_state.games.get(gameId)
+            if cached_game is game:
+                app_state.games.pop(gameId, None)
+                await game.cancel_clocks_for_eviction()
+                cached_game = None
+
+            authoritative_game = (
+                cached_game if isinstance(cached_game, Game) else await load_game(app_state, gameId)
+            )
+            if not isinstance(authoritative_game, Game):
+                log.error("Unable to reload %s after a persistence conflict", gameId)
+                return
+
+            game = authoritative_game
+            await send_human_resync("stale-persistence")
+            return
         except SystemError:
             invalid_move = True
             log.exception(

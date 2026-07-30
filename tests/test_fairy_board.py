@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 import test_logger
-from fairy.fairy_board import FairyBoard, modded_variant
+from fairy.fairy_board import BLACK, FairyBoard, modded_variant
 
 test_logger.init_test_logger()
 
@@ -35,6 +35,18 @@ class FairyBoardPosNumTestCase(unittest.TestCase):
         self.assertFalse(pushed)
         mock_error.assert_not_called()
         self.assertEqual(board.initial_fen, board.fen)
+
+    def test_failed_non_appending_push_restores_every_board_field(self):
+        board = FairyBoard("chess")
+        board.move_stack = ["e2e4", "e2e4"]
+        board.ply = 2
+        board.color = BLACK
+        before = (board.fen, board.color, board.ply, list(board.move_stack))
+
+        pushed = board.push("e2e5", append=False, raise_on_error=False)
+
+        self.assertFalse(pushed)
+        self.assertEqual(before, (board.fen, board.color, board.ply, board.move_stack))
 
 
 class FairyBoardInitialFenValidationTestCase(unittest.TestCase):

@@ -174,6 +174,10 @@ class PychessGlobalAppState:
             self.auto_pairing_users: dict[User, tuple[int, int]] = {}
             self.auto_pairings: dict[tuple[str, bool, int, int, int], set[User]] = {}
             self.games: dict[str, Game | GameBug] = {}
+            # Concurrent HTTP/websocket loads and background correspondence restore
+            # must share one construction task. Otherwise distinct live Game objects
+            # can accept the same move with independent in-process move locks.
+            self.game_load_tasks: dict[str, asyncio.Task[Game | GameBug | None]] = {}
             self.invites: dict[str, Seek] = {}
             self.game_channels: set[asyncio.Queue[str]] = set()
             self.invite_channels: dict[str, set[asyncio.Queue[str]]] = {}

@@ -11,6 +11,7 @@ import ai
 import pychess_global_app_state
 import test_logger
 import user as user_module
+import utils
 from ai import bot_game_tasks
 from aiohttp.test_utils import AioHTTPTestCase
 from clock import BOT_FIRST_MOVE_TIMEOUT, Clock, CorrClock
@@ -22,7 +23,7 @@ from mongomock_motor import AsyncMongoMockClient
 from pychess_global_app_state_utils import get_app_state
 from seek import Seek
 from user import User
-from utils import load_game
+from utils import load_game, load_game_from_doc
 from variants import get_server_variant
 from wsr import finally_logic
 
@@ -87,6 +88,54 @@ class CacheCleanupTestCase(AioHTTPTestCase):
         self.assertIsNone(game.stopwatch.clock_task)
         self.assertIsNone(game.wplayer.game_in_progress)
         self.assertIsNone(game.bplayer.game_in_progress)
+
+    async def test_concurrent_document_loads_share_one_game_construction(self):
+        app_state = get_app_state(self.app)
+        await self._insert_user_doc("singleflight-white")
+        await self._insert_user_doc("singleflight-black")
+        doc = {
+            "_id": "singleflight-game",
+            "us": ["singleflight-white", "singleflight-black"],
+            "p0": {"e": "1500?"},
+            "p1": {"e": "1500?"},
+            "v": get_server_variant("chess", False).code,
+            "b": 1,
+            "i": 0,
+            "bp": 0,
+            "m": [],
+            "d": datetime.now(UTC),
+            "f": FairyBoard.start_fen("chess"),
+            "s": -2,
+            "r": R2C["*"],
+            "x": 0,
+            "y": int(CASUAL),
+            "z": 0,
+            "c": True,
+        }
+        real_loader = utils._load_game_from_doc
+        entered = asyncio.Event()
+        release = asyncio.Event()
+        calls = 0
+
+        async def delayed_loader(state, loaded_doc):
+            nonlocal calls
+            calls += 1
+            entered.set()
+            await release.wait()
+            return await real_loader(state, loaded_doc)
+
+        with patch("utils._load_game_from_doc", side_effect=delayed_loader):
+            first = asyncio.create_task(load_game_from_doc(app_state, doc))
+            await entered.wait()
+            second = asyncio.create_task(load_game_from_doc(app_state, doc))
+            await asyncio.sleep(0)
+            release.set()
+            first_game, second_game = await asyncio.gather(first, second)
+
+        self.assertEqual(1, calls)
+        self.assertIs(first_game, second_game)
+        self.assertIs(first_game, app_state.games[doc["_id"]])
+        self.assertNotIn(doc["_id"], app_state.game_load_tasks)
 
     async def test_load_finished_game_without_cache_skips_app_cache(self):
         app_state = get_app_state(self.app)
