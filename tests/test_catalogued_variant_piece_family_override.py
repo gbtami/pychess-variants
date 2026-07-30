@@ -23,8 +23,10 @@ class CataloguedVariantPieceFamilyOverrideTestCase(unittest.TestCase):
             _read_piece_family_override({"piece_family_override": "standard"}), "standard"
         )
 
-    def test_perfect_piece_family_override_is_accepted(self):
-        self.assertEqual(_clean_piece_family_override("perfect"), "perfect")
+    def test_site_piece_family_overrides_are_accepted(self):
+        for family in ("perfect", "courier"):
+            with self.subTest(family=family):
+                self.assertEqual(_clean_piece_family_override(family), family)
 
     def test_unknown_piece_family_override_is_rejected(self):
         with self.assertRaises(web.HTTPBadRequest):

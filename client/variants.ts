@@ -311,6 +311,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
         ],
     },
     shatranj: { pieceCSS: ['shatranj0', 'shatranj1', 'disguised'] },
+    courier: { pieceCSS: ['courier', 'disguised'] },
     shako: { pieceCSS: ['shako0', 'shako1', 'shako2', 'disguised'] },
     shogun: { pieceCSS: ['shogun0', 'shogun1', 'shogun2', 'shogun3', 'shogun4', 'shogun5', 'disguised'] },
     orda: { pieceCSS: ['orda0', 'orda1', 'disguised'] },

@@ -23,6 +23,7 @@ const variantNames = [
     'testfsfgrandcapa',
     'testfsfpieceoptioncapa',
     'testfsfthreekingsstandard',
+    'testreformedcourieroverride',
     'testmakrukwall',
     'testdecimalshogiimagelayer',
 ];
@@ -139,6 +140,33 @@ test('catalogued variants with a custom piece set still default to that custom s
     expect(board.classList.contains('catalogued-missing-piece-fallback')).toBe(false);
 
     board.remove();
+});
+
+test('catalogued variants can explicitly use the shared courier piece family', () => {
+    const variant = register({
+        name: 'testreformedcourieroverride',
+        displayName: 'Test Reformed Courier Override',
+        tooltip: 'Catalogued variant',
+        ini: `[testreformedcourieroverride]
+king = k
+pawn = p
+rook = r
+knight = n
+bishop = b
+queen = q
+centaur = d
+customPiece1 = a:AF
+customPiece2 = m:DK`,
+        startFen: 'rnabmqkdbanr/pppppppppppp/12/12/12/12/PPPPPPPPPPPP/RNABMQKDBANR w KQkq - 0 1',
+        width: 12,
+        height: 8,
+        pieces: ['k', 'p', 'r', 'n', 'b', 'q', 'd', 'a', 'm'],
+        kingRoles: ['k'],
+        pieceFamilyOverride: 'courier',
+    });
+
+    expect(variant.pieceFamily).toBe('courier');
+    expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('courier');
 });
 
 test('catalogued variants using an image-layer piece style do not get a base-image fallback', () => {

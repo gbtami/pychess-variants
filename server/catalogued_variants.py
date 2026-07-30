@@ -103,6 +103,7 @@ CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
         "capa",
         "chak",
         "chennis",
+        "courier",
         "dobutsu",
         "dragon",
         "empire",

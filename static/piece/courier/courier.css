@@ -1,0 +1,73 @@
+.courier piece.p-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wpawn.svg');
+}
+.courier piece.r-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wrook.svg');
+}
+.courier piece.n-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wknight.svg');
+}
+.courier piece.b-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wbishop.svg');
+}
+.courier piece.q-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wqueen.svg');
+}
+.courier piece.k-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wking.svg');
+}
+.courier piece.e-piece.white {
+    background-image: url('../../images/pieces/alfaerie/welephant.svg');
+}
+.courier piece.f-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wminister.svg');
+}
+.courier piece.m-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wman.svg');
+}
+.courier piece.w-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wwazir.svg');
+}
+.courier piece.a-piece.white {
+    background-image: url('../../images/pieces/alfaerie/warcher.svg');
+}
+.courier piece.d-piece.white {
+    background-image: url('../../images/pieces/alfaerie/wknightguard.svg');
+}
+
+.courier piece.p-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bpawn.svg');
+}
+.courier piece.r-piece.black {
+    background-image: url('../../images/pieces/alfaerie/brook.svg');
+}
+.courier piece.n-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bknight.svg');
+}
+.courier piece.b-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bbishop.svg');
+}
+.courier piece.q-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bqueen.svg');
+}
+.courier piece.k-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bking.svg');
+}
+.courier piece.e-piece.black {
+    background-image: url('../../images/pieces/alfaerie/belephant.svg');
+}
+.courier piece.f-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bminister.svg');
+}
+.courier piece.m-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bman.svg');
+}
+.courier piece.w-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bwazir.svg');
+}
+.courier piece.a-piece.black {
+    background-image: url('../../images/pieces/alfaerie/barcher.svg');
+}
+.courier piece.d-piece.black {
+    background-image: url('../../images/pieces/alfaerie/bknightguard.svg');
+}
