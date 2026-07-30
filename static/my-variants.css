@@ -83,6 +83,10 @@
     font-weight: normal;
 }
 
+.catalogued-reference-link {
+    color: var(--link-hover);
+}
+
 .catalogued-checkbox-field {
     align-content: start;
 }

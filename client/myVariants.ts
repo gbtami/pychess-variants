@@ -1159,6 +1159,21 @@ function renderForm(model: PyChessModel): VNode {
                         },
                     }),
                     editingSystem
+                        ? null
+                        : h('span.catalogued-help', [
+                              h(
+                                  'a.catalogued-reference-link',
+                                  {
+                                      attrs: {
+                                          href: 'https://github.com/fairy-stockfish/Fairy-Stockfish/blob/master/src/variants.ini',
+                                          target: '_blank',
+                                          rel: 'noopener',
+                                      },
+                                  },
+                                  _('Fairy-Stockfish variants.ini reference'),
+                              ),
+                          ]),
+                    editingSystem
                         ? h(
                               'span.catalogued-help',
                               _(
