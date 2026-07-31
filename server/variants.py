@@ -1,7 +1,7 @@
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from compress import (
     decode_move_duck,
@@ -36,6 +36,7 @@ class Variant:
     show_promoted: bool = False
     legal_moves_need_history: bool = False
     n_fold_is_draw: bool = False
+    fsf_variant_info: Mapping[str, Any] | None = None
     move_encoding: MoveCodec = encode_move_standard
     move_decoding: MoveCodec = decode_move_standard
 
@@ -66,6 +67,7 @@ class CataloguedServerVariant:
     show_promoted: bool = False
     legal_moves_need_history: bool = False
     n_fold_is_draw: bool = False
+    fsf_variant_info: Mapping[str, Any] | None = None
     move_encoding: MoveCodec = encode_move_standard
     move_decoding: MoveCodec = decode_move_standard
 
@@ -97,6 +99,7 @@ class ServerVariants(Enum):
         self.show_promoted = variant.show_promoted
         self.legal_moves_need_history = variant.legal_moves_need_history
         self.n_fold_is_draw = variant.n_fold_is_draw
+        self.fsf_variant_info = variant.fsf_variant_info
         self.move_encoding = variant.move_encoding
         self.move_decoding = variant.move_decoding
 
@@ -264,11 +267,15 @@ def register_catalogued_server_variant(
     display_name: str,
     icon: str = "◇",
     *,
+    chess960: bool = False,
     grand: bool = False,
+    two_boards: bool = False,
+    base_variant: str = "",
     extended_move_codec: bool = False,
     show_promoted: bool = False,
     legal_moves_need_history: bool = False,
     n_fold_is_draw: bool = False,
+    fsf_variant_info: Mapping[str, Any] | None = None,
 ) -> CataloguedServerVariant:
     """Register a casual uploaded variant in the runtime server variant maps.
 
@@ -283,10 +290,14 @@ def register_catalogued_server_variant(
         display_name=display_name.upper(),
         translated_name=display_name,
         icon=icon,
+        chess960=chess960,
         grand=grand,
+        two_boards=two_boards,
+        base_variant=base_variant,
         show_promoted=show_promoted,
         legal_moves_need_history=legal_moves_need_history,
         n_fold_is_draw=n_fold_is_draw,
+        fsf_variant_info=dict(fsf_variant_info) if fsf_variant_info is not None else None,
         move_encoding=encode_move_extended if extended_move_codec else encode_move_standard,
         move_decoding=decode_move_extended if extended_move_codec else decode_move_standard,
     )
