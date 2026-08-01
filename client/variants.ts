@@ -232,6 +232,7 @@ export const PIECE_FAMILIES: Record<string, PieceFamily> = {
         ],
     },
     capa: { pieceCSS: ['capa0', 'capa1', 'capa2', 'capa3', 'capa4', 'capa5', 'disguised'] },
+    centaur: { pieceCSS: ['centaur0', 'centaur1', 'disguised'] },
     dragon: { pieceCSS: ['dragon1', 'dragon0', 'dragon2', 'disguised'] },
     seirawan: { pieceCSS: ['seir1', 'seir0', 'seir2', 'seir3', 'seir4', 'seir5', 'disguised'] },
     makruk: { pieceCSS: ['makrukwb', 'makrukwr', 'makruk', 'makruks', 'makruki', 'makrukc', 'disguised'] },
@@ -2396,6 +2397,7 @@ type CataloguedPieceIdentityMap = Record<string, string>;
 // Nightrider or Kniroo), so keep the known identities variant-scoped.
 const CATALOGUED_PIECE_IDENTITIES_BY_CONTEXT: Record<string, CataloguedPieceIdentityMap> = {
     'pieceFamily:capa': { a: 'archbishop', c: 'chancellor' },
+    'pieceFamily:centaur': { a: 'archbishop', c: 'chancellor', g: 'centaur' },
     'pieceFamily:shatranj': { b: 'alfil', q: 'fers' },
     almost: { c: 'chancellor' },
     amazon: { a: 'amazon' },

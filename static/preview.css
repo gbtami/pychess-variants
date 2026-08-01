@@ -125,6 +125,16 @@ label.piece.piece1.perfect {
     background-image: url('images/pieces/disguised/w.svg');
 }
 
+label.piece.piece0.centaur {
+    background-image: url('images/pieces/shogun/merida/mono/wG.svg');
+}
+label.piece.piece1.centaur {
+    background-image: url('images/pieces/shogun/cburnett/mono/wG.svg');
+}
+label.piece.piece2.centaur {
+    background-image: url('images/pieces/disguised/w.svg');
+}
+
 label.piece.piece0.dragon {
     background-image: url('images/pieces/green/wD.svg');
 }

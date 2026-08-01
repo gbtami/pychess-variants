@@ -1,0 +1,6 @@
+.centaur piece.white {
+    background-image: url('../../images/pieces/disguised/w.svg');
+}
+.centaur piece.black {
+    background-image: url('../../images/pieces/disguised/b.svg');
+}

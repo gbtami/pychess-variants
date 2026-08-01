@@ -1,0 +1,55 @@
+.centaur piece.a-piece.white {
+    background-image: url('../../images/pieces/green/wA.svg');
+}
+.centaur piece.c-piece.white {
+    background-image: url('../../images/pieces/green/wC.svg');
+}
+.centaur piece.g-piece.white {
+    background-image: url('../../images/pieces/shogun/cburnett/mono/wG.svg');
+}
+.centaur piece.a-piece.black {
+    background-image: url('../../images/pieces/green/bA.svg');
+}
+.centaur piece.c-piece.black {
+    background-image: url('../../images/pieces/green/bC.svg');
+}
+.centaur piece.g-piece.black {
+    background-image: url('../../images/pieces/shogun/cburnett/mono/bG.svg');
+}
+
+.centaur piece.p-piece.white {
+    background-image: url('../../images/pieces/green/wP.svg');
+}
+.centaur piece.b-piece.white {
+    background-image: url('../../images/pieces/green/wB.svg');
+}
+.centaur piece.n-piece.white {
+    background-image: url('../../images/pieces/green/wN.svg');
+}
+.centaur piece.r-piece.white {
+    background-image: url('../../images/pieces/green/wR.svg');
+}
+.centaur piece.q-piece.white {
+    background-image: url('../../images/pieces/green/wQ.svg');
+}
+.centaur piece.k-piece.white {
+    background-image: url('../../images/pieces/green/wK.svg');
+}
+.centaur piece.p-piece.black {
+    background-image: url('../../images/pieces/green/bP.svg');
+}
+.centaur piece.b-piece.black {
+    background-image: url('../../images/pieces/green/bB.svg');
+}
+.centaur piece.n-piece.black {
+    background-image: url('../../images/pieces/green/bN.svg');
+}
+.centaur piece.r-piece.black {
+    background-image: url('../../images/pieces/green/bR.svg');
+}
+.centaur piece.q-piece.black {
+    background-image: url('../../images/pieces/green/bQ.svg');
+}
+.centaur piece.k-piece.black {
+    background-image: url('../../images/pieces/green/bK.svg');
+}

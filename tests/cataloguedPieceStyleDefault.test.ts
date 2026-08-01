@@ -24,6 +24,7 @@ const variantNames = [
     'testfsfpieceoptioncapa',
     'testfsfthreekingsstandard',
     'testreformedcourieroverride',
+    'testcentauroverride',
     'testmakrukwall',
     'testdecimalshogiimagelayer',
 ];
@@ -167,6 +168,27 @@ customPiece2 = m:DK`,
 
     expect(variant.pieceFamily).toBe('courier');
     expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('courier');
+});
+
+test('catalogued variants can explicitly use Centaur pieces with Archbishop and Chancellor', () => {
+    const variant = register({
+        name: 'testcentauroverride',
+        displayName: 'Test Centaur Override',
+        tooltip: 'Catalogued variant',
+        ini: `[testcentauroverride:chess]
+archbishop = a
+chancellor = c
+centaur = g`,
+        startFen: 'rnabqkcg/pppppppp/8/8/8/8/PPPPPPPP/RNABQKCG w - - 0 1',
+        width: 8,
+        height: 8,
+        pieces: ['k', 'q', 'r', 'b', 'n', 'p', 'a', 'c', 'g'],
+        kingRoles: ['k'],
+        pieceFamilyOverride: 'centaur',
+    });
+
+    expect(variant.pieceFamily).toBe('centaur');
+    expect(boardSettings.pieceCSS(variant.pieceFamily, variant)).toBe('centaur0');
 });
 
 test('catalogued variants using an image-layer piece style do not get a base-image fallback', () => {

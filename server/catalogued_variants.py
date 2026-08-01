@@ -101,6 +101,7 @@ CATALOGUED_PIECE_FAMILY_OVERRIDES = frozenset(
         "borderlands",
         "cannonshogi",
         "capa",
+        "centaur",
         "chak",
         "chennis",
         "courier",
