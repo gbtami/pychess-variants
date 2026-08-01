@@ -53,7 +53,7 @@
     "jsdom": "^29.1.1",
     "jsdom-global": "^3.0.2",
     "oxfmt": "0.58.0",
-    "oxlint": "1.73.0",
+    "oxlint": "1.76.0",
     "postcss": "8.x",
     "showdown": "^2.1.0",
     "ts-jest": "^29",
