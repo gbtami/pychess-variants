@@ -6,7 +6,14 @@ from collections.abc import Collection, ItemsView, ValuesView
 from time import monotonic
 from typing import TYPE_CHECKING
 
-from const import ANON_PREFIX, BLOCK, FOLLOW, MAX_USER_BLOCK, NONE_USER, reserved
+from const import (
+    ANON_PREFIX,
+    BLOCK,
+    FOLLOW,
+    MAX_USER_BLOCK,
+    NONE_USER,
+    reserved,
+)
 from typing_defs import RelationDocument, UserDocument
 from user import User
 
@@ -38,9 +45,19 @@ class Users(UserDict[str, User]):
         self.cache_access: dict[str, float] = {}
         self.registered_cache_evictions = 0
 
+    def _in_registered_cache(self, user: User) -> bool:
+        """Whether this user is subject to the registered-user cache TTL.
+
+        Test users are excluded alongside anons: they exist only in memory, so
+        evicting one destroys an identity that no db lookup can restore.
+        """
+        if user.anon or user.bot or reserved(user.username):
+            return False
+        return not self.app_state.is_test_user(user.username)
+
     def __setitem__(self, username: str, user: User) -> None:
         super().__setitem__(username, user)
-        if not (user.anon or user.bot or reserved(user.username)):
+        if self._in_registered_cache(user):
             self.cache_access[username] = monotonic()
         else:
             self.cache_access.pop(username, None)
@@ -52,7 +69,7 @@ class Users(UserDict[str, User]):
     def __getitem__(self, username: str) -> User:
         if username in self.data:
             user = self.data[username]
-            if not (user.anon or user.bot or reserved(user.username)):
+            if self._in_registered_cache(user):
                 self.cache_access[username] = monotonic()
             return user
         else:
@@ -126,9 +143,8 @@ class Users(UserDict[str, User]):
 
             return user
 
-    @staticmethod
-    def is_registered_cache_only(user: User, protected_users: Collection[User]) -> bool:
-        if user.anon or user.bot or reserved(user.username) or user in protected_users:
+    def is_registered_cache_only(self, user: User, protected_users: Collection[User]) -> bool:
+        if not self._in_registered_cache(user) or user in protected_users:
             return False
 
         user.update_online()
