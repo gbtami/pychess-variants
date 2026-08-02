@@ -1,4 +1,4 @@
-import { clockTimeAt, playerInfoData, TwoBoardSeats } from '../client/two-board/common/players';
+import { clockTimeAt, playerInfoData, twoBoardSeats } from '../client/two-board/common/seatConfiguration';
 import { PyChessModel } from '../client/types';
 import { Step } from '../client/messages';
 
@@ -21,7 +21,7 @@ function model(overrides: Partial<PyChessModel> = {}): PyChessModel {
 }
 
 test('seats are built from the model fields', () => {
-    const seats = new TwoBoardSeats(model(), 'Anna');
+    const seats = twoBoardSeats(model(), 'Anna');
 
     const wA = seats.byBoardAndColor('a', 'white');
     expect(wA.player.username).toBe('Anna');
@@ -36,8 +36,14 @@ test('seats are built from the model fields', () => {
     expect(seats.all.map(s => s.player.username)).toEqual(['Anna', 'Boris', 'Carl', 'Dana']);
 });
 
+test('seats are built without a clock — the round controller assigns them, analysis never does', () => {
+    const seats = twoBoardSeats(model(), 'Anna');
+
+    expect(seats.all.every(s => s.clock === undefined)).toBe(true);
+});
+
 test('relation accessors follow the bughouse team structure', () => {
-    const seats = new TwoBoardSeats(model(), 'Anna');
+    const seats = twoBoardSeats(model(), 'Anna');
     const wA = seats.byBoardAndColor('a', 'white');
     const bA = seats.byBoardAndColor('a', 'black');
 
@@ -56,7 +62,7 @@ test('relation accessors follow the bughouse team structure', () => {
 });
 
 test('teams are wA+bB (team 1) and bA+wB (team 2), with teamNumber and name()', () => {
-    const seats = new TwoBoardSeats(model(), 'Anna');
+    const seats = twoBoardSeats(model(), 'Anna');
 
     expect(seats.teams[0].seats.map(s => s.player.username)).toEqual(['Anna', 'Dana']);
     expect(seats.teams[0].teamNumber).toBe('1');
@@ -69,7 +75,7 @@ test('teams are wA+bB (team 1) and bA+wB (team 2), with teamNumber and name()', 
 
 test('teams carry the same data as the legacy teamFirst/teamSecond tuples', () => {
     const m = model();
-    const seats = new TwoBoardSeats(m, 'Anna');
+    const seats = twoBoardSeats(m, 'Anna');
     const teamFirst = [playerInfoData(m, 'w', 'a'), playerInfoData(m, 'b', 'b')];
     const teamSecond = [playerInfoData(m, 'b', 'a'), playerInfoData(m, 'w', 'b')];
 
@@ -83,7 +89,7 @@ test('teams carry the same data as the legacy teamFirst/teamSecond tuples', () =
 });
 
 test('viewer-relative accessors return the viewer seat', () => {
-    const seats = new TwoBoardSeats(model(), 'Dana'); // black on board B, team 1
+    const seats = twoBoardSeats(model(), 'Dana'); // black on board B, team 1
 
     expect(seats.me('a')).toBeUndefined();
     expect(seats.me('b')?.player.username).toBe('Dana');
@@ -92,13 +98,13 @@ test('viewer-relative accessors return the viewer seat', () => {
     expect(seats.isSpectator()).toBe(false);
     expect(seats.myTeam().teamNumber).toBe('1');
 
-    const boris = new TwoBoardSeats(model(), 'Boris'); // black on board A, team 2
+    const boris = twoBoardSeats(model(), 'Boris'); // black on board A, team 2
     expect(boris.myColor('a')).toBe('black');
     expect(boris.myTeam().teamNumber).toBe('2');
 });
 
 test('spectators are team 2 (legacy whichTeamAmI fallthrough)', () => {
-    const seats = new TwoBoardSeats(model(), 'Zora');
+    const seats = twoBoardSeats(model(), 'Zora');
 
     expect(seats.isSpectator()).toBe(true);
     expect(seats.me('a')).toBeUndefined();
@@ -107,7 +113,7 @@ test('spectators are team 2 (legacy whichTeamAmI fallthrough)', () => {
 });
 
 test('simul: one username seated on both boards as two separate seats', () => {
-    const seats = new TwoBoardSeats(model({ wplayer: 'Solo', bplayerB: 'Solo' }), 'Solo'); // team 1 twice
+    const seats = twoBoardSeats(model({ wplayer: 'Solo', bplayerB: 'Solo' }), 'Solo'); // team 1 twice
 
     expect(seats.me('a')?.color).toBe('white');
     expect(seats.me('b')?.color).toBe('black');
@@ -117,7 +123,7 @@ test('simul: one username seated on both boards as two separate seats', () => {
 });
 
 test('name() accepts a username formatter', () => {
-    const seats = new TwoBoardSeats(model(), 'Anna');
+    const seats = twoBoardSeats(model(), 'Anna');
 
     expect(seats.teams[0].name()).toBe('Anna+Dana');
     expect(seats.teams[0].name(u => u.toUpperCase())).toBe('ANNA+DANA');
@@ -125,7 +131,7 @@ test('name() accepts a username formatter', () => {
 });
 
 test('teamOf finds the team of each seat', () => {
-    const seats = new TwoBoardSeats(model(), 'Zora');
+    const seats = twoBoardSeats(model(), 'Zora');
 
     expect(seats.teamOf(seats.byBoardAndColor('a', 'white'))).toBe(seats.teams[0]);
     expect(seats.teamOf(seats.byBoardAndColor('b', 'black'))).toBe(seats.teams[0]);
@@ -134,7 +140,7 @@ test('teamOf finds the team of each seat', () => {
 });
 
 test('initialTopColor: spectators watch board a from white side, board b from black side', () => {
-    const seats = new TwoBoardSeats(model(), 'Zora');
+    const seats = twoBoardSeats(model(), 'Zora');
 
     expect(seats.initialTopColor('a')).toBe('black');
     expect(seats.initialTopColor('b')).toBe('white');
@@ -142,30 +148,30 @@ test('initialTopColor: spectators watch board a from white side, board b from bl
 
 test('initialTopColor: participants get their own and their partner color at the bottom', () => {
     // Anna is white on board a; her partner Dana is black on board b
-    const anna = new TwoBoardSeats(model(), 'Anna');
+    const anna = twoBoardSeats(model(), 'Anna');
     expect(anna.initialTopColor('a')).toBe('black'); // Anna (white) at the bottom
     expect(anna.initialTopColor('b')).toBe('white'); // Dana (black) at the bottom
 
     // Boris is black on board a; his partner Carl is white on board b
-    const boris = new TwoBoardSeats(model(), 'Boris');
+    const boris = twoBoardSeats(model(), 'Boris');
     expect(boris.initialTopColor('a')).toBe('white');
     expect(boris.initialTopColor('b')).toBe('black');
 
     // Carl is white on board b; his partner Boris is black on board a
-    const carl = new TwoBoardSeats(model(), 'Carl');
+    const carl = twoBoardSeats(model(), 'Carl');
     expect(carl.initialTopColor('a')).toBe('white');
     expect(carl.initialTopColor('b')).toBe('black');
 });
 
 test('initialTopColor: simul viewer holds both seats of a team', () => {
-    const seats = new TwoBoardSeats(model({ wplayer: 'Solo', bplayerB: 'Solo' }), 'Solo');
+    const seats = twoBoardSeats(model({ wplayer: 'Solo', bplayerB: 'Solo' }), 'Solo');
 
     expect(seats.initialTopColor('a')).toBe('black'); // own white seat at the bottom
     expect(seats.initialTopColor('b')).toBe('white'); // own black seat at the bottom
 });
 
 test('clockTimeAt reads the recorded time of a seat from a step', () => {
-    const seats = new TwoBoardSeats(model(), 'Zora');
+    const seats = twoBoardSeats(model(), 'Zora');
     const step = { clocks: [111, 222], clocksB: [333, 444] } as unknown as Step;
 
     expect(clockTimeAt(step, seats.byBoardAndColor('a', 'white'))).toBe(111);
@@ -175,7 +181,7 @@ test('clockTimeAt reads the recorded time of a seat from a step', () => {
 });
 
 test('clockTimeAt is undefined-safe for steps without clocks', () => {
-    const seats = new TwoBoardSeats(model(), 'Zora');
+    const seats = twoBoardSeats(model(), 'Zora');
     const bare = {} as Step;
 
     expect(clockTimeAt(bare, seats.byBoardAndColor('a', 'white'))).toBeUndefined();

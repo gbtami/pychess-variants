@@ -8,7 +8,9 @@ import { boardSettings } from '@/boardSettings';
 import { ChessgroundController } from '@/cgCtrl';
 import { GameControllerBughouse } from './common/gameCtrl';
 import { createMovelistButtons, MovelistView } from './common/movelist';
-import { TwoBoardSeats } from './common/players';
+import { GameInfoView } from './common/gameInfo';
+import { Seat } from './common/seat';
+import { SeatConfiguration, twoBoardSeats } from './common/seatConfiguration';
 
 // Shared core of the two bughouse page controllers (RoundControllerBughouse and
 // AnalysisControllerBughouse): owns the two boards and the state/logic both need.
@@ -21,7 +23,7 @@ export abstract class TwoBoardController {
     model: PyChessModel;
     gameId: string;
     username: string;
-    seats: TwoBoardSeats;
+    seats: SeatConfiguration<Seat>;
     variant: Variant;
     base: number;
     inc: number;
@@ -61,6 +63,7 @@ export abstract class TwoBoardController {
         el2Pocket2: HTMLElement,
         model: PyChessModel,
         movelistView: MovelistView,
+        gameInfoView: GameInfoView,
     ) {
         this.model = model;
         this.home = model.home;
@@ -73,7 +76,7 @@ export abstract class TwoBoardController {
         this.settings = true;
         this.steps = [];
 
-        this.seats = new TwoBoardSeats(model, this.username);
+        this.seats = twoBoardSeats(model, this.username);
 
         this.boardA = new GameControllerBughouse(el1, el1Pocket1, el1Pocket2, 'a', model);
         this.boardB = new GameControllerBughouse(el2, el2Pocket1, el2Pocket2, 'b', model);
@@ -84,6 +87,10 @@ export abstract class TwoBoardController {
 
         createMovelistButtons(this);
         this.movelistView = movelistView;
+
+        // not retained: the panel is rendered once from this controller's state and
+        // never updated again, so nothing needs a reference to it afterwards
+        gameInfoView.render(this);
     }
 
     protected stampStepPlys = (step: Step, idx: number): void => {

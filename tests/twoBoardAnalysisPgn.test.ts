@@ -14,13 +14,13 @@ jest.unstable_mockModule('../client/analysis/analysisCtrl', () => ({
 }));
 
 let getPgn: typeof import('../client/two-board/analysis/pgn').getPgn;
-let TwoBoardSeats: typeof import('../client/two-board/common/players').TwoBoardSeats;
+let twoBoardSeats: typeof import('../client/two-board/common/seatConfiguration').twoBoardSeats;
 let createAnalysisTree: typeof import('../client/analysis/analysisTree').createAnalysisTree;
 let renderBughouseTreePgnMoveText: typeof import('../client/two-board/analysis/analysisTreeTwoBoards').renderBughouseTreePgnMoveText;
 
 beforeAll(async () => {
     ({ getPgn } = await import('../client/two-board/analysis/pgn'));
-    ({ TwoBoardSeats } = await import('../client/two-board/common/players'));
+    ({ twoBoardSeats } = await import('../client/two-board/common/seatConfiguration'));
     ({ createAnalysisTree } = await import('../client/analysis/analysisTree'));
     ({ renderBughouseTreePgnMoveText } = await import('../client/two-board/analysis/analysisTreeTwoBoards'));
 });
@@ -60,7 +60,7 @@ function steps(): Step[] {
 
 function stubCtrl(treeOverrides: object = {}, overrides: object = {}) {
     return {
-        seats: new TwoBoardSeats(model(), 'Zora'),
+        seats: twoBoardSeats(model(), 'Zora'),
         boardA: { home: 'https://pychess.org' },
         variant: { name: 'bughouse' },
         steps: steps(),

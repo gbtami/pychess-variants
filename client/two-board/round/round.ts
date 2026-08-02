@@ -1,11 +1,12 @@
 import { h, VNode } from 'snabbdom';
 
 import { VARIANTS } from '../../variants';
-import { gameInfoBug } from '../common/gameInfo';
+import { GameInfoView } from '../common/gameInfo';
 import { renderTimeago } from '../../datetime';
 import { PyChessModel } from '../../types';
 import { RoundControllerBughouse } from './roundCtrl';
 import { MovelistView } from '../common/movelist';
+import { RoundSeatView, RoundSeatViews } from './roundSeatView';
 
 function createBoards(
     mainboardVNode: VNode,
@@ -16,6 +17,8 @@ function createBoards(
     bugboardPocket1: VNode,
     model: PyChessModel,
     movelistView: MovelistView,
+    gameInfoView: GameInfoView,
+    seatViews: RoundSeatViews,
 ) {
     /*this.ctrl = */ /*const ctrl = */ new RoundControllerBughouse(
         mainboardVNode.elm as HTMLElement,
@@ -26,6 +29,8 @@ function createBoards(
         bugboardPocket1.elm as HTMLElement,
         model,
         movelistView,
+        gameInfoView,
+        seatViews,
     );
     // window['onFSFline'] = ctrl.onFSFline;
 }
@@ -43,9 +48,15 @@ export function roundView(model: PyChessModel): VNode[] {
         bugboardPocket1: VNode;
 
     const movelistView = new MovelistView();
+    const gameInfoView = new GameInfoView();
+
+    const seatViews: RoundSeatViews = {
+        a: [new RoundSeatView(0, 'a'), new RoundSeatView(1, 'a')],
+        b: [new RoundSeatView(0, 'b'), new RoundSeatView(1, 'b')],
+    };
 
     return [
-        h('aside.sidebar-first', [gameInfoBug(model)]),
+        h('aside.sidebar-first', [gameInfoView.placeholder()]),
         h(
             'div.round-app.bug',
             {
@@ -60,6 +71,8 @@ export function roundView(model: PyChessModel): VNode[] {
                             bugboardPocket1,
                             model,
                             movelistView,
+                            gameInfoView,
+                            seatViews,
                         );
                     },
                 },
@@ -103,24 +116,8 @@ export function roundView(model: PyChessModel): VNode[] {
                     ]),
                 ]),
 
-                h('div.info-wrap0', [
-                    h('div.clock-wrap', [
-                        h('div.clock-holder', [h('div#clock0a'), h('div#difference0a')]),
-                        // h('div#more-time'),
-                        h('div#berserk0a'),
-                    ]),
-                    h('round-player0#rplayer0a'),
-                    h('div#misc-info0a'),
-                ]),
-                h('div.info-wrap0.bug', [
-                    h('div.clock-wrap.bug', [
-                        h('div.clock-holder', [h('div#clock0b'), h('div#difference0b')]),
-                        // h('div#more-time'),
-                        h('div#berserk0b'),
-                    ]),
-                    h('round-player0.bug#rplayer0b'),
-                    h('div#misc-info0b'),
-                ]),
+                seatViews.a[0].view(),
+                seatViews.b[0].view(),
                 h('div.bug-round-tools-part', [
                     h('div.movelist-block', [movelistView.placeholder(), h('div#move-controls')]),
                     h('div#offer-dialog'),
@@ -132,22 +129,8 @@ export function roundView(model: PyChessModel): VNode[] {
                     // h('div#expiration-top'),
                     // h('div#expiration-bottom'),
                 ]),
-                h('div.info-wrap1', [
-                    h('div.clock-wrap', [
-                        h('div.clock-holder', [h('div#clock1a'), h('div#difference1a')]),
-                        h('div#berserk1a'),
-                    ]),
-                    h('round-player1#rplayer1a'),
-                    h('div#misc-info1a'),
-                ]),
-                h('div.info-wrap1.bug', [
-                    h('div.clock-wrap.bug', [
-                        h('div.clock-holder', [h('div#clock1b'), h('div#difference1b')]),
-                        h('div#berserk1b'),
-                    ]),
-                    h('round-player1.bug#rplayer1b'),
-                    h('div#misc-info1b'),
-                ]),
+                seatViews.a[1].view(),
+                seatViews.b[1].view(),
                 h('div.pocket-bot', [
                     h('div.' + variant.pieceFamily + '.twoboards', [
                         h('div.cg-wrap.pocket', [

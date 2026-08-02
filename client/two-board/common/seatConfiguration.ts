@@ -3,6 +3,7 @@ import * as cg from 'chessgroundx/types';
 import { BugBoardName, PyChessModel } from '../../types';
 import { Step } from '../../messages';
 import { BLACK, WHITE } from '../../chess';
+import { Seat, Team, TwoBoardPlayer } from './seat';
 
 const otherBoard = (board: BugBoardName): BugBoardName => (board === 'a' ? 'b' : 'a');
 const otherColor = (color: cg.Color): cg.Color => (color === 'white' ? 'black' : 'white');
@@ -16,42 +17,10 @@ export function playerInfoData(model: PyChessModel, color: 'w' | 'b', board: 'a'
     return [username, title, rating];
 }
 
-// Pure identity of the person occupying a seat. In simul mode the same username
-// occupies two seats (of the same team — one person is never on both teams) as
-// two separate instances, one per seat.
-export class TwoBoardPlayer {
-    constructor(
-        readonly username: string,
-        readonly title: string,
-        readonly rating: string,
-    ) {}
-}
-
-// One of the four bughouse seats: a board+color coordinate and the player sitting
-// there. Seat-relative logic (relations, teams, screen placement) is keyed by the
-// coordinates; per-player questions identify the player's seat(s) first and then
-// use the seat logic.
-export class Seat {
-    constructor(
-        readonly player: TwoBoardPlayer,
-        readonly color: cg.Color,
-        readonly boardName: BugBoardName,
-    ) {}
-}
-
-export class Team {
-    constructor(
-        readonly seats: [Seat, Seat],
-        readonly teamNumber: '1' | '2',
-    ) {}
-
-    name(format: (username: string) => string = u => u): string {
-        return format(this.seats[0].player.username) + '+' + format(this.seats[1].player.username);
-    }
-}
-
 // Recorded clock time (ms) for a seat at the given step, read from the step's
-// per-board clock arrays. Undefined when the step carries no clocks.
+// per-board clock arrays. Undefined when the step carries no clocks. A standalone
+// function rather than a Seat method, so Seat itself never depends on Step/
+// analysis-tree types.
 export function clockTimeAt(step: Step, seat: Seat): number | undefined {
     const clocks = seat.boardName === 'a' ? step.clocks : step.clocksB;
     return clocks?.[seat.color === 'white' ? WHITE : BLACK];
@@ -59,33 +28,32 @@ export function clockTimeAt(step: Step, seat: Seat): number | undefined {
 
 // The four seats of a bughouse game (wA, bA, wB, bB) and every way the client
 // needs to look them up: by coordinates, relative to the viewer, by relation to
-// another seat, or as teams. Constructed from the page model only — no DOM, no
-// controller references — so round and analysis share one instance.
-export class TwoBoardSeats {
-    readonly all: [Seat, Seat, Seat, Seat];
+// another seat, or as teams. Generic over the seat type it holds — only Seat is
+// instantiated today, but the genericity is what lets the constructor stay
+// build-agnostic. Takes the four already-built seats and the viewer username
+// only — it does not know how to build seats from a page model or from step data.
+export class SeatConfiguration<S extends Seat> {
+    readonly all: [S, S, S, S];
     readonly teams: [Team, Team];
 
     constructor(
-        model: PyChessModel,
+        seats: [S, S, S, S],
         private readonly viewer: string,
     ) {
-        const seat = (color: 'w' | 'b', board: BugBoardName) => {
-            const [username, title, rating] = playerInfoData(model, color, board);
-            return new Seat(new TwoBoardPlayer(username, title, rating), color === 'w' ? 'white' : 'black', board);
-        };
-        const wA = seat('w', 'a');
-        const bA = seat('b', 'a');
-        const wB = seat('w', 'b');
-        const bB = seat('b', 'b');
-        this.all = [wA, bA, wB, bB];
+        this.all = seats;
+        const [wA, bA, wB, bB] = seats;
         this.teams = [new Team([wA, bB], '1'), new Team([bA, wB], '2')];
     }
 
-    byBoardAndColor(board: BugBoardName, color: cg.Color): Seat {
+    byBoardAndColor(board: BugBoardName, color: cg.Color): S {
         return this.all.find(s => s.boardName === board && s.color === color)!;
     }
 
-    me(board: BugBoardName): Seat | undefined {
+    seatsOn(board: BugBoardName): S[] {
+        return this.all.filter(s => s.boardName === board);
+    }
+
+    me(board: BugBoardName): S | undefined {
         // when the viewer somehow holds both seats of one board, the black seat wins,
         // matching the legacy myColor map that was written to in white-then-black order
         const mine = this.all.filter(s => s.boardName === board && s.player.username === this.viewer);
@@ -106,20 +74,20 @@ export class TwoBoardSeats {
     }
 
     teamOf(seat: Seat): Team {
-        // resolve by coordinates so any Seat-shaped input (e.g. a RoundSeat) works
+        // resolve by coordinates so any Seat-shaped input works
         const s = this.byBoardAndColor(seat.boardName, seat.color);
         return this.teams.find(t => t.seats.includes(s))!;
     }
 
-    partnerOf(seat: Seat): Seat {
+    partnerOf(seat: Seat): S {
         return this.byBoardAndColor(otherBoard(seat.boardName), otherColor(seat.color));
     }
 
-    opponentOf(seat: Seat): Seat {
+    opponentOf(seat: Seat): S {
         return this.byBoardAndColor(seat.boardName, otherColor(seat.color));
     }
 
-    opponentsPartnerOf(seat: Seat): Seat {
+    opponentsPartnerOf(seat: Seat): S {
         return this.byBoardAndColor(otherBoard(seat.boardName), seat.color);
     }
 
@@ -135,4 +103,22 @@ export class TwoBoardSeats {
         if (myColorOtherBoard !== undefined) return myColorOtherBoard;
         return board === 'a' ? 'black' : 'white';
     }
+}
+
+// Builds the seat container: the four seats' coordinates and player identity, from
+// the page model and viewer username only (no DOM, no controller references) — the
+// single container both pages use. Seats start without a clock; the round controller
+// assigns each one later, once the seat views that own the clock elements exist. A
+// plain function returning SeatConfiguration<Seat> directly, not a subclass and not
+// a type alias for it, since the type needs no name of its own.
+export function twoBoardSeats(model: PyChessModel, viewer: string): SeatConfiguration<Seat> {
+    const seat = (color: 'w' | 'b', board: BugBoardName) => {
+        const [username, title, rating] = playerInfoData(model, color, board);
+        return new Seat(new TwoBoardPlayer(username, title, rating), color === 'w' ? 'white' : 'black', board);
+    };
+    const wA = seat('w', 'a');
+    const bA = seat('b', 'a');
+    const wB = seat('w', 'b');
+    const bB = seat('b', 'b');
+    return new SeatConfiguration([wA, bA, wB, bB], viewer);
 }

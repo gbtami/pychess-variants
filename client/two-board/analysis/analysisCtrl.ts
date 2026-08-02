@@ -13,10 +13,10 @@ import { TwoBoardController, initBoardSettings } from '@/two-board/twoBoardCtrl'
 import { getPgn, PgnView, updateFENAndPGN } from './pgn';
 import { buildScoreStr, EngineController } from './engine';
 import { AnalysisTreeController } from './analysisTree';
+import { GameInfoView } from '../common/gameInfo';
 import { MovelistView } from '../common/movelist';
 
 export default class AnalysisControllerBughouse extends TwoBoardController {
-
     pgn: string;
     plyVari: number;
     recordedMainlinePly?: number;
@@ -41,12 +41,13 @@ export default class AnalysisControllerBughouse extends TwoBoardController {
         el2Pocket2: HTMLElement,
         model: PyChessModel,
         movelistView: MovelistView,
+        gameInfoView: GameInfoView,
         engine: EngineController,
         pgnView: PgnView,
         clockView: AnalysisClockView,
         movetimeChartView: MovetimeChartView,
     ) {
-        super(el1, el1Pocket1, el1Pocket2, el2, el2Pocket1, el2Pocket2, model, movelistView);
+        super(el1, el1Pocket1, el1Pocket2, el2, el2Pocket1, el2Pocket2, model, movelistView, gameInfoView);
 
         // orient the boards as the viewer experienced the game: own/partner color at
         // the bottom for participants, white-A/black-B for spectators (the old default)

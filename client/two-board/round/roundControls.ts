@@ -121,13 +121,6 @@ export function insertRematchButton(onViewRematch: () => void): void {
     patch(rematchButtonLocation, rematchButton);
 }
 
-export function showOnlineIcon(): void {
-    patch(
-        document.getElementById('player1a') as HTMLElement,
-        h('i-side.online#player1a', { class: { icon: true, 'icon-online': true, 'icon-offline': false } }),
-    );
-}
-
 // player-bar/info-wrap grid-area swaps for flipBoards()/switchBoards() — the round
 // page's clock/player bars sit in separate DOM regions from the boards themselves,
 // so the base class's board-level flip/switch is complemented by this layout swap

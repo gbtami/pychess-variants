@@ -7,7 +7,7 @@ import * as cg from 'chessgroundx/types';
 import { selectMainlineMove } from '../common/movelist';
 import { Step } from '../../messages';
 import AnalysisControllerBughouse from '@/two-board/analysis/analysisCtrl';
-import { clockTimeAt } from '../common/players';
+import { clockTimeAt } from '../common/seatConfiguration';
 import { BugBoardName } from '../../types';
 import { displayUsername } from '@/user';
 

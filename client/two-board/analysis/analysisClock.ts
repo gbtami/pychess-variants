@@ -1,13 +1,9 @@
 import { h, VNode } from 'snabbdom';
 
-import * as cg from 'chessgroundx/types';
-
 import { patch } from '../../document';
 import AnalysisController from './analysisCtrl';
 import { GameControllerBughouse } from '../common/gameCtrl';
-import { clockTimeAt } from '../common/players';
 import { Clocks } from '../../messages';
-import { BugBoardName } from '../../types';
 import { BLACK, WHITE } from '../../chess';
 
 // The four analysis clocks are keyed by physical screen position (not color),
@@ -60,13 +56,11 @@ export class AnalysisClockView {
 export function renderClocks(ctrl: AnalysisController) {
     const lastStep = ctrl.tree.hasAnalysisTree() ? ctrl.tree.getTreeCurrentNode()?.step : ctrl.steps[ctrl.ply];
     if (!lastStep) return;
-    const seatTime = (board: BugBoardName, color: cg.Color) =>
-        clockTimeAt(lastStep, ctrl.seats.byBoardAndColor(board, color));
     if (lastStep.clocks) {
-        renderClocksCC(ctrl.clockView, [seatTime('a', 'white')!, seatTime('a', 'black')!], ctrl.boardA, '');
+        renderClocksCC(ctrl.clockView, lastStep.clocks, ctrl.boardA, '');
     }
     if (lastStep.clocksB) {
-        renderClocksCC(ctrl.clockView, [seatTime('b', 'white')!, seatTime('b', 'black')!], ctrl.boardB, '.bug');
+        renderClocksCC(ctrl.clockView, lastStep.clocksB, ctrl.boardB, '.bug');
     }
 }
 

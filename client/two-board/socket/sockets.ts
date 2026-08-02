@@ -1,6 +1,3 @@
-import { h } from 'snabbdom';
-
-import { patch } from '../../document';
 import { WebsocketHeartbeatJs } from '../../socket/socket';
 import { createWebsocket } from '@/socket/webSocketUtils';
 import { JSONObject } from '../../types';
@@ -26,26 +23,28 @@ export class RoundControllerBughouseSocket {
                 //TODO:NIKI:now we return false instead of exception
                 console.log('could not even REsend unsent messages ', e);
             }
-            ctrl.seatsState.setConnecting(false);
+            this.setConnecting(false);
         };
 
         const onReconnect = () => {
-            ctrl.seatsState.setConnecting(true);
-            const container = document.getElementById('player1a') as HTMLElement;
-            patch(
-                container,
-                h('i-side.online#player1a', { class: { icon: true, 'icon-online': false, 'icon-offline': true } }),
-            );
+            this.setConnecting(true);
+            ctrl.setPresence(ctrl.username, false);
         };
 
         const onClose = () => {
-            ctrl.seatsState.setConnecting(true);
+            this.setConnecting(true);
         };
 
         // last so when it receive initial messages on connect all dom is ready to be updated
         this.sock = createWebsocket('wsr/' + ctrl.gameId, onOpen, onReconnect, onClose, (e: MessageEvent) =>
             this.onMessage(e),
         );
+    }
+
+    // the clocks grey out while the connection is down, so this tracks the socket's
+    // own state rather than anything the game does
+    private setConnecting(connecting: boolean): void {
+        this.ctrl.seats.all.forEach(s => (s.clock!.connecting = connecting));
     }
 
     doSend = (message: JSONObject): boolean => {

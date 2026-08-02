@@ -1,7 +1,7 @@
 import { h, VNode } from 'snabbdom';
 
 import { _ } from '../../i18n';
-import { gameInfoBug } from '../common/gameInfo';
+import { GameInfoView } from '../common/gameInfo';
 import { VARIANTS, selectVariant, validVariant } from '../../variants';
 
 import { renderTimeago } from '../../datetime';
@@ -15,9 +15,9 @@ import { PgnView } from './pgn';
 import { AnalysisClockView } from './analysisClock';
 import { MovetimeChartView } from './movetimeChart';
 
-function leftSide(model: PyChessModel) {
+function leftSide(model: PyChessModel, gameInfoView: GameInfoView) {
     if (model['gameId'] !== '') {
-        return [gameInfoBug(model), h('div#roundchat')];
+        return [gameInfoView.placeholder(), h('div#roundchat')];
     } else {
         const setVariant = (isInput: boolean) => {
             let e;
@@ -55,6 +55,7 @@ function createBoards(
     bugboardPocket1: VNode,
     model: PyChessModel,
     movelistView: MovelistView,
+    gameInfoView: GameInfoView,
     engine: EngineController,
     pgnView: PgnView,
     clockView: AnalysisClockView,
@@ -69,6 +70,7 @@ function createBoards(
         bugboardPocket1.elm as HTMLElement,
         model,
         movelistView,
+        gameInfoView,
         engine,
         pgnView,
         clockView,
@@ -97,6 +99,7 @@ export function analysisView(model: PyChessModel): VNode[] {
         bugboardPocket1: VNode;
 
     const movelistView = new MovelistView();
+    const gameInfoView = new GameInfoView();
     const engine = new EngineController(model.chess960 === 'True');
     const pgnView = new PgnView();
     const clockView = new AnalysisClockView();
@@ -117,6 +120,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                             bugboardPocket1,
                             model,
                             movelistView,
+                            gameInfoView,
                             engine,
                             pgnView,
                             clockView,
@@ -126,7 +130,7 @@ export function analysisView(model: PyChessModel): VNode[] {
                 },
             },
             [
-                h('div.bug-game-info', leftSide(model)),
+                h('div.bug-game-info', leftSide(model, gameInfoView)),
                 h(`selection#mainboard.${variant.boardFamily}.${variant.pieceFamily}.${variant.ui.boardMark}`, [
                     clockView.topPlaceholder(),
                     h('div.cg-wrap.' + variant.board.cg, {

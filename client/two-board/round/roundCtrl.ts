@@ -2,11 +2,14 @@ import * as Mousetrap from 'mousetrap';
 import * as cg from 'chessgroundx/types';
 
 import { _ } from '../../i18n';
-import { SeatsState } from '../seatsState';
+import { RoundSeatView, RoundSeatViews } from './roundSeatView';
+import { Seat } from '../common/seat';
+import { Clock } from '../../clock';
 import { RoundControllerBughouseSocket } from '../socket/sockets';
 import { recordPendingMove } from '../socket/pendingMoves';
 import { ChatController, chatMessage } from '../../chat';
 import { updateMovelist, updateResult, selectMove, MovelistView } from '../common/movelist';
+import { GameInfoView } from '../common/gameInfo';
 import { Clocks, MsgBoard, MsgGameEnd, MsgMove, MsgNewGame, MsgUserConnected, Step, StepChat } from '../../messages';
 import {
     MsgUserDisconnected,
@@ -19,9 +22,9 @@ import {
     MsgGameStart,
     MsgViewRematch,
 } from '../../roundType';
-import { BugBoardName, JSONObject, PyChessModel } from '../../types';
+import { BoardName, BugBoardName, JSONObject, PyChessModel } from '../../types';
 import { GameControllerBughouse } from '../common/gameCtrl';
-import { getTurnColor, uci2LastMove } from '../../chess';
+import { BLACK, WHITE, getTurnColor, uci2LastMove } from '../../chess';
 import { sound, soundThemeSettings } from '../../sound';
 import { notify } from '../../notification';
 import { chatMessageBug, resetChat } from '@/two-board/round/chat';
@@ -34,10 +37,12 @@ import {
     clearExtensionChoice,
     clearAbortIndicator,
     insertRematchButton,
-    showOnlineIcon,
     swapClockGridAreasForFlip,
     swapClockGridAreasForSwitch,
 } from './roundControls';
+
+// live remaining time of a clock, whether or not it is currently running (mirrors Clock's own tick math)
+const liveTime = (clock: Clock) => (clock.running ? clock.duration - (Date.now() - clock.startTime) : clock.duration);
 
 export class RoundControllerBughouse extends TwoBoardController implements ChatController {
     socket: RoundControllerBughouseSocket;
@@ -46,7 +51,11 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
     autoPromote: boolean;
 
-    seatsState: SeatsState;
+    private readonly seatViews: RoundSeatViews;
+    // color rendered at the top (position 0) of each board. This represents only the
+    // initial positioning on the screen: flip/switch only move html elements around,
+    // so these remain constant throughout the whole game.
+    private readonly topColor: Record<BugBoardName, cg.Color>;
 
     profileid: string;
     level: number;
@@ -69,8 +78,10 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         el2Pocket2: HTMLElement,
         model: PyChessModel,
         movelistView: MovelistView,
+        gameInfoView: GameInfoView,
+        seatViews: RoundSeatViews,
     ) {
-        super(el1, el1Pocket1, el1Pocket2, el2, el2Pocket1, el2Pocket2, model, movelistView);
+        super(el1, el1Pocket1, el1Pocket2, el2, el2Pocket1, el2Pocket2, model, movelistView, gameInfoView);
 
         this.anon = model.anon === 'True';
 
@@ -92,7 +103,11 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === 'true';
 
-        this.seatsState = new SeatsState(this);
+        this.seatViews = seatViews;
+        this.topColor = { a: this.seats.initialTopColor('a'), b: this.seats.initialTopColor('b') };
+
+        this.createSeatWidgets();
+        this.wireClockDifferences();
 
         this.spectator = this.seats.isSpectator();
 
@@ -114,8 +129,8 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         };
 
         if (!this.spectator) {
-            this.seatsState.seatsOn('a').forEach(s => s.clock.onFlag(flagCallbackA));
-            this.seatsState.seatsOn('b').forEach(s => s.clock.onFlag(flagCallbackB));
+            this.seats.seatsOn('a').forEach(s => s.clock!.onFlag(flagCallbackA));
+            this.seats.seatsOn('b').forEach(s => s.clock!.onFlag(flagCallbackB));
         }
 
         this.controlsView = new RoundControlsView();
@@ -183,6 +198,69 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         console.log('HELP!');
     }
 
+    private viewAt(position: 0 | 1, board: BugBoardName): RoundSeatView {
+        return this.seatViews[board][position];
+    }
+
+    private viewOf(seat: Seat): RoundSeatView {
+        return this.viewAt(seat.color === this.topColor[seat.boardName] ? 0 : 1, seat.boardName);
+    }
+
+    // gives every seat the live clock its view renders into, and paints the player bars
+    private createSeatWidgets(): void {
+        this.seats.all.forEach(seat => {
+            const view = this.viewOf(seat);
+            seat.clock = view.createClock(this.base, this.inc);
+            view.renderPlayerBar(seat.player, this.level);
+        });
+    }
+
+    // difference value = this clock's live time minus the live time of the clock of your
+    // opponent's partner (the same color, on the other board). Updated on every tick.
+    private wireClockDifferences(): void {
+        this.seats.all.forEach(seat => {
+            seat.clock!.onTick(diff => {
+                seat.clock!.renderTime(diff);
+                const counterpart = this.seats.opponentsPartnerOf(seat);
+                const otherMillis = liveTime(counterpart.clock!);
+                this.viewOf(seat).renderDifference(Math.round((diff - otherMillis) / 1000));
+                this.viewOf(counterpart).renderDifference(Math.round((otherMillis - diff) / 1000));
+            });
+        });
+    }
+
+    // online/offline indicator on the player bars of every seat this username occupies
+    setPresence(username: string, online: boolean): void {
+        this.seats.all.filter(s => s.player.username === username).forEach(s => this.viewOf(s).setPresence(online));
+    }
+
+    /**
+     * @param boardName - for which board we are updating the clocks
+     * @param turnColor - whose turn it is after this move - their clock should be started
+     * @param status - current game status (needed to know whether the clock should actually start)
+     *
+     * Stops clock of user how made the move for the board in question,
+     * updates the clock times with the new values,
+     * starts the clock of the player whose turn is now
+     * */
+    updateClocks(boardName: BoardName, turnColor: cg.Color, msgClocks: Clocks, status: number) {
+        const board = boardName as BugBoardName;
+        const whiteClock = this.seats.byBoardAndColor(board, 'white').clock!;
+        const blackClock = this.seats.byBoardAndColor(board, 'black').clock!;
+
+        const moverClock = turnColor === 'white' ? blackClock : whiteClock;
+        const nextClock = turnColor === 'white' ? whiteClock : blackClock;
+
+        moverClock.pause(false);
+
+        whiteClock.setTime(msgClocks[WHITE]);
+        blackClock.setTime(msgClocks[BLACK]);
+
+        if (status < 0) {
+            nextClock.start();
+        }
+    }
+
     // required by the ChatController interface (chatView() calls ctrl.doSend()); forwards to the real implementation
     get doSend() {
         return this.socket.doSend;
@@ -204,29 +282,28 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
         //moveColor is "my color" on that board
         const moveColor = this.seats.myColor(b.boardName as BugBoardName) === 'black' ? 'black' : 'white';
+        const movedClock = this.seats.byBoardAndColor(b.boardName as BugBoardName, moveColor).clock!;
 
-        this.seatsState.seatAt(b.boardName as BugBoardName, moveColor).clock.pause(true);
-
+        // A premove is dispatched the instant the opponent's move lands, so the player is
+        // charged nothing for it. Clock.duration is frozen while the clock runs, so before
+        // pausing it still holds the time this turn started with; capture that plus the
+        // increment and restore it afterwards, since pause() would otherwise deduct the
+        // dispatch latency. setTime() also repaints, so what is shown matches what is sent.
         const increment = this.inc > 0 ? this.inc * 1000 : 0;
-        const bclocktime =
-            moveColor === 'black' && b.preaction
-                ? this.seatsState.seatAt('a', 'black').clocktime + increment
-                : this.seatsState.getClock('a', 'black').duration;
-        const wclocktime =
-            moveColor === 'white' && b.preaction
-                ? this.seatsState.seatAt('a', 'white').clocktime + increment
-                : this.seatsState.getClock('a', 'white').duration;
-        const bclocktimeB =
-            moveColor === 'black' && b.preaction
-                ? this.seatsState.seatAt('b', 'black').clocktime + increment
-                : this.seatsState.getClock('b', 'black').duration;
-        const wclocktimeB =
-            moveColor === 'white' && b.preaction
-                ? this.seatsState.seatAt('b', 'white').clocktime + increment
-                : this.seatsState.getClock('b', 'white').duration;
+        const premoveTime = b.preaction ? movedClock.duration + increment : undefined;
+        movedClock.pause(true);
+        if (premoveTime !== undefined) movedClock.setTime(premoveTime);
 
-        const msgClocks = [wclocktime, bclocktime];
-        const msgClocksB = [wclocktimeB, bclocktimeB];
+        // all those values are generally ignored on the server except the one for the current move which is
+        // communicated to the other players and recorded in the server move history
+        const msgClocks = [
+            this.seats.byBoardAndColor('a', 'white').clock!.duration,
+            this.seats.byBoardAndColor('a', 'black').clock!.duration,
+        ];
+        const msgClocksB = [
+            this.seats.byBoardAndColor('b', 'white').clock!.duration,
+            this.seats.byBoardAndColor('b', 'black').clock!.duration,
+        ];
 
         const moveMsg = {
             type: 'move',
@@ -241,7 +318,9 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         recordPendingMove(this.gameId, moveMsg);
 
         this.socket.doSend(moveMsg as JSONObject);
-        this.seatsState.seatAt(b.boardName as BugBoardName, moveColor === 'white' ? 'black' : 'white').clock.start();
+        this.seats
+            .byBoardAndColor(b.boardName as BugBoardName, moveColor === 'white' ? 'black' : 'white')
+            .clock!.start();
     };
 
     private draw = async () => {
@@ -359,7 +438,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             // game over
             this.status = msg.status;
             this.result = msg.result;
-            this.seatsState.seats.forEach(s => s.clock.pause(false));
+            this.seats.all.forEach(s => s.clock!.pause(false));
             // this.dests = new Map();
 
             if (this.result !== '*' && !this.spectator && !this.finishedGame) {
@@ -500,7 +579,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         // while the clock values for this move contain what the user making the moves has in their browser, which we
         // consider most accurate
 
-        this.seatsState.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
+        this.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
 
         //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
         if (latestPly) {
@@ -549,16 +628,16 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
         this.boardB.renderState();
 
         if (this.status < 0) {
-            this.seatsState.updateClocks('a', this.boardA.turnColor, clocksA, this.status);
-            this.seatsState.updateClocks('b', this.boardB.turnColor, clocksB, this.status);
+            this.updateClocks('a', this.boardA.turnColor, clocksA, this.status);
+            this.updateClocks('b', this.boardB.turnColor, clocksB, this.status);
         } else {
             // // TODO: this logic differs than single board games and lichess - not sure if to preserve+improve or remove
             // //       for finished games they dont update clocks according to move times of last moves and here i do
             // if (lastStepA) {
-            //     this.seatsState.updateClocks("a", this.b1.turnColor, lastStepA.clocks!, this.status);
+            //     this.updateClocks("a", this.b1.turnColor, lastStepA.clocks!, this.status);
             // }
             // if (lastStepB) {
-            //     this.seatsState.updateClocks("b", this.b2.turnColor, lastStepB.clocks!, this.status);
+            //     this.updateClocks("b", this.b2.turnColor, lastStepB.clocks!, this.status);
             // }
         }
 
@@ -622,7 +701,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             // time passed since last move on that board, but contain what is last recorded on the server for that board,
             // while the clock values for this move contain what the user making the moves has in their browser, which we
             // consider most accurate
-            this.seatsState.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
+            this.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
 
             //when message is for opp's move, meaning turnColor is my color - it is now my turn after this message
             if (latestPly) {
@@ -647,8 +726,8 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
             // session (e.g. this is confirming a move resent after a reconnect/refresh) - sync
             // from the server now instead of leaving it stuck in whatever state the earlier
             // full-board snapshot left it in.
-            if (this.seatsState.getClock(board.boardName, msgMoveColor).running) {
-                this.seatsState.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
+            if (this.seats.byBoardAndColor(board.boardName as BugBoardName, msgMoveColor).clock!.running) {
+                this.updateClocks(board.boardName, msgTurnColor, msgClocks, this.status);
             }
             board.setState(fen, board.turnColor === 'white' ? 'black' : 'white', lastMove);
             board.renderState();
@@ -831,7 +910,7 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
     onMsgUserConnected = (msg: MsgUserConnected) => {
         console.log(msg);
         if (!this.spectator) {
-            showOnlineIcon();
+            this.setPresence(this.username, true);
 
             // prevent sending gameStart message when user just reconnecting
             //todo:niki:what is the point of this message - also what if we refresh before moves are made? also what is the point of this whole method at all?
@@ -843,12 +922,12 @@ export class RoundControllerBughouse extends TwoBoardController implements ChatC
 
     onMsgUserPresent = (msg: MsgUserPresent) => {
         console.log(msg);
-        this.seatsState.setPresence(msg.username, true);
+        this.setPresence(msg.username, true);
     };
 
     onMsgUserDisconnected = (msg: MsgUserDisconnected) => {
         console.log(msg);
-        this.seatsState.setPresence(msg.username, false);
+        this.setPresence(msg.username, false);
     };
 
     onMsgDrawOffer = (msg: MsgDrawOffer) => {
