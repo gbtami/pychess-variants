@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import random
+import re
 from asyncio import Queue
-from collections.abc import Coroutine, Mapping
+from collections.abc import Container, Coroutine, Mapping
 from datetime import MINYEAR, UTC, datetime
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
@@ -11,6 +13,7 @@ import aiohttp_session
 from aiohttp import web
 from aiohttp.web_ws import WebSocketResponse
 from broadcast import round_broadcast
+from catalogued_rules import PIECE_OPTION_NAMES
 from const import (
     ANON_PREFIX,
     BLOCK,
@@ -63,6 +66,51 @@ import logging
 from pychess_global_app_state_utils import get_app_state
 
 log = logging.getLogger(__name__)
+
+# Matches the registered-username limit enforced in login.py, so a test name is
+# never longer than a name a real account could hold.
+TEST_USERNAME_MAX_LENGTH = 20
+
+# How many random pairs to try before falling back to a numeric suffix.
+TEST_USERNAME_ATTEMPTS = 10
+
+
+def _camel_case(value: str) -> str:
+    return "".join(word.capitalize() for word in re.split(r"[^A-Za-z0-9]+", value) if word)
+
+
+# Piece labels the server already ships, CamelCased so that multi-word and
+# hyphenated entries stay usable: "shogi pawn" -> "ShogiPawn". 38 entries
+# collapse to 37 distinct words, all alphanumeric and letter-initial.
+_TEST_NAME_WORDS = sorted({_camel_case(name) for name in PIECE_OPTION_NAMES.values()})
+
+
+def _test_name_pair() -> str:
+    """Two different piece words, trimmed to the length budget, e.g. KnightCannon."""
+    first, second = random.sample(_TEST_NAME_WORDS, 2)
+    return (first + second)[: TEST_USERNAME_MAX_LENGTH - len(TEST_PREFIX)]
+
+
+def _generate_test_username(taken: Container[str]) -> str:
+    """A readable, unused name for a -a mode guest, e.g. Test–KnightCannon."""
+    for _ in range(TEST_USERNAME_ATTEMPTS):
+        username = TEST_PREFIX + _test_name_pair()
+        if username not in taken:
+            return username
+
+    # Every attempt collided. Add a counter, trimming the pair so the counter
+    # fits the budget rather than overflowing it — dropping the counter instead
+    # would hand back a name that is already in use. Piece words hold no digits,
+    # so each counter yields a distinct name and this terminates.
+    pair = _test_name_pair()
+    counter = 2
+    while True:
+        suffix = str(counter)
+        trimmed = pair[: TEST_USERNAME_MAX_LENGTH - len(TEST_PREFIX) - len(suffix)]
+        username = TEST_PREFIX + trimmed + suffix
+        if username not in taken:
+            return username
+        counter += 1
 
 
 SILENCE = 15 * 60
@@ -144,8 +192,8 @@ class User:
         if username is None:
             self.anon = not self.app_state.anon_as_test_users
             self.username: str = (
-                TEST_PREFIX if self.app_state.anon_as_test_users else ANON_PREFIX
-            ) + id8()
+                ANON_PREFIX + id8() if self.anon else _generate_test_username(self.app_state.users)
+            )
         else:
             self.username = username
 

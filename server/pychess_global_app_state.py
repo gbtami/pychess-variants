@@ -48,6 +48,7 @@ from const import (
     STARTED,
     T_CREATED,
     T_STARTED,
+    TEST_PREFIX,
     WEEKLY,
     reserved,
 )
@@ -836,6 +837,14 @@ class PychessGlobalAppState:
         # Keep GC telemetry isolated in its own module to reduce changes here.
         # The helper starts a task only when GC_STATS_INTERVAL is configured.
         self.gc_stats_task = start_gc_telemetry(lambda: self.shutdown)
+
+    def is_test_user(self, username: str) -> bool:
+        """Whether this name belongs to a guest of the -a (anon_as_test_users) dev mode.
+
+        False in production whatever the name, so a real account that happens to
+        carry the prefix is never treated as a guest.
+        """
+        return self.anon_as_test_users and username.startswith(TEST_PREFIX)
 
     def registered_user_cache_references(self) -> set[User]:
         """Return users owned by live server state outside the global user cache."""
