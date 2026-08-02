@@ -41,6 +41,24 @@ del _
 
 VIDEOS = [
     {
+        "_id": "sTCEh3EMyu0",
+        "title": "PyChess - How to create a chess variant on PyChess!",
+        "author": "PyChess",
+        "tags": ["Howto", "Introduction"],
+        "category": "all",
+        "target": "beginner",
+        "duration": "10:49",
+    },
+    {
+        "_id": "RB1b9yUkkTM",
+        "title": "Silicon Road: Chess Variants: pawnsideways chess! Fish Fight Part 1!",
+        "author": "Silicon Road",
+        "tags": ["Tactics"],
+        "category": ["chess", "fairy"],
+        "target": "beginner",
+        "duration": "16:33",
+    },
+    {
         "_id": "0Jxu_9eaUz4",
         "title": "Upside down chess II www.lichess.org",
         "author": "Anish Giri",
