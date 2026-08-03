@@ -410,6 +410,21 @@ function initLoginDropdown() {
             }
         }
     });
+
+    // Provider-neutral /login redirects here so all callers can use the same chooser.
+    if (window.location.hash === '#login') {
+        const loginDropdown = document.querySelector('.login-dropdown') as HTMLElement;
+        if (loginDropdown) {
+            loginDropdown.classList.add('open');
+            const loginBtn = loginDropdown.querySelector('.login-btn') as HTMLButtonElement;
+            if (loginBtn) {
+                loginBtn.setAttribute('aria-expanded', 'true');
+                loginBtn.focus();
+            }
+        }
+
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
 }
 
 const el = document.getElementById('pychess-variants');

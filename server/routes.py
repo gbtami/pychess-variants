@@ -118,6 +118,7 @@ from login import (
     check_username_availability,
     confirm_username,
     login,
+    login_choice,
     logout,
     oauth,
     select_username,
@@ -226,6 +227,7 @@ RouteDef: TypeAlias = tuple[str, Handler]
 
 
 get_routes: tuple[RouteDef, ...] = (
+    ("/login", login_choice),
     ("/login/{provider}", login),
     ("/oauth/{provider}", oauth),
     ("/logout", logout),

@@ -139,6 +139,11 @@ async def oauth(request: web.Request) -> web.StreamResponse:
                 return web.HTTPFound("/")
 
 
+async def login_choice(_request: web.Request) -> web.StreamResponse:
+    """Open the provider chooser for provider-neutral login links."""
+    return web.HTTPFound("/#login")
+
+
 async def login(request: web.Request) -> web.StreamResponse:
     session = await aiohttp_session.get_session(request)
 
