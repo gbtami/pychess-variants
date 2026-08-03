@@ -46,7 +46,7 @@ Major regional variants have high precedence. For western chess variants, often 
 
 <details><summary>Can you add XXX?</summary>
 
-It depends on how popular or how interesting the variant is. We can't even consider adding variants that aren't supported by Fairy-Stockfish. Otherwise, you can ask us on Discord or Github.</details>
+It depends on how popular or how interesting the variant is. We can't even consider adding variants that aren't supported by Fairy-Stockfish. However, signed-in users can now create and share many Fairy-Stockfish-compatible variants themselves using the [user-defined variants feature](https://www.pychess.org/blogs/@/gbtami/create-your-own-variants/cL0m9kzc). Otherwise, you can ask us on Discord or GitHub.</details>
 
 ## Interface
 
