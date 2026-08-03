@@ -1390,6 +1390,7 @@ export class LobbyController implements ChatController {
                                 coordinates: false,
                                 fen: seek.fen,
                                 dimensions: variant.board.dimensions,
+                                viewOnly: true,
                             });
                         },
                     },
