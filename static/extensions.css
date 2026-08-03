@@ -289,8 +289,9 @@
   opacity: 0.7;
 }
 /* Visible fallback for roles missing from a user-selected piece family.
+   Roleless piece elements represent empty choices, such as declining to gate.
    More specific piece-set rules override this for supported roles. */
-.catalogued-missing-piece-fallback piece {
+.catalogued-missing-piece-fallback piece[class*="-piece"] {
   background-image: url('images/pieces/invisible.svg');
 }
 /* Walls in user-defined variants. Piece-set CSS is loaded before this file,
