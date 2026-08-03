@@ -8,6 +8,7 @@ import { boardSettings, BoardController } from '@/boardSettings';
 import { CGMove, uci2cg } from '@/chess';
 import { BoardName, PyChessModel } from '@/types';
 import { fogFen, Variant, VARIANTS, moddedVariant } from '@/variants';
+import { clearPassMoveAnimation } from '@/passMove';
 
 type MouchEvent = Event & Partial<MouseEvent & TouchEvent>;
 
@@ -146,6 +147,7 @@ export abstract class ChessgroundController implements BoardController {
     };
 
     toggleOrientation(): void {
+        clearPassMoveAnimation(this.chessground);
         this.chessground.toggleOrientation();
     }
 

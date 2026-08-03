@@ -331,6 +331,34 @@ piece.fading {
   opacity: 0.5;
 }
 
+@keyframes pass-move-flip {
+  0% {
+    transform: var(--pass-move-transform) rotateY(0deg) scale(1);
+  }
+  49.99% {
+    transform: var(--pass-move-transform) rotateY(90deg) scale(0.88, 1.06);
+  }
+  /* Normalize the hidden edge from 90deg to -90deg so the second half
+     finishes the flip without leaving directional artwork mirrored. */
+  50% {
+    transform: var(--pass-move-transform) rotateY(-90deg) scale(0.88, 1.06);
+  }
+  100% {
+    transform: var(--pass-move-transform) rotateY(0deg) scale(1);
+  }
+}
+
+.cg-wrap piece.pass-move {
+  animation: pass-move-flip 325ms cubic-bezier(0.45, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cg-wrap piece.pass-move {
+    animation: none;
+  }
+}
+
 .cg-wrap piece.ghost {
   opacity: 0.3;
 }

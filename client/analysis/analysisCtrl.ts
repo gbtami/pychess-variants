@@ -37,6 +37,7 @@ import { hideKeyboardHelp, isKeyboardHelpShortcut, showKeyboardHelp } from './ke
 import { PvHoverPreview } from './pvHoverPreview';
 import { alertDialog } from '../alertDialog';
 import { confirmDialog } from '../confirmDialog';
+import { animatePassMove } from '../passMove';
 import {
     addOrSelectChild,
     AnalysisTree,
@@ -1487,6 +1488,7 @@ export class AnalysisController extends GameController {
                 check: this.fog ? false : step.check,
                 lastMove: this.fog ? undefined : lastMove,
             });
+            animatePassMove(this.chessground, this.variant.rules.pass && !this.fog, lastMove);
 
             this.turnColor = step.turnColor;
             this.setDests();
@@ -1847,15 +1849,17 @@ export class AnalysisController extends GameController {
         const parts = msg.fen.split(' ');
         this.turnColor = parts[1] === 'w' ? 'white' : 'black';
 
+        const lastMove = uci2LastMove(msg.lastMove);
         this.chessground.set({
             fen: this.fullfen,
             turnColor: this.turnColor,
-            lastMove: uci2LastMove(msg.lastMove),
+            lastMove,
             check: msg.check,
             movable: {
                 color: this.turnColor,
             },
         });
+        animatePassMove(this.chessground, this.variant.rules.pass, lastMove);
 
         if (msg.check) sound.check();
     }

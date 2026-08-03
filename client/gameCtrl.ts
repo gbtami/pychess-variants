@@ -23,6 +23,7 @@ import { selectMove } from './movelist';
 import { Api } from 'chessgroundx/api';
 import { fogFen, Variant } from './variants';
 import { isAnonUsername } from './user';
+import { animatePassMove } from './passMove';
 
 export abstract class GameController extends ChessgroundController implements ChatController {
     sock: WebsocketHeartbeatJs;
@@ -351,6 +352,7 @@ export abstract class GameController extends ChessgroundController implements Ch
             check: this.fog ? false : step.check,
             lastMove: this.fog ? undefined : lastMove,
         });
+        animatePassMove(this.chessground, this.variant.rules.pass && !this.fog, lastMove);
 
         // turnColor have to be actualized before setDests() !!!
         this.turnColor = step.turnColor;
@@ -465,6 +467,7 @@ export abstract class GameController extends ChessgroundController implements Ch
             if (passKey) {
                 // prevent calling pass() again by selectSquare() -> onSelect()
                 this.chessground.unselect();
+                animatePassMove(this.chessground, this.variant.rules.pass, [passKey, passKey], true);
                 sound.moveSound(this.variant, false);
                 this.sendMove(passKey, passKey, '');
             }

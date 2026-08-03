@@ -48,6 +48,7 @@ import { createWebsocket } from '@/socket/webSocketUtils';
 import { setPocketRowCssVars } from './pocketRow';
 import { SimulRoundHostController } from './simul/simulRoundHost';
 import { confirmDialog } from './confirmDialog';
+import { animatePassMove } from './passMove';
 import {
     parsePendingMove,
     pendingMoveOnOpenAction,
@@ -1311,6 +1312,7 @@ export class RoundController extends GameController {
                     lastMove: this.fog ? undefined : lastMove,
                     movable: { color: undefined },
                 });
+                animatePassMove(this.chessground, this.variant.rules.pass && !this.fog, lastMove);
             }
             if (this.clockOn && msg.status < 0) {
                 if (this.turnColor === this.mycolor) {
@@ -1336,6 +1338,7 @@ export class RoundController extends GameController {
                         check: msg.check,
                         lastMove: this.fog ? undefined : lastMove,
                     });
+                    animatePassMove(this.chessground, this.variant.rules.pass && !this.fog, lastMove);
 
                     // This have to be exactly here (and before this.performPremove as well!!!),
                     // because in case of takeback
@@ -1367,6 +1370,7 @@ export class RoundController extends GameController {
                     check: msg.check,
                     lastMove: lastMove,
                 });
+                animatePassMove(this.chessground, this.variant.rules.pass, lastMove);
 
                 // This have to be here, because in case of takeback
                 // ataxx setDests() needs not just actualized turnColor but
