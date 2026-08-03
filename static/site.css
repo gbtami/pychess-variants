@@ -178,6 +178,16 @@
   vertical-align: middle;
   opacity: 0.6;
 }
+/* The Jieqi icon is not present in the pychess icon font. Draw it with CSS
+   so its size and baseline match the icon-font em box on every platform. */
+[data-icon='⬤']::before {
+  content: '';
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  background-color: currentColor;
+}
 ul.guide [data-icon]:before {
   margin-inline: 0 0.3em;
   opacity: 0.8;
