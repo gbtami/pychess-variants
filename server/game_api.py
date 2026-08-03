@@ -143,6 +143,11 @@ async def variant_counts_aggregation(
 
     match_cond: dict[str, object] = {}
 
+    # Catalogued/user-defined games carry their inline Fairy-Stockfish config.
+    # They are not first-class site variants and must not enter the monthly
+    # built-in variant series.
+    match_cond["vini"] = {"$exists": False}
+
     if query_period is not None:
         year, month = int(query_period[:4]), int(query_period[4:])
         match_cond["$expr"] = {
@@ -189,18 +194,28 @@ def variant_counts_from_docs(
     period = ""
     for doc in docs:
         # print(doc)
-        if doc["_id"]["p"] != period:
-            period = doc["_id"]["p"]
-            for variant in VARIANTS:
-                variant_counts[variant].append(0)
-
-        variant = C2V[doc["_id"]["v"]] + ("960" if doc["_id"].get("z", 0) else "")
-        try:
-            variant_counts[variant][-1] = doc["c"]
-        except KeyError:
+        variant_code = doc["_id"]["v"]
+        variant_name = C2V.get(variant_code)
+        variant = (
+            variant_code
+            if variant_name is None
+            else variant_name + ("960" if doc["_id"].get("z", 0) else "")
+        )
+        if variant not in variant_counts:
             if variant not in _seen_discontinued_variants:
                 _seen_discontinued_variants.add(variant)
-                log.info("Ignoring discontinued variant %s in historical stats", variant)
+                log.info(
+                    "Ignoring discontinued or user-defined variant %s in historical stats",
+                    variant,
+                )
+            continue
+
+        if doc["_id"]["p"] != period:
+            period = doc["_id"]["p"]
+            for series_variant in VARIANTS:
+                variant_counts[series_variant].append(0)
+
+        variant_counts[variant][-1] = doc["c"]
 
 
 async def get_variant_stats(request: web.Request) -> web.StreamResponse:

@@ -22,6 +22,7 @@ from game_api import (
     duplicate_key_only_bulk_write_error,
     persist_variant_count_docs,
     safe_write_eof,
+    variant_counts_aggregation,
     variant_counts_from_docs,
 )
 from glicko2.glicko2 import new_default_perf
@@ -342,6 +343,50 @@ class VariantStatsTestCase(unittest.TestCase):
             self.assertEqual(2, info.call_count)
         finally:
             _seen_discontinued_variants.clear()
+
+    def test_user_defined_variants_are_ignored(self):
+        variant_counts = {variant: [] for variant in VARIANTS}
+        docs = [
+            {"_id": {"p": "202501", "v": "annexation", "z": 0}, "c": 5},
+            {
+                "_id": {
+                    "p": "202502",
+                    "v": get_server_variant("chess", False).code,
+                    "z": 0,
+                },
+                "c": 7,
+            },
+        ]
+
+        _seen_discontinued_variants.clear()
+        try:
+            variant_counts_from_docs(variant_counts, docs)
+
+            self.assertEqual([7], variant_counts["chess"])
+            self.assertEqual({"annexation"}, _seen_discontinued_variants)
+        finally:
+            _seen_discontinued_variants.clear()
+
+
+class VariantStatsAggregationTestCase(unittest.IsolatedAsyncioTestCase):
+    async def test_aggregation_excludes_user_defined_game_documents(self):
+        game_collection = AsyncMock()
+        game_collection.aggregate.return_value = AsyncMock()
+        game_collection.aggregate.return_value.__aiter__.return_value = []
+        app_state = SimpleNamespace(
+            db=SimpleNamespace(
+                game=game_collection,
+                stats=AsyncMock(),
+                stats_humans=AsyncMock(),
+            )
+        )
+
+        await variant_counts_aggregation(app_state, humans=True, query_period="202501")
+
+        pipeline = game_collection.aggregate.await_args.args[0]
+        self.assertEqual({"$exists": False}, pipeline[0]["$match"]["vini"])
+        self.assertIn("$expr", pipeline[0]["$match"])
+        self.assertIn("$and", pipeline[0]["$match"])
 
 
 class VariantStatsPersistenceTestCase(unittest.IsolatedAsyncioTestCase):
