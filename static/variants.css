@@ -28,7 +28,7 @@ div.guide .catalogued-variant-rules h1,
 div.guide .catalogued-variant-rules h2,
 div.guide .catalogued-variant-rules .catalogued-variant-description,
 div.guide .catalogued-variant-rules .catalogued-variant-references,
-div.guide .catalogued-variant-rules .catalogued-variant-intro,
+.catalogued-variant-intro,
 div.guide .catalogued-variant-rules .catalogued-variant-kicker {
     margin: 0;
     padding: 0;
@@ -95,8 +95,10 @@ div.guide .catalogued-variant-rules h1 {
 }
 
 .catalogued-variant-intro {
+    font-style: italic;
     max-width: 60ch;
     opacity: 0.9;
+    margin-top: 20px;
 }
 
 .catalogued-variant-meta {
