@@ -972,6 +972,7 @@ div.tour-faq {
 .tour-faq h2 {
   margin: 1.5em 0 .5em 0;
   font-size: 30px;
+  padding-left: 0;
 }
 .tour-faq p {
   padding: 0;
