@@ -57,6 +57,7 @@ import { initPushSubscription } from './push';
 import { initCommunityVariantFavorites } from './communityVariants';
 import { gameSearchView, initGameSearch } from './gameSearch';
 import { initProfileActionOverflow } from './profileActionOverflow';
+import { initVariantAuthors } from './variantAuthors';
 
 // redirect to correct URL except Heroku preview/dev apps
 if (
@@ -353,6 +354,7 @@ function start() {
 
     maybeShowGameCategoryIntro();
     initCommunityVariantFavorites();
+    initVariantAuthors();
 
     patch(document.getElementById('zen-button') as HTMLElement, zenButtonView());
 }

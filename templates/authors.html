@@ -1,0 +1,92 @@
+{% extends "template.html" %}
+{% block content %}
+<div id="main-wrap">
+    <main class="authors-page">
+        <header class="authors-hero">
+            <p class="authors-kicker">People behind the games</p>
+            <h1>Chess variant authors</h1>
+            <p>
+                Meet some of the designers whose ideas became playable variants on PyChess.
+                Select a tile to read a short biography and open the related rules pages.
+            </p>
+        </header>
+
+        <section class="authors-grid" aria-label="Chess variant authors">
+            {% for author in authors %}
+            <article class="author-card">
+                <button
+                    class="author-card-button"
+                    type="button"
+                    data-author-dialog="author-dialog-{{ loop.index }}"
+                    aria-haspopup="dialog"
+                >
+                    <span class="author-portrait-frame">
+                        <img
+                            class="author-portrait{% if author.portrait_contain %} author-image-contain{% endif %}"
+                            src="{{ static(author.portrait) }}"
+                            alt="{{ author.portrait_alt }}"
+                            loading="lazy"
+                            decoding="async"
+                        >
+                    </span>
+                    <span class="author-card-copy">
+                        <strong>{{ author.name }}</strong>
+                        <span>
+                            {% for variant in author.variants %}
+                                {{ variant_display_name(variant) }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </span>
+                    </span>
+                </button>
+            </article>
+            {% endfor %}
+        </section>
+
+        {% for author in authors %}
+        <dialog class="author-dialog" id="author-dialog-{{ loop.index }}" aria-labelledby="author-title-{{ loop.index }}">
+            <div class="author-dialog-layout">
+                <img
+                    class="author-dialog-portrait{% if author.portrait_contain %} author-image-contain{% endif %}"
+                    src="{{ static(author.portrait) }}"
+                    alt="{{ author.portrait_alt }}"
+                >
+                <div class="author-dialog-copy">
+                    <button
+                        class="author-dialog-close"
+                        type="button"
+                        data-author-dialog-close
+                        aria-label="Close biography"
+                    >×</button>
+                    <p class="authors-kicker">Chess variant author</p>
+                    <h2 id="author-title-{{ loop.index }}">{{ author.name }}</h2>
+                    <p class="author-bio">{{ author.bio }}</p>
+
+                    <section class="author-variants" aria-label="Variants by {{ author.name }}">
+                        <h3>On PyChess</h3>
+                        <div class="author-variant-links">
+                            {% for variant in author.variants %}
+                            <a class="button" href="{{ home }}/variants/{{ variant }}">{{ variant_display_name(variant) }}</a>
+                            {% endfor %}
+                        </div>
+                    </section>
+
+                    <p class="author-sources">
+                        <a href="{{ author.source_url }}" target="_blank" rel="noopener noreferrer">Biography source</a>
+                        <span aria-hidden="true">•</span>
+                        {{ author.portrait_credit_label }} {{ author.portrait_credit }} —
+                        <a href="{{ author.portrait_source_url }}" target="_blank" rel="noopener noreferrer">source</a>{% if author.portrait_license %},
+                        <a href="{{ author.portrait_license_url }}" target="_blank" rel="noopener noreferrer">{{ author.portrait_license }}</a>{% endif %}
+                        {% if author.portrait_note %}
+                        <br>{{ author.portrait_note }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </dialog>
+        {% endfor %}
+    </main>
+</div>
+{% endblock %}
+{% block js %}
+    <script src="{{ js }}"></script>
+{% endblock %}

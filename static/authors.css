@@ -1,0 +1,262 @@
+.authors-page {
+    box-sizing: border-box;
+    grid-area: main;
+    width: min(1180px, calc(100vw - 2rem));
+    margin: 1.5rem auto 3rem;
+    color: var(--font-color);
+}
+
+.authors-hero {
+    display: block;
+    height: auto;
+    max-width: none;
+    margin: 0 0 1.35rem;
+    padding: 1.4rem 1.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-box);
+    box-shadow: var(--base-shadow);
+    text-align: left;
+    z-index: auto;
+}
+
+.authors-hero h1,
+.author-dialog h2,
+.author-dialog h3 {
+    margin: 0;
+    text-align: left;
+}
+
+.authors-hero > p:last-child {
+    max-width: 68ch;
+    margin: 0.6rem 0 0;
+    line-height: 1.55;
+}
+
+.authors-kicker {
+    margin: 0 0 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 0.78rem;
+    font-weight: bold;
+    opacity: 0.68;
+}
+
+.authors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1rem;
+}
+
+.author-card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-box);
+    box-shadow: var(--base-shadow);
+}
+
+.author-card-button {
+    appearance: none;
+    display: grid;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.author-portrait-frame {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    background: var(--bg-color2);
+}
+
+.author-portrait {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 28%;
+    transition: transform 180ms ease, filter 180ms ease;
+}
+
+.author-image-contain {
+    padding: 0.45rem;
+    object-fit: contain;
+    object-position: center;
+}
+
+.author-dialog-portrait.author-image-contain {
+    padding: 1rem;
+}
+
+.author-card-button:hover .author-portrait,
+.author-card-button:focus-visible .author-portrait {
+    transform: scale(1.035);
+    filter: contrast(1.03);
+}
+
+.author-card-button:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: -3px;
+}
+
+.author-card-copy {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.85rem 0.95rem 1rem;
+}
+
+.author-card-copy strong {
+    font-size: 1.08rem;
+}
+
+.author-card-copy span {
+    font-size: 0.9rem;
+    line-height: 1.35;
+    opacity: 0.74;
+}
+
+.author-dialog {
+    box-sizing: border-box;
+    position: fixed;
+    inset: 0;
+    width: min(860px, calc(100vw - 2rem));
+    max-height: min(760px, calc(100vh - 2rem));
+    margin: auto;
+    padding: 0;
+    overflow: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-box);
+    color: var(--font-color);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.38);
+}
+
+.author-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.58);
+    backdrop-filter: blur(2px);
+}
+
+.author-dialog-layout {
+    display: grid;
+    grid-template-columns: minmax(230px, 0.8fr) minmax(0, 1.4fr);
+    min-height: 360px;
+}
+
+.author-dialog-portrait {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 360px;
+    object-fit: cover;
+    object-position: center 28%;
+    background: var(--bg-color2);
+}
+
+.author-dialog-copy {
+    position: relative;
+    padding: 1.5rem 1.6rem 1.35rem;
+}
+
+.author-dialog-copy h2 {
+    padding-right: 2.4rem;
+    font-size: 1.7rem;
+}
+
+.author-dialog-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-color2);
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.55rem;
+    line-height: 1;
+}
+
+.author-dialog-close:hover,
+.author-dialog-close:focus-visible {
+    filter: brightness(1.08);
+}
+
+.author-bio {
+    margin: 1rem 0 0;
+    line-height: 1.62;
+}
+
+.author-variants {
+    margin-top: 1.3rem;
+}
+
+.author-variants h3 {
+    margin-bottom: 0.55rem;
+    font-size: 1rem;
+}
+
+.author-variant-links {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.author-sources {
+    margin: 1.4rem 0 0;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    opacity: 0.76;
+}
+
+@media (max-width: 620px) {
+    .authors-page {
+        width: min(100% - 1rem, 1180px);
+        margin-top: 0.7rem;
+    }
+
+    .authors-hero {
+        padding: 1.05rem 1.1rem;
+    }
+
+    .authors-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+    }
+
+    .author-card-copy {
+        padding: 0.7rem 0.7rem 0.8rem;
+    }
+
+    .author-dialog {
+        width: calc(100vw - 1rem);
+        max-height: calc(100vh - 1rem);
+    }
+
+    .author-dialog-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .author-dialog-portrait {
+        height: min(52vh, 410px);
+        min-height: 250px;
+    }
+
+    .author-dialog-copy {
+        padding: 1.15rem 1.1rem 1.2rem;
+    }
+}

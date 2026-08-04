@@ -10,6 +10,9 @@
     <li>
         <a class="icon" data-icon="◇" href="{{ home }}/variants/community">Community variants</a>
     </li>
+    <li>
+        <a class="icon" data-icon="♙" href="{{ home }}/authors">Variant authors</a>
+    </li>
     {% for key in variants %}
     <li>
         <a class="icon {{ groups[key] }}" data-icon="{{ icons[key] }}" href="{{ home }}/variants/{{ key }}">{{ variant_display_name(key) }}</a>
