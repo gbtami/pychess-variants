@@ -8,8 +8,6 @@
 
 The general rules are identical to standard Shogi. The goal remains to checkmate the opponent's "king," called the "onmyoji" in this game (which is purely aesthetic). Like Shogi, captured pieces can be dropped, and like Shogi, the last 3 ranks represent the promotion zone (where pieces can promote when either starting or ending the move in the promotion zone).
 
-One main difference from standard Shogi is that pieces can move to where they can no longer move to. At that point, they're immobile until captured by the opponent.
-
 ## Pieces
 
 Unlike Shogi, there are quite a few pieces that don't promote. This includes the pieces that have mirror versions of themselves, and the Nurikabe, a piece that starts in hand rather than on the board.
