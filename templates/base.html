@@ -29,6 +29,14 @@
             type="application/wasm"
             crossorigin="anonymous"
         >
+        {% elif view == "lobby" %}
+        <link
+            rel="prefetch"
+            href={{ static("ffish.wasm") }}
+            as="fetch"
+            type="application/wasm"
+            crossorigin="anonymous"
+        >
         {% endif %}
         <link rel="icon" href={{ static("favicon/favicon.ico") }} type="image/x-icon" />
     </head>
