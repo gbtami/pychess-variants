@@ -58,6 +58,7 @@ import { initCommunityVariantFavorites } from './communityVariants';
 import { gameSearchView, initGameSearch } from './gameSearch';
 import { initProfileActionOverflow } from './profileActionOverflow';
 import { initVariantAuthors } from './variantAuthors';
+import { initSearchBarDismissal } from './searchBar';
 
 // redirect to correct URL except Heroku preview/dev apps
 if (
@@ -301,6 +302,8 @@ function start() {
             // Add some delay so that the input won't eat the icon during the transition animation
             setTimeout(() => searchInput.focus(), 200);
     };
+
+    initSearchBarDismissal(searchBar);
 
     function showResults(val: string) {
         const acResult = document.getElementById('ac-result') as HTMLElement;
