@@ -4,6 +4,7 @@ from pathlib import Path
 import test_logger
 from aiohttp.test_utils import AioHTTPTestCase
 from mongomock_motor import AsyncMongoMockClient
+from settings import URI
 from variant_authors import VARIANT_AUTHORS, public_variant_authors
 
 from server import make_app
@@ -95,7 +96,10 @@ class VariantAuthorsPageTestCase(AioHTTPTestCase):
         self.assertIn("Jens Bæk Nielsen", text)
         self.assertIn("Torben Osted", text)
         self.assertIn("Jens Bæk Nielsen &amp; Torben Osted", text)
-        self.assertEqual(text.count('/variants/fogofwar"'), 1)
+        self.assertEqual(
+            text.count(f'<a class="button" href="{URI}/variants/fogofwar"'),
+            1,
+        )
         self.assertIn("Chess variant authors</p>", text)
         self.assertIn("David Bronstein", text)
         self.assertIn('/variants/alice"', text)
