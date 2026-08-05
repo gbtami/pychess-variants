@@ -4,6 +4,7 @@ import type { VNode } from 'snabbdom';
 import type { Seek } from '../client/lobbyType';
 
 jest.unstable_mockModule('../client/main', () => ({ model: {} }));
+jest.unstable_mockModule('chessgroundx', () => ({ Chessground: jest.fn() }));
 
 const { LobbyController } = await import('../client/lobby');
 const { registerCataloguedVariant, unregisterCataloguedVariant } = await import('../client/variants');
