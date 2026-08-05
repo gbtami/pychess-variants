@@ -31,4 +31,4 @@ assets and dimensions.
 | `toyota-genryu.jpg` | `static/images/ShogiGuide/ToriIntl.png` | Recompressed as JPEG |
 | `peter-michaelsen.jpg` | `static/images/CannonShogiGuide/Board.png` | Recompressed as JPEG |
 | `steven-streetman.jpg` | `static/images/CVariantsGuide/Spartan.png` | Recompressed as JPEG |
-| `fog-of-war.jpg` | `static/images/CVariantsGuide/Fogofwar.png` | Recompressed as JPEG; shared by both co-author tiles |
+| `fog-of-war.jpg` | `static/images/CVariantsGuide/Fogofwar.png` | Recompressed as JPEG for the joint co-author tile |

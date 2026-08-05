@@ -30,7 +30,7 @@
                         >
                     </span>
                     <span class="author-card-copy">
-                        <strong>{{ author.name }}</strong>
+                        <strong>{{ author.display_name }}</strong>
                         <span>
                             {% for variant in author.variants %}
                                 {{ variant_display_name(variant) }}{% if not loop.last %}, {% endif %}
@@ -57,11 +57,11 @@
                         data-author-dialog-close
                         aria-label="Close biography"
                     >×</button>
-                    <p class="authors-kicker">Chess variant author</p>
-                    <h2 id="author-title-{{ loop.index }}">{{ author.name }}</h2>
+                    <p class="authors-kicker">Chess variant author{% if author.is_collaboration %}s{% endif %}</p>
+                    <h2 id="author-title-{{ loop.index }}">{{ author.display_name }}</h2>
                     <p class="author-bio">{{ author.bio }}</p>
 
-                    <section class="author-variants" aria-label="Variants by {{ author.name }}">
+                    <section class="author-variants" aria-label="Variants by {{ author.display_name }}">
                         <h3>On PyChess</h3>
                         <div class="author-variant-links">
                             {% for variant in author.variants %}

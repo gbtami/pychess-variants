@@ -9,6 +9,7 @@ class VariantAuthor:
 
     name: str
     variants: tuple[str, ...]
+    coauthors: tuple[str, ...] = ()
     bio: str = ""
     portrait: str = ""
     portrait_alt: str = ""
@@ -21,6 +22,22 @@ class VariantAuthor:
     portrait_note: str = ""
     representative_artwork: bool = False
     portrait_contain: bool = False
+
+    @property
+    def credited_names(self) -> tuple[str, ...]:
+        return (self.name, *self.coauthors)
+
+    @property
+    def display_name(self) -> str:
+        if not self.coauthors:
+            return self.name
+        if len(self.coauthors) == 1:
+            return f"{self.name} & {self.coauthors[0]}"
+        return f"{self.name}, {', '.join(self.coauthors[:-1])} & {self.coauthors[-1]}"
+
+    @property
+    def is_collaboration(self) -> bool:
+        return bool(self.coauthors)
 
     @property
     def publishable(self) -> bool:
@@ -254,12 +271,13 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
     ),
     VariantAuthor(
         name="Jens Bæk Nielsen",
+        coauthors=("Torben Osted",),
         variants=("fogofwar",),
         bio=(
-            "Jens Bæk Nielsen co-created Dark Chess with Torben Osted in 1989 after "
-            "the pair experimented with a correspondence game under altered visibility "
-            "rules. Now widely known as Fog of War Chess, the game hides most of the "
-            "opposing army and makes capture of the king, rather than checkmate, the goal."
+            "Jens Bæk Nielsen and Torben Osted created Dark Chess together in 1989 after "
+            "experimenting with a correspondence game under altered visibility rules. "
+            "Now widely known as Fog of War Chess, their design hides most of the opposing "
+            "army and makes capture of the king, rather than checkmate, the goal."
         ),
         portrait="images/variant-authors/fog-of-war.jpg",
         portrait_alt="Fog of War Chess position from White's limited-information view",
@@ -267,26 +285,7 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
         portrait_source_url="https://www.pychess.org/variants/fogofwar",
         portrait_credit="the PyChess Fog of War rules guide",
         portrait_credit_label="Representative image from",
-        portrait_note=("Representative Fog of War artwork is used instead of an author portrait."),
-        representative_artwork=True,
-        portrait_contain=True,
-    ),
-    VariantAuthor(
-        name="Torben Osted",
-        variants=("fogofwar",),
-        bio=(
-            "Torben Osted co-created Dark Chess with Jens Bæk Nielsen in 1989. Their "
-            "limited-information design, now usually called Fog of War Chess, reveals "
-            "only a player's own army and the squares it can legally reach, turning the "
-            "hunt for an unseen king into the central challenge."
-        ),
-        portrait="images/variant-authors/fog-of-war.jpg",
-        portrait_alt="Fog of War Chess position from White's limited-information view",
-        source_url="https://ftp.chessvariants.com/incinf.dir/darkness.html",
-        portrait_source_url="https://www.pychess.org/variants/fogofwar",
-        portrait_credit="the PyChess Fog of War rules guide",
-        portrait_credit_label="Representative image from",
-        portrait_note=("Representative Fog of War artwork is used instead of an author portrait."),
+        portrait_note=("Representative Fog of War artwork is used instead of author portraits."),
         representative_artwork=True,
         portrait_contain=True,
     ),

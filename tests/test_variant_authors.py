@@ -17,7 +17,8 @@ class VariantAuthorsRegistryTestCase(unittest.TestCase):
 
         self.assertGreaterEqual(len(public), 10)
         self.assertTrue(all(author.publishable for author in public))
-        self.assertEqual(len({author.name for author in VARIANT_AUTHORS}), len(VARIANT_AUTHORS))
+        credited_names = [name for author in VARIANT_AUTHORS for name in author.credited_names]
+        self.assertEqual(len(set(credited_names)), len(credited_names))
 
         root = Path(__file__).resolve().parents[1]
         for author in public:
@@ -27,7 +28,9 @@ class VariantAuthorsRegistryTestCase(unittest.TestCase):
 
     def test_representative_images_and_hidden_records(self):
         authors = {author.name: author for author in VARIANT_AUTHORS}
-        public_names = {author.name for author in public_variant_authors()}
+        public = public_variant_authors()
+        public_names = {author.name for author in public}
+        public_credited_names = {name for author in public for name in author.credited_names}
 
         self.assertIn("V. R. Parton", authors)
         self.assertIn("alice", authors["V. R. Parton"].variants)
@@ -39,8 +42,12 @@ class VariantAuthorsRegistryTestCase(unittest.TestCase):
         self.assertIn("Peter Michaelsen", public_names)
         self.assertIn("Dr Tim Paulden", public_names)
         self.assertIn("S. D. Streetman", public_names)
-        self.assertIn("Jens Bæk Nielsen", public_names)
-        self.assertIn("Torben Osted", public_names)
+        self.assertIn("Jens Bæk Nielsen", public_credited_names)
+        self.assertIn("Torben Osted", public_credited_names)
+        self.assertEqual(
+            [author.name for author in public if "fogofwar" in author.variants],
+            ["Jens Bæk Nielsen"],
+        )
         self.assertIn("David Bronstein", public_names)
         self.assertTrue(authors["V. R. Parton"].representative_artwork)
         self.assertTrue(authors["Jean-Louis Cazaux"].representative_artwork)
@@ -49,8 +56,12 @@ class VariantAuthorsRegistryTestCase(unittest.TestCase):
         self.assertTrue(authors["Peter Michaelsen"].representative_artwork)
         self.assertTrue(authors["Dr Tim Paulden"].representative_artwork)
         self.assertTrue(authors["S. D. Streetman"].representative_artwork)
+        self.assertEqual(authors["Jens Bæk Nielsen"].coauthors, ("Torben Osted",))
+        self.assertEqual(
+            authors["Jens Bæk Nielsen"].display_name,
+            "Jens Bæk Nielsen & Torben Osted",
+        )
         self.assertTrue(authors["Jens Bæk Nielsen"].representative_artwork)
-        self.assertTrue(authors["Torben Osted"].representative_artwork)
         self.assertFalse(authors["David Bronstein"].representative_artwork)
         self.assertIn("Couch Tomato", authors)
         self.assertIn("yokai", authors["Couch Tomato"].variants)
@@ -83,6 +94,9 @@ class VariantAuthorsPageTestCase(AioHTTPTestCase):
         self.assertIn("S. D. Streetman", text)
         self.assertIn("Jens Bæk Nielsen", text)
         self.assertIn("Torben Osted", text)
+        self.assertIn("Jens Bæk Nielsen &amp; Torben Osted", text)
+        self.assertEqual(text.count('/variants/fogofwar"'), 1)
+        self.assertIn("Chess variant authors</p>", text)
         self.assertIn("David Bronstein", text)
         self.assertIn('/variants/alice"', text)
         self.assertIn('/variants/racingkings"', text)
