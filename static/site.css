@@ -1857,6 +1857,34 @@ table.seeks {
 .seeks tbody tr:hover {
   background-color: rgba(var(--rusty-rgb), 0.5);
 }
+.catalogued-seek-name {
+  display: none;
+}
+@media (max-width: 799px) {
+  .seeks tbody tr.catalogued-seek-main {
+    border-bottom: 0;
+  }
+  .seeks tbody tr.catalogued-seek-main td {
+    padding-bottom: 0.2em;
+  }
+  .seeks tbody tr.catalogued-seek-name {
+    display: table-row;
+  }
+  .catalogued-seek-name td {
+    max-width: 0;
+    padding-top: 0;
+    padding-left: 4.3em;
+  }
+  .mobile-catalogued-variant {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .seeks tbody tr.catalogued-seek-main:hover + tr.catalogued-seek-name {
+    background-color: rgba(var(--rusty-rgb), 0.5);
+  }
+}
 .seekbuttons {
   display: flex;
   flex-flow: column;

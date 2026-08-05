@@ -1301,24 +1301,42 @@ export class LobbyController implements ChatController {
 
     renderSeeks(seeks: Seek[]) {
         seeks.sort((a, b) => (a.bot && !b.bot ? 1 : -1));
-        const rows = seeks.map(seek => this.seekView(seek));
+        const rows = seeks.flatMap(seek => this.seekView(seek));
         return [seekHeader(), h('tbody', rows)];
     }
 
-    private seekViewRegular(seek: Seek) {
+    private seekViewRegular(seek: Seek): VNode[] {
         const variant = VARIANTS[seek.variant];
         const chess960 = seek.chess960;
+        const catalogued = isCataloguedVariant(seek.variant);
+        const displayName = variant.displayName(chess960);
+        const icon = variant.icon(chess960);
+        const row = h(
+            'tr',
+            {
+                class: { 'catalogued-seek-main': catalogued },
+                on: { click: () => this.onClickSeek(seek) },
+            },
+            [
+                h('td', [this.colorIcon(seek.color)]),
+                h('td', [this.challengeIcon(seek), this.seekTitle(seek), this.user(seek)]),
+                h('td', seek.rating),
+                h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi, seek.day)),
+                h('td.icon', { attrs: { 'data-icon': icon } }, [h('variant-name', ' ' + displayName)]),
+                h('td', { class: { tooltip: seek.fen !== '' } }, [this.tooltip(seek, variant), this.mode(seek)]),
+            ],
+        );
 
-        return h('tr', { on: { click: () => this.onClickSeek(seek) } }, [
-            h('td', [this.colorIcon(seek.color)]),
-            h('td', [this.challengeIcon(seek), this.seekTitle(seek), this.user(seek)]),
-            h('td', seek.rating),
-            h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi, seek.day)),
-            h('td.icon', { attrs: { 'data-icon': variant.icon(chess960) } }, [
-                h('variant-name', ' ' + variant.displayName(chess960)),
+        if (!catalogued) return [row];
+
+        return [
+            row,
+            h('tr.catalogued-seek-name', { on: { click: () => this.onClickSeek(seek) } }, [
+                h('td', { attrs: { colspan: '6' } }, [
+                    h('span.mobile-catalogued-variant', { attrs: { title: displayName } }, displayName),
+                ]),
             ]),
-            h('td', { class: { tooltip: seek.fen !== '' } }, [this.tooltip(seek, variant), this.mode(seek)]),
-        ]);
+        ];
     }
 
     private seekViewUnknown(seek: Seek) {
@@ -1332,10 +1350,11 @@ export class LobbyController implements ChatController {
         ]);
     }
 
-    private seekView(seek: Seek) {
+    private seekView(seek: Seek): VNode[] {
+        if (this.hide(seek)) return [];
         const variant = VARIANTS[seek.variant];
-        if (!variant) return this.hide(seek) ? '' : this.seekViewUnknown(seek);
-        return this.hide(seek) ? '' : variant.twoBoards ? seekViewBughouse(this, seek) : this.seekViewRegular(seek);
+        if (!variant) return [this.seekViewUnknown(seek)];
+        return variant.twoBoards ? [seekViewBughouse(this, seek)] : this.seekViewRegular(seek);
     }
 
     private onClickSeek(seek: Seek) {
