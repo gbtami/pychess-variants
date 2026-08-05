@@ -1,7 +1,10 @@
 import unittest
 from html.parser import HTMLParser
 
+from aiohttp.test_utils import AioHTTPTestCase
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from mongomock_motor import AsyncMongoMockClient
+from server import make_app
 
 
 class LinkParser(HTMLParser):
@@ -26,7 +29,11 @@ class WasmResourceHintsTestCase(unittest.TestCase):
 
     def wasm_hints(self, view, variant="chess"):
         rendered = self.template.render(
-            title="Test", view=view, variant=variant, view_css="test.css"
+            title="Test",
+            view=view,
+            variant=variant,
+            view_css="test.css",
+            prefetch_ffish=view == "lobby",
         )
         parser = LinkParser()
         parser.feed(rendered)
@@ -80,3 +87,28 @@ class WasmResourceHintsTestCase(unittest.TestCase):
 
     def test_unrelated_view_has_no_wasm_resource_hint(self):
         self.assertEqual(self.wasm_hints("profile"), [])
+
+
+class LobbyWasmResourceHintsRequestTestCase(AioHTTPTestCase):
+    async def get_application(self):
+        return make_app(db_client=AsyncMongoMockClient(tz_aware=True))
+
+    async def tearDownAsync(self):
+        await self.client.close()
+
+    async def test_lobby_routes_prefetch_expected_engine(self):
+        routes = (
+            ("/", "ffish.wasm"),
+            ("/seek/alice", "ffish-alice.wasm"),
+            ("/?variant=alice", "ffish-alice.wasm"),
+            ("/@/Fairy-Stockfish/challenge", "ffish.wasm"),
+        )
+        for path, engine in routes:
+            with self.subTest(path=path):
+                response = await self.client.get(path)
+                self.assertEqual(response.status, 200)
+                parser = LinkParser()
+                parser.feed(await response.text())
+                hints = [link for link in parser.links if link.get("rel") == "prefetch"]
+                self.assertEqual(len(hints), 1)
+                self.assertIn(engine, hints[0]["href"])

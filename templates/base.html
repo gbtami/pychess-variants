@@ -29,10 +29,10 @@
             type="application/wasm"
             crossorigin="anonymous"
         >
-        {% elif view == "lobby" %}
+        {% elif prefetch_ffish|default(false) %}
         <link
             rel="prefetch"
-            href={{ static("ffish.wasm") }}
+            href={{ static("ffish-alice.wasm" if variant == "alice" else "ffish.wasm") }}
             as="fetch"
             type="application/wasm"
             crossorigin="anonymous"
