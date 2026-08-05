@@ -1408,9 +1408,6 @@ font-size: 14px;
 .user-link {font-size: 0.8em;}
 .site-buttons #settings-main button {font-size: 12px;}
 }
-a {
-  white-space: break-spaces;
-}
 a,
 .user-link:link,
 .user-link:visited {
