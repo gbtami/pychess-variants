@@ -4,6 +4,7 @@ from html.parser import HTMLParser
 from aiohttp.test_utils import AioHTTPTestCase
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from mongomock_motor import AsyncMongoMockClient
+
 from server import make_app
 
 
