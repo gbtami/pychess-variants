@@ -80,6 +80,24 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
         portrait_license_url="https://creativecommons.org/publicdomain/zero/1.0/",
     ),
     VariantAuthor(
+        name="David Bronstein",
+        variants=("placement",),
+        bio=(
+            "David Bronstein (1924–2006) was a Soviet and Russian grandmaster, world "
+            "championship challenger, and one of chess's most celebrated creative "
+            "players. In the late 1940s he promoted the player-built starting-position "
+            "idea later known as Placement Chess, Pre-Chess, or Shuffle-Chess, in which "
+            "the back-rank pieces are placed alternately before normal play begins."
+        ),
+        portrait="images/variant-authors/david-bronstein.jpg",
+        portrait_alt="David Bronstein playing at the 1968 IBM chess tournament in Amsterdam",
+        source_url="https://www.fide.com/history-of-chess960/",
+        portrait_source_url=("https://commons.wikimedia.org/wiki/File:David_Bronstein_1968.jpg"),
+        portrait_credit="Eric Koch / Anefo / Dutch National Archives",
+        portrait_license="CC BY-SA 3.0 NL",
+        portrait_license_url="https://creativecommons.org/licenses/by-sa/3.0/nl/deed.en",
+    ),
+    VariantAuthor(
         name="Yasser Seirawan",
         variants=("seirawan",),
         bio=(
@@ -234,8 +252,44 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
         representative_artwork=True,
         portrait_contain=True,
     ),
-    VariantAuthor(name="Jens Bæk Nielsen", variants=("fogofwar",)),
-    VariantAuthor(name="Torben Osted", variants=("fogofwar",)),
+    VariantAuthor(
+        name="Jens Bæk Nielsen",
+        variants=("fogofwar",),
+        bio=(
+            "Jens Bæk Nielsen co-created Dark Chess with Torben Osted in 1989 after "
+            "the pair experimented with a correspondence game under altered visibility "
+            "rules. Now widely known as Fog of War Chess, the game hides most of the "
+            "opposing army and makes capture of the king, rather than checkmate, the goal."
+        ),
+        portrait="images/variant-authors/fog-of-war.jpg",
+        portrait_alt="Fog of War Chess position from White's limited-information view",
+        source_url="https://ftp.chessvariants.com/incinf.dir/darkness.html",
+        portrait_source_url="https://www.pychess.org/variants/fogofwar",
+        portrait_credit="the PyChess Fog of War rules guide",
+        portrait_credit_label="Representative image from",
+        portrait_note=("Representative Fog of War artwork is used instead of an author portrait."),
+        representative_artwork=True,
+        portrait_contain=True,
+    ),
+    VariantAuthor(
+        name="Torben Osted",
+        variants=("fogofwar",),
+        bio=(
+            "Torben Osted co-created Dark Chess with Jens Bæk Nielsen in 1989. Their "
+            "limited-information design, now usually called Fog of War Chess, reveals "
+            "only a player's own army and the squares it can legally reach, turning the "
+            "hunt for an unseen king into the central challenge."
+        ),
+        portrait="images/variant-authors/fog-of-war.jpg",
+        portrait_alt="Fog of War Chess position from White's limited-information view",
+        source_url="https://ftp.chessvariants.com/incinf.dir/darkness.html",
+        portrait_source_url="https://www.pychess.org/variants/fogofwar",
+        portrait_credit="the PyChess Fog of War rules guide",
+        portrait_credit_label="Representative image from",
+        portrait_note=("Representative Fog of War artwork is used instead of an author portrait."),
+        representative_artwork=True,
+        portrait_contain=True,
+    ),
     VariantAuthor(name="Bruce Harper", variants=("seirawan",)),
     VariantAuthor(
         name="Jean-Louis Cazaux",

@@ -6,6 +6,7 @@ These local copies are used by `/authors`. The source and license for each image
 | --- | --- | --- | --- |
 | `jose-raul-capablanca.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Jos%C3%A9_Ra%C3%BAl_Capablanca_1920.jpg) | Unknown photographer | Public domain |
 | `bobby-fischer.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Bobby_Fischer_1972.jpg) | Bert Verhoeff / Anefo | CC0 1.0 |
+| `david-bronstein.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:David_Bronstein_1968.jpg) | Eric Koch / Anefo / Dutch National Archives | CC BY-SA 3.0 NL |
 | `yasser-seirawan.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Yasser_Seirawan.jpg) | Georgios Souleidis | CC BY 2.0 |
 | `christian-freeling.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Christian_Freeling.jpg) | Christian Freeling | CC BY-SA 3.0 |
 | `madoka-kitao.jpg` | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:MADOKA_(retouched).JPG) | Unknownspb; retouched by PawełMM | CC BY-SA 4.0 |
@@ -30,3 +31,4 @@ assets and dimensions.
 | `toyota-genryu.jpg` | `static/images/ShogiGuide/ToriIntl.png` | Recompressed as JPEG |
 | `peter-michaelsen.jpg` | `static/images/CannonShogiGuide/Board.png` | Recompressed as JPEG |
 | `steven-streetman.jpg` | `static/images/CVariantsGuide/Spartan.png` | Recompressed as JPEG |
+| `fog-of-war.jpg` | `static/images/CVariantsGuide/Fogofwar.png` | Recompressed as JPEG; shared by both co-author tiles |
