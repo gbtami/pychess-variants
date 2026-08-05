@@ -7,6 +7,13 @@
     grid-column-gap: 2vmin;
 }
 
+@media (max-width: 799px) {
+    /* Keep the current correspondence game's details above the other ongoing game boards. */
+    #pychess-variants[data-view="round"][data-corr="True"] .round {
+        grid-template-areas: 'app' 'side' 'uboard' 'uside';
+    }
+}
+
 @media (max-width: 799px) and (orientation: portrait) {
     #main-wrap {
         --main-max-width: 100%;
