@@ -25,7 +25,7 @@ class VariantAuthorsRegistryTestCase(unittest.TestCase):
             for variant in author.variants:
                 self.assertTrue((root / "static" / "docs" / f"{variant}.md").is_file())
 
-    def test_representative_artwork_and_hidden_records(self):
+    def test_representative_images_and_hidden_records(self):
         authors = {author.name: author for author in VARIANT_AUTHORS}
         public_names = {author.name for author in public_variant_authors()}
 
@@ -36,10 +36,16 @@ class VariantAuthorsRegistryTestCase(unittest.TestCase):
         self.assertIn("Jean-Louis Cazaux", public_names)
         self.assertIn("Tamiya Katsuya", public_names)
         self.assertIn("Toyota Genryu", public_names)
+        self.assertIn("Peter Michaelsen", public_names)
+        self.assertIn("Dr Tim Paulden", public_names)
+        self.assertIn("S. D. Streetman", public_names)
         self.assertTrue(authors["V. R. Parton"].representative_artwork)
         self.assertTrue(authors["Jean-Louis Cazaux"].representative_artwork)
         self.assertTrue(authors["Tamiya Katsuya"].representative_artwork)
         self.assertTrue(authors["Toyota Genryu"].representative_artwork)
+        self.assertTrue(authors["Peter Michaelsen"].representative_artwork)
+        self.assertTrue(authors["Dr Tim Paulden"].representative_artwork)
+        self.assertTrue(authors["S. D. Streetman"].representative_artwork)
         self.assertIn("Couch Tomato", authors)
         self.assertIn("yokai", authors["Couch Tomato"].variants)
         self.assertNotIn("Couch Tomato", public_names)
@@ -66,9 +72,15 @@ class VariantAuthorsPageTestCase(AioHTTPTestCase):
         self.assertIn("Jean-Louis Cazaux", text)
         self.assertIn("Tamiya Katsuya", text)
         self.assertIn("Toyota Genryu", text)
+        self.assertIn("Peter Michaelsen", text)
+        self.assertIn("Dr Tim Paulden", text)
+        self.assertIn("S. D. Streetman", text)
         self.assertIn('/variants/alice"', text)
         self.assertIn('/variants/racingkings"', text)
         self.assertIn('/variants/shako"', text)
         self.assertIn('/variants/kyotoshogi"', text)
         self.assertIn('/variants/torishogi"', text)
+        self.assertIn('/variants/cannonshogi"', text)
+        self.assertIn('/variants/duck"', text)
+        self.assertIn('/variants/spartan"', text)
         self.assertIn('data-view="authors"', text)

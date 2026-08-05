@@ -24,7 +24,7 @@ class VariantAuthor:
 
     @property
     def publishable(self) -> bool:
-        """Show complete records with reusable portraits or local representative art."""
+        """Show complete records with licensed portraits or sourced representative images."""
 
         common_fields = bool(
             self.bio
@@ -40,8 +40,8 @@ class VariantAuthor:
 
 # Keep every identifiable creator credited by the English built-in rules here,
 # even when there is not enough reliable public material for a gallery tile yet.
-# Adding a sourced biography plus either a reusable portrait or explicitly marked
-# representative artwork automatically makes a record publishable on /authors.
+# Adding a sourced biography plus either a licensed portrait or explicitly marked
+# representative image automatically makes a record publishable on /authors.
 VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
     VariantAuthor(
         name="José Raúl Capablanca",
@@ -176,7 +176,27 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
     VariantAuthor(name="Craig Galley", variants=("ataxx",)),
     VariantAuthor(name="RadarUndetectable", variants=("battleofideologies",)),
     VariantAuthor(name="dpldgr", variants=("borderlands",)),
-    VariantAuthor(name="Peter Michaelsen", variants=("cannonshogi",)),
+    VariantAuthor(
+        name="Peter Michaelsen",
+        variants=("cannonshogi",),
+        bio=(
+            "Peter Michaelsen is the designer of Cannon Shogi, introduced in February "
+            "1998. The variant keeps the standard 9×9 shogi framework while adding four "
+            "cannon families inspired by Xiangqi and Janggi and replacing the normal pawn "
+            "array with five more mobile soldiers."
+        ),
+        portrait="images/variant-authors/peter-michaelsen.jpg",
+        portrait_alt="Cannon Shogi starting position",
+        source_url="https://ftp.chessvariants.com/index/displayitem.php?itemid=zCannonShogi",
+        portrait_source_url="https://www.pychess.org/variants/cannonshogi",
+        portrait_credit="the PyChess Cannon Shogi rules guide",
+        portrait_credit_label="Representative image from",
+        portrait_note=(
+            "Representative Cannon Shogi artwork is used instead of an author portrait."
+        ),
+        representative_artwork=True,
+        portrait_contain=True,
+    ),
     VariantAuthor(
         name="Couch Tomato",
         variants=(
@@ -195,7 +215,25 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
     ),
     VariantAuthor(name="Omshinwa", variants=("chess_xiangqi",)),
     VariantAuthor(name="Ralph Betza", variants=("cwda",)),
-    VariantAuthor(name="Dr Tim Paulden", variants=("duck",)),
+    VariantAuthor(
+        name="Dr Tim Paulden",
+        variants=("duck",),
+        bio=(
+            "Dr Tim Paulden was president of Exeter Chess Club in Devon, England, when "
+            "he invented Duck Chess in early 2016. The game adds a jointly controlled "
+            "rubber duck that blocks one square and must be repositioned after every "
+            "ordinary chess move."
+        ),
+        portrait="images/variant-authors/tim-paulden.jpg",
+        portrait_alt="Two players playing Duck Chess at Exeter Chess Club",
+        source_url="https://www.exeterchessclub.org.uk/content/duckchess2017jpg",
+        portrait_source_url="https://www.exeterchessclub.org.uk/content/duckchess2017jpg",
+        portrait_credit="Exeter Chess Club",
+        portrait_credit_label="Photo published by",
+        portrait_note=("The source photograph shows Duck Chess being played at Exeter Chess Club."),
+        representative_artwork=True,
+        portrait_contain=True,
+    ),
     VariantAuthor(name="Jens Bæk Nielsen", variants=("fogofwar",)),
     VariantAuthor(name="Torben Osted", variants=("fogofwar",)),
     VariantAuthor(name="Bruce Harper", variants=("seirawan",)),
@@ -219,7 +257,27 @@ VARIANT_AUTHORS: tuple[VariantAuthor, ...] = (
         portrait_contain=True,
     ),
     VariantAuthor(name="Fables", variants=("shinobi", "shinobiplus")),
-    VariantAuthor(name="Steven Streetman", variants=("spartan",)),
+    VariantAuthor(
+        name="S. D. Streetman",
+        variants=("spartan",),
+        bio=(
+            "S. D. Streetman, also credited as Steven Streetman, created Spartan Chess. "
+            "Recorded in 2010, the deliberately asymmetric design pits an orthodox "
+            "Persian army against Spartans with two kings and an entirely different set "
+            "of pieces. Streetman has also described how he designed and balanced the game."
+        ),
+        portrait="images/variant-authors/steven-streetman.jpg",
+        portrait_alt="Spartan Chess starting position",
+        source_url="https://www.youtube.com/watch?v=gq90ib3fYuM",
+        portrait_source_url="https://www.pychess.org/variants/spartan",
+        portrait_credit="the PyChess Spartan Chess rules guide",
+        portrait_credit_label="Representative image from",
+        portrait_note=(
+            "Representative Spartan Chess artwork is used instead of an author portrait."
+        ),
+        representative_artwork=True,
+        portrait_contain=True,
+    ),
     VariantAuthor(name="Watermelonely", variants=("melonvariant",)),
     VariantAuthor(name="Shigenobu Kusumoto", variants=("minishogi", "minixiangqi")),
     VariantAuthor(
