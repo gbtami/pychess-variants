@@ -28,6 +28,7 @@ import { PyChessModel } from './types';
 import { model } from './main';
 import { MsgBoard, MsgChat, MsgFullChat } from './messages';
 import { variantPanels } from './lobby/layer1';
+import { shouldShowRatingRange } from './lobby/ratingRange';
 import {
     Post,
     Stream,
@@ -243,6 +244,7 @@ export class LobbyController implements ChatController {
             } else if (this.profileid === 'Invite-friend') this.createMode = 'playFriend';
             document.getElementById('game-mode')!.style.display =
                 this.anon || this.title === 'BOT' ? 'none' : 'inline-flex';
+            this.updateRatingRangeVisibility();
             this.renderDialogHeader(_('Challenge %1 to a game', this.profileid));
             document.getElementById('ailevel')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
             document.getElementById('rmplay-block')!.style.display = this.createMode === 'playAI' ? 'block' : 'none';
@@ -1050,8 +1052,7 @@ export class LobbyController implements ChatController {
         const selectedElement = document.getElementById('variant') as HTMLSelectElement;
         const selectedVariantAfterRender = selectedElement?.value || selectedVariant;
         const selectedTwoBoards = !!VARIANTS[selectedVariantAfterRender]?.twoBoards;
-        const selectedCatalogued = isCataloguedVariant(selectedVariantAfterRender);
-        document.getElementById('rating-range-setting')!.style.display = selectedCatalogued ? 'none' : 'block';
+        this.updateRatingRangeVisibility(selectedVariantAfterRender);
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         (document.getElementById('id01') as HTMLDialogElement).showModal();
@@ -1068,7 +1069,7 @@ export class LobbyController implements ChatController {
         );
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
-        document.getElementById('rating-range-setting')!.style.display = 'none';
+        this.updateRatingRangeVisibility();
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         (document.getElementById('id01') as HTMLDialogElement).showModal();
@@ -1085,7 +1086,7 @@ export class LobbyController implements ChatController {
         );
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = 'none';
-        document.getElementById('rating-range-setting')!.style.display = 'none';
+        this.updateRatingRangeVisibility();
         const e = document.getElementById('rmplay') as HTMLInputElement;
         document.getElementById('ailevel')!.style.display = e.checked ? 'none' : 'inline-block';
         document.getElementById('rmplay-block')!.style.display = 'block';
@@ -1103,13 +1104,24 @@ export class LobbyController implements ChatController {
         );
         this.renderDialogHeader(createModeStr(this.createMode));
         document.getElementById('game-mode')!.style.display = this.anon ? 'none' : 'inline-flex';
-        document.getElementById('rating-range-setting')!.style.display = 'none';
+        this.updateRatingRangeVisibility();
         document.getElementById('ailevel')!.style.display = 'none';
         document.getElementById('rmplay-block')!.style.display = 'none';
         (document.getElementById('id01') as HTMLDialogElement).showModal();
         document.getElementById('color-button-group')!.style.display = 'none';
         document.getElementById('create-button')!.style.display = 'block';
         disableCorr(true);
+    }
+
+    private updateRatingRangeVisibility(variantName?: string) {
+        const selectedVariant =
+            variantName ?? (document.getElementById('variant') as HTMLSelectElement | null)?.value;
+        const visible = shouldShowRatingRange(
+            this.createMode,
+            this.profileid !== '',
+            isCataloguedVariant(selectedVariant),
+        );
+        document.getElementById('rating-range-setting')!.style.display = visible ? 'block' : 'none';
     }
 
     private setVariant() {
@@ -1120,6 +1132,7 @@ export class LobbyController implements ChatController {
         if (!variant) return;
         const byoyomi = variant.rules.defaultTimeControl === 'byoyomi';
         const catalogued = isCataloguedVariant(variant.name);
+        this.updateRatingRangeVisibility(variant.name);
         if (variant.twoBoards) {
             const select = document.getElementById('tc') as HTMLSelectElement;
             select.selectedIndex = 0;
