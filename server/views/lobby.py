@@ -18,6 +18,7 @@ from views import add_corr_games_context, get_user_context
 @aiohttp_jinja2.template("index.html")
 async def lobby(request: web.Request) -> ViewContext:
     user, context = await get_user_context(request)
+    context["prefetch_ffish"] = True
 
     app_state = get_app_state(request.app)
 
@@ -37,6 +38,8 @@ async def lobby(request: web.Request) -> ViewContext:
     variant = request.match_info.get("variant")
     if (variant is not None) and (variant not in ALL_VARIANTS):
         variant = "chess"
+    if variant is not None:
+        context["variant"] = variant
 
     fen = request.rel_url.query.get("fen")
     selected_variant = request.rel_url.query.get("variant")

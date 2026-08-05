@@ -29,6 +29,14 @@
             type="application/wasm"
             crossorigin="anonymous"
         >
+        {% elif prefetch_ffish|default(false) %}
+        <link
+            rel="prefetch"
+            href={{ static("ffish-alice.wasm" if variant == "alice" else "ffish.wasm") }}
+            as="fetch"
+            type="application/wasm"
+            crossorigin="anonymous"
+        >
         {% endif %}
         <link rel="icon" href={{ static("favicon/favicon.ico") }} type="image/x-icon" />
     </head>
