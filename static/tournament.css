@@ -32,6 +32,7 @@ div.info0 {
 }
 .player .user-link {
     padding: 8px;
+    white-space: nowrap;
 }
 .description {
     max-height: 20vh;
