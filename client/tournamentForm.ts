@@ -191,6 +191,7 @@ export function initTournamentForm(): void {
     };
 
     const syncEndDateFromSchedule = (): void => {
+        if (system.value !== SYSTEM_RR) return;
         if (!(endDateInput instanceof HTMLInputElement)) return;
         const startDate = effectiveStartDate();
         const minutes = parseInt(minutesSelect.value || '0', 10);
@@ -199,6 +200,7 @@ export function initTournamentForm(): void {
     };
 
     const syncMinutesFromEndDate = (): void => {
+        if (system.value !== SYSTEM_RR) return;
         if (!(endDateInput instanceof HTMLInputElement)) return;
         const endDate = readDateValue(endDateInput);
         const startDate = effectiveStartDate();
@@ -306,6 +308,7 @@ export function initTournamentForm(): void {
         setVisible(rrFaq, isRR);
         setVisible(swissFaq, isSwiss);
         syncRatingPolicy();
+        if (isRR) syncEndDateFromSchedule();
     };
 
     system.addEventListener('change', updateFormBySystem);
@@ -349,5 +352,4 @@ export function initTournamentForm(): void {
         }
     });
     updateFormBySystem();
-    syncEndDateFromSchedule();
 }
