@@ -81,6 +81,19 @@ describe('catalogued variant premoves', () => {
         expect(destinations).toEqual(new Set(['d1', 'f1', 'e2', 'a1', 'c1', 'g1', 'h1']));
     });
 
+    test('custom king with a non-k role keeps castling-only base premoves', () => {
+        registerCataloguedPremove({
+            name: 'betza-test',
+            source: 'user',
+            baseVariant: 'chess',
+            ini: '[betza-test:chess]\nking = g:W',
+        });
+        const state = board(['e1', 'g', 'white'], ['a1', 'r', 'white'], ['h1', 'r', 'white']);
+        const destinations = new Set(premoveForVariant('betza-test', false, dimensions)(state, 'e1', true));
+
+        expect(destinations).toEqual(new Set(['d1', 'f1', 'e2', 'a1', 'c1', 'g1', 'h1']));
+    });
+
     test('fixed promotion mappings can reuse a custom target movement', () => {
         registerCataloguedPremove({
             name: 'betza-test',

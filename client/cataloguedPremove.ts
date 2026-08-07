@@ -14,6 +14,7 @@ interface CataloguedPremoveDefinition {
     readonly baseVariant?: string;
     readonly movements: ReadonlyMap<string, BetzaPremove>;
     readonly promotedPieceTypes: ReadonlyMap<string, string>;
+    readonly kingRoleLetter?: string;
 }
 
 interface ParsedIniOption {
@@ -62,19 +63,24 @@ function promotedPieceTypes(options: readonly ParsedIniOption[]): Map<string, st
 function parsePremoveDefinition(meta: CataloguedPremoveMetadata): CataloguedPremoveDefinition {
     const options = iniOptions(meta.ini ?? '');
     const movements = new Map<string, BetzaPremove>();
+    let kingRoleLetter: string | undefined;
 
     for (const { key, value } of options) {
-        if (!(key.toLowerCase() === 'king' || /^custompiece\d+$/i.test(key)) || value === '-') continue;
+        const normalizedKey = key.toLowerCase();
+        if (!(normalizedKey === 'king' || /^custompiece\d+$/i.test(key)) || value === '-') continue;
 
         const explicit = /^([a-z]):(.*)$/i.exec(value);
         if (!explicit) continue;
-        movements.set(explicit[1].toLowerCase(), createBetzaPremove(explicit[2].trim()));
+        const roleLetter = explicit[1].toLowerCase();
+        movements.set(roleLetter, createBetzaPremove(explicit[2].trim()));
+        if (normalizedKey === 'king') kingRoleLetter = roleLetter;
     }
 
     return {
         baseVariant: meta.baseVariant,
         movements,
         promotedPieceTypes: promotedPieceTypes(options),
+        kingRoleLetter,
     };
 }
 
@@ -182,7 +188,13 @@ export function premoveForVariant(
         if (movement) {
             return mergeDestinations(
                 destinationsForMovement(movement, boardState, key, dimensions),
-                specialFallbackDestinations(fallback, boardState, key, canCastle),
+                specialFallbackDestinations(
+                    fallback,
+                    boardState,
+                    key,
+                    canCastle,
+                    letter === definition.kingRoleLetter ? 'k' : undefined,
+                ),
             );
         }
         return fallback(boardState, key, canCastle);
