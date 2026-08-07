@@ -56,11 +56,10 @@
         <button type="submit" class="button">Search</button>
     </form>
 
+    {% if community_variants.variants %}
     <p class="community-variants-count">
         {{ community_variants.total }} public variant{% if community_variants.total != 1 %}s{% endif %}
     </p>
-
-    {% if community_variants.variants %}
     <div class="community-variants-list">
         {% for item in community_variants.variants %}
         <section class="community-variant-card{% if item.startBoardPreview %} community-variant-card--with-preview{% endif %}{% if item.favorite %} community-variant-card--favorite{% endif %}" data-variant="{{ item.name }}">
