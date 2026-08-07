@@ -16,7 +16,7 @@ from urllib.parse import unquote, urlparse
 
 import aiohttp_session
 from aiohttp import web
-from catalogued_betza import catalogued_betza_diagrams
+from catalogued_betza import catalogued_betza_diagrams, catalogued_betza_pieces
 from catalogued_board import catalogued_start_board_preview
 from catalogued_rules import catalogued_rule_summary
 from compress import MAX_COMPRESSED_BOARD_HEIGHT, MAX_COMPRESSED_BOARD_WIDTH
@@ -1062,6 +1062,7 @@ class CataloguedVariantClientDocument(TypedDict):
     displayName: str
     tooltip: str
     pieceNames: NotRequired[dict[str, str]]
+    betzaPieces: NotRequired[dict[str, str]]
     ini: str
     baseVariant: str
     startFen: str
@@ -2744,6 +2745,9 @@ def _client_doc(
     piece_names = parse_catalogued_piece_names(doc.get("pieceNames"))
     if piece_names:
         client_doc["pieceNames"] = piece_names
+    betza_pieces = catalogued_betza_pieces(doc)
+    if betza_pieces:
+        client_doc["betzaPieces"] = betza_pieces
     if _is_fsf_builtin_catalogued_doc(doc):
         client_doc["fsfBuiltinVariant"] = _fsf_builtin_variant_name(doc)
         references = _catalogued_references_for_display(doc)

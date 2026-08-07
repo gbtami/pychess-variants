@@ -411,11 +411,9 @@ def _cached_catalogued_betza_diagrams(
     return tuple(diagrams)
 
 
-def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDiagram]:
-    """Return inline SVG movement diagrams for custom and known FSF built-in pieces."""
-
+def _piece_definitions_for_doc(doc: Mapping[str, Any]) -> tuple[_PieceDiagramDefinition, ...]:
     ini = str(doc.get("rulesIni") or doc.get("ini") or "")
-    definitions = _cached_piece_diagram_definitions(
+    return _cached_piece_diagram_definitions(
         ini,
         _doc_piece_letters_key(doc),
         _doc_piece_names_key(doc),
@@ -424,6 +422,18 @@ def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDia
         _doc_variant_name(doc.get("baseVariant")),
         BETZA_DIAGRAM_RENDERER_VERSION,
     )
+
+
+def catalogued_betza_pieces(doc: Mapping[str, Any]) -> dict[str, str]:
+    """Return resolved Betza movement definitions needed by catalogued clients."""
+
+    return {definition.piece: definition.betza for definition in _piece_definitions_for_doc(doc)}
+
+
+def catalogued_betza_diagrams(doc: Mapping[str, Any]) -> list[CataloguedBetzaDiagram]:
+    """Return inline SVG movement diagrams for custom and known FSF built-in pieces."""
+
+    definitions = _piece_definitions_for_doc(doc)
     board_width = _preview_dimension(doc.get("width"))
     board_height = _preview_dimension(doc.get("height"))
     return list(
