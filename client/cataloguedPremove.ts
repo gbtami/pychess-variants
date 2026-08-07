@@ -8,6 +8,7 @@ interface CataloguedPremoveMetadata {
     readonly source?: 'user' | 'fairy-stockfish-builtin';
     readonly ini?: string;
     readonly baseVariant?: string;
+    readonly betzaPieces?: Readonly<Record<string, string>>;
 }
 
 interface CataloguedPremoveDefinition {
@@ -65,6 +66,11 @@ function parsePremoveDefinition(meta: CataloguedPremoveMetadata): CataloguedPrem
     const movements = new Map<string, BetzaPremove>();
     let kingRoleLetter: string | undefined;
 
+    for (const [roleLetter, betza] of Object.entries(meta.betzaPieces ?? {})) {
+        const normalizedRole = normalRoleLetter(roleLetter);
+        if (normalizedRole) movements.set(normalizedRole, createBetzaPremove(betza));
+    }
+
     for (const { key, value } of options) {
         const normalizedKey = key.toLowerCase();
         if (!(normalizedKey === 'king' || /^custompiece\d+$/i.test(key)) || value === '-') continue;
@@ -85,13 +91,10 @@ function parsePremoveDefinition(meta: CataloguedPremoveMetadata): CataloguedPrem
 }
 
 export function registerCataloguedPremove(meta: CataloguedPremoveMetadata): void {
-    // Site variants and catalogued Fairy-Stockfish built-ins continue to use
-    // chessgroundx's established hard-coded premoves. The generic Betza path is
-    // intentionally limited to user-defined variants.
-    if (!meta.name || meta.source === 'fairy-stockfish-builtin') {
-        cataloguedPremoveDefinitions.delete(meta.name);
-        return;
-    }
+    // Site variants never register here and keep chessgroundx's established
+    // premoves. Catalogued variants can supplement their base-variant fallback
+    // with Betza movement definitions resolved by the server.
+    if (!meta.name) return;
     cataloguedPremoveDefinitions.set(meta.name, parsePremoveDefinition(meta));
 }
 

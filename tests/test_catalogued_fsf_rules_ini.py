@@ -29,6 +29,10 @@ class FsfBuiltinRulesIniTestCase(TestCase):
         self.assertEqual(client_doc["ini"], "")
         self.assertNotIn("rulesIni", client_doc)
         self.assertEqual(client_doc["fsfBuiltinVariant"], "yarishogi")
+        self.assertEqual(
+            client_doc["betzaPieces"],
+            {"n": "fRffN", "b": "fFfR", "r": "frlR", "g": "WfFbR", "s": "fKbR"},
+        )
 
         rule_context = catalogued_variant_rule_context(doc)
         self.assertTrue(rule_context["system"])

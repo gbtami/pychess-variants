@@ -42,6 +42,23 @@ describe('catalogued variant premoves', () => {
         expect(destinations).toEqual(new Set(['d5', 'd6', 'd7', 'd8', 'c6', 'e6']));
     });
 
+    test('catalogued Fairy-Stockfish built-in pieces use server-resolved Betza movement', () => {
+        registerCataloguedPremove({
+            name: 'betza-test',
+            source: 'fairy-stockfish-builtin',
+            baseVariant: 'capablanca',
+            ini: '',
+            betzaPieces: { j: 'BN' },
+        });
+        const state = board(['d4', 'j', 'white']);
+        const destinations = premoveForVariant('betza-test', false, dimensions)(state, 'd4', false);
+        const expected = createBetzaPremove('BN')({ origin: [3, 3], color: 'white', board: dimensions }).map(
+            position => util.pos2key([position[0], position[1]]),
+        );
+
+        expect(new Set(destinations)).toEqual(new Set(expected));
+    });
+
     test('directional custom movement rotates for black', () => {
         registerCataloguedPremove({
             name: 'betza-test',

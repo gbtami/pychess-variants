@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 import catalogued_betza
-from catalogued_betza import catalogued_betza_diagrams
+from catalogued_betza import catalogued_betza_diagrams, catalogued_betza_pieces
 
 
 class CataloguedBetzaDiagramTestCase(unittest.TestCase):
@@ -83,6 +83,31 @@ class CataloguedBetzaDiagramTestCase(unittest.TestCase):
         self.assertEqual(with_custom_king[0]["piece"], "k")
         self.assertEqual(with_custom_king[0]["betza"], "KN")
         self.assertEqual(bare_king, [])
+
+    def test_resolved_piece_map_includes_fsf_builtin_betza(self):
+        pieces = catalogued_betza_pieces(
+            {
+                "name": "janus",
+                "fsfBuiltinVariant": "janus",
+                "baseVariant": "capablanca",
+                "ini": "",
+                "pieces": ["p", "n", "b", "r", "q", "k", "j"],
+            }
+        )
+
+        self.assertEqual(pieces, {"j": "BN"})
+
+    def test_custom_piece_overrides_inherited_fsf_builtin_betza(self):
+        pieces = catalogued_betza_pieces(
+            {
+                "name": "custom-janus",
+                "baseVariant": "janus",
+                "ini": "[custom-janus:janus]\ncustomPiece1 = j:W",
+                "pieces": ["p", "n", "b", "r", "q", "k", "j"],
+            }
+        )
+
+        self.assertEqual(pieces, {"j": "W"})
 
     def test_custom_piece_diagram_list_is_cached_by_ini_and_preview_size(self):
         doc = {

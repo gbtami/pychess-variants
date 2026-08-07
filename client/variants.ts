@@ -2041,6 +2041,7 @@ export interface CataloguedVariantClientDocument {
     readonly displayName: string;
     readonly tooltip?: string;
     readonly pieceNames?: Readonly<Record<string, string>>;
+    readonly betzaPieces?: Readonly<Record<string, string>>;
     readonly ini: string;
     readonly baseVariant?: string;
     readonly startFen: string;
