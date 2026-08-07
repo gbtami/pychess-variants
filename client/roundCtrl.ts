@@ -1,6 +1,5 @@
 import { h, VNode } from 'snabbdom';
 
-import { premove } from 'chessgroundx/premove';
 import { predrop } from 'chessgroundx/predrop';
 import * as cg from 'chessgroundx/types';
 import { Api } from 'chessgroundx/api';
@@ -49,6 +48,7 @@ import { setPocketRowCssVars } from './pocketRow';
 import { SimulRoundHostController } from './simul/simulRoundHost';
 import { confirmDialog } from './confirmDialog';
 import { animatePassMove } from './passMove';
+import { premoveForVariant } from './cataloguedPremove';
 import {
     parsePendingMove,
     pendingMoveOnOpenAction,
@@ -253,7 +253,7 @@ export class RoundController extends GameController {
                 },
                 premovable: {
                     enabled: true,
-                    premoveFunc: premove(this.variant.name, this.chess960, this.variant.board.dimensions),
+                    premoveFunc: premoveForVariant(this.variant.name, this.chess960, this.variant.board.dimensions),
                     predropFunc: predrop(this.variant.name, this.variant.board.dimensions),
                     events: {
                         set: this.setPremove,

@@ -3,6 +3,8 @@ import { h, InsertHook, VNode } from 'snabbdom';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
 
+import { registerCataloguedPremove, unregisterCataloguedPremove } from './cataloguedPremove';
+
 import {
     BoardMarkType,
     ColorName,
@@ -2745,6 +2747,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
     if (meta.favorite) favoriteCataloguedVariantNames.add(meta.name);
     else favoriteCataloguedVariantNames.delete(meta.name);
     if (meta.ini) cataloguedVariantInis[meta.name] = meta.ini;
+    registerCataloguedPremove(meta);
 }
 
 export function unregisterCataloguedVariant(name: string | undefined | null): void {
@@ -2752,6 +2755,7 @@ export function unregisterCataloguedVariant(name: string | undefined | null): vo
     delete VARIANTS[name];
     delete PIECE_FAMILIES[`catalogued-${name}`];
     delete cataloguedVariantInis[name];
+    unregisterCataloguedPremove(name);
     cataloguedVariantNames.delete(name);
     favoriteCataloguedVariantNames.delete(name);
 }
