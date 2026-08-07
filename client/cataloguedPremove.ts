@@ -1,4 +1,4 @@
-import { createBetzaPremove, type BetzaPremove } from '@gbtami/betza';
+import { createBetzaPremove, type BetzaPremove } from '@pychess/betza';
 import { premove } from 'chessgroundx/premove';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';

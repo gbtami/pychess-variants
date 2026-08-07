@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from '@jest/globals';
 
-import { createBetzaPremove } from '@gbtami/betza';
+import { createBetzaPremove } from '@pychess/betza';
 import { premove } from 'chessgroundx/premove';
 import * as cg from 'chessgroundx/types';
 import * as util from 'chessgroundx/util';
