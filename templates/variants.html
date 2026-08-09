@@ -65,7 +65,12 @@
         <section class="community-variant-card{% if item.startBoardPreview %} community-variant-card--with-preview{% endif %}{% if item.favorite %} community-variant-card--favorite{% endif %}" data-variant="{{ item.name }}">
             <div class="community-variant-card-head">
                 <div class="community-variant-card-title">
-                    <h2><a href="{{ home }}/variants/{{ item.name }}">{{ item.displayName }}</a></h2>
+                    <h2>
+                        <a href="{{ home }}/variants/{{ item.name }}">
+                            {% if item.system %}<img class="community-variant-fsf-icon" src="/static/images/Fairy-Stockfish.webp" width="64" height="64" alt="" aria-hidden="true">{% endif %}
+                            {{ item.displayName }}
+                        </a>
+                    </h2>
                     <code>{{ item.name }}</code>
                 </div>
                 {% if community_variants.canFavorite %}
