@@ -191,7 +191,8 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
             patch(
                 "catalogued_variants._ensure_catalogued_variant_quota",
                 AsyncMock(side_effect=Exception("quota checked")),
-            ) as ensure_quota,self.assertRaisesRegex(Exception, "quota checked")
+            ) as ensure_quota,
+            self.assertRaisesRegex(Exception, "quota checked"),
         ):
             await restore_catalogued_variant(request)
 
