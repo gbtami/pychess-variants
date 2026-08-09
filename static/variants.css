@@ -270,7 +270,7 @@ div.guide .catalogued-variant-rules h1 {
 .community-variant-fsf-title {
     display: inline-flex;
     gap: 0.5rem;
-    align-items: center;
+    align-items: flex-end;
 }
 
 .community-variant-fsf-icon {
