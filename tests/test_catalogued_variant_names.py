@@ -3,6 +3,7 @@ import unittest
 import test_logger
 from aiohttp import web
 from catalogued_variants import (
+    ensure_catalogued_display_name_available,
     extract_variant_name,
     normalize_catalogued_display_name,
     replace_variant_section_name,
@@ -72,3 +73,61 @@ class CataloguedVariantNameTestCase(unittest.TestCase):
     def test_rejects_display_name_over_fifty_characters(self) -> None:
         with self.assertRaises(web.HTTPBadRequest):
             normalize_catalogued_display_name("A" * 51)
+
+    def test_rejects_first_class_site_variant_display_names(self) -> None:
+        for display_name in ("Chess", "CHESS", "King of the Hill", "𝗖𝗵𝗲𝘀𝘀"):
+            with (
+                self.subTest(display_name=display_name),
+                self.assertRaises(web.HTTPConflict),
+            ):
+                ensure_catalogued_display_name_available(
+                    normalize_catalogued_display_name(display_name),
+                    variant_name="myvariant",
+                )
+
+    def test_rejects_active_fsf_catalogue_display_names(self) -> None:
+        for display_name in ("Shatar", "shatar", "Courier Chess", "Janus Chess"):
+            with (
+                self.subTest(display_name=display_name),
+                self.assertRaises(web.HTTPConflict),
+            ):
+                ensure_catalogued_display_name_available(
+                    normalize_catalogued_display_name(display_name),
+                    variant_name="myvariant",
+                )
+
+    def test_allows_distinct_derivative_display_names(self) -> None:
+        for display_name in (
+            "Shatar Custom",
+            "Shatar Modified",
+            "My Shatar",
+            "Chess with Camels",
+        ):
+            with self.subTest(display_name=display_name):
+                ensure_catalogued_display_name_available(
+                    normalize_catalogued_display_name(display_name),
+                    variant_name="myvariant",
+                )
+
+    def test_does_not_reserve_fsf_candidate_display_names(self) -> None:
+        ensure_catalogued_display_name_available(
+            normalize_catalogued_display_name("Chigorin Chess"),
+            variant_name="myvariant",
+        )
+
+    def test_grandfathers_unchanged_legacy_collision_on_metadata_edit(self) -> None:
+        ensure_catalogued_display_name_available(
+            "Shatar",
+            variant_name="shatar_custom",
+            current_display_name="Shatar",
+            current_variant_name="shatar_custom",
+        )
+
+    def test_legacy_collision_must_be_fixed_when_variant_is_renamed(self) -> None:
+        with self.assertRaises(web.HTTPConflict):
+            ensure_catalogued_display_name_available(
+                "Shatar",
+                variant_name="shatar_custom_v2",
+                current_display_name="Shatar",
+                current_variant_name="shatar_custom",
+            )

@@ -3673,6 +3673,78 @@ async def check_catalogued_variant_rules(request: web.Request) -> web.Response:
     return json_response({"ok": True, "name": name, "startFen": start_fen})
 
 
+def _catalogued_display_name_key(display_name: str) -> str:
+    """Return a locale-independent key for exact canonical-name comparisons.
+
+    User-entered display names are normalized separately by
+    ``normalize_catalogued_display_name``.  This helper intentionally accepts
+    canonical site names too, including punctuation that community display
+    names may not permit (for example ``Khan's Chess``).
+    """
+
+    return unicodedata.normalize("NFKC", display_name).strip().casefold()
+
+
+def _reserved_catalogued_display_names() -> dict[str, str]:
+    """Canonical display names that community variants may not impersonate.
+
+    First-class site variants and the active curated Fairy-Stockfish catalogue
+    entries own their public names.  Candidates are deliberately excluded until
+    they are actually exposed by pychess.  Ordinary community variants do not
+    reserve names against one another.
+    """
+
+    reserved = {
+        _catalogued_display_name_key(variant.translated_name): variant.translated_name
+        for variant in ServerVariants
+    }
+    reserved.update(
+        {
+            _catalogued_display_name_key(str(metadata["displayName"])): str(metadata["displayName"])
+            for metadata in FSF_CATALOGUED_BUILTIN_VARIANTS.values()
+            if metadata.get("displayName")
+        }
+    )
+    return reserved
+
+
+def ensure_catalogued_display_name_available(
+    display_name: str,
+    *,
+    variant_name: str,
+    current_display_name: str | None = None,
+    current_variant_name: str | None = None,
+) -> None:
+    """Reject community display names owned by canonical pychess variants.
+
+    ``variant_name`` is used when the user leaves the optional display name
+    blank, matching ``_build_doc``.  Existing legacy collisions are grandfathered
+    only while both their display name and internal variant key remain unchanged;
+    this lets authors edit descriptions/visibility without perpetuating the
+    collision through a rename.
+    """
+
+    effective_name = _clean_display_name(display_name, variant_name)
+    if current_display_name is not None and current_variant_name == variant_name:
+        current_effective_name = _clean_display_name(current_display_name, current_variant_name)
+        if effective_name == current_effective_name:
+            return
+
+    canonical_name = _reserved_catalogued_display_names().get(
+        _catalogued_display_name_key(effective_name)
+    )
+    if canonical_name is None:
+        return
+
+    raise web.HTTPConflict(
+        text=(
+            f'"{effective_name}" is reserved for the official PyChess variant '
+            f'"{canonical_name}". Please choose a distinct display name, such as '
+            f'"{canonical_name} Custom" or "{canonical_name} Modified".'
+        )
+    )
+
+
 def normalize_catalogued_display_name(display_name: str) -> str:
     """Validate and normalize a user-editable catalogue display name."""
     cleaned = unicodedata.normalize("NFKC", display_name).strip()
@@ -4178,6 +4250,7 @@ async def upload_catalogued_variant(request: web.Request) -> web.Response:
     # is intentionally global and should not be called for a duplicate upload.
     name = extract_variant_name(ini)
     await ensure_catalogued_variant_name_available(app_state, name)
+    ensure_catalogued_display_name_available(display_name, variant_name=name)
     await check_catalogued_ini_without_mutating_server(ini, name)
 
     validated = validate_catalogued_ini(ini)
@@ -4734,6 +4807,12 @@ async def update_catalogued_variant(request: web.Request) -> web.Response:
         raise web.HTTPBadRequest(text="Missing INI content.")
 
     new_name = extract_variant_name(ini)
+    ensure_catalogued_display_name_available(
+        display_name,
+        variant_name=new_name,
+        current_display_name=str(existing.get("displayName") or ""),
+        current_variant_name=old_name,
+    )
     existing_ini = str(existing.get("ini") or "")
     fsf_rules_changed = _strip_pychess_pieces_metadata(ini) != _strip_pychess_pieces_metadata(
         existing_ini
