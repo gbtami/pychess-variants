@@ -7,12 +7,19 @@ interface CataloguedPremoveMetadata {
     readonly name: string;
     readonly source?: 'user' | 'fairy-stockfish-builtin';
     readonly ini?: string;
+    // Fairy-Stockfish registered-parent inheritance; empty when a built-in
+    // starts from an internal variant.cpp helper.
     readonly baseVariant?: string;
+    // General pychess compatibility profile. This intentionally preserves
+    // client semantics without overloading baseVariant's engine meaning.
+    readonly clientVariant?: string;
+    // Optional narrower chessground premove fallback.
+    readonly premoveVariant?: string;
     readonly betzaPieces?: Readonly<Record<string, string>>;
 }
 
 interface CataloguedPremoveDefinition {
-    readonly baseVariant?: string;
+    readonly fallbackVariant?: string;
     readonly movements: ReadonlyMap<string, BetzaPremove>;
     readonly promotedPieceTypes: ReadonlyMap<string, string>;
     readonly kingRoleLetter?: string;
@@ -83,7 +90,7 @@ function parsePremoveDefinition(meta: CataloguedPremoveMetadata): CataloguedPrem
     }
 
     return {
-        baseVariant: meta.baseVariant,
+        fallbackVariant: meta.premoveVariant || meta.clientVariant || meta.baseVariant,
         movements,
         promotedPieceTypes: promotedPieceTypes(options),
         kingRoleLetter,
@@ -92,8 +99,8 @@ function parsePremoveDefinition(meta: CataloguedPremoveMetadata): CataloguedPrem
 
 export function registerCataloguedPremove(meta: CataloguedPremoveMetadata): void {
     // Site variants never register here and keep chessgroundx's established
-    // premoves. Catalogued variants can supplement their base-variant fallback
-    // with Betza movement definitions resolved by the server.
+    // premoves. Catalogued variants can supplement their client compatibility
+    // fallback with Betza movement definitions resolved by the server.
     if (!meta.name) return;
     cataloguedPremoveDefinitions.set(meta.name, parsePremoveDefinition(meta));
 }
@@ -166,7 +173,7 @@ export function premoveForVariant(
     const definition = cataloguedPremoveDefinitions.get(variantName);
     if (!definition) return premove(variantName, chess960, dimensions);
 
-    const fallback = premove(definition.baseVariant ?? variantName, chess960, dimensions);
+    const fallback = premove(definition.fallbackVariant ?? variantName, chess960, dimensions);
     return (boardState, key, canCastle) => {
         const piece = boardState.pieces.get(key);
         if (!piece) return [];

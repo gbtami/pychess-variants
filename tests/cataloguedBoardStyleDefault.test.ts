@@ -18,6 +18,7 @@ const variantNames = [
     'testcustomboardoverride',
     'testshogiboardpreview',
     'testyarishogiboardoverride',
+    'testclientvariantboarddefault',
 ];
 
 function register(meta: CataloguedVariantClientDocument) {
@@ -53,6 +54,25 @@ test('catalogued variants inherit a dimension-compatible board family from their
     expect(cataloguedCompatibleBoardFamily(meta)).toBe('shogi9x9');
     expect(variant.boardFamily).toBe('shogi9x9');
     expect(boardSettings.boardCSS(variant.boardFamily, variant)).toBe(BOARD_FAMILIES.shogi9x9.boardCSS[0]);
+});
+
+test('clientVariant can provide board defaults without changing engine inheritance', () => {
+    const meta: CataloguedVariantClientDocument = {
+        name: 'testclientvariantboarddefault',
+        displayName: 'Test Client Variant Board Default',
+        ini: '',
+        baseVariant: '',
+        clientVariant: 'shogi',
+        startFen: '9/9/9/9/9/9/9/9/9 w - - 0 1',
+        width: 9,
+        height: 9,
+        pieces: ['k'],
+        kingRoles: ['k'],
+    };
+    const variant = register(meta);
+
+    expect(cataloguedCompatibleBoardFamily(meta)).toBe('shogi9x9');
+    expect(variant.boardFamily).toBe('shogi9x9');
 });
 
 test('an explicit board family override takes precedence over base-variant detection', () => {

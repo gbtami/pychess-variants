@@ -269,6 +269,14 @@ class CataloguedVariantPieceSvgSanitizerTestCase(unittest.TestCase):
         self.assertTrue(_catalogued_piece_set_is_directional({"baseVariant": "shogi"}))
         self.assertTrue(_catalogued_piece_set_is_directional({"baseVariant": "minishogi"}))
 
+    def test_client_variant_controls_directional_piece_fallback(self) -> None:
+        self.assertTrue(
+            _catalogued_piece_set_is_directional({"baseVariant": "", "clientVariant": "shogi"})
+        )
+        self.assertFalse(
+            _catalogued_piece_set_is_directional({"baseVariant": "shogi", "clientVariant": "chess"})
+        )
+
     def test_directional_piece_family_override_marks_custom_set(self) -> None:
         self.assertTrue(
             _catalogued_piece_set_is_directional(

@@ -89,13 +89,107 @@ class CataloguedBetzaDiagramTestCase(unittest.TestCase):
             {
                 "name": "janus",
                 "fsfBuiltinVariant": "janus",
-                "baseVariant": "capablanca",
+                "baseVariant": "",
+                "clientVariant": "capablanca",
                 "ini": "",
                 "pieces": ["p", "n", "b", "r", "q", "k", "j"],
             }
         )
 
         self.assertEqual(pieces, {"j": "BN"})
+
+    def test_shatar_bishop_premove_override_is_not_a_rule_diagram(self):
+        doc = {
+            "name": "shatar",
+            "fsfBuiltinVariant": "shatar",
+            "baseVariant": "",
+            "clientVariant": "shatranj",
+            "ini": "",
+            "pieces": ["p", "n", "b", "r", "k", "j"],
+        }
+
+        self.assertEqual(catalogued_betza_pieces(doc), {"b": "B", "j": "RF"})
+        self.assertEqual(
+            [(diagram["piece"], diagram["betza"]) for diagram in catalogued_betza_diagrams(doc)],
+            [("j", "RF")],
+        )
+
+    def test_courier_normal_bishop_does_not_inherit_shatranj_alfil(self):
+        doc = {
+            "name": "courier",
+            "fsfBuiltinVariant": "courier",
+            "baseVariant": "",
+            "clientVariant": "shatranj",
+            "ini": "",
+            "pieces": ["p", "n", "b", "r", "k", "e", "f", "m", "w"],
+        }
+
+        self.assertEqual(
+            catalogued_betza_pieces(doc),
+            {"b": "B", "e": "A", "f": "F", "m": "K", "w": "W"},
+        )
+        self.assertNotIn("b", {diagram["piece"] for diagram in catalogued_betza_diagrams(doc)})
+
+    def test_petrified_inherits_sideways_pawn_and_replaces_king_with_commoner(self):
+        doc = {
+            "name": "petrified",
+            "fsfBuiltinVariant": "petrified",
+            "baseVariant": "pawnsideways",
+            "clientVariant": "chess",
+            "ini": "",
+            "pieces": ["p", "n", "b", "r", "q", "k"],
+        }
+
+        self.assertEqual(
+            catalogued_betza_pieces(doc),
+            {"k": "K", "p": "fsmWfceFifmnD"},
+        )
+
+    def test_newer_fsf_builtin_piece_definitions_are_available(self):
+        gustav = catalogued_betza_pieces(
+            {
+                "name": "gustav3",
+                "fsfBuiltinVariant": "gustav3",
+                "baseVariant": "",
+                "ini": "",
+                "pieces": ["p", "n", "b", "r", "q", "k", "a"],
+            }
+        )
+        omicron = catalogued_betza_pieces(
+            {
+                "name": "omicron",
+                "fsfBuiltinVariant": "omicron",
+                "baseVariant": "",
+                "ini": "",
+                "pieces": ["p", "n", "b", "r", "q", "k", "c", "w"],
+            }
+        )
+
+        self.assertEqual(gustav, {"a": "QN"})
+        self.assertEqual(omicron, {"c": "DAW", "w": "CF"})
+
+    def test_builtin_pawn_premove_overrides_are_not_rule_diagrams(self):
+        raazuvaa = {
+            "name": "raazuvaa",
+            "fsfBuiltinVariant": "raazuvaa",
+            "baseVariant": "",
+            "clientVariant": "chess",
+            "ini": "",
+            "pieces": ["p", "n", "b", "r", "q", "k"],
+        }
+        torpedo = {
+            "name": "torpedo",
+            "fsfBuiltinVariant": "torpedo",
+            "baseVariant": "",
+            "clientVariant": "chess",
+            "ini": "",
+            "pieces": ["p", "n", "b", "r", "q", "k"],
+        }
+
+        self.assertEqual(catalogued_betza_pieces(raazuvaa), {"p": "fmWfceF"})
+        self.assertEqual(catalogued_betza_pieces(torpedo), {"p": "fmWfceFfmnD"})
+        self.assertEqual(catalogued_betza_diagrams(raazuvaa), [])
+        self.assertEqual(catalogued_betza_diagrams(torpedo), [])
 
     def test_custom_piece_overrides_inherited_fsf_builtin_betza(self):
         pieces = catalogued_betza_pieces(

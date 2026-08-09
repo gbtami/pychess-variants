@@ -20,6 +20,9 @@ class FsfBuiltinRulesIniTestCase(TestCase):
             doc = _build_fsf_builtin_doc("yarishogi", metadata)
 
         self.assertEqual(doc["ini"], "")
+        self.assertEqual(doc["baseVariant"], "")
+        self.assertEqual(doc["clientVariant"], "shogi")
+        self.assertIn("[yarishogi]", doc["rulesIni"])
         self.assertIn("customPiece1 = n:fRffN", doc["rulesIni"])
         self.assertEqual(set(doc["pieces"]), {"p", "n", "b", "r", "k"})
         self.assertEqual(doc["promotionRoles"], ["p", "n", "b", "r"])
@@ -27,11 +30,20 @@ class FsfBuiltinRulesIniTestCase(TestCase):
 
         client_doc = _client_doc(doc)
         self.assertEqual(client_doc["ini"], "")
+        self.assertEqual(client_doc["baseVariant"], "")
+        self.assertEqual(client_doc["clientVariant"], "shogi")
         self.assertNotIn("rulesIni", client_doc)
         self.assertEqual(client_doc["fsfBuiltinVariant"], "yarishogi")
         self.assertEqual(
             client_doc["betzaPieces"],
-            {"n": "fRffN", "b": "fFfR", "r": "frlR", "g": "WfFbR", "s": "fKbR"},
+            {
+                "l": "R",
+                "n": "fRffN",
+                "b": "fFfR",
+                "r": "frlR",
+                "g": "WfFbR",
+                "s": "fKbR",
+            },
         )
 
         rule_context = catalogued_variant_rule_context(doc)

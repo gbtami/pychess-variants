@@ -1143,7 +1143,7 @@ function renderForm(model: PyChessModel): VNode {
                         h(
                             'span.catalogued-help',
                             _(
-                                'Overrides the board inherited from the base variant; an uploaded custom board SVG still takes precedence.',
+                                'Overrides automatic compatible board detection; an uploaded custom board SVG still takes precedence.',
                             ),
                         ),
                     ]),

@@ -59,6 +59,68 @@ describe('catalogued variant premoves', () => {
         expect(new Set(destinations)).toEqual(new Set(expected));
     });
 
+    test('clientVariant controls fallback without changing engine baseVariant', () => {
+        registerCataloguedPremove({
+            name: 'betza-test',
+            source: 'fairy-stockfish-builtin',
+            baseVariant: '',
+            clientVariant: 'shatranj',
+            ini: '',
+            betzaPieces: { b: 'B' },
+        });
+
+        const pawnState = board(['e2', 'p', 'white']);
+        const pawnDestinations = premoveForVariant('betza-test', false, dimensions)(pawnState, 'e2', false);
+        expect(new Set(pawnDestinations)).toEqual(new Set(['d3', 'e3', 'f3']));
+
+        const bishopState = board(['d4', 'b', 'white']);
+        const bishopDestinations = premoveForVariant('betza-test', false, dimensions)(bishopState, 'd4', false);
+        const expectedBishop = createBetzaPremove('B')({ origin: [3, 3], color: 'white', board: dimensions }).map(
+            position => util.pos2key([position[0], position[1]]),
+        );
+        expect(new Set(bishopDestinations)).toEqual(new Set(expectedBishop));
+    });
+
+    test('premoveVariant can refine the general client fallback', () => {
+        const largeBoard: cg.BoardDimensions = { width: 10, height: 10 };
+        registerCataloguedPremove({
+            name: 'betza-test',
+            source: 'fairy-stockfish-builtin',
+            baseVariant: '',
+            clientVariant: 'chess',
+            premoveVariant: 'grand',
+            ini: '',
+        });
+
+        const state = board(['e3', 'p', 'white']);
+        const destinations = premoveForVariant('betza-test', false, largeBoard)(state, 'e3', false);
+        expect(new Set(destinations)).toEqual(new Set(['d4', 'e4', 'f4', 'e5']));
+    });
+
+    test('Betza pawn overrides can remove or extend double-step premoves', () => {
+        registerCataloguedPremove({
+            name: 'betza-test',
+            source: 'fairy-stockfish-builtin',
+            baseVariant: '',
+            clientVariant: 'chess',
+            ini: '',
+            betzaPieces: { p: 'fmWfceF' },
+        });
+        const noDouble = premoveForVariant('betza-test', false, dimensions)(board(['e2', 'p', 'white']), 'e2', false);
+        expect(new Set(noDouble)).toEqual(new Set(['d3', 'e3', 'f3']));
+
+        registerCataloguedPremove({
+            name: 'betza-test',
+            source: 'fairy-stockfish-builtin',
+            baseVariant: '',
+            clientVariant: 'chess',
+            ini: '',
+            betzaPieces: { p: 'fmWfceFfmnD' },
+        });
+        const torpedo = premoveForVariant('betza-test', false, dimensions)(board(['e4', 'p', 'white']), 'e4', false);
+        expect(new Set(torpedo)).toEqual(new Set(['d5', 'e5', 'f5', 'e6']));
+    });
+
     test('directional custom movement rotates for black', () => {
         registerCataloguedPremove({
             name: 'betza-test',
