@@ -3726,7 +3726,7 @@ def ensure_catalogued_display_name_available(
 
     effective_name = _clean_display_name(display_name, variant_name)
     if current_display_name is not None and current_variant_name == variant_name:
-        current_effective_name = _clean_display_name(current_display_name, current_variant_name)
+        current_effective_name = _clean_display_name(current_display_name, variant_name)
         if effective_name == current_effective_name:
             return
 
