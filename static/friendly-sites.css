@@ -6,17 +6,25 @@
     color: var(--font-color);
 }
 
+/* Reset site.css `header { height: var(--site-header-height); display: flex; … }`
+   so this in-page hero is normal document flow (same pattern as .authors-hero). */
 .friendly-sites-hero {
+    display: block;
+    height: auto;
+    max-width: none;
     margin: 0 0 1.35rem;
     padding: 1.4rem 1.6rem;
     border: 1px solid var(--border-color);
     border-radius: 10px;
     background: var(--bg-box);
     box-shadow: var(--base-shadow);
+    text-align: left;
+    z-index: auto;
 }
 
 .friendly-sites-hero h1 {
     margin: 0;
+    text-align: left;
 }
 
 .friendly-sites-hero p {
@@ -30,7 +38,8 @@
     text-transform: uppercase;
     letter-spacing: 0.09em;
     font-size: 0.78rem;
-    opacity: 0.75;
+    font-weight: bold;
+    opacity: 0.68;
 }
 
 .friendly-sites-list {
