@@ -9,6 +9,7 @@ from catalogued_variants import (
     catalogued_variant_games_are_persisted,
     ensure_catalogued_variant_from_game_doc,
     find_catalogued_variant_doc,
+    restore_catalogued_variant,
 )
 from const import ABORTED, STARTED
 from variants import (
@@ -168,6 +169,69 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(active_game.status, STARTED)
         self.assertNotIn(name, app_state.catalogued_variants)
         self.assertFalse(is_catalogued_variant(name))
+
+    async def test_restore_checks_quota_before_reactivating_archived_variant(self) -> None:
+        name = "restore_quota_test"
+        doc = {
+            "name": name,
+            "displayName": "Restore quota test",
+            "author": "author",
+            "archived": True,
+            "enabled": False,
+        }
+        collection = SimpleNamespace(update_one=AsyncMock())
+        app_state = SimpleNamespace(db={"catalogued_variant": collection}, catalogued_variants={})
+        request = SimpleNamespace()
+
+        with (
+            patch(
+                "catalogued_variants._load_owned_doc",
+                AsyncMock(return_value=(app_state, "author", name, doc)),
+            ),
+            patch(
+                "catalogued_variants._ensure_catalogued_variant_quota",
+                AsyncMock(side_effect=Exception("quota checked")),
+            ) as ensure_quota,self.assertRaisesRegex(Exception, "quota checked")
+        ):
+            await restore_catalogued_variant(request)
+
+        ensure_quota.assert_awaited_once_with(app_state, "author")
+        collection.update_one.assert_not_awaited()
+
+    async def test_restore_does_not_recheck_quota_for_already_active_variant(self) -> None:
+        name = "restore_active_test"
+        doc = {
+            "name": name,
+            "displayName": "Restore active test",
+            "author": "author",
+            "archived": False,
+            "enabled": True,
+        }
+        collection = SimpleNamespace(update_one=AsyncMock())
+        app_state = SimpleNamespace(db={"catalogued_variant": collection}, catalogued_variants={})
+        request = SimpleNamespace()
+
+        with (
+            patch(
+                "catalogued_variants._load_owned_doc",
+                AsyncMock(return_value=(app_state, "author", name, doc)),
+            ),
+            patch(
+                "catalogued_variants._ensure_catalogued_variant_quota",
+                new=AsyncMock(),
+            ) as ensure_quota,
+            patch("catalogued_variants.register_catalogued_variant_doc"),
+            patch("catalogued_variants._game_count", new=AsyncMock(return_value=0)),
+            patch(
+                "catalogued_variants._client_doc",
+                return_value={"name": name},
+            ),
+        ):
+            response = await restore_catalogued_variant(request)
+
+        self.assertEqual(response.status, 200)
+        ensure_quota.assert_not_awaited()
+        collection.update_one.assert_awaited_once()
 
     def test_saved_game_inline_ini_restores_archived_variant_after_restart(self) -> None:
         name = "archive_reload_test"

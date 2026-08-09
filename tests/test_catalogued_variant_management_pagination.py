@@ -60,6 +60,9 @@ class FakeCollection:
             elif isinstance(value, dict) and "$regex" in value:
                 if value["$regex"].search(str(doc.get(field) or "")) is None:
                     return False
+            elif isinstance(value, dict) and "$ne" in value:
+                if doc.get(field) == value["$ne"]:
+                    return False
             elif doc.get(field) != value:
                 return False
         return True
@@ -266,11 +269,33 @@ class CataloguedVariantManagementPaginationTestCase(unittest.IsolatedAsyncioTest
         )
 
         expected_query = {"author": "alice"}
-        self.assertEqual(collection.count_queries, [expected_query])
+        active_query = {"author": "alice", "archived": {"$ne": True}}
+        self.assertEqual(collection.count_queries, [expected_query, active_query])
         self.assertEqual(collection.find_queries, [expected_query])
         self.assertEqual(payload["q"], "")
         self.assertEqual(payload["author"], "alice")
         self.assertEqual(payload["sort"], "updated")
         self.assertEqual(payload["total"], 3)
         self.assertEqual(payload["maxVariants"], MAX_CATALOGUED_VARIANTS_PER_USER)
+        self.assertEqual(payload["variantSlotsUsed"], 3)
+        self.assertEqual(len(payload["variants"]), 3)
+
+    async def test_archived_variants_remain_listed_but_do_not_use_quota_slots(self):
+        docs = self.make_docs(3, author="alice", prefix="mine")
+        docs[1]["archived"] = True
+        docs[1]["enabled"] = False
+
+        payload, collection = await self.call_handler(
+            "/api/catalogued-variants/mine",
+            docs,
+            username="alice",
+            admin=False,
+        )
+
+        expected_query = {"author": "alice"}
+        active_query = {"author": "alice", "archived": {"$ne": True}}
+        self.assertEqual(collection.count_queries, [expected_query, active_query])
+        self.assertEqual(collection.find_queries, [expected_query])
+        self.assertEqual(payload["total"], 3)
+        self.assertEqual(payload["variantSlotsUsed"], 2)
         self.assertEqual(len(payload["variants"]), 3)

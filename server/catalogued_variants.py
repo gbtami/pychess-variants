@@ -3380,21 +3380,28 @@ async def increment_catalogued_variant_game_count(app_state: Any, name: str) -> 
         doc["gameCount"] = int(doc.get("gameCount") or 0) + 1
 
 
-async def _catalogued_variant_count_for_user(app_state: Any, username: str) -> int:
+async def _catalogued_variant_slot_count_for_user(app_state: Any, username: str) -> int:
     if app_state.db is None:
         return 0
-    return await app_state.db[CATALOGUED_VARIANT_COLLECTION].count_documents({"author": username})
+    # Archived variants are historical records, not active variant slots. In
+    # particular, variants with saved public games may need to be archived
+    # instead of deleted, so counting them here could permanently exhaust a
+    # user's quota.
+    return await app_state.db[CATALOGUED_VARIANT_COLLECTION].count_documents(
+        {"author": username, "archived": {"$ne": True}}
+    )
 
 
 async def _ensure_catalogued_variant_quota(app_state: Any, username: str) -> None:
     if _is_admin_username(username):
         return
-    count = await _catalogued_variant_count_for_user(app_state, username)
+    count = await _catalogued_variant_slot_count_for_user(app_state, username)
     if count >= MAX_CATALOGUED_VARIANTS_PER_USER:
         raise web.HTTPConflict(
             text=(
                 f"You can have at most {MAX_CATALOGUED_VARIANTS_PER_USER} user-defined variants. "
-                "Delete an unused variant before uploading or cloning another one."
+                "Archive or delete an active variant before uploading, cloning, or restoring "
+                "another one."
             )
         )
 
@@ -4609,10 +4616,14 @@ async def get_my_catalogued_variants(request: web.Request) -> web.Response:
             variants.append(_client_doc(doc, game_count=count))
 
     max_variants = None if admin else MAX_CATALOGUED_VARIANTS_PER_USER
+    variant_slots_used = None
+    if not admin:
+        variant_slots_used = await _catalogued_variant_slot_count_for_user(app_state, username)
     return json_response(
         {
             "variants": variants,
             "maxVariants": max_variants,
+            "variantSlotsUsed": variant_slots_used,
             "q": q,
             "author": author,
             "sort": sort,
@@ -4971,7 +4982,9 @@ async def archive_catalogued_variant(request: web.Request) -> web.Response:
 
 
 async def restore_catalogued_variant(request: web.Request) -> web.Response:
-    app_state, _username, name, doc = await _load_owned_doc(request)
+    app_state, username, name, doc = await _load_owned_doc(request)
+    if bool(doc.get("archived", False)):
+        await _ensure_catalogued_variant_quota(app_state, username)
     now = datetime.now(UTC)
     restored = dict(doc)
     restored["archived"] = False
