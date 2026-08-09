@@ -91,6 +91,7 @@ export abstract class GameController extends ChessgroundController implements Ch
     // Settings
     clickDropEnabled: boolean;
     autoPromote?: boolean;
+    autoClaimDraw?: boolean;
     dblClickPass?: boolean;
 
     // Main line ply where analysis variation starts

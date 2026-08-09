@@ -203,6 +203,7 @@ export class RoundController extends GameController {
 
         this.settings = true;
         this.autoPromote = localStorage.autoPromote === undefined ? false : localStorage.autoPromote === 'true';
+        this.autoClaimDraw = localStorage.autoClaimDraw === undefined ? false : localStorage.autoClaimDraw === 'true';
         this.materialDifference =
             localStorage.materialDifference === undefined ? false : localStorage.materialDifference === 'true';
         // Track per-move Jieqi capture identities so replay can render captures at any ply.
@@ -753,6 +754,27 @@ export class RoundController extends GameController {
         if (!confirmed) return;
         this.doSend({ type: 'draw', gameId: this.gameId });
         this.setDialog(_('Draw offer sent'));
+    };
+
+    private autoClaimDrawRequested = false;
+
+    private maybeAutoClaimDraw = () => {
+        if (this.spectator || this.status >= 0 || !this.autoClaimDraw || !this.ffishBoard) {
+            this.autoClaimDrawRequested = false;
+            return;
+        }
+        // Claimable draws (repetition / N-move) are optional ends: over only when claimDraw is true.
+        const claimable =
+            this.ffishBoard.isGameOver(true) &&
+            !this.ffishBoard.isGameOver(false) &&
+            this.ffishBoard.result(true) === '1/2-1/2';
+        if (!claimable) {
+            this.autoClaimDrawRequested = false;
+            return;
+        }
+        if (this.autoClaimDrawRequested) return;
+        this.autoClaimDrawRequested = true;
+        this.doSend({ type: 'draw', gameId: this.gameId });
     };
 
     private rejectDrawOffer = () => {
@@ -1391,6 +1413,7 @@ export class RoundController extends GameController {
             this.updateMaterial();
         }
 
+        this.maybeAutoClaimDraw();
         this.simulRoundHost?.onBoard(msg);
     }
 

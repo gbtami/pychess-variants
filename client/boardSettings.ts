@@ -32,6 +32,7 @@ export interface BoardController {
 
     model?: PyChessModel;
     autoPromote?: boolean;
+    autoClaimDraw?: boolean;
     arrow?: boolean;
     multipv?: number;
     evalFile?: string;
@@ -168,6 +169,7 @@ class BoardSettings {
         this.settings['confirmresign'] = new ConfirmResignSettings(this);
         this.settings['showDests'] = new ShowDestsSettings(this);
         this.settings['autoPromote'] = new AutoPromoteSettings(this);
+        this.settings['autoClaimDraw'] = new AutoClaimDrawSettings(this);
         this.settings['confirmCorrMove'] = new ConfirmCorrMoveSettings(this);
         this.settings['materialDifference'] = new MaterialDifferenceSettings(this);
     }
@@ -347,6 +349,8 @@ class BoardSettings {
         settingsList.push(this.settings['showDests'].view());
 
         if (variant.promotion.autoPromoteable) settingsList.push(this.settings['autoPromote'].view());
+
+        settingsList.push(this.settings['autoClaimDraw'].view());
 
         settingsList.push(this.settings['confirmCorrMove'].view());
 
@@ -655,6 +659,28 @@ class AutoPromoteSettings extends BooleanSettings {
 
     view(): VNode {
         return h('div', checkbox(this, 'autoPromote', _('Promote to the top choice automatically')));
+    }
+}
+
+class AutoClaimDrawSettings extends BooleanSettings {
+    readonly boardSettings: BoardSettings;
+
+    constructor(boardSettings: BoardSettings) {
+        super('autoClaimDraw', false);
+        this.boardSettings = boardSettings;
+    }
+
+    update(): void {
+        this.updateCtrl(this.boardSettings.ctrl);
+        if (this.boardSettings.ctrl2) this.updateCtrl(this.boardSettings.ctrl2);
+    }
+
+    updateCtrl(ctrl: BoardController): void {
+        if ('autoClaimDraw' in ctrl) ctrl.autoClaimDraw = this.value;
+    }
+
+    view(): VNode {
+        return h('div', checkbox(this, 'autoClaimDraw', _('Claim draw automatically when available')));
     }
 }
 
