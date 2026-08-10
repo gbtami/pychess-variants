@@ -379,7 +379,7 @@ class RequestLobbyTestCase(AioHTTPTestCase):
             "enabled": True,
             "archived": False,
         }
-        register_catalogued_server_variant(name, "Editor catalogued test", "◇")
+        register_catalogued_server_variant(name, "Editor catalogued test")
         self.addCleanup(unregister_catalogued_server_variant, name)
 
         fen = "10/10/10/10/10/10/10/10/10/10_w_-_-_0_1"

@@ -41,7 +41,6 @@ log = logging.getLogger(__name__)
 
 CATALOGUED_VARIANT_COLLECTION = "catalogued_variant"
 CATALOGUED_CATEGORY = "other"
-CATALOGUED_ICON = "☐"
 CATALOGUED_VISIBILITY_PRIVATE = "private"
 CATALOGUED_VISIBILITY_UNLISTED = "unlisted"
 CATALOGUED_VISIBILITY_PUBLIC = "public"
@@ -1132,7 +1131,6 @@ class CataloguedVariantDocument(TypedDict):
     legalMovesNeedHistory: bool
     nFoldIsDraw: bool
     showCheckCounters: bool
-    icon: str
     category: str
     visibility: str
     source: NotRequired[str]
@@ -1180,7 +1178,6 @@ class CataloguedVariantClientDocument(TypedDict):
     rulesGate: bool
     rulesPass: bool
     showCheckCounters: bool
-    icon: str
     category: str
     author: NotRequired[str]
     source: NotRequired[str]
@@ -2843,7 +2840,6 @@ def _client_doc(
         "rulesGate": rules_gate,
         "rulesPass": rules_pass,
         "showCheckCounters": show_check_counters,
-        "icon": str(doc.get("icon") or CATALOGUED_ICON),
         "category": CATALOGUED_CATEGORY,
         "author": str(doc.get("author") or ""),
         "source": _catalogued_source(doc),
@@ -3188,7 +3184,6 @@ def register_catalogued_variant_doc(
     register_catalogued_server_variant(
         name,
         str(doc.get("displayName") or name),
-        str(doc.get("icon") or CATALOGUED_ICON),
         grand=_catalogued_grand_from_dimensions(width, height),
         extended_move_codec=_catalogued_extended_move_codec_from_dimensions(width, height),
         show_promoted=bool(doc.get("showPromoted", catalogued_show_promoted(ini, start_fen))),
@@ -3240,7 +3235,6 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
             "legalMovesNeedHistory": validated.legal_moves_need_history,
             "nFoldIsDraw": validated.n_fold_is_draw,
             "showCheckCounters": validated.show_check_counters,
-            "icon": CATALOGUED_ICON,
             "category": CATALOGUED_CATEGORY,
             "visibility": CATALOGUED_VISIBILITY_PRIVATE,
             "createdAt": now,
@@ -3250,6 +3244,16 @@ def ensure_catalogued_variant_from_game_doc(app_state: Any, doc: Mapping[str, An
     )
 
 
+async def _remove_legacy_catalogued_icon_fields(collection: Any) -> None:
+    """Drop the old persisted copy of the code-defined catalogue icon."""
+    result = await collection.update_many(
+        {"icon": {"$exists": True}},
+        {"$unset": {"icon": ""}},
+    )
+    if result.modified_count:
+        log.info("Removed legacy icon field from %d catalogued variants", result.modified_count)
+
+
 async def init_catalogued_variants(app_state: Any, db_collections: list[str]) -> None:
     app_state.catalogued_variants = {}
 
@@ -3257,6 +3261,7 @@ async def init_catalogued_variants(app_state: Any, db_collections: list[str]) ->
         await app_state.db.create_collection(CATALOGUED_VARIANT_COLLECTION)
 
     collection = app_state.db[CATALOGUED_VARIANT_COLLECTION]
+    await _remove_legacy_catalogued_icon_fields(collection)
     await collection.create_index("name", unique=True)
     await collection.create_index("enabled")
     await collection.create_index("archived")
@@ -3920,7 +3925,6 @@ def _build_doc(
         "legalMovesNeedHistory": legal_moves_need_history,
         "nFoldIsDraw": n_fold_is_draw,
         "showCheckCounters": show_check_counters,
-        "icon": CATALOGUED_ICON,
         "category": CATALOGUED_CATEGORY,
         "visibility": _clean_visibility(visibility),
         "pieceSetDirectional": piece_set_directional,
@@ -4154,7 +4158,6 @@ def _fsf_builtin_synced_fields(doc: Mapping[str, Any]) -> dict[str, Any]:
         "legalMovesNeedHistory",
         "nFoldIsDraw",
         "showCheckCounters",
-        "icon",
         "category",
         "source",
         "fsfBuiltinVariant",
@@ -4657,6 +4660,7 @@ CATALOGUED_METADATA_OPTIONAL_FIELDS = (
     "pieceNames",
     "pieceFamilyOverride",
     "boardFamilyOverride",
+    "icon",
 )
 
 CATALOGUED_CONCURRENTLY_UPDATED_FIELDS = frozenset(

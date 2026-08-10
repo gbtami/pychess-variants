@@ -2035,6 +2035,7 @@ export const twoBoarsVariants = variants.filter(v => VARIANTS[v].twoBoards);
 export const unsupportedAiVariants = ['alice', 'fogofwar', 'jieqi'];
 
 export const devVariants = ['borderlands', 'cwda', 'makbug', 'supply', 'yokai'];
+export const CATALOGUED_VARIANT_ICON = '☐';
 
 export interface CataloguedVariantClientDocument {
     readonly name: string;
@@ -2068,7 +2069,6 @@ export interface CataloguedVariantClientDocument {
     readonly rulesGate?: boolean;
     readonly rulesPass?: boolean;
     readonly showCheckCounters?: boolean;
-    readonly icon?: string;
     readonly category?: string;
     readonly author?: string;
     readonly source?: 'user' | 'fairy-stockfish-builtin';
@@ -2745,7 +2745,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         aiDisabled: !!meta.aiDisabled,
         ratingEnabled: false,
         startFen: meta.startFen,
-        icon: meta.icon || '☐',
+        icon: CATALOGUED_VARIANT_ICON,
         boardFamily,
         hasBoard: !!meta.hasBoard,
         boardRevision: meta.boardRevision,

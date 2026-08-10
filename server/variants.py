@@ -17,6 +17,7 @@ from settings import PROD
 
 MoveCodec = Callable[[str], str]
 HiddenInfoMode = Literal["none", "fog", "covered_pieces"]
+CATALOGUED_VARIANT_ICON = "☐"
 
 
 @dataclass
@@ -54,7 +55,7 @@ class CataloguedServerVariant:
     uci_variant: str
     display_name: str
     translated_name: str
-    icon: str = "☐"
+    icon: str = CATALOGUED_VARIANT_ICON
     chess960: bool = False
     grand: bool = False
     byo: bool = False
@@ -262,7 +263,6 @@ C2V: dict[str, str] = {variant.code: variant.uci_variant for variant in ServerVa
 def register_catalogued_server_variant(
     name: str,
     display_name: str,
-    icon: str = "☐",
     *,
     grand: bool = False,
     extended_move_codec: bool = False,
@@ -282,7 +282,7 @@ def register_catalogued_server_variant(
         uci_variant=name,
         display_name=display_name.upper(),
         translated_name=display_name,
-        icon=icon,
+        icon=CATALOGUED_VARIANT_ICON,
         grand=grand,
         show_promoted=show_promoted,
         legal_moves_need_history=legal_moves_need_history,
@@ -292,7 +292,7 @@ def register_catalogued_server_variant(
     )
     CATALOGUED_VARIANTS[name] = variant
     ALL_VARIANTS[name] = variant
-    VARIANT_ICONS[name] = icon
+    VARIANT_ICONS[name] = variant.icon
     C2V[name] = name
     if grand:
         if name not in GRANDS:

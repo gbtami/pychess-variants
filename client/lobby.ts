@@ -12,6 +12,7 @@ import { boardSettings } from './boardSettings';
 import { chatMessage, chatView, ChatController } from './chat';
 import {
     canRateStart,
+    CATALOGUED_VARIANT_ICON,
     devVariants,
     disabledVariantsForCreateMode,
     enabledVariants,
@@ -1345,7 +1346,7 @@ export class LobbyController implements ChatController {
             h('td', [this.challengeIcon(seek), this.seekTitle(seek), this.user(seek)]),
             h('td', seek.rating),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi, seek.day)),
-            h('td.icon', { attrs: { 'data-icon': '☐' } }, [h('variant-name', ` ${seek.variant}`)]),
+            h('td.icon', { attrs: { 'data-icon': CATALOGUED_VARIANT_ICON } }, [h('variant-name', ` ${seek.variant}`)]),
             h('td', this.mode(seek)),
         ]);
     }

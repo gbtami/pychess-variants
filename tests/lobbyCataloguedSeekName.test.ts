@@ -7,7 +7,8 @@ jest.unstable_mockModule('../client/main', () => ({ model: {} }));
 jest.unstable_mockModule('chessgroundx', () => ({ Chessground: jest.fn() }));
 
 const { LobbyController } = await import('../client/lobby');
-const { registerCataloguedVariant, unregisterCataloguedVariant } = await import('../client/variants');
+const { CATALOGUED_VARIANT_ICON, registerCataloguedVariant, unregisterCataloguedVariant } =
+    await import('../client/variants');
 
 const variantName = 'testmobileseekvariant';
 
@@ -74,7 +75,7 @@ test('catalogued seeks add one mobile-only row with their full display name', ()
     expect(name.text).toBe('A VERY LONG MOBILE SEEK VARIANT NAME');
 
     const mainVariantCell = rows[0].children?.[4] as VNode;
-    expect(mainVariantCell.data?.attrs?.['data-icon']).toBe('◇');
+    expect(mainVariantCell.data?.attrs?.['data-icon']).toBe(CATALOGUED_VARIANT_ICON);
 });
 
 test('site variant seeks remain single-row', () => {

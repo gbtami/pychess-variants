@@ -3,7 +3,9 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from catalogued_variants import (
+    _client_doc,
     _has_active_catalogued_games,
+    _remove_legacy_catalogued_icon_fields,
     archive_catalogued_variant,
     catalogued_variant_client_doc_for_game,
     catalogued_variant_games_are_persisted,
@@ -13,10 +15,52 @@ from catalogued_variants import (
 )
 from const import ABORTED, STARTED
 from variants import (
+    CATALOGUED_VARIANT_ICON,
     is_catalogued_variant,
     register_catalogued_server_variant,
     unregister_catalogued_server_variant,
 )
+
+
+class CataloguedVariantIconPolicyTest(unittest.TestCase):
+    def test_client_metadata_does_not_expose_legacy_stored_icon(self) -> None:
+        client_doc = _client_doc(
+            {
+                "name": "legacy_icon_test",
+                "displayName": "Legacy icon test",
+                "ini": "[legacy_icon_test:chess]\n",
+                "startFen": "8/8/8/8/8/8/8/K6k w - - 0 1",
+                "width": 8,
+                "height": 8,
+                "pieces": ["k"],
+                "icon": "◇",
+            }
+        )
+
+        self.assertNotIn("icon", client_doc)
+
+    def test_runtime_registration_uses_code_defined_icon(self) -> None:
+        name = "runtime_icon_test"
+        unregister_catalogued_server_variant(name)
+        self.addCleanup(unregister_catalogued_server_variant, name)
+
+        variant = register_catalogued_server_variant(name, "Runtime icon test")
+
+        self.assertEqual(variant.icon, CATALOGUED_VARIANT_ICON)
+
+
+class CataloguedVariantLegacyIconMigrationTest(unittest.IsolatedAsyncioTestCase):
+    async def test_removes_persisted_icon_fields(self) -> None:
+        collection = SimpleNamespace(
+            update_many=AsyncMock(return_value=SimpleNamespace(modified_count=2))
+        )
+
+        await _remove_legacy_catalogued_icon_fields(collection)
+
+        collection.update_many.assert_awaited_once_with(
+            {"icon": {"$exists": True}},
+            {"$unset": {"icon": ""}},
+        )
 
 
 class CataloguedVariantPersistencePolicyTest(unittest.TestCase):
@@ -54,7 +98,7 @@ class CataloguedVariantPersistencePolicyTest(unittest.TestCase):
 
 class CataloguedVariantGameClientDocumentTest(unittest.IsolatedAsyncioTestCase):
     def make_game(self, name: str):
-        server_variant = register_catalogued_server_variant(name, name, "V")
+        server_variant = register_catalogued_server_variant(name, name)
         self.addCleanup(unregister_catalogued_server_variant, name)
         return SimpleNamespace(
             id="game-id",
@@ -152,7 +196,7 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         )
         request = SimpleNamespace()
 
-        register_catalogued_server_variant(name, "Archive active game test", "V")
+        register_catalogued_server_variant(name, "Archive active game test")
         self.addCleanup(unregister_catalogued_server_variant, name)
 
         with patch(
@@ -278,6 +322,7 @@ class CataloguedVariantArchiveActiveGameTest(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(is_catalogued_variant(name))
         self.assertIn(name, app_state.catalogued_variants)
         restored = app_state.catalogued_variants[name]
+        self.assertNotIn("icon", restored)
         self.assertEqual(restored["ini"], game_doc["vini"])
         self.assertEqual(restored["displayName"], game_doc["vd"])
         self.assertEqual(restored["author"], game_doc["vby"])
