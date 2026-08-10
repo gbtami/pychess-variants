@@ -32,7 +32,7 @@ class _FsfBuiltinPieceDefinition(NamedTuple):
 
 MAX_CATALOGUED_BETZA_DIAGRAMS = 32  # 25 customPiece slots + known FSF built-in pieces.
 BETZA_DIAGRAM_CACHE_SIZE = 512
-BETZA_DIAGRAM_RENDERER_VERSION = 2
+BETZA_DIAGRAM_RENDERER_VERSION = 3
 
 # Fairy-Stockfish built-in pieces that can appear in catalogued/user-defined
 # variants through inherited built-in variants rather than customPieceN INI
