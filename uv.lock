@@ -206,10 +206,11 @@ wheels = [
 
 [[package]]
 name = "betza-visualizer"
-version = "0.1.0"
+version = "0.1.1"
 source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/24/e2/3a47dce6dcd76a8e63dcba900a686a501befc80f6e65524b00cb56189c73/betza_visualizer-0.1.1.tar.gz", hash = "sha256:5e638b65fd0ce340f014071435740ed6087dd770ff72aabd7fe99e0428eb7da4", size = 12578, upload-time = "2026-08-10T16:20:24.905Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c3/8d/88d804df663beee529ff4d080bde345e5c39b0de47093e21757b0da50b17/betza_visualizer-0.1.0-py3-none-any.whl", hash = "sha256:4314f5f2682b8c683bac4849c448cceee51cc206a0699f95ee5778e85ca95cf6", size = 10511, upload-time = "2026-07-03T11:59:00.878Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/ed/261009104ebeccb8c00992f20fb35d80895eb3741e2a6c1d00cc8535dc4e/betza_visualizer-0.1.1-py3-none-any.whl", hash = "sha256:7d912f22d342c6154a8c639ce222a10c56a36bc6dad8c53916ec108b0d62d4e7", size = 11382, upload-time = "2026-08-10T16:20:21.606Z" },
 ]
 
 [[package]]
@@ -849,7 +850,7 @@ requires-dist = [
     { name = "aiohttp-session", specifier = "==2.12.1" },
     { name = "aiohttp-sse", specifier = "==2.2.0" },
     { name = "aiohttp-swagger3", specifier = "==0.10.0" },
-    { name = "betza-visualizer", specifier = "==0.1.0" },
+    { name = "betza-visualizer", specifier = "==0.1.1" },
     { name = "brotli", specifier = "==1.2.0" },
     { name = "cryptography", specifier = "==49.0.0" },
     { name = "discord-py", specifier = "==2.7.1" },
