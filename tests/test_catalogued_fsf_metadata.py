@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+import unittest
+from types import SimpleNamespace
 from unittest import TestCase
+from unittest.mock import AsyncMock, patch
 
 from catalogued_variants import (
+    CATALOGUED_SOURCE_FSF_BUILTIN,
+    FSF_CATALOGUED_BUILTIN_DESCRIPTION,
     FSF_CATALOGUED_BUILTIN_VARIANTS,
     FSF_CATALOGUED_BUILTIN_VARIANTS_CANDIDATES,
     FSF_CATALOGUED_RETIRED_BUILTIN_VARIANTS,
+    _remove_legacy_fsf_builtin_description_fields,
+    ensure_fsf_catalogued_builtin_variants,
 )
 
 
@@ -86,3 +93,78 @@ class FsfBuiltinMetadataTestCase(TestCase):
         omicron = FSF_CATALOGUED_BUILTIN_VARIANTS["omicron"]
         self.assertEqual(omicron["promotionRoles"], ("p",))
         self.assertEqual(omicron["promotionOrder"], ("w", "c", "q", "r", "b", "n"))
+
+
+class FsfBuiltinDescriptionStorageTestCase(unittest.IsolatedAsyncioTestCase):
+    async def test_cleanup_includes_retired_builtins_but_only_exact_default(self) -> None:
+        collection = SimpleNamespace(
+            update_many=AsyncMock(return_value=SimpleNamespace(modified_count=1))
+        )
+
+        await _remove_legacy_fsf_builtin_description_fields(collection)
+
+        collection.update_many.assert_awaited_once_with(
+            {
+                "source": CATALOGUED_SOURCE_FSF_BUILTIN,
+                "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+            },
+            {"$unset": {"description": ""}},
+        )
+
+    async def test_startup_unsets_automatic_description(self) -> None:
+        existing = {
+            "_id": "yarishogi",
+            "name": "yarishogi",
+            "source": CATALOGUED_SOURCE_FSF_BUILTIN,
+            "description": FSF_CATALOGUED_BUILTIN_DESCRIPTION,
+        }
+        collection = SimpleNamespace(
+            find_one=AsyncMock(return_value=existing),
+            update_one=AsyncMock(),
+            update_many=AsyncMock(),
+        )
+        app_state = SimpleNamespace(db={"catalogued_variant": collection})
+        rebuilt = {"name": "yarishogi", "references": []}
+
+        with (
+            patch(
+                "catalogued_variants.FSF_CATALOGUED_BUILTIN_VARIANTS",
+                {"yarishogi": {"description": FSF_CATALOGUED_BUILTIN_DESCRIPTION}},
+            ),
+            patch("catalogued_variants.FSF_CATALOGUED_RETIRED_BUILTIN_VARIANTS", frozenset()),
+            patch("catalogued_variants.BUILTIN_FSF_VARIANT_NAMES", {"yarishogi"}),
+            patch("catalogued_variants._build_fsf_builtin_doc", return_value=rebuilt),
+        ):
+            await ensure_fsf_catalogued_builtin_variants(app_state)
+
+        update = collection.update_one.await_args.args[1]
+        self.assertEqual(update["$unset"]["description"], "")
+
+    async def test_startup_preserves_custom_description(self) -> None:
+        existing = {
+            "_id": "yarishogi",
+            "name": "yarishogi",
+            "source": CATALOGUED_SOURCE_FSF_BUILTIN,
+            "description": "Custom administrator description",
+        }
+        collection = SimpleNamespace(
+            find_one=AsyncMock(return_value=existing),
+            update_one=AsyncMock(),
+            update_many=AsyncMock(),
+        )
+        app_state = SimpleNamespace(db={"catalogued_variant": collection})
+        rebuilt = {"name": "yarishogi", "references": []}
+
+        with (
+            patch(
+                "catalogued_variants.FSF_CATALOGUED_BUILTIN_VARIANTS",
+                {"yarishogi": {"description": FSF_CATALOGUED_BUILTIN_DESCRIPTION}},
+            ),
+            patch("catalogued_variants.FSF_CATALOGUED_RETIRED_BUILTIN_VARIANTS", frozenset()),
+            patch("catalogued_variants.BUILTIN_FSF_VARIANT_NAMES", {"yarishogi"}),
+            patch("catalogued_variants._build_fsf_builtin_doc", return_value=rebuilt),
+        ):
+            await ensure_fsf_catalogued_builtin_variants(app_state)
+
+        update = collection.update_one.await_args.args[1]
+        self.assertNotIn("description", update.get("$unset", {}))
