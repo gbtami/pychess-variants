@@ -2745,7 +2745,7 @@ export function registerCataloguedVariant(meta: CataloguedVariantClientDocument)
         aiDisabled: !!meta.aiDisabled,
         ratingEnabled: false,
         startFen: meta.startFen,
-        icon: meta.icon || '◇',
+        icon: meta.icon || '☐',
         boardFamily,
         hasBoard: !!meta.hasBoard,
         boardRevision: meta.boardRevision,

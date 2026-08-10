@@ -473,3 +473,6 @@
 .icon-bubbles4:before {
   content: "\e970";
 }
+.icon-checkbox-unchecked:before {
+  content: "\2610";
+}

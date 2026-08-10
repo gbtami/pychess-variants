@@ -1345,7 +1345,7 @@ export class LobbyController implements ChatController {
             h('td', [this.challengeIcon(seek), this.seekTitle(seek), this.user(seek)]),
             h('td', seek.rating),
             h('td', timeControlStr(seek.base, seek.inc, seek.byoyomi, seek.day)),
-            h('td.icon', { attrs: { 'data-icon': '◇' } }, [h('variant-name', ` ${seek.variant}`)]),
+            h('td.icon', { attrs: { 'data-icon': '☐' } }, [h('variant-name', ` ${seek.variant}`)]),
             h('td', this.mode(seek)),
         ]);
     }

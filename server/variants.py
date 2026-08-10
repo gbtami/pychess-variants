@@ -54,7 +54,7 @@ class CataloguedServerVariant:
     uci_variant: str
     display_name: str
     translated_name: str
-    icon: str = "◇"
+    icon: str = "☐"
     chess960: bool = False
     grand: bool = False
     byo: bool = False
@@ -262,7 +262,7 @@ C2V: dict[str, str] = {variant.code: variant.uci_variant for variant in ServerVa
 def register_catalogued_server_variant(
     name: str,
     display_name: str,
-    icon: str = "◇",
+    icon: str = "☐",
     *,
     grand: bool = False,
     extended_move_codec: bool = False,
