@@ -294,6 +294,12 @@ class Game:
         self.result: str = "*"
         self.last_server_clock: float = monotonic()
         self.last_move_time: datetime | None = None
+        # Wall-clock time which elapsed on the current turn before this Game
+        # instance was reconstructed after a server restart. ``monotonic()``
+        # cannot span processes, so restart recovery records the missing part
+        # once. Games with durable clock history use it for authoritative clock
+        # decisions; other games retain it only for the existing UI adjustment.
+        self.restart_elapsed_ms: int = 0
 
         self.id: str = gameId
 
@@ -447,6 +453,12 @@ class Game:
             self.stopwatch = CorrClock(self)
         else:
             self.stopwatch = Clock(self)
+            if not self.create:
+                # ``load_game_from_doc()`` restores the persisted move stack
+                # after constructing Game. Do not let a temporary ply-0 clock
+                # run while that reconstruction (and any DB reads) is in
+                # progress; it is restarted from the real position at the end.
+                self.stopwatch.stop()
 
         if self.create and (not self.corr) and (not self.bplayer.bot):
             self.bplayer.game_in_progress = self.id
@@ -461,6 +473,95 @@ class Game:
     async def cancel_clocks_for_eviction(self) -> None:
         await self.stopwatch.cancel()
 
+    @property
+    def persist_clock_history(self) -> bool:
+        """Whether in-progress clock arrays must be durable after every move.
+
+        Casual games normally omit incremental clocks because they may be
+        taken back. Tournament games never allow takebacks, so their clocks
+        must be persisted even when the tournament itself is casual.
+        """
+        return (
+            self.rated == RATED
+            or self.tournamentId is not None
+            or self.tournamentArrangementId is not None
+        )
+
+    def elapsed_on_current_turn_ms(self) -> int:
+        """Wall-clock elapsed time on the current turn across restarts."""
+        live_elapsed = round((monotonic() - self.last_server_clock) * 1000)
+        return max(0, self.restart_elapsed_ms + live_elapsed)
+
+    def authoritative_clock_elapsed_ms(self) -> int:
+        """Elapsed time usable for server clock decisions.
+
+        Restart downtime is authoritative only when the game's move clocks are
+        durable. Non-tournament casual games deliberately omit clock history
+        because takebacks are allowed, so they retain their pre-existing
+        restart semantics rather than pretending their reconstructed base
+        clocks are exact.
+        """
+        live_elapsed = round((monotonic() - self.last_server_clock) * 1000)
+        restart_elapsed = self.restart_elapsed_ms if self.persist_clock_history else 0
+        return max(0, restart_elapsed + live_elapsed)
+
+    def restore_realtime_clock_after_load(self, loaded_at: datetime) -> None:
+        """Restore a real-time stopwatch from persisted wall-clock state.
+
+        ``monotonic()`` starts afresh in a new process, therefore the time
+        between the persisted turn start and ``loaded_at`` has to be carried
+        separately. Once a move is played that restart offset is reset to 0.
+        """
+        if self.corr or self.status > STARTED:
+            return
+
+        self.loaded_at = loaded_at
+
+        turn_started_at = self.last_move_time if self.board.ply > 0 else self.date
+        if turn_started_at is not None:
+            if turn_started_at.tzinfo is None:
+                turn_started_at = turn_started_at.replace(tzinfo=UTC)
+            if loaded_at.tzinfo is None:
+                loaded_at = loaded_at.replace(tzinfo=UTC)
+            self.restart_elapsed_ms = max(
+                0,
+                round((loaded_at - turn_started_at).total_seconds() * 1000),
+            )
+        else:
+            self.restart_elapsed_ms = 0
+
+        # Start the new monotonic epoch only after the wall-clock restart gap
+        # has been captured above.
+        self.last_server_clock = monotonic()
+
+        if TYPE_CHECKING:
+            assert isinstance(self.stopwatch, Clock)
+
+        if not self.persist_clock_history:
+            # Casual non-tournament games can have takebacks and therefore do
+            # not persist exact clocks. Preserve their old restart behaviour;
+            # restart_elapsed_ms is still useful for the browser-side display
+            # adjustment that existed before durable tournament clocks.
+            self.stopwatch.restart()
+            return
+
+        if self.board.ply < 2 and not self.server_variant.two_boards:
+            if self.tournamentId is None and not self.bot_game:
+                # Preserve the existing unlimited first-move behaviour of
+                # ordinary human games.
+                self.stopwatch.restart()
+                return
+            remaining = self.stopwatch.time_for_first_move - self.restart_elapsed_ms
+        else:
+            saved = self.clocks_w[-1] if self.board.color == WHITE else self.clocks_b[-1]
+            correction = self.byo_correction if self.byoyomi else 0
+            remaining = saved + correction - self.restart_elapsed_ms
+
+        # Do not clamp to zero. A negative value lets the clock task and a
+        # reconnecting client's flag claim immediately observe that the turn
+        # expired while the server was down.
+        self.stopwatch.restart(remaining)
+
     def berserk(self, color: str) -> None:
         if color == "white" and not self.wberserk:
             self.wberserk = True
@@ -470,6 +571,9 @@ class Game:
             self.clocks_b[0] = self.berserk_time
 
     async def save_berserk(self) -> None:
+        if self.app_state.db is None or not self.persist_to_db:
+            return
+
         new_data = {
             "wb": self.wberserk,
             "bb": self.bberserk,
@@ -523,9 +627,7 @@ class Game:
 
         # BOT players doesn't send times used for moves
         if self.bot_game:
-            movetime = (
-                round((cur_time - self.last_server_clock) * 1000) if self.board.ply >= 2 else 0
-            )
+            movetime = self.authoritative_clock_elapsed_ms() if self.board.ply >= 2 else 0
             if cur_player.bot and self.board.ply >= 2:
                 if self.byoyomi:
                     if self.overtime:
@@ -560,6 +662,7 @@ class Game:
                     clocks[BLACK] = self.berserk_time  # pyright: ignore[reportIndexIssue]
 
         self.last_server_clock = cur_time
+        self.restart_elapsed_ms = 0
 
         if self.status <= STARTED:
             try:
@@ -678,9 +781,9 @@ class Game:
         regardless of game length. ``save_game()`` writes the authoritative
         full arrays at game end, so the document is always consistent on close.
 
-        Takebacks are only allowed in CASUAL games, so clock arrays are never
-        written for games that can call ``pop_move_from_db`` and no matching
-        clock ``$pop`` is required here.
+        Takebacks are available only in non-tournament CASUAL games. Those
+        games still omit clock arrays, while tournament games cannot take back
+        moves and can safely persist clocks without a matching clock ``$pop``.
         """
         self.last_move_time = datetime.now(UTC)
         move_encoded = self.encode_method(grand2zero(move) if self.variant in GRANDS else move)
@@ -701,7 +804,7 @@ class Game:
                 "c": correction,
             }
             set_data.update(self.byoyomi_state_document())
-        if self.rated == RATED:
+        if self.persist_clock_history:
             if cur_color == WHITE:
                 push_data["cw"] = self.clocks_w[-1]
             else:
@@ -890,7 +993,7 @@ class Game:
             if self.variant == "janggi":
                 new_data["if"] = self.board.initial_fen
 
-            if self.rated == RATED:
+            if self.persist_clock_history:
                 new_data["cw"] = self.clocks_w[1:]
                 new_data["cb"] = self.clocks_b[1:]
 
@@ -1727,16 +1830,11 @@ class Game:
                 # We have to adjust current player latest saved clock time
                 # otherwise he will get free extra time on browser page refresh
                 # (also needed for spectators entering to see correct clock times)
-
-                elapsed0 = 0.0
-                # Extra adjustment needed when game resumed after server restart
-                if (self.last_move_time is not None) and (self.loaded_at is not None):
-                    elapsed0 = ((self.loaded_at - self.last_move_time).total_seconds()) * 1000
-
-                cur_time = monotonic()
-                elapsed1 = round((cur_time - self.last_server_clock) * 1000)
                 clocks[self.board.color] = max(
-                    0, clocks[self.board.color] + self.byo_correction - elapsed0 - elapsed1
+                    0,
+                    clocks[self.board.color]
+                    + self.byo_correction
+                    - self.elapsed_on_current_turn_ms(),
                 )
             crosstable = self.crosstable
         else:
@@ -1922,6 +2020,7 @@ class Game:
         self.check = self.board.is_checked()
         await self.save_takeback_state()
         self.last_server_clock = monotonic()
+        self.restart_elapsed_ms = 0
         self.stopwatch.restart()
 
     def handle_chat_message(self, chat_message: Mapping[str, object]) -> None:

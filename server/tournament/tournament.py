@@ -1117,9 +1117,6 @@ class Tournament(ABC):
         self.next_round_starts_at = None
         self.manual_next_round_pending = False
 
-        response = self.live_status(now)
-        await self.broadcast(response)
-
         # force first pairing wave in arena
         if self.system == ARENA:
             self.prev_pairing = now - self.wave
@@ -1138,6 +1135,12 @@ class Tournament(ABC):
                 )
             else:
                 log.info("Updated status: tournament %s status=%s", self.id, u.get("status"))
+
+        # Only acknowledge the started state after it is durable. Otherwise a
+        # process death between broadcast and MongoDB update can make clients
+        # enter a tournament which reloads as T_CREATED.
+        response = self.live_status(now)
+        await self.broadcast(response)
 
     @property
     def summary(self) -> TournamentStatusResponse:
@@ -1358,8 +1361,10 @@ class Tournament(ABC):
             if latest and isinstance(latest, Game) and latest.status in (CREATED, STARTED):
                 player_data.games.pop()
 
-        await self.broadcast(self.summary)
         await self.save()
+
+        # Persist the terminal status/result before exposing it to clients.
+        await self.broadcast(self.summary)
 
         await self.broadcast_spotlight()
         self.app_state.schedule_tournament_cache_removal(self)
@@ -1453,13 +1458,15 @@ class Tournament(ABC):
         player_data.paused = False
         player_data.withdrawn = False
 
+        # Persist first so a successfully acknowledged join cannot disappear
+        # if the process dies during the following websocket broadcasts.
+        await self.db_update_player(player, "JOIN")
+
         response = self.players_json(user=player)
         await self.broadcast(response)
 
         if self.status == T_CREATED:
             await self.broadcast_spotlight()
-
-        await self.db_update_player(player, "JOIN")
 
     async def join_precheck(self, user: User, player_data: PlayerData | None) -> str | None:
         return None
@@ -1511,13 +1518,13 @@ class Tournament(ABC):
         if self.pop_leaderboard_player_by_username(user.username) is not None:
             self.nb_players -= 1
 
+        await self.db_update_player(user, "WITHDRAW")
+
         response_player = self.get_player_by_name(user.username) or user
         response = self.players_json(user=response_player)
         await self.broadcast(response)
 
         await self.broadcast_spotlight()
-
-        await self.db_update_player(user, "WITHDRAW")
 
     async def pause(self, user: User) -> None:
         log.debug("PAUSE: %s in tournament %s", user.username, self.id)
@@ -1529,12 +1536,12 @@ class Tournament(ABC):
             return
         player_data.paused = True
 
+        await self.db_update_player(user, "PAUSE")
+
         # pause is different from withdraw and join because pause can be initiated from finished games page as well
         response_player = self.get_player_by_name(user.username) or user
         response = self.players_json(user=response_player)
         await self.broadcast(response)
-
-        await self.db_update_player(user, "PAUSE")
 
     def spactator_join(self, spectator: User) -> None:
         self.spectators.add(spectator)
@@ -1904,6 +1911,7 @@ class Tournament(ABC):
         if self.status in (T_FINISHED, T_ABORTED) or game.status == ABORTED:
             return
 
+        no_show_username = self._mark_no_show_paused(game)
         touched_users = self._apply_missing_game_result(game)
         if touched_users is None:
             return
@@ -1913,6 +1921,11 @@ class Tournament(ABC):
 
         for username in touched_users:
             await self.db_update_player(username, "GAME_END")
+        if no_show_username is not None and no_show_username not in touched_users:
+            # ``GAME_END`` persists the paused flag for newly-applied results.
+            # On a partial recovery the no-show player's score may already be
+            # durable, so persist the pause explicitly as well.
+            await self.db_update_player(no_show_username, "PAUSE")
         await self.db_update_pairing(game)
 
         if warn_on_recovery and touched_users:
@@ -1923,6 +1936,31 @@ class Tournament(ABC):
             )
 
         await self._finalize_finished_game_once(game)
+
+    def _mark_no_show_paused(self, game: Game | GameData) -> str | None:
+        """Make arena-style first-move no-show pausing durable with scoring.
+
+        ``delayed_free()`` intentionally waits a few seconds before updating
+        the UI/free flags, but the actual pause must not live only in that
+        background task. Mark it before the GAME_END player documents are
+        persisted so a restart during the delay cannot lose the penalty.
+        """
+        if game.status != FLAG:
+            return None
+
+        ply = self._game_ply(game)
+        if ply == 0:
+            username = game.wplayer.username
+        elif ply == 1:
+            username = game.bplayer.username
+        else:
+            return None
+
+        player_data = self.player_data_by_name(username)
+        if player_data is None:
+            return None
+        player_data.paused = True
+        return username
 
     def _apply_missing_game_result(self, game: Game | GameData) -> list[str] | None:
         player_data = self.game_player_data(game)
@@ -2350,7 +2388,7 @@ class Tournament(ABC):
                 }
 
         elif action == "WITHDRAW":
-            player_update = {"wd": True}
+            player_update = {"a": False, "wd": True}
 
         elif action == "PAUSE":
             player_update = {"a": True}

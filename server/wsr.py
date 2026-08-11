@@ -4,7 +4,6 @@ import asyncio
 import random
 import string
 from collections.abc import Mapping
-from time import monotonic
 from typing import TYPE_CHECKING
 
 import aiohttp_session
@@ -146,10 +145,11 @@ def _flag_claim_allowed(game: game.Game, user: User) -> bool:
 
     # In normal increment games we compute authoritative remaining time from:
     #   remaining = saved_clock_after_last_move - elapsed_since_last_move
-    # where elapsed uses server monotonic time. This avoids trusting client
-    # clock values and avoids tolerance-based false positives in this path.
+    # where elapsed uses durable wall-clock restart time plus the current
+    # process's monotonic time when exact clock history is available. This
+    # avoids trusting client clock values and tolerance-based false positives.
     saved = game.clocks_w[-1] if user_color == WHITE else game.clocks_b[-1]
-    elapsed = round((monotonic() - game.last_server_clock) * 1000)
+    elapsed = game.authoritative_clock_elapsed_ms()
     return (saved - elapsed) <= 0
 
 
@@ -369,10 +369,20 @@ async def handle_move(
 
 
 async def handle_berserk(data: BerserkMessage, game: game.Game) -> None:
-    game.berserk(data["color"])
-    response: BerserkMessage = {"type": "berserk", "color": data["color"]}
-    await round_broadcast(game, response, full=True)
-    await game.save_berserk()
+    # Berserk can race with the first move. Serialize both operations and make
+    # the durable write happen before clients are told that berserk succeeded.
+    # A process death after the broadcast can therefore never make an
+    # acknowledged berserk disappear after restart.
+    async with game.move_lock:
+        # If the first move won the lock, the berserk request is too late. This
+        # mirrors the client rule (berserk is offered only before game start)
+        # and makes the move/berserk race deterministic in either order.
+        if game.status >= STARTED:
+            return
+        game.berserk(data["color"])
+        await game.save_berserk()
+        response: BerserkMessage = {"type": "berserk", "color": data["color"]}
+        await round_broadcast(game, response, full=True)
 
 
 async def handle_analysis_move(user: User, data: AnalysisMoveMessage, game: game.Game) -> None:

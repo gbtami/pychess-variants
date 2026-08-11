@@ -530,11 +530,11 @@ class PychessGlobalAppState:
 
                 self.games[game_id] = game
                 if not corr:
-                    try:
-                        if TYPE_CHECKING:
-                            assert isinstance(game, Game)
-                        game.stopwatch.restart()
-                    except AttributeError:
+                    if isinstance(game, Game):
+                        # load_game_from_doc() already restored the stopwatch
+                        # from the persisted position and wall-clock downtime.
+                        pass
+                    else:
                         if TYPE_CHECKING:
                             assert isinstance(game, GameBug)
                         game.gameClocks.restart("a")

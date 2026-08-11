@@ -452,7 +452,11 @@ async def _load_game_from_doc(
             crosstable: Crosstable = crosstable_doc
             game.crosstable = crosstable
 
-    game.loaded_at = datetime.now(UTC)
+    loaded_at = datetime.now(UTC)
+    game.loaded_at = loaded_at
+
+    if (not game.corr) and game.status <= STARTED:
+        game.restore_realtime_clock_after_load(loaded_at)
 
     if game.status <= STARTED:
         app_state.games[game_id] = game
@@ -888,11 +892,10 @@ async def insert_game_to_db(game, app_state: PychessGlobalAppState):
         document["cw0"] = int(game.clocks_w[0])
         document["cb0"] = int(game.clocks_b[0])
 
-    if game.rated == RATED:
+    if game.persist_clock_history:
         # Initialize clock arrays so load_game_from_doc() can always find
-        # both keys together. Without this, a server restart after exactly
-        # one rated move (White's first push) would leave "cb" absent from
-        # the document, causing a KeyError when loading the game back.
+        # both keys together. This is required for rated games and for casual
+        # tournament games, whose clocks must also survive a restart.
         document["cw"] = []
         document["cb"] = []
 
@@ -1055,7 +1058,29 @@ async def play_move(
             log.info("BOT move %s arrived probably while human player takeback happened" % move)
             return
 
-        if not user.bot:
+        restart_clock_expired = (
+            not user.bot
+            and not game.corr
+            and not game.server_variant.two_boards
+            and game.persist_clock_history
+            and game.restart_elapsed_ms > 0
+            and game.stopwatch.running
+            and game.stopwatch.secs <= 0
+        )
+        if restart_clock_expired:
+            # The player could not have made a move while this server process
+            # was offline. If restart recovery already consumed the entire
+            # clock, do not allow a reconnecting client to sneak a move in
+            # before Clock.countdown() gets its next one-second wake-up.
+            log.info(
+                "Rejecting move after restart because clock expired in %s by %s",
+                gameId,
+                user.username,
+            )
+            await game.game_ended(user, "flag")
+            invalid_move = True
+
+        if not user.bot and not invalid_move:
             legal_moves = game.board.legal_moves()
             if move not in legal_moves:
                 log.warning(
@@ -1070,41 +1095,44 @@ async def play_move(
                 await send_human_resync("illegal-human-move")
                 return
 
-        try:
-            await game.play_move(move, clocks, ply)
-        except StaleMovePersistenceError:
-            log.warning(
-                "Rejecting stale move after persistence conflict in %s by %s (move=%s)",
-                gameId,
-                user.username,
-                move,
-            )
-            cached_game = app_state.games.get(gameId)
-            if cached_game is game:
-                app_state.games.pop(gameId, None)
-                await game.cancel_clocks_for_eviction()
-                cached_game = None
+        if not invalid_move:
+            try:
+                await game.play_move(move, clocks, ply)
+            except StaleMovePersistenceError:
+                log.warning(
+                    "Rejecting stale move after persistence conflict in %s by %s (move=%s)",
+                    gameId,
+                    user.username,
+                    move,
+                )
+                cached_game = app_state.games.get(gameId)
+                if cached_game is game:
+                    app_state.games.pop(gameId, None)
+                    await game.cancel_clocks_for_eviction()
+                    cached_game = None
 
-            authoritative_game = (
-                cached_game if isinstance(cached_game, Game) else await load_game(app_state, gameId)
-            )
-            if not isinstance(authoritative_game, Game):
-                log.error("Unable to reload %s after a persistence conflict", gameId)
+                authoritative_game = (
+                    cached_game
+                    if isinstance(cached_game, Game)
+                    else await load_game(app_state, gameId)
+                )
+                if not isinstance(authoritative_game, Game):
+                    log.error("Unable to reload %s after a persistence conflict", gameId)
+                    return
+
+                game = authoritative_game
+                await send_human_resync("stale-persistence")
                 return
-
-            game = authoritative_game
-            await send_human_resync("stale-persistence")
-            return
-        except SystemError:
-            invalid_move = True
-            log.exception(
-                "Game %s aborted because invalid move %s by %s !!!",
-                gameId,
-                move,
-                user.username,
-            )
-            game.status = INVALIDMOVE
-            game.result = "0-1" if user.username == game.wplayer.username else "1-0"
+            except SystemError:
+                invalid_move = True
+                log.exception(
+                    "Game %s aborted because invalid move %s by %s !!!",
+                    gameId,
+                    move,
+                    user.username,
+                )
+                game.status = INVALIDMOVE
+                game.result = "0-1" if user.username == game.wplayer.username else "1-0"
     else:
         # never play moves in finished games!
         log.info(
