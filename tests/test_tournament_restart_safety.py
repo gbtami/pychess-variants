@@ -1,6 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, patch
 
+from clock import CorrClock
 from const import CASUAL, FLAG, STARTED
 from game import Game
 from glicko2.glicko2 import new_default_perf_map
@@ -146,6 +147,99 @@ class TournamentRestartSafetyTestCase(TournamentTestCase):
             )
         game_ended.assert_awaited_once_with(reloaded.wplayer, "flag")
         play_move.assert_not_awaited()
+
+    async def test_correspondence_first_move_clock_counts_restart_downtime(self):
+        app_state = get_app_state(self.app)
+        white = self.add_user(f"corr-w-{id8()}")
+        black = self.add_user(f"corr-b-{id8()}")
+
+        # Suppress the background countdown so the test can inspect the exact
+        # restored value before the expired game is automatically aborted.
+        with patch.object(CorrClock, "countdown", new=AsyncMock()):
+            game = Game(
+                app_state,
+                id8(),
+                "chess",
+                "",
+                white,
+                black,
+                base=1,
+                inc=0,
+                rated=CASUAL,
+                corr=True,
+            )
+            await insert_game_to_db(game, app_state)
+            await game.stopwatch.cancel()
+
+            # No move has been played, so there is no last-move timestamp. The
+            # first correspondence turn started at the durable creation time.
+            await app_state.db.game.update_one(
+                {"_id": game.id},
+                {"$set": {"d": datetime.now(UTC) - timedelta(days=2)}},
+            )
+            persisted = await app_state.db.game.find_one({"_id": game.id})
+            assert persisted is not None
+
+            reloaded = await load_game_from_doc(app_state, persisted)
+            self.assertIsInstance(reloaded, Game)
+            assert isinstance(reloaded, Game)
+            self.assertIsInstance(reloaded.stopwatch, CorrClock)
+            assert isinstance(reloaded.stopwatch, CorrClock)
+
+            # A one-day game that was untouched for two days must remain
+            # expired. Restart must not reset it to one day or grant the old
+            # five-minute restart grace period.
+            self.assertLessEqual(reloaded.stopwatch.mins, 0)
+
+            game_ended = AsyncMock(return_value={})
+            play_move = AsyncMock()
+            with (
+                patch.object(reloaded, "game_ended", game_ended),
+                patch.object(reloaded, "play_move", play_move),
+            ):
+                await server_play_move(
+                    app_state,
+                    reloaded.wplayer,
+                    reloaded,
+                    "e2e4",
+                    clocks=None,
+                    ply=1,
+                )
+
+            # An ordinary correspondence game timing out before its first move
+            # is aborted, matching CorrClock.countdown().
+            game_ended.assert_awaited_once_with(reloaded.wplayer, "abort")
+            play_move.assert_not_awaited()
+
+    async def test_correspondence_expired_turn_gets_no_restart_grace(self):
+        app_state = get_app_state(self.app)
+        white = self.add_user(f"corr-w-{id8()}")
+        black = self.add_user(f"corr-b-{id8()}")
+
+        with patch.object(CorrClock, "countdown", new=AsyncMock()):
+            game = Game(
+                app_state,
+                id8(),
+                "chess",
+                "",
+                white,
+                black,
+                base=1,
+                inc=0,
+                rated=CASUAL,
+                corr=True,
+            )
+            game.board.ply = 1
+            game.last_move_time = datetime.now(UTC) - timedelta(days=2)
+            assert isinstance(game.stopwatch, CorrClock)
+
+            game.stopwatch.restart(from_db=True)
+
+            # The old restart path replaced an expired correspondence clock
+            # with five fresh minutes. Preserve the actual expired value so the
+            # normal timeout path can finish the game immediately.
+            self.assertLessEqual(game.stopwatch.mins, 0)
+            await game.stopwatch.cancel()
 
     async def test_tournament_first_move_timeout_counts_server_downtime(self):
         app_state = get_app_state(self.app)

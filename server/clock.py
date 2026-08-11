@@ -232,16 +232,23 @@ class CorrClock:
         self.ply: int = self.game.ply
         self.color: int = self.game.board.color
         self.mins: float = self.game.base * 24 * 60
-        if from_db and self.game.last_move_time is not None:
-            delta = datetime.now(UTC) - self.game.last_move_time
-            remaining_mins = self.mins - delta.total_seconds() / 60
-            # Clocks may go to negative while server is restarting
-            # force to detect it again
-            if remaining_mins <= 0:
-                log.debug("Negative clock in unfinished game %s", self.game.id)
-                self.mins = 5
-            else:
-                self.mins = remaining_mins
+        if from_db:
+            # For an untouched correspondence game, the current turn started
+            # when the game was created. After at least one move, ``l`` is the
+            # durable start time of the current turn. Older moved games without
+            # ``l`` cannot be reconstructed exactly, so preserve their previous
+            # full-clock fallback rather than guessing from the creation date.
+            turn_started_at = self.game.last_move_time if self.game.ply > 0 else self.game.date
+            if turn_started_at is not None:
+                if turn_started_at.tzinfo is None:
+                    turn_started_at = turn_started_at.replace(tzinfo=UTC)
+                delta = datetime.now(UTC) - turn_started_at
+                self.mins -= max(0.0, delta.total_seconds() / 60)
+                if self.mins <= 0:
+                    # Keep the real expired value. Giving a restarted game a
+                    # fresh grace period changes the result merely because the
+                    # process restarted; countdown() will now flag/abort it.
+                    log.debug("Expired clock in unfinished game %s", self.game.id)
         self.running = True
 
     async def countdown(self) -> None:

@@ -11,7 +11,7 @@ import aiohttp_session
 from aiohttp import web
 from aiohttp_sse import sse_response
 from broadcast import round_broadcast
-from clock import CorrClock
+from clock import Clock, CorrClock, first_move_timeout_reason
 from compress import C2R, R2C
 from const import (
     CASUAL,
@@ -1058,26 +1058,33 @@ async def play_move(
             log.info("BOT move %s arrived probably while human player takeback happened" % move)
             return
 
-        restart_clock_expired = (
+        realtime_restart_clock_expired = (
             not user.bot
-            and not game.corr
+            and isinstance(game.stopwatch, Clock)
             and not game.server_variant.two_boards
             and game.persist_clock_history
             and game.restart_elapsed_ms > 0
             and game.stopwatch.running
             and game.stopwatch.secs <= 0
         )
-        if restart_clock_expired:
-            # The player could not have made a move while this server process
-            # was offline. If restart recovery already consumed the entire
-            # clock, do not allow a reconnecting client to sneak a move in
-            # before Clock.countdown() gets its next one-second wake-up.
+        correspondence_clock_expired = (
+            not user.bot
+            and isinstance(game.stopwatch, CorrClock)
+            and game.stopwatch.running
+            and game.stopwatch.mins <= 0
+        )
+        if realtime_restart_clock_expired or correspondence_clock_expired:
+            # A player cannot have made a move while this process was offline.
+            # Reject an already-expired restored clock before the background
+            # countdown task gets its next scheduling turn. The explicit
+            # isinstance checks also keep real-time and correspondence clock
+            # state type-safe and independent of how a game was created.
             log.info(
-                "Rejecting move after restart because clock expired in %s by %s",
+                "Rejecting move because restored clock expired in %s by %s",
                 gameId,
                 user.username,
             )
-            await game.game_ended(user, "flag")
+            await game.game_ended(user, first_move_timeout_reason(game, game.ply))
             invalid_move = True
 
         if not user.bot and not invalid_move:
