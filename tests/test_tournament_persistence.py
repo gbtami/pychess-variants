@@ -789,15 +789,20 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         expected_start = round_finished_at + timedelta(hours=1)
         self.assertEqual(self.tournament.next_round_starts_at, expected_start)
 
+        # BSON datetimes have millisecond precision. The in-memory timestamp
+        # may retain additional microseconds until the process is restarted.
+        expected_persisted_start = expected_start.replace(
+            microsecond=(expected_start.microsecond // 1000) * 1000
+        )
         doc = await app_state.db.tournament.find_one({"_id": tid})
-        self.assertEqual(doc.get("nextRoundStartsAt"), expected_start)
+        self.assertEqual(doc.get("nextRoundStartsAt"), expected_persisted_start)
 
         _, reloaded_tournament = await self.reload_tournament(app_state.db_client, tid)
-        self.assertEqual(reloaded_tournament.next_round_starts_at, expected_start)
+        self.assertEqual(reloaded_tournament.next_round_starts_at, expected_persisted_start)
 
         halfway = round_finished_at + timedelta(minutes=30)
         _, seconds_to_next_round = reloaded_tournament.round_status(halfway)
-        self.assertEqual(seconds_to_next_round, 1800)
+        self.assertAlmostEqual(seconds_to_next_round, 1800, delta=0.001)
 
         if reloaded_tournament.clock_task is not None:
             reloaded_tournament.clock_task.cancel()
@@ -1135,19 +1140,25 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         game.status = FLAG
         game.board.ply = 20
 
-        async def fail_after_authoritative_write(_white_rating, _black_rating):
+        async def fail_after_authoritative_write(_game_doc, *, users_only=False):
+            self.assertFalse(users_only)
             doc = await app_state.db.game.find_one({"_id": game.id})
             self.assertIsNotNone(doc)
             assert doc is not None
             self.assertEqual(doc["s"], FLAG)
             self.assertEqual(doc["r"], "a")
             self.assertEqual(doc["p"], 20)
+            self.assertEqual(doc.get("fx"), 1)
             self.assertIn("p0", doc)
             self.assertIn("p1", doc)
-            raise RuntimeError("simulated crash before rating side effects")
+            raise RuntimeError("simulated crash before tournament side effects")
 
         with (
-            patch.object(game, "apply_rating_update", side_effect=fail_after_authoritative_write),
+            patch.object(
+                game,
+                "complete_tournament_final_side_effects",
+                side_effect=fail_after_authoritative_write,
+            ),
             self.assertRaisesRegex(RuntimeError, "simulated crash"),
         ):
             await game.save_game()
@@ -1302,10 +1313,14 @@ class TournamentPersistenceTestCase(TournamentTestCase):
         app_state.tourneysockets[tid] = {}
         await upsert_tournament_to_db(self.tournament, app_state)
 
+        # Use DB-backed usernames here: TEST_PREFIX tournament players are
+        # intentionally reconstructed as synthetic in-memory users on reload,
+        # which would bypass the persisted Swiss ban idempotency marker.
+        username_prefix = f"SwissNoShow{id8()}"
         for suffix in ("A", "B"):
             player = User(
                 app_state,
-                username=f"{TEST_PREFIX}SwissNoShow{suffix}",
+                username=f"{username_prefix}{suffix}",
                 title="TEST",
                 perfs=make_test_perfs(),
             )

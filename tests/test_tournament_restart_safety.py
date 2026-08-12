@@ -260,8 +260,11 @@ class TournamentRestartSafetyTestCase(TournamentTestCase):
         self.assertIsInstance(reloaded, Game)
         assert isinstance(reloaded, Game)
         self.assertEqual(reloaded.stopwatch.ply, 0)
-        self.assertTrue(reloaded.stopwatch.running)
         self.assertLessEqual(reloaded.stopwatch.secs, 0)
+        # Once restored with an already-expired clock, countdown() may finish
+        # the game before this coroutine gets to inspect ``running``. Both
+        # states prove that server downtime was charged to the first move.
+        self.assertTrue(reloaded.stopwatch.running or reloaded.status > STARTED)
 
     async def test_makruk_manual_count_state_survives_restart(self):
         app_state = get_app_state(self.app)
