@@ -31,6 +31,213 @@ const SYSTEM_ARENA = '0';
 const SYSTEM_RR = '1';
 const SYSTEM_SWISS = '2';
 
+type VariantPickerKind = 'favorite' | 'site' | 'community';
+
+type VariantPickerEntry = {
+    option: HTMLOptionElement;
+    value: string;
+    label: string;
+    kind: VariantPickerKind;
+    searchText: string;
+};
+
+const VARIANT_PICKER_FAVORITE_LIMIT = 12;
+const VARIANT_PICKER_SEARCH_LIMIT = 80;
+
+function normalizeSearchText(value: string): string {
+    return value.trim().toLocaleLowerCase();
+}
+
+function initializeVariantPicker(variantSelect: HTMLSelectElement): void {
+    const picker = document.getElementById('form3-variant-picker');
+    const search = document.getElementById('form3-variant-search');
+    const results = document.getElementById('form3-variant-results');
+    if (
+        !(picker instanceof HTMLElement) ||
+        !(search instanceof HTMLInputElement) ||
+        !(results instanceof HTMLElement)
+    ) {
+        return;
+    }
+
+    const entries: VariantPickerEntry[] = Array.from(variantSelect.options).map(option => {
+        const rawKind = option.dataset.kind ?? option.parentElement?.getAttribute('data-kind') ?? 'site';
+        const kind: VariantPickerKind =
+            rawKind === 'favorite' || rawKind === 'community' ? rawKind : 'site';
+        const label = option.textContent?.trim() || option.value;
+        return {
+            option,
+            value: option.value,
+            label,
+            kind,
+            searchText: normalizeSearchText(`${label} ${option.value}`),
+        };
+    });
+
+    if (entries.length === 0) return;
+
+    let visibleEntries: VariantPickerEntry[] = [];
+    let activeIndex = -1;
+
+    const selectedEntry = (): VariantPickerEntry =>
+        entries.find(entry => entry.value === variantSelect.value) ?? entries[0];
+
+    const syncSearchToSelection = (): void => {
+        search.value = selectedEntry().label;
+    };
+
+    const setExpanded = (expanded: boolean): void => {
+        search.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        results.hidden = !expanded;
+        if (!expanded) {
+            activeIndex = -1;
+            search.removeAttribute('aria-activedescendant');
+        }
+    };
+
+    const setActive = (index: number): void => {
+        if (visibleEntries.length === 0) {
+            activeIndex = -1;
+            search.removeAttribute('aria-activedescendant');
+            return;
+        }
+        activeIndex = Math.max(0, Math.min(index, visibleEntries.length - 1));
+        results.querySelectorAll<HTMLElement>('.variant-picker-option').forEach((element, optionIndex) => {
+            element.classList.toggle('is-active', optionIndex === activeIndex);
+        });
+        const active = results.querySelector<HTMLElement>(`#form3-variant-option-${activeIndex}`);
+        if (active) {
+            search.setAttribute('aria-activedescendant', active.id);
+            active.scrollIntoView({ block: 'nearest' });
+        }
+    };
+
+    const chooseEntry = (entry: VariantPickerEntry): void => {
+        variantSelect.value = entry.value;
+        syncSearchToSelection();
+        variantSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        setExpanded(false);
+    };
+
+    const appendGroup = (label: string, groupEntries: VariantPickerEntry[]): void => {
+        if (groupEntries.length === 0) return;
+        const heading = document.createElement('div');
+        heading.className = 'variant-picker-group';
+        heading.textContent = label;
+        heading.setAttribute('role', 'presentation');
+        results.append(heading);
+
+        groupEntries.forEach(entry => {
+            const index = visibleEntries.length;
+            visibleEntries.push(entry);
+            const row = document.createElement('button');
+            row.type = 'button';
+            row.id = `form3-variant-option-${index}`;
+            row.className = 'variant-picker-option';
+            row.setAttribute('role', 'option');
+            row.setAttribute('aria-selected', entry.value === variantSelect.value ? 'true' : 'false');
+            row.tabIndex = -1;
+
+            const name = document.createElement('span');
+            name.className = 'variant-picker-option-name';
+            name.textContent = entry.label;
+            row.append(name);
+
+            if (entry.kind !== 'site' && normalizeSearchText(entry.value) !== normalizeSearchText(entry.label)) {
+                const key = document.createElement('small');
+                key.className = 'variant-picker-option-key';
+                key.textContent = entry.value;
+                row.append(key);
+            }
+
+            row.addEventListener('pointermove', () => setActive(index));
+            row.addEventListener('click', () => chooseEntry(entry));
+            results.append(row);
+        });
+    };
+
+    const appendHint = (text: string): void => {
+        const hint = document.createElement('div');
+        hint.className = 'variant-picker-hint';
+        hint.textContent = text;
+        hint.setAttribute('role', 'presentation');
+        results.append(hint);
+    };
+
+    const renderResults = (): void => {
+        results.replaceChildren();
+        visibleEntries = [];
+        activeIndex = -1;
+        search.removeAttribute('aria-activedescendant');
+
+        const query = normalizeSearchText(search.value);
+        const selected = selectedEntry();
+        if (query === '' || query === normalizeSearchText(selected.label)) {
+            const favoriteEntries = entries.filter(entry => entry.kind === 'favorite');
+            const favorites =
+                selected.kind === 'favorite'
+                    ? [selected, ...favoriteEntries.filter(entry => entry.value !== selected.value)]
+                    : favoriteEntries;
+            const site = entries.filter(entry => entry.kind === 'site');
+            if (selected.kind === 'community') appendGroup('Selected', [selected]);
+            appendGroup('Favorites', favorites.slice(0, VARIANT_PICKER_FAVORITE_LIMIT));
+            appendGroup('Site variants', site);
+            if (entries.some(entry => entry.kind === 'community')) {
+                appendHint('Type to search all public community variants.');
+            }
+        } else {
+            const tokens = query.split(/\s+/).filter(Boolean);
+            const matches = entries.filter(entry => tokens.every(token => entry.searchText.includes(token)));
+            const limited = matches.slice(0, VARIANT_PICKER_SEARCH_LIMIT);
+            appendGroup('Favorites', limited.filter(entry => entry.kind === 'favorite'));
+            appendGroup('Site variants', limited.filter(entry => entry.kind === 'site'));
+            appendGroup('Community variants', limited.filter(entry => entry.kind === 'community'));
+            if (matches.length === 0) {
+                appendHint('No matching variants.');
+            } else if (matches.length > limited.length) {
+                appendHint(`Showing the first ${VARIANT_PICKER_SEARCH_LIMIT} matches. Refine your search.`);
+            }
+        }
+
+        setExpanded(true);
+        if (visibleEntries.length > 0) {
+            const selectedIndex = visibleEntries.findIndex(entry => entry.value === variantSelect.value);
+            setActive(selectedIndex >= 0 ? selectedIndex : 0);
+        }
+    };
+
+    search.addEventListener('focus', () => {
+        search.select();
+        renderResults();
+    });
+    search.addEventListener('input', renderResults);
+    search.addEventListener('keydown', event => {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            if (results.hidden) renderResults();
+            const delta = event.key === 'ArrowDown' ? 1 : -1;
+            const startIndex = activeIndex < 0 ? (delta > 0 ? -1 : visibleEntries.length) : activeIndex;
+            setActive(startIndex + delta);
+        } else if (event.key === 'Enter' && !results.hidden && activeIndex >= 0) {
+            event.preventDefault();
+            chooseEntry(visibleEntries[activeIndex]);
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            syncSearchToSelection();
+            setExpanded(false);
+        }
+    });
+
+    variantSelect.addEventListener('change', syncSearchToSelection);
+    document.addEventListener('pointerdown', event => {
+        if (!(event.target instanceof Node) || picker.contains(event.target)) return;
+        syncSearchToSelection();
+        setExpanded(false);
+    });
+
+    syncSearchToSelection();
+}
+
 function nextAllowedDate(): Date {
     const date = new Date(Date.now() + 60_000);
     date.setSeconds(0, 0);
@@ -166,6 +373,10 @@ export function initTournamentForm(): void {
         !(waitMinutesSelect instanceof HTMLSelectElement)
     ) {
         return;
+    }
+
+    if (variantSelect instanceof HTMLSelectElement) {
+        initializeVariantPicker(variantSelect);
     }
 
     const syncRatingPolicy = (): void => {

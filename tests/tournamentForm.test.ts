@@ -9,7 +9,23 @@ function setupTournamentForm(): void {
         <form id="tournament-form" method="post" action="/tournaments/new">
             <select id="form3-system"><option value="0">Arena</option><option value="1">Round-Robin</option></select>
             <input id="form3-rated" type="checkbox" checked>
-            <select id="form3-variant"><option value="chess">Chess</option></select>
+            <div id="form3-variant-picker">
+                <input id="form3-variant-search" type="search" aria-controls="form3-variant-results" aria-expanded="false">
+                <select id="form3-variant">
+                    <optgroup label="Favorites" data-kind="favorite">
+                        <option value="community-favorite" data-kind="favorite">Favorite Community</option>
+                    </optgroup>
+                    <optgroup label="Site variants" data-kind="site">
+                        <option value="chess" data-kind="site" selected>Chess</option>
+                        <option value="atomic" data-kind="site">Atomic</option>
+                    </optgroup>
+                    <optgroup label="Community variants" data-kind="community">
+                        <option value="community-alpha" data-kind="community">Community Alpha</option>
+                        <option value="custom-snails" data-kind="community">Simple Snails</option>
+                    </optgroup>
+                </select>
+                <div id="form3-variant-results" role="listbox" hidden></div>
+            </div>
             <span id="form3-system-help"></span>
             <div id="form3-rounds-wrap"></div>
             <span id="form3-rounds-label"></span>
@@ -71,5 +87,64 @@ describe('tournament schedule form', () => {
 
         expect(minutes.value).toBe('90');
         expect((document.querySelector('#endDate') as HTMLInputElement).value).toBe('');
+    });
+});
+
+describe('tournament variant picker', () => {
+    test('shows favorites and site variants before searching community variants', () => {
+        initTournamentForm();
+
+        const search = document.querySelector('#form3-variant-search') as HTMLInputElement;
+        search.dispatchEvent(new Event('focus'));
+
+        const results = document.querySelector('#form3-variant-results') as HTMLElement;
+        expect(search.value).toBe('Chess');
+        expect(results.hidden).toBe(false);
+        expect(results.textContent).toContain('Favorites');
+        expect(results.textContent).toContain('Favorite Community');
+        expect(results.textContent).toContain('Site variants');
+        expect(results.textContent).toContain('Atomic');
+        expect(results.textContent).not.toContain('Community Alpha');
+        expect(results.textContent).toContain('Type to search all public community variants.');
+    });
+
+    test('searches the full community catalogue by display name or internal key', () => {
+        initTournamentForm();
+
+        const search = document.querySelector('#form3-variant-search') as HTMLInputElement;
+        search.value = 'alpha';
+        search.dispatchEvent(new Event('input'));
+
+        const results = document.querySelector('#form3-variant-results') as HTMLElement;
+        expect(results.textContent).toContain('Community variants');
+        expect(results.textContent).toContain('Community Alpha');
+
+        search.value = 'custom-snails';
+        search.dispatchEvent(new Event('input'));
+        expect(results.textContent).toContain('Simple Snails');
+    });
+
+    test('selects a searched community variant with the keyboard', () => {
+        initTournamentForm();
+
+        const search = document.querySelector('#form3-variant-search') as HTMLInputElement;
+        const select = document.querySelector('#form3-variant') as HTMLSelectElement;
+        search.value = 'community alpha';
+        search.dispatchEvent(new Event('input'));
+        search.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+        expect(select.value).toBe('community-alpha');
+        expect(search.value).toBe('Community Alpha');
+        expect(search.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    test('keeps the visible picker in sync with programmatic select changes', () => {
+        initTournamentForm();
+
+        const search = document.querySelector('#form3-variant-search') as HTMLInputElement;
+        const select = document.querySelector('#form3-variant') as HTMLSelectElement;
+        changeValue(select, 'atomic');
+
+        expect(search.value).toBe('Atomic');
     });
 });

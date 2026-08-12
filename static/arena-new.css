@@ -113,3 +113,87 @@ textarea.form-control {
 input[type="checkbox"] {
     width: auto;
 }
+
+.variant-picker {
+    position: relative;
+}
+.variant-picker-search {
+    padding-right: 2.5rem;
+}
+.variant-picker-source {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+.variant-picker-results {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    right: 0;
+    max-height: 24rem;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+.variant-picker-group {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.45rem 0.75rem 0.3rem;
+    color: var(--button-text);
+    background: var(--bg-color2);
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.variant-picker-option {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 0;
+    border-radius: 0;
+    color: inherit;
+    background: var(--bg-input);
+    text-align: left;
+    cursor: pointer;
+}
+.variant-picker-option:hover,
+.variant-picker-option.is-active {
+    background: var(--bg-color2);
+}
+.variant-picker-option[aria-selected="true"] .variant-picker-option-name {
+    font-weight: bold;
+}
+.variant-picker-option-key {
+    flex: 0 1 auto;
+    overflow: hidden;
+    color: var(--button-text);
+    font-size: 0.78rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.variant-picker-hint {
+    padding: 0.65rem 0.75rem;
+    color: var(--button-text);
+    background: var(--bg-input);
+    font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+    .variant-picker-results {
+        max-height: 18rem;
+    }
+    .variant-picker-option-key {
+        max-width: 42%;
+    }
+}

@@ -424,6 +424,9 @@ class ViewContext(TypedDict, total=False):
     category_variant_set: frozenset[str]
     game_category_intro: bool
     catalogued_variants: str
+    site_variants: Mapping[str, object]
+    favorite_variants: Mapping[str, object]
+    community_variants_for_tournaments: Mapping[str, object]
     pm_friends_only: bool
     corr_push_enabled: bool
     menu_variant: str

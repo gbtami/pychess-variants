@@ -26,10 +26,18 @@ async def arena_new(request: web.Request) -> ViewContext:
     tournament_variants = {
         key: variant for key, variant in VARIANTS.items() if not variant.two_boards
     }
-    context["variants"] = {
-        **tournament_variants,
-        **public_catalogued_variants_for_forms(app_state),
+    catalogued_variants = public_catalogued_variants_for_forms(app_state)
+    favorite_names = user.catalogued_variant_favorites
+    favorite_variants = {
+        key: variant for key, variant in catalogued_variants.items() if key in favorite_names
     }
+    community_variants = {
+        key: variant for key, variant in catalogued_variants.items() if key not in favorite_names
+    }
+    context["variants"] = {**tournament_variants, **catalogued_variants}
+    context["site_variants"] = tournament_variants
+    context["favorite_variants"] = favorite_variants
+    context["community_variants_for_tournaments"] = community_variants
     context["view_css"] = "arena-new.css"
     context["edit"] = tournamentId is not None
     context["admin"] = user.username in ADMINS

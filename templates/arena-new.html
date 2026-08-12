@@ -178,12 +178,44 @@
                         </small>
                     </div>
                     <div class="form-group form-half">
-                        <label class="form-label" for="form3-variant">Variant</label>
-                        <select id="form3-variant" name="variant" class="form-control">
-                            {% for key in variants %}
-                            <option value="{{ key }}"{% if key == t_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
-                            {% endfor %}
-                        </select>
+                        <label class="form-label" for="form3-variant-search">Variant</label>
+                        <div id="form3-variant-picker" class="variant-picker">
+                            <input
+                                id="form3-variant-search"
+                                type="search"
+                                class="form-control variant-picker-search"
+                                autocomplete="off"
+                                spellcheck="false"
+                                role="combobox"
+                                aria-autocomplete="list"
+                                aria-controls="form3-variant-results"
+                                aria-expanded="false"
+                                placeholder="Search variants"
+                            />
+                            <select id="form3-variant" name="variant" class="variant-picker-source" tabindex="-1" aria-hidden="true">
+                                {% if favorite_variants %}
+                                <optgroup label="Favorites" data-kind="favorite">
+                                    {% for key in favorite_variants %}
+                                    <option value="{{ key }}" data-kind="favorite"{% if key == t_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% endif %}
+                                <optgroup label="Site variants" data-kind="site">
+                                    {% for key in site_variants %}
+                                    <option value="{{ key }}" data-kind="site"{% if key == t_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% if community_variants_for_tournaments %}
+                                <optgroup label="Community variants" data-kind="community">
+                                    {% for key in community_variants_for_tournaments %}
+                                    <option value="{{ key }}" data-kind="community"{% if key == t_variant %} selected="selected"{% endif %}>{{ variant_display_name(key).title() }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% endif %}
+                            </select>
+                            <div id="form3-variant-results" class="variant-picker-results" role="listbox" hidden></div>
+                        </div>
+                        <small class="form-help">Favorites and site variants are shown first. Type to search all public community variants.</small>
                     </div>
                 </div>
                 <div class="form-split">
