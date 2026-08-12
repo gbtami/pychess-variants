@@ -7,12 +7,13 @@ import logging
 from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, datetime, timedelta
 from time import monotonic
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, cast
 
 from broadcast import round_broadcast
 from catalogued_variants import (
     catalogued_variant_games_are_persisted,
     increment_catalogued_variant_game_count,
+    increment_catalogued_variant_game_count_once,
 )
 from clock import Clock, CorrClock
 from compress import R2C
@@ -54,6 +55,7 @@ from typing_defs import (
     GameEndResponse,
     GameStep,
     GameSummaryJson,
+    PerfEntry,
     TvGameJson,
 )
 from variants import (
@@ -966,6 +968,13 @@ class Game:
                 # the user-rating side effects happens only after that write.
                 rating_update = self.prepare_rating_update()
 
+            tournament_effects_pending = (
+                self.tournamentId is not None
+                and self.persist_to_db
+                and self.app_state.db is not None
+                and self.result in ("1-0", "0-1", "1/2-1/2")
+            )
+
             new_data = {
                 "f": self.board.fen,
                 "p": self.board.ply,
@@ -984,8 +993,28 @@ class Game:
             }
 
             if rating_update is not None:
-                new_data["p0"] = self.p0
-                new_data["p1"] = self.p1
+                if tournament_effects_pending:
+                    applied_at = datetime.now(UTC)
+                    new_data["p0"] = {
+                        **self.p0,
+                        "n": self.tournament_rating_effect_entry(
+                            self.wplayer, rating_update[0], applied_at
+                        ),
+                    }
+                    new_data["p1"] = {
+                        **self.p1,
+                        "n": self.tournament_rating_effect_entry(
+                            self.bplayer, rating_update[1], applied_at
+                        ),
+                    }
+                else:
+                    new_data["p0"] = self.p0
+                    new_data["p1"] = self.p1
+
+            if tournament_effects_pending:
+                # fx=1 means the authoritative result is durable but one or more
+                # global result side effects may still need restart recovery.
+                new_data["fx"] = 1
 
             # Janggi game starts with a prelude phase to set up horses and elephants, so
             # initial FEN may be different compared to one we used when db game document was created
@@ -1014,21 +1043,28 @@ class Game:
                 # tournament startup recovery can still reconstruct the result.
                 await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
 
-            if self.result != "*":
-                if rating_update is not None:
-                    await self.apply_rating_update(*rating_update)
-                if self.persist_to_db:
-                    await self.update_players_game_counts()
-                    if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
-                        await self.save_crosstable()
+            if tournament_effects_pending:
+                await self.complete_tournament_final_side_effects(new_data)
+            else:
+                if self.result != "*":
+                    if rating_update is not None:
+                        await self.apply_rating_update(*rating_update)
+                    if self.persist_to_db:
+                        await self.update_players_game_counts()
+                        if (
+                            (not self.bot_game)
+                            and (not self.wplayer.anon)
+                            and (not self.bplayer.anon)
+                        ):
+                            await self.save_crosstable()
 
-            if (
-                self.persist_to_db
-                and self.app_state.db is not None
-                and is_catalogued_variant(self.variant)
-                and self.result in ("1-0", "0-1", "1/2-1/2")
-            ):
-                await increment_catalogued_variant_game_count(self.app_state, self.variant)
+                if (
+                    self.persist_to_db
+                    and self.app_state.db is not None
+                    and is_catalogued_variant(self.variant)
+                    and self.result in ("1-0", "0-1", "1/2-1/2")
+                ):
+                    await increment_catalogued_variant_game_count(self.app_state, self.variant)
 
             if self.tournamentId is not None:
                 try:
@@ -1067,7 +1103,7 @@ class Game:
             return
         crosstable: Crosstable = self.crosstable  # type: ignore[assignment]
 
-        if len(crosstable["r"]) > 0 and crosstable["r"][-1].startswith(self.id):
+        if any(result.startswith(self.id) for result in crosstable["r"]):
             log.info("Crosstable was already updated with %s result", self.id)
             return
 
@@ -1123,7 +1159,14 @@ class Game:
             )
         return (0, 0)
 
-    async def set_highscore(self, variant: str, chess960: bool, value: dict[str, int]) -> bool:
+    async def set_highscore(
+        self,
+        variant: str,
+        chess960: bool,
+        value: dict[str, int],
+        *,
+        raise_on_error: bool = False,
+    ) -> bool:
         variant_key = variant + ("960" if chess960 else "")
         variant_scores = self.app_state.highscore[variant_key]
         prev_top = (
@@ -1149,6 +1192,8 @@ class Game:
             )
         except Exception:
             log.error("Failed to save new %s highscore to mongodb!", variant)
+            if raise_on_error:
+                raise
         return prev_top != new_top
 
     def prepare_rating_update(self) -> tuple[Rating, Rating]:
@@ -1185,6 +1230,139 @@ class Game:
             gl2.create_rating(wcurr.mu + wrdiff, wr.phi, wr.sigma, wr.ltime),
             gl2.create_rating(bcurr.mu + brdiff, br.phi, br.sigma, br.ltime),
         )
+
+    def tournament_rating_effect_entry(
+        self, player: User, rating: Rating, applied_at: datetime
+    ) -> PerfEntry:
+        chess960 = self.chess960
+        if TYPE_CHECKING:
+            assert chess960 is not None
+        variant_key = self.variant + ("960" if chess960 else "")
+        previous = player.perfs.get(variant_key)
+        return {
+            "gl": {"r": rating.mu, "d": rating.phi, "v": rating.sigma},
+            "la": applied_at,
+            "nb": (0 if previous is None else previous["nb"]) + 1,
+        }
+
+    @staticmethod
+    def result_for_player(result: str, *, white: bool) -> int:
+        if result == "1-0":
+            return 1 if white else -1
+        if result == "0-1":
+            return -1 if white else 1
+        return 0
+
+    async def apply_tournament_user_side_effects_once(self, game_doc: Mapping[str, object]) -> None:
+        """Apply tournament rating/count changes atomically per player.
+
+        A finished tournament game is persisted with ``fx=1`` before this runs.
+        Each user update carries a bounded game-id marker in the same MongoDB
+        operation as the rating/count changes, making retries after restart safe.
+        """
+        if self.result not in ("1-0", "0-1", "1/2-1/2"):
+            return
+
+        rated = self.rated == RATED
+        chess960 = bool(self.chess960)
+        variant_key = self.variant + ("960" if chess960 else "")
+        p0 = game_doc.get("p0")
+        p1 = game_doc.get("p1")
+        white_perf = p0.get("n") if rated and isinstance(p0, Mapping) else None
+        black_perf = p1.get("n") if rated and isinstance(p1, Mapping) else None
+
+        white_perf_entry = cast(PerfEntry, white_perf) if isinstance(white_perf, dict) else None
+        black_perf_entry = cast(PerfEntry, black_perf) if isinstance(black_perf, dict) else None
+        await self.wplayer.apply_tournament_game_effect_once(
+            self.id,
+            self.result_for_player(self.result, white=True),
+            rated,
+            variant_key=variant_key,
+            perf_entry=white_perf_entry,
+        )
+        await self.bplayer.apply_tournament_game_effect_once(
+            self.id,
+            self.result_for_player(self.result, white=False),
+            rated,
+            variant_key=variant_key,
+            perf_entry=black_perf_entry,
+        )
+
+    async def update_tournament_highscore_side_effect(self) -> None:
+        if self.rated != RATED:
+            return
+
+        chess960 = self.chess960
+        if TYPE_CHECKING:
+            assert chess960 is not None
+        variant_key = self.variant + ("960" if chess960 else "")
+        should_rebuild_lobby_leaderboard = False
+        for player in (self.wplayer, self.bplayer):
+            perf = player.perfs.get(variant_key)
+            if perf is None or perf["nb"] < HIGHSCORE_MIN_GAMES:
+                continue
+            _id = "%s|%s" % (player.username, player.title)
+            changed_top = await self.set_highscore(
+                self.variant,
+                chess960,
+                {_id: int(round(perf["gl"]["r"], 0))},
+                raise_on_error=True,
+            )
+            should_rebuild_lobby_leaderboard = should_rebuild_lobby_leaderboard or changed_top
+
+        if should_rebuild_lobby_leaderboard:
+            await refresh_lobby_leaderboard_cache(self.app_state)
+
+    async def ensure_tournament_crosstable_side_effect(self) -> None:
+        if (not self.has_crosstable) or self.app_state.db is None:
+            return
+        current = await self.app_state.db.crosstable.find_one({"_id": self.ct_id})
+        if current is None:
+            self.crosstable = {
+                "_id": self.ct_id,
+                "s1": 0,
+                "s2": 0,
+                "r": [],
+            }
+        else:
+            self.crosstable = current
+        self.need_crosstable_save = False
+        self.set_crosstable()
+        if not self.need_crosstable_save:
+            return
+        crosstable: Crosstable = self.crosstable  # type: ignore[assignment]
+        await self.app_state.db.crosstable.update_one(
+            {"_id": self.ct_id},
+            {
+                "$set": {
+                    "s1": crosstable["s1"],
+                    "s2": crosstable["s2"],
+                    "r": crosstable["r"],
+                }
+            },
+            upsert=True,
+        )
+        self.need_crosstable_save = False
+
+    async def complete_tournament_final_side_effects(
+        self, game_doc: Mapping[str, object], *, users_only: bool = False
+    ) -> None:
+        """Complete retry-safe global side effects for a finished tournament game."""
+        await self.apply_tournament_user_side_effects_once(game_doc)
+        if users_only:
+            return
+
+        await self.update_tournament_highscore_side_effect()
+        await self.ensure_tournament_crosstable_side_effect()
+        if is_catalogued_variant(self.variant):
+            await increment_catalogued_variant_game_count_once(
+                self.app_state, self.variant, self.id
+            )
+
+        if self.app_state.db is not None:
+            await self.app_state.db.game.update_one(
+                {"_id": self.id, "fx": 1}, {"$set": {"fx": 2}}
+            )
 
     async def apply_rating_update(self, new_white_rating: Rating, new_black_rating: Rating) -> None:
         chess960 = self.chess960

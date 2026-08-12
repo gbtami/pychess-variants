@@ -123,6 +123,37 @@ def _is_test_run() -> bool:
     return any("pytest" in arg for arg in sys.argv) or any("unittest" in arg for arg in sys.argv)
 
 
+async def recover_pending_tournament_game_side_effects(
+    app_state: "PychessGlobalAppState", *, users_only: bool
+) -> int:
+    """Replay durable tournament result side effects left pending by a restart.
+
+    ``fx=1`` is written in the same authoritative game update as the final
+    result.  The first startup pass repairs user ratings/counters before active
+    tournaments can resume pairing.  A second pass, after highscore/crosstable
+    caches exist, completes the remaining idempotent effects and flips ``fx``
+    to 2.
+    """
+    if app_state.db is None:
+        return 0
+
+    recovered = 0
+    cursor = app_state.db.game.find(
+        {
+            "tid": {"$exists": True},
+            "fx": 1,
+            "s": {"$gt": STARTED},
+        }
+    ).sort([("d", 1), ("_id", 1)])
+    async for doc in cursor:
+        game = await load_game_from_doc(app_state, doc, cache_finished=False)
+        if not isinstance(game, Game):
+            continue
+        await game.complete_tournament_final_side_effects(doc, users_only=users_only)
+        recovered += 1
+    return recovered
+
+
 # Local test cache retention; keep this small for test runs, but use the
 # production-like TTL for interactive localhost usage.
 LOCALHOST_CACHE_KEEP_TIME = 1 if _is_test_run() else TOURNAMENT_KEEP_TIME
@@ -298,6 +329,15 @@ class PychessGlobalAppState:
 
                 await init_catalogued_variants(self, db_collections)
 
+            with startup.phase("recover tournament user result side effects"):
+                recovered = await recover_pending_tournament_game_side_effects(
+                    self, users_only=True
+                )
+                if recovered:
+                    log.warning(
+                        "Recovered user result side effects for %s tournament games", recovered
+                    )
+
             with startup.phase("restore tournaments"):
                 cursor = self.db.tournament.find(
                     {"$or": [{"status": T_STARTED}, {"status": T_CREATED}]}
@@ -325,11 +365,21 @@ class PychessGlobalAppState:
                 async for doc in cursor:
                     if doc["_id"] in self.highscore:
                         self.highscore[doc["_id"]] = ValueSortedDict(neg, doc["scores"])
-                await refresh_lobby_leaderboard_cache(self)
-                await refresh_lobby_tournament_winners_cache(self)
 
                 if "crosstable" not in db_collections:
                     await generate_crosstable(self)
+
+                recovered = await recover_pending_tournament_game_side_effects(
+                    self, users_only=False
+                )
+                if recovered:
+                    log.warning(
+                        "Completed result side effects for %s recovered tournament games",
+                        recovered,
+                    )
+
+                await refresh_lobby_leaderboard_cache(self)
+                await refresh_lobby_tournament_winners_cache(self)
 
             with startup.phase("bootstrap collections + indexes"):
                 if "dailypuzzle" not in db_collections:

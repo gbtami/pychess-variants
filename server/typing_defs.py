@@ -42,6 +42,7 @@ class UserDocument(TypedDict, total=False):
     swissBanUntil: datetime
     swissBanHours: int
     swissBanGameId: str
+    tournamentGameEffectIds: list[str]
     perfs: PerfMap
     pperfs: PerfMap
     lang: str
@@ -133,6 +134,7 @@ class AnalysisStep(TypedDict, total=False):
 class GameRatingDoc(TypedDict):
     e: int | str
     d: NotRequired[int | str]
+    n: NotRequired[PerfEntry]
 
 
 GameDocument = TypedDict(
@@ -182,6 +184,7 @@ GameDocument = TypedDict(
         "mct": NotRequired[list[tuple[int, int]]],
         "ws": NotRequired[bool],
         "bs": NotRequired[bool],
+        "fx": NotRequired[int],
     },
 )
 

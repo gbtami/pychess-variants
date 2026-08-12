@@ -252,6 +252,7 @@ class User:
         self.perfs = sparse_perf_map(RATED_VARIANTS, perfs)
         self.pperfs = sparse_perf_map(RATED_VARIANTS, pperfs)
         self.count = normalize_user_count(count)
+        self.tournament_game_effect_ids: set[str] = set()
 
         self.enabled: bool = enabled
         self.shadowban: bool = shadowban
@@ -496,6 +497,80 @@ class User:
             await self.app_state.db.user.find_one_and_update(
                 {"_id": self.username}, {"$set": {f"pperfs.{variant_key}": entry}}
             )
+
+    async def apply_tournament_game_effect_once(
+        self,
+        game_id: str,
+        result: int,
+        rated: bool,
+        *,
+        variant_key: str,
+        perf_entry: PerfEntry | None = None,
+    ) -> bool:
+        """Apply one tournament game's user side effects atomically and at most once.
+
+        The bounded game-id list is only an idempotency guard for the tiny window
+        between the authoritative finished-game write and ``fx=2`` on that game.
+        Startup repairs pending games before accepting traffic, so a short recent
+        history is sufficient and avoids unbounded user-document growth.
+        """
+        if self.anon:
+            return False
+
+        inc: dict[str, int] = {"count.game": 1}
+        if rated:
+            inc["count.rated"] = 1
+        if result > 0:
+            inc["count.win"] = 1
+        elif result < 0:
+            inc["count.loss"] = 1
+        else:
+            inc["count.draw"] = 1
+
+        if self.app_state.db is None:
+            return False
+
+        update: dict[str, Any] = {
+            "$inc": inc,
+            "$push": {
+                "tournamentGameEffectIds": {
+                    "$each": [game_id],
+                    "$slice": -32,
+                }
+            },
+        }
+        if perf_entry is not None:
+            update["$set"] = {f"perfs.{variant_key}": perf_entry}
+
+        result_doc = await self.app_state.db.user.update_one(
+            {
+                "_id": self.username,
+                "tournamentGameEffectIds": {"$ne": game_id},
+            },
+            update,
+        )
+        # Tournament auto-play tests use intentionally in-memory-only users.
+        # Preserve their normal rating/count behavior without weakening the
+        # production DB idempotency contract.
+        if result_doc.modified_count == 0 and (
+            not self.app_state.is_test_user(self.username)
+            or game_id in self.tournament_game_effect_ids
+        ):
+            return False
+
+        self.tournament_game_effect_ids.add(game_id)
+        self.count["game"] += 1
+        if rated:
+            self.count["rated"] += 1
+        if result > 0:
+            self.count["win"] += 1
+        elif result < 0:
+            self.count["loss"] += 1
+        else:
+            self.count["draw"] += 1
+        if perf_entry is not None:
+            self.perfs[variant_key] = perf_entry
+        return True
 
     async def increment_game_count(self, result: int, rated: bool) -> None:
         if self.anon:

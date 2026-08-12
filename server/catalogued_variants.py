@@ -1150,6 +1150,7 @@ class CataloguedVariantDocument(TypedDict):
     aiDisabledUntil: NotRequired[datetime]
     aiDisabledReason: NotRequired[str]
     gameCount: int
+    gameCountEffectIds: NotRequired[list[str]]
     createdAt: datetime
     updatedAt: datetime
 
@@ -3404,6 +3405,37 @@ async def increment_catalogued_variant_game_count(app_state: Any, name: str) -> 
         {"_id": name}, {"$inc": {"gameCount": 1}}
     )
     if not result.matched_count:
+        return
+
+    doc = getattr(app_state, "catalogued_variants", {}).get(name)
+    if doc is not None:
+        doc["gameCount"] = int(doc.get("gameCount") or 0) + 1
+
+
+async def increment_catalogued_variant_game_count_once(
+    app_state: Any, name: str, game_id: str
+) -> None:
+    """Count a tournament game exactly once across restart recovery."""
+
+    if app_state.db is None or not _is_valid_variant_name(name):
+        return
+
+    result = await app_state.db[CATALOGUED_VARIANT_COLLECTION].update_one(
+        {
+            "_id": name,
+            "gameCountEffectIds": {"$ne": game_id},
+        },
+        {
+            "$inc": {"gameCount": 1},
+            "$push": {
+                "gameCountEffectIds": {
+                    "$each": [game_id],
+                    "$slice": -64,
+                }
+            },
+        },
+    )
+    if not result.modified_count:
         return
 
     doc = getattr(app_state, "catalogued_variants", {}).get(name)

@@ -8,7 +8,11 @@ from const import BYEGAME, FLAG, RATED, SHIELD, T_FINISHED, T_STARTED, TEST_PREF
 from fairy.cwda import CWDA_START_FENS
 from glicko2.glicko2 import new_default_perf_map
 from newid import id8
-from pychess_global_app_state import LOCALHOST_CACHE_KEEP_TIME, TOURNAMENT_KEEP_TIME
+from pychess_global_app_state import (
+    LOCALHOST_CACHE_KEEP_TIME,
+    TOURNAMENT_KEEP_TIME,
+    recover_pending_tournament_game_side_effects,
+)
 from pychess_global_app_state_utils import get_app_state
 from rated_start import CHESS_NO_CASTLE_FEN
 from settings import LOCALHOST, URI
@@ -1166,6 +1170,122 @@ class TournamentPersistenceTestCase(TournamentTestCase):
                 await reloaded_tournament.clock_task
             except asyncio.CancelledError:
                 pass
+
+    async def test_finished_tournament_game_side_effects_recover_exactly_once(self):
+        app_state = get_app_state(self.app)
+        tid = id8()
+        self.tournament = ArenaTestTournament(
+            app_state, tid, variant="chess", before_start=0, minutes=10, with_clock=False
+        )
+        app_state.tournaments[tid] = self.tournament
+        app_state.tourneysockets[tid] = {}
+        await upsert_tournament_to_db(self.tournament, app_state)
+
+        for username in ("restart_effect_white", "restart_effect_black"):
+            perfs = make_test_perfs()
+            player = User(app_state, username=username, perfs=perfs)
+            app_state.users[username] = player
+            await app_state.db.user.insert_one(
+                {
+                    "_id": username,
+                    "title": "",
+                    "perfs": perfs,
+                    "count": dict(player.count),
+                }
+            )
+            player.tournament_sockets[tid] = {None}
+            await self.tournament.join(player)
+
+        await self.tournament.start(datetime.now(UTC))
+        waiting_players = list(self.tournament.waiting_players())
+        _, games = await self.tournament.create_new_pairings(waiting_players)
+        game = games[0]
+        game.result = "1-0"
+        game.status = FLAG
+        game.board.ply = 20
+
+        async def crash_before_black_effect(*_args, **_kwargs):
+            raise RuntimeError("simulated crash between player side effects")
+
+        with (
+            patch.object(
+                game.bplayer,
+                "apply_tournament_game_effect_once",
+                side_effect=crash_before_black_effect,
+            ),
+            self.assertRaisesRegex(RuntimeError, "simulated crash"),
+        ):
+            await game.save_game()
+
+        game_doc = await app_state.db.game.find_one({"_id": game.id})
+        self.assertIsNotNone(game_doc)
+        assert game_doc is not None
+        self.assertEqual(game_doc.get("fx"), 1)
+        self.assertIn("n", game_doc["p0"])
+        self.assertIn("n", game_doc["p1"])
+
+        white_doc = await app_state.db.user.find_one({"_id": game.wplayer.username})
+        black_doc = await app_state.db.user.find_one({"_id": game.bplayer.username})
+        self.assertIsNotNone(white_doc)
+        self.assertIsNotNone(black_doc)
+        assert white_doc is not None
+        assert black_doc is not None
+        self.assertEqual(white_doc["count"]["game"], 1)
+        self.assertEqual(black_doc["count"]["game"], 0)
+        self.assertIn(game.id, white_doc.get("tournamentGameEffectIds", []))
+        self.assertNotIn(game.id, black_doc.get("tournamentGameEffectIds", []))
+
+        # Drop the in-memory game/users to reproduce the startup path loading
+        # authoritative state back from MongoDB before tournaments can resume.
+        app_state.games.pop(game.id, None)
+        for player in (game.wplayer, game.bplayer):
+            if player.username in app_state.users:
+                del app_state.users[player.username]
+
+        await recover_pending_tournament_game_side_effects(app_state, users_only=True)
+
+        white_doc = await app_state.db.user.find_one({"_id": game.wplayer.username})
+        black_doc = await app_state.db.user.find_one({"_id": game.bplayer.username})
+        assert white_doc is not None
+        assert black_doc is not None
+        self.assertEqual(white_doc["count"]["game"], 1)
+        self.assertEqual(black_doc["count"]["game"], 1)
+        self.assertEqual(white_doc["count"]["rated"], 1)
+        self.assertEqual(black_doc["count"]["rated"], 1)
+        self.assertEqual(
+            white_doc["perfs"]["chess"],
+            game_doc["p0"]["n"],
+        )
+        self.assertEqual(
+            black_doc["perfs"]["chess"],
+            game_doc["p1"]["n"],
+        )
+
+        # Re-running the user-only startup pass is harmless.
+        await recover_pending_tournament_game_side_effects(app_state, users_only=True)
+        white_doc_again = await app_state.db.user.find_one({"_id": game.wplayer.username})
+        black_doc_again = await app_state.db.user.find_one({"_id": game.bplayer.username})
+        assert white_doc_again is not None
+        assert black_doc_again is not None
+        self.assertEqual(white_doc_again["count"]["game"], 1)
+        self.assertEqual(black_doc_again["count"]["game"], 1)
+
+        await recover_pending_tournament_game_side_effects(app_state, users_only=False)
+        completed_doc = await app_state.db.game.find_one({"_id": game.id})
+        self.assertIsNotNone(completed_doc)
+        assert completed_doc is not None
+        self.assertEqual(completed_doc.get("fx"), 2)
+
+        crosstable = await app_state.db.crosstable.find_one({"_id": game.ct_id})
+        self.assertIsNotNone(crosstable)
+        assert crosstable is not None
+        self.assertEqual(sum(entry.startswith(game.id) for entry in crosstable["r"]), 1)
+
+        # Once fx=2 the startup scan no longer sees the game.
+        self.assertEqual(
+            await recover_pending_tournament_game_side_effects(app_state, users_only=False),
+            0,
+        )
 
     async def test_swiss_no_show_ban_recovery_is_idempotent(self):
         app_state = get_app_state(self.app)
