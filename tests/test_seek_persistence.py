@@ -1,6 +1,7 @@
 import unittest
 from types import SimpleNamespace
 from typing import cast
+from unittest.mock import patch
 
 import test_logger
 from glicko2.glicko2 import new_default_perf_map
@@ -11,6 +12,7 @@ from pymongo.asynchronous.mongo_client import AsyncMongoClient
 from seek import DIRECT_CHALLENGE_ACCEPTED, DIRECT_CHALLENGE_CREATED, Seek
 from settings import MONGO_DB_NAME
 from user import User
+from utils import join_seek
 from variants import VARIANTS
 
 from server import init_state, make_app
@@ -82,6 +84,63 @@ class SeekPersistenceTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual("Invite-friend", reloaded_seek.target)
         self.assertEqual("AbCd1234", reloaded_seek.game_id)
         self.assertIs(app_state.invites["AbCd1234"], reloaded_seek)
+
+    async def test_rr_challenge_restores_tournament_linkage_after_restart(self):
+        await self.db.user.insert_many([{"_id": "alice"}, {"_id": "bob"}])
+
+        challenger = self.make_user("alice")
+        tournament_id = "Tour1234"
+        arrangement_id = "rr-arrangement-1"
+        game_id = "AbCd1234"
+        seek = Seek(
+            "seek-rr-challenge",
+            challenger,
+            "chess",
+            target="bob",
+            game_id=game_id,
+            player1=challenger,
+            tournament_id=tournament_id,
+            rr_arrangement_id=arrangement_id,
+        )
+        await self.db.seek.insert_one(seek.seek_db_json)
+
+        await init_state(self.app)
+        app_state = get_app_state(self.app)
+        reloaded_seek = app_state.seeks[seek.id]
+
+        self.assertEqual(tournament_id, reloaded_seek.tournament_id)
+        self.assertEqual(arrangement_id, reloaded_seek.rr_arrangement_id)
+        self.assertIs(app_state.invites[game_id], reloaded_seek)
+
+        result = await join_seek(app_state, app_state.users["bob"], reloaded_seek, game_id)
+        self.assertEqual("new_game", result["type"])
+        game = app_state.games[game_id]
+        self.assertEqual(tournament_id, game.tournamentId)
+        self.assertEqual(arrangement_id, game.tournamentArrangementId)
+
+        game_doc = await self.db.game.find_one({"_id": game_id})
+        self.assertIsNotNone(game_doc)
+        self.assertEqual(tournament_id, game_doc["tid"])
+        self.assertEqual(arrangement_id, game_doc["aid"])
+
+    def test_catalogued_rr_seek_preserves_tournament_linkage(self):
+        challenger = self.make_user("alice")
+        with patch("seek.is_catalogued_variant", return_value=True):
+            rr_seek = Seek(
+                "seek-catalogued-rr",
+                challenger,
+                "chess",
+                target="bob",
+                tournament_id="Tour1234",
+                rr_arrangement_id="rr-arrangement-1",
+                rated=True,
+                chess960=True,
+            )
+
+        self.assertFalse(rr_seek.rated)
+        self.assertFalse(rr_seek.chess960)
+        self.assertEqual("Tour1234", rr_seek.tournament_id)
+        self.assertEqual("rr-arrangement-1", rr_seek.rr_arrangement_id)
 
     async def test_terminal_corr_direct_challenge_is_not_restored_after_restart(self):
         await self.db.user.insert_many([{"_id": "alice"}, {"_id": "bob"}])

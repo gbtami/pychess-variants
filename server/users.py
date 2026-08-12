@@ -125,6 +125,7 @@ class Users(UserDict[str, User]):
                 created_at=doc.get("createdAt"),
                 swiss_ban_until=doc.get("swissBanUntil"),
                 swiss_ban_hours=doc.get("swissBanHours", 0),
+                swiss_ban_game_id=doc.get("swissBanGameId"),
             )
             user.game_category_set = "ct" in doc
             self[username] = user

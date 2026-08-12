@@ -494,6 +494,8 @@ class PychessGlobalAppState:
                             game_id=game_id,
                             player1=user,
                             player2=player2,
+                            tournament_id=doc.get("tournamentId"),
+                            rr_arrangement_id=doc.get("rrArrangementId"),
                             expire_at=doc.get("expireAt"),
                             challenge_status=doc.get("challengeStatus"),
                             challenge_decline_reason=doc.get("challengeDeclineReason"),

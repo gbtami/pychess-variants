@@ -461,6 +461,71 @@ class RRTournament(Tournament):
             (arrangement.round_no for arrangement in self.arrangements.values()),
             default=self.rounds,
         )
+        await self._reconcile_arrangements_from_games()
+
+    async def _reconcile_arrangements_from_games(self) -> None:
+        if self.app_state.db is None or not self.arrangements:
+            return
+
+        arrangement_ids = list(self.arrangements)
+        game_docs = await self.app_state.db.game.find(
+            {"aid": {"$in": arrangement_ids}},
+            projection={"_id": 1, "aid": 1, "s": 1, "d": 1},
+        ).to_list(length=None)
+
+        games_by_arrangement: dict[str, list[dict[str, Any]]] = {}
+        for game_doc in game_docs:
+            arrangement_id = game_doc.get("aid")
+            if arrangement_id in self.arrangements:
+                games_by_arrangement.setdefault(arrangement_id, []).append(game_doc)
+
+        for arrangement_id, arrangement_games in games_by_arrangement.items():
+            arrangement = self.arrangements[arrangement_id]
+            if arrangement.status == ARR_STATUS_FINISHED:
+                continue
+
+            finished_games = [
+                game_doc for game_doc in arrangement_games if game_doc.get("s", ABORTED) > ABORTED
+            ]
+            started_games = [
+                game_doc for game_doc in arrangement_games if game_doc.get("s", ABORTED) < ABORTED
+            ]
+
+            desired_status: str | None = None
+            desired_game_id: str | None = None
+            if finished_games:
+                authoritative_game = max(finished_games, key=lambda game_doc: game_doc["d"])
+                desired_status = ARR_STATUS_FINISHED
+                desired_game_id = authoritative_game["_id"]
+            elif started_games:
+                authoritative_game = max(started_games, key=lambda game_doc: game_doc["d"])
+                desired_status = ARR_STATUS_STARTED
+                desired_game_id = authoritative_game["_id"]
+            elif arrangement.status == ARR_STATUS_STARTED and arrangement.game_id is not None:
+                aborted_game_ids = {
+                    game_doc["_id"]
+                    for game_doc in arrangement_games
+                    if game_doc.get("s") == ABORTED
+                }
+                if arrangement.game_id in aborted_game_ids:
+                    desired_status = ARR_STATUS_PENDING
+
+            if desired_status is None:
+                continue
+            if arrangement.status == desired_status and arrangement.game_id == desired_game_id:
+                continue
+
+            if arrangement.invite_id is not None:
+                self.app_state.invites.pop(arrangement.invite_id, None)
+            arrangement.status = desired_status
+            arrangement.game_id = desired_game_id
+            arrangement.invite_id = None
+            arrangement.challenger = None
+            arrangement.white_date = None
+            arrangement.black_date = None
+            arrangement.scheduled_at = None
+            arrangement.last_reminded_at = None
+            await self.db_update_arrangement(arrangement)
 
     async def db_update_arrangement(self, arrangement: RRArrangement) -> None:
         if self.app_state.db is None:

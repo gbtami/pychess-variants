@@ -253,6 +253,7 @@ class GameData:
         "bberserk",
         "bname",
         "brating",
+        "brdiff",
         "date",
         "id",
         "ply",
@@ -262,6 +263,7 @@ class GameData:
         "wberserk",
         "wname",
         "wrating",
+        "wrdiff",
     )
 
     def __init__(
@@ -280,6 +282,8 @@ class GameData:
         status: int | None = None,
         ply: int | None = None,
         round_no: int | None = None,
+        wrdiff: int | str = 0,
+        brdiff: int | str = 0,
     ) -> None:
         self.id: str = _id
         self.wname = wplayer
@@ -290,6 +294,8 @@ class GameData:
         self.date: datetime = date
         self.wrating: str = wrating
         self.brating: str = brating
+        self.wrdiff: int | str = wrdiff
+        self.brdiff: int | str = brdiff
         self.wberserk: bool = wberserk
         self.bberserk: bool = bberserk
         self.status: int = FLAG if status is None else status
@@ -437,6 +443,7 @@ class Tournament(ABC):
         self.wave_delta = timedelta(seconds=1)
         self.current_round = 0
         self.pairing_in_progress_round: int | None = None
+        self.manual_pairings_in_progress: str | None = None
         self.next_round_starts_at: datetime | None = None
         self.manual_next_round_pending = False
         self.prev_pairing: datetime | None = None
@@ -1253,7 +1260,7 @@ class Tournament(ABC):
             if interval_seconds <= 0:
                 self.next_round_starts_at = now
             elif self.next_round_starts_at is None:
-                self.next_round_starts_at = now + timedelta(seconds=interval_seconds)
+                await self.set_next_round_starts_at(now + timedelta(seconds=interval_seconds))
                 log.debug(
                     "%s round %s complete; waiting %ss before next round",
                     "RR" if self.system == RR else "Swiss",
@@ -1423,11 +1430,22 @@ class Tournament(ABC):
         await self._join_approved_user(user, player_data=player_data)
         return None
 
+    async def _prepare_player_join(
+        self, player: User, player_data: PlayerData, *, is_new_player: bool
+    ) -> None:
+        """Prepare durable player state before the join document is written."""
+
+    async def _persist_player_join_side_data(
+        self, player: User, player_data: PlayerData, *, is_new_player: bool
+    ) -> None:
+        """Persist join-related records that can be reconstructed from player state."""
+
     async def _join_approved_user(
         self, user: User, *, player_data: PlayerData | None = None
     ) -> None:
 
         rating, provisional = user.get_rating(self.variant, self.chess960).rating_prov
+        is_new_player = player_data is None
 
         player = self.get_player_by_name(user.username) or user
         if player is not user and self.id in user.tournament_sockets:
@@ -1458,9 +1476,12 @@ class Tournament(ABC):
         player_data.paused = False
         player_data.withdrawn = False
 
+        await self._prepare_player_join(player, player_data, is_new_player=is_new_player)
+
         # Persist first so a successfully acknowledged join cannot disappear
         # if the process dies during the following websocket broadcasts.
         await self.db_update_player(player, "JOIN")
+        await self._persist_player_join_side_data(player, player_data, is_new_player=is_new_player)
 
         response = self.players_json(user=player)
         await self.broadcast(response)
@@ -2015,9 +2036,11 @@ class Tournament(ABC):
             and 0 < self.current_round < self.rounds
             and self.next_round_starts_at is None
         ):
-            self.next_round_starts_at = now + timedelta(
-                seconds=self.effective_round_interval_seconds()
-            )
+            interval_seconds = self.effective_round_interval_seconds()
+            if interval_seconds <= 0:
+                self.next_round_starts_at = now
+            else:
+                await self.set_next_round_starts_at(now + timedelta(seconds=interval_seconds))
 
         await self.broadcast(self.duels_json)
 
@@ -2215,6 +2238,8 @@ class Tournament(ABC):
                 "d": game.date,
                 "wr": game.wrating,
                 "br": game.brating,
+                "wrd": getattr(game, "wrdiff", 0),
+                "brd": getattr(game, "brdiff", 0),
                 "wb": game.wberserk,
                 "bb": game.bberserk,
                 "s": game.status,
@@ -2231,6 +2256,7 @@ class Tournament(ABC):
         *,
         round_no: int | None = None,
         bye_token: str = "U",
+        date: datetime | None = None,
     ) -> None:
         if self.app_state.db is None:
             return
@@ -2247,7 +2273,7 @@ class Tournament(ABC):
             "tid": self.id,
             "u": (player.username, player.username),
             "r": R2C["*"],
-            "d": datetime.now(UTC),
+            "d": date or datetime.now(UTC),
             "wr": rating,
             "br": rating,
             "wb": False,
@@ -2276,6 +2302,8 @@ class Tournament(ABC):
                 "d": game.date,
                 "wr": game.wrating,
                 "br": game.brating,
+                "wrd": getattr(game, "wrdiff", 0),
+                "brd": getattr(game, "brdiff", 0),
                 "wb": game.wberserk,
                 "bb": game.bberserk,
                 "s": game.status,
@@ -2296,25 +2324,79 @@ class Tournament(ABC):
             )
 
     async def save_current_round(self) -> None:
+        manual_pairings_consumed = (
+            self.pairing_in_progress_round == self.current_round
+            and self.manual_pairings_in_progress is not None
+        )
+        clear_consumed_manual_pairings = (
+            manual_pairings_consumed and self.manual_pairings == self.manual_pairings_in_progress
+        )
+
         if self.app_state.db is None:
+            self.next_round_starts_at = None
+            if clear_consumed_manual_pairings:
+                self.manual_pairings = ""
+            if manual_pairings_consumed:
+                self.manual_pairings_in_progress = None
+            if self.pairing_in_progress_round == self.current_round:
+                self.pairing_in_progress_round = None
             return
 
         try:
-            update_doc: dict[str, object] = {"$set": {"cr": self.current_round}}
+            set_fields: dict[str, object] = {"cr": self.current_round}
+            unset_fields: dict[str, str] = {"nextRoundStartsAt": ""}
+            if clear_consumed_manual_pairings:
+                set_fields["manualPairings"] = ""
+            if manual_pairings_consumed:
+                unset_fields["manualPairingsInProgress"] = ""
             if self.pairing_in_progress_round == self.current_round:
-                update_doc["$unset"] = {"pairingInProgressRound": ""}
+                unset_fields["pairingInProgressRound"] = ""
 
             await self.app_state.db.tournament.update_one(
                 {"_id": self.id},
-                update_doc,
+                {
+                    "$set": set_fields,
+                    "$unset": unset_fields,
+                },
             )
+            self.next_round_starts_at = None
+            if clear_consumed_manual_pairings:
+                self.manual_pairings = ""
+            if manual_pairings_consumed:
+                self.manual_pairings_in_progress = None
             if self.pairing_in_progress_round == self.current_round:
                 self.pairing_in_progress_round = None
         except Exception:
             log.exception("Failed to save current round for %s", self.id)
 
-    async def set_pairing_in_progress_round(self, round_no: int | None) -> None:
+    async def set_next_round_starts_at(self, starts_at: datetime | None) -> None:
+        self.next_round_starts_at = starts_at
+        if self.app_state.db is None:
+            return
+
+        try:
+            if starts_at is None:
+                await self.app_state.db.tournament.update_one(
+                    {"_id": self.id},
+                    {"$unset": {"nextRoundStartsAt": ""}},
+                )
+            else:
+                await self.app_state.db.tournament.update_one(
+                    {"_id": self.id},
+                    {"$set": {"nextRoundStartsAt": starts_at}},
+                )
+        except Exception:
+            log.exception(
+                "Failed to update next round start time %s for %s",
+                starts_at,
+                self.id,
+            )
+
+    async def set_pairing_in_progress_round(
+        self, round_no: int | None, *, manual_pairings: str | None = None
+    ) -> None:
         self.pairing_in_progress_round = round_no
+        self.manual_pairings_in_progress = manual_pairings
         if self.app_state.db is None:
             return
 
@@ -2322,12 +2404,24 @@ class Tournament(ABC):
             if round_no is None:
                 await self.app_state.db.tournament.update_one(
                     {"_id": self.id},
-                    {"$unset": {"pairingInProgressRound": ""}},
+                    {
+                        "$unset": {
+                            "pairingInProgressRound": "",
+                            "manualPairingsInProgress": "",
+                        }
+                    },
                 )
             else:
+                update: dict[str, dict[str, object]] = {
+                    "$set": {"pairingInProgressRound": round_no}
+                }
+                if manual_pairings is not None:
+                    update["$set"]["manualPairingsInProgress"] = manual_pairings
+                else:
+                    update["$unset"] = {"manualPairingsInProgress": ""}
                 await self.app_state.db.tournament.update_one(
                     {"_id": self.id},
-                    {"$set": {"pairingInProgressRound": round_no}},
+                    update,
                 )
         except Exception:
             log.exception(
@@ -2361,22 +2455,23 @@ class Tournament(ABC):
             if player_data.id is None:  # new player JOIN
                 player_id = await new_id(player_table)
                 player_data.id = player_id
+                full_score = self.leaderboard_score_by_username(player_data.username)
                 player_update = {
                     "_id": player_id,
                     "tid": self.id,
                     "uid": player_data.username,
                     "r": player_data.rating,
                     "pr": player_data.provisional,
-                    "a": False,
-                    "f": 0,
-                    "s": 0,
-                    "w": 0,
-                    "b": 0,
-                    "e": 0,
-                    "g": 0,
-                    "p": [],
+                    "a": player_data.paused,
+                    "f": player_data.win_streak,
+                    "s": int(full_score / SCORE_SHIFT),
+                    "w": player_data.nb_win,
+                    "b": player_data.nb_berserk,
+                    "e": player_data.performance,
+                    "g": player_data.berger,
+                    "p": player_data.points,
                     "jr": player_data.joined_round,
-                    "wd": False,
+                    "wd": player_data.withdrawn,
                 }
             else:
                 player_update = {
@@ -2455,13 +2550,17 @@ class Tournament(ABC):
         if self.app_state.db is None:
             return
 
-        if self.nb_games_finished == 0 and self.nb_players == 0:
+        if (
+            self.nb_games_finished == 0
+            and self.nb_players == 0
+            and not (self.system == RR and self.status == T_CREATED)
+        ):
             d = await self.app_state.db.tournament.delete_many({"_id": self.id})
             log.info("Deleted %r", d)
             log.info("Deleted empty tournament %s" % self.id)
             return
 
-        winner = self.leaderboard.peekitem(0)[0].username
+        winner = "" if len(self.leaderboard) == 0 else self.leaderboard.peekitem(0)[0].username
         new_data: TournamentUpdateData = {
             "status": self.status,
             "nbPlayers": self.nb_players,
@@ -2470,6 +2569,11 @@ class Tournament(ABC):
             "rounds": self.rounds,
             "cr": self.current_round,
         }
+        if self.system == RR:
+            new_data["rrJoiningClosed"] = self.rr_joining_closed
+            new_data["rrPendingPlayers"] = sorted(self.rr_pending_players)
+            new_data["rrDeniedPlayers"] = sorted(self.rr_denied_players)
+
         if self.finish_reason is not None:
             new_data["finishReason"] = self.finish_reason
 
@@ -2660,6 +2764,8 @@ async def upsert_tournament_to_db(tournament: Tournament, app_state: PychessGlob
         new_data["finishReason"] = tournament.finish_reason
     if tournament.pairing_in_progress_round is not None:
         new_data["pairingInProgressRound"] = tournament.pairing_in_progress_round
+    if tournament.manual_pairings_in_progress is not None:
+        new_data["manualPairingsInProgress"] = tournament.manual_pairings_in_progress
 
     try:
         await app_state.db.tournament.find_one_and_update(

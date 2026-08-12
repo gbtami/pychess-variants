@@ -4,8 +4,9 @@ import logging
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
-from const import ABORTED
+from const import ABORTED, BYEGAME
 from fairy import BLACK, WHITE
+from game import Game
 
 from tournament.tournament import (
     SCORE_SHIFT,
@@ -23,8 +24,9 @@ from .history import (
 )
 
 if TYPE_CHECKING:
-    from game import Game
     from user import User
+
+    from tournament.tournament import GameData
 
 
 log = logging.getLogger(__name__)
@@ -115,25 +117,30 @@ def _active_swiss_ban_until(tournament, user: User, now: datetime | None = None)
     return banned_until
 
 
-async def _clear_swiss_ban(tournament, user: User) -> None:
-    """Remove an existing Swiss no-show ban from a player and the database."""
+async def _clear_swiss_ban(tournament, user: User, game_id: str) -> None:
+    """Remove a Swiss no-show ban exactly once for a finished game."""
 
-    if user.anon or user.bot:
+    if user.anon or user.bot or user.swiss_ban_game_id == game_id:
         return
 
-    user.swiss_ban_until = None
-    user.swiss_ban_hours = 0
     if tournament.app_state.db is not None:
         await tournament.app_state.db.user.update_one(
             {"_id": user.username},
-            {"$unset": {"swissBanUntil": "", "swissBanHours": ""}},
+            {
+                "$unset": {"swissBanUntil": "", "swissBanHours": ""},
+                "$set": {"swissBanGameId": game_id},
+            },
         )
 
+    user.swiss_ban_until = None
+    user.swiss_ban_hours = 0
+    user.swiss_ban_game_id = game_id
 
-async def _ban_swiss_no_show(tournament, user: User, now: datetime) -> None:
-    """Apply the escalating Swiss no-show ban policy to a player."""
 
-    if user.anon or user.bot:
+async def _ban_swiss_no_show(tournament, user: User, now: datetime, game_id: str) -> None:
+    """Apply the escalating Swiss no-show ban policy exactly once per game."""
+
+    if user.anon or user.bot or user.swiss_ban_game_id == game_id:
         return
 
     previous_until = user.swiss_ban_until
@@ -147,14 +154,21 @@ async def _ban_swiss_no_show(tournament, user: User, now: datetime) -> None:
 
     hours = min(hours, 30 * 24)
     banned_until = now + timedelta(hours=hours)
-    user.swiss_ban_until = banned_until
-    user.swiss_ban_hours = hours
-
     if tournament.app_state.db is not None:
         await tournament.app_state.db.user.update_one(
             {"_id": user.username},
-            {"$set": {"swissBanUntil": banned_until, "swissBanHours": hours}},
+            {
+                "$set": {
+                    "swissBanUntil": banned_until,
+                    "swissBanHours": hours,
+                    "swissBanGameId": game_id,
+                }
+            },
         )
+
+    user.swiss_ban_until = banned_until
+    user.swiss_ban_hours = hours
+    user.swiss_ban_game_id = game_id
 
 
 def _player_who_did_not_move(_tournament, game: Game) -> User | None:
@@ -194,19 +208,37 @@ def _player_who_did_not_move(_tournament, game: Game) -> User | None:
     return culprit
 
 
-async def _update_swiss_no_show_bans(tournament, game: Game) -> None:
-    """Update both players' Swiss ban state after a finished Swiss game."""
+async def _update_swiss_no_show_bans(tournament, game: Game | GameData) -> None:
+    """Update Swiss ban state durably and idempotently for a finished game."""
 
     if game.status == ABORTED:
         return
 
-    culprit = tournament._player_who_did_not_move(game)
+    source_game = game
+    if not isinstance(source_game, Game):
+        # Restart recovery usually works from compact tournament-pairing data.
+        # Load the authoritative game only for this rare recovery path so the
+        # initial side-to-move (including custom starts) is available when
+        # deciding which player failed to make a move.
+        from utils import load_game
+
+        loaded_game = await load_game(tournament.app_state, game.id, cache_finished=False)
+        if not isinstance(loaded_game, Game):
+            log.warning(
+                "Could not reload Swiss game %s in %s while recovering no-show ban state",
+                game.id,
+                tournament.id,
+            )
+            return
+        source_game = loaded_game
+
+    culprit = tournament._player_who_did_not_move(source_game)
     now = datetime.now(UTC)
-    for player in (game.wplayer, game.bplayer):
+    for player in (source_game.wplayer, source_game.bplayer):
         if player == culprit:
-            await tournament._ban_swiss_no_show(player, now)
+            await tournament._ban_swiss_no_show(player, now, game.id)
         else:
-            await tournament._clear_swiss_ban(player)
+            await tournament._clear_swiss_ban(player, game.id)
 
 
 def recalculate_berger_tiebreak(tournament) -> None:
@@ -270,6 +302,10 @@ async def _initialize_late_entry_round_history(tournament, player: User) -> None
         player_data.joined_round = 1
         return
 
+    # The tournament_player document is the durable source of truth for a late
+    # join.  Build the complete synthetic history in memory before JOIN is
+    # persisted; the corresponding pairing rows are written afterwards and
+    # can be reconstructed from this player state after a crash.
     player_data.joined_round = missed_rounds + 1
     half_point = tournament._late_join_half_point()
     bonus_awarded = False
@@ -285,7 +321,6 @@ async def _initialize_late_entry_round_history(tournament, player: User) -> None
 
         player_data.games.append(ByeGame(token=token, round_no=round_no))
         player_data.points.append(point)
-        await tournament.db_insert_bye_pairing(player, round_no=round_no, bye_token=token)
 
     if bonus_awarded:
         current_points = tournament.leaderboard_score_by_username(player.username) // SCORE_SHIFT
@@ -293,6 +328,51 @@ async def _initialize_late_entry_round_history(tournament, player: User) -> None
             player.username,
             tournament.compose_leaderboard_score(current_points + half_point, player_data),
             player=player,
+        )
+
+
+async def _persist_late_entry_round_history(tournament, player: User) -> None:
+    """Idempotently persist synthetic H/Z pairings from durable player state."""
+
+    player_data = tournament.player_data_by_name(player.username)
+    if player_data is None or player_data.joined_round <= 1 or tournament.app_state.db is None:
+        return
+
+    player_doc = await tournament.app_state.db.tournament_player.find_one(
+        {"tid": tournament.id, "uid": player.username}
+    )
+    if player_doc is None or player_doc.get("jr") != player_data.joined_round:
+        return
+
+    existing_rounds: set[int] = set()
+    cursor = tournament.app_state.db.tournament_pairing.find({"tid": tournament.id, "s": BYEGAME})
+    async for doc in cursor:
+        usernames = doc.get("u", ())
+        if not usernames or usernames[0] != player.username:
+            continue
+        round_no = doc.get("rn")
+        if isinstance(round_no, int):
+            existing_rounds.add(round_no)
+
+    missed_rounds = player_data.joined_round - 1
+    for round_no in range(1, missed_rounds + 1):
+        if round_no in existing_rounds:
+            continue
+
+        point = player_data.points[round_no - 1] if round_no <= len(player_data.points) else None
+        token = (
+            "H"
+            if isinstance(point, tuple)
+            and len(point) == 2
+            and isinstance(point[0], int)
+            and point[0] > 0
+            else "Z"
+        )
+        await tournament.db_insert_bye_pairing(
+            player,
+            round_no=round_no,
+            bye_token=token,
+            date=tournament.starts_at or tournament.created_at,
         )
 
 
@@ -310,7 +390,10 @@ async def pair_fixed_round(tournament, now: datetime) -> bool:
         )
         return False
 
-    await tournament.set_pairing_in_progress_round(tournament.current_round)
+    await tournament.set_pairing_in_progress_round(
+        tournament.current_round,
+        manual_pairings=tournament.manual_pairings if has_manual_pairings else None,
+    )
 
     try:
         pairing, games = await tournament.create_new_pairings(
@@ -341,7 +424,6 @@ async def pair_fixed_round(tournament, now: datetime) -> bool:
         return False
 
     await tournament.save_current_round()
-    await tournament._clear_consumed_manual_pairings()
     tournament.next_round_starts_at = None
     tournament.manual_next_round_pending = False
     await tournament.publish_pairings(games)
@@ -422,6 +504,7 @@ __all__ = [
     "_is_late_join_allowed",
     "_late_join_half_point",
     "_manual_pairing_entries",
+    "_persist_late_entry_round_history",
     "_player_who_did_not_move",
     "_record_bye",
     "_update_swiss_no_show_bans",

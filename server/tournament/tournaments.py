@@ -60,6 +60,7 @@ from tournament.auto_play_tournament import (
 )
 from tournament.rr import RRTournament
 from tournament.swiss import SwissTournament
+from tournament.swiss.tournament_ops import _persist_late_entry_round_history
 from tournament.tournament import (
     AUTO_ROUND_INTERVAL,
     MANUAL_ROUND_INTERVAL,
@@ -281,6 +282,8 @@ async def _repair_missing_pairing_docs_from_games(tournament: Tournament) -> Non
             status=game_doc["s"],
             ply=game_doc.get("p", len(game_doc.get("m", []))),
             round_no=_pairing_round_from_game_doc(tournament, game_doc),
+            wrdiff=white_rating_doc.get("d", 0),
+            brdiff=black_rating_doc.get("d", 0),
         )
         await tournament.db_update_pairing(pairing_game)
         repaired_ids.append(game_id)
@@ -459,11 +462,15 @@ async def _recover_incomplete_fixed_round_pairing_round(
         tournament.recalculate_berger_tiebreak()
     tournament.current_round = max(0, round_no - 1)
     tournament.pairing_in_progress_round = None
+    tournament.manual_pairings_in_progress = None
     await tournament.app_state.db.tournament.update_one(
         {"_id": tournament.id},
         {
             "$set": {"cr": tournament.current_round},
-            "$unset": {"pairingInProgressRound": ""},
+            "$unset": {
+                "pairingInProgressRound": "",
+                "manualPairingsInProgress": "",
+            },
         },
     )
     for username in rolled_back_users:
@@ -1083,6 +1090,7 @@ async def load_tournament(
     tournament_doc: TournamentDoc = doc
     stored_round = tournament_doc.get("cr")
     pairing_in_progress_round = tournament_doc.get("pairingInProgressRound")
+    manual_pairings_in_progress = tournament_doc.get("manualPairingsInProgress")
 
     auto_play = tournament_id == AUTO_PLAY_TOURNAMENT_ID
     tournament_class: type[Tournament]
@@ -1143,6 +1151,8 @@ async def load_tournament(
     if stored_round is not None:
         tournament.current_round = stored_round
     tournament.pairing_in_progress_round = pairing_in_progress_round
+    tournament.manual_pairings_in_progress = manual_pairings_in_progress
+    tournament.next_round_starts_at = tournament_doc.get("nextRoundStartsAt")
 
     app_state.tournaments[tournament_id] = tournament
     app_state.tourneysockets[tournament_id] = {}
@@ -1253,6 +1263,14 @@ async def load_tournament(
 
     tournament.nb_players = nb_players
 
+    # Late Swiss joins persist their complete synthetic H/Z history in the player
+    # document before the corresponding pairing rows.  Repair any rows lost to a
+    # restart before replaying pairing history below.
+    if tournament.system == SWISS:
+        for player, player_data in tournament.players.items():
+            if player_data.joined_round > 1:
+                await _persist_late_entry_round_history(tournament, player)
+
     # tournament.print_leaderboard()
 
     if tournament.status != T_CREATED:
@@ -1355,6 +1373,8 @@ async def load_tournament(
                     status=game.status,
                     ply=game.board.ply,
                     round_no=pair_round,
+                    wrdiff=game.wrdiff,
+                    brdiff=game.brdiff,
                 )
                 tournament.nb_games_finished += 1
                 await tournament.db_update_pairing(game)
@@ -1380,6 +1400,8 @@ async def load_tournament(
                 status=pair_status,
                 ply=pair_ply,
                 round_no=pair_round,
+                wrdiff=pairing_doc.get("wrd", 0),
+                brdiff=pairing_doc.get("brd", 0),
             )
             tournament.nb_games_finished += 1
             finished_pairings.append(game)

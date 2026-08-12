@@ -41,6 +41,7 @@ class UserDocument(TypedDict, total=False):
     count: UserCount
     swissBanUntil: datetime
     swissBanHours: int
+    swissBanGameId: str
     perfs: PerfMap
     pperfs: PerfMap
     lang: str
@@ -699,6 +700,8 @@ class TournamentDoc(TypedDict):
     nbPlayers: int
     cr: NotRequired[int]
     pairingInProgressRound: NotRequired[int]
+    manualPairingsInProgress: NotRequired[str]
+    nextRoundStartsAt: NotRequired[datetime]
     createdBy: str
     createdAt: datetime
     beforeStart: int
@@ -741,6 +744,8 @@ class TournamentUpdateData(TypedDict, total=False):
     nbPlayers: int
     cr: int
     pairingInProgressRound: int | None
+    manualPairingsInProgress: str | None
+    nextRoundStartsAt: datetime
     createdBy: str
     createdAt: datetime
     beforeStart: int
@@ -796,6 +801,8 @@ class TournamentPairingDoc(TypedDict):
     d: datetime
     wr: str
     br: str
+    wrd: NotRequired[int | str]
+    brd: NotRequired[int | str]
     wb: bool
     bb: bool
     s: NotRequired[int]
@@ -811,6 +818,8 @@ class TournamentPairingUpdate(TypedDict, total=False):
     d: datetime
     wr: str
     br: str
+    wrd: int | str
+    brd: int | str
     wb: bool
     bb: bool
     s: int

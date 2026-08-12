@@ -41,7 +41,7 @@ from const import (
 from convert import grand2zero, mirror5, mirror9, uci2usi
 from draw import reject_draw
 from fairy import BLACK, NOTATION_SAN, WHITE, FairyBoard, get_fog_fen, get_san_moves, modded_variant
-from glicko2.glicko2 import gl2
+from glicko2.glicko2 import Rating, gl2
 from lobby_panels_cache import refresh_lobby_leaderboard_cache
 from rated_start import can_rate_start, can_rate_variant
 from settings import URI
@@ -959,13 +959,12 @@ class Game:
                 result.deleted_count,
             )
         else:
-            if self.result != "*":
-                if self.rated == RATED:
-                    await self.update_ratings()
-                if self.persist_to_db:
-                    await self.update_players_game_counts()
-                    if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
-                        await self.save_crosstable()
+            rating_update: tuple[Rating, Rating] | None = None
+            if self.result != "*" and self.rated == RATED:
+                # Calculate rating deltas before the authoritative game write so
+                # p0/p1 are part of the durable finished-game record. Applying
+                # the user-rating side effects happens only after that write.
+                rating_update = self.prepare_rating_update()
 
             new_data = {
                 "f": self.board.fen,
@@ -984,7 +983,7 @@ class Game:
                 ],
             }
 
-            if self.rated == RATED and self.result != "*":
+            if rating_update is not None:
                 new_data["p0"] = self.p0
                 new_data["p1"] = self.p1
 
@@ -1010,8 +1009,20 @@ class Game:
                 new_data["mct"] = self.manual_count_toggled
 
             if self.persist_to_db and self.app_state.db is not None:
-                # update_one is sufficient — the returned document is never used.
+                # Persist the authoritative final game state before any external
+                # result side effects. If the process dies after this write,
+                # tournament startup recovery can still reconstruct the result.
                 await self.app_state.db.game.update_one({"_id": self.id}, {"$set": new_data})
+
+            if self.result != "*":
+                if rating_update is not None:
+                    await self.apply_rating_update(*rating_update)
+                if self.persist_to_db:
+                    await self.update_players_game_counts()
+                    if (not self.bot_game) and (not self.wplayer.anon) and (not self.bplayer.anon):
+                        await self.save_crosstable()
+
+            if self.persist_to_db and self.app_state.db is not None:
                 if is_catalogued_variant(self.variant) and self.result in (
                     "1-0",
                     "0-1",
@@ -1140,7 +1151,7 @@ class Game:
             log.error("Failed to save new %s highscore to mongodb!", variant)
         return prev_top != new_top
 
-    async def update_ratings(self) -> None:
+    def prepare_rating_update(self) -> tuple[Rating, Rating]:
         if self.result == "1-0":
             (white_score, black_score) = (1.0, 0.0)
         elif self.result == "1/2-1/2":
@@ -1170,9 +1181,12 @@ class Game:
         self.brdiff = int(round(brdiff, 0))
         self.p1 = {"e": self.brating, "d": self.brdiff}
 
-        new_white_rating = gl2.create_rating(wcurr.mu + wrdiff, wr.phi, wr.sigma, wr.ltime)
-        new_black_rating = gl2.create_rating(bcurr.mu + brdiff, br.phi, br.sigma, br.ltime)
+        return (
+            gl2.create_rating(wcurr.mu + wrdiff, wr.phi, wr.sigma, wr.ltime),
+            gl2.create_rating(bcurr.mu + brdiff, br.phi, br.sigma, br.ltime),
+        )
 
+    async def apply_rating_update(self, new_white_rating: Rating, new_black_rating: Rating) -> None:
         chess960 = self.chess960
         if TYPE_CHECKING:
             assert chess960 is not None
@@ -1188,7 +1202,7 @@ class Game:
                 or await self.set_highscore(
                     self.variant,
                     chess960,
-                    {_id: int(round(wcurr.mu + wrdiff, 0))},
+                    {_id: int(round(new_white_rating.mu, 0))},
                 )
             )
 
@@ -1200,12 +1214,15 @@ class Game:
                 or await self.set_highscore(
                     self.variant,
                     chess960,
-                    {_id: int(round(bcurr.mu + brdiff, 0))},
+                    {_id: int(round(new_black_rating.mu, 0))},
                 )
             )
 
         if should_rebuild_lobby_leaderboard:
             await refresh_lobby_leaderboard_cache(self.app_state)
+
+    async def update_ratings(self) -> None:
+        await self.apply_rating_update(*self.prepare_rating_update())
 
     def get_player_at(self, color: int, board: FairyBoard) -> User:
         return self.bplayer if color == BLACK else self.wplayer

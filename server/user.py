@@ -164,6 +164,7 @@ class User:
         created_at: datetime | None = None,
         swiss_ban_until: datetime | None = None,
         swiss_ban_hours: int = 0,
+        swiss_ban_game_id: str | None = None,
     ) -> None:
         self.app_state: PychessGlobalAppState = app_state
         self.bot: bool = bot
@@ -186,6 +187,7 @@ class User:
         )
         self.swiss_ban_until: datetime | None = _as_utc(swiss_ban_until)
         self.swiss_ban_hours: int = swiss_ban_hours
+        self.swiss_ban_game_id: str | None = swiss_ban_game_id
         self.notifications: list[NotificationDocument] | None = None
         self.update_game_category(game_category)
 

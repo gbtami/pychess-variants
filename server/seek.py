@@ -183,8 +183,6 @@ class Seek:
         if is_catalogued_variant(variant):
             rated = False
             chess960 = False
-            tournament_id = None
-            rr_arrangement_id = None
         elif rated and not can_rate_start(
             variant,
             self.fen,
